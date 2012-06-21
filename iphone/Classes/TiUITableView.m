@@ -81,6 +81,7 @@
 
 -(void)prepareForReuse
 {
+    [proxy fireEvent:@"reuse" withObject:[proxy createEventObject:nil] propagate:YES];
 	[self setProxy:nil];
 	[super prepareForReuse];
 	
@@ -1971,6 +1972,7 @@ return result;	\
 				RELEASE_TO_NIL(initialSelection);
 			}
 		}
+        [self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:NO name:@"rowappear"];
 	}
 }
 
