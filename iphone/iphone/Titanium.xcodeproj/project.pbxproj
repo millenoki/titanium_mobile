@@ -551,6 +551,10 @@
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
+		D51E7B8D15C414BB003B86D5 /* MotionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51E7B8C15C414BB003B86D5 /* MotionModule.m */; };
+		D51E7B8E15C414BB003B86D5 /* MotionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51E7B8C15C414BB003B86D5 /* MotionModule.m */; };
+		D51E7B8F15C414BB003B86D5 /* MotionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51E7B8C15C414BB003B86D5 /* MotionModule.m */; };
+		D51E7B9115C417EE003B86D5 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D51E7B9015C417EE003B86D5 /* CoreMotion.framework */; };
 		DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
 		DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
 		DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
@@ -1451,6 +1455,9 @@
 		B4F97C57111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneScrollIndicatorStyleProxy.m; sourceTree = "<group>"; };
 		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
 		D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIClipboardProxy.m; sourceTree = "<group>"; };
+		D51E7B8B15C414BB003B86D5 /* MotionModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MotionModule.h; sourceTree = "<group>"; };
+		D51E7B8C15C414BB003B86D5 /* MotionModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MotionModule.m; sourceTree = "<group>"; };
+		D51E7B9015C417EE003B86D5 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		DA2556421353D2FC005D459C /* TiNetworkSocketProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkSocketProxy.h; sourceTree = "<group>"; };
 		DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkSocketProxy.m; sourceTree = "<group>"; };
 		DA285CA411BDBE0A00D20833 /* TiRootController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiRootController.h; sourceTree = "<group>"; };
@@ -1536,6 +1543,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D51E7B9115C417EE003B86D5 /* CoreMotion.framework in Frameworks */,
 				DADE76D413D65C590079FC75 /* libicucore.dylib in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
@@ -1926,6 +1934,7 @@
 				24CA8C12111163CD0084E2DE /* Gesture */,
 				24CA8C1A1111644E0084E2DE /* Map */,
 				24CA8C18111164440084E2DE /* Media */,
+				D51E7B8915C41492003B86D5 /* Motion */,
 				24CA8C171111643E0084E2DE /* Network */,
 				24CA8C11111163C30084E2DE /* Platform */,
 				24CA8C16111164150084E2DE /* Yahoo */,
@@ -2781,6 +2790,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D51E7B9015C417EE003B86D5 /* CoreMotion.framework */,
 				DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */,
 				24D5C75811E6364F00F097E2 /* libtiverify.a */,
 				242E8E3011BA39FD0046A0D0 /* libTiCore.a */,
@@ -2897,6 +2907,15 @@
 				B4F97B72111A41C800E2F72C /* TiUIScrollView.m */,
 			);
 			name = "Scroll View";
+			sourceTree = "<group>";
+		};
+		D51E7B8915C41492003B86D5 /* Motion */ = {
+			isa = PBXGroup;
+			children = (
+				D51E7B8B15C414BB003B86D5 /* MotionModule.h */,
+				D51E7B8C15C414BB003B86D5 /* MotionModule.m */,
+			);
+			name = Motion;
 			sourceTree = "<group>";
 		};
 		DA2556411353D24C005D459C /* Sockets */ = {
@@ -3436,6 +3455,7 @@
 				2B353A8115901D41008FBD84 /* Ti3DMatrix.m in Sources */,
 				2B0B6E0C15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
 				1D8166DF15A79362007F20A0 /* FBFrictionlessRequestSettings.m in Sources */,
+				D51E7B8D15C414BB003B86D5 /* MotionModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3717,6 +3737,7 @@
 				2B353A8215901D41008FBD84 /* Ti3DMatrix.m in Sources */,
 				2B0B6E0D15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
 				1D8166E015A79362007F20A0 /* FBFrictionlessRequestSettings.m in Sources */,
+				D51E7B8E15C414BB003B86D5 /* MotionModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3998,6 +4019,7 @@
 				2B353A8315901D41008FBD84 /* Ti3DMatrix.m in Sources */,
 				2B0B6E0E15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
 				1D8166E115A79362007F20A0 /* FBFrictionlessRequestSettings.m in Sources */,
+				D51E7B8F15C414BB003B86D5 /* MotionModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

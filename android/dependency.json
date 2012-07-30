@@ -16,6 +16,7 @@
 		"locale":[],
 		"map":[],
 		"media":["filesystem"],
+		"motion":[],
 		"network":["xml"],
 		"platform":[],
 		"ui":["filesystem","media"],

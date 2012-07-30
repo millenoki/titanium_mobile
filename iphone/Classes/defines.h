@@ -22,6 +22,7 @@
 #define USE_TI_GESTURE
 #define USE_TI_MAP
 #define USE_TI_MEDIA
+#define USE_TI_MOTION
 #define USE_TI_NETWORK
 #define USE_TI_NETWORKSOCKET
 #define USE_TI_PLATFORM

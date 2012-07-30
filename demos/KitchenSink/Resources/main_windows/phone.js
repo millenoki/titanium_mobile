@@ -4,6 +4,7 @@ var data = [
 	{title:'Vibrate', hasChild:true, test:'../examples/vibrate.js'},
 	{title:'Geolocation', hasChild:true, test:'../examples/geolocation.js'},
 	{title:'Accelerometer', hasChild:true, test:'../examples/accelerometer.js'},
+	{title:'Motion', hasChild:true, test:'../examples/motion.js'},
 	{title:'Sound', hasChild:true, test:'../examples/sound.js'},
 	{title:'Photo Gallery', hasChild:true, test:'../examples/photo_gallery.js'}
 ];
