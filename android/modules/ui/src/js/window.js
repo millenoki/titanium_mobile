@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,8 @@ var EventEmitter = require("events").EventEmitter,
 	assets = kroll.binding("assets"),
 	vm = require("vm"),
 	url = require("url"),
-	Script = kroll.binding('evals').Script;
+	Script = kroll.binding('evals').Script,
+	bootstrap = require('bootstrap');
 
 var TAG = "Window";
 
@@ -17,7 +18,7 @@ exports.bootstrapWindow = function(Titanium) {
 	var newActivityRequiredKeys = ["fullscreen", "navBarHidden", "modal", "windowSoftInputMode"];
 	
 	//list of TiBaseWindow event listeners
-	var windowEventListeners = ["open", "close", "focus", "blur"];
+	var windowEventListeners = ["open", "close", "focus", "blur", "androidback"];
 
 	// Backward compatibility for lightweight windows
 	var UI = Titanium.UI;
@@ -44,7 +45,7 @@ exports.bootstrapWindow = function(Titanium) {
 		}
 		
 		if (kroll.DBG) {
-			kroll.log(TAG, "unable to find valid activity for decor view");
+			kroll.log(TAG, "Unable to find valid activity for decor view");
 		}
 		return null;
 	}
@@ -104,7 +105,7 @@ exports.bootstrapWindow = function(Titanium) {
 			}
 
 		} else if (kroll.DBG) { 
-			kroll.log(TAG, "not allowed to set orientationModes to null");
+			kroll.log(TAG, "Not allowed to set orientationModes to null");
 		}
 	}
 
@@ -175,7 +176,7 @@ exports.bootstrapWindow = function(Titanium) {
 		// if the window is not closed, do not open
 		if (this.currentState != this.state.closed) {
 			if (kroll.DBG) {
-				kroll.log(TAG, "unable to open, window is not closed");
+				kroll.log(TAG, "Unable to open, window is not closed");
 				
 			}
 			return;
@@ -291,6 +292,13 @@ exports.bootstrapWindow = function(Titanium) {
 			self.window = null;
 			self.view = null;
 			self.currentState = self.state.closed;
+
+			// Dispose the URL context if the window's activity
+			// is destroyed since close() will not get called.
+			if (self._urlContext) {
+				Script.disposeContext(self._urlContext);
+				self._urlContext = null;
+			}
 		}, this);
 		
 		if (this.cachedActivityProxy) {
@@ -305,29 +313,19 @@ exports.bootstrapWindow = function(Titanium) {
 		this.addPostOpenChildren();
 	}
 
-	Window.prototype.runWindowUrl = function(scopeVars) {
-		var parent = this._module || kroll.Module.main;
-		var moduleId = this.url;
-
-		if (this.url.indexOf(".js") == this.url.length - 3) {
-			moduleId = this.url.substring(0, this.url.length - 3);
-		}
-
-		parent.require(moduleId, scopeVars, false);
-	}
-
 	Window.prototype.loadUrl = function() {
 		if (this.url == null) {
 			return;
 		}
 
-		if (kroll.DBG) {
-			kroll.log(TAG, "Loading window with URL: " + this.url);
+		var resolvedUrl = url.resolve(this._sourceUrl, this.url);
+		if (!resolvedUrl.assetPath) {
+			kroll.log(TAG, "Window URL must be a resources file.");
+			return;
 		}
 
 		// Reset creationUrl of the window
-		var currentUrl = url.resolve(this._sourceUrl, this.url);
-		this.window.setCreationUrl(currentUrl.href);
+		this.window.setCreationUrl(resolvedUrl.href);
 
 		var scopeVars = {
 			currentWindow: this,
@@ -335,16 +333,28 @@ exports.bootstrapWindow = function(Titanium) {
 			currentTab: this.tab,
 			currentTabGroup: this.tabGroup
 		};
-		scopeVars = Titanium.initScopeVars(scopeVars, currentUrl);
+		scopeVars = Titanium.initScopeVars(scopeVars, resolvedUrl);
 
-		this.runWindowUrl(scopeVars);
+		var context = this._urlContext = Script.createContext(scopeVars);
+		context.Titanium = context.Ti = new Titanium.Wrapper(scopeVars);
+		bootstrap.bootstrapGlobals(context, Titanium);
+
+		var scriptPath = url.toAssetPath(resolvedUrl);
+		var scriptSource = assets.readAsset(scriptPath);
+
+		if (kroll.runtime == "v8") {
+			Script.runInContext(scriptSource, context, scriptPath, true);
+
+		} else {
+			Script.runInThisContext(scriptSource, scriptPath, true, context);
+		}
 	}
 
 	Window.prototype.close = function(options) {
 		// if the window is not opened, do not close
 		if (this.currentState != this.state.opened) {
 			if (kroll.DBG) {
-				kroll.log(TAG, "unable to close, window is not opened");
+				kroll.log(TAG, "Unable to close, window is not opened");
 			}
 			return;
 		}
@@ -366,6 +376,12 @@ exports.bootstrapWindow = function(Titanium) {
 			this.removeSelfFromStack();
 			this.currentState = this.state.closed;
 			this.fireEvent("close");
+		}
+
+		// Dispose the URL script context if one was created during open.
+		if (this._urlContext) {
+			Script.disposeContext(this._urlContext);
+			this._urlContext = null;
 		}
 	}
 
@@ -456,7 +472,7 @@ exports.bootstrapWindow = function(Titanium) {
 			}
 
 		} else if (kroll.DBG) {
-			kroll.log(TAG, "unable to call animate, view is undefined");
+			kroll.log(TAG, "Unable to call animate, view is undefined");
 		}
 	}
 

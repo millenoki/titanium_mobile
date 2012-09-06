@@ -25,6 +25,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.app.LocalActivityManager;
 import android.content.Intent;
+import android.os.Message;
 import android.view.Window;
 
 @Kroll.proxy(creatableInModule = MapModule.class, propertyAccessors = {
@@ -40,7 +41,11 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	private static LocalActivityManager lam;
 	private static Window mapWindow;
 	private static OnLifecycleEvent rootLifecycleListener;
-	private static final String LCAT = "TiMapViewProxy";
+	private static final String TAG = "TiMapViewProxy";
+	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
+	private static final int MSG_ADD_ROUTE = MSG_FIRST_ID + 50;
+	private static final int MSG_REMOVE_ROUTE = MSG_FIRST_ID + 51;
+
 
 	/*
 	 * Track whether the map activity has been destroyed (or told to destroy).
@@ -94,7 +99,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 			 */
 			final TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
 			if (rootActivity == null) {
-				Log.w(LCAT, "Application's root activity has been destroyed.  Unable to create MapView.");
+				Log.w(TAG, "Application's root activity has been destroyed.  Unable to create MapView.");
 				return null;
 			}
 			/*
@@ -161,7 +166,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 			if (location instanceof HashMap) {
 				mapView.doSetLocation((HashMap) location);
 			} else {
-				Log.e(LCAT, "location is set, but the structure is not correct");
+				Log.w(TAG, "Location is set, but the structure is not correct", Log.DEBUG_MODE);
 			}
 		}
 
@@ -201,8 +206,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		}
 	}
 
-	@Kroll.method
-	public void addRoute(KrollDict routeMap)
+	protected void handleAddRoute(HashMap routeMap)
 	{
 		Object routeArray = routeMap.get("points");
 		if (routeArray instanceof Object[]) {
@@ -227,7 +231,18 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 				mapView.addRoute(mr);
 			}
 		}
+	}
 
+	@Kroll.method
+	public void addRoute(KrollDict routeMap)
+	{
+		//This needs to run on main thread.
+		if (TiApplication.isUIThread()) {
+			handleAddRoute(routeMap);
+			return;
+		}
+		
+		getMainHandler().obtainMessage(MSG_ADD_ROUTE, routeMap).sendToTarget();		
 	}
 
 	public TiMapView getMapView()
@@ -235,8 +250,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		return this.mapView;
 	}
 
-	@Kroll.method
-	public void removeRoute(KrollDict route)
+	protected void handleRemoveRoute(HashMap route)
 	{
 		// We remove the route by "name" for parity with iOS
 		Object routeName = route.get("name");
@@ -261,13 +275,23 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 			}
 		}
 	}
+	@Kroll.method
+	public void removeRoute(KrollDict route)
+	{
+		//This needs to run on main thread.
+		if (TiApplication.isUIThread()) {
+			handleRemoveRoute(route);
+			return;
+		}
+
+		getMainHandler().obtainMessage(MSG_REMOVE_ROUTE, route).sendToTarget();
+	}
 
 	@Kroll.method
 	public void addAnnotations(Object annotations)
 	{
 		if (!(annotations.getClass().isArray())) {
-			Log.e(LCAT, "argument to addAnnotation must be an array");
-
+			Log.e(TAG, "Argument to addAnnotation must be an array");
 			return;
 		}
 
@@ -278,7 +302,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 				this.annotations.add((AnnotationProxy) annotationArray[i]);
 
 			} else {
-				Log.e(LCAT, "unable to add annotation, not a AnnotationProxy");
+				Log.e(TAG, "Unable to add annotation, argument is not an AnnotationProxy");
 			}
 		}
 
@@ -287,12 +311,22 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		}
 	}
 
-	protected int findAnnotation(String title)
+	protected int findAnnotation(String title, AnnotationProxy annotation)
 	{
 		int existsIndex = -1;
 		// Check for existence
 		int len = annotations.size();
-		for (int i = 0; i < len; i++) {
+		
+		if (annotation != null) {
+			for (int i = 0; i < len && existsIndex == -1; i++) {
+				if (annotation == annotations.get(i)) {
+					existsIndex = i;
+					break;
+				}
+			}
+		}
+		
+		for (int i = 0; i < len && existsIndex == -1; i++) {
 			AnnotationProxy a = annotations.get(i);
 			String t = (String) a.getProperty(TiC.PROPERTY_TITLE);
 
@@ -311,16 +345,17 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	public void removeAnnotation(Object arg)
 	{
 		String title = null;
-
+		AnnotationProxy annotation = null;
 		if (arg != null) {
 			if (arg instanceof AnnotationProxy) {
-				title = TiConvert.toString(((AnnotationProxy) arg).getProperty("title"));
+				annotation = (AnnotationProxy)arg;
+				title = TiConvert.toString(annotation.getProperty(TiC.PROPERTY_TITLE));
 			} else {
 				title = TiConvert.toString(arg);
 			}
 
 			if (title != null) {
-				int existsIndex = findAnnotation(title);
+				int existsIndex = findAnnotation(title, annotation);
 				if (existsIndex > -1) {
 					annotations.get(existsIndex).setViewProxy(null);
 					annotations.remove(existsIndex);
@@ -336,6 +371,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	@Kroll.method
 	public void selectAnnotation(Object[] args)
 	{
+		AnnotationProxy selAnnotation = null;
 		String title = null;
 		boolean animate = false;
 		boolean center = true; // keep existing default behavior
@@ -346,7 +382,8 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 				Object selectedAnnotation = params.get(TiC.PROPERTY_ANNOTATION);
 				if (selectedAnnotation instanceof AnnotationProxy) {
-					title = TiConvert.toString(((AnnotationProxy) selectedAnnotation).getProperty(TiC.PROPERTY_TITLE));
+					selAnnotation = (AnnotationProxy)selectedAnnotation;
+					title = TiConvert.toString(selAnnotation.getProperty(TiC.PROPERTY_TITLE));
 				} else {
 					title = TiConvert.toString(params, TiC.PROPERTY_TITLE);
 				}
@@ -363,7 +400,8 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 			} else {
 				if (args[0] instanceof AnnotationProxy) {
-					title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty(TiC.PROPERTY_TITLE));
+					selAnnotation = (AnnotationProxy) args[0];
+					title = TiConvert.toString(selAnnotation.getProperty(TiC.PROPERTY_TITLE));
 
 				} else if (args[0] instanceof String) {
 					title = TiConvert.toString(args[0]);
@@ -377,11 +415,11 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 		if (title != null) {
 			if (mapView == null) {
-				Log.e(LCAT, "calling selectedAnnotations.add");
-				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, animate, center));
+				Log.i(TAG, "calling selectedAnnotations.add", Log.DEBUG_MODE);
+				selectedAnnotations.add(new TiMapView.SelectedAnnotation(title, selAnnotation, animate, center));
 			} else {
-				Log.e(LCAT, "calling selectedAnnotations.add2");
-				mapView.selectAnnotation(true, title, animate, center);
+				Log.i(TAG, "calling selectedAnnotations.add2", Log.DEBUG_MODE);
+				mapView.selectAnnotation(true, title, selAnnotation, animate, center);
 			}
 		}
 	}
@@ -390,10 +428,11 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 	public void deselectAnnotation(Object[] args)
 	{
 		String title = null;
-
+		AnnotationProxy selectedAnnotation = null;
 		if (args.length > 0) {
 			if (args[0] instanceof AnnotationProxy) {
-				title = TiConvert.toString(((AnnotationProxy) args[0]).getProperty("title"));
+				selectedAnnotation = (AnnotationProxy) args[0];
+				title = TiConvert.toString(selectedAnnotation.getProperty("title"));
 			} else if (args[0] instanceof String) {
 				title = TiConvert.toString(args[0]);
 			}
@@ -413,7 +452,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 					}
 				}
 			} else {
-				mapView.selectAnnotation(false, title, animate, false);
+				mapView.selectAnnotation(false, title, selectedAnnotation, animate, false);
 			}
 		}
 	}
@@ -484,5 +523,23 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 			lam.dispatchDestroy(true);
 		}
 		mapWindow = null;
+	}
+	
+	@Override
+	public boolean handleMessage(Message msg)
+	{
+		switch (msg.what) {
+			case MSG_ADD_ROUTE: {
+				handleAddRoute((HashMap)msg.obj);
+				return true;
+			}
+			case MSG_REMOVE_ROUTE: {
+				handleRemoveRoute((HashMap)msg.obj);
+				return true;
+			}
+			default: {
+				return super.handleMessage(msg);
+			}
+		}
 	}
 }

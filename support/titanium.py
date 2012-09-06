@@ -139,7 +139,7 @@ def create_android_project(project_dir, osname, args):
 def create_android_module(project_dir, osname, args):
 	script = os.path.join(template_dir, 'module', 'module.py')
 	
-	name = get_required(args, 'name').lower()
+	name = get_required(args, 'name')
 	validate_project_name(name)
 	appid = get_required(args, 'id')
 	android_sdk = get_android_sdk(args)
@@ -454,9 +454,11 @@ def help(args=[],suppress_banner=False):
 			print 
 			print "  --dir=d    project directory"
 		elif cmd == 'run':
-			print "Usage: %s run [--dir=d]" % os.path.basename(sys.argv[0])
+			print "Usage: %s run [--dir=d] [--platform-p] [--type=t]" % os.path.basename(sys.argv[0])
 			print 
-			print "  --dir=d    project directory"
+			print "  --dir=d        project directory"
+			print "  --platform=p   platform: iphone, ipad, android, mobileweb, blackberry, etc."
+			print "  --type=t       type of project: project, module"
 		elif cmd == 'clean':
 			print "Usage: %s clean [--platform=p1,p2]" % os.path.basename(sys.argv[0])
 			print

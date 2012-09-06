@@ -1,12 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-
 package org.appcelerator.titanium.view;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
@@ -19,7 +19,6 @@ import java.util.Map;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
@@ -40,8 +39,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
@@ -69,8 +70,8 @@ public class TiDrawableReference
 		public int width = UNKNOWN;
 	}
 
-	private static final String LCAT = "TiDrawableReference";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String TAG = "TiDrawableReference";
+	private static final String FILE_PREFIX = "file://";
 	private static final int UNKNOWN = -1;
 	private static final int DEFAULT_SAMPLE_SIZE = 1;
 	private int resourceId = UNKNOWN;
@@ -80,6 +81,8 @@ public class TiDrawableReference
 	private DrawableReferenceType type;
 	private boolean oomOccurred = false;
 	private boolean anyDensityFalse = false;
+	private boolean autoRotate;
+	private int orientation = -1;
 
 	private SoftReference<Activity> softActivity = null;
 
@@ -202,7 +205,8 @@ public class TiDrawableReference
 		if (dict.containsKey("media")) {
 			return fromBlob(activity, TiConvert.toBlob(new KrollDict(dict), "media"));
 		} else {
-			Log.w(LCAT, "Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
+			Log.w(TAG,
+				"Unknown drawable reference inside dictionary.  Expected key 'media' to be a blob.  Returning null drawable reference");
 			return fromObject(activity, null);
 		}
 	}
@@ -230,7 +234,8 @@ public class TiDrawableReference
 		} else if (object instanceof Number) {
 			return fromResourceId(activity, ((Number)object).intValue());
 		} else {
-			Log.w(LCAT, "Unknown image resource type: " + object.getClass().getSimpleName() + ". Returning null drawable reference");
+			Log.w(TAG, "Unknown image resource type: " + object.getClass().getSimpleName()
+				+ ". Returning null drawable reference");
 			return fromObject(activity, null);
 		}
 	}
@@ -273,7 +278,7 @@ public class TiDrawableReference
 	{
 		InputStream is = getInputStream();
 		if (is == null) {
-			Log.w(LCAT, "Could not open stream to get bitmap");
+			Log.w(TAG, "Could not open stream to get bitmap");
 			return null;
 		}
 
@@ -289,16 +294,28 @@ public class TiDrawableReference
 				b = BitmapFactory.decodeStream(is, null, opts);
 			} catch (OutOfMemoryError e) {
 				oomOccurred = true;
-				Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+				Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
 			}
 		
 		} finally {
 			try {
 				is.close();
 			} catch (IOException e) {
-				Log.e(LCAT, "Problem closing stream: " + e.getMessage(), e);
+				Log.e(TAG, "Problem closing stream: " + e.getMessage(), e);
 			}
 		}
+
+		// Orient the image when orientation is set.
+		if (autoRotate) {
+			// Only set the orientation if it is uninitialized
+			if (orientation < 0) {
+				orientation = getOrientation();
+			}
+			if (orientation > 0) {
+				b = getRotatedBitmap(b, orientation);
+			}
+		}
+
 		return b;
 	}
 
@@ -393,7 +410,7 @@ public class TiDrawableReference
 		srcWidth = orig.width;
 		srcHeight = orig.height;
 		if (srcWidth <= 0 || srcHeight <= 0) {
-			Log.w(LCAT, "Bitmap bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
+			Log.w(TAG, "Bitmap bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
 			return getBitmap(); // fallback
 		}
 		double aspectRatio = (double)srcWidth/(double)srcHeight;
@@ -431,7 +448,7 @@ public class TiDrawableReference
 			}
 		}
 		if (containerWidth < 0) {
-			Log.w(LCAT, "Could not determine container width for image. Defaulting to source width. This shouldn't happen.");
+			Log.w(TAG, "Could not determine container width for image. Defaulting to source width. This shouldn't happen.");
 			containerWidth = srcWidth;
 		}
 
@@ -450,7 +467,7 @@ public class TiDrawableReference
 		}
 
 		if (containerHeight < 0) {
-			Log.w(LCAT, "Could not determine container height for image. Defaulting to source height. This shouldn't happen.");
+			Log.w(TAG, "Could not determine container height for image. Defaulting to source height. This shouldn't happen.");
 			containerHeight = srcHeight;
 		}
 
@@ -499,7 +516,7 @@ public class TiDrawableReference
 		srcHeight = bounds.height;
 
 		if (srcWidth <= 0 || srcHeight <= 0) {
-			Log.w(LCAT, "Bitmap bounds could not be determined. If bitmap is loaded, it won't be scaled.");
+			Log.w(TAG, "Bitmap bounds could not be determined. If bitmap is loaded, it won't be scaled.");
 			return getBitmap(); // fallback
 		}
 
@@ -521,13 +538,13 @@ public class TiDrawableReference
 
 		if (destWidth <= 0 || destHeight <= 0) {
 			// calcDestSize() should actually prevent this from happening, but just in case...
-			Log.w(LCAT, "Bitmap final bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
+			Log.w(TAG, "Bitmap final bounds could not be determined.  If bitmap is loaded, it won't be scaled.");
 			return getBitmap();
 		}
 
 		InputStream is = getInputStream();
 		if (is == null) {
-			Log.w(LCAT, "Could not open stream to get bitmap");
+			Log.w(TAG, "Could not open stream to get bitmap");
 			return null;
 		}
 
@@ -537,7 +554,7 @@ public class TiDrawableReference
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
 			opts.inSampleSize =  calcSampleSize(srcWidth, srcHeight, destWidth, destHeight);
-			if (DBG) {
+			if (Log.isDebugModeEnabled()) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("Bitmap calcSampleSize results: inSampleSize=");
 				sb.append(opts.inSampleSize);
@@ -549,7 +566,7 @@ public class TiDrawableReference
 				sb.append(opts.outWidth);
 				sb.append("; finalHeight=");
 				sb.append(opts.outHeight);
-				Log.d(LCAT, sb.toString());
+				Log.d(TAG, sb.toString());
 			}
 
 			Bitmap bTemp = null;
@@ -557,16 +574,16 @@ public class TiDrawableReference
 				oomOccurred = false;
 				bTemp = BitmapFactory.decodeStream(is, null, opts);
 				if (bTemp == null) {
-					Log.w(LCAT, "Decoded bitmap is null");
+					Log.w(TAG, "Decoded bitmap is null");
 					return null;
 				}
 
-				if (DBG) {
+				if (Log.isDebugModeEnabled()) {
 					StringBuilder sb = new StringBuilder();
 					sb.append("decodeStream resulting bitmap: .getWidth()=" + bTemp.getWidth());
 					sb.append("; .getHeight()=" + bTemp.getHeight());
 					sb.append("; getDensity()=" + bTemp.getDensity());
-					Log.d(LCAT, sb.toString());
+					Log.d(TAG, sb.toString());
 				}
 
 				// Set the bitmap density to match the view density before scaling, so that scaling
@@ -575,14 +592,23 @@ public class TiDrawableReference
 				displayMetrics.setToDefaults();
 				bTemp.setDensity(displayMetrics.densityDpi);
 
+				// Orient the image when orientation is set.
+				if (autoRotate) {
+					// Only set the orientation if it is uninitialized
+					if(orientation < 0) {
+						orientation = getOrientation();
+					}
+					if (orientation > 0) {
+						return getRotatedBitmap(bTemp, orientation);
+					}
+				}
+
 				if (bTemp.getNinePatchChunk() != null) {
 					// Don't scale nine-patches
 					b = bTemp;
 					bTemp = null;
 				} else {
-					if (DBG) {
-						Log.d(LCAT, "Scaling bitmap to " + destWidth + "x" + destHeight);
-					}
+					Log.d(TAG, "Scaling bitmap to " + destWidth + "x" + destHeight, Log.DEBUG_MODE);
 
 					// If anyDensity=false, meaning Android is automatically scaling
 					// pixel dimensions, need to do that here as well, because Bitmap width/height
@@ -591,30 +617,38 @@ public class TiDrawableReference
 						destWidth = (int) (destWidth * displayMetrics.density + 0.5f); // 0.5 is to force round up of dimension. Casting to int drops decimals.
 						destHeight = (int) (destHeight * displayMetrics.density + 0.5f);
 					}
+
+					// Created a scaled copy of the bitmap. Note we will get
+					// back the same bitmap if no scaling is required.
 					b = Bitmap.createScaledBitmap(bTemp, destWidth, destHeight, true);
 				}
+
 			} catch (OutOfMemoryError e) {
 				oomOccurred = true;
-				Log.e(LCAT, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+				Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+
 			} finally {
-				if (bTemp != null) {
+				// Recycle the temporary bitmap only if it isn't
+				// the same instance as our scaled bitmap.
+				if (bTemp != null && bTemp != b) {
 					bTemp.recycle();
 					bTemp = null;
 				}
 			}
+
 		} finally {
 			try {
 				is.close();
 			} catch (IOException e) {
-				Log.e(LCAT, "Problem closing stream: " + e.getMessage(), e);
+				Log.e(TAG, "Problem closing stream: " + e.getMessage(), e);
 			}
 		}
-		if (DBG) {
+		if (Log.isDebugModeEnabled()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Details of returned bitmap: .getWidth()=" + b.getWidth());
 			sb.append("; getHeight()=" + b.getHeight());
 			sb.append("; getDensity()=" + b.getDensity());
-			Log.d(LCAT, sb.toString());
+			Log.d(TAG, sb.toString());
 		}
 		return b;
 	}
@@ -625,15 +659,15 @@ public class TiDrawableReference
 	public void getBitmapAsync(TiDownloadListener listener)
 	{
 		if (!isNetworkUrl()) {
-			Log.w(LCAT, "getBitmapAsync called on non-network url.  Will attempt load.");
+			Log.w(TAG, "getBitmapAsync called on non-network url.  Will attempt load.", Log.DEBUG_MODE);
 		}
 		
 		try {
 			TiDownloadManager.getInstance().download(new URI(TiUrl.getCleanUri(url).toString()), listener);
 		} catch (URISyntaxException e) {
-			Log.e(LCAT, "URI Invalid: " + url, e);
+			Log.e(TAG, "URI Invalid: " + url, e);
 		} catch (NullPointerException e) {
-			Log.e(LCAT, "NullPointerException: " + url, e);
+			Log.e(TAG, "NullPointerException: " + url, e);
 		}
 	}
 
@@ -644,7 +678,7 @@ public class TiDrawableReference
 	public void getBitmapAsync(TiBackgroundImageLoadTask asyncTask)
 	{
 		if (!isNetworkUrl()) {
-			Log.w(LCAT, "getBitmapAsync called on non-network url.  Will attempt load.");
+			Log.w(TAG, "getBitmapAsync called on non-network url.  Will attempt load.", Log.DEBUG_MODE);
 		}
 		asyncTask.load(url);
 	}
@@ -673,7 +707,7 @@ public class TiDrawableReference
 				bounds.height = bfo.outHeight;
 				bounds.width = bfo.outWidth;
 			} else {
-				Log.w(LCAT, "Could not open stream for drawable, therefore bounds checking could not be completed");
+				Log.w(TAG, "Could not open stream for drawable, therefore bounds checking could not be completed");
 			}
 		} finally {
 			try {
@@ -681,7 +715,7 @@ public class TiDrawableReference
 					stream.close();
 				}
 			} catch (IOException e) {
-				Log.e(LCAT, "problem closing stream: " + e.getMessage(), e);
+				Log.e(TAG, "problem closing stream: " + e.getMessage(), e);
 			}
 		}
 
@@ -709,14 +743,14 @@ public class TiDrawableReference
 					stream = TiFileHelper.getInstance().openInputStream(url, false);
 				}
 			} catch (IOException e) {
-				Log.e(LCAT, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
+				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
 			}
-			
+
 		} else if (isTypeFile() && file != null) {
 			try {
 				stream = file.getInputStream();
 			} catch (IOException e) {
-				Log.e(LCAT, "Problem opening stream from file " + file.name() + ": " + e.getMessage(), e);
+				Log.e(TAG, "Problem opening stream from file " + file.name() + ": " + e.getMessage(), e);
 			}
 
 		} else if (isTypeBlob() && blob != null) {
@@ -725,7 +759,7 @@ public class TiDrawableReference
 			try {
 				stream = TiApplication.getInstance().getResources().openRawResource(resourceId);
 			} catch (Resources.NotFoundException e) {
-				Log.e(LCAT, "Drawable resource could not be opened. Are you sure you have the resource for the current device configuration (orientation, screen size, etc.)?");
+				Log.e(TAG, "Drawable resource could not be opened. Are you sure you have the resource for the current device configuration (orientation, screen size, etc.)?");
 				throw e;
 			}
 		}
@@ -779,6 +813,67 @@ public class TiDrawableReference
 	public boolean outOfMemoryOccurred()
 	{
 		return oomOccurred;
+	}
+
+	private Bitmap getRotatedBitmap (Bitmap src, int orientation) {
+		Matrix m = new Matrix();
+		m.postRotate(orientation);
+		return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), m, false);
+	}
+
+	private int getOrientation()
+	{
+		String path = null;
+		int orientation = 0;
+
+		if (isTypeBlob() && blob != null) {
+			path = blob.getNativePath();
+		} else if (isTypeFile() && file != null) {
+			path = file.getNativeFile().getAbsolutePath();
+		} else {
+			InputStream is = getInputStream();
+			if (is != null) {
+				File file = TiFileHelper.getInstance().getTempFileFromInputStream(is, "EXIF-TMP", true);
+				path = file.getAbsolutePath();
+			}
+		}
+
+		try {
+			if (path == null) {
+				Log.e(TAG,
+					"Path of image file could not determined. Could not create an exifInterface from an invalid path.");
+				return 0;
+			}
+
+			// Remove path prefix
+			if (path.startsWith(FILE_PREFIX)) {
+				path = path.replaceFirst(FILE_PREFIX, "");
+			}
+
+			ExifInterface exifInterface = new ExifInterface(path);
+			orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+
+			if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+				orientation = 90;
+			} else if (orientation == ExifInterface.ORIENTATION_ROTATE_180) {
+				orientation = 180;
+			} else if (orientation == ExifInterface.ORIENTATION_ROTATE_270) {
+				orientation = 270;
+			} else {
+				orientation = 0;
+			}
+
+		} catch (IOException e) {
+			Log.e(TAG, "Error creating exifInterface, could not determine orientation.", Log.DEBUG_MODE);
+		}
+
+		return orientation;
+
+	}
+
+	public void setAutoRotate(boolean autoRotate)
+	{
+		this.autoRotate = autoRotate;
 	}
 
 	public String getUrl()

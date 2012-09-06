@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,7 +30,7 @@ public class UtilsModule extends KrollModule
 	{
 		super();
 	}
-	
+
 	private String convertToString(Object obj)
 	{
 		if (obj instanceof String) {
@@ -103,6 +103,7 @@ public class UtilsModule extends KrollModule
 	{
 		return true;
 	}
+
 	@Kroll.method
 	public String sha256(Object obj)
 	{
