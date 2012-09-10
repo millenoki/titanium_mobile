@@ -16,9 +16,12 @@
 	BOOL accelerometerRegistered;
 	BOOL gyroscopeRegistered;
 	BOOL magnetometerRegistered;
+	BOOL orientationRegistered;
 	BOOL motionRegistered;
     BOOL computeRotationMatrix;
-    int refreshRate;
+    float updateInterval;
+//    CMAttitude* referenceAttitude;
+//    BOOL usingReference;
 }
 @property(nonatomic,readonly) NSNumber *STANDARD_GRAVITY;
 

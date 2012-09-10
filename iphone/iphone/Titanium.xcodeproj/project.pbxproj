@@ -555,6 +555,7 @@
 		D51E7B8E15C414BB003B86D5 /* MotionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51E7B8C15C414BB003B86D5 /* MotionModule.m */; };
 		D51E7B8F15C414BB003B86D5 /* MotionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51E7B8C15C414BB003B86D5 /* MotionModule.m */; };
 		D51E7B9115C417EE003B86D5 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D51E7B9015C417EE003B86D5 /* CoreMotion.framework */; };
+		D5ED634C15F889CB000C82DF /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D51E7B9015C417EE003B86D5 /* CoreMotion.framework */; };
 		DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
 		DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
 		DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
@@ -1608,6 +1609,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5ED634C15F889CB000C82DF /* CoreMotion.framework in Frameworks */,
 				DABB37A212E8CB280026A6EA /* Foundation.framework in Frameworks */,
 				DABB37A312E8CB280026A6EA /* UIKit.framework in Frameworks */,
 				DABB37A412E8CB280026A6EA /* CoreGraphics.framework in Frameworks */,
