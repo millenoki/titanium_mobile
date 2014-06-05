@@ -160,9 +160,9 @@ else{\
 	TiWindowProxy *window = [args objectAtIndex:0];
 	ENSURE_TYPE(window,TiWindowProxy);
     
-    if (window == current) return;
+    if (window == current || (window == rootWindow && [rootWindow opening])) return;
 
-    if ((window == rootWindow && ![rootWindow opening]) || [self controllerForWindow:window] != nil) {
+    if ([self controllerForWindow:window] != nil) {
         TiThreadPerformOnMainThread(^{
             [self popOnUIThread:args];
         }, YES);
@@ -249,6 +249,7 @@ else{\
 
 - (void)navController:(id)transitionController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 {
+    TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     if (current != nil) {
         UIViewController *curController = [current hostingController];
         NSArray* curStack = [navController viewControllers];
@@ -271,9 +272,7 @@ else{\
             transitionWithGesture = _navigationDelegate.isInteracting;
             if (!transitionWithGesture) {
                 ADTransition* transition = [((ADTransitioningViewController*)viewController) transition];
-                if (transition) {
-                    [self fireEvent:winclosing?@"closeWindow":@"openWindow" forController:viewController transition:transition];
-                }
+                [self fireEvent:winclosing?@"closeWindow":@"openWindow" forController:viewController transition:transition];
             }
         }
         if (winclosing && !transitionWithGesture) {
@@ -283,7 +282,6 @@ else{\
             [current windowWillClose];
         }
     }
-    TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     if ((theWindow != rootWindow) && [theWindow opening]) {
 //        [theWindow windowWillOpen];
         [theWindow setAnimating:YES];
@@ -292,22 +290,25 @@ else{\
 
 - (void)navController:(id)transitionController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 {
-    if (current != nil) {
-        UIViewController* oldController = [current hostingController];
-        
-        if (![[navController viewControllers] containsObject:oldController]) {
-            [current setTab:nil];
-            [current setParentOrientationController:nil];
-            [current close:nil];
-        }
-    }
-    RELEASE_TO_NIL(current);
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
-    if ((theWindow != rootWindow) && [theWindow opening]) {
-        [theWindow setAnimating:NO];
-        [theWindow windowDidOpen];
+        if (theWindow != rootWindow) {
+        if (theWindow != current && current != nil) {
+        	UIViewController* oldController = [current hostingController];
+    
+        	if (![[navController viewControllers] containsObject:oldController]) {
+          	  	[current setTab:nil];
+          	  	[current setParentOrientationController:nil];
+                [current close:nil];
+        	}
+        }
+        
+        RELEASE_TO_NIL(current);
+        if ([theWindow opening]) {
+            [theWindow setAnimating:NO];
+            [theWindow windowDidOpen];
+        }
+        current = [theWindow retain];
     }
-    current = [theWindow retain];
     [self childOrientationControllerChangedFlags:current];
     if (focussed) {
         [current gainFocus];
@@ -645,6 +646,10 @@ else{\
 -(void) cleanNavStack
 {
     TiThreadPerformOnMainThread(^{
+        if (_navigationDelegate) {
+            _navigationDelegate.delegate = nil;
+            RELEASE_TO_NIL(_navigationDelegate);
+        }
         if (navController != nil) {
             [navController setDelegate:nil];
             NSArray* currentControllers = [[navController viewControllers] retain];
@@ -668,14 +673,14 @@ else{\
 #pragma mark - TiWindowProtocol
 -(void)viewWillAppear:(BOOL)animated
 {
-    if ([self viewAttached]) {
+    if (navController) {
         [navController viewWillAppear:animated];
     }
     [super viewWillAppear:animated];
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
-    if ([self viewAttached]) {
+    if (navController) {
         [navController viewWillDisappear:animated];
     }
     [super viewWillDisappear:animated];
@@ -683,7 +688,7 @@ else{\
 
 -(void)viewDidAppear:(BOOL)animated
 {
-    if ([self viewAttached]) {
+    if (navController) {
         [navController viewDidAppear:animated];
     }
     [super viewDidAppear:animated];
