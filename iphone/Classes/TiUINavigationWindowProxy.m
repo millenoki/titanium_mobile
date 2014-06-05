@@ -291,24 +291,22 @@ else{\
 - (void)navController:(id)transitionController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 {
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
-        if (theWindow != rootWindow) {
-        if (theWindow != current && current != nil) {
-        	UIViewController* oldController = [current hostingController];
-    
-        	if (![[navController viewControllers] containsObject:oldController]) {
-          	  	[current setTab:nil];
-          	  	[current setParentOrientationController:nil];
-                [current close:nil];
-        	}
-        }
+    if (theWindow != current && current != nil) {
+        UIViewController* oldController = [current hostingController];
         
-        RELEASE_TO_NIL(current);
-        if ([theWindow opening]) {
-            [theWindow setAnimating:NO];
-            [theWindow windowDidOpen];
+        if (![[navController viewControllers] containsObject:oldController]) {
+            [current setTab:nil];
+            [current setParentOrientationController:nil];
+            [current close:nil];
         }
-        current = [theWindow retain];
     }
+    
+    RELEASE_TO_NIL(current);
+    if ([theWindow opening]) {
+        [theWindow setAnimating:NO];
+        [theWindow windowDidOpen];
+    }
+    current = [theWindow retain];
     [self childOrientationControllerChangedFlags:current];
     if (focussed) {
         [current gainFocus];
