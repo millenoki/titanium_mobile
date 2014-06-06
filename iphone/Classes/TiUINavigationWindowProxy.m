@@ -28,9 +28,12 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL_AUTORELEASE(rootWindow);
-    RELEASE_TO_NIL(_navigationDelegate);
+    if (_navigationDelegate) {
+        _navigationDelegate.delegate = nil;
+        RELEASE_TO_NIL(_navigationDelegate);
+    }
     RELEASE_TO_NIL(navController);
-    RELEASE_TO_NIL(current);
+    RELEASE_TO_NIL_AUTORELEASE(current);
     RELEASE_TO_NIL(_defaultTransition);
     RELEASE_TO_NIL(popRecognizer);
 	[super dealloc];
@@ -301,7 +304,7 @@ else{\
         }
     }
     
-    RELEASE_TO_NIL(current);
+    RELEASE_TO_NIL_AUTORELEASE(current);
     if ([theWindow opening]) {
         [theWindow setAnimating:NO];
         [theWindow windowDidOpen];
@@ -629,6 +632,7 @@ else{\
 	NSMutableArray* newControllerStack = [NSMutableArray arrayWithArray:[navController viewControllers]];
 	[newControllerStack removeObject:windowController];
 	[navController setViewControllers:newControllerStack];
+    [window setIsManaged:NO];
     [window setTab:nil];
 	[window setParentOrientationController:nil];
 	
@@ -644,26 +648,30 @@ else{\
 -(void) cleanNavStack
 {
     TiThreadPerformOnMainThread(^{
-        if (_navigationDelegate) {
-            _navigationDelegate.delegate = nil;
-            RELEASE_TO_NIL(_navigationDelegate);
-        }
         if (navController != nil) {
+            if (_navigationDelegate) {
+                _navigationDelegate.delegate = nil;
+                RELEASE_TO_NIL(_navigationDelegate);
+            }
             [navController setDelegate:nil];
             NSArray* currentControllers = [[navController viewControllers] retain];
             [navController setViewControllers:[NSMutableArray array]];
             
             for (TiViewController* viewController in currentControllers) {
-                TiWindowProxy* win = (TiWindowProxy *)[viewController proxy];
+                TiWindowProxy* win = [(TiWindowProxy *)[viewController proxy] retain];
+                [win setIsManaged:NO];
                 [win setTab:nil];
                 [win setParentOrientationController:nil];
                 [win close:nil];
+                RELEASE_TO_NIL_AUTORELEASE(win);
             }
             [[navController view] removeFromSuperview];
+            [navController setViewControllers:nil];
             RELEASE_TO_NIL(navController);
-            RELEASE_TO_NIL(current);
             RELEASE_TO_NIL(currentControllers);
         }
+        RELEASE_TO_NIL_AUTORELEASE(rootWindow);
+        RELEASE_TO_NIL_AUTORELEASE(current);
     },YES);
 }
 
