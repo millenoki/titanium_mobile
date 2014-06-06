@@ -327,15 +327,14 @@
 -(void)setLeftButton_:(id)value
 {
     TiViewProxy *vp = nil;
-    id<TiEvaluator> context;
+    id<TiEvaluator> context = self.proxy.executionContext;
+    if (context == nil) {
+        context = self.proxy.pageContext;
+    }
 	if ([value isKindOfClass:[TiViewProxy class]])
 	{
 		vp = (TiViewProxy*)value;
     } else if ([value isKindOfClass:[NSDictionary class]]) {
-        context = self.proxy.executionContext;
-        if (context == nil) {
-            context = self.proxy.pageContext;
-        }
         vp = [[self.proxy class] unarchiveFromDictionary:value rootProxy:self.proxy inContext:context];
     }
     
@@ -369,15 +368,15 @@
 -(void)setRightButton_:(id)value
 {
 	TiViewProxy *vp = nil;
-    id<TiEvaluator> context;
+    id<TiEvaluator> context = self.proxy.executionContext;
+    if (context == nil) {
+        context = self.proxy.pageContext;
+    }
 	if ([value isKindOfClass:[TiViewProxy class]])
 	{
 		vp = (TiViewProxy*)value;
     } else if ([value isKindOfClass:[NSDictionary class]]) {
-        context = self.proxy.executionContext;
-        if (context == nil) {
-            context = self.proxy.pageContext;
-        }
+        
         vp = [[self.proxy class] unarchiveFromDictionary:value rootProxy:self.proxy inContext:context];
     }
     
