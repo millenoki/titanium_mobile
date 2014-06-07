@@ -119,6 +119,7 @@ typedef enum
 {
 	if (self = [super init])
 	{
+        __block NSString* stringToUse = string;
         angle = 0;
         scaleX = 1;
         scaleY = 1;
@@ -128,14 +129,14 @@ typedef enum
                                       options:NSRegularExpressionCaseInsensitive
                                       error:&error];
         [regex enumerateMatchesInString:string options:0 range:NSMakeRange(0, [string length]) usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop){
-            //            NSLog(@"Text Range %@", match.range);
             NSString* sub = [string substringWithRange:match.range];
             if ([sub length] > 0) {
+                stringToUse = [stringToUse stringByReplacingCharactersInRange:match.range withString:@""];
                 _anchor = [[TiPoint alloc] initWithObject:[sub componentsSeparatedByString:@","]];
             }
         }];
-        unichar key = [string characterAtIndex:0];
-        NSString* theRest = [string substringFromIndex:1];
+        unichar key = [stringToUse characterAtIndex:0];
+        NSString* theRest = [stringToUse substringFromIndex:1];
         switch(key)
         {
             case 't':
