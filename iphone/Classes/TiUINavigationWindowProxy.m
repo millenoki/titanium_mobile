@@ -123,7 +123,6 @@ else{\
         [rootWindow open:nil];
         [rootWindow windowWillOpen];
         [rootWindow windowDidOpen];
-        current = [rootWindow retain];
     }
     return [rootWindow hostingController];
 }
@@ -253,22 +252,24 @@ else{\
 - (void)navController:(id)transitionController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 {
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
-    if (current != nil) {
-        UIViewController *curController = [current hostingController];
-        NSArray* curStack = [navController viewControllers];
+    if (current != theWindow) {
+        
         BOOL winclosing = NO;
-        if (![curStack containsObject:curController]) {
-            winclosing = YES;
-        } else {
-            NSUInteger curIndex = [curStack indexOfObject:curController];
-            if (curIndex > 1) {
-                UIViewController* currentPopsTo = [curStack objectAtIndex:(curIndex - 1)];
-                if (currentPopsTo == viewController) {
-                    winclosing = YES;
+        if (current != nil) {
+            UIViewController *curController = [current hostingController];
+            NSArray* curStack = [navController viewControllers];
+            if (![curStack containsObject:curController]) {
+                winclosing = YES;
+            } else {
+                NSUInteger curIndex = [curStack indexOfObject:curController];
+                if (curIndex > 1) {
+                    UIViewController* currentPopsTo = [curStack objectAtIndex:(curIndex - 1)];
+                    if (currentPopsTo == viewController) {
+                        winclosing = YES;
+                    }
                 }
             }
         }
-        
         
         BOOL transitionWithGesture = NO;
         if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
@@ -378,15 +379,15 @@ else{\
     }
 }
 
-- (void)transitionController:(ADTransitionController *)transitionController willPushViewController:(UIViewController *)viewController transition:(ADTransition *)transition
-{
-    [self fireEvent:@"openWindow" forController:viewController transition:transition];
-}
-
-- (void)transitionController:(ADTransitionController *)transitionController willPopToViewController:(UIViewController *)viewController transition:(ADTransition *)transition
-{
-    [self fireEvent:@"closeWindow" forController:viewController transition:transition];
-}
+//- (void)transitionController:(ADTransitionController *)transitionController willPushViewController:(UIViewController *)viewController transition:(ADTransition *)transition
+//{
+//    [self fireEvent:@"openWindow" forController:viewController transition:transition];
+//}
+//
+//- (void)transitionController:(ADTransitionController *)transitionController willPopToViewController:(UIViewController *)viewController transition:(ADTransition *)transition
+//{
+//    [self fireEvent:@"closeWindow" forController:viewController transition:transition];
+//}
 
 -(ADTransition*) lastTransition {
     if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
