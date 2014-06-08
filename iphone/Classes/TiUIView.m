@@ -1253,10 +1253,13 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setTransform_:(id)transform_
 {
 	RELEASE_TO_NIL(transformMatrix);
-    if ([transform_ isKindOfClass:[Ti3DMatrix class]]) {
+#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+	if ([transform_ isKindOfClass:[Ti3DMatrix class]]) {
         transformMatrix = [transform_ retain];
     }
-    else transformMatrix = [[TiUtils matrixValue:transform_] retain];
+    else 
+#endif
+    transformMatrix = [[TiUtils matrixValue:transform_] retain];
 	[self updateTransform];
 }
 
