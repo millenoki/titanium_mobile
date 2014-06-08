@@ -275,7 +275,7 @@ else{\
         if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
             transitionWithGesture = _navigationDelegate.isInteracting;
             if (!transitionWithGesture) {
-                ADTransition* transition = [((ADTransitioningViewController*)viewController) transition];
+                ADTransition* transition = [(ADTransitioningViewController*)(winclosing?[current hostingController]:viewController) transition];
                 [self fireEvent:winclosing?@"closeWindow":@"openWindow" forController:viewController transition:transition];
             }
         }
