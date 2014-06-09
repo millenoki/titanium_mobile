@@ -6,9 +6,16 @@
  */
 #import "Ti2DMatrix.h"
 #import "TiPoint.h"
-#define REGEX @"(\\.\\.\\.|i|(?:a[-+]?[0-9]*\\.?[0-9]\\s*,\\s*[-+]?[0-9]*\\.?[0-9])?(?:r[-+]?[0-9]*\\.?[0-9]\\s*|[st][-+]?[0-9]*\\.?[0-9]\\s*(?:,\\s*[-+]?[0-9]*\\.?[0-9])?))"
 
-#define ANCHOR_REGEX @"a([-+]?[0-9]*\\.?[0-9]\\s*,\\s*[-+]?[0-9]*\\.?[0-9])"
+#define NUMBER_REGEX_1 @"[0-9]*"
+#define NUMBER_REGEX_2 @"[-+]?" NUMBER_REGEX_1
+#define NUMBER_REGEX_EXT @"(?:system|px|dp|dip|sp|sip|mm|cm|pt|in|%)?"
+#define NUMBER_REGEX NUMBER_REGEX_2 @"\\.?" NUMBER_REGEX_1 NUMBER_REGEX_EXT
+#define ANCHOR_REGEX @"a(" NUMBER_REGEX @"\\s*,\\s*" NUMBER_REGEX @")"
+
+#define REGEX @"(\\.\\.\\.|i|o|(?:a" NUMBER_REGEX @"\\s*,\\s*" NUMBER_REGEX @")?(?:r" NUMBER_REGEX @"|[st]" NUMBER_REGEX @"\\s*(?:,\\s*" NUMBER_REGEX @")?))"
+
+
 typedef enum
 {
 	AffineOpTranslate = 0,
@@ -411,7 +418,12 @@ typedef enum
         [regex enumerateMatchesInString:string options:0 range:NSMakeRange(0, [string length]) usingBlock:^(NSTextCheckingResult *match, NSMatchingFlags flags, BOOL *stop){
             NSString* sub = [string substringWithRange:match.range];
             if ([sub length] > 0) {
-                [_operations addObject:[[[AffineOp alloc] initWithString:sub] autorelease]];
+                if ([sub isEqualToString:@"o"]) {
+                    _ownFrameCoord = YES;
+                }
+                else {
+                    [_operations addObject:[[[AffineOp alloc] initWithString:sub] autorelease]];
+                }
             }
         }];
 	}
@@ -530,7 +542,7 @@ typedef enum
 
 -(NSString*)toString:(id)unused
 {
-    NSString* result = @"";
+    NSString* result = _ownFrameCoord?@"o":@"";
     
     for (AffineOp* op in _operations) {
        result = [result stringByAppendingString:[op toString]];

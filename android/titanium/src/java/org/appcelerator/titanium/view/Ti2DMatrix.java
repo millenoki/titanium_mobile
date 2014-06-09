@@ -20,8 +20,6 @@ import org.appcelerator.titanium.util.AffineTransform;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
-import com.nineoldandroids.view.ViewHelper;
-
 import android.content.Context;
 import android.graphics.Matrix;
 import android.view.View;
@@ -32,9 +30,15 @@ public class Ti2DMatrix extends KrollProxy {
 	public static final TiPoint DEFAULT_TRANSLATETO_VALUE = new TiPoint(0, 0);
 	public static final float VALUE_UNSPECIFIED = Float.MIN_VALUE;
 	
-    private static String REGEX = "(\\.\\.\\.|i|(?:a[-+]?[0-9]*\\.?[0-9]\\s*,\\s*[-+]?[0-9]*\\.?[0-9])?(?:r[-+]?[0-9]*\\.?[0-9]\\s*|[st][-+]?[0-9]*\\.?[0-9]\\s*(?:,\\s*[-+]?[0-9]*\\.?[0-9])?))";
-    private static String ANCHOR_REGEX = "a([-+]?[0-9]*\\.?[0-9]\\s*,\\s*[-+]?[0-9]*\\.?[0-9])";
 
+	private static String NUMBER_REGEX_1  = "[0-9]*";
+	private static String NUMBER_REGEX_2 = "[-+]?" + NUMBER_REGEX_1;
+	private static String NUMBER_REGEX_EXT = "(?:system|px|dp|dip|sp|sip|mm|cm|pt|in|%)?";
+	private static String NUMBER_REGEX = NUMBER_REGEX_2 + "\\.?" + NUMBER_REGEX_1 + NUMBER_REGEX_EXT;
+	private static String ANCHOR_REGEX = "a(" + NUMBER_REGEX + "\\s*,\\s*" + NUMBER_REGEX + ")";
+
+	private static String REGEX = "(\\.\\.\\.|i|o|(?:a" + NUMBER_REGEX + "\\s*,\\s*" + NUMBER_REGEX + ")?(?:r" + NUMBER_REGEX + "|[st]" + NUMBER_REGEX + "\\s*(?:,\\s*" + NUMBER_REGEX + ")?))";
+	
 	public ArrayList<Operation> operations = new ArrayList<Operation>();
 
 	public TiPoint anchor;
@@ -198,7 +202,13 @@ public class Ti2DMatrix extends KrollProxy {
 	    Pattern p = Pattern.compile(REGEX);
         Matcher m = p.matcher(string);
         while (m.find()) {
-            operations.add(new Operation(m.group(1)));
+            String group = m.group(1);
+            if (group == "o") {
+                ownFrameCoord = true;
+            }
+            else {
+                operations.add(new Operation(group));
+            }
         }
     }
 
@@ -389,7 +399,7 @@ public class Ti2DMatrix extends KrollProxy {
 	
 	public String toString()
 	{
-	    String result = "";
+	    String result = ownFrameCoord?"o":"";
 	    for (Operation op : operations) {
             if (op != null) {
                 result += op.toString();
