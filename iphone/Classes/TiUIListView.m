@@ -403,7 +403,7 @@ static NSDictionary* replaceKeysForRow;
         if (context == nil) {
             context = proxy.pageContext;
         }
-        viewproxy = [[TiViewProxy class] createFromDictionary:value rootProxy:proxy inContext:context];
+        viewproxy = (TiViewProxy*)[[TiViewProxy class] createFromDictionary:value rootProxy:proxy inContext:context];
         [context.krollContext invokeBlockOnThread:^{
             [proxy rememberProxy:viewproxy];
             [viewproxy forgetSelf];
@@ -776,7 +776,7 @@ static NSDictionary* replaceKeysForRow;
         if (context == nil) {
             context = self.proxy.pageContext;
         }
-        args = [[TiViewProxy class] unarchiveFromDictionary:args rootProxy:self.proxy inContext:context];
+        args = [[self.proxy class] createFromDictionary:args rootProxy:self.proxy inContext:context];
         [context.krollContext invokeBlockOnThread:^{
             [self.proxy rememberProxy:args];
             [args forgetSelf];
