@@ -10,23 +10,23 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.Iterator;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.kroll.KrollProxy;
 
-public class ViewItem {
-	TiViewProxy viewProxy;
+public class ProxyListItem {
+	KrollProxy proxy;
 	KrollDict initialProperties;
 	KrollDict currentProperties;
 	KrollDict diffProperties;
 	
-	public ViewItem(TiViewProxy viewProxy, KrollDict props) {
+	public ProxyListItem(KrollProxy proxy, KrollDict props) {
 		initialProperties = (KrollDict)props.clone();
-		this.viewProxy = viewProxy;
+		this.proxy = proxy;
 		diffProperties = new KrollDict();
 		currentProperties = new KrollDict();
 	}
 	
-	public TiViewProxy getViewProxy() {
-		return viewProxy;
+	public KrollProxy getProxy() {
+		return proxy;
 	}
 	
 	/**

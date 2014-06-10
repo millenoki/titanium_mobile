@@ -221,7 +221,7 @@ public class TiUIText extends TiUINonViewGroupView
                 this.leftView = null;
             }
 			if (leftView instanceof HashMap) {
-                this.leftView = (TiViewProxy)TiViewProxy.createViewFromTemplate((HashMap) leftView,
+                this.leftView = (TiViewProxy)proxy.createProxyFromTemplate((HashMap) leftView,
                        proxy, true);
                 if (this.leftView != null) {
                     this.leftView.updateKrollObjectProperties();
@@ -261,7 +261,7 @@ public class TiUIText extends TiUINonViewGroupView
                 this.rightView = null;
             }
             if (rightView instanceof HashMap) {
-                this.rightView = (TiViewProxy)TiViewProxy.createViewFromTemplate((HashMap) rightView,
+                this.rightView = (TiViewProxy)proxy.createProxyFromTemplate((HashMap) rightView,
                        proxy, true);
                 if (this.rightView != null) {
                     this.rightView.updateKrollObjectProperties();

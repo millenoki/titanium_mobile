@@ -89,7 +89,7 @@ import android.widget.AdapterView;
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
  */
 public abstract class TiUIView
-	implements KrollProxyListener, OnFocusChangeListener, Handler.Callback
+	implements KrollProxyReusableListener, OnFocusChangeListener, Handler.Callback
 {
 
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
