@@ -350,10 +350,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 
 -(void)setExecutionContext:(id<TiEvaluator>)context;
 
-+ (id)createProxy:(NSString *)qualifiedName withProperties:(NSDictionary *)properties inContext:(id<TiEvaluator>)context;
++ (id)createProxy:(Class)proxyClass withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context;
++ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context;
 
 -(void)applyProperties:(id)args;
 -(NSString*)apiName;
 -(id)objectOfClass:(Class)theClass fromArg:(id)arg;
 +(id)objectOfClass:(Class)theClass fromArg:(id)arg inContext:(id<TiEvaluator>)context_;
++(CFMutableDictionaryRef)classNameLookup;
+- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy;
 @end

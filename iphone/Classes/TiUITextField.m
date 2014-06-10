@@ -335,7 +335,7 @@
 	{
 		vp = (TiViewProxy*)value;
     } else if ([value isKindOfClass:[NSDictionary class]]) {
-        vp = [[self.proxy class] unarchiveFromDictionary:value rootProxy:self.proxy inContext:context];
+        vp = [[self.proxy class] createFromDictionary:value rootProxy:self.proxy inContext:context];
     }
     
     UIView* leftView = [[self textWidgetView] leftView];
@@ -377,7 +377,7 @@
 		vp = (TiViewProxy*)value;
     } else if ([value isKindOfClass:[NSDictionary class]]) {
         
-        vp = [[self.proxy class] unarchiveFromDictionary:value rootProxy:self.proxy inContext:context];
+        vp = [[self.proxy class] createFromDictionary:value rootProxy:self.proxy inContext:context];
     }
     
     UIView* rightView = [[self textWidgetView] rightView];

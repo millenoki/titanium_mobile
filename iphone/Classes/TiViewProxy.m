@@ -239,9 +239,10 @@ static NSSet* transferableProps = nil;
 	// allow either an array of arrays or an array of single proxy
 	if ([arg isKindOfClass:[NSArray class]])
 	{
+        NSInteger newPos = position;
 		for (id a in arg)
 		{
-			[self add:a];
+            [self addInternal:a atIndex:newPos++ shouldRelayout:shouldRelayout];
 		}
 		return;
 	}
@@ -250,50 +251,50 @@ static NSSet* transferableProps = nil;
         if (context == nil) {
             context = self.pageContext;
         }
-        TiViewProxy *child = [[self class] unarchiveFromDictionary:arg rootProxy:self inContext:context];
+        TiViewProxy *child = [[self class] createFromDictionary:arg rootProxy:self inContext:context];
         [context.krollContext invokeBlockOnThread:^{
             [self rememberProxy:child];
             [child forgetSelf];
         }];
-        [self add:child];
+        [self addInternal:child atIndex:position shouldRelayout:shouldRelayout];
         return;
     }
-	
-//    if ([arg conformsToProtocol:@protocol(TiWindowProtocol)]) {
-//        DebugLog(@"Can not add a window as a child of a view. Returning");
-//        return;
-//    }
-    
-	if ([NSThread isMainThread])
+    [self addProxy:arg atIndex:position shouldRelayout:shouldRelayout];
+}
+
+-(void)addProxy:(id)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
+{
+    ENSURE_SINGLE_ARG_OR_NIL(child, TiViewProxy)
+    if ([NSThread isMainThread])
 	{
         if (readyToCreateView)
-            [arg setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
+            [child setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
 		pthread_rwlock_wrlock(&childrenLock);
 		if (children==nil)
 		{
-			children = [[NSMutableArray alloc] initWithObjects:arg,nil];
-		}		
-		else 
+			children = [[NSMutableArray alloc] initWithObjects:child,nil];
+		}
+		else
 		{
             if(position < 0 || position > [children count]) {
                 position = [children count];
             }
-            [children insertObject:arg atIndex:position];
+            [children insertObject:child atIndex:position];
 		}
         childrenCount = [children count];
 		pthread_rwlock_unlock(&childrenLock);
-		[arg setParent:self];
+		[child setParent:self];
         
-        if (!readyToCreateView || [arg isHidden]) return;
-        [arg performBlockWithoutLayout:^{
-            [arg getOrCreateView];
+        if (!readyToCreateView || [child isHidden]) return;
+        [child performBlockWithoutLayout:^{
+            [child getOrCreateView];
         }];
         if (!shouldRelayout) return;
-
+        
         [self contentsWillChange];
         if(parentVisible && !hidden)
         {
-            [arg parentWillShow];
+            [child parentWillShow];
         }
         
         //If layout is non absolute push this into the layout queue
@@ -302,32 +303,35 @@ static NSSet* transferableProps = nil;
             [self contentsWillChange];
         }
         else {
-            [self layoutChild:arg optimize:NO withMeasuredBounds:[[self view] bounds]];
+            [self layoutChild:child optimize:NO withMeasuredBounds:[[self view] bounds]];
         }
 		
 	}
 	else
 	{
-		[self rememberProxy:arg];
+		[self rememberProxy:child];
 		if (windowOpened && shouldRelayout)
 		{
-			TiThreadPerformOnMainThread(^{[self add:arg];}, NO);
+			TiThreadPerformOnMainThread(^{[self addProxy:child atIndex:position shouldRelayout:shouldRelayout];}, NO);
 			return;
 		}
         else {
             pthread_rwlock_wrlock(&childrenLock);
             if (children==nil)
             {
-                children = [[NSMutableArray alloc] initWithObjects:arg,nil];
+                children = [[NSMutableArray alloc] initWithObjects:child,nil];
             }
             else
             {
-                [children addObject:arg];
+                if(position < 0 || position > [children count]) {
+                    position = [children count];
+                }
+                [children insertObject:child atIndex:position];
             }
             childrenCount = [children count];
             pthread_rwlock_unlock(&childrenLock);
         }
-		[arg setParent:self];
+		[child setParent:self];
 	}
 }
 
@@ -350,52 +354,39 @@ static NSSet* transferableProps = nil;
 	}
 }
 
--(void)remove:(id)arg
+-(void)removeProxy:(id)child
 {
-	ENSURE_SINGLE_ARG(arg,TiViewProxy);
-	ENSURE_UI_THREAD_1_ARG(arg);
-
-	pthread_rwlock_wrlock(&childrenLock);
-//	NSMutableArray* childrenCopy = [children mutableCopy];
-	if ([children containsObject:arg]) {
-		[children removeObject:arg];
+    ENSURE_SINGLE_ARG_OR_NIL(child, TiViewProxy)
+    pthread_rwlock_wrlock(&childrenLock);
+	if ([children containsObject:child]) {
+		[children removeObject:child];
 	}
 	pthread_rwlock_unlock(&childrenLock);
-		
-	[arg setParent:nil];
     
-    [(TiViewProxy *)arg detachView];
+	[child setParent:nil];
+    
+    [(TiViewProxy *)child detachView];
     BOOL layoutNeedsRearranging = ![self absoluteLayout];
     if (layoutNeedsRearranging)
     {
         [self layoutChildren:NO];
     }
-//	
-//	if (view!=nil)
-//	{
-//		TiUIView *childView = [(TiViewProxy *)arg view];
-//		BOOL layoutNeedsRearranging = !TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
-//		if ([NSThread isMainThread])
-//		{
-//			[childView removeFromSuperview];
-//			if (layoutNeedsRearranging)
-//			{
-//				[self layoutChildren:NO];
-//			}
-//		}
-//		else
-//		{
-//			TiThreadPerformOnMainThread(^{
-//				[childView removeFromSuperview];
-//				if (layoutNeedsRearranging)
-//				{
-//					[self layoutChildren:NO];
-//				}
-//			}, NO);
-//		}
-//	}
-	//Yes, we're being really lazy about letting this go. This is intentional.
-	[self forgetProxy:arg];
+	[self forgetProxy:child];
+}
+
+-(void)remove:(id)arg
+{
+	ENSURE_UI_THREAD_1_ARG(arg);
+    
+    if ([arg isKindOfClass:[NSArray class]])
+	{
+		for (id a in arg)
+		{
+            [self remove:a];
+		}
+		return;
+	}
+    [self removeProxy:arg];
 }
 
 -(void)removeFromParent:(id)arg
@@ -3836,6 +3827,27 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	}];
 }
 
++(Class)proxyClassFromString:(NSString*)qualifiedName
+{
+    Class proxyClass = (Class)CFDictionaryGetValue([TiProxy classNameLookup], qualifiedName);
+	if (proxyClass == nil) {
+		NSString *titanium = [NSString stringWithFormat:@"%@%s",@"Ti","tanium."];
+		if ([qualifiedName hasPrefix:titanium]) {
+			qualifiedName = [qualifiedName stringByReplacingCharactersInRange:NSMakeRange(2, 6) withString:@""];
+		}
+		NSString *className = [[qualifiedName stringByReplacingOccurrencesOfString:@"." withString:@""] stringByAppendingString:@"Proxy"];
+		proxyClass = NSClassFromString(className);
+		if (proxyClass==nil) {
+			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.", className);
+			@throw [NSException exceptionWithName:@"org.appcelerator.module"
+                                           reason:[NSString stringWithFormat:@"Class not found: %@", qualifiedName]
+                                         userInfo:nil];
+		}
+		CFDictionarySetValue([TiProxy classNameLookup], qualifiedName, proxyClass);
+	}
+    return proxyClass;
+}
+
 // Returns protected proxy, caller should do forgetSelf.
 + (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate_ inContext:(id<TiEvaluator>)context withEvents:(BOOL)withEvents
 {
@@ -3845,7 +3857,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	}
 	
 	if (viewTemplate.type != nil) {
-		TiViewProxy *proxy = [[self class] createProxy:viewTemplate.type withProperties:nil inContext:context];
+		TiViewProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:viewTemplate.type] withProperties:nil inContext:context];
 		[context.krollContext invokeBlockOnThread:^{
 			[context registerProxy:proxy];
 			[proxy rememberSelf];
@@ -3859,35 +3871,20 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 - (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy
 {
-	if (dictionary == nil) {
+	[super unarchiveFromDictionary:dictionary rootProxy:rootProxy];
+    if (dictionary == nil) {
 		return;
 	}
-	
-	id<TiEvaluator> context = self.executionContext;
+    id<TiEvaluator> context = self.executionContext;
 	if (context == nil) {
 		context = self.pageContext;
-	}
-	NSDictionary* properties = (NSDictionary*)[dictionary objectForKey:@"properties"];
-    if (properties == nil) properties = dictionary;
-	[self _initWithProperties:properties];
-    NSString* bindId = [dictionary objectForKey:@"bindId"];
-    if (bindId) {
-        [rootProxy setValue:self forKey:bindId];
-    }
-	NSDictionary* events = (NSDictionary*)[dictionary objectForKey:@"events"];
-	if ([events count] > 0) {
-		[context.krollContext invokeBlockOnThread:^{
-			[events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, KrollCallback *listener, BOOL *stop) {
-                [self addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
-			}];
-		}];
 	}
 	NSArray* childTemplates = (NSArray*)[dictionary objectForKey:@"childTemplates"];
 	
 	[childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
         TiViewProxy *child = nil;
         if ([childTemplate isKindOfClass:[NSDictionary class]]) {
-            child = [[self class] unarchiveFromDictionary:childTemplate rootProxy:rootProxy inContext:context];
+            child = [[self class] createFromDictionary:childTemplate rootProxy:rootProxy inContext:context];
         }
         else if(([childTemplate isKindOfClass:[TiViewProxy class]]))
         {
@@ -3904,7 +3901,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 }
 
 // Returns protected proxy, caller should do forgetSelf.
-+ (TiViewProxy *)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context
++ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context
 {
 	if (dictionary == nil) {
 		return nil;
@@ -3912,7 +3909,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     NSString* type = [dictionary objectForKey:@"type"];
     
 	if (type == nil) type = @"Ti.UI.View";
-    TiViewProxy *proxy = [[self class] createProxy:type withProperties:nil inContext:context];
+    TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
     [context.krollContext invokeBlockOnThread:^{
         [context registerProxy:proxy];
         [proxy rememberSelf];

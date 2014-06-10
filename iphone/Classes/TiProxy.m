@@ -1269,32 +1269,24 @@ DEFINE_EXCEPTIONS
     return @"Ti.Proxy";
 }
 
-+ (id)createProxy:(NSString*)qualifiedName withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context
++(CFMutableDictionaryRef)classNameLookup
 {
-	static dispatch_once_t onceToken;
+    static dispatch_once_t onceToken;
 	static CFMutableDictionaryRef classNameLookup;
 	dispatch_once(&onceToken, ^{
 		classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
 	});
-	Class proxyClass = (Class)CFDictionaryGetValue(classNameLookup, qualifiedName);
-	if (proxyClass == nil) {
-		NSString *titanium = [NSString stringWithFormat:@"%@%s",@"Ti","tanium."];
-		if ([qualifiedName hasPrefix:titanium]) {
-			qualifiedName = [qualifiedName stringByReplacingCharactersInRange:NSMakeRange(2, 6) withString:@""];
-		}
-		NSString *className = [[qualifiedName stringByReplacingOccurrencesOfString:@"." withString:@""] stringByAppendingString:@"Proxy"];
-		proxyClass = NSClassFromString(className);
-		if (proxyClass==nil) {
-			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.", className);
-			@throw [NSException exceptionWithName:@"org.appcelerator.module"
-										reason:[NSString stringWithFormat:@"Class not found: %@", qualifiedName]
-										userInfo:nil];
-		}
-		CFDictionarySetValue(classNameLookup, qualifiedName, proxyClass);
-	}
-	NSArray *args = properties != nil ? [NSArray arrayWithObject:properties] : nil;
-	return [[[proxyClass alloc] _initWithPageContext:context args:args
-			 ] autorelease];
+    return classNameLookup;
+}
+
++ (id)createProxy:(Class)proxyClass withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context
+{
+    if (proxyClass) {
+        NSArray *args = properties != nil ? [NSArray arrayWithObject:properties] : nil;
+        return [[[proxyClass alloc] _initWithPageContext:context args:args
+                 ] autorelease];
+    }
+	return nil;
 }
 
 -(id)objectOfClass:(Class)theClass fromArg:(id)arg {
@@ -1312,4 +1304,51 @@ DEFINE_EXCEPTIONS
     if (arg == nil || ![arg isKindOfClass:[NSDictionary class]]) return nil;
 	return [[[[theClass class] alloc] _initWithPageContext:context_ args:[NSArray arrayWithObject:arg]] autorelease];
 }
+
+// Returns protected proxy, caller should do forgetSelf.
++ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context
+{
+	if (dictionary == nil) {
+		return nil;
+	}
+    NSString* type = [dictionary objectForKey:@"type"];
+    
+	if (type == nil) return nil;
+    TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
+    [context.krollContext invokeBlockOnThread:^{
+        [context registerProxy:proxy];
+        [proxy rememberSelf];
+    }];
+    [proxy unarchiveFromDictionary:dictionary rootProxy:rootProxy];
+    return proxy;
+}
+
+
+- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy
+{
+	if (dictionary == nil) {
+		return;
+	}
+	
+	id<TiEvaluator> context = self.executionContext;
+	if (context == nil) {
+		context = self.pageContext;
+	}
+	NSDictionary* properties = (NSDictionary*)[dictionary objectForKey:@"properties"];
+    if (properties == nil) properties = dictionary;
+	[self _initWithProperties:properties];
+    NSString* bindId = [dictionary objectForKey:@"bindId"];
+    if (bindId) {
+        [rootProxy setValue:self forKey:bindId];
+    }
+	NSDictionary* events = (NSDictionary*)[dictionary objectForKey:@"events"];
+	if ([events count] > 0) {
+		[context.krollContext invokeBlockOnThread:^{
+			[events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, KrollCallback *listener, BOOL *stop) {
+                [self addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
+			}];
+		}];
+	}
+}
+
 @end

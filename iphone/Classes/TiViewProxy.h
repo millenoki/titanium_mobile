@@ -147,10 +147,17 @@ enum
 -(void)add:(id)arg;
 
 /**
+ Subclass can directly use that method to handle it all!
+ */
+
+-(void)addProxy:(id)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout;
+
+/**
  Tells the view proxy to remove a child proxy.
  @param arg A single proxy to remove.
  */
 -(void)remove:(id)arg;
+-(void)removeProxy:(id)child;
 
 /**
  Tells the view proxy to remove all child proxies.
@@ -595,8 +602,9 @@ enum
 
 - (void)prepareForReuse;
 
++(Class)proxyClassFromString:(NSString*)qualifiedName;
 - (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents;
-+ (TiViewProxy *)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context;
++ (TiViewProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context;
 
 //+ (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate inContext:(id<TiEvaluator>)context;
 

@@ -403,7 +403,7 @@ static NSDictionary* replaceKeysForRow;
         if (context == nil) {
             context = proxy.pageContext;
         }
-        viewproxy = [[TiViewProxy class] unarchiveFromDictionary:value rootProxy:proxy inContext:context];
+        viewproxy = [[TiViewProxy class] createFromDictionary:value rootProxy:proxy inContext:context];
         [context.krollContext invokeBlockOnThread:^{
             [proxy rememberProxy:viewproxy];
             [viewproxy forgetSelf];
