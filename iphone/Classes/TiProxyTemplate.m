@@ -5,10 +5,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiViewTemplate.h"
+#import "TiProxyTemplate.h"
 #import "TiViewProxy.h"
 
-@implementation TiViewTemplate {
+@implementation TiProxyTemplate {
 	NSString *_type;
 	NSMutableDictionary *_properties;
 	NSMutableDictionary *_events;
@@ -100,9 +100,9 @@
 	}
 }
 
-+ (TiViewTemplate *)templateFromViewTemplate:(id)viewTemplate
++ (TiProxyTemplate *)templateFromViewTemplate:(id)viewTemplate
 {
-	if ([viewTemplate isKindOfClass:[TiViewTemplate class]]) {
+	if ([viewTemplate isKindOfClass:[TiProxyTemplate class]]) {
 		return ![viewTemplate isEmpty] ? viewTemplate : nil;
 	} else if ([viewTemplate isKindOfClass:[NSDictionary class]]) {
 		viewTemplate = [[self alloc] initWithViewTemplate:viewTemplate];

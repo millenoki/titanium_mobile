@@ -213,7 +213,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 
 @synthesize pageContext, executionContext;
 @synthesize modelDelegate;
-
+@synthesize eventOverrideDelegate = eventOverrideDelegate;
 
 #pragma mark Private
 
@@ -964,6 +964,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	{
 		return;
 	}
+    
+    if (eventOverrideDelegate != nil) {
+        obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
+    }
 	
 	TiBindingEvent ourEvent;
 	
@@ -1279,6 +1283,28 @@ DEFINE_EXCEPTIONS
     return classNameLookup;
 }
 
+
++(Class)proxyClassFromString:(NSString*)qualifiedName
+{
+    Class proxyClass = (Class)CFDictionaryGetValue([TiProxy classNameLookup], qualifiedName);
+	if (proxyClass == nil) {
+		NSString *titanium = [NSString stringWithFormat:@"%@%s",@"Ti","tanium."];
+		if ([qualifiedName hasPrefix:titanium]) {
+			qualifiedName = [qualifiedName stringByReplacingCharactersInRange:NSMakeRange(2, 6) withString:@""];
+		}
+		NSString *className = [[qualifiedName stringByReplacingOccurrencesOfString:@"." withString:@""] stringByAppendingString:@"Proxy"];
+		proxyClass = NSClassFromString(className);
+		if (proxyClass==nil) {
+			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.", className);
+			@throw [NSException exceptionWithName:@"org.appcelerator.module"
+                                           reason:[NSString stringWithFormat:@"Class not found: %@", qualifiedName]
+                                         userInfo:nil];
+		}
+		CFDictionarySetValue([TiProxy classNameLookup], qualifiedName, proxyClass);
+	}
+    return proxyClass;
+}
+
 + (id)createProxy:(Class)proxyClass withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context
 {
     if (proxyClass) {
@@ -1305,15 +1331,53 @@ DEFINE_EXCEPTIONS
 	return [[[[theClass class] alloc] _initWithPageContext:context_ args:[NSArray arrayWithObject:arg]] autorelease];
 }
 
-// Returns protected proxy, caller should do forgetSelf.
+
+#pragma mark - View Templates
+
+- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents
+{
+	
+	id<TiEvaluator> context = self.executionContext;
+	if (context == nil) {
+		context = self.pageContext;
+	}
+    [self unarchiveFromTemplate:viewTemplate_ withEvents:withEvents inContext:context];
+}
+
+
+- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents inContext:(id<TiEvaluator>)context
+{
+	TiProxyTemplate *viewTemplate = [TiProxyTemplate templateFromViewTemplate:viewTemplate_];
+	if (viewTemplate == nil) {
+		return;
+	}
+	
+	[self _initWithProperties:viewTemplate.properties];
+	if (withEvents && [viewTemplate.events count] > 0) {
+		[context.krollContext invokeBlockOnThread:^{
+			[viewTemplate.events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, NSArray *list, BOOL *stop) {
+				[list enumerateObjectsUsingBlock:^(KrollWrapper *wrapper, NSUInteger idx, BOOL *stop) {
+					[self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
+				}];
+			}];
+		}];
+	}
+}
+
 + (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context
+{
+	return [[self class] createFromDictionary:dictionary rootProxy:rootProxy inContext:context defaultType:nil];
+}
+
+// Returns protected proxy, caller should do forgetSelf.
++ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context defaultType:(NSString*)defaultType
 {
 	if (dictionary == nil) {
 		return nil;
 	}
     NSString* type = [dictionary objectForKey:@"type"];
     
-	if (type == nil) return nil;
+	if (type == nil) type = defaultType;
     TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
     [context.krollContext invokeBlockOnThread:^{
         [context registerProxy:proxy];
@@ -1322,7 +1386,6 @@ DEFINE_EXCEPTIONS
     [proxy unarchiveFromDictionary:dictionary rootProxy:rootProxy];
     return proxy;
 }
-
 
 - (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy
 {

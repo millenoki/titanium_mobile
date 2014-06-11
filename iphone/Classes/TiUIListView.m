@@ -356,7 +356,7 @@ static NSDictionary* replaceKeysForRow;
 	NSMutableDictionary *templates = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
 	NSMutableDictionary *measureProxies = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
 	[(NSDictionary *)args enumerateKeysAndObjectsUsingBlock:^(NSString *key, id obj, BOOL *stop) {
-		TiViewTemplate *template = [TiViewTemplate templateFromViewTemplate:obj];
+		TiProxyTemplate *template = [TiProxyTemplate templateFromViewTemplate:obj];
 		if (template != nil) {
 			[templates setObject:template forKey:key];
             
@@ -518,7 +518,7 @@ static NSDictionary* replaceKeysForRow;
             templateId = _defaultItemTemplate;
         }
         if (![templateId isKindOfClass:[NSNumber class]]) {
-            TiViewTemplate *template = [_templates objectForKey:templateId];
+            TiProxyTemplate *template = [_templates objectForKey:templateId];
             theValue = [template.properties objectForKey:replaceKey];
         }
         if (theValue == nil) {

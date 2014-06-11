@@ -6,7 +6,7 @@
  */
 #import "TiProxy.h"
 
-@interface TiViewTemplate : TiProxy
+@interface TiProxyTemplate : TiProxy
 
 @property (nonatomic, readonly) NSString *type;
 @property (nonatomic, readonly) NSDictionary *properties;
@@ -16,6 +16,6 @@
 - (id)initWithViewTemplate:(NSDictionary *)viewTemplate;
 - (BOOL)isEmpty;
 
-+ (TiViewTemplate *)templateFromViewTemplate:(id)viewTemplate;
++ (TiProxyTemplate *)templateFromViewTemplate:(id)viewTemplate;
 
 @end
