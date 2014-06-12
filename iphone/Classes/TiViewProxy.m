@@ -1319,6 +1319,19 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     return tiview;
 }
 
+
+-(TiUIView*) getAndPrepareViewForOpening
+{
+    if([self viewAttached]) return view;
+    [self determineSandboxBoundsForce];
+    [self parentWillShow];
+    [self windowWillOpen];
+    [self windowDidOpen];
+    TiUIView* tiview = [self getOrCreateView];
+    return tiview;
+}
+
+
 -(void)determineSandboxBoundsForce
 {
     if(!CGRectIsEmpty(sandboxBounds)) return;
@@ -2526,7 +2539,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(void)refreshView
 {
     [self dirtyItAll];
-	[self refreshViewIfNeeded:NO];
+	[self refreshViewOrParent];
 }
 
 -(void)refreshViewIfNeeded
@@ -3733,15 +3746,8 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             __block TiUIView* view2 = nil;
             if (view2Proxy) {
                 [view2Proxy performBlockWithoutLayout:^{
-                    [self determineSandboxBoundsForce]; //just in case
                     [view2Proxy setParent:self];
-                    [self refreshViewOrParent];
-                    [view2Proxy determineSandboxBoundsForce];
-                    view2 = [view2Proxy getOrCreateView];
-                    [view2Proxy windowWillOpen];
-                    [view2Proxy windowDidOpen];
-                    [view2Proxy dirtyItAll];
-                    [view2Proxy refreshViewIfNeeded];
+                    view2 = [view2Proxy getAndPrepareViewForOpening];
                 }];
                 
                 id<TiEvaluator> context = self.executionContext;
@@ -3754,7 +3760,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
                 }];
             }
             if (view1Proxy != nil) {
-                view1 = [view1Proxy getOrCreateView];
+                view1 = [view1Proxy getAndPrepareViewForOpening];
             }
             
             TiTransition* transition = [TiTransitionHelper transitionFromArg:props containerView:self.view];
