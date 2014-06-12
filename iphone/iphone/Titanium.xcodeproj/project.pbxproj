@@ -1864,7 +1864,6 @@
 		B606EF38190B10A800663EFC /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJSON.h; sourceTree = "<group>"; };
 		B606EF48190B14ED00663EFC /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
 		B606EF49190B14ED00663EFC /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
-		B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = ../Classes/APSHTTPClient/libAPSHTTPClient.a; sourceTree = "<group>"; };
 		B6465C2118D1011C003C51A8 /* TiNetworkCookieProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiNetworkCookieProxy.h; sourceTree = "<group>"; };
 		B6465C2218D1011C003C51A8 /* TiNetworkCookieProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiNetworkCookieProxy.m; sourceTree = "<group>"; };
 		B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSTransitionAnimationProxy.h; sourceTree = "<group>"; };
@@ -2569,7 +2568,6 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
-				D5B9289218C1EEC200E26393 /* GPUImage.framework */,
 				D55795071837BEF90057DD41 /* CoconutKitAnimation */,
 				D5B6C6DD1811249F00A2612A /* DT */,
 				D5C8C93C17EF45BA00F54C19 /* ADTransitionController */,
@@ -3582,8 +3580,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D5B9289218C1EEC200E26393 /* GPUImage.framework */,
 				D5A016C91926109E0005158A /* Accelerate.framework */,
-				B606EF5F190B42FB00663EFC /* libAPSHTTPClient.a */,
 				D5EA4AD218EF05EB001F67E8 /* libresolv.dylib */,
 				D52DF22C18C7A0550076FB71 /* libMapbox.a */,
 				D5818EAE18AA8872007EF771 /* AdSupport.framework */,
