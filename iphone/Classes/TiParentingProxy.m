@@ -79,7 +79,7 @@
         NSInteger newPos = position;
 		for (id a in arg)
 		{
-            [self addInternal:a atIndex:newPos++ shouldRelayout:shouldRelayout];
+            [self addInternal:a atIndex:newPos shouldRelayout:shouldRelayout];
 		}
 		return;
 	}
