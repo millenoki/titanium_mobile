@@ -50,7 +50,7 @@
 -(NSArray*)children
 {
     if (childrenCount == 0) {
-        return nil;
+        return [NSMutableArray array];
     }
     if (![NSThread isMainThread]) {
         __block NSArray* result = nil;
