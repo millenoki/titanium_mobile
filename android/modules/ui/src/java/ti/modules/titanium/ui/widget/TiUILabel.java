@@ -44,14 +44,18 @@ import android.widget.TextView;
 import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.Layout.Alignment;
+import android.text.Selection;
 import android.text.Spannable;
+import android.text.Spannable.Factory;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.StaticLayout;
 import android.text.TextUtils.TruncateAt;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.BulletSpan;
+import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.MaskFilterSpan;
@@ -336,6 +340,53 @@ public class TiUILabel extends TiUINonViewGroupView
 				}
 			}
 		}
+		
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            TextView textView = (TextView) this;
+            Object text = textView.getText();
+            // For html texts, we will manually detect url clicks.
+            if (text instanceof SpannedString) {
+                SpannedString spanned = (SpannedString) text;
+                Spannable buffer = Factory.getInstance().newSpannable(
+                        spanned.subSequence(0, spanned.length()));
+
+                int action = event.getAction();
+
+                if (action == MotionEvent.ACTION_UP
+                        || action == MotionEvent.ACTION_DOWN) {
+                    int x = (int) event.getX();
+                    int y = (int) event.getY();
+
+                    x -= textView.getTotalPaddingLeft();
+                    y -= textView.getTotalPaddingTop();
+
+                    x += textView.getScrollX();
+                    y += textView.getScrollY();
+
+                    Layout layout = textView.getLayout();
+                    int line = layout.getLineForVertical(y);
+                    int off = layout.getOffsetForHorizontal(line, x);
+
+                    ClickableSpan[] link = buffer.getSpans(off, off,
+                            ClickableSpan.class);
+
+                    if (link.length != 0) {
+                        ClickableSpan cSpan = link[0];
+                        if (action == MotionEvent.ACTION_UP) {
+                            cSpan.onClick(textView);
+                        } else if (action == MotionEvent.ACTION_DOWN) {
+                            Selection.setSelection(buffer,
+                                    buffer.getSpanStart(cSpan),
+                                    buffer.getSpanEnd(cSpan));
+                        }
+                    }
+                }
+
+            }
+
+            return super.onTouchEvent(event);
+        }
 
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent event) {
@@ -938,50 +989,6 @@ public class TiUILabel extends TiUINonViewGroupView
 				super.onLayout(changed, left, top, right, bottom);
 				TiUIHelper.firePostLayoutEvent(TiUILabel.this);
 			}
-			
-			@Override
-			public boolean onTouchEvent(MotionEvent event) {
-			        TextView textView = (TextView) this;
-			        Object text = textView.getText();
-			        //For html texts, we will manually detect url clicks.
-			        if (text instanceof SpannedString) {
-			            SpannedString spanned = (SpannedString) text;
-			            Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
-
-			            int action = event.getAction();
-
-			            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
-			                int x = (int) event.getX();
-			                int y = (int) event.getY();
-
-			                x -= textView.getTotalPaddingLeft();
-			                y -= textView.getTotalPaddingTop();
-
-			                x += textView.getScrollX();
-			                y += textView.getScrollY();
-
-			                Layout layout = textView.getLayout();
-			                int line = layout.getLineForVertical(y);
-			                int off = layout.getOffsetForHorizontal(line, x);
-
-			                ClickableSpan[] link = buffer.getSpans(off, off,
-			                        ClickableSpan.class);
-
-			                if (link.length != 0) {
-			                	ClickableSpan cSpan = link[0];
-			                    if (action == MotionEvent.ACTION_UP) {
-			                        cSpan.onClick(textView);
-			                    } else if (action == MotionEvent.ACTION_DOWN) {
-			                         Selection.setSelection(buffer, buffer.getSpanStart(cSpan), buffer.getSpanEnd(cSpan));
-			                    }
-			                }
-			            }
-
-			        }
-
-			        return super.onTouchEvent(event);
-			    } 
-			
 		};
 		textPadding = new RectF();
 		

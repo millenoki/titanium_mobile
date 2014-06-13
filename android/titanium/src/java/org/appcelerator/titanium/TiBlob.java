@@ -323,9 +323,6 @@ public class TiBlob extends KrollProxy
 					return sizeOf(image);
 				}
 				return ((byte[])getData()).length;
-			case TYPE_STREAM:
-				throw new IllegalStateException("Not yet implemented. TYPE_STREAM");
-				return ((byte[])data).length;
 			case TYPE_STREAM_BASE64:
 				throw new IllegalStateException("Not yet implemented. TYPE_STREAM_BASE64");
 			default:
