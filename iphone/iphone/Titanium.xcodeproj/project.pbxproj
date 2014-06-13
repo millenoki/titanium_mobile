@@ -787,6 +787,7 @@
 		D597CF0717D719C4009A080B /* TiCellBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D597CF0617D719C4009A080B /* TiCellBackgroundView.m */; };
 		D597CF0817D719C4009A080B /* TiCellBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D597CF0617D719C4009A080B /* TiCellBackgroundView.m */; };
 		D597CF0917D719C4009A080B /* TiCellBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D597CF0617D719C4009A080B /* TiCellBackgroundView.m */; };
+		D59A20C7194AF3D800BC5B93 /* libakylas.charts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D59A20C0194AF3C800BC5B93 /* libakylas.charts.a */; };
 		D59DD42718096186002FDCDF /* ADModernPushTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D59DD42618096186002FDCDF /* ADModernPushTransition.m */; };
 		D59DD42818096186002FDCDF /* ADModernPushTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D59DD42618096186002FDCDF /* ADModernPushTransition.m */; };
 		D59DD42918096186002FDCDF /* ADModernPushTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D59DD42618096186002FDCDF /* ADModernPushTransition.m */; };
@@ -1297,6 +1298,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
 			remoteInfo = akylas.shapes;
+		};
+		D59A20BF194AF3C800BC5B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC07E0554694100DB518D;
+			remoteInfo = akylas.charts;
+		};
+		D59A20C5194AF3D300BC5B93 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = akylas.charts;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -2109,6 +2124,7 @@
 		D590815B168B593B00362307 /* TiUIHorizontalTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIHorizontalTableView.h; sourceTree = "<group>"; };
 		D597CF0517D719C4009A080B /* TiCellBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCellBackgroundView.h; sourceTree = "<group>"; };
 		D597CF0617D719C4009A080B /* TiCellBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCellBackgroundView.m; sourceTree = "<group>"; };
+		D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.charts.xcodeproj; path = ../../../modules/akylas_modules/charts/ios/akylas.charts.xcodeproj; sourceTree = "<group>"; };
 		D59DD42518096186002FDCDF /* ADModernPushTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADModernPushTransition.h; path = ../Classes/ADTransitionController/ADModernPushTransition.h; sourceTree = "<group>"; };
 		D59DD42618096186002FDCDF /* ADModernPushTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADModernPushTransition.m; path = ../Classes/ADTransitionController/ADModernPushTransition.m; sourceTree = "<group>"; };
 		D59EC23B180FDC5D00FDDD11 /* TiTransitionFold.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionFold.h; sourceTree = "<group>"; };
@@ -2315,6 +2331,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D59A20C7194AF3D800BC5B93 /* libakylas.charts.a in Frameworks */,
 				D58ED9071928F49F00BA0E04 /* libakylas.commonjs.a in Frameworks */,
 				D58ED9081928F49F00BA0E04 /* libakylas.map.a in Frameworks */,
 				D58ED9091928F49F00BA0E04 /* libakylas.shapes.a in Frameworks */,
@@ -3999,6 +4016,7 @@
 		D55ED5781861B3C90035749B /* _dependencies_ */ = {
 			isa = PBXGroup;
 			children = (
+				D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */,
 				D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */,
 				D5E75A6E187C58F00016542B /* icon.png */,
 				D5E75A7A187C59060016542B /* icon_120@2x.png */,
@@ -4098,6 +4116,14 @@
 			isa = PBXGroup;
 			children = (
 				D58ED8FB1928E6F800BA0E04 /* libakylas.commonjs.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D59A20BA194AF3C800BC5B93 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D59A20C0194AF3C800BC5B93 /* libakylas.charts.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4320,6 +4346,7 @@
 				D56915C5168F19E800C3F89F /* PBXBuildRule */,
 			);
 			dependencies = (
+				D59A20C6194AF3D300BC5B93 /* PBXTargetDependency */,
 				D58ED9051928F49600BA0E04 /* PBXTargetDependency */,
 				D58ED9031928F49300BA0E04 /* PBXTargetDependency */,
 				D58ED9011928F49000BA0E04 /* PBXTargetDependency */,
@@ -4401,6 +4428,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = D59A20BA194AF3C800BC5B93 /* Products */;
+					ProjectRef = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
+				},
+				{
 					ProductGroup = D58ED8F61928E6F800BA0E04 /* Products */;
 					ProjectRef = D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */;
 				},
@@ -4453,6 +4484,13 @@
 			fileType = archive.ar;
 			path = libakylas.commonjs.a;
 			remoteRef = D58ED8FA1928E6F800BA0E04 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D59A20C0194AF3C800BC5B93 /* libakylas.charts.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libakylas.charts.a;
+			remoteRef = D59A20BF194AF3C800BC5B93 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -5687,6 +5725,11 @@
 			isa = PBXTargetDependency;
 			name = akylas.shapes;
 			targetProxy = D58ED9041928F49600BA0E04 /* PBXContainerItemProxy */;
+		};
+		D59A20C6194AF3D300BC5B93 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = akylas.charts;
+			targetProxy = D59A20C5194AF3D300BC5B93 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
