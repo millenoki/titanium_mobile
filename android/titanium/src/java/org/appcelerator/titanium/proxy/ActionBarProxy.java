@@ -62,6 +62,7 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 	private static final int MSG_SET_DISPLAY_SHOW_TITLE = MSG_FIRST_ID + 115;
 
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
+	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
 	private static final String BACKGROUND_IMAGE = "backgroundImage";
 	private static final String TITLE = "title";
 	private static final String LOGO = "logo";

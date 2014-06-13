@@ -61,6 +61,19 @@ extern NSString * const TI_APPLICATION_GUID;
 -(void)open:(id)args
 {
     ENSURE_ARRAY(args);
+    
+    if ([httpRequest response] != nil) {
+        APSHTTPResponseState curState = [[httpRequest response] readyState];
+        if ( (curState == APSHTTPResponseStateUnsent) || (curState == APSHTTPResponseStateDone) ) {
+            //Clear out the client + delegate and continue
+            RELEASE_TO_NIL(httpRequest);
+            RELEASE_TO_NIL(apsConnectionDelegate);
+        } else {
+            NSLog(@"[ERROR] open can only be called if client is disconnected(0) or done(4). Current state is %d ",curState);
+            return;
+        }
+    }
+    
     NSString *method = [TiUtils stringValue:[args objectAtIndex:0]];
     NSURL *url = [TiUtils toURL:[args objectAtIndex:1] proxy:self];
     [self ensureClient];
@@ -83,6 +96,18 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)send:(id)args
 {
+    if (httpRequest == nil) {
+        NSLog(@"[ERROR] No request object found. Did you call open?");
+        return;
+    }
+    if ([httpRequest response] != nil) {
+        APSHTTPResponseState curState = [[httpRequest response] readyState];
+        if (curState != APSHTTPResponseStateUnsent) {
+            NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ",curState);
+            return;
+        }
+    }
+    
     [self rememberSelf];
     
     [httpRequest setShowActivity: [TiUtils boolValue:[self valueForUndefinedKey:@"showActivity"] def:YES]];
@@ -412,6 +437,17 @@ extern NSString * const TI_APPLICATION_GUID;
 {
     return NUMINT([[self response] status]);
 }
+
+-(NSString*)statusText
+{
+    if (([self response] != nil) && ([[self response] readyState] >= APSHTTPResponseStateHeaders) ) {
+        NSInteger status = [[self response] status];
+        return [NSHTTPURLResponse localizedStringForStatusCode:status];
+    }
+    return nil;
+}
+
+
 -(NSString*)location
 {
     if([self response] == nil) {

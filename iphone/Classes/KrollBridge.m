@@ -27,6 +27,7 @@
 extern BOOL const TI_APPLICATION_ANALYTICS;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_GUID;
+extern NSString * const TI_APPLICATION_BUILD_TYPE;
 
 NSString * TitaniumModuleRequireFormat = @"(function(exports){"
 		"var __OXP=exports;var module={'exports':exports};var __dirname=\"%@\";var __filename=\"%@\";\n%@;\n"
@@ -65,8 +66,12 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 		TiModule *api = [host moduleNamed:@"API" context:pageContext_];
 		[self addModule:@"API" module:api];
 		
-		if (TI_APPLICATION_ANALYTICS) {
-			//This should enable analytics.
+		if (TI_APPLICATION_ANALYTICS)
+		{
+            if (TI_APPLICATION_BUILD_TYPE != nil || (TI_APPLICATION_BUILD_TYPE.length > 0)) {
+                [[APSAnalytics class] performSelector:@selector(setBuildType:) withObject:TI_APPLICATION_BUILD_TYPE];
+            }
+            [[APSAnalytics class] performSelector:@selector(setSDKVersion:) withObject:[NSString stringWithFormat:@"ti.%@",[module performSelector:@selector(version)]]];
 			[APSAnalytics enableWithAppKey:TI_APPLICATION_GUID withDeployType:TI_APPLICATION_DEPLOYTYPE];
 		}
 	}

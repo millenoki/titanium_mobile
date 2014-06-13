@@ -37,7 +37,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
-import org.appcelerator.aps.analytics.APSAnalytics;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -67,6 +66,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.appcelerator.analytics.APSAnalytics;
 
 /**
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
@@ -1186,8 +1187,8 @@ public abstract class TiBaseActivity extends SherlockFragmentActivity
 			}
 		}
 
-		// Checkpoint for ti.end event
-		if (tiApp != null && tiApp.collectAnalytics()) {
+		// Checkpoint for ti.background event
+		if (tiApp != null && TiApplication.getInstance().isAnalyticsEnabled()) {
 			APSAnalytics.sendSessionBackgroundEvent();
 		}
 	}
@@ -1241,11 +1242,11 @@ public abstract class TiBaseActivity extends SherlockFragmentActivity
 		isResumed = true;
 		isPaused = false;
 
-		// Checkpoint for ti.start event
+		// Checkpoint for ti.foreground event
 		//String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
-        if (tiApp.collectAnalytics()) {
-            APSAnalytics.sendSessionForegroundEvent();
-        }
+		if(TiApplication.getInstance().isAnalyticsEnabled()){
+			APSAnalytics.sendSessionForegroundEvent();
+		}
 	}
 	
 //	@Override

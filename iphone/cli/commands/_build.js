@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -275,6 +275,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							}
 						},
 						options: {
+							'build-type': {
+ 								hidden: true
+ 							},
 							'debug-host': {
 								hidden: true
 							},
@@ -558,7 +561,15 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 							'keychain': {
 								abbr: 'K',
 								desc: __('path to the distribution keychain to use instead of the system default; only used when target is %s, %s, or %s', 'device'.cyan, 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
-								hideValues: true
+								hideValues: true,
+								validate: function (value, callback) {
+									value && typeof value != 'string' && (value = null);
+									if (value && !fs.existsSync(value)) {
+										callback(new Error(__('Unable to find keychain: %s', value)));
+									} else {
+										callback(null, value);
+									}
+								}
 							},
 							'launch-url': {
 								// url for the application to launch in mobile Safari, as soon as the app boots up
@@ -720,7 +731,13 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								abbr: 'T',
 								callback: function (value) {
 									// if we're building from Xcode, no need to check certs and provisioning profiles
-									if (cli.argv.xcode) return;
+									if (cli.argv.xcode) {
+										_t.conf.options['developer-name'].required = false;
+										_t.conf.options['device-id'].required = false;
+										_t.conf.options['distribution-name'].required = false;
+										_t.conf.options['pp-uuid'].required = false;
+										return;
+									}
 
 									if (value != 'simulator') {
 										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
@@ -815,6 +832,8 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	} else {
 		this.deployType = /^device|simulator|adhoc$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 	}
+
+	this.buildType = cli.argv['build-type'] || '';
 
 	// manually inject the build profile settings into the tiapp.xml
 	switch (this.deployType) {
@@ -1348,7 +1367,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	this.deviceFamily = argv['device-family'];
 	this.xcodeTargetOS = (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos') + version.format(this.iosSdkVersion, 2, 2);
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target == 'simulator' ? 'iphonesimulator' : 'iphoneos'));
-	this.xcodeAppDir = argv.xcode ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
+	this.xcodeAppDir = argv.xcode && process.env.TARGET_BUILD_DIR && process.env.CONTENTS_FOLDER_PATH ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.certDeveloperName = argv['developer-name'];
 	this.certDistributionName = argv['distribution-name'];
@@ -2028,7 +2047,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 		proj,
 		'Pre-Compile',
 		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
-		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk ' + this.titaniumSdkVersion + ' --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
+		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk \\"' + this.titaniumSdkName + '\\" --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
 		+ '    exit $?\\n'
 		+ 'else\\n'
 		+ '    echo \\"skipping pre-compile phase\\"\\n'
@@ -2369,7 +2388,8 @@ iOSBuilder.prototype.populateIosFiles = function populateIosFiles(next) {
 			'__APP_DESCRIPTION__': this.tiapp.description,
 			'__APP_COPYRIGHT__': this.tiapp.copyright,
 			'__APP_GUID__': this.tiapp.guid,
-			'__APP_RESOURCE_DIR__': ''
+			'__APP_RESOURCE_DIR__': '',
+			'__APP_DEPLOY_TYPE__': this.buildType
 		},
 		dest,
 		variables = {},
@@ -2497,7 +2517,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			'-sdk', this.xcodeTargetOS,
 			'IPHONEOS_DEPLOYMENT_TARGET=' + appc.version.format(this.minIosVer, 2),
 			'TARGETED_DEVICE_FAMILY=' + this.deviceFamilies[this.deviceFamily],
-			'VALID_ARCHS=' + this.architectures
+			'VALID_ARCHS=' + this.architectures,
+			'DEAD_CODE_STRIPPING=YES'
 		],
 		gccDefs = [ 'DEPLOYTYPE=' + this.deployType ];
 

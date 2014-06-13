@@ -195,6 +195,10 @@ public class WebViewProxy extends ViewProxy
 					return true;
 				}
 				case MSG_RELEASE:
+					TiUIWebView webView = (TiUIWebView) peekView();
+					if (webView != null) {
+						webView.destroyWebViewBinding();
+					}
 					super.releaseViews(true);
 					return true;
 				case MSG_PAUSE:

@@ -90,6 +90,7 @@ function AndroidBuilder() {
 	Builder.apply(this, arguments);
 
 	this.devices = null; // set by findTargetDevices() during 'config' phase
+	this.devicesToAutoSelectFrom = [];
 
 	this.keystoreAliases = [];
 
@@ -525,7 +526,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 							}
 
 							findTargetDevices(cli.argv.target, function (err, results) {
-								if (cli.argv.target == 'emulator' && cli.argv['device-id'] == undefined && cli.argv['avd-id']) {
+								if (cli.argv.target == 'emulator' && cli.argv['device-id'] === undefined && cli.argv['avd-id']) {
 									// if --device-id was not specified, but --avd-id was, then we need to
 									// try to resolve a device based on the legacy --avd-* options
 									var avds = results.filter(function (a) { return a.type == 'avd'; }).map(function (a) { return a.name; }),
@@ -594,10 +595,10 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										}
 									}
 
-								} else if (cli.argv['device-id'] == undefined && results.length && config.get('android.autoSelectDevice', true)) {
+								} else if (cli.argv['device-id'] === undefined && results.length && config.get('android.autoSelectDevice', true)) {
 									// we set the device-id to an array of devices so that later in validate()
 									// after the tiapp.xml has been parsed, we can auto select the best device
-									cli.argv['device-id'] = results.sort(function (a, b) {
+									_t.devicesToAutoSelectFrom = results.sort(function (a, b) {
 										var eq = appc.version.eq(a.version, b.version),
 											gt = appc.version.gt(a.version, b.version);
 
@@ -1180,101 +1181,97 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	var deviceId = cli.argv['device-id'];
 
-	if (/^device|emulator$/.test(this.target) && Array.isArray(deviceId)) {
+	if (!cli.argv['build-only'] && /^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
 		// no --device-id, so intelligently auto select one
 
 		var ver = targetSDKMap[this.targetSDK].version,
-			devices = deviceId,
+			devices = this.devicesToAutoSelectFrom,
 			i,
 			len = devices.length;
 
 		// reset the device id
 		deviceId = null;
 
-		if (!cli.argv['build-only']) {
+		if (cli.argv.target == 'device') {
+			logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
+		} else {
+			logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
+		}
+
+		function setDeviceId(device) {
+			deviceId = cli.argv['device-id'] = device.id;
+
+			var gapi = '';
+			if (device.googleApis) {
+				gapi = (' (' + __('Google APIs supported') + ')').grey;
+			} else if (device.googleApis === null) {
+				gapi = (' (' + __('Google APIs support unknown') + ')').grey;
+			}
+
 			if (cli.argv.target == 'device') {
-				logger.info(__('Auto selecting device that closest matches %s', ver.cyan));
+				logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
 			} else {
-				logger.info(__('Auto selecting emulator that closest matches %s', ver.cyan));
+				logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
 			}
+		}
 
-			function setDeviceId(device) {
-				deviceId = device.id;
-
-				var gapi = '';
-				if (device.googleApis) {
-					gapi = (' (' + __('Google APIs supported') + ')').grey;
-				} else if (device.googleApis === null) {
-					gapi = (' (' + __('Google APIs support unknown') + ')').grey;
-				}
-
-				if (cli.argv.target == 'device') {
-					logger.info(__('Auto selected device %s %s', devices[i].name.cyan, devices[i].version) + gapi);
-				} else {
-					logger.info(__('Auto selected emulator %s %s', devices[i].name.cyan, devices[i].version) + gapi);
-				}
+		// find the first one where version is >= and google apis == true
+		logger.debug(__('Searching for version >= %s and has Google APIs', ver));
+		for (i = 0; i < len; i++) {
+			if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
+				setDeviceId(devices[i]);
+				break;
 			}
+		}
 
-			// find the first one where version is >= and google apis == true
-			logger.debug(__('Searching for version >= %s and has Google APIs', ver));
+		if (!deviceId) {
+			// find first one where version is >= and google apis is a maybe
+			logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
 			for (i = 0; i < len; i++) {
-				if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis) {
+				if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
 					setDeviceId(devices[i]);
 					break;
 				}
 			}
 
 			if (!deviceId) {
-				// find first one where version is >= and google apis is a maybe
-				logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
+				// find first one where version is >= and no google apis
+				logger.debug(__('Searching for version >= %s and no Google APIs', ver));
 				for (i = 0; i < len; i++) {
-					if (appc.version.gte(devices[i].version, ver) && devices[i].googleApis === null) {
+					if (appc.version.gte(devices[i].version, ver)) {
 						setDeviceId(devices[i]);
 						break;
 					}
 				}
 
 				if (!deviceId) {
-					// find first one where version is >= and no google apis
-					logger.debug(__('Searching for version >= %s and no Google APIs', ver));
-					for (i = 0; i < len; i++) {
-						if (appc.version.gte(devices[i].version, ver)) {
+					// find first one where version < and google apis == true
+					logger.debug(__('Searching for version < %s and has Google APIs', ver));
+					for (i = len - 1; i >= 0; i--) {
+						if (appc.version.lt(devices[i].version, ver)) {
 							setDeviceId(devices[i]);
 							break;
 						}
 					}
 
 					if (!deviceId) {
-						// find first one where version < and google apis == true
-						logger.debug(__('Searching for version < %s and has Google APIs', ver));
+						// find first one where version <
+						logger.debug(__('Searching for version < %s and no Google APIs', ver));
 						for (i = len - 1; i >= 0; i--) {
-							if (appc.version.lt(devices[i].version, ver)) {
+							if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
 								setDeviceId(devices[i]);
 								break;
 							}
 						}
 
 						if (!deviceId) {
-							// find first one where version <
-							logger.debug(__('Searching for version < %s and no Google APIs', ver));
-							for (i = len - 1; i >= 0; i--) {
-								if (appc.version.lt(devices[i].version, ver) && devices[i].googleApis) {
-									setDeviceId(devices[i]);
-									break;
-								}
-							}
-
-							if (!deviceId) {
-								// just grab first one
-								logger.debug(__('Selecting first device'));
-								setDeviceId(devices[0]);
-							}
+							// just grab first one
+							logger.debug(__('Selecting first device'));
+							setDeviceId(devices[0]);
 						}
 					}
 				}
 			}
-
-			cli.argv['device-id'] = deviceId;
 		}
 
 		var devices = deviceId == 'all' ? this.devices : this.devices.filter(function (d) { return d.id = deviceId; });
@@ -2463,7 +2460,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 	
 
 	appc.async.series(this, tasks, function (err, results) {
-		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'Resources', 'android');
+		var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
 
 		// if an app icon hasn't been copied, copy the default one
 		var destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
@@ -3554,7 +3551,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
 
 	// add the analytics service
 	if (this.tiapp.analytics) {
-		var tiAnalyticsService = 'org.appcelerator.aps.analytics.APSAnalyticsService';
+		var tiAnalyticsService = 'com.appcelerator.analytics.APSAnalyticsService';
 		finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
 		finalAndroidManifest.application.service[tiAnalyticsService] = {
 			name: tiAnalyticsService,

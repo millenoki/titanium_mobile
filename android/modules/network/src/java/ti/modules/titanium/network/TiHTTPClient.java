@@ -107,6 +107,7 @@ import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Base64OutputStream;
 
 public class TiHTTPClient
 {
@@ -264,7 +265,7 @@ public class TiHTTPClient
 					if (entity.getContentType() != null) {
 						contentType = entity.getContentType().getValue();
 					}
-					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip") && entity.getContentLength() > 0) {
+					if (contentEncoding != null && contentEncoding.getValue().equalsIgnoreCase("gzip") && entity.getContentLength() != 0) {
 						is = new GZIPInputStream(entity.getContent());
 					} else {
 						is = entity.getContent();
@@ -769,7 +770,7 @@ public class TiHTTPClient
 		if(theHeaders != null) {
 			boolean firstPass = true;
 			StringBuilder sb = new StringBuilder(32);
-			for (Header h : responseHeaders) {
+			for (Header h : theHeaders) {
 				if (h.getName().equals(headerName)) {
 					if (!firstPass) {
 						sb.append(", ");
@@ -956,8 +957,8 @@ public class TiHTTPClient
 				String mimeType = blob.getMimeType();
 				File tmpFile = File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
 				FileOutputStream fos = new FileOutputStream(tmpFile);
-				if (blob.getType() == TiBlob.TYPE_STREAM) {
-					TiBaseFile.copyStream(blob.getInputStream(), fos);
+				if (blob.getType() == TiBlob.TYPE_STREAM_BASE64) {
+					TiBaseFile.copyStream(blob.getInputStream(), new Base64OutputStream(fos, android.util.Base64.DEFAULT));
 				} else {
 					fos.write(blob.getBytes());
 				}
@@ -1037,8 +1038,8 @@ public class TiHTTPClient
 		
 		if (this.securityManager != null) {
 			if (this.securityManager.willHandleURL(this.uri)) {
-				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers(this.uri);
-				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers(this.uri);
+				TrustManager[] trustManagerArray = this.securityManager.getTrustManagers((HTTPClientProxy)this.proxy);
+				KeyManager[] keyManagerArray = this.securityManager.getKeyManagers((HTTPClientProxy)this.proxy);
 				
 				try {
 					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray);
@@ -1291,9 +1292,6 @@ public class TiHTTPClient
 					result = client.execute(host, request, handler);
 				} catch (IOException e) {
 					if (!aborted) {
-						// Fire the disposehandle event if the exception is not due to aborting the request.
-						// And it will dispose the handle of the httpclient in the JS.
-						proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
 						throw e;
 					}
 				}

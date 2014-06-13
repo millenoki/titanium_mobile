@@ -16,7 +16,6 @@ import java.util.StringTokenizer;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.aps.analytics.APSAnalyticsHelper;
 
 import android.Manifest;
 import android.app.Activity;
@@ -30,6 +29,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
+
+import com.appcelerator.analytics.APSAnalyticsHelper;
 
 public class TiPlatformHelper extends APSAnalyticsHelper
 {
@@ -277,10 +278,5 @@ public class TiPlatformHelper extends APSAnalyticsHelper
 			case 3 : return "LAN";
 			default : return "UNKNOWN";
 		}
-	}
-
-	public String getLastEventID()
-	{
-		return lastEventID;
 	}
 }
