@@ -22,6 +22,7 @@
 @implementation TiUINavigationWindowProxy
 {
     BOOL _hasOnStackChange;
+    BOOL _swipeToClose;
     UIScreenEdgePanGestureRecognizer* popRecognizer;
 }
 
@@ -45,6 +46,7 @@
 	{
         self.defaultTransition = [self platformDefaultTransition];
         _hasOnStackChange = NO;
+        _swipeToClose = YES;
 	}
 	return self;
 }
@@ -146,7 +148,7 @@ else{\
             _navigationDelegate = [[ADNavigationControllerDelegate alloc] init];
             [_navigationDelegate manageNavigationController:(id)navController];
             _navigationDelegate.delegate = self;
-            SETPROP(@"swipeToClose", setSwipeToClose);
+            [_navigationDelegate setIsInteractive:_swipeToClose];
         } else {
             navController = [[ADTransitionController alloc] initWithRootViewController:[self rootController]];
             ((ADTransitionController*)navController).delegate = self;
@@ -311,6 +313,9 @@ else{\
         [theWindow windowDidOpen];
     }
     current = [theWindow retain];
+    if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
+        [_navigationDelegate setIsInteractive:[TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:_swipeToClose]];
+    }
     [self childOrientationControllerChangedFlags:current];
     if (focussed) {
         [current gainFocus];
@@ -493,8 +498,9 @@ else{\
 -(void)setSwipeToClose:(id)arg
 {
     ENSURE_SINGLE_ARG_OR_NIL(arg, NSNumber)
+    _swipeToClose = [TiUtils boolValue:arg def:_swipeToClose];
     if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
-        [[self navigationDelegate] setIsInteractive:[TiUtils boolValue:arg def:YES]];
+        [[self navigationDelegate] setIsInteractive:_swipeToClose];
     }
     [self replaceValue:arg forKey:@"swipeToClose" notification:NO];
 }
