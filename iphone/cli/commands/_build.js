@@ -2977,7 +2977,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 			this.encryptJS && jsFilesToEncrypt.push('_app_props__json');
 
             // write the license file
-            var licenseFile = path.join(this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir, '_license_.json'),
+            var licenseFile = this.encryptJS ? path.join(this.buildAssetsDir, '_license__json') : path.join(this.xcodeAppDir, '_license_.json'),
             license = JSON.parse(fs.readFileSync(path.join(this.platformPath, '..', 'license.json')));
             iosLicenses = license['ios'];
             for(var key in iosLicenses) {
@@ -3004,7 +3004,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
                 licenseFile,
                 JSON.stringify(license)
             );
-            this.encryptJS && jsFilesToEncrypt.push('_license_.json');
+            this.encryptJS && jsFilesToEncrypt.push('_license__json');
 
 			if (!jsFilesToEncrypt.length) {
 				// nothing to encrypt, continue
