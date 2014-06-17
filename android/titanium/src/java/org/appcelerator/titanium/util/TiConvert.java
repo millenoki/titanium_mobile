@@ -311,7 +311,7 @@ public class TiConvert
 				handled = dirty = true;
 			}
 			else if (key.equals(TiC.PROPERTY_TRANSFORM) && withMatrix) {
-				layoutParams.matrix = (Ti2DMatrix) hashMap.get(key);
+				layoutParams.matrix = TiConvert.toMatrix(hashMap, key);
 				handled = dirty = true;
 			}
 			else if (key.equals(TiC.PROPERTY_ANCHOR_POINT) && withMatrix) {
