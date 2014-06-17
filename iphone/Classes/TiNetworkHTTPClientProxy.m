@@ -173,10 +173,10 @@ extern NSString * const TI_APPLICATION_GUID;
         id arg = [args objectAtIndex:0];
         if([arg isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dict = (NSDictionary*)arg;
-            if ([contentType rangeOfString:@"json"].location != NSNotFound) {
-                [form setJSONData:dict];
-            }
-            else {
+//            if ([contentType rangeOfString:@"json"].location != NSNotFound) {
+//                [form setJSONData:dict];
+//            }
+//            else {
                 for(NSString *key in dict) {
                     id value = [dict objectForKey:key];
                     if([value isKindOfClass:[TiBlob class]]|| [value isKindOfClass:[TiFile class]]) {
@@ -206,7 +206,7 @@ extern NSString * const TI_APPLICATION_GUID;
                                 andValue:[TiUtils stringValue:value]];
                     }
                 }
-            }
+//            }
         } else if ([arg isKindOfClass:[TiBlob class]] || [arg isKindOfClass:[TiFile class]]) {
             TiBlob *blob;
             if([arg isKindOfClass:[TiBlob class]]) {
