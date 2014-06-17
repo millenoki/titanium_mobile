@@ -326,7 +326,7 @@
 
 -(void)setLeftButton_:(id)value
 {
-    TiViewProxy *vp = nil;
+	TiViewProxy *vp = nil;
     id<TiEvaluator> context = self.proxy.executionContext;
     if (context == nil) {
         context = self.proxy.pageContext;
@@ -335,16 +335,20 @@
 	{
 		vp = (TiViewProxy*)value;
     } else if ([value isKindOfClass:[NSDictionary class]]) {
+        
         vp = [[self.proxy class] createFromDictionary:value rootProxy:self.proxy inContext:context];
     }
     
     UIView* leftView = [[self textWidgetView] leftView];
 	if ([leftView isKindOfClass:[TiUIView class]]){
-        [((TiViewProxy*)[((TiUIView*)leftView) proxy]) detachView];
-        [self.proxy forgetProxy:vp];
+        TiViewProxy* oldVp = (TiViewProxy*)[((TiUIView*)leftView) proxy];
+        [oldVp detachView];
+        [oldVp setParent:nil];
+        [self.proxy forgetProxy:oldVp];
         leftView = nil;
     }
     if (vp) {
+        [vp setParent:(TiParentingProxy*)self.proxy];
         [context.krollContext invokeBlockOnThread:^{
             [self.proxy rememberProxy:vp];
             [vp forgetSelf];
@@ -354,8 +358,8 @@
         {
             constraint->left = TiDimensionDip(0);
         }
-		leftView = [vp getAndPrepareViewForOpening:[self textWidgetView].leftView.bounds];
-
+		leftView = [vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
+        
     }
     [[self textWidgetView] setLeftView:leftView];
 }
@@ -382,11 +386,14 @@
     
     UIView* rightView = [[self textWidgetView] rightView];
 	if ([rightView isKindOfClass:[TiUIView class]]){
-        [((TiViewProxy*)[((TiUIView*)rightView) proxy]) detachView];
-        [self.proxy forgetProxy:vp];
+        TiViewProxy* oldVp = (TiViewProxy*)[((TiUIView*)rightView) proxy];
+        [oldVp detachView];
+        [oldVp setParent:nil];
+        [self.proxy forgetProxy:oldVp];
         rightView = nil;
     }
     if (vp) {
+        [vp setParent:(TiParentingProxy*)self.proxy];
         [context.krollContext invokeBlockOnThread:^{
             [self.proxy rememberProxy:vp];
             [vp forgetSelf];
@@ -396,7 +403,7 @@
         {
             constraint->right = TiDimensionDip(0);
         }
-		rightView = [vp getAndPrepareViewForOpening:[self textWidgetView].rightView.bounds];
+		rightView = [vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
         
     }
     [[self textWidgetView] setRightView:rightView];
