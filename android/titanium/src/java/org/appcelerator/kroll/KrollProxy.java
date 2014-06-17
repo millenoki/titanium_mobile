@@ -827,7 +827,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		}
 		return false;
 	}
-
+	
+	/**
+     * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
+     * @param event the event to be fired.
+     * @param data  the data to be sent.
+     * @return whether this proxy has an eventListener for this event.
+     * @module.api
+     */
+    public boolean fireSyncEvent(String event, Object data)
+    {
+        return fireSyncEvent(event, data, false);
+    }
 	/**
 	 * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
 	 * @param event the event to be fired.
@@ -835,18 +846,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @return whether this proxy has an eventListener for this event.
 	 * @module.api
 	 */
-	public boolean fireSyncEvent(String event, Object data)
+	public boolean fireSyncEvent(String event, Object data, final boolean bubble)
 	{
-		if (!hasListeners(event, true))
+		if (!hasListeners(event, bubble))
 		{
 			return false;
 		}
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
-			return doFireEvent(event, data);
+			return doFireEvent(event, data, bubble);
 
 		} else {
 			Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_SYNC_EVENT);
-			message.getData().putString(PROPERTY_NAME, event);
+            message.getData().putString(PROPERTY_NAME, event);
+            message.getData().putBoolean(PROPERTY_BUBBLES, bubble);
 
 			return (Boolean) TiMessenger.sendBlockingRuntimeMessage(message, data);
 		}
@@ -1309,7 +1321,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			}
 			case MSG_FIRE_SYNC_EVENT: {
 				AsyncResult asyncResult = (AsyncResult) msg.obj;
-				boolean handled = doFireEvent(msg.getData().getString(PROPERTY_NAME), asyncResult.getArg());
+				boolean handled = doFireEvent(msg.getData().getString(PROPERTY_NAME), asyncResult.getArg(), msg.getData().getBoolean(PROPERTY_BUBBLES));
 				asyncResult.setResult(handled);
 
 				return handled;

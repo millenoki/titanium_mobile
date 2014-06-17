@@ -216,7 +216,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		// Once the window's activity is destroyed we will fire the close event.
 		// And it will dispose the handler of the window in the JS if the activity
 		// is not forced to destroy.
-		fireSyncEvent(TiC.EVENT_CLOSE, data);
+		fireSyncEvent(TiC.EVENT_CLOSE, data, false);
 	}
 
 	protected void releaseViewsForActivityForcedToDestroy()
