@@ -249,6 +249,10 @@ static NSDictionary* listViewKeysToReplace;
 	[super willShow];
 }
 
+-(BOOL)shouldHighlightCurrentListItem {
+    return [self.listView shouldHighlightCurrentListItem];
+}
+
 #pragma mark - Public API
 
 - (NSArray *)sections

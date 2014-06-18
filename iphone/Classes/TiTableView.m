@@ -8,15 +8,29 @@
 
 #import "TiTableView.h"
 #import "TiBase.h"
+#import "TiUIListView.h"
+#import "TiUIHelper.h"
+
 
 @implementation TiTableView
 {
+    BOOL _shouldHighlightCurrentItem;
+    CGPoint touchPoint;
 }
 
-- (id)initWithFrame:(CGRect)frame
+- (id)init
 {
-    self = [super initWithFrame:frame];
+    self = [super init];
     if (self) {
+        _shouldHighlightCurrentItem = YES;
+    }
+    return self;
+}
+
+- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style {
+    self = [super initWithFrame:frame style:style];
+    if (self) {
+        _shouldHighlightCurrentItem = YES;
     }
     return self;
 }
@@ -35,4 +49,28 @@
         [super setContentOffset:contentOffset animated:animated];
     }
 }
+
+
+-(BOOL)shouldHighlightCurrentListItem {
+    return _shouldHighlightCurrentItem;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    UITouch *touch = [touches anyObject];
+    UIView* view = touch.view;
+    touchPoint = [[touches anyObject] locationInView:view];
+    TiViewProxy *viewProxy = [TiUIHelper findViewProxyWithBindIdUnder:view containingPoint:touchPoint];
+    if (viewProxy && [viewProxy preventListViewSelection]) {
+        _shouldHighlightCurrentItem = NO;
+    }
+    [super touchesBegan:touches withEvent:event];
+    _shouldHighlightCurrentItem = YES;
+}
+
+-(CGPoint) touchPoint
+{
+    return touchPoint;
+}
+
 @end

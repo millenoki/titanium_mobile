@@ -355,6 +355,10 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	return NO;
 }
 
+-(BOOL)shouldHighlight {
+    return [_listViewProxy shouldHighlightCurrentListItem];
+}
+
 #pragma mark - TiViewEventOverrideDelegate
 
 - (NSDictionary *)overrideEventObject:(NSDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiViewProxy *)viewProxy

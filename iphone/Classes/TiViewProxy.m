@@ -57,7 +57,7 @@ static NSSet* transferableProps = nil;
 
 #pragma mark public API
 
-@synthesize vzIndex, parentVisible;
+@synthesize vzIndex, parentVisible, preventListViewSelection;
 -(void)setVzIndex:(int)newZindex
 {
 	if(newZindex == vzIndex)
@@ -1730,6 +1730,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     positionCache = CGPointZero;
     repositioning = NO;
     parentVisible = NO;
+    preventListViewSelection = NO;
     viewInitialized = NO;
     readyToCreateView = defaultReadyToCreateView;
     windowOpened = NO;

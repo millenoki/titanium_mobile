@@ -114,6 +114,7 @@ enum
  Provides access to visibility of parent view proxy.
  */
 @property(nonatomic,readwrite,assign) BOOL parentVisible; // For tableview magic ONLY
+@property(nonatomic,readwrite,assign) BOOL preventListViewSelection; // For listview
 
 -(void)startLayout:(id)arg;//Deprecated since 3.0.0
 -(void)finishLayout:(id)arg;//Deprecated since 3.0.0

@@ -373,14 +373,18 @@ static NSArray* handledKeys;
 -(void)setSelected:(BOOL)yn animated:(BOOL)animated
 {
     [super setSelected:yn animated:animated];
-    [_viewHolder setSelected:yn animated:animated];
+    if ([self.proxy shouldHighlight]) {
+        [_viewHolder setSelected:yn animated:animated];
+    }
     if (_unHighlightOnSelect && yn)[self unHighlight];
 }
 
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
     [super setHighlighted:yn animated:animated];
-    [_viewHolder setHighlighted:yn animated:animated];
+    if ([self.proxy shouldHighlight]) {
+        [_viewHolder setHighlighted:yn animated:animated];
+    }
     if (_unHighlightOnSelect && yn)[self unHighlight];
 }
 

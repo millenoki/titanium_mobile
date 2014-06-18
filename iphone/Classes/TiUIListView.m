@@ -17,6 +17,7 @@
 #import "TiUIRefreshControlProxy.h"
 #endif
 #import "TiTableView.h"
+#import "TiUIHelper.h"
 
 #define GROUPED_MARGIN_WIDTH 18.0
 
@@ -30,7 +31,6 @@
 @property (nonatomic,copy,readwrite) NSString * searchString;
 @end
 
-static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point);
 
 @implementation TiUIListView {
     TiTableView *_tableView;
@@ -62,7 +62,7 @@ static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoin
     CGFloat pullThreshhold;
 
     BOOL pullActive;
-    CGPoint tapPoint;
+//    CGPoint tapPoint;
     BOOL editing;
     BOOL pruneSections;
 
@@ -469,6 +469,10 @@ static NSDictionary* replaceKeysForRow;
 	if (anim != nil)
 		animated = [anim boolValue];
 	[_tableView setContentOffset:CGPointMake(0,pullThreshhold) animated:animated];
+}
+
+-(BOOL)shouldHighlightCurrentListItem {
+    return [_tableView shouldHighlightCurrentListItem];
 }
 
 #pragma mark - Helper Methods
@@ -2043,7 +2047,7 @@ static NSDictionary* replaceKeysForRow;
 	TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:indexPath];
 	if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
 		UIView *contentView = cell.contentView;
-		TiViewProxy *tapViewProxy = FindViewProxyWithBindIdContainingPoint(contentView, [tableView convertPoint:tapPoint toView:contentView]);
+        TiViewProxy *tapViewProxy =[TiUIHelper findViewProxyWithBindIdUnder:contentView containingPoint:[tableView convertPoint:[_tableView touchPoint] toView:contentView]];
 		if (tapViewProxy != nil) {
 			[eventObject setObject:[tapViewProxy valueForKey:@"bindId"] forKey:@"bindId"];
 		}
@@ -2079,7 +2083,7 @@ static NSDictionary* replaceKeysForRow;
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-	tapPoint = [gestureRecognizer locationInView:gestureRecognizer.view];
+//	tapPoint = [gestureRecognizer locationInView:gestureRecognizer.view];
 	return NO;
 }
 
@@ -2140,28 +2144,6 @@ static NSDictionary* replaceKeysForRow;
 
 @end
 
-static TiViewProxy * FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point)
-{
-	if (!CGRectContainsPoint([view bounds], point)) {
-		return nil;
-	}
-	for (UIView *subview in [view subviews]) {
-		TiViewProxy *viewProxy = FindViewProxyWithBindIdContainingPoint(subview, [view convertPoint:point toView:subview]);
-		if (viewProxy != nil) {
-			id bindId = [viewProxy valueForKey:@"bindId"];
-			if (bindId != nil) {
-				return viewProxy;
-			}
-		}
-	}
-	if ([view isKindOfClass:[TiUIView class]]) {
-		TiViewProxy *viewProxy = (TiViewProxy *)[(TiUIView *)view proxy];
-		id bindId = [viewProxy valueForKey:@"bindId"];
-		if (bindId != nil) {
-			return viewProxy;
-		}
-	}
-	return nil;
-}
+
 
 #endif

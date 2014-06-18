@@ -26,6 +26,7 @@
 - (void)updateIndicesForVisibleRows;
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
+-(BOOL)shouldHighlightCurrentListItem;
 
 @end
 

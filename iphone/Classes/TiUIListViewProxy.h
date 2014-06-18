@@ -18,6 +18,7 @@
 - (TiUIListSectionProxy *)sectionForIndex:(NSUInteger)index;
 - (void) deleteSectionAtIndex:(NSUInteger)index;
 - (void) setMarker:(id)args;
+-(BOOL)shouldHighlightCurrentListItem;
 @end
 
 @interface TiUIListViewProxy (internal)
