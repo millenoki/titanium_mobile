@@ -1795,8 +1795,12 @@ public abstract class TiUIView
 				for (int i=0; i<view.getChildCount(); i++) {
 		            View child = view.getChildAt(i);
 		            child.getLocationOnScreen(location);
-		            if(location[0] <= x && x <= (location[0] + child.getWidth()) && location[1] <= y && y <= (location[1] + child.getHeight())){
-		                return false;
+		            if(location[0] <= x && x <= (location[0] + child.getWidth()) && 
+		                    location[1] <= y && y <= (location[1] + child.getHeight())){
+		                if (!(child instanceof TiCompositeLayout) ||
+		                        !((TiCompositeLayout)child).touchPassThrough(event)) {
+		                    return false;
+		                }
 		            }
 				}
 			}
