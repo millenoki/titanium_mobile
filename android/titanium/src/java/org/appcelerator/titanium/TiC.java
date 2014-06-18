@@ -2182,6 +2182,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PREFERRED_PROVIDER = "preferredProvider";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_PREVENT_LISTVIEW_SELECTION = "preventListViewSelection";
 	
 	/**
 	 * @module.api

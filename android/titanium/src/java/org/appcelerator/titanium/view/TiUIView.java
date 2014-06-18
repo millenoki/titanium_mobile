@@ -121,7 +121,8 @@ public abstract class TiUIView
 	
 	protected KrollDict additionalEventData;
 
-	protected boolean touchPassThrough = false;
+    protected boolean preventListViewSelection = false;
+    protected boolean touchPassThrough = false;
 	protected boolean dispatchPressed = false;
 	protected boolean reusing = false;
 
@@ -857,8 +858,10 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_TOUCH_PASSTHROUGH)) {
 			touchPassThrough = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_DISPATCH_PRESSED)) {
-			dispatchPressed = TiConvert.toBoolean(newValue);
-		} else if (key.equals(TiC.PROPERTY_CLIP_CHILDREN)) {
+            dispatchPressed = TiConvert.toBoolean(newValue);
+        } else if (key.equals(TiC.PROPERTY_PREVENT_LISTVIEW_SELECTION)) {
+            preventListViewSelection = TiConvert.toBoolean(newValue);
+        } else if (key.equals(TiC.PROPERTY_CLIP_CHILDREN)) {
 			clipChildren = TiConvert.toBoolean(newValue);
 			View parentViewForChild = getParentViewForChild();
 			if (parentViewForChild instanceof ViewGroup) {
@@ -1816,6 +1819,10 @@ public abstract class TiUIView
 	public boolean getDispatchPressed() {
 		return dispatchPressed;
 	}
+	   
+    public boolean getPreventListViewSelection() {
+        return preventListViewSelection;
+    }
 
 	protected void doSetClickable(View view, boolean clickable)
 	{

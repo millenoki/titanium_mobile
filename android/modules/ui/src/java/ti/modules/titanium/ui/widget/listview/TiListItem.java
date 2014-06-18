@@ -141,10 +141,9 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 				fromView instanceof TiUIText) return;
 		mClickDelegate = fromView;
 		
-		if (nativeView != null) {
+		if (nativeView != null && !fromView.getPreventListViewSelection()) {
 			nativeView.onTouchEvent(event);
 		}
-//		mClickDelegate = null;
 	}
 	
 }
