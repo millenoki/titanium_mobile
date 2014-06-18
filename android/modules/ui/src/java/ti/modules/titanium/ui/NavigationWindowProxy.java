@@ -15,8 +15,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -429,7 +427,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 	
 	
 	static HashMap kDefaultTransition = new HashMap<String, Object>(){{
-	       put(TiC.PROPERTY_STYLE, Integer.valueOf(TransitionStyleModule.SWIPE)); 
+	       put(TiC.PROPERTY_STYLE, Integer.valueOf(TransitionStyleModule.SWIPE));
 	       put(TiC.PROPERTY_SUBSTYLE,  Integer.valueOf(TransitionStyleModule.RIGHT_TO_LEFT));}};
 	       
 	private KrollDict getDictFromTransition(Transition transition)
