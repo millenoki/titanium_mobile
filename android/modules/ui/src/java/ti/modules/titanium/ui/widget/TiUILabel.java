@@ -39,7 +39,6 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.MeasureSpec;
 import android.widget.TextView;
 import android.graphics.Typeface;
 import android.text.Layout;
@@ -329,17 +328,12 @@ public class TiUILabel extends TiUINonViewGroupView
 			int width =getMeasuredWidth();
 		}
 
-		@Override
-		public void setPressed(boolean pressed) {
-			super.setPressed(pressed);
-			if (dispatchPressed == true && childrenHolder != null) {
-				int count = childrenHolder.getChildCount();
-				for (int i = 0; i < count; i++) {
-					final View child = childrenHolder.getChildAt(i);
-					child.setPressed(pressed);
-				}
-			}
-		}
+        @Override
+        public void dispatchSetPressed(boolean pressed) {
+            if (childrenHolder != null && dispatchPressed) {
+                childrenHolder.setPressed(pressed);
+            }
+        }
 		
         @Override
         public boolean onTouchEvent(MotionEvent event) {

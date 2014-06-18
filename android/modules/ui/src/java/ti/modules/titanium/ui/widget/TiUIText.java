@@ -156,6 +156,14 @@ public class TiUIText extends TiUINonViewGroupView
 				return false;
 			return super.dispatchTouchEvent(event);
 		}
+		
+
+        @Override
+        public void dispatchSetPressed(boolean pressed) {
+            if (childrenHolder != null && dispatchPressed) {
+                childrenHolder.setPressed(pressed);
+            }
+        }
 	}
 
 	public class FocusFixedEditText extends LinearLayout {
