@@ -25,7 +25,6 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.MeasureSpec;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 import android.view.MotionEvent;
 
@@ -1308,9 +1307,15 @@ public class TiCompositeLayout extends FreeLayout implements
 	
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
-		TiUIView view = (this.view == null ? null : this.view.get());
-		if (view != null && view.touchPassThrough(this, event)) return false;
+	    boolean touchPassThrough = touchPassThrough(event);
+	    if (touchPassThrough) return false;
 		return super.dispatchTouchEvent(event);
+	}
+	
+	public boolean touchPassThrough(MotionEvent event) {
+	    TiUIView view = (this.view == null ? null : this.view.get());
+	    if (view != null) return view.touchPassThrough(this, event);
+	    return false;
 	}
 
 	private void setNeedsSort(boolean value) {
