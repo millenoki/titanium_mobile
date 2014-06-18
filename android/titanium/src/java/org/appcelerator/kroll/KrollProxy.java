@@ -1567,8 +1567,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@SuppressWarnings("unchecked")
     protected void initFromTemplate(HashMap template_,
             KrollProxy rootProxy, boolean updateKrollProperties, boolean recursive) {
-        if (rootProxy != null && template_.containsKey(TiC.PROPERTY_BIND_ID)) {
-            rootProxy.addBinding(TiConvert.toString(template_, TiC.PROPERTY_BIND_ID),this);
+        if (rootProxy != null) {
+            rootProxy.addBinding(TiConvert.toString(template_, TiC.PROPERTY_BIND_ID, null),this);
         }
         if (template_.containsKey(TiC.PROPERTY_EVENTS)) {
             Object events = template_
