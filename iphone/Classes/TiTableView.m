@@ -59,8 +59,9 @@
 {
     UITouch *touch = [touches anyObject];
     UIView* view = touch.view;
-    touchPoint = [[touches anyObject] locationInView:view];
-    TiViewProxy *viewProxy = [TiUIHelper findViewProxyWithBindIdUnder:view containingPoint:touchPoint];
+    CGPoint touchPointInView = [[touches anyObject] locationInView:view];
+    touchPoint = [view convertPoint:touchPointInView toView:self];
+    TiViewProxy *viewProxy = [TiUIHelper findViewProxyWithBindIdUnder:view containingPoint:touchPointInView];
     if (viewProxy && [viewProxy preventListViewSelection]) {
         _shouldHighlightCurrentItem = NO;
     }
