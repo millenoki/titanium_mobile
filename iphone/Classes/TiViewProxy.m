@@ -2089,6 +2089,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	{
 		return;
 	}
+    if (_bubbleParentDefined) {
+        propagate = _bubbleParent;
+    }
 	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:NO];
 }
 
