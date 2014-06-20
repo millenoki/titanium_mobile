@@ -881,7 +881,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	int ourCallbackCount = 0;
 
 	pthread_rwlock_wrlock(&listenerLock);
-	ourCallbackCount = [[listeners objectForKey:type] intValue] - 1;
+	if ([listeners objectForKey:type]) {
+        ourCallbackCount = [[listeners objectForKey:type] intValue] - 1;
+    }
 	[listeners setObject:NUMINT(ourCallbackCount) forKey:type];
 	pthread_rwlock_unlock(&listenerLock);
 
