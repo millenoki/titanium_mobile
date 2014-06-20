@@ -2027,7 +2027,7 @@ static NSDictionary* replaceKeysForRow;
 
 #pragma mark - Internal Methods
 
-- (NSMutableDictionary*)EventObjectForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView  accessoryButtonTapped:(BOOL)accessoryButtonTapped
+- (NSMutableDictionary*)EventObjectForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView  atPoint:(CGPoint)point accessoryButtonTapped:(BOOL)accessoryButtonTapped
 {
     TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
 	NSDictionary *item = [section itemAtIndex:indexPath.row];
@@ -2047,7 +2047,7 @@ static NSDictionary* replaceKeysForRow;
 	TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:indexPath];
 	if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
 		UIView *contentView = cell.contentView;
-        TiViewProxy *tapViewProxy =[TiUIHelper findViewProxyWithBindIdUnder:contentView containingPoint:[tableView convertPoint:[_tableView touchPoint] toView:contentView]];
+        TiViewProxy *tapViewProxy =[TiUIHelper findViewProxyWithBindIdUnder:contentView containingPoint:[tableView convertPoint:point toView:contentView]];
 		if (tapViewProxy != nil) {
 			[eventObject setObject:[tapViewProxy valueForKey:@"bindId"] forKey:@"bindId"];
 		}
@@ -2057,12 +2057,12 @@ static NSDictionary* replaceKeysForRow;
 
 - (NSMutableDictionary*)EventObjectForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView
 {
-    return [self EventObjectForItemAtIndexPath:indexPath tableView:tableView accessoryButtonTapped:NO];
+    return [self EventObjectForItemAtIndexPath:indexPath tableView:tableView atPoint:[_tableView touchPoint]];
 }
 
 - (NSMutableDictionary*)EventObjectForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView atPoint:(CGPoint)point
 {
-    NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:tableView];
+    NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:tableView atPoint:point accessoryButtonTapped:NO];
     [event setObject:NUMFLOAT(point.x) forKey:@"x"];
     [event setObject:NUMFLOAT(point.y) forKey:@"y"];
     return event;
