@@ -1610,8 +1610,6 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 
 		'createBuildDirs',
 		'copyResources',
-		'generateRequireIndex',
-		'processTiSymbols',
 		'copyModuleResources',
 		'removeOldFiles',
 		'compileJSS',
@@ -1726,7 +1724,8 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	// directories
 	this.buildAssetsDir             = path.join(this.buildDir, 'assets');
 	this.buildBinDir                = path.join(this.buildDir, 'bin');
-	this.buildBinAssetsDir          = path.join(this.buildBinDir, 'assets');
+    this.buildAssetsEncryptDir      = path.join(this.buildBinDir, 'assetsToEncrypt');
+	this.buildBinAssetsDir          = path.join(this.buildDir, 'assets');
 	this.buildBinAssetsResourcesDir = path.join(this.buildBinAssetsDir, 'Resources');
 	this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
 	this.buildBinClassesDex         = path.join(this.buildBinDir, 'classes.dex');
@@ -1734,7 +1733,8 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
 	this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
 	this.buildResDir                = path.join(this.buildDir, 'res');
 	this.buildResDrawableDir        = path.join(this.buildResDir, 'drawable')
-	this.buildSrcDir                = path.join(this.buildDir, 'src');
+    this.buildSrcDir                = path.join(this.buildDir, 'src');
+    this.buildSrcPackageDir         = path.join(this.buildSrcDir, this.appid.split('.').join(path.sep));
 	this.templatesDir               = path.join(this.platformPath, 'templates', 'build');
 
 	// files
@@ -2073,7 +2073,11 @@ AndroidBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompil
 	if (this.forceRebuild && fs.existsSync(this.buildGenAppIdDir)) {
 		wrench.rmdirSyncRecursive(this.buildGenAppIdDir);
 	}
-	fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
+    if (this.forceRebuild && fs.existsSync(this.buildSrcPackageDir)) {
+        wrench.rmdirSyncRecursive(this.buildSrcPackageDir);
+    }
+    fs.existsSync(this.buildGenAppIdDir) || wrench.mkdirSyncRecursive(this.buildGenAppIdDir);
+    fs.existsSync(this.buildSrcPackageDir) || wrench.mkdirSyncRecursive(this.buildSrcPackageDir);
 
 	// now that we've read the build manifest, delete it so if this build
 	// becomes incomplete, the next build will be a full rebuild
@@ -2515,7 +2519,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 				// if we're encrypting the JavaScript, copy the files to the assets dir
 				// for processing later
 				if (this.encryptJS) {
-					to = path.join(this.buildAssetsDir, id);
+					to = path.join(this.buildAssetsEncryptDir, id);
 					jsFilesToEncrypt.push(id);
 				}
 				delete this.lastBuildFiles[to];
@@ -2527,7 +2531,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						// we want to sort by the "to" filename so that we correctly handle file overwriting
 						this.tiSymbols[to] = r.symbols;
-
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
@@ -2553,7 +2556,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			};
 		}), function () {
 			// write the properties file
-			var appPropsFile = path.join(this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir, '_app_props_.json'),
+			var appPropsFile = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildBinAssetsResourcesDir, '_app_props_.json'),
 				props = {};
 			Object.keys(this.tiapp.properties).forEach(function (prop) {
 				props[prop] = this.tiapp.properties[prop].value;
@@ -2566,7 +2569,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 			delete this.lastBuildFiles[appPropsFile];
 
            // write the license file
-            var licenseFile = path.join(this.encryptJS ? this.buildAssetsDir : this.buildBinAssetsResourcesDir, '_license_.json'),
+            var licenseFile = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildBinAssetsResourcesDir, '_license_.json'),
             license = JSON.parse(fs.readFileSync(path.join(this.platformPath, '..', 'license.json')));
             androidLicenses = license['android'];
             for(var key in androidLicenses) {
@@ -2595,10 +2598,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
             );
             this.encryptJS && jsFilesToEncrypt.push('_license_.json');
 
-			if (!jsFilesToEncrypt.length) {
-				// nothing to encrypt, continue
-				return next();
-			}
+            this.generateRequireIndex(function(){});
+            this.processTiSymbols(function(){});
+            
+            if (!jsFilesToEncrypt.length) {
+                // nothing to encrypt, continue
+                return next();
+            }
+
 
 			// figure out which titanium prep to run
 			var titaniumPrep = 'titanium_prep';
@@ -2623,7 +2630,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						// write the encrypted JS bytes to the generated Java file
 						fs.writeFileSync(
-							path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java'),
+							path.join(this.buildSrcPackageDir, 'AssetCryptImpl.java'),
 							ejs.render(fs.readFileSync(path.join(this.templatesDir, 'AssetCryptImpl.java')).toString(), {
 								appid: this.appid,
 								encryptedAssets: out
@@ -2633,7 +2640,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						done();
 					}.bind(this));
 				}),
-				args = [ this.appid, this.buildAssetsDir ].concat(jsFilesToEncrypt),
+				args = [ this.appid, this.buildAssetsEncryptDir ].concat(jsFilesToEncrypt),
 				opts = {
 					env: appc.util.mix({}, process.env, {
 						// we force the JAVA_HOME so that titaniumprep doesn't complain
@@ -2683,7 +2690,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(callback) {
 	var index = {},
 		binAssetsDir = this.buildBinAssetsDir.replace(/\\/g, '/'),
-		destFile = path.join(binAssetsDir, 'index.json');
+		destFile = path.join(this.encryptJS ? this.buildAssetsEncryptDir : binAssetsDir, 'index.json');
+    
 
 	(function walk(dir) {
 		fs.readdirSync(dir).forEach(function (filename) {
@@ -2701,8 +2709,10 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 	this.jsFilesToEncrypt.forEach(function (file) {
 		index['Resources/' + file.replace(/\\/g, '/')] = 1;
 	});
+    this.encryptJS && this.jsFilesToEncrypt.push('index.json');
 
-	delete index['Resources/_app_props_.json'];
+    delete index['Resources/_app_props_.json'];
+    delete index['Resources/_license_.json'];
 
 	fs.existsSync(destFile) && fs.unlinkSync(destFile);
 	fs.writeFile(destFile, JSON.stringify(index), callback);
@@ -2937,10 +2947,13 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 	}, this);
 
 	// write the app.json
-	this.logger.info(__('Writing %s', path.join(this.buildBinAssetsDir, 'app.json').cyan));
-	fs.writeFileSync(path.join(this.buildBinAssetsDir, 'app.json'), JSON.stringify({
+    // var output = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildBinAssetsDir, 'app.json');
+    var output = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildBinAssetsDir, 'app.json');
+	this.logger.info(__('Writing %s', output.cyan));
+	fs.writeFileSync(output, JSON.stringify({
 		app_modules: appModules
 	}));
+    this.encryptJS && this.jsFilesToEncrypt.push('app.json');
 
 	this.jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
 	if (this.jarLibHash != this.buildManifest.jarLibHash) {
@@ -3042,7 +3055,7 @@ AndroidBuilder.prototype.removeOldFiles = function removeOldFiles(next) {
 AndroidBuilder.prototype.compileJSS = function compileJSS(callback) {
 	ti.jss.load(path.join(this.projectDir, 'Resources'), ['android'], this.logger, function (results) {
 		fs.writeFile(
-			path.join(this.buildGenAppIdDir, 'ApplicationStylesheet.java'),
+			path.join(this.buildSrcPackageDir, 'ApplicationStylesheet.java'),
 			ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationStylesheet.java')).toString(), {
 				appid: this.appid,
 				classes: appc.util.mix({}, results.classes, results.tags),
@@ -3059,19 +3072,23 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 	if (!this.forceRebuild) return next();
 
 	var android = this.tiapp.android,
-		copyTemplate = function (src, dest) {
+		copyTemplate = function (src, dest, options) {
 			if (this.forceRebuild || !fs.existsSync(dest)) {
-				this.logger.debug(__('Copying template %s => %s', src.cyan, dest.cyan));
-				fs.writeFileSync(dest, ejs.render(fs.readFileSync(src).toString(), this));
+                this.logger.debug(__('Copying template %s => %s', src.cyan, dest.cyan));
+				fs.writeFileSync(dest, ejs.render(fs.readFileSync(src).toString(), options || this));
 			}
 		}.bind(this);
 
 	// copy and populate templates
-	copyTemplate(path.join(this.templatesDir, 'AppInfo.java'), path.join(this.buildGenAppIdDir, this.classname + 'AppInfo.java'));
-	copyTemplate(path.join(this.templatesDir, 'App.java'), path.join(this.buildGenAppIdDir, this.classname + 'Application.java'));
-	copyTemplate(path.join(this.templatesDir, 'Activity.java'), path.join(this.buildGenAppIdDir, this.classname + 'Activity.java'));
+	copyTemplate(path.join(this.templatesDir, 'AppInfo.java'), path.join(this.buildSrcPackageDir, this.classname + 'AppInfo.java'));
+	copyTemplate(path.join(this.templatesDir, 'App.java'), path.join(this.buildSrcPackageDir, this.classname + 'Application.java'));
+	copyTemplate(path.join(this.templatesDir, 'Activity.java'), path.join(this.buildSrcPackageDir, this.classname + 'Activity.java'));
 	copyTemplate(path.join(this.templatesDir, 'project'), path.join(this.buildDir, '.project'));
-	copyTemplate(path.join(this.templatesDir, 'default.properties'), path.join(this.buildDir, 'default.properties'));
+    copyTemplate(path.join(this.templatesDir, 'default.properties'), path.join(this.buildDir, 'default.properties'));
+    copyTemplate(path.join(this.templatesDir, 'project.properties'), path.join(this.buildDir, 'project.properties'), {
+        androidDevPath: path.relative(this.buildDir, this.config.get('android.devPath')),
+        androidModulesDevPath: path.relative(this.buildDir, this.config.get('android.devModulesPath'))
+    });
 
 	afs.copyFileSync(path.join(this.templatesDir, 'gitignore'), path.join(this.buildDir, '.gitignore'), { logger: this.logger.debug });
 
@@ -3083,7 +3100,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 		Object.keys(android.activities).forEach(function (name) {
 			var activity = android.activities[name];
 			this.logger.debug(__('Generating activity class: %s', activity.classname.cyan));
-			fs.writeFileSync(path.join(this.buildGenAppIdDir, activity.classname + '.java'), ejs.render(activityTemplate, {
+			fs.writeFileSync(path.join(this.buildSrcPackageDir, activity.classname + '.java'), ejs.render(activityTemplate, {
 				appid: this.appid,
 				activity: activity
 			}));
@@ -3103,7 +3120,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 			} else {
 				this.logger.debug(__('Generating service class: %s', service.classname.cyan));
 			}
-			fs.writeFileSync(path.join(this.buildGenAppIdDir, service.classname + '.java'), ejs.render(tpl, {
+			fs.writeFileSync(path.join(this.buildSrcPackageDir, service.classname + '.java'), ejs.render(tpl, {
 				appid: this.appid,
 				service: service
 			}));
@@ -3232,7 +3249,7 @@ AndroidBuilder.prototype.generateAidl = function generateAidl(next) {
 
 			aidlHook(
 				this.androidInfo.sdk.executables.aidl,
-				['-p' + this.androidTargetSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildGenAppIdDir, file],
+				['-p' + this.androidTargetSDK.aidl, '-I' + this.buildSrcDir, '-o' + this.buildSrcPackageDir, file],
 				{},
 				callback
 			);
@@ -3698,68 +3715,75 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
 	}), runAapt);
 };
 
+AndroidBuilder.prototype.createClassPath = function createClassPath() {
+    var classpath = {},
+        moduleJars = this.moduleJars = {},
+        jarNames = {};
+
+    classpath[this.androidTargetSDK.androidJar] = 1;
+    Object.keys(this.jarLibraries).map(function (jarFile) {
+        classpath[jarFile] = 1;
+    });
+
+    this.modules.forEach(function (module) {
+        var filename = path.basename(module.jarFile);
+        if (fs.existsSync(module.jarFile)) {
+            var jarHash = hash(fs.readFileSync(module.jarFile).toString());
+
+            if (!jarNames[jarHash]) {
+                moduleJars[module.jarFile] = 1;
+                classpath[module.jarFile] = 1;
+                jarNames[jarHash] = 1;
+            } else {
+                this.logger.debug(__('Skipping duplicate jar file: %s', module.jarFile.cyan));
+            }
+
+            var libDir = path.join(module.modulePath, 'lib'),
+                jarRegExp = /\.jar$/;
+
+            fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
+                var jarFile = path.join(libDir, name);
+                if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
+                    var jarHash = hash(fs.readFileSync(jarFile).toString());
+                    if (!jarNames[jarHash]) {
+                        moduleJars[jarFile] = 1;
+                        classpath[jarFile] = 1;
+                        jarNames[jarHash] = 1;
+                    } else {
+                        this.logger.debug(__('Skipping duplicate jar file: %s', jarFile.cyan));
+                    }
+                }
+            }, this);
+        }
+    }, this);
+
+    if (!this.forceRebuild) {
+        // if we don't have to compile the java files, then we can return here
+        // we just needed the moduleJars
+        return next();
+    }
+
+    if (Object.keys(moduleJars).length) {
+        // we need to include kroll-apt.jar if there are any modules
+        classpath[path.join(this.platformPath, 'kroll-apt.jar')] = 1;
+    }
+
+    classpath[path.join(this.platformPath, 'lib', 'titanium-verify.jar')] = 1;
+
+    if (this.allowDebugging && this.debugPort) {
+        classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
+    }
+
+    if (this.allowProfiling && this.profilerPort) {
+        classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
+    }
+    return classpath;
+};
+
+
+
 AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) {
-	var classpath = {},
-		moduleJars = this.moduleJars = {},
-		jarNames = {};
-
-	classpath[this.androidTargetSDK.androidJar] = 1;
-	Object.keys(this.jarLibraries).map(function (jarFile) {
-		classpath[jarFile] = 1;
-	});
-
-	this.modules.forEach(function (module) {
-		var filename = path.basename(module.jarFile);
-		if (fs.existsSync(module.jarFile)) {
-			var jarHash = hash(fs.readFileSync(module.jarFile).toString());
-
-			if (!jarNames[jarHash]) {
-				moduleJars[module.jarFile] = 1;
-				classpath[module.jarFile] = 1;
-				jarNames[jarHash] = 1;
-			} else {
-				this.logger.debug(__('Skipping duplicate jar file: %s', module.jarFile.cyan));
-			}
-
-			var libDir = path.join(module.modulePath, 'lib'),
-				jarRegExp = /\.jar$/;
-
-			fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
-				var jarFile = path.join(libDir, name);
-				if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
-					var jarHash = hash(fs.readFileSync(jarFile).toString());
-					if (!jarNames[jarHash]) {
-						moduleJars[jarFile] = 1;
-						classpath[jarFile] = 1;
-						jarNames[jarHash] = 1;
-					} else {
-						this.logger.debug(__('Skipping duplicate jar file: %s', jarFile.cyan));
-					}
-				}
-			}, this);
-		}
-	}, this);
-
-	if (!this.forceRebuild) {
-		// if we don't have to compile the java files, then we can return here
-		// we just needed the moduleJars
-		return next();
-	}
-
-	if (Object.keys(moduleJars).length) {
-		// we need to include kroll-apt.jar if there are any modules
-		classpath[path.join(this.platformPath, 'kroll-apt.jar')] = 1;
-	}
-
-	classpath[path.join(this.platformPath, 'lib', 'titanium-verify.jar')] = 1;
-
-	if (this.allowDebugging && this.debugPort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-debug.jar')] = 1;
-	}
-
-	if (this.allowProfiling && this.profilerPort) {
-		classpath[path.join(this.platformPath, 'lib', 'titanium-profiler.jar')] = 1;
-	}
+    var classpath = this.createClassPath();
 
 	// find all java files and write them to the temp file
 	var javaFiles = [],
