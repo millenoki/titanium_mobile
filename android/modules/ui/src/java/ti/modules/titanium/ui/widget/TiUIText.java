@@ -445,6 +445,10 @@ public class TiUIText extends TiUINonViewGroupView
 				realtv.setEllipsize(null);
 			}
 		}
+		
+        if (d.containsKey(TiC.PROPERTY_FONT)) {
+            TiUIHelper.styleText(realtv, d.getKrollDict(TiC.PROPERTY_FONT));
+        }
 
 		
 		if (d.containsKey(TiC.PROPERTY_TEXT_ALIGN) || d.containsKey(TiC.PROPERTY_VERTICAL_ALIGN)) {
@@ -459,10 +463,7 @@ public class TiUIText extends TiUINonViewGroupView
 			handleKeyboard(d);
 		}
 		
-		//password mask changes the font, so let's do this afterwards
-		if (d.containsKey(TiC.PROPERTY_FONT)) {
-			TiUIHelper.styleText(realtv, d.getKrollDict(TiC.PROPERTY_FONT));
-		}
+		
 		
 		//the order is important because returnKeyType must overload keyboard return key defined
 		// by keyboardType
@@ -542,9 +543,6 @@ public class TiUIText extends TiUINonViewGroupView
 				|| key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
 			KrollDict d = proxy.getProperties();
 			handleKeyboard(d);
-			if (getProxy().hasProperty(TiC.PROPERTY_FONT)) {
-				TiUIHelper.styleText(realtv, getProxy().getProperties().getKrollDict(TiC.PROPERTY_FONT));
-			}
 		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
 			handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
@@ -824,8 +822,8 @@ public class TiUIText extends TiUINonViewGroupView
 			realtv.setInputType(textTypeAndClass);
 			// Workaround for https://code.google.com/p/android/issues/detail?id=55418 since setInputType
 			// with InputType.TYPE_TEXT_VARIATION_PASSWORD sets the typeface to monospace.
+            realtv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 			realtv.setTypeface(origTF);
-			realtv.setTransformationMethod(PasswordTransformationMethod.getInstance());
 
 			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
 			if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
