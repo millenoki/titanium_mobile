@@ -18,10 +18,6 @@ import org.appcelerator.kroll.KrollModuleInfo;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiRootActivity;
-import akylas.shapes.*;
-import akylas.commonjs.*;
-import akylas.slidemenu.*;
-import akylas.millenoki.vpn.*;
 
 
 public final class TitaniumtestApplication extends TiApplication
@@ -42,8 +38,11 @@ public final class TitaniumtestApplication extends TiApplication
 			      put("akylas.shapes", new Class[]{akylas.shapes.AkylasShapesBootstrap.class, akylas.shapes.AkylasShapesModule.class});
 			      put("akylas.commonjs", new Class[]{akylas.commonjs.AkylasCommonjsBootstrap.class, akylas.commonjs.AkylasCommonjsModule.class});
 			      put("akylas.slidemenu", new Class[]{akylas.slidemenu.AkylasSlidemenuBootstrap.class, akylas.slidemenu.AkylasSlidemenuModule.class});
-			      put("akylas.mapbox", new Class[]{akylas.mapbox.AkylasMapboxBootstrap.class, akylas.mapbox.AkylasMapboxModule.class});
-			      put("akylas.millenoki.vpn", new Class[]{akylas.millenoki.vpn.MillenokiVpnBootstrap.class, akylas.millenoki.vpn.MillenokiVpnModule.class});
+                  put("akylas.map", new Class[]{akylas.map.AkylasMapBootstrap.class, akylas.map.AkylasMapModule.class});
+                  put("akylas.charts", new Class[]{akylas.charts.AkylasChartsBootstrap.class, akylas.charts.AkylasChartsModule.class});
+//                  put("facebook", new Class[]{facebook.FacebookBootstrap.class, facebook.FacebookModule.class});
+//                  put("akylas.millenoki.vpn", new Class[]{akylas.millenoki.vpn.MillenokiVpnBootstrap.class, akylas.millenoki.vpn.MillenokiVpnModule.class});
+//                  put("akylas.millenoki.location", new Class[]{akylas.millenoki.location.MillenokiLocationModuleBootstrap.class, akylas.millenoki.location.MillenokiLocationModule.class});
 		     }
 		 };
 
@@ -82,6 +81,7 @@ public final class TitaniumtestApplication extends TiApplication
 		}
 	}
 
+	
 	@Override
 	public void verifyCustomModules(TiRootActivity rootActivity)
 	{

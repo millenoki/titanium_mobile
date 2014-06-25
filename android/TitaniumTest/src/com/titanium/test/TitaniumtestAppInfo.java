@@ -76,4 +76,9 @@ public final class TitaniumtestAppInfo implements ITiAppInfo
 	public String getDeployType() {		//  Auto-generated method stub
 		return "development";
 	}
+
+    @Override
+    public String getBuildType() {
+        return "device";
+    }
 }
