@@ -749,6 +749,7 @@
 		D572BF5D1827A71D00AB104A /* libSVGKit-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */; };
 		D572BF5E1827A71D00AB104A /* libSVGKit-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */; };
 		D572BF5F1827A71D00AB104A /* libSVGKit-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */; };
+		D57E7F74195AB92800C17ADE /* libakylas.location.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D57E7F6E195AB34D00C17ADE /* libakylas.location.a */; };
 		D5809D5019129CEB005A1F02 /* APSHTTPHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5809D5119129CEB005A1F02 /* APSHTTPHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5809D5219129CEB005A1F02 /* APSHTTPHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -1246,6 +1247,20 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
+		D57E7F6D195AB34D00C17ADE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC07E0554694100DB518D;
+			remoteInfo = akylas.location;
+		};
+		D57E7F72195AB91D00C17ADE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = akylas.location;
+		};
 		D58ED8E81928E6F700BA0E04 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */;
@@ -2105,6 +2120,7 @@
 		D57007F718255C520063F7FE /* TiTransitionSwipeDualFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionSwipeDualFade.h; sourceTree = "<group>"; };
 		D57007F818255C520063F7FE /* TiTransitionSwipeDualFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionSwipeDualFade.m; sourceTree = "<group>"; };
 		D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libSVGKit-iOS.a"; path = "../libexternals/libSVGKit-iOS.a"; sourceTree = "<group>"; };
+		D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.location.xcodeproj; path = ../../../modules/akylas_modules/location/ios/akylas.location.xcodeproj; sourceTree = "<group>"; };
 		D5809D4519129CEB005A1F02 /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
 		D5809D4619129CEB005A1F02 /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
 		D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APSHTTPHelper.m; sourceTree = "<group>"; };
@@ -2336,6 +2352,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D57E7F74195AB92800C17ADE /* libakylas.location.a in Frameworks */,
 				D59A20C7194AF3D800BC5B93 /* libakylas.charts.a in Frameworks */,
 				D58ED9071928F49F00BA0E04 /* libakylas.commonjs.a in Frameworks */,
 				D58ED9081928F49F00BA0E04 /* libakylas.map.a in Frameworks */,
@@ -4031,6 +4048,7 @@
 		D55ED5781861B3C90035749B /* _dependencies_ */ = {
 			isa = PBXGroup;
 			children = (
+				D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */,
 				D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */,
 				D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */,
 				D5E75A6E187C58F00016542B /* icon.png */,
@@ -4101,6 +4119,14 @@
 				D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */,
 			);
 			name = transitions;
+			sourceTree = "<group>";
+		};
+		D57E7F67195AB34C00C17ADE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D57E7F6E195AB34D00C17ADE /* libakylas.location.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		D58ED8E41928E6F700BA0E04 /* Products */ = {
@@ -4361,6 +4387,7 @@
 				D56915C5168F19E800C3F89F /* PBXBuildRule */,
 			);
 			dependencies = (
+				D57E7F73195AB91D00C17ADE /* PBXTargetDependency */,
 				D59A20C6194AF3D300BC5B93 /* PBXTargetDependency */,
 				D58ED9051928F49600BA0E04 /* PBXTargetDependency */,
 				D58ED9031928F49300BA0E04 /* PBXTargetDependency */,
@@ -4451,6 +4478,10 @@
 					ProjectRef = D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */;
 				},
 				{
+					ProductGroup = D57E7F67195AB34C00C17ADE /* Products */;
+					ProjectRef = D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */;
+				},
+				{
 					ProductGroup = D58ED8E41928E6F700BA0E04 /* Products */;
 					ProjectRef = D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */;
 				},
@@ -4473,6 +4504,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		D57E7F6E195AB34D00C17ADE /* libakylas.location.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libakylas.location.a;
+			remoteRef = D57E7F6D195AB34D00C17ADE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		D58ED8E91928E6F700BA0E04 /* libakylas.map.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -5724,6 +5762,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		D57E7F73195AB91D00C17ADE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = akylas.location;
+			targetProxy = D57E7F72195AB91D00C17ADE /* PBXContainerItemProxy */;
+		};
 		D58ED8FF1928F48E00BA0E04 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = akylas.map;
