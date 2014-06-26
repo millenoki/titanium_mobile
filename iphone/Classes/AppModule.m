@@ -293,6 +293,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	return NUMBOOL([APSHTTPRequest disableNetworkActivityIndicator]);
 }
 
+
+- (NSNumber *)inBackground
+{
+    UIApplicationState state = [UIApplication sharedApplication].applicationState;
+	return NUMBOOL(state == UIApplicationStateBackground);
+}
+
 //To fire the keyboard frame change event.
 -(void)keyboardFrameChanged:(NSNotification*) notification
 {
