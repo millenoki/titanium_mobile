@@ -931,5 +931,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void cancelPauseEvent() {
         mHandler.removeMessages(PAUSE);
 	}
+	
+	public boolean isPaused() {
+        return paused;
+    }
 }
 
