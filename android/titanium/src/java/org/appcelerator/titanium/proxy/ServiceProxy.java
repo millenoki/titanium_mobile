@@ -40,7 +40,7 @@ public class ServiceProxy extends KrollProxy {
     // private Service service;
     private int serviceInstanceId;
     private IntentProxy intentProxy;
-    private final String TAG = "AkServiceProxy";
+    private final String TAG = "ServiceProxy";
 
     public static final String NEEDS_STARTING = "needsStarting";
 
@@ -54,7 +54,6 @@ public class ServiceProxy extends KrollProxy {
 
     public ServiceProxy() {
         super();
-        Log.d(logTAG(), "AkServiceProxy " + this, Log.DEBUG_MODE);
         initLifeCycle(); // created from the app, we can get the root activity
         Intent intent = new Intent(TiApplication.getInstance()
                 .getApplicationContext(), serviceClass());
@@ -79,8 +78,6 @@ public class ServiceProxy extends KrollProxy {
             Integer serviceInstanceId) {
         super();
         if (service instanceof TiServiceInterface) {
-            Log.d(logTAG(), "AkServiceProxy via start Service " + this + "/"
-                    + service, Log.DEBUG_MODE);
             this.service = service;
             this.tiService = (TiServiceInterface) service;
             setIntent(intent);
@@ -112,23 +109,18 @@ public class ServiceProxy extends KrollProxy {
 
             @Override
             public void onDestroy(Activity activity) {
-                Log.d(logTAG(), "onDestroy", Log.DEBUG_MODE);
                 realUnbind();
             }
         };
-        Log.d(logTAG(), "initLifeCycle", Log.DEBUG_MODE);
         TiApplication.getInstance().getRootActivity()
                 .addOnLifecycleEventListener(lifecycleListener);
     }
 
     private void realUnbind() {
-        Log.d(logTAG(), "realUnbind", Log.DEBUG_MODE);
         if (service != null) {
             if (stopOnDestroy == true)
                 tiService.stop();
             unbindService();
-        } else {
-            Log.d(logTAG(), "onDestroy: service is null", Log.DEBUG_MODE);
         }
         TiApplication.getInstance().getRootActivity()
                 .removeOnLifecycleEventListener(lifecycleListener);
@@ -163,7 +155,6 @@ public class ServiceProxy extends KrollProxy {
 
     @Kroll.method
     public void start() {
-        Log.d(logTAG(), "Starting service " + this, Log.DEBUG_MODE);
 //        if (!forBoundServices) {
 //            Log.w(TAG, "Only services created via Ti.Android.createService can be started via the start() command. Ignoring start() request.");
 //            return;
@@ -180,7 +171,6 @@ public class ServiceProxy extends KrollProxy {
 //            } else {
 //                unbindService();
 //            }
-            Log.d(logTAG(), "Stopping service", Log.DEBUG_MODE);
             this.tiService.stop();
         }
     }
@@ -188,7 +178,6 @@ public class ServiceProxy extends KrollProxy {
     @Kroll.getProperty
     @Kroll.method
     public boolean getRunning() {
-        Log.d(logTAG(), "getStarted " + this, Log.DEBUG_MODE);
         return this.service != null && isServiceRunning();
     }
 
@@ -198,8 +187,6 @@ public class ServiceProxy extends KrollProxy {
     }
 
     protected boolean isServiceRunning() {
-        Log.d(logTAG(), "isServiceRunning " + serviceClass().toString(),
-                Log.DEBUG_MODE);
         ActivityManager manager = (ActivityManager) TiApplication.getInstance()
                 .getApplicationContext()
                 .getSystemService(Context.ACTIVITY_SERVICE);
@@ -214,7 +201,6 @@ public class ServiceProxy extends KrollProxy {
 
     public void bindService() {
         Context context = TiApplication.getInstance();
-        Log.d(logTAG(), "bindService " + this.serviceConnection, Log.DEBUG_MODE);
         boolean result = context.bindService(getIntent().getIntent(),
                 this.serviceConnection, Context.BIND_AUTO_CREATE);
         if (!result) {
@@ -225,12 +211,9 @@ public class ServiceProxy extends KrollProxy {
     protected void bindAndInvokeService() {
         Context context = TiApplication.getInstance();
         String className = serviceClass().toString();
-        Log.d(logTAG(), "bindAndInvokeService " + className, Log.DEBUG_MODE);
         boolean alreadStarted = isServiceRunning();
         Intent intent = getIntent().getIntent();
         if (!alreadStarted) {
-            Log.d(logTAG(), "bindAndInvokeService: service not running",
-                    Log.DEBUG_MODE);
             context.startService(intent);
         }
         bindService();
@@ -238,7 +221,6 @@ public class ServiceProxy extends KrollProxy {
     }
 
     protected void handleBinder(IBinder binder) {
-        Log.d(logTAG(), "handleBinder", Log.DEBUG_MODE);
         TiServiceBinder akbinder = (TiServiceBinder) binder;
         Service localservice = (Service) akbinder.getService();
         if (localservice instanceof TiServiceInterface) {
@@ -254,12 +236,10 @@ public class ServiceProxy extends KrollProxy {
     protected final ServiceConnection serviceConnection = new ServiceConnection() {
 
         public void onServiceDisconnected(ComponentName name) {
-            Log.d(logTAG(), "Service disconnected", Log.DEBUG_MODE);
             unbindService();
         }
 
         public void onServiceConnected(ComponentName name, IBinder binder) {
-            Log.d(logTAG(), "Service connected", Log.DEBUG_MODE);
             handleBinder(binder);
         }
     };
@@ -276,8 +256,6 @@ public class ServiceProxy extends KrollProxy {
             this.tiService.unbindProxy(this);
         }
 
-        Log.d(logTAG(), "Unbinding service " + this.serviceConnection,
-                Log.DEBUG_MODE);
         try {
             context.unbindService(this.serviceConnection);
         } catch (Exception e) {
@@ -288,21 +266,16 @@ public class ServiceProxy extends KrollProxy {
     }
 
     protected void invokeBoundService() {
-        Log.d(logTAG(), "invokeBoundService: "
-                + this.tiService.getClass().toString() + ":" + this + "/"
-                + tiService, Log.DEBUG_MODE);
         this.tiService.start(this);
     }
 
     @Override
     public boolean fireEvent(String event, Object data) {
-        Log.d(logTAG(), "fireEvent " + event, Log.DEBUG_MODE);
         return super.fireEvent(event, data);
     }
 
     @Override
     public void release() {
-        Log.d(logTAG(), "release", Log.DEBUG_MODE);
         realUnbind();
         super.release();
     }
