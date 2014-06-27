@@ -1189,7 +1189,7 @@ public abstract class TiBaseActivity extends SherlockFragmentActivity
 
 		// Checkpoint for ti.background event
 		if (tiApp != null && TiApplication.getInstance().isAnalyticsEnabled()) {
-			APSAnalytics.sendSessionBackgroundEvent();
+			APSAnalytics.getInstance().sendAppBackgroundEvent();
 		}
 	}
 
@@ -1245,7 +1245,7 @@ public abstract class TiBaseActivity extends SherlockFragmentActivity
 		// Checkpoint for ti.foreground event
 		//String deployType = tiApp.getAppProperties().getString("ti.deploytype", "unknown");
 		if(TiApplication.getInstance().isAnalyticsEnabled()){
-			APSAnalytics.sendSessionForegroundEvent();
+		    APSAnalytics.getInstance().sendAppForegroundEvent();
 		}
 	}
 	

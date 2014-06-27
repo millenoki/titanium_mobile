@@ -96,8 +96,9 @@ function AndroidBuilder() {
 
     this.tiSymbols = {};
 
-    this.minSupportedApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
-    this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
+	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
+	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
+	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
 
     this.deployTypes = {
         'emulator': 'development',
@@ -171,20 +172,20 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                         assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
                         assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 
-                        // make sure we have an Android SDK and some Android targets
-                        if (!Object.keys(androidInfo.targets).filter(function (id) {
-                                var t = androidInfo.targets[id];
-                                return t.type == 'platform' && t['api-level'] >= _t.minSupportedApiLevel;
-                        }).length) {
-                            if (Object.keys(androidInfo.targets).length) {
-                                logger.error(__('No valid Android SDK targets found.'));
-                            } else {
-                                logger.error(__('No Android SDK targets found.'));
-                            }
-                            logger.error(__('Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.', _t.minSupportedApiLevel) + '\n');
-                            process.exit(1);
-                        }
-                    }
+						// make sure we have an Android SDK and some Android targets
+						if (!Object.keys(androidInfo.targets).filter(function (id) {
+								var t = androidInfo.targets[id];
+								return t.type == 'platform' && t['api-level'] >= _t.minTargetApiLevel;
+						}).length) {
+							if (Object.keys(androidInfo.targets).length) {
+								logger.error(__('No valid Android SDK targets found.'));
+							} else {
+								logger.error(__('No Android SDK targets found.'));
+							}
+							logger.error(__('Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.', _t.minTargetApiLevel) + '\n');
+							process.exit(1);
+						}
+					}
 
                     // if --android-sdk was not specified, then we simply try to set a default android sdk
                     if (!cli.argv['android-sdk']) {
@@ -1066,19 +1067,19 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
     this.targetSDK = cli.tiapp.android && ~~cli.tiapp.android['tool-api-level'] || null;
     this.maxSDK = null;
 
-    if (this.targetSDK) {
-        logger.log();
-        logger.warn(__('%s has been deprecated, please specify the target SDK using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
-        logger.warn();
-        logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-        logger.warn('    <android>'.grey);
-        logger.warn('        <manifest>'.grey);
-        logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minSupportedApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
-        logger.warn('        </manifest>'.grey);
-        logger.warn('    </android>'.grey);
-        logger.warn('</ti:app>'.grey);
-        logger.log();
-    }
+	if (this.targetSDK) {
+		logger.log();
+		logger.warn(__('%s has been deprecated, please specify the target SDK using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
+		logger.warn();
+		logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.warn('    <android>'.grey);
+		logger.warn('        <manifest>'.grey);
+		logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minTargetApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
+		logger.warn('        </manifest>'.grey);
+		logger.warn('    </android>'.grey);
+		logger.warn('</ti:app>'.grey);
+		logger.log();
+	}
 
     if (usesSDK) {
         usesSDK['minSdkVersion'] && (this.minSDK = ~~usesSDK['minSdkVersion']);
@@ -1086,15 +1087,66 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         usesSDK['maxSdkVersion'] && (this.maxSDK = ~~usesSDK['maxSdkVersion']);
     }
 
-    if (this.minSDK < this.minSupportedApiLevel) {
-        logger.error(__('Minimum Android SDK version must be %s or newer', this.minSupportedApiLevel) + '\n');
-        process.exit(1);
-    }
+	// min sdk is too old
+	if (this.minSDK < this.minSupportedApiLevel) {
+		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
+		logger.log(
+			appc.string.wrap(
+				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:minSdkVersion'.cyan, String(this.minSupportedApiLevel).cyan),
+				config.get('cli.width', 100)
+			)
+		);
+		logger.log();
+		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.log('    <android>'.grey);
+		logger.log('        <manifest>'.grey);
+		logger.log(('            <uses-sdk '
+			+ 'android:minSdkVersion="' + this.minSupportedApiLevel + '" '
+			+ (this.targetSDK ? 'android:targetSdkVersion="' + this.targetSDK + '" ' : '')
+			+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+			+ '/>').magenta);
+		logger.log('        </manifest>'.grey);
+		logger.log('    </android>'.grey);
+		logger.log('</ti:app>'.grey);
+		logger.log();
+		process.exit(1);
+	}
 
-    // if no target sdk, then default to most recent supported/installed
-    if (!this.targetSDK) {
-        var levels = Object.keys(targetSDKMap).sort(),
-            i = levels.length - 1;
+	// target sdk is too old
+	if (this.targetSDK && this.targetSDK < this.minTargetApiLevel) {
+		logger.error(__('The target SDK version must be %s or newer, but is currently set to %s', this.minTargetApiLevel, this.targetSDK) + '\n');
+		logger.log(
+			appc.string.wrap(
+				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:targetSdkVersion'.cyan, String(this.minTargetApiLevel).cyan),
+				config.get('cli.width', 100)
+			)
+		);
+		logger.log();
+		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.log('    <android>'.grey);
+		logger.log('        <manifest>'.grey);
+		logger.log(('            <uses-sdk '
+			+ (this.minSupportedApiLevel ? 'android:minSdkVersion="' + this.minSupportedApiLevel + '" ' : '')
+			+ 'android:targetSdkVersion="' + this.minTargetApiLevel + '" '
+			+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+			+ '/>').magenta);
+		logger.log('        </manifest>'.grey);
+		logger.log('    </android>'.grey);
+		logger.log('</ti:app>'.grey);
+		logger.log();
+		process.exit(1);
+	}
+
+	// target sdk < min sdk
+	if (this.targetSDK && this.targetSDK < this.minSDK) {
+		logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s', this.minSDK, this.targetSDK) + '\n');
+		process.exit(1);
+	}
+
+	// if no target sdk, then default to most recent supported/installed
+	if (!this.targetSDK) {
+		var levels = Object.keys(targetSDKMap).sort(),
+			i = levels.length - 1;
 
         for (; i >= 0; i--) {
             if (levels[i] >= this.minSupportedApiLevel && levels[i] <= this.maxSupportedApiLevel) {
@@ -1115,32 +1167,36 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
     if (!this.androidTargetSDK) {
         logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
 
-        var sdks = Object.keys(targetSDKMap).filter(function (ver) {
-            return ~~ver > this.minSupportedApiLevel;
-        }.bind(this)).sort();
+		var sdks = Object.keys(targetSDKMap).filter(function (ver) {
+			return ~~ver > this.minSupportedApiLevel;
+		}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
 
-        if (sdks.length) {
-            logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
-            logger.log(
-                appc.string.wrap(
-                    __('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
-                    config.get('cli.width', 100)
-                )
-            );
-            logger.log();
-            logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-            logger.log('    <android>'.grey);
-            logger.log('        <manifest>'.grey);
-            logger.log(('            <uses-sdk android:minSdkVersion="' + sdks[0] + '" android:targetSdkVersion="' + sdks[0] + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
-            logger.log('        </manifest>'.grey);
-            logger.log('    </android>'.grey);
-            logger.log('</ti:app>'.grey);
-            logger.log();
-        } else {
-            logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
-        }
-        process.exit(1);
-    }
+		if (sdks.length) {
+			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
+			logger.log(
+				appc.string.wrap(
+					__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
+					config.get('cli.width', 100)
+				)
+			);
+			logger.log();
+			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+			logger.log('    <android>'.grey);
+			logger.log('        <manifest>'.grey);
+			logger.log(('            <uses-sdk '
+				+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
+				+ 'android:targetSdkVersion="' + sdks[0] + '" '
+				+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+				+ '/>').magenta);
+			logger.log('        </manifest>'.grey);
+			logger.log('    </android>'.grey);
+			logger.log('</ti:app>'.grey);
+			logger.log();
+		} else {
+			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
+		}
+		process.exit(1);
+	}
 
     if (!this.androidTargetSDK.androidJar) {
         logger.error(__('Target Android SDK %s is missing "android.jar"', this.targetSDK) + '\n');
@@ -1152,10 +1208,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         process.exit(1);
     }
 
-    if (this.maxSDK && this.maxSDK < this.targetSDK) {
-        logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s', (''+this.targetSDK).cyan) + '\n');
-        process.exit(1);
-    }
+	if (this.maxSDK && this.maxSDK < this.targetSDK) {
+		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
+		process.exit(1);
+	}
 
     if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
         // print warning that version this.targetSDK is not tested
@@ -2184,29 +2240,34 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         }
     }
 
-    function copyFile(from, to, next) {
-        var d = path.dirname(to);
-        fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
-        if (symlinkFiles) {
-            fs.existsSync(to) && fs.unlinkSync(to);
-            this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
-            if (next) {
-                fs.symlink(from, to, next);
-            } else {
-                fs.symlinkSync(from, to);
-            }
-        } else {
-            this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-            if (next) {
-                fs.readFile(from, function (err, data) {
-                    if (err) throw err;
-                    fs.writeFile(to, data, next);
-                });
-            } else {
-                fs.writeFileSync(to, fs.readFileSync(from));
-            }
-        }
-    }
+	function copyFile(from, to, next) {
+		var d = path.dirname(to);
+		fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
+
+		if (fs.existsSync(to)) {
+			_t.logger.warn(__('Overwriting file %s', to.cyan));
+		}
+
+		if (symlinkFiles) {
+			fs.existsSync(to) && fs.unlinkSync(to);
+			this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
+			if (next) {
+				fs.symlink(from, to, next);
+			} else {
+				fs.symlinkSync(from, to);
+			}
+		} else {
+			this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+			if (next) {
+				fs.readFile(from, function (err, data) {
+					if (err) throw err;
+					fs.writeFile(to, data, next);
+				});
+			} else {
+				fs.writeFileSync(to, fs.readFileSync(from));
+			}
+		}
+	}
 
     function recursivelyCopy(src, dest, ignoreRootDirs, opts, done) {
         var files;
@@ -2440,15 +2501,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         }
     }, this);
 
-    var platformPaths = [
-        path.join(this.projectDir, 'platform', 'android')
-    ];
+    var platformPaths = [];
     // WARNING! This is pretty dangerous, but yes, we're intentionally copying
     // every file from platform/android and all modules into the build dir
     this.modules.forEach(function (module) {
         platformPaths.push(path.join(module.modulePath, 'platform', 'android'));
     });
 
+	platformPaths.push(path.join(this.projectDir, 'platform', 'android'));
     this.cli.createHook('build.android.platformsPaths', this, function (platformPaths) {
         platformPaths.forEach(function (dir) {
             if (fs.existsSync(dir)) {
@@ -3132,25 +3192,34 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 };
 
 AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
-    var filename = path.basename(dest),
-        destExists = fs.existsSync(dest),
-        destDir = path.dirname(dest),
-        srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
-        destDoc,
-        dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
-        root = dom.documentElement,
-        nodes = {},
-        byName = function (node) {
-            var n = xml.getAttr(node, 'name');
-            n && (nodes[n] = node);
-        },
-        byTagAndName = function (node) {
-            var n = xml.getAttr(node, 'name');
-            if (n) {
-                nodes[node.tagName] || (nodes[node.tagName] = {});
-                nodes[node.tagName][n] = node;
-            }
-        };
+	var filename = path.basename(dest),
+		destExists = fs.existsSync(dest),
+		destDir = path.dirname(dest),
+		srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
+		destDoc,
+		dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
+		root = dom.documentElement,
+		nodes = {},
+		_t = this,
+		byName = function (node) {
+			var n = xml.getAttr(node, 'name');
+			if (n) {
+				if (nodes[n] && n !== 'app_name') {
+					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
+				}
+				nodes[n] = node;
+			}
+		},
+		byTagAndName = function (node) {
+			var n = xml.getAttr(node, 'name');
+			if (n) {
+				nodes[node.tagName] || (nodes[node.tagName] = {});
+				if (nodes[node.tagName][n] && n !== 'app_name') {
+					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
+				}
+				nodes[node.tagName][n] = node;
+			}
+		};
 
     if (destExists) {
         // we're merging

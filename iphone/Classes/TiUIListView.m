@@ -120,21 +120,25 @@ static NSDictionary* replaceKeysForRow;
     RELEASE_TO_NIL(_headerWrapper)
     if (_pullViewProxy)
     {
+		[_pullViewProxy setProxyObserver:nil];
         [_pullViewProxy detachView];
         RELEASE_TO_NIL(_pullViewProxy)
     }
     if (_headerViewProxy)
     {
+		[_headerViewProxy setProxyObserver:nil];
         [_headerViewProxy detachView];
         RELEASE_TO_NIL(_headerViewProxy)
     }
     if (_footerViewProxy)
     {
+		[_footerViewProxy setProxyObserver:nil];
         [_footerViewProxy detachView];
         RELEASE_TO_NIL(_footerViewProxy)
     }
     if (searchViewProxy)
     {
+		[searchViewProxy setProxyObserver:nil];
         [searchViewProxy detachView];
         RELEASE_TO_NIL(searchViewProxy)
     }

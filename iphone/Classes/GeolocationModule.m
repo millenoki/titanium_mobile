@@ -920,7 +920,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if (!analyticsSend)
 	{
         analyticsSend = YES;
-        [APSAnalytics sendAppGeoEvent:locations];
+        [[APSAnalytics sharedInstance] sendAppGeoEvent:[locations lastObject]];
     }
 }
 

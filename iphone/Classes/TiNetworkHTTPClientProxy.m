@@ -113,7 +113,7 @@ extern NSString * const TI_APPLICATION_GUID;
     [httpRequest setShowActivity: [TiUtils boolValue:[self valueForUndefinedKey:@"showActivity"] def:YES]];
 
     if([self valueForUndefinedKey:@"timeout"]) {
-        [httpRequest setTimeout: [TiUtils intValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
+        [httpRequest setTimeout: [TiUtils doubleValue:[self valueForUndefinedKey:@"timeout"] def:15000] / 1000 ];
     }
     if([self valueForUndefinedKey:@"autoRedirect"]) {
         [httpRequest setRedirects:
@@ -346,7 +346,7 @@ extern NSString * const TI_APPLICATION_GUID;
 }
 
 
--(void)request:(APSHTTPRequest *)request onReadyStateChage:(APSHTTPResponse *)response
+-(void)request:(APSHTTPRequest *)request onReadyStateChange:(APSHTTPResponse *)response
 {
     if(hasOnreadystatechange) {
         [self fireCallback:@"onreadystatechange" withArg:nil withSource:self];
@@ -360,43 +360,43 @@ extern NSString * const TI_APPLICATION_GUID;
     }
 }
 
-#pragma mark - Pulbic setters
+#pragma mark - Public setters
 
 -(void)setOnload:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onload" notification:NO];
-    hasOnload = YES;
+    hasOnload = (callback == nil) ? NO : YES;
 }
 -(void)setOnerror:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onerror" notification:NO];
-    hasOnerror = YES;
+    hasOnerror = (callback == nil) ? NO : YES;;
 }
 -(void)setOnreadystatechange:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onreadystatechange" notification:NO];
-    hasOnreadystatechange = YES;
+    hasOnreadystatechange = (callback == nil) ? NO : YES;;
 }
 -(void)setOndatastream:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"ondatastream" notification:NO];
-    hasOndatastream = YES;
+    hasOndatastream = (callback == nil) ? NO : YES;;
 }
 -(void)setOnsendstream:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onsendstream" notification:NO];
-    hasOnsendstream = YES;
+    hasOnsendstream = (callback == nil) ? NO : YES;;
 }
 -(void)setOnredirect:(id)callback
 {
-    ENSURE_SINGLE_ARG(callback, KrollCallback)
+    ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
     [self replaceValue:callback forKey:@"onredirect" notification:NO];
-    hasOnredirect = YES;
+    hasOnredirect = (callback == nil) ? NO : YES;;
 }
 
 -(void)setRequestHeader:(id)args
@@ -410,9 +410,14 @@ extern NSString * const TI_APPLICATION_GUID;
 
 #pragma mark - Public getter properties
 
--(NSDictionary*)allResponseHeaders
+-(NSString*)allResponseHeaders
 {
-    return [[self response] headers];
+    NSDictionary* headers = [[self response] headers];
+    NSMutableArray *array = [NSMutableArray array];
+    for (NSString *key in headers) {
+        [array addObject:[NSString stringWithFormat:@"%@:%@", key, [headers objectForKey:key]]];
+    }
+    return [array componentsJoinedByString: @"\n"];
 }
 
 -(NSString*)apiName
