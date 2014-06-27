@@ -13,11 +13,8 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.kroll.common.Log;
 
-import com.trevorpage.tpsvg.internal.Gradient.StopColor;
-
 import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.IBinder;
 
 /**
@@ -26,7 +23,7 @@ import android.os.IBinder;
  */
 public class TiBaseService extends Service implements TiServiceInterface{
 
-    static final String TAG = "AkService";
+    static final String TAG = "TiBaseService";
     public static final String TI_SERVICE_INTENT_ID_KEY = "$__TITANIUM_SERVICE_INTENT_ID__$";
     protected AtomicInteger proxyCounter = new AtomicInteger();
 
@@ -54,12 +51,6 @@ public class TiBaseService extends Service implements TiServiceInterface{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         boolean needsStart = intent == null || intent.getBooleanExtra(ServiceProxy.NEEDS_STARTING, true);
-        Log.d(logTAG(), "onStartCommand: " + needsStart, Log.DEBUG_MODE);
-        if (this.proxy == null) {
-            Log.d(logTAG(), "onStartCommand: first start no proxy", Log.DEBUG_MODE);
-        } else {
-            Log.d(logTAG(), "onStartCommand: already started", Log.DEBUG_MODE);
-        }
         if (needsStart){
             start(this.proxy);
         }
@@ -72,13 +63,10 @@ public class TiBaseService extends Service implements TiServiceInterface{
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(logTAG(), "onBind", Log.DEBUG_MODE);
         return new TiServiceBinder(this);
     }
 
     protected void executeServiceCode() {
-        Log.d(logTAG(), "executeServiceCode " + proxy.getProperties(),
-                Log.DEBUG_MODE);
         //meant to be overriden
     }
     
@@ -97,28 +85,12 @@ public class TiBaseService extends Service implements TiServiceInterface{
     
 
     public void start(ServiceProxy proxy) {
-        Log.d(logTAG(), "start", Log.DEBUG_MODE);
-        if (this.proxy != null) {
-            Log.d(logTAG(),
-                    "we were already associated to a proxy, must have started on boot",
-                    Log.DEBUG_MODE);
-            Log.d(logTAG(),
-                    "old service instance id"
-                            + this.proxy.getServiceInstanceId(), Log.DEBUG_MODE);
-            Log.d(logTAG(),
-                    "new service instance id" + proxy.getServiceInstanceId(),
-                    Log.DEBUG_MODE);
-        }
-
         this.proxy = proxy;
         
         
         if (started == false) {
             started = true;
             executeServiceCode();
-        }
-        else {
-            Log.d(logTAG(), "start: already started", Log.DEBUG_MODE);
         }
         
         if (this.proxy != null) {
