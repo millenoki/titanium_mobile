@@ -6,6 +6,7 @@ app = require('akylas.commonjs').createApp(this, { // not using var seems very i
     },
     iconicfonts: {
         webhostinghub: '/fonts/font_webhostinghub',
+
         // elusive: '/fonts/font_elusive'
     },
     commonjsOptions: {

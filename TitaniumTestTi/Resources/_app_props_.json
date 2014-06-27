@@ -1,1 +1,11 @@
-{"ti.ui.defaultunit":"dp","ti.android.fastdev":false,"ti.android.debug":false,"ti.compilejs":false,"ti.android.bug2373.finishfalseroot":true,"ti.facebook.appid":"207410512803167","ti.google.clientid":"1035516682678-hknrlc3gmqs58q9ff9so6u33t6hsug0l.apps.googleusercontent.com","ti.google.clientsecret":"V0fv89V24IPU3bayOaWvkoFf","testflight.token":"798c904f-466a-42d1-a9be-28bdad05d23e","testflight.sessionKeepAliveTimeout":"7200","testflight.reinstallCrashHandlers":"true","testflight.asyncLog":"true","akylas.commonjs.key":"14AE06DCDA1AB87B88DF5D22CD8D608597C643DF","ti.deploytype":"test"}
+{
+    "ti.ui.defaultunit": "dp",
+    "ti.android.fastdev": false,
+    "ti.android.debug": true,
+    "ti.compilejs": false,
+    "ti.android.bug2373.finishfalseroot": true,
+    "testflight.token": "798c904f-466a-42d1-a9be-28bdad05d23e",
+    "testflight.sessionKeepAliveTimeout": "7200",
+    "testflight.reinstallCrashHandlers": "true",
+    "ti.deploytype": "test"
+}
