@@ -453,7 +453,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 	TiRect *rect = [[TiRect alloc] init];
     if ([self viewAttached]) {
         [self makeViewPerformSelector:@selector(fillBoundsToRect:) withObject:rect createIfNeeded:YES waitUntilDone:YES];
-        id defaultUnit = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
+        id defaultUnit = [TiApp defaultUnit];
         if ([defaultUnit isKindOfClass:[NSString class]]) {
             [rect convertToUnit:defaultUnit];
         }
@@ -486,7 +486,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         viewRect.origin.y += viewPosition.y;
         [rect setRect:viewRect];
         
-        id defaultUnit = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
+        id defaultUnit = [TiApp defaultUnit];
         if ([defaultUnit isKindOfClass:[NSString class]]) {
             [rect convertToUnit:defaultUnit];
         }       
@@ -527,7 +527,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         }, YES);
         [rect setRect:viewRect];
         
-        id defaultUnit = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
+        id defaultUnit = [TiApp defaultUnit];
         if ([defaultUnit isKindOfClass:[NSString class]]) {
             [rect convertToUnit:defaultUnit];
         }

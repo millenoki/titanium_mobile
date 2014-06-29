@@ -1080,6 +1080,15 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     return props;
 }
 
++(id) defaultUnit {
+    static id unit;
+    
+    if(unit == nil) {
+        unit = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
+    }
+    return unit;
+}
+
 // Returns an NSDictionary with the license data from license.json
 +(NSDictionary *)license
 {
