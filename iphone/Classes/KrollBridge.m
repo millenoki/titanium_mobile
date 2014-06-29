@@ -62,9 +62,9 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 		
 		// pre-cache a few modules we always use
 		TiModule *ui = [host moduleNamed:@"UI" context:pageContext_];
-		[self addModule:@"UI" module:ui];
+		if (ui) [self addModule:@"UI" module:ui];
 		TiModule *api = [host moduleNamed:@"API" context:pageContext_];
-		[self addModule:@"API" module:api];
+		if (api) [self addModule:@"API" module:api];
 		
 		if (TI_APPLICATION_ANALYTICS)
 		{
