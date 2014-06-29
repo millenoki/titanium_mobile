@@ -1,6 +1,7 @@
 {
     "Resources/app.js": 1,
     "Resources/charts.js": 1,
+    "Resources/akylas.location.script.js": 1,
     "Resources/shapes.js": 1,
     "Resources/maps.js": 1,
     "Resources/simplifygeometry.js": 1,
