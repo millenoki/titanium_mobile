@@ -377,6 +377,7 @@ else{\
             NSMutableDictionary * event = [dict mutableCopy];
             [event setObject:type forKey:@"type"];
             [self fireCallback:@"onstackchange" withArg:event withSource:self];
+            [event release];
         }
         else {
             [self fireEvent:type withObject:dict propagate:NO checkForListener:NO];
