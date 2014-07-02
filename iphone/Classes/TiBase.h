@@ -448,6 +448,21 @@ return ivarName;	\
 [self forgetProxy:x]; \
 RELEASE_TO_NIL(x); \
 }
+    
+#define FORGET_AND_RELEASE_WITH_DELEGATE(x) \
+{\
+if (x == nil) return; \
+[self forgetProxy:x]; \
+[x setDelegate:nil]; \
+RELEASE_TO_NIL(x); \
+}
+    
+#define RELEASE_WITH_DELEGATE(x) \
+{\
+if (x == nil) return; \
+[x setDelegate:nil]; \
+RELEASE_TO_NIL(x); \
+}
 
  //MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
 enum {
