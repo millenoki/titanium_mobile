@@ -111,8 +111,8 @@
 
 - (void) dealloc
 {
+	RELEASE_WITH_DELEGATE(scrollView);
 	RELEASE_TO_NIL(wrapperView);
-	RELEASE_TO_NIL(scrollView);
 	[super dealloc];
 }
 

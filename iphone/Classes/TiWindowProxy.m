@@ -41,7 +41,9 @@
 }
 
 -(void) dealloc {
-    
+    FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
+    FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
     if(transitionProxy != nil)
     {
@@ -149,8 +151,7 @@
         [self fireEvent:@"focus" propagate:NO];
     }
     [super windowDidOpen];
-    [self forgetProxy:openAnimation];
-    RELEASE_TO_NIL(openAnimation);
+    FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
     if (tab == nil && (self.isManaged == NO) && controller == nil) {
         [[[[TiApp app] controller] topContainerController] didOpenWindow:self];
     }
@@ -172,9 +173,8 @@
     closing = NO;
 //    [self viewDidDisappear:false];
     [self fireEvent:@"close" propagate:NO];
-    [self forgetProxy:closeAnimation];
     [[NSNotificationCenter defaultCenter] removeObserver:self]; //just to be sure
-    RELEASE_TO_NIL(closeAnimation);
+    FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
     if (tab == nil && (self.isManaged == NO) && controller == nil) {
         [[[[TiApp app] controller] topContainerController] didCloseWindow:self];
     }

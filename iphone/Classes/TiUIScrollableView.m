@@ -30,7 +30,7 @@
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(scrollview);
+	RELEASE_WITH_DELEGATE(scrollview);
 	RELEASE_TO_NIL(pageControl);
     RELEASE_TO_NIL(pageControlBackgroundColor);
     RELEASE_TO_NIL(_transition);

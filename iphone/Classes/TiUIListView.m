@@ -939,8 +939,7 @@ static NSDictionary* replaceKeysForRow;
 {
     ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
     [self tableView];
-    [searchViewProxy setDelegate:nil];
-    RELEASE_TO_NIL(searchViewProxy);
+    RELEASE_WITH_DELEGATE(searchViewProxy);
     RELEASE_TO_NIL(tableController);
     RELEASE_TO_NIL(searchController);
     [_searchWrapper removeAllChildren:nil];
