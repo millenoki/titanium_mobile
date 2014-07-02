@@ -330,8 +330,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     if([self _hasListeners:@"memorywarning"]) {
         [self fireEvent:@"memorywarning" withObject:nil];
     }
-
-	FORGET_AND_RELEASE(properties);
+    //this creates a"message send to deallocated instance" in TiThreadProcessPendingMainThreadBlocks
+    // when releasing thisAction(). It should not happen :s
+//	FORGET_AND_RELEASE(properties);
 #ifdef USE_TI_APPIOS
 	FORGET_AND_RELEASE(iOS);
 #endif
