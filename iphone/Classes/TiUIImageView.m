@@ -812,6 +812,7 @@ DEFINE_EXCEPTIONS
     
 	if (arg==nil || [arg isEqual:@""] || [arg isKindOfClass:[NSNull class]])
 	{
+        [self loadDefaultImage];
 		return;
 	}
 	
