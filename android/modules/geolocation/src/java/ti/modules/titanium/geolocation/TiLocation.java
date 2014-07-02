@@ -31,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import ti.modules.titanium.geolocation.android.LocationProviderProxy;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
@@ -95,6 +96,20 @@ public class TiLocation implements Handler.Callback
 	{
 		return knownProviders.contains(name);
 	}
+	
+	public int getProviderState(String name)
+    {
+	    if (!knownProviders.contains(name)) {
+	        return LocationProviderProxy.STATE_UNAVAILABLE;
+	    }
+        List<String> providerNames = locationManager.getProviders(true);
+        if (providerNames.contains(name)) {
+            return LocationProviderProxy.STATE_ENABLED;
+        }
+        else {
+            return LocationProviderProxy.STATE_DISABLED;
+        }
+    }
 
 	public boolean getLocationServicesEnabled()
 	{
