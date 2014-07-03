@@ -21,10 +21,11 @@
 
 @implementation TiUINavigationWindowProxy
 {
-    BOOL _hasOnStackChange;
+//    BOOL _hasOnStackChange;
     BOOL _swipeToClose;
     UIScreenEdgePanGestureRecognizer* popRecognizer;
 }
+@synthesize onstackchange;
 
 -(void)dealloc
 {
@@ -45,7 +46,7 @@
 	if ((self = [super init]))
 	{
         self.defaultTransition = [self platformDefaultTransition];
-        _hasOnStackChange = NO;
+//        _hasOnStackChange = NO;
         _swipeToClose = YES;
 	}
 	return self;
@@ -358,28 +359,28 @@ else{\
              @"reverse": NUMBOOL(transition.isReversed)};
 }
 
--(void)setOnstackchange:(KrollCallback *)callback
-{
-	_hasOnStackChange = [callback isKindOfClass:[KrollCallback class]];
-	[self setValue:callback forUndefinedKey:@"onstackchange"];
-}
+//-(void)setOnstackchange:(KrollCallback *)callback
+//{
+//	_hasOnStackChange = [callback isKindOfClass:[KrollCallback class]];
+//	[self setValue:callback forUndefinedKey:@"onstackchange"];
+//}
 
 -(void)fireEvent:(NSString *)type forController:(UIViewController *)viewController transition:(ADTransition *)transition
 {
     BOOL hasEvent = [self _hasListeners:type checkParent:NO];
     
-    if (_hasOnStackChange || hasEvent) {
+    if (onstackchange || hasEvent) {
         NSDictionary* dict = @{@"window": ((TiViewController*)viewController).proxy,
                                @"transition":[self propsDictFromTransition:transition],
                                @"stackIndex":NUMINT([[navController viewControllers] indexOfObject:viewController]),
                                @"animated": NUMBOOL(transition != nil)};
-        if (_hasOnStackChange){
+        if (onstackchange){
             NSMutableDictionary * event = [dict mutableCopy];
             [event setObject:type forKey:@"type"];
-            [self fireCallback:@"onstackchange" withArg:event withSource:self];
+            [onstackchange call:@[event] thisObject:nil];
             [event release];
         }
-        else {
+        if (hasEvent) {
             [self fireEvent:type withObject:dict propagate:NO checkForListener:NO];
         }
     }
