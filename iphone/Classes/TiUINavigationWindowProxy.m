@@ -842,6 +842,27 @@ else{\
 	}
 }
 
+
+-(void)layoutChildren:(BOOL)optimize
+{
+	[super layoutChildren:optimize];
+    if ([self runningAnimation]) {
+        [current setRunningAnimation:[self runningAnimation]];
+        [current performBlockWithoutLayout:^{
+            [current willChangeSize];
+            [current willChangePosition];
+        }];
+        
+        [current refreshViewOrParent];
+        [current setRunningAnimation:nil];
+    }
+    else {
+        [current refreshViewOrParent];
+    }
+    
+}
+
+
 @end
 
 #endif
