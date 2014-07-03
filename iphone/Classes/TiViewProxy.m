@@ -1869,7 +1869,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     [self parentWillShowWithoutUpdate];
     [self refreshView];
 }
+
 -(void)viewWillDisappear:(BOOL)animated
+{
+}
+
+-(void)viewDidDisappear:(BOOL)animated
 {
     [self parentWillHide];
 }
