@@ -762,7 +762,6 @@
 		D5809D5C19129CEB005A1F02 /* APSHTTPResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4F19129CEB005A1F02 /* APSHTTPResponse.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5809D5D19129CEB005A1F02 /* APSHTTPResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4F19129CEB005A1F02 /* APSHTTPResponse.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5809D5E19129CEB005A1F02 /* APSHTTPResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4F19129CEB005A1F02 /* APSHTTPResponse.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		D5818EAF18AA8872007EF771 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5818EAE18AA8872007EF771 /* AdSupport.framework */; };
 		D585BC8517E630AB0062275E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8417E630AB0062275E /* CoreVideo.framework */; };
 		D585BC8617E630B30062275E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8417E630AB0062275E /* CoreVideo.framework */; };
 		D585BC8717E630BA0062275E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8417E630AB0062275E /* CoreVideo.framework */; };
@@ -2365,7 +2364,6 @@
 				D58ED90A1928F49F00BA0E04 /* libakylas.slidemenu.a in Frameworks */,
 				D5A016CA1926109E0005158A /* Accelerate.framework in Frameworks */,
 				312E36C1190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
-				D5818EAF18AA8872007EF771 /* AdSupport.framework in Frameworks */,
 				D585BC8A17E630D40062275E /* CoreMedia.framework in Frameworks */,
 				D585BC8617E630B30062275E /* CoreVideo.framework in Frameworks */,
 				D56FD2D7176EEAB0005BBC3F /* CoreTelephony.framework in Frameworks */,
