@@ -537,8 +537,8 @@ enum
 -(void)childWillResize:(TiViewProxy *)child withinAnimation:(TiViewAnimationStep*)animation;
 -(void)aboutToBeAnimated;
 
-//-(TiViewAnimation*)getRunningAnimation;
-//-(void)handleViewAnimation:(TiViewAnimation*)viewAnimation;
+-(TiViewAnimationStep*)runningAnimation;
+-(void)setRunningAnimation:(TiViewAnimationStep*)animation;
 
 /**
  get the next children of a certain class starting from a child
