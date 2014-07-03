@@ -293,6 +293,11 @@ else{\
 //        [theWindow windowWillOpen];
         [theWindow setAnimating:YES];
     }
+    //make sure our size is updated.
+    //if our size change during the push/pop animation, ios wont retain it
+    // and will forget it at the end of the animation
+    [self refreshViewOrParent];
+    [self handlePendingAnimation];
 }
 
 - (void)navController:(id)transitionController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
