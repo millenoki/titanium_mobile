@@ -596,6 +596,7 @@ enum
  The current running animation
  */
 -(TiViewAnimationStep*)runningAnimation;
+-(void)performBlock:(void (^)(void))block withinOurAnimationOnProxy:(TiViewProxy*)viewProxy;
 
 /**
  Update the view if necessary

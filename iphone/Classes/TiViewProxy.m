@@ -2178,6 +2178,23 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     allowContentChange = YES;
 }
 
+-(void)performBlock:(void (^)(void))block withinAnimation:(TiViewAnimationStep*)animation
+{
+    if (animation) {
+        [self setRunningAnimation:animation];
+        block();
+        [self setRunningAnimation:nil];
+    }
+    else {
+        block();
+    }
+}
+
+-(void)performBlock:(void (^)(void))block withinOurAnimationOnProxy:(TiViewProxy*)viewProxy
+{
+    [viewProxy performBlock:block withinAnimation:[self runningAnimation]];
+}
+
 -(void)parentContentWillChange
 {
     if (allowContentChange == NO && [[self viewParent] allowContentChange])
@@ -2560,16 +2577,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 {
     TiViewProxy* viewParent = [self viewParent];
     if (viewParent && [viewParent isDirty]) {
-        if ([self runningAnimation])
-        {
-            [viewParent setRunningAnimation:[self runningAnimation]];
+        [self performBlock:^{
             [viewParent refreshViewOrParent];
-            [viewParent setRunningAnimation:nil];
-        }
-        else {
-            
-            [viewParent refreshViewOrParent];
-        }
+        } withinOurAnimationOnProxy:viewParent];
     }
     else {
         [self refreshViewIfNeeded:YES];
@@ -3008,17 +3018,14 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	}
 	if ([NSThread isMainThread])
     {
-        [self setRunningAnimation:animation];
-        [self performBlockWithoutLayout:^{
-            [self willChangeSize];
-            [self willChangePosition];
-        }];
-        
-        [self refreshViewOrParent];
-        //        if (!CGRectEqualToRect(oldFrame, [[self view] frame])) {
-        //			[parent childWillResize:self withinAnimation:animation];
-        //		}
-        [self setRunningAnimation:nil];
+        [self performBlock:^{
+            [self performBlockWithoutLayout:^{
+                [self willChangeSize];
+                [self willChangePosition];
+            }];
+            
+            [self refreshViewOrParent];
+        } withinAnimation:animation];
 	}
 	else
 	{
@@ -3526,14 +3533,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	}
 	[child setSandboxBounds:bounds];
     [child dirtyItAll]; //for multileve recursion we need to make sure the child resizes itself
-    if ([self runningAnimation]){
-		[child setRunningAnimation:[self runningAnimation]];
-		[child relayout];
-		[child setRunningAnimation:nil];
-    }
-    else {
-		[child relayout];
-    }
+    [self performBlock:^{
+        [child relayout];
+    } withinOurAnimationOnProxy:child];
 
 	// tell our children to also layout
 	[child layoutChildren:optimize];
