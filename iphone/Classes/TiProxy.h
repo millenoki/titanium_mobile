@@ -47,6 +47,9 @@ typedef enum {
 @required
 - (NSDictionary *)overrideEventObject:(NSDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiProxy *)viewProxy;
 
+@optional
+- (void)viewProxy:(TiProxy *)viewProxy updatedValue:(id)value forType:(NSString *)type;
+
 @end
 
 /**

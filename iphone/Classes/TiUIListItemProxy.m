@@ -380,6 +380,17 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	return [updatedEventObject autorelease];
 }
 
+- (void)viewProxy:(TiProxy *)viewProxy updatedValue:(id)value forType:(NSString *)type;
+{
+    [self.bindings enumerateKeysAndObjectsUsingBlock:^(id binding, id bindObject, BOOL *stop) {
+        if (bindObject == viewProxy) {
+            [[_listItem.dataItem objectForKey:binding] setValue:value forKey:type];
+            [_currentValues setValue:value forKey:[NSString stringWithFormat:@"%@.%@", binding, type]];
+            return;
+        }
+    }];
+}
+
 -(CGFloat)sizeWidthForDecorations:(CGFloat)oldWidth forceResizing:(BOOL)force
 {
     CGFloat width = oldWidth;

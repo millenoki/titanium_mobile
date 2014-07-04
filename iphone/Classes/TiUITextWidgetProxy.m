@@ -80,6 +80,9 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 	if (![[self valueForKey:@"value"] isEqual:newValue])
 	{
 		[self replaceValue:newValue forKey:@"value" notification:NO];
+        if ([self.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
+            [self.eventOverrideDelegate viewProxy:self updatedValue:newValue forType:@"value"];
+        }
 		[self contentsWillChange];
         if ([self _hasListeners:@"change" checkParent:NO])
         {
