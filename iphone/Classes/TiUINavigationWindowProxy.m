@@ -297,7 +297,6 @@ else{\
     //if our size change during the push/pop animation, ios wont retain it
     // and will forget it at the end of the animation
     [self refreshViewOrParent];
-    [self handlePendingAnimation];
 }
 
 - (void)navController:(id)transitionController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
@@ -364,12 +363,6 @@ else{\
              @"reverse": NUMBOOL(transition.isReversed)};
 }
 
-//-(void)setOnstackchange:(KrollCallback *)callback
-//{
-//	_hasOnStackChange = [callback isKindOfClass:[KrollCallback class]];
-//	[self setValue:callback forUndefinedKey:@"onstackchange"];
-//}
-
 -(void)fireEvent:(NSString *)type forController:(UIViewController *)viewController transition:(ADTransition *)transition
 {
     BOOL hasEvent = [self _hasListeners:type checkParent:NO];
@@ -391,15 +384,15 @@ else{\
     }
 }
 
-//- (void)transitionController:(ADTransitionController *)transitionController willPushViewController:(UIViewController *)viewController transition:(ADTransition *)transition
-//{
-//    [self fireEvent:@"openWindow" forController:viewController transition:transition];
-//}
-//
-//- (void)transitionController:(ADTransitionController *)transitionController willPopToViewController:(UIViewController *)viewController transition:(ADTransition *)transition
-//{
-//    [self fireEvent:@"closeWindow" forController:viewController transition:transition];
-//}
+- (void)transitionController:(ADTransitionController *)transitionController willPushViewController:(UIViewController *)viewController transition:(ADTransition *)transition
+{
+    [self fireEvent:@"openWindow" forController:viewController transition:transition];
+}
+
+- (void)transitionController:(ADTransitionController *)transitionController willPopToViewController:(UIViewController *)viewController transition:(ADTransition *)transition
+{
+    [self fireEvent:@"closeWindow" forController:viewController transition:transition];
+}
 
 -(ADTransition*) lastTransition {
     if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
@@ -846,19 +839,19 @@ else{\
 -(void)layoutChildren:(BOOL)optimize
 {
 	[super layoutChildren:optimize];
-    if ([self runningAnimation]) {
-        [current setRunningAnimation:[self runningAnimation]];
-        [current performBlockWithoutLayout:^{
-            [current willChangeSize];
-            [current willChangePosition];
-        }];
-        
-        [current refreshViewOrParent];
-        [current setRunningAnimation:nil];
-    }
-    else {
-        [current refreshViewOrParent];
-    }
+    
+    for (UIViewController * thisController in [navController viewControllers])
+	{
+		if ([thisController isKindOfClass:[TiViewController class]])
+		{
+			TiViewProxy * thisProxy = [(TiViewController *)thisController proxy];
+			[self performBlock:^{                
+                [thisProxy refreshViewOrParent];
+                
+            } withinOurAnimationOnProxy:thisProxy];
+		}
+	}
+
     
 }
 
