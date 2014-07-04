@@ -279,7 +279,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				setBoundsForBaseItem(itemContent);
 				boolean reusing = sectionIndex != itemContent.sectionIndex || 
 						itemContent.itemIndex >= section.getItemCount() || 
-						section.getListItem(sectionItemIndex) != section.getListItem(itemContent.itemIndex);
+						item != section.getListItem(itemContent.itemIndex);
 				section.populateViews(data, itemContent, template, sectionItemIndex, sectionIndex, content, reusing);
 			} else {
 				content = inflater.inflate(listItemId, null);

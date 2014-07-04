@@ -302,6 +302,9 @@ public class TiUISlider extends TiUIView
 		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
 		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
 		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
+		
+		//That line is for listitemproxy to update its data
+        proxy.propagateSetProperty(TiC.PROPERTY_VALUE, scaledValue);
 
 		fireEvent(TiC.EVENT_CHANGE, data, false);
 	}

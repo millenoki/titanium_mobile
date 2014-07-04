@@ -616,6 +616,10 @@ public class TiUIText extends TiUINonViewGroupView
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_VALUE, newText);
 			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
+			
+			//That line is for listitemproxy to update its data
+			proxy.propagateSetProperty(TiC.PROPERTY_VALUE, newText);
+			
 			fireEvent(TiC.EVENT_CHANGE, data, false, false);
 		}
 	}

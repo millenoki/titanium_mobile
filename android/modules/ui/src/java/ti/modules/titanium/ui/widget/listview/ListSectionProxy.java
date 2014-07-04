@@ -79,29 +79,24 @@ public class ListSectionProxy extends ViewProxy {
 		private boolean visible = true;
 
 		public ListItemData(KrollDict properties) {
-			this.properties = properties;
-			if (properties.containsKey(TiC.PROPERTY_TEMPLATE)) {
-				this.template = properties.getString(TiC.PROPERTY_TEMPLATE);
-			}
-			else {
-				this.template = getListView().getDefaultTemplateBinding();
-			}
-			// set searchableText
-			if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
-				Object props = properties.get(TiC.PROPERTY_PROPERTIES);
-				if (props instanceof HashMap) {
-					HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
-					if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
-						searchableText = TiConvert.toString(propsHash,
-								TiC.PROPERTY_SEARCHABLE_TEXT);
-					}
-					if (propsHash.containsKey(TiC.PROPERTY_VISIBLE)) {
-						visible = TiConvert.toBoolean(propsHash,
-								TiC.PROPERTY_VISIBLE, true);
-					}
-				}
-			}
-
+			setProperties(properties);
+		}
+		
+		private void updateSearchableAndVisible() {
+		    if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
+                Object props = properties.get(TiC.PROPERTY_PROPERTIES);
+                if (props instanceof HashMap) {
+                    HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
+                    if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
+                        searchableText = TiConvert.toString(propsHash,
+                                TiC.PROPERTY_SEARCHABLE_TEXT);
+                    }
+                    if (propsHash.containsKey(TiC.PROPERTY_VISIBLE)) {
+                        visible = TiConvert.toBoolean(propsHash,
+                                TiC.PROPERTY_VISIBLE, true);
+                    }
+                }
+            }
 		}
 
 		public KrollDict getProperties() {
@@ -121,6 +116,24 @@ public class ListSectionProxy extends ViewProxy {
 		public String getTemplate() {
 			return template;
 		}
+
+        public void setProperties(KrollDict d) {
+            this.properties = d;
+            if (properties.containsKey(TiC.PROPERTY_TEMPLATE)) {
+                this.template = properties.getString(TiC.PROPERTY_TEMPLATE);
+            }
+            else {
+                this.template = getListView().getDefaultTemplateBinding();
+            }
+            // set searchableText
+            updateSearchableAndVisible();
+        }
+        
+        public void setProperty(String binding, String key, Object value) {
+            if (properties.containsKey(binding)) {
+                ((HashMap)properties.get(binding)).put(key, value);
+            }
+        }
 	}
 
 	public ListSectionProxy() {
@@ -485,6 +498,18 @@ public class ListSectionProxy extends ViewProxy {
 		}
 	}
 	
+	public void updateItemAt(int index, String binding, String key, Object value) {
+	    if (itemProperties != null) {
+	        HashMap itemProp = (HashMap) itemProperties.get(index);
+	        if (!itemProp.containsKey(binding)) {
+	            itemProp.put(binding, new HashMap<String, Object>());
+	        }
+	        ((HashMap)itemProp.get(binding)).put(key, value);
+        }
+	    ListItemData itemD = getListItem(index);
+	    itemD.setProperty(binding, key, value);
+    }
+	
 	@Kroll.method
 	public void hide() {
         setVisible(false);
@@ -631,8 +656,9 @@ public class ListSectionProxy extends ViewProxy {
             return;
         }
         KrollDict d = new KrollDict(currentItem);
-	    ListItemData itemD = new ListItemData(d);
-        listItemData.set(index, itemD);
+        ListItemData itemD = getItemDataAt(index);
+        itemD.setProperties(d);
+//        listItemData.set(index, itemD);
         hiddenItems.set(index, !itemD.isVisible());
         
         if (adapter != null) {
@@ -744,6 +770,7 @@ public class ListSectionProxy extends ViewProxy {
 		
 		data = template.prepareDataDict(data);
 		ListItemProxy itemProxy = (ListItemProxy) cellContent.getView().getProxy();
+		itemProxy.setCurrentItem(sectionIndex, itemIndex, this);
 
 		KrollDict listItemProperties;
 //		KrollDict templateProperties = template.getProperties();
@@ -931,19 +958,19 @@ public class ListSectionProxy extends ViewProxy {
 		return listItemData.get(getRealPosition(position));
 	}
 
-	public KrollDict getListItemData(int position) {
-		if (headerTitle != null || headerView != null) {
-			position -= 1;
-		}
-
-		if (isFilterOn()) {
-			return getItemDataAt(filterIndices.get(position))
-					.getProperties();
-		} else if (position >= 0 && position < getItemCount()) {
-			return getItemDataAt(position).getProperties();
-		}
-		return null;
-	}
+//	public KrollDict getListItemData(int position) {
+//		if (headerTitle != null || headerView != null) {
+//			position -= 1;
+//		}
+//
+//		if (isFilterOn()) {
+//			return getItemDataAt(filterIndices.get(position))
+//					.getProperties();
+//		} else if (position >= 0 && position < getItemCount()) {
+//			return getItemDataAt(position).getProperties();
+//		}
+//		return null;
+//	}
 
 	public ListItemData getListItem(int position) {
 		if (headerTitle != null || headerView != null) {

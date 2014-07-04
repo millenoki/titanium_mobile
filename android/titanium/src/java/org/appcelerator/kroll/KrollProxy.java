@@ -49,6 +49,9 @@ import org.json.JSONObject;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class KrollProxy implements Handler.Callback, KrollProxySupport
 {
+    public static interface SetPropertyChangeListener {
+        public void onSetProperty(KrollProxy proxy, String name, Object value);
+    }
 	private static final String TAG = "KrollProxy";
 	private static final int INDEX_NAME = 0;
 	private static final int INDEX_OLD_VALUE = 1;
@@ -76,13 +79,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 
 	protected static AtomicInteger proxyCounter = new AtomicInteger();
 	protected AtomicInteger listenerIdGenerator;
-
+	
 	protected Map<String, HashMap<Integer, KrollEventCallback>> eventListeners;
 	protected KrollObject krollObject;
 	protected WeakReference<Activity> activity;
 	protected String proxyId;
 	protected TiUrl creationUrl;
-	protected KrollProxyListener modelListener;
+    protected KrollProxyListener modelListener;
+    protected SetPropertyChangeListener setPropertyListener;
 	protected KrollModule createdInModule;
 	protected boolean coverageEnabled;
 	protected KrollDict properties = new KrollDict();
@@ -571,6 +575,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			setPropertyAndFire(name, value);
 		}
 	}
+	
+	public void propagateSetProperty(String name, Object value)
+	{
+	    if (setPropertyListener != null) {
+            setPropertyListener.onSetProperty(this, name, value);
+        }
+	}
 
 	/**
 	 * This sets the named property as well as updating the actual JS object.
@@ -579,7 +590,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public void setProperty(String name, Object value)
 	{
 		properties.put(name, value);
-
+		
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
 			doSetProperty(name, value);
 
@@ -1397,6 +1408,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
         return modelListener;
     }
     
+	public void setSetPropertyListener(SetPropertyChangeListener listener )
+    {
+        this.setPropertyListener = listener;
+    }
 	
 	public void setModelListener(KrollProxyListener modelListener , Boolean applyProps)
 	{
