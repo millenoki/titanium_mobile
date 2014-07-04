@@ -262,8 +262,10 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
-	//Treat this as a size change
-	[(TiViewProxy *)[self proxy] willChangeSize];
+    if ([self flexibleContentWidth] || [self flexibleContentHeight])
+	{
+		needsHandleContentSize = YES;
+	}
     [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
