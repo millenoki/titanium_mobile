@@ -77,7 +77,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 -(void)noteValueChange:(NSString *)newValue
 {
-	if (![[self valueForKey:@"value"] isEqual:newValue])
+    id current = [self valueForUndefinedKey:@"value"];
+    if ((current != newValue) && ![current isEqual:newValue])
 	{
 		[self replaceValue:newValue forKey:@"value" notification:NO];
         if ([self.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
