@@ -299,7 +299,7 @@ static NSSet* transferableProps = nil;
     TiThreadPerformOnMainThread(^{
         [self aboutToBeAnimated];
         [animation playWithRepeatCount:repeatCount afterDelay:delay];
-	}, NO);
+	}, YES);
 }
 
 //override
