@@ -618,6 +618,7 @@ public class TiUIText extends TiUINonViewGroupView
 			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
 			
 			//That line is for listitemproxy to update its data
+			//do it before the "change" event
 			proxy.propagateSetProperty(TiC.PROPERTY_VALUE, newText);
 			
 			fireEvent(TiC.EVENT_CHANGE, data, false, false);

@@ -304,6 +304,7 @@ public class TiUISlider extends TiUIView
 		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
 		
 		//That line is for listitemproxy to update its data
+        //do it before the "change" event
         proxy.propagateSetProperty(TiC.PROPERTY_VALUE, scaledValue);
 
 		fireEvent(TiC.EVENT_CHANGE, data, false);
