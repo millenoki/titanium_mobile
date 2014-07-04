@@ -103,7 +103,7 @@
         //in case where the window was actually added as a child we want to make sure we are good
         readyToBeLayout = YES;
     }
-    [super relayout];
+    return [super relayout];
 }
 
 -(void)setSandboxBounds:(CGRect)rect
