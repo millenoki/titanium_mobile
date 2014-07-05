@@ -9,6 +9,7 @@
 #import "TiViewProxy.h"
 #import "TiUIListSectionProxy.h"
 
+@class TiTableView;
 @interface TiUIListViewProxy : TiViewProxy < TiUIListViewDelegate >
 
 @property (nonatomic, readonly) NSArray *sections;
@@ -19,6 +20,8 @@
 - (void) deleteSectionAtIndex:(NSUInteger)index;
 - (void) setMarker:(id)args;
 -(BOOL)shouldHighlightCurrentListItem;
+- (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
+-(TiTableView*)tableView;
 @end
 
 @interface TiUIListViewProxy (internal)

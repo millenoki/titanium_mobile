@@ -423,6 +423,27 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return [_listViewProxy runningAnimation];
 }
 
+-(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiViewProxy*)child
+{
+    id result = nil;
+    NSArray* subproxies = [self visibleChildren];
+    NSInteger index=child?[subproxies indexOfObject:child]:-1;
+    if(!child || NSNotFound != index) {
+        for (int i = index + 1; i < [subproxies count] ; i++) {
+            id obj = [subproxies objectAtIndex:i];
+            if ([obj isKindOfClass:theClass]) {
+                return obj;
+            }
+        }
+    }
+    if (result == nil) {
+        NSIndexPath* nextIndexPath = [_listViewProxy nextIndexPath:_indexPath];
+        TiUIListItem *cell = (TiUIListItem *)[[_listViewProxy tableView] cellForRowAtIndexPath:nextIndexPath];
+        return [[cell proxy] getNextChildrenOfClass:theClass afterChild:nil];
+    }
+    return result;
+}
+
 @end
 
 static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventOverrideDelegate> eventOverrideDelegate)
@@ -434,6 +455,10 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         }
 	}];
 }
+
+
+
+
 
 #endif
 

@@ -2082,6 +2082,18 @@ static NSDictionary* replaceKeysForRow;
 	[self.proxy fireEvent:eventName withObject:[self EventObjectForItemAtIndexPath:indexPath tableView:tableView] checkForListener:NO];
 }
 
+
+- (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath {
+    int numOfSections = [self numberOfSectionsInTableView:self.tableView];
+    int nextSection = ((indexPath.section + 1) % numOfSections);
+    
+    if (indexPath.row + 1 == [self tableView:self.tableView numberOfRowsInSection:indexPath.section]) {
+        return [NSIndexPath indexPathForRow:0 inSection:nextSection];
+    } else {
+        return [NSIndexPath indexPathForRow:(indexPath.row + 1) inSection:indexPath.section];
+    }
+}
+
 #pragma mark - UITapGestureRecognizer
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer

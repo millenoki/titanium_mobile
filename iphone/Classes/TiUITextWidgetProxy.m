@@ -266,10 +266,18 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     return TiDimensionAutoSize;
 }
 
+-(TiParentingProxy*)parentForNextWidget
+{
+    if (self.eventOverrideDelegate) {
+        return self.eventOverrideDelegate;
+    }
+    return [self parent];
+}
+
 
 -(BOOL)selectNextTextWidget
 {
-    TiUITextWidgetProxy* nextOne = (TiUITextWidgetProxy*)[[self parent] getNextChildrenOfClass:[TiUITextWidgetProxy class] afterChild:self];
+    TiUITextWidgetProxy* nextOne = (TiUITextWidgetProxy*)[[self parentForNextWidget] getNextChildrenOfClass:[TiUITextWidgetProxy class] afterChild:self];
     
     return(nextOne != nil && [[nextOne view] becomeFirstResponder]);
 }

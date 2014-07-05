@@ -253,6 +253,15 @@ static NSDictionary* listViewKeysToReplace;
     return [self.listView shouldHighlightCurrentListItem];
 }
 
+- (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath {
+    return [self.listView nextIndexPath:indexPath];
+}
+
+-(TiTableView*)tableView
+{
+    return self.listView.tableView;
+}
+
 #pragma mark - Public API
 
 - (NSArray *)sections
