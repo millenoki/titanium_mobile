@@ -490,7 +490,8 @@ enum
 //This is the effect of refreshing the Z index via careful view placement.
 -(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy;
 
-
+-(NSArray*)viewChildren;
+-(NSArray*)visibleChildren;
 #pragma mark Layout commands that need refactoring out
 
 -(void)determineSandboxBounds;
