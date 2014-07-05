@@ -3665,7 +3665,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             id obj = [subproxies objectAtIndex:i];
             if ([obj isKindOfClass:theClass]) {
                 TiViewProxy* aview = (TiViewProxy*)obj;
-                if([aview view].hidden == NO){
+                if([aview isHidden] == NO){
                     result = obj;
                     break;
                 }
