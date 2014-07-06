@@ -298,4 +298,20 @@
 	}];
 }
 
+-(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiProxy*)child
+{
+    id result = nil;
+    NSArray* subproxies = [self children];
+    NSInteger index=[subproxies indexOfObject:child];
+    if(NSNotFound != index) {
+        for (int i = index + 1; i < [subproxies count] ; i++) {
+            TiProxy* obj = [subproxies objectAtIndex:i];
+            if ([obj isKindOfClass:theClass] && [obj canBeNextResponder]) {
+                    return obj;
+            }
+        }
+    }
+    return result;
+}
+
 @end

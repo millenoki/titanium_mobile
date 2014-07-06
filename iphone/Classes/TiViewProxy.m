@@ -870,7 +870,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 //    }
 	pthread_rwlock_rdlock(&childrenLock);
     NSArray* copy = [[children filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
-        return [object isKindOfClass:[TiViewProxy class]] && ((TiViewProxy*)object).isHidden == FALSE;
+        return ![object isKindOfClass:[TiViewProxy class]] || ((TiViewProxy*)object).isHidden == FALSE;
     }]] retain];
     pthread_rwlock_unlock(&childrenLock);
 	return [copy autorelease];
@@ -3655,26 +3655,6 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	}
 }
 
--(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiViewProxy*)child
-{
-    id result = nil;
-    NSArray* subproxies = [self viewChildren];
-    NSInteger index=[subproxies indexOfObject:child];
-    if(NSNotFound != index) {
-        for (int i = index + 1; i < [subproxies count] ; i++) {
-            id obj = [subproxies objectAtIndex:i];
-            if ([obj isKindOfClass:theClass]) {
-                TiViewProxy* aview = (TiViewProxy*)obj;
-                if([aview isHidden] == NO){
-                    result = obj;
-                    break;
-                }
-            }
-        }
-    }
-    return result;
-}
-
 -(void)blur:(id)args
 {
 	ENSURE_UI_THREAD_1_ARG(args)
@@ -3836,6 +3816,11 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         }
     }
     return NO;
+}
+
+-(BOOL)canBeNextResponder
+{
+    return !hidden && [[self view] interactionEnabled];
 }
 
 @end

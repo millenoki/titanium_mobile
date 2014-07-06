@@ -1416,4 +1416,9 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(BOOL)canBeNextResponder
+{
+    return YES;
+}
+
 @end
