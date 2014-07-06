@@ -143,11 +143,21 @@
 	}];
 }
 
+- (NSUInteger)itemCountInternal
+{
+    return _hidden?0:[_items count];
+}
+
 - (NSUInteger)itemCount
 {
 	return [[self.dispatcher dispatchBlockWithResult:^() {
 		return _hidden?0:[NSNumber numberWithUnsignedInteger:[_items count]];
 	}] unsignedIntegerValue];
+}
+
+- (TiUIListItemProxy*)getItemAtInternal:(NSUInteger)itemIndex
+{
+    return (itemIndex < [_items count]) ? [_items objectAtIndex:itemIndex] : nil;
 }
 
 - (id)getItemAt:(id)args

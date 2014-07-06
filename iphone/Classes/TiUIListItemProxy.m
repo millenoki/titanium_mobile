@@ -18,6 +18,11 @@
 
 static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventOverrideDelegate> eventOverrideDelegate);
 
+
+@interface TiUIListView()
+-(UITableViewCell *) forceCellForRowAtIndexPath:(NSIndexPath *)indexPath;
+@end
+
 @implementation TiUIListItemProxy {
 	TiUIListViewProxy *_listViewProxy; // weak
 	NSDictionary *_bindings;
@@ -423,22 +428,24 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return [_listViewProxy runningAnimation];
 }
 
--(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiViewProxy*)child
+-(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiProxy*)child
 {
     id result = nil;
-    NSArray* subproxies = [self visibleChildren];
+    NSArray* subproxies = [self children];
     NSInteger index=child?[subproxies indexOfObject:child]:-1;
     if(!child || NSNotFound != index) {
         for (int i = index + 1; i < [subproxies count] ; i++) {
-            id obj = [subproxies objectAtIndex:i];
-            if ([obj isKindOfClass:theClass]) {
+            TiProxy* obj = [subproxies objectAtIndex:i];
+            if ([obj isKindOfClass:theClass] && [obj canBeNextResponder]) {
+//                [[_listViewProxy tableView] scrollToRowAtIndexPath:_indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
                 return obj;
             }
         }
     }
     if (result == nil) {
         NSIndexPath* nextIndexPath = [_listViewProxy nextIndexPath:_indexPath];
-        TiUIListItem *cell = (TiUIListItem *)[[_listViewProxy tableView] cellForRowAtIndexPath:nextIndexPath];
+        NSLog(@"looking in next cell %@", nextIndexPath)
+        TiUIListItem *cell = (TiUIListItem *)[(TiUIListView*)[_listViewProxy view] forceCellForRowAtIndexPath:nextIndexPath];
         return [[cell proxy] getNextChildrenOfClass:theClass afterChild:nil];
     }
     return result;
