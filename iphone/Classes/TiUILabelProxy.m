@@ -79,6 +79,7 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
 //                    NSHTMLTextDocumentType, NSDocumentTypeDocumentAttribute,
                     [NSNumber numberWithInt:kCTLeftTextAlignment], DTDefaultTextAlignment,
                     [NSNumber numberWithInt:0], DTDefaultFontStyle,
+                    @(NO), DTIgnoreLinkStyleOption,
                     @"Helvetica", DTDefaultFontFamily,
                     @"Helvetica", NSFontAttributeName,
                     [NSNumber numberWithFloat:(17 / kDefaultFontSize)], NSTextSizeMultiplierDocumentOption,
@@ -262,7 +263,7 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
 	static NSArray *labelKeySequence = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-		labelKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"font",@"color",@"textAlign",@"multiLineEllipsize"]] retain];
+		labelKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"font",@"color",@"textAlign",@"multiLineEllipsize", @"disableLinkStyle"]] retain];
 	});
 	return labelKeySequence;
 }
@@ -330,6 +331,15 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
     [self updateAttributeText];
 }
 
+-(void)setDisableLinkStyle:(id)value
+{
+    [options setValue:@([TiUtils boolValue:value def:NO]) forKey:DTIgnoreLinkStyleOption];
+    
+    //we need to reset the text to update default paragraph settings
+	[self replaceValue:value forKey:@"disableLinkStyle" notification:YES];
+    [self updateAttributeText];
+}
+
 -(void)setMultiLineEllipsize:(id)value
 {
     int multilineBreakMode = [TiUtils intValue:value];
@@ -369,6 +379,18 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
 -(id)getLabelContent
 {
     return _realLabelContent;
+}
+
+
+-(id)characterIndexAtPoint:(id)args
+{
+    int result = -1;
+    if (view!=nil) {
+        ENSURE_SINGLE_ARG(args, NSDictionary)
+        CGPoint point = [TiUtils pointValue:args];
+        result = [(TiUILabel*)view characterIndexAtPoint:point];
+    }
+    return NUMINT(result);
 }
 
 
