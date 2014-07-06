@@ -1536,7 +1536,7 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
 - (UIView *)hitTest:(CGPoint)point
           withEvent:(UIEvent *)event
 {
-    if (![self linkAtPoint:point] || !self.userInteractionEnabled || self.hidden || self.alpha < 0.01) {
+    if (!([self.links count] > 0 && [self linkAtPoint:point]) || !self.userInteractionEnabled || self.hidden || self.alpha < 0.01) {
         return [super hitTest:point withEvent:event];
     }
 
@@ -1559,10 +1559,12 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
            withEvent:(UIEvent *)event
 {
     UITouch *touch = [touches anyObject];
-
-    self.activeLink = [self linkAtPoint:[touch locationInView:self]];
-
-    if (!self.activeLink) {
+    
+    if ([self.links count] > 0) {
+        self.activeLink = [self linkAtPoint:[touch locationInView:self]];
+    }
+    else {
+        self.activeLink = nil;
         [super touchesBegan:touches withEvent:event];
     }
 }
