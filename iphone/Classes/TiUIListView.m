@@ -1375,6 +1375,10 @@ static NSDictionary* replaceKeysForRow;
     }
 }
 
+-(UITableViewCell *) forceCellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [_tableView cellForRowAtIndexPath:indexPath];
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
