@@ -18,6 +18,7 @@ import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiHtml;
 import org.appcelerator.titanium.util.TiHtml.CustomBackgroundSpan;
+import org.appcelerator.titanium.util.TiHtml.URLSpanNoUnderline;
 import org.appcelerator.titanium.util.TiTypefaceSpan;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.FreeLayout;
@@ -84,6 +85,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	private float shadowX = 0f;
 	private float shadowY = -1f; // to have the same value as ios
 	private int shadowColor = Color.TRANSPARENT;
+	private boolean disableLinkStyle = false;
 	
 
 	private RectF textPadding;
@@ -710,6 +712,9 @@ public class TiUILabel extends TiUINonViewGroupView
 			else if (span instanceof TextAppearanceSpan){
 				return new TextAppearanceSpan(((TextAppearanceSpan)span).getFamily(), ((TextAppearanceSpan)span).getTextStyle(), ((TextAppearanceSpan)span).getTextSize(), ((TextAppearanceSpan)span).getTextColor(), ((TextAppearanceSpan)span).getLinkTextColor());
 			}
+			else if (span instanceof URLSpanNoUnderline){
+                return new URLSpanNoUnderline(((URLSpanNoUnderline)span).getURL());
+            }
 			else if (span instanceof URLSpan){
 				return new URLSpan(((URLSpan)span).getURL());
 			}
@@ -994,7 +999,7 @@ public class TiUILabel extends TiUINonViewGroupView
 
 	private Spanned fromHtml(String str)
 	{
-		SpannableStringBuilder htmlText = new SpannableStringBuilder(TiHtml.fromHtml(str));
+		SpannableStringBuilder htmlText = new SpannableStringBuilder(TiHtml.fromHtml(str, disableLinkStyle));
 		return htmlText;
 	}
 	
@@ -1043,7 +1048,7 @@ public class TiUILabel extends TiUINonViewGroupView
 //	        for(URLSpan span : urls) {
 //	            makeLinkClickable(strBuilder, span);
 //	        }
-	    return fromHtml(html);       
+	    return fromHtml(html);
 	}
 
 	@Override
@@ -1157,6 +1162,10 @@ public class TiUILabel extends TiUINonViewGroupView
 				transitionDict = null;
 			}
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_DISABLE_LINK_STYLE)) {
+            disableLinkStyle = TiConvert.toBoolean(d, TiC.PROPERTY_DISABLE_LINK_STYLE);
+        }
 		//always set padding as shadowlayer is also using it
 		TiUIHelper.setPadding(textView, textPadding);
 
@@ -1168,7 +1177,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		if (html != null) {
 			tv.setText(prepareHtml(html));
 		} else if (title != null) {
-			tv.setText(prepareHtml(title));
+			tv.setText(title);
 		} else if (text != null) {
 			tv.setText(text);
 		}
@@ -1179,29 +1188,33 @@ public class TiUILabel extends TiUINonViewGroupView
 		textView.requestLayout();
 	}
 	
+	private void setTextValue(String value, final boolean html) {
+        EllipsizingTextView textView = tv.textView;
+	    String text = TiConvert.toString(value);
+        if (text == null) {
+            text = "";
+        }
+        tv.setText(html?prepareHtml(text):text);
+        TiUIHelper.linkifyIfEnabled(textView, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
+        textView.requestLayout();
+	}
+	
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		EllipsizingTextView textView = tv.textView;
 		if (key.equals(TiC.PROPERTY_HTML)) {
-			String html = TiConvert.toString(newValue);
-			if (html == null) {
-				html = "";
-			}
-			tv.setText(prepareHtml(html));
-			TiUIHelper.linkifyIfEnabled(textView, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
-			textView.requestLayout();
+		    setTextValue(TiConvert.toString(newValue), true);
 		} else if (key.equals(TiC.PROPERTY_TEXT) || key.equals(TiC.PROPERTY_TITLE)) {
-			String text = TiConvert.toString(newValue);
-			if (text == null) {
-				text = "";
+            setTextValue(TiConvert.toString(newValue), false);
+		} else if (key.equals(TiC.PROPERTY_DISABLE_LINK_STYLE)) {
+			this.disableLinkStyle = TiConvert.toBoolean(newValue);
+			if (proxy.hasProperty(TiC.PROPERTY_HTML)) {
+	            setTextValue(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_HTML)), true);
 			}
-			tv.setText(text);
-			TiUIHelper.linkifyIfEnabled(textView, proxy.getProperty(TiC.PROPERTY_AUTO_LINK));
-			textView.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			this.color = TiConvert.toColor(newValue);
-			updateTextColors();
+            this.color = TiConvert.toColor(newValue);
+            updateTextColors();
 		} else if (key.equals(TiC.PROPERTY_SELECTED_COLOR)) {
 			this.selectedColor = TiConvert.toColor(newValue);
 			updateTextColors();

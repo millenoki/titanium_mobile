@@ -1283,6 +1283,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_DISABLE_HW = "disableHW";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_DISABLE_LINK_STYLE = "disableLinkStyle";
+
 	/**
 	 * @module.api
 	 */
