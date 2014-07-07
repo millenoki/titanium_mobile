@@ -120,13 +120,13 @@
     CGRect result = UIEdgeInsetsInsetRect(bounds, _padding);
     if ([self leftView]){
         CGRect rect = [self leftViewRectForBounds:result];
-        CGFloat width = rect.origin.x - rect.size.width;
-        result.origin.y +=width;
+        CGFloat width = rect.origin.x + rect.size.width;
+        result.origin.x +=width;
         result.size.width -= width;
     }
     if ([self rightView]){
         CGRect rect = [self rightViewRectForBounds:result];
-        CGFloat width = result.size.width - rect.origin.x;
+        CGFloat width = bounds.size.width - rect.origin.x;
         result.size.width -= width;
     }
     return result;
