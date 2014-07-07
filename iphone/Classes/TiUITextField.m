@@ -259,9 +259,9 @@
 -(void)setEditable_:(id)value
 {
 	BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
-	UITextField *f = [self textWidgetView];
-	[super setEnabled_:NUMBOOL(_trulyEnabled)];
+    //	[super setEnabled_:NUMBOOL(_trulyEnabled)];
 	[[self textWidgetView] setEnabled:_trulyEnabled];
+    [self setBgState:UIControlStateNormal];
 }
 
 -(BOOL) enabledForBgState {
@@ -271,9 +271,10 @@
 -(void)setEnabled_:(id)value
 {
 	BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
-    [super setEnabled_:NUMBOOL(_trulyEnabled)];
+    [super setEnabled_:value];
 	[[self textWidgetView] setEnabled:_trulyEnabled];
 }
+
 
 -(void)setHintText_:(id)value
 {
