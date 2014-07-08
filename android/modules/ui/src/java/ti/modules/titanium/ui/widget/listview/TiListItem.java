@@ -84,6 +84,7 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 		}
 	}
 	
+	@Override
 	protected void setOnClickListener(View view)
 	{
 		view.setOnClickListener(new OnClickListener()
@@ -95,8 +96,8 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 					KrollDict data = dictFromEvent(lastUpEvent);
 					handleFireItemClick(new KrollDict(data));
 					fireEvent(TiC.EVENT_CLICK, data);
-					shouldFireClick = true;
 				}
+                shouldFireClick = true;
 			}
 		});
 	}
