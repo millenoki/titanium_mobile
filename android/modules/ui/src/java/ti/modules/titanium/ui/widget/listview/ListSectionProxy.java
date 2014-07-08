@@ -673,10 +673,14 @@ public class ListSectionProxy extends ViewProxy {
         
         View content = getListView().getCellAt(this.sectionIndex, itemIndex);
         if (content != null) {
-            TiListViewTemplate template = getListView().getTemplate(itemD.getTemplate());
-            populateViews(d, (TiBaseListViewItem) content.findViewById(TiListView.listContentId), template, itemIndex, this.sectionIndex, content, false);
+            TiBaseListViewItem listItem = (TiBaseListViewItem) content.findViewById(TiListView.listContentId);
+            if (listItem != null) {
+                TiListViewTemplate template = getListView().getTemplate(itemD.getTemplate());
+                populateViews(d, listItem, template, itemIndex, this.sectionIndex, content, false);
+                return;
+            }
         }
-        else if (adapter != null) {
+        if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
     }
