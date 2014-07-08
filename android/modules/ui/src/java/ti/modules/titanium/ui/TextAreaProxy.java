@@ -148,4 +148,15 @@ public class TextAreaProxy extends ViewProxy
 	{
 		return "Ti.UI.TextArea";
 	}
+	
+    @Override
+    public boolean shouldFireChange(Object oldValue, Object newValue)
+    {
+        boolean oldNullEmpty = oldValue == null || (oldValue instanceof String && TiConvert.toString(oldValue).length() == 0);
+        boolean newNullEmpty = newValue == null || (oldValue instanceof String && TiConvert.toString(newValue).length() == 0);
+        
+        if (!oldNullEmpty && !newNullEmpty) return (!oldValue.equals(newValue));
+        return oldNullEmpty != newNullEmpty;
+        
+    }
 }
