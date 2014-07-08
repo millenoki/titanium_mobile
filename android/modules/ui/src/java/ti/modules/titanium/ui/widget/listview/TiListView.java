@@ -408,6 +408,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState)
 			{
+                if (hasFocus()) {
+                    blur();
+                }
 				view.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);		
 				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
 					scrollValid = false;
