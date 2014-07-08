@@ -202,11 +202,7 @@ public class TiUISwitch extends TiUIView
 	public void onCheckedChanged(CompoundButton btn, boolean value) {
 
 		proxy.setProperty(TiC.PROPERTY_VALUE, value);
-		
-		//That line is for listitemproxy to update its data
-        //do it before the "change" event
-        proxy.propagateSetProperty(TiC.PROPERTY_VALUE, value);
-        
+
 		//if user triggered change, we fire it.
 		if (oldValue != value) {
 			oldValue = value;

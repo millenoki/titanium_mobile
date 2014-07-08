@@ -612,14 +612,12 @@ public class TiUIText extends TiUINonViewGroupView
 		}
 		String newText = realtv.getText().toString();
 		if (!disableChangeEvent
-			&& (!isTruncatingText || (isTruncatingText && proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText) && hasListeners(TiC.EVENT_CHANGE)))) {
+			&& !isTruncatingText 
+			&& proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText) 
+			&& hasListeners(TiC.EVENT_CHANGE)) {
 			KrollDict data = new KrollDict();
 			data.put(TiC.PROPERTY_VALUE, newText);
 			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
-			
-			//That line is for listitemproxy to update its data
-			//do it before the "change" event
-			proxy.propagateSetProperty(TiC.PROPERTY_VALUE, newText);
 			
 			fireEvent(TiC.EVENT_CHANGE, data, false, false);
 		}

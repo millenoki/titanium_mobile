@@ -591,6 +591,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	{
 		properties.put(name, value);
 		
+        //That line is for listitemproxy to update its data
+        propagateSetProperty(name, value);
+		
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
 			doSetProperty(name, value);
 
