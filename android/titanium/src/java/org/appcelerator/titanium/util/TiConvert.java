@@ -1096,6 +1096,7 @@ public class TiConvert
 		return null;
 	}
 	
+    public static Ti2DMatrix IDENTITY_MATRIX = new Ti2DMatrix();
 	/**
      * Converts value into A matrix object and returns it
      * @param value the value to convert.
@@ -1113,10 +1114,10 @@ public class TiConvert
         } else if (value instanceof String) {
             return new Ti2DMatrix((String)value);
         }
-        else if (value.getClass().getSuperclass().equals(Ti2DMatrix.class)) {
+        else if (value != null && value.getClass().getSuperclass().equals(Ti2DMatrix.class)) {
             return new Ti2DMatrix((Ti2DMatrix)value); // case of _2DMatrixProxy
         }
-        return null;
+        return IDENTITY_MATRIX;
     }
     
     /**

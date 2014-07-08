@@ -17,7 +17,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -95,6 +94,7 @@ public abstract class TiUIView
 	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 	private static final String TAG = "TiUIView";
+	
 
 	private static AtomicInteger idGenerator;
 
@@ -2211,7 +2211,11 @@ public abstract class TiUIView
 				ObjectAnimator anim = ObjectAnimator.ofObject(this, "ti2DMatrix", evaluator, matrix);
 				list.add(anim);
 				if (needsReverse) {
-					listReverse.add(ObjectAnimator.ofObject(this, "ti2DMatrix", evaluator, getLayoutParams().matrix));
+				    Ti2DMatrix reverseMatrix = getLayoutParams().matrix;
+				    if (reverseMatrix == null) {
+				        reverseMatrix = TiConvert.IDENTITY_MATRIX;
+				    }
+					listReverse.add(ObjectAnimator.ofObject(this, "ti2DMatrix", evaluator, reverseMatrix));
 				}
 			}
 			else {
