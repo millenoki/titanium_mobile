@@ -365,6 +365,7 @@ public class TiUIText extends TiUINonViewGroupView
 
 		this.field = field;
 		tv = new FocusFixedEditText(getProxy().getActivity());
+		tv.setFocusable(false);
 		realtv = tv.getRealEditText();
 		if (field) {
 			realtv.setSingleLine();
