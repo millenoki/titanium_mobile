@@ -630,11 +630,18 @@ public class TiUIText extends TiUINonViewGroupView
 		realtv.setBackgroundDrawable(null);
 		realtv.postInvalidate();
 	}
-	 @Override
-	 public View getFocusView()
-	 {
-	 	return realtv;
-	 }
+	
+    @Override
+    public View getFocusView()
+    {
+    	return realtv;
+    }
+    
+    @Override
+    protected View getTouchView()
+    {
+        return realtv;
+    }
 
 	@Override
 	public void setVisibility(int visibility)
