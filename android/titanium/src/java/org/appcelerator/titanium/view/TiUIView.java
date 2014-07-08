@@ -921,6 +921,9 @@ public abstract class TiUIView
 	protected void setEnabled(View view, boolean enabled, boolean focusable, boolean setChildren) {
 		view.setEnabled(enabled);
 		view.setFocusable(focusable);
+		//so dumb setFocusable to false set  setFocusableInTouchMode
+        // but not when using true :s so we have to do it
+        view.setFocusableInTouchMode(focusable);
 		if (setChildren && view instanceof ViewGroup) {
 			ViewGroup group = (ViewGroup) view;
 			for (int i = 0; i < group.getChildCount(); i++) {
@@ -928,10 +931,10 @@ public abstract class TiUIView
 				Object tag = child.getTag();
 				if (tag != null && tag instanceof TiUIView) {
 					((TiUIView) tag).setEnabled(enabled, setChildren);
-			} else {
-					setEnabled(child, enabled, focusable, setChildren);
-			}
-		}
+    			} else {
+    					setEnabled(child, enabled, focusable, setChildren);
+    			}
+    		}
 		}
 	}
 
@@ -1656,8 +1659,15 @@ public abstract class TiUIView
 			// that info. However, an "up" seems to always occur before the click listener gets invoked,
 			// so we store the last up event's x,y coordinates (see onTouch above) and use them here.
 			// Note: AdapterView throws an exception if you try to put a click listener on it.
-			doSetClickable(touchable, clickable);
 		}
+		else {
+		    if (touchView != null) {
+                touchView.get().setOnTouchListener(null);
+		        touchView = null;
+		    }
+		}
+		
+       doSetClickable(touchable, clickable);
 	}
 
 
@@ -1860,7 +1870,7 @@ public abstract class TiUIView
 		if (view == null) {
 			return;
 		}
-		doSetClickable(view, view.isEnabled());
+		doSetClickable(view, view.isClickable());
 	}
 
 	/**
