@@ -965,10 +965,10 @@ public abstract class TiUIView
 			propertySet(key, d.get(key), null, false);
 		}
 		if (!inApply) {
-			if (touchView == null || touchView.get() != getTouchView()) {
+//			if (touchView == null || touchView.get() != getTouchView()) {
 				registerForTouch();
 				registerForKeyPress();
-			}
+//			}
 			
 			if (d.containsKey(TiC.PROPERTY_BORDER_PADDING)) {
 				mBorderPadding = TiConvert.toPaddingRect(d, TiC.PROPERTY_BORDER_PADDING);
