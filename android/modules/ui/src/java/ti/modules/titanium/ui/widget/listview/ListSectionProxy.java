@@ -341,6 +341,14 @@ public class ListSectionProxy extends ViewProxy {
 
 		}
 	}
+	
+	@Kroll.method
+    public KrollProxy getBinding(final int itemIndex, final String bindId) {
+        if (listView != null) {
+            return listView.get().getChildByBindId(this.sectionIndex, itemIndex, bindId);
+        }
+        return null;
+    }
 
 	@Kroll.method
 	public KrollDict getItemAt(int index) {
