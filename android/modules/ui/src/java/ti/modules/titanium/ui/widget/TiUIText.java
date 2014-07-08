@@ -849,7 +849,15 @@ public class TiUIText extends TiUINonViewGroupView
 		if (!editable) {
 			realtv.setKeyListener(null);
 			realtv.setCursorVisible(false);
+            realtv.setFocusable(false);
 		}
+		else {
+		    realtv.setFocusable(true);
+	        //so dumb setFocusable to false set  setFocusableInTouchMode
+	        // but not when using true :s so we have to do it
+	        realtv.setFocusableInTouchMode(true);
+		}
+        
 		
 		//setSingleLine() append the flag TYPE_TEXT_FLAG_MULTI_LINE to the current inputType, so we want to call this
 		//after we set inputType.
