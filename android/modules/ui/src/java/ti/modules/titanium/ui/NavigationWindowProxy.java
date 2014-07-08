@@ -509,6 +509,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 				pushing = false; 
 			}
    			viewToAdd.setVisibility(View.VISIBLE);
+   			viewToAdd.requestFocus();
 		}
 		addWindow(proxy, transition);
 		proxy.onWindowActivityCreated();
