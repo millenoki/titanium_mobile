@@ -114,7 +114,7 @@ public abstract class TiBaseActivity extends SherlockFragmentActivity
 	private boolean defaultFullscreen = false;
 	private boolean navBarHidden = false;
 	private boolean defaultNavBarHidden = false;
-	private int defaultSoftInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN |  WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
+	private int defaultSoftInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN |  WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
 	private int softInputMode = defaultSoftInputMode;
 
 	public class DialogWrapper {
@@ -566,7 +566,7 @@ public abstract class TiBaseActivity extends SherlockFragmentActivity
 		defaultFullscreen = fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
 		defaultNavBarHidden = navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
-		softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, defaultSoftInputMode);
 		boolean hasSoftInputMode = softInputMode != -1;
 		int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
 		final Window window = getWindow();
