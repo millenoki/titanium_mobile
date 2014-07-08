@@ -169,6 +169,8 @@ public class TiUIText extends TiUINonViewGroupView
 
         @Override
         public void clearFocus() {
+            //clear focused is called in setInputType and clearfocus request the focus
+            //in root even if we didnt have the focus. DUMB!
             if (!hasFocus()) {
                 return;
             } else {
@@ -370,6 +372,8 @@ public class TiUIText extends TiUINonViewGroupView
 		
 		@Override
 	    public void clearFocus() {
+		    //clear focused is called in setInputType and clearfocus request the focus
+            //in root even if we didnt have the focus. DUMB!
 	        if (!hasFocus()) {
 	            return;
 	        } else {
