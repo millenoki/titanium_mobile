@@ -238,6 +238,10 @@ public class ListSectionProxy extends ViewProxy {
 	public String getFooterTitle() {
 		return footerTitle;
 	}
+	
+	public boolean hasHeader() {
+	    return headerView != null || headerTitle != null;
+	}
 
 	public void notifyDataChange() {
 		if (adapter == null) return;
@@ -516,7 +520,7 @@ public class ListSectionProxy extends ViewProxy {
 	        }
 	        ((HashMap)itemProp.get(binding)).put(key, value);
         }
-	    ListItemData itemD = getListItem(index);
+	    ListItemData itemD = getItemDataAt(index);
 	    itemD.setProperty(binding, key, value);
     }
 	
@@ -657,6 +661,12 @@ public class ListSectionProxy extends ViewProxy {
 	    if (itemProperties == null) {
 	        return;
 	    }
+	    int nonRealItemIndex = itemIndex;
+	    if (hasHeader()) {
+	        nonRealItemIndex += 1;
+	    }
+        View content = getListView().getCellAt(this.sectionIndex, itemIndex);
+        
 	    HashMap currentItem = KrollDict.merge((HashMap)itemProperties.get(itemIndex), (HashMap)(data));
 	    if (currentItem == null) return;
 	    itemProperties.set(itemIndex, currentItem);
@@ -671,12 +681,16 @@ public class ListSectionProxy extends ViewProxy {
 //        listItemData.set(index, itemD);
         hiddenItems.set(itemIndex, !itemD.isVisible());
         
-        View content = getListView().getCellAt(this.sectionIndex, itemIndex);
         if (content != null) {
             TiBaseListViewItem listItem = (TiBaseListViewItem) content.findViewById(TiListView.listContentId);
             if (listItem != null) {
-                TiListViewTemplate template = getListView().getTemplate(itemD.getTemplate());
-                populateViews(d, listItem, template, itemIndex, this.sectionIndex, content, false);
+                if (listItem.getItemIndex() == itemIndex) {
+                    TiListViewTemplate template = getListView().getTemplate(itemD.getTemplate());
+                    populateViews(d, listItem, template, nonRealItemIndex, this.sectionIndex, content, false);
+                }
+                else {
+                    Log.d(TAG, "wrong item index", Log.DEBUG_MODE);
+                }
                 return;
             }
         }
@@ -746,23 +760,25 @@ public class ListSectionProxy extends ViewProxy {
 					sectionIndex, item_layout, false);
 		}
 	}
+	
+	public int getUserItemIndexFromSectionPosition(final int position) {
+	    int result = position;
+	    if (hasHeader()) {
+	        result -= 1;
+        }
+	    return getRealPosition(result);
+	}
 
-	public void appendExtraEventData(KrollProxyReusableListener listener, int itemIndex, int sectionIndex, String bindId, String itemId) {
+	public void appendExtraEventData(KrollProxyReusableListener listener, int realItemIndex, int sectionIndex, String bindId, String itemId) {
 		KrollDict existingData = listener.getAdditionalEventData();
 		if (existingData == null) {
 			existingData = new KrollDict();
 			listener.setAdditionalEventData(existingData);
 		}
 
-		// itemIndex = realItemIndex + header (if exists). We want the real item
-		// index.
-		if (headerTitle != null || headerView != null) {
-			itemIndex -= 1;
-		}
-
 		existingData.put(TiC.PROPERTY_SECTION, this);
 		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
-		existingData.put(TiC.PROPERTY_ITEM_INDEX, getRealPosition(itemIndex));
+		existingData.put(TiC.PROPERTY_ITEM_INDEX, realItemIndex);
 
 		if (bindId != null && !bindId.equals(TiC.PROPERTY_PROPERTIES)) {
 			existingData.put(TiC.PROPERTY_BIND_ID, bindId);
@@ -785,11 +801,12 @@ public class ListSectionProxy extends ViewProxy {
 		if (listItem == null) {
 			return;
 		}
-		cellContent.setCurrentItem(sectionIndex, itemIndex);
+		
+		int realItemIndex = getUserItemIndexFromSectionPosition(itemIndex);
+		cellContent.setCurrentItem(sectionIndex, realItemIndex, this);
 		
 		data = template.prepareDataDict(data);
 		ListItemProxy itemProxy = (ListItemProxy) cellContent.getView().getProxy();
-		itemProxy.setCurrentItem(sectionIndex, itemIndex, this);
 
 		KrollDict listItemProperties;
 //		KrollDict templateProperties = template.getProperties();
@@ -819,7 +836,7 @@ public class ListSectionProxy extends ViewProxy {
 		}
 
 		// update extra event data for list item
-		appendExtraEventData(listItem, itemIndex, sectionIndex,
+		appendExtraEventData(listItem, realItemIndex, sectionIndex,
 				TiC.PROPERTY_PROPERTIES, itemId);
 
 		HashMap<String, ProxyListItem> views = itemProxy.getBindings();
@@ -836,7 +853,7 @@ public class ListSectionProxy extends ViewProxy {
             }
             proxy.setSetPropertyListener(itemProxy);
 			// update extra event data for views
-			appendExtraEventData((KrollProxyReusableListener) modelListener, itemIndex, sectionIndex, binding, itemId);
+			appendExtraEventData((KrollProxyReusableListener) modelListener, realItemIndex, sectionIndex, binding, itemId);
 			// if binding is contain in data given to us, process that data,
 			// otherwise
 			// apply default properties.
@@ -874,7 +891,7 @@ public class ListSectionProxy extends ViewProxy {
 		        if (modelListener instanceof TiUIView) {
 	                ((TiUIView)modelListener).setTouchDelegate((TiTouchDelegate) listItem);
 	            }
-	            appendExtraEventData((KrollProxyReusableListener) modelListener, itemIndex, sectionIndex, null, itemId);
+	            appendExtraEventData((KrollProxyReusableListener) modelListener, realItemIndex, sectionIndex, null, itemId);
             }
 		}
 
@@ -888,7 +905,7 @@ public class ListSectionProxy extends ViewProxy {
 	}
 
 	public String getTemplateByIndex(int index) {
-		if (headerTitle != null || headerView != null) {
+        if (hasHeader()) {
 			index -= 1;
 		}
 
@@ -923,7 +940,7 @@ public class ListSectionProxy extends ViewProxy {
 		}
 
 		if (!hideHeaderOrFooter()) {
-			if (headerTitle != null || headerView != null) {
+			if (hasHeader()) {
 				totalCount += 1;
 			}
 			if (footerTitle != null || footerView != null) {
@@ -994,7 +1011,7 @@ public class ListSectionProxy extends ViewProxy {
 //	}
 
 	public ListItemData getListItem(int position) {
-		if (headerTitle != null || headerView != null) {
+        if (hasHeader()) {
 			position -= 1;
 		}
 

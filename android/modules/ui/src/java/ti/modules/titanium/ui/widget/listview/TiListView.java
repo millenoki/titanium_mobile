@@ -1110,7 +1110,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 					return -1;
 				}
 				position += sectionItemIndex;
-				if (section.getHeaderTitle() != null) {
+				if (section.hasHeader()) {
 					position += 1;			
 				}
 				break;
