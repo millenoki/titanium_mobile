@@ -625,6 +625,11 @@ public class TiUIText extends TiUINonViewGroupView
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count)
 	{
+	    //onTextChanged can be called when reusing a TiUIText in listview
+	    //In that case we dont want to report.
+	    if (reusing) {
+	        return;
+	    }
 		//Since Jelly Bean, pressing the 'return' key won't trigger onEditorAction callback
 		//http://stackoverflow.com/questions/11311790/oneditoraction-is-not-called-after-enter-key-has-been-pressed-on-jelly-bean-em
 		//So here we need to handle the 'return' key manually
