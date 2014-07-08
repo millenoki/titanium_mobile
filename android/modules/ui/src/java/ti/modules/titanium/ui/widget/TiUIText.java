@@ -164,6 +164,18 @@ public class TiUIText extends TiUINonViewGroupView
                 childrenHolder.setPressed(pressed);
             }
         }
+        
+        @Override
+        public boolean dispatchKeyEventPreIme(KeyEvent event) {
+                InputMethodManager imm = getIMM();
+                if (imm != null && imm.isActive() && 
+                        event.getAction() == KeyEvent.ACTION_UP && event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+                    //when hiding the keyboard with the back button also blur
+                    blur();
+                    return true;
+                }
+            return super.dispatchKeyEventPreIme(event);
+        }
 	}
 
 	public class FocusFixedEditText extends LinearLayout {
