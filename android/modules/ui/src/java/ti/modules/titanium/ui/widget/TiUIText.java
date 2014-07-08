@@ -39,6 +39,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.EditText;
@@ -162,6 +163,16 @@ public class TiUIText extends TiUINonViewGroupView
         public void dispatchSetPressed(boolean pressed) {
             if (childrenHolder != null && dispatchPressed) {
                 childrenHolder.setPressed(pressed);
+            }
+        }
+        
+
+        @Override
+        public void clearFocus() {
+            if (!hasFocus()) {
+                return;
+            } else {
+                super.clearFocus();
             }
         }
         
@@ -356,6 +367,15 @@ public class TiUIText extends TiUINonViewGroupView
 		public void setOnFocusChangeListener(OnFocusChangeListener l) {
 			editText.setOnFocusChangeListener(l);
 		}
+		
+		@Override
+	    public void clearFocus() {
+	        if (!hasFocus()) {
+	            return;
+	        } else {
+                super.clearFocus();
+	        }
+	    }
 	}
 
 	public TiUIText(final TiViewProxy proxy, boolean field)
@@ -408,7 +428,6 @@ public class TiUIText extends TiUINonViewGroupView
 	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
-
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
 			realtv.setEnabled(d.optBoolean(TiC.PROPERTY_ENABLED, true));
 		}
