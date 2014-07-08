@@ -44,7 +44,7 @@ public class TiHtml {
         }
         @Override 
         public void updateDrawState(TextPaint ds) {
-            super.updateDrawState(ds);
+//            super.updateDrawState(ds);
             ds.setUnderlineText(false);
         }
     }
