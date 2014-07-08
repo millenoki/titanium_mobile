@@ -56,6 +56,8 @@ public class ListSectionProxy extends ViewProxy {
 
 	private Object headerView;
 	private Object footerView;
+	
+	private int sectionIndex;
 
 	private WeakReference<TiListView> listView;
 
@@ -643,25 +645,30 @@ public class ListSectionProxy extends ViewProxy {
 		}
 	}
 	
-	private void handleUpdateItemAt(int index, Object data) {
+	private void handleUpdateItemAt(int itemIndex, Object data) {
 	    if (itemProperties == null) {
 	        return;
 	    }
-	    HashMap currentItem = KrollDict.merge((HashMap)itemProperties.get(index), (HashMap)(data));
+	    HashMap currentItem = KrollDict.merge((HashMap)itemProperties.get(itemIndex), (HashMap)(data));
 	    if (currentItem == null) return;
-	    itemProperties.set(index, currentItem);
+	    itemProperties.set(itemIndex, currentItem);
 	    // only process items when listview's properties is processed.
         if (getListView() == null) {
             preload = true;
             return;
         }
         KrollDict d = new KrollDict(currentItem);
-        ListItemData itemD = getItemDataAt(index);
+        ListItemData itemD = getItemDataAt(itemIndex);
         itemD.setProperties(d);
 //        listItemData.set(index, itemD);
-        hiddenItems.set(index, !itemD.isVisible());
+        hiddenItems.set(itemIndex, !itemD.isVisible());
         
-        if (adapter != null) {
+        View content = getListView().getCellAt(this.sectionIndex, itemIndex);
+        if (content != null) {
+            TiListViewTemplate template = getListView().getTemplate(itemD.getTemplate());
+            populateViews(d, (TiBaseListViewItem) content.findViewById(TiListView.listContentId), template, itemIndex, this.sectionIndex, content, false);
+        }
+        else if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
     }
@@ -709,7 +716,7 @@ public class ListSectionProxy extends ViewProxy {
 	 * This method creates a new cell and fill it with content. getView() calls
 	 * this method when a view needs to be created.
 	 * 
-	 * @param index
+	 * @param sectionIndex
 	 *            Entry's index relative to its section
 	 * @return
 	 */
@@ -808,7 +815,8 @@ public class ListSectionProxy extends ViewProxy {
 		for (String binding : views.keySet()) {
 			DataItem dataItem = template.getDataItem(binding);
 			ProxyListItem viewItem = views.get(binding);
-			KrollProxyListener modelListener = (KrollProxyListener) viewItem.getProxy().getModelListener();
+			KrollProxy proxy  = viewItem.getProxy();
+			KrollProxyListener modelListener = (KrollProxyListener) proxy.getModelListener();
 			if (modelListener == null || !(modelListener instanceof KrollProxyReusableListener))
 				continue;
 			if (modelListener instanceof TiUIView) {
@@ -1040,4 +1048,9 @@ public class ListSectionProxy extends ViewProxy {
 	public String getApiName() {
 		return "Ti.UI.ListSection";
 	}
+
+    public void setIndex(int index) {
+        this.sectionIndex = index;
+        
+    }
 }
