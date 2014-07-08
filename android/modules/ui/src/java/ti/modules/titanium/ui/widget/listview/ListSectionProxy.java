@@ -814,6 +814,7 @@ public class ListSectionProxy extends ViewProxy {
 			if (modelListener instanceof TiUIView) {
 	            ((TiUIView)modelListener).setTouchDelegate((TiTouchDelegate) listItem);
             }
+            proxy.setSetPropertyListener(itemProxy);
 			// update extra event data for views
 			appendExtraEventData((KrollProxyReusableListener) modelListener, itemIndex, sectionIndex, binding, itemId);
 			// if binding is contain in data given to us, process that data,

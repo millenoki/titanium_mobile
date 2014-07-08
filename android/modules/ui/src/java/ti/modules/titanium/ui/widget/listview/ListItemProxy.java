@@ -149,7 +149,6 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
             return;
         }
 		if (bindId != null) {
-		    bindingProxy.setSetPropertyListener(this);
 			ProxyListItem viewItem = new ProxyListItem(bindingProxy, bindingProxy.getProperties());
 			bindingsMap.put(bindId, viewItem);
 		}
