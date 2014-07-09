@@ -444,7 +444,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     }
     if (result == nil) {
         NSIndexPath* nextIndexPath = [_listViewProxy nextIndexPath:_indexPath];
-        NSLog(@"looking in next cell %@", nextIndexPath)
         TiUIListItem *cell = (TiUIListItem *)[(TiUIListView*)[_listViewProxy view] forceCellForRowAtIndexPath:nextIndexPath];
         return [[cell proxy] getNextChildrenOfClass:theClass afterChild:nil];
     }
