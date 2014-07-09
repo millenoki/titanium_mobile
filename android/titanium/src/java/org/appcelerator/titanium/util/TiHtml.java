@@ -110,7 +110,7 @@ public class TiHtml {
 	
 	public static Spanned fromHtml(String html, final boolean disableLinkStyle) {
 		Document doc = Jsoup.parse(html);
-		FormattingVisitor formatter = new FormattingVisitor(disableLinkStyle);
+		TiHTMLFormattingVisitor formatter = new TiHTMLFormattingVisitor(disableLinkStyle);
         NodeTraversor traversor = new NodeTraversor(formatter);
         traversor.traverse(doc); // walk the DOM, and call .head() and .tail() for each node
         return formatter.spannable();

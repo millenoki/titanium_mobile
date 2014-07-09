@@ -34,7 +34,7 @@ import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 
 // the formatting rules, implemented in a breadth-first DOM traverse
-    @SuppressWarnings({ "unchecked", "rawtypes" }) class FormattingVisitor implements NodeVisitor {
+    @SuppressWarnings({ "unchecked", "rawtypes" }) class TiHTMLFormattingVisitor implements NodeVisitor {
         
         private boolean disableLinkStyle = false;
         private SpannableStringBuilder mSpannableStringBuilder = new SpannableStringBuilder();
@@ -46,7 +46,7 @@ import android.text.style.UnderlineSpan;
 			}
 		};
 		
-		public FormattingVisitor(final boolean disableLinkStyle) {
+		public TiHTMLFormattingVisitor(final boolean disableLinkStyle) {
 		    super();
 		    this.disableLinkStyle = disableLinkStyle;
 		}
