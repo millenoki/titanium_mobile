@@ -1571,10 +1571,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_HIDE_ANNOTATION_WHEN_TOUCH_MAP = "hideAnnotationWhenTouchMap";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_HIDE_ON_CLICK = "hideOnClick";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_HIDE_ON_CLICK = "hideOnClick";
 
 	/**
 	 * @module.api
@@ -2339,7 +2340,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
-
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SCROLL_HIDES_KEYBOARD = "scrollHidesKeyboard";
+    
 	/**
 	 * @module.api
 	 */

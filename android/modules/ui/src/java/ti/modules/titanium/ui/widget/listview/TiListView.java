@@ -90,6 +90,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private boolean caseInsensitive;
 	private RelativeLayout searchLayout;
 	private static final String TAG = "TiListView";
+	private boolean hideKeyboardOnScroll = true;
 	
 	private static final String defaultTemplateKey = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
 	private static final TiListViewTemplate defaultTemplate = new TiDefaultListViewTemplate(defaultTemplateKey);
@@ -408,16 +409,20 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState)
 			{
-                if (hasFocus()) {
-                    blur();
-                }
+                
 				view.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);		
 				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
-					scrollValid = false;
-					if (!fProxy.hasListeners(TiC.EVENT_SCROLLEND)) return;
-					fProxy.fireEvent(TiC.EVENT_SCROLLEND, dictForScrollEvent());
+				    if (scrollValid) {
+				        scrollValid = false;
+	                    if (!fProxy.hasListeners(TiC.EVENT_SCROLLEND)) return;
+	                    fProxy.fireEvent(TiC.EVENT_SCROLLEND, dictForScrollEvent());
+				    }
+					
 				}
 				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+				    if (hideKeyboardOnScroll && hasFocus()) {
+	                    blur();
+	                }
 					if (scrollValid == false) {
 						scrollValid = true;
 						if (!fProxy.hasListeners(TiC.EVENT_SCROLLSTART)) return;
@@ -606,6 +611,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				Log.e(TAG, "Searchview type is invalid");
 			}
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_SCROLL_HIDES_KEYBOARD)) {
+            this.hideKeyboardOnScroll = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLL_HIDES_KEYBOARD, true);
+        }
 		
 		if (d.containsKey(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH)) {
 			this.caseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
@@ -847,6 +856,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			if (this.searchText != null) {
 				reFilter(this.searchText);
 			}
+		} else if (key.equals(TiC.PROPERTY_SCROLL_HIDES_KEYBOARD)) {
+            this.hideKeyboardOnScroll = TiConvert.toBoolean(newValue, true);
 		} else if (key.equals(TiC.PROPERTY_SEARCH_VIEW)) {
 			TiViewProxy searchView = (TiViewProxy) newValue;
 			if (isSearchViewValid(searchView)) {
