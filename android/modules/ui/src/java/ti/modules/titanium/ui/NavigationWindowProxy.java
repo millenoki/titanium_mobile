@@ -295,11 +295,11 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 				transition.setTargets(viewToRemoveFrom, viewToFocus, viewToRemove);
 				AnimatorSet set = transition.getSet(new AnimatorListener() {
 					@Override
-					public void onAnimationStart(Animator arg0) {	
+					public void onAnimationStart(Animator arg0) {
 					}
 					
 					@Override
-					public void onAnimationRepeat(Animator arg0) {							
+					public void onAnimationRepeat(Animator arg0) {
 					}
 					
 					@Override
@@ -309,7 +309,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 					}
 
 					@Override
-					public void onAnimationCancel(Animator arg0) {		
+					public void onAnimationCancel(Animator arg0) {
 						handleWindowClosed(toRemove);
 						if (!viewWasOpened) winToFocus.sendOpenEvent();
 					}
@@ -319,18 +319,38 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 			else {
 				handleWindowClosed(toRemove);
 			}
-			viewToFocus.setVisibility(View.VISIBLE);
+			
+			handleSetViewVisible(viewToFocus, View.VISIBLE);
 		}
 		
 		TiBaseActivity activity = ((TiBaseActivity) getActivity());	
 		if (activity != null) activity.setWindowProxy(winToFocus);
 		if (!viewWasOpened) winToFocus.onWindowActivityCreated();
     	updateHomeButton(winToFocus);
-    	toRemove.blur();
-		winToFocus.focus();
+        toRemove.blur();
+        winToFocus.focus();
 
 		return true;
 	}
+	
+	public static void handleSetViewVisible(View view, int visible)
+    {
+        boolean oldValue = true;
+        int oldDesc = ViewGroup.FOCUS_BEFORE_DESCENDANTS;
+        
+        if (view instanceof ViewGroup){
+            oldDesc = ((ViewGroup) view).getDescendantFocusability();
+            ((ViewGroup) view).setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        }
+        oldValue = view.isFocusable();
+        view.setFocusable(false);
+        view.setVisibility(visible);
+        view.setFocusable(oldValue);
+        view.setFocusableInTouchMode(oldValue);
+        if (view instanceof ViewGroup){
+            ((ViewGroup) view).setDescendantFocusability(oldDesc);
+        }
+    }
 	
 	@Override
 	public void setActivity(Activity activity)
@@ -508,13 +528,13 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 				viewToAddTo.removeView(viewToHide);
 				pushing = false; 
 			}
-   			viewToAdd.setVisibility(View.VISIBLE);
-   			viewToAdd.requestFocus();
+   			handleSetViewVisible(viewToAdd, View.VISIBLE);
 		}
 		addWindow(proxy, transition);
 		proxy.onWindowActivityCreated();
 		activity.setWindowProxy((TiWindowProxy) proxy);
 		updateHomeButton(proxy);
+		proxy.focus();
 	}
 	
 	@Kroll.method
