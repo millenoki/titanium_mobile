@@ -340,7 +340,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
         
         if (view instanceof ViewGroup){
             oldDesc = ((ViewGroup) view).getDescendantFocusability();
-            ((ViewGroup) view).setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+            ((ViewGroup) view).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         }
         oldValue = view.isFocusable();
         view.setFocusable(false);
