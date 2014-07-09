@@ -431,7 +431,11 @@ public class TiUIText extends TiUINonViewGroupView
 	@Override
 	public void processProperties(KrollDict d)
 	{
+	 // Disable change event temporarily as we are setting the default value
+        disableChangeEvent = true;
+        
 		super.processProperties(d);
+		
 		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
 			realtv.setEnabled(d.optBoolean(TiC.PROPERTY_ENABLED, true));
 		}
@@ -440,14 +444,12 @@ public class TiUIText extends TiUINonViewGroupView
 			maxLength = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1);
 		}
 
-		// Disable change event temporarily as we are setting the default value
-		disableChangeEvent = true;
+		
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			realtv.setText(d.getString(TiC.PROPERTY_VALUE));
 			int pos = realtv.getText().length();
 			realtv.setSelection(pos);
 		}
-		disableChangeEvent = false;
 		
 		boolean needsColors = false;
 		if(d.containsKey(TiC.PROPERTY_COLOR)) {
@@ -523,6 +525,7 @@ public class TiUIText extends TiUINonViewGroupView
 		if (d.containsKey(TiC.PROPERTY_RIGHT_BUTTON)) {
 			tv.setRightView(d.get(TiC.PROPERTY_RIGHT_BUTTON));
 		}
+        disableChangeEvent = false;
 	}
 
 
@@ -627,7 +630,8 @@ public class TiUIText extends TiUINonViewGroupView
 	{
 	    //onTextChanged can be called when reusing a TiUIText in listview
 	    //In that case we dont want to report.
-	    if (reusing) {
+	    if (disableChangeEvent) {
+	        Log.d(TAG, "onTextChanged ignore as reusing", Log.DEBUG_MODE);
 	        return;
 	    }
 		//Since Jelly Bean, pressing the 'return' key won't trigger onEditorAction callback
