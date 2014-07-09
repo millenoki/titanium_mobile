@@ -75,6 +75,7 @@
     
     NSMutableDictionary* _measureProxies;
     BOOL _scrollSuspendImageLoading;
+    BOOL _scrollHidesKeyboard;
     BOOL hasOnDisplayCell;
 }
 
@@ -102,6 +103,7 @@ static NSDictionary* replaceKeysForRow;
         allowsSelection = YES;
         _defaultSeparatorInsets = UIEdgeInsetsZero;
         _scrollSuspendImageLoading = NO;
+        _scrollHidesKeyboard = YES;
     }
     return self;
 }
@@ -903,6 +905,10 @@ static NSDictionary* replaceKeysForRow;
 	[[self tableView] setBounces:![TiUtils boolValue:value]];
 }
 
+-(void)setScrollHidesKeyboard_:(id)value
+{
+    _scrollHidesKeyboard = [TiUtils boolValue:value def:_scrollHidesKeyboard];
+}
 
 -(void)setOnDisplayCell_:(id)callback
 {
@@ -1819,6 +1825,9 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
+    if (_scrollHidesKeyboard) {
+        [scrollView endEditing:YES];
+    }
 	// suspend image loader while we're scrolling to improve performance
 	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
     [self.proxy fireEvent:@"dragstart" propagate:NO];
