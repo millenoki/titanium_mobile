@@ -652,15 +652,15 @@ public class TiUIText extends TiUINonViewGroupView
 			return;
 		}
 		String newText = realtv.getText().toString();
-		if (!disableChangeEvent
-			&& !isTruncatingText 
-			&& proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText) 
-			&& hasListeners(TiC.EVENT_CHANGE)) {
-			KrollDict data = new KrollDict();
-			data.put(TiC.PROPERTY_VALUE, newText);
-			proxy.setProperty(TiC.PROPERTY_VALUE, newText);
+		if (!isTruncatingText 
+			&& proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText)) {
+            proxy.setProperty(TiC.PROPERTY_VALUE, newText);
+		    if (hasListeners(TiC.EVENT_CHANGE)) {
+		        KrollDict data = new KrollDict();
+	            data.put(TiC.PROPERTY_VALUE, newText);
+	            fireEvent(TiC.EVENT_CHANGE, data, false, false);
+		    }
 			
-			fireEvent(TiC.EVENT_CHANGE, data, false, false);
 		}
 	}
 
