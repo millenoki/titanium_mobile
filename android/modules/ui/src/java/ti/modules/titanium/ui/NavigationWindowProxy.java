@@ -36,6 +36,7 @@ import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.KrollProxyReusableListener;
+import org.appcelerator.titanium.view.TiUIView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.nineoldandroids.animation.Animator;
@@ -343,10 +344,9 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
             ((ViewGroup) view).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
         }
         oldValue = view.isFocusable();
-        view.setFocusable(false);
+        TiUIView.setFocusable(view, false);
         view.setVisibility(visible);
-        view.setFocusable(oldValue);
-        view.setFocusableInTouchMode(oldValue);
+        TiUIView.setFocusable(view, oldValue);
         if (view instanceof ViewGroup){
             ((ViewGroup) view).setDescendantFocusability(oldDesc);
         }

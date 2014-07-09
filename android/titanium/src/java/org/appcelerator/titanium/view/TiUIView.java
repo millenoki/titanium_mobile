@@ -924,13 +924,18 @@ public abstract class TiUIView
 			}
 		}
 	}
+	
+	public static void setFocusable(View view, boolean focusable) 
+	{
+	    view.setFocusable(focusable);
+        //so dumb setFocusable to false set  setFocusableInTouchMode
+        // but not when using true :s so we have to do it
+        view.setFocusableInTouchMode(focusable);
+	}
 		
 	protected void setEnabled(View view, boolean enabled, boolean focusable, boolean setChildren) {
 		view.setEnabled(enabled);
-		view.setFocusable(focusable);
-		//so dumb setFocusable to false set  setFocusableInTouchMode
-        // but not when using true :s so we have to do it
-        view.setFocusableInTouchMode(focusable);
+		setFocusable(view, focusable);
 		if (setChildren && view instanceof ViewGroup) {
 			ViewGroup group = (ViewGroup) view;
 			for (int i = 0; i < group.getChildCount(); i++) {
@@ -1072,12 +1077,11 @@ public abstract class TiUIView
             	((ViewGroup) root).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
             }
         	oldValue = root.isFocusable();
-        	root.setFocusable(false);
+            setFocusable(root, false);
         }
 		view.clearFocus();
 		if (root != null) {
-            root.setFocusable(oldValue);
-            root.setFocusableInTouchMode(oldValue);
+	        setFocusable(root, oldValue);
         	if (root instanceof ViewGroup){
             	((ViewGroup) root).setDescendantFocusability(oldDesc);
             }
@@ -1721,7 +1725,7 @@ public abstract class TiUIView
 			return;
 		}
 
-		v.setFocusable(focusable);
+        setFocusable(v, focusable);
 
 		// The listener for the "keypressed" event is only triggered when the view has focus. So we only register the
 		// "keypressed" event when the view is focusable.
