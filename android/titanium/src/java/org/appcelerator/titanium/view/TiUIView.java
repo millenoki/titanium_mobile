@@ -108,7 +108,8 @@ public abstract class TiUIView
 
 	private static final int MSG_FIRST_ID = 100;
 	private static final int MSG_SET_BACKGROUND = MSG_FIRST_ID + 1;
-	private static final int MSG_CLEAR_FOCUS = MSG_FIRST_ID + 2;
+    private static final int MSG_CLEAR_FOCUS = MSG_FIRST_ID + 2;
+    private static final int MSG_FOCUS = MSG_FIRST_ID + 3;
 
 	protected View nativeView; // Native View object
 
@@ -335,12 +336,18 @@ public abstract class TiUIView
 				applyCustomBackground();
 				return true;
 			}
-			case MSG_CLEAR_FOCUS : {
+			case MSG_FOCUS : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleClearFocus((View) result.getArg());
+				handleFocus((View) result.getArg());
 				result.setResult(null); //Signal added.
 				return true;
 			}
+			case MSG_CLEAR_FOCUS : {
+                AsyncResult result = (AsyncResult) msg.obj;
+                handleClearFocus((View) result.getArg());
+                result.setResult(null); //Signal added.
+                return true;
+            }
 		}
 		return false;
 	}
@@ -1012,16 +1019,36 @@ public abstract class TiUIView
 		imm = (InputMethodManager) TiApplication.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
 		return imm;
 	}
+	
+	public static void handleFocus(View view)
+    {
+        int oldDesc = ViewGroup.FOCUS_AFTER_DESCENDANTS;
+        if (view instanceof ViewGroup){
+            oldDesc = ((ViewGroup) view).getDescendantFocusability();
+            ((ViewGroup) view).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        }
+        view.requestFocus();
+        if (view instanceof ViewGroup){
+            ((ViewGroup) view).setDescendantFocusability(oldDesc);
+        }
+    }
 
 	/**
 	 * Focuses the view.
 	 */
-	public void focus()
+	public boolean focus()
 	{
 		View view = getFocusView();
-		if (view != null) {
-			view.requestFocus();
+		if (view != null && !hasFocus()) {
+			if (TiApplication.isUIThread()) {
+	            handleFocus(view);
+	        }
+	        else {
+	            TiMessenger.sendBlockingMainMessage(proxy.getMainHandler().obtainMessage(MSG_FOCUS), view);
+	        }
+	        return true;
 		}
+		return false;
 	}
 
 	public boolean hasFocus()
@@ -1033,7 +1060,7 @@ public abstract class TiUIView
 		return false;
 	}
 		
-	protected void handleClearFocus(View view)
+	public static void handleClearFocus(View view)
 	{
         View root = view.getRootView();
         boolean oldValue = true;
@@ -1049,7 +1076,8 @@ public abstract class TiUIView
         }
 		view.clearFocus();
 		if (root != null) {
-        	root.setFocusable(oldValue);
+            root.setFocusable(oldValue);
+            root.setFocusableInTouchMode(oldValue);
         	if (root instanceof ViewGroup){
             	((ViewGroup) root).setDescendantFocusability(oldDesc);
             }
@@ -1074,7 +1102,7 @@ public abstract class TiUIView
 	public boolean blur()
 	{
 		View view = getFocusView();
-		if (view != null && view.hasFocus()) {
+		if (view != null && hasFocus()) {
 			clearFocus(view);
 			return true;
 		}

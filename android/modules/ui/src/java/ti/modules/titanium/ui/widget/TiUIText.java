@@ -975,14 +975,14 @@ public class TiUIText extends TiUINonViewGroupView
 	}
 
 	@Override
-	public void focus()
+	public boolean focus()
 	{
-		if (tv != null && tv.getVisibility() == View.INVISIBLE) return;
+		if (tv != null && tv.getVisibility() == View.INVISIBLE) return false;
 		if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) 
 				&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
-			return;
+			return false;
 		}
-		super.focus();
+		return super.focus();
 	}
 
 //	@Override
