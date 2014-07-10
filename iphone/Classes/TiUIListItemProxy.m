@@ -205,11 +205,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     else if ([value isKindOfClass:[NSDictionary class]]) {
         id bindObject = [self.bindings objectForKey:keyPath];
         if (bindObject != nil) {
-            BOOL reproxying = NO;
-            if ([bindObject isKindOfClass:[TiProxy class]]) {
-                [bindObject setReproxying:YES];
-                reproxying = YES;
-            }
             [(NSDictionary *)value enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
                 NSString *newKeyPath = [NSString stringWithFormat:@"%@.%@", keyPath, key];
                 if ([self shouldUpdateValue:value forKeyPath:newKeyPath]) {
@@ -218,9 +213,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
                     }];
                 }
             }];
-            if (reproxying) {
-                [bindObject setReproxying:NO];
-            }
         }
     }
     else [super setValue:value forKeyPath:keyPath];
@@ -263,6 +255,13 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     {
         [listProps removeObjectsForKeys:[[dataItem objectForKey:@"properties"] allKeys]];
     }
+    
+    [self.bindings enumerateKeysAndObjectsUsingBlock:^(id key, id bindObject, BOOL *stop) {
+        if ([bindObject isKindOfClass:[TiProxy class]]) {
+            [bindObject setReproxying:YES];
+        }
+    }];
+    
     [self setValuesForKeysWithDictionary:listProps];
     
     [dataItem enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
@@ -277,6 +276,12 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	}];
     [_resetKeys removeAllObjects];
     enumeratingResetKeys = NO;
+    
+    [self.bindings enumerateKeysAndObjectsUsingBlock:^(id key, id bindObject, BOOL *stop) {
+        if ([bindObject isKindOfClass:[TiProxy class]]) {
+            [bindObject setReproxying:NO];
+        }
+    }];
     
     [self configurationSet:YES];
 }
