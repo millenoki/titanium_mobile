@@ -75,10 +75,20 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     }
 }
 
+BOOL isNullOrEmpty(id value) {
+    return (!value || ([value isKindOfClass:[NSString class]] && [value length] == 0));
+}
+
+BOOL areValueDifferent(id value1, id value2) {
+    BOOL oldNullEmpty = isNullOrEmpty(value1);
+    BOOL newNullEmpty = isNullOrEmpty(value2);
+    if (!oldNullEmpty && !newNullEmpty) return (![value1 isEqual:value2]);
+    return oldNullEmpty != newNullEmpty;
+}
+
 -(void)noteValueChange:(NSString *)newValue
 {
-    id current = [self valueForUndefinedKey:@"value"];
-    if ((current != newValue) && ![current isEqual:newValue])
+    if (![self inReproxy] && areValueDifferent([self valueForUndefinedKey:@"value"], newValue))
 	{
 		[self replaceValue:newValue forKey:@"value" notification:NO];
         if ([self.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
