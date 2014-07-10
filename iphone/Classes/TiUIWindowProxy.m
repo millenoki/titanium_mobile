@@ -691,6 +691,10 @@ else{\
     if ((controller == nil) || navController == nil) {
         return;
     }
+    if (!navBarWillShow && [TiUtils boolValue:[self valueForKey:@"navBarHidden"] def:NO]){
+    	navButtonNotSet = YES;
+    	return;
+    }
     NSArray* theObjects = [self valueForUndefinedKey:@"leftNavButtons"];
     NSDictionary* theProperties = [self valueForUndefinedKey:@"leftNavSettings"];
     
