@@ -660,8 +660,7 @@ public abstract class TiUIView
 			isEnabled = TiConvert.toBoolean(newValue, true);
 			if (oldEnabled != isEnabled) {
 				setEnabled(isEnabled, true);
-				}
-
+			}
 		} else if (key.equals(TiC.PROPERTY_EXCLUSIVE_TOUCH)) {
 			exclusiveTouch = TiConvert.toBoolean(newValue);
 		} else if (key.startsWith(TiC.PROPERTY_BACKGROUND_PREFIX)) {
@@ -950,8 +949,8 @@ public abstract class TiUIView
 		}
 	}
 
-	private boolean isEnabled = true;
-	private boolean isFocusable = true;
+	protected boolean isEnabled = true;
+	protected boolean isFocusable = true;
 	protected void setEnabled(boolean enabled, boolean setChildren){
         setEnabled(getOuterView(), enabled && isEnabled, enabled && isFocusable, setChildren);
     }
