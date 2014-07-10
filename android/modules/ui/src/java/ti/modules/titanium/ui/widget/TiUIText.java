@@ -91,6 +91,8 @@ public class TiUIText extends TiUINonViewGroupView
 
 	public class TiEditText extends EditText 
 	{
+	    
+	    private boolean hideKeyboardOnFocusSearch = false;
 		public TiEditText(Context context) 
 		{
 			super(context);
@@ -105,8 +107,23 @@ public class TiUIText extends TiUINonViewGroupView
 		@Override
 		public View focusSearch(int direction) {
 			View result = super.focusSearch(direction);
+			
+			//when within a listview and at the bottom of the list
+            //pressing "NEXT" will clear the focus but won't hide the keyboard ....
+            //this fixes it
+			if (hideKeyboardOnFocusSearch && !(result instanceof EditText)) {
+		        TiUIHelper.hideSoftKeyboard(this);
+			}
 	        return result;
 	    }
+		
+		@Override
+		public void onEditorAction(int actionCode) {
+		    //This tells us that focusSearch is called on "NEXT"
+		    hideKeyboardOnFocusSearch = true;
+		    super.onEditorAction(actionCode);
+		    hideKeyboardOnFocusSearch = false;
+		}
 		
 		/** 
 		 * Check whether the called view is a text editor, in which case it would make sense to 
@@ -389,7 +406,6 @@ public class TiUIText extends TiUINonViewGroupView
 
 		this.field = field;
 		tv = new FocusFixedEditText(getProxy().getActivity());
-		tv.setFocusable(false);
 		realtv = tv.getRealEditText();
 		if (field) {
 			realtv.setSingleLine();
@@ -676,11 +692,11 @@ public class TiUIText extends TiUINonViewGroupView
 		realtv.postInvalidate();
 	}
 	
-    @Override
-    public View getFocusView()
-    {
-    	return realtv;
-    }
+//    @Override
+//    public View getFocusView()
+//    {
+//    	return realtv;
+//    }
     
     @Override
     protected View getTouchView()
@@ -704,6 +720,7 @@ public class TiUIText extends TiUINonViewGroupView
 			Log.d(TAG, "onFocusChange "  + hasFocus + "  for FocusFixedEditText with text " + realtv.getText(), Log.DEBUG_MODE);
 		else
 			Log.d(TAG, "onFocusChange "  + hasFocus + "  for FocusFixedEditText  layout with text " + realtv.getText(), Log.DEBUG_MODE);
+		if (!v.isFocusable()) return;
 		if (hasFocus) {
 			Boolean clearOnEdit = (Boolean) proxy.getProperty(TiC.PROPERTY_CLEAR_ON_EDIT);
 			if (clearOnEdit != null && clearOnEdit) {
@@ -757,10 +774,11 @@ public class TiUIText extends TiUINonViewGroupView
 			if (actionId != EditorInfo.IME_ACTION_NEXT) blur();
 		}
 
-		Boolean enableReturnKey = proxy.getProperties().optBoolean(TiC.PROPERTY_ENABLE_RETURN_KEY, true);
-		if (enableReturnKey != null && enableReturnKey && v.getText().length() == 0) {
+		Boolean enableReturnKey = proxy.getProperties().optBoolean(TiC.PROPERTY_ENABLE_RETURN_KEY, false);
+		if (enableReturnKey && v.getText().length() == 0) {
 			return true;
 		}
+		
 		tv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 		return false;
 	}
@@ -894,13 +912,12 @@ public class TiUIText extends TiUINonViewGroupView
 		if (!editable) {
 			realtv.setKeyListener(null);
 			realtv.setCursorVisible(false);
-            realtv.setFocusable(false);
+            TiUIView.setFocusable(realtv, false);
+            TiUIView.setFocusable(tv, false);
 		}
 		else {
-		    realtv.setFocusable(true);
-	        //so dumb setFocusable to false set  setFocusableInTouchMode
-	        // but not when using true :s so we have to do it
-	        realtv.setFocusableInTouchMode(true);
+            TiUIView.setFocusable(realtv, true);
+            TiUIView.setFocusable(tv, true);
 		}
         
 		
