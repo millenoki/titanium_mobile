@@ -126,6 +126,9 @@ public abstract class TiUIView
     protected boolean touchPassThrough = false;
 	protected boolean dispatchPressed = false;
 	protected boolean reusing = false;
+	
+	protected boolean isEnabled = true;
+	protected boolean isFocusable = false;
 
 	private boolean clipChildren = true;
 
@@ -645,7 +648,7 @@ public abstract class TiUIView
 			}
 				layoutNativeView(true);
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE) && newValue != null) {
-			isFocusable = TiConvert.toBoolean(newValue, true);
+			isFocusable = TiConvert.toBoolean(newValue, false);
 			if (changedProperty)
 				registerForKeyPress(nativeView, isFocusable);
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
@@ -949,8 +952,6 @@ public abstract class TiUIView
 		}
 	}
 
-	protected boolean isEnabled = true;
-	protected boolean isFocusable = true;
 	protected void setEnabled(boolean enabled, boolean setChildren){
         setEnabled(getOuterView(), enabled && isEnabled, enabled && isFocusable, setChildren);
     }

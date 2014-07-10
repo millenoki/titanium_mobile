@@ -93,7 +93,6 @@ public class TiUIText extends TiUINonViewGroupView
 	public class TiEditText extends EditText 
 	{
 	    
-	    private boolean hideKeyboardOnFocusSearch = false;
 		public TiEditText(Context context) 
 		{
 			super(context);
@@ -108,23 +107,8 @@ public class TiUIText extends TiUINonViewGroupView
 		@Override
 		public View focusSearch(int direction) {
 			View result = super.focusSearch(direction);
-			
-			//when within a listview and at the bottom of the list
-            //pressing "NEXT" will clear the focus but won't hide the keyboard ....
-            //this fixes it
-			if (hideKeyboardOnFocusSearch && !(result instanceof EditText)) {
-		        TiUIHelper.hideSoftKeyboard(this);
-			}
 	        return result;
 	    }
-		
-		@Override
-		public void onEditorAction(int actionCode) {
-		    //This tells us that focusSearch is called on "NEXT"
-		    hideKeyboardOnFocusSearch = true;
-		    super.onEditorAction(actionCode);
-		    hideKeyboardOnFocusSearch = false;
-		}
 		
 		/** 
 		 * Check whether the called view is a text editor, in which case it would make sense to 
@@ -403,7 +387,7 @@ public class TiUIText extends TiUINonViewGroupView
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a text field", Log.DEBUG_MODE);
-
+		this.isFocusable = true; //default to true
 		this.field = field;
 		tv = new FocusFixedEditText(getProxy().getActivity());
 		realtv = tv.getRealEditText();
