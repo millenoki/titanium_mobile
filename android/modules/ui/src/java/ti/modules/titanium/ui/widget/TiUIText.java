@@ -85,6 +85,7 @@ public class TiUIText extends TiUINonViewGroupView
 	private int maxLength = -1;
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
+    protected boolean isEditable = true;
 
 	protected FocusFixedEditText tv;
 	protected TiEditText realtv;
@@ -135,8 +136,7 @@ public class TiUIText extends TiUINonViewGroupView
 					&& TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
 					return false;
 			}
-			if (proxy.hasProperty(TiC.PROPERTY_EDITABLE)
-					&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
+			if (!isEditable) {
 				return false;
 			}
 			return true;
@@ -512,12 +512,16 @@ public class TiUIText extends TiUINonViewGroupView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT)
-			|| d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)
-			|| d.containsKey(TiC.PROPERTY_EDITABLE)) {
+			|| d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
 			handleKeyboard(d);
 		}
 		
+		isEditable = d.optBoolean(TiC.PROPERTY_EDITABLE, true);
 		
+		boolean focusable = isEditable && isEnabled;
+		TiUIView.setFocusable(realtv, focusable);
+        TiUIView.setFocusable(tv, focusable);
+        realtv.setCursorVisible(focusable);
 		
 		//the order is important because returnKeyType must overload keyboard return key defined
 		// by keyboardType
@@ -595,11 +599,17 @@ public class TiUIText extends TiUINonViewGroupView
 			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_KEYBOARD_TYPE)
 			|| (key.equals(TiC.PROPERTY_AUTOCORRECT) || key.equals(TiC.PROPERTY_AUTOCAPITALIZATION)
-				|| key.equals(TiC.PROPERTY_PASSWORD_MASK) || key.equals(TiC.PROPERTY_EDITABLE))) {
+				|| key.equals(TiC.PROPERTY_PASSWORD_MASK))) {
 			KrollDict d = proxy.getProperties();
 			handleKeyboard(d);
+		} else if (key.equals(TiC.PROPERTY_EDITABLE)) {
+		    isEditable = TiConvert.toBoolean(newValue);
+		    boolean focusable = isEditable && isEnabled;
+            TiUIView.setFocusable(realtv, focusable);
+            TiUIView.setFocusable(tv, focusable);
+            realtv.setCursorVisible(focusable);
 		} else if (key.equals(TiC.PROPERTY_RETURN_KEY_TYPE)) {
-			handleReturnKeyType(TiConvert.toInt(newValue));
+            handleReturnKeyType(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(realtv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)){
@@ -787,16 +797,11 @@ public class TiUIText extends TiUINonViewGroupView
 	{
 		int type = KEYBOARD_ASCII;
 		boolean passwordMask = false;
-		boolean editable = true;
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
 
 		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT, true)) {
 			autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
-		}
-
-		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
-			editable = TiConvert.toBoolean(d, TiC.PROPERTY_EDITABLE, true);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
@@ -909,16 +914,6 @@ public class TiUIText extends TiUINonViewGroupView
 				realtv.setTransformationMethod(null);
 			}
 		}
-		if (!editable) {
-			realtv.setKeyListener(null);
-			realtv.setCursorVisible(false);
-            TiUIView.setFocusable(realtv, false);
-            TiUIView.setFocusable(tv, false);
-		}
-		else {
-            TiUIView.setFocusable(realtv, true);
-            TiUIView.setFocusable(tv, true);
-		}
         
 		
 		//setSingleLine() append the flag TYPE_TEXT_FLAG_MULTI_LINE to the current inputType, so we want to call this
@@ -998,9 +993,7 @@ public class TiUIText extends TiUINonViewGroupView
 	@Override
 	public boolean focus()
 	{
-		if (tv != null && tv.getVisibility() == View.INVISIBLE) return false;
-		if (proxy.hasProperty(TiC.PROPERTY_EDITABLE) 
-				&& !(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_EDITABLE)))) {
+		if (!isEditable || (tv != null && tv.getVisibility() == View.INVISIBLE)) {
 			return false;
 		}
 		return super.focus();
