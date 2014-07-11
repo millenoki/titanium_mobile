@@ -870,7 +870,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
 //    }
 	pthread_rwlock_rdlock(&childrenLock);
     NSArray* copy = [[children filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
-        return ![object isKindOfClass:[TiViewProxy class]] || ((TiViewProxy*)object).isHidden == FALSE;
+        return [object isKindOfClass:[TiViewProxy class]] && ((TiViewProxy*)object).isHidden == FALSE;
     }]] retain];
     pthread_rwlock_unlock(&childrenLock);
 	return [copy autorelease];
