@@ -45,11 +45,7 @@
     FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
-    if(transitionProxy != nil)
-    {
-        [self forgetProxy:transitionProxy];
-        RELEASE_TO_NIL(transitionProxy)
-    }
+    FORGET_AND_RELEASE(transitionProxy)
 #endif
     [super dealloc];
 }
@@ -374,14 +370,12 @@
 {
     TiRootViewController* theController = [[TiApp app] controller];
     if (isModal || (tab != nil) || self.isManaged) {
-        [self forgetProxy:openAnimation];
-        RELEASE_TO_NIL(openAnimation);
+        FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
     }
     
     if ( (!self.isManaged) && (!isModal) && (openAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
         DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller without animations.")
-        [self forgetProxy:openAnimation];
-        RELEASE_TO_NIL(openAnimation);
+        FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
     }
     
     return YES;
@@ -392,14 +386,12 @@
     TiRootViewController* theController = [[TiApp app] controller];
     if (isModal || (tab != nil) || self.isManaged) {
         if (closeAnimation) {
-            [self forgetProxy:closeAnimation];
-            RELEASE_TO_NIL(closeAnimation);
+            FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
         }
     }
     if ( (!self.isManaged) && (!isModal) && (closeAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
         DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will close behind the presented controller without animations.")
-        [self forgetProxy:closeAnimation];
-        RELEASE_TO_NIL(closeAnimation);
+        FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
     }
     return YES;
 }
@@ -584,8 +576,7 @@
         DebugLog(@"[WARN] OPEN ABORTED. _handleOpen returned NO");
         opening = NO;
         opened = NO;
-        [self forgetProxy:openAnimation];
-        RELEASE_TO_NIL(openAnimation);
+        FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
     }
 }
 
@@ -609,7 +600,7 @@
     } else {
         DebugLog(@"[WARN] CLOSE ABORTED. _handleClose returned NO");
         closing = NO;
-        RELEASE_TO_NIL(closeAnimation);
+        FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
     }
 }
 
@@ -746,8 +737,7 @@
 {
     ENSURE_SINGLE_ARG_OR_NIL(args, TiUIiOSTransitionAnimationProxy)
     if(transitionProxy != nil) {
-        [self forgetProxy:transitionProxy];
-        RELEASE_TO_NIL(transitionProxy)
+        FORGET_AND_RELEASE(transitionProxy)
     }
     transitionProxy = [args retain];
     [self rememberProxy:transitionProxy];
