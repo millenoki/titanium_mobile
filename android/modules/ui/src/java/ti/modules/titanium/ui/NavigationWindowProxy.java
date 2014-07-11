@@ -155,6 +155,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 		if (transition != null) animations.put(proxy, transition);
 	}
 	
+    @Kroll.method @Kroll.getProperty
 	public TiWindowProxy getCurrentWindow()
 	{
 		int size = windows.size();

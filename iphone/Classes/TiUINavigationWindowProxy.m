@@ -239,6 +239,22 @@ else{\
 }
 
 
+-(id)currentWindow
+{
+    return current;
+}
+
+-(id)getWindow:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber)
+	NSUInteger index = [TiUtils intValue:args def:-1];
+    NSArray* controllers  = [navController viewControllers];
+    if (controllers && index < [controllers count]) {
+        return [[controllers objectAtIndex:index] proxy];
+    }
+    return nil;
+}
+
 -(id)stackSize
 {
     return [NSNumber numberWithInt:[[navController viewControllers] count]];
