@@ -406,8 +406,14 @@ else{\
                 //Get from TabGroup
                 newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
             }
+            
         	UINavigationBar * navBar = [navController navigationBar];
-        	[navBar setTintColor:[newColor color]];
+            if (newColor == nil && [TiUtils isIOS7OrGreater]) {
+                [navBar setTintColor:[self view].tintColor];
+            }
+            else {
+                [navBar setTintColor:[newColor color]];
+            }
         	[self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
         }
         
@@ -1037,11 +1043,15 @@ else{\
 			[controller setToolbarItems:array animated:animated];
 			[navController setToolbarHidden:(hasToolbar == NO ? YES : NO) animated:animated];
 			[[navController toolbar] setTranslucent:translucent];
+            
+            
 			if ([TiUtils isIOS7OrGreater]) {
 				UIColor* tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
 				[[navController toolbar] performSelector:@selector(setBarTintColor:) withObject:barColor];
-				[[navController toolbar] setTintColor:tintColor];
-			} else {
+				if (tintColor) {
+                    [[navController toolbar] setTintColor:tintColor];
+                }
+			} else if (barColor){
 				[[navController toolbar] setTintColor:barColor];
 			}
 			[array release];
