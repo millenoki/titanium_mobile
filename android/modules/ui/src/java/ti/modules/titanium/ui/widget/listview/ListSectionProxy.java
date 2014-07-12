@@ -861,14 +861,15 @@ public class ListSectionProxy extends ViewProxy {
 			    ((KrollProxyReusableListener) modelListener).setReusing(true);
 			}
 			if (data.containsKey(binding) && modelListener != null) {
-				KrollDict properties = new KrollDict(
-						(HashMap) data.get(binding));
-				KrollDict diffProperties = viewItem
-						.generateDiffProperties(properties);
-				if (!diffProperties.isEmpty()) {
-				    modelListener.processProperties(diffProperties);
-				}
-
+			    HashMap map = (HashMap) data.get(binding);
+			    if (map != null) {
+			        KrollDict properties = new KrollDict(map);
+	                KrollDict diffProperties = viewItem
+	                        .generateDiffProperties(properties);
+	                if (!diffProperties.isEmpty()) {
+	                    modelListener.processProperties(diffProperties);
+	                }
+			    }
 			} else if (dataItem != null && modelListener != null) {
 				KrollDict diffProperties = viewItem
 						.generateDiffProperties(null);
