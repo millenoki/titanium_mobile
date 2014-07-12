@@ -241,7 +241,9 @@ else{\
 
 -(id)currentWindow
 {
-    return current;
+    if (current) return current;
+    if (rootWindow) return rootWindow;
+    return [self valueForKey:@"window"];
 }
 
 -(id)getWindow:(id)args
