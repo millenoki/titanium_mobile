@@ -411,13 +411,9 @@
     [self replaceValue:val forKey:@"modal" notification:NO];
 }
 
--(TiParentingProxy*)topParent
+-(id)modal
 {
-    TiParentingProxy* result = parent;
-    while ([result parent]) {
-        result = [result parent];
-    }
-    return result;
+    return [self valueForUndefinedKey:@"modal"];
 }
 
 -(BOOL)isModal
@@ -429,6 +425,16 @@
     }
     return isModal;
 }
+
+-(TiParentingProxy*)topParent
+{
+    TiParentingProxy* result = parent;
+    while ([result parent]) {
+        result = [result parent];
+    }
+    return result;
+}
+
 
 -(BOOL)hidesStatusBar
 {
