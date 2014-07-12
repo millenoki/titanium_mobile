@@ -300,6 +300,25 @@ public class TiUIDialog extends TiUIView
 		        }
 			});
 			dialog.setCancelable(hideOnClick);
+			
+			dialog.setOnKeyListener(new Dialog.OnKeyListener() {
+
+                @Override
+                public boolean onKey(DialogInterface dialog, int keyCode,
+                        KeyEvent event) {
+                    if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {                        
+                        if (proxy.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+                            proxy.fireEvent(TiC.EVENT_ANDROID_BACK);
+                        }
+                        else {
+                            int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
+                            handleEvent(cancelIndex);
+                            hide(null);
+                        }
+                    }
+                    return true;
+                }
+            });
 
 
 			// Initially apply accessibility properties here, the first time
