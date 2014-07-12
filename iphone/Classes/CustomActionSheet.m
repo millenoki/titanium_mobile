@@ -2,6 +2,8 @@
 #import "CustomActionSheet.h"
 #import <objc/message.h>
 #import <sys/utsname.h>
+#import "TiLabel.h"
+#import "DTCoreText.h"
 
 BOOL OSAtLeast(NSString* v) {
     return [[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending;
@@ -20,6 +22,7 @@ BOOL isIPhone4() {
 @property (nonatomic, strong) UIBarButtonItem *barButtonItem;
 @property (nonatomic, strong) UIBarButtonItem *doneBarButtonItem;
 @property (nonatomic, strong) UIBarButtonItem *cancelBarButtonItem;
+@property (nonatomic, strong) UIBarButtonItem *titleBarButtonItem;
 @property (nonatomic, strong) UIView *containerView;
 @property (nonatomic, unsafe_unretained) id target;
 @property (nonatomic, assign) SEL successAction;
@@ -51,6 +54,7 @@ BOOL isIPhone4() {
     NSUInteger _nbButtons;
 }
 @synthesize title = _title;
+@synthesize htmlTitle = _htmlTitle;
 @synthesize containerView = _containerView;
 @synthesize barButtonItem = _barButtonItem;
 @synthesize target = _target;
@@ -121,6 +125,43 @@ BOOL isIPhone4() {
     self.target = nil;
 }
 
+-(void)setTitle:(NSString *)title
+{
+    _title = title;
+    if (self.titleBarButtonItem) {
+        UILabel* label = (UILabel*)[self.titleBarButtonItem customView];
+        [label setText:title];
+    }
+}
+
+static NSDictionary* htmlOptions;
+-(NSDictionary *)htmlOptions
+{
+    if (htmlOptions == nil)
+    {
+        htmlOptions = @{
+                         DTDefaultTextAlignment:@(kCTLeftTextAlignment),
+                         DTDefaultFontStyle:@(0),
+                         DTIgnoreLinkStyleOption:@(NO),
+                         DTDefaultFontFamily:@"Helvetica",
+                         NSFontAttributeName:@"Helvetica",
+                         NSTextSizeMultiplierDocumentOption:@(16 / 12.0),
+                         DTDefaultLineBreakMode:@(kCTLineBreakByWordWrapping)};
+    }
+    return htmlOptions;
+}
+
+-(void)setHtmlTitle:(NSString *)htmlTitle {
+    
+    
+    _htmlTitle = htmlTitle;
+    if (self.titleBarButtonItem) {
+        TiLabel* label = (TiLabel*)[self.titleBarButtonItem customView];
+        
+        [label setText:[[NSAttributedString alloc] initWithHTMLData:[htmlTitle dataUsingEncoding:NSUTF8StringEncoding] options:[self htmlOptions] documentAttributes:nil]];
+    }
+}
+
 - (UIView *)configuredCustomView {
     NSAssert(NO, @"This is an abstract class, you must use a subclass of CustomActionSheet");
     return nil;
@@ -132,7 +173,7 @@ BOOL isIPhone4() {
     self.pickerView = [self configuredCustomView];
     CGRect frame = CGRectMake(0, 0, self.viewSize.width, self.pickerView.frame.size.height);
     
-    self.toolbar = [self createToolbarWithTitle:self.title];
+    self.toolbar = [self createToolbar];
     if ([self.toolbar.items count] == 0) {
         [self.toolbar setHidden:YES];
     }
@@ -141,6 +182,12 @@ BOOL isIPhone4() {
         CGRect pickerFrame = self.pickerView.frame;
         pickerFrame.origin.y = self.toolbar.frame.size.height;
         self.pickerView.frame = pickerFrame;
+        if (_htmlTitle) {
+            [self setHtmlTitle:_htmlTitle];
+        }
+        else if (_title) {
+            [self setTitle:_title];
+        }
     }
 
     UIView *masterView = [[UIView alloc] initWithFrame:frame];
@@ -249,7 +296,7 @@ BOOL isIPhone4() {
 }
 
 
-- (UIToolbar *)createToolbarWithTitle:(NSString *)title  {
+- (UIToolbar *)createToolbar  {
     _nbButtons = 0;
     CGRect frame = CGRectMake(0, 0, self.viewSize.width, 44);
     UIToolbar *pickerToolbar = [[UIToolbar alloc] initWithFrame:frame];
@@ -262,7 +309,7 @@ BOOL isIPhone4() {
             break;
     }
 //    pickerToolbar.barStyle = OSAtLeast(@"7.0") ? UIBarStyleDefault : UIBarStyleBlackTranslucent;
-    if (self.cancelBarButtonItem || self.doneBarButtonItem || self.customButtons || title) {
+    if (self.cancelBarButtonItem || self.doneBarButtonItem || self.customButtons || _title || _htmlTitle) {
         NSMutableArray *barItems = [[NSMutableArray alloc] init];
         NSInteger index = 0;
         
@@ -283,8 +330,9 @@ BOOL isIPhone4() {
             _nbButtons += 1;
         }
         
-        if (title){
-            [barItems addObject:[self createToolbarLabelWithTitle:title]];
+        if (_htmlTitle || _title){
+            [self setTitleBarButtonItem:[self createToolbarLabel]];
+            [barItems addObject:self.titleBarButtonItem];
         }
         [barItems addObject:flexSpace];
         if (self.doneBarButtonItem) {
@@ -296,13 +344,12 @@ BOOL isIPhone4() {
     return pickerToolbar;
 }
 
-- (UIBarButtonItem *)createToolbarLabelWithTitle:(NSString *)aTitle {
-    UILabel *toolBarItemlabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 180,30)];
+- (UIBarButtonItem *)createToolbarLabel {
+    TiLabel  *toolBarItemlabel = [[TiLabel alloc]initWithFrame:CGRectMake(0, 0, self.viewSize.width,30)];
     [toolBarItemlabel setTextAlignment:NSTextAlignmentCenter];
     [toolBarItemlabel setTextColor: OSAtLeast(@"7.0") ? [UIColor blackColor] : [UIColor whiteColor]];
     [toolBarItemlabel setFont:[UIFont boldSystemFontOfSize:16]];    
     [toolBarItemlabel setBackgroundColor:[UIColor clearColor]];    
-    toolBarItemlabel.text = aTitle;    
     UIBarButtonItem *buttonLabel = [[UIBarButtonItem alloc]initWithCustomView:toolBarItemlabel];
     return buttonLabel;
 }

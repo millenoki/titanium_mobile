@@ -14,6 +14,7 @@
 @interface CustomActionSheet : NSObject<UIActionSheetDelegate, UIPopoverControllerDelegate>
 @property (nonatomic, strong) UIToolbar* toolbar;
 @property (nonatomic, copy) NSString *title;
+@property (nonatomic, copy) NSString *htmlTitle;
 @property (nonatomic, strong) UIView *pickerView;
 @property (nonatomic, readonly) CGSize viewSize;
 @property (nonatomic, strong) NSMutableArray *customButtons;

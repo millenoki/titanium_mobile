@@ -169,6 +169,20 @@
     return barButton;
 }
 
+
+-(void)setTitle:(id)title
+{
+    ENSURE_UI_THREAD_1_ARG(title)
+	[self replaceValue:title forKey:@"title" notification:NO];
+	if (customActionSheet) {
+        
+        [customActionSheet setHtmlTitle:[TiUtils stringValue:title]];
+    }
+    else if (actionSheet) {
+        [actionSheet setTitle:[TiUtils stringValue:title]];
+    }
+}
+
 -(void)show:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
@@ -199,8 +213,8 @@
         customActionSheet = [[TiCustomActionSheet alloc] init];
         [customActionSheet setDelegate:self];
         customActionSheet.dismissOnAction = hideOnClick;
-        [customActionSheet setCustomView:[self valueForKey:@"androidView"] fromProxy:self];
-        [customActionSheet setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
+        [customActionSheet setCustomView:[self valueForKey:@"customView"] fromProxy:self];
+        [customActionSheet setHtmlTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
         
         NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
         int cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
