@@ -500,8 +500,10 @@ public class TiUIText extends TiUINonViewGroupView
 			handleKeyboard(d);
 		}
 		
-		isEditable = d.optBoolean(TiC.PROPERTY_EDITABLE, true);
 		
+		if (d.containsKey(TiC.PROPERTY_EDITABLE)) {
+		    isEditable = d.optBoolean(TiC.PROPERTY_EDITABLE, true);
+		}
 		boolean focusable = isEditable && isEnabled;
 		TiUIView.setFocusable(realtv, focusable);
         TiUIView.setFocusable(tv, focusable);
