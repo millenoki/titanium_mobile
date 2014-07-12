@@ -768,6 +768,9 @@
 		D585BC8917E630CD0062275E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8817E630CD0062275E /* CoreMedia.framework */; };
 		D585BC8A17E630D40062275E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8817E630CD0062275E /* CoreMedia.framework */; };
 		D585BC8B17E630DA0062275E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8817E630CD0062275E /* CoreMedia.framework */; };
+		D586DCC219716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D586DCC319716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D586DCC419716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D58791EA183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
 		D58791EB183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
 		D58791EC183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
@@ -2135,6 +2138,8 @@
 		D5818EAE18AA8872007EF771 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		D585BC8417E630AB0062275E /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		D585BC8817E630CD0062275E /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		D586DCC019716E28002FBBBB /* CustomActionSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomActionSheet.h; sourceTree = "<group>"; };
+		D586DCC119716E28002FBBBB /* CustomActionSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomActionSheet.m; sourceTree = "<group>"; };
 		D58791E8183E790F007F5BF1 /* TiTransitionPerspective.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionPerspective.h; sourceTree = "<group>"; };
 		D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionPerspective.m; sourceTree = "<group>"; };
 		D58DCBCB17FEF0F50011FE0E /* TiSVGImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSVGImage.h; sourceTree = "<group>"; };
@@ -3197,6 +3202,8 @@
 		24CA8C5F111165720084E2DE /* Option Dialog */ = {
 			isa = PBXGroup;
 			children = (
+				D586DCC019716E28002FBBBB /* CustomActionSheet.h */,
+				D586DCC119716E28002FBBBB /* CustomActionSheet.m */,
 				24CA8A6E111161FD0084E2DE /* TiUIOptionDialogProxy.m */,
 				24CA8A6F111161FD0084E2DE /* TiUIOptionDialogProxy.h */,
 			);
@@ -4791,6 +4798,7 @@
 				D535603818609A2800F8DEFD /* TiHLSLayerAnimationStep.m in Sources */,
 				D57007F918255C520063F7FE /* TiTransitionSwipeDualFade.m in Sources */,
 				24CA8BBC111161FE0084E2DE /* TiMediaVideoPlayerProxy.m in Sources */,
+				D586DCC219716E28002FBBBB /* CustomActionSheet.m in Sources */,
 				24CA8BBD111161FE0084E2DE /* TiMediaSoundProxy.m in Sources */,
 				D56E6699180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
 				24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */,
@@ -5273,6 +5281,7 @@
 				24D8E493119B9D8A00F8CAA6 /* TopTiModule.m in Sources */,
 				24D8E494119B9D8A00F8CAA6 /* TiApp.m in Sources */,
 				D5AADFAC17EC32A6008987EF /* UIControl+TiUIView.m in Sources */,
+				D586DCC319716E28002FBBBB /* CustomActionSheet.m in Sources */,
 				24D8E495119B9D8A00F8CAA6 /* TiErrorController.m in Sources */,
 				D56E6695180BF0B900F1B737 /* TiTransitionSwipeFade.m in Sources */,
 				DAA905CF11A35A010030B119 /* TiMediaMusicPlayer.m in Sources */,
@@ -5637,6 +5646,7 @@
 				DABB376B12E8CB280026A6EA /* TopTiModule.m in Sources */,
 				DABB376C12E8CB280026A6EA /* TiApp.m in Sources */,
 				D5AADFAD17EC32A6008987EF /* UIControl+TiUIView.m in Sources */,
+				D586DCC419716E28002FBBBB /* CustomActionSheet.m in Sources */,
 				DABB376D12E8CB280026A6EA /* TiErrorController.m in Sources */,
 				D56E6696180BF0B900F1B737 /* TiTransitionSwipeFade.m in Sources */,
 				DABB376F12E8CB280026A6EA /* TiMediaMusicPlayer.m in Sources */,
