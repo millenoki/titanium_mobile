@@ -1218,6 +1218,12 @@ public class TiC
 	 */
 	public static final String PROPERTY_CURVE = "curve";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_CUSTOM_VIEW = "customView";
+
+    /**
 	/**
 	 * @module.api
 	 */
@@ -2621,11 +2627,16 @@ public class TiC
 	 */
 	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_TAG = "tag";
-	
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_TAG = "tag";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_TAP_OUT_DISMISS = "tapOutDismiss";
+    
 	/**
 	 * @module.api
 	 */
