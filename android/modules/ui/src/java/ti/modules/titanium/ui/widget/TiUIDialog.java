@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -16,19 +17,20 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBaseActivity.DialogWrapper;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnShowListener;
 import android.support.v4.view.ViewCompat;
 import android.widget.ListView;
 import android.widget.Button;
+import android.view.KeyEvent;
 import android.view.View;
 import android.text.Html;
 
@@ -38,9 +40,9 @@ public class TiUIDialog extends TiUIView
 	private static final int BUTTON_MASK = 0x10000000;
 
 	protected Builder builder;
-	protected TiUIView view;
 	private DialogWrapper dialogWrapper;
 	private boolean hideOnClick = true;
+    private TiViewProxy customView;
 
 	protected class ClickHandler implements View.OnClickListener
 	{
@@ -96,7 +98,7 @@ public class TiUIDialog extends TiUIView
 			buttonText = new String[]{d.getString(TiC.PROPERTY_OK)};
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_ANDROID_VIEW)) {
-			processView((TiViewProxy) proxy.getProperty(TiC.PROPERTY_ANDROID_VIEW));
+			processView(proxy.getProperty(TiC.PROPERTY_ANDROID_VIEW));
 		} else if (d.containsKey(TiC.PROPERTY_OPTIONS)) {
 			String[] optionText = d.getStringArray(TiC.PROPERTY_OPTIONS);
 			int selectedIndex = d.containsKey(TiC.PROPERTY_SELECTED_INDEX) ? d.getInt(TiC.PROPERTY_SELECTED_INDEX) : -1; 
@@ -151,17 +153,16 @@ public class TiUIDialog extends TiUIView
 			public void onCancel(DialogInterface dialog)
 			{
 				dialog = null;
-				if (view != null)
+				if (customView != null)
 				{
-					view.getProxy().releaseViews(true);
-					view = null;
+				    customView.releaseViews(true);
+				    customView = null;
 				}
 			}
 		});
-
 		for (int id = 0; id < buttonText.length; id++) {
 			String text = buttonText[id];
-			ClickHandler clicker = new ClickHandler(id | BUTTON_MASK);
+//			ClickHandler clicker = new ClickHandler(id | BUTTON_MASK);
 			switch (id) {
 			case 0:
 				getBuilder().setPositiveButton(text, null);
@@ -178,14 +179,28 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
-	private void processView(TiViewProxy proxy)
+	private void processView(Object customView)
 	{
-		if (proxy != null) {
-			//reset the child view context to parent context
-			proxy.setActivity(dialogWrapper.getActivity());
-			view = proxy.getOrCreateView();
-			getBuilder().setView(view.getNativeView());
-		}
+	    if (this.customView != null) {
+            this.customView.releaseViews(false);
+            this.customView.setParent(null);
+            this.customView = null;
+        }
+	    if (customView instanceof HashMap) {
+	        this.customView = (TiViewProxy)proxy.createProxyFromTemplate((HashMap) customView,
+                   proxy, true);
+            if (this.customView != null) {
+                this.customView.updateKrollObjectProperties();
+                this.proxy.updateKrollObjectProperties();
+            }
+        }
+        else if (customView instanceof TiViewProxy) {
+            this.customView = (TiViewProxy)customView;
+        }
+	    if (this.customView != null) {
+	        this.customView.setActivity(dialogWrapper.getActivity());
+            getBuilder().setView(this.customView.getOrCreateView().getOuterView());
+	    }
 	}
 
 	@Override
@@ -243,7 +258,7 @@ public class TiUIDialog extends TiUIView
 				dialog = null;
 			}
 			if (newValue != null) {
-				processView((TiViewProxy) newValue);
+				processView(newValue);
 			} else {
 				proxy.setProperty(TiC.PROPERTY_ANDROID_VIEW, null);
 			}
@@ -282,7 +297,7 @@ public class TiUIDialog extends TiUIView
 				TiBaseActivity dialogActivity = (TiBaseActivity) getCurrentActivity();
 				dialogWrapper.setActivity(new WeakReference<TiBaseActivity>(dialogActivity));
 			}
-			processProperties(proxy.getProperties());
+//			processProperties(proxy.getProperties());
 			getBuilder().setOnCancelListener(new OnCancelListener() {
 				@Override
 				public void onCancel(DialogInterface dlg) {
@@ -364,18 +379,14 @@ public class TiUIDialog extends TiUIView
 	{
 		fireEvent(TiC.EVENT_CLOSE, null, false);
 		AlertDialog dialog = dialogWrapper.getDialog();
-		//we have to try and hide the keyboard before the dialog is dismissed
-		if (view != null) {
-			TiUIHelper.hideSoftKeyboard(view.getOuterView());
-		}
 		if (dialog != null) {
 			dialog.dismiss();
 			dialogWrapper.getActivity().removeDialog(dialog);
 		}
 
-		if (view != null) {
-			view.getProxy().releaseViews(true);
-			view = null;
+		if (customView != null) {
+		    customView.releaseViews(true);
+		    customView = null;
 		}
 	}
 
