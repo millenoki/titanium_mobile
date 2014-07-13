@@ -837,6 +837,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			if (Build.VERSION.SDK_INT >= 9) {
 				listView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 			}
+		} else if (key.equals(TiC.PROPERTY_HEADER_VIEW)) {
+		    setHeaderOrFooterView(TiConvert.toString(newValue), true);
+		} else if (key.equals(TiC.PROPERTY_FOOTER_VIEW)) {
+            setHeaderOrFooterView(TiConvert.toString(newValue), false);
 		} else if (key.equals(TiC.PROPERTY_HEADER_TITLE)) {
 			setHeaderTitle(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_FOOTER_TITLE)) {
