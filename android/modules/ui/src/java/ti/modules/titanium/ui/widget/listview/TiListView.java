@@ -523,6 +523,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 
 	public void setHeaderTitle(String title) {
 		TextView textView = (TextView) headerView.findViewById(titleId);
+		if (textView == null) return;
 		textView.setText(title);
 		if (textView.getVisibility() == View.GONE) {
 			textView.setVisibility(View.VISIBLE);
@@ -531,6 +532,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	
 	public void setFooterTitle(String title) {
 		TextView textView = (TextView) footerView.findViewById(titleId);
+        if (textView == null) return;
 		textView.setText(title);
 		if (textView.getVisibility() == View.GONE) {
 			textView.setVisibility(View.VISIBLE);
