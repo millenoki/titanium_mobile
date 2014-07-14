@@ -14,6 +14,9 @@
 #import "TiApp.h"
 
 @implementation TiUITextViewImpl
+{
+    BOOL becameResponder;
+}
 
 -(void)setTouchHandler:(TiUIView*)handler
 {
@@ -68,6 +71,43 @@
     }
     [super touchesCancelled:touches withEvent:event];
 }
+
+-(BOOL)canBecomeFirstResponder
+{
+	return self.isEditable;
+}
+
+-(BOOL)resignFirstResponder
+{
+	if ([super resignFirstResponder])
+	{
+        if (becameResponder) {
+            becameResponder = NO;
+            [touchHandler makeRootViewFirstResponder];
+        }
+        return YES;
+	}
+	return NO;
+}
+
+-(BOOL)becomeFirstResponder
+{
+    if (self.isEditable) {
+        if ([super becomeFirstResponder])
+        {
+            becameResponder = YES;
+            return YES;
+        }
+    }
+    return NO;
+}
+
+
+-(BOOL)isFirstResponder
+{
+	if (becameResponder) return YES;
+	return [super isFirstResponder];
+}
 @end
 
 
@@ -79,7 +119,7 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[[self textWidgetView] sizeToFit];
+	[TiUtils setView:textWidgetView positionRect:bounds];
 	[super frameSizeChanged:frame bounds:bounds];
 }
 
@@ -181,35 +221,35 @@
 	return [(UITextView *)[self textWidgetView] hasText];
 }
 
--(BOOL)resignFirstResponder
-{
-    becameResponder = NO;
-    return [textWidgetView resignFirstResponder];
-}
-
--(BOOL)becomeFirstResponder
-{
-    UITextView* ourView = (UITextView*)[self textWidgetView];
-    if (ourView.isEditable) {
-        becameResponder = YES;
-        
-        if ([textWidgetView isFirstResponder])
-        {
-            return NO;
-        }
-        
-        [self makeRootViewFirstResponder];
-        BOOL result = [super becomeFirstResponder];
-        return result;
-    }
-    return NO;
-}
--(BOOL)isFirstResponder
-{
-    if (becameResponder)
-        return YES;
-    return [super isFirstResponder];
-}
+//-(BOOL)resignFirstResponder
+//{
+//    becameResponder = NO;
+//    return [textWidgetView resignFirstResponder];
+//}
+//
+//-(BOOL)becomeFirstResponder
+//{
+//    UITextView* ourView = (UITextView*)[self textWidgetView];
+//    if (ourView.isEditable) {
+//        becameResponder = YES;
+//        
+//        if ([textWidgetView isFirstResponder])
+//        {
+//            return NO;
+//        }
+//        
+//        [self makeRootViewFirstResponder];
+//        BOOL result = [super becomeFirstResponder];
+//        return result;
+//    }
+//    return NO;
+//}
+//-(BOOL)isFirstResponder
+//{
+//    if (becameResponder)
+//        return YES;
+//    return [super isFirstResponder];
+//}
 
 //TODO: scrollRangeToVisible
 
