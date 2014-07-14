@@ -66,6 +66,21 @@
 	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
 }
 
+-(BOOL)containsChild:(TiProxy*)child
+{
+    if (child == self)return YES;
+    NSArray* subproxies = [self children];
+    for (TiProxy * thisChildProxy in subproxies)
+    {
+        if (thisChildProxy == child || ([thisChildProxy isKindOfClass:[TiParentingProxy class]] &&
+            [(TiParentingProxy*)thisChildProxy containsChild:child])) {
+            return YES;
+            
+        }
+    }
+    return NO;
+}
+
 -(void)add:(id)arg
 {
     [self addInternal:arg atIndex:-1 shouldRelayout:YES];
@@ -76,11 +91,16 @@
 	// allow either an array of arrays or an array of single proxy
 	if ([arg isKindOfClass:[NSArray class]])
 	{
-        NSInteger newPos = position;
-		for (id a in arg)
-		{
-            [self addInternal:a atIndex:newPos shouldRelayout:shouldRelayout];
-		}
+        if ( [arg count] == 2 && [[arg objectAtIndex:1] isKindOfClass:[NSNumber class]]) {
+            [self addInternal:[arg objectAtIndex:0] atIndex:[TiUtils intValue:[arg objectAtIndex:1]] shouldRelayout:shouldRelayout];
+        } else {
+            NSInteger newPos = position;
+            for (id a in arg)
+            {
+                [self addInternal:a atIndex:newPos shouldRelayout:shouldRelayout];
+            }
+        }
+        
 		return;
 	}
     if ([arg isKindOfClass:[NSDictionary class]]) {

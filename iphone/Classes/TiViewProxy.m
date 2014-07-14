@@ -3804,18 +3804,12 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     [self configurationSet:NO];
 }
 
+
+
 -(BOOL)containsView:(id)args
 {
-    ENSURE_SINGLE_ARG(args, TiViewProxy);
-    if (args == self)return YES;
-    if ([self viewAttached]) {
-        NSArray* subproxies = [self children];
-        for (TiViewProxy * thisChildProxy in subproxies)
-        {
-            if ([thisChildProxy containsView:args]) return YES;
-        }
-    }
-    return NO;
+    ENSURE_SINGLE_ARG(args, TiProxy);
+    return [self containsChild:args];
 }
 
 -(BOOL)canBeNextResponder

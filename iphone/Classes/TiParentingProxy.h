@@ -54,5 +54,6 @@
  @param child The child view
  */
 -(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiProxy*)child;
+-(BOOL)containsChild:(TiProxy*)child;
 
 @end
