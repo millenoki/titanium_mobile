@@ -378,6 +378,16 @@
     [keyboardFocusedProxy blur:nil];
 }
 
+-(void)dismissKeyboardFromWindow:(id<TiWindowProtocol>)theWindow
+{
+    if (keyboardFocusedProxy && [theWindow isKindOfClass:[TiParentingProxy class]] &&
+        ![(TiParentingProxy*)theWindow containsChild:keyboardFocusedProxy])
+    {
+        return;
+    }
+    [keyboardFocusedProxy blur:nil];
+}
+
 -(BOOL)keyboardVisible
 {
     return keyboardVisible;
@@ -811,7 +821,7 @@
 
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    [self dismissKeyboard];
+    [self dismissKeyboardFromWindow:theWindow];
     if ([containedWindows lastObject] != theWindow) {
         [[containedWindows lastObject] resignFocus];
     }
@@ -830,7 +840,7 @@
 
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    [self dismissKeyboard];
+    [self dismissKeyboardFromWindow:theWindow];
     if ([self presentedViewController] == nil) {
         [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
         [[containedWindows lastObject] gainFocus];
@@ -840,7 +850,7 @@
 
 -(void)willCloseWindow:(id<TiWindowProtocol>)theWindow
 {
-    [self dismissKeyboard];
+    [self dismissKeyboardFromWindow:theWindow];
     [theWindow resignFocus];
     if ([theWindow isModal]) {
         [modalWindows removeObject:theWindow];
@@ -852,7 +862,7 @@
 
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow
 {
-    [self dismissKeyboard];
+    [self dismissKeyboardFromWindow:theWindow];
     if ([self presentedViewController] == nil) {
         [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
         [[containedWindows lastObject] gainFocus];
