@@ -899,12 +899,26 @@
     UIViewController* presenter = [theController presentingViewController];
     [presenter dismissViewControllerAnimated:animated completion:^{
         if (presenter == self) {
-            [self didCloseWindow:nil];
+            if ([theController respondsToSelector:@selector(proxy)]) {
+                id theProxy = [(id)theController proxy];
+                [self didCloseWindow:theProxy];
+                
+                //sometimes the keyboard doesn't show if we are trying to show it as
+                //we close a modal window
+                if (keyboardFocusedProxy && [theProxy isKindOfClass:[TiParentingProxy class]] &&
+                    ![(TiParentingProxy*)theProxy containsChild:keyboardFocusedProxy])
+                {
+                    [keyboardFocusedProxy focus:nil];
+                }
+            }
+            else {
+                [self didCloseWindow:nil];
+            }
         } else {
-            [self dismissKeyboard];
 
             if ([presenter respondsToSelector:@selector(proxy)]) {
                 id theProxy = [(id)presenter proxy];
+                [self dismissKeyboardFromWindow:theProxy];
                 if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
                     [(id<TiWindowProtocol>)theProxy gainFocus];
                 }
