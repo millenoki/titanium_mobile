@@ -131,6 +131,7 @@
         textViewImpl.delaysContentTouches = NO;
         [textViewImpl setTouchHandler:self];
         textViewImpl.delegate = self;
+        textViewImpl.backgroundColor = [UIColor clearColor];
         [self addSubview:textViewImpl];
         [textViewImpl setContentInset:UIEdgeInsetsZero];
         self.clipsToBounds = YES;
@@ -202,10 +203,6 @@
 	[(UITextView *)[self textWidgetView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
--(void)setBackgroundColor_:(id)color
-{
-	[[self textWidgetView] setBackgroundColor:[Webcolor webColorNamed:color]];
-}
 
 
 -(void)setPadding:(UIEdgeInsets)inset
@@ -220,36 +217,6 @@
 {
 	return [(UITextView *)[self textWidgetView] hasText];
 }
-
-//-(BOOL)resignFirstResponder
-//{
-//    becameResponder = NO;
-//    return [textWidgetView resignFirstResponder];
-//}
-//
-//-(BOOL)becomeFirstResponder
-//{
-//    UITextView* ourView = (UITextView*)[self textWidgetView];
-//    if (ourView.isEditable) {
-//        becameResponder = YES;
-//        
-//        if ([textWidgetView isFirstResponder])
-//        {
-//            return NO;
-//        }
-//        
-//        [self makeRootViewFirstResponder];
-//        BOOL result = [super becomeFirstResponder];
-//        return result;
-//    }
-//    return NO;
-//}
-//-(BOOL)isFirstResponder
-//{
-//    if (becameResponder)
-//        return YES;
-//    return [super isFirstResponder];
-//}
 
 //TODO: scrollRangeToVisible
 
