@@ -86,6 +86,8 @@ public class TiUIText extends TiUINonViewGroupView
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
     protected boolean isEditable = true;
+    private boolean suppressReturn = true;
+    private CharSequence currentValue;
 
 	protected FocusFixedEditText tv;
 	protected TiEditText realtv;
@@ -129,17 +131,18 @@ public class TiUIText extends TiUINonViewGroupView
 		@Override
 	    protected void onMeasure(int widthMeasureSpec,int heightMeasureSpec) {
 			
-			//there is something really weird in the TextView where when using AT_MOST,
+			//In the TextView when using AT_MOST,
 			//it would size to Math.min(widthSize, width); which is NOT what we want
+		    // when using FILL
 			int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 	        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
 	        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
 	        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 	        
-	        if (widthMode == MeasureSpec.AT_MOST) {
+	        if (widthMode == MeasureSpec.AT_MOST && layoutParams.autoFillsWidth) {
 	        	widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
 	        }
-	        if (heightMode == MeasureSpec.AT_MOST) {
+	        if (heightMode == MeasureSpec.AT_MOST && layoutParams.autoFillsHeight) {
 	        	heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY);
 	        }
 			 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -227,7 +230,7 @@ public class TiUIText extends TiUINonViewGroupView
 
 			editText = new TiEditText(context);
 			editText.setId(200);
-			params = new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1.0f);
+			params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			this.addView(editText, params);
 
 			rightPane = new TiCompositeLayout(context);
@@ -386,19 +389,26 @@ public class TiUIText extends TiUINonViewGroupView
 	public TiUIText(final TiViewProxy proxy, boolean field)
 	{
 		super(proxy);
-		Log.d(TAG, "Creating a text field", Log.DEBUG_MODE);
+		Log.d(TAG, "Creating a text field2", Log.DEBUG_MODE);
 		this.isFocusable = true; //default to true
 		this.field = field;
 		tv = new FocusFixedEditText(getProxy().getActivity());
 		realtv = tv.getRealEditText();
+        realtv.setSingleLine(field);
 		if (field) {
-			realtv.setSingleLine();
 			realtv.setMaxLines(1);
+		}
+		else {
+//            realtv.setMaxLines(1000);
+//            realtv.setMinLines(2);
+//            realtv.setHorizontallyScrolling(false);
+//            realtv.setEllipsize(null);
+//            realtv.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 		}
 		realtv.addTextChangedListener(this);
 		realtv.setOnEditorActionListener(this);
-		// realtv.setOnFocusChangeListener(this); // TODO refactor to TiUIView?
 		realtv.setIncludeFontPadding(true); 
+		realtv.setBackgroundColor(Color.RED);
 		if (field) {
 			realtv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		} else {
@@ -440,9 +450,13 @@ public class TiUIText extends TiUINonViewGroupView
 			realtv.setEnabled(d.optBoolean(TiC.PROPERTY_ENABLED, true));
 		}
 
-		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH) && field) {
+		if (d.containsKey(TiC.PROPERTY_MAX_LENGTH)) {
 			maxLength = TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1);
 		}
+		
+		if (d.containsKey(TiC.PROPERTY_SUPPRESS_RETURN)) {
+            suppressReturn = d.optBoolean(TiC.PROPERTY_SUPPRESS_RETURN, true);
+        }
 
 		
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
@@ -495,7 +509,7 @@ public class TiUIText extends TiUINonViewGroupView
 			TiUIHelper.setAlignment(realtv, textAlign, verticalAlign);
 		}
 
-		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT)
+		if (!field || d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE) || d.containsKey(TiC.PROPERTY_AUTOCORRECT)
 			|| d.containsKey(TiC.PROPERTY_PASSWORD_MASK) || d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
 			handleKeyboard(d);
 		}
@@ -600,6 +614,8 @@ public class TiUIText extends TiUINonViewGroupView
 			TiUIHelper.styleText(realtv, (HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)){
 			TiUIHelper.linkifyIfEnabled(realtv, newValue);
+		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)){
+            suppressReturn = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_LEFT_BUTTON)){
 			tv.setLeftView(newValue);
 		} else if (key.equals(TiC.PROPERTY_RIGHT_BUTTON)){
@@ -630,12 +646,16 @@ public class TiUIText extends TiUINonViewGroupView
 			isTruncatingText = false;
 		}
 	}
-
+	
+	private boolean oldTextRequestLayout = false;
 	@Override
-	public void beforeTextChanged(CharSequence s, int start, int before, int count)
-	{
+    public void beforeTextChanged(CharSequence s, int start, int count,
+            int after) {
+        CharSequence oldText = s.subSequence(start, start + count);
+        boolean newLine = oldText.toString().contains("\n");
 
-	}
+        oldTextRequestLayout = (newLine && layoutParams.sizeOrFillHeightEnabled && !layoutParams.autoFillsHeight);
+    }
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count)
@@ -643,7 +663,7 @@ public class TiUIText extends TiUINonViewGroupView
 	    //onTextChanged can be called when reusing a TiUIText in listview
 	    //In that case we dont want to report.
 	    if (disableChangeEvent) {
-	        Log.d(TAG, "onTextChanged ignore as reusing", Log.DEBUG_MODE);
+	        Log.d(TAG, "onTextChanged ignore as configuring", Log.DEBUG_MODE);
 	        return;
 	    }
 		//Since Jelly Bean, pressing the 'return' key won't trigger onEditorAction callback
@@ -667,17 +687,28 @@ public class TiUIText extends TiUINonViewGroupView
 			// Can only set truncated text in afterTextChanged. Otherwise, it will crash.
 			return;
 		}
-		String newText = realtv.getText().toString();
+		
+		boolean newLine = oldTextRequestLayout;
+		if (!newLine) {
+		    CharSequence newText = s.subSequence(start, start + count);
+	        newLine  = newText.toString().contains("\n");
+		}
+        
+		if (newLine && layoutParams.sizeOrFillHeightEnabled && !layoutParams.autoFillsHeight) {
+		    nativeView.requestLayout();
+		}
+		String text = realtv.getText().toString();
 		if (!isTruncatingText 
-			&& proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText)) {
-            proxy.setProperty(TiC.PROPERTY_VALUE, newText);
+			&& proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), text)) {
+            proxy.setProperty(TiC.PROPERTY_VALUE, text);
 		    if (hasListeners(TiC.EVENT_CHANGE)) {
 		        KrollDict data = new KrollDict();
-	            data.put(TiC.PROPERTY_VALUE, newText);
+	            data.put(TiC.PROPERTY_VALUE, text);
 	            fireEvent(TiC.EVENT_CHANGE, data, false, false);
 		    }
 			
 		}
+		currentValue = s;
 	}
 
 	@Override
@@ -751,7 +782,37 @@ public class TiUIText extends TiUINonViewGroupView
 		proxy.setProperty(TiC.PROPERTY_VALUE, value);
 		Log.d(TAG, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null),
 			Log.DEBUG_MODE);
-
+		
+		
+        boolean result = false;
+        boolean shouldBlur = true;
+        if (keyEvent == null) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                result = true;
+            }
+            // Capture soft enters in a singleLine EditText that is the last
+            // EditText.
+            else if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                result = true;
+            }
+            // Capture soft enters in other singleLine EditTexts
+        } else if (actionId == EditorInfo.IME_NULL) {
+            // Capture most soft enters in multi-line EditTexts and all hard
+            // enters.
+            // They supply a zero actionId and a valid KeyEvent rather than
+            // a non-zero actionId and a null event like the previous cases.
+            if (!suppressReturn) {
+                shouldBlur = false;
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                }
+                else {
+                    //there we added a '\n' in the text
+                }
+            }
+            // We capture the event when key is first pressed.
+            else
+                result = true; // We consume the event when the key is released.
+        }
 		
 		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked,
 		//this callback is triggered twice (except for keys that are mapped to EditorInfo.IME_ACTION_NEXT or EditorInfo.IME_ACTION_DONE). The first check is to deal with those keys - filter out
@@ -766,17 +827,20 @@ public class TiUIText extends TiUINonViewGroupView
 				data.put(TiC.PROPERTY_VALUE, value);
 				fireEvent(TiC.EVENT_RETURN, data, false, false);
 			}
-			
-			if (actionId != EditorInfo.IME_ACTION_NEXT) blur();
+			if (shouldBlur) {
+	            blur();
+	        }
 		}
+		
+		
 
 		Boolean enableReturnKey = proxy.getProperties().optBoolean(TiC.PROPERTY_ENABLE_RETURN_KEY, false);
-		if (enableReturnKey && v.getText().length() == 0) {
-			return true;
+		if (enableReturnKey && value.length() == 0) {
+			result = true;
 		}
 		
 		tv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-		return false;
+		return result;
 	}
 
 	public void handleKeyboard(KrollDict d) 
@@ -876,6 +940,10 @@ public class TiUIText extends TiUINonViewGroupView
 			case KEYBOARD_EMAIL_ADDRESS:
 				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 				break;
+		}
+		
+		if (!field) {
+            textTypeAndClass |= InputType.TYPE_TEXT_FLAG_MULTI_LINE;
 		}
 
 		if (passwordMask) {
