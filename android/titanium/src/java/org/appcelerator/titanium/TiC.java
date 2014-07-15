@@ -2597,10 +2597,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_SUBTITLEID = "subtitleid";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_SUCCESS = "success";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SUCCESS = "success";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SUPPRESS_RETURN = "suppressReturn";
 
 	/**
 	 * @module.api

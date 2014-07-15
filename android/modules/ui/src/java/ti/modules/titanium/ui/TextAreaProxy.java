@@ -39,7 +39,8 @@ import android.os.Message;
 	TiC.PROPERTY_TEXT_ALIGN,
 	TiC.PROPERTY_VALUE,
 	TiC.PROPERTY_VERTICAL_ALIGN,
-	TiC.PROPERTY_RETURN_KEY_TYPE
+    TiC.PROPERTY_RETURN_KEY_TYPE,
+    TiC.PROPERTY_SUPPRESS_RETURN
 })
 public class TextAreaProxy extends ViewProxy
 {
@@ -51,7 +52,7 @@ public class TextAreaProxy extends ViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_VALUE, "");
-		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
+//		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
 	}
 
 	public TextAreaProxy(TiContext tiContext)
