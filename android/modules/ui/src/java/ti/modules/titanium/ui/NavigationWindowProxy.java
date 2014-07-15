@@ -132,7 +132,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 	@Override
 	public boolean interceptOnHomePressed() {
 		if (pushing || poping) return true;
-		ActivityProxy activityProxy = getActivityProxy();
+		ActivityProxy activityProxy = getCurrentWindowInternal().getActivityProxy();
 		if (activityProxy != null) {
 			ActionBarProxy actionBarProxy = activityProxy.getActionBar();
 			if (actionBarProxy != null) {
@@ -153,7 +153,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 	
 	private void updateHomeButton(TiWindowProxy proxy){
 		boolean canGoBack = (windows.size() > 1);
-    	ActionBarProxy actionBarProxy = getActivityProxy().getActionBar();
+    	ActionBarProxy actionBarProxy = proxy.getActivityProxy().getActionBar();
     	ActionBar actionBar = ((TiBaseActivity)getActivity()).getSupportActionBar();
     	if (actionBar == null) return;
     	if (proxy == null) {
@@ -365,12 +365,8 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 			handleSetViewVisible(viewToFocus, View.VISIBLE);
 		}
 		
-		TiBaseActivity activity = ((TiBaseActivity) getActivity());	
-		if (activity != null) activity.setWindowProxy(winToFocus);
-		if (!viewWasOpened) winToFocus.onWindowActivityCreated();
-    	updateHomeButton(winToFocus);
         toRemove.blur();
-        winToFocus.focus();
+        prepareCurrentWindow(winToFocus);
 
 		return true;
 	}
@@ -444,14 +440,13 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 		
 		if (opened == true) { 
 			handlePushFirst();
-			((TiBaseActivity) getActivity()).setWindowProxy(windows.get(windows.size() - 1));
-			updateHomeButton(getCurrentWindowInternal());
+			prepareCurrentWindow(getCurrentWindowInternal());
 			super.onWindowActivityCreated();
 		}
 		else {
 			opened = true; //because handlePush needs this
 			opening = false;
-			updateHomeButton(getCurrentWindowInternal());
+            prepareCurrentWindow(getCurrentWindowInternal());
 			super.onWindowActivityCreated();
 			getParentViewForChild().setId(viewId++);
 			handlePushFirst();
@@ -572,10 +567,16 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
    			handleSetViewVisible(viewToAdd, View.VISIBLE);
 		}
 		addWindow(proxy, transition);
-		proxy.onWindowActivityCreated();
-		activity.setWindowProxy((TiWindowProxy) proxy);
-		updateHomeButton(proxy);
-		proxy.focus();
+        prepareCurrentWindow(proxy);
+		
+	}
+	
+	private void prepareCurrentWindow(TiWindowProxy proxy) {
+        TiBaseActivity activity = ((TiBaseActivity) getActivity()); 
+	    if (!proxy.isOpenedOrOpening()) proxy.onWindowActivityCreated();
+        updateHomeButton(proxy);
+        if (activity != null) activity.setWindowProxy(proxy);
+        proxy.focus();
 	}
 	
 	@Kroll.method
