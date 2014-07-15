@@ -250,8 +250,10 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method @Kroll.getProperty
 	public ActionBarProxy getActionBar()
 	{
-		TiBaseActivity activity = (TiBaseActivity)getWrappedActivity();
-		actionBarProxy = new ActionBarProxy(activity);
+	    if (actionBarProxy == null) {
+	        TiBaseActivity activity = (TiBaseActivity)getWrappedActivity();
+	        actionBarProxy = new ActionBarProxy(activity);
+	    }
 
 		return actionBarProxy;
 	}
