@@ -447,6 +447,7 @@ public class TiUIWebView extends TiUIView
 
 	public void setUrl(String url)
 	{
+	    if (url == null) return;
 		reloadMethod = reloadTypes.URL;
 		reloadData = url;
 		String finalUrl = url;
