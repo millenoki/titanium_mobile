@@ -434,7 +434,11 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 
 	private void handlesetNavigationMode(int navigationMode)
 	{
-		actionBar.setNavigationMode(navigationMode);
+	    if (actionBar != null) {
+	        actionBar.setNavigationMode(navigationMode);
+        } else {
+            Log.w(TAG, "ActionBar is not enabled");
+        }
 	}
 
 	private void handleSetLogo(String url)
