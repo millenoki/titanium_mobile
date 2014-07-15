@@ -408,7 +408,6 @@ public class TiUIText extends TiUINonViewGroupView
 		realtv.addTextChangedListener(this);
 		realtv.setOnEditorActionListener(this);
 		realtv.setIncludeFontPadding(true); 
-		realtv.setBackgroundColor(Color.RED);
 		if (field) {
 			realtv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		} else {
@@ -783,35 +782,13 @@ public class TiUIText extends TiUINonViewGroupView
 		Log.d(TAG, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null),
 			Log.DEBUG_MODE);
 		
-		
         boolean result = false;
-        boolean shouldBlur = true;
+        boolean shouldBlur = (actionId != EditorInfo.IME_ACTION_NEXT);
         if (keyEvent == null) {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                result = true;
-            }
-            // Capture soft enters in a singleLine EditText that is the last
-            // EditText.
-            else if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                result = true;
-            }
-            // Capture soft enters in other singleLine EditTexts
         } else if (actionId == EditorInfo.IME_NULL) {
-            // Capture most soft enters in multi-line EditTexts and all hard
-            // enters.
-            // They supply a zero actionId and a valid KeyEvent rather than
-            // a non-zero actionId and a null event like the previous cases.
             if (!suppressReturn) {
                 shouldBlur = false;
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
-                }
-                else {
-                    //there we added a '\n' in the text
-                }
             }
-            // We capture the event when key is first pressed.
-            else
-                result = true; // We consume the event when the key is released.
         }
 		
 		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked,
@@ -830,9 +807,7 @@ public class TiUIText extends TiUINonViewGroupView
 			if (shouldBlur) {
 	            blur();
 	        }
-		}
-		
-		
+		}		
 
 		Boolean enableReturnKey = proxy.getProperties().optBoolean(TiC.PROPERTY_ENABLE_RETURN_KEY, false);
 		if (enableReturnKey && value.length() == 0) {
