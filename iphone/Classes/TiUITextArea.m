@@ -120,6 +120,11 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[TiUtils setView:textWidgetView positionRect:bounds];
+    
+    //It seems that the textWidgetView are not layed out correctly
+    //without this
+    [textWidgetView layoutSubviews];
+    
 	[super frameSizeChanged:frame bounds:bounds];
 }
 
@@ -308,7 +313,7 @@
     }
     
     //TIMOB-15401. Workaround for UI artifact
-    if ([tv isScrollEnabled] && [text isEqualToString:@"\n"]) {
+    if (![(TiViewProxy*)self.proxy heightIsAutoSize] && [tv isScrollEnabled] && [text isEqualToString:@"\n"]) {
         if (curText.length - tv.selectedRange.location == 1) {
             //Last line. Adjust
             [self adjustOffsetIfRequired:tv];
@@ -336,7 +341,7 @@ Text area constrains the text event though the content offset and edge insets ar
 	UITextView* ourView = (UITextView*)[self textWidgetView];
     NSString* txt = ourView.text;
     //sizeThatFits does not seem to work properly.
-    CGFloat height = [ourView sizeThatFits:CGSizeMake(size.height, 1E100)].height;
+    CGFloat height = [ourView sizeThatFits:CGSizeMake(size.width, 1E100)].height;
     CGFloat txtWidth = [txt sizeWithFont:ourView.font constrainedToSize:CGSizeMake(size.width, 1E100) lineBreakMode:UILineBreakModeWordWrap].width;
     if (size.width - txtWidth >= TXT_OFFSET) {
         return CGSizeMake((txtWidth + TXT_OFFSET), height);
