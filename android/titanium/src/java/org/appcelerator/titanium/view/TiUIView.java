@@ -856,7 +856,7 @@ public abstract class TiUIView
 			applyAnchorPoint(newValue);
 		} else if (key.equals(TiC.PROPERTY_KEEP_SCREEN_ON)) {
 			if (nativeView != null) {
-				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
+				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue, false));
 			}
 
 		} else if (key.indexOf("accessibility") == 0
@@ -867,15 +867,15 @@ public abstract class TiUIView
 			applyAccessibilityHidden(newValue);
 
 		} else if (key.equals(TiC.PROPERTY_TOUCH_PASSTHROUGH)) {
-			touchPassThrough = TiConvert.toBoolean(newValue);
+			touchPassThrough = TiConvert.toBoolean(newValue, false);
 		} else if (key.equals(TiC.PROPERTY_DISPATCH_PRESSED)) {
-            dispatchPressed = TiConvert.toBoolean(newValue);
+            dispatchPressed = TiConvert.toBoolean(newValue, false);
 		} else if (key.equals(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
             focusKeyboardState = TiConvert.toInt(newValue);
         } else if (key.equals(TiC.PROPERTY_PREVENT_LISTVIEW_SELECTION)) {
-            preventListViewSelection = TiConvert.toBoolean(newValue);
+            preventListViewSelection = TiConvert.toBoolean(newValue, false);
         } else if (key.equals(TiC.PROPERTY_CLIP_CHILDREN)) {
-			clipChildren = TiConvert.toBoolean(newValue);
+			clipChildren = TiConvert.toBoolean(newValue, false);
 			View parentViewForChild = getParentViewForChild();
 			if (parentViewForChild instanceof ViewGroup) {
 				((ViewGroup) parentViewForChild).setClipChildren(clipChildren);
