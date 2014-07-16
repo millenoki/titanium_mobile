@@ -87,7 +87,6 @@ public class TiUIText extends TiUINonViewGroupView
 	private boolean disableChangeEvent = false;
     protected boolean isEditable = true;
     private boolean suppressReturn = true;
-    private CharSequence currentValue;
 
 	protected FocusFixedEditText tv;
 	protected TiEditText realtv;
@@ -707,7 +706,6 @@ public class TiUIText extends TiUINonViewGroupView
 		    }
 			
 		}
-		currentValue = s;
 	}
 
 	@Override
