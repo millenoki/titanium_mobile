@@ -59,7 +59,7 @@ return appProp; \
 } \
 if (![self propertyExists:key]) return defaultValue; \
 
--(id)getBool:(NSString*)key defaultValue:(BOOL)defaultValue
+-(id)getBool:(NSString*)key defaultValue:(id)defaultValue
 {
 	GETPROP
 	return [NSNumber numberWithBool:[[self userDefaults] boolForKey:key]];
@@ -227,7 +227,7 @@ return;\
     return [[TiProperties sharedInstance] propertyExists:key];
 }
 
-+(id)getBool:(NSString*)key defaultValue:(BOOL)defaultValue
++(id)getBool:(NSString*)key defaultValue:(id)defaultValue
 {
     return [[TiProperties sharedInstance] getBool:key defaultValue:defaultValue];
 }

@@ -4,7 +4,7 @@
 
 -(NSUserDefaults*)userDefaults;
 -(BOOL)propertyExists: (NSString *)key;
--(id)getBool:(NSString*)key defaultValue:(BOOL)defaultValue;
+-(id)getBool:(NSString*)key defaultValue:(id)defaultValue;
 -(id)getDouble:(NSString*)key defaultValue:(id)defaultValue;
 -(id)getInt:(NSString*)key defaultValue:(id)defaultValue;
 -(id)getString:(NSString*)key defaultValue:(id)defaultValue;
@@ -24,7 +24,7 @@
 + (TiProperties*)sharedInstance;
 +(NSUserDefaults*)userDefaults;
 +(BOOL)propertyExists: (NSString *)key;
-+(id)getBool:(NSString*)key defaultValue:(BOOL)defaultValue;
++(id)getBool:(NSString*)key defaultValue:(id)defaultValue;
 +(id)getDouble:(NSString*)key defaultValue:(id)defaultValue;
 +(id)getInt:(NSString*)key defaultValue:(id)defaultValue;
 +(id)getString:(NSString*)key defaultValue:(id)defaultValue;
