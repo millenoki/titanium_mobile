@@ -1323,9 +1323,12 @@ public class TiHTTPClient
 					msg = t.getClass().getName();
 				}
 				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
-
+				int statusCode = TiC.ERROR_CODE_UNKNOWN;
+				if (t instanceof HttpResponseException) {
+				    statusCode = ((HttpResponseException)t).getStatusCode();
+				}
 				KrollDict data = new KrollDict();
-				data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
+				data.putCodeAndMessage(statusCode, msg);
 				dispatchCallback("onerror", data);
 			} finally {
 				deleteTmpFiles();
