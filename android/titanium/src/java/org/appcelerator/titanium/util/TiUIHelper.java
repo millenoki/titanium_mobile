@@ -1144,14 +1144,9 @@ public class TiUIHelper
 		paint.setColorFilter(createColorFilterForOpacity(opacity));
 	}
 
-	public static void requestSoftInputChange(KrollProxy proxy, View view) 
+	public static void requestSoftInputChange(TiUIView uiView, View view) 
 	{
-		int focusState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
-		
-		if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
-			focusState = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS));
-		}
-
+		int focusState = uiView.getFocusState();
 		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {
 			if (focusState == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
 				showSoftKeyboard(view, true);

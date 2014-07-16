@@ -158,6 +158,8 @@ public abstract class TiUIView
 	public boolean hardwareAccEnabled = true;
 	protected TiTouchDelegate mTouchDelegate;
 	private RectF mBorderPadding;
+	
+	protected int focusKeyboardState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
@@ -868,6 +870,8 @@ public abstract class TiUIView
 			touchPassThrough = TiConvert.toBoolean(newValue);
 		} else if (key.equals(TiC.PROPERTY_DISPATCH_PRESSED)) {
             dispatchPressed = TiConvert.toBoolean(newValue);
+		} else if (key.equals(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
+            focusKeyboardState = TiConvert.toInt(newValue);
         } else if (key.equals(TiC.PROPERTY_PREVENT_LISTVIEW_SELECTION)) {
             preventListViewSelection = TiConvert.toBoolean(newValue);
         } else if (key.equals(TiC.PROPERTY_CLIP_CHILDREN)) {
@@ -878,12 +882,12 @@ public abstract class TiUIView
 		}
 			if (borderView != null) {
 				borderView.setClipChildren(clipChildren);
-	}
+			}
 			if (!clipChildren) {
 				ViewGroup parent = (ViewGroup) getOuterView().getParent();
 				if (parent != null)
 					parent.setClipChildren(clipChildren);
-		}
+			}
 		} else if (key.equals(TiC.PROPERTY_DISABLE_HW)) {
 			boolean value = TiConvert.toBoolean(newValue);
 			if (value)
@@ -1004,7 +1008,7 @@ public abstract class TiUIView
 		if (hasFocus) {
 			TiMessenger.postOnMain(new Runnable() {
 				public void run() {
-					TiUIHelper.requestSoftInputChange(proxy, v);
+					TiUIHelper.requestSoftInputChange(TiUIView.this, v);
 				}
 			});
 			fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
@@ -1454,6 +1458,11 @@ public abstract class TiUIView
 	{
 		return nativeView;
 	}
+	
+	public int getFocusState()
+    {
+        return focusKeyboardState;
+    }
 
 	public void registerForTouch()
 	{

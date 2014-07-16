@@ -389,6 +389,7 @@ public class TiUIText extends TiUINonViewGroupView
 	{
 		super(proxy);
 		Log.d(TAG, "Creating a text field2", Log.DEBUG_MODE);
+		this.focusKeyboardState = TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS;
 		this.isFocusable = true; //default to true
 		this.field = field;
 		tv = new FocusFixedEditText(getProxy().getActivity());
@@ -716,11 +717,11 @@ public class TiUIText extends TiUINonViewGroupView
 		realtv.postInvalidate();
 	}
 	
-//    @Override
-//    public View getFocusView()
-//    {
-//    	return realtv;
-//    }
+    @Override
+    public View getFocusView()
+    {
+    	return realtv;
+    }
     
     @Override
     protected View getTouchView()
