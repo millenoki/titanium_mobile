@@ -92,14 +92,19 @@ public class TiUIWebView extends TiUIView
 			super.destroy();
 		}
 		
-		@Override
-		public boolean onTouchEvent(MotionEvent event) {
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
-				return false;
-			}
-			return super.onTouchEvent(event);
-		}
-		
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+
+            switch (event.getAction()) {
+            case MotionEvent.ACTION_MOVE:
+                if (!mScrollingEnabled) {
+                    return false;
+                }
+                break;
+            }
+            return super.onTouchEvent(event);
+        }
+
 //		@Override
 //		public boolean onTouchEvent(MotionEvent ev)
 //		{
@@ -149,14 +154,12 @@ public class TiUIWebView extends TiUIView
 		@Override
 		public boolean onCheckIsTextEditor()
 		{
-			if (proxy.hasProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS)) {
-				int value = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SOFT_KEYBOARD_ON_FOCUS), TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS);
-				
-				if (value == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
-					return false;
-				} else if (value == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
-					return true;
-				}
+			int value = getFocusState();
+			
+			if (value == TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS) {
+				return false;
+			} else if (value == TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS) {
+				return true;
 			}
 			return super.onCheckIsTextEditor();
 		}
@@ -185,7 +188,7 @@ public class TiUIWebView extends TiUIView
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy);
-		
+		this.isFocusable = true;
 		TiWebView webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()){
 			@Override
 			public boolean dispatchTouchEvent(MotionEvent event) {
