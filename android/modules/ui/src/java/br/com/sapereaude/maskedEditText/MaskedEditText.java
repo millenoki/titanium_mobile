@@ -338,6 +338,7 @@ public class MaskedEditText extends EditText implements TextWatcher {
         for(char c : charsInMask) {
             string = string.replace(Character.toString(c), "");
         }
+        string.replace(Character.toString(charRepresentation), "");
         return string;
     }
 }
