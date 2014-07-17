@@ -1844,6 +1844,17 @@ public class TiC
 	 */
 	public static final String PROPERTY_MAP_TYPE = "mapType";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_MASK = "mask";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_MASK_CHAR = "maskChar";
+
+
 	/**
 	 * @module.api
 	 */

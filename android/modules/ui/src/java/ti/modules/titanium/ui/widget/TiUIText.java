@@ -19,6 +19,7 @@ import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
+import br.com.sapereaude.maskedEditText.MaskedEditText;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -91,7 +92,7 @@ public class TiUIText extends TiUINonViewGroupView
 	protected FocusFixedEditText tv;
 	protected TiEditText realtv;
 
-	public class TiEditText extends EditText 
+	public class TiEditText extends MaskedEditText 
 	{
 	    
 		public TiEditText(Context context) 
@@ -456,14 +457,17 @@ public class TiUIText extends TiUINonViewGroupView
 		if (d.containsKey(TiC.PROPERTY_SUPPRESS_RETURN)) {
             suppressReturn = d.optBoolean(TiC.PROPERTY_SUPPRESS_RETURN, true);
         }
+		
+		if (d.containsKey(TiC.PROPERTY_MASK_CHAR)) {
+		    String charRep = d.getString(TiC.PROPERTY_MASK_CHAR);
+		    if (d!=null && d.size() > 0) {
+	            realtv.setCharRepresentation(charRep.charAt(0));
+		    }
+		    else {
+                realtv.setCharRepresentation('#');
+		    }
+        }
 
-		
-		if (d.containsKey(TiC.PROPERTY_VALUE)) {
-			realtv.setText(d.getString(TiC.PROPERTY_VALUE));
-			int pos = realtv.getText().length();
-			realtv.setSelection(pos);
-		}
-		
 		boolean needsColors = false;
 		if(d.containsKey(TiC.PROPERTY_COLOR)) {
 			needsColors = true;
@@ -481,9 +485,20 @@ public class TiUIText extends TiUINonViewGroupView
 			updateTextColors();
 		}
 
-		if (d.containsKey(TiC.PROPERTY_HINT_TEXT)) {
-			realtv.setHint(d.getString(TiC.PROPERTY_HINT_TEXT));
-		}
+        if (d.containsKey(TiC.PROPERTY_HINT_TEXT)) {
+            realtv.setHint(d.getString(TiC.PROPERTY_HINT_TEXT));
+        }
+        
+        //set the mask after the hintText as it looks for its value
+        if (d.containsKey(TiC.PROPERTY_MASK)) {
+            realtv.setMask(d.getString(TiC.PROPERTY_MASK));
+        }
+
+        if (d.containsKey(TiC.PROPERTY_VALUE)) {
+            realtv.setText(d.getString(TiC.PROPERTY_VALUE));
+            int pos = realtv.getText().length();
+            realtv.setSelection(pos);
+        }
 		
 		if (d.containsKey(TiC.PROPERTY_HINT_COLOR)) {
 			realtv.setHintTextColor(d.optColor(TiC.PROPERTY_HINT_COLOR, Color.GRAY));

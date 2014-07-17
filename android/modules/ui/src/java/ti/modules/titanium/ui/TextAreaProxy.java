@@ -40,7 +40,9 @@ import android.os.Message;
 	TiC.PROPERTY_VALUE,
 	TiC.PROPERTY_VERTICAL_ALIGN,
     TiC.PROPERTY_RETURN_KEY_TYPE,
-    TiC.PROPERTY_SUPPRESS_RETURN
+    TiC.PROPERTY_SUPPRESS_RETURN,
+    TiC.PROPERTY_MASK,
+    TiC.PROPERTY_MASK_CHAR
 })
 public class TextAreaProxy extends ViewProxy
 {
