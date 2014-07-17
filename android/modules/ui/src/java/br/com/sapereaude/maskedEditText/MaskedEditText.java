@@ -2,6 +2,7 @@ package br.com.sapereaude.maskedEditText;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -218,12 +219,17 @@ public class MaskedEditText extends EditText implements TextWatcher {
             }
         }
     }
+    
+    public boolean willMaskText () {
+        return editingBefore && !editingAfter;
+    }
 
     @Override
     public void afterTextChanged(Editable s) {
         if (!initialized) return;
         if(!editingAfter && editingBefore && editingOnChanged) {
             editingAfter = true;
+            
             if(rawText.length() == 0 && hasHint()) {
                 selection = 0;
                 setText(null);
@@ -234,10 +240,10 @@ public class MaskedEditText extends EditText implements TextWatcher {
             
             selectionChanged = false;
             setSelection(selection);
-            
-            editingBefore = false;
             editingOnChanged = false;
             editingAfter = false;
+            editingBefore = false;
+            
             ignore = false;
         }
     }
@@ -251,7 +257,7 @@ public class MaskedEditText extends EditText implements TextWatcher {
         // On Android 4+ this method is being called more than 1 time if there is a hint in the EditText, what moves the cursor to left
         // Using the boolean var selectionChanged to limit to one execution
         if(initialized && !selectionChanged) {
-            if(rawText.length() == 0 && (hasHint() || getText() == null || getText().length() == 0)) {
+            if(rawText.length() == 0 && (hasHint() || super.getText() == null || super.getText().length() == 0)) {
                 selStart = 0;
                 selEnd = 0;
             }
@@ -341,4 +347,5 @@ public class MaskedEditText extends EditText implements TextWatcher {
         string.replace(Character.toString(charRepresentation), "");
         return string;
     }
+
 }

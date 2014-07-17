@@ -661,13 +661,12 @@ public class TiUIText extends TiUINonViewGroupView
 		}
 	}
 	
-	private boolean oldTextRequestLayout = false;
+    private boolean oldTextRequestLayout = false;
 	@Override
     public void beforeTextChanged(CharSequence s, int start, int count,
             int after) {
         CharSequence oldText = s.subSequence(start, start + count);
         boolean newLine = oldText.toString().contains("\n");
-
         oldTextRequestLayout = (newLine && layoutParams.sizeOrFillHeightEnabled && !layoutParams.autoFillsHeight);
     }
 
@@ -676,7 +675,7 @@ public class TiUIText extends TiUINonViewGroupView
 	{
 	    //onTextChanged can be called when reusing a TiUIText in listview
 	    //In that case we dont want to report.
-	    if (disableChangeEvent) {
+	    if (disableChangeEvent || realtv.willMaskText()) {
 	        Log.d(TAG, "onTextChanged ignore as configuring", Log.DEBUG_MODE);
 	        return;
 	    }
