@@ -93,6 +93,12 @@ public class TiUIWebView extends TiUIView
 			super.destroy();
 		}
 		
+		@Override
+        public boolean onCheckIsTextEditor()
+        {
+            return true;
+        }
+		
         @Override
         public boolean onTouchEvent(MotionEvent event) {
 
