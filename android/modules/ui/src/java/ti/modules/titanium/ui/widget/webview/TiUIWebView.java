@@ -42,6 +42,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -662,6 +663,7 @@ public class TiUIWebView extends TiUIView
 		}
 	}
 
+    @JavascriptInterface
 	public String getJSValue(String expression)
 	{
 		return client.getBinding().getJSValue(expression);
