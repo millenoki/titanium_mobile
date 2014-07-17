@@ -398,10 +398,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public void handleCreationDict(KrollDict dict)
 	{
+        properties.clear();
 		if (dict == null) {
 			return;
 		}
-
+		
 		if (dict.containsKey(TiC.PROPERTY_BUBBLE_PARENT)) {
 			bubbleParent = TiConvert.toBoolean(dict, TiC.PROPERTY_BUBBLE_PARENT, true);
 		}

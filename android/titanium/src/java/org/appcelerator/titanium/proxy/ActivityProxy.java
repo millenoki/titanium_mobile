@@ -361,7 +361,7 @@ public class ActivityProxy extends KrollProxy
 				else {
 					actionBarDict = new KrollDict(); //to make sure we go into processProperties
 				}
-				actionBarProxy.setProperties(actionBarDict); //apply to actually update properties
+				actionBarProxy.handleCreationDict(actionBarDict); //apply to actually update properties
 				invalidateOptionsMenu();
 			}
 	}

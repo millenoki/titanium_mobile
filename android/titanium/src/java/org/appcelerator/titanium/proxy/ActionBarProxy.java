@@ -538,7 +538,10 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 				getMainHandler().obtainMessage(MSG_RESET_BACKGROUND).sendToTarget();
 			}
 		}
-		activateHomeButton(properties.get(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED) != null);
+		
+		if (properties.containsKey(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED)) {
+	        activateHomeButton(properties.get(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED) != null);
+        }
 		
 		setDisplayHomeAsUp(properties.optBoolean(TiC.PROPERTY_DISPLAY_HOME_AS_UP, false));
 		if (properties.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
