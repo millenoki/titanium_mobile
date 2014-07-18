@@ -25,7 +25,7 @@ public final class TitaniumtestAppInfo implements ITiAppInfo
 	}
 	
 	public String getId() {
-		return "com.titanium.test";
+		return "com.akylas.titanium.ks";
 	}
 	
 	public String getName() {
