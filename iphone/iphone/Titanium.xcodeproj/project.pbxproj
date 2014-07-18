@@ -771,6 +771,12 @@
 		D586DCC219716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D586DCC319716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D586DCC419716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D58709BB19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D58709B619796508002E8817 /* TiUIiOSActivityViewProxy.m */; };
+		D58709BC19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D58709B619796508002E8817 /* TiUIiOSActivityViewProxy.m */; };
+		D58709BD19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D58709B619796508002E8817 /* TiUIiOSActivityViewProxy.m */; };
+		D58709BE19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D58709B819796508002E8817 /* TiUIiOSActivityProxy.m */; };
+		D58709BF19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D58709B819796508002E8817 /* TiUIiOSActivityProxy.m */; };
+		D58709C019796508002E8817 /* TiUIiOSActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D58709B819796508002E8817 /* TiUIiOSActivityProxy.m */; };
 		D58791EA183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
 		D58791EB183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
 		D58791EC183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
@@ -2140,6 +2146,11 @@
 		D585BC8817E630CD0062275E /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		D586DCC019716E28002FBBBB /* CustomActionSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomActionSheet.h; sourceTree = "<group>"; };
 		D586DCC119716E28002FBBBB /* CustomActionSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomActionSheet.m; sourceTree = "<group>"; };
+		D58709B419796501002E8817 /* ActivityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActivityProxy.h; sourceTree = "<group>"; };
+		D58709B519796508002E8817 /* TiUIiOSActivityViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSActivityViewProxy.h; sourceTree = "<group>"; };
+		D58709B619796508002E8817 /* TiUIiOSActivityViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSActivityViewProxy.m; sourceTree = "<group>"; };
+		D58709B719796508002E8817 /* TiUIiOSActivityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSActivityProxy.h; sourceTree = "<group>"; };
+		D58709B819796508002E8817 /* TiUIiOSActivityProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSActivityProxy.m; sourceTree = "<group>"; };
 		D58791E8183E790F007F5BF1 /* TiTransitionPerspective.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionPerspective.h; sourceTree = "<group>"; };
 		D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionPerspective.m; sourceTree = "<group>"; };
 		D58DCBCB17FEF0F50011FE0E /* TiSVGImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSVGImage.h; sourceTree = "<group>"; };
@@ -3411,6 +3422,7 @@
 		24D06FDE11D020E600F615D8 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				D58709B3197964EE002E8817 /* Activity */,
 				B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */,
 				B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */,
 				B6C5205E18035ACF002471C6 /* AttributedString */,
@@ -4141,6 +4153,18 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		D58709B3197964EE002E8817 /* Activity */ = {
+			isa = PBXGroup;
+			children = (
+				D58709B519796508002E8817 /* TiUIiOSActivityViewProxy.h */,
+				D58709B619796508002E8817 /* TiUIiOSActivityViewProxy.m */,
+				D58709B719796508002E8817 /* TiUIiOSActivityProxy.h */,
+				D58709B819796508002E8817 /* TiUIiOSActivityProxy.m */,
+				D58709B419796501002E8817 /* ActivityProxy.h */,
+			);
+			name = Activity;
+			sourceTree = "<group>";
+		};
 		D58ED8E41928E6F700BA0E04 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -4805,6 +4829,7 @@
 				D5C8C98217EF45C900F54C19 /* ADGlueTransition.m in Sources */,
 				24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */,
 				24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */,
+				D58709BB19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
 				24CA8BC7111161FE0084E2DE /* TiDimension.m in Sources */,
 				24CA8BC8111161FE0084E2DE /* TiDatabaseResultSetProxy.m in Sources */,
 				24CA8BC9111161FE0084E2DE /* TiDatabaseProxy.m in Sources */,
@@ -4898,6 +4923,7 @@
 				2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */,
 				24FB4EE3115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */,
 				D54C7CFD18115BBE00F592A9 /* TiTransitionScale.m in Sources */,
+				D58709BE19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
 				24FB4EF4115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */,
 				24FB4EFC115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */,
 				24FB4F42115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
@@ -5189,6 +5215,7 @@
 				84A0101417FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */,
 				24D8E43E119B9D8A00F8CAA6 /* TiBlob.m in Sources */,
 				24D8E43F119B9D8A00F8CAA6 /* TiBase.m in Sources */,
+				D58709BF19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
 				24D8E440119B9D8A00F8CAA6 /* TiAppPropertiesProxy.m in Sources */,
 				D54C7CF01811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				24D8E441119B9D8A00F8CAA6 /* TiAnimation.m in Sources */,
@@ -5393,6 +5420,7 @@
 				D52A8E74183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */,
 				D5B04536191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */,
 				D5C8C98917EF45C900F54C19 /* ADScaleTransition.m in Sources */,
+				D58709BC19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
 				D56E66A9180C664400F1B737 /* TiTransitionFade.m in Sources */,
 				D5C8C97D17EF45C900F54C19 /* ADFoldTransition.m in Sources */,
 				D5C8C99217EF45C900F54C19 /* ADSwipeFadeTransition.m in Sources */,
@@ -5554,6 +5582,7 @@
 				84A0101517FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */,
 				DABB371712E8CB280026A6EA /* TiBlob.m in Sources */,
 				DABB371812E8CB280026A6EA /* TiBase.m in Sources */,
+				D58709C019796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
 				DABB371912E8CB280026A6EA /* TiAppPropertiesProxy.m in Sources */,
 				D54C7CF11811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				DABB371A12E8CB280026A6EA /* TiAnimation.m in Sources */,
@@ -5758,6 +5787,7 @@
 				D52A8E75183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */,
 				D5B04537191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */,
 				D5C8C9A217EF45C900F54C19 /* ADZoomTransition.m in Sources */,
+				D58709BD19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
 				D5C8C98A17EF45C900F54C19 /* ADScaleTransition.m in Sources */,
 				D56E66AA180C664400F1B737 /* TiTransitionFade.m in Sources */,
 				D5C8C97E17EF45C900F54C19 /* ADFoldTransition.m in Sources */,

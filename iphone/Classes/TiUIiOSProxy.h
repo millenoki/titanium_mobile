@@ -94,6 +94,25 @@ typedef enum {
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
+
+
+@property(nonatomic,readonly) NSNumber *ACTIVITY_CATEGORY_SHARE;
+@property(nonatomic,readonly) NSNumber *ACTIVITY_CATEGORY_ACTION;
+
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_FACEBOOK;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_TWITTER;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_WEIBO;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_MESSAGE;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_MAIL;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_PRINT;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_COPY;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_TO_CONTACT;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_CAMERA_ROLL;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_TO_READING_LIST;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_FLICKR;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_VIMEO;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_TENCENT_WEIBO;
+@property(nonatomic,readonly) NSString *ACTIVITY_TYPE_AIRDROP;
 // -----
 #endif
 
@@ -119,7 +138,12 @@ typedef enum {
 #if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
 -(id)createDocumentViewer:(id)args;
 #endif
-
+#ifdef USE_TI_UIIOSACTIVITYVIEW
+-(id)createActivityView:(id)args;
+#endif
+#ifdef USE_TI_UIIOSACTIVITY
+-(id)createActivity:(id)args;
+#endif
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 -(id)createAttributedString:(id)args;
 #endif
