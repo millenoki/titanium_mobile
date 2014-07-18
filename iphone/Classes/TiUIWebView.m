@@ -545,6 +545,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)setUrl_:(id)args
 {
+	ENSURE_SINGLE_ARG_OR_NIL(args,NSString);
+    if (args == nil) return;
 	ignoreNextRequest = YES;
 	[self setReloadData:args];
 	[self setReloadDataProperties:nil];
@@ -552,7 +554,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 	RELEASE_TO_NIL(url);
 	RELEASE_TO_NIL(lastValidLoad);
-	ENSURE_SINGLE_ARG(args,NSString);
 	
 	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
 
