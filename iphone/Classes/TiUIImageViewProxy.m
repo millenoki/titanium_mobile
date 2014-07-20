@@ -206,7 +206,7 @@ USE_VIEW_FOR_CONTENT_SIZE
 	if (hires) {
 		info = [NSDictionary dictionaryWithObject:hires forKey:@"hires"];
 	}
-	urlRequest = [[[ImageLoader sharedLoader] loadImage:url delegate:self userInfo:info] retain];
+	urlRequest = [[[ImageLoader sharedLoader] loadImage:url delegate:self options:[self valueForUndefinedKey:@"httpOptions"] userInfo:info] retain];
 }
 
 -(void)cancelPendingImageLoads
