@@ -13,6 +13,7 @@
 #import <sys/utsname.h>
 #import "NSData+Additions.h"
 #import "APSAnalytics.h"
+#import "APSHTTPRequest.h"
 
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
