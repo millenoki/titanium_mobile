@@ -163,17 +163,17 @@ static NSArray* imageKeySequence;
 	if (imageValue!=nil)
 	{
 		NSURL *url_ = [TiUtils toURL:[TiUtils stringValue:imageValue] proxy:self];
-		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
+		id theimage = [[ImageLoader sharedLoader] loadImmediateImage:url_];
 		
-		if (image!=nil)
+		if (theimage == nil)
 		{
-			return [[[TiBlob alloc] initWithImage:image] autorelease];
+            theimage = [[ImageLoader sharedLoader] loadRemote:url_ withOptions:[self valueForUndefinedKey:@"httpOptions"]];
 		}
 
 		// we're on the non-UI thread, we need to block to load
-
-		image = [[ImageLoader sharedLoader] loadRemote:url_];
-		return [[[TiBlob alloc] initWithImage:image] autorelease];
+        (TiUIImageView*)[self view]
+        UIImage *imageToUse = [self prepareImage:[(TiUIImageView*)[self view] convertToUIImage:theimage]];
+		return [[[TiBlob alloc] initWithImage:imageToUse] autorelease];
 	}
 	return nil;
 }

@@ -29,6 +29,7 @@
 
 -(void)setImage_:(id)arg;
 -(void)setReusing:(BOOL)value;
+-(id)convertToUIImage:(id)arg;
 
 
 @end

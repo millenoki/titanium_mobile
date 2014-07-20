@@ -450,10 +450,10 @@ DEFINE_EXCEPTIONS
 {
 	int position = [TiUtils intValue:pos];
 	NSURL *theurl = [TiUtils toURL:[_images objectAtIndex:position] proxy:self.proxy];
-	UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
+	id theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
 	if (theimage==nil)
 	{
-		theimage = [[ImageLoader sharedLoader] loadRemote:theurl];
+		theimage = [[ImageLoader sharedLoader] loadRemote:theurl withOptions:[self.proxy valueForUndefinedKey:@"httpOptions"]];
 	}
 	if (theimage==nil)
 	{

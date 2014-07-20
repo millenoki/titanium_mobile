@@ -896,60 +896,58 @@ DEFINE_EXCEPTIONS
 	return [[self setSVGImage:svg forKey:url] imageForSize:imageSize];
 }
 
--(id)loadRemote:(NSURL*)url
+-(id)loadRemote:(NSURL*)url withOptions:(NSDictionary*)options_
 {
 	if (url==nil) return nil;
-    if ([TiUtils isSVG:url]) return [self loadRemoteSVG:url];
 	UIImage *image = [[self entryForKey:url] imageForSize:CGSizeZero];
 	if (image!=nil)
 	{
 		return image;
 	}
 	
-    APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
-    [req setUrl:url];
-    [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
-    [req setSynchronous:YES];
-	[req send];
+	APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
+    
+    NSMutableDictionary* realOptions = [[NSMutableDictionary alloc] init];
+    if (options_) {
+        [realOptions addEntriesFromDictionary:options_];
+    }
+    [realOptions setObject:url forKey:@"url"];
 
+    if (![realOptions objectForKey:@"headers"]) {
+        [realOptions setObject:@{@"User-Agent":[[TiApp app] userAgent]} forKey:@"headers"];
+    }
+    else {
+        [[realOptions objectForKey:@"headers"] setObject:[[TiApp app] userAgent] forKey:@"User-Agent"];
+    }
+    [realOptions setObject:@(NO) forKey:@"async"];
+	
+    [req prepareAndSendFromDictionary:realOptions];
+    [realOptions release];
+   
 	if (req!=nil && [[req response] error]==nil)
 	{
-	   NSData *data = [[req response] responseData];
-	   UIImage *resultImage = [UIImage imageWithData:data];
-	   ImageCacheEntry *result = [self setImage:resultImage forKey:url hires:NO];
-	   [result setData:data];
-	   return [result imageForSize:CGSizeZero];
+        NSData *data = [[req response] responseData];
+        if ([TiUtils isSVG:[req url]]) {
+            SVGKImage *resultImage = [SVGKImage imageWithData:data];
+            SVGImageCacheEntry *result = [self setSVGImage:resultImage forKey:url];
+            [result setData:data];
+            return [result svgImage];
+        }
+        else {
+            UIImage *resultImage = [UIImage imageWithData:data];
+            ImageCacheEntry *result = [self setImage:resultImage forKey:url hires:NO];
+            [result setData:data];
+            return [result imageForSize:CGSizeZero];
+        }
+        
 	}
 	
 	return nil;
 }
 
--(id)loadRemoteSVG:(NSURL*)url
+-(id)loadRemote:(NSURL*)url
 {
-	if (url==nil) return nil;
-	SVGKImage *image = [[self svgEntryForKey:url] svgImage];
-	if (image!=nil)
-	{
-		return image;
-	}
-	
-	APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
-    [req setUrl:url];
-    [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
-    [req setSynchronous:YES];
-	[req send];
-    
-	if (req!=nil && [[req response] error]==nil)
-	{
-        NSData *data = [[req response] responseData];
-        SVGKImage *resultImage = [SVGKImage imageWithData:data];
-        SVGImageCacheEntry *result = [self setSVGImage:resultImage forKey:url];
-        [result setData:data];
-        return [result svgImage];
-
-	}
-	
-	return nil;
+    return [self loadRemote:url withOptions:nil];
 }
 
 -(SVGKImage *)loadImmediateSVGImage:(NSURL *)url

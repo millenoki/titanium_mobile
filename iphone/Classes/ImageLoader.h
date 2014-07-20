@@ -136,7 +136,8 @@ typedef enum {
  @return The loaded image.
  @see loadImage:delegate:userInfo:
 */
--(UIImage *)loadRemote:(NSURL*)url;
+-(id)loadRemote:(NSURL*)url;
+-(id)loadRemote:(NSURL*)url withOptions:(NSDictionary*)options_;
 
 /**
  Tells the loader to return previously loaded image with URL.
