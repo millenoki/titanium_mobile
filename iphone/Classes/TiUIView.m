@@ -958,13 +958,14 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	return nil;
 }
 
--(void) setBackgroundImage_:(id)image
+-(void) setBackgroundImage_:(id)arg
 {
     if (!configurationSet) {
         needsToSetBackgroundImage = YES;
         return;
     }
-    [[self getOrCreateCustomBackgroundLayer] setImage:[self loadImageOrSVG:image] forState:UIControlStateNormal];
+    id image = [self loadImageOrSVG:arg];
+    [[self getOrCreateCustomBackgroundLayer] setImage:image forState:UIControlStateNormal];
 }
 
 -(void) setBackgroundSelectedImage_:(id)arg
@@ -975,25 +976,26 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     }
     id image = [self loadImageOrSVG:arg];
     [[self getOrCreateCustomBackgroundLayer] setImage:image forState:UIControlStateHighlighted];
-//    [[self getOrCreateCustomBackgroundLayer] setImage:image forState:UIControlStateSelected];
 }
 
--(void) setBackgroundHighlightedImage_:(id)image
+-(void) setBackgroundHighlightedImage_:(id)arg
 {
     if (!configurationSet) {
         needsToSetBackgroundSelectedImage = YES;
         return;
     }
-    [[self getOrCreateCustomBackgroundLayer] setImage:[self loadImageOrSVG:image] forState:UIControlStateHighlighted];
+    id image = [self loadImageOrSVG:arg];
+    [[self getOrCreateCustomBackgroundLayer] setImage:image forState:UIControlStateHighlighted];
 }
 
--(void) setBackgroundDisabledImage_:(id)image
+-(void) setBackgroundDisabledImage_:(id)arg
 {
     if (!configurationSet) {
         needsToSetBackgroundDisabledImage = YES;
         return;
     }
-    [[self getOrCreateCustomBackgroundLayer] setImage:[self loadImageOrSVG:image] forState:UIControlStateDisabled];
+    id image = [self loadImageOrSVG:arg];
+    [[self getOrCreateCustomBackgroundLayer] setImage:image forState:UIControlStateDisabled];
 }
 
 -(void) setBackgroundInnerShadows_:(id)value
