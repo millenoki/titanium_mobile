@@ -171,8 +171,8 @@ static NSArray* imageKeySequence;
 		}
 
 		// we're on the non-UI thread, we need to block to load
-        (TiUIImageView*)[self view]
-        UIImage *imageToUse = [self prepareImage:[(TiUIImageView*)[self view] convertToUIImage:theimage]];
+        TiUIImageView* imageView = (TiUIImageView*)[self view];
+        UIImage *imageToUse = [imageView prepareImage:[imageView convertToUIImage:theimage]];
 		return [[[TiBlob alloc] initWithImage:imageToUse] autorelease];
 	}
 	return nil;
