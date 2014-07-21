@@ -23,8 +23,6 @@
 {
 	[searchView setDelegate:nil];
 	RELEASE_TO_NIL(searchView);
-	[backgroundLayer removeFromSuperlayer];
-	RELEASE_TO_NIL(backgroundLayer);
 	[super dealloc];
 }
 
@@ -40,7 +38,6 @@
 		searchView = [[UISearchBar alloc] initWithFrame:CGRectZero];
 		[searchView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[searchView setDelegate:self];
-		[searchView setShowsCancelButton:[(TiUISearchBarProxy *)[self proxy] showsCancelButton]];
 		[self addSubview:searchView];
 	}
 	return searchView;
@@ -51,10 +48,21 @@
 	return [self searchBar];
 }
 
+-(void)setBounds:(CGRect)bounds
+{
+	[super setBounds:bounds];
+}
+
+-(void)setFrame:(CGRect)frame
+{
+	[super setFrame:frame];
+}
+
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[[self searchBar] setFrame:bounds];
-	[backgroundLayer setFrame:bounds];
+    [[self searchBar] setShowsCancelButton:[(TiUISearchBarProxy *)[self proxy] showsCancelButton] animated:NO];
     [super frameSizeChanged:frame bounds:bounds];
 }
 
