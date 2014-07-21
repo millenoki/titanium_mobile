@@ -136,8 +136,10 @@ void OffsetScrollViewForRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFlo
 	{
 		offsetPoint.y = MAX(0,maxOffset);
 	}
-
-	[scrollView setContentOffset:offsetPoint animated:YES];
+    CGPoint currentOffset = scrollView.contentOffset;
+    if (!CGPointEqualToPoint(currentOffset, offsetPoint)) {
+        [scrollView setContentOffset:offsetPoint animated:YES];
+    }
 }
 
 void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect)
