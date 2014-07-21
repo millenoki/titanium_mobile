@@ -2646,6 +2646,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         if (OSAtomicTestAndClear(TiRefreshViewChildrenPosition, &dirtyflags) || layoutChanged) {
             [self layoutChildren:NO];
         }
+        [self handlePendingTransition];
 	}
 }
 
@@ -2906,7 +2907,6 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         if (layoutChanged) {
             [self fireEvent:@"postlayout" propagate:NO];
         }
-        [self handlePendingAnimation];
         repositioning = NO;
         return layoutChanged;
 	}
@@ -3550,6 +3550,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 	// tell our children to also layout
 	[child layoutChildren:optimize];
+    [child handlePendingTransition];
 }
 
 -(void)layoutNonRealChild:(TiViewProxy*)child withParent:(UIView*)parentView
