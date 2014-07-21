@@ -1618,6 +1618,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_HTTP_ONLY = "httponly";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_HTTP_OPTIONS = "httpOptions";
+    
 	/**
 	 * @module.api
 	 */

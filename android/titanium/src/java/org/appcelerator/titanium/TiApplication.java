@@ -74,6 +74,8 @@ public abstract class TiApplication extends Application implements
     private static final String PROPERTY_ENABLE_COVERAGE = "ti.android.enablecoverage";
     private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
     private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
+    private  static String TITANIUM_USER_AGENT;
+    
     private static long mainThreadId = 0;
 
     protected static WeakReference<TiApplication> tiApp = null;
@@ -677,6 +679,16 @@ public abstract class TiApplication extends Application implements
 
     public String getDeployType() {
         return getAppInfo().getDeployType();
+    }
+    
+    public String getUserAgent() {
+        if (TITANIUM_USER_AGENT == null) {
+            TITANIUM_USER_AGENT = "Appcelerator Titanium/" + getTiBuildVersion()
+                    + " ("+ Build.MODEL + "; Android API Level: "
+                    + Integer.toString(Build.VERSION.SDK_INT) + "; "
+                    + TiPlatformHelper.getInstance().getLocale() +";)";
+        }
+        return TITANIUM_USER_AGENT;
     }
 
     /**

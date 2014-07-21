@@ -364,10 +364,10 @@ public class TiResponseCache extends ResponseCache
 		// Gingerbread 2.3 bug: getHeaderField tries re-opening the InputStream
 		// getHeaderFields() just checks the response itself
 		Map<String, List<String>> headers = makeLowerCaseHeaders(conn.getHeaderFields());
-		String cacheControl = getHeader(headers, "cache-control");
-		if (cacheControl != null && cacheControl.matches("^.*(no-cache|no-store|must-revalidate).*")) {
-			return null; // See RFC-2616
-		}
+//		String cacheControl = getHeader(headers, "cache-control");
+//		if (cacheControl != null && cacheControl.matches("^.*(no-cache|no-store|must-revalidate).*")) {
+//			return null; // See RFC-2616
+//		}
 
 		boolean skipTransferEncodingHeader = false;
 		String tEncoding = getHeader(headers, "transfer-encoding");

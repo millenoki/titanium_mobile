@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import java.io.FileNotFoundException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -134,7 +135,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
         downloadListener = new TiDownloadListener() {
             @Override
-            public void downloadTaskFinished(URI uri) {
+            public void downloadTaskFinished(URI uri, HttpURLConnection connection) {
                 if (!TiResponseCache.peek(uri)) {
                     // The requested image did not make it into our
                     // TiResponseCache,
@@ -143,13 +144,13 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                     // via the "old way" (not relying on cache).
                     TiLoadImageManager.getInstance().load(
                             proxy.getActivity().getResources(),
-                            TiDrawableReference.fromUrl(imageViewProxy,
-                                    uri.toString()), loadImageListener);
+                            TiDrawableReference.fromHttp(imageViewProxy.getActivity(),
+                                    connection), loadImageListener);
                 }
             }
 
             @Override
-            public void downloadTaskFailed(URI uri) {
+            public void downloadTaskFailed(URI uri, HttpURLConnection connection) {
                 // If the download failed, fire an error event
                 fireError("Download Failed", uri.toString());
             }
@@ -157,7 +158,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             // Handle decoding and caching in the background thread so it won't
             // block UI.
             @Override
-            public void postDownload(URI uri) {
+            public void postDownload(URI uri, HttpURLConnection connection) {
                 if (TiResponseCache.peek(uri)) {
                     try {
                         handleCacheAndSetImage(TiDrawableReference.fromUrl(
@@ -171,8 +172,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
         loadImageListener = new TiLoadImageListener() {
             @Override
-            public void loadImageFinished(int hash, Drawable drawable) {
+            public void loadImageFinished(TiDrawableReference imageref, Drawable drawable) {
                 // Cache the image
+                int hash = imageref.hashCode();
                 if (drawable != null) {
                     if (mMemoryCache.get(hash) == null
                             && drawable instanceof BitmapDrawable) {
@@ -936,8 +938,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 // Check if the image is not cached in disc and the uri is
                 // valid.
                 if (!isCachedInDisk && uri != null) {
+                    
                     TiDownloadManager.getInstance().download(uri,
-                            downloadListener);
+                            (HashMap) proxy.getProperty(TiC.PROPERTY_HTTP_OPTIONS), downloadListener);
                     return;
                 }
             } else {
