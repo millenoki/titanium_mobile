@@ -2185,6 +2185,7 @@ static NSDictionary* replaceKeysForRow;
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
 {
     searchViewAnimating = YES;
+	[_tableView setContentOffset:CGPointZero animated:NO];
 }
 
 - (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller {
