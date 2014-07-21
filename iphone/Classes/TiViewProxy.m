@@ -2646,7 +2646,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         if (OSAtomicTestAndClear(TiRefreshViewChildrenPosition, &dirtyflags) || layoutChanged) {
             [self layoutChildren:NO];
         }
-        [self handlePendingTransition];
+        [self handlePendingAnimation];
 	}
 }
 
@@ -3550,7 +3550,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 	// tell our children to also layout
 	[child layoutChildren:optimize];
-    [child handlePendingTransition];
+    [child handlePendingAnimation];
 }
 
 -(void)layoutNonRealChild:(TiViewProxy*)child withParent:(UIView*)parentView
