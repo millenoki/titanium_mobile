@@ -1191,7 +1191,7 @@ DEFINE_EXCEPTIONS
 	[request retain];
 	
 	ImageLoaderRequest *req = [[[request userInfo] objectForKey:@"request"] retain];
-	if ([req cancelled]==NO)
+	if (req && [req cancelled]==NO)
 	{
 		NSData *data = [response responseData];
 		if (data == nil || [data length]==0)
