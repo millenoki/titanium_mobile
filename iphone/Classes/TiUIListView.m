@@ -2229,8 +2229,7 @@ static NSDictionary* replaceKeysForRow;
 {
     if ([_tableView isScrollEnabled]) {
         CGRect minimumContentRect = [_tableView bounds];
-        CGRect frame = [firstResponderView frame];
-        CGRect responderRect = [self convertRect:frame fromView:firstResponderView];
+        CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
         CGPoint offsetPoint = [_tableView contentOffset];
         responderRect.origin.x += offsetPoint.x;
         responderRect.origin.y += offsetPoint.y;
