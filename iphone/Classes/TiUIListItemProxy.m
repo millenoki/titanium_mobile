@@ -205,18 +205,36 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     else if ([value isKindOfClass:[NSDictionary class]]) {
         id bindObject = [self.bindings objectForKey:keyPath];
         if (bindObject != nil) {
-            [(NSDictionary *)value enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value, BOOL *stop) {
-                NSString *newKeyPath = [NSString stringWithFormat:@"%@.%@", keyPath, key];
-                if ([self shouldUpdateValue:value forKeyPath:newKeyPath]) {
-                    [self recordChangeValue:value forKeyPath:newKeyPath withBlock:^{
-                        [bindObject setValue:value forKey:key];
-                    }];
+            NSArray * keySequence = [bindObject keySequence];
+            for (NSString * key in keySequence)
+            {
+                if ([value objectForKey:key]) {
+                    id value2 = [value objectForKey:key];
+                    NSString *newKeyPath = [NSString stringWithFormat:@"%@.%@", keyPath, key];
+                    if ([self shouldUpdateValue:value2 forKeyPath:newKeyPath]) {
+                        [self recordChangeValue:value2 forKeyPath:newKeyPath withBlock:^{
+                            [bindObject setValue:value2 forKey:key];
+                        }];
+                    }
                 }
+            }
+            [(NSDictionary *)value enumerateKeysAndObjectsUsingBlock:^(NSString *key, id value2, BOOL *stop) {
+                if (![keySequence containsObject:key])
+                {
+                    NSString *newKeyPath = [NSString stringWithFormat:@"%@.%@", keyPath, key];
+                    if ([self shouldUpdateValue:value2 forKeyPath:newKeyPath]) {
+                        [self recordChangeValue:value2 forKeyPath:newKeyPath withBlock:^{
+                            [bindObject setValue:value2 forKey:key];
+                        }];
+                    }
+                }
+                
             }];
         }
     }
     else [super setValue:value forKeyPath:keyPath];
 }
+
 
 
 -(void)configurationStart:(BOOL)recursive

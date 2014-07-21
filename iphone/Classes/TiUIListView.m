@@ -26,6 +26,38 @@
 -(void)handleListenerAddedWithEvent:(NSString *)event;
 @end
 
+@interface TiSearchDisplayController : UISearchDisplayController
+@property (nonatomic, assign) BOOL preventHiddingNavBar;
+
+@end
+
+@implementation TiSearchDisplayController
+
+/**
+ *  Overwrite the `setActive:animated:` method to make sure the UINavigationBar
+ *  does not get hidden and the SearchBar does not add space for the statusbar height.
+ *
+ *  @param visible   `YES` to display the search interface if it is not already displayed; NO to hide the search interface if it is currently displayed.
+ *  @param animated  `YES` to use animation for a change in visible state, otherwise NO.
+ */
+- (void)setActive:(BOOL)visible animated:(BOOL)animated
+{
+    BOOL oldStatusBar = [[UIApplication sharedApplication] isStatusBarHidden];
+    BOOL oldNavBar = [self.searchContentsController.navigationController isNavigationBarHidden];
+//    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+//    [self.searchContentsController.navigationController setNavigationBarHidden:YES animated:NO];
+    
+    [super setActive:visible animated:animated];
+    
+    if (self.preventHiddingNavBar) {
+        [self.searchContentsController.navigationController setNavigationBarHidden:oldNavBar animated:NO];
+        [[UIApplication sharedApplication] setStatusBarHidden:oldStatusBar];
+    }
+    
+}
+
+@end
+
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
 @property (nonatomic,copy,readwrite) NSString * searchString;
@@ -36,6 +68,9 @@
     TiTableView *_tableView;
     NSDictionary *_templates;
     id _defaultItemTemplate;
+    BOOL hideOnSearch;
+    BOOL hideNavBarWithSearch;
+    BOOL searchViewAnimating;
 
     TiDimension _rowHeight;
     TiDimension _minRowHeight;
@@ -51,7 +86,7 @@
 
     TiUISearchBarProxy *searchViewProxy;
     UITableViewController *tableController;
-    UISearchDisplayController *searchController;
+    TiSearchDisplayController *searchController;
 
     NSMutableArray * sectionTitles;
     NSMutableArray * sectionIndices;
@@ -69,6 +104,7 @@
     BOOL caseInsensitiveSearch;
     NSString* _searchString;
     BOOL searchActive;
+	BOOL searchHidden;
     BOOL keepSectionsInSearch;
     NSMutableArray* _searchResults;
     UIEdgeInsets _defaultSeparatorInsets;
@@ -104,6 +140,9 @@ static NSDictionary* replaceKeysForRow;
         _defaultSeparatorInsets = UIEdgeInsetsZero;
         _scrollSuspendImageLoading = NO;
         _scrollHidesKeyboard = YES;
+        hideOnSearch = NO;
+        searchViewAnimating = NO;
+        hideNavBarWithSearch = YES;
     }
     return self;
 }
@@ -157,13 +196,25 @@ static NSDictionary* replaceKeysForRow;
     [super dealloc];
 }
 
--(TiViewProxy*)initWrapperProxy
+-(TiViewProxy*)initWrapperProxyWithVerticalLayout:(BOOL)vertical
 {
     TiViewProxy* theProxy = [[TiViewProxy alloc] init];
     LayoutConstraint* viewLayout = [theProxy layoutProperties];
     viewLayout->width = TiDimensionAutoFill;
     viewLayout->height = TiDimensionAutoSize;
+    if (TiDimensionIsUndefined(viewLayout->top))
+    {
+        viewLayout->top = TiDimensionDip(0);
+    }
+    if (vertical) {
+        viewLayout->layoutStyle = TiLayoutRuleVertical;
+    }
     return theProxy;
+}
+
+-(TiViewProxy*)initWrapperProxy
+{
+    return [self initWrapperProxyWithVerticalLayout:NO];
 }
 
 -(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header
@@ -196,9 +247,7 @@ static NSDictionary* replaceKeysForRow;
 -(TiViewProxy*)getOrCreateHeaderHolder
 {
     if (_headerViewProxy == nil) {
-        _headerViewProxy = [self initWrapperProxy];
-        LayoutConstraint* viewLayout = [_headerViewProxy layoutProperties];
-        viewLayout->layoutStyle = TiLayoutRuleVertical;
+        _headerViewProxy = [self initWrapperProxyWithVerticalLayout:YES];
         
         _searchWrapper = [self initWrapperProxy];
         _headerWrapper = [self initWrapperProxy];
@@ -237,6 +286,7 @@ static NSDictionary* replaceKeysForRow;
         _tableView.delegate = self;
         _tableView.dataSource = self;
         _tableView.touchDelegate = self;
+        
         if (TiDimensionIsDip(_rowHeight)) {
             [_tableView setRowHeight:_rowHeight.value];
         }
@@ -252,7 +302,6 @@ static NSDictionary* replaceKeysForRow;
         tapGestureRecognizer.delegate = self;
         [_tableView addGestureRecognizer:tapGestureRecognizer];
         [tapGestureRecognizer release];
-
         if ([TiUtils isIOS7OrGreater]) {
             _defaultSeparatorInsets = [_tableView separatorInset];
         }
@@ -265,7 +314,15 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    if (![searchController isActive]) {
+//        if (searchHidden)
+//        {
+//            if (searchViewProxy!=nil)
+//            {
+//                [self hideSearchScreen:nil];
+//            }
+//        }
+//    
+    if (!searchViewAnimating && ![searchController isActive]) {
         [searchViewProxy ensureSearchBarHeirarchy];
         if (_searchWrapper != nil) {
             CGFloat rowWidth = [self computeRowWidth:_tableView];
@@ -431,18 +488,89 @@ static NSDictionary* replaceKeysForRow;
             viewLayout->width = TiDimensionAutoFill;
         }
         
-//        if (viewproxy.parent == nil)
-//        {
-//            
-//            TiViewProxy* wrapperProxy = [self initWrapperProxy];
-//            [wrapperProxy add:viewproxy];
-//            return [wrapperProxy getAndPrepareViewForOpening:self.tableView.bounds];
-//        }
-//        else {
+        if (viewproxy.parent == nil)
+        {
+            
+            TiViewProxy* wrapperProxy = [self initWrapperProxy];
+            LayoutConstraint* viewLayout = [wrapperProxy layoutProperties];
+            viewLayout->layoutStyle = TiLayoutRuleVertical;
+            [wrapperProxy add:viewproxy];
+            return [wrapperProxy getAndPrepareViewForOpening:self.tableView.bounds];
+        }
+        else {
             return [viewproxy getAndPrepareViewForOpening:self.tableView.bounds];
-//        }
+        }
     }
     return nil;
+}
+
+#pragma mark Searchbar-related IBActions
+
+
+- (IBAction) showSearchScreen: (id) sender
+{
+	[_tableView setContentOffset:CGPointZero animated:YES];
+}
+
+-(void)hideSearchScreen:(id)sender animated:(BOOL)animated
+{
+    if (!searchHidden || ![(TiViewProxy*)self.proxy viewReady]) {
+        return;
+    }
+    
+	// check to make sure we're not in the middle of a layout, in which case we
+	// want to try later or we'll get weird drawing animation issues
+	if (_tableView.bounds.size.width==0)
+	{
+		[self performSelector:@selector(hideSearchScreen:) withObject:sender afterDelay:0.1];
+		return;
+	}
+    
+    if ([[searchViewProxy view] isFirstResponder]) {
+        [[searchViewProxy view] resignFirstResponder];
+        [self makeRootViewFirstResponder];
+    }
+    
+    // This logic here is contingent on search controller deactivation
+    // (-[TiUITableView searchDisplayControllerDidEndSearch:]) triggering a hide;
+    // doing this ensures that:
+    //
+    // * The hide when the search controller was active is animated
+    // * The animation only occurs once
+    
+    if ([searchController isActive]) {
+        [searchController setActive:NO animated:YES];
+        searchActive = NO;
+        return;
+    }
+    
+    // NOTE: Because of how tableview row reloads are scheduled, we always need to do this
+    // because of where the hide might be triggered from.
+    
+    
+    if (![(TiViewProxy*)self.proxy viewReady]) {
+        return;
+    }
+    searchActive = NO;
+    NSArray* visibleRows = [_tableView indexPathsForVisibleRows];
+//    if ([visibleRows count] > 0)
+//        [_tableView reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
+    
+    // We only want to scroll if the following conditions are met:
+    // 1. The top row of the first section (and hence searchbar) are visible (or there are no rows)
+    // 2. The current offset is smaller than the new offset (otherwise the search is already hidden)
+    
+    if (searchHidden) {
+        CGPoint offset = CGPointMake(0,MAX(TI_NAVBAR_HEIGHT, searchViewProxy.view.frame.size.height));
+        if (([visibleRows count] == 0) ||
+            ([_tableView contentOffset].y < offset.y && [visibleRows containsObject:[NSIndexPath indexPathForRow:0 inSection:0]]))
+        {
+            [_tableView setContentOffset:offset animated:animated];
+        }
+    }
+}
+-(void)hideSearchScreen:(id)sender {
+    [self hideSearchScreen:sender animated:YES];
 }
 
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated
@@ -952,22 +1080,62 @@ static NSDictionary* replaceKeysForRow;
 
     if (args != nil) {
         searchViewProxy = [args retain];
+        [searchViewProxy setReadyToCreateView:YES];
         [searchViewProxy setDelegate:self];
         tableController = [[UITableViewController alloc] init];
         [TiUtils configureController:tableController withObject:nil];
         tableController.tableView = [self tableView];
 		[tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
-        searchController = [[UISearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
+        searchController = [[TiSearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:[self getContentController]];
+        searchController.preventHiddingNavBar = !hideNavBarWithSearch;
         searchController.searchResultsDataSource = self;
         searchController.searchResultsDelegate = self;
         searchController.delegate = self;
         [[self getOrCreateSearchWrapper] add:searchViewProxy];
-        keepSectionsInSearch = NO;
-    } else {
-        keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
+        if (searchHidden)
+		{
+			[self hideSearchScreen:nil animated:NO];
+		}
     }
+    keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
     
 }
+
+
+-(void)setSearchHidden_:(id)hide
+{
+	if ([TiUtils boolValue:hide])
+	{
+		searchHidden = YES;
+		if (searchViewProxy)
+		{
+			[self hideSearchScreen:nil];
+		}
+	}
+	else
+	{
+		searchHidden = NO;
+		if (searchViewProxy)
+		{
+			[self showSearchScreen:nil];
+		}
+	}
+}
+
+-(void)setHideSearchOnSelection_:(id)yn
+{
+    hideOnSearch = [TiUtils boolValue:yn def:NO];
+}
+
+
+-(void)setHideNavBarWithSearch_:(id)yn
+{
+    hideNavBarWithSearch = [TiUtils boolValue:yn def:YES];
+    if (searchController) {
+        searchController.preventHiddingNavBar = !hideNavBarWithSearch;
+    }
+}
+
 
 #pragma mark - SectionIndexTitle Support
 
@@ -1530,6 +1698,7 @@ static NSDictionary* replaceKeysForRow;
         return nil;
     }
     
+    
     return [self sectionView:section forLocation:@"headerView" section:nil];
 }
 
@@ -1945,6 +2114,22 @@ static NSDictionary* replaceKeysForRow;
         {
             [theTableView deselectRowAtIndexPath:indexPath animated:YES];
         }
+        if (viaSearch) {
+            if (hideOnSearch) {
+                [self hideSearchScreen:nil];
+            }
+            else {
+                /*
+                 TIMOB-7397. Observed that `searchBarTextDidBeginEditing` delegate
+                 method was being called on screen transition which was causing a
+                 visual glitch. Checking for isFirstResponder at this point always
+                 returns false. Calling blur here so that the UISearchBar resigns
+                 as first responder on main thread
+                 */
+                [searchViewProxy performSelector:@selector(blur:) withObject:nil];
+            }
+            
+        }
     }
 }
 
@@ -1954,7 +2139,7 @@ static NSDictionary* replaceKeysForRow;
 {
     if (_searchWrapper != nil) {
         [_searchWrapper layoutProperties]->right = TiDimensionDip(0);
-        [_searchWrapper refreshView:nil];
+        [_searchWrapper refreshViewIfNeeded];
     }
 }
 
@@ -1997,13 +2182,25 @@ static NSDictionary* replaceKeysForRow;
 
 #pragma mark - UISearchDisplayDelegate Methods
 
+- (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller
+{
+    searchViewAnimating = YES;
+}
+
+- (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller {
+    searchViewAnimating = YES;
+}
+
+- (void) searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller {
+    searchViewAnimating = NO;
+}
+
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
 {
+    searchViewAnimating = NO;
     self.searchString = @"";
     [self buildResultsForSearchText];
-    if ([searchController isActive]) {
-        [searchController setActive:NO animated:YES];
-    }
+    
     //IOS7 DP3. TableView seems to be adding the searchView to
     //tableView. Bug on IOS7?
     if (_searchWrapper != nil) {
@@ -2011,11 +2208,13 @@ static NSDictionary* replaceKeysForRow;
         if (rowWidth > 0) {
             CGFloat right = _tableView.bounds.size.width - rowWidth;
             [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
-            [_searchWrapper refreshView:nil];
+            [_searchWrapper refreshViewIfNeeded];
         }
     }
     [searchViewProxy ensureSearchBarHeirarchy];
     [_tableView reloadData];
+    [self hideSearchScreen:nil];
+//    [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }
 
 #pragma mark - TiScrolling
@@ -2030,8 +2229,8 @@ static NSDictionary* replaceKeysForRow;
 {
     if ([_tableView isScrollEnabled]) {
         CGRect minimumContentRect = [_tableView bounds];
-        
-        CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
+        CGRect frame = [firstResponderView frame];
+        CGRect responderRect = [self convertRect:frame fromView:firstResponderView];
         CGPoint offsetPoint = [_tableView contentOffset];
         responderRect.origin.x += offsetPoint.x;
         responderRect.origin.y += offsetPoint.y;
