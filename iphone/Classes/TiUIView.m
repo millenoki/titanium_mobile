@@ -26,6 +26,10 @@
 #import "TiViewAnimationStep.h"
 #import "TiBorderLayer.h"
 
+@interface TiViewProxy()
+-(UIViewController*)getContentController;
+@end
+
 @interface CALayer (Additions)
 - (void)bringToFront;
 - (void)sendToBack;
@@ -2369,6 +2373,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
             }
         [result release];
     });
+}
+
+-(UIViewController*)getContentController
+{
+    return ([(TiViewProxy*)proxy getContentController]);
 }
 
 @end

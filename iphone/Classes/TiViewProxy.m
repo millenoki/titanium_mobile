@@ -1535,6 +1535,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     return nil;
 }
 
+-(UIViewController*)getContentController
+{
+    if (controller) {
+        return controller;
+    }
+    if (parent) {
+        return [[self viewParent] getContentController];
+    }
+    return nil;
+}
+
 #pragma mark Event trigger methods
 
 -(void)windowWillOpen

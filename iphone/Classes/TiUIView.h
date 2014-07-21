@@ -290,6 +290,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(NSDictionary*)dictionaryFromTouch:(UITouch*)touch;
 
 -(NSDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture;
+-(UIViewController*)getContentController;
 
 @end
 
