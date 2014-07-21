@@ -295,9 +295,13 @@ static BOOL _disableNetworkActivityIndicator;
     APSHTTPPostForm *form = nil;
     if([dict objectForKey:@"data"]) {
         NSString *data = [dict objectForKey:@"data"];
+        APSHTTPPostForm *form = [[APSHTTPPostForm alloc] init];
         if([data isKindOfClass:[NSString class]]) {
-            APSHTTPPostForm *form = [[APSHTTPPostForm alloc] init];
             [form setStringData:data];
+            [self setPostForm:form];
+        }
+        else if([data isKindOfClass:[NSDictionary class]]) {
+            [form setJSONData:data];
             [self setPostForm:form];
         }
     }
