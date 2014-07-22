@@ -285,9 +285,9 @@ DEFINE_EXCEPTIONS
 
 -(void)detach
 {
-    if (proxy != nil && [(TiViewProxy*)proxy view] == self)
+    if (proxy != nil && [[self viewProxy] view] == self)
     {
-        [(TiViewProxy*)proxy detachView];
+        [[self viewProxy] detachView];
     }
     else {
         NSArray* subviews = [self subviews];
@@ -306,6 +306,10 @@ DEFINE_EXCEPTIONS
         self.proxy = nil;
         self.touchDelegate = nil;
     }
+}
+
+-(TiViewProxy*)viewProxy {
+    return (TiViewProxy*)proxy;
 }
 
 -(void)removeFromSuperview
@@ -372,16 +376,16 @@ DEFINE_EXCEPTIONS
 
 -(void)ensureGestureListeners
 {
-    if ([(TiViewProxy*)proxy _hasListeners:@"swipe"]) {
+    if ([[self viewProxy] _hasListeners:@"swipe"]) {
         [[self gestureRecognizerForEvent:@"uswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"dswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:YES];
     }
-    if ([(TiViewProxy*)proxy _hasListeners:@"pinch"]) {
+    if ([[self viewProxy] _hasListeners:@"pinch"]) {
          [[self gestureRecognizerForEvent:@"pinch"] setEnabled:YES];
     }
-    if ([(TiViewProxy*)proxy _hasListeners:@"longpress"]) {
+    if ([[self viewProxy] _hasListeners:@"longpress"]) {
         [[self gestureRecognizerForEvent:@"longpress"] setEnabled:YES];
     }
 }
@@ -649,7 +653,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    if (![(TiViewProxy*)proxy viewLayedOut]) return;
+    if (![[self viewProxy] viewLayedOut]) return;
     if (radii != NULL)
     {
         [self updatePathForClipping:bounds];
@@ -1942,7 +1946,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)handleControlEvents:(UIControlEvents)events
 {
 	// For subclasses (esp. buttons) to override when they have event handlers.
-	TiViewProxy* parentProxy = [(TiViewProxy*)proxy parent];
+	TiViewProxy* parentProxy = [[self viewProxy] parent];
 	if ([parentProxy viewAttached] && [parentProxy canHaveControllerParent]) {
 		[[parentProxy view] handleControlEvents:events];
 	}
@@ -1972,7 +1976,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(UIControlState)realStateForState:(UIControlState)state
 {
     if ([self enabledForBgState]) {
-//        TiUIView * parentView = [[(TiViewProxy*)proxy parent] view];
+//        TiUIView * parentView = [[[self viewProxy] parent] view];
 //        if (parentView && [parentView dispatchPressed]) {
 //            return [parentView realStateForState:state];
 //        }
@@ -2393,7 +2397,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(UIViewController*)getContentController
 {
-    return ([(TiViewProxy*)proxy getContentController]);
+    return ([[self viewProxy] getContentController]);
 }
 
 @end

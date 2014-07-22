@@ -143,6 +143,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)ensureGestureListeners;
 
 #pragma mark Framework
+-(TiViewProxy*)viewProxy;
 
 /**
  Performs view's initialization procedure.
