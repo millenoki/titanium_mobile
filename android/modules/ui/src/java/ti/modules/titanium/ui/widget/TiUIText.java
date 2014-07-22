@@ -19,6 +19,7 @@ import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
+import ti.modules.titanium.ui.UIModule;
 import br.com.sapereaude.maskedEditText.MaskedEditText;
 import android.content.Context;
 import android.graphics.Color;
@@ -53,33 +54,8 @@ public class TiUIText extends TiUINonViewGroupView
 {
 	private static final String TAG = "TiUIText";
 
-	public static final int RETURNKEY_GO = 0;
-	public static final int RETURNKEY_GOOGLE = 1;
-	public static final int RETURNKEY_JOIN = 2;
-	public static final int RETURNKEY_NEXT = 3;
-	public static final int RETURNKEY_ROUTE = 4;
-	public static final int RETURNKEY_SEARCH = 5;
-	public static final int RETURNKEY_YAHOO = 6;
-	public static final int RETURNKEY_DONE = 7;
-	public static final int RETURNKEY_EMERGENCY_CALL = 8;
-	public static final int RETURNKEY_DEFAULT = 9;
-	public static final int RETURNKEY_SEND = 10;
-
-	private static final int KEYBOARD_ASCII = 0;
-	private static final int KEYBOARD_NUMBERS_PUNCTUATION = 1;
-	private static final int KEYBOARD_URL = 2;
-	private static final int KEYBOARD_NUMBER_PAD = 3;
-	private static final int KEYBOARD_PHONE_PAD = 4;
-	private static final int KEYBOARD_EMAIL_ADDRESS = 5;
-	private static final int KEYBOARD_NAMEPHONE_PAD = 6;
-	private static final int KEYBOARD_DEFAULT = 7;
-	private static final int KEYBOARD_DECIMAL_PAD = 8;
 	
-	// UIModule also has these as values - there's a chance they won't stay in sync if somebody changes one without changing these
-	private static final int TEXT_AUTOCAPITALIZATION_NONE = 0;
-	private static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
-	private static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
-	private static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
+	
 
 	private int selectedColor, color, disabledColor;
 	private boolean field;
@@ -540,7 +516,7 @@ public class TiUIText extends TiUINonViewGroupView
 		//the order is important because returnKeyType must overload keyboard return key defined
 		// by keyboardType
 		if (d.containsKey(TiC.PROPERTY_RETURN_KEY_TYPE)) {
-			handleReturnKeyType(TiConvert.toInt(d.get(TiC.PROPERTY_RETURN_KEY_TYPE), RETURNKEY_DEFAULT));
+			handleReturnKeyType(TiConvert.toInt(d.get(TiC.PROPERTY_RETURN_KEY_TYPE), UIModule.RETURNKEY_DEFAULT));
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_PADDING)) {
@@ -833,7 +809,7 @@ public class TiUIText extends TiUINonViewGroupView
 
 	public void handleKeyboard(KrollDict d) 
 	{
-		int type = KEYBOARD_ASCII;
+		int type = UIModule.KEYBOARD_ASCII;
 		boolean passwordMask = false;
 		int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
 		int autoCapValue = 0;
@@ -844,21 +820,21 @@ public class TiUIText extends TiUINonViewGroupView
 
 		if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
 
-			switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), TEXT_AUTOCAPITALIZATION_NONE)) {
-				case TEXT_AUTOCAPITALIZATION_NONE:
+			switch (TiConvert.toInt(d.get(TiC.PROPERTY_AUTOCAPITALIZATION), UIModule.TEXT_AUTOCAPITALIZATION_NONE)) {
+				case UIModule.TEXT_AUTOCAPITALIZATION_NONE:
 					autoCapValue = 0;
 					break;
-				case TEXT_AUTOCAPITALIZATION_ALL:
+				case UIModule.TEXT_AUTOCAPITALIZATION_ALL:
 					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | 
 						InputType.TYPE_TEXT_FLAG_CAP_SENTENCES |
 						InputType.TYPE_TEXT_FLAG_CAP_WORDS
 						;
 					break;
-				case TEXT_AUTOCAPITALIZATION_SENTENCES:
+				case UIModule.TEXT_AUTOCAPITALIZATION_SENTENCES:
 					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
 					break;
 				
-				case TEXT_AUTOCAPITALIZATION_WORDS:
+				case UIModule.TEXT_AUTOCAPITALIZATION_WORDS:
 					autoCapValue = InputType.TYPE_TEXT_FLAG_CAP_WORDS;
 					break;
 				default:
@@ -872,24 +848,24 @@ public class TiUIText extends TiUINonViewGroupView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_KEYBOARD_TYPE)) {
-			type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), KEYBOARD_DEFAULT);
+			type = TiConvert.toInt(d.get(TiC.PROPERTY_KEYBOARD_TYPE), UIModule.KEYBOARD_DEFAULT);
 		}
 
 		int typeModifiers = autocorrect | autoCapValue;
 		int textTypeAndClass = typeModifiers;
 		// For some reason you can't set both TYPE_CLASS_TEXT and TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
 		// Also, we need TYPE_CLASS_TEXT for passwords.
-		if ((autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) && type != KEYBOARD_DECIMAL_PAD) {
+		if ((autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) && type != UIModule.KEYBOARD_DECIMAL_PAD) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
 
 		realtv.setCursorVisible(true);
 		switch(type) {
-			case KEYBOARD_DEFAULT:
-			case KEYBOARD_ASCII:
+			case UIModule.KEYBOARD_DEFAULT:
+			case UIModule.KEYBOARD_ASCII:
 				// Don't need a key listener, inputType handles that.
 				break;
-			case KEYBOARD_NUMBERS_PUNCTUATION:
+			case UIModule.KEYBOARD_NUMBERS_PUNCTUATION:
 				textTypeAndClass |= (InputType.TYPE_CLASS_NUMBER | InputType.TYPE_CLASS_TEXT);
 				realtv.setKeyListener(new NumberKeyListener()
 				{
@@ -910,22 +886,22 @@ public class TiUIText extends TiUINonViewGroupView
 					}
 				});
 				break;
-			case KEYBOARD_URL:
+			case UIModule.KEYBOARD_URL:
 				Log.d(TAG, "Setting keyboard type URL-3", Log.DEBUG_MODE);
 				realtv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 				break;
-			case KEYBOARD_DECIMAL_PAD:
+			case UIModule.KEYBOARD_DECIMAL_PAD:
 				textTypeAndClass |= (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
-			case KEYBOARD_NUMBER_PAD:
+			case UIModule.KEYBOARD_NUMBER_PAD:
 				realtv.setKeyListener(DigitsKeyListener.getInstance(true,true));
 				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;
 				break;
-			case KEYBOARD_PHONE_PAD:
+			case UIModule.KEYBOARD_PHONE_PAD:
 				realtv.setKeyListener(DialerKeyListener.getInstance());
 				textTypeAndClass |= InputType.TYPE_CLASS_PHONE;
 				break;
-			case KEYBOARD_EMAIL_ADDRESS:
+			case UIModule.KEYBOARD_EMAIL:
 				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
 				break;
 		}
@@ -946,7 +922,7 @@ public class TiUIText extends TiUINonViewGroupView
 			realtv.setTypeface(origTF);
 
 			//turn off text UI in landscape mode b/c Android numeric passwords are not masked correctly in landscape mode.
-			if (type == KEYBOARD_NUMBERS_PUNCTUATION || type == KEYBOARD_DECIMAL_PAD || type == KEYBOARD_NUMBER_PAD) {
+			if (type == UIModule.KEYBOARD_NUMBERS_PUNCTUATION || type == UIModule.KEYBOARD_DECIMAL_PAD || type == UIModule.KEYBOARD_NUMBER_PAD) {
 				realtv.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 			}
 
@@ -993,37 +969,37 @@ public class TiUIText extends TiUINonViewGroupView
 	public void handleReturnKeyType(int type)
 	{
 		switch(type) {
-			case RETURNKEY_GO:
+			case UIModule.RETURNKEY_GO:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_GOOGLE:
+			case UIModule.RETURNKEY_GOOGLE:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_JOIN:
+			case UIModule.RETURNKEY_JOIN:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
-			case RETURNKEY_NEXT:
+			case UIModule.RETURNKEY_NEXT:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_NEXT);
 				break;
-			case RETURNKEY_ROUTE:
+			case UIModule.RETURNKEY_ROUTE:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
-			case RETURNKEY_SEARCH:
+			case UIModule.RETURNKEY_SEARCH:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
 				break;
-			case RETURNKEY_YAHOO:
+			case UIModule.RETURNKEY_YAHOO:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_DONE:
+			case UIModule.RETURNKEY_DONE:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_DONE);
 				break;
-			case RETURNKEY_EMERGENCY_CALL:
+			case UIModule.RETURNKEY_EMERGENCY_CALL:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_GO);
 				break;
-			case RETURNKEY_DEFAULT:
+			case UIModule.RETURNKEY_DEFAULT:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
 				break;
-			case RETURNKEY_SEND:
+			case UIModule.RETURNKEY_SEND:
 				realtv.setImeOptions(EditorInfo.IME_ACTION_SEND);
 				break;
 		}
