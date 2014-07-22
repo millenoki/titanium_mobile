@@ -919,9 +919,10 @@ public class ListSectionProxy extends ViewProxy {
 
 	public int getContentCount() {
 		int totalCount = 0;
+		if (hidden) return totalCount;
 		if (isFilterOn()) {
 			totalCount = filterIndices.size();
-		} else if (!hidden) {
+		} else {
 			totalCount = itemCount;
 		}
 		return totalCount - getHiddenCount();
@@ -1025,20 +1026,21 @@ public class ListSectionProxy extends ViewProxy {
 	}
 
 	public boolean isFilterOn() {
-		if (getListView().getSearchText() != null) {
-			return true;
-		}
-		return false;
+	    String searchText = getListView().getSearchText();
+	    return (searchText != null && searchText.length() > 0);
 	}
 
 	public void applyFilter(String searchText) {
 		// Clear previous result
 		filterIndices.clear();
+		hidden = TiConvert.toBoolean(TiC.PROPERTY_VISIBLE, false);
+		if (!isFilterOn()) return;
 		boolean caseInsensitive = getListView().getCaseInsensitive();
 		// Add new results
 		for (int i = 0; i < listItemData.size(); ++i) {
 			ListItemData data = listItemData.get(i);
 			String searchableText = data.getSearchableText();
+			if (searchableText == null) continue;
 			// Handle case sensitivity
 			if (caseInsensitive) {
 				searchText = searchText.toLowerCase();
@@ -1049,6 +1051,7 @@ public class ListSectionProxy extends ViewProxy {
 				filterIndices.add(getInverseRealPosition(i));
 			}
 		}
+        hidden = hidden || filterIndices.size() == 0;
 	}
 
 	public void release() {
