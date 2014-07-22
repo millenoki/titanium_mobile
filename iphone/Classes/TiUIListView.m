@@ -26,37 +26,6 @@
 -(void)handleListenerAddedWithEvent:(NSString *)event;
 @end
 
-@interface TiSearchDisplayController : UISearchDisplayController
-@property (nonatomic, assign) BOOL preventHiddingNavBar;
-
-@end
-
-@implementation TiSearchDisplayController
-
-/**
- *  Overwrite the `setActive:animated:` method to make sure the UINavigationBar
- *  does not get hidden and the SearchBar does not add space for the statusbar height.
- *
- *  @param visible   `YES` to display the search interface if it is not already displayed; NO to hide the search interface if it is currently displayed.
- *  @param animated  `YES` to use animation for a change in visible state, otherwise NO.
- */
-- (void)setActive:(BOOL)visible animated:(BOOL)animated
-{
-    BOOL oldStatusBar = [[UIApplication sharedApplication] isStatusBarHidden];
-    BOOL oldNavBar = [self.searchContentsController.navigationController isNavigationBarHidden];
-//    [[UIApplication sharedApplication] setStatusBarHidden:YES];
-//    [self.searchContentsController.navigationController setNavigationBarHidden:YES animated:NO];
-    
-    [super setActive:visible animated:animated];
-    
-    if (self.preventHiddingNavBar) {
-        [self.searchContentsController.navigationController setNavigationBarHidden:oldNavBar animated:NO];
-        [[UIApplication sharedApplication] setStatusBarHidden:oldStatusBar];
-    }
-    
-}
-
-@end
 
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
@@ -69,7 +38,6 @@
     NSDictionary *_templates;
     id _defaultItemTemplate;
     BOOL hideOnSearch;
-    BOOL hideNavBarWithSearch;
     BOOL searchViewAnimating;
 
     TiDimension _rowHeight;
@@ -86,7 +54,6 @@
 
     TiUISearchBarProxy *searchViewProxy;
     UITableViewController *tableController;
-    TiSearchDisplayController *searchController;
 
     NSMutableArray * sectionTitles;
     NSMutableArray * sectionIndices;
@@ -142,7 +109,6 @@ static NSDictionary* replaceKeysForRow;
         _scrollHidesKeyboard = YES;
         hideOnSearch = NO;
         searchViewAnimating = NO;
-        hideNavBarWithSearch = YES;
     }
     return self;
 }
@@ -184,7 +150,6 @@ static NSDictionary* replaceKeysForRow;
         RELEASE_TO_NIL(searchViewProxy)
     }
     RELEASE_TO_NIL(tableController)
-    RELEASE_TO_NIL(searchController)
     RELEASE_TO_NIL(sectionTitles)
     RELEASE_TO_NIL(sectionIndices)
     RELEASE_TO_NIL(filteredTitles)
@@ -322,7 +287,7 @@ static NSDictionary* replaceKeysForRow;
 //            }
 //        }
 //    
-    if (!searchViewAnimating && ![searchController isActive]) {
+    if (!searchViewAnimating && ![[self searchController] isActive]) {
         [searchViewProxy ensureSearchBarHeirarchy];
         if (_searchWrapper != nil) {
             CGFloat rowWidth = [self computeRowWidth:_tableView];
@@ -538,23 +503,17 @@ static NSDictionary* replaceKeysForRow;
     // * The hide when the search controller was active is animated
     // * The animation only occurs once
     
-    if ([searchController isActive]) {
-        [searchController setActive:NO animated:YES];
+    if ([[self searchController] isActive]) {
+        [[self searchController] setActive:NO animated:YES];
         searchActive = NO;
         return;
     }
     
-    // NOTE: Because of how tableview row reloads are scheduled, we always need to do this
-    // because of where the hide might be triggered from.
-    
-    
+    searchActive = NO;
     if (![(TiViewProxy*)self.proxy viewReady]) {
         return;
     }
-    searchActive = NO;
     NSArray* visibleRows = [_tableView indexPathsForVisibleRows];
-//    if ([visibleRows count] > 0)
-//        [_tableView reloadRowsAtIndexPaths:visibleRows withRowAnimation:UITableViewRowAnimationNone];
     
     // We only want to scroll if the following conditions are met:
     // 1. The top row of the first section (and hence searchbar) are visible (or there are no rows)
@@ -739,7 +698,7 @@ static NSDictionary* replaceKeysForRow;
 
 -(BOOL) isSearchActive
 {
-    return searchActive || [searchController isActive];
+    return searchActive || [[self searchController] isActive];
 }
 
 - (void)updateSearchResults:(id)unused
@@ -747,8 +706,8 @@ static NSDictionary* replaceKeysForRow;
     if (searchActive) {
         [self buildResultsForSearchText];
     }
-    if ([searchController isActive]) {
-        [[searchController searchResultsTableView] reloadData];
+    if ([self isSearchActive]) {
+        [[[self searchController] searchResultsTableView] reloadData];
     } else {
         [_tableView reloadData];
     }
@@ -786,7 +745,7 @@ static NSDictionary* replaceKeysForRow;
         } else {
             [_tableView setSeparatorInset:_defaultSeparatorInsets];
         }
-        if (![searchController isActive]) {
+        if (![self isSearchActive]) {
             [_tableView setNeedsDisplay];
         }
     }
@@ -1044,13 +1003,19 @@ static NSDictionary* replaceKeysForRow;
 }
 
 #pragma mark - Search Support
+
+-(TiSearchDisplayController*) searchController
+{
+    return [searchViewProxy searchController];
+}
+
 -(void)setCaseInsensitiveSearch_:(id)args
 {
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
     if (searchActive) {
         [self buildResultsForSearchText];
-        if ([searchController isActive]) {
-            [[searchController searchResultsTableView] reloadData];
+        if ([[self searchController] isActive]) {
+            [[[self searchController] searchResultsTableView] reloadData];
         } else {
             [_tableView reloadData];
         }
@@ -1086,12 +1051,13 @@ static NSDictionary* replaceKeysForRow;
         [TiUtils configureController:tableController withObject:nil];
         tableController.tableView = [self tableView];
 		[tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
-        searchController = [[TiSearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:[self getContentController]];
-        searchController.preventHiddingNavBar = !hideNavBarWithSearch;
+        [[self getOrCreateSearchWrapper] add:searchViewProxy];
+        
+        TiSearchDisplayController* searchController = [self searchController];
         searchController.searchResultsDataSource = self;
         searchController.searchResultsDelegate = self;
         searchController.delegate = self;
-        [[self getOrCreateSearchWrapper] add:searchViewProxy];
+        searchHidden = [TiUtils boolValue:[self.proxy valueForKey:@"searchHidden"] def:NO];
         if (searchHidden)
 		{
 			[self hideSearchScreen:nil animated:NO];
@@ -1126,16 +1092,6 @@ static NSDictionary* replaceKeysForRow;
 {
     hideOnSearch = [TiUtils boolValue:yn def:NO];
 }
-
-
--(void)setHideNavBarWithSearch_:(id)yn
-{
-    hideNavBarWithSearch = [TiUtils boolValue:yn def:YES];
-    if (searchController) {
-        searchController.preventHiddingNavBar = !hideNavBarWithSearch;
-    }
-}
-
 
 #pragma mark - SectionIndexTitle Support
 
@@ -2068,7 +2024,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
 {
     BOOL viaSearch = [self isSearchActive];
-    UITableView* theTableView = viaSearch ? [searchController searchResultsTableView] : [self tableView];
+    UITableView* theTableView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
     CGPoint point = [recognizer locationInView:theTableView];
     NSIndexPath* indexPath = [theTableView indexPathForRowAtPoint:point];
     indexPath = [self pathForSearchPath:indexPath];
@@ -2094,7 +2050,7 @@ static NSDictionary* replaceKeysForRow;
 {
     if ([recognizer state] == UIGestureRecognizerStateBegan) {
         BOOL viaSearch = [self isSearchActive];
-        UITableView* theTableView = viaSearch ? [searchController searchResultsTableView] : [self tableView];
+        UITableView* theTableView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
         CGPoint point = [recognizer locationInView:theTableView];
         NSIndexPath* indexPath = [theTableView indexPathForRowAtPoint:point];
         indexPath = [self pathForSearchPath:indexPath];
@@ -2147,7 +2103,7 @@ static NSDictionary* replaceKeysForRow;
 {
     self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
     [self buildResultsForSearchText];
-    [[searchController searchResultsTableView] reloadData];
+    [[[self searchController] searchResultsTableView] reloadData];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
@@ -2155,8 +2111,8 @@ static NSDictionary* replaceKeysForRow;
     if ([searchBar.text length] == 0) {
         self.searchString = @"";
         [self buildResultsForSearchText];
-        if ([searchController isActive]) {
-            [searchController setActive:NO animated:YES];
+        if ([[self searchController] isActive]) {
+            [[self searchController] setActive:NO animated:YES];
         }
     }
 }

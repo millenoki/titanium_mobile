@@ -13,6 +13,7 @@
 #ifdef USE_TI_UISEARCHBAR
 
 #import "TiViewProxy.h"
+#import "TiUISearchBar.h"
 
 @interface TiUISearchBarProxy : TiViewProxy {
 	BOOL showsCancelButton;
@@ -27,6 +28,7 @@
 
 #pragma mark - Titanium Internal Use
 -(void)ensureSearchBarHeirarchy;
+-(TiSearchDisplayController*)searchController;
 @end
 
 #endif

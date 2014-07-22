@@ -87,6 +87,9 @@
     return TiDimensionAutoSize;
 }
 
+-(TiSearchDisplayController*)searchController {
+    return [(TiUISearchBar*)[self view] searchController];
+}
 USE_VIEW_FOR_CONTENT_SIZE
 @end
 

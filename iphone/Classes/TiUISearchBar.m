@@ -17,12 +17,66 @@
 #import "TiUISearchBar.h"
 #import "ImageLoader.h"
 
+
+@implementation TiSearchDisplayController
+
+/**
+ *  Overwrite the `setActive:animated:` method to make sure the UINavigationBar
+ *  does not get hidden and the SearchBar does not add space for the statusbar height.
+ *
+ *  @param visible   `YES` to display the search interface if it is not already displayed; NO to hide the search interface if it is currently displayed.
+ *  @param animated  `YES` to use animation for a change in visible state, otherwise NO.
+ */
+- (void)setActive:(BOOL)visible animated:(BOOL)animated
+{
+    BOOL oldStatusBar = [[UIApplication sharedApplication] isStatusBarHidden];
+    BOOL oldNavBar = [self.searchContentsController.navigationController isNavigationBarHidden];
+    //    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    //    [self.searchContentsController.navigationController setNavigationBarHidden:YES animated:NO];
+    
+    [super setActive:visible animated:animated];
+    
+    if (self.preventHiddingNavBar) {
+        [self.searchContentsController.navigationController setNavigationBarHidden:oldNavBar animated:NO];
+        [[UIApplication sharedApplication] setStatusBarHidden:oldStatusBar];
+    }
+    
+}
+
+@end
+
+
 @implementation TiUISearchBar
+{
+    TiSearchDisplayController *searchController;
+    BOOL hideNavBarWithSearch;
+}
+
+-(void)releaseSearchController {
+    if (searchController) {
+        searchController.searchResultsDataSource = nil;
+        searchController.searchResultsDelegate = nil;
+        searchController.delegate = nil;
+        RELEASE_TO_NIL(searchController)
+    }
+}
+
+
+- (id)init
+{
+    self = [super init];
+    if (self) {
+        hideNavBarWithSearch = YES;
+    }
+    return self;
+}
+
 
 -(void)dealloc
 {
 	[searchView setDelegate:nil];
 	RELEASE_TO_NIL(searchView);
+	[self releaseSearchController];
 	[super dealloc];
 }
 
@@ -41,7 +95,36 @@
 		[self addSubview:searchView];
 	}
 	return searchView;
-}	
+}
+
+- (void)didMoveToSuperview
+{
+	[super didMoveToSuperview];
+	if (searchController) {
+        TiSearchDisplayController* oldController = searchController;
+        searchController = nil;
+        [self searchController];
+        searchController.preventHiddingNavBar = oldController.preventHiddingNavBar;
+        searchController.searchResultsDataSource = oldController.searchResultsDataSource;
+        searchController.searchResultsDelegate = oldController.searchResultsDelegate;
+        searchController.delegate = oldController.delegate;
+        [self releaseSearchController];
+    }
+    else {
+        [self searchController];
+    }
+}
+
+-(TiSearchDisplayController*)searchController {
+    if (!searchController && [self superview] != nil) {
+        UIViewController* controller = [self getContentController];
+        if (controller) {
+            searchController = [[TiSearchDisplayController alloc] initWithSearchBar:[self searchBar] contentsController:controller];
+            searchController.preventHiddingNavBar = !hideNavBarWithSearch;
+        }
+    }
+    return searchController;
+}
 
 - (id)accessibilityElement
 {
@@ -153,11 +236,45 @@
 	}
 }
 
--(void)setBackgroundImage_:(id)arg
-{
-    UIImage *image = [self loadImage:arg];
-    [[self searchBar] setBackgroundImage:image];
+-(UIImage *)imageWithColor:(UIColor *)color andHeight:(int)height {
+    CGRect rect = CGRectMake(0, 0, height, height);
+    UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0);
+    [color setFill];
+    UIRectFill(rect);
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
 }
+
+//-(void)setBackgroundImage_:(id)arg
+//{
+//    [super setBackgroundImage_:arg];
+//    [[self searchBar] setSearchFieldBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+//}
+//
+//-(void) setBackgroundColor_:(id)color
+//{
+//    [super setBackgroundColor_:color];
+//    
+//	UISearchBar *searchBar = [self searchBar];
+//    UIImage* clearImg = [self imageWithColor:[UIColor clearColor] andHeight:32.0f];
+//    [searchBar setBackgroundImage:clearImg];
+//    [searchBar setSearchFieldBackgroundImage:clearImg forState:UIControlStateNormal];
+//    [searchBar setSearchFieldBackgroundImage:clearImg forState:UIControlStateHighlighted];
+//    [searchBar setSearchFieldBackgroundImage:clearImg forState:UIControlStateSelected];
+//    [searchBar setBackgroundColor:[UIColor clearColor]];
+//}
+
+
+-(void)setHideNavBarWithSearch_:(id)yn
+{
+    hideNavBarWithSearch = [TiUtils boolValue:yn def:YES];
+    if (searchController) {
+        searchController.preventHiddingNavBar = !hideNavBarWithSearch;
+    }
+}
+
 
 #pragma mark Delegate 
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar

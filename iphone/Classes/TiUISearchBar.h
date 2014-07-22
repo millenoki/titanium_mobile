@@ -14,6 +14,10 @@
 
 #import "TiUIView.h"
 
+@interface TiSearchDisplayController : UISearchDisplayController
+@property (nonatomic, assign) BOOL preventHiddingNavBar;
+
+@end
 
 @interface TiUISearchBar : TiUIView<UISearchBarDelegate> {
 @private
@@ -23,6 +27,7 @@
 
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate;
 -(UISearchBar*)searchBar;
+-(TiSearchDisplayController*)searchController;
 
 @end
 
