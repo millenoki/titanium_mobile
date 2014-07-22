@@ -115,6 +115,7 @@ enum
  */
 @property(nonatomic,readwrite,assign) BOOL parentVisible; // For tableview magic ONLY
 @property(nonatomic,readwrite,assign) BOOL preventListViewSelection; // For listview
+@property(nonatomic,readwrite,assign) BOOL canBeResizedByFrame;
 
 -(void)startLayout:(id)arg;//Deprecated since 3.0.0
 -(void)finishLayout:(id)arg;//Deprecated since 3.0.0

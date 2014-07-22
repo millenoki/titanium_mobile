@@ -671,21 +671,22 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     [self updateTransform];
 }
 
-//-(void)setFrame:(CGRect)frame
-//{
-//	[super setFrame:frame];
-//    
-//	// this happens when a view is added to another view but not
-//	// through the framework (such as a tableview header) and it
-//	// means we need to force the layout of our children
-//	if (childrenInitialized==NO &&
-//		CGRectIsEmpty(frame)==NO &&
-//		[self.proxy isKindOfClass:[TiViewProxy class]])
-//	{
-//		childrenInitialized=YES;
-//		[(TiViewProxy*)self.proxy layoutChildren:NO];
-//	}
-//}
+
+-(void)setFrame:(CGRect)frame
+{
+	[super setFrame:frame];
+    if (![self viewProxy].canBeResizedByFrame) return;
+	// this happens when a view is added to another view but not
+	// through the framework (such as a tableview header) and it
+	// means we need to force the layout of our children
+	if (childrenInitialized==NO &&
+		CGRectIsEmpty(frame)==NO &&
+		[self.proxy isKindOfClass:[TiViewProxy class]])
+	{
+		childrenInitialized=YES;
+		[(TiViewProxy*)self.proxy layoutChildren:NO];
+	}
+}
 
 -(void)updateBounds:(CGRect)newBounds
 {

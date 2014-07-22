@@ -1762,6 +1762,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
         [self resetDefaultValues];
         _transitioning = NO;
         vzIndex = 0;
+        _canBeResizedByFrame = NO;
 //        _runningViewAnimations = [[NSMutableArray alloc] init];
 	}
 	return self;

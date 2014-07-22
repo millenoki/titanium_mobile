@@ -164,6 +164,8 @@ static NSDictionary* replaceKeysForRow;
 -(TiViewProxy*)initWrapperProxyWithVerticalLayout:(BOOL)vertical
 {
     TiViewProxy* theProxy = [[TiViewProxy alloc] init];
+    [theProxy setParent:(TiParentingProxy*)self.proxy];
+    theProxy.canBeResizedByFrame = YES;
     LayoutConstraint* viewLayout = [theProxy layoutProperties];
     viewLayout->width = TiDimensionAutoFill;
     viewLayout->height = TiDimensionAutoSize;
@@ -1034,14 +1036,44 @@ static NSDictionary* replaceKeysForRow;
     [_tableView reloadData];
 }
 
+-(void)setSearchViewExternal_:(id)args {
+    ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
+    [self tableView];
+    if (searchViewProxy)
+    {
+		[searchViewProxy setProxyObserver:nil];
+        [searchViewProxy detachView];
+        RELEASE_TO_NIL(searchViewProxy)
+    }
+    RELEASE_TO_NIL(tableController);
+    if (args != nil) {
+        searchViewProxy = [args retain];
+        [searchViewProxy setDelegate:self];
+        tableController = [[UITableViewController alloc] init];
+        [TiUtils configureController:tableController withObject:nil];
+        tableController.tableView = [self tableView];
+		[tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
+        
+        TiSearchDisplayController* searchController = [self searchController];
+        searchController.searchResultsDataSource = self;
+        searchController.searchResultsDelegate = self;
+        searchController.delegate = self;
+        searchHidden = NO;
+    }
+    keepSectionsInSearch = [TiUtils boolValue:[self.proxy valueForKey:@"keepSectionsInSearch"] def:NO];
+}
+
 -(void)setSearchView_:(id)args
 {
     ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
     [self tableView];
-    RELEASE_WITH_DELEGATE(searchViewProxy);
+    if (searchViewProxy)
+    {
+		[searchViewProxy setProxyObserver:nil];
+        [searchViewProxy detachView];
+        RELEASE_TO_NIL(searchViewProxy)
+    }
     RELEASE_TO_NIL(tableController);
-    RELEASE_TO_NIL(searchController);
-    [_searchWrapper removeAllChildren:nil];
 
     if (args != nil) {
         searchViewProxy = [args retain];
