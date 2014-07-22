@@ -11,6 +11,5 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/titanium-dist"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-geolocation"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/akylas-location"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

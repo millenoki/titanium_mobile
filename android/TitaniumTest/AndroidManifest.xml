@@ -48,14 +48,14 @@
         android:hardwareAccelerated="true"
         android:label="TitaniumTest"
         android:theme="@style/Theme.Titanium" >
-<!--         <meta-data
+         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="4323000" /> -->
-<!--         <meta-data
+            android:value="4132500" />
+         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyA4DiNxX9WbOV6anySJHjGeyW9CJf3AhZ0" /> -->
+            android:value="AIzaSyA4DiNxX9WbOV6anySJHjGeyW9CJf3AhZ0" />
 
-        <!--
+        <!-- 
      		<receiver android:name="ti.modules.titanium.android.BootUpReceiver"
 			android:enabled="true"
         	android:permission="android.permission.RECEIVE_BOOT_COMPLETED">

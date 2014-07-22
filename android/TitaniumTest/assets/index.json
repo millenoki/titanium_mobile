@@ -21,6 +21,7 @@
 	"Resources/lib/IconicFont.js": 1,
 	"Resources/lib/EventTarget.js": 1,
 	"Resources/fonts/font_webhostinghub.js": 1,
-	"Resources/rjss/common.rjss": 1,
-	"Resources/rjss/pulltorefresh.rjss": 1
+    "Resources/rjss/common.rjss": 1,
+    "Resources/rjss/pulltorefresh.rjss": 1,
+    "Resources/rjss/social.rjss": 1
 }
