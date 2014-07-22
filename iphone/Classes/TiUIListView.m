@@ -62,6 +62,7 @@
 
     UIView *_pullViewWrapper;
     CGFloat pullThreshhold;
+    BOOL _pullViewVisible;
 
     BOOL pullActive;
 //    CGPoint tapPoint;
@@ -560,6 +561,10 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)showPullView:(NSNumber*)anim
 {
+    if (!_pullViewProxy) {
+        _pullViewVisible = YES;
+        return;
+    }
     BOOL animated = YES;
 	if (anim != nil)
 		animated = [anim boolValue];
@@ -925,6 +930,10 @@ static NSDictionary* replaceKeysForRow;
         
         [_pullViewProxy setProxyObserver:self];
         [_pullViewWrapper addSubview:[_pullViewProxy getAndPrepareViewForOpening:_pullViewWrapper.bounds]];
+        if (_pullViewVisible) {
+            _pullViewVisible = NO;
+            [self showPullView:@(NO)];
+        }
     }
     
 }
