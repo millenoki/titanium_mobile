@@ -83,7 +83,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 		setModelListener(this, false);
 	}
 	
-	@Kroll.method
+	@Kroll.method @Kroll.setProperty
     public void setWindow(TiWindowProxy window)
     {
         this.window = window;
