@@ -85,7 +85,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private int[] marker = new int[2];
 	private View headerView;
 	private View footerView;
-	private TiViewProxy pullView;
+    private TiViewProxy pullView;
+    private TiViewProxy searchView;
 	private String searchText;
 	private boolean caseInsensitive;
 	private RelativeLayout searchLayout;
@@ -604,15 +605,11 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		}
 		
 		if (d.containsKey(TiC.PROPERTY_SEARCH_VIEW)) {
-			TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH_VIEW);
-			if (isSearchViewValid(searchView)) {
-				TiUIView search = searchView.getOrCreateView();
-				setSearchListener(searchView, search);
-				layoutSearchView(searchView);
-			} else {
-				Log.e(TAG, "Searchview type is invalid");
-			}
+			setSearchView(d.get(TiC.PROPERTY_SEARCH_VIEW), true);
 		}
+		else if (d.containsKey(TiC.PROPERTY_SEARCH_VIEW_EXTERNAL)) {
+            setSearchView(d.get(TiC.PROPERTY_SEARCH_VIEW_EXTERNAL), false);
+        }
 		
 		if (d.containsKey(TiC.PROPERTY_SCROLL_HIDES_KEYBOARD)) {
             this.hideKeyboardOnScroll = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLL_HIDES_KEYBOARD, true);
@@ -723,6 +720,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 
 	private void layoutSearchView(TiViewProxy searchView) {
+	    if (searchLayout != null) {
+            searchLayout.removeAllViews();
+        }
 		TiUIView search = searchView.getOrCreateView();
 		RelativeLayout layout = new RelativeLayout(proxy.getActivity());
 		layout.setGravity(Gravity.NO_GRAVITY);
@@ -783,6 +783,20 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		}
 	}
 	
+	private void setSearchView (Object viewObj, boolean addInHeader) {
+        if (searchView != null) {
+            searchView.releaseViews(true);
+        }
+        if (isSearchViewValid(viewObj)) {
+            searchView = (TiViewProxy) viewObj;
+            TiUIView search = searchView.getOrCreateView();
+            setSearchListener(searchView, search);
+            if (addInHeader) layoutSearchView(searchView);
+        } else {
+            Log.e(TAG, "Searchview type is invalid");
+        }
+    }
+	
 	private View setPullView (Object viewObj) {
 		if (pullView != null) {
 			pullView.releaseViews(true);
@@ -805,18 +819,18 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 
 
 	private void reFilter(String searchText) {
-		if (searchText != null) {
+//		if (searchText != null) {
 			for (int i = 0; i < sections.size(); ++i) {
 				ListSectionProxy section = sections.get(i);
 				section.applyFilter(searchText);
 			}
-		}
+//		}
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
 	}
 
-	private boolean isSearchViewValid(TiViewProxy proxy) {
+	private boolean isSearchViewValid(Object proxy) {
 		if (proxy instanceof SearchBarProxy || proxy instanceof SearchViewProxy) {
 			return true;
 		} else {
@@ -865,21 +879,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		} else if (key.equals(TiC.PROPERTY_SCROLL_HIDES_KEYBOARD)) {
             this.hideKeyboardOnScroll = TiConvert.toBoolean(newValue, true);
 		} else if (key.equals(TiC.PROPERTY_SEARCH_VIEW)) {
-			TiViewProxy searchView = (TiViewProxy) newValue;
-			if (isSearchViewValid(searchView)) {
-				TiUIView search = searchView.getOrCreateView();
-				setSearchListener(searchView, search);
-				if (searchLayout != null) {
-					searchLayout.removeAllViews();
-					addSearchLayout(searchLayout, searchView, search);
-				} else {
-					layoutSearchView(searchView);
-				}
-			} else {
-				Log.e(TAG, "Searchview type is invalid");
-			}
-			
-		} else if (key.equals(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR) && newValue != null) {
+            setSearchView(newValue, true);
+		} else if (key.equals(TiC.PROPERTY_SEARCH_VIEW_EXTERNAL)) {
+            setSearchView(newValue, false);
+        } else if (key.equals(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR) && newValue != null) {
 			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE) && newValue != null) {
 			defaultTemplateBinding = TiConvert.toString(newValue);
