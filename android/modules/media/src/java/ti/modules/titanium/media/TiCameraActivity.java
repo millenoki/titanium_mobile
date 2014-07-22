@@ -21,8 +21,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
-import com.actionbarsherlock.app.ActionBar;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -36,6 +34,7 @@ import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Surface;

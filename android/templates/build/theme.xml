@@ -4,10 +4,10 @@
 		<item name="android:windowFullscreen">true</item>
 	</style>
 
-    <style name="BaseTheme" parent="@style/Theme.Sherlock">
+    <style name="BaseTheme" parent="@style/Theme.AppCompat">
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="actionBarStyle">@style/Widget.Sherlock.ActionBar.Solid</item>
-        <item name="android:actionBarStyle">@style/Widget.Sherlock.ActionBar.Solid</item>
+        <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar.Solid</item>
+        <item name="android:actionBarStyle">@style/Widget.AppCompat.ActionBar.Solid</item>
     </style>
 
 	

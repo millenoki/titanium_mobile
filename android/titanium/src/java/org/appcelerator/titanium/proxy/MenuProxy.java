@@ -18,10 +18,9 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-
 import android.os.Message;
+import android.view.Menu;
+import android.view.MenuItem;
 
 @Kroll.proxy
 @SuppressWarnings({"unchecked", "rawtypes"})

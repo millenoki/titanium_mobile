@@ -3496,7 +3496,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                 'activity': {
                     'name': 'ti.modules.titanium.media.TiVideoActivity',
                     'configChanges': ['keyboardHidden', 'orientation'],
-                    'theme': '@style/Theme.Sherlock.Fullscreen',
+                    'theme': '@style/Theme.AppCompat.Fullscreen',
                     'launchMode': 'singleTask'
                 }
             },
@@ -3504,7 +3504,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                 'activity': {
                     'name': 'ti.modules.titanium.media.TiCameraActivity',
                     'configChanges': ['keyboardHidden', 'orientation'],
-                    'theme': '@style/Theme.Sherlock.NoActionBar.Fullscreen'
+                    'theme': '@style/Theme.AppCompat.NoActionBar.Fullscreen'
                 }
             }
         },

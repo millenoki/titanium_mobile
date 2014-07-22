@@ -53,15 +53,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
-
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -73,7 +69,7 @@ import com.appcelerator.analytics.APSAnalytics;
  * The base class for all non tab Titanium activities. To learn more about Activities, see the
  * <a href="http://developer.android.com/reference/android/app/Activity.html">Android Activity documentation</a>.
  */
-public abstract class TiBaseActivity extends SherlockFragmentActivity
+public abstract class TiBaseActivity extends ActionBarActivity
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
 	private static final String TAG = "TiBaseActivity";
@@ -550,12 +546,17 @@ public abstract class TiBaseActivity extends SherlockFragmentActivity
 	{
 		final ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			if (hidden) {
-				actionBar.hide();
-			}
-			else {
-				actionBar.show();
-			}
+		    try {
+		        if (hidden) {
+	                actionBar.hide();
+	            }
+	            else {
+	                actionBar.show();
+	            }
+            } catch (NullPointerException e) {
+                //no internal action bar
+            }
+			
 		}
 	}
 	

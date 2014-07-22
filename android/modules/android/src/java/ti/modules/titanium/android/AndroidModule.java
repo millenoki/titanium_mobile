@@ -23,8 +23,6 @@ import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
-import com.actionbarsherlock.app.ActionBar;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -37,6 +35,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
+import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 @SuppressLint("InlinedApi")

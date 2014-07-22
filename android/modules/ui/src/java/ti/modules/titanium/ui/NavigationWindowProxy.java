@@ -38,7 +38,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.KrollProxyReusableListener;
 import org.appcelerator.titanium.view.TiUIView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.Animator.AnimatorListener;
 import com.nineoldandroids.animation.AnimatorSet;
@@ -47,6 +46,7 @@ import ti.modules.titanium.ui.transitionstyle.TransitionStyleModule;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Message;
+import android.support.v7.app.ActionBar;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;

@@ -28,10 +28,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
-import com.actionbarsherlock.app.ActionBar;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
+import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
 
 @SuppressLint("InlinedApi")
@@ -78,7 +78,14 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 	public ActionBarProxy(TiBaseActivity activity)
 	{
 		super();
-		actionBar = activity.getSupportActionBar();
+		try {
+		    actionBar = activity.getSupportActionBar();
+		    //trick to actually know if the internal action bar exists
+	        actionBar.isShowing();
+        } catch (NullPointerException e) {
+            //no internal action bar
+            actionBar = null;
+        }
 		themeIconDrawable = getActionBarIcon(activity);
 		themeBackgroundDrawable = getActionBarBackground(activity);
 		setModelListener(this, false);
