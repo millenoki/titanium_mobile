@@ -2392,7 +2392,10 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SEARCH_VIEW = "searchView";
-	
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SEARCH_VIEW_EXTERNAL = "searchViewExternal";	
 	/**
 	 * @module.api
 	 */
