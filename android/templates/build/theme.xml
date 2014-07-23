@@ -6,8 +6,8 @@
 
     <style name="BaseTheme" parent="@style/Theme.AppCompat">
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar.Solid</item>
-        <item name="android:actionBarStyle">@style/Widget.AppCompat.ActionBar.Solid</item>
+        <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
+        <item name="android:actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
     </style>
 
 	

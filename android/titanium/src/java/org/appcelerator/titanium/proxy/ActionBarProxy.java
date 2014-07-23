@@ -96,7 +96,7 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
             int[] styleAttrs) throws ResourceNotFoundException {
         // Need to get resource id of style pointed to from the theme attr
         TypedValue outValue = new TypedValue();
-    	int resourceId = TiRHelper.getResource("com.actionbarsherlock.R$", "attr.actionBarStyle");
+    	int resourceId = TiRHelper.getResource("android.support.v7.appcompat.R$", "attr.actionBarStyle");
        context.getTheme().resolveAttribute(resourceId, outValue, true);
         final int styleResId =  outValue.resourceId;
 
