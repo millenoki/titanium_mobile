@@ -95,6 +95,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private static final int STOP = 10003;
     private static final int SET_DRAWABLE = 10004;
     private static final int RESUME = 10005;
+    private static final int SET_PROGRESS = 10006;
+    private static final int SET_INDEX = 10007;
 
     // This handles the memory cache of images.
     private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
@@ -268,6 +270,18 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         case RESUME:
             handleResume();
             return true;
+        case SET_INDEX: {
+            AsyncResult result = (AsyncResult) msg.obj;
+            handleSetCurrentIndex(((Number) result.getArg()).intValue());
+            result.setResult(null);
+            return true;
+        }
+        case SET_PROGRESS: {
+            AsyncResult result = (AsyncResult) msg.obj;
+            handleSetProgress(((Number) result.getArg()).floatValue());
+            result.setResult(null);
+            return true;
+        }
         default:
             return false;
 
@@ -699,6 +713,56 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             }
         }
     }
+    
+    public int getCurrentIndex() {
+        int total = (animDrawable != null) ? animDrawable.getNumberOfFrames() : 1;
+        int result = (animDrawable != null) ? animDrawable.getCurrentFrame() : currentIndex;
+        
+        return reverse ? (total - result) : result;
+    }
+    
+    public float getProgress() {
+        int total = (animDrawable != null) ? animDrawable.getNumberOfFrames() : 1;
+        float result = ((animDrawable != null) ? animDrawable.getCurrentFrame() : currentIndex) / (float)total;
+         
+        return reverse ? (1 - result) : result;
+    }
+    
+    public void handleSetCurrentIndex(int index) {
+        if (animDrawable != null) {
+            if (getDrawable() != animDrawable) {
+                setDrawable(animDrawable);
+            }
+            animDrawable.setFrame(index);
+        }
+    }
+    
+    public void setCurrentIndex(int index) {
+        if (!TiApplication.isUIThread()) {
+            TiMessenger.sendBlockingMainMessage(
+                    mainHandler.obtainMessage(SET_INDEX), Integer.valueOf(index));
+        } else {
+            handleSetCurrentIndex(index);
+        }
+    }
+    
+    public void handleSetProgress(float progress) {
+        if (animDrawable != null) {
+            if (getDrawable() != animDrawable) {
+                setDrawable(animDrawable);
+            }
+            animDrawable.setProgress(progress);
+        }
+    }
+    
+    public void setProgress(float progress) {
+        if (!TiApplication.isUIThread()) {
+            TiMessenger.sendBlockingMainMessage(
+                    mainHandler.obtainMessage(SET_PROGRESS), Float.valueOf(progress));
+        } else {
+            handleSetProgress(progress);
+        }
+    }
 
     public void start() {
         currentIndex = (animDrawable != null) ? (reverse ? animDrawable
@@ -754,10 +818,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     public void handleResume() {
         if (animDrawable != null) {
-            animDrawable.resume();
             if (getDrawable() != animDrawable) {
                 setDrawable(animDrawable);
             }
+            animDrawable.resume();
             return;
         }
         if (animator == null) {
@@ -1097,6 +1161,13 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             setAnimatedImageSource(d.get(TiC.PROPERTY_ANIMATED_IMAGES));
             setAnimatedImages();
         }
+        
+        if (d.containsKey(TiC.PROPERTY_INDEX)) {
+            setCurrentIndex(d.optInt(TiC.PROPERTY_INDEX, 0));
+        }
+        if (d.containsKey(TiC.PROPERTY_PROGRESS)) {
+            setProgress(d.optFloat(TiC.PROPERTY_PROGRESS, 0));
+        }
 
         if (d.containsKey(TiC.PROPERTY_IMAGE_MASK)) {
             setImageMask(d.get(TiC.PROPERTY_IMAGE_MASK));
@@ -1177,6 +1248,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             }
         } else if (key.equals(TiC.PROPERTY_REPEAT_COUNT)) {
             repeatCount = TiConvert.toInt(newValue, INFINITE);
+        } else if (key.equals(TiC.PROPERTY_INDEX)) {
+            setCurrentIndex(TiConvert.toInt(newValue, 0));
+        } else if (key.equals(TiC.PROPERTY_PROGRESS)) {
+            setProgress(TiConvert.toFloat(newValue, 0));
         } else {
             super.propertyChanged(key, oldValue, newValue, proxy);
             if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_LEFT)

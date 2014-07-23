@@ -1649,6 +1649,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_ID = "id";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_INDEX = "index";
+
 	/**
 	 * @module.api
 	 */
@@ -2215,7 +2220,12 @@ public class TiC
      * @module.api
      */
     public static final String PROPERTY_PREVENT_LISTVIEW_SELECTION = "preventListViewSelection";
-	
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_PROGRESS = "progress";
+    
 	/**
 	 * @module.api
 	 */
