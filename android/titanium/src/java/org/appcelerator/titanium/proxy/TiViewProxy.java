@@ -385,6 +385,37 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 		return dict;
 	}
+	
+    @Kroll.getProperty
+    @Kroll.method
+    public boolean getTouchPassThrough() {
+        if (view != null)
+            return view.getTouchPassThrough();
+        return false;
+    }
+
+    @Kroll.getProperty
+    @Kroll.method
+    public boolean getDispatchPressed() {
+        if (view != null)
+            return view.getDispatchPressed();
+        return false;
+    }
+
+    @Kroll.getProperty
+    @Kroll.method
+    public boolean getPreventListViewSelection() {
+        if (view != null)
+            return view.getPreventListViewSelection();
+        return false;
+    }
+
+    @Kroll.getProperty @Kroll.method
+    public boolean getClipChildren() {
+        if (view  != null)
+            return view.getClipChildren();
+        return false;
+    }
 
 	public void clearView()
 	{

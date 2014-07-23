@@ -1874,6 +1874,10 @@ public abstract class TiUIView
     public boolean getPreventListViewSelection() {
         return preventListViewSelection;
     }
+    
+    public boolean getClipChildren() {
+        return clipChildren;
+    }
 
 	protected void doSetClickable(View view, boolean clickable)
 	{
