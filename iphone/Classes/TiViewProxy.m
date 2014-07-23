@@ -448,6 +448,28 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willCha
     [super setValue:value forUndefinedKey:key];
 }
 
+
+NSString * GetterStringForKrollProperty(NSString * key)
+{
+    return [NSString stringWithFormat:@"%@_", key];
+}
+
+SEL GetterForKrollProperty(NSString * key)
+{
+	NSString *method = GetterStringForKrollProperty(key);
+	return NSSelectorFromString(method);
+}
+
+- (id) valueForKey: (NSString *) key
+{
+    SEL sel = GetterForKrollProperty(key);
+	if ([[self view] respondsToSelector:sel])
+	{
+		return [[self view] performSelector:sel];
+	}
+    return [super valueForKey:key];
+}
+
 -(TiRect*)size
 {
 	TiRect *rect = [[TiRect alloc] init];
