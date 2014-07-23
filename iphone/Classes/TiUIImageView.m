@@ -743,16 +743,42 @@ DEFINE_EXCEPTIONS
     [self startTimerWithEvent:@"resume"];
 }
 
--(void)setAnimatedImageAtIndex:(int)i
+-(id)index_
 {
+    if (_animatedImage) {
+        return @([_animatedImage index]);
+    }
+    return @(0);
+}
+
+-(void)setIndex_:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSNumber)
     if (_animatedImage) {
         [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
         [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
-        [_animatedImage setAnimatedImageAtIndex:i];
+        [_animatedImage setAnimatedImageAtIndex:[arg intValue]];
         return;
     }
 }
 
+-(id)progress_ {
+    if (_animatedImage) {
+        return @([_animatedImage progress]);
+    }
+    return @(1);
+}
+
+
+-(void)setProgress_:(id)arg
+{
+    ENSURE_SINGLE_ARG(arg, NSNumber)
+    if (_animatedImage) {
+        [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+        [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
+        [_animatedImage setProgress:[arg floatValue]];
+    }
+}
 
 -(void)setWidth_:(id)width_
 {

@@ -114,6 +114,19 @@
     [self presentCurrentImage];
 }
 
+
+-(void)setProgress:(float)progress
+{
+    
+    [self setAnimatedImageAtIndex:roundf((_reverse?(1 - progress):progress)* [_images count])];
+}
+
+-(float)progress
+{
+    float result = (float)index / [_images count];
+    return _reverse?(1 - result):result;
+}
+
 -(void) stop {
     _stopped = _paused = YES;
     [self reset];
