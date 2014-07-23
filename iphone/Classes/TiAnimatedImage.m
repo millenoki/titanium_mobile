@@ -110,7 +110,7 @@
 -(void)setAnimatedImageAtIndex:(int)i
 {
     _paused = YES;
-    index = i;
+    index = _reverse?([_images count] - i):i;
     [self presentCurrentImage];
 }
 
