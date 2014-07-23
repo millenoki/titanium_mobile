@@ -1374,13 +1374,13 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	_dispatchPressed = [TiUtils boolValue:arg def:_dispatchPressed];
 }
 
--(BOOL)dispatchPressed
+-(id)dispatchPressed_
 {
-	return _dispatchPressed;
+	return @(_dispatchPressed);
 }
 
--(BOOL) touchEnabled {
-	return _touchEnabled;
+-(id) touchEnabled_ {
+	return @(_touchEnabled);
 }
 
 -(void)setTouchPassThrough_:(id)arg
@@ -1395,8 +1395,8 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 
--(BOOL)touchPassThrough {
-    return touchPassThrough;
+-(id)touchPassThrough_ {
+    return @(touchPassThrough);
 }
 
 -(UIView *)backgroundWrapperView
@@ -1417,9 +1417,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     self.layer.shouldRasterize = [TiUtils boolValue:arg def:self.layer.shouldRasterize];
 }
 
--(BOOL)clipChildren
+-(id)clipChildren_
 {
-    return (clipChildren && ([[self shadowLayer] shadowOpacity] == 0));
+    return @(clipChildren && ([[self shadowLayer] shadowOpacity] == 0));
 }
 
 
