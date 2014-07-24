@@ -42,6 +42,7 @@
 
 - (void)controlAction:(id)sender forEvent:(UIEvent *)event
 {
+    if (![event isKindOfClass:[UIEvent class]]) return; //so strange it happens sometimes with MKMapView
     UITouch *touch = [[event allTouches] anyObject];
     NSString *fireEvent;
     NSString * fireActionEvent = nil;
