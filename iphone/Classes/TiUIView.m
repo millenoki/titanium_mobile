@@ -1417,9 +1417,14 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     self.layer.shouldRasterize = [TiUtils boolValue:arg def:self.layer.shouldRasterize];
 }
 
+-(BOOL)clipChildren
+{
+    return clipChildren && ([[self shadowLayer] shadowOpacity] == 0);
+}
+
 -(id)clipChildren_
 {
-    return @(clipChildren && ([[self shadowLayer] shadowOpacity] == 0));
+    return @([self clipChildren]);
 }
 
 
