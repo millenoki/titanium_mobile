@@ -463,9 +463,9 @@ SEL GetterForKrollProperty(NSString * key)
 - (id) valueForKey: (NSString *) key
 {
     SEL sel = GetterForKrollProperty(key);
-	if ([[self view] respondsToSelector:sel])
+	if ([view respondsToSelector:sel])
 	{
-		return [[self view] performSelector:sel];
+		return [view performSelector:sel];
 	}
     return [super valueForKey:key];
 }
