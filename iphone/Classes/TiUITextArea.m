@@ -13,11 +13,29 @@
 #import "Webcolor.h"
 #import "TiApp.h"
 
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+#define is_iOS7 SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")
+#define is_iOS8 SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0")
+
+@interface TiUITextViewImpl()
+- (void)handleTextViewDidChange;
+@end
+
+
 @implementation TiUITextViewImpl
 {
     BOOL becameResponder;
+    BOOL settingText;
 }
 
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+{
+    [super setContentOffset:contentOffset animated:animated];
+}
+- (void)scrollRectToVisible:(CGRect)rect animated:(BOOL)animated
+{
+    [super scrollRectToVisible:rect animated:animated];
+}
 -(void)setTouchHandler:(TiUIView*)handler
 {
     //Assign only. No retain
@@ -108,10 +126,38 @@
 	if (becameResponder) return YES;
 	return [super isFirstResponder];
 }
+
+- (void)handleTextViewDidChange {
+    if (is_iOS7 && !is_iOS8 && !settingText) {
+        if ([self.text hasSuffix:@"\n"]) {
+            [CATransaction setCompletionBlock:^{
+                [self scrollToCaretAnimated:NO];
+            }];
+        } else {
+            [self scrollToCaretAnimated:NO];
+        }
+    }
+}
+
+- (void)setText:(NSString *)text {
+    settingText = YES;
+    [super setText:text];
+    settingText = NO;
+}
+
+- (void)scrollToCaretAnimated:(BOOL)animated {
+    CGRect rect = [self caretRectForPosition:self.selectedTextRange.end];
+    rect.size.height += self.textContainerInset.bottom;
+    [self scrollRectToVisible:rect animated:animated];
+}
+
 @end
 
 
 @implementation TiUITextArea
+{
+    NSTimer* _caretVisibilityTimer;
+}
 
 @synthesize becameResponder;
 
@@ -124,6 +170,7 @@
     //It seems that the textWidgetView are not layed out correctly
     //without this
     [textWidgetView layoutSubviews];
+    [self updateInsentForKeyboard];
     
 	[super frameSizeChanged:frame bounds:bounds];
 }
@@ -244,15 +291,44 @@
     }
 }
 
+- (void)scrollCaretToVisible
+{
+    TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
+    [ourView scrollToCaretAnimated:YES];
+}
+
+-(void)updateInsentForKeyboard {
+    TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
+    CGRect keyboardRect = [[TiApp app] controller].currentKeyboardFrame;
+    keyboardRect = [self convertRect:keyboardRect fromView:nil];
+    UIEdgeInsets contentInset = ourView.contentInset;
+    contentInset.bottom = self.frame.size.height - keyboardRect.origin.y;
+    ourView.contentInset = contentInset;
+}
+
+
 - (void)textViewDidBeginEditing:(UITextView *)tv
 {
 	[self textWidget:tv didFocusWithText:[tv text]];
+    TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
+    
+    [self updateInsentForKeyboard];
+    
+    //it does not work to instantly scroll to the caret so let's delay it
+    _caretVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:0.3 target:self selector:@selector(scrollCaretToVisible) userInfo:nil repeats:YES];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)tv
 {
 	NSString * text = [(UITextView *)textWidgetView text];
+    
+    UIEdgeInsets contentInset = tv.contentInset;
+    contentInset.bottom = 0;
+    tv.contentInset = contentInset;
 
+    [_caretVisibilityTimer invalidate];
+    _caretVisibilityTimer = nil;
+    
     if (returnActive && [(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
 	{
 		[self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO checkForListener:NO];
@@ -265,8 +341,14 @@
 
 - (void)textViewDidChange:(UITextView *)tv
 {
+    if ([tv isKindOfClass:[TiUITextViewImpl class]]) {
+        [(TiUITextViewImpl*)tv handleTextViewDidChange];
+    }
 	[(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]];
 }
+
+#pragma mark Keyboard delegate stuff
+
 
 - (void)textViewDidChangeSelection:(UITextView *)tv
 {
@@ -348,9 +430,11 @@ Text area constrains the text event though the content offset and edge insets ar
     }
     return CGSizeMake(txtWidth + 2 * self.layer.borderWidth, height);
 }
+
+
 - (void)scrollViewDidScroll:(id)scrollView
 {
-    //Ensure that system messages that cause the scrollView to 
+    //Ensure that system messages that cause the scrollView to
     //scroll are ignored if scrollable is set to false
     UITextView* ourView = (UITextView*)[self textWidgetView];
     if (![ourView isScrollEnabled]) {
@@ -360,7 +444,6 @@ Text area constrains the text event though the content offset and edge insets ar
         }
     }
 }
-
 
 @end
 
