@@ -126,7 +126,8 @@ public class TiConvert
 			d.put(key,dict);
 
 		} else {
-			throw new IllegalArgumentException("Unsupported property type " + value.getClass().getName());
+			throw new IllegalArgumentException("Unsupported property type "
+				+ (value == null ? "null" : value.getClass().getName()));
 		}
 
 		return value;
@@ -453,7 +454,7 @@ public class TiConvert
 			return Integer.parseInt((String) value);
 
 		} else {
-			throw new NumberFormatException("Unable to convert " + value);
+			throw new NumberFormatException("Unable to convert " + (value == null ? "null" : value));
 		}
 	}
 
@@ -590,7 +591,7 @@ public class TiConvert
 			return Double.parseDouble((String) value);
 
 		} else {
-			throw new NumberFormatException("Unable to convert " + value.getClass().getName());
+			throw new NumberFormatException("Unable to convert " + (value == null ? "null" : value.getClass().getName()));
 		}
 	}
 	

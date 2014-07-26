@@ -924,9 +924,13 @@ else{\
 		NSURL * path = [TiUtils toURL:[self valueForKey:@"titleImage"] proxy:self];
 		//Todo: This should be [TiUtils navBarTitleViewSize] with the thumbnail scaling. For now, however, we'll go with auto.
 		UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path withSize:CGSizeZero];
-		if (image!=nil)
-		{
-			newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
+		if (image!=nil) {
+			if ([oldView isKindOfClass:[UIImageView class]]) {
+				[(UIImageView*)oldView setImage:image];
+				newTitleView = oldView;
+			} else {
+				newTitleView = [[[UIImageView alloc] initWithImage:image] autorelease];
+			}
 		}
 	}
     

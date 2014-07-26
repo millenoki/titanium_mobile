@@ -815,7 +815,7 @@ public class TiUIText extends TiUINonViewGroupView
 		int autoCapValue = 0;
 
 		if (d.containsKey(TiC.PROPERTY_AUTOCORRECT) && !TiConvert.toBoolean(d, TiC.PROPERTY_AUTOCORRECT, true)) {
-			autocorrect = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+			autocorrect = 0;
 		}
 
 		if (d.containsKey(TiC.PROPERTY_AUTOCAPITALIZATION)) {
@@ -853,9 +853,8 @@ public class TiUIText extends TiUINonViewGroupView
 
 		int typeModifiers = autocorrect | autoCapValue;
 		int textTypeAndClass = typeModifiers;
-		// For some reason you can't set both TYPE_CLASS_TEXT and TYPE_TEXT_FLAG_NO_SUGGESTIONS together.
-		// Also, we need TYPE_CLASS_TEXT for passwords.
-		if ((autocorrect != InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS || passwordMask) && type != UIModule.KEYBOARD_DECIMAL_PAD) {
+		
+		if (type != UIModule.KEYBOARD_DECIMAL_PAD) {
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
 

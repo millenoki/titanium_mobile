@@ -624,11 +624,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			return;
 		}
 
-		// If all the activities has been killed and the runtime has been disposed, we cannot recover one
-		// specific activity because the info of the top-most view proxy has been lost (TiActivityWindows.dispose()).
-		// In this case, we have to restart the app.
+		// If all the activities has been killed and the runtime has been disposed or the app's hosting process has
+		// been killed, we cannot recover one specific activity because the info of the top-most view proxy has been
+		// lost (TiActivityWindows.dispose()). In this case, we have to restart the app.
 		if (TiBaseActivity.isUnsupportedReLaunch(this, savedInstanceState)) {
-			Log.w(TAG, "Runtime has been disposed. Finishing.");
+			Log.w(TAG, "Runtime has been disposed or app has been killed. Finishing.");
 			super.onCreate(savedInstanceState);
 			tiApp.scheduleRestart(250);
 			finish();
@@ -639,7 +639,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 		// create the activity proxy here so that it is accessible from the activity in all cases
 		activityProxy = new ActivityProxy(this);
-		
 
 		// Increment the reference count so we correctly clean up when all of our activities have been destroyed
 		KrollRuntime.incrementActivityRefCount();
@@ -667,6 +666,13 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
 		}
 
+		// Set the theme of the activity before calling super.onCreate().
+		// On 2.3 devices, it does not work if the theme is set after super.onCreate.
+		int theme = getIntentInt(TiC.PROPERTY_THEME, -1);
+		if (theme != -1) {
+			this.setTheme(theme);
+		}
+
 		super.onCreate(savedInstanceState);
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.
@@ -678,6 +684,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		windowCreated();
 
 		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
 			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
 
@@ -1088,6 +1095,16 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 	}
 
+	private void dispatchCallback(String name, KrollDict data) {
+		if (data == null) {
+			data = new KrollDict();
+		}
+
+		data.put("source", activityProxy);
+
+		activityProxy.callPropertyAsync(name, new Object[] { data });
+	}
+
 	private void releaseDialogs(boolean finish)
 	{
 		//clean up dialogs when activity is pausing or finishing
@@ -1147,6 +1164,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	{
 		TiApplication.getInstance().activityPaused(this); //call before setting inForeground
 		inForeground = false;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_PAUSE, null);
+		}
 		super.onPause();
 		isResumed = false;
 		isPaused = true;
@@ -1203,6 +1223,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	{
 		TiApplication.getInstance().activityResumed(this);
 		inForeground = true;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_RESUME, null);
+		}
 		super.onResume();
 		if (isFinishing()) {
 			return;
@@ -1265,6 +1288,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onStart()
 	{
 		inForeground = true;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_START, null);
+		}
 		super.onStart();
 		if (isFinishing()) {
 			return;
@@ -1324,6 +1350,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	{
 		TiApplication.getInstance().activityStopped(this);
 		inForeground = false;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_STOP, null);
+		}
 		super.onStop();
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
@@ -1360,6 +1389,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onRestart()
 	{
 		inForeground = true;
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_RESTART, null);
+		}
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
@@ -1418,6 +1450,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	protected void onDestroy()
 	{
 		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
+		if (activityProxy != null) {
+			dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
+		}
 
 		inForeground = false;
 		TiApplication tiApp = getTiApp();
@@ -1619,10 +1654,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	 */
 	public static boolean isUnsupportedReLaunch(Activity activity, Bundle savedInstanceState)
 	{
-		// If all the activities has been killed and the runtime has been disposed, we have to relaunch
-		// the app.
-		if (KrollRuntime.getInstance().getRuntimeState() == KrollRuntime.State.DISPOSED &&
-				savedInstanceState != null && !(activity instanceof TiLaunchActivity)) {
+		// We have to relaunch the app if
+		// 1. all the activities have been killed and the runtime has been disposed or
+		// 2. the app's hosting process has been killed. In this case, onDestroy or any other method
+		// is not called. We can check the status of the root activity to detect this situation.
+		if (savedInstanceState != null && !(activity instanceof TiLaunchActivity) &&
+				(KrollRuntime.isDisposed() || TiApplication.getInstance().rootActivityLatch.getCount() != 0)) {
 			return true;
 		}
 		return false;

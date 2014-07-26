@@ -132,45 +132,45 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
     this.ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
     this.ignoreFiles = new RegExp(config.get('cli.ignoreFiles'));
 
-    // we hook into the pre-validate event so that we can stop the build before
-    // prompting if we know the build is going to fail.
-    //
-    // this is also where we can detect android and jdk environments before
-    // prompting occurs. because detection is expensive we also do it here instead
-    // of during config() because there's no sense detecting if config() is being
-    // called because of the help command.
-    cli.on('cli:pre-validate', function (obj, callback) {
-        if (cli.argv.platform && cli.argv.platform != 'android') {
-            return callback();
-        }
+	function assertIssue(logger, issues, name) {
+		var i = 0,
+			len = issues.length;
+		for (; i < len; i++) {
+			if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
+				issues[i].message.split('\n').forEach(function (line) {
+					logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+				});
+				logger.log();
+				process.exit(1);
+			}
+		}
+	}
 
-        function assertIssue(logger, issues, name, exit) {
-            var i = 0,
-                len = issues.length;
-            for (; i < len; i++) {
-                if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-                    issues[i].message.split('\n').forEach(function (line) {
-                        logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-                    });
-                    logger.log();
-                    exit && process.exit(1);
-                }
-            }
-        }
+	// we hook into the pre-validate event so that we can stop the build before
+	// prompting if we know the build is going to fail.
+	//
+	// this is also where we can detect android and jdk environments before
+	// prompting occurs. because detection is expensive we also do it here instead
+	// of during config() because there's no sense detecting if config() is being
+	// called because of the help command.
+	cli.on('cli:pre-validate', function (obj, callback) {
+		if (cli.argv.platform && cli.argv.platform != 'android') {
+			return callback();
+		}
 
-        async.series([
-            function (next) {
-                // detect android environment
-                androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
-                    _t.androidInfo = androidInfo;
+		async.series([
+			function (next) {
+				// detect android environment
+				androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
+					_t.androidInfo = androidInfo;
+					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
 
-                    assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND', true);
-                    assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS', true);
-
-                    if (!cli.argv.prompt) {
-                        // check that the Android SDK is found and sane
-                        assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-                        assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
+					if (!cli.argv.prompt) {
+						// check that the Android SDK is found and sane
+						// note: if we're prompting, then we'll do this check in the --android-sdk validate() callback
+						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 
 						// make sure we have an Android SDK and some Android targets
 						if (!Object.keys(androidInfo.targets).filter(function (id) {
@@ -200,12 +200,12 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                 });
             },
 
-            function (next) {
-                // detect java development kit
-                appc.jdk.detect(config, null, function (jdkInfo) {
-                    assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED', true);
-                    assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS', true);
-                    assertIssue(logger, jdkInfo.issues, 'JDK_INVALID_JAVA_HOME', true);
+			function (next) {
+				// detect java development kit
+				appc.jdk.detect(config, null, function (jdkInfo) {
+					assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED');
+					assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS');
+					assertIssue(logger, jdkInfo.issues, 'JDK_INVALID_JAVA_HOME');
 
                     if (!jdkInfo.version) {
                         logger.error(__('Unable to locate the Java Development Kit') + '\n');
@@ -351,41 +351,46 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                                 }
                             }
 
-                            callback(fields.file({
-                                promptLabel: __('Where is the Android SDK?'),
-                                default: androidSdkPath,
-                                complete: true,
-                                showHidden: true,
-                                ignoreDirs: _t.ignoreDirs,
-                                ignoreFiles: _t.ignoreFiles,
-                                validate: _t.conf.options['android-sdk'].validate.bind(_t)
-                            }));
-                        },
-                        required: true,
-                        validate: function (value, callback) {
-                            if (!value) {
-                                callback(new Error(__('Invalid Android SDK path')));
-                            } else if (process.platform == 'win32' && value.indexOf('&') != -1) {
-                                callback(new Error(__('The Android SDK path cannot contain ampersands (&) on Windows')));
-                            } else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == afs.resolvePath(value)) {
-                                // no sense doing the detection again
-                                callback(null, value);
-                            } else {
-                                // do a quick scan to see if the path is correct
-                                android.findSDK(value, config, appc.pkginfo.package(module), function (err, results) {
-                                    if (err) {
-                                        callback(new Error(__('Invalid Android SDK path: %s', value)));
-                                    } else {
-                                        function next() {
-                                            // set the android sdk in the config just in case a plugin or something needs it
-                                            config.set('android.sdkPath', value);
+							callback(fields.file({
+								promptLabel: __('Where is the Android SDK?'),
+								default: androidSdkPath,
+								complete: true,
+								showHidden: true,
+								ignoreDirs: _t.ignoreDirs,
+								ignoreFiles: _t.ignoreFiles,
+								validate: _t.conf.options['android-sdk'].validate.bind(_t)
+							}));
+						},
+						required: true,
+						validate: function (value, callback) {
+							if (!value) {
+								callback(new Error(__('Invalid Android SDK path')));
+							} else if (process.platform == 'win32' && value.indexOf('&') != -1) {
+								callback(new Error(__('The Android SDK path cannot contain ampersands (&) on Windows')));
+							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == afs.resolvePath(value)) {
+								// no sense doing the detection again, just make sure we found the sdk
+								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
+								callback(null, value);
+							} else {
+								// do a quick scan to see if the path is correct
+								android.findSDK(value, config, appc.pkginfo.package(module), function (err, results) {
+									if (err) {
+										callback(new Error(__('Invalid Android SDK path: %s', value)));
+									} else {
+										function next() {
+											// set the android sdk in the config just in case a plugin or something needs it
+											config.set('android.sdkPath', value);
 
-                                            // path looks good, do a full scan again
-                                            androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
-                                                _t.androidInfo = androidInfo;
-                                                callback(null, value);
-                                            });
-                                        }
+											// path looks good, do a full scan again
+											androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
+												// check that the Android SDK is found and sane
+												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
+												_t.androidInfo = androidInfo;
+												callback(null, value);
+											});
+										}
 
                                         // new android sdk path looks good
                                         // if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
@@ -2490,16 +2495,16 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         });
     });
 
-    //get the respackgeinfo files if they exist
-    this.modules.forEach(function (module) {
-        var respackagepath = path.join(module.modulePath,'respackageinfo');
-        if (fs.existsSync(respackagepath)) {
-            var data = fs.readFileSync(respackagepath).toString().split('\n').shift().trim();
-            if(data.length > 0) {
-                this.moduleResPackages.push(data);
-            }
-        }
-    }, this);
+	//get the respackgeinfo files if they exist
+	this.modules.forEach(function (module) {
+		var respackagepath = path.join(module.modulePath, 'respackageinfo');
+		if (fs.existsSync(respackagepath)) {
+			var data = fs.readFileSync(respackagepath).toString().split('\n').shift().trim();
+			if(data.length > 0) {
+				this.moduleResPackages.push(data);
+			}
+		}
+	}, this);
 
     var platformPaths = [];
     // WARNING! This is pretty dangerous, but yes, we're intentionally copying

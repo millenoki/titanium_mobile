@@ -23,6 +23,9 @@
 	<style name="Theme.Titanium.NoActionBar.Fullscreen" parent="Theme.Titanium.NoActionBar">
 		<item name="android:windowFullscreen">true</item>
 		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowActionBar">false</item>
+		<!-- AppCompat Compatibility -->
+		<item name="windowActionBar">false</item>
 	</style>
 	
 	<style name="Theme.Titanium.SplashScreen" parent="Theme.Titanium.NoActionBar">
@@ -33,5 +36,17 @@
 		<item name="android:colorBackgroundCacheHint">@null</item>
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:background">#00000000</item>
+	</style>
+	
+	<style name="Theme.Titanium.Translucent.NoTitleBar" parent="Theme.Titanium.Translucent">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowActionBar">false</item>
+		<!-- AppCompat Compatibility -->
+		<item name="windowActionBar">false</item>
+	</style>
+	
+	<style name="Theme.Titanium.Translucent.NoTitleBar.Fullscreen" parent="Theme.Titanium.Translucent.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
 	</style>
 </resources>

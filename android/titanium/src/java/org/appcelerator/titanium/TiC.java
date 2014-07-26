@@ -1459,6 +1459,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_FONTSIZE = "fontSize";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONTSTYLE = "fontStyle";
 
 	/**
 	 * @module.api
@@ -2040,6 +2045,41 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_CREATE = "onCreate";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_START = "onStart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_RESUME = "onResume";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_RESTART = "onRestart";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_PAUSE = "onPause";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_STOP = "onStop";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_DESTROY = "onDestroy";
 
 	/**
 	 * @module.api
@@ -2690,6 +2730,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TEXTID = "textid";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_THEME = "theme";
 
 	/**
 	 * @module.api

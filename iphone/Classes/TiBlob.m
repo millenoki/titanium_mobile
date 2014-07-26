@@ -225,6 +225,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 -(void)setData:(NSData*)data_
 {
 	RELEASE_TO_NIL(data);
+	RELEASE_TO_NIL(image);
 	type = TiBlobTypeData;
 	data = [data_ retain];
 }
