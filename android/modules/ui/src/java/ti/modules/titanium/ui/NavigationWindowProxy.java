@@ -99,7 +99,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
     }
 	
 	@Override
-    public void handleCreationDict(KrollDict options)
+    public void handleCreationDict(final KrollDict options)
     {
         super.handleCreationDict(options);
         Object window = options.get(TiC.PROPERTY_WINDOW);
@@ -819,7 +819,9 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 			else {
 				defaultTransition = kDefaultTransition;
 			}
-		}
+		} else if (key.equals(TiC.PROPERTY_WINDOW)) {
+		    setWindow((TiWindowProxy) newValue);
+        }
 	}
 
 
