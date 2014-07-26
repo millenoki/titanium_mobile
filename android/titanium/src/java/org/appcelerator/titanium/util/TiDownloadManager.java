@@ -187,6 +187,7 @@ public class TiDownloadManager implements Handler.Callback
                 URL url = uri.toURL();
                 HttpURLConnection http = client.open(url);
                 http.setUseCaches(true);
+                http.addRequestProperty("TiCache", "true");
                 http.addRequestProperty("Cache-Control", "no-cached");
                 http.addRequestProperty("User-Agent", TiApplication.getInstance().getUserAgent());
                 http.addRequestProperty("X-Requested-With", "XMLHttpRequest");

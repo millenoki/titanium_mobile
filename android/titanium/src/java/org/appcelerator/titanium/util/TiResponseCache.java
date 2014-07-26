@@ -348,7 +348,7 @@ public class TiResponseCache extends ResponseCache
 	@Override
 	public CacheRequest put(URI uri, URLConnection conn) throws IOException
 	{
-		if (cacheDir == null) return null;
+		if (cacheDir == null || !"true".equals(conn.getRequestProperty( "TiCache" ))) return null;
 		
 		// Make sure the cacheDir exists, in case user clears cache while app is running
 		if (!cacheDir.exists()) {

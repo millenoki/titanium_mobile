@@ -17,6 +17,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -327,7 +328,9 @@ public class TiFileHelper implements Handler.Callback
 		}
 
 		URL u = new URL(path);
-		InputStream lis = u.openStream();
+		HttpURLConnection connection = (HttpURLConnection) u.openConnection();
+		connection.addRequestProperty("TiCache", "true");
+		InputStream lis = connection.getInputStream();
 		ByteArrayOutputStream bos = null;
 		try {
 			bos = new ByteArrayOutputStream(8192);
