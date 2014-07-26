@@ -69,26 +69,17 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
         return [NSNumber numberWithBool:viewHasText];
     }
     else {
-        NSString *value = [self valueForKey:@"value"];
-        BOOL viewHasText = value!=nil && [value length] > 0;
+        BOOL viewHasText = !NULL_OR_EMPTY([self valueForKey:@"value"]);
         return [NSNumber numberWithBool:viewHasText];
     }
 }
 
-BOOL isNullOrEmpty(id value) {
-    return (!value || ([value isKindOfClass:[NSString class]] && [value length] == 0));
-}
-
-BOOL areValueDifferent(id value1, id value2) {
-    BOOL oldNullEmpty = isNullOrEmpty(value1);
-    BOOL newNullEmpty = isNullOrEmpty(value2);
-    if (!oldNullEmpty && !newNullEmpty) return (![value1 isEqual:value2]);
-    return oldNullEmpty != newNullEmpty;
-}
 
 -(void)noteValueChange:(NSString *)newValue
 {
-    if (![self inReproxy] && areValueDifferent([self valueForUndefinedKey:@"value"], newValue))
+    BOOL needsChange = NO;
+    ARE_DIFFERENT_NULL_OR_EMPTY([self valueForUndefinedKey:@"value"], newValue, needsChange)
+    if (![self inReproxy] && needsChange)
 	{
 		[self replaceValue:newValue forKey:@"value" notification:NO];
         if ([self.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
