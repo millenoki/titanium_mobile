@@ -536,6 +536,11 @@
 	return [visibleProxy keyboardAccessoryView];
 }
 
+-(CGRect)currentKeyboardFrame
+{
+    return keyboardVisible?endFrame:CGRectZero;
+}
+
 -(void) handleNewKeyboardStatus
 {
 	updatingAccessoryView = NO;
