@@ -1013,10 +1013,10 @@ public class TiConvert
 	public static RectF toRect(HashMap<String, Object>  map)
 	{
 		KrollDict dict = new KrollDict((HashMap<String, Object>)map);
-		float left = TiUIHelper.getRawSizeOrZero(dict, TiC.PROPERTY_X);
-		float top = TiUIHelper.getRawSizeOrZero(dict, TiC.PROPERTY_Y);
-		float width = TiUIHelper.getRawSizeOrZero(dict, TiC.PROPERTY_WIDTH);
-		float height = TiUIHelper.getRawSizeOrZero(dict, TiC.PROPERTY_HEIGHT);
+		float left = TiUIHelper.getInPixels(dict, TiC.PROPERTY_X);
+		float top = TiUIHelper.getInPixels(dict, TiC.PROPERTY_Y);
+		float width = TiUIHelper.getInPixels(dict, TiC.PROPERTY_WIDTH);
+		float height = TiUIHelper.getInPixels(dict, TiC.PROPERTY_HEIGHT);
 		return new RectF(left, top, left + width, top + height);
 	}
 	/**
@@ -1059,13 +1059,13 @@ public class TiConvert
 		} else if (value instanceof HashMap<?,?>) {
 			KrollDict dict = new KrollDict((HashMap<String, Object>)value);
 			RectF result = new RectF();
-				result.left = TiUIHelper.getRawSizeOrZero(dict,
+				result.left = TiUIHelper.getInPixels(dict,
 						TiC.PROPERTY_LEFT);
-				result.right = TiUIHelper.getRawSizeOrZero(dict,
+				result.right = TiUIHelper.getInPixels(dict,
 						TiC.PROPERTY_RIGHT);
-				result.top = TiUIHelper.getRawSizeOrZero(dict,
+				result.top = TiUIHelper.getInPixels(dict,
 						TiC.PROPERTY_TOP);
-				result.bottom = TiUIHelper.getRawSizeOrZero(dict,
+				result.bottom = TiUIHelper.getInPixels(dict,
 						TiC.PROPERTY_BOTTOM);
 			return result;
 		}

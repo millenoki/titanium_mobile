@@ -71,8 +71,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -411,31 +409,66 @@ public class TiUIHelper
 		return getRawSize((int)result[0], size, context);
 	}
 
-	public static float getRawSize(String size) {
+	public static float getInPixels(String size) {
 		
 		return getRawSize(size, null);
 	}
 	
-	public static float getRawSizeOrZero(String size, Context context) {
-		if (size == null || size.length() == 0) return 0;
-		return getRawSize(size, context);
+	public static float getInPixels(String size, Context context) {
+		return getInPixels(size, 0.0f, context);
 	}
+	
+	public static float getInPixels(String size, float defaultValue, Context context) {
+        if (size == null || size.length() == 0) {
+            if (defaultValue > 0) {
+                return getRawSize(TypedValue.COMPLEX_UNIT_DIP, defaultValue, context);
+            }
+            return 0;
+        }
+        return getRawSize(size, context);
+    }
 
-	public static float getRawSizeOrZero(KrollDict dict, String property,
-			Context context) {
+	public static float getInPixels(HashMap dict, String property,
+			float defaultValue, Context context) {
 		if (dict.containsKey(property)) {
-			return TiUIHelper.getRawSize(dict.getString(property), context);
+			return getRawSize(TiConvert.toString(dict.get(property)), context);
+		}
+		if (defaultValue > 0) {
+	        return getRawSize(TypedValue.COMPLEX_UNIT_DIP, defaultValue, context);
 		}
 		return 0;
 	}
+	
+	public static float getInPixels(HashMap dict, String property,
+            Context context) {
+        return getInPixels(dict, property, 0.0f, context);
+    }
 
-	public static float getRawSizeOrZero(KrollDict dict, String property) {
-		return getRawSizeOrZero(dict, property, null);
+	public static float getInPixels(HashMap dict, String property) {
+		return getInPixels(dict, property, null);
 	}
+	
+    @Deprecated
+	public static float getRawSizeOrZero(HashMap dict, String property) {
+        return getInPixels(dict, property, null);
+    }
+	
+	public static float getInPixels(HashMap dict, String property, float defaultValue) {
+        return getInPixels(dict, property, defaultValue, null);
+    }
 
+	public static float getInPixels(Object value) {
+		return getInPixels(TiConvert.toString(value), null);
+	}
+	
+	@Deprecated
 	public static float getRawSizeOrZero(Object value) {
-		return getRawSizeOrZero(TiConvert.toString(value), null);
-	}
+        return getInPixels(TiConvert.toString(value), null);
+    }
+	
+	public static float getInPixels(Object value, float defaultValue) {
+        return getInPixels(TiConvert.toString(value), defaultValue, null);
+    }
 	
 	public static FontDesc getFontStyle(Context context, HashMap<String, Object> d) {
 		FontDesc desc = new FontDesc();
@@ -1319,8 +1352,8 @@ public class TiUIHelper
 		if (dict.containsKey(TiC.PROPERTY_OFFSET)) 
 		{
 			HashMap offset = (HashMap) dict.get(TiC.PROPERTY_OFFSET);
-			result.dx = TiUIHelper.getRawSizeOrZero(offset.get(TiC.PROPERTY_X));
-			result.dy = TiUIHelper.getRawSizeOrZero(offset.get(TiC.PROPERTY_Y));
+			result.dx = TiUIHelper.getInPixels(offset, TiC.PROPERTY_X);
+			result.dy = TiUIHelper.getInPixels(offset, TiC.PROPERTY_Y);
 		}
 		result.radius = dict.optFloat(TiC.PROPERTY_RADIUS, 3);
 		if (dict.containsKey(TiC.PROPERTY_COLOR))

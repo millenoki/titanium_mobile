@@ -837,7 +837,7 @@ public abstract class TiUIView
 		} else if (key.equals(TiC.PROPERTY_BORDER_RADIUS)) {
 			setBorderRadius(newValue);
 		} else if (key.equals(TiC.PROPERTY_BORDER_WIDTH)) {
-			setBorderWidth(TiUIHelper.getRawSizeOrZero(newValue));
+			setBorderWidth(TiUIHelper.getInPixels(newValue));
 		} else if (key.equals(TiC.PROPERTY_BORDER_PADDING)) {
 			mBorderPadding = TiConvert.toPaddingRect(newValue);
 			if (borderView != null) {
