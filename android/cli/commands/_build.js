@@ -96,9 +96,9 @@ function AndroidBuilder() {
 
     this.tiSymbols = {};
 
-	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
-	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
-	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
+    this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
+    this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
+    this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
 
     this.deployTypes = {
         'emulator': 'development',
@@ -132,60 +132,60 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
     this.ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
     this.ignoreFiles = new RegExp(config.get('cli.ignoreFiles'));
 
-	function assertIssue(logger, issues, name) {
-		var i = 0,
-			len = issues.length;
-		for (; i < len; i++) {
-			if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-				issues[i].message.split('\n').forEach(function (line) {
-					logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-				});
-				logger.log();
-				process.exit(1);
-			}
-		}
-	}
+    function assertIssue(logger, issues, name) {
+        var i = 0,
+            len = issues.length;
+        for (; i < len; i++) {
+            if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
+                issues[i].message.split('\n').forEach(function (line) {
+                    logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
+                });
+                logger.log();
+                process.exit(1);
+            }
+        }
+    }
 
-	// we hook into the pre-validate event so that we can stop the build before
-	// prompting if we know the build is going to fail.
-	//
-	// this is also where we can detect android and jdk environments before
-	// prompting occurs. because detection is expensive we also do it here instead
-	// of during config() because there's no sense detecting if config() is being
-	// called because of the help command.
-	cli.on('cli:pre-validate', function (obj, callback) {
-		if (cli.argv.platform && cli.argv.platform != 'android') {
-			return callback();
-		}
+    // we hook into the pre-validate event so that we can stop the build before
+    // prompting if we know the build is going to fail.
+    //
+    // this is also where we can detect android and jdk environments before
+    // prompting occurs. because detection is expensive we also do it here instead
+    // of during config() because there's no sense detecting if config() is being
+    // called because of the help command.
+    cli.on('cli:pre-validate', function (obj, callback) {
+        if (cli.argv.platform && cli.argv.platform != 'android') {
+            return callback();
+        }
 
-		async.series([
-			function (next) {
-				// detect android environment
-				androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
-					_t.androidInfo = androidInfo;
-					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
-					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
+        async.series([
+            function (next) {
+                // detect android environment
+                androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
+                    _t.androidInfo = androidInfo;
+                    assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
+                    assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
 
-					if (!cli.argv.prompt) {
-						// check that the Android SDK is found and sane
-						// note: if we're prompting, then we'll do this check in the --android-sdk validate() callback
-						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-						assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
+                    if (!cli.argv.prompt) {
+                        // check that the Android SDK is found and sane
+                        // note: if we're prompting, then we'll do this check in the --android-sdk validate() callback
+                        assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+                        assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
 
-						// make sure we have an Android SDK and some Android targets
-						if (!Object.keys(androidInfo.targets).filter(function (id) {
-								var t = androidInfo.targets[id];
-								return t.type == 'platform' && t['api-level'] >= _t.minTargetApiLevel;
-						}).length) {
-							if (Object.keys(androidInfo.targets).length) {
-								logger.error(__('No valid Android SDK targets found.'));
-							} else {
-								logger.error(__('No Android SDK targets found.'));
-							}
-							logger.error(__('Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.', _t.minTargetApiLevel) + '\n');
-							process.exit(1);
-						}
-					}
+                        // make sure we have an Android SDK and some Android targets
+                        if (!Object.keys(androidInfo.targets).filter(function (id) {
+                                var t = androidInfo.targets[id];
+                                return t.type == 'platform' && t['api-level'] >= _t.minTargetApiLevel;
+                        }).length) {
+                            if (Object.keys(androidInfo.targets).length) {
+                                logger.error(__('No valid Android SDK targets found.'));
+                            } else {
+                                logger.error(__('No Android SDK targets found.'));
+                            }
+                            logger.error(__('Please download an Android SDK target API level %s or newer from the Android SDK Manager and try again.', _t.minTargetApiLevel) + '\n');
+                            process.exit(1);
+                        }
+                    }
 
                     // if --android-sdk was not specified, then we simply try to set a default android sdk
                     if (!cli.argv['android-sdk']) {
@@ -200,12 +200,12 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                 });
             },
 
-			function (next) {
-				// detect java development kit
-				appc.jdk.detect(config, null, function (jdkInfo) {
-					assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED');
-					assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS');
-					assertIssue(logger, jdkInfo.issues, 'JDK_INVALID_JAVA_HOME');
+            function (next) {
+                // detect java development kit
+                appc.jdk.detect(config, null, function (jdkInfo) {
+                    assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED');
+                    assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS');
+                    assertIssue(logger, jdkInfo.issues, 'JDK_INVALID_JAVA_HOME');
 
                     if (!jdkInfo.version) {
                         logger.error(__('Unable to locate the Java Development Kit') + '\n');
@@ -351,46 +351,46 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                                 }
                             }
 
-							callback(fields.file({
-								promptLabel: __('Where is the Android SDK?'),
-								default: androidSdkPath,
-								complete: true,
-								showHidden: true,
-								ignoreDirs: _t.ignoreDirs,
-								ignoreFiles: _t.ignoreFiles,
-								validate: _t.conf.options['android-sdk'].validate.bind(_t)
-							}));
-						},
-						required: true,
-						validate: function (value, callback) {
-							if (!value) {
-								callback(new Error(__('Invalid Android SDK path')));
-							} else if (process.platform == 'win32' && value.indexOf('&') != -1) {
-								callback(new Error(__('The Android SDK path cannot contain ampersands (&) on Windows')));
-							} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == afs.resolvePath(value)) {
-								// no sense doing the detection again, just make sure we found the sdk
-								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-								assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
-								callback(null, value);
-							} else {
-								// do a quick scan to see if the path is correct
-								android.findSDK(value, config, appc.pkginfo.package(module), function (err, results) {
-									if (err) {
-										callback(new Error(__('Invalid Android SDK path: %s', value)));
-									} else {
-										function next() {
-											// set the android sdk in the config just in case a plugin or something needs it
-											config.set('android.sdkPath', value);
+                            callback(fields.file({
+                                promptLabel: __('Where is the Android SDK?'),
+                                default: androidSdkPath,
+                                complete: true,
+                                showHidden: true,
+                                ignoreDirs: _t.ignoreDirs,
+                                ignoreFiles: _t.ignoreFiles,
+                                validate: _t.conf.options['android-sdk'].validate.bind(_t)
+                            }));
+                        },
+                        required: true,
+                        validate: function (value, callback) {
+                            if (!value) {
+                                callback(new Error(__('Invalid Android SDK path')));
+                            } else if (process.platform == 'win32' && value.indexOf('&') != -1) {
+                                callback(new Error(__('The Android SDK path cannot contain ampersands (&) on Windows')));
+                            } else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path == afs.resolvePath(value)) {
+                                // no sense doing the detection again, just make sure we found the sdk
+                                assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+                                assertIssue(logger, _t.androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
+                                callback(null, value);
+                            } else {
+                                // do a quick scan to see if the path is correct
+                                android.findSDK(value, config, appc.pkginfo.package(module), function (err, results) {
+                                    if (err) {
+                                        callback(new Error(__('Invalid Android SDK path: %s', value)));
+                                    } else {
+                                        function next() {
+                                            // set the android sdk in the config just in case a plugin or something needs it
+                                            config.set('android.sdkPath', value);
 
-											// path looks good, do a full scan again
-											androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
-												// check that the Android SDK is found and sane
-												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
-												assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
-												_t.androidInfo = androidInfo;
-												callback(null, value);
-											});
-										}
+                                            // path looks good, do a full scan again
+                                            androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
+                                                // check that the Android SDK is found and sane
+                                                assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_NOT_FOUND');
+                                                assertIssue(logger, androidInfo.issues, 'ANDROID_SDK_MISSING_PROGRAMS');
+                                                _t.androidInfo = androidInfo;
+                                                callback(null, value);
+                                            });
+                                        }
 
                                         // new android sdk path looks good
                                         // if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
@@ -1072,19 +1072,19 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
     this.targetSDK = cli.tiapp.android && ~~cli.tiapp.android['tool-api-level'] || null;
     this.maxSDK = null;
 
-	if (this.targetSDK) {
-		logger.log();
-		logger.warn(__('%s has been deprecated, please specify the target SDK using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
-		logger.warn();
-		logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-		logger.warn('    <android>'.grey);
-		logger.warn('        <manifest>'.grey);
-		logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minTargetApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
-		logger.warn('        </manifest>'.grey);
-		logger.warn('    </android>'.grey);
-		logger.warn('</ti:app>'.grey);
-		logger.log();
-	}
+    if (this.targetSDK) {
+        logger.log();
+        logger.warn(__('%s has been deprecated, please specify the target SDK using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
+        logger.warn();
+        logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+        logger.warn('    <android>'.grey);
+        logger.warn('        <manifest>'.grey);
+        logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minTargetApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
+        logger.warn('        </manifest>'.grey);
+        logger.warn('    </android>'.grey);
+        logger.warn('</ti:app>'.grey);
+        logger.log();
+    }
 
     if (usesSDK) {
         usesSDK['minSdkVersion'] && (this.minSDK = ~~usesSDK['minSdkVersion']);
@@ -1092,66 +1092,66 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         usesSDK['maxSdkVersion'] && (this.maxSDK = ~~usesSDK['maxSdkVersion']);
     }
 
-	// min sdk is too old
-	if (this.minSDK < this.minSupportedApiLevel) {
-		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
-		logger.log(
-			appc.string.wrap(
-				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:minSdkVersion'.cyan, String(this.minSupportedApiLevel).cyan),
-				config.get('cli.width', 100)
-			)
-		);
-		logger.log();
-		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-		logger.log('    <android>'.grey);
-		logger.log('        <manifest>'.grey);
-		logger.log(('            <uses-sdk '
-			+ 'android:minSdkVersion="' + this.minSupportedApiLevel + '" '
-			+ (this.targetSDK ? 'android:targetSdkVersion="' + this.targetSDK + '" ' : '')
-			+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-			+ '/>').magenta);
-		logger.log('        </manifest>'.grey);
-		logger.log('    </android>'.grey);
-		logger.log('</ti:app>'.grey);
-		logger.log();
-		process.exit(1);
-	}
+    // min sdk is too old
+    if (this.minSDK < this.minSupportedApiLevel) {
+        logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
+        logger.log(
+            appc.string.wrap(
+                __('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:minSdkVersion'.cyan, String(this.minSupportedApiLevel).cyan),
+                config.get('cli.width', 100)
+            )
+        );
+        logger.log();
+        logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+        logger.log('    <android>'.grey);
+        logger.log('        <manifest>'.grey);
+        logger.log(('            <uses-sdk '
+            + 'android:minSdkVersion="' + this.minSupportedApiLevel + '" '
+            + (this.targetSDK ? 'android:targetSdkVersion="' + this.targetSDK + '" ' : '')
+            + (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+            + '/>').magenta);
+        logger.log('        </manifest>'.grey);
+        logger.log('    </android>'.grey);
+        logger.log('</ti:app>'.grey);
+        logger.log();
+        process.exit(1);
+    }
 
-	// target sdk is too old
-	if (this.targetSDK && this.targetSDK < this.minTargetApiLevel) {
-		logger.error(__('The target SDK version must be %s or newer, but is currently set to %s', this.minTargetApiLevel, this.targetSDK) + '\n');
-		logger.log(
-			appc.string.wrap(
-				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:targetSdkVersion'.cyan, String(this.minTargetApiLevel).cyan),
-				config.get('cli.width', 100)
-			)
-		);
-		logger.log();
-		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-		logger.log('    <android>'.grey);
-		logger.log('        <manifest>'.grey);
-		logger.log(('            <uses-sdk '
-			+ (this.minSupportedApiLevel ? 'android:minSdkVersion="' + this.minSupportedApiLevel + '" ' : '')
-			+ 'android:targetSdkVersion="' + this.minTargetApiLevel + '" '
-			+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-			+ '/>').magenta);
-		logger.log('        </manifest>'.grey);
-		logger.log('    </android>'.grey);
-		logger.log('</ti:app>'.grey);
-		logger.log();
-		process.exit(1);
-	}
+    // target sdk is too old
+    if (this.targetSDK && this.targetSDK < this.minTargetApiLevel) {
+        logger.error(__('The target SDK version must be %s or newer, but is currently set to %s', this.minTargetApiLevel, this.targetSDK) + '\n');
+        logger.log(
+            appc.string.wrap(
+                __('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:targetSdkVersion'.cyan, String(this.minTargetApiLevel).cyan),
+                config.get('cli.width', 100)
+            )
+        );
+        logger.log();
+        logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+        logger.log('    <android>'.grey);
+        logger.log('        <manifest>'.grey);
+        logger.log(('            <uses-sdk '
+            + (this.minSupportedApiLevel ? 'android:minSdkVersion="' + this.minSupportedApiLevel + '" ' : '')
+            + 'android:targetSdkVersion="' + this.minTargetApiLevel + '" '
+            + (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+            + '/>').magenta);
+        logger.log('        </manifest>'.grey);
+        logger.log('    </android>'.grey);
+        logger.log('</ti:app>'.grey);
+        logger.log();
+        process.exit(1);
+    }
 
-	// target sdk < min sdk
-	if (this.targetSDK && this.targetSDK < this.minSDK) {
-		logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s', this.minSDK, this.targetSDK) + '\n');
-		process.exit(1);
-	}
+    // target sdk < min sdk
+    if (this.targetSDK && this.targetSDK < this.minSDK) {
+        logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s', this.minSDK, this.targetSDK) + '\n');
+        process.exit(1);
+    }
 
-	// if no target sdk, then default to most recent supported/installed
-	if (!this.targetSDK) {
-		var levels = Object.keys(targetSDKMap).sort(),
-			i = levels.length - 1;
+    // if no target sdk, then default to most recent supported/installed
+    if (!this.targetSDK) {
+        var levels = Object.keys(targetSDKMap).sort(),
+            i = levels.length - 1;
 
         for (; i >= 0; i--) {
             if (levels[i] >= this.minSupportedApiLevel && levels[i] <= this.maxSupportedApiLevel) {
@@ -1172,36 +1172,36 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
     if (!this.androidTargetSDK) {
         logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
 
-		var sdks = Object.keys(targetSDKMap).filter(function (ver) {
-			return ~~ver > this.minSupportedApiLevel;
-		}.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
+        var sdks = Object.keys(targetSDKMap).filter(function (ver) {
+            return ~~ver > this.minSupportedApiLevel;
+        }.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
 
-		if (sdks.length) {
-			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
-			logger.log(
-				appc.string.wrap(
-					__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
-					config.get('cli.width', 100)
-				)
-			);
-			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-			logger.log('    <android>'.grey);
-			logger.log('        <manifest>'.grey);
-			logger.log(('            <uses-sdk '
-				+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
-				+ 'android:targetSdkVersion="' + sdks[0] + '" '
-				+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-				+ '/>').magenta);
-			logger.log('        </manifest>'.grey);
-			logger.log('    </android>'.grey);
-			logger.log('</ti:app>'.grey);
-			logger.log();
-		} else {
-			logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
-		}
-		process.exit(1);
-	}
+        if (sdks.length) {
+            logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
+            logger.log(
+                appc.string.wrap(
+                    __('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
+                    config.get('cli.width', 100)
+                )
+            );
+            logger.log();
+            logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+            logger.log('    <android>'.grey);
+            logger.log('        <manifest>'.grey);
+            logger.log(('            <uses-sdk '
+                + (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
+                + 'android:targetSdkVersion="' + sdks[0] + '" '
+                + (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+                + '/>').magenta);
+            logger.log('        </manifest>'.grey);
+            logger.log('    </android>'.grey);
+            logger.log('</ti:app>'.grey);
+            logger.log();
+        } else {
+            logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
+        }
+        process.exit(1);
+    }
 
     if (!this.androidTargetSDK.androidJar) {
         logger.error(__('Target Android SDK %s is missing "android.jar"', this.targetSDK) + '\n');
@@ -1213,10 +1213,10 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         process.exit(1);
     }
 
-	if (this.maxSDK && this.maxSDK < this.targetSDK) {
-		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
-		process.exit(1);
-	}
+    if (this.maxSDK && this.maxSDK < this.targetSDK) {
+        logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
+        process.exit(1);
+    }
 
     if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
         // print warning that version this.targetSDK is not tested
@@ -2245,34 +2245,34 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         }
     }
 
-	function copyFile(from, to, next) {
-		var d = path.dirname(to);
-		fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
+    function copyFile(from, to, next) {
+        var d = path.dirname(to);
+        fs.existsSync(d) || wrench.mkdirSyncRecursive(d);
 
-		if (fs.existsSync(to)) {
-			_t.logger.warn(__('Overwriting file %s', to.cyan));
-		}
+        if (fs.existsSync(to)) {
+            _t.logger.warn(__('Overwriting file %s', to.cyan));
+        }
 
-		if (symlinkFiles) {
-			fs.existsSync(to) && fs.unlinkSync(to);
-			this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
-			if (next) {
-				fs.symlink(from, to, next);
-			} else {
-				fs.symlinkSync(from, to);
-			}
-		} else {
-			this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-			if (next) {
-				fs.readFile(from, function (err, data) {
-					if (err) throw err;
-					fs.writeFile(to, data, next);
-				});
-			} else {
-				fs.writeFileSync(to, fs.readFileSync(from));
-			}
-		}
-	}
+        if (symlinkFiles) {
+            fs.existsSync(to) && fs.unlinkSync(to);
+            this.logger.debug(__('Symlinking %s => %s', from.cyan, to.cyan));
+            if (next) {
+                fs.symlink(from, to, next);
+            } else {
+                fs.symlinkSync(from, to);
+            }
+        } else {
+            this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+            if (next) {
+                fs.readFile(from, function (err, data) {
+                    if (err) throw err;
+                    fs.writeFile(to, data, next);
+                });
+            } else {
+                fs.writeFileSync(to, fs.readFileSync(from));
+            }
+        }
+    }
 
     function recursivelyCopy(src, dest, ignoreRootDirs, opts, done) {
         var files;
@@ -2495,16 +2495,16 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         });
     });
 
-	//get the respackgeinfo files if they exist
-	this.modules.forEach(function (module) {
-		var respackagepath = path.join(module.modulePath, 'respackageinfo');
-		if (fs.existsSync(respackagepath)) {
-			var data = fs.readFileSync(respackagepath).toString().split('\n').shift().trim();
-			if(data.length > 0) {
-				this.moduleResPackages.push(data);
-			}
-		}
-	}, this);
+    //get the respackgeinfo files if they exist
+    this.modules.forEach(function (module) {
+        var respackagepath = path.join(module.modulePath, 'respackageinfo');
+        if (fs.existsSync(respackagepath)) {
+            var data = fs.readFileSync(respackagepath).toString().split('\n').shift().trim();
+            if(data.length > 0) {
+                this.moduleResPackages.push(data);
+            }
+        }
+    }, this);
 
     var platformPaths = [];
     // WARNING! This is pretty dangerous, but yes, we're intentionally copying
@@ -2513,7 +2513,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         platformPaths.push(path.join(module.modulePath, 'platform', 'android'));
     });
 
-	platformPaths.push(path.join(this.projectDir, 'platform', 'android'));
+    platformPaths.push(path.join(this.projectDir, 'platform', 'android'));
     this.cli.createHook('build.android.platformsPaths', this, function (platformPaths) {
         platformPaths.forEach(function (dir) {
             if (fs.existsSync(dir)) {
@@ -3197,34 +3197,34 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
 };
 
 AndroidBuilder.prototype.writeXmlFile = function writeXmlFile(srcOrDoc, dest) {
-	var filename = path.basename(dest),
-		destExists = fs.existsSync(dest),
-		destDir = path.dirname(dest),
-		srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
-		destDoc,
-		dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
-		root = dom.documentElement,
-		nodes = {},
-		_t = this,
-		byName = function (node) {
-			var n = xml.getAttr(node, 'name');
-			if (n) {
-				if (nodes[n] && n !== 'app_name') {
-					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
-				}
-				nodes[n] = node;
-			}
-		},
-		byTagAndName = function (node) {
-			var n = xml.getAttr(node, 'name');
-			if (n) {
-				nodes[node.tagName] || (nodes[node.tagName] = {});
-				if (nodes[node.tagName][n] && n !== 'app_name') {
-					_t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
-				}
-				nodes[node.tagName][n] = node;
-			}
-		};
+    var filename = path.basename(dest),
+        destExists = fs.existsSync(dest),
+        destDir = path.dirname(dest),
+        srcDoc = typeof srcOrDoc == 'string' ? (new DOMParser({ errorHandler: function(){} }).parseFromString(fs.readFileSync(srcOrDoc).toString(), 'text/xml')).documentElement : srcOrDoc,
+        destDoc,
+        dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
+        root = dom.documentElement,
+        nodes = {},
+        _t = this,
+        byName = function (node) {
+            var n = xml.getAttr(node, 'name');
+            if (n) {
+                if (nodes[n] && n !== 'app_name') {
+                    _t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
+                }
+                nodes[n] = node;
+            }
+        },
+        byTagAndName = function (node) {
+            var n = xml.getAttr(node, 'name');
+            if (n) {
+                nodes[node.tagName] || (nodes[node.tagName] = {});
+                if (nodes[node.tagName][n] && n !== 'app_name') {
+                    _t.logger.warn(__('Overwriting XML node %s in file %s', String(n).cyan, dest.cyan));
+                }
+                nodes[node.tagName][n] = node;
+            }
+        };
 
     if (destExists) {
         // we're merging
@@ -3651,6 +3651,40 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
         };
     }
 
+    // add the gcm services and receiver
+    var senderId = this.tiapp.properties['ti.android.gcm.sender.id'];
+    if (senderId) {
+        permissions['android.permission.GET_ACCOUNTS'] = 1;
+        permissions['android.permission.WAKE_LOCK'] = 1;
+        permissions['com.google.android.c2dm.permission.RECEIVE'] = 1;
+        
+        var packagePermission = this.tiapp.id + '.permission.C2D_MESSAGE';
+        permissions[packagePermission] = 1;
+
+        (typeof finalAndroidManifest['permission'] === 'object') || (finalAndroidManifest['permission'] = {});
+        finalAndroidManifest['permission'][packagePermission] = {
+           protectionLevel:'signature'
+        };
+
+        var service = 'ti.modules.titanium.network.GCMIntentService';
+        finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
+        finalAndroidManifest.application.service[service] = {
+            name: service,
+            exported: false
+        };
+
+        var receiver = 'ti.modules.titanium.network.GCMBroadcastReceiver';
+        finalAndroidManifest.application.receiver || (finalAndroidManifest.application.receiver = {});
+        finalAndroidManifest.application.receiver[receiver] = {
+            name: receiver,
+            permission: ['com.google.android.c2dm.permission.SEND'],
+            'intent-filter': [{
+                action:['com.google.android.c2dm.intent.REGISTRATION', 'com.google.android.c2dm.intent.RECEIVE'],
+                category:[this.tiapp.id]
+            }]
+        };
+    }
+
     // set the app icon
     finalAndroidManifest.application.icon = '@drawable/' + this.tiapp.icon.replace(/((\.9)?\.(png|jpg))$/, '');
 
@@ -3693,7 +3727,14 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
     // add permissions
     Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
     Object.keys(permissions).forEach(function (perm) {
-        finalAndroidManifest['uses-permission'].indexOf(perm) == -1 && finalAndroidManifest['uses-permission'].push(perm);
+        if (finalAndroidManifest['uses-permission'].indexOf(perm) == -1) {
+            if (typeof permissions[perm] == 'object') {
+                finalAndroidManifest['uses-permission'].push(permissions[perm]);
+            }
+            else {
+                finalAndroidManifest['uses-permission'].push(perm);
+            }
+        }
     });
 
     // if the AndroidManifest.xml already exists, remove it so that we aren't updating the original file (if it's symlinked)
