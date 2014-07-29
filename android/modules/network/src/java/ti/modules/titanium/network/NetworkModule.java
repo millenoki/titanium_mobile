@@ -1165,7 +1165,7 @@ public class NetworkModule extends KrollModule {
             if (options.containsKey(TiC.PROPERTY_CALLBACK)) {
                 gcmMessageCallback = (KrollFunction)options.get(TiC.PROPERTY_CALLBACK);
             }
-            if (senderId != null) {
+            if (senderId == null) {
                 handleGcmOnError("no android.gcm.sender.id provided");
             }
             String regid = getRegistrationId( context);
