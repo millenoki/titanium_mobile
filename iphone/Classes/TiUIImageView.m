@@ -814,8 +814,8 @@ DEFINE_EXCEPTIONS
 
 -(void)setImage_:(id)arg
 {
-
-    if (_currentImageSource == arg) return;
+    if (!configurationSet)return;
+    if (_currentImageSource && _currentImageSource == arg) return;
     _currentImageSource = arg;
     
 	[self removeAllImagesFromContainer];
@@ -872,6 +872,7 @@ DEFINE_EXCEPTIONS
 
 -(void)setImages_:(id)args
 {
+    if (!configurationSet)return;
 	BOOL running = (timer!=nil);
     usingNewMethod = NO;
 	
@@ -946,6 +947,7 @@ DEFINE_EXCEPTIONS
 
 -(void)setAnimatedImages_:(id)args
 {
+    if (!configurationSet)return;
 	ENSURE_TYPE_OR_NIL(args,NSArray);
     if (args == nil) {
         RELEASE_TO_NIL(_animatedImage);
@@ -998,6 +1000,17 @@ DEFINE_EXCEPTIONS
 {
     ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary)
     self.transition = arg;
+}
+
+-(void)configurationSet
+{
+    [super configurationSet];
+    [self setImage_:[self.proxy valueForKey:@"image"]];
+    if ([self.proxy valueForKey:@"images"]) {
+        [self setImages_:[self.proxy valueForKey:@"images"]];
+    } else if ([self.proxy valueForKey:@"animatedImages"]) {
+        [self setAnimatedImages_:[self.proxy valueForKey:@"animatedImages"]];
+    }
 }
 
 -(void)setPreventDefaultImage_:(id)value
