@@ -29,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
@@ -1096,6 +1097,23 @@ public class TiConvert
 
 		return null;
 	}
+	
+    @SuppressWarnings("unchecked")
+    public static PointF toPointF(Object value)
+    {
+        if (value instanceof PointF) {
+            return (PointF)value;
+    
+        } else if (value instanceof HashMap || value instanceof KrollDict) {
+            HashMap hashmap = (HashMap)value;
+            
+            return new PointF(TiConvert.toFloat(hashmap, TiC.PROPERTY_X, 0.0f),
+                    TiConvert.toFloat(hashmap, TiC.PROPERTY_Y, 0.0f));
+        }
+    
+        return null;
+    }
+
 	
     public static Ti2DMatrix IDENTITY_MATRIX = new Ti2DMatrix();
 	/**
