@@ -64,13 +64,6 @@
       "on_app_create": null
     },
     {
-      "class_name": "ti.modules.titanium.database.DatabaseModule",
-      "api_name": "Database",
-      "bindings": [],
-      "external_child_modules": [],
-      "on_app_create": null
-    },
-    {
       "class_name": "ti.modules.titanium.platform.PlatformModule",
       "api_name": "Platform",
       "bindings": [],

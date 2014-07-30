@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.titanium.test"
+    package="com.akylas.titanium.ks"
     android:versionCode="1"
     android:versionName="1" >
 
@@ -30,7 +30,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.BIND_VPN_SERVICE" />
-
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
+    <uses-permission android:name="com.akylas.titanium.ks.permission.C2D_MESSAGE"/>
+    <permission android:name="com.akylas.titanium.ks.permission.C2D_MESSAGE" android:protectionLevel="signature"/>
+    
 <!--     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />
@@ -50,7 +55,7 @@
         android:theme="@style/Theme.Titanium" >
          <meta-data
             android:name="com.google.android.gms.version"
-            android:value="4132500" />
+            android:value="5077000" />
          <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyA4DiNxX9WbOV6anySJHjGeyW9CJf3AhZ0" />
@@ -75,7 +80,7 @@
         <!-- TI_APPLICATION -->
 
         <activity
-            android:name=".TitaniumtestActivity"
+            android:name="com.akylas.titanium.ks.TitaniumtestActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="TitaniumTest"
             android:theme="@style/Theme.Titanium.SplashScreen" >
@@ -134,7 +139,15 @@
 				<action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
 			</intent-filter>
 		</receiver> -->
-
+		
+		<service android:name="ti.modules.titanium.network.GCMIntentService" android:exported="false"/>
+        <receiver android:name="ti.modules.titanium.network.GCMBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE"/>
+                <category android:name="com.akylas.push"/>
+            </intent-filter>
+        </receiver>
     </application>
 
     <!-- TI_PERMISSIONS -->

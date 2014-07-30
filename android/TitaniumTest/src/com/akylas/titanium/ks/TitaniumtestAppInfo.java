@@ -1,4 +1,4 @@
-package com.titanium.test;
+package com.akylas.titanium.ks;
 
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
@@ -21,7 +21,7 @@ public final class TitaniumtestAppInfo implements ITiAppInfo
 					properties.setBool("ti.android.bug2373.finishfalseroot", true);
 					appProperties.setBool("ti.android.bug2373.finishfalseroot", true);
 					properties.setBool("ti.android.fastdev", false);
-					appProperties.setBool("ti.android.fastdev", false);
+                    appProperties.setBool("ti.android.fastdev", false);
 	}
 	
 	public String getId() {

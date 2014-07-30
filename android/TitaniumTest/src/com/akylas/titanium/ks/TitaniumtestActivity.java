@@ -1,4 +1,4 @@
-package com.titanium.test;
+package com.akylas.titanium.ks;
 
 import org.appcelerator.titanium.TiRootActivity;
 

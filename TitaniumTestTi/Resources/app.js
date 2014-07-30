@@ -39,7 +39,7 @@ var textColor = 'black';
 var navGroup;
 var openWinArgs;
 var html =
-    '  SUCCESS     <font color="red">musique</font> électronique <b><span style="background-color:green;border-color:black;border-radius:20px;border-width:1px">est un type de </span><big><big>musique</big></big> qui a <font color="green">été conçu à</font></b> partir des années<br> 1950 avec des générateurs de signaux<br> et de sons synthétiques. Avant de pouvoir être utilisée en temps réel, elle a été primitivement enregistrée sur bande magnétique, ce qui permettait aux compositeurs de manier aisément les sons, par exemple dans l\'utilisation de boucles répétitives superposées. Ses précurseurs ont pu bénéficier de studios spécialement équipés ou faisaient partie d\'institutions musicales pré-existantes. La musique pour bande de Pierre Schaeffer, également appelée musique concrète, se distingue de ce type de musique dans la mesure où son matériau primitif était constitué des sons de la vie courante. La particularité de la musique électronique de l\'époque est de n\'utiliser que des sons générés par des appareils électroniques.';
+    '  SUCCESS     <font color="red">musique</font> électronique <b><span style="background-color:green;border-color:black;border-radius:20px;border-width:1px">est un type de </span><big><big>musique</big></big> qui a <font color="green">été <a href="test">conçu</a> à</font></b> partir des années<br> 1950 avec des générateurs de signaux<br> et de sons synthétiques. Avant de pouvoir être utilisée en temps réel, elle a été primitivement enregistrée sur bande magnétique, ce qui permettait aux compositeurs de manier aisément les sons, par exemple dans l\'utilisation de boucles répétitives superposées. Ses précurseurs ont pu bénéficier de studios spécialement équipés ou faisaient partie d\'institutions musicales pré-existantes. La musique pour bande de Pierre Schaeffer, également appelée musique concrète, se distingue de ce type de musique dans la mesure où son matériau primitif était constitué des sons de la vie courante. La particularité de la musique électronique de l\'époque est de n\'utiliser que des sons générés par des appareils électroniques.';
 // html = '<span style="border-style:solid;background-color:green;border-color:red;border-radius:20px;border-width:3px;padding-top:3px;padding-bottom:3px;line-height:2em;"> SUCCESS </span><br><span style="border-style:solid;background-color:green;border-color:red;border-radius:20px;border-width:3px;padding-top:0px;padding-bottom:0px;line-height:1em;"> SUCCESS </span>'
 if (__ANDROID__) {
     backColor = 'black';
@@ -67,9 +67,9 @@ var initWindowArgs = {
 };
 if (isiOS7) {
     initWindowArgs = merge_options(initWindowArgs, {
-        autoAdjustScrollViewInsets: true,
-        extendEdges: [Ti.UI.EXTEND_EDGE_ALL],
-        translucent: true
+        // autoAdjustScrollViewInsets: true,
+        // extendEdges: [Ti.UI.EXTEND_EDGE_ALL],
+        // translucent: true
     });
 }
 
@@ -114,7 +114,7 @@ function createListView(_args, _addEvents) {
             if (_event.hasOwnProperty('section') && _event.hasOwnProperty('itemIndex')) {
                 var item = _event.section.getItemAt(_event.itemIndex);
                 if (item.callback) {
-                    item.callback(item.properties);
+                    item.callback(_.omit(item.properties, 'height'));
                 }
             }
         });
@@ -369,16 +369,16 @@ function transform3Ex() {
         view.transform = t;
         win.add(view);
         view.animate({
-            duration:200,
+            duration: 200,
             transform: '',
             // autoreverse: true,
             opacity: 1,
-            curve: [0.17,0.67,0.86,1.57]
+            curve: [0.17, 0.67, 0.86, 1.57]
         });
     };
     var hideMe = function(_callback) {
         view.animate({
-            duration:200,
+            duration: 200,
             opacity: 0
         }, function() {
             win.remove(view);
@@ -1080,205 +1080,6 @@ function buttonAndLabelEx() {
     openWin(win);
 }
 
-function pullToRefresh() {
-    var win = createWin();
-    var sections = [];
-
-    var fruitSection = Ti.UI.createListSection({
-        headerTitle: 'Fruits'
-    });
-    var fruitDataSet = [{
-        properties: {
-            title: 'Apple'
-        }
-    }, {
-        properties: {
-            title: 'Banana'
-        }
-    }, {
-        properties: {
-            title: 'Cantaloupe'
-        }
-    }, {
-        properties: {
-            title: 'Fig'
-        }
-    }, {
-        properties: {
-            title: 'Guava'
-        }
-    }, {
-        properties: {
-            title: 'Kiwi'
-        }
-    }];
-    fruitSection.setItems(fruitDataSet);
-    sections.push(fruitSection);
-
-    var header = new Label({
-        properties: {
-            width: 'FILL',
-            textAlign: 'left',
-            text: 'Vegetables'
-        },
-        childTemplates: [{
-            type: 'Ti.UI.Switch',
-            bindId: 'switch',
-            properties: {
-                right: 0
-            },
-            events: {
-                'change': function() {
-                    vegSection.visible = !vegSection.visible;
-                }
-            }
-        }]
-    });
-    var vegSection = Ti.UI.createListSection({
-        headerView: header
-    });
-    var vegDataSet = [{
-        properties: {
-            title: 'Carrots'
-        }
-    }, {
-        properties: {
-            title: 'Potatoes'
-        }
-    }, {
-        properties: {
-            title: 'Corn'
-        }
-    }, {
-        properties: {
-            title: 'Beans'
-        }
-    }, {
-        properties: {
-            title: 'Tomato'
-        }
-    }];
-    vegSection.setItems(vegDataSet);
-
-    var fishSection = Ti.UI.createListSection({
-        headerTitle: 'Fish'
-    });
-    var fishDataSet = [{
-        properties: {
-            title: 'Cod'
-        }
-    }, {
-        properties: {
-            title: 'Haddock'
-        }
-    }, {
-        properties: {
-            title: 'Salmon'
-        }
-    }, {
-        properties: {
-            title: 'Tuna'
-        }
-    }];
-    fishSection.setItems(fishDataSet);
-
-    var refreshCount = 0;
-
-    function loadTableData() {
-        if (refreshCount == 0) {
-            listView.appendSection(vegSection);
-        } else if (refreshCount == 1) {
-            listView.appendSection(fishSection);
-        }
-        refreshCount++;
-        listView.closePullView();
-    }
-    var pullToRefresh = ak.ti.createFromConstructor('PullToRefresh', {
-        rclass: 'NZBPTR'
-    });
-    var listView = Ti.UI.createListView({
-        height: '90%',
-        top: 0,
-        rowHeight: 50,
-        sections: sections,
-        pullView: pullToRefresh
-    });
-    listView.add({
-        type: 'Ti.UI.ActivityIndicator',
-        // properties: {
-        backgroundColor: 'purple',
-        width: 60,
-        height: 60
-        // }
-    });
-
-    // listView.add({
-    // bindId: 'testLabel',
-    // properties: {
-    // height: 50
-    // },
-    // childTemplates: [{
-    // type: 'Ti.UI.View',
-    // properties: {
-    // width: 'SIZE',
-    // height: 'SIZE',
-    // layout: 'horizontal',
-    // backgroundColor: 'red'
-    // },
-    // childTemplates: [{
-    // bindId: 'arrow',
-    // type: 'Ti.UI.Label',
-    // properties: {
-    // backgroundColor: 'green',
-    // font: {
-    // size: 14,
-    // weight: 'bold'
-    // },
-    // shadowColor: 'white',
-    // shadowRadius: 2,
-    // shadowOffset: {
-    // x: -10,
-    // y: 1
-    // },
-    // textAlign: 'center',
-    // color: '#3A87AD',
-    // text: 'a'
-    // },
-    // }, {
-    // bindId: 'label',
-    // type: 'Ti.UI.Label',
-    // properties: {
-    // font: {
-    // size: 14,
-    // weight: 'bold'
-    // },
-    // shadowColor: 'white',
-    // shadowRadius: 2,
-    // shadowOffset: {
-    // x: -10,
-    // y: 1
-    // },
-    // textAlign: 'center',
-    // color: '#3A87AD',
-    // text: 'Pull down to refresh...',
-    // backgroundColor: 'blue'
-    // },
-    // }]
-    // }]
-    // });
-    // listView.testLabel.addEventListener('click', function() {
-    // listView.arrow.hide();
-    // listView.label.text = 'Loading ...';
-    // });
-    pullToRefresh.setListView(listView);
-    pullToRefresh.addEventListener('pulled', function() {
-        listView.showPullView();
-        setTimeout(loadTableData, 4000);
-    });
-    win.add(listView);
-    openWin(win);
-}
-
 function maskEx() {
     var win = createWin();
     win.backgroundGradient = {
@@ -1368,10 +1169,20 @@ function ImageViewEx() {
             properties: {
                 width: 'FILL',
                 backgroundColor: 'red',
-                scaleType: Ti.UI.SCALE_TYPE_ASPECT_FILL,
+                scaleType: Ti.UI.SCALE_TYPE_ASPECT_FIT,
                 top: -20,
                 height: 'SIZE',
-                image: '/images/login_logo.png'
+                httpOptions: {
+                    headers: {
+                        'X-Api-Key': 'c0a8929c4f1443e48f8d939d9084df17',
+                        'Accept': '*/*',
+                        'Connection': 'keep-alive',
+                        'Content-Type': 'application/xml'
+                    },
+                    method: 'GET',
+                    autoRedirect: true
+                },
+                image: 'http://192.168.1.12:2108/api/MediaCover/96/poster.jpg'
             }
         }]
     });
@@ -1594,7 +1405,6 @@ function scrollableEx() {
     openWin(win);
 }
 
-
 function fadeInEx() {
     var win = createWin();
     var view = Ti.UI.createView({
@@ -1800,6 +1610,7 @@ function htmlLabelEx() {
         html: html
     }));
     scrollView.add(Ti.UI.createLabel({
+        disableLinkStyle: true,
         multiLineEllipsize: Ti.UI.TEXT_ELLIPSIZE_HEAD,
         truncationString: '_ _',
         // verticalAlign:'top',
@@ -1843,7 +1654,9 @@ function htmlLabelEx() {
     }));
     win.add(scrollView);
     scrollView.addEventListener('click', function(e) {
-        Ti.API.info(e.link);
+        sinfo(e.link);
+        // var index = e.source.characterIndexAtPoint({x:e.x,y:e.y});
+        // Ti.API.info(index);
     })
 
     openWin(win);
@@ -3279,8 +3092,6 @@ function test2() {
     win.open();
 }
 
-
-
 function keyboardTest() {
     var textfield = Ti.UI.createTextField();
     var dialog = Ti.UI.createAlertDialog({
@@ -3692,7 +3503,11 @@ function imageViewAnimationTest() {
         info(stringify(e));
         switch (e.source.bid) {
             case 0:
-                image1.start();
+                // image1.start();
+                sdebug(image1.progress);
+                sdebug(image1.touchPassThrough);
+                // image1.touchPassThrough = 1;
+                image1.progress = 0.8;
                 break;
             case 1:
                 image1.pause();
@@ -3774,8 +3589,12 @@ for (var i = 0; i < modules.length; i++) {
 };
 
 function modulesExs(_args) {
-    var win = createWin(_args);
+    var win = createWin(_.assign({
+        tintColor: 'purple',
+
+    }, _args));
     var listview = createListView();
+    sinfo('win args', win);
     listview.sections = [{
         items: [{
             properties: {
@@ -3800,10 +3619,18 @@ function modulesExs(_args) {
 
 Ti.include('listview.js');
 var firstWindow = createWin({
+    tintColor: 'red',
     title: 'main'
 });
 var listview = createListView({
     headerTitle: 'Testing Title',
+    // searchHidden:true,
+    searchView: Titanium.UI.createSearchBar({
+        barColor: '#000',
+        showCancel: true,
+        height: 44,
+        top: 0,
+    }),
     // minRowHeight:100,
     // maxRowHeight:140
 });
@@ -3813,14 +3640,15 @@ listview.sections = [{
         type: 'Ti.UI.Label',
         properties: {
             backgroundColor: 'red',
-            bottom: 20,
+            bottom: 50,
             text: 'HeaderView created from Dict'
         }
     },
+
     items: [{
         properties: {
             title: 'Modules',
-            height:100
+            height: 100
         },
         callback: modulesExs
     }, {
@@ -3828,6 +3656,11 @@ listview.sections = [{
             title: 'ListView'
         },
         callback: listViewExs
+    }, {
+        properties: {
+            title: 'TextViews'
+        },
+        callback: textViewTests
     }, {
         properties: {
             title: 'Transform',
@@ -3904,11 +3737,6 @@ listview.sections = [{
         callback: svgExs
     }, {
         properties: {
-            title: 'PullToRefresh'
-        },
-        callback: pullToRefresh
-    }, {
-        properties: {
             title: 'webView'
         },
         callback: videoOverlayTest
@@ -3928,12 +3756,14 @@ var mainWin = Ti.UI.createNavigationWindow({
     backgroundColor: backColor,
     swipeToClose: false,
     exitOnClose: true,
+    title: 'AKYLAS_MAIN_WINDOW',
     window: firstWindow,
     // transition: {
     // 	style: Ti.UI.TransitionStyle.SWIPE,
     //        curve: [0.68, -0.55, 0.265, 1.55]
     // }
 });
+sdebug('test', mainWin.currentWindow.title)
 mainWin.addEventListener('openWindow', function(e) {
     Ti.API.info(e);
 });
@@ -4864,863 +4694,6 @@ function testLabel() {
     slidingMenu.open();
 }
 
-function deepLayoutTest() {
-    var win = createWin({
-        dispatchPressed: true,
-        layout: 'vertical'
-    });
-    var viewHolder = new View({
-        width: 'FILL',
-        height: 60,
-        backgroundColor: 'yellow'
-    });
-    var test = new View({
-        properties: {
-            backgroundColor: 'green',
-            right: 0,
-            width: 'SIZE',
-            height: 'FILL',
-            layout: 'horizontal'
-        },
-        childTemplates: [{
-            type: 'Ti.UI.View',
-            properties: {
-                height: 'FILL',
-                width: 'SIZE',
-                borderColor: '#667383',
-                borderPadding: {
-                    right: -1,
-                    top: -1,
-                    bottom: -1
-                },
-            },
-            childTemplates: [{
-                type: 'Ti.UI.TextField',
-                bindId: 'searchField',
-                properties: {
-                    rclass: 'CPSearchField',
-                    color: 'black',
-                    hintColor: 'gray',
-                    right: 0,
-                    height: 'FILL',
-                    visible: false,
-                    backgroundColor: 'white',
-                    borderWidth: 3,
-                    borderPadding: {
-                        right: -3,
-                        left: -3,
-                        top: -3
-                    },
-                    borderColor: 'red',
-                    borderSelectedColor: '#04BCE6',
-                    width: 'FILL',
-                    hintText: 'cp.searchfieldHint',
-                    padding: {
-                        left: 5,
-                        right: 5
-                    },
-                }
-            }, {
-                type: 'Ti.UI.Label',
-                bindId: 'search',
-                properties: {
-                    callbackId: 'search',
-                    borderWidth: 3,
-                    borderPadding: {
-                        right: -3,
-                        left: -3,
-                        top: -3
-                    },
-                    borderSelectedColor: '#047792',
-                    backgroundSelectedColor: '#667383',
-                    backgroundColor: 'gray',
-                    font: {
-                        size: 20,
-                        weight: 'bold'
-                    },
-                    padding: {
-                        left: 15,
-                        right: 15
-                    },
-                    color: 'white',
-                    disabledColor: 'white',
-                    height: 'FILL',
-                    callbackId: 'search',
-                    right: 0,
-                    text: 'Aaaa',
-                    clearIcon: 'X',
-                    icon: 'A',
-                    transition: {
-                        style: Ti.UI.TransitionStyle.FADE
-                    }
-                }
-            }]
-        }]
-    });
-
-    test.addEventListener('click', function(e) {
-        info('test click ' + JSON.stringify(e.source));
-        if (e.source.callbackId === 'search') {
-            if (test.searchField.visible) {
-                var searchField = test.searchField;
-                searchField.value = '';
-                searchField.animate({
-                    width: 1,
-                    opacity: 0,
-                    duration: 200
-                }, function() {
-                    searchField.visible = false;
-                });
-                searchField.blur();
-                searchField.fireEvent('hidding');
-            } else {
-                var searchField = test.searchField;
-                info('showSearchField ' + searchField.callbackId);
-                searchField.applyProperties({
-                    value: null,
-                    opacity: 0,
-                    width: 1,
-                    visible: true
-                });
-                searchField.animate({
-                    width: 'FILL',
-                    opacity: 1,
-                    duration: 300
-                }, function() {
-                    searchField.focus();
-                });
-                searchField.fireEvent('showing');
-            }
-        }
-    });
-
-    viewHolder.add(test);
-    var headerView = new Label({
-        properties: {
-            color: 'gray',
-            font: {
-                size: 12
-            },
-            backgroundColor: 'green',
-            width: 'FILL',
-            height: 22,
-            // borderPadding:{left:-1,right:-1,top:-1},
-            padding: {
-                left: 40,
-                top: 2,
-                bottom: 2
-            },
-            text: 'test'
-        },
-        childTemplates: [{
-            type: 'Ti.UI.Label',
-            properties: {
-                color: 'white',
-                backgroundColor: '#3A87AD',
-                font: {
-                    size: 12
-                },
-                left: 10,
-                height: 16,
-                // borderRadius:8,
-                clipChildren: false,
-                verticalAlign: 'center',
-                padding: {
-                    left: 8,
-                    right: 8,
-                    top: -2
-                },
-                text: '2'
-            }
-        }, {
-            type: 'Ti.UI.Switch',
-            properties: {
-                right: 0,
-                value: false
-            },
-            events: {
-                'change': function(e) {
-                    info(stringify(e));
-                    listView.sections[1].visible = e.value;
-                }
-            }
-        }]
-    });
-    var section = Ti.UI.createListSection({
-        headerView: headerView,
-        visible: false,
-        items: [{
-            title: 'test1'
-        }, {
-            title: 'test2'
-        }]
-    });
-
-    function createSoonRow(_number) {
-        var template = redux.fn.style('ListItem', {
-            properties: {
-                layout: 'horizontal',
-                horizontalWrap: true,
-                height: 'SIZE'
-            }
-        });
-        var childTemplates = [];
-        var defProps = ak.ti.style({
-            type: 'Ti.UI.Label',
-            properties: {
-                font: {
-                    size: 15,
-                    weight: 'normal'
-                },
-                padding: {
-                    left: 4,
-                    top: 4,
-                    right: 4
-                },
-                verticalAlign: 'top',
-                width: 80,
-                height: 120,
-                visible: false,
-                dispatchPressed: true,
-                backgroundColor: '#55000000',
-                color: 'white'
-            },
-            childTemplates: [{
-                type: 'Ti.UI.ImageView',
-                properties: {
-                    width: 'FILL',
-                    height: 'FILL',
-                    dispatchPressed: true,
-                    transition: {
-                        style: Ti.UI.TransitionStyle.FADE
-                    },
-                    scaleType: Ti.UI.SCALE_TYPE_ASPECT_FILL
-                },
-                childTemplates: [{
-                    type: 'Ti.UI.Label',
-                    properties: {
-                        width: 'FILL',
-                        font: {
-                            size: 15,
-                            weight: 'normal'
-                        },
-                        padding: {
-                            left: 4,
-                            top: 4,
-                            right: 4
-                        },
-                        verticalAlign: 'top',
-                        height: 'FILL',
-                        touchPassThrough: false,
-                        backgroundSelectedColor: '#99000000',
-                        color: 'transparent',
-                        selectedColor: 'white',
-                    }
-                }]
-            }]
-        });
-        for (var i = 0; i < _number; i++) {
-            var props = redux.fn.clone(defProps);
-            props.properties.imageId = i;
-            props.bindId = 'soonBottomLabel' + i;
-            props.childTemplates[0].bindId = 'soonImage' + i;
-            props.childTemplates[0].childTemplates[0].bindId = 'soonLabel' + i;
-            childTemplates.push(props);
-        }
-        template.childTemplates = childTemplates;
-        return template;
-    };
-    var editMode = false;
-
-    var listView = createListView({
-        height: 'FILL',
-        backgroundSelectedColor: 'blue',
-        templates: {
-            "titlevalue": {
-                "properties": {
-                    "rclass": "GenericRow TVRow",
-                    "layout": "horizontal",
-                    "height": "SIZE"
-                },
-                "childTemplates": [{
-                    "type": "Ti.UI.Label",
-                    "bindId": "title",
-                    "properties": {
-                        "rclass": "NZBGetTVRTitle",
-                        "font": {
-                            "size": 14
-                        },
-                        "padding": {
-                            "left": 4,
-                            "right": 4,
-                            "top": 5
-                        },
-                        "textAlign": "right",
-                        "width": 90,
-                        "color": "black",
-                        "verticalAlign": "top",
-                        top: 0
-                        // "height" : "FILL"
-                    }
-                }, {
-                    "type": "Ti.UI.Label",
-                    "bindId": "value",
-                    "properties": {
-                        "rclass": "NZBGetTVRValue",
-                        "color": "#686868",
-                        "font": {
-                            "size": 14
-                        },
-                        "top": 4,
-                        "bottom": 4,
-                        "padding": {
-                            "left": 4,
-                            "right": 4,
-                            "bottom": 2,
-                            "top": 2
-                        },
-                        "verticalAlign": "middle",
-                        "left": 4,
-                        "width": "FILL",
-                        "height": "SIZE",
-                        "right": 4,
-                        "textAlign": "left",
-                        "maxLines": 2,
-                        "ellipsize": "END",
-                        "borderColor": "#eeeeee",
-                        "borderRadius": 2
-                    }
-                }]
-            },
-            "textfield": {
-                "childTemplates": [{
-                    type: 'Ti.UI.View',
-                    properties: {
-                        left: 0,
-                        width: 50,
-                        height: 'FILL',
-                    },
-                    childTemplates: [{
-                        "type": "Ti.UI.Label",
-                        "bindId": "check",
-                        properties: {
-                            visible: false,
-                            disableHW: true,
-                            borderRadius: 4,
-                            backgroundColor: '#2C333A',
-                            backgroundSelectedColor: '#414C59',
-                            backgroundInnerShadows: [{
-                                radius: 10,
-                                color: '#1a1e22'
-                            }],
-                            backgroundSelectedInnerShadows: [{
-                                radius: 10,
-                                color: '#252A31'
-                            }],
-                            color: 'transparent',
-                            textAlign: 'center',
-                            clipChildren: false,
-                            font: {
-                                size: 12
-                            },
-                            text: 's',
-                            width: 20,
-                            height: 20
-                        }
-                    }]
-                }, {
-                    "type": "Ti.UI.TextField",
-                    "bindId": "textfield",
-                    "events": {},
-                    "properties": {
-                        "color": "#686868",
-                        "ellipsize": 'END',
-                        "padding": {
-                            "left": 4,
-                            "top": 2,
-                            "bottom": 2,
-                            "right": 4
-                        },
-                        "backgroundColor": "white",
-                        "maxLines": 2,
-                        "font": {
-                            "size": 14
-                        },
-                        "borderColor": "#eeeeee",
-                        "bottom": 4,
-                        "verticalAlign": "middle",
-                        "borderSelectedColor": "#74B9EF",
-                        // returnKeyType: Ti.UI.RETURNKEY_NEXT,
-                        "borderRadius": 2,
-                        "height": 40,
-                        "right": 4,
-                        "textAlign": "left",
-                        "left": 4,
-                        "width": "FILL",
-                        "top": 4
-                    }
-                }],
-                "properties": {
-                    "height": 60,
-                    "layout": "horizontal",
-                    backgroundColor: 'white',
-                    "rclass": "GenericRow TVRow"
-                }
-            },
-            soonRow: createSoonRow(10),
-            "release": {
-                "childTemplates": [{
-                    "properties": {
-                        "rclass": "CPMovieReleaseRowProvider",
-                        "left": 3,
-                        "width": "FILL",
-                        "font": {
-                            "size": 11
-                        },
-                        "color": "#B9B9BA",
-                        "height": 15
-                    },
-                    "type": "Ti.UI.Label",
-                    "bindId": "provider"
-                }, {
-                    "childTemplates": [{
-                        "properties": {
-                            "left": 3,
-                            "rclass": "CPMovieReleaseRowTitle",
-                            "color": "#ffffff",
-                            "verticalAlign": "top",
-                            "width": "FILL",
-                            "ellipsize": 'END',
-                            "height": "FILL",
-                            "font": {
-                                "size": 12
-                            }
-                        },
-                        "type": "Ti.UI.Label",
-                        "bindId": "title"
-                    }],
-                    "type": "Ti.UI.View",
-                    "properties": {
-                        "width": "FILL",
-                        "layout": "horizontal",
-                        "rclass": "Fill HHolder",
-                        "height": "FILL"
-                    }
-                }, {
-                    "childTemplates": [{
-                        "childTemplates": [{
-                            "childTemplates": [{
-                                "type": "Ti.UI.Label",
-                                "properties": {
-                                    "text": "",
-                                    "left": 3,
-                                    "rid": "cpSizeIcon",
-                                    "rclass": "CPMovieReleaseRowIcon",
-                                    "color": "#ffffff",
-                                    "width": 12,
-                                    "height": "FILL",
-                                    "font": {
-                                        "family": "webhostinghub",
-                                        "size": 11
-                                    }
-                                }
-                            }, {
-                                "bindId": "size",
-                                "type": "Ti.UI.Label",
-                                "properties": {
-                                    "rclass": "CPMovieReleaseRowInfos",
-                                    "font": {
-                                        "size": 11
-                                    },
-                                    "color": "#B9B9BA",
-                                    "height": "FILL"
-                                }
-                            }],
-                            "type": "Ti.UI.View",
-                            "properties": {
-                                "width": "SIZE",
-                                "layout": "horizontal",
-                                "rclass": "FillHeight SizeWidth HHolder",
-                                "height": "FILL"
-                            }
-                        }, {
-                            "childTemplates": [{
-                                "type": "Ti.UI.Label",
-                                "properties": {
-                                    "text": "",
-                                    "left": 3,
-                                    "rid": "cpAgeIcon",
-                                    "rclass": "CPMovieReleaseRowIcon",
-                                    "color": "#ffffff",
-                                    "width": 12,
-                                    "height": "FILL",
-                                    "font": {
-                                        "family": "webhostinghub",
-                                        "size": 11
-                                    }
-                                }
-                            }, {
-                                "bindId": "age",
-                                "type": "Ti.UI.Label",
-                                "properties": {
-                                    "rclass": "CPMovieReleaseRowInfos",
-                                    "font": {
-                                        "size": 11
-                                    },
-                                    "color": "#B9B9BA",
-                                    "height": "FILL"
-                                }
-                            }],
-                            "type": "Ti.UI.View",
-                            "properties": {
-                                "width": "SIZE",
-                                "layout": "horizontal",
-                                "rclass": "FillHeight SizeWidth HHolder",
-                                "height": "FILL"
-                            }
-                        }, {
-                            "childTemplates": [{
-                                "type": "Ti.UI.Label",
-                                "properties": {
-                                    "text": "",
-                                    "left": 3,
-                                    "rid": "cpScoreIcon",
-                                    "rclass": "CPMovieReleaseRowIcon",
-                                    "color": "#ffffff",
-                                    "width": 12,
-                                    "height": "FILL",
-                                    "font": {
-                                        "family": "webhostinghub",
-                                        "size": 11
-                                    }
-                                }
-                            }, {
-                                "bindId": "score",
-                                "type": "Ti.UI.Label",
-                                "properties": {
-                                    "rclass": "CPMovieReleaseRowInfos",
-                                    "font": {
-                                        "size": 11
-                                    },
-                                    "color": "#B9B9BA",
-                                    "height": "FILL"
-                                }
-                            }],
-                            "type": "Ti.UI.View",
-                            "properties": {
-                                "width": "SIZE",
-                                "layout": "horizontal",
-                                "rclass": "FillHeight SizeWidth HHolder",
-                                "height": "FILL"
-                            }
-                        }],
-                        "type": "Ti.UI.View",
-                        "bindId": "iconsHolder",
-                        "properties": {
-                            "layout": "horizontal",
-                            "rclass": "CPMovieReleaseRowInfosHolder"
-                        }
-                    }, {
-                        "type": "Ti.UI.View",
-                        "bindId": "statusHolder",
-                        "childTemplates": [{
-                            "type": "Ti.UI.View",
-                            "properties": {
-                                "width": "FILL",
-                                "height": "FILL",
-                                "rclass": "Fill"
-                            }
-                        }, {
-                            "bindId": "status0",
-                            "type": "Ti.UI.Label",
-                            "properties": {
-                                "visible": false,
-                                "backgroundColor": "#5082BC",
-                                "padding": {
-                                    "left": 3,
-                                    "right": 3
-                                },
-                                "textAlign": "center",
-                                "clipChildren": false,
-                                "rclass": "CPMRStatus",
-                                "color": "#ffffff",
-                                "right": 3,
-                                "borderRadius": 2,
-                                "imageId": 0,
-                                "font": {
-                                    "size": 11
-                                }
-                            }
-                        }],
-                        "properties": {
-                            "width": "FILL",
-                            "rclass": "CPMRReleaseBottomLine",
-                            "layout": "horizontal",
-                            "visible": true,
-                            "height": 20
-                        }
-                    }],
-                    "type": "Ti.UI.View",
-                    "properties": {
-                        "rclass": "CPMovieReleaseBottomLine",
-                        "layout": "horizontal",
-                        "width": "FILL",
-                        "height": 20
-                    }
-                }],
-                "properties": {
-                    "borderColor": "#667383",
-                    "backgroundSelectedColor": "#110000",
-                    "layout": "vertical",
-                    "backgroundColor": "#77000000",
-                    "borderPadding": {
-                        "left": -1,
-                        "top": -1,
-                        "right": -1
-                    },
-                    "rclass": "CPMovieReleaseRow",
-                    "height": 62
-                }
-            },
-
-            titleTest: {
-                "properties": {
-                    "rclass": "NewsDetailsRow",
-                    "height": "SIZE",
-                    "backgroundGradient": {
-                        "type": "linear",
-                        "colors": ["#F7F7F7", "white"],
-                        "startPoint": {
-                            "x": 0,
-                            "y": 0
-                        },
-                        "endPoint": {
-                            "x": 0,
-                            "y": "100%"
-                        }
-                    }
-                },
-                "childTemplates": [{
-                    "type": "Ti.UI.ImageView",
-                    "bindId": "image",
-                    "properties": {
-                        "rclass": "NewsDetailsRowImage",
-                        "top": 8,
-                        "backgroundColor": "#C5C5C5",
-                        "left": 8,
-                        "width": 60,
-                        "height": 60,
-                        "retina": false,
-                        "localLoadSync": true,
-                        "preventDefaultImage": true
-                    }
-                }, {
-                    "type": "Ti.UI.View",
-                    "properties": {
-                        "rclass": "NewsDetailsRowLabelHolder",
-                        "height": "SIZE",
-                        "layout": "vertical",
-                        "left": 76,
-                        "top": 10,
-                        "bottom": 10
-                    },
-                    "childTemplates": [{
-                        "type": "Ti.UI.Label",
-                        "bindId": "title",
-                        "properties": {
-                            "rclass": "NewsDetailsRowTitle",
-                            "height": "SIZE",
-                            "maxLines": 0,
-                            "color": "#6B6B6B",
-                            "width": "FILL",
-                            "ellipsize": "END",
-                            "font": {
-                                "size": 14,
-                                "weight": "bold"
-                            }
-                        }
-                    }, {
-                        "type": "Ti.UI.Label",
-                        "bindId": "description",
-                        "properties": {
-                            "rclass": "NewsDetailsRowSubtitle",
-                            "height": "SIZE",
-                            "color": "#3F3F3F",
-                            "width": "FILL",
-                            "ellipsize": "END",
-                            "font": {
-                                "size": 12
-                            }
-                        }
-                    }]
-                }]
-            }
-        },
-        sections: [{
-                items: [{
-                    template: 'textfield',
-                    check: {
-                        visible: editMode
-                    },
-                    textfield: {
-                        value: ''
-                    }
-                }, {
-                    template: 'textfield',
-                    textfield: {
-                        value: ''
-                    }
-                }, {
-                    template: 'soonRow',
-                    soonBottomLabel0: {
-                        visible: true,
-                        text: 'test'
-                    },
-                    soonLabel0: {
-                        text: 'test'
-                    },
-                    soonImage0: {
-                        image: 'http://zapp.trakt.us/images/posters_movies/192263-138.jpg'
-                    }
-                }, {
-                    template: 'release',
-                    title: {
-                        text: 'test release'
-                    },
-                    iconsHolder: {
-                        visible: false
-                    }
-                }, {
-                    template: 'titleTest',
-                    title: {
-                        text: 'test release'
-                    },
-                    description: {
-                        html: "<p style=\"text-align: center;\"><img src=\"https://www.yaliberty.org/sites/default/files/imagecache/fullsize/images/Bonnie_Kristian/susq.jpg\" alt=\"Susquehanna\" title=\"Susquehanna\" class=\"imagecache imagecache-fullsize\" /></p><p>Susquehanna Young Americans for Liberty had our first&nbsp;<span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">meeting on February 19. We introduced ourselves and discussed why we believe liberty is important, along with some&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">potential recruiting options.&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">We then discussed current events and how they affect liberty and how to move ahead in expanding this chapter on campus!</span></p>"
-                    }
-                }, {
-                    template: 'titlevalue',
-                    title: {
-                        text: tr('category')
-                    },
-                    value: {
-                        text: tr('nzbget.catEmpty')
-                    }
-                }, {
-                    template: 'titleTest',
-                    title: {
-                        text: 'test release'
-                    },
-                    description: {
-                        html: "<p style=\"text-align: center;\"><img src=\"https://www.yaliberty.org/sites/default/files/imagecache/fullsize/images/Bonnie_Kristian/susq.jpg\" alt=\"Susquehanna\" title=\"Susquehanna\" class=\"imagecache imagecache-fullsize\" /></p><p>Susquehanna Young Americans for Liberty had our first&nbsp;<span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">meeting on February 19. We introduced ourselves and discussed why we believe liberty is important, along with some&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">potential recruiting options.&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">We then discussed current events and how they affect liberty and how to move ahead in expanding this chapter on campus!</span></p>"
-                    }
-                }, {
-                    template: 'titleTest',
-                    title: {
-                        text: 'test release'
-                    },
-                    description: {
-                        html: "<p style=\"text-align: center;\"><img src=\"https://www.yaliberty.org/sites/default/files/imagecache/fullsize/images/Bonnie_Kristian/susq.jpg\" alt=\"Susquehanna\" title=\"Susquehanna\" class=\"imagecache imagecache-fullsize\" /></p><p>Susquehanna Young Americans for Liberty had our first&nbsp;<span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">meeting on February 19. We introduced ourselves and discussed why we believe liberty is important, along with some&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">potential recruiting options.&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">We then discussed current events and how they affect liberty and how to move ahead in expanding this chapter on campus!</span></p>"
-                    }
-                }, {
-                    template: 'titleTest',
-                    title: {
-                        text: 'test release'
-                    },
-                    description: {
-                        html: "<p style=\"text-align: center;\"><img src=\"https://www.yaliberty.org/sites/default/files/imagecache/fullsize/images/Bonnie_Kristian/susq.jpg\" alt=\"Susquehanna\" title=\"Susquehanna\" class=\"imagecache imagecache-fullsize\" /></p><p>Susquehanna Young Americans for Liberty had our first&nbsp;<span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">meeting on February 19. We introduced ourselves and discussed why we believe liberty is important, along with some&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">potential recruiting options.&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">We then discussed current events and how they affect liberty and how to move ahead in expanding this chapter on campus!</span></p>"
-                    }
-                }, {
-                    template: 'titleTest',
-                    title: {
-                        text: 'test release'
-                    },
-                    description: {
-                        html: "<p style=\"text-align: center;\"><img src=\"https://www.yaliberty.org/sites/default/files/imagecache/fullsize/images/Bonnie_Kristian/susq.jpg\" alt=\"Susquehanna\" title=\"Susquehanna\" class=\"imagecache imagecache-fullsize\" /></p><p>Susquehanna Young Americans for Liberty had our first&nbsp;<span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">meeting on February 19. We introduced ourselves and discussed why we believe liberty is important, along with some&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">potential recruiting options.&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">We then discussed current events and how they affect liberty and how to move ahead in expanding this chapter on campus!</span></p>"
-                    }
-                }, {
-                    template: 'titleTest',
-                    title: {
-                        text: 'test release'
-                    },
-                    description: {
-                        html: "<p style=\"text-align: center;\"><img src=\"https://www.yaliberty.org/sites/default/files/imagecache/fullsize/images/Bonnie_Kristian/susq.jpg\" alt=\"Susquehanna\" title=\"Susquehanna\" class=\"imagecache imagecache-fullsize\" /></p><p>Susquehanna Young Americans for Liberty had our first&nbsp;<span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">meeting on February 19. We introduced ourselves and discussed why we believe liberty is important, along with some&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">potential recruiting options.&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">We then discussed current events and how they affect liberty and how to move ahead in expanding this chapter on campus!</span></p>"
-                    }
-                }, {
-                    template: 'titleTest',
-                    title: {
-                        text: 'test release'
-                    },
-                    description: {
-                        html: "<p style=\"text-align: center;\"><img src=\"https://www.yaliberty.org/sites/default/files/imagecache/fullsize/images/Bonnie_Kristian/susq.jpg\" alt=\"Susquehanna\" title=\"Susquehanna\" class=\"imagecache imagecache-fullsize\" /></p><p>Susquehanna Young Americans for Liberty had our first&nbsp;<span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">meeting on February 19. We introduced ourselves and discussed why we believe liberty is important, along with some&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">potential recruiting options.&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">We then discussed current events and how they affect liberty and how to move ahead in expanding this chapter on campus!</span></p>"
-                    }
-                }, {
-                    template: 'titleTest',
-                    title: {
-                        text: 'test release'
-                    },
-                    description: {
-                        html: "<p style=\"text-align: center;\"><img src=\"https://www.yaliberty.org/sites/default/files/imagecache/fullsize/images/Bonnie_Kristian/susq.jpg\" alt=\"Susquehanna\" title=\"Susquehanna\" class=\"imagecache imagecache-fullsize\" /></p><p>Susquehanna Young Americans for Liberty had our first&nbsp;<span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">meeting on February 19. We introduced ourselves and discussed why we believe liberty is important, along with some&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">potential recruiting options.&nbsp;</span><span style=\"letter-spacing: 0px; line-height: 1.3em; word-spacing: normal;\">We then discussed current events and how they affect liberty and how to move ahead in expanding this chapter on campus!</span></p>"
-                    }
-                }]
-            },
-            section
-        ]
-    });
-
-    // listView.addEventListener('click', function(e) {
-    // editMode = !editMode;
-    // listView.sections = [{
-    // items: [{
-    // template: 'textfield',
-    // check: {
-    // visible: editMode
-    // },
-    // textfield: {
-    // value: ''
-    // }
-    // }, {
-    // template: 'textfield',
-    // textfield: {
-    // value: ''
-    // }
-    // }]
-    // },
-    // section]
-    // info('click' + e.source.backgroundSelectedColor);
-    // });
-    var label = new Label({
-        color: '#F2F3F3',
-        disabledColor: '#F2F3F3',
-        width: 'FILL',
-        touchPassThrough: true,
-        borderWidth: 3,
-        text: 'test',
-        borderPadding: {
-            right: -3,
-            top: -3,
-            bottom: -3
-        },
-        borderDisabledColor: 'red',
-        borderSelectedColor: 'blue',
-        padding: {
-            left: 15,
-            right: 15
-        },
-        font: {
-            size: 20
-        }
-    });
-    win.add(label);
-    win.add(listView);
-    win.add(viewHolder);
-    // win.addEventListener('click', function(e){
-    // // win.blur()
-    // // label.enabled = !label.enabled;
-    // });
-    openWin(win);
-}
-
 app.utils.createNZBButton = function(_id, _rclass, _addSuffix) {
     var props = redux.fn.style('Label', {
         rclass: _rclass || 'NZBGetButton',
@@ -6344,10 +5317,265 @@ function navWindow2Ex() {
     win.add(navWin);
     win.open();
 }
-app.modules.location.callback = function(e){
-    sinfo(e);
+
+function textViewTests() {
+    var win = createWin();
+    var listview = createListView();
+    listview.sections = [{
+        items: [{
+            properties: {
+                title: 'TextArea'
+            },
+            callback: textAreaTest
+        }]
+    }];
+    win.add(listview);
+    openWin(win);
 }
-app.modules.location.start();
+
+function textAreaTest(_args) {
+    var win = createWin(_.assign({
+        childTemplates: [{
+            type: 'Ti.UI.TextArea',
+            properties: {
+                backgroundColor: 'blue',
+                callbackId: 'textfield',
+                color: 'white',
+                height: '100',
+                width: '80%',
+                padding: {
+                    top: 4,
+                    bottom: 4,
+                    left: 4,
+                    right: 4
+                },
+                font: {
+                    size: 12
+                },
+                minHeight: 140,
+                // maxHeight: 90,
+                suppressReturn: false,
+                value: "dalvikvm: method Lti/modules/titanium/ui/widget/TiUILabel$EllipsizingTextView;.getLineAtCoordinate incorrectly overrides package-private method with same name in Landroid/widget/TextView;"
+            }
+        }]
+    }, _args));
+    win.addEventListener('click', function(e) {
+        if (!e.source.callbackId) {
+            e.source.blur();
+        }
+    })
+    openWin(win);
+}
+
+// app.modules.location.callback = function(e){
+// sinfo(e);
+// }
+// app.modules.location.start();
+// sinfo(Ti.App.Properties.listProperties());
+
+// mapboxPinEx();
+
+function navWindowActionBarTest() {
+    var rootWindow = Ti.UI.createWindow({
+        properties: {
+            backgroundColor: 'blue',
+            // windowSoftInputMode: Titanium.UI.Android.SOFT_INPUT_ADJUST_RESIZE,
+            title: 'authentication',
+            // activity: {
+            //     actionBar: {
+            //         backgroundColor: 'red',
+            //         displayHomeAsUp: true,
+            //         onHomeIconItemSelected: function(e) {
+            //             e.window.close();
+            //         }
+            //     }
+            // }
+
+        },
+        // events :{
+        // androidback:function(e) {
+        // e.source.close();
+        // }
+        // },
+        childTemplates: [{
+            bindId: 'webview',
+            type: 'Ti.UI.WebView',
+            properties: {
+                width: 'FILL',
+                height: 'FILL',
+                asyncLoad: true,
+                url: 'https://plus.google.com/share?url=http://www.bbc.co.uk/news/world-asia-china-28122434#sa-ns_mchannel=rss&ns_source=PublicRSS20-sa&continue=titanium.test&bundle_id=titanium.test&client_id=724423202625-85dmkmmls6dv50uobnbaul30kdtgevkb.apps.googleusercontent.com'
+            }
+        }]
+    })
+    rootWindow.webview.addEventListener('load', function(e) {
+        sdebug('test');
+        // e.source.evalJS('alert("test");');
+        var code = e.source.evalJS(
+            "alert('test');document.title;"
+        );
+        sdebug(code);
+    });
+    var win = Ti.UI.createNavigationWindow({
+        modal: true,
+        window: rootWindow
+    });
+    win.open();
+}
+
+function shareTest(_data, _callbackSuccess, _callbackError) {
+    var chars = (_data.text && _data.text != null) ? _data.text.length : 0;
+
+    var classId = _.capitalize(this.moduleId);
+    var win = new Window({
+        properties: {
+            rclass: 'SocialShareWindow ' + classId + 'SocialShareWindow'
+        },
+        childTemplates: [{
+            bindId: 'holder',
+            properties: {
+                rclass: 'SocialShareWindowHolder ' + classId + 'SocialShareWindowHolder'
+            },
+            childTemplates: [{
+                type: 'Ti.UI.Label',
+                properties: {
+                    rclass: 'SocialShareWindowTitle ' + classId +
+                        'SocialShareWindowTitle'
+
+                },
+                childTemplates: [{
+                    type: 'Ti.UI.Label',
+                    properties: {
+                        callbackId: 'cancel',
+                        rclass: 'SocialShareWindowCancel ' + classId +
+                            'SocialShareWindowCancel'
+
+                    }
+                }, {
+                    type: 'Ti.UI.Label',
+                    properties: {
+                        callbackId: 'send',
+                        rclass: 'SocialShareWindowSend ' + classId +
+                            'SocialShareWindowSend'
+                    }
+                }]
+            }, {
+                properties: {
+                    rclass: 'SocialShareWindowHolder2 ' + classId +
+                        'SocialShareWindowHolder2'
+
+                },
+                childTemplates: [{
+                    type: 'Ti.UI.TextArea',
+                    bindId: 'textField',
+                    properties: {
+                        rclass: 'SocialShareWindowTextArea ' + classId +
+                            'SocialShareWindowTextArea',
+                        value: _data.text,
+                        maxLength: 140
+                    }
+                }, {
+                    type: 'Ti.UI.ImageView',
+                    properties: {
+                        rclass: 'SocialShareWindowImage ' + classId +
+                            'SocialShareWindowImage',
+                        visible: (_data.image !== undefined || _data.imageBlob !==
+                            undefined),
+                        image: (_data.image || _data.imageBlob),
+
+                    }
+                }]
+            }]
+        }]
+    });
+    win.addEventListener('open', function() {
+        win.animate(win.openAnim);
+        win.holder.animate(win.holder.openAnim);
+        win.textField.focus();
+    });
+    win.open({
+        animated: false
+    });
+
+    function closeWindow(_cancel) {
+        win.textField.blur();
+        win.animate(win.closeAnim);
+        var animParams = (_cancel === true) ? win.holder.closeCancelAnim : win.holder.closeAnim;
+        win.holder.animate(animParams, function() {
+            win.close();
+        });
+    }
+
+    win.addEventListener('click', function(_event) {
+        if (_event.source.callbackId === 'cancel') {
+            closeWindow(true);
+        } else if (_event.source.callbackId === 'send') {
+            _this.internalShare(_data, function(_result) {
+                closeWindow(false);
+                if (_callbackSuccess) _callbackSuccess(_result);
+            }, function(_result) {
+                closeWindow(false);
+                if (_callbackError) _callbackError(_result);
+            });
+        } else {
+            sdebug('focusing text view');
+            win.textField.focus();
+        }
+
+    })
+}
+
+function shareExample(_data) {
+    if (__APPLE__) {
+        var activity = Ti.UI.iOS.createActivity({
+            category: Ti.UI.iOS.ACTIVITY_CATEGORY_SHARE,
+            type: 'es.oyatsu.custom1',
+            title: 'Custom',
+            image: '/images/activity.png',
+            onPerformActivity: function() {
+                Ti.API.info("Perform, baby!", arguments.length);
+                for (var i = 0; i < arguments.length; i++) {
+                    Ti.API.info(arguments[i], typeof arguments[i]);
+                }
+                return true;
+            }
+        });
+        var activityView = Ti.UI.iOS.createActivityView({
+            activities: [activity],
+            // excluded: [Ti.UI.iOS.ACTIVITY_TYPE_MAIL],
+            items: [_data.subject, _data.text, _data.image],
+            // itemForActivityType: function(_type, _items) {
+            //     Ti.API.info("itemForActivityType: ", _type);
+
+            //     return _items;
+            // }
+        });
+        activityView.show();
+    }
+}
+
+Ti.App.clearImageCache();
+
+Ti.Network.registerForPushNotifications({
+    senderId:'724423202625',
+    success: function(e) {
+        sdebug('registerForPushNotifications', 'success', e);
+    },
+    error: function(e) {
+        sdebug('registerForPushNotifications', 'error', e);
+    },
+    callback: function(e)
+    {
+        sdebug('registerForPushNotifications', 'callback', e);
+
+    }
+});
+
+// shareExample ({
+//     subject:'<html><body><ul><li>one</li><li>two</li></ul></body></html>',
+//     text:"this is the text coming with the shared test",
+//     image:Ti.Media.takeScreenshot()
+// });
 
 // var location = require('akylas.millenoki.location');
 // Ti.App.Properties.setString(location.SETTINGS_URL, 'http://report.datasquasher.com/s/l.php');
