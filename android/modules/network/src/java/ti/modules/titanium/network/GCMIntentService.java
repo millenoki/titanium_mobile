@@ -1,6 +1,7 @@
 package ti.modules.titanium.network;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.appcelerator.kroll.common.Log;
 
@@ -28,6 +29,7 @@ public class GCMIntentService extends IntentService {
         // The getMessageType() intent parameter must be the intent you received
         // in your BroadcastReceiver.
         String messageType = gcm.getMessageType(intent);
+        Log.d(TAG , "onHandleIntent " + messageType, Log.DEBUG_MODE);
 
         if (!extras.isEmpty()) { // has effect of unparcelling Bundle
             /*
@@ -47,12 +49,18 @@ public class GCMIntentService extends IntentService {
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE
                     .equals(messageType)) {
                 HashMap data = new HashMap();
-                for (String key : intent.getExtras().keySet()) {
-                    Log.d(TAG, "Message key: " + key + " value: "
-                            + intent.getExtras().getString(key));
-
-                    String eventKey = key.startsWith("data.") ? key.substring(5) : key;
-                    data.put(eventKey, intent.getExtras().getString(key));
+                Set<String> keys = intent.getExtras().keySet();
+                keys.remove("android.support.content.wakelockid");
+                keys.remove("collapse_key");
+                keys.remove("from");
+                for (String key : keys) {
+                    String value = intent.getExtras().getString(key);
+                    if (value != null) {
+                        Log.d(TAG, "Message key: " + key + " value: "
+                                + intent.getExtras().getString(key));
+                        String eventKey = key.startsWith("data.") ? key.substring(5) : key;
+                        data.put(eventKey, value);
+                    }
                 }
                 NetworkModule.gcmOnMessage(data);
                 // Post notification of received message.

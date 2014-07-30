@@ -22,8 +22,10 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -31,6 +33,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.json.JSONObject;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -81,10 +84,15 @@ public class NetworkModule extends KrollModule {
     public static final String PROPERTY_GCM_REG_ID = "gcm_registration_id";
     public static final String PROPERTY_GCM_CURRENT_VERSION = "gcm_current_app_version";
     
+    public static final String GCM_NOTIFICATION_SCRIPT = "ti.android.gcm.notification.script";
+    @Kroll.constant public static final String GCM_NOTIFICATION_LAST = "ti.android.gcm.notification.last";
+    
     
     private KrollFunction gcmSuccessCallback = null;
     private KrollFunction gcmErrorCallback = null;
     private KrollFunction gcmMessageCallback = null;
+    private static String scriptUrl;
+    private static TiProperties appProperties;
     private static NetworkModule _instance;
 
     public enum State {
@@ -184,12 +192,35 @@ public class NetworkModule extends KrollModule {
 	public NetworkModule()
 	{
 		super();
-
-		this.lastNetInfo = new NetInfo();
-		this.isListeningForConnectivity = false;
-		this.isListeningForWifiScan = false;
-		_instance = this;
+		init();
+		
 	}
+	
+	private void init() {
+	    this.lastNetInfo = new NetInfo();
+        this.isListeningForConnectivity = false;
+        this.isListeningForWifiScan = false;
+        _instance = this;
+        if (appProperties == null) {
+            final TiApplication app = TiApplication.getInstance();
+            Log.d(TAG, "creation", Log.DEBUG_MODE);
+            appProperties = app.getAppProperties();
+            if (appProperties.hasProperty(GCM_NOTIFICATION_SCRIPT)) {
+                scriptUrl = appProperties.getString(GCM_NOTIFICATION_SCRIPT, null);
+                if (scriptUrl != null) {
+                    if (!scriptUrl.contains("://") && !scriptUrl.startsWith("/")) {
+                        scriptUrl = TiC.URL_ANDROID_ASSET_RESOURCES + scriptUrl;
+                    }
+                    if (scriptUrl.startsWith(TiC.URL_APP_PREFIX)) {
+                        scriptUrl = scriptUrl.replaceAll("app:/", "Resources");
+
+                    } else if (scriptUrl.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)) {
+                        scriptUrl = scriptUrl.replaceAll("file:///android_asset/", "");
+                    }
+                }
+            }
+        }
+    }
 
 	public NetworkModule(TiContext tiContext)
 	{
@@ -1205,9 +1236,29 @@ public class NetworkModule extends KrollModule {
         }
     }
     
+    private static void runScript(HashMap messageData) {
+        KrollProxy proxy = TiApplication.getInstance().getModuleByName("App");
+        if (proxy == null) {
+            Log.e(TAG, "cant handle location as no App proxy", Log.DEBUG_MODE);
+            return;
+        }
+        try {
+            JSONObject json = new JSONObject(messageData);
+            appProperties.setString(GCM_NOTIFICATION_LAST, TiConvert.toString(json));
+        } catch (Exception e) {
+            appProperties.setString(GCM_NOTIFICATION_LAST, "");
+        }
+        if (scriptUrl != null) {
+            Log.d(TAG, "we have scriptUrl", Log.DEBUG_MODE);
+            KrollRuntime.getInstance().runModule(KrollAssetHelper.readAsset(scriptUrl), scriptUrl, proxy);
+        }
+    }
+    
     public static void gcmOnMessage(HashMap messageData) {
-        if (_instance == null) return;
-        _instance.handleGcmOnMessage(messageData);
+        if (_instance != null) {
+            _instance.handleGcmOnMessage(messageData);
+        }
+        runScript(messageData);
     }
     
     public void handleGcmOnError(String message) {

@@ -1042,7 +1042,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_CALENDAR_VIEW_SHOWN = "calendarViewShown";
-	
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_CALLBACK = "callback";
+
 	/**
 	 * @module.api
 	 */	
@@ -1363,6 +1368,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_END_PLAYBACK_TIME = "endPlaybackTime";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_ERROR = "error";
 
 	/**
 	 * @module.api
@@ -2505,6 +2515,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SELECTION_INDICATOR = "selectionIndicator";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SENDER_ID = "senderId";
 
 	/**
 	 * @module.api
