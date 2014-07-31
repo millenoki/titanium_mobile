@@ -3406,29 +3406,70 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
 };
 
 AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
-    var themeFile = path.join(this.buildResDir, 'values', 'theme.xml');
-
-    if (!fs.existsSync(themeFile)) {
-        this.logger.info(__('Generating %s', themeFile.cyan));
-
-        var flags = 'Theme.Titanium';
-        var baseTheme = "BaseTheme";
-        if ( this.tiapp['theme']) {
-            baseTheme = this.tiapp['theme'];
-        }
-        if ((this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) && this.tiapp['navbar-hidden']) {
-            flags += '.NoActionBar.Fullscreen';
-        } else if (this.tiapp['navbar-hidden']) {
-            flags += '.NoActionBar';
-        }
-
-        fs.writeFileSync(themeFile, ejs.render(fs.readFileSync(path.join(this.templatesDir, 'theme.xml')).toString(), {
-            flags: flags,
-            baseTheme:baseTheme
-        }));
+    var flags = 'Theme.Titanium';
+    var baseTheme = "BaseTheme";
+    if ( this.tiapp['theme']) {
+        baseTheme = this.tiapp['theme'];
+    }
+    if ((this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) && this.tiapp['navbar-hidden']) {
+        flags += '.NoActionBar.Fullscreen';
+    } else if (this.tiapp['navbar-hidden']) {
+        flags += '.NoActionBar';
     }
 
-    next();
+    var _t = this;
+    function recursivelyGenerate(src, dest, opts, done) {
+        var files;
+        if (fs.statSync(src).isDirectory()) {
+            files = fs.readdirSync(src);
+        } else {
+            // we have a file, so fake a directory listing
+            files = [ path.basename(src) ];
+            src = path.dirname(src);
+        }
+
+        var opts = {
+            flags: flags,
+            baseTheme:baseTheme
+        };
+
+        async.whilst(
+            function () {
+                return files.length;
+            },
+
+            function (next) {
+                var filename = files.shift(),
+                    destDir = dest,
+                    from = path.join(src, filename),
+                    to = path.join(destDir, filename);
+
+                // check that the file actually exists and isn't a broken symlink
+                if (!fs.existsSync(from)) return next();
+
+                var isDir = fs.statSync(from).isDirectory();
+
+                // if this is a directory, recurse
+                if (isDir) return recursivelyGenerate.call(_t, from, path.join(destDir, filename), opts, next);
+
+                // we have a file
+
+                // if the destination directory does not exists, create it
+                fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+
+
+                if (!fs.existsSync(to)) {
+                    _t.logger.info(__('Generating %s', to.cyan));
+
+                    fs.writeFileSync(to, ejs.render(fs.readFileSync(from).toString(), opts));
+                }
+                next();
+            },
+
+            done
+        );
+    }
+    recursivelyGenerate(path.join(this.templatesDir, 'res'), this.buildResDir, null, next);
 };
 
 AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManifest(next) {
