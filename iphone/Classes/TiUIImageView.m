@@ -377,6 +377,11 @@ DEFINE_EXCEPTIONS
 	return imageView;
 }
 
+-(UIView*)viewForHitTest
+{
+    return imageView;
+}
+
 - (id)accessibilityElement
 {
 	return [self imageView];

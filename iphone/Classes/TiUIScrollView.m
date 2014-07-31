@@ -146,6 +146,13 @@
 	return scrollView;
 }
 
+
+-(UIView*)viewForHitTest
+{
+    return scrollView;
+}
+
+
 - (id)accessibilityElement
 {
 	return [self scrollView];

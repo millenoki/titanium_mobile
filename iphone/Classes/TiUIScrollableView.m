@@ -147,6 +147,12 @@
 	return scrollview;
 }
 
+-(UIView*)viewForHitTest
+{
+    return scrollview;
+}
+
+
 -(void)refreshPageControl
 {
 	if (showPageControl)

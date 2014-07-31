@@ -86,6 +86,12 @@
 	return indicatorView;
 }
 
+-(UIView*)viewForHitTest
+{
+    return indicatorView;
+}
+
+
 -(UILabel *)messageLabel
 {
 	if (messageLabel==nil)

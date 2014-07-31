@@ -97,6 +97,11 @@
 	return searchView;
 }
 
+-(UIView*)viewForHitTest
+{
+    return searchView;
+}
+
 - (void)didMoveToSuperview
 {
 	[super didMoveToSuperview];
