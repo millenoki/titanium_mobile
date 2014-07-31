@@ -14,6 +14,7 @@
 #import "NSData+Additions.h"
 #import "APSAnalytics.h"
 #import "APSHTTPRequest.h"
+#import "NetworkModule.h"
 
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
@@ -65,12 +66,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     [req setUrl:[NSURL URLWithString:url]];
     [req setDelegate:self];
     [req setMethod:@"GET"];
+    [req setSynchronous:NO];
+    NSOperationQueue *operationQueue = [NetworkModule operationQueue];
+    [req setTheQueue:operationQueue];
     // Place it in the main thread since we're not using a queue and yet we need the
     // delegate methods to be called...
-    TiThreadPerformOnMainThread(^{
-        [req send];
-        [req autorelease];
-    }, NO);
+//    TiThreadPerformOnMainThread(^{
+    [self retain]; //retain ourself for now (because req delegate doesn't
+    [req send];
+    [req autorelease];
+//    }, NO);
 }
 
 -(void)requestSuccess:(NSString*)data
@@ -513,7 +518,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 //							[TiUtils appIdentifier],@"mid",
 //							sid,@"sid",
 							address,@"q",
-//							[[NSLocale currentLocale] objectForKey: NSLocaleCountryCode],@"c",
+							[[NSLocale currentLocale] objectForKey: NSLocaleCountryCode],@"c",
 							nil];
 	
 	[callback start:params];

@@ -51,7 +51,7 @@ public class TiLocation implements Handler.Callback
 	public LocationManager locationManager;
 
 	private static final String TAG = "TiLocation";
-	private static final String BASE_GEO_URL = "http://api.appcelerator.com/p/v1/geo?";
+	private static final String BASE_GEO_URL = "http://api.appcelerator.net!/p/v1/geo?";
 
 	private String mobileId;
 	private String appGuid;
@@ -215,7 +215,9 @@ public class TiLocation implements Handler.Callback
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append(BASE_GEO_URL)
-				.append("d=r")
+                .append("d=r")
+                .append("&c=")
+                .append(URLEncoder.encode(Locale.getDefault().getCountry(), "utf-8"))
 //				.append("&mid=")
 //				.append(mid)
 //				.append("&aguid=")
