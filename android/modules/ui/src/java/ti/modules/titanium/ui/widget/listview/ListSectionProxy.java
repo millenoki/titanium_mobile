@@ -665,16 +665,18 @@ public class ListSectionProxy extends ViewProxy {
 	    if (hasHeader()) {
 	        nonRealItemIndex += 1;
 	    }
-        View content = getListView().getCellAt(this.sectionIndex, itemIndex);
+	    
+	    TiListView listView = getListView();
         
 	    HashMap currentItem = KrollDict.merge((HashMap)itemProperties.get(itemIndex), (HashMap)(data));
 	    if (currentItem == null) return;
 	    itemProperties.set(itemIndex, currentItem);
 	    // only process items when listview's properties is processed.
-        if (getListView() == null) {
+        if (listView == null) {
             preload = true;
             return;
         }
+        View content = listView.getCellAt(this.sectionIndex, itemIndex);
         KrollDict d = new KrollDict(currentItem);
         ListItemData itemD = getItemDataAt(itemIndex);
         itemD.setProperties(d);
