@@ -199,6 +199,9 @@ public abstract class TiUIView
 		if (child != null) {
 			View cv = child.getOuterView();
 			if (cv != null) {
+			    if (!isEnabled) {
+                    child.setEnabled(isEnabled, true);
+                }
 				View nv = getParentViewForChild();
 				if (nv instanceof ViewGroup) {
 					if (cv.getParent() == null) {
