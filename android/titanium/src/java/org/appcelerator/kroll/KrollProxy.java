@@ -1576,7 +1576,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
         }
     }
     
-    protected void addBinding(String bindId, KrollProxy bindingProxy)
+    public void addBinding(String bindId, KrollProxy bindingProxy)
     {
         if (bindId == null) return;
         setProperty(bindId, bindingProxy);

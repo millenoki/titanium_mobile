@@ -139,7 +139,7 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 	}
 	
 	@Override
-	protected void addBinding(String bindId, KrollProxy arg)
+    public void addBinding(String bindId, KrollProxy arg)
 	{
 		super.addBinding(bindId, arg);
 		KrollProxy bindingProxy = null;
