@@ -1402,10 +1402,6 @@ DEFINE_EXCEPTIONS
 	NSDictionary* properties = (NSDictionary*)[dictionary objectForKey:@"properties"];
     if (properties == nil) properties = dictionary;
 	[self _initWithProperties:properties];
-    NSString* bindId = [dictionary objectForKey:@"bindId"];
-    if (bindId) {
-        [rootProxy setValue:self forKey:bindId];
-    }
 	NSDictionary* events = (NSDictionary*)[dictionary objectForKey:@"events"];
 	if ([events count] > 0) {
 		[context.krollContext invokeBlockOnThread:^{

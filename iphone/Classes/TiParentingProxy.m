@@ -103,20 +103,33 @@
         
 		return;
 	}
+    NSString* bindId = nil;
+    TiProxy* child = nil;
     if ([arg isKindOfClass:[NSDictionary class]]) {
         id<TiEvaluator> context = self.executionContext;
         if (context == nil) {
             context = self.pageContext;
         }
-        TiProxy *child = [[self class] createFromDictionary:arg rootProxy:self inContext:context];
-        [context.krollContext invokeBlockOnThread:^{
-            [self rememberProxy:child];
-            [child forgetSelf];
-        }];
-        [self addInternal:child atIndex:position shouldRelayout:shouldRelayout];
-        return;
+        bindId = [arg valueForKey:@"bindId"];
+        child = [[self class] createFromDictionary:arg rootProxy:self inContext:context];
+        if (child) {
+            [context.krollContext invokeBlockOnThread:^{
+                [self rememberProxy:child];
+                [child forgetSelf];
+            }];
+        }
     }
-    [self addProxy:arg atIndex:position shouldRelayout:shouldRelayout];
+    else {
+        child = (TiProxy*)arg;
+        bindId = [child valueForUndefinedKey:@"bindId"];
+    }
+    
+    if (child) {
+        if (bindId) {
+            [self setValue:child forKey:bindId];
+        }
+        [self addProxy:child atIndex:position shouldRelayout:shouldRelayout];
+    }
 }
 
 -(void)childAdded:(TiProxy*)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
@@ -260,14 +273,20 @@
 	
 	[childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
         TiProxy *child = nil;
+        NSString* bindId = nil;
         if ([childTemplate isKindOfClass:[NSDictionary class]]) {
+            bindId = [childTemplate valueForKey:@"bindId"];
             child = [[self class] createFromDictionary:childTemplate rootProxy:rootProxy inContext:context];
         }
         else if(([childTemplate isKindOfClass:[TiProxy class]]))
         {
             child = (TiProxy *)childTemplate;
+            bindId = [childTemplate valueForUndefinedKey:@"bindId"];
         }
 		if (child != nil) {
+            if (bindId) {
+                [rootProxy setValue:child forKey:bindId];
+            }
 			[context.krollContext invokeBlockOnThread:^{
 				[self rememberProxy:child];
 				[child forgetSelf];
