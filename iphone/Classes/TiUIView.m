@@ -733,6 +733,13 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 {
 	[self updateTransform];
 	[super didMoveToSuperview];
+    if ([self.superview isKindOfClass:[TiUIView class]])
+    {
+        BOOL parentEnabled = [(TiUIView*)self.superview customUserInteractionEnabled];
+        if (!parentEnabled && _customUserInteractionEnabled) {
+            [self setEnabled_:@(parentEnabled && _customUserInteractionEnabled)];
+        }
+    }
 }
 
 -(void)updateTransform
@@ -1362,11 +1369,26 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	_touchEnabled = [TiUtils boolValue:arg def:_touchEnabled];
 }
 
+-(BOOL)customUserInteractionEnabled {
+    return _customUserInteractionEnabled;
+}
+
 -(void)setEnabled_:(id)arg
 {
+    BOOL newValue = [TiUtils boolValue:arg def:[self interactionDefault]];
+    if (newValue == _customUserInteractionEnabled) return;
 	_customUserInteractionEnabled = [TiUtils boolValue:arg def:[self interactionDefault]];
     [self setBgState:UIControlStateNormal];
     changedInteraction = YES;
+    for (TiUIView * thisView in [self childViews])
+    {
+        if ([thisView isKindOfClass:[TiUIView class]])
+        {
+            BOOL originalValue = [[((TiUIView*)thisView).proxy valueForUndefinedKey:@"enabled"] boolValue];
+            [thisView setEnabled_:@(originalValue && _customUserInteractionEnabled)];
+        }
+    }
+    
 }
 
 -(void)setDispatchPressed_:(id)arg
