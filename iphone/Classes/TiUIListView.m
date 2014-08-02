@@ -21,6 +21,35 @@
 
 #define GROUPED_MARGIN_WIDTH 18.0
 
+@interface WrapperViewProxy: TiViewProxy
+@end
+
+@implementation WrapperViewProxy
+
+- (id)initWithVerticalLayout:(BOOL)vertical
+{
+    self = [super init];
+    if (self) {
+        self.canBeResizedByFrame = YES;
+        LayoutConstraint* viewLayout = [self layoutProperties];
+        viewLayout->width = TiDimensionAutoFill;
+        viewLayout->height = TiDimensionAutoSize;
+        if (TiDimensionIsUndefined(viewLayout->top))
+        {
+            viewLayout->top = TiDimensionDip(0);
+        }
+        if (vertical) {
+            viewLayout->layoutStyle = TiLayoutRuleVertical;
+        }
+    }
+    return self;
+}
+- (void)dealloc
+{
+    [super dealloc];
+}
+@end
+
 @interface TiUIView(eventHandler);
 -(void)handleListenerRemovedWithEvent:(NSString *)event;
 -(void)handleListenerAddedWithEvent:(NSString *)event;
@@ -164,20 +193,9 @@ static NSDictionary* replaceKeysForRow;
 
 -(TiViewProxy*)initWrapperProxyWithVerticalLayout:(BOOL)vertical
 {
-    TiViewProxy* theProxy = [[TiViewProxy alloc] init];
+    WrapperViewProxy* theProxy = [[WrapperViewProxy alloc] initWithVerticalLayout:vertical];
     [theProxy setParent:(TiParentingProxy*)self.proxy];
-    theProxy.canBeResizedByFrame = YES;
-    LayoutConstraint* viewLayout = [theProxy layoutProperties];
-    viewLayout->width = TiDimensionAutoFill;
-    viewLayout->height = TiDimensionAutoSize;
-    if (TiDimensionIsUndefined(viewLayout->top))
-    {
-        viewLayout->top = TiDimensionDip(0);
-    }
-    if (vertical) {
-        viewLayout->layoutStyle = TiLayoutRuleVertical;
-    }
-    return theProxy;
+    return [theProxy autorelease];
 }
 
 -(TiViewProxy*)initWrapperProxy
@@ -198,7 +216,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)configureFooter
 {
     if (_footerViewProxy == nil) {
-        _footerViewProxy = [self initWrapperProxy];
+        _footerViewProxy = [[self initWrapperProxy] retain];
         [self setHeaderFooter:_footerViewProxy isHeader:NO];
     }
 }
@@ -206,7 +224,7 @@ static NSDictionary* replaceKeysForRow;
 -(TiViewProxy*)getOrCreateFooterHolder
 {
     if (_footerViewProxy == nil) {
-        _footerViewProxy = [self initWrapperProxy];
+        _footerViewProxy = [[self initWrapperProxy] retain];
         [self setHeaderFooter:_footerViewProxy isHeader:NO];
     }
     return _footerViewProxy;
@@ -215,10 +233,10 @@ static NSDictionary* replaceKeysForRow;
 -(TiViewProxy*)getOrCreateHeaderHolder
 {
     if (_headerViewProxy == nil) {
-        _headerViewProxy = [self initWrapperProxyWithVerticalLayout:YES];
+        _headerViewProxy = [[self initWrapperProxyWithVerticalLayout:YES] retain];
         
-        _searchWrapper = [self initWrapperProxy];
-        _headerWrapper = [self initWrapperProxy];
+        _searchWrapper = [[self initWrapperProxy] retain];
+        _headerWrapper = [[self initWrapperProxy] retain];
         
         [_headerViewProxy add:@[_searchWrapper, _headerWrapper]];
         
@@ -417,57 +435,17 @@ static NSDictionary* replaceKeysForRow;
 	}
 }
 
--(TiViewProxy*)sectionViewProxy:(NSInteger)section forLocation:(NSString*)location section:(TiUIListSectionProxy**)sectionResult
+-(TiViewProxy*)sectionViewProxy:(NSInteger)section forLocation:(NSString*)location
 {
     TiUIListSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
-    //In the event that proxy is nil, this all flows out to returning nil safely anyways.
-    if (sectionResult!=nil) {
-        *sectionResult = proxy;
-    }
-    id value = [proxy valueForKey:location];
-    TiViewProxy* viewproxy = nil;
-    if ([value isKindOfClass:[TiViewProxy class]]) {
-        viewproxy = value;
-    }
-    else if ([value isKindOfClass:[NSDictionary class]]) {
-        id<TiEvaluator> context = proxy.executionContext;
-        if (context == nil) {
-            context = proxy.pageContext;
-        }
-        viewproxy = (TiViewProxy*)[[TiViewProxy class] createFromDictionary:value rootProxy:proxy inContext:context];
-        [context.krollContext invokeBlockOnThread:^{
-            [proxy rememberProxy:viewproxy];
-            [viewproxy forgetSelf];
-        }];
-    }
-    return viewproxy;
+    return [proxy sectionViewForLocation:location inListView:self];
 }
 
 -(UIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUIListSectionProxy**)sectionResult
 {
-    TiViewProxy* viewproxy = [self sectionViewProxy:section forLocation:location section:sectionResult];
+    TiViewProxy* viewproxy = [self sectionViewProxy:section forLocation:location];
     if (viewproxy!=nil) {
-        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
-        //If height is not dip, explicitly set it to SIZE
-        if (viewLayout->height.type != TiDimensionTypeDip) {
-            viewLayout->height = TiDimensionAutoSize;
-        }
-        if (viewLayout->width.type == TiDimensionTypeUndefined) {
-            viewLayout->width = TiDimensionAutoFill;
-        }
-        
-        if (viewproxy.parent == nil)
-        {
-            
-            TiViewProxy* wrapperProxy = [self initWrapperProxy];
-            LayoutConstraint* viewLayout = [wrapperProxy layoutProperties];
-            viewLayout->layoutStyle = TiLayoutRuleVertical;
-            [wrapperProxy add:viewproxy];
-            return [wrapperProxy getAndPrepareViewForOpening:self.tableView.bounds];
-        }
-        else {
-            return [viewproxy getAndPrepareViewForOpening:self.tableView.bounds];
-        }
+        return [viewproxy getAndPrepareViewForOpening:self.tableView.bounds];
     }
     return nil;
 }
@@ -1736,7 +1714,7 @@ static NSDictionary* replaceKeysForRow;
     }
     
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-    TiViewProxy* viewProxy = [self sectionViewProxy:realSection forLocation:@"headerView" section:nil];
+    TiViewProxy* viewProxy = [sectionProxy sectionViewForLocation:@"headerView" inListView:self];
 	
     CGFloat size = 0.0;
     if (viewProxy!=nil) {
@@ -1797,7 +1775,7 @@ static NSDictionary* replaceKeysForRow;
     }
     
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-    TiViewProxy* viewProxy = [self sectionViewProxy:realSection forLocation:@"footerView" section:nil];
+    TiViewProxy* viewProxy = [sectionProxy sectionViewForLocation:@"footerView" inListView:self];
 	
     CGFloat size = 0.0;
     if (viewProxy!=nil) {

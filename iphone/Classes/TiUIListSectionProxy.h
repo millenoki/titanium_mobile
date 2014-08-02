@@ -8,6 +8,8 @@
 
 #import "TiProxy.h"
 
+@class TiViewProxy;
+@class TiUIListView;
 @protocol TiUIListViewDelegate <NSObject>
 @required
 
@@ -34,6 +36,7 @@
 - (void)deleteItemsAt:(id)args;
 - (void)updateItemAt:(id)args;
 - (id)getItemAt:(id)args;
+-(TiViewProxy*)sectionViewForLocation:(NSString*)location inListView:(TiUIListView*)listView;
 
 // Public API
 @property (nonatomic, readonly) NSUInteger itemCount;

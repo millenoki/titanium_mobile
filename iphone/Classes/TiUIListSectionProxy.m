@@ -12,6 +12,10 @@
 #import "TiUIListItem.h"
 #import "NSDictionary+Merge.h"
 
+@interface TiUIListView()
+-(TiViewProxy*)initWrapperProxyWithVerticalLayout:(BOOL)vertical;
+@end
+
 @interface TiUIListSectionProxy ()
 @property (nonatomic, readonly) id<TiUIListViewDelegate> dispatcher;
 @end
@@ -19,6 +23,7 @@
 @implementation TiUIListSectionProxy {
 	NSMutableArray *_items;
     BOOL _hidden;
+    NSMutableDictionary* _storedSectionViews;
 }
 
 @synthesize delegate = _delegate;
@@ -31,6 +36,7 @@
     self = [super init];
     if (self) {
 		_items = [[NSMutableArray alloc] initWithCapacity:20];
+        _storedSectionViews = [[NSMutableDictionary alloc] init];
         _hidden = false;
     }
     return self;
@@ -42,6 +48,14 @@
     RELEASE_TO_NIL(_items)
     RELEASE_TO_NIL(_headerTitle)
     RELEASE_TO_NIL(_footerTitle)
+    if (_storedSectionViews) {
+        [_storedSectionViews enumerateKeysAndObjectsUsingBlock:^(id key, TiViewProxy* childProxy, BOOL *stop) {
+            [childProxy setParent:nil];
+            [childProxy detachView];
+            [self forgetProxy:childProxy];
+        }];
+        RELEASE_TO_NIL(_storedSectionViews)
+    }
 	[super dealloc];
 }
 
@@ -89,6 +103,44 @@
     }
 }
 
+-(TiViewProxy*)sectionViewForLocation:(NSString*)location inListView:(TiUIListView*)listView
+{
+    if ([_storedSectionViews objectForKey:location]) {
+        return [_storedSectionViews objectForKey:location];
+    }
+    id value = [self valueForKey:location];
+    TiViewProxy* viewproxy = nil;
+    if ([value isKindOfClass:[TiViewProxy class]]) {
+        viewproxy = value;
+    }
+    else if ([value isKindOfClass:[NSDictionary class]]) {
+        id<TiEvaluator> context = self.executionContext;
+        if (context == nil) {
+            context = self.pageContext;
+        }
+        viewproxy = (TiViewProxy*)[[TiViewProxy class] createFromDictionary:value rootProxy:self inContext:context];
+        //the wrapper will remember him
+        [context.krollContext invokeBlockOnThread:^{
+            [viewproxy forgetSelf];
+        }];
+    }
+    if (viewproxy) {
+        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
+        //If height is not dip, explicitly set it to SIZE
+        if (viewLayout->height.type != TiDimensionTypeDip) {
+            viewLayout->height = TiDimensionAutoSize;
+        }
+        if (viewLayout->width.type == TiDimensionTypeUndefined) {
+            viewLayout->width = TiDimensionAutoFill;
+        }
+        TiViewProxy* wrapperProxy = [listView initWrapperProxyWithVerticalLayout:YES];
+        [wrapperProxy add:viewproxy];
+        [self rememberProxy:wrapperProxy];
+        [_storedSectionViews setObject:wrapperProxy forKey:location];
+        return wrapperProxy;
+    }
+    return nil;
+}
 
 
 #pragma mark - Public API
