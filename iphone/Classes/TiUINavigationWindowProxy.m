@@ -820,17 +820,11 @@ else{\
 {
 	CGRect frame = [TiUtils appFrame];
 	TiUINavigationWindow * win = [[TiUINavigationWindow alloc] initWithFrame:frame];
+    UIView *nview = [[self controller] view];
+	[nview setFrame:[win bounds]];
+	[win addSubview:nview];
 	return win;
 }
-
--(void)windowWillOpen
-{
-    UIView *nview = [[self controller] view];
-	[nview setFrame:[[self view] bounds]];
-	[[self view] addSubview:nview];
-    return [super windowWillOpen];
-}
-
 
 -(void) windowDidClose
 {
