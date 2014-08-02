@@ -1792,10 +1792,11 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)_configure
 {
-    [self replaceValue:NUMBOOL(NO) forKey:@"fullscreen" notification:NO];
-    [self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:NO];
-    [self replaceValue:NUMBOOL(FALSE) forKey:@"opaque" notification:NO];
-    [self replaceValue:NUMFLOAT(1.0f) forKey:@"opacity" notification:NO];
+    [self replaceValue:@(YES) forKey:@"enabled" notification:NO];
+    [self replaceValue:@(NO) forKey:@"fullscreen" notification:NO];
+    [self replaceValue:@(YES) forKey:@"visible" notification:NO];
+    [self replaceValue:@(FALSE) forKey:@"opaque" notification:NO];
+    [self replaceValue:@(1.0f) forKey:@"opacity" notification:NO];
 }
 
 -(void)_initWithProperties:(NSDictionary*)properties
