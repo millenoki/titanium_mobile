@@ -1406,7 +1406,12 @@ DEFINE_EXCEPTIONS
 	if ([events count] > 0) {
 		[context.krollContext invokeBlockOnThread:^{
 			[events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, KrollCallback *listener, BOOL *stop) {
-                [self addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
+                if ([listener isKindOfClass:[KrollCallback class]]) {
+                    KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(listener);
+                    [wrapper protectJsobject];
+                    [self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
+                } else if([listener isKindOfClass:[KrollWrapper class]]) {
+                    [self addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
 			}];
 		}];
 	}
