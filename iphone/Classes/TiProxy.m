@@ -1412,6 +1412,7 @@ DEFINE_EXCEPTIONS
                     [self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
                 } else if([listener isKindOfClass:[KrollWrapper class]]) {
                     [self addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
+                }
 			}];
 		}];
 	}
