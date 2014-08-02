@@ -13,6 +13,9 @@
     TiUIView * touchHandler;
     UIView * touchedContentView;
 }
+@property (nonatomic, strong) NSString *placeholder;
+@property (nonatomic, strong) UIColor *placeholderColor;
+@property (nonatomic) BOOL displayPlaceHolder;
 @end
 
 @interface TiUITextArea : TiUITextWidget <UITextViewDelegate>
@@ -25,7 +28,7 @@
 }
 
 @property(nonatomic,readonly) BOOL becameResponder;
--(void)setPadding:(UIEdgeInsets)inset;
+@property(nonatomic,assign) UIEdgeInsets padding;
 @end
 
 #endif

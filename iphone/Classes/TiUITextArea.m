@@ -26,6 +26,13 @@
 {
     BOOL becameResponder;
     BOOL settingText;
+    BOOL _inLayout;
+}
+
+- (void)setContentOffset:(CGPoint)contentOffset
+{
+    if (_inLayout) return;
+    [super setContentOffset:contentOffset];
 }
 
 - (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
@@ -40,6 +47,12 @@
 {
     //Assign only. No retain
     touchHandler = handler;
+}
+
+-(void)layoutSubviews {
+    _inLayout = YES;
+    [super layoutSubviews];
+    _inLayout = NO;
 }
 
 - (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view
@@ -128,15 +141,25 @@
 }
 
 - (void)handleTextViewDidChange {
-    if (is_iOS7 && !is_iOS8 && !settingText) {
-        if ([self.text hasSuffix:@"\n"]) {
-            [CATransaction setCompletionBlock:^{
-                [self scrollToCaretAnimated:NO];
-            }];
-        } else {
-            [self scrollToCaretAnimated:NO];
-        }
+    
+    // Display (or not) the placeholder string
+    
+    BOOL wasDisplayingPlaceholder = self.displayPlaceHolder;
+    self.displayPlaceHolder = self.text.length == 0;
+	
+    if (wasDisplayingPlaceholder != self.displayPlaceHolder) {
+        [self setNeedsDisplay];
     }
+    
+//    if (is_iOS7 && !is_iOS8 && !settingText) {
+//        if ([self.text hasSuffix:@"\n"]) {
+//            [CATransaction setCompletionBlock:^{
+//                [self scrollToCaretAnimated:NO];
+//            }];
+//        } else {
+//            [self scrollToCaretAnimated:NO];
+//        }
+//    }
 }
 
 - (void)setText:(NSString *)text {
@@ -147,29 +170,73 @@
 
 - (void)scrollToCaretAnimated:(BOOL)animated {
     CGRect rect = [self caretRectForPosition:self.selectedTextRange.end];
-    rect.size.height += self.textContainerInset.bottom;
+    rect.size.height += self.contentInset.bottom;
     [self scrollRectToVisible:rect animated:animated];
+}
+
+
+- (void)drawRect:(CGRect)rect
+{
+    [super drawRect:rect];
+    if (self.displayPlaceHolder && self.placeholder && self.placeholderColor)
+    {
+        if ([self respondsToSelector:@selector(snapshotViewAfterScreenUpdates:)])
+        {
+            NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+            paragraphStyle.alignment = self.textAlignment;
+            [self.placeholder drawInRect:CGRectMake(5, 8 + self.contentInset.top, self.frame.size.width-self.contentInset.left, self.frame.size.height- self.contentInset.top) withAttributes:@{NSFontAttributeName:self.font, NSForegroundColorAttributeName:self.placeholderColor, NSParagraphStyleAttributeName:paragraphStyle}];
+        }
+        else {
+            [self.placeholderColor set];
+            [self.placeholder drawInRect:CGRectMake(8.0f, 8.0f, self.frame.size.width - 16.0f, self.frame.size.height - 16.0f) withFont:self.font];
+        }
+    }
+}
+
+-(void)setPlaceholder:(NSString *)placeholder
+{
+	_placeholder = placeholder;
+	
+	[self setNeedsDisplay];
 }
 
 @end
 
 
+@interface TiUITextArea()
+
+@property (nonatomic, strong) NSString *currentText;
+
+@end
+
 @implementation TiUITextArea
 {
     NSTimer* _caretVisibilityTimer;
+    UIEdgeInsets _padding;
+    BOOL suppressReturn;
+    int _maxLines;
 }
 
-@synthesize becameResponder;
+@synthesize becameResponder, padding = _padding;
+
+-(id)init {
+    if (self = [super init])
+    {
+        _padding = UIEdgeInsetsZero;
+        _maxLines = -1;
+    }
+    return self;
+}
 
 #pragma mark Internal
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[TiUtils setView:textWidgetView positionRect:bounds];
+	[TiUtils setView:textWidgetView positionRect:UIEdgeInsetsInsetRect(bounds, _padding)];
     
     //It seems that the textWidgetView are not layed out correctly
     //without this
-    [textWidgetView layoutSubviews];
+//    [textWidgetView layoutSubviews];
     [self updateInsentForKeyboard];
     
 	[super frameSizeChanged:frame bounds:bounds];
@@ -183,7 +250,10 @@
         textViewImpl.delaysContentTouches = NO;
         [textViewImpl setTouchHandler:self];
         textViewImpl.delegate = self;
+        textViewImpl.displayPlaceHolder = YES;
+        textViewImpl.placeholderColor = [UIColor grayColor];
         textViewImpl.backgroundColor = [UIColor clearColor];
+        textViewImpl.contentMode = UIViewContentModeRedraw;
         [self addSubview:textViewImpl];
         [textViewImpl setContentInset:UIEdgeInsetsZero];
         self.clipsToBounds = YES;
@@ -257,9 +327,38 @@
 
 
 
--(void)setPadding:(UIEdgeInsets)inset
+-(void)setPadding:(UIEdgeInsets)value
 {
-	[(UITextView *)[self textWidgetView] setTextContainerInset:inset];
+    _padding = value;
+    if (textWidgetView) {
+        CGRect bounds = self.bounds;
+        [TiUtils setView:textWidgetView positionRect:UIEdgeInsetsInsetRect(bounds, _padding)];
+        [(TiViewProxy*)self.proxy contentsWillChange];
+    }
+}
+
+
+-(void)setHintText_:(id)value
+{
+	[(TiUITextViewImpl*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+}
+
+
+-(void)setHintColor_:(id)value
+{
+	[(TiUITextViewImpl*)[self textWidgetView] setPlaceholderColor:[[TiUtils colorValue:value] color]];
+}
+
+-(void)setMaxLines_:(id)value
+{
+    _maxLines = [TiUtils intValue:value];
+    if (textWidgetView) {
+        TiUITextViewImpl* textView = ((TiUITextViewImpl*)[self textWidgetView]);
+        NSUInteger numLines = textView.contentSize.height/textView.font.lineHeight;
+        if (_maxLines > -1 && numLines > _maxLines ) {
+            
+        }
+    }
 }
 
 
@@ -293,8 +392,12 @@
 
 - (void)scrollCaretToVisible
 {
+    if (_caretVisibilityTimer) {
+        [_caretVisibilityTimer invalidate];
+        _caretVisibilityTimer = nil;
+    }
     TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
-    [ourView scrollToCaretAnimated:YES];
+    [ourView scrollToCaretAnimated:NO];
 }
 
 -(void)updateInsentForKeyboard {
@@ -315,7 +418,7 @@
     [self updateInsentForKeyboard];
     
     //it does not work to instantly scroll to the caret so let's delay it
-    _caretVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:0.3 target:self selector:@selector(scrollCaretToVisible) userInfo:nil repeats:YES];
+    _caretVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:0.3 target:self selector:@selector(scrollCaretToVisible) userInfo:nil repeats:NO];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)tv
@@ -325,9 +428,11 @@
     UIEdgeInsets contentInset = tv.contentInset;
     contentInset.bottom = 0;
     tv.contentInset = contentInset;
-
-    [_caretVisibilityTimer invalidate];
-    _caretVisibilityTimer = nil;
+    
+    if (_caretVisibilityTimer) {
+        [_caretVisibilityTimer invalidate];
+        _caretVisibilityTimer = nil;
+    }
     
     if (returnActive && [(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
 	{
@@ -341,9 +446,34 @@
 
 - (void)textViewDidChange:(UITextView *)tv
 {
+    if (_maxLines > -1) {
+        NSLayoutManager *layoutManager = [tv layoutManager];
+        NSUInteger numberOfLines, index, numberOfGlyphs = [layoutManager numberOfGlyphs];
+        NSRange lineRange;
+        for (numberOfLines = 0, index = 0; index < numberOfGlyphs; numberOfLines++)
+        {
+            (void) [layoutManager lineFragmentRectForGlyphAtIndex:index
+                                                   effectiveRange:&lineRange];
+            index = NSMaxRange(lineRange);
+        }
+        
+        if (numberOfLines > _maxLines)
+        {
+            // roll back
+            [self setValue_:self.currentText];
+            return;
+        }
+        else
+        {
+            // change accepted
+            self.currentText = tv.text;
+        }
+    }
+    
     if ([tv isKindOfClass:[TiUITextViewImpl class]]) {
         [(TiUITextViewImpl*)tv handleTextViewDidChange];
     }
+
 	[(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]];
 }
 
@@ -375,9 +505,15 @@
 
 - (BOOL)textView:(UITextView *)tv shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
-	NSString *curText = [[tv text] stringByReplacingCharactersInRange:range withString:text];
+    self.currentText = [tv text];
+	NSString* curText = [self.currentText stringByReplacingCharactersInRange:range withString:text];
 	if ([text isEqualToString:@"\n"])
 	{
+        NSUInteger numLines = floorf(tv.contentSize.height/tv.font.lineHeight);
+        if ( (_maxLines > -1 && numLines > _maxLines)) {
+            //        [self setValue_:curText];
+            return NO;
+        }
         if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
         {
             [self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[(UITextView *)textWidgetView text] forKey:@"value"] propagate:NO checkForListener:NO];
@@ -389,7 +525,7 @@
 		}
 	}
 	
-    if ( (maxLength > -1) && ([curText length] > maxLength) ) {
+    if ( (maxLength > -1 && [curText length] > maxLength)) {
         [self setValue_:curText];
         return NO;
     }
