@@ -113,8 +113,8 @@
         bindId = [arg valueForKey:@"bindId"];
         child = [[self class] createFromDictionary:arg rootProxy:self inContext:context];
         if (child) {
+            //we are going to remember him
             [context.krollContext invokeBlockOnThread:^{
-                [self rememberProxy:child];
                 [child forgetSelf];
             }];
         }
@@ -287,11 +287,10 @@
             if (bindId) {
                 [rootProxy setValue:child forKey:bindId];
             }
-			[context.krollContext invokeBlockOnThread:^{
-				[self rememberProxy:child];
+			[self addProxy:child atIndex:-1 shouldRelayout:NO];
+            [context.krollContext invokeBlockOnThread:^{
 				[child forgetSelf];
 			}];
-			[self addProxy:child atIndex:-1 shouldRelayout:NO];
 		}
 	}];
 	_unarchiving = NO;
@@ -328,11 +327,11 @@
 	[viewTemplate.childTemplates enumerateObjectsUsingBlock:^(TiProxyTemplate *childTemplate, NSUInteger idx, BOOL *stop) {
 		TiProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context withEvents:withEvents];
 		if (child != nil) {
-			[context.krollContext invokeBlockOnThread:^{
-				[self rememberProxy:child];
+    
+			[self addProxy:child atIndex:-1 shouldRelayout:NO];
+            [context.krollContext invokeBlockOnThread:^{
 				[child forgetSelf];
 			}];
-			[self addProxy:child atIndex:-1 shouldRelayout:NO];
 		}
 	}];
 }
