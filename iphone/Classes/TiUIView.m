@@ -204,7 +204,6 @@ NSArray* listenerArray = nil;
     TiBorderLayer* _borderLayer;
     BOOL _shouldHandleSelection;
     BOOL _customUserInteractionEnabled;
-    BOOL _touchEnabled;
     BOOL _dispatchPressed;
     
     BOOL needsToSetBackgroundImage;
@@ -337,7 +336,6 @@ DEFINE_EXCEPTIONS
     self.layer.rasterizationScale = [[UIScreen mainScreen] scale];
     backgroundOpacity = 1.0f;
     _customUserInteractionEnabled = YES;
-    _touchEnabled = YES;
     _dispatchPressed = NO;
     animateBgdTransition = NO;
     _backgroundPadding = _borderPadding = UIEdgeInsetsZero;
@@ -1366,7 +1364,8 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)setTouchEnabled_:(id)arg
 {
-	_touchEnabled = [TiUtils boolValue:arg def:_touchEnabled];
+	self.userInteractionEnabled  = [TiUtils boolValue:arg def:self.userInteractionEnabled];
+    changedInteraction = YES;
 }
 
 -(BOOL)customUserInteractionEnabled {
@@ -1377,7 +1376,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 {
     BOOL newValue = [TiUtils boolValue:arg def:[self interactionDefault]];
     if (newValue == _customUserInteractionEnabled) return;
-	_customUserInteractionEnabled = [TiUtils boolValue:arg def:[self interactionDefault]];
+	_customUserInteractionEnabled = newValue;
     [self setBgState:UIControlStateNormal];
     changedInteraction = YES;
     for (TiUIView * thisView in [self childViews])
@@ -1402,7 +1401,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 -(id) touchEnabled_ {
-	return @(_touchEnabled);
+	return @(self.userInteractionEnabled);
 }
 
 -(void)setTouchPassThrough_:(id)arg
@@ -1950,7 +1949,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	// be handled at all.. NOTE: we don't turn off the views interactionEnabled
 	// property since we need special handling ourselves and if we turn it off
 	// on the view, we'd never get this event
-	if (hitView == [self viewForHitTest] && (touchPassThrough || (hasTouchListeners == NO && _touchEnabled==NO)))
+	if (hitView == [self viewForHitTest] && (touchPassThrough || (hasTouchListeners == NO && self.userInteractionEnabled==NO)))
 	{
 		return nil;
 	}
