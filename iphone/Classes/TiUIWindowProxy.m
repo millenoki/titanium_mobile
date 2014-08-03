@@ -623,10 +623,12 @@ else{\
     ENSURE_TYPE_OR_NIL(theObjects, NSArray);
     ENSURE_TYPE_OR_NIL(theProperties, NSDictionary);
     
+    UINavigationBar * ouNB = [navController navigationBar];
+    CGRect barFrame = [ouNB bounds];
     NSMutableArray* theItems = [[NSMutableArray alloc] init];
     for (TiViewProxy* theProxy in theObjects) {
         if ([theProxy supportsNavBarPositioning]) {
-            [theItems addObject:[theProxy barButtonItem]];
+            [theItems addObject:[theProxy barButtonItemForSize:barFrame]];
         } else {
             DebugLog(@"%@ does not support nav bar positioning", theProxy);
         }
@@ -707,10 +709,13 @@ else{\
     ENSURE_TYPE_OR_NIL(theObjects, NSArray);
     ENSURE_TYPE_OR_NIL(theProperties, NSDictionary);
     
+    
+    UINavigationBar * ouNB = [navController navigationBar];
+    CGRect barFrame = [ouNB bounds];
     NSMutableArray* theItems = [[NSMutableArray alloc] init];
     for (TiViewProxy* theProxy in theObjects) {
         if ([theProxy supportsNavBarPositioning]) {
-            [theItems addObject:[theProxy barButtonItem]];
+            [theItems addObject:[theProxy barButtonItemForSize:barFrame]];
         } else {
             DebugLog(@"%@ does not support nav bar positioning", theProxy);
         }
@@ -883,14 +888,14 @@ else{\
     UINavigationItem * ourNavItem = [controller navigationItem];
     UINavigationBar * ourNB = [navController navigationBar];
     CGRect barFrame = [ourNB bounds];
-    CGSize availableTitleSize = CGSizeZero;
-    availableTitleSize.width = barFrame.size.width - (2*TI_NAVBAR_BUTTON_WIDTH);
-    availableTitleSize.height = barFrame.size.height;
+    CGRect availableTitleSize = CGRectZero;
+    availableTitleSize.size.width = barFrame.size.width - (2*TI_NAVBAR_BUTTON_WIDTH);
+    availableTitleSize.size.height = barFrame.size.height;
     
     //Check for titlePrompt. Ugly hack. Assuming 50% for prompt height.
     if (ourNavItem.prompt != nil) {
-        availableTitleSize.height /= 2.0f;
-        barFrame.origin.y = barFrame.size.height = availableTitleSize.height;
+        availableTitleSize.size.height /= 2.0f;
+        barFrame.origin.y = barFrame.size.height = availableTitleSize.size.height;
     }
     
     TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
@@ -899,17 +904,9 @@ else{\
     if ([oldView isKindOfClass:[TiUIView class]]) {
         TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
         if (oldProxy == titleControl) {
-            //relayout titleControl
-            CGRect barBounds;
-            barBounds.origin = CGPointZero;
-            barBounds.size = SizeConstraintViewWithSizeAddingResizing(titleControl.layoutProperties, titleControl, availableTitleSize, NULL);
-            
-            [TiUtils setView:oldView positionRect:[TiUtils centerRect:barBounds inRect:barFrame]];
-            [oldView setAutoresizingMask:UIViewAutoresizingNone];
-            
             //layout the titleControl children
-            [titleControl layoutChildren:NO];
-            
+            [titleControl setSandboxBounds:availableTitleSize];
+            [titleControl refreshView];
             return;
         }
         [oldProxy removeBarButtonView];
@@ -1030,12 +1027,14 @@ else{\
 					}
 				}
 			}
+            UIToolbar * ouTB = [navController toolbar];
+            CGRect barFrame = [ouTB bounds];
 			NSMutableArray * array = [[NSMutableArray alloc] initWithObjects:nil];
 			for (TiViewProxy *proxy in items)
 			{
 				if([proxy supportsNavBarPositioning])
 				{
-					UIBarButtonItem *item = [proxy barButtonItem];
+					UIBarButtonItem *item = [proxy barButtonItemForSize:barFrame];
 					[array addObject:item];
 				}
 			}

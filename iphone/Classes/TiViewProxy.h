@@ -189,7 +189,8 @@ enum
 -(BOOL)isHidden;
 
 @property(nonatomic,retain) UIBarButtonItem * barButtonItem;
--(TiUIView *)barButtonViewForSize:(CGSize)bounds;
+-(TiUIView *)barButtonViewForSize:(CGRect)bounds;
+-(UIBarButtonItem*)barButtonItemForSize:(CGRect)bounds;
 
 //NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
 @property(nonatomic,readwrite,retain)TiUIView * view;
@@ -600,6 +601,7 @@ enum
 -(void)refreshViewIfNeeded;
 -(void)refreshViewIfNeeded:(BOOL)recursive;
 -(void)refreshViewOrParent;
+-(void)refreshView;
 
 /**
  Perform a block while preventing relayout

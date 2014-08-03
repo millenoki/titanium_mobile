@@ -1256,20 +1256,35 @@ SEL GetterForKrollProperty(NSString * key)
 }
 
 
--(UIBarButtonItem*)barButtonItem
+-(UIBarButtonItem*)barButtonItemForController:(UINavigationController*)navController
 {
 	if (barButtonItem == nil)
 	{
 		isUsingBarButtonItem = YES;
-		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:CGSizeZero]];
+		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:navController.navigationBar.bounds]];
 	}
 	return barButtonItem;
 }
 
-- (TiUIView *)barButtonViewForSize:(CGSize)bounds
+-(UIBarButtonItem*)barButtonItem
 {
-	TiUIView * barButtonView = [self getOrCreateView];
-	//TODO: This logic should have a good place in case that refreshLayout is used.
+	return [self barButtonItemForSize:CGRectZero];
+}
+
+-(UIBarButtonItem*)barButtonItemForSize:(CGRect)bounds
+{
+	if (barButtonItem == nil)
+	{
+		isUsingBarButtonItem = YES;
+		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:bounds]];
+	}
+	return barButtonItem;
+}
+
+- (TiUIView *)barButtonViewForSize:(CGRect)bounds
+{
+    self.canBeResizedByFrame = YES;
+    //TODO: This logic should have a good place in case that refreshLayout is used.
 	LayoutConstraint barButtonLayout = layoutProperties;
 	if (TiDimensionIsUndefined(barButtonLayout.width))
 	{
@@ -1280,27 +1295,7 @@ SEL GetterForKrollProperty(NSString * key)
 	{
 		barButtonLayout.height = TiDimensionAutoSize;
 	}
-    if ( (bounds.width == 0 && !TiDimensionIsDip(barButtonLayout.width)) ||
-        (bounds.height == 0 && !TiDimensionIsDip(barButtonLayout.height) ) ) {
-        bounds = [self autoSizeForSize:CGSizeMake(1000, 1000)];
-        barButtonLayout.width = TiDimensionDip(bounds.width);
-    }
-	CGRect barBounds;
-	barBounds.origin = CGPointZero;
-	barBounds.size = SizeConstraintViewWithSizeAddingResizing(&barButtonLayout, self, bounds, NULL);
-	
-	[TiUtils setView:barButtonView positionRect:barBounds];
-	[barButtonView setAutoresizingMask:UIViewAutoresizingNone];
-	
-    //Ensure all the child views are laid out as well
-    [self windowWillOpen];
-    [self setParentVisible:YES];
-    [self layoutChildren:NO];
-    if (!isUsingBarButtonItem) {
-        [self refreshSize];
-        [self refreshPosition];
-    }
-	return barButtonView;
+    return [self getAndPrepareViewForOpening:bounds];
 }
 
 #pragma mark Recognizers
@@ -2054,6 +2049,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)removeBarButtonView
 {
+    self.canBeResizedByFrame = NO;
 	isUsingBarButtonItem = NO;
 	[self setBarButtonItem:nil];
 }

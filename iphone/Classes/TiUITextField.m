@@ -206,6 +206,9 @@
 
 
 @implementation TiUITextField
+{
+    BOOL _editing;
+}
 
 #pragma mark Internal
 
@@ -434,6 +437,7 @@
 
 - (void)textFieldDidBeginEditing:(UITextField *)tf
 {
+    _editing = YES;
     TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
     
     //TIMOB-14563. Set the right text value.
@@ -468,6 +472,8 @@
 
 - (void)textFieldDidEndEditing:(UITextField *)tf
 {
+    if (!_editing) return;
+    _editing = NO;
     [self setViewState:-1];
 	[self textWidget:tf didBlurWithText:[tf text]];
 }
