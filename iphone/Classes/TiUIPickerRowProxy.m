@@ -51,7 +51,7 @@
     else
     {
         if (snapshot == nil) {
-            UIView* myview = [self getAndPrepareViewForOpening:theFrame];
+            UIView* myview = [self barButtonViewForRect:theFrame];
             CGSize size = myview.bounds.size;
             if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
             {

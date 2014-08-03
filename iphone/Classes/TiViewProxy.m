@@ -1261,27 +1261,27 @@ SEL GetterForKrollProperty(NSString * key)
 	if (barButtonItem == nil)
 	{
 		isUsingBarButtonItem = YES;
-		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:navController.navigationBar.bounds]];
+		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForRect:navController.navigationBar.bounds]];
 	}
 	return barButtonItem;
 }
 
 -(UIBarButtonItem*)barButtonItem
 {
-	return [self barButtonItemForSize:CGRectZero];
+	return [self barButtonItemForRect:CGRectZero];
 }
 
--(UIBarButtonItem*)barButtonItemForSize:(CGRect)bounds
+-(UIBarButtonItem*)barButtonItemForRect:(CGRect)bounds
 {
 	if (barButtonItem == nil)
 	{
 		isUsingBarButtonItem = YES;
-		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForSize:bounds]];
+		barButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[self barButtonViewForRect:bounds]];
 	}
 	return barButtonItem;
 }
 
-- (TiUIView *)barButtonViewForSize:(CGRect)bounds
+- (TiUIView *)barButtonViewForRect:(CGRect)bounds
 {
     self.canBeResizedByFrame = YES;
     //TODO: This logic should have a good place in case that refreshLayout is used.
@@ -1297,6 +1297,12 @@ SEL GetterForKrollProperty(NSString * key)
 	}
     return [self getAndPrepareViewForOpening:bounds];
 }
+
+- (TiUIView *)barButtonViewForSize:(CGSize)size
+{
+    return [self barButtonViewForRect:CGRectMake(0, 0, size.width, size.height)];
+}
+
 
 #pragma mark Recognizers
 

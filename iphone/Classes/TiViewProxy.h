@@ -189,8 +189,9 @@ enum
 -(BOOL)isHidden;
 
 @property(nonatomic,retain) UIBarButtonItem * barButtonItem;
--(TiUIView *)barButtonViewForSize:(CGRect)bounds;
--(UIBarButtonItem*)barButtonItemForSize:(CGRect)bounds;
+-(TiUIView *)barButtonViewForSize:(CGSize)bounds;
+-(TiUIView *)barButtonViewForRect:(CGRect)bounds;
+-(UIBarButtonItem*)barButtonItemForRect:(CGRect)bounds;
 
 //NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
 @property(nonatomic,readwrite,retain)TiUIView * view;
