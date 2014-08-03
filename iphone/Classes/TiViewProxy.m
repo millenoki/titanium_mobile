@@ -2600,7 +2600,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(void)refreshView
 {
     [self dirtyItAll];
-	[self refreshViewOrParent];
+	[self refreshViewIfNeeded];
 }
 
 -(void)refreshViewIfNeeded
