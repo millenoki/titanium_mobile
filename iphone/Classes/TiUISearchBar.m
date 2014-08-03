@@ -50,6 +50,7 @@
 {
     TiSearchDisplayController *searchController;
     BOOL hideNavBarWithSearch;
+    BOOL showsCancelButton;
 }
 
 -(void)releaseSearchController {
@@ -67,6 +68,7 @@
     self = [super init];
     if (self) {
         hideNavBarWithSearch = YES;
+        showsCancelButton = NO;
     }
     return self;
 }
@@ -150,7 +152,7 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
 	[[self searchBar] setFrame:bounds];
-    [[self searchBar] setShowsCancelButton:[(TiUISearchBarProxy *)[self proxy] showsCancelButton] animated:NO];
+    [[self searchBar] setShowsCancelButton:showsCancelButton animated:NO];
     [super frameSizeChanged:frame bounds:bounds];
 }
 
@@ -184,11 +186,19 @@
 	[search sizeToFit];
 }
 
--(void)setShowCancel_:(id)value
+-(void)setShowCancel_:(id)value withObject:(id)object
 {
-	UISearchBar *search = [self searchBar];
-	[search setShowsCancelButton:[TiUtils boolValue:value]];
-	[search sizeToFit];
+	BOOL boolValue = [TiUtils boolValue:value];
+	BOOL animated = [TiUtils boolValue:@"animated" properties:object def:NO];
+	//TODO: Value checking and exception generation, if necessary.
+    
+	[self.proxy replaceValue:value forKey:@"showCancel" notification:NO];
+	showsCancelButton = boolValue;
+    
+	//ViewAttached gives a false negative when not attached to a window.
+    UISearchBar *search = [self searchBar];
+    [search setShowsCancelButton:showsCancelButton animated:animated];
+    [search sizeToFit];
 }
 
 -(void)setHintText_:(id)value
@@ -297,9 +307,9 @@
 	[self.proxy replaceValue:text forKey:@"value" notification:NO];
 	
 	//No need to setValue, because it's already been set.
-	if ([self.proxy _hasListeners:@"focus"])
+	if ([self.proxy _hasListeners:@"focus"  checkParent:NO])
 	{
-		[self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO];
+		[self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO checkForListener:NO];
 	}
 	
 	if (delegate!=nil && [delegate respondsToSelector:@selector(searchBarTextDidBeginEditing:)])
@@ -315,9 +325,9 @@
 	[self.proxy replaceValue:text forKey:@"value" notification:NO];
 	
 	//No need to setValue, because it's already been set.
-	if ([self.proxy _hasListeners:@"blur"])
+	if ([self.proxy _hasListeners:@"blur"  checkParent:NO])
 	{
-		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO];
+		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO checkForListener:NO];
 	}
 
 	if (delegate!=nil && [delegate respondsToSelector:@selector(searchBarTextDidEndEditing:)])

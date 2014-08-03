@@ -22,10 +22,6 @@
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate;
 -(UISearchBar*)searchBar;
 
-//	showsCancelButton is related to the JS property ShowCancel,
-//	but is internal ONLY, and should NOT be used by javascript.
-@property(nonatomic,readwrite,assign) BOOL showsCancelButton;
-
 #pragma mark - Titanium Internal Use
 -(void)ensureSearchBarHeirarchy;
 -(TiSearchDisplayController*)searchController;
