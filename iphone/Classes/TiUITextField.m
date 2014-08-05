@@ -331,19 +331,7 @@
 
 -(void)setLeftButton_:(id)value
 {
-	TiViewProxy *vp = nil;
-    id<TiEvaluator> context = self.proxy.executionContext;
-    if (context == nil) {
-        context = self.proxy.pageContext;
-    }
-	if ([value isKindOfClass:[TiViewProxy class]])
-	{
-		vp = (TiViewProxy*)value;
-    } else if ([value isKindOfClass:[NSDictionary class]]) {
-        
-        vp = [[self.proxy class] createFromDictionary:value rootProxy:self.proxy inContext:context];
-    }
-    
+    TiViewProxy* vp = ( TiViewProxy*)[(TiUITextWidgetProxy*)self.proxy createChildFromObject:value];
     UIView* leftView = [[self textWidgetView] leftView];
 	if ([leftView isKindOfClass:[TiUIView class]]){
         TiViewProxy* oldVp = (TiViewProxy*)[((TiUIView*)leftView) proxy];
@@ -354,10 +342,6 @@
     }
     if (vp) {
         [vp setParent:(TiParentingProxy*)self.proxy];
-        [context.krollContext invokeBlockOnThread:^{
-            [self.proxy rememberProxy:vp];
-            [vp forgetSelf];
-        }];
         LayoutConstraint* constraint = [vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->left))
         {
@@ -376,19 +360,7 @@
 
 -(void)setRightButton_:(id)value
 {
-	TiViewProxy *vp = nil;
-    id<TiEvaluator> context = self.proxy.executionContext;
-    if (context == nil) {
-        context = self.proxy.pageContext;
-    }
-	if ([value isKindOfClass:[TiViewProxy class]])
-	{
-		vp = (TiViewProxy*)value;
-    } else if ([value isKindOfClass:[NSDictionary class]]) {
-        
-        vp = [[self.proxy class] createFromDictionary:value rootProxy:self.proxy inContext:context];
-    }
-    
+    TiViewProxy* vp = ( TiViewProxy*)[(TiUITextWidgetProxy*)self.proxy createChildFromObject:value];
     UIView* rightView = [[self textWidgetView] rightView];
 	if ([rightView isKindOfClass:[TiUIView class]]){
         TiViewProxy* oldVp = (TiViewProxy*)[((TiUIView*)rightView) proxy];
@@ -399,10 +371,6 @@
     }
     if (vp) {
         [vp setParent:(TiParentingProxy*)self.proxy];
-        [context.krollContext invokeBlockOnThread:^{
-            [self.proxy rememberProxy:vp];
-            [vp forgetSelf];
-        }];
         LayoutConstraint* constraint = [vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->right))
         {

@@ -6,11 +6,11 @@
  */
 #ifdef USE_TI_UIOPTIONDIALOG
 
-#import "TiProxy.h"
+#import "TiParentingProxy.h"
 #import "CustomActionSheet.h"
 @class TiViewProxy;
 
-@interface TiUIOptionDialogProxy : TiProxy<UIActionSheetDelegate, CustomActionSheetDelegate>
+@interface TiUIOptionDialogProxy : TiParentingProxy<UIActionSheetDelegate, CustomActionSheetDelegate>
 @property(nonatomic,retain,readwrite)	TiViewProxy *dialogView;
 
 -(void)deviceRotationBegan:(NSNotification *)notification;

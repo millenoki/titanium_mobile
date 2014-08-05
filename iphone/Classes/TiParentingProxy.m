@@ -103,31 +103,8 @@
         
 		return;
 	}
-    NSString* bindId = nil;
-    TiProxy* child = nil;
-    if ([arg isKindOfClass:[NSDictionary class]]) {
-        id<TiEvaluator> context = self.executionContext;
-        if (context == nil) {
-            context = self.pageContext;
-        }
-        bindId = [arg valueForKey:@"bindId"];
-        child = [[self class] createFromDictionary:arg rootProxy:self inContext:context];
-        if (child) {
-            //we are going to remember him
-            [context.krollContext invokeBlockOnThread:^{
-                [child forgetSelf];
-            }];
-        }
-    }
-    else {
-        child = (TiProxy*)arg;
-        bindId = [child valueForUndefinedKey:@"bindId"];
-    }
-    
-    if (child) {
-        if (bindId) {
-            [self setValue:child forKey:bindId];
-        }
+    TiProxy *child = [self createChildFromObject:arg];
+    if (child != nil) {
         [self addProxy:child atIndex:position shouldRelayout:shouldRelayout];
     }
 }
@@ -256,6 +233,33 @@
 }
 
 
+- (TiProxy *)createChildFromObject:(id)object
+{
+    TiProxy *child = nil;
+    NSString* bindId = nil;
+    if ([object isKindOfClass:[NSDictionary class]]) {
+        bindId = [object valueForKey:@"bindId"];
+        id<TiEvaluator> context = self.executionContext;
+        if (context == nil) {
+            context = self.pageContext;
+        }
+        child = [[self class] createFromDictionary:object rootProxy:self inContext:context];
+        [context.krollContext invokeBlockOnThread:^{
+            [child forgetSelf];
+        }];
+        [self rememberProxy:child];
+   }
+    else if(([object isKindOfClass:[TiProxy class]]))
+    {
+        child = (TiProxy *)object;
+        bindId = [object valueForUndefinedKey:@"bindId"];
+    }
+    if (child && bindId) {
+        [self setValue:child forKey:bindId];
+    }
+    return child;
+}
+
 
 - (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy
 {
@@ -272,21 +276,8 @@
     NSArray* childTemplates = (NSArray*)[dictionary objectForKey:@"childTemplates"];
 	
 	[childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
-        TiProxy *child = nil;
-        NSString* bindId = nil;
-        if ([childTemplate isKindOfClass:[NSDictionary class]]) {
-            bindId = [childTemplate valueForKey:@"bindId"];
-            child = [[self class] createFromDictionary:childTemplate rootProxy:rootProxy inContext:context];
-        }
-        else if(([childTemplate isKindOfClass:[TiProxy class]]))
-        {
-            child = (TiProxy *)childTemplate;
-            bindId = [childTemplate valueForUndefinedKey:@"bindId"];
-        }
+        TiProxy *child = [rootProxy createChildFromObject:childTemplate];
 		if (child != nil) {
-            if (bindId) {
-                [rootProxy setValue:child forKey:bindId];
-            }
 			[self addProxy:child atIndex:-1 shouldRelayout:NO];
             [context.krollContext invokeBlockOnThread:^{
 				[child forgetSelf];

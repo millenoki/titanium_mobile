@@ -28,7 +28,7 @@
 @synthesize hideOnClick;
 
 
--(void)setCustomView:(id)value fromProxy:(TiProxy*)parentProxy
+-(void)setCustomView:(id)value fromProxy:(TiParentingProxy*)parentProxy
 {
     if (_customView){
         [_customView detachView];
@@ -38,32 +38,14 @@
         RELEASE_TO_NIL(_customView)
     }
     
-    TiViewProxy *vp = nil;
-    id<TiEvaluator> context = parentProxy.executionContext;
-    if (context == nil) {
-        context = parentProxy.pageContext;
-    }
-    if ([value isKindOfClass:[TiViewProxy class]])
-    {
-        vp = (TiViewProxy*)value;
-    } else if ([value isKindOfClass:[NSDictionary class]]) {
-        
-        vp = (TiViewProxy*)[[TiViewProxy class] createFromDictionary:value rootProxy:parentProxy inContext:context];
-    }
-    
-
+    TiViewProxy* vp = ( TiViewProxy*)[parentProxy createChildFromObject:value];
     if (vp) {
-//            [vp setParent:(TiParentingProxy*)self.proxy];
-        [context.krollContext invokeBlockOnThread:^{
-            [parentProxy rememberProxy:vp];
-            [vp forgetSelf];
-        }];
+        _customView = [vp retain];
         LayoutConstraint* constraint = [vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->top))
         {
             constraint->top = TiDimensionDip(0);
         }
-        _customView = [vp retain];
     }
 }
 

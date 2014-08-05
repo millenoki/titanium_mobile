@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import "TiProxy.h"
+#import "TiParentingProxy.h"
 
 @class TiViewProxy;
 @class TiUIListView;
@@ -19,7 +19,7 @@
 
 @end
 
-@interface TiUIListSectionProxy : TiProxy < TiUIListViewDelegate >
+@interface TiUIListSectionProxy : TiParentingProxy < TiUIListViewDelegate >
 
 @property (nonatomic, readwrite, assign) id<TiUIListViewDelegate> delegate;
 @property (nonatomic, readwrite, assign) NSUInteger sectionIndex;

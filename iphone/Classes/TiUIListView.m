@@ -853,19 +853,8 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setPullView_:(id)args
 {
-    if ([args isKindOfClass:[NSDictionary class]]) {
-        id<TiEvaluator> context = self.proxy.executionContext;
-        if (context == nil) {
-            context = self.proxy.pageContext;
-        }
-        args = [[self.proxy class] createFromDictionary:args rootProxy:self.proxy inContext:context];
-        [context.krollContext invokeBlockOnThread:^{
-            [self.proxy rememberProxy:args];
-            [args forgetSelf];
-        }];
-    }
-    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
-    if (args == nil) {
+    TiViewProxy* viewproxy = (TiViewProxy*)[(TiUIListViewProxy*)self.proxy createChildFromObject:args];
+    if (viewproxy == nil) {
         [_pullViewProxy setProxyObserver:nil];
         [_pullViewProxy windowWillClose];
         [_pullViewWrapper removeFromSuperview];
@@ -892,7 +881,7 @@ static NSDictionary* replaceKeysForRow;
         }
         CGSize refSize = _tableView.bounds.size;
         [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
-        _pullViewProxy = [args retain];
+        _pullViewProxy = [viewproxy retain];
         LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
         //If height is not dip, explicitly set it to SIZE
         if (viewLayout->height.type != TiDimensionTypeDip) {

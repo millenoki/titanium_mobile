@@ -33,6 +33,7 @@
  */
 
 -(void)addProxy:(id)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout;
+- (TiProxy *)createChildFromObject:(id)object;
 
 /**
  Tells the view proxy to remove a child proxy.

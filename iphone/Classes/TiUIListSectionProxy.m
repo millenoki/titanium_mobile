@@ -109,21 +109,7 @@
         return [_storedSectionViews objectForKey:location];
     }
     id value = [self valueForKey:location];
-    TiViewProxy* viewproxy = nil;
-    if ([value isKindOfClass:[TiViewProxy class]]) {
-        viewproxy = value;
-    }
-    else if ([value isKindOfClass:[NSDictionary class]]) {
-        id<TiEvaluator> context = self.executionContext;
-        if (context == nil) {
-            context = self.pageContext;
-        }
-        viewproxy = (TiViewProxy*)[[TiViewProxy class] createFromDictionary:value rootProxy:self inContext:context];
-        //the wrapper will remember him
-        [context.krollContext invokeBlockOnThread:^{
-            [viewproxy forgetSelf];
-        }];
-    }
+    TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:value];
     if (viewproxy) {
         LayoutConstraint *viewLayout = [viewproxy layoutProperties];
         //If height is not dip, explicitly set it to SIZE
@@ -135,7 +121,6 @@
         }
         TiViewProxy* wrapperProxy = [listView initWrapperProxyWithVerticalLayout:YES];
         [wrapperProxy add:viewproxy];
-        [self rememberProxy:wrapperProxy];
         [_storedSectionViews setObject:wrapperProxy forKey:location];
         return wrapperProxy;
     }
