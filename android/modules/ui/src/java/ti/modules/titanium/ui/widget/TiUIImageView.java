@@ -1123,7 +1123,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             boolean changeImage = true;
             TiDrawableReference source = makeImageSource(d
                     .get(TiC.PROPERTY_IMAGE));
-            if (imageSources != null && imageSources.size() == 1) {
+            //don't reload if same image and was successfully loaded
+            if (firedLoad && imageSources != null && imageSources.size() == 1) {
                 if (imageSources.get(0).equals(source)) {
                     changeImage = false;
                 }
@@ -1201,11 +1202,18 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         } else if (key.equals(TiC.PROPERTY_IMAGE_MASK)) {
             setImageMask(newValue);
         } else if (key.equals(TiC.PROPERTY_IMAGE)) {
-            if (oldValue != null || newValue != null) {
+            boolean changeImage = true;
+            TiDrawableReference source = makeImageSource(newValue);
+            if (firedLoad && imageSources != null && imageSources.size() == 1) {
+                if (imageSources.get(0).equals(source)) {
+                    changeImage = false;
+                }
+            }
+            if (changeImage) {
                 if (animator != null) {
                     stop();
                 }
-                setImageSource(newValue);
+                setImageSource(source);
                 firedLoad = false;
                 setImageInternal();
             }
