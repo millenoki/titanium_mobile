@@ -361,7 +361,8 @@ else{\
     id<UIViewControllerTransitionCoordinator> tc = navigationController.topViewController.transitionCoordinator;
     [tc notifyWhenInteractionEndsUsingBlock:^(id<UIViewControllerTransitionCoordinatorContext> context) {
         if (![context isCancelled]) {
-            [self fireEvent:@"closeWindow" forController:viewController transition:[((ADTransitioningViewController*)viewController) transition]];
+            ADTransition* transition = [(ADTransitioningViewController*)[current hostingController] transition];
+            [self fireEvent:@"closeWindow" forController:viewController transition:transition];
         }
     }];
 }
