@@ -103,6 +103,7 @@ DEFINE_EXCEPTIONS
 -(void)configurationStart
 {
     configurationSet = NO;
+    [_viewHolder configurationStart];
     if (_bgSelectedView) {
         [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
     }
@@ -115,6 +116,7 @@ DEFINE_EXCEPTIONS
 {
 	// can be used to trigger things after all properties are set
     configurationSet = YES;
+    [_viewHolder configurationSet];
     if (_bgSelectedView) {
         [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
     }

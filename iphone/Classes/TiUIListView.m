@@ -1565,11 +1565,13 @@ static NSDictionary* replaceKeysForRow;
             UITableViewCellStyle cellStyle = [templateId unsignedIntegerValue];
             cell = [[TiUIListItem alloc] initWithStyle:cellStyle position:position grouped:grouped reuseIdentifier:cellIdentifier proxy:cellProxy];
         } else {
+            [cell configurationStart];
             cell = [[TiUIListItem alloc] initWithProxy:cellProxy position:position grouped:grouped reuseIdentifier:cellIdentifier];
             id template = [_templates objectForKey:templateId];
             if (template != nil) {
                 [cellProxy unarchiveFromTemplate:template withEvents:YES];
             }
+            [cell configurationSet];
         }
         [cellProxy release];
         [cell autorelease];
