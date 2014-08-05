@@ -48,6 +48,7 @@
         verticalLayout = NO;
         switchPageAnimationDuration = 250;
         cacheSize = 3;
+        currentPage = -1; //so that the first change event is sent
         pageControlHeight=20;
         pageControlBackgroundColor = [[UIColor blackColor] retain];
         pagingControlOnTop = NO;
@@ -737,7 +738,7 @@
 	int newPage = [TiUtils intValue:page];
 	int viewsCount = [[self proxy] viewCount];
 
-	if (newPage >=0 && newPage < viewsCount)
+	if (newPage >=0 && newPage < viewsCount && newPage != currentPage)
 	{
         [self setContentOffsetForPage:newPage animated:NO];
 		lastPage = newPage;
