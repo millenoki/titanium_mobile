@@ -98,13 +98,14 @@
         return;
     }
 	[ourSwitch setOn:newValue animated:animated];
-	
-	// Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!  
-	// This only seems to happen in 4.2+ - could be an Apple bug.
-    if ((reproxying == NO) && configurationSet && [(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
-	{
-		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO checkForListener:NO];
-	}
+    if (configurationSet) {
+        // Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!  
+        // This only seems to happen in 4.2+ - could be an Apple bug.
+        if ((reproxying == NO) && configurationSet && [(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
+        {
+            [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO checkForListener:NO];
+        }
+    }
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds

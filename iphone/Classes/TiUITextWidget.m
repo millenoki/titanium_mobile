@@ -57,7 +57,9 @@
     }
     if ([string isEqualToString:[(id)[self textWidgetView] text]]) return;
     [(id)[self textWidgetView] setText:string];
-    [(TiUITextWidgetProxy*)[self proxy] noteValueChange:string];
+    if (configurationSet) {
+        [(TiUITextWidgetProxy*)[self proxy] noteValueChange:string];
+    }
 }
 
 -(void)setMaxLength_:(id)value

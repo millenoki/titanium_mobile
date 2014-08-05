@@ -240,7 +240,9 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:NO];
 	UISlider * ourSlider = [self sliderView];
 	[ourSlider setValue:newValue animated:animated];
-	[self sliderChanged:ourSlider];
+    if (configurationSet) {
+        [self sliderChanged:ourSlider];
+    }
 }
 
 -(void)setValue_:(id)value
