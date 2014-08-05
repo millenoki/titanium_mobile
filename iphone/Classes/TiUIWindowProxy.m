@@ -628,7 +628,7 @@ else{\
     NSMutableArray* theItems = [[NSMutableArray alloc] init];
     for (TiViewProxy* theProxy in theObjects) {
         if ([theProxy supportsNavBarPositioning]) {
-            [theItems addObject:[theProxy barButtonItemForSize:barFrame]];
+            [theItems addObject:[theProxy barButtonItemForRect:barFrame]];
         } else {
             DebugLog(@"%@ does not support nav bar positioning", theProxy);
         }
@@ -715,7 +715,7 @@ else{\
     NSMutableArray* theItems = [[NSMutableArray alloc] init];
     for (TiViewProxy* theProxy in theObjects) {
         if ([theProxy supportsNavBarPositioning]) {
-            [theItems addObject:[theProxy barButtonItemForSize:barFrame]];
+            [theItems addObject:[theProxy barButtonItemForRect:barFrame]];
         } else {
             DebugLog(@"%@ does not support nav bar positioning", theProxy);
         }
@@ -914,7 +914,7 @@ else{\
     
 	if ([titleControl isKindOfClass:[TiViewProxy class]])
 	{
-		newTitleView = [titleControl barButtonViewForSize:availableTitleSize];
+		newTitleView = [titleControl barButtonViewForRect:availableTitleSize];
 	}
 	else
 	{
@@ -1034,7 +1034,7 @@ else{\
 			{
 				if([proxy supportsNavBarPositioning])
 				{
-					UIBarButtonItem *item = [proxy barButtonItemForSize:barFrame];
+					UIBarButtonItem *item = [proxy barButtonItemForRect:barFrame];
 					[array addObject:item];
 				}
 			}
