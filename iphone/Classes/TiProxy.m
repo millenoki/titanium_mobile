@@ -1174,7 +1174,15 @@ DEFINE_EXCEPTIONS
 -(void)applyProperties:(id)args
 {
 	ENSURE_SINGLE_ARG(args, NSDictionary)
-	[self setValuesForKeysWithDictionary:args];	
+    [args enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
+        id obj = [self valueForUndefinedKey:key];
+        if ([obj isKindOfClass:[TiProxy class]] && [value isKindOfClass:[NSDictionary class]]) {
+            [obj applyProperties:value];
+        }
+        else {
+            [super setValue:value forKey:key];
+        }
+    }];
 }
 
 -(NSDictionary*)allProperties

@@ -701,12 +701,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			String name = TiConvert.toString(key);
 			Object value = props.get(key);
 			Object current = getProperty(name);
-			if (shouldFireChange(current, value)) {
-				setProperty(name, value);
-				changedProps.put(name, value);
+			if (current instanceof KrollProxy && value instanceof HashMap) {
+			    //we handle binded objects (same as done with listitems)
+			    ((KrollProxy)current).applyPropertiesInternal(value, force, wait);
 			}
-			else if (force)
-				changedProps.put(name, value);
+			else {
+			    if (shouldFireChange(current, value)) {
+			        setProperty(name, value);
+	                changedProps.put(name, value);
+	            }
+	            else if (force) {
+	                changedProps.put(name, value);
+			    }
+			}
 		}
 //		if (modelListener != null && changedProps.size() > 0) {
 		if (modelListener != null) {
