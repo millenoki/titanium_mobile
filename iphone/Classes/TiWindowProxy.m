@@ -549,6 +549,10 @@
             [tab openWindow:args];
         } else if (isModal) {
             UIViewController* theController = [self hostingController];
+            if (![TiUtils boolValue:[self valueForUndefinedKey:@"navBarHidden"] def:YES]) {
+                //put it in a navigation controller to get the navbar if it was explicitely asked for
+                theController = [[UINavigationController alloc] initWithRootViewController:theController];
+            }
             [self windowWillOpen];
             NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
             int style = [TiUtils intValue:@"modalTransitionStyle" properties:dict def:-1];
