@@ -688,6 +688,12 @@ NSArray* sliceArray(NSArray* array, int startIndex) {
 	[self makeViewPerformSelector:@selector(closePullView:) withObject:args createIfNeeded:NO waitUntilDone:NO];
 }
 
+-(void)hideDeleteButton:(id)args {
+    [self dispatchUpdateAction:^(UITableView *tableView) {
+		[tableView setEditing:NO animated:YES];
+	} animated:YES];
+}
+
 #pragma mark - Marker Support
 - (void)setMarker:(id)args;
 {
