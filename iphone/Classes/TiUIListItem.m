@@ -482,7 +482,7 @@ static NSArray* handledKeys;
     
     if (!CGRectIsEmpty(frame))
 	{
-        CGRect currentbounds = [self bounds];
+        CGRect currentbounds = [_viewHolder bounds];
         CGRect newBounds = CGRectMake(0, 0, frame.size.width, frame.size.height);
         if (!CGRectEqualToRect(newBounds, currentbounds))
         {
