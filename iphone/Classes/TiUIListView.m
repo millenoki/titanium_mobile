@@ -1244,9 +1244,7 @@ static NSDictionary* replaceKeysForRow;
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
         NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
-        
-        //Delete Data
-        [theSection deleteItemAtIndex:indexPath.row];
+
         
         //Fire the delete Event if required
         NSString *eventName = @"delete";
@@ -1268,6 +1266,11 @@ static NSDictionary* replaceKeysForRow;
         }
         [theItem release];
         
+        BOOL asyncDelete = [TiUtils boolValue:[self.proxy valueForKey:@"asyncDelete"] def:NO];
+        if (asyncDelete) return;
+        //Delete Data
+        [theSection deleteItemAtIndex:indexPath.row];
+        
         BOOL emptySection = NO;
         
         if ([theSection itemCount] == 0) {
@@ -1285,6 +1288,7 @@ static NSDictionary* replaceKeysForRow;
         
         //Reload the data now.
         [tableView beginUpdates];
+        [tableView setEditing:NO animated:YES];
         if (emptyTable) {
             //Table is empty. Just reload fake section with FADE animation to clear out header and footers
             NSIndexSet *theSet = [NSIndexSet indexSetWithIndex:0];
