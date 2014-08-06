@@ -55,14 +55,24 @@
     return _shouldHighlightCurrentItem;
 }
 
+-(TiViewProxy*)findFirstViewProxyAsParent:(UIView*)view {
+    if (view == nil) return nil;
+    if ([view isKindOfClass:[TiUIView class]]) {
+        return (TiViewProxy*)[(TiUIView*)view proxy];
+    }
+    return [self findFirstViewProxyAsParent:view.superview];
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     UITouch *touch = [touches anyObject];
     UIView* view = touch.view;
     CGPoint touchPointInView = [[touches anyObject] locationInView:view];
     touchPoint = [view convertPoint:touchPointInView toView:self];
-    TiViewProxy *viewProxy = [TiUIHelper findViewProxyWithBindIdUnder:view containingPoint:touchPointInView];
-    if (viewProxy && [viewProxy preventListViewSelection]) {
+    TiViewProxy *viewProxy = [self findFirstViewProxyAsParent:view];
+    if ([viewProxy isKindOfClass:[TiViewProxy class]] && [viewProxy preventListViewSelection]) {
+        //    TiViewProxy *viewProxy = [TiUIHelper findViewProxyWithBindIdUnder:view containingPoint:touchPointInView];
+        //    if (viewProxy && [viewProxy preventListViewSelection]) {
         _shouldHighlightCurrentItem = NO;
     }
     [super touchesBegan:touches withEvent:event];
