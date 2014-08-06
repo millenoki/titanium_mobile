@@ -136,7 +136,7 @@ static NSDictionary* listViewKeysToReplace;
 		TiThreadPerformOnMainThread(^{
             if (animated)
             {
-			[self processUpdateActions];
+                [self processUpdateActions];
             }
             else {
                 [UIView setAnimationsEnabled:NO];
