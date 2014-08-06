@@ -47,6 +47,23 @@
 	[super _destroy];
 }
 
+-(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check
+{
+    BOOL returnVal = [super _hasListeners:type];
+    if (_bubbleParentDefined) {
+        check = _bubbleParent;
+    }
+    if (!returnVal && check) {
+        returnVal = [[self parentForBubbling] _hasListeners:type];
+    }
+	return returnVal;
+}
+
+-(BOOL)_hasListeners:(NSString *)type
+{
+	return [self _hasListeners:type checkParent:YES];
+}
+
 -(NSArray*)children
 {
     if (childrenCount == 0) {

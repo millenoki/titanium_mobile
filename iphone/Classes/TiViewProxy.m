@@ -2108,22 +2108,6 @@ SEL GetterForKrollProperty(NSString * key)
 
 #pragma mark Listener Management
 
--(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check
-{
-    BOOL returnVal = [super _hasListeners:type];
-    if (_bubbleParentDefined) {
-        check = _bubbleParent;
-    }
-    if (!returnVal && check) {
-        returnVal = [[self parentForBubbling] _hasListeners:type];
-    }
-	return returnVal;
-}
-
--(BOOL)_hasListeners:(NSString *)type
-{
-	return [self _hasListeners:type checkParent:YES];
-}
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message checkForListener:(BOOL)checkForListener;
 {

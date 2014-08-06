@@ -22,6 +22,8 @@
  */
 @property(nonatomic, assign) TiParentingProxy *parent;
 
+-(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;
+
 /**
  Tells the view proxy to add a child proxy.
  @param arg A single proxy to add or NSArray of proxies.
