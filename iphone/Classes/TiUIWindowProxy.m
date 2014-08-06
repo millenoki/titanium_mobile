@@ -1106,10 +1106,19 @@ else{\
         return;
     }
     
-    NSMutableArray* items = [NSMutableArray arrayWithObject:controller.navigationItem.leftBarButtonItem];
-    [items addObject:controller.navigationItem.rightBarButtonItem];
-    [items addObjectsFromArray:controller.navigationItem.leftBarButtonItems];
-    [items addObjectsFromArray:controller.navigationItem.rightBarButtonItems];
+    NSMutableArray* items = [NSMutableArray array];
+    if (controller.navigationItem.leftBarButtonItem) {
+        [items addObject:controller.navigationItem.leftBarButtonItem];
+    }
+    if (controller.navigationItem.rightBarButtonItem) {
+        [items addObject:controller.navigationItem.rightBarButtonItem];
+    }
+    if (controller.navigationItem.leftBarButtonItems) {
+        [items addObject:controller.navigationItem.leftBarButtonItems];
+    }
+    if (controller.navigationItem.rightBarButtonItems) {
+        [items addObject:controller.navigationItem.rightBarButtonItems];
+    }
     for (id item in items) {
         if ([item respondsToSelector:@selector(proxy)])
         {
