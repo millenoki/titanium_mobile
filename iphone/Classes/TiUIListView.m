@@ -1792,6 +1792,23 @@ static NSDictionary* replaceKeysForRow;
 	return height < 1 ? tableView.rowHeight : height;
 }
 
+-(TiUIListItem*)visibleCellAtIndexPath:(NSIndexPath *)indexPath {
+    NSArray* visibleCells = _tableView.visibleCells;
+    if (!visibleCells) return nil;
+    __block TiUIListItem* result = nil;
+    [visibleCells enumerateObjectsUsingBlock:^(TiUIListItem* obj, NSUInteger idx, BOOL *stop) {
+        if ([obj isKindOfClass:[TiUIListItem class]]) {
+            if ([obj.proxy.indexPath compare:indexPath] == NSOrderedSame) {
+                result = obj;
+                stop = YES;
+            }
+        }
+        
+    }];
+    return result;
+}
+
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
@@ -1817,7 +1834,14 @@ static NSDictionary* replaceKeysForRow;
         if (templateId == nil) {
             templateId = _defaultItemTemplate;
         }
-        TiUIListItemProxy *cellProxy = [_measureProxies objectForKey:templateId];
+        TiUIListItemProxy *cellProxy = nil;
+//        TiUIListItem* visibleCell = [self visibleCellAtIndexPath:realIndexPath];
+//        if (visibleCell) {
+//            cellProxy = [((TiUIListItem*)visibleCell) proxy];
+//        }
+        if (!cellProxy) {
+            cellProxy = [_measureProxies objectForKey:templateId];
+        }
         if (cellProxy != nil) {
             CGFloat width = [cellProxy sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
             if (width > 0) {
