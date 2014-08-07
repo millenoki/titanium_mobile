@@ -342,10 +342,10 @@
 
 - (void)updateItemAt:(id)args
 {
-	ENSURE_ARG_COUNT(args, 2);
+	ENSURE_ARG_COUNT(args, 1);
 	NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:0]];
-	NSDictionary *item = [args objectAtIndex:1];
-	ENSURE_TYPE(item,NSDictionary);
+	NSDictionary *item = [args count] > 1 ? [args objectAtIndex:1] : nil;
+	ENSURE_TYPE_OR_NIL(item,NSDictionary);
 	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
 	
@@ -354,19 +354,24 @@
 			DebugLog(@"[WARN] ListView: Update item index is out of range");
 			return;
 		}
-        NSDictionary* currentItem = [[_items objectAtIndex:itemIndex] dictionaryByMergingWith:item force:YES];
-		if (currentItem)[_items replaceObjectAtIndex:itemIndex withObject:currentItem];
-		NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
+        NSArray *indexPaths = [[NSArray alloc] initWithObjects:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex], nil];
+        TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:[indexPaths objectAtIndex:0]];
 		BOOL forceReload = (animation != UITableViewRowAnimationNone);
-		if (!forceReload) {
-			TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:[indexPaths objectAtIndex:0]];
-			if ((cell != nil) && ([cell canApplyDataItem:currentItem])) {
-				cell.dataItem = currentItem;
-                [cell setNeedsLayout];
-			} else {
-				forceReload = YES;
-			}
-		}
+        if (item) {
+            NSDictionary* currentItem = [[_items objectAtIndex:itemIndex] dictionaryByMergingWith:item force:YES];
+            if (currentItem)[_items replaceObjectAtIndex:itemIndex withObject:currentItem];
+            if (!forceReload) {
+                if ((cell != nil) && ([cell canApplyDataItem:currentItem])) {
+                    cell.dataItem = currentItem;
+                    [cell setNeedsLayout];
+                } else {
+                    forceReload = YES;
+                }
+            }
+        } else {
+            [cell.proxy dirtyItAll];
+            [cell setNeedsLayout];
+        }
 		if (forceReload) {
 			[tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
 		}
