@@ -418,10 +418,10 @@ LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeS
 // See below for how we handle setLayout
 //LAYOUTPROPERTIES_SETTER(setLayout,layoutStyle,TiLayoutRuleFromObject,[self willChangeLayout])
 
-LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setMinWidth,minimumWidth,TiDimensionFromObject,[self willChangeSize])
-LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setMinHeight,minimumHeight,TiDimensionFromObject,[self willChangeSize])
-LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setMaxWidth,maximumWidth,TiDimensionFromObject,[self willChangeSize])
-LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setMaxHeight,maximumHeight,TiDimensionFromObject,[self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiDimensionFromObject,[self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiDimensionFromObject,[self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setMaxWidth,maximumWidth,TiDimensionFromObject,[self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setMaxHeight,maximumHeight,TiDimensionFromObject,[self willChangeSize])
 
 LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willChangeLayout])
 
