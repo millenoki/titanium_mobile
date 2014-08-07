@@ -1180,7 +1180,7 @@ DEFINE_EXCEPTIONS
             [obj applyProperties:value];
         }
         else {
-            [super setValue:value forKey:key];
+            [self setValue:value forUndefinedKey:key];
         }
     }];
 }
