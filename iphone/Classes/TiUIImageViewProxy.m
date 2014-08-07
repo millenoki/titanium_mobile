@@ -12,6 +12,7 @@
 #import "TiApp.h"
 #import "TiFile.h"
 #import "TiBlob.h"
+#import "TiSVGImage.h"
 
 #define DEBUG_IMAGEVIEW
 #define DEFAULT_IMAGEVIEW_INTERVAL 200
