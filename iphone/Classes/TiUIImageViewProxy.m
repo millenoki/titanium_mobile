@@ -62,6 +62,9 @@ static NSArray* imageKeySequence;
         
         [self fireEvent:@"load" withObject:event];
     }
+    else if(eventOverrideDelegate) {
+        [eventOverrideDelegate overrideEventObject:nil forEvent:@"load" fromViewProxy:self];
+    }
 }
 
 -(void)_configure

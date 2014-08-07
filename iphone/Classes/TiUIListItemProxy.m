@@ -405,6 +405,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	if (bindId != nil) {
 		[updatedEventObject setObject:bindId forKey:@"bindId"];
 	}
+    [_listViewProxy didOverrideEvent:eventType forItem:self];
 	return [updatedEventObject autorelease];
 }
 

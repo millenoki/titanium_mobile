@@ -10,11 +10,13 @@
 #import "TiUIListSectionProxy.h"
 
 @class TiTableView;
+@class TiUIListItemProxy;
 @interface TiUIListViewProxy : TiViewProxy < TiUIListViewDelegate >
 
 @property (nonatomic, readonly) NSArray *sections;
 @property (nonatomic, readonly) NSNumber *sectionCount;
 @property (nonatomic, readonly) NSDictionary *propertiesForItems;
+@property (nonatomic, assign) BOOL autoResizeOnImageLoad;
 
 - (TiUIListSectionProxy *)sectionForIndex:(NSUInteger)index;
 - (void) deleteSectionAtIndex:(NSUInteger)index;
@@ -22,6 +24,7 @@
 -(BOOL)shouldHighlightCurrentListItem;
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
 -(TiTableView*)tableView;
+-(void)didOverrideEvent:(NSString*)type forItem:(TiUIListItemProxy*)item;
 @end
 
 @interface TiUIListViewProxy (internal)

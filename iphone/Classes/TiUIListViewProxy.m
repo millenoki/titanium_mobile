@@ -26,6 +26,7 @@
     NSDictionary* _propertiesForItems;
 }
 @synthesize propertiesForItems = _propertiesForItems;
+@synthesize autoResizeOnImageLoad;
 
 static NSArray* keysToGetFromListView;
 -(NSArray *)keysToGetFromListView
@@ -58,6 +59,7 @@ static NSDictionary* listViewKeysToReplace;
 		_operationQueue = [[NSMutableArray alloc] initWithCapacity:10];
 		pthread_mutex_init(&_operationQueueMutex,NULL);
 		pthread_rwlock_init(&_markerLock,NULL);
+        autoResizeOnImageLoad = NO;
     }
     return self;
 }
@@ -719,6 +721,17 @@ NSArray* sliceArray(NSArray* array, int startIndex) {
             RELEASE_TO_NIL(marker);
         }
         pthread_rwlock_unlock(&_markerLock);
+    }
+}
+
+
+-(void)didOverrideEvent:(NSString*)type forItem:(TiUIListItemProxy*)item
+{
+    if ([type isEqualToString:@"load"] && [self autoResizeOnImageLoad]) {
+        [self dispatchUpdateAction:^(UITableView *tableView) {
+            [item dirtyItAll];
+            [item.listItem setNeedsLayout];
+        } animated:NO];
     }
 }
 
