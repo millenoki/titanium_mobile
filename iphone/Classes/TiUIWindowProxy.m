@@ -905,8 +905,8 @@ else{\
         TiViewProxy * oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
         if (oldProxy == titleControl) {
             //layout the titleControl children
-            [titleControl setSandboxBounds:availableTitleSize];
-            [titleControl refreshView];
+//            [titleControl setSandboxBounds:availableTitleSize];
+//            [titleContr       ol refreshView];
             return;
         }
         [oldProxy removeBarButtonView];
