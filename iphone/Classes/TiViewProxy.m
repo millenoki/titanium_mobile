@@ -377,6 +377,7 @@ LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeS
 {
     CHECK_LAYOUT_UPDATE(layoutName,value)
     layoutProperties.fullscreen = [TiUtils boolValue:value def:NO];
+    [self replaceValue:value forKey:@"fullscreen" notification:YES];
     [self willChangeSize];
     [self willChangePosition];
 }
