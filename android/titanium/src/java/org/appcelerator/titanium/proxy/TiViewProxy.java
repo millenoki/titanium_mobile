@@ -629,7 +629,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			}
 		}
 
-		handlePendingAnimation(true);
+		handlePendingAnimation();
 	}
 	
 	public void realizeViews(TiUIView view)
