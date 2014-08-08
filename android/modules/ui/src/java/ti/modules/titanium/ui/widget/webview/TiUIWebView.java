@@ -38,6 +38,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.FeatureInfo;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.view.MotionEvent;
@@ -98,48 +99,40 @@ public class TiUIWebView extends TiUIView
         {
             return true;
         }
-		
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
 
-            switch (event.getAction()) {
-            case MotionEvent.ACTION_MOVE:
-                if (!mScrollingEnabled) {
-                    return false;
+		@Override
+		public boolean onTouchEvent(MotionEvent event)
+		{
+			
+			boolean handled = false;
+			
+			switch (event.getAction()) {
+                case MotionEvent.ACTION_MOVE:
+                    if (!mScrollingEnabled) {
+                        return false;
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                {
+                 // In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
+                    // never called. Therefore, we have to manually call performClick() when a click event is detected.
+                    //
+                    // In native Android and in the Ti world, it's possible to to have a touchEvent click on a link in a webview and
+                    // also to be detected as a click on the webview.  So we cannot let handling of the event one way block
+                    // the handling the other way -- it must be passed to both in all cases for everything to work correctly.
+                    //
+                    if (hierarchyHasListener(TiC.EVENT_CLICK)) {
+                        Rect r = new Rect(0, 0, getWidth(), getHeight());
+                        if (r.contains((int) event.getX(), (int) event.getY())) {
+                            proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(event), true, false);
+                        }
+                    }
+                    break;
                 }
-                break;
+                    
             }
             return super.onTouchEvent(event);
-        }
-
-//		@Override
-//		public boolean onTouchEvent(MotionEvent ev)
-//		{
-//			
-//			boolean handled = false;
-//
-//			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
-//			// never called. Therefore, we have to manually call performClick() when a click event is detected.
-//			//
-//			// In native Android and in the Ti world, it's possible to to have a touchEvent click on a link in a webview and
-//			// also to be detected as a click on the webview.  So we cannot let handling of the event one way block
-//			// the handling the other way -- it must be passed to both in all cases for everything to work correctly.
-//			//
-//			if (ev.getAction() == MotionEvent.ACTION_UP && hierarchyHasListener(TiC.EVENT_CLICK)) {
-//				Rect r = new Rect(0, 0, getWidth(), getHeight());
-//				if (r.contains((int) ev.getX(), (int) ev.getY())) {
-//					handled = proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(ev), true, false);
-//				}
-//			}
-//			
-//			boolean swipeHandled = (detector != null && detector.onTouchEvent(ev));
-//			
-//			// Don't return here -- must call super.onTouchEvent()
-//			
-//			boolean superHandled = super.onTouchEvent(ev);
-//			
-//			return false;
-//		}
+		}
 
 		@SuppressWarnings("deprecation")
 		@Override
