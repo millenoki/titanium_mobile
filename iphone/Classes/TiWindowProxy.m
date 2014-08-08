@@ -191,32 +191,6 @@
     [[TiViewProxy class] reorderViewsInParent:rootView]; //make sure views are ordered along zindex
 }
 
--(BOOL)argOrWindowPropertyExists:(NSString*)key args:(id)args
-{
-    id value = [self valueForUndefinedKey:key];
-    if (!IS_NULL_OR_NIL(value)) {
-        return YES;
-    }
-    if (([args count] > 0) && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
-        value = [[args objectAtIndex:0] objectForKey:key];
-        if (!IS_NULL_OR_NIL(value)) {
-            return YES;
-        }
-    }
-    return NO;
-}
-
--(BOOL)argOrWindowProperty:(NSString*)key args:(id)args
-{
-    if ([TiUtils boolValue:[self valueForUndefinedKey:key]]) {
-        return YES;
-    }
-    if (([args count] > 0) && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
-        return [TiUtils boolValue:key properties:[args objectAtIndex:0] def:NO];
-    }
-    return NO;
-}
-
 -(BOOL)isRootViewLoaded
 {
     return [[[TiApp app] controller] isViewLoaded];
@@ -245,6 +219,18 @@
         return;
     }
     
+    if (([args count] > 0) && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
+        NSDictionary* props = [args objectAtIndex:0];
+        NSMutableSet* transferableProperties = [NSMutableSet setWithArray:[props allKeys]];
+        NSMutableSet* supportedProperties = [NSMutableSet setWithArray:@[@"fullscreen", @"modal", @"navBarHidden", @"orientationModes", @"statusBarStyle"]];
+        [transferableProperties intersectSet:supportedProperties];
+        id<NSFastEnumeration> keySeq = transferableProperties;
+		for (NSString * thisKey in keySeq)
+		{
+            [self replaceValue:[props valueForKey:thisKey] forKey:thisKey notification:NO];
+		}
+    }
+    
     //Lets keep ourselves safe
     [self rememberSelf];
 
@@ -262,18 +248,8 @@
     
     opening = YES;
     
-    isModal = (tab == nil && !self.isManaged) ? [self argOrWindowProperty:@"modal" args:args] : NO;
-    
-    if ([self argOrWindowProperty:@"fullscreen" args:args]) {
-        hidesStatusBar = YES;
-    } else {
-        if ([self argOrWindowPropertyExists:@"fullscreen" args:args]) {
-            hidesStatusBar = NO;
-        } else {
-            hidesStatusBar = [[[TiApp app] controller] statusBarInitiallyHidden];
-        }
-    }
-
+    isModal = (tab == nil && !self.isManaged) ? [TiUtils boolValue:[self valueForUndefinedKey:@"modal"] def:NO] : NO;
+    hidesStatusBar = [TiUtils boolValue:[self valueForUndefinedKey:@"fullscreen"] def:[[[TiApp app] controller] statusBarInitiallyHidden]];
     
     if (!isModal && (tab==nil)) {
         openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
