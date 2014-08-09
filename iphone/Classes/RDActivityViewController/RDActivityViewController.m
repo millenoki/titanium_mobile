@@ -80,6 +80,20 @@
     return item;
 }
 
+- (NSString *)activityViewController:(UIActivityViewController *)activityViewController subjectForActivityType:(NSString *)activityType
+{
+    return [_delegate performSelector:@selector(activityViewController:subjectForActivityType:) withObject:self withObject:activityType];
+}
+- (NSString *)activityViewController:(UIActivityViewController *)activityViewController dataTypeIdentifierForActivityType:(NSString *)activityType
+{
+    return [_delegate performSelector:@selector(activityViewController:dataTypeIdentifierForActivityType:) withObject:self withObject:activityType];
+}
+
+- (UIImage *)activityViewController:(UIActivityViewController *)activityViewController thumbnailImageForActivityType:(NSString *)activityType suggestedSize:(CGSize)size
+{
+    return [_delegate performSelector:@selector(activityViewController:thumbnailImageForActivityType:) withObject:self withObject:activityType];
+}
+
 - (id)activityViewControllerPlaceholderItem:(UIActivityViewController *)activityViewController {
     if(_placeholderItem == nil) { return @""; }
     return _placeholderItem;

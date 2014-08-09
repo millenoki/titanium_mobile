@@ -16,8 +16,16 @@
     NSMutableArray* _items;
     NSMutableArray* _activities;
     KrollCallback* _itemForActivityType;
+    NSString* _subject;
+    KrollCallback* _subjectForActivityType;
+    UIImage* _thumbnail;
+    KrollCallback* _thumbnailForActivityType;
 }
 @synthesize excluded = _excluded, items = _items, activities = _activities, itemForActivityType = _itemForActivityType;
+@synthesize subject = _subject;
+@synthesize subjectForActivityType = _subjectForActivityType;
+@synthesize thumbnail = _thumbnail;
+@synthesize thumbnailForActivityType = _thumbnailForActivityType;
 
 -(void)cleanup
 {
@@ -25,9 +33,13 @@
     [self detach];
     //    }, YES);
     [self detachItems];
+    RELEASE_TO_NIL(_subject);
+    RELEASE_TO_NIL(_thumbnail);
     RELEASE_TO_NIL(_excluded);
     RELEASE_TO_NIL(_activities);
     RELEASE_TO_NIL(_itemForActivityType);
+    RELEASE_TO_NIL(_subjectForActivityType);
+    RELEASE_TO_NIL(_thumbnailForActivityType);
 }
 
 -(void)detach {
@@ -84,6 +96,35 @@
     RELEASE_TO_NIL(_itemForActivityType);
     [self detach];
     _itemForActivityType = [callback retain];
+}
+
+-(void)setSubject:(NSString *)subject
+{
+    RELEASE_TO_NIL(_subject);
+    [self detach];
+    _subject = [subject retain];
+}
+
+-(void)setSubjectForActivityType:(KrollCallback *)callback
+{
+    RELEASE_TO_NIL(_subjectForActivityType);
+    [self detach];
+    _subjectForActivityType = [callback retain];
+}
+
+
+-(void)setThumbnail:(UIImage *)thumbnail
+{
+    RELEASE_TO_NIL(_thumbnail);
+    [self detach];
+    _thumbnail = [thumbnail retain];
+}
+
+-(void)setThumbnailForActivityType:(KrollCallback *)callback
+{
+    RELEASE_TO_NIL(_thumbnailForActivityType);
+    [self detach];
+    _thumbnailForActivityType = [callback retain];
 }
 
 -(void)setExcluded:(id)theExcluded
@@ -162,6 +203,28 @@
     }
     return _items;
 }
+
+
+- (NSString *)activityViewController:(UIActivityViewController *)activityViewController subjectForActivityType:(NSString *)activityType
+{
+    if (_subjectForActivityType) {
+        NSArray* args = _subject?@[activityType, _subject]:@[activityType];
+        id result = [_subjectForActivityType call:args thisObject:nil];
+        return result;
+    }
+    return _subject;
+}
+
+- (UIImage *)activityViewController:(UIActivityViewController *)activityViewController thumbnailImageForActivityType:(NSString *)activityType suggestedSize:(CGSize)size
+{
+    if (_thumbnailForActivityType) {
+        NSArray* args = _subject?@[activityType, _thumbnail]:@[activityType];
+        id result = [_thumbnailForActivityType call:args thisObject:nil];
+        return [TiUtils loadBackgroundImage:result forProxy:self];
+    }
+    return [TiUtils loadBackgroundImage:_thumbnail forProxy:self];
+}
+
 
 - (id)activityViewControllerPlaceholderItem:(UIActivityViewController *)activityViewController {
     return [NSDictionary dictionary];

@@ -10,8 +10,7 @@
 
 @class RDActivityViewController;
 
-@protocol RDActivityViewControllerDelegate <NSObject>
+@protocol RDActivityViewControllerDelegate <UIActivityItemSource>
 
 - (NSArray *)activityViewController:(NSArray *)activityViewController itemsForActivityType:(NSString *)activityType;
-
 @end
