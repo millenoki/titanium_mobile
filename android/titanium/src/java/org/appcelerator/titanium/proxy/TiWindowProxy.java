@@ -125,8 +125,8 @@ public abstract class TiWindowProxy extends TiViewProxy
     }
 	   
     private TiAnimator animatorFromArgs(HashMap args) {
-        if (args == null) return null;
         if (args == null || 
+                args.isEmpty() ||
                 args.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION) ||
                 args.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION) ||
                 TiConvert.toBoolean(args, TiC.PROPERTY_ANIMATED, true) == false) {
