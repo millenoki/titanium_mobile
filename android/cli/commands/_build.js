@@ -2220,6 +2220,7 @@ AndroidBuilder.prototype.createBuildDirs = function createBuildDirs(next) {
 
 AndroidBuilder.prototype.copyResources = function copyResources(next) {
     var ignoreDirs = this.ignoreDirs,
+        replaceat2x = this.tiapp.properties['ti.android.replaceat2x'] && this.tiapp.properties['ti.android.replaceat2x'].value === true,
         ignoreFiles = this.ignoreFiles,
         extRegExp = /\.(\w+)$/,
         drawableRegExp = /^images\/(high|medium|low|res\-[^\/]+)(\/(.*))/,
@@ -2293,7 +2294,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                 var filename = files.shift(),
                     destDir = dest,
                     from = path.join(src, filename),
-                    to = path.join(destDir, filename);
+                    to = path.join(destDir, replaceat2x?filename.replace('@2x', ''):filename);
 
                 // check that the file actually exists and isn't a broken symlink
                 if (!fs.existsSync(from)) return next();
@@ -2317,7 +2318,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     isDrawable = false;
 
                 if (m && m.length >= 4 && m[3]) {
-                    var destFilename = m[3].toLowerCase(),
+                    var destFilename = replaceat2x?m[3].toLowerCase().replace('@2x', ''):m[3].toLowerCase(),
                         name = destFilename.replace(drawableExtRegExp, ''),
                         extMatch = destFilename.match(drawableExtRegExp),
                         origExt = extMatch && extMatch[1] || '',
