@@ -950,14 +950,12 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     private void setImageInternal() {
         // Set default image or clear previous image first.
-        if (defaultImageSource != null) {
-            setDefaultImage();
-        }
+        setDefaultImage();
 
         if (imageSources == null || imageSources.size() == 0
                 || imageSources.get(0) == null
                 || imageSources.get(0).isTypeNull()) {
-            setImage(null);
+            //no need to set the image to null, done by setDefaultImage
             return;
         }
 
