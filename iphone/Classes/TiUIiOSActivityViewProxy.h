@@ -8,7 +8,8 @@
 
 #import "TiProxy.h"
 
-@interface TiUIiOSActivityViewProxy : TiProxy<UIActivityItemSource>
+#import "RDActivityViewControllerDelegate.h"
+@interface TiUIiOSActivityViewProxy : TiProxy<RDActivityViewControllerDelegate>
 
 @property(retain, nonatomic) NSArray* excluded;
 @property(retain, nonatomic) NSArray* items;

@@ -1,22 +1,17 @@
-//
-//  EsOyatsuAvcActivityViewControllerProxy.m
-//  ActivityViewController
-//
-//  Created by Alberto Gonzalez on 9/18/13.
-//
-//
-
 #import "TiUIiOSActivityViewProxy.h"
 #import "ActivityProxy.h"
 #import "TiUIiOSActivityProxy.h"
+#import "RDActivityViewController.h"
 
 #import "TiApp.h"
 #import "TiUtils.h"
 #import "TiFile.h"
 
+#define MAX_ITEMS 20
+
 @implementation TiUIiOSActivityViewProxy
 {
-    UIActivityViewController* _controller;
+    RDActivityViewController* _controller;
     NSMutableArray* _excluded;
     NSMutableArray* _items;
     NSMutableArray* _activities;
@@ -26,9 +21,9 @@
 
 -(void)cleanup
 {
-//    TiThreadPerformOnMainThread(^{
-        [self detach];
-//    }, YES);
+    //    TiThreadPerformOnMainThread(^{
+    [self detach];
+    //    }, YES);
     [self detachItems];
     RELEASE_TO_NIL(_excluded);
     RELEASE_TO_NIL(_activities);
@@ -61,17 +56,10 @@
 }
 
 
--(UIActivityViewController*)controller
+-(RDActivityViewController*)controller
 {
     if (_controller == nil) {
-        if (_itemForActivityType) {
-            NSMutableArray* realItems = [[NSMutableArray alloc] initWithObjects:self, nil];
-            [realItems addObjectsFromArray:_items];
-            _controller = [[UIActivityViewController alloc] initWithActivityItems:realItems applicationActivities:_activities];
-        }
-        else {
-            _controller = [[UIActivityViewController alloc] initWithActivityItems:_items applicationActivities:_activities];
-        }
+        _controller = [[RDActivityViewController alloc]  initWithDelegate:self maximumNumberOfItems:MAX_ITEMS applicationActivities:_activities];
         
         if (_excluded != nil) {
             [_controller setExcludedActivityTypes:_excluded];
@@ -166,9 +154,10 @@
 
 #pragma mark - UIActivityItemSource Protocol
 
-- (id)activityViewController:(UIActivityViewController *)activityViewController itemForActivityType:(NSString *)activityType {
+- (NSArray *)activityViewController:(RDActivityViewController *)activityViewController itemsForActivityType:(NSString *)activityType {
     if (_itemForActivityType) {
-        id result = [_itemForActivityType call:@[activityType, _items] thisObject:self];
+        NSArray* args = _items?@[activityType, _items]:@[activityType];
+        id result = [_itemForActivityType call:args thisObject:nil];
         return result;
     }
     return _items;
