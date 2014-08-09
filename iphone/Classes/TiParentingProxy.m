@@ -261,10 +261,10 @@
             context = self.pageContext;
         }
         child = [[self class] createFromDictionary:object rootProxy:self inContext:context];
+        [self rememberProxy:child];
         [context.krollContext invokeBlockOnThread:^{
             [child forgetSelf];
         }];
-        [self rememberProxy:child];
    }
     else if(([object isKindOfClass:[TiProxy class]]))
     {
