@@ -430,4 +430,12 @@ public class AndroidModule extends KrollModule
 	{
 		return "Ti.Android";
 	}
+	
+	@Kroll.method
+    public Object[] queryIntentActivities(String action, String type)
+    {
+	    Intent intent = new Intent(action);
+	    intent.setType(type);
+        return TiIntentHelper.queryIntentActivities(intent);
+    }
 }
