@@ -65,9 +65,38 @@ public class IntentProxy extends KrollProxy
 	{
 		this.intent = intent;
 	}
-    public IntentProxy(KrollDict dict)
+    public IntentProxy(HashMap dict)
     {
-        handleCreationDict(dict);
+        KrollDict params;
+        if (dict instanceof KrollDict) {
+            params = (KrollDict) dict;
+        }
+        else {
+            params = new KrollDict(dict);
+        }
+        handleCreationDict(params);
+    }
+    
+    public static IntentProxy fromObject(Object obj) {
+        if (obj instanceof IntentProxy) {
+            return (IntentProxy) obj;
+        } else if (obj instanceof Intent) {
+            return new IntentProxy((Intent) obj);
+        } else if (obj instanceof HashMap) {
+            return new IntentProxy((HashMap)obj);
+        }
+        return null;
+    }
+    
+    public static Intent intentFromObject(Object obj) {
+        if (obj instanceof IntentProxy) {
+            return ((IntentProxy) obj).intent;
+        } else if (obj instanceof Intent) {
+            return (Intent) obj;
+        } else if (obj instanceof HashMap) {
+            return (new IntentProxy((HashMap)obj)).intent;
+        }
+        return null;
     }
 
 	protected static char[] escapeChars = new char[] {
@@ -203,7 +232,7 @@ public class IntentProxy extends KrollProxy
 	}
 	
     @Kroll.method
-	public void putExtraUri(String key, Object value) {
+	public IntentProxy putExtraUri(String key, Object value) {
 	    if (value instanceof Object[]) {
 	        Object[] values = (Object[]) value;
 	        ArrayList<Uri> uris = new ArrayList<Uri>();
@@ -217,6 +246,7 @@ public class IntentProxy extends KrollProxy
             Uri uri = Uri.parse(resolveUrl(null, TiConvert.toString(value)));
 	        intent.putExtra(key, uri);
 	    }
+        return this;
 	}
 
     private void putExtraStreamUri(Object value) {
@@ -236,7 +266,7 @@ public class IntentProxy extends KrollProxy
     }
     
 	@Kroll.method
-    public void putExtraHTML(String key, Object value)
+    public IntentProxy putExtraHTML(String key, Object value)
     {
         intent.putExtra(key, Html.fromHtml((String) value));
         if (value instanceof Object[]) {
@@ -250,10 +280,11 @@ public class IntentProxy extends KrollProxy
         else {
             intent.putExtra(key, Html.fromHtml(TiConvert.toString(value)));
         }
+        return this;
     }        
 
 	@Kroll.method
-	public void putExtra(String key, Object value)
+	public IntentProxy putExtra(String key, Object value)
 	{
 		if (value instanceof String) {
 	        intent.putExtra(key, (String) value);
@@ -277,12 +308,14 @@ public class IntentProxy extends KrollProxy
 			Log.w(TAG, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
 			intent.putExtra(key, TiConvert.toString(value));
 		}
+		return this;
 	}
 
 	@Kroll.method
-	public void addFlags(int flags)
+	public IntentProxy addFlags(int flags)
 	{
 		intent.addFlags(flags);
+        return this;
 	}
 
 	@Kroll.setProperty @Kroll.method
@@ -297,12 +330,13 @@ public class IntentProxy extends KrollProxy
 		return intent.getFlags();
 	}
 	@Kroll.method
-	public void addCategory(String category)
+	public IntentProxy addCategory(String category)
 	{
 		if (category != null) {
 			Log.d(TAG, "Adding category: " + category, Log.DEBUG_MODE);
 			intent.addCategory(category);
 		}
+        return this;
 	}
 
 	@Kroll.method
@@ -478,9 +512,9 @@ public class IntentProxy extends KrollProxy
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
     @Kroll.method
-    public void putExtraInitialIntents(Object arg)
+    public IntentProxy putExtraInitialIntents(Object arg)
     {
-	    if (!(arg instanceof Object[])) return;
+	    if (!(arg instanceof Object[])) return this;
 	    Object[] values = (Object[]) arg;
         List<Intent> extraIntents = new ArrayList<Intent>();
         for (int i = 0; i < values.length; i++) {
@@ -492,14 +526,7 @@ public class IntentProxy extends KrollProxy
             } else if (value instanceof HashMap) {
                 if (((HashMap)value).containsKey("intent")) {
                     Object intentProp = ((HashMap)value).get("intent");
-                    Intent intent = null;
-                    if (intentProp instanceof Intent) {
-                        intent = (Intent)intentProp;
-                    } else if (intentProp instanceof IntentProxy) {
-                        intent = ((IntentProxy)intentProp).intent;
-                    }else if (intentProp instanceof HashMap) {
-                        intent = (new IntentProxy(new KrollDict((HashMap)intentProp))).intent;
-                    }
+                    Intent intent = intentFromObject(intentProp);
                     if (intent != null) {
                         LabeledIntent labelIntent = new LabeledIntent(
                                 intent,
@@ -512,12 +539,13 @@ public class IntentProxy extends KrollProxy
                     }
                 }
                 else {
-                    IntentProxy intentProxy = new IntentProxy(new KrollDict((HashMap)value));
+                    IntentProxy intentProxy = new IntentProxy((HashMap)value);
                     extraIntents.add(intentProxy.intent);
                 }
             }
         }
         intent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents.toArray(new Parcelable[]{}));
+        return this;
     }
 	
 	@Kroll.method

@@ -302,9 +302,13 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public IntentProxy createIntentChooser(IntentProxy target, String title)
+	public IntentProxy createIntentChooser(Object target, String title)
 	{
-		return new IntentProxy(Intent.createChooser(target.getIntent(), title));
+	    Intent targetIntent = IntentProxy.intentFromObject(target);
+	    if (targetIntent != null) {
+	        return new IntentProxy(Intent.createChooser(targetIntent, title));
+	    }
+	    return null;
 	}
 	
 
