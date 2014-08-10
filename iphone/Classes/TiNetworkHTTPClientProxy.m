@@ -59,7 +59,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 #pragma mark - Public methods
 
--(void)open:(id)args
+-(id)open:(id)args
 {
     ENSURE_ARRAY(args);
     
@@ -93,6 +93,7 @@ extern NSString * const TI_APPLICATION_GUID;
     
     [self replaceValue:[url absoluteString] forKey:@"url" notification:NO];
     [self replaceValue:method forKey:@"method" notification:NO];
+    return self;
 }
 
 -(void)send:(id)args
