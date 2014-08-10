@@ -222,6 +222,18 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	return image;
 }
 
+-(id)representedObject
+{
+    if ([mimetype isEqualToString:MIMETYPE_PNG] ||
+        [mimetype isEqualToString:MIMETYPE_JPEG]) {
+        return [self image];
+    }
+    
+    else {
+        return [self text];
+    }
+}
+
 -(void)setData:(NSData*)data_
 {
 	RELEASE_TO_NIL(data);
