@@ -681,11 +681,11 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     if (!CGRectContainsPoint(self.bounds, p)) {
         return NSNotFound;
     }
-    
-    CGRect textRect = [self textRectForBounds:self.bounds limitedToNumberOfLines:self.numberOfLines];
-    if (!CGRectContainsPoint(textRect, p)) {
-        return NSNotFound;
-    }
+    CGRect rectWithPadding = UIEdgeInsetsInsetRect(self.bounds, _textInsets);
+    CFRange textRange = CFRangeMake(0, (CFIndex)[_attributedText length]);
+    // First, get the text rect (which takes vertical centering into account)
+    CGRect textRect = [self textRectForBounds:rectWithPadding limitedToNumberOfLines:self.numberOfLines];
+    textRect.size.width = rectWithPadding.size.width;
     
     // Adjust pen offset for flush depending on text alignment
     CGFloat flushFactor = TTTFlushFactorForTextAlignment(self.textAlignment);
@@ -695,9 +695,13 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     // Convert tap coordinates (start at top left) to CT coordinates (start at bottom left)
     p = CGPointMake(p.x, textRect.size.height - p.y);
     
+    //    if (!CGRectContainsPoint(textRect, p)) {
+    //        return NSNotFound;
+    //    }
+    
     CGMutablePathRef path = CGPathCreateMutable();
     CGPathAddRect(path, NULL, textRect);
-    CTFrameRef frame = CTFramesetterCreateFrame([self framesetter], CFRangeMake(0, (CFIndex)[self.attributedText length]), path, NULL);
+    CTFrameRef frame = CTFramesetterCreateFrame([self framesetter], textRange, path, NULL);
     if (frame == NULL) {
         CFRelease(path);
         return NSNotFound;
@@ -718,6 +722,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     
     for (CFIndex lineIndex = 0; lineIndex < numberOfLines; lineIndex++) {
         CGPoint lineOrigin = lineOrigins[lineIndex];
+        lineOrigin = CGPointMake(CGFloat_ceil(lineOrigin.x), CGFloat_ceil(lineOrigin.y));
         CTLineRef line = CFArrayGetValueAtIndex(lines, lineIndex);
         CGFloat penOffset = (CGFloat)CTLineGetPenOffsetForFlush(line, flushFactor, textRect.size.width);
         
