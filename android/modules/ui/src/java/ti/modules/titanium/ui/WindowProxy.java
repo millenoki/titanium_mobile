@@ -238,8 +238,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		intent.putExtra(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, true);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 		
-        int enterAnimation = -1;
-        int exitAnimation = -1;
+        int enterAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION, -1);
+        int exitAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION, -1);
         
         boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
         if (options.containsKey("_anim")) {
@@ -290,8 +290,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
             }
 			activity.finish();
 	        
-	        int enterAnimation = -1;
-	        int exitAnimation = -1;
+	        int enterAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION, -1);
+	        int exitAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION, -1);
 	        boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
 	        if (!animated) {
 	            enterAnimation = 0;
