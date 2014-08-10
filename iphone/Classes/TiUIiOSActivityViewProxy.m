@@ -199,11 +199,22 @@
     if (_itemForActivityType) {
         NSArray* args = _items?@[activityType, _items]:@[activityType];
         id result = [_itemForActivityType call:args thisObject:nil];
-        return result;
+        NSMutableArray* realItems = [NSMutableArray arrayWithCapacity:[result count]];
+        [result enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([obj isKindOfClass:[TiBlob class]]) {
+                [realItems addObject:[(TiBlob*)obj representedObject]];
+            } else if ([obj isKindOfClass:[TiFile class]]) {
+                if ((TiFile*)obj)
+                    [realItems addObject:[[(TiFile*)obj blob] representedObject]];
+            }
+            else {
+                [realItems addObject:obj];
+            }
+        }];
+        return realItems;
     }
     return _items;
 }
-
 
 - (NSString *)activityViewController:(UIActivityViewController *)activityViewController subjectForActivityType:(NSString *)activityType
 {
