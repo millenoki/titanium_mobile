@@ -1387,6 +1387,7 @@ DEFINE_EXCEPTIONS
 	}
     NSString* type = [dictionary objectForKey:@"type"];
     
+	if (defaultType == nil) defaultType = @"Ti.UI.View";
 	if (type == nil) type = defaultType;
     TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
     [context.krollContext invokeBlockOnThread:^{
