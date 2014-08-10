@@ -9,8 +9,11 @@ package org.appcelerator.titanium.proxy;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -18,11 +21,18 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiContentProvider;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiIntentHelper;
+
 import android.graphics.Bitmap;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.LabeledIntent;
 import android.net.Uri;
+import android.os.Parcelable;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.TextUtils;
 
 @SuppressLint("NewApi")
@@ -55,6 +65,10 @@ public class IntentProxy extends KrollProxy
 	{
 		this.intent = intent;
 	}
+    public IntentProxy(KrollDict dict)
+    {
+        handleCreationDict(dict);
+    }
 
 	protected static char[] escapeChars = new char[] {
 		'\\', '/', ' ', '.', '$', '&', '@'
@@ -108,7 +122,7 @@ public class IntentProxy extends KrollProxy
 		String url = dict.getString(TiC.PROPERTY_URL);
 		String data = dict.getString(TiC.PROPERTY_DATA);
 		String className = dict.getString(TiC.PROPERTY_CLASS_NAME);
-		String packageName = dict.getString(TiC.PROPERTY_PACKAGE_NAME);
+        String packageName = dict.getString(TiC.PROPERTY_PACKAGE_NAME);
 		String type = dict.getString(TiC.PROPERTY_TYPE);
 		int flags = 0;
 
@@ -171,13 +185,78 @@ public class IntentProxy extends KrollProxy
 		} else if (data != null) {
 			intent.setData(Uri.parse(data));
 		}
+		if (dict.containsKey("html")) {
+		    putExtraHTML(Intent.EXTRA_TEXT, dict.get("html"));
+		}
+		else if (dict.containsKey("text")) {
+            putExtra(Intent.EXTRA_TEXT, dict.get("text"));
+        }
+		if (dict.containsKey("stream")) {
+            putExtraStreamUri(dict.get("stream"));
+        }
+		if (dict.containsKey("subject")) {
+            putExtra(Intent.EXTRA_SUBJECT, dict.get("subject"));
+		}
+		if (dict.containsKey("initialIntents")) {
+            putExtraInitialIntents(dict.get("initialIntents"));
+        }
 	}
+	
+    @Kroll.method
+	public void putExtraUri(String key, Object value) {
+	    if (value instanceof Object[]) {
+	        Object[] values = (Object[]) value;
+	        ArrayList<Uri> uris = new ArrayList<Uri>();
+	        for (int i = 0; i < values.length; i++) {
+	            Uri uri = Uri.parse(resolveUrl(null, TiConvert.toString(values[i])));
+	            uris.add(uri);
+	        }
+	        intent.putParcelableArrayListExtra(key, uris);
+	    }
+        else {
+            Uri uri = Uri.parse(resolveUrl(null, TiConvert.toString(value)));
+	        intent.putExtra(key, uri);
+	    }
+	}
+
+    private void putExtraStreamUri(Object value) {
+        if (value instanceof Object[]) {
+            Object[] values = (Object[]) value;
+            ArrayList<Uri> uris = new ArrayList<Uri>();
+            for (int i = 0; i < values.length; i++) {
+                Uri uri = Uri.withAppendedPath(TiContentProvider.getContentUri(), resolveUrl(null, TiConvert.toString(values[i])));
+                uris.add(uri);
+            }
+            intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+        }
+        else {
+            Uri uri = Uri.withAppendedPath(TiContentProvider.getContentUri(), resolveUrl(null, TiConvert.toString(value)));
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+        }
+    }
+    
+	@Kroll.method
+    public void putExtraHTML(String key, Object value)
+    {
+        intent.putExtra(key, Html.fromHtml((String) value));
+        if (value instanceof Object[]) {
+            Object[] values = (Object[]) value;
+            ArrayList<Spanned> htmls = new ArrayList<Spanned>();
+            for (int i = 0; i < values.length; i++) {
+                htmls.add(Html.fromHtml(TiConvert.toString(values[i])));
+            }
+            intent.putExtra(key, htmls);
+        }
+        else {
+            intent.putExtra(key, Html.fromHtml(TiConvert.toString(value)));
+        }
+    }        
 
 	@Kroll.method
 	public void putExtra(String key, Object value)
 	{
 		if (value instanceof String) {
-			intent.putExtra(key, (String) value);
+	        intent.putExtra(key, (String) value);
 		} else if (value instanceof Boolean) {
 			intent.putExtra(key, (Boolean) value);
 		} else if (value instanceof Double) {
@@ -217,13 +296,6 @@ public class IntentProxy extends KrollProxy
 	{
 		return intent.getFlags();
 	}
-
-	@Kroll.method
-	public void putExtraUri(String key, String uri)
-	{
-		intent.putExtra(key, Uri.parse(uri));
-	}
-
 	@Kroll.method
 	public void addCategory(String category)
 	{
@@ -403,4 +475,55 @@ public class IntentProxy extends KrollProxy
 	{
 		return "Ti.Android.Intent";
 	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+    @Kroll.method
+    public void putExtraInitialIntents(Object arg)
+    {
+	    if (!(arg instanceof Object[])) return;
+	    Object[] values = (Object[]) arg;
+        List<Intent> extraIntents = new ArrayList<Intent>();
+        for (int i = 0; i < values.length; i++) {
+            Object value = values[i];
+            if (value instanceof Intent) {
+                extraIntents.add((Intent) value);
+            } else if (value instanceof IntentProxy) {
+                extraIntents.add(((IntentProxy) value).intent);
+            } else if (value instanceof HashMap) {
+                if (((HashMap)value).containsKey("intent")) {
+                    Object intentProp = ((HashMap)value).get("intent");
+                    Intent intent = null;
+                    if (intentProp instanceof Intent) {
+                        intent = (Intent)intentProp;
+                    } else if (intentProp instanceof IntentProxy) {
+                        intent = ((IntentProxy)intentProp).intent;
+                    }else if (intentProp instanceof HashMap) {
+                        intent = (new IntentProxy(new KrollDict((HashMap)intentProp))).intent;
+                    }
+                    if (intent != null) {
+                        LabeledIntent labelIntent = new LabeledIntent(
+                                intent,
+                                intent.getPackage(),
+                                TiConvert.toString((HashMap)value, "label", ""),
+                                TiConvert.toInt((HashMap)value, "icon", 0));
+                        if (labelIntent != null) {
+                            extraIntents.add(labelIntent);
+                        }
+                    }
+                }
+                else {
+                    IntentProxy intentProxy = new IntentProxy(new KrollDict((HashMap)value));
+                    extraIntents.add(intentProxy.intent);
+                }
+            }
+        }
+        intent.putExtra(Intent.EXTRA_INITIAL_INTENTS, extraIntents.toArray(new Parcelable[]{}));
+    }
+	
+	@Kroll.method
+    public Object[] queryIntentActivities()
+    {
+	    return TiIntentHelper.queryIntentActivities(intent);
+    }
+
 }
