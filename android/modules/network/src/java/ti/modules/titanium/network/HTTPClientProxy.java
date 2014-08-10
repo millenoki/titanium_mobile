@@ -120,9 +120,10 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void open(String method, String url)
+	public HTTPClientProxy open(String method, String url)
 	{
 		client.open(method, url);
+		return this;
 	}
 
 	@Kroll.method
