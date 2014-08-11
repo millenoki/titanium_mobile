@@ -1035,7 +1035,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         return;
     }
     id image = [self loadImageOrSVG:arg];
-    [self setBackgroundGradient:image forState:UIControlStateNormal];
+    [self setBackgroundImage:image forState:UIControlStateNormal];
 }
 
 -(void) setBackgroundSelectedImage_:(id)arg
@@ -1045,7 +1045,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         return;
     }
     id image = [self loadImageOrSVG:arg];
-    [self setBackgroundGradient:image forState:UIControlStateHighlighted];
+    [self setBackgroundImage:image forState:UIControlStateHighlighted];
 }
 
 -(void) setBackgroundHighlightedImage_:(id)arg
@@ -1055,7 +1055,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         return;
     }
     id image = [self loadImageOrSVG:arg];
-    [self setBackgroundGradient:image forState:UIControlStateHighlighted];
+    [self setBackgroundImage:image forState:UIControlStateHighlighted];
 }
 
 -(void) setBackgroundDisabledImage_:(id)arg
@@ -1065,7 +1065,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         return;
     }
     id image = [self loadImageOrSVG:arg];
-    [self setBackgroundGradient:image forState:UIControlStateDisabled];
+    [self setBackgroundImage:image forState:UIControlStateDisabled];
 }
 
 -(void) setBackgroundInnerShadows_:(id)value
