@@ -507,13 +507,16 @@
 {
     self.currentText = [tv text];
 	NSString* curText = [self.currentText stringByReplacingCharactersInRange:range withString:text];
-	if ([text isEqualToString:@"\n"])
-	{
-        NSUInteger numLines = floorf(tv.contentSize.height/tv.font.lineHeight);
-        if ( (_maxLines > -1 && numLines > _maxLines)) {
-            //        [self setValue_:curText];
+    
+    if ( _maxLines > -1) {
+        CGSize sizeThatShouldFitTheContent = [tv sizeThatFits:tv.frame.size];
+        NSUInteger numLines = floorf(sizeThatShouldFitTheContent.height/tv.font.lineHeight);
+        if (numLines>_maxLines) {
             return NO;
         }
+    }
+	if ([text isEqualToString:@"\n"])
+	{
         if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
         {
             [self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[(UITextView *)textWidgetView text] forKey:@"value"] propagate:NO checkForListener:NO];
