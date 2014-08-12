@@ -300,7 +300,7 @@
 	[(UITextView *)[self textWidgetView] setEditable:[self interactionEnabled]];
 }
 
--(void)setScrollable_:(id)value
+-(void)setScrollingEnabled_:(id)value
 {
 	[(UITextView *)[self textWidgetView] setScrollEnabled:[TiUtils boolValue:value]];
 }
