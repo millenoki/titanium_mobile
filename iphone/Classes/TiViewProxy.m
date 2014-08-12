@@ -1622,7 +1622,6 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)windowDidClose
 {
-    [self clearAnimations];
     if (controller) {
         [controller removeFromParentViewController];
         RELEASE_TO_NIL_AUTORELEASE(controller);
