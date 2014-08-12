@@ -15,11 +15,16 @@
 #import "TiUISearchBarProxy.h"
 #import "TiUISearchBar.h"
 
+@interface TiViewProxy(Private)
+-(UIViewController*)getContentController;
+@end
+
 @interface TiUISearchBar()
 -(void)setShowCancel_:(id)value withObject:(id)object;
 @end
 
 @implementation TiUISearchBarProxy
+@synthesize canHaveSearchDisplayController;
 
 #pragma mark Method forwarding
 
@@ -27,6 +32,13 @@
 {
     return @"Ti.UI.SearchBar";
 }
+
+-(void)_configure
+{
+    canHaveSearchDisplayController = NO;
+	[super _configure];
+}
+
 
 -(void)blur:(id)args
 {
@@ -84,6 +96,16 @@
 -(TiSearchDisplayController*)searchController {
     return [(TiUISearchBar*)[self view] searchController];
 }
+
+
+-(UIViewController*)getContentController
+{
+    if (canHaveSearchDisplayController) {
+        return [super getContentController];
+    }
+    return nil;
+}
+
 USE_VIEW_FOR_CONTENT_SIZE
 @end
 

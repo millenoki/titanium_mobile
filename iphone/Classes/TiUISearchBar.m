@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -107,19 +107,29 @@
 - (void)didMoveToSuperview
 {
 	[super didMoveToSuperview];
-	if (searchController) {
-        TiSearchDisplayController* oldController = searchController;
-        searchController = nil;
-        [self searchController];
-        searchController.preventHiddingNavBar = oldController.preventHiddingNavBar;
-        searchController.searchResultsDataSource = oldController.searchResultsDataSource;
-        searchController.searchResultsDelegate = oldController.searchResultsDelegate;
-        searchController.delegate = oldController.delegate;
+    if (self.superview == nil) {
         [self releaseSearchController];
     }
     else {
-        [self searchController];
+        if (searchController) {
+            TiSearchDisplayController* oldController = searchController;
+            searchController = nil;
+            [self searchController];
+            searchController.preventHiddingNavBar = oldController.preventHiddingNavBar;
+            searchController.searchResultsDataSource = oldController.searchResultsDataSource;
+            searchController.searchResultsDelegate = oldController.searchResultsDelegate;
+            searchController.delegate = oldController.delegate;
+            
+            oldController.searchResultsDataSource = nil;
+            oldController.searchResultsDelegate = nil;
+            oldController.delegate = nil;
+            RELEASE_TO_NIL(oldController)
+        }
+        else {
+            [self searchController];
+        }
     }
+	
 }
 
 -(TiSearchDisplayController*)searchController {

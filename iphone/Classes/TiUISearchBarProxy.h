@@ -18,6 +18,7 @@
 @interface TiUISearchBarProxy : TiViewProxy {
 	BOOL showsCancelButton;
 }
+@property BOOL canHaveSearchDisplayController;
 
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate;
 -(UISearchBar*)searchBar;

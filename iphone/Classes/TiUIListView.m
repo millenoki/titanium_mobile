@@ -831,20 +831,19 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setHeaderView_:(id)args
 {
-    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
-    [self tableView];
+    TiViewProxy* viewproxy = (TiViewProxy*)[(TiUIListViewProxy*)self.proxy createChildFromObject:args];
     [_headerWrapper removeAllChildren:nil];
-    if (args!=nil) {
-        [[self getOrCreateSearchWrapper] add:(TiViewProxy*) args];
+    if (viewproxy!=nil) {
+        [[self getOrCreateSearchWrapper] add:viewproxy];
     }
 }
 
 -(void)setFooterView_:(id)args
 {
-    ENSURE_SINGLE_ARG_OR_NIL(args,TiViewProxy);
+    TiViewProxy* viewproxy = (TiViewProxy*)[(TiUIListViewProxy*)self.proxy createChildFromObject:args];
     [_footerViewProxy removeAllChildren:nil];
-    if (args!=nil) {
-        [[self getOrCreateFooterHolder] add:(TiViewProxy*) args];
+    if (viewproxy!=nil) {
+        [[self getOrCreateFooterHolder] add:viewproxy];
     }
 }
 
@@ -1030,12 +1029,14 @@ static NSDictionary* replaceKeysForRow;
     {
 		[searchViewProxy setProxyObserver:nil];
         [searchViewProxy detachView];
+        searchViewProxy.canHaveSearchDisplayController = NO;
         RELEASE_TO_NIL(searchViewProxy)
     }
     RELEASE_TO_NIL(tableController);
     if (args != nil) {
         searchViewProxy = [args retain];
         [searchViewProxy setDelegate:self];
+        searchViewProxy.canHaveSearchDisplayController = YES;
         tableController = [[UITableViewController alloc] init];
         [TiUtils configureController:tableController withObject:nil];
         tableController.tableView = [self tableView];
