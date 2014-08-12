@@ -1253,6 +1253,7 @@ static NSDictionary* replaceKeysForRow;
         
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 theSection, @"section",
+                                                self.proxy, @"listView",
                                                 NUMINT(indexPath.section), @"sectionIndex",
                                                 NUMINT(indexPath.row), @"itemIndex",
                                                 nil];
@@ -1348,6 +1349,7 @@ static NSDictionary* replaceKeysForRow;
         if ([self.proxy _hasListeners:eventName]) {
             
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                self.proxy, @"listView",
                                                 theSection, @"section",
                                                 NUMINT(fromSectionIndex), @"sectionIndex",
                                                 NUMINT(fromRowIndex), @"itemIndex",
@@ -1388,6 +1390,7 @@ static NSDictionary* replaceKeysForRow;
             
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 fromSection, @"section",
+                                                self.proxy, @"listView",
                                                 NUMINT(fromSectionIndex), @"sectionIndex",
                                                 NUMINT(fromRowIndex), @"itemIndex",
                                                 toSection,@"targetSection",
@@ -1569,6 +1572,7 @@ static NSDictionary* replaceKeysForRow;
         NSDictionary *item = [section itemAtIndex:indexPath.row];
         NSDictionary * propertiesDict = @{
                                           @"view":((TiUIListItem*)cell).proxy,
+                                          @"listView": self.proxy,
                                           @"section":section,
                                           @"searchResult":NUMBOOL([self isSearchActive]),
                                           @"sectionIndex":NUMINT(indexPath.section),
@@ -2178,6 +2182,7 @@ static NSDictionary* replaceKeysForRow;
 	NSDictionary *item = [section itemAtIndex:indexPath.row];
     NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
+										self.proxy, @"listView",
 										NUMBOOL([self isSearchActive]), @"searchResult",
 										NUMINT(indexPath.section), @"sectionIndex",
 										NUMINT(indexPath.row), @"itemIndex",
