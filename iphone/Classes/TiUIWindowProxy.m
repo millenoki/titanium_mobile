@@ -870,7 +870,7 @@ else{\
         return; // No need to update the title if not in a nav controller
     }
     TiThreadPerformOnMainThread(^{
-        if ([[self valueForKey:@"titleControl"] isKindOfClass:[TiViewProxy class]]) {
+        if ([[self valueForKey:@"titleView"] isKindOfClass:[TiViewProxy class]]) {
             [self updateTitleView];
         }
     }, NO);
@@ -898,7 +898,7 @@ else{\
         barFrame.origin.y = barFrame.size.height = availableTitleSize.size.height;
     }
     
-    TiViewProxy * titleControl = [self valueForKey:@"titleControl"];
+    TiViewProxy * titleControl = [self valueForKey:@"titleView"];
     
     UIView * oldView = [ourNavItem titleView];
     if ([oldView isKindOfClass:[TiUIView class]]) {
@@ -940,7 +940,7 @@ else{\
 -(void)setTitleControl:(id)proxy
 {
 	ENSURE_UI_THREAD(setTitleControl,proxy);
-	[self replaceValue:proxy forKey:@"titleControl" notification:NO];
+	[self replaceValue:proxy forKey:@"titleView" notification:NO];
 	if (controller!=nil)
 	{
 		[self updateTitleView];
