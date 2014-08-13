@@ -204,6 +204,8 @@ NSArray* listenerArray = nil;
     TiBorderLayer* _borderLayer;
     BOOL _shouldHandleSelection;
     BOOL _customUserInteractionEnabled;
+    BOOL _propagateParentEnabled;
+    BOOL _setEnabledFromParent;
     BOOL _dispatchPressed;
     
     BOOL needsToSetBackgroundImage;
@@ -342,6 +344,8 @@ DEFINE_EXCEPTIONS
     viewState = -1;
     radii = NULL;
     usePathAsBorder = NO;
+    _propagateParentEnabled = YES;
+    _setEnabledFromParent = YES;
     _nonRetina = NO;
 }
 
@@ -1449,22 +1453,42 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     return _customUserInteractionEnabled;
 }
 
--(void)setEnabled_:(id)arg
+-(void)setPropagateParentEnabled_:(id)arg
+{
+	_propagateParentEnabled  = [TiUtils boolValue:arg def:YES];
+}
+
+-(void)setEnabledFromParent_:(id)arg
+{
+	_setEnabledFromParent  = [TiUtils boolValue:arg def:YES];
+}
+
+-(void)setEnabled:(id)arg calledFromParent:(BOOL)calledFromParent
 {
     BOOL newValue = [TiUtils boolValue:arg def:[self interactionDefault]];
-    if (newValue == _customUserInteractionEnabled) return;
-	_customUserInteractionEnabled = newValue;
-    [self setBgState:UIControlStateNormal];
-    changedInteraction = YES;
-    for (TiUIView * thisView in [self childViews])
-    {
-        if ([thisView isKindOfClass:[TiUIView class]])
+    if (!calledFromParent || _setEnabledFromParent) {
+        if (newValue != _customUserInteractionEnabled) {
+            _customUserInteractionEnabled = newValue;
+            [self setBgState:UIControlStateNormal];
+            changedInteraction = YES;
+        }
+    }
+    if (changedInteraction || (calledFromParent && _propagateParentEnabled)) {
+        for (TiUIView * thisView in [self childViews])
         {
-            BOOL originalValue = [[((TiUIView*)thisView).proxy valueForUndefinedKey:@"enabled"] boolValue];
-            [thisView setEnabled_:@(originalValue && _customUserInteractionEnabled)];
+            if ([thisView isKindOfClass:[TiUIView class]])
+            {
+                BOOL originalValue = [[((TiUIView*)thisView).proxy valueForUndefinedKey:@"enabled"] boolValue];
+                [thisView setEnabled:arg calledFromParent:YES];
+            }
         }
     }
     
+}
+
+-(void)setEnabled_:(id)arg
+{
+    [self setEnabled:arg calledFromParent:NO];
 }
 
 -(void)setDispatchPressed_:(id)arg
