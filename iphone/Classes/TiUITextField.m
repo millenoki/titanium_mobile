@@ -170,6 +170,9 @@
         switch (self.contentVerticalAlignment) {
             case UIControlContentVerticalAlignmentTop:
                 placeholderRect = rect;
+                //strangely needed :s
+                placeholderRect.origin.y = _padding.top;
+                placeholderRect.size.height -= _padding.top + _padding.bottom;
                 break;
             case UIControlContentVerticalAlignmentCenter:
                 placeholderRect = CGRectMake(rect.origin.x, (rect.size.height - size.height)/2, rect.size.width, size.height);
@@ -230,13 +233,15 @@
 {
 	if (textWidgetView==nil)
 	{
-		textWidgetView = [[TiTextField alloc] initWithFrame:CGRectZero];
-		((TiTextField *)textWidgetView).delegate = self;
-		((TiTextField *)textWidgetView).text = @"";
-		((TiTextField *)textWidgetView).textAlignment = UITextAlignmentLeft;
-		((TiTextField *)textWidgetView).contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-		[(TiTextField *)textWidgetView configure];
-		[(TiTextField *)textWidgetView setTouchHandler:self];
+        TiTextField* textfield = [[TiTextField alloc] initWithFrame:CGRectZero];
+        textWidgetView = textfield;
+//        textfield.backgroundColor = [UIColor clearColor];
+		textfield.delegate = self;
+		textfield.text = @"";
+		textfield.textAlignment = UITextAlignmentLeft;
+		textfield.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+		[textfield configure];
+		[textfield setTouchHandler:self];
 		[self addSubview:textWidgetView];
 		self.clipsToBounds = YES;
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
