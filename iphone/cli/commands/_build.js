@@ -351,7 +351,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									}
 									var dev = device.toLowerCase();
 									findTargetDevices(cli.argv.target, function (err, devices) {
-										if (cli.argv.target == 'device' && dev == 'all') {
+                                        if ((!devices || cli.argv.target == 'device') && dev == 'all') {
 											// we let 'all' slide by
 											return callback(null, dev);
 										}
