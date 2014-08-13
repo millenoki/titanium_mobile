@@ -211,7 +211,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		case TiBlobTypeData:
 		{
             if (image == nil) {
-                image = [UIImage imageWithData:data];
+                image = [[UIImage imageWithData:data] retain];
             }
             break;
 		}
