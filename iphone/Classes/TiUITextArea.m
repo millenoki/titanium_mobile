@@ -165,6 +165,7 @@
 - (void)setText:(NSString *)text {
     settingText = YES;
     [super setText:text];
+    self.displayPlaceHolder = text.length == 0;
     settingText = NO;
 }
 
@@ -184,11 +185,11 @@
         {
             NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
             paragraphStyle.alignment = self.textAlignment;
-            [self.placeholder drawInRect:CGRectMake(5, 8 + self.contentInset.top, self.frame.size.width-self.contentInset.left, self.frame.size.height- self.contentInset.top) withAttributes:@{NSFontAttributeName:self.font, NSForegroundColorAttributeName:self.placeholderColor, NSParagraphStyleAttributeName:paragraphStyle}];
+            [self.placeholder drawInRect:UIEdgeInsetsInsetRect(self.bounds, self.textContainerInset) withAttributes:@{NSFontAttributeName:self.font, NSForegroundColorAttributeName:self.placeholderColor, NSParagraphStyleAttributeName:paragraphStyle}];
         }
         else {
             [self.placeholderColor set];
-            [self.placeholder drawInRect:CGRectMake(8.0f, 8.0f, self.frame.size.width - 16.0f, self.frame.size.height - 16.0f) withFont:self.font];
+            [self.placeholder drawInRect:self.bounds withFont:self.font];
         }
     }
 }
@@ -253,6 +254,8 @@
         textViewImpl.displayPlaceHolder = YES;
         textViewImpl.placeholderColor = [UIColor grayColor];
         textViewImpl.backgroundColor = [UIColor clearColor];
+        textViewImpl.textContainer.lineFragmentPadding = 0;
+        textViewImpl.textContainerInset = UIEdgeInsetsZero;
         textViewImpl.contentMode = UIViewContentModeRedraw;
         [self addSubview:textViewImpl];
         [textViewImpl setContentInset:UIEdgeInsetsZero];
@@ -265,7 +268,7 @@
         textViewImpl.text = @" ";
         textViewImpl.editable = YES;
         
-        textViewImpl.text = @""; //Setting TextArea text to empty string
+        textViewImpl.text = nil; //Setting TextArea text to empty string
         
         textWidgetView = textViewImpl;
         
@@ -359,6 +362,12 @@
             
         }
     }
+}
+
+
+-(void)setDisableBounce_:(id)value
+{
+	[(TiUITextViewImpl*)[self textWidgetView] setBounces:![TiUtils boolValue:value]];
 }
 
 
