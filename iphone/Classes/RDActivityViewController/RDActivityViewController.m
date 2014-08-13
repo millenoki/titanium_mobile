@@ -54,12 +54,16 @@
 - (id)activityViewController:(UIActivityViewController *)activityViewController itemForActivityType:(NSString *)activityType {
     // Get the items if not already received
     NSMutableDictionary *activity = [_itemsMapping objectForKey:activityType];
-    NSArray *items;
+    NSArray *items = nil;
     
     if (!activity) {
-        items = [_delegate performSelector:@selector(activityViewController:itemsForActivityType:) withObject:self withObject:activityType];
-        activity = [[NSMutableDictionary alloc] initWithObjectsAndKeys:items, @"items", [NSNumber numberWithInt:0], @"index", nil];
-        
+        if ([_delegate respondsToSelector:@selector(activityViewController:itemsForActivityType:)]) {
+            items = [_delegate activityViewController:activityViewController itemsForActivityType:activityType];
+            activity = [[NSMutableDictionary alloc] initWithObjectsAndKeys:items, @"items", [NSNumber numberWithInt:0], @"index", nil];
+        }
+        else {
+            activity = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithInt:0], @"index", nil];
+        }
         [_itemsMapping setObject:activity forKey:activityType];
     } else {
         items = [activity objectForKey:@"items"];
@@ -82,16 +86,22 @@
 
 - (NSString *)activityViewController:(UIActivityViewController *)activityViewController subjectForActivityType:(NSString *)activityType
 {
-    return [_delegate performSelector:@selector(activityViewController:subjectForActivityType:) withObject:self withObject:activityType];
+    if ([_delegate respondsToSelector:@selector(activityViewController:subjectForActivityType:)]) {
+        return [_delegate activityViewController:activityViewController subjectForActivityType:activityType];
+    }
 }
 - (NSString *)activityViewController:(UIActivityViewController *)activityViewController dataTypeIdentifierForActivityType:(NSString *)activityType
 {
-    return [_delegate performSelector:@selector(activityViewController:dataTypeIdentifierForActivityType:) withObject:self withObject:activityType];
+    if ([_delegate respondsToSelector:@selector(activityViewController:dataTypeIdentifierForActivityType:)]) {
+        return [_delegate activityViewController:activityViewController dataTypeIdentifierForActivityType:activityType];
+    }
 }
 
 - (UIImage *)activityViewController:(UIActivityViewController *)activityViewController thumbnailImageForActivityType:(NSString *)activityType suggestedSize:(CGSize)size
 {
-    return [_delegate performSelector:@selector(activityViewController:thumbnailImageForActivityType:) withObject:self withObject:activityType];
+    if ([_delegate respondsToSelector:@selector(activityViewController:thumbnailImageForActivityType:suggestedSize:)]) {
+        return [_delegate activityViewController:activityViewController thumbnailImageForActivityType:activityType suggestedSize:size];
+    }
 }
 
 - (id)activityViewControllerPlaceholderItem:(UIActivityViewController *)activityViewController {
