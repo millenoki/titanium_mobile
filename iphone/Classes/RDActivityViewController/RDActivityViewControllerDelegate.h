@@ -12,5 +12,5 @@
 
 @protocol RDActivityViewControllerDelegate <UIActivityItemSource>
 
-- (NSArray *)activityViewController:(NSArray *)activityViewController itemsForActivityType:(NSString *)activityType;
+- (NSArray *)activityViewController:(UIActivityViewController *)activityViewController itemsForActivityType:(NSString *)activityType;
 @end
