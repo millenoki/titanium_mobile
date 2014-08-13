@@ -1463,12 +1463,17 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	_setEnabledFromParent  = [TiUtils boolValue:arg def:YES];
 }
 
+-(void)setCustomUserInteractionEnabled:(BOOL)value
+{
+    _customUserInteractionEnabled = value;
+}
+
 -(void)setEnabled:(id)arg calledFromParent:(BOOL)calledFromParent
 {
     BOOL newValue = [TiUtils boolValue:arg def:[self interactionDefault]];
     if (!calledFromParent || _setEnabledFromParent) {
         if (newValue != _customUserInteractionEnabled) {
-            _customUserInteractionEnabled = newValue;
+            [self setCustomUserInteractionEnabled:newValue];
             [self setBgState:UIControlStateNormal];
             changedInteraction = YES;
         }

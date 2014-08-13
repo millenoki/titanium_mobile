@@ -242,9 +242,9 @@
 
 #pragma mark Public APIs
 
--(void)setEnabled_:(id)value
+-(void)setCustomUserInteractionEnabled:(BOOL)value
 {
-    [super setEnabled_:value];
+    [super setCustomUserInteractionEnabled:value];
 	[[self label] setEnabled:[self interactionEnabled]];
 }
 

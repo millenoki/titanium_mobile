@@ -250,9 +250,9 @@
 	[self setValue_:value withObject:nil];
 }
 
--(void)setEnabled_:(id)value
+-(void)setCustomUserInteractionEnabled:(BOOL)value
 {
-    [super setEnabled_:value];
+    [super setCustomUserInteractionEnabled:value];
 	[[self sliderView] setEnabled:[self interactionEnabled]];
 }
 

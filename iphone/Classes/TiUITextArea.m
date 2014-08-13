@@ -297,9 +297,9 @@
 
 #pragma mark Public APIs
 
--(void)setEnabled_:(id)value
+-(void)setCustomUserInteractionEnabled:(BOOL)value
 {
-    [super setEnabled_:value];
+    [super setCustomUserInteractionEnabled:value];
 	[(UITextView *)[self textWidgetView] setEditable:[self interactionEnabled]];
 }
 

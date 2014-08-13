@@ -78,9 +78,9 @@
 }
 
 
--(void)setEnabled_:(id)value
+-(void)setCustomUserInteractionEnabled:(BOOL)value
 {
-    [super setEnabled_:value];
+    [super setCustomUserInteractionEnabled:value];
 	[[self switchView] setEnabled:[self interactionEnabled]];
 }
 

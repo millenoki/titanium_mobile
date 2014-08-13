@@ -225,6 +225,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(BOOL)interactionDefault; 
 
 -(BOOL)interactionEnabled;
+-(void)setCustomUserInteractionEnabled:(BOOL)value;
 
 /**
  Whether or not the view has any touchable listeners attached.

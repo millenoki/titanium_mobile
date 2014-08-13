@@ -267,7 +267,6 @@
 -(void)setEditable_:(id)value
 {
 	BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
-    //	[super setEnabled_:NUMBOOL(_trulyEnabled)];
 	[[self textWidgetView] setEnabled:_trulyEnabled];
     [self setBgState:UIControlStateNormal];
 }
@@ -276,10 +275,10 @@
     return [self textWidgetView].enabled && [super enabledForBgState];
 }
 
--(void)setEnabled_:(id)value
+-(void)setCustomUserInteractionEnabled:(BOOL)value
 {
 	BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
-    [super setEnabled_:value];
+    [super setCustomUserInteractionEnabled:_trulyEnabled];
 	[[self textWidgetView] setEnabled:_trulyEnabled];
 }
 
