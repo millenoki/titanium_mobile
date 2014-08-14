@@ -10,6 +10,7 @@
 #import "TiUILabel.h"
 #import "TiUtils.h"
 #import "DTCoreText.h"
+#import "NSString+DTUtilities.h"
 
 #define kDefaultFontSize 12.0
 
@@ -363,7 +364,9 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
     }
     
     // we don't preserve the string but compare it's hash
-	NSUInteger newHash = [newContentString hash];
+    //NSString hash method is wrong and can return same value
+    // for 2 different strings
+	NSUInteger newHash = [newContentString md5Checksum];
 	
 	if (newHash == _contentHash)
 	{
