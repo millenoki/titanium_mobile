@@ -839,7 +839,9 @@
             [containedWindows addObject:theWindow];
             theWindow.parentOrientationController = self;
         }
-        
+        if ([self presentedViewController] == nil) {
+            [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
+        }
     }
 }
 
@@ -862,6 +864,9 @@
     } else {
         [containedWindows removeObject:theWindow];
         theWindow.parentOrientationController = nil;
+        if ([self presentedViewController] == nil) {
+            [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
+        }
     }
 }
 
@@ -869,7 +874,6 @@
 {
     [self dismissKeyboardFromWindow:theWindow];
     if ([self presentedViewController] == nil) {
-        [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
         [[containedWindows lastObject] gainFocus];
     }
 }
@@ -1106,18 +1110,17 @@
 
 - (void)viewDidLayoutSubviews
 {
-#ifdef DEVELOPER
     CGRect bounds = [[self view] bounds];
+#ifdef DEVELOPER
     NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
 #endif
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
             TiViewProxy* proxy = (TiViewProxy*)thisWindow;
-            CGRect bounds = [[self view] bounds];
             if (!CGRectEqualToRect([proxy sandboxBounds], bounds)) {
                 [proxy setSandboxBounds:bounds];
-                [proxy parentSizeWillChange];
             }
+            [proxy parentSizeWillChange];
         }
     }
     [super viewDidLayoutSubviews];
