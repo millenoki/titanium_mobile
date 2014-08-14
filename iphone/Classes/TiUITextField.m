@@ -277,11 +277,10 @@
 
 -(void)setCustomUserInteractionEnabled:(BOOL)value
 {
-	BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
+	BOOL _trulyEnabled = (value && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
     [super setCustomUserInteractionEnabled:_trulyEnabled];
 	[[self textWidgetView] setEnabled:_trulyEnabled];
 }
-
 
 -(void)setHintText_:(id)value
 {
