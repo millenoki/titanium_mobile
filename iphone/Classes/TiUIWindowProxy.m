@@ -111,6 +111,17 @@
     BOOL toolbarButtonNotSet;
     BOOL toolbarBarWillShow;
 }
+
+
+NSArray* keySequence;
+-(NSArray *)keySequence
+{
+	if (keySequence == nil)
+	{
+		keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"barColor"]] retain];
+	}
+	return keySequence;
+}
 -(void)_destroy
 {
     if (!closing && opened) {
@@ -140,6 +151,7 @@
 	[self replaceValue:nil forKey:@"navTintColor" notification:NO];
 	[self replaceValue:nil forKey:@"barImage" notification:NO];
 	[self replaceValue:nil forKey:@"translucent" notification:NO];
+	[self replaceValue:nil forKey:@"barStyle" notification:NO];
 	[self replaceValue:nil forKey:@"titleAttributes" notification:NO];
 	[self replaceValue:NUMBOOL(NO) forKey:@"tabBarHidden" notification:NO];
 	[self replaceValue:NUMBOOL(NO) forKey:@"navBarHidden" notification:NO];
@@ -423,12 +435,11 @@ else{\
 -(void)setBarColor:(id)colorString
 {
     ENSURE_UI_THREAD(setBarColor,colorString);
-    NSString *color = [TiUtils stringValue:colorString];
-    [self replaceValue:color forKey:@"barColor" notification:NO];
+    [self replaceValue:colorString forKey:@"barColor" notification:NO];
     id navController = [self navControllerForController:controller];
     if (shouldUpdateNavBar && controller!=nil && navController != nil)
     {
-        TiColor * newColor = [TiUtils colorValue:color];
+        TiColor * newColor = [TiUtils colorValue:colorString];
         if (newColor == nil)
         {
             newColor =[TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
@@ -438,13 +449,28 @@ else{\
         UIBarStyle navBarStyle = [TiUtils barStyleForColor:newColor];
         
         UINavigationBar * navBar = [navController navigationBar];
-        [navBar setBarStyle:barStyle];
+        [navBar setBarStyle:navBarStyle];
+        [navBar setTranslucent:[TiUtils barTranslucencyForColor:newColor]];
         if([TiUtils isIOS7OrGreater]) {
             [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
         } else {
             [navBar setTintColor:barColor];
         }
         [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    }
+}
+
+-(void)setBarStyle:(id)value
+{
+	ENSURE_UI_THREAD(setBarStyle,value);
+    [self replaceValue:value forKey:@"barStyle" notification:NO];
+    id navController = [self navControllerForController:controller];
+    if (shouldUpdateNavBar && controller!=nil && navController != nil)
+    {
+        UINavigationBar * navBar = [navController navigationBar];
+        UIBarStyle style = [TiUtils intValue:value def:navBar.barStyle];
+        
+        [navBar setBarStyle:style];
     }
 }
 
@@ -579,7 +605,7 @@ else{\
 	if (controller!=nil)
 	{
         id navController = [self navControllerForController:controller];
-        BOOL def = [TiUtils isIOS7OrGreater] ? YES: NO;
+        BOOL def = [navController navigationBar].translucent;
 		[navController navigationBar].translucent = [TiUtils boolValue:value def:def];
 	}
 }
@@ -1081,6 +1107,8 @@ else{\
     SETPROP(@"barColor",setBarColor);
     SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
+    id test = [self valueForKey:@"barStyle"];
+    SETPROP(@"barStyle",setBarStyle);
     SETPROP(@"tabBarHidden",setTabBarHidden);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
@@ -1114,16 +1142,25 @@ else{\
         [items addObject:controller.navigationItem.rightBarButtonItem];
     }
     if (controller.navigationItem.leftBarButtonItems) {
-        [items addObject:controller.navigationItem.leftBarButtonItems];
+        [items addObjectsFromArray:controller.navigationItem.leftBarButtonItems];
     }
     if (controller.navigationItem.rightBarButtonItems) {
-        [items addObject:controller.navigationItem.rightBarButtonItems];
+        [items addObjectsFromArray:controller.navigationItem.rightBarButtonItems];
     }
-    for (id item in items) {
+    for (UIBarButtonItem* item in items) {
+        TiViewProxy* p = nil;
         if ([item respondsToSelector:@selector(proxy)])
         {
-            TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+            p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+        }
+        else if ([[item customView] respondsToSelector:@selector(proxy)]){
+            p = (TiViewProxy*)[[item customView] performSelector:@selector(proxy)];
+        }
+        if (p)
+        {
             [p removeBarButtonView];
+            [p windowDidClose];
+            [self forgetProxy:p];
         }
     }
     controller.navigationItem.leftBarButtonItem = controller.navigationItem.rightBarButtonItem = nil;

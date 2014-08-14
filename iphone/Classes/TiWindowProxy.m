@@ -278,20 +278,20 @@
     int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
-            barStyle = UIStatusBarStyleDefault;
+            statusBarStyle = UIStatusBarStyleDefault;
             break;
         case UIStatusBarStyleBlackOpaque:
         case UIStatusBarStyleBlackTranslucent: //This will also catch UIStatusBarStyleLightContent
             if ([TiUtils isIOS7OrGreater]) {
-                barStyle = 1;//UIStatusBarStyleLightContent;
+                statusBarStyle = 1;//UIStatusBarStyleLightContent;
             } else {
-                barStyle = theStyle;
+                statusBarStyle = theStyle;
             }
             break;
         default:
-            barStyle = UIStatusBarStyleDefault;
+            statusBarStyle = UIStatusBarStyleDefault;
     }
-    [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
+    [self setValue:NUMINT(statusBarStyle) forUndefinedKey:@"statusBarStyle"];
     if(focussed) {
         TiThreadPerformOnMainThread(^{
             [(TiRootViewController*)[[TiApp app] controller] updateStatusBar];
@@ -419,7 +419,7 @@
 
 -(UIStatusBarStyle)preferredStatusBarStyle;
 {
-    return barStyle;
+    return statusBarStyle;
 }
 
 -(BOOL)handleFocusEvents
