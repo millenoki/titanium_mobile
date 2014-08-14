@@ -427,7 +427,7 @@ DEFINE_EXCEPTIONS
 	
 	[self updateTouchHandling];
 	 
-	super.backgroundColor = nil;
+	super.backgroundColor = [UIColor clearColor]; //carefull it seems that nil is different from clear :s
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 }
 
