@@ -123,7 +123,8 @@
 
 -(BOOL)becomeFirstResponder
 {
-    if (self.isEditable) {
+    if (self.isEditable && self.canBecomeFirstResponder) {
+        [(TiUITextWidget*)touchHandler willBecomeFirstResponder];
         if ([super becomeFirstResponder])
         {
             becameResponder = YES;

@@ -160,6 +160,10 @@
 	return [[self textWidgetView] resignFirstResponder];
 }
 
+-(BOOL)willBecomeFirstResponder {
+    [[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)[self proxy]];
+}
+
 -(BOOL)becomeFirstResponder
 {
 	return [[self textWidgetView] becomeFirstResponder];
@@ -195,7 +199,6 @@
 		return;
 	}
 
-	[[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 
 	if ([ourProxy _hasListeners:@"focus"])
 	{

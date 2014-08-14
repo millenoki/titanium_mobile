@@ -400,11 +400,10 @@
 	leaveDuration = [[userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
 	[self extractKeyboardInfo:userInfo];
 	keyboardVisible = NO;
-    
 	if(!updatingAccessoryView)
 	{
 		updatingAccessoryView = YES;
-		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+		[self handleNewKeyboardStatus];
 	}
     
     TiViewProxy* topWindow = [self topWindow];
@@ -431,7 +430,7 @@
 	if(!updatingAccessoryView)
 	{
 		updatingAccessoryView = YES;
-		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+		[self handleNewKeyboardStatus];
 	}
     
     TiViewProxy* topWindow = [self topWindow];
@@ -543,9 +542,12 @@
 
 -(void) handleNewKeyboardStatus
 {
-	updatingAccessoryView = NO;
 	UIView * ourView = [self viewForKeyboardAccessory];
 	CGRect endingFrame = [ourView convertRect:endFrame fromView:nil];
+    if (CGRectEqualToRect(endingFrame, CGRectZero)) {
+        updatingAccessoryView = NO;
+        return;
+    }
     
 	//Sanity check. Look at our focused proxy, and see if we mismarked it as leaving.
 	TiUIView * scrolledView;	//We check at the update anyways.
@@ -630,8 +632,10 @@
 		accessoryView = enteringAccessoryView;
 		enteringAccessoryView = nil;
 	}
+    
 	if (leavingAccessoryView != nil)
 	{
+        NSArray* array = leavingAccessoryView.layer.animationKeys;
 		[UIView beginAnimations:@"exit" context:leavingAccessoryView];
 		[UIView setAnimationDuration:leaveDuration];
 		[UIView setAnimationCurve:leaveCurve];
@@ -639,7 +643,7 @@
 		[self placeView:leavingAccessoryView nearTopOfRect:endingFrame aboveTop:NO];
 		[UIView commitAnimations];
 	}
-    
+	updatingAccessoryView = NO;
 }
 
 -(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy
@@ -663,7 +667,7 @@
 	TiUIView * unused;	//We check at the update anyways.
 	UIView * newView = [self keyboardAccessoryViewForProxy:visibleProxy withView:&unused];
     
-	if ((newView == enteringAccessoryView) || (newView == accessoryView))
+	if (newView && (newView == enteringAccessoryView || newView == accessoryView))
 	{
 		//We're already up or soon will be.
 		//Note that this is valid where newView can be accessoryView despite a new visibleProxy.
@@ -675,6 +679,7 @@
 		{
 			DebugLog(@"[WARN] Moving in view %@, despite %@ already in line to move in.",newView,enteringAccessoryView);
 			[enteringAccessoryView release];
+            enteringAccessoryView = nil;
 		}
 		
 		if (newView == leavingAccessoryView)
@@ -692,7 +697,7 @@
 	if(!updatingAccessoryView)
 	{
 		updatingAccessoryView = YES;
-		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+		[self handleNewKeyboardStatus];
 	}
 }
 

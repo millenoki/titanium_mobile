@@ -98,7 +98,8 @@
 
 -(BOOL)becomeFirstResponder
 {
-    if (self.isEnabled) {
+    if (self.isEnabled && self.canBecomeFirstResponder) {
+        [(TiUITextWidget*)touchHandler willBecomeFirstResponder];
         if ([super becomeFirstResponder])
         {
             becameResponder = YES;
@@ -107,6 +108,8 @@
     }
     return NO;
 }
+
+
 
 
 -(BOOL)isFirstResponder
