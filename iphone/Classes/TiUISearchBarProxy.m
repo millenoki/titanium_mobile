@@ -26,6 +26,18 @@
 @implementation TiUISearchBarProxy
 @synthesize canHaveSearchDisplayController;
 
+
+NSArray* keySequence;
+
+-(NSArray*)keySequence
+{
+	if (keySequence == nil) {
+		keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"barColor"]] retain];
+	}
+	return keySequence;
+}
+
+
 #pragma mark Method forwarding
 
 -(NSString*)apiName

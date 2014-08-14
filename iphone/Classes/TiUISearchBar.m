@@ -261,6 +261,16 @@
 	}
 }
 
+-(void)setTranslucent_:(id)value
+{
+	[[self searchBar] setTranslucent:[TiUtils boolValue:value]];
+}
+
+-(void)setStyle_:(id)value
+{
+	[[self searchBar] setBarStyle:[TiUtils intValue:value def:[self searchBar].barStyle]];
+}
+
 -(UIImage *)imageWithColor:(UIColor *)color andHeight:(int)height {
     CGRect rect = CGRectMake(0, 0, height, height);
     UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0);
