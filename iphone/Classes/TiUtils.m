@@ -18,7 +18,6 @@
 #import "TiColor.h"
 #import "TiFile.h"
 #import "TiBlob.h"
-#import "Base64Transcoder.h"
 #import "TiExceptionHandler.h"
 #import "SVGKit.h"
 #import "TiFileSystemHelper.h"
@@ -37,31 +36,6 @@ static NSDictionary* encodingMap = nil;
 static NSDictionary* typeMap = nil;
 static NSDictionary* sizeMap = nil;
 static NSString* kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
-
-bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, char **outOutputDataPtr, size_t *outOutputDataSize)
-{
-	//outsize is the same as *outOutputDataSize, but is a local copy.
-	size_t outSize = EstimateBas64EncodedDataSize(inInputDataSize);
-	char *outData = NULL;
-	if (outSize > 0) {
-		outData = malloc(sizeof(char)*outSize);
-	}
-	if (outData == NULL) {
-		*outOutputDataSize = 0;
-		*outOutputDataPtr = NULL;
-		return NO;
-	}
-	bool result = Base64EncodeData(inInputData, inInputDataSize, outData, &outSize);
-	if (!result) {
-		free(outData);
-		*outOutputDataSize = 0;
-		*outOutputDataPtr = NULL;
-		return NO;
-	}
-	*outOutputDataSize = outSize;
-	*outOutputDataPtr = outData;
-	return YES;
-}
 
 @implementation TiUtils
 
@@ -2281,5 +2255,25 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
     return r;
 }
+
++(NSString*)base64encode:(NSData*)toEncode
+{
+    NSString* result = nil;
+    if ([toEncode respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
+        return [toEncode base64EncodedStringWithOptions:0];
+    } else {
+        return [toEncode base64Encoding];
+    }
+}
+
++(NSData*)base64decode:(NSString*)encoded
+{
+    if ([NSData respondsToSelector:@selector(initWithBase64EncodedString:options:)]) {
+        return [[NSData alloc] initWithBase64EncodedString:encoded options:0];
+    } else {
+        return [[NSData alloc] initWithBase64Encoding:encoded];
+    }
+}
+
 
 @end

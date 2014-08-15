@@ -8,7 +8,6 @@
 
 #import "YahooModule.h"
 #include <CommonCrypto/CommonHMAC.h>
-#include "Base64Transcoder.h"
 #import "SBJSON.h"
 #import "TiApp.h"
 
@@ -128,14 +127,9 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
     CCHmacInit(&hmacContext, kCCHmacAlgSHA1, secretData.bytes, secretData.length);
     CCHmacUpdate(&hmacContext, clearTextData.bytes, clearTextData.length);
     CCHmacFinal(&hmacContext, digest);
-    
-    //Base64 Encoding
-    char base64Result[32];
     size_t theResultLength = 32;
-    Base64EncodeData(digest, CC_SHA1_DIGEST_LENGTH, base64Result, &theResultLength);
-    NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
     
-	return [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
+    return [TiUtils base64encode:[NSData dataWithBytes:digest length:theResultLength]];
 }
 #endif
 

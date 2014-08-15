@@ -27,8 +27,6 @@
 #import "TiFile.h"
 #import "TiBuffer.h"
 
-bool Base64AllocAndEncodeData(const void *inInputData, size_t inInputDataSize, char **outOutputDataPtr, size_t *outOutputDataSize);
-
 typedef enum {
     BAD_DEST_OFFSET = -1,
     BAD_SRC_OFFSET = -2,
@@ -678,4 +676,6 @@ typedef enum
 
 +(UIView*)UIViewWithFrame:(CGRect)frame;
 
++(NSString*)base64encode:(NSData*)toEncode;
++(NSData*)base64decode:(NSString*)encoded;
 @end

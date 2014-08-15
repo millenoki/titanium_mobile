@@ -6,7 +6,6 @@
  */
 
 #import "NSData+Additions.h"
-#import "Base64Transcoder.h"
 #import <CommonCrypto/CommonCryptor.h>
 
 #pragma mark Hex

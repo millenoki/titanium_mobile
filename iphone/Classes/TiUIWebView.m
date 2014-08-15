@@ -17,7 +17,6 @@
 #import "TiBlob.h"
 #import "TiFile.h"
 #import "Mimetypes.h"
-#import "Base64Transcoder.h"
 #import "APSHTTPResponse.h"
 
 extern NSString * const TI_APPLICATION_ID;
@@ -748,24 +747,14 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 	
 	NSString *toEncode = [NSString stringWithFormat:@"%@:%@",username,password];
-	const char *data = [toEncode UTF8String];
-	size_t len = [toEncode length];
-
-	char *base64Result;
-    size_t theResultLength;
-	bool result = Base64AllocAndEncodeData(data, len, &base64Result, &theResultLength);
-	if (result)
-	{
-		NSData *theData = [NSData dataWithBytes:base64Result length:theResultLength];
-		free(base64Result);
-		NSString *string = [[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease];
-		RELEASE_TO_NIL(basicCredentials);
-		basicCredentials = [[NSString stringWithFormat:@"Basic %@",string] retain];
-		if (url!=nil)
-		{
-			[self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
-		}
-	}    
+    NSString *authString = [TiUtils base64encode:[[NSString stringWithFormat:@"%@:%@",username, password] dataUsingEncoding:NSUTF8StringEncoding]];
+    RELEASE_TO_NIL(basicCredentials);
+    
+    basicCredentials = [[NSString stringWithFormat:@"Basic %@",authString] retain];
+    if (url!=nil)
+    {
+        [self setUrl_:[NSArray arrayWithObject:[url absoluteString]]];
+    }
 }
 
 -(NSString*)stringByEvaluatingJavaScriptFromString:(NSString *)code
