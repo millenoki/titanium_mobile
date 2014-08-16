@@ -78,14 +78,19 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     }
 }
 
+-(void)setValue:(id)value
+{
+    [self  noteValueChange:value];
+}
 
 -(void)noteValueChange:(NSString *)newValue
 {
     BOOL needsChange = NO;
     ARE_DIFFERENT_NULL_OR_EMPTY([self valueForUndefinedKey:@"value"], newValue, needsChange)
-    if (![self inReproxy] && needsChange)
+    if (!needsChange) return;
+    [self replaceValue:newValue forKey:@"value" notification:YES];
+    if ([self isConfigurationSet])
 	{
-		[self replaceValue:newValue forKey:@"value" notification:NO];
         if ([self.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
             [self.eventOverrideDelegate viewProxy:self updatedValue:newValue forType:@"value"];
         }
