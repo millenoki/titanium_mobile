@@ -121,6 +121,14 @@ extern NSString * const TI_APPLICATION_GUID;
         [httpRequest setRedirects:
          [TiUtils boolValue: [self valueForUndefinedKey:@"autoRedirect"] def:YES] ];
     }
+    if([self valueForUndefinedKey:@"headers"]) {
+        NSDictionary* headers =  [self valueForUndefinedKey:@"headers"];
+        if ([headers isKindOfClass:[NSDictionary class]]) {
+            [headers enumerateKeysAndObjectsUsingBlock:^(NSString* key, id obj, BOOL *stop) {
+                [httpRequest addRequestHeader:key value:[TiUtils stringValue:obj]];
+            }];
+        }
+    }
     if([self valueForUndefinedKey:@"cache"]) {
         [httpRequest setCachePolicy:
          [TiUtils boolValue: [self valueForUndefinedKey:@"cache"] def:YES] ?

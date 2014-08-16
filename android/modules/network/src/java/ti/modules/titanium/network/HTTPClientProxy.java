@@ -6,6 +6,10 @@
  */
 package ti.modules.titanium.network;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
@@ -143,6 +147,14 @@ public class HTTPClientProxy extends KrollProxy
 	public void setRequestHeader(String header, String value)
 	{
 		client.setRequestHeader(header, value);
+	}
+	
+	@Kroll.setProperty @Kroll.method
+    public void setHeaders(HashMap<String, Object> headers)
+    {
+	    for (Map.Entry<String, Object> entry : headers.entrySet()) {
+	        client.setRequestHeader(entry.getKey(), TiConvert.toString(entry.getValue()));
+	    }
 	}
 	
 	@Kroll.setProperty @Kroll.method
