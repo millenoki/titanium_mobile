@@ -771,6 +771,10 @@
 -(TiViewProxy *)topWindow
 {
     UIViewController* topVC = [self topPresentedController];
+    //handle the case of UINavigationController
+    if ([topVC respondsToSelector:@selector(topViewController)]) {
+        topVC = [(id)topVC topViewController];
+    }
     if ([topVC isKindOfClass:[TiErrorController class]]) {
         DebugLog(@"[ERROR] ErrorController is up");
         return nil;
