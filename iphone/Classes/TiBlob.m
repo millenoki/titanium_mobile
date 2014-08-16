@@ -440,26 +440,17 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     return self;
 }
 
-
--(id)toJSON
-{
-    id represented = [self representedObject];
-    if ([represented isKindOfClass:[UIImage class]]) {
-        return [NSString stringWithFormat:@"%@",@{@"type": @"image",
-                 @"width":@(((UIImage*)represented).size.width),
-                 @"height":@(((UIImage*)represented).size.height)
-                 }] ;
-    }
-    return [NSNull null];
-}
-
 -(id)toString:(id)args
 {
-	id t = [self text];
-	if (t!=nil)
-	{
-		return t;
-	}
+	id represented = [self representedObject];
+    if ([represented isKindOfClass:[UIImage class]]) {
+        return [TiUtils jsonStringify:@{@"type": @"image",
+                                        @"width":@(((UIImage*)represented).size.width),
+                                        @"height":@(((UIImage*)represented).size.height)
+                                        }];
+    } else if ([represented isKindOfClass:[NSString class]]) {
+        return represented;
+    }
 	return [super toString:args];
 }
 
