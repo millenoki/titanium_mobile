@@ -530,6 +530,8 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)closePullView:(NSNumber*)anim
 {
+    if (!_pullViewVisible) return;
+    _pullViewVisible = NO;
     BOOL animated = YES;
 	if (anim != nil)
 		animated = [anim boolValue];
@@ -550,10 +552,10 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)showPullView:(NSNumber*)anim
 {
-    if (!_pullViewProxy) {
-        _pullViewVisible = YES;
+    if (!_pullViewProxy || _pullViewVisible) {
         return;
     }
+    _pullViewVisible = YES;
     BOOL animated = YES;
 	if (anim != nil)
 		animated = [anim boolValue];
@@ -832,18 +834,36 @@ static NSDictionary* replaceKeysForRow;
 -(void)setHeaderView_:(id)args
 {
     TiViewProxy* viewproxy = (TiViewProxy*)[(TiUIListViewProxy*)self.proxy createChildFromObject:args];
-    [_headerWrapper removeAllChildren:nil];
     if (viewproxy!=nil) {
+        [_headerWrapper removeAllChildren:nil];
         [[self getOrCreateSearchWrapper] add:viewproxy];
+    }
+    else {
+        if (_headerWrapper)
+        {
+            [self.tableView setTableHeaderView:nil];
+            [_headerWrapper setProxyObserver:nil];
+            [_headerWrapper detachView];
+            RELEASE_TO_NIL(_headerWrapper)
+        }
     }
 }
 
 -(void)setFooterView_:(id)args
 {
     TiViewProxy* viewproxy = (TiViewProxy*)[(TiUIListViewProxy*)self.proxy createChildFromObject:args];
-    [_footerViewProxy removeAllChildren:nil];
     if (viewproxy!=nil) {
+        [_footerViewProxy removeAllChildren:nil];
         [[self getOrCreateFooterHolder] add:viewproxy];
+    }
+    else {
+        if (_footerViewProxy)
+        {
+            [self.tableView setTableFooterView:nil];
+            [_footerViewProxy setProxyObserver:nil];
+            [_footerViewProxy detachView];
+            RELEASE_TO_NIL(_footerViewProxy)
+        }
     }
 }
 
@@ -908,7 +928,6 @@ static NSDictionary* replaceKeysForRow;
         [_pullViewProxy setProxyObserver:self];
         [_pullViewWrapper addSubview:[_pullViewProxy getAndPrepareViewForOpening:_pullViewWrapper.bounds]];
         if (_pullViewVisible) {
-            _pullViewVisible = NO;
             [self showPullView:@(NO)];
         }
     }
