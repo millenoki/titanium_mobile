@@ -619,6 +619,9 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     readyToBeLayout = YES;
+    if (isModal) {
+        [(TiRootViewController*)[[TiApp app] controller] updateStatusBar];
+    }
     [super viewWillAppear:animated];
 }
 -(void)viewWillDisappear:(BOOL)animated
