@@ -68,34 +68,34 @@
     return [super touchesShouldBegin:touches withEvent:event inContentView:view];
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     //When userInteractionEnabled is false we do nothing since touch events are automatically
     //propagated. If it is dragging do not do anything.
-    //The reason we are not checking tracking (like in scrollview) is because for some 
+    //The reason we are not checking tracking (like in scrollview) is because for some
     //reason UITextView always returns true for tracking after the initial focus
     if (!self.dragging && self.userInteractionEnabled && (touchedContentView == nil) ) {
         [touchHandler processTouchesBegan:touches withEvent:event];
- 	}		
+ 	}
 	[super touchesBegan:touches withEvent:event];
 }
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if (!self.dragging && self.userInteractionEnabled && (touchedContentView == nil) ) {
         [touchHandler processTouchesMoved:touches withEvent:event];
-    }		
+    }
 	[super touchesMoved:touches withEvent:event];
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if (!self.dragging && self.userInteractionEnabled && (touchedContentView == nil) ) {
         [touchHandler processTouchesEnded:touches withEvent:event];
-    }		
+    }
 	[super touchesEnded:touches withEvent:event];
 }
 
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if (!self.dragging && self.userInteractionEnabled && (touchedContentView == nil) ) {
         [touchHandler processTouchesCancelled:touches withEvent:event];
@@ -151,16 +151,15 @@
     if (wasDisplayingPlaceholder != self.displayPlaceHolder) {
         [self setNeedsDisplay];
     }
-    
-//    if (is_iOS7 && !is_iOS8 && !settingText) {
-//        if ([self.text hasSuffix:@"\n"]) {
-//            [CATransaction setCompletionBlock:^{
-//                [self scrollToCaretAnimated:NO];
-//            }];
-//        } else {
-//            [self scrollToCaretAnimated:NO];
-//        }
-//    }
+    [self updateKeyboardInsetWithScroll:NO animated:NO];
+    //    if (is_iOS7 && !is_iOS8 && !settingText) {
+    //        if ([self.text hasSuffix:@"\n"]) {
+    //            [CATransaction setCompletionBlock:^{
+    //                [self scrollToCaretOnlyIfNeeded:YES animated:NO];
+    //            }];
+    //        } else {
+    //        }
+    //    }
 }
 
 - (void)setText:(NSString *)text {
@@ -170,10 +169,49 @@
     settingText = NO;
 }
 
-- (void)scrollToCaretAnimated:(BOOL)animated {
-    CGRect rect = [self caretRectForPosition:self.selectedTextRange.end];
-    rect.size.height += self.contentInset.bottom;
-    [self scrollRectToVisible:rect animated:animated];
+- (void)updateKeyboardInsetWithScroll:(BOOL)shouldScroll animated:(BOOL)animated  {
+    CGRect keyboardRect = [[TiApp app] controller].currentKeyboardFrame;
+    if (!CGRectIsEmpty(keyboardRect)) {
+        CGRect absRect = [self.superview convertRect:self.frame toView:nil];
+        CGFloat keyboardOriginY = keyboardRect.origin.y - absRect.origin.y;
+        CGPoint offset = self.contentOffset;
+        
+        CGRect rectEnd = [self caretRectForPosition:self.endOfDocument];
+        rectEnd.origin.y -= self.contentOffset.y;
+        CGRect rectSelected = [self caretRectForPosition:self.selectedTextRange.end];
+        rectSelected.origin.y -= self.contentOffset.y;
+        
+        UIEdgeInsets inset = self.contentInset;
+        CGFloat overflow = rectSelected.origin.y + rectSelected.size.height -  keyboardOriginY;
+        BOOL shouldUpdate = ((inset.bottom == 0 && rectEnd.origin.y + rectEnd.size.height > keyboardOriginY) ||
+                             overflow > 0);
+        
+        if (shouldUpdate) {
+            CGFloat height = self.bounds.size.height;
+            //set the contentInset for the full text (to be scrollable correctly)
+            UIEdgeInsets newInset = UIEdgeInsetsMake(0, 0, height - keyboardOriginY, 0);
+            self.contentInset = newInset;
+            
+            //if we scroll only scroll to caret
+            if (overflow > 0 ) {
+                CGPoint offset = self.contentOffset;
+                offset.y += overflow + 7; // leave 7 pixels margin
+                                          // Cannot animate with setContentOffset:animated: or caret will not appear
+                [UIView animateWithDuration:.1 animations:^{
+                    [self setContentOffset:offset];
+                }];
+            }
+            
+        }
+        if (shouldScroll) {
+            [self scrollRectToVisible:rectSelected animated:animated];
+        }
+    } else {
+        self.contentInset = UIEdgeInsetsZero;
+        if (shouldScroll) {
+            [self scrollRectToVisible:[self caretRectForPosition:self.selectedTextRange.end] animated:animated];
+        }
+    }
 }
 
 
@@ -236,10 +274,7 @@
 {
 	[TiUtils setView:textWidgetView positionRect:UIEdgeInsetsInsetRect(bounds, _padding)];
     
-    //It seems that the textWidgetView are not layed out correctly
-    //without this
-//    [textWidgetView layoutSubviews];
-    [self updateInsentForKeyboard];
+    [(TiUITextViewImpl*)textWidgetView updateKeyboardInsetWithScroll:YES animated:NO];
     
 	[super frameSizeChanged:frame bounds:bounds];
 }
@@ -407,25 +442,13 @@
         _caretVisibilityTimer = nil;
     }
     TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
-    [ourView scrollToCaretAnimated:NO];
+    [(TiUITextViewImpl*)textWidgetView updateKeyboardInsetWithScroll:YES animated:NO];
 }
-
--(void)updateInsentForKeyboard {
-    TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
-    CGRect keyboardRect = [[TiApp app] controller].currentKeyboardFrame;
-    keyboardRect = [self convertRect:keyboardRect fromView:nil];
-    UIEdgeInsets contentInset = ourView.contentInset;
-    contentInset.bottom = self.frame.size.height - keyboardRect.origin.y;
-    ourView.contentInset = contentInset;
-}
-
 
 - (void)textViewDidBeginEditing:(UITextView *)tv
 {
 	[self textWidget:tv didFocusWithText:[tv text]];
     TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
-    
-    [self updateInsentForKeyboard];
     
     //it does not work to instantly scroll to the caret so let's delay it
     _caretVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:0.3 target:self selector:@selector(scrollCaretToVisible) userInfo:nil repeats:NO];
@@ -435,10 +458,6 @@
 {
 	NSString * text = [(UITextView *)textWidgetView text];
     
-    UIEdgeInsets contentInset = tv.contentInset;
-    contentInset.bottom = 0;
-    tv.contentInset = contentInset;
-    
     if (_caretVisibilityTimer) {
         [_caretVisibilityTimer invalidate];
         _caretVisibilityTimer = nil;
@@ -447,11 +466,12 @@
     if (returnActive && [(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
 	{
 		[self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO checkForListener:NO];
-	}	
-
+	}
+    
 	returnActive = NO;
-
+    
 	[self textWidget:tv didBlurWithText:text];
+    [(TiUITextViewImpl*)textWidgetView updateKeyboardInsetWithScroll:NO animated:NO];
 }
 
 - (void)textViewDidChange:(UITextView *)tv
@@ -483,7 +503,7 @@
     if ([tv isKindOfClass:[TiUITextViewImpl class]]) {
         [(TiUITextViewImpl*)tv handleTextViewDidChange];
     }
-
+    
 	[(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]];
 }
 
@@ -500,12 +520,7 @@
 		NSDictionary *event = [NSDictionary dictionaryWithObject:rangeDict forKey:@"range"];
 		[self.proxy fireEvent:@"selected" withObject:event];
 	}
-    //TIMOB-15401. Workaround for UI artifact
-    if ((tv == textWidgetView) && (!NSEqualRanges(tv.selectedRange, lastSelectedRange))) {
-        lastSelectedRange.location = tv.selectedRange.location;
-        lastSelectedRange.length = tv.selectedRange.length;
-        [tv scrollRangeToVisible:lastSelectedRange];
-    }
+    [(TiUITextViewImpl*)textWidgetView updateKeyboardInsetWithScroll:NO animated:NO];
 }
 
 - (BOOL)textViewShouldEndEditing:(UITextView *)tv
@@ -550,7 +565,7 @@
             [self adjustOffsetIfRequired:tv];
         }
     }
-
+    
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
 	return TRUE;
 }
@@ -563,8 +578,8 @@
 }
 
 /*
-Text area constrains the text event though the content offset and edge insets are set to 0 
-*/
+ Text area constrains the text event though the content offset and edge insets are set to 0
+ */
 #define TXT_OFFSET 20
 
 -(CGSize)contentSizeForSize:(CGSize)size
@@ -587,7 +602,7 @@ Text area constrains the text event though the content offset and edge insets ar
     //scroll are ignored if scrollable is set to false
     UITextView* ourView = (UITextView*)[self textWidgetView];
     if (![ourView isScrollEnabled]) {
-        CGPoint origin = [scrollView contentOffset]; 
+        CGPoint origin = [scrollView contentOffset];
         if ( (origin.x != 0) || (origin.y != 0) ) {
             [scrollView setContentOffset:CGPointZero animated:NO];
         }
