@@ -155,6 +155,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  */
 -(void)configurationStart;
 -(void)configurationSet;
+-(BOOL)isConfigurationSet;
 
 -(void)setTransform_:(id)matrix;
 -(void) setBackgroundColor_:(id)color;

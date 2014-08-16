@@ -3828,6 +3828,11 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     allowContentChange = YES;
 }
 
+-(BOOL)isConfigurationSet
+{
+    return ![self inReproxy] && view && [view isConfigurationSet];
+}
+
 -(void)configurationSet
 {
     [self configurationSet:NO];

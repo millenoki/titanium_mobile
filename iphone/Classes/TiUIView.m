@@ -442,6 +442,11 @@ DEFINE_EXCEPTIONS
     }
 }
 
+-(BOOL)isConfigurationSet
+{
+    return configurationSet;
+}
+
 -(void)configurationSet
 {
 	// can be used to trigger things after all properties are set
