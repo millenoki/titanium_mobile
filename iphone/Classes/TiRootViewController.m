@@ -537,7 +537,16 @@
 
 -(CGRect)currentKeyboardFrame
 {
-    return keyboardVisible?endFrame:CGRectZero;
+    CGRect result = CGRectZero;
+    if (keyboardVisible) {
+        result = endFrame;
+        if (accessoryView) {
+            CGFloat height = accessoryView.bounds.size.height;
+            result.origin.y -= height;
+            result.size.height += height;
+        }
+    }
+    return result;
 }
 
 -(void) handleNewKeyboardStatus
