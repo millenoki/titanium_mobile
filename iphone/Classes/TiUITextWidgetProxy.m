@@ -81,6 +81,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 -(void)setValue:(id)value
 {
     [self  noteValueChange:value];
+    [self replaceValue:value forKey:@"value" notification:YES];
 }
 
 -(void)noteValueChange:(NSString *)newValue
@@ -88,7 +89,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     BOOL needsChange = NO;
     ARE_DIFFERENT_NULL_OR_EMPTY([self valueForUndefinedKey:@"value"], newValue, needsChange)
     if (!needsChange) return;
-    [self replaceValue:newValue forKey:@"value" notification:YES];
+    [self replaceValue:newValue forKey:@"value" notification:NO];
     if ([self isConfigurationSet])
 	{
         if ([self.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
