@@ -18,6 +18,7 @@
 #endif
 #import "TiTableView.h"
 #import "TiUIHelper.h"
+#import "TiApp.h"
 
 #define GROUPED_MARGIN_WIDTH 18.0
 
@@ -110,6 +111,7 @@
     BOOL _scrollSuspendImageLoading;
     BOOL _scrollHidesKeyboard;
     BOOL hasOnDisplayCell;
+    BOOL _updateInsetWithKeyboard;
 }
 
 static NSDictionary* replaceKeysForRow;
@@ -136,15 +138,17 @@ static NSDictionary* replaceKeysForRow;
         allowsSelection = YES;
         _defaultSeparatorInsets = UIEdgeInsetsZero;
         _scrollSuspendImageLoading = NO;
-        _scrollHidesKeyboard = YES;
+        _scrollHidesKeyboard = NO;
         hideOnSearch = NO;
         searchViewAnimating = NO;
+        _updateInsetWithKeyboard = NO;
     }
     return self;
 }
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     _tableView.delegate = nil;
     _tableView.dataSource = nil;
     RELEASE_TO_NIL(_tableView)
@@ -298,16 +302,24 @@ static NSDictionary* replaceKeysForRow;
     return _tableView;
 }
 
+- (void)didMoveToSuperview
+{
+	[super didMoveToSuperview];
+    if (_updateInsetWithKeyboard) {
+        [self updateKeyboardInset];
+    }
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-//        if (searchHidden)
-//        {
-//            if (searchViewProxy!=nil)
-//            {
-//                [self hideSearchScreen:nil];
-//            }
-//        }
-//    
+    //        if (searchHidden)
+    //        {
+    //            if (searchViewProxy!=nil)
+    //            {
+    //                [self hideSearchScreen:nil];
+    //            }
+    //        }
+    //
     if (!searchViewAnimating && ![[self searchController] isActive]) {
         [searchViewProxy ensureSearchBarHeirarchy];
         if (_searchWrapper != nil) {
@@ -319,6 +331,10 @@ static NSDictionary* replaceKeysForRow;
         }
     }
     [super frameSizeChanged:frame bounds:bounds];
+    
+    if (_updateInsetWithKeyboard) {
+        [self updateKeyboardInset];
+    }
     
     if (_headerViewProxy != nil) {
         [_headerViewProxy parentSizeWillChange];
@@ -398,6 +414,47 @@ static NSDictionary* replaceKeysForRow;
         setInset();
     }
 }
+
+
+- (void)updateKeyboardInset  {
+    CGFloat height = self.bounds.size.height;
+    if (!self.superview || height == 0) return;
+    CGRect keyboardRect = [[TiApp app] controller].currentKeyboardFrame;
+    if (!CGRectIsEmpty(keyboardRect)) {
+        CGRect absRect = [self.superview convertRect:self.frame toView:nil];
+        CGFloat keyboardOriginY = keyboardRect.origin.y - absRect.origin.y;
+        CGPoint offset = _tableView.contentOffset;
+        
+        CGSize size = [_tableView contentSize];
+        
+        UIEdgeInsets inset = _tableView.contentInset;
+        inset.bottom += height - keyboardOriginY;
+        _tableView.contentInset = inset;
+    } else {
+        if ([self.proxy valueForKey:@"contentInsets"]) {
+            [self setContentInsets_:[self.proxy valueForKey:@"contentInsets"] withObject:nil];
+        }
+        else {
+            _tableView.contentInset = UIEdgeInsetsZero;
+        }
+    }
+}
+
+
+-(void)setUpdateInsetWithKeyboard_:(id)value
+{
+    _updateInsetWithKeyboard = [TiUtils boolValue:value def:NO];
+    if (_updateInsetWithKeyboard) {
+        NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
+        [nc addObserver:self selector:@selector(updateKeyboardInset) name:UIKeyboardWillHideNotification object:nil];
+        [nc addObserver:self selector:@selector(updateKeyboardInset) name:UIKeyboardWillShowNotification object:nil];
+    }
+    else {
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+    }
+    [self updateKeyboardInset];
+}
+
 
 - (void)setTemplates_:(id)args
 {
