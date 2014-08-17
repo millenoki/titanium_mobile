@@ -170,11 +170,11 @@
 	}
 }
 
--(void)childRemoved:(TiProxy*)child
+-(void)childRemoved:(TiProxy*)child shouldDetach:(BOOL)shouldDetach
 {
 }
 
--(void)removeProxy:(id)child
+-(void)removeProxy:(id)child shouldDetach:(BOOL)shouldDetach
 {
     ENSURE_SINGLE_ARG_OR_NIL(child, TiProxy)
     pthread_rwlock_wrlock(&childrenLock);
@@ -184,8 +184,13 @@
 	pthread_rwlock_unlock(&childrenLock);
     
 	[child setParent:nil];
-    [self childRemoved:child];
+    [self childRemoved:child shouldDetach:shouldDetach];
    	[self forgetProxy:child];
+}
+
+-(void)removeProxy:(id)child
+{
+    [self removeProxy:child shouldDetach:YES];
 }
 
 -(void)remove:(id)arg
@@ -218,7 +223,7 @@
     RELEASE_TO_NIL(children);
     pthread_rwlock_unlock(&childrenLock);
     for (TiProxy* theChild in childrenCopy) {
-        [self childRemoved:theChild];
+        [self childRemoved:theChild shouldDetach:YES];
         [self forgetProxy:theChild];
     }
 	[childrenCopy release];

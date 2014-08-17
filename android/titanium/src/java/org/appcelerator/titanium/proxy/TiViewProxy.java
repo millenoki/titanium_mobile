@@ -178,7 +178,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			}
 			case MSG_REMOVE_CHILD : {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleRemove((TiViewProxy) result.getArg());
+				handleRemove((TiViewProxy) result.getArg(), (msg.arg1 == 1));
 				result.setResult(null); //Signal removed.
 				return true;
 			}
@@ -695,24 +695,26 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
         }
     }
 
-	protected void handleChildRemoved(KrollProxy child) {
+	protected void handleChildRemoved(KrollProxy child, final boolean shouldDetach) {
 	    if (peekView() != null) {
             if (TiApplication.isUIThread()) {
-                handleRemove((TiViewProxy) child);
+                handleRemove((TiViewProxy) child, shouldDetach);
                 return;
             }
-
-            TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_CHILD), child);
+            ArrayList<Object> args = new ArrayList<Object>();
+            TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_CHILD, shouldDetach?1:0, 0), child);
         }
     }
 
-    public void handleRemove(TiViewProxy child)
+    public void handleRemove(TiViewProxy child, final boolean shouldDetach)
     {
         if (view != null) {
             view.remove(child.peekView());
         }
         if (child != null) {
-            child.releaseViews(false);
+            if (shouldDetach) {
+                child.releaseViews(false);
+            }
             child.setActivity(null);
         }
     }
@@ -1236,7 +1238,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 						if (viewIn!=null) add(viewIn);
 						if (viewOut!=null) {
 							viewToAddTo.removeView(viewToHide);
-							remove(viewOut);
+                            removeProxy(viewOut, false);
 						}
 						transitioning = false;
 						handlePendingTransition();
@@ -1246,7 +1248,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 						if (viewIn!=null) add(viewIn);
 						if (viewOut!=null) {
 							viewToAddTo.removeView(viewToHide);
-							remove(viewOut);
+							removeProxy(viewOut, false);
 						}
 						transitioning = false;
 						handlePendingTransition();

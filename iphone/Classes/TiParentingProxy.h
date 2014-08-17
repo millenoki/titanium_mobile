@@ -43,6 +43,7 @@
  */
 -(void)remove:(id)arg;
 -(void)removeProxy:(id)child;
+-(void)removeProxy:(id)child shouldDetach:(BOOL)shouldDetach;
 
 /**
  Tells the view proxy to remove all child proxies.

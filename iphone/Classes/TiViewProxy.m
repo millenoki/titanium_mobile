@@ -807,17 +807,22 @@ SEL GetterForKrollProperty(NSString * key)
     }
 }
 
--(void)childRemoved:(TiProxy*)child
+-(void)childRemoved:(TiProxy*)child shouldDetach:(BOOL)shouldDetach
 {
     if (![child isKindOfClass:[TiViewProxy class]]){
         return;
     }
     ENSURE_UI_THREAD_1_ARG(child);
     TiViewProxy* childViewProxy = (TiViewProxy*)child;
-
-    [childViewProxy windowWillClose];
-    [childViewProxy setParentVisible:NO];
-    [childViewProxy windowDidClose]; //will call detach view
+    
+    if (shouldDetach) {
+        [childViewProxy windowWillClose];
+        [childViewProxy setParentVisible:NO];
+        [childViewProxy windowDidClose]; //will call detach view
+    } else {
+        [childViewProxy setParentVisible:NO];
+    }
+    
     BOOL layoutNeedsRearranging = ![self absoluteLayout];
     if (layoutNeedsRearranging)
     {
@@ -3786,14 +3791,14 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             TiTransition* transition = [TiTransitionHelper transitionFromArg:props containerView:self.view];
             transition.adTransition.type = ADTransitionTypePush;
             [[self view] transitionfromView:view1 toView:view2 withTransition:transition completionBlock:^{
-                if (view1Proxy) [self remove:view1Proxy];
+                if (view1Proxy) [self removeProxy:view1Proxy shouldDetach:NO];
                 if (view2Proxy) [self add:view2Proxy];
                 _transitioning = NO;
                 [self handlePendingTransition];
             }];
         }
         else {
-            if (view1Proxy) [self remove:view1Proxy];
+            if (view1Proxy) [self removeProxy:view1Proxy shouldDetach:NO];
             if (view2Proxy)[self add:view2Proxy];
             _transitioning = NO;
             [self handlePendingTransition];

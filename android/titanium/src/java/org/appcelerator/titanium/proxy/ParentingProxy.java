@@ -235,7 +235,7 @@ public class ParentingProxy extends KrollProxy {
         add(child, Integer.valueOf(-1));
     }
     
-    protected void removeProxy(Object args)
+    protected void removeProxy(Object args, final boolean shouldDetach)
     {
         KrollProxy child = null;
         if (args instanceof KrollProxy)
@@ -250,7 +250,11 @@ public class ParentingProxy extends KrollProxy {
                 ((ParentingProxy) child).setParent(null);
             }
         }
-        handleChildRemoved(child);
+        handleChildRemoved(child, shouldDetach);
+    }
+    protected void removeProxy(Object args)
+    {
+        removeProxy(args, true);
     }
     /**
      * Removes a view from this view proxy, releasing the underlying native view if it exists.
@@ -299,7 +303,7 @@ public class ParentingProxy extends KrollProxy {
             childViews.addAll(children);
             children.clear();
             for (KrollProxy child : childViews) {
-                handleChildRemoved(child);
+                handleChildRemoved(child, true);
             }
         }
     }
@@ -307,7 +311,7 @@ public class ParentingProxy extends KrollProxy {
     protected void handleChildAdded(KrollProxy child, int index) {
         
     }
-    protected void handleChildRemoved(KrollProxy child) {
+    protected void handleChildRemoved(KrollProxy child, final boolean shouldDetach) {
         
     }
     
