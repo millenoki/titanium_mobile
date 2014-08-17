@@ -920,9 +920,6 @@
 -(void)hideControllerModal:(UIViewController*)theController animated:(BOOL)animated
 {
     UIViewController* topVC = [self topPresentedController];
-    if (topVC != theController) {
-        DebugLog(@"[WARN] Dismissing a view controller when it is not the top presented view controller. Will probably crash now.");
-    }
     UIViewController* presenter = [theController presentingViewController];
     [presenter dismissViewControllerAnimated:animated completion:^{
         if (presenter == self) {
