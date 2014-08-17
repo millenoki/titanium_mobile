@@ -820,7 +820,7 @@ DEFINE_EXCEPTIONS
 -(void)setImage_:(id)arg
 {
     if (!configurationSet)return;
-    if (_currentImageSource && _currentImageSource == arg && _currentImage) return;
+    if (_currentImageSource && [_currentImageSource isEqual:arg] && _currentImage) return;
     _currentImageSource = arg;
     
 	[self removeAllImagesFromContainer];
