@@ -44,6 +44,37 @@
     return NO;
 }
 
+- (NSCharacterSet *)camelcaseDelimiters {
+	return [NSCharacterSet characterSetWithCharactersInString:@"-_"];
+}
+
+
+- (NSString *)classifyString:(NSString*)string {
+	if (!string) return nil;
+	unichar *buffer = calloc(string, sizeof(unichar));
+	[string getCharacters:buffer];
+	NSMutableString *underscored = [NSMutableString string];
+	
+	BOOL capitalizeNext = YES;
+	NSCharacterSet *delimiters = [self camelcaseDelimiters];
+	for (int i = 0; i < [string length]; i++) {
+		NSString *currChar = [NSString stringWithCharacters:buffer+i length:1];
+		if([delimiters characterIsMember:buffer[i]]) {
+			capitalizeNext = YES;
+		} else {
+			if(capitalizeNext) {
+				[underscored appendString:[currChar uppercaseString]];
+				capitalizeNext = NO;
+			} else {
+				[underscored appendString:currChar];
+			}
+		}
+	}
+	
+	free(buffer);
+	return underscored;
+}
+
 -(UIFont *) font
 {
     if (font == nil) {
@@ -51,85 +82,98 @@
             font = [[UIFont preferredFontForTextStyle:textStyle] retain];
         } else {
             if (family != nil) {
-                if ([[UIFont familyNames] containsObject:family]) {
-                    NSArray* fontNames = [[UIFont fontNamesForFamilyName:family] sortedArrayUsingSelector:@selector(compare:)];
-                    NSString* foundFontName = nil;
-                    if (isBoldWeight || isSemiboldWeight || isItalicStyle) {
-                        NSMutableArray* primaryMatches = [[NSMutableArray alloc] init];
-                        NSString* primaryStyle = nil;
-                        NSString* secondaryStyle = nil;
-                        BOOL hasSecondaryStyle = NO;
-                        if (isBoldWeight || isSemiboldWeight) {
-                            primaryStyle = (isBoldWeight) ? @"Bold" : @"emiBold"/*Matches both SemiBold and DemiBold*/;
-                            secondaryStyle = @"Italic";
-                            if (isItalicStyle) {
-                                hasSecondaryStyle = YES;
-                            }
-                        } else {
-                            primaryStyle = @"Italic";
-                            secondaryStyle = @"Bold";
+                NSString* fontName = family;
+                
+                if (self.weight) {
+                    fontName = [NSString stringWithFormat:@"%@-%@", fontName, self.weight];
+                }
+                font = [[UIFont fontWithName:fontName size:self.size] retain];
+                if (!font) {
+                    if ([[UIFont familyNames] containsObject:family]) {
+                        NSArray* fontNames = [[UIFont fontNamesForFamilyName:family] sortedArrayUsingSelector:@selector(compare:)];
+                        if ([fontNames count] == 1) {
+                            font = [[UIFont fontWithName:[fontNames objectAtIndex:0] size:self.size] retain];
                         }
-                        for (NSString* name in fontNames) {
-                            if (isItalicStyle && !hasSecondaryStyle) {
-                                if ( ([name rangeOfString:primaryStyle].location != NSNotFound) || ([name rangeOfString:@"Oblique"].location != NSNotFound)
-                                    || ([name rangeOfString:@"It" options:NSBackwardsSearch].location == ([name length] - 2)) ) {
-                                    if ( ([name rangeOfString:secondaryStyle].location == NSNotFound) && ([name rangeOfString:@"Heavy"].location == NSNotFound) ) {
-                                        foundFontName = name;
+                        else {
+                            NSString* foundFontName = nil;
+                            if (isBoldWeight || isSemiboldWeight || isItalicStyle) {
+                                NSMutableArray* primaryMatches = [[NSMutableArray alloc] init];
+                                NSString* primaryStyle = nil;
+                                NSString* secondaryStyle = nil;
+                                BOOL hasSecondaryStyle = NO;
+                                if (isBoldWeight || isSemiboldWeight) {
+                                    primaryStyle = (isBoldWeight) ? @"Bold" : @"emiBold"/*Matches both SemiBold and DemiBold*/;
+                                    secondaryStyle = @"Italic";
+                                    if (isItalicStyle) {
+                                        hasSecondaryStyle = YES;
+                                    }
+                                } else {
+                                    primaryStyle = @"Italic";
+                                    secondaryStyle = @"Bold";
+                                }
+                                for (NSString* name in fontNames) {
+                                    if (isItalicStyle && !hasSecondaryStyle) {
+                                        if ( ([name rangeOfString:primaryStyle].location != NSNotFound) || ([name rangeOfString:@"Oblique"].location != NSNotFound)
+                                            || ([name rangeOfString:@"It" options:NSBackwardsSearch].location == ([name length] - 2)) ) {
+                                            if ( ([name rangeOfString:secondaryStyle].location == NSNotFound) && ([name rangeOfString:@"Heavy"].location == NSNotFound) ) {
+                                                foundFontName = name;
+                                            } else {
+                                                [primaryMatches addObject:name];
+                                            }
+                                        }
                                     } else {
-                                        [primaryMatches addObject:name];
+                                        if ( ([name rangeOfString:primaryStyle].location != NSNotFound) || ([name rangeOfString:@"Heavy"].location != NSNotFound) ) {
+                                            BOOL matchesItalic = ([name rangeOfString:secondaryStyle].location != NSNotFound) || ([name rangeOfString:@"Oblique"].location != NSNotFound)
+                                            || ([name rangeOfString:@"It" options:NSBackwardsSearch].location == ([name length] - 2));
+                                            if (matchesItalic == hasSecondaryStyle) {
+                                                foundFontName = name;
+                                            } else {
+                                                [primaryMatches addObject:name];
+                                            }
+                                        }
+                                    }
+                                    if (foundFontName != nil) {
+                                        break;
                                     }
                                 }
+                                
+                                if (foundFontName == nil) {
+                                    if ([primaryMatches count] > 0) {
+                                        foundFontName = [primaryMatches objectAtIndex:0];
+                                    } else if ([fontNames count] > 0) {
+                                        foundFontName = [fontNames objectAtIndex:0];
+                                    }
+                                }
+                                
+                                [primaryMatches removeAllObjects];
+                                RELEASE_TO_NIL(primaryMatches);
+                                
+                                if (foundFontName != nil) {
+                                    font = [[UIFont fontWithName:foundFontName size:self.size] retain];
+                                }
+                                
                             } else {
-                                if ( ([name rangeOfString:primaryStyle].location != NSNotFound) || ([name rangeOfString:@"Heavy"].location != NSNotFound) ) {
-                                    BOOL matchesItalic = ([name rangeOfString:secondaryStyle].location != NSNotFound) || ([name rangeOfString:@"Oblique"].location != NSNotFound)
-                                    || ([name rangeOfString:@"It" options:NSBackwardsSearch].location == ([name length] - 2));
-                                    if (matchesItalic == hasSecondaryStyle) {
+                                for (NSString* name in fontNames) {
+                                    if ( ([name rangeOfString:@"Bold"].location == NSNotFound) && ([name rangeOfString:@"Italic"].location == NSNotFound)
+                                        && ([name rangeOfString:@"Oblique"].location == NSNotFound) && ([name rangeOfString:@"Heavy"].location == NSNotFound)) {
                                         foundFontName = name;
-                                    } else {
-                                        [primaryMatches addObject:name];
+                                    }
+                                    if (foundFontName != nil) {
+                                        break;
                                     }
                                 }
-                            }
-                            if (foundFontName != nil) {
-                                break;
-                            }
-                        }
-                        
-                        if (foundFontName == nil) {
-                            if ([primaryMatches count] > 0) {
-                                foundFontName = [primaryMatches objectAtIndex:0];
-                            } else if ([fontNames count] > 0) {
-                                foundFontName = [fontNames objectAtIndex:0];
+                                if (foundFontName == nil && [fontNames count] > 0) {
+                                    foundFontName = [fontNames objectAtIndex:0];
+                                }
+                                if (foundFontName != nil) {
+                                    font = [[UIFont fontWithName:foundFontName size:self.size] retain];
+                                }
                             }
                         }
-                        
-                        [primaryMatches removeAllObjects];
-                        RELEASE_TO_NIL(primaryMatches);
-                        
-                        if (foundFontName != nil) {
-                            font = [[UIFont fontWithName:foundFontName size:self.size] retain];
-                        }
-                        
                     } else {
-                        for (NSString* name in fontNames) {
-                            if ( ([name rangeOfString:@"Bold"].location == NSNotFound) && ([name rangeOfString:@"Italic"].location == NSNotFound)
-                                && ([name rangeOfString:@"Oblique"].location == NSNotFound) && ([name rangeOfString:@"Heavy"].location == NSNotFound)) {
-                                foundFontName = name;
-                            }
-                            if (foundFontName != nil) {
-                                break;
-                            }
-                        }
-                        if (foundFontName == nil && [fontNames count] > 0) {
-                            foundFontName = [fontNames objectAtIndex:0];
-                        }
-                        if (foundFontName != nil) {
-                            font = [[UIFont fontWithName:foundFontName size:self.size] retain];
-                        }
+                        //family points to a fully qualified font name (so we hope)
+                        font = [[UIFont fontWithName:family size:self.size] retain];
                     }
-                } else {
-                    //family points to a fully qualified font name (so we hope)
-                    font = [[UIFont fontWithName:family size:self.size] retain];
                 }
             }
             if (font == nil) {
@@ -233,26 +277,33 @@
 		didChange = YES;
 	}
 
-
 	NSString * fontWeightObject = [fontDict objectForKey:@"weight"];
 	if([fontWeightObject isKindOfClass:[NSString class]]){
 		fontWeightObject = [fontWeightObject lowercaseString];
+        NSString* newValue=nil;
 		if([fontWeightObject isEqualToString:@"semibold"]) {
-            didChange |= !(self.isSemiboldWeight)||(self.isBoldWeight)||(self.isNormalWeight);
-            self.isSemiboldWeight = YES;
-            self.isBoldWeight = NO;
-            self.isNormalWeight = NO;
-        } else if([fontWeightObject isEqualToString:@"bold"]){
-            didChange |= !(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight);
-            self.isBoldWeight = YES;
-            self.isSemiboldWeight = NO;
-            self.isNormalWeight = NO;
-		} else if([fontWeightObject isEqualToString:@"normal"]){
-			didChange |= (self.isBoldWeight)||(self.isSemiboldWeight)||!(self.isNormalWeight);
-			self.isBoldWeight = NO;
-            self.isSemiboldWeight = NO;
-			self.isNormalWeight = YES;
+            newValue = @"semi_bold";
+//            didChange |= !(self.isSemiboldWeight)||(self.isBoldWeight)||(self.isNormalWeight);
+//            self.isSemiboldWeight = YES;
+//            self.isBoldWeight = NO;
+//            self.isNormalWeight = NO;
+//        } else if([fontWeightObject isEqualToString:@"bold"]){
+//            didChange |= !(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight);
+//            self.isBoldWeight = YES;
+//            self.isSemiboldWeight = NO;
+//            self.isNormalWeight = NO;
+		} else if([fontWeightObject isEqualToString:@"normal"] || [fontWeightObject isEqualToString:@"regular"]){
+//			didChange |= (self.isBoldWeight)||(self.isSemiboldWeight)||!(self.isNormalWeight);
+//			self.isBoldWeight = NO;
+//            self.isSemiboldWeight = NO;
+//			self.isNormalWeight = YES;
 		}
+        else {
+            newValue = fontWeightObject;
+        }
+        newValue = [self classifyString:newValue];
+        didChange |= ![newValue isEqualToString:self.weight];
+        self.weight = newValue;
 	} else if((inheritedFont != NULL) && (fontWeightObject == nil)) {
 		BOOL isBoldBool = inheritedFont.isBoldWeight;
 		if(self.isBoldWeight != isBoldBool){

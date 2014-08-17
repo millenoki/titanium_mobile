@@ -485,12 +485,6 @@ public class TiUIHelper
 		desc.sizeUnit = (int)result[0]; 
 		desc.size = result[1]; 
 		
-		String fontFamily = null;
-		if (d.containsKey("family")) {
-			fontFamily = TiConvert.toString(d, "family");
-		}
-		desc.typeface = toTypeface(context, fontFamily);
-		
 		String fontWeight = null;
 		String fontStyle = null;
 		if (d.containsKey("weight")) {
@@ -500,7 +494,18 @@ public class TiUIHelper
 			fontStyle = TiConvert.toString(d, "style");
 		}
 		desc.style = toTypefaceStyle(fontWeight, fontStyle);
-
+		
+		String fontFamily = null;
+        if (d.containsKey("family")) {
+            fontFamily = TiConvert.toString(d, "family");
+        }
+        if (fontWeight != null && desc.style == Typeface.NORMAL && 
+                fontWeight != "normal") {
+            desc.typeface = toTypeface(context, fontFamily, fontWeight);
+        }
+        else {
+            desc.typeface = toTypeface(context, fontFamily, null);
+        }
 		return desc;
 	}
 	
@@ -530,10 +535,17 @@ public class TiUIHelper
 		tv.setTextSize((int)result[0], result[1]);
 	}
 
-	public static Typeface toTypeface(Context context, String fontFamily)
+	public static Typeface toTypeface(Context context, String fontFamily, String weight)
 	{
 		Typeface tf = Typeface.SANS_SERIF; // default
-
+		if (weight != null && weight != "regular") {
+		    if (fontFamily == null) {
+	            fontFamily = "sans-serif-" + weight.toLowerCase();
+		    }
+		    else {
+                fontFamily += "-" + weight.toLowerCase();
+		    }
+        }
 		if (fontFamily != null) {
 			if ("monospace".equals(fontFamily)) {
 				tf = Typeface.MONOSPACE;
@@ -546,6 +558,7 @@ public class TiUIHelper
 				if (context != null) {
 					try {
 						loadedTf = loadTypeface(context, fontFamily);
+						
 					} catch (Exception e) {
 						loadedTf = null;
 				Log.e(TAG, "Unable to load font " + fontFamily + ": " + e.getMessage());
@@ -561,6 +574,11 @@ public class TiUIHelper
 		}
 		return tf;
 	}
+	
+	public static Typeface toTypeface(Context context, String fontFamily)
+    {
+	    return toTypeface(context, fontFamily, null);
+    }
 	public static Typeface toTypeface(String fontFamily) {
 		return toTypeface(null, fontFamily);
 	}
@@ -576,16 +594,24 @@ public class TiUIHelper
 		}
 		AssetManager mgr = context.getAssets();
 		try {
-			String[] fontFiles = mgr.list(customFontPath);
-			for (String f : fontFiles) {
-				if (f.toLowerCase() == fontFamily.toLowerCase() || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
-					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
-					synchronized(mCustomTypeFaces) {
-						mCustomTypeFaces.put(fontFamily, tf);
-					}
-					return tf;
-				}
-			}
+		    Typeface tf = null;
+		    String[] fontFiles = mgr.list(customFontPath);
+            for (String f : fontFiles) {
+                if (f.toLowerCase() == fontFamily.toLowerCase() || f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
+                    tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
+                    synchronized(mCustomTypeFaces) {
+                        mCustomTypeFaces.put(fontFamily, tf);
+                    }
+                    return tf;
+                }
+            }
+		    tf = Typeface.create(fontFamily, Typeface.NORMAL);
+		    if (tf != null) {
+		        synchronized(mCustomTypeFaces) {
+                    mCustomTypeFaces.put(fontFamily, tf);
+                }
+                return tf;
+		    }
 		} catch (IOException e) {
 			Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 		}
