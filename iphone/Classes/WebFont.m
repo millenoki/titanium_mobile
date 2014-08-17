@@ -51,28 +51,28 @@
 
 - (NSString *)classifyString:(NSString*)string {
 	if (!string) return nil;
-	unichar *buffer = calloc(string, sizeof(unichar));
-	[string getCharacters:buffer];
-	NSMutableString *underscored = [NSMutableString string];
-	
-	BOOL capitalizeNext = YES;
+    unsigned int len = [string length];
+    
+    BOOL capitalizeNext = YES;
+	NSMutableString *underscored = [NSMutableString new];
 	NSCharacterSet *delimiters = [self camelcaseDelimiters];
-	for (int i = 0; i < [string length]; i++) {
-		NSString *currChar = [NSString stringWithCharacters:buffer+i length:1];
-		if([delimiters characterIsMember:buffer[i]]) {
+    
+    for(int i = 0; i < len; ++i) {
+        unichar current = [string characterAtIndex:i];
+		if([delimiters characterIsMember:current]) {
 			capitalizeNext = YES;
 		} else {
+            NSString *currChar = [NSString stringWithCharacters:&current length:1];
 			if(capitalizeNext) {
 				[underscored appendString:[currChar uppercaseString]];
 				capitalizeNext = NO;
 			} else {
-				[underscored appendString:currChar];
+                [underscored appendString:currChar];
 			}
 		}
-	}
+    }
 	
-	free(buffer);
-	return underscored;
+	return [underscored autorelease];
 }
 
 -(UIFont *) font
@@ -292,7 +292,9 @@
 //            self.isBoldWeight = YES;
 //            self.isSemiboldWeight = NO;
 //            self.isNormalWeight = NO;
-		} else if([fontWeightObject isEqualToString:@"normal"] || [fontWeightObject isEqualToString:@"regular"]){
+		} else if([fontWeightObject isEqualToString:@"normal"]
+//                  || [fontWeightObject isEqualToString:@"regular"]
+                  ){
 //			didChange |= (self.isBoldWeight)||(self.isSemiboldWeight)||!(self.isNormalWeight);
 //			self.isBoldWeight = NO;
 //            self.isSemiboldWeight = NO;

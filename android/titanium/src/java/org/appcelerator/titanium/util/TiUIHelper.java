@@ -538,8 +538,8 @@ public class TiUIHelper
 	public static Typeface toTypeface(Context context, String fontFamily, String weight)
 	{
 		Typeface tf = Typeface.SANS_SERIF; // default
-		if (weight != null && weight != "regular") {
-		    if (fontFamily == null) {
+		if (weight != null) {
+		    if (fontFamily == null && weight != "regular") {
 	            fontFamily = "sans-serif-" + weight.toLowerCase();
 		    }
 		    else {
