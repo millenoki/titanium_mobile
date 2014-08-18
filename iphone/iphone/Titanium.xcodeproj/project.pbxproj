@@ -816,6 +816,9 @@
 		D5B04535191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B04534191D2EC4001CF02F /* TiFileSystemHelper.m */; };
 		D5B04536191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B04534191D2EC4001CF02F /* TiFileSystemHelper.m */; };
 		D5B04537191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B04534191D2EC4001CF02F /* TiFileSystemHelper.m */; };
+		D5B6535619A1E03100F30AAB /* TiModalNavViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B6535519A1E03100F30AAB /* TiModalNavViewController.m */; };
+		D5B6535719A1E03100F30AAB /* TiModalNavViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B6535519A1E03100F30AAB /* TiModalNavViewController.m */; };
+		D5B6535819A1E03100F30AAB /* TiModalNavViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5B6535519A1E03100F30AAB /* TiModalNavViewController.m */; };
 		D5B6C728181124C200A2612A /* libDTCoreText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5B6C727181124C200A2612A /* libDTCoreText.a */; };
 		D5B6C729181124C200A2612A /* libDTCoreText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5B6C727181124C200A2612A /* libDTCoreText.a */; };
 		D5B6C72A181124C200A2612A /* libDTCoreText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5B6C727181124C200A2612A /* libDTCoreText.a */; };
@@ -2179,6 +2182,8 @@
 		D5AADFAA17EC32A6008987EF /* UIControl+TiUIView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIControl+TiUIView.m"; sourceTree = "<group>"; };
 		D5B04533191D2EC4001CF02F /* TiFileSystemHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiFileSystemHelper.h; sourceTree = "<group>"; };
 		D5B04534191D2EC4001CF02F /* TiFileSystemHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFileSystemHelper.m; sourceTree = "<group>"; };
+		D5B6535419A1E03100F30AAB /* TiModalNavViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiModalNavViewController.h; sourceTree = "<group>"; };
+		D5B6535519A1E03100F30AAB /* TiModalNavViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiModalNavViewController.m; sourceTree = "<group>"; };
 		D5B6C6DE181124AC00A2612A /* DTAccessibilityElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAccessibilityElement.h; path = ../Classes/DTCoreText/DTAccessibilityElement.h; sourceTree = "<group>"; };
 		D5B6C6DF181124AC00A2612A /* DTAccessibilityViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAccessibilityViewProxy.h; path = ../Classes/DTCoreText/DTAccessibilityViewProxy.h; sourceTree = "<group>"; };
 		D5B6C6E0181124AC00A2612A /* DTAnchorHTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAnchorHTMLElement.h; path = ../Classes/DTCoreText/DTAnchorHTMLElement.h; sourceTree = "<group>"; };
@@ -2854,6 +2859,8 @@
 				8484E3A417A82EE700C24B02 /* TiControllerProtocols.h */,
 				8484E39F17A8279500C24B02 /* TiRootViewController.h */,
 				8484E3A017A8279500C24B02 /* TiRootViewController.m */,
+				D5B6535419A1E03100F30AAB /* TiModalNavViewController.h */,
+				D5B6535519A1E03100F30AAB /* TiModalNavViewController.m */,
 				8484E3A517A865F700C24B02 /* TiViewController.h */,
 				8484E3A617A865F700C24B02 /* TiViewController.m */,
 				84EB33FE17A8CAA700723B1E /* TiWindowProxy.h */,
@@ -4763,6 +4770,7 @@
 				84A0100917FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
 				24CA89BC1111615D0084E2DE /* KrollMethodDelegate.m in Sources */,
 				24CA89BD1111615D0084E2DE /* KrollObject.m in Sources */,
+				D5B6535619A1E03100F30AAB /* TiModalNavViewController.m in Sources */,
 				24CA89BE1111615D0084E2DE /* KrollPropertyDelegate.m in Sources */,
 				24CA89BF1111615D0084E2DE /* KrollTimer.m in Sources */,
 				24CA8B66111161FE0084E2DE /* YahooModule.m in Sources */,
@@ -5278,6 +5286,7 @@
 				D54E555819953BDC004A7335 /* RDActivityViewController.m in Sources */,
 				24D8E46A119B9D8A00F8CAA6 /* TiMediaAudioRecorderProxy.mm in Sources */,
 				24D8E46B119B9D8A00F8CAA6 /* CADebugMacros.cpp in Sources */,
+				D5B6535719A1E03100F30AAB /* TiModalNavViewController.m in Sources */,
 				24D8E46C119B9D8A00F8CAA6 /* CAStreamBasicDescription.cpp in Sources */,
 				24D8E46D119B9D8A00F8CAA6 /* CAXException.cpp in Sources */,
 				24D8E46E119B9D8A00F8CAA6 /* AQRecorder.mm in Sources */,
@@ -5646,6 +5655,7 @@
 				D54E555919953BDC004A7335 /* RDActivityViewController.m in Sources */,
 				DABB374212E8CB280026A6EA /* TiMediaAudioRecorderProxy.mm in Sources */,
 				DABB374312E8CB280026A6EA /* CADebugMacros.cpp in Sources */,
+				D5B6535819A1E03100F30AAB /* TiModalNavViewController.m in Sources */,
 				DABB374412E8CB280026A6EA /* CAStreamBasicDescription.cpp in Sources */,
 				DABB374512E8CB280026A6EA /* CAXException.cpp in Sources */,
 				DABB374612E8CB280026A6EA /* AQRecorder.mm in Sources */,
