@@ -570,13 +570,15 @@
 	//Sanity check. Look at our focused proxy, and see if we mismarked it as leaving.
 	TiUIView * scrolledView;	//We check at the update anyways.
     
+    //change the height while keeping the old frame. Remember that the proxy has no parent!
 	UIView * focusedToolbar = [self keyboardAccessoryViewForProxy:keyboardFocusedProxy withView:&scrolledView];
-	CGRect focusedToolbarBounds = CGRectMake(0, 0, endingFrame.size.width, [keyboardFocusedProxy keyboardAccessoryHeight]);
-	[focusedToolbar setBounds:focusedToolbarBounds];
+    CGRect focusedToolbarFrame = focusedToolbar.frame;
+    focusedToolbarFrame.size.height = [keyboardFocusedProxy keyboardAccessoryHeight];
+	[focusedToolbar setFrame:focusedToolbarFrame];
     
     CGFloat keyboardHeight = endingFrame.origin.y;
     if(focusedToolbar != nil && leavingAccessoryView && focusedToolbar != leavingAccessoryView){
-        keyboardHeight -= focusedToolbarBounds.size.height;
+        keyboardHeight -= focusedToolbarFrame.size.height;
     }
     
     TiViewProxy* topWindow = [self topWindow];
@@ -614,7 +616,7 @@
 			targetedFrame = [ourView convertRect:endingFrame toView:[accessoryView superview]];
 		}
         if (_rotating) {
-            [self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:YES];
+            [self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:keyboardVisible];
         }
         else {
             [UIView beginAnimations:@"update" context:accessoryView];
@@ -630,7 +632,7 @@
             }
             
             [UIView setAnimationDelegate:self];
-            [self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:YES];
+            [self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:keyboardVisible];
             [UIView commitAnimations];
         }
 	}
@@ -644,13 +646,13 @@
 		{
 			[[self viewForKeyboardAccessory] addSubview:enteringAccessoryView];
 		}
-        [self placeView:enteringAccessoryView nearTopOfRect:[self getAbsRect:startFrame fromView:nil] aboveTop:NO];
+        [self placeView:enteringAccessoryView nearTopOfRect:[self getAbsRect:startFrame fromView:nil] aboveTop:!keyboardVisible];
 		targetedFrame = endingFrame;
 		[UIView beginAnimations:@"enter" context:enteringAccessoryView];
 		[UIView setAnimationDuration:enterDuration];
 		[UIView setAnimationCurve:enterCurve];
 		[UIView setAnimationDelegate:self];
-		[self placeView:enteringAccessoryView nearTopOfRect:endingFrame aboveTop:YES];
+		[self placeView:enteringAccessoryView nearTopOfRect:endingFrame aboveTop:keyboardVisible];
 		[UIView commitAnimations];
 		accessoryView = enteringAccessoryView;
 		enteringAccessoryView = nil;
@@ -658,13 +660,13 @@
     
 	if (leavingAccessoryView != nil)
 	{
-        [self placeView:leavingAccessoryView nearTopOfRect:[self getAbsRect:startFrame fromView:nil] aboveTop:YES];
+        [self placeView:leavingAccessoryView nearTopOfRect:[self getAbsRect:startFrame fromView:nil] aboveTop:!keyboardVisible];
         NSArray* array = leavingAccessoryView.layer.animationKeys;
 		[UIView beginAnimations:@"exit" context:leavingAccessoryView];
 		[UIView setAnimationDuration:leaveDuration];
 		[UIView setAnimationCurve:leaveCurve];
 		[UIView setAnimationDelegate:self];
-		[self placeView:leavingAccessoryView nearTopOfRect:endingFrame aboveTop:NO];
+		[self placeView:leavingAccessoryView nearTopOfRect:endingFrame aboveTop:keyboardVisible];
 		[UIView commitAnimations];
 	}
 	updatingAccessoryView = NO;
