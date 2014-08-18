@@ -8,6 +8,7 @@
 #import "TiViewController.h"
 #import "TiApp.h"
 #import "TiViewProxy.h"
+#import "TiModalNavViewController.h"
 
 @interface ControllerWrapperView : UIView
 @property (nonatomic,assign) TiViewProxy* proxy;
@@ -138,7 +139,7 @@
      If we are in a navigation controller, let us match so it doesn't get freaked 
      out in when pushing/popping. We are going to force orientation anyways.
      */
-    if ([self navigationController] != nil) {
+    if ([self navigationController] != nil && ![[self navigationController]isKindOfClass:[TiModalNavViewController class]]) {
         return [[self navigationController] supportedInterfaceOrientations];
     }
     //This would be for modal.

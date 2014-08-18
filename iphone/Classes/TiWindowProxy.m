@@ -11,6 +11,7 @@
 #import "TiErrorController.h"
 #import "TiTransitionAnimation+Friend.h"
 #import "TiTransitionAnimationStep.h"
+#import "TiModalNavViewController.h"
 
 @interface TiWindowProxy(Private)
 -(void)openOnUIThread:(id)args;
@@ -476,7 +477,7 @@
 
 -(TiProxy *)parentForBubbling
 {
-    if (parent) return parent;
+    if ([super parentForBubbling]) return [super parentForBubbling];
     else return tab;
 }
 
@@ -527,7 +528,7 @@
             UIViewController* theController = [self hostingController];
             if (![TiUtils boolValue:[self valueForUndefinedKey:@"navBarHidden"] def:YES]) {
                 //put it in a navigation controller to get the navbar if it was explicitely asked for
-                theController = [[UINavigationController alloc] initWithRootViewController:theController];
+                theController = [[TiModalNavViewController alloc] initWithRootViewController:theController];
             }
             [self windowWillOpen];
             NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
