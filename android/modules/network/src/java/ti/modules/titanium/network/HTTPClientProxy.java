@@ -150,7 +150,7 @@ public class HTTPClientProxy extends KrollProxy
 	}
 	
 	@Kroll.setProperty @Kroll.method
-    public void setHeaders(HashMap<String, Object> headers)
+    public void setHeaders(KrollDict headers)
     {
 	    for (Map.Entry<String, Object> entry : headers.entrySet()) {
 	        client.setRequestHeader(entry.getKey(), TiConvert.toString(entry.getValue()));
