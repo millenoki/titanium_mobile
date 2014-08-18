@@ -21,6 +21,7 @@
  @see children
  */
 @property(nonatomic, assign) TiParentingProxy *parent;
+@property(nonatomic, assign) TiParentingProxy *parentForBubbling;
 
 -(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;
 

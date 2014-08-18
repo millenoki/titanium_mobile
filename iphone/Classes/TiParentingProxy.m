@@ -27,6 +27,10 @@
 	[super dealloc];
 }
 
+-(TiProxy *)parentForBubbling
+{
+	return _parentForBubbling?_parentForBubbling:parent;
+}
 
 -(void)_initWithProperties:(NSDictionary*)properties
 {
