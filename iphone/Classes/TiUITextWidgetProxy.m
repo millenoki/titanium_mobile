@@ -132,12 +132,12 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     TiViewProxy* vp = ( TiViewProxy*)[(TiUITextWidgetProxy*)self createChildFromObject:value];
 	if (keyboardAccessoryProxy){
         [keyboardAccessoryProxy windowDidClose];
-        [keyboardAccessoryProxy setParent:nil];
+        [keyboardAccessoryProxy setParentForBubbling:nil];
         [self forgetProxy:keyboardAccessoryProxy];
         RELEASE_TO_NIL(keyboardAccessoryProxy)
     }
     if (vp) {
-        [vp setParent:(TiParentingProxy*)self];
+        [vp setParentForBubbling:(TiParentingProxy*)self];
         LayoutConstraint* constraint = [vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->width))
         {
