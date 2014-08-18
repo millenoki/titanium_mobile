@@ -143,7 +143,7 @@ exports.init = function (logger, config, cli) {
                         
                         if (cli.argv['output-dir']) {
                             dest = path.join(cli.argv['output-dir'], appName + '.ipa');
-                            afs.exists(dest) && fs.unlink(dest);
+                            afs.exists(dest) && fs.unlinkSync(dest);
                             afs.copyFileSync(ipa, dest, { logger: logger.debug });
 
                             dest = path.join(cli.argv['output-dir'], appName + '.app.dSYM');
@@ -151,7 +151,7 @@ exports.init = function (logger, config, cli) {
                             afs.copyDirSyncRecursive(dsym, dest, { logger: logger.debug });
 
                             dest = path.join(cli.argv['output-dir'], appName + '.app.dSYM.zip');
-                            afs.exists(dest) && fs.unlink(dest);
+                            afs.exists(dest) && fs.unlinkSync(dest);
                             exec('cd "' + path.dirname(dsym) + '"; /usr/bin/zip -r  "' + dest +  '" "' + dsymfilename +  '"', function (err, stdout, stderr) {
                                 logger.info(__('Packaging complete'));
                                 logger.info(__('Package location: %s', dest.cyan));
