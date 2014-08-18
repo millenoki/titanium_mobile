@@ -283,22 +283,21 @@
         NSString* newValue=nil;
 		if([fontWeightObject isEqualToString:@"semibold"]) {
             newValue = @"semi_bold";
-//            didChange |= !(self.isSemiboldWeight)||(self.isBoldWeight)||(self.isNormalWeight);
-//            self.isSemiboldWeight = YES;
-//            self.isBoldWeight = NO;
-//            self.isNormalWeight = NO;
-//        } else if([fontWeightObject isEqualToString:@"bold"]){
-//            didChange |= !(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight);
-//            self.isBoldWeight = YES;
-//            self.isSemiboldWeight = NO;
-//            self.isNormalWeight = NO;
-		} else if([fontWeightObject isEqualToString:@"normal"]
-//                  || [fontWeightObject isEqualToString:@"regular"]
-                  ){
-//			didChange |= (self.isBoldWeight)||(self.isSemiboldWeight)||!(self.isNormalWeight);
-//			self.isBoldWeight = NO;
-//            self.isSemiboldWeight = NO;
-//			self.isNormalWeight = YES;
+            didChange |= !(self.isSemiboldWeight)||(self.isBoldWeight)||(self.isNormalWeight);
+            self.isSemiboldWeight = YES;
+            self.isBoldWeight = NO;
+            self.isNormalWeight = NO;
+        } else if([fontWeightObject isEqualToString:@"bold"]){
+            newValue = fontWeightObject;
+            didChange |= !(self.isBoldWeight)||(self.isSemiboldWeight)||(self.isNormalWeight);
+            self.isBoldWeight = YES;
+            self.isSemiboldWeight = NO;
+            self.isNormalWeight = NO;
+		} else if([fontWeightObject isEqualToString:@"normal"]){
+			didChange |= (self.isBoldWeight)||(self.isSemiboldWeight)||!(self.isNormalWeight);
+			self.isBoldWeight = NO;
+            self.isSemiboldWeight = NO;
+			self.isNormalWeight = YES;
 		}
         else {
             newValue = fontWeightObject;
