@@ -90,7 +90,7 @@
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
 {
     if (!self.dragging && !self.zooming && !self.tracking 
-        && self.userInteractionEnabled && (touchedContentView == nil) && [[event touchesForView:self] count] > 0) {
+        && self.userInteractionEnabled && (touchedContentView == nil)) {
         [touchHandler processTouchesEnded:touches withEvent:event];
     }		
 	[super touchesEnded:touches withEvent:event];
