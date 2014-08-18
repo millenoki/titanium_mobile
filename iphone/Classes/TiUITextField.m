@@ -85,14 +85,17 @@
 
 -(BOOL)resignFirstResponder
 {
-	if ([super resignFirstResponder])
-	{
-        if (becameResponder) {
-            becameResponder = NO;
-            [touchHandler makeRootViewFirstResponder];
+	if (self.isFirstResponder) {
+        [(TiUITextWidget*)touchHandler willResignFirstResponder];
+        if ([super resignFirstResponder])
+        {
+            if (becameResponder) {
+                becameResponder = NO;
+                [touchHandler makeRootViewFirstResponder];
+            }
+            return YES;
         }
-        return YES;
-	}
+    }
 	return NO;
 }
 

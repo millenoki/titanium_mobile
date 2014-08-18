@@ -161,6 +161,10 @@
     [[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)[self proxy]];
 }
 
+-(BOOL)willResignFirstResponder {
+	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)[self proxy]];
+}
+
 -(BOOL)becomeFirstResponder
 {
 	return [[self textWidgetView] becomeFirstResponder];
@@ -210,8 +214,6 @@
 	if ([ourProxy suppressFocusEvents]) {
 		return;
 	}
-
-	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)ourProxy];
 
 	if ([ourProxy _hasListeners:@"blur"])
 	{

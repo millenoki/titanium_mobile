@@ -19,19 +19,24 @@
 
 @interface TiUITextViewImpl()
 - (void)handleTextViewDidChange;
+@property(nonatomic,assign) BOOL inLayout;
 @end
 
 
 @implementation TiUITextViewImpl
 {
     BOOL becameResponder;
-    BOOL settingText;
-    BOOL _inLayout;
+}
+
+-(id)initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame]) {
+    }
+    return self;
 }
 
 - (void)setContentOffset:(CGPoint)contentOffset
 {
-    if (_inLayout) return;
     [super setContentOffset:contentOffset];
 }
 
@@ -47,12 +52,6 @@
 {
     //Assign only. No retain
     touchHandler = handler;
-}
-
--(void)layoutSubviews {
-    _inLayout = YES;
-    [super layoutSubviews];
-    _inLayout = NO;
 }
 
 - (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view
@@ -110,14 +109,17 @@
 
 -(BOOL)resignFirstResponder
 {
-	if ([super resignFirstResponder])
-	{
-        if (becameResponder) {
-            becameResponder = NO;
-            [touchHandler makeRootViewFirstResponder];
+    if (self.isFirstResponder) {
+        [(TiUITextWidget*)touchHandler willResignFirstResponder];
+        if ([super resignFirstResponder])
+        {
+            if (becameResponder) {
+                becameResponder = NO;
+                [touchHandler makeRootViewFirstResponder];
+            }
+            return YES;
         }
-        return YES;
-	}
+    }
 	return NO;
 }
 
@@ -152,27 +154,17 @@
         [self setNeedsDisplay];
     }
     [self updateKeyboardInsetWithScroll:NO animated:NO];
-    //    if (is_iOS7 && !is_iOS8 && !settingText) {
-    //        if ([self.text hasSuffix:@"\n"]) {
-    //            [CATransaction setCompletionBlock:^{
-    //                [self scrollToCaretOnlyIfNeeded:YES animated:NO];
-    //            }];
-    //        } else {
-    //        }
-    //    }
 }
 
 - (void)setText:(NSString *)text {
-    settingText = YES;
     [super setText:text];
     self.displayPlaceHolder = text.length == 0;
-    settingText = NO;
 }
 
 - (void)updateKeyboardInsetWithScroll:(BOOL)shouldScroll animated:(BOOL)animated  {
     CGRect keyboardRect = [[TiApp app] controller].currentKeyboardFrame;
     if (!CGRectIsEmpty(keyboardRect)) {
-        CGRect absRect = [self.superview convertRect:self.frame toView:nil];
+        CGRect absRect = [[[TiApp app] controller] getAbsRect:self.bounds fromView:self];
         CGFloat keyboardOriginY = keyboardRect.origin.y - absRect.origin.y;
         CGPoint offset = self.contentOffset;
         
@@ -183,7 +175,7 @@
         
         UIEdgeInsets inset = self.contentInset;
         CGFloat overflow = rectSelected.origin.y + rectSelected.size.height -  keyboardOriginY;
-        BOOL shouldUpdate = ((inset.bottom == 0 && rectEnd.origin.y + rectEnd.size.height > keyboardOriginY) ||
+        BOOL shouldUpdate = ( (inset.bottom == 0 && rectEnd.origin.y + rectEnd.size.height > keyboardOriginY) ||
                              overflow > 0);
         
         if (shouldUpdate) {
@@ -193,23 +185,39 @@
             self.contentInset = newInset;
             
             //if we scroll only scroll to caret
-            if (overflow > 0 ) {
+            if (overflow > 0) {
                 CGPoint offset = self.contentOffset;
                 offset.y += overflow + 7; // leave 7 pixels margin
                                           // Cannot animate with setContentOffset:animated: or caret will not appear
                 [UIView animateWithDuration:.1 animations:^{
                     [self setContentOffset:offset];
                 }];
+                return;
             }
             
         }
-        if (shouldScroll) {
-            [self scrollRectToVisible:rectSelected animated:animated];
-        }
     } else {
         self.contentInset = UIEdgeInsetsZero;
-        if (shouldScroll) {
-            [self scrollRectToVisible:[self caretRectForPosition:self.selectedTextRange.end] animated:animated];
+        
+    }
+    if (shouldScroll) {
+        [self scrollRectToVisible:[self caretRectForPosition:self.selectedTextRange.end] animated:animated];
+    }
+    else {
+        CGFloat height = self.bounds.size.height;
+        CGPoint contentOffset = self.contentOffset;
+        UIEdgeInsets contentInset = self.contentInset;
+        CGRect rectSelected = [self caretRectForPosition:self.selectedTextRange.end];
+        rectSelected.origin.y -= self.contentOffset.y;
+        if (rectSelected.origin.y + rectSelected.size.height > height) {
+            CGFloat overflow = rectSelected.origin.y + rectSelected.size.height - height;
+            CGPoint offset = self.contentOffset;
+            offset.y += overflow + 7; // leave 7 pixels margin
+                                      // Cannot animate with setContentOffset:animated: or caret will not appear
+            
+            [UIView animateWithDuration:.1 animations:^{
+                [self setContentOffset:offset];
+            }];
         }
     }
 }
@@ -272,11 +280,11 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[TiUtils setView:textWidgetView positionRect:UIEdgeInsetsInsetRect(bounds, _padding)];
-    
-    [(TiUITextViewImpl*)textWidgetView updateKeyboardInsetWithScroll:YES animated:NO];
-    
+    TiUITextViewImpl* ourView = (TiUITextViewImpl*)textWidgetView;
+	[TiUtils setView:ourView positionRect:UIEdgeInsetsInsetRect(bounds, _padding)];
 	[super frameSizeChanged:frame bounds:bounds];
+    [ourView updateKeyboardInsetWithScroll:NO animated:NO];
+    
 }
 
 -(UIView<UITextInputTraits>*)textWidgetView
@@ -297,8 +305,7 @@
         [textViewImpl setContentInset:UIEdgeInsetsZero];
         self.clipsToBounds = YES;
         
-        lastSelectedRange.location = 0;
-        lastSelectedRange.length = 0;
+
         //Temporarily setting text to a blank space, to set the editable property [TIMOB-10295]
         //This is a workaround for a Apple Bug.
         textViewImpl.text = @" ";
@@ -520,7 +527,11 @@
 		NSDictionary *event = [NSDictionary dictionaryWithObject:rangeDict forKey:@"range"];
 		[self.proxy fireEvent:@"selected" withObject:event];
 	}
-    [(TiUITextViewImpl*)textWidgetView updateKeyboardInsetWithScroll:NO animated:NO];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.1 * NSEC_PER_SEC),
+                   dispatch_get_main_queue(), ^
+                   {
+                       [(TiUITextViewImpl*)textWidgetView updateKeyboardInsetWithScroll:NO animated:NO];
+                   });
 }
 
 - (BOOL)textViewShouldEndEditing:(UITextView *)tv
@@ -565,7 +576,7 @@
             [self adjustOffsetIfRequired:tv];
         }
     }
-    
+
 	[(TiUITextAreaProxy *)self.proxy noteValueChange:curText];
 	return TRUE;
 }
@@ -607,6 +618,11 @@
             [scrollView setContentOffset:CGPointZero animated:NO];
         }
     }
+}
+
+-(void)updateCaretPosition
+{
+    [(TiUITextViewImpl*)textWidgetView updateKeyboardInsetWithScroll:NO animated:NO];
 }
 
 @end

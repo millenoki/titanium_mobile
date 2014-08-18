@@ -87,6 +87,12 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
     return CGSizeZero;
 }
 
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    [(TiUITextArea*)view updateCaretPosition];
+}
+
 @end
 
 #endif

@@ -40,6 +40,7 @@
 -(void)updateKeyboardStatus;
 -(NSDictionary*)selectedRange;
 -(BOOL)willBecomeFirstResponder;
+-(BOOL)willResignFirstResponder;
 @end
 
 #endif
