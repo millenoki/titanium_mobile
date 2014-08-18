@@ -58,6 +58,7 @@
 @property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;
 @property (nonatomic, readonly) BOOL statusBarVisibilityChanged;
 @property (nonatomic, readonly) CGRect currentKeyboardFrame;
+-(CGRect)getAbsRect:(CGRect)rect fromView:(UIView*)view;
 
 @property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 #if defined(DEBUG) || defined(DEVELOPER)

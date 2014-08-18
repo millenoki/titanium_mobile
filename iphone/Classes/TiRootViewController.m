@@ -81,6 +81,9 @@
 @end
 
 @implementation TiRootViewController
+{
+    BOOL _rotating;
+}
 
 @synthesize keyboardFocusedProxy = keyboardFocusedProxy;
 @synthesize statusBarVisibilityChanged;
@@ -103,6 +106,7 @@
 {
     self = [super init];
     if (self != nil) {
+        _rotating = NO;
         orientationHistory[0] = UIInterfaceOrientationPortrait;
         orientationHistory[1] = UIInterfaceOrientationLandscapeLeft;
         orientationHistory[2] = UIInterfaceOrientationLandscapeRight;
@@ -406,6 +410,7 @@
 		[self handleNewKeyboardStatus];
 	}
     
+    if (_rotating) return;
     TiViewProxy* topWindow = [self topWindow];
     if ([topWindow _hasListeners:@"keyboard"]) {
         UIView * ourView = [self viewForKeyboardAccessory];
@@ -433,6 +438,7 @@
 		[self handleNewKeyboardStatus];
 	}
     
+    if (_rotating) return;
     TiViewProxy* topWindow = [self topWindow];
     if ([topWindow _hasListeners:@"keyboard"]) {
         UIView * ourView = [self viewForKeyboardAccessory];
@@ -451,7 +457,7 @@
     if ( (updatingAccessoryView == NO) && ([TiUtils boolValue:_keyboardVisible] == keyboardVisible) ) {
         updatingAccessoryView = YES;
         [self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
-        if (!keyboardVisible) {
+        if (!keyboardVisible && !accessoryView) {
             RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
         }
     }
@@ -460,16 +466,14 @@
 - (void)keyboardDidHide:(NSNotification*)notification
 {
 	startFrame = endFrame;
-    [self performSelector:@selector(adjustKeyboardHeight:) withObject:[NSNumber numberWithBool:NO]];
+    if (!keyboardVisible && !accessoryView) {
+        RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
+    }
 }
 
 - (void)keyboardDidShow:(NSNotification*)notification
 {
 	startFrame = endFrame;
-    //The endingFrame is not always correctly calculated when rotating.
-    //This method call ensures correct calculation at the end
-    //See TIMOB-8720 for a test case
-    [self performSelector:@selector(adjustKeyboardHeight:) withObject:@YES afterDelay:enterDuration];
 }
 
 -(UIView *)viewForKeyboardAccessory;
@@ -539,7 +543,7 @@
 {
     CGRect result = CGRectZero;
     if (keyboardVisible) {
-        result = endFrame;
+        result = [[self viewForKeyboardAccessory] convertRect:endFrame fromView:nil];
         if (accessoryView) {
             CGFloat height = accessoryView.bounds.size.height;
             result.origin.y -= height;
@@ -549,11 +553,16 @@
     return result;
 }
 
+-(CGRect)getAbsRect:(CGRect)rect fromView:(UIView*)view
+{
+    return [[self viewForKeyboardAccessory] convertRect:rect fromView:view];
+}
+
 -(void) handleNewKeyboardStatus
 {
 	UIView * ourView = [self viewForKeyboardAccessory];
-	CGRect endingFrame = [ourView convertRect:endFrame fromView:nil];
-    if (CGRectEqualToRect(endingFrame, CGRectZero)) {
+	CGRect endingFrame = [self getAbsRect:endFrame fromView:nil];
+    if (CGRectEqualToRect(endingFrame, CGRectZero) || CGRectEqualToRect(startFrame, CGRectZero)) {
         updatingAccessoryView = NO;
         return;
     }
@@ -566,7 +575,7 @@
 	[focusedToolbar setBounds:focusedToolbarBounds];
     
     CGFloat keyboardHeight = endingFrame.origin.y;
-    if(focusedToolbar != nil && focusedToolbar != leavingAccessoryView){
+    if(focusedToolbar != nil && leavingAccessoryView && focusedToolbar != leavingAccessoryView){
         keyboardHeight -= focusedToolbarBounds.size.height;
     }
     
@@ -596,29 +605,34 @@
 	}
     
 	//This is if the keyboard is hiding or showing due to hardware.
-	if ((accessoryView != nil) && !CGRectEqualToRect(targetedFrame, endingFrame))
+    //or rotating (we ignore the keyboard hide event during rotation
+	if (!(_rotating && !keyboardVisible) && (accessoryView != nil) && !CGRectEqualToRect(targetedFrame, endingFrame))
 	{
 		targetedFrame = endingFrame;
 		if([accessoryView superview] != ourView)
 		{
 			targetedFrame = [ourView convertRect:endingFrame toView:[accessoryView superview]];
 		}
-        
-		[UIView beginAnimations:@"update" context:accessoryView];
-		if (keyboardVisible)
-		{
-			[UIView setAnimationDuration:enterDuration];
-			[UIView setAnimationCurve:enterCurve];
-		}
-		else
-		{
-			[UIView setAnimationDuration:leaveDuration];
-			[UIView setAnimationCurve:leaveCurve];
-		}
-        
-		[UIView setAnimationDelegate:self];
-		[self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:YES];
-		[UIView commitAnimations];
+        if (_rotating) {
+            [self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:YES];
+        }
+        else {
+            [UIView beginAnimations:@"update" context:accessoryView];
+            if (keyboardVisible)
+            {
+                [UIView setAnimationDuration:enterDuration];
+                [UIView setAnimationCurve:enterCurve];
+            }
+            else
+            {
+                [UIView setAnimationDuration:leaveDuration];
+                [UIView setAnimationCurve:leaveCurve];
+            }
+            
+            [UIView setAnimationDelegate:self];
+            [self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:YES];
+            [UIView commitAnimations];
+        }
 	}
     
     
@@ -628,9 +642,9 @@
 		//Start animation to put it into place.
 		if([enteringAccessoryView superview] != ourView)
 		{
-			[self placeView:enteringAccessoryView nearTopOfRect:[ourView convertRect:startFrame fromView:nil] aboveTop:NO];
 			[[self viewForKeyboardAccessory] addSubview:enteringAccessoryView];
 		}
+        [self placeView:enteringAccessoryView nearTopOfRect:[self getAbsRect:startFrame fromView:nil] aboveTop:NO];
 		targetedFrame = endingFrame;
 		[UIView beginAnimations:@"enter" context:enteringAccessoryView];
 		[UIView setAnimationDuration:enterDuration];
@@ -644,6 +658,7 @@
     
 	if (leavingAccessoryView != nil)
 	{
+        [self placeView:leavingAccessoryView nearTopOfRect:[self getAbsRect:startFrame fromView:nil] aboveTop:YES];
         NSArray* array = leavingAccessoryView.layer.animationKeys;
 		[UIView beginAnimations:@"exit" context:leavingAccessoryView];
 		[UIView setAnimationDuration:leaveDuration];
@@ -703,10 +718,10 @@
 		}
 	}
 	
-	if(!updatingAccessoryView)
+	if(keyboardVisible && !updatingAccessoryView)
 	{
 		updatingAccessoryView = YES;
-		[self handleNewKeyboardStatus];
+		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
 	}
 }
 
@@ -743,7 +758,7 @@
 	leavingAccessoryView = accessoryView;
 	accessoryView = nil;
     
-	if(!updatingAccessoryView)
+	if(!keyboardVisible && !updatingAccessoryView)
 	{
 		updatingAccessoryView = YES;
 		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
@@ -1470,6 +1485,7 @@
 
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
+    _rotating = YES;
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
@@ -1479,6 +1495,7 @@
 }
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
+    _rotating = YES;
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
@@ -1486,6 +1503,7 @@
 }
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
+    _rotating = NO;
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }
