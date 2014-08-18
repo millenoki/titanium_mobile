@@ -2174,11 +2174,6 @@ SEL GetterForKrollProperty(NSString * key)
 
 }
 
--(TiProxy *)parentForBubbling
-{
-	return parent;
-}
-
 #pragma mark Layout events, internal and external
 
 #define SET_AND_PERFORM(flagBit,action)	\
