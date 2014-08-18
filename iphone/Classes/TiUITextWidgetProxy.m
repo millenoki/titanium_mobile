@@ -113,8 +113,15 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 {
 	CGFloat result = 0;
     if (keyboardAccessoryProxy) {
-        UIView* theView = [keyboardAccessoryProxy getAndPrepareViewForOpening:[TiUtils appFrame]];
-        result = MAX(theView.bounds.size.height,40);
+        UIView* theView;
+        if (keyboardAccessoryProxy.view) {
+            [keyboardAccessoryProxy refreshView];
+            theView = keyboardAccessoryProxy.view;
+        }
+        else {
+            theView = [keyboardAccessoryProxy getAndPrepareViewForOpening:[TiUtils appFrame]];
+        }
+        result = theView.bounds.size.height;
     }
 	return result;
 }
