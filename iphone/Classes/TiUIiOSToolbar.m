@@ -122,10 +122,11 @@
 			{
                 if ([item respondsToSelector:@selector(proxy)])
                 {
-                    TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+                    TiViewProxy* p = [(TiViewProxy*)[item performSelector:@selector(proxy)] retain];
                     [p removeBarButtonView];
                     [p windowDidClose];
                     [self.proxy forgetProxy:p];
+                    [p release];
                 }
 			}
 		}
