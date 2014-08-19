@@ -49,7 +49,6 @@ DEFINE_EXCEPTIONS
 -(void)detachProxy
 {
     RELEASE_TO_NIL(proxy)
-//	proxy = nil;
 }
 
 -(UIBarButtonItemStyle)style:(TiUIButtonProxy*)proxy_
@@ -129,7 +128,7 @@ DEFINE_EXCEPTIONS
         }
     }
 	
-    proxy = [proxy_ retain]; // Don't retain
+    proxy = [proxy_ retain];
     proxy.modelDelegate = self;
     
     id<NSFastEnumeration> values = [proxy allKeys];
