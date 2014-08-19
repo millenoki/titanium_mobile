@@ -148,6 +148,11 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     }
 }
 
+- (TiViewProxy *)keyboardAccessoryProxy;
+{
+	return keyboardAccessoryProxy;
+}
+
 - (UIView *)keyboardAccessoryView;
 {
 	if(keyboardAccessoryProxy){

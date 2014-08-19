@@ -78,31 +78,40 @@
     [self setNeedsLayout];
 }
 
+-(void)didMoveToWindow {
+    [super didMoveToWindow];
+}
+
 -(BOOL)canBecomeFirstResponder
 {
-	return self.isEnabled;
+    UIWindow* superview = self.window;
+    UIView* superview2 = [superview superview];
+	return self.isEnabled && self.window;
 }
 
 -(BOOL)resignFirstResponder
 {
 	if (self.isFirstResponder) {
         [(TiUITextWidget*)touchHandler willResignFirstResponder];
-        if ([super resignFirstResponder])
-        {
-            if (becameResponder) {
-                becameResponder = NO;
-                [touchHandler makeRootViewFirstResponder];
-            }
-            return YES;
-        }
     }
+    if ([super resignFirstResponder])
+    {
+        if (becameResponder) {
+            becameResponder = NO;
+            [touchHandler makeRootViewFirstResponder];
+        }
+        return YES;
+    }
+
 	return NO;
 }
 
 -(BOOL)becomeFirstResponder
 {
     if (self.isEnabled && self.canBecomeFirstResponder) {
-        [(TiUITextWidget*)touchHandler willBecomeFirstResponder];
+        if (!self.isFirstResponder) {
+            [(TiUITextWidget*)touchHandler willBecomeFirstResponder];
+        }
         if ([super becomeFirstResponder])
         {
             becameResponder = YES;
@@ -111,9 +120,6 @@
     }
     return NO;
 }
-
-
-
 
 -(BOOL)isFirstResponder
 {

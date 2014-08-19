@@ -109,24 +109,27 @@
 
 -(BOOL)resignFirstResponder
 {
-    if (self.isFirstResponder) {
+	if (self.isFirstResponder) {
         [(TiUITextWidget*)touchHandler willResignFirstResponder];
-        if ([super resignFirstResponder])
-        {
-            if (becameResponder) {
-                becameResponder = NO;
-                [touchHandler makeRootViewFirstResponder];
-            }
-            return YES;
-        }
     }
+    if ([super resignFirstResponder])
+    {
+        if (becameResponder) {
+            becameResponder = NO;
+            [touchHandler makeRootViewFirstResponder];
+        }
+        return YES;
+    }
+    
 	return NO;
 }
 
 -(BOOL)becomeFirstResponder
 {
     if (self.isEditable && self.canBecomeFirstResponder) {
-        [(TiUITextWidget*)touchHandler willBecomeFirstResponder];
+        if (!self.isFirstResponder) {
+            [(TiUITextWidget*)touchHandler willBecomeFirstResponder];
+        }
         if ([super becomeFirstResponder])
         {
             becameResponder = YES;
@@ -162,10 +165,9 @@
 }
 
 - (void)updateKeyboardInsetWithScroll:(BOOL)shouldScroll animated:(BOOL)animated  {
-    CGRect keyboardRect = [[TiApp app] controller].currentKeyboardFrame;
+    CGRect keyboardRect = [[[TiApp app] controller] getKeyboardFrameInView:self];
     if (!CGRectIsEmpty(keyboardRect)) {
-        CGRect absRect = [[[TiApp app] controller] getAbsRect:self.bounds fromView:self];
-        CGFloat keyboardOriginY = keyboardRect.origin.y - absRect.origin.y;
+        CGFloat keyboardOriginY = keyboardRect.origin.y - self.bounds.origin.y;
         CGPoint offset = self.contentOffset;
         
         CGRect rectEnd = [self caretRectForPosition:self.endOfDocument];

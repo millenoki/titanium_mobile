@@ -774,8 +774,10 @@ SEL GetterForKrollProperty(NSString * key)
         return;
     }
     TiViewProxy* childViewProxy = (TiViewProxy*)child;
+    
     if ([NSThread isMainThread])
 	{
+        [childViewProxy windowDidOpen];
         if (readyToCreateView)
             [childViewProxy setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
 		

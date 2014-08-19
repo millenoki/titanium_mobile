@@ -419,16 +419,15 @@ static NSDictionary* replaceKeysForRow;
 - (void)updateKeyboardInset  {
     CGFloat height = self.bounds.size.height;
     if (!self.superview || height == 0) return;
-    CGRect keyboardRect = [[TiApp app] controller].currentKeyboardFrame;
+    CGRect keyboardRect = [[[TiApp app] controller] getKeyboardFrameInView:self];
     if (!CGRectIsEmpty(keyboardRect)) {
-        CGRect absRect = [self.superview convertRect:self.frame toView:nil];
-        CGFloat keyboardOriginY = keyboardRect.origin.y - absRect.origin.y;
+        CGFloat keyboardOriginY = keyboardRect.origin.y;
         CGPoint offset = _tableView.contentOffset;
         
         CGSize size = [_tableView contentSize];
         
-        UIEdgeInsets inset = _tableView.contentInset;
-        inset.bottom += height - keyboardOriginY;
+        UIEdgeInsets inset = [self.proxy valueForKey:@"contentInsets"]?[TiUtils contentInsets:[self.proxy valueForKey:@"contentInsets"]]:UIEdgeInsetsZero;
+        inset.bottom = MAX(inset.bottom, height - keyboardOriginY);
         _tableView.contentInset = inset;
     } else {
         if ([self.proxy valueForKey:@"contentInsets"]) {
@@ -446,8 +445,7 @@ static NSDictionary* replaceKeysForRow;
     _updateInsetWithKeyboard = [TiUtils boolValue:value def:NO];
     if (_updateInsetWithKeyboard) {
         NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
-        [nc addObserver:self selector:@selector(updateKeyboardInset) name:UIKeyboardWillHideNotification object:nil];
-        [nc addObserver:self selector:@selector(updateKeyboardInset) name:UIKeyboardWillShowNotification object:nil];
+        [nc addObserver:self selector:@selector(updateKeyboardInset) name:kTiKeyboardHeightChangedNotification object:nil];
     }
     else {
         [[NSNotificationCenter defaultCenter] removeObserver:self];

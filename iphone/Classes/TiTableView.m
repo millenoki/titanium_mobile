@@ -34,9 +34,13 @@
     }
     return self;
 }
+- (void)setContentOffset:(CGPoint)contentOffset
+{
+    [super setContentOffset:contentOffset];
+}
 
-//- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
-//{
+- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+{
 //    if (IOS_7) {
 //        //we have to delay it on ios7 :s
 //        double delayInSeconds = 0.01;
@@ -46,9 +50,9 @@
 //        });
 //    }
 //    else {
-//        [super setContentOffset:contentOffset animated:animated];
+        [super setContentOffset:contentOffset animated:animated];
 //    }
-//}
+}
 
 
 -(BOOL)shouldHighlightCurrentListItem {

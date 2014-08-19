@@ -82,7 +82,23 @@
 
 @implementation TiRootViewController
 {
+    //Keyboard stuff
     BOOL _rotating;
+    BOOL _rotationAnimationDuration;
+    BOOL _willShowKeyboard;
+    BOOL _willHideKeyboard;
+    BOOL keyboardVisible;	//If false, use enterCurve. If true, use leaveCurve.
+    
+    TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
+    TiViewProxy<TiKeyboardFocusableView> * keyboardFocusEnteringProxy;
+    TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedLeavingProxy;
+	
+    CGRect startFrame;		//Where the keyboard was before the handling
+    CGRect endFrame;		//Where the keyboard will be after the handling
+    UIViewAnimationCurve enterCurve;
+    CGFloat enterDuration;
+    UIViewAnimationCurve leaveCurve;
+    CGFloat leaveDuration;
 }
 
 @synthesize keyboardFocusedProxy = keyboardFocusedProxy;
@@ -394,7 +410,7 @@
 
 -(BOOL)keyboardVisible
 {
-    return keyboardVisible;
+    return (keyboardVisible && !_willHideKeyboard) || _willShowKeyboard;
 }
 
 - (void)keyboardWillHide:(NSNotification*)notification
@@ -403,18 +419,15 @@
 	leaveCurve = [[userInfo valueForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
 	leaveDuration = [[userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
 	[self extractKeyboardInfo:userInfo];
-	keyboardVisible = NO;
-	if(!updatingAccessoryView)
-	{
-		updatingAccessoryView = YES;
-		[self handleNewKeyboardStatus];
-	}
     
+    if (_willHideKeyboard) return;
+    _willHideKeyboard = YES;
+    
+	[self handleNewKeyboardStatus];
     if (_rotating) return;
     TiViewProxy* topWindow = [self topWindow];
     if ([topWindow _hasListeners:@"keyboard"]) {
-        UIView * ourView = [self viewForKeyboardAccessory];
-        CGRect endingFrame = [ourView convertRect:endFrame fromView:nil];
+        CGRect endingFrame = endFrame;
         NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                                [NSNumber numberWithInt:(keyboardVisible?leaveDuration:enterDuration)*1000], @"animationDuration",
                                [NSNumber numberWithBool:keyboardVisible], @"keyboardVisible",
@@ -430,19 +443,21 @@
 	enterCurve = [[userInfo valueForKey:UIKeyboardAnimationCurveUserInfoKey] intValue];
 	enterDuration = [[userInfo valueForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
 	[self extractKeyboardInfo:userInfo];
-	keyboardVisible = YES;
     
-	if(!updatingAccessoryView)
-	{
-		updatingAccessoryView = YES;
-		[self handleNewKeyboardStatus];
-	}
+    
+    if (_willShowKeyboard) return;
+    _willShowKeyboard = YES;
+    
+    if (_rotating) {
+        //if rotating then frames changed and so we need to recompute sizes
+        [self updateAccessoryViews];
+    }
+    [self handleNewKeyboardStatus];
     
     if (_rotating) return;
     TiViewProxy* topWindow = [self topWindow];
     if ([topWindow _hasListeners:@"keyboard"]) {
-        UIView * ourView = [self viewForKeyboardAccessory];
-        CGRect startingFrame = [ourView convertRect:startFrame fromView:nil];
+        CGRect startingFrame = startFrame;
         NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                                [NSNumber numberWithInt:(keyboardVisible?leaveDuration:enterDuration)*1000], @"animationDuration",
                                [NSNumber numberWithBool:keyboardVisible], @"keyboardVisible",
@@ -452,33 +467,52 @@
     }
 }
 
-- (void)adjustKeyboardHeight:(NSNumber*)_keyboardVisible
-{
-    if ( (updatingAccessoryView == NO) && ([TiUtils boolValue:_keyboardVisible] == keyboardVisible) ) {
-        updatingAccessoryView = YES;
-        [self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
-        if (!keyboardVisible && !accessoryView) {
-            RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
-        }
-    }
-}
-
 - (void)keyboardDidHide:(NSNotification*)notification
 {
-	startFrame = endFrame;
-    if (!keyboardVisible && !accessoryView) {
-        RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
-    }
+    keyboardVisible = NO;
+    _willHideKeyboard = NO;
+    RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedLeavingProxy)
+    RELEASE_TO_NIL_AUTORELEASE(keyboardFocusEnteringProxy)
+//	startFrame = endFrame;
 }
 
 - (void)keyboardDidShow:(NSNotification*)notification
 {
-	startFrame = endFrame;
+    keyboardVisible = YES;
+    _willShowKeyboard = NO;
+    if (keyboardFocusEnteringProxy) {
+        keyboardFocusedProxy = [keyboardFocusEnteringProxy retain];
+        RELEASE_TO_NIL_AUTORELEASE(keyboardFocusEnteringProxy)
+    }
+//	startFrame = endFrame;
 }
 
 -(UIView *)viewForKeyboardAccessory;
 {
-	return [[[[TiApp app] window] subviews] lastObject];
+    TiViewProxy* topWindow = [self topWindow];
+    return [[topWindow controller] view];
+}
+
+- (TiUIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView *)theAccessoryView
+{
+    TiUIView* result = nil;
+    //If the toolbar actually contains the view, then we have to give that precidence.
+	if ([visibleProxy viewInitialized])
+	{
+		result = [visibleProxy view];
+		UIView * ourView = result;
+        
+		while (ourView != nil)
+		{
+			if (ourView == theAccessoryView)
+			{
+				//We found a match!
+				return nil;
+			}
+			ourView = [ourView superview];
+		}
+	}
+	return result;
 }
 
 -(void)extractKeyboardInfo:(NSDictionary *)userInfo
@@ -487,13 +521,13 @@
     v = [userInfo valueForKey:UIKeyboardFrameEndUserInfoKey];
 	
     if (v != nil) {
-        endFrame = [v CGRectValue];
+        endFrame = [self getAbsRect:[v CGRectValue] fromView:nil];
     }
     
     v = [userInfo valueForKey:UIKeyboardFrameBeginUserInfoKey];
     
     if (v != nil) {
-        startFrame = [v CGRectValue];
+        startFrame = [self getAbsRect:[v CGRectValue] fromView:nil];
     }
 }
 
@@ -501,6 +535,7 @@
 {
 	CGRect viewFrame;
 	viewFrame.size = [targetView frame].size;
+	viewFrame.size.width = targetRect.size.width;
 	viewFrame.origin.x = targetRect.origin.x;
 	if(aboveTop)
 	{
@@ -513,39 +548,24 @@
 	[targetView setFrame:viewFrame];
 }
 
-- (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView
-{
-    //If the toolbar actually contains the view, then we have to give that precidence.
-	if ([visibleProxy viewInitialized])
-	{
-		UIView * ourView = [visibleProxy view];
-		*proxyView = ourView;
-        
-		while (ourView != nil)
-		{
-			if ((ourView == enteringAccessoryView) || (ourView == accessoryView) || (ourView == leavingAccessoryView))
-			{
-				//We found a match!
-				*proxyView = nil;
-				return ourView;
-			}
-			ourView = [ourView superview];
-		}
-	}
-	else
-	{
-		*proxyView = nil;
-	}
-	return [visibleProxy keyboardAccessoryView];
+
+-(CGRect)getKeyboardFrameInView:(UIView*)view {
+    CGRect frame = [self currentKeyboardFrame];
+    if (!CGRectIsEmpty(frame)) {
+        return [[self viewForKeyboardAccessory] convertRect:frame toView:view];
+    }
+    return frame;
 }
 
 -(CGRect)currentKeyboardFrame
 {
     CGRect result = CGRectZero;
-    if (keyboardVisible) {
-        result = [[self viewForKeyboardAccessory] convertRect:endFrame fromView:nil];
-        if (accessoryView) {
-            CGFloat height = accessoryView.bounds.size.height;
+    if ([self keyboardVisible]) {
+        result = endFrame;
+        //make sure we use the correct proxy as this method can be called in willShowKeyboard: from other classes
+        TiViewProxy<TiKeyboardFocusableView> *  theProxy = keyboardFocusEnteringProxy?keyboardFocusEnteringProxy:(keyboardFocusedLeavingProxy?keyboardFocusedLeavingProxy:keyboardFocusedProxy);
+        if (theProxy) {
+            CGFloat height = [[[theProxy keyboardAccessoryProxy] view] bounds].size.height;
             result.origin.y -= height;
             result.size.height += height;
         }
@@ -558,32 +578,95 @@
     return [[self viewForKeyboardAccessory] convertRect:rect fromView:view];
 }
 
+-(UIView*)getAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)proxy
+{
+    if (proxy) {
+        TiViewProxy* toolbarProxy = proxy.keyboardAccessoryProxy;
+        if (toolbarProxy) {
+            UIView* theView;
+            if (toolbarProxy.view) {
+                [toolbarProxy refreshView];
+                return toolbarProxy.view;
+            }
+            else {
+                return [toolbarProxy getAndPrepareViewForOpening:[TiUtils appFrame]];
+            }
+            
+        }
+        else {
+            return proxy.keyboardAccessoryView;
+        }
+    }
+    return nil;
+}
+
+-(void)prepareKeyboardToolbarProxy:(TiViewProxy<TiKeyboardFocusableView> *)proxy
+{
+    if (proxy) {
+        TiViewProxy* toolbarProxy = proxy.keyboardAccessoryProxy;
+        if (toolbarProxy) {
+            if (toolbarProxy.view) {
+                //what we want to be updated is only the height.
+                //make sure we dont change anything else
+                CGRect oldFrame = toolbarProxy.view.frame;
+                [toolbarProxy refreshView];
+                oldFrame.size.height = toolbarProxy.view.frame.size.height;
+                toolbarProxy.view.frame = oldFrame;
+            }
+            else {
+                [toolbarProxy getAndPrepareViewForOpening:[TiUtils appFrame]];
+            }
+        }
+    }
+}
+
+-(void)updateAccessoryViews {
+    [self prepareKeyboardToolbarProxy:keyboardFocusEnteringProxy];
+    [self prepareKeyboardToolbarProxy:keyboardFocusedLeavingProxy];
+    [self prepareKeyboardToolbarProxy:keyboardFocusedProxy];
+}
+
 -(void) handleNewKeyboardStatus
 {
-	UIView * ourView = [self viewForKeyboardAccessory];
-	CGRect endingFrame = [self getAbsRect:endFrame fromView:nil];
-    if (CGRectEqualToRect(endingFrame, CGRectZero) || CGRectEqualToRect(startFrame, CGRectZero)) {
-        updatingAccessoryView = NO;
-        return;
+    
+    TiViewProxy<TiKeyboardFocusableView>* theFocusedProxy = nil;
+    
+    
+    int state = 0; //nothing to do;
+    if (!_rotating) {
+        if (_willShowKeyboard)
+        {
+            state = 1; //entering;
+            theFocusedProxy = keyboardFocusEnteringProxy;
+        } else if (_willHideKeyboard) {
+            state = 2; //leaving;
+            theFocusedProxy = keyboardFocusedLeavingProxy;
+        } else if (keyboardVisible && keyboardFocusedLeavingProxy && keyboardFocusEnteringProxy) {
+            state = 3; //changing proxy, mostly seen as entering except for the animation
+            theFocusedProxy = keyboardFocusEnteringProxy;
+        }
     }
+    else if (_willShowKeyboard){
+        state = 4; //rotating;
+        theFocusedProxy = keyboardFocusedProxy;
+    }
+    if (state == 0) return;
     
-	//Sanity check. Look at our focused proxy, and see if we mismarked it as leaving.
-	TiUIView * scrolledView;	//We check at the update anyways.
+    UIView* theAccessoryView = theFocusedProxy.keyboardAccessoryProxy.view;
+	TiUIView * scrolledView = [self keyboardAccessoryViewForProxy:theFocusedProxy withView:theAccessoryView];
     
-    //change the height while keeping the old frame. Remember that the proxy has no parent!
-	UIView * focusedToolbar = [self keyboardAccessoryViewForProxy:keyboardFocusedProxy withView:&scrolledView];
-    CGRect focusedToolbarFrame = focusedToolbar.frame;
-    focusedToolbarFrame.size.height = [keyboardFocusedProxy keyboardAccessoryHeight];
-	[focusedToolbar setFrame:focusedToolbarFrame];
-    
-    CGFloat keyboardHeight = endingFrame.origin.y;
-    if(focusedToolbar != nil && leavingAccessoryView && focusedToolbar != leavingAccessoryView){
+    CGRect focusedToolbarFrame = theAccessoryView.frame;
+    CGFloat keyboardHeight = endFrame.origin.y;
+    if(state != 2){
         keyboardHeight -= focusedToolbarFrame.size.height;
     }
     
     TiViewProxy* topWindow = [self topWindow];
     if ([topWindow valueForKey:@"keyboardOffset"]) {
         keyboardHeight -= [TiUtils floatValue:[topWindow valueForKey:@"keyboardOffset"] def:0.0f];
+    }
+    if(state != 2){
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiKeyboardHeightChangedNotification object:@{@"keyboardHeight":@(keyboardHeight)}];
     }
     
 	if ((scrolledView != nil) && (keyboardHeight > 0))	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
@@ -606,165 +689,113 @@
 		
 	}
     
-	//This is if the keyboard is hiding or showing due to hardware.
-    //or rotating (we ignore the keyboard hide event during rotation
-	if (!(_rotating && !keyboardVisible) && (accessoryView != nil) && !CGRectEqualToRect(targetedFrame, endingFrame))
-	{
-		targetedFrame = endingFrame;
-		if([accessoryView superview] != ourView)
-		{
-			targetedFrame = [ourView convertRect:endingFrame toView:[accessoryView superview]];
-		}
-        if (_rotating) {
-            [self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:keyboardVisible];
-        }
-        else {
-            [UIView beginAnimations:@"update" context:accessoryView];
-            if (keyboardVisible)
+    
+    
+    switch (state) {
+        case 1: //entering
+        {
+            //first make sure the accessoryView has the right parent
+            if([theAccessoryView superview] != [self viewForKeyboardAccessory])
             {
-                [UIView setAnimationDuration:enterDuration];
-                [UIView setAnimationCurve:enterCurve];
+                [[self viewForKeyboardAccessory] addSubview:theAccessoryView];
             }
-            else
-            {
-                [UIView setAnimationDuration:leaveDuration];
-                [UIView setAnimationCurve:leaveCurve];
-            }
-            
+            [self placeView:theAccessoryView nearTopOfRect:startFrame aboveTop:NO];
+            [UIView beginAnimations:@"enter" context:theAccessoryView];
+            [UIView setAnimationDuration:enterDuration];
+            [UIView setAnimationCurve:enterCurve];
             [UIView setAnimationDelegate:self];
-            [self placeView:accessoryView nearTopOfRect:targetedFrame aboveTop:keyboardVisible];
+            [self placeView:theAccessoryView nearTopOfRect:endFrame aboveTop:YES];
             [UIView commitAnimations];
+            break;
         }
-	}
-    
-    
-    
-	if (enteringAccessoryView != nil)
-	{
-		//Start animation to put it into place.
-		if([enteringAccessoryView superview] != ourView)
-		{
-			[[self viewForKeyboardAccessory] addSubview:enteringAccessoryView];
-		}
-        [self placeView:enteringAccessoryView nearTopOfRect:[self getAbsRect:startFrame fromView:nil] aboveTop:!keyboardVisible];
-		targetedFrame = endingFrame;
-		[UIView beginAnimations:@"enter" context:enteringAccessoryView];
-		[UIView setAnimationDuration:enterDuration];
-		[UIView setAnimationCurve:enterCurve];
-		[UIView setAnimationDelegate:self];
-		[self placeView:enteringAccessoryView nearTopOfRect:endingFrame aboveTop:keyboardVisible];
-		[UIView commitAnimations];
-		accessoryView = enteringAccessoryView;
-		enteringAccessoryView = nil;
-	}
-    
-	if (leavingAccessoryView != nil)
-	{
-        [self placeView:leavingAccessoryView nearTopOfRect:[self getAbsRect:startFrame fromView:nil] aboveTop:!keyboardVisible];
-        NSArray* array = leavingAccessoryView.layer.animationKeys;
-		[UIView beginAnimations:@"exit" context:leavingAccessoryView];
-		[UIView setAnimationDuration:leaveDuration];
-		[UIView setAnimationCurve:leaveCurve];
-		[UIView setAnimationDelegate:self];
-		[self placeView:leavingAccessoryView nearTopOfRect:endingFrame aboveTop:keyboardVisible];
-		[UIView commitAnimations];
-	}
-	updatingAccessoryView = NO;
+        case 2: //leaving
+        {
+//            [self placeView:theAccessoryView nearTopOfRect:startFrame aboveTop:YES];
+            [UIView beginAnimations:@"enter" context:theAccessoryView];
+            [UIView setAnimationDuration:leaveDuration];
+            [UIView setAnimationCurve:leaveCurve];
+            [UIView setAnimationDelegate:self];
+            [self placeView:theAccessoryView nearTopOfRect:endFrame aboveTop:NO];
+            [UIView commitAnimations];
+            break;
+        }
+        case 3: //changin proxy
+        {
+            //first make sure the accessoryView has the right parent
+            if([theAccessoryView superview] != [self viewForKeyboardAccessory])
+            {
+                [[self viewForKeyboardAccessory] addSubview:theAccessoryView];
+            }
+            UIView* theLeavingAccessoryView = keyboardFocusedLeavingProxy.keyboardAccessoryProxy.view;
+            //in that case we first position just under the keyboard at the right top
+            [self placeView:theAccessoryView nearTopOfRect:endFrame aboveTop:NO];
+            [UIView beginAnimations:@"changing" context:theLeavingAccessoryView];
+            [UIView setAnimationDuration:enterDuration];
+            [UIView setAnimationCurve:enterCurve];
+            [UIView setAnimationDelegate:self];
+            [self placeView:theAccessoryView nearTopOfRect:endFrame aboveTop:YES];
+            [self placeView:theLeavingAccessoryView nearTopOfRect:endFrame aboveTop:NO];
+            [UIView commitAnimations];
+            break;
+        }
+        case 4: //rotating
+        {
+            [UIView beginAnimations:@"rotation" context:theAccessoryView];
+            [UIView setAnimationDuration:_rotationAnimationDuration];
+            [self updateAccessoryViews];
+            [self placeView:theAccessoryView nearTopOfRect:endFrame aboveTop:YES];
+            [UIView commitAnimations];
+            break;
+        }
+        default:
+            break;
+    }
 }
 
--(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy
+-(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)proxy
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ
     
-	if ( (visibleProxy == keyboardFocusedProxy) && (leavingAccessoryView == nil) )
+	if (proxy == keyboardFocusEnteringProxy)
+	{
+		DeveloperLog(@"[WARN] Focused for %@<%X>, despite it already being the focus.",keyboardToolbarEnteringProxy,keyboardToolbarEnteringProxy);
+		return;
+	}
+    if (proxy == keyboardFocusedProxy)
 	{
 		DeveloperLog(@"[WARN] Focused for %@<%X>, despite it already being the focus.",keyboardFocusedProxy,keyboardFocusedProxy);
 		return;
 	}
-	if (nil != keyboardFocusedProxy)
-	{
-		DeveloperLog(@"[WARN] Focused for %@<%X>, despite %@<%X> already being the focus.",visibleProxy,visibleProxy,keyboardFocusedProxy,keyboardFocusedProxy);
-		[self didKeyboardBlurOnProxy:keyboardFocusedProxy];
-		RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
-	}
 	
-	keyboardFocusedProxy = [visibleProxy retain];
-	
-	TiUIView * unused;	//We check at the update anyways.
-	UIView * newView = [self keyboardAccessoryViewForProxy:visibleProxy withView:&unused];
-    
-	if (newView && (newView == enteringAccessoryView || newView == accessoryView))
-	{
-		//We're already up or soon will be.
-		//Note that this is valid where newView can be accessoryView despite a new visibleProxy.
-		//Specifically, if one proxy's view is a subview of another's toolbar.
-	}
-	else
-	{
-		if(enteringAccessoryView != nil)
-		{
-			DebugLog(@"[WARN] Moving in view %@, despite %@ already in line to move in.",newView,enteringAccessoryView);
-			[enteringAccessoryView release];
-            enteringAccessoryView = nil;
-		}
-		
-		if (newView == leavingAccessoryView)
-		{
-			//Hold on, you're not leaving YET! We don't need to release you since we're going to retain right afterwards.
-			enteringAccessoryView = newView;
-			leavingAccessoryView = nil;
-		}
-		else
-		{
-			enteringAccessoryView = [newView retain];
-		}
-	}
-	
-	if(keyboardVisible && !updatingAccessoryView)
-	{
-		updatingAccessoryView = YES;
-		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
-	}
+	keyboardFocusEnteringProxy = [proxy retain];
+    [self updateAccessoryViews];
+    [self handleNewKeyboardStatus];
 }
 
--(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy
+-(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)proxy
 {
+    if (!proxy) return;
 	WARN_IF_BACKGROUND_THREAD_OBJ
-	if (blurredProxy != keyboardFocusedProxy)
+    
+	if (proxy == keyboardFocusedLeavingProxy)
 	{
-		DeveloperLog(@"[WARN] Blurred for %@<%X>, despite %@<%X> being the focus.",blurredProxy,blurredProxy,keyboardFocusedProxy,keyboardFocusedProxy);
+		DeveloperLog(@"[WARN] Blurred for %@<%X>, despite it already being blurred.",keyboardToolbarLeavingProxy,keyboardToolbarLeavingProxy);
 		return;
 	}
-		
-	TiUIView * scrolledView;	//We check at the update anyways.
-	UIView * doomedView = [self keyboardAccessoryViewForProxy:blurredProxy withView:&scrolledView];
-    
-	if(doomedView != accessoryView)
+	if (keyboardFocusedLeavingProxy)
 	{
-		DeveloperLog(@"[WARN] Trying to blur out %@, but %@ is the one with focus.",doomedView,accessoryView);
-		return;
-	}
-    
-	if((doomedView == nil) || (leavingAccessoryView == doomedView)){
-		//Nothing to worry about. No toolbar or it's on its way out.
-		return;
+		DeveloperLog(@"[WARN] Blurred for %@<%X>, despite %@<%X> already being blurred.",proxy,proxy,keyboardToolbarLeavingProxy,keyboardFocusedProxy);
+        [[keyboardFocusedLeavingProxy view] removeFromSuperview];
+		RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedLeavingProxy);
 	}
 	
-	if(leavingAccessoryView != nil)
-	{
-		DeveloperLog(@"[WARN] Trying to blur out %@, but %@ is already leaving focus.",accessoryView,leavingAccessoryView);
-        [leavingAccessoryView removeFromSuperview];
-		RELEASE_TO_NIL_AUTORELEASE(leavingAccessoryView);
-	}
+	keyboardFocusedLeavingProxy = [proxy retain];
+    if (keyboardFocusedProxy == keyboardFocusedLeavingProxy) {
+		RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedProxy);
+    }
     
-	leavingAccessoryView = accessoryView;
-	accessoryView = nil;
-    
-	if(!keyboardVisible && !updatingAccessoryView)
-	{
-		updatingAccessoryView = YES;
-		[self performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
-	}
+    [self updateAccessoryViews];
+    [self handleNewKeyboardStatus];
 }
 
 -(void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
@@ -772,10 +803,17 @@
 	if(![finished boolValue]){
 		return;
 	}
-	if(context == leavingAccessoryView){
-		[leavingAccessoryView removeFromSuperview];
-		RELEASE_TO_NIL(leavingAccessoryView);
-	}
+    if ([animationID isEqualToString:@"changing"]) {
+        UIView* view = (UIView*)context;
+        [view removeFromSuperview];
+        keyboardFocusedProxy = [keyboardFocusEnteringProxy retain];
+        RELEASE_TO_NIL_AUTORELEASE(keyboardFocusEnteringProxy)
+        RELEASE_TO_NIL_AUTORELEASE(keyboardFocusedLeavingProxy)
+    }
+    if ([animationID isEqualToString:@"leaving"]) {
+        UIView* view = (UIView*)context;
+        [view removeFromSuperview];
+    }
 }
 
 -(UIView *)topWindowProxyView
@@ -1488,6 +1526,7 @@
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     _rotating = YES;
+    _rotationAnimationDuration = duration;
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
@@ -1506,6 +1545,7 @@
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
     _rotating = NO;
+    _rotationAnimationDuration = 0;
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }

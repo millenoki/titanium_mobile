@@ -135,6 +135,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     UIWindow  *currentKeyWindow_ = [[UIApplication sharedApplication] keyWindow];
     return [[currentKeyWindow_ subviews] lastObject];
 }
+
+-(UIView *)viewForKeyboardAccessory
+{
+    return  [controller viewForKeyboardAccessory];
+}
+
 -(void)attachXHRBridgeIfRequired
 {
 #ifdef USE_TI_UIWEBVIEW
