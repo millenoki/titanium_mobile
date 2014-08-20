@@ -212,14 +212,14 @@ DEFINE_EXCEPTIONS
 -(void)setShadowColor_:(id)color
 {
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[self titleTextAttributesForState:UIControlStateNormal]];
+    color = [[TiUtils colorValue:color] _color];
 	if (color==nil)
 	{
-        [dict setObject:nil forKey:UITextAttributeTextShadowColor];
+        [dict removeObjectForKey:UITextAttributeTextShadowColor];
 	}
 	else
 	{
-        color = [TiUtils colorValue:color];
-        [dict setObject:(color!=nil)?[color _color]:nil forKey:UITextAttributeTextShadowColor];
+        [dict setObject:color forKey:UITextAttributeTextShadowColor];
 	}
     [super setTitleTextAttributes:dict forState:UIControlStateNormal];
 }
