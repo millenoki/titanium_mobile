@@ -708,7 +708,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 			[pageKrollObject protectJsobject];
 			return;
 		}
+        [pageKrollObject retain];
 		[pageKrollObject noteKeylessKrollObject:[rememberedProxy krollObjectForBridge:(KrollBridge*)pageContext]];
+        [pageKrollObject release];
 		return;
 	}
 	if (bridgeCount < 1)
