@@ -224,7 +224,13 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
                     NSString *newKeyPath = [NSString stringWithFormat:@"%@.%@", keyPath, key];
                     if ([self shouldUpdateValue:value2 forKeyPath:newKeyPath]) {
                         [self recordChangeValue:value2 forKeyPath:newKeyPath withBlock:^{
-                            [bindObject setValue:value2 forKey:key];
+                            id obj = [bindObject valueForUndefinedKey:key];
+                            if ([obj isKindOfClass:[TiProxy class]] && [value2 isKindOfClass:[NSDictionary class]]) {
+                                [obj setValuesForKeysWithDictionary:value2];
+                            }
+                            else {
+                                [bindObject setValue:value2 forKey:key];
+                            }
                         }];
                     }
                 }
