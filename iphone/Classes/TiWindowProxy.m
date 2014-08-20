@@ -127,7 +127,6 @@
         opening = YES;
     }
     [super windowWillOpen];
-//    [self viewWillAppear:false];
     if (tab == nil && (self.isManaged == NO) && controller == nil) {
         [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
     }
@@ -137,12 +136,6 @@
 {
     opening = NO;
     opened = YES;
-//    if (!readyToBeLayout)
-//    {
-//        [self viewWillAppear:false];
-//        [self viewDidAppear:false];
-//    }
-//    [self viewDidAppear:false];
     [self fireEvent:@"open" propagate:NO];
     if (focussed && [self handleFocusEvents]) {
         [self fireEvent:@"focus" propagate:NO];
