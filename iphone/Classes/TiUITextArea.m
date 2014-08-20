@@ -109,9 +109,6 @@
 
 -(BOOL)resignFirstResponder
 {
-	if (self.isFirstResponder) {
-        [(TiUITextWidget*)touchHandler willResignFirstResponder];
-    }
     if ([super resignFirstResponder])
     {
         if (becameResponder) {
@@ -127,9 +124,6 @@
 -(BOOL)becomeFirstResponder
 {
     if (self.isEditable && self.canBecomeFirstResponder) {
-        if (!self.isFirstResponder) {
-            [(TiUITextWidget*)touchHandler willBecomeFirstResponder];
-        }
         if ([super becomeFirstResponder])
         {
             becameResponder = YES;

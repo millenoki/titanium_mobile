@@ -16,6 +16,10 @@
 #import "TiUIiOSAttributedStringProxy.h"
 #endif
 
+@interface TiUITextWidgetProxy()
+- (TiViewProxy *)keyboardAccessoryProxy;
+@end
+
 
 @implementation TiUITextWidget
 
@@ -157,14 +161,6 @@
 	return [[self textWidgetView] resignFirstResponder];
 }
 
--(BOOL)willBecomeFirstResponder {
-    [[TiApp controller] didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)[self proxy]];
-}
-
--(BOOL)willResignFirstResponder {
-	[[TiApp controller] didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)[self proxy]];
-}
-
 -(BOOL)becomeFirstResponder
 {
 	return [[self textWidgetView] becomeFirstResponder];
@@ -188,6 +184,11 @@
 -(void)setAutocapitalization_:(id)value
 {
 	[[self textWidgetView] setAutocapitalizationType:[TiUtils intValue:value]];
+}
+
+-(void)setKeyboardToolbar_:(id)value
+{
+    ((UITextView*)[self textWidgetView]).inputAccessoryView = [[(TiUITextWidgetProxy*)self.proxy keyboardAccessoryProxy] getAndPrepareViewForOpening:[TiUtils appFrame]];
 }
 
 #pragma mark Keyboard Delegates

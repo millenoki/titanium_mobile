@@ -98,7 +98,9 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 		[self contentsWillChange];
         if ([self _hasListeners:@"change" checkParent:NO])
         {
-            [self fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO checkForListener:NO];
+            [self fireEvent:@"change" withObject:@{
+                                                   @"value"::newValue?newValue:@""
+                                                   } propagate:NO checkForListener:NO];
         }
         TiThreadPerformOnMainThread(^{
             //Make sure the text widget is in view when editing.
@@ -138,6 +140,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
     }
     if (vp) {
         [vp setParentForBubbling:(TiParentingProxy*)self];
+        vp.canBeResizedByFrame = YES;
         LayoutConstraint* constraint = [vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->width))
         {
@@ -146,6 +149,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 		keyboardAccessoryProxy = [vp retain];
         
     }
+    [self replaceValue:value forKey:@"keyboardToolbar" notification:YES];
 }
 
 - (TiViewProxy *)keyboardAccessoryProxy;

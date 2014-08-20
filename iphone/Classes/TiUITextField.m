@@ -77,23 +77,13 @@
     _padding = value;
     [self setNeedsLayout];
 }
-
--(void)didMoveToWindow {
-    [super didMoveToWindow];
-}
-
 -(BOOL)canBecomeFirstResponder
 {
-    UIWindow* superview = self.window;
-    UIView* superview2 = [superview superview];
-	return self.isEnabled && self.window;
+	return self.isEnabled;
 }
 
 -(BOOL)resignFirstResponder
 {
-	if (self.isFirstResponder) {
-        [(TiUITextWidget*)touchHandler willResignFirstResponder];
-    }
     if ([super resignFirstResponder])
     {
         if (becameResponder) {
@@ -109,9 +99,6 @@
 -(BOOL)becomeFirstResponder
 {
     if (self.isEnabled && self.canBecomeFirstResponder) {
-        if (!self.isFirstResponder) {
-            [(TiUITextWidget*)touchHandler willBecomeFirstResponder];
-        }
         if ([super becomeFirstResponder])
         {
             becameResponder = YES;

@@ -108,8 +108,6 @@
 //Keyboard stuff
 -(BOOL)keyboardVisible;
 -(void)dismissKeyboard;
--(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
--(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
 
 //ViewController stuff
 -(TiOrientationFlags)getDefaultOrientations;
