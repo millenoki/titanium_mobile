@@ -76,7 +76,7 @@
 
 -(TiOrientationFlags) orientationFlags
 {
-    for (id thisController in [[navController viewControllers] reverseObjectEnumerator])
+    for (id thisController in [[[self controller] viewControllers] reverseObjectEnumerator])
     {
         if (![thisController isKindOfClass:[TiViewController class]])
         {
