@@ -99,7 +99,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
         if ([self _hasListeners:@"change" checkParent:NO])
         {
             [self fireEvent:@"change" withObject:@{
-                                                   @"value"::newValue?newValue:@""
+                                                   @"value":newValue?newValue:@""
                                                    } propagate:NO checkForListener:NO];
         }
         TiThreadPerformOnMainThread(^{
