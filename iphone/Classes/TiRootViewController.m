@@ -505,6 +505,12 @@
         UIView* accessory = self.keyboardActiveInput.inputAccessoryView;
         if ([accessory isKindOfClass:[TiUIView class]]) {
             [[((TiUIView*)accessory) viewProxy] refreshView];
+            //for now make sure we are origin (0,0)
+            //x wont matter as it will be set to 0
+            //but y needs to be set as it is seen as an y decale
+            CGRect frame = accessory.frame;
+            frame.origin.y = 0;
+            accessory.frame = frame;
         }
     }
     [self handleNewNewKeyboardStatus];
