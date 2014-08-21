@@ -52,6 +52,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
     BOOL configurationSet;
     NSMutableArray* childViews;
     UIControlState viewState;
+	BOOL _tintColorImage;
 @private
 	TiProxy *proxy;
 		

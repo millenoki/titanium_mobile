@@ -347,6 +347,7 @@ DEFINE_EXCEPTIONS
     _propagateParentEnabled = YES;
     _setEnabledFromParent = YES;
     _nonRetina = NO;
+    _tintColorImage = NO;
 }
 
 
@@ -1557,6 +1558,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(id)clipChildren_
 {
     return @([self clipChildren]);
+}
+
+-(void)setTintColorImage_:(id)arg
+{
+    _tintColorImage = [TiUtils boolValue:arg def:NO];
 }
 
 

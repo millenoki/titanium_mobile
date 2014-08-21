@@ -106,6 +106,7 @@ DEFINE_EXCEPTIONS
 	RELEASE_TO_NIL(imageView);
 	RELEASE_TO_NIL(_svg);
 	RELEASE_TO_NIL(_transition);
+    RELEASE_TO_NIL(_currentImageSource)
     RELEASE_TO_NIL(_defaultImageUrl)
     if (_animatedImage) {
         _animatedImage.delegate = nil;
@@ -448,6 +449,9 @@ DEFINE_EXCEPTIONS
     CGFloat realHeight = imageToUse.size.height * factor;
     autoWidth = realWidth;
     autoHeight = realHeight;
+    if (_tintColorImage && [TiUtils isIOS7OrGreater]) {
+        imageToUse = [imageToUse imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    }
     return imageToUse;
 }
 
@@ -821,7 +825,9 @@ DEFINE_EXCEPTIONS
 {
     if (!configurationSet)return;
     if (_currentImageSource && [_currentImageSource isEqual:arg] && _currentImage) return;
-    _currentImageSource = arg;
+    
+    RELEASE_TO_NIL(_currentImageSource)
+    _currentImageSource = [arg retain];
     
 	[self removeAllImagesFromContainer];
 	[self cancelPendingImageLoads];
