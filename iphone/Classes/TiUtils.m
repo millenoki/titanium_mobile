@@ -75,18 +75,28 @@ static NSString* kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 +(int) dpi
 {
-    if ([TiUtils isIPad]) {
-        if ([TiUtils isRetinaDisplay]) {
-            return 260;
+    static int dpi;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        if ([TiUtils isIPad]) {
+            if ([TiUtils isRetinaDisplay]) {
+                dpi = 260;
+            }
+            else {
+                dpi = 130;
+            }
         }
-        return 130;
-    }
-    else {    
-        if ([TiUtils isRetinaDisplay]) {
-            return 320;
+        else {
+            if ([TiUtils isRetinaDisplay]) {
+                dpi = 320;
+            }
+            else {
+                dpi = 160;
+            }
         }
-        return 160;
-    }    
+    });
+    
+    return dpi;
 }
 
 +(BOOL)isRetinaFourInch
@@ -126,40 +136,66 @@ static NSString* kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
 +(BOOL)isIOS4_2OrGreater
 {
-	return [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
+    static BOOL isIOS4_2OrGreater;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        isIOS4_2OrGreater = [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
+    });
+    
+    return isIOS4_2OrGreater;
 }
 
 +(BOOL)isIOS5OrGreater
 {
-  return [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
+    static BOOL isIOS5OrGreater;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        isIOS5OrGreater = [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
+    });
+    
+    return isIOS5OrGreater;
 }
 
 +(BOOL)isIOS6OrGreater
 {
-    return [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
+    static BOOL isIOS6OrGreater;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        isIOS6OrGreater = [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
+    });
+    
+    return isIOS6OrGreater;
 }
 
 +(BOOL)isIOS7OrGreater
 {
-    return [UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)];
+    static BOOL isIOS7OrGreater;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        isIOS7OrGreater = [UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)];
+    });
+
+    return isIOS7OrGreater;
 }
 
 +(BOOL)isIPad
 {
-	return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
+    static BOOL isIPad;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        isIPad = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
+    });
+    
+    return isIPad;
 }
 
 +(BOOL)isIPhone4
 {
-	static bool iphone_checked = NO;
-	static bool iphone4 = NO;
-	if (iphone_checked==NO)
-	{
-		iphone_checked = YES;
-		// for now, this is all we know. we assume this
-		// will continue to increase with new models but
-		// for now we can't really assume
-		if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+    static BOOL iphone4;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        iphone4 = NO;
+        if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 		{
 			struct utsname u;
 			uname(&u);
@@ -168,7 +204,8 @@ static NSString* kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 				iphone4 = YES;
 			}
 		}
-	}
+    });
+    
 	return iphone4;
 }
 
