@@ -6,12 +6,12 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import "TiViewProxy.h"
+#import "TiScrollingViewProxy.h"
 #import "TiUIListSectionProxy.h"
 
 @class TiTableView;
 @class TiUIListItemProxy;
-@interface TiUIListViewProxy : TiViewProxy < TiUIListViewDelegate >
+@interface TiUIListViewProxy : TiScrollingViewProxy < TiUIListViewDelegate >
 
 @property (nonatomic, readonly) NSArray *sections;
 @property (nonatomic, readonly) NSNumber *sectionCount;

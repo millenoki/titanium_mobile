@@ -573,35 +573,26 @@
     return [[self viewForKeyboardAccessory] convertRect:rect fromView:view];
 }
 
--(void) handleNewNewKeyboardStatus
+-(CGFloat)keyboardHeight
 {
-	TiUIView * scrolledView = [self keyboardAccessoryView];
-    
     CGFloat keyboardHeight = endFrame.origin.y;
     TiViewProxy* topWindow = [self topWindow];
     if ([topWindow valueForKey:@"keyboardOffset"]) {
         keyboardHeight -= [TiUtils floatValue:[topWindow valueForKey:@"keyboardOffset"] def:0.0f];
     }
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiKeyboardHeightChangedNotification object:@{@"keyboardHeight":@(keyboardHeight)}];
-    
-	if ((scrolledView != nil) && (keyboardHeight > 0))	//If this isn't IN the toolbar, then we update the scrollviews to compensate.
-	{
-		UIView * possibleScrollView = [scrolledView superview];
-		UIView<TiScrolling> *confirmedScrollView = nil;
-		
-		while (possibleScrollView != nil)
-		{
-			if ([possibleScrollView conformsToProtocol:@protocol(TiScrolling)])
-			{
-				confirmedScrollView = (UIView<TiScrolling>*)possibleScrollView;
-			}
-			possibleScrollView = [possibleScrollView superview];
-		}
-        
-        
-        [confirmedScrollView keyboardDidShowAtHeight:keyboardHeight];
-        [confirmedScrollView scrollToShowView:scrolledView withKeyboardHeight:keyboardHeight];
-	}
+    return keyboardHeight;
+}
+
+-(void) handleNewNewKeyboardStatus
+{
+    NSMutableDictionary* data = [NSMutableDictionary dictionaryWithObject:@([self keyboardHeight]) forKey:@"keyboardHeight"];
+    if (self.keyboardActiveInput) {
+        [data setObject:self.keyboardActiveInput forKey:@"inputView"];
+        if (self.keyboardActiveInput.inputAccessoryView) {
+            [data setObject:self.keyboardActiveInput.inputAccessoryView forKey:@"accessoryView"];
+        }
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiKeyboardHeightChangedNotification object:data];
 }
 
 

@@ -10,11 +10,11 @@
 #define USE_TI_UISEARCHBAR
 #endif
 
-#include "TiViewProxy.h"
+#include "TiScrollingViewProxy.h"
 
 @class TiUITableViewRowProxy;
 @class TiUITableViewSectionProxy;
-@interface TiUITableViewProxy : TiViewProxy
+@interface TiUITableViewProxy : TiScrollingViewProxy
 {
 	NSMutableArray *sections;
     id dataToSetOnCreation;

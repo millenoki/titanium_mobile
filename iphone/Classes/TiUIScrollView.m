@@ -468,7 +468,7 @@
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-//	InsetScrollViewForKeyboard(scrollView,keyboardTop,minimumContentHeight);
+	InsetScrollViewForKeyboard(scrollView,keyboardTop,minimumContentHeight);
 }
 
 -(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop

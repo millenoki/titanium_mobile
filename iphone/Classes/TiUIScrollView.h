@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UISCROLLVIEW
 
-#import "TiUIView.h"
+#import "TiScrollingView.h"
 
 @interface TiUIScrollViewImpl : UIScrollView {
 @private
@@ -21,7 +21,7 @@
 -(void)setTouchHandler:(TiUIView*)handler;
 @end
 
-@interface TiUIScrollView : TiUIView<TiScrolling,UIScrollViewDelegate> {
+@interface TiUIScrollView : TiScrollingView<TiScrolling,UIScrollViewDelegate> {
 
 @private
 	TiUIScrollViewImpl * scrollView;

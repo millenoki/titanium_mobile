@@ -6,10 +6,10 @@
  */
 #ifdef USE_TI_UILISTVIEW
 
-#import "TiUIView.h"
+#import "TiScrollingView.h"
 #import "TiUIListViewProxy.h"
 @class TiTableView;
-@interface TiUIListView : TiUIView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver >
+@interface TiUIListView : TiScrollingView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver >
 {
     BOOL allowsSelection;
 }

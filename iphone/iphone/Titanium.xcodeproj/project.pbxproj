@@ -927,6 +927,12 @@
 		D5E999121869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
 		D5E999131869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
 		D5E999141869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
+		D5F9620319A638CC000E464F /* TiScrollingViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */; };
+		D5F9620419A638CC000E464F /* TiScrollingViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */; };
+		D5F9620519A638CC000E464F /* TiScrollingViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */; };
+		D5F9620E19A63941000E464F /* TiScrollingView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620D19A63941000E464F /* TiScrollingView.m */; };
+		D5F9620F19A63941000E464F /* TiScrollingView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620D19A63941000E464F /* TiScrollingView.m */; };
+		D5F9621019A63941000E464F /* TiScrollingView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620D19A63941000E464F /* TiScrollingView.m */; };
 		D5FD09DC1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
 		D5FD09DD1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
 		D5FD09DE1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
@@ -2327,6 +2333,10 @@
 		D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.shapes.xcodeproj; path = ../../../modules/akylas_modules/shapes/ios/akylas.shapes.xcodeproj; sourceTree = "<group>"; };
 		D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.slidemenu.xcodeproj; path = ../../../modules/akylas_modules/slidemenu/ios/akylas.slidemenu.xcodeproj; sourceTree = "<group>"; };
 		D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.commonjs.xcodeproj; path = ../../../modules/akylas_modules/commonjs/ios/akylas.commonjs.xcodeproj; sourceTree = "<group>"; };
+		D5F9620119A638CC000E464F /* TiScrollingViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiScrollingViewProxy.h; sourceTree = "<group>"; };
+		D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiScrollingViewProxy.m; sourceTree = "<group>"; };
+		D5F9620C19A63941000E464F /* TiScrollingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiScrollingView.h; sourceTree = "<group>"; };
+		D5F9620D19A63941000E464F /* TiScrollingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiScrollingView.m; sourceTree = "<group>"; };
 		D5FD09DA1830EFE2000FF4C5 /* TiAnimatedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAnimatedImage.h; sourceTree = "<group>"; };
 		D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAnimatedImage.m; sourceTree = "<group>"; };
 		D930111C16DA9D61002E25C2 /* TiCalendarRecurrenceRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarRecurrenceRule.h; sourceTree = "<group>"; };
@@ -2927,6 +2937,10 @@
 				D50A302F18B0F6C1004CBD52 /* TouchCapturingWindow.m */,
 				D5E9511A195DC34800DB8B37 /* TiProperties.h */,
 				D5E9511B195DC34800DB8B37 /* TiProperties.m */,
+				D5F9620119A638CC000E464F /* TiScrollingViewProxy.h */,
+				D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */,
+				D5F9620C19A63941000E464F /* TiScrollingView.h */,
+				D5F9620D19A63941000E464F /* TiScrollingView.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -4810,6 +4824,8 @@
 				24CA8B8D111161FE0084E2DE /* TiUISwitch.m in Sources */,
 				24CA8B8E111161FE0084E2DE /* TiUIiPhoneStatusBarProxy.m in Sources */,
 				24CA8B8F111161FE0084E2DE /* TiUISliderProxy.m in Sources */,
+				D5F9620319A638CC000E464F /* TiScrollingViewProxy.m in Sources */,
+				D5F9620E19A63941000E464F /* TiScrollingView.m in Sources */,
 				D597CF0717D719C4009A080B /* TiCellBackgroundView.m in Sources */,
 				24CA8B90111161FE0084E2DE /* TiUISlider.m in Sources */,
 				24CA8B91111161FE0084E2DE /* TiUISearchBarProxy.m in Sources */,
@@ -5142,6 +5158,7 @@
 				D54C7CFE18115BBE00F592A9 /* TiTransitionScale.m in Sources */,
 				24D8E3E8119B9D8A00F8CAA6 /* YahooModule.m in Sources */,
 				24D8E3E9119B9D8A00F8CAA6 /* XHRBridge.m in Sources */,
+				D5F9620F19A63941000E464F /* TiScrollingView.m in Sources */,
 				24D8E3EA119B9D8A00F8CAA6 /* WebFont.m in Sources */,
 				24D8E3EC119B9D8A00F8CAA6 /* UIModule.m in Sources */,
 				24D8E3EE119B9D8A00F8CAA6 /* TiViewProxy.m in Sources */,
@@ -5171,6 +5188,7 @@
 				24D8E3FF119B9D8A00F8CAA6 /* TiUITabGroupProxy.m in Sources */,
 				D5C07A93187DA9CF00984901 /* CAMediaTimingFunction+AdditionalEquations.m in Sources */,
 				24D8E400119B9D8A00F8CAA6 /* TiUITabGroup.m in Sources */,
+				D5F9620419A638CC000E464F /* TiScrollingViewProxy.m in Sources */,
 				24D8E403119B9D8A00F8CAA6 /* TiUIiPhoneSystemIconProxy.m in Sources */,
 				24D8E404119B9D8A00F8CAA6 /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
 				24D8E405119B9D8A00F8CAA6 /* TiUIiPhoneSystemButtonProxy.m in Sources */,
@@ -5511,6 +5529,7 @@
 				D54C7CFF18115BBE00F592A9 /* TiTransitionScale.m in Sources */,
 				DABB36C412E8CB280026A6EA /* YahooModule.m in Sources */,
 				DABB36C512E8CB280026A6EA /* XHRBridge.m in Sources */,
+				D5F9621019A63941000E464F /* TiScrollingView.m in Sources */,
 				DABB36C612E8CB280026A6EA /* WebFont.m in Sources */,
 				DABB36C712E8CB280026A6EA /* UIModule.m in Sources */,
 				DABB36C912E8CB280026A6EA /* TiViewProxy.m in Sources */,
@@ -5540,6 +5559,7 @@
 				DABB36DA12E8CB280026A6EA /* TiUITabGroupProxy.m in Sources */,
 				D5C07A94187DA9CF00984901 /* CAMediaTimingFunction+AdditionalEquations.m in Sources */,
 				DABB36DB12E8CB280026A6EA /* TiUITabGroup.m in Sources */,
+				D5F9620519A638CC000E464F /* TiScrollingViewProxy.m in Sources */,
 				DABB36DE12E8CB280026A6EA /* TiUIiPhoneSystemIconProxy.m in Sources */,
 				DABB36DF12E8CB280026A6EA /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
 				DABB36E012E8CB280026A6EA /* TiUIiPhoneSystemButtonProxy.m in Sources */,

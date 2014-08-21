@@ -302,14 +302,6 @@ static NSDictionary* replaceKeysForRow;
     return _tableView;
 }
 
-- (void)didMoveToSuperview
-{
-	[super didMoveToSuperview];
-    if (_updateInsetWithKeyboard) {
-        [self updateKeyboardInset];
-    }
-}
-
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     //        if (searchHidden)
@@ -331,11 +323,7 @@ static NSDictionary* replaceKeysForRow;
         }
     }
     [super frameSizeChanged:frame bounds:bounds];
-    
-    if (_updateInsetWithKeyboard) {
-        [self updateKeyboardInset];
-    }
-    
+
     if (_headerViewProxy != nil) {
         [_headerViewProxy parentSizeWillChange];
     }
@@ -414,45 +402,6 @@ static NSDictionary* replaceKeysForRow;
         setInset();
     }
 }
-
-
-- (void)updateKeyboardInset  {
-    CGFloat height = self.bounds.size.height;
-    if (!self.superview || height == 0) return;
-    CGRect keyboardRect = [[[TiApp app] controller] getKeyboardFrameInView:self];
-    if (!CGRectIsEmpty(keyboardRect)) {
-        CGFloat keyboardOriginY = keyboardRect.origin.y;
-        CGPoint offset = _tableView.contentOffset;
-        
-        CGSize size = [_tableView contentSize];
-        
-        UIEdgeInsets inset = [self.proxy valueForKey:@"contentInsets"]?[TiUtils contentInsets:[self.proxy valueForKey:@"contentInsets"]]:UIEdgeInsetsZero;
-        inset.bottom = MAX(inset.bottom, height - keyboardOriginY);
-        _tableView.contentInset = inset;
-    } else {
-        if ([self.proxy valueForKey:@"contentInsets"]) {
-            [self setContentInsets_:[self.proxy valueForKey:@"contentInsets"] withObject:nil];
-        }
-        else {
-            _tableView.contentInset = UIEdgeInsetsZero;
-        }
-    }
-}
-
-
--(void)setUpdateInsetWithKeyboard_:(id)value
-{
-    _updateInsetWithKeyboard = [TiUtils boolValue:value def:NO];
-    if (_updateInsetWithKeyboard) {
-        NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
-        [nc addObserver:self selector:@selector(updateKeyboardInset) name:kTiKeyboardHeightChangedNotification object:nil];
-    }
-    else {
-        [[NSNotificationCenter defaultCenter] removeObserver:self];
-    }
-    [self updateKeyboardInset];
-}
-
 
 - (void)setTemplates_:(id)args
 {

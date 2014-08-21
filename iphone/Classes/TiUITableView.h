@@ -6,7 +6,7 @@
  */
 #ifdef USE_TI_UITABLEVIEW
 
-#import "TiUIView.h"
+#import "TiScrollingView.h"
 #import "TiUITableViewRowProxy.h"
 #import "TiUITableViewSectionProxy.h"
 #import "TiUITableViewAction.h"
@@ -41,7 +41,7 @@
 
 @end
 
-@interface TiUITableView : TiUIView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling,TiProxyObserver> {
+@interface TiUITableView : TiScrollingView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling,TiProxyObserver> {
 @protected
 	TDUITableView *tableview;
 @private

@@ -42,6 +42,8 @@
 @property (nonatomic, readonly) BOOL statusBarInitiallyHidden;
 @property (nonatomic, readonly) UIStatusBarStyle defaultStatusBarStyle;
 @property (nonatomic, readonly) BOOL statusBarVisibilityChanged;
+@property (nonatomic, readonly) UIView* keyboardActiveInput;
+@property (nonatomic, readonly) CGFloat keyboardHeight;
 -(CGRect)getAbsRect:(CGRect)rect fromView:(UIView*)view;
 -(CGRect)getKeyboardFrameInView:(UIView*)view;
 -(UIView *)viewForKeyboardAccessory;
