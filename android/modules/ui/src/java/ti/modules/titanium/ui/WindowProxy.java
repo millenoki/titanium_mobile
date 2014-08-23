@@ -56,6 +56,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "WindowProxy";
 	protected static final String PROPERTY_POST_WINDOW_CREATED = "postWindowCreated";
+	private static final String PROPERTY_LOAD_URL = "loadUrl";
 
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
