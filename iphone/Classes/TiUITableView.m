@@ -99,27 +99,10 @@
 		[proxy prepareTableRowForReuse];
         [proxy setCallbackCell:nil];
 	}
-    //first let s say we gonna disappear!
+	//first let s say we gonna disappear!
     if ([[self proxy] _hasListeners:@"reuse"])
         [proxy fireEvent:@"reuse" withObject:[proxy createEventObject:nil] propagate:YES];
 	[self setProxy:nil];
-	[super prepareForReuse];
-
-	// TODO: HACK: In the case of abnormally large table view cells, we have to reset the size.
-	// This is because the view drawing subsystem takes the cell frame to be the sandbox bounds when drawing views,
-	// and if its frame is too big... the view system allocates way too much memory/pixels and doesn't appear to let
-	// them go.
-    CGRect oldBounds = [[self contentView] bounds];
-    if (!CGPointEqualToPoint(oldBounds.origin,CGPointZero)) {
-        //TIMOB-15396. Occasionally the bounds have a non zero origin. Why?
-        [[self contentView] setBounds:CGRectZero];
-        [[self contentView] setCenter:CGPointZero];
-        
-    } else {
-        CGRect oldFrame = [[self contentView] frame];
-        
-        [[self contentView] setFrame:CGRectMake(oldFrame.origin.x, oldFrame.origin.y, 0,0)];
-    }
 }
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event 
@@ -442,6 +425,9 @@
 		if (TiDimensionIsDip(rowHeight))
 		{
 			[tableview setRowHeight:rowHeight.value];
+		} else if ([TiUtils isIOS8OrGreater]) {
+			//TIMOB-17373 rowHeight on iOS8 is -1. Bug??
+			[tableview setRowHeight:44];
 		}
 		
         BOOL initBackGround = YES;

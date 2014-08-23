@@ -181,7 +181,7 @@ extern NSString * const TI_APPLICATION_GUID;
         NSString* contentType = [[self responseHeaders] objectForKey:@"Content-Type"];
         
         id arg = [args objectAtIndex:0];
-        NSInteger timespamp = (NSInteger)[[NSDate date] timeIntervalSince1970];
+        NSInteger timestamp = (NSInteger)[[NSDate date] timeIntervalSince1970];
         if ([arg isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dict = (NSDictionary*)arg;
             for(NSString *key in dict) {
@@ -205,7 +205,7 @@ extern NSString * const TI_APPLICATION_GUID;
                         extension = [Mimetypes extensionForMimeType:mime];
                     }
                     if (name == nil) {
-                        name = [NSString stringWithFormat:@"%i%i", dataIndex++, timespamp];
+                        name = [NSString stringWithFormat:@"%i%i", dataIndex++, timestamp];
                         if (extension != nil) {
                             name = [NSString stringWithFormat:@"%@.%@", name, extension];
                         }

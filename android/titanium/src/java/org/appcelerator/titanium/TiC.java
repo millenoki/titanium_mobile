@@ -3018,6 +3018,22 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LIGHT_TOUCH_ENABLED = "lightTouchEnabled";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_CUSTOM = "custom";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MIN_DATE = "minDate";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MAX_DATE = "maxDate";
+	
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
 	public static final String URL_APP_SCHEME = "app";

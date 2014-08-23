@@ -53,7 +53,7 @@
 - (NSNumber*) platformWidth
 {
     CGFloat scale = [[UIScreen mainScreen] scale];
-	if ([self isUIPortrait])
+	if ([TiUtils isIOS8OrGreater] || [self isUIPortrait])
 	{
 		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.width * scale];
 	}
@@ -66,13 +66,13 @@
 - (NSNumber*) platformHeight
 {
     CGFloat scale = [[UIScreen mainScreen] scale];
-	if ([self isUIPortrait] == NO)
+	if ([TiUtils isIOS8OrGreater] || [self isUIPortrait])
 	{
-		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.width * scale];
+		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.height * scale];
 	}
 	else
 	{
-		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.height * scale];
+		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.width * scale];
 	}
 }
 

@@ -522,6 +522,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 	}
 }
 
+//Deprecated in iOS 8
 -(BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
 {
 	if (selectedPersonCallback) {
@@ -537,6 +538,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 	return YES;
 }
 
+//Deprecated in iOS 8
 -(BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
 	if (selectedPropertyCallback) {
@@ -595,6 +597,17 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kABAuthorizationStatusAuthorized);
 		return NO;
 	}
 	return YES;
+}
+// Called after a person has been selected by the user. New in iOS 8
+- (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController*)peoplePicker didSelectPerson:(ABRecordRef)person
+{
+    [self peoplePickerNavigationController:peoplePicker shouldContinueAfterSelectingPerson:person];
+}
+
+// Called after a property has been selected by the user. New in iOS 8
+- (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController*)peoplePicker didSelectPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
+{
+    [self peoplePickerNavigationController:peoplePicker shouldContinueAfterSelectingPerson:person property:property identifier:identifier];
 }
 
 @end

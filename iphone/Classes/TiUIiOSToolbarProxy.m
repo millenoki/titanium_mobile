@@ -45,10 +45,7 @@ NSArray* keySequence;
     return TiDimensionAutoSize;
 }
 
--(CGSize)contentSizeForSize:(CGSize)size
-{
-    return [view contentSizeForSize:size];
-}
+USE_VIEW_FOR_CONTENT_SIZE
 
 @end
 

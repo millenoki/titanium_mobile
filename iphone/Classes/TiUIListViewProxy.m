@@ -201,6 +201,7 @@ static NSDictionary* listViewKeysToReplace;
 			Block_release(block);
 		} else {
 			[self.listView updateIndicesForVisibleRows];
+			[self contentsWillChange];
 			return;
 		}
 	}
@@ -310,6 +311,7 @@ static NSDictionary* listViewKeysToReplace;
 			section.sectionIndex = idx;
 		}];
 		[tableView reloadData];
+		[self contentsWillChange];
 	}];
 	[insertedSections release];
 }
@@ -736,6 +738,7 @@ NSArray* sliceArray(NSArray* array, int startIndex) {
 }
 
 DEFINE_DEF_BOOL_PROP(willScrollOnStatusTap,YES);
+USE_VIEW_FOR_CONTENT_SIZE
 
 @end
 

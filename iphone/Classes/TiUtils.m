@@ -178,6 +178,11 @@ static NSString* kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
     return isIOS7OrGreater;
 }
 
++(BOOL)isIOS8OrGreater
+{
+    return [UIView instancesRespondToSelector:@selector(layoutMarginsDidChange)];
+}
+
 +(BOOL)isIPad
 {
     static BOOL isIPad;

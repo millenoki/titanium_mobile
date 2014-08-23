@@ -39,6 +39,7 @@ typedef enum
 - (void)setPosition:(int)position isGrouped:(BOOL)grouped;
 -(void)configurationStart;
 -(void)configurationSet;
+- (void) ensureVisibleSelectorWithTableView:(UITableView*)tableView;
 @end
 
 #endif

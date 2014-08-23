@@ -366,6 +366,7 @@ static NSDictionary* replaceKeysForRow;
         UITableViewCell* theCell = [_tableView cellForRowAtIndexPath:vIndexPath];
         if ([theCell isKindOfClass:[TiUIListItem class]]) {
             ((TiUIListItem*)theCell).proxy.indexPath = vIndexPath;
+            [((TiUIListItem*)theCell) ensureVisibleSelectorWithTableView:_tableView];
         }
     }];
 }
@@ -377,10 +378,12 @@ static NSDictionary* replaceKeysForRow;
             UIView* headerView = [[self tableView] tableHeaderView];
             [headerView setFrame:[headerView bounds]];
             [[self tableView] setTableHeaderView:headerView];
+            [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
         } else if (sender == _footerViewProxy) {
             UIView *footerView = [[self tableView] tableFooterView];
             [footerView setFrame:[footerView bounds]];
             [[self tableView] setTableFooterView:footerView];
+            [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
         } else if (sender == _pullViewProxy) {
             pullThreshhold = -[self tableView].contentInset.top + ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
         }
@@ -452,6 +455,37 @@ static NSDictionary* replaceKeysForRow;
         return [viewproxy getAndPrepareViewForOpening:self.tableView.bounds];
     }
     return nil;
+}
+
+-(CGSize)contentSizeForSize:(CGSize)size
+{
+    if (_tableView == nil) {
+        return CGSizeZero;
+    }
+    
+    CGSize refSize = CGSizeMake(size.width, 1000);
+    
+    CGFloat resultHeight = 0;
+    
+    //Last Section rect
+    NSInteger lastSectionIndex = [self numberOfSectionsInTableView:_tableView] - 1;
+    if (lastSectionIndex >= 0) {
+        CGRect refRect = [_tableView rectForSection:lastSectionIndex];
+        resultHeight += refRect.size.height + refRect.origin.y;
+    } else {
+        //Header auto height when no sections
+        if (_headerViewProxy != nil) {
+            resultHeight += [_headerViewProxy contentSizeForSize:refSize].height;
+        }
+    }
+    
+    //Footer auto height
+    if (_footerViewProxy) {
+        resultHeight += [_footerViewProxy contentSizeForSize:refSize].height;
+    }
+    refSize.height = resultHeight;
+    
+    return refSize;
 }
 
 #pragma mark Searchbar-related IBActions
@@ -827,6 +861,7 @@ static NSDictionary* replaceKeysForRow;
         [self.tableView setTableFooterView:nil];
         [_footerViewProxy windowDidClose];
         RELEASE_TO_NIL(_footerViewProxy);
+        [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
     } else {
         [self configureFooter];
         [_footerViewProxy removeAllChildren:nil];
@@ -1325,7 +1360,7 @@ static NSDictionary* replaceKeysForRow;
     editing = [_tableView isEditing];
     [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
     if (!editing) {
-        [_tableView reloadData];
+        [_tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.1];
     }
 }
 
