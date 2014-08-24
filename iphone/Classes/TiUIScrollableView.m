@@ -250,13 +250,15 @@
     for (int i=0; i < viewsCount; i++) {
         TiViewProxy* viewProxy = [[self proxy] viewAtIndex:i];
         if (i >= renderRange.location && i < NSMaxRange(renderRange)) {
+            [viewProxy setParentVisible:YES];
             [self renderView:viewProxy forIndex:i withRefresh:refresh];
         }
         else {
-            if ([viewProxy viewAttached]) {
-                [viewProxy windowWillClose];
-                [viewProxy windowDidClose];
-            }
+            [viewProxy setParentVisible:NO];
+//            if ([viewProxy viewAttached]) {
+//                [viewProxy windowWillClose];
+//                [viewProxy windowDidClose];
+//            }
         }
     }
 }
@@ -704,6 +706,7 @@
 {
     if (newPage == currentPage) return;
     currentPage = newPage;
+    [self manageCache:currentPage];
     if (updatePageControl) {
         [pageControl setCurrentPage:newPage];
     }
@@ -897,7 +900,9 @@
         }
         pageChanged = YES;
         cacheSize = minCacheSize;
-        if (_updatePageDuringScroll) [self updateCurrentPage:nextPage];
+        if (_updatePageDuringScroll)  {
+            [self updateCurrentPage:nextPage];
+        }
         cacheSize = curCacheSize;
     }
 	[self fireEventWithData:@"scroll" andPageAsFloat:nextPageAsFloat];
@@ -909,7 +914,7 @@
     _updatePageDuringScroll = YES;
 	[self fireEventWithData:@"scrollstart"];
     if (pageChanged) {
-        [self manageCache:currentPage];
+        [self manageCache:[self currentPage]];
     }
 }
 
