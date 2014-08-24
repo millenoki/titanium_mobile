@@ -71,32 +71,35 @@
 void InsetScrollViewForKeyboard(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight)
 {
 	VerboseLog(@"ScrollView:%@, keyboardTop:%f minimumContentHeight:%f",scrollView,keyboardTop,minimumContentHeight);
-
-	CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] viewForKeyboardAccessory]];
-	//First, find out how much we have to compensate.
-
-	CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;	
-	//ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
-
-	CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight,0);
-	//It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
-
-	//As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
-
-	CGFloat bottomInset = MAX(0,obscuredHeight-unimportantArea);
-	[scrollView setContentInset:UIEdgeInsetsMake(0, 0, bottomInset, 0)];
-
-	CGPoint offset = [scrollView contentOffset];
-
-	if(offset.y + bottomInset < 0 )
-	{
-		offset.y = -bottomInset;
-		[scrollView setContentOffset:offset animated:YES];
-	}
-
+    CGFloat bottomInset = 0;
+    if (keyboardTop != 0) {
+        CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] viewForKeyboardAccessory]];
+        //First, find out how much we have to compensate.
+        
+        CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
+        //ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+        
+        CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight,0);
+        //It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+        
+        //As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+        
+        bottomInset = MAX(0,obscuredHeight-unimportantArea);
+        
+    }
+    [scrollView setContentInset:UIEdgeInsetsMake(0, 0, bottomInset, 0)];
+    
+    CGPoint offset = [scrollView contentOffset];
+    
+    if(offset.y + bottomInset < 0 )
+    {
+        offset.y = -bottomInset;
+        [scrollView setContentOffset:offset animated:YES];
+    }
+    
 	VerboseLog(@"ScrollVisibleRect(%f,%f),%fx%f; obscuredHeight:%f; unimportantArea:%f",
-			scrollVisibleRect.origin.x,scrollVisibleRect.origin.y,scrollVisibleRect.size.width,scrollVisibleRect.size.height,
-			obscuredHeight,unimportantArea);
+               scrollVisibleRect.origin.x,scrollVisibleRect.origin.y,scrollVisibleRect.size.width,scrollVisibleRect.size.height,
+               obscuredHeight,unimportantArea);
 }
 
 void OffsetScrollViewForRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect)
