@@ -32,7 +32,7 @@
 
 - (id)dpi
 {
-	return [NSNumber numberWithInt:[TiUtils dpi]];
+	return NUMINT([TiUtils dpi]);
 }
 
 - (BOOL)isDevicePortrait
@@ -52,28 +52,40 @@
 
 - (NSNumber*) platformWidth
 {
-    CGFloat scale = [[UIScreen mainScreen] scale];
-	if ([TiUtils isIOS8OrGreater] || [self isUIPortrait])
-	{
-		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.width * scale];
-	}
-	else
-	{
-		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.height * scale];
-	}
+    static int platformWidth;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        CGFloat scale = [[UIScreen mainScreen] scale];
+        if ([TiUtils isIOS8OrGreater] || [self isUIPortrait])
+        {
+            platformWidth = [[UIScreen mainScreen] bounds].size.width * scale;
+        }
+        else
+        {
+            platformWidth = [[UIScreen mainScreen] bounds].size.height * scale;
+        }
+    });
+    
+    return NUMFLOAT(platformWidth);
 }
 
 - (NSNumber*) platformHeight
 {
-    CGFloat scale = [[UIScreen mainScreen] scale];
-	if ([TiUtils isIOS8OrGreater] || [self isUIPortrait])
-	{
-		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.height * scale];
-	}
-	else
-	{
-		return [NSNumber numberWithFloat:[[UIScreen mainScreen] bounds].size.width * scale];
-	}
+    static int platformHeight;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        CGFloat scale = [[UIScreen mainScreen] scale];
+        if ([TiUtils isIOS8OrGreater] || [self isUIPortrait])
+        {
+            platformHeight = [[UIScreen mainScreen] bounds].size.height * scale;
+        }
+        else
+        {
+            platformHeight = [[UIScreen mainScreen] bounds].size.width * scale;
+        }
+    });
+    
+    return NUMFLOAT(platformHeight);
 }
 
 @end
