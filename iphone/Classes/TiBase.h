@@ -640,6 +640,7 @@ extern NSString * const kTiURLSessionEventsCompleted;
 extern NSString * const kTiURLDowloadProgress;
 extern NSString * const kTiURLUploadProgress;
 extern NSString * const kTiKeyboardHeightChangedNotification;
+extern NSString * const kTiNetworkChangedNotification;
 
 extern NSString* const kTiBehaviorSize;
 extern NSString* const kTiBehaviorFill;

@@ -149,13 +149,14 @@ static NetworkModule *_sharedInstance = nil;
         dispatch_semaphore_signal(_startingSema);
         
     }
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                           [self networkType], @"networkType",
+                           [self online], @"online",
+                           [self networkTypeName], @"networkTypeName",
+                           nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiNetworkChangedNotification object:self userInfo:event];
 	if ([self _hasListeners:@"change"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-							   [self networkType], @"networkType",
-							   [self online], @"online",
-							   [self networkTypeName], @"networkTypeName",
-							   nil];
 		[self fireEvent:@"change" withObject:event];
 	}
 }
