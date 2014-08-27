@@ -81,9 +81,9 @@
     
     if ([options objectForKey:@"filters"]) {
         NSArray* filters = [options objectForKey:@"filters"];
-        for (NSNumber* filterId in filters) {
-            TiImageHelperFilterType type = [filterId integerValue];
-            image = [self getFilteredImage:image withFilter:type options:options];
+        for (NSDictionary* filter in filters) {
+            TiImageHelperFilterType type = [[filter valueForKey:@"type"] integerValue];
+            image = [self getFilteredImage:image withFilter:type options:filter];
         }
 //        width = image.size.width;
 //        height = image.size.height;
