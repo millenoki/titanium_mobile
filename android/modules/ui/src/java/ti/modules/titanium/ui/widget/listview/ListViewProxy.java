@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
@@ -73,7 +74,14 @@ public class ListViewProxy extends TiViewProxy {
 	}
 
 	public TiUIView createView(Activity activity) {
-		return new TiListView(this, activity);
+        TiUIView view = new TiListView(this, activity);
+	    LayoutParams params = view.getLayoutParams();
+        params.sizeOrFillWidthEnabled = true;
+        params.sizeOrFillHeightEnabled = true;
+        params.autoFillsHeight = true;
+        params.autoFillsHeight = true;
+        params.autoFillsWidth = true;
+		return view;
 	}
 	
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
