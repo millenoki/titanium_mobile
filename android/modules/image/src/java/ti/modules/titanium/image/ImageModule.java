@@ -8,13 +8,14 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiImageHelper.FilterType;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -41,7 +42,8 @@ public class ImageModule extends KrollModule
 	private static final int MSG_GETVIEWIMAGE = MSG_FIRST_ID + 100;
 
 	@Kroll.constant public static final int FILTER_GAUSSIAN_BLUR = FilterType.kFilterGaussianBlur.ordinal();
-	@Kroll.constant public static final int FILTER_BOX_BLUR = FilterType.kFilterBoxBlur.ordinal();
+    @Kroll.constant public static final int FILTER_BOX_BLUR = FilterType.kFilterBoxBlur.ordinal();
+    @Kroll.constant public static final int FILTER_IOS_BLUR = FilterType.kFilteriOSBlur.ordinal();
 
 	//This handler callback is tied to the UI thread.
 	public boolean handleMessage(Message msg)
@@ -81,37 +83,36 @@ public class ImageModule extends KrollModule
 	}
 	
 	
-	private class FilterBitmapTask extends AsyncTask< Object, Void, Bitmap >
+	private class FilterBitmapTask extends AsyncTask< Object, Void, TiBlob >
 	{
 		KrollFunction callback;
 		KrollProxy proxy;
 
 		@Override
-		protected Bitmap doInBackground(Object... params)
+		protected TiBlob doInBackground(Object... params)
 		{
 			proxy = (KrollProxy)params[0];
 			Bitmap bitmap = (Bitmap)params[1];
-			FilterType filterType = FilterType.values()[((Integer)params[2]).intValue()];
-			HashMap options = (HashMap)params[3];
-			callback = (KrollFunction)params[4];
-			return TiImageHelper.imageFiltered(bitmap, filterType, options);
+			HashMap options = (HashMap)params[2];
+			callback = (KrollFunction)params[3];
+			return getFilteredImage(bitmap, options);
 		}
 		/**
 		 * Always invoked on UI thread.
 		 */
 		@Override
-		protected void onPostExecute(Bitmap image)
+		protected void onPostExecute(TiBlob blobImage)
 		{
 			KrollDict result = new KrollDict();
-			if (image != null) {
-				result.put("image", TiBlob.blobFromImage(image));
+			if (blobImage != null) {
+				result.put("image", blobImage);
 			}
 			this.callback.callAsync(this.proxy.getKrollObject(), new Object[] { result });
 		}
 	}
 	
 	@Kroll.method
-	public TiBlob getFilteredImage(Object image, int filterType, @Kroll.argument(optional=true) HashMap options) {
+	public TiBlob getFilteredImage(Object image, @Kroll.argument(optional=true) HashMap options) {
 		Bitmap bitmap = null;
 		if (image instanceof Bitmap) {
 			bitmap = (Bitmap) image;
@@ -134,62 +135,64 @@ public class ImageModule extends KrollModule
 			return null;
 		}
 		
+		
+        Bitmap result = null;
 		if (options != null) {
 			if (options.containsKey("callback")) {
 				KrollFunction callback = (KrollFunction) options.get("callback");
+				options.remove("callback");
 				if (callback != null) {
-					(new FilterBitmapTask()).execute(this, bitmap, Integer.valueOf(filterType), options, callback);
+					(new FilterBitmapTask()).execute(this, bitmap, options, callback);
 					return null;
 				}
 			}
+            result = TiImageHelper.imageFiltered(bitmap, options);
 		}
-		Bitmap result = TiImageHelper.imageFiltered(bitmap, FilterType.values()[filterType], options);
-		
+
 		if (result != null) {
 			return TiBlob.blobFromImage(result);
 		}
 		return null;
 	}
 	
-	private class FilterViewTask extends AsyncTask< Object, Void, Bitmap >
+	private class FilterViewTask extends AsyncTask< Object, Void, TiBlob >
 	{
 		KrollFunction callback;
 		KrollProxy proxy;
 
 		@Override
-		protected Bitmap doInBackground(Object... params)
+		protected TiBlob doInBackground(Object... params)
 		{
 			proxy = (KrollProxy)params[0];
 			TiViewProxy viewProxy = (TiViewProxy)params[1];
-			int filterType = ((Integer)params[2]).intValue();
-			HashMap options = (HashMap)params[3];
+			HashMap options = (HashMap)params[2];
 			TiUIView view = viewProxy.getOrCreateView();
 			Bitmap bitmap = TiUIHelper.viewToBitmap(viewProxy.getProperties(), view.getOuterView());
-			callback = (KrollFunction)params[4];
-			return TiImageHelper.imageFiltered(bitmap, FilterType.values()[filterType], options);
+			callback = (KrollFunction)params[3];
+			return getFilteredImage(bitmap, options);
 		}
 		/**
 		 * Always invoked on UI thread.
 		 */
 		@Override
-		protected void onPostExecute(Bitmap image)
+		protected void onPostExecute(TiBlob blob)
 		{
 			KrollDict result = new KrollDict();
-			if (image != null) {
-				result.put("image", TiBlob.blobFromImage(image));
+			if (blob != null) {
+				result.put("image", blob);
 			}
 			this.callback.callAsync(this.proxy.getKrollObject(), new Object[] { result });
 		}
 	}
 	
 	@Kroll.method
-	public TiBlob getFilteredViewToImage(TiViewProxy viewProxy, int filterType, @Kroll.argument(optional=true) HashMap options) {
+	public TiBlob getFilteredViewToImage(TiViewProxy viewProxy, @Kroll.argument(optional=true) HashMap options) {
 		
 		if (options != null) {
 			if (options.containsKey("callback")) {
 				KrollFunction callback = (KrollFunction) options.get("callback");
 				if (callback != null) {
-					(new FilterViewTask()).execute(this, viewProxy, Integer.valueOf(filterType), options, callback);
+					(new FilterViewTask()).execute(this, viewProxy, options, callback);
 					return null;
 				}
 			}
@@ -206,30 +209,33 @@ public class ImageModule extends KrollModule
 		} else {
 			bitmap = (Bitmap) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEWIMAGE), new Object[]{view.getOuterView()});
 		}
-		return getFilteredImage(bitmap, filterType, options);
+		return getFilteredImage(bitmap, options);
 	}
 	
 	@Kroll.method
-	public TiBlob getFilteredScreenshot(int filterType, @Kroll.argument(optional=true) HashMap options) {
+	public TiBlob getFilteredScreenshot(HashMap options) {
 		Activity a = TiApplication.getAppCurrentActivity();
-
-		while (a.getParent() != null) {
-			a = a.getParent();
+		if (a instanceof TiBaseActivity) {
+		    return getFilteredViewToImage(((TiBaseActivity)a).getActivityProxy().getDecorView(), options);
 		}
-
-		Window w = a.getWindow();
-
-		while (w.getContainer() != null) {
-			w = w.getContainer();
-		}
-		
-		Bitmap bitmap = null;
-		if (TiApplication.isUIThread()) {
-			bitmap = TiUIHelper.viewToBitmap(null, w.getDecorView());
-		} else {
-			bitmap = (Bitmap) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEWIMAGE), w.getDecorView());
-		}
-		return getFilteredImage(bitmap, filterType, options);
+		return null;
+//		while (a.getParent() != null) {
+//			a = a.getParent();
+//		}
+//
+//		Window w = a.getWindow();
+//
+//		while (w.getContainer() != null) {
+//			w = w.getContainer();
+//		}
+//		
+//		Bitmap bitmap = null;
+//		if (TiApplication.isUIThread()) {
+//			bitmap = TiUIHelper.viewToBitmap(null, w.getDecorView());
+//		} else {
+//			bitmap = (Bitmap) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEWIMAGE), w.getDecorView());
+//		}
+//		return getFilteredViewToImage(bitmap, options);
 	}
 }
 
