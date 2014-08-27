@@ -972,9 +972,13 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		} else {
 			tiView = viewProxy.forceCreateView();
 		}
-        if (tiView == null) return null;
-		View outerView = tiView.getOuterView();
-		ViewGroup parentView = (ViewGroup) outerView.getParent();
+		
+		View outerView = null;
+		ViewGroup parentView = null;
+		if (tiView != null) {
+		    outerView = tiView.getOuterView();
+	        parentView = (ViewGroup) outerView.getParent();
+		}
 		if (parentView != null && parentView.getId() == HEADER_FOOTER_WRAP_ID) {
 			return parentView;
 		} else {
@@ -982,7 +986,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			TiCompositeLayout wrapper = new TiCompositeLayout(viewProxy.getActivity(), LayoutArrangement.DEFAULT, null);
 			AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT);
 			wrapper.setLayoutParams(params);
-			wrapper.addView(outerView, tiView.getLayoutParams());
+			if (outerView != null) {
+	            wrapper.addView(outerView, tiView.getLayoutParams());
+			}
 			wrapper.setId(HEADER_FOOTER_WRAP_ID);
 			return wrapper;
 		}
