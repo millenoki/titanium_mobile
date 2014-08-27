@@ -14,7 +14,7 @@
 #import <GPUImage/GPUImage.h>
 @implementation TiImageHelper
 
-+(UIImage*)getFilteredImage:(UIImage*)inputImage withFilter:(TiImageHelperFilterType)filterType options:(NSDictionary*)options
++(GPUImageOutput<GPUImageInput>*)getFilter:(TiImageHelperFilterType)filterType options:(NSDictionary*)options
 {
     switch (filterType) {
         case TiImageHelperFilterIOSBlur:
@@ -23,9 +23,7 @@
             filter.blurRadiusInPixels = [TiUtils floatValue:@"radius" properties:options def:12.0f];
             filter.downsampling = [TiUtils floatValue:@"downsampling" properties:options def:4.0f];
             filter.saturation = [TiUtils floatValue:@"saturation" properties:options def:0.8f];
-            UIImage* result = [filter imageByFilteringImage:inputImage];
-            [filter release];
-            return result;
+            return [filter autorelease];
         }
         case TiImageHelperFilterGaussianBlur:
         {
@@ -33,14 +31,18 @@
             filter.blurRadiusInPixels = [TiUtils floatValue:@"radius" properties:options def:2.0f];
             filter.blurPasses = [TiUtils floatValue:@"passes" properties:options def:1.0f];
             filter.texelSpacingMultiplier = [TiUtils floatValue:@"texelSpacingMultiplier" properties:options def:1.0f];
-            UIImage* result = [filter imageByFilteringImage:inputImage];
-            [filter release];
-            return result;
+            return [filter autorelease];
         }
         default:
             break;
     }
     return nil;
+}
+
++(UIImage*)getFilteredImage:(UIImage*)inputImage withFilter:(TiImageHelperFilterType)filterType options:(NSDictionary*)options
+{
+    GPUImageOutput* filter = [self getFilter:filterType options:options];
+    return [filter imageByFilteringImage:inputImage];
 }
 
 +(UIImage*)tintedImage:(UIImage*)source withColor:(UIColor*)color blendMode:(CGBlendMode)mode
@@ -81,12 +83,22 @@
     
     if ([options objectForKey:@"filters"]) {
         NSArray* filters = [options objectForKey:@"filters"];
-        for (NSDictionary* filter in filters) {
-            TiImageHelperFilterType type = [[filter valueForKey:@"type"] integerValue];
-            image = [self getFilteredImage:image withFilter:type options:filter];
+        GPUImageFilterGroup* group = [[GPUImageFilterGroup alloc] init];
+        GPUImageOutput<GPUImageInput>* lastFilter = nil;
+        for (NSDictionary* filterOptions in filters) {
+            TiImageHelperFilterType type = [[filterOptions valueForKey:@"type"] integerValue];
+            GPUImageOutput<GPUImageInput>* filter = [self getFilter:type options:filterOptions];
+            if (filter) {
+                if (lastFilter) {
+                    [lastFilter addTarget:filter];
+                }
+                [group addFilter:filter];
+                lastFilter = filter;
+            }
         }
-//        width = image.size.width;
-//        height = image.size.height;
+        group.initialFilters = @[[group filterAtIndex:0]];
+        group.terminalFilter = [group filterAtIndex:[group filterCount] - 1];
+        image = [group imageByFilteringImage:image];
     }
     
     if ([options objectForKey:@"tint"]) {

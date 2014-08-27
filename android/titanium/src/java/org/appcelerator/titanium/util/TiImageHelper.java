@@ -13,6 +13,7 @@ import java.util.HashMap;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.GPUImageBoxBlurFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageFilter;
+import jp.co.cyberagent.android.gpuimage.GPUImageFilterGroup;
 import jp.co.cyberagent.android.gpuimage.GPUImageGaussianBlurFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImageiOSBlurFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImage.ScaleType;
@@ -155,27 +156,40 @@ public class TiImageHelper
 	}
 	
 	private static Bitmap getFilteredBitmap(Bitmap bitmap, FilterType filterType, HashMap options) {
-	    GPUImageFilter filter = null;
-	    switch (filterType) {
-    		case kFilterBoxBlur:
-    		{
-    			float radius = 1.0f;
-    			if (options != null) {
-    				radius = TiConvert.toFloat(options.get("radius"), radius);
-    			}
-    			filter = new GPUImageBoxBlurFilter(radius);
-    			break;
-    		}
-    		case kFilterGaussianBlur:
-    		{
-    			float radius = 1.0f;
-    			if (options != null) {
-    				radius = TiConvert.toFloat(options.get("radius"), radius);
-    			}
-    			filter = new GPUImageGaussianBlurFilter(radius);
-    			break;
-    		}
-    		case kFilteriOSBlur:
+	    GPUImageFilter filter = getFilter(filterType, options);
+	    if (filter != null) {
+            return getGPUImage().getBitmapWithFilterApplied(bitmap, 
+                    filter, 
+                    ScaleType.CENTER_CROP, 
+                    Rotation.NORMAL);
+	    }
+	    else {
+	        return bitmap;
+	    }
+	}
+	
+	private static GPUImageFilter getFilter(FilterType filterType, HashMap options) {
+        GPUImageFilter filter = null;
+        switch (filterType) {
+            case kFilterBoxBlur:
+            {
+                float radius = 1.0f;
+                if (options != null) {
+                    radius = TiConvert.toFloat(options.get("radius"), radius);
+                }
+                filter = new GPUImageBoxBlurFilter(radius);
+                break;
+            }
+            case kFilterGaussianBlur:
+            {
+                float radius = 1.0f;
+                if (options != null) {
+                    radius = TiConvert.toFloat(options.get("radius"), radius);
+                }
+                filter = new GPUImageGaussianBlurFilter(radius);
+                break;
+            }
+            case kFilteriOSBlur:
             {
                 filter = new GPUImageiOSBlurFilter();
                 if (options != null) {
@@ -191,17 +205,9 @@ public class TiImageHelper
                 }
                 break;
             }
-		}
-	    if (filter != null) {
-            return getGPUImage().getBitmapWithFilterApplied(bitmap, 
-                    filter, 
-                    ScaleType.CENTER_CROP, 
-                    Rotation.NORMAL);
-	    }
-	    else {
-	        return bitmap;
-	    }
-	}
+        }
+        return filter;
+    }
 	
 	public static Bitmap imageTinted(Bitmap bitmap, int tint, Mode mode) {
 		if (tint != 0) {
@@ -260,13 +266,21 @@ public class TiImageHelper
 		}
 		
 		if (options.containsKey("filters")) {
+		    GPUImageFilterGroup group = new GPUImageFilterGroup();
 			Object[] filters = (Object[]) options.get("filters");
 			for (int i = 0; i < filters.length; i++) {
 			    if (filters[i] instanceof HashMap) {
 			        HashMap<String, Object> filterOptions = (HashMap<String, Object>) filters[i];
-			        bitmap = getFilteredBitmap(bitmap, FilterType.values()[TiConvert.toInt(filterOptions, "type")], filterOptions);
+			        GPUImageFilter filter =  getFilter(FilterType.values()[TiConvert.toInt(filterOptions, "type")], filterOptions);
+			        if (filter != null) {
+			            group.addFilter(filter);
+			        }
 			    }
 			}
+			bitmap = getGPUImage().getBitmapWithFilterApplied(bitmap, 
+			        group, 
+                    ScaleType.CENTER_CROP, 
+                    Rotation.NORMAL);
 		}
 		
 		if (options.containsKey("tint")) {
