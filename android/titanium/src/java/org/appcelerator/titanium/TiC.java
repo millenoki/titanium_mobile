@@ -1329,6 +1329,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_DOMESTIC_PARTNER = "domesticPartner";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_DRAW_FULL_UNDERLINE = "drawFullUnderline";
+    
 	/**
 	 * @module.api
 	 */
@@ -1693,6 +1698,10 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_INCLUDE_FONT_PADDING = "includeFontPadding";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
 	
 	/**
 	 * @module.api
@@ -2026,11 +2035,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NICKNAME = "nickname";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_NOTE = "note";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_NON_PRIMARY_ALPHA = "nonPrimaryAlpha";  
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_NOTE = "note";
 
 	/**
 	 * @module.api
@@ -2741,6 +2755,12 @@ public class TiC
 	 */
 	public static final String PROPERTY_TEXT = "text";
 
+
+    /**
+     * @module.api
+     */
+    public static final Object PROPERTY_TEXT_SPACING = "textSpacing";
+    
 	/**
 	 * @module.api
 	 */
@@ -2770,6 +2790,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TITLE_PADDING = "padding";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_STRIP = "strip";
+
 
 	/**
 	 * @module.api
@@ -2804,7 +2830,10 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TITLEID = "titleid";
-
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_TITLES = "titles";
 	/**
 	 * @module.api
 	 */
