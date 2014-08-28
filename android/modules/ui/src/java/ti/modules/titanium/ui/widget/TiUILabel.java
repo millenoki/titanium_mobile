@@ -1176,10 +1176,10 @@ public class TiUILabel extends TiUINonViewGroupView
 
 		if (html != null) {
 			tv.setText(prepareHtml(html));
-		} else if (title != null) {
-			tv.setText(title);
 		} else if (text != null) {
-			tv.setText(text);
+            tv.setText(text);
+		} else if (title != null) {
+            tv.setText(title);
 		}
 		TiUIHelper.linkifyIfEnabled(textView, d.get(TiC.PROPERTY_AUTO_LINK));
 //		textView.setMovementMethod(LinkMovementMethod.getInstance());
