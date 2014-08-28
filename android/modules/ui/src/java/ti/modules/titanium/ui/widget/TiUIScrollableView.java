@@ -20,7 +20,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiEventHelper;
+import org.appcelerator.titanium.util.TiHtml;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiViewHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
@@ -36,7 +37,9 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -53,6 +56,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 
 	private static final int PAGE_LEFT = 200;
 	private static final int PAGE_RIGHT = 201;
+    private TiUIPagerTabStrip mStrip;
 	private boolean verticalLayout = false;
 	boolean mNeedsRedraw = true;
 	boolean hardwaredDisabled = false;
@@ -221,7 +225,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	private final RelativeLayout mPagingControl;
 	private final Object viewsLock;
 
-	private int mCurIndex = 0;
+	private int mCurIndex = -1;
 	private boolean mEnabled = true;
 	
 	private boolean isValidScroll = false;
@@ -404,6 +408,14 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		}
 		mPager.setAdapter(mAdapter);
 	}
+	
+	private TiUIPagerTabStrip getOrCreatePageStrip() {
+	    if (mPager != null && mStrip == null) {
+	        mStrip = new TiUIPagerTabStrip(proxy.getActivity(), proxy);
+	        mPager.addView(mStrip, mStrip.getLayoutParams());
+	    }
+	    return mStrip;
+	}
 
 	private boolean shouldShowPager()
 	{
@@ -527,14 +539,6 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		if (d.containsKey(TiC.PROPERTY_VIEWS)) {
 			setViews(d.get(TiC.PROPERTY_VIEWS));
 		} 
-
-		if (d.containsKey(TiC.PROPERTY_CURRENT_PAGE)) {
-			int page = d.optInt(TiC.PROPERTY_CURRENT_PAGE, 0);
-			if (page > 0) {
-				setCurrentPage(page);
-			}
-		}
-
 		if (d.containsKey(TiC.PROPERTY_SHOW_PAGING_CONTROL)) {
 			if (TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_PAGING_CONTROL)) {
 				showPager();
@@ -564,6 +568,15 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 			transition = TransitionHelper.transitionFromObject((HashMap) d.get(TiC.PROPERTY_TRANSITION), null, null);
 			mPager.updatePageTransformer();
 		}
+		
+	    if (d.containsKey(TiC.PROPERTY_STRIP)) {
+            getOrCreatePageStrip().processProperties(d.getKrollDict(TiC.PROPERTY_STRIP));
+	    }
+		
+		//simulate the first page change so that the user can interact with the events
+		int page = d.optInt(TiC.PROPERTY_CURRENT_PAGE, 0);
+		move(page, false);
+        ((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
 		super.processProperties(d);
 
 	}
@@ -599,10 +612,12 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		} else if (TiC.PROPERTY_PAGE_OFFSET.equals(key)){
 			setPageOffset(newValue);
 		} else if (TiC.PROPERTY_TRANSITION.equals(key)){
-			transition = TransitionHelper.transitionFromObject((HashMap) newValue, null, null);
-			mPager.updatePageTransformer();
-			nativeView.invalidate();
-		} else {
+            transition = TransitionHelper.transitionFromObject((HashMap) newValue, null, null);
+            mPager.updatePageTransformer();
+            nativeView.invalidate();
+		} else if (TiC.PROPERTY_STRIP.equals(key)){
+		    getOrCreatePageStrip().processProperties(new KrollDict((HashMap) newValue));
+        } else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
@@ -662,6 +677,16 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	{
 		mPagingControl.setVisibility(View.INVISIBLE);
 	}
+	
+	public void showStrip()
+    {
+        mStrip.setVisibility(View.VISIBLE);
+    }
+
+    public void hideStrip()
+    {
+        mStrip.setVisibility(View.INVISIBLE);
+    }
 
 	public void moveNext(boolean animated)
 	{
@@ -913,6 +938,14 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 			return POSITION_NONE;
 		
 		}
+		
+		@Override
+	    public CharSequence getPageTitle(int position) {
+		    if (mStrip != null) {
+		        return mStrip.getPageTitle(position);
+		    }
+		    return null;
+	    }
 	}
 	
 	public class VViewPagerAdapter extends com.lambergar.verticalviewpager.PagerAdapter  implements IPageAdapter
@@ -1020,6 +1053,14 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 
 			return POSITION_NONE;
 		}
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if (mStrip != null) {
+                return mStrip.getPageTitle(position);
+            }
+            return null;
+        }
 	}
 	
 
