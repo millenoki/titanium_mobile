@@ -23,4 +23,10 @@
 	[super willHide];
 }
 
+-(void)viewWillDetach
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self.view name:kTiKeyboardHeightChangedNotification object:nil];
+	[super viewWillDetach];
+}
+
 @end
