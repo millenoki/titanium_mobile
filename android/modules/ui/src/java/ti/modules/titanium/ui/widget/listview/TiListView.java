@@ -58,6 +58,8 @@ import android.view.ViewParent;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -1275,8 +1277,15 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	
 	public View getCellAt(int sectionIndex, int itemIndex) {
         int position = findItemPosition(sectionIndex, itemIndex);
-        if (headerView != null) {
-            position += 1;
+        int childCount = listView.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View child = listView.getChildAt(i);
+            if (child instanceof TiCompositeLayout || (child instanceof FrameLayout && 
+                    ((FrameLayout)child).getChildCount() > 0 && 
+                    ((FrameLayout)child).getChildAt(0) instanceof TiBaseListViewItemHolder)) {
+                break;
+            }
+            position++;
         }
         if (position > -1) {
             View content = listView.getChildAt(position - listView.getFirstVisiblePosition());
