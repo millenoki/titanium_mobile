@@ -603,6 +603,10 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 	return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
 }
 
+-(id)versionName
+{
+	return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+}
 
 -(NSNumber*)keyboardVisible
 {
