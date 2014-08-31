@@ -220,6 +220,7 @@ NSArray* listenerArray = nil;
     CGFloat* radii;
     BOOL usePathAsBorder;
     BOOL _nonRetina;
+    BOOL _selected;
 }
 -(void)setBackgroundDisabledImage_:(id)value;
 -(void)setBackgroundSelectedImage_:(id)value;
@@ -351,6 +352,7 @@ DEFINE_EXCEPTIONS
     _setEnabledFromParent = YES;
     _nonRetina = NO;
     _tintColorImage = NO;
+    _selected = NO;
 }
 
 
@@ -1503,6 +1505,13 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setEnabled_:(id)arg
 {
     [self setEnabled:arg calledFromParent:NO];
+    [self setBgState:UIControlStateNormal];
+}
+
+-(void)setSelected_:(id)arg
+{
+    _selected = [TiUtils boolValue:arg def:NO];
+    [self setViewState:_selected?UIControlStateHighlighted:-1];
 }
 
 -(void)setDispatchPressed_:(id)arg
@@ -2116,7 +2125,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     viewState = state;
     if (needsUpdate)
     {
-        [self setBgState:UIControlStateNormal];
+        [self setHighlighted:NO];
     }
 }
 
@@ -2127,8 +2136,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 //        if (parentView && [parentView dispatchPressed]) {
 //            return [parentView realStateForState:state];
 //        }
-        if (viewState != -1)
+        if (viewState != -1) {
             state = viewState;
+        }
         return state;
     }
     return UIControlStateDisabled;
@@ -2407,6 +2417,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)setHighlighted:(BOOL)isHiglighted
 {
+    isHiglighted = (_selected || isHiglighted);
     [self setHighlighted:isHiglighted animated:NO];
 }
 
@@ -2436,6 +2447,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)setSelected:(BOOL)isSelected
 {
+    isSelected = (_selected || isSelected);
     [self setSelected:isSelected animated:NO];
 }
 

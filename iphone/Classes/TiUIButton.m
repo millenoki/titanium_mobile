@@ -167,6 +167,7 @@
 -(void)setSelected_:(id)value
 {
 	[[self button] setSelected:[TiUtils boolValue:value]];
+    [super setSelected_:value];
 }
 
 
