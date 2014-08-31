@@ -81,4 +81,9 @@ public final class TitaniumtestAppInfo implements ITiAppInfo
     public String getBuildType() {
         return "device";
     }
+
+    @Override
+    public long getBuildDate() {
+        return System.currentTimeMillis();
+    }
 }

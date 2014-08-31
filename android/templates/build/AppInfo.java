@@ -67,4 +67,8 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 	public String getBuildType() {
 		return "<%- buildType %>";
 	}
+
+	public long getBuildDate() {
+		return "<%- buildDate %>";
+	}
 }

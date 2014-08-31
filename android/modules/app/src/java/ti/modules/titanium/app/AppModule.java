@@ -26,6 +26,8 @@ import org.json.JSONObject;
 
 import android.app.Application;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -52,7 +54,9 @@ public class AppModule extends KrollModule implements SensorEventListener
 	private boolean proximityDetection = false;
 	private boolean proximityState;
 	private int proximityEventListenerCount = 0;
-	
+	private int appVersionCode = -1;
+	private String appVersionName;
+
 	private KrollDict licenseDict = null;
 
 	public AppModule()
@@ -71,6 +75,19 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public void onDestroy() {
 		TiApplication.getInstance().removeAppEventProxy(this);
 	}
+	
+    private void initializeVersionValues()
+    {
+        PackageInfo pInfo;
+        try {
+            pInfo = TiApplication.getInstance().getPackageManager()
+                .getPackageInfo(TiApplication.getInstance().getPackageName(), 0);
+            appVersionCode = pInfo.versionCode;
+            appVersionName = pInfo.versionName;
+        } catch (NameNotFoundException e) {
+            Log.e(TAG, "Unable to get package info", e);
+        }
+    }
 
 	@Kroll.getProperty @Kroll.method
 	public String getId() {
@@ -91,6 +108,17 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public String getVersion() {
 		return appInfo.getVersion();
 	}
+	
+    @Kroll.getProperty
+    @Kroll.method
+    public String getVersionName()
+    {
+        if (appVersionName == null) {
+            initializeVersionValues();
+        }
+        return appVersionName;
+    }
+
 
 	@Kroll.getProperty @Kroll.method
 	public String getPublisher() {
@@ -160,6 +188,19 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return appInfo.isAnalyticsEnabled();
 	}
 	
+	@Kroll.method
+    public long getBuildDate() {
+        return appInfo.getBuildDate();
+    }
+	
+	@Kroll.method
+    public int getBuildNumber() {
+        if (appVersionCode == -1) {
+            initializeVersionValues();
+        }
+        return appVersionCode;
+    }
+    
 	@Kroll.method
 	public String appURLToPath(String url) {
 		return resolveUrl(null, url);
