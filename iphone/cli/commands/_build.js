@@ -2405,7 +2405,8 @@ iOSBuilder.prototype.populateIosFiles = function populateIosFiles(next) {
             '__APP_COPYRIGHT__': this.tiapp.copyright,
             '__APP_GUID__': this.tiapp.guid,
             '__APP_RESOURCE_DIR__': '',
-            '__APP_DEPLOY_TYPE__': this.buildType
+            '__APP_DEPLOY_TYPE__': this.buildType,
+            '__APP_BUILD_DATE__': Date.now()
         },
         dest,
         variables = {},

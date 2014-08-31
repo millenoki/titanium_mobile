@@ -30,6 +30,7 @@ extern NSString * const TI_APPLICATION_DESCRIPTION;
 extern NSString * const TI_APPLICATION_COPYRIGHT;
 extern NSString * const TI_APPLICATION_GUID;
 extern BOOL const TI_APPLICATION_ANALYTICS;
+extern long long const TI_APPLICATION_BUILD_DATE;
 
 @implementation AppModule
 
@@ -588,6 +589,20 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
 	return NUMBOOL(TI_APPLICATION_ANALYTICS);
 }
+
+-(id)buildDate
+{
+    if (TI_APPLICATION_BUILD_DATE == -1) {
+        NUMLONGLONG([[NSDate date] timeIntervalSince1970]);
+    }
+	return NUMLONGLONG(TI_APPLICATION_BUILD_DATE);
+}
+
+-(id)buildNumber
+{
+	return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"];
+}
+
 
 -(NSNumber*)keyboardVisible
 {
