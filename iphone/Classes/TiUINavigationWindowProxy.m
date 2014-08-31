@@ -727,7 +727,7 @@ else{\
 }
 -(void)viewDidDisappear:(BOOL)animated
 {
-    if ([self viewAttached]) {
+    if (navController) {
         [navController viewDidDisappear:animated];
     }
     [super viewDidDisappear:animated];
