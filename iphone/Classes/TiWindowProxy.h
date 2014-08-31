@@ -35,6 +35,7 @@
 
 @property (nonatomic, readwrite, assign) TiViewProxy<TiTab> *tab;
 @property (nonatomic, readonly) TiProxy* tabGroup;
+@property (nonatomic, readonly) BOOL focussed;
 -(void)updateOrientationModes;
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION

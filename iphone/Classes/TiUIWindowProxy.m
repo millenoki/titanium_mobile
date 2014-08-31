@@ -330,6 +330,12 @@ NSArray* keySequence;
 	[super viewWillDisappear:animated];
 }
 
+-(void)windowWillOpen
+{
+    [super windowWillOpen];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewDidForceFrame:) name:kTiFrameAdjustNotification object:nil];
+}
+
 #pragma mark - UINavController, NavItem UI
 
 
@@ -1167,6 +1173,24 @@ else{\
     controller.navigationItem.leftBarButtonItems = controller.navigationItem.rightBarButtonItems = nil;
     if (barImageView != nil) {
         [barImageView removeFromSuperview];
+    }
+}
+
+-(void)rootViewDidForceFrame:(NSNotification *)notification
+{
+    if ([self focussed] && opened) {
+        id navController = [self navControllerForController:controller];
+        if ((controller == nil) || (navController == nil)) {
+            return;
+        }
+        
+        BOOL isHidden = [navController isNavigationBarHidden];
+        [navController setNavigationBarHidden:!isHidden animated:NO];
+        //we need the small duration animation or it wont get updated
+        [UIView animateWithDuration:0.001 animations:^{
+            [[navController view] setFrame:[navController view].frame];
+            [navController setNavigationBarHidden:isHidden animated:NO];
+        }];
     }
 }
 @end

@@ -16,7 +16,6 @@
 @interface TiWindowProxy(Private)
 -(void)openOnUIThread:(id)args;
 -(void)closeOnUIThread:(id)args;
--(void)rootViewDidForceFrame:(NSNotification *)notification;
 @end
 
 @implementation TiWindowProxy
@@ -66,25 +65,10 @@
     return @"Ti.Window";
 }
 
--(void)rootViewDidForceFrame:(NSNotification *)notification
-{
-    if (focussed && opened) {
-        if ( (controller == nil) || ([controller navigationController] == nil) ) {
-            return;
-        }
-        UINavigationController* nc = [controller navigationController];
-        BOOL isHidden = [nc isNavigationBarHidden];
-        [nc setNavigationBarHidden:!isHidden animated:NO];
-        [nc setNavigationBarHidden:isHidden animated:NO];
-        [[nc view] setNeedsLayout];
-    }
-}
-
 -(TiUIView*)newView
 {
 	TiUIWindow * win = (TiUIWindow*)[super newView];
     win.frame =[TiUtils appFrame];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rootViewDidForceFrame:) name:kTiFrameAdjustNotification object:nil];
 	return win;
 }
 
@@ -137,7 +121,7 @@
     opening = NO;
     opened = YES;
     [self fireEvent:@"open" propagate:NO];
-    if (focussed && [self handleFocusEvents]) {
+    if ([self focussed] && [self handleFocusEvents]) {
         [self fireEvent:@"focus" propagate:NO];
     }
     [super windowDidOpen];
@@ -286,7 +270,7 @@
             statusBarStyle = UIStatusBarStyleDefault;
     }
     [self setValue:NUMINT(statusBarStyle) forUndefinedKey:@"statusBarStyle"];
-    if(focussed) {
+    if([self focussed]) {
         TiThreadPerformOnMainThread(^{
             [(TiRootViewController*)[[TiApp app] controller] updateStatusBar];
         }, YES); 
@@ -421,6 +405,11 @@
 	return YES;
 }
 
+-(BOOL)focussed
+{
+	return focussed || [tab focussed] || [[self getParentWindow] focussed];
+}
+
 -(void)gainFocus
 {
     if (focussed == NO) {
@@ -487,7 +476,7 @@
 
 -(void)forceNavBarFrame
 {
-    if (!focussed) {
+    if (![self focussed]) {
         return;
     }
     if ( (controller == nil) || ([controller navigationController] == nil) ) {
