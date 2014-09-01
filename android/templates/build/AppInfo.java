@@ -69,6 +69,6 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 	}
 
 	public long getBuildDate() {
-		return "<%- buildDate %>";
+		return <%- buildDate %>L;
 	}
 }
