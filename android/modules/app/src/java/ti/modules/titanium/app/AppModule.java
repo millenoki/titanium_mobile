@@ -188,12 +188,12 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return appInfo.isAnalyticsEnabled();
 	}
 	
-	@Kroll.method
+	@Kroll.getProperty @Kroll.method
     public long getBuildDate() {
         return appInfo.getBuildDate();
     }
 	
-	@Kroll.method
+	@Kroll.getProperty @Kroll.method
     public int getBuildNumber() {
         if (appVersionCode == -1) {
             initializeVersionValues();
