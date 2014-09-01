@@ -2218,7 +2218,7 @@ static NSDictionary* replaceKeysForRow;
     InsetScrollViewForKeyboard(_tableView,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
--(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
+-(void)scrollToShowView:(UIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
     if ([_tableView isScrollEnabled]) {
         CGRect minimumContentRect = [_tableView bounds];

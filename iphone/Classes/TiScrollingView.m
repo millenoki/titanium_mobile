@@ -19,8 +19,17 @@
 {
 }
 
--(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
+-(void)scrollToShowView:(UIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
+}
+
+- (BOOL) topView:(UIView*)topView containsView:(UIView *) view  {
+    for (UIView * theView in [topView subviews]){
+        if (theView == view || [self topView:theView containsView:view]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (void)updateKeyboardInset  {
@@ -30,8 +39,12 @@
     
     [self keyboardDidShowAtHeight:keyboardHeight];
     
-    if ([inputView isKindOfClass:[TiUIView class]]) {
-        [self scrollToShowView:(TiUIView*)inputView withKeyboardHeight:keyboardHeight];
+    if (inputView && [self topView:self containsView:inputView]) {
+        double delayInSeconds = 0.3;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [self scrollToShowView:inputView withKeyboardHeight:keyboardHeight];
+        });
     }
 }
 

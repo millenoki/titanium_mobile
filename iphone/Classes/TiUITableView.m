@@ -2582,7 +2582,7 @@ return result;	\
 	InsetScrollViewForKeyboard(tableview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
--(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
+-(void)scrollToShowView:(UIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
     if ([tableview isScrollEnabled]) {
         int lastSectionIndex = [(TiUITableViewProxy *)[self proxy] sectionCount]-1;

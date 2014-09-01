@@ -471,7 +471,7 @@
 	InsetScrollViewForKeyboard(scrollView,keyboardTop,minimumContentHeight);
 }
 
--(void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
+-(void)scrollToShowView:(UIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
     if ([scrollView isScrollEnabled]) {
         CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
