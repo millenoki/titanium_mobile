@@ -20,17 +20,20 @@
 @interface TiUITextViewImpl()
 - (void)handleTextViewDidChange;
 @property(nonatomic,assign) BOOL inLayout;
+@property(nonatomic,assign) BOOL ignoreSystemContentOffset;
 @end
 
 
 @implementation TiUITextViewImpl
 {
     BOOL becameResponder;
+    BOOL _nonSystemContentOffset;
 }
 
 -(id)initWithFrame:(CGRect)frame
 {
     if (self = [super initWithFrame:frame]) {
+        _ignoreSystemContentOffset = YES;
     }
     return self;
 }
@@ -158,6 +161,12 @@
     self.displayPlaceHolder = text.length == 0;
 }
 
+-(void)setNonSystemContentOffset:(CGPoint)offset {
+    self.ignoreSystemContentOffset = NO;
+    [self setContentOffset:offset];
+    self.ignoreSystemContentOffset = YES;
+}
+
 - (void)updateKeyboardInsetWithScroll:(BOOL)shouldScroll animated:(BOOL)animated  {
     CGRect keyboardRect = [[[TiApp app] controller] getKeyboardFrameInView:self];
     if (!CGRectIsEmpty(keyboardRect)) {
@@ -186,7 +195,7 @@
                 offset.y += overflow + 7; // leave 7 pixels margin
                                           // Cannot animate with setContentOffset:animated: or caret will not appear
                 [UIView animateWithDuration:.1 animations:^{
-                    [self setContentOffset:offset];
+                    [self setNonSystemContentOffset:offset];
                 }];
                 return;
             }
@@ -202,17 +211,21 @@
     else {
         CGFloat height = self.bounds.size.height;
         CGPoint contentOffset = self.contentOffset;
-        UIEdgeInsets contentInset = self.contentInset;
         CGRect rectSelected = [self caretRectForPosition:self.selectedTextRange.end];
-        rectSelected.origin.y -= self.contentOffset.y;
-        if (rectSelected.origin.y + rectSelected.size.height > height) {
-            CGFloat overflow = rectSelected.origin.y + rectSelected.size.height - height;
-            CGPoint offset = self.contentOffset;
-            offset.y += overflow + 7; // leave 7 pixels margin
-                                      // Cannot animate with setContentOffset:animated: or caret will not appear
-            
+        rectSelected.origin.y -= contentOffset.y;
+        BOOL needsChange = NO;
+        if (!self.isScrollEnabled && rectSelected.origin.y < 0) {
+            contentOffset.y += rectSelected.origin.y;
+            needsChange = YES;
+        }
+        else if (rectSelected.origin.y + rectSelected.size.height > height) {
+            contentOffset.y += rectSelected.origin.y + rectSelected.size.height - height + 7; // leave 7 pixels margin
+                                          // Cannot animate with setContentOffset:animated: or caret will not appear
+            needsChange = YES;
+        }
+        if (needsChange) {
             [UIView animateWithDuration:.1 animations:^{
-                [self setContentOffset:offset];
+                [self setNonSystemContentOffset:contentOffset];
             }];
         }
     }
@@ -540,13 +553,13 @@
     self.currentText = [tv text];
 	NSString* curText = [self.currentText stringByReplacingCharactersInRange:range withString:text];
     
-    if ( _maxLines > -1) {
-        CGSize sizeThatShouldFitTheContent = [tv sizeThatFits:tv.frame.size];
-        NSUInteger numLines = floorf(sizeThatShouldFitTheContent.height/tv.font.lineHeight);
-        if (numLines>_maxLines) {
-            return NO;
-        }
-    }
+//    if ( _maxLines > -1) {
+//        CGSize sizeThatShouldFitTheContent = [tv sizeThatFits:tv.frame.size];
+//        NSUInteger numLines = floorf(sizeThatShouldFitTheContent.height/tv.font.lineHeight);
+//        if (numLines>_maxLines) {
+//            return NO;
+//        }
+//    }
 	if ([text isEqualToString:@"\n"])
 	{
         if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
@@ -607,8 +620,8 @@
 {
     //Ensure that system messages that cause the scrollView to
     //scroll are ignored if scrollable is set to false
-    UITextView* ourView = (UITextView*)[self textWidgetView];
-    if (![ourView isScrollEnabled]) {
+    TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
+    if (![ourView isScrollEnabled] && ourView.ignoreSystemContentOffset) {
         CGPoint origin = [scrollView contentOffset];
         if ( (origin.x != 0) || (origin.y != 0) ) {
             [scrollView setContentOffset:CGPointZero animated:NO];
