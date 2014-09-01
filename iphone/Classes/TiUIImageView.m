@@ -823,7 +823,12 @@ DEFINE_EXCEPTIONS
 
 -(void)setImage_:(id)arg
 {
-    if (!configurationSet)return;
+    if (!configurationSet) {
+        if (_reusing) {
+            [self loadDefaultImage];
+        }
+        return;
+    }
     if (_currentImageSource && [_currentImageSource isEqual:arg] && _currentImage) return;
     
     RELEASE_TO_NIL(_currentImageSource)
