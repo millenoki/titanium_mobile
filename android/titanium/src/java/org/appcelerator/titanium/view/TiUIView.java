@@ -128,7 +128,8 @@ public abstract class TiUIView
 	protected boolean reusing = false;
 	
 	protected boolean isEnabled = true;
-	protected boolean isFocusable = false;
+    protected boolean isFocusable = false;
+    protected boolean isTouchEnabled = true;
 
 	private boolean clipChildren = true;
 
@@ -376,7 +377,7 @@ public abstract class TiUIView
 	
 	
 	protected boolean isClickable(){
-		return TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
+		return isTouchEnabled;
 	}
 	/**
 	 * Sets the nativeView to view.
@@ -657,9 +658,9 @@ public abstract class TiUIView
 			if (changedProperty)
 				registerForKeyPress(nativeView, isFocusable);
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
-			boolean value = TiConvert.toBoolean(newValue, true);
-			nativeView.setEnabled(value);
-			doSetClickable(nativeView, value);
+			isTouchEnabled = TiConvert.toBoolean(newValue, true);
+//			nativeView.setEnabled(value);
+			doSetClickable(nativeView, isTouchEnabled);
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			this.setVisibility(TiConvert.toBoolean(newValue, true) ? View.VISIBLE
 					: View.INVISIBLE);
@@ -1549,12 +1550,11 @@ public abstract class TiUIView
 		}
 
 		handleTouchEvent(event);
-		return false;
+		return !isTouchEnabled;
 	}
 
 	protected void registerTouchEvents(final View touchable)
 	{
-
 		touchView = new WeakReference<View>(touchable);
 
 		scaleDetector = new ScaleGestureDetector(touchable.getContext(),
@@ -1843,6 +1843,7 @@ public abstract class TiUIView
 	
 	public boolean touchPassThrough(View view, MotionEvent event)
 	{
+	    if (!isTouchEnabled) return true;
 		if (touchPassThrough == true)
 		{
 		    if (view != null) {
