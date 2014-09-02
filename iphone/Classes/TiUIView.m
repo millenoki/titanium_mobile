@@ -2058,7 +2058,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 - (BOOL)interactionEnabled
 {
-	return _customUserInteractionEnabled;
+	return self.userInteractionEnabled && _customUserInteractionEnabled;
 }
 
 - (BOOL)hasTouchableListener
@@ -2117,7 +2117,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(BOOL) enabledForBgState
 {
-    return [self interactionEnabled];
+    return _customUserInteractionEnabled;
 }
 
 -(void)setViewState:(UIControlState)state
