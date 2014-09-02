@@ -104,6 +104,7 @@ void InsetScrollViewForKeyboard(UIScrollView * scrollView,CGFloat keyboardTop,CG
 
 void OffsetScrollViewForRect(UIScrollView * scrollView,CGFloat keyboardTop,CGFloat minimumContentHeight,CGRect responderRect)
 {
+    if (keyboardTop == 0) return;
 	VerboseLog(@"ScrollView:%@, keyboardTop:%f minimumContentHeight:%f responderRect:(%f,%f),%fx%f;",
 			scrollView,keyboardTop,minimumContentHeight,
 			responderRect.origin.x,responderRect.origin.y,responderRect.size.width,responderRect.size.height);
@@ -2057,7 +2058,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 - (BOOL)interactionEnabled
 {
-	return self.userInteractionEnabled && _customUserInteractionEnabled;
+	return _customUserInteractionEnabled;
 }
 
 - (BOOL)hasTouchableListener
