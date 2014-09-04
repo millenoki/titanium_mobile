@@ -234,28 +234,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.setProperty @Kroll.method
-	public void setSwipeable(boolean swipeable)
-	{
-		TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
-		if (tabGroup != null) {
-			tabGroup.swipeable = swipeable;
-		} else {
-			swipeTabs = swipeable;
-		}
-	}
-
-	@Kroll.getProperty @Kroll.method
-	public boolean getSwipeable()
-	{
-		TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
-		if (tabGroup != null) {
-			return tabGroup.swipeable;
-		} else {
-			return true;
-		}
-	}
-
 	@Kroll.method
 	public void setTabs(Object obj)
 	{
@@ -318,10 +296,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				Log.e(TAG, "Invalid orientationMode array. Must only contain orientation mode constants.");
 			}
 		}
-
-		if (options.containsKey(TiC.PROPERTY_SWIPEABLE)) {
-			setSwipeable(TiConvert.toBoolean(options.get(TiC.PROPERTY_SWIPEABLE)));
-		}
 	}
 
 	@Kroll.method
@@ -371,7 +345,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			view = new TiUIActionBarTabGroup(this, activity);
 			if (!swipeTabs) {
 				TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
-				tabGroup.swipeable = swipeTabs;
 			}
 		} else {
 			Log.e(TAG, "ActionBar not available for TabGroup");
