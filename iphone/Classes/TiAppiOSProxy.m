@@ -12,8 +12,8 @@
 #ifdef USE_TI_APPIOS
 #import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
-#import "TiAppiOSNotificationActionProxy.h"
-#import "TiAppiOSNotificationCategoryProxy.h"
+//#import "TiAppiOSNotificationActionProxy.h"
+//#import "TiAppiOSNotificationCategoryProxy.h"
 
 
 @implementation TiAppiOSProxy
@@ -147,117 +147,117 @@
 //TO DO: implement didRegisterUserNotificationSettings delegate?
 //remote notifications add 'category'
 
--(id)createUserNotificationAction:(id)args
-{
+//-(id)createUserNotificationAction:(id)args
+//{
+//
+//	if(![TiUtils isIOS8OrGreater]) {
+//		return nil;
+//	}
+//
+//	ENSURE_SINGLE_ARG(args,NSDictionary);
+//	UIMutableUserNotificationAction *notifAction = [[UIMutableUserNotificationAction alloc] init];
+//
+//	id identifier = [args objectForKey:@"identifier"];
+//
+//	if (identifier!=nil) {
+//		notifAction.identifier = identifier;
+//	}
+//    
+//	id title = [args objectForKey:@"title"];
+//    
+//	if (title!=nil) {
+//		notifAction.title = title;
+//	}
+//	
+//	UIUserNotificationActivationMode activationMode = [TiUtils intValue:[args objectForKey:@"activationMode"]];
+//	notifAction.activationMode = activationMode;
+//
+//	BOOL destructive = [TiUtils boolValue:[args objectForKey:@"destructive"]];
+//    
+//	notifAction.destructive = destructive;
+//
+//	BOOL authenticationRequired = [TiUtils boolValue:[args objectForKey:@"authenticationRequired"]];
+//	notifAction.authenticationRequired = authenticationRequired;
+//
+//	TiAppiOSNotificationActionProxy *ap = [[[TiAppiOSNotificationActionProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+//	ap.notificationAction = notifAction;
+//    
+//	[notifAction release];
+//	return ap;
+//}
 
-	if(![TiUtils isIOS8OrGreater]) {
-		return nil;
-	}
+//-(id)createUserNotificationCategory:(id)args
+//{
+//
+//	if(![TiUtils isIOS8OrGreater]) {
+//		return nil;
+//	}
+//	
+//	ENSURE_SINGLE_ARG(args,NSDictionary);
+//	UIMutableUserNotificationCategory *notifCategory = [[UIMutableUserNotificationCategory alloc] init];
+//	
+//	id identifier = [args objectForKey:@"identifier"];
+//	
+//	if (identifier!=nil) {
+//		notifCategory.identifier = identifier;
+//	}
+//	
+//	id actionsForDefaultContext = [args objectForKey:@"actionsForDefaultContext"];
+//	id actionsForMinimalContext = [args objectForKey:@"actionsForMinimalContext"];
+//	
+//	UIMutableUserNotificationAction *acceptAction = [[UIMutableUserNotificationAction alloc]init];
+//	
+//	if (actionsForDefaultContext != nil) {
+//		NSMutableArray *afdc = [[NSMutableArray alloc] init];
+//		
+//		for(TiAppiOSNotificationActionProxy* action in actionsForDefaultContext) {
+//			[afdc addObject:action.notificationAction];
+//		}
+//		[notifCategory setActions:afdc forContext:UIUserNotificationActionContextDefault];
+//	}
+//	if (actionsForMinimalContext != nil) {
+//		NSMutableArray *afmc = [[NSMutableArray alloc] init];
+//
+//		for(TiAppiOSNotificationActionProxy* action in actionsForMinimalContext) {
+//			[afmc addObject:action.notificationAction];
+//		}
+//		[notifCategory setActions:afmc forContext:UIUserNotificationActionContextMinimal];
+//    }
+//    
+//	TiAppiOSNotificationCategoryProxy *cp = [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+//
+//	cp.notificationCategory = notifCategory;
+//
+//	[notifCategory release];
+//	return cp;
+//}
 
-	ENSURE_SINGLE_ARG(args,NSDictionary);
-	UIMutableUserNotificationAction *notifAction = [[UIMutableUserNotificationAction alloc] init];
-
-	id identifier = [args objectForKey:@"identifier"];
-
-	if (identifier!=nil) {
-		notifAction.identifier = identifier;
-	}
-    
-	id title = [args objectForKey:@"title"];
-    
-	if (title!=nil) {
-		notifAction.title = title;
-	}
-	
-	UIUserNotificationActivationMode activationMode = [TiUtils intValue:[args objectForKey:@"activationMode"]];
-	notifAction.activationMode = activationMode;
-
-	BOOL destructive = [TiUtils boolValue:[args objectForKey:@"destructive"]];
-    
-	notifAction.destructive = destructive;
-
-	BOOL authenticationRequired = [TiUtils boolValue:[args objectForKey:@"authenticationRequired"]];
-	notifAction.authenticationRequired = authenticationRequired;
-
-	TiAppiOSNotificationActionProxy *ap = [[[TiAppiOSNotificationActionProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-	ap.notificationAction = notifAction;
-    
-	[notifAction release];
-	return ap;
-}
-
--(id)createUserNotificationCategory:(id)args
-{
-
-	if(![TiUtils isIOS8OrGreater]) {
-		return nil;
-	}
-	
-	ENSURE_SINGLE_ARG(args,NSDictionary);
-	UIMutableUserNotificationCategory *notifCategory = [[UIMutableUserNotificationCategory alloc] init];
-	
-	id identifier = [args objectForKey:@"identifier"];
-	
-	if (identifier!=nil) {
-		notifCategory.identifier = identifier;
-	}
-	
-	id actionsForDefaultContext = [args objectForKey:@"actionsForDefaultContext"];
-	id actionsForMinimalContext = [args objectForKey:@"actionsForMinimalContext"];
-	
-	UIMutableUserNotificationAction *acceptAction = [[UIMutableUserNotificationAction alloc]init];
-	
-	if (actionsForDefaultContext != nil) {
-		NSMutableArray *afdc = [[NSMutableArray alloc] init];
-		
-		for(TiAppiOSNotificationActionProxy* action in actionsForDefaultContext) {
-			[afdc addObject:action.notificationAction];
-		}
-		[notifCategory setActions:afdc forContext:UIUserNotificationActionContextDefault];
-	}
-	if (actionsForMinimalContext != nil) {
-		NSMutableArray *afmc = [[NSMutableArray alloc] init];
-
-		for(TiAppiOSNotificationActionProxy* action in actionsForMinimalContext) {
-			[afmc addObject:action.notificationAction];
-		}
-		[notifCategory setActions:afmc forContext:UIUserNotificationActionContextMinimal];
-    }
-    
-	TiAppiOSNotificationCategoryProxy *cp = [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
-
-	cp.notificationCategory = notifCategory;
-
-	[notifCategory release];
-	return cp;
-}
-
--(void)registerForLocalNotifications:(id)args
-{
-	if (![TiUtils isIOS8OrGreater]) return;
-	
-	ENSURE_SINGLE_ARG(args, NSDictionary);
-	id categories = [args objectForKey:@"categories"];
-	if (categories != nil && ![categories isKindOfClass:[NSArray class]]) {
-		NSLog(@"[WARN] Ti.App.iOS.registerForLocalNotifications.categories must be an Array");
-		categories = nil;
-	}
-		
-	NSMutableSet *categoriesSet = nil;
-	if (categories != nil) {
-		categoriesSet = [NSMutableSet set];
-		for (id category in categories) {
-			if([category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
-				TiAppiOSNotificationCategoryProxy* catProxy = (TiAppiOSNotificationCategoryProxy*)category;
-				[categoriesSet addObject:[catProxy notificationCategory]];
-			}
-		}
-	}
-	
-	UIUserNotificationType types = [TiUtils intValue:[args objectForKey:@"types"] def: UIUserNotificationTypeNone];
-	UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types categories:categoriesSet];
-	[[UIApplication sharedApplication] registerUserNotificationSettings:notif];
-}
+//-(void)registerForLocalNotifications:(id)args
+//{
+//	if (![TiUtils isIOS8OrGreater]) return;
+//	
+//	ENSURE_SINGLE_ARG(args, NSDictionary);
+//	id categories = [args objectForKey:@"categories"];
+//	if (categories != nil && ![categories isKindOfClass:[NSArray class]]) {
+//		NSLog(@"[WARN] Ti.App.iOS.registerForLocalNotifications.categories must be an Array");
+//		categories = nil;
+//	}
+//		
+//	NSMutableSet *categoriesSet = nil;
+//	if (categories != nil) {
+//		categoriesSet = [NSMutableSet set];
+//		for (id category in categories) {
+//			if([category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
+//				TiAppiOSNotificationCategoryProxy* catProxy = (TiAppiOSNotificationCategoryProxy*)category;
+//				[categoriesSet addObject:[catProxy notificationCategory]];
+//			}
+//		}
+//	}
+//	
+//	UIUserNotificationType types = [TiUtils intValue:[args objectForKey:@"types"] def: UIUserNotificationTypeNone];
+//	UIUserNotificationSettings *notif = [UIUserNotificationSettings settingsForTypes:types categories:categoriesSet];
+//	[[UIApplication sharedApplication] registerUserNotificationSettings:notif];
+//}
 
 -(id)scheduleLocalNotification:(id)args
 {
@@ -320,14 +320,14 @@
 		localNotif.userInfo = userInfo;
 	}
 
-	if([TiUtils isIOS8OrGreater]) {
-		id category = [args objectForKey:@"category"];
-		if (category != nil && [category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
-			localNotif.category = [(TiAppiOSNotificationCategoryProxy*)category identifier];
-		} else if (category != nil && [category isKindOfClass:[NSString class]]) {
-			localNotif.category = category;
-		}
-	}
+//	if([TiUtils isIOS8OrGreater]) {
+//		id category = [args objectForKey:@"category"];
+//		if (category != nil && [category isKindOfClass:[TiAppiOSNotificationCategoryProxy class]]) {
+//			localNotif.category = [(TiAppiOSNotificationCategoryProxy*)category identifier];
+//		} else if (category != nil && [category isKindOfClass:[NSString class]]) {
+//			localNotif.category = category;
+//		}
+//	}
 	
 	TiThreadPerformOnMainThread(^{
 		if (date!=nil) {
@@ -459,49 +459,49 @@
 
 -(NSNumber*)NOTIFICATION_TYPE_NONE
 {
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationTypeNone);
-	}
+//	if ([TiUtils isIOS8OrGreater]) {
+//		return NUMINT(UIUserNotificationTypeNone);
+//	}
 	return NUMINT(0);
 }
 
 -(NSNumber*)NOTIFICATION_TYPE_BADGE
 {
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationTypeBadge);
-	}
+//	if ([TiUtils isIOS8OrGreater]) {
+//		return NUMINT(UIUserNotificationTypeBadge);
+//	}
 	return NUMINT(0);
 }
 
 -(NSNumber*)NOTIFICATION_TYPE_SOUND
 {
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationTypeSound);
-	}
+//	if ([TiUtils isIOS8OrGreater]) {
+//		return NUMINT(UIUserNotificationTypeSound);
+//	}
 	return NUMINT(0);
 }
 
 -(NSNumber*)NOTIFICATION_TYPE_ALERT
 {
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationTypeAlert);
-	}
+//	if ([TiUtils isIOS8OrGreater]) {
+//		return NUMINT(UIUserNotificationTypeAlert);
+//	}
 	return NUMINT(0);
 }
 
 
 -(NSNumber*)NOTIFICATION_ACTIVATION_MODE_BACKGROUND
 {
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationActivationModeBackground);
-	}
+//	if ([TiUtils isIOS8OrGreater]) {
+//		return NUMINT(UIUserNotificationActivationModeBackground);
+//	}
 	return NUMINT(0);
 }
 -(NSNumber*)NOTIFICATION_ACTIVATION_MODE_FOREGROUND
 {
-	if ([TiUtils isIOS8OrGreater]) {
-		return NUMINT(UIUserNotificationActivationModeForeground);
-	}
+//	if ([TiUtils isIOS8OrGreater]) {
+//		return NUMINT(UIUserNotificationActivationModeForeground);
+//	}
 	return NUMINT(0);
 }
 
