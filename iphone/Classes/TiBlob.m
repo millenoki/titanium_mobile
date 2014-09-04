@@ -395,40 +395,40 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	return nil;
 }
 
-- (id)imageAsCropped:(id)args
+-(UIImage*)shrinkImage:(UIImage*)theImage withMaxByteSize:(NSUInteger)byteSize {
+    
+    double compressionRatio = 1;
+    int resizeAttempts = 10;
+    NSData * lastImgData = nil;
+    NSData * imgData = UIImageJPEGRepresentation(theImage,compressionRatio);
+    
+    //Trying to push it below around about 0.4 meg
+    while ([imgData length] > byteSize && resizeAttempts > 0) {
+        resizeAttempts -= 1;
+        lastImgData = imgData;
+        compressionRatio = 0.7;
+        imgData = UIImageJPEGRepresentation([UIImage imageWithData:lastImgData],compressionRatio);
+        if ([imgData length] > byteSize) {
+            compressionRatio = 0.5;
+        }
+        // too much of a compression let's resize the image
+        UIImage* newImage = [UIImage imageWithData:lastImgData];
+        newImage = [UIImageResize resizedImage:CGSizeMake(newImage.size.width*compressionRatio, newImage.size.height*compressionRatio) interpolationQuality:kCGInterpolationDefault image:newImage hires:(newImage.scale >= 2)];
+        imgData = UIImageJPEGRepresentation(newImage, 1);
+        
+        //Test size after compression
+    }
+    return [UIImage imageWithData:imgData];
+}
+
+- (id)imageAsCompressed:(id)args
 {
 	[self ensureImageLoaded];
 	if (image!=nil)
 	{
-        CGSize imageSize = [image size];
-		CGRect bounds;
-        NSDictionary *options = nil;
-        ENSURE_ARG_OR_NIL_AT_INDEX(options, args, 1, NSDictionary);
-		EXTRACT_SINGLE_ARG(args);
-        if ([args isKindOfClass:[TiRect class]]) {
-            bounds = [((TiRect*)args) rect];
-        }
-        else {
-            bounds.size.width = [TiUtils floatValue:@"width" properties:args def:imageSize.width];
-            bounds.size.height = [TiUtils floatValue:@"height" properties:args def:imageSize.height];
-            bounds.origin.x = [TiUtils floatValue:@"x" properties:args def:(imageSize.width - bounds.size.width) / 2.0];
-            bounds.origin.y = [TiUtils floatValue:@"y" properties:args def:(imageSize.height - bounds.size.height) / 2.0];
-
-        }
-        if (options) {
-            if ([options objectForKey:@"scale"]) {
-                float scale = [TiUtils floatValue:@"scale" properties:options def:1.0f];
-                if ([TiUtils isRetinaDisplay])
-                {
-                    scale*=2;
-                }
-                bounds.origin.x *= scale;
-                bounds.origin.y *= scale;
-                bounds.size.width *= scale;
-                bounds.size.height *= scale;
-            }
-        }
-        TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageResize croppedImage:bounds image:image]];
+        ENSURE_SINGLE_ARG(args, NSNumber);
+        NSUInteger maxSize = [args intValue];
+        TiBlob *blob = [[TiBlob alloc] initWithImage:[self shrinkImage:image withMaxByteSize:maxSize]];
 		return [blob autorelease];
 	}
 	return nil;
