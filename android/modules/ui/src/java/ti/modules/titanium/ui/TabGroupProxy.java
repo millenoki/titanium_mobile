@@ -33,7 +33,8 @@ import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
-	TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR
+	TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR,
+	TiC.PROPERTY_SWIPEABLE
 })
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -59,6 +60,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public TabGroupProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_SWIPEABLE, true);
 		customHandleOpenEvent(true);
 	}
 
@@ -123,6 +125,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		return tps;
 	}
 
+	public int getTabIndex(TabProxy tabProxy)
+	{
+		return tabs.indexOf(tabProxy);
+	}
 
 	public ArrayList<TabProxy> getTabList()
 	{

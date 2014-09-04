@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -13,14 +16,24 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.kroll.common.Log;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTab.TabFragment;
+
 import android.app.Activity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.app.ActionBar.TabListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.app.FragmentManager;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.view.MotionEvent;
 
 import org.appcelerator.kroll.common.Log;
 
@@ -53,10 +66,11 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	private boolean tabsDisabled = false;
 	private Fragment savedFragment = null;
 	private boolean savedSwipeable;
-	public boolean swipeable = true;
+	private boolean swipeable;
 
 	// The tab to be selected once the activity resumes.
 	private Tab selectedTabOnResume;
+	private WeakReference<TiBaseActivity> tabActivity;
 
 	private TabGroupPagerAdapter tabGroupPagerAdapter;
 	private ViewPager tabGroupViewPager;
@@ -64,6 +78,8 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 	public TiUIActionBarTabGroup(TabGroupProxy proxy, TiBaseActivity activity) {
 		super(proxy, activity);
+
+		tabActivity = new WeakReference<TiBaseActivity>(activity);
 
 		activity.addOnLifecycleEventListener(this);
 
@@ -79,10 +95,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			actionBar.setDisplayUseLogoEnabled(false);
 		}
 
-		// Create a view to present the contents of the currently selected tab.
-		FrameLayout tabContent = new FrameLayout(activity);
-		tabContent.setId(android.R.id.tabcontent);
-		tabGroupPagerAdapter = new TabGroupPagerAdapter(((TiBaseActivity) activity).getSupportFragmentManager());
+		swipeable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SWIPEABLE), true);
+
+		tabGroupPagerAdapter = new TabGroupPagerAdapter(((ActionBarActivity) activity).getSupportFragmentManager());
 
 		tabGroupViewPager = (new ViewPager(proxy.getActivity()){
 			@Override
@@ -95,6 +110,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 				return swipeable ? super.onInterceptTouchEvent(event) : false;
 			}
 		});
+
 		tabGroupViewPager.setAdapter(tabGroupPagerAdapter);
 
 		tabGroupViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -117,43 +133,94 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
 		((ViewGroup) activity.getLayout()).addView(tabGroupViewPager, params);
-
 		if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			actionBar.setBackgroundDrawable(TiConvert.toColorDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR).toString()));
 		}
-
 		setNativeView(tabGroupViewPager);
-}
-
-private class TabGroupPagerAdapter extends FragmentPagerAdapter {
-	public TabGroupPagerAdapter(FragmentManager fm) {
-		super(fm);
 	}
 
-	@Override
-	public Fragment getItem(int i) {
-		if (tabsDisabled) {
-			return savedFragment;
-		} else {
-			ActionBar.Tab tab = actionBar.getTabAt(i);
-			TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
-			if (tabView.fragment == null) {
-				tabView.initializeFragment();
+	private class TabGroupPagerAdapter extends FragmentPagerAdapter {
+		ArrayList<WeakReference<Fragment>> registeredFragments = new ArrayList<WeakReference<Fragment>>();
+
+		public TabGroupPagerAdapter(FragmentManager fm) {
+			super(fm);
+		}
+
+		public Fragment getRegisteredFragment(int position) {
+			if (position >= registeredFragments.size()) {
+				return null;
 			}
-			return tabView.fragment;
+			WeakReference<Fragment> weakReferenceFragment = registeredFragments.get(position);
+			if (weakReferenceFragment != null) {
+				return weakReferenceFragment.get();
+			}
+			return null;
+		}
+
+		@Override
+		public Object instantiateItem(ViewGroup container, int position) {
+			Fragment fragment = (Fragment) super.instantiateItem(container, position);
+			WeakReference<Fragment> weakReferenceFragment = new WeakReference<Fragment>(fragment);
+			for (int i = registeredFragments.size(); i < position; i++) {
+				// for example if tab 2 is instantiated before tab 1
+				registeredFragments.add(i, null);
+			}
+			if (position > registeredFragments.size() - 1) {
+				registeredFragments.add(position, weakReferenceFragment);
+			} else {
+				registeredFragments.set(position, weakReferenceFragment);
+			}
+			return fragment;
+		}
+
+		@Override
+		public void destroyItem(ViewGroup container, int position, Object object) {
+			registeredFragments.remove(position);
+			super.destroyItem(container, position, object);
+		}
+
+		@Override
+		public Fragment getItem(int i) {
+			if (tabsDisabled) {
+				return savedFragment;
+			} else {
+				ActionBar.Tab tab = actionBar.getTabAt(i);
+				TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
+				if (tabView.fragment == null) {
+					tabView.initializeFragment();
+				}
+				return tabView.fragment;
+			}
+		}
+
+		@Override
+		public int getCount() {
+			if (tabsDisabled) {
+				return 1;
+			} else {
+				return actionBar.getNavigationItemCount();
+			}
+		}
+
+		@Override
+		public int getItemPosition(Object object) {
+			TabFragment fragment = (TabFragment) object;
+			if (fragment.getTab() == null){
+				return POSITION_NONE;
+			}
+			String fragmentTag = fragment.getTag();
+			for (int i=0; i < registeredFragments.size(); i++){
+				Fragment registeredFragment = getRegisteredFragment(i);
+				if (registeredFragment != null) {
+					if (fragmentTag.equals(registeredFragment.getTag())){
+						return i;
+					}
+				}
+			}
+			return POSITION_NONE;
 		}
 	}
 
-	@Override
-	public int getCount() {
-		if (tabsDisabled) {
-			return 1;
-		} else {
-			return actionBar.getNavigationItemCount();
-		}
-	}
-}
-	
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -162,9 +229,25 @@ private class TabGroupPagerAdapter extends FragmentPagerAdapter {
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			actionBar.setTitle(d.getString(TiC.PROPERTY_TITLE));
 		}
-
+		if (d.containsKey(TiC.PROPERTY_SWIPEABLE)) {
+			swipeable = d.getBoolean(TiC.PROPERTY_SWIPEABLE);
+		}
 	}
 
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		// TODO Auto-generated method stub
+		if (key.equals(TiC.PROPERTY_TITLE)) {
+			actionBar.setTitle(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+			actionBar.setBackgroundDrawable(TiConvert.toColorDrawable(newValue.toString()));
+		} else if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
+			swipeable = TiConvert.toBoolean(newValue);
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
 
 	@Override
 	public void addTab(TabProxy tabProxy) {
@@ -172,7 +255,8 @@ private class TabGroupPagerAdapter extends FragmentPagerAdapter {
 		tab.setTabListener(this);
 
 		// Create a view for this tab proxy.
-		tabProxy.setView(new TiUIActionBarTab(tabProxy, tab));
+		TiUIActionBarTab actionBarTab = new TiUIActionBarTab(tabProxy, tab);
+		tabProxy.setView(actionBarTab);
 
 		// Add the new tab, but don't select it just yet.
 		// The selected tab is set once the group is done opening.
@@ -185,8 +269,14 @@ private class TabGroupPagerAdapter extends FragmentPagerAdapter {
 
 	@Override
 	public void removeTab(TabProxy tabProxy) {
+		int tabIndex = ((TabGroupProxy) proxy).getTabIndex(tabProxy);
+		TabFragment fragment = (TabFragment) tabGroupPagerAdapter.getRegisteredFragment(tabIndex);
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tabProxy.peekView();
 		actionBar.removeTab(tabView.tab);
+		if (fragment != null){
+			fragment.setTab(null);
+		}
+		tabGroupPagerAdapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -224,6 +314,12 @@ private class TabGroupPagerAdapter extends FragmentPagerAdapter {
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
+
+		if (tabView.fragment == null) {
+			// If not we will create it here then attach it
+			// to the tab group activity inside the "content" container.
+			tabView.initializeFragment();
+		}
 
 		tabGroupViewPager.setCurrentItem(tab.getPosition());
 		TabProxy tabProxy = (TabProxy) tabView.getProxy();
@@ -291,17 +387,6 @@ private class TabGroupPagerAdapter extends FragmentPagerAdapter {
 			actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 			tabGroupPagerAdapter.notifyDataSetChanged();
 			swipeable = savedSwipeable;
-		}
-	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
-		if (key.equals(TiC.PROPERTY_TITLE)) {
-			actionBar.setTitle(TiConvert.toString(newValue));
-		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
-			actionBar.setBackgroundDrawable(TiConvert.toColorDrawable(newValue.toString()));
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
