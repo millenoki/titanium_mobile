@@ -117,6 +117,13 @@
 	return [self button];
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+    [button setFrame:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
+}
+
+
 #pragma mark Public APIs
 
 -(void)setStyle_:(id)style_
@@ -174,6 +181,7 @@
 -(void)setTitle_:(id)value
 {
 	[[self button] setTitle:[TiUtils stringValue:value] forState:UIControlStateNormal];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 //-(void)setBackgroundImage_:(id)value
