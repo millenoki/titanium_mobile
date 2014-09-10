@@ -1048,7 +1048,12 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         // before the image
         // is ready. Don't need to retry decode because we don't want to block
         // UI.
-        setDrawable(defaultImageSource.getDrawable());
+        TiImageView view = getView();
+
+        if (view == null) {
+            return;
+        }
+        view.setImageDrawable(defaultImageSource.getDrawable());
     }
 
     @Override
