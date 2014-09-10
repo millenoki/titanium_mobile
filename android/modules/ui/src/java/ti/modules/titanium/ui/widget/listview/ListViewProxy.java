@@ -490,8 +490,8 @@ public class ListViewProxy extends TiViewProxy {
 		TiUIView listView = peekView();
 		//Preload sections if listView is not opened.
 		if (listView == null) {
-			preload = true;
 			clearPreloadSections();
+            preload = true;
 			addPreloadSections(sectionsArray, -1, true);
 		} else {
 			if (TiApplication.isUIThread()) {

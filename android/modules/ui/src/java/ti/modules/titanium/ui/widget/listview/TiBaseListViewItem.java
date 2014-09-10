@@ -8,7 +8,6 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -40,7 +39,10 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	public int getItemIndex() {
 	    return itemIndex;
 	}
-	
+	public int getSectionIndex() {
+        return sectionIndex;
+    }
+    
 	public KrollProxy getViewProxyFromBinding(String binding) {
 		TiUIView view  = getView();
 		if (view != null) {

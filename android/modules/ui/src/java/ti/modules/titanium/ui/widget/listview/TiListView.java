@@ -1263,17 +1263,14 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 	
 	public KrollProxy getChildByBindId(int sectionIndex, int itemIndex, String bindId) {
-		int position = findItemPosition(sectionIndex, itemIndex);
-		if (headerView != null) {
-            position += 1;
-        }
-		if (position > -1) {
-			View content = listView.getChildAt(position - listView.getFirstVisiblePosition());
-			if (content != null) {
-				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
-				if (itemContent != null) {
-					return itemContent.getViewProxyFromBinding(bindId);
-				}
+	    
+	    View content = getCellAt(sectionIndex, itemIndex);
+        if (content != null) {
+            TiBaseListViewItem listItem = (TiBaseListViewItem) content.findViewById(TiListView.listContentId);
+            if (listItem != null) {
+                if (listItem.getItemIndex() == itemIndex) {
+                    return listItem.getViewProxyFromBinding(bindId);
+                }
 			}
 		}
 		return null;
@@ -1284,15 +1281,19 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
         int childCount = listView.getChildCount();
         for (int i = 0; i < childCount; i++) {
             View child = listView.getChildAt(i);
-            if (child instanceof TiCompositeLayout || (child instanceof FrameLayout && 
-                    ((FrameLayout)child).getChildCount() > 0 && 
-                    ((FrameLayout)child).getChildAt(0) instanceof TiBaseListViewItemHolder)) {
+            TiBaseListViewItem itemContent = (TiBaseListViewItem) child.findViewById(listContentId);
+            if (itemContent != null) {
+                //first visible item of ours
+                int firstposition = findItemPosition(itemContent.getSectionIndex(), itemContent.getItemIndex());
+                position -= firstposition;
                 break;
             }
-            position++;
+            else {
+                position++;
+            }
         }
         if (position > -1) {
-            View content = listView.getChildAt(position - listView.getFirstVisiblePosition());
+            View content = listView.getChildAt(position);
             return content;
             
         }
