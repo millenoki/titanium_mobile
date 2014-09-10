@@ -10,6 +10,7 @@ package ti.modules.titanium.ui.widget.listview;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -27,6 +28,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
 public class TiListItem extends TiUIView implements TiTouchDelegate {
+    private static final String TAG = "TiListItem";
 	TiUIView mClickDelegate;
 	View listItemLayout;
 	private boolean shouldFireClick = true;
