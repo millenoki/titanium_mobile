@@ -131,6 +131,8 @@ public class TiUILabel extends TiUINonViewGroupView
  			textView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 			textView.setKeyListener(null);
 			textView.setSingleLine(false);
+            textView.setTextIsSelectable(false);
+            textView.setSelectAllOnFocus(false);
 			TiUIHelper.styleText(textView, null);
 			addView(textView, getTextLayoutParams());
 		}
@@ -992,6 +994,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		textPadding = new RectF();
 		
 		tv.setFocusable(false);
+		tv.setFocusableInTouchMode(true);
 		widgetDefaultColor = color = disabledColor = selectedColor = tv.textView.getCurrentTextColor();
 		setNativeView(tv);
 
