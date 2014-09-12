@@ -142,6 +142,17 @@ public class TiBlob extends KrollProxy
 		return blob;
 	}
 	
+	public static String getMimeTypeOfFile(Bitmap image) {
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
+	    image.compress(CompressFormat.PNG, 0 /*ignored for PNG*/, bos); 
+	    byte[] bitmapdata = bos.toByteArray();
+	    ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
+	    BitmapFactory.Options opt = new BitmapFactory.Options();
+	    opt.inJustDecodeBounds = true;
+	    BitmapFactory.decodeStream(bs, null, opt);
+	    return opt.outMimeType;
+	}
+	
 	/**
 	 * Creates a blob from a bitmap.
 	 * @param image the image used to create blob.
@@ -150,7 +161,7 @@ public class TiBlob extends KrollProxy
 	 */
 	public static TiBlob blobFromImage(Bitmap image)
 	{
-		TiBlob blob = new TiBlob(TYPE_IMAGE, null, "image/bitmap");
+		TiBlob blob = new TiBlob(TYPE_IMAGE, null, getMimeTypeOfFile(image));
 		blob.image = image;
 		blob.width = image.getWidth();
 		blob.height = image.getHeight();
