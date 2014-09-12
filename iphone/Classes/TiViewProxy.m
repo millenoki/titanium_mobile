@@ -2914,8 +2914,8 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         
 		
         [view setAutoresizingMask:autoresizeCache];
-        [view setBounds:sizeCache];
         [view setCenter:positionCache];
+        [view setBounds:sizeCache];
         
         [self updateZIndex];
         
