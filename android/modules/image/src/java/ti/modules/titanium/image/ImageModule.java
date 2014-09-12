@@ -15,7 +15,6 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiImageHelper.FilterType;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -27,7 +26,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.view.View;
-import android.view.Window;
 import android.os.AsyncTask;
 import android.os.Message;
 
