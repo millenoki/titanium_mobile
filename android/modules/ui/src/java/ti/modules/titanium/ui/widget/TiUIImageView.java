@@ -350,9 +350,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private void handleSetImage(final Bitmap bitmap) {
         TiImageView view = getView();
         if (view != null) {
-            Transition transition = TransitionHelper.transitionFromObject(
-                    transitionDict, null, null);
-            view.setImageBitmapWithTransition(bitmap, transition);
+            view.setImageBitmapWithTransition(bitmap, transitionDict);
             boolean widthDefined = view.getWidthDefined();
             boolean heightDefined = view.getHeightDefined();
             if ((!widthDefined || !heightDefined)) {
@@ -379,9 +377,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         }
         TiImageView view = getView();
         if (view != null) {
-            Transition transition = TransitionHelper.transitionFromObject(
-                    transitionDict, null, null);
-            view.setImageDrawableWithTransition(drawable, transition);
+            view.setImageDrawableWithTransition(drawable, transitionDict);
             boolean widthDefined = view.getWidthDefined();
             boolean heightDefined = view.getHeightDefined();
             if ((!widthDefined || !heightDefined)) {
@@ -950,12 +946,13 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     private void setImageInternal() {
         // Set default image or clear previous image first.
-        setDefaultImage();
+        setDefaultImage(false);
 
         if (imageSources == null || imageSources.size() == 0
                 || imageSources.get(0) == null
                 || imageSources.get(0).isTypeNull()) {
-            //no need to set the image to null, done by setDefaultImage
+            //here we can transition to the default image
+            setDefaultImage(proxy.viewInitialised());
             return;
         }
 
@@ -1039,21 +1036,29 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         }
     }
 
-    private void setDefaultImage() {
-        if (defaultImageSource == null) {
-            setImage(null);
-            return;
-        }
-        // Have to set default image in the UI thread to make sure it shows
-        // before the image
-        // is ready. Don't need to retry decode because we don't want to block
-        // UI.
+    private void setDefaultImage(final boolean withTransition) {
         TiImageView view = getView();
 
-        if (view == null) {
+        if (view == null || (!withTransition && proxy.viewInitialised() && transitionDict != null)) {
             return;
         }
-        view.setImageDrawable(defaultImageSource.getDrawable());
+        
+        if (defaultImageSource == null) {
+            if (withTransition) {
+                setDrawable(null);
+            }
+            else  {
+                view.setImageDrawable(null);
+            }
+        }
+        else {
+            if (withTransition) {
+                setDrawable(defaultImageSource.getDrawable());
+            }
+            else  {
+                view.setImageDrawable(defaultImageSource.getDrawable());
+            }
+        }
     }
 
     @Override
@@ -1154,10 +1159,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             }
         } else {
             if (!d.containsKey(TiC.PROPERTY_IMAGES)) {
-                // getProxy().setProperty(TiC.PROPERTY_IMAGE, null);
-                if (defaultImageSource != null) {
-                    setDefaultImage();
-                }
+                setDefaultImage(false);
             }
         }
 
