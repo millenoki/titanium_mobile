@@ -7,16 +7,14 @@
 package ti.modules.titanium.ui.widget;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.transition.Transition;
-import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.view.MaskableView;
 
-import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.Animator.AnimatorListener;
 import com.trevorpage.tpsvg.SVGDrawable;
 
 import android.content.Context;
@@ -69,7 +67,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	private Boolean configured = false;
 	private Drawable  queuedDrawable = null;
 	private Bitmap  queuedBitmap = null;
-	private Transition  queuedTransition = null;
+	private HashMap  queuedTransition = null;
 	private AnimatorSet currentTransitionSet = null;
 	
 	private ScaleType wantedScaleType = ScaleType.FIT_CENTER;
@@ -312,7 +310,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	 * Sets a Bitmap as the content of imageView
 	 * @param bitmap The bitmap to set. If it is null, it will clear the previous image.
 	 */
-	public void setImageBitmapWithTransition(Bitmap bitmap, Transition transition) {
+	public void setImageBitmapWithTransition(Bitmap bitmap, HashMap transition) {
 		if (transition == null) {
 			setImageBitmap(bitmap);
 		}
@@ -360,35 +358,20 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	 * Sets a Bitmap as the content of imageView
 	 * @param bitmap The bitmap to set. If it is null, it will clear the previous image.
 	 */
-	public void transitionToImageView(ImageView newImageView, Transition transition) {
+	public void transitionToImageView(ImageView newImageView, HashMap transition) {
 		oldImageView = imageView;
 		imageView = newImageView;
-		newImageView.setVisibility(View.GONE);
 		
-		TiUIHelper.addView(this, newImageView, (oldImageView != null)?oldImageView.getLayoutParams():getImageLayoutParams());
-		transition.setTargets(this, newImageView, oldImageView);
-
-		currentTransitionSet = transition.getSet(new AnimatorListener() {
-			public void onAnimationEnd(Animator arg0) {	
-					removeView(oldImageView);
-					oldImageView = null;
-					onTransitionEnd();
-			}
-
-			public void onAnimationCancel(Animator arg0) {
-					removeView(oldImageView);
-					oldImageView = null;
-					onTransitionEnd();
-			}
-
-			public void onAnimationRepeat(Animator arg0) {
-			}
-
-			public void onAnimationStart(Animator arg0) {
-			}
-		});
-		currentTransitionSet.start();
-		newImageView.setVisibility(View.VISIBLE);
+		TransitionHelper.CompletionBlock onDone = new TransitionHelper.CompletionBlock() {
+            
+            @Override
+            public void transitionDidFinish(boolean success) {
+                oldImageView = null;
+                onTransitionEnd();
+            }
+        };
+		
+        currentTransitionSet = TransitionHelper.transitionViews(this, newImageView, oldImageView, onDone, transition, (oldImageView != null)?oldImageView.getLayoutParams():getImageLayoutParams());
 	}
 	
 	public void cancelCurrentTransition()
@@ -406,7 +389,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	 * Sets a Bitmap as the content of imageView
 	 * @param bitmap The bitmap to set. If it is null, it will clear the previous image.
 	 */
-	public void setImageDrawableWithTransition(Drawable drawable, Transition transition) {
+	public void setImageDrawableWithTransition(Drawable drawable, HashMap transition) {
 		if (transition == null) {
 			setImageDrawable(drawable);
 		}

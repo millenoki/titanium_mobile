@@ -254,30 +254,17 @@ public class TiUILabel extends TiUINonViewGroupView
 		public void transitionToTextView(EllipsizingTextView newTextView, Transition transition) {
 			oldTextView = textView;
 			textView = newTextView;
-			newTextView.setVisibility(View.GONE);
-			TiUIHelper.addView(this, newTextView, getTextLayoutParams());
 			registerForTouch();
 			registerForKeyPress();
-			
-			transition.setTargets(this, newTextView, oldTextView);
-
-			currentTransitionSet = transition.getSet(new AnimatorListener() {
-				public void onAnimationEnd(Animator arg0) {	
-						onTransitionEnd();
-				}
-
-				public void onAnimationCancel(Animator arg0) {
-						onTransitionEnd();
-				}
-
-				public void onAnimationRepeat(Animator arg0) {
-				}
-
-				public void onAnimationStart(Animator arg0) {
-				}
-			});
-			currentTransitionSet.start();
-			newTextView.setVisibility(View.VISIBLE);
+			TransitionHelper.CompletionBlock onDone = new TransitionHelper.CompletionBlock() {
+	            
+	            @Override
+	            public void transitionDidFinish(boolean success) {
+	                onTransitionEnd();
+	            }
+	        };
+	        
+	        currentTransitionSet = TransitionHelper.transitionViews(this, textView, oldTextView, onDone, transition, getTextLayoutParams());
 			requestLayout();
 		}
 	}
