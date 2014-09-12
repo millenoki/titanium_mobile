@@ -510,7 +510,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									return callback(true);
 								}
 
-								if (cli.argv.target === 'device' && udid === 'all') {
+								if ((cli.argv.target === 'device' || cli.argv.target === 'dist-adhoc') && udid === 'all') {
 									// we let 'all' slide by
 									return callback(null, udid);
 								}
@@ -976,7 +976,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										// purposely fall through!
 
 									case 'dist-appstore':
-										_t.conf.options['deploy-type'].values = ['production'];
+                                        if (value === 'dist-appstore')_t.conf.options['deploy-type'].values = ['production'];
 										_t.conf.options['device-id'].required = false;
 										_t.conf.options['distribution-name'].required = true;
 										_t.conf.options['pp-uuid'].required = true;
@@ -1355,7 +1355,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		cli.env.os.sdkPaths.forEach(addSearchPath);
 		Array.isArray(customModulePaths) && customModulePaths.forEach(addSearchPath);
 
-		appc.timodule.find(cli.tiapp.modules, ['ios', 'iphone'], this.deployType, this.titaniumSdkVersion, moduleSearchPaths, logger, function (modules) {
+		appc.timodule.find(cli.tiapp.modules, ['ios', 'iphone'], this.deployType, this.titaniumSdkVersion, moduleSearchPaths, config, logger, function (modules) {
 			if (modules.missing.length) {
 				logger.error(__('Could not find all required Titanium Modules:'))
 				modules.missing.forEach(function (m) {
@@ -2707,7 +2707,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries(next
 	dest = path.join(dir, 'libti_ios_profiler.a');
 	fs.existsSync(dest) || appc.fs.copyFileSync(path.join(this.titaniumIosSdkPath, 'libti_ios_profiler.a'), dest, { logger: this.logger.debug });
 
-    afs.copyDirRecursive(path.join(this.titaniumIosSdkPath, 'libexternals'), 
+    appc.fs.copyDirRecursive(path.join(this.titaniumIosSdkPath, 'libexternals'), 
         path.join(this.buildDir, 'libexternals'), next);
 };
 

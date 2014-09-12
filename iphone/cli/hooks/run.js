@@ -27,6 +27,7 @@ exports.init = function (logger, config, cli) {
 			var simStarted = false,
 				startLogTxt = __('Start simulator log'),
 				endLogTxt = __('End simulator log'),
+				restartSimulator = config.get('ios.restartSimulator', true),
 				endLog = function () {
 					if (simStarted) {
 						logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
@@ -44,7 +45,7 @@ exports.init = function (logger, config, cli) {
 				logFilename: builder.tiapp.guid + '.log',
 				simType: builder.iosSimType,
 				simVersion: builder.iosSimVersion,
-				killIfRunning: true
+				killIfRunning: restartSimulator
 			}).on('app-started', function (simHandle) {
 				finished && finished();
 				finished = null;
