@@ -235,6 +235,7 @@
     TiAnimation * newAnimation = [TiAnimation animationFromArg:arg context:[self executionContext] create:NO];
     if (newAnimation == nil) return;
     if (!parent && ![self canAnimateWithoutParent]) {
+        [newAnimation simulateFinish:self];
         return;
     }
     [self rememberProxy:newAnimation];
