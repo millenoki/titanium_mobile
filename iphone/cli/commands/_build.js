@@ -589,7 +589,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						'developer-name': {
 							abbr: 'V',
-							default: process.env.CODE_SIGN_IDENTITY && process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer(?:\: )?/, '') || config.get('ios.developerName'),
+							default: process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME && /iPhone Developer/.test(process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME) && process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME.replace(/^iPhone Developer(?:\: )?/, '') || config.get('ios.developerName'),
 							desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
 							hint: 'name',
 							order: 170,
@@ -657,7 +657,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						'distribution-name': {
 							abbr: 'R',
-							default: process.env.CODE_SIGN_IDENTITY && process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution(?:\: )?/, '') || config.get('ios.distributionName'),
+							default: process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME && /iPhone Distribution/.test(process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME) && process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME.replace(/^iPhone Distribution(?:\: )?/, '') || config.get('ios.distributionName'),
 							desc: __('the iOS Distribution Certificate to use; required when target is %s or %s', 'dist-appstore'.cyan, 'dist-adhoc'.cyan),
 							hint: 'name',
 							order: 180,
@@ -947,14 +947,13 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									_t.conf.options['device-id'].required = false;
 									_t.conf.options['distribution-name'].required = false;
 									_t.conf.options['pp-uuid'].required = false;
-									return;
+									// return;
 								}
 
 								if (value !== 'simulator') {
 									_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
 									_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
 								}
-
 								// as soon as we know the target, toggle required options for validation
 								switch (value) {
 									case 'device':
@@ -970,9 +969,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									case 'dist-adhoc':
 										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
 										// TODO: assert there is at least one distribution or adhoc provisioning profile
-
-										_t.conf.options['output-dir'].required = true;
-
+										if (!cli.argv.xcode) {
+											_t.conf.options['output-dir'].required = true;
+										}
 										// purposely fall through!
 
 									case 'dist-appstore':
@@ -990,7 +989,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										});
 								}
 							},
-							default: process.env.CURRENT_ARCH && process.env.CURRENT_ARCH !== 'i386' ? 'device' : 'simulator',
+							default: process.env.CURRENT_ARCH && process.env.CURRENT_ARCH !== 'i386' ? ((process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME && /iPhone Distribution/.test(process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME))?'dist-adhoc':'device') : 'simulator',
 							desc: __('the target to build for'),
 							order: 110,
 							required: true,
@@ -1026,10 +1025,10 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
             // cli.argv['force-copy-all'] = this.buildManifest.forceCopyAll;
         } else {
             // we are being build from Xcode
-            cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : 'device';
-            cli.argv['deploy-type'] = process.env.CURRENT_ARCH === 'i386' ? 'development' : 'test';
-            cli.argv['developer-name'] = process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer\: /, '');
-            cli.argv['distribution-name'] = process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution\: /, '');
+            // cli.argv.target = process.env.CURRENT_ARCH === 'i386' ? 'simulator' : 'device';
+            // cli.argv['deploy-type'] = process.env.CURRENT_ARCH === 'i386' ? 'development' : 'test';
+            // cli.argv['developer-name'] = process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Developer\: /, '');
+            // cli.argv['distribution-name'] = process.env.CODE_SIGN_IDENTITY.replace(/^iPhone Distribution\: /, '');
             
         }
         cli.argv['skip-js-minify'] = true; // never minify Xcode builds
