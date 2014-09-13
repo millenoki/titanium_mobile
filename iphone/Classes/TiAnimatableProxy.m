@@ -225,14 +225,22 @@
     [self playAnimation:hlsAnimation withRepeatCount:[animation repeatCount] afterDelay:[animation delay]];
 }
 
+-(BOOL)canAnimateWithoutParent
+{
+    return NO;
+}
+
 -(void)animate:(id)arg
 {
-	TiAnimation * newAnimation = [TiAnimation animationFromArg:arg context:[self executionContext] create:NO];
+    TiAnimation * newAnimation = [TiAnimation animationFromArg:arg context:[self executionContext] create:NO];
     if (newAnimation == nil) return;
+    if (!parent && ![self canAnimateWithoutParent]) {
+        return;
+    }
     [self rememberProxy:newAnimation];
-	pthread_rwlock_rdlock(&pendingLock);
+    pthread_rwlock_rdlock(&pendingLock);
     [_pendingAnimations addObject:newAnimation];
-	pthread_rwlock_unlock(&pendingLock);
+    pthread_rwlock_unlock(&pendingLock);
     [self handlePendingAnimation];
 }
 

@@ -649,6 +649,11 @@
 
 #pragma mark - TiAnimation Delegate Methods
 
+-(BOOL)canAnimateWithoutParent
+{
+    return YES;
+}
+
 -(HLSAnimation*)animationForAnimation:(TiAnimation*)animation
 {
     if (animation.isTransitionAnimation && (animation == openAnimation || animation == closeAnimation)) {
