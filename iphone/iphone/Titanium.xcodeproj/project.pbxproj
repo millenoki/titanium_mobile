@@ -927,6 +927,12 @@
 		D5E999121869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
 		D5E999131869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
 		D5E999141869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
+		D5F3F9B019C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
+		D5F3F9B719C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
+		D5F3F9B819C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
+		D5F3F9B919C6D2F80090B547 /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
+		D5F3F9BA19C6D2F90090B547 /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
+		D5F3F9BB19C6D2F90090B547 /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
 		D5F9620319A638CC000E464F /* TiScrollingViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */; };
 		D5F9620419A638CC000E464F /* TiScrollingViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */; };
 		D5F9620519A638CC000E464F /* TiScrollingViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */; };
@@ -3675,7 +3681,6 @@
 				D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */,
 				502E9D2316CAFB9D00C1BD26 /* libti_ios_profiler.a */,
 				D56915AB168F16FA00C3F89F /* ImageIO.framework */,
-				84BBA58716570F90006B8C22 /* Security.framework */,
 				D5691303168F0F4200C3F89F /* CoreText.framework */,
 				DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */,
 				242E8E3011BA39FD0046A0D0 /* libTiCore.a */,
@@ -4769,6 +4774,7 @@
 				84A00FF517FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
 				243ECCBE112698AA00639DF4 /* TiUITextWidgetProxy.m in Sources */,
 				243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */,
+				D5F3F9B919C6D2F80090B547 /* TiAppiOSNotificationActionProxy.m in Sources */,
 				D557957E1837BF6C0057DD41 /* TiViewAnimation.m in Sources */,
 				243ECCAB1126981C00639DF4 /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
 				243ECCAC1126981C00639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */,
@@ -5089,6 +5095,7 @@
 				502A68E016EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */,
 				D55795991839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,
 				502A68E316EEAA7500661EF6 /* TiUIListView.m in Sources */,
+				D5F3F9B019C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */,
 				D512A7B3187F1813004E3AB1 /* ADTransitioningViewController.m in Sources */,
 				502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				502A68EB16F0428500661EF6 /* TiProxyTemplate.m in Sources */,
@@ -5321,6 +5328,7 @@
 				24D8E46F119B9D8A00F8CAA6 /* SCListener.m in Sources */,
 				D57007F518255BBD0063F7FE /* ADSwipeDualFadeTransition.m in Sources */,
 				24D8E470119B9D8A00F8CAA6 /* TiMediaAudioSession.m in Sources */,
+				D5F3F9B719C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */,
 				D535603918609A2800F8DEFD /* TiHLSLayerAnimationStep.m in Sources */,
 				24D8E471119B9D8A00F8CAA6 /* TiUIPickerProxy.m in Sources */,
 				24D8E472119B9D8A00F8CAA6 /* TiUIPicker.m in Sources */,
@@ -5408,6 +5416,7 @@
 				DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */,
 				DAA4B2B5134E75AC00AB6011 /* CodecModule.m in Sources */,
 				DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
+				D5F3F9BA19C6D2F90090B547 /* TiAppiOSNotificationActionProxy.m in Sources */,
 				DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */,
 				D5FD09DD1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */,
 				B415067A136745E20084074A /* TiFilesystemFileStreamProxy.m in Sources */,
@@ -5692,6 +5701,7 @@
 				DABB374712E8CB280026A6EA /* SCListener.m in Sources */,
 				D57007F618255BBD0063F7FE /* ADSwipeDualFadeTransition.m in Sources */,
 				DABB374812E8CB280026A6EA /* TiMediaAudioSession.m in Sources */,
+				D5F3F9B819C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */,
 				D535603A18609A2800F8DEFD /* TiHLSLayerAnimationStep.m in Sources */,
 				DABB374912E8CB280026A6EA /* TiUIPickerProxy.m in Sources */,
 				DABB374A12E8CB280026A6EA /* TiUIPicker.m in Sources */,
@@ -5779,6 +5789,7 @@
 				DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */,
 				DAA4B2B6134E75AC00AB6011 /* CodecModule.m in Sources */,
 				DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
+				D5F3F9BB19C6D2F90090B547 /* TiAppiOSNotificationActionProxy.m in Sources */,
 				DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */,
 				D5FD09DE1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */,
 				B415067D136745FE0084074A /* TiFilesystemFileStreamProxy.m in Sources */,
