@@ -168,7 +168,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			}
  
 			// Layout is finished, re-enable focus events.
-			if (focusListener != null) {
+			if (focusListener != null || focusedView != null) {
 				// If the configuration changed, we manually fire the blur event
 				if (changed) {
 					focusedView.setOnFocusChangeListener(focusListener);
