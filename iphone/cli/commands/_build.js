@@ -155,7 +155,10 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 			});
 			deviceInfo.udids[device.udid] = device;
 		});
-		deviceInfo.preferred = this.iosInfo.devices[0];
+
+		if (this.config.get('ios.autoSelectDevice', true) && !argv['device-id']) {
+			deviceInfo.preferred = deviceInfo.devices[0];
+		}
 	} else if (argv.target === 'simulator') {
 		deviceInfo.devices = {};
 
@@ -308,7 +311,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 			// we have more than 1 device plus itunes, so we should show 'all'
 			if (iosInfo.devices.length > 2) {
 				iosInfo.devices.push({
-					id: 'all',
+					udid: 'all',
 					name: 'All Devices'
 				});
 			}
@@ -438,14 +441,22 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								logger.error(msg);
 								var info = _t.getDeviceInfo();
 								if (info.devices) {
-									logger.log('\n' + __('Available iOS Simulators:'));
-									Object.keys(info.devices).forEach(function (ver) {
-										logger.log(String(ver).grey);
-										info.devices[ver].forEach(function (sim) {
-											logger.log('  ' + sim.udid.cyan + '  ' + sim.name);
+									if (cli.argv.target === 'device') {
+										logger.log('\n' + __('Available iOS Devices:'));
+										info.devices.forEach(function (sim) {
+											logger.log('  ' + (info.devices.length > 1 ? appc.string.rpad(sim.udid, 40) : sim.udid).cyan + '  ' + sim.name);
 										});
 										logger.log();
-									});
+									} else {
+										logger.log('\n' + __('Available iOS Simulators:'));
+										Object.keys(info.devices).forEach(function (ver) {
+											logger.log(String(ver).grey);
+											info.devices[ver].forEach(function (sim) {
+												logger.log('  ' + sim.udid.cyan + '  ' + sim.name);
+											});
+											logger.log();
+										});
+									}
 								}
 							},
 							prompt: function (callback) {
@@ -458,16 +469,20 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								var options = {};
 
 								// build a filtered list of simulators based on any legacy options/flags
-								Object.keys(info.devices).forEach(function (sdk) {
-									if (!cli.argv['sim-version'] || sdk === cli.argv['sim-version']) {
-										info.devices[sdk].forEach(function (sim) {
-											if ((!cli.argv['sim-type'] || sim.deviceClass === cli.argv['sim-type']) && (!cli.argv.retina || sim.retina) && (!cli.argv.tall || sim.tall) && (!cli.argv['sim-64bit'] || sim['64bit'])) {
-												options[sdk] || (options[sdk] = []);
-												options[sdk].push(sim);
-											}
-										});
-									}
-								});
+								if (Array.isArray(info.devices)) {
+									options = info.devices;
+								} else {
+									Object.keys(info.devices).forEach(function (sdk) {
+										if (!cli.argv['sim-version'] || sdk === cli.argv['sim-version']) {
+											info.devices[sdk].forEach(function (sim) {
+												if ((!cli.argv['sim-type'] || sim.deviceClass === cli.argv['sim-type']) && (!cli.argv.retina || sim.retina) && (!cli.argv.tall || sim.tall) && (!cli.argv['sim-64bit'] || sim['64bit'])) {
+													options[sdk] || (options[sdk] = []);
+													options[sdk].push(sim);
+												}
+											});
+										}
+									});
+								}
 
 								var params = {
 									formatters: {},
@@ -519,7 +534,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								if (info.udids[udid]) {
 									callback(null, udid)
 								} else {
-									callback(new Error(cli.argv.target ? __('Invalid iOS device "%s"', udid) : __('Invalid iOS simulator "%s"', udid)));
+									callback(new Error(cli.argv.target === 'device' ? __('Invalid iOS device "%s"', udid) : __('Invalid iOS simulator "%s"', udid)));
 								}
 							},
 							verifyIfRequired: function (callback) {
@@ -749,7 +764,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									// squelch and let the cli detect the bad version
 								}
 							},
-							default: defaultIosVersion,
 							desc: __('iOS SDK version to build with'),
 							order: 130,
 							prompt: function (callback) {
@@ -906,9 +920,6 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}));
 							},
 							validate: function (value, callback) {
-								if (typeof value === 'boolean') {
-									return callback(true);
-								}
 								if (cli.argv.target === 'simulator') {
 									return callback(null, value);
 								}
@@ -917,8 +928,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									if (v) {
 										return callback(null, v);
 									}
+									return callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
 								}
-								callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
+								callback(true);
 							}
 						},
 						'profiler-host': {
@@ -2264,7 +2276,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject() {
 	proj = injectCompileShellScript(
 		proj,
 		'Pre-Compile',
-		'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
+		'export TITANIUM_PREFIX=\\"_Prefix-*\\"\\n'
+		+ 'echo \\"Xcode Pre-Compile Phase: Removing $SHARED_PRECOMPS_DIR/$PROJECT$TITANIUM_PREFIX\\"\\n'
+		+ 'find \\"$SHARED_PRECOMPS_DIR\\" -name \\"$PROJECT$TITANIUM_PREFIX\\" -print0 | xargs -0 rm -rf\\n'
+		+ 'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
 		+ '    ' + (process.execPath || 'node') + ' \\"' + this.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + this.platformName + ' --sdk \\"' + this.titaniumSdkName + '\\" --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
 		+ '    exit $?\\n'
 		+ 'else\\n'

@@ -162,7 +162,7 @@
 -(void)attachViewToTopContainerController
 {
     UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
-    UIView *rootView = [topContainerController view];
+    UIView *rootView = [topContainerController hostingView];
     TiUIView* theView = [self view];
     [rootView addSubview:theView];
     [rootView bringSubviewToFront:theView];
@@ -661,7 +661,7 @@
         TiTransitionAnimation * hlsAnimation = [TiTransitionAnimation animation];
         UIView* hostingView = nil;
         if (animation == openAnimation) {
-            hostingView = [[[[TiApp app] controller] topContainerController] view];
+            hostingView = [[[[TiApp app] controller] topContainerController] hostingView];
             hlsAnimation.openTransition = YES;
         } else {
             hostingView = [[self getOrCreateView] superview];

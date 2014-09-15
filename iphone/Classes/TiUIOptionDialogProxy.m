@@ -112,6 +112,7 @@
 
 -(void)clearCustomActionSheet {
     showDialog = NO;
+    [[[TiApp app] controller] decrementActiveAlertControllerCount];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     if (customActionSheet) {
         customActionSheet.customView = nil;
@@ -280,6 +281,7 @@
     }
     [self retain];
 	
+	[[[TiApp app] controller] incrementActiveAlertControllerCount];
     
 	if ([TiUtils isIPad])
 	{
@@ -335,6 +337,7 @@
                                        nil];
                 [self fireEvent:@"click" withObject:event];
             }
+        	[[[TiApp app] controller] decrementActiveAlertControllerCount];
             [[NSNotificationCenter defaultCenter] removeObserver:self];
             [self forgetSelf];
             [self release];

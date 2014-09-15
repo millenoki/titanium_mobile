@@ -649,19 +649,23 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		}
 		
 		ListViewProxy listProxy = (ListViewProxy) proxy;
-		if (listProxy.isPreload()) {
-		    //if user didn't append/modify/delete sections before this is called, we process sections
-            //as usual. Otherwise, we process the preloadSections, which should also contain the section(s)
-            //from this dictionary as well as other sections that user append/insert/deleted prior to this.
-		    //if user didn't specify 'sections' property upon creation of listview but append/insert it afterwards
-            //we process them instead.
-		    Object[] array = listProxy.getPreloadSections().toArray();
-            proxy.setProperty(TiC.PROPERTY_SECTIONS, array);
-            processSections(array);
-            listProxy.clearPreloadSections();
-		} else if (d.containsKey(TiC.PROPERTY_SECTIONS)) {
-			processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
+		if (d.containsKey(TiC.PROPERTY_SECTIONS)) {
+			//if user didn't append/modify/delete sections before this is called, we process sections
+			//as usual. Otherwise, we process the preloadSections, which should also contain the section(s)
+			//from this dictionary as well as other sections that user append/insert/deleted prior to this.
+			if (!listProxy.getPreload()) {
+				processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
+			} else {
+				processSections(listProxy.getPreloadSections().toArray());
+			}
+		} else if (listProxy.getPreload()) {
+			//if user didn't specify 'sections' property upon creation of listview but append/insert it afterwards
+			//we process them instead.
+			processSections(listProxy.getPreloadSections().toArray());
 		}
+
+		listProxy.clearPreloadSections();
+		listProxy.setPreload(false);
 
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
 			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
