@@ -616,8 +616,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			doUpdateKrollObjectProperties(props);
 
 		} else {
-			Message message = getRuntimeHandler().obtainMessage(MSG_UPDATE_KROLL_PROPERTIES, props);
-			message.sendToTarget();
+		    Message msg = getRuntimeHandler().obtainMessage(MSG_UPDATE_KROLL_PROPERTIES);
+            TiMessenger.sendBlockingRuntimeMessage(msg, props);
+//			Message message = getRuntimeHandler().obtainMessage(MSG_UPDATE_KROLL_PROPERTIES, props);
+//			message.sendToTarget();
 		}
 	}
 	
@@ -1366,7 +1368,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 				return true;
 			}
 			case MSG_UPDATE_KROLL_PROPERTIES: {
-				doUpdateKrollObjectProperties((HashMap<String, Object>) msg.obj);
+                AsyncResult asyncResult = (AsyncResult) msg.obj;
+				doUpdateKrollObjectProperties((HashMap<String, Object>) asyncResult.getArg());
+                asyncResult.setResult(null);
 				return true;
 			}
 		}
