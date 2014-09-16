@@ -8,7 +8,6 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.HashMap;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -16,14 +15,17 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
-
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIButton;
 import ti.modules.titanium.ui.widget.TiUISlider;
 import ti.modules.titanium.ui.widget.TiUISwitch;
 import ti.modules.titanium.ui.widget.TiUIText;
+import android.annotation.SuppressLint;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
@@ -127,26 +129,139 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 		if (listItemLayout != null) {
 			listItemLayout = null;
 		}
+		removeUnsetPressCallback();
 		super.release();
 	}
 	@Override
 	protected void handleTouchEvent(MotionEvent event) {
 		mClickDelegate = null;
 	}
+	private boolean prepressed = false;
+	private final class UnsetPressedState implements Runnable {
+        public void run() {
+            if (nativeView != null) {
+                nativeView.setPressed(false);
+            }
+        }
+    }
+    private UnsetPressedState mUnsetPressedState;
+    /**
+     * Remove the prepress detection timer.
+     */
+    private void removeUnsetPressCallback() {
+        if (nativeView != null && nativeView.isPressed() && mUnsetPressedState != null) {
+            nativeView.setPressed(false);
+            nativeView.removeCallbacks(mUnsetPressedState);
+        }
+    }
+    
+    public boolean pointInView(final View view, float localX, float localY, float slop) {
+        return localX >= -slop && localY >= -slop && localX < ((view.getRight() - view.getLeft()) + slop) &&
+                localY < ((view.getBottom() - view.getTop()) + slop);
+    }
+    
+    @SuppressLint("NewApi")
+    public boolean isInScrollingContainer(View view) {
+        ViewParent p = view.getParent();
+        while (p != null && p instanceof ViewGroup) {
+            if (((ViewGroup) p).shouldDelayChildPressedState()) {
+                return true;
+            }
+            p = p.getParent();
+        }
+        return false;
+    }
+    
+    @Override
+    public void onTouchEvent(MotionEvent event, TiUIView fromView) {
+        if (fromView == this)
+            return;
+        shouldFireClick = false;
+        if (fromView instanceof TiUIButton || fromView instanceof TiUISwitch
+                || fromView instanceof TiUISlider
+                || fromView instanceof TiUIText)
+            return;
+        mClickDelegate = fromView;
 
-	@Override
-	public void onTouchEvent(MotionEvent event, TiUIView fromView) {
-		if (fromView == this) return;
-		shouldFireClick = false;
-		if (fromView instanceof TiUIButton || 
-				fromView instanceof TiUISwitch ||
-				fromView instanceof TiUISlider ||
-				fromView instanceof TiUIText) return;
-		mClickDelegate = fromView;
-		
-		if (nativeView != null && !fromView.getPreventListViewSelection()) {
-			nativeView.onTouchEvent(event);
-		}
-	}
-	
+        if (nativeView != null && !fromView.getPreventListViewSelection()) {
+            final boolean pressed = nativeView.isPressed();
+
+            if (nativeView.isEnabled() == false) {
+                if (event.getAction() == MotionEvent.ACTION_UP && pressed) {
+                    nativeView.setPressed(false);
+                }
+                return;
+            }
+
+            if (nativeView.isClickable() || nativeView.isLongClickable()) {
+                switch (event.getAction()) {
+                case MotionEvent.ACTION_UP:
+                    if (pressed || prepressed) {
+
+                        if (prepressed) {
+                            // The button is being released before we actually
+                            // showed it as pressed. Make it show the pressed
+                            // state now (before scheduling the click) to ensure
+                            // the user sees it.
+                            nativeView.setPressed(true);
+                        }
+                        if (mUnsetPressedState == null) {
+                            mUnsetPressedState = new UnsetPressedState();
+                        }
+                        if (prepressed) {
+                            nativeView
+                                    .postDelayed(mUnsetPressedState,
+                                            ViewConfiguration
+                                                    .getPressedStateDuration());
+                        } else if (!nativeView.post(mUnsetPressedState)) {
+                            // If the post failed, unpress right now
+                            mUnsetPressedState.run();
+                        }
+                    }
+                    break;
+
+                case MotionEvent.ACTION_DOWN:
+
+                    // Walk up the hierarchy to determine if we're inside a
+                    // scrolling container.
+                    boolean isInScrollingContainer = isInScrollingContainer(nativeView);
+
+                    // For views inside a scrolling container, delay the pressed
+                    // feedback for
+                    // a short period in case this is a scroll.
+                    if (isInScrollingContainer) {
+                        prepressed = true;
+
+                    } else {
+                        // Not inside a scrolling container, so show the
+                        // feedback right away
+                        nativeView.setPressed(true);
+                    }
+                    break;
+
+                case MotionEvent.ACTION_CANCEL:
+                    nativeView.setPressed(false);
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+                    final int x = (int) event.getX();
+                    final int y = (int) event.getY();
+
+                    // Be lenient about moving outside of buttons
+                    if (!pointInView(nativeView, x, y,
+                            ViewConfiguration.get(getContext())
+                                    .getScaledTouchSlop())) {
+                        if (pressed) {
+                            nativeView.setPressed(false);
+                        }
+                    }
+                    else if (!pressed) {
+                        prepressed = false;
+                        nativeView.setPressed(true);
+                    }
+                    break;
+                }
+            }
+        }
+    }
 }
