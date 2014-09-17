@@ -81,7 +81,7 @@
     index = (index + 1) % _maximumNumberOfItems;
     [activity setObject:[NSNumber numberWithInt:index] forKey:@"index"];
     
-    return item;
+    return [item isKindOfClass:[NSNull class]]?nil:item;
 }
 
 - (NSString *)activityViewController:(UIActivityViewController *)activityViewController subjectForActivityType:(NSString *)activityType
@@ -89,12 +89,14 @@
     if ([_delegate respondsToSelector:@selector(activityViewController:subjectForActivityType:)]) {
         return [_delegate activityViewController:activityViewController subjectForActivityType:activityType];
     }
+    return nil;
 }
 - (NSString *)activityViewController:(UIActivityViewController *)activityViewController dataTypeIdentifierForActivityType:(NSString *)activityType
 {
     if ([_delegate respondsToSelector:@selector(activityViewController:dataTypeIdentifierForActivityType:)]) {
         return [_delegate activityViewController:activityViewController dataTypeIdentifierForActivityType:activityType];
     }
+    return nil;
 }
 
 - (UIImage *)activityViewController:(UIActivityViewController *)activityViewController thumbnailImageForActivityType:(NSString *)activityType suggestedSize:(CGSize)size
@@ -102,6 +104,7 @@
     if ([_delegate respondsToSelector:@selector(activityViewController:thumbnailImageForActivityType:suggestedSize:)]) {
         return [_delegate activityViewController:activityViewController thumbnailImageForActivityType:activityType suggestedSize:size];
     }
+    return nil;
 }
 
 - (id)activityViewControllerPlaceholderItem:(UIActivityViewController *)activityViewController {
