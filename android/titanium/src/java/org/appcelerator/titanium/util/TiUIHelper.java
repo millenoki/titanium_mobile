@@ -1060,6 +1060,15 @@ public class TiUIHelper
 		if (chopped == null) {
 			return null;
 		}
+		if (chopped.equalsIgnoreCase("background.png") ||  chopped.equalsIgnoreCase("background.9.png") ) {
+		    if (chopped.endsWith(".9.png")) {
+		        chopped = chopped.substring(0, chopped.lastIndexOf(".9.png"));
+            } else {
+                chopped = chopped.substring(0, chopped.lastIndexOf('.'));
+            }
+		    resourceImageKeys.put(url, chopped);
+		    return chopped;
+		}
 		
 		chopped = chopped.toLowerCase();
 		String forHash = chopped;
