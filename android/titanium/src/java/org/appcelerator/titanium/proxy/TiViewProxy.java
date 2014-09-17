@@ -612,21 +612,20 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 		// Use a copy so bundle can be modified as it passes up the inheritance
 		// tree. Allows defaults to be added and keys removed.
+		
 		if (children != null) {
-			try {
-				for (KrollProxy p : children) {
-				    if (p instanceof TiViewProxy) {
-    					TiUIView cv = ((TiViewProxy) p).getOrCreateView(enableModelListener, processProperties);
-    					view.add(cv);
-    					if (p instanceof TiWindowProxy && !((TiWindowProxy)p).isOpenedOrOpening()) {
-    						((TiWindowProxy)p).onWindowActivityCreated();
-    						((TiViewProxy) p).focus();
-    					}
-				    }
-				}
-			} catch (ConcurrentModificationException e) {
-				Log.e(TAG, e.getMessage(), e);
-			}
+		    synchronized (children) {
+		        for (KrollProxy p : children) {
+                    if (p instanceof TiViewProxy) {
+                        TiUIView cv = ((TiViewProxy) p).getOrCreateView(enableModelListener, processProperties);
+                        view.add(cv);
+                        if (p instanceof TiWindowProxy && !((TiWindowProxy)p).isOpenedOrOpening()) {
+                            ((TiWindowProxy)p).onWindowActivityCreated();
+                            ((TiViewProxy) p).focus();
+                        }
+                    }
+                }
+	        }
 		}
 
 		handlePendingAnimation();
@@ -641,11 +640,16 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	{
 		if (view != null) {
 			view.blur();
-			for (KrollProxy child:getChildren()) { 
-	            if (child instanceof TiViewProxy) {
-	                ((TiViewProxy) child).releaseViews(activityFinishing);
+			if (children != null) {
+			    synchronized (children) {
+	                for (KrollProxy child : children) {
+	                    if (child instanceof TiViewProxy) {
+	                        ((TiViewProxy) child).releaseViews(activityFinishing);
+	                    }
+	                }
 	            }
-	        }
+			}
+            
 			view.release();
 			view = null;
 			viewRealised = false;
@@ -842,11 +846,13 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		if (view != null) {
 			if (!view.blur()) {
 				if (children != null) {
-					for (KrollProxy child : children) {
-					    if (child instanceof TiViewProxy) {
-					        if (((TiViewProxy) child).handleBlur()) return true;
-					    }
-					}
+				    synchronized (children) {
+				        for (KrollProxy child : children) {
+	                        if (child instanceof TiViewProxy) {
+	                            if (((TiViewProxy) child).handleBlur()) return true;
+	                        }
+	                    }
+                    }
 				}
 			} else return true;
 		}
@@ -1212,11 +1218,18 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	}
 	
 	private void handleTransitionViews(final TiViewProxy viewOut, final TiViewProxy viewIn, Object arg) {
-		if ((viewOut == null && viewIn == null) || (viewOut != null && !children.contains(viewOut))){
-			transitioning = false;
-			handlePendingTransition();
-			return;
-		}
+		
+	    boolean viewOutIsChild = false;
+        if (viewOut != null && children != null) {
+            synchronized (children) {
+                viewOutIsChild = children.contains(viewOut);
+            }
+        }
+        if ((viewOut == null && viewIn == null) || !viewOutIsChild) {
+            transitioning = false;
+            handlePendingTransition();
+            return;
+        }
 
 		final ViewGroup viewToAddTo = (ViewGroup) getParentViewForChild();
 		

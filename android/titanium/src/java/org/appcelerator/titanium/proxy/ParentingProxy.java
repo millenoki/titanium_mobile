@@ -16,58 +16,49 @@ import android.app.Activity;
 
 @Kroll.proxy
 public class ParentingProxy extends KrollProxy {
-    
+
     protected ArrayList<KrollProxy> children;
     protected WeakReference<ParentingProxy> parent;
     private static final String TAG = "ParentingProxy";
 
     @Override
-    public void handleCreationDict(KrollDict options)
-    {
+    public void handleCreationDict(KrollDict options) {
         boolean needsToUpdateProps = false;
         if (options == null) {
             return;
         }
         if (options.containsKey(TiC.PROPERTY_PROPERTIES)) {
-            super.handleCreationDict(options.getKrollDict(TiC.PROPERTY_PROPERTIES));
+            super.handleCreationDict(options
+                    .getKrollDict(TiC.PROPERTY_PROPERTIES));
             needsToUpdateProps = true;
-        }
-        else {
+        } else {
             super.handleCreationDict(options);
         }
-        if (options.containsKey(TiC.PROPERTY_CHILD_TEMPLATES) || options.containsKey(TiC.PROPERTY_EVENTS)) {
+        if (options.containsKey(TiC.PROPERTY_CHILD_TEMPLATES)
+                || options.containsKey(TiC.PROPERTY_EVENTS)) {
             initFromTemplate(options, this, true, true);
         }
         if (needsToUpdateProps) {
             updateKrollObjectProperties();
-        }
-        else {
-            //we don't need to update them all, bindings might be there though
+        } else {
+            // we don't need to update them all, bindings might be there though
             updatePropertiesNativeSide();
         }
     }
-    
-    public void reloadProperties()
-    {
+
+    public void reloadProperties() {
         super.reloadProperties();
-        // Use a copy so bundle can be modified as it passes up the inheritance
-        // tree. Allows defaults to be added and keys removed.
-        if (children != null) {
-            try {
-                for (KrollProxy p : children) {
-                    p.reloadProperties();
-                }
-            } catch (ConcurrentModificationException e) {
-                Log.e(TAG , e.getMessage(), e);
-            }
+        for (KrollProxy p : getChildren()) {
+            p.reloadProperties();
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
-    protected void initFromTemplate(HashMap template_,
-            KrollProxy rootProxy, boolean updateKrollProperties, boolean recursive) {
-        super.initFromTemplate(template_, rootProxy, updateKrollProperties, recursive);
+    protected void initFromTemplate(HashMap template_, KrollProxy rootProxy,
+            boolean updateKrollProperties, boolean recursive) {
+        super.initFromTemplate(template_, rootProxy, updateKrollProperties,
+                recursive);
         if (recursive && template_.containsKey(TiC.PROPERTY_CHILD_TEMPLATES)) {
             Object childProperties = template_
                     .get(TiC.PROPERTY_CHILD_TEMPLATES);
@@ -77,16 +68,19 @@ public class ParentingProxy extends KrollProxy {
                     Object childDict = propertiesArray[i];
                     if (childDict instanceof TiViewProxy) {
                         TiViewProxy child = (TiViewProxy) childDict;
-                        String bindId = TiConvert.toString(child.getProperty(TiC.PROPERTY_BIND_ID) , null);
+                        String bindId = TiConvert.toString(
+                                child.getProperty(TiC.PROPERTY_BIND_ID), null);
                         if (bindId != null) {
                             rootProxy.addBinding(bindId, child);
                         }
                         this.add(child);
                     } else {
                         KrollProxy childProxy = createProxyFromTemplate(
-                                (HashMap) childDict, rootProxy, updateKrollProperties);
-                        if (childProxy != null){
-                            if (updateKrollProperties) childProxy.updateKrollObjectProperties();
+                                (HashMap) childDict, rootProxy,
+                                updateKrollProperties);
+                        if (childProxy != null) {
+                            if (updateKrollProperties)
+                                childProxy.updateKrollObjectProperties();
                             this.add(childProxy);
                         }
                     }
@@ -94,15 +88,14 @@ public class ParentingProxy extends KrollProxy {
             }
         }
     }
-    
-    
+
     /**
      * @return The parent view proxy of this view proxy.
      * @module.api
      */
-    @Kroll.getProperty @Kroll.method
-    public ParentingProxy getParent()
-    {
+    @Kroll.getProperty
+    @Kroll.method
+    public ParentingProxy getParent() {
         if (this.parent == null) {
             return null;
         }
@@ -110,8 +103,7 @@ public class ParentingProxy extends KrollProxy {
         return this.parent.get();
     }
 
-    public void setParent(ParentingProxy parent)
-    {
+    public void setParent(ParentingProxy parent) {
         if (parent == null) {
             this.parent = null;
             return;
@@ -119,7 +111,7 @@ public class ParentingProxy extends KrollProxy {
 
         this.parent = new WeakReference<ParentingProxy>(parent);
     }
-    
+
     protected void addProxy(Object args, final int index) {
         KrollProxy child = null;
         if (args instanceof KrollProxy)
@@ -131,27 +123,32 @@ public class ParentingProxy extends KrollProxy {
         if (children == null) {
             children = new ArrayList<KrollProxy>();
         }
-        children.remove(child);
-        if (index >= 0) {
-            children.add(index, child);
+        synchronized (children) {
+            children.remove(child);
+            if (index >= 0) {
+                children.add(index, child);
+            } else {
+                children.add(child);
+            }
         }
-        else {
-            children.add(child);
-        }
+
         if (child instanceof ParentingProxy) {
-            ((ParentingProxy)child).parent = new WeakReference<ParentingProxy>(this);
+            ((ParentingProxy) child).parent = new WeakReference<ParentingProxy>(
+                    this);
         }
         handleChildAdded(child, index);
-        
+
     }
+
     /**
      * Adds a child to this view proxy.
-     * @param child The child view proxy to add.
+     * 
+     * @param child
+     *            The child view proxy to add.
      * @module.api
      */
     @Kroll.method
-    public void add(Object args, @Kroll.argument(optional = true) Object index)
-    {
+    public void add(Object args, @Kroll.argument(optional = true) Object index) {
         if (args instanceof Object[]) {
             int i = -1; // no index by default
             if (index instanceof Number) {
@@ -167,14 +164,14 @@ public class ParentingProxy extends KrollProxy {
         } else {
             KrollProxy child = null;
             if (args instanceof HashMap) {
-                child = createProxyFromTemplate((HashMap) args,
-                        this, true);
+                child = createProxyFromTemplate((HashMap) args, this, true);
                 if (child != null) {
                     child.updateKrollObjectProperties();
                 }
             } else {
                 child = (KrollProxy) args;
-                String bindId = TiConvert.toString(child.getProperty(TiC.PROPERTY_BIND_ID) , null);
+                String bindId = TiConvert.toString(
+                        child.getProperty(TiC.PROPERTY_BIND_ID), null);
                 if (bindId != null) {
                     addBinding(bindId, child);
                 }
@@ -182,17 +179,16 @@ public class ParentingProxy extends KrollProxy {
             if (child != null) {
                 int i = -1; // no index by default
                 if (index instanceof Number) {
-                    i = ((Number)index).intValue();
+                    i = ((Number) index).intValue();
                 }
                 addProxy(child, i);
             }
-            
+
         }
     }
-    
+
     @Kroll.method
-    public void replaceAt(Object params)
-    {
+    public void replaceAt(Object params) {
         if (!(params instanceof HashMap)) {
             Log.e(TAG, "Argument for replaceAt must be a dictionary");
             return;
@@ -200,27 +196,32 @@ public class ParentingProxy extends KrollProxy {
         @SuppressWarnings("rawtypes")
         HashMap options = (HashMap) params;
         Integer position = -1;
-        if(options.containsKey("position")) {
+        if (options.containsKey("position")) {
             position = (Integer) options.get("position");
         }
-        if(children != null && children.size() > position) {
-            KrollProxy childToRemove = children.get(position);
-            insertAt(params);
-            remove(childToRemove);
-            insertAt(params);
+        if (children != null) {
+            synchronized (children) {
+                if (children.size() > position) {
+                    KrollProxy childToRemove = children.get(position);
+                    insertAt(params);
+                    remove(childToRemove);
+                    insertAt(params);
+                }
+            }
         }
     }
-    
 
     /**
-     * Adds a child to this view proxy in the specified position. This is useful for "vertical" and
-     * "horizontal" layouts.
-     * @param params A Dictionary containing a TiViewProxy for the view and an int for the position 
+     * Adds a child to this view proxy in the specified position. This is useful
+     * for "vertical" and "horizontal" layouts.
+     * 
+     * @param params
+     *            A Dictionary containing a TiViewProxy for the view and an int
+     *            for the position
      * @module.api
      */
     @Kroll.method
-    public void insertAt(Object params)
-    {
+    public void insertAt(Object params) {
         if (!(params instanceof HashMap)) {
             Log.e(TAG, "Argument for insertAt must be a dictionary");
             return;
@@ -230,13 +231,11 @@ public class ParentingProxy extends KrollProxy {
         add(options.get("view"), options.get("position"));
     }
 
-    public void add(KrollProxy child)
-    {
+    public void add(KrollProxy child) {
         add(child, Integer.valueOf(-1));
     }
-    
-    protected void removeProxy(Object args, final boolean shouldDetach)
-    {
+
+    protected void removeProxy(Object args, final boolean shouldDetach) {
         KrollProxy child = null;
         if (args instanceof KrollProxy)
             child = (KrollProxy) args;
@@ -245,25 +244,30 @@ public class ParentingProxy extends KrollProxy {
             return;
         }
         if (children != null) {
-            children.remove(child);
-            if (child instanceof ParentingProxy) {
-                ((ParentingProxy) child).setParent(null);
+            synchronized (children) {
+                children.remove(child);
+                if (child instanceof ParentingProxy) {
+                    ((ParentingProxy) child).setParent(null);
+                }
             }
         }
         handleChildRemoved(child, shouldDetach);
     }
-    protected void removeProxy(Object args)
-    {
+
+    protected void removeProxy(Object args) {
         removeProxy(args, true);
     }
+
     /**
-     * Removes a view from this view proxy, releasing the underlying native view if it exists.
-     * @param child The child to remove.
+     * Removes a view from this view proxy, releasing the underlying native view
+     * if it exists.
+     * 
+     * @param child
+     *            The child to remove.
      * @module.api
      */
     @Kroll.method
-    public void remove(Object args)
-    {
+    public void remove(Object args) {
         if (args == null) {
             Log.e(TAG, "remove called with null");
             return;
@@ -279,11 +283,11 @@ public class ParentingProxy extends KrollProxy {
 
     /**
      * tries to remove this view from it parent
+     * 
      * @module.api
      */
     @Kroll.method
-    public void removeFromParent()
-    {
+    public void removeFromParent() {
         if (parent != null) {
             getParent().remove(this);
         }
@@ -291,61 +295,69 @@ public class ParentingProxy extends KrollProxy {
 
     /**
      * Removes all children views.
+     * 
      * @module.api
      */
     @Kroll.method
-    public void removeAllChildren()
-    {
+    public void removeAllChildren() {
         if (children != null) {
-            //children might be altered while we loop through it (threading)
-            //so we first copy children as it was when asked to remove all children
+            // children might be altered while we loop through it (threading)
+            // so we first copy children as it was when asked to remove all
+            // children
             ArrayList<KrollProxy> childViews = new ArrayList<KrollProxy>();
-            childViews.addAll(children);
-            children.clear();
+            synchronized (children) {
+                childViews.addAll(children);
+                children.clear();
+            }
             for (KrollProxy child : childViews) {
                 handleChildRemoved(child, true);
             }
         }
     }
-    
+
     protected void handleChildAdded(KrollProxy child, int index) {
-        
+
     }
-    protected void handleChildRemoved(KrollProxy child, final boolean shouldDetach) {
-        
+
+    protected void handleChildRemoved(KrollProxy child,
+            final boolean shouldDetach) {
+
     }
-    
 
     @Override
-    public void setActivity(Activity activity)
-    {
+    public void setActivity(Activity activity) {
         super.setActivity(activity);
         if (children != null) {
-            for (KrollProxy child : children) {
-                child.setActivity(activity);
+            synchronized (children) {
+                for (KrollProxy child : children) {
+                    child.setActivity(activity);
+                }
             }
         }
     }
-    
 
     /**
      * @return An array of the children proxies of this view.
      * @module.api
      */
-    @Kroll.getProperty @Kroll.method
-    public KrollProxy[] getChildren()
-    {
-        if (children == null) return new KrollProxy[0];
-        return children.toArray(new KrollProxy[children.size()]);
+    @Kroll.getProperty
+    @Kroll.method
+    public KrollProxy[] getChildren() {
+        if (children == null)
+            return new KrollProxy[0];
+        synchronized (children) {
+            return children.toArray(new KrollProxy[children.size()]);
+        }
     }
-    
+
     @Override
-    public void release()
-    {
+    public void release() {
         super.release();
         if (children != null) {
-            for (KrollProxy child : children) {
-                child.release();
+            synchronized (children) {
+                for (KrollProxy child : children) {
+                    child.release();
+                }
             }
         }
     }
