@@ -503,10 +503,16 @@ public class TiDrawableReference
 		}
 		Drawable drawable = getResourceDrawable();
 		if (drawable == null) {
-			Bitmap b = getBitmap(needsRetry);
-			if (b != null) {
-				drawable = new BitmapDrawable(TiApplication.getInstance().getResources(), b);
-			}
+		    if (isTypeUrl()) {
+		        TiFileHelper tfh = TiFileHelper.getInstance();
+		        drawable = tfh.loadDrawable(url, false, true);
+		    }
+		    if (drawable == null) {
+    			Bitmap b = getBitmap(needsRetry);
+    			if (b != null) {
+    				drawable = new BitmapDrawable(TiApplication.getInstance().getResources(), b);
+    			}
+		    }
 		}
 		return drawable;
 	}
