@@ -17,6 +17,7 @@ import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiResponseCache;
@@ -44,6 +45,8 @@ import android.view.accessibility.AccessibilityManager;
 public class AppModule extends KrollModule implements SensorEventListener
 {
 	private static final String TAG = "AppModule";
+	
+	private static final String APP_UUID_STRING = "com.appcelerator.uuid";
 
 	@Kroll.constant public static final String EVENT_ACCESSIBILITY_ANNOUNCEMENT = "accessibilityannouncement";
 	@Kroll.constant public static final String EVENT_ACCESSIBILITY_CHANGED = "accessibilitychanged";
@@ -182,6 +185,12 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public String getSessionId() {
 		return TiPlatformHelper.getInstance().getSessionId();
 	}
+	   
+    @Kroll.getProperty @Kroll.method
+    public String getInstallId() {
+        return appIdentifier();
+    }
+    
 	
 	@Kroll.getProperty @Kroll.method
 	public boolean getAnalytics() {
@@ -200,6 +209,17 @@ public class AppModule extends KrollModule implements SensorEventListener
         }
         return appVersionCode;
     }
+	
+	public String appIdentifier()
+	{
+	    final TiProperties prefs = TiApplication.getInstance().getAppProperties();
+        String appIdentifier = prefs.getString(APP_UUID_STRING, null);
+        if (appIdentifier == null) {
+            appIdentifier = TiPlatformHelper.getInstance().createUUID();
+            prefs.setString(APP_UUID_STRING, appIdentifier);
+        }
+	    return appIdentifier;
+	}
     
 	@Kroll.method
 	public String appURLToPath(String url) {
@@ -398,5 +418,22 @@ public class AppModule extends KrollModule implements SensorEventListener
 	{
 		return "Ti.App";
 	}
-
+	
+    @Kroll.getProperty
+    @Kroll.method
+    public KrollDict getFullInfo() {
+        KrollDict result = new KrollDict();
+        result.put("version", getVersion());
+        result.put("versionName", getVersionName());
+        result.put("buildDate", getBuildDate());
+        result.put("buildNumber", getBuildNumber());
+        result.put("deployType", getDeployType());
+        result.put("description", getDescription());
+        result.put("copyright", getCopyright());
+        result.put("publisher", getPublisher());
+        result.put("id", getId());
+        result.put("name", getName());
+        result.put("installId", getInstallId());
+        return result;
+    }
 }

@@ -316,4 +316,22 @@ public class PlatformModule extends KrollModule
 	{
 		return "Ti.Platform";
 	}
+	
+    @Kroll.getProperty
+    @Kroll.method
+    public KrollDict getFullInfo() {
+        KrollDict result = new KrollDict();
+        result.put("dpi", getDisplayCaps().getDpi());
+        result.put("density", getDisplayCaps().getDensity());
+        result.put("version", getVersion());
+        result.put("ostype", getOstype());
+        result.put("name", getName());
+        result.put("model", getModel());
+        result.put("locale", getLocale());
+        result.put("id", getId());
+        result.put("width", getDisplayCaps().getPlatformWidth());
+        result.put("height", getDisplayCaps().getPlatformHeight());
+        return result;
+    }
+
 }

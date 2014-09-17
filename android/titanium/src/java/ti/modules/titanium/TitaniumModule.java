@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -101,6 +102,16 @@ public class TitaniumModule extends KrollModule
 	{
 		return TiApplication.getInstance().getTiBuildHash();
 	}
+	
+    @Kroll.getProperty
+    @Kroll.method
+    public KrollDict getTiSDKInfo() {
+        KrollDict result = new KrollDict();
+        result.put("version", getVersion());
+        result.put("buildDate", getBuildDate());
+        result.put("buildHash", getBuildHash());
+        return result;
+    }
 
 	// For testing exception handling.  Can remove after ticket 2032
 	@Kroll.method

@@ -608,6 +608,24 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 	return [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
 }
 
+
+-(id)fullInfo
+{
+    return @{
+        @"version": [self version],
+        @"versionName": [self versionName],
+        @"buildDate": [self buildDate],
+        @"buildNumber": [self buildNumber],
+        @"deployType": [self deployType],
+        @"description": [self description],
+        @"copyright": [self copyright],
+        @"publisher": [self publisher],
+        @"id": [self id],
+        @"name": [self name],
+        @"installId": [self installId]
+    };
+}
+
 -(NSNumber*)keyboardVisible
 {
     return NUMBOOL([[[TiApp app] controller] keyboardVisible]);

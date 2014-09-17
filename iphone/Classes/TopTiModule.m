@@ -42,6 +42,15 @@
 	return [[TiApp app] userAgent];
 }
 
+-(id)tiSDKInfo
+{
+    return @{
+        @"version": [self version],
+        @"buildDate": [self buildDate],
+        @"buildHash": [self buildHash]
+    };
+}
+
 -(NSString*)apiName
 {
     return @"Ti";

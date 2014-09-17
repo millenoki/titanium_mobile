@@ -161,6 +161,23 @@
     return @"apple";
 }
 
+
+-(id)fullInfo
+{
+    return @{
+        @"dpi": [[self displayCaps] dpi],
+        @"density": [[self displayCaps] density],
+        @"version": [self version],
+        @"name": [self name],
+        @"ostype": [self ostype],
+        @"model": [self model],
+        @"locale": [self locale],
+        @"id": [self id],
+        @"width": [[self displayCaps] platformWidth],
+        @"height": [[self displayCaps] platformHeight]
+    };
+}
+
 -(NSString*)locale
 {
 	// this will return the locale that the user has set the phone in
