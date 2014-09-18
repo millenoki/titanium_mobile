@@ -110,6 +110,7 @@
     BOOL navBarWillShow;
     BOOL toolbarButtonNotSet;
     BOOL toolbarBarWillShow;
+    BOOL noNavBar;
 }
 
 
@@ -143,6 +144,7 @@ NSArray* keySequence;
 
 -(void)_configure
 {
+    noNavBar = NO;
     navButtonNotSet = NO;
     navBarWillShow = NO;
     toolbarButtonNotSet = NO;
@@ -313,9 +315,9 @@ NSArray* keySequence;
 
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
-    shouldUpdateNavBar = YES;
 	[self setupWindowDecorations];
 	[super viewWillAppear:animated];
+    shouldUpdateNavBar = !noNavBar;
 }
 
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
@@ -406,6 +408,12 @@ else{\
 		[navController setNavigationBarHidden:YES animated:animated];
 		//TODO: need to fix height
 	}
+}
+
+-(void)setNoNavBar:(id)value
+{
+    [self replaceValue:value forKey:@"noNavBar" notification:NO];
+    noNavBar = [TiUtils boolValue:value def:NO];
 }
 
 -(void)setNavTintColor:(id)colorString
