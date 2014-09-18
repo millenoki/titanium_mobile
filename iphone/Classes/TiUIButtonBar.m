@@ -41,6 +41,7 @@
 	{
 		CGRect ourBoundsRect = [self bounds];
 		segmentedControl=[[UISegmentedControl alloc] initWithFrame:ourBoundsRect];
+        segmentedControl.momentary = YES;
 		[segmentedControl setAutoresizingMask:UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth];
 		[segmentedControl addTarget:self action:@selector(onSegmentChange:) forControlEvents:UIControlEventValueChanged];
 		[self addSubview:segmentedControl];
@@ -74,6 +75,11 @@
 - (void)setTabbedBar: (BOOL)newIsTabbed;
 {
 	[[self segmentedControl] setMomentary:!newIsTabbed];
+}
+
+- (void)setTabbedBar_: (id)value;
+{
+    [self setTabbedBar:[TiUtils boolValue:value]];
 }
 
 -(void)useStyle:(UISegmentedControlStyle)newStyle;
@@ -132,7 +138,9 @@
 
 -(void)setIndex_:(id)value
 {
-	selectedIndex = [TiUtils intValue:value def:-1];
+    int newIndex =[TiUtils intValue:value def:selectedIndex];
+    if (newIndex == selectedIndex) return;
+    selectedIndex = newIndex;
 	[[self segmentedControl] setSelectedSegmentIndex:selectedIndex];
 }
 

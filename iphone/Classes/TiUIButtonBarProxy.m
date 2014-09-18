@@ -28,7 +28,6 @@ NSArray* tabbedKeySequence;
 -(TiUIView*)newView
 {
 	TiUIButtonBar * result = [[TiUIButtonBar alloc] init];
-	[result setTabbedBar:NO];
 	return result;
 }
 
