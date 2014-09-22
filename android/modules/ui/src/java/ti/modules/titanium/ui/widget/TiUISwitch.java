@@ -35,8 +35,8 @@ public class TiUISwitch extends TiUIView
 	private static final String TAG = "TiUISwitch";
 	
 	private boolean oldValue = false;
-	private int style = AndroidModule.SWITCH_STYLE_TOGGLEBUTTON;
-	private static final boolean ICE_CREAM_OR_GREATER = (Build.VERSION.SDK_INT >= 14);
+    private static final boolean ICE_CREAM_OR_GREATER = (Build.VERSION.SDK_INT >= 14);
+	private int style = ICE_CREAM_OR_GREATER?AndroidModule.SWITCH_STYLE_SWITCH:AndroidModule.SWITCH_STYLE_TOGGLEBUTTON;
 	
 	public TiUISwitch(TiViewProxy proxy) {
 		super(proxy);
@@ -50,10 +50,8 @@ public class TiUISwitch extends TiUIView
 	{
 		super.processProperties(d);
 
-		if (d.containsKey(TiC.PROPERTY_STYLE)) {
-			setStyle(TiConvert.toInt(d.get(TiC.PROPERTY_STYLE), style));
-		}
-
+        setStyle(TiConvert.toInt(d, TiC.PROPERTY_STYLE, style));
+        
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
 			oldValue = TiConvert.toBoolean(d, TiC.PROPERTY_VALUE);
 		}
