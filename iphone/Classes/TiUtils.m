@@ -2323,5 +2323,37 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
 }
 
++(NSString *)colorHexString:(UIColor *)color {
+    
+    if (!color || color == [UIColor clearColor]) {
+        return @"transparent";
+    }
+    
+    if (color == [UIColor whiteColor]) {
+        // Special case, as white doesn't fall into the RGB color space
+        return @"ffffff";
+    }
+    
+    CGFloat red;
+    CGFloat blue;
+    CGFloat green;
+    CGFloat alpha;
+    
+    [color getRed:&red green:&green blue:&blue alpha:&alpha];
+    
+    int redDec = (int)(red * 255);
+    int greenDec = (int)(green * 255);
+    int blueDec = (int)(blue * 255);
+    
+    if (alpha == 1.0f) {
+        return [NSString stringWithFormat:@"#%02x%02x%02x", (unsigned int)redDec, (unsigned int)greenDec, (unsigned int)blueDec];
+    }
+    else {
+        int alphaDec = (int)(alpha * 255);
+        return [NSString stringWithFormat:@"#%02x%02x%02x%02x", (unsigned int)alphaDec, (unsigned int)redDec, (unsigned int)greenDec, (unsigned int)blueDec];
+    }
+}
+
+
 
 @end
