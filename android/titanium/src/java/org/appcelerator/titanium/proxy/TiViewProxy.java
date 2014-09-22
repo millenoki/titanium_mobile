@@ -1212,13 +1212,13 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	
 	private void handleTransitionViews(final TiViewProxy viewOut, final TiViewProxy viewIn, Object arg) {
 		
-	    boolean viewOutIsChild = false;
+	    boolean viewOutIsNotChild = false;
         if (viewOut != null && children != null) {
             synchronized (children) {
-                viewOutIsChild = children.contains(viewOut);
+                viewOutIsNotChild = !children.contains(viewOut);
             }
         }
-        if ((viewOut == null && viewIn == null) || !viewOutIsChild) {
+        if ((viewOut == null && viewIn == null) || viewOutIsNotChild) {
             transitioning = false;
             handlePendingTransition();
             return;
