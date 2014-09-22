@@ -47,6 +47,10 @@ public class MaskedEditText extends EditText implements TextWatcher {
         focusChangeListener = listener;
     }
     
+    @Override
+    public OnFocusChangeListener getOnFocusChangeListener() {
+        return focusChangeListener;
+    }
     private void cleanUp() {
         initialized = false;
         
