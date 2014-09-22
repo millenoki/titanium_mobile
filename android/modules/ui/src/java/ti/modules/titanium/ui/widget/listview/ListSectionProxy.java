@@ -576,7 +576,9 @@ public class ListSectionProxy extends ViewProxy {
 			}
 		}
 		// Notify adapter that data has changed.
-		adapter.notifyDataSetChanged();
+		if (preload == false) {
+	        adapter.notifyDataSetChanged();
+		}
 	}
 
 	private void handleSetItems(Object data) {
@@ -696,9 +698,7 @@ public class ListSectionProxy extends ViewProxy {
                 return;
             }
         }
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
+        notifyDataChange();
     }
 
 	private boolean deleteItems(int index, int count) {
@@ -722,9 +722,7 @@ public class ListSectionProxy extends ViewProxy {
 
 	private void handleDeleteItemsAt(int index, int count) {
 		deleteItems(index, count);
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
+        notifyDataChange();
 	}
 
 	private void handleReplaceItemsAt(int index, int count, Object data) {
