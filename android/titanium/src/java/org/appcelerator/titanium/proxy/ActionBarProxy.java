@@ -29,7 +29,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
@@ -37,7 +36,11 @@ import android.util.TypedValue;
 @SuppressLint("InlinedApi")
 @Kroll.proxy(propertyAccessors = {
 		TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED,
-		TiC.PROPERTY_DISPLAY_HOME_AS_UP,
+        TiC.PROPERTY_DISPLAY_HOME_AS_UP,
+        TiC.PROPERTY_BACKGROUND_COLOR,
+        TiC.PROPERTY_BACKGROUND_IMAGE,
+        TiC.PROPERTY_BACKGROUND_GRADIENT,
+        TiC.PROPERTY_LOGO,
 		TiC.PROPERTY_ICON
 })
 
