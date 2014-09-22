@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget.listview;
 
 import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -135,6 +134,7 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 	@Override
 	protected void handleTouchEvent(MotionEvent event) {
 		mClickDelegate = null;
+		super.handleTouchEvent(event);
 	}
 	private boolean prepressed = false;
 	private final class UnsetPressedState implements Runnable {
