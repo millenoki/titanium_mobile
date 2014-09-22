@@ -16,13 +16,22 @@
 
 
 #import <Foundation/Foundation.h>
-
+#import <UIKit/UIKit.h>
 @interface SLColorArt : NSObject
-@property(retain, readonly) NSColor *backgroundColor;
-@property(retain, readonly) NSColor *primaryColor;
-@property(retain, readonly) NSColor *secondaryColor;
-@property(retain, readonly) NSColor *detailColor;
-@property(nonatomic, copy) NSImage *scaledImage;
+@property(strong, nonatomic, readonly) UIColor *backgroundColor;
+@property(strong, nonatomic, readonly) UIColor *primaryColor;
+@property(strong, nonatomic, readonly) UIColor *secondaryColor;
+@property(strong, nonatomic, readonly) UIColor *detailColor;
+@property(nonatomic, readonly) CGFloat randomColorThreshold; // Default to 0.01
+@property(nonatomic, readonly) UIImage *image;
 
-- (id)initWithImage:(NSImage*)image scaledSize:(NSSize)size;
+- (id)initWithImage:(UIImage*)image;
+- (id)initWithImage:(UIImage*)image threshold:(CGFloat)threshold;
+- (id)initWithImage:(UIImage*)image scaleSize:(CGSize)scaleSize;
+
++ (void)processImage:(UIImage *)image
+        scaledToSize:(CGSize)scaleSize
+           threshold:(NSInteger)threshold
+          onComplete:(void (^)(SLColorArt *colorArt))completeBlock;
+
 @end

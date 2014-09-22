@@ -12,6 +12,10 @@
 #import "TiDimension.h"
 #import "UIImage+Resize.h"
 #import <GPUImage/GPUImage.h>
+#import "SLColorArt.h"
+#import "UIImage+UserInfo.h"
+
+
 @implementation TiImageHelper
 
 +(GPUImageOutput<GPUImageInput>*)getFilter:(TiImageHelperFilterType)filterType options:(NSDictionary*)options
@@ -67,12 +71,16 @@
 {
     int width = image.size.width;
     int height = image.size.height;
+    NSDictionary* info = nil;
     if ([options objectForKey:@"crop"]) {
         NSDictionary* rectObj = [options objectForKey:@"crop"];
         CGRect bounds = CGRectMake(TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"x"], width)
                                  , TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"y"], height), TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"width"], width), TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"height"], height));
         image = [UIImageResize croppedImage:bounds image:image];
     }
+
+    
+
     if ([options objectForKey:@"scale"]) {
         CGFloat scale = [TiUtils floatValue:@"scale" properties:options def:1.0f];
         if (scale != 1.0f) {
@@ -83,22 +91,24 @@
     
     if ([options objectForKey:@"filters"]) {
         NSArray* filters = [options objectForKey:@"filters"];
-        GPUImageFilterGroup* group = [[GPUImageFilterGroup alloc] init];
-        GPUImageOutput<GPUImageInput>* lastFilter = nil;
-        for (NSDictionary* filterOptions in filters) {
-            TiImageHelperFilterType type = [[filterOptions valueForKey:@"type"] integerValue];
-            GPUImageOutput<GPUImageInput>* filter = [self getFilter:type options:filterOptions];
-            if (filter) {
-                if (lastFilter) {
-                    [lastFilter addTarget:filter];
+        if ([filters count] > 0) {
+            GPUImageFilterGroup* group = [[GPUImageFilterGroup alloc] init];
+            GPUImageOutput<GPUImageInput>* lastFilter = nil;
+            for (NSDictionary* filterOptions in filters) {
+                TiImageHelperFilterType type = [[filterOptions valueForKey:@"type"] integerValue];
+                GPUImageOutput<GPUImageInput>* filter = [self getFilter:type options:filterOptions];
+                if (filter) {
+                    if (lastFilter) {
+                        [lastFilter addTarget:filter];
+                    }
+                    [group addFilter:filter];
+                    lastFilter = filter;
                 }
-                [group addFilter:filter];
-                lastFilter = filter;
             }
+            group.initialFilters = @[[group filterAtIndex:0]];
+            group.terminalFilter = [group filterAtIndex:[group filterCount] - 1];
+            image = [group imageByFilteringImage:image];
         }
-        group.initialFilters = @[[group filterAtIndex:0]];
-        group.terminalFilter = [group filterAtIndex:[group filterCount] - 1];
-        image = [group imageByFilteringImage:image];
     }
     
     if ([options objectForKey:@"tint"]) {
@@ -107,7 +117,26 @@
         image = [self tintedImage:image withColor:color blendMode:mode];
         [color release];
     }
+    if ([options objectForKey:@"colorArt"]) {
+        NSObject* colorArtOptions = [options objectForKey:@"colorArt"];
+        CGSize size = CGSizeMake(120, 120);
+        if (IS_OF_CLASS(colorArtOptions, NSDictionary)) {
+            size.width = [TiUtils intValue:@"width" properties:(NSDictionary*)colorArtOptions def:120];
+            size.height = [TiUtils intValue:@"height" properties:(NSDictionary*)colorArtOptions def:120];
+        }
+        SLColorArt *color = [[SLColorArt alloc] initWithImage:image scaleSize:size];
+        if (!info) {
+            info = [NSMutableDictionary dictionary];
+        }
+        [info setValue:@{
+                         @"backgroundColor":[TiUtils colorHexString:color.backgroundColor],
+                         @"primaryColor":[TiUtils colorHexString:color.primaryColor],
+                         @"secondaryColor":[TiUtils colorHexString:color.secondaryColor],
+                         @"detailColor":[TiUtils colorHexString:color.detailColor],
+                         } forKey:@"colorArt"];
+    }
     
+    image.info = info;
     return image;
 }
 @end

@@ -13,6 +13,8 @@
 #import "TiFile.h"
 #import "TiBlob.h"
 #import "TiSVGImage.h"
+#import "UIImage+UserInfo.h"
+#import "NSDictionary+Merge.h"
 
 #define DEBUG_IMAGEVIEW
 #define DEFAULT_IMAGEVIEW_INTERVAL 200
@@ -57,9 +59,13 @@ static NSArray* imageKeySequence;
     
     if ([self _hasListeners:@"load"]) {
         TiUIImageView *iv = (TiUIImageView*)[self view];
-        TiBlob* blob = [[TiBlob alloc] initWithImage:[iv getImage]];
-        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:stateString,@"state", [blob autorelease], @"image", nil];
+        UIImage* image = [iv getImage];
+        TiBlob* blob = [[TiBlob alloc] initWithImage:image];
         
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:stateString,@"state", [blob autorelease], @"image", nil];
+        if (image.info) {
+            event = [event dictionaryByMergingWith:image.info];
+        }
         [self fireEvent:@"load" withObject:event];
     }
     else if(eventOverrideDelegate) {

@@ -647,6 +647,12 @@
 		D535603818609A2800F8DEFD /* TiHLSLayerAnimationStep.m in Sources */ = {isa = PBXBuildFile; fileRef = D535603718609A2800F8DEFD /* TiHLSLayerAnimationStep.m */; };
 		D535603918609A2800F8DEFD /* TiHLSLayerAnimationStep.m in Sources */ = {isa = PBXBuildFile; fileRef = D535603718609A2800F8DEFD /* TiHLSLayerAnimationStep.m */; };
 		D535603A18609A2800F8DEFD /* TiHLSLayerAnimationStep.m in Sources */ = {isa = PBXBuildFile; fileRef = D535603718609A2800F8DEFD /* TiHLSLayerAnimationStep.m */; };
+		D535CCE219CF2C77005E114E /* SLColorArt.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE119CF2C77005E114E /* SLColorArt.m */; };
+		D535CCE319CF2C77005E114E /* SLColorArt.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE119CF2C77005E114E /* SLColorArt.m */; };
+		D535CCE419CF2C77005E114E /* SLColorArt.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE119CF2C77005E114E /* SLColorArt.m */; };
+		D535CCE719CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
+		D535CCE819CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
+		D535CCE919CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
 		D5370D94194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D95194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D96194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
@@ -656,6 +662,12 @@
 		D53D20F916A0901300D36D2C /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D56915C2168F192B00C3F89F /* CoreData.framework */; };
 		D53D20FA16A0901800D36D2C /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D56915AB168F16FA00C3F89F /* ImageIO.framework */; };
 		D53D20FB16A0901D00D36D2C /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5691303168F0F4200C3F89F /* CoreText.framework */; };
+		D53DC7B519CF427100BB31C9 /* UIImage+ColorArt.m in Sources */ = {isa = PBXBuildFile; fileRef = D53DC7B219CF427100BB31C9 /* UIImage+ColorArt.m */; };
+		D53DC7B619CF427100BB31C9 /* UIImage+ColorArt.m in Sources */ = {isa = PBXBuildFile; fileRef = D53DC7B219CF427100BB31C9 /* UIImage+ColorArt.m */; };
+		D53DC7B719CF427100BB31C9 /* UIImage+ColorArt.m in Sources */ = {isa = PBXBuildFile; fileRef = D53DC7B219CF427100BB31C9 /* UIImage+ColorArt.m */; };
+		D53DC7B819CF427100BB31C9 /* UIImage+Scale.m in Sources */ = {isa = PBXBuildFile; fileRef = D53DC7B419CF427100BB31C9 /* UIImage+Scale.m */; };
+		D53DC7B919CF427100BB31C9 /* UIImage+Scale.m in Sources */ = {isa = PBXBuildFile; fileRef = D53DC7B419CF427100BB31C9 /* UIImage+Scale.m */; };
+		D53DC7BA19CF427100BB31C9 /* UIImage+Scale.m in Sources */ = {isa = PBXBuildFile; fileRef = D53DC7B419CF427100BB31C9 /* UIImage+Scale.m */; };
 		D5412E121900156C00B720DF /* ADPercentDrivenInteractiveTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D5412E111900156C00B720DF /* ADPercentDrivenInteractiveTransition.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5412E131900156C00B720DF /* ADPercentDrivenInteractiveTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D5412E111900156C00B720DF /* ADPercentDrivenInteractiveTransition.m */; };
 		D5412E141900156C00B720DF /* ADPercentDrivenInteractiveTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D5412E111900156C00B720DF /* ADPercentDrivenInteractiveTransition.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -783,6 +795,9 @@
 		D58791EA183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
 		D58791EB183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
 		D58791EC183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
+		D58D8C6219A3B811001AA611 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */; };
+		D58D8C6319A3B811001AA611 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */; };
+		D58D8C6419A3B811001AA611 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */; };
 		D58DCBCD17FEF0F50011FE0E /* TiSVGImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D58DCBCC17FEF0F50011FE0E /* TiSVGImage.m */; };
 		D58DCBCE17FEF0F50011FE0E /* TiSVGImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D58DCBCC17FEF0F50011FE0E /* TiSVGImage.m */; };
 		D58DCBCF17FEF0F50011FE0E /* TiSVGImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D58DCBCC17FEF0F50011FE0E /* TiSVGImage.m */; };
@@ -2085,8 +2100,16 @@
 		D52DF22C18C7A0550076FB71 /* libMapbox.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMapbox.a; path = "../../../../ios/MapBox/MapView/build/Debug-iphoneos/libMapbox.a"; sourceTree = "<group>"; };
 		D535603618609A2800F8DEFD /* TiHLSLayerAnimationStep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiHLSLayerAnimationStep.h; path = Animation/TiHLSLayerAnimationStep.h; sourceTree = "<group>"; };
 		D535603718609A2800F8DEFD /* TiHLSLayerAnimationStep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiHLSLayerAnimationStep.m; path = Animation/TiHLSLayerAnimationStep.m; sourceTree = "<group>"; };
+		D535CCE019CF2C77005E114E /* SLColorArt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLColorArt.h; path = ../Classes/ColorArt/SLColorArt.h; sourceTree = "<group>"; };
+		D535CCE119CF2C77005E114E /* SLColorArt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SLColorArt.m; path = ../Classes/ColorArt/SLColorArt.m; sourceTree = "<group>"; };
+		D535CCE519CF333A005E114E /* UIImage+UserInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+UserInfo.h"; sourceTree = "<group>"; };
+		D535CCE619CF333A005E114E /* UIImage+UserInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+UserInfo.m"; sourceTree = "<group>"; };
 		D5370D92194749DF000E30FC /* TiParentingProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiParentingProxy.h; sourceTree = "<group>"; };
 		D5370D93194749DF000E30FC /* TiParentingProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiParentingProxy.m; sourceTree = "<group>"; };
+		D53DC7B119CF427100BB31C9 /* UIImage+ColorArt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+ColorArt.h"; path = "../Classes/ColorArt/UIImage+ColorArt.h"; sourceTree = "<group>"; };
+		D53DC7B219CF427100BB31C9 /* UIImage+ColorArt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+ColorArt.m"; path = "../Classes/ColorArt/UIImage+ColorArt.m"; sourceTree = "<group>"; };
+		D53DC7B319CF427100BB31C9 /* UIImage+Scale.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+Scale.h"; path = "../Classes/ColorArt/UIImage+Scale.h"; sourceTree = "<group>"; };
+		D53DC7B419CF427100BB31C9 /* UIImage+Scale.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+Scale.m"; path = "../Classes/ColorArt/UIImage+Scale.m"; sourceTree = "<group>"; };
 		D5412E101900156C00B720DF /* ADPercentDrivenInteractiveTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADPercentDrivenInteractiveTransition.h; path = ../Classes/ADTransitionController/ADPercentDrivenInteractiveTransition.h; sourceTree = "<group>"; };
 		D5412E111900156C00B720DF /* ADPercentDrivenInteractiveTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADPercentDrivenInteractiveTransition.m; path = ../Classes/ADTransitionController/ADPercentDrivenInteractiveTransition.m; sourceTree = "<group>"; };
 		D5412E1519012A0D00B720DF /* UIGestureRecognizer+ADNavTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIGestureRecognizer+ADNavTransition.h"; path = "../Classes/ADTransitionController/UIGestureRecognizer+ADNavTransition.h"; sourceTree = "<group>"; };
@@ -2178,6 +2201,8 @@
 		D58709B819796508002E8817 /* TiUIiOSActivityProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSActivityProxy.m; sourceTree = "<group>"; };
 		D58791E8183E790F007F5BF1 /* TiTransitionPerspective.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionPerspective.h; sourceTree = "<group>"; };
 		D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionPerspective.m; sourceTree = "<group>"; };
+		D58D8C6019A3B811001AA611 /* DAKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DAKeyboardControl.h; path = ../Classes/DAKeyboardControl/DAKeyboardControl.h; sourceTree = "<group>"; };
+		D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DAKeyboardControl.m; path = ../Classes/DAKeyboardControl/DAKeyboardControl.m; sourceTree = "<group>"; };
 		D58DCBCB17FEF0F50011FE0E /* TiSVGImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSVGImage.h; sourceTree = "<group>"; };
 		D58DCBCC17FEF0F50011FE0E /* TiSVGImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSVGImage.m; sourceTree = "<group>"; };
 		D58DCBD017FF193D0011FE0E /* TiTransitionHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionHelper.h; sourceTree = "<group>"; };
@@ -2639,6 +2664,8 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				D535CCD919CF2C6A005E114E /* ColorArt */,
+				D58D8C5919A3B7FE001AA611 /* DAKeyboardControl */,
 				D54E554D19953BD1004A7335 /* RDActivityViewController */,
 				D55795071837BEF90057DD41 /* CoconutKitAnimation */,
 				D5B6C6DD1811249F00A2612A /* DT */,
@@ -2955,6 +2982,8 @@
 				D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */,
 				D5F9620C19A63941000E464F /* TiScrollingView.h */,
 				D5F9620D19A63941000E464F /* TiScrollingView.m */,
+				D535CCE519CF333A005E114E /* UIImage+UserInfo.h */,
+				D535CCE619CF333A005E114E /* UIImage+UserInfo.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -4041,6 +4070,19 @@
 			name = JRSwizzle;
 			sourceTree = "<group>";
 		};
+		D535CCD919CF2C6A005E114E /* ColorArt */ = {
+			isa = PBXGroup;
+			children = (
+				D53DC7B119CF427100BB31C9 /* UIImage+ColorArt.h */,
+				D53DC7B219CF427100BB31C9 /* UIImage+ColorArt.m */,
+				D53DC7B319CF427100BB31C9 /* UIImage+Scale.h */,
+				D53DC7B419CF427100BB31C9 /* UIImage+Scale.m */,
+				D535CCE019CF2C77005E114E /* SLColorArt.h */,
+				D535CCE119CF2C77005E114E /* SLColorArt.m */,
+			);
+			name = ColorArt;
+			sourceTree = "<group>";
+		};
 		D54E554D19953BD1004A7335 /* RDActivityViewController */ = {
 			isa = PBXGroup;
 			children = (
@@ -4214,6 +4256,15 @@
 				D58709B419796501002E8817 /* ActivityProxy.h */,
 			);
 			name = Activity;
+			sourceTree = "<group>";
+		};
+		D58D8C5919A3B7FE001AA611 /* DAKeyboardControl */ = {
+			isa = PBXGroup;
+			children = (
+				D58D8C6019A3B811001AA611 /* DAKeyboardControl.h */,
+				D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */,
+			);
+			name = DAKeyboardControl;
 			sourceTree = "<group>";
 		};
 		D58ED8E41928E6F700BA0E04 /* Products */ = {
@@ -4786,6 +4837,7 @@
 				24CA897D111161050084E2DE /* PlausibleDatabase.m in Sources */,
 				24CA897E111161050084E2DE /* PLSqliteDatabase.m in Sources */,
 				24CA897F111161050084E2DE /* PLSqlitePreparedStatement.m in Sources */,
+				D535CCE219CF2C77005E114E /* SLColorArt.m in Sources */,
 				8484E3A717A865F700C24B02 /* TiViewController.m in Sources */,
 				24CA8980111161050084E2DE /* PLSqliteResultSet.m in Sources */,
 				24CA8981111161050084E2DE /* SBJSON.m in Sources */,
@@ -4885,6 +4937,7 @@
 				24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */,
 				24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */,
 				D58709BB19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
+				D53DC7B519CF427100BB31C9 /* UIImage+ColorArt.m in Sources */,
 				24CA8BC7111161FE0084E2DE /* TiDimension.m in Sources */,
 				24CA8BC8111161FE0084E2DE /* TiDatabaseResultSetProxy.m in Sources */,
 				24CA8BC9111161FE0084E2DE /* TiDatabaseProxy.m in Sources */,
@@ -4936,6 +4989,8 @@
 				24EB07D4111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */,
 				24EB07E0111D43AE001DC2D1 /* GDataXMLNode.m in Sources */,
 				24EB0809111D4654001DC2D1 /* TiDOMNodeProxy.m in Sources */,
+				D53DC7B819CF427100BB31C9 /* UIImage+Scale.m in Sources */,
+				D58D8C6219A3B811001AA611 /* DAKeyboardControl.m in Sources */,
 				24EB080F111D46C0001DC2D1 /* TiDOMElementProxy.m in Sources */,
 				24EB0829111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,
 				24EB0843111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
@@ -4948,6 +5003,7 @@
 				24FBE5AE11293DD1005C8D48 /* CADebugMacros.cpp in Sources */,
 				24FBE5AF11293DD1005C8D48 /* CAStreamBasicDescription.cpp in Sources */,
 				24FBE5B011293DD1005C8D48 /* CAXException.cpp in Sources */,
+				D535CCE719CF333A005E114E /* UIImage+UserInfo.m in Sources */,
 				24E25CC3112A698C0083D43D /* AQRecorder.mm in Sources */,
 				24E25CC4112A698C0083D43D /* SCListener.m in Sources */,
 				24A1E519112D33AF003DA834 /* TiMediaAudioSession.m in Sources */,
@@ -5145,6 +5201,7 @@
 				24D8E3C0119B9D8A00F8CAA6 /* AFOpenFlowView.m in Sources */,
 				24D8E3C1119B9D8A00F8CAA6 /* AFUIImageReflection.m in Sources */,
 				84A00FF617FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
+				D53DC7B619CF427100BB31C9 /* UIImage+ColorArt.m in Sources */,
 				24D8E3C5119B9D8A00F8CAA6 /* TiUIiPhoneScrollIndicatorStyleProxy.m in Sources */,
 				24D8E3C8119B9D8A00F8CAA6 /* TiUITextWidgetProxy.m in Sources */,
 				24D8E3CA119B9D8A00F8CAA6 /* TiUITableViewSectionProxy.m in Sources */,
@@ -5162,6 +5219,7 @@
 				24D8E3E0119B9D8A00F8CAA6 /* KrollBridge.m in Sources */,
 				84A0100A17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
 				24D8E3E1119B9D8A00F8CAA6 /* KrollCallback.m in Sources */,
+				D535CCE319CF2C77005E114E /* SLColorArt.m in Sources */,
 				24D8E3E2119B9D8A00F8CAA6 /* KrollContext.m in Sources */,
 				D54C7D2118115D7D00F592A9 /* TiTransitionModernPush.m in Sources */,
 				24D8E3E3119B9D8A00F8CAA6 /* KrollMethod.m in Sources */,
@@ -5275,6 +5333,7 @@
 				24D8E43E119B9D8A00F8CAA6 /* TiBlob.m in Sources */,
 				24D8E43F119B9D8A00F8CAA6 /* TiBase.m in Sources */,
 				D58709BF19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
+				D58D8C6319A3B811001AA611 /* DAKeyboardControl.m in Sources */,
 				24D8E440119B9D8A00F8CAA6 /* TiAppPropertiesProxy.m in Sources */,
 				D54C7CF01811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				24D8E441119B9D8A00F8CAA6 /* TiAnimation.m in Sources */,
@@ -5290,6 +5349,7 @@
 				24D8E44C119B9D8A00F8CAA6 /* LayoutConstraint.m in Sources */,
 				24D8E44D119B9D8A00F8CAA6 /* ImageLoader.m in Sources */,
 				24D8E44E119B9D8A00F8CAA6 /* GestureModule.m in Sources */,
+				D535CCE819CF333A005E114E /* UIImage+UserInfo.m in Sources */,
 				D54C7D0818115BFA00F592A9 /* TiTransitionCross.m in Sources */,
 				24D8E450119B9D8A00F8CAA6 /* FilesystemModule.m in Sources */,
 				24D8E452119B9D8A00F8CAA6 /* DatabaseModule.m in Sources */,
@@ -5438,6 +5498,7 @@
 				D5C8C97A17EF45C900F54C19 /* ADFlipTransition.m in Sources */,
 				848C259B145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
 				848C25A0145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
+				D53DC7B919CF427100BB31C9 /* UIImage+Scale.m in Sources */,
 				D54C7CF41811570B00F592A9 /* TiTransition.m in Sources */,
 				848C25A5145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */,
 				84D541A41460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
@@ -5518,6 +5579,7 @@
 				DABB36A612E8CB280026A6EA /* AFOpenFlowView.m in Sources */,
 				DABB36A712E8CB280026A6EA /* AFUIImageReflection.m in Sources */,
 				84A00FF717FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
+				D53DC7B719CF427100BB31C9 /* UIImage+ColorArt.m in Sources */,
 				DABB36AB12E8CB280026A6EA /* TiUIiPhoneScrollIndicatorStyleProxy.m in Sources */,
 				DABB36AE12E8CB280026A6EA /* TiUITextWidgetProxy.m in Sources */,
 				DABB36B012E8CB280026A6EA /* TiUITableViewSectionProxy.m in Sources */,
@@ -5535,6 +5597,7 @@
 				DABB36BC12E8CB280026A6EA /* KrollBridge.m in Sources */,
 				84A0100B17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
 				DABB36BD12E8CB280026A6EA /* KrollCallback.m in Sources */,
+				D535CCE419CF2C77005E114E /* SLColorArt.m in Sources */,
 				DABB36BE12E8CB280026A6EA /* KrollContext.m in Sources */,
 				D54C7D2218115D7D00F592A9 /* TiTransitionModernPush.m in Sources */,
 				DABB36BF12E8CB280026A6EA /* KrollMethod.m in Sources */,
@@ -5648,6 +5711,7 @@
 				DABB371712E8CB280026A6EA /* TiBlob.m in Sources */,
 				DABB371812E8CB280026A6EA /* TiBase.m in Sources */,
 				D58709C019796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
+				D58D8C6419A3B811001AA611 /* DAKeyboardControl.m in Sources */,
 				DABB371912E8CB280026A6EA /* TiAppPropertiesProxy.m in Sources */,
 				D54C7CF11811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				DABB371A12E8CB280026A6EA /* TiAnimation.m in Sources */,
@@ -5663,6 +5727,7 @@
 				DABB372512E8CB280026A6EA /* LayoutConstraint.m in Sources */,
 				DABB372612E8CB280026A6EA /* ImageLoader.m in Sources */,
 				DABB372712E8CB280026A6EA /* GestureModule.m in Sources */,
+				D535CCE919CF333A005E114E /* UIImage+UserInfo.m in Sources */,
 				D54C7D0918115BFA00F592A9 /* TiTransitionCross.m in Sources */,
 				DABB372912E8CB280026A6EA /* FilesystemModule.m in Sources */,
 				DABB372A12E8CB280026A6EA /* DatabaseModule.m in Sources */,
@@ -5811,6 +5876,7 @@
 				D5C8C97B17EF45C900F54C19 /* ADFlipTransition.m in Sources */,
 				848C259C145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
 				848C25A1145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
+				D53DC7BA19CF427100BB31C9 /* UIImage+Scale.m in Sources */,
 				D54C7CF51811570B00F592A9 /* TiTransition.m in Sources */,
 				848C25A6145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */,
 				84D541A51460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,

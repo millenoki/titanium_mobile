@@ -15,18 +15,25 @@
 //NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
 #import "TiRect.h"
 #import "TiFilesystemFileProxy.h"
+#import "NSDictionary+Merge.h"
+#import "UIImage+UserInfo.h"
+#import "TiImageHelper.h"
 
 static NSString *const MIMETYPE_PNG = @"image/png";
 static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 
 @implementation TiBlob
+{
+    NSDictionary* extraInfo;
+}
 
 -(void)dealloc
 {
 	RELEASE_TO_NIL(mimetype);
 	RELEASE_TO_NIL(data);
 	RELEASE_TO_NIL(image);
-	RELEASE_TO_NIL(path);
+    RELEASE_TO_NIL(path);
+    RELEASE_TO_NIL(extraInfo);
 	[super dealloc];
 }
 
@@ -114,6 +121,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	if (self = [super init])
 	{
 		image = [image_ retain];
+        [self setInfo:image.info];
 		type = TiBlobTypeImage;
 		mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
 	}
@@ -203,8 +211,8 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		case TiBlobTypeFile:
 		{
             if (image == nil) {
-                NSURL * result = [TiUtils toURL:path proxy:self];
-                image = [[UIImage alloc] initWithContentsOfFile:[result path]];
+//                NSURL * result = [TiUtils toURL:path proxy:self];
+                image = [[UIImage alloc] initWithContentsOfFile:path];
             }
             break;
 		}
@@ -381,18 +389,29 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	return nil;
 }
 
-- (id)imageAsResized:(id)args
+- (id)imageAsFiltered:(id)args
 {
 	[self ensureImageLoaded];
 	if (image!=nil)
 	{
-		ENSURE_ARG_COUNT(args,2);
-		NSUInteger width = [TiUtils intValue:[args objectAtIndex:0]];
-		NSUInteger height = [TiUtils intValue:[args objectAtIndex:1]];
-		TiBlob *blob =  [[TiBlob alloc] initWithImage:[UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:image hires:NO]];
-		return [blob autorelease];
+        ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary)
+		return [[[TiBlob alloc] initWithImage:[TiImageHelper imageFiltered:image withOptions:args]] autorelease];
 	}
 	return nil;
+}
+
+- (id)imageAsResized:(id)args
+{
+    [self ensureImageLoaded];
+    if (image!=nil)
+    {
+        ENSURE_ARG_COUNT(args,2);
+        NSUInteger width = [TiUtils intValue:[args objectAtIndex:0]];
+        NSUInteger height = [TiUtils intValue:[args objectAtIndex:1]];
+        TiBlob *blob =  [[TiBlob alloc] initWithImage:[UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:image hires:NO]];
+        return [blob autorelease];
+    }
+    return nil;
 }
 
 -(UIImage*)shrinkImage:(UIImage*)theImage withMaxByteSize:(NSUInteger)byteSize {
@@ -452,6 +471,26 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
         return represented;
     }
 	return [super toString:args];
+}
+
+-(void)setInfo:(NSDictionary*)info {
+    RELEASE_TO_NIL(extraInfo)
+    extraInfo = [info retain];
+}
+
+-(void)addInfo:(NSDictionary*)info {
+    if (extraInfo) {
+        NSDictionary* oldInfo = extraInfo;
+        extraInfo = [oldInfo dictionaryByMergingWith:info];
+        RELEASE_TO_NIL(oldInfo)
+    }
+    else {
+        [self setInfo:info];
+    }
+}
+
+-(NSDictionary*)info {
+    return extraInfo;
 }
 
 @end

@@ -20,6 +20,7 @@
 #import "TiSVGImage.h"
 #import "TiTransitionHelper.h"
 #import "TiTransition.h"
+#import "TiImageHelper.h"
 
 #define IMAGEVIEW_DEBUG 0
 
@@ -32,29 +33,31 @@
     UIImage* _currentImage;
     id _currentImageSource;
     
-	NSTimer *timer;
-	NSTimeInterval interval;
-	NSInteger repeatCount;
-	NSInteger index;
-	NSInteger iterations;
-	UIView *previous;
-	UIView *container;
-	BOOL ready;
-	BOOL stopped;
-	BOOL reverse;
-	BOOL placeholderLoading;
-	TiDimension width;
-	TiDimension height;
-	CGFloat autoHeight;
-	CGFloat autoWidth;
-	CGFloat autoScale;
-	NSInteger loadCount;
-	NSInteger readyCount;
-	NSInteger loadTotal;
-	UIImageView * imageView;
+    NSTimer *timer;
+    NSTimeInterval interval;
+    NSInteger repeatCount;
+    NSInteger index;
+    NSInteger iterations;
+    UIView *previous;
+    UIView *container;
+    BOOL ready;
+    BOOL stopped;
+    BOOL reverse;
+    BOOL placeholderLoading;
+    TiDimension width;
+    TiDimension height;
+    CGFloat autoHeight;
+    CGFloat autoWidth;
+    CGFloat autoScale;
+    NSInteger loadCount;
+    NSInteger readyCount;
+    NSInteger loadTotal;
+    UIImageView * imageView;
     UIViewContentMode scaleType;
-	BOOL localLoadSync;
+    BOOL localLoadSync;
     BOOL _reusing;
+    
+    NSDictionary* _filterOptions;
     
     CGFloat animationDuration;
     TiSVGImage* _svg;
@@ -63,6 +66,7 @@
     BOOL usingNewMethod;
     NSURL *_defaultImageUrl;
     BOOL _preventDefaultImage;
+    BOOL _needsSetImage;
 }
 @property(nonatomic,retain) NSDictionary *transition;
 -(void)startTimerWithEvent:(NSString *)eventName;
@@ -79,6 +83,7 @@ DEFINE_EXCEPTIONS
 {
     if (self = [super init]) {
         localLoadSync = NO;
+        _needsSetImage= NO;
         scaleType = UIViewContentModeScaleAspectFit;
         animationDuration = 0.5;
         self.transition = nil;
@@ -89,23 +94,24 @@ DEFINE_EXCEPTIONS
         autoScale = 1;
         _reusing = NO;
         _preventDefaultImage = NO;
+        _filterOptions = nil;
     }
     return self;
 }
 
 -(void)dealloc
 {
-	if (timer!=nil)
-	{
-		[timer invalidate];
-	}
-	RELEASE_TO_NIL(timer);
-	RELEASE_TO_NIL(_images);
-	RELEASE_TO_NIL(container);
-	RELEASE_TO_NIL(previous);
-	RELEASE_TO_NIL(imageView);
-	RELEASE_TO_NIL(_svg);
-	RELEASE_TO_NIL(_transition);
+    if (timer!=nil)
+    {
+        [timer invalidate];
+    }
+    RELEASE_TO_NIL(timer);
+    RELEASE_TO_NIL(_images);
+    RELEASE_TO_NIL(container);
+    RELEASE_TO_NIL(previous);
+    RELEASE_TO_NIL(imageView);
+    RELEASE_TO_NIL(_svg);
+    RELEASE_TO_NIL(_transition);
     RELEASE_TO_NIL(_currentImageSource)
     RELEASE_TO_NIL(_defaultImageUrl)
     if (_animatedImage) {
@@ -113,8 +119,9 @@ DEFINE_EXCEPTIONS
         RELEASE_TO_NIL(_animatedImage);
     }
     
-	RELEASE_TO_NIL(_currentImage);
-	[super dealloc];
+    RELEASE_TO_NIL(_currentImage);
+    RELEASE_TO_NIL(_filterOptions);
+    [super dealloc];
 }
 
 -(CGSize)contentSizeForSize:(CGSize)size
@@ -173,105 +180,105 @@ DEFINE_EXCEPTIONS
     if (_svg != nil) {
         imageView.image = [_svg imageForSize:bounds.size];
     }
-
-	if (container!=nil)
-	{
-		for (UIView *child in [container subviews])
-		{
-			[TiUtils setView:child positionRect:bounds];
-		}
-	}
+    
+    if (container!=nil)
+    {
+        for (UIView *child in [container subviews])
+        {
+            [TiUtils setView:child positionRect:bounds];
+        }
+    }
     [super frameSizeChanged:frame bounds:bounds];
 }
 
 -(void)timerFired:(id)arg
 {
-	if (stopped) {
-		return;
-	}
-	
-	// don't let the placeholder stomp on our new _images
-	placeholderLoading = NO;
-	
-	NSInteger position = index % loadTotal;
-	NSInteger nextIndex = (reverse) ? --index : ++index;
-	
-	if (position<0)
-	{
-		position=loadTotal-1;
-		index=position-1;
-	}
-	UIView *view = [[container subviews] objectAtIndex:position];
+    if (stopped) {
+        return;
+    }
     
-	// see if we have an activity indicator... if we do, that means the image hasn't yet loaded
-	// and we want to start the spinner to let the user know that we're still loading. we 
-	// don't initially start the spinner when added since we don't want to prematurely show
-	// the spinner (usually for the first image) and then immediately remove it with a flash
-	UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
-	if (spinner!=nil && [spinner isKindOfClass:[UIActivityIndicatorView class]])
-	{
-		[(UIActivityIndicatorView*)spinner startAnimating];
-		[view bringSubviewToFront:spinner];
-	}
-	
-	// the container sits on top of the image in case the first frame (via setUrl) is first
-	[self bringSubviewToFront:container];
-	
-	view.hidden = NO;
+    // don't let the placeholder stomp on our new _images
+    placeholderLoading = NO;
     
-	if (previous!=nil)
-	{
-		previous.hidden = YES;
-		RELEASE_TO_NIL(previous);
-	}
-	
-	previous = [view retain];
+    NSInteger position = index % loadTotal;
+    NSInteger nextIndex = (reverse) ? --index : ++index;
     
-	if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
-	{
-		NSDictionary *evt = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:position] forKey:@"index"];
-		[self.proxy fireEvent:@"change" withObject:evt propagate:NO checkForListener:NO];
-	}
-	
-	if (repeatCount > 0 && ((reverse==NO && nextIndex == loadTotal) || (reverse && nextIndex==0)))
-	{
-		iterations++;
-		if (iterations == repeatCount) {
+    if (position<0)
+    {
+        position=loadTotal-1;
+        index=position-1;
+    }
+    UIView *view = [[container subviews] objectAtIndex:position];
+    
+    // see if we have an activity indicator... if we do, that means the image hasn't yet loaded
+    // and we want to start the spinner to let the user know that we're still loading. we
+    // don't initially start the spinner when added since we don't want to prematurely show
+    // the spinner (usually for the first image) and then immediately remove it with a flash
+    UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
+    if (spinner!=nil && [spinner isKindOfClass:[UIActivityIndicatorView class]])
+    {
+        [(UIActivityIndicatorView*)spinner startAnimating];
+        [view bringSubviewToFront:spinner];
+    }
+    
+    // the container sits on top of the image in case the first frame (via setUrl) is first
+    [self bringSubviewToFront:container];
+    
+    view.hidden = NO;
+    
+    if (previous!=nil)
+    {
+        previous.hidden = YES;
+        RELEASE_TO_NIL(previous);
+    }
+    
+    previous = [view retain];
+    
+    if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
+    {
+        NSDictionary *evt = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:position] forKey:@"index"];
+        [self.proxy fireEvent:@"change" withObject:evt propagate:NO checkForListener:NO];
+    }
+    
+    if (repeatCount > 0 && ((reverse==NO && nextIndex == loadTotal) || (reverse && nextIndex==0)))
+    {
+        iterations++;
+        if (iterations == repeatCount) {
             stopped = YES;
             [self stopTimerWithEvent:@"stop"];
-		}
-	}
+        }
+    }
 }
 
 -(void)queueImage:(id)img index:(int)index_
 {
-	UIView *view = [[UIView alloc] initWithFrame:self.bounds];
-	UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-	
-	spinner.center = view.center;
-	spinner.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;			
-	
-	[view addSubview:spinner];
-	[container addSubview:view];
-	[view release];
-	[spinner release];
-	
-	[_images addObject:img];
-	[[OperationQueue sharedQueue] queue:@selector(loadImageInBackground:) target:self arg:[NSNumber numberWithInt:index_] after:nil on:nil ui:NO];
+    UIView *view = [[UIView alloc] initWithFrame:self.bounds];
+    UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    
+    spinner.center = view.center;
+    spinner.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
+    
+    [view addSubview:spinner];
+    [container addSubview:view];
+    [view release];
+    [spinner release];
+    
+    [_images addObject:img];
+    [[OperationQueue sharedQueue] queue:@selector(loadImageInBackground:) target:self arg:[NSNumber numberWithInt:index_] after:nil on:nil ui:NO];
 }
 
 -(void)startTimerWithEvent:(NSString *)eventName
 {
-	RELEASE_TO_NIL(timer);
-	if (stopped)
-	{
-		return;
-	}
-	timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain]; 
-	if ([self.proxy _hasListeners:eventName])
-	{
-		[self.proxy fireEvent:eventName withObject:nil];
-	}
+    RELEASE_TO_NIL(timer);
+    if (stopped)
+    {
+        return;
+    }
+    timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain];
+    if ([self.proxy _hasListeners:eventName])
+    {
+        [self.proxy fireEvent:eventName withObject:nil];
+    }
 }
 
 -(void)stopTimerWithEvent:(NSString *)eventName
@@ -279,13 +286,13 @@ DEFINE_EXCEPTIONS
     if (!stopped) {
         return;
     }
-	if (timer != nil) {
-		[timer invalidate];
-		RELEASE_TO_NIL(timer);
-		if ([self.proxy _hasListeners:eventName]) {
-			[self.proxy fireEvent:eventName withObject:nil];
-		}
-	}
+    if (timer != nil) {
+        [timer invalidate];
+        RELEASE_TO_NIL(timer);
+        if ([self.proxy _hasListeners:eventName]) {
+            [self.proxy fireEvent:eventName withObject:nil];
+        }
+    }
 }
 
 -(void)updateTimer{
@@ -294,7 +301,7 @@ DEFINE_EXCEPTIONS
         [timer invalidate];
         RELEASE_TO_NIL(timer)
         
-        timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain]; 
+        timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain];
     }
 }
 
@@ -318,15 +325,15 @@ DEFINE_EXCEPTIONS
 
 -(void)animationCompleted:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context
 {
-	for (UIView *view in [self subviews])
-	{
-		// look for our alpha view which is the placeholder layer
-		if (view.alpha == 0)
-		{
-			[view removeFromSuperview];
-			break;
-		}
-	}
+    for (UIView *view in [self subviews])
+    {
+        // look for our alpha view which is the placeholder layer
+        if (view.alpha == 0)
+        {
+            [view removeFromSuperview];
+            break;
+        }
+    }
 }
 
 -(UIViewContentMode)contentModeForImageView
@@ -336,8 +343,8 @@ DEFINE_EXCEPTIONS
          (TiDimensionIsUndefined(constraints->left) || TiDimensionIsUndefined(constraints->right))) ||
         ((TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height)) &&
          (TiDimensionIsUndefined(constraints->top) || TiDimensionIsUndefined(constraints->bottom)))) {
-        return UIViewContentModeScaleAspectFit;
-    }
+            return UIViewContentModeScaleAspectFit;
+        }
     else {
         return scaleType;
     }
@@ -362,20 +369,20 @@ DEFINE_EXCEPTIONS
 
 -(UIImageView *)imageView
 {
-	if (imageView==nil)
-	{
-		imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
-		[imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+    if (imageView==nil)
+    {
+        imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
+        [imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
         imageView.backgroundColor = [UIColor clearColor];
-		[imageView setContentMode:[self contentModeForImageView]];
+        [imageView setContentMode:[self contentModeForImageView]];
         TiUIView* topView = [[self childViews] firstObject];
         if (topView != nil)
             [self insertSubview:imageView belowSubview:topView];
         else {
             [self addSubview:imageView];
         }
-	}
-	return imageView;
+    }
+    return imageView;
 }
 
 //-(UIView*)viewForHitTest
@@ -385,7 +392,7 @@ DEFINE_EXCEPTIONS
 
 - (id)accessibilityElement
 {
-	return [self imageView];
+    return [self imageView];
 }
 
 - (id) cloneView:(id)source {
@@ -397,12 +404,12 @@ DEFINE_EXCEPTIONS
 -(void) transitionToImage:(UIImage*)image
 {
     ENSURE_UI_THREAD(transitionToImage,image);
-	if (self.proxy==nil)
-	{
-		// this can happen after receiving an async callback for loading the image
-		// but after we've detached our view.  In which case, we need to just ignore this
-		return;
-	}
+    if (self.proxy==nil)
+    {
+        // this can happen after receiving an async callback for loading the image
+        // but after we've detached our view.  In which case, we need to just ignore this
+        return;
+    }
     image = [self prepareImage:image];
     TiTransition* transition = [TiTransitionHelper transitionFromArg:self.transition containerView:self];
     [(TiViewProxy*)[self proxy] contentsWillChange];
@@ -417,7 +424,7 @@ DEFINE_EXCEPTIONS
         } completionBlock:^{
             [oldView release];
         }];
-	}
+    }
     else {
         [[self imageView] setImage:image];
         [self fireLoadEventWithState:@"image"];
@@ -457,95 +464,95 @@ DEFINE_EXCEPTIONS
 
 -(void)loadImageInBackground:(NSNumber*)pos
 {
-	int position = [TiUtils intValue:pos];
-	NSURL *theurl = [TiUtils toURL:[_images objectAtIndex:position] proxy:self.proxy];
-	id theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
-	if (theimage==nil)
-	{
-		theimage = [[ImageLoader sharedLoader] loadRemote:theurl withOptions:[self.proxy valueForUndefinedKey:@"httpOptions"]];
-	}
-	if (theimage==nil)
-	{
-		NSLog(@"[ERROR] couldn't load imageview image: %@ at position: %d",theurl,position);
-		return;
-	}
-
+    int position = [TiUtils intValue:pos];
+    NSURL *theurl = [TiUtils toURL:[_images objectAtIndex:position] proxy:self.proxy];
+    id theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
+    if (theimage==nil)
+    {
+        theimage = [[ImageLoader sharedLoader] loadRemote:theurl withOptions:[self.proxy valueForUndefinedKey:@"httpOptions"]];
+    }
+    if (theimage==nil)
+    {
+        NSLog(@"[ERROR] couldn't load imageview image: %@ at position: %d",theurl,position);
+        return;
+    }
+    
     UIImage *imageToUse = [self prepareImage:[self convertToUIImage:theimage]];
     
-	TiThreadPerformOnMainThread(^{
-		UIView *view = [[container subviews] objectAtIndex:position];
-		UIImageView *newImageView = [[UIImageView alloc] initWithFrame:[view bounds]];
-		newImageView.image = imageToUse;
-		newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-		newImageView.contentMode = [self contentModeForImageView];
-		
-		// remove the spinner now that we've loaded our image
-		UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
-		if (spinner!=nil && [spinner isKindOfClass:[UIActivityIndicatorView class]])
-		{
-			[spinner removeFromSuperview];
-		}
-		[view addSubview:newImageView];
+    TiThreadPerformOnMainThread(^{
+        UIView *view = [[container subviews] objectAtIndex:position];
+        UIImageView *newImageView = [[UIImageView alloc] initWithFrame:[view bounds]];
+        newImageView.image = imageToUse;
+        newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        newImageView.contentMode = [self contentModeForImageView];
+        
+        // remove the spinner now that we've loaded our image
+        UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
+        if (spinner!=nil && [spinner isKindOfClass:[UIActivityIndicatorView class]])
+        {
+            [spinner removeFromSuperview];
+        }
+        [view addSubview:newImageView];
         [self sendSubviewToBack:newImageView];
-		view.clipsToBounds = YES;
-		[newImageView release];
-		view.hidden = YES;
-		
+        view.clipsToBounds = YES;
+        [newImageView release];
+        view.hidden = YES;
+        
 #if IMAGEVIEW_DEBUG	== 1
-		UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 50, 20)];
-		label.text = [NSString stringWithFormat:@"%d",position];
-		label.font = [UIFont boldSystemFontOfSize:28];
-		label.textColor = [UIColor redColor];
-		label.backgroundColor = [UIColor clearColor];
-		[view addSubview:label];
-		[view bringSubviewToFront:label];
-		[label release];
-#endif	
-		
-		loadCount++;
-		if (loadCount==loadTotal)
-		{
-			[self fireLoadEventWithState:@"_images"];
-		}
-		
-		if (ready)
-		{
-			//NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
-			//but in the future we may want to be more sophisticated
-			int min = 1;  
-			readyCount++;
-			if (readyCount >= min)
-			{
-				readyCount = 0;
-				ready = NO;
-				
-				[self startTimerWithEvent:@"start"];
-			}
-		}
-	}, NO);		
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 50, 20)];
+        label.text = [NSString stringWithFormat:@"%d",position];
+        label.font = [UIFont boldSystemFontOfSize:28];
+        label.textColor = [UIColor redColor];
+        label.backgroundColor = [UIColor clearColor];
+        [view addSubview:label];
+        [view bringSubviewToFront:label];
+        [label release];
+#endif
+        
+        loadCount++;
+        if (loadCount==loadTotal)
+        {
+            [self fireLoadEventWithState:@"_images"];
+        }
+        
+        if (ready)
+        {
+            //NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
+            //but in the future we may want to be more sophisticated
+            int min = 1;
+            readyCount++;
+            if (readyCount >= min)
+            {
+                readyCount = 0;
+                ready = NO;
+                
+                [self startTimerWithEvent:@"start"];
+            }
+        }
+    }, NO);
 }
 
 -(void)removeAllImagesFromContainer
 {
-	// remove any existing _images
-	if (container!=nil)
-	{
-		for (UIView *view in [container subviews])
-		{
-			[view removeFromSuperview];
-		}
-	}
-//	if (imageView!=nil)
-//	{
-//		imageView.image = nil;
-//	}
+    // remove any existing _images
+    if (container!=nil)
+    {
+        for (UIView *view in [container subviews])
+        {
+            [view removeFromSuperview];
+        }
+    }
+    //	if (imageView!=nil)
+    //	{
+    //		imageView.image = nil;
+    //	}
 }
 
 -(void)cancelPendingImageLoads
 {
-	// cancel a pending request if we have one pending
-//	[(TiUIImageViewProxy *)[self proxy] cancelPendingImageLoads];
-	placeholderLoading = NO;
+    // cancel a pending request if we have one pending
+    //	[(TiUIImageViewProxy *)[self proxy] cancelPendingImageLoads];
+    placeholderLoading = NO;
 }
 
 -(CGSize) imageSize {
@@ -574,11 +581,11 @@ DEFINE_EXCEPTIONS
 
 -(void)loadUrl:(id)img
 {
-	if (img!=nil)
-	{
-		NSURL *url_ = [TiUtils toURL:[img absoluteString] proxy:self.proxy];
+    if (img!=nil)
+    {
+        NSURL *url_ = [TiUtils toURL:[img absoluteString] proxy:self.proxy];
         
-        UIImage *image = nil;
+        __block UIImage *image = nil;
         if (localLoadSync)
         {
             image = [self convertToUIImage:[[ImageLoader sharedLoader] loadImmediateImage:url_]];
@@ -590,37 +597,52 @@ DEFINE_EXCEPTIONS
             }
         }
         
-		if (image==nil)
-		{
-			placeholderLoading = YES;
-			[(TiUIImageViewProxy *)[self proxy] startImageLoad:url_];
-			return;
-		} else {
-			[(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
-            [self transitionToImage:image];
-		}
-	}
+        if (image==nil)
+        {
+            placeholderLoading = YES;
+            [(TiUIImageViewProxy *)[self proxy] startImageLoad:url_];
+            return;
+        } else {
+            [(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
+            
+            if (_filterOptions) {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
+               {
+                   RELEASE_TO_NIL(_currentImage);
+                   _currentImage = [[TiImageHelper imageFiltered:image withOptions:_filterOptions] retain];
+                   TiThreadPerformOnMainThread(^{
+                       [self transitionToImage:_currentImage];
+                   }, NO);
+               });
+            }
+            else {
+                RELEASE_TO_NIL(_currentImage);
+                _currentImage = [image retain];
+                [self transitionToImage:image];
+            }
+        }
+    }
 }
 
 
 -(UIView*)container
 {
-	if (container==nil)
-	{
-		// we use a separate container view so we can both have an image
-		// and a set of _images
-		container = [[UIView alloc] initWithFrame:self.bounds];
-		container.userInteractionEnabled = NO;
-		[self addSubview:container];
-	}
-	return container;
+    if (container==nil)
+    {
+        // we use a separate container view so we can both have an image
+        // and a set of _images
+        container = [[UIView alloc] initWithFrame:self.bounds];
+        container.userInteractionEnabled = NO;
+        [self addSubview:container];
+    }
+    return container;
 }
 
 -(id)convertToUIImage:(id)arg
 {
     id image = nil;
     UIImage* imageToUse = nil;
-	
+    
     if ([arg isKindOfClass:[TiBlob class]]) {
         TiBlob *blob = (TiBlob*)arg;
         image = [blob image];
@@ -631,12 +653,12 @@ DEFINE_EXCEPTIONS
         image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
     }
     else if ([arg isKindOfClass:[UIImage class]]) {
-		// called within this class
-        image = (UIImage*)arg; 
+        // called within this class
+        image = (UIImage*)arg;
     }
     else if ([arg isKindOfClass:[TiSVGImage class]]) {
         _svg = [arg retain];
-		// called within this class
+        // called within this class
         image = (TiSVGImage*)arg;
     }
     return image;
@@ -661,57 +683,57 @@ DEFINE_EXCEPTIONS
 
 -(void)stop
 {
-	stopped = YES;
+    stopped = YES;
     [self stopTimerWithEvent:@"stop"];
-	ready = NO;
-	index = -1;
+    ready = NO;
+    index = -1;
     if (_animatedImage) {
         [_animatedImage stop];
     }
-	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+    [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
     [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
 }
 
 -(void)start
 {
-	stopped = NO;
+    stopped = NO;
     [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
     if (_animatedImage) {
-		[self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
+        [self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
         [_animatedImage start];
         return;
     }
-	if (iterations<0)
-	{
-		iterations = 0;
-	}
-	
-	if (index<0)
-	{
-		if (reverse)
-		{
-			index = loadTotal-1;
-		}
-		else
-		{
-			index = 0;
-		}
-	}
-	
-	
-	// refuse to start animation if you don't have any _images
-	if (loadTotal > 0)
-	{
-		ready = YES;
-		[self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
-		
-		if (timer==nil)
-		{
-			readyCount = 0;
-			ready = NO;
-			[self startTimerWithEvent:@"start"];
-		}
-	}
+    if (iterations<0)
+    {
+        iterations = 0;
+    }
+    
+    if (index<0)
+    {
+        if (reverse)
+        {
+            index = loadTotal-1;
+        }
+        else
+        {
+            index = 0;
+        }
+    }
+    
+    
+    // refuse to start animation if you don't have any _images
+    if (loadTotal > 0)
+    {
+        ready = YES;
+        [self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
+        
+        if (timer==nil)
+        {
+            readyCount = 0;
+            ready = NO;
+            [self startTimerWithEvent:@"start"];
+        }
+    }
 }
 
 -(void)playpause {
@@ -730,9 +752,9 @@ DEFINE_EXCEPTIONS
 
 -(void)pause
 {
-	stopped = YES;
-	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"paused" notification:NO];
-	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+    stopped = YES;
+    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"paused" notification:NO];
+    [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
     if (_animatedImage) {
         [_animatedImage pause];
         return;
@@ -742,9 +764,9 @@ DEFINE_EXCEPTIONS
 
 -(void)resume
 {
-	stopped = NO;
-	[self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
-	[self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
+    stopped = NO;
+    [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
+    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
     if (_animatedImage) {
         [_animatedImage resume];
         return;
@@ -803,13 +825,13 @@ DEFINE_EXCEPTIONS
 
 -(void)setScaleType_:(id)arg
 {
-	scaleType = [TiUtils intValue:arg];
+    scaleType = [TiUtils intValue:arg];
     [self updateContentMode];
 }
 
 -(void)setLocalLoadSync_:(id)arg
 {
-	localLoadSync = [TiUtils boolValue:arg];
+    localLoadSync = [TiUtils boolValue:arg];
 }
 
 -(id)getImage {
@@ -824,6 +846,7 @@ DEFINE_EXCEPTIONS
 -(void)setImage_:(id)arg
 {
     if (!configurationSet) {
+        _needsSetImage = YES;
         if (_reusing) {
             [self loadDefaultImage];
         }
@@ -834,8 +857,8 @@ DEFINE_EXCEPTIONS
     RELEASE_TO_NIL(_currentImageSource)
     _currentImageSource = [arg retain];
     
-	[self removeAllImagesFromContainer];
-	[self cancelPendingImageLoads];
+    [self removeAllImagesFromContainer];
+    [self cancelPendingImageLoads];
     if (_animatedImage) {
         if (_animatedImage.paused)
         {
@@ -850,23 +873,23 @@ DEFINE_EXCEPTIONS
         
         [self loadDefaultImage];
     }
-	
     
-	if (arg==nil || [arg isEqual:@""] || [arg isKindOfClass:[NSNull class]])
-	{
+    
+    if (arg==nil || [arg isEqual:@""] || [arg isKindOfClass:[NSNull class]])
+    {
         [self loadDefaultImage];
-		return;
-	}
-	
-	id image = nil;
+        return;
+    }
+    
+    id image = nil;
     NSURL* imageURL = nil;
     RELEASE_TO_NIL(_svg);
     
     if (localLoadSync || ![arg isKindOfClass:[NSString class]])
         image = [self convertToUIImage:arg];
-	
-	if (image == nil) 
-	{
+    
+    if (image == nil)
+    {
         NSURL* imageURL = [[self proxy] sanitizeURL:arg];
         if (![imageURL isKindOfClass:[NSURL class]]) {
             NSLog(@"[ERROR] invalid image type: \"%@\" is not a TiBlob, URL, TiFile",imageURL);
@@ -874,63 +897,66 @@ DEFINE_EXCEPTIONS
         }
         
         [self loadUrl:imageURL];
-		return;
-	}
-	[self transitionToImage:image];
-
-	if (_currentImage!=image)
-	{
+        return;
+    }
+    [self transitionToImage:image];
+    
+    if (_currentImage!=image)
+    {
         RELEASE_TO_NIL(_currentImage);
         _currentImage = [image retain];
-		[self fireLoadEventWithState:@"image"];
-	}
+        [self fireLoadEventWithState:@"image"];
+    }
 }
 
 -(void)setImages_:(id)args
 {
-    if (!configurationSet)return;
-	BOOL running = (timer!=nil);
+    if (!configurationSet){
+        _needsSetImage = YES;
+        return;
+    }
+    BOOL running = (timer!=nil);
     usingNewMethod = NO;
-	
-	[self stop];
-	
-	if (imageView!=nil)
-	{
-		[imageView setImage:nil];
-	}
-	
-	// remove any existing _images
-	[self removeAllImagesFromContainer];
-	
-	RELEASE_TO_NIL(_images);
-	ENSURE_TYPE_OR_NIL(args,NSArray);
     
-	if (args!=nil)
-	{
-		[self container];
-		_images = [[NSMutableArray alloc] initWithCapacity:[args count]];
-		loadTotal = [args count];
-		for (size_t c = 0; c < [args count]; c++)
-		{
-			[self queueImage:[args objectAtIndex:c] index:c];
-		}
-	}
-	else
-	{
-		RELEASE_TO_NIL(container);
-	}
-	
-	// if we were running, re-start it
-	if (running)
-	{
-		[self start];
-	}
+    [self stop];
+    
+    if (imageView!=nil)
+    {
+        [imageView setImage:nil];
+    }
+    
+    // remove any existing _images
+    [self removeAllImagesFromContainer];
+    
+    RELEASE_TO_NIL(_images);
+    ENSURE_TYPE_OR_NIL(args,NSArray);
+    
+    if (args!=nil)
+    {
+        [self container];
+        _images = [[NSMutableArray alloc] initWithCapacity:[args count]];
+        loadTotal = [args count];
+        for (size_t c = 0; c < [args count]; c++)
+        {
+            [self queueImage:[args objectAtIndex:c] index:c];
+        }
+    }
+    else
+    {
+        RELEASE_TO_NIL(container);
+    }
+    
+    // if we were running, re-start it
+    if (running)
+    {
+        [self start];
+    }
 }
 
 -(void)setDuration_:(id)duration
 {
     float dur = [TiUtils floatValue:duration];
-    dur =  MAX(IMAGEVIEW_MIN_INTERVAL,dur); 
+    dur =  MAX(IMAGEVIEW_MIN_INTERVAL,dur);
     
     interval = dur/1000;
     [self.proxy replaceValue:NUMINT(dur) forKey:@"duration" notification:NO];
@@ -940,14 +966,14 @@ DEFINE_EXCEPTIONS
 
 -(void)setRepeatCount_:(id)count
 {
-	repeatCount = [TiUtils intValue:count];
+    repeatCount = [TiUtils intValue:count];
     [self imageView].animationRepeatCount = [TiUtils intValue:count];
 }
 
 
 -(void)setReverse_:(id)value
 {
-	reverse = [TiUtils boolValue:value def:reverse];
+    reverse = [TiUtils boolValue:value def:reverse];
     if (_animatedImage) {
         _animatedImage.reverse = reverse;
     }
@@ -955,7 +981,7 @@ DEFINE_EXCEPTIONS
 
 -(void)setAutoreverse_:(id)value
 {
-	autoreverse = [TiUtils boolValue:value];
+    autoreverse = [TiUtils boolValue:value];
     if (_animatedImage) {
         _animatedImage.autoreverse = autoreverse;
     }
@@ -963,8 +989,11 @@ DEFINE_EXCEPTIONS
 
 -(void)setAnimatedImages_:(id)args
 {
-    if (!configurationSet)return;
-	ENSURE_TYPE_OR_NIL(args,NSArray);
+    if (!configurationSet){
+        _needsSetImage = YES;
+        return;
+    }
+    ENSURE_TYPE_OR_NIL(args,NSArray);
     if (args == nil) {
         RELEASE_TO_NIL(_animatedImage);
         [self transitionToImage:_currentImage];
@@ -994,7 +1023,7 @@ DEFINE_EXCEPTIONS
 -(void)setImageMask_:(id)arg
 {
     UIImage* image = [self loadImage:arg];
-	UIImageView *imageview = [self imageView];
+    UIImageView *imageview = [self imageView];
     if (image == nil) {
         imageview.layer.mask = nil;
     }
@@ -1021,41 +1050,63 @@ DEFINE_EXCEPTIONS
 -(void)configurationSet
 {
     [super configurationSet];
-    [self setImage_:[self.proxy valueForKey:@"image"]];
-    if ([self.proxy valueForKey:@"images"]) {
-        [self setImages_:[self.proxy valueForKey:@"images"]];
-    } else if ([self.proxy valueForKey:@"animatedImages"]) {
-        [self setAnimatedImages_:[self.proxy valueForKey:@"animatedImages"]];
+    if (_needsSetImage) {
+        [self setImage_:[self.proxy valueForKey:@"image"]];
+        if ([self.proxy valueForKey:@"images"]) {
+            [self setImages_:[self.proxy valueForKey:@"images"]];
+        } else if ([self.proxy valueForKey:@"animatedImages"]) {
+            [self setAnimatedImages_:[self.proxy valueForKey:@"animatedImages"]];
+        }
     }
+    
 }
 
 -(void)setPreventDefaultImage_:(id)value
 {
-	_preventDefaultImage = [TiUtils boolValue:value];
+    _preventDefaultImage = [TiUtils boolValue:value];
     if (configurationSet) [self setImage_:[self.proxy valueForKey:@"image"]];
 }
 
 -(void)setDefaultImage_:(id)value
 {
     RELEASE_TO_NIL(_defaultImageUrl)
-	_defaultImageUrl = [[TiUtils toURL:value proxy:self.proxy] retain];
+    _defaultImageUrl = [[TiUtils toURL:value proxy:self.proxy] retain];
     if (configurationSet) [self setImage_:[self.proxy valueForKey:@"image"]];
 }
 
+-(void)setFilterOptions_:(id)value
+{
+    RELEASE_TO_NIL(_filterOptions)
+    _filterOptions = [value retain];
+    if (configurationSet) [self setImage_:[self.proxy valueForKey:@"image"]];
+}
 #pragma mark ImageLoader delegates
 
 -(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(id)image
 {
-    TiThreadPerformOnMainThread(^{
-        RELEASE_TO_NIL(_currentImage);
-        _currentImage = [image retain];
-        [self transitionToImage:[self convertToUIImage:image]];
-    }, NO);
+    RELEASE_TO_NIL(_currentImage);
+    _currentImage = [image retain];
+    if (_filterOptions) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
+       {
+           RELEASE_TO_NIL(_currentImage);
+           _currentImage = [[TiImageHelper imageFiltered:[self convertToUIImage:image] withOptions:_filterOptions] retain];
+           TiThreadPerformOnMainThread(^{
+               [self transitionToImage:_currentImage];
+           }, NO);
+       });
+    }
+    else {
+        TiThreadPerformOnMainThread(^{
+            [self transitionToImage:[self convertToUIImage:image]];
+        }, NO);
+    }
+    
 }
 
 -(void)imageLoadFailed:(ImageLoaderRequest*)request error:(NSError*)error
 {
-	NSLog(@"[ERROR] Failed to load image: %@, Error: %@",[request url], error);
+    NSLog(@"[ERROR] Failed to load image: %@, Error: %@",[request url], error);
     // NOTE: Loading from URL means we can't pre-determine any % value.
     [self loadDefaultImage];
 }
