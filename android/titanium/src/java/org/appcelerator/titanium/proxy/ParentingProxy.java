@@ -19,6 +19,7 @@ public class ParentingProxy extends KrollProxy {
 
     protected ArrayList<KrollProxy> children;
     protected WeakReference<ParentingProxy> parent;
+    protected WeakReference<KrollProxy> parentForBubbling;
     private static final String TAG = "ParentingProxy";
 
     @Override
@@ -110,6 +111,23 @@ public class ParentingProxy extends KrollProxy {
         }
 
         this.parent = new WeakReference<ParentingProxy>(parent);
+    }
+    
+    public void setParentForBubbling(KrollProxy parent) {
+        if (parent == null) {
+            this.parentForBubbling = null;
+            return;
+        }
+
+        this.parentForBubbling = new WeakReference<KrollProxy>(parent);
+    }
+    
+    @Override
+    public KrollProxy getParentForBubbling() {
+        if (this.parentForBubbling == null) {
+            return getParent();
+        }
+        return this.parentForBubbling.get();
     }
 
     protected void addProxy(Object args, final int index) {
