@@ -46,6 +46,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.view.ViewPager;
 import android.util.Pair;
@@ -1013,11 +1014,32 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 	
 	protected void processSectionsAndNotify(Object[] sections) {
-		processSections(sections);
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
+	    (new ProcessSectionsTask()).execute(sections);
+//		processSections(sections);
+//		if (adapter != null) {
+//			adapter.notifyDataSetChanged();
+//		}
 	}
+	
+private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
+        
+        @Override
+        protected Void doInBackground(Object[]... params) {
+            processSections(params[0]);
+            ListViewProxy listProxy = (ListViewProxy) proxy;
+            listProxy.clearPreloadSections();
+            listProxy.setPreload(false);
+            return null;
+        }
+        
+        @Override
+        protected void onPostExecute(Void result) {
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
+        }
+
+    }
 	
 	protected void processSection(Object sec, int index) {
 		if (sec instanceof ListSectionProxy) {
