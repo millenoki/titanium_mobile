@@ -281,6 +281,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	@SuppressLint("NewApi")
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
+	    if(this.window == proxy) return;
 		this.window = proxy;
 		updateTitle(this.window);
 		
