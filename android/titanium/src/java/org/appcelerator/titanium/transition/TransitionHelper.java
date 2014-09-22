@@ -2,9 +2,7 @@ package org.appcelerator.titanium.transition;
 
 import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.animation.TranslationRelativeProperty;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionCube;
 import org.appcelerator.titanium.transition.TransitionFlip;
@@ -131,7 +129,7 @@ public class TransitionHelper {
 		Transition result = defaultTransition;
 		int style = TiConvert.toInt(defaultOptions, TiC.PROPERTY_STYLE,-1);
 		int substyle = TiConvert.toInt(defaultOptions, TiC.PROPERTY_SUBSTYLE,SubTypes.kRightToLeft.ordinal());
-		int duration = TiConvert.toInt(defaultOptions, TiC.PROPERTY_DURATION, (defaultTransition != null)?defaultTransition.getDuration():300);
+		int duration = TiConvert.toInt(defaultOptions, TiC.PROPERTY_DURATION, (defaultTransition != null)?defaultTransition.getDuration():200);
 		boolean reverse = false;
 		if (theOptions != null) {
 			style = TiConvert.toInt(theOptions, TiC.PROPERTY_STYLE, style);
