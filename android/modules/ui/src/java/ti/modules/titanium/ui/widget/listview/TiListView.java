@@ -171,8 +171,10 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			if (focusListener != null || focusedView != null) {
 				// If the configuration changed, we manually fire the blur event
 				if (changed) {
-					focusedView.setOnFocusChangeListener(focusListener);
-					focusListener.onFocusChange(focusedView, false);
+				    if (focusedView != null && focusListener != null) {
+	                    focusedView.setOnFocusChangeListener(focusListener);
+	                    focusListener.onFocusChange(focusedView, false);
+				    }
 				} else {
 					//Ok right now focus is with listView. So set it back to the focusedView
 					viewFocused = true;
@@ -954,14 +956,15 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 	
 	public View layoutHeaderOrFooterView (Object object, TiViewProxy parent) {
-		TiViewProxy viewProxy;
+		TiViewProxy viewProxy = null;
 		if (object instanceof TiViewProxy) {
 			viewProxy = (TiViewProxy)object;
 		}
 		else if(object instanceof HashMap) {
 			viewProxy = (TiViewProxy) proxy.createProxyFromTemplate((HashMap) object, parent, true);
 		}
-		else return null;
+		if (viewProxy == null) return null;
+		viewProxy.setParentForBubbling(this.proxy);
 		TiUIView tiView = viewProxy.peekView();
 		if (tiView != null) {
 			ParentingProxy parentProxy = viewProxy.getParent();
