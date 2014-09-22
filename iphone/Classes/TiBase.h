@@ -190,6 +190,8 @@ if (![in respondsToSelector:@selector(intValue)]) {\
 }\
 out = [in intValue]; \
 
+#define IS_OF_CLASS(x,t) ([x isKindOfClass:[t class]])
+
 #define ENSURE_INT_AT_INDEX(out,args,index) \
 {\
 id tmp = nil; \
