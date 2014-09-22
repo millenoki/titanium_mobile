@@ -115,8 +115,11 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(((BitmapDrawable)drawable).getBitmap(), filterOptions);
                 if (result != null) {
                     bitmapInfo = result.second;
-                    return new BitmapDrawable(proxy.getActivity()
-                            .getResources(), result.first);
+                    if (proxy != null) {
+                        return new BitmapDrawable(proxy.getActivity()
+                                .getResources(), result.first);
+                    }
+                    else return new BitmapDrawable(result.first);
                 }
             }
             return drawable;
