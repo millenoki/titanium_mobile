@@ -118,4 +118,12 @@ public class TiColorHelper
 			colorTable.put("brown", Color.rgb(0x99, 0x66, 0x33));
 		}
 	}
+	
+	public static String toHexString(final int color) {
+	    int alpha = Color.alpha(color);
+	    if (alpha != 255) {
+	        return '#' + Integer.toHexString(color);
+	    }
+	    return '#' + Integer.toHexString(color).substring(2);
+	}
 }

@@ -27,11 +27,10 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.transition.Transition;
-import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiDownloadListener;
 import org.appcelerator.titanium.util.TiDownloadManager;
+import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiLoadImageListener;
 import org.appcelerator.titanium.util.TiLoadImageManager;
@@ -50,9 +49,11 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View.MeasureSpec;
 import android.widget.ImageView.ScaleType;
@@ -81,6 +82,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private int duration;
     private int repeatCount = INFINITE;
     private Drawable currentImage = null;
+    private HashMap filterOptions = null;
+    private KrollDict bitmapInfo = null;
 
     private ArrayList<TiDrawableReference> imageSources;
     private ArrayList<TiDrawableReference> animatedImageSources;
@@ -102,6 +105,39 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
 
     private HashMap transitionDict = null;
+    
+    private class FilterAndSetTask extends AsyncTask<Drawable, Void, Drawable> {
+        
+        @Override
+        protected Drawable doInBackground(Drawable... params) {
+            Drawable drawable = params[0];
+            if (drawable instanceof BitmapDrawable) {
+                Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(((BitmapDrawable)drawable).getBitmap(), filterOptions);
+                if (result != null) {
+                    bitmapInfo = result.second;
+                    return new BitmapDrawable(proxy.getActivity()
+                            .getResources(), result.first);
+                }
+            }
+            return drawable;
+        }
+        
+        @Override
+        protected void onPostExecute(Drawable drawable) {
+            setDrawable(drawable);
+            if (!firedLoad) {
+                if (drawable instanceof BitmapDrawable) {
+                    fireLoad(TiC.PROPERTY_IMAGE,
+                            ((BitmapDrawable) drawable)
+                                    .getBitmap());
+                } else {
+                    fireLoad(TiC.PROPERTY_IMAGE);
+                }
+                firedLoad = true;
+            }
+        }
+
+    }
 
     public TiUIImageView(final TiViewProxy proxy) {
         super(proxy);
@@ -199,17 +235,23 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                                                         imgsrc.getUrl())
                                                         .toString()).hashCode() == hash)) {
                             // setImage(bitmap);
-                            setDrawable(drawable);
-                            if (!firedLoad) {
-                                if (drawable instanceof BitmapDrawable) {
-                                    fireLoad(TiC.PROPERTY_IMAGE,
-                                            ((BitmapDrawable) drawable)
-                                                    .getBitmap());
-                                } else {
-                                    fireLoad(TiC.PROPERTY_IMAGE);
-                                }
-                                firedLoad = true;
+                            if (filterOptions != null) {
+                                (new FilterAndSetTask()).execute(drawable);
                             }
+                            else {
+                                setDrawable(drawable);
+                                if (!firedLoad) {
+                                    if (drawable instanceof BitmapDrawable) {
+                                        fireLoad(TiC.PROPERTY_IMAGE,
+                                                ((BitmapDrawable) drawable)
+                                                        .getBitmap());
+                                    } else {
+                                        fireLoad(TiC.PROPERTY_IMAGE);
+                                    }
+                                    firedLoad = true;
+                                }
+                            }
+                            
                         }
                     }
                 }
@@ -308,15 +350,21 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                         mMemoryCache.put(hash,
                                 ((BitmapDrawable) drawable).getBitmap());
                     }
-                    setDrawable(drawable);
-                    if (!firedLoad) {
-                        if (drawable instanceof BitmapDrawable) {
-                            fireLoad(TiC.PROPERTY_IMAGE,
-                                    ((BitmapDrawable) drawable).getBitmap());
-                        } else {
-                            fireLoad(TiC.PROPERTY_IMAGE);
+                    if (filterOptions != null) {
+                        (new FilterAndSetTask()).execute(drawable);
+                    }
+                    else {
+                        setDrawable(drawable);
+                        if (!firedLoad) {
+                            if (drawable instanceof BitmapDrawable) {
+                                fireLoad(TiC.PROPERTY_IMAGE,
+                                        ((BitmapDrawable) drawable)
+                                                .getBitmap());
+                            } else {
+                                fireLoad(TiC.PROPERTY_IMAGE);
+                            }
+                            firedLoad = true;
                         }
-                        firedLoad = true;
                     }
                 }
             }
@@ -620,6 +668,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         if (hasListeners(TiC.EVENT_LOAD)) {
             KrollDict data = new KrollDict();
             data.put(TiC.EVENT_PROPERTY_STATE, state);
+            if (bitmapInfo != null) {
+                data = KrollDict.merge(data, bitmapInfo);
+            }
             fireImageEvent(TiC.EVENT_LOAD, data);
         }
     }
@@ -629,6 +680,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             KrollDict data = new KrollDict();
             data.put("image", TiBlob.blobFromImage(bitmap));
             data.put(TiC.EVENT_PROPERTY_STATE, state);
+            if (bitmapInfo != null) {
+                data = KrollDict.merge(data, bitmapInfo);
+            }
             fireImageEvent(TiC.EVENT_LOAD, data);
         }
     }
@@ -1123,6 +1177,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         if (d.containsKey(TiC.PROPERTY_SCALE_TYPE)) {
             setWantedScaleType(TiConvert.toInt(d, TiC.PROPERTY_SCALE_TYPE));
         }
+        if (d.containsKey(TiC.PROPERTY_FILTER_OPTIONS)) {
+            filterOptions = (HashMap) d.get(TiC.PROPERTY_FILTER_OPTIONS);
+        }
 
         if (d.containsKey(TiC.PROPERTY_IMAGE)) {
             // processProperties is also called from TableView, we need check if
@@ -1206,6 +1263,16 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             setWantedScaleType(TiConvert.toInt(newValue));
         } else if (key.equals(TiC.PROPERTY_IMAGE_MASK)) {
             setImageMask(newValue);
+        } else if (key.equals(TiC.PROPERTY_FILTER_OPTIONS)) {
+            filterOptions = (HashMap) newValue;
+            if (currentImage != null) {
+                if (filterOptions != null) {
+                    (new FilterAndSetTask()).execute(currentImage);
+                }
+                else {
+                    setDrawable(currentImage);
+                }
+            }
         } else if (key.equals(TiC.PROPERTY_IMAGE)) {
             boolean changeImage = true;
             TiDrawableReference source = makeImageSource(newValue);

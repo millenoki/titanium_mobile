@@ -25,6 +25,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.util.Pair;
 import android.view.View;
 import android.os.AsyncTask;
 import android.os.Message;
@@ -134,7 +135,7 @@ public class ImageModule extends KrollModule
 		}
 		
 		
-        Bitmap result = null;
+		Pair<Bitmap, KrollDict> result = null;
 		if (options != null) {
 			if (options.containsKey("callback")) {
 				KrollFunction callback = (KrollFunction) options.get("callback");
@@ -144,11 +145,13 @@ public class ImageModule extends KrollModule
 					return null;
 				}
 			}
-            result = TiImageHelper.imageFiltered(bitmap, options);
+	        result = TiImageHelper.imageFiltered(bitmap, options);
 		}
 
 		if (result != null) {
-			return TiBlob.blobFromImage(result);
+		    TiBlob blob = TiBlob.blobFromImage(result.first);
+	        blob.addInfo(result.second);
+	        return blob;
 		}
 		return null;
 	}

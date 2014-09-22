@@ -926,7 +926,7 @@ public abstract class TiUIView
 				String layout = TiConvert.toString(d, TiC.PROPERTY_LAYOUT);
 				tiLayout.setLayoutArrangement(layout);
 				d.remove(TiC.PROPERTY_LAYOUT);
-				}
+			}
 
 			if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
 				tiLayout.setEnableHorizontalWrap(TiConvert.toBoolean(d,TiC.PROPERTY_HORIZONTAL_WRAP,true));
@@ -2318,7 +2318,8 @@ public abstract class TiUIView
 			if (options.containsKey("properties")) {
 				properties = TiConvert.toStringArray((Object[]) options.get("properties"));
 			}
-			bitmap = TiImageHelper.imageFiltered(bitmap, options);
+			
+			bitmap = TiImageHelper.imageFiltered(bitmap, options).first;
 			return bitmap;
 		}
 		/**

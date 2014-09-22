@@ -19,9 +19,11 @@ import jp.co.cyberagent.android.gpuimage.GPUImageiOSBlurFilter;
 import jp.co.cyberagent.android.gpuimage.GPUImage.ScaleType;
 import jp.co.cyberagent.android.gpuimage.Rotation;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.michaelevans.colorart.library.ColorArt;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -32,6 +34,7 @@ import android.graphics.Path.Direction;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.RectF;
 import android.media.ExifInterface;
+import android.util.Pair;
 
 /**
  * Utility class for image manipulations.
@@ -45,7 +48,6 @@ public class TiImageHelper
 	public enum FilterType {
 		kFilterBoxBlur, kFilterGaussianBlur, kFilteriOSBlur
 	}
-
 	private static GPUImage getGPUImage()
 	{
 		if (mGPUImage == null) {
@@ -255,16 +257,21 @@ public class TiImageHelper
 		return getFilteredBitmap(bitmap, filterType, options);
 	}
 	
-	public static Bitmap imageFiltered(Bitmap bitmap, HashMap options) {
+	public static Pair<Bitmap, KrollDict> imageFiltered(Bitmap bitmap, HashMap options) {
+	    KrollDict infoData = new KrollDict();
 		if (options.containsKey("crop")) {
 			TiRect rect = new TiRect(options.get("crop"));
 			bitmap = TiImageHelper.imageCropped(bitmap, rect);
 		}
-		if (options.containsKey("scale")) {
-			float scale = TiConvert.toFloat(options, "scale", 1.0f);
-			bitmap = TiImageHelper.imageScaled(bitmap, scale);
-		}
+
 		
+		
+		
+        if (options.containsKey("scale")) {
+            float scale = TiConvert.toFloat(options, "scale", 1.0f);
+            bitmap = TiImageHelper.imageScaled(bitmap, scale);
+        }
+
 		if (options.containsKey("filters")) {
 		    GPUImageFilterGroup group = new GPUImageFilterGroup();
 			Object[] filters = (Object[]) options.get("filters");
@@ -288,7 +295,25 @@ public class TiImageHelper
 			Mode mode = Mode.values()[TiConvert.toInt(options, "blend", Mode.LIGHTEN.ordinal())];
 			bitmap = TiImageHelper.imageTinted(bitmap, tint, mode);
 		}
-		return bitmap;
+		
+		if (options.containsKey("colorArt")) {
+            int width = 120;
+            int height = 120;
+            Object colorArtOptions = options.get("colorArt");
+            if (colorArtOptions instanceof HashMap) {
+                width = TiConvert.toInt((HashMap)colorArtOptions, "width", width);
+                height = TiConvert.toInt((HashMap)colorArtOptions, "height", height);
+            }
+            ColorArt art = new ColorArt(bitmap, width, height);
+            KrollDict colorArtData = new KrollDict();
+            colorArtData.put("backgroundColor", TiColorHelper.toHexString(art.getBackgroundColor()));
+            colorArtData.put("primaryColor", TiColorHelper.toHexString(art.getPrimaryColor()));
+            colorArtData.put("secondaryColor", TiColorHelper.toHexString(art.getSecondaryColor()));
+            colorArtData.put("detailColor", TiColorHelper.toHexString(art.getDetailColor()));
+            infoData.put("colorArt", colorArtData);
+        }
+		
+		return new Pair<Bitmap, KrollDict>(bitmap, infoData);
 	}
 	
 	private static final String FILE_PREFIX = "file://";

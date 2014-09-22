@@ -33,9 +33,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.media.ThumbnailUtils;
 import android.os.Build;
+import android.util.Pair;
 
 /** 
  * A Titanium Blob object. A Blob can represent any opaque data or input stream.
@@ -80,6 +80,7 @@ public class TiBlob extends KrollProxy
 	private String mimetype;
 	private Bitmap image;
 	private int width, height;
+	private KrollDict extraInfo;
 
 	private TiBlob(int type, Object data, String mimetype)
 	{
@@ -831,8 +832,10 @@ public class TiBlob extends KrollProxy
 		if (bitmap != null) {
 			return null;
 		}
-		bitmap = TiImageHelper.imageFiltered(bitmap, options);
-		return TiBlob.blobFromImage(bitmap);
+		Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(bitmap, options);
+		TiBlob blob = TiBlob.blobFromImage(result.first);
+		blob.addInfo(result.second);
+		return blob;
 	}
 
 
@@ -841,4 +844,23 @@ public class TiBlob extends KrollProxy
 	{
 		return "Ti.Blob";
 	}
+	
+	public void setInfo(final KrollDict info) {
+	    this.extraInfo = info;
+	}
+	
+	public void addInfo(final KrollDict info) {
+	    if (extraInfo == null) {
+	        setInfo(info);
+	    }
+	    else {
+	        this.extraInfo.putAll(info);
+	    }
+    }
+	
+    @Kroll.getProperty
+    @Kroll.method
+    public KrollDict getInfo() {
+        return extraInfo;
+    }
 }
