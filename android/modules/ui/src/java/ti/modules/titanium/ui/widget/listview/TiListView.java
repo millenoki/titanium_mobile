@@ -210,11 +210,12 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		@Override
 		public int getCount() {
 			int count = 0;
-			for (int i = 0; i < sections.size(); i++) {
-				ListSectionProxy section = sections.get(i);
-				count += section.getItemCount();
-			}
-			
+			synchronized (sections) {
+			    for (int i = 0; i < sections.size(); i++) {
+	                ListSectionProxy section = sections.get(i);
+	                count += section.getItemCount();
+	            }
+            }
 			return count;
 		}
 
@@ -918,10 +919,12 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 
 	private void refreshItems() {
-		for (int i = 0; i < sections.size(); i++) {
-			ListSectionProxy section = sections.get(i);
-			section.refreshItems();
-		}
+	    synchronized (sections) {
+	        for (int i = 0; i < sections.size(); i++) {
+	            ListSectionProxy section = sections.get(i);
+	            section.refreshItems();
+	        }
+        }
 	}
 	
 	
@@ -1001,11 +1004,12 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 
 	protected void processSections(Object[] sections) {
-		
-		this.sections.clear();
-		for (int i = 0; i < sections.length; i++) {
-			processSection(sections[i], -1);
-		}
+		synchronized (this.sections) {
+		    this.sections.clear();
+	        for (int i = 0; i < sections.length; i++) {
+	            processSection(sections[i], -1);
+	        }
+        }
 	}
 	
 	protected void processSectionsAndNotify(Object[] sections) {
@@ -1018,18 +1022,21 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	protected void processSection(Object sec, int index) {
 		if (sec instanceof ListSectionProxy) {
 			ListSectionProxy section = (ListSectionProxy) sec;
-			if (this.sections.contains(section)) {
-				return;
-			}
-			if (index == -1 || index >= sections.size()) {
-                section.setIndex(this.sections.size());
-				this.sections.add(section);
-			} else {
-                section.setIndex(index);
-				this.sections.add(index, section);
-			}
-			section.setAdapter(adapter);
-			section.setListView(this);
+            section.setListView(this);
+            section.setAdapter(adapter);
+			synchronized (sections) {
+			    if (this.sections.contains(section)) {
+	                return;
+	            }
+	            if (index == -1 || index >= sections.size()) {
+	                section.setIndex(this.sections.size());
+	                this.sections.add(section);
+	            } else {
+	                section.setIndex(index);
+	                this.sections.add(index, section);
+	            }
+            }
+			
 			//Attempts to set type for existing templates.
 //			section.setTemplateType();
 			//Process preload data if any
@@ -1050,32 +1057,37 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 			Log.e(TAG, "getItem Invalid section index");
 			return null;
 		}
-		
-		return sections.get(sectionIndex).getItemAt(itemIndex);
+		synchronized (sections) {
+	        return sections.get(sectionIndex).getItemAt(itemIndex);
+        }
 	}
 	
 	public ListSectionProxy getSectionAt(int sectionIndex) {
-		if (sectionIndex < 0 || sectionIndex >= sections.size()) {
-			Log.e(TAG, "getItem Invalid section index");
-			return null;
-		}
-		
-		return sections.get(sectionIndex);
+        synchronized (sections) {
+    		if (sectionIndex < 0 || sectionIndex >= sections.size()) {
+    			Log.e(TAG, "getItem Invalid section index");
+    			return null;
+    		}
+    		
+    		return sections.get(sectionIndex);
+        }
 	}
 	
 	protected Pair<ListSectionProxy, Pair<Integer, Integer>> getSectionInfoByEntryIndex(int index) {
 		if (index < 0) {
 			return null;
 		}
-		for (int i = 0; i < sections.size(); i++) {
-			ListSectionProxy section = sections.get(i);
-			int sectionItemCount = section.getItemCount();
-			if (index <= sectionItemCount - 1) {
-				return new Pair<ListSectionProxy, Pair<Integer, Integer>>(section, new Pair<Integer, Integer>(i, index));
-			} else {
-				index -= sectionItemCount;
-			}
-		}
+        synchronized (sections) {
+    		for (int i = 0; i < sections.size(); i++) {
+    			ListSectionProxy section = sections.get(i);
+    			int sectionItemCount = section.getItemCount();
+    			if (index <= sectionItemCount - 1) {
+    				return new Pair<ListSectionProxy, Pair<Integer, Integer>>(section, new Pair<Integer, Integer>(i, index));
+    			} else {
+    				index -= sectionItemCount;
+    			}
+    		}
+        }
 
 		return null;
 	}
@@ -1093,7 +1105,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 	
 	public int getSectionCount() {
-		return sections.size();
+        synchronized (sections) {
+            return sections.size();
+        }
 	}
 	
 	public void appendSection(Object section) {
@@ -1109,19 +1123,23 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	}
 	
 	public void deleteSectionAt(int index) {
-		if (index >= 0 && index < sections.size()) {
-			sections.remove(index);
-			adapter.notifyDataSetChanged();
-		} else {
-			Log.e(TAG, "Invalid index to delete section");
-		}
+        synchronized (sections) {
+    		if (index >= 0 && index < sections.size()) {
+    			sections.remove(index);
+    			adapter.notifyDataSetChanged();
+    		} else {
+    			Log.e(TAG, "Invalid index to delete section");
+    		}
+        }
 	}
 	
 	public void insertSectionAt(int index, Object section) {
-		if (index > sections.size()) {
-			Log.e(TAG, "Invalid index to insert/replace section");
-			return;
-		}
+        synchronized (sections) {
+    		if (index > sections.size()) {
+    			Log.e(TAG, "Invalid index to insert/replace section");
+    			return;
+    		}
+        }
 		if (section instanceof Object[]) {
 			Object[] secs = (Object[]) section;
 			for (int i = 0; i < secs.length; i++) {
@@ -1141,22 +1159,24 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	
 	private int findItemPosition(int sectionIndex, int sectionItemIndex) {
 		int position = 0;
-		for (int i = 0; i < sections.size(); i++) {
-			ListSectionProxy section = sections.get(i);
-			if (i == sectionIndex) {
-				if (sectionItemIndex >= section.getContentCount()) {
-					Log.e(TAG, "Invalid item index");
-					return -1;
-				}
-				position += sectionItemIndex;
-				if (section.hasHeader()) {
-					position += 1;			
-				}
-				break;
-			} else {
-				position += section.getItemCount();
-			}
-		}
+        synchronized (sections) {
+    		for (int i = 0; i < sections.size(); i++) {
+    			ListSectionProxy section = sections.get(i);
+    			if (i == sectionIndex) {
+    				if (sectionItemIndex >= section.getContentCount()) {
+    					Log.e(TAG, "Invalid item index");
+    					return -1;
+    				}
+    				position += sectionItemIndex;
+    				if (section.hasHeader()) {
+    					position += 1;			
+    				}
+    				break;
+    			} else {
+    				position += section.getItemCount();
+    			}
+    		}
+        }
 		return position;
 	}
 
