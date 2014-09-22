@@ -943,13 +943,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		return view.toImage(scale);
 	}
 
-
-	@Override
-	public KrollProxy getParentForBubbling()
-	{
-		return getParent();
-	}
-
 	@Override
 	public void eventListenerAdded(String eventName, int count, KrollProxy proxy)
 	{
