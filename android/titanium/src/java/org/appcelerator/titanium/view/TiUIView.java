@@ -398,7 +398,7 @@ public abstract class TiUIView
 		this.nativeView = view;
 
 		doSetClickable();
-		nativeView.setOnFocusChangeListener(this);
+		getFocusView().setOnFocusChangeListener(this);
 		
 		
 		if (background != null)
