@@ -43,6 +43,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -67,7 +68,7 @@ public class TiUIText extends TiUINonViewGroupView
 	protected FocusFixedEditText tv;
 	protected TiEditText realtv;
 
-	public class TiEditText extends MaskedEditText 
+	public class TiEditText extends EditText 
 	{
 	    
 		public TiEditText(Context context) 
@@ -433,15 +434,15 @@ public class TiUIText extends TiUINonViewGroupView
             suppressReturn = d.optBoolean(TiC.PROPERTY_SUPPRESS_RETURN, true);
         }
 		
-		if (d.containsKey(TiC.PROPERTY_MASK_CHAR)) {
-		    String charRep = d.getString(TiC.PROPERTY_MASK_CHAR);
-		    if (d!=null && d.size() > 0) {
-	            realtv.setCharRepresentation(charRep.charAt(0));
-		    }
-		    else {
-                realtv.setCharRepresentation('#');
-		    }
-        }
+//		if (d.containsKey(TiC.PROPERTY_MASK_CHAR)) {
+//		    String charRep = d.getString(TiC.PROPERTY_MASK_CHAR);
+//		    if (d!=null && d.size() > 0) {
+//	            realtv.setCharRepresentation(charRep.charAt(0));
+//		    }
+//		    else {
+//                realtv.setCharRepresentation('#');
+//		    }
+//        }
 
 		boolean needsColors = false;
 		if(d.containsKey(TiC.PROPERTY_COLOR)) {
@@ -465,9 +466,9 @@ public class TiUIText extends TiUINonViewGroupView
         }
         
         //set the mask after the hintText as it looks for its value
-        if (d.containsKey(TiC.PROPERTY_MASK)) {
-            realtv.setMask(d.getString(TiC.PROPERTY_MASK));
-        }
+//        if (d.containsKey(TiC.PROPERTY_MASK)) {
+//            realtv.setMask(d.getString(TiC.PROPERTY_MASK));
+//        }
 
         if (d.containsKey(TiC.PROPERTY_VALUE)) {
             realtv.setText(d.getString(TiC.PROPERTY_VALUE));
@@ -650,7 +651,9 @@ public class TiUIText extends TiUINonViewGroupView
 	{
 	    //onTextChanged can be called when reusing a TiUIText in listview
 	    //In that case we dont want to report.
-	    if (disableChangeEvent || realtv.willMaskText()) {
+	    if (disableChangeEvent
+//	            || realtv.willMaskText()
+	            ) {
 	        Log.d(TAG, "onTextChanged ignore as configuring", Log.DEBUG_MODE);
 	        return;
 	    }
