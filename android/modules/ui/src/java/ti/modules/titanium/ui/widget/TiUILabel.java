@@ -24,9 +24,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.FreeLayout;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 
-import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.Animator.AnimatorListener;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -212,7 +210,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		public void setText(CharSequence sequence)
 		{
 			if(textView != null && textView.fullText.equals(sequence)) return;
-			Transition transition = (transitionDict != null)?TransitionHelper.transitionFromObject(transitionDict, null, null):null;
+			Transition transition = (transitionDict != null && proxy.viewInitialised())?TransitionHelper.transitionFromObject(transitionDict, null, null):null;
 			if (transition != null) 
 			{
 				setTextWithTransition(sequence, transition);
