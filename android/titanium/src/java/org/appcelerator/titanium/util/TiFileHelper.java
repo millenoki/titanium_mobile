@@ -78,7 +78,16 @@ public class TiFileHelper implements Handler.Callback
 	private static HashSet<String> foundResourcePathCache;
 	private static HashSet<String> notFoundResourcePathCache;
 	private static TiFileHelper _instance = null;
+
+	private static Resources RESOURCES = null;
 	
+	private static Resources getResources() {
+        if (RESOURCES == null) {
+            RESOURCES = TiApplication.getInstance().getResources();
+        }
+        return RESOURCES;
+    }
+
 	public TiFileHelper(Context context)
 	{
 		softContext = new SoftReference<Context>(context);
@@ -475,10 +484,14 @@ public class TiFileHelper implements Handler.Callback
 		if (path.endsWith(".svg")) {
 			return new SVGDrawable(SVGFlyweightFactory.getInstance().get(is, path, TiApplication.getInstance().getCurrentActivity()));
 		}
-		else {
+		else if (path.contains(".9.")) {
 			Bitmap b = TiUIHelper.createBitmap(is);
 			return nph.process(b);
 		}
+		else {
+            Bitmap b = TiUIHelper.createBitmap(is);
+            return new RecyclingBitmapDrawable(getResources(), b);
+        }
 	}
 
 	/**

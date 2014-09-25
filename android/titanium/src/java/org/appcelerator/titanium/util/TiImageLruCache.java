@@ -6,48 +6,97 @@
  */
 package org.appcelerator.titanium.util;
 
-import org.appcelerator.titanium.TiC;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 
 @SuppressLint("NewApi")
-public class TiImageLruCache extends LruCache<Integer, Bitmap>
+public class TiImageLruCache
 {
-	// Get max available VM memory, exceeding this amount will throw an
-	// OutOfMemory exception. Stored in kilobytes as LruCache takes an
-	// int in its constructor.
-	private static final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+    static final String TAG = "TiImageLruCache";
+    private LruCache<Integer, RecyclingBitmapDrawable> mMemoryCache;
 
-	// Use 1/8th of the available memory for this memory cache.
-	private static final int cacheSize = maxMemory / 8;
+    private static TiImageLruCache instance;
+    
+    private static final int maxMemory = (int) (Runtime.getRuntime().maxMemory());
 
-	protected static TiImageLruCache _instance;
+    // Use 1/8th of the available memory for this memory cache.
+    private static final int cacheSize = maxMemory / 8;
 
-	public static TiImageLruCache getInstance()
-	{
-		if (_instance == null) {
-			_instance = new TiImageLruCache();
-		}
-		return _instance;
-	}
+    public static TiImageLruCache getInstance() {
+        if(instance == null) {
+            instance = new TiImageLruCache();
+            instance.init();
+        } 
 
-	public TiImageLruCache()
-	{
-		super(cacheSize);
-	}
+        return instance;
+    }
 
-	@Override
-	protected int sizeOf(Integer key, Bitmap bitmap)
-	{
-		// The cache size will be measured in kilobytes rather than
-		// number of items.
-		if (android.os.Build.VERSION.SDK_INT > TiC.API_LEVEL_HONEYCOMB) {
-			return bitmap.getByteCount() / 1024;
-		} else {
-			return bitmap.getRowBytes() * bitmap.getHeight() / 1024;
-		}
-	}
+    private void init() {
+
+        // We are declaring a cache of 6Mb for our use.
+        // You need to calculate this on the basis of your need 
+        mMemoryCache = new LruCache<Integer, RecyclingBitmapDrawable>(cacheSize) {
+            @Override
+            protected int sizeOf(Integer key, RecyclingBitmapDrawable bitmapDrawable) {
+                // The cache size will be measured in kilobytes rather than
+                // number of items.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+                    return bitmapDrawable.getBitmap().getByteCount() ;
+                } else {
+                    return bitmapDrawable.getBitmap().getRowBytes() * bitmapDrawable.getBitmap().getHeight();
+                }
+            }
+
+            @Override
+            protected void entryRemoved(boolean evicted, Integer key, RecyclingBitmapDrawable oldValue, RecyclingBitmapDrawable newValue) {
+                super.entryRemoved(evicted, key, oldValue, newValue);
+                oldValue.setIsCached(false);
+            }
+        };
+
+    }
+
+    public void addBitmapToMemoryCache(Integer key, RecyclingBitmapDrawable bitmapDrawable) {
+        if (getBitmapFromMemCache(key) == null) {
+            // The removed entry is a recycling drawable, so notify it
+            // that it has been added into the memory cache
+            bitmapDrawable.setIsCached(true);
+            mMemoryCache.put(key, bitmapDrawable);
+        }
+    }
+    
+    public Drawable addDrawableToMemoryCache(Integer key, Drawable bitmapDrawable) {
+        if (!(bitmapDrawable instanceof BitmapDrawable)) return bitmapDrawable;
+        RecyclingBitmapDrawable result = getBitmapFromMemCache(key);
+        if (result == null) {
+            if (bitmapDrawable instanceof RecyclingBitmapDrawable) {
+                result = (RecyclingBitmapDrawable) bitmapDrawable;
+            }
+            else {
+                result = new RecyclingBitmapDrawable((BitmapDrawable) bitmapDrawable);
+            }
+            // The removed entry is a recycling drawable, so notify it
+            // that it has been added into the memory cache
+            result.setIsCached(true);
+            mMemoryCache.put(key, result);
+        }
+        return result;
+    }
+
+    public RecyclingBitmapDrawable getBitmapFromMemCache(Integer key) {
+        return mMemoryCache.get(key);
+    }
+    
+    public void removeBitmapFromMemCache(Integer key) {
+        mMemoryCache.remove(key);
+    }
+
+    public void clear() {
+        Log.d(TAG, "clear");
+        mMemoryCache.evictAll();
+    }
 }
