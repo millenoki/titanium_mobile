@@ -824,7 +824,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// Prevent default Android behavior for "back" press
 		// if the top window has a listener to handle the event.
 		if (proxy != null) {
-			proxy.fireEvent(TiC.EVENT_ANDROID_BACK);
+			proxy.fireEvent(TiC.EVENT_ANDROID_BACK, null, true, false);
 			return true;
 		}
 		return false;
