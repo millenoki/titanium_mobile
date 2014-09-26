@@ -397,7 +397,7 @@ public class ListSectionProxy extends ViewProxy {
 
 	private int getHiddenCountUpTo(int location) {
 		int count = 0;
-		for (int i = 0; i <= location; i++) {
+		for (int i = 0; i < location; i++) {
 			if (hiddenItems.get(i))
 				count++;
 		}
