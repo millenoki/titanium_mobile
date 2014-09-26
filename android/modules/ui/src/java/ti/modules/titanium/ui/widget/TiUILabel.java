@@ -934,12 +934,12 @@ public class TiUILabel extends TiUINonViewGroupView
 		
 		public int getOffsetForPosition(float x, float y) {
 	        if (getLayout() == null) return -1;
-	        final int line = getLineAtCoordinate(y);
+	        final int line = getLineNumberAtCoordinate(y);
 	        final int offset = getOffsetAtCoordinate(line, x);
 	        return offset;
 	    }
 
-	    float convertToLocalHorizontalCoordinate(float x) {
+	    float convertToHorizontalCoordinate(float x) {
 	        x -= getTotalPaddingLeft();
 	        // Clamp the position to inside of the view.
 	        x = Math.max(0.0f, x);
@@ -948,7 +948,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	        return x;
 	    }
 
-	    int getLineAtCoordinate(float y) {
+	    int getLineNumberAtCoordinate(float y) {
 	        y -= getTotalPaddingTop();
 	        // Clamp the position to inside of the view.
 	        y = Math.max(0.0f, y);
@@ -958,7 +958,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	    }
 	    
 	    private int getOffsetAtCoordinate(int line, float x) {
-	        x = convertToLocalHorizontalCoordinate(x);
+	        x = convertToHorizontalCoordinate(x);
 	        return getLayout().getOffsetForHorizontal(line, x);
 	    }
 	}
