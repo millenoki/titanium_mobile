@@ -20,7 +20,6 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiSensorHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -294,7 +293,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.method
 	public void clearImageCache()
 	{
-		TiResponseCache.clearCache();
+	    TiApplication.getImageMemoryCache().clear();
 	}
 
 	@Override

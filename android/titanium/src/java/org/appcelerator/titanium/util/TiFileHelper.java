@@ -36,6 +36,8 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.trevorpage.tpsvg.SVGDrawable;
 import com.trevorpage.tpsvg.SVGFlyweightFactory;
 
@@ -414,58 +416,51 @@ public class TiFileHelper implements Handler.Callback
 
 	private InputStream handleNetworkURL(String path) throws IOException
 	{
-		InputStream is = null;
-		try {
-			URI uri = new URI(path);
-			if (TiResponseCache.peek(uri)) {
-				InputStream stream = TiResponseCache.openCachedStream(uri);
-				if (stream != null) {
-					// Fallback to actual download when null
-					return stream;
-				}
-			}
-		} catch (URISyntaxException uriException) {
-		}
+        InputStream is = null;
+        Request request = new Request.Builder().url(path).build();
+        Response response = TiApplication.getOkHttpClientInstance()
+                .newCall(request).execute();
+        if (response.isSuccessful()) {
+            InputStream lis = response.body().byteStream();
+            //we need to copy the stream because otherwise it will be closed
+            // in the main thread which will throw :s
+            ByteArrayOutputStream bos = null;
+            try {
+                bos = new ByteArrayOutputStream(8192);
+                int count = 0;
+                byte[] buf = new byte[8192];
 
-		URL u = new URL(path);
-		HttpURLConnection connection = (HttpURLConnection) u.openConnection();
-		connection.addRequestProperty("TiCache", "true");
-		InputStream lis = connection.getInputStream();
-		ByteArrayOutputStream bos = null;
-		try {
-			bos = new ByteArrayOutputStream(8192);
-			int count = 0;
-			byte[] buf = new byte[8192];
+                while((count = lis.read(buf)) != -1) {
+                    bos.write(buf, 0, count);
+                }
 
-			while((count = lis.read(buf)) != -1) {
-				bos.write(buf, 0, count);
-			}
+                is = new ByteArrayInputStream(bos.toByteArray());
 
-			is = new ByteArrayInputStream(bos.toByteArray());
+            } catch (IOException e) {
 
-		} catch (IOException e) {
+                Log.e(TAG, "Problem pulling image data from " + path, e);
+                throw e;
+            } finally {
+                if (lis != null) {
+                    try {
+                        lis.close();
+                        lis = null;
+                    } catch (Exception e) {
+                        // Ignore
+                    }
+                }
+                if (bos != null) {
+                    try {
+                        bos.close();
+                        bos = null;
+                    } catch (Exception e) {
+                        // ignore
+                    }
+                }
+            }
+        }
+        return is;
 
-			Log.e(TAG, "Problem pulling image data from " + path, e);
-			throw e;
-		} finally {
-			if (lis != null) {
-				try {
-					lis.close();
-					lis = null;
-				} catch (Exception e) {
-					// Ignore
-				}
-			}
-			if (bos != null) {
-				try {
-					bos.close();
-					bos = null;
-				} catch (Exception e) {
-					// ignore
-				}
-			}
-		}
-		return is;
 	}
 	
 	/**
@@ -490,7 +485,7 @@ public class TiFileHelper implements Handler.Callback
 		}
 		else {
             Bitmap b = TiUIHelper.createBitmap(is);
-            return new RecyclingBitmapDrawable(getResources(), b);
+            return new BitmapDrawable(getResources(), b);
         }
 	}
 

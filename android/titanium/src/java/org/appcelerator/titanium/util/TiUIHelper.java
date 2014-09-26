@@ -38,6 +38,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiGradientDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
+import com.squareup.picasso.Cache;
 import com.trevorpage.tpsvg.SVGDrawable;
 import com.trevorpage.tpsvg.SVGFlyweightFactory;
 
@@ -814,8 +815,19 @@ public class TiUIHelper
 		}
 		Drawable imageDrawable = null;
 		if (image != null) {
-			TiFileHelper tfh = TiFileHelper.getInstance();
-			imageDrawable = tfh.loadDrawable(image, false, true);
+		    Cache cache = TiApplication.getImageMemoryCache();
+            Bitmap bitmap = cache.get(image);
+            if (bitmap == null) {
+                TiFileHelper tfh = TiFileHelper.getInstance();
+                imageDrawable = tfh.loadDrawable(image, false, true);
+                if (imageDrawable instanceof BitmapDrawable) {
+                    bitmap = ((BitmapDrawable)imageDrawable).getBitmap();
+                    cache.set(image, ((BitmapDrawable)imageDrawable).getBitmap());
+                }
+            } else {
+                imageDrawable = new BitmapDrawable(proxy.getActivity().getResources(), bitmap);
+            }
+			
 
 			if (tileImage) {
 				if (imageDrawable instanceof BitmapDrawable) {
@@ -1044,32 +1056,36 @@ public class TiUIHelper
 		return createBitmap(stream, null);
 	}
 	
+    private static final Pattern drawablePattern = Pattern.compile("/Resources/(.*)\\.png$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern imagePattern = Pattern.compile("^.*/Resources/images/(.*$)");
+	
 	private static String getResourceKeyForImage(String url)
 	{
 		if (resourceImageKeys.containsKey(url)) {
 			return resourceImageKeys.get(url);
 		}
 		
-		Pattern pattern = Pattern.compile("^.*/Resources/images/(.*$)");
-		Matcher matcher = pattern.matcher(url);
+		Matcher matcher = imagePattern.matcher(url);
+		String chopped = null;
 		if (!matcher.matches()) {
-			return null;
+		    matcher = drawablePattern.matcher(url);
+		    if (matcher.find()) {
+	            chopped = matcher.group(1);
+		    }
+		    if (chopped != null) {
+		        if (chopped.endsWith(".9")) {
+	                chopped = chopped.substring(0, chopped.lastIndexOf(".9"));
+	            }
+	            resourceImageKeys.put(url, chopped);
+		    }
+            return chopped;
 		}
 		
-		String chopped = matcher.group(1);
+		chopped = matcher.group(1);
 		if (chopped == null) {
 			return null;
 		}
-		if (chopped.equalsIgnoreCase("background.png") ||  chopped.equalsIgnoreCase("background.9.png") ) {
-		    if (chopped.endsWith(".9.png")) {
-		        chopped = chopped.substring(0, chopped.lastIndexOf(".9.png"));
-            } else {
-                chopped = chopped.substring(0, chopped.lastIndexOf('.'));
-            }
-		    resourceImageKeys.put(url, chopped);
-		    return chopped;
-		}
-		
+
 		chopped = chopped.toLowerCase();
 		String forHash = chopped;
 		if (forHash.endsWith(".9.png")) {
@@ -1097,7 +1113,7 @@ public class TiUIHelper
 	
 	public static int getResourceId(String url)
 	{
-		if (!url.contains("Resources/images/")) {
+		if (!url.contains("Resources/")) {
 			return 0;
 		}
 		

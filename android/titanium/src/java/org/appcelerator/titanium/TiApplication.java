@@ -9,14 +9,18 @@ package org.appcelerator.titanium;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,10 +38,9 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiImageLruCache;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.json.JSONException;
@@ -51,16 +54,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.v4.util.LruCache;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
 import com.appcelerator.analytics.APSAnalytics;
 import com.appcelerator.analytics.APSAnalytics.DeployType;
+import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.Picasso;
 
 /**
  * The main application entry point for all Titanium applications and services.
@@ -107,7 +116,6 @@ public abstract class TiApplication extends Application implements
     private String density;
     private String buildVersion = "", buildTimestamp = "", buildHash = "";
     private String defaultUnit;
-    private TiResponseCache responseCache;
     private BroadcastReceiver externalStorageReceiver;
     private AccessibilityManager accessibilityManager = null;
     private boolean forceFinishRootActivity = false;
@@ -437,7 +445,9 @@ public abstract class TiApplication extends Application implements
     @Override
     public void onLowMemory() {
         // Release all the cached images
-        TiImageLruCache.getInstance().evictAll();
+        if (_picassoMermoryCache != null) {
+            _picassoMermoryCache.clear();
+        }
         super.onLowMemory();
     }
 
@@ -447,7 +457,9 @@ public abstract class TiApplication extends Application implements
         if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB
                 && level >= TRIM_MEMORY_RUNNING_LOW) {
             // Release all the cached images
-            TiImageLruCache.getInstance().evictAll();
+            if (_picassoMermoryCache != null) {
+                _picassoMermoryCache.clear();
+            }
         }
         super.onTrimMemory(level);
     }
@@ -456,8 +468,194 @@ public abstract class TiApplication extends Application implements
         deployData = new TiDeployData(this);
 
         TiPlatformHelper.getInstance().initialize();
-        // Fastdev has been deprecated
-        // TiFastDev.initFastDev(this);
+    }
+    
+    public static class TiBitmapMemoryCache extends LruCache<String, Bitmap> implements com.squareup.picasso.Cache
+    {
+        public TiBitmapMemoryCache(int maxSize) {
+            super(maxSize);
+        }
+
+        @Override
+        public void set(String key, Bitmap bitmap) {
+            super.put(key, bitmap);
+        }
+
+        @Override
+        public void clear() {
+            super.evictAll();
+        }
+    }
+    
+    private static TiBitmapMemoryCache _picassoMermoryCache;
+    public static TiBitmapMemoryCache getImageMemoryCache() {
+        if (_picassoMermoryCache == null) {
+            int maxMemory = (int) (Runtime.getRuntime().maxMemory());
+            int cacheSize = maxMemory / 7;
+            _picassoMermoryCache = new TiBitmapMemoryCache(cacheSize);
+        }
+        return _picassoMermoryCache;
+    }
+    
+    private static Picasso _picasso;
+    public static Picasso getPicassoInstance() {
+        if (_picasso == null) {
+            _picasso = new Picasso.Builder(getInstance().getApplicationContext())
+            .memoryCache(getImageMemoryCache())
+            .downloader(new OkHttpDownloader(getOkHttpClientInstance()))
+            .build();
+        }
+        return _picasso;
+    }
+    
+    static File createDefaultCacheDir(Context context, String path) {
+        File cacheDir = context.getApplicationContext().getExternalCacheDir();
+        if (cacheDir == null)
+            cacheDir = context.getApplicationContext().getCacheDir();
+        File cache = new File(cacheDir, path);
+        if (!cache.exists()) {
+            cache.mkdirs();
+        }
+        return cache;
+    }
+    
+    
+    private String currentCacheDir = null;
+    private Cache currentCache = null;
+    private Cache createCache() {
+        File cacheDir = createDefaultCacheDir(getApplicationContext(), "http");
+        if (currentCacheDir == null || cacheDir == null || cacheDir.equals(currentCacheDir.toString())) {
+            int maxCacheSize = getInstance().getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024 * 1024;
+            currentCacheDir = (cacheDir != null )?cacheDir.toString():null;
+            try {
+                currentCache  = (currentCacheDir != null)?(new Cache(cacheDir, maxCacheSize)): null;
+            } catch (IOException e) {
+                currentCache = null;
+                currentCacheDir = null;
+            } 
+        }
+        return currentCache;
+    }
+    
+    private static OkHttpClient _httpClient;
+    private static final String CACHE_SIZE_KEY = "ti.android.cache.size.max";
+    private static final int DEFAULT_CACHE_SIZE = 25; // 25MB
+    public static OkHttpClient getOkHttpClientInstance() {
+        if (_httpClient == null) {
+            
+            int maxCacheSize = getInstance().getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024 * 1024;
+            Log.d(TAG, "max cache size is:" + maxCacheSize, Log.DEBUG_MODE);
+            
+            Cache cache = null;
+            try {
+                File cacheDir = createDefaultCacheDir(getInstance().getApplicationContext(), "http");
+                cache = new Cache(cacheDir, maxCacheSize); 
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            _httpClient = new OkHttpClient();
+            _httpClient.setCache(getInstance().createCache());
+        }
+        return _httpClient;
+    }
+    
+    
+    public static void prepareURLConnection(HttpURLConnection connection,
+            HashMap options) {
+        connection.setUseCaches(true);
+        connection.addRequestProperty("TiCache", "true");
+        connection.addRequestProperty("Cache-Control", "no-cached");
+        connection.addRequestProperty("User-Agent", TiApplication.getInstance()
+                .getUserAgent());
+        connection.addRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+        if (options != null) {
+            Object value = options.get("headers");
+            if (value != null && value instanceof HashMap) {
+                HashMap<String, Object> headers = (HashMap<String, Object>) value;
+                for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                    connection.addRequestProperty(entry.getKey(),
+                            TiConvert.toString(entry.getValue()));
+                }
+            }
+            if (options.containsKey("timeout")) {
+                int timeout = TiConvert.toInt(options, "timeout");
+                connection.setConnectTimeout(timeout);
+            }
+            if (options.containsKey("autoRedirect")) {
+                connection.setInstanceFollowRedirects(TiConvert.toBoolean(
+                        options, "autoRedirect"));
+            }
+            if (options.containsKey("method")) {
+                Object data = options.get("data");
+                if (data instanceof String) {
+                    connection.setRequestProperty("Content-Type",
+                            "charset=utf-8");
+                } else if (data instanceof HashMap) {
+                    connection.setRequestProperty("Content-Type",
+                            "application/json; charset=utf-8");
+                }
+                String dataToSend = TiConvert.toString(data);
+                if (dataToSend != null) {
+                    byte[] outputInBytes;
+                    try {
+                        outputInBytes = dataToSend.getBytes("UTF-8");
+                        OutputStream os = connection.getOutputStream();
+                        os.write(outputInBytes);
+                        os.close();
+                        connection.setRequestMethod(TiConvert.toString(options,
+                                "method"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+    public static OkHttpClient httpClient(HashMap options) {
+        if (options == null) {
+            return getOkHttpClientInstance();
+        }
+        OkHttpClient client = getOkHttpClientInstance().clone();
+        int timeout = 20000;
+        
+        Object value = options.get("headers");
+        if (value != null && value instanceof HashMap) {
+            HashMap<String, Object> headers = (HashMap<String, Object>)value;
+            for (Map.Entry<String, Object> entry : headers.entrySet()) {
+//                    builder.header(entry.getKey(), TiConvert.toString(entry.getValue()));
+            }
+        }
+        if (options.containsKey("timeout")) {
+            timeout = TiConvert.toInt(options, "timeout");
+        }
+        if (options.containsKey("autoRedirect")) {
+            client.setFollowSslRedirects(TiConvert.toBoolean(options, "autoRedirect"));
+        }
+        if (options.containsKey("method"))
+        {
+//                Object data = options.get("data");
+//                if (data instanceof String) {
+//                    builder.header("Content-Type", "charset=utf-8");
+//                }
+//                else if (data instanceof HashMap) {
+//                    builder.header("Content-Type", "application/json; charset=utf-8");
+//                }
+//                String dataToSend =  TiConvert.toString(data);
+//                if (dataToSend != null) {
+//                    byte[] outputInBytes = dataToSend.getBytes("UTF-8");
+//                    OutputStream os = http.getOutputStream();
+//                    os.write( outputInBytes );
+//                    os.close();
+//                    builder.post(new FormEncodingBuilder().)
+//                }
+            
+        }
+        client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
+        return client;
     }
 
     public void postOnCreate() {
@@ -480,8 +678,6 @@ public abstract class TiApplication extends Application implements
         startExternalStorageMonitor();
 
         // Register the default cache handler
-        responseCache = new TiResponseCache(getRemoteCacheDir(), this);
-        TiResponseCache.setDefault(responseCache);
         KrollRuntime.setPrimaryExceptionHandler(new TiExceptionHandler());
     }
 
@@ -821,15 +1017,14 @@ public abstract class TiApplication extends Application implements
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (Intent.ACTION_MEDIA_MOUNTED.equals(intent.getAction())) {
-                    responseCache.setCacheDir(getRemoteCacheDir());
-                    TiResponseCache.setDefault(responseCache);
+                    getOkHttpClientInstance().setCache(createCache());
                     Log.i(TAG,
                             "SD card has been mounted. Enabling cache for http responses.",
                             Log.DEBUG_MODE);
 
                 } else {
                     // if the sd card is removed, we don't cache http responses
-                    TiResponseCache.setDefault(null);
+                    getOkHttpClientInstance().setCache(createCache());
                     Log.i(TAG,
                             "SD card has been unmounted. Disabling cache for http responses.",
                             Log.DEBUG_MODE);

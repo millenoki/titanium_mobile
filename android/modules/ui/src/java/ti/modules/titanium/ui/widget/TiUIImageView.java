@@ -6,10 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
@@ -28,27 +26,27 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiDownloadListener;
-import org.appcelerator.titanium.util.TiDownloadManager;
 import org.appcelerator.titanium.util.TiImageHelper;
-import org.appcelerator.titanium.util.TiImageLruCache;
-import org.appcelerator.titanium.util.TiLoadImageListener;
-import org.appcelerator.titanium.util.TiLoadImageManager;
-import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 
+import com.squareup.picasso.Cache;
+import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+import com.squareup.picasso.Picasso.LoadedFrom;
 import com.trevorpage.tpsvg.SVGDrawable;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
@@ -59,12 +57,14 @@ import android.view.View.MeasureSpec;
 import android.widget.ImageView.ScaleType;
 
 public class TiUIImageView extends TiUINonViewGroupView implements
-        OnLifecycleEvent, Handler.Callback {
+        OnLifecycleEvent, Handler.Callback, Target {
     private static final String TAG = "TiUIImageView";
     private static final int FRAME_QUEUE_SIZE = 5;
     public static final int INFINITE = 0;
     public static final int MIN_DURATION = 30;
     public static final int DEFAULT_DURATION = 200;
+    
+    private String loadingUrl = null;
 
     private Timer timer;
     private Animator animator;
@@ -77,6 +77,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private boolean reverse = false;
     private boolean paused = false;
     private boolean localLoadSync = false;
+    private boolean onlyTransitionIfRemote = true;
     private boolean firedLoad;
     private ImageViewProxy imageViewProxy;
     private int duration;
@@ -88,8 +89,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private ArrayList<TiDrawableReference> imageSources;
     private ArrayList<TiDrawableReference> animatedImageSources;
     private TiDrawableReference defaultImageSource;
-    private TiDownloadListener downloadListener;
-    private TiLoadImageListener loadImageListener;
+//    private TiDownloadListener downloadListener;
+//    private TiLoadImageListener loadImageListener;
     private Object releasedLock = new Object();
 
     private Handler mainHandler = new Handler(Looper.getMainLooper(), this);
@@ -102,44 +103,60 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private static final int SET_INDEX = 10007;
 
     // This handles the memory cache of images.
-    private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
+//    private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
 
     private HashMap transitionDict = null;
     
-    private class FilterAndSetTask extends AsyncTask<Drawable, Void, Drawable> {
+    private class FilterAndSetTask extends AsyncTask<Bitmap, Void, Bitmap> {
+        private boolean shouldTransition = true;
+        
+        FilterAndSetTask(boolean shouldTransition) { 
+           this.shouldTransition = shouldTransition;
+       }
+        @Override
+        protected Bitmap doInBackground(Bitmap... params) {
+            Bitmap bitmap = params[0];
+            Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(bitmap, filterOptions);
+            if (result != null) {
+                bitmapInfo = result.second;
+                return result.first;
+            }
+            return bitmap;
+        }
         
         @Override
-        protected Drawable doInBackground(Drawable... params) {
-            Drawable drawable = params[0];
-            if (drawable instanceof BitmapDrawable) {
-                Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(((BitmapDrawable)drawable).getBitmap(), filterOptions);
-                if (result != null) {
-                    bitmapInfo = result.second;
-                    if (proxy != null) {
-                        return new BitmapDrawable(proxy.getActivity()
-                                .getResources(), result.first);
-                    }
-                    else return new BitmapDrawable(result.first);
-                }
-            }
-            return drawable;
+        protected void onPostExecute(Bitmap bitmap) {
+            handleSetDrawable(new BitmapDrawable(getContext().getResources(), bitmap), shouldTransition);
+            fireLoad(TiC.PROPERTY_IMAGE, bitmap);
+        }
+    }
+    
+    private class LoadLocalDrawableTask extends AsyncTask<TiDrawableReference, Void, Drawable> {
+        private boolean shouldTransition = true;
+        private Cache cache;
+        private TiDrawableReference imageref;
+        
+        LoadLocalDrawableTask(Cache cache, boolean shouldTransition) { 
+            this.shouldTransition = shouldTransition;
+            this.cache = cache;
+       }
+        @Override
+        protected Drawable doInBackground(TiDrawableReference... params) {
+            imageref = params[0];
+            return imageref.getDrawable();
+
         }
         
         @Override
         protected void onPostExecute(Drawable drawable) {
-            setDrawable(drawable);
-            if (!firedLoad) {
-                if (drawable instanceof BitmapDrawable) {
-                    fireLoad(TiC.PROPERTY_IMAGE,
-                            ((BitmapDrawable) drawable)
-                                    .getBitmap());
-                } else {
-                    fireLoad(TiC.PROPERTY_IMAGE);
-                }
-                firedLoad = true;
+            Bitmap bitmap = null;
+            if (drawable instanceof BitmapDrawable) {
+                bitmap = ((BitmapDrawable)drawable).getBitmap();
+                cache.set(imageref.getUrl(), bitmap);
             }
+            handleSetDrawable(drawable, shouldTransition);
+            fireLoad(TiC.PROPERTY_IMAGE, bitmap);
         }
-
     }
 
     public TiUIImageView(final TiViewProxy proxy) {
@@ -171,100 +188,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 }
             }
         };
-        setImage(null); // this actually creates a drawable which will allow
+        setImage(null, false); // this actually creates a drawable which will allow
                         // transition
 
-        downloadListener = new TiDownloadListener() {
-            @Override
-            public void downloadTaskFinished(URI uri, HttpURLConnection connection) {
-                if (!TiResponseCache.peek(uri)) {
-                    // The requested image did not make it into our
-                    // TiResponseCache,
-                    // possibly because it had a header forbidding that. Now get
-                    // it
-                    // via the "old way" (not relying on cache).
-                    TiLoadImageManager.getInstance().load(
-                            proxy.getActivity().getResources(),
-                            TiDrawableReference.fromHttp(imageViewProxy.getActivity(),
-                                    connection), loadImageListener);
-                }
-            }
-
-            @Override
-            public void downloadTaskFailed(URI uri, HttpURLConnection connection) {
-                // If the download failed, fire an error event
-                fireError("Download Failed", uri.toString());
-            }
-
-            // Handle decoding and caching in the background thread so it won't
-            // block UI.
-            @Override
-            public void postDownload(URI uri, HttpURLConnection connection) {
-                if (TiResponseCache.peek(uri)) {
-                    try {
-                        handleCacheAndSetImage(TiDrawableReference.fromUrl(
-                                imageViewProxy, uri.toString()));
-                    } catch (FileNotFoundException e) {
-                        fireError("Download Failed", uri.toString());
-                    }
-                }
-            }
-        };
-
-        loadImageListener = new TiLoadImageListener() {
-            @Override
-            public void loadImageFinished(TiDrawableReference imageref, Drawable drawable) {
-                // Cache the image
-                int hash = imageref.hashCode();
-                if (drawable != null) {
-                    if (mMemoryCache.get(hash) == null
-                            && drawable instanceof BitmapDrawable) {
-                        mMemoryCache.put(hash,
-                                ((BitmapDrawable) drawable).getBitmap());
-                    }
-
-                    // Update UI if the current image source has not been
-                    // changed.
-                    if (imageSources != null && imageSources.size() == 1) {
-                        TiDrawableReference imgsrc = imageSources.get(0);
-                        if (imgsrc == null) {
-                            return;
-                        }
-                        if (imgsrc.hashCode() == hash
-                                || (imgsrc.getUrl() != null && TiDrawableReference
-                                        .fromUrl(
-                                                imageViewProxy,
-                                                TiUrl.getCleanUri(
-                                                        imgsrc.getUrl())
-                                                        .toString()).hashCode() == hash)) {
-                            // setImage(bitmap);
-                            if (filterOptions != null) {
-                                (new FilterAndSetTask()).execute(drawable);
-                            }
-                            else {
-                                setDrawable(drawable);
-                                if (!firedLoad) {
-                                    if (drawable instanceof BitmapDrawable) {
-                                        fireLoad(TiC.PROPERTY_IMAGE,
-                                                ((BitmapDrawable) drawable)
-                                                        .getBitmap());
-                                    } else {
-                                        fireLoad(TiC.PROPERTY_IMAGE);
-                                    }
-                                    firedLoad = true;
-                                }
-                            }
-                            
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void loadImageFailed() {
-                Log.w(TAG, "Unable to load image", Log.DEBUG_MODE);
-            }
-        };
         setNativeView(view);
     }
 
@@ -298,9 +224,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             return true;
         }
         case SET_DRAWABLE: {
-            AsyncResult result = (AsyncResult) msg.obj;
-            handleSetDrawable((Drawable) result.getArg());
-            result.setResult(null);
+//            AsyncResult result = (AsyncResult) msg.obj;
+            handleSetDrawable((Drawable) msg.obj, msg.arg1 == 1);
+//            result.setResult(null);
             return true;
         }
         case START:
@@ -333,61 +259,23 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         }
     }
 
-    private void handleCacheAndSetImage(TiDrawableReference imageref)
-            throws FileNotFoundException {
-        // Don't update UI if the current image source has been changed.
-        if (imageSources != null && imageSources.size() == 1) {
-            TiDrawableReference imgsrc = imageSources.get(0);
-            if (imgsrc == null || imgsrc.getUrl() == null) {
-                return;
-            }
-            if (imageref.equals(imgsrc)
-                    || imageref.equals(TiDrawableReference.fromUrl(
-                            imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl())
-                                    .toString()))) {
-                int hash = imageref.hashCode();
-                Drawable drawable = imageref.getDrawable();
-                if (drawable != null) {
-                    if (drawable instanceof BitmapDrawable
-                            && mMemoryCache.get(hash) == null) {
-                        mMemoryCache.put(hash,
-                                ((BitmapDrawable) drawable).getBitmap());
-                    }
-                    if (filterOptions != null) {
-                        (new FilterAndSetTask()).execute(drawable);
-                    }
-                    else {
-                        setDrawable(drawable);
-                        if (!firedLoad) {
-                            if (drawable instanceof BitmapDrawable) {
-                                fireLoad(TiC.PROPERTY_IMAGE,
-                                        ((BitmapDrawable) drawable)
-                                                .getBitmap());
-                            } else {
-                                fireLoad(TiC.PROPERTY_IMAGE);
-                            }
-                            firedLoad = true;
-                        }
-                    }
-                }
-            }
-        }
+    private void setImage(final Bitmap bitmap, boolean shouldTransition) {
+        setDrawable((bitmap != null) ? new BitmapDrawable(getContext()
+                .getResources(), bitmap) : null, shouldTransition);
     }
 
-    private void setImage(final Bitmap bitmap) {
-        setDrawable((bitmap != null) ? new BitmapDrawable(proxy.getActivity()
-                .getResources(), bitmap) : null);
-    }
-
-    private void setDrawable(final Drawable drawable) {
+    private void setDrawable(final Drawable drawable, boolean shouldTransition) {
         if (getDrawable() == drawable)
             return;
         if (!TiApplication.isUIThread()) {
-            TiMessenger.sendBlockingMainMessage(
-                    mainHandler.obtainMessage(SET_DRAWABLE), drawable);
+            mainHandler.obtainMessage(SET_DRAWABLE, shouldTransition?1:0, 0, drawable).sendToTarget();
         } else {
-            handleSetDrawable(drawable);
+            handleSetDrawable(drawable, shouldTransition);
         }
+    }
+    
+    private void setDrawable(final Drawable drawable) {
+        setDrawable(drawable, true);
     }
 
     private Drawable getDrawable() {
@@ -419,7 +307,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         }
     }
 
-    private void handleSetDrawable(final Drawable drawable) {
+    private void handleSetDrawable(final Drawable drawable, boolean shouldTransition) {
         if (drawable != animDrawable) {
             currentImage = drawable;
             if (animDrawable != null) {
@@ -428,7 +316,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         }
         TiImageView view = getView();
         if (view != null) {
-            view.setImageDrawableWithTransition(drawable, transitionDict);
+            view.setImageDrawableWithTransition(drawable, shouldTransition?transitionDict:null);
             boolean widthDefined = view.getWidthDefined();
             boolean heightDefined = view.getHeightDefined();
             if ((!widthDefined || !heightDefined)) {
@@ -617,39 +505,39 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         }
 
     }
+    
+    private Drawable getDrawableFromLocal(final TiDrawableReference imageref,
+            final Cache cache) {
+        Bitmap bitmap = cache.get(imageref.getUrl());
+        Drawable drawable = null;
+        if (bitmap == null) {
+            drawable = imageref.getDrawable();
+            if (drawable instanceof BitmapDrawable) {
+                bitmap = ((BitmapDrawable) drawable).getBitmap();
+                cache.set(imageref.getUrl(), bitmap);
+            }
+        } else {
+            drawable = new BitmapDrawable(getContext().getResources(), bitmap);
+        }
+        return drawable;
+    }
 
     private void setAnimatedImages() {
         if (animatedImageSources == null || animatedImageSources.size() == 0) {
-            handleSetDrawable(null);
+            handleSetDrawable(null, false);
             fireError("Missing Images", null);
             return;
         }
         animDrawable = new TiAnimationDrawable();
         animDrawable.setReverse(reverse);
         animDrawable.setAutoreverse(autoreverse);
+        Cache cache = TiApplication.getImageMemoryCache();
         for (int i = 0; i < animatedImageSources.size(); i++) {
             TiDrawableReference imageref = animatedImageSources.get(i);
-            // Check if the image is cached in memory
-            int hash = imageref.hashCode();
-            Bitmap bitmap = mMemoryCache.get(hash);
-            if (bitmap != null) {
-                if (!bitmap.isRecycled()) {
-                    animDrawable.addFrame(new BitmapDrawable(proxy
-                            .getActivity().getResources(), bitmap), duration);
-                    continue;
-                } else { // If the cached image has been recycled, remove it
-                         // from the cache.
-                    mMemoryCache.remove(hash);
-                }
-            }
             if (!imageref.isNetworkUrl()) {
-                Drawable drawable = imageref.getDrawable();
+                Drawable drawable = getDrawableFromLocal(imageref, cache);
+
                 if (drawable != null) {
-                    if (mMemoryCache.get(hash) == null
-                            && drawable instanceof BitmapDrawable) {
-                        mMemoryCache.put(hash,
-                                ((BitmapDrawable) drawable).getBitmap());
-                    }
                     animDrawable.addFrame(drawable, duration);
                 } else {
                     Log.e(TAG,
@@ -660,7 +548,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         currentIndex = reverse ? animDrawable.getNumberOfFrames() - 1 : 0;
         animDrawable.selectDrawable(currentIndex);
         if (currentImage == null)
-            setDrawable(animDrawable);
+            setDrawable(animDrawable, true);
     }
 
     public boolean fireImageEvent(String eventName, KrollDict data) {
@@ -668,20 +556,15 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     }
 
     private void fireLoad(String state) {
-        if (hasListeners(TiC.EVENT_LOAD)) {
-            KrollDict data = new KrollDict();
-            data.put(TiC.EVENT_PROPERTY_STATE, state);
-            if (bitmapInfo != null) {
-                data = KrollDict.merge(data, bitmapInfo);
-            }
-            fireImageEvent(TiC.EVENT_LOAD, data);
-        }
+        fireLoad(state, null);
     }
 
     private void fireLoad(String state, Bitmap bitmap) {
         if (hasListeners(TiC.EVENT_LOAD)) {
             KrollDict data = new KrollDict();
-            data.put("image", TiBlob.blobFromImage(bitmap));
+            if (bitmap != null) {
+                data.put("image", TiBlob.blobFromImage(bitmap));
+            }
             data.put(TiC.EVENT_PROPERTY_STATE, state);
             if (bitmapInfo != null) {
                 data = KrollDict.merge(data, bitmapInfo);
@@ -747,7 +630,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
                 BitmapWithIndex b = loader.getBitmapQueue().take();
                 Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
-                setImage(b.bitmap);
+                setImage(b.bitmap, false);
                 fireChange(b.index);
 
                 // When the animation is paused, the timer will pause in the
@@ -784,7 +667,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     public void handleSetCurrentIndex(int index) {
         if (animDrawable != null) {
             if (getDrawable() != animDrawable) {
-                setDrawable(animDrawable);
+                setDrawable(animDrawable, true);
             }
             animDrawable.setFrame(index);
         }
@@ -1015,79 +898,49 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
         if (imageSources.size() == 1) {
             TiDrawableReference imageref = imageSources.get(0);
-
-            // Check if the image is cached in memory
-            int hash = imageref.hashCode();
-            Bitmap bitmap = mMemoryCache.get(hash);
-            if (bitmap != null) {
-                if (!bitmap.isRecycled()) {
-                    setImage(bitmap);
-                    if (!firedLoad) {
-                        fireLoad(TiC.PROPERTY_IMAGE, bitmap);
-                        firedLoad = true;
-                    }
-                    return;
-                } else { // If the cached image has been recycled, remove it
-                         // from the cache.
-                    mMemoryCache.remove(hash);
-                }
-            }
-
             if (imageref.isNetworkUrl()) {
-                boolean isCachedInDisk = false;
-                URI uri = null;
-                try {
-                    String imageUrl = TiUrl.getCleanUri(imageref.getUrl())
-                            .toString();
-                    uri = new URI(imageUrl);
-                    isCachedInDisk = TiResponseCache.peek(uri);
-                } catch (URISyntaxException e) {
-                    Log.e(TAG,
-                            "URISyntaxException for url " + imageref.getUrl(),
-                            e);
-                } catch (NullPointerException e) {
-                    Log.e(TAG,
-                            "NullPointerException for url " + imageref.getUrl(),
-                            e);
-                }
-
-                // Check if the image is not cached in disc and the uri is
-                // valid.
-                if (!isCachedInDisk && uri != null) {
-                    
-                    TiDownloadManager.getInstance().download(uri,
-                            (HashMap) proxy.getProperty(TiC.PROPERTY_HTTP_OPTIONS), downloadListener);
-                    return;
-                }
-            } else {
-                Drawable drawable = imageref.getDrawable();
-                if (drawable != null) {
-                    if (mMemoryCache.get(hash) == null
-                            && drawable instanceof BitmapDrawable) {
-                        mMemoryCache.put(hash,
-                                ((BitmapDrawable) drawable).getBitmap());
-                    }
-                    // if (!bitmap.isRecycled()) {
-                    setDrawable(drawable);
-                    if (!firedLoad) {
-                        if (drawable instanceof BitmapDrawable) {
-                            fireLoad(TiC.PROPERTY_IMAGE,
-                                    ((BitmapDrawable) drawable).getBitmap());
-                        } else {
-                            fireLoad(TiC.PROPERTY_IMAGE);
+                Picasso picasso = TiApplication.getPicassoInstance();
+                
+                if (proxy.hasProperty(TiC.PROPERTY_HTTP_OPTIONS)) {
+                 // Prepare OkHttp
+                    final Context context = getContext();
+                    picasso = new Picasso.Builder(context).downloader(new OkHttpDownloader(context) {
+                        @Override
+                        protected HttpURLConnection openConnection(Uri uri) throws IOException {
+                            HttpURLConnection connection = super.openConnection(uri);
+                            TiApplication.prepareURLConnection(connection, (HashMap) proxy.getProperty(TiC.PROPERTY_HTTP_OPTIONS));
+                            return connection;
                         }
-                    }
-                    return;
-                    // }
+                    }).build();
                 }
-            }
-            if (localLoadSync == true)
-                TiLoadImageManager.getInstance().loadSync(imageref,
-                        loadImageListener);
-            else
-                TiLoadImageManager.getInstance().load(
-                        proxy.getActivity().getResources(), imageref,
-                        loadImageListener);
+                loadingUrl = imageref.getUrl();
+                //picasso will cancel running request if reusing
+                picasso.load(loadingUrl).into(this);
+           } else {
+               boolean shouldTransition = !onlyTransitionIfRemote;
+               Cache cache = TiApplication.getImageMemoryCache();
+               Bitmap bitmap = cache.get(imageref.getUrl());
+               Drawable drawable = null;
+               if (bitmap == null) {
+                   shouldTransition = true;
+                   if (!localLoadSync) {
+                       (new LoadLocalDrawableTask(cache, true)).execute(imageref);
+                       return;
+                   }
+                   drawable = imageref.getDrawable();
+                   if (drawable instanceof BitmapDrawable) {
+                       bitmap = ((BitmapDrawable)drawable).getBitmap();
+                       cache.set(imageref.getUrl(), bitmap);
+                   }
+               } else {
+                   drawable = new BitmapDrawable(getContext().getResources(), bitmap);
+               }
+
+              if (drawable != null) {
+                  setDrawable(drawable, shouldTransition);
+                  fireLoad(TiC.PROPERTY_IMAGE, bitmap);
+              }
+          }
         } else {
             setImages();
         }
@@ -1101,20 +954,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         }
         
         if (defaultImageSource == null) {
-            if (withTransition) {
-                setDrawable(null);
-            }
-            else  {
-                view.setImageDrawable(null);
-            }
+            setDrawable(null, withTransition);
         }
         else {
-            if (withTransition) {
-                setDrawable(defaultImageSource.getDrawable());
-            }
-            else  {
-                view.setImageDrawable(defaultImageSource.getDrawable());
-            }
+            setDrawable(defaultImageSource.getDrawable(), withTransition);
         }
     }
 
@@ -1268,12 +1111,12 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             setImageMask(newValue);
         } else if (key.equals(TiC.PROPERTY_FILTER_OPTIONS)) {
             filterOptions = (HashMap) newValue;
-            if (currentImage != null) {
+            if (currentImage != null && currentImage instanceof BitmapDrawable) {
                 if (filterOptions != null) {
-                    (new FilterAndSetTask()).execute(currentImage);
+                    (new FilterAndSetTask(!onlyTransitionIfRemote)).execute(((BitmapDrawable)currentImage).getBitmap());
                 }
                 else {
-                    setDrawable(currentImage);
+                    setDrawable(currentImage, !onlyTransitionIfRemote);
                 }
             }
         } else if (key.equals(TiC.PROPERTY_IMAGE)) {
@@ -1433,10 +1276,11 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         isStopping.set(true);
         synchronized (releasedLock) {
             if (imageSources != null) {
-                for (TiDrawableReference imageref : imageSources) {
-                    int hash = imageref.hashCode();
-                    mMemoryCache.remove(hash); // Release the cached images
-                }
+                TiApplication.getPicassoInstance().cancelRequest(this);
+//                for (TiDrawableReference imageref : imageSources) {
+//                    int hash = imageref.hashCode();
+//                    mMemoryCache.remove(hash); // Release the cached images
+//                }
                 imageSources.clear();
                 imageSources = null;
             }
@@ -1475,5 +1319,29 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             break;
         }
         view.setWantedScaleType(result);
+    }
+
+    @Override
+    public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
+        Log.d(TAG, "loadedFrom "+ from + ", " + bitmap.getWidth());
+        boolean transition = !onlyTransitionIfRemote || from == LoadedFrom.NETWORK;
+        loadingUrl = null;
+        if (filterOptions != null) {
+            (new FilterAndSetTask(transition)).execute(bitmap);
+        }
+        else {
+            handleSetDrawable(new BitmapDrawable(getContext().getResources(),bitmap), transition);
+            fireLoad(TiC.PROPERTY_IMAGE, bitmap);
+        }
+    }
+
+    @Override
+    public void onBitmapFailed(Drawable errorDrawable) {
+        fireError("Download Failed", loadingUrl);
+        loadingUrl = null;
+    }
+
+    @Override
+    public void onPrepareLoad(Drawable placeHolderDrawable) {
     }
 }
