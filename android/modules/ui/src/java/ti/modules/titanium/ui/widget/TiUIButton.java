@@ -14,6 +14,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiHtml;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
@@ -21,9 +22,10 @@ import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.view.Gravity;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Button;
 import android.content.res.ColorStateList;
 
@@ -140,9 +142,6 @@ public class TiUIButton extends TiUINonViewGroupView
 				imageDrawable = null;
 			}
 		}
-		if (d.containsKey(TiC.PROPERTY_TITLE)) {
-			btn.setText(d.getString(TiC.PROPERTY_TITLE));
-		}
 		
 		boolean needsColors = false;
 		if(d.containsKey(TiC.PROPERTY_COLOR)) {
@@ -191,8 +190,8 @@ public class TiUIButton extends TiUINonViewGroupView
 			if (value instanceof HashMap) {
 				needShadow = true;
 				HashMap dict = (HashMap) value;
-				shadowX = TiUIHelper.getRawSizeOrZero(dict.get(TiC.PROPERTY_X));
-				shadowY = TiUIHelper.getRawSizeOrZero(dict.get(TiC.PROPERTY_Y));
+				shadowX = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_X));
+				shadowY = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_Y));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_RADIUS)) {
@@ -206,8 +205,24 @@ public class TiUIButton extends TiUINonViewGroupView
 		if (needShadow) {
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
+		
+     // Only accept one, prefer text to title.
+        String html = TiConvert.toString(d, TiC.PROPERTY_HTML);
+        String title = TiConvert.toString(d, TiC.PROPERTY_TITLE);
+
+        if (html != null) {
+            btn.setText(fromHtml(html));
+        } else if (title != null) {
+            btn.setText(title);
+        }
 		btn.invalidate();
 	}
+	
+	private Spanned fromHtml(String str)
+    {
+        SpannableStringBuilder htmlText = new SpannableStringBuilder(TiHtml.fromHtml(str, false));
+        return htmlText;
+    }
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
@@ -218,10 +233,12 @@ public class TiUIButton extends TiUINonViewGroupView
 		Button btn = (Button) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			this.color = TiConvert.toColor(newValue);
-			updateTextColors();
-		} else if (key.equals(TiC.PROPERTY_SELECTED_COLOR)) {
+		} else if (key.equals(TiC.PROPERTY_HTML)) {
+		    btn.setText(fromHtml((String) newValue));
+        } else if (key.equals(TiC.PROPERTY_COLOR)) {
+            this.color = TiConvert.toColor(newValue);
+            updateTextColors();
+        } else if (key.equals(TiC.PROPERTY_SELECTED_COLOR)) {
 			this.selectedColor = TiConvert.toColor(newValue);
 			updateTextColors();
 		} else if (key.equals(TiC.PROPERTY_DISABLED_COLOR)) {
@@ -260,8 +277,8 @@ public class TiUIButton extends TiUINonViewGroupView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
 			if (newValue instanceof HashMap) {
 				HashMap dict = (HashMap) newValue;
-				shadowX = TiUIHelper.getRawSizeOrZero(dict.get(TiC.PROPERTY_X));
-				shadowY = TiUIHelper.getRawSizeOrZero(dict.get(TiC.PROPERTY_Y));
+				shadowX = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_X));
+				shadowY = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_Y));
 				btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 			}
 		} else if (key.equals(TiC.PROPERTY_SHADOW_RADIUS)) {
