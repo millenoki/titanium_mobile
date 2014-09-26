@@ -579,18 +579,27 @@ DEFINE_EXCEPTIONS
     }
 }
 
--(void)loadUrl:(id)img
+-(void)setImageInternal:(id)img
 {
     if (img!=nil)
     {
-        NSURL *url_ = [TiUtils toURL:[img absoluteString] proxy:self.proxy];
+        NSURL* imageURL = [[self proxy] sanitizeURL:img];
+        if (![imageURL isKindOfClass:[NSURL class]]) {
+            NSLog(@"[ERROR] invalid image type: \"%@\" is not a TiBlob, URL, TiFile",imageURL);
+            return;
+        }
+        NSURL *url_ = [TiUtils toURL:[imageURL absoluteString] proxy:self.proxy];
         
         __block UIImage *image = nil;
         if (localLoadSync)
         {
             image = [self convertToUIImage:[[ImageLoader sharedLoader] loadImmediateImage:url_]];
             if (image == nil && [url_ isFileURL]) {
-                image = [UIImage imageWithContentsOfFile:[url_ path]];
+                //first try with imageNamed:
+                image = [UIImage imageNamed:img];
+                if (!image) {
+                    image = [UIImage imageWithContentsOfFile:[url_ path]];
+                }
                 if (image != nil) {
                     [[ImageLoader sharedLoader] cache:image forURL:url_];
                 }
@@ -885,27 +894,29 @@ DEFINE_EXCEPTIONS
     NSURL* imageURL = nil;
     RELEASE_TO_NIL(_svg);
     
-    if (localLoadSync || ![arg isKindOfClass:[NSString class]])
+    if (localLoadSync || ![arg isKindOfClass:[NSString class]]) {
         image = [self convertToUIImage:arg];
+    }
     
     if (image == nil)
     {
-        NSURL* imageURL = [[self proxy] sanitizeURL:arg];
-        if (![imageURL isKindOfClass:[NSURL class]]) {
-            NSLog(@"[ERROR] invalid image type: \"%@\" is not a TiBlob, URL, TiFile",imageURL);
-            return;
-        }
-        
-        [self loadUrl:imageURL];
+        [self setImageInternal:arg];
         return;
     }
-    [self transitionToImage:image];
-    
-    if (_currentImage!=image)
-    {
+    if (_filterOptions) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
+       {
+           RELEASE_TO_NIL(_currentImage);
+           _currentImage = [[TiImageHelper imageFiltered:image withOptions:_filterOptions] retain];
+           TiThreadPerformOnMainThread(^{
+               [self transitionToImage:_currentImage];
+           }, NO);
+       });
+    }
+    else {
         RELEASE_TO_NIL(_currentImage);
         _currentImage = [image retain];
-        [self fireLoadEventWithState:@"image"];
+        [self transitionToImage:image];
     }
 }
 
