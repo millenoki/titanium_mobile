@@ -830,7 +830,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@Kroll.method
 	public boolean fireEvent(String event, @Kroll.argument(optional = true) Object data)
 	{
-		return fireEvent(event, data, false, true);
+		return fireEvent(event, data, false, false);
 	}
 	
 
