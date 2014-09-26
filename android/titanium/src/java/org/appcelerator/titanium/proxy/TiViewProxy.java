@@ -48,6 +48,7 @@ import android.os.Message;
 import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ViewSwitcher;
 
 /**
@@ -273,22 +274,24 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 					if (v != null) {
 						int position[] = new int[2];
 						v.getLocationOnScreen(position);
+						Activity activity  = TiApplication.getAppCurrentActivity();
+						if (activity != null) {
+						    View decorView = activity.getWindow().getDecorView();
 
-						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
+	                        DisplayMetrics dm = new DisplayMetrics();
+	                        TiApplication.getAppCurrentActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+	                        
+	                        Rect rect = new Rect();
+	                        decorView.getWindowVisibleDisplayFrame(rect);
+	                        int statusHeight = rect.top;
+	                        
+	                        position[1] -= statusHeight; //we remove statusbar height 
 
-						DisplayMetrics dm = new DisplayMetrics();
-						TiApplication.getAppCurrentActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-						
-						Rect rect = new Rect();
-						decorView.getWindowVisibleDisplayFrame(rect);
-				        int statusHeight = rect.top;
-				        
-						position[1] -= statusHeight; //we remove statusbar height 
-
-						d.put(TiC.PROPERTY_WIDTH, v.getMeasuredWidth());
-						d.put(TiC.PROPERTY_HEIGHT, v.getMeasuredHeight());
-						d.put(TiC.PROPERTY_X, position[0]);
-						d.put(TiC.PROPERTY_Y, position[1]);
+	                        d.put(TiC.PROPERTY_WIDTH, v.getMeasuredWidth());
+	                        d.put(TiC.PROPERTY_HEIGHT, v.getMeasuredHeight());
+	                        d.put(TiC.PROPERTY_X, position[0]);
+	                        d.put(TiC.PROPERTY_Y, position[1]);
+						}
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
