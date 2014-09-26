@@ -741,7 +741,7 @@ public class TiHTTPClient
 			}
 			// Fire the disposehandle event if the request is aborted.
 			// And it will dispose the handle of the httpclient in the JS.
-			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
+			proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null, false, false);
 		}
 	}
 
