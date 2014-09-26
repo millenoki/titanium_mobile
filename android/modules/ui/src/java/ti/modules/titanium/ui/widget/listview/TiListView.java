@@ -428,8 +428,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
 				    if (scrollValid) {
 				        scrollValid = false;
-	                    if (!fProxy.hasListeners(TiC.EVENT_SCROLLEND)) return;
-	                    fProxy.fireEvent(TiC.EVENT_SCROLLEND, dictForScrollEvent());
+	                    if (!fProxy.hasListeners(TiC.EVENT_SCROLLEND, false)) return;
+	                    fProxy.fireEvent(TiC.EVENT_SCROLLEND, dictForScrollEvent(), false, false);
 				    }
 					
 				}
@@ -439,8 +439,8 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	                }
 					if (scrollValid == false) {
 						scrollValid = true;
-						if (!fProxy.hasListeners(TiC.EVENT_SCROLLSTART)) return;
-						fProxy.fireEvent(TiC.EVENT_SCROLLSTART, dictForScrollEvent());
+						if (!fProxy.hasListeners(TiC.EVENT_SCROLLSTART, false)) return;
+						fProxy.fireEvent(TiC.EVENT_SCROLLSTART, dictForScrollEvent(), false, false);
 					}
 				}
 			}
@@ -455,9 +455,9 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 					//we must check to see if the first visibleItem has changed.
 					fireScroll = (lastValidfirstItem != firstVisibleItem);
 				}
-				if(fireScroll && fProxy.hasListeners(TiC.EVENT_SCROLL)) {
+				if(fireScroll && fProxy.hasListeners(TiC.EVENT_SCROLL, false)) {
 					lastValidfirstItem = firstVisibleItem;
-					fProxy.fireEvent(TiC.EVENT_SCROLL, dictForScrollEvent());
+					fProxy.fireEvent(TiC.EVENT_SCROLL, dictForScrollEvent(), false, false);
 				}
 			}
 		});
