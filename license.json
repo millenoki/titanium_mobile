@@ -85,7 +85,12 @@
             "licenseId":"apache_2"
         },
          "okhttp":{
-            "title":"okhttp",
+            "title":"OkHttp",
+            "copyright":"Copyright (C) 2013 Square, Inc.",
+            "licenseId":"apache_2"
+        },
+        "picasso":{
+            "title":"Picasso",
             "copyright":"Copyright (C) 2013 Square, Inc.",
             "licenseId":"apache_2"
         },
