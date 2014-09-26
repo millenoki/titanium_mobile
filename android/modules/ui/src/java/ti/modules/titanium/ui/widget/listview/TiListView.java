@@ -350,10 +350,17 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 		size.put(TiC.PROPERTY_HEIGHT, TiListView.this.getNativeView().getHeight());
 		eventArgs.put(TiC.PROPERTY_SIZE, size);
 		
-		int firstVisibleItem = listView.getFirstVisiblePosition();
+        int firstVisibleItem = listView.getFirstVisiblePosition();
+        int lastVisiblePosition = listView.getLastVisiblePosition();
 		eventArgs.put("firstVisibleItem", firstVisibleItem);
-		eventArgs.put("visibleItemCount", listView.getLastVisiblePosition() - firstVisibleItem);
-		eventArgs.put("contentOffset", listView.getChildAt(firstVisibleItem).getTop());
+		eventArgs.put("visibleItemCount", lastVisiblePosition - firstVisibleItem);
+//		View view = listView.getChildAt(0);
+//		if (view != null) {
+//	        eventArgs.put("contentOffset", view.getTop());
+//		}
+//		else {
+//		    Log.d(TAG, "not normal");
+//		}
 		
 		return eventArgs;
 	}
