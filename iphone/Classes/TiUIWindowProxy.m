@@ -315,9 +315,9 @@ NSArray* keySequence;
 
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
+    shouldUpdateNavBar = !noNavBar;
 	[self setupWindowDecorations];
 	[super viewWillAppear:animated];
-    shouldUpdateNavBar = !noNavBar;
 }
 
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
