@@ -617,6 +617,15 @@
 		D51697F217FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
 		D51697F317FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
 		D51697F417FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
+		D51DEFC719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D51DEFC819D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D51DEFC919D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D51DEFCA19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB919D9ACDA00CF28B0 /* ActionSheetCustomPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D51DEFCB19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB919D9ACDA00CF28B0 /* ActionSheetCustomPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D51DEFCC19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB919D9ACDA00CF28B0 /* ActionSheetCustomPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D51DEFDC19D9ACDA00CF28B0 /* SWActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFC619D9ACDA00CF28B0 /* SWActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D51DEFDD19D9ACDA00CF28B0 /* SWActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFC619D9ACDA00CF28B0 /* SWActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D51DEFDE19D9ACDA00CF28B0 /* SWActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFC619D9ACDA00CF28B0 /* SWActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D51F03CA18080504005B4EE2 /* TiUIBlendModeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D51F03C918080504005B4EE2 /* TiUIBlendModeProxy.m */; };
 		D51F03CB18080504005B4EE2 /* TiUIBlendModeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D51F03C918080504005B4EE2 /* TiUIBlendModeProxy.m */; };
 		D51F03CC18080504005B4EE2 /* TiUIBlendModeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D51F03C918080504005B4EE2 /* TiUIBlendModeProxy.m */; };
@@ -2055,6 +2064,23 @@
 		D512A7AC187F1813004E3AB1 /* ADTransitioningViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADTransitioningViewController.m; path = ../Classes/ADTransitionController/ADTransitioningViewController.m; sourceTree = "<group>"; };
 		D51697F017FFF63300B4FDB8 /* ImageModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageModule.h; sourceTree = "<group>"; };
 		D51697F117FFF63300B4FDB8 /* ImageModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageModule.m; sourceTree = "<group>"; };
+		D51DEFB619D9ACDA00CF28B0 /* AbstractActionSheetPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AbstractActionSheetPicker.h; path = ../Classes/ActionSheetPicker/AbstractActionSheetPicker.h; sourceTree = "<group>"; };
+		D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AbstractActionSheetPicker.m; path = ../Classes/ActionSheetPicker/AbstractActionSheetPicker.m; sourceTree = "<group>"; };
+		D51DEFB819D9ACDA00CF28B0 /* ActionSheetCustomPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActionSheetCustomPicker.h; path = ../Classes/ActionSheetPicker/ActionSheetCustomPicker.h; sourceTree = "<group>"; };
+		D51DEFB919D9ACDA00CF28B0 /* ActionSheetCustomPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActionSheetCustomPicker.m; path = ../Classes/ActionSheetPicker/ActionSheetCustomPicker.m; sourceTree = "<group>"; };
+		D51DEFBA19D9ACDA00CF28B0 /* ActionSheetCustomPickerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActionSheetCustomPickerDelegate.h; path = ../Classes/ActionSheetPicker/ActionSheetCustomPickerDelegate.h; sourceTree = "<group>"; };
+		D51DEFBB19D9ACDA00CF28B0 /* ActionSheetDatePicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActionSheetDatePicker.h; path = ../Classes/ActionSheetPicker/ActionSheetDatePicker.h; sourceTree = "<group>"; };
+		D51DEFBC19D9ACDA00CF28B0 /* ActionSheetDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActionSheetDatePicker.m; path = ../Classes/ActionSheetPicker/ActionSheetDatePicker.m; sourceTree = "<group>"; };
+		D51DEFBD19D9ACDA00CF28B0 /* ActionSheetDistancePicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActionSheetDistancePicker.h; path = ../Classes/ActionSheetPicker/ActionSheetDistancePicker.h; sourceTree = "<group>"; };
+		D51DEFBE19D9ACDA00CF28B0 /* ActionSheetDistancePicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActionSheetDistancePicker.m; path = ../Classes/ActionSheetPicker/ActionSheetDistancePicker.m; sourceTree = "<group>"; };
+		D51DEFBF19D9ACDA00CF28B0 /* ActionSheetLocalePicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActionSheetLocalePicker.h; path = ../Classes/ActionSheetPicker/ActionSheetLocalePicker.h; sourceTree = "<group>"; };
+		D51DEFC019D9ACDA00CF28B0 /* ActionSheetLocalePicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActionSheetLocalePicker.m; path = ../Classes/ActionSheetPicker/ActionSheetLocalePicker.m; sourceTree = "<group>"; };
+		D51DEFC119D9ACDA00CF28B0 /* ActionSheetStringPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActionSheetStringPicker.h; path = ../Classes/ActionSheetPicker/ActionSheetStringPicker.h; sourceTree = "<group>"; };
+		D51DEFC219D9ACDA00CF28B0 /* ActionSheetStringPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ActionSheetStringPicker.m; path = ../Classes/ActionSheetPicker/ActionSheetStringPicker.m; sourceTree = "<group>"; };
+		D51DEFC319D9ACDA00CF28B0 /* DistancePickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DistancePickerView.h; path = ../Classes/ActionSheetPicker/DistancePickerView.h; sourceTree = "<group>"; };
+		D51DEFC419D9ACDA00CF28B0 /* DistancePickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DistancePickerView.m; path = ../Classes/ActionSheetPicker/DistancePickerView.m; sourceTree = "<group>"; };
+		D51DEFC519D9ACDA00CF28B0 /* SWActionSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SWActionSheet.h; path = ../Classes/ActionSheetPicker/SWActionSheet.h; sourceTree = "<group>"; };
+		D51DEFC619D9ACDA00CF28B0 /* SWActionSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SWActionSheet.m; path = ../Classes/ActionSheetPicker/SWActionSheet.m; sourceTree = "<group>"; };
 		D51F03C818080504005B4EE2 /* TiUIBlendModeProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIBlendModeProxy.h; sourceTree = "<group>"; };
 		D51F03C918080504005B4EE2 /* TiUIBlendModeProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIBlendModeProxy.m; sourceTree = "<group>"; };
 		D51F03D71808411F005B4EE2 /* TiImageHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiImageHelper.h; sourceTree = "<group>"; };
@@ -2664,6 +2690,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				D51DEFAF19D9ACBF00CF28B0 /* ActionSheetPicker */,
 				D535CCD919CF2C6A005E114E /* ColorArt */,
 				D58D8C5919A3B7FE001AA611 /* DAKeyboardControl */,
 				D54E554D19953BD1004A7335 /* RDActivityViewController */,
@@ -4061,6 +4088,30 @@
 			name = Image;
 			sourceTree = "<group>";
 		};
+		D51DEFAF19D9ACBF00CF28B0 /* ActionSheetPicker */ = {
+			isa = PBXGroup;
+			children = (
+				D51DEFB619D9ACDA00CF28B0 /* AbstractActionSheetPicker.h */,
+				D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */,
+				D51DEFB819D9ACDA00CF28B0 /* ActionSheetCustomPicker.h */,
+				D51DEFB919D9ACDA00CF28B0 /* ActionSheetCustomPicker.m */,
+				D51DEFBA19D9ACDA00CF28B0 /* ActionSheetCustomPickerDelegate.h */,
+				D51DEFBB19D9ACDA00CF28B0 /* ActionSheetDatePicker.h */,
+				D51DEFBC19D9ACDA00CF28B0 /* ActionSheetDatePicker.m */,
+				D51DEFBD19D9ACDA00CF28B0 /* ActionSheetDistancePicker.h */,
+				D51DEFBE19D9ACDA00CF28B0 /* ActionSheetDistancePicker.m */,
+				D51DEFBF19D9ACDA00CF28B0 /* ActionSheetLocalePicker.h */,
+				D51DEFC019D9ACDA00CF28B0 /* ActionSheetLocalePicker.m */,
+				D51DEFC119D9ACDA00CF28B0 /* ActionSheetStringPicker.h */,
+				D51DEFC219D9ACDA00CF28B0 /* ActionSheetStringPicker.m */,
+				D51DEFC319D9ACDA00CF28B0 /* DistancePickerView.h */,
+				D51DEFC419D9ACDA00CF28B0 /* DistancePickerView.m */,
+				D51DEFC519D9ACDA00CF28B0 /* SWActionSheet.h */,
+				D51DEFC619D9ACDA00CF28B0 /* SWActionSheet.m */,
+			);
+			name = ActionSheetPicker;
+			sourceTree = "<group>";
+		};
 		D522FE0A16D2AC7B008C6CC4 /* JRSwizzle */ = {
 			isa = PBXGroup;
 			children = (
@@ -4826,6 +4877,7 @@
 				243ECCBE112698AA00639DF4 /* TiUITextWidgetProxy.m in Sources */,
 				243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */,
 				D5F3F9B919C6D2F80090B547 /* TiAppiOSNotificationActionProxy.m in Sources */,
+				D51DEFDC19D9ACDA00CF28B0 /* SWActionSheet.m in Sources */,
 				D557957E1837BF6C0057DD41 /* TiViewAnimation.m in Sources */,
 				243ECCAB1126981C00639DF4 /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
 				243ECCAC1126981C00639DF4 /* TiUITableViewSeparatorStyleProxy.m in Sources */,
@@ -4879,6 +4931,7 @@
 				24CA8B80111161FE0084E2DE /* TiUITableViewProxy.m in Sources */,
 				24CA8B84111161FE0084E2DE /* TiUITableView.m in Sources */,
 				24CA8B85111161FE0084E2DE /* TiUITabGroupProxy.m in Sources */,
+				D51DEFCA19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */,
 				D512A7B0187F1813004E3AB1 /* ADTransitioningDelegate.m in Sources */,
 				24CA8B86111161FE0084E2DE /* TiUITabGroup.m in Sources */,
 				24CA8B89111161FE0084E2DE /* TiUIiPhoneSystemIconProxy.m in Sources */,
@@ -5040,6 +5093,7 @@
 				24FB4F42115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
 				24E50CF91160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
 				24E50E1A1160666300AF54AF /* LauncherButton.m in Sources */,
+				D51DEFC719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */,
 				24E50E1B1160666300AF54AF /* LauncherItem.m in Sources */,
 				24E50E1C1160666300AF54AF /* LauncherView.m in Sources */,
 				24E50E27116066A800AF54AF /* TiUIDashboardViewProxy.m in Sources */,
@@ -5196,6 +5250,7 @@
 				D5E999131869C8A2005B3664 /* TiBorderLayer.m in Sources */,
 				24D8E3BC119B9D8A00F8CAA6 /* TiFile.m in Sources */,
 				D5C8C97417EF45C900F54C19 /* ADDualTransition.m in Sources */,
+				D51DEFCB19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */,
 				24D8E3BE119B9D8A00F8CAA6 /* main.m in Sources */,
 				24D8E3BF119B9D8A00F8CAA6 /* AFItemView.m in Sources */,
 				24D8E3C0119B9D8A00F8CAA6 /* AFOpenFlowView.m in Sources */,
@@ -5261,6 +5316,7 @@
 				24D8E3FF119B9D8A00F8CAA6 /* TiUITabGroupProxy.m in Sources */,
 				D5C07A93187DA9CF00984901 /* CAMediaTimingFunction+AdditionalEquations.m in Sources */,
 				24D8E400119B9D8A00F8CAA6 /* TiUITabGroup.m in Sources */,
+				D51DEFDD19D9ACDA00CF28B0 /* SWActionSheet.m in Sources */,
 				D5F9620419A638CC000E464F /* TiScrollingViewProxy.m in Sources */,
 				24D8E403119B9D8A00F8CAA6 /* TiUIiPhoneSystemIconProxy.m in Sources */,
 				24D8E404119B9D8A00F8CAA6 /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
@@ -5421,6 +5477,7 @@
 				24D8E489119B9D8A00F8CAA6 /* LauncherItem.m in Sources */,
 				24D8E48A119B9D8A00F8CAA6 /* LauncherView.m in Sources */,
 				24D8E48B119B9D8A00F8CAA6 /* TiUIDashboardViewProxy.m in Sources */,
+				D51DEFC819D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */,
 				24D8E48C119B9D8A00F8CAA6 /* TiUIDashboardView.m in Sources */,
 				24D8E48D119B9D8A00F8CAA6 /* TiUIDashboardItemProxy.m in Sources */,
 				24D8E490119B9D8A00F8CAA6 /* TiGradient.m in Sources */,
@@ -5574,6 +5631,7 @@
 				D5E999141869C8A2005B3664 /* TiBorderLayer.m in Sources */,
 				DABB36A212E8CB280026A6EA /* TiFile.m in Sources */,
 				D5C8C97517EF45C900F54C19 /* ADDualTransition.m in Sources */,
+				D51DEFCC19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */,
 				DABB36A412E8CB280026A6EA /* main.m in Sources */,
 				DABB36A512E8CB280026A6EA /* AFItemView.m in Sources */,
 				DABB36A612E8CB280026A6EA /* AFOpenFlowView.m in Sources */,
@@ -5639,6 +5697,7 @@
 				DABB36DA12E8CB280026A6EA /* TiUITabGroupProxy.m in Sources */,
 				D5C07A94187DA9CF00984901 /* CAMediaTimingFunction+AdditionalEquations.m in Sources */,
 				DABB36DB12E8CB280026A6EA /* TiUITabGroup.m in Sources */,
+				D51DEFDE19D9ACDA00CF28B0 /* SWActionSheet.m in Sources */,
 				D5F9620519A638CC000E464F /* TiScrollingViewProxy.m in Sources */,
 				DABB36DE12E8CB280026A6EA /* TiUIiPhoneSystemIconProxy.m in Sources */,
 				DABB36DF12E8CB280026A6EA /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
@@ -5799,6 +5858,7 @@
 				DABB376112E8CB280026A6EA /* LauncherItem.m in Sources */,
 				DABB376212E8CB280026A6EA /* LauncherView.m in Sources */,
 				DABB376312E8CB280026A6EA /* TiUIDashboardViewProxy.m in Sources */,
+				D51DEFC919D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */,
 				DABB376412E8CB280026A6EA /* TiUIDashboardView.m in Sources */,
 				DABB376512E8CB280026A6EA /* TiUIDashboardItemProxy.m in Sources */,
 				DABB376812E8CB280026A6EA /* TiGradient.m in Sources */,
