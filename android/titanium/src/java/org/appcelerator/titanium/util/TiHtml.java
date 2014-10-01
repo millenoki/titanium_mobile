@@ -115,4 +115,7 @@ public class TiHtml {
         traversor.traverse(doc); // walk the DOM, and call .head() and .tail() for each node
         return formatter.spannable();
 	}
+    public static Spanned fromHtml(String html) {
+        return fromHtml(html, false);
+    }
 }
