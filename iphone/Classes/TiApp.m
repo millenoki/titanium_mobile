@@ -476,7 +476,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     //FunctionName();
     if (pendingCompletionHandlers !=nil) {
         for (id key in pendingCompletionHandlers) {
-            [self completionHandler:key withResult:2]; //UIBackgroundFetchResultFailed
+            [self completionHandler:key withResult:UIBackgroundFetchResultFailed];
         }
     }
     RELEASE_TO_NIL(pendingCompletionHandlers);
