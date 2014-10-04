@@ -199,6 +199,11 @@ public class ListSectionProxy extends ViewProxy {
 	@Kroll.setProperty
 	public void setHeaderView(TiViewProxy headerView) {
 		this.headerViewArg = headerView;
+		if (this.headerView != null) {
+            this.headerView.releaseViews(true);
+            this.headerView.setParent(null);
+            this.headerView = null;
+        }
 		notifyDataChange();
 	}
 
@@ -212,6 +217,11 @@ public class ListSectionProxy extends ViewProxy {
 	@Kroll.setProperty
 	public void setFooterView(TiViewProxy footerView) {
 		this.footerViewArg = footerView;
+		if (this.footerView != null) {
+		    this.footerView.releaseViews(true);
+            this.footerView.setParent(null);
+            this.footerView = null;
+		}
 		notifyDataChange();
 	}
 
