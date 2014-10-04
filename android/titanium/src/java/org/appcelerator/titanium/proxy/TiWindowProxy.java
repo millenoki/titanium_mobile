@@ -185,6 +185,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
+	    if (closing ||!opened) return;
         closing = true;
 		if (winManager != null && winManager.handleClose(this, arg)) {
 			return;
