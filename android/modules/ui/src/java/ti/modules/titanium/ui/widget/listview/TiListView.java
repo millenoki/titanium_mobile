@@ -817,6 +817,7 @@ public class TiListView extends TiUIView implements OnSearchChangeListener {
 	private View setPullView (Object viewObj) {
 		if (pullView != null) {
 			pullView.releaseViews(true);
+			pullView.setParent(null);
 		}
 		pullView = (TiViewProxy) viewObj;
 		return layoutHeaderOrFooterView(viewObj, proxy);
