@@ -55,6 +55,8 @@
     UIImageView * imageView;
     UIViewContentMode scaleType;
     BOOL localLoadSync;
+    BOOL shouldTransition;
+    BOOL onlyTransitionIfRemote;
     BOOL _reusing;
     
     NSDictionary* _filterOptions;
@@ -95,6 +97,8 @@ DEFINE_EXCEPTIONS
         _reusing = NO;
         _preventDefaultImage = NO;
         _filterOptions = nil;
+        onlyTransitionIfRemote = YES;
+        
     }
     return self;
 }
@@ -413,7 +417,7 @@ DEFINE_EXCEPTIONS
     image = [self prepareImage:image];
     TiTransition* transition = [TiTransitionHelper transitionFromArg:self.transition containerView:self];
     [(TiViewProxy*)[self proxy] contentsWillChange];
-    if (transition != nil) {
+    if (shouldTransition && transition != nil) {
         UIImageView *oldView = [[self imageView] retain];
         RELEASE_TO_NIL(imageView);
         imageView = [[self cloneView:oldView] retain];
@@ -609,12 +613,14 @@ DEFINE_EXCEPTIONS
         if (image==nil)
         {
             placeholderLoading = YES;
+            shouldTransition = YES;
             [(TiUIImageViewProxy *)[self proxy] startImageLoad:url_];
             return;
         } else {
             [(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
             
             if (_filterOptions) {
+                shouldTransition = YES;
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
                {
                    RELEASE_TO_NIL(_currentImage);
@@ -843,6 +849,11 @@ DEFINE_EXCEPTIONS
     localLoadSync = [TiUtils boolValue:arg];
 }
 
+-(void)setOnlyTransitionIfRemote_:(id)arg
+{
+    onlyTransitionIfRemote = [TiUtils boolValue:arg];
+}
+
 -(id)getImage {
     return [[self imageView] image];
 }
@@ -894,6 +905,7 @@ DEFINE_EXCEPTIONS
     NSURL* imageURL = nil;
     RELEASE_TO_NIL(_svg);
     
+    shouldTransition = !onlyTransitionIfRemote;
     if (localLoadSync || ![arg isKindOfClass:[NSString class]]) {
         image = [self convertToUIImage:arg];
     }
@@ -904,6 +916,7 @@ DEFINE_EXCEPTIONS
         return;
     }
     if (_filterOptions) {
+        shouldTransition = YES;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
        {
            RELEASE_TO_NIL(_currentImage);
