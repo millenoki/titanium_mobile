@@ -272,7 +272,7 @@ public class ParentingProxy extends KrollProxy {
         handleChildRemoved(child, shouldDetach);
     }
 
-    protected void removeProxy(Object args) {
+    public void removeProxy(Object args) {
         removeProxy(args, true);
     }
 

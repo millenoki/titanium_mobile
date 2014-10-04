@@ -210,7 +210,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
-		if (!(opened || opening)) {
+		if (!(opened || opening)) { 
+		    
 			return;
 		}
 		if (lightweight) {

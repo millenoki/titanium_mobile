@@ -22,11 +22,14 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.KrollProxyReusableListener;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
@@ -35,6 +38,8 @@ import ti.modules.titanium.ui.widget.listview.TiListViewTemplate.DataItem;
 import android.annotation.SuppressLint;
 import android.os.Message;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {})
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -54,8 +59,11 @@ public class ListSectionProxy extends ViewProxy {
 	private String headerTitle;
 	private String footerTitle;
 
-	private Object headerView;
-	private Object footerView;
+	private Object headerViewArg;
+	private Object footerViewArg;
+	
+	private TiViewProxy headerView;
+	private TiViewProxy footerView;
 	
 	private int sectionIndex;
 
@@ -170,10 +178,10 @@ public class ListSectionProxy extends ViewProxy {
 			footerTitle = TiConvert.toString(dict, TiC.PROPERTY_FOOTER_TITLE);
 		}
 		if (dict.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
-			headerView = dict.get(TiC.PROPERTY_HEADER_VIEW);
+			headerViewArg = dict.get(TiC.PROPERTY_HEADER_VIEW);
 		}
 		if (dict.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
-			footerView = dict.get(TiC.PROPERTY_FOOTER_VIEW);
+			footerViewArg = dict.get(TiC.PROPERTY_FOOTER_VIEW);
 		}
 		if (dict.containsKey(TiC.PROPERTY_ITEMS)) {
 			handleSetItems(dict.get(TiC.PROPERTY_ITEMS));
@@ -190,27 +198,27 @@ public class ListSectionProxy extends ViewProxy {
 	@Kroll.method
 	@Kroll.setProperty
 	public void setHeaderView(TiViewProxy headerView) {
-		this.headerView = headerView;
+		this.headerViewArg = headerView;
 		notifyDataChange();
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
 	public Object getHeaderView() {
-		return headerView;
+		return headerViewArg;
 	}
 
 	@Kroll.method
 	@Kroll.setProperty
 	public void setFooterView(TiViewProxy footerView) {
-		this.footerView = footerView;
+		this.footerViewArg = footerView;
 		notifyDataChange();
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
 	public Object getFooterView() {
-		return footerView;
+		return footerViewArg;
 	}
 
 	@Kroll.method
@@ -240,7 +248,7 @@ public class ListSectionProxy extends ViewProxy {
 	}
 	
 	public boolean hasHeader() {
-	    return headerView != null || headerTitle != null;
+	    return headerViewArg != null || headerTitle != null;
 	}
 
 	public void notifyDataChange() {
@@ -264,9 +272,9 @@ public class ListSectionProxy extends ViewProxy {
 
 	public View getHeaderOrFooterView(int index) {
 		if (isHeaderView(index)) {
-			return getListView().layoutHeaderOrFooterView(headerView, this);
+			return layoutHeaderOrFooterView(headerViewArg, this, false);
 		} else if (isFooterView(index)) {
-			return getListView().layoutHeaderOrFooterView(footerView, this);
+			return layoutHeaderOrFooterView(footerViewArg, this, true);
 		}
 		return null;
 	}
@@ -945,7 +953,7 @@ public class ListSectionProxy extends ViewProxy {
 			if (hasHeader()) {
 				totalCount += 1;
 			}
-			if (footerTitle != null || footerView != null) {
+			if (footerTitle != null || footerViewArg != null) {
 				totalCount += 1;
 			}
 		}
@@ -967,11 +975,11 @@ public class ListSectionProxy extends ViewProxy {
 	}
 
 	public boolean isHeaderView(int pos) {
-		return (headerView != null && pos == 0);
+		return (headerViewArg != null && pos == 0);
 	}
 
 	public boolean isFooterView(int pos) {
-		return (footerView != null && pos == getItemCount() - 1);
+		return (footerViewArg != null && pos == getItemCount() - 1);
 	}
 
 	public boolean isHeaderTitle(int pos) {
@@ -1085,5 +1093,61 @@ public class ListSectionProxy extends ViewProxy {
     public void setIndex(int index) {
         this.sectionIndex = index;
         
+    }
+    
+    public View layoutHeaderOrFooterView (Object params, TiViewProxy parent, boolean isFooter) {
+        TiViewProxy viewProxy = null;
+        int id = TiListView.HEADER_FOOTER_WRAP_ID;
+        if (isFooter) {
+            if (this.footerView == null || this.footerView.getParent() != parent) {
+                if (this.footerView != null) {
+                    this.footerView.releaseViews(false);
+                    this.footerView.setParent(null);
+                    this.footerView = null;
+                }
+                if (params instanceof TiViewProxy) {
+                    this.footerView = (TiViewProxy)params;
+                }
+                else if(params instanceof HashMap) {
+                    this.footerView = (TiViewProxy) parent.createProxyFromTemplate((HashMap) params, parent, true);
+                }
+            }
+            viewProxy = this.footerView;
+        }
+        else {
+            if (this.headerView == null || this.headerView.getParent() != parent) {
+                if (this.headerView != null) {
+                    this.headerView.releaseViews(false);
+                    this.headerView.setParent(null);
+                    this.headerView = null;
+                }
+                if (params instanceof TiViewProxy) {
+                    this.headerView = (TiViewProxy)params;
+                }
+                else if(params instanceof HashMap) {
+                    this.headerView = (TiViewProxy) parent.createProxyFromTemplate((HashMap) params, parent, true);
+                }
+            }
+            viewProxy = this.headerView;
+        }
+        if (viewProxy == null) return null;
+        viewProxy.setParent(parent);
+        TiUIView tiView = viewProxy.getOrCreateView();
+        if (tiView == null) return null;
+        View outerView = tiView.getOuterView();
+        ViewGroup parentView = (ViewGroup) outerView.getParent();
+        if (parentView != null && parentView.getId() == id) {
+            return parentView;
+        } else {
+            //add a wrapper so layout params such as height, width takes in effect.
+            TiCompositeLayout wrapper = new TiCompositeLayout(viewProxy.getActivity(), LayoutArrangement.DEFAULT, null);
+            AbsListView.LayoutParams layoutParams = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT);
+            wrapper.setLayoutParams(layoutParams);
+            if (outerView != null) {
+                wrapper.addView(outerView, tiView.getLayoutParams());
+            }
+            wrapper.setId(id);
+            return wrapper;
+        }
     }
 }
