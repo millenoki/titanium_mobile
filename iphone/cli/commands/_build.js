@@ -975,7 +975,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
 										});
 										_t.conf.options['developer-name'].required = true;
-										_t.conf.options['pp-uuid'].required = true;
+										_t.conf.options['pp-uuid'].required = !cli.argv.xcode;
 										break;
 
 									case 'dist-adhoc':
