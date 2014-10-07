@@ -959,15 +959,6 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
             this.includeAllTiModules = true;
             this.proguard = false;
     }
-
-    if (cli.tiapp.properties['ti.android.compilejs']) {
-        logger.warn(__('The %s tiapp.xml property has been deprecated, please use the %s option to bypass JavaScript minification', 'ti.android.compilejs'.cyan, '--skip-js-minify'.cyan));
-    }
-
-    if (cli.argv['skip-js-minify']) {
-        this.minifyJS = false;
-    }
-
     // check the app name
     if (cli.tiapp.name.indexOf('&') != -1) {
         if (config.get('android.allowAppNameAmpersands', false)) {
@@ -1782,19 +1773,19 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     var loadFromSDCardProp = this.tiapp.properties['ti.android.loadfromsdcard'];
     this.loadFromSDCard = loadFromSDCardProp && loadFromSDCardProp.value === true;
 
-    if (argv.target != 'dist-appstore') {
+    if (argv.target != 'dist-playstore') {
         // determine if we're going to be minifying javascript
         var compileJSProp = this.tiapp.properties['ti.compilejs'];
         if (argv['skip-js-minify']) {
-            if (this.compileJS) {
+            if (this.minifyJS) {
                 logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', '--skip-js-minify'.cyan));
             }
-            this.compileJS = this.encryptJS = this.minifyJS = false;
+            this.encryptJS = this.minifyJS = false;
         } else if (compileJSProp) {
-            if (this.compileJS && !compileJSProp.value) {
+            if (this.minifyJS && !compileJSProp.value) {
                 logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.compilejs'.cyan));
             }
-            this.compileJS = this.encryptJS = this.minifyJS = !!compileJSProp.value;
+            this.encryptJS = this.minifyJS = !!compileJSProp.value;
         }
     }
 
@@ -1851,6 +1842,8 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 
     this.logger.debug(__('App ID: %s', this.appid.cyan));
     this.logger.debug(__('Classname: %s', this.classname.cyan));
+    this.logger.debug(__('minifyJS: %s', this.minifyJS.cyan));
+    this.logger.debug(__('encryptJS: %s', this.encryptJS.cyan));
 
     if (this.allowDebugging && this.debugPort) {
         this.logger.info(__('Debugging enabled via debug port: %s', String(this.debugPort).cyan));
