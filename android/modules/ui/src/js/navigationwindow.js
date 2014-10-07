@@ -39,7 +39,7 @@ exports.bootstrap = function(Titanium) {
 		if (this.currentState == this.state.opened) {
 			return;
 		}
-		
+
 		this.currentState = this.state.opening;
 		_open.call(this, options);
 		this.currentState = this.state.opened;
@@ -86,7 +86,6 @@ exports.bootstrap = function(Titanium) {
 				});
 			}
 
-		kroll.log(TAG, "openWindow");
 		_openWindow.call(this, window, options);
 	}
 
