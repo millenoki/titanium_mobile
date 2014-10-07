@@ -869,7 +869,6 @@ public class ListSectionProxy extends ViewProxy {
 			if (modelListener instanceof TiUIView) {
 	            ((TiUIView)modelListener).setTouchDelegate((TiTouchDelegate) listItem);
             }
-            proxy.setSetPropertyListener(itemProxy);
 			// update extra event data for views
 			appendExtraEventData((KrollProxyReusableListener) modelListener, realItemIndex, sectionIndex, binding, itemId);
 			// if binding is contain in data given to us, process that data,
@@ -899,6 +898,9 @@ public class ListSectionProxy extends ViewProxy {
 						+ " isn't a valid binding. Perhaps you made a typo?",
 						Log.DEBUG_MODE);
 			}
+			
+            proxy.setSetPropertyListener(itemProxy);
+            
 			if (reusing) {
 			    ((KrollProxyReusableListener) modelListener).setReusing(false);
 			}
