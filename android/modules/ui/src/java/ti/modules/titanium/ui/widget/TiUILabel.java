@@ -263,7 +263,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	        };
 	        
 	        currentTransitionSet = TransitionHelper.transitionViews(this, textView, oldTextView, onDone, transition, getTextLayoutParams());
-			requestLayout();
+//			requestLayout();
 		}
 	}
 
