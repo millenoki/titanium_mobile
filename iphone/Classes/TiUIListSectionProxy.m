@@ -103,6 +103,14 @@
     }
 }
 
+-(TiViewProxy*)currentViewForLocation:(NSString*)location inListView:(TiUIListView*)listView
+{
+    if ([_storedSectionViews objectForKey:location]) {
+        return [[[_storedSectionViews objectForKey:location] children] firstObject];
+    }
+    return nil;
+}
+
 -(TiViewProxy*)sectionViewForLocation:(NSString*)location inListView:(TiUIListView*)listView
 {
     if ([_storedSectionViews objectForKey:location]) {

@@ -62,6 +62,10 @@
 @property (nonatomic,copy,readwrite) NSString * searchString;
 @end
 
+@interface TiUIListSectionProxy()
+-(TiViewProxy*)currentViewForLocation:(NSString*)location inListView:(TiUIListView*)listView;
+@end
+
 
 @implementation TiUIListView {
     TiTableView *_tableView;
@@ -112,6 +116,8 @@
     BOOL _scrollHidesKeyboard;
     BOOL hasOnDisplayCell;
     BOOL _updateInsetWithKeyboard;
+    
+    NSInteger _currentSection;
 }
 
 static NSDictionary* replaceKeysForRow;
@@ -142,6 +148,7 @@ static NSDictionary* replaceKeysForRow;
         hideOnSearch = NO;
         searchViewAnimating = NO;
         _updateInsetWithKeyboard = NO;
+        _currentSection = -1;
     }
     return self;
 }
@@ -446,6 +453,12 @@ static NSDictionary* replaceKeysForRow;
 {
     TiUIListSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
     return [proxy sectionViewForLocation:location inListView:self];
+}
+
+-(TiViewProxy*)currentSectionViewProxy:(NSInteger)section forLocation:(NSString*)location
+{
+    TiUIListSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
+    return [proxy currentViewForLocation:location inListView:self];
 }
 
 -(UIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUIListSectionProxy**)sectionResult
@@ -1959,6 +1972,26 @@ static NSDictionary* replaceKeysForRow;
 	}
 }
 
+-(void)detectSectionChange {
+    NSArray* visibles = [_tableView indexPathsForVisibleRows];
+    NSIndexPath* indexPath = [visibles firstObject];
+    NSInteger section = [indexPath section];
+    if (_currentSection != section) {
+        _currentSection = section;
+        if ([self.proxy _hasListeners:@"headerchange" checkParent:NO])
+        {
+            NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:_tableView];
+            [event setObject:NUMINT(indexPath.row) forKey:@"firstVisibleItem"];
+            [event setObject:NUMINT([visibles count]) forKey:@"visibleItemCount"];
+            TiViewProxy* headerView = [self currentSectionViewProxy:_currentSection forLocation:@"headerView"];
+            if (headerView) {
+                [event setObject:headerView forKey:@"headerView"];
+            }
+            [self.proxy fireEvent:@"headerchange" withObject:event checkForListener:NO];
+        }
+    }
+}
+
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (scrollView.isDragging || scrollView.isDecelerating)
@@ -1981,7 +2014,7 @@ static NSDictionary* replaceKeysForRow;
             [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] propagate:NO checkForListener:NO];
         }
     }
-    
+    [self detectSectionChange];
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
@@ -1996,16 +2029,21 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if (decelerate==NO && _scrollSuspendImageLoading)
+    if (decelerate==NO)
 	{
-		// resume image loader when we're done scrolling
-		[[ImageLoader sharedLoader] resume];
+        [self detectSectionChange];
+        if (_scrollSuspendImageLoading) {
+            // resume image loader when we're done scrolling
+            [[ImageLoader sharedLoader] resume];
+        }
+		
 	}
 	if ([(TiViewProxy*)self.proxy _hasListeners:@"dragend" checkParent:NO])
 	{
 		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil] propagate:NO checkForListener:NO];
 	}
     
+    [self detectSectionChange];
     
     if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
         pullActive = NO;
@@ -2021,6 +2059,7 @@ static NSDictionary* replaceKeysForRow;
 	{
 		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView] propagate:NO checkForListener:NO];
 	}
+    [self detectSectionChange];
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
