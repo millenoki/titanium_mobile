@@ -918,8 +918,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 picasso.load(loadingUrl).into(this);
            } else {
                boolean shouldTransition = !onlyTransitionIfRemote;
+               String cacheKey = imageref.getCacheKey();
                Cache cache = TiApplication.getImageMemoryCache();
-               Bitmap bitmap = cache.get(imageref.getUrl());
+               Bitmap bitmap = (cacheKey != null)?cache.get(cacheKey):null;
                Drawable drawable = null;
                if (bitmap == null) {
                    shouldTransition = true;
@@ -930,7 +931,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                    drawable = imageref.getDrawable();
                    if (drawable instanceof BitmapDrawable) {
                        bitmap = ((BitmapDrawable)drawable).getBitmap();
-                       cache.set(imageref.getUrl(), bitmap);
+                       if (cacheKey != null) {
+                           cache.set(cacheKey, bitmap);
+                       }
                    }
                } else {
                    drawable = new BitmapDrawable(getContext().getResources(), bitmap);

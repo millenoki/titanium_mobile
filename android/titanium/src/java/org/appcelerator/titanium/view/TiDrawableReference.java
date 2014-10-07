@@ -1007,4 +1007,18 @@ public class TiDrawableReference
 	{
 		return url;
 	}
+	
+	public String getCacheKey()
+    {
+	    if (url != null) {
+	        return url;
+	    }
+	    if (file != null) {
+            return file.nativePath();
+        }
+	    if (blob != null) {
+            return blob.getNativePath();
+        }
+        return null;
+    }
 }
