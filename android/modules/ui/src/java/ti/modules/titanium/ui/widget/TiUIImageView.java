@@ -888,7 +888,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         // Set default image or clear previous image first.
         setDefaultImage(false);
 
-        if (imageSources == null || imageSources.size() == 0
+        if (imageSources == null || 
+                imageSources.size() == 0
                 || imageSources.get(0) == null
                 || imageSources.get(0).isTypeNull()) {
             //here we can transition to the default image

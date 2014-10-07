@@ -5,6 +5,7 @@ package yaochangwei.pulltorefreshlistview.widget;
  * 
  *  Refreshable ListView base class. 
  */
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -12,9 +13,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
-public class RefreshableListView extends ListView {
+public class RefreshableListView extends StickyListHeadersListView {
 
 	private static final int STATE_NORMAL = 0;
 	private static final int STATE_READY = 1;

@@ -2,12 +2,13 @@ package ti.modules.titanium.ui.widget.listview;
 
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
+import ti.modules.titanium.ui.widget.CustomListView;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
 public class TiBaseListViewItemHolder extends TiCompositeLayout {
-	private ListView listView = null;
+	private CustomListView listView = null;
 
 	public TiBaseListViewItemHolder(Context context) {
 		super(context);
@@ -16,8 +17,8 @@ public class TiBaseListViewItemHolder extends TiCompositeLayout {
 	public TiBaseListViewItemHolder(Context context, AttributeSet set) {
 		super(context, set);
 	}
-	public void setListView(ListView listView_) {
-		listView = listView_;
+	public void setListView(CustomListView listView2) {
+		listView = listView2;
 	}
 
 	@Override

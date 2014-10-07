@@ -22,6 +22,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
 import ti.modules.titanium.ui.widget.CustomListView;
@@ -80,7 +81,7 @@ public class TiTableView extends FrameLayout
 		public boolean onLongClick(KrollDict item);
 	}
 
-	class TTVListAdapter extends BaseAdapter {
+	class TTVListAdapter extends BaseAdapter implements StickyListHeadersAdapter {
 		TableViewModel viewModel;
 		ArrayList<Integer> index;
 		private boolean filtered;
@@ -316,6 +317,18 @@ public class TiTableView extends FrameLayout
 		public boolean isFiltered() {
 			return filtered;
 		}
+
+        @Override
+        public long getHeaderId(int arg0) {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public View getHeaderView(int arg0, View arg1, ViewGroup arg2) {
+            // TODO Auto-generated method stub
+            return null;
+        }
 	}
 
 	public TiTableView(TableViewProxy proxy)
@@ -336,8 +349,8 @@ public class TiTableView extends FrameLayout
 		listView.setFocusable(true);
 		listView.setFocusableInTouchMode(true);
 		listView.setBackgroundColor(Color.TRANSPARENT);
-		listView.setCacheColorHint(Color.TRANSPARENT);
-		listView.setScrollingCacheEnabled(false);
+		getInternalListView().setCacheColorHint(Color.TRANSPARENT);
+		getInternalListView().setScrollingCacheEnabled(false);
 		final KrollProxy fProxy = proxy;
 		listView.setOnScrollListener(new OnScrollListener()
 		{
@@ -489,8 +502,12 @@ public class TiTableView extends FrameLayout
 		return null;
 	}
 
+    private ListView getInternalListView() {
+        return listView.getWrappedList();
+    }
+    
 	public void enableCustomSelector() {
-		Drawable currentSelector = listView.getSelector();
+		Drawable currentSelector = getInternalListView().getSelector();
 		if (currentSelector != selector) {
 			selector = new StateListDrawable();
 			TiTableViewSelector selectorDrawable = new TiTableViewSelector (listView);

@@ -177,7 +177,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_HEADING = "heading";
-	
+
+    /**
+     * @module.api
+     */
+    public static final String EVENT_HEADER_CHANGE = "headerchange";
+    
 	/**
 	 * @module.api
 	 */
@@ -2604,11 +2609,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SISTER = "sister";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_SIZE = "size";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SIZE = "size";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_STICKY_HEADERS = "stickyHeaders";
 
 	/**
 	 * @module.api

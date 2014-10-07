@@ -25,6 +25,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.KrollProxyReusableListener;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiTouchDelegate;
@@ -212,6 +213,10 @@ public class ListSectionProxy extends ViewProxy {
 	public Object getHeaderView() {
 		return headerViewArg;
 	}
+	
+	public TiViewProxy getCurrentHeaderViewProxy() {
+	    return headerView;
+	}
 
 	@Kroll.method
 	@Kroll.setProperty
@@ -280,14 +285,16 @@ public class ListSectionProxy extends ViewProxy {
 		return "";
 	}
 
-	public View getHeaderOrFooterView(int index) {
-		if (isHeaderView(index)) {
-			return layoutHeaderOrFooterView(headerViewArg, this, false);
-		} else if (isFooterView(index)) {
-			return layoutHeaderOrFooterView(footerViewArg, this, true);
-		}
-		return null;
+	public View getOrCreateHeaderView() {
+		return layoutHeaderOrFooterView(headerViewArg, this, false);
 	}
+	
+	public View getOrCreateFooterView(int index) {
+        if (isFooterView(index)) {
+            return layoutHeaderOrFooterView(footerViewArg, this, true);
+        }
+        return null;
+    }
 
 	@Override
 	public boolean handleMessage(Message msg) {
@@ -682,9 +689,9 @@ public class ListSectionProxy extends ViewProxy {
 	        return;
 	    }
 	    int nonRealItemIndex = itemIndex;
-	    if (hasHeader()) {
-	        nonRealItemIndex += 1;
-	    }
+//	    if (hasHeader()) {
+//	        nonRealItemIndex += 1;
+//	    }
 	    
 	    TiListView listView = getListView();
         
@@ -781,9 +788,9 @@ public class ListSectionProxy extends ViewProxy {
 	
 	public int getUserItemIndexFromSectionPosition(final int position) {
 	    int result = position;
-	    if (hasHeader()) {
-	        result -= 1;
-        }
+//	    if (hasHeader()) {
+//	        result -= 1;
+//        }
 	    return getRealPosition(result);
 	}
 
@@ -926,9 +933,9 @@ public class ListSectionProxy extends ViewProxy {
 	}
 
 	public String getTemplateByIndex(int index) {
-        if (hasHeader()) {
-			index -= 1;
-		}
+//        if (hasHeader()) {
+//			index -= 1;
+//		}
 
 		if (isFilterOn()) {
 			return getItemDataAt(filterIndices.get(index)).getTemplate();
@@ -960,16 +967,20 @@ public class ListSectionProxy extends ViewProxy {
     			totalCount = itemCount;
     		}
 		}
+		else if (!hideHeaderOrFooter() && hasHeader()) {
+		    totalCount += 1;
+		}
 
 		if (!hideHeaderOrFooter()) {
-			if (hasHeader()) {
-				totalCount += 1;
-			}
+//			if (hasHeader()) {
+//				totalCount += 1;
+//			}
 			if (footerTitle != null || footerViewArg != null) {
 				totalCount += 1;
 			}
 		}
-		return totalCount - getHiddenCount();
+		totalCount -= getHiddenCount();
+		return totalCount;
 	}
 
 	private int getHiddenCount() {
@@ -1033,9 +1044,9 @@ public class ListSectionProxy extends ViewProxy {
 //	}
 
 	public ListItemData getListItem(int position) {
-        if (hasHeader()) {
-			position -= 1;
-		}
+//        if (hasHeader()) {
+//			position -= 1;
+//		}
 
 		if (isFilterOn()) {
 			return getItemDataAt(filterIndices.get(position));
@@ -1107,6 +1118,10 @@ public class ListSectionProxy extends ViewProxy {
         
     }
     
+    public int getIndex() {
+        return this.sectionIndex;
+    }
+    
     public View layoutHeaderOrFooterView (Object params, TiViewProxy parent, boolean isFooter) {
         TiViewProxy viewProxy = null;
         int id = TiListView.HEADER_FOOTER_WRAP_ID;
@@ -1143,6 +1158,7 @@ public class ListSectionProxy extends ViewProxy {
             viewProxy = this.headerView;
         }
         if (viewProxy == null) return null;
+        
         viewProxy.setParent(parent);
         TiUIView tiView = viewProxy.getOrCreateView();
         if (tiView == null) return null;
