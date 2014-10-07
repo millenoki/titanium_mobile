@@ -167,6 +167,7 @@ public class ParentingProxy extends KrollProxy {
      */
     @Kroll.method
     public void add(Object args, @Kroll.argument(optional = true) Object index) {
+        if (args == null) return;
         if (args instanceof Object[]) {
             int i = -1; // no index by default
             if (index instanceof Number) {
