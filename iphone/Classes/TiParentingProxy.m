@@ -5,6 +5,8 @@
 @implementation TiParentingProxy
 {
     BOOL _unarchiving;
+    NSMutableDictionary* _holdedProxies;
+    pthread_rwlock_t _holdedProxiesLock;
 }
 @synthesize children;
 @synthesize parent;
@@ -17,13 +19,14 @@
         _unarchiving = NO;
 		pthread_rwlock_init(&childrenLock, NULL);
         childrenCount = 0;
+        pthread_rwlock_init(&_holdedProxiesLock, NULL);
+        _holdedProxies = [[NSMutableDictionary alloc] init];
 	}
 	return self;
 }
 
 -(void)dealloc
 {
-
 	[super dealloc];
 }
 
@@ -48,6 +51,19 @@
 	RELEASE_TO_NIL(children);
 	pthread_rwlock_unlock(&childrenLock);
 	pthread_rwlock_destroy(&childrenLock);
+    
+    pthread_rwlock_wrlock(&_holdedProxiesLock);
+    NSArray* holded = [[_holdedProxies allValues] retain];
+    RELEASE_TO_NIL(_holdedProxies);
+    pthread_rwlock_unlock(&_holdedProxiesLock);
+    pthread_rwlock_destroy(&_holdedProxiesLock);
+    for (TiProxy* proxy in holded) {
+        if ([proxy respondsToSelector:@selector(setParent:)]) {
+            [(id)proxy setParent:nil];
+        }
+    }
+    [holded release];
+    
 	[super _destroy];
 }
 
@@ -85,6 +101,14 @@
     NSArray* copy = [children mutableCopy];
 	pthread_rwlock_unlock(&childrenLock);
 	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
+}
+
+-(NSUInteger)childrenCount {
+    NSUInteger result = 0;
+    pthread_rwlock_rdlock(&childrenLock);
+    result = [children count];
+    pthread_rwlock_unlock(&childrenLock);
+    return result;
 }
 
 -(BOOL)containsChild:(TiProxy*)child
@@ -240,7 +264,7 @@
 	NSArray* childrenArray = [[self children] retain];
     for (id child in childrenArray) {
         if ([child respondsToSelector:@selector(parentListenersChanged)]) {
-            [child parentListenersChanged];
+            [child performSelector:@selector(parentListenersChanged)];
         }
     }
 	[childrenArray release];
@@ -252,7 +276,7 @@
     NSArray* childrenArray = [[self children] retain];
     for (id child in childrenArray) {
         if ([child respondsToSelector:@selector(parentListenersChanged)]) {
-            [child parentListenersChanged];
+            [child performSelector:@selector(parentListenersChanged)];
         }
     }
     [childrenArray release];
@@ -287,7 +311,7 @@
 }
 
 
-- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy
+- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy
 {
 	if (dictionary == nil) {
 		return;
@@ -368,5 +392,60 @@
     }
     return result;
 }
+
+-(void)runBlock:(void (^)(TiProxy* proxy))block recursive:(BOOL)recursive
+{
+//    if (recursive)
+//    {
+    pthread_rwlock_rdlock(&childrenLock);
+    NSArray* subproxies = [self children];
+    pthread_rwlock_unlock(&childrenLock);
+    for (TiProxy * thisChildProxy in subproxies)
+    {
+        block(thisChildProxy);
+        if (recursive && IS_OF_CLASS(thisChildProxy, TiParentingProxy)) {
+            [(TiParentingProxy*)thisChildProxy runBlock:block recursive:recursive];
+        }
+    }
+//    }
+}
+
+-(void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object
+{
+    [[self children] makeObjectsPerformSelector:selector withObject:object];
+}
+
+-(void)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key
+{
+    if ([_holdedProxies objectForKey:key]) {
+        NSLog(@"[WARN] there is already an holded proxy for the key %@", key);
+        return;
+    }
+    [self rememberProxy:proxy];
+    if ([proxy respondsToSelector:@selector(setParent:)]) {
+        [(id)proxy setParent:self];
+    }
+    [_holdedProxies setValue:proxy forKey:key];
+}
+
+-(void)removeHoldedProxyForKey:(NSString*)key
+{
+    TiProxy* proxy = [_holdedProxies objectForKey:key];
+    if (!proxy) {
+        NSLog(@"[WARN] there is no holded proxy for the key %@", key);
+        return;
+    }
+    if ([proxy respondsToSelector:@selector(setParent:)]) {
+        [(id)proxy setParent:nil];
+    }
+    [self forgetProxy:proxy];
+    [_holdedProxies removeObjectForKey:key];
+}
+
+-(TiProxy*)holdedProxyForKey:(NSString*)key
+{
+    return [_holdedProxies objectForKey:key];
+}
+
 
 @end

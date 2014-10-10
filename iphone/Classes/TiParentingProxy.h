@@ -60,5 +60,11 @@
  */
 -(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiProxy*)child;
 -(BOOL)containsChild:(TiProxy*)child;
+-(NSUInteger)childrenCount;
+-(void)runBlock:(void (^)(TiProxy* proxy))block recursive:(BOOL)recursive;
+-(void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object;
 
+-(void)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key;
+-(void)removeHoldedProxyForKey:(NSString*)key;
+-(TiProxy*)holdedProxyForKey:(NSString*)key;
 @end
