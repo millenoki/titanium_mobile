@@ -226,10 +226,9 @@ static NSSet* transferableProps = nil;
     return nil;
 }
 
--(void)handlePendingAnimation
+-(BOOL)readyToAnimate
 {
-    if (![self viewInitialized] || !allowContentChange)return;
-    [super handlePendingAnimation];
+    return [self viewInitialized] && allowContentChange;
 }
 
 -(void)handlePendingAnimation:(TiAnimation*)pendingAnimation

@@ -21,6 +21,7 @@
 -(void)removeRunningAnimation:(TiAnimation *)animation;
 
 -(BOOL)animating;
+-(BOOL)readyToAnimate;
 -(void)playAnimation:(HLSAnimation*)animation withRepeatCount:(NSUInteger)repeatCount afterDelay:(double)delay;
 
 #pragma Public API

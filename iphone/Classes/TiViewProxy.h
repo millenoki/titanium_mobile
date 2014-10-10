@@ -631,6 +631,7 @@ Set the animation on its view and all it's children
 -(TiUIView*) getAndPrepareViewForOpening:(CGRect)bounds;
 -(TiUIView*) getAndPrepareViewForOpening;
 +(void)reorderViewsInParent:(UIView*)parentView;
+
 @end
 
 

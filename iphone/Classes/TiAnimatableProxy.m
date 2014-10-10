@@ -160,6 +160,9 @@
 
 -(void)handlePendingAnimation
 {
+    if (![self readyToAnimate]) {
+        return;
+    }
     pthread_rwlock_rdlock(&pendingLock);
     if ([_pendingAnimations count] == 0) {
         pthread_rwlock_unlock(&pendingLock);
@@ -226,6 +229,11 @@
 }
 
 -(BOOL)canAnimateWithoutParent
+{
+    return NO;
+}
+
+-(BOOL)readyToAnimate
 {
     return NO;
 }
