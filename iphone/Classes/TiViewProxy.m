@@ -40,6 +40,7 @@
 {
     BOOL needsContentChange;
     BOOL allowContentChange;
+    BOOL instantUpdates;
 	unsigned int animationDelayGuard;
     BOOL _transitioning;
     id _pendingTransition;
@@ -69,6 +70,20 @@ static NSSet* transferableProps = nil;
 	[self replaceValue:NUMINT(vzIndex) forKey:@"vzIndex" notification:NO];
 	[self willChangeZIndex];
 }
+
+-(void)setInstantUpdates:(BOOL)value
+{
+    if(value == instantUpdates)
+    {
+        return;
+    }
+    
+    instantUpdates = value;
+    [self replaceValue:NUMBOOL(instantUpdates) forKey:@"instantUpdates" notification:NO];
+}
+
+
+
 
 -(NSString*)apiName
 {
@@ -1797,6 +1812,7 @@ SEL GetterForKrollProperty(NSString * key)
         [self resetDefaultValues];
         _transitioning = NO;
         vzIndex = 0;
+        instantUpdates = NO;
         _canBeResizedByFrame = NO;
 	}
 	return self;
@@ -2186,7 +2202,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(void)willEnqueue
 {
 	SET_AND_PERFORM(TiRefreshViewEnqueued,return);
-    if (!allowContentChange) return;
+    if (!allowContentChange || instantUpdates) return;
 	[TiLayoutQueue addViewProxy:self];
 }
 
@@ -2258,6 +2274,10 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	
     if (!allowContentChange) return;
     [self makeChildrenPerformSelector:@selector(parentSizeWillChange) withObject:nil];
+    
+    if (instantUpdates) {
+        [self refreshViewOrParent];
+    }
 }
 
 -(void)willChangePosition
