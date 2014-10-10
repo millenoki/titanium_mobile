@@ -95,14 +95,13 @@ static NSSet* transferableProps = nil;
     {
         pthread_rwlock_rdlock(&childrenLock);
         NSArray* subproxies = onlyVisible?[self visibleChildren]:[self viewChildren];
+        pthread_rwlock_unlock(&childrenLock);
         for (TiViewProxy * thisChildProxy in subproxies)
         {
             block(thisChildProxy);
             [thisChildProxy runBlock:block onlyVisible:onlyVisible recursive:recursive];
         }
-        pthread_rwlock_unlock(&childrenLock);
     }
-//    block(self);
 }
 
 -(void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object
@@ -1799,7 +1798,6 @@ SEL GetterForKrollProperty(NSString * key)
         _transitioning = NO;
         vzIndex = 0;
         _canBeResizedByFrame = NO;
-//        _runningViewAnimations = [[NSMutableArray alloc] init];
 	}
 	return self;
 }
@@ -2020,7 +2018,8 @@ SEL GetterForKrollProperty(NSString * key)
 		[destroyLock unlock];
 		return;
 	}
-	// _destroy is called during a JS context shutdown, to inform the object to 
+    
+	// _destroy is called during a JS context shutdown, to inform the object to
 	// release all its memory and references.  this will then cause dealloc 
 	// on objects that it contains (assuming we don't have circular references)
 	// since some of these objects are registered in the context and thus still
