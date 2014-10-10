@@ -1747,8 +1747,8 @@ SEL GetterForKrollProperty(NSString * key)
 -(BOOL)viewReady
 {
 	return view!=nil &&
-			CGRectIsNull(view.bounds)==NO &&
-			[view superview] != nil;
+			CGRectIsNull([view layer].bounds)==NO &&
+			[[view layer] superlayer] != nil;
 }
 
 -(BOOL)windowHasOpened
@@ -2972,9 +2972,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 	IGNORE_IF_NOT_OPENED
 	
-	BOOL containsChild = [[self children] containsObject:child];
-
-	ENSURE_VALUE_CONSISTENCY(containsChild,YES);
+//	BOOL containsChild = [[self children] containsObject:child];
+//
+//	ENSURE_VALUE_CONSISTENCY(containsChild,YES);
 
 	if (![self absoluteLayout])
 	{
@@ -3038,8 +3038,8 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 {
 	IGNORE_IF_NOT_OPENED
 	
-	UIView* superview = [[self view] superview];
-	if (![self viewAttached] || view.hidden || superview == nil)
+//	UIView* superview = [[self view] superview];
+	if (![self viewReady] || view.hidden)
 	{
 		VerboseLog(@"[INFO] Reposition is exiting early in %@.",self);
 		return;
