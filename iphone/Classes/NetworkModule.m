@@ -25,6 +25,8 @@
 #import <arpa/inet.h>
 #import "Reachability.h"
 
+@import CoreTelephony;
+
 NSString* const WIFI_IFACE = @"en0";
 NSString* const DATA_IFACE = @"pdp_ip0";
 
