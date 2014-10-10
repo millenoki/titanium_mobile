@@ -26,6 +26,8 @@
 #import "TiViewAnimationStep.h"
 #import "TiBorderLayer.h"
 
+static NSString * const kTiViewShapeMaskKey = @"kTiViewShapeMask";
+
 @interface TiViewProxy()
 -(UIViewController*)getContentController;
 @end
@@ -678,11 +680,17 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if (_bgLayer) {
         _bgLayer.frame = UIEdgeInsetsInsetRect(bounds, _backgroundPadding);
     }
-
     if (self.layer.mask != nil) {
         [self.layer.mask setFrame:bounds];
     }
     [self updateTransform];
+    TiProxy* maskProxy = [[self viewProxy] holdedProxyForKey:kTiViewShapeMaskKey];
+    if (maskProxy) {
+        if (IS_OF_CLASS(maskProxy, TiViewProxy)) {
+            [(TiViewProxy*)maskProxy setSandboxBounds:bounds];
+            [(TiViewProxy*)maskProxy refreshView];
+        }
+    }
 }
 
 
@@ -2558,6 +2566,22 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(UIViewController*)getContentController
 {
     return ([[self viewProxy] getContentController]);
+}
+
+-(void)setMaskFromView_:(id)arg
+{
+    TiViewProxy* viewProxy = [self viewProxy];
+    TiProxy* vp = [viewProxy createChildFromObject:arg];
+    TiProxy* current = [[self viewProxy] holdedProxyForKey:kTiViewShapeMaskKey];
+    if (IS_OF_CLASS(current, TiViewProxy)) {
+        [[[(TiViewProxy*)current view] layer] removeFromSuperlayer];
+        [[self viewProxy] removeHoldedProxyForKey:kTiViewShapeMaskKey];
+    }
+    if (IS_OF_CLASS(vp, TiViewProxy)) {
+        [[self viewProxy] addProxyToHold:vp forKey:kTiViewShapeMaskKey];
+        self.layer.mask = [[(TiViewProxy*)vp getAndPrepareViewForOpening] layer];
+    }
+    [self.layer setNeedsDisplay];
 }
 
 @end
