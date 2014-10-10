@@ -1400,7 +1400,7 @@ DEFINE_EXCEPTIONS
     return proxy;
 }
 
-- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy
+- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy
 {
 	if (dictionary == nil) {
 		return;

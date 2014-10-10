@@ -35,6 +35,7 @@ extern NSString * const TiExceptionMemoryFailure;
 
 @class TiHost;
 @class TiProxy;
+@class TiParentingProxy;
 
 typedef enum {
 	NativeBridge,
@@ -373,7 +374,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 -(id)objectOfClass:(Class)theClass fromArg:(id)arg;
 +(id)objectOfClass:(Class)theClass fromArg:(id)arg inContext:(id<TiEvaluator>)context_;
 +(CFMutableDictionaryRef)classNameLookup;
-- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy;
+- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy;
 - (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents;
 +(Class)proxyClassFromString:(NSString*)qualifiedName;
 
