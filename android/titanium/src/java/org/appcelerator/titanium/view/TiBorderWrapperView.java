@@ -127,6 +127,8 @@ public class TiBorderWrapperView extends MaskableView
 	
 	@Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+	    //we must call super onlayout not to break anything
+	    super.onLayout(changed, l, t, r, b);
 		if (changed) updateBorderPath();
         int parentLeft = 0;
 		int parentRight = r - l;
