@@ -48,7 +48,6 @@ import android.os.Message;
 import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ViewSwitcher;
 
 /**
