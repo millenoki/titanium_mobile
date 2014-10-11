@@ -141,12 +141,12 @@ public class KrollAssetHelper
 
 	public static void getDirectoryListing(String path, List<String> listing)
 	{
-		if (assetCrypt == null) return;
+		if (assetCrypt == null || path == null) return;
 		String resourcePath = path;
-		if (resourcePath != null && resourcePath.startsWith("Resources/")) {
+		if (resourcePath.startsWith("Resources/")) {
 			resourcePath = resourcePath.replace("Resources/", "");
 		}
-		if (resourcePath.endsWith("/")) {
+		if (resourcePath.endsWith("/")) { 
 			resourcePath = resourcePath.substring(0, resourcePath.lastIndexOf("/"));
 		}
 		listing.addAll(assetCrypt.list(resourcePath));
