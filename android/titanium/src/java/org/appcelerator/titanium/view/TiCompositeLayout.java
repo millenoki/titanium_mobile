@@ -190,7 +190,7 @@ public class TiCompositeLayout extends FreeLayout implements
 	}
 
 	public void resort() {
-		if (getVisibility() == View.INVISIBLE || getVisibility() == View.GONE)
+		if (getVisibility() == View.GONE)
 			return;
 		setNeedsSort(true);
 		requestLayout();
@@ -320,8 +320,7 @@ public class TiCompositeLayout extends FreeLayout implements
 		boolean vertical = isVerticalArrangement();
 		for (int i = 0; i < childCount; i++) {
 			View child = getChildAt(i);
-			if (child.getVisibility() == View.INVISIBLE
-					|| child.getVisibility() == View.GONE) {
+			if (child.getVisibility() == View.GONE) {
 				continue;
 			}
 			TiCompositeLayout.LayoutParams params = getChildParams(child);
@@ -715,8 +714,7 @@ public class TiCompositeLayout extends FreeLayout implements
 			int left, int top, int bottom, int right, int currentHeight,
 			int[] horizontal, int[] vertical, boolean firstVisibleChild) {
 
-		if (child.getVisibility() == View.GONE
-				|| child.getVisibility() == View.INVISIBLE)
+		if (child.getVisibility() == View.GONE)
 			return currentHeight;
 
 		int i = indexOfChild(child);
@@ -830,8 +828,7 @@ public class TiCompositeLayout extends FreeLayout implements
 		boolean firstVisibleChild = true;
 		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
-			if (child == null || child.getVisibility() == View.GONE
-					|| child.getVisibility() == View.INVISIBLE)
+			if (child == null || child.getVisibility() == View.GONE)
 				continue;
 
             TiCompositeLayout.LayoutParams params = getChildParams(child);
