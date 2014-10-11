@@ -840,19 +840,30 @@ public class TiUIHelper
 		return imageDrawable;
 	}
 	
-	public static Drawable buildImageDrawable(Context context, Bitmap image, boolean tileImage, KrollProxy proxy) {
-		BitmapDrawable imageDrawable = new BitmapDrawable(context.getResources(), image);
-		
-		if (tileImage) {
-			if (imageDrawable instanceof BitmapDrawable) {
-				BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
-				tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
-				tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
-				imageDrawable = tiledBackground;
-			}
-		}
-		return imageDrawable;
+	public static Drawable buildImageDrawable(Object object, boolean tileImage, KrollProxy proxy) {
+	    Drawable drawable = null;
+        if (object instanceof TiBlob) {
+            drawable = buildImageDrawable(proxy.getActivity(), ((TiBlob)object).getImage(), tileImage, proxy);
+            }
+        else {
+            drawable = buildImageDrawable(TiConvert.toString(object), tileImage, proxy);
+        }
+		return drawable;
 	}
+	
+	public static Drawable buildImageDrawable(Context context, Bitmap image, boolean tileImage, KrollProxy proxy) {
+        BitmapDrawable imageDrawable = new BitmapDrawable(context.getResources(), image);
+        
+        if (tileImage) {
+            if (imageDrawable instanceof BitmapDrawable) {
+                BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
+                tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
+                tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
+                imageDrawable = tiledBackground;
+            }
+        }
+        return imageDrawable;
+    }
 	
 	public static TiGradientDrawable buildGradientDrawable(KrollDict gradientProperties) {
 		TiGradientDrawable gradientDrawable = null;
@@ -903,7 +914,7 @@ public class TiUIHelper
 	 /**
      * Draw the view into a bitmap.
      */
-    private static Bitmap getViewBitmap(View v) {
+    public static Bitmap getViewBitmap(View v) {
         v.clearFocus();
         v.setPressed(false);
 
@@ -921,7 +932,7 @@ public class TiUIHelper
         v.buildDrawingCache();
         Bitmap cacheBitmap = v.getDrawingCache();
         if (cacheBitmap == null) {
-            Log.e(TAG, "failed getViewBitmap(" + v + ")", new RuntimeException());
+            Log.e(TAG, "failed getViewBitmap(" + v + ")");
             return null;
         }
 
