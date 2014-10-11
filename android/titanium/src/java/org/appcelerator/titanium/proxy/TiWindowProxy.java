@@ -552,6 +552,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
 		return TiOrientationHelper.ORIENTATION_UNKNOWN;
 	}
+	
+	   @Kroll.method @Kroll.getProperty
+	    public ActionBarProxy getActionBar()
+	    {
+	       ActivityProxy activityProxy = super.getActivityProxy();
+	       if (activityProxy != null) {
+	           activityProxy.getActionBar();
+	       }
+	       return null;
+	    }
 
 	@Override
 	public KrollProxy getParentForBubbling()
