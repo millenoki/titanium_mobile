@@ -114,7 +114,7 @@ public class ScrollViewProxy extends ViewProxy
 	@Kroll.getProperty @Kroll.method
 	public Object getContentOffset()
 	{
-		return getProperty(TiC.PROPERTY_CONTENT_OFFSET);
+		return getScrollView().getContentOffset();
 	}
 
 	@Kroll.method

@@ -228,12 +228,9 @@ public class TiUIScrollView extends TiUIView
 		protected void onScrollChanged(int l, int t, int oldl, int oldt)
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
-			setContentOffset(l, t);
+            setContentOffset(l, t);
 			if (hasListeners(TiC.EVENT_SCROLL)) {
-				KrollDict data = new KrollDict();
-				data.put(TiC.EVENT_PROPERTY_X, l);
-				data.put(TiC.EVENT_PROPERTY_Y, t);
-				getProxy().fireEvent(TiC.EVENT_SCROLL, data, false, false);
+				getProxy().fireEvent(TiC.EVENT_SCROLL, getContentOffset(), false, false);
 			}
 		}
 
@@ -399,24 +396,34 @@ public class TiUIScrollView extends TiUIView
 
 	public void setContentOffset(int x, int y)
 	{
-		KrollDict offset = new KrollDict();
 		offsetX = x;
 		offsetY = y;
-		offset.put(TiC.EVENT_PROPERTY_X, offsetX);
-		offset.put(TiC.EVENT_PROPERTY_Y, offsetY);
-		getProxy().setProperty(TiC.PROPERTY_CONTENT_OFFSET, offset);
 	}
 
 	public void setContentOffset(Object hashMap)
 	{
 		if (hashMap instanceof HashMap) {
 			HashMap contentOffset = (HashMap) hashMap;
+			
 			offsetX = TiConvert.toInt(contentOffset, TiC.PROPERTY_X);
 			offsetY = TiConvert.toInt(contentOffset, TiC.PROPERTY_Y);
 		} else {
 			Log.e(TAG, "ContentOffset must be an instance of HashMap");
 		}
 	}
+	
+	public KrollDict getContentOffset()
+    {
+	    KrollDict offset = new KrollDict();
+	    TiDimension x = new TiDimension(offsetX, TiDimension.TYPE_WIDTH);
+        TiDimension y = new TiDimension(offsetY, TiDimension.TYPE_HEIGHT);
+
+        offset.put(TiC.EVENT_PROPERTY_X, x.getAsDefault(nativeView));
+        offset.put(TiC.EVENT_PROPERTY_Y, y.getAsDefault(nativeView));
+	    return offset;
+    }
+
+    
 	
 	public void setContentOffset(Object hashMap, boolean animated)
 	{
