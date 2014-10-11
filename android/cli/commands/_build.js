@@ -1778,12 +1778,12 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
         var compileJSProp = this.tiapp.properties['ti.compilejs'];
         if (argv['skip-js-minify']) {
             if (this.minifyJS) {
-                logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', '--skip-js-minify'.cyan));
+                this.logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', '--skip-js-minify'.cyan));
             }
             this.encryptJS = this.minifyJS = false;
         } else if (compileJSProp) {
             if (this.minifyJS && !compileJSProp.value) {
-                logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.compilejs'.cyan));
+                this.logger.debug(__('JavaScript files were going to be minified, but %s is forcing them to not be minified', 'ti.compilejs'.cyan));
             }
             this.encryptJS = this.minifyJS = !!compileJSProp.value;
         }
