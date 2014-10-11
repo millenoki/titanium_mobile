@@ -149,7 +149,7 @@
 
 -(UIView*)viewForHitTest
 {
-    return scrollView;
+    return wrapperView;
 }
 
 
