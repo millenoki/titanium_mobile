@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -864,6 +865,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
     {
         return fireSyncEvent(event, data, false);
     }
+    
+    public boolean fireSyncEvent(String event, Object data, final boolean bubble)
+    {
+        return fireSyncEvent(event, data, false, true);
+
+    }
 	/**
 	 * Fires an event synchronously via KrollRuntime thread, which can be intercepted on JS side.
 	 * @param event the event to be fired.
@@ -871,9 +878,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 * @return whether this proxy has an eventListener for this event.
 	 * @module.api
 	 */
-	public boolean fireSyncEvent(String event, Object data, final boolean bubble)
+	public boolean fireSyncEvent(String event, Object data, final boolean bubble, boolean checkListeners)
 	{
-		if (!hasListeners(event, bubble))
+		if (checkListeners && !hasListeners(event, bubble))
 		{
 			return false;
 		}
