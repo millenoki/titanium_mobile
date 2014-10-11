@@ -96,7 +96,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	protected Handler runtimeHandler = null;
 
 	private KrollDict langConversionTable = null;
-	private boolean bubbleParent = true;
+    private boolean bubbleParent = true;
+    private boolean bubbleParentDefined = false;
+	
 	
     private HashMap<String, Object> propertiesToUpdateNativeSide = null;
 
@@ -404,12 +406,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return;
 		}
 		
-		if (dict.containsKey(TiC.PROPERTY_BUBBLE_PARENT)) {
-			bubbleParent = TiConvert.toBoolean(dict, TiC.PROPERTY_BUBBLE_PARENT, true);
-		}
+		
 		properties.putAll(dict);
 		handleDefaultValues();
 		handleLocaleProperties();
+		
+		if (dict.containsKey(TiC.PROPERTY_BUBBLE_PARENT)) {
+            bubbleParent = TiConvert.toBoolean(dict, TiC.PROPERTY_BUBBLE_PARENT, true);
+            bubbleParentDefined = true;
+            dict.remove(TiC.PROPERTY_BUBBLE_PARENT);
+        }
+		
 
 		if (modelListener != null) {
 			modelListener.processProperties(dict);
@@ -709,7 +716,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			    ((KrollProxy)current).applyPropertiesInternal(value, force, wait);
 			}
 			else {
-			    if (shouldFireChange(current, value)) {
+			    if (name.equals(TiC.PROPERTY_BUBBLE_PARENT)) {
+		            bubbleParent = TiConvert.toBoolean(value, true);
+		            bubbleParentDefined = true;
+		        }
+			    else if (shouldFireChange(current, value)) {
 			        setProperty(name, value);
 	                changedProps.put(name, value);
 	            }
@@ -950,8 +961,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		{
 			return false;
 		}
-		if (hasProperty(TiC.PROPERTY_BUBBLE_PARENT)) {
-			bubbles = TiConvert.toBoolean(getProperty(TiC.PROPERTY_BUBBLE_PARENT), bubbles);
+		if (bubbleParentDefined) {
+			bubbles = bubbleParent;
 		}
 		Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
 		message.getData().putString(PROPERTY_NAME, event);
@@ -1110,8 +1121,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	public boolean hasListeners(String event, boolean checkParent)
 	{
 		boolean hasListener = _hasListeners(event);
-		if (hasProperty(TiC.PROPERTY_BUBBLE_PARENT)) {
-			checkParent = TiConvert.toBoolean(getProperty(TiC.PROPERTY_BUBBLE_PARENT), checkParent);
+		if (bubbleParentDefined) {
+			checkParent = bubbleParent;
 		}
 		// Checks whether the parent has the listener or not
 		if (checkParent && !hasListener) {
@@ -1191,8 +1202,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	{
 		String propertyName = name;
 		Object newValue = value;
-
-		if (isLocaleProperty(name)) {
+		
+		
+		if (name.equals(TiC.PROPERTY_BUBBLE_PARENT)) {
+            bubbleParent = TiConvert.toBoolean(value, true);
+            bubbleParentDefined = true;
+            return;
+        }
+		else if (isLocaleProperty(name)) {
 			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
 			Pair<String, String> update = updateLocaleProperty(name, TiConvert.toString(value));
 			if (update != null) {
