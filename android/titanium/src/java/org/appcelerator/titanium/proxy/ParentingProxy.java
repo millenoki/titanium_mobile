@@ -4,6 +4,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -20,6 +22,7 @@ public class ParentingProxy extends KrollProxy {
     protected ArrayList<KrollProxy> children;
     protected WeakReference<ParentingProxy> parent;
     protected WeakReference<KrollProxy> parentForBubbling;
+    protected HashMap<String, KrollProxy> holdedProxies = null;
     private static final String TAG = "ParentingProxy";
 
     @Override
@@ -379,6 +382,45 @@ public class ParentingProxy extends KrollProxy {
                 }
             }
         }
+        if (holdedProxies != null) {
+            Iterator it = holdedProxies.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pairs = (Map.Entry)it.next();
+                ((KrollProxy) pairs.getValue()).release();
+            }
+        }
+    }
+    
+    
+    public void removeHoldedProxy(final String key) {
+        if (holdedProxies != null && holdedProxies.containsKey(key)) {
+            handleChildRemoved(holdedProxies.remove(key), true);
+        }
+    }
+    
+    public KrollProxy getHoldedProxy(final String key) {
+        if (holdedProxies != null) {
+            return holdedProxies.get(key);
+        }
+        return null;
+    }
+    
+    public KrollProxy addProxyToHold(final Object arg, final String key) {
+        removeHoldedProxy(key);
+        if (arg instanceof KrollProxy) {
+            if (holdedProxies == null) {
+                holdedProxies = new HashMap<String, KrollProxy>();
+            }
+            holdedProxies.put(key, (KrollProxy) arg);
+            return (KrollProxy) arg;
+        } else if (arg instanceof HashMap) {
+            KrollProxy obj = createProxyFromTemplate((HashMap) arg, this, true);
+            if (obj != null) {
+                obj.updateKrollObjectProperties();
+                return addProxyToHold(obj, key);
+            }
+        }
+        return null;
     }
 
 }
