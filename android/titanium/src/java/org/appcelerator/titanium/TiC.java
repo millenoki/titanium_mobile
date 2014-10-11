@@ -651,6 +651,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_SWIPEABLE = "swipeable";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SYNCEVENTS = "syncevents";
+
 	/**
 	 * @module.api
 	 */
