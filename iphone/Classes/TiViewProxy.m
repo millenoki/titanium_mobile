@@ -2276,7 +2276,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     [self makeChildrenPerformSelector:@selector(parentSizeWillChange) withObject:nil];
     
     if (instantUpdates) {
-        [self refreshViewOrParent];
+        TiThreadPerformOnMainThread(^{[self refreshViewOrParent];}, NO);
     }
 }
 
