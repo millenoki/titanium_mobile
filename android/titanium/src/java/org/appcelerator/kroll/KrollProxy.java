@@ -8,6 +8,8 @@ package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -99,6 +101,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
     private boolean bubbleParent = true;
     private boolean bubbleParentDefined = false;
 	
+	private List<String> mSyncEvents;
 	
     private HashMap<String, Object> propertiesToUpdateNativeSide = null;
 
@@ -417,6 +420,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
             dict.remove(TiC.PROPERTY_BUBBLE_PARENT);
         }
 		
+		if (dict.containsKey(TiC.PROPERTY_SYNCEVENTS)) {
+		    setSyncEvents(TiConvert.toStringArray(dict.remove(TiC.PROPERTY_SYNCEVENTS)));
+        }
 
 		if (modelListener != null) {
 			modelListener.processProperties(dict);
@@ -720,6 +726,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		            bubbleParent = TiConvert.toBoolean(value, true);
 		            bubbleParentDefined = true;
 		        }
+			    else if (name.equals(TiC.PROPERTY_SYNCEVENTS)) {
+		            setSyncEvents(TiConvert.toStringArray(value));
+		        }
 			    else if (shouldFireChange(current, value)) {
 			        setProperty(name, value);
 	                changedProps.put(name, value);
@@ -957,6 +966,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public boolean fireEvent(String event, Object data, boolean bubbles, boolean checkListeners)
 	{
+	    if (mSyncEvents != null && mSyncEvents.contains(event)) {
+	        return fireSyncEvent(event, data, bubbles, checkListeners);
+	    }
 		if (checkListeners && !hasListeners(event, bubbles))
 		{
 			return false;
@@ -1207,6 +1219,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		if (name.equals(TiC.PROPERTY_BUBBLE_PARENT)) {
             bubbleParent = TiConvert.toBoolean(value, true);
             bubbleParentDefined = true;
+            return;
+        }
+        else if (name.equals(TiC.PROPERTY_SYNCEVENTS)) {
+            setSyncEvents(TiConvert.toStringArray(value));
             return;
         }
 		else if (isLocaleProperty(name)) {
@@ -1693,6 +1709,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
     {
         if (modelListener != null) {
             modelListener.processProperties(getProperties());
+        }
+    }
+    
+    public void addSyncEvent(final String event) {
+        if (mSyncEvents == null) {
+            mSyncEvents = new ArrayList<String>();
+        }
+        if (!mSyncEvents.contains(event)) {
+            mSyncEvents.add(event);
+        }
+    }
+    
+    public void setSyncEvents(final String[] events) {
+        mSyncEvents = Arrays.asList(events);
+    }
+    
+    public void removeSyncEvent(final String event) {
+        if (mSyncEvents != null) {
+            mSyncEvents.remove(event);
         }
     }
 }

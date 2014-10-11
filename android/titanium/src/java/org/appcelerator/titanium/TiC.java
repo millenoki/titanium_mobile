@@ -1903,7 +1903,12 @@ public class TiC
      */
     public static final String PROPERTY_MASK_CHAR = "maskChar";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_MASK_FROM_VIEW = "maskFromView";
 
+    
 	/**
 	 * @module.api
 	 */
