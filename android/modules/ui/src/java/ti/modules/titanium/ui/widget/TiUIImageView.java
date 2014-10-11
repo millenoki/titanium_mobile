@@ -888,11 +888,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         // Set default image or clear previous image first.
         setDefaultImage(false);
 
-        if (imageSources == null || 
-                imageSources.size() == 0
+        if (imageSources == null || imageSources.size() == 0
                 || imageSources.get(0) == null
                 || imageSources.get(0).isTypeNull()) {
-            //here we can transition to the default image
+            // here we can transition to the default image
             setDefaultImage(proxy.viewInitialised());
             return;
         }
@@ -901,50 +900,60 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             TiDrawableReference imageref = imageSources.get(0);
             if (imageref.isNetworkUrl()) {
                 Picasso picasso = TiApplication.getPicassoInstance();
-                
+
                 if (proxy.hasProperty(TiC.PROPERTY_HTTP_OPTIONS)) {
-                 // Prepare OkHttp
+                    // Prepare OkHttp
                     final Context context = getContext();
-                    picasso = new Picasso.Builder(context).downloader(new OkHttpDownloader(context) {
-                        @Override
-                        protected HttpURLConnection openConnection(Uri uri) throws IOException {
-                            HttpURLConnection connection = super.openConnection(uri);
-                            TiApplication.prepareURLConnection(connection, (HashMap) proxy.getProperty(TiC.PROPERTY_HTTP_OPTIONS));
-                            return connection;
-                        }
-                    }).build();
+                    picasso = new Picasso.Builder(context).downloader(
+                            new OkHttpDownloader(context) {
+                                @Override
+                                protected HttpURLConnection openConnection(
+                                        Uri uri) throws IOException {
+                                    HttpURLConnection connection = super
+                                            .openConnection(uri);
+                                    TiApplication.prepareURLConnection(
+                                            connection,
+                                            (HashMap) proxy
+                                                    .getProperty(TiC.PROPERTY_HTTP_OPTIONS));
+                                    return connection;
+                                }
+                            }).build();
                 }
                 loadingUrl = imageref.getUrl();
-                //picasso will cancel running request if reusing
+                // picasso will cancel running request if reusing
                 picasso.load(loadingUrl).into(this);
-           } else {
-               boolean shouldTransition = !onlyTransitionIfRemote;
-               String cacheKey = imageref.getCacheKey();
-               Cache cache = TiApplication.getImageMemoryCache();
-               Bitmap bitmap = (cacheKey != null)?cache.get(cacheKey):null;
-               Drawable drawable = null;
-               if (bitmap == null) {
-                   shouldTransition = true;
-                   if (!localLoadSync) {
-                       (new LoadLocalDrawableTask(cache, true)).execute(imageref);
-                       return;
-                   }
-                   drawable = imageref.getDrawable();
-                   if (drawable instanceof BitmapDrawable) {
-                       bitmap = ((BitmapDrawable)drawable).getBitmap();
-                       if (cacheKey != null) {
-                           cache.set(cacheKey, bitmap);
-                       }
-                   }
-               } else {
-                   drawable = new BitmapDrawable(getContext().getResources(), bitmap);
-               }
-
-              if (drawable != null) {
-                  setDrawable(drawable, shouldTransition);
-                  fireLoad(TiC.PROPERTY_IMAGE, bitmap);
-              }
-          }
+            } else {
+                boolean shouldTransition = !onlyTransitionIfRemote;
+                String cacheKey = imageref.getCacheKey();
+                Cache cache = TiApplication.getImageMemoryCache();
+                Bitmap bitmap = (cacheKey != null) ? cache.get(cacheKey) : null;
+                Drawable drawable = null;
+                if (bitmap == null) {
+                    shouldTransition = true;
+                    if (!localLoadSync) {
+                        (new LoadLocalDrawableTask(cache, true))
+                                .execute(imageref);
+                        return;
+                    }
+                    drawable = imageref.getDrawable();
+                    if (drawable instanceof BitmapDrawable) {
+                        bitmap = ((BitmapDrawable) drawable).getBitmap();
+                        if (cacheKey != null) {
+                            cache.set(cacheKey, bitmap);
+                        }
+                    }
+                } else {
+                    drawable = new BitmapDrawable(getContext().getResources(),
+                            bitmap);
+                }
+                if (bitmap != null && filterOptions != null) {
+                    (new FilterAndSetTask(true)).execute(bitmap);
+                }
+                else if (drawable != null) {
+                    setDrawable(drawable, shouldTransition);
+                    fireLoad(TiC.PROPERTY_IMAGE, bitmap);
+                }
+            }
         } else {
             setImages();
         }
@@ -1199,19 +1208,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         TiImageView view = getView();
         if (view == null)
             return;
-        Bitmap bitmap = null;
-        if (mask instanceof TiBlob) {
-            bitmap = ((TiBlob) mask).getImage();
-        } else {
-            BitmapDrawable drawable = ((BitmapDrawable) TiUIHelper
-                    .buildImageDrawable(TiConvert.toString(mask), false, proxy));
-            if (drawable != null) {
-                bitmap = drawable.getBitmap();
-            }
-        }
 
-        disableHWAcceleration();
-        view.setMask(bitmap);
+        boolean tileImage = proxy.getProperties().optBoolean(
+                TiC.PROPERTY_BACKGROUND_REPEAT, false);
+        view.setMask(TiUIHelper.buildImageDrawable(mask, tileImage, proxy));
     }
 
     public void onDestroy(Activity activity) {

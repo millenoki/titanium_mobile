@@ -900,6 +900,20 @@ public abstract class TiUIView
 				enableHWAcceleration();
 //		} else if (Log.isDebugModeEnabled()) {
 //			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
+			} else if (key.equals(TiC.PROPERTY_MASK_FROM_VIEW)) {
+	            KrollProxy maskProxy = proxy.addProxyToHold(newValue, "maskView");
+	            if (maskProxy != null && maskProxy instanceof TiViewProxy) {
+	                TiUIView tiView = ((TiViewProxy)maskProxy).getOrCreateView();
+	                View view = tiView.getOuterView();
+	                if (tiView.getParent() == null) {
+	                    view.setVisibility(View.INVISIBLE);
+	                    add(tiView);
+	                }
+	                getOrCreateBorderView().setMaskView(view);
+	            }
+	            else if (borderView != null) {
+	                getOrCreateBorderView().setMaskView(null);
+	            }
 			}
 		}
 
@@ -1370,19 +1384,10 @@ public abstract class TiUIView
 	}
 	
 	private void setViewMask(Object mask){
-		Bitmap bitmap = null;
-		if (mask instanceof TiBlob) {
-			bitmap = ((TiBlob)mask).getImage();
-		}
-		else {
-			BitmapDrawable drawable = ((BitmapDrawable) TiUIHelper.buildImageDrawable(TiConvert.toString(mask), false, proxy));
-			if (drawable != null) {
-				bitmap = drawable.getBitmap();
-			}
-		}
-		
-		getOrCreateBorderView().setMask(bitmap);
-		disableHWAcceleration();
+		boolean tileImage = proxy.getProperties().optBoolean(
+                TiC.PROPERTY_BACKGROUND_REPEAT, false);
+		getOrCreateBorderView().setMask(TiUIHelper.buildImageDrawable(mask, tileImage, proxy));
+//		disableHWAcceleration();
 	}
 
 	protected static SparseArray<String> motionEvents = new SparseArray<String>();
