@@ -713,6 +713,17 @@ public class TiConvert
 
 		return sparts;
 	}
+	
+	public static String[] toStringArray(Object value)
+    {
+        if (value instanceof Object[]) {
+            return toStringArray((Object[])value);
+        }
+        else if (value != null) {
+            return new String[] {value.toString()};
+        }
+        return null;
+    }
 
 	/**
 	 * Converts an array of boxed objects into a primitive int array.
