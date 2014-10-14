@@ -237,6 +237,9 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
                 
             }];
         }
+        else {
+            [super setValue:value forKeyPath:keyPath];
+        }
     }
     else [super setValue:value forKeyPath:keyPath];
 }
@@ -480,6 +483,40 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return result;
 }
 
+-(NSArray*)proxiesArrayFromValue:(id)value
+{
+    NSArray* buttons = nil;
+    if (IS_OF_CLASS(value, NSArray)) {
+        NSMutableArray* buttonProxies = [NSMutableArray arrayWithCapacity:[value count]];
+        [value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:obj];
+            if (viewproxy) {
+                [viewproxy setParent:self];
+                [buttonProxies addObject:viewproxy];
+            }
+        }];
+        buttons = [NSArray arrayWithArray:buttonProxies];
+    } else {
+        TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:value];
+        if (viewproxy) {
+            [viewproxy setParent:self];
+            buttons = [NSArray arrayWithObject:viewproxy];
+        }
+    }
+    SetEventOverrideDelegateRecursive(buttons, self);
+    return buttons;
+}
+
+-(void)setLeftSwipeButtons:(id)value
+{
+    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"leftSwipeButtons" notification:NO];
+}
+
+-(void)setRightSwipeButtons:(id)value
+{
+    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"rightSwipeButtons" notification:NO];
+}
+
 @end
 
 static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventOverrideDelegate> eventOverrideDelegate)
@@ -491,10 +528,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         }
 	}];
 }
-
-
-
-
 
 #endif
 

@@ -353,6 +353,11 @@
 	} animated:(animation != UITableViewRowAnimationNone)];
 }
 
+-(void)willRemoveItemAt:(NSIndexPath*)indexPath
+{
+    [_items removeObjectsInRange:NSMakeRange(indexPath.row, 1)];
+}
+
 - (void)deleteItemsAt:(id)args
 {
 	ENSURE_ARG_COUNT(args, 2);
@@ -364,9 +369,6 @@
 	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
 	BOOL animated = (animation != UITableViewRowAnimationNone);
-    //fix for now as it seems to be the only way to have the correct animation
-    //when the delete button is visible
-    [self.dispatcher hideDeleteButton:nil];
 	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
 		if ([_items count] <= deleteIndex) {
 			DebugLog(@"[WARN] ListView: Delete item index is out of range");

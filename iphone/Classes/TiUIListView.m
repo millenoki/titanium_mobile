@@ -118,6 +118,8 @@
     BOOL _updateInsetWithKeyboard;
     
     NSInteger _currentSection;
+    
+    BOOL _canSwipeCells;
 }
 
 static NSDictionary* replaceKeysForRow;
@@ -149,6 +151,7 @@ static NSDictionary* replaceKeysForRow;
         searchViewAnimating = NO;
         _updateInsetWithKeyboard = NO;
         _currentSection = -1;
+        _canSwipeCells = NO;
     }
     return self;
 }
@@ -309,6 +312,11 @@ static NSDictionary* replaceKeysForRow;
     return _tableView;
 }
 
+-(void)reloadTableViewData {
+    _canSwipeCells = NO;
+    [_tableView reloadData];
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     //        if (searchHidden)
@@ -444,9 +452,7 @@ static NSDictionary* replaceKeysForRow;
 	_measureProxies = [measureProxies copy];
 	[measureProxies release];
     
-	if (_tableView != nil) {
-		[_tableView reloadData];
-	}
+    [self reloadTableViewData];
 }
 
 -(TiViewProxy*)sectionViewProxy:(NSInteger)section forLocation:(NSString*)location
@@ -758,7 +764,7 @@ static NSDictionary* replaceKeysForRow;
     if ([self isSearchActive]) {
         [[[self searchController] searchResultsTableView] reloadData];
     } else {
-        [_tableView reloadData];
+        [self reloadTableViewData];
     }
 }
 
@@ -829,9 +835,7 @@ static NSDictionary* replaceKeysForRow;
 	}
 	[_defaultItemTemplate release];
 	_defaultItemTemplate = [args copy];
-	if (_tableView != nil) {
-		[_tableView reloadData];
-	}	
+    [self reloadTableViewData];
 }
 
 - (void)setRowHeight_:(id)height
@@ -992,7 +996,7 @@ static NSDictionary* replaceKeysForRow;
         keepSectionsInSearch = [TiUtils boolValue:args def:NO];
         if (searchActive) {
             [self buildResultsForSearchText];
-            [_tableView reloadData];
+            [self reloadTableViewData];
         }
     } else {
         keepSectionsInSearch = NO;
@@ -1076,7 +1080,7 @@ static NSDictionary* replaceKeysForRow;
         if ([[self searchController] isActive]) {
             [[[self searchController] searchResultsTableView] reloadData];
         } else {
-            [_tableView reloadData];
+            [self reloadTableViewData];
         }
     }
 }
@@ -1090,7 +1094,7 @@ static NSDictionary* replaceKeysForRow;
     }
     self.searchString = [TiUtils stringValue:args];
     [self buildResultsForSearchText];
-    [_tableView reloadData];
+    [self reloadTableViewData];
 }
 
 -(void)setSearchViewExternal_:(id)args {
@@ -1341,6 +1345,10 @@ static NSDictionary* replaceKeysForRow;
         
         BOOL asyncDelete = [TiUtils boolValue:[self.proxy valueForKey:@"asyncDelete"] def:NO];
         if (asyncDelete) return;
+        [tableView beginUpdates];
+//        [theSection willRemoveItemAt:indexPath];
+//        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+//        [tableView endUpdates];
         [theSection deleteItemsAt:@[@(indexPath.row), @(1), @{@"animated":@(YES)}]];
     }
 }
@@ -1373,7 +1381,7 @@ static NSDictionary* replaceKeysForRow;
     editing = [_tableView isEditing];
     [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
     if (!editing) {
-        [_tableView performSelector:@selector(reloadData) withObject:nil afterDelay:0.1];
+        [self performSelector:@selector(reloadTableViewData) withObject:nil afterDelay:0.1];
     }
 }
 
@@ -1587,6 +1595,7 @@ static NSDictionary* replaceKeysForRow;
             }
             [cell configurationSet];
         }
+        cell.delegate = self;
         [cellProxy release];
         [cell autorelease];
     }
@@ -1596,6 +1605,7 @@ static NSDictionary* replaceKeysForRow;
     
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
+    _canSwipeCells |= [cell hasSwipeButtons];
     return cell;
 }
 
@@ -1632,6 +1642,51 @@ static NSDictionary* replaceKeysForRow;
         }
     }
     return [[self.listViewProxy sectionForIndex:section] footerTitle];
+}
+
+#pragma mark - MGSwipeTableCell Delegate
+-(BOOL) swipeTableCell:(MGSwipeTableCell*) cell canSwipe:(MGSwipeDirection) direction {
+    if (!_canSwipeCells) {
+        return NO;
+    }
+    if (IS_OF_CLASS(cell, TiUIListItem)) {
+        TiUIListItem* listItem = (TiUIListItem*)cell;
+        NSIndexPath* indexPath = listItem.proxy.indexPath;
+        BOOL isRight = (direction == MGSwipeDirectionRightToLeft);
+        
+        id theValue = [self valueWithKey:(isRight?@"canSwipeRight":@"canSwipeLeft") atIndexPath:indexPath];
+        if (theValue) {
+            return [theValue boolValue];
+        }
+        else {
+            return [listItem hasSwipeButtons];
+        }
+    }
+    return NO;
+}
+-(NSArray*) swipeTableCell:(MGSwipeTableCell*) cell swipeButtonsForDirection:(MGSwipeDirection)direction
+             swipeSettings:(MGSwipeSettings*) swipeSettings expansionSettings:(MGSwipeExpansionSettings*) expansionSettings
+{
+    if (!_canSwipeCells) {
+        return nil;
+    }
+    if (IS_OF_CLASS(cell, TiUIListItem)) {
+        TiUIListItem* listItem = (TiUIListItem*)cell;
+        NSIndexPath* indexPath = listItem.proxy.indexPath;
+        BOOL isRight = (direction == MGSwipeDirectionRightToLeft);
+        id theValue = [listItem.proxy valueForKey:(isRight?@"rightSwipeButtons":@"leftSwipeButtons")];
+            if (IS_OF_CLASS(theValue, NSArray)) {
+                NSMutableArray* buttonViews = [NSMutableArray arrayWithCapacity:[theValue count]];
+                [theValue enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                    if (IS_OF_CLASS(obj, TiViewProxy)) {
+                        [buttonViews addObject:[(TiViewProxy*)obj getAndPrepareViewForOpening]];
+                    }
+                }];
+                theValue = [NSArray arrayWithArray:buttonViews];                
+            }
+        return theValue;
+    }
+    return nil;
 }
 
 #pragma mark - UITableViewDelegate
@@ -2244,7 +2299,7 @@ static NSDictionary* replaceKeysForRow;
         }
     }
     [searchViewProxy ensureSearchBarHeirarchy];
-    [_tableView reloadData];
+    [self reloadTableViewData];
     [self hideSearchScreen:nil];
 //    [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }

@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "TiUIListView.h"
 #import "TiUIListItemProxy.h"
+#import "MGSwipeTableCell.h"
 
 enum {
 	TiUIListItemTemplateStyleCustom = -1
@@ -23,7 +24,7 @@ typedef enum
 } TiGroupedListItemPosition;
 
 
-@interface TiUIListItem : UITableViewCell<TiProxyDelegate>
+@interface TiUIListItem : MGSwipeTableCell<TiProxyDelegate>
 {
 }
 
@@ -40,6 +41,7 @@ typedef enum
 -(void)configurationStart;
 -(void)configurationSet;
 - (void) ensureVisibleSelectorWithTableView:(UITableView*)tableView;
+- (BOOL) hasSwipeButtons;
 @end
 
 #endif

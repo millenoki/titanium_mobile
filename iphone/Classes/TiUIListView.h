@@ -8,8 +8,9 @@
 
 #import "TiScrollingView.h"
 #import "TiUIListViewProxy.h"
+#import "MGSwipeTableCell.h"
 @class TiTableView;
-@interface TiUIListView : TiScrollingView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver >
+@interface TiUIListView : TiScrollingView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, MGSwipeTableCellDelegate >
 {
     BOOL allowsSelection;
 }

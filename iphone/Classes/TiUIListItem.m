@@ -498,7 +498,9 @@ static NSArray* handledKeys;
 {
     self.detailTextLabel.text = [newValue description];
 }
-
+- (BOOL) hasSwipeButtons {
+    return [self.proxy valueForKey:@"leftSwipeButtons"] || [self.proxy valueForKey:@"rightSwipeButtons"];
+}
 -(void)setFrame:(CGRect)frame
 {
 	// this happens when a controller resizes its view

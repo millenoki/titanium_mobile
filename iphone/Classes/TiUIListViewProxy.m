@@ -726,7 +726,6 @@ NSArray* sliceArray(NSArray* array, int startIndex) {
     }
 }
 
-
 -(void)didOverrideEvent:(NSString*)type forItem:(TiUIListItemProxy*)item
 {
     if ([type isEqualToString:@"load"] && [self autoResizeOnImageLoad]) {

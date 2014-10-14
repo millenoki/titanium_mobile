@@ -966,6 +966,9 @@
 		D5F9620E19A63941000E464F /* TiScrollingView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620D19A63941000E464F /* TiScrollingView.m */; };
 		D5F9620F19A63941000E464F /* TiScrollingView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620D19A63941000E464F /* TiScrollingView.m */; };
 		D5F9621019A63941000E464F /* TiScrollingView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620D19A63941000E464F /* TiScrollingView.m */; };
+		D5F980F819ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5F980F919ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5F980FA19ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5FD09DC1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
 		D5FD09DD1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
 		D5FD09DE1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
@@ -2403,6 +2406,8 @@
 		D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiScrollingViewProxy.m; sourceTree = "<group>"; };
 		D5F9620C19A63941000E464F /* TiScrollingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiScrollingView.h; sourceTree = "<group>"; };
 		D5F9620D19A63941000E464F /* TiScrollingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiScrollingView.m; sourceTree = "<group>"; };
+		D5F980F319ECFC240071A3C6 /* MGSwipeTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MGSwipeTableCell.h; path = ../Classes/MGSwipeTableCell/MGSwipeTableCell.h; sourceTree = "<group>"; };
+		D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MGSwipeTableCell.m; path = ../Classes/MGSwipeTableCell/MGSwipeTableCell.m; sourceTree = "<group>"; };
 		D5FD09DA1830EFE2000FF4C5 /* TiAnimatedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAnimatedImage.h; sourceTree = "<group>"; };
 		D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAnimatedImage.m; sourceTree = "<group>"; };
 		D930111C16DA9D61002E25C2 /* TiCalendarRecurrenceRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarRecurrenceRule.h; sourceTree = "<group>"; };
@@ -2695,6 +2700,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				D5F980EA19ECFC180071A3C6 /* MGSwipeTableCell */,
 				D56F98F119E67CF30050E727 /* UIImage+ImageEffects */,
 				D51DEFAF19D9ACBF00CF28B0 /* ActionSheetPicker */,
 				D535CCD919CF2C6A005E114E /* ColorArt */,
@@ -4528,6 +4534,15 @@
 			name = UIViewsTouchDelegate;
 			sourceTree = "<group>";
 		};
+		D5F980EA19ECFC180071A3C6 /* MGSwipeTableCell */ = {
+			isa = PBXGroup;
+			children = (
+				D5F980F319ECFC240071A3C6 /* MGSwipeTableCell.h */,
+				D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */,
+			);
+			name = MGSwipeTableCell;
+			sourceTree = "<group>";
+		};
 		D93DAA4C16CBF8A000AD64C9 /* Calendar */ = {
 			isa = PBXGroup;
 			children = (
@@ -4991,6 +5006,7 @@
 				24CA8BAE111161FE0084E2DE /* TiUIActivityIndicatorProxy.m in Sources */,
 				24CA8BAF111161FE0084E2DE /* TiUIActivityIndicator.m in Sources */,
 				24CA8BB5111161FE0084E2DE /* TiRect.m in Sources */,
+				D5F980F819ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */,
 				24CA8BB7111161FE0084E2DE /* TiProxy.m in Sources */,
 				24CA8BB8111161FE0084E2DE /* TiPoint.m in Sources */,
 				24CA8BBB111161FE0084E2DE /* TiModule.m in Sources */,
@@ -5437,6 +5453,7 @@
 				24D8E45C119B9D8A00F8CAA6 /* TiUIScrollViewProxy.m in Sources */,
 				D557959A1839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,
 				24D8E45D119B9D8A00F8CAA6 /* TiUIScrollView.m in Sources */,
+				D5F980F919ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */,
 				24D8E45E119B9D8A00F8CAA6 /* TiUIWebView.m in Sources */,
 				24D8E45F119B9D8A00F8CAA6 /* TiDOMDocumentProxy.m in Sources */,
 				24D8E460119B9D8A00F8CAA6 /* GDataXMLNode.m in Sources */,
@@ -5819,6 +5836,7 @@
 				DABB373412E8CB280026A6EA /* TiUIScrollViewProxy.m in Sources */,
 				D557959B1839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,
 				DABB373512E8CB280026A6EA /* TiUIScrollView.m in Sources */,
+				D5F980FA19ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */,
 				DABB373612E8CB280026A6EA /* TiUIWebView.m in Sources */,
 				DABB373712E8CB280026A6EA /* TiDOMDocumentProxy.m in Sources */,
 				DABB373812E8CB280026A6EA /* GDataXMLNode.m in Sources */,
