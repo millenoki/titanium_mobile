@@ -305,7 +305,8 @@
         bindId = [object valueForUndefinedKey:@"bindId"];
     }
     if (child && bindId) {
-        [self setValue:child forKey:bindId];
+        [child setValue:bindId forKey:@"bindId"];
+        [self addBinding:child forKey:bindId];
     }
     return child;
 }

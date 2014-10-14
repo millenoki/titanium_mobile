@@ -202,6 +202,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 }
 
 @implementation TiProxy
+{
+    NSMutableDictionary *_proxyBindings;
+}
 
 +(void)performSelectorDuringRunLoopStart:(SEL)selector
 {
@@ -427,6 +430,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	{
 		executionContext = nil;
 	}
+    RELEASE_TO_NIL(_proxyBindings);
 	
 	// remove all listeners JS side proxy
 	pthread_rwlock_wrlock(&listenerLock);
@@ -1173,6 +1177,29 @@ DEFINE_EXCEPTIONS
     [self replaceValue:value forKey:key notification:YES];
 }
 
+- (void) setValue:(id)value forKeyPath: (NSString *) key
+{
+    id bindedValue = [_proxyBindings objectForKey:key];
+    if (bindedValue)
+    {
+        [bindedValue setValuesForKeysWithDictionary:value];
+    }
+    else {
+        [super setValue:value forKeyPath:key];
+    }
+}
+
+- (id) valueForKey: (NSString *) key
+{
+    id bindedValue = [_proxyBindings objectForKey:key];
+    if (bindedValue)
+    {
+        return bindedValue;
+    }
+    return [super valueForKey:key];
+}
+
+
 -(void)applyProperties:(id)args
 {
 	ENSURE_SINGLE_ARG(args, NSDictionary)
@@ -1434,4 +1461,19 @@ DEFINE_EXCEPTIONS
     return YES;
 }
 
+
+-(void)addBinding:(TiProxy*)proxy forKey:(NSString*)key
+{
+    if (!_proxyBindings) {
+        _proxyBindings = [[NSMutableDictionary alloc] init];
+    }
+    [_proxyBindings setObject:proxy forKey:key];
+}
+
+-(void)removeBindingForKey:(NSString*)key
+{
+    if (_proxyBindings) {
+        [_proxyBindings removeObjectForKey:key];
+    }
+}
 @end

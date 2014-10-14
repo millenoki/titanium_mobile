@@ -381,4 +381,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 @property (nonatomic,readwrite,assign) id<TiViewEventOverrideDelegate> eventOverrideDelegate;
 
 -(BOOL)canBeNextResponder;
+
+-(void)addBinding:(TiProxy*)proxy forKey:(NSString*)key;
+-(void)removeBindingForKey:(NSString*)key;
 @end
