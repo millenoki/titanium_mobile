@@ -263,6 +263,14 @@ public class TiUIScrollView extends TiUIView
 
 			}
 		}
+
+         @Override
+         public boolean dispatchTouchEvent(MotionEvent event) {
+             if (touchPassThrough(this, event)) {
+                 return false;
+             }
+             return super.dispatchTouchEvent(event);
+         }
 	}
 	
 
