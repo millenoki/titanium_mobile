@@ -926,9 +926,13 @@ public class ListSectionProxy extends ViewProxy {
 			DataItem dataItem = template.getDataItem(binding);
 			ProxyListItem viewItem = views.get(binding);
 			KrollProxy proxy  = viewItem.getProxy();
+			if (proxy instanceof TiViewProxy) {
+			    ((TiViewProxy) proxy).getOrCreateView();
+			}
 			KrollProxyListener modelListener = (KrollProxyListener) proxy.getModelListener();
-			if (modelListener == null || !(modelListener instanceof KrollProxyReusableListener))
-				continue;
+			if (modelListener == null || !(modelListener instanceof KrollProxyReusableListener)) {
+                continue;
+			}
 			if (modelListener instanceof TiUIView) {
 	            ((TiUIView)modelListener).setTouchDelegate((TiTouchDelegate) listItem);
             }
@@ -940,7 +944,7 @@ public class ListSectionProxy extends ViewProxy {
 			if (reusing) {
 			    ((KrollProxyReusableListener) modelListener).setReusing(true);
 			}
-			if (data.containsKey(binding) && modelListener != null) {
+			if (data.containsKey(binding)) {
 			    HashMap map = (HashMap) data.get(binding);
 			    if (map != null) {
 			        KrollDict properties = new KrollDict(map);
@@ -950,18 +954,13 @@ public class ListSectionProxy extends ViewProxy {
 	                    modelListener.processProperties(diffProperties);
 	                }
 			    }
-			} else if (dataItem != null && modelListener != null) {
+			} else {
 				KrollDict diffProperties = viewItem
 						.generateDiffProperties(null);
 				if (!diffProperties.isEmpty()) {
 				    modelListener.processProperties(diffProperties);
 				}
-			} else {
-				Log.w(TAG, "Sorry, " + binding
-						+ " isn't a valid binding. Perhaps you made a typo?",
-						Log.DEBUG_MODE);
 			}
-			
             proxy.setSetPropertyListener(itemProxy);
             
 			if (reusing) {
