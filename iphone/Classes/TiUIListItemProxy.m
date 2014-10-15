@@ -509,11 +509,25 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(void)setLeftSwipeButtons:(id)value
 {
+    id oldValue = [self valueForKey:@"leftSwipeButtons"];
+    if (oldValue) {
+        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
+            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
+            [self removeProxy:obj];
+        }];
+    }
     [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"leftSwipeButtons" notification:NO];
 }
 
 -(void)setRightSwipeButtons:(id)value
 {
+    id oldValue = [self valueForKey:@"rightSwipeButtons"];
+    if (oldValue) {
+        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
+            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
+            [self removeProxy:obj];
+        }];
+    }
     [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"rightSwipeButtons" notification:NO];
 }
 
