@@ -36,12 +36,16 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
     public int itemIndex = -1;
     protected WeakReference<ListSectionProxy> sectionProxy;
 	
-	public void setCurrentItem(int sectionIndex, int itemIndex, ListSectionProxy sectionProxy)
+	public void setCurrentItem(final int sectionIndex, final int itemIndex, final ListSectionProxy sectionProxy)
     {
         this.sectionIndex = sectionIndex;
         this.itemIndex = itemIndex;
         this.sectionProxy = new WeakReference<ListSectionProxy>(sectionProxy);
     }
+	
+	public void updateItemIndex(final int index) {
+        this.itemIndex = index;
+	}
 	
 	public ListItemProxy()
 	{
@@ -50,17 +54,17 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 	}
 	
 	@Override
-	public void handleCreationDict(KrollDict options)
+	public void handleCreationDict(final KrollDict options)
 	{
 		super.handleCreationDict(options);
 	}
 
-	public TiUIView createView(Activity activity)
+	public TiUIView createView(final Activity activity)
 	{
 		return new TiListItem(this);
 	}
 
-	public void setListProxy(TiViewProxy list)
+	public void setListProxy(final TiViewProxy list)
 	{
 		listProxy = new WeakReference<TiViewProxy>(list);
 	}
@@ -100,7 +104,7 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 	}
 
 	@Override
-	public boolean hasListeners(String event, boolean bubbles)
+	public boolean hasListeners(final String event, final boolean bubbles)
 	{
 		// In order to fire the "itemclick" event when the children views are clicked,
 		// the children views' "click" events must be fired and bubbled up. (TIMOB-14901)
@@ -130,7 +134,7 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 	}
 	
 
-	public KrollProxy getProxyFromBinding(String binding) {
+	public KrollProxy getProxyFromBinding(final String binding) {
 		ProxyListItem viewItem = bindingsMap.get(binding);
 		if (viewItem != null) {
 			return viewItem.getProxy();
@@ -139,7 +143,7 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 	}
 	
 	@Override
-    public void addBinding(String bindId, KrollProxy arg)
+    public void addBinding(final String bindId, final KrollProxy arg)
 	{
 		super.addBinding(bindId, arg);
 		KrollProxy bindingProxy = null;
@@ -174,7 +178,7 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 	}
 
     @Override
-    public void onSetProperty(KrollProxy proxy, String name, Object value) {
+    public void onSetProperty(final KrollProxy proxy, final String name, final Object value) {
         for (Map.Entry<String, ProxyListItem> entry : bindingsMap.entrySet()) {
             String key = entry.getKey();
             ProxyListItem item = entry.getValue();

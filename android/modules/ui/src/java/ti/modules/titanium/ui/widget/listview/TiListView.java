@@ -27,13 +27,20 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import org.appcelerator.titanium.view.TiUIView;
 
+import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
+import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.MenuAdapter;
+import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuAdapter;
+import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuCallback;
+import com.nhaarman.listviewanimations.util.Insertable;
+import com.nhaarman.listviewanimations.util.Removable;
+import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
+
+import se.emilsjolander.stickylistheaders.OnStickyHeaderChangedListener;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView.OnStickyHeaderChangedListener;
+import se.emilsjolander.stickylistheaders.StickyListHeadersListViewAbstract;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.UIModule;
 import android.annotation.SuppressLint;
@@ -124,7 +131,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
         return listView.getWrappedList();
 	}
 
-	public class TiBaseAdapter extends BaseAdapter implements StickyListHeadersAdapter, SectionIndexer {
+	public class TiBaseAdapter extends BaseAdapter implements StickyListHeadersAdapter, SectionIndexer, MenuAdapter , Insertable<Object> , Removable<Object>{
 
 		Activity context;
 		
@@ -182,7 +189,9 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 			//Get section info from index
 			Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
-			if (section.hidden) return null; // possible because of WrapperView
+			if (section.hidden) {
+			    return null; // possible because of WrapperView
+			}
 			int sectionItemIndex = info.second.second;
 			int sectionIndex = info.second.first;
 			//check marker
@@ -337,6 +346,45 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
             ListSectionProxy section = info.first;
             return section.getIndex();
         }
+        
+        @Override
+        public Object remove(int position) {
+            Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
+            Object result = info.first.deleteItemData(info.second.second);
+            notifyDataSetChanged();
+            return result;
+        }
+
+        @Override
+        public void add(int position, Object data) {
+            Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
+            info.first.insertItemData(info.second.second, data);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public boolean canShowLeftMenu(int position) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean canShowRightMenu(int position) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public View[] getLeftButtons(int position) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public View[] getRightButtons(int position) {
+            // TODO Auto-generated method stub
+            return null;
+        }
 
 	}
 	
@@ -361,6 +409,34 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		
 		return eventArgs;
 	}
+	
+	private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
+        @Override
+        public void onStartSwipe(View view, int position, int direction) {
+
+        }
+
+        @Override
+        public void onMenuShown(View view, int position, int direction) {
+
+        }
+
+        @Override
+        public void onMenuClosed(View view, int position, int direction) {
+
+        }
+
+        @Override
+        public void beforeMenuShow(View view, int position, int direction) {
+
+        }
+
+        @Override
+        public void beforeMenuClose(View view, int position, int direction) {
+
+        }
+
+    };
 
 	public TiListView(TiViewProxy proxy, Activity activity) {
 		super(proxy);
@@ -492,7 +568,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		listView.setOnStickyHeaderChangedListener(new OnStickyHeaderChangedListener() {
             
             @Override
-            public void onStickyHeaderChanged(StickyListHeadersListView l, View header,
+            public void onStickyHeaderChanged(StickyListHeadersListViewAbstract l, View header,
                     int itemPosition, long headerId) {
                 //for us headerId is the section index
                 int sectionIndex = (int) headerId;
@@ -756,8 +832,10 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		//Have to add header and footer before setting adapter
 		listView.addHeaderView(headerView, null, false);
 		listView.addFooterView(footerView, null, false);
-
-		listView.setAdapter(adapter);
+		
+		StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(new SwipeMenuAdapter(adapter, getProxy().getActivity(), mMenuCallback));
+        stickyListHeadersAdapterDecorator.setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
+		listView.setAdapter(stickyListHeadersAdapterDecorator);
 		super.processProperties(d);
 		
 	}
@@ -1229,7 +1307,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 		insertSectionAt(index, section);
 	}
 	
-	private int findItemPosition(int sectionIndex, int sectionItemIndex) {
+	public int findItemPosition(int sectionIndex, int sectionItemIndex) {
 		int position = 0;
         synchronized (sections) {
     		for (int i = 0; i < sections.size(); i++) {
@@ -1397,5 +1475,21 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
             
         }
         return null;
+    }
+	
+    public void insert(final int position, final Object item) {
+        listView.insert(position, item);
+    }
+
+    public void insert(final int position, final Object... items) {
+        listView.insert(position, items);
+    }
+
+    public <T> void remove( final int position) {
+        listView.remove(position - listView.getHeaderViewsCount());
+    }
+
+    public <T> void remove( final int position, final int count) {
+        listView.remove(position - listView.getHeaderViewsCount(), count);
     }
 }

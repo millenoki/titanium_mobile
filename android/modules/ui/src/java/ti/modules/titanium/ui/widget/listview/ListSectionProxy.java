@@ -22,10 +22,8 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.KrollProxyReusableListener;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiTouchDelegate;
@@ -538,6 +536,9 @@ public class ListSectionProxy extends ViewProxy {
 	}
 	
 	public void updateItemAt(int index, String binding, String key, Object value) {
+	    if (index < 0 || index >= itemCount) {
+	        return;
+	    }
 	    if (itemProperties != null) {
 	        HashMap itemProp = (HashMap) itemProperties.get(index);
 	        if (!itemProp.containsKey(binding)) {
@@ -654,34 +655,42 @@ public class ListSectionProxy extends ViewProxy {
 	}
 
 	private void handleInsertItemsAt(int index, Object data) {
-		if (data instanceof Object[]) {
-			Object[] views = (Object[]) data;
+        TiListView listView = getListView();
+        if (listView != null) {
+            int position = listView.findItemPosition(sectionIndex, index);
+            if (data instanceof Object[]) {
+                listView.insert(position, (Object[])data);
+            }
+            else {
+                listView.insert(position, data);
+            }
+        }
+        else {
+            if (data instanceof Object[]) {
+                Object[] views = (Object[]) data;
 
-			if (itemProperties == null) {
-				itemProperties = new ArrayList<Object>(Arrays.asList(views));
-			} else {
-				if (index < 0 || index > itemProperties.size()) {
-					Log.e(TAG, "Invalid index to handleInsertItem",
-							Log.DEBUG_MODE);
-					return;
-				}
-				int counter = index;
-				for (Object view : views) {
-					itemProperties.add(counter, view);
-					counter++;
-				}
-			}
-			// only process items when listview's properties is processed.
-			if (getListView() == null) {
-				preload = true;
-				return;
-			}
-
-			itemCount += views.length;
-			processData(views, index);
-		} else {
-			Log.e(TAG, "Invalid argument type to insertItemsAt", Log.DEBUG_MODE);
-		}
+                if (itemProperties == null) {
+                    itemProperties = new ArrayList<Object>(Arrays.asList(views));
+                } else {
+                    if (index < 0 || index > itemProperties.size()) {
+                        Log.e(TAG, "Invalid index to handleInsertItem",
+                                Log.DEBUG_MODE);
+                        return;
+                    }
+                    int counter = index;
+                    for (Object view : views) {
+                        itemProperties.add(counter, view);
+                        counter++;
+                    }
+                }
+                // only process items when listview's properties is processed.
+                preload = true;
+                
+            } else {
+                Log.e(TAG, "Invalid argument type to insertItemsAt",
+                        Log.DEBUG_MODE);
+            }
+        }
 	}
 	
 	private void handleUpdateItemAt(int itemIndex, Object data) {
@@ -726,8 +735,9 @@ public class ListSectionProxy extends ViewProxy {
         notifyDataChange();
     }
 
-	private boolean deleteItems(int index, int count) {
+	private boolean deleteItemsData(int index, int count) {
 		boolean delete = false;
+		
 		while (count > 0) {
 			if (index < itemProperties.size()) {
 				itemProperties.remove(index);
@@ -744,16 +754,61 @@ public class ListSectionProxy extends ViewProxy {
 		}
 		return delete;
 	}
+	
+	public Object deleteItemData(int index) {
+        if (0 <= index && index < itemProperties.size()) {
+            hiddenItems.remove(index);
+            listItemData.remove(index);
+            itemCount --;
+            return itemProperties.remove(index);
+        }
+        return null;
+    }
+	
+	public void insertItemData(int index, Object data) {
+	    if (itemProperties == null) {
+            itemProperties = new ArrayList<Object>();
+            itemProperties.add(data);
+        } else {
+            if (index < 0 || index > itemProperties.size()) {
+                Log.e(TAG, "Invalid index to handleInsertItem",
+                        Log.DEBUG_MODE);
+                return;
+            }
+            itemProperties.add(data);
+        }
+        // only process items when listview's properties is processed.
+        if (getListView() == null) {
+            preload = true;
+            return;
+        }
+
+        itemCount += 1;
+        if (listItemData != null && data instanceof HashMap) {
+            KrollDict d = new KrollDict((HashMap) data);
+            ListItemData itemD = new ListItemData(d);
+            listItemData.add(index, itemD);
+            hiddenItems.add(index, !itemD.isVisible());
+        }
+    }
 
 	private void handleDeleteItemsAt(int index, int count) {
-		deleteItems(index, count);
-        notifyDataChange();
+	    TiListView listView = getListView();
+	    if (listView != null) {
+	        int position = listView.findItemPosition(sectionIndex, index);
+	        listView.remove(position, count);
+	    }
+	    else {
+	        deleteItemsData(index, count);
+	        notifyDataChange();
+	    }
+		
 	}
 
 	private void handleReplaceItemsAt(int index, int count, Object data) {
 		if (count == 0) {
 			handleInsertItemsAt(index, data);
-		} else if (deleteItems(index, count)) {
+		} else if (deleteItemsData(index, count)) {
 			handleInsertItemsAt(index, data);
 		}
 	}
@@ -832,6 +887,7 @@ public class ListSectionProxy extends ViewProxy {
 		
 		data = template.prepareDataDict(data);
 		ListItemProxy itemProxy = (ListItemProxy) cellContent.getView().getProxy();
+		itemProxy.setCurrentItem(sectionIndex, itemIndex, this);
 
 		KrollDict listItemProperties;
 //		KrollDict templateProperties = template.getProperties();

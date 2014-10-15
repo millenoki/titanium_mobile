@@ -1,11 +1,6 @@
 package yaochangwei.pulltorefreshlistview.widget;
+import com.nhaarman.listviewanimations.itemmanipulation.DynamicStickyListHeadersListView;
 
-/**
- * @author Yaochangwei (yaochangwei@gmail.com)
- * 
- *  Refreshable ListView base class. 
- */
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -14,7 +9,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
-public class RefreshableListView extends StickyListHeadersListView {
+public class RefreshableListView extends DynamicStickyListHeadersListView {
 
 	private static final int STATE_NORMAL = 0;
 	private static final int STATE_READY = 1;
