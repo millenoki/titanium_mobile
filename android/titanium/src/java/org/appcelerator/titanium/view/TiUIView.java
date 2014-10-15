@@ -1938,7 +1938,8 @@ public abstract class TiUIView
 		{
 			public void onClick(View view)
 			{
-				if (hierarchyHasListener(TiC.EVENT_CLICK)) {
+			    //if singletap is active dont send click
+				if (!hierarchyHasListener(TiC.EVENT_SINGLE_TAP) && hierarchyHasListener(TiC.EVENT_CLICK)) {
 					fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
 				}
 			}
