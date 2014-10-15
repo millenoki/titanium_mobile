@@ -384,6 +384,17 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:deleteIndex+i inSection:_sectionIndex]];
 		}
 		[tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+        
+        {
+            //prevent a weird effect where the first cell after the removed one would end up selected
+            double delayInSeconds = 0.001;
+            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+            NSIndexPath* toDeselect = indexPaths.firstObject;
+            dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                //code to be executed on the main queue after delay
+                [tableView deselectRowAtIndexPath:toDeselect animated:NO];
+            });
+        }
 		[indexPaths release];
 	} animated:animated];
 }
