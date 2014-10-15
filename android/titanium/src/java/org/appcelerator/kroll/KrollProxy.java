@@ -1657,6 +1657,22 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
             }
         }
     }
+	
+	public KrollProxy createProxyFromObject(Object data,
+            KrollProxy rootProxy, boolean updateKrollProperties) {
+	    if (data instanceof HashMap) {
+	        KrollProxy result = createProxyFromTemplate((HashMap) data,
+	                rootProxy, updateKrollProperties);
+            if (result != null) {
+                result.updateKrollObjectProperties();
+            }
+            return result;
+        }
+        else if (data instanceof KrollProxy) {
+            return  (KrollProxy)data;
+        }
+	    return null;
+	}
     
     public KrollProxy createProxyFromTemplate(HashMap template_,
             KrollProxy rootProxy, boolean updateKrollProperties) {
