@@ -198,26 +198,34 @@
 	}
 }
 
--(void)childRemoved:(TiProxy*)child shouldDetach:(BOOL)shouldDetach
+-(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
 {
 }
 
 -(void)removeProxy:(id)child shouldDetach:(BOOL)shouldDetach
 {
     ENSURE_SINGLE_ARG_OR_NIL(child, TiProxy)
+    BOOL wasChild = false;
     pthread_rwlock_wrlock(&childrenLock);
 	if ([children containsObject:child]) {
 		[children removeObject:child];
+        wasChild = true;
 	}
 	pthread_rwlock_unlock(&childrenLock);
     
 	[child setParent:nil];
-    [self childRemoved:child shouldDetach:shouldDetach];
+    [self childRemoved:child wasChild:wasChild shouldDetach:shouldDetach];
    	[self forgetProxy:child];
 }
 
 -(void)removeProxy:(id)child
 {
+    if (IS_OF_CLASS(child, TiParentingProxy)) {
+        TiParentingProxy* childParent = ((TiParentingProxy*)child).parent;
+        if (childParent && childParent != self) {
+            return;
+        }
+    }
     [self removeProxy:child shouldDetach:YES];
 }
 
@@ -251,7 +259,7 @@
     RELEASE_TO_NIL(children);
     pthread_rwlock_unlock(&childrenLock);
     for (TiProxy* theChild in childrenCopy) {
-        [self childRemoved:theChild shouldDetach:YES];
+        [self childRemoved:theChild wasChild:YES shouldDetach:YES];
         [self forgetProxy:theChild];
     }
 	[childrenCopy release];
@@ -431,6 +439,7 @@
 
 -(void)removeHoldedProxyForKey:(NSString*)key
 {
+    if (!key) return;
     TiProxy* proxy = [_holdedProxies objectForKey:key];
     if (!proxy) {
         NSLog(@"[WARN] there is no holded proxy for the key %@", key);

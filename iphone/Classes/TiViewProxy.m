@@ -822,7 +822,7 @@ SEL GetterForKrollProperty(NSString * key)
     }
 }
 
--(void)childRemoved:(TiProxy*)child shouldDetach:(BOOL)shouldDetach
+-(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
 {
     if (![child isKindOfClass:[TiViewProxy class]]){
         return;
@@ -837,6 +837,7 @@ SEL GetterForKrollProperty(NSString * key)
     } else {
         [childViewProxy setParentVisible:NO];
     }
+    if (!wasChild) return;
     
     BOOL layoutNeedsRearranging = ![self absoluteLayout];
     if (layoutNeedsRearranging)
