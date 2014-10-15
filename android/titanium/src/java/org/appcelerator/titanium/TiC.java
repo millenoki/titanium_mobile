@@ -1063,10 +1063,20 @@ public class TiC
 	 */	
 	public static final String PROPERTY_CAMERA_FLASH_MODE = "cameraFlashMode";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_CAN_CANCEL_EVENTS = "canCancelEvents";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_CAN_CANCEL_EVENTS = "canCancelEvents";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_CAN_SWIPE_LEFT = "canSwipeLeft";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_CAN_SWIPE_RIGHT = "canSwipeRight";
 
 	/**
 	 * @module.api
@@ -1827,7 +1837,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
-
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_LEFT_SWIPE_BUTTONS = "leftSwipeButtons";
+    
 	/**
 	 * @module.api
 	 */
@@ -2397,10 +2412,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_RIGHT = "right";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_RIGHT_BUTTON = "rightButton";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_RIGHT_SWIPE_BUTTONS = "rightSwipeButtons";
 
 	/**
 	 * @module.api

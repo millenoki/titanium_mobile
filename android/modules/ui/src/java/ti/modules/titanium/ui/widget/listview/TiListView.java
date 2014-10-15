@@ -30,7 +30,9 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import org.appcelerator.titanium.view.TiUIView;
 
+import com.nhaarman.listviewanimations.ListViewAnimationsBaseAdapter;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
+import com.nhaarman.listviewanimations.itemmanipulation.DynamicListItemView;
 import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.MenuAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuCallback;
@@ -104,6 +106,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	private RelativeLayout searchLayout;
 	private static final String TAG = "TiListView";
 	private boolean hideKeyboardOnScroll = true;
+	private boolean canShowMenus = false;
 	
 	private static final String defaultTemplateKey = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
 	private static final TiListViewTemplate defaultTemplate = new TiDefaultListViewTemplate(defaultTemplateKey);
@@ -131,11 +134,12 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
         return listView.getWrappedList();
 	}
 
-	public class TiBaseAdapter extends BaseAdapter implements StickyListHeadersAdapter, SectionIndexer, MenuAdapter , Insertable<Object> , Removable<Object>{
+	public class TiBaseAdapter extends ListViewAnimationsBaseAdapter implements StickyListHeadersAdapter, SectionIndexer, MenuAdapter , Insertable<Object> , Removable<Object>{
 
 		Activity context;
 		
 		public TiBaseAdapter(Activity activity) {
+		    super();
 			context = activity;
 		}
 		
@@ -226,9 +230,10 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 			ListItemData item = section.getListItem(sectionItemIndex);
 			KrollDict data = item.getProperties();
 			TiListViewTemplate template = getTemplate(item.getTemplate());
-
+			
+			TiBaseListViewItem itemContent = null;
 			if (content != null) {
-				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
+				itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				setBoundsForBaseItem(itemContent);
 				boolean reusing = sectionIndex != itemContent.sectionIndex || 
 						itemContent.itemIndex >= section.getItemCount() || 
@@ -236,7 +241,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 				section.populateViews(data, itemContent, template, sectionItemIndex, sectionIndex, content, reusing);
 			} else {
 				content = new TiBaseListViewItemHolder(getContext());
-				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
+				itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				setBoundsForBaseItem(itemContent);
 //				LayoutParams params = new LayoutParams();
 //                params.autoFillsWidth = true;
@@ -246,6 +251,8 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 				itemProxy.setListProxy(getProxy());
 				section.generateCellContent(sectionIndex, data, itemProxy, itemContent, template, sectionItemIndex, content);
 			}
+		    canShowMenus |= itemContent.getListItem().canShowMenus();
+
 			return content;
 
 		}
@@ -278,13 +285,15 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		@Override
 		public void notifyDataSetChanged()
 		{
+		    canShowMenus = false;
 			// save index and top position
 			int index = listView.getFirstVisiblePosition();
 			View v = listView.getListChildAt(0);
 			int top = (v == null) ? 0 : v.getTop();
 			super.notifyDataSetChanged();
 			// restore
-			listView.setSelectionFromTop(index, top);
+			//
+			listView.getWrappedList().setSelectionFromTop(index, top);
 		}
 
         @Override
@@ -363,29 +372,46 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
         }
 
         @Override
-        public boolean canShowLeftMenu(int position) {
-            // TODO Auto-generated method stub
+        public boolean canShowLeftMenu(int position, final DynamicListItemView view) {
+            if (!canShowMenus) return false;
+            TiBaseListViewItem viewItem = (TiBaseListViewItem) view.findViewById(TiListView.listContentId);
+            if (viewItem != null) {
+                TiListItem listItem = viewItem.getListItem();
+                return listItem.canShowLeftMenu();
+            }
             return false;
         }
 
         @Override
-        public boolean canShowRightMenu(int position) {
-            // TODO Auto-generated method stub
+        public boolean canShowRightMenu(int position, final DynamicListItemView view) {
+            if (!canShowMenus) return false;
+            TiBaseListViewItem viewItem = (TiBaseListViewItem) view.findViewById(TiListView.listContentId);
+            if (viewItem != null) {
+                TiListItem listItem = viewItem.getListItem();
+                return listItem.canShowRightMenu();
+            }
             return false;
         }
 
         @Override
-        public View[] getLeftButtons(int position) {
-            // TODO Auto-generated method stub
+        public View[] getLeftButtons(int position, final DynamicListItemView view) {
+            TiBaseListViewItem viewItem = (TiBaseListViewItem) view.findViewById(TiListView.listContentId);
+            if (viewItem != null) {
+                TiListItem listItem = viewItem.getListItem();
+                return listItem.getLeftButtons();
+            }
             return null;
         }
 
         @Override
-        public View[] getRightButtons(int position) {
-            // TODO Auto-generated method stub
+        public View[] getRightButtons(int position, final DynamicListItemView view) {
+            TiBaseListViewItem viewItem = (TiBaseListViewItem) view.findViewById(TiListView.listContentId);
+            if (viewItem != null) {
+                TiListItem listItem = viewItem.getListItem();
+                return listItem.getRightButtons();
+            }
             return null;
         }
-
 	}
 	
 	private KrollDict dictForScrollEvent() {

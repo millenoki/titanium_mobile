@@ -7,7 +7,9 @@
 
 package ti.modules.titanium.ui.widget.listview;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
@@ -35,6 +37,12 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 	TiUIView mClickDelegate;
 	View listItemLayout;
 	private boolean shouldFireClick = true;
+    private boolean canShowLeftMenu = false;
+    private boolean canShowLeftMenuDefined = false;
+    private boolean canShowRightMenu = false;
+    private boolean canShowRightMenuDefined = false;
+    private List<TiViewProxy> leftButtons = null;
+    private List<TiViewProxy> rightButtons = null;
 	public TiListItem(TiViewProxy proxy) {
 		super(proxy);
 	}
@@ -50,6 +58,30 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 		v.setFocusable(false);
 	}
 	
+	private List<TiViewProxy> proxiesArrayFromValue(Object value) {
+	    List<TiViewProxy> result = null;
+	    if (value instanceof Object[]) {
+	        result = new ArrayList<TiViewProxy>();
+	        Object[] array  = (Object[]) value;
+            for (int i = 0; i < array.length; i++) {
+                TiViewProxy viewProxy  = (TiViewProxy)proxy.createProxyFromObject(array[i], proxy, false);
+                if (viewProxy != null) {
+                    viewProxy.setParent(proxy);
+                    result.add(viewProxy);
+                }
+            }
+	    }
+	    else {
+	        TiViewProxy viewProxy  = (TiViewProxy)proxy.createProxyFromObject(value, proxy, false);
+            if (viewProxy != null) {
+                viewProxy.setParent(proxy);
+                result = new ArrayList<TiViewProxy>();
+                result.add(viewProxy);
+            }
+	    }
+	    return result;
+	}
+	
 	public void processProperties(KrollDict d) {
 		ListItemProxy itemProxy = (ListItemProxy)getProxy();
 
@@ -63,7 +95,36 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 		if (d.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
 			d.put(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, d.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
 		}
-
+		
+		if (d.containsKey(TiC.PROPERTY_CAN_SWIPE_LEFT)) {
+            canShowLeftMenu = d.optBoolean(TiC.PROPERTY_CAN_SWIPE_LEFT, true);
+            canShowLeftMenuDefined = true;
+        }
+		if (d.containsKey(TiC.PROPERTY_CAN_SWIPE_RIGHT)) {
+            canShowRightMenu = d.optBoolean(TiC.PROPERTY_CAN_SWIPE_RIGHT, true);
+            canShowRightMenuDefined = true;
+        }
+		
+		if (d.containsKey(TiC.PROPERTY_LEFT_SWIPE_BUTTONS)) {
+		    if (leftButtons != null) {
+		        for (TiViewProxy viewProxy : leftButtons) {
+		            proxy.removeHoldedProxy(TiConvert.toString(
+		                    viewProxy.getProperty(TiC.PROPERTY_BIND_ID), null));
+		            proxy.removeProxy(viewProxy);
+		        }
+		    }
+            leftButtons = proxiesArrayFromValue(d.get(TiC.PROPERTY_LEFT_SWIPE_BUTTONS));
+        }
+		if (d.containsKey(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS)) {
+            if (leftButtons != null) {
+                for (TiViewProxy viewProxy : leftButtons) {
+                    proxy.removeHoldedProxy(TiConvert.toString(
+                            viewProxy.getProperty(TiC.PROPERTY_BIND_ID), null));
+                    proxy.removeProxy(viewProxy);
+                }
+            }
+            leftButtons = proxiesArrayFromValue(d.get(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS));
+        }
 		super.processProperties(d);
 	}
 
@@ -265,5 +326,38 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
                 }
             }
         }
+    }
+
+    public boolean canShowLeftMenu() {
+        return (canShowLeftMenuDefined && canShowLeftMenu) || leftButtons != null;
+    }
+    
+    public boolean canShowRightMenu() {
+        return (canShowRightMenuDefined && canShowRightMenu) || rightButtons != null;
+    }
+    
+    private View[] viewsForProxyArray(List<TiViewProxy> proxies) {
+        if (proxies != null) {
+            View[] buttons = new View[proxies.size()];
+            int i = 0;
+            for (TiViewProxy viewProxy : proxies) {
+                buttons[i] = viewProxy.getOrCreateView().getOuterView();
+                i ++;
+            }
+            return buttons;
+        }
+        return null;
+    }
+    
+    public View[] getLeftButtons() {
+        return viewsForProxyArray(leftButtons);
+    }
+    
+    public View[] getRightButtons() {
+        return viewsForProxyArray(rightButtons);
+    }
+
+    public boolean canShowMenus() {
+        return leftButtons != null || rightButtons != null;
     }
 }
