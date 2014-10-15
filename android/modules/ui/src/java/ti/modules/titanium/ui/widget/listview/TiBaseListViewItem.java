@@ -42,6 +42,18 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	public int getSectionIndex() {
         return sectionIndex;
     }
+	
+	public TiListItem getListItem() {
+        return (TiListItem) getView();
+    }
+    
+	public ListItemProxy getProxy() {
+	    TiUIView view  = getView();
+        if (view != null) {
+            return (ListItemProxy)view.getProxy();
+        }
+        return null;
+	}
     
 	public KrollProxy getViewProxyFromBinding(String binding) {
 		TiUIView view  = getView();
