@@ -29,6 +29,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
@@ -1177,7 +1178,7 @@ public class ListSectionProxy extends ViewProxy {
         return this.sectionIndex;
     }
     
-    public View layoutHeaderOrFooterView (Object params, TiViewProxy parent, boolean isFooter) {
+    public View layoutHeaderOrFooterView (Object data, TiViewProxy parent, boolean isFooter) {
         TiViewProxy viewProxy = null;
         int id = TiListView.HEADER_FOOTER_WRAP_ID;
         if (isFooter) {
@@ -1187,11 +1188,11 @@ public class ListSectionProxy extends ViewProxy {
                     this.footerView.setParent(null);
                     this.footerView = null;
                 }
-                if (params instanceof TiViewProxy) {
-                    this.footerView = (TiViewProxy)params;
+                if (data instanceof TiViewProxy) {
+                    this.footerView = (TiViewProxy)data;
                 }
-                else if(params instanceof HashMap) {
-                    this.footerView = (TiViewProxy) parent.createProxyFromTemplate((HashMap) params, parent, true);
+                else if(data instanceof HashMap) {
+                    this.footerView = (TiViewProxy) parent.createProxyFromTemplate((HashMap) data, parent, true);
                 }
             }
             viewProxy = this.footerView;
@@ -1203,11 +1204,11 @@ public class ListSectionProxy extends ViewProxy {
                     this.headerView.setParent(null);
                     this.headerView = null;
                 }
-                if (params instanceof TiViewProxy) {
-                    this.headerView = (TiViewProxy)params;
+                if (data instanceof TiViewProxy) {
+                    this.headerView = (TiViewProxy)data;
                 }
-                else if(params instanceof HashMap) {
-                    this.headerView = (TiViewProxy) parent.createProxyFromTemplate((HashMap) params, parent, true);
+                else if(data instanceof HashMap) {
+                    this.headerView = (TiViewProxy) parent.createProxyFromTemplate((HashMap) data, parent, true);
                 }
             }
             viewProxy = this.headerView;
@@ -1217,6 +1218,16 @@ public class ListSectionProxy extends ViewProxy {
         viewProxy.setParent(parent);
         TiUIView tiView = viewProxy.getOrCreateView();
         if (tiView == null) return null;
+        LayoutParams params = tiView.getLayoutParams();
+      //If height is not dip, explicitly set it to SIZE
+        if (!params.fixedSizeHeight()) {
+            params.sizeOrFillHeightEnabled = true;
+            params.autoFillsHeight = false;
+        }
+        if (params.optionWidth == null && !viewProxy.hasProperty(TiC.PROPERTY_WIDTH)) {
+            params.sizeOrFillWidthEnabled = true;
+            params.autoFillsWidth = true;
+        }
         View outerView = tiView.getOuterView();
         ViewGroup parentView = (ViewGroup) outerView.getParent();
         if (parentView != null && parentView.getId() == id) {
