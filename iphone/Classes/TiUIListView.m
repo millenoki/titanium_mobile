@@ -1729,7 +1729,7 @@ static NSDictionary* replaceKeysForRow;
     }
     
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
-    if(![sectionProxy isHidden] &&  [tableView numberOfRowsInSection:section] == 0)
+    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
     {
         return nil;
     }
@@ -1751,6 +1751,11 @@ static NSDictionary* replaceKeysForRow;
         } else {
             return nil;
         }
+    }
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
+    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
+    {
+        return nil;
     }
     
     return [self sectionView:section forLocation:@"footerView" section:nil];
@@ -1775,6 +1780,10 @@ static NSDictionary* replaceKeysForRow;
     }
     
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
+    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
+    {
+        return 0.0;
+    }
     TiViewProxy* viewProxy = [sectionProxy sectionViewForLocation:@"headerView" inListView:self];
 	
     CGFloat size = 0.0;
@@ -1836,6 +1845,10 @@ static NSDictionary* replaceKeysForRow;
     }
     
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
+    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
+    {
+        return 0.0;
+    }
     TiViewProxy* viewProxy = [sectionProxy sectionViewForLocation:@"footerView" inListView:self];
 	
     CGFloat size = 0.0;
