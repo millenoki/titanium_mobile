@@ -79,12 +79,11 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	private AtomicInteger itemTypeCount;
 	private String defaultTemplateBinding;
 	private HashMap<String, TiListViewTemplate> templatesByBinding;
-	private int listItemId;
-	public static int listContentId;
+	public static int listContentId = 24123;
 	public static int isCheck;
 	public static int hasChild;
 	public static int disclosure;
-	public static int accessory;
+	public static int accessory = 24124;
 	private int headerFooterId;
 	public static LayoutInflater inflater;
 	private int titleId;
@@ -228,12 +227,13 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 						item != section.getListItem(itemContent.itemIndex);
 				section.populateViews(data, itemContent, template, sectionItemIndex, sectionIndex, content, reusing);
 			} else {
-				content = inflater.inflate(listItemId, null);
+				content = new TiBaseListViewItemHolder(getContext());
 				TiBaseListViewItem itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				setBoundsForBaseItem(itemContent);
-				LayoutParams params = new LayoutParams();
-				params.autoFillsWidth = true;
-				itemContent.setLayoutParams(params);
+//				LayoutParams params = new LayoutParams();
+//                params.autoFillsWidth = true;
+//                params.width = LayoutParams.MATCH_PARENT;
+//				itemContent.setLayoutParams(params);
 				ListItemProxy itemProxy = template.generateCellProxy(data, proxy);
 				itemProxy.setListProxy(getProxy());
 				section.generateCellContent(sectionIndex, data, itemProxy, itemContent, template, sectionItemIndex, content);
@@ -532,13 +532,10 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 
 		try {
 			headerFooterId = TiRHelper.getResource("layout.titanium_ui_list_header_or_footer");
-			listItemId = TiRHelper.getResource("layout.titanium_ui_list_item");
 			titleId = TiRHelper.getResource("id.titanium_ui_list_header_or_footer_title");
-			listContentId = TiRHelper.getResource("id.titanium_ui_list_item_content");
 			isCheck = TiRHelper.getResource("drawable.btn_check_buttonless_on_64");
 			hasChild = TiRHelper.getResource("drawable.btn_more_64");
 			disclosure = TiRHelper.getResource("drawable.disclosure_64");
-			accessory = TiRHelper.getResource("id.titanium_ui_list_item_accessoryType");
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
 		}

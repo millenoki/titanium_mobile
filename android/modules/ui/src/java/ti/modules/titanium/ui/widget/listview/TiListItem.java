@@ -8,12 +8,14 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
+
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.TiUIButton;
 import ti.modules.titanium.ui.widget.TiUISlider;
@@ -40,8 +42,8 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 	public TiListItem(TiViewProxy proxy, View v, View item_layout) {
 		super(proxy);
 //		layoutParams = p;
-		layoutParams.autoFillsHeight = true;
-		layoutParams.autoFillsWidth = true;
+        layoutParams.sizeOrFillWidthEnabled = true;
+        layoutParams.autoFillsWidth = true;
 		listItemLayout = item_layout;
 		setNativeView(v);
 		registerForTouch(v);
@@ -83,7 +85,7 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 				break;
 	
 			default:
-				accessoryImage.setImageResource(0);
+				accessoryImage.setImageDrawable(null);
 		}
 	}
 	

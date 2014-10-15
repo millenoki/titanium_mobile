@@ -21,11 +21,12 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	public int itemIndex = -1;
 	public TiBaseListViewItem(Context context) {
 		super(context);
+        setId(TiListView.listContentId);
 	}
 	
 	public TiBaseListViewItem(Context context, AttributeSet set) {
 		super(context, set);
-		setId(TiListView.listContentId);
+        setId(TiListView.listContentId);
 	}
 	
 	
@@ -33,7 +34,6 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	{
 		this.sectionIndex = sectionIndex;
 		this.itemIndex = itemIndex;
-		((ListItemProxy) getView().getProxy()).setCurrentItem(sectionIndex, itemIndex, sectionProxy);
 	}
 	
 	public int getItemIndex() {
