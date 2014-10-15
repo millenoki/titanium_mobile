@@ -12,13 +12,11 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnFocusChangeListener;
 import android.widget.EditText;
 
 public class CustomListView extends RefreshableListView {
 	private int mPosition;
 	private boolean mScrollingEnabled = true;
-    private boolean viewFocused = false;
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
 	private void init() {
@@ -148,7 +146,6 @@ public class CustomListView extends RefreshableListView {
                 }
             } else {
                 //Ok right now focus is with listView. So set it back to the focusedView
-                viewFocused = true;
                 focusedView.setOnFocusChangeListener(focusListener);
                 if (!focusedView.hasFocus()) {
                       focusedView.requestFocus();
