@@ -489,6 +489,11 @@ public class TiDimension
 	{
 		return units == COMPLEX_UNIT_AUTO;
 	}
+	
+	public boolean isUnitFixed()
+    {
+        return units != COMPLEX_UNIT_AUTO && units != COMPLEX_UNIT_PERCENT && units != COMPLEX_UNIT_UNDEFINED;
+    }
 
 	/**
 	 * @return string representation of the TiDimension object.

@@ -1281,6 +1281,14 @@ public class TiCompositeLayout extends FreeLayout implements
 		public boolean autoSizeWidth() {
 			return ((!this.sizeOrFillWidthEnabled && !this.autoFillsWidth && this.optionWidth == null) || (this.sizeOrFillWidthEnabled && !this.autoFillsWidth));
 		}
+		
+		public boolean fixedSizeWidth() {
+            return (this.optionWidth != null && this.optionWidth.isUnitFixed());
+        }
+		
+        public boolean fixedSizeHeight() {
+            return (this.optionHeight != null && this.optionHeight.isUnitFixed());
+        }
 	}
 
 	public static class AnimationLayoutParams extends LayoutParams {
