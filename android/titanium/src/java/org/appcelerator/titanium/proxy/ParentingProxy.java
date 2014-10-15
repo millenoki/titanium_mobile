@@ -2,7 +2,6 @@ package org.appcelerator.titanium.proxy;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -393,7 +392,7 @@ public class ParentingProxy extends KrollProxy {
     
     
     public void removeHoldedProxy(final String key) {
-        if (holdedProxies != null && holdedProxies.containsKey(key)) {
+        if (key != null && holdedProxies != null && holdedProxies.containsKey(key)) {
             handleChildRemoved(holdedProxies.remove(key), true);
         }
     }
