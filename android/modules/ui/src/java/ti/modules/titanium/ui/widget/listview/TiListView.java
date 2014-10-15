@@ -111,7 +111,6 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	 */
 	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE, TiC.PROPERTY_AUTO_LINK, TiC.PROPERTY_TEXT, TiC.PROPERTY_HTML);
 	
-	public static final String MIN_ROW_HEIGHT = "40dp";
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
 	public static final int HEADER_FOOTER_WRAP_ID = 12345;
 	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
