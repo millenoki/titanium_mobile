@@ -85,5 +85,13 @@ public final class <%= classname %>Application extends TiApplication
 	@Override
 	public void verifyCustomModules(TiRootActivity rootActivity)
 	{
+<% if (customModules.length) { %>
+		// Custom modules
+	<% customModules.forEach(function (module) { %>
+		<% if (module.onVerifyModule) { %>
+		<%- module.className %>.<%- module.onVerifyModule %>(this);
+		<% } %>
+	<% }); %>
+<% } %>
 	}
 }
