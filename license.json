@@ -66,6 +66,11 @@
             "title":"SLColorArt",
             "copyright":"Copyright (C) 2012 Panic Inc. Code by Wade Cosgrove. All rights reserved.",
             "license":"Copyright (C) 2012 Panic Inc. Code by Wade Cosgrove. All rights reserved.\n\nRedistribution and use, with or without modification, are permitted\nprovided that the following conditions are met:\n\n- Redistributions must reproduce the above copyright notice, this list of\n  conditions and the following disclaimer in the documentation and/or\n  other materials provided with the distribution.\n\n- Neither the name of Panic Inc nor the names of its contributors may be\n  used to endorse or promote works derived from this software without\n  specific prior written permission from Panic Inc.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS\nIS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,\nTHE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\nPURPOSE ARE DISCLAIMED. IN NO EVENT SHALL PANIC INC BE LIABLE FOR ANY\nDIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\nSERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\nHOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\nSTRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN\nANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\nPOSSIBILITY OF SUCH DAMAGE."
+        },
+        "MGSwipeTableCell":{
+            "title":"MGSwipeTableCell",
+            "copyright":"Copyright (c) 2014 Imanol Fernandez @MortimerGoro",
+             "licenseId":"mit"
         }
     },
     "android":{
@@ -102,6 +107,16 @@
         "ColorArt":{
             "title":"ColorArt",
             "copyright":"Copyright 2013 Michael Evans <michaelcevans10@gmail.com>",
+            "licenseId":"apache_2"
+        },
+        "ListViewAnimations":{
+            "title":"ListViewAnimations",
+            "copyright":"Copyright 2014 Niek Haarman",
+            "licenseId":"apache_2"
+        },
+        "StickyListHeaders":{
+            "title":"StickyListHeaders",
+            "copyright":"Copyright 2014 Emil Sjölander",
             "licenseId":"apache_2"
         }
    }

@@ -33,7 +33,8 @@
 			"titanium.jar"],
 		"xml": ["jaxen-1.1.1.jar"],
 		"ui": [
-			"stickylistheaders-2.5.1.jar", 
+			"stickylistheadersview.jar", 
+			"listviewanimations.jar", 
 			"nineoldandroids-appc-2.4.0.jar", 
 			"okhttp-2.0.0.jar",
 			"okhttp-urlconnection-2.0.0.jar",
