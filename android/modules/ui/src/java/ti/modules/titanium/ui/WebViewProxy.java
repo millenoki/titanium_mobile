@@ -55,8 +55,9 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_CAN_GO_FORWARD = MSG_FIRST_ID + 109;
 	private static final int MSG_RELEASE = MSG_FIRST_ID + 110;
 	private static final int MSG_PAUSE = MSG_FIRST_ID + 111;
-	private static final int MSG_RESUME = MSG_FIRST_ID + 112;
-
+    private static final int MSG_RESUME = MSG_FIRST_ID + 112;
+    private static final int MSG_EVA_JS_ASYNC = MSG_FIRST_ID + 113;
+	
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
 	private static String fpassword;
@@ -114,10 +115,19 @@ public class WebViewProxy extends ViewProxy
 	{
 		return (TiUIWebView) getOrCreateView();
 	}
+	
+	private void handleEvalJSAsync(final String code) {
+        getWebView().evalJSAsync("javascript:" + code);
+    }
+
 
 	@Kroll.method
-	public Object evalJS(String code)
+    public Object evalJS(String code, @Kroll.argument(optional = true) Object asyncProp) 
 	{
+	    Boolean async = false;
+        if (asyncProp instanceof Number) {
+            async = TiConvert.toBoolean(asyncProp);
+        }
 		// If the view doesn't even exist yet,
 		// or if it once did exist but doesn't anymore
 		// (like if the proxy was removed from a parent),
@@ -128,6 +138,17 @@ public class WebViewProxy extends ViewProxy
 			Log.w(TAG, "WebView not available, returning null for evalJS result.");
 			return null;
 		}
+		if (async) {
+		    if (TiApplication.isUIThread()) {
+	            handleEvalJSAsync(code);
+	        } else {
+	            Message message = getMainHandler().obtainMessage(MSG_EVA_JS_ASYNC);
+                message.obj = code;
+                message.sendToTarget();
+	        }
+		    return null;
+		}
+		
 		return view.getJSValue(code);
 	}
 
@@ -211,6 +232,9 @@ public class WebViewProxy extends ViewProxy
 					HashMap<String, Object> d = (HashMap<String, Object>) getProperty(OPTIONS_IN_SETHTML);
 					getWebView().setHtml(html, d);
 					return true;
+				case MSG_EVA_JS_ASYNC:
+                    handleEvalJSAsync((String)msg.obj);
+                    return true;
 			}
 		}
 		return super.handleMessage(msg);

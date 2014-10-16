@@ -660,8 +660,11 @@ public class TiUIWebView extends TiUIView
 			getWebView().loadData(escapeContent(new String(blob.getBytes())), mimeType, "utf-8");
 		}
 	}
+	
+	public void evalJSAsync(final String code) {
+        getWebView().loadUrl("javascript:" + code);
+	}
 
-    @JavascriptInterface
 	public String getJSValue(String expression)
 	{
 		return client.getBinding().getJSValue(expression);

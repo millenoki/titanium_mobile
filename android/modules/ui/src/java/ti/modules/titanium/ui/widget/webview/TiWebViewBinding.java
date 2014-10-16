@@ -142,12 +142,15 @@ public class TiWebViewBinding
 	private Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
 
-    @JavascriptInterface
+//    @JavascriptInterface
 	synchronized public String getJSValue(String expression)
 	{
 		// Don't try to evaluate js code again if the binding has already been destroyed
 		if (!destroyed) {
-			String code = "_TiReturn.setValue((function(){try{return eval(\"" + expression + "\")+\"\";}catch(ti_eval_err){return '';}})());";
+		    String code = "_TiReturn.setValue((function(){try{return " + expression
+	                + "+\"\";}catch(ti_eval_err){return '';}})());";
+	            Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
+//			String code = "_TiReturn.setValue((function(){try{return eval(\"" + expression + "\")+\"\";}catch(ti_eval_err){return '';}})());";
 			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
 			returnSemaphore.drainPermits();
 			synchronized (codeSnippets) {
