@@ -663,7 +663,7 @@ public abstract class TiUIView
 			doSetClickable(nativeView, isTouchEnabled);
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			this.setVisibility(TiConvert.toBoolean(newValue, true) ? View.VISIBLE
-					: View.INVISIBLE);
+					: View.GONE);
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			boolean oldEnabled = isEnabled;
 			isEnabled = TiConvert.toBoolean(newValue, true);
@@ -906,7 +906,7 @@ public abstract class TiUIView
 	                TiUIView tiView = ((TiViewProxy)maskProxy).getOrCreateView();
 	                View view = tiView.getOuterView();
 	                if (tiView.getParent() == null) {
-	                    view.setVisibility(View.INVISIBLE);
+	                    view.setVisibility(View.GONE);
 	                    add(tiView);
 	                }
 	                getOrCreateBorderView().setMaskView(view);
@@ -1206,7 +1206,7 @@ public abstract class TiUIView
 	 */
 	public void hide()
 	{
-		this.setVisibility(View.INVISIBLE);
+		this.setVisibility(View.GONE);
 		if (getOuterView() == null) {
 			Log.w(TAG, "Attempt to hide null native control", Log.DEBUG_MODE);
 		}
