@@ -570,6 +570,7 @@ enum
 - (void)focus:(id)args;
 - (void)blur:(id)args;
 - (BOOL)focused:(id)unused;
+- (BOOL)focussed;
 
 /**
  Method to simulate the layout of child even if not really a child

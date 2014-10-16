@@ -3728,6 +3728,11 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     return [self focused];
 }
 
+-(BOOL)focussed
+{
+    return [self focused];
+}
+
 -(BOOL)focused
 {
 	BOOL result=NO;
