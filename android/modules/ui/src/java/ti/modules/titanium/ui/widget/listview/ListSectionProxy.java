@@ -34,7 +34,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.listview.TiListView.TiBaseAdapter;
-import ti.modules.titanium.ui.widget.listview.TiListViewTemplate.DataItem;
 import android.annotation.SuppressLint;
 import android.os.Message;
 import android.view.View;
@@ -48,7 +47,8 @@ public class ListSectionProxy extends ViewProxy {
 
 	private static final String TAG = "ListSectionProxy";
 	private ArrayList<ListItemData> listItemData;
-	private int itemCount;
+	private int mItemCount;
+    private int mCurrentItemCount = 0;
 	private TiBaseAdapter adapter;
 	private ArrayList<Object> itemProperties;
 	private ArrayList<Integer> filterIndices;
@@ -165,7 +165,7 @@ public class ListSectionProxy extends ViewProxy {
 		listItemData = new ArrayList<ListItemData>();
 		filterIndices = new ArrayList<Integer>();
 		hiddenItems = new ArrayList<Boolean>();
-		itemCount = 0;
+		mItemCount = 0;
 		preload = false;
 	}
 
@@ -204,6 +204,7 @@ public class ListSectionProxy extends ViewProxy {
             this.headerView.setParent(null);
             this.headerView = null;
         }
+		updateCurrentItemCount();
 		notifyDataChange();
 	}
 
@@ -239,6 +240,7 @@ public class ListSectionProxy extends ViewProxy {
 	@Kroll.setProperty
 	public void setHeaderTitle(String headerTitle) {
 		this.headerTitle = headerTitle;
+        updateCurrentItemCount();
 		notifyDataChange();
 	}
 
@@ -267,6 +269,7 @@ public class ListSectionProxy extends ViewProxy {
 
 	public void notifyDataChange() {
 		if (adapter == null) return;
+        updateCurrentItemCount();
 		getMainHandler().post(new Runnable() {
 			@Override
 			public void run() {
@@ -537,7 +540,7 @@ public class ListSectionProxy extends ViewProxy {
 	}
 	
 	public void updateItemAt(int index, String binding, String key, Object value) {
-	    if (index < 0 || index >= itemCount) {
+	    if (index < 0 || index >= mItemCount) {
 	        return;
 	    }
 	    if (itemProperties != null) {
@@ -602,6 +605,7 @@ public class ListSectionProxy extends ViewProxy {
 				hiddenItems.add(i + offset, !itemD.isVisible());
 			}
 		}
+		updateCurrentItemCount();
 		// Notify adapter that data has changed.
 		if (preload == false) {
 	        adapter.notifyDataSetChanged();
@@ -620,7 +624,7 @@ public class ListSectionProxy extends ViewProxy {
 				preload = true;
 				return;
 			}
-			itemCount = items.length;
+			mItemCount = items.length;
 			processData(items, 0);
 
 		} else {
@@ -645,8 +649,8 @@ public class ListSectionProxy extends ViewProxy {
 			}
 			// we must update the itemCount before notify data change. If we
 			// don't, it will crash
-			int count = itemCount;
-			itemCount += views.length;
+			int count = mItemCount;
+			mItemCount += views.length;
 
 			processData(views, count);
 
@@ -658,7 +662,7 @@ public class ListSectionProxy extends ViewProxy {
 	private void handleInsertItemsAt(int index, Object data) {
         TiListView listView = getListView();
         if (listView != null) {
-            int position = listView.findItemPosition(sectionIndex, index);
+            int position = listView.findItemPosition(sectionIndex, index) - listView.getHeaderViewCount();
             if (data instanceof Object[]) {
                 listView.insert(position, (Object[])data);
             }
@@ -742,7 +746,7 @@ public class ListSectionProxy extends ViewProxy {
 		while (count > 0) {
 			if (index < itemProperties.size()) {
 				itemProperties.remove(index);
-				itemCount--;
+				mItemCount--;
 				delete = true;
 			}
 			if (index < listItemData.size()) {
@@ -753,6 +757,7 @@ public class ListSectionProxy extends ViewProxy {
 			}
 			count--;
 		}
+		updateCurrentItemCount();
 		return delete;
 	}
 	
@@ -760,7 +765,8 @@ public class ListSectionProxy extends ViewProxy {
         if (0 <= index && index < itemProperties.size()) {
             hiddenItems.remove(index);
             listItemData.remove(index);
-            itemCount --;
+            mItemCount --;
+            updateCurrentItemCount();
             return itemProperties.remove(index);
         }
         return null;
@@ -784,13 +790,14 @@ public class ListSectionProxy extends ViewProxy {
             return;
         }
 
-        itemCount += 1;
+        mItemCount += 1;
         if (listItemData != null && data instanceof HashMap) {
             KrollDict d = new KrollDict((HashMap) data);
             ListItemData itemD = new ListItemData(d);
             listItemData.add(index, itemD);
             hiddenItems.add(index, !itemD.isVisible());
         }
+        updateCurrentItemCount();
     }
 
 	private void handleDeleteItemsAt(int index, int count) {
@@ -891,8 +898,6 @@ public class ListSectionProxy extends ViewProxy {
 		itemProxy.setCurrentItem(sectionIndex, itemIndex, this);
 
 		KrollDict listItemProperties;
-//		KrollDict templateProperties = template.getProperties();
-		KrollDict listViewProperties = getListView().getProxy().getProperties();
 		String itemId = null;
 
 		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
@@ -903,13 +908,17 @@ public class ListSectionProxy extends ViewProxy {
 		}
 		ProxyListItem rootItem = itemProxy.getListItem();
 		
-		for (Map.Entry<String, String> entry : toPassProps.entrySet()) {
-			String inProp = entry.getKey();
-			String outProp = entry.getValue();
-			if (!listItemProperties.containsKey(outProp) && !rootItem.containsKey(outProp) && listViewProperties.containsKey(inProp)) {
-				listItemProperties.put(outProp, listViewProperties.get(inProp));
-			}
-		}
+//		if (!reusing) {
+	        KrollDict listViewProperties = getListView().getProxy().getProperties();
+		    for (Map.Entry<String, String> entry : toPassProps.entrySet()) {
+	            String inProp = entry.getKey();
+	            String outProp = entry.getValue();
+	            if (!listItemProperties.containsKey(outProp) && !rootItem.containsKey(outProp) && listViewProperties.containsKey(inProp)) {
+	                listItemProperties.put(outProp, listViewProperties.get(inProp));
+	            }
+	        }
+//		}
+		
 
 		// find out if we need to update itemId
 		if (listItemProperties.containsKey(TiC.PROPERTY_ITEM_ID)) {
@@ -924,14 +933,13 @@ public class ListSectionProxy extends ViewProxy {
 		HashMap<String, ProxyListItem> views = itemProxy.getBindings();
 		// Loop through all our views and apply default properties
 		for (String binding : views.keySet()) {
-			DataItem dataItem = template.getDataItem(binding);
 			ProxyListItem viewItem = views.get(binding);
 			KrollProxy proxy  = viewItem.getProxy();
 			if (proxy instanceof TiViewProxy) {
 			    ((TiViewProxy) proxy).getOrCreateView();
 			}
 			KrollProxyListener modelListener = (KrollProxyListener) proxy.getModelListener();
-			if (modelListener == null || !(modelListener instanceof KrollProxyReusableListener)) {
+			if (!(modelListener instanceof KrollProxyReusableListener)) {
                 continue;
 			}
 			if (modelListener instanceof TiUIView) {
@@ -945,23 +953,12 @@ public class ListSectionProxy extends ViewProxy {
 			if (reusing) {
 			    ((KrollProxyReusableListener) modelListener).setReusing(true);
 			}
-			if (data.containsKey(binding)) {
-			    HashMap map = (HashMap) data.get(binding);
-			    if (map != null) {
-			        KrollDict properties = new KrollDict(map);
-	                KrollDict diffProperties = viewItem
-	                        .generateDiffProperties(properties);
-	                if (!diffProperties.isEmpty()) {
-	                    modelListener.processProperties(diffProperties);
-	                }
-			    }
-			} else {
-				KrollDict diffProperties = viewItem
-						.generateDiffProperties(null);
-				if (!diffProperties.isEmpty()) {
-				    modelListener.processProperties(diffProperties);
-				}
-			}
+			KrollDict diffProperties = viewItem
+                    .generateDiffProperties((HashMap) data.get(binding));
+			
+			if (diffProperties != null && !diffProperties.isEmpty()) {
+                modelListener.processProperties(diffProperties);
+            }
             proxy.setSetPropertyListener(itemProxy);
             
 			if (reusing) {
@@ -980,10 +977,14 @@ public class ListSectionProxy extends ViewProxy {
 		}
 
 		// process listItem properties
-		KrollDict listItemDiff = itemProxy.getListItem()
-				.generateDiffProperties(listItemProperties);
-		if (!listItemDiff.isEmpty()) {
-			listItem.processProperties(listItemDiff);
+//		if (reusing) {
+		    listItemProperties = itemProxy.getListItem()
+	                .generateDiffProperties(listItemProperties);
+//		}
+//		KrollDict listItemDiff = itemProxy.getListItem()
+//				.generateDiffProperties(listItemProperties);
+		if (!listItemProperties.isEmpty()) {
+			listItem.processProperties(listItemProperties);
 		}
 
 	}
@@ -1006,37 +1007,40 @@ public class ListSectionProxy extends ViewProxy {
 		if (isFilterOn()) {
 			totalCount = filterIndices.size();
 		} else {
-			totalCount = itemCount;
+			totalCount = mItemCount;
 		}
 		return totalCount - getHiddenCount();
 	}
+	
+	private void updateCurrentItemCount() {
+	    int totalCount = 0;
+        if (!hidden) {
+            if (isFilterOn()) {
+                totalCount = filterIndices.size();
+            } else {
+                totalCount = mItemCount;
+            }
+        }
+        else if (!hideHeaderOrFooter() && hasHeader()) {
+            totalCount += 1;
+        }
 
+        if (!hideHeaderOrFooter()) {
+//          if (hasHeader()) {
+//              totalCount += 1;
+//          }
+            if (footerTitle != null || footerViewArg != null) {
+                totalCount += 1;
+            }
+        }
+        totalCount -= getHiddenCount();
+        mCurrentItemCount = totalCount;
+	}
 	/**
 	 * @return number of entries within section
 	 */
 	public int getItemCount() {
-		int totalCount = 0;
-		if (!hidden) {
-    		if (isFilterOn()) {
-    			totalCount = filterIndices.size();
-    		} else {
-    			totalCount = itemCount;
-    		}
-		}
-		else if (!hideHeaderOrFooter() && hasHeader()) {
-		    totalCount += 1;
-		}
-
-		if (!hideHeaderOrFooter()) {
-//			if (hasHeader()) {
-//				totalCount += 1;
-//			}
-			if (footerTitle != null || footerViewArg != null) {
-				totalCount += 1;
-			}
-		}
-		totalCount -= getHiddenCount();
-		return totalCount;
+		return mCurrentItemCount;
 	}
 
 	private int getHiddenCount() {
@@ -1156,7 +1160,7 @@ public class ListSectionProxy extends ViewProxy {
 			itemProperties.clear();
 			itemProperties = null;
 		}
-
+		mCurrentItemCount = 0;
 		super.release();
 	}
 

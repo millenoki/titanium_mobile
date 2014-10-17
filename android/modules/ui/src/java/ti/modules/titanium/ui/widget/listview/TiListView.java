@@ -134,7 +134,9 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
         return listView.getWrappedList();
 	}
 
-	public class TiBaseAdapter extends ListViewAnimationsBaseAdapter implements StickyListHeadersAdapter, SectionIndexer, MenuAdapter , Insertable<Object> , Removable<Object>{
+	public class TiBaseAdapter extends ListViewAnimationsBaseAdapter implements StickyListHeadersAdapter
+	, SectionIndexer, MenuAdapter , Insertable<Object> , Removable<Object>
+	{
 
 		Activity context;
 		
@@ -1351,6 +1353,10 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
     		}
         }
 		return position;
+	}
+	
+	public int getHeaderViewCount() {
+	    return listView.getHeaderViewsCount();
 	}
 
 	private int getCount() {
