@@ -994,34 +994,12 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	@Kroll.method @Kroll.getProperty
 	public boolean getKeepScreenOn()
 	{
-		Boolean keepScreenOn = null;
-		View nv = getNativeView();
-		if (nv != null) {
-			keepScreenOn = nv.getKeepScreenOn();
-		}
+        View nv = getNativeView();
+        if (nv != null) {
+            return nv.getKeepScreenOn();
+        }
 
-		//Keep the proxy in the correct state
-		Object current = getProperty(TiC.PROPERTY_KEEP_SCREEN_ON);
-		if (current != null) {
-			boolean currentValue = TiConvert.toBoolean(current);
-			if (keepScreenOn == null) {
-				keepScreenOn = currentValue;
-			} else {
-				if (currentValue != keepScreenOn) {
-					setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
-				} else {
-					keepScreenOn = currentValue;
-				}
-			}
-		} else {
-			if (keepScreenOn == null) {
-				keepScreenOn = false; // Android default
-			}
-
-			setProperty(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
-		}
-
-		return keepScreenOn;
+        return false;// Android default
 	}
 
 	@Kroll.method @Kroll.setProperty(retain=false)
