@@ -116,14 +116,14 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
             leftButtons = proxiesArrayFromValue(d.get(TiC.PROPERTY_LEFT_SWIPE_BUTTONS));
         }
 		if (d.containsKey(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS)) {
-            if (leftButtons != null) {
+            if (rightButtons != null) {
                 for (TiViewProxy viewProxy : leftButtons) {
                     proxy.removeHoldedProxy(TiConvert.toString(
                             viewProxy.getProperty(TiC.PROPERTY_BIND_ID), null));
                     proxy.removeProxy(viewProxy);
                 }
             }
-            leftButtons = proxiesArrayFromValue(d.get(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS));
+            rightButtons = proxiesArrayFromValue(d.get(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS));
         }
 		super.processProperties(d);
 	}
