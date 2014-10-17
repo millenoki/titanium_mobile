@@ -175,10 +175,10 @@
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
     // prevent more than one JS thread from showing an alert box at a time
     if ([NSThread isMainThread]==NO) {
+        [self rememberSelf];
         TiThreadPerformOnMainThread(^{[self show:args];}, YES);
         return;
     }
-    [self rememberSelf];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
     
@@ -359,12 +359,6 @@
 -(void)completeWithButton:(int)buttonIndex
 {
     if (customActionSheet) {
-        if (showDialog && (hideOnClick || ![customActionSheet isVisible])) {
-            showDialog = NO;
-            if (![customActionSheet isVisible]) {
-                [self clearCustomActionSheet];
-            }
-        }
         if ([self _hasListeners:@"click"])
         {
             BOOL isCancel = (buttonIndex == 0);
@@ -375,7 +369,12 @@
                                    nil];
             [self fireEvent:@"click" withObject:event];
         }
-        
+        if (showDialog && (hideOnClick || ![customActionSheet isVisible])) {
+            showDialog = NO;
+            if (![customActionSheet isVisible]) {
+                [self clearCustomActionSheet];
+            }
+        }
     }
     else {
         if (showDialog) {

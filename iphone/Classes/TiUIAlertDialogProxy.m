@@ -149,14 +149,14 @@ static BOOL alertShowing = NO;
         
         style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
         
+        [[[TiApp app] controller] incrementActiveAlertControllerCount];
         if ([TiUtils isIOS8OrGreater]) {
             RELEASE_TO_NIL(alertController);
-            [[[TiApp app] controller] incrementActiveAlertControllerCount];
             
             alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
                                                                   message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                             preferredStyle:UIAlertControllerStyleAlert] retain];
-        ((TiAlertView*)alert).hideOnClick = hideOnClick;
+//        ((TiAlertView*)alert).hideOnClick = hideOnClick;
             int curIndex = 0;
             //Configure the Buttons
             for (id btn in buttonNames) {
