@@ -2217,17 +2217,24 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 		fontMap[f] = 1;
 	});
 
-	(function scanFonts(dir, isRoot) {
+	function scanFonts(dir, isRoot, replaceString) {
 		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (file) {
 			var p = path.join(dir, file);
 			if (fs.statSync(p).isDirectory() && (!isRoot || file === 'iphone' || file === 'ios' || ti.availablePlatformsNames.indexOf(file) === -1)) {
-				scanFonts(p);
+				scanFonts(p, false, replaceString);
 			} else if (/\.(otf|ttf)$/i.test(file)) {
-				fontMap['/' + p.replace(iphoneDir, '').replace(iosDir, '').replace(resourceDir, '').replace(/^\//, '')] = 1;
+				fontMap['/' + p.replace(replaceString, '').replace(/^\//, '')] = 1;
 			}
 		});
-	}(resourceDir, true));
+	}
+	var resourcesPaths = [path.join(this.projectDir, 'Resources'), path.join(this.projectDir, 'Resources', 'iphone'), path.join(this.projectDir, 'Resources', 'ios')];
 
+    this.cli.createHook('build.ios.resourcesPaths', this, function (resourcesPaths) {
+        resourcesPaths.forEach(function (dir) {
+            scanFonts.call(this, dir, true, dir);
+        }, this);
+    })(resourcesPaths, function () {});
+    
 	var fonts = Object.keys(fontMap);
 	fonts.length && (plist.UIAppFonts = fonts);
 
