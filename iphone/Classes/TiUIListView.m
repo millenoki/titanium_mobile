@@ -305,6 +305,11 @@ static NSDictionary* replaceKeysForRow;
         if ([TiUtils isIOS7OrGreater]) {
             _defaultSeparatorInsets = [_tableView separatorInset];
         }
+        
+        if ([TiUtils isIOS8OrGreater]) {
+            [_tableView setLayoutMargins:UIEdgeInsetsZero];
+        }
+        
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
@@ -336,6 +341,8 @@ static NSDictionary* replaceKeysForRow;
                 [_searchWrapper layoutProperties]->right = TiDimensionDip(right);
             }
         }
+    } else {
+        [_tableView reloadData];
     }
     [super frameSizeChanged:frame bounds:bounds];
 
@@ -1596,6 +1603,11 @@ static NSDictionary* replaceKeysForRow;
             [cell configurationSet];
         }
         cell.delegate = self;
+        
+        if ([TiUtils isIOS8OrGreater] && (tableView == _tableView)) {
+            [cell setLayoutMargins:UIEdgeInsetsZero];
+        }
+        
         [cellProxy release];
         [cell autorelease];
     }

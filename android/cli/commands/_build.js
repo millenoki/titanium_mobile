@@ -1157,7 +1157,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		for (; i >= 0; i--) {
 			if (targetSDKMap[levels[i]].sdk >= this.minSupportedApiLevel && targetSDKMap[levels[i]].sdk <= this.maxSupportedApiLevel) {
-				this.targetSDK = levels[i];
+				this.targetSDK = targetSDKMap[levels[i]].sdk;
 				break;
 			}
 		}
@@ -1483,14 +1483,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                 process.exit(1);
             }
 
-            if (modules.incompatible.length) {
-                logger.error(__('Found incompatible Titanium Modules:'));
-                modules.incompatible.forEach(function (m) {
-                    logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
-                }, this);
-                logger.log();
-                process.exit(1);
-            }
+			if (modules.incompatible.length) {
+				logger.error(__('Found incompatible Titanium Modules:'));
+				modules.incompatible.forEach(function (m) {
+					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
+				}, this);
+				logger.log();
+				process.exit(1);
+			}
 
             if (modules.conflict.length) {
                 logger.error(__('Found conflicting Titanium modules:'));

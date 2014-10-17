@@ -18,8 +18,10 @@
 
 - (id)density
 {
-	if ([TiUtils isRetinaDisplay])
-	{
+    if ([TiUtils isRetinaHDDisplay]) {
+        return @"xhigh";
+    }
+	if ([TiUtils isRetinaDisplay]) {
 		return @"high";
 	}
 	return @"medium";
@@ -88,6 +90,10 @@
     return NUMFLOAT(platformHeight);
 }
 
+- (NSNumber*) logicalDensityFactor
+{
+	return [NSNumber numberWithFloat:[[UIScreen mainScreen] scale]];
+}
 @end
 
 #endif

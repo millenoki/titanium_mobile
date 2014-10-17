@@ -201,6 +201,8 @@ NSString * const kTiLocalNotification = @"TiLocalNotification";
 NSString * const kTiKeyboardHeightChangedNotification = @"TiKeyboardHeightChanged";
 NSString * const kTiNetworkChangedNotification = @"TiNetworkChangedNotification";
 NSString * const kTiBackgroundLocalNotification = @"TiBackgroundLocalNotification";
+NSString * const kTiLocalNotificationAction = @"TiLocalNotificationAction";
+NSString * const kTiRemoteNotificationAction = @"TiRemoteNotificationAction";
 NSString * const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
 
 NSString* const kTiBehaviorSize = @"SIZE";

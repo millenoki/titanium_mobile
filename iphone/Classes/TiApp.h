@@ -183,8 +183,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  */
 -(NSString*)sessionId;
 
--(KrollBridge*)krollBridge;
-
 -(void)beginBackgrounding;
 -(void)endBackgrounding;
 

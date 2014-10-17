@@ -2942,7 +2942,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             [observer proxyDidRelayout:self];
         }
 
-        if (layoutChanged) {
+        if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
             [self fireEvent:@"postlayout" propagate:NO];
         }
         repositioning = NO;

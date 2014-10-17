@@ -32,6 +32,7 @@ public class KrollAssetHelper
 		String readAsset(String path);
 		boolean assetExists(String path);
 		List<String> list(String path);
+		void setIsProduction(boolean isProduction);
 	}
 
 	public static void setAssetCrypt(AssetCrypt assetCrypt)

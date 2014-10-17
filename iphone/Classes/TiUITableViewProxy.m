@@ -950,6 +950,11 @@ DEFINE_DEF_PROP(scrollsToTop,@YES);
 	[self setSections:newSections withObject:nil];
 }
 
+-(void)willShow
+{
+    [(TiUITableView *)[self view] refreshSearchControllerUsingReload:YES];
+}
+
 -(int)sectionCount
 { //TODO: Shouldn't this be in the main thread, too?
 	return [sections count];

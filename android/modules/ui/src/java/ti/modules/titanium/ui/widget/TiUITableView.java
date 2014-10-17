@@ -15,6 +15,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.SearchBarProxy;
@@ -31,6 +32,7 @@ import android.os.Build;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -38,6 +40,8 @@ import android.widget.RelativeLayout;
 public class TiUITableView extends TiUIView implements OnItemClickedListener,
         OnItemLongClickedListener, OnLifecycleEvent {
     private static final String TAG = "TitaniumTableView";
+
+	private static final int SEARCHVIEW_ID = 102;
 
     public static final int SEPARATOR_NONE = 0;
     public static final int SEPARATOR_SINGLE_LINE = 1;
@@ -175,39 +179,49 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
             if (!(d.containsKey(TiC.PROPERTY_SEARCH_AS_CHILD) && !TiConvert
                     .toBoolean(d.get(TiC.PROPERTY_SEARCH_AS_CHILD)))) {
 
-                search.getNativeView().setId(102);
+                View sView = search.getNativeView();
 
-                RelativeLayout layout = new RelativeLayout(proxy.getActivity());
-                layout.setGravity(Gravity.NO_GRAVITY);
-                layout.setPadding(0, 0, 0, 0);
+				RelativeLayout layout = new RelativeLayout(proxy.getActivity());
+				layout.setGravity(Gravity.NO_GRAVITY);
+				layout.setPadding(0, 0, 0, 0);
 
-                RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
-                        RelativeLayout.LayoutParams.MATCH_PARENT,
-                        RelativeLayout.LayoutParams.MATCH_PARENT);
-                p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
+						RelativeLayout.LayoutParams.MATCH_PARENT,
+						RelativeLayout.LayoutParams.MATCH_PARENT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 
-                TiDimension rawHeight;
-                if (searchView.hasProperty("height")) {
-                    rawHeight = TiConvert.toTiDimension(
-                            searchView.getProperty("height"), 0);
-                } else {
-                    rawHeight = TiConvert.toTiDimension("52dp", 0);
-                }
-                p.height = rawHeight.getAsPixels(layout);
+				TiDimension rawHeight;
+				if (searchView.hasProperty("height")) {
+					rawHeight = TiConvert.toTiDimension(searchView.getProperty("height"), 0);
+				} else {
+					rawHeight = TiConvert.toTiDimension("52dp", 0);
+				}
+				p.height = rawHeight.getAsPixels(layout);
 
-                layout.addView(search.getNativeView(), p);
+				//Check to see if searchView has a border
+				ViewParent parent = sView.getParent();
+				if (parent instanceof TiBorderWrapperView) {
+					TiBorderWrapperView v = (TiBorderWrapperView) parent;
+					v.setId(SEARCHVIEW_ID);
+					layout.addView(v, p);
+				} else if (parent == null) {
+					sView.setId(SEARCHVIEW_ID);
+					layout.addView(sView, p);
+				} else {
+					Log.e(TAG, "Searchview already has parent, cannot add to tableview.", Log.DEBUG_MODE);
+				}
 
-                p = new RelativeLayout.LayoutParams(
-                        RelativeLayout.LayoutParams.MATCH_PARENT,
-                        RelativeLayout.LayoutParams.MATCH_PARENT);
-                p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                p.addRule(RelativeLayout.BELOW, 102);
-                layout.addView(tableView, p);
-                setNativeView(layout);
+				p = new RelativeLayout.LayoutParams(
+						RelativeLayout.LayoutParams.MATCH_PARENT,
+						RelativeLayout.LayoutParams.MATCH_PARENT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				p.addRule(RelativeLayout.BELOW, SEARCHVIEW_ID);
+				layout.addView(tableView, p);
+				setNativeView(layout);
             } else {
                 setNativeView(tableView);
             }

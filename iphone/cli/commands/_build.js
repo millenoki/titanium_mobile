@@ -165,7 +165,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 		// check if they specified the legacy settings: --sim-version, --sim-type, --retina, --tall, --sim-64bit
 		if (this.config.get('ios.autoSelectDevice', true) && (argv['sim-version'] || argv['sim-type'] || argv.retina || argv.tall || argv['sim-64bit'])) {
 			// try to find the closest matching simulator
-			var version = argv['sim-version'] || argv['ios-version'] || defaultIosVersion,
+			var version = argv['sim-version'] || argv['ios-version'] || this.defaultIosVersion,
 				sims = this.iosInfo.simulators,
 				candidates = {};
 
@@ -236,7 +236,7 @@ iOSBuilder.prototype.getDeviceFamily = function getDeviceFamily() {
 	}
 
 	var deviceFamily = this.cli.argv['device-family'],
-		deploymentTargets = this.cli.tiapp['deployment-targets'];
+		deploymentTargets = this.cli.tiapp && this.cli.tiapp['deployment-targets'];
 
 	if (!deviceFamily && process.env.TARGETED_DEVICE_FAMILY) {
 		// device family was not specified at the command line, but we did get it via an environment variable!
@@ -963,14 +963,14 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 								}
 
 								if (value !== 'simulator') {
-									_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
-									_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
+									_t.assertIssue(iosInfo.issues, 'IOS_NO_KEYCHAINS_FOUND');
+									_t.assertIssue(iosInfo.issues, 'IOS_NO_WWDR_CERT_FOUND');
 								}
 								// as soon as we know the target, toggle required options for validation
 								switch (value) {
 									case 'device':
-										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
-										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
+										_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
+										_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
 										iosInfo.provisioning.development.forEach(function (d) {
 											provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
 										});
@@ -979,7 +979,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										break;
 
 									case 'dist-adhoc':
-										_t.assertIssue(logger, iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
+										_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
 										// TODO: assert there is at least one distribution or adhoc provisioning profile
 										if (!cli.argv.xcode) {
 											_t.conf.options['output-dir'].required = true;
@@ -987,6 +987,8 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										// purposely fall through!
 
 									case 'dist-appstore':
+										_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
+
                                         if (value === 'dist-appstore')_t.conf.options['deploy-type'].values = ['production'];
 										_t.conf.options['device-id'].required = false;
 										_t.conf.options['distribution-name'].required = true;
@@ -1255,7 +1257,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	var deviceFamily = this.getDeviceFamily();
 	if (!deviceFamily) {
 		logger.info(__('No device family specified, defaulting to %s', 'universal'));
-		deviceFamily = 'universal';
+		deviceFamily = this.deviceFamily = 'universal';
 	}
 
 	if (!this.deviceFamilies[deviceFamily]) {
@@ -1379,7 +1381,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			if (modules.incompatible.length) {
 				logger.error(__('Found incompatible Titanium Modules:'));
 				modules.incompatible.forEach(function (m) {
-					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + m.minsdk);
+					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
 				}, this);
 				logger.log();
 				process.exit(1);
@@ -2106,7 +2108,7 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 
 
 	Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
-	['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
+	['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-60@3x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small@3x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
 		name = iconName + name;
 		if (fs.existsSync(path.join(this.projectDir, 'Resources', name)) ||
 			fs.existsSync(path.join(this.projectDir, 'Resources', 'iphone', name)) ||
@@ -2117,12 +2119,100 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 		}
 	}, this);
 
-	// scan for ttf and otf font files
-	var fontMap = {},
-		resourceDir = path.join(this.projectDir, 'Resources'),
+	var resourceDir = path.join(this.projectDir, 'Resources'),
 		iphoneDir = path.join(resourceDir, 'iphone'),
 		iosDir = path.join(resourceDir, 'ios');
 
+	var i18nSplashScreens = [];
+
+	ti.i18n.splashScreens(this.projectDir, this.logger).forEach(function (splashImage) {
+		i18nSplashScreens.push(path.basename(splashImage));
+	});
+
+	// scan for launch images, unless the user is managing them
+	if (!Array.isArray(plist.UILaunchImages) && !Array.isArray(plist['UILaunchImages~ipad'])) {
+		[{
+			'orientation': 'Portrait',
+			'minimum-system-version': '8.0',
+			'name': 'Default-Portrait',
+			'subtype': '736h',
+			'scale': ['3x'],
+			'size': '{414, 736}'
+		},
+		{
+			'orientation': 'Landscape',
+			'minimum-system-version': '8.0',
+			'name': 'Default-Landscape',
+			'subtype': '736h',
+			'scale': ['3x'],
+			'size': '{414, 736}'
+		},
+		{
+			'orientation': 'Portrait',
+			'minimum-system-version': '8.0',
+			'name': 'Default',
+			'subtype': '667h',
+			'scale': ['2x'],
+			'size': '{375, 667}'
+		},
+		{
+			'orientation': 'Portrait',
+			'minimum-system-version': '7.0',
+			'name': 'Default',
+			'scale': ['1x', '2x'],
+			'size': '{320, 480}'
+		},
+		{
+			'orientation': 'Portrait',
+			'minimum-system-version': '7.0',
+			'name': 'Default',
+			'subtype': '568h',
+			'scale': ['2x'],
+			'size': '{320, 568}'
+		},
+		{
+			'orientation': 'Portrait',
+			'idiom': 'ipad',
+			'minimum-system-version': '7.0',
+			'name': 'Default-Portrait',
+			'scale': ['1x', '2x'],
+			'size': '{768, 1024}'
+		},
+		{
+			'orientation': 'Landscape',
+			'idiom': 'ipad',
+			'minimum-system-version': '7.0',
+			'name': 'Default-Landscape',
+			'scale': ['1x', '2x'],
+			'size': '{768, 1024}'
+		}].forEach(function (asset) {
+			asset.scale.some(function (scale) {
+				var key,
+					basefilename = asset.name + (asset.subtype ? '-' + asset.subtype : ''),
+					filename = basefilename + (scale !== '1x' ? '@' + scale : '') + '.png';
+
+				if (i18nSplashScreens.indexOf(filename) !== -1 ||
+					fs.existsSync(path.join(resourceDir, filename)) ||
+					fs.existsSync(path.join(iphoneDir, filename)) ||
+					fs.existsSync(path.join(iosDir, filename))) {
+
+					key = 'UILaunchImages' + (asset.idiom === 'ipad' ? '~' + asset.idiom : '');
+					Array.isArray(plist[key]) || (plist[key] = []);
+					plist[key].push({
+						UILaunchImageName: basefilename,
+						UILaunchImageOrientation: asset.orientation,
+						UILaunchImageSize: asset.size,
+						UILaunchImageMinimumOSVersion: asset['minimum-system-version']
+					});
+					return true;
+				}
+			}, this);
+		}, this);
+	}
+
+	var fontMap = {};
+
+	// scan for ttf and otf font files
 	(plist.UIAppFonts || []).forEach(function (f) {
 		fontMap[f] = 1;
 	});
@@ -3323,11 +3413,6 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 };
 
 iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
-	// if we're including all titanium modules, then there's no point writing the defines.h
-	if (this.includeAllTiModules) {
-		return finished();
-	}
-
 	var namespaces = {
 			'analytics': 1,
 			'api': 1,
@@ -3381,8 +3466,9 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		}
 	}, this);
 
-	// if we're doing a simulator build, return now since we don't care about writing the defines.h
-	if (this.target === 'simulator') {
+	// if we're doing a simulator build or we're including all titanium modules,
+	// return now since we don't care about writing the defines.h
+	if (this.target === 'simulator' || this.includeAllTiModules) {
 		return finished();
 	}
 

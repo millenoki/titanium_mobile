@@ -48,8 +48,9 @@ static BOOL alertShowing = NO;
         [alertCondition unlock];
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-	RELEASE_TO_NIL(alert);
-	[super _destroy];
+    RELEASE_TO_NIL(alert);
+    RELEASE_TO_NIL(alertController);
+    [super _destroy];
 }
 
 -(NSMutableDictionary*)langConversionTable
@@ -68,7 +69,7 @@ static BOOL alertShowing = NO;
 
 -(void) cleanup
 {
-	if(alert != nil)
+	if(alert != nil || alertController != nil)
 	{
 		[alertCondition lock];
 		alertShowing = NO;
@@ -79,6 +80,7 @@ static BOOL alertShowing = NO;
 		[self forgetSelf];
 		[self autorelease];
 		RELEASE_TO_NIL(alert);
+		RELEASE_TO_NIL_AUTORELEASE(alertController);
 		[[[TiApp app] controller] decrementActiveAlertControllerCount];
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
 	}
@@ -86,86 +88,131 @@ static BOOL alertShowing = NO;
 
 -(void)hide:(id)args
 {
-	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-	ENSURE_UI_THREAD_1_ARG(args);
-	
-	if (alert!=nil)
-	{
+    ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
+    ENSURE_UI_THREAD_1_ARG(args);
+    BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+    if (alert!=nil) {
 		[self fireEvent:@"close" withObject:nil];
-		//On IOS5 sometimes the delegate does not get called when hide is called soon after show
-		//So we do the cleanup here itself
+        //On IOS5 sometimes the delegate does not get called when hide is called soon after show
+        //So we do the cleanup here itself
 		
-		//Remove ourselves as the delegate. This ensures didDismissWithButtonIndex is not called on dismissWithClickedButtonIndex
-		[alert setDelegate:nil];
-		BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-        ((TiAlertView*)alert).hideOnClick = true; //to make sure we can close now!
-		[alert dismissWithClickedButtonIndex:[alert cancelButtonIndex] animated:animated];
-		[self cleanup];
-	}
+        //Remove ourselves as the delegate. This ensures didDismissWithButtonIndex is not called on dismissWithClickedButtonIndex
+        [alert setDelegate:nil];
+        [alert dismissWithClickedButtonIndex:[alert cancelButtonIndex] animated:animated];
+        [self cleanup];
+    } else if (alertController != nil){
+ 		[self fireEvent:@"close" withObject:nil];
+       [alertController dismissViewControllerAnimated:animated completion:^{
+            [self cleanup];
+        }];
+    }
 }
 
 -(void)show:(id)args
 {
-	if (alertCondition==nil)
-	{
-		alertCondition = [[NSCondition alloc] init];
-	}
-	
-	// prevent more than one JS thread from showing an alert box at a time
-	if ([NSThread isMainThread]==NO)
-	{
-		[self rememberSelf];
+	if (alertCondition==nil) {
+        alertCondition = [[NSCondition alloc] init];
+    }
+
+    // prevent more than one JS thread from showing an alert box at a time
+    if ([NSThread isMainThread]==NO) {
+        [self rememberSelf];
 		
-		[alertCondition lock];
-		if (alertShowing)
-		{
-			[alertCondition wait];
-		}
-		alertShowing = YES;
-		[alertCondition unlock];
-		// alert show should block the JS thread like the browser
-		TiThreadPerformOnMainThread(^{[self show:args];}, YES);
-	}
-	else
-	{
-		RELEASE_TO_NIL(alert);
-		
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
-		
-		NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
-		if (buttonNames==nil || (id)buttonNames == [NSNull null])
-		{
-			buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
-			NSString *ok = [self valueForUndefinedKey:@"ok"];
-			if (ok==nil)
-			{
-				ok = @"OK";
-			}
-			[buttonNames addObject:ok];
-		}
-		persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:NO];
-		hideOnClick = [TiUtils boolValue:[self valueForKey:@"hideOnClick"] def:YES];
-		alert = [[TiAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
-												message:[TiUtils stringValue:[self valueForKey:@"message"]] 
-												delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
-        ((TiAlertView*)alert).hideOnClick = hideOnClick;
+        [alertCondition lock];
+        if (alertShowing) {
+            [alertCondition wait];
+        }
+        alertShowing = YES;
+        [alertCondition unlock];
+        // alert show should block the JS thread like the browser
+        TiThreadPerformOnMainThread(^{[self show:args];}, YES);
+    }
+    else {
+ 		hideOnClick = [TiUtils boolValue:[self valueForKey:@"hideOnClick"] def:YES];
+        persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:NO];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
+        NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
+        if (buttonNames==nil || (id)buttonNames == [NSNull null]) {
+            buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
+            NSString *ok = [self valueForUndefinedKey:@"ok"];
+            if (ok==nil) {
+                ok = @"OK";
+            }
+            [buttonNames addObject:ok];
+        }
         
-		for (id btn in buttonNames)
-		{
-			NSString * thisButtonName = [TiUtils stringValue:btn];
-			[alert addButtonWithTitle:thisButtonName];
-		}
-
-		[alert setCancelButtonIndex:[TiUtils intValue:[self valueForKey:@"cancel"] def:-1]];
-
-		int style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
-		[alert setAlertViewStyle:style];
-
-		[self retain];
-		[[[TiApp app] controller] incrementActiveAlertControllerCount];
-		[alert show];
-		[self fireEvent:@"open" withObject:nil];
+        cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
+        if (cancelIndex >= [buttonNames count]) {
+            cancelIndex = -1;
+        }
+        
+        style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
+        
+        if ([TiUtils isIOS8OrGreater]) {
+            RELEASE_TO_NIL(alertController);
+            [[[TiApp app] controller] incrementActiveAlertControllerCount];
+            
+            alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
+                                                                  message:[TiUtils stringValue:[self valueForKey:@"message"]]
+                                                            preferredStyle:UIAlertControllerStyleAlert] retain];
+        ((TiAlertView*)alert).hideOnClick = hideOnClick;
+            int curIndex = 0;
+            //Configure the Buttons
+            for (id btn in buttonNames) {
+                NSString* btnName = [TiUtils stringValue:btn];
+                if (!IS_NULL_OR_NIL(btnName)) {
+                    UIAlertAction* theAction = [UIAlertAction actionWithTitle:btnName
+                                                                        style:((curIndex == cancelIndex) ? UIAlertActionStyleCancel : UIAlertActionStyleDefault)
+                                                                      handler:^(UIAlertAction * action){
+                                                                                [self fireClickEventWithAction:action];
+                                                                                }];
+                    [alertController addAction:theAction];
+                }
+                curIndex++;
+            }
+            
+            //Configure the TextFields
+            if ( (style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput) ) {
+                [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                    textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
+                }];
+            } else if ((style == UIAlertViewStyleLoginAndPasswordInput)) {
+                [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                    textField.placeholder = @"Login";
+                    textField.secureTextEntry = NO;
+                }];
+                [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                    textField.placeholder = @"Password";
+                    textField.secureTextEntry = YES;
+                }];
+            }
+            
+            [self retain];
+            [[TiApp app] showModalController:alertController animated:YES];
+            
+        } else {
+            RELEASE_TO_NIL(alert);
+            alert = [[TiAlertView alloc] initWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
+                                               message:[TiUtils stringValue:[self valueForKey:@"message"]]
+                                              delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
+        	((TiAlertView*)alert).hideOnClick = hideOnClick;
+            for (id btn in buttonNames)
+            {
+                NSString * thisButtonName = [TiUtils stringValue:btn];
+                [alert addButtonWithTitle:thisButtonName];
+            }
+            
+            [alert setCancelButtonIndex:cancelIndex];
+            
+            
+            [alert setAlertViewStyle:style];
+            
+            [self retain];
+			[[[TiApp app] controller] incrementActiveAlertControllerCount];
+            [alert show];
+			[self fireEvent:@"open" withObject:nil];
+        }
 	}
 }
 
@@ -180,6 +227,34 @@ static BOOL alertShowing = NO;
     if (persistentFlag) {
         [alert show];
     }
+}
+
+-(void) fireClickEventWithAction:(UIAlertAction*)theAction
+{
+    if ([self _hasListeners:@"click"]) {
+        NSArray *theActions = [alertController actions];
+        NSUInteger indexOfAction = [[alertController actions] indexOfObject:theAction];
+        
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                      [NSNumber numberWithInt:indexOfAction],@"index",
+                                      [NSNumber numberWithInt:cancelIndex],@"cancel",
+                                      nil];
+        
+        
+        if (style == UIAlertViewStylePlainTextInput || style == UIAlertViewStyleSecureTextInput) {
+            NSString* theText = [[[alertController textFields] objectAtIndex:0] text];
+            [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"text"];
+        }
+        else if (style == UIAlertViewStyleLoginAndPasswordInput) {
+            NSArray* textFields = [alertController textFields];
+            for (UITextField* theField in textFields) {
+                NSString* theText = [theField text];
+                [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:([theField isSecureTextEntry] ? @"password" : @"login")];
+            }
+        }
+        [self fireEvent:@"click" withObject:event];
+    }
+    [self cleanup];
 }
 #pragma mark AlertView Delegate
 
@@ -197,10 +272,12 @@ static BOOL alertShowing = NO;
                             nil];
 
         if ([alertView alertViewStyle] == UIAlertViewStylePlainTextInput || [alertView alertViewStyle] == UIAlertViewStyleSecureTextInput) {
-            [event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"text"];
+            NSString* theText = [[alertView textFieldAtIndex:0] text];
+            [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"text"];
         }
         else if ([alertView alertViewStyle] == UIAlertViewStyleLoginAndPasswordInput) {
-            [event setObject:[[alertView textFieldAtIndex:0] text] forKey:@"login"];
+            NSString* theText = [[alertView textFieldAtIndex:0] text];
+            [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"login"];
 
             // If password field never gets focus, `text` property becomes `nil`.
             NSString *password = [[alertView textFieldAtIndex:1] text];

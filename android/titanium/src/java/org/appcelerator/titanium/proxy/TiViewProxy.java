@@ -728,6 +728,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	@Kroll.method
 	public void show(@Kroll.argument(optional=true) KrollDict options)
 	{
+		setProperty(TiC.PROPERTY_VISIBLE, true);
 		if (TiApplication.isUIThread()) {
 			handleShow(options);
 		} else {
@@ -740,12 +741,12 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		if (view != null) {
 			view.show();
 		}
-		setProperty(TiC.PROPERTY_VISIBLE, true);
 	}
 
 	@Kroll.method
 	public void hide(@Kroll.argument(optional=true) KrollDict options)
 	{
+		setProperty(TiC.PROPERTY_VISIBLE, false);
 		if (TiApplication.isUIThread()) {
 			handleHide(options);
 		} else {
@@ -759,7 +760,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		if (view != null) {
 			handlePendingAnimation(false);
 			view.hide();
-			setProperty(TiC.PROPERTY_VISIBLE, false);
 		}
 	}
 

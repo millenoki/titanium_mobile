@@ -363,7 +363,6 @@
 		24D8E480119B9D8A00F8CAA6 /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
 		24D8E481119B9D8A00F8CAA6 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
 		24D8E482119B9D8A00F8CAA6 /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
-		24D8E483119B9D8A00F8CAA6 /* TiUIiPadPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */; };
 		24D8E484119B9D8A00F8CAA6 /* TiUIiPadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4F41115C8C4E001AAF99 /* TiUIiPadProxy.m */; };
 		24D8E487119B9D8A00F8CAA6 /* TiUIiPadSplitWindowButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50CF31160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m */; };
 		24D8E488119B9D8A00F8CAA6 /* LauncherButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E061160666300AF54AF /* LauncherButton.m */; };
@@ -428,7 +427,6 @@
 		24F6205A1199F27700EEAD3C /* TiErrorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F620571199F27700EEAD3C /* TiErrorController.m */; };
 		24FB4EE3115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
 		24FB4EF4115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
-		24FB4EFC115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */; };
 		24FB4F42115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4F41115C8C4E001AAF99 /* TiUIiPadProxy.m */; };
 		24FBE58311293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58211293D06005C8D48 /* TiMediaAudioRecorderProxy.mm */; };
 		24FBE5AE11293DD1005C8D48 /* CADebugMacros.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE5A711293DD1005C8D48 /* CADebugMacros.cpp */; };
@@ -540,6 +538,9 @@
 		84C3870217417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
 		84C3870317417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
 		84C3870417417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
+		84D4CA1419EF0B3D009131F8 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		84D4CA1519EF0B4D009131F8 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		84D4CA1619EF0B5A009131F8 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84D541A31460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
 		84D541A41460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
 		84D541A51460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
@@ -807,9 +808,6 @@
 		D58791EA183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
 		D58791EB183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
 		D58791EC183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */ = {isa = PBXBuildFile; fileRef = D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */; };
-		D58D8C6219A3B811001AA611 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */; };
-		D58D8C6319A3B811001AA611 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */; };
-		D58D8C6419A3B811001AA611 /* DAKeyboardControl.m in Sources */ = {isa = PBXBuildFile; fileRef = D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */; };
 		D58DCBCD17FEF0F50011FE0E /* TiSVGImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D58DCBCC17FEF0F50011FE0E /* TiSVGImage.m */; };
 		D58DCBCE17FEF0F50011FE0E /* TiSVGImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D58DCBCC17FEF0F50011FE0E /* TiSVGImage.m */; };
 		D58DCBCF17FEF0F50011FE0E /* TiSVGImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D58DCBCC17FEF0F50011FE0E /* TiSVGImage.m */; };
@@ -1180,7 +1178,6 @@
 		DABB375812E8CB280026A6EA /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
 		DABB375912E8CB280026A6EA /* TiUIiPadSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */; };
 		DABB375A12E8CB280026A6EA /* TiUIiPadPopoverProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */; };
-		DABB375B12E8CB280026A6EA /* TiUIiPadPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */; };
 		DABB375C12E8CB280026A6EA /* TiUIiPadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4F41115C8C4E001AAF99 /* TiUIiPadProxy.m */; };
 		DABB375F12E8CB280026A6EA /* TiUIiPadSplitWindowButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50CF31160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m */; };
 		DABB376012E8CB280026A6EA /* LauncherButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50E061160666300AF54AF /* LauncherButton.m */; };
@@ -1799,8 +1796,6 @@
 		24FB4EDC115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadSplitWindowProxy.m; sourceTree = "<group>"; };
 		24FB4EED115C81C5001AAF99 /* TiUIiPadPopoverProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiUIiPadPopoverProxy.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TiUIiPadPopoverProxy.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		24FB4EF6115C81DD001AAF99 /* TiUIiPadPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiUIiPadPopover.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TiUIiPadPopover.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		24FB4F40115C8C4E001AAF99 /* TiUIiPadProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPadProxy.h; sourceTree = "<group>"; };
 		24FB4F41115C8C4E001AAF99 /* TiUIiPadProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPadProxy.m; sourceTree = "<group>"; };
 		24FBE58111293D06005C8D48 /* TiMediaAudioRecorderProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaAudioRecorderProxy.h; sourceTree = "<group>"; };
@@ -1890,6 +1885,7 @@
 		84BBA58716570F90006B8C22 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectedCellbackgroundView.h; sourceTree = "<group>"; };
 		84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectedCellbackgroundView.m; sourceTree = "<group>"; };
+		84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		84D541A11460B2DF005338D1 /* TiDOMNotationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMNotationProxy.h; sourceTree = "<group>"; };
 		84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMNotationProxy.m; sourceTree = "<group>"; };
 		84D541A61460B3C7005338D1 /* TiDOMEntityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMEntityProxy.h; sourceTree = "<group>"; };
@@ -2235,8 +2231,6 @@
 		D58709B819796508002E8817 /* TiUIiOSActivityProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSActivityProxy.m; sourceTree = "<group>"; };
 		D58791E8183E790F007F5BF1 /* TiTransitionPerspective.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionPerspective.h; sourceTree = "<group>"; };
 		D58791E9183E790F007F5BF1 /* TiTransitionPerspective.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionPerspective.m; sourceTree = "<group>"; };
-		D58D8C6019A3B811001AA611 /* DAKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DAKeyboardControl.h; path = ../Classes/DAKeyboardControl/DAKeyboardControl.h; sourceTree = "<group>"; };
-		D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DAKeyboardControl.m; path = ../Classes/DAKeyboardControl/DAKeyboardControl.m; sourceTree = "<group>"; };
 		D58DCBCB17FEF0F50011FE0E /* TiSVGImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSVGImage.h; sourceTree = "<group>"; };
 		D58DCBCC17FEF0F50011FE0E /* TiSVGImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSVGImage.m; sourceTree = "<group>"; };
 		D58DCBD017FF193D0011FE0E /* TiTransitionHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionHelper.h; sourceTree = "<group>"; };
@@ -2464,6 +2458,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84D4CA1619EF0B5A009131F8 /* CoreMotion.framework in Frameworks */,
 				D57E7F74195AB92800C17ADE /* libakylas.location.a in Frameworks */,
 				D59A20C7194AF3D800BC5B93 /* libakylas.charts.a in Frameworks */,
 				D58ED9071928F49F00BA0E04 /* libakylas.commonjs.a in Frameworks */,
@@ -2517,6 +2512,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84D4CA1519EF0B4D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C2190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
 				D57193E317E996E30033897A /* CoreTelephony.framework in Frameworks */,
 				D585BC8B17E630DA0062275E /* CoreMedia.framework in Frameworks */,
@@ -2562,6 +2558,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84D4CA1419EF0B3D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C3190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
 				D585BC8917E630CD0062275E /* CoreMedia.framework in Frameworks */,
 				D585BC8717E630BA0062275E /* CoreVideo.framework in Frameworks */,
@@ -2704,7 +2701,6 @@
 				D56F98F119E67CF30050E727 /* UIImage+ImageEffects */,
 				D51DEFAF19D9ACBF00CF28B0 /* ActionSheetPicker */,
 				D535CCD919CF2C6A005E114E /* ColorArt */,
-				D58D8C5919A3B7FE001AA611 /* DAKeyboardControl */,
 				D54E554D19953BD1004A7335 /* RDActivityViewController */,
 				D55795071837BEF90057DD41 /* CoconutKitAnimation */,
 				D5B6C6DD1811249F00A2612A /* DT */,
@@ -3683,8 +3679,6 @@
 			children = (
 				24FB4EED115C81C5001AAF99 /* TiUIiPadPopoverProxy.h */,
 				24FB4EEE115C81C5001AAF99 /* TiUIiPadPopoverProxy.m */,
-				24FB4EF6115C81DD001AAF99 /* TiUIiPadPopover.h */,
-				24FB4EF7115C81DD001AAF99 /* TiUIiPadPopover.m */,
 			);
 			name = Popover;
 			sourceTree = "<group>";
@@ -3732,6 +3726,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */,
 				D5B9289218C1EEC200E26393 /* GPUImage.framework */,
 				D5A016C91926109E0005158A /* Accelerate.framework */,
 				D5EA4AD218EF05EB001F67E8 /* libresolv.dylib */,
@@ -4328,15 +4323,6 @@
 				D58709B419796501002E8817 /* ActivityProxy.h */,
 			);
 			name = Activity;
-			sourceTree = "<group>";
-		};
-		D58D8C5919A3B7FE001AA611 /* DAKeyboardControl */ = {
-			isa = PBXGroup;
-			children = (
-				D58D8C6019A3B811001AA611 /* DAKeyboardControl.h */,
-				D58D8C6119A3B811001AA611 /* DAKeyboardControl.m */,
-			);
-			name = DAKeyboardControl;
 			sourceTree = "<group>";
 		};
 		D58ED8E41928E6F700BA0E04 /* Products */ = {
@@ -5075,7 +5061,6 @@
 				24EB07E0111D43AE001DC2D1 /* GDataXMLNode.m in Sources */,
 				24EB0809111D4654001DC2D1 /* TiDOMNodeProxy.m in Sources */,
 				D53DC7B819CF427100BB31C9 /* UIImage+Scale.m in Sources */,
-				D58D8C6219A3B811001AA611 /* DAKeyboardControl.m in Sources */,
 				24EB080F111D46C0001DC2D1 /* TiDOMElementProxy.m in Sources */,
 				24EB0829111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,
 				24EB0843111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */,
@@ -5121,7 +5106,6 @@
 				D54C7CFD18115BBE00F592A9 /* TiTransitionScale.m in Sources */,
 				D58709BE19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
 				24FB4EF4115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */,
-				24FB4EFC115C81DD001AAF99 /* TiUIiPadPopover.m in Sources */,
 				24FB4F42115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
 				24E50CF91160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
 				24E50E1A1160666300AF54AF /* LauncherButton.m in Sources */,
@@ -5422,7 +5406,6 @@
 				24D8E43E119B9D8A00F8CAA6 /* TiBlob.m in Sources */,
 				24D8E43F119B9D8A00F8CAA6 /* TiBase.m in Sources */,
 				D58709BF19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
-				D58D8C6319A3B811001AA611 /* DAKeyboardControl.m in Sources */,
 				24D8E440119B9D8A00F8CAA6 /* TiAppPropertiesProxy.m in Sources */,
 				D54C7CF01811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				24D8E441119B9D8A00F8CAA6 /* TiAnimation.m in Sources */,
@@ -5503,7 +5486,6 @@
 				24D8E481119B9D8A00F8CAA6 /* TiUIiPadSplitWindowProxy.m in Sources */,
 				24D8E482119B9D8A00F8CAA6 /* TiUIiPadPopoverProxy.m in Sources */,
 				D54C7D1718115C3C00F592A9 /* TiTransitionZoom.m in Sources */,
-				24D8E483119B9D8A00F8CAA6 /* TiUIiPadPopover.m in Sources */,
 				24D8E484119B9D8A00F8CAA6 /* TiUIiPadProxy.m in Sources */,
 				24D8E487119B9D8A00F8CAA6 /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
 				24D8E488119B9D8A00F8CAA6 /* LauncherButton.m in Sources */,
@@ -5805,7 +5787,6 @@
 				DABB371712E8CB280026A6EA /* TiBlob.m in Sources */,
 				DABB371812E8CB280026A6EA /* TiBase.m in Sources */,
 				D58709C019796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
-				D58D8C6419A3B811001AA611 /* DAKeyboardControl.m in Sources */,
 				DABB371912E8CB280026A6EA /* TiAppPropertiesProxy.m in Sources */,
 				D54C7CF11811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				DABB371A12E8CB280026A6EA /* TiAnimation.m in Sources */,
@@ -5886,7 +5867,6 @@
 				DABB375912E8CB280026A6EA /* TiUIiPadSplitWindowProxy.m in Sources */,
 				DABB375A12E8CB280026A6EA /* TiUIiPadPopoverProxy.m in Sources */,
 				D54C7D1818115C3C00F592A9 /* TiTransitionZoom.m in Sources */,
-				DABB375B12E8CB280026A6EA /* TiUIiPadPopover.m in Sources */,
 				DABB375C12E8CB280026A6EA /* TiUIiPadProxy.m in Sources */,
 				DABB375F12E8CB280026A6EA /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
 				DABB376012E8CB280026A6EA /* LauncherButton.m in Sources */,
