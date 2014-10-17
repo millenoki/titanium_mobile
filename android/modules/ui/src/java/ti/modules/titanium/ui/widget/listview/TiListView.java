@@ -200,7 +200,9 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 			int sectionIndex = info.second.first;
 			//check marker
 			if (sectionIndex > marker[0] || (sectionIndex == marker[0] && sectionItemIndex >= marker[1])) {
-				proxy.fireEvent(TiC.EVENT_MARKER, null, false);
+				if (proxy.hasListeners(TiC.EVENT_MARKER, false)) {
+	                proxy.fireEvent(TiC.EVENT_MARKER, null, false, false);
+				}
 				resetMarker();
 			}
 
@@ -311,11 +313,6 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
             ListSectionProxy section = info.first;
             int sectionItemIndex = info.second.second;
             int sectionIndex = info.second.first;
-            //check marker
-            if (sectionIndex > marker[0] || (sectionIndex == marker[0] && sectionItemIndex >= marker[1])) {
-                proxy.fireEvent(TiC.EVENT_MARKER, null, false);
-                resetMarker();
-            }
 
             
             if (section.getHeaderView() != null) {
