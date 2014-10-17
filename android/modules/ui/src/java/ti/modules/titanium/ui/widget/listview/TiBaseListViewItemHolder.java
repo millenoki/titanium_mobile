@@ -44,12 +44,12 @@ public class TiBaseListViewItemHolder extends TiCompositeLayout {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (listView != null) {
-	        int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
-	        if (hFromSpec == 0) {
+//		if (listView != null) {
+//	        int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
+//	        if (hFromSpec == 0) {
 	            heightMeasureSpec = MeasureSpec.makeMeasureSpec(listView.getMeasuredHeight(), MeasureSpec.AT_MOST);
-	        }
-		}
+//	        }
+//		}
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 }
