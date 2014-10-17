@@ -7,6 +7,7 @@
 
 package ti.modules.titanium.ui.widget.listview;
 
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.appcelerator.kroll.KrollDict;
@@ -35,7 +36,7 @@ public class ProxyListItem {
 	 * @param properties The properties from our data model
 	 * @return The difference set of properties to set
 	 */
-	public KrollDict generateDiffProperties(KrollDict properties) {
+	public KrollDict generateDiffProperties(HashMap properties) {
 		diffProperties.clear();
 		Iterator<String> it = currentProperties.keySet().iterator();
 		while (it.hasNext())
