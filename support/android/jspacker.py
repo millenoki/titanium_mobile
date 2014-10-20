@@ -35,6 +35,7 @@ import org.appcelerator.kroll.common.Log;
 
 public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 {
+  private boolean isProduction = false;
   private static class Range {
     int offset;
     int length;
@@ -44,7 +45,14 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
     }
   }
 
+
+
 ${init_assets}
+
+  public void setIsProduction(boolean production) 
+  {
+    isProduction = production;
+  }
 
   public String readAsset(String path)
   {
