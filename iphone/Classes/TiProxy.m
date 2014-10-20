@@ -1204,7 +1204,7 @@ DEFINE_EXCEPTIONS
 {
 	ENSURE_SINGLE_ARG(args, NSDictionary)
     [args enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-        id obj = [self valueForUndefinedKey:key];
+        id obj = [_proxyBindings valueForKey:key];
         if ([obj isKindOfClass:[TiProxy class]] && [value isKindOfClass:[NSDictionary class]]) {
             [obj applyProperties:value];
         }
