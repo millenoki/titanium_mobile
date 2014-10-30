@@ -535,6 +535,17 @@ static NSArray* handledKeys;
         }
     }
 }
+
+
+//override to get the correct backgroundColor
+-(UIColor *) backgroundColorForSwipe
+{
+    if (self.swipeBackgroundColor) {
+        return self.swipeBackgroundColor; //user defined color
+    }
+    return [[_bgView selectableLayer] getColorForState:UIControlStateNormal];
+}
+
 @end
 
 #endif

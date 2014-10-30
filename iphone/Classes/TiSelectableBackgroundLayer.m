@@ -385,6 +385,12 @@ inline static CGRect CGRectCenterRectForResizableImage(UIImage *image) {
     }
 }
 
+- (UIColor*)getColorForState:(UIControlState)state
+{
+    TiDrawable* drawable = [self getDrawableForState:state];
+    return [drawable color];
+}
+
 
 - (void)setImage:(id)image forState:(UIControlState)state
 {
