@@ -817,7 +817,37 @@ typedef struct MGSwipeAnimationData {
     if (gesture.state == UIGestureRecognizerStateBegan) {
         self.highlighted = NO;
         self.selected = NO;
-        [self createSwipeViewIfNeeded];
+        
+        if (_swipeOffset == 0) {
+            BOOL needsUpdate = false;
+            //starting, look for buttons size change
+            if (leftView && _leftButtons.count > 0) {
+                CGFloat maxWidth = 0;
+                for (UIView * button in _leftButtons) {
+                    maxWidth += button.bounds.size.width;
+                }
+                if (maxWidth != leftView.frame.size.width) {
+                    needsUpdate = true;
+                }
+            }
+            if (rightView && _rightButtons.count > 0) {
+                CGFloat maxWidth = 0;
+                for (UIView * button in _rightButtons) {
+                    maxWidth += button.bounds.size.width;
+                }
+                if (maxWidth != rightView.frame.size.width) {
+                    needsUpdate = true;
+                }
+            }
+            if (needsUpdate) {
+                [self refreshButtons:NO];
+            }
+            else {
+                [self createSwipeViewIfNeeded];
+            }
+        } else {
+            [self createSwipeViewIfNeeded];
+        }
         panStartPoint = current;
         panStartOffset = _swipeOffset;
     }
