@@ -120,6 +120,7 @@
     NSInteger _currentSection;
     
     BOOL _canSwipeCells;
+    MGSwipeTableCell * _currentSwipeCell;
 }
 
 static NSDictionary* replaceKeysForRow;
@@ -1691,7 +1692,14 @@ static NSDictionary* replaceKeysForRow;
                 NSMutableArray* buttonViews = [NSMutableArray arrayWithCapacity:[theValue count]];
                 [theValue enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                     if (IS_OF_CLASS(obj, TiViewProxy)) {
-                        [buttonViews addObject:[(TiViewProxy*)obj getAndPrepareViewForOpening]];
+                        [(TiViewProxy*)obj setCanBeResizedByFrame:YES];
+//                        if ([(TiViewProxy*)obj viewAttached]) {
+//                            [(TiViewProxy*)obj refreshView];
+//                            [buttonViews addObject:[(TiViewProxy*)obj view]];
+//                        }
+//                        else {
+                            [buttonViews addObject:[(TiViewProxy*)obj getAndPrepareViewForOpening]];
+//                        }
                     }
                 }];
                 theValue = [NSArray arrayWithArray:buttonViews];                
@@ -1699,6 +1707,24 @@ static NSDictionary* replaceKeysForRow;
         return theValue;
     }
     return nil;
+}
+
+-(void) swipeTableCell:(MGSwipeTableCell*) cell didChangeSwipeState:(MGSwipeState) state gestureIsActive:(BOOL) gestureIsActive {
+    if (state != MGSwipeStateNone) {
+        _currentSwipeCell = cell;
+    } else {
+        _currentSwipeCell = nil;
+    }
+}
+
+-(void)closeSwipeMenu:(NSNumber*)anim {
+    if (!_currentSwipeCell) return;
+    BOOL animated = YES;
+    if (anim != nil)
+        animated = [anim boolValue];
+    if (_currentSwipeCell) {
+        [_currentSwipeCell hideSwipeAnimated:animated];
+    }
 }
 
 #pragma mark - UITableViewDelegate

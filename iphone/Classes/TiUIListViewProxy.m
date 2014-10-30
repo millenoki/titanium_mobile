@@ -698,6 +698,11 @@ NSArray* sliceArray(NSArray* array, int startIndex) {
 	} animated:YES];
 }
 
+-(void)closeSwipeMenu:(id)args {
+    ENSURE_SINGLE_ARG_OR_NIL(args,NSNumber);
+    [self makeViewPerformSelector:@selector(closeSwipeMenu:) withObject:args createIfNeeded:NO waitUntilDone:NO];
+}
+
 #pragma mark - Marker Support
 - (void)setMarker:(id)args;
 {
