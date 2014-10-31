@@ -195,7 +195,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
             if ([mimetype isEqualToString:MIMETYPE_PNG]) {
                 return UIImagePNGRepresentation(image);
             }
-            return UIImageJPEGRepresentation(image,1.0);
+            return UIImageJPEGRepresentation(image, image.compressionLevel);
 		}
 		default: {
 			break;
@@ -421,23 +421,30 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     NSData * lastImgData = nil;
     NSData * imgData = UIImageJPEGRepresentation(theImage,compressionRatio);
     
-    //Trying to push it below around about 0.4 meg
-    while ([imgData length] > byteSize && resizeAttempts > 0) {
+    NSUInteger currentSize = [imgData length];
+    while (currentSize > byteSize && resizeAttempts > 0) {
         resizeAttempts -= 1;
         lastImgData = imgData;
         compressionRatio = 0.7;
         imgData = UIImageJPEGRepresentation([UIImage imageWithData:lastImgData],compressionRatio);
-        if ([imgData length] > byteSize) {
-            compressionRatio = 0.5;
+        currentSize = [imgData length];
+        if (currentSize <= byteSize) {
+//            imgData = [UIImage imageWithData:imgData];
+            break;
+        } else {
+            compressionRatio = 1.0;
         }
         // too much of a compression let's resize the image
         UIImage* newImage = [UIImage imageWithData:lastImgData];
-        newImage = [UIImageResize resizedImage:CGSizeMake(newImage.size.width*compressionRatio, newImage.size.height*compressionRatio) interpolationQuality:kCGInterpolationDefault image:newImage hires:(newImage.scale >= 2)];
-        imgData = UIImageJPEGRepresentation(newImage, 1);
         
+        newImage = [UIImageResize resizedImage:CGSizeMake(newImage.size.width*0.5, newImage.size.height*0.5) interpolationQuality:kCGInterpolationDefault image:newImage hires:(newImage.scale >= 2)];
+        imgData = UIImageJPEGRepresentation(newImage, 1);
+        currentSize = [imgData length];
         //Test size after compression
     }
-    return [UIImage imageWithData:imgData];
+    UIImage* result = [UIImage imageWithData:imgData];
+    result.compressionLevel = compressionRatio;
+    return result;
 }
 
 - (id)imageAsCompressed:(id)args
