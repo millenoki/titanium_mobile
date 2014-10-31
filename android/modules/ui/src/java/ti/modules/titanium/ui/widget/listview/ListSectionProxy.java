@@ -857,31 +857,6 @@ public class ListSectionProxy extends ViewProxy {
 	    return getRealPosition(result);
 	}
 
-//	public void appendExtraEventData(KrollProxyReusableListener listener, int realItemIndex, int sectionIndex, String bindId, String itemId) {
-//		KrollDict existingData = listener.getAdditionalEventData();
-//		if (existingData == null) {
-//			existingData = new KrollDict();
-//			listener.setAdditionalEventData(existingData);
-//		}
-//
-//		existingData.put(TiC.PROPERTY_SECTION, this);
-//		existingData.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
-//		existingData.put(TiC.PROPERTY_ITEM_INDEX, realItemIndex);
-//
-//		if (bindId != null && !bindId.equals(TiC.PROPERTY_PROPERTIES)) {
-//			existingData.put(TiC.PROPERTY_BIND_ID, bindId);
-//		} else if (existingData.containsKey(TiC.PROPERTY_BIND_ID)) {
-//			existingData.remove(TiC.PROPERTY_BIND_ID);
-//		}
-//
-//		if (itemId != null) {
-//			existingData.put(TiC.PROPERTY_ITEM_ID, itemId);
-//		} else if (existingData.containsKey(TiC.PROPERTY_ITEM_ID)) {
-//			existingData.remove(TiC.PROPERTY_ITEM_ID);
-//		}
-//
-//	}
-
 	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiListViewTemplate template, int itemIndex, int sectionIndex,
 			View item_layout, boolean reusing) {
 		TiListItem listItem = (TiListItem)cellContent.getView();
@@ -928,8 +903,6 @@ public class ListSectionProxy extends ViewProxy {
 
 		// update extra event data for list item
 		itemProxy.setEventOverrideDelegate(itemProxy);
-//		appendExtraEventData(listItem, realItemIndex, sectionIndex,
-//				TiC.PROPERTY_PROPERTIES, itemId);
 
 		HashMap<String, ProxyListItem> views = itemProxy.getBindings();
 		// Loop through all our views and apply default properties
@@ -948,7 +921,6 @@ public class ListSectionProxy extends ViewProxy {
             }
 			// update extra event data for views
 			proxy.setEventOverrideDelegate(itemProxy);
-//			appendExtraEventData((KrollProxyReusableListener) modelListener, realItemIndex, sectionIndex, binding, itemId);
 			// if binding is contain in data given to us, process that data,
 			// otherwise
 			// apply default properties.
@@ -975,7 +947,6 @@ public class ListSectionProxy extends ViewProxy {
 	                ((TiUIView)modelListener).setTouchDelegate((TiTouchDelegate) listItem);
 	            }
 		        theProxy.setEventOverrideDelegate(itemProxy);
-//	            appendExtraEventData((KrollProxyReusableListener) modelListener, realItemIndex, sectionIndex, null, itemId);
             }
 		}
 

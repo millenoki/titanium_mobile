@@ -55,7 +55,6 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.Bitmap.Config;
 import android.graphics.RectF;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -120,8 +119,6 @@ public abstract class TiUIView
 	protected LayoutParams layoutParams;
 	protected TiBackgroundDrawable background;
 	
-	protected KrollDict additionalEventData;
-
     protected boolean preventListViewSelection = false;
     protected boolean touchPassThrough = false;
 	protected boolean dispatchPressed = false;
@@ -266,14 +263,6 @@ public abstract class TiUIView
 				}
 			}
 		}
-	}
-	
-	public void setAdditionalEventData(KrollDict dict) {
-		additionalEventData = dict;
-	}
-	
-	public KrollDict getAdditionalEventData() {
-		return additionalEventData;
 	}
 
 	/**
@@ -1972,16 +1961,7 @@ public abstract class TiUIView
 
 
 	public boolean fireEvent(String eventName, KrollDict data, boolean bubbles, boolean checkListeners) {
-		if (checkListeners && !hasListeners(eventName, bubbles))
-		{
-			return false;
-		}
-		if (data == null && additionalEventData != null) {
-			data = new KrollDict(additionalEventData);
-		} else if (additionalEventData != null) {
-			data.putAll(additionalEventData);
-		}
-		return proxy.fireEvent(eventName, data, bubbles, false);
+		return proxy.fireEvent(eventName, data, bubbles, checkListeners);
 	}
 
 	protected void setOnLongClickListener(View view)
