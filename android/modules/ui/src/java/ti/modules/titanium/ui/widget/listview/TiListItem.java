@@ -13,8 +13,10 @@ import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiViewEventOverrideDelegate;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -24,6 +26,7 @@ import ti.modules.titanium.ui.widget.TiUISlider;
 import ti.modules.titanium.ui.widget.TiUISwitch;
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -60,6 +63,7 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 	
 	private List<TiViewProxy> proxiesArrayFromValue(Object value) {
 	    List<TiViewProxy> result = null;
+	    final ListItemProxy itemProxy = (ListItemProxy) proxy;
 	    if (value instanceof Object[]) {
 	        result = new ArrayList<TiViewProxy>();
 	        Object[] array  = (Object[]) value;
@@ -67,6 +71,7 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
                 TiViewProxy viewProxy  = (TiViewProxy)proxy.createProxyFromObject(array[i], proxy, false);
                 if (viewProxy != null) {
                     viewProxy.setParent(proxy);
+                    viewProxy.setEventOverrideDelegate(itemProxy);
                     result.add(viewProxy);
                 }
             }
@@ -75,6 +80,7 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 	        TiViewProxy viewProxy  = (TiViewProxy)proxy.createProxyFromObject(value, proxy, false);
             if (viewProxy != null) {
                 viewProxy.setParent(proxy);
+                viewProxy.setEventOverrideDelegate(itemProxy);
                 result = new ArrayList<TiViewProxy>();
                 result.add(viewProxy);
             }
@@ -340,8 +346,18 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
         if (proxies != null) {
             View[] buttons = new View[proxies.size()];
             int i = 0;
+            final Context context = getContext();
             for (TiViewProxy viewProxy : proxies) {
-                buttons[i] = viewProxy.getOrCreateView().getOuterView();
+                View view = viewProxy.getOrCreateView().getOuterView();
+                if (view.getParent() instanceof TiCompositeLayout) {
+                    buttons[i] = (View) view.getParent();
+                }
+                else {
+                    TiCompositeLayout layout = new TiCompositeLayout(context);
+                    layout.addView(view);
+                    buttons[i] = layout;
+                }
+                
                 i ++;
             }
             return buttons;

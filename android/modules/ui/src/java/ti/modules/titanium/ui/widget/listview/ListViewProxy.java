@@ -63,6 +63,7 @@ public class ListViewProxy extends TiViewProxy {
 	private static final int MSG_SHOW_PULL_VIEW = MSG_FIRST_ID + 408;
 	private static final int MSG_GET_SECTIONS = MSG_FIRST_ID + 409;
 	private static final int MSG_SET_SECTIONS = MSG_FIRST_ID + 410;
+    private static final int MSG_CLOSE_SWIPE_MENU = MSG_FIRST_ID + 411;
 
 
 
@@ -331,7 +332,10 @@ public class ListViewProxy extends TiViewProxy {
 				handleClosePullView(msg.obj);
 				return true;
 			}
-			
+			case MSG_CLOSE_SWIPE_MENU: {
+                handleCloseSwipeMenu(msg.obj);
+                return true;
+            }
 			case MSG_GET_SECTIONS: {
 				AsyncResult result = (AsyncResult)msg.obj;
 				result.setResult(handleSections());
@@ -549,6 +553,17 @@ public class ListViewProxy extends TiViewProxy {
 			((TiListView) listView).closePullView(animated);
 		}
 	}
+	   
+    public void handleCloseSwipeMenu(Object obj) {
+        Boolean animated = true;
+        if (obj != null) {
+            animated = TiConvert.toBoolean(obj);
+        }
+        TiUIView listView = peekView();
+        if (listView != null) {
+            ((TiListView) listView).closeSwipeMenu(animated);
+        }
+    }
 	
 	@Kroll.method()
 	public void showPullView(@Kroll.argument(optional = true) Object obj) {
@@ -569,7 +584,16 @@ public class ListViewProxy extends TiViewProxy {
 			handler.sendMessage(handler.obtainMessage(MSG_CLOSE_PULL_VIEW, obj));
 		}
 	}
-	
+    @Kroll.method()
+    public void closeSwipeMenu(@Kroll.argument(optional = true) Object obj) {
+        if (TiApplication.isUIThread()) {
+            handleCloseSwipeMenu(obj);
+        } else {
+            Handler handler = getMainHandler();
+            handler.sendMessage(handler.obtainMessage(MSG_CLOSE_SWIPE_MENU, obj));
+        }
+    }
+    	
 	
 	@Kroll.method
 	public void appendItems(int sectionIndex, Object data) {

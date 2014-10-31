@@ -17,14 +17,16 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiViewEventOverrideDelegate;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
-public class ListItemProxy extends TiViewProxy implements KrollProxy.SetPropertyChangeListener
+public class ListItemProxy extends TiViewProxy implements KrollProxy.SetPropertyChangeListener, TiViewEventOverrideDelegate
 {
     protected WeakReference<TiViewProxy> listProxy;
 	
@@ -190,6 +192,35 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
                 return;
             }
         }
+    }
+
+    @Override
+    public Object overrideEvent(Object data, String type, KrollProxy proxy) {
+        if (data != null && !(data instanceof KrollDict)) {
+            return data;
+        }
+        KrollDict dict = (KrollDict) data;
+        if (dict == null) {
+            dict = new KrollDict();
+        }
+        else if (dict.containsKey(TiC.PROPERTY_SECTION)) {
+            return data; //already done
+        }
+
+        dict.put(TiC.PROPERTY_SECTION, sectionProxy.get());
+        dict.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
+        dict.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
+        String bindId = TiConvert.toString(
+                proxy.getProperty(TiC.PROPERTY_BIND_ID), null);
+        if (bindId != null) {
+            dict.put(TiC.PROPERTY_BIND_ID, bindId);
+        }
+        String itemId = TiConvert.toString(
+                proxy.getProperty(TiC.PROPERTY_ITEM_ID), null);
+        if (itemId != null) {
+            dict.put(TiC.PROPERTY_ITEM_ID, itemId);
+        }
+        return dict;
     }
 	
 	

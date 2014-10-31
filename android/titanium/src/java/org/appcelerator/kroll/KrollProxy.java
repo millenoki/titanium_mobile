@@ -28,12 +28,11 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiViewEventOverrideDelegate;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUrl;
-import org.appcelerator.titanium.view.KrollProxyReusableListener;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -100,7 +99,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	private KrollDict langConversionTable = null;
     private boolean bubbleParent = true;
     private boolean bubbleParentDefined = false;
-	
+    private TiViewEventOverrideDelegate eventOverrideDelegate = null;
+    
 	private List<String> mSyncEvents;
 	
     private HashMap<String, Object> propertiesToUpdateNativeSide = null;
@@ -976,6 +976,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		if (bubbleParentDefined) {
 			bubbles = bubbleParent;
 		}
+		if (eventOverrideDelegate != null) {
+		    data = eventOverrideDelegate.overrideEvent(data, event, this);
+		}
 		Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT, data);
 		message.getData().putString(PROPERTY_NAME, event);
 		message.getData().putBoolean(PROPERTY_BUBBLES, bubbles);
@@ -1745,6 +1748,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
         if (mSyncEvents != null) {
             mSyncEvents.remove(event);
         }
+    }
+    
+    public void setEventOverrideDelegate(final TiViewEventOverrideDelegate eventOverrideDelegate) {
+        this.eventOverrideDelegate = eventOverrideDelegate;
     }
 }
 

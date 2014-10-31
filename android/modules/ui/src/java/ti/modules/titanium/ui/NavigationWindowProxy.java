@@ -15,6 +15,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -34,7 +35,6 @@ import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.KrollProxyReusableListener;
 import org.appcelerator.titanium.view.TiUIView;
 
 import com.nineoldandroids.animation.Animator;
@@ -59,7 +59,7 @@ import android.view.ViewGroup;
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT
 })
-public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEvent, TiActivityWindow, interceptOnBackPressedEvent, TiWindowManager, interceptOnHomePressedEvent, KrollProxyReusableListener
+public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEvent, TiActivityWindow, interceptOnBackPressedEvent, TiWindowManager, interceptOnHomePressedEvent, KrollProxyListener
 {
 	private static final String TAG = "NavigationWindowProxy";
 
@@ -853,18 +853,4 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 	@Override
 	public void listenerRemoved(String type, int count, KrollProxy proxy) {}
 
-	
-	////ONLY USED FOR LISTVIEW AND SUCH
-    @Override
-    public void setReusing(boolean value) {
-    }
-
-    @Override
-    public void setAdditionalEventData(KrollDict dict) {
-    }
-
-    @Override
-    public KrollDict getAdditionalEventData() {
-        return null;
-    }
 }
