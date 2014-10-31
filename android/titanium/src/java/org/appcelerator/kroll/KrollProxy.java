@@ -599,25 +599,34 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	}
 
 	/**
-	 * This sets the named property as well as updating the actual JS object.
+	 * This sets the named property WITHOUT updating the actual JS object.
 	 * @module.api
 	 */
-	public void setProperty(String name, Object value)
+	public void setPropertyJava(String name, Object value)
 	{
 		properties.put(name, value);
-		
+	}
+	
+	/**
+     * This sets the named property as well as updating the actual JS object.
+     * @module.api
+     */
+    public void setProperty(String name, Object value)
+    {
+        properties.put(name, value);
+        
         //That line is for listitemproxy to update its data
         propagateSetProperty(name, value);
-		
-		if (KrollRuntime.getInstance().isRuntimeThread()) {
-			doSetProperty(name, value);
+        
+        if (KrollRuntime.getInstance().isRuntimeThread()) {
+            doSetProperty(name, value);
 
-		} else {
-			Message message = getRuntimeHandler().obtainMessage(MSG_SET_PROPERTY, value);
-			message.getData().putString(PROPERTY_NAME, name);
-			message.sendToTarget();
-		}
-	}
+        } else {
+            Message message = getRuntimeHandler().obtainMessage(MSG_SET_PROPERTY, value);
+            message.getData().putString(PROPERTY_NAME, name);
+            message.sendToTarget();
+        }
+    }
 	
 	public void updateKrollObjectProperties()
 	{
@@ -1642,7 +1651,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
     protected void initFromTemplate(HashMap template_,
             KrollProxy rootProxy, boolean updateKrollProperties, boolean recursive) {
         if (rootProxy != null) {
-            rootProxy.addBinding(TiConvert.toString(template_, TiC.PROPERTY_BIND_ID, null),this);
+            String bindId = TiConvert.toString(template_, TiC.PROPERTY_BIND_ID, null);
+            if (bindId != null) {
+                setPropertyJava(TiC.PROPERTY_BIND_ID, bindId);
+                rootProxy.addBinding(bindId, this);
+            }
         }
         if (template_.containsKey(TiC.PROPERTY_EVENTS)) {
             Object events = template_
