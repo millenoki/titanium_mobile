@@ -449,6 +449,15 @@
 	[[UIApplication sharedApplication] cancelAllLocalNotifications];
 }
 
+-(void)clearNotificationCenter:(id)args
+{
+    ENSURE_UI_THREAD(clearNotificationCenter,args);
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 1];
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 0];
+    [[UIApplication sharedApplication] cancelAllLocalNotifications];
+}
+
+
 -(void)cancelLocalNotification:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSObject);
