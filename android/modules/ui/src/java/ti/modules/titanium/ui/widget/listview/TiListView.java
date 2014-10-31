@@ -70,8 +70,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.AbsListView;
-import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -107,6 +105,8 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	private static final String TAG = "TiListView";
 	private boolean hideKeyboardOnScroll = true;
 	private boolean canShowMenus = false;
+	
+	private SwipeMenuAdapter mSwipeMenuAdapater;
 	
 	private static final String defaultTemplateKey = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
 	private static final TiListViewTemplate defaultTemplate = new TiDefaultListViewTemplate(defaultTemplateKey);
@@ -858,7 +858,8 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		listView.addHeaderView(headerView, null, false);
 		listView.addFooterView(footerView, null, false);
 		
-		StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(new SwipeMenuAdapter(adapter, getProxy().getActivity(), mMenuCallback));
+		mSwipeMenuAdapater = new SwipeMenuAdapter(adapter, getProxy().getActivity(), mMenuCallback);
+		StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(mSwipeMenuAdapater);
         stickyListHeadersAdapterDecorator.setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
 		listView.setAdapter(stickyListHeadersAdapterDecorator);
 		super.processProperties(d);
@@ -963,6 +964,17 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 			listView.closeHeaderPullView(animated);
 		}
 	}
+    
+    public void closeSwipeMenu(boolean animated) {
+        if (mSwipeMenuAdapater != null) {
+            if (animated) {
+                mSwipeMenuAdapater.closeMenusAnimated();
+            }
+            else {
+                mSwipeMenuAdapater.closeMenus();
+            }
+        }
+    }
 
 
 	private void reFilter(String searchText) {
