@@ -26,7 +26,8 @@ public class RefreshableListView extends DynamicStickyListHeadersListView {
 	protected ListBottomView mListBottomView;
 
 	private int mActivePointerId;
-	private float mLastY;
+    private float mLastX;
+    private float mLastY;
 
 	private int mState;
 
@@ -290,27 +291,31 @@ public class RefreshableListView extends DynamicStickyListHeadersListView {
 			final int activePointerId = mActivePointerId;
 			final int activePointerIndex = MotionEventCompat
 					.findPointerIndex(ev, activePointerId);
-			final float y = MotionEventCompat.getY(ev, activePointerIndex);
-			final int deltaY = (int) (y - mLastY);
-			mLastY = y;
+            final float y = MotionEventCompat.getY(ev, activePointerIndex);
+            final float x = MotionEventCompat.getX(ev, activePointerIndex);
+            final int deltaX = (int) (x - mLastX);
+            final int deltaY = (int) (y - mLastY);
+            mLastX = x;
+            mLastY = y;
 
 			if (mState == STATE_READY && mListHeaderView != null) {
 				
-				if (deltaY <= 0 || Math.abs(y) < mTouchSlop) {
-					mState = STATE_NORMAL;
-				} else {
-					mState = STATE_PULL;
-					ev.setAction(MotionEvent.ACTION_CANCEL);
-					super.dispatchTouchEvent(ev);
+	            if (deltaY > 0 && Math.abs(y) >= mTouchSlop && Math.abs(deltaY) > Math.abs(deltaX)) {
+	                mState = STATE_PULL;
+                    ev.setAction(MotionEvent.ACTION_CANCEL);
+                    super.dispatchTouchEvent(ev);
+	            } else {
+                    mState = STATE_NORMAL;
+					
 				}
 			} else if (mState == UP_STATE_READY && mListBottomView != null) {
 
-				if (deltaY >= 0 || Math.abs(y) < mTouchSlop) {
-					mState = STATE_NORMAL;
+				if (deltaY < 0 && Math.abs(y) >= mTouchSlop && Math.abs(deltaY) > Math.abs(deltaX)) {
+				    mState = UP_STATE_PULL;
+                    ev.setAction(MotionEvent.ACTION_CANCEL);
+                    super.dispatchTouchEvent(ev);
 				} else {
-					mState = UP_STATE_PULL;
-					ev.setAction(MotionEvent.ACTION_CANCEL);
-					super.dispatchTouchEvent(ev);
+                    mState = STATE_NORMAL;
 				}
 			}
 
