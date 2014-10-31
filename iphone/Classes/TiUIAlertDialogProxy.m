@@ -237,7 +237,7 @@ static BOOL alertShowing = NO;
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                       [NSNumber numberWithInt:indexOfAction],@"index",
-                                      [NSNumber numberWithInt:cancelIndex],@"cancel",
+                                      [NSNumber numberWithBool:(indexOfAction == cancelIndex)],@"cancel",
                                       nil];
         
         

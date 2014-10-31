@@ -193,6 +193,7 @@
     hideOnClick = [TiUtils boolValue:[self valueForKey:@"hideOnClick"] def:YES];
     forceOpaqueBackground = [TiUtils boolValue:[self valueForKey:@"opaquebackground"] def:NO];
     persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:YES];
+    animated = [TiUtils boolValue:@"animated" properties:args def:YES];
     
     RELEASE_WITH_DELEGATE(actionSheet)
     if (customActionSheet) {
@@ -338,7 +339,6 @@
     if ([TiUtils isIPad])
     {
         [self setDialogView:[args objectForKey:@"view"]];
-        animated = [TiUtils boolValue:@"animated" properties:args def:YES];
         id obj = [args objectForKey:@"rect"];
         if (obj!=nil)
         {
@@ -538,7 +538,7 @@
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                       [NSNumber numberWithInt:indexOfAction],@"index",
-                                      [NSNumber numberWithInt:cancelButtonIndex],@"cancel",
+                                      [NSNumber numberWithBool:(indexOfAction == cancelButtonIndex)],@"cancel",
                                       [NSNumber numberWithInt:destructiveButtonIndex],@"destructive",
                                       nil];
         
