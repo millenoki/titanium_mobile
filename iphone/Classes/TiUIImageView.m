@@ -97,7 +97,7 @@ DEFINE_EXCEPTIONS
         _reusing = NO;
         _preventDefaultImage = NO;
         _filterOptions = nil;
-        onlyTransitionIfRemote = YES;
+        onlyTransitionIfRemote = NO;
         
     }
     return self;
@@ -620,7 +620,6 @@ DEFINE_EXCEPTIONS
             [(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
             
             if (_filterOptions) {
-                shouldTransition = YES;
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
                {
                    RELEASE_TO_NIL(_currentImage);
@@ -1109,6 +1108,7 @@ DEFINE_EXCEPTIONS
 -(void)imageLoadSuccess:(ImageLoaderRequest*)request image:(id)image
 {
     RELEASE_TO_NIL(_currentImage);
+    shouldTransition = YES;
     _currentImage = [image retain];
     if (_filterOptions) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)

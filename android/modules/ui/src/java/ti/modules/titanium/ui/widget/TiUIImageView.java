@@ -77,7 +77,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private boolean reverse = false;
     private boolean paused = false;
     private boolean localLoadSync = false;
-    private boolean onlyTransitionIfRemote = true;
+    private boolean onlyTransitionIfRemote = false;
     private boolean firedLoad;
     private ImageViewProxy imageViewProxy;
     private int duration;
