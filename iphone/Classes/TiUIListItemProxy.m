@@ -32,6 +32,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 	NSMutableSet *_resetKeys;
     BOOL unarchived;
     BOOL enumeratingResetKeys;
+    BOOL _buildingBindings;
 }
 
 @synthesize listItem = _listItem;
@@ -43,6 +44,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     if (self) {
         unarchived = NO;
         enumeratingResetKeys = NO;
+        _buildingBindings = NO;
         _initialValues = [[NSMutableDictionary alloc] initWithCapacity:10];
 		_currentValues = [[NSMutableDictionary alloc] initWithCapacity:10];
 		_resetKeys = [[NSMutableSet alloc] initWithCapacity:10];
@@ -178,11 +180,13 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 - (NSDictionary *)bindings
 {
-	if (_bindings == nil &&  unarchived) {
+	if (_bindings == nil &&  unarchived && !_buildingBindings) {
+        _buildingBindings = YES;
 		NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithCapacity:10];
 		[self buildBindingsForViewProxy:self intoDictionary:dict];
 		_bindings = [dict copy];
 		[dict release];
+        _buildingBindings = NO;
 	}
 	return _bindings;
 }
@@ -315,7 +319,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 - (id)valueForUndefinedKey:(NSString *)key
 {
-    if ([self.bindings objectForKey:key])
+    if (!_buildingBindings && [self.bindings objectForKey:key])
         return [self.bindings objectForKey:key];
     return [super valueForUndefinedKey:key];
 }
@@ -357,7 +361,12 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     if ([viewProxy isKindOfClass:[TiUIListItemProxy class]]) { //toplevel
         TiUIListItem* listItem = ((TiUIListItemProxy*)viewProxy).listItem;
         templateStyle = (listItem != nil)?listItem.templateStyle:TiUIListItemTemplateStyleCustom;
-        
+        [[self valueForKey:@"rightSwipeButtons"] enumerateObjectsUsingBlock:^(TiProxy *childViewProxy, NSUInteger idx, BOOL *stop) {
+            [self buildBindingsForViewProxy:childViewProxy intoDictionary:dict];
+        }];
+        [[self valueForKey:@"leftSwipeButtons"] enumerateObjectsUsingBlock:^(TiProxy *childViewProxy, NSUInteger idx, BOOL *stop) {
+            [self buildBindingsForViewProxy:childViewProxy intoDictionary:dict];
+        }];
     }
     switch (templateStyle) {
         case UITableViewCellStyleSubtitle:
@@ -375,6 +384,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
                 [myChildren enumerateObjectsUsingBlock:^(TiProxy *childViewProxy, NSUInteger idx, BOOL *stop) {
                     [self buildBindingsForViewProxy:childViewProxy intoDictionary:dict];
                 }];
+                
             }
             
             if (![viewProxy isKindOfClass:[TiUIListItemProxy class]]) {
