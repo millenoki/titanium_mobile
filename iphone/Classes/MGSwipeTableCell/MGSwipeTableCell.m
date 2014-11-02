@@ -120,7 +120,7 @@
     }
     else {
         return CGRectMake(button.frame.origin.x + button.bounds.size.width, 0,
-                   container.bounds.size.width - (button.frame.origin.x + button.bounds.size.width) + extra
+                          container.bounds.size.width - (button.frame.origin.x + button.bounds.size.width) + extra
                           ,container.bounds.size.height);
     }
     
@@ -152,7 +152,7 @@
                 expandedButton.autoresizingMask|= UIViewAutoresizingFlexibleRightMargin;
             }
             expansionBackground.frame = [self expansionBackgroundRect:expandedButton];
-
+            
         }];
         return;
     }
@@ -210,7 +210,7 @@
     else if (autoHide) {
         [_cell hideSwipeAnimated:YES];
     }
-
+    
 }
 //button listener
 -(void) buttonClicked: (id) sender
@@ -345,7 +345,7 @@ typedef struct MGSwipeAnimationData {
     bool allowSwipeRightToLeft;
     bool allowSwipeLeftToRight;
     __weak MGSwipeButtonsView * activeExpansion;
-
+    
     MGSwipeTableInputOverlay * tableInputOverlay;
     __weak UITableView * cachedParentTable;
     UITableViewCellSelectionStyle previusSelectionStyle;
@@ -489,7 +489,7 @@ typedef struct MGSwipeAnimationData {
     tableInputOverlay = [[MGSwipeTableInputOverlay alloc] initWithFrame:table.bounds];
     tableInputOverlay.currentCell = self;
     [table addSubview:tableInputOverlay];
-
+    
     previusSelectionStyle = self.selectionStyle;
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     [self setAccesoryViewsHidden:YES];
@@ -505,7 +505,7 @@ typedef struct MGSwipeAnimationData {
     if (!tableInputOverlay) {
         return;
     }
-
+    
     swipeOverlay.hidden = YES;
     swipeView.image = nil;
     
@@ -680,12 +680,20 @@ typedef struct MGSwipeAnimationData {
 
 - (void)setSwipeOffset:(CGFloat) newOffset;
 {
-    _swipeOffset = newOffset;
     
     CGFloat sign = newOffset > 0 ? 1.0 : -1.0;
+    BOOL isRight = sign < 0;
     CGFloat offset = fabs(newOffset);
     
-    MGSwipeButtonsView * activeButtons = sign < 0 ? rightView : leftView;
+    MGSwipeButtonsView * activeButtons = isRight ? rightView : leftView;
+    CGFloat buttonsWidth = activeButtons.frame.size.width;
+    
+    if (offset >= buttonsWidth) {
+        //elastic effect
+        offset = buttonsWidth + (offset - buttonsWidth)* 0.4;
+    }
+    _swipeOffset = isRight? -offset : offset;
+    
     if (!activeButtons || offset == 0) {
         [self hideSwipeOverlayIfNeeded];
         targetOffset = 0;
@@ -694,11 +702,11 @@ typedef struct MGSwipeAnimationData {
     }
     else {
         [self showSwipeOverlayIfNeeded];
-        CGFloat swipeThreshold = sign < 0 ? _rightSwipeSettings.threshold : _leftSwipeSettings.threshold;
+        CGFloat swipeThreshold = isRight ? _rightSwipeSettings.threshold : _leftSwipeSettings.threshold;
         targetOffset = offset > activeButtons.bounds.size.width * swipeThreshold ? activeButtons.bounds.size.width * sign : 0;
     }
     
-    swipeView.transform = CGAffineTransformMakeTranslation(newOffset, 0);
+    swipeView.transform = CGAffineTransformMakeTranslation(_swipeOffset, 0);
     
     //animate existing buttons
     MGSwipeButtonsView* but[2] = {leftView, rightView};
@@ -708,11 +716,11 @@ typedef struct MGSwipeAnimationData {
     for (int i = 0; i< 2; ++i) {
         MGSwipeButtonsView * view = but[i];
         if (!view) continue;
-
+        
         //buttons view position
         CGFloat translation = MIN(offset, view.bounds.size.width) * sign + settings[i].offset * sign;
         view.transform = CGAffineTransformMakeTranslation(translation, 0);
-
+        
         if (view != activeButtons) continue; //only transition if active (perf. improvement)
         bool expand = expansions[i].buttonIndex >= 0 && offset > view.bounds.size.width * expansions[i].threshold;
         if (expand) {
@@ -878,6 +886,14 @@ typedef struct MGSwipeAnimationData {
         }
     }
 }
+
+//- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+//{
+//    if (gestureRecognizer == panRecognizer) {
+//        return YES;
+//    }
+//    return NO;
+//}
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     
