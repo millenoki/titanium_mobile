@@ -2160,6 +2160,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_ON_RECEIVED = "onReceived";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_ONLY_TRANSITION_IF_REMOTE = "onlyTransitionIfRemote";
+    
 	/**
 	 * @module.api
 	 */

@@ -1032,6 +1032,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                     TiC.PROPERTY_LOCAL_LOAD_SYNC, localLoadSync);
             // view.setAnimateTransition(!localLoadSync);
         }
+        if (d.containsKey(TiC.PROPERTY_ONLY_TRANSITION_IF_REMOTE)) {
+            onlyTransitionIfRemote = TiConvert.toBoolean(d.get(TiC.PROPERTY_ONLY_TRANSITION_IF_REMOTE), false);
+        }
 
         if (d.containsKey(TiC.PROPERTY_SCALE_TYPE)) {
             setWantedScaleType(TiConvert.toInt(d, TiC.PROPERTY_SCALE_TYPE));
@@ -1122,6 +1125,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             setWantedScaleType(TiConvert.toInt(newValue));
         } else if (key.equals(TiC.PROPERTY_IMAGE_MASK)) {
             setImageMask(newValue);
+        } else if (key.equals(TiC.PROPERTY_ONLY_TRANSITION_IF_REMOTE)) {
+                onlyTransitionIfRemote = TiConvert.toBoolean(newValue);
         } else if (key.equals(TiC.PROPERTY_FILTER_OPTIONS)) {
             filterOptions = (HashMap) newValue;
             if (currentImage != null && currentImage instanceof BitmapDrawable) {
