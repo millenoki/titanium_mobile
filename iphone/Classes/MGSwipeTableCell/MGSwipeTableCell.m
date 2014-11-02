@@ -37,6 +37,7 @@
 
 @interface MGSwipeButtonsView : UIView
 @property (nonatomic, weak) MGSwipeTableCell * cell;
+@property (nonatomic, assign) int visibleButtonsCount;
 @end
 
 @implementation MGSwipeButtonsView
@@ -57,12 +58,16 @@
 -(instancetype) initWithButtons:(NSArray*) buttonsArray direction:(MGSwipeDirection) direction
 {
     CGSize maxSize = CGSizeZero;
+    CGFloat maxWidth = 0;
     for (UIView * button in buttonsArray) {
+        BOOL hidden = button.hidden;
+        if (button.hidden) continue;
+        maxWidth += button.bounds.size.width;
         maxSize.width = MAX(maxSize.width, button.bounds.size.width);
         maxSize.height = MAX(maxSize.height, button.bounds.size.height);
     }
     
-    if (self = [super initWithFrame:CGRectMake(0, 0, maxSize.width * buttonsArray.count, maxSize.height)]) {
+    if (self = [super initWithFrame:CGRectMake(0, 0, maxWidth, maxSize.height)]) {
         fromLeft = direction == MGSwipeDirectionLeftToRight;
         container = [[UIView alloc] initWithFrame:self.bounds];
         container.clipsToBounds = YES;
@@ -70,6 +75,7 @@
         [self addSubview:container];
         buttons = fromLeft ? buttonsArray: [[buttonsArray reverseObjectEnumerator] allObjects];
         for (UIView * button in buttons) {
+            if (button.hidden) continue;
             if ([button isKindOfClass:[UIButton class]]) {
                 [(UIButton *)button addTarget:self action:@selector(buttonClicked:) forControlEvents:UIControlEventTouchUpInside];
             }
@@ -86,6 +92,7 @@
 {
     int index = 0;
     for (UIView * button in buttons) {
+        if (button.hidden) continue;
         button.frame = CGRectMake(index * button.bounds.size.width, 0, button.bounds.size.width, self.bounds.size.height);
         button.autoresizingMask = UIViewAutoresizingFlexibleHeight;
         index++;
@@ -224,10 +231,12 @@
 -(void) transitionStatic:(CGFloat) t
 {
     const CGFloat dx = self.bounds.size.width * t;
-    for (NSInteger i = buttons.count - 1; i >=0 ; --i) {
-        UIView * button = [buttons objectAtIndex:i];
-        const CGFloat x = fromLeft ? self.bounds.size.width - dx + button.bounds.size.width * i : dx - button.bounds.size.width * (buttons.count - i);
+    int index = 0;
+    for (UIView * button in buttons) {
+        if (button.hidden) continue;
+        const CGFloat x = fromLeft ? self.bounds.size.width - dx + button.bounds.size.width * index : dx - button.bounds.size.width * (self.visibleButtonsCount - index);
         button.frame = CGRectMake(x, 0, button.bounds.size.width, button.bounds.size.height);
+        index++;
     }
 }
 
@@ -238,29 +247,33 @@
 
 -(void) transitionClip:(CGFloat) t
 {
-    const CGFloat dx = (self.bounds.size.width * t) / (buttons.count * 2);
-    for (int i = 0; i < buttons.count; ++i) {
-        UIView * button = [buttons objectAtIndex:i];
+    const CGFloat dx = (self.bounds.size.width * t) / (self.visibleButtonsCount * 2);
+    int index = 0;
+    for (UIView * button in buttons) {
+        if (button.hidden) continue;
         CAShapeLayer * maskLayer = [[CAShapeLayer alloc] init];
         const CGSize size = button.bounds.size;
         CGRect maskRect = CGRectMake(size.width * 0.5 - dx, 0, dx * 2, size.height);
         CGPathRef path = CGPathCreateWithRect(maskRect, NULL);
         maskLayer.path = path;
         CGPathRelease(path);
-        CGFloat ox =  dx * (2 * i + 1) - size.width * 0.5;
+        CGFloat ox =  dx * (2 * index + 1) - size.width * 0.5;
         button.frame = CGRectMake(fromLeft ?  self.bounds.size.width * (1-t) + ox: ox, 0, button.bounds.size.width, button.bounds.size.height);
         button.layer.mask = maskLayer;
+        index++;
     }
 }
 
 -(void) transtitionFloatBorder:(CGFloat) t
 {
     const CGFloat x0 = self.bounds.size.width * (fromLeft ? (1.0 -t) : t);
-    CGFloat dx = (self.bounds.size.width * t) / buttons.count;
-    for (int i = 0; i < buttons.count; ++i) {
-        UIView * button = [buttons objectAtIndex:i];
-        const CGFloat x = fromLeft ? x0 + dx * (i + 1) - button.bounds.size.width : x0 - dx  * (buttons.count - i);
+    CGFloat dx = (self.bounds.size.width * t) / self.visibleButtonsCount;
+    int index = 0;
+    for (UIView * button in buttons) {
+        if (button.hidden) continue;
+        const CGFloat x = fromLeft ? x0 + dx * (index + 1) - button.bounds.size.width : x0 - dx  * (self.visibleButtonsCount - index);
         button.frame = CGRectMake(x , 0, button.bounds.size.width, button.bounds.size.height);
+        index++;
     }
 }
 
@@ -458,6 +471,7 @@ typedef struct MGSwipeAnimationData {
     }
     
     [self fetchButtonsIfNeeded];
+    
     if (!leftView && _leftButtons.count > 0) {
         leftView = [[MGSwipeButtonsView alloc] initWithButtons:_leftButtons direction:MGSwipeDirectionLeftToRight];
         leftView.autoresizingMask = UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleHeight;
@@ -471,6 +485,23 @@ typedef struct MGSwipeAnimationData {
         rightView.cell = self;
         rightView.frame = CGRectMake(swipeOverlay.bounds.size.width, 0, rightView.bounds.size.width, swipeOverlay.bounds.size.height);
         [swipeOverlay addSubview:rightView];
+    }
+    
+    if (_leftButtons.count > 0) {
+        int visibleButtonsCount = 0;
+        for (UIView * button in _leftButtons) {
+            if (button.hidden) continue;
+            visibleButtonsCount++;
+        }
+        leftView.visibleButtonsCount = visibleButtonsCount;
+    }
+    if (_rightButtons.count > 0) {
+        int visibleButtonsCount = 0;
+        for (UIView * button in _rightButtons) {
+            if (button.hidden) continue;
+            visibleButtonsCount++;
+        }
+        rightView.visibleButtonsCount = visibleButtonsCount;
     }
 }
 
@@ -830,22 +861,30 @@ typedef struct MGSwipeAnimationData {
             BOOL needsUpdate = false;
             //starting, look for buttons size change
             if (leftView && _leftButtons.count > 0) {
+                int visibleButtonsCount = 0;
                 CGFloat maxWidth = 0;
                 for (UIView * button in _leftButtons) {
+                    if (button.hidden) continue;
                     maxWidth += button.bounds.size.width;
+                    visibleButtonsCount++;
                 }
                 if (maxWidth != leftView.frame.size.width) {
                     needsUpdate = true;
                 }
+                leftView.visibleButtonsCount = visibleButtonsCount;
             }
             if (rightView && _rightButtons.count > 0) {
+                int visibleButtonsCount = 0;
                 CGFloat maxWidth = 0;
                 for (UIView * button in _rightButtons) {
+                    if (button.hidden) continue;
                     maxWidth += button.bounds.size.width;
+                    visibleButtonsCount++;
                 }
                 if (maxWidth != rightView.frame.size.width) {
                     needsUpdate = true;
                 }
+                rightView.visibleButtonsCount = visibleButtonsCount;
             }
             if (needsUpdate) {
                 [self refreshButtons:NO];
