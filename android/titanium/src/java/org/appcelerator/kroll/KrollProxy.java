@@ -344,7 +344,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			return null;
 		}
 
-		properties.put(localeProperty, newLookupId);
+        synchronized (properties) {
+            properties.put(localeProperty, newLookupId);
+        }
 
 		// Determine which localized property this locale property updates.
 		for (Map.Entry<String, Object> entry : langConversionTable.entrySet()) {
@@ -404,13 +406,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public void handleCreationDict(KrollDict dict)
 	{
-        properties.clear();
+        synchronized (properties) {
+            properties.clear();
+        }
 		if (dict == null) {
 			return;
 		}
 		
 		
-		properties.putAll(dict);
+        synchronized (properties) {
+            properties.putAll(dict);
+        }
 		handleDefaultValues();
 		handleLocaleProperties();
 		
@@ -548,7 +554,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public boolean hasProperty(String name)
 	{
-		return properties.containsKey(name);
+        synchronized (properties) {
+            return properties.containsKey(name);
+        }
 	}
 
 	/**
@@ -572,9 +580,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public Object getProperty(String name, Object defaultValue)
 	{
-		if (properties.containsKey(name))
-			return properties.get(name);
-		else return defaultValue;
+        synchronized (properties) {
+            if (properties.containsKey(name)) {
+                return properties.get(name);
+            }
+        }
+		return defaultValue;
 	}
 
 	/**
@@ -604,7 +615,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	 */
 	public void setPropertyJava(String name, Object value)
 	{
-		properties.put(name, value);
+        synchronized (properties) {
+            properties.put(name, value);
+        }
 	}
 	
 	/**
@@ -613,7 +626,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
      */
     public void setProperty(String name, Object value)
     {
-        properties.put(name, value);
+        synchronized (properties) {
+            properties.put(name, value);
+        }
         
         //That line is for listitemproxy to update its data
         propagateSetProperty(name, value);
@@ -1351,7 +1366,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			}
 			case MSG_MODEL_PROCESS_PROPERTIES: {
 				if (modelListener != null) {
-					modelListener.processProperties((KrollDict) properties.clone());
+				    KrollDict props = null;
+				    synchronized (properties) {
+				        props = (KrollDict) properties.clone();
+				    }
+					modelListener.processProperties(props);
 				}
 				return true;
 			}
@@ -1491,7 +1510,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 		this.modelListener = modelListener;
 		if (modelListener != null && applyProps) {
 			if (TiApplication.isUIThread()) {
-				modelListener.processProperties((KrollDict) properties.clone());
+			    KrollDict props = null;
+                synchronized (properties) {
+                    props = (KrollDict) properties.clone();
+                }
+				modelListener.processProperties(props);
 			} else {
 				getMainHandler().sendEmptyMessage(MSG_MODEL_PROCESS_PROPERTIES);
 			}
@@ -1740,7 +1763,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
     public void reloadProperties()
     {
         if (modelListener != null) {
-            modelListener.processProperties(getProperties());
+            synchronized (properties) {
+                modelListener.processProperties(getProperties());
+            }
         }
     }
     
