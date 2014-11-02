@@ -34,7 +34,8 @@ import android.app.Activity;
     TiC.PROPERTY_TRANSITION,
     TiC.PROPERTY_INDEX,
     TiC.PROPERTY_PROGRESS,
-	TiC.PROPERTY_SCALE_TYPE
+    TiC.PROPERTY_SCALE_TYPE,
+	TiC.PROPERTY_ONLY_TRANSITION_IF_REMOTE,
 })
 public class ImageViewProxy extends ViewProxy
 {
