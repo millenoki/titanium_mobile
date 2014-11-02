@@ -266,7 +266,7 @@ public class RefreshableListView extends DynamicStickyListHeadersListView {
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
-		if ((mListHeaderView == null && mListBottomView == null) || mState == STATE_UPDATING) {
+		if ((mListHeaderView == null && mListBottomView == null) || mState == STATE_UPDATING || isInteracting()) {
 			return super.dispatchTouchEvent(ev);
 		}
 		final int action = ev.getAction() & MotionEventCompat.ACTION_MASK;
