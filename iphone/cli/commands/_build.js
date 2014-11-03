@@ -2099,7 +2099,12 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
         } else if (this.target == 'device') {
             plist.CFBundleVersion = (new Date).getTime();
         } else {
-            plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3);
+            if (plist.CFBundleVersion) {
+            	plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3) + '.' + plist.CFBundleVersion;
+        	}
+        	else {
+            	plist.CFBundleVersion = appc.version.format(this.tiapp.version, 3, 3);
+        	}
         }
     }
     
