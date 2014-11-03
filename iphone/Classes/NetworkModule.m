@@ -585,6 +585,8 @@ MAKE_SYSTEM_PROP(TLS_VERSION_1_2, TLS_VERSION_1_2);
 		[event setObject:currentNotification forKey:@"data"];
 		[event setObject:NUMBOOL(YES) forKey:@"inBackground"];
 		[self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
+        //notification "read", let's clear it
+        [[TiApp app] clearRemoteNotification];
 	}
 }
 
