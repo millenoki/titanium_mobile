@@ -738,7 +738,8 @@
             [containedWindows addObject:theWindow];
             theWindow.parentOrientationController = self;
         }
-        if ([self presentedViewController] == nil) {
+        if ([self presentedViewController] == nil ||
+            ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
             [self childOrientationControllerChangedFlags:theWindow];
         }
     }
@@ -747,7 +748,8 @@
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboardFromWindow:theWindow];
-    if ([self presentedViewController] == nil) {
+    if ([self presentedViewController] == nil ||
+        ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
         [self childOrientationControllerChangedFlags:theWindow];
         [theWindow gainFocus];
     }
@@ -763,7 +765,8 @@
     } else {
         [containedWindows removeObject:theWindow];
         theWindow.parentOrientationController = nil;
-        if ([self presentedViewController] == nil) {
+        if ([self presentedViewController] == nil ||
+            ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
             [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
         }
     }
@@ -772,7 +775,8 @@
 -(void)didCloseWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboardFromWindow:theWindow];
-    if ([self presentedViewController] == nil) {
+    if ([self presentedViewController] == nil ||
+        ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
         [[containedWindows lastObject] gainFocus];
     }
 }
@@ -1407,7 +1411,8 @@
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController
 {
 	WARN_IF_BACKGROUND_THREAD_OBJ;
-    if ([self presentedViewController] == nil && isCurrentlyVisible) {
+    if ([self presentedViewController] == nil ||
+        ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]]) && isCurrentlyVisible) {
         [self refreshOrientationWithDuration:nil forController:(id<TiOrientationController>) orientationController];
         [self updateStatusBar];
     }
