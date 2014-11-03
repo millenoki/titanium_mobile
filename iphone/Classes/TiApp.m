@@ -738,6 +738,10 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(sessionId);
 }
 
+-(void)clearRemoteNotification {
+    RELEASE_TO_NIL(remoteNotification);
+}
+
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 {
     applicationInMemoryPanic = YES;
