@@ -1677,6 +1677,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
             String bindId = TiConvert.toString(template_, TiC.PROPERTY_BIND_ID, null);
             if (bindId != null) {
                 setPropertyJava(TiC.PROPERTY_BIND_ID, bindId);
+            }
+            // always call addBinding even with bindId=null, subclasses might need it
+            if (rootProxy != this) {
                 rootProxy.addBinding(bindId, this);
             }
         }
