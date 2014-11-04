@@ -1018,9 +1018,9 @@ public abstract class TiUIView
 					TiUIHelper.requestSoftInputChange(TiUIView.this, v);
 				}
 			});
-			fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus));
+			fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus), false, true);
 		} else {
-			fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus));
+			fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus), false, true);
 		}
 	}
 
