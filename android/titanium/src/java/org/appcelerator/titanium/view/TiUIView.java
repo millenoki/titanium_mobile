@@ -1847,6 +1847,7 @@ public abstract class TiUIView
     		    for (int i = 0; i < children.size(); i++) {
                     TiUIView child = children.get(i);
                     View childView = child.getOuterView();
+                    if (childView == null) continue;
                     childView.getLocationOnScreen(location);
                     if(location[0] <= x && x <= (location[0] + childView.getWidth()) && 
                             location[1] <= y && y <= (location[1] + childView.getHeight())){
