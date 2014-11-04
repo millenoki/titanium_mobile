@@ -643,6 +643,19 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		setNativeView(listView);
 	}
 	
+	@Override
+	protected void handleTouchEvent(MotionEvent event) {
+	    super.handleTouchEvent(event);
+	    if (event.getAction() == MotionEvent.ACTION_UP) {
+	        final int x = (int) event.getX();
+            final int y = (int) event.getY();
+            int motionPosition = listView.getWrappedList().pointToPosition(x, y);
+            if (motionPosition == -1) {
+                listView.performClick();
+            }
+        }
+    }
+	
 	public String getSearchText() {
 		return searchText;
 	}
