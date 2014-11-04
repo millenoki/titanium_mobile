@@ -8,12 +8,10 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiViewEventOverrideDelegate;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -141,18 +139,23 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 		switch(accessory) {
 
 			case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
+                accessoryImage.setVisibility(View.VISIBLE);
 				accessoryImage.setImageResource(TiListView.isCheck);
 				break;
 			case UIModule.LIST_ACCESSORY_TYPE_DETAIL:
+                accessoryImage.setVisibility(View.VISIBLE);
 				accessoryImage.setImageResource(TiListView.hasChild);
 				break;
 
 			case UIModule.LIST_ACCESSORY_TYPE_DISCLOSURE:
+                accessoryImage.setVisibility(View.VISIBLE);
 				accessoryImage.setImageResource(TiListView.disclosure);
 				break;
 	
 			default:
+                accessoryImage.setVisibility(View.GONE);
 				accessoryImage.setImageDrawable(null);
+				break;
 		}
 	}
 	

@@ -32,6 +32,7 @@ public class TiBaseListViewItemHolder extends TiCompositeLayout {
         imageView.setMaxWidth((int) (25 * scale));
         imageView.setMaxHeight((int) (25 * scale));
         imageView.setScaleType(ScaleType.CENTER_INSIDE);
+        imageView.setVisibility(GONE);
         addView(imageView, p);
 	}
 
