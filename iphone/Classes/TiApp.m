@@ -853,6 +853,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	if (remoteNotificationDelegate!=nil)
 	{
 		[remoteNotificationDelegate performSelector:@selector(application:didReceiveRemoteNotification:) withObject:application withObject:remoteNotification];
+        RELEASE_TO_NIL(remoteNotification);
 	}
 }
 
