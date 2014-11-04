@@ -553,7 +553,9 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 	        activateHomeButton(properties.get(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED) != null);
         }
 		
-		setDisplayHomeAsUp(properties.optBoolean(TiC.PROPERTY_DISPLAY_HOME_AS_UP, false));
+        if (properties.containsKey(TiC.PROPERTY_DISPLAY_HOME_AS_UP)) {
+            setDisplayHomeAsUp(properties.optBoolean(TiC.PROPERTY_DISPLAY_HOME_AS_UP, false));
+        }
 		if (properties.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
 			setBackgroundImage(properties.getString(TiC.PROPERTY_BACKGROUND_IMAGE));
 		}
