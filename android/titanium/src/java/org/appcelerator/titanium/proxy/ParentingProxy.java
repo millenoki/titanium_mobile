@@ -76,7 +76,7 @@ public class ParentingProxy extends KrollProxy {
                         if (bindId != null) {
                             rootProxy.addBinding(bindId, child);
                         }
-                        this.add(child);
+                        addProxy(child, -1);
                     } else {
                         KrollProxy childProxy = createProxyFromTemplate(
                                 (HashMap) childDict, rootProxy,
@@ -84,7 +84,7 @@ public class ParentingProxy extends KrollProxy {
                         if (childProxy != null) {
                             if (updateKrollProperties)
                                 childProxy.updateKrollObjectProperties();
-                            this.add(childProxy);
+                            addProxy(childProxy, -1);
                         }
                     }
                 }
@@ -169,8 +169,10 @@ public class ParentingProxy extends KrollProxy {
      */
     @Kroll.method
     public void add(Object args, @Kroll.argument(optional = true) Object index) {
+        
         if (args == null) return;
         if (args instanceof Object[]) {
+            setReadyToUpdateNativeSideProperties(false);
             int i = -1; // no index by default
             if (index instanceof Number) {
                 i = ((Number) index).intValue();
@@ -181,6 +183,7 @@ public class ParentingProxy extends KrollProxy {
                 if (arrayIndex != -1)
                     arrayIndex++;
             }
+            setReadyToUpdateNativeSideProperties(true);
             return;
         } else {
             KrollProxy child = null;
@@ -204,7 +207,6 @@ public class ParentingProxy extends KrollProxy {
                 }
                 addProxy(child, i);
             }
-
         }
     }
 

@@ -104,6 +104,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	private List<String> mSyncEvents;
 	
     private HashMap<String, Object> propertiesToUpdateNativeSide = null;
+    private boolean readyToUpdateNativeSideProperties = false;
 
 	public static final String PROXY_ID_PREFIX = "proxy$";
 
@@ -1656,10 +1657,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
     
     public void updatePropertiesNativeSide() 
     {
-        if (propertiesToUpdateNativeSide != null) 
+        if (readyToUpdateNativeSideProperties && propertiesToUpdateNativeSide != null) 
         {
             updateKrollObjectProperties(propertiesToUpdateNativeSide);
             propertiesToUpdateNativeSide = null;
+        }
+    }
+    
+    protected void setReadyToUpdateNativeSideProperties(final boolean value) {
+        if (readyToUpdateNativeSideProperties != value) {
+            readyToUpdateNativeSideProperties = value;
+            if (value) {
+                updatePropertiesNativeSide();
+            }
         }
     }
     
