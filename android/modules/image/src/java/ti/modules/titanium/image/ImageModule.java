@@ -25,6 +25,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.util.Pair;
 import android.view.View;
 import android.os.AsyncTask;
@@ -190,6 +191,11 @@ public class ImageModule extends KrollModule
             HashMap options = (HashMap)params[0];
             View view = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
             Bitmap bitmap = TiUIHelper.viewToBitmap(null, view);
+            Rect statusBar = new Rect();
+            view.getWindowVisibleDisplayFrame(statusBar);
+            bitmap = Bitmap.createBitmap(bitmap, 0, statusBar.top, bitmap.getWidth(), bitmap.getHeight() - statusBar.top, null, true);
+
+            
             return getFilteredImage(bitmap, options);
         }
     }
@@ -244,6 +250,10 @@ public class ImageModule extends KrollModule
         } else {
             bitmap = (Bitmap) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEWIMAGE), new Object[]{view});
         }
+        Rect statusBar = new Rect();
+        view.getWindowVisibleDisplayFrame(statusBar);
+        bitmap = Bitmap.createBitmap(bitmap, 0, statusBar.top, bitmap.getWidth(), bitmap.getHeight() - statusBar.top, null, true);
+
         return getFilteredImage(bitmap, options);
 	}
 }
