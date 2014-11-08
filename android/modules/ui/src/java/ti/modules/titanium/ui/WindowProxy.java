@@ -320,15 +320,15 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		// If the opacity is given, set a transparent background to the window. In this case, if no backgroundColor or
 		// backgroundImage is given, the window will be completely transparent.
 		boolean modal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_MODAL), false);
-		Drawable background = null;
-		if (modal) {
-			background = new ColorDrawable(0x9F000000);
-		} else if (hasProperty(TiC.PROPERTY_OPACITY)) {
-			background = new ColorDrawable(0x00000000);
-		}
-		if (background != null) {
-			win.setBackgroundDrawable(background);
-		}
+//		Drawable background = null;
+//		if (modal) {
+//			background = new ColorDrawable(0x9F000000);
+//		} else if (hasProperty(TiC.PROPERTY_OPACITY)) {
+//			background = new ColorDrawable(0x00000000);
+//		}
+//		if (background != null) {
+//			win.setBackgroundDrawable(background);
+//		}
 
 		// Handle the width and height of the window.
 		// TODO: If width / height is a percentage value, we can not get the dimension in pixel because
