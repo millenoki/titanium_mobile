@@ -130,10 +130,6 @@ public class ImageModule extends KrollModule
 				return null;
 			}
 		}
-		if (bitmap == null) {
-			return null;
-		}
-		
 		
 		Pair<Bitmap, KrollDict> result = null;
 		if (options != null) {
@@ -178,13 +174,25 @@ public class ImageModule extends KrollModule
 		@Override
 		protected void onPostExecute(TiBlob blob)
 		{
-			KrollDict result = new KrollDict();
-			if (blob != null) {
-				result.put("image", blob);
-			}
-			this.callback.callAsync(this.proxy.getKrollObject(), new Object[] { result });
+//			KrollDict result = new KrollDict();
+//			if (blob != null) {
+//				result.put("image", blob);
+//			}
+//			this.callback.callAsync(this.proxy.getKrollObject(), new Object[] { result });
 		}
 	}
+	
+	private class FilterScreenShotTask extends AsyncTask< Object, Void, TiBlob >
+    {
+        @Override
+        protected TiBlob doInBackground(Object... params)
+        {
+            HashMap options = (HashMap)params[0];
+            View view = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
+            Bitmap bitmap = TiUIHelper.viewToBitmap(null, view);
+            return getFilteredImage(bitmap, options);
+        }
+    }
 	
 	@Kroll.method
 	public TiBlob getFilteredViewToImage(TiViewProxy viewProxy, @Kroll.argument(optional=true) HashMap options) {
@@ -215,28 +223,28 @@ public class ImageModule extends KrollModule
 	
 	@Kroll.method
 	public TiBlob getFilteredScreenshot(HashMap options) {
-		Activity a = TiApplication.getAppCurrentActivity();
-		if (a instanceof TiBaseActivity) {
-		    return getFilteredViewToImage(((TiBaseActivity)a).getActivityProxy().getDecorView(), options);
-		}
-		return null;
-//		while (a.getParent() != null) {
-//			a = a.getParent();
-//		}
-//
-//		Window w = a.getWindow();
-//
-//		while (w.getContainer() != null) {
-//			w = w.getContainer();
-//		}
-//		
-//		Bitmap bitmap = null;
-//		if (TiApplication.isUIThread()) {
-//			bitmap = TiUIHelper.viewToBitmap(null, w.getDecorView());
-//		} else {
-//			bitmap = (Bitmap) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEWIMAGE), w.getDecorView());
-//		}
-//		return getFilteredViewToImage(bitmap, options);
+	    if (options != null) {
+            if (options.containsKey("callback")) {
+                KrollFunction callback = (KrollFunction) options.get("callback");
+                if (callback != null) {
+                    (new FilterScreenShotTask()).execute(options);
+                    return null;
+                }
+            }
+        }
+        
+        View view = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
+        if (view == null) {
+            return null;
+        }
+        
+        Bitmap bitmap = null;
+        if (TiApplication.isUIThread()) {
+            bitmap = TiUIHelper.viewToBitmap(null, view);
+        } else {
+            bitmap = (Bitmap) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEWIMAGE), new Object[]{view});
+        }
+        return getFilteredImage(bitmap, options);
 	}
 }
 

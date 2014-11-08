@@ -258,15 +258,15 @@ public class TiImageHelper
 	}
 	
 	public static Pair<Bitmap, KrollDict> imageFiltered(Bitmap bitmap, HashMap options) {
+	    if (bitmap == null) {
+            return null;
+        }
 	    KrollDict infoData = new KrollDict();
 		if (options.containsKey("crop")) {
 			TiRect rect = new TiRect(options.get("crop"));
 			bitmap = TiImageHelper.imageCropped(bitmap, rect);
 		}
 
-		
-		
-		
         if (options.containsKey("scale")) {
             float scale = TiConvert.toFloat(options, "scale", 1.0f);
             bitmap = TiImageHelper.imageScaled(bitmap, scale);
