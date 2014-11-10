@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
@@ -214,7 +215,7 @@ public class TiDrawableReference
 		return ref;
 	}
 	
-	public static TiDrawableReference fromDictionary(Activity activity, HashMap dict)
+	public static TiDrawableReference fromDictionary(final Activity activity, HashMap dict)
 	{
 		if (dict.containsKey("media")) {
 			return fromBlob(activity, TiConvert.toBlob(new KrollDict(dict), "media"));
@@ -231,28 +232,47 @@ public class TiDrawableReference
 	 * @return A ready instance of TiDrawableReference.
 	 * @module.api
 	 */
-	public static TiDrawableReference fromObject(Activity activity, Object object)
+	public static TiDrawableReference fromObject(final KrollProxy proxy, Object object)
 	{
-		if (object == null) {
-			return new TiDrawableReference(activity, DrawableReferenceType.NULL);
-		}
-		
 		if (object instanceof String) {
-			return fromUrl(activity, TiConvert.toString(object));
-		} else if (object instanceof HashMap) {
-			return fromDictionary(activity, (HashMap)object);
-		} else if (object instanceof TiBaseFile) {
-			return fromFile(activity, (TiBaseFile)object);
-		} else if (object instanceof TiBlob) {
-			return fromBlob(activity, TiConvert.toBlob(object));
-		} else if (object instanceof Number) {
-			return fromResourceId(activity, ((Number)object).intValue());
+			return fromUrl(proxy, TiConvert.toString(object));
 		} else {
-			Log.w(TAG, "Unknown image resource type: " + object.getClass().getSimpleName()
-				+ ". Returning null drawable reference");
-			return fromObject(activity, null);
+			return fromObject(proxy.getActivity(), object);
 		}
 	}
+	
+	/**
+     * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
+     * @param activity the referenced activity.
+     * @param object the referenced object.
+     * @return A ready instance of TiDrawableReference.
+     * @module.api
+     */
+    public static TiDrawableReference fromObject(final Activity activity, Object object)
+    {
+        if (object == null) {
+            return new TiDrawableReference(activity, DrawableReferenceType.NULL);
+        }
+        
+        if (object instanceof String) {
+            return fromUrl(activity, TiConvert.toString(object));
+        } else if (object instanceof TiFileProxy) {
+            return TiDrawableReference.fromFile(activity,
+                    ((TiFileProxy) object).getBaseFile());
+        } else if (object instanceof HashMap) {
+            return fromDictionary(activity, (HashMap)object);
+        } else if (object instanceof TiBaseFile) {
+            return fromFile(activity, (TiBaseFile)object);
+        } else if (object instanceof TiBlob) {
+            return fromBlob(activity, TiConvert.toBlob(object));
+        } else if (object instanceof Number) {
+            return fromResourceId(activity, ((Number)object).intValue());
+        } else {
+            Log.w(TAG, "Unknown image resource type: " + object.getClass().getSimpleName()
+                + ". Returning null drawable reference");
+            return fromObject(activity, null);
+        }
+    }
 	
 //	   /**
 //     * Creates and returns a TiDrawableReference with type DrawableReferenceType.HTTP.
