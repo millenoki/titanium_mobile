@@ -861,27 +861,11 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     }
 
     private TiDrawableReference makeImageSource(Object object) {
-        if (object instanceof FileProxy) {
-            return TiDrawableReference.fromFile(proxy.getActivity(),
-                    ((FileProxy) object).getBaseFile());
-        } else if (object instanceof String) {
-            return TiDrawableReference.fromUrl(proxy, (String) object);
-        } else {
-            return TiDrawableReference.fromObject(proxy.getActivity(), object);
-        }
+        return TiDrawableReference.fromObject(proxy, object);
     }
 
     private void setDefaultImageSource(Object object) {
-        if (object instanceof FileProxy) {
-            defaultImageSource = TiDrawableReference.fromFile(
-                    proxy.getActivity(), ((FileProxy) object).getBaseFile());
-        } else if (object instanceof String) {
-            defaultImageSource = TiDrawableReference.fromUrl(proxy,
-                    (String) object);
-        } else {
-            defaultImageSource = TiDrawableReference.fromObject(
-                    proxy.getActivity(), object);
-        }
+        defaultImageSource = makeImageSource(object);
     }
 
     private void setImageInternal() {
@@ -921,6 +905,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 }
                 loadingUrl = imageref.getUrl();
                 // picasso will cancel running request if reusing
+                picasso.cancelRequest(this);
                 picasso.load(loadingUrl).into(this);
             } else {
                 boolean shouldTransition = !onlyTransitionIfRemote;
@@ -930,7 +915,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 Drawable drawable = null;
                 if (bitmap == null) {
                     shouldTransition = true;
-                    if (!localLoadSync) {
+                    if (!localLoadSync && !imageref.isTypeResourceId()) {
                         (new LoadLocalDrawableTask(cache, true))
                                 .execute(imageref);
                         return;
