@@ -834,6 +834,10 @@ public abstract class TiApplication extends Application implements
     public ITiAppInfo getAppInfo() {
         return appInfo;
     }
+    
+    public static Context getAppContext() {
+        return getInstance().getApplicationContext();
+    }
 
     /**
      * @return the app's GUID. Each application has a unique GUID.
