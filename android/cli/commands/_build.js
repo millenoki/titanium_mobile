@@ -2680,7 +2680,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
             this.encryptJS && jsFilesToEncrypt.push('_license_.json');
 
             this.generateRequireIndex(function(){});
-            this.processTiSymbols(function(){});
+            this.cli.createHook('build.android.processTiSymbols', this, function(tiSymbols, done) {
+                this.processTiSymbols(done);
+            })(this.tiSymbols, function() {});
+            
             
             if (!jsFilesToEncrypt.length) {
                 // nothing to encrypt, continue
