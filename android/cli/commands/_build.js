@@ -3168,6 +3168,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
     copyTemplate(path.join(this.templatesDir, 'AppInfo.java'), path.join(this.buildSrcPackageDir, this.classname + 'AppInfo.java'));
     copyTemplate(path.join(this.templatesDir, 'App.java'), path.join(this.buildSrcPackageDir, this.classname + 'Application.java'));
     copyTemplate(path.join(this.templatesDir, 'Activity.java'), path.join(this.buildSrcPackageDir, this.classname + 'Activity.java'));
+    copyTemplate(path.join(this.templatesDir, 'TiMediaButtonEventReceiver.java'), path.join(this.buildSrcPackageDir, 'TiMediaButtonEventReceiver.java'));
     copyTemplate(path.join(this.templatesDir, 'project'), path.join(this.buildDir, '.project'));
     copyTemplate(path.join(this.templatesDir, 'default.properties'), path.join(this.buildDir, 'default.properties'));
     copyTemplate(path.join(this.templatesDir, 'project.properties'), path.join(this.buildDir, 'project.properties'), {
@@ -3571,6 +3572,14 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                     'configChanges': ['keyboardHidden', 'orientation'],
                     'theme': '@style/Theme.Titanium.NoActionBar.Fullscreen'
                 }
+            },
+            'Media.createAudioPlayer': {
+                'receiver': {
+                    'name': '.TiMediaButtonEventReceiver',
+                    'intent-filter': [{
+                        action:['android.intent.action.MEDIA_BUTTON', 'android.media.AUDIO_BECOMING_NOISY']
+                    }]
+                }
             }
         },
 
@@ -3643,6 +3652,10 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                 if (obj.activity) {
                     finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
                     finalAndroidManifest.application.activity[obj.activity.name] = obj.activity;
+                }
+                if (obj.receiver) {
+                    finalAndroidManifest.application.receiver || (finalAndroidManifest.application.receiver = {});
+                    finalAndroidManifest.application.receiver[obj.receiver.name] = obj.receiver;
                 }
                 if (obj['uses-library']) {
                     finalAndroidManifest.application['uses-library'] || (finalAndroidManifest.application['uses-library'] = {});
