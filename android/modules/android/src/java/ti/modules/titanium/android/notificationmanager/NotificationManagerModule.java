@@ -19,6 +19,7 @@ import android.app.NotificationManager;
 @Kroll.module(parentModule=AndroidModule.class)
 public class NotificationManagerModule extends KrollModule
 {
+    
 	protected static final int PENDING_INTENT_FOR_ACTIVITY = 0;
 	protected static final int PENDING_INTENT_FOR_SERVICE = 1;
 	protected static final int PENDING_INTENT_FOR_BROADCAST = 2;
@@ -83,7 +84,12 @@ public class NotificationManagerModule extends KrollModule
 	{
 		NotificationManager manager = getManager();
 		if (manager != null && notificationProxy != null) {
-			manager.notify(id, notificationProxy.getNotification());
+		    try {
+		        notificationProxy.setCurrentId(id);
+	            manager.notify(id, notificationProxy.getNotification());
+            } catch (Exception e) {
+                
+            }
 		}
 	}
 

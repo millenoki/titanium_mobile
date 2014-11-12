@@ -6,148 +6,448 @@
  */
 package ti.modules.titanium.android;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiHtml;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
+import org.appcelerator.titanium.util.TiUIHelper.FontDesc;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 
+import ti.modules.titanium.android.notificationmanager.NotificationProxy;
+
+import com.squareup.picasso.Cache;
+import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+import com.squareup.picasso.Picasso.LoadedFrom;
+
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Message;
+import android.view.View;
 import android.widget.RemoteViews;
 
-@Kroll.proxy(creatableInModule=AndroidModule.class)
-public class RemoteViewsProxy extends KrollProxy {
-	protected String packageName;
-	protected int layoutId;
-	protected RemoteViews remoteViews;
+@Kroll.proxy(creatableInModule = AndroidModule.class)
+public class RemoteViewsProxy extends ParentingProxy implements Target {
+    private static final String TAG = "RemoteViewsProxy";
+    protected String packageName;
+    protected int layoutId;
+    protected RemoteViews remoteViews;
+    private int loadingBitmapViewId;
+    
+    private static AtomicInteger idGenerator;
+    private final int remoteViewId;
 
-	public RemoteViewsProxy()
-	{
-		super();
-	}
+    private NotificationProxy notification;
+    
+    private static final String ACTION_CLICK = "TI_REMOTEVIEWS_CLICK";
+    private static final String ACTION_INTENT_ID = "action.id";
+    private static final String ACTION_REMOTE_VIEW_ID = "remoteview.id";
+    private static final int MSG_FIRST_ID = 100;
+    private static final int MSG_PICASSO_REQUEST = MSG_FIRST_ID + 1;
 
-	public RemoteViewsProxy(TiContext context)
-	{
-		this();
-	}
-	
-	@Override
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
-		packageName = TiApplication.getInstance().getPackageName();
-		layoutId = -1;
-		if (args.length >= 1) {
-			if (args[0] instanceof Number) {
-				layoutId = TiConvert.toInt(args[0]);
-			} else if (args.length >= 2 && args[0] instanceof String) {
-				packageName = (String) args[0];
-				layoutId = TiConvert.toInt(args[1]);
-			}
-		}
-		super.handleCreationArgs(createdInModule, args);
-		remoteViews = new RemoteViews(packageName, layoutId);
-	}
+    private class LoadLocalCoverArtTask extends
+            AsyncTask<TiDrawableReference, Void, Drawable> {
+        private Cache cache;
+        private TiDrawableReference imageref;
 
-	@Override
-	public void handleCreationDict(KrollDict dict) {
-		super.handleCreationDict(dict);
-		if (dict.containsKey(TiC.PROPERTY_PACKAGE_NAME)) {
-			packageName = TiConvert.toString(dict, TiC.PROPERTY_PACKAGE_NAME);
-		}
-		if (dict.containsKey(TiC.PROPERTY_LAYOUT_ID)) {
-			layoutId = TiConvert.toInt(dict, TiC.PROPERTY_LAYOUT_ID);
-		}
-	}
+        LoadLocalCoverArtTask(Cache cache) {
+            this.cache = cache;
+        }
 
-	@Kroll.method
-	public void setBoolean(int viewId, String methodName, boolean value)
-	{
-		remoteViews.setBoolean(viewId, methodName, value);
-	}
+        @Override
+        protected Drawable doInBackground(TiDrawableReference... params) {
+            imageref = params[0];
+            return imageref.getDrawable();
 
-	@Kroll.method
-	public void setDouble(int viewId, String methodName, double value)
-	{
-		remoteViews.setDouble(viewId, methodName, value);
-	}
+        }
 
-	@Kroll.method
-	public void setInt(int viewId, String methodName, int value)
-	{
-		remoteViews.setInt(viewId, methodName, value);
-	}
+        @Override
+        protected void onPostExecute(Drawable drawable) {
+            Bitmap bitmap = null;
+            if (drawable instanceof BitmapDrawable) {
+                bitmap = ((BitmapDrawable) drawable).getBitmap();
+                cache.set(imageref.getUrl(), bitmap);
+            }
+            remoteViews.setImageViewBitmap(loadingBitmapViewId, bitmap);
+            update();
+            loadingBitmapViewId = 0;
+        }
+    }
+    
+    private BroadcastReceiver onClickReicever = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            int viewId = intent.getIntExtra(ACTION_REMOTE_VIEW_ID, 0);
+            if (action.equals(ACTION_CLICK) && viewId == RemoteViewsProxy.this.remoteViewId) {
+                String id = intent.getStringExtra(ACTION_INTENT_ID);
+                if (id != null && hasListeners(TiC.EVENT_CLICK, true)) {
+                    KrollDict data = new KrollDict();
+                    data.put("clickid", id);
+                    fireEvent(TiC.EVENT_CLICK, data, true, false);
+                }
+            }
+            
+        }
+    };
 
-	@Kroll.method
-	public void setString(int viewId, String methodName, String value)
-	{
-		remoteViews.setString(viewId, methodName, value);
-	}
+    public RemoteViewsProxy() {
+        super();
+        if (idGenerator == null) {
+            idGenerator = new AtomicInteger(0);
+        }
+        remoteViewId = idGenerator.incrementAndGet();
+    }
 
-	@Kroll.method
-	public void setUri(int viewId, String methodName, String value)
-	{
-		remoteViews.setUri(viewId, methodName, Uri.parse(value));
-	}
+    public RemoteViewsProxy(TiContext context) {
+        this();
+    }
+    
+    public void willShow() {
+        TiApplication.getAppContext().registerReceiver(onClickReicever, new IntentFilter(ACTION_CLICK));
+    }
+    
+    public void didHide() {
+        TiApplication.getAppContext().unregisterReceiver(onClickReicever);
+    }
+    
+    public static RemoteViewsProxy fromObject(Object obj) {
+        if (obj instanceof RemoteViewsProxy) {
+            return (RemoteViewsProxy) obj;
+        } else if (obj instanceof HashMap) {
+            return (RemoteViewsProxy) KrollProxy.createProxy(RemoteViewsProxy.class, null, new Object[]{obj}, null);
+        }
+        return null;
+    }
 
-	@Kroll.method
-	public void setImageViewResource(int viewId, int srcId)
-	{
-		remoteViews.setImageViewResource(viewId, srcId);
-	}
+    public void setNotification(final NotificationProxy notif) {
+        this.notification = notif;
+    }
 
-	@Kroll.method
-	public void setImageViewUri(int viewId, String uriString)
-	{
-		Uri uri = Uri.parse(resolveUrl(null, uriString));
-		remoteViews.setImageViewUri(viewId, uri);
-	}
+    @Kroll.method
+    public void update() {
+        if (this.notification != null) {
+            this.notification.update();
+        }
+    }
 
-	@Kroll.method
-	public void setOnClickPendingIntent(int viewId, PendingIntentProxy pendingIntent)
-	{
-		remoteViews.setOnClickPendingIntent(viewId, pendingIntent.getPendingIntent());
-	}
+    @Override
+    public boolean handleMessage(Message msg) {
+        switch (msg.what) {
+        case MSG_PICASSO_REQUEST: {
+            runPicassoRequest((TiDrawableReference) msg.obj);
+            return true;
+        }
+        }
+        return super.handleMessage(msg);
+    }
 
-	@Kroll.method
-	public void setProgressBar(int viewId, int max, int progress, boolean indeterminate)
-	{
-		remoteViews.setProgressBar(viewId, max, progress, indeterminate);
-	}
+    @Override
+    public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+        packageName = TiApplication.getInstance().getPackageName();
+        layoutId = -1;
+        if (args.length >= 1) {
+            if (args[0] instanceof Number) {
+                layoutId = TiConvert.toInt(args[0]);
+            } else if (args.length >= 2 && args[0] instanceof String) {
+                packageName = (String) args[0];
+                layoutId = TiConvert.toInt(args[1]);
+            }
+        }
+        super.handleCreationArgs(createdInModule, args);
+    }
+    
+    /**
+     * @param which Which {@link PendingIntent} to return
+     * @return A {@link PendingIntent} ready to control playback
+     */
+    
+    private final PendingIntent retreiveonClickIntent(final Context context, final String id) {
+        Intent intent = new Intent(ACTION_CLICK);
+        intent.putExtra(ACTION_INTENT_ID, id);
+        intent.putExtra(ACTION_REMOTE_VIEW_ID, remoteViewId);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, id.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return pendingIntent;
+    }
 
-	@Kroll.method
-	public void setTextColor(int viewId, int color)
-	{
-		remoteViews.setTextColor(viewId, color);
-	}
+    @Override
+    public void handleCreationDict(KrollDict d) {
+        super.handleCreationDict(d);
+        if (d == null) {
+            return;
+        }
+        for (String key : d.keySet()) {
+            propertySet(key, d.get(key), null, false);
+        }
+        
+        remoteViews = new RemoteViews(packageName, layoutId);
+        if (d.containsKey("clicks")) {
+            Object obj = d.get("clicks");
+            if (obj instanceof Object[]) {
+                Object[] array = (Object[])obj;
+                final Context context = TiApplication.getAppContext();
+                for (int i = 0; i < array.length; i++) {
+                    String id = TiConvert.toString(array[i]);
+                    int viewId = 0;
+                    try {
+                        viewId = TiRHelper.getResource("id." + id);
+                    } catch (ResourceNotFoundException e) {
+                        viewId = 0;
+                    }
+                    if (viewId > 0) {
+                        remoteViews.setOnClickPendingIntent(viewId, retreiveonClickIntent(context, id));
+                    }
+                }
+            }
+        }
+    }
 
-	@Kroll.method
-	public void setTextViewText(int viewId, String text)
-	{
-		remoteViews.setTextViewText(viewId, text);
-	}
+    @Kroll.method
+    public void setBoolean(int viewId, String methodName, boolean value) {
+        remoteViews.setBoolean(viewId, methodName, value);
+    }
 
-	@Kroll.method
-	public void setViewVisibility(int viewId, int visibility)
-	{
-		remoteViews.setViewVisibility(viewId, visibility);
-	}
+    @Kroll.method
+    public void setDouble(int viewId, String methodName, double value) {
+        remoteViews.setDouble(viewId, methodName, value);
+    }
 
-	@Kroll.method
-	public void setChronometer(int viewId, long base, String format, boolean started)
-	{
-		remoteViews.setChronometer(viewId, base, format, started);
-	}
+    @Kroll.method
+    public void setInt(int viewId, String methodName, int value) {
+        remoteViews.setInt(viewId, methodName, value);
+    }
 
-	public RemoteViews getRemoteViews()
-	{
-		return remoteViews;
-	}
+    @Kroll.method
+    public void setString(int viewId, String methodName, String value) {
+        remoteViews.setString(viewId, methodName, value);
+    }
 
-	@Override
-	public String getApiName()
-	{
-		return "Ti.Android.RemoteViews";
-	}
+    @Kroll.method
+    public void setUri(int viewId, String methodName, String value) {
+        remoteViews.setUri(viewId, methodName, Uri.parse(value));
+    }
+
+    @Kroll.method
+    public void setImageViewResource(int viewId, int srcId) {
+        remoteViews.setImageViewResource(viewId, srcId);
+    }
+
+    @Kroll.method
+    public void setImageViewUri(int viewId, String uriString) {
+        Uri uri = Uri.parse(resolveUrl(null, uriString));
+        remoteViews.setImageViewUri(viewId, uri);
+    }
+
+    @Kroll.method
+    public void setOnClickPendingIntent(int viewId,
+            PendingIntentProxy pendingIntent) {
+        remoteViews.setOnClickPendingIntent(viewId,
+                pendingIntent.getPendingIntent());
+    }
+
+    @Kroll.method
+    public void setProgressBar(int viewId, int max, int progress,
+            boolean indeterminate) {
+        remoteViews.setProgressBar(viewId, max, progress, indeterminate);
+    }
+
+    @Kroll.method
+    public void setTextColor(int viewId, int color) {
+        remoteViews.setTextColor(viewId, color);
+    }
+
+    @Kroll.method
+    public void setTextSize(int viewId, Object size) {
+        String fontSize = TiConvert.toString(size);
+        float[] result = new float[2];
+        TiUIHelper.getSizeAndUnits(fontSize, result);
+        remoteViews.setTextViewTextSize(viewId, (int) result[0], result[1]);
+    }
+
+    @Kroll.method
+    public void setImageViewImage(int viewId, Object image) {
+//        if (TiApplication.isUIThread()) {
+            handleSetImageViewBitmap(viewId, image);
+//        } else {
+//            getMainHandler().obtainMessage(MSG_SET_IMAGE_BITMAP, viewId, 0,
+//                    image).sendToTarget();
+//        }
+    }
+
+    @Kroll.method
+    public void setTextViewText(int viewId, String text) {
+        remoteViews.setTextViewText(viewId, text);
+    }
+
+    @Kroll.method
+    public void setViewVisibility(int viewId, int visibility) {
+        remoteViews.setViewVisibility(viewId, visibility);
+    }
+
+    @Kroll.method
+    public void setChronometer(int viewId, long base, String format,
+            boolean started) {
+        remoteViews.setChronometer(viewId, base, format, started);
+    }
+    
+    @Override
+    public void onPropertyChanged(String name, Object value, Object oldValue) {
+        propertySet(name, value, oldValue, true);
+    }
+
+    
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        if (key.equals(TiC.PROPERTY_PACKAGE_NAME)) {
+            packageName = TiConvert.toString(newValue);
+        }
+        else if (key.equals(TiC.PROPERTY_LAYOUT_ID)) {
+            layoutId = TiConvert.toInt(newValue);
+        } else {
+            try {
+                int viewId = TiRHelper.getResource("id." + key);
+                if (viewId > 0) {
+                    for (Map.Entry<String, Object> entry2 : ((HashMap<String, Object>) newValue).entrySet()) {
+                        viewPropertySet(viewId, entry2.getKey(), entry2.getValue());
+                    }
+                }
+            } catch (Exception e) {
+            }
+        }
+    }
+    
+    public void viewPropertySet(int viewId, String key, Object newValue) {
+        
+        if (key.equals(TiC.PROPERTY_VISIBLE)) {
+            remoteViews.setViewVisibility(viewId, (TiConvert.toBoolean(newValue, true) ? View.VISIBLE
+                    : View.GONE));
+        } else if (key.equals(TiC.PROPERTY_TEXT)) {
+            remoteViews.setTextViewText(viewId, TiConvert.toString(newValue));
+        } else if (key.equals(TiC.PROPERTY_HTML)) {
+            remoteViews.setTextViewText(viewId, TiHtml.fromHtml((TiConvert.toString(newValue))));
+        } else if (key.equals(TiC.PROPERTY_IMAGE)) {
+            setImageViewImage(viewId, newValue);
+        } else if (key.equals(TiC.PROPERTY_FONT)) {
+            FontDesc desc = TiUIHelper.getFontStyle(getActivity(), (HashMap<String, Object>) newValue);
+            remoteViews.setTextViewTextSize(viewId, desc.sizeUnit, desc.size);
+        } else if (key.equals(TiC.PROPERTY_COLOR)) {
+            remoteViews.setTextColor(viewId, TiConvert.toColor(newValue));
+        } else if(key.equals("onClickPendingIntent")) {
+            PendingIntentProxy pendingProxy = PendingIntentProxy.fromObject(newValue);
+            remoteViews.setOnClickPendingIntent(viewId,
+                    pendingProxy.getPendingIntent());
+        }
+    }
+
+    public RemoteViews getRemoteViews() {
+        return remoteViews;
+    }
+
+    @Override
+    public String getApiName() {
+        return "Ti.Android.RemoteViews";
+    }
+    
+    private void runPicassoRequest(final TiDrawableReference imageref) {
+        Picasso picasso = TiApplication.getPicassoInstance();
+
+        if (hasProperty(TiC.PROPERTY_HTTP_OPTIONS)) {
+            // Prepare OkHttp
+            final Context context = TiApplication.getAppContext();
+            picasso = new Picasso.Builder(context).downloader(
+                    new OkHttpDownloader(context) {
+                        @Override
+                        protected HttpURLConnection openConnection(Uri uri)
+                                throws IOException {
+                            HttpURLConnection connection = super
+                                    .openConnection(uri);
+                            TiApplication
+                                    .prepareURLConnection(
+                                            connection,
+                                            (HashMap) getProperty(TiC.PROPERTY_HTTP_OPTIONS));
+                            return connection;
+                        }
+                    }).build();
+        }
+        // picasso will cancel running request if reusing
+        picasso.cancelRequest(this);
+        picasso.load(imageref.getUrl()).into(this);
+    }
+
+    private void handleSetImageViewBitmap(int viewId, final Object obj) {
+        TiDrawableReference imageref = TiDrawableReference
+                .fromObject(this, obj);
+        if (imageref.isNetworkUrl()) {
+            //only picasso requests needs to be run in main thread
+            loadingBitmapViewId = viewId;
+            if (TiApplication.isUIThread()) {
+                runPicassoRequest(imageref);
+            } else {
+                getMainHandler().obtainMessage(MSG_PICASSO_REQUEST, imageref).sendToTarget();
+            }
+        } else {
+            String cacheKey = imageref.getCacheKey();
+            Cache cache = TiApplication.getImageMemoryCache();
+            Bitmap bitmap = (cacheKey != null) ? cache.get(cacheKey) : null;
+            if (bitmap == null && imageref.isTypeResourceId()) {
+                Drawable drawable = imageref.getDrawable();
+                if (drawable instanceof BitmapDrawable) {
+                    bitmap = ((BitmapDrawable) drawable).getBitmap();
+                    if (cacheKey != null) {
+                        cache.set(cacheKey, bitmap);
+                    }
+                }
+            }
+            if (bitmap == null) {
+                loadingBitmapViewId = viewId;
+                (new LoadLocalCoverArtTask(cache)).execute(imageref);
+                return;
+            }
+            Log.d(TAG, "update image for " + viewId, Log.DEBUG_MODE);
+            remoteViews.setImageViewBitmap(viewId, bitmap);
+        }
+    }
+
+    @Override
+    public void onBitmapLoaded(final Bitmap bitmap, LoadedFrom from) {
+        remoteViews.setImageViewBitmap(loadingBitmapViewId, bitmap);
+        update();
+        loadingBitmapViewId = 0;
+    }
+
+    @Override
+    public void onBitmapFailed(Drawable errorDrawable) {
+        remoteViews.setImageViewBitmap(loadingBitmapViewId, null);
+        update();
+        loadingBitmapViewId = 0;
+    }
+
+    @Override
+    public void onPrepareLoad(Drawable placeHolderDrawable) {
+    }
 }
