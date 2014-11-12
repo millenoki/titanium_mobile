@@ -14,6 +14,8 @@ import java.lang.ref.SoftReference;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -29,6 +31,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageHelper;
+import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import com.trevorpage.tpsvg.SVGDrawable;
@@ -86,6 +89,8 @@ public class TiDrawableReference
 	private int orientation = -1;
 	
 	private static Resources RESOURCES = null;
+	
+    private static final Pattern drawablePattern = Pattern.compile("drawable\\.(.*)$", Pattern.CASE_INSENSITIVE);
 
 	// TIMOB-3599: A bug in Gingerbread forces us to retry decoding bitmaps when they initially fail
 	public static final int DEFAULT_DECODE_RETRIES = 5;
@@ -175,6 +180,22 @@ public class TiDrawableReference
 		if (url == null || url.length() == 0 || url.trim().length() == 0) {
 			return new TiDrawableReference(proxy.getActivity(), DrawableReferenceType.NULL);
 		}
+		Matcher matcher = drawablePattern.matcher(url);
+        if (matcher.find()) {
+            int id = 0;
+            try {
+                id =  TiRHelper.getResource(url, true);
+            } catch (TiRHelper.ResourceNotFoundException e) {
+                id = 0;
+            }
+            if (id != 0) {
+                TiDrawableReference ref = new TiDrawableReference(proxy.getActivity(), DrawableReferenceType.RESOURCE_ID);
+                ref.resourceId = id;
+                ref.url = url;
+                return ref;
+            }
+        }
+            
 		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
 	}
 
