@@ -124,11 +124,9 @@ typedef UIImage* (^ProcessImageBlock) ();
 -(id)getFilteredScreenshot:(id)args
 {
     ENSURE_TYPE(args, NSArray)
-    TiViewProxy *viewProxy = nil;
     float scale = 1.0f;
     NSDictionary *options = nil;
-	ENSURE_ARG_AT_INDEX(viewProxy, args, 0, TiViewProxy);
-    ENSURE_ARG_OR_NIL_AT_INDEX(options, args, 1, NSDictionary);
+    ENSURE_ARG_OR_NIL_AT_INDEX(options, args, 0, NSDictionary);
     
     if ([options objectForKey:@"scale"]) {
         scale = [[options objectForKey:@"scale"] floatValue];
