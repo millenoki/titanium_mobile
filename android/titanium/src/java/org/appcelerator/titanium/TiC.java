@@ -922,7 +922,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BASE_URL_WEBVIEW = "baseURL";
-	
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_BIG_CONTENT_VIEW = "bigContentView";
+
 	/**
 	 * @module.api
 	 */
@@ -1996,6 +2001,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MESSENGER_RECEIVER = "messengerReceiver";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_METADATA = "metadata";
 
 	/**
 	 * @module.api

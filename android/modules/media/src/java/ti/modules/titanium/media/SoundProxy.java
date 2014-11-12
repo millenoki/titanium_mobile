@@ -235,7 +235,7 @@ public class SoundProxy extends KrollProxy
 	protected TiSound getSound()
 	{
 		if (snd == null) {
-			snd = new TiSound(this);
+			snd = new TiSound(this, false);
 			setModelListener(snd);
 		}
 		return snd;
