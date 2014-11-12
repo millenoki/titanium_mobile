@@ -214,6 +214,15 @@ public class IntentProxy extends KrollProxy
 		} else if (data != null) {
 			intent.setData(Uri.parse(data));
 		}
+		if (dict.containsKey("categories")) {
+		    Object obj = dict.get("categories");
+		    if (obj instanceof Object[]) {
+		        Object[] array = (Object[])obj;
+		        for (int i = 0; i < array.length; i++) {
+                    intent.addCategory(TiConvert.toString(array[i]));
+                }
+		    }
+        }
 		if (dict.containsKey("html")) {
 		    putExtraHTML(Intent.EXTRA_TEXT, dict.get("html"));
 		}
