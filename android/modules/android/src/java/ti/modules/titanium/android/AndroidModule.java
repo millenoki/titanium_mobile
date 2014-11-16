@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiIntentHelper;
 
@@ -339,31 +340,10 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 	
-	private static String capitalize(String line)
-	{
-		return Character.toUpperCase(line.charAt(0)) + line.substring(1).toLowerCase();
-	}
-	public static String getMainActivityName(){
-		Pattern pattern = Pattern.compile("[^A-Za-z0-9_]");
-		ITiAppInfo appInfo = TiApplication.getInstance().getAppInfo();
-		String str = appInfo.getName();
-		String className = "";
-		String[] splitStr = pattern.split(str);
-		for (int i = 0; i < splitStr.length; i++) {
-			className = className + capitalize(splitStr[i]);
-		}
-		Pattern pattern2 = Pattern.compile("^[0-9]");
-		Matcher matcher = pattern2.matcher(className);
-		if (matcher.matches()) {
-			className = "_" + className;
-		}
-		return appInfo.getId() + "." + className + "Activity";
-	}
-	
 	@Kroll.getProperty(name="appActivityClassName")
 	public String getAppActivityClassName() {
 		if (_AppActivityClassName == null) {
-			_AppActivityClassName = getMainActivityName();
+			_AppActivityClassName = TiActivityHelper.getMainActivityName();
 		}
 		return _AppActivityClassName;
 	}
