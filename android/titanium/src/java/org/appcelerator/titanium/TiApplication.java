@@ -125,6 +125,23 @@ public abstract class TiApplication extends Application implements
     protected ITiAppInfo appInfo;
     protected TiStylesheet stylesheet;
     protected static HashMap<String, WeakReference<KrollModule>> modules;
+    
+    protected static ArrayList<AppStateListener> appStateListeners = new ArrayList<AppStateListener>();
+
+    public static interface AppStateListener {
+        public void onAppPaused();
+        public void onAppResume();
+    }
+
+    public static void addAppStateListener(
+            AppStateListener a) {
+        appStateListeners.add(a);
+    }
+
+    public static void removeAppStateListener(
+            AppStateListener a) {
+        appStateListeners.remove(a);
+    }
 
     public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
     protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<ActivityTransitionListener>();
@@ -1101,6 +1118,9 @@ public abstract class TiApplication extends Application implements
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == PAUSE) {
+                for (int i = 0; i < appStateListeners.size(); ++i) {
+                    appStateListeners.get(i).onAppPaused();
+                }
                 fireAppEvent(TiC.EVENT_PAUSE, null);
                 paused = true;
                 final AsyncTask<Void, Void, Void> sendTask = new AsyncTask<Void, Void, Void>() {
@@ -1134,6 +1154,9 @@ public abstract class TiApplication extends Application implements
         mHandler.removeMessages(PAUSE);
         if (paused && activity == getAppCurrentActivity()
                 && isCurrentActivityPaused()) {
+            for (int i = 0; i < appStateListeners.size(); ++i) {
+                appStateListeners.get(i).onAppResume();
+            }
             fireAppEvent(TiC.EVENT_RESUME, null);
             paused = false;
             final AsyncTask<Void, Void, Void> sendTask = new AsyncTask<Void, Void, Void>() {
