@@ -294,7 +294,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
                                               // "have" audio focus
         
         
-     // Initialze the audio manager and register any headset controls for
+        // Initialze the audio manager and register any headset controls for
         // playback
         mAudioManager = (AudioManager) context
                 .getSystemService(Context.AUDIO_SERVICE);
@@ -830,7 +830,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
             break;
         }
 
-        if (proxy.hasListeners(EVENT_COMPLETE, false)) {
+        if (proxy.hasListeners(EVENT_ERROR, false)) {
             KrollDict data = new KrollDict();
             data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
             proxy.fireEvent(EVENT_ERROR, data);
@@ -851,7 +851,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
         }
         relaxResources(true);
 
-        if (proxy.hasListeners(EVENT_COMPLETE, false)) {
+        if (proxy.hasListeners(EVENT_ERROR, false)) {
             KrollDict data = new KrollDict();
             data.putCodeAndMessage(code, msg);
             data.put(TiC.PROPERTY_MESSAGE, msg);
@@ -884,7 +884,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
             public void run() {
                 try {
                     if (mp != null && mp.isPlaying()) {
-                        if (proxy.hasListeners(EVENT_COMPLETE, false)) {
+                        if (proxy.hasListeners(EVENT_PROGRESS, false)) {
                             int position = mp.getCurrentPosition();
                             KrollDict event = new KrollDict();
                             event.put("progress", position);
@@ -1154,7 +1154,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
                 currentMetadataEditor.putString(METADATAS.get(key),
                         TiConvert.toString(value));
             } else if (METADATAS_LONG.containsKey(key)) {
-                currentMetadataEditor.putLong(METADATAS.get(key),
+                currentMetadataEditor.putLong(METADATAS_LONG.get(key),
                         TiConvert.toInt(value));
             }
         }
