@@ -2295,10 +2295,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_PLACES = "places";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_PLAY = "play";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_PLAY = "play";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_PLAYLIST = "playlist";
 
 	/**
 	 * @module.api
