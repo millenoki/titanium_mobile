@@ -177,8 +177,9 @@ public class TiDrawableReference
 	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
 	{
+	    Activity activity = (proxy != null)? proxy.getActivity():null;
 		if (url == null || url.length() == 0 || url.trim().length() == 0) {
-			return new TiDrawableReference(proxy.getActivity(), DrawableReferenceType.NULL);
+			return new TiDrawableReference(activity, DrawableReferenceType.NULL);
 		}
 		Matcher matcher = drawablePattern.matcher(url);
         if (matcher.find()) {
@@ -189,14 +190,14 @@ public class TiDrawableReference
                 id = 0;
             }
             if (id != 0) {
-                TiDrawableReference ref = new TiDrawableReference(proxy.getActivity(), DrawableReferenceType.RESOURCE_ID);
+                TiDrawableReference ref = new TiDrawableReference(activity, DrawableReferenceType.RESOURCE_ID);
                 ref.resourceId = id;
                 ref.url = url;
                 return ref;
             }
         }
             
-		return fromUrl(proxy.getActivity(), proxy.resolveUrl(null, url));
+		return fromUrl(activity, (proxy != null)? proxy.resolveUrl(null, url):url);
 	}
 
 	/**
@@ -258,7 +259,7 @@ public class TiDrawableReference
 		if (object instanceof String) {
 			return fromUrl(proxy, TiConvert.toString(object));
 		} else {
-			return fromObject(proxy.getActivity(), object);
+			return fromObject((proxy != null)? proxy.getActivity():null, object);
 		}
 	}
 	
