@@ -108,6 +108,25 @@ public class TiRHelper {
 			}
 			return resid;
 	}
+	
+	public static int getResource(Object obj, final String prefix, boolean includeSystemResources) {
+        if (obj instanceof Number) {
+            return ((Number) obj).intValue();
+        } else {
+            String objString = TiConvert.toString(obj);
+            if (objString == null) {
+                return 0;
+            }
+            try {
+                if (objString.contains(prefix)) {
+                    return TiRHelper.getResource(objString, false);
+                }
+                return TiRHelper.getResource(prefix + "." + objString, false);
+            } catch (ResourceNotFoundException e) {
+                return 0;
+            }
+        }
+    }
 
 	/**
 	 * Searches for an Android compiled resource given its path. Refer to {@link #getResource(String, boolean)} for more details.
