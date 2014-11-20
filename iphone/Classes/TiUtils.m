@@ -37,6 +37,8 @@ static NSDictionary* typeMap = nil;
 static NSDictionary* sizeMap = nil;
 static NSString* kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
 
+const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUndefined, 0}, {TiDimensionTypeUndefined, 0}, {TiDimensionTypeUndefined, 0}};
+
 @implementation TiUtils
 
 +(TiOrientationFlags) TiOrientationFlagsFromObject:(id)args
@@ -695,6 +697,48 @@ static NSString* kAppUUIDString = @"com.appcelerator.uuid"; // don't obfuscate
     return def;
 }
 
++(TiCap)capValue:(id)value def:(TiCap)def
+{
+    if (!value) {
+        return def;
+    }
+    TiCap result;
+    if ([value isKindOfClass:[NSDictionary class]])
+    {
+        result.leftCap = TiDimensionFromObject([value objectForKey:@"left"]);
+        result.rightCap = TiDimensionFromObject([value objectForKey:@"right"]);
+        result.topCap = TiDimensionFromObject([value objectForKey:@"top"]);
+        result.bottomCap = TiDimensionFromObject([value objectForKey:@"bottom"]);
+    } else {
+        TiDimension dim = TiDimensionFromObject(value);
+        result.leftCap = dim;
+        result.rightCap = dim;
+        result.topCap = dim;
+        result.bottomCap = dim;
+    }
+    return result;
+}
+
++(TiCap)capValue:(id)value
+{
+    TiCap result;
+    if ([value isKindOfClass:[NSDictionary class]])
+    {
+        result.leftCap = TiDimensionFromObject([value objectForKey:@"left"]);
+        result.rightCap = TiDimensionFromObject([value objectForKey:@"right"]);
+        result.topCap = TiDimensionFromObject([value objectForKey:@"top"]);
+        result.bottomCap = TiDimensionFromObject([value objectForKey:@"bottom"]);
+    } else {
+        TiDimension dim = TiDimensionFromObject(value);
+        result.leftCap = dim;
+        result.rightCap = dim;
+        result.topCap = dim;
+        result.bottomCap = dim;
+    }
+    return result;
+}
+
+
 +(id)valueFromDimension:(TiDimension)dimension
 {
 	switch (dimension.type)
@@ -1184,6 +1228,33 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	
 }
 
++(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties def:(TiCap)def exists:(BOOL*) exists
+{
+    if ([properties isKindOfClass:[NSDictionary class]])
+    {
+        id value = [properties objectForKey:name];
+        if (value == [NSNull null])
+        {
+            if (exists != NULL) *exists = YES;
+            return TiCapUndefined;
+        }
+        if (value != nil)
+        {
+            if (exists != NULL)
+            {
+                *exists = YES;
+            }
+            return [self capValue:value];
+        }
+    }
+    if (exists != NULL)
+    {
+        *exists = NO;
+    }
+    return def;
+    
+}
+
 
 +(int)intValue:(NSString*)name properties:(NSDictionary*)props def:(int)def;
 {
@@ -1228,6 +1299,16 @@ If the new path starts with / and the base url is app://..., we have to massage 
 +(TiPoint*)tiPointValue:(NSString*)name properties:(NSDictionary*)properties def:(TiPoint*)def
 {
 	return [self tiPointValue:name properties:properties def:def exists:NULL];
+}
+
++(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties def:(TiCap)def
+{
+    return [self capValue:name properties:properties def:def exists:NULL];
+}
+
++(Ti2DMatrix*)matrixValue:(NSString*)name properties:(NSDictionary*)properties def:(Ti2DMatrix*)def
+{
+    return [self matrixValue:name properties:properties def:def exists:NULL];
 }
 
 +(int)intValue:(NSString*)name properties:(NSDictionary*)props;
@@ -1281,6 +1362,10 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	return [self matrixValue:name properties:properties def:nil exists:NULL];
 }
 
++(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties
+{
+    return [self capValue:name properties:properties def:TiCapUndefined exists:NULL];
+}
 
 
 +(NSDictionary*)dictionaryFromTouchableEvent:(id)touch inView:(UIView*)view
@@ -2232,7 +2317,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return nil;
 }
 
-+(id)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)left topCap:(TiDimension)top rightCap:(TiDimension)right bottomCap:(TiDimension)bottom
++(id)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy withCap:(TiCap)cap
 {
     UIImage* resultImage = nil;
     if ([image isKindOfClass:[UIImage class]]) {
@@ -2242,7 +2327,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
     else if ([image isKindOfClass:[NSString class]]) {
         NSURL *bgURL = [TiUtils toURL:image proxy:proxy];
-        id resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:bgURL withLeftCap:left topCap:top rightCap:right bottomCap:bottom];
+        id resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:bgURL withCap:cap];
         if (resultImage==nil && [image isEqualToString:@"Default.png"])
         {
             // special case where we're asking for Default.png and it's in Bundle not path

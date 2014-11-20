@@ -1027,12 +1027,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(id)loadImageOrSVG:(id)arg
 {
     if (arg==nil) return nil;
-	if (TiDimensionIsUndefined(leftCap) && TiDimensionIsUndefined(topCap) &&
-        TiDimensionIsUndefined(rightCap) && TiDimensionIsUndefined(bottomCap)) {
+	if (TiCapIsUndefined(imageCap)) {
         return [TiUtils loadBackgroundImage:arg forProxy:proxy];
     }
     else {
-        return [TiUtils loadBackgroundImage:arg forProxy:proxy withLeftCap:leftCap topCap:topCap rightCap:rightCap bottomCap:bottomCap];
+        return [TiUtils loadBackgroundImage:arg forProxy:proxy withCap:imageCap];
     }
 	return nil;
 }
@@ -1040,12 +1039,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 {
     if (arg==nil) return nil;
     id result = nil;
-	if (TiDimensionIsUndefined(leftCap) && TiDimensionIsUndefined(topCap) &&
-        TiDimensionIsUndefined(rightCap) && TiDimensionIsUndefined(bottomCap)) {
+    if (TiCapIsUndefined(imageCap)) {
         result =  [TiUtils loadBackgroundImage:arg forProxy:proxy];
     }
     else {
-        result =  [TiUtils loadBackgroundImage:arg forProxy:proxy withLeftCap:leftCap topCap:topCap rightCap:rightCap bottomCap:bottomCap];
+        result =  [TiUtils loadBackgroundImage:arg forProxy:proxy withCap:imageCap];
     }
     if ([result isKindOfClass:[UIImage class]]) return result;
     else if ([result isKindOfClass:[TiSVGImage class]]) return [((TiSVGImage*)result) fullImage];
@@ -1184,20 +1182,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)setImageCap_:(id)arg
 {
-    ENSURE_SINGLE_ARG(arg,NSDictionary);
-    NSDictionary* dict = (NSDictionary*)arg;
-    if ([dict objectForKey:@"left"]) {
-        leftCap = TiDimensionFromObject([dict objectForKey:@"left"]);
-    }
-    if ([dict objectForKey:@"right"]) {
-        rightCap = TiDimensionFromObject([dict objectForKey:@"right"]);
-    }
-    if ([dict objectForKey:@"top"]) {
-        topCap = TiDimensionFromObject([dict objectForKey:@"top"]);
-    }
-    if ([dict objectForKey:@"bottom"]) {
-        bottomCap = TiDimensionFromObject([dict objectForKey:@"bottom"]);
-    }
+    imageCap = [TiUtils capValue:arg def:TiCapUndefined];
 }
 
 -(void)setusePathAsBorder:(BOOL)value
@@ -2412,7 +2397,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         }
         self.layer.opaque = NO;
         self.layer.mask.contentsScale = [image scale];
-        self.layer.mask.contentsCenter = TiDimensionLayerContentCenter(topCap, leftCap, topCap, leftCap, [image size]);
+        self.layer.mask.contentsCenter = TiDimensionLayerContentCenter(imageCap.topCap, imageCap.leftCap, imageCap.topCap, imageCap.leftCap, [image size]);
         if (!CGPointEqualToPoint(self.layer.mask.contentsCenter.origin,CGPointZero)) {
             self.layer.mask.magnificationFilter = @"nearest";
         } else {

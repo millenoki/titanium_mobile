@@ -36,6 +36,21 @@ typedef enum {
     TOO_SMALL = -32,
 } EncodingError;
 
+struct TiCap
+{
+    TiDimension leftCap;
+    TiDimension rightCap;
+    TiDimension topCap;
+    TiDimension bottomCap;
+};
+typedef struct TiCap TiCap;
+extern const TiCap TiCapUndefined;
+
+TI_INLINE bool TiCapIsUndefined(TiCap cap)
+{
+    return TiDimensionIsUndefined(cap.leftCap) &&TiDimensionIsUndefined(cap.rightCap) && TiDimensionIsUndefined(cap.topCap) && TiDimensionIsUndefined(cap.bottomCap);
+}
+
 /**
  Titanium orientation flags.
  */
@@ -493,6 +508,12 @@ typedef enum
 +(NSDate *)dateValue:(NSString*)name properties:(NSDictionary*)properties def:(NSDate *)def;
 +(NSDate *)dateValue:(NSString*)name properties:(NSDictionary*)properties def:(NSDate *)def exists:(BOOL*) exists;
 
++(TiCap)capValue:(id)value def:(TiCap)def;
++(TiCap)capValue:(id)object;
++(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties;
++(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties def:(TiCap)def;
++(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties def:(TiCap)def exists:(BOOL*) exists;
+
 +(NSDictionary*)pointToDictionary:(CGPoint)point;
 +(NSDictionary*)dictionaryFromTouch:(UITouch*)touch inView:(UIView*)view;
 +(NSDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture inView:(UIView*)view;
@@ -672,7 +693,7 @@ typedef enum
 +(NSString*)getResponseHeader:(NSString*)header fromHeaders:(NSDictionary*)responseHeaders;
 
 +(id)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy;
-+(UIImage*)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy withLeftCap:(TiDimension)left topCap:(TiDimension)top rightCap:(TiDimension)right bottomCap:(TiDimension)bottom;
++(id)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy withCap:(TiCap)cap;
 + (BOOL) isSVG:(id)arg;
 
 /**

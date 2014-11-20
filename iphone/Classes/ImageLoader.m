@@ -990,14 +990,14 @@ DEFINE_EXCEPTIONS
 	return [image stretchableImage];    
 }
 
--(id)loadImmediateStretchableImage:(NSURL *)url withLeftCap:(TiDimension)left topCap:(TiDimension)top rightCap:(TiDimension)right bottomCap:(TiDimension)bottom
+-(id)loadImmediateStretchableImage:(NSURL *)url withCap:(TiCap)cap
 {
     if ([TiUtils isSVG:url]) return [self loadImmediateSVGImage:url withSize:CGSizeZero];
     ImageCacheEntry* image = [self entryForKey:url];
-    image.leftCap = left;
-    image.topCap = top;
-    image.rightCap = right;
-    image.bottomCap = bottom;
+    image.leftCap = cap.leftCap;
+    image.topCap = cap.topCap;
+    image.rightCap = cap.rightCap;
+    image.bottomCap = cap.bottomCap;
 	return [image stretchableImage];
 }
 

@@ -83,7 +83,7 @@
         return;
     }
     
-    UIImage* ret = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:rightTrackLeftCap topCap:rightTrackTopCap];
+    UIImage* ret = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withCap:rightTrackCap];
 
     [[self sliderView] setMaximumTrackImage:ret forState:state];
 }
@@ -97,8 +97,7 @@
         return;
     }
     
-    UIImage* ret = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withLeftCap:leftTrackLeftCap topCap:leftTrackTopCap];
-
+    UIImage* ret = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url withCap:leftTrackCap];
 
     [[self sliderView] setMinimumTrackImage:ret forState:state];
 }
@@ -207,21 +206,15 @@
 	rightTrackImageState = rightTrackImageState | UIControlStateDisabled;
 }
 
--(void)setLeftTrackLeftCap_:(id)value
+
+-(void)setLeftTrackCap_:(id)arg
 {
-	leftTrackLeftCap = TiDimensionFromObject(value);
+    leftTrackCap = [TiUtils capValue:arg def:TiCapUndefined];
 }
--(void)setLeftTrackTopCap_:(id)value
+
+-(void)setRightTrackCap_:(id)arg
 {
-	leftTrackTopCap = TiDimensionFromObject(value);
-}
--(void)setRightTrackLeftCap_:(id)value
-{
-    rightTrackLeftCap = TiDimensionFromObject(value);
-}
--(void)setRightTrackTopCap_:(id)value
-{
-	rightTrackTopCap = TiDimensionFromObject(value);
+    rightTrackCap = [TiUtils capValue:arg def:TiCapUndefined];
 }
 
 -(void)setMin_:(id)value
