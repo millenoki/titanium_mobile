@@ -57,7 +57,7 @@ static NSArray* imageKeySequence;
         [self willChangeSize];
     }
     
-    if ([self _hasListeners:@"load"]) {
+    if ([self _hasListeners:@"load" checkParent:NO]) {
         TiUIImageView *iv = (TiUIImageView*)[self view];
         UIImage* image = [iv getImage];
         TiBlob* blob = [[TiBlob alloc] initWithImage:image];
@@ -66,7 +66,7 @@ static NSArray* imageKeySequence;
         if (image.info) {
             event = [event dictionaryByMergingWith:image.info];
         }
-        [self fireEvent:@"load" withObject:event];
+        [self fireEvent:@"load" withObject:event propagate:NO checkForListener:NO];
     }
     else if(eventOverrideDelegate) {
         [eventOverrideDelegate overrideEventObject:nil forEvent:@"load" fromViewProxy:self];
