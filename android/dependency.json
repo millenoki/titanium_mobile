@@ -39,7 +39,7 @@
 			"okhttp-2.0.0.jar",
 			"okhttp-urlconnection-2.0.0.jar",
 			"okio-1.0.0.jar",
-			"picasso-2.3.4.jar"
+			"picasso-2.4.0.jar"
 		],
 		"network": ["thirdparty.jar", "google-play-services.jar"],
         "appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
