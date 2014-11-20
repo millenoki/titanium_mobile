@@ -1550,6 +1550,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     self.clipsToBounds = [self clipChildren];
 }
 
+-(void)setMaskToBounds_:(id)arg
+{
+    self.layer.masksToBounds = [TiUtils boolValue:arg];
+}
+
 
 -(void)setRasterize_:(id)arg
 {
