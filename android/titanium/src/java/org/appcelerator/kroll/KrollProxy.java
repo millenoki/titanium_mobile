@@ -1201,7 +1201,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport {
 
     public void firePropertyChanged(String name, Object oldValue,
             Object newValue) {
-        onPropertyChanged(name, oldValue, newValue);
+        onPropertyChanged(name, newValue, oldValue);
         if (modelListener != null) {
             if (TiApplication.isUIThread()) {
                 modelListener.propertyChanged(name, oldValue, newValue, this);
