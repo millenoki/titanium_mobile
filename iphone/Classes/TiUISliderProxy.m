@@ -45,10 +45,6 @@ NSArray* sliderKeySequence;
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-    [self initializeProperty:@"leftTrackLeftCap" defaultValue:NUMFLOAT(1.0)];
-    [self initializeProperty:@"leftTrackTopCap" defaultValue:NUMFLOAT(1.0)];
-    [self initializeProperty:@"rightTrackLeftCap" defaultValue:NUMFLOAT(1.0)];
-    [self initializeProperty:@"rightTrackTopCap" defaultValue:NUMFLOAT(1.0)];
     [super _initWithProperties:properties];
 }
 
