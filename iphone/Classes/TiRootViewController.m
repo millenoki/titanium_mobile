@@ -232,13 +232,7 @@
     [rootView release];
 }
 
-#pragma mark Remote Control Notifications
 
-- (void)remoteControlReceivedWithEvent:(UIEvent *)event
-{
-    /*Can not find code associated with this anywhere. Keeping in place just in case*/
-	[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteControlNotification object:self userInfo:[NSDictionary dictionaryWithObject:event forKey:@"event"]];
-}
 
 #pragma mark - TiRootControllerProtocol
 //Background Control
@@ -1594,5 +1588,17 @@
         [self resizeView];
     }
 }
+
+#pragma mark Remote Control Notifications
+
+//-(BOOL)canBecomeFirstResponder {
+//    return YES;
+//}
+
+-(void)remoteControlReceivedWithEvent:(UIEvent *)event {
+    /*Can not find code associated with this anywhere. Keeping in place just in case*/
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteControlNotification object:self userInfo:[NSDictionary dictionaryWithObject:event forKey:@"event"]];
+}
+
 
 @end
