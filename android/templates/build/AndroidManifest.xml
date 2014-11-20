@@ -15,7 +15,7 @@
 		android:label="<%- tiapp.name %>" android:name="<%- classname %>Application"
         android:allowBackup="false"
         android:hardwareAccelerated="true"
-		android:theme="@style/Theme">
+		android:theme="@style/Theme.Titanium">
 
         <provider android:name="org.appcelerator.titanium.TiContentProvider" android:authorities="<%- appid %>.provider" android:grantUriPermissions="true" android:exported="true" />﻿
 		<activity android:name=".<%- classname %>Activity"
