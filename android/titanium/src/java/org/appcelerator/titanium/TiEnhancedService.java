@@ -82,33 +82,40 @@ public class TiEnhancedService extends VpnService implements TiEnhancedServiceIn
     }
     
     protected void start() {
-        Log.d(logTAG(), "start " + proxy.getProperties(),
-                Log.DEBUG_MODE);
+        Log.d(logTAG(), "start service");
     }
-
-    public void start(TiEnhancedServiceProxy proxy) {
-        Log.d(logTAG(), "start", Log.DEBUG_MODE);
+    
+    protected void bindToProxy(final TiEnhancedServiceProxy proxy) {
         if (this.proxy != null) {
             Log.d(logTAG(),
                     "we were already associated to a proxy, must have started on boot",
                     Log.DEBUG_MODE);
             Log.d(logTAG(),
                     "old proxy instance "
-                            + this.proxy, Log.DEBUG_MODE);
+                            + this.proxy.getProperties(), Log.DEBUG_MODE);
+            
+        }
+        this.proxy = proxy;
+        if (this.proxy != null) {
             Log.d(logTAG(),
-                    "new proxy instance" + proxy,
+                    "new proxy instance" + this.proxy.getProperties(),
                     Log.DEBUG_MODE);
         }
+    }
 
-        this.proxy = proxy;
-        
+    public void start(TiEnhancedServiceProxy proxy) {
+        Log.d(logTAG(), "start", Log.DEBUG_MODE);
+
+        if (this.proxy != proxy) {
+            bindToProxy(proxy);
+        }        
         
         if (mStarted == false) {
             mStarted = true;
             start();
         }
         else {
-            Log.d(logTAG(), "start: already started", Log.DEBUG_MODE);
+            Log.d(logTAG(), "start: service already started", Log.DEBUG_MODE);
         }
 
         if (this.proxy != null)
