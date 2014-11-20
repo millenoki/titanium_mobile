@@ -871,6 +871,7 @@ DEFINE_EXCEPTIONS
         }
         return;
     }
+    _needsSetImage = NO;
     if (_currentImageSource && [_currentImageSource isEqual:arg] && _currentImage) return;
     
     RELEASE_TO_NIL(_currentImageSource)
