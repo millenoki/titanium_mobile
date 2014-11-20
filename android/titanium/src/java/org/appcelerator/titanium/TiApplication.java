@@ -54,6 +54,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -1182,5 +1183,11 @@ public abstract class TiApplication extends Application implements
 
     public boolean isPaused() {
         return paused;
+    }
+    
+    
+    public static boolean testPermission(final String permission) {
+        int res = getAppContext().checkCallingOrSelfPermission("android.permission." + permission);
+        return (res == PackageManager.PERMISSION_GRANTED);
     }
 }
