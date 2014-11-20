@@ -727,6 +727,12 @@
 		D5509FD8194B1C2D00655C61 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5509FD7194B1C2D00655C61 /* AnalyticsModule.m */; };
 		D5509FD9194B1C2D00655C61 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5509FD7194B1C2D00655C61 /* AnalyticsModule.m */; };
 		D5509FDA194B1C2D00655C61 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5509FD7194B1C2D00655C61 /* AnalyticsModule.m */; };
+		D55131BA1A1DEB1D003A9872 /* TiUIVolumeView.m in Sources */ = {isa = PBXBuildFile; fileRef = D55131B91A1DEB1D003A9872 /* TiUIVolumeView.m */; };
+		D55131BB1A1DEB1D003A9872 /* TiUIVolumeView.m in Sources */ = {isa = PBXBuildFile; fileRef = D55131B91A1DEB1D003A9872 /* TiUIVolumeView.m */; };
+		D55131BC1A1DEB1D003A9872 /* TiUIVolumeView.m in Sources */ = {isa = PBXBuildFile; fileRef = D55131B91A1DEB1D003A9872 /* TiUIVolumeView.m */; };
+		D55131BF1A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D55131BE1A1DEB36003A9872 /* TiUIVolumeViewProxy.m */; };
+		D55131C01A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D55131BE1A1DEB36003A9872 /* TiUIVolumeViewProxy.m */; };
+		D55131C11A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D55131BE1A1DEB36003A9872 /* TiUIVolumeViewProxy.m */; };
 		D557957E1837BF6C0057DD41 /* TiViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = D557957A1837BF6C0057DD41 /* TiViewAnimation.m */; };
 		D557957F1837BF6C0057DD41 /* TiViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = D557957A1837BF6C0057DD41 /* TiViewAnimation.m */; };
 		D55795801837BF6C0057DD41 /* TiViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = D557957A1837BF6C0057DD41 /* TiViewAnimation.m */; };
@@ -777,6 +783,36 @@
 		D572BF5D1827A71D00AB104A /* libSVGKit-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */; };
 		D572BF5E1827A71D00AB104A /* libSVGKit-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */; };
 		D572BF5F1827A71D00AB104A /* libSVGKit-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */; };
+		D57644B91A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644B81A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m */; };
+		D57644BA1A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644B81A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m */; };
+		D57644BB1A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644B81A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m */; };
+		D57644D61A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644C41A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644D71A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644C41A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644D81A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644C41A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644D91A1B805C00322E0D /* STKAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644C61A1B805C00322E0D /* STKAudioPlayer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644DA1A1B805C00322E0D /* STKAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644C61A1B805C00322E0D /* STKAudioPlayer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644DB1A1B805C00322E0D /* STKAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644C61A1B805C00322E0D /* STKAudioPlayer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644DC1A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644C81A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644DD1A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644C81A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644DE1A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644C81A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644DF1A1B805C00322E0D /* STKCoreFoundationDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644CA1A1B805C00322E0D /* STKCoreFoundationDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E01A1B805C00322E0D /* STKCoreFoundationDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644CA1A1B805C00322E0D /* STKCoreFoundationDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E11A1B805C00322E0D /* STKCoreFoundationDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644CA1A1B805C00322E0D /* STKCoreFoundationDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E21A1B805C00322E0D /* STKDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644CC1A1B805C00322E0D /* STKDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E31A1B805C00322E0D /* STKDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644CC1A1B805C00322E0D /* STKDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E41A1B805C00322E0D /* STKDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644CC1A1B805C00322E0D /* STKDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E51A1B805C00322E0D /* STKDataSourceWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644CE1A1B805C00322E0D /* STKDataSourceWrapper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E61A1B805C00322E0D /* STKDataSourceWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644CE1A1B805C00322E0D /* STKDataSourceWrapper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E71A1B805C00322E0D /* STKDataSourceWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644CE1A1B805C00322E0D /* STKDataSourceWrapper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E81A1B805C00322E0D /* STKHTTPDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644D01A1B805C00322E0D /* STKHTTPDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644E91A1B805C00322E0D /* STKHTTPDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644D01A1B805C00322E0D /* STKHTTPDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644EA1A1B805C00322E0D /* STKHTTPDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644D01A1B805C00322E0D /* STKHTTPDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644EB1A1B805C00322E0D /* STKLocalFileDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644D21A1B805C00322E0D /* STKLocalFileDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644EC1A1B805C00322E0D /* STKLocalFileDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644D21A1B805C00322E0D /* STKLocalFileDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644ED1A1B805C00322E0D /* STKLocalFileDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644D21A1B805C00322E0D /* STKLocalFileDataSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644EE1A1B805C00322E0D /* STKQueueEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644D41A1B805C00322E0D /* STKQueueEntry.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644EF1A1B805C00322E0D /* STKQueueEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644D41A1B805C00322E0D /* STKQueueEntry.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D57644F01A1B805C00322E0D /* STKQueueEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644D41A1B805C00322E0D /* STKQueueEntry.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D57E7F74195AB92800C17ADE /* libakylas.location.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D57E7F6E195AB34D00C17ADE /* libakylas.location.a */; };
 		D5809D5019129CEB005A1F02 /* APSHTTPHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5809D5119129CEB005A1F02 /* APSHTTPHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -2169,6 +2205,10 @@
 		D54E555619953BDC004A7335 /* RDActivityViewControllerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RDActivityViewControllerDelegate.h; path = ../Classes/RDActivityViewController/RDActivityViewControllerDelegate.h; sourceTree = "<group>"; };
 		D5509FD6194B1C2D00655C61 /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
 		D5509FD7194B1C2D00655C61 /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
+		D55131B81A1DEB1D003A9872 /* TiUIVolumeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIVolumeView.h; sourceTree = "<group>"; };
+		D55131B91A1DEB1D003A9872 /* TiUIVolumeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIVolumeView.m; sourceTree = "<group>"; };
+		D55131BD1A1DEB36003A9872 /* TiUIVolumeViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIVolumeViewProxy.h; sourceTree = "<group>"; };
+		D55131BE1A1DEB36003A9872 /* TiUIVolumeViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIVolumeViewProxy.m; sourceTree = "<group>"; };
 		D55795791837BF6C0057DD41 /* TiViewAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiViewAnimation.h; path = Animation/TiViewAnimation.h; sourceTree = "<group>"; };
 		D557957A1837BF6C0057DD41 /* TiViewAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiViewAnimation.m; path = Animation/TiViewAnimation.m; sourceTree = "<group>"; };
 		D557957B1837BF6C0057DD41 /* TiViewAnimation+Friend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TiViewAnimation+Friend.h"; path = "Animation/TiViewAnimation+Friend.h"; sourceTree = "<group>"; };
@@ -2209,6 +2249,27 @@
 		D57007F718255C520063F7FE /* TiTransitionSwipeDualFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionSwipeDualFade.h; sourceTree = "<group>"; };
 		D57007F818255C520063F7FE /* TiTransitionSwipeDualFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionSwipeDualFade.m; sourceTree = "<group>"; };
 		D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libSVGKit-iOS.a"; path = "../libexternals/libSVGKit-iOS.a"; sourceTree = "<group>"; };
+		D57644B71A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaAudioStreamerProxy.h; sourceTree = "<group>"; };
+		D57644B81A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaAudioStreamerProxy.m; sourceTree = "<group>"; };
+		D57644C31A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSMutableArray+STKAudioPlayer.h"; path = "../Classes/StreamingKit/NSMutableArray+STKAudioPlayer.h"; sourceTree = "<group>"; };
+		D57644C41A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSMutableArray+STKAudioPlayer.m"; path = "../Classes/StreamingKit/NSMutableArray+STKAudioPlayer.m"; sourceTree = "<group>"; };
+		D57644C51A1B805C00322E0D /* STKAudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STKAudioPlayer.h; path = ../Classes/StreamingKit/STKAudioPlayer.h; sourceTree = "<group>"; };
+		D57644C61A1B805C00322E0D /* STKAudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STKAudioPlayer.m; path = ../Classes/StreamingKit/STKAudioPlayer.m; sourceTree = "<group>"; };
+		D57644C71A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STKAutoRecoveringHTTPDataSource.h; path = ../Classes/StreamingKit/STKAutoRecoveringHTTPDataSource.h; sourceTree = "<group>"; };
+		D57644C81A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STKAutoRecoveringHTTPDataSource.m; path = ../Classes/StreamingKit/STKAutoRecoveringHTTPDataSource.m; sourceTree = "<group>"; };
+		D57644C91A1B805C00322E0D /* STKCoreFoundationDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STKCoreFoundationDataSource.h; path = ../Classes/StreamingKit/STKCoreFoundationDataSource.h; sourceTree = "<group>"; };
+		D57644CA1A1B805C00322E0D /* STKCoreFoundationDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STKCoreFoundationDataSource.m; path = ../Classes/StreamingKit/STKCoreFoundationDataSource.m; sourceTree = "<group>"; };
+		D57644CB1A1B805C00322E0D /* STKDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STKDataSource.h; path = ../Classes/StreamingKit/STKDataSource.h; sourceTree = "<group>"; };
+		D57644CC1A1B805C00322E0D /* STKDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STKDataSource.m; path = ../Classes/StreamingKit/STKDataSource.m; sourceTree = "<group>"; };
+		D57644CD1A1B805C00322E0D /* STKDataSourceWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STKDataSourceWrapper.h; path = ../Classes/StreamingKit/STKDataSourceWrapper.h; sourceTree = "<group>"; };
+		D57644CE1A1B805C00322E0D /* STKDataSourceWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STKDataSourceWrapper.m; path = ../Classes/StreamingKit/STKDataSourceWrapper.m; sourceTree = "<group>"; };
+		D57644CF1A1B805C00322E0D /* STKHTTPDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STKHTTPDataSource.h; path = ../Classes/StreamingKit/STKHTTPDataSource.h; sourceTree = "<group>"; };
+		D57644D01A1B805C00322E0D /* STKHTTPDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STKHTTPDataSource.m; path = ../Classes/StreamingKit/STKHTTPDataSource.m; sourceTree = "<group>"; };
+		D57644D11A1B805C00322E0D /* STKLocalFileDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STKLocalFileDataSource.h; path = ../Classes/StreamingKit/STKLocalFileDataSource.h; sourceTree = "<group>"; };
+		D57644D21A1B805C00322E0D /* STKLocalFileDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STKLocalFileDataSource.m; path = ../Classes/StreamingKit/STKLocalFileDataSource.m; sourceTree = "<group>"; };
+		D57644D31A1B805C00322E0D /* STKQueueEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = STKQueueEntry.h; path = ../Classes/StreamingKit/STKQueueEntry.h; sourceTree = "<group>"; };
+		D57644D41A1B805C00322E0D /* STKQueueEntry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = STKQueueEntry.m; path = ../Classes/StreamingKit/STKQueueEntry.m; sourceTree = "<group>"; };
+		D57644D51A1B805C00322E0D /* StreamingKit-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "StreamingKit-Prefix.pch"; path = "../Classes/StreamingKit/StreamingKit-Prefix.pch"; sourceTree = "<group>"; };
 		D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.location.xcodeproj; path = ../../../modules/akylas_modules/location/ios/akylas.location.xcodeproj; sourceTree = "<group>"; };
 		D5809D4519129CEB005A1F02 /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
 		D5809D4619129CEB005A1F02 /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
@@ -2697,6 +2758,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				D57644C21A1B805100322E0D /* StreamingKit */,
 				D5F980EA19ECFC180071A3C6 /* MGSwipeTableCell */,
 				D56F98F119E67CF30050E727 /* UIImage+ImageEffects */,
 				D51DEFAF19D9ACBF00CF28B0 /* ActionSheetPicker */,
@@ -3143,6 +3205,8 @@
 		24CA8C18111164440084E2DE /* Media */ = {
 			isa = PBXGroup;
 			children = (
+				D57644B71A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.h */,
+				D57644B81A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m */,
 				24CA8B04111161FE0084E2DE /* MediaModule.m */,
 				24CA8B05111161FE0084E2DE /* MediaModule.h */,
 				24CA8ABE111161FD0084E2DE /* TiMediaAudioPlayerProxy.m */,
@@ -3218,6 +3282,7 @@
 		24CA8C591111653B0084E2DE /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
+				D55131B11A1DEADE003A9872 /* VolumeView */,
 				24CA8C72111167590084E2DE /* Label */,
 				24CA8C701111672E0084E2DE /* Button */,
 				24CA8C6F111167140084E2DE /* ButtonBar */,
@@ -4160,6 +4225,17 @@
 			name = Analytics;
 			sourceTree = "<group>";
 		};
+		D55131B11A1DEADE003A9872 /* VolumeView */ = {
+			isa = PBXGroup;
+			children = (
+				D55131B81A1DEB1D003A9872 /* TiUIVolumeView.h */,
+				D55131B91A1DEB1D003A9872 /* TiUIVolumeView.m */,
+				D55131BD1A1DEB36003A9872 /* TiUIVolumeViewProxy.h */,
+				D55131BE1A1DEB36003A9872 /* TiUIVolumeViewProxy.m */,
+			);
+			name = VolumeView;
+			sourceTree = "<group>";
+		};
 		D55795071837BEF90057DD41 /* CoconutKitAnimation */ = {
 			isa = PBXGroup;
 			children = (
@@ -4303,6 +4379,32 @@
 				D56F98F919E67D140050E727 /* UIImage+ImageEffects.m */,
 			);
 			name = "UIImage+ImageEffects";
+			sourceTree = "<group>";
+		};
+		D57644C21A1B805100322E0D /* StreamingKit */ = {
+			isa = PBXGroup;
+			children = (
+				D57644C31A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.h */,
+				D57644C41A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m */,
+				D57644C51A1B805C00322E0D /* STKAudioPlayer.h */,
+				D57644C61A1B805C00322E0D /* STKAudioPlayer.m */,
+				D57644C71A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.h */,
+				D57644C81A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m */,
+				D57644C91A1B805C00322E0D /* STKCoreFoundationDataSource.h */,
+				D57644CA1A1B805C00322E0D /* STKCoreFoundationDataSource.m */,
+				D57644CB1A1B805C00322E0D /* STKDataSource.h */,
+				D57644CC1A1B805C00322E0D /* STKDataSource.m */,
+				D57644CD1A1B805C00322E0D /* STKDataSourceWrapper.h */,
+				D57644CE1A1B805C00322E0D /* STKDataSourceWrapper.m */,
+				D57644CF1A1B805C00322E0D /* STKHTTPDataSource.h */,
+				D57644D01A1B805C00322E0D /* STKHTTPDataSource.m */,
+				D57644D11A1B805C00322E0D /* STKLocalFileDataSource.h */,
+				D57644D21A1B805C00322E0D /* STKLocalFileDataSource.m */,
+				D57644D31A1B805C00322E0D /* STKQueueEntry.h */,
+				D57644D41A1B805C00322E0D /* STKQueueEntry.m */,
+				D57644D51A1B805C00322E0D /* StreamingKit-Prefix.pch */,
+			);
+			name = StreamingKit;
 			sourceTree = "<group>";
 		};
 		D57E7F67195AB34C00C17ADE /* Products */ = {
@@ -4655,7 +4757,7 @@
 					1D6058900D05DD3D006BFB54 = {
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
-								enabled = 0;
+								enabled = 1;
 							};
 						};
 					};
@@ -4913,6 +5015,7 @@
 				24CA89B81111615D0084E2DE /* KrollBridge.m in Sources */,
 				D5412E1719012A0D00B720DF /* UIGestureRecognizer+ADNavTransition.m in Sources */,
 				24CA89B91111615D0084E2DE /* KrollCallback.m in Sources */,
+				D57644E81A1B805C00322E0D /* STKHTTPDataSource.m in Sources */,
 				24CA89BA1111615D0084E2DE /* KrollContext.m in Sources */,
 				24CA89BB1111615D0084E2DE /* KrollMethod.m in Sources */,
 				84A0100917FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
@@ -4960,6 +5063,7 @@
 				24CA8B8E111161FE0084E2DE /* TiUIiPhoneStatusBarProxy.m in Sources */,
 				24CA8B8F111161FE0084E2DE /* TiUISliderProxy.m in Sources */,
 				D5F9620319A638CC000E464F /* TiScrollingViewProxy.m in Sources */,
+				D55131BA1A1DEB1D003A9872 /* TiUIVolumeView.m in Sources */,
 				D5F9620E19A63941000E464F /* TiScrollingView.m in Sources */,
 				D597CF0717D719C4009A080B /* TiCellBackgroundView.m in Sources */,
 				24CA8B90111161FE0084E2DE /* TiUISlider.m in Sources */,
@@ -4971,6 +5075,7 @@
 				24CA8B95111161FE0084E2DE /* TiUIProgressBarProxy.m in Sources */,
 				24CA8B96111161FE0084E2DE /* TiUIProgressBar.m in Sources */,
 				D5C07A92187DA9CF00984901 /* CAMediaTimingFunction+AdditionalEquations.m in Sources */,
+				D57644EE1A1B805C00322E0D /* STKQueueEntry.m in Sources */,
 				24CA8B97111161FE0084E2DE /* TiUIOptionDialogProxy.m in Sources */,
 				24CA8B98111161FE0084E2DE /* TiUINavBarButton.m in Sources */,
 				D5C06C1F17C7D8F700FA0E98 /* TiUIHelper.m in Sources */,
@@ -4984,6 +5089,7 @@
 				24CA8BA7111161FE0084E2DE /* TiUIButtonProxy.m in Sources */,
 				D52A8E73183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */,
 				24CA8BA8111161FE0084E2DE /* TiUIButtonBarProxy.m in Sources */,
+				D57644D91A1B805C00322E0D /* STKAudioPlayer.m in Sources */,
 				24CA8BA9111161FE0084E2DE /* TiUIButtonBar.m in Sources */,
 				24CA8BAA111161FE0084E2DE /* TiUIButton.m in Sources */,
 				24CA8BAB111161FE0084E2DE /* TiUIiPhoneAnimationStyleProxy.m in Sources */,
@@ -5035,12 +5141,14 @@
 				24CA8BDA111161FE0084E2DE /* PlatformModule.m in Sources */,
 				84A00FFF17FB833000D4BF94 /* TiPushBehavior.m in Sources */,
 				24CA8BDB111161FE0084E2DE /* OperationQueue.m in Sources */,
+				D57644DC1A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m in Sources */,
 				24CA8BDC111161FE0084E2DE /* NetworkModule.m in Sources */,
 				24CA8BDD111161FE0084E2DE /* Mimetypes.m in Sources */,
 				24CA8BDE111161FE0084E2DE /* MediaModule.m in Sources */,
 				24CA8BE1111161FE0084E2DE /* LayoutConstraint.m in Sources */,
 				24CA8BE2111161FE0084E2DE /* ImageLoader.m in Sources */,
 				24CA8BE3111161FE0084E2DE /* GestureModule.m in Sources */,
+				D55131BF1A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */,
 				24CA8BE5111161FE0084E2DE /* FilesystemModule.m in Sources */,
 				24CA8BF9111161FE0084E2DE /* DatabaseModule.m in Sources */,
 				D54C7CF818115BAF00F592A9 /* TiTransitionPushRotate.m in Sources */,
@@ -5104,6 +5212,7 @@
 				2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */,
 				24FB4EE3115C81A7001AAF99 /* TiUIiPadSplitWindowProxy.m in Sources */,
 				D54C7CFD18115BBE00F592A9 /* TiTransitionScale.m in Sources */,
+				D57644B91A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m in Sources */,
 				D58709BE19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
 				24FB4EF4115C81C5001AAF99 /* TiUIiPadPopoverProxy.m in Sources */,
 				24FB4F42115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */,
@@ -5125,6 +5234,7 @@
 				24F6205A1199F27700EEAD3C /* TiErrorController.m in Sources */,
 				DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */,
 				DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */,
+				D57644EB1A1B805C00322E0D /* STKLocalFileDataSource.m in Sources */,
 				B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
 				D5AADFAB17EC32A6008987EF /* UIControl+TiUIView.m in Sources */,
 				242E967711BAD2F20046A0D0 /* AsyncSocket.m in Sources */,
@@ -5140,6 +5250,7 @@
 				243AAFB511FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
 				B440EF7E1209DC400045FEAE /* MGSplitCornersView.m in Sources */,
 				B440EF7F1209DC400045FEAE /* MGSplitDividerView.m in Sources */,
+				D57644E21A1B805C00322E0D /* STKDataSource.m in Sources */,
 				B440EF801209DC400045FEAE /* MGSplitViewController.m in Sources */,
 				24F29E2F12209C920099351D /* TiStylesheet.m in Sources */,
 				D58DCBD217FF193D0011FE0E /* TiTransitionHelper.m in Sources */,
@@ -5159,6 +5270,7 @@
 				24ADC634129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */,
 				84A0100E17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
 				84A00FF017FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
+				D57644D61A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m in Sources */,
 				D55795811837BF6C0057DD41 /* TiViewAnimationStep.m in Sources */,
 				DA2B35C2134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */,
 				DABF3ECF134D210400836137 /* TiBuffer.m in Sources */,
@@ -5171,6 +5283,7 @@
 				DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */,
 				4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */,
+				D57644DF1A1B805C00322E0D /* STKCoreFoundationDataSource.m in Sources */,
 				DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 				D512A7AD187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */,
 				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
@@ -5211,6 +5324,7 @@
 				D93DAA5516CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
 				D93DAA5A16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D5412E121900156C00B720DF /* ADPercentDrivenInteractiveTransition.m in Sources */,
+				D57644E51A1B805C00322E0D /* STKDataSourceWrapper.m in Sources */,
 				B6C5206118035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */,
 				D54C7CEF1811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				D93DAA5F16CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
@@ -5265,6 +5379,7 @@
 				24D8E3BB119B9D8A00F8CAA6 /* TiUITableViewAction.m in Sources */,
 				D5E999131869C8A2005B3664 /* TiBorderLayer.m in Sources */,
 				24D8E3BC119B9D8A00F8CAA6 /* TiFile.m in Sources */,
+				D57644E91A1B805C00322E0D /* STKHTTPDataSource.m in Sources */,
 				D5C8C97417EF45C900F54C19 /* ADDualTransition.m in Sources */,
 				D51DEFCB19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */,
 				24D8E3BE119B9D8A00F8CAA6 /* main.m in Sources */,
@@ -5300,6 +5415,7 @@
 				24D8E3E6119B9D8A00F8CAA6 /* KrollPropertyDelegate.m in Sources */,
 				24D8E3E7119B9D8A00F8CAA6 /* KrollTimer.m in Sources */,
 				D54C7CFE18115BBE00F592A9 /* TiTransitionScale.m in Sources */,
+				D57644D71A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m in Sources */,
 				24D8E3E8119B9D8A00F8CAA6 /* YahooModule.m in Sources */,
 				24D8E3E9119B9D8A00F8CAA6 /* XHRBridge.m in Sources */,
 				D5F9620F19A63941000E464F /* TiScrollingView.m in Sources */,
@@ -5437,6 +5553,7 @@
 				D557959A1839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,
 				24D8E45D119B9D8A00F8CAA6 /* TiUIScrollView.m in Sources */,
 				D5F980F919ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */,
+				D57644EF1A1B805C00322E0D /* STKQueueEntry.m in Sources */,
 				24D8E45E119B9D8A00F8CAA6 /* TiUIWebView.m in Sources */,
 				24D8E45F119B9D8A00F8CAA6 /* TiDOMDocumentProxy.m in Sources */,
 				24D8E460119B9D8A00F8CAA6 /* GDataXMLNode.m in Sources */,
@@ -5467,6 +5584,7 @@
 				24D8E472119B9D8A00F8CAA6 /* TiUIPicker.m in Sources */,
 				24D8E473119B9D8A00F8CAA6 /* TiUIPickerRowProxy.m in Sources */,
 				D5C5EC3218642FB100357DE4 /* TiTableView.m in Sources */,
+				D57644E01A1B805C00322E0D /* STKCoreFoundationDataSource.m in Sources */,
 				24D8E474119B9D8A00F8CAA6 /* TiUIPickerColumnProxy.m in Sources */,
 				24D8E475119B9D8A00F8CAA6 /* UIImage+Alpha.m in Sources */,
 				24D8E476119B9D8A00F8CAA6 /* UIImage+Resize.m in Sources */,
@@ -5497,6 +5615,7 @@
 				24D8E48C119B9D8A00F8CAA6 /* TiUIDashboardView.m in Sources */,
 				24D8E48D119B9D8A00F8CAA6 /* TiUIDashboardItemProxy.m in Sources */,
 				24D8E490119B9D8A00F8CAA6 /* TiGradient.m in Sources */,
+				D55131BB1A1DEB1D003A9872 /* TiUIVolumeView.m in Sources */,
 				24D8E491119B9D8A00F8CAA6 /* ApplicationRouting.m in Sources */,
 				24D8E492119B9D8A00F8CAA6 /* TiUIiPadSplitWindow.m in Sources */,
 				B606EF4B190B14ED00663EFC /* Reachability.m in Sources */,
@@ -5512,6 +5631,7 @@
 				242E967911BAD2F20046A0D0 /* AsyncSocket.m in Sources */,
 				242E967A11BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */,
 				DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */,
+				D57644DA1A1B805C00322E0D /* STKAudioPlayer.m in Sources */,
 				2478B2A511C447A4005814DF /* ApplicationMods.m in Sources */,
 				24D06FE211D0211200F615D8 /* TiUIiOSAdViewProxy.m in Sources */,
 				24D06FE911D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
@@ -5580,6 +5700,7 @@
 				B6465C2418D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */,
 				2BDEA4F514490546004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
 				844E1F7F14883A3700F5424C /* TiDOMValidator.m in Sources */,
+				D57644E31A1B805C00322E0D /* STKDataSource.m in Sources */,
 				D5370D95194749DF000E30FC /* TiParentingProxy.m in Sources */,
 				DAA72344156D642400757987 /* TiConsole.m in Sources */,
 				2B353A8215901D41008FBD84 /* Ti3DMatrix.m in Sources */,
@@ -5590,11 +5711,13 @@
 				4688700815E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */,
 				1D1029A915F9769200372EC0 /* TiBindingEvent.m in Sources */,
 				1D0061C2160283820016BBEE /* TiBindingRunLoop.m in Sources */,
+				D55131C01A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */,
 				1DD9388D1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEF915F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
 				D93DAA5116CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
 				D93DAA5616CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
 				B6C5206218035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */,
+				D57644E61A1B805C00322E0D /* STKDataSourceWrapper.m in Sources */,
 				D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6516CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
@@ -5606,6 +5729,7 @@
 				502A68E716EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				D5C8C97117EF45C900F54C19 /* ADCubeTransition.m in Sources */,
 				502A68EC16F0428500661EF6 /* TiProxyTemplate.m in Sources */,
+				D57644DD1A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m in Sources */,
 				D5C92DA8182AA88F0072D117 /* TouchDelegate_Views.m in Sources */,
 				D590815D168B593B00362307 /* TiUIHorizontalTableView.m in Sources */,
 				D5908160168B593B00362307 /* TiUIHorizontalTableViewProxy.m in Sources */,
@@ -5614,6 +5738,7 @@
 				D522FE0E16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */,
 				D5C8C98F17EF45C900F54C19 /* ADSwapTransition.m in Sources */,
 				D5C8C9A117EF45C900F54C19 /* ADZoomTransition.m in Sources */,
+				D57644BA1A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m in Sources */,
 				D52A8E74183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */,
 				D5B04536191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */,
 				D5C8C98917EF45C900F54C19 /* ADScaleTransition.m in Sources */,
@@ -5633,6 +5758,7 @@
 				D526016D179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */,
 				84C3870317417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
 				D51F03CB18080504005B4EE2 /* TiUIBlendModeProxy.m in Sources */,
+				D57644EC1A1B805C00322E0D /* STKLocalFileDataSource.m in Sources */,
 				D51697F317FFF63300B4FDB8 /* ImageModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5646,6 +5772,7 @@
 				DABB36A112E8CB280026A6EA /* TiUITableViewAction.m in Sources */,
 				D5E999141869C8A2005B3664 /* TiBorderLayer.m in Sources */,
 				DABB36A212E8CB280026A6EA /* TiFile.m in Sources */,
+				D57644EA1A1B805C00322E0D /* STKHTTPDataSource.m in Sources */,
 				D5C8C97517EF45C900F54C19 /* ADDualTransition.m in Sources */,
 				D51DEFCC19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */,
 				DABB36A412E8CB280026A6EA /* main.m in Sources */,
@@ -5681,6 +5808,7 @@
 				DABB36C212E8CB280026A6EA /* KrollPropertyDelegate.m in Sources */,
 				DABB36C312E8CB280026A6EA /* KrollTimer.m in Sources */,
 				D54C7CFF18115BBE00F592A9 /* TiTransitionScale.m in Sources */,
+				D57644D81A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m in Sources */,
 				DABB36C412E8CB280026A6EA /* YahooModule.m in Sources */,
 				DABB36C512E8CB280026A6EA /* XHRBridge.m in Sources */,
 				D5F9621019A63941000E464F /* TiScrollingView.m in Sources */,
@@ -5818,6 +5946,7 @@
 				D557959B1839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,
 				DABB373512E8CB280026A6EA /* TiUIScrollView.m in Sources */,
 				D5F980FA19ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */,
+				D57644F01A1B805C00322E0D /* STKQueueEntry.m in Sources */,
 				DABB373612E8CB280026A6EA /* TiUIWebView.m in Sources */,
 				DABB373712E8CB280026A6EA /* TiDOMDocumentProxy.m in Sources */,
 				DABB373812E8CB280026A6EA /* GDataXMLNode.m in Sources */,
@@ -5848,6 +5977,7 @@
 				DABB374A12E8CB280026A6EA /* TiUIPicker.m in Sources */,
 				DABB374B12E8CB280026A6EA /* TiUIPickerRowProxy.m in Sources */,
 				D5C5EC3318642FB100357DE4 /* TiTableView.m in Sources */,
+				D57644E11A1B805C00322E0D /* STKCoreFoundationDataSource.m in Sources */,
 				DABB374C12E8CB280026A6EA /* TiUIPickerColumnProxy.m in Sources */,
 				DABB374D12E8CB280026A6EA /* UIImage+Alpha.m in Sources */,
 				DABB374E12E8CB280026A6EA /* UIImage+Resize.m in Sources */,
@@ -5878,6 +6008,7 @@
 				DABB376412E8CB280026A6EA /* TiUIDashboardView.m in Sources */,
 				DABB376512E8CB280026A6EA /* TiUIDashboardItemProxy.m in Sources */,
 				DABB376812E8CB280026A6EA /* TiGradient.m in Sources */,
+				D55131BC1A1DEB1D003A9872 /* TiUIVolumeView.m in Sources */,
 				DABB376912E8CB280026A6EA /* ApplicationRouting.m in Sources */,
 				DABB376A12E8CB280026A6EA /* TiUIiPadSplitWindow.m in Sources */,
 				B606EF4C190B14ED00663EFC /* Reachability.m in Sources */,
@@ -5893,6 +6024,7 @@
 				DABB377312E8CB280026A6EA /* AsyncSocket.m in Sources */,
 				DABB377412E8CB280026A6EA /* AsyncUdpSocket.m in Sources */,
 				DABB377612E8CB280026A6EA /* TiContactsGroup.m in Sources */,
+				D57644DB1A1B805C00322E0D /* STKAudioPlayer.m in Sources */,
 				DABB377712E8CB280026A6EA /* ApplicationMods.m in Sources */,
 				DABB377812E8CB280026A6EA /* TiUIiOSAdViewProxy.m in Sources */,
 				DABB377912E8CB280026A6EA /* TiUIiOSAdView.m in Sources */,
@@ -5961,6 +6093,7 @@
 				B6465C2518D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */,
 				2BDEA4F614490547004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
 				844E1F8014883A3700F5424C /* TiDOMValidator.m in Sources */,
+				D57644E41A1B805C00322E0D /* STKDataSource.m in Sources */,
 				D5370D96194749DF000E30FC /* TiParentingProxy.m in Sources */,
 				DAA72345156D642400757987 /* TiConsole.m in Sources */,
 				2B353A8315901D41008FBD84 /* Ti3DMatrix.m in Sources */,
@@ -5971,11 +6104,13 @@
 				4688700915E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */,
 				1D1029AA15F9769200372EC0 /* TiBindingEvent.m in Sources */,
 				1D0061C3160283820016BBEE /* TiBindingRunLoop.m in Sources */,
+				D55131C11A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */,
 				1DD9388E1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEFA15F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
 				D93DAA5216CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
 				D93DAA5716CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
 				B6C5206318035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */,
+				D57644E71A1B805C00322E0D /* STKDataSourceWrapper.m in Sources */,
 				D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6616CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
@@ -5987,6 +6122,7 @@
 				502A68E816EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				D5C8C97217EF45C900F54C19 /* ADCubeTransition.m in Sources */,
 				502A68ED16F0428500661EF6 /* TiProxyTemplate.m in Sources */,
+				D57644DE1A1B805C00322E0D /* STKAutoRecoveringHTTPDataSource.m in Sources */,
 				D5C92DA9182AA88F0072D117 /* TouchDelegate_Views.m in Sources */,
 				84C3870417417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
 				D590815E168B593B00362307 /* TiUIHorizontalTableView.m in Sources */,
@@ -5995,6 +6131,7 @@
 				D56915D7168F538F00C3F89F /* TTTAttributedLabel.m in Sources */,
 				D522FE0F16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */,
 				D5C8C99017EF45C900F54C19 /* ADSwapTransition.m in Sources */,
+				D57644BB1A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m in Sources */,
 				D52A8E75183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */,
 				D5B04537191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */,
 				D5C8C9A217EF45C900F54C19 /* ADZoomTransition.m in Sources */,
@@ -6014,6 +6151,7 @@
 				D5C8C98717EF45C900F54C19 /* ADPushRotateTransition.m in Sources */,
 				D526016E179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */,
 				D51F03CC18080504005B4EE2 /* TiUIBlendModeProxy.m in Sources */,
+				D57644ED1A1B805C00322E0D /* STKLocalFileDataSource.m in Sources */,
 				D51697F417FFF63300B4FDB8 /* ImageModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -9,6 +9,7 @@
 #import "TiMediaAudioSession.h"
 #import "TiUtils.h"
 #import <AVFoundation/AVAudioSession.h>
+#import "TiApp.h"
 
 NSString * const kTiMediaAudioSessionInterruptionBegin = @"TiMediaAudioSessionInterruptionBegin";
 NSString * const kTiMediaAudioSessionInterruptionEnd = @"TiMediaAudioSessionInterruptionEnd";
@@ -22,7 +23,10 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
 {
     [[AVAudioSession sharedInstance] removeObserver:self forKeyPath:@"outputVolume"];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [[AVAudioSession sharedInstance] setActive:NO error:nil];;
+    [[AVAudioSession sharedInstance] setActive:NO error:nil];
+    [[UIApplication sharedApplication] endReceivingRemoteControlEvents];
+    // Set itself as the first responder
+    [[[TiApp app] controller] resignFirstResponder];
 }
 
 -(void) activateSession
@@ -34,6 +38,10 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
     [[AVAudioSession sharedInstance] addObserver:self forKeyPath:@"outputVolume" options:NSKeyValueObservingOptionNew context:NULL];
     if (error != nil) {
         DebugLog(@"Could not activate session");
+    } else {
+        [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+        // Set itself as the first responder
+        [[[TiApp app] controller] becomeFirstResponder];
     }
 }
 
