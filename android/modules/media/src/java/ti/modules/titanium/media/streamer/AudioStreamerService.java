@@ -527,7 +527,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         }
         if (proxyHasListeners(EVENT_BUFFERING, false)) {
             KrollDict event = new KrollDict();
-            event.put("progress", percent);
+            event.put(TiC.PROPERTY_PROGRESS, percent);
             proxy.fireEvent(EVENT_BUFFERING, event);
         }
     }
@@ -558,8 +558,6 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         mEnableLockscreenControls = ((AudioStreamerProxy) proxy).getEnableLockscreenControls();
         setUpRemoteControlClient();
 
-//        addToPlayList(((AudioStreamerProxy) proxy).getPlayList(),
-//                Integer.MAX_VALUE);
         setVolume(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_VOLUME), 1.0f));
         
         if (mPendingCommandIntents.size() > 0) {
@@ -717,7 +715,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             final String action = intent.getAction();
             final String command = intent.getStringExtra("command");
             if (CMDNEXT.equals(command) || NEXT_ACTION.equals(action)) {
-                gotoNext(true);
+                gotoNext(false);
             } else if (CMDPREVIOUS.equals(command)
                     || PREVIOUS_ACTION.equals(action)) {
                 if (position() < 2000) {
@@ -801,7 +799,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     public void buildNotification() {
         if (mBuildNotification || inBackground) {
             try {
-                mNotificationHelper.buildNotification();
+                mNotificationHelper.buildNotificationIfNeeded();
                 updateMetadata();
             } catch (final IllegalStateException parcelBitmap) {
                 parcelBitmap.printStackTrace();
@@ -1180,7 +1178,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      * Notify the change-receivers that something has changed.
      */
     private void notifyChange(final String what) {
-        final Intent intent = new Intent(what);
+//        final Intent intent = new Intent(what);
 //        sendStickyBroadcast(intent);
 
         // Update the lockscreen controls
@@ -1190,6 +1188,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             if (proxyHasListeners(EVENT_CHANGE, false)) {
                 KrollDict data = new KrollDict();
                 data.put("track", mCursor);
+                data.put("duration", duration());
                 data.put("index", mPlayPos);
                 proxy.fireEvent(EVENT_CHANGE, data);
             }
@@ -1223,9 +1222,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                         .setPlaybackState(mIsSupposedToBePlaying ? RemoteControlClient.PLAYSTATE_PLAYING
                                 : RemoteControlClient.PLAYSTATE_PAUSED);
             }
-            if (mBuildNotification) {
+//            if (mBuildNotification) {
                 mNotificationHelper.goToIdleState(mIsSupposedToBePlaying);
-            }
+//            }
         } else if (what.equals(META_CHANGED)) {
             updateMetadata();
         }
@@ -1452,6 +1451,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      *            The position to start playback at
      */
     public void open(final List<Object> list, final int position) {
+        if (list == null) {
+            return;
+        }
         synchronized (this) {
             if (mShuffleMode == SHUFFLE_AUTO) {
                 mShuffleMode = SHUFFLE_NORMAL;
@@ -1691,6 +1693,16 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             }
             notifyChange(SHUFFLEMODE_CHANGED);
         }
+    }
+    
+    public void setPlaylist(final List<Object> list) {
+        stop();
+        mPlayList = null;
+        mAutoShuffleList = null;
+        mPlayPos = 0;
+        mPlayListLen = 0;
+        addToPlayList(list, Integer.MAX_VALUE);
+        notifyChange(QUEUE_CHANGED);
     }
 
     /**
@@ -2202,13 +2214,15 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 // TODO: notify the user why the file couldn't be opened
                 return false;
             }
-            final Intent intent = new Intent(
-                    AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);
-            intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION,
-                    getAudioSessionId());
-            intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, mService.get()
-                    .getPackageName());
-            mService.get().sendBroadcast(intent);
+            if (player == mCurrentMediaPlayer) {
+                final Intent intent = new Intent(
+                        AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);
+                intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION,
+                        getAudioSessionId());
+                intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, mService.get()
+                        .getPackageName());
+                mService.get().sendBroadcast(intent);
+            }
             return true;
         }
 
@@ -2400,11 +2414,11 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                     } else if (mIsInitialized) {
                         mService.get().setState(STATE_INITIALIZED);
                     }
+                    if (mIsInitialized && !mIsPreparing) {
+                        mService.get().onStartPlaying(mPlayingFile);
+                    }
                 }
-                if (mIsInitialized && !mIsPreparing) {
-                    mService.get().onStartPlaying(mPlayingFile);
-                    
-                }
+                
                 return mIsInitialized;
             }
         }
@@ -2429,9 +2443,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             mNextMediaPlayer.setWakeMode(mService.get(),
                     PowerManager.PARTIAL_WAKE_LOCK);
             mNextMediaPlayer.setAudioSessionId(getAudioSessionId());
-            if (setDataSourceImpl(mNextMediaPlayer, path, mNextIsPreparing)) {
-                mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer);
-            } else {
+            if (!setDataSourceImpl(mNextMediaPlayer, path, mNextIsPreparing)) {
+//                mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer);
+//            } else {
                 if (mNextMediaPlayer != null) {
                     mNextMediaPlayer.release();
                     mNextMediaPlayer = null;
@@ -2551,6 +2565,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             mService.get().setState(
                     !mIsPaused ? STATE_PLAYING : mService
                             .get().mState);
+            startProgressTimer();
         }
 
         /**
@@ -2562,6 +2577,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             mIsInitialized = false;
             mIsPaused = false;
             mService.get().setState(STATE_STOPPED);
+            stopProgressTimer();
         }
 
         /**
@@ -2579,6 +2595,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             mCurrentMediaPlayer.pause();
             mIsPaused = true;
             mService.get().setState(STATE_PAUSED);
+            stopProgressTimer();
         }
 
         /**
@@ -2745,6 +2762,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 }
             } else if (mp == mNextMediaPlayer) {
                 mNextIsPreparing = false;
+                mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer);
             }
 
         }
@@ -3046,9 +3064,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     }
 
     protected void onProgress(long position) {
-        if (mRemoteControlClientCompat != null) {
-            mRemoteControlClientCompat.setPlaybackState(mRemoteControlClientState, position, 1.0f);
-        }
+//        if (mRemoteControlClientCompat != null) {
+//            mRemoteControlClientCompat.setPlaybackState(mRemoteControlClientState, position, 1.0f);
+//        }
         if (proxyHasListeners(EVENT_PROGRESS, false)) {
             KrollDict event = new KrollDict();
             event.put("progress", position);
@@ -3084,8 +3102,8 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         // which is bad news for when the bitmap is use somewhere else.
         // instead we update all datas :s
         currentMetadataEditor = mRemoteControlClientCompat.editMetadata(true);
-//        currentMetadataEditor
-//                .putBitmap(MetadataEditor.BITMAP_KEY_ARTWORK, null);
+        currentMetadataEditor
+                .putBitmap(MetadataEditor.BITMAP_KEY_ARTWORK, null);
         if (dict != null) {
             for (Map.Entry<String, Object> entry : dict.entrySet()) {
                 String key = entry.getKey();

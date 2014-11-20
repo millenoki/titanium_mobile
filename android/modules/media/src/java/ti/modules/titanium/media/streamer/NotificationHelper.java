@@ -128,6 +128,11 @@ public class NotificationHelper {
         mNotificationManager = (NotificationManager) service
                 .getSystemService(Context.NOTIFICATION_SERVICE);
     }
+    public void buildNotificationIfNeeded() {
+        if (mNotification == null) {
+            buildNotification();
+        }
+    }
 
     /**
      * Call this to build the {@link Notification}.

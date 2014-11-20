@@ -12,20 +12,17 @@ import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiEnhancedServiceProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
-import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.media.streamer.AudioStreamerService;
 import android.app.Service;
 import android.content.Intent;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = {
-        TiC.PROPERTY_VOLUME, TiC.PROPERTY_METADATA })
+        TiC.PROPERTY_VOLUME, TiC.PROPERTY_METADATA, TiC.PROPERTY_PLAYLIST })
 public class AudioStreamerProxy extends TiEnhancedServiceProxy {
     private static final String TAG = "AudioStreamerProxy";
 
@@ -162,15 +159,24 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
 
     @Override
     public void onPropertyChanged(String name, Object value, Object oldValue) {
-        if (tiService == null)
-            return;
-        if (TiC.PROPERTY_VOLUME.equals(name)) {
-            tiService.setVolume(TiConvert.toFloat(value, 1.0f));
+        if (name.equals(TiC.PROPERTY_PLAYLIST)) {
+            mPlaylist = null;
+            addItemToPlaylist(value);
+            if (tiService != null) {
+                tiService.setPlaylist(mPlaylist);
+            }
+        } else if (TiC.PROPERTY_VOLUME.equals(name)) {
+            if (tiService != null) {
+                tiService.setVolume(TiConvert.toFloat(value, 1.0f));
+            }
         } else if (TiC.PROPERTY_TIME.equals(name)) {
-            tiService.seek(TiConvert.toLong(value));
-        }
-        if (name.equals(TiC.PROPERTY_METADATA)) {
-            tiService.updateMetadata();
+            if (tiService != null) {
+                tiService.seek(TiConvert.toLong(value));
+            }
+        } else if (name.equals(TiC.PROPERTY_METADATA)) {
+            if (tiService != null) {
+                tiService.updateMetadata();
+            }
         }
     }
 
@@ -275,17 +281,30 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
         }
         return TiConvert.toLong(getProperty(TiC.PROPERTY_TIME));
     }
+    
+    @Kroll.method
+    @Kroll.getProperty
+    public Object getCurrentItem() {
+        if (tiService != null) {
+            return tiService.getCurrent();
+        }
+        return null;
+    }
+
 
     public int getNotificationIcon() {
-        return TiRHelper.getResource(getProperty("notifIcon"), "drawable", false);
+        return TiRHelper.getResource(getProperty("notifIcon"), "drawable",
+                false);
     }
 
     public int getNotificationViewId() {
-        return TiRHelper.getResource(getProperty("notifViewId"), "layout", false);
+        return TiRHelper.getResource(getProperty("notifViewId"), "layout",
+                false);
     }
 
     public int getNotificationExtandedViewId() {
-        return TiRHelper.getResource(getProperty("notifExpandedViewId"), "layout", false);
+        return TiRHelper.getResource(getProperty("notifExpandedViewId"),
+                "layout", false);
     }
 
     public boolean getEnableLockscreenControls() {
