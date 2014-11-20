@@ -231,69 +231,69 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                 return callback(null, targetDeviceCache[target]);
             }
 
-			if (target == 'device') {
-				new ADB(config).devices(function (err, devices) {
-					if (err) {
-						callback(err);
-					} else {
-						this.devices = devices.filter(function (d) { return !d.emulator && d.state == 'device'; });
-						if (this.devices.length > 1) {
-							// we have more than 1 device, so we should show 'all'
-							this.devices.push({
-								id: 'all',
-								model: 'All Devices'
-							});
-						}
-						callback(null, targetDeviceCache[target] = this.devices.map(function (d) {
-							return {
-								name: d.model || d.manufacturer,
-								id: d.id,
-								version: d.release,
-								abi: Array.isArray(d.abi) ? d.abi.join(',') : d.abi,
-								type: 'device'
-							};
-						}));
-					}
-				}.bind(this));
-			} else if (target == 'emulator') {
-				new EmulatorManager(config).detect(function (err, emus) {
-					if (err) {
-						callback(err);
-					} else {
-						this.devices = emus;
-						callback(null, targetDeviceCache[target] = emus.map(function (emu) {
-							// normalize the emulator info
-							if (emu.type == 'avd') {
-								return {
-									name: emu.name,
-									id: emu.name,
-									api: emu['api-level'],
-									version: emu['sdk-version'],
-									abi: emu.abi,
-									type: emu.type,
-									googleApis: emu.googleApis,
-									sdcard: emu.sdcard
-								};
-							} else if (emu.type == 'genymotion') {
-								return {
-									name: emu.name,
-									id: emu.name,
-									api: emu['api-level'],
-									version: emu['sdk-version'],
-									abi: emu.abi,
-									type: emu.type,
-									googleApis: emu.googleApis,
-									sdcard: true
-								};
-							}
-							return emu; // not good
-						}));
-					}
-				}.bind(this));
-			} else {
-				callback();
-			}
-		}.bind(this);
+            if (target == 'device') {
+                new ADB(config).devices(function (err, devices) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        this.devices = devices.filter(function (d) { return !d.emulator && d.state == 'device'; });
+                        if (this.devices.length > 1) {
+                            // we have more than 1 device, so we should show 'all'
+                            this.devices.push({
+                                id: 'all',
+                                model: 'All Devices'
+                            });
+                        }
+                        callback(null, targetDeviceCache[target] = this.devices.map(function (d) {
+                            return {
+                                name: d.model || d.manufacturer,
+                                id: d.id,
+                                version: d.release,
+                                abi: Array.isArray(d.abi) ? d.abi.join(',') : d.abi,
+                                type: 'device'
+                            };
+                        }));
+                    }
+                }.bind(this));
+            } else if (target == 'emulator') {
+                new EmulatorManager(config).detect(function (err, emus) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        this.devices = emus;
+                        callback(null, targetDeviceCache[target] = emus.map(function (emu) {
+                            // normalize the emulator info
+                            if (emu.type == 'avd') {
+                                return {
+                                    name: emu.name,
+                                    id: emu.name,
+                                    api: emu['api-level'],
+                                    version: emu['sdk-version'],
+                                    abi: emu.abi,
+                                    type: emu.type,
+                                    googleApis: emu.googleApis,
+                                    sdcard: emu.sdcard
+                                };
+                            } else if (emu.type == 'genymotion') {
+                                return {
+                                    name: emu.name,
+                                    id: emu.name,
+                                    api: emu['api-level'],
+                                    version: emu['sdk-version'],
+                                    abi: emu.abi,
+                                    type: emu.type,
+                                    googleApis: emu.googleApis,
+                                    sdcard: true
+                                };
+                            }
+                            return emu; // not good
+                        }));
+                    }
+                }.bind(this));
+            } else {
+                callback();
+            }
+        }.bind(this);
 
     return function (finished) {
         cli.createHook('build.android.config', this, function (callback) {
@@ -603,12 +603,12 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                                         }
                                     }
 
-								} else if (cli.argv['device-id'] === undefined && results.length && config.get('android.autoSelectDevice', true)) {
-									// we set the device-id to an array of devices so that later in validate()
-									// after the tiapp.xml has been parsed, we can auto select the best device
-									_t.devicesToAutoSelectFrom = results.sort(function (a, b) {
-										var eq = a.api && b.api && appc.version.eq(a.api, b.api),
-											gt = a.api && b.api && appc.version.gt(a.api, b.api);
+                                } else if (cli.argv['device-id'] === undefined && results.length && config.get('android.autoSelectDevice', true)) {
+                                    // we set the device-id to an array of devices so that later in validate()
+                                    // after the tiapp.xml has been parsed, we can auto select the best device
+                                    _t.devicesToAutoSelectFrom = results.sort(function (a, b) {
+                                        var eq = a.api && b.api && appc.version.eq(a.api, b.api),
+                                            gt = a.api && b.api && appc.version.gt(a.api, b.api);
 
                                         if (eq) {
                                             if (a.type == b.type) {
@@ -1035,14 +1035,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         process.exit(1);
     }
 
-	// map sdk versions to sdk targets instead of by id
-	var targetSDKMap = {};
-	Object.keys(this.androidInfo.targets).forEach(function (i) {
-		var t = this.androidInfo.targets[i];
-		if (t.type == 'platform') {
-			targetSDKMap[t.id.replace('android-', '')] = t;
-		}
-	}, this);
+    // map sdk versions to sdk targets instead of by id
+    var targetSDKMap = {};
+    Object.keys(this.androidInfo.targets).forEach(function (i) {
+        var t = this.androidInfo.targets[i];
+        if (t.type == 'platform') {
+            targetSDKMap[t.id.replace('android-', '')] = t;
+        }
+    }, this);
 
     try {
         this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
@@ -1080,37 +1080,37 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         logger.log();
     }
 
-	if (usesSDK) {
-		usesSDK['minSdkVersion'] && (this.minSDK = usesSDK['minSdkVersion']);
-		usesSDK['targetSdkVersion'] && (this.targetSDK = usesSDK['targetSdkVersion']);
-		usesSDK['maxSdkVersion'] && (this.maxSDK = usesSDK['maxSdkVersion']);
-	}
+    if (usesSDK) {
+        usesSDK['minSdkVersion'] && (this.minSDK = usesSDK['minSdkVersion']);
+        usesSDK['targetSdkVersion'] && (this.targetSDK = usesSDK['targetSdkVersion']);
+        usesSDK['maxSdkVersion'] && (this.maxSDK = usesSDK['maxSdkVersion']);
+    }
 
-	// min sdk is too old
-	var minApiLevel = targetSDKMap[this.minSDK] && targetSDKMap[this.minSDK].sdk;
-	if (minApiLevel && minApiLevel < this.minSupportedApiLevel) {
-		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
-		logger.log(
-			appc.string.wrap(
-				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:minSdkVersion'.cyan, String(this.minSupportedApiLevel).cyan),
-				config.get('cli.width', 100)
-			)
-		);
-		logger.log();
-		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-		logger.log('    <android>'.grey);
-		logger.log('        <manifest>'.grey);
-		logger.log(('            <uses-sdk '
-			+ 'android:minSdkVersion="' + this.minSupportedApiLevel + '" '
-			+ (this.targetSDK ? 'android:targetSdkVersion="' + this.targetSDK + '" ' : '')
-			+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-			+ '/>').magenta);
-		logger.log('        </manifest>'.grey);
-		logger.log('    </android>'.grey);
-		logger.log('</ti:app>'.grey);
-		logger.log();
-		process.exit(1);
-	}
+    // min sdk is too old
+    var minApiLevel = targetSDKMap[this.minSDK] && targetSDKMap[this.minSDK].sdk;
+    if (minApiLevel && minApiLevel < this.minSupportedApiLevel) {
+        logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
+        logger.log(
+            appc.string.wrap(
+                __('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:minSdkVersion'.cyan, String(this.minSupportedApiLevel).cyan),
+                config.get('cli.width', 100)
+            )
+        );
+        logger.log();
+        logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+        logger.log('    <android>'.grey);
+        logger.log('        <manifest>'.grey);
+        logger.log(('            <uses-sdk '
+            + 'android:minSdkVersion="' + this.minSupportedApiLevel + '" '
+            + (this.targetSDK ? 'android:targetSdkVersion="' + this.targetSDK + '" ' : '')
+            + (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+            + '/>').magenta);
+        logger.log('        </manifest>'.grey);
+        logger.log('    </android>'.grey);
+        logger.log('</ti:app>'.grey);
+        logger.log();
+        process.exit(1);
+    }
 
     // target sdk is too old
     if (this.targetSDK && this.targetSDK < this.minTargetApiLevel) {
@@ -1137,30 +1137,30 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         process.exit(1);
     }
 
-	// target sdk < min sdk
-	if (this.targetSDK && this.targetSDK < minApiLevel) {
-		logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s', this.minSDK, this.targetSDK) + '\n');
-		process.exit(1);
-	}
+    // target sdk < min sdk
+    if (this.targetSDK && this.targetSDK < minApiLevel) {
+        logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s', this.minSDK, this.targetSDK) + '\n');
+        process.exit(1);
+    }
 
-	// if no target sdk, then default to most recent supported/installed
-	if (!this.targetSDK) {
-		var levels = Object.keys(targetSDKMap).sort(function (a, b) {
-				if (a.sdk === b.sdk && a.revision === b.revision) {
-					return 0;
-				} else if (a.sdk < b.sdk || (a.sdk === b.sdk && a.revision < b.revision)) {
-					return -1;
-				}
-				return 1;
-			}),
-			i = levels.length - 1;
+    // if no target sdk, then default to most recent supported/installed
+    if (!this.targetSDK) {
+        var levels = Object.keys(targetSDKMap).sort(function (a, b) {
+                if (a.sdk === b.sdk && a.revision === b.revision) {
+                    return 0;
+                } else if (a.sdk < b.sdk || (a.sdk === b.sdk && a.revision < b.revision)) {
+                    return -1;
+                }
+                return 1;
+            }),
+            i = levels.length - 1;
 
-		for (; i >= 0; i--) {
-			if (targetSDKMap[levels[i]].sdk >= this.minSupportedApiLevel && targetSDKMap[levels[i]].sdk <= this.maxSupportedApiLevel) {
-				this.targetSDK = targetSDKMap[levels[i]].sdk;
-				break;
-			}
-		}
+        for (; i >= 0; i--) {
+            if (targetSDKMap[levels[i]].sdk >= this.minSupportedApiLevel && targetSDKMap[levels[i]].sdk <= this.maxSupportedApiLevel) {
+                this.targetSDK = targetSDKMap[levels[i]].sdk;
+                break;
+            }
+        }
 
         if (!this.targetSDK) {
             logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
@@ -1215,11 +1215,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         process.exit(1);
     }
 
-	var maxApiLevel = this.maxSDK && targetSDKMap[this.maxSDK] && targetSDKMap[this.maxSDK].sdk;
-	if (maxApiLevel && maxApiLevel < this.targetSDK) {
-		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
-		process.exit(1);
-	}
+    var maxApiLevel = this.maxSDK && targetSDKMap[this.maxSDK] && targetSDKMap[this.maxSDK].sdk;
+    if (maxApiLevel && maxApiLevel < this.targetSDK) {
+        logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s', this.targetSDK, this.maxSDK) + '\n');
+        process.exit(1);
+    }
 
     if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
         // print warning that version this.targetSDK is not tested
@@ -1245,14 +1245,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
     var deviceId = cli.argv['device-id'];
 
-	if (!cli.argv['build-only'] && /^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
-		// no --device-id, so intelligently auto select one
-		var ver = targetSDKMap[this.targetSDK].version,
-			apiLevel = targetSDKMap[this.targetSDK].sdk,
-			devices = this.devicesToAutoSelectFrom,
-			i,
-			len = devices.length,
-			verRegExp = /^((\d\.)?\d\.)?\d$/;
+    if (!cli.argv['build-only'] && /^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
+        // no --device-id, so intelligently auto select one
+        var ver = targetSDKMap[this.targetSDK].version,
+            apiLevel = targetSDKMap[this.targetSDK].sdk,
+            devices = this.devicesToAutoSelectFrom,
+            i,
+            len = devices.length,
+            verRegExp = /^((\d\.)?\d\.)?\d$/;
 
         // reset the device id
         deviceId = null;
@@ -1273,69 +1273,69 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                 gapi = (' (' + __('Google APIs support unknown') + ')').grey;
             }
 
-			if (cli.argv.target == 'device') {
-				logger.info(__('Auto selected device %s %s', device.name.cyan, device.version) + gapi);
-			} else {
-				logger.info(__('Auto selected emulator %s %s', device.name.cyan, device.version) + gapi);
-			}
-		}
+            if (cli.argv.target == 'device') {
+                logger.info(__('Auto selected device %s %s', device.name.cyan, device.version) + gapi);
+            } else {
+                logger.info(__('Auto selected emulator %s %s', device.name.cyan, device.version) + gapi);
+            }
+        }
 
-		function gte(device) {
-			return device.api >= apiLevel && (!verRegExp.test(device.version) || appc.version.gte(device.version, ver));
-		}
+        function gte(device) {
+            return device.api >= apiLevel && (!verRegExp.test(device.version) || appc.version.gte(device.version, ver));
+        }
 
-		function lt(device) {
-			return device.api < apiLevel && (!verRegExp.test(device.version) || appc.version.lt(device.version, ver));
-		}
+        function lt(device) {
+            return device.api < apiLevel && (!verRegExp.test(device.version) || appc.version.lt(device.version, ver));
+        }
 
-		// find the first one where version is >= and google apis == true
-		logger.debug(__('Searching for version >= %s and has Google APIs', ver));
-		for (i = 0; i < len; i++) {
-			if (gte(devices[i]) && devices[i].googleApis) {
-				setDeviceId(devices[i]);
-				break;
-			}
-		}
+        // find the first one where version is >= and google apis == true
+        logger.debug(__('Searching for version >= %s and has Google APIs', ver));
+        for (i = 0; i < len; i++) {
+            if (gte(devices[i]) && devices[i].googleApis) {
+                setDeviceId(devices[i]);
+                break;
+            }
+        }
 
-		if (!deviceId) {
-			// find first one where version is >= and google apis is a maybe
-			logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
-			for (i = 0; i < len; i++) {
-				if (gte(devices[i]) && devices[i].googleApis === null) {
-					setDeviceId(devices[i]);
-					break;
-				}
-			}
+        if (!deviceId) {
+            // find first one where version is >= and google apis is a maybe
+            logger.debug(__('Searching for version >= %s and may have Google APIs', ver));
+            for (i = 0; i < len; i++) {
+                if (gte(devices[i]) && devices[i].googleApis === null) {
+                    setDeviceId(devices[i]);
+                    break;
+                }
+            }
 
-			if (!deviceId) {
-				// find first one where version is >= and no google apis
-				logger.debug(__('Searching for version >= %s and no Google APIs', ver));
-				for (i = 0; i < len; i++) {
-					if (gte(devices[i])) {
-						setDeviceId(devices[i]);
-						break;
-					}
-				}
+            if (!deviceId) {
+                // find first one where version is >= and no google apis
+                logger.debug(__('Searching for version >= %s and no Google APIs', ver));
+                for (i = 0; i < len; i++) {
+                    if (gte(devices[i])) {
+                        setDeviceId(devices[i]);
+                        break;
+                    }
+                }
 
-				if (!deviceId) {
-					// find first one where version < and google apis == true
-					logger.debug(__('Searching for version < %s and has Google APIs', ver));
-					for (i = len - 1; i >= 0; i--) {
-						if (lt(devices[i])) {
-							setDeviceId(devices[i]);
-							break;
-						}
-					}
+                if (!deviceId) {
+                    // find first one where version < and google apis == true
+                    logger.debug(__('Searching for version < %s and has Google APIs', ver));
+                    for (i = len - 1; i >= 0; i--) {
+                        if (lt(devices[i])) {
+                            setDeviceId(devices[i]);
+                            break;
+                        }
+                    }
 
-					if (!deviceId) {
-						// find first one where version <
-						logger.debug(__('Searching for version < %s and no Google APIs', ver));
-						for (i = len - 1; i >= 0; i--) {
-							if (lt(devices[i]) && devices[i].googleApis) {
-								setDeviceId(devices[i]);
-								break;
-							}
-						}
+                    if (!deviceId) {
+                        // find first one where version <
+                        logger.debug(__('Searching for version < %s and no Google APIs', ver));
+                        for (i = len - 1; i >= 0; i--) {
+                            if (lt(devices[i]) && devices[i].googleApis) {
+                                setDeviceId(devices[i]);
+                                break;
+                            }
+                        }
 
                         if (!deviceId) {
                             // just grab first one
@@ -1483,14 +1483,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                 process.exit(1);
             }
 
-			if (modules.incompatible.length) {
-				logger.error(__('Found incompatible Titanium Modules:'));
-				modules.incompatible.forEach(function (m) {
-					logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
-				}, this);
-				logger.log();
-				process.exit(1);
-			}
+            if (modules.incompatible.length) {
+                logger.error(__('Found incompatible Titanium Modules:'));
+                modules.incompatible.forEach(function (m) {
+                    logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
+                }, this);
+                logger.log();
+                process.exit(1);
+            }
 
             if (modules.conflict.length) {
                 logger.error(__('Found conflicting Titanium modules:'));
@@ -3580,6 +3580,18 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                         action:['android.intent.action.MEDIA_BUTTON', 'android.media.AUDIO_BECOMING_NOISY']
                     }]
                 }
+            },
+            'Media.createAudioStreamer': {
+                'receiver': {
+                    'name': '.TiMediaButtonIntentReceiver',
+                    'intent-filter': [{
+                        action:['android.intent.action.MEDIA_BUTTON', 'android.media.AUDIO_BECOMING_NOISY']
+                    }]
+                },
+                'service': {
+                    'name': 'ti.modules.titanium.media.streamer.AudioStreamerService'
+                },
+                permissions:['android.permission.WAKE_LOCK']
             }
         },
 
@@ -3656,6 +3668,15 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                 if (obj.receiver) {
                     finalAndroidManifest.application.receiver || (finalAndroidManifest.application.receiver = {});
                     finalAndroidManifest.application.receiver[obj.receiver.name] = obj.receiver;
+                }
+                if (obj.service) {
+                    finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
+                    finalAndroidManifest.application.service[obj.service.name] = obj.service;
+                }
+                if (obj.permissions) {
+                    obj.permissions.forEach(function (perm) {
+                        permissions[perm] = 1;
+                    });
                 }
                 if (obj['uses-library']) {
                     finalAndroidManifest.application['uses-library'] || (finalAndroidManifest.application['uses-library'] = {});
