@@ -30,12 +30,18 @@
     [sliderView setFrame:[self bounds]];
 }
 
+- (void) initialize
+{
+    [super initialize];
+    //by default do not mask to bounds to show the thumb shadow
+    self.layer.masksToBounds = NO;
+}
+
 -(UISlider*)sliderView
 {
 	if (sliderView==nil)
 	{
 		sliderView = [[UISlider alloc] initWithFrame:[self bounds]];
-		
 		// We have to do this to force the slider subviews to appear, in the case where value<=min==0.
 		// If the slider doesn't register a value change (or already have its subviews drawn in a nib) then
 		// it will NEVER draw them.
@@ -251,15 +257,17 @@
 
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
-    CGFloat result = [[self sliderView] sizeThatFits:CGSizeZero].height;
-    
-    //IOS7 DP3 sizeThatFits always returns zero for regular slider
-    if ((result == 0) && ([TiUtils isIOS7OrGreater])) {
-        result = 30.0;
+    if (suggestedHeight == 0) {
+        CGFloat result = [[self sliderView] sizeThatFits:CGSizeZero].height;
+        
+        //IOS7 DP3 sizeThatFits always returns zero for regular slider
+        if ((result == 0) && ([TiUtils isIOS7OrGreater])) {
+            result = 30.0;
+        }
+        return result;
     }
-    return result;
+    return suggestedHeight;
 }
-
 USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 #pragma mark Delegates 
@@ -287,13 +295,13 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(IBAction)sliderBegin:(id)sender
 {
     NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
-    if ([[self proxy] _hasListeners:@"touchstart"])
+    if ([[self viewProxy] _hasListeners:@"touchstart" checkParent:NO])
     {
-        [[self proxy] fireEvent:@"touchstart" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+        [[self proxy] fireEvent:@"touchstart" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO checkForListener:NO];
     }
-    if ([[self proxy] _hasListeners:@"start"])
+    if ([[self viewProxy] _hasListeners:@"start" checkParent:NO])
     {
-        [[self proxy] fireEvent:@"start" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        [[self proxy] fireEvent:@"start" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO checkForListener:NO];
     }
 }
 
@@ -307,13 +315,13 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     NSTimeInterval currentTimeInterval = [now timeIntervalSinceDate:lastTouchUp];
     if (!(lastTimeInterval < 0.1 && currentTimeInterval < 0.1)) {
         NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
-        if ([[self proxy] _hasListeners:@"touchend"])
+        if ([[self viewProxy] _hasListeners:@"touchend" checkParent:NO])
         {
-            [[self proxy] fireEvent:@"touchend" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
+            [[self proxy] fireEvent:@"touchend" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO checkForListener:NO];
         }
-        if ([[self proxy] _hasListeners:@"stop"])
+        if ([[self viewProxy] _hasListeners:@"stop" checkParent:NO])
         {
-            [[self proxy] fireEvent:@"stop" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO reportSuccess:NO errorCode:0 message:nil];
+            [[self proxy] fireEvent:@"stop" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO checkForListener:NO];
         }
     }
     lastTimeInterval = currentTimeInterval;

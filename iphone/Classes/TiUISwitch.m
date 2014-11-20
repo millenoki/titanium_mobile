@@ -48,6 +48,13 @@
 	return YES;
 }
 
+- (void) initialize
+{
+    [super initialize];
+    //by default do not mask to bounds to show the thumb shadow
+    self.layer.masksToBounds = NO;
+}
+
 #pragma mark View controller stuff
 
 -(void)setTintColor_:(id)color
@@ -149,12 +156,18 @@
 
 -(CGFloat)verifyWidth:(CGFloat)suggestedWidth
 {
-	return [[self switchView] sizeThatFits:CGSizeZero].width;
+    if (suggestedWidth == 0) {
+        return [[self switchView] sizeThatFits:CGSizeZero].width;
+    }
+    return suggestedWidth;
 }
 
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
-	return [[self switchView] sizeThatFits:CGSizeZero].height;
+    if (suggestedHeight == 0) {
+        return [[self switchView] sizeThatFits:CGSizeZero].height;
+    }
+    return suggestedHeight;
 }
 
 USE_PROXY_FOR_VERIFY_AUTORESIZING
