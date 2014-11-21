@@ -511,7 +511,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         if (proxyHasListeners(EVENT_ERROR, false)) {
             KrollDict data = new KrollDict();
             data.putCodeAndMessage(what, msg);
-            proxy.fireEvent(EVENT_ERROR, data);
+            proxy.fireEvent(EVENT_ERROR, data, false, false);
         }
     }
     
@@ -528,7 +528,8 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         if (proxyHasListeners(EVENT_BUFFERING, false)) {
             KrollDict event = new KrollDict();
             event.put(TiC.PROPERTY_PROGRESS, percent);
-            proxy.fireEvent(EVENT_BUFFERING, event);
+            event.put(TiC.PROPERTY_DURATION, duration());
+            proxy.fireEvent(EVENT_BUFFERING, event, false, false);
         }
     }
     
@@ -856,9 +857,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         // mFileToPlay = null;
         closeCursor();
         if (remove_status_icon) {
-            gotoIdleState();
-        } else {
             stopForeground(false);
+        } else {
+            gotoIdleState();
         }
         if (remove_status_icon) {
             mIsSupposedToBePlaying = false;
@@ -1188,9 +1189,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             if (proxyHasListeners(EVENT_CHANGE, false)) {
                 KrollDict data = new KrollDict();
                 data.put("track", mCursor);
-                data.put("duration", duration());
-                data.put("index", mPlayPos);
-                proxy.fireEvent(EVENT_CHANGE, data);
+                data.put(TiC.PROPERTY_DURATION, duration());
+                data.put(TiC.PROPERTY_INDEX, mPlayPos);
+                proxy.fireEvent(EVENT_CHANGE, data, false, false);
             }
         } else if (what.equals(QUEUE_CHANGED)) {
         }
@@ -1399,7 +1400,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      * @return The duration of the current track in miliseconds
      */
     public long duration() {
-        if (mPlayer.isInitialized()) {
+        if (mPlayer.isPrepared()) {
             return mPlayer.duration();
         }
         return -1;
@@ -1486,6 +1487,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      */
     public void stop() {
         stop(true);
+    }
+    
+    public void reset() {
+        setPlaylist(null);
     }
 
     /**
@@ -1701,8 +1706,11 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         mAutoShuffleList = null;
         mPlayPos = 0;
         mPlayListLen = 0;
-        addToPlayList(list, Integer.MAX_VALUE);
-        notifyChange(QUEUE_CHANGED);
+        if (list != null) {
+            addToPlayList(list, Integer.MAX_VALUE);
+            notifyChange(QUEUE_CHANGED);
+        }
+        
     }
 
     /**
@@ -2781,7 +2789,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 mProgressTimer.cancel();
                 mProgressTimer = new Timer(true);
             }
-
+            if (isPlaying()) {
+                mService.get().onProgress(position());
+            }
             mProgressTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -3070,7 +3080,8 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         if (proxyHasListeners(EVENT_PROGRESS, false)) {
             KrollDict event = new KrollDict();
             event.put("progress", position);
-            proxy.fireEvent(EVENT_PROGRESS, event);
+            event.put(TiC.PROPERTY_DURATION, duration());
+            proxy.fireEvent(EVENT_PROGRESS, event, false, false);
         }
     }
 
@@ -3254,7 +3265,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             KrollDict data = new KrollDict();
             data.put("state", state);
             data.put("description", stateDescription);
-            proxy.fireEvent(EVENT_STATE, data);
+            proxy.fireEvent(EVENT_STATE, data, false, false);
         }
     }
     

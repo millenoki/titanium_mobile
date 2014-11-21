@@ -28,6 +28,7 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
 
     AudioStreamerService tiService = null;
     List<Object> mPlaylist;
+    private boolean needsStopOnBind = false;
 
     public AudioStreamerProxy() {
         super(null, null, null);
@@ -61,6 +62,10 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
 
     protected void invokeBoundService() {
         this.tiService = (AudioStreamerService) this.service;
+        if (needsStopOnBind) {
+            needsStopOnBind = false;
+            this.tiService.reset();
+        }
         super.invokeBoundService();
     }
 
@@ -165,6 +170,9 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
             if (tiService != null) {
                 tiService.setPlaylist(mPlaylist);
             }
+            else {
+                needsStopOnBind = true;
+            }
         } else if (TiC.PROPERTY_VOLUME.equals(name)) {
             if (tiService != null) {
                 tiService.setVolume(TiConvert.toFloat(value, 1.0f));
@@ -266,6 +274,13 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
     public void previous() {
         runAction(AudioStreamerService.CMDPREVIOUS);
     }
+    
+    @Kroll.method
+    public void seek(long time) {
+        if (tiService != null) {
+            tiService.seek(time);
+        }
+    }
 
     @Kroll.method
     public void close() {
@@ -289,6 +304,16 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
             return tiService.getCurrent();
         }
         return null;
+    }
+    
+    
+    @Kroll.method
+    @Kroll.getProperty
+    public int getIndex() {
+        if (tiService != null) {
+            return tiService.getQueuePosition();
+        }
+        return -1;
     }
 
 
