@@ -8,20 +8,33 @@
 #import "TiUIVolumeView.h"
 #import <MediaPlayer/MPVolumeView.h>
 #import "ImageLoader.h"
+#import "UIControl+TiUIView.h"
+#import "TiViewProxy.h"
 
 @implementation TiUIVolumeView{
 @private
     MPVolumeView *volumeView;
+    UISlider *volumeSlider;
     UIControlState thumbImageState;
     UIControlState rightTrackImageState;
     UIControlState leftTrackImageState;
     TiCap leftTrackCap;
     TiCap rightTrackCap;
+    
+    NSDate* lastTouchUp;
+    NSTimeInterval lastTimeInterval;
 }
 
 -(void)dealloc
 {
+    if (volumeSlider) {
+        [volumeSlider removeTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+        [volumeSlider removeTarget:self action:@selector(sliderBegin:) forControlEvents:UIControlEventTouchDown];
+        [volumeSlider removeTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel)];
+        volumeSlider = nil;
+    }
     RELEASE_TO_NIL(volumeView);
+    RELEASE_TO_NIL(lastTouchUp);
     [super dealloc];
 }
 
@@ -40,6 +53,19 @@
         volumeView.showsRouteButton = YES;
         volumeView.showsVolumeSlider = YES;
         
+        for (UIView *view in [volumeView subviews]) {
+            if (IS_OF_CLASS(view, UISlider)) {
+                volumeSlider = (UISlider*)view;
+                break;
+            }
+        }
+        if (volumeSlider) {
+            [volumeSlider addTarget:self action:@selector(sliderChanged:) forControlEvents:UIControlEventValueChanged];
+            [volumeSlider addTarget:self action:@selector(sliderBegin:) forControlEvents:UIControlEventTouchDown];
+            [volumeSlider addTarget:self action:@selector(sliderEnd:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside | UIControlEventTouchCancel)];
+            [volumeSlider setTiUIView:self];
+        }
+
         [self addSubview:volumeView];
         
         thumbImageState = UIControlStateNormal;
@@ -236,5 +262,52 @@
 }
 
 USE_PROXY_FOR_VERIFY_AUTORESIZING
+
+#pragma mark Delegates
+
+- (IBAction)sliderChanged:(id)sender
+{
+    if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
+    {
+        [self.proxy fireEvent:@"change" withObject:@{
+                                                     @"value":@([(UISlider*)sender value]),
+                                                     @"max":@(1.0)
+                                                     } propagate:NO checkForListener:NO];
+    }
+}
+
+-(IBAction)sliderBegin:(id)sender
+{
+    if ([[self viewProxy] _hasListeners:@"start" checkParent:NO])
+    {
+        [[self proxy] fireEvent:@"start" withObject:@{
+                                                      @"value":@([(UISlider*)sender value]),
+                                                      @"max":@(1.0)
+                                                      } propagate:NO checkForListener:NO];
+    }
+}
+
+-(IBAction)sliderEnd:(id)sender
+{
+    // APPLE BUG: Sometimes in a double-click our 'UIControlEventTouchUpInside' event is fired more than once.  This is
+    // ALWAYS indicated by a sub-0.1s difference between the clicks, and results in an additional fire of the event.
+    // We have to track the PREVIOUS (not current) inverval and prevent these ugly misfires!
+    NSDate* now = [[NSDate alloc] init];
+    NSTimeInterval currentTimeInterval = [now timeIntervalSinceDate:lastTouchUp];
+    if (!(lastTimeInterval < 0.1 && currentTimeInterval < 0.1)) {
+        if ([[self viewProxy] _hasListeners:@"stop" checkParent:NO])
+        {
+            [[self proxy] fireEvent:@"stop" withObject:@{
+                                                         @"value":@([(UISlider*)sender value]),
+                                                         @"max":@(1.0)
+                                                         } propagate:NO checkForListener:NO];
+        }
+    }
+    lastTimeInterval = currentTimeInterval;
+    RELEASE_TO_NIL(lastTouchUp);
+    lastTouchUp = now;
+    
+}
+
 
 @end
