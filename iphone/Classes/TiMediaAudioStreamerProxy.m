@@ -147,7 +147,7 @@ typedef enum {
 #define PROP_BOOL(name,func) \
 -(NSNumber*)name\
 {\
-return [self func];\
+return [self func:nil];\
 }
 
 
@@ -164,27 +164,27 @@ return NUMDOUBLE([player func]);\
 PLAYER_PROP_DOUBLE(progress,progress);
 PLAYER_PROP_DOUBLE(state,state);
 
--(id)isPaused
+-(id)isPaused:(id)args
 {
     return @([player state] == STKAudioPlayerStatePaused);
 }
 
 PROP_BOOL(paused,isPaused);
 
--(id)isPlaying
+-(id)isPlaying:(id)args
 {
     return @([player state] == STKAudioPlayerStatePlaying);
 }
 PROP_BOOL(playing,isPlaying);
 
--(id)isStopped
+-(id)isStopped:(id)args
 {
     return @(player && [player state] != STKAudioPlayerStatePlaying && [player state] != STKAudioPlayerStatePaused);
 }
 PROP_BOOL(stopped,isStopped);
 
 
--(id)isMute
+-(id)isMute:(id)args
 {
     return @(player && [player muted]);
 }
