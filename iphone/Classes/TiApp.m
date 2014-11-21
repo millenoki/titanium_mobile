@@ -246,7 +246,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	kjsBridge = [[KrollBridge alloc] initWithHost:self];
 	
 	[kjsBridge boot:self url:nil preload:nil];
-	[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 }
 
 - (void)validator

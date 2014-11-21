@@ -25,8 +25,6 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[AVAudioSession sharedInstance] setActive:NO error:nil];
     [[UIApplication sharedApplication] endReceivingRemoteControlEvents];
-    // Set itself as the first responder
-    [[[TiApp app] controller] resignFirstResponder];
 }
 
 -(void) activateSession
@@ -40,8 +38,6 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
         DebugLog(@"Could not activate session");
     } else {
         [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-        // Set itself as the first responder
-        [[[TiApp app] controller] becomeFirstResponder];
     }
 }
 
