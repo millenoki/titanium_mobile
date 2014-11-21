@@ -53,7 +53,9 @@ typedef enum {
     _repeatMode = REPEAT_NONE;
     _shuffleMode = SHUFFLE_NONE;
     [self initializeProperty:@"volume" defaultValue:@(1.0)];
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
+    });
 }
 
 -(void)_destroy
@@ -743,9 +745,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STKAudioPlayerStatePaused);
         [self fireEvent:@"state" withObject:event checkForListener:NO];
     }
     if (state == STKAudioPlayerStatePlaying) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
-        });
+        
         [[TiMediaAudioSession sharedSession] startAudioSession];
         
         if (timer) {
@@ -755,9 +755,6 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STKAudioPlayerStatePaused);
         timer = [[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgress:) userInfo:nil repeats:YES] retain];
         [timer fire];
     } else {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[NSNotificationCenter defaultCenter] removeObserver:self];
-        });
         if (timer) {
             [timer invalidate];
             timer = nil;
@@ -796,6 +793,9 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STKAudioPlayerStatePaused);
 }
 - (void)remoteControlEvent:(NSNotification*)note
 {
+    if (!player || player.state == STKAudioPlayerStateStopped || player.state == STKAudioPlayerStateError) {
+        return;
+    }
     UIEvent *receivedEvent = [[note userInfo]objectForKey:@"event"];
     if (receivedEvent.type == UIEventTypeRemoteControl) {
         
