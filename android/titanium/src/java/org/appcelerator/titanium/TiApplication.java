@@ -213,6 +213,10 @@ public abstract class TiApplication extends Application implements
     public static void removeFromActivityStack(Activity activity) {
         activityStack.remove(activity);
     }
+    
+    public static Object getAppSystemService(final String name) {
+        return getInstance().getSystemService(name);
+    }
 
     // Calls finish on the list of activities in the stack. This should only be
     // called when we want to terminate the
