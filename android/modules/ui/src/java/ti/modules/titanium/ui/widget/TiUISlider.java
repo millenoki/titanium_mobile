@@ -275,35 +275,37 @@ public class TiUISlider extends TiUIView
 			seekBar.setProgress(actualMaxRange*scaleFactor);
 			pos = maxRange;
 		}
-		
-		Drawable thumb = (thumbDrawable != null) ? thumbDrawable.get() : null;
-		KrollDict offset = new KrollDict();
-		offset.put(TiC.EVENT_PROPERTY_X, 0);
-		offset.put(TiC.EVENT_PROPERTY_Y, 0);
-		KrollDict size = new KrollDict();
-		size.put(TiC.PROPERTY_WIDTH, 0);
-		size.put(TiC.PROPERTY_HEIGHT, 0);
-		if (thumb != null) {
-			Rect thumbBounds = thumb.getBounds();
-			if (thumbBounds != null) {
-				offset.put(TiC.EVENT_PROPERTY_X, thumbBounds.left - seekBar.getThumbOffset());
-				offset.put(TiC.EVENT_PROPERTY_Y, thumbBounds.top);
-				size.put(TiC.PROPERTY_WIDTH, thumbBounds.width());
-				size.put(TiC.PROPERTY_HEIGHT, thumbBounds.height());
-			}
-		}
-		KrollDict data = new KrollDict();
-		float scaledValue = scaledValue();
-		Log.d(TAG,
-			"Progress " + seekBar.getProgress() + " ScaleFactor " + scaleFactor + " Calculated Position " + pos
-				+ " ScaledValue " + scaledValue + " Min " + min + " Max" + max + " MinRange" + minRange + " MaxRange"
-				+ maxRange, Log.DEBUG_MODE);
-		data.put(TiC.PROPERTY_VALUE, scaledValue);
-		data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
-		data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
-		proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
+        float scaledValue = scaledValue();
+        proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
+        Log.d(TAG,
+                "Progress " + seekBar.getProgress() + " ScaleFactor " + scaleFactor + " Calculated Position " + pos
+                    + " ScaledValue " + scaledValue + " Min " + min + " Max" + max + " MinRange" + minRange + " MaxRange"
+                    + maxRange, Log.DEBUG_MODE);
+        if (hasListeners(TiC.EVENT_CHANGE, false)) {
+            Drawable thumb = (thumbDrawable != null) ? thumbDrawable.get() : null;
+            KrollDict offset = new KrollDict();
+            offset.put(TiC.EVENT_PROPERTY_X, 0);
+            offset.put(TiC.EVENT_PROPERTY_Y, 0);
+            KrollDict size = new KrollDict();
+            size.put(TiC.PROPERTY_WIDTH, 0);
+            size.put(TiC.PROPERTY_HEIGHT, 0);
+            if (thumb != null) {
+                Rect thumbBounds = thumb.getBounds();
+                if (thumbBounds != null) {
+                    offset.put(TiC.EVENT_PROPERTY_X, thumbBounds.left - seekBar.getThumbOffset());
+                    offset.put(TiC.EVENT_PROPERTY_Y, thumbBounds.top);
+                    size.put(TiC.PROPERTY_WIDTH, thumbBounds.width());
+                    size.put(TiC.PROPERTY_HEIGHT, thumbBounds.height());
+                }
+            }
+            KrollDict data = new KrollDict();
+            
+            data.put(TiC.PROPERTY_VALUE, scaledValue);
+            data.put(TiC.EVENT_PROPERTY_THUMB_OFFSET, offset);
+            data.put(TiC.EVENT_PROPERTY_THUMB_SIZE, size);
 
-		fireEvent(TiC.EVENT_CHANGE, data, false);
+            fireEvent(TiC.EVENT_CHANGE, data, false, false);
+        }
 	}
 
 	public void onStartTrackingTouch(SeekBar seekBar) {
