@@ -1910,6 +1910,9 @@ static NSDictionary* replaceKeysForRow;
             result.height = [self collectionView:collectionView itemHeight:result.height];
         }
     }
+    
+    UIEdgeInsets sectionInset = [(UICollectionViewFlowLayout *)collectionView.collectionViewLayout sectionInset];
+    result.width -= (sectionInset.left + sectionInset.right);
     return result;
 }
 
