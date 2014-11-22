@@ -11,6 +11,7 @@
 #import "TiUIListItem.h"
 #import "TiUIListItemProxy.h"
 #import "TiUILabelProxy.h"
+#import "WrapperViewProxy.h"
 #import "TiUISearchBarProxy.h"
 #import "ImageLoader.h"
 #ifdef USE_TI_UIREFRESHCONTROL
@@ -21,35 +22,6 @@
 #import "TiApp.h"
 
 #define GROUPED_MARGIN_WIDTH 18.0
-
-@interface WrapperViewProxy: TiViewProxy
-@end
-
-@implementation WrapperViewProxy
-
-- (id)initWithVerticalLayout:(BOOL)vertical
-{
-    self = [super init];
-    if (self) {
-        self.canBeResizedByFrame = YES;
-        LayoutConstraint* viewLayout = [self layoutProperties];
-        viewLayout->width = TiDimensionAutoFill;
-        viewLayout->height = TiDimensionAutoSize;
-        if (TiDimensionIsUndefined(viewLayout->top))
-        {
-            viewLayout->top = TiDimensionDip(0);
-        }
-        if (vertical) {
-            viewLayout->layoutStyle = TiLayoutRuleVertical;
-        }
-    }
-    return self;
-}
-- (void)dealloc
-{
-    [super dealloc];
-}
-@end
 
 @interface TiUIView(eventHandler);
 -(void)handleListenerRemovedWithEvent:(NSString *)event;

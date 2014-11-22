@@ -603,9 +603,7 @@ static NSDictionary* listViewKeysToReplace;
 	return [_sections objectAtIndex:[sectionIndex integerValue]];
 }
 
-NSArray* sliceArray(NSArray* array, int startIndex) {
-    return [array subarrayWithRange:NSMakeRange(startIndex,[array count] -1)];
-}
+
 
 - (TiUIListSectionProxy *)getItemAt:(id)args
 {

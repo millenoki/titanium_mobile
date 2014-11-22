@@ -51,6 +51,10 @@ TI_INLINE bool TiCapIsUndefined(TiCap cap)
     return TiDimensionIsUndefined(cap.leftCap) &&TiDimensionIsUndefined(cap.rightCap) && TiDimensionIsUndefined(cap.topCap) && TiDimensionIsUndefined(cap.bottomCap);
 }
 
+TI_INLINE NSArray* sliceArray(NSArray* array, int startIndex) {
+    return [array subarrayWithRange:NSMakeRange(startIndex,[array count] -1)];
+}
+
 /**
  Titanium orientation flags.
  */
