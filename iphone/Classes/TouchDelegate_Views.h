@@ -24,3 +24,9 @@
 @property (nonatomic, unsafe_unretained) id <TouchDelegate> touchDelegate;
 
 @end
+
+@interface TDUICollectionView : UICollectionView
+
+@property (nonatomic, unsafe_unretained) id <TouchDelegate> touchDelegate;
+
+@end

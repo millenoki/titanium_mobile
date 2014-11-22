@@ -7,7 +7,7 @@
 
 #import "TouchDelegate_Views.h"
 
-@interface TiTableView : TDUITableView
--(BOOL)shouldHighlightCurrentListItem;
+@interface TiCollectionView : TDUICollectionView
+-(BOOL)shouldHighlightCurrentCollectionItem;
 -(CGPoint) touchPoint;
 @end

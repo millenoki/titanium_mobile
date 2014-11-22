@@ -5,13 +5,13 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiTableView.h"
+#import "TiCollectionView.h"
 #import "TiBase.h"
 #import "TiUIListView.h"
 #import "TiUIHelper.h"
 
 
-@implementation TiTableView
+@implementation TiCollectionView
 {
     BOOL _shouldHighlightCurrentItem;
     CGPoint touchPoint;
@@ -26,8 +26,8 @@
     return self;
 }
 
-- (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style {
-    self = [super initWithFrame:frame style:style];
+- (id)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
     if (self) {
         _shouldHighlightCurrentItem = YES;
     }
@@ -40,21 +40,21 @@
 
 - (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
 {
-//    if (IOS_7) {
-//        //we have to delay it on ios7 :s
-//        double delayInSeconds = 0.01;
-//        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-//        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-//            [super setContentOffset:contentOffset animated:animated];
-//        });
-//    }
-//    else {
-        [super setContentOffset:contentOffset animated:animated];
-//    }
+    //    if (IOS_7) {
+    //        //we have to delay it on ios7 :s
+    //        double delayInSeconds = 0.01;
+    //        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    //        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+    //            [super setContentOffset:contentOffset animated:animated];
+    //        });
+    //    }
+    //    else {
+    [super setContentOffset:contentOffset animated:animated];
+    //    }
 }
 
 
--(BOOL)shouldHighlightCurrentListItem {
+-(BOOL)shouldHighlightCurrentCollectionItem {
     return _shouldHighlightCurrentItem;
 }
 
