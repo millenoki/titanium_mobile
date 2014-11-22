@@ -1859,6 +1859,7 @@ static NSDictionary* replaceKeysForRow;
     BOOL visible = realIndexPath?[visibleProp boolValue]:true;
     CGSize result = CGSizeZero;
     if (!visible) return result;
+    result = collectionView.bounds.size;
     
     id widthValue = [self valueWithKey:@"itemWidth" atIndexPath:realIndexPath];
     TiDimension width = _itemWidth;
