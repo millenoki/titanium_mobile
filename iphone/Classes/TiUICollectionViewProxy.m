@@ -13,6 +13,7 @@
 #import "TiUtils.h"
 #import "TiProxyTemplate.h"
 #import "TiTableView.h"
+#import "TiCollectionView.h"
 
 @interface TiUICollectionViewProxy ()
 @property (nonatomic, readwrite) TiUICollectionView *listView;
@@ -736,6 +737,12 @@ static NSDictionary* listViewKeysToReplace;
             [item.listItem setNeedsLayout];
         } animated:NO];
     }
+}
+
+-(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    [self.listView.tableView.collectionViewLayout invalidateLayout];
 }
 
 DEFINE_DEF_BOOL_PROP(willScrollOnStatusTap,YES);
