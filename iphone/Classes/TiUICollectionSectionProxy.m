@@ -112,6 +112,7 @@
     return nil;
 }
 
+
 -(TiViewProxy*)sectionViewForLocation:(NSString*)location inCollectionView:(TiUICollectionView*)listView
 {
     if ([_storedSectionViews objectForKey:location]) {
@@ -128,10 +129,10 @@
         if (viewLayout->width.type == TiDimensionTypeUndefined) {
             viewLayout->width = TiDimensionAutoFill;
         }
-        TiViewProxy* wrapperProxy = [listView initWrapperProxyWithVerticalLayout:YES];
-        [wrapperProxy add:viewproxy];
-        [_storedSectionViews setObject:wrapperProxy forKey:location];
-        return wrapperProxy;
+//        TiViewProxy* wrapperProxy = [listView initWrapperProxyWithVerticalLayout:YES];
+//        [wrapperProxy add:viewproxy];
+        [_storedSectionViews setObject:viewproxy forKey:location];
+        return viewproxy;
     }
     return nil;
 }

@@ -606,6 +606,15 @@
 		D50A303018B0F6C1004CBD52 /* TouchCapturingWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = D50A302F18B0F6C1004CBD52 /* TouchCapturingWindow.m */; };
 		D50A303118B0F6C1004CBD52 /* TouchCapturingWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = D50A302F18B0F6C1004CBD52 /* TouchCapturingWindow.m */; };
 		D50A303218B0F6C1004CBD52 /* TouchCapturingWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = D50A302F18B0F6C1004CBD52 /* TouchCapturingWindow.m */; };
+		D50E11201A223072008FD092 /* TiUICollectionWrapperView.m in Sources */ = {isa = PBXBuildFile; fileRef = D50E111F1A223072008FD092 /* TiUICollectionWrapperView.m */; };
+		D50E11211A223072008FD092 /* TiUICollectionWrapperView.m in Sources */ = {isa = PBXBuildFile; fileRef = D50E111F1A223072008FD092 /* TiUICollectionWrapperView.m */; };
+		D50E11221A223072008FD092 /* TiUICollectionWrapperView.m in Sources */ = {isa = PBXBuildFile; fileRef = D50E111F1A223072008FD092 /* TiUICollectionWrapperView.m */; };
+		D50E112B1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D50E112A1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m */; };
+		D50E112C1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D50E112A1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m */; };
+		D50E112D1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D50E112A1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m */; };
+		D50E11301A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = D50E112F1A223AC5008FD092 /* TiUICollectionViewFlowLayout.m */; };
+		D50E11311A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = D50E112F1A223AC5008FD092 /* TiUICollectionViewFlowLayout.m */; };
+		D50E11321A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = D50E112F1A223AC5008FD092 /* TiUICollectionViewFlowLayout.m */; };
 		D512A7AD187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D512A7A8187F1813004E3AB1 /* ADNavigationControllerDelegate.m */; };
 		D512A7AE187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D512A7A8187F1813004E3AB1 /* ADNavigationControllerDelegate.m */; };
 		D512A7AF187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D512A7A8187F1813004E3AB1 /* ADNavigationControllerDelegate.m */; };
@@ -2115,6 +2124,12 @@
 		D50ABB2517EB6680002CE73D /* SVGUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SVGUtils.h; path = ../Classes/SVGKit/SVGUtils.h; sourceTree = "<group>"; };
 		D50ABB2617EB6680002CE73D /* SVGViewSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SVGViewSpec.h; path = ../Classes/SVGKit/SVGViewSpec.h; sourceTree = "<group>"; };
 		D50ABB2717EB6680002CE73D /* Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Text.h; path = ../Classes/SVGKit/Text.h; sourceTree = "<group>"; };
+		D50E111E1A223072008FD092 /* TiUICollectionWrapperView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUICollectionWrapperView.h; sourceTree = "<group>"; };
+		D50E111F1A223072008FD092 /* TiUICollectionWrapperView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUICollectionWrapperView.m; sourceTree = "<group>"; };
+		D50E11291A2231B4008FD092 /* TiUICollectionWrapperViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUICollectionWrapperViewProxy.h; sourceTree = "<group>"; };
+		D50E112A1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUICollectionWrapperViewProxy.m; sourceTree = "<group>"; };
+		D50E112E1A223AC5008FD092 /* TiUICollectionViewFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUICollectionViewFlowLayout.h; sourceTree = "<group>"; };
+		D50E112F1A223AC5008FD092 /* TiUICollectionViewFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUICollectionViewFlowLayout.m; sourceTree = "<group>"; };
 		D512A7A7187F1813004E3AB1 /* ADNavigationControllerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADNavigationControllerDelegate.h; path = ../Classes/ADTransitionController/ADNavigationControllerDelegate.h; sourceTree = "<group>"; };
 		D512A7A8187F1813004E3AB1 /* ADNavigationControllerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADNavigationControllerDelegate.m; path = ../Classes/ADTransitionController/ADNavigationControllerDelegate.m; sourceTree = "<group>"; };
 		D512A7A9187F1813004E3AB1 /* ADTransitioningDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADTransitioningDelegate.h; path = ../Classes/ADTransitionController/ADTransitioningDelegate.h; sourceTree = "<group>"; };
@@ -4204,6 +4219,12 @@
 				D5162E9E1A20D1F7008A4048 /* TiUICollectionViewProxy.m */,
 				D56D759F1A20DE2E001DEB9D /* TiCollectionView.h */,
 				D56D75A01A20DE2E001DEB9D /* TiCollectionView.m */,
+				D50E111E1A223072008FD092 /* TiUICollectionWrapperView.h */,
+				D50E111F1A223072008FD092 /* TiUICollectionWrapperView.m */,
+				D50E11291A2231B4008FD092 /* TiUICollectionWrapperViewProxy.h */,
+				D50E112A1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m */,
+				D50E112E1A223AC5008FD092 /* TiUICollectionViewFlowLayout.h */,
+				D50E112F1A223AC5008FD092 /* TiUICollectionViewFlowLayout.m */,
 			);
 			name = CollectionView;
 			sourceTree = "<group>";
@@ -5178,6 +5199,7 @@
 				24CA8BC8111161FE0084E2DE /* TiDatabaseResultSetProxy.m in Sources */,
 				24CA8BC9111161FE0084E2DE /* TiDatabaseProxy.m in Sources */,
 				D5C8C99417EF45C900F54C19 /* ADSwipeTransition.m in Sources */,
+				D50E11201A223072008FD092 /* TiUICollectionWrapperView.m in Sources */,
 				D5C8C96D17EF45C900F54C19 /* ADCrossTransition.m in Sources */,
 				24CA8BCA111161FE0084E2DE /* TiContactsPerson.m in Sources */,
 				D5C8C97617EF45C900F54C19 /* ADFadeTransition.m in Sources */,
@@ -5295,6 +5317,7 @@
 				B606EF4A190B14ED00663EFC /* Reachability.m in Sources */,
 				24F6205A1199F27700EEAD3C /* TiErrorController.m in Sources */,
 				DA864E3211A2314A00B9CD68 /* TiMediaMusicPlayer.m in Sources */,
+				D50E11301A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */,
 				DAA905CE11A359F10030B119 /* TiMediaItem.m in Sources */,
 				D57644EB1A1B805C00322E0D /* STKLocalFileDataSource.m in Sources */,
 				B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
@@ -5316,6 +5339,7 @@
 				D5162EA21A20D1F7008A4048 /* TiUICollectionItemProxy.m in Sources */,
 				B440EF801209DC400045FEAE /* MGSplitViewController.m in Sources */,
 				24F29E2F12209C920099351D /* TiStylesheet.m in Sources */,
+				D50E112B1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m in Sources */,
 				D58DCBD217FF193D0011FE0E /* TiTransitionHelper.m in Sources */,
 				24F29E711220CE0A0099351D /* TiLocale.m in Sources */,
 				24F29F83122105C70099351D /* LocaleModule.m in Sources */,
@@ -5553,6 +5577,7 @@
 				24D8E425119B9D8A00F8CAA6 /* TiUIActivityIndicator.m in Sources */,
 				24D8E426119B9D8A00F8CAA6 /* TiRect.m in Sources */,
 				D5216940183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
+				D50E11211A223072008FD092 /* TiUICollectionWrapperView.m in Sources */,
 				24D8E428119B9D8A00F8CAA6 /* TiProxy.m in Sources */,
 				24D8E429119B9D8A00F8CAA6 /* TiPoint.m in Sources */,
 				D56E669A180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
@@ -5720,6 +5745,7 @@
 				DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */,
 				84EB340117A8CAA700723B1E /* TiWindowProxy.m in Sources */,
 				D512A7AE187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */,
+				D50E112C1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m in Sources */,
 				D5C5EC2D1863584100357DE4 /* TiUILabel.m in Sources */,
 				B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */,
 				84A0100F17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
@@ -5809,6 +5835,7 @@
 				D5C8C9A117EF45C900F54C19 /* ADZoomTransition.m in Sources */,
 				D57644BA1A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m in Sources */,
 				D52A8E74183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */,
+				D50E11311A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */,
 				D5B04536191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */,
 				D5C8C98917EF45C900F54C19 /* ADScaleTransition.m in Sources */,
 				D58709BC19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
@@ -5953,6 +5980,7 @@
 				DABB370012E8CB280026A6EA /* TiUIActivityIndicator.m in Sources */,
 				DABB370112E8CB280026A6EA /* TiRect.m in Sources */,
 				D5216941183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
+				D50E11221A223072008FD092 /* TiUICollectionWrapperView.m in Sources */,
 				DABB370312E8CB280026A6EA /* TiProxy.m in Sources */,
 				DABB370412E8CB280026A6EA /* TiPoint.m in Sources */,
 				D56E669B180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
@@ -6120,6 +6148,7 @@
 				DABB378B12E8CB280026A6EA /* AudioStreamerCUR.m in Sources */,
 				84EB340217A8CAA700723B1E /* TiWindowProxy.m in Sources */,
 				D512A7AF187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */,
+				D50E112D1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m in Sources */,
 				D5C5EC2E1863584200357DE4 /* TiUILabel.m in Sources */,
 				DABB378C12E8CB280026A6EA /* UIImageExtras.m in Sources */,
 				84A0101017FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
@@ -6209,6 +6238,7 @@
 				D5C8C99017EF45C900F54C19 /* ADSwapTransition.m in Sources */,
 				D57644BB1A1B7F9C00322E0D /* TiMediaAudioStreamerProxy.m in Sources */,
 				D52A8E75183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */,
+				D50E11321A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */,
 				D5B04537191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */,
 				D5C8C9A217EF45C900F54C19 /* ADZoomTransition.m in Sources */,
 				D58709BD19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
