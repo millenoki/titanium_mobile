@@ -1008,7 +1008,6 @@ static NSDictionary* replaceKeysForRow;
     ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
     [[_refreshControlProxy control] removeFromSuperview];
     RELEASE_TO_NIL(_refreshControlProxy);
-    [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
     if (args != nil) {
         _refreshControlProxy = [args retain];
         [[self tableView] addSubview:[_refreshControlProxy control]];
