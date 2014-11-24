@@ -9,8 +9,11 @@
 #import "TiUtils.h"
 #import "TiViewProxy.h"
 #import "UIControl+TiUIView.h"
+#import "SevenSwitch.h"
 
-@implementation TiUISwitch
+@implementation TiUISwitch {
+    SevenSwitch *switchView;
+}
 
 -(void)dealloc
 {
@@ -19,11 +22,19 @@
 	[super dealloc];
 }
 
--(UISwitch*)switchView
+-(SevenSwitch*)switchView
 {
 	if (switchView==nil)
 	{
-		switchView = [[UISwitch alloc] init];
+        CGRect originalBounds = self.bounds;
+        LayoutConstraint *viewLayout = [self.viewProxy layoutProperties];
+        if (viewLayout->width.type != TiDimensionTypeUndefined) {
+            originalBounds.size.width =  TiDimensionCalculateValue(viewLayout->width,  originalBounds.size.width);
+        }
+        if (viewLayout->width.type != TiDimensionTypeUndefined) {
+            originalBounds.size.height =  TiDimensionCalculateValue(viewLayout->height,  originalBounds.size.height);
+        }
+		switchView = [[SevenSwitch alloc] initWithFrame:originalBounds];
 		[switchView addTarget:self action:@selector(switchChanged:) forControlEvents:UIControlEventValueChanged];
         [switchView setTiUIView:self];
 		[self addSubview:switchView];
@@ -59,7 +70,6 @@
 
 -(void)setTintColor_:(id)color
 {
-    [[self proxy] replaceValue:color forKey:@"tintColor" notification:NO];
     TiColor *ticolor = [TiUtils colorValue:color];
     if (ticolor != nil) {
         [[self switchView] setTintColor:[ticolor color]];
@@ -68,7 +78,6 @@
 
 -(void)setOnTintColor_:(id)color
 {
-    [[self proxy] replaceValue:color forKey:@"onTintColor" notification:NO];
     TiColor *ticolor = [TiUtils colorValue:color];
     if (ticolor != nil) {
         [[self switchView] setOnTintColor:[ticolor color]];
@@ -77,13 +86,63 @@
 
 -(void)setThumbTintColor_:(id)color
 {
-    [[self proxy] replaceValue:color forKey:@"thumbTintColor" notification:NO];
     TiColor *ticolor = [TiUtils colorValue:color];
     if (ticolor != nil) {
         [[self switchView] setThumbTintColor:[ticolor color]];
     }
 }
 
+-(void)setInactiveColor_:(id)color
+{
+    TiColor *ticolor = [TiUtils colorValue:color];
+    if (ticolor != nil) {
+        [[self switchView] setInactiveColor:[ticolor color]];
+    }
+}
+
+-(void)setActiveColor_:(id)color
+{
+    TiColor *ticolor = [TiUtils colorValue:color];
+    if (ticolor != nil) {
+        [[self switchView] setActiveColor:[ticolor color]];
+    }
+}
+
+-(void)setBorderColor_:(id)color
+{
+    TiColor *ticolor = [TiUtils colorValue:color];
+    if (ticolor != nil) {
+        [[self switchView] setBorderColor:[ticolor color]];
+    }
+}
+
+-(void)setShadowColor_:(id)color
+{
+    TiColor *ticolor = [TiUtils colorValue:color];
+    if (ticolor != nil) {
+        [[self switchView] setShadowColor:[ticolor color]];
+    }
+}
+
+-(void)setIsRounded_:(id)value
+{
+    [[self switchView] setIsRounded:[TiUtils boolValue:value def:NO]];
+}
+
+-(void)setThumbImage_:(id)value
+{
+    [[self switchView] setThumbImage:[TiUtils image:value proxy:[self proxy]]];
+}
+
+-(void)setOffImage_:(id)value
+{
+    [[self switchView] setOffImage:[TiUtils image:value proxy:[self proxy]]];
+}
+
+-(void)setOnImage_:(id)value
+{
+    [[self switchView] setOnImage:[TiUtils image:value proxy:[self proxy]]];
+}
 
 -(void)setCustomUserInteractionEnabled:(BOOL)value
 {
@@ -100,7 +159,7 @@
 	BOOL reproxying = [self.proxy inReproxy];
 	BOOL newValue = [TiUtils boolValue:value];
 	BOOL animated = !reproxying;
-	UISwitch * ourSwitch = [self switchView];
+	SevenSwitch * ourSwitch = [self switchView];
     if ([ourSwitch isOn] == newValue) {
         return;
     }
@@ -117,23 +176,23 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    [self switchView];
+    [[self switchView] setFrame:bounds];
 	[super frameSizeChanged:frame bounds:bounds];
-	[self setCenter:[self center]];
+//	[self setCenter:[self center]];
 }
 
--(void)setCenter:(CGPoint)center
-{
-	CGSize ourSize = [self bounds].size;
-	CGPoint ourAnchor = [[self layer] anchorPoint];
-	CGFloat originx = center.x - (ourSize.width * ourAnchor.x);
-	CGFloat originy = center.y - (ourSize.height * ourAnchor.y);
-	
-	center.x -= originx - floorf(originx);
-	center.y -= originy	- floorf(originy);
-	
-	[super setCenter:center];
-}
+//-(void)setCenter:(CGPoint)center
+//{
+//	CGSize ourSize = [self bounds].size;
+//	CGPoint ourAnchor = [[self layer] anchorPoint];
+//	CGFloat originx = center.x - (ourSize.width * ourAnchor.x);
+//	CGFloat originy = center.y - (ourSize.height * ourAnchor.y);
+//	
+//	center.x -= originx - floorf(originx);
+//	center.y -= originy	- floorf(originy);
+//	
+//	[super setCenter:center];
+//}
 
 - (IBAction)switchChanged:(id)sender
 {
