@@ -9,7 +9,9 @@ package ti.modules.titanium.ui.widget.listview;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -413,6 +415,29 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
         }
 	}
 	
+	private Dictionary<Integer, Integer> listViewItemHeights = new Hashtable<Integer, Integer>();
+
+    public int getScroll() {
+        View c = listView.getListChildAt(0); //this is the first visible row
+        int scrollY = -c.getTop();
+        int first = listView.getFirstVisiblePosition();
+        listViewItemHeights.put(first, c.getHeight());
+        for (int i = 0; i < first; ++i) {
+            if (listViewItemHeights.get(i) != null) // (this is a sanity check)
+                scrollY += listViewItemHeights.get(i); //add all heights of the views that are gone
+        }
+        return scrollY;
+    }
+    
+    public int getViewHeigth(View v) {
+        int viewPosition = listView.getPositionForView(v);
+        int scrollY = 0;
+        for (int i = 0; i < viewPosition; ++i) {
+                scrollY += listView.getListChildAt(i).getHeight();
+        }
+        return scrollY;
+    }
+	
 	private KrollDict dictForScrollEvent() {
 		KrollDict eventArgs = new KrollDict();
 		KrollDict size = new KrollDict();
@@ -423,7 +448,8 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
         int firstVisibleItem = listView.getFirstVisiblePosition();
         int lastVisiblePosition = listView.getLastVisiblePosition();
 		eventArgs.put("firstVisibleItem", firstVisibleItem);
-		eventArgs.put("visibleItemCount", lastVisiblePosition - firstVisibleItem);
+        eventArgs.put("visibleItemCount", lastVisiblePosition - firstVisibleItem);
+        eventArgs.put("contentOffset", getScroll());
 //		View view = listView.getChildAt(0);
 //		if (view != null) {
 //	        eventArgs.put("contentOffset", view.getTop());
