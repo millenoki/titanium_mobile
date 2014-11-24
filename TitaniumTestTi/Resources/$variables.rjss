@@ -25,6 +25,11 @@ $settingsBorderOn='#ffffff';
 $zIndeVideo=10;
 $zIndeAlert=11;
 
+$sPlay='>';
+$sPause='||';
+$sNext='>>';
+$sPrev='<<';
+$sStop='X';
 @
 var font = app.iconicfonts.webhostinghub;
 var myObj={
