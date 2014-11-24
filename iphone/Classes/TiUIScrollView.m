@@ -299,21 +299,18 @@
 
 -(void)setDecelerationRate_:(id)value
 {
-	[self.proxy replaceValue:value forKey:@"decelerationRate" notification:NO];
 	[[self scrollView] setDecelerationRate:[TiUtils floatValue:value def:UIScrollViewDecelerationRateNormal]];
 }
 
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
-    [self.proxy replaceValue:value forKey:@"contentWidth" notification:NO];
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
 -(void)setContentHeight_:(id)value
 {
 	contentHeight = [TiUtils dimensionValue:value];
-    [self.proxy replaceValue:value forKey:@"contentHeight" notification:NO];
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
@@ -341,7 +338,6 @@
 {
     BOOL scrollingEnabled = [TiUtils boolValue:enabled def:YES];
     [[self scrollView] setScrollEnabled:scrollingEnabled];
-    [[self proxy] replaceValue:NUMBOOL(scrollingEnabled) forKey:@"scrollingEnabled" notification:NO];
 }
 
 -(void)setScrollsToTop_:(id)value
@@ -372,7 +368,6 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:property def:NO];
 	[[self scrollView] setZoomScale:scale animated:animated];
 	scale = [[self scrollView] zoomScale]; //Why are we doing this? Because of minZoomScale or maxZoomScale.
-	[[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	if ([self.proxy _hasListeners:@"scale"])
 	{
 		[self.proxy fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:

@@ -425,7 +425,6 @@ DEFINE_EXCEPTIONS
 
 -(void)setTranslucent_:(id)value
 {
-    [[self proxy] replaceValue:value forKey:@"translucent" notification:NO];
     [self updateMoreBar:[controller moreNavigationController]];
 }
 
@@ -433,20 +432,17 @@ DEFINE_EXCEPTIONS
 {
 	[barColor release];
 	barColor = [[TiUtils colorValue:value] retain];
-	[self.proxy replaceValue:value forKey:@"barColor" notification:NO];
 	[self updateMoreBar:[controller moreNavigationController]];
 }
 
 -(void)setBarStyle_:(id)value
 {
-	[[self proxy] replaceValue:value forKey:@"barStyle" notification:NO];
     [self updateMoreBar:[controller moreNavigationController]];
 }
 
 -(void)setTitleAttributes_:(id)args
 {
     ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
-    [self.proxy replaceValue:args forKey:@"titleAttributes" notification:NO];
     RELEASE_TO_NIL(theAttributes)
     if (args != nil) {
         theAttributes = [[NSMutableDictionary dictionary] retain];
@@ -490,7 +486,6 @@ DEFINE_EXCEPTIONS
 {
     [navTintColor release];
     navTintColor = [[TiUtils colorValue:value] retain];
-    [self.proxy replaceValue:value forKey:@"navTintColor" notification:NO];
     [self updateMoreBar:[controller moreNavigationController]];
 }
 

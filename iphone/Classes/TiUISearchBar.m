@@ -202,7 +202,6 @@
 	BOOL animated = [TiUtils boolValue:@"animated" properties:object def:NO];
 	//TODO: Value checking and exception generation, if necessary.
     
-	[self.proxy replaceValue:value forKey:@"showCancel" notification:NO];
 	showsCancelButton = boolValue;
     
 	//ViewAttached gives a false negative when not attached to a window.

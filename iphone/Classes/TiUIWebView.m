@@ -543,7 +543,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
     BOOL scrollingEnabled = [TiUtils boolValue:enabled def:YES];
     [[self scrollview] setScrollEnabled:scrollingEnabled];
-    [[self proxy] replaceValue:NUMBOOL(scrollingEnabled) forKey:@"scrollingEnabled" notification:NO];
 }
 
 -(void)setHorizontalBounce_:(id)value
@@ -615,13 +614,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 -(void)setHandlePlatformUrl_:(id)arg
 {
-    [[self proxy] replaceValue:arg forKey:@"handlePlatformUrl" notification:NO];
     willHandleUrl = [TiUtils boolValue:arg];
 }
 
 -(void)setAsyncLoad_:(id)arg
 {
-    [[self proxy] replaceValue:arg forKey:@"asyncLoad" notification:NO];
     _asyncLoad = [TiUtils boolValue:arg def:NO];
 }
 

@@ -167,7 +167,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(void)setSelectionIndicator_:(id)value
 {
 	if (picker == nil) {
-		[[self proxy] replaceValue:value forKey:@"selectionIndicator" notification:NO];
 	}
 	else if ([self isDatePicker]==NO)
 	{
@@ -179,7 +178,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
 	if (picker == nil) {
-		[[self proxy] replaceValue:date forKey:@"minDate" notification:NO];
 	}
 	else if ([self isDatePicker])
 	{
@@ -191,7 +189,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
 	if (picker == nil) {
-		[[self proxy] replaceValue:date forKey:@"maxDate" notification:NO];
 	}
 	else if ([self isDatePicker])
 	{
@@ -205,7 +202,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	ENSURE_SINGLE_ARG_OR_NIL(date,NSDate);
 	if (picker == nil) {
-		[[self proxy] replaceValue:date forKey:@"value" notification:NO];
 	}
 	else if ([self isDatePicker] && date!=nil)
 	{
@@ -225,7 +221,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	ENSURE_SINGLE_ARG_OR_NIL(value,NSString);
 	if (picker == nil) {
-		[[self proxy] replaceValue:value forKey:@"locale" notification:NO];
 	}
 	else if ([self isDatePicker])
 	{
@@ -247,7 +242,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	ENSURE_SINGLE_ARG(value,NSObject);
 	if (picker == nil) {
-		[[self proxy] replaceValue:value forKey:@"minuteInterval" notification:NO];
 	}
 	else if ([self isDatePicker])
 	{
@@ -260,7 +254,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	ENSURE_SINGLE_ARG(value,NSObject);
 	if (picker == nil) {
-		[[self proxy] replaceValue:value forKey:@"countDownDuration" notification:NO];
 	}
 	else if ([self isDatePicker])
 	{

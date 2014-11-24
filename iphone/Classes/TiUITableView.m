@@ -1673,7 +1673,6 @@
 
 -(void)setBackgroundColor_:(id)arg
 {
-	[[self proxy] replaceValue:arg forKey:@"backgroundColor" notification:NO];
 	if (tableview != nil) {
 		[self setBackgroundColor:[TiUtils colorValue:arg] onTable:[self tableView]];
 	}
@@ -1990,7 +1989,6 @@
     ENSURE_SINGLE_ARG_OR_NIL(args,TiUIRefreshControlProxy);
     [[_refreshControlProxy control] removeFromSuperview];
     RELEASE_TO_NIL(_refreshControlProxy);
-    [[self proxy] replaceValue:args forKey:@"refreshControl" notification:NO];
     if (args != nil) {
         _refreshControlProxy = [args retain];
         [[self tableView] addSubview:[_refreshControlProxy control]];

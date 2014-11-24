@@ -69,7 +69,6 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
     if (launcher != nil) {
         [launcher setEditable:[args boolValue]];
     }
-    [[self proxy] replaceValue:args forKey:@"editable" notification:NO];
 }
 
 -(void)setViewData_:(id)args

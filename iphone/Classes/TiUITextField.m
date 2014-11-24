@@ -296,7 +296,6 @@
 {
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
     ENSURE_SINGLE_ARG(value,TiUIiOSAttributedStringProxy);
-    [[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
     [[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
 #endif
 }

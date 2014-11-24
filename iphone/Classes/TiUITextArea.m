@@ -594,7 +594,6 @@
 {
     ENSURE_SINGLE_ARG(args, NSNumber);
     handleLinks = [TiUtils boolValue:args];
-    [[self proxy] replaceValue:NUMBOOL(handleLinks) forKey:@"handleLinks" notification:NO];
 }
 
 /*

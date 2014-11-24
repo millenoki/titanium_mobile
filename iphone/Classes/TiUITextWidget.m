@@ -44,7 +44,6 @@
 {
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
     ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
-    [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
     [(id)[self textWidgetView] setAttributedText:[arg attributedString]];
 #endif
 }
@@ -67,7 +66,6 @@
 {
     maxLength = [TiUtils intValue:value def:-1];
     [self setValue_:[[self proxy] valueForUndefinedKey:@"value"]];
-    [[self proxy] replaceValue:value forKey:@"maxLength" notification:NO];
 }
 
 -(void)setSuppressReturn_:(id)value

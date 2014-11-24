@@ -983,7 +983,6 @@ DEFINE_EXCEPTIONS
     dur =  MAX(IMAGEVIEW_MIN_INTERVAL,dur);
     
     interval = dur/1000;
-    [self.proxy replaceValue:NUMINT(dur) forKey:@"duration" notification:NO];
     
     [self updateTimer];
 }

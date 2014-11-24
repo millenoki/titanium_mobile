@@ -342,7 +342,6 @@
 {
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
     ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
-    [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
     [[self label] setAttributedText:[arg attributedString]];
     [(TiViewProxy *)[self proxy] contentsWillChange];
 #endif
