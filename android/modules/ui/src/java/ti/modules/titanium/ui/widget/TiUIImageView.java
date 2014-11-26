@@ -1317,7 +1317,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     @Override
     public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
-        Log.d(TAG, "loadedFrom "+ from + ", " + bitmap.getWidth());
+        Log.d(TAG, "loadedFrom "+ from + ", " + bitmap.getWidth(), Log.DEBUG_MODE);
         boolean transition = !onlyTransitionIfRemote || from == LoadedFrom.NETWORK;
         loadingUrl = null;
         if (filterOptions != null) {
