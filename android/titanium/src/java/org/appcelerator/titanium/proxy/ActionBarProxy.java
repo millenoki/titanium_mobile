@@ -32,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
+import android.view.View;
 
 @SuppressLint("InlinedApi")
 @Kroll.proxy(propertyAccessors = {
@@ -77,6 +78,8 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 	private Drawable themeBackgroundDrawable;
 	private Drawable themeIconDrawable;
 	private boolean showTitleEnabled = true;
+	private int defaultColor = 0;
+	private boolean customBackgroundSet = false;
 
 	public ActionBarProxy(TiBaseActivity activity)
 	{
@@ -89,8 +92,22 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
             //no internal action bar
             actionBar = null;
         }
-//		themeIconDrawable = getActionBarIcon(activity);
-//		themeBackgroundDrawable = getActionBarBackground(activity);
+		int resourceId = 0;
+		try {
+		    TypedValue typedValue = new TypedValue(); 
+		    activity.getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
+		    defaultColor = typedValue.data;
+		    resourceId = TiRHelper.getResource("android.support.v7.appcompat.R$", "id.action_context_bar");
+        } catch (ResourceNotFoundException e) {
+        }
+		if (resourceId > 0) {
+		    View view = activity.getWindow().getDecorView().findViewById(resourceId);
+	        if (view != null) {
+	            themeBackgroundDrawable = view.getBackground();
+	        }
+		}
+        
+		themeIconDrawable = getActionBarIcon(activity);
 		setModelListener(this, false);
 		
 	}
@@ -109,12 +126,12 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 	
 	protected Drawable getActionBarBackground(Context context) {
         int[] android_styleable_ActionBar = {android.R.attr.background};
-        int[] android_styleable_ActionBarNew = {android.R.attr.colorPrimary};
+//        int[] android_styleable_ActionBarNew = {android.R.attr.colorPrimary};
         TypedArray abStyle = null;
         
         try {
 //            abStyle = obtainStyledAttrsFromThemeAttr(context, android_styleable_ActionBarNew);
-            
+//            return abStyle.getDrawable(0);
             abStyle = obtainStyledAttrsFromThemeAttr(context, android_styleable_ActionBar);
             // background is the first attr in the array above so it's index is 0.
             return abStyle.getDrawable(0);
@@ -396,6 +413,7 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 			actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
 			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
 			actionBar.setBackgroundDrawable(backgroundImage);
+	        customBackgroundSet = true;
 		}
 	}
 	
@@ -406,6 +424,7 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 			return;
 		}
 		actionBar.setBackgroundDrawable(new ColorDrawable(color));
+        customBackgroundSet = color != defaultColor;
 	}
 	
 	private void handleSetBackgroundGradient(KrollDict gradDict)
@@ -417,6 +436,7 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 		Drawable drawable =  TiUIHelper.buildGradientDrawable(gradDict);
 
 		actionBar.setBackgroundDrawable(drawable);
+        customBackgroundSet = true;
 	}
 	
 	private void activateHomeButton(boolean value)
@@ -541,15 +561,21 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 
 	public void processProperties(KrollDict properties) {
 		if (actionBar == null) return;
-		if (!properties.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && 
+		if (customBackgroundSet && !properties.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && 
 				!properties.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE) &&  
 				!properties.containsKey(TiC.PROPERTY_BACKGROUND_GRADIENT) )
 		{
-			if (TiApplication.isUIThread()) {
-				actionBar.setBackgroundDrawable(themeBackgroundDrawable);
-			} else {
-				getMainHandler().obtainMessage(MSG_RESET_BACKGROUND).sendToTarget();
-			}
+		    if (defaultColor != 0) {
+		        setBackgroundColor(defaultColor);
+		    } else {
+		        if (TiApplication.isUIThread()) {
+	                actionBar.setBackgroundDrawable(themeBackgroundDrawable);
+	            } else {
+	                getMainHandler().obtainMessage(MSG_RESET_BACKGROUND).sendToTarget();
+	            }
+		    }
+			
+			customBackgroundSet = false;
 		}
 		
 		if (properties.containsKey(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED)) {
