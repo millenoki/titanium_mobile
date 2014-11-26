@@ -149,7 +149,7 @@
                 <category android:name="com.akylas.push"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".TiMediaButtonIntentReceiver">
+        <receiver android:name=".TiMediaButtonEventReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY"/>
