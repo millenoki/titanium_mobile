@@ -1310,7 +1310,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	
 	private TiBlob handleBlurBackground(HashMap options)
 	{
-		peekView().blurBackground(options);
+	    getOrCreateView().blurBackground(options);
 		return null;
 	}
 	
@@ -1318,24 +1318,22 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	@Kroll.method
 	public void blurBackground(Object arg, @Kroll.argument(optional=true) HashMap options)
 	{
-		if (peekView() != null) {
-			String[] properties = null;
-			if (arg instanceof String) {
-				properties = new String[]{(String) arg};
-			}
-			else if (arg instanceof Object[]) {
-				properties = TiConvert.toStringArray((Object[]) arg);
-			}
-			if (options == null) {
-				options = new KrollDict();
-			}
-			options.put("properties", properties);
-			if (TiApplication.isUIThread()) {
-				handleBlurBackground(options);
-			} else {
-				getMainHandler().obtainMessage(MSG_BLUR_BACKGROUND, options).sendToTarget();
-			}
-		} 
+		String[] properties = null;
+		if (arg instanceof String) {
+			properties = new String[]{(String) arg};
+		}
+		else if (arg instanceof Object[]) {
+			properties = TiConvert.toStringArray((Object[]) arg);
+		}
+		if (options == null) {
+			options = new KrollDict();
+		}
+		options.put("properties", properties);
+		if (TiApplication.isUIThread()) {
+			handleBlurBackground(options);
+		} else {
+			getMainHandler().obtainMessage(MSG_BLUR_BACKGROUND, options).sendToTarget();
+		}
 	}
 
 	@Kroll.method
