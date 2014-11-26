@@ -89,8 +89,8 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
             //no internal action bar
             actionBar = null;
         }
-		themeIconDrawable = getActionBarIcon(activity);
-		themeBackgroundDrawable = getActionBarBackground(activity);
+//		themeIconDrawable = getActionBarIcon(activity);
+//		themeBackgroundDrawable = getActionBarBackground(activity);
 		setModelListener(this, false);
 		
 	}
@@ -109,10 +109,13 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 	
 	protected Drawable getActionBarBackground(Context context) {
         int[] android_styleable_ActionBar = {android.R.attr.background};
+        int[] android_styleable_ActionBarNew = {android.R.attr.colorPrimary};
         TypedArray abStyle = null;
         
         try {
-        	abStyle = obtainStyledAttrsFromThemeAttr(context, android_styleable_ActionBar);
+//            abStyle = obtainStyledAttrsFromThemeAttr(context, android_styleable_ActionBarNew);
+            
+            abStyle = obtainStyledAttrsFromThemeAttr(context, android_styleable_ActionBar);
             // background is the first attr in the array above so it's index is 0.
             return abStyle.getDrawable(0);
         } catch (ResourceNotFoundException e) {

@@ -529,13 +529,13 @@ public class TiFileHelper implements Handler.Callback
 				if (is == null) {
 					is = openInputStream(path, report);
 				}
-				if (is != null) {
-					d = getDrawableFromStream(path, is);
-				}
+				Bitmap b = TiUIHelper.createDensityScaledBitmap(is);
+				d = nph.process(b);
 			} else {
 				is = openInputStream(path, report);
-				if (is != null) {
-					d = getDrawableFromStream(path, is);
+				Bitmap b = TiUIHelper.createDensityScaledBitmap(is);
+				if (b != null) {
+					d = new BitmapDrawable(b);
 				}
 			}
 		} catch (IOException e) {

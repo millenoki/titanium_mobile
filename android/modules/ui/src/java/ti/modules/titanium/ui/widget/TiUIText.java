@@ -20,13 +20,13 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.UIModule;
-import br.com.sapereaude.maskedEditText.MaskedEditText;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.support.v7.internal.widget.TintEditText;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils.TruncateAt;
@@ -68,7 +68,7 @@ public class TiUIText extends TiUINonViewGroupView
 	protected FocusFixedEditText tv;
 	protected TiEditText realtv;
 
-	public class TiEditText extends EditText 
+	public class TiEditText extends TintEditText 
 	{
 	    
 		public TiEditText(Context context) 

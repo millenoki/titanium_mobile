@@ -28,6 +28,7 @@ import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiWeakList;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
@@ -55,6 +56,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
+	private TiWeakList<KrollProxy> proxiesWaitingForActivity = new TiWeakList<KrollProxy>();
 
 	protected boolean opened, opening, closing;
 	protected boolean focused;
@@ -258,6 +260,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		fireSyncEvent(TiC.EVENT_CLOSE, data, false);
 	}
 
+	public void addProxyWaitingForActivity(KrollProxy waitingProxy) {
+		proxiesWaitingForActivity.add(new WeakReference<KrollProxy>(waitingProxy));
+	}
+
 	protected void releaseViewsForActivityForcedToDestroy()
 	{
 		releaseViews(false);
@@ -329,6 +335,17 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public void onWindowActivityCreated()
 	{
 		windowActivityCreated = true;
+
+		synchronized (proxiesWaitingForActivity.synchronizedList()) {
+			for (KrollProxy proxy : proxiesWaitingForActivity.nonNull()) {
+				try {
+					proxy.attachActivityLifecycle(getActivity());
+				} catch (Throwable t) {
+					Log.e(TAG, "Error attaching activity to proxy: " + t.getMessage(), t);
+				}
+			}
+		}
+
 		updateOrientationModes();
 	}
 

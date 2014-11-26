@@ -377,7 +377,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		// proxies have the same page context.
 		executionContext = context_;
 		id a = nil;
-		int count = [args count];
+		NSUInteger count = [args count];
 		
 		if (count > 0 && [[args objectAtIndex:0] isKindOfClass:[NSDictionary class]])
 		{
@@ -896,13 +896,6 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	[self _listenerRemoved:type count:ourCallbackCount];
 }
 
--(BOOL)doesntOverrideFireEventWithSource
-{
-	IMP proxySourceImp = [[TiProxy class] instanceMethodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
-	IMP subclassSourceImp = [self methodForSelector:@selector(fireEvent:withObject:withSource:propagate:)];
-	return proxySourceImp == subclassSourceImp;
-}
-
 -(void)fireEvent:(id)args
 {
 	NSString *type = nil;
@@ -928,7 +921,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	if((bubbleObject != nil) && ([params count]==1)){
 		params = nil; //No need to propagate when we already have this information
 	}
-    [self fireEvent:type withObject:params propagate:bubble reportSuccess:NO errorCode:0 message:nil];
+    [self fireEvent:type withObject:params withSource:self propagate:bubble reportSuccess:NO errorCode:0 message:nil];
 }
 
 -(void)fireEvent:(NSString*)type propagate:(BOOL)yn
@@ -952,7 +945,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn
 {
-    [self fireEvent:type withObject:obj propagate:yn reportSuccess:NO errorCode:0 message:nil];
+    [self fireEvent:type withObject:obj withSource:self propagate:yn];
+}
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate
+{
+    [self fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:NO errorCode:0 message:nil];
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)yn checkForListener:(BOOL)checkForListener
@@ -960,40 +957,56 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     [self fireEvent:type withObject:obj propagate:yn reportSuccess:NO errorCode:0 message:nil checkForListener:checkForListener];
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)yn checkForListener:(BOOL)checkForListener
+{
+    [self fireEvent:type withObject:obj withSource:source propagate:yn reportSuccess:NO errorCode:0 message:nil checkForListener:checkForListener];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj errorCode:(NSInteger)code message:(NSString*)message;
 {
 	[self fireEvent:type withObject:obj propagate:YES reportSuccess:YES errorCode:code message:message];
 }
 
 //What classes should actually use.
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message checkForListener:(BOOL)checkForListener
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message checkForListener:(BOOL)checkForListener
 {
-	if (checkForListener && ![self _hasListeners:type])
-	{
-		return;
-	}
+    [self fireEvent:type withObject:obj withSource:self propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
+}
+
+//What classes should actually use.
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message checkForListener:(BOOL)checkForListener
+{
+    if (checkForListener && ![self _hasListeners:type])
+    {
+        return;
+    }
     
     if (eventOverrideDelegate != nil) {
         obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
     }
-	
-	TiBindingEvent ourEvent;
-	
-	ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, obj);
-	if (report || (code != 0)) {
-		TiBindingEventSetErrorCode(ourEvent, code);
-	}
-	if (message != nil)
-	{
-		TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-	}
-	TiBindingEventSetBubbles(ourEvent, propagate);
-	TiBindingEventFire(ourEvent);
+    
+    TiBindingEvent ourEvent;
+    
+    ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+    if (report || (code != 0)) {
+        TiBindingEventSetErrorCode(ourEvent, code);
+    }
+    if (message != nil)
+    {
+        TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+    }
+    TiBindingEventSetBubbles(ourEvent, propagate);
+    TiBindingEventFire(ourEvent);
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
 {
-    [self fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:YES];
+    [self fireEvent:type withObject:obj withSource:self propagate:propagate reportSuccess:report errorCode:code message:message];
+}
+
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message
+{
+    [self fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:YES];
 }
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues

@@ -30,6 +30,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiViewEventOverrideDelegate;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUrl;
@@ -37,6 +39,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Bundle;
 import android.util.Pair;
 
 import org.json.JSONObject;
@@ -50,7 +53,7 @@ import org.json.JSONObject;
  */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class KrollProxy implements Handler.Callback, KrollProxySupport {
+public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecycleEvent {
     public static interface SetPropertyChangeListener {
         public void onSetProperty(KrollProxy proxy, String name, Object value);
     }
@@ -214,6 +217,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport {
     public void setActivity(Activity activity) {
         this.activity = new WeakReference<Activity>(activity);
     }
+
+	public void attachActivityLifecycle(Activity activity)
+	{
+		setActivity(activity);
+		((TiBaseActivity) activity).addOnLifecycleEventListener(this);
+	}
+
 
     /**
      * @return the activity associated with this proxy. It can be null.
@@ -462,6 +472,20 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport {
             setSyncEvents(TiConvert.toStringArray(dict
                     .remove(TiC.PROPERTY_SYNCEVENTS)));
         }
+
+		if (dict.containsKey(TiC.PROPERTY_LIFECYCLE_CONTAINER)) {
+			KrollProxy lifecycleProxy = (KrollProxy) dict.get(TiC.PROPERTY_LIFECYCLE_CONTAINER);
+			if (lifecycleProxy instanceof TiWindowProxy) {
+				ActivityProxy activityProxy = ((TiWindowProxy) lifecycleProxy).getWindowActivityProxy();
+				if (activityProxy != null) {
+					attachActivityLifecycle(activityProxy.getActivity());
+				} else {
+					((TiWindowProxy) lifecycleProxy).addProxyWaitingForActivity(this);
+				}
+			} else {
+				Log.e(TAG, TiC.PROPERTY_LIFECYCLE_CONTAINER + " must be a WindowProxy or TabGroupProxy (TiWindowProxy)");
+			}
+		}
 
         if (modelListener != null) {
             modelListener.processProperties(dict);
@@ -1914,4 +1938,52 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport {
             final TiViewEventOverrideDelegate eventOverrideDelegate) {
         this.eventOverrideDelegate = eventOverrideDelegate;
     }
+
+/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onCreate life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onCreate(Activity activity, Bundle savedInstanceState) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onResume life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onResume(Activity activity) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onPause life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onPause(Activity activity) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onDestroy life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onDestroy(Activity activity) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStart life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onStart(Activity activity) {
+	}
+
+	/**
+	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStop life cycle events.
+	 * @param activity the activity attached to this module.
+	 * @module.api
+	 */
+	public void onStop(Activity activity) {
+	}
 }

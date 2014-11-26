@@ -382,9 +382,9 @@
             if ([self _hasListeners:@"click"])
             {
                 NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                       [NSNumber numberWithInt:buttonIndex],@"index",
-                                       [NSNumber numberWithBool:(buttonIndex == [actionSheet cancelButtonIndex])],@"cancel",
-                                       [NSNumber numberWithInt:[actionSheet destructiveButtonIndex]],@"destructive",
+                                       NUMINTEGER(buttonIndex),@"index",
+                                       NUMBOOL([actionSheet cancelButtonIndex] == buttonIndex),@"cancel",
+                                       NUMINTEGER([actionSheet destructiveButtonIndex]),@"destructive",
                                        nil];
                 [self fireEvent:@"click" withObject:event];
             }
@@ -533,13 +533,12 @@
 -(void) fireClickEventWithAction:(UIAlertAction*)theAction
 {
     if ([self _hasListeners:@"click"]) {
-        NSArray *theActions = [alertController actions];
         NSUInteger indexOfAction = [[alertController actions] indexOfObject:theAction];
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                      [NSNumber numberWithInt:indexOfAction],@"index",
-                                      [NSNumber numberWithBool:(indexOfAction == cancelButtonIndex)],@"cancel",
-                                      [NSNumber numberWithInt:destructiveButtonIndex],@"destructive",
+                                      NUMUINTEGER(indexOfAction),@"index",
+                                      NUMBOOL(indexOfAction == cancelButtonIndex),@"cancel",
+                                      NUMINT(destructiveButtonIndex),@"destructive",
                                       nil];
         
         
@@ -558,6 +557,7 @@
         [self release];
     }
 }
+
 
 -(void)deviceRotationBegan:(NSNotification *)notification
 {

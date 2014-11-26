@@ -75,6 +75,7 @@ import android.os.Process;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -1069,6 +1070,32 @@ public class TiUIHelper
 	
     private static final Pattern drawablePattern = Pattern.compile("/Resources/(.*)\\.png$", Pattern.CASE_INSENSITIVE);
     private static final Pattern imagePattern = Pattern.compile("^.*/Resources/images/(.*$)");
+	
+	/**
+	 * Creates and returns a density scaled Bitmap from an InputStream.
+	 * @param stream an InputStream to read bitmap data.
+	 * @return a new bitmap instance.
+	 */
+	public static Bitmap createDensityScaledBitmap(InputStream stream)
+	{
+		Rect pad = new Rect();
+		BitmapFactory.Options opts = new BitmapFactory.Options();
+		opts.inPurgeable = true;
+		opts.inInputShareable = true;
+		DisplayMetrics dm = new DisplayMetrics();
+		dm.setToDefaults();
+		opts.inDensity = DisplayMetrics.DENSITY_MEDIUM;
+		opts.inTargetDensity = dm.densityDpi;
+		opts.inScaled = true;
+
+		Bitmap b = null;
+		try {
+			b = BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
+		} catch (OutOfMemoryError e) {
+			Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage());
+		}
+		return b;
+	}
 	
 	private static String getResourceKeyForImage(String url)
 	{

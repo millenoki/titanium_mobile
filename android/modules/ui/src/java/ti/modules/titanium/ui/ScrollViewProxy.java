@@ -44,7 +44,6 @@ public class ScrollViewProxy extends ViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
-		
 		KrollDict offset = new KrollDict();
 		offset.put(TiC.EVENT_PROPERTY_X, 0);
 		offset.put(TiC.EVENT_PROPERTY_Y, 0);

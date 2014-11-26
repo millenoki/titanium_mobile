@@ -86,7 +86,7 @@ public class NotificationManagerModule extends KrollModule
 		if (manager != null && notificationProxy != null) {
 		    try {
 		        notificationProxy.setCurrentId(id);
-	            manager.notify(id, notificationProxy.getNotification());
+	            getManager().notify(id, notificationProxy.getNotification());
             } catch (Exception e) {
                 
             }

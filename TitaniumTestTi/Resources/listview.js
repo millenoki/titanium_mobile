@@ -29,7 +29,8 @@ var sweepGradient = {
 
 
 function listViewExs(_args) {
-    var win = createWin(_.assign(_args, {
+    var win = createWin(_.assign(_args || {}, {
+        title:'listviews',
         layout: 'vertical'
     }));
     var listview = createListView({
@@ -888,7 +889,7 @@ function listViewEx2() {
         win.remove(loadingView);
     }
 
-    var searchBar = Ti.UI.Android.createSearchView({
+    var searchBar = Ti.UI.createSearchBar({
         hideNavBarWithSearch: false,
         backgroundImage: null,
         backgroundColor: 'red',
@@ -1665,6 +1666,7 @@ function longListTest() {
                 "retina": true,
                 "localLoadSync": true,
                 "preventDefaultImage": true,
+                onlyTransitionIfRemote:true,
                 transition: {
                     style: Ti.UI.TransitionStyle.FADE
                 }

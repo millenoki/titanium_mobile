@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -230,6 +230,7 @@
 			[afdc addObject:action.notificationAction];
 		}
 		[notifCategory setActions:afdc forContext:UIUserNotificationActionContextDefault];
+		RELEASE_TO_NIL(afdc);
 	}
 	if (actionsForMinimalContext != nil) {
 		NSMutableArray *afmc = [[NSMutableArray alloc] init];
@@ -238,6 +239,7 @@
 			[afmc addObject:action.notificationAction];
 		}
 		[notifCategory setActions:afmc forContext:UIUserNotificationActionContextMinimal];
+		RELEASE_TO_NIL(afmc);
     }
     
 	TiAppiOSNotificationCategoryProxy *cp = [[[TiAppiOSNotificationCategoryProxy alloc] _initWithPageContext:[self executionContext]] autorelease];

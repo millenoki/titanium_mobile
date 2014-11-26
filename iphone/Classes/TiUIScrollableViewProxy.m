@@ -97,10 +97,10 @@ NSArray* keySequence;
 	return [result autorelease];
 }
 
--(int)viewCount
+-(NSUInteger)viewCount
 {
 	[self lockViews];
-	int result = [viewProxies count];
+	NSUInteger result = [viewProxies count];
 	[self unlockViews];
 	return result;
 }
@@ -195,9 +195,9 @@ NSArray* keySequence;
 	[self makeViewPerformSelector:@selector(removeView:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
--(int)indexFromArg:(id)args
+-(NSInteger)indexFromArg:(id)args
 {
-	int pageNum = 0;
+	NSInteger pageNum = 0;
 	if ([args isKindOfClass:[TiViewProxy class]])
 	{
 		[self lockViews];
@@ -240,7 +240,7 @@ NSArray* keySequence;
 	[super childWillResize:child withinAnimation:animation];
 }
 
--(TiViewProxy *)viewAtIndex:(int)index
+-(TiViewProxy *)viewAtIndex:(NSInteger)index
 {
 	[self lockViews];
 	// force index to be in range in case the scrollable view is rotated while scrolling
@@ -257,7 +257,7 @@ NSArray* keySequence;
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
 	[self lockViews];
-	int index = [viewProxies indexOfObject:child];
+	NSUInteger index = [viewProxies indexOfObject:child];
 	[self unlockViews];
 	
 	if (index != NSNotFound)

@@ -374,6 +374,22 @@ public class TiDrawableReference
 	 */
 	public Bitmap getBitmap(boolean needRetry)
 	{
+		return getBitmap(needRetry, false);
+	}
+	
+	/**
+	 * Gets the bitmap from the resource. If densityScaled is set to true, image is scaled
+	 * based on the device density otherwise no sampling/scaling is done.
+	 * When needRetry is set to true, it will retry loading when decode fails.
+	 * If decode fails because of out of memory, clear the memory and call GC and retry loading a smaller image.
+	 * If decode fails because of the odd Android 2.3/Gingerbread behavior (TIMOB-3599), retry loading the original image.
+	 * This method should be called from a background thread when needRetry is set to true because it may block
+	 * the thread if it needs to retry several times.
+	 * @param needRetry If true, it will retry loading when decode fails.
+	 * @return Bitmap, or null if errors occurred while trying to load or fetch it.
+	 */
+	public Bitmap getBitmap(boolean needRetry, boolean densityScaled)
+	{
 		if(isTypeBlob())
 		{
 			Bitmap bitmap = blob.getImage();
@@ -382,11 +398,20 @@ public class TiDrawableReference
 		InputStream is = null;
 		Bitmap b = null;
 		try {
-			is = getInputStream();
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inInputShareable = true;
 			opts.inPurgeable = true;
 			opts.inPreferredConfig = Bitmap.Config.RGB_565;
+			if (densityScaled) {
+				DisplayMetrics dm = new DisplayMetrics();
+				dm.setToDefaults();
+				opts.inDensity = DisplayMetrics.DENSITY_MEDIUM;
+
+				opts.inTargetDensity = dm.densityDpi;
+				opts.inScaled = true;
+			}
+
+			is = getInputStream();
 			if (needRetry) {
 				for (int i = 0; i < decodeRetries; i++) {
 					// getInputStream() fails sometimes but after retry it will get
@@ -551,6 +576,23 @@ public class TiDrawableReference
     				drawable = new BitmapDrawable(getResources(), b);
     			}
 		    }
+		}
+		return drawable;
+	}
+	
+	/**
+	 * Gets a scaled resource drawable directly if the reference is to a resource, else
+	 * makes a BitmapDrawable with default attributes. Scaling is done based on the device
+	 * resolution.
+	 */
+	public Drawable getDensityScaledDrawable()
+	{
+		Drawable drawable = getResourceDrawable();
+		if (drawable == null) {
+			Bitmap b = getBitmap(false, true);
+			if (b != null) {
+				drawable = new BitmapDrawable(b);
+			}
 		}
 		return drawable;
 	}

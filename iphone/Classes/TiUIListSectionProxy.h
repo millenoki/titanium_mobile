@@ -7,6 +7,10 @@
 #ifdef USE_TI_UILISTVIEW
 
 #import "TiParentingProxy.h"
+@protocol TiUIListViewDelegateView <NSObject>
+@required
+- (void)updateSearchResults:(id)unused;
+@end
 
 @class TiViewProxy;
 @class TiUIListView;
@@ -15,7 +19,9 @@
 
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block;
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block animated:(BOOL)animated;
+- (void)dispatchBlock:(void(^)(UITableView *tableView))block;
 - (id)dispatchBlockWithResult:(id(^)(void))block;
+- (id<TiUIListViewDelegateView>) delegateView;
 -(void)hideDeleteButton:(id)args;
 
 @end

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -43,7 +43,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Message;
-import android.view.View;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
         TiC.PROPERTY_CONTENT_TEXT, TiC.PROPERTY_CONTENT_TITLE })
@@ -51,146 +52,37 @@ public class NotificationProxy extends KrollProxy implements Target {
     private static final String TAG = "TiNotification";
     private static final boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 
-    protected Notification notification;
-
     private int currentId = -1;
+	protected Builder notificationBuilder;
+	private int flags, ledARGB, ledOnMS, ledOffMS;
+	private Uri sound;
+	private int audioStreamType;
 
     private static final int MSG_FIRST_ID = 100;
     private static final int MSG_SET_LARGE_ICON = MSG_FIRST_ID + 1;
     private RemoteViewsProxy contentView = null;
     private RemoteViewsProxy bigContentView = null;
+    private int iconLevel;
+	
+	public NotificationProxy() 
+	{
+		super();
+		notificationBuilder =  new NotificationCompat.Builder(TiApplication.getAppCurrentActivity())
+        .setSmallIcon(android.R.drawable.stat_sys_warning)
+        .setWhen(System.currentTimeMillis());
+		
+		//set up default values
+		flags = Notification.FLAG_AUTO_CANCEL;
+		audioStreamType = Notification.STREAM_DEFAULT;
+		
+	}
 
-    // private static final String NOTIFICATION_DELETED_ACTION =
-    // "NOTIFICATION_DELETED";
-    //
-    // private final BroadcastReceiver deleteReceiver = new BroadcastReceiver()
-    // {
-    // @Override
-    // public void onReceive(Context context, Intent intent) {
-    // if (intent.getIntExtra("notif.id", 0) ==
-    // NotificationProxy.this.currentId) {
-    // NotificationProxy.this.didHide();
-    // }
-    // }
-    // };
+	public NotificationProxy(TiContext tiContext) 
+	{
+		this();
+	}
 
-    private class LoadLocalCoverArtTask extends
-            AsyncTask<TiDrawableReference, Void, Drawable> {
-        private Cache cache;
-        private TiDrawableReference imageref;
-
-        LoadLocalCoverArtTask(Cache cache) {
-            this.cache = cache;
-        }
-
-        @Override
-        protected Drawable doInBackground(TiDrawableReference... params) {
-            imageref = params[0];
-            return imageref.getDrawable();
-
-        }
-
-        @Override
-        protected void onPostExecute(Drawable drawable) {
-            Bitmap bitmap = null;
-            if (drawable instanceof BitmapDrawable) {
-                bitmap = ((BitmapDrawable) drawable).getBitmap();
-                cache.set(imageref.getUrl(), bitmap);
-            }
-            notification.largeIcon = bitmap;
-            update();
-        }
-    }
-
-    public NotificationProxy() {
-        super();
-        notification = new Notification(android.R.drawable.stat_sys_warning,
-                null, System.currentTimeMillis());
-        notification.flags = Notification.FLAG_AUTO_CANCEL;
-    }
-
-    public NotificationProxy(TiContext tiContext) {
-        this();
-    }
-
-    public void setCurrentId(final int currentId) {
-        if (this.currentId != currentId) {
-            willShow();
-            // about to be shown, let register for delete
-
-            this.currentId = currentId;
-        }
-
-    }
-
-    public void willShow() {
-        // if (notification.deleteIntent == null) {
-        // Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
-        // intent.putExtra("notif.id", currentId);
-        // notification.deleteIntent = PendingIntent.getBroadcast(getActivity(),
-        // 0, intent, 0);
-        // TiApplication.getAppContext().registerReceiver(deleteReceiver, new
-        // IntentFilter(NOTIFICATION_DELETED_ACTION));
-        // }
-        if (contentView != null) {
-            contentView.willShow();
-        }
-        if (bigContentView != null) {
-            bigContentView.willShow();
-        }
-    }
-
-    public void didHide() {
-        // TiApplication.getAppContext().unregisterReceiver(deleteReceiver);
-        if (contentView != null) {
-            contentView.didHide();
-        }
-        if (bigContentView != null) {
-            bigContentView.didHide();
-        }
-        currentId = 0;
-    }
-
-    private NotificationManager getManager() {
-        return (NotificationManager) TiApplication.getInstance()
-                .getSystemService(Activity.NOTIFICATION_SERVICE);
-    }
-
-    @Kroll.method
-    public boolean update(@Kroll.argument(optional = true) HashMap args) {
-        if (args != null) {
-            applyProperties(args);
-        }
-        if (this.currentId >= 0) {
-            NotificationManager manager = getManager();
-            Log.d(TAG, "updating notification " + this.currentId, Log.DEBUG_MODE);
-            manager.notify(this.currentId, notification);
-            return true;
-        }
-        return false;
-    }
-
-    public void update() {
-        update(null);
-    }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-        switch (msg.what) {
-        case MSG_SET_LARGE_ICON: {
-            handleSetLargeIcon(msg.obj);
-            return true;
-        }
-        }
-        return super.handleMessage(msg);
-    }
-
-    @Override
-    public void release() {
-        super.release();
-    }
-
-    @Override
+	@Override
     public void handleCreationDict(KrollDict d) {
         super.handleCreationDict(d);
         if (d == null) {
@@ -201,8 +93,14 @@ public class NotificationProxy extends KrollProxy implements Target {
         }
         checkLatestEventInfoProperties(d);
     }
+	
+	@Override
+    public void onPropertyChanged(String name, Object value, Object oldValue) {
+        propertySet(name, value, oldValue, true);
+        update();
+    }
 
-    public void propertySet(String key, Object newValue, Object oldValue,
+	public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
         if (key.equals(TiC.PROPERTY_ICON)) {
             setIcon(newValue);
@@ -255,55 +153,176 @@ public class NotificationProxy extends KrollProxy implements Target {
         else if (key.equals(TiC.PROPERTY_VIBRATE_PATTERN)) {
             setVibratePattern((Object[]) newValue);
         }
-    }
-    
-    @Override
-    public void onPropertyChanged(String name, Object value, Object oldValue) {
-        propertySet(name, value, oldValue, true);
+		else if (key.equals(TiC.PROPERTY_VISIBILITY)) {
+			setVisibility(TiConvert.toInt(newValue));
+		}
+		else if (key.equals(TiC.PROPERTY_CATEGORY)) {
+			setCategory(TiConvert.toString(newValue));
+		}
+		else if (key.equals(TiC.PROPERTY_PRIORITY)) {
+			setPriority(TiConvert.toInt(newValue));
+		}
     }
 
+    private class LoadLocalCoverArtTask extends
+            AsyncTask<TiDrawableReference, Void, Drawable> {
+        private Cache cache;
+        private TiDrawableReference imageref;
 
-    public void setIcon(Object icon) {
-        if (icon instanceof Number) {
-            notification.icon = ((Number) icon).intValue();
-        } else {
-            String iconUrl = TiConvert.toString(icon);
-            // TiContext context = invocation == null ? getTiContext() :
-            // invocation.getTiContext();
-            String iconFullUrl = resolveUrl(null, iconUrl);
-            notification.icon = TiUIHelper.getResourceId(iconFullUrl);
-            if (notification.icon == 0) {
-                Log.w(TAG, "No image found for " + iconUrl);
+		LoadLocalCoverArtTask(Cache cache) {
+            this.cache = cache;
+        }
+
+        @Override
+        protected Drawable doInBackground(TiDrawableReference... params) {
+            imageref = params[0];
+            return imageref.getDrawable();
+
+        }
+
+        @Override
+        protected void onPostExecute(Drawable drawable) {
+            Bitmap bitmap = null;
+            if (drawable instanceof BitmapDrawable) {
+                bitmap = ((BitmapDrawable) drawable).getBitmap();
+                cache.set(imageref.getUrl(), bitmap);
             }
+            handleSetLargeIcon(bitmap);
+            update();
         }
     }
 
-    public void setLargeIcon(Object icon) {
-        if (TiApplication.isUIThread()) {
-            handleSetLargeIcon(icon);
-        } else {
-            getMainHandler().obtainMessage(MSG_SET_LARGE_ICON, icon)
-                    .sendToTarget();
+	public void setCurrentId(final int currentId) {
+        if (this.currentId != currentId) {
+            willShow();
+            // about to be shown, let register for delete
+
+            this.currentId = currentId;
+        }
+
+    }
+
+	public void update() {
+        update(null);
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+        switch (msg.what) {
+        case MSG_SET_LARGE_ICON: {
+            handleSetLargeIcon(msg.obj);
+            return true;
+        }
+        }
+        return super.handleMessage(msg);
+    }
+
+    public void willShow() {
+        // if (notification.deleteIntent == null) {
+        // Intent intent = new Intent(NOTIFICATION_DELETED_ACTION);
+        // intent.putExtra("notif.id", currentId);
+        // notification.deleteIntent = PendingIntent.getBroadcast(getActivity(),
+        // 0, intent, 0);
+        // TiApplication.getAppContext().registerReceiver(deleteReceiver, new
+        // IntentFilter(NOTIFICATION_DELETED_ACTION));
+        // }
+        if (contentView != null) {
+            contentView.willShow();
+        }
+        if (bigContentView != null) {
+            bigContentView.willShow();
         }
     }
 
-    public void setTickerText(String tickerText) {
-        notification.tickerText = tickerText;
-    }
-    
-    public void setWhen(Object when) {
-        if (when instanceof Date) {
-            notification.when = ((Date) when).getTime();
-        } else {
-            notification.when = ((Double) TiConvert.toDouble(when)).longValue();
+    public void didHide() {
+        // TiApplication.getAppContext().unregisterReceiver(deleteReceiver);
+        if (contentView != null) {
+            contentView.didHide();
         }
+        if (bigContentView != null) {
+            bigContentView.didHide();
+        }
+        currentId = 0;
     }
 
-    public void setAudioStreamType(int type) {
-        notification.audioStreamType = type;
+    private NotificationManager getManager() {
+        return (NotificationManager) TiApplication.getInstance()
+                .getSystemService(Activity.NOTIFICATION_SERVICE);
     }
 
-    public void setContentView(Object obj) {
+	@Kroll.method
+    public boolean update(@Kroll.argument(optional = true) HashMap args) {
+        if (args != null) {
+            applyProperties(args);
+        }
+        if (this.currentId >= 0) {
+            NotificationManager manager = getManager();
+            Log.d(TAG, "updating notification " + this.currentId, Log.DEBUG_MODE);
+            manager.notify(this.currentId, getNotification());
+            return true;
+        }
+        return false;
+    }
+
+	public void setCategory(String category)
+	{
+		notificationBuilder.setCategory(category);
+	}
+
+	@Kroll.method @Kroll.setProperty
+	public void setIcon(Object icon)
+	{
+		if (icon instanceof Number) {
+			notificationBuilder.setSmallIcon(((Number)icon).intValue());
+		} else {
+			String iconUrl = TiConvert.toString(icon);
+			if (iconUrl == null) {
+				Log.e(TAG, "Url is null");
+				return;
+			}
+			String iconFullUrl = resolveUrl(null, iconUrl);
+			notificationBuilder.setSmallIcon(TiUIHelper.getResourceId(iconFullUrl));
+		}
+		setProperty(TiC.PROPERTY_ICON, icon);
+	}
+	
+	public void handleSetLargeIcon(final Bitmap bitmap) {
+        notificationBuilder.setLargeIcon(bitmap);
+	}
+	
+	public void setVisibility(int visibility)
+	{
+		notificationBuilder.setVisibility(visibility);
+	}
+	
+	public void setPriority(int priority)
+	{
+		notificationBuilder.setPriority(priority);
+	}
+
+	public void setTickerText(String tickerText)
+	{
+		notificationBuilder.setTicker(tickerText);
+	}
+
+	public void setWhen(Object when)
+	{
+		if (when instanceof Date) {
+			notificationBuilder.setWhen(((Date)when).getTime());
+		} else {
+			notificationBuilder.setWhen(((Double) TiConvert.toDouble(when)).longValue());
+		}
+	}
+
+	public void setAudioStreamType(int type)
+	{
+		audioStreamType = type;
+		if (sound != null) {
+			notificationBuilder.setSound(this.sound, audioStreamType);
+		}
+	}
+
+	public void setContentView(Object obj) {
         if (contentView != null) {
             contentView.didHide();
             contentView.setNotification(null);
@@ -314,13 +333,10 @@ public class NotificationProxy extends KrollProxy implements Target {
             contentView.setNotification(this);
             contentView.setParentForBubbling(this);
             setProperty(TiC.PROPERTY_CONTENT_VIEW, contentView);
-            notification.contentView = contentView.getRemoteViews();
-        } else {
-            notification.contentView = null;
         }
     }
-
-    public void setBigContentView(Object obj) {
+	
+	public void setBigContentView(Object obj) {
         if (JELLY_BEAN_OR_GREATER) {
             if (bigContentView != null) {
                 bigContentView.didHide();
@@ -332,67 +348,98 @@ public class NotificationProxy extends KrollProxy implements Target {
                 bigContentView.setNotification(this);
                 bigContentView.setParentForBubbling(this);
                 setProperty(TiC.PROPERTY_BIG_CONTENT_VIEW, bigContentView);
-                notification.bigContentView = bigContentView.getRemoteViews();
-            } else {
-                notification.bigContentView = null;
             }
         }
+	}
+
+
+	public void setDeleteIntent(Object contentIntent)
+	{
+        notificationBuilder.setDeleteIntent(PendingIntentProxy.fromObject(contentIntent).getPendingIntent());  
+	}
+
+	public void setContentIntent(Object contentIntent)
+	{
+		notificationBuilder.setContentIntent(PendingIntentProxy.fromObject(contentIntent).getPendingIntent());	
+	}
+
+	public void setDefaults(int defaults)
+	{
+		notificationBuilder.setDefaults(defaults);
+	}
+
+	public void setFlags(int flags)
+	{
+		this.flags = flags;
+	}
+
+    public void setIconLevel(int level) {
+        this.iconLevel = level;
     }
 
-    public void setContentIntent(Object obj) {
-        PendingIntentProxy proxy = PendingIntentProxy.fromObject(obj);
-        notification.contentIntent = proxy.getPendingIntent();
-    }
+	public void setLedARGB(int ledARGB)
+	{
+		this.ledARGB = ledARGB;
+		notificationBuilder.setLights(this.ledARGB, ledOnMS, ledOffMS);
+	}
 
-    public void setDefaults(int defaults) {
-        notification.defaults = defaults;
-    }
+	public void setLedOffMS(int ledOffMS)
+	{
+		this.ledOffMS = ledOffMS;
+		notificationBuilder.setLights(ledARGB, ledOnMS, this.ledOffMS);
+	}
 
-    public void setDeleteIntent(Object obj) {
-        PendingIntentProxy proxy = PendingIntentProxy.fromObject(obj);
-        notification.deleteIntent = proxy.getPendingIntent();
-    }
+	public void setLedOnMS(int ledOnMS)
+	{
+		this.ledOnMS = ledOnMS;
+		notificationBuilder.setLights(ledARGB, this.ledOnMS, ledOffMS);
+	}
 
-    public void setFlags(int flags) {
-        notification.flags = flags;
-    }
+	public void setNumber(int number)
+	{
+		notificationBuilder.setNumber(number);
+	}
 
-    public void setIconLevel(int iconLevel) {
-        notification.iconLevel = iconLevel;
-    }
+	public void setSound(String url)
+	{
+		if (url == null) {
+			Log.e(TAG, "Url is null");
+			return;
+		}
+		sound = Uri.parse(resolveUrl(null, url));
+		notificationBuilder.setSound(sound, audioStreamType);
+	}
 
-    public void setLedARGB(int ledARGB) {
-        notification.ledARGB = ledARGB;
-    }
+	public void setVibratePattern(Object[] pattern)
+	{
+		if (pattern != null) {
+			long[] vibrate = new long[pattern.length];
+			for (int i = 0; i < pattern.length; i++) {
+				vibrate[i] = ((Double)TiConvert.toDouble(pattern[i])).longValue();
+			}
+			notificationBuilder.setVibrate(vibrate);
+		}
+	}
 
-    public void setLedOffMS(int ledOffMS) {
-        notification.ledOffMS = ledOffMS;
-    }
+	protected void checkLatestEventInfoProperties(KrollDict d)
+	{
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
+			String contentTitle = "";
+			String contentText = "";
+			if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)) {
+				contentTitle = TiConvert.toString(d, TiC.PROPERTY_CONTENT_TITLE);
+				notificationBuilder.setContentTitle(contentTitle);
+			}
+			if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
+				contentText = TiConvert.toString(d, TiC.PROPERTY_CONTENT_TEXT);
+				notificationBuilder.setContentText(contentText);
+			}
+	
+		}
+	}
 
-    public void setLedOnMS(int ledOnMS) {
-        notification.ledOnMS = ledOnMS;
-    }
-
-    public void setNumber(int number) {
-        notification.number = number;
-    }
-
-    public void setSound(String url) {
-        notification.sound = Uri.parse(resolveUrl(null, url));
-
-    }
-    
-    public void setVibratePattern(Object[] pattern) {
-        if (pattern != null) {
-            notification.vibrate = new long[pattern.length];
-            for (int i = 0; i < pattern.length; i++) {
-                notification.vibrate[i] = ((Double) TiConvert
-                        .toDouble(pattern[i])).longValue();
-            }
-        }
-    }
-
-    @Kroll.method
+	@Kroll.method
     public void cancel() {
         if (this.currentId >= 0) {
             NotificationManager manager = getManager();
@@ -400,56 +447,34 @@ public class NotificationProxy extends KrollProxy implements Target {
         }
     }
 
-    protected void checkLatestEventInfoProperties(KrollDict d) {
-        if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)
-                || d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
-            String contentTitle = "";
-            String contentText = "";
-            PendingIntent contentIntent = null;
-            View contentView = null;
-            if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TITLE)) {
-                contentTitle = TiConvert
-                        .toString(d, TiC.PROPERTY_CONTENT_TITLE);
-            }
-            if (d.containsKeyAndNotNull(TiC.PROPERTY_CONTENT_TEXT)) {
-                contentText = TiConvert.toString(d, TiC.PROPERTY_CONTENT_TEXT);
-            }
-            if (d.containsKey(TiC.PROPERTY_CONTENT_INTENT)) {
-                PendingIntentProxy intentProxy = (PendingIntentProxy) d
-                        .get(TiC.PROPERTY_CONTENT_INTENT);
-                contentIntent = intentProxy.getPendingIntent();
-            }
+	@Kroll.method
+	public void setLatestEventInfo(String contentTitle, String contentText, PendingIntentProxy contentIntent)
+	{
+		notificationBuilder.setContentIntent(contentIntent.getPendingIntent())
+		.setContentText(contentText)
+		.setContentTitle(contentTitle);
+	}
 
-            Context c = getActivity();
-            if (c == null) {
-                c = TiApplication.getInstance().getApplicationContext();
-            }
-            notification.setLatestEventInfo(c, contentTitle, contentText,
-                    contentIntent);
+	public Notification getNotification()
+	{ 
+	    Notification notification = notificationBuilder.build();
+        notification.flags = this.flags;
+        if (this.contentView != null) {
+            notification.contentView = this.contentView.getRemoteViews();
         }
-    }
-
-    @Kroll.method
-    public void setLatestEventInfo(String contentTitle, String contentText,
-            PendingIntentProxy contentIntent) {
-        Context c = getActivity();
-        if (c == null) {
-            c = TiApplication.getInstance().getApplicationContext();
+        if (JELLY_BEAN_OR_GREATER && this.bigContentView != null) {
+            notification.bigContentView = this.bigContentView.getRemoteViews();
         }
-        notification.setLatestEventInfo(c, contentTitle, contentText,
-                contentIntent.getPendingIntent());
-    }
+		return notification;
+	}
 
-    public Notification getNotification() {
-        return notification;
-    }
+	@Override
+	public String getApiName()
+	{
+		return "Ti.Android.Notification";
+	}
 
-    @Override
-    public String getApiName() {
-        return "Ti.Android.Notification";
-    }
-
-    private void handleSetLargeIcon(final Object obj) {
+	private void handleSetLargeIcon(final Object obj) {
         TiDrawableReference imageref = TiDrawableReference
                 .fromObject(this, obj);
         if (imageref.isNetworkUrl()) {
@@ -484,20 +509,20 @@ public class NotificationProxy extends KrollProxy implements Target {
                 (new LoadLocalCoverArtTask(cache)).execute(imageref);
                 return;
             }
-            notification.largeIcon = bitmap;
+            handleSetLargeIcon(bitmap);
             update();
         }
     }
 
-    @Override
+	@Override
     public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
-        notification.largeIcon = bitmap;
+        handleSetLargeIcon(bitmap);
         update();
     }
 
     @Override
     public void onBitmapFailed(Drawable errorDrawable) {
-        notification.largeIcon = null;
+        handleSetLargeIcon(null);
         update();
     }
 

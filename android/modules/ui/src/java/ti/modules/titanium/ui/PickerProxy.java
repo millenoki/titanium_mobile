@@ -453,6 +453,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener
 			return;
 		}
 		((TiUIPicker)peekView()).selectRow(column, row, animated);
+		((TiUIPicker)peekView()).openPicker();
 	}
 
 	public int getColumnCount()

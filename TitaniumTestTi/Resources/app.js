@@ -55,7 +55,7 @@ function merge_options(obj1, obj2, _new) {
     return newObject;
 }
 var initWindowArgs = {
-    backgroundColor: backColor,
+    // backgroundColor: backColor,
     orientationModes: [Ti.UI.UPSIDE_PORTRAIT,
         Ti.UI.PORTRAIT,
         Ti.UI.LANDSCAPE_RIGHT,
@@ -2810,7 +2810,9 @@ function slideMenuEx() {
         // var textView = Ti.UI.createView({backgroundColor:'#55000000'});
         imageView.addEventListener('load', function(e) {
             glassView.blurBackground('backgroundImage', {
-                filters: [Ti.Image.FILTER_IOS_BLUR],
+                filters: [{
+                    type: Ti.Image.FILTER_IOS_BLUR
+                }],
                 blend: Ti.UI.BlendMode.DARKEN,
                 // radius: 1,
                 // scale: 0.3,
@@ -3014,8 +3016,8 @@ function slideMenuEx() {
     // width: Ti.UI.FILL
     // }));
     slidingMenu.open({
-        activityEnterAnimation: Ti.App.Android.R.anim.push_up_in,
-        activityExitAnimation: Ti.App.Android.R.anim.identity
+        // activityEnterAnimation: Ti.App.Android.R.anim.push_up_in,
+        // activityExitAnimation: Ti.App.Android.R.anim.identity
     });
 }
 
@@ -3114,11 +3116,11 @@ function keyboardTest() {
         buttonNames: ['cancel', 'ok'],
         persistent: true,
         cancel: 0,
-        androidView: textfield
+        customView: textfield
     });
-    textfield.addEventListener('change', function(e) {
-        textfield.blur();
-    });
+    // textfield.addEventListener('change', function(e) {
+    //     textfield.blur();
+    // });
     dialog.addEventListener('open', function(e) {
         textfield.focus();
     });
@@ -3491,8 +3493,8 @@ function imageViewAnimationTest() {
 
     var image1 = Ti.UI.createImageView({
         backgroundColor: 'yellow',
-        tintColor: 'red',
-        tintColorImage: true,
+        // tintColor: 'red',
+        // tintColorImage: true,
         width: 100,
         transition: {
             style: Ti.UI.TransitionStyle.FADE,
@@ -3685,7 +3687,7 @@ var listview = createListView({
     headerTitle: 'Testing Title',
     // searchHidden:true,
     searchView: Titanium.UI.createSearchBar({
-        barColor: '#000',
+        // barColor: '#000',
         showCancel: true,
         height: 44,
         top: 0,
@@ -3815,7 +3817,7 @@ firstWindow.addEventListener('open', function() {
     });
 });
 var mainWin = Ti.UI.createNavigationWindow({
-    backgroundColor: backColor,
+    // backgroundColor: backColor,
     swipeToClose: false,
     exitOnClose: true,
     title: 'AKYLAS_MAIN_WINDOW',
@@ -6113,7 +6115,7 @@ function collectionView() {
         left: 0,
         width: Ti.UI.FILL,
         height: Ti.UI.FILL,
-        stickyHeaders:false,
+        stickyHeaders: false,
         templates: {
             'template': myTemplate,
             'header': {
@@ -6169,6 +6171,7 @@ function switchTest() {
 
     win.add(Ti.UI.createLabel({
         text: "Default",
+        color: 'black',
         textAlign: "left",
         height: 25,
         left: 7,
@@ -6184,6 +6187,7 @@ function switchTest() {
 
     win.add(Ti.UI.createLabel({
         text: "Sized Switch",
+        color: 'black',
         textAlign: "left",
         height: 25,
         left: 7,
@@ -6202,6 +6206,7 @@ function switchTest() {
     win.add(Ti.UI.createLabel({
         text: "Knob Color",
         textAlign: "left",
+        color: 'black',
         height: 25,
         left: 7,
         top: 15
@@ -6217,6 +6222,7 @@ function switchTest() {
     win.add(Ti.UI.createLabel({
         text: "Active/Pressed Color",
         textAlign: "left",
+        color: 'black',
         height: 25,
         left: 7,
         top: 15
@@ -6232,6 +6238,7 @@ function switchTest() {
     win.add(Ti.UI.createLabel({
         text: "On Color",
         textAlign: "left",
+        color: 'black',
         height: 25,
         left: 7,
         top: 15
@@ -6241,7 +6248,7 @@ function switchTest() {
         left: 20,
         height: 30,
         value: false,
-        isRounded:false,
+        isRounded: false,
         onTintColor: "yellow"
     });
     win.add(onColorSwitch);
@@ -6249,6 +6256,7 @@ function switchTest() {
     win.add(Ti.UI.createLabel({
         text: "Inactive Color",
         textAlign: "left",
+        color: 'black',
         height: 25,
         left: 7,
         top: 15
@@ -6261,10 +6269,10 @@ function switchTest() {
         inactiveColor: "blue"
     });
     win.add(inactiveColorSwitch);
-    inactiveColorSwitch.addEventListener('change',function() {
+    inactiveColorSwitch.addEventListener('change', function() {
         inactiveColorSwitch.thumbTintColor = 'red';
     })
 
     openWin(win);
 }
-switchTest();
+testPlayer();

@@ -557,6 +557,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				else {
 					activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 				}
+			} else if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
+				if (activity != null) {
+					Intent intent = activity.getIntent();
+					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
+				}
 			}
 		}
 		super.onPropertyChanged(name, value);

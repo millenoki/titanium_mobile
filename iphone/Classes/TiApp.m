@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,8 +12,10 @@
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
+#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-#import "TiProfiler.h"
+#endif
+#import "TiProfiler/TiProfiler.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 #import "ApplicationDefaults.h"
@@ -173,7 +175,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	sessionId = [[TiUtils createUUID] retain];
 	TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
-
+#ifdef TI_DEBUGGER_PROFILER
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
     if (filePath != nil) {
         NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
@@ -206,7 +208,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #endif
 		[params release];
     }
-	filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
+#endif
+	NSString* filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
 	if (!self.debugMode && filePath != nil) {
         NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
         NSString *host = [params objectForKey:@"host"];
@@ -238,7 +241,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #endif
 		[params release];
     }
-	[self appBoot];
+    [self appBoot];
 }
 
 - (void)appBoot
@@ -252,7 +255,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	[[[NSClassFromString(TIV) alloc] init] autorelease];
 }
-
 - (void)booted:(id)bridge
 {
 	if ([bridge isKindOfClass:[KrollBridge class]])
@@ -483,7 +485,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
     } else {
         //Try again in 2 sec. TODO: should we reduce this value ?
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_current_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [self postNotificationwithKey:userInfo withNotificationName:notificationName];
         });
     }
@@ -631,7 +633,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent
     totalBytesSent:(int64_t) totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend
 {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMINT(task.taskIdentifier),@"taskIdentifier",
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMUINTEGER(task.taskIdentifier),@"taskIdentifier",
                                  [NSNumber numberWithUnsignedLongLong:bytesSent], @"bytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesSent], @"totalBytesSent",
                                  [NSNumber numberWithUnsignedLongLong:totalBytesExpectedToSend], @"totalBytesExpectedToSend", nil];
@@ -647,7 +649,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
                           nil];
     if (error) {
         NSDictionary * errorinfo = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success",
-                                                NUMINT([error code]), @"errorCode",
+                                                NUMINTEGER([error code]), @"errorCode",
                                                 [error localizedDescription], @"message",
                                                 nil];
         [dict addEntriesFromDictionary:errorinfo];
@@ -902,24 +904,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	}
 	ENSURE_UI_THREAD(showModalError,message);
 	TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
-    [self showModalController:error animated:YES];
-}
-
--(void)attachModal:(UIViewController*)modalController toController:(UIViewController*)presentingController animated:(BOOL)animated
-{
-	UIViewController * currentModalController = [presentingController modalViewController];
-
-	if (currentModalController == modalController)
-	{
-		DeveloperLog(@"[WARN] Trying to present a modal window that already is a modal window.");
-		return;
-	}
-	if (currentModalController == nil)
-	{
-		[presentingController presentModalViewController:modalController animated:animated];
-		return;
-	}
-	[self attachModal:modalController toController:currentModalController animated:animated];
+	[self showModalController:error animated:YES];
 }
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
@@ -957,7 +942,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(remoteNotification);
 	RELEASE_TO_NIL(splashScreenImage);
     if ([self debugMode]) {
+#ifdef TI_DEBUGGER_PROFILER
         TiDebuggerStop();
+#endif
     }
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);
@@ -1084,7 +1071,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     [event setObject:NOTNIL([notification alertAction]) forKey:@"alertAction"];
     [event setObject:NOTNIL([notification alertLaunchImage]) forKey:@"alertLaunchImage"];
     [event setObject:NOTNIL([notification soundName]) forKey:@"sound"];
-    [event setObject:NUMINT([notification applicationIconBadgeNumber]) forKey:@"badge"];
+    [event setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
     [event setObject:NOTNIL([notification userInfo]) forKey:@"userInfo"];
 	//include category for ios8
 	if ([TiUtils isIOS8OrGreater]) {

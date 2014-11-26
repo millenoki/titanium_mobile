@@ -15,7 +15,7 @@
 @implementation TiFileSystemHelper
 
 
-#define fileURLify(foo)	[[NSURL fileURLWithPath:foo isDirectory:YES] absoluteString]
+#define fileURLify(foo)	[[NSURL fileURLWithPath:foo isDirectory:YES] path]
 static NSString* _resourcesDirectory = nil;
 static NSString* _applicationDirectory = nil;
 static NSString* _applicationSupportDirectory = nil;
@@ -81,42 +81,42 @@ static NSString* _lineEnding = @"\n";
 +(NSString*)resourcesDirectory
 {
     if (_resourcesDirectory == nil)
-        _resourcesDirectory = [fileURLify([TiHost resourcePath]) retain];
+        _resourcesDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([TiHost resourcePath])] retain];
 	return _resourcesDirectory;
 }
 
 +(NSString*)applicationDirectory
 {
     if (_applicationDirectory == nil)
-        _applicationDirectory = fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0]);
+        _applicationDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0])] retain];
 	return _applicationDirectory;
 }
 
 +(NSString*)applicationSupportDirectory
 {
     if (_applicationSupportDirectory == nil)
-        _applicationSupportDirectory = [fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0]) retain];
+        _applicationSupportDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0])] retain];
 	return _applicationSupportDirectory;
 }
 
 +(NSString*)applicationDataDirectory
 {
     if (_applicationDataDirectory == nil)
-        _applicationDataDirectory = [fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]) retain];
+        _applicationDataDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0])] retain];
 	return _applicationDataDirectory;
 }
 
 +(NSString*)applicationCacheDirectory
 {
     if (_applicationCacheDirectory == nil)
-        _applicationCacheDirectory = [fileURLify([NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0]) retain];
+        _applicationCacheDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0])] retain];
 	return _applicationCacheDirectory;
 }
 
 +(NSString*)tempDirectory
 {
     if (_tempDirectory == nil)
-        _tempDirectory = [fileURLify(NSTemporaryDirectory()) retain];
+        _tempDirectory = [[NSString stringWithFormat:@"%@/",fileURLify(NSTemporaryDirectory())] retain];
 	return _tempDirectory;
 }
 

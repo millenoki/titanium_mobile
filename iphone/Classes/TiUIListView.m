@@ -74,6 +74,8 @@
 //    CGPoint tapPoint;
     BOOL editing;
     BOOL pruneSections;
+    
+    BOOL allowsSelection;
 
     BOOL caseInsensitiveSearch;
     NSString* _searchString;
@@ -707,7 +709,7 @@ static NSDictionary* replaceKeysForRow;
                                 filteredIndices = [[NSMutableArray alloc] init];
                             }
                             [filteredTitles addObject:theTitle];
-                            [filteredIndices addObject:[NSNumber numberWithInt:([_searchResults count] -1)]];
+                            [filteredIndices addObject:NUMUINTEGER([_searchResults count] -1)];
                         }
                     }
                 }
@@ -741,11 +743,10 @@ static NSDictionary* replaceKeysForRow;
     if (searchActive) {
         [self buildResultsForSearchText];
     }
-    if ([self isSearchActive]) {
+    [_tableView reloadData];
+    if ([[self searchController] isActive]) {
         [[[self searchController] searchResultsTableView] reloadData];
-    } else {
-        [self reloadTableViewData];
-    }
+    } 
 }
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
@@ -1235,7 +1236,7 @@ static NSDictionary* replaceKeysForRow;
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
             // get the index for the title
-            int index = [filteredTitles indexOfObject:title];
+            NSUInteger index = [filteredTitles indexOfObject:title];
             if (index > 0 && (index < [filteredIndices count]) ) {
                 return [[filteredIndices objectAtIndex:index] intValue];
             }
@@ -1247,7 +1248,7 @@ static NSDictionary* replaceKeysForRow;
     
     if ( (sectionTitles != nil) && (sectionIndices != nil) ) {
         // get the index for the title
-        int index = [sectionTitles indexOfObject:title];
+        NSUInteger index = [sectionTitles indexOfObject:title];
         if (index > 0 && (index < [sectionIndices count]) ) {
             return [[sectionIndices objectAtIndex:index] intValue];
         }
@@ -1308,8 +1309,8 @@ static NSDictionary* replaceKeysForRow;
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 theSection, @"section",
                                                 self.proxy, @"listView",
-                                                NUMINT(indexPath.section), @"sectionIndex",
-                                                NUMINT(indexPath.row), @"itemIndex",
+                                                NUMINTEGER(indexPath.section), @"sectionIndex",
+                                                NUMINTEGER(indexPath.row), @"itemIndex",
                                                 nil];
             id propertiesValue = [theItem objectForKey:@"properties"];
             NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -1381,10 +1382,10 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
 {
-    int fromSectionIndex = [fromIndexPath section];
-    int fromRowIndex = [fromIndexPath row];
-    int toSectionIndex = [toIndexPath section];
-    int toRowIndex = [toIndexPath row];
+    NSInteger fromSectionIndex = [fromIndexPath section];
+    NSInteger fromRowIndex = [fromIndexPath row];
+    NSInteger toSectionIndex = [toIndexPath section];
+    NSInteger toRowIndex = [toIndexPath row];
     
     
     
@@ -1409,11 +1410,11 @@ static NSDictionary* replaceKeysForRow;
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 self.proxy, @"listView",
                                                 theSection, @"section",
-                                                NUMINT(fromSectionIndex), @"sectionIndex",
-                                                NUMINT(fromRowIndex), @"itemIndex",
+                                                NUMINTEGER(fromSectionIndex), @"sectionIndex",
+                                                NUMINTEGER(fromRowIndex), @"itemIndex",
                                                 theSection,@"targetSection",
-                                                NUMINT(toSectionIndex), @"targetSectionIndex",
-                                                NUMINT(toRowIndex), @"targetItemIndex",
+                                                NUMINTEGER(toSectionIndex), @"targetSectionIndex",
+                                                NUMINTEGER(toRowIndex), @"targetItemIndex",
                                                 nil];
             id propertiesValue = [theItem objectForKey:@"properties"];
             NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -1449,11 +1450,11 @@ static NSDictionary* replaceKeysForRow;
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 fromSection, @"section",
                                                 self.proxy, @"listView",
-                                                NUMINT(fromSectionIndex), @"sectionIndex",
-                                                NUMINT(fromRowIndex), @"itemIndex",
+                                                NUMINTEGER(fromSectionIndex), @"sectionIndex",
+                                                NUMINTEGER(fromRowIndex), @"itemIndex",
                                                 toSection,@"targetSection",
-                                                NUMINT(toSectionIndex), @"targetSectionIndex",
-                                                NUMINT(toRowIndex), @"targetItemIndex",
+                                                NUMINTEGER(toSectionIndex), @"targetSectionIndex",
+                                                NUMINTEGER(toRowIndex), @"targetItemIndex",
                                                 nil];
             id propertiesValue = [theItem objectForKey:@"properties"];
             NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -2356,10 +2357,10 @@ static NSDictionary* replaceKeysForRow;
 	NSDictionary *item = [section itemAtIndex:indexPath.row];
     NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
-										self.proxy, @"listView",
+                                        self.proxy, @"listView",
 										NUMBOOL([self isSearchActive]), @"searchResult",
-										NUMINT(indexPath.section), @"sectionIndex",
-										NUMINT(indexPath.row), @"itemIndex",
+										NUMINTEGER(indexPath.section), @"sectionIndex",
+										NUMINTEGER(indexPath.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];

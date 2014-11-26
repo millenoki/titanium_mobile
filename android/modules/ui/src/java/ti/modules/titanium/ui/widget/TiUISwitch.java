@@ -20,15 +20,14 @@ import android.annotation.SuppressLint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.v7.widget.SwitchCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ToggleButton;
-import android.widget.Switch;
 
-@SuppressLint("NewApi")
 public class TiUISwitch extends TiUIView
 	implements OnCheckedChangeListener
 {
@@ -56,10 +55,10 @@ public class TiUISwitch extends TiUIView
 			oldValue = TiConvert.toBoolean(d, TiC.PROPERTY_VALUE);
 		}
 
-		View nativeView = getNativeView();
-		if (nativeView != null) {
-			updateButton((CompoundButton)nativeView, d);
-		}
+//		View nativeView = getNativeView();
+//		if (nativeView != null) {
+//			updateButton((CompoundButton)nativeView, d);
+//		}
 	}
 	
 	private void updateToggleButton(ToggleButton cb, KrollDict d) {
@@ -72,7 +71,7 @@ public class TiUISwitch extends TiUIView
 		}
 	}
 
-	private void updateSwitchButton(Switch cb, KrollDict d) {
+	private void updateSwitchButton(SwitchCompat cb, KrollDict d) {
 		if (cb == null) return;
 		Log.d(TAG, "updateSwitchButton" + d.toString(), Log.DEBUG_MODE);
 		if (d.containsKey(TiC.PROPERTY_TITLE_OFF)) {
@@ -121,8 +120,8 @@ public class TiUISwitch extends TiUIView
 		if (cb instanceof ToggleButton) {
 			updateToggleButton((ToggleButton) cb, d);
 		}
-		else if (cb instanceof Switch) {
-			updateSwitchButton((Switch) cb, d);
+		else if (cb instanceof SwitchCompat) {
+			updateSwitchButton((SwitchCompat) cb, d);
 		}
 		cb.invalidate();
 	}
@@ -140,7 +139,7 @@ public class TiUISwitch extends TiUIView
 		return true;
 	}
 
-	private boolean propertyChangedSwitchButton(Switch cb, String key, Object oldValue, Object newValue, KrollProxy proxy) {
+	private boolean propertyChangedSwitchButton(SwitchCompat cb, String key, Object oldValue, Object newValue, KrollProxy proxy) {
 		if (cb == null) return false;
 		if (key.equals(TiC.PROPERTY_TITLE_OFF)) {
 			cb.setTextOff((String)  newValue);
@@ -189,8 +188,8 @@ public class TiUISwitch extends TiUIView
 			getOrCreateBackground().setGradientDrawableForState(TiUIHelper.BACKGROUND_CHECKED_STATE, drawable);
 		} else if (cb instanceof ToggleButton) {
 			propertyChangedToggleButton((ToggleButton) cb, key, oldValue, newValue, proxy);
-		} else if (cb instanceof Switch) {
-			propertyChangedSwitchButton((Switch) cb, key, oldValue, newValue, proxy);
+		} else if (cb instanceof SwitchCompat) {
+			propertyChangedSwitchButton((SwitchCompat) cb, key, oldValue, newValue, proxy);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -266,8 +265,8 @@ public class TiUISwitch extends TiUIView
 				break;
 
 			case AndroidModule.SWITCH_STYLE_SWITCH:
-				if (!(currentButton instanceof Switch)) {
-					button = new Switch(proxy.getActivity())
+				if (!(currentButton instanceof SwitchCompat)) {
+					button = new SwitchCompat(proxy.getActivity())
 					{
 						@Override
 						protected void onLayout(boolean changed, int left, int top, int right, int bottom)

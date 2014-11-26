@@ -172,14 +172,14 @@
 	return toolbar!=nil;
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message checkForListener:(BOOL)checkForListener
 {
 	if (![TiUtils boolValue:[self valueForKey:@"enabled"] def:YES])
 	{
 		//Rogue event. We're supposed to be disabled!
 		return;
 	}
-	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
+	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
 }
 
 -(TiDimension)defaultAutoWidthBehavior:(id)unused

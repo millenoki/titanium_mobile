@@ -19,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 
 @Kroll.proxy
@@ -122,6 +123,10 @@ public class TiEnhancedServiceProxy extends KrollProxy {
             {
                 Log.d(logTAG(), "onDestroy", Log.DEBUG_MODE);
                 realUnbind();
+            }
+
+            @Override
+            public void onCreate(Activity activity, Bundle savedInstanceState) {
             }
         };
         Log.d(logTAG(), "initLifeCycle", Log.DEBUG_MODE);

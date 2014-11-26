@@ -22,6 +22,9 @@
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
 #import <AVFoundation/AVAudioSession.h>
+#import <AVFoundation/AVAsset.h>
+#import <AVFoundation/AVAssetExportSession.h>
+#import <AVFoundation/AVMediaFormat.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
@@ -180,17 +183,17 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GP2,kAudioFile3GP2Type);
 MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
 
 //Constants for audioLineType
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADPHONES,-1,@"Media.AUDIO_HEADPHONES",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADSET_INOUT,-2,@"Media.AUDIO_HEADSET_INOUT",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_RECEIVER_AND_MIC,-3,@"Media.AUDIO_RECEIVER_AND_MIC",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADPHONES_AND_MIC,-4,@"Media.AUDIO_HEADPHONES_AND_MIC",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_LINEOUT,-5,@"Media.AUDIO_LINEOUT",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_SPEAKER,-6,@"Media.AUDIO_SPEAKER",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_MICROPHONE,-7,@"Media.AUDIO_MICROPHONE",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_MUTED,-8,@"Media.AUDIO_MUTED",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_UNAVAILABLE,-9,@"Media.AUDIO_UNAVAILABLE",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_UNKNOWN,-10,@"Media.AUDIO_UNKNOWN",@"3.4.1",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(audioLineType,-10,@"Media.audioLineType",@"3.4.1",@"3.5.0",@"Media.currentRoute");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADPHONES,-1,@"Media.AUDIO_HEADPHONES",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADSET_INOUT,-2,@"Media.AUDIO_HEADSET_INOUT",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_RECEIVER_AND_MIC,-3,@"Media.AUDIO_RECEIVER_AND_MIC",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADPHONES_AND_MIC,-4,@"Media.AUDIO_HEADPHONES_AND_MIC",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_LINEOUT,-5,@"Media.AUDIO_LINEOUT",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_SPEAKER,-6,@"Media.AUDIO_SPEAKER",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_MICROPHONE,-7,@"Media.AUDIO_MICROPHONE",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_MUTED,-8,@"Media.AUDIO_MUTED",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_UNAVAILABLE,-9,@"Media.AUDIO_UNAVAILABLE",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_UNKNOWN,-10,@"Media.AUDIO_UNKNOWN",@"3.4.2",@"3.5.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(audioLineType,-10,@"Media.audioLineType",@"3.4.2",@"3.5.0",@"Media.currentRoute");
 
 //Constants for currentRoute
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEIN,AVAudioSessionPortLineIn)
@@ -226,27 +229,27 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
 //Constants for AudioSessions
 -(NSNumber*)AUDIO_SESSION_MODE_AMBIENT
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.1", @"Ti.Media.AUDIO_SESSION_CATEGORY_AMBIENT");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_AMBIENT");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_AmbientSound];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_SOLO_AMBIENT
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.1", @"Ti.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_SoloAmbientSound];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_PLAYBACK
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.1", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_MediaPlayback];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_RECORD
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.1", @"Ti.Media.AUDIO_SESSION_CATEGORY_RECORD");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_RECORD");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_RecordAudio];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_PLAY_AND_RECORD
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.1", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
+    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_PlayAndRecord];
 }
 
@@ -274,8 +277,10 @@ MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_MUSIC, MPMediaTypeMusic);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_PODCAST, MPMediaTypePodcast);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_AUDIOBOOK, MPMediaTypeAudioBook);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ANY_AUDIO, MPMediaTypeAnyAudio);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ALL, MPMediaTypeAny);
-
+-(NSNumber*)MUSIC_MEDIA_TYPE_ALL
+{
+    return NUMUINTEGER(MPMediaTypeAny);
+}
 //Constants for grouping in queryMusicLibrary
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_TITLE, MPMediaGroupingTitle);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ALBUM, MPMediaGroupingAlbum);
@@ -591,6 +596,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                                                                         eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
                                                                          thisObject:self];
                 [[callback context] enqueue:invocationEvent];
+				RELEASE_TO_NIL(invocationEvent);
             }];
         }, NO);
     } else {
@@ -1052,7 +1058,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 -(NSArray*)queryMusicLibrary:(id)arg
 {
     ENSURE_SINGLE_ARG(arg, NSDictionary);
-    MPMediaGrouping grouping = [TiUtils intValue:[arg valueForKey:@"grouping"] def:MPMediaGroupingTitle];
     
     NSMutableSet* predicates = [NSMutableSet set];
     for (NSString* prop in [MediaModule filterableItemProperties]) {
@@ -1414,7 +1419,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		
         editable = [TiUtils boolValue:[args objectForKey:@"allowEditing"] def:editable];
 		
-		// introduced in 3.1
 		[picker setAllowsEditing:editable];
 		
 		NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:ourSource];
@@ -1500,9 +1504,8 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 				[view performSelector:@selector(setTouchEnabled_:) withObject:NUMBOOL(NO)];
 			}
 			[picker setCameraOverlayView:view];
-			if (![TiUtils isIOS7OrGreater]) {
-				[picker setWantsFullScreenLayout:YES];
-			}
+			[cameraView windowDidOpen];
+			[cameraView layoutChildren:NO];
 		}
 		
 		// allow a transform on the preview image
@@ -1584,6 +1587,19 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     [saveCallbacks release]; 
 }
 
+-(void)handleTrimmedVideo:(NSURL*)theURL withDictionary:(NSDictionary*)dictionary
+{
+    TiBlob* media = [[[TiBlob alloc] initWithFile:[theURL path]] autorelease];
+    NSMutableDictionary* eventDict = [NSMutableDictionary dictionaryWithDictionary:dictionary];
+    [eventDict setObject:media forKey:@"media"];
+    if (saveToRoll) {
+        NSString *tempFilePath = [theURL absoluteString];
+        UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
+    }
+    
+    [self sendPickerSuccess:eventDict];
+}
+
 #pragma mark UIPopoverControllerDelegate
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
 {
@@ -1656,55 +1672,106 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 - (void)imagePickerController:(UIImagePickerController *)picker_ didFinishPickingMediaWithInfo:(NSDictionary *)editingInfo
 {
-	if (autoHidePicker)
-	{
-		[self closeModalPicker:picker];
-	}
+    if (autoHidePicker) {
+        [self closeModalPicker:picker];
+    }
 	
-	NSString *mediaType = [editingInfo objectForKey:UIImagePickerControllerMediaType];
-	if (mediaType==nil)
-	{
-		mediaType = (NSString*)kUTTypeImage; // default to in case older OS
-	}
-	NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
-	NSValue * ourRectValue = [editingInfo objectForKey:UIImagePickerControllerCropRect];
+    NSString *mediaType = [editingInfo objectForKey:UIImagePickerControllerMediaType];
+    if (mediaType==nil) {
+        mediaType = (NSString*)kUTTypeImage; // default to in case older OS
+    }
+    BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
+    
+    NSURL *mediaURL = [editingInfo objectForKey:UIImagePickerControllerMediaURL];
 	
-	BOOL isVideo = [mediaType isEqualToString:(NSString*)kUTTypeMovie];
-	NSDictionary *cropRect = nil;
-	TiBlob *media = nil;
-	TiBlob *thumbnail = nil;
+    NSDictionary *cropRect = nil;
+    TiBlob *media = nil;
+    TiBlob *thumbnail = nil;
 
-	BOOL imageWrittenToAlbum = NO;
+    BOOL imageWrittenToAlbum = NO;
 	
-	if (isVideo)
-	{
-		media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
-		[media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
-		if (saveToRoll)
-		{
-			NSString *tempFilePath = [mediaURL absoluteString];
-			UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
-		}
-		UIImage *thumbnailImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-		thumbnail = [[[TiBlob alloc] initWithImage:thumbnailImage] autorelease];
-	}
-	else
-	{
-		UIImage *editedImage = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
-		if ((mediaURL!=nil) && (editedImage == nil))
-		{
-			// this is a video, get the path to the URL
-			media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
-			[media setMimeType:@"image/jpeg" type:TiBlobTypeFile];
+    if (isVideo) {
+
+        UIImage *thumbnailImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
+        thumbnail = [[[TiBlob alloc] initWithImage:thumbnailImage] autorelease];
+
+        if (picker.allowsEditing) {
+            NSNumber *startTime = [editingInfo objectForKey:@"_UIImagePickerControllerVideoEditingStart"];
+            NSNumber *endTime = [editingInfo objectForKey:@"_UIImagePickerControllerVideoEditingEnd"];
+            
+            if ( (startTime != nil) && (endTime != nil) ) {
+                int startMilliseconds = ([startTime doubleValue] * 1000);
+                int endMilliseconds = ([endTime doubleValue] * 1000);
+                
+                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                NSString *documentsDirectory = [paths objectAtIndex:0];
+                
+                NSFileManager *manager = [NSFileManager defaultManager];
+                NSString *outputURL = [documentsDirectory stringByAppendingPathComponent:@"editedVideo"];
+                [manager createDirectoryAtPath:outputURL withIntermediateDirectories:YES attributes:nil error:nil];
+                NSString* fileName = [[[NSString stringWithFormat:@"%f",CFAbsoluteTimeGetCurrent()] stringByReplacingOccurrencesOfString:@"." withString:@"-"] stringByAppendingString:@".MOV"];
+                outputURL = [outputURL stringByAppendingPathComponent:fileName];
+                AVURLAsset *videoAsset = [AVURLAsset URLAssetWithURL:mediaURL options:nil];
+                AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:videoAsset presetName:AVAssetExportPresetHighestQuality];
+                exportSession.outputURL = [NSURL fileURLWithPath:outputURL isDirectory:NO];
+                exportSession.outputFileType = AVFileTypeQuickTimeMovie;
+                CMTimeRange timeRange = CMTimeRangeMake(CMTimeMake(startMilliseconds, 1000), CMTimeMake(endMilliseconds - startMilliseconds, 1000));
+                exportSession.timeRange = timeRange;
+                
+                NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
+                [dictionary setObject:mediaType forKey:@"mediaType"];
+                
+                if (thumbnail!=nil) {
+                    [dictionary setObject:thumbnail forKey:@"thumbnail"];
+                }
+
+                [exportSession exportAsynchronouslyWithCompletionHandler:^{
+                    switch (exportSession.status) {
+                        case AVAssetExportSessionStatusCompleted:
+                            [self handleTrimmedVideo:exportSession.outputURL withDictionary:dictionary];
+                            break;
+                        default:
+                            [self handleTrimmedVideo:mediaURL withDictionary:dictionary];
+                            break;
+                    }
+                }];
+                return;
+            }
+        }
+        
+        media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
+        if ([media mimeType] == nil) {
+            [media setMimeType:@"video/mpeg" type:TiBlobTypeFile];
+        }
+        if (saveToRoll) {
+            NSString *tempFilePath = [mediaURL absoluteString];
+            UISaveVideoAtPathToSavedPhotosAlbum(tempFilePath, nil, nil, NULL);
+        }
+    }
+    else {
+        UIImage *editedImage = [editingInfo objectForKey:UIImagePickerControllerEditedImage];
+        if ((mediaURL!=nil) && (editedImage == nil)) {
+            
+            media = [[[TiBlob alloc] initWithFile:[mediaURL path]] autorelease];
+            [media setMimeType:@"image/jpeg" type:TiBlobTypeFile];
 			
-			if (saveToRoll)
-			{
-				UIImage *image = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
-				UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
-			}
-		}
-		else
-		{
+            if (saveToRoll) {
+                UIImage *image = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
+                UIImageWriteToSavedPhotosAlbum(image, nil, nil, NULL);
+            }
+        }
+        else {
+            NSValue * ourRectValue = [editingInfo objectForKey:UIImagePickerControllerCropRect];
+            if (ourRectValue != nil) {
+                CGRect ourRect = [ourRectValue CGRectValue];
+                cropRect = [NSDictionary dictionaryWithObjectsAndKeys:
+                            [NSNumber numberWithFloat:ourRect.origin.x],@"x",
+                            [NSNumber numberWithFloat:ourRect.origin.y],@"y",
+                            [NSNumber numberWithFloat:ourRect.size.width],@"width",
+                            [NSNumber numberWithFloat:ourRect.size.height],@"height",
+                            nil];
+            }
+            
             UIImage *resultImage = nil;
             UIImage *originalImage = [editingInfo objectForKey:UIImagePickerControllerOriginalImage];
             if ( (editedImage != nil) && (ourRectValue != nil) && (originalImage != nil)) {
@@ -1735,40 +1802,26 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 resultImage = (editedImage != nil) ? editedImage : originalImage;
             }
             
-			media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
-			if (saveToRoll)
-			{
-				UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
-			}
-		}
-	}
+            media = [[[TiBlob alloc] initWithImage:resultImage] autorelease];
+            if (saveToRoll) {
+                UIImageWriteToSavedPhotosAlbum(resultImage, nil, nil, NULL);
+            }
+        }
+    }
 	
-	if (ourRectValue != nil)
-	{
-		CGRect ourRect = [ourRectValue CGRectValue];
-		cropRect = [NSDictionary dictionaryWithObjectsAndKeys:
-							   [NSNumber numberWithFloat:ourRect.origin.x],@"x",
-							   [NSNumber numberWithFloat:ourRect.origin.y],@"y",
-							   [NSNumber numberWithFloat:ourRect.size.width],@"width",
-							   [NSNumber numberWithFloat:ourRect.size.height],@"height",
-							   nil];
-	}
+    NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
+    [dictionary setObject:mediaType forKey:@"mediaType"];
+    [dictionary setObject:media forKey:@"media"];
 
-	NSMutableDictionary *dictionary = [TiUtils dictionaryWithCode:0 message:nil];
-	[dictionary setObject:mediaType forKey:@"mediaType"];
-	[dictionary setObject:media forKey:@"media"];
+    if (thumbnail!=nil) {
+        [dictionary setObject:thumbnail forKey:@"thumbnail"];
+    }
 
-	if (thumbnail!=nil)
-	{
-		[dictionary setObject:thumbnail forKey:@"thumbnail"];
-	}
-
-	if (cropRect != nil)
-	{
-		[dictionary setObject:cropRect forKey:@"cropRect"];
-	}
+    if (cropRect != nil) {
+        [dictionary setObject:cropRect forKey:@"cropRect"];
+    }
 	
-	[self sendPickerSuccess:dictionary];
+    [self sendPickerSuccess:dictionary];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker_

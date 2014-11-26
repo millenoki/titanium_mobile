@@ -2333,29 +2333,14 @@ public abstract class TiUIView
 	
 	public void blurBackground(HashMap args)
 	{
-		long startTime = System.currentTimeMillis();
 		View outerView = getOuterView();
 		TiViewProxy parentProxy = getParent();
 		if (outerView != null && parentProxy != null) {	
 			View parentView = parentProxy.getOuterView();
 			if (parentView != null) {
-
-				int width = parentView.getWidth();
-				int height = parentView.getHeight();
-		
-				Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-				Canvas canvas = new Canvas(bitmap);
-				float alpha = ViewHelper.getAlpha(outerView);
-				ViewHelper.setAlpha(outerView, 0.0f);
-				parentView.draw(canvas);
-				ViewHelper.setAlpha(outerView, alpha);
-
+		        Bitmap bitmap = TiUIHelper.viewToBitmap(parentProxy.getProperties(), parentProxy.getOuterView());
 				Rect rect = new Rect(outerView.getLeft(), outerView.getTop(), outerView.getRight(), outerView.getBottom());
-				
 				(new BlurTask()).execute(bitmap, this.proxy, rect, args);
-				long endTime   = System.currentTimeMillis();
-				long totalTime = endTime - startTime;
-				System.out.println(totalTime);
 			} 
 		}
 	}

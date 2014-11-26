@@ -5,9 +5,8 @@
 	</style>
 
     <style name="BaseTheme" parent="@style/Theme.AppCompat">
-        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- <item name="android:windowBackground">@android:color/transparent</item> -->
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar</item>
-        <!-- <item name="android:actionBarStyle">@style/Widget.AppCompat.ActionBar</item> -->
     </style>
 
 	
@@ -17,7 +16,6 @@
     <style name="Theme" parent="<%- flags %>">
     </style>
 	<style name="Theme.Titanium.NoActionBar" parent="Theme.Titanium">
-		<!-- <item name="android:windowActionBar">false</item> -->
 		<item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
 	</style>
@@ -39,8 +37,6 @@
 	<style name="Theme.Titanium.Translucent.NoTitleBar" parent="Theme.Titanium.Translucent">
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowContentOverlay">@null</item>
-		<!-- <item name="android:windowActionBar">false</item> -->
-		<!-- AppCompat Compatibility -->
 		<item name="windowActionBar">false</item>
 	</style>
 	

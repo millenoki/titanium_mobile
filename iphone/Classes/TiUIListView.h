@@ -8,18 +8,14 @@
 
 #import "TiScrollingView.h"
 #import "TiUIListViewProxy.h"
-#import "MGSwipeTableCell.h"
-@class TiTableView;
-@interface TiUIListView : TiScrollingView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, MGSwipeTableCellDelegate >
-{
-    BOOL allowsSelection;
-}
+
+@interface TiUIListView : TiScrollingView <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView >
+
 #pragma mark - Private APIs
 
 @property (nonatomic, readonly) TiTableView *tableView;
 @property (nonatomic, readonly) BOOL isSearchActive;
 
-- (void)updateSearchResults:(id)unused;
 - (void)setContentInsets_:(id)value withObject:(id)props;
 - (void)deselectAll:(BOOL)animated;
 -(void)scrollToTop:(NSInteger)top animated:(BOOL)animated;

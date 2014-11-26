@@ -29,6 +29,7 @@ import ti.modules.titanium.ui.widget.tableview.TiTableView.OnItemLongClickedList
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.os.Build;
+import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -298,6 +299,10 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
     @Override
     public void onDestroy(Activity activity) {
     }
+    
+    @Override
+    public void onCreate(Activity activity, Bundle savedInstanceState) {
+    }
 
     @Override
     public void release() {
@@ -376,4 +381,5 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
     public void registerForTouch() {
         registerForTouch(tableView.getListView());
     }
+
 }

@@ -486,7 +486,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
             }
         }
         selectedBGView.fillColor = theColor;
-        int count = [section rowCount];
+        NSInteger count = [section rowCount];
         if (count == 1) {
             selectedBGView.position = TiCellBackgroundViewPositionSingleLine;
         }
@@ -947,7 +947,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		dict = [NSMutableDictionary dictionaryWithDictionary:initialObject];
 	}
 	NSInteger index = [table indexForRow:self];
-	[dict setObject:NUMINT(index) forKey:@"index"];
+	[dict setObject:NUMINTEGER(index) forKey:@"index"];
     // TODO: We really need to ensure that a row's section is set upon creation - even if this means changing how tables work.
     if (section != nil) {
         [dict setObject:section forKey:@"section"];
@@ -960,10 +960,15 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 	return dict;
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message checkForListener:(BOOL)checkForListener
 {
+	// merge in any row level properties for the event
+	if (source!=self)
+	{
+		obj = [self createEventObject:obj];
+	}
 	[callbackCell handleEvent:type];
-	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];
+    [super fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
 }
 
 -(void)configureAccessibility:(UITableViewCell*)cell

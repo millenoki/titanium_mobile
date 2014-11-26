@@ -576,7 +576,10 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		//simulate the first page change so that the user can interact with the events
 		int page = d.optInt(TiC.PROPERTY_CURRENT_PAGE, 0);
 		move(page, false);
-        ((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
+		if (mCurIndex >= 0 && mCurIndex < mViews.size()) {
+	        ((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
+
+        }
 		super.processProperties(d);
 
 	}

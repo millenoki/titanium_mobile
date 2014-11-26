@@ -705,10 +705,9 @@ SEL GetterForKrollProperty(NSString * key)
         
     }
     UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], scale);
-    CGContextRef context = UIGraphicsGetCurrentContext();
     float oldOpacity = myview.alpha;
     myview.alpha = 1;
-    [myview.layer renderInContext:context];
+    [myview.layer renderInContext:UIGraphicsGetCurrentContext()];
     myview.alpha = oldOpacity;
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
@@ -3124,7 +3123,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	BOOL horizontalNoWrap = horizontal && !TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
 	BOOL horizontalWrap = horizontal && TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
     NSMutableArray * measuredBounds = [NSMutableArray arrayWithCapacity:[childArray count]];
-    NSUInteger i, count = [childArray count];
+    int i, count = (int)[childArray count];
 	int maxHeight = 0;
     
     NSMutableArray * widthFillChildren = horizontal?[NSMutableArray array]:nil;

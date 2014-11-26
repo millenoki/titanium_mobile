@@ -119,8 +119,6 @@ public class TiUISearchBar extends TiUIText
 				fullTv.showRightView();
 			else
 				fullTv.hideRightView();
-		} else if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
-			nativeView.setBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BAR_COLOR));
 		}
 		if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
 			nativeView.setBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BAR_COLOR));

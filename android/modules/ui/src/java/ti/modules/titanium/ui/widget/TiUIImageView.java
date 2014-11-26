@@ -55,7 +55,7 @@ import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View.MeasureSpec;
 import android.widget.ImageView.ScaleType;
-
+import android.os.Bundle;
 public class TiUIImageView extends TiUINonViewGroupView implements
         OnLifecycleEvent, Handler.Callback, Target {
     private static final String TAG = "TiUIImageView";
@@ -1337,5 +1337,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     @Override
     public void onPrepareLoad(Drawable placeHolderDrawable) {
+    }
+
+    @Override
+    public void onCreate(Activity activity, Bundle savedInstanceState) {
     }
 }

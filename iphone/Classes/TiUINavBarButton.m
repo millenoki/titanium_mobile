@@ -69,6 +69,7 @@ DEFINE_EXCEPTIONS
 
 -(id)initWithProxy:(TiUIButtonProxy*)proxy_
 {
+	self = [super init];
 	id systemButton = [proxy_ valueForKey:@"systemButton"];
 	if (systemButton!=nil)
 	{

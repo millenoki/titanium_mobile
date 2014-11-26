@@ -6,8 +6,9 @@
  */
 #import "TiBase.h"
 #import "TiApp.h"
+#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-
+#endif
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/time.h>
@@ -92,7 +93,9 @@ void TiLogMessage(NSString* str, ...) {
     NSString* message = [[NSString alloc] initWithFormat:str arguments:args];
 #if defined(DEBUG) || defined(DEVELOPER)
     if ([[TiApp app] debugMode]) {
+#ifdef TI_DEBUGGER_PROFILER
         TiDebuggerLogMessage(OUT, message);
+#endif
     }
     else {
         
@@ -135,7 +138,9 @@ void TiLogMoreMessage(const char *file, int lineNumber, const char *functionName
     message = [[NSString alloc] initWithFormat:format arguments:ap];
 #endif
     if ([[TiApp app] debugMode]) {
+#ifdef TI_DEBUGGER_PROFILER
         TiDebuggerLogMessage(OUT, message);
+#endif
     }
     else {
         

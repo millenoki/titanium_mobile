@@ -1099,24 +1099,26 @@ public class ListSectionProxy extends ViewProxy {
 		// Clear previous result
 		filterIndices.clear();
 		hidden = TiConvert.toBoolean(TiC.PROPERTY_VISIBLE, false);
-		if (!isFilterOn()) return;
-		boolean caseInsensitive = getListView().getCaseInsensitive();
-		// Add new results
-		for (int i = 0; i < listItemData.size(); ++i) {
-			ListItemData data = listItemData.get(i);
-			String searchableText = data.getSearchableText();
-			if (searchableText == null) continue;
-			// Handle case sensitivity
-			if (caseInsensitive) {
-				searchText = searchText.toLowerCase();
-				searchableText = searchableText.toLowerCase();
-			}
-			// String comparison
-			if (data.isVisible() && searchableText != null && searchableText.contains(searchText)) {
-				filterIndices.add(getInverseRealPosition(i));
-			}
+		if (isFilterOn()) {
+		    boolean caseInsensitive = getListView().getCaseInsensitive();
+	        // Add new results
+	        for (int i = 0; i < listItemData.size(); ++i) {
+	            ListItemData data = listItemData.get(i);
+	            String searchableText = data.getSearchableText();
+	            if (searchableText == null) continue;
+	            // Handle case sensitivity
+	            if (caseInsensitive) {
+	                searchText = searchText.toLowerCase();
+	                searchableText = searchableText.toLowerCase();
+	            }
+	            // String comparison
+	            if (data.isVisible() && searchableText != null && searchableText.contains(searchText)) {
+	                filterIndices.add(getInverseRealPosition(i));
+	            }
+	        }
+	        hidden = hidden || filterIndices.size() == 0;
 		}
-        hidden = hidden || filterIndices.size() == 0;
+        updateCurrentItemCount();
 	}
 
 	public void release() {
