@@ -79,6 +79,8 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
@@ -2297,7 +2299,6 @@ public abstract class TiUIView
 			if (options == null) {
 				options = new KrollDict();
 			}
-			options.put("filters", new Object[]{TiImageHelper.FilterType.kFilterBoxBlur.ordinal()});
 
 			if (options.containsKey("callback")) {
 				callback = (KrollFunction) options.get("callback");
@@ -2331,16 +2332,34 @@ public abstract class TiUIView
 		}
 	}
 	
-	public void blurBackground(HashMap args)
+	public void blurBackground(final HashMap args)
 	{
-		View outerView = getOuterView();
+		final View outerView = getOuterView();
 		TiViewProxy parentProxy = getParent();
 		if (outerView != null && parentProxy != null) {	
 			View parentView = parentProxy.getOuterView();
 			if (parentView != null) {
-		        Bitmap bitmap = TiUIHelper.viewToBitmap(parentProxy.getProperties(), parentProxy.getOuterView());
-				Rect rect = new Rect(outerView.getLeft(), outerView.getTop(), outerView.getRight(), outerView.getBottom());
-				(new BlurTask()).execute(bitmap, this.proxy, rect, args);
+		        final Bitmap bitmap = TiUIHelper.viewToBitmap(parentProxy.getProperties(), parentProxy.getOuterView());
+				final KrollProxy proxyToUse = this.proxy;
+		        boolean viewLaidOut = outerView.getWidth() != 0 && outerView.getHeight() != 0;
+    	        if (!viewLaidOut) {
+    	            ViewTreeObserver vto = outerView.getViewTreeObserver();
+    	            vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+
+    	                @Override
+    	                public void onGlobalLayout() {
+    	                    ViewTreeObserver obs = outerView.getViewTreeObserver();
+    	                    obs.removeOnGlobalLayoutListener(this);
+    	                    Rect rect = new Rect(outerView.getLeft(), outerView.getTop(), outerView.getRight(), outerView.getBottom());
+    	                    (new BlurTask()).execute(bitmap, proxyToUse, rect, args);
+    	                }
+    	            });
+    	            parentView.requestLayout();
+    	        }
+    	        else {
+    	            Rect rect = new Rect(outerView.getLeft(), outerView.getTop(), outerView.getRight(), outerView.getBottom());
+                    (new BlurTask()).execute(bitmap, this.proxy, rect, args);
+    	        }
 			} 
 		}
 	}
