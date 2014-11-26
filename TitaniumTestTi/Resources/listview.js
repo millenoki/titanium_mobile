@@ -31,6 +31,7 @@ var sweepGradient = {
 function listViewExs(_args) {
     var win = createWin(_.assign(_args || {}, {
         title:'listviews',
+        barColor:'blue',
         layout: 'vertical'
     }));
     var listview = createListView({

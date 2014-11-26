@@ -2803,7 +2803,8 @@ function slideMenuEx() {
         var glassView = Ti.UI.createLabel({
             color: 'white',
             bottom: 0,
-            width: Ti.UI.FILL,
+            width: 'FILL',
+            
             height: 80,
             text: _title
         });
@@ -6275,4 +6276,4 @@ function switchTest() {
 
     openWin(win);
 }
-testPlayer();
+switchTest();
