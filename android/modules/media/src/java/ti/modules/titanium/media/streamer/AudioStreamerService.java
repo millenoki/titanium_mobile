@@ -61,6 +61,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiApplication.AppStateListener;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiEnhancedService;
+import org.appcelerator.titanium.proxy.TiEnhancedServiceProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -549,24 +550,31 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     @Override
     protected void start() {
         super.start();
-        // Initialze the notification helper
-        mNotificationHelper = new NotificationHelper(this,
-                ((AudioStreamerProxy) proxy).getNotificationIcon(), 
-                ((AudioStreamerProxy) proxy).getNotificationViewId(),
-                ((AudioStreamerProxy) proxy).getNotificationExtandedViewId());
-        // Use the remote control APIs (if available and the user allows it) to
-        // set the playback state
-        mEnableLockscreenControls = ((AudioStreamerProxy) proxy).getEnableLockscreenControls();
-        setUpRemoteControlClient();
-
-        setVolume(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_VOLUME), 1.0f));
-        
         if (mPendingCommandIntents.size() > 0) {
             for (int i = 0; i < mPendingCommandIntents.size(); i++) {
                 handleIntent(mPendingCommandIntents.get(i));
             }
             mPendingCommandIntents.clear();
             mPendingCommandIntents = null;
+        }
+    }
+    @Override
+    protected void bindToProxy(final TiEnhancedServiceProxy proxy) {
+        super.bindToProxy(proxy);
+        if (this.proxy != null) {
+         // Initialze the notification helper
+            mNotificationHelper = new NotificationHelper(this,
+                    ((AudioStreamerProxy) proxy).getNotificationIcon(), 
+                    ((AudioStreamerProxy) proxy).getNotificationViewId(),
+                    ((AudioStreamerProxy) proxy).getNotificationExtandedViewId());
+            // Use the remote control APIs (if available and the user allows it) to
+            // set the playback state
+            mEnableLockscreenControls = ((AudioStreamerProxy) proxy).getEnableLockscreenControls();
+            setUpRemoteControlClient();
+
+            setVolume(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_VOLUME), 1.0f));
+            
+            
         }
     }
 
@@ -3088,7 +3096,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     private void handleUpdateBitmapMetadata(final Bitmap bitmap) {
         mNotificationHelper.updateAlbumArt(bitmap);
         // this needs to be called in a background thread because of the copy
-        if (mRemoteControlClientCompat == null)
+        if (mRemoteControlClientCompat == null || bitmap == null)
             return;
         Bitmap newBitmap = bitmap.copy(bitmap.getConfig(),
                 bitmap.isMutable() ? true : false);
