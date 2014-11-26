@@ -23,6 +23,7 @@ import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.support.v7.internal.widget.TintSpinner;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,7 +86,7 @@ public class TiUINativePicker extends TiUIPicker
 	public TiUINativePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-		Spinner spinner = new Spinner(activity)
+		TintSpinner spinner = new TintSpinner(activity)
 		{
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
@@ -112,13 +113,17 @@ public class TiUINativePicker extends TiUIPicker
 		spinner.setOnItemSelectedListener(this);
 	}
 	
+	private Spinner getSpinner() {
+	    return (TintSpinner)getNativeView();
+	}
+	
 	private void preselectRows()
 	{
 		ArrayList<Integer> preselectedRows = getPickerProxy().getPreselectedRows();
 		if (preselectedRows == null || preselectedRows.size() == 0) {
 			return;
 		}
-		Spinner spinner = (Spinner)nativeView;
+		Spinner spinner = getSpinner();
 		if (spinner == null)return;
 		try {
 			spinner.setOnItemSelectedListener(null);
@@ -143,20 +148,19 @@ public class TiUINativePicker extends TiUIPicker
 			Log.w(TAG, "Only one column is supported. Ignoring request to set selected row of column " + columnIndex);
 			return;
 		}
-		Spinner view = (Spinner)nativeView;
-		int rowCount = view.getAdapter().getCount();
+        Spinner spinner = getSpinner();
+		int rowCount = spinner.getAdapter().getCount();
 		if (rowIndex < 0 || rowIndex >= rowCount) {
 			Log.w(TAG, "Ignoring request to select out-of-bounds row index " + rowIndex);
 			return;
 		}
-		view.setSelection(rowIndex, animated);
+		spinner.setSelection(rowIndex, animated);
 	}
 	
 	@Override
 	public void openPicker()
 	{
-		Spinner view = (Spinner) nativeView;
-		view.performClick();
+        getSpinner().performClick();
 	};
 
 	@Override
@@ -166,7 +170,7 @@ public class TiUINativePicker extends TiUIPicker
 			Log.w(TAG, "Ignoring request to get selected row from out-of-bounds columnIndex " + columnIndex);
 			return -1;
 		}
-		return ((Spinner)getNativeView()).getSelectedItemPosition();
+		return getSpinner().getSelectedItemPosition();
 	}
 
 	@Override
@@ -174,7 +178,7 @@ public class TiUINativePicker extends TiUIPicker
 	{
 		// Don't allow change events here
 		suppressChangeEvent = true;
-		Spinner spinner = (Spinner)nativeView;
+		Spinner spinner = getSpinner();
 		if (spinner == null) {
 			return;
 		}
@@ -286,8 +290,7 @@ public class TiUINativePicker extends TiUIPicker
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (key.equals(TiC.PROPERTY_FONT)) {
-			Spinner spinner = (Spinner) nativeView;
-			TiSpinnerAdapter<TiViewProxy> adapter = (TiSpinnerAdapter<TiViewProxy>) spinner.getAdapter();
+			TiSpinnerAdapter<TiViewProxy> adapter = (TiSpinnerAdapter<TiViewProxy>) getSpinner().getAdapter();
 			adapter.setFontProperties(proxy.getProperties());
 			adapter.notifyDataSetChanged();
 		} else {
