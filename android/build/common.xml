@@ -38,6 +38,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 	<property name="kroll.common.project.dir" location="${ti.android.root}/runtime/common"/>
 	<property name="kroll.v8.project.dir" location="${ti.android.root}/runtime/v8"/>
 	<property name="kroll.runtime" value="all"/>
+	<property name="jversion" value="1.6"/>
 
 	<condition property="ndk.build" value="${kroll.v8.project.dir}/ndk-build.cmd" else="${kroll.v8.project.dir}/ndk-build.sh">
 		<os family="windows"/>
@@ -168,8 +169,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 			<javac destdir="@{build.dir}"
 				includes="@{includes}"
 				excludes="@{excludes}"
-				target="1.6"
-				source="1.6"
+				target="${jversion}"
+				source="${jversion}"
 				debug="@{debug}"
 				includeantruntime="false">
 
@@ -398,7 +399,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<javac
 			srcdir="${kroll.common.project.dir}/src/java"
 			destdir="${kroll.common.classes.dir}" debug="true"
-			source="1.6" target="1.6"
+			source="${jversion}" target="${jversion}"
 			includeantruntime="false">
 			<classpath refid="android"/>
 		</javac>
@@ -406,7 +407,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<javac
 			srcdir="${kroll.common.project.dir}/generated/java"
 			destdir="${kroll.common.classes.dir}" debug="true"
-			source="1.6" target="1.6"
+			source="${jversion}" target="${jversion}"
 			includeantruntime="false">
 			<classpath refid="android"/>
 		</javac>
@@ -418,7 +419,7 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 		<property name="kroll.v8.classes.dir" location="${dist.classes.dir}/kroll-v8"/>
 		<mkdir dir="${kroll.v8.classes.dir}"/>
 		<javac srcdir="${kroll.v8.project.dir}/src/java" destdir="${kroll.v8.classes.dir}" debug="true"
-			target="1.6" source="1.6" includeantruntime="false">
+			target="${jversion}" source="${jversion}" includeantruntime="false">
 			<classpath refid="android"/>
 			<classpath>
 				<fileset file="${dist.dir}/kroll-common.jar"/>
@@ -656,8 +657,8 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 				classpathref="ti.build.lib.path"
 				includeantruntime="false"
 				debug="true"
-				target="1.6"
-				source="1.6"/>
+				target="${jversion}"
+				source="${jversion}"/>
 			<jar basedir="${dist.classes.dir}/ant-tasks" destfile="${dist.dir}/ant-tasks.jar"/>
 		</sequential>
 	</macrodef>
