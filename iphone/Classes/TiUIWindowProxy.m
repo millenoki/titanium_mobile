@@ -149,15 +149,24 @@ NSArray* keySequence;
     navBarWillShow = NO;
     toolbarButtonNotSet = NO;
     toolbarBarWillShow = NO;
-	[self replaceValue:nil forKey:@"barColor" notification:NO];
-	[self replaceValue:nil forKey:@"navTintColor" notification:NO];
-	[self replaceValue:nil forKey:@"barImage" notification:NO];
-	[self replaceValue:nil forKey:@"translucent" notification:NO];
-	[self replaceValue:nil forKey:@"barStyle" notification:NO];
-	[self replaceValue:nil forKey:@"titleAttributes" notification:NO];
-	[self replaceValue:NUMBOOL(NO) forKey:@"tabBarHidden" notification:NO];
-	[self replaceValue:NUMBOOL(NO) forKey:@"navBarHidden" notification:NO];
 	[super _configure];
+}
+
+-(void)_initWithProperties:(NSDictionary *)properties
+{
+    NSNull* null = [NSNull null];
+    [self initializeProperties:@{
+                                 @"backgroundColor":@"white",
+                                 @"barColor":null,
+                                 @"navTintColor":null,
+                                 @"barImage":null,
+                                 @"translucent":null,
+                                 @"barStyle":null,
+                                 @"titleAttributes":null,
+                                 @"tabBarHidden":@(NO),
+                                 @"navBarHidden":@(NO),
+                                 }];
+    [super _initWithProperties:properties];
 }
 
 -(NSString*)apiName
