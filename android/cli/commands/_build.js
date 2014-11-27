@@ -295,71 +295,71 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
             }
         }.bind(this);
 
-	return function (finished) {
-		cli.createHook('build.android.config', this, function (callback) {
-			var conf = {
-				flags: {
-					'launch': {
-						desc: __('disable launching the app after installing'),
-						default: true,
-						hideDefault: true,
-						negate: true
-					}
-				},
-				options: {
-					'alias': {
-						abbr: 'L',
-						desc: __('the alias for the keystore'),
-						hint: 'alias',
-						order: 155,
-						prompt: function (callback) {
-							callback(fields.select({
-								title: __("What is the name of the keystore's certificate alias?"),
-								promptLabel: __('Select a certificate alias by number or name'),
-								margin: '',
-								optionLabel: 'name',
-								optionValue: 'name',
-								numbered: true,
-								relistOnError: true,
-								complete: true,
-								suggest: false,
-								options: _t.keystoreAliases,
-								validate: conf.options.alias.validate
-							}));
-						},
-						validate: function (value, callback) {
-							// if there's a value, then they entered something, otherwise let the cli prompt
-							if (value) {
-								var selectedAlias = value.toLowerCase(),
-									alias = _t.keystoreAlias = _t.keystoreAliases.filter(function (a) { return a.name && a.name.toLowerCase() == selectedAlias; }).shift();
-								if (!alias) {
-									return callback(new Error(__('Invalid "--alias" value "%s"', value)));
-								}
-								if (alias.sigalg && alias.sigalg.toLowerCase() == 'sha256withrsa') {
-									logger.warn(__('The selected alias %s uses the %s signature algorithm which will likely have issues with Android 4.3 and older.', ('"' + value + '"').cyan, ('"' + alias.sigalg + '"').cyan));
-									logger.warn(__('Certificates that use the %s or %s signature algorithm will provide better compatibility.', '"SHA1withRSA"'.cyan, '"MD5withRSA"'.cyan));
-								}
-							}
-							callback(null, value);
-						}
-					},
-					'android-sdk': {
-						abbr: 'A',
-						default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
-						desc: __('the path to the Android SDK'),
-						hint: __('path'),
-						order: 100,
-						prompt: function (callback) {
-							var androidSdkPath = config.android && config.android.sdkPath;
-							if (!androidSdkPath && _t.androidInfo.sdk) {
-								androidSdkPath = _t.androidInfo.sdk.path;
-							}
-							if (androidSdkPath) {
-								androidSdkPath = afs.resolvePath(androidSdkPath);
-								if (process.platform == 'win32' || androidSdkPath.indexOf('&') != -1) {
-									androidSdkPath = undefined;
-								}
-							}
+    return function (finished) {
+        cli.createHook('build.android.config', this, function (callback) {
+            var conf = {
+                flags: {
+                    'launch': {
+                        desc: __('disable launching the app after installing'),
+                        default: true,
+                        hideDefault: true,
+                        negate: true
+                    }
+                },
+                options: {
+                    'alias': {
+                        abbr: 'L',
+                        desc: __('the alias for the keystore'),
+                        hint: 'alias',
+                        order: 155,
+                        prompt: function (callback) {
+                            callback(fields.select({
+                                title: __("What is the name of the keystore's certificate alias?"),
+                                promptLabel: __('Select a certificate alias by number or name'),
+                                margin: '',
+                                optionLabel: 'name',
+                                optionValue: 'name',
+                                numbered: true,
+                                relistOnError: true,
+                                complete: true,
+                                suggest: false,
+                                options: _t.keystoreAliases,
+                                validate: conf.options.alias.validate
+                            }));
+                        },
+                        validate: function (value, callback) {
+                            // if there's a value, then they entered something, otherwise let the cli prompt
+                            if (value) {
+                                var selectedAlias = value.toLowerCase(),
+                                    alias = _t.keystoreAlias = _t.keystoreAliases.filter(function (a) { return a.name && a.name.toLowerCase() == selectedAlias; }).shift();
+                                if (!alias) {
+                                    return callback(new Error(__('Invalid "--alias" value "%s"', value)));
+                                }
+                                if (alias.sigalg && alias.sigalg.toLowerCase() == 'sha256withrsa') {
+                                    logger.warn(__('The selected alias %s uses the %s signature algorithm which will likely have issues with Android 4.3 and older.', ('"' + value + '"').cyan, ('"' + alias.sigalg + '"').cyan));
+                                    logger.warn(__('Certificates that use the %s or %s signature algorithm will provide better compatibility.', '"SHA1withRSA"'.cyan, '"MD5withRSA"'.cyan));
+                                }
+                            }
+                            callback(null, value);
+                        }
+                    },
+                    'android-sdk': {
+                        abbr: 'A',
+                        default: config.android && config.android.sdkPath && afs.resolvePath(config.android.sdkPath),
+                        desc: __('the path to the Android SDK'),
+                        hint: __('path'),
+                        order: 100,
+                        prompt: function (callback) {
+                            var androidSdkPath = config.android && config.android.sdkPath;
+                            if (!androidSdkPath && _t.androidInfo.sdk) {
+                                androidSdkPath = _t.androidInfo.sdk.path;
+                            }
+                            if (androidSdkPath) {
+                                androidSdkPath = afs.resolvePath(androidSdkPath);
+                                if (process.platform == 'win32' || androidSdkPath.indexOf('&') != -1) {
+                                    androidSdkPath = undefined;
+                                }
+                            }
 
                             callback(fields.file({
                                 promptLabel: __('Where is the Android SDK?'),
@@ -1053,7 +1053,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
     }, this);
 
     try {
-        this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
+        var tiappAndroidManifest = this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
     } catch (ex) {
         logger.error(__('Malformed <manifest> definition in the <android> section of the tiapp.xml') + '\n');
         process.exit(1);
@@ -1068,14 +1068,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
     }
 
     // validate the sdk levels
-    var usesSDK = (this.tiappAndroidManifest && this.tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
+    var usesSDK = (tiappAndroidManifest && tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
 
-	try {
-		var tiappAndroidManifest = this.tiappAndroidManifest = cli.tiapp.android && cli.tiapp.android.manifest && (new AndroidManifest).parse(cli.tiapp.android.manifest);
-	} catch (ex) {
-		logger.error(__('Malformed <manifest> definition in the <android> section of the tiapp.xml') + '\n');
-		process.exit(1);
-	}
+    this.minSDK = this.minSupportedApiLevel;
+    this.targetSDK = cli.tiapp.android && ~~cli.tiapp.android['tool-api-level'] || null;
+    this.maxSDK = null;
 
     if (this.targetSDK) {
         logger.log();
@@ -1091,8 +1088,25 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         logger.log();
     }
 
-	// validate the sdk levels
-	var usesSDK = (tiappAndroidManifest && tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
+    function normalizeVersion(ver, type) {
+        ver = (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
+        if (ver && tiappAndroidManifest) {
+            tiappAndroidManifest['uses-sdk'] || (tiappAndroidManifest['uses-sdk'] = {});
+            tiappAndroidManifest['uses-sdk'][type] = ver;
+        }
+        return ver;
+    }
+
+    if (usesSDK) {
+        usesSDK.minSdkVersion    && (this.minSDK    = usesSDK.minSdkVersion);
+        usesSDK.targetSdkVersion && (this.targetSDK = usesSDK.targetSdkVersion);
+        usesSDK.maxSdkVersion    && (this.maxSDK    = usesSDK.maxSdkVersion);
+    }
+
+    // make sure the SDK versions are actual SDK versions and not the codenames
+    this.minSDK    = normalizeVersion(this.minSDK,    'minSdkVersion');
+    this.targetSDK = normalizeVersion(this.targetSDK, 'targetSdkVersion');
+    this.maxSDK    = normalizeVersion(this.maxSDK,    'maxSdkVersion');
 
     // min sdk is too old
     var minApiLevel = targetSDKMap[this.minSDK] && targetSDKMap[this.minSDK].sdk;
@@ -1145,51 +1159,23 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         process.exit(1);
     }
 
-	function normalizeVersion(ver, type) {
-		ver = (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
-		if (ver && tiappAndroidManifest) {
-			tiappAndroidManifest['uses-sdk'] || (tiappAndroidManifest['uses-sdk'] = {});
-			tiappAndroidManifest['uses-sdk'][type] = ver;
-		}
-		return ver;
-	}
+    // target sdk < min sdk
+    if (this.targetSDK && this.targetSDK < minApiLevel) {
+        logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s', this.minSDK, this.targetSDK) + '\n');
+        process.exit(1);
+    }
 
-	if (usesSDK) {
-		usesSDK.minSdkVersion    && (this.minSDK    = usesSDK.minSdkVersion);
-		usesSDK.targetSdkVersion && (this.targetSDK = usesSDK.targetSdkVersion);
-		usesSDK.maxSdkVersion    && (this.maxSDK    = usesSDK.maxSdkVersion);
-	}
-
-	// make sure the SDK versions are actual SDK versions and not the codenames
-	this.minSDK    = normalizeVersion(this.minSDK,    'minSdkVersion');
-	this.targetSDK = normalizeVersion(this.targetSDK, 'targetSdkVersion');
-	this.maxSDK    = normalizeVersion(this.maxSDK,    'maxSdkVersion');
-
-	// min sdk is too old
-	var minApiLevel = targetSDKMap[this.minSDK] && targetSDKMap[this.minSDK].sdk;
-	if (minApiLevel && minApiLevel < this.minSupportedApiLevel) {
-		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK) + '\n');
-		logger.log(
-			appc.string.wrap(
-				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:minSdkVersion'.cyan, String(this.minSupportedApiLevel).cyan),
-				config.get('cli.width', 100)
-			)
-		);
-		logger.log();
-		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-		logger.log('    <android>'.grey);
-		logger.log('        <manifest>'.grey);
-		logger.log(('            <uses-sdk '
-			+ 'android:minSdkVersion="' + this.minSupportedApiLevel + '" '
-			+ (this.targetSDK ? 'android:targetSdkVersion="' + this.targetSDK + '" ' : '')
-			+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-			+ '/>').magenta);
-		logger.log('        </manifest>'.grey);
-		logger.log('    </android>'.grey);
-		logger.log('</ti:app>'.grey);
-		logger.log();
-		process.exit(1);
-	}
+    // if no target sdk, then default to most recent supported/installed
+    if (!this.targetSDK) {
+        var levels = Object.keys(targetSDKMap).sort(function (a, b) {
+                if (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision === targetSDKMap[b].revision) {
+                    return 0;
+                } else if (targetSDKMap[a].sdk < targetSDKMap[b].sdk || (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision < targetSDKMap[b].revision)) {
+                    return -1;
+                }
+                return 1;
+            }),
+            i = levels.length - 1;
 
         for (; i >= 0; i--) {
             if (targetSDKMap[levels[i]].sdk >= this.minSupportedApiLevel && targetSDKMap[levels[i]].sdk <= this.maxSupportedApiLevel) {
@@ -1204,17 +1190,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         }
     }
 
-	// if no target sdk, then default to most recent supported/installed
-	if (!this.targetSDK) {
-		var levels = Object.keys(targetSDKMap).sort(function (a, b) {
-				if (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision === targetSDKMap[b].revision) {
-					return 0;
-				} else if (targetSDKMap[a].sdk < targetSDKMap[b].sdk || (targetSDKMap[a].sdk === targetSDKMap[b].sdk && targetSDKMap[a].revision < targetSDKMap[b].revision)) {
-					return -1;
-				}
-				return 1;
-			}),
-			i = levels.length - 1;
+    // check that we have this target sdk installed
+    this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
     if (!this.androidTargetSDK) {
         logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
@@ -3906,20 +3883,20 @@ AndroidBuilder.prototype.packageApp = function packageApp(next) {
                     process.exit(1);
                 }
 
-				done();
-			}.bind(this));
-		}),
-		args = [
-			'package',
-			'-f',
-			'-m',
-			'-J', path.join(this.buildDir, 'gen'),
-			'-M', this.androidManifestFile,
-			'-A', this.buildBinAssetsDir,
-			'-S', this.buildResDir,
-			'-I', this.androidTargetSDK.androidJar,
-			'-F', this.ap_File
-		];
+                done();
+            }.bind(this));
+        }),
+        args = [
+            'package',
+            '-f',
+            '-m',
+            '-J', path.join(this.buildDir, 'gen'),
+            '-M', this.androidManifestFile,
+            '-A', this.buildBinAssetsDir,
+            '-S', this.buildResDir,
+            '-I', this.androidTargetSDK.androidJar,
+            '-F', this.ap_File
+        ];
 
     function runAapt() {
         aaptHook(
