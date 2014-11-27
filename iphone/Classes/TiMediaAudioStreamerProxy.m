@@ -6,6 +6,7 @@
  */
 #ifdef USE_TI_MEDIA
 
+#import <MediaPlayer/MediaPlayer.h>
 #import <MediaPlayer/MPNowPlayingInfoCenter.h>
 #import <MediaPlayer/MPMediaItem.h>
 
@@ -17,6 +18,24 @@
 #import "STKHTTPDataSource.h"
 #import "STKAutoRecoveringHTTPDataSource.h"
 #import "STKLocalFileDataSource.h"
+#import "TiApp.h"
+
+@interface STKM3u8DataSource : STKDataSource
+@property (nonatomic, retain) NSURL* url;
+-(id) initWithURL:(NSURL*)url;
+@end
+
+@implementation STKM3u8DataSource
+
+-(id) initWithURL:(NSURL *)urlIn
+{
+    if (self = [super init])
+    {
+        self.url = urlIn;
+    }
+    return self;
+}
+@end
 
 typedef enum {
     REPEAT_NONE,
@@ -30,6 +49,15 @@ typedef enum {
     SHUFFLE_AUTO
 } ShuffleMode;
 
+typedef enum {
+    STATE_INITIALIZED,
+    STATE_ERROR,
+    STATE_PLAYING,
+    STATE_BUFFERING,
+    STATE_STOPPED,
+    STATE_PAUSED
+} PlayState;
+
 
 @class TiMediaSoundProxy;
 @implementation TiMediaAudioStreamerProxy{
@@ -39,10 +67,13 @@ typedef enum {
     NSTimer *timer;
     NSMutableArray* _playlist;
     NSInteger _playPos;
+    int _state;
     id _currentItem;
     int _repeatMode;
     int _shuffleMode;
     ImageLoaderRequest *urlRequest;
+    MPMoviePlayerController *moviePlayer;
+    float volume;
 }
 
 #pragma mark Internal
@@ -50,9 +81,11 @@ typedef enum {
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     _playPos = -1;
+    volume = 1.0f;
+    _state = STATE_STOPPED;
     _repeatMode = REPEAT_NONE;
     _shuffleMode = SHUFFLE_NONE;
-    [self initializeProperty:@"volume" defaultValue:@(1.0)];
+    [self initializeProperty:@"volume" defaultValue:@(volume)];
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];
     });
@@ -68,16 +101,13 @@ typedef enum {
 		[timer invalidate];
 		RELEASE_TO_NIL(timer);
 	}
-	if (player!=nil)
-	{
-        STKAudioPlayerState state = [player state];
-		if (state == STKAudioPlayerStatePlaying || state == STKAudioPlayerStatePaused) {
-            [player stop];
-            [[TiMediaAudioSession sharedSession] stopAudioSession];
-		}
-        [player setDelegate:nil];
-        RELEASE_TO_NIL(player);
-	}
+    if ([[self playing] boolValue]) {
+        [self stop:nil];
+        [[TiMediaAudioSession sharedSession] stopAudioSession];
+    }
+    [player setDelegate:nil];
+    RELEASE_TO_NIL(player);
+    [self cleanMoviePlayer];
     [super _destroy];
 }
 
@@ -95,17 +125,62 @@ typedef enum {
             .flushQueueOnSeek = YES,
             .enableVolumeMixer = YES,
         }];
+        [player setVolume:volume];
 		[player setDelegate:self];
         [player setVolume:[TiUtils doubleValue:[self valueForKey:@"volume"] def:1.0f]];
 	}
 	return player;
 }
 
+-(void)cleanMoviePlayer {
+    if (moviePlayer != nil)
+    {
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center removeObserver:self name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
+        [center removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
+        [center removeObserver:self name:MPMoviePlayerNowPlayingMovieDidChangeNotification object:nil];
+        [center removeObserver:self name:MPMovieDurationAvailableNotification object:nil];
+        [center removeObserver:self name:MPMoviePlayerTimedMetadataUpdatedNotification object:nil];
+        [moviePlayer.view removeFromSuperview];
+        [moviePlayer stop];
+        [self updateState:[self stateFromMPState:moviePlayer.playbackState]];
+        RELEASE_TO_NIL(moviePlayer)
+    }
+}
+
+-(MPMoviePlayerController*)moviePlayerWithUrl:(NSURL*)url
+{
+    if (moviePlayer==nil)
+    {
+        if (player) {
+            [player stop];
+        }
+        moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:url];
+        moviePlayer.allowsAirPlay = YES;
+        moviePlayer.shouldAutoplay = YES;
+//        moviePlayer.fullscreen = YES;
+        moviePlayer.view.hidden = YES;
+        [moviePlayer setMovieSourceType:MPMovieSourceTypeStreaming];
+        [[TiApp app].window addSubview: moviePlayer.view];
+        [[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
+        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
+        [center addObserver:self selector:@selector(moviePlaybackStateChanged:) name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
+        [center addObserver:self selector:@selector(moviePlayBackDidFinish:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
+        [center addObserver:self selector:@selector(moviePlayBackDidStart:) name:MPMoviePlayerNowPlayingMovieDidChangeNotification object:nil];
+        [center addObserver:self selector:@selector(moviePlayBackDurationAvailable:) name:MPMovieDurationAvailableNotification object:nil];
+        [center addObserver:self selector:@selector(movieMetadataUpdate:) name:MPMoviePlayerTimedMetadataUpdatedNotification object:nil];
+    }
+    return moviePlayer;
+}
+
 #pragma mark Public APIs
 
 -(void)setPaused:(NSNumber *)paused
 {
-	if (player!=nil)
+    if (moviePlayer) {
+        [moviePlayer pause];
+    }
+	else if (player)
 	{
 		if ([TiUtils boolValue:paused])
 		{
@@ -121,7 +196,10 @@ typedef enum {
 
 -(void)setMute:(NSNumber *)mute
 {
-    if (player!=nil)
+    if (moviePlayer) {
+        [[MPMusicPlayerController applicationMusicPlayer] setVolume:[TiUtils boolValue:mute]?0:volume];
+    }
+    else if (player)
     {
         if ([TiUtils boolValue:mute])
         {
@@ -134,58 +212,73 @@ typedef enum {
     }
 }
 
-#define PLAYER_PROP_BOOL(name,func) \
--(NSNumber*)name\
-{\
-	if (player==nil)\
-	{\
-		return NUMBOOL(NO);\
-	}\
-	return NUMBOOL([player func]);\
-}
-
 #define PROP_BOOL(name,func) \
 -(NSNumber*)name\
 {\
 return [self func:nil];\
 }
 
-
-#define PLAYER_PROP_DOUBLE(name,func) \
--(NSNumber*)name\
-{\
-if (player==nil)\
-{\
-return NUMDOUBLE(0);\
-}\
-return NUMDOUBLE([player func]);\
+-(id)progress
+{
+    if (moviePlayer) {
+        int current = moviePlayer.currentPlaybackTime;
+        return @(current*1000);
+    }
+    else if (player)
+    {
+        return @(round([player progress]*1000));
+    }
+    return @(0);
 }
-
-PLAYER_PROP_DOUBLE(progress,progress);
-PLAYER_PROP_DOUBLE(state,state);
+-(id)state
+{
+//    if (moviePlayer) {
+//        return @(moviePlayer.playbackState);
+//    }
+//    else if (player)
+//    {
+//        return @([player state]);
+//    }
+    return @(_state);
+}
 
 -(id)isPaused:(id)args
 {
-    return @([player state] == STKAudioPlayerStatePaused);
+    return @(_state == STATE_PAUSED);
+//    if (moviePlayer) {
+//        return @(moviePlayer.playbackState == MPMoviePlaybackStatePaused);
+//    }
+//    return @([player state] == STKAudioPlayerStatePaused);
 }
 
 PROP_BOOL(paused,isPaused);
 
 -(id)isPlaying:(id)args
 {
-    return @([player state] == STKAudioPlayerStatePlaying);
+    return @(_state == STATE_PLAYING);
+//    if (moviePlayer) {
+//        return @(moviePlayer.playbackState == MPMoviePlaybackStatePlaying);
+//    }
+//    return @([player state] == STKAudioPlayerStatePlaying);
 }
 PROP_BOOL(playing,isPlaying);
 
 -(id)isStopped:(id)args
 {
-    return @(player && [player state] != STKAudioPlayerStatePlaying && [player state] != STKAudioPlayerStatePaused);
+    return @(_state == STATE_STOPPED || _state == STATE_ERROR);
+//    if (moviePlayer) {
+//        return @(moviePlayer.playbackState != MPMoviePlaybackStatePlaying && moviePlayer.playbackState != MPMoviePlaybackStatePaused);
+//    }
+//    return @(player && [player state] != STKAudioPlayerStatePlaying && [player state] != STKAudioPlayerStatePaused);
 }
 PROP_BOOL(stopped,isStopped);
 
 
 -(id)isMute:(id)args
 {
+    if (moviePlayer) {
+        return @([MPMusicPlayerController applicationMusicPlayer].volume == 0);
+    }
     return @(player && [player muted]);
 }
 PROP_BOOL(muted,isMute);
@@ -213,42 +306,37 @@ PROP_BOOL(muted,isMute);
 
 -(NSNumber *)volume
 {
-	if (player != nil){
-        return @(player.volume);
-	}
-	return [self valueForKey:@"volume"];
+	return @(volume);
 }
 
 -(void)setVolume:(NSNumber *)newVolume
 {
+    volume = [TiUtils doubleValue:newVolume def:1.0f];
+    if (moviePlayer) {
+        [[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
+    }
 	if (player != nil) {
-		[player setVolume:[TiUtils doubleValue:newVolume def:1.0f]];
+		[player setVolume:volume];
 	}
 }
 
 
 -(STKDataSource*)openItem:(id)item {
     NSURL* url = nil;
-    NSString* filePath = nil;
     if (IS_OF_CLASS(item, TiMediaSoundProxy)) {
         url = ((TiMediaSoundProxy*)item).url;
     } else if (IS_OF_CLASS(item, TiFile)) {
-        filePath = ((TiFile*)item).path;
+        url = [TiUtils toURL:((TiFile*)item).path proxy:self];
     } else if (IS_OF_CLASS(item, NSDictionary)) {
         url = [TiUtils toURL:[item valueForKey:@"url"] proxy:self];
     } else {
-        url = [TiUtils toURL:[item valueForKey:@"url"] proxy:self];
+        url = [TiUtils toURL:[TiUtils stringValue:item] proxy:self];
     }
-    if (url && url.fileURL) {
-        filePath = url.path;
-        url = nil;
+    if ([[url pathExtension] containsString:@"m3u"]) {
+        return [[[STKM3u8DataSource alloc] initWithURL:url] autorelease];
     }
-    if (url) {
-        return [[[STKAutoRecoveringHTTPDataSource alloc] initWithHTTPDataSource:[[[STKHTTPDataSource alloc] initWithURL:url] autorelease]] autorelease];
-    }
-    else if (filePath) {
-        [[[STKLocalFileDataSource alloc] initWithFilePath:filePath] autorelease];
-    }
+    if (url)
+        return [STKAudioPlayer dataSourceFromURL:url];
     return nil;
 }
 
@@ -411,24 +499,42 @@ PROP_BOOL(muted,isMute);
     }
 }
 
+-(void)playNextTrack {
+    NSInteger nextPlayPos = [self getNextPosition:NO];
+    if (nextPlayPos >= 0 && _playlist) {
+        _playPos = nextPlayPos;
+        [self openCurrentAndNext];
+    }
+}
+
 -(void)setNextTrack {
+    if (moviePlayer) return;
     NSInteger nextPlayPos = [self getNextPosition:NO];
     if (nextPlayPos >= 0 && _playlist) {
         STKDataSource* dataSource = [self openItem:[_playlist objectAtIndex:nextPlayPos]];
         if (dataSource) {
-            [player queueDataSource:dataSource withQueueItemId:@(nextPlayPos)];
+            if (IS_OF_CLASS(dataSource, STKM3u8DataSource)) {
+                
+            }
+            else {
+                [[self player] queueDataSource:dataSource withQueueItemId:@(nextPlayPos)];
+            }
         }
     }
 }
 
 -(void)openCurrentAndMaybeNext:(BOOL)openNext {
     if (!_playlist || [_playlist count] == 0) return;
+    [self cleanMoviePlayer];
     STKDataSource* dataSource = [self openItem:[_playlist objectAtIndex:_playPos]];
     if (dataSource) {
-        [[self player] playDataSource:dataSource withQueueItemID:@(_playPos)];
-//        if (openNext) {
-//            [self setNextTrack];
-//        }
+        if (IS_OF_CLASS(dataSource, STKM3u8DataSource)) {
+            [[self moviePlayerWithUrl:((STKM3u8DataSource*)dataSource).url] play];
+        }
+        else {
+            [[self player] playDataSource:dataSource withQueueItemID:@(_playPos)];
+        }
+
     }
 }
 
@@ -438,18 +544,23 @@ PROP_BOOL(muted,isMute);
 
 -(void)internalPlayOrResume {
     // indicate we're going to start playing
-   
-    if (player && (player.state == STKAudioPlayerStatePlaying ||
-                   player.state == STKAudioPlayerStatePaused)) {
-        [[self player] resume];
-        return;
+    if (![[self stopped] boolValue])
+    {
+        if (moviePlayer) {
+            [moviePlayer play];
+            [self updateState:[self stateFromMPState:moviePlayer.playbackState]];
+        } else {
+            [[self player] resume];
+        }
+    } else {
+        if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+            [self throwException:@"Improper audio session mode for playback"
+                       subreason:[[TiMediaAudioSession sharedSession] sessionMode]
+                        location:CODELOCATION];
+        }
+        [self openCurrentAndNext];
     }
-    if (![[TiMediaAudioSession sharedSession] canPlayback]) {
-        [self throwException:@"Improper audio session mode for playback"
-                   subreason:[[TiMediaAudioSession sharedSession] sessionMode]
-                    location:CODELOCATION];
-    }
-    [self openCurrentAndNext];
+    
 }
 
 -(void)start:(id)args
@@ -459,45 +570,60 @@ PROP_BOOL(muted,isMute);
 
 -(void)stop:(id)args
 {
-	[player stop];
+    if (moviePlayer) {
+        [moviePlayer stop];
+        [self updateState:[self stateFromMPState:moviePlayer.playbackState]];
+    } else {
+        [player stop];
+    }
 }
 
 -(void)pause:(id)args
 {
-    [player pause];
+    if (moviePlayer) {
+        [moviePlayer pause];
+        [self updateState:[self stateFromMPState:moviePlayer.playbackState]];
+    } else {
+        [player pause];
+    }
 }
 
 
 -(void)playPause:(id)args
 {
-    if (player) {
-        if (player.state == STKAudioPlayerStatePlaying) {
-            [player pause];
-        }
-        else if (player.state == STKAudioPlayerStatePaused) {
-            [[self player] resume];
-        }
-        else {
-            [self internalPlayOrResume];
-        }
+    if ([[self playing] boolValue]) {
+        [self pause:nil];
     } else {
-        [self internalPlayOrResume];
+        [self play:nil];
     }
 }
 
 -(void)next:(id)args
 {
-    [player playNextInQueue];
+    if (moviePlayer) {
+        [self playNextTrack];
+    }
+    else {
+        [player playNextInQueue];
+    }
 }
 
 -(void)previous:(id)args
 {
-    if (player) {
-        double progress = player.progress*1000;
+    if ([[self playing] boolValue]) {
+        double progress = [[self progress] doubleValue];
         if (progress > 2000) {
-            [player seekToTime:0];
-            [player resume];
-            return;
+            if (moviePlayer) {
+                [moviePlayer setCurrentPlaybackTime:0];
+                [moviePlayer play];
+                [self updateState:[self stateFromMPState:moviePlayer.playbackState]];
+                return;
+            }
+            else if (player) {
+                [player seekToTime:0];
+                [player resume];
+                return;
+            }
         }
     }
     NSInteger prevPlayPos = [self getPreviousPosition:NO];
@@ -509,8 +635,12 @@ PROP_BOOL(muted,isMute);
 
 -(void)seek:(id)args {
     ENSURE_SINGLE_ARG_OR_NIL(args, NSNumber)
-    if (player) {
-        int time = [TiUtils intValue:args]/1000;
+    double time = [TiUtils doubleValue:args]/1000;
+    if (moviePlayer) {
+        [moviePlayer setCurrentPlaybackTime:time];
+        return;
+    }
+    else if (player) {
         [player seekToTime:time];
     }
     
@@ -658,10 +788,25 @@ NSDictionary* metadataKeys;
     }
 }
 
+-(void)updateDuration {
+    if (duration != 0) {
+        return;
+    }
+    if (moviePlayer) {
+        duration =  moviePlayer.duration*1000;
+    } else if (player) {
+        duration = (int)player.duration*1000;
+    }
+    else {
+        duration = 0;
+        
+    }
+}
+
 -(void)updateCurrentItem:(NSInteger)playPos {
     _playPos = playPos;
     if (_playPos != -1) {
-        duration = (int)player.duration*1000;
+        [self updateDuration];
         _currentItem = [_playlist objectAtIndex:_playPos];
         [self updateMetadata];
         if ([self _hasListeners:@"change"])
@@ -677,32 +822,120 @@ NSDictionary* metadataKeys;
     }
 }
 
-MAKE_SYSTEM_PROP(STATE_INITIALIZED,STKAudioPlayerStateReady);
-MAKE_SYSTEM_PROP(STATE_ERROR,STKAudioPlayerStateError);
-MAKE_SYSTEM_PROP(STATE_PLAYING,STKAudioPlayerStatePlaying);
-MAKE_SYSTEM_PROP(STATE_BUFFERING,STKAudioPlayerStateBuffering);
-MAKE_SYSTEM_PROP(STATE_STOPPED,STKAudioPlayerStateStopped);
-MAKE_SYSTEM_PROP(STATE_PAUSED,STKAudioPlayerStatePaused);
+MAKE_SYSTEM_PROP(STATE_INITIALIZED,STATE_INITIALIZED);
+MAKE_SYSTEM_PROP(STATE_ERROR,STATE_ERROR);
+MAKE_SYSTEM_PROP(STATE_PLAYING,STATE_PLAYING);
+MAKE_SYSTEM_PROP(STATE_BUFFERING,STATE_BUFFERING);
+MAKE_SYSTEM_PROP(STATE_STOPPED,STATE_STOPPED);
+MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
 
+
+-(int)stateFromSTKState:(STKAudioPlayerState)state {
+    switch(state)
+    {
+        case STKAudioPlayerStateReady:
+            return STATE_INITIALIZED;
+        case STKAudioPlayerStateError:
+            return STATE_ERROR;
+        case STKAudioPlayerStatePlaying:
+        case STKAudioPlayerStateRunning:
+            return STATE_PLAYING;
+        case STKAudioPlayerStateBuffering:
+            return STATE_BUFFERING;
+        case STKAudioPlayerStatePaused:
+            return STATE_PAUSED;
+        case STKAudioPlayerStateStopped:
+        case STKAudioPlayerStateDisposed:
+            return STATE_STOPPED;
+    }
+}
+
+-(int)stateFromMPState:(MPMoviePlaybackState)state {
+    switch(state)
+    {
+        case MPMoviePlaybackStateSeekingBackward:
+        case MPMoviePlaybackStateSeekingForward:
+        case MPMoviePlaybackStatePlaying:
+            return STATE_PLAYING;
+        case MPMoviePlaybackStatePaused:
+        case MPMoviePlaybackStateInterrupted:
+            return STATE_PAUSED;
+        case MPMoviePlaybackStateStopped:
+            return STATE_STOPPED;
+    }
+}
+
+-(int)stateFromMPLoadState:(MPMovieLoadState)state {
+    switch(state)
+    {
+        case MPMovieLoadStatePlayable:
+        case MPMovieLoadStatePlaythroughOK:
+            return STATE_INITIALIZED;
+        case MPMovieLoadStateUnknown:
+            return STATE_ERROR;
+        case MPMovieLoadStateStalled:
+            return STATE_PAUSED;
+    }
+}
+
+-(void)updateState:(int)newState {
+    if (_state != newState) {
+        _state = newState;
+        if (_state == STATE_PLAYING) {
+            
+            [[TiMediaAudioSession sharedSession] startAudioSession];
+            
+            if (!timer) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    timer = [[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgress:) userInfo:nil repeats:YES] retain];
+                    [timer fire];
+                });
+            }
+        } else {
+            if (timer) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [timer invalidate];
+                    RELEASE_TO_NIL(timer)
+                });
+            }
+            if (_state == STATE_BUFFERING) {
+                if ([self _hasListeners:@"buffering"])
+                {
+                    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@(0),@"progress",nil];
+                    [self fireEvent:@"buffering" withObject:event checkForListener:NO];
+                }
+            }
+            if (_state == STATE_STOPPED || _state == STATE_ERROR) {
+                
+                [[TiMediaAudioSession sharedSession] stopAudioSession];
+                
+            }
+        }
+        if ([self _hasListeners:@"state"])
+        {
+            NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@(_state),@"state",[self stateToString:_state],@"description",nil];
+            [self fireEvent:@"state" withObject:event checkForListener:NO];
+        }
+    }
+}
 
 -(NSString*)stateToString:(int)state
 {
 	switch(state)
 	{
-		case STKAudioPlayerStateReady:
+		case STATE_INITIALIZED:
 			return @"initialized";
-		case STKAudioPlayerStateError:
+		case STATE_ERROR:
 			return @"error";
-		case STKAudioPlayerStatePlaying:
+		case STATE_PLAYING:
 			return @"playing";
-		case STKAudioPlayerStateBuffering:
+		case STATE_BUFFERING:
 			return @"buffering";
-		case STKAudioPlayerStateStopped:
+        case STATE_PAUSED:
+            return @"paused";
+		case STATE_STOPPED:
 			return @"stopped";
-		case STKAudioPlayerStatePaused:
-			return @"paused";
 	}
-	return @"unknown";
 }
 
 -(NSString*)stateDescription:(id)arg
@@ -715,13 +948,11 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STKAudioPlayerStatePaused);
 
 - (void)updateProgress:(NSTimer *)updatedTimer
 {
-    if (duration == 0) {
-        duration = (int)player.duration*1000;
-    }
+    [self updateDuration];
     if ([self _hasListeners:@"progress"])
     {
         NSDictionary *event = @{
-                            @"progress":@(round(player.progress*1000)),
+                            @"progress":[self progress],
                             @"duration":@(duration)
                             };
         [self fireEvent:@"progress" withObject:event checkForListener:NO];
@@ -739,44 +970,13 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STKAudioPlayerStatePaused);
 }
 /// Raised when the state of the player has changed
 -(void) audioPlayer:(STKAudioPlayer*)audioPlayer stateChanged:(STKAudioPlayerState)state previousState:(STKAudioPlayerState)previousState {
-    if ([self _hasListeners:@"state"])
-    {
-        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[self state],@"state",[self stateToString:player.state],@"description",nil];
-        [self fireEvent:@"state" withObject:event checkForListener:NO];
-    }
-    if (state == STKAudioPlayerStatePlaying) {
-        
-        [[TiMediaAudioSession sharedSession] startAudioSession];
-        
-        if (timer) {
-            [timer invalidate];
-            timer = nil;
-        }
-        timer = [[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateProgress:) userInfo:nil repeats:YES] retain];
-        [timer fire];
-    } else {
-        if (timer) {
-            [timer invalidate];
-            timer = nil;
-        }
-        if (state == STKAudioPlayerStateBuffering) {
-            if ([self _hasListeners:@"buffering"])
-            {
-                NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@(0),@"progress",nil];
-                [self fireEvent:@"buffering" withObject:event checkForListener:NO];
-            }
-        }
-        if (state == STKAudioPlayerStateStopped || state == STKAudioPlayerStateError) {
-            
-            [[TiMediaAudioSession sharedSession] stopAudioSession];
-            
-        }
-    }
+    [self updateState:[self stateFromSTKState:state]];
+    
 }
 
 /// Raised when an item has finished playing
--(void) audioPlayer:(STKAudioPlayer*)audioPlayer didFinishPlayingQueueItemId:(NSObject*)queueItemId withReason:(STKAudioPlayerStopReason)stopReason andProgress:(double)progress andDuration:(double)duration {
-    
+-(void) audioPlayer:(STKAudioPlayer*)audioPlayer didFinishPlayingQueueItemId:(NSObject*)queueItemId withReason:(STKAudioPlayerStopReason)stopReason andProgress:(double)progress andDuration:(double)dur {
+    duration = 0;
 }
 /// Raised when an unexpected and possibly unrecoverable error has occured (usually best to recreate the STKAudioPlauyer)
 -(void) audioPlayer:(STKAudioPlayer*)audioPlayer unexpectedError:(STKAudioPlayerErrorCode)errorCode {
@@ -793,7 +993,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STKAudioPlayerStatePaused);
 }
 - (void)remoteControlEvent:(NSNotification*)note
 {
-    if (!player || player.state == STKAudioPlayerStateStopped || player.state == STKAudioPlayerStateError) {
+    if ((!player && !moviePlayer) || _state == STATE_STOPPED || _state == STATE_ERROR) {
         return;
     }
     UIEvent *receivedEvent = [[note userInfo]objectForKey:@"event"];
@@ -824,6 +1024,35 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STKAudioPlayerStatePaused);
         }
     }
 }
+- (void) moviePlaybackStateChanged:(NSNotification*)notification {
+    MPMovieLoadState loadState = moviePlayer.loadState;
+    MPMoviePlaybackState playbackState = moviePlayer.playbackState;
+//   if (loadState == MPMovieLoadStatePlayable) {
+        [self updateState:[self stateFromMPState:playbackState]];
+//    }
+//    else {
+//        [self updateState:[self stateFromMPLoadState:loadState]];
+//    }
+}
+- (void) moviePlayBackDidFinish:(NSNotification*)notification {
+    duration = 0;
+    [self playNextTrack];
+}
+- (void) moviePlayBackDidStart:(NSNotification*)notification {
+    [self updateCurrentItem:_playPos];
+    [self updateState:[self stateFromMPState:moviePlayer.playbackState]];
+}
+- (void) moviePlayBackDurationAvailable:(NSNotification*)notification {
+    [self updateDuration];
+}
+- (void) movieMetadataUpdate:(NSNotification*)notification {
+    if ([moviePlayer timedMetadata]!=nil && [[moviePlayer timedMetadata] count] > 0) {
+        MPTimedMetadata *firstMeta = [[moviePlayer timedMetadata] objectAtIndex:0];
+        NSDictionary* metadataInfo = firstMeta.allMetadata;
+    }
+}
+
+
 
 @end
 
