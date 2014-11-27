@@ -346,6 +346,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
  @param value The initial value to set on the property.
  */
 -(void)initializeProperty:(NSString*)name defaultValue:(id)value;
+-(void)initializeProperties:(NSDictionary*)defaultValues;
 
 /**
  Sets or replaces the property on the proxy object.

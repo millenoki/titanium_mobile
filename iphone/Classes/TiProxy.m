@@ -247,6 +247,20 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     pthread_rwlock_unlock(&dynpropsLock);
 }
 
+-(void)initializeProperties:(NSDictionary*)defaultValues
+{
+    pthread_rwlock_wrlock(&dynpropsLock);
+    if (dynprops == nil) {
+        dynprops = [[NSMutableDictionary alloc] init];
+    }
+    [defaultValues enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        if ([dynprops valueForKey:key] == nil) {
+            [dynprops setValue:obj forKey:key];
+        }
+    }];
+    pthread_rwlock_unlock(&dynpropsLock);
+}
+
 +(BOOL)shouldRegisterOnInit
 {
 	return YES;
