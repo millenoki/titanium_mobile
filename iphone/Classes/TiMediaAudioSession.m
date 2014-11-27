@@ -294,9 +294,6 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
     {
         [self deactivateSession];
     }
-#ifdef DEBUG	
-    NSAssert(count >= 0, @"stopAudioSession called too many times");
-#endif
     [lock unlock];
 }
 
