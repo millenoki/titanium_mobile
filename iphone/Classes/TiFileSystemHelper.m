@@ -48,7 +48,7 @@ static NSString* _lineEnding = @"\n";
 	}
 	else if ([first characterAtIndex:0]!='/')
 	{
-		NSURL* url = [NSURL URLWithString:[TiFileSystemHelper resourcesDirectory]];
+        NSURL* url = [NSURL URLWithString:[[TiFileSystemHelper resourcesDirectory] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
         newpath = [[url path] stringByAppendingPathComponent:[TiFileSystemHelper resolveFile:first]];
 	}
 	else
