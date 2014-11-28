@@ -11,14 +11,14 @@ import org.appcelerator.titanium.proxy.TiEnhancedServiceProxy.TiEnhancedServiceI
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Service;
 import android.content.Intent;
-import android.net.VpnService;
 import android.os.Build;
 import android.os.IBinder;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 @SuppressLint("NewApi")
-public class TiEnhancedService extends VpnService implements TiEnhancedServiceInterface {
+public class TiEnhancedService extends Service implements TiEnhancedServiceInterface {
 
     static final String TAG = "AkVpnService";
     public static final String TI_SERVICE_INTENT_ID_KEY = "$__TITANIUM_SERVICE_INTENT_ID__$";
