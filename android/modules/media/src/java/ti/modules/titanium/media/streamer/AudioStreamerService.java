@@ -85,6 +85,7 @@ import com.squareup.picasso.Picasso.LoadedFrom;
  * A backbround {@link Service} used to keep music playing between activities
  * and when the user moves Apollo into the background.
  */
+@SuppressWarnings("deprecation")
 public class AudioStreamerService extends TiEnhancedService implements Target,
         Callback, AppStateListener {
     private static final String TAG = "AudioStreamerService";
