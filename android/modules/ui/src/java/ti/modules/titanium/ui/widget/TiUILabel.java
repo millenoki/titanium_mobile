@@ -31,6 +31,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.RectF;
+import android.os.Build;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.util.Linkify;
@@ -75,6 +76,7 @@ import android.util.TypedValue;
 public class TiUILabel extends TiUINonViewGroupView
 {
 	private static final String TAG = "TiUILabel";
+    private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
 	private static final float DEFAULT_SHADOW_RADIUS = 0.5f;
 
 	private int selectedColor, color, disabledColor, widgetDefaultColor;
@@ -129,7 +131,9 @@ public class TiUILabel extends TiUINonViewGroupView
  			textView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 			textView.setKeyListener(null);
 			textView.setSingleLine(false);
-            textView.setTextIsSelectable(false);
+			if (HONEYCOMB_OR_GREATER) {
+	            textView.setTextIsSelectable(false);
+			}
             textView.setSelectAllOnFocus(false);
 			TiUIHelper.styleText(textView, null);
 			addView(textView, getTextLayoutParams());
