@@ -6,9 +6,7 @@
  */
 #ifdef USE_TI_MEDIA
 
-//#import <MediaPlayer/MediaPlayer.h>
 #import <MediaPlayer/MPNowPlayingInfoCenter.h>
-//#import <MediaPlayer/MPMediaItem.h>
 #import <AVFoundation/AVFoundation.h>
 #import <MediaPlayer/MPMusicPlayerController.h>
 
@@ -17,9 +15,6 @@
 #import "TiMediaAudioSession.h"
 #import "TiMediaSoundProxy.h"
 #import "TiFile.h"
-//#import "STKHTTPDataSource.h"
-//#import "STKAutoRecoveringHTTPDataSource.h"
-//#import "STKLocalFileDataSource.h"
 #import "TiApp.h"
 
 static void *MyStreamingMovieViewControllerTimedMetadataObserverContext = &MyStreamingMovieViewControllerTimedMetadataObserverContext;
@@ -40,34 +35,17 @@ NSString *kCurrentItemKey   = @"currentItem";
 NSString *kTimedMetadataKey = @"currentItem.timedMetadata";
 NSString *kDurationKey      = @"currentItem.duration";
 
-//@interface STKM3u8DataSource : STKDataSource
-//@property (nonatomic, retain) NSURL* url;
-//-(id) initWithURL:(NSURL*)url;
-//@end
+//typedef enum {
+//    REPEAT_NONE,
+//    REPEAT_CURRENT,
+//    REPEAT_ALL
+//} RepeatMode;
 //
-//@implementation STKM3u8DataSource
-//
-//-(id) initWithURL:(NSURL *)urlIn
-//{
-//    if (self = [super init])
-//    {
-//        self.url = urlIn;
-//    }
-//    return self;
-//}
-//@end
-
-typedef enum {
-    REPEAT_NONE,
-    REPEAT_CURRENT,
-    REPEAT_ALL
-} RepeatMode;
-
-typedef enum {
-    SHUFFLE_NONE,
-    SHUFFLE_NORMAL,
-    SHUFFLE_AUTO
-} ShuffleMode;
+//typedef enum {
+//    SHUFFLE_NONE,
+//    SHUFFLE_NORMAL,
+//    SHUFFLE_AUTO
+//} ShuffleMode;
 
 typedef enum {
     STATE_INITIALIZED,
@@ -103,9 +81,7 @@ typedef enum {
 @property (strong, nonatomic, readwrite) NSArray *queue;
 @property (strong, nonatomic, readwrite) AVPlayerItem *nowPlayingItem;
 @property (nonatomic, readwrite) NSUInteger indexOfNowPlayingItem;
-@property (nonatomic) BOOL interrupted;
 @property (nonatomic) BOOL isLoadingAsset;
-@property (nonatomic) MPMusicPlaybackState playbackState;
 @property (nonatomic) MPMusicRepeatMode repeatMode; // note: MPMusicRepeatModeDefault is not supported
 @property (nonatomic) MPMusicShuffleMode shuffleMode; // note: only MPMusicShuffleModeOff and MPMusicShuffleModeSongs are supported
 @property (nonatomic) BOOL shouldReturnToBeginningWhenSkippingToPreviousItem; // default YES
@@ -117,24 +93,15 @@ typedef enum {
 @private
     double _duration;
     double _currentProgress;
-//    STKAudioPlayer* player;
-//    NSTimer *timer;
     NSMutableArray* _playlist;
-//    NSInteger _playPos;
     BOOL _playerInitialized;
     int _state;
     id _currentItem;
-//    int _repeatMode;
-//    int _shuffleMode;
     ImageLoaderRequest *urlRequest;
-//    MPMoviePlayerController *moviePlayer;
     AVPlayer *player;
-//    AVPlayerLayer* _playerLayer;
     float volume;
     id timeObserver;
 }
-//@synthesize currentPlaybackTime = _currentPlayback    Time;
-//@synthesize currentPlaybackRate = _currentPlaybackRate;
 #pragma mark Internal
 
 void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID inPropertyID, UInt32 inPropertyValueSize, const void *inPropertyValue) {
@@ -152,7 +119,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     NSString *oldRouteString = (__bridge NSString *)oldRouteRef;
     
     if (routeChangeReason == kAudioSessionRouteChangeReason_OldDeviceUnavailable) {
-        if ((streamer.playbackState == MPMusicPlaybackStatePlaying) &&
+        if (([streamer playing]) &&
             (([oldRouteString isEqualToString:@"Headphone"]) ||
              ([oldRouteString isEqualToString:@"LineOut"])))
         {
@@ -164,7 +131,6 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
-//    _playPos = -1;
     _playerInitialized = NO;
     volume = 1.0f;
     self.indexOfNowPlayingItem = NSNotFound;
@@ -172,8 +138,6 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     self.shuffleMode = MPMusicShuffleModeOff;
     self.shouldReturnToBeginningWhenSkippingToPreviousItem = YES;
     _state = STATE_STOPPED;
-//    _repeatMode = REPEAT_NONE;
-//    _shuffleMode = SHUFFLE_NONE;
 // Handle unplugging of headphones
     AudioSessionAddPropertyListener (kAudioSessionProperty_AudioRouteChange, audioRouteChangeListenerCallback, (__bridge void*)self);
     [self initializeProperty:@"volume" defaultValue:@(volume)];
@@ -231,10 +195,13 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         self.indexOfNowPlayingItem++;
     } else {
         if (self.repeatMode == MPMusicRepeatModeAll) {
+            if (self.shuffleMode == MPMusicShuffleModeSongs) {
+                self.queue = self.originalQueue;
+            }
             // Wrap around back to the first track
             self.indexOfNowPlayingItem = 0;
         } else {
-            if (self.playbackState == MPMusicPlaybackStatePlaying) {
+            if (_state == STATE_PLAYING) {
                 if (_nowPlayingItem != nil) {
                     //TODO: end of playlist
                 }
@@ -259,26 +226,17 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 
 #pragma mark - MPMediaPlayback
 
-
-- (void)prepareToPlay {
-    NSLog(@"Not supported");
-}
-
-- (void)beginSeekingBackward {
-    NSLog(@"Not supported");
-}
-
-- (void)beginSeekingForward {
-    NSLog(@"Not supported");
-}
-
-- (void)endSeeking {
-    NSLog(@"Not supported");
-}
-
 - (void)setShuffleMode:(MPMusicShuffleMode)shuffleMode {
     _shuffleMode = shuffleMode;
+    id currentItem = [self getCurrentQueueItem];
     self.queue = self.originalQueue;
+    if ([_queue count]) {
+        if (![self stopped]) {
+            self.indexOfNowPlayingItem = [_queue indexOfObject:currentItem];
+        }
+    } else {
+        self.indexOfNowPlayingItem = NSNotFound;
+    }
 }
 
 - (void)setOriginalQueue:(NSArray *)originalQueue {
@@ -359,83 +317,17 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     _duration = 0;
     _currentProgress = 0;
     if (!self.isLoadingAsset) {
-        dispatch_async(dispatch_get_main_queue(), ^{
+//        dispatch_async(dispatch_get_main_queue(), ^{
             if (self.repeatMode == MPMusicRepeatModeOne) {
                 // Play the same track again
                 self.indexOfNowPlayingItem = self.indexOfNowPlayingItem;
-                if (self.playbackState == MPMusicPlaybackStatePlaying) {
-                    [player play];
-                }
             } else {
                 // Go to next track
                 [self skipToNextItem];
-                if (self.playbackState == MPMusicPlaybackStatePlaying) {
-                    [player play];
-                }
             }
-        });
+//        });
     }
 }
-
-//-(STKAudioPlayer*)player
-//{
-//	if (player==nil)
-//	{
-//        [self cleanMoviePlayer];
-//        [self cleanAVPlayer];
-//		player = [[STKAudioPlayer alloc] initWithOptions:(STKAudioPlayerOptions){
-//            .flushQueueOnSeek = YES,
-//            .enableVolumeMixer = YES,
-//        }];
-//        [player setVolume:volume];
-//		[player setDelegate:self];
-//        [player setVolume:[TiUtils doubleValue:[self valueForKey:@"volume"] def:1.0f]];
-//	}
-//	return player;
-//}
-//
-//-(void)cleanMoviePlayer {
-//    if (moviePlayer != nil)
-//    {
-//        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-//        [center removeObserver:self name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
-//        [center removeObserver:self name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
-//        [center removeObserver:self name:MPMoviePlayerNowPlayingMovieDidChangeNotification object:nil];
-//        [center removeObserver:self name:MPMovieDurationAvailableNotification object:nil];
-//        [center removeObserver:self name:MPMoviePlayerTimedMetadataUpdatedNotification object:nil];
-////        [moviePlayer.view removeFromSuperview];
-//        [moviePlayer pause];
-//        [self updateState:[self stateFromMPState:moviePlayer.playbackState]];
-//        RELEASE_TO_NIL(moviePlayer)
-//    }
-//}
-//
-//-(MPMoviePlayerController*)moviePlayerWithUrl:(NSURL*)url
-//{
-//    if (moviePlayer==nil)
-//    {
-//        if (player) {
-//            [player stop];
-//        }
-//        [self cleanAVPlayer];
-//        moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:url];
-//        moviePlayer.allowsAirPlay = YES;
-//        moviePlayer.shouldAutoplay = YES;
-////        moviePlayer.fullscreen = YES;
-//        moviePlayer.view.hidden = YES;
-//        [moviePlayer setMovieSourceType:MPMovieSourceTypeStreaming];
-////        [[TiApp app].window addSubview: moviePlayer.view];
-//        [[MPMusicPlayerController applicationMusicPlayer] setVolume:volume];
-//        NSNotificationCenter* center = [NSNotificationCenter defaultCenter];
-//        [center addObserver:self selector:@selector(moviePlaybackStateChanged:) name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
-//        [center addObserver:self selector:@selector(moviePlayBackDidFinish:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
-//        [center addObserver:self selector:@selector(moviePlayBackDidStart:) name:MPMoviePlayerNowPlayingMovieDidChangeNotification object:nil];
-//        [center addObserver:self selector:@selector(moviePlayBackDurationAvailable:) name:MPMovieDurationAvailableNotification object:nil];
-//        [center addObserver:self selector:@selector(movieMetadataUpdate:) name:MPMoviePlayerTimedMetadataUpdatedNotification object:nil];
-//    }
-//    return moviePlayer;
-//}
-
 
 -(void)cleanAVPlayer {
     if (player != nil)
@@ -443,7 +335,6 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         [self removePlayerTimeObserver];
         [player pause];
         
-        [self updateStateForPlayer:player];
         [[NSNotificationCenter defaultCenter] removeObserver:self
                                                         name:AVPlayerItemDidPlayToEndTimeNotification
                                                       object:nil];
@@ -454,50 +345,68 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         [player removeObserver:self forKeyPath:kRateKey];
         RELEASE_TO_NIL(player)
     }
-//    if (_playerLayer) {
-//        [_playerLayer removeFromSuperlayer];
-//        RELEASE_TO_NIL(_playerLayer)
-//    }
+    [self updateState:STATE_STOPPED];
 }
 
--(AVPlayer*)player {
-    if (!player)
-    {
-        /* Get a new AVPlayer initialized to play the specified player item. */
-        player = [[AVPlayer playerWithPlayerItem:nil] retain];
-        [player setVolume:[TiUtils doubleValue:[self valueForKey:@"volume"] def:1.0f]];
+-(AVPlayer*)playerWithItem:(AVPlayerItem*)item {
+    if (player) {
+        [self cleanAVPlayer];
+    }
+    /* Get a new AVPlayer initialized to play the specified player item. */
+    player = [[AVPlayer playerWithPlayerItem:item] retain];
+    
+    /* Update the scrubber during normal playback. */
+    timeObserver = [[player addPeriodicTimeObserverForInterval:CMTimeMake(1, 10)
+                                                                queue:NULL
+                                                           usingBlock:
+                     ^(CMTime time)
+                     {
+                         double progress = CMTimeGetSeconds(time);
+                         if (CMTIME_IS_VALID(time) && _currentProgress > progress || progress - _currentProgress >= 1) {
+                             _currentProgress = progress;
+                             if (_duration > 0 && [self _hasListeners:@"progress"])
+                             {
+                                 NSDictionary *event = @{
+                                                         @"progress":@(_currentProgress*1000),
+                                                         @"duration":@(_duration)
+                                                         };
+                                 [self fireEvent:@"progress" withObject:event checkForListener:NO];
+                             }
+                         }
+                         
+                     }] retain];
+    [player setVolume:[TiUtils doubleValue:[self valueForKey:@"volume"] def:1.0f]];
 
 //        avPlayerLayer.hidden = YES;
-        /* Observe the AVPlayer "currentItem" property to find out when any
-         AVPlayer replaceCurrentItemWithPlayerItem: replacement will/did
-         occur.*/
-        [player addObserver:self
-                 forKeyPath:kCurrentItemKey
-                    options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
-                    context:MyStreamingMovieViewControllerCurrentItemObservationContext];
-        
-        /* A 'currentItem.timedMetadata' property observer to parse the media stream timed metadata. */
-        [player addObserver:self
-                 forKeyPath:kTimedMetadataKey
-                    options:0
-                    context:MyStreamingMovieViewControllerTimedMetadataObserverContext];
-        
-        [player addObserver:self
-                 forKeyPath:kDurationKey
-                    options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
-                    context:MyStreamingMovieViewControllerPlayerItemDurationObserverContext];
-        [player addObserver:self
-                 forKeyPath:kLoadingKey
-                    options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
-                    context:MyStreamingMovieViewControllerPlayerItemLoadingObserverContext];
-        
-        /* Observe the AVPlayer "rate" property to update the scrubber control. */
-        [player addObserver:self
-                 forKeyPath:kRateKey
-                    options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
-                    context:MyStreamingMovieViewControllerRateObservationContext];
-        _playerInitialized = YES;
-    }
+    /* Observe the AVPlayer "currentItem" property to find out when any
+     AVPlayer replaceCurrentItemWithPlayerItem: replacement will/did
+     occur.*/
+    [player addObserver:self
+             forKeyPath:kCurrentItemKey
+                options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
+                context:MyStreamingMovieViewControllerCurrentItemObservationContext];
+    
+    /* A 'currentItem.timedMetadata' property observer to parse the media stream timed metadata. */
+    [player addObserver:self
+             forKeyPath:kTimedMetadataKey
+                options:0
+                context:MyStreamingMovieViewControllerTimedMetadataObserverContext];
+    
+    [player addObserver:self
+             forKeyPath:kDurationKey
+                options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
+                context:MyStreamingMovieViewControllerPlayerItemDurationObserverContext];
+    [player addObserver:self
+             forKeyPath:kLoadingKey
+                options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
+                context:MyStreamingMovieViewControllerPlayerItemLoadingObserverContext];
+    
+    /* Observe the AVPlayer "rate" property to update the scrubber control. */
+    [player addObserver:self
+             forKeyPath:kRateKey
+                options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
+                context:MyStreamingMovieViewControllerRateObservationContext];
+    _playerInitialized = YES;
     return player;
 }
 
@@ -508,9 +417,9 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         return;
     }
     /* Update the scrubber during normal playback. */
-    timeObserver = [[[self player] addPeriodicTimeObserverForInterval:CMTimeMake(1, 10)
-                                                         queue:NULL
-                                                    usingBlock:
+    timeObserver = [[player addPeriodicTimeObserverForInterval:CMTimeMake(1, 10)
+                                                                queue:NULL
+                                                           usingBlock:
                      ^(CMTime time)
                      {
                          double progress = CMTimeGetSeconds(time);
@@ -595,13 +504,6 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
                          options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
                          context:MyStreamingMovieViewControllerPlayerItemStatusObserverContext];
     
-    /* Observe the player item "buffering" key. */
-//    [_nowPlayingItem addObserver:self
-//                      forKeyPath:kLoadingKey
-//                         options:NSKeyValueObservingOptionInitial | NSKeyValueObservingOptionNew
-//                         context:MyStreamingMovieViewControllerPlayerItemLoadingObserverContext];
-    
-    
     /* When the player item has played to its end time we'll toggle
      the movie controller Pause button to be the Play button */
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -610,59 +512,36 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
                                                object:_nowPlayingItem];
     
     /* Make our new AVPlayerItem the AVPlayer's current item. */
-    [self cleanAVPlayer];
-    if ([self player].currentItem != _nowPlayingItem)
+    self.isLoadingAsset = NO;
+    if (! player || player.currentItem != _nowPlayingItem)
     {
-//        if (!_playerLayer) {
-//            _playerLayer = [[AVPlayerLayer playerLayerWithPlayer:player] retain];
-//            _playerLayer.frame = [TiApp app].window.bounds;
-//            [[TiApp app].window.layer addSublayer:_playerLayer];
-//        }
-        
+        [[self playerWithItem:_nowPlayingItem] play];
+       
         /* Replace the player item with a new player item. The item replacement occurs
          asynchronously; observe the currentItem property to find out when the
          replacement will/did occur*/
-        [player replaceCurrentItemWithPlayerItem:_nowPlayingItem];
+//        [player replaceCurrentItemWithPlayerItem:_nowPlayingItem];
     }
-    [self initProgressTimer];
-    self.isLoadingAsset = NO;
-    [player play];
+//    [self performSelector:@selector(play:) withObject:nil afterDelay:0.1];
 }
 
 #pragma mark Public APIs
 
 -(void)setPaused:(NSNumber *)paused
 {
-//    if (moviePlayer) {
-//        [moviePlayer pause];
-//    }
-//    else if (avPlayer) {
-//        [avPlayer pause];
-//    }
-//    else if (player)
-//	{
-		if ([TiUtils boolValue:paused])
-		{
-            [self pause:nil];
-		}
-		else
-		{
-            [self play:nil];
-		}
-//	}
+    if ([TiUtils boolValue:paused])
+    {
+        [self pause:nil];
+    }
+    else
+    {
+        [self play:nil];
+    }
 }
-
 
 -(void)setMute:(NSNumber *)mute
 {
-//    if (moviePlayer) {
-//        [[MPMusicPlayerController applicationMusicPlayer] setVolume:[TiUtils boolValue:mute]?0:volume];
-//    }
-//    else if (avPlayer) {
-//        avPlayer.muted = [TiUtils boolValue:mute];
-//    }
-//    else
-    [[self player] setMuted:[TiUtils boolValue:mute]];
+    [player setMuted:[TiUtils boolValue:mute]];
 }
 
 #define PROP_BOOL(name,func) \
@@ -680,23 +559,12 @@ return [self func:nil];\
 }
 -(id)state
 {
-//    if (moviePlayer) {
-//        return @(moviePlayer.playbackState);
-//    }
-//    else if (player)
-//    {
-//        return @([player state]);
-//    }
     return @(_state);
 }
 
 -(id)isPaused:(id)args
 {
     return @(_state == STATE_PAUSED);
-//    if (moviePlayer) {
-//        return @(moviePlayer.playbackState == MPMoviePlaybackStatePaused);
-//    }
-//    return @([player state] == STKAudioPlayerStatePaused);
 }
 
 PROP_BOOL(paused,isPaused);
@@ -704,20 +572,12 @@ PROP_BOOL(paused,isPaused);
 -(id)isPlaying:(id)args
 {
     return @(_state == STATE_PLAYING);
-//    if (moviePlayer) {
-//        return @(moviePlayer.playbackState == MPMoviePlaybackStatePlaying);
-//    }
-//    return @([player state] == STKAudioPlayerStatePlaying);
 }
 PROP_BOOL(playing,isPlaying);
 
 -(id)isStopped:(id)args
 {
     return @(_state == STATE_STOPPED || _state == STATE_ERROR);
-//    if (moviePlayer) {
-//        return @(moviePlayer.playbackState != MPMoviePlaybackStatePlaying && moviePlayer.playbackState != MPMoviePlaybackStatePaused);
-//    }
-//    return @(player && [player state] != STKAudioPlayerStatePlaying && [player state] != STKAudioPlayerStatePaused);
 }
 PROP_BOOL(stopped,isStopped);
 
@@ -794,15 +654,8 @@ PROP_BOOL(muted,isMute);
     // indicate we're going to start playing
     if (![[self stopped] boolValue])
     {
-//        if (moviePlayer) {
-//            [moviePlayer play];
-//            [self updateStateForPlayer:moviePlayer];
-//        } else if (avPlayer) {
-            [player play];
-            [self updateStateForPlayer:player];
-//        } else {
-//            [[self player] resume];
-//        }
+        [player play];
+//        [self updateStateForPlayer:player];
     } else {
         if (![[TiMediaAudioSession sharedSession] canPlayback]) {
             [self throwException:@"Improper audio session mode for playback"
@@ -825,11 +678,7 @@ PROP_BOOL(muted,isMute);
 
 -(void)stop:(id)args
 {
-    if (player) {
-        [player pause];
-        [player seekToTime:CMTimeMakeWithSeconds(0, 1)];
-    }
-    [self updateState:STATE_STOPPED];
+    [self cleanAVPlayer];
 }
 
 -(void)pause:(id)args
@@ -837,7 +686,6 @@ PROP_BOOL(muted,isMute);
     
     if (player) {
         [player pause];
-        [self updateStateForPlayer:player];
     }
     else {
         [self updateState:STATE_PAUSED];
@@ -1039,25 +887,6 @@ NSDictionary* metadataKeys;
     if (CMTIME_IS_NUMERIC(duration)) {
         return(duration);
     }
-//    if (status == AVPlayerItemStatusReadyToPlay)
-//    {
-//        /*
-//         NOTE:
-//         Because of the dynamic nature of HTTP Live Streaming Media, the best practice
-//         for obtaining the duration of an AVPlayerItem object has changed in iOS 4.3.
-//         Prior to iOS 4.3, you would obtain the duration of a player item by fetching
-//         the value of the duration property of its associated AVAsset object. However,
-//         note that for HTTP Live Streaming Media the duration of a player item during
-//         any particular playback session may differ from the duration of its asset. For
-//         this reason a new key-value observable duration property has been defined on
-//         AVPlayerItem.
-//         
-//         See the AV Foundation Release Notes for iOS 4.3 for more information.
-//         */
-//        
-//        return(duration);
-//    }
-    
     return(kCMTimeZero);
 }
 
@@ -1078,9 +907,6 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
             return [self stateFromRate:player.rate];
         case AVPlayerStatusReadyToPlay:
             return (_state == STATE_PLAYING)?STATE_PLAYING:STATE_INITIALIZED;
-//            if (state == STATE_PLAYING) {
-//                return state;
-//            }
     }
 }
 
@@ -1097,11 +923,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
         [self updateState:STATE_STOPPED];
     }
     else {
-//    else if (thePlayer == avPlayer) {
         [self updateState:[self stateFromRate:thePlayer.rate]];
-//    } else if (thePlayer == moviePlayer) {
-//        [self updateState:[self stateFromMPState:moviePlayer.playbackState]];
-//    }
     }
 }
 
@@ -1153,19 +975,6 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
 }
 
 #pragma mark Delegates
-
-//- (void)updateProgress:(NSTimer *)updatedTimer
-//{
-//    [self updateDuration];
-//    if ([self _hasListeners:@"progress"])
-//    {
-//        NSDictionary *event = @{
-//                            @"progress":[self progress],
-//                            @"duration":@(_duration)
-//                            };
-//        [self fireEvent:@"progress" withObject:event checkForListener:NO];
-//    }
-//}
 
 - (void)remoteControlEvent:(NSNotification*)note
 {
@@ -1242,7 +1051,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
             _duration = CMTimeGetSeconds([self itemDuration:newPlayerItem])*1000;
         }
         _currentItem = [_queue objectAtIndex:self.indexOfNowPlayingItem];
-        if (_currentItem && _playerInitialized) {
+        if (_currentItem) {
             [self updateMetadata];
             if ([self _hasListeners:@"change"])
             {
@@ -1255,7 +1064,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
             }
         }
         
-        [self updateStateForPlayer:player];
+//        [self updateStateForPlayer:player];
     }
     else if (context == MyStreamingMovieViewControllerPlayerItemDurationObserverContext)
     {
@@ -1289,10 +1098,16 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
     else if (context == MyStreamingMovieViewControllerTimedMetadataObserverContext)
     {
         NSArray* array = [_nowPlayingItem timedMetadata];
-        for (AVMetadataItem *metadataItem in array)
+        if ([self _hasListeners:@"timedmetadata"])
         {
-            [self handleTimedMetadata:metadataItem];
+            NSMutableDictionary *event = [NSMutableDictionary dictionary];
+            for (AVMetadataItem *metadataItem in array)
+            {
+                [event setObject:[metadataItem value] forKey:[metadataItem key]];
+            }
+            [self fireEvent:@"timedmetadata" withObject:event checkForListener:NO];
         }
+        
     }
     
     else
