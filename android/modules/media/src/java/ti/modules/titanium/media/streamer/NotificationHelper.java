@@ -20,6 +20,7 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -87,7 +88,7 @@ public class NotificationHelper {
     /**
      * Context
      */
-    private final AudioStreamerService mService;
+    private final Service mService;
     private final Class mServiceClass;
 
     /**
@@ -117,7 +118,7 @@ public class NotificationHelper {
      * @param service
      *            The {@link Context} to use
      */
-    public NotificationHelper(final AudioStreamerService service, int icon,
+    public NotificationHelper(final Service service, int icon,
             int viewId, int expandedViewId) {
         mService = service;
         mServiceClass = mService.getClass();
