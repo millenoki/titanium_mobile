@@ -157,15 +157,15 @@
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_SKEEK_FORWARD;
 @property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_STATE_SEEK_BACKWARD;
 
-@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_REPEAT_DEFAULT;
-@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_REPEAT_NONE;
-@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_REPEAT_ONE;
-@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_REPEAT_ALL;
+@property(nonatomic,readonly) NSNumber* REPEAT_DEFAULT;
+@property(nonatomic,readonly) NSNumber* REPEAT_NONE;
+@property(nonatomic,readonly) NSNumber* REPEAT_ONE;
+@property(nonatomic,readonly) NSNumber* REPEAT_ALL;
 
-@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_DEFAULT;
-@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_NONE;
-@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_SONGS;
-@property(nonatomic,readonly) NSNumber* MUSIC_PLAYER_SHUFFLE_ALBUMS;
+@property(nonatomic,readonly) NSNumber* SHUFFLE_DEFAULT;
+@property(nonatomic,readonly) NSNumber* SHUFFLE_NONE;
+@property(nonatomic,readonly) NSNumber* SHUFFLE_SONGS;
+@property(nonatomic,readonly) NSNumber* SHUFFLE_ALBUMS;
 
 
 
