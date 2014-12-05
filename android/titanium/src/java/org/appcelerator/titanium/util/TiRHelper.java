@@ -119,9 +119,9 @@ public class TiRHelper {
             }
             try {
                 if (objString.contains(prefix)) {
-                    return TiRHelper.getResource(objString, false);
+                    return TiRHelper.getResource(objString, includeSystemResources);
                 }
-                return TiRHelper.getResource(prefix + "." + objString, false);
+                return TiRHelper.getResource(prefix + "." + objString, includeSystemResources);
             } catch (ResourceNotFoundException e) {
                 return 0;
             }
