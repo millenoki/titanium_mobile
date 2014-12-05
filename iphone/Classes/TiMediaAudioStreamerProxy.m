@@ -35,18 +35,6 @@ NSString *kCurrentItemKey   = @"currentItem";
 NSString *kTimedMetadataKey = @"currentItem.timedMetadata";
 NSString *kDurationKey      = @"currentItem.duration";
 
-//typedef enum {
-//    REPEAT_NONE,
-//    REPEAT_CURRENT,
-//    REPEAT_ALL
-//} RepeatMode;
-//
-//typedef enum {
-//    SHUFFLE_NONE,
-//    SHUFFLE_NORMAL,
-//    SHUFFLE_AUTO
-//} ShuffleMode;
-
 typedef enum {
     STATE_INITIALIZED,
     STATE_ERROR,
@@ -82,8 +70,6 @@ typedef enum {
 @property (strong, nonatomic, readwrite) AVPlayerItem *nowPlayingItem;
 @property (nonatomic, readwrite) NSUInteger indexOfNowPlayingItem;
 @property (nonatomic) BOOL isLoadingAsset;
-@property (nonatomic) MPMusicRepeatMode repeatMode; // note: MPMusicRepeatModeDefault is not supported
-@property (nonatomic) MPMusicShuffleMode shuffleMode; // note: only MPMusicShuffleModeOff and MPMusicShuffleModeSongs are supported
 @property (nonatomic) BOOL shouldReturnToBeginningWhenSkippingToPreviousItem; // default YES
 
 @end
@@ -101,6 +87,9 @@ typedef enum {
     AVPlayer *player;
     float volume;
     id timeObserver;
+    MPMusicRepeatMode _repeatMode; // note: MPMusicRepeatModeDefault is not supported
+    MPMusicShuffleMode _shuffleMode; // note: only MPMusicShuffleModeOff and MPMusicShuffleModeSongs are supported
+
 }
 #pragma mark Internal
 
@@ -134,8 +123,8 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     _playerInitialized = NO;
     volume = 1.0f;
     self.indexOfNowPlayingItem = NSNotFound;
-    self.repeatMode = MPMusicRepeatModeNone;
-    self.shuffleMode = MPMusicShuffleModeOff;
+    _repeatMode = MPMusicRepeatModeNone;
+    _shuffleMode = MPMusicShuffleModeOff;
     self.shouldReturnToBeginningWhenSkippingToPreviousItem = YES;
     _state = STATE_STOPPED;
 // Handle unplugging of headphones
@@ -194,8 +183,8 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         // Play next track
         self.indexOfNowPlayingItem++;
     } else {
-        if (self.repeatMode == MPMusicRepeatModeAll) {
-            if (self.shuffleMode == MPMusicShuffleModeSongs) {
+        if (_repeatMode == MPMusicRepeatModeAll) {
+            if (_shuffleMode == MPMusicShuffleModeSongs) {
                 self.queue = self.originalQueue;
             }
             // Wrap around back to the first track
@@ -226,8 +215,50 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 
 #pragma mark - MPMediaPlayback
 
-- (void)setShuffleMode:(MPMusicShuffleMode)shuffleMode {
-    _shuffleMode = shuffleMode;
+-(NSNumber*)repeatMode
+{
+    return @(_repeatMode);
+}
+
+-(void)setRepeatMode:(NSNumber*)value
+{
+    int mode = [TiUtils intValue:value];
+    // Sanity check
+    switch (mode) {
+        case MPMusicRepeatModeAll:
+        case MPMusicRepeatModeDefault:
+        case MPMusicRepeatModeNone:
+        case MPMusicRepeatModeOne:
+            break;
+        default:
+            [self throwException:@"Invalid repeat mode"
+                       subreason:nil
+                        location:CODELOCATION];
+    }
+    _repeatMode = mode;
+}
+
+-(NSNumber*)shuffleMode
+{
+    return @(_shuffleMode);
+}
+
+-(void)setShuffleMode:(id)value
+{
+    int mode = [TiUtils intValue:value];
+    // Sanity check
+    switch (mode) {
+        case MPMusicShuffleModeOff:
+        case MPMusicShuffleModeSongs:
+        case MPMusicShuffleModeDefault:
+        case MPMusicShuffleModeAlbums:
+            break;
+        default:
+            [self throwException:@"Invalid shuffle mode" 
+                       subreason:nil
+                        location:CODELOCATION];
+    }
+    _shuffleMode = mode;
     id currentItem = [self getCurrentQueueItem];
     self.queue = self.originalQueue;
     if ([_queue count]) {
@@ -248,9 +279,9 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 
 - (void)setQueue:(NSArray *)queue {
     RELEASE_TO_NIL(_queue);
-    switch (self.shuffleMode) {
+    switch (_shuffleMode) {
         case MPMusicShuffleModeOff:
-            _queue = queue;
+            _queue = [queue retain];
             break;
             
         case MPMusicShuffleModeSongs:
@@ -317,15 +348,13 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     _duration = 0;
     _currentProgress = 0;
     if (!self.isLoadingAsset) {
-//        dispatch_async(dispatch_get_main_queue(), ^{
-            if (self.repeatMode == MPMusicRepeatModeOne) {
-                // Play the same track again
-                self.indexOfNowPlayingItem = self.indexOfNowPlayingItem;
-            } else {
-                // Go to next track
-                [self skipToNextItem];
-            }
-//        });
+        if (_repeatMode == MPMusicRepeatModeOne) {
+            // Play the same track again
+            self.indexOfNowPlayingItem = self.indexOfNowPlayingItem;
+        } else {
+            // Go to next track
+            [self skipToNextItem];
+        }
     }
 }
 
@@ -634,6 +663,9 @@ PROP_BOOL(muted,isMute);
     }
 }
 
+-(id)playlist {
+    return self.originalQueue;
+}
 
 -(void)play:(id)args
 {
