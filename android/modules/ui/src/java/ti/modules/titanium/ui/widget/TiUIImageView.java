@@ -126,8 +126,12 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            handleSetDrawable(new BitmapDrawable(getContext().getResources(), bitmap), shouldTransition);
-            fireLoad(TiC.PROPERTY_IMAGE, bitmap);
+            Context context = getContext();
+            if (context != null) {
+                handleSetDrawable(new BitmapDrawable(context.getResources(), bitmap), shouldTransition);
+                fireLoad(TiC.PROPERTY_IMAGE, bitmap);
+            }
+            
         }
     }
     
