@@ -6,11 +6,10 @@
  */
 #ifdef USE_TI_MEDIA
 
-#import "STKAudioPlayer.h"
 #import "TiProxy.h"
 #import "ImageLoader.h"
 
-@interface TiMediaAudioStreamerProxy : TiProxy<STKAudioPlayerDelegate, ImageLoaderDelegate>
+@interface TiMediaAudioStreamerProxy : TiProxy<ImageLoaderDelegate>
 
 @property (nonatomic,readonly) NSURL *url;
 @property (nonatomic,readwrite,assign)  NSNumber *paused;
@@ -23,7 +22,6 @@
 @property (nonatomic,readonly) NSNumber *duration;
 
 @property (nonatomic,copy)	NSNumber *volume;
-
 
 @property (nonatomic,readonly) NSNumber *STATE_INITIALIZED;
 @property (nonatomic,readonly) NSNumber *STATE_ERROR;
