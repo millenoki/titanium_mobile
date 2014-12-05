@@ -917,11 +917,14 @@ DEFINE_EXCEPTIONS
     }
     if (_filterOptions) {
         shouldTransition = YES;
+        __block id imageSource = _currentImageSource;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
        {
+           if (imageSource != _currentImageSource) return;
            RELEASE_TO_NIL(_currentImage);
            _currentImage = [[TiImageHelper imageFiltered:image withOptions:_filterOptions] retain];
            TiThreadPerformOnMainThread(^{
+               if (imageSource != _currentImageSource) return;
                [self transitionToImage:_currentImage];
            }, NO);
        });
@@ -1111,14 +1114,18 @@ DEFINE_EXCEPTIONS
     shouldTransition = YES;
     _currentImage = [image retain];
     if (_filterOptions) {
+        __block id imageSource = _currentImageSource;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
-       {
-           RELEASE_TO_NIL(_currentImage);
-           _currentImage = [[TiImageHelper imageFiltered:[self convertToUIImage:image] withOptions:_filterOptions] retain];
-           TiThreadPerformOnMainThread(^{
-               [self transitionToImage:_currentImage];
-           }, NO);
-       });
+           {
+               if (imageSource != _currentImageSource) return;
+               RELEASE_TO_NIL(_currentImage);
+               _currentImage = [[TiImageHelper imageFiltered:[self convertToUIImage:image] withOptions:_filterOptions] retain];
+               TiThreadPerformOnMainThread(^{
+                   if (imageSource != _currentImageSource) return;
+                   [self transitionToImage:_currentImage];
+               }, NO);
+           });
+
     }
     else {
         TiThreadPerformOnMainThread(^{
