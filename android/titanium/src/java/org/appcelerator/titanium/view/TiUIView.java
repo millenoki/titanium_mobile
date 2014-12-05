@@ -1631,6 +1631,18 @@ public abstract class TiUIView
 				}
 				return false;
 			}
+			
+			@Override
+            public boolean onSingleTapUp(MotionEvent e)
+            {
+//                if (hierarchyHasListener(TiC.EVENT_CLICK)) {
+//                    return fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(e));
+//                }
+                if (!hasListeners(TiC.EVENT_SINGLE_TAP) && hierarchyHasListener(TiC.EVENT_CLICK)) {
+                    fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
+                }
+                return false;
+            }
 
 			@Override
 			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
@@ -1926,16 +1938,16 @@ public abstract class TiUIView
 	protected void setOnClickListener(View view)
 	{
 		
-		view.setOnClickListener(new OnClickListener()
-		{
-			public void onClick(View view)
-			{
-			    //if singletap is active dont send click
-				if (!hasListeners(TiC.EVENT_SINGLE_TAP) && hierarchyHasListener(TiC.EVENT_CLICK)) {
-					fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
-				}
-			}
-		});
+//		view.setOnClickListener(new OnClickListener()
+//		{
+//			public void onClick(View view)
+//			{
+//			    //if singletap is active dont send click
+//				if (!hasListeners(TiC.EVENT_SINGLE_TAP) && hierarchyHasListener(TiC.EVENT_CLICK)) {
+//					fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
+//				}
+//			}
+//		});
 	}
 	
 	public boolean fireEvent(String eventName, KrollDict data) {
