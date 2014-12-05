@@ -1,9 +1,11 @@
 package ti.modules.titanium.media.streamer;
 
+import android.app.Service;
+
 public interface AudioStreamerAppWidgetInterface {
-    public void notifyChange(final AudioStreamerService service, final String what);
+    public void notifyChange(final Service service, final String what);
     public String getWidgetUpdateId();
-    public void performUpdate(final AudioStreamerService service, final int[] appWidgetIds);
+    public void performUpdate(final Service service, final int[] appWidgetIds);
 //    public class AppWidgetLarge extends AppWidgetProvider {
 
 //        public static final String CMDAPPWIDGETUPDATE = "app_widget_large_update";
