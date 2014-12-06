@@ -52,6 +52,7 @@
         android:name="TitaniumtestApplication"
         android:allowBackup="false"
         android:hardwareAccelerated="true"
+        android:largeHeap="true"
         android:label="TitaniumTest"
         android:theme="@style/Theme.Titanium" >
          <meta-data
@@ -156,7 +157,8 @@
             </intent-filter>
         </receiver>
         <service android:name="ti.modules.titanium.media.streamer.AudioStreamerService"/>
-    </application>
+        <service android:name="ti.modules.titanium.media.streamer.AudioStreamerExoService"/>
+        </application>
 
     <!-- TI_PERMISSIONS -->
 
