@@ -267,7 +267,7 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 		}
 
 		if (event->errorMessageStringRef != NULL) {
-			TiValueRef eventStringValueRef = TiValueMakeString(context, event->eventStringRef);
+			TiValueRef eventStringValueRef = TiValueMakeString(context, event->errorMessageStringRef);
 			TiObjectSetProperty(context, eventObjectRef, jsEventErrorMessageStringRef, eventStringValueRef, kTiPropertyAttributeReadOnly, NULL);
 		}
 		
