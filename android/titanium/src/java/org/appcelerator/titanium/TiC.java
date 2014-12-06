@@ -2420,10 +2420,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_REPEAT = "repeat";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_REPEAT_COUNT = "repeatCount";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_REPEAT_MODE = "repeatMode";
 
 	/**
 	 * @module.api
@@ -2664,6 +2669,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SHOW_PROGRESS = "showProgress";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SHUFFLE_MODE = "shuffleMode";
 
 	/**
 	 * @module.api

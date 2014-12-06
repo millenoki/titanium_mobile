@@ -17,16 +17,21 @@ import org.appcelerator.titanium.proxy.TiEnhancedServiceProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 
-import ti.modules.titanium.media.streamer.AudioStreamerService;
+import ti.modules.titanium.media.streamer.AudioStreamerExoService;
 import android.app.Service;
 import android.content.Intent;
 
 @Kroll.proxy(creatableInModule = MediaModule.class, propertyAccessors = {
-        TiC.PROPERTY_VOLUME, TiC.PROPERTY_METADATA, TiC.PROPERTY_PLAYLIST })
+        TiC.PROPERTY_VOLUME, 
+        TiC.PROPERTY_METADATA, 
+        TiC.PROPERTY_PLAYLIST,
+        TiC.PROPERTY_REPEAT_MODE,
+        TiC.PROPERTY_SHUFFLE_MODE,
+        })
 public class AudioStreamerProxy extends TiEnhancedServiceProxy {
     private static final String TAG = "AudioStreamerProxy";
 
-    AudioStreamerService tiService = null;
+    AudioStreamerExoService tiService = null;
     List<Object> mPlaylist;
     private boolean needsStopOnBind = false;
 
@@ -51,7 +56,7 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
     @SuppressWarnings("rawtypes")
     @Override
     protected Class serviceClass() {
-        return AudioStreamerService.class;
+        return AudioStreamerExoService.class;
     }
 
     @Override
@@ -61,7 +66,7 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
     }
 
     protected void invokeBoundService() {
-        this.tiService = (AudioStreamerService) this.service;
+        this.tiService = (AudioStreamerExoService) this.service;
         if (needsStopOnBind) {
             needsStopOnBind = false;
             this.tiService.reset();
@@ -75,13 +80,13 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
         intent.putExtra("command", cmd);
         startService(intent);
         // else if (target == mPauseButton)
-        // startService(new Intent(AudioStreamerService.ACTION_PAUSE));
+        // startService(new Intent(AudioStreamerExoService.ACTION_PAUSE));
         // else if (target == mSkipButton)
-        // startService(new Intent(AudioStreamerService.ACTION_SKIP));
+        // startService(new Intent(AudioStreamerExoService.ACTION_SKIP));
         // else if (target == mRewindButton)
-        // startService(new Intent(AudioStreamerService.ACTION_REWIND));
+        // startService(new Intent(AudioStreamerExoService.ACTION_REWIND));
         // else if (target == mStopButton)
-        // startService(new Intent(AudioStreamerService.ACTION_STOP));
+        // startService(new Intent(AudioStreamerExoService.ACTION_STOP));
     }
 
     // @Override
@@ -135,10 +140,6 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
         return null;
     }
 
-    public List<Object> getPlayList() {
-        return mPlaylist;
-    }
-
     @Override
     public void handleCreationDict(KrollDict options) {
         super.handleCreationDict(options);
@@ -184,6 +185,14 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
         } else if (name.equals(TiC.PROPERTY_METADATA)) {
             if (tiService != null) {
                 tiService.updateMetadata();
+            }
+        } else if (TiC.PROPERTY_REPEAT_MODE.equals(name)) {
+            if (tiService != null) {
+                tiService.setRepeatMode(TiConvert.toInt(value, tiService.getRepeatMode()));
+            }
+        } else if (TiC.PROPERTY_SHUFFLE_MODE.equals(name)) {
+            if (tiService != null) {
+                tiService.setShuffleMode(TiConvert.toInt(value, tiService.getShuffleMode()));
             }
         }
     }
@@ -242,37 +251,37 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
     // An alias for play so that
     @Kroll.method
     public void start() {
-        runAction(AudioStreamerService.CMDPLAY);
+        runAction(AudioStreamerExoService.CMDPLAY);
     }
 
     @Kroll.method
     public void play() {
-        runAction(AudioStreamerService.CMDPLAY);
+        runAction(AudioStreamerExoService.CMDPLAY);
     }
 
     @Kroll.method
     public void pause() {
-        runAction(AudioStreamerService.CMDPAUSE);
+        runAction(AudioStreamerExoService.CMDPAUSE);
     }
 
     @Kroll.method
     public void stop() {
-        runAction(AudioStreamerService.CMDSTOP);
+        runAction(AudioStreamerExoService.CMDSTOP);
     }
 
     @Kroll.method
     public void playPause() {
-        runAction(AudioStreamerService.CMDTOGGLEPAUSE);
+        runAction(AudioStreamerExoService.CMDTOGGLEPAUSE);
     }
 
     @Kroll.method
     public void next() {
-        runAction(AudioStreamerService.CMDNEXT);
+        runAction(AudioStreamerExoService.CMDNEXT);
     }
 
     @Kroll.method
     public void previous() {
-        runAction(AudioStreamerService.CMDPREVIOUS);
+        runAction(AudioStreamerExoService.CMDPREVIOUS);
     }
     
     @Kroll.method
@@ -302,6 +311,24 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
     public Object getCurrentItem() {
         if (tiService != null) {
             return tiService.getCurrent();
+        }
+        return null;
+    }
+    
+    @Kroll.method
+    @Kroll.getProperty
+    public Object[] getPlaylist() {
+        if (tiService != null) {
+            return tiService.getPlaylist();
+        }
+        return mPlaylist.toArray();
+    }
+    
+    @Kroll.method
+    @Kroll.getProperty
+    public Object[] getQueue() {
+        if (tiService != null) {
+            return tiService.getQueue();
         }
         return null;
     }
@@ -338,7 +365,7 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
     }
 
     @Kroll.method
-    public void addToPlayList(Object item) {
+    public void addToPlaylist(Object item) {
         List<Object> result = addItemToPlaylist(item);
         if (tiService != null) {
             tiService.addToPlayList(result, Integer.MAX_VALUE);
@@ -346,11 +373,15 @@ public class AudioStreamerProxy extends TiEnhancedServiceProxy {
     }
 
     @Kroll.method
-    public void removeFromPlayList(Object item) {
+    public void removeFromPlaylist(Object item) {
         List<Object> result = removeItemsFromPlaylist(item);
         if (tiService != null) {
             tiService.removeFromPlayList(result);
         }
+    }
+    
+    public List<Object> getInternalPlaylist() {
+        return mPlaylist;
     }
 
     @Override

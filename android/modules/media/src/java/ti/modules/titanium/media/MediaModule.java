@@ -110,6 +110,18 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int CAMERA_FLASH_OFF = 0;
 	@Kroll.constant public static final int CAMERA_FLASH_ON = 1;
 	@Kroll.constant public static final int CAMERA_FLASH_AUTO = 2;
+	
+
+	@Kroll.constant public static final int SHUFFLE_NONE = 0;
+    @Kroll.constant public static final int SHUFFLE_SONGS = 1;
+    @Kroll.constant public static final int SHUFFLE_RANDOM = 2;
+    @Kroll.constant public static final int SHUFFLE_ALBUMS = SHUFFLE_SONGS;
+    @Kroll.constant public static final int SHUFFLE_DEFAULT = SHUFFLE_NONE;
+    @Kroll.constant public static final int REPEAT_NONE = 0;
+	@Kroll.constant public static final int REPEAT_ONE = 1;
+	@Kroll.constant public static final int REPEAT_ALL = 2;
+    @Kroll.constant public static final int REPEAT_DEFAULT = REPEAT_NONE;
+
 
 	public MediaModule()
 	{

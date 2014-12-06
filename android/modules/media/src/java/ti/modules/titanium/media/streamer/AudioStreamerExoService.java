@@ -14,14 +14,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.media.MediaCodec;
+import android.media.MediaCodec.CryptoException;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnBufferingUpdateListener;
-import android.media.MediaPlayer.OnCompletionListener;
-import android.media.MediaPlayer.OnInfoListener;
 import android.media.RemoteControlClient;
 import android.media.RemoteController.MetadataEditor;
-import android.media.audiofx.AudioEffect;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
@@ -35,11 +33,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.os.RemoteException;
-import android.webkit.URLUtil;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
@@ -62,18 +59,42 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiEnhancedService;
 import org.appcelerator.titanium.proxy.TiEnhancedServiceProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.media.AudioStreamerProxy;
+import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.media.SoundProxy;
 import ti.modules.titanium.media.audio.AudioFocusHelper;
 import ti.modules.titanium.media.audio.MediaButtonHelper;
 import ti.modules.titanium.media.audio.RemoteControlClientCompat;
 import ti.modules.titanium.media.audio.RemoteControlClientCompat.MetadataEditorCompat;
 import ti.modules.titanium.media.audio.RemoteControlHelper;
+import ti.modules.titanium.media.streamer.StreamerExoPlayer.InfoListener;
+import ti.modules.titanium.media.streamer.StreamerExoPlayer.InternalErrorListener;
+import ti.modules.titanium.media.streamer.StreamerExoPlayer.RendererBuilder;
+import ti.modules.titanium.media.streamer.StreamerExoPlayer.RendererBuilderCallback;
 
+import com.google.android.exoplayer.ExoPlayer;
+import com.google.android.exoplayer.FrameworkSampleSource;
+import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
+import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
+import com.google.android.exoplayer.MediaCodecUtil;
+import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
+import com.google.android.exoplayer.TrackRenderer;
+import com.google.android.exoplayer.audio.AudioTrack.InitializationException;
+import com.google.android.exoplayer.hls.HlsChunkSource;
+import com.google.android.exoplayer.hls.HlsPlaylist;
+import com.google.android.exoplayer.hls.HlsPlaylistParser;
+import com.google.android.exoplayer.hls.HlsSampleSource;
+import com.google.android.exoplayer.metadata.Id3Parser;
+import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
+import com.google.android.exoplayer.upstream.DataSource;
+import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer.upstream.UriDataSource;
+import com.google.android.exoplayer.util.ManifestFetcher;
+import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
+import com.google.android.exoplayer.util.MimeTypes;
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
@@ -85,11 +106,9 @@ import com.squareup.picasso.Picasso.LoadedFrom;
  * and when the user moves Apollo into the background.
  */
 @SuppressWarnings("deprecation")
-public class AudioStreamerService extends TiEnhancedService implements Target,
-        Callback, AppStateListener {
+public class AudioStreamerExoService extends TiEnhancedService implements
+        Target, Callback, AppStateListener {
     private static final String TAG = "AudioStreamerService";
-    private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
-    private static final boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
     /**
      * Indicates that the music has paused or resumed
      */
@@ -194,51 +213,6 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     public static final String CMDNOTIF = "buttonId";
 
     /**
-     * Moves a list to the front of the queue
-     */
-    public static final int NOW = 1;
-
-    /**
-     * Moves a list to the next position in the queue
-     */
-    public static final int NEXT = 2;
-
-    /**
-     * Moves a list to the last position in the queue
-     */
-    public static final int LAST = 3;
-
-    /**
-     * Shuffles no songs, turns shuffling off
-     */
-    public static final int SHUFFLE_NONE = 0;
-
-    /**
-     * Shuffles all songs
-     */
-    public static final int SHUFFLE_NORMAL = 1;
-
-    /**
-     * Party shuffle
-     */
-    public static final int SHUFFLE_AUTO = 2;
-
-    /**
-     * Turns repeat off
-     */
-    public static final int REPEAT_NONE = 0;
-
-    /**
-     * Repeats the current track in a list
-     */
-    public static final int REPEAT_CURRENT = 1;
-
-    /**
-     * Repeats all the tracks in a list
-     */
-    public static final int REPEAT_ALL = 2;
-
-    /**
      * Indicates when the track ends
      */
     private static final int TRACK_ENDED = 1;
@@ -290,12 +264,12 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     /**
      * Keeps a mapping of the track history
      */
-    private static final LinkedList<Integer> mHistory = new LinkedList<Integer>();
+//    private static final LinkedList<Integer> mHistory = new LinkedList<Integer>();
 
     /**
      * Used to shuffle the tracks
      */
-    private static final Shuffler mShuffler = new Shuffler();
+//    private static final Shuffler mShuffler = new Shuffler();
 
     /**
      * 4x1 widget
@@ -335,7 +309,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     private AudioManager mAudioManager;
     private WifiManager mWifiManager;
     private WifiLock mWifiLock;
-    
+
     /**
      * Used to know when the service is active
      */
@@ -353,6 +327,8 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 
     public boolean mBuildNotification = false;
     
+    public boolean mForcedTrackToEnd = false;
+
     public static final float DUCK_VOLUME = 0.1f;
     // our AudioFocusHelper object, if it's available (it's available on SDK
     // level >= 8)
@@ -381,7 +357,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 
     private ComponentName mMediaButtonReceiverComponent;
 
-    private int mPlayListLen = 0;
+//    private int mPlayListLen = 0;
 
     private int mPlayPos = -1;
 
@@ -389,17 +365,16 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 
     private int mOpenFailedCounter = 0;
 
-    private int mMediaMountedCount = 0;
+//    private int mMediaMountedCount = 0;
 
-    private int mShuffleMode = SHUFFLE_NONE;
+    private int mShuffleMode = MediaModule.SHUFFLE_NONE;
 
-    private int mRepeatMode = REPEAT_NONE;
+    private int mRepeatMode = MediaModule.REPEAT_NONE;
 
     private int mServiceStartId = -1;
 
-    private List<Object> mPlayList = null;
-
-    private List<Object> mAutoShuffleList = null;
+    private List<Object> mQueue = null;
+    private List<Object> mOriginalQueue = null;
 
     private MusicPlayerHandler mPlayerHandler;
 
@@ -440,7 +415,6 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     public static final String EVENT_COMPLETE_JSON = "{ type : '"
             + EVENT_COMPLETE + "' }";
 
-    
     private float mVolume = 1.0f;
     private boolean inBackground = false;
 
@@ -451,19 +425,20 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     protected Handler uiHandler;
     MetadataEditorCompat currentMetadataEditor = null;
 
-    public static AudioStreamerService sFocusedStreamer = null;
+    public static AudioStreamerExoService sFocusedStreamer = null;
 
-    public static void streamerGetsFocus(final AudioStreamerService streamer) {
+    public static void streamerGetsFocus(final AudioStreamerExoService streamer) {
         sFocusedStreamer = streamer;
     }
 
-    public static void streamerAbandonsFocus(final AudioStreamerService streamer) {
+    public static void streamerAbandonsFocus(
+            final AudioStreamerExoService streamer) {
         if (streamer == sFocusedStreamer) {
             sFocusedStreamer = null;
         }
     }
 
-    public static AudioStreamerService focusedStreamer() {
+    public static AudioStreamerExoService focusedStreamer() {
         return sFocusedStreamer;
     }
 
@@ -494,7 +469,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             // before stopping the service, so that pause/resume isn't slow.
             // Also delay stopping the service if we're transitioning between
             // tracks.
-        } else if (mPlayListLen > 0 || mPlayerHandler.hasMessages(TRACK_ENDED)) {
+        } else if (mQueue.size() > 0 || mPlayerHandler.hasMessages(TRACK_ENDED)) {
             final Message msg = mDelayedStopHandler.obtainMessage();
             mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
             return true;
@@ -503,35 +478,35 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     }
 
     public void onError(final int what, final String msg) {
-        mPlayPending = false;
-        mPausePending = false;
-        stop();
+//        mPlayPending = false;
+//        mPausePending = false;
+//        stop();
         if (proxyHasListeners(EVENT_ERROR, false)) {
             KrollDict data = new KrollDict();
             data.putCodeAndMessage(what, msg);
+            data.put("track", mCursor);
+            data.put(TiC.PROPERTY_INDEX, mPlayPos);
             proxy.fireEvent(EVENT_ERROR, data, false, false);
         }
     }
-    
-    private int mCurrentBuffering = -1;
-    public void onBufferingUpdate(int percent) {
-        if (mCurrentBuffering == percent) return;
-        mCurrentBuffering = percent;
-        if (mCurrentBuffering == 100) {
-            setState(isPlaying()?STATE_PLAYING:(isPaused()?STATE_PAUSED:STATE_STOPPED));
-        }
-        else {
-            setState(STATE_BUFFERING);
-        }
+
+    private long mCurrentBufferingPosition = -1;
+
+    public void onBufferingUpdate(long position, int percent) {
+        if (position <= 0 || mCurrentBufferingPosition == position)
+            return;
+        mCurrentBufferingPosition = position;
         if (proxyHasListeners(EVENT_BUFFERING, false)) {
             KrollDict event = new KrollDict();
+            event.put(TiC.PROPERTY_POSITION, position);
             event.put(TiC.PROPERTY_PROGRESS, percent);
             event.put(TiC.PROPERTY_DURATION, duration());
             proxy.fireEvent(EVENT_BUFFERING, event, false, false);
         }
     }
-    
-    private boolean proxyHasListeners(final String type, final boolean checkParent) {
+
+    private boolean proxyHasListeners(final String type,
+            final boolean checkParent) {
         return proxy != null && proxy.hasListeners(type, checkParent);
     }
 
@@ -543,35 +518,41 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         mServiceInUse = true;
     }
-    
+
     @Override
     protected void start() {
         super.start();
         if (mPendingCommandIntents.size() > 0) {
-            for (int i = 0; i < mPendingCommandIntents.size(); i++) {
-                handleIntent(mPendingCommandIntents.get(i));
-            }
+            List<Intent> toHandle = new ArrayList<Intent>(mPendingCommandIntents);
             mPendingCommandIntents.clear();
-            mPendingCommandIntents = null;
+            for (int i = 0; i < toHandle.size(); i++) {
+                handleIntent(toHandle.get(i));
+            }
         }
     }
+
     @Override
     protected void bindToProxy(final TiEnhancedServiceProxy proxy) {
         super.bindToProxy(proxy);
         if (this.proxy != null) {
-         // Initialze the notification helper
+            setShuffleMode(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SHUFFLE_MODE), mShuffleMode));
+            setRepeatMode(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_REPEAT_MODE), mRepeatMode));
+            // Initialze the notification helper
             mNotificationHelper = new NotificationHelper(this,
-                    ((AudioStreamerProxy) proxy).getNotificationIcon(), 
+                    ((AudioStreamerProxy) proxy).getNotificationIcon(),
                     ((AudioStreamerProxy) proxy).getNotificationViewId(),
-                    ((AudioStreamerProxy) proxy).getNotificationExtandedViewId());
-            // Use the remote control APIs (if available and the user allows it) to
+                    ((AudioStreamerProxy) proxy)
+                            .getNotificationExtandedViewId());
+            // Use the remote control APIs (if available and the user allows it)
+            // to
             // set the playback state
-            mEnableLockscreenControls = ((AudioStreamerProxy) proxy).getEnableLockscreenControls();
+            mEnableLockscreenControls = ((AudioStreamerProxy) proxy)
+                    .getEnableLockscreenControls();
             setUpRemoteControlClient();
 
-            setVolume(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_VOLUME), 1.0f));
-            
-            
+            setVolume(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_VOLUME),
+                    1.0f));
+
         }
     }
 
@@ -582,7 +563,6 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     public void onCreate() {
         super.onCreate();
         TiApplication.addAppStateListener(this);
-        
 
         // Start up the thread running the service. Note that we create a
         // separate thread because the service normally runs in the process's
@@ -599,24 +579,24 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         mWifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         mWifiLock = mWifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL,
                 "ti_audiostreamer_wifi_lock");
-        
+
         // create the Audio Focus Helper, if the Audio Focus feature is
         // available (SDK 8 or above)
         if (android.os.Build.VERSION.SDK_INT < 8)
             mAudioFocus = AudioFocus.Focused; // no focus feature, so we always
                                               // "have" audio focus
-        
+
         // Initialze the audio manager and register any headset controls for
         // playback
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         String packageName = TiApplication.getInstance().getPackageName();
         mMediaButtonReceiverComponent = new ComponentName(packageName,
                 packageName + ".TiMediaButtonIntentReceiver");
-        MediaButtonHelper.registerMediaButtonEventReceiverCompat(mAudioManager, mMediaButtonReceiverComponent);
-        
+        MediaButtonHelper.registerMediaButtonEventReceiverCompat(mAudioManager,
+                mMediaButtonReceiverComponent);
 
         uiHandler = new Handler(Looper.getMainLooper(), this);
-        
+
         // Initialze the media player
         mPlayer = new MultiPlayer(this);
         mPlayer.setHandler(mPlayerHandler);
@@ -694,9 +674,11 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         mPlayer.release();
         mPlayer = null;
 
+        unregisterReceiver(mIntentReceiver);
+
         // Remove the audio focus listener and lock screen controls
         giveUpAudioFocus();
-        
+
         RemoteControlHelper.unregisterRemoteControlClient(mAudioManager,
                 mRemoteControlClientCompat);
 
@@ -707,11 +689,11 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         closeCursor();
         // Release the wake lock
         mWakeLock.release();
-        
+
     }
-    
+
     private List<Intent> mPendingCommandIntents = new ArrayList<Intent>();
-    
+
     private void handleIntent(final Intent intent) {
         if (!mStarted) {
             mPendingCommandIntents.add(intent);
@@ -721,7 +703,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             final String action = intent.getAction();
             final String command = intent.getStringExtra("command");
             if (CMDNEXT.equals(command) || NEXT_ACTION.equals(action)) {
-                gotoNext(false);
+                gotoNext(true);
             } else if (CMDPREVIOUS.equals(command)
                     || PREVIOUS_ACTION.equals(action)) {
                 if (position() < 2000) {
@@ -786,10 +768,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     public int onStartCommand(final Intent intent, final int flags,
             final int startId) {
         mServiceStartId = startId;
-        
+
         int result = super.onStartCommand(intent, flags, startId);
         mDelayedStopHandler.removeCallbacksAndMessages(null);
-        
+
         handleIntent(intent);
         // Make sure the service will shut down on its own if it was
         // just started but not bound to and nothing is playing
@@ -828,7 +810,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         mDelayedStopHandler.removeCallbacksAndMessages(null);
         final Message msg = mDelayedStopHandler.obtainMessage();
         mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
-        
+
         mDelayedStopHandler.postDelayed(new Runnable() {
 
             /**
@@ -855,8 +837,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         }
         if (mPlayer.isInitialized()) {
             mPlayer.stop();
-        }
-        else {
+        } else {
             setState(STATE_STOPPED);
         }
         // mFileToPlay = null;
@@ -885,33 +866,33 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      */
     private int removeTracksInternal(int first, int last) {
         synchronized (this) {
+            int currentLength = getPlaylistSize();
             if (last < first) {
                 return 0;
             } else if (first < 0) {
                 first = 0;
-            } else if (last >= mPlayListLen) {
-                last = mPlayListLen - 1;
+            } else if (last >= currentLength) {
+                last = currentLength - 1;
             }
 
-            boolean gotonext = false;
-            if (first <= mPlayPos && mPlayPos <= last) {
-                mPlayPos = first;
-                gotonext = true;
-            } else if (mPlayPos > last) {
-                mPlayPos -= last - first + 1;
+            int newPos = mPlayPos;
+            
+            for (int i = first; i <= last; i++) {
+                Object removed = mOriginalQueue.remove(i);
+                if (mQueue.remove(removed)) {
+                    newPos++;
+                }
             }
-            for (int i = first; i <= first; i++) {
-                mPlayList.remove(i);
-            }
-            mPlayListLen -= mPlayList.size();
-
-            if (gotonext) {
-                if (mPlayListLen == 0) {
+            currentLength = getPlaylistSize();
+            if (newPos != mPlayPos) {
+                if (currentLength == 0) {
                     stop(true);
                     mPlayPos = -1;
                 } else {
-                    if (mPlayPos >= mPlayListLen) {
+                    if (newPos >= currentLength) {
                         mPlayPos = 0;
+                    } else {
+                        mPlayPos = newPos;
                     }
                     final boolean wasPlaying = isPlaying();
                     stop(false);
@@ -939,7 +920,21 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             removeTrack(list.get(i));
         }
     }
-
+    
+    
+    private int getPlaylistSize() {
+        if (mOriginalQueue != null) {
+            return mOriginalQueue.size();
+        }
+        return 0;
+    }
+    
+    private int getQueueSize() {
+        if (mQueue != null) {
+            return mQueue.size();
+        }
+        return 0;
+    }
     /**
      * Adds a list to the playlist
      * 
@@ -949,22 +944,32 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      *            The position to place the tracks
      */
     public void addToPlayList(final List<Object> list, int position) {
+        int currentLength = getPlaylistSize();
         if (position < 0) {
             position = 0;
         }
-        if (position > mPlayListLen) {
-            position = mPlayListLen;
+        if (position > currentLength) {
+            position = currentLength;
         }
-        if (mPlayList == null) {
-            mPlayList = new ArrayList<Object>();
+        
+        boolean needsSorting = false;
+        if (mOriginalQueue == null) {
+            mOriginalQueue = new ArrayList<Object>();
+            needsSorting = true;
         }
 
-        mPlayList.addAll(position, list);
-        mPlayListLen = mPlayList.size();
-
-        if (mPlayListLen == 0) {
+        mOriginalQueue.addAll(position, list);
+        if (needsSorting) {
+            createCurrentQueue();
+        } else {
+            mQueue.addAll(position, list);
+        }
+        currentLength = getPlaylistSize();
+        if (currentLength == 0) {
             closeCursor();
             notifyChange(META_CHANGED);
+        } else {
+            notifyChange(QUEUE_CHANGED);
         }
     }
 
@@ -986,19 +991,21 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     private void openCurrentAndMaybeNext(final boolean openNext) {
         synchronized (this) {
             closeCursor();
+            int currentLength = getQueueSize();
+            
 
-            if (mPlayListLen == 0) {
+            if (currentLength == 0) {
                 return;
             }
             stop(false);
 
-            mCursor = mPlayList.get(mPlayPos);
+            mCursor = mQueue.get(mPlayPos);
             while (true) {
                 if (mCursor != null && openFile(mCursor)) {
                     break;
                 }
                 closeCursor();
-                if (mOpenFailedCounter++ < 10 && mPlayListLen > 1) {
+                if (mOpenFailedCounter++ < 10 && currentLength > 1) {
                     final int pos = getNextPosition(false);
                     if (pos < 0) {
                         gotoIdleState();
@@ -1011,7 +1018,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                     mPlayPos = pos;
                     stop(false);
                     mPlayPos = pos;
-                    mCursor = mPlayList.get(mPlayPos);
+                    mCursor = mQueue.get(mPlayPos);
                 } else {
                     mOpenFailedCounter = 0;
                     gotoIdleState();
@@ -1027,6 +1034,20 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             }
         }
     }
+    
+    private void createCurrentQueue() {
+        if (mOriginalQueue == null) {
+            mQueue = null;
+        }
+        else {
+            mQueue = new ArrayList<Object>(mOriginalQueue);
+            if (mShuffleMode != MediaModule.SHUFFLE_NONE) {
+                Collections.shuffle(mQueue);
+            }
+            notifyChange(QUEUE_CHANGED);
+        }
+        
+    }
 
     /**
      * @param force
@@ -1034,73 +1055,24 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      * @return The next position to play.
      */
     private int getNextPosition(final boolean force) {
-        if (!force && mRepeatMode == REPEAT_CURRENT) {
+        
+        if (mRepeatMode == MediaModule.REPEAT_ONE && !force) {
             if (mPlayPos < 0) {
                 return 0;
             }
             return mPlayPos;
-        } else if (mShuffleMode == SHUFFLE_NORMAL) {
-            if (mPlayPos >= 0) {
-                mHistory.add(mPlayPos);
-            }
-            if (mHistory.size() > MAX_HISTORY_SIZE) {
-                mHistory.remove(0);
-            }
-            final int numTracks = mPlayListLen;
-            final int[] tracks = new int[numTracks];
-            for (int i = 0; i < numTracks; i++) {
-                tracks[i] = i;
-            }
-
-            final int numHistory = mHistory.size();
-            int numUnplayed = numTracks;
-            for (int i = 0; i < numHistory; i++) {
-                final int idx = mHistory.get(i).intValue();
-                if (idx < numTracks && tracks[idx] >= 0) {
-                    numUnplayed--;
-                    tracks[idx] = -1;
+        } 
+        int currentLength = getQueueSize();
+        if (mPlayPos >= currentLength - 1) {
+            if (mRepeatMode == MediaModule.REPEAT_ALL) {
+                if (mShuffleMode != MediaModule.SHUFFLE_NONE) {
+                    createCurrentQueue();
                 }
+                return 0;
             }
-            if (numUnplayed <= 0) {
-                if (mRepeatMode == REPEAT_ALL || force) {
-                    numUnplayed = numTracks;
-                    for (int i = 0; i < numTracks; i++) {
-                        tracks[i] = i;
-                    }
-                } else {
-                    return -1;
-                }
-            }
-            int skip = 0;
-            if (mShuffleMode == SHUFFLE_NORMAL || mShuffleMode == SHUFFLE_AUTO) {
-                skip = mShuffler.nextInt(numUnplayed);
-            }
-            int cnt = -1;
-            while (true) {
-                while (tracks[++cnt] < 0) {
-                    ;
-                }
-                skip--;
-                if (skip < 0) {
-                    break;
-                }
-            }
-            return cnt;
-        } else if (mShuffleMode == SHUFFLE_AUTO) {
-            doAutoShuffleUpdate();
-            return mPlayPos + 1;
-        } else {
-            if (mPlayPos >= mPlayListLen - 1) {
-                if (mRepeatMode == REPEAT_NONE && !force) {
-                    return -1;
-                } else if (mRepeatMode == REPEAT_ALL || force) {
-                    return 0;
-                }
-                return -1;
-            } else {
-                return mPlayPos + 1;
-            }
+            return -1;
         }
+        return mPlayPos + 1;
     }
 
     /**
@@ -1108,84 +1080,36 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      */
     private void setNextTrack() {
         mNextPlayPos = getNextPosition(false);
-        if (mNextPlayPos >= 0 && mPlayList != null) {
-            mPlayer.openFile(mPlayList.get(mNextPlayPos), true);
-        }
-    }
-
-    /**
-     * Creates a shuffled playlist used for party mode
-     */
-    private boolean makeAutoShuffleList() {
-        if (mPlayList != null) {
-            mAutoShuffleList = new ArrayList<Object>(mPlayList);
-        }
-        else {
-            mAutoShuffleList = null;
-        }
-        return true;
-    }
-
-    /**
-     * Creates the party shuffle playlist
-     */
-    private void doAutoShuffleUpdate() {
-        if (mAutoShuffleList == null) {
-            return;
-        }
-        boolean notify = false;
-        if (mPlayPos > 10) {
-            removeTracks(0, mPlayPos - 9);
-            notify = true;
-        }
-        final int toAdd = 7 - (mPlayListLen - (mPlayPos < 0 ? -1 : mPlayPos));
-        for (int i = 0; i < toAdd; i++) {
-            int lookback = mHistory.size();
-            int idx = -1;
-            while (true) {
-                idx = mShuffler.nextInt(mAutoShuffleList.size());
-                if (!wasRecentlyUsed(idx, lookback)) {
-                    break;
-                }
-                lookback /= 2;
-            }
-            mHistory.add(idx);
-            if (mHistory.size() > MAX_HISTORY_SIZE) {
-                mHistory.remove(0);
-            }
-            mPlayList.add(mAutoShuffleList.get(idx));
-            notify = true;
-        }
-        if (notify) {
-            notifyChange(QUEUE_CHANGED);
+        if (mPlayPos != mNextPlayPos && mNextPlayPos >= 0 && mQueue != null) {
+            mPlayer.openFile(mQueue.get(mNextPlayPos), true);
         }
     }
 
     /**/
-    private boolean wasRecentlyUsed(final int idx, int lookbacksize) {
-        if (lookbacksize == 0) {
-            return false;
-        }
-        final int histsize = mHistory.size();
-        if (histsize < lookbacksize) {
-            lookbacksize = histsize;
-        }
-        final int maxidx = histsize - 1;
-        for (int i = 0; i < lookbacksize; i++) {
-            final long entry = mHistory.get(maxidx - i);
-            if (entry == idx) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    private boolean wasRecentlyUsed(final int idx, int lookbacksize) {
+//        if (lookbacksize == 0) {
+//            return false;
+//        }
+//        final int histsize = mHistory.size();
+//        if (histsize < lookbacksize) {
+//            lookbacksize = histsize;
+//        }
+//        final int maxidx = histsize - 1;
+//        for (int i = 0; i < lookbacksize; i++) {
+//            final long entry = mHistory.get(maxidx - i);
+//            if (entry == idx) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * Notify the change-receivers that something has changed.
      */
     private void notifyChange(final String what) {
-//        final Intent intent = new Intent(what);
-//        sendStickyBroadcast(intent);
+        // final Intent intent = new Intent(what);
+        // sendStickyBroadcast(intent);
 
         // Update the lockscreen controls
         updateRemoteControlClient(what);
@@ -1198,7 +1122,6 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 data.put(TiC.PROPERTY_INDEX, mPlayPos);
                 proxy.fireEvent(EVENT_CHANGE, data, false, false);
             }
-            getMetadataFromUrl(mPlayer.getPlayingFile());
         } else if (what.equals(QUEUE_CHANGED)) {
         }
 
@@ -1229,14 +1152,13 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                         .setPlaybackState(mIsSupposedToBePlaying ? RemoteControlClient.PLAYSTATE_PLAYING
                                 : RemoteControlClient.PLAYSTATE_PAUSED);
             }
-//            if (mBuildNotification) {
-                mNotificationHelper.goToIdleState(mIsSupposedToBePlaying);
-//            }
+            // if (mBuildNotification) {
+            mNotificationHelper.goToIdleState(mIsSupposedToBePlaying);
+            // }
         } else if (what.equals(META_CHANGED)) {
             updateMetadata();
         }
-        
-        
+
     }
 
     /**
@@ -1283,15 +1205,6 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     }
 
     /**
-     * Indicates if the media storeage device has been mounted or not
-     * 
-     * @return 1 if Intent.ACTION_MEDIA_MOUNTED is called, 0 otherwise
-     */
-    public int getMediaMountedCount() {
-        return mMediaMountedCount;
-    }
-
-    /**
      * Returns the shuffle mode
      * 
      * @return The current shuffle mode (all, party, none)
@@ -1309,17 +1222,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         return mRepeatMode;
     }
 
-    /**
-     * Removes all instances of the track with the given ID from the playlist.
-     * 
-     * @param id
-     *            The id to be removed
-     * @return how many instances of the track were removed
-     */
     public int removeTrack(final Object object) {
         int numremoved = 0;
         synchronized (this) {
-            int index = mPlayList.indexOf(object);
+            int index = mOriginalQueue.indexOf(object);
             while (index != -1) {
                 numremoved += removeTracksInternal(index, index);
             }
@@ -1413,13 +1319,24 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     }
 
     /**
-     * Returns the queue
+     * Returns the queue (shuffled or playlist)
      * 
-     * @return The queue as a long[]
+     * @return The queue as a Object[]
      */
     public Object[] getQueue() {
         synchronized (this) {
-            return mPlayList.toArray();
+            return mQueue.toArray();
+        }
+    }
+    
+    /**
+     * Returns the playlist
+     * 
+     * @return The playlist as a Object[]
+     */
+    public Object[] getPlaylist() {
+        synchronized (this) {
+            return mOriginalQueue.toArray();
         }
     }
 
@@ -1432,7 +1349,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         }
         return mState == STATE_PLAYING;
     }
-    
+
     /**
      * @return True if music is paused, false otherwise
      */
@@ -1442,6 +1359,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         }
         return mState == STATE_PAUSED;
     }
+
     /**
      * @return True if music is stopped, false otherwise
      */
@@ -1454,37 +1372,24 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      * 
      * @param list
      *            The list of tracks to open
-     * @param position
-     *            The position to start playback at
+     c
      */
     public void open(final List<Object> list, final int position) {
         if (list == null) {
             return;
         }
         synchronized (this) {
-            if (mShuffleMode == SHUFFLE_AUTO) {
-                mShuffleMode = SHUFFLE_NORMAL;
-            }
-            final Object old = getCurrent();
-            final int listlength = list.size();
-            boolean newlist = true;
-            if (mPlayListLen == listlength) {
-                newlist = !mPlayList.containsAll(list);
-            }
-            if (newlist) {
-                addToPlayList(list, -1);
-                notifyChange(QUEUE_CHANGED);
-            }
+//            final int listlength = list.size();
+            mOriginalQueue = null;
+            addToPlayList(list, -1);
+            notifyChange(QUEUE_CHANGED);
             if (position >= 0) {
                 mPlayPos = position;
             } else {
-                mPlayPos = mShuffler.nextInt(mPlayListLen);
+                mPlayPos = 0;
             }
-            mHistory.clear();
+//            mHistory.clear();
             openCurrentAndNext();
-//            if (old != getCurrent()) {
-//                notifyChange(META_CHANGED);
-//            }
         }
     }
 
@@ -1494,7 +1399,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     public void stop() {
         stop(true);
     }
-    
+
     public void reset() {
         setPlaylist(null);
     }
@@ -1510,36 +1415,25 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         mPausePending = false;
         mStopPending = false;
         tryToGetAudioFocus();
-        
+
         if (mPlayer.isInitialized()) {
-            
+
             if (mPlayer.isPrepared()) {
-                final long duration = mPlayer.duration();
-                if (mRepeatMode != REPEAT_CURRENT && duration > 2000
-                        && mPlayer.position() >= duration - 2000) {
-                    gotoNext(true);
-                }
                 mPlayPending = false;
                 mPlayer.start();
-                
-                
+
                 mPlayerHandler.removeMessages(FADEDOWN);
                 mPlayerHandler.sendEmptyMessage(FADEUP);
-                
-                if (!mIsSupposedToBePlaying) {
-                    mIsSupposedToBePlaying = true;
-                    notifyChange(PLAYSTATE_CHANGED);
-                }
+
             }
-        } else if (mShuffleMode == SHUFFLE_AUTO && mPlayListLen <= 0) {
-            setShuffleMode(SHUFFLE_AUTO);
-        } else if (mPlayList == null) { // first play
+        } else if (mOriginalQueue == null) { // first play
             if (proxy != null) {
                 open(((AudioStreamerProxy) proxy).getInternalPlaylist(), 0);
             }
-        }
-        else {
-            setQueuePosition(mPlayPos);
+        } else {
+            openCurrentAndNext();
+            play();
+            notifyChange(META_CHANGED);
         }
     }
 
@@ -1563,27 +1457,31 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 
     /**
      * Changes from the current track to the next track
+     * @param force : used to still get next track even in repeat_one.
      */
     public void gotoNext(final boolean force) {
         synchronized (this) {
-            if (mPlayListLen <= 0) {
-                return;
+            if (mShuffleMode == MediaModule.SHUFFLE_RANDOM) {
+                createCurrentQueue();
+                mPlayPos = 0;
             }
-            final int pos = getNextPosition(force);
-            if (pos == mPlayPos) {
-                return;
-            }
-            if (pos < 0) {
-                gotoIdleState();
-                if (mIsSupposedToBePlaying) {
-                    mIsSupposedToBePlaying = false;
-                    notifyChange(PLAYSTATE_CHANGED);
+            else {
+                final int pos = getNextPosition(force);
+                if (pos == mPlayPos) {
+                    return;
                 }
-                return;
+                if (pos < 0) {
+                    gotoIdleState();
+                    if (mIsSupposedToBePlaying) {
+                        mIsSupposedToBePlaying = false;
+                        notifyChange(PLAYSTATE_CHANGED);
+                    }
+                    return;
+                }
+                mPlayPos = pos;
             }
-            mPlayPos = pos;
+            mForcedTrackToEnd = true;
             stop(false);
-            mPlayPos = pos;
             openCurrentAndNext();
             if (mPlayPending) {
                 play();
@@ -1591,26 +1489,26 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             notifyChange(META_CHANGED);
         }
     }
+    
+    /**
+     * Changes from the current track to the next track
+     */
+    public void gotoNext() {
+        gotoNext(false);
+    }
 
     /**
      * Changes from the current track to the previous played track
      */
     public void prev() {
         synchronized (this) {
-            if (mShuffleMode == SHUFFLE_NORMAL) {
-                // Go to previously-played track and remove it from the history
-                final int histsize = mHistory.size();
-                if (histsize == 0) {
-                    return;
-                }
-                final Integer pos = mHistory.remove(histsize - 1);
-                mPlayPos = pos.intValue();
+            if (mPlayPos > 0) {
+                mPlayPos--;
             } else {
-                if (mPlayPos > 0) {
-                    mPlayPos--;
-                } else {
-                    mPlayPos = mPlayListLen - 1;
+                if (mShuffleMode == MediaModule.SHUFFLE_RANDOM) { 
+                    createCurrentQueue();
                 }
+                mPlayPos = mQueue.size() - 1;
             }
             stop(false);
             openCurrent();
@@ -1628,40 +1526,6 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         openCurrentAndMaybeNext(false);
     }
 
-    /**
-     * Moves an item in the queue from one position to another
-     * 
-     * @param from
-     *            The position the item is currently at
-     * @param to
-     *            The position the item is being moved to
-     */
-    public void moveQueueItem(int index1, int index2) {
-        synchronized (this) {
-            if (index1 >= mPlayListLen) {
-                index1 = mPlayListLen - 1;
-            }
-            if (index2 >= mPlayListLen) {
-                index2 = mPlayListLen - 1;
-            }
-            Collections.swap(mPlayList, index1, index2);
-            if (index1 < index2) {
-
-                if (mPlayPos == index1) {
-                    mPlayPos = index2;
-                } else if (mPlayPos >= index1 && mPlayPos <= index2) {
-                    mPlayPos--;
-                }
-            } else if (index2 < index1) {
-                if (mPlayPos == index1) {
-                    mPlayPos = index2;
-                } else if (mPlayPos >= index2 && mPlayPos <= index1) {
-                    mPlayPos++;
-                }
-            }
-            notifyChange(QUEUE_CHANGED);
-        }
-    }
 
     /**
      * Sets the repeat mode
@@ -1685,105 +1549,39 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      */
     public void setShuffleMode(final int shufflemode) {
         synchronized (this) {
-            if (mShuffleMode == shufflemode && mPlayListLen > 0) {
+            if (mShuffleMode == shufflemode) {
                 return;
             }
             mShuffleMode = shufflemode;
-            if (mShuffleMode == SHUFFLE_AUTO) {
-                if (makeAutoShuffleList()) {
-                    mPlayListLen = 0;
-                    doAutoShuffleUpdate();
-                    mPlayPos = 0;
-                    openCurrentAndNext();
-                    play();
-                    notifyChange(META_CHANGED);
-                    return;
-                } else {
-                    mShuffleMode = SHUFFLE_NONE;
-                }
-            }
+            
             notifyChange(SHUFFLEMODE_CHANGED);
         }
     }
-    
+
     public void setPlaylist(final List<Object> list) {
         stop();
-        mPlayList = null;
-        mAutoShuffleList = null;
+        mOriginalQueue = null;
+        mQueue = null;
         mPlayPos = 0;
-        mPlayListLen = 0;
         if (list != null) {
             addToPlayList(list, Integer.MAX_VALUE);
-            notifyChange(QUEUE_CHANGED);
         }
-        
-    }
 
-    /**
-     * Sets the position of a track in the queue
-     * 
-     * @param index
-     *            The position to place the track
-     */
-    public void setQueuePosition(final int index) {
-        synchronized (this) {
-            stop(false);
-            mPlayPos = index;
-            openCurrentAndNext();
-            play();
-            notifyChange(META_CHANGED);
-            if (mShuffleMode == SHUFFLE_AUTO) {
-                doAutoShuffleUpdate();
-            }
-        }
-    }
-
-    /**
-     * Queues a new list for playback
-     * 
-     * @param list
-     *            The list to queue
-     * @param action
-     *            The action to take
-     */
-    public void enqueue(final List<Object> list, final int action) {
-        synchronized (this) {
-            if (action == NEXT && mPlayPos + 1 < mPlayListLen) {
-                addToPlayList(list, mPlayPos + 1);
-                notifyChange(QUEUE_CHANGED);
-            } else {
-                addToPlayList(list, Integer.MAX_VALUE);
-                notifyChange(QUEUE_CHANGED);
-                if (action == NOW) {
-                    mPlayPos = mPlayListLen - list.size();
-                    openCurrentAndNext();
-                    play();
-                    notifyChange(META_CHANGED);
-                    return;
-                }
-            }
-            if (mPlayPos < 0) {
-                mPlayPos = 0;
-                openCurrentAndNext();
-                play();
-                notifyChange(META_CHANGED);
-            }
-        }
     }
 
     /**
      * Cycles through the different repeat modes
      */
     private void cycleRepeat() {
-        if (mRepeatMode == REPEAT_NONE) {
-            setRepeatMode(REPEAT_ALL);
-        } else if (mRepeatMode == REPEAT_ALL) {
-            setRepeatMode(REPEAT_CURRENT);
-            if (mShuffleMode != SHUFFLE_NONE) {
-                setShuffleMode(SHUFFLE_NONE);
+        if (mRepeatMode == MediaModule.REPEAT_NONE) {
+            setRepeatMode(MediaModule.REPEAT_ALL);
+        } else if (mRepeatMode == MediaModule.REPEAT_ALL) {
+            setRepeatMode(MediaModule.REPEAT_ONE);
+            if (mShuffleMode != MediaModule.SHUFFLE_NONE) {
+                setShuffleMode(MediaModule.SHUFFLE_NONE);
             }
         } else {
-            setRepeatMode(REPEAT_NONE);
+            setRepeatMode(MediaModule.REPEAT_NONE);
         }
     }
 
@@ -1791,14 +1589,14 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
      * Cycles through the different shuffle modes
      */
     private void cycleShuffle() {
-        if (mShuffleMode == SHUFFLE_NONE) {
-            setShuffleMode(SHUFFLE_NORMAL);
-            if (mRepeatMode == REPEAT_CURRENT) {
-                setRepeatMode(REPEAT_ALL);
+        if (mShuffleMode == MediaModule.SHUFFLE_NONE) {
+            setShuffleMode(MediaModule.SHUFFLE_SONGS);
+            if (mRepeatMode == MediaModule.REPEAT_ONE) {
+                setRepeatMode(MediaModule.REPEAT_ALL);
             }
-        } else if (mShuffleMode == SHUFFLE_NORMAL
-                || mShuffleMode == SHUFFLE_AUTO) {
-            setShuffleMode(SHUFFLE_NONE);
+        } else if (mShuffleMode == MediaModule.SHUFFLE_SONGS
+                || mShuffleMode == MediaModule.SHUFFLE_RANDOM) {
+            setShuffleMode(MediaModule.SHUFFLE_NONE);
         }
     }
 
@@ -1819,7 +1617,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             final String action = intent.getAction();
             final String command = intent.getStringExtra("command");
             if (CMDNEXT.equals(command) || NEXT_ACTION.equals(action)) {
-                gotoNext(true);
+                gotoNext();
             } else if (CMDPREVIOUS.equals(command)
                     || PREVIOUS_ACTION.equals(action)) {
                 if (position() < 2000) {
@@ -1877,19 +1675,21 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                     && mAppWidgetSmall.getWidgetUpdateId().equals(command)) {
                 final int[] small = intent
                         .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-                mAppWidgetSmall.performUpdate(AudioStreamerService.this, small);
+                mAppWidgetSmall.performUpdate(AudioStreamerExoService.this,
+                        small);
             } else if (mAppWidgetLarge != null
                     && mAppWidgetLarge.getWidgetUpdateId().equals(command)) {
                 final int[] large = intent
                         .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-                mAppWidgetLarge.performUpdate(AudioStreamerService.this, large);
+                mAppWidgetLarge.performUpdate(AudioStreamerExoService.this,
+                        large);
             } else if (mAppWidgetLargeAlternate != null
                     && mAppWidgetLargeAlternate.getWidgetUpdateId().equals(
                             command)) {
                 final int[] largeAlt = intent
                         .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
                 mAppWidgetLargeAlternate.performUpdate(
-                        AudioStreamerService.this, largeAlt);
+                        AudioStreamerExoService.this, largeAlt);
             }
         }
     };
@@ -1909,7 +1709,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 
     private static final class DelayedHandler extends Handler {
 
-        private final WeakReference<AudioStreamerService> mService;
+        private final WeakReference<AudioStreamerExoService> mService;
 
         /**
          * Constructor of <code>DelayedHandler</code>
@@ -1917,8 +1717,8 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @param service
          *            The service to use.
          */
-        public DelayedHandler(final AudioStreamerService service) {
-            mService = new WeakReference<AudioStreamerService>(service);
+        public DelayedHandler(final AudioStreamerExoService service) {
+            mService = new WeakReference<AudioStreamerExoService>(service);
         }
 
         /**
@@ -1938,7 +1738,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 
     private static final class MusicPlayerHandler extends Handler {
 
-        private final WeakReference<AudioStreamerService> mService;
+        private final WeakReference<AudioStreamerExoService> mService;
 
         private float mVolume = 1.0f;
         private float mCurrentVolume = 0.0f;
@@ -1952,12 +1752,12 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @param looper
          *            The thread to run on.
          */
-        public MusicPlayerHandler(final AudioStreamerService service,
+        public MusicPlayerHandler(final AudioStreamerExoService service,
                 final Looper looper) {
             super(looper);
-            mService = new WeakReference<AudioStreamerService>(service);
+            mService = new WeakReference<AudioStreamerExoService>(service);
         }
-        
+
         public void setVolume(final float volume) {
             mVolume = volume;
             if (!mVolumeFading) {
@@ -1965,7 +1765,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 mService.get().mPlayer.setVolume(mCurrentVolume);
             }
         }
-        
+
         public boolean isVolumeFading() {
             return mVolumeFading;
         }
@@ -2000,7 +1800,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 break;
             case SERVER_DIED:
                 if (mService.get().mIsSupposedToBePlaying) {
-                    mService.get().gotoNext(true);
+                    mService.get().gotoNext();
                 } else {
                     mService.get().openCurrentAndNext();
                 }
@@ -2009,7 +1809,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 mService.get().mPlayPos = mService.get().mNextPlayPos;
                 mService.get().closeCursor();
                 if (mService.get().mPlayPos != -1) {
-                    mService.get().mCursor = mService.get().mPlayList.get(mService
+                    mService.get().mCursor = mService.get().mQueue.get(mService
                             .get().mPlayPos);
                     mService.get().notifyChange(META_CHANGED);
                     mService.get().buildNotification();
@@ -2018,11 +1818,16 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 }
                 //dont break if -1 (stop)
             case TRACK_ENDED:
-                if (mService.get().mRepeatMode == REPEAT_CURRENT) {
-                    mService.get().seek(0);
-                    mService.get().play();
+                if (mService.get().mRepeatMode == MediaModule.REPEAT_ONE) {
+                    if (mService.get().mCursor != null) {
+                        mService.get().seek(0);
+                        mService.get().play();
+                    }
+                    else {
+                        mService.get().gotoNext(true);
+                    }
                 } else {
-                    mService.get().gotoNext(false);
+                    mService.get().gotoNext();
                 }
                 break;
             case RELEASE_WAKELOCK:
@@ -2116,38 +1921,145 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         }
     };
 
+    private class ExoRendererBuilder implements RendererBuilder,
+            ManifestCallback<HlsPlaylist> {
+
+        private final String userAgent = TiApplication.getInstance()
+                .getUserAgent();
+        private final String url;
+        private boolean isHLS = false;
+
+        private StreamerExoPlayer player;
+        private RendererBuilderCallback callback;
+
+        public ExoRendererBuilder(String url) {
+            this.url = url;
+             isHLS = !url.endsWith("mp3");
+        }
+
+        @Override
+        public void buildRenderers(StreamerExoPlayer player,
+                RendererBuilderCallback callback) {
+            this.player = player;
+            this.callback = callback;
+
+            if (isHLS) {
+                HlsPlaylistParser parser = new HlsPlaylistParser();
+                ManifestFetcher<HlsPlaylist> playlistFetcher = new ManifestFetcher<HlsPlaylist>(
+                        parser, null, url, userAgent);
+                playlistFetcher.singleLoad(player.getMainHandler().getLooper(),
+                        this);
+            } else {
+                // Build the video and audio renderers.
+                FrameworkSampleSource sampleSource = new FrameworkSampleSource(
+                        AudioStreamerExoService.this, Uri.parse(url), null, 2);
+                MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
+                        sampleSource, null, true,
+                        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null,
+                        player.getMainHandler(), player, 50);
+                MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(
+                        sampleSource, null, true, player.getMainHandler(),
+                        player);
+
+                MetadataTrackRenderer<Map<String, Object>> id3Renderer = new MetadataTrackRenderer<Map<String, Object>>(
+                        sampleSource, new Id3Parser(),
+                        player.getId3MetadataRenderer(), player
+                                .getMainHandler().getLooper());
+
+                // Invoke the callback.
+                TrackRenderer[] renderers = new TrackRenderer[StreamerExoPlayer.RENDERER_COUNT];
+                renderers[StreamerExoPlayer.TYPE_VIDEO] = videoRenderer;
+                renderers[StreamerExoPlayer.TYPE_AUDIO] = audioRenderer;
+                renderers[StreamerExoPlayer.TYPE_TIMED_METADATA] = id3Renderer;
+                callback.onRenderers(null, null, renderers);
+            }
+
+        }
+
+        @Override
+        public void onManifestError(String contentId, IOException e) {
+            callback.onRenderersError(e);
+        }
+
+        @Override
+        public void onManifest(String contentId, HlsPlaylist manifest) {
+            DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+
+            DataSource dataSource = new UriDataSource(userAgent, bandwidthMeter);
+            boolean adaptiveDecoder = MediaCodecUtil.getDecoderInfo(
+                    MimeTypes.VIDEO_H264, false).adaptive;
+            HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url,
+                    manifest, bandwidthMeter, null,
+                    adaptiveDecoder ? HlsChunkSource.ADAPTIVE_MODE_SPLICE
+                            : HlsChunkSource.ADAPTIVE_MODE_NONE);
+            HlsSampleSource sampleSource = new HlsSampleSource(chunkSource,
+                    true, 3);
+            MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
+                    sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
+                    0, player.getMainHandler(), player, 50);
+            MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(
+                    sampleSource);
+            MetadataTrackRenderer<Map<String, Object>> id3Renderer = new MetadataTrackRenderer<Map<String, Object>>(
+                    sampleSource, new Id3Parser(),
+                    player.getId3MetadataRenderer(), player.getMainHandler()
+                            .getLooper());
+
+            // MetadataTrackRenderer<List<ClosedCaption>>
+            // closedCaptionRenderer =
+            // new MetadataTrackRenderer<List<ClosedCaption>>(sampleSource,
+            // new Eia608Parser(),
+            // player.getClosedCaptionMetadataRenderer(),
+            // player.getMainHandler().getLooper());
+
+            TrackRenderer[] renderers = new TrackRenderer[StreamerExoPlayer.RENDERER_COUNT];
+            renderers[StreamerExoPlayer.TYPE_VIDEO] = videoRenderer;
+            renderers[StreamerExoPlayer.TYPE_AUDIO] = audioRenderer;
+            renderers[StreamerExoPlayer.TYPE_TIMED_METADATA] = id3Renderer;
+            // renderers[StreamerExoPlayer.TYPE_TEXT] =
+            // closedCaptionRenderer;
+            callback.onRenderers(null, null, renderers);
+            player.setVolume(mVolume);
+        }
+
+    }
+
     private static final class MultiPlayer implements
-            MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener,
-            MediaPlayer.OnPreparedListener, OnInfoListener,
-            OnBufferingUpdateListener {
-        
+            StreamerExoPlayer.Id3MetadataListener, StreamerExoPlayer.Listener,
+            InfoListener, InternalErrorListener {
+
         public class PlayingItem {
             public String path = null;
             public AssetFileDescriptor assetFileDescriptor = null;
             public FileDescriptor fileDescriptor = null;
             public FileInputStream inputStream = null;
+
             PlayingItem(String path) {
                 this.path = path;
             }
+
             PlayingItem(String path, AssetFileDescriptor assetFileDescriptor) {
                 this.path = path;
                 this.assetFileDescriptor = assetFileDescriptor;
             }
+
             PlayingItem(String path, FileInputStream inputStream) {
                 this.path = path;
                 this.inputStream = inputStream;
             }
+
             PlayingItem(String path, FileDescriptor fileDescriptor) {
                 this.path = path;
                 this.fileDescriptor = fileDescriptor;
             }
         }
 
-        private final WeakReference<AudioStreamerService> mService;
+        private final WeakReference<AudioStreamerExoService> mService;
 
-        private CompatMediaPlayer mCurrentMediaPlayer = new CompatMediaPlayer();
-
-        private CompatMediaPlayer mNextMediaPlayer;
+        private StreamerExoPlayer mCurrentMediaPlayer = null;
+        private StreamerExoPlayer mNextMediaPlayer;
+        private float mVolume = 1.0f;
+        
+        private int state = -1;
 
         private Handler mHandler;
 
@@ -2164,180 +2076,56 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         /**
          * Constructor of <code>MultiPlayer</code>
          */
-        public MultiPlayer(final AudioStreamerService service) {
-            mService = new WeakReference<AudioStreamerService>(service);
-            mCurrentMediaPlayer.setWakeMode(mService.get(),
-                    PowerManager.PARTIAL_WAKE_LOCK);
+        public MultiPlayer(final AudioStreamerExoService service) {
+            mService = new WeakReference<AudioStreamerExoService>(service);
         }
 
-        /**
-         * @param path
-         *            The path of the file, or the http/rtsp URL of the stream
-         *            you want to play
-         */
-        public void setDataSource(final String path) {
-            mIsInitialized = setDataSourceImpl(mCurrentMediaPlayer, path,
-                    mIsPreparing);
-            if (mIsInitialized) {
-                final String next = null;
-                setNextDataSource(next);
+        private void releasePlayer(StreamerExoPlayer player) {
+            if (player != null) {
+                player.release();
             }
         }
 
-        /**
-         * @param path
-         *            The path of the file, or the http/rtsp URL of the stream
-         *            you want to play
-         */
-        public void setDataSource(FileDescriptor fd, long offset, long length) {
-            mIsInitialized = setDataSourceImpl(mCurrentMediaPlayer, fd, offset,
-                    length);
-            if (mIsInitialized) {
-                final String next = null;
-                setNextDataSource(next);
+        private boolean setDataSource(final String path) {
+            if (mCurrentMediaPlayer != null) {
+                releasePlayer(mCurrentMediaPlayer);
+                mCurrentMediaPlayer = null;
             }
-        }
-
-        /**
-         * @param path
-         *            The path of the file, or the http/rtsp URL of the stream
-         *            you want to play
-         */
-        public void setDataSource(FileDescriptor fd) {
-            mIsInitialized = setDataSourceImpl(mCurrentMediaPlayer, fd);
-            if (mIsInitialized) {
-                final String next = null;
-                setNextDataSource(next);
+            if (mNextMediaPlayer != null) {
+                releasePlayer(mNextMediaPlayer);
+                mNextMediaPlayer = null;
             }
-        }
-
-        /**
-         * @param player
-         *            The {@link MediaPlayer} to use
-         * @param path
-         *            The path of the file, or the http/rtsp URL of the stream
-         *            you want to play
-         * @return True if the <code>player</code> has been prepared and is
-         *         ready to play, false otherwise
-         */
-        private boolean setDataSourceImpl(final MediaPlayer player,
-                final String path, boolean remote) {
-            try {
-                player.reset();
-                player.setOnCompletionListener(this);
-                player.setOnErrorListener(this);
-                player.setOnInfoListener(this);
-                player.setOnBufferingUpdateListener(this);
-                player.setOnPreparedListener(null);
-                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                if (path.startsWith("content://")) {
-                    player.setDataSource(mService.get(), Uri.parse(path));
-                } else {
-                    player.setDataSource(path);
-                }
-                if (remote) {
-                    player.setOnPreparedListener(this);
-                    player.prepareAsync();
-                    Log.w(TAG, "prepareAsync from playUrl");
-                    if (player == mCurrentMediaPlayer) {
-                        mService.get().setState(STATE_STARTING);
-                        mService.get().mPlayPending = true;
-                    }
-                } else {
-                    player.prepare();
-                }
-            } catch (final IOException todo) {
-                // TODO: notify the user why the file couldn't be opened
-                return false;
-            } catch (final IllegalArgumentException todo) {
-                // TODO: notify the user why the file couldn't be opened
+            if (path == null) {
                 return false;
             }
-            if (player == mCurrentMediaPlayer) {
-                final Intent intent = new Intent(
-                        AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);
-                intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION,
-                        getAudioSessionId());
-                intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, mService.get()
-                        .getPackageName());
-                mService.get().sendBroadcast(intent);
-            }
+            mCurrentMediaPlayer = new StreamerExoPlayer(
+                    mService.get().new ExoRendererBuilder(path));
+            mCurrentMediaPlayer.setPlayWhenReady(true);
+            mCurrentMediaPlayer.addListener(this);
+            mCurrentMediaPlayer.setMetadataListener(this);
+            mCurrentMediaPlayer.setInfoListener(this);
+            mCurrentMediaPlayer.setInternalErrorListener(this);
+            mCurrentMediaPlayer.prepare();
             return true;
         }
 
-        /**
-         * @param player
-         *            The {@link MediaPlayer} to use
-         * @param path
-         *            The path of the file, or the http/rtsp URL of the stream
-         *            you want to play
-         * @return True if the <code>player</code> has been prepared and is
-         *         ready to play, false otherwise
-         */
-        private boolean setDataSourceImpl(final MediaPlayer player,
-                FileDescriptor fd, long offset, long length) {
-            try {
-                player.reset();
-                player.setOnPreparedListener(null);
-                player.setDataSource(fd, offset, length);
-                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                player.prepare();
-            } catch (final IOException todo) {
-                // TODO: notify the user why the file couldn't be opened
-                return false;
-            } catch (final IllegalArgumentException todo) {
-                // TODO: notify the user why the file couldn't be opened
+        private boolean setNextDataSource(final String path) {
+            if (mNextMediaPlayer != null) {
+                releasePlayer(mNextMediaPlayer);
+                mNextMediaPlayer = null;
+            }
+            
+            if (path == null) {
                 return false;
             }
-            player.setOnCompletionListener(this);
-            player.setOnErrorListener(this);
-            player.setOnInfoListener(this);
-            player.setOnBufferingUpdateListener(this);
-            final Intent intent = new Intent(
-                    AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);
-            intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION,
-                    getAudioSessionId());
-            intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, mService.get()
-                    .getPackageName());
-            mService.get().sendBroadcast(intent);
-            return true;
-        }
+            mNextMediaPlayer = new StreamerExoPlayer(
+                    mService.get().new ExoRendererBuilder(path));
+            mNextMediaPlayer.setPlayWhenReady(false);
+            mNextMediaPlayer.addListener(this);
+            mNextMediaPlayer.setInfoListener(this);
+            mNextMediaPlayer.setInternalErrorListener(this);
+            mNextMediaPlayer.prepare();
 
-        /**
-         * @param player
-         *            The {@link MediaPlayer} to use
-         * @param path
-         *            The path of the file, or the http/rtsp URL of the stream
-         *            you want to play
-         * @return True if the <code>player</code> has been prepared and is
-         *         ready to play, false otherwise
-         */
-        private boolean setDataSourceImpl(final MediaPlayer player,
-                FileDescriptor fd) {
-            try {
-                player.reset();
-                player.setOnPreparedListener(null);
-                player.setDataSource(fd);
-                player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                player.prepare();
-            } catch (final IOException todo) {
-                // TODO: notify the user why the file couldn't be opened
-                return false;
-            } catch (final IllegalArgumentException todo) {
-                // TODO: notify the user why the file couldn't be opened
-                return false;
-            }
-            player.setOnCompletionListener(this);
-            player.setOnErrorListener(this);
-            player.setOnInfoListener(this);
-            player.setOnBufferingUpdateListener(this);
-            final Intent intent = new Intent(
-                    AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION);
-            intent.putExtra(AudioEffect.EXTRA_AUDIO_SESSION,
-                    getAudioSessionId());
-            intent.putExtra(AudioEffect.EXTRA_PACKAGE_NAME, mService.get()
-                    .getPackageName());
-            mService.get().sendBroadcast(intent);
             return true;
         }
 
@@ -2354,94 +2142,28 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                     } else if (object instanceof SoundProxy) {
                         url = ((SoundProxy) object).getUrl();
                     } else if (object instanceof HashMap) {
-                        url = TiConvert.toString(((HashMap) object).get(TiC.PROPERTY_URL));
-                    } else  {
-                        url =  TiConvert.toString(object);
+                        url = TiConvert.toString(((HashMap) object)
+                                .get(TiC.PROPERTY_URL));
+                    } else {
+                        url = TiConvert.toString(object);
                     }
-                    boolean isAsset = URLUtil.isAssetUrl(url);
                     if (preparingNext) {
                         mNextIsPreparing = false;
                     } else {
                         mIsPreparing = false;
                     }
-                    if (isAsset || url.startsWith("android.resource")) {
-                        Context context = TiApplication.getInstance();
-                        AssetFileDescriptor afd = null;
-                        try {
-                            if (isAsset) {
-                                String path = url.substring(TiConvert.ASSET_URL
-                                        .length());
-                                afd = context.getAssets().openFd(path);
-                            } else {
-                                Uri uri = Uri.parse(url);
-                                afd = context.getResources().openRawResourceFd(
-                                        TiRHelper.getResource("raw."
-                                                + uri.getLastPathSegment()));
-                            }
-                            // Why mp.setDataSource(afd) doesn't work is a
-                            // problem for
-                            // another day.
-                            // http://groups.google.com/group/android-developers/browse_thread/thread/225c4c150be92416
-
-                            if (preparingNext) {
-                                mNextPlayingFile = new PlayingItem(url, afd);
-                                setNextDataSource(afd.getFileDescriptor(),
-                                        afd.getStartOffset(), afd.getLength());
-                            } else {
-                                mPlayingFile = new PlayingItem(url, afd);
-                                setDataSource(afd.getFileDescriptor(),
-                                        afd.getStartOffset(), afd.getLength());
-                            }
-                        } catch (IOException e) {
-                            Log.e(TAG, "Error setting file descriptor: ", e);
-                        } finally {
-                            if (afd != null) {
-                                afd.close();
-                            }
-                        }
+                    if (preparingNext) {
+                        mNextIsPreparing = true;
+                        mNextPlayingFile = new PlayingItem(url);
+                        setNextDataSource(mNextPlayingFile.path);
                     } else {
-                        Uri uri = Uri.parse(url);
-                        if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-                            if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
-                                mPlayingFile = new PlayingItem(uri.getPath());
-                                setDataSource(mPlayingFile.path);
-                            } else {
-                                // For 2.2 and below, MediaPlayer uses the
-                                // native player
-                                // which requires
-                                // files to have worldreadable access,
-                                // workaround is to
-                                // open an input
-                                // stream to the file and give that to the
-                                // player.
-                                FileInputStream fis = null;
-                                try {
-                                    fis = new FileInputStream(uri.getPath());
-                                    mPlayingFile = new PlayingItem(uri.getPath(), fis.getFD());
-                                    setDataSource(fis.getFD());
-                                } catch (IOException e) {
-                                    Log.e(TAG,
-                                            "Error setting file descriptor: ",
-                                            e);
-                                } finally {
-                                    if (fis != null) {
-                                        fis.close();
-                                    }
-                                }
-                            }
-                        } else {
-                            if (preparingNext) {
-                                mNextIsPreparing = true;
-                                mNextPlayingFile = new PlayingItem(url);
-                                setNextDataSource(mNextPlayingFile.path);
-                            } else {
-                                mIsPreparing = true;
-                                mPlayingFile = new PlayingItem(url);
-                                setDataSource(mPlayingFile.path);
-                            }
-
-                        }
+                        mIsPreparing = true;
+                        mPlayingFile = new PlayingItem(url);
+                        mIsInitialized = setDataSource(mPlayingFile.path);
                     }
+
+                    // }
+                    // }
 
                 } catch (Throwable t) {
                     Log.w(TAG, "Issue while initializing : ", t);
@@ -2457,99 +2179,8 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                         mService.get().onStartPlaying(mPlayingFile);
                     }
                 }
-                
+
                 return mIsInitialized;
-            }
-        }
-
-        /**
-         * Set the MediaPlayer to start when this MediaPlayer finishes playback.
-         * 
-         * @param path
-         *            The path of the file, or the http/rtsp URL of the stream
-         *            you want to play
-         */
-        public void setNextDataSource(final String path) {
-            mCurrentMediaPlayer.setNextMediaPlayer(null);
-            if (mNextMediaPlayer != null) {
-                mNextMediaPlayer.release();
-                mNextMediaPlayer = null;
-            }
-            if (path == null) {
-                return;
-            }
-            mNextMediaPlayer = new CompatMediaPlayer();
-            mNextMediaPlayer.setWakeMode(mService.get(),
-                    PowerManager.PARTIAL_WAKE_LOCK);
-            mNextMediaPlayer.setAudioSessionId(getAudioSessionId());
-            if (!setDataSourceImpl(mNextMediaPlayer, path, mNextIsPreparing)) {
-//                mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer);
-//            } else {
-                if (mNextMediaPlayer != null) {
-                    mNextMediaPlayer.release();
-                    mNextMediaPlayer = null;
-                }
-            }
-        }
-
-        /**
-         * Set the MediaPlayer to start when this MediaPlayer finishes playback.
-         * 
-         * @param path
-         *            The path of the file, or the http/rtsp URL of the stream
-         *            you want to play
-         */
-        public void setNextDataSource(FileDescriptor fd, long offset,
-                long length) {
-            mCurrentMediaPlayer.setNextMediaPlayer(null);
-            if (mNextMediaPlayer != null) {
-                mNextMediaPlayer.release();
-                mNextMediaPlayer = null;
-            }
-            if (fd == null) {
-                return;
-            }
-            mNextMediaPlayer = new CompatMediaPlayer();
-            mNextMediaPlayer.setWakeMode(mService.get(),
-                    PowerManager.PARTIAL_WAKE_LOCK);
-            mNextMediaPlayer.setAudioSessionId(getAudioSessionId());
-            if (setDataSourceImpl(mNextMediaPlayer, fd, offset, length)) {
-                mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer);
-            } else {
-                if (mNextMediaPlayer != null) {
-                    mNextMediaPlayer.release();
-                    mNextMediaPlayer = null;
-                }
-            }
-        }
-
-        /**
-         * Set the MediaPlayer to start when this MediaPlayer finishes playback.
-         * 
-         * @param path
-         *            The path of the file, or the http/rtsp URL of the stream
-         *            you want to play
-         */
-        public void setNextDataSource(FileDescriptor fd) {
-            mCurrentMediaPlayer.setNextMediaPlayer(null);
-            if (mNextMediaPlayer != null) {
-                mNextMediaPlayer.release();
-                mNextMediaPlayer = null;
-            }
-            if (fd == null) {
-                return;
-            }
-            mNextMediaPlayer = new CompatMediaPlayer();
-            mNextMediaPlayer.setWakeMode(mService.get(),
-                    PowerManager.PARTIAL_WAKE_LOCK);
-            mNextMediaPlayer.setAudioSessionId(getAudioSessionId());
-            if (setDataSourceImpl(mNextMediaPlayer, fd)) {
-                mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer);
-            } else {
-                if (mNextMediaPlayer != null) {
-                    mNextMediaPlayer.release();
-                    mNextMediaPlayer = null;
-                }
             }
         }
 
@@ -2569,7 +2200,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         public boolean isInitialized() {
             return mIsInitialized;
         }
-        
+
         /**
          * @return True if the player is ready to go, false otherwise
          */
@@ -2581,13 +2212,16 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @return True if the player is ready to go, false otherwise
          */
         public boolean isPlaying() {
-            return mCurrentMediaPlayer.isPlaying();
+            if (mCurrentMediaPlayer != null) {
+                return mCurrentMediaPlayer.isPlaying();
+            }
+            return false;
         }
-        
+
         public boolean isValid() {
             return isPrepared();
         }
-        
+
         /**
          * @return True if the player is ready to go, false otherwise
          */
@@ -2599,11 +2233,12 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * Starts or resumes playback.
          */
         public void start() {
+            if (mCurrentMediaPlayer == null)
+                return;
             mCurrentMediaPlayer.start();
             mIsPaused = !mCurrentMediaPlayer.isPlaying();
             mService.get().setState(
-                    !mIsPaused ? STATE_PLAYING : mService
-                            .get().mState);
+                    !mIsPaused ? STATE_PLAYING : mService.get().mState);
             startProgressTimer();
         }
 
@@ -2611,7 +2246,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * Resets the MediaPlayer to its uninitialized state.
          */
         public void stop() {
-            mCurrentMediaPlayer.reset();
+            if (mCurrentMediaPlayer != null) {
+                mCurrentMediaPlayer.reset();
+            }
+            
             mPlayingFile = null;
             mIsInitialized = false;
             mIsPaused = false;
@@ -2624,13 +2262,16 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          */
         public void release() {
             stop();
-            mCurrentMediaPlayer.release();
+            releasePlayer(mCurrentMediaPlayer);
         }
 
         /**
          * Pauses playback. Call start() to resume.
          */
         public void pause() {
+            if (mCurrentMediaPlayer == null) {
+                return;
+            }
             mCurrentMediaPlayer.pause();
             mIsPaused = true;
             mService.get().setState(STATE_PAUSED);
@@ -2643,7 +2284,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @return The duration in milliseconds
          */
         public long duration() {
-            return mCurrentMediaPlayer.getDuration();
+            if (mCurrentMediaPlayer != null) {
+                return mCurrentMediaPlayer.getDuration();
+            }
+            return 0;
         }
 
         /**
@@ -2652,7 +2296,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @return The current position in milliseconds
          */
         public long position() {
-            return mCurrentMediaPlayer.getCurrentPosition();
+            if (mCurrentMediaPlayer != null) {
+                return mCurrentMediaPlayer.getCurrentPosition();
+            }
+            return 0;
         }
 
         /**
@@ -2663,7 +2310,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @return The offset in milliseconds from the start to seek to
          */
         public long seek(final long whereto) {
-            mCurrentMediaPlayer.seekTo((int) whereto);
+            if (mCurrentMediaPlayer != null) {
+                mCurrentMediaPlayer.seekTo((int) whereto);
+            }
             return whereto;
         }
 
@@ -2674,7 +2323,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          *            Left and right volume scalar
          */
         public void setVolume(final float vol) {
-            mCurrentMediaPlayer.setVolume(vol, vol);
+            mVolume = vol;
+            if (mCurrentMediaPlayer != null) {
+                mCurrentMediaPlayer.setVolume(vol);
+            }
         }
 
         /**
@@ -2695,7 +2347,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         public int getAudioSessionId() {
             return mCurrentMediaPlayer.getAudioSessionId();
         }
-        
+
         public PlayingItem getPlayingFile() {
             return mPlayingFile;
         }
@@ -2706,48 +2358,15 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @param streamtype
          *            the audio stream type
          */
-        public void setAudioStreamType(final int streamtype) {
-            mCurrentMediaPlayer.setAudioStreamType(streamtype);
-        }
-
-        @Override
-        public boolean onInfo(MediaPlayer mp, int what, int extra) {
-            String msg = "Unknown media issue.";
-
-            switch (what) {
-            case MediaPlayer.MEDIA_INFO_BAD_INTERLEAVING:
-                msg = "Stream not interleaved or interleaved improperly.";
-                break;
-            case MediaPlayer.MEDIA_INFO_NOT_SEEKABLE:
-                msg = "Stream does not support seeking";
-                break;
-            case MediaPlayer.MEDIA_INFO_UNKNOWN:
-                msg = "Unknown media issue";
-                break;
-            case MediaPlayer.MEDIA_INFO_VIDEO_TRACK_LAGGING:
-                msg = "Video is too complex for decoder, video lagging.";
-                break;
-            case MediaPlayer.MEDIA_INFO_METADATA_UPDATE:
-                mService.get().getMetadataFromUrl(mPlayingFile);
-                break;
-            }
-
-            mService.get().onError(TiC.ERROR_CODE_UNKNOWN, msg);
-            return true;
-        }
-
+        // public void setAudioStreamType(final int streamtype) {
+        // mCurrentMediaPlayer.setAudioStreamType(streamtype);
+        // }
         /**
          * {@inheritDoc}
          */
-        @Override
-        public boolean onError(final MediaPlayer mp, final int what,
+        public boolean onError(final StreamerExoPlayer mp, final int what,
                 final int extra) {
-            if (mp == mNextMediaPlayer) {
-                mNextMediaPlayer.release();
-                mNextMediaPlayer = null;
-                return false;
-            }
-            
+            state = ExoPlayer.STATE_IDLE;
             int code = what;
             if (what == 0) {
                 code = -1;
@@ -2758,80 +2377,32 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 msg = "Media server died";
                 needsStop = true;
             }
-            if (extra == -1004) {
+            if (extra == MediaPlayer.MEDIA_ERROR_IO) {
                 code = 404;
-                msg = "File can't be accessed";
+                msg = "File can't be accessed: " + mPlayingFile.path;
                 needsStop = true;
             }
             mService.get().onError(code, msg);
             if (needsStop) {
                 mIsInitialized = false;
                 mPlayingFile = null;
-                mService.get().mWakeLock.acquire(30000);
-                mHandler.sendEmptyMessage(TRACK_ENDED);
-                mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
+                mService.get().closeCursor();
             }
             switch (what) {
             case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                
-                mCurrentMediaPlayer.release();
-                mCurrentMediaPlayer = new CompatMediaPlayer();
-                mCurrentMediaPlayer.setWakeMode(mService.get(),
-                        PowerManager.PARTIAL_WAKE_LOCK);
+//                releasePlayer(mCurrentMediaPlayer);
+//                mCurrentMediaPlayer = null;
                 mHandler.sendMessageDelayed(
                         mHandler.obtainMessage(SERVER_DIED), 2000);
                 break;
             default:
+                mHandler.sendMessageDelayed(
+                        mHandler.obtainMessage(TRACK_ENDED), 200);
                 break;
             }
             return needsStop;
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void onCompletion(final MediaPlayer mp) {
-            if (mp == mCurrentMediaPlayer && mNextMediaPlayer != null) {
-                mCurrentMediaPlayer.release();
-                mCurrentMediaPlayer = mNextMediaPlayer;
-                mPlayingFile = mNextPlayingFile;
-                mIsPreparing = mNextIsPreparing;
-                mNextMediaPlayer = null;
-                mNextPlayingFile = null;
-                mNextIsPreparing = false;
-                mHandler.sendEmptyMessage(TRACK_WENT_TO_NEXT);
-            } else {
-                mService.get().mWakeLock.acquire(30000);
-                mHandler.sendEmptyMessage(TRACK_ENDED);
-                mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
-            }
-        }
-
-        @Override
-        public void onPrepared(MediaPlayer mp) {
-            mp.setOnPreparedListener(null);
-            if (mp == mCurrentMediaPlayer) {
-                mIsPreparing = false;
-                mService.get().setState(STATE_INITIALIZED);
-                mService.get().notifyChange(PLAYSTATE_CHANGED);
-                if (mIsInitialized) {
-                    mService.get().onStartPlaying(mPlayingFile);
-                }
-            } else if (mp == mNextMediaPlayer) {
-                mNextIsPreparing = false;
-                mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer);
-            }
-
-        }
-
-        @Override
-        public void onBufferingUpdate(MediaPlayer mp, int percent) {
-            if (mp == mCurrentMediaPlayer) {
-                mService.get().onBufferingUpdate(percent);
-            }
-        }
-        
         private void startProgressTimer() {
             if (mProgressTimer == null) {
                 mProgressTimer = new Timer(true);
@@ -2840,14 +2411,14 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 mProgressTimer = new Timer(true);
             }
             if (isPlaying()) {
-                mService.get().onProgress(position());
+                mService.get().onProgress();
             }
             mProgressTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     try {
                         if (isPlaying()) {
-                            mService.get().onProgress(position());
+                            mService.get().onProgress();
                         }
                     } catch (Throwable t) {
                         Log.e(TAG, "Issue while progressTimer run: ", t);
@@ -2862,186 +2433,201 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 mProgressTimer = null;
             }
         }
-    }
 
-    private static final class CompatMediaPlayer extends MediaPlayer implements
-            OnCompletionListener {
-
-        private boolean mCompatMode = true;
-
-        private MediaPlayer mNextPlayer;
-
-        private OnCompletionListener mCompletion;
-
-        /**
-         * Constructor of <code>CompatMediaPlayer</code>
-         */
-        public CompatMediaPlayer() {
-            try {
-                MediaPlayer.class.getMethod("setNextMediaPlayer",
-                        MediaPlayer.class);
-                mCompatMode = false;
-            } catch (final NoSuchMethodException e) {
-                mCompatMode = true;
-                super.setOnCompletionListener(this);
+        @Override
+        public void onLoadCompleted(StreamerExoPlayer player, int sourceId,
+                long bytesLoaded) {
+            if (player == mCurrentMediaPlayer) {
+                mIsPreparing = false;
+                mService.get().setState(STATE_INITIALIZED);
+                mService.get().notifyChange(PLAYSTATE_CHANGED);
+                if (mIsInitialized) {
+                    mService.get().onStartPlaying(mPlayingFile);
+                }
+            } else if (player == mNextMediaPlayer) {
+                mNextIsPreparing = false;
             }
+
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
-        public void setNextMediaPlayer(final MediaPlayer next) {
-            if (mCompatMode) {
-                mNextPlayer = next;
+        public void onRendererInitializationError(StreamerExoPlayer player,
+                Exception e) {
+//            onError(player, e);
+        }
+
+        @Override
+        public void onAudioTrackInitializationError(StreamerExoPlayer player,
+                InitializationException e) {
+//            onError(player, e);
+        }
+
+        @Override
+        public void onDecoderInitializationError(StreamerExoPlayer player,
+                DecoderInitializationException e) {
+//            onError(player, e);
+        }
+
+        @Override
+        public void onCryptoError(StreamerExoPlayer player, CryptoException e) {
+//            onError(player, e);
+        }
+
+        @Override
+        public void onUpstreamError(StreamerExoPlayer player, int sourceId,
+                IOException e) {
+//            onError(player, e);
+        }
+
+        @Override
+        public void onConsumptionError(StreamerExoPlayer player, int sourceId,
+                IOException e) {
+//            onError(player, e);
+        }
+
+        @Override
+        public void onDrmSessionManagerError(StreamerExoPlayer player,
+                Exception e) {
+//            onError(player, e);
+        }
+
+        @Override
+        public void onVideoFormatEnabled(StreamerExoPlayer player,
+                String formatId, int trigger, int mediaTimeMs) {
+        }
+
+        @Override
+        public void onAudioFormatEnabled(StreamerExoPlayer player,
+                String formatId, int trigger, int mediaTimeMs) {
+        }
+
+        @Override
+        public void onDroppedFrames(StreamerExoPlayer player, int count,
+                long elapsed) {
+        }
+
+        @Override
+        public void onBandwidthSample(StreamerExoPlayer player, int elapsedMs,
+                long bytes, long bitrateEstimate) {
+        }
+
+        @Override
+        public void onLoadStarted(StreamerExoPlayer player, int sourceId,
+                String formatId, int trigger, boolean isInitialization,
+                int mediaStartTimeMs, int mediaEndTimeMs, long length) {
+
+        }
+        
+        
+
+        @Override
+        public void onStateChanged(StreamerExoPlayer player,
+                boolean playWhenReady, int playbackState) {
+            if (playbackState == StreamerExoPlayer.STATE_BUFFERING) {
+                mService.get().onBufferingUpdate(player.getBufferedPosition(), player.getBufferPercentage());
+            }
+            else if (player == mCurrentMediaPlayer && state != playbackState) {
+                state = playbackState;
+                if (playbackState == StreamerExoPlayer.STATE_ENDED) {
+                    if (!mService.get().mForcedTrackToEnd) {
+                        if (mNextMediaPlayer != null) {
+                            releasePlayer(mCurrentMediaPlayer);
+                            mCurrentMediaPlayer = mNextMediaPlayer;
+                            if (mCurrentMediaPlayer != null) {
+                                mCurrentMediaPlayer.setMetadataListener(this);
+                                mCurrentMediaPlayer.setPlayWhenReady(true);
+                            }
+                            mPlayingFile = mNextPlayingFile;
+                            mIsPreparing = mNextIsPreparing;
+                            mNextMediaPlayer = null;
+                            mNextPlayingFile = null;
+                            mNextIsPreparing = false;
+                            mHandler.sendEmptyMessage(TRACK_WENT_TO_NEXT);
+                        } else {
+                            mService.get().mWakeLock.acquire(30000);
+                            mHandler.sendEmptyMessage(TRACK_ENDED);
+                            mHandler.sendEmptyMessage(RELEASE_WAKELOCK);
+                        }
+                    }
+                } else if (playbackState == StreamerExoPlayer.STATE_READY) {
+                    mIsPreparing = false;
+                    if (mIsInitialized) {
+                        if (player.isPlaying()) {
+                            mService.get().onStartPlaying(mPlayingFile);
+                            // playback started, simulate state
+                            start();
+                        }
+                        else {
+                            mService.get().setState(STATE_INITIALIZED);
+                        }
+                    }
+                }
             } else {
-                super.setNextMediaPlayer(next);
+                if (playbackState == StreamerExoPlayer.STATE_READY) {
+                    if (player == mNextMediaPlayer) {
+                        mNextIsPreparing = false;
+                    }
+                } else if (playbackState == StreamerExoPlayer.STATE_ENDED) {
+                    if (player == mNextMediaPlayer) {
+                        mNextMediaPlayer = null;
+                    }
+                    if (player == mCurrentMediaPlayer) {
+                        mCurrentMediaPlayer = null;
+                    }
+                    releasePlayer(player);
+                }
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
-        public void setOnCompletionListener(final OnCompletionListener listener) {
-            if (mCompatMode) {
-                mCompletion = listener;
-            } else {
-                super.setOnCompletionListener(listener);
+        public void onError(StreamerExoPlayer player, Exception e) {
+            String message = e.getLocalizedMessage();
+            Log.e(TAG, "onError " + e.getLocalizedMessage());
+            
+            if (e instanceof FileNotFoundException) {
+                onError(player, -1, MediaPlayer.MEDIA_ERROR_IO);
             }
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
-        public void onCompletion(final MediaPlayer mp) {
-            if (mNextPlayer != null) {
-                // SystemClock.sleep(25);
-                mNextPlayer.start();
+        public void onVideoSizeChanged(StreamerExoPlayer player, int width,
+                int height, float pixelWidthHeightRatio) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void onId3Metadata(StreamerExoPlayer player,
+                Map<String, Object> metadata) {
+            mService.get().updateMetadata(metadata);
+        }
+
+        public int getCurrentPosition() {
+            if (mCurrentMediaPlayer != null) {
+                return mCurrentMediaPlayer.getCurrentPosition();
             }
-            mCompletion.onCompletion(this);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private static final class AudioStreamerServiceStub {
-
-        private final WeakReference<AudioStreamerService> mService;
-
-        private AudioStreamerServiceStub(final AudioStreamerService service) {
-            mService = new WeakReference<AudioStreamerService>(service);
+            return 0;
         }
 
-        public void openFile(final Object object) throws RemoteException {
-            mService.get().openFile(object);
+        public int getDuration() {
+            if (mCurrentMediaPlayer != null) {
+                return mCurrentMediaPlayer.getDuration();
+            }
+            return 0;
         }
 
-        public void open(final List<Object> list, final int position)
-                throws RemoteException {
-            mService.get().open(list, position);
+        public int getBufferPercentage() {
+            if (mCurrentMediaPlayer != null) {
+                return mCurrentMediaPlayer.getBufferPercentage();
+            }
+            return 0;
         }
-
-        public void stop() throws RemoteException {
-            mService.get().stop();
+        public long getBufferPosition() {
+            if (mCurrentMediaPlayer != null) {
+                return mCurrentMediaPlayer.getBufferedPosition();
+            }
+            return 0;
         }
-
-        public void pause() throws RemoteException {
-            mService.get().pause();
-        }
-
-        public void play() throws RemoteException {
-            mService.get().play();
-        }
-
-        public void prev() throws RemoteException {
-            mService.get().prev();
-        }
-
-        public void next() throws RemoteException {
-            mService.get().gotoNext(true);
-        }
-
-        public void enqueue(final List<Object> list, final int action)
-                throws RemoteException {
-            mService.get().enqueue(list, action);
-        }
-
-        public void setQueuePosition(final int index) throws RemoteException {
-            mService.get().setQueuePosition(index);
-        }
-
-        public void setShuffleMode(final int shufflemode)
-                throws RemoteException {
-            mService.get().setShuffleMode(shufflemode);
-        }
-
-        public void setRepeatMode(final int repeatmode) throws RemoteException {
-            mService.get().setRepeatMode(repeatmode);
-        }
-
-        public void moveQueueItem(final int from, final int to)
-                throws RemoteException {
-            mService.get().moveQueueItem(from, to);
-        }
-
-        public void refresh() throws RemoteException {
-            mService.get().refresh();
-        }
-
-        public boolean isPlaying() throws RemoteException {
-            return mService.get().isPlaying();
-        }
-
-        public Object[] getQueue() throws RemoteException {
-            return mService.get().getQueue();
-        }
-
-        public long duration() throws RemoteException {
-            return mService.get().duration();
-        }
-
-        public long position() throws RemoteException {
-            return mService.get().position();
-        }
-
-        public long seek(final long position) throws RemoteException {
-            return mService.get().seek(position);
-        }
-
-        public Object getCurrent() throws RemoteException {
-            return mService.get().getCurrent();
-        }
-
-        public int getQueuePosition() throws RemoteException {
-            return mService.get().getQueuePosition();
-        }
-
-        public int getShuffleMode() throws RemoteException {
-            return mService.get().getShuffleMode();
-        }
-
-        public int getRepeatMode() throws RemoteException {
-            return mService.get().getRepeatMode();
-        }
-
-        public int removeTracks(final int first, final int last)
-                throws RemoteException {
-            return mService.get().removeTracks(first, last);
-        }
-
-        public int removeTrack(final long id) throws RemoteException {
-            return mService.get().removeTrack(id);
-        }
-
-        public int getMediaMountedCount() throws RemoteException {
-            return mService.get().getMediaMountedCount();
-        }
-
-        public int getAudioSessionId() throws RemoteException {
-            return mService.get().getAudioSessionId();
-        }
-
     }
 
     private class LoadLocalCoverArtTask extends
@@ -3071,8 +2657,6 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             return null;
         }
     }
-    
-
 
     static final HashMap<String, Integer> METADATAS = new HashMap<String, Integer>() {
         {
@@ -3125,14 +2709,15 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         picasso.load(imageref.getUrl()).into(this);
     }
 
-    protected void onProgress(long position) {
-//        if (mRemoteControlClientCompat != null) {
-//            mRemoteControlClientCompat.setPlaybackState(mRemoteControlClientState, position, 1.0f);
-//        }
+    protected void onProgress() {
         if (proxyHasListeners(EVENT_PROGRESS, false)) {
+            int position = mPlayer.getCurrentPosition();
+            int duration = mPlayer.getDuration();
+//            int buffer = mPlayer.getBufferPercentage();
             KrollDict event = new KrollDict();
             event.put("progress", position);
-            event.put(TiC.PROPERTY_DURATION, duration());
+//            event.put("buffer", buffer);
+            event.put(TiC.PROPERTY_DURATION, duration);
             proxy.fireEvent(EVENT_PROGRESS, event, false, false);
         }
     }
@@ -3156,8 +2741,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         metadataEditor.apply();
 
     }
+
     private boolean updatingMetadata = false;
-    private void updateMetadata(final HashMap<String, Object> dict) {
+
+    private void updateMetadata(final Map<String, Object> metadata) {
         if (mRemoteControlClientCompat == null || updatingMetadata)
             return;
         updatingMetadata = true;
@@ -3167,8 +2754,8 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         currentMetadataEditor = mRemoteControlClientCompat.editMetadata(true);
         currentMetadataEditor
                 .putBitmap(MetadataEditor.BITMAP_KEY_ARTWORK, null);
-        if (dict != null) {
-            for (Map.Entry<String, Object> entry : dict.entrySet()) {
+        if (metadata != null) {
+            for (Map.Entry<String, Object> entry : metadata.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (METADATAS.containsKey(key)) {
@@ -3179,14 +2766,14 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                             TiConvert.toInt(value));
                 }
             }
-            if (!dict.containsKey("duration") && mPlayer != null
+            if (!metadata.containsKey("duration") && mPlayer != null
                     && mPlayer.isPlaying()) {
                 currentMetadataEditor.putLong(
                         MediaMetadataRetriever.METADATA_KEY_DURATION,
                         mPlayer.duration());
             }
-            TiDrawableReference imageref = TiDrawableReference.fromObject(proxy,
-                    dict.get("artwork"));
+            TiDrawableReference imageref = TiDrawableReference.fromObject(
+                    proxy, metadata.get("artwork"));
             if (imageref.isNetworkUrl()) {
                 // only picasso requests needs to be run in main thread
                 if (TiApplication.isUIThread()) {
@@ -3200,41 +2787,12 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 (new LoadLocalCoverArtTask(TiApplication.getImageMemoryCache()))
                         .execute(imageref);
             }
-            
+
         }
-        
+
         currentMetadataEditor.apply();
         currentMetadataEditor = null;
         updatingMetadata = false;
-    }
-    
-    public void getMetadataFromUrl(final MultiPlayer.PlayingItem playingItem) {
-//        (new AsyncTask() {
-//            @Override
-//            protected Object doInBackground(Object[] objects) {
-//                if (playingItem.fileDescriptor != null) {
-//                    mMetadaReceiver.setDataSource(playingItem.fileDescriptor);
-//                } else {
-//                    mMetadaReceiver.setDataSource(playingItem.path);
-//                }
-//                try {
-//                    for (int i = 0; i < METADATA_KEYS.length; i++) {
-//                        String key = METADATA_KEYS[i];
-//                        String value = mMetadaReceiver.extractMetadata(key);
-//                    
-//                        if (value != null) {
-//                            Log.i(TAG, "Key: " + key + " Value: " + value);
-//                        }
-//                    }
-//                    final byte[] art = mMetadaReceiver.getEmbeddedPicture();
-//                    return BitmapFactory.decodeByteArray(art, 0, art.length);
-//                 } catch (Exception e) {
-//                 }
-//                return null;
-//            }
-//        }).execute();
-        
-        
     }
 
     public void updateMetadata() {
@@ -3242,11 +2800,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         if (proxy != null && proxy.hasProperty(TiC.PROPERTY_METADATA)) {
             metadata = (HashMap<String, Object>) proxy
                     .getProperty(TiC.PROPERTY_METADATA);
-        }
-        else if (mCursor instanceof HashMap) {
+        } else if (mCursor instanceof HashMap) {
             metadata = (HashMap<String, Object>) mCursor;
         }
-        
+
         updateMetadata(metadata);
         mNotificationHelper.updateMetadata(metadata);
     }
@@ -3290,13 +2847,14 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         }
         return false;
     }
-    
+
     private int mRemoteControlClientState = 0;
+
     private void setState(int state) {
         if (state == mState)
             return;
         mState = state;
-        
+
         String stateDescription = "";
         int remoteState = mRemoteControlClientState;
         switch (state) {
@@ -3332,13 +2890,15 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             stateDescription = STATE_WAITING_FOR_QUEUE_DESC;
             break;
         }
-        if (mRemoteControlClientCompat != null && mRemoteControlClientState != remoteState) {
+        if (mRemoteControlClientCompat != null
+                && mRemoteControlClientState != remoteState) {
             mRemoteControlClientState = remoteState;
-            mRemoteControlClientCompat.setPlaybackState(mRemoteControlClientState);
+            mRemoteControlClientCompat
+                    .setPlaybackState(mRemoteControlClientState);
         }
         if (proxy != null) {
             proxy.setProperty("state", state);
-//            proxy.setProperty("stateDescription", stateDescription);
+            // proxy.setProperty("stateDescription", stateDescription);
         }
         Log.d(TAG, "Audio state changed: " + stateDescription, Log.DEBUG_MODE);
 
@@ -3349,7 +2909,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             proxy.fireEvent(EVENT_STATE, data, false, false);
         }
     }
-    
+
     public void setVolume(final float volume) {
         mVolume = volume;
         mPlayerHandler.setVolume(volume);
@@ -3358,7 +2918,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     @Override
     public void onAppPaused() {
         inBackground = true;
-        if (proxy != null && TiConvert.toBoolean(proxy.getProperty("notifyOnPause"), true)) {
+        if (proxy != null
+                && TiConvert
+                        .toBoolean(proxy.getProperty("notifyOnPause"), true)) {
             mNotificationHelper.showNotification();
         }
     }
@@ -3367,8 +2929,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     public void onAppResume() {
         inBackground = false;
     }
-    
-    
+
     public void onStartPlaying(final MultiPlayer.PlayingItem playingItem) {
         if (proxy != null && proxy.hasProperty(TiC.PROPERTY_TIME)) {
             seek(TiConvert.toLong(proxy.getProperty(TiC.PROPERTY_TIME), 0));
@@ -3376,18 +2937,18 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         if (mPlayPending) {
             play();
         }
-        
+
         if (!mIsSupposedToBePlaying) {
             mIsSupposedToBePlaying = true;
             notifyChange(PLAYSTATE_CHANGED);
         }
-        
-        notifyChange(META_CHANGED);
         // Update the notification
         mBuildNotification = mIsSupposedToBePlaying;
         buildNotification();
+        notifyChange(META_CHANGED);
+
     }
-    
+
     private void aquireWifiLock() {
         if (mWifiLock != null && !mWifiLock.isHeld()) {
             mWifiLock.acquire();
@@ -3400,29 +2961,33 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         }
     }
 
-    
     void tryToGetAudioFocus() {
-        if (mAudioFocus != AudioFocus.Focused && AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==mAudioManager.requestAudioFocus(mAudioFocusListener, AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN)) {
+        if (mAudioFocus != AudioFocus.Focused
+                && AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAudioManager
+                        .requestAudioFocus(mAudioFocusListener,
+                                AudioManager.STREAM_MUSIC,
+                                AudioManager.AUDIOFOCUS_GAIN)) {
             mAudioFocus = AudioFocus.Focused;
-            RemoteControlHelper
-            .registerRemoteControlClient(mAudioManager, mRemoteControlClientCompat);
+            RemoteControlHelper.registerRemoteControlClient(mAudioManager,
+                    mRemoteControlClientCompat);
             streamerGetsFocus(this);
         }
         aquireWifiLock();
-        
+
     }
 
     void giveUpAudioFocus() {
-        if (mAudioFocus == AudioFocus.Focused && AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAudioManager.abandonAudioFocus(mAudioFocusListener)) {
+        if (mAudioFocus == AudioFocus.Focused
+                && AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAudioManager
+                        .abandonAudioFocus(mAudioFocusListener)) {
             // Remove the audio focus listener and lock screen controls
             mAudioFocus = AudioFocus.NoFocusNoDuck;
-            RemoteControlHelper
-                    .unregisterRemoteControlClient(mAudioManager, mRemoteControlClientCompat);
+            RemoteControlHelper.unregisterRemoteControlClient(mAudioManager,
+                    mRemoteControlClientCompat);
             streamerAbandonsFocus(this);
         }
         releaseWifiLock();
-            
+
     }
-    
+
 }
