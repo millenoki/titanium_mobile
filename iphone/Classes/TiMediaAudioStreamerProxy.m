@@ -161,11 +161,21 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         [self stop:nil];
         [[TiMediaAudioSession sharedSession] stopAudioSession];
     }
-//    [player setDelegate:nil];
-//    RELEASE_TO_NIL(player);
-//    [self cleanMoviePlayer];
     [self cleanAVPlayer];
     [super _destroy];
+}
+
+-(void)fireErrorEventAndSkip:(int)code withDescription:(NSString*)desc
+{
+    if ([self _hasListeners:@"error"])
+    {
+        NSError* error = [NSError errorWithDomain:@"TiMediaAudioStreamer" code:code userInfo:@{ NSLocalizedDescriptionKey : desc}];
+        [self fireEvent:@"error" withObject:@{
+                                              @"track":_currentItem,
+                                              @"index":@(self.indexOfNowPlayingItem)
+                                              }errorCode:[error code] message:[TiUtils messageFromError:error]];
+    }
+    [self handleAVPlayerItemDidPlayToEndTimeNotification];
 }
 
 -(NSString*)apiName
@@ -277,6 +287,23 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     self.queue = originalQueue;
 }
 
+-(void)addToPlaylist:(id)args {
+    NSArray* toAdd = nil;
+    if (IS_OF_CLASS(args, NSArray)) {
+        toAdd =[NSArray arrayWithArray:args];
+    }
+    else if (args) {
+        toAdd =[NSArray arrayWithObject:args];
+    }
+    if (toAdd) {
+        NSArray* old = _originalQueue ;
+        _originalQueue = [[_originalQueue arrayByAddingObjectsFromArray:toAdd] retain];
+        RELEASE_TO_NIL(old)
+        old = _queue ;
+        _queue = [[_queue arrayByAddingObjectsFromArray:toAdd] retain];
+    }
+}
+
 - (void)setQueue:(NSArray *)queue {
     RELEASE_TO_NIL(_queue);
     switch (_shuffleMode) {
@@ -290,7 +317,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
             
         default:
             NSLog(@"Only MPMusicShuffleModeOff and MPMusicShuffleModeSongs are supported");
-            _queue = [[queue shuffled]retain];
+            _queue = [[queue shuffled] retain];
             break;
     }
 }
@@ -317,6 +344,10 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         url = [TiUtils toURL:[TiUtils stringValue:item] proxy:self];
     }
     
+    if (url == nil) {
+        [self fireErrorEventAndSkip:404 withDescription:@"no url provided"];
+        return;
+    }
     NSMutableDictionary* myDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(AVAssetReferenceRestrictionForbidNone),
                                    AVURLAssetReferenceRestrictionsKey, nil];
     AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:myDict];
@@ -743,12 +774,13 @@ PROP_BOOL(muted,isMute);
 {
     if (_state == STATE_PLAYING) {
         double progress = [[self progress] doubleValue];
-        if (progress > 2000) {
+        if (_repeatMode == MPMusicRepeatModeOne || progress > 2000) {
             if (player) {
                 [player seekToTime:CMTimeMakeWithSeconds(0, 1)];
             }
             [self play:nil];
             return;
+
         }
     }
     [self skipToPreviousItem];
@@ -1119,9 +1151,13 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
             CMTimeRange timerange=[[timeRanges objectAtIndex:0]CMTimeRangeValue];
             if ([self _hasListeners:@"buffering"])
             {
-                float progress = (_duration > 0)?(CMTimeGetSeconds(timerange.duration)*1000 / _duration * 100):0;
-                NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@(progress),@"progress",nil];
-                [self fireEvent:@"buffering" withObject:event checkForListener:NO];
+                Float64 position = CMTimeGetSeconds(timerange.duration)*1000;
+                float progress = (_duration > 0)?(position / _duration * 100):0;
+                
+                [self fireEvent:@"buffering" withObject:@{
+                                                          @"position":@(position),
+                                                          @"progress":@(progress)
+                                                          } checkForListener:NO];
             }
         }
     }
@@ -1154,6 +1190,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
 {
     self.isLoadingAsset = NO;
     [self removePlayerTimeObserver];
+    [self fireErrorEventAndSkip:error.code withDescription:error.description];
 }
 
 #pragma mark -
