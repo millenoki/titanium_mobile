@@ -64,7 +64,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     public static final int MIN_DURATION = 30;
     public static final int DEFAULT_DURATION = 200;
     
-    private String loadingUrl = null;
+    private TiDrawableReference loadingRef = null;
+    private TiDrawableReference currentRef = null;
 
     private Timer timer;
     private Animator animator;
@@ -108,10 +109,12 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private HashMap transitionDict = null;
     
     private class FilterAndSetTask extends AsyncTask<Bitmap, Void, Bitmap> {
-        private boolean shouldTransition = true;
+        private final boolean shouldTransition;
+        private final TiDrawableReference imageRef;
         
-        FilterAndSetTask(boolean shouldTransition) { 
-           this.shouldTransition = shouldTransition;
+        FilterAndSetTask(final TiDrawableReference imageRef, final boolean shouldTransition) { 
+            this.shouldTransition = shouldTransition;
+            this.imageRef = imageRef;
        }
         @Override
         protected Bitmap doInBackground(Bitmap... params) {
@@ -127,7 +130,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         @Override
         protected void onPostExecute(Bitmap bitmap) {
             Context context = getContext();
-            if (context != null) {
+            if (context != null && currentRef == this.imageRef) {
                 handleSetDrawable(new BitmapDrawable(context.getResources(), bitmap), shouldTransition);
                 fireLoad(TiC.PROPERTY_IMAGE, bitmap);
             }
@@ -451,7 +454,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                         if (imageSources == null || j >= imageSources.size()) {
                             break topLoop;
                         }
-                        Bitmap b = imageSources.get(j).getBitmap(true);
+                        currentRef = imageSources.get(j);
+                        Bitmap b = currentRef.getBitmap(true);
                         BitmapWithIndex bIndex = new BitmapWithIndex(b, j);
                         while (waitTime < duration * imageSources.size()) {
                             try {
@@ -881,14 +885,16 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 || imageSources.get(0).isTypeNull()) {
             // here we can transition to the default image
             setDefaultImage(proxy.viewInitialised());
+            currentRef = null;
             return;
         }
 
         if (imageSources.size() == 1) {
             TiDrawableReference imageref = imageSources.get(0);
+            currentRef = imageref;
+            Picasso picasso = TiApplication.getPicassoInstance();
+            picasso.cancelRequest(this);
             if (imageref.isNetworkUrl()) {
-                Picasso picasso = TiApplication.getPicassoInstance();
-
                 if (proxy.hasProperty(TiC.PROPERTY_HTTP_OPTIONS)) {
                     // Prepare OkHttp
                     final Context context = getContext();
@@ -907,10 +913,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                                 }
                             }).build();
                 }
-                loadingUrl = imageref.getUrl();
+                loadingRef = imageref;
                 // picasso will cancel running request if reusing
-                picasso.cancelRequest(this);
-                picasso.load(loadingUrl).into(this);
+                picasso.load(imageref.getUrl()).into(this);
             } else {
                 boolean shouldTransition = !onlyTransitionIfRemote;
                 String cacheKey = imageref.getCacheKey();
@@ -936,7 +941,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                             bitmap);
                 }
                 if (bitmap != null && filterOptions != null) {
-                    (new FilterAndSetTask(true)).execute(bitmap);
+                    (new FilterAndSetTask(currentRef, true)).execute(bitmap);
                 }
                 else if (drawable != null) {
                     setDrawable(drawable, shouldTransition);
@@ -1120,7 +1125,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             filterOptions = (HashMap) newValue;
             if (currentImage != null && currentImage instanceof BitmapDrawable) {
                 if (filterOptions != null) {
-                    (new FilterAndSetTask(!onlyTransitionIfRemote)).execute(((BitmapDrawable)currentImage).getBitmap());
+                    (new FilterAndSetTask(currentRef, !onlyTransitionIfRemote)).execute(((BitmapDrawable)currentImage).getBitmap());
                 }
                 else {
                     setDrawable(currentImage, !onlyTransitionIfRemote);
@@ -1322,21 +1327,24 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     @Override
     public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
         Log.d(TAG, "loadedFrom "+ from + ", " + bitmap.getWidth(), Log.DEBUG_MODE);
+        if (loadingRef != currentRef) {
+            return;
+        }
         boolean transition = !onlyTransitionIfRemote || from == LoadedFrom.NETWORK;
-        loadingUrl = null;
         if (filterOptions != null) {
-            (new FilterAndSetTask(transition)).execute(bitmap);
+            (new FilterAndSetTask(loadingRef, transition)).execute(bitmap);
         }
         else {
             handleSetDrawable(new BitmapDrawable(getContext().getResources(),bitmap), transition);
             fireLoad(TiC.PROPERTY_IMAGE, bitmap);
         }
+        loadingRef = null;
     }
 
     @Override
     public void onBitmapFailed(Drawable errorDrawable) {
-        fireError("Download Failed", loadingUrl);
-        loadingUrl = null;
+        fireError("Download Failed", loadingRef.getUrl());
+        loadingRef = null;
     }
 
     @Override
