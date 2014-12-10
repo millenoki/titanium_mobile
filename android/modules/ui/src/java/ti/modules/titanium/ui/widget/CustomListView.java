@@ -9,6 +9,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +20,7 @@ public class CustomListView extends RefreshableListView {
 	private boolean mScrollingEnabled = true;
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
-	private void init() {
+	private void init(final Context context) {
 		if (Build.VERSION.SDK_INT > TiC.API_LEVEL_HONEYCOMB_MR1) {
 			addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
 				private int top;
@@ -49,21 +50,22 @@ public class CustomListView extends RefreshableListView {
 				}
 			});
 		}
+		
 	}
 
 	public CustomListView(Context context) {
 		super(context);
-		init();
+		init(context);
 	}
 
 	public CustomListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init();
+		init(context);
 	}
 
 	public CustomListView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		init();
+		init(context);
 	}
 
 	public void setScrollingEnabled(Object value) {
