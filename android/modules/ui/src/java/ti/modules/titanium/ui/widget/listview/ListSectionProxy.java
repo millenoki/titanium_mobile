@@ -864,7 +864,7 @@ public class ListSectionProxy extends ViewProxy {
 		if (listItem == null) {
 			return;
 		}
-		
+		listItem.setReusing(reusing);
 		int realItemIndex = getUserItemIndexFromSectionPosition(itemIndex);
 		cellContent.setCurrentItem(sectionIndex, realItemIndex, this);
 		
@@ -960,7 +960,7 @@ public class ListSectionProxy extends ViewProxy {
 		if (!listItemProperties.isEmpty()) {
 			listItem.processProperties(listItemProperties);
 		}
-
+        listItem.setReusing(false);
 	}
 
 	public String getTemplateByIndex(int index) {
