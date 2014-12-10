@@ -24,6 +24,8 @@
 //    BOOL _hasOnStackChange;
     BOOL _swipeToClose;
     UIScreenEdgePanGestureRecognizer* popRecognizer;
+//    BOOL transitionIsAnimating;
+//    BOOL transitionWithGesture;
 }
 @synthesize onstackchange;
 
@@ -71,6 +73,25 @@
 {
     return @"Ti.UI.iOS.NavigationWindow";
 }
+
+//-(void)popGestureStateHandler:(UIGestureRecognizer *)recognizer
+//{
+//    UIGestureRecognizerState curState = recognizer.state;
+//    
+//    switch (curState) {
+//        case UIGestureRecognizerStateBegan:
+//            transitionWithGesture = YES;
+//            break;
+//        case UIGestureRecognizerStateEnded:
+//        case UIGestureRecognizerStateCancelled:
+//        case UIGestureRecognizerStateFailed:
+//            transitionWithGesture = NO;
+//            break;
+//        default:
+//            break;
+//    }
+//    
+//}
 
 #pragma mark - TiOrientationController
 
@@ -150,6 +171,7 @@ else{\
             [_navigationDelegate manageNavigationController:(id)navController];
             _navigationDelegate.delegate = self;
             [_navigationDelegate setIsInteractive:_swipeToClose];
+//            [((UINavigationController*)navController).interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
         } else {
             navController = [[ADTransitionController alloc] initWithRootViewController:[self rootController]];
             ((ADTransitionController*)navController).delegate = self;
@@ -272,6 +294,9 @@ else{\
 
 - (void)navController:(id)transitionController willShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 {
+//    if (!transitionWithGesture) {
+//        transitionIsAnimating = YES;
+//    }
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     if (current != theWindow) {
         
@@ -319,6 +344,8 @@ else{\
 
 - (void)navController:(id)transitionController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 {
+//    transitionIsAnimating = NO;
+//    transitionWithGesture = NO;
     TiWindowProxy* theWindow = (TiWindowProxy*)[(TiViewController*)viewController proxy];
     if (theWindow != current && current != nil) {
         UIViewController* oldController = [current hostingController];
