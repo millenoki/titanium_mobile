@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.ParentingProxy;
@@ -426,7 +427,8 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
             if (listViewItemHeights.get(i) != null) // (this is a sanity check)
                 scrollY += listViewItemHeights.get(i); //add all heights of the views that are gone
         }
-        return scrollY;
+        
+        return (int) (scrollY / TiApplication.getAppDensity());
     }
     
     public int getViewHeigth(View v) {
@@ -449,15 +451,10 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
         int lastVisiblePosition = listView.getLastVisiblePosition();
 		eventArgs.put("firstVisibleItem", firstVisibleItem);
         eventArgs.put("visibleItemCount", lastVisiblePosition - firstVisibleItem);
-        eventArgs.put("contentOffset", getScroll());
-//		View view = listView.getChildAt(0);
-//		if (view != null) {
-//	        eventArgs.put("contentOffset", view.getTop());
-//		}
-//		else {
-//		    Log.d(TAG, "not normal");
-//		}
-		
+        KrollDict point = new KrollDict();
+        point.put(TiC.PROPERTY_X, 0);
+        point.put(TiC.PROPERTY_Y, getScroll());
+        eventArgs.put("contentOffset", point);
 		return eventArgs;
 	}
 	
@@ -554,8 +551,9 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
 				    if (scrollValid) {
 				        scrollValid = false;
-	                    if (!fProxy.hasListeners(TiC.EVENT_SCROLLEND, false)) return;
-	                    fProxy.fireEvent(TiC.EVENT_SCROLLEND, dictForScrollEvent(), false, false);
+				        if(fProxy.hasListeners(TiC.EVENT_SCROLLEND, false)) {
+		                    fProxy.fireEvent(TiC.EVENT_SCROLLEND, dictForScrollEvent(), false, false);
+		                }
 				    }
 					
 				}
@@ -565,8 +563,9 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	                }
 					if (scrollValid == false) {
 						scrollValid = true;
-						if (!fProxy.hasListeners(TiC.EVENT_SCROLLSTART, false)) return;
-						fProxy.fireEvent(TiC.EVENT_SCROLLSTART, dictForScrollEvent(), false, false);
+						if(fProxy.hasListeners(TiC.EVENT_SCROLLSTART, false)) {
+                            fProxy.fireEvent(TiC.EVENT_SCROLLSTART, dictForScrollEvent(), false, false);
+                        }
 					}
 				}
 			}
