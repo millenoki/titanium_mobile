@@ -972,9 +972,12 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	private void setSearchView (Object viewObj, boolean addInHeader) {
         if (searchView != null) {
             searchView.releaseViews(true);
+            searchView.setParent(null);
+            searchView = null;
         }
-        if (isSearchViewValid(viewObj)) {
-            searchView = (TiViewProxy) viewObj;
+        TiViewProxy newView = (TiViewProxy)proxy.createProxyFromObject(viewObj, proxy, false);
+        if (isSearchViewValid(newView)) {
+            searchView = newView;
             TiUIView search = searchView.getOrCreateView();
             setSearchListener(searchView, search);
             if (addInHeader) layoutSearchView(searchView);
@@ -987,8 +990,9 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		if (pullView != null) {
 			pullView.releaseViews(true);
 			pullView.setParent(null);
+			pullView = null;
 		}
-		pullView = (TiViewProxy) viewObj;
+		pullView = (TiViewProxy)proxy.createProxyFromObject(viewObj, proxy, false);
 		return layoutHeaderOrFooterView(viewObj, proxy);
 	}
 	

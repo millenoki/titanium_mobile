@@ -1108,8 +1108,6 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setSearchView_:(id)args
 {
-    ENSURE_TYPE_OR_NIL(args,TiUISearchBarProxy);
-    [self tableView];
     if (searchViewProxy)
     {
 		[searchViewProxy setProxyObserver:nil];
@@ -1118,8 +1116,9 @@ static NSDictionary* replaceKeysForRow;
     }
     RELEASE_TO_NIL(tableController);
 
-    if (args != nil) {
-        searchViewProxy = [args retain];
+    TiViewProxy* vp = ( TiViewProxy*)[(TiParentingProxy*)self.proxy createChildFromObject:args];
+    if (vp != nil && IS_OF_CLASS(vp, TiUISearchBarProxy)) {
+        searchViewProxy = [(TiUISearchBarProxy*)vp retain];
         [searchViewProxy setReadyToCreateView:YES];
         [searchViewProxy setDelegate:self];
         tableController = [[UITableViewController alloc] init];
