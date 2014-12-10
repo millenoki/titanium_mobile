@@ -23,6 +23,8 @@
 #import "TiFileSystemHelper.h"
 #import	"Ti2DMatrix.h"
 
+#import "DDMathEvaluator.h"
+
 // for checking version
 #import <sys/utsname.h>
 
@@ -2496,6 +2498,82 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
 }
 
+
++ (NSString *)replacingStringsIn:(NSString*)string fromDictionary:(NSDictionary *)dict
+{
+    NSMutableString *result = [string mutableCopy];
+    [dict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        [result replaceOccurrencesOfString:key withString:obj
+                                   options:0 range:NSMakeRange(0, [result length])];
+        
+    }];
+    for (NSString *target in dict) {
+        
+    }
+    return [result autorelease];
+}
+
++ (NSString *)replacingStringsIn:(NSString*)string fromDictionary:(NSDictionary *)dict withPrefix:(NSString*)prefix
+{
+    NSMutableString *result = [string mutableCopy];
+    [dict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        [result replaceOccurrencesOfString:[prefix stringByAppendingString:key] withString:obj
+                                   options:0 range:NSMakeRange(0, [result length])];
+        
+    }];
+    for (NSString *target in dict) {
+        
+    }
+    return [result autorelease];
+}
+
++(void)applyMathDict:(NSDictionary*)mathDict forEvent:(NSDictionary*)event
+{
+    NSMutableDictionary* variables = nil;
+    NSMutableDictionary* expressions = nil;
+    
+    NSDictionary* vars = [mathDict objectForKey:@"variables"];
+    if (vars) {
+        variables = [NSMutableDictionary dictionaryWithCapacity:[vars count]];
+        [vars enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            [variables setObject:[event valueForKeyPath:obj] forKey:key];
+        }];
+    }
+    
+    DDMathEvaluator *eval = [DDMathEvaluator defaultMathEvaluator];
+    NSDictionary* exps = [mathDict objectForKey:@"expressions"];
+    if (exps) {
+        expressions = [NSMutableDictionary dictionaryWithDictionary:variables];
+        [exps enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+            [expressions setObject:[[eval evaluateString:obj withSubstitutions:variables] stringValue] forKey:key];
+            
+        }];
+    }
+    
+    NSArray* targets = [mathDict objectForKey:@"targets"];
+    
+    if (targets) {
+        for (NSDictionary* targetDict in targets) {
+            id target = [targetDict valueForKey:@"target"];
+            NSDictionary* props = [targetDict valueForKey:@"properties"];
+            NSMutableDictionary* realProps = [NSMutableDictionary dictionaryWithCapacity:[props count]];
+            __block NSError* error;
+            [props enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                NSDictionary* toUse = expressions;
+                id current = [target valueForKey:key];
+                if (current && !IS_OF_CLASS(current, NSNull)) {
+                    toUse = [NSMutableDictionary dictionaryWithObject:current forKey:key];
+                    [(NSMutableDictionary*)toUse addEntriesFromDictionary:expressions];
+                }
+                [realProps setValue:[[eval evaluateString:obj withSubstitutions:toUse error:&error] stringValue] forKey:key];
+                if (error) {
+                    [realProps setValue:[TiUtils replacingStringsIn:obj fromDictionary:toUse withPrefix:@"$"] forKey:key];
+                }
+            }];
+            [target setValuesForKeysWithDictionary:realProps];
+        }
+    }
+}
 
 
 @end

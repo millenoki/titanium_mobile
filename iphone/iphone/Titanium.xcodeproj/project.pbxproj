@@ -1017,6 +1017,72 @@
 		D5E999121869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
 		D5E999131869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
 		D5E999141869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
+		D5EEA14C1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA11B1A37486100E8BB3F /* _DDDecimalFunctions.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA14D1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA11B1A37486100E8BB3F /* _DDDecimalFunctions.m */; };
+		D5EEA14E1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA11B1A37486100E8BB3F /* _DDDecimalFunctions.m */; };
+		D5EEA14F1A37486100E8BB3F /* _DDFunctionEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA11D1A37486100E8BB3F /* _DDFunctionEvaluator.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1501A37486100E8BB3F /* _DDFunctionEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA11D1A37486100E8BB3F /* _DDFunctionEvaluator.m */; };
+		D5EEA1511A37486100E8BB3F /* _DDFunctionEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA11D1A37486100E8BB3F /* _DDFunctionEvaluator.m */; };
+		D5EEA1521A37486100E8BB3F /* _DDFunctionExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA11F1A37486100E8BB3F /* _DDFunctionExpression.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1531A37486100E8BB3F /* _DDFunctionExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA11F1A37486100E8BB3F /* _DDFunctionExpression.m */; };
+		D5EEA1541A37486100E8BB3F /* _DDFunctionExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA11F1A37486100E8BB3F /* _DDFunctionExpression.m */; };
+		D5EEA1551A37486100E8BB3F /* _DDFunctionTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1211A37486100E8BB3F /* _DDFunctionTerm.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1561A37486100E8BB3F /* _DDFunctionTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1211A37486100E8BB3F /* _DDFunctionTerm.m */; };
+		D5EEA1571A37486100E8BB3F /* _DDFunctionTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1211A37486100E8BB3F /* _DDFunctionTerm.m */; };
+		D5EEA1581A37486100E8BB3F /* _DDGroupTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1231A37486100E8BB3F /* _DDGroupTerm.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1591A37486100E8BB3F /* _DDGroupTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1231A37486100E8BB3F /* _DDGroupTerm.m */; };
+		D5EEA15A1A37486100E8BB3F /* _DDGroupTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1231A37486100E8BB3F /* _DDGroupTerm.m */; };
+		D5EEA15B1A37486100E8BB3F /* _DDNumberExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1251A37486100E8BB3F /* _DDNumberExpression.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA15C1A37486100E8BB3F /* _DDNumberExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1251A37486100E8BB3F /* _DDNumberExpression.m */; };
+		D5EEA15D1A37486100E8BB3F /* _DDNumberExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1251A37486100E8BB3F /* _DDNumberExpression.m */; };
+		D5EEA15E1A37486100E8BB3F /* _DDNumberTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1271A37486100E8BB3F /* _DDNumberTerm.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA15F1A37486100E8BB3F /* _DDNumberTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1271A37486100E8BB3F /* _DDNumberTerm.m */; };
+		D5EEA1601A37486100E8BB3F /* _DDNumberTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1271A37486100E8BB3F /* _DDNumberTerm.m */; };
+		D5EEA1611A37486100E8BB3F /* _DDOperatorTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1291A37486100E8BB3F /* _DDOperatorTerm.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1621A37486100E8BB3F /* _DDOperatorTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1291A37486100E8BB3F /* _DDOperatorTerm.m */; };
+		D5EEA1631A37486100E8BB3F /* _DDOperatorTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1291A37486100E8BB3F /* _DDOperatorTerm.m */; };
+		D5EEA1641A37486100E8BB3F /* _DDParserTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA12B1A37486100E8BB3F /* _DDParserTerm.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1651A37486100E8BB3F /* _DDParserTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA12B1A37486100E8BB3F /* _DDParserTerm.m */; };
+		D5EEA1661A37486100E8BB3F /* _DDParserTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA12B1A37486100E8BB3F /* _DDParserTerm.m */; };
+		D5EEA1671A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA12D1A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1681A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA12D1A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m */; };
+		D5EEA1691A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA12D1A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m */; };
+		D5EEA16A1A37486100E8BB3F /* _DDRewriteRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA12F1A37486100E8BB3F /* _DDRewriteRule.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA16B1A37486100E8BB3F /* _DDRewriteRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA12F1A37486100E8BB3F /* _DDRewriteRule.m */; };
+		D5EEA16C1A37486100E8BB3F /* _DDRewriteRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA12F1A37486100E8BB3F /* _DDRewriteRule.m */; };
+		D5EEA16D1A37486100E8BB3F /* _DDVariableExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1311A37486100E8BB3F /* _DDVariableExpression.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA16E1A37486100E8BB3F /* _DDVariableExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1311A37486100E8BB3F /* _DDVariableExpression.m */; };
+		D5EEA16F1A37486100E8BB3F /* _DDVariableExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1311A37486100E8BB3F /* _DDVariableExpression.m */; };
+		D5EEA1701A37486100E8BB3F /* _DDVariableTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1331A37486100E8BB3F /* _DDVariableTerm.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1711A37486100E8BB3F /* _DDVariableTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1331A37486100E8BB3F /* _DDVariableTerm.m */; };
+		D5EEA1721A37486100E8BB3F /* _DDVariableTerm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1331A37486100E8BB3F /* _DDVariableTerm.m */; };
+		D5EEA1731A37486100E8BB3F /* DDExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1351A37486100E8BB3F /* DDExpression.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1741A37486100E8BB3F /* DDExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1351A37486100E8BB3F /* DDExpression.m */; };
+		D5EEA1751A37486100E8BB3F /* DDExpression.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1351A37486100E8BB3F /* DDExpression.m */; };
+		D5EEA1761A37486100E8BB3F /* DDExpressionRewriter.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1371A37486100E8BB3F /* DDExpressionRewriter.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1771A37486100E8BB3F /* DDExpressionRewriter.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1371A37486100E8BB3F /* DDExpressionRewriter.m */; };
+		D5EEA1781A37486100E8BB3F /* DDExpressionRewriter.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1371A37486100E8BB3F /* DDExpressionRewriter.m */; };
+		D5EEA1791A37486100E8BB3F /* DDMathEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1391A37486100E8BB3F /* DDMathEvaluator.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA17A1A37486100E8BB3F /* DDMathEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1391A37486100E8BB3F /* DDMathEvaluator.m */; };
+		D5EEA17B1A37486100E8BB3F /* DDMathEvaluator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1391A37486100E8BB3F /* DDMathEvaluator.m */; };
+		D5EEA17C1A37486100E8BB3F /* DDMathOperator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA13D1A37486100E8BB3F /* DDMathOperator.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA17D1A37486100E8BB3F /* DDMathOperator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA13D1A37486100E8BB3F /* DDMathOperator.m */; };
+		D5EEA17E1A37486100E8BB3F /* DDMathOperator.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA13D1A37486100E8BB3F /* DDMathOperator.m */; };
+		D5EEA17F1A37486100E8BB3F /* DDMathStringToken.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1411A37486100E8BB3F /* DDMathStringToken.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1801A37486100E8BB3F /* DDMathStringToken.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1411A37486100E8BB3F /* DDMathStringToken.m */; };
+		D5EEA1811A37486100E8BB3F /* DDMathStringToken.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1411A37486100E8BB3F /* DDMathStringToken.m */; };
+		D5EEA1821A37486100E8BB3F /* DDMathStringTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1431A37486100E8BB3F /* DDMathStringTokenizer.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1831A37486100E8BB3F /* DDMathStringTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1431A37486100E8BB3F /* DDMathStringTokenizer.m */; };
+		D5EEA1841A37486100E8BB3F /* DDMathStringTokenizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1431A37486100E8BB3F /* DDMathStringTokenizer.m */; };
+		D5EEA1851A37486100E8BB3F /* DDParser.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1451A37486100E8BB3F /* DDParser.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1861A37486100E8BB3F /* DDParser.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1451A37486100E8BB3F /* DDParser.m */; };
+		D5EEA1871A37486100E8BB3F /* DDParser.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1451A37486100E8BB3F /* DDParser.m */; };
+		D5EEA1881A37486100E8BB3F /* DDParserTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1471A37486100E8BB3F /* DDParserTypes.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA1891A37486100E8BB3F /* DDParserTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1471A37486100E8BB3F /* DDParserTypes.m */; };
+		D5EEA18A1A37486100E8BB3F /* DDParserTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1471A37486100E8BB3F /* DDParserTypes.m */; };
+		D5EEA18B1A37486100E8BB3F /* DDTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1491A37486100E8BB3F /* DDTypes.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5EEA18C1A37486100E8BB3F /* DDTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1491A37486100E8BB3F /* DDTypes.m */; };
+		D5EEA18D1A37486100E8BB3F /* DDTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1491A37486100E8BB3F /* DDTypes.m */; };
 		D5F3F9B019C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		D5F3F9B719C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		D5F3F9B819C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
@@ -2494,6 +2560,54 @@
 		D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.shapes.xcodeproj; path = ../../../modules/akylas_modules/shapes/ios/akylas.shapes.xcodeproj; sourceTree = "<group>"; };
 		D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.slidemenu.xcodeproj; path = ../../../modules/akylas_modules/slidemenu/ios/akylas.slidemenu.xcodeproj; sourceTree = "<group>"; };
 		D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.commonjs.xcodeproj; path = ../../../modules/akylas_modules/commonjs/ios/akylas.commonjs.xcodeproj; sourceTree = "<group>"; };
+		D5EEA11A1A37486100E8BB3F /* _DDDecimalFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDDecimalFunctions.h; path = ../Classes/DDMathParser/_DDDecimalFunctions.h; sourceTree = "<group>"; };
+		D5EEA11B1A37486100E8BB3F /* _DDDecimalFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDDecimalFunctions.m; path = ../Classes/DDMathParser/_DDDecimalFunctions.m; sourceTree = "<group>"; };
+		D5EEA11C1A37486100E8BB3F /* _DDFunctionEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDFunctionEvaluator.h; path = ../Classes/DDMathParser/_DDFunctionEvaluator.h; sourceTree = "<group>"; };
+		D5EEA11D1A37486100E8BB3F /* _DDFunctionEvaluator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDFunctionEvaluator.m; path = ../Classes/DDMathParser/_DDFunctionEvaluator.m; sourceTree = "<group>"; };
+		D5EEA11E1A37486100E8BB3F /* _DDFunctionExpression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDFunctionExpression.h; path = ../Classes/DDMathParser/_DDFunctionExpression.h; sourceTree = "<group>"; };
+		D5EEA11F1A37486100E8BB3F /* _DDFunctionExpression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDFunctionExpression.m; path = ../Classes/DDMathParser/_DDFunctionExpression.m; sourceTree = "<group>"; };
+		D5EEA1201A37486100E8BB3F /* _DDFunctionTerm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDFunctionTerm.h; path = ../Classes/DDMathParser/_DDFunctionTerm.h; sourceTree = "<group>"; };
+		D5EEA1211A37486100E8BB3F /* _DDFunctionTerm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDFunctionTerm.m; path = ../Classes/DDMathParser/_DDFunctionTerm.m; sourceTree = "<group>"; };
+		D5EEA1221A37486100E8BB3F /* _DDGroupTerm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDGroupTerm.h; path = ../Classes/DDMathParser/_DDGroupTerm.h; sourceTree = "<group>"; };
+		D5EEA1231A37486100E8BB3F /* _DDGroupTerm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDGroupTerm.m; path = ../Classes/DDMathParser/_DDGroupTerm.m; sourceTree = "<group>"; };
+		D5EEA1241A37486100E8BB3F /* _DDNumberExpression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDNumberExpression.h; path = ../Classes/DDMathParser/_DDNumberExpression.h; sourceTree = "<group>"; };
+		D5EEA1251A37486100E8BB3F /* _DDNumberExpression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDNumberExpression.m; path = ../Classes/DDMathParser/_DDNumberExpression.m; sourceTree = "<group>"; };
+		D5EEA1261A37486100E8BB3F /* _DDNumberTerm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDNumberTerm.h; path = ../Classes/DDMathParser/_DDNumberTerm.h; sourceTree = "<group>"; };
+		D5EEA1271A37486100E8BB3F /* _DDNumberTerm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDNumberTerm.m; path = ../Classes/DDMathParser/_DDNumberTerm.m; sourceTree = "<group>"; };
+		D5EEA1281A37486100E8BB3F /* _DDOperatorTerm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDOperatorTerm.h; path = ../Classes/DDMathParser/_DDOperatorTerm.h; sourceTree = "<group>"; };
+		D5EEA1291A37486100E8BB3F /* _DDOperatorTerm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDOperatorTerm.m; path = ../Classes/DDMathParser/_DDOperatorTerm.m; sourceTree = "<group>"; };
+		D5EEA12A1A37486100E8BB3F /* _DDParserTerm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDParserTerm.h; path = ../Classes/DDMathParser/_DDParserTerm.h; sourceTree = "<group>"; };
+		D5EEA12B1A37486100E8BB3F /* _DDParserTerm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDParserTerm.m; path = ../Classes/DDMathParser/_DDParserTerm.m; sourceTree = "<group>"; };
+		D5EEA12C1A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDPrecisionFunctionEvaluator.h; path = ../Classes/DDMathParser/_DDPrecisionFunctionEvaluator.h; sourceTree = "<group>"; };
+		D5EEA12D1A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDPrecisionFunctionEvaluator.m; path = ../Classes/DDMathParser/_DDPrecisionFunctionEvaluator.m; sourceTree = "<group>"; };
+		D5EEA12E1A37486100E8BB3F /* _DDRewriteRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDRewriteRule.h; path = ../Classes/DDMathParser/_DDRewriteRule.h; sourceTree = "<group>"; };
+		D5EEA12F1A37486100E8BB3F /* _DDRewriteRule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDRewriteRule.m; path = ../Classes/DDMathParser/_DDRewriteRule.m; sourceTree = "<group>"; };
+		D5EEA1301A37486100E8BB3F /* _DDVariableExpression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDVariableExpression.h; path = ../Classes/DDMathParser/_DDVariableExpression.h; sourceTree = "<group>"; };
+		D5EEA1311A37486100E8BB3F /* _DDVariableExpression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDVariableExpression.m; path = ../Classes/DDMathParser/_DDVariableExpression.m; sourceTree = "<group>"; };
+		D5EEA1321A37486100E8BB3F /* _DDVariableTerm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _DDVariableTerm.h; path = ../Classes/DDMathParser/_DDVariableTerm.h; sourceTree = "<group>"; };
+		D5EEA1331A37486100E8BB3F /* _DDVariableTerm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = _DDVariableTerm.m; path = ../Classes/DDMathParser/_DDVariableTerm.m; sourceTree = "<group>"; };
+		D5EEA1341A37486100E8BB3F /* DDExpression.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDExpression.h; path = ../Classes/DDMathParser/DDExpression.h; sourceTree = "<group>"; };
+		D5EEA1351A37486100E8BB3F /* DDExpression.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDExpression.m; path = ../Classes/DDMathParser/DDExpression.m; sourceTree = "<group>"; };
+		D5EEA1361A37486100E8BB3F /* DDExpressionRewriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDExpressionRewriter.h; path = ../Classes/DDMathParser/DDExpressionRewriter.h; sourceTree = "<group>"; };
+		D5EEA1371A37486100E8BB3F /* DDExpressionRewriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDExpressionRewriter.m; path = ../Classes/DDMathParser/DDExpressionRewriter.m; sourceTree = "<group>"; };
+		D5EEA1381A37486100E8BB3F /* DDMathEvaluator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDMathEvaluator.h; path = ../Classes/DDMathParser/DDMathEvaluator.h; sourceTree = "<group>"; };
+		D5EEA1391A37486100E8BB3F /* DDMathEvaluator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDMathEvaluator.m; path = ../Classes/DDMathParser/DDMathEvaluator.m; sourceTree = "<group>"; };
+		D5EEA13A1A37486100E8BB3F /* DDMathEvaluator+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "DDMathEvaluator+Private.h"; path = "../Classes/DDMathParser/DDMathEvaluator+Private.h"; sourceTree = "<group>"; };
+		D5EEA13B1A37486100E8BB3F /* DDMathOperator_Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDMathOperator_Internal.h; path = ../Classes/DDMathParser/DDMathOperator_Internal.h; sourceTree = "<group>"; };
+		D5EEA13C1A37486100E8BB3F /* DDMathOperator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDMathOperator.h; path = ../Classes/DDMathParser/DDMathOperator.h; sourceTree = "<group>"; };
+		D5EEA13D1A37486100E8BB3F /* DDMathOperator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDMathOperator.m; path = ../Classes/DDMathParser/DDMathOperator.m; sourceTree = "<group>"; };
+		D5EEA13E1A37486100E8BB3F /* DDMathParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDMathParser.h; path = ../Classes/DDMathParser/DDMathParser.h; sourceTree = "<group>"; };
+		D5EEA13F1A37486100E8BB3F /* DDMathParserMacros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDMathParserMacros.h; path = ../Classes/DDMathParser/DDMathParserMacros.h; sourceTree = "<group>"; };
+		D5EEA1401A37486100E8BB3F /* DDMathStringToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDMathStringToken.h; path = ../Classes/DDMathParser/DDMathStringToken.h; sourceTree = "<group>"; };
+		D5EEA1411A37486100E8BB3F /* DDMathStringToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDMathStringToken.m; path = ../Classes/DDMathParser/DDMathStringToken.m; sourceTree = "<group>"; };
+		D5EEA1421A37486100E8BB3F /* DDMathStringTokenizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDMathStringTokenizer.h; path = ../Classes/DDMathParser/DDMathStringTokenizer.h; sourceTree = "<group>"; };
+		D5EEA1431A37486100E8BB3F /* DDMathStringTokenizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDMathStringTokenizer.m; path = ../Classes/DDMathParser/DDMathStringTokenizer.m; sourceTree = "<group>"; };
+		D5EEA1441A37486100E8BB3F /* DDParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDParser.h; path = ../Classes/DDMathParser/DDParser.h; sourceTree = "<group>"; };
+		D5EEA1451A37486100E8BB3F /* DDParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDParser.m; path = ../Classes/DDMathParser/DDParser.m; sourceTree = "<group>"; };
+		D5EEA1461A37486100E8BB3F /* DDParserTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDParserTypes.h; path = ../Classes/DDMathParser/DDParserTypes.h; sourceTree = "<group>"; };
+		D5EEA1471A37486100E8BB3F /* DDParserTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDParserTypes.m; path = ../Classes/DDMathParser/DDParserTypes.m; sourceTree = "<group>"; };
+		D5EEA1481A37486100E8BB3F /* DDTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDTypes.h; path = ../Classes/DDMathParser/DDTypes.h; sourceTree = "<group>"; };
+		D5EEA1491A37486100E8BB3F /* DDTypes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDTypes.m; path = ../Classes/DDMathParser/DDTypes.m; sourceTree = "<group>"; };
 		D5F9620119A638CC000E464F /* TiScrollingViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiScrollingViewProxy.h; sourceTree = "<group>"; };
 		D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiScrollingViewProxy.m; sourceTree = "<group>"; };
 		D5F9620C19A63941000E464F /* TiScrollingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiScrollingView.h; sourceTree = "<group>"; };
@@ -2787,6 +2901,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				D5EEA1091A37468E00E8BB3F /* DDMathParser */,
 				D59355541A233EE000522BC3 /* SevenSwitch */,
 				D57644C21A1B805100322E0D /* StreamingKit */,
 				D5F980EA19ECFC180071A3C6 /* MGSwipeTableCell */,
@@ -4686,6 +4801,61 @@
 			name = UIViewsTouchDelegate;
 			sourceTree = "<group>";
 		};
+		D5EEA1091A37468E00E8BB3F /* DDMathParser */ = {
+			isa = PBXGroup;
+			children = (
+				D5EEA11A1A37486100E8BB3F /* _DDDecimalFunctions.h */,
+				D5EEA11B1A37486100E8BB3F /* _DDDecimalFunctions.m */,
+				D5EEA11C1A37486100E8BB3F /* _DDFunctionEvaluator.h */,
+				D5EEA11D1A37486100E8BB3F /* _DDFunctionEvaluator.m */,
+				D5EEA11E1A37486100E8BB3F /* _DDFunctionExpression.h */,
+				D5EEA11F1A37486100E8BB3F /* _DDFunctionExpression.m */,
+				D5EEA1201A37486100E8BB3F /* _DDFunctionTerm.h */,
+				D5EEA1211A37486100E8BB3F /* _DDFunctionTerm.m */,
+				D5EEA1221A37486100E8BB3F /* _DDGroupTerm.h */,
+				D5EEA1231A37486100E8BB3F /* _DDGroupTerm.m */,
+				D5EEA1241A37486100E8BB3F /* _DDNumberExpression.h */,
+				D5EEA1251A37486100E8BB3F /* _DDNumberExpression.m */,
+				D5EEA1261A37486100E8BB3F /* _DDNumberTerm.h */,
+				D5EEA1271A37486100E8BB3F /* _DDNumberTerm.m */,
+				D5EEA1281A37486100E8BB3F /* _DDOperatorTerm.h */,
+				D5EEA1291A37486100E8BB3F /* _DDOperatorTerm.m */,
+				D5EEA12A1A37486100E8BB3F /* _DDParserTerm.h */,
+				D5EEA12B1A37486100E8BB3F /* _DDParserTerm.m */,
+				D5EEA12C1A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.h */,
+				D5EEA12D1A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m */,
+				D5EEA12E1A37486100E8BB3F /* _DDRewriteRule.h */,
+				D5EEA12F1A37486100E8BB3F /* _DDRewriteRule.m */,
+				D5EEA1301A37486100E8BB3F /* _DDVariableExpression.h */,
+				D5EEA1311A37486100E8BB3F /* _DDVariableExpression.m */,
+				D5EEA1321A37486100E8BB3F /* _DDVariableTerm.h */,
+				D5EEA1331A37486100E8BB3F /* _DDVariableTerm.m */,
+				D5EEA1341A37486100E8BB3F /* DDExpression.h */,
+				D5EEA1351A37486100E8BB3F /* DDExpression.m */,
+				D5EEA1361A37486100E8BB3F /* DDExpressionRewriter.h */,
+				D5EEA1371A37486100E8BB3F /* DDExpressionRewriter.m */,
+				D5EEA1381A37486100E8BB3F /* DDMathEvaluator.h */,
+				D5EEA1391A37486100E8BB3F /* DDMathEvaluator.m */,
+				D5EEA13A1A37486100E8BB3F /* DDMathEvaluator+Private.h */,
+				D5EEA13B1A37486100E8BB3F /* DDMathOperator_Internal.h */,
+				D5EEA13C1A37486100E8BB3F /* DDMathOperator.h */,
+				D5EEA13D1A37486100E8BB3F /* DDMathOperator.m */,
+				D5EEA13E1A37486100E8BB3F /* DDMathParser.h */,
+				D5EEA13F1A37486100E8BB3F /* DDMathParserMacros.h */,
+				D5EEA1401A37486100E8BB3F /* DDMathStringToken.h */,
+				D5EEA1411A37486100E8BB3F /* DDMathStringToken.m */,
+				D5EEA1421A37486100E8BB3F /* DDMathStringTokenizer.h */,
+				D5EEA1431A37486100E8BB3F /* DDMathStringTokenizer.m */,
+				D5EEA1441A37486100E8BB3F /* DDParser.h */,
+				D5EEA1451A37486100E8BB3F /* DDParser.m */,
+				D5EEA1461A37486100E8BB3F /* DDParserTypes.h */,
+				D5EEA1471A37486100E8BB3F /* DDParserTypes.m */,
+				D5EEA1481A37486100E8BB3F /* DDTypes.h */,
+				D5EEA1491A37486100E8BB3F /* DDTypes.m */,
+			);
+			name = DDMathParser;
+			sourceTree = "<group>";
+		};
 		D5F980EA19ECFC180071A3C6 /* MGSwipeTableCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -5047,6 +5217,7 @@
 				243ECCB21126984E00639DF4 /* TiUITableViewAction.m in Sources */,
 				243ECCB71126986F00639DF4 /* TiFile.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
+				D5EEA1581A37486100E8BB3F /* _DDGroupTerm.m in Sources */,
 				D5216934183A10AC00FBB24B /* CAAnimation+Blocks.m in Sources */,
 				24CA895B111161050084E2DE /* AFItemView.m in Sources */,
 				24CA895C111161050084E2DE /* AFOpenFlowView.m in Sources */,
@@ -5092,7 +5263,9 @@
 				24CA8B66111161FE0084E2DE /* YahooModule.m in Sources */,
 				24CA8B67111161FE0084E2DE /* XHRBridge.m in Sources */,
 				24CA8B68111161FE0084E2DE /* WebFont.m in Sources */,
+				D5EEA16A1A37486100E8BB3F /* _DDRewriteRule.m in Sources */,
 				D54C7D1618115C3C00F592A9 /* TiTransitionZoom.m in Sources */,
+				D5EEA16D1A37486100E8BB3F /* _DDVariableExpression.m in Sources */,
 				24CA8B6A111161FE0084E2DE /* UIModule.m in Sources */,
 				D5370D94194749DF000E30FC /* TiParentingProxy.m in Sources */,
 				24CA8B6C111161FE0084E2DE /* TiViewProxy.m in Sources */,
@@ -5109,6 +5282,7 @@
 				24CA8B7B111161FE0084E2DE /* TiUITextAreaProxy.m in Sources */,
 				D5DC32F8180EED41006CCEBD /* TiTransitionCube.m in Sources */,
 				24CA8B7C111161FE0084E2DE /* TiUITextArea.m in Sources */,
+				D5EEA14F1A37486100E8BB3F /* _DDFunctionEvaluator.m in Sources */,
 				D5C8C96717EF45C900F54C19 /* ADBackFadeTransition.m in Sources */,
 				24CA8B7D111161FE0084E2DE /* TiUITabProxy.m in Sources */,
 				D58DCBCD17FEF0F50011FE0E /* TiSVGImage.m in Sources */,
@@ -5160,6 +5334,7 @@
 				24CA8BAA111161FE0084E2DE /* TiUIButton.m in Sources */,
 				24CA8BAB111161FE0084E2DE /* TiUIiPhoneAnimationStyleProxy.m in Sources */,
 				24CA8BAC111161FE0084E2DE /* TiUIAlertDialogProxy.m in Sources */,
+				D5EEA1551A37486100E8BB3F /* _DDFunctionTerm.m in Sources */,
 				24CA8BAD111161FE0084E2DE /* TiUIActivityIndicatorStyleProxy.m in Sources */,
 				24CA8BAE111161FE0084E2DE /* TiUIActivityIndicatorProxy.m in Sources */,
 				24CA8BAF111161FE0084E2DE /* TiUIActivityIndicator.m in Sources */,
@@ -5176,6 +5351,7 @@
 				D56E6699180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
 				24CA8BBE111161FE0084E2DE /* TiMediaAudioPlayerProxy.m in Sources */,
 				D5C8C98217EF45C900F54C19 /* ADGlueTransition.m in Sources */,
+				D5EEA1611A37486100E8BB3F /* _DDOperatorTerm.m in Sources */,
 				24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */,
 				24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */,
 				D58709BB19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
@@ -5194,6 +5370,7 @@
 				D59DD42718096186002FDCDF /* ADModernPushTransition.m in Sources */,
 				84E00A9C17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m in Sources */,
 				B606EF35190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */,
+				D5EEA17F1A37486100E8BB3F /* DDMathStringToken.m in Sources */,
 				8484E3A117A8279500C24B02 /* TiRootViewController.m in Sources */,
 				D5E9511C195DC34800DB8B37 /* TiProperties.m in Sources */,
 				24CA8BCD111161FE0084E2DE /* TiButtonUtil.m in Sources */,
@@ -5244,12 +5421,14 @@
 				84A0101817FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */,
 				24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */,
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
+				D5EEA1761A37486100E8BB3F /* DDExpressionRewriter.m in Sources */,
 				243ED8EF11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.m in Sources */,
 				24FBE58311293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */,
 				D535CCE719CF333A005E114E /* UIImage+UserInfo.m in Sources */,
 				24E25CC4112A698C0083D43D /* SCListener.m in Sources */,
 				24A1E519112D33AF003DA834 /* TiMediaAudioSession.m in Sources */,
 				D5809D5919129CEB005A1F02 /* APSHTTPRequest.m in Sources */,
+				D5EEA1851A37486100E8BB3F /* DDParser.m in Sources */,
 				24A1E875112DF80B003DA834 /* TiUIPickerProxy.m in Sources */,
 				24A1E87B112DF83E003DA834 /* TiUIPicker.m in Sources */,
 				D5C8C99717EF45C900F54C19 /* ADTransformTransition.m in Sources */,
@@ -5286,7 +5465,10 @@
 				D51DEFC719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */,
 				24E50E1B1160666300AF54AF /* LauncherItem.m in Sources */,
 				24E50E1C1160666300AF54AF /* LauncherView.m in Sources */,
+				D5EEA14C1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */,
+				D5EEA1821A37486100E8BB3F /* DDMathStringTokenizer.m in Sources */,
 				24E50E27116066A800AF54AF /* TiUIDashboardViewProxy.m in Sources */,
+				D5EEA1641A37486100E8BB3F /* _DDParserTerm.m in Sources */,
 				D57007F418255BBD0063F7FE /* ADSwipeDualFadeTransition.m in Sources */,
 				24E50E30116066B400AF54AF /* TiUIDashboardView.m in Sources */,
 				24E50F911160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
@@ -5334,23 +5516,27 @@
 				84EB340017A8CAA700723B1E /* TiWindowProxy.m in Sources */,
 				D54C7D0C18115C0900F592A9 /* TiTransitionGhost.m in Sources */,
 				D54C7D2018115D7D00F592A9 /* TiTransitionModernPush.m in Sources */,
+				D5EEA1671A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */,
 				24ADC634129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */,
 				84A0100E17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
 				84A00FF017FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
 				D57644D61A1B805C00322E0D /* NSMutableArray+STKAudioPlayer.m in Sources */,
 				D55795811837BF6C0057DD41 /* TiViewAnimationStep.m in Sources */,
+				D5EEA1791A37486100E8BB3F /* DDMathEvaluator.m in Sources */,
 				DA2B35C2134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */,
 				DABF3ECF134D210400836137 /* TiBuffer.m in Sources */,
 				DABF3ED7134D2CA100836137 /* StreamModule.m in Sources */,
 				DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */,
 				DAA4B2B4134E75AC00AB6011 /* CodecModule.m in Sources */,
 				D54E555719953BDC004A7335 /* RDActivityViewController.m in Sources */,
+				D5EEA1701A37486100E8BB3F /* _DDVariableTerm.m in Sources */,
 				D54C7D1B18115C5200F592A9 /* TiTransitionSwap.m in Sources */,
 				DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
 				DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */,
 				4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */,
 				D57644DF1A1B805C00322E0D /* STKCoreFoundationDataSource.m in Sources */,
+				D5EEA1881A37486100E8BB3F /* DDParserTypes.m in Sources */,
 				DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */,
 				D512A7AD187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */,
 				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
@@ -5393,6 +5579,7 @@
 				D93DAA5A16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D5412E121900156C00B720DF /* ADPercentDrivenInteractiveTransition.m in Sources */,
 				D57644E51A1B805C00322E0D /* STKDataSourceWrapper.m in Sources */,
+				D5EEA17C1A37486100E8BB3F /* DDMathOperator.m in Sources */,
 				B6C5206118035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */,
 				D54C7CEF1811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				D93DAA5F16CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
@@ -5402,8 +5589,10 @@
 				502A68DD16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */,
 				502A68E016EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */,
 				D55795991839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,
+				D5EEA15E1A37486100E8BB3F /* _DDNumberTerm.m in Sources */,
 				502A68E316EEAA7500661EF6 /* TiUIListView.m in Sources */,
 				D5F3F9B019C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */,
+				D5EEA1731A37486100E8BB3F /* DDExpression.m in Sources */,
 				D512A7B3187F1813004E3AB1 /* ADTransitioningViewController.m in Sources */,
 				502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
 				502A68EB16F0428500661EF6 /* TiProxyTemplate.m in Sources */,
@@ -5424,14 +5613,17 @@
 				D5C8C9A817EF5E6D00F54C19 /* TiUITransitionStyleProxy.m in Sources */,
 				D54C7D1118115C1800F592A9 /* TiTransitionGlue.m in Sources */,
 				D59EC23D180FDC5D00FDDD11 /* TiTransitionFold.m in Sources */,
+				D5EEA18B1A37486100E8BB3F /* DDTypes.m in Sources */,
 				D5C8C99A17EF45C900F54C19 /* ADTransition.m in Sources */,
 				D5C8C9A317EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */,
+				D5EEA15B1A37486100E8BB3F /* _DDNumberExpression.m in Sources */,
 				D51F03D91808411F005B4EE2 /* TiImageHelper.m in Sources */,
 				D56E66A3180C60E600F1B737 /* TiTransitionFlip.m in Sources */,
 				D5C8C97F17EF45C900F54C19 /* ADGhostTransition.m in Sources */,
 				D5C8C99D17EF45C900F54C19 /* ADTransitionController.m in Sources */,
 				D5C8C98517EF45C900F54C19 /* ADPushRotateTransition.m in Sources */,
 				D526016C179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */,
+				D5EEA1521A37486100E8BB3F /* _DDFunctionExpression.m in Sources */,
 				D51F03CA18080504005B4EE2 /* TiUIBlendModeProxy.m in Sources */,
 				D51697F217FFF63300B4FDB8 /* ImageModule.m in Sources */,
 				D5C92DA7182AA88F0072D117 /* TouchDelegate_Views.m in Sources */,
@@ -5443,6 +5635,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5EEA16B1A37486100E8BB3F /* _DDRewriteRule.m in Sources */,
 				DA3B2FA8143EDEE3000DC803 /* TiUIiOSToolbar.m in Sources */,
 				DA3B2FAA143EDEE3000DC803 /* TiUIiOSToolbarProxy.m in Sources */,
 				24D8E3BB119B9D8A00F8CAA6 /* TiUITableViewAction.m in Sources */,
@@ -5454,6 +5647,7 @@
 				24D8E3BE119B9D8A00F8CAA6 /* main.m in Sources */,
 				24D8E3BF119B9D8A00F8CAA6 /* AFItemView.m in Sources */,
 				24D8E3C0119B9D8A00F8CAA6 /* AFOpenFlowView.m in Sources */,
+				D5EEA16E1A37486100E8BB3F /* _DDVariableExpression.m in Sources */,
 				24D8E3C1119B9D8A00F8CAA6 /* AFUIImageReflection.m in Sources */,
 				84A00FF617FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
 				D53DC7B619CF427100BB31C9 /* UIImage+ColorArt.m in Sources */,
@@ -5469,11 +5663,13 @@
 				8484E3A817A865F700C24B02 /* TiViewController.m in Sources */,
 				24D8E3DB119B9D8A00F8CAA6 /* PlausibleDatabase.m in Sources */,
 				24D8E3DC119B9D8A00F8CAA6 /* PLSqliteDatabase.m in Sources */,
+				D5EEA1891A37486100E8BB3F /* DDParserTypes.m in Sources */,
 				24D8E3DD119B9D8A00F8CAA6 /* PLSqlitePreparedStatement.m in Sources */,
 				24D8E3DE119B9D8A00F8CAA6 /* PLSqliteResultSet.m in Sources */,
 				24D8E3DF119B9D8A00F8CAA6 /* SBJSON.m in Sources */,
 				24D8E3E0119B9D8A00F8CAA6 /* KrollBridge.m in Sources */,
 				84A0100A17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
+				D5EEA1531A37486100E8BB3F /* _DDFunctionExpression.m in Sources */,
 				24D8E3E1119B9D8A00F8CAA6 /* KrollCallback.m in Sources */,
 				D535CCE319CF2C77005E114E /* SLColorArt.m in Sources */,
 				24D8E3E2119B9D8A00F8CAA6 /* KrollContext.m in Sources */,
@@ -5509,6 +5705,7 @@
 				24D8E3F9119B9D8A00F8CAA6 /* TiUITextField.m in Sources */,
 				D506FB0C18E5DD06007E4A5B /* (null) in Sources */,
 				D5809D5D19129CEB005A1F02 /* APSHTTPResponse.m in Sources */,
+				D5EEA17D1A37486100E8BB3F /* DDMathOperator.m in Sources */,
 				24D8E3FA119B9D8A00F8CAA6 /* TiUITextAreaProxy.m in Sources */,
 				24D8E3FB119B9D8A00F8CAA6 /* TiUITextArea.m in Sources */,
 				24D8E3FC119B9D8A00F8CAA6 /* TiUITabProxy.m in Sources */,
@@ -5557,6 +5754,7 @@
 				24D8E424119B9D8A00F8CAA6 /* TiUIActivityIndicatorProxy.m in Sources */,
 				24D8E425119B9D8A00F8CAA6 /* TiUIActivityIndicator.m in Sources */,
 				24D8E426119B9D8A00F8CAA6 /* TiRect.m in Sources */,
+				D5EEA1771A37486100E8BB3F /* DDExpressionRewriter.m in Sources */,
 				D5216940183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
 				D50E11211A223072008FD092 /* TiUICollectionWrapperView.m in Sources */,
 				24D8E428119B9D8A00F8CAA6 /* TiProxy.m in Sources */,
@@ -5564,10 +5762,12 @@
 				D56E669A180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
 				24D8E42C119B9D8A00F8CAA6 /* TiModule.m in Sources */,
 				24D8E42D119B9D8A00F8CAA6 /* TiMediaVideoPlayerProxy.m in Sources */,
+				D5EEA17A1A37486100E8BB3F /* DDMathEvaluator.m in Sources */,
 				24D8E42E119B9D8A00F8CAA6 /* TiMediaSoundProxy.m in Sources */,
 				D5C8C98317EF45C900F54C19 /* ADGlueTransition.m in Sources */,
 				24D8E42F119B9D8A00F8CAA6 /* TiMediaAudioPlayerProxy.m in Sources */,
 				D55795821837BF6C0057DD41 /* TiViewAnimationStep.m in Sources */,
+				D5EEA15C1A37486100E8BB3F /* _DDNumberExpression.m in Sources */,
 				D54C7D0D18115C0900F592A9 /* TiTransitionGhost.m in Sources */,
 				24D8E433119B9D8A00F8CAA6 /* TiHost.m in Sources */,
 				D50A303118B0F6C1004CBD52 /* TouchCapturingWindow.m in Sources */,
@@ -5604,11 +5804,13 @@
 				24D8E447119B9D8A00F8CAA6 /* OperationQueue.m in Sources */,
 				24D8E448119B9D8A00F8CAA6 /* NetworkModule.m in Sources */,
 				24D8E449119B9D8A00F8CAA6 /* Mimetypes.m in Sources */,
+				D5EEA1681A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */,
 				24D8E44A119B9D8A00F8CAA6 /* MediaModule.m in Sources */,
 				24D8E44C119B9D8A00F8CAA6 /* LayoutConstraint.m in Sources */,
 				D5162EA61A20D1F7008A4048 /* TiUICollectionSectionProxy.m in Sources */,
 				24D8E44D119B9D8A00F8CAA6 /* ImageLoader.m in Sources */,
 				24D8E44E119B9D8A00F8CAA6 /* GestureModule.m in Sources */,
+				D5EEA1591A37486100E8BB3F /* _DDGroupTerm.m in Sources */,
 				D535CCE819CF333A005E114E /* UIImage+UserInfo.m in Sources */,
 				D54C7D0818115BFA00F592A9 /* TiTransitionCross.m in Sources */,
 				24D8E450119B9D8A00F8CAA6 /* FilesystemModule.m in Sources */,
@@ -5654,6 +5856,7 @@
 				24D8E473119B9D8A00F8CAA6 /* TiUIPickerRowProxy.m in Sources */,
 				D5C5EC3218642FB100357DE4 /* TiTableView.m in Sources */,
 				D57644E01A1B805C00322E0D /* STKCoreFoundationDataSource.m in Sources */,
+				D5EEA1711A37486100E8BB3F /* _DDVariableTerm.m in Sources */,
 				24D8E474119B9D8A00F8CAA6 /* TiUIPickerColumnProxy.m in Sources */,
 				24D8E475119B9D8A00F8CAA6 /* UIImage+Alpha.m in Sources */,
 				24D8E476119B9D8A00F8CAA6 /* UIImage+Resize.m in Sources */,
@@ -5669,6 +5872,7 @@
 				24D8E47D119B9D8A00F8CAA6 /* TiNetworkBonjourServiceProxy.m in Sources */,
 				24D8E47E119B9D8A00F8CAA6 /* TiNetworkTCPSocketProxy.m in Sources */,
 				24D8E47F119B9D8A00F8CAA6 /* TiDOMTextNodeProxy.m in Sources */,
+				D5EEA1861A37486100E8BB3F /* DDParser.m in Sources */,
 				24D8E480119B9D8A00F8CAA6 /* TiMediaVideoPlayer.m in Sources */,
 				24D8E481119B9D8A00F8CAA6 /* TiUIiPadSplitWindowProxy.m in Sources */,
 				24D8E482119B9D8A00F8CAA6 /* TiUIiPadPopoverProxy.m in Sources */,
@@ -5677,6 +5881,7 @@
 				24D8E487119B9D8A00F8CAA6 /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
 				24D8E488119B9D8A00F8CAA6 /* LauncherButton.m in Sources */,
 				D5412E1819012A0D00B720DF /* UIGestureRecognizer+ADNavTransition.m in Sources */,
+				D5EEA18C1A37486100E8BB3F /* DDTypes.m in Sources */,
 				24D8E489119B9D8A00F8CAA6 /* LauncherItem.m in Sources */,
 				24D8E48A119B9D8A00F8CAA6 /* LauncherView.m in Sources */,
 				24D8E48B119B9D8A00F8CAA6 /* TiUIDashboardViewProxy.m in Sources */,
@@ -5705,6 +5910,7 @@
 				24D06FE211D0211200F615D8 /* TiUIiOSAdViewProxy.m in Sources */,
 				24D06FE911D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
 				24D0700711D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
+				D5EEA1561A37486100E8BB3F /* _DDFunctionTerm.m in Sources */,
 				2467310711E2549300D39AF7 /* Webcolor.m in Sources */,
 				2465592511E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB611FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
@@ -5742,6 +5948,7 @@
 				DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
 				D5F3F9BA19C6D2F90090B547 /* TiAppiOSNotificationActionProxy.m in Sources */,
 				DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */,
+				D5EEA1831A37486100E8BB3F /* DDMathStringTokenizer.m in Sources */,
 				D5FD09DD1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */,
 				B415067A136745E20084074A /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F513BB73BF00502912 /* KrollCoverage.m in Sources */,
@@ -5760,6 +5967,7 @@
 				2B1F65781431031E006C5D37 /* ApplicationDefaults.m in Sources */,
 				848C2595145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */,
 				D5216935183A10AC00FBB24B /* CAAnimation+Blocks.m in Sources */,
+				D5EEA1501A37486100E8BB3F /* _DDFunctionEvaluator.m in Sources */,
 				D5C8C97A17EF45C900F54C19 /* ADFlipTransition.m in Sources */,
 				848C259B145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
 				848C25A0145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
@@ -5780,6 +5988,7 @@
 				D56E669F180C3BEB00F1B737 /* TiTransitionCarousel.m in Sources */,
 				2B0B6E0D15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
 				D5E9511D195DC34800DB8B37 /* TiProperties.m in Sources */,
+				D5EEA1741A37486100E8BB3F /* DDExpression.m in Sources */,
 				D54C7D0318115BD100F592A9 /* TitransitionBackFade.m in Sources */,
 				4688700815E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */,
 				1D1029A915F9769200372EC0 /* TiBindingEvent.m in Sources */,
@@ -5794,6 +6003,7 @@
 				D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6516CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
+				D5EEA1651A37486100E8BB3F /* _DDParserTerm.m in Sources */,
 				D930111F16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */,
 				502A68DB16EEAA7500661EF6 /* TiUIListItem.m in Sources */,
 				502A68DE16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */,
@@ -5808,6 +6018,8 @@
 				D5908160168B593B00362307 /* TiUIHorizontalTableViewProxy.m in Sources */,
 				D56915D0168F2E7400C3F89F /* TiUILabelProxy.m in Sources */,
 				D56915D6168F538F00C3F89F /* TTTAttributedLabel.m in Sources */,
+				D5EEA1801A37486100E8BB3F /* DDMathStringToken.m in Sources */,
+				D5EEA15F1A37486100E8BB3F /* _DDNumberTerm.m in Sources */,
 				D522FE0E16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */,
 				D5C8C98F17EF45C900F54C19 /* ADSwapTransition.m in Sources */,
 				D5C8C9A117EF45C900F54C19 /* ADZoomTransition.m in Sources */,
@@ -5818,6 +6030,7 @@
 				D5C8C98917EF45C900F54C19 /* ADScaleTransition.m in Sources */,
 				D58709BC19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
 				D56E66A9180C664400F1B737 /* TiTransitionFade.m in Sources */,
+				D5EEA14D1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */,
 				D5C8C97D17EF45C900F54C19 /* ADFoldTransition.m in Sources */,
 				D5C8C99217EF45C900F54C19 /* ADSwipeFadeTransition.m in Sources */,
 				D5C8C9A917EF5E6D00F54C19 /* TiUITransitionStyleProxy.m in Sources */,
@@ -5827,6 +6040,7 @@
 				D5C8C9A417EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */,
 				D51F03DA1808411F005B4EE2 /* TiImageHelper.m in Sources */,
 				D56E66A4180C60E600F1B737 /* TiTransitionFlip.m in Sources */,
+				D5EEA1621A37486100E8BB3F /* _DDOperatorTerm.m in Sources */,
 				D5162EAC1A20D1F7008A4048 /* TiUICollectionViewProxy.m in Sources */,
 				D5C8C98017EF45C900F54C19 /* ADGhostTransition.m in Sources */,
 				D5C8C99E17EF45C900F54C19 /* ADTransitionController.m in Sources */,
@@ -5843,6 +6057,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5EEA16C1A37486100E8BB3F /* _DDRewriteRule.m in Sources */,
 				DA3B2FAF143EDF3B000DC803 /* TiUIiOSToolbar.m in Sources */,
 				DA3B2FB1143EDF3B000DC803 /* TiUIiOSToolbarProxy.m in Sources */,
 				DABB36A112E8CB280026A6EA /* TiUITableViewAction.m in Sources */,
@@ -5854,6 +6069,7 @@
 				DABB36A412E8CB280026A6EA /* main.m in Sources */,
 				DABB36A512E8CB280026A6EA /* AFItemView.m in Sources */,
 				DABB36A612E8CB280026A6EA /* AFOpenFlowView.m in Sources */,
+				D5EEA16F1A37486100E8BB3F /* _DDVariableExpression.m in Sources */,
 				DABB36A712E8CB280026A6EA /* AFUIImageReflection.m in Sources */,
 				84A00FF717FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
 				D53DC7B719CF427100BB31C9 /* UIImage+ColorArt.m in Sources */,
@@ -5869,11 +6085,13 @@
 				8484E3A917A865F700C24B02 /* TiViewController.m in Sources */,
 				DABB36B712E8CB280026A6EA /* PlausibleDatabase.m in Sources */,
 				DABB36B812E8CB280026A6EA /* PLSqliteDatabase.m in Sources */,
+				D5EEA18A1A37486100E8BB3F /* DDParserTypes.m in Sources */,
 				DABB36B912E8CB280026A6EA /* PLSqlitePreparedStatement.m in Sources */,
 				DABB36BA12E8CB280026A6EA /* PLSqliteResultSet.m in Sources */,
 				DABB36BB12E8CB280026A6EA /* SBJSON.m in Sources */,
 				DABB36BC12E8CB280026A6EA /* KrollBridge.m in Sources */,
 				84A0100B17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
+				D5EEA1541A37486100E8BB3F /* _DDFunctionExpression.m in Sources */,
 				DABB36BD12E8CB280026A6EA /* KrollCallback.m in Sources */,
 				D535CCE419CF2C77005E114E /* SLColorArt.m in Sources */,
 				DABB36BE12E8CB280026A6EA /* KrollContext.m in Sources */,
@@ -5909,6 +6127,7 @@
 				DABB36D412E8CB280026A6EA /* TiUITextField.m in Sources */,
 				D506FB0D18E5DD06007E4A5B /* (null) in Sources */,
 				D5809D5E19129CEB005A1F02 /* APSHTTPResponse.m in Sources */,
+				D5EEA17E1A37486100E8BB3F /* DDMathOperator.m in Sources */,
 				DABB36D512E8CB280026A6EA /* TiUITextAreaProxy.m in Sources */,
 				DABB36D612E8CB280026A6EA /* TiUITextArea.m in Sources */,
 				DABB36D712E8CB280026A6EA /* TiUITabProxy.m in Sources */,
@@ -5957,6 +6176,7 @@
 				DABB36FF12E8CB280026A6EA /* TiUIActivityIndicatorProxy.m in Sources */,
 				DABB370012E8CB280026A6EA /* TiUIActivityIndicator.m in Sources */,
 				DABB370112E8CB280026A6EA /* TiRect.m in Sources */,
+				D5EEA1781A37486100E8BB3F /* DDExpressionRewriter.m in Sources */,
 				D5216941183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
 				D50E11221A223072008FD092 /* TiUICollectionWrapperView.m in Sources */,
 				DABB370312E8CB280026A6EA /* TiProxy.m in Sources */,
@@ -5964,10 +6184,12 @@
 				D56E669B180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
 				DABB370712E8CB280026A6EA /* TiModule.m in Sources */,
 				DABB370812E8CB280026A6EA /* TiMediaVideoPlayerProxy.m in Sources */,
+				D5EEA17B1A37486100E8BB3F /* DDMathEvaluator.m in Sources */,
 				DABB370912E8CB280026A6EA /* TiMediaSoundProxy.m in Sources */,
 				D5C8C98417EF45C900F54C19 /* ADGlueTransition.m in Sources */,
 				DABB370A12E8CB280026A6EA /* TiMediaAudioPlayerProxy.m in Sources */,
 				D55795831837BF6C0057DD41 /* TiViewAnimationStep.m in Sources */,
+				D5EEA15D1A37486100E8BB3F /* _DDNumberExpression.m in Sources */,
 				D54C7D0E18115C0900F592A9 /* TiTransitionGhost.m in Sources */,
 				DABB370E12E8CB280026A6EA /* TiHost.m in Sources */,
 				D50A303218B0F6C1004CBD52 /* TouchCapturingWindow.m in Sources */,
@@ -6004,11 +6226,13 @@
 				DABB372012E8CB280026A6EA /* OperationQueue.m in Sources */,
 				DABB372112E8CB280026A6EA /* NetworkModule.m in Sources */,
 				DABB372212E8CB280026A6EA /* Mimetypes.m in Sources */,
+				D5EEA1691A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */,
 				DABB372312E8CB280026A6EA /* MediaModule.m in Sources */,
 				DABB372512E8CB280026A6EA /* LayoutConstraint.m in Sources */,
 				D5162EA71A20D1F7008A4048 /* TiUICollectionSectionProxy.m in Sources */,
 				DABB372612E8CB280026A6EA /* ImageLoader.m in Sources */,
 				DABB372712E8CB280026A6EA /* GestureModule.m in Sources */,
+				D5EEA15A1A37486100E8BB3F /* _DDGroupTerm.m in Sources */,
 				D535CCE919CF333A005E114E /* UIImage+UserInfo.m in Sources */,
 				D54C7D0918115BFA00F592A9 /* TiTransitionCross.m in Sources */,
 				DABB372912E8CB280026A6EA /* FilesystemModule.m in Sources */,
@@ -6054,6 +6278,7 @@
 				DABB374B12E8CB280026A6EA /* TiUIPickerRowProxy.m in Sources */,
 				D5C5EC3318642FB100357DE4 /* TiTableView.m in Sources */,
 				D57644E11A1B805C00322E0D /* STKCoreFoundationDataSource.m in Sources */,
+				D5EEA1721A37486100E8BB3F /* _DDVariableTerm.m in Sources */,
 				DABB374C12E8CB280026A6EA /* TiUIPickerColumnProxy.m in Sources */,
 				DABB374D12E8CB280026A6EA /* UIImage+Alpha.m in Sources */,
 				DABB374E12E8CB280026A6EA /* UIImage+Resize.m in Sources */,
@@ -6069,6 +6294,7 @@
 				DABB375512E8CB280026A6EA /* TiNetworkBonjourServiceProxy.m in Sources */,
 				DABB375612E8CB280026A6EA /* TiNetworkTCPSocketProxy.m in Sources */,
 				DABB375712E8CB280026A6EA /* TiDOMTextNodeProxy.m in Sources */,
+				D5EEA1871A37486100E8BB3F /* DDParser.m in Sources */,
 				DABB375812E8CB280026A6EA /* TiMediaVideoPlayer.m in Sources */,
 				DABB375912E8CB280026A6EA /* TiUIiPadSplitWindowProxy.m in Sources */,
 				DABB375A12E8CB280026A6EA /* TiUIiPadPopoverProxy.m in Sources */,
@@ -6077,6 +6303,7 @@
 				DABB375F12E8CB280026A6EA /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
 				DABB376012E8CB280026A6EA /* LauncherButton.m in Sources */,
 				D5412E1919012A0D00B720DF /* UIGestureRecognizer+ADNavTransition.m in Sources */,
+				D5EEA18D1A37486100E8BB3F /* DDTypes.m in Sources */,
 				DABB376112E8CB280026A6EA /* LauncherItem.m in Sources */,
 				DABB376212E8CB280026A6EA /* LauncherView.m in Sources */,
 				DABB376312E8CB280026A6EA /* TiUIDashboardViewProxy.m in Sources */,
@@ -6105,6 +6332,7 @@
 				DABB377812E8CB280026A6EA /* TiUIiOSAdViewProxy.m in Sources */,
 				DABB377912E8CB280026A6EA /* TiUIiOSAdView.m in Sources */,
 				DABB377A12E8CB280026A6EA /* TiUIiOSProxy.m in Sources */,
+				D5EEA1571A37486100E8BB3F /* _DDFunctionTerm.m in Sources */,
 				DABB377E12E8CB280026A6EA /* Webcolor.m in Sources */,
 				DABB377F12E8CB280026A6EA /* TiFilesystemBlobProxy.m in Sources */,
 				DABB378012E8CB280026A6EA /* TiUIDashboardItem.m in Sources */,
@@ -6142,6 +6370,7 @@
 				DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
 				D5F3F9BB19C6D2F90090B547 /* TiAppiOSNotificationActionProxy.m in Sources */,
 				DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */,
+				D5EEA1841A37486100E8BB3F /* DDMathStringTokenizer.m in Sources */,
 				D5FD09DE1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */,
 				B415067D136745FE0084074A /* TiFilesystemFileStreamProxy.m in Sources */,
 				ABD472F613BB73BF00502912 /* KrollCoverage.m in Sources */,
@@ -6160,6 +6389,7 @@
 				2B1F65791431031E006C5D37 /* ApplicationDefaults.m in Sources */,
 				848C2596145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */,
 				D5216936183A10AC00FBB24B /* CAAnimation+Blocks.m in Sources */,
+				D5EEA1511A37486100E8BB3F /* _DDFunctionEvaluator.m in Sources */,
 				D5C8C97B17EF45C900F54C19 /* ADFlipTransition.m in Sources */,
 				848C259C145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
 				848C25A1145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
@@ -6180,6 +6410,7 @@
 				D56E66A0180C3BEB00F1B737 /* TiTransitionCarousel.m in Sources */,
 				2B0B6E0E15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
 				D5E9511E195DC34800DB8B37 /* TiProperties.m in Sources */,
+				D5EEA1751A37486100E8BB3F /* DDExpression.m in Sources */,
 				D54C7D0418115BD100F592A9 /* TitransitionBackFade.m in Sources */,
 				4688700915E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */,
 				1D1029AA15F9769200372EC0 /* TiBindingEvent.m in Sources */,
@@ -6194,6 +6425,7 @@
 				D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
 				D93DAA6616CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
+				D5EEA1661A37486100E8BB3F /* _DDParserTerm.m in Sources */,
 				D930112016DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */,
 				502A68DC16EEAA7500661EF6 /* TiUIListItem.m in Sources */,
 				502A68DF16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */,
@@ -6208,6 +6440,8 @@
 				D590815E168B593B00362307 /* TiUIHorizontalTableView.m in Sources */,
 				D5908161168B593B00362307 /* TiUIHorizontalTableViewProxy.m in Sources */,
 				D56915D1168F2E7400C3F89F /* TiUILabelProxy.m in Sources */,
+				D5EEA1811A37486100E8BB3F /* DDMathStringToken.m in Sources */,
+				D5EEA1601A37486100E8BB3F /* _DDNumberTerm.m in Sources */,
 				D56915D7168F538F00C3F89F /* TTTAttributedLabel.m in Sources */,
 				D522FE0F16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */,
 				D5C8C99017EF45C900F54C19 /* ADSwapTransition.m in Sources */,
@@ -6218,6 +6452,7 @@
 				D5C8C9A217EF45C900F54C19 /* ADZoomTransition.m in Sources */,
 				D58709BD19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
 				D5C8C98A17EF45C900F54C19 /* ADScaleTransition.m in Sources */,
+				D5EEA14E1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */,
 				D56E66AA180C664400F1B737 /* TiTransitionFade.m in Sources */,
 				D5C8C97E17EF45C900F54C19 /* ADFoldTransition.m in Sources */,
 				D5C8C99317EF45C900F54C19 /* ADSwipeFadeTransition.m in Sources */,
@@ -6227,6 +6462,7 @@
 				D5C8C99C17EF45C900F54C19 /* ADTransition.m in Sources */,
 				D5C8C9A517EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */,
 				D51F03DB1808411F005B4EE2 /* TiImageHelper.m in Sources */,
+				D5EEA1631A37486100E8BB3F /* _DDOperatorTerm.m in Sources */,
 				D5162EAD1A20D1F7008A4048 /* TiUICollectionViewProxy.m in Sources */,
 				D56E66A5180C60E600F1B737 /* TiTransitionFlip.m in Sources */,
 				D5C8C98117EF45C900F54C19 /* ADGhostTransition.m in Sources */,

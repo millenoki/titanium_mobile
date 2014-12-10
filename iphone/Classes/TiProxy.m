@@ -455,6 +455,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	RELEASE_TO_NIL(dynprops);
 	pthread_rwlock_unlock(&dynpropsLock);
 	
+    RELEASE_TO_NIL(evaluators);
 	RELEASE_TO_NIL(baseURL);
 	RELEASE_TO_NIL(krollDescription);
     if ((void*)modelDelegate != self) {
@@ -547,7 +548,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 {
 	pthread_rwlock_rdlock(&listenerLock);
 	//If listeners is nil at this point, result is still false.
-	BOOL result = [[listeners objectForKey:type] intValue]>0;
+	BOOL result = [[listeners objectForKey:type] intValue]>0 || [[evaluators objectForKey:type] count] > 0;
 	pthread_rwlock_unlock(&listenerLock);
 	return result;
 }
@@ -866,7 +867,21 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	id listener = [args objectAtIndex:1];
 	if (![listener isKindOfClass:[KrollWrapper class]] &&
 		![listener isKindOfClass:[KrollCallback class]]) {
-		ENSURE_TYPE(listener,KrollCallback);
+        if (IS_OF_CLASS(listener, NSDictionary)) {
+            if(evaluators==nil){
+                evaluators = [[NSMutableDictionary alloc] initWithCapacity:3];
+            }
+            NSMutableArray* theListeners = [evaluators objectForKey:type];
+            if (!theListeners) {
+                theListeners = [NSMutableArray array];
+                [evaluators setObject:theListeners forKey:type];
+            }
+            [theListeners addObject:listener];
+            [self _listenerAdded:type count:[theListeners count]];
+            return;
+        } else {
+            ENSURE_TYPE(listener,KrollCallback);
+        }
 	}
 
 	KrollObject * ourObject = [self krollObjectForContext:([listener isKindOfClass:[KrollCallback class]] ? [(KrollCallback *)listener context] : [(KrollWrapper *)listener bridge].krollContext)];
@@ -891,7 +906,23 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 {
 	NSString *type = [args objectAtIndex:0];
 	KrollCallback* listener = [args objectAtIndex:1];
-	ENSURE_TYPE(listener,KrollCallback);
+    if (IS_OF_CLASS(listener, NSDictionary)) {
+        if(evaluators){
+            NSMutableArray* theEvaluators = [evaluators objectForKey:type];
+            if (theEvaluators) {
+                for (NSDictionary* theEvaluator in theEvaluators) {
+                    if ([theEvaluator isEqualToDictionary:(NSDictionary*)listener]) {
+                        [theEvaluators removeObject:listener];
+                        [self _listenerRemoved:type count:[theEvaluators count]];
+                        break;
+                    }
+                }
+            }
+        }
+        return;
+    } else {
+        ENSURE_TYPE(listener,KrollCallback);
+    }
 
 	KrollObject * ourObject = [self krollObjectForContext:[listener context]];
 	[ourObject removeListener:listener forEvent:type];
@@ -997,6 +1028,14 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     
     if (eventOverrideDelegate != nil) {
         obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
+    }
+    
+    
+    NSArray* theEvaluators = [evaluators valueForKey:type];
+    if (evaluators) {
+        for (NSDictionary* theEvaluator in theEvaluators) {
+            [TiUtils applyMathDict:theEvaluator forEvent:obj];
+        }
     }
     
     TiBindingEvent ourEvent;
@@ -1475,7 +1514,7 @@ DEFINE_EXCEPTIONS
                     KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(listener);
                     [wrapper protectJsobject];
                     [self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
-                } else if([listener isKindOfClass:[KrollWrapper class]]) {
+                } else {
                     [self addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
                 }
 			}];

@@ -116,7 +116,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 	BOOL _bubbleParentDefined;
     
 @private
-	NSMutableDictionary *listeners;
+    NSMutableDictionary *listeners;
+    NSMutableDictionary *evaluators;
 	BOOL destroyed;
 	id<TiProxyDelegate> modelDelegate;
 	NSURL *baseURL;
