@@ -111,6 +111,8 @@
     BOOL toolbarButtonNotSet;
     BOOL toolbarBarWillShow;
     BOOL noNavBar;
+    CGFloat _defaultNavBarTop;
+    CGFloat _defaultToolbarTop;
 }
 
 
@@ -149,6 +151,8 @@ NSArray* keySequence;
     navBarWillShow = NO;
     toolbarButtonNotSet = NO;
     toolbarBarWillShow = NO;
+    _defaultNavBarTop = [TiUtils isIOS7OrGreater]?20:0;
+    _defaultToolbarTop = [TiUtils appFrame].size.height - 44;
 	[super _configure];
 }
 
@@ -161,6 +165,8 @@ NSArray* keySequence;
                                  @"navTintColor":null,
                                  @"barImage":null,
                                  @"translucent":null,
+                                 @"barDeltaY":@(0),
+                                 @"toolbarDeltaY":@(0),
                                  @"barStyle":null,
                                  @"titleAttributes":null,
                                  @"tabBarHidden":@(NO),
@@ -460,7 +466,7 @@ else{\
     ENSURE_UI_THREAD(setBarColor,colorString);
     [self replaceValue:colorString forKey:@"barColor" notification:NO];
     id navController = [self navControllerForController:controller];
-    if (shouldUpdateNavBar && controller!=nil && navController != nil)
+    if (shouldUpdateNavBar && navController != nil)
     {
         TiColor * newColor = [TiUtils colorValue:colorString];
         if (newColor == nil)
@@ -473,7 +479,7 @@ else{\
         
         UINavigationBar * navBar = [navController navigationBar];
         [navBar setBarStyle:navBarStyle];
-        [navBar setTranslucent:[TiUtils barTranslucencyForColor:newColor]];
+//        [navBar setTranslucent:[TiUtils barTranslucencyForColor:newColor]];
         if([TiUtils isIOS7OrGreater]) {
             [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
         } else {
@@ -483,12 +489,44 @@ else{\
     }
 }
 
+-(void)setBarDeltaY:(id)value {
+    ENSURE_UI_THREAD(setBarDeltaY,value);
+    [self replaceValue:value forKey:@"barDeltaY" notification:NO];
+    id navController = [self navControllerForController:controller];
+    if (shouldUpdateNavBar && navController != nil)
+    {
+        CGFloat deltaY = [TiUtils floatValue:value def:0];
+        UINavigationBar * navBar = [navController navigationBar];
+        CGRect frame = navBar.frame;
+        
+        CGFloat current = frame.origin.y;
+//        frame.origin.y = MIN(MAX(_defaultNavBarTop - deltaY, _defaultNavBarTop - frame.size.height), _defaultNavBarTop);
+        frame.origin.y = _defaultNavBarTop - deltaY;
+        navBar.frame = frame;
+    }
+
+}
+
+-(void)setToolbarDeltaY:(id)value {
+    ENSURE_UI_THREAD(setBarDeltaY,value);
+    [self replaceValue:value forKey:@"toolbarDeltaY" notification:NO];
+    id navController = [self navControllerForController:controller];
+    if (shouldUpdateNavBar && navController != nil)
+    {
+        CGFloat deltaY = [TiUtils floatValue:value def:0];
+        UIToolbar * toolBar = [navController toolbar];
+        CGRect frame = toolBar.frame;
+        frame.origin.y = _defaultToolbarTop + deltaY;
+        toolBar.frame = frame;
+    }
+}
+
 -(void)setBarStyle:(id)value
 {
 	ENSURE_UI_THREAD(setBarStyle,value);
     [self replaceValue:value forKey:@"barStyle" notification:NO];
     id navController = [self navControllerForController:controller];
-    if (shouldUpdateNavBar && controller!=nil && navController != nil)
+    if (shouldUpdateNavBar && navController != nil)
     {
         UINavigationBar * navBar = [navController navigationBar];
         UIBarStyle style = [TiUtils intValue:value def:navBar.barStyle];
@@ -551,7 +589,7 @@ else{\
     
     id barImageValue = [self valueForUndefinedKey:@"barImage"];
     
-    UINavigationBar* ourNB = [[controller navigationController] navigationBar];
+    UINavigationBar * ourNB = [navController navigationBar];
     UIImage* theImage = nil;
     if ([TiUtils isIOS7OrGreater]) {
         //TIMOB-16490
@@ -566,24 +604,28 @@ else{\
     } else {
         UIImage* resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
         [ourNB setBackgroundImage:resizableImage forBarMetrics:UIBarMetricsDefault];
-        //You can only set up the shadow image with a custom background image.
-        id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
-        theImage = [TiUtils toImage:shadowImageValue proxy:self];
         
-        if (theImage != nil) {
-            UIImage* resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
-            ourNB.shadowImage = resizableImage;
-        } else {
-            BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
-            if (clipValue) {
-                //Set an empty Image.
-                ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
-            } else {
-                ourNB.shadowImage = nil;
+    }
+    id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
+    UIImage* theShadowImage = [TiUtils toImage:shadowImageValue proxy:self];
+    
+    if (theShadowImage != nil) {
+        UIImage* resizableImage = [theImage resizableImageWithCapInsets:UIEdgeInsetsMake(0, 0, 0, 0) resizingMode:UIImageResizingModeStretch];
+        ourNB.shadowImage = resizableImage;
+    } else {
+        BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
+        if (clipValue) {
+            
+            if (theImage == nil) {
+                //You can only set up the shadow image with a custom background image.
+                [ourNB setBackgroundImage:[[[UIImage alloc] init] autorelease] forBarMetrics:UIBarMetricsDefault];
             }
+            //Set an empty Image.
+            ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
+        } else {
+            ourNB.shadowImage = nil;
         }
     }
-    
 }
 
 -(void)setBarImage:(id)value
@@ -1005,7 +1047,7 @@ else{\
     [self replaceValue:title forKey:@"title" notification:NO];
     TiThreadPerformOnMainThread(^{
     	id navController = [self navControllerForController:controller];
-        if (shouldUpdateNavBar && controller != nil && controller!=nil && navController != nil) {
+        if (shouldUpdateNavBar && navController != nil) {
             controller.navigationItem.title = title;
         }
     }, YES);
@@ -1017,7 +1059,7 @@ else{\
 	NSString *title = [TiUtils stringValue:title_];
 	[self replaceValue:title forKey:@"titlePrompt" notification:NO];
     id navController = [self navControllerForController:controller];
-	if (controller!=nil && navController != nil)
+	if (navController != nil)
 	{
 		controller.navigationItem.prompt = title;
 	}
@@ -1053,7 +1095,7 @@ else{\
 	[self replaceValue:items forKey:@"toolbar" notification:NO];
 	TiThreadPerformOnMainThread( ^{
         id navController = [self navControllerForController:controller];
-		if (shouldUpdateNavBar && controller!=nil && navController != nil)
+		if (shouldUpdateNavBar && navController != nil)
 		{
 			NSArray *existing = [controller toolbarItems];
             //			UINavigationController * ourNC = navController;
@@ -1122,8 +1164,9 @@ else{\
     SETPROP(@"barColor",setBarColor);
     SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
-    id test = [self valueForKey:@"barStyle"];
     SETPROP(@"barStyle",setBarStyle);
+    SETPROP(@"barDeltaY",setBarDeltaY);
+    SETPROP(@"toolbarDeltaY",setToolbarDeltaY);
     SETPROP(@"tabBarHidden",setTabBarHidden);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
