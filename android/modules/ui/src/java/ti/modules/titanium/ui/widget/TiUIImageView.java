@@ -159,10 +159,17 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             Bitmap bitmap = null;
             if (drawable instanceof BitmapDrawable) {
                 bitmap = ((BitmapDrawable)drawable).getBitmap();
-                cache.set(imageref.getUrl(), bitmap);
+                if (imageref.getUrl() != null) {
+                    cache.set(imageref.getUrl(), bitmap);
+                }
             }
-            handleSetDrawable(drawable, shouldTransition);
-            fireLoad(TiC.PROPERTY_IMAGE, bitmap);
+            if (bitmap != null && filterOptions != null) {
+                (new FilterAndSetTask(currentRef, true)).execute(bitmap);
+            }
+            else if (drawable != null) {
+                setDrawable(drawable, shouldTransition);
+                fireLoad(TiC.PROPERTY_IMAGE, bitmap);
+            }
         }
     }
 
