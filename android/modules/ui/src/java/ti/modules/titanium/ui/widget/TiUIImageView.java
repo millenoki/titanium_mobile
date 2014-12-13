@@ -931,7 +931,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 Drawable drawable = null;
                 if (bitmap == null) {
                     shouldTransition = true;
-                    if (!localLoadSync && !imageref.isTypeResourceId()) {
+                    if (!localLoadSync && !imageref.isTypeBlob() && !imageref.isTypeResourceId()) {
                         (new LoadLocalDrawableTask(cache, true))
                                 .execute(imageref);
                         return;
