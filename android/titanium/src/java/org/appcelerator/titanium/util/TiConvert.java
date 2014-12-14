@@ -151,6 +151,14 @@ public class TiConvert
 			return TiColorHelper.parseColor((String)value);
 		return TiColorHelper.parseColor(toString(value));
 	}
+    public static int toColor(Object value, int def)
+    {
+        String result = toString(value);
+        if (result == null) {
+            return def;
+        }
+        return TiColorHelper.parseColor(result);
+    }
 
 	/**
 	 * This is a wrapper method. 
@@ -176,6 +184,10 @@ public class TiConvert
 	{
 		return new ColorDrawable(toColor(value));
 	}
+	public static ColorDrawable toColorDrawable(Object value)
+    {
+        return toColorDrawable(TiConvert.toString(value));
+    }
 
 	public static ColorDrawable toColorDrawable(HashMap<String, Object> hashMap, String key)
 	{
