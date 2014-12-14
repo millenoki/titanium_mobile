@@ -238,7 +238,7 @@ public class TiDimension
 				return getPercentPixels(width, height);
 			case TypedValue.COMPLEX_UNIT_DIP:
 			case TypedValue.COMPLEX_UNIT_SP:
-				return getScaledPixels(context, width, height);
+				return getScaledPixels(width, height);
 			case TypedValue.COMPLEX_UNIT_PT:
 			case TypedValue.COMPLEX_UNIT_MM:
 			case COMPLEX_UNIT_CM:
@@ -399,20 +399,19 @@ public class TiDimension
 		return getDisplayMetrics(parent.getContext());
 	}
 
-	protected double getScaledPixels(Context context, int width, int height)
+	protected double getScaledPixels(int width, int height)
 	{
-		DisplayMetrics metrics = getDisplayMetrics(context);
 		if (units == TypedValue.COMPLEX_UNIT_DIP) {
-			return (metrics.density * this.value);
+			return (TiApplication.getAppDensity() * this.value);
 		} else if (units == TypedValue.COMPLEX_UNIT_SP) {
-			return (metrics.scaledDensity * this.value);
+			return (TiApplication.getAppScaledDensity() * this.value);
 		}
 		return -1;
 	}
 	
 	protected double getScaledPixels(View parent)
 	{
-		return getScaledPixels(parent.getContext(), parent.getMeasuredWidth(), parent.getMeasuredHeight());
+		return getScaledPixels(parent.getMeasuredWidth(), parent.getMeasuredHeight());
 	}
 	
 	public static double getDPIForType(Context context, int valueType)
