@@ -8,7 +8,6 @@
 package ti.modules.titanium.ui.widget.picker;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import kankan.wheel.widget.WheelView;
 
@@ -19,13 +18,12 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUIHelper.FontDesc;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import ti.modules.titanium.ui.PickerRowProxy;
-import android.graphics.Typeface;
+import ti.modules.titanium.ui.widget.picker.TiUINativePicker.TiSpinnerAdapter;
 
 public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelectedListener
 {
@@ -60,23 +58,33 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			}
 		}
 	}
+	@Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_FONT:
+            setFontProperties(TiConvert.toKrollDict(newValue));
+            break;
+        case TiC.PROPERTY_COLOR:
+            ((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(newValue)));
+            break;
+        case TiC.PROPERTY_VISIBLE_ITEMS:
+            ((WheelView)nativeView).setVisibleItems(TiConvert.toInt(newValue));
+            break;
+        case TiC.PROPERTY_SELECTION_INDICATOR:
+            ((WheelView)nativeView).setShowSelectionIndicator(TiConvert.toBoolean(newValue));
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
 
 	@Override
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
-		if (d.containsKey(TiC.PROPERTY_FONT)) {			
-			setFontProperties( d.getKrollDict(TiC.PROPERTY_FONT));
-		}
-		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(d, TiC.PROPERTY_COLOR)));
-		}
-		if (d.containsKey(TiC.PROPERTY_VISIBLE_ITEMS)) {
-			((WheelView)nativeView).setVisibleItems(TiConvert.toInt(d, TiC.PROPERTY_VISIBLE_ITEMS));
-		} else {
+		if (!d.containsKey(TiC.PROPERTY_VISIBLE_ITEMS)) {
 			((WheelView)nativeView).setVisibleItems(PickerProxy.DEFAULT_VISIBLE_ITEMS_COUNT);
-		}
-		if (d.containsKey(TiC.PROPERTY_SELECTION_INDICATOR)) {
-			((WheelView)nativeView).setShowSelectionIndicator(TiConvert.toBoolean(d, TiC.PROPERTY_SELECTION_INDICATOR));
 		}
 		refreshNativeView();
 	}
@@ -105,24 +113,6 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		}
 	}
 
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
-	{
-		if (key.equals(TiC.PROPERTY_FONT)) {
-			setFontProperties((KrollDict) newValue);
-		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(TiConvert.toString(newValue))));
-		} else if (key.equals(TiC.PROPERTY_VISIBLE_ITEMS)) {
-			((WheelView)nativeView).setVisibleItems(TiConvert.toInt(newValue));
-		} else if (key.equals(TiC.PROPERTY_SELECTION_INDICATOR)) {
-			((WheelView)nativeView).setShowSelectionIndicator(TiConvert.toBoolean(newValue));
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);	
-		}
-	}
-	
-	
 	public void refreshNativeView()
 	{
 		WheelView view = null;

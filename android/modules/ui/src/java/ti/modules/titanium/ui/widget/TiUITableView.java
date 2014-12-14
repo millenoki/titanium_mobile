@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -34,6 +36,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -69,6 +72,8 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
         }
         tableView.setOnItemClickListener(this);
         tableView.setOnItemLongClickListener(this);
+        tableView.setFilterCaseInsensitive(true);
+        tableView.setFilterAnchored(false);
     }
 
     @Override
@@ -121,7 +126,64 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
     public TiTableView getTableView() {
         return tableView;
     }
+    
+    @Override
+    protected View getTouchView()
+    {
+        return getTableView();
+    }
+    
+    
+    @Override
+    protected void setOnClickListener(View view)
+    {
+        if (view == tableView) {
+            tableView.setOnItemClickListener(this);
+        }
+    }
+    
+    @Override
+    protected void setOnLongClickListener(View view)
+    {
+        if (view == tableView) {
+            tableView.setOnItemLongClickListener(this);
+        }
+    }
+    
+    @Override
+    protected void removeOnClickListener(View view)
+    {
+        if (view == tableView) {
+            tableView.setOnItemClickListener(null);
+        }
+    }
+    
+    @Override
+    protected void removeOnLongClickListener(View view)
+    {
+        if (view == tableView) {
+            tableView.setOnItemLongClickListener(null);
+        }
+    }
+    protected void doSetClickable(View view, boolean clickable)
+    {
+        if (view == null) {
+            return;
+        }
+        if (!clickable) {
+            view.setOnClickListener(null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
+            view.setOnLongClickListener(null);
+        } else if ( ! (view instanceof AdapterView) ){
+            // n.b.: AdapterView throws if click listener set.
+            // n.b.: setting onclicklistener automatically sets clickable to true.
+            setOnClickListener(view);
+            setOnLongClickListener(view);
+        }
+        view.setClickable(clickable);
+        view.setLongClickable(clickable);
+    }
 
+    
     public CustomListView getListView() {
         return tableView.getListView();
     }
@@ -129,152 +191,124 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
     private ListView getInternalListView() {
         return getListView().getWrappedList();
     }
-
-    @Override
-    public void processProperties(KrollDict d) {
-        // Don't create a new table view if one already exists
-        if (tableView == null) {
-            tableView = new TiTableView((TableViewProxy) proxy);
-        }
-        Activity activity = proxy.getActivity();
-        if (activity instanceof TiBaseActivity) {
-            ((TiBaseActivity) activity).addOnLifecycleEventListener(this);
-        }
-
-        boolean clickable = true;
-        if (d.containsKey(TiC.PROPERTY_TOUCH_ENABLED)) {
-            clickable = TiConvert.toBoolean(
-                    proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
-        }
-        if (clickable) {
-            tableView.setOnItemClickListener(this);
-            tableView.setOnItemLongClickListener(this);
-
-        }
-
-        ListView list = getInternalListView();
-        if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
-            boolean enabled = TiConvert.toBoolean(d,
-                    TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
-            list.setFooterDividersEnabled(enabled);
-        } else {
-            list.setFooterDividersEnabled(false);
-        }
-
-        if (d.containsKey(TiC.PROPERTY_HEADER_DIVIDERS_ENABLED)) {
-            boolean enabled = TiConvert.toBoolean(d,
-                    TiC.PROPERTY_HEADER_DIVIDERS_ENABLED, false);
-            list.setHeaderDividersEnabled(enabled);
-        } else {
-            list.setHeaderDividersEnabled(false);
-        }
-
-        if (d.containsKey(TiC.PROPERTY_SEARCH)) {
-            TiViewProxy searchView = (TiViewProxy) d.get(TiC.PROPERTY_SEARCH);
+    
+    private void handleSetSearch(final Object searchObj) {
+        TiViewProxy searchView = (TiViewProxy) searchObj;
+        if (searchView != null) {
             TiUIView search = searchView.getOrCreateView();
             if (searchView instanceof SearchBarProxy) {
                 ((TiUISearchBar) search).setOnSearchChangeListener(tableView);
             } else {
                 ((TiUISearchView) search).setOnSearchChangeListener(tableView);
             }
-            if (!(d.containsKey(TiC.PROPERTY_SEARCH_AS_CHILD) && !TiConvert
-                    .toBoolean(d.get(TiC.PROPERTY_SEARCH_AS_CHILD)))) {
+            View sView = search.getNativeView();
 
-                View sView = search.getNativeView();
+            RelativeLayout layout = new RelativeLayout(proxy.getActivity());
+            layout.setGravity(Gravity.NO_GRAVITY);
+            layout.setPadding(0, 0, 0, 0);
 
-				RelativeLayout layout = new RelativeLayout(proxy.getActivity());
-				layout.setGravity(Gravity.NO_GRAVITY);
-				layout.setPadding(0, 0, 0, 0);
+            RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT);
+            p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 
-				RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(
-						RelativeLayout.LayoutParams.MATCH_PARENT,
-						RelativeLayout.LayoutParams.MATCH_PARENT);
-				p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-
-				TiDimension rawHeight;
-				if (searchView.hasProperty("height")) {
-					rawHeight = TiConvert.toTiDimension(searchView.getProperty("height"), 0);
-				} else {
-					rawHeight = TiConvert.toTiDimension("52dp", 0);
-				}
-				p.height = rawHeight.getAsPixels(layout);
-
-				//Check to see if searchView has a border
-				ViewParent parent = sView.getParent();
-				if (parent instanceof TiBorderWrapperView) {
-					TiBorderWrapperView v = (TiBorderWrapperView) parent;
-					v.setId(SEARCHVIEW_ID);
-					layout.addView(v, p);
-				} else if (parent == null) {
-					sView.setId(SEARCHVIEW_ID);
-					layout.addView(sView, p);
-				} else {
-					Log.e(TAG, "Searchview already has parent, cannot add to tableview.", Log.DEBUG_MODE);
-				}
-
-				p = new RelativeLayout.LayoutParams(
-						RelativeLayout.LayoutParams.MATCH_PARENT,
-						RelativeLayout.LayoutParams.MATCH_PARENT);
-				p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-				p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-				p.addRule(RelativeLayout.BELOW, SEARCHVIEW_ID);
-				layout.addView(tableView, p);
-				setNativeView(layout);
+            TiDimension rawHeight;
+            if (searchView.hasProperty("height")) {
+                rawHeight = TiConvert.toTiDimension(searchView.getProperty("height"), 0);
             } else {
-                setNativeView(tableView);
+                rawHeight = TiConvert.toTiDimension("52dp", 0);
             }
+            p.height = rawHeight.getAsPixels(layout);
+
+            //Check to see if searchView has a border
+            ViewParent parent = sView.getParent();
+            if (parent instanceof TiBorderWrapperView) {
+                TiBorderWrapperView v = (TiBorderWrapperView) parent;
+                v.setId(SEARCHVIEW_ID);
+                layout.addView(v, p);
+            } else if (parent == null) {
+                sView.setId(SEARCHVIEW_ID);
+                layout.addView(sView, p);
+            } else {
+                Log.e(TAG, "Searchview already has parent, cannot add to tableview.", Log.DEBUG_MODE);
+            }
+
+            p = new RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.MATCH_PARENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT);
+            p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+            p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            p.addRule(RelativeLayout.BELOW, SEARCHVIEW_ID);
+            layout.addView(tableView, p);
+            setNativeView(layout);
         } else {
             setNativeView(tableView);
         }
-
-        if (d.containsKey(TiC.PROPERTY_FILTER_ATTRIBUTE)) {
-            tableView.setFilterAttribute(TiConvert.toString(d,
-                    TiC.PROPERTY_FILTER_ATTRIBUTE));
-        } else {
-            // Default to title to match iPhone default.
-            proxy.setProperty(TiC.PROPERTY_FILTER_ATTRIBUTE,
-                    TiC.PROPERTY_TITLE, false);
-            tableView.setFilterAttribute(TiC.PROPERTY_TITLE);
-        }
-
-        if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
-            if (Build.VERSION.SDK_INT >= 9) {
-                getListView().setOverScrollMode(
-                        TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE),
-                                View.OVER_SCROLL_ALWAYS));
+        
+    }
+    
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED:
+            getInternalListView().setFooterDividersEnabled(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_HEADER_DIVIDERS_ENABLED:
+            getInternalListView().setHeaderDividersEnabled(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_SEARCH:
+            handleSetSearch(newValue);
+            break;
+        case TiC.PROPERTY_FILTER_ATTRIBUTE:
+            tableView.setFilterAttribute(TiConvert.toString(newValue, TiC.PROPERTY_TITLE));
+            break;
+        case TiC.PROPERTY_OVER_SCROLL_MODE:
+            getListView().setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+            break;
+        case TiC.PROPERTY_SEPARATOR_COLOR:
+            tableView.setSeparatorColor(TiConvert.toColor(newValue));
+            break;
+        case TiC.PROPERTY_SEPARATOR_STYLE:
+            tableView.setSeparatorStyle(TiConvert.toInt(newValue));
+            break;
+        case TiC.PROPERTY_SCROLLING_ENABLED:
+            getListView().setScrollingEnabled(TiConvert.toBoolean(newValue, true));
+            break;
+        case TiC.PROPERTY_FILTER_CASE_INSENSITIVE:
+            tableView.setFilterCaseInsensitive(TiConvert.toBoolean(newValue, true));
+            break;
+        case TiC.PROPERTY_FILTER_ANCHORED:
+            tableView.setFilterAnchored(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_MIN_ROW_HEIGHT:
+            if (changedProperty) {
+                updateView();
             }
+            break;
+        case TiC.PROPERTY_HEADER_VIEW:
+            if (changedProperty) {
+                if (oldValue != null) {
+                    tableView.removeHeaderView((TiViewProxy) oldValue);
+                }
+                tableView.setHeaderView();
+            }
+            break;
+        case TiC.PROPERTY_FOOTER_VIEW:
+            if (changedProperty) {
+                if (oldValue != null) {
+                    tableView.removeFooterView((TiViewProxy) oldValue);
+                }
+                tableView.setFooterView();
+            }
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
         }
-
-        if (d.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
-            tableView.setSeparatorColor(TiConvert.toString(d,
-                    TiC.PROPERTY_SEPARATOR_COLOR));
-        }
-        if (d.containsKey(TiC.PROPERTY_SEPARATOR_STYLE)) {
-            tableView.setSeparatorStyle(TiConvert.toInt(d,
-                    TiC.PROPERTY_SEPARATOR_STYLE));
-        }
-
-        if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
-            getListView().setScrollingEnabled(
-                    d.get(TiC.PROPERTY_SCROLLING_ENABLED));
-        }
-
-        boolean filterCaseInsensitive = true;
-        if (d.containsKey(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
-            filterCaseInsensitive = TiConvert.toBoolean(d,
-                    TiC.PROPERTY_FILTER_CASE_INSENSITIVE);
-        }
-        tableView.setFilterCaseInsensitive(filterCaseInsensitive);
-        boolean filterAnchored = false;
-        if (d.containsKey(TiC.PROPERTY_FILTER_ANCHORED)) {
-            filterAnchored = TiConvert.toBoolean(d,
-                    TiC.PROPERTY_FILTER_ANCHORED);
-        }
-        tableView.setFilterAnchored(filterAnchored);
-        super.processProperties(d);
     }
 
     @Override
@@ -326,56 +360,6 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
         super.release();
     }
 
-    @Override
-    public void propertyChanged(String key, Object oldValue, Object newValue,
-            KrollProxy proxy) {
-        if (Log.isDebugModeEnabled()) {
-            Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: "
-                    + newValue, Log.DEBUG_MODE);
-        }
-
-        if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
-            boolean clickable = TiConvert.toBoolean(newValue);
-            if (clickable) {
-                tableView.setOnItemClickListener(this);
-                tableView.setOnItemLongClickListener(this);
-
-            } else {
-                tableView.setOnItemClickListener(null);
-                tableView.setOnItemLongClickListener(null);
-            }
-
-        } else if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
-            tableView.setSeparatorColor(TiConvert.toString(newValue));
-        } else if (key.equals(TiC.PROPERTY_SCROLLING_ENABLED)) {
-            getListView().setScrollingEnabled(newValue);
-        } else if (key.equals(TiC.PROPERTY_SEPARATOR_STYLE)) {
-            tableView.setSeparatorStyle(TiConvert.toInt(newValue));
-        } else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
-            if (Build.VERSION.SDK_INT >= 9) {
-                getListView().setOverScrollMode(
-                        TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
-            }
-        } else if (TiC.PROPERTY_MIN_ROW_HEIGHT.equals(key)) {
-            updateView();
-        } else if (TiC.PROPERTY_HEADER_VIEW.equals(key)) {
-            if (oldValue != null) {
-                tableView.removeHeaderView((TiViewProxy) oldValue);
-            }
-            tableView.setHeaderView();
-        } else if (TiC.PROPERTY_FOOTER_VIEW.equals(key)) {
-            if (oldValue != null) {
-                tableView.removeFooterView((TiViewProxy) oldValue);
-            }
-            tableView.setFooterView();
-        } else if (key.equals(TiC.PROPERTY_FILTER_ANCHORED)) {
-            tableView.setFilterAnchored(TiConvert.toBoolean(newValue));
-        } else if (key.equals(TiC.PROPERTY_FILTER_CASE_INSENSITIVE)) {
-            tableView.setFilterCaseInsensitive(TiConvert.toBoolean(newValue));
-        } else {
-            super.propertyChanged(key, oldValue, newValue, proxy);
-        }
-    }
 
     @Override
     public void registerForTouch() {

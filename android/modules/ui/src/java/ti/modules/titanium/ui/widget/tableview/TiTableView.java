@@ -404,7 +404,7 @@ public class TiTableView extends FrameLayout
 		});
 
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
-			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
+			setSeparatorColor(TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
 		}
 		adapter = new TTVListAdapter(viewModel, proxy);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
@@ -631,8 +631,7 @@ public class TiTableView extends FrameLayout
 		this.itemLongClickListener = listener;
 	}
 
-	public void setSeparatorColor(String colorstring) {
-		int sepColor = TiColorHelper.parseColor(colorstring);
+	public void setSeparatorColor(int sepColor) {
 		int dividerHeight = listView.getDividerHeight();
 		listView.setDivider(new ColorDrawable(sepColor));
 		listView.setDividerHeight(dividerHeight);

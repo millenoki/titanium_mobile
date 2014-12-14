@@ -190,4 +190,8 @@ public class KrollModule extends KrollProxy
 	{
 		return "Ti.Module";
 	}
+
+    @Override
+    public void processApplyProperties(KrollDict properties) {        
+    }
 }

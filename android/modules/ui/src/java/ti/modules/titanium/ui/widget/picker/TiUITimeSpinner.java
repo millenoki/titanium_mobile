@@ -14,7 +14,6 @@ import java.util.Date;
 import kankan.wheel.widget.WheelView;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -36,6 +35,7 @@ public class TiUITimeSpinner extends TiUIView
 	private boolean suppressChangeEvent = false;
 	private boolean ignoreItemSelection = false;
 	private static final String TAG = "TiUITimeSpinner";
+    boolean is24HourFormat = true;
 	
 	private Calendar calendar = Calendar.getInstance();
 	
@@ -70,10 +70,7 @@ public class TiUITimeSpinner extends TiUIView
 	}
 	private void createNativeView(Activity activity)
 	{
-		boolean format24 = true;
-		if ( proxy.hasProperty( "format24")  ) {
-			format24 = TiConvert.toBoolean( proxy.getProperty(  "format24" ) );
-		}
+        is24HourFormat = TiConvert.toBoolean( proxy.getProperty(  "format24" ), true );
 
 		int minuteInterval = 1;
 		if (proxy.hasProperty(TiC.PROPERTY_MINUTE_INTERVAL)) {
@@ -87,7 +84,7 @@ public class TiUITimeSpinner extends TiUIView
 		}
 		
 		DecimalFormat formatter = new DecimalFormat("00");
-		FormatNumericWheelAdapter hours = makeHoursAdapter(format24);
+		FormatNumericWheelAdapter hours = makeHoursAdapter(is24HourFormat);
 		FormatNumericWheelAdapter minutes = new FormatNumericWheelAdapter(0, 59, formatter, 6, minuteInterval);
 		hoursWheel = new WheelView(activity);
 		minutesWheel = new WheelView(activity);
@@ -100,7 +97,7 @@ public class TiUITimeSpinner extends TiUIView
 
 		amPmWheel = null;
 		
-		if ( !format24 ) {
+		if ( !is24HourFormat ) {
 			amPmWheel = makeAmPmWheel(activity, hoursWheel.getTextSize());
 		}
 
@@ -108,34 +105,74 @@ public class TiUITimeSpinner extends TiUIView
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		layout.addView(hoursWheel);
 		layout.addView(minutesWheel);
-		if ( !format24 ) {
+		if ( !is24HourFormat ) {
 			layout.addView(amPmWheel);
 		}
 		
 		setNativeView(layout);
 	}
 
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_FONT:
+            setFontProperties();
+            break;
+        case TiC.PROPERTY_VALUE:
+            setValue(newValue);
+            break;
+        case "format24":
+            is24HourFormat = TiConvert.toBoolean(newValue, true);
+            if (changedProperty) {
+                ignoreItemSelection = true;
+                suppressChangeEvent = true;
+                hoursWheel.setAdapter(makeHoursAdapter(is24HourFormat));
+                LinearLayout vg = (LinearLayout) nativeView;
+                if (is24HourFormat && vg.indexOfChild(amPmWheel) >= 0) {
+                    vg.removeView(amPmWheel);
+                } else if (!is24HourFormat && vg.getChildCount() < 3) {
+                    amPmWheel = makeAmPmWheel(hoursWheel.getContext(),
+                            hoursWheel.getTextSize());
+                    vg.addView(amPmWheel);
+                }
+                setValue(calendar.getTimeInMillis(), true); // updates the time
+                                                            // display
+                ignoreItemSelection = false;
+                suppressChangeEvent = false;
+            }
+            break;
+        case TiC.PROPERTY_MINUTE_INTERVAL:
+            if (changedProperty) {
+                int interval = TiConvert.toInt(newValue);
+                if ((interval > 0) && (interval <= 30) && (60 % interval == 0)) {
+                    FormatNumericWheelAdapter adapter = (FormatNumericWheelAdapter) minutesWheel
+                            .getAdapter();
+                    adapter.setStepValue(interval);
+                    minutesWheel.setAdapter(adapter); // forces the wheel to
+                                                      // re-do its items listing
+                } else {
+                    // Reject it
+                    Log.w(TAG, "Ignoring illegal minuteInterval value: "
+                            + interval);
+                    proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, oldValue,
+                            false);
+                }
+            }
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
+
 	@Override
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
-		
-		boolean valueExistsInProxy = false;
-
-		if (d.containsKey(TiC.PROPERTY_FONT)) {
-			setFontProperties();
-		}
-
-		if (d.containsKey(TiC.PROPERTY_VALUE)) {
-			calendar.setTime((Date)d.get(TiC.PROPERTY_VALUE));
-			valueExistsInProxy = true;
-		}
-
-		setValue(calendar.getTimeInMillis() , true);
-
-		if (!valueExistsInProxy) {
-			proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
-		}
-
+		if (!d.containsKey(TiC.PROPERTY_VALUE)) {
+            Calendar calendar = Calendar.getInstance();
+            proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
+        }
 	}
 	
 	private void setFontProperties()
@@ -185,45 +222,6 @@ public class TiUITimeSpinner extends TiUIView
 		}
 	}
 
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
-	{
-		if (key.equals(TiC.PROPERTY_VALUE)) {
-			Date date = (Date)newValue;
-			setValue(date.getTime());
-		} else if (key.equals("format24")) {
-			boolean is24HourFormat = TiConvert.toBoolean( newValue );
-			ignoreItemSelection = true;
-			suppressChangeEvent = true;
-			hoursWheel.setAdapter(makeHoursAdapter(is24HourFormat));
-			LinearLayout vg = (LinearLayout)nativeView;
-			if (is24HourFormat && vg.indexOfChild(amPmWheel) >= 0) {
-				vg.removeView(amPmWheel);
-			} else if (!is24HourFormat && vg.getChildCount() < 3) {
-				amPmWheel = makeAmPmWheel(hoursWheel.getContext(), hoursWheel.getTextSize());
-				vg.addView(amPmWheel);
-			}
-			setValue(calendar.getTimeInMillis() , true); // updates the time display
-			ignoreItemSelection = false;
-			suppressChangeEvent = false;
-		} else if (key.equals(TiC.PROPERTY_MINUTE_INTERVAL)) {
-			int interval = TiConvert.toInt(newValue);
-			if((interval > 0) && (interval <= 30) && (60 % interval == 0)  ){
-				FormatNumericWheelAdapter adapter = (FormatNumericWheelAdapter) minutesWheel.getAdapter();
-				adapter.setStepValue(interval);
-				minutesWheel.setAdapter(adapter); // forces the wheel to re-do its items listing
-			} else {
-				// Reject it
-				Log.w(TAG, "Ignoring illegal minuteInterval value: " + interval);
-				proxy.setProperty(TiC.PROPERTY_MINUTE_INTERVAL, oldValue, false);
-			}
-		} else if (key.equals(TiC.PROPERTY_FONT)) {
-			setFontProperties();
-		}
-		super.propertyChanged(key, oldValue, newValue, proxy);
-	}
-	
 	public void setValue(long value)
 	{
 		setValue(value, false);
@@ -231,16 +229,12 @@ public class TiUITimeSpinner extends TiUIView
 	
 	public void setValue(long value, boolean suppressEvent)
 	{
-		boolean format24 = true;
-		if (proxy.hasProperty("format24")) {
-			format24 = TiConvert.toBoolean(proxy.getProperty("format24"));
-		}
 		calendar.setTimeInMillis(value);
 		
 		suppressChangeEvent = true;
 		ignoreItemSelection = true;
 		
-		if ( !format24 ) {
+		if ( !is24HourFormat ) {
 			int hour = calendar.get(Calendar.HOUR);
 			if (hour == 0) {
 				hoursWheel.setCurrentItem(11); // 12
@@ -256,11 +250,21 @@ public class TiUITimeSpinner extends TiUIView
 			hoursWheel.setCurrentItem(calendar.get(Calendar.HOUR_OF_DAY));
 		}
 		
-		suppressChangeEvent = suppressEvent;
+		suppressChangeEvent = suppressEvent || !((TiViewProxy)proxy).viewRealised();
 		ignoreItemSelection = false;
 		minutesWheel.setCurrentItem( ((FormatNumericWheelAdapter) minutesWheel.getAdapter()).getIndex(calendar.get(Calendar.MINUTE)));
 		suppressChangeEvent = false;
 	}
+	
+	public void setValue(Date value, boolean suppressEvent) {
+        long millis = (value != null)?value.getTime():Calendar.getInstance().getTimeInMillis();
+        setValue(millis, suppressEvent);
+    }
+    
+    public void setValue(Object value)
+    {
+        setValue(TiConvert.toDate(value), false);
+    }
 	
 	@Override
 	public void onItemSelected(WheelView view, int index)

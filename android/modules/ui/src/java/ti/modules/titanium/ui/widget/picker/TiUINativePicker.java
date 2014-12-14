@@ -286,15 +286,21 @@ public class TiUINativePicker extends TiUIPicker
 		((PickerProxy)proxy).fireSelectionChange(columnIndex, rowIndex);
 	}
 	
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		if (key.equals(TiC.PROPERTY_FONT)) {
-			TiSpinnerAdapter<TiViewProxy> adapter = (TiSpinnerAdapter<TiViewProxy>) getSpinner().getAdapter();
-			adapter.setFontProperties(proxy.getProperties());
-			adapter.notifyDataSetChanged();
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
-	}
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_FONT:
+            if (changedProperty) {
+                TiSpinnerAdapter<TiViewProxy> adapter = (TiSpinnerAdapter<TiViewProxy>) getSpinner().getAdapter();
+                adapter.setFontProperties(proxy.getProperties());
+                adapter.notifyDataSetChanged();
+            }
+            break;
+
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
 }

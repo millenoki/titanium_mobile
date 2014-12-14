@@ -86,30 +86,31 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 	    return result;
 	}
 	
-	public void processProperties(KrollDict d) {
-		ListItemProxy itemProxy = (ListItemProxy)getProxy();
-
-		if (d.containsKey(TiC.PROPERTY_ACCESSORY_TYPE)) {
-			int accessory = TiConvert.toInt(d.get(TiC.PROPERTY_ACCESSORY_TYPE), -1);
+	@Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        ListItemProxy itemProxy = (ListItemProxy)getProxy();
+	
+		if (key.equals(TiC.PROPERTY_ACCESSORY_TYPE)) {
+			int accessory = TiConvert.toInt(newValue, -1);
 			handleAccessory(accessory);
 		}
-		if (d.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
-			d.put(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, d.get(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR));
+		else if (key.equals(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
+		    super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, newValue, oldValue, changedProperty);
 		}
-		if (d.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-			d.put(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, d.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
+		else if (key.equals(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
+            super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, newValue, oldValue, changedProperty);
 		}
-		
-		if (d.containsKey(TiC.PROPERTY_CAN_SWIPE_LEFT)) {
-            canShowLeftMenu = d.optBoolean(TiC.PROPERTY_CAN_SWIPE_LEFT, true);
+		else if (key.equals(TiC.PROPERTY_CAN_SWIPE_LEFT)) {
+            canShowLeftMenu = TiConvert.toBoolean(newValue, true);
             canShowLeftMenuDefined = true;
         }
-		if (d.containsKey(TiC.PROPERTY_CAN_SWIPE_RIGHT)) {
-            canShowRightMenu = d.optBoolean(TiC.PROPERTY_CAN_SWIPE_RIGHT, true);
+		else if (key.equals(TiC.PROPERTY_CAN_SWIPE_RIGHT)) {
+            canShowRightMenu = TiConvert.toBoolean(newValue, true);
             canShowRightMenuDefined = true;
         }
 		
-		if (d.containsKey(TiC.PROPERTY_LEFT_SWIPE_BUTTONS)) {
+		else if (key.equals(TiC.PROPERTY_LEFT_SWIPE_BUTTONS)) {
 		    if (leftButtons != null) {
 		        for (TiViewProxy viewProxy : leftButtons) {
 		            proxy.removeHoldedProxy(TiConvert.toString(
@@ -117,9 +118,9 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 		            proxy.removeProxy(viewProxy);
 		        }
 		    }
-            leftButtons = proxiesArrayFromValue(d.get(TiC.PROPERTY_LEFT_SWIPE_BUTTONS));
+            leftButtons = proxiesArrayFromValue(newValue);
         }
-		if (d.containsKey(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS)) {
+		else if (key.equals(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS)) {
             if (rightButtons != null) {
                 for (TiViewProxy viewProxy : leftButtons) {
                     proxy.removeHoldedProxy(TiConvert.toString(
@@ -127,9 +128,12 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
                     proxy.removeProxy(viewProxy);
                 }
             }
-            rightButtons = proxiesArrayFromValue(d.get(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS));
+            rightButtons = proxiesArrayFromValue(newValue);
         }
-		super.processProperties(d);
+		else {
+		    super.propertySet(key, newValue, oldValue, changedProperty);
+		}
+//		super.processProperties(d);
 	}
 
 	private void handleAccessory(int accessory) {

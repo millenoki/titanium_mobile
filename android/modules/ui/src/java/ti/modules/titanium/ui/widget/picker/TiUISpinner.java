@@ -7,6 +7,9 @@
 
 package ti.modules.titanium.ui.widget.picker;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -103,19 +106,6 @@ public class TiUISpinner extends TiUIPicker
 	{
 		refreshColumn(columnIndex);
 	}
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
-	{
-		if (TiC.PROPERTY_VISIBLE_ITEMS.equals(key) || TiC.PROPERTY_SELECTION_INDICATOR.equals(key)) {
-			propagateProperty(key, newValue);
-			if (TiC.PROPERTY_VISIBLE_ITEMS.equals(key)) {
-				forceRequestLayout();
-			}
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
-	}
 
 	private void propagateProperty(String key, Object value)
 	{
@@ -127,25 +117,32 @@ public class TiUISpinner extends TiUIPicker
 			}
 		}
 	}
-	@Override
-	public void processProperties(KrollDict d)
-	{
-		super.processProperties(d);
-		if (d.containsKey(TiC.PROPERTY_VISIBLE_ITEMS)) {
-			propagateProperty(TiC.PROPERTY_VISIBLE_ITEMS, TiConvert.toInt(d, TiC.PROPERTY_VISIBLE_ITEMS));
-		}
-		if (d.containsKey(TiC.PROPERTY_SELECTION_INDICATOR)) {
-			propagateProperty(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(d, TiC.PROPERTY_SELECTION_INDICATOR));
-		}
-	}
+	
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_VISIBLE_ITEMS:
+        case TiC.PROPERTY_SELECTION_INDICATOR:
+            propagateProperty(key, TiConvert.toInt(newValue));
+            if (changedProperty && TiC.PROPERTY_VISIBLE_ITEMS.equals(key)) {
+                forceRequestLayout();
+            }
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
+
 	@Override
 	public void add(TiUIView child, int index)
 	{
 		if (proxy.hasProperty(TiC.PROPERTY_VISIBLE_ITEMS)) {
-			child.getProxy().setProperty(TiC.PROPERTY_VISIBLE_ITEMS, TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_VISIBLE_ITEMS)), true);
+			child.getProxy().setPropertyAndFire(TiC.PROPERTY_VISIBLE_ITEMS, TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_VISIBLE_ITEMS)));
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_SELECTION_INDICATOR)) {
-			child.getProxy().setProperty(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SELECTION_INDICATOR)), true);
+			child.getProxy().setPropertyAndFire(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SELECTION_INDICATOR)));
 		}
 		super.add(child, index);
 	}

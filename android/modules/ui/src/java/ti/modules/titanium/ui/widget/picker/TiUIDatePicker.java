@@ -10,7 +10,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -51,66 +50,62 @@ public class TiUIDatePicker extends TiUIView
 				TiUIHelper.firePostLayoutEvent(TiUIDatePicker.this);
 			}
 		};
+		picker.setCalendarViewShown(false);
 		setNativeView(picker);
 	}
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_VALUE:
+            setValue(newValue);
+            break;
+        case TiC.PROPERTY_MIN_DATE:
+        {
+            Date date = TiConvert.toDate(newValue);
+            if (date != null) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(date);
+                calendar.set(Calendar.HOUR_OF_DAY, 0);
+                calendar.set(Calendar.MINUTE, 0);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+    
+                this.minDate = calendar.getTime();
+            } else {
+                this.minDate = null;
+            }
+            break;
+        }
+        case TiC.PROPERTY_MAX_DATE:
+        {
+            this.maxDate = TiConvert.toDate(newValue);
+            break;
+        }
+        case TiC.PROPERTY_CALENDAR_VIEW_SHOWN:
+            setCalendarView(TiConvert.toBoolean(newValue, false));
+            break;
+        case "minuteInterval":
+            int mi = TiConvert.toInt(newValue, 0);
+            if (mi >= 1 && mi <= 30 && mi % 60 == 0) {
+                this.minuteInterval = mi; 
+            }
+            break;
+
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
 	
 	@Override
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 		
-		boolean valueExistsInProxy = false;
-		Calendar calendar = Calendar.getInstance();
-        DatePicker picker = (DatePicker) getNativeView();
 
-        if (d.containsKey("value")) {
-        	Object date = d.get("value");
-        	if (date != null) {
-        		calendar.setTime((Date) date);
-        		valueExistsInProxy = true;
-        	}
-        }   
-        if (d.containsKey(TiC.PROPERTY_MIN_DATE)) {
-        	Object date = d.get(TiC.PROPERTY_MIN_DATE);
-        	if (date != null) {
-	        	Calendar minDateCalendar = Calendar.getInstance();
-	        	minDateCalendar.setTime((Date) date);
-	        	minDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
-	        	minDateCalendar.set(Calendar.MINUTE, 0);
-	        	minDateCalendar.set(Calendar.SECOND, 0);
-	        	minDateCalendar.set(Calendar.MILLISECOND, 0);
-	
-	        	this.minDate = minDateCalendar.getTime();
-        	}
-        }
-        if (d.containsKey(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
-        	setCalendarView(TiConvert.toBoolean(d, TiC.PROPERTY_CALENDAR_VIEW_SHOWN));
-        }
-        if (d.containsKey(TiC.PROPERTY_MAX_DATE)) {
-        	Object date = d.get(TiC.PROPERTY_MAX_DATE);
-        	if (date != null) {
-        		Calendar maxDateCalendar = Calendar.getInstance();
-            	maxDateCalendar.setTime((Date) date);
-            	maxDateCalendar.set(Calendar.HOUR_OF_DAY, 0);
-            	maxDateCalendar.set(Calendar.MINUTE, 0);
-            	maxDateCalendar.set(Calendar.SECOND, 0);
-            	maxDateCalendar.set(Calendar.MILLISECOND, 0);
-
-            	this.maxDate = maxDateCalendar.getTime();
-        	}
-        	
-        }
-        if (d.containsKey("minuteInterval")) {
-            int mi = d.getInt("minuteInterval");
-            if (mi >= 1 && mi <= 30 && mi % 60 == 0) {
-                this.minuteInterval = mi; 
-            }
-        }
-        suppressChangeEvent = true;
-        picker.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), this);
-        suppressChangeEvent = false;
-        
-        if (!valueExistsInProxy) {
-        	proxy.setProperty("value", calendar.getTime());
+        if (!d.containsKey(TiC.PROPERTY_VALUE)) {
+            //make sure .init is called
+            setValue(Calendar.getInstance().getTime());
         }
         
         //iPhone ignores both values if max <= min
@@ -121,21 +116,6 @@ public class TiUIDatePicker extends TiUIView
                 maxDate = null;
             }   
         }
-	}
-	
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
-	{
-		if (key.equals("value"))
-		{
-			Date date = (Date)newValue;
-			setValue(date.getTime());
-		}
-		if (key.equals(TiC.PROPERTY_CALENDAR_VIEW_SHOWN)) {
-			setCalendarView(TiConvert.toBoolean(newValue));
-		}
-		super.propertyChanged(key, oldValue, newValue, proxy);
 	}
 	
 	public void onDateChanged(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
@@ -158,11 +138,13 @@ public class TiUIDatePicker extends TiUIView
 			setValue(maxDate.getTime(), true);
 		}
 		if (!suppressChangeEvent) {
-			KrollDict data = new KrollDict();
-			data.put("value", targetCalendar.getTime());
-			fireEvent("change", data);
+		    if (hasListeners(TiC.EVENT_CHANGE)) {
+                KrollDict data = new KrollDict();
+                data.put(TiC.PROPERTY_VALUE, targetCalendar.getTime());
+                fireEvent(TiC.EVENT_CHANGE, data);
+            }
+	        proxy.setProperty(TiC.PROPERTY_VALUE, targetCalendar.getTime());
 		}
-		proxy.setProperty("value", targetCalendar.getTime());
 	}
 	
 	public void setValue(long value)
@@ -170,15 +152,34 @@ public class TiUIDatePicker extends TiUIView
 		setValue(value, false);
 	}
 	
+	public void setValue(Date value, boolean suppressEvent) {
+        long millis = (value != null)?value.getTime():Calendar.getInstance().getTimeInMillis();
+        setValue(millis, suppressEvent);
+    }
+	
+	public void setValue(Object value)
+    {
+        setValue(TiConvert.toDate(value), false);
+    }
+	
 	public void setValue(long value, boolean suppressEvent)
 	{
 		DatePicker picker = (DatePicker) getNativeView();
+		
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(value);
 		suppressChangeEvent = suppressEvent;
-		picker.updateDate(calendar.get(Calendar.YEAR), calendar
-				.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-		suppressChangeEvent = false;
+		if (((TiViewProxy)proxy).viewRealised()) {
+		    picker.updateDate(calendar.get(Calendar.YEAR), calendar
+	                .get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+		}
+		else {
+	        suppressChangeEvent = true;
+		    picker.init(calendar.get(Calendar.YEAR), calendar
+	                .get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), this);
+		}
+        suppressChangeEvent = false;
+		
 	}
 	
 	@SuppressLint("NewApi")

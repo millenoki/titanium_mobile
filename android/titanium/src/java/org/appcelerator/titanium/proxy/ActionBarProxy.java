@@ -6,12 +6,10 @@
  */
 package org.appcelerator.titanium.proxy;
 
-import java.util.List;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -45,7 +43,7 @@ import android.view.View;
 		TiC.PROPERTY_ICON
 })
 
-public class ActionBarProxy extends KrollProxy implements KrollProxyListener
+public class ActionBarProxy extends KrollProxy
 {
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_DISPLAY_HOME_AS_UP = MSG_FIRST_ID + 100;
@@ -76,7 +74,7 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 
 	private ActionBar actionBar;
 	private Drawable themeBackgroundDrawable;
-	private Drawable themeIconDrawable;
+	private Drawable themeIconDrawable = null;
 	private boolean showTitleEnabled = true;
 	private int defaultColor = 0;
 	private boolean customBackgroundSet = false;
@@ -95,21 +93,22 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 		int resourceId = 0;
 		try {
 		    TypedValue typedValue = new TypedValue(); 
-		    activity.getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
+            int id = TiRHelper.getResource("android.support.v7.appcompat.R$", "attr.colorPrimary");
+		    activity.getTheme().resolveAttribute(id, typedValue, true);
 		    defaultColor = typedValue.data;
-		    resourceId = TiRHelper.getResource("android.support.v7.appcompat.R$", "id.action_context_bar");
+		    if (defaultColor == 0) {
+		        //non material
+	            resourceId = TiRHelper.getResource("android.support.v7.appcompat.R$", "id.action_context_bar");
+	            if (resourceId > 0) {
+	                View view = activity.getWindow().getDecorView().findViewById(resourceId);
+	                if (view != null) {
+	                    themeBackgroundDrawable = view.getBackground();
+	                }
+	            }
+	            themeIconDrawable = getActionBarIcon(activity);
+		    }
         } catch (ResourceNotFoundException e) {
         }
-		if (resourceId > 0) {
-		    View view = activity.getWindow().getDecorView().findViewById(resourceId);
-	        if (view != null) {
-	            themeBackgroundDrawable = view.getBackground();
-	        }
-		}
-        
-		themeIconDrawable = getActionBarIcon(activity);
-		setModelListener(this, false);
-		
 	}
 	
 	protected static TypedArray obtainStyledAttrsFromThemeAttr(Context context,
@@ -559,104 +558,74 @@ public class ActionBarProxy extends KrollProxy implements KrollProxyListener
 		return super.handleMessage(msg);
 	}
 
-	public void processProperties(KrollDict properties) {
-		if (actionBar == null) return;
-		if (customBackgroundSet && !properties.containsKey(TiC.PROPERTY_BACKGROUND_COLOR) && 
-				!properties.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE) &&  
-				!properties.containsKey(TiC.PROPERTY_BACKGROUND_GRADIENT) )
-		{
-		    if (defaultColor != 0) {
-		        setBackgroundColor(defaultColor);
-		    } else {
-		        if (TiApplication.isUIThread()) {
-	                actionBar.setBackgroundDrawable(themeBackgroundDrawable);
-	            } else {
-	                getMainHandler().obtainMessage(MSG_RESET_BACKGROUND).sendToTarget();
-	            }
-		    }
-			
-			customBackgroundSet = false;
-		}
-		
-		if (properties.containsKey(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED)) {
-	        activateHomeButton(properties.get(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED) != null);
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED:
+            activateHomeButton(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_DISPLAY_HOME_AS_UP:
+            setDisplayHomeAsUp(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_BACKGROUND_IMAGE:
+            setBackgroundImage(TiConvert.toString(newValue));
+            break;
+        case TiC.PROPERTY_BACKGROUND_COLOR:
+            setBackgroundColor(TiConvert.toColor(newValue));
+            break;
+        case TiC.PROPERTY_BACKGROUND_GRADIENT:
+            setBackgroundGradient(TiConvert.toKrollDict(newValue));
+            break;
+        case TiC.PROPERTY_LOGO:
+            setLogo(TiConvert.toString(newValue));
+            break;
+        case TiC.PROPERTY_ICON:
+            if (newValue != null) {
+                if (newValue instanceof String) {
+                    setIcon((String)newValue);
+                }
+                else if (newValue instanceof Number){
+                    setIcon(TiConvert.toInt(newValue));
+                }
+            }
+            else {
+                if (TiApplication.isUIThread()) {
+                    actionBar.setIcon(themeIconDrawable);
+                } else {
+                    getMainHandler().obtainMessage(MSG_RESET_ICON).sendToTarget();
+                }
+            }
+        default:
+            break;
         }
-		
-        if (properties.containsKey(TiC.PROPERTY_DISPLAY_HOME_AS_UP)) {
-            setDisplayHomeAsUp(properties.optBoolean(TiC.PROPERTY_DISPLAY_HOME_AS_UP, false));
+    }
+    
+    @Override
+    public void setProperties(KrollDict newProps) {
+        super.setProperties(newProps);
+        if (customBackgroundSet && properties.get(TiC.PROPERTY_BACKGROUND_COLOR) == null && 
+                properties.get(TiC.PROPERTY_BACKGROUND_IMAGE) == null &&  
+                properties.get(TiC.PROPERTY_BACKGROUND_GRADIENT) == null )
+        {
+            if (defaultColor != 0) {
+                setBackgroundColor(defaultColor);
+            } else {
+                if (TiApplication.isUIThread()) {
+                    actionBar.setBackgroundDrawable(themeBackgroundDrawable);
+                } else {
+                    getMainHandler().obtainMessage(MSG_RESET_BACKGROUND).sendToTarget();
+                }
+            }
+            
+            customBackgroundSet = false;
         }
-		if (properties.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			setBackgroundImage(properties.getString(TiC.PROPERTY_BACKGROUND_IMAGE));
-		}
-		if (properties.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			setBackgroundColor(properties.getColor(TiC.PROPERTY_BACKGROUND_COLOR));
-		}
-		if (properties.containsKey(TiC.PROPERTY_BACKGROUND_GRADIENT)) {
-			setBackgroundGradient(properties.getKrollDict(TiC.PROPERTY_BACKGROUND_GRADIENT));
-		}
-		if (properties.containsKey(TiC.PROPERTY_LOGO)) {
-			setLogo(properties.getString(TiC.PROPERTY_LOGO));
-		}
-		Object obj= properties.get(TiC.PROPERTY_ICON);
-		if (obj != null) {
-			if (obj instanceof String) {
-				setIcon((String)obj);
-			}
-			else if (obj instanceof Number){
-				setIcon(TiConvert.toInt(obj));
-			}
-		}
-		else {
-			if (TiApplication.isUIThread()) {
-				actionBar.setIcon(themeIconDrawable);
-			} else {
-				getMainHandler().obtainMessage(MSG_RESET_ICON).sendToTarget();
-			}
-		}
-	}
+    }
 	
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy) {		
-		if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			setBackgroundColor(TiConvert.toColor((String) newValue));
-		} else if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			setBackgroundImage(TiConvert.toString(newValue));
-		} else if (key.equals(TiC.PROPERTY_BACKGROUND_GRADIENT)) {
-				setBackgroundGradient((KrollDict)newValue);
-		} else if (key.equals(TiC.PROPERTY_LOGO)) {
-			setLogo(TiConvert.toString(newValue));
-		} else if (key.equals(TiC.PROPERTY_DISPLAY_HOME_AS_UP)) {
-			setDisplayHomeAsUp(TiConvert.toBoolean(newValue, false));
-		} else if (key.equals(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED)) {
-			activateHomeButton((newValue != null));
-		} else if (key.equals(TiC.PROPERTY_ICON)) {
-			if (newValue != null) {
-				if (newValue instanceof String) {
-					setIcon((String)newValue);
-				}
-				else if (newValue instanceof Number){
-					setIcon(TiConvert.toInt(newValue));
-				}
-			}
-			else {
-				if (TiApplication.isUIThread()) {
-					actionBar.setIcon(themeIconDrawable);
-				} else {
-					getMainHandler().obtainMessage(MSG_RESET_ICON).sendToTarget();
-				}
-			}
-		}
+	@Override
+	public void onPropertyChanged(String key, Object newValue, Object oldValue) {
+        propertySet(key, newValue, oldValue, true);
 	}
 
-	public void propertiesChanged(List<KrollPropertyChange> changes,
-			KrollProxy proxy) {
-	}
-
-	public void listenerAdded(String type, int count, KrollProxy proxy) {		
-	}
-
-	public void listenerRemoved(String type, int count, KrollProxy proxy) {		
-	}
 	@Override
 	public String getApiName()
 	{

@@ -51,6 +51,7 @@ import android.annotation.SuppressLint;
 import ti.modules.titanium.ui.android.SearchViewProxy;
 import ti.modules.titanium.ui.widget.CustomListView;
 import ti.modules.titanium.ui.widget.collectionview.CollectionSectionProxy.CollectionItemData;
+import ti.modules.titanium.ui.widget.listview.ListViewProxy;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
@@ -768,142 +769,146 @@ public class TiCollectionView extends TiUINonViewGroupView implements OnSearchCh
 		
 	}
 
-	public void processProperties(KrollDict d) {
-		
-		if (d.containsKey(TiC.PROPERTY_TEMPLATES)) {
-			processTemplates((HashMap)d.get(TiC.PROPERTY_TEMPLATES));
-		} 
-		
-		if (d.containsKey(TiC.PROPERTY_SEARCH_TEXT)) {
-			this.searchText = TiConvert.toString(d, TiC.PROPERTY_SEARCH_TEXT);
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_SEARCH_VIEW)) {
-			setSearchView(d.get(TiC.PROPERTY_SEARCH_VIEW), true);
-		}
-		else if (d.containsKey(TiC.PROPERTY_SEARCH_VIEW_EXTERNAL)) {
-            setSearchView(d.get(TiC.PROPERTY_SEARCH_VIEW_EXTERNAL), false);
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_TEMPLATES:
+            processTemplates((HashMap)newValue);
+            if (changedProperty && adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
+            break;
+        case TiC.PROPERTY_SEARCH_TEXT:
+            this.searchText = TiConvert.toString(newValue);
+            if (changedProperty) {
+                reFilter(this.searchText);
+            }
+            break;
+        case TiC.PROPERTY_SEARCH_VIEW:
+            setSearchView(newValue, true);
+            break;
+        case TiC.PROPERTY_SEARCH_VIEW_EXTERNAL:
+            setSearchView(newValue, false);
+            break;
+        case TiC.PROPERTY_SCROLL_HIDES_KEYBOARD:
+            this.hideKeyboardOnScroll = TiConvert.toBoolean(newValue, true);
+            break;
+        case TiC.PROPERTY_STICKY_HEADERS:
+            listView.setAreHeadersSticky(TiConvert.toBoolean(newValue, true));
+            break;
+        case TiC.PROPERTY_CASE_INSENSITIVE_SEARCH:
+            this.caseInsensitive = TiConvert.toBoolean(newValue, true);
+            if (changedProperty) {
+                reFilter(this.searchText);
+            }
+            break;
+        case TiC.PROPERTY_SEPARATOR_COLOR:
+            setSeparatorColor(TiConvert.toColor(newValue));
+            break;
+        case TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED:
+            getInternalCollectionView().setFooterDividersEnabled(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_HEADER_DIVIDERS_ENABLED:
+            getInternalCollectionView().setHeaderDividersEnabled(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR:
+            listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(newValue, true));
+            break;
+        case TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE:
+            defaultTemplateBinding = TiConvert.toString(newValue);
+            if (changedProperty) {
+                refreshItems();
+            }
+            break;
+        case TiC.PROPERTY_SECTIONS:
+            if (changedProperty) {
+                processSectionsAndNotify((Object[])newValue);
+            } else {
+                //if user didn't append/modify/delete sections before this is called, we process sections
+                //as usual. Otherwise, we process the preloadSections, which should also contain the section(s)
+                //from this dictionary as well as other sections that user append/insert/deleted prior to this.
+                ListViewProxy listProxy = (ListViewProxy) proxy;
+                if (!listProxy.getPreload()) {
+                    processSections((Object[])newValue);
+                } else {
+                    processSections(listProxy.getPreloadSections().toArray());
+                }
+            }
+            break;
+        case TiC.PROPERTY_SEPARATOR_STYLE:
+            setSeparatorStyle(TiConvert.toInt(newValue));
+            break;
+        case TiC.PROPERTY_OVER_SCROLL_MODE:
+//            if (Build.VERSION.SDK_INT >= 9) {
+                listView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+//            }
+            break;
+        case TiC.PROPERTY_HEADER_VIEW:
+            setHeaderOrFooterView(newValue, true);
+            break;
+        case TiC.PROPERTY_HEADER_TITLE:
+            if (headerView == null || headerView.getId() != HEADER_FOOTER_WRAP_ID) {
+                if (headerView == null) {
+                    headerView = inflater.inflate(headerFooterId, null);
+                }
+                setHeaderTitle(TiConvert.toString(newValue));
+            }
+            break;
+        case TiC.PROPERTY_FOOTER_VIEW:
+            setHeaderOrFooterView(newValue, false);
+            break;
+        case TiC.PROPERTY_FOOTER_TITLE:
+            if (footerView == null || footerView.getId() != HEADER_FOOTER_WRAP_ID) {
+                if (footerView == null) {
+                    footerView = inflater.inflate(headerFooterId, null);
+                }
+                setFooterTitle(TiConvert.toString(newValue));
+            }
+            break;
+        case TiC.PROPERTY_SCROLLING_ENABLED:
+            listView.setScrollingEnabled(newValue);
+            break;
+        case TiC.PROPERTY_PULL_VIEW:
+            listView.setHeaderPullView(setPullView(newValue));
+            break;
+        
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
         }
-		
-		if (d.containsKey(TiC.PROPERTY_SCROLL_HIDES_KEYBOARD)) {
-            this.hideKeyboardOnScroll = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLL_HIDES_KEYBOARD, true);
-        }
-		
-		if (d.containsKey(TiC.PROPERTY_STICKY_HEADERS)) {
-            listView.setAreHeadersSticky(TiConvert.toBoolean(d, TiC.PROPERTY_STICKY_HEADERS, true));
+    }
+    
+    @Override
+    public void processProperties(KrollDict d) {
+        
+        super.processProperties(d);
+
+        ListViewProxy listProxy = (ListViewProxy) proxy;
+        listProxy.clearPreloadSections();
+        listProxy.setPreload(false);
+
+        //Check to see if headerView and footerView are specified. If not, we hide the views
+        if (headerView == null) {
+            headerView = inflater.inflate(headerFooterId, null);
+            headerView.findViewById(titleId).setVisibility(View.GONE);
         }
         
-		
-		if (d.containsKey(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH)) {
-			this.caseInsensitive = TiConvert.toBoolean(d, TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
-		}
+        if (footerView == null) {
+            footerView = inflater.inflate(headerFooterId, null);
+            footerView.findViewById(titleId).setVisibility(View.GONE);
+        }
 
-		if (d.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
-			String color = TiConvert.toString(d, TiC.PROPERTY_SEPARATOR_COLOR);
-			setSeparatorColor(color);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED)) {
-			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED, false);
-			getInternalCollectionView().setFooterDividersEnabled(enabled);
-		} else {
-		    getInternalCollectionView().setFooterDividersEnabled(false);
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_HEADER_DIVIDERS_ENABLED)) {
-			boolean enabled = TiConvert.toBoolean(d, TiC.PROPERTY_HEADER_DIVIDERS_ENABLED, false);
-			getInternalCollectionView().setHeaderDividersEnabled(enabled);
-		} else {
-		    getInternalCollectionView().setHeaderDividersEnabled(false);
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
-			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR, true));
-		}
-
-		if (d.containsKey(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE)) {
-			defaultTemplateBinding = TiConvert.toString(d, TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE);
-		}
-		
-		CollectionViewProxy listProxy = (CollectionViewProxy) proxy;
-		if (d.containsKey(TiC.PROPERTY_SECTIONS)) {
-			//if user didn't append/modify/delete sections before this is called, we process sections
-			//as usual. Otherwise, we process the preloadSections, which should also contain the section(s)
-			//from this dictionary as well as other sections that user append/insert/deleted prior to this.
-			if (!listProxy.getPreload()) {
-				processSections((Object[])d.get(TiC.PROPERTY_SECTIONS));
-			} else {
-				processSections(listProxy.getPreloadSections().toArray());
-			}
-		} else if (listProxy.getPreload()) {
-			//if user didn't specify 'sections' property upon creation of listview but append/insert it afterwards
-			//we process them instead.
-			processSections(listProxy.getPreloadSections().toArray());
-		}
-
-		listProxy.clearPreloadSections();
-		listProxy.setPreload(false);
-
-		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_COLOR)) {
-			setSeparatorColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_SEPARATOR_COLOR)));
-		}
-
-		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_STYLE)) {
-			setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE)));
-		}
-
-		if (proxy.hasProperty(TiC.PROPERTY_OVER_SCROLL_MODE)) {
-			if (Build.VERSION.SDK_INT >= 9) {
-				listView.setOverScrollMode(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
-			}
-		}
-		if (d.containsKey(TiC.PROPERTY_HEADER_VIEW)) {
-			Object viewObj = d.get(TiC.PROPERTY_HEADER_VIEW);
-			setHeaderOrFooterView(viewObj, true);
-		} else if (d.containsKey(TiC.PROPERTY_HEADER_TITLE)) {
-			headerView = inflater.inflate(headerFooterId, null);
-			setHeaderTitle(TiConvert.toString(d, TiC.PROPERTY_HEADER_TITLE));
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_FOOTER_VIEW)) {
-			Object viewObj = d.get(TiC.PROPERTY_FOOTER_VIEW);
-			setHeaderOrFooterView(viewObj, false);	
-		} else if (d.containsKey(TiC.PROPERTY_FOOTER_TITLE)) {
-			footerView = inflater.inflate(headerFooterId, null);
-			setFooterTitle(TiConvert.toString(d, TiC.PROPERTY_FOOTER_TITLE));
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
-			listView.setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLING_ENABLED));
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_PULL_VIEW)) {
-			Object viewObj = d.get(TiC.PROPERTY_PULL_VIEW);
-			listView.setHeaderPullView(setPullView(viewObj));
-		}
-
-		//Check to see if headerView and footerView are specified. If not, we hide the views
-		if (headerView == null) {
-			headerView = inflater.inflate(headerFooterId, null);
-			headerView.findViewById(titleId).setVisibility(View.GONE);
-		}
-		
-		if (footerView == null) {
-			footerView = inflater.inflate(headerFooterId, null);
-			footerView.findViewById(titleId).setVisibility(View.GONE);
-		}
-
-		//Have to add header and footer before setting adapter
-		listView.addHeaderView(headerView, null, false);
-		listView.addFooterView(footerView, null, false);
-		
-		mSwipeMenuAdapater = new SwipeMenuAdapter(adapter, getProxy().getActivity(), mMenuCallback);
-		StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(mSwipeMenuAdapater);
+        //Have to add header and footer before setting adapter
+        listView.addHeaderView(headerView, null, false);
+        listView.addFooterView(footerView, null, false);
+        
+        mSwipeMenuAdapater = new SwipeMenuAdapter(adapter, getProxy().getActivity(), mMenuCallback);
+        StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(mSwipeMenuAdapater);
         stickyListHeadersAdapterDecorator.setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
-		listView.setAdapter(stickyListHeadersAdapterDecorator);
-		super.processProperties(d);
-		
-	}
+        listView.setAdapter(stickyListHeadersAdapterDecorator);
+        
+    }
 
 	private void layoutSearchView(TiViewProxy searchView) {
 	    if (searchLayout != null) {
@@ -1035,63 +1040,6 @@ public class TiCollectionView extends TiUINonViewGroupView implements OnSearchCh
 			return false;
 		}
 	}
-	
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy) {
-		if (key.equals(TiC.PROPERTY_TEMPLATES)) {
-			processTemplates((HashMap)newValue);
-			if (adapter != null) {
-				adapter.notifyDataSetChanged();
-			}
-		}
-		else if (key.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
-			setSeparatorColor(TiConvert.toString(newValue));
-		} else if (key.equals(TiC.PROPERTY_SEPARATOR_STYLE)) {
-			setSeparatorStyle(TiConvert.toInt(newValue));
-		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)){
-			if (Build.VERSION.SDK_INT >= 9) {
-				listView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
-			}
-		} else if (key.equals(TiC.PROPERTY_HEADER_VIEW)) {
-		    setHeaderOrFooterView(TiConvert.toString(newValue), true);
-		} else if (key.equals(TiC.PROPERTY_FOOTER_VIEW)) {
-            setHeaderOrFooterView(TiConvert.toString(newValue), false);
-		} else if (key.equals(TiC.PROPERTY_HEADER_TITLE)) {
-			setHeaderTitle(TiConvert.toString(newValue));
-		} else if (key.equals(TiC.PROPERTY_FOOTER_TITLE)) {
-			setFooterTitle(TiConvert.toString(newValue));
-		} else if (key.equals(TiC.PROPERTY_SECTIONS) && newValue instanceof Object[] ) {
-			processSectionsAndNotify((Object[])newValue);
-		} else if (key.equals(TiC.PROPERTY_SEARCH_TEXT)) {
-			this.searchText = TiConvert.toString(newValue);
-			if (this.searchText != null) {
-				reFilter(this.searchText);
-			}
-		} else if (key.equals(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH)) {
-			this.caseInsensitive = TiConvert.toBoolean(newValue, true);
-			if (this.searchText != null) {
-				reFilter(this.searchText);
-			}
-		} else if (key.equals(TiC.PROPERTY_SCROLL_HIDES_KEYBOARD)) {
-            this.hideKeyboardOnScroll = TiConvert.toBoolean(newValue, true);
-		} else if (key.equals(TiC.PROPERTY_STICKY_HEADERS)) {
-            listView.setAreHeadersSticky(TiConvert.toBoolean(newValue, true));
-		} else if (key.equals(TiC.PROPERTY_SEARCH_VIEW)) {
-            setSearchView(newValue, true);
-		} else if (key.equals(TiC.PROPERTY_SEARCH_VIEW_EXTERNAL)) {
-            setSearchView(newValue, false);
-        } else if (key.equals(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR) && newValue != null) {
-			listView.setVerticalScrollBarEnabled(TiConvert.toBoolean(newValue));
-		} else if (key.equals(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE) && newValue != null) {
-			defaultTemplateBinding = TiConvert.toString(newValue);
-			refreshItems();
-		} else if (key.equals(TiC.PROPERTY_SCROLLING_ENABLED)) {
-			listView.setScrollingEnabled(newValue);
-		} else if (key.equals(TiC.PROPERTY_PULL_VIEW)) {
-			listView.setHeaderPullView(setPullView(newValue));
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
-	}
 
 	private void setSearchListener(TiViewProxy searchView, TiUIView search) 
 	{
@@ -1102,10 +1050,9 @@ public class TiCollectionView extends TiUINonViewGroupView implements OnSearchCh
 		}
 	}
 
-	private void setSeparatorColor(String color) {
-		int sepColor = TiColorHelper.parseColor(color);
+	private void setSeparatorColor(int color) {
 		int dividerHeight = listView.getDividerHeight();
-		listView.setDivider(new ColorDrawable(sepColor));
+		listView.setDivider(new ColorDrawable(color));
 		listView.setDividerHeight(dividerHeight);
 	}
 

@@ -59,7 +59,7 @@ import android.view.ViewGroup;
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT
 })
-public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEvent, TiActivityWindow, interceptOnBackPressedEvent, TiWindowManager, interceptOnHomePressedEvent, KrollProxyListener
+public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEvent, TiActivityWindow, interceptOnBackPressedEvent, TiWindowManager, interceptOnHomePressedEvent
 {
 	private static final String TAG = "NavigationWindowProxy";
 
@@ -79,7 +79,6 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 	public NavigationWindowProxy()
 	{
 		super();
-		setModelListener(this, false);
 	}
 	
 	@Kroll.method @Kroll.setProperty
@@ -104,6 +103,16 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
         Object window = options.get(TiC.PROPERTY_WINDOW);
         if (window instanceof TiWindowProxy) {
             setWindow((TiWindowProxy) window);
+        }
+        
+        if (options.containsKey(TiC.PROPERTY_TRANSITION)) {
+            Object value = options.get(TiC.PROPERTY_TRANSITION);
+            if (value instanceof HashMap) {
+                defaultTransition = (HashMap) value;
+            }
+            else {
+                defaultTransition = kDefaultTransition;
+            }
         }
     }
 
@@ -809,48 +818,16 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 
 
 	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy) {
-		if (key.equals(TiC.PROPERTY_TRANSITION)) {
-			if (newValue instanceof HashMap) {
-				defaultTransition = (HashMap) newValue;
-			}
-			else {
-				defaultTransition = kDefaultTransition;
-			}
-		} else if (key.equals(TiC.PROPERTY_WINDOW)) {
-		    setWindow((TiWindowProxy) newValue);
+	public void onPropertyChanged(String name, Object value, Object oldValue) {
+	    if (name.equals(TiC.PROPERTY_TRANSITION)) {
+            if (value instanceof HashMap) {
+                defaultTransition = (HashMap) value;
+            }
+            else {
+                defaultTransition = kDefaultTransition;
+            }
+        } else if (name.equals(TiC.PROPERTY_WINDOW)) {
+            setWindow((TiWindowProxy) value);
         }
-	}
-
-
-	@Override
-	public void processProperties(KrollDict properties) {
-		if (properties.containsKey(TiC.PROPERTY_TRANSITION)) {
-			Object value = properties.get(TiC.PROPERTY_TRANSITION);
-			if (value instanceof HashMap) {
-				defaultTransition = (HashMap) value;
-			}
-			else {
-				defaultTransition = kDefaultTransition;
-			}
-		}
-	}
-
-
-	@Override
-	public void propertiesChanged(List<KrollPropertyChange> changes,
-			KrollProxy proxy) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-	@Override
-	public void listenerAdded(String type, int count, KrollProxy proxy) {}
-
-
-	@Override
-	public void listenerRemoved(String type, int count, KrollProxy proxy) {}
-
+    }
 }

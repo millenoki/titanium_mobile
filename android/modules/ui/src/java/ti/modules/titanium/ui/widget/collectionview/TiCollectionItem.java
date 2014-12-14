@@ -25,6 +25,7 @@ import ti.modules.titanium.ui.widget.TiUISwitch;
 import ti.modules.titanium.ui.widget.TiUIText;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -86,40 +87,38 @@ public class TiCollectionItem extends TiUIView implements TiTouchDelegate {
 	    return result;
 	}
 	
-	public void processProperties(KrollDict d) {
-		CollectionItemProxy itemProxy = (CollectionItemProxy)getProxy();
-
-		if (d.containsKey(TiC.PROPERTY_ACCESSORY_TYPE)) {
-			int accessory = TiConvert.toInt(d.get(TiC.PROPERTY_ACCESSORY_TYPE), -1);
-			handleAccessory(accessory);
-		}
-		if (d.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
-			d.put(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, d.get(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR));
-		}
-		if (d.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
-			d.put(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, d.get(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE));
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_CAN_SWIPE_LEFT)) {
-            canShowLeftMenu = d.optBoolean(TiC.PROPERTY_CAN_SWIPE_LEFT, true);
+	@Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_ACCESSORY_TYPE:
+            handleAccessory(TiConvert.toInt(newValue, -1));
+            break;
+        case TiC.PROPERTY_SELECTED_BACKGROUND_COLOR:
+            super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, newValue, oldValue, changedProperty);
+            break;
+        case TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE:
+            super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, newValue, oldValue, changedProperty);
+            break;
+        case TiC.PROPERTY_CAN_SWIPE_LEFT:
+            canShowLeftMenu = TiConvert.toBoolean(newValue, true);
             canShowLeftMenuDefined = true;
-        }
-		if (d.containsKey(TiC.PROPERTY_CAN_SWIPE_RIGHT)) {
-            canShowRightMenu = d.optBoolean(TiC.PROPERTY_CAN_SWIPE_RIGHT, true);
+            break;
+        case TiC.PROPERTY_CAN_SWIPE_RIGHT:
+            canShowRightMenu = TiConvert.toBoolean(newValue, true);
             canShowRightMenuDefined = true;
-        }
-		
-		if (d.containsKey(TiC.PROPERTY_LEFT_SWIPE_BUTTONS)) {
-		    if (leftButtons != null) {
-		        for (TiViewProxy viewProxy : leftButtons) {
-		            proxy.removeHoldedProxy(TiConvert.toString(
-		                    viewProxy.getProperty(TiC.PROPERTY_BIND_ID), null));
-		            proxy.removeProxy(viewProxy);
-		        }
-		    }
-            leftButtons = proxiesArrayFromValue(d.get(TiC.PROPERTY_LEFT_SWIPE_BUTTONS));
-        }
-		if (d.containsKey(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS)) {
+            break;
+        case TiC.PROPERTY_LEFT_SWIPE_BUTTONS:
+            if (leftButtons != null) {
+                for (TiViewProxy viewProxy : leftButtons) {
+                    proxy.removeHoldedProxy(TiConvert.toString(
+                            viewProxy.getProperty(TiC.PROPERTY_BIND_ID), null));
+                    proxy.removeProxy(viewProxy);
+                }
+            }
+            leftButtons = proxiesArrayFromValue(newValue);
+            break;
+        case TiC.PROPERTY_RIGHT_SWIPE_BUTTONS:
             if (rightButtons != null) {
                 for (TiViewProxy viewProxy : leftButtons) {
                     proxy.removeHoldedProxy(TiConvert.toString(
@@ -127,10 +126,13 @@ public class TiCollectionItem extends TiUIView implements TiTouchDelegate {
                     proxy.removeProxy(viewProxy);
                 }
             }
-            rightButtons = proxiesArrayFromValue(d.get(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS));
+            rightButtons = proxiesArrayFromValue(newValue);
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
         }
-		super.processProperties(d);
-	}
+    }
 
 	private void handleAccessory(int accessory) {
 		

@@ -6,11 +6,10 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiHtml;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -25,6 +24,14 @@ public class TiUIProgressBar extends TiUIView {
 	private TextView label;
 	private ProgressBar progress;
 	private LinearLayout view;
+	
+    private float value = 0;
+    private float min = 0;
+    private float max = 0;
+    
+    private float secondaryValue = 0;
+    private float secondaryMin = 0;
+    private float secondaryMax = 0;
 	
 	public TiUIProgressBar(final TiViewProxy proxy)
 	{
@@ -62,57 +69,43 @@ public class TiUIProgressBar extends TiUIView {
 		setNativeView(view);
 	}
 	
-	@Override
-	public void processProperties(KrollDict d) {
-		super.processProperties(d);
-		
-		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
-			handleSetMessage(TiConvert.toString(d, TiC.PROPERTY_MESSAGE));
-		}
-		updateProgress();
-	}
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
 
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		super.propertyChanged(key, oldValue, newValue, proxy);
-
-		if (key.equals(TiC.PROPERTY_VALUE) || key.equals("min") || key.equals("max")) {
-			updateProgress();
-		} else if (key.equals(TiC.PROPERTY_MESSAGE)) {
-			String message = TiConvert.toString(newValue);
-			if (message != null) {
-				handleSetMessage(message);
-			}
-		}
-	}
-
-	private double getMin() {
-		Object value = proxy.getProperty("min");
-		if (value == null) {
-			return 0;
-		}
-		
-		return TiConvert.toDouble(value);
-	}
-	
-	private double getMax() {
-		Object value = proxy.getProperty("max");
-		if (value == null) {
-			return 0;
-		}
-		
-		return TiConvert.toDouble(value);
-	}
-	
-	private double getValue() {
-		Object value = proxy.getProperty(TiC.PROPERTY_VALUE);
-		if (value == null) {
-			return 0;
-		}
-		
-		return TiConvert.toDouble(value);
-	}
+        switch (key) {
+        case TiC.PROPERTY_MESSAGE:
+            handleSetMessage(TiConvert.toString(newValue));
+            break;
+        case TiC.PROPERTY_VALUE:
+            value = TiConvert.toFloat(newValue, 0);
+            updateProgress();
+            break;
+        case TiC.PROPERTY_MIN:
+            min = TiConvert.toFloat(newValue, 0);
+            updateProgress();
+            break;
+        case TiC.PROPERTY_MAX:
+            max = TiConvert.toFloat(newValue, 0);
+            updateProgress();
+            break;
+        case "secondaryValue":
+            secondaryValue = TiConvert.toFloat(newValue, 0);
+            updateSecondaryProgress();
+            break;
+        case "secondaryMin":
+            secondaryMin = TiConvert.toFloat(newValue, 0);
+            updateSecondaryProgress();
+            break;
+        case "secondaryMax":
+            secondaryMax = TiConvert.toFloat(newValue, 0);
+            updateSecondaryProgress();
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
 	
 	private int convertRange(double min, double max, double value, int base)
 	{
@@ -121,12 +114,17 @@ public class TiUIProgressBar extends TiUIView {
 	
 	public void updateProgress()
 	{
-		progress.setProgress(convertRange(getMin(), getMax(), getValue(), 1000));
+		progress.setProgress(convertRange(min, max, value, 1000));
 	}
+	public void updateSecondaryProgress()
+    {
+        progress.setSecondaryProgress(convertRange(secondaryMin, secondaryMax, secondaryValue, 1000));
+    }
+    
 	
 	public void handleSetMessage(String message)
 	{
-		label.setText(message);
+		label.setText(TiHtml.fromHtml(message));
 		label.requestLayout();
 	}
 }

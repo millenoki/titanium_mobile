@@ -10,7 +10,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -81,50 +80,119 @@ public class TiUIDialog extends TiUIView
 		return builder;
 	}
 	
+	private void clearDialog() {
+        AlertDialog dialog = dialogWrapper.getDialog();
+	    if (dialog != null) {
+            dialog.dismiss();
+            dialog = null;
+        }
+	}
+	
+	@Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        AlertDialog dialog = dialogWrapper.getDialog();
+	    if (key.startsWith(TiC.PROPERTY_ACCESSIBILITY_PREFIX)) {
+            if (dialog != null) {
+                ListView listView = dialog.getListView();
+                if (listView != null) {
+                    if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+                        int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+                        if (newValue != null && TiConvert.toBoolean(newValue)) {
+                            importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+                        }
+                        ViewCompat.setImportantForAccessibility(listView, importance);
+                    } else {
+                        listView.setContentDescription(composeContentDescription());
+                    }
+                }
+            }
+            return;
+        }
+        switch (key) {
+        case TiC.PROPERTY_TITLE:
+            if (dialog != null) {
+                dialog.setTitle(Html.fromHtml((String) newValue));
+            } else {
+                getBuilder().setTitle(Html.fromHtml(TiConvert.toString(newValue)));
+            }
+            break;
+        case TiC.PROPERTY_MESSAGE:
+            if (dialog != null) {
+                dialog.setMessage(Html.fromHtml((String) newValue));
+            } else {
+                getBuilder().setMessage(Html.fromHtml(TiConvert.toString(newValue)));
+            }
+            break;
+        case TiC.PROPERTY_BUTTON_NAMES:
+            clearDialog();
+            processButtons(TiConvert.toStringArray(newValue));
+            break;
+        case TiC.PROPERTY_OK:
+            clearDialog();
+            processButtons(new String[]{TiConvert.toString(newValue)});
+            break;
+        case TiC.PROPERTY_CUSTOM_VIEW:
+            clearDialog();
+            processView(newValue);
+            break;
+        case TiC.PROPERTY_PERSISTENT:
+            dialogWrapper.setPersistent(TiConvert.toBoolean(newValue));
+            break;
+        case TiC.PROPERTY_OPTIONS:
+        {
+            clearDialog();
+            getBuilder().setView(null);
+            String[] optionText = TiConvert.toStringArray(newValue);
+            int selectedIndex = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SELECTED_INDEX), -1); 
+            if(selectedIndex >= optionText.length){
+                Log.d(TAG, "Ooops invalid selected index specified: " + selectedIndex, Log.DEBUG_MODE);
+                selectedIndex = -1;
+            }
+            processOptions(optionText, selectedIndex);
+            break;
+        }
+        case TiC.PROPERTY_SELECTED_INDEX:
+        {
+            clearDialog();
+            getBuilder().setView(null);
+            String[] optionText = TiConvert.toStringArray(proxy.getProperty(TiC.PROPERTY_OPTIONS));
+            int selectedIndex = TiConvert.toInt(newValue, -1); 
+            if(selectedIndex >= optionText.length){
+                Log.d(TAG, "Ooops invalid selected index specified: " + selectedIndex, Log.DEBUG_MODE);
+                selectedIndex = -1;
+            }
+            processOptions(optionText, selectedIndex);
+            break;
+        }
+        case TiC.PROPERTY_HIDE_ON_CLICK:
+            hideOnClick = TiConvert.toBoolean(newValue);
+            if (dialog != null) {
+                dialog.setCancelable(hideOnClick);
+            }
+            break;
+        case TiC.PROPERTY_TAP_OUT_DISMISS:
+            tapToDismiss = TiConvert.toBoolean(newValue);
+            if (dialog != null) {
+                dialog.setCanceledOnTouchOutside(tapToDismiss);
+            }
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
+	
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		String[] buttonText = null;
-		if (d.containsKey(TiC.PROPERTY_TITLE)) {
-			getBuilder().setTitle(Html.fromHtml(d.getString(TiC.PROPERTY_TITLE)));
-		}
-		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
-			getBuilder().setMessage(Html.fromHtml(d.getString(TiC.PROPERTY_MESSAGE)));
-		}
-		if (d.containsKey(TiC.PROPERTY_BUTTON_NAMES))
-		{
-			buttonText = d.getStringArray(TiC.PROPERTY_BUTTON_NAMES);
-		} else if (d.containsKey(TiC.PROPERTY_OK)) {
-			buttonText = new String[]{d.getString(TiC.PROPERTY_OK)};
-		}
-		if (d.containsKey(TiC.PROPERTY_CUSTOM_VIEW)) {
-			processView(proxy.getProperty(TiC.PROPERTY_CUSTOM_VIEW));
-		} else if (d.containsKey(TiC.PROPERTY_OPTIONS)) {
-			String[] optionText = d.getStringArray(TiC.PROPERTY_OPTIONS);
-			int selectedIndex = d.containsKey(TiC.PROPERTY_SELECTED_INDEX) ? d.getInt(TiC.PROPERTY_SELECTED_INDEX) : -1; 
-			if(selectedIndex >= optionText.length){
-				Log.d(TAG, "Ooops invalid selected index specified: " + selectedIndex, Log.DEBUG_MODE);
-				selectedIndex = -1;
-			}
-			
-			processOptions(optionText, selectedIndex);
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_PERSISTENT)) {
-			dialogWrapper.setPersistent(d.getBoolean(TiC.PROPERTY_PERSISTENT));
-		}
-
-		if (d.containsKey(TiC.PROPERTY_HIDE_ON_CLICK)) {
-			hideOnClick = d.getBoolean(TiC.PROPERTY_HIDE_ON_CLICK);
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_TAP_OUT_DISMISS)) {
-            tapToDismiss = d.getBoolean(TiC.PROPERTY_TAP_OUT_DISMISS);
+        if (d.get(TiC.PROPERTY_BUTTON_NAMES) != null && d.containsKey(TiC.PROPERTY_OK) ) {
+            d.remove(TiC.PROPERTY_OK);
         }
-
-		if (buttonText != null) {
-			processButtons(buttonText);
-		}
+        
+        if (d.get(TiC.PROPERTY_CUSTOM_VIEW) != null && d.containsKey(TiC.PROPERTY_OPTIONS) ) {
+            d.remove(TiC.PROPERTY_OPTIONS);
+        }
 		super.processProperties(d);
 	}
 
@@ -205,97 +273,6 @@ public class TiUIDialog extends TiUIView
 	        this.customView.setActivity(dialogWrapper.getActivity());
             getBuilder().setView(this.customView.getOrCreateView().getOuterView());
 	    }
-	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
-
-		AlertDialog dialog = dialogWrapper.getDialog();
-		if (key.equals(TiC.PROPERTY_TITLE)) {
-			if (dialog != null) {
-				dialog.setTitle(Html.fromHtml((String) newValue));
-			}
-		} else if (key.equals(TiC.PROPERTY_MESSAGE)) {
-			if (dialog != null) {
-				dialog.setMessage(Html.fromHtml((String) newValue));
-			}
-		} else if (key.equals(TiC.PROPERTY_BUTTON_NAMES)) {
-			if (dialog != null) {
-				dialog.dismiss();
-				dialog = null;
-			}
-			processButtons(TiConvert.toStringArray((Object[]) newValue));
-		} else if (key.equals(TiC.PROPERTY_OK) && !proxy.hasProperty(TiC.PROPERTY_BUTTON_NAMES)) {
-			if (dialog != null) {
-				dialog.dismiss();
-				dialog = null;
-			}
-			processButtons(new String[]{TiConvert.toString(newValue)});
-		} else if (key.equals(TiC.PROPERTY_OPTIONS)) {
-			if (dialog != null) {
-				dialog.dismiss();
-				dialog = null;
-			}
-
-			getBuilder().setView(null);
-			int selectedIndex = -1;
-			if (proxy.hasProperty(TiC.PROPERTY_SELECTED_INDEX)) {
-				selectedIndex = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SELECTED_INDEX));
-			}
-			processOptions(TiConvert.toStringArray((Object[]) newValue), selectedIndex);
-		} else if (key.equals(TiC.PROPERTY_SELECTED_INDEX)) {
-			if (dialog != null) {
-				dialog.dismiss();
-				dialog = null;
-			}
-			
-			getBuilder().setView(null);
-			if (proxy.hasProperty(TiC.PROPERTY_OPTIONS)) {
-				processOptions(TiConvert.toStringArray((Object[]) proxy.getProperty(TiC.PROPERTY_OPTIONS)), TiConvert.toInt(newValue));
-
-			}
-		} else if (key.equals(TiC.PROPERTY_CUSTOM_VIEW)) {
-			if (dialog != null) {
-				dialog.dismiss();
-				dialog = null;
-			}
-			if (newValue != null) {
-				processView(newValue);
-			} else {
-				proxy.setProperty(TiC.PROPERTY_CUSTOM_VIEW, null);
-			}
-		} else if (key.equals(TiC.PROPERTY_PERSISTENT)) {
-			dialogWrapper.setPersistent(TiConvert.toBoolean(newValue, true));
-		} else if (key.equals(TiC.PROPERTY_HIDE_ON_CLICK)) {
-            hideOnClick = TiConvert.toBoolean(newValue, true);
-            if (dialog != null) {
-                dialog.setCancelable(hideOnClick);
-            }
-        } else if (key.equals(TiC.PROPERTY_TAP_OUT_DISMISS)) {
-            tapToDismiss = TiConvert.toBoolean(newValue, true);
-            if (dialog != null) {
-                dialog.setCanceledOnTouchOutside(tapToDismiss);
-            }
-        } else if (key.indexOf("accessibility") == 0) {
-			if (dialog != null) {
-				ListView listView = dialog.getListView();
-				if (listView != null) {
-					if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
-						int importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
-						if (newValue != null && TiConvert.toBoolean(newValue)) {
-							importance = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
-						}
-						ViewCompat.setImportantForAccessibility(listView, importance);
-					} else {
-						listView.setContentDescription(composeContentDescription());
-					}
-				}
-			}
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
 	}
 
 	public void show(KrollDict options)

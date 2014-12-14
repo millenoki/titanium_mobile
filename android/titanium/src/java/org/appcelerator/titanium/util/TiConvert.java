@@ -25,12 +25,12 @@ import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.util.TiUIHelper.Shadow;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
+import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -193,162 +193,133 @@ public class TiConvert
 	{
 		return toColorDrawable(TiConvert.toString(hashMap.get(key)));
 	}
+	
+	
+	public static int fillLayout(String key, Object value, LayoutParams layoutParams, boolean withMatrix)
+    {
+        switch (key) {
+        case TiC.PROPERTY_LEFT:
+            layoutParams.optionLeft = toTiDimension(value, TiDimension.TYPE_LEFT);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_TOP:
+            layoutParams.optionTop = toTiDimension(value, TiDimension.TYPE_TOP);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_CENTER:
+            updateLayoutCenter(value, layoutParams);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_RIGHT:
+            layoutParams.optionRight = toTiDimension(value, TiDimension.TYPE_RIGHT);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_BOTTOM:
+            layoutParams.optionBottom = toTiDimension(value, TiDimension.TYPE_BOTTOM);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_MIN_WIDTH:
+            layoutParams.minWidth = toTiDimension(value, TiDimension.TYPE_WIDTH);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_MIN_HEIGHT:
+            layoutParams.minHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_MAX_WIDTH:
+            layoutParams.maxWidth = toTiDimension(value, TiDimension.TYPE_WIDTH);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_MAX_HEIGHT:
+            layoutParams.maxHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_FULLSCREEN:
+            layoutParams.fullscreen = toBoolean(value, false);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_WIDTH:
+            if (value == null) {
+                layoutParams.optionWidth = null;
+                layoutParams.sizeOrFillWidthEnabled = false;
 
+            } else if (value.equals(TiC.SIZE_AUTO)) {
+                layoutParams.optionWidth = null;
+                layoutParams.sizeOrFillWidthEnabled = true;
+
+            } else if (value.equals(TiC.LAYOUT_FILL)) {
+                // fill
+                layoutParams.optionWidth = null;
+                layoutParams.sizeOrFillWidthEnabled = true;
+                layoutParams.autoFillsWidth = true;
+                layoutParams.width = LayoutParams.MATCH_PARENT;
+
+            } else if (value.equals(TiC.LAYOUT_SIZE)) {
+                // size
+                layoutParams.optionWidth = null;
+                layoutParams.sizeOrFillWidthEnabled = true;
+                layoutParams.autoFillsWidth = false;
+                layoutParams.width = LayoutParams.WRAP_CONTENT;
+            } else {
+                layoutParams.optionWidth = toTiDimension(value, TiDimension.TYPE_WIDTH);
+                layoutParams.sizeOrFillWidthEnabled = false;
+            }
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_HEIGHT:
+            if (value == null) {
+                layoutParams.optionHeight = null;
+                layoutParams.sizeOrFillHeightEnabled = false;
+
+            } else if (value.equals(TiC.SIZE_AUTO)) {
+                layoutParams.optionHeight = null;
+                layoutParams.sizeOrFillHeightEnabled = true;
+
+            } else if (value.equals(TiC.LAYOUT_FILL)) {
+                // fill
+                layoutParams.optionHeight = null;
+                layoutParams.sizeOrFillHeightEnabled = true;
+                layoutParams.autoFillsHeight = true;
+                layoutParams.height = LayoutParams.MATCH_PARENT;
+
+            } else if (value.equals(TiC.LAYOUT_SIZE)) {
+                // size
+                layoutParams.optionHeight = null;
+                layoutParams.sizeOrFillHeightEnabled = true;
+                layoutParams.autoFillsHeight = false;
+                layoutParams.height = LayoutParams.WRAP_CONTENT;
+            } else {
+                layoutParams.optionHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
+                layoutParams.sizeOrFillHeightEnabled = false;
+            }
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_ZINDEX:
+            layoutParams.optionZIndex = toInt(value, 0);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT | TiUIView.TIFLAG_NEEDS_LAYOUT_INFORMPARENT;
+        case TiC.PROPERTY_TRANSFORM:
+            if (withMatrix) {
+                layoutParams.matrix = TiConvert.toMatrix(value);
+                return TiUIView.TIFLAG_NEEDS_INVALIDATE;
+            }
+        case TiC.PROPERTY_ANCHOR_POINT:
+            if (value instanceof HashMap) {
+                HashMap point = (HashMap) value;
+                layoutParams.anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
+                layoutParams.anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
+                return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            }
+            break;
+        default:
+            break;
+        }
+        return 0;
+    }
 	// Layout
-	public static boolean fillLayout(KrollDict hashMap, LayoutParams layoutParams, boolean withMatrix)
-	{
-		boolean dirty = false;
-		Object width = null;
-		Object height = null;
-		Iterator it = hashMap.entrySet().iterator();
-		boolean handled = false;
-		while (it.hasNext())
-		{
-			handled = false;
-			Map.Entry pairs = (Map.Entry)it.next();
-			String key = (String) pairs.getKey();
-			if (key.equals(TiC.PROPERTY_LEFT)) {
-				layoutParams.optionLeft = toTiDimension(hashMap, key, TiDimension.TYPE_LEFT);
-				handled = dirty = true;
-			}
-
-			else if (key.equals(TiC.PROPERTY_TOP)) {
-				layoutParams.optionTop = toTiDimension(hashMap, key, TiDimension.TYPE_TOP);
-				handled = dirty = true;
-			}
-
-			else if (key.equals(TiC.PROPERTY_CENTER)) {
-				updateLayoutCenter(hashMap.get(key), layoutParams);
-				handled = dirty = true;
-			}
-
-			else if (key.equals(TiC.PROPERTY_RIGHT)) {
-				layoutParams.optionRight = toTiDimension(hashMap, key, TiDimension.TYPE_RIGHT);
-				handled = dirty = true;
-			}
-
-			else if (key.equals(TiC.PROPERTY_BOTTOM)) {
-				layoutParams.optionBottom = toTiDimension(hashMap, key, TiDimension.TYPE_BOTTOM);
-				handled = dirty = true;
-			}
-			
-			else if (key.equals(TiC.PROPERTY_MIN_WIDTH)) {
-				layoutParams.minWidth = toTiDimension(hashMap, key, TiDimension.TYPE_WIDTH);
-				handled = dirty = true;
-			}
-			else if (key.equals(TiC.PROPERTY_MIN_HEIGHT)) {
-				layoutParams.minHeight = toTiDimension(hashMap, key, TiDimension.TYPE_HEIGHT);
-				handled = dirty = true;
-			}
-			else if (key.equals(TiC.PROPERTY_MAX_WIDTH)) {
-				layoutParams.maxWidth = toTiDimension(hashMap, key, TiDimension.TYPE_WIDTH);
-				handled = dirty = true;
-			}
-			else if (key.equals(TiC.PROPERTY_MAX_HEIGHT)) {
-				layoutParams.maxHeight = toTiDimension(hashMap, key, TiDimension.TYPE_HEIGHT);
-				handled = dirty = true;
-			}
-			else if (key.equals(TiC.PROPERTY_FULLSCREEN)) {
-				layoutParams.fullscreen = toBoolean(hashMap, key, false);
-				handled = dirty = true;
-			}
-
-			else if (key.equals(TiC.PROPERTY_WIDTH)) {
-				if (width == null) {
-					width = hashMap.get(key);
-				}
-
-				if (width == null) {
-					layoutParams.optionWidth = null;
-					layoutParams.sizeOrFillWidthEnabled = false;
-
-				} else if (width.equals(TiC.SIZE_AUTO)) {
-					layoutParams.optionWidth = null;
-					layoutParams.sizeOrFillWidthEnabled = true;
-
-				} else if (width.equals(TiC.LAYOUT_FILL)) {
-					// fill
-					layoutParams.optionWidth = null;
-					layoutParams.sizeOrFillWidthEnabled = true;
-					layoutParams.autoFillsWidth = true;
-                    layoutParams.width = LayoutParams.MATCH_PARENT;
-
-				} else if (width.equals(TiC.LAYOUT_SIZE)) {
-					// size
-					layoutParams.optionWidth = null;
-					layoutParams.sizeOrFillWidthEnabled = true;
-					layoutParams.autoFillsWidth = false;
-                    layoutParams.width = LayoutParams.WRAP_CONTENT;
-				} else {
-					layoutParams.optionWidth = toTiDimension(width, TiDimension.TYPE_WIDTH);
-					layoutParams.sizeOrFillWidthEnabled = false;
-				}
-				handled = dirty = true;
-			}
-
-			else if (key.equals(TiC.PROPERTY_HEIGHT)) {
-				if (height == null) {
-					height = hashMap.get(key);
-				}
-
-				if (height == null) {
-					layoutParams.optionHeight = null;
-					layoutParams.sizeOrFillHeightEnabled = false;
-
-				} else if (height.equals(TiC.SIZE_AUTO)) {
-					layoutParams.optionHeight = null;
-					layoutParams.sizeOrFillHeightEnabled = true;
-
-				} else if (height.equals(TiC.LAYOUT_FILL)) {
-					// fill
-					layoutParams.optionHeight = null;
-					layoutParams.sizeOrFillHeightEnabled = true;
-					layoutParams.autoFillsHeight = true;
-					layoutParams.height = LayoutParams.MATCH_PARENT;
-
-				} else if (height.equals(TiC.LAYOUT_SIZE)) {
-					// size
-					layoutParams.optionHeight = null;
-					layoutParams.sizeOrFillHeightEnabled = true;
-					layoutParams.autoFillsHeight = false;
-                    layoutParams.height = LayoutParams.WRAP_CONTENT;
-				} else {
-					layoutParams.optionHeight = toTiDimension(height, TiDimension.TYPE_HEIGHT);
-					layoutParams.sizeOrFillHeightEnabled = false;
-				}
-				handled = dirty = true;
-			}
-			else if (key.equals(TiC.PROPERTY_ZINDEX)) {
-				Object zIndex = hashMap.get(key);
-				if (zIndex != null) {
-					layoutParams.optionZIndex = toInt(zIndex);
-
-				} else {
-					layoutParams.optionZIndex = 0;
-				}
-				handled = dirty = true;
-			}
-			else if (key.equals(TiC.PROPERTY_TRANSFORM) && withMatrix) {
-				layoutParams.matrix = TiConvert.toMatrix(hashMap, key);
-				handled = dirty = true;
-			}
-			else if (key.equals(TiC.PROPERTY_ANCHOR_POINT) && withMatrix) {
-				Object anchorPoint = hashMap.get(key);
-				if (anchorPoint instanceof HashMap) {
-					HashMap point = (HashMap) anchorPoint;
-					layoutParams.anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
-					layoutParams.anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
-					handled = dirty = true;
-				}
-			}
-		    if (handled) it.remove();
-		}
-
-		
-
-		return dirty;
-	}
-	public static boolean fillLayout(KrollDict hashMap, LayoutParams layoutParams)
+    public static int fillLayout(KrollDict hashMap, LayoutParams layoutParams,
+            boolean withMatrix) {
+        int updateFlags = 0;
+        Iterator it = hashMap.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry entry = (Map.Entry) it.next();
+            int result = fillLayout((String) entry.getKey(), entry.getValue(),
+                    layoutParams, withMatrix);
+            if (result != 0) {
+                updateFlags |= result;
+                it.remove();
+            }
+        }
+        return updateFlags;
+    }
+	public static int fillLayout(KrollDict hashMap, LayoutParams layoutParams)
 	{
 		return fillLayout(hashMap, layoutParams, true);
 	}

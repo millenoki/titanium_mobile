@@ -216,26 +216,22 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 
 	@Override
 	public void processProperties(KrollDict properties) {
-		// TODO Auto-generated method stub
-		
 	}
+	
+	@Override
+    public void processApplyProperties(KrollDict d) {
+    }
 
 	@Override
 	public void propertiesChanged(List<KrollPropertyChange> changes,
 			KrollProxy proxy) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void listenerAdded(String type, int count, KrollProxy proxy) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void listenerRemoved(String type, int count, KrollProxy proxy) {
-		// TODO Auto-generated method stub
-		
 	}
 }

@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.kroll.common.Log;
@@ -21,30 +22,18 @@ import org.appcelerator.kroll.common.Log;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTab.TabFragment;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBar.TabListener;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.app.FragmentManager;
 import android.view.ViewGroup;
-import android.view.MotionEvent;
-
-import org.appcelerator.kroll.common.Log;
-
-import android.support.v4.view.ViewPager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBar.TabListener;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MotionEvent;
 
 /**
@@ -58,6 +47,7 @@ import android.view.MotionEvent;
  * See http://developer.android.com/guide/topics/ui/actionbar.html#Tabs
  * for further details on how Action bar tabs work.
  */
+@SuppressWarnings("deprecation")
 public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabListener, OnLifecycleEvent {
 	private static final String TAG = "TiUIActionBarTabGroup";
 	private ActionBar actionBar;
@@ -221,34 +211,27 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			return POSITION_NONE;
 		}
 	}
-
-	@Override
-	public void processProperties(KrollDict d)
-	{
-		// TODO Auto-generated method stub
-		super.processProperties(d);
-		if (d.containsKey(TiC.PROPERTY_TITLE)) {
-			actionBar.setTitle(d.getString(TiC.PROPERTY_TITLE));
-		}
-		if (d.containsKey(TiC.PROPERTY_SWIPEABLE)) {
-			swipeable = d.getBoolean(TiC.PROPERTY_SWIPEABLE);
-		}
-	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		// TODO Auto-generated method stub
-		if (key.equals(TiC.PROPERTY_TITLE)) {
-			actionBar.setTitle(TiConvert.toString(newValue));
-		} else if (key.equals(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
-			actionBar.setBackgroundDrawable(TiConvert.toColorDrawable(newValue.toString()));
-		} else if (key.equals(TiC.PROPERTY_SWIPEABLE)) {
-			swipeable = TiConvert.toBoolean(newValue);
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
-	}
+	
+    @Override
+	public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_TITLE:
+            actionBar.setTitle(TiConvert.toString(newValue));
+            break;
+        case TiC.PROPERTY_SWIPEABLE:
+            swipeable = TiConvert.toBoolean(newValue);
+            break;
+        case TiC.PROPERTY_TABS_BACKGROUND_COLOR:
+            if (changedProperty) {
+                actionBar.setBackgroundDrawable(TiConvert.toColorDrawable(newValue));
+            }
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
 
 	@Override
 	public void addTab(TabProxy tabProxy) {

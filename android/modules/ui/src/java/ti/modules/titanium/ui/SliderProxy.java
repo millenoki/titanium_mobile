@@ -15,7 +15,7 @@ import ti.modules.titanium.ui.widget.TiUISlider;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	"min", "max", "minRange",
+    TiC.PROPERTY_MIN, TiC.PROPERTY_MAX, "minRange",
 	"maxRange", "thumbImage",
 	"leftTrackImage","rightTrackImage",
 	TiC.PROPERTY_VALUE

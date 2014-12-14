@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.lang.Math;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -20,8 +19,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiHtml;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiViewHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
@@ -34,12 +31,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Point;
-import android.os.Build;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -82,7 +76,8 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		public void removeViewAt (int index);
 		public void removeView(View child);
 		public void addView(View child, int index, ViewGroup.LayoutParams params);
-		public void addView(View child, ViewGroup.LayoutParams params);
+        public void addView(View child, ViewGroup.LayoutParams params);
+        public void addView(View child);
 		public void setAdapter(IPageAdapter adapter);
 		public void setPageMargin (int marginPixels);
 		public void requestDisallowInterceptTouchEvent(boolean b);
@@ -195,7 +190,6 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 					public void transformPage(View page, float position) {
 						if (transition != null) {
 							transition.transformView(page, position, true);
-							Log.w(TAG, "transformView " + position);
 						}
 					}
 				});
@@ -409,10 +403,23 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		mPager.setAdapter(mAdapter);
 	}
 	
-	private TiUIPagerTabStrip getOrCreatePageStrip() {
-	    if (mPager != null && mStrip == null) {
-	        mStrip = new TiUIPagerTabStrip(proxy.getActivity(), proxy);
-	        mPager.addView(mStrip, mStrip.getLayoutParams());
+	private TiUIPagerTabStrip applyPropertiesPageStrip(KrollDict d) {
+	    if (mPager == null) {
+	        return null;
+	    }
+	    if (mStrip == null) {
+	        d.put(TiC.PROPERTY_TYPE, "PagerTabStrip");
+	        
+	        TiViewProxy viewProxy = (TiViewProxy)proxy.createProxyFromObject(d, proxy, false);
+	        if (viewProxy != null) {
+	            mStrip = (TiUIPagerTabStrip)viewProxy.getOrCreateView();
+	            if (mStrip != null) {
+	                mPager.addView(mStrip.getNativeView());
+	            }
+	        }
+	    }
+	    else {
+	        mStrip.processApplyProperties(d);
 	    }
 	    return mStrip;
 	}
@@ -524,105 +531,66 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
     		mPager.setLayoutParams(params);
 		}
 	}
+	
+	@Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_PAGE_WIDTH:
+            setPageWidth(newValue);
+            break;
+        case TiC.PROPERTY_PAGE_OFFSET:
+            setPageOffset(newValue);
+            break;
+        case TiC.PROPERTY_VIEWS:
+            setViews(newValue);
+            break;
+        case TiC.PROPERTY_SHOW_PAGING_CONTROL:
+            if (TiConvert.toBoolean(newValue)) {
+                showPager();
+            }
+            else {
+                hidePager();
+            }
+            break;
+        case TiC.PROPERTY_SCROLLING_ENABLED:
+            mEnabled = TiConvert.toBoolean(newValue);
+            break;
+        case TiC.PROPERTY_OVER_SCROLL_MODE:
+            mPager.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+            break;
+        case TiC.PROPERTY_CACHE_SIZE:
+            cacheSize = TiConvert.toInt(newValue);
+            if (cacheSize < 3) {
+                // WHAT.  Let's make it something sensible.
+                cacheSize = 3;
+            }
+            updateCacheSize();
+            break;
+        case TiC.PROPERTY_TRANSITION:
+            transition = TransitionHelper.transitionFromObject((HashMap) newValue, null, null);
+            mPager.updatePageTransformer();
+            break;
+        case TiC.PROPERTY_STRIP:
+            applyPropertiesPageStrip(TiConvert.toKrollDict(newValue));
+            break;
+        case TiC.PROPERTY_CURRENT_PAGE:
+            setCurrentPage(TiConvert.toInt(newValue, 0));
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
 
 	@Override
 	public void processProperties(KrollDict d)
 	{
-
-		if (d.containsKey(TiC.PROPERTY_PAGE_WIDTH)) {
-			setPageWidth(d.get(TiC.PROPERTY_PAGE_WIDTH));
-		}
-		if (d.containsKey(TiC.PROPERTY_PAGE_OFFSET)) {
-			setPageOffset(d.get(TiC.PROPERTY_PAGE_OFFSET));
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_VIEWS)) {
-			setViews(d.get(TiC.PROPERTY_VIEWS));
-		} 
-		if (d.containsKey(TiC.PROPERTY_SHOW_PAGING_CONTROL)) {
-			if (TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_PAGING_CONTROL)) {
-				showPager();
-			}
-		}
-
-		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
-			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLING_ENABLED);
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
-			if (Build.VERSION.SDK_INT >= 9) {
-				mPager.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
-			}
-		}
-
-		if (d.containsKey(TiC.PROPERTY_CACHE_SIZE)) {
-			cacheSize = TiConvert.toInt(d, TiC.PROPERTY_CACHE_SIZE);
-			if (cacheSize < 3) {
-		 		// WHAT.  Let's make it something sensible.
-				cacheSize = 3;
-			}
-			updateCacheSize();
-		}
-		
-		if (d.containsKey(TiC.PROPERTY_TRANSITION)) {
-			transition = TransitionHelper.transitionFromObject((HashMap) d.get(TiC.PROPERTY_TRANSITION), null, null);
-			mPager.updatePageTransformer();
-		}
-		
-	    if (d.containsKey(TiC.PROPERTY_STRIP)) {
-            getOrCreatePageStrip().processProperties(d.getKrollDict(TiC.PROPERTY_STRIP));
-	    }
-		
+        super.processProperties(d);
 		//simulate the first page change so that the user can interact with the events
-		int page = d.optInt(TiC.PROPERTY_CURRENT_PAGE, 0);
-		move(page, false);
 		if (mCurIndex >= 0 && mCurIndex < mViews.size()) {
 	        ((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
-
         }
-		super.processProperties(d);
-
-	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
-	{
-		if (TiC.PROPERTY_CURRENT_PAGE.equals(key)) {
-			setCurrentPage(TiConvert.toInt(newValue));
-		} else if (TiC.PROPERTY_SHOW_PAGING_CONTROL.equals(key)) {
-			boolean show = TiConvert.toBoolean(newValue);
-			if (show) {
-				showPager();
-			} else {
-				hidePager();
-			}
-		} else if (TiC.PROPERTY_SCROLLING_ENABLED.equals(key)) {
-			mEnabled = TiConvert.toBoolean(newValue);
-		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)){
-			if (Build.VERSION.SDK_INT >= 9) {
-				mPager.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
-			}
-		} else if (TiC.PROPERTY_CACHE_SIZE.equals(key)){
-			cacheSize = TiConvert.toInt(newValue);
-			if (cacheSize < 3) {
-		 		// WHAT.  Let's make it something sensible.
-				cacheSize = 3;
-			}
-			updateCacheSize();
-		} else if (TiC.PROPERTY_PAGE_WIDTH.equals(key)){
-			setPageWidth(newValue);
-		} else if (TiC.PROPERTY_PAGE_OFFSET.equals(key)){
-			setPageOffset(newValue);
-		} else if (TiC.PROPERTY_TRANSITION.equals(key)){
-            transition = TransitionHelper.transitionFromObject((HashMap) newValue, null, null);
-            mPager.updatePageTransformer();
-            nativeView.invalidate();
-		} else if (TiC.PROPERTY_STRIP.equals(key)){
-		    getOrCreatePageStrip().processProperties(new KrollDict((HashMap) newValue));
-        } else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
 	}
 
 	public void addView(TiViewProxy proxy)

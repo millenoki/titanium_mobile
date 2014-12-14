@@ -940,36 +940,47 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
     @Override
     public void listenerRemoved(String type, int count, KrollProxy proxy) {
     }
+    
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_VOLUME:
+            setVolume(TiConvert.toFloat(newValue, 1.0f));
+            break;
+        case TiC.PROPERTY_METADATA:
+            updateMetadata((HashMap<String, Object>) newValue);
+            break;
+        default:
+            break;
+        }
+    }
 
     @Override
     public void processProperties(KrollDict d) {
-        if (d.containsKey(TiC.PROPERTY_VOLUME)) {
-            setVolume(TiConvert.toFloat(d, TiC.PROPERTY_VOLUME, 1.0f));
+        for (Map.Entry<String, Object> entry : d.entrySet()) {
+            propertySet(entry.getKey(), entry.getValue(), null, false);
         }
-        if (d.containsKey(TiC.PROPERTY_METADATA)) {
-            updateMetadata((HashMap<String, Object>) d
-                    .get(TiC.PROPERTY_METADATA));
+    }
+
+    @Override
+    public void processApplyProperties(KrollDict d) {
+        for (Map.Entry<String, Object> entry : d.entrySet()) {
+            propertySet(entry.getKey(), entry.getValue(), null, true);
         }
     }
 
     @Override
     public void propertyChanged(String key, Object oldValue, Object newValue,
             KrollProxy proxy) {
-        if (TiC.PROPERTY_VOLUME.equals(key)) {
-            setVolume(TiConvert.toFloat(newValue, 1.0f));
-        } else if (TiC.PROPERTY_TIME.equals(key)) {
-            setTime(TiConvert.toInt(newValue));
-        } else if (TiC.PROPERTY_METADATA.equals(key)) {
-            updateMetadata((HashMap<String, Object>) newValue);
-        }
+        propertySet(key, newValue, oldValue, true);
     }
 
     @Override
     public void propertiesChanged(List<KrollPropertyChange> changes,
             KrollProxy proxy) {
         for (KrollPropertyChange change : changes) {
-            propertyChanged(change.getName(), change.getOldValue(),
-                    change.getNewValue(), proxy);
+            propertySet(change.getName(), change.getOldValue(),
+                    change.getNewValue(), true);
         }
     }
 
@@ -1238,4 +1249,5 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
             setVolume(volume);
         }
     }
+
 }

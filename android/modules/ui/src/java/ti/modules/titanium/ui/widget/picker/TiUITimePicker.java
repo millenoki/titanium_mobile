@@ -10,7 +10,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -54,42 +53,47 @@ public class TiUITimePicker extends TiUIView
 		setNativeView(picker);
 	}
 	
-	@Override
-	public void processProperties(KrollDict d) {
-		super.processProperties(d);
-		
-		boolean valueExistsInProxy = false;
-		Calendar calendar = Calendar.getInstance();
-	    
-        TimePicker picker = (TimePicker) getNativeView();
-        if (d.containsKey("value")) {
-            calendar.setTime((Date)d.get("value"));
-            valueExistsInProxy = true;
-        }   
-        if (d.containsKey("minDate")) {
-            this.minDate = (Date) d.get("minDate");
-        }   
-        if (d.containsKey("maxDate")) {
-            this.maxDate = (Date) d.get("maxDate");
-        }   
-        if (d.containsKey("minuteInterval")) {
-            int mi = d.getInt("minuteInterval");
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_VALUE:
+            setValue(newValue);
+            break;
+        case TiC.PROPERTY_MIN_DATE:
+        {
+            this.minDate = TiConvert.toDate(newValue);
+            break;
+        }
+        case TiC.PROPERTY_MAX_DATE:
+        {
+            this.maxDate = TiConvert.toDate(newValue);
+            break;
+        }
+        case "minuteInterval":
+            int mi = TiConvert.toInt(newValue, 0);
             if (mi >= 1 && mi <= 30 && mi % 60 == 0) {
                 this.minuteInterval = mi; 
-            }   
-        }   
-        
-        // Undocumented but maybe useful for Android
-        boolean is24HourFormat = false;
-        if (d.containsKey("format24")) {
-        	is24HourFormat = d.getBoolean("format24");
+            }
+            break;
+        case "format24":
+            ((TimePicker) getNativeView()).setIs24HourView(TiConvert.toBoolean(newValue, false));
+            break;
+
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
         }
-    	picker.setIs24HourView(is24HourFormat);
+    }
+	
+	@Override
+	public void processProperties(KrollDict d) {
+        ((TimePicker) getNativeView()).setIs24HourView(false);
+		super.processProperties(d);
         
-        setValue(calendar.getTimeInMillis() , true);
-        
-        if (!valueExistsInProxy) {
-        	proxy.setProperty("value", calendar.getTime());
+        if (!d.containsKey(TiC.PROPERTY_VALUE)) {
+            Calendar calendar = Calendar.getInstance();
+            proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
         }
         
         //iPhone ignores both values if max <= min
@@ -102,19 +106,6 @@ public class TiUITimePicker extends TiUIView
         }
 	}
 	
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy)
-	{
-		if (key.equals("value")) {
-			Date date = (Date)newValue;
-			setValue(date.getTime());
-		} else if (key.equals("format24")) {
-			((TimePicker)getNativeView()).setIs24HourView(TiConvert.toBoolean(newValue));
-		}
-		super.propertyChanged(key, oldValue, newValue, proxy);
-	}
-	
 	public void setValue(long value)
 	{
 		setValue(value, false);
@@ -122,6 +113,7 @@ public class TiUITimePicker extends TiUIView
 	
 	public void setValue(long value, boolean suppressEvent)
 	{
+	    
 		TimePicker picker = (TimePicker) getNativeView();
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(value);
@@ -129,10 +121,20 @@ public class TiUITimePicker extends TiUIView
 		// This causes two events to fire.
 		suppressChangeEvent = true;
 		picker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
-		suppressChangeEvent = suppressEvent;
+		suppressChangeEvent = suppressEvent || !((TiViewProxy) proxy).viewRealised();
 		picker.setCurrentMinute(calendar.get(Calendar.MINUTE));
 		suppressChangeEvent = false;
 	}
+	
+	public void setValue(Date value, boolean suppressEvent) {
+        long millis = (value != null)?value.getTime():Calendar.getInstance().getTimeInMillis();
+        setValue(millis, suppressEvent);
+    }
+    
+    public void setValue(Object value)
+    {
+        setValue(TiConvert.toDate(value), false);
+    }
 
 	@Override
 	public void onTimeChanged(TimePicker view, int hourOfDay, int minute)

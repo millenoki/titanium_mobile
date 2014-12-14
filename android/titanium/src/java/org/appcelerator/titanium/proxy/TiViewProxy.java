@@ -434,6 +434,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
     public boolean viewInitialised() {
         return viewAttached() && viewRealised;
     }
+    
+    public boolean viewRealised() {
+        return viewRealised;
+    }
 
 	/**
 	 * @return the TiUIView associated with this proxy.
@@ -1105,13 +1109,13 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 	protected void handleFinishBatchPropertyApply()
 	{
-		if (view == null) return;
-		if (view.iszIndexChanged()) {
-			view.forceLayoutNativeView(true);
-			view.setzIndexChanged(false);
-		} else {
-			view.forceLayoutNativeView(false);
-		}
+//		if (view == null) return;
+//		if (view.iszIndexChanged()) {
+//			view.forceLayoutNativeView(true);
+//			view.setzIndexChanged(false);
+//		} else {
+//			view.forceLayoutNativeView(false);
+//		}
 	}
 	
 	public View parentViewForChild(TiViewProxy child)

@@ -60,7 +60,8 @@ public class ScrollableViewProxy extends TiViewProxy
 		super();
 		inScroll = new AtomicBoolean(false);
 		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
-		defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
+        defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
+        defaultValues.put(TiC.PROPERTY_CURRENT_PAGE, 0);
 	}
 
 	public ScrollableViewProxy(TiContext context)
@@ -251,8 +252,8 @@ public class ScrollableViewProxy extends TiViewProxy
 		setProperty(TiC.PROPERTY_CURRENT_PAGE, currentPage);
 		if (hasListeners(TiC.EVENT_DRAGEND)) {
 			KrollDict options = new KrollDict();
-			options.put("view", currentView);
-			options.put("currentPage", currentPage);
+            options.put(TiC.PROPERTY_VIEW, currentView);
+			options.put(TiC.PROPERTY_CURRENT_PAGE, currentPage);
 			fireEvent(TiC.EVENT_DRAGEND, options, false, false);
 		}
 	}
@@ -262,8 +263,8 @@ public class ScrollableViewProxy extends TiViewProxy
 		setProperty(TiC.PROPERTY_CURRENT_PAGE, currentPage);
 		if (hasListeners(TiC.EVENT_SCROLLEND)) {
 			KrollDict options = new KrollDict();
-			options.put("view", currentView);
-			options.put("currentPage", currentPage);
+            options.put(TiC.PROPERTY_VIEW, currentView);
+			options.put(TiC.PROPERTY_CURRENT_PAGE, currentPage);
 			fireEvent(TiC.EVENT_SCROLLEND, options, false, false);
 		}
 	}
@@ -272,8 +273,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		if (hasListeners(TiC.EVENT_SCROLL)) {
 			KrollDict options = new KrollDict();
-			options.put("view", currentView);
-			options.put("currentPage", currentPage);
+			options.put(TiC.PROPERTY_VIEW, currentView);
+			options.put(TiC.PROPERTY_CURRENT_PAGE, currentPage);
 			options.put("currentPageAsFloat", currentPageAsFloat);
 			fireEvent(TiC.EVENT_SCROLL, options);
 		}
@@ -283,8 +284,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		if (hasListeners(TiC.EVENT_SCROLLSTART)) {
 			KrollDict options = new KrollDict();
-			options.put("view", currentView);
-			options.put("currentPage", currentPage);
+			options.put(TiC.PROPERTY_VIEW, currentView);
+			options.put(TiC.PROPERTY_CURRENT_PAGE, currentPage);
 			fireEvent(TiC.EVENT_SCROLLSTART, options, false, false);
 		}
 	}
@@ -293,8 +294,8 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		if (hasListeners(TiC.EVENT_CHANGE)) {
 			KrollDict options = new KrollDict();
-			options.put("view", currentView);
-			options.put("currentPage", currentPage);
+            options.put(TiC.PROPERTY_VIEW, currentView);
+			options.put(TiC.PROPERTY_CURRENT_PAGE, currentPage);
 			fireEvent(TiC.EVENT_CHANGE, options, false, false);
 		}
 	}

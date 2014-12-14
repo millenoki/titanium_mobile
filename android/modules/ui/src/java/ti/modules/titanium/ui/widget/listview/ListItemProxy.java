@@ -54,12 +54,6 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 		bindingsMap = new HashMap<String, ProxyListItem>();
 		nonBindingProxies = new ArrayList();
 	}
-	
-	@Override
-	public void handleCreationDict(final KrollDict options)
-	{
-		super.handleCreationDict(options);
-	}
 
 	public TiUIView createView(final Activity activity)
 	{

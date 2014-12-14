@@ -931,7 +931,11 @@ public class ListSectionProxy extends ViewProxy {
                     .generateDiffProperties((HashMap) data.get(binding));
 			
 			if (diffProperties != null && !diffProperties.isEmpty()) {
-                modelListener.processProperties(diffProperties);
+			    if (reusing) {
+	                modelListener.processApplyProperties(diffProperties);
+			    } else {
+	                modelListener.processProperties(diffProperties);
+			    }
             }
             proxy.setSetPropertyListener(itemProxy);
             
@@ -950,15 +954,15 @@ public class ListSectionProxy extends ViewProxy {
             }
 		}
 
-		// process listItem properties
-//		if (reusing) {
-		    listItemProperties = itemProxy.getListItem()
-	                .generateDiffProperties(listItemProperties);
-//		}
-//		KrollDict listItemDiff = itemProxy.getListItem()
-//				.generateDiffProperties(listItemProperties);
+	    listItemProperties = itemProxy.getListItem()
+                .generateDiffProperties(listItemProperties);
+
 		if (!listItemProperties.isEmpty()) {
-			listItem.processProperties(listItemProperties);
+		    if (reusing) {
+		        listItem.processApplyProperties(listItemProperties);
+            } else {
+                listItem.processProperties(listItemProperties);
+            }
 		}
         listItem.setReusing(false);
 	}

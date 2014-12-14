@@ -8,25 +8,21 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIVolumeView;
+import ti.modules.titanium.ui.widget.TiUIPagerTabStrip;
 import android.app.Activity;
-import android.media.AudioManager;
 
-@Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-    "leftTrackImage","rightTrackImage",
-    "stream"
-})
-public class VolumeViewProxy extends ViewProxy
+@Kroll.proxy()
+public class PagerTabStripProxy extends TiViewProxy
 {
-    public VolumeViewProxy()
+    public PagerTabStripProxy()
     {
         super();
-        defaultValues.put("stream", AudioManager.STREAM_MUSIC);
     }
 
-    public VolumeViewProxy(TiContext tiContext)
+    public PagerTabStripProxy(TiContext tiContext)
     {
         this();
     }
@@ -34,12 +30,12 @@ public class VolumeViewProxy extends ViewProxy
     @Override
     public TiUIView createView(Activity activity)
     {
-        return new TiUIVolumeView(this);
+        return new TiUIPagerTabStrip(this);
     }
 
     @Override
     public String getApiName()
     {
-        return "Ti.UI.VolumeView";
+        return "PageTabStrip";
     }
 }

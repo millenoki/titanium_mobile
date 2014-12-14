@@ -6,10 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.util.HashMap;
-
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -80,47 +77,43 @@ public class TiUIActivityIndicator extends TiUIView
 
 		setNativeView(view);
 	}
+	
+    @Override
+	public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_STYLE:
+            setStyle(TiConvert.toInt(newValue));
+            break;
+        case TiC.PROPERTY_FONT:
+            TiUIHelper.styleText(label, TiConvert.toKrollDict(newValue));
+            if (changedProperty) {
+                label.requestLayout();
+            }
+            break;
+        case TiC.PROPERTY_MESSAGE:
+            label.setText(TiConvert.toString(newValue));
+            if (changedProperty) {
+                label.requestLayout();
+            }
+            break;
+        case TiC.PROPERTY_COLOR:
+            label.setTextColor(TiConvert.toColor(newValue));
+            break;
+
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
 
 	@Override
 	public void processProperties(KrollDict d)
 	{
 		super.processProperties(d);
-
-		if (d.containsKey(TiC.PROPERTY_STYLE)) {
-			setStyle(TiConvert.toInt(d, TiC.PROPERTY_STYLE));
-		}
-		if (d.containsKey(TiC.PROPERTY_FONT)) {
-			TiUIHelper.styleText(label, d.getKrollDict(TiC.PROPERTY_FONT));
-		}
-		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
-			label.setText(TiConvert.toString(d, TiC.PROPERTY_MESSAGE));
-		}
-		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			label.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
-		}
         if (view != null) {
             view.invalidate();
         }
-	}
-
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
-
-		if (key.equals(TiC.PROPERTY_STYLE)) {
-			setStyle(TiConvert.toInt(newValue));
-		} else if (key.equals(TiC.PROPERTY_FONT) && newValue instanceof HashMap) {
-			TiUIHelper.styleText(label, (HashMap) newValue);
-			label.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_MESSAGE)) {
-			label.setText(TiConvert.toString(newValue));
-			label.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			label.setTextColor(TiConvert.toColor((String) newValue));
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
 	}
 
 	protected int getStyle()

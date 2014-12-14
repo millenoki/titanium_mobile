@@ -16,7 +16,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -38,7 +37,6 @@ import com.squareup.picasso.Target;
 import com.squareup.picasso.Picasso.LoadedFrom;
 import com.trevorpage.tpsvg.SVGDrawable;
 
-import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.ui.ImageViewProxy;
 import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
@@ -876,7 +874,16 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     }
 
     private TiDrawableReference makeImageSource(Object object) {
-        return TiDrawableReference.fromObject(proxy, object);
+        TiDrawableReference source = TiDrawableReference.fromObject(proxy, object);
+        // Check for orientation and decodeRetries only if an image is
+        // specified
+        boolean autoRotate = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_AUTOROTATE), false);
+        if (autoRotate) {
+            getView().setOrientation(source.getOrientation());
+        }
+        int decodeRetries = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_DECODE_RETRIES), TiDrawableReference.DEFAULT_DECODE_RETRIES);
+        source.setDecodeRetries(decodeRetries);
+        return source;
     }
 
     private void setDefaultImageSource(Object object) {
@@ -974,171 +981,89 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             setDrawable(defaultImageSource.getDrawable(), withTransition);
         }
     }
+    
+    @Override
+    protected void didProcessProperties() {
+        if ((mProcessUpdateFlags & TIFLAG_NEEDS_LAYOUT) != 0) {
+            TiImageView view = getView();
+            if (view != null) {
+                view.setWidthDefined(!(layoutParams.autoSizeWidth() && (layoutParams.optionLeft == null || layoutParams.optionRight == null)));
+                view.setHeightDefined(!(layoutParams.autoSizeHeight() && (layoutParams.optionTop == null || layoutParams.optionBottom == null)));
+    
+                // If height and width is not defined, disable scaling for scrollview
+                // since an image
+                // can extend beyond the screensize in scrollview.
+                if (proxy.getParent() instanceof ScrollViewProxy && !view.getHeightDefined()
+                        && !view.getWidthDefined()) {
+                    view.setEnableScale(false);
+                }
+            }
+        }
+        super.didProcessProperties();
+    }
+    
 
     @Override
     public void processProperties(KrollDict d) {
-        boolean heightDefined = false;
-        boolean widthDefined = false;
-        TiImageView view = getView();
-
-        if (view == null) {
-            return;
-        }
-
-        super.processProperties(d);
-
-        view.setWidthDefined(!(layoutParams.autoSizeWidth() && (layoutParams.optionLeft == null || layoutParams.optionRight == null)));
-        view.setHeightDefined(!(layoutParams.autoSizeHeight() && (layoutParams.optionTop == null || layoutParams.optionBottom == null)));
-
-        if (d.containsKey(TiC.PROPERTY_IMAGES)) {
-            setImageSource(d.get(TiC.PROPERTY_IMAGES));
-            setImages();
-        }
-
-        if (d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-            view.setEnableZoomControls(TiConvert.toBoolean(d,
-                    TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, true));
-        }
-        if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
-            setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
-        }
-        if (d.containsKey(TiC.PROPERTY_TRANSITION)) {
-            Object value = d.get(TiC.PROPERTY_TRANSITION);
-            if (value instanceof HashMap) {
-                transitionDict = (HashMap) value;
-            } else {
-                transitionDict = null;
-            }
-        }
-        if (d.containsKey(TiC.PROPERTY_DURATION)) {
-            duration = TiConvert.toInt(d.get(TiC.PROPERTY_DURATION),
-                    DEFAULT_DURATION);
-            if (duration < MIN_DURATION) {
-                duration = MIN_DURATION;
-            }
-        }
-        if (d.containsKey(TiC.PROPERTY_REVERSE)) {
-            reverse = TiConvert.toBoolean(d.get(TiC.PROPERTY_DURATION), false);
-        }
-        if (d.containsKey(TiC.PROPERTY_AUTOREVERSE)) {
-            autoreverse = TiConvert.toBoolean(d.get(TiC.PROPERTY_AUTOREVERSE),
-                    false);
-        }
-        if (d.containsKey(TiC.PROPERTY_REPEAT_COUNT)) {
-            repeatCount = TiConvert.toInt(d.get(TiC.PROPERTY_REPEAT_COUNT),
-                    INFINITE);
-        }
-        if (d.containsKey(TiC.PROPERTY_LOCAL_LOAD_SYNC)) {
-            localLoadSync = TiConvert.toBoolean(d,
-                    TiC.PROPERTY_LOCAL_LOAD_SYNC, localLoadSync);
-            // view.setAnimateTransition(!localLoadSync);
-        }
-        if (d.containsKey(TiC.PROPERTY_ONLY_TRANSITION_IF_REMOTE)) {
-            onlyTransitionIfRemote = TiConvert.toBoolean(d.get(TiC.PROPERTY_ONLY_TRANSITION_IF_REMOTE), false);
-        }
-
-        if (d.containsKey(TiC.PROPERTY_SCALE_TYPE)) {
-            setWantedScaleType(TiConvert.toInt(d, TiC.PROPERTY_SCALE_TYPE));
-        }
-        if (d.containsKey(TiC.PROPERTY_FILTER_OPTIONS)) {
-            filterOptions = (HashMap) d.get(TiC.PROPERTY_FILTER_OPTIONS);
-        }
-
-        if (d.containsKey(TiC.PROPERTY_IMAGE)) {
-            // processProperties is also called from TableView, we need check if
-            // we changed before re-creating the
-            // bitmap
-            boolean changeImage = true;
-            TiDrawableReference source = makeImageSource(d
-                    .get(TiC.PROPERTY_IMAGE));
-            //don't reload if same image and was successfully loaded
-            if (firedLoad && imageSources != null && imageSources.size() == 1) {
-                if (imageSources.get(0).equals(source)) {
-                    changeImage = false;
-                }
-            }
-            if (changeImage) {
-                if (reusing) {
-                    view.setImageBitmap(null);
-                    view.setImageDrawable(null);
-                }
-                // Check for orientation and decodeRetries only if an image is
-                // specified
-                Object autoRotate = d.get(TiC.PROPERTY_AUTOROTATE);
-                if (autoRotate != null && TiConvert.toBoolean(autoRotate)) {
-                    view.setOrientation(source.getOrientation());
-                }
-                if (d.containsKey(TiC.PROPERTY_DECODE_RETRIES)) {
-                    source.setDecodeRetries(TiConvert.toInt(
-                            d.get(TiC.PROPERTY_DECODE_RETRIES),
-                            TiDrawableReference.DEFAULT_DECODE_RETRIES));
-                }
-                setImageSource(source);
-                firedLoad = false;
-                setImageInternal();
-            }
-        } else {
-            if (!d.containsKey(TiC.PROPERTY_IMAGES)) {
-                setDefaultImage(false);
-            }
-        }
-
-        if (d.containsKey(TiC.PROPERTY_ANIMATED_IMAGES)) {
-            setAnimatedImageSource(d.get(TiC.PROPERTY_ANIMATED_IMAGES));
-            setAnimatedImages();
-        }
         
-        if (d.containsKey(TiC.PROPERTY_INDEX)) {
-            setCurrentIndex(d.optInt(TiC.PROPERTY_INDEX, 0));
+        super.processProperties(d);
+        TiImageView view = getView();
+        if (view != null) {
+            view.setConfigured(true);
         }
-        if (d.containsKey(TiC.PROPERTY_PROGRESS)) {
-            setProgress(d.optFloat(TiC.PROPERTY_PROGRESS, 0));
+    }
+    
+    @Override
+    protected void aboutToProcessProperties(KrollDict d) {
+        super.aboutToProcessProperties(d);
+        if (reusing) {
+            TiImageView view = getView();
+            if (view != null) {
+                view.setImageBitmap(null);
+                view.setImageDrawable(null);
+            }
         }
-
-        if (d.containsKey(TiC.PROPERTY_IMAGE_MASK)) {
-            setImageMask(d.get(TiC.PROPERTY_IMAGE_MASK));
-        }
-        // If height and width is not defined, disable scaling for scrollview
-        // since an image
-        // can extend beyond the screensize in scrollview.
-        if (proxy.getParent() instanceof ScrollViewProxy && !heightDefined
-                && !widthDefined) {
-            view.setEnableScale(false);
-        }
-        view.setConfigured(true);
     }
 
     @Override
-    public void propertyChanged(String key, Object oldValue, Object newValue,
-            KrollProxy proxy) {
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
         TiImageView view = getView();
         if (view == null) {
             return;
         }
-
-        if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+        switch (key) {
+        case TiC.PROPERTY_ENABLE_ZOOM_CONTROLS:
             view.setEnableZoomControls(TiConvert.toBoolean(newValue));
-        } else if (key.equals(TiC.PROPERTY_ANIMATION_DURATION)) {
+            break;
+        case TiC.PROPERTY_ANIMATION_DURATION:
             // view.setAnimationDuration( TiConvert.toInt(newValue));
-        } else if (key.equals(TiC.PROPERTY_LOCAL_LOAD_SYNC)) {
+            break;
+        case TiC.PROPERTY_LOCAL_LOAD_SYNC:
             localLoadSync = TiConvert.toBoolean(newValue);
-        } else if (key.equals(TiC.PROPERTY_SCALE_TYPE)) {
+            break;
+        case TiC.PROPERTY_SCALE_TYPE:
             setWantedScaleType(TiConvert.toInt(newValue));
-        } else if (key.equals(TiC.PROPERTY_IMAGE_MASK)) {
+            break;
+        case TiC.PROPERTY_IMAGE_MASK:
             setImageMask(newValue);
-        } else if (key.equals(TiC.PROPERTY_ONLY_TRANSITION_IF_REMOTE)) {
-                onlyTransitionIfRemote = TiConvert.toBoolean(newValue);
-        } else if (key.equals(TiC.PROPERTY_FILTER_OPTIONS)) {
+            break;
+        case TiC.PROPERTY_ONLY_TRANSITION_IF_REMOTE:
+            onlyTransitionIfRemote = TiConvert.toBoolean(newValue);
+            break;
+        case TiC.PROPERTY_FILTER_OPTIONS:
             filterOptions = (HashMap) newValue;
             if (currentImage != null && currentImage instanceof BitmapDrawable) {
                 if (filterOptions != null) {
-                    (new FilterAndSetTask(currentRef, !onlyTransitionIfRemote)).execute(((BitmapDrawable)currentImage).getBitmap());
-                }
-                else {
+                    (new FilterAndSetTask(currentRef, !onlyTransitionIfRemote))
+                            .execute(((BitmapDrawable) currentImage)
+                                    .getBitmap());
+                } else {
                     setDrawable(currentImage, !onlyTransitionIfRemote);
                 }
             }
-        } else if (key.equals(TiC.PROPERTY_IMAGE)) {
+            break;
+        case TiC.PROPERTY_IMAGE:
             boolean changeImage = true;
             TiDrawableReference source = makeImageSource(newValue);
             if (firedLoad && imageSources != null && imageSources.size() == 1) {
@@ -1154,26 +1079,25 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 firedLoad = false;
                 setImageInternal();
             }
-        } else if (key.equals(TiC.PROPERTY_IMAGES)) {
+            break;
+        case TiC.PROPERTY_IMAGES:
             if (newValue instanceof Object[]) {
-                if (oldValue == null || !oldValue.equals(newValue)) {
-                    setImageSource(newValue);
-                    setImages();
-                }
+                setImageSource(newValue);
+                setImages();
             }
-        } else if (key.equals(TiC.PROPERTY_ANIMATED_IMAGES)) {
-            if (oldValue == null || !oldValue.equals(newValue)) {
-                setAnimatedImageSource(newValue);
-                setAnimatedImages();
-            }
-
-        } else if (key.equals(TiC.PROPERTY_TRANSITION)) {
+            break;
+        case TiC.PROPERTY_ANIMATED_IMAGES:
+            setAnimatedImageSource(newValue);
+            setAnimatedImages();
+            break;
+        case TiC.PROPERTY_TRANSITION:
             if (newValue instanceof HashMap) {
                 transitionDict = (HashMap) newValue;
             } else {
                 transitionDict = null;
             }
-        } else if (key.equals(TiC.PROPERTY_DURATION)) {
+            break;
+        case TiC.PROPERTY_DURATION:
             duration = TiConvert.toInt(newValue, DEFAULT_DURATION);
             if (duration < MIN_DURATION) {
                 duration = MIN_DURATION;
@@ -1181,32 +1105,31 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             if (animDrawable != null) {
                 animDrawable.setDuration(duration);
             }
-        } else if (key.equals(TiC.PROPERTY_REVERSE)) {
+            break;
+        case TiC.PROPERTY_REVERSE:
             reverse = TiConvert.toBoolean(newValue, false);
             if (animDrawable != null) {
                 animDrawable.setReverse(reverse);
             }
-        } else if (key.equals(TiC.PROPERTY_AUTOREVERSE)) {
+            break;
+        case TiC.PROPERTY_AUTOREVERSE:
             autoreverse = TiConvert.toBoolean(newValue, false);
             if (animDrawable != null) {
                 animDrawable.setAutoreverse(autoreverse);
             }
-        } else if (key.equals(TiC.PROPERTY_REPEAT_COUNT)) {
+            break;
+        case TiC.PROPERTY_REPEAT_COUNT:
             repeatCount = TiConvert.toInt(newValue, INFINITE);
-        } else if (key.equals(TiC.PROPERTY_INDEX)) {
+            break;
+        case TiC.PROPERTY_INDEX:
             setCurrentIndex(TiConvert.toInt(newValue, 0));
-        } else if (key.equals(TiC.PROPERTY_PROGRESS)) {
+            break;
+        case TiC.PROPERTY_PROGRESS:
             setProgress(TiConvert.toFloat(newValue, 0));
-        } else {
-            super.propertyChanged(key, oldValue, newValue, proxy);
-            if (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_LEFT)
-                    || key.equals(TiC.PROPERTY_RIGHT)) {
-                view.setWidthDefined(!(layoutParams.autoSizeWidth() && (layoutParams.optionLeft == null || layoutParams.optionRight == null)));
-            } else if (key.equals(TiC.PROPERTY_HEIGHT)
-                    || key.equals(TiC.PROPERTY_TOP)
-                    || key.equals(TiC.PROPERTY_BOTTOM)) {
-                view.setHeightDefined(!(layoutParams.autoSizeHeight() && (layoutParams.optionTop == null || layoutParams.optionBottom == null)));
-            }
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
         }
     }
 

@@ -76,18 +76,7 @@ public class ScrollViewProxy extends ViewProxy
 			handleScrollTo(x,y);
 		}
 	}
-	
-	@Kroll.setProperty @Kroll.method
-	public void setScrollingEnabled(Object enabled)
-	{
-		getScrollView().setScrollingEnabled(enabled);
-	}
 
-	@Kroll.getProperty @Kroll.method
-	public boolean getScrollingEnabled()
-	{
-		return getScrollView().getScrollingEnabled();
-	}
 	
 	@Kroll.method
 	public void setContentOffset(Object offset, @Kroll.argument(optional = true) Object obj)

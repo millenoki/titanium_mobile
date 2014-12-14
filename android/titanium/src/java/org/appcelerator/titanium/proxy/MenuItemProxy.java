@@ -33,7 +33,7 @@ import android.view.View;
 
 @SuppressLint("NewApi")
 @Kroll.proxy
-public class MenuItemProxy extends KrollProxy implements KrollProxyListener
+public class MenuItemProxy extends KrollProxy
 {
 	private static final String TAG = "MenuItem";
 
@@ -79,9 +79,7 @@ public class MenuItemProxy extends KrollProxy implements KrollProxyListener
     protected MenuItemProxy(MenuItem item)
 	{
 		this.item = item;
-		setModelListener(this, false);
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
-		
 	}
 
 	@Override
@@ -432,9 +430,7 @@ public class MenuItemProxy extends KrollProxy implements KrollProxyListener
 		return "Ti.Android.MenuItem";
 	}
 
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue,
-			KrollProxy proxy) {
+	public void onPropertyChanged(String key, Object oldValue, Object newValue) {
 		if (key.equals(TiC.PROPERTY_ACTION_VIEW)) {
 			setActionView(newValue);
 		}
@@ -462,8 +458,9 @@ public class MenuItemProxy extends KrollProxy implements KrollProxyListener
 	}
 
 	@Override
-	public void processProperties(KrollDict d) {
-		// TODO Auto-generated method stub
+    public void handleCreationDict(final KrollDict d)
+    {
+        super.handleCreationDict(d);
 		if (d.containsKey(TiC.PROPERTY_ACTION_VIEW)) {
 			setActionView(d.get(TiC.PROPERTY_ACTION_VIEW));
 		}
@@ -488,24 +485,5 @@ public class MenuItemProxy extends KrollProxy implements KrollProxyListener
 		if (d.containsKey(TiC.PROPERTY_VISIBLE)) {
 			setVisible(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE));
 		}
-	}
-
-	@Override
-	public void propertiesChanged(List<KrollPropertyChange> changes,
-			KrollProxy proxy) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void listenerAdded(String type, int count, KrollProxy proxy) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void listenerRemoved(String type, int count, KrollProxy proxy) {
-		// TODO Auto-generated method stub
-		
 	}
 }
