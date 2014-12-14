@@ -1,5 +1,6 @@
 package org.appcelerator.titanium.view;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -23,6 +24,25 @@ public class TiUINonViewGroupView extends TiUIView {
 		super.add(child, index);
 	}
 	
+    protected void updateLayoutForChildren(KrollDict d) {
+        View viewForLayout = getParentViewForChild();
+
+        if (viewForLayout instanceof TiCompositeLayout) {
+            TiCompositeLayout tiLayout = (TiCompositeLayout) viewForLayout;
+            if (d.containsKey(TiC.PROPERTY_LAYOUT)) {
+                String layout = TiConvert.toString(d, TiC.PROPERTY_LAYOUT);
+                tiLayout.setLayoutArrangement(layout);
+                d.remove(TiC.PROPERTY_LAYOUT);
+            }
+
+            if (d.containsKey(TiC.PROPERTY_HORIZONTAL_WRAP)) {
+                tiLayout.setEnableHorizontalWrap(TiConvert.toBoolean(d,
+                        TiC.PROPERTY_HORIZONTAL_WRAP, true));
+                d.remove(TiC.PROPERTY_HORIZONTAL_WRAP);
+            }
+        }
+    }
+
 	protected void createChildrenHolder(){
 		childrenHolder = new TiCompositeLayout(proxy.getActivity(), this);
 		if (proxy.hasProperty(TiC.PROPERTY_CLIP_CHILDREN)) {
