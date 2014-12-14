@@ -203,7 +203,7 @@ public class Ti2DMatrix extends KrollProxy {
         Matcher m = p.matcher(string);
         while (m.find()) {
             String group = m.group(1);
-            if (group == "o") {
+            if (group.equals("o")) {
                 ownFrameCoord = true;
             }
             else {
