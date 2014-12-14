@@ -600,6 +600,10 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SCROLLING_ENABLED = "scrollingEnabled";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_ACCESSIBILITY_PREFIX = "accessibility";
 
 	/**
 	 * @module.api
