@@ -89,6 +89,7 @@ public abstract class TiApplication extends Application implements
     private static long mainThreadId = 0;
 
     private static float mAppDensity = -1;
+    private static float mAppScaledDensity = -1;
 
     protected static WeakReference<TiApplication> tiApp = null;
 
@@ -869,6 +870,14 @@ public abstract class TiApplication extends Application implements
             mAppDensity = metrics.density;
         }
         return mAppDensity;
+    }
+    
+    public static float getAppScaledDensity() {
+        if (mAppScaledDensity == -1) {
+            DisplayMetrics metrics = TiDimension.getDisplayMetrics(getAppContext());
+            mAppScaledDensity = metrics.scaledDensity;
+        }
+        return mAppScaledDensity;
     }
 
     /**
