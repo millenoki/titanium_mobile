@@ -2849,7 +2849,7 @@ public class TiC
     /**
      * @module.api
      */
-    public static final Object PROPERTY_TEXT_SPACING = "textSpacing";
+    public static final String PROPERTY_TEXT_SPACING = "textSpacing";
     
 	/**
 	 * @module.api
