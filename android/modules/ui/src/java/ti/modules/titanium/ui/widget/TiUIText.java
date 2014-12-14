@@ -75,9 +75,11 @@ public class TiUIText extends TiUINonViewGroupView
 		{
 			super(context);
 		}
+
 		
 		@Override
 		protected void drawableStateChanged() {
+		    super.drawableStateChanged();
 			if (hasFocus()) propagateDrawableState(TiUIHelper.BACKGROUND_SELECTED_STATE);
 			else propagateChildDrawableState(this);
 		}
@@ -141,6 +143,7 @@ public class TiUIText extends TiUINonViewGroupView
 
         @Override
         public void dispatchSetPressed(boolean pressed) {
+            super.dispatchSetPressed(pressed);
             if (childrenHolder != null && dispatchPressed) {
                 childrenHolder.setPressed(pressed);
             }
