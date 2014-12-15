@@ -281,7 +281,7 @@ public class KrollDict
 	public Number[] getNumberArray(String key) {
 		return TiConvert.toNumberArray((Object[])get(key));
 	}
-
+	
 	public Number[] optIntArray(String key, Number[] defaultValue) {
 		Number[] result = defaultValue;
 
@@ -290,18 +290,39 @@ public class KrollDict
 		}
 		return result;
 	}
+	
+	public Object[] getArray(String key) {
+	    Object result = get(key);
+	    if (result instanceof Object[]) {
+	        return (Object[]) result;
+	    }
+        return null;
+    }
 
-	@SuppressWarnings("unchecked")
+	public Object[] optArray(String key, Object[] defaultValue) {
+	    Object[] result = defaultValue;
+
+        if (containsKey(key)) {
+            result = getArray(key);
+        }
+        return result;
+    }
+
 	public KrollDict getKrollDict(String key) {
-		Object value = get(key);
-		if (value instanceof KrollDict) {
-			return (KrollDict) value;
-		} else if (value instanceof HashMap) {
-			return new KrollDict((HashMap<String, Object>) value);
-		} else {
-			return null;
-		}
+	    return TiConvert.toKrollDict(get(key));
 	}
+	
+	@SuppressWarnings("unchecked")
+    public HashMap getHashMap(String key) {
+        Object value = get(key);
+        if (value instanceof KrollDict) {
+            return (KrollDict) value;
+        } else if (value instanceof HashMap) {
+            return (HashMap<String, Object>) value;
+        } else {
+            return null;
+        }
+    }
 
 	public boolean isNull(String key) {
 		return (get(key) == null);

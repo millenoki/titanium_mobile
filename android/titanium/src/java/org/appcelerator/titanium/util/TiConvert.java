@@ -1306,6 +1306,17 @@ public class TiConvert
 		return null;
 	}
 
+    @SuppressWarnings("unchecked")
+    public static HashMap toHashMap(Object value)
+    {
+        if (value instanceof KrollDict) {
+            return (KrollDict)value;
+        } else if (value instanceof HashMap) {
+            return (HashMap)value;
+        }
+
+        return null;
+    }
 }
 
 
