@@ -24,6 +24,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiTranslucentActivity;
 import org.appcelerator.titanium.animation.TiAnimator;
+import org.appcelerator.titanium.proxy.ActionBarProxy;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.DecorViewProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -37,8 +38,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -394,7 +393,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected Activity getWindowActivity()
+	protected TiBaseActivity getWindowActivity()
 	{
 		return (windowActivity != null) ? windowActivity.get() : null;
 	}
@@ -523,48 +522,87 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void onPropertyChanged(String name, Object value)
+    public void onPropertyChanged(String name, Object value, Object oldValue)
 	{
 		if ((opening || opened) && !lightweight) {
-			Activity activity = getWindowActivity();
-			if (TiC.PROPERTY_WINDOW_PIXEL_FORMAT.equals(name)) {
-				getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, value).sendToTarget();
-			} else if (TiC.PROPERTY_TITLE.equals(name)) {
-				getMainHandler().obtainMessage(MSG_SET_TITLE, value).sendToTarget();
-			} else if (TiC.PROPERTY_TOP.equals(name) || TiC.PROPERTY_BOTTOM.equals(name) || TiC.PROPERTY_LEFT.equals(name)
-				|| TiC.PROPERTY_RIGHT.equals(name)) {
-				// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
-				return;
-			} else if (TiC.PROPERTY_TOUCH_ENABLED.equals(name) && activity != null)
-			{
-				boolean active = TiConvert.toBoolean(value, true);
-				if (active)
-				{
-					activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-	                        | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-				}
-				else {
-					activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+		    TiBaseActivity activity = getWindowActivity();
+			switch (name) {
+			case TiC.PROPERTY_WINDOW_PIXEL_FORMAT:
+                getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, value).sendToTarget();
+                break;
+			case TiC.PROPERTY_TITLE:
+                getMainHandler().obtainMessage(MSG_SET_TITLE, value).sendToTarget();
+                break;
+            case TiC.PROPERTY_TOP:
+            case TiC.PROPERTY_BOTTOM:
+            case TiC.PROPERTY_LEFT:
+            case TiC.PROPERTY_RIGHT:
+                // The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
+                break;
+            case TiC.PROPERTY_BAR_COLOR:
+            {
+                ActionBarProxy aBarProxy  = activity.getActivityProxy().getActionBar();
+                if (aBarProxy != null) {
+                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_BACKGROUND_COLOR, value);
+                }
+                break;
+            }
+            case TiC.PROPERTY_BAR_OPACITY:
+            {
+                ActionBarProxy aBarProxy  = activity.getActivityProxy().getActionBar();
+                if (aBarProxy != null) {
+                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_BACKGROUND_OPACITY, value);
+                }
+                break;
+            }
+            case TiC.PROPERTY_BAR_ICON:
+            {
+                ActionBarProxy aBarProxy  = activity.getActivityProxy().getActionBar();
+                if (aBarProxy != null) {
+                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_ICON, value);
+                }
+                break;
+            }
+            case TiC.PROPERTY_BAR_IMAGE:
+            {
+                ActionBarProxy aBarProxy  = activity.getActivityProxy().getActionBar();
+                if (aBarProxy != null) {
+                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_BACKGROUND_IMAGE, value);
+                }
+                break;
+            }
+			case TiC.PROPERTY_TOUCH_ENABLED:
+                if (TiConvert.toBoolean(value, true))
+                {
+                    activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                            | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                }
+                else {
+                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                         | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-				}
-			} else if (TiC.PROPERTY_FOCUSABLE.equals(name) && activity != null)
-			{
-				boolean active = TiConvert.toBoolean(value, true);
-				if (active)
-				{
-					activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-				}
-				else {
-					activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-				}
-			} else if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
-				if (activity != null) {
-					Intent intent = activity.getIntent();
-					intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
-				}
-			}
+                }
+                break;
+			case TiC.PROPERTY_FOCUSABLE:
+                if (TiConvert.toBoolean(value, true))
+                {
+                    activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+                }
+                else {
+                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+                }
+                break;
+			case TiC.PROPERTY_EXIT_ON_CLOSE:
+			    if (activity != null) {
+                    Intent intent = activity.getIntent();
+                    intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
+                }
+                break;
+
+            default:
+                break;
+            }
 		}
-		super.onPropertyChanged(name, value);
+		super.onPropertyChanged(name, value, oldValue);
 	}
 
 	@Override
