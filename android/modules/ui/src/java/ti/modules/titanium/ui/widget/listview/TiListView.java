@@ -107,6 +107,8 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	private boolean hideKeyboardOnScroll = true;
 	private boolean canShowMenus = false;
 	
+	private int currentScrollOffset = -1;
+	
 	private SwipeMenuAdapter mSwipeMenuAdapater;
 	
 	private static final String defaultTemplateKey = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
@@ -438,7 +440,8 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
         return scrollY;
     }
 	
-	private KrollDict dictForScrollEvent() {
+    
+	private KrollDict dictForScrollEvent(final int yScroll) {
 		KrollDict eventArgs = new KrollDict();
 		KrollDict size = new KrollDict();
 		size.put(TiC.PROPERTY_WIDTH, TiListView.this.getNativeView().getWidth());
@@ -451,10 +454,14 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
         eventArgs.put("visibleItemCount", lastVisiblePosition - firstVisibleItem);
         KrollDict point = new KrollDict();
         point.put(TiC.PROPERTY_X, 0);
-        point.put(TiC.PROPERTY_Y, getScroll());
+        point.put(TiC.PROPERTY_Y, yScroll);
         eventArgs.put("contentOffset", point);
 		return eventArgs;
 	}
+	
+	private KrollDict dictForScrollEvent() {
+        return dictForScrollEvent(getScroll());
+    }
 	
 	private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
         @Override
@@ -581,8 +588,12 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 					fireScroll = (lastValidfirstItem != firstVisibleItem);
 				}
 				if(fireScroll && fProxy.hasListeners(TiC.EVENT_SCROLL, false)) {
-					lastValidfirstItem = firstVisibleItem;
-					fProxy.fireEvent(TiC.EVENT_SCROLL, dictForScrollEvent(), false, false);
+				    int newScrollOffset = getScroll();
+                    lastValidfirstItem = firstVisibleItem;
+				    if (newScrollOffset != currentScrollOffset) {
+				        currentScrollOffset = newScrollOffset;
+	                    fProxy.fireEvent(TiC.EVENT_SCROLL, dictForScrollEvent(currentScrollOffset), false, false);
+				    }
 				}
 			}
 		});
