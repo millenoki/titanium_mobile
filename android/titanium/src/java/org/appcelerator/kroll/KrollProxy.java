@@ -33,6 +33,7 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.app.Activity;
@@ -85,6 +86,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     protected static AtomicInteger proxyCounter = new AtomicInteger();
     protected AtomicInteger listenerIdGenerator;
 
+    protected Map<String, List<KrollDict>> evaluators;
     protected Map<String, HashMap<Integer, KrollEventCallback>> eventListeners;
     protected KrollObject krollObject;
     protected WeakReference<Activity> activity;
@@ -955,6 +957,66 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      *            the data to include in the event
      * @return true if the event was handled
      */
+    @Kroll.method(name = "_addEvaluator")
+    public void addEvaluator(String eventName, Object data) {
+        if (eventName == null) {
+            throw new IllegalStateException(
+                    "addEvaluator expects a non-null eventName");
+
+        } else if (!(data instanceof HashMap)) {
+            throw new IllegalStateException(
+                    "addEvaluator expects a non-null listener");
+        }
+        
+        if(evaluators==null){
+            evaluators = new HashMap<String, List<KrollDict>>();
+            setProperty(PROPERTY_HAS_JAVA_LISTENER, true);
+        }
+
+        synchronized (evaluators) {
+            List<KrollDict> theListeners = evaluators.get(eventName);
+            if (theListeners == null) {
+                theListeners = new ArrayList< KrollDict>();
+                evaluators.put(eventName, theListeners);
+            }
+            theListeners.add(TiConvert.toKrollDict(data));
+        }
+    }
+    
+    @Kroll.method(name = "_removeEvaluator")
+    public void removeEvaluator(String eventName, Object data) {
+        if (eventName == null || !(data instanceof HashMap) || evaluators == null) {
+            return;
+        }
+        synchronized (evaluators) {
+            List<KrollDict> theListeners = evaluators.get(eventName);
+            
+            if (theListeners != null) {
+                for (KrollDict hashMap : theListeners) {
+                    if (hashMap.equals(data)) {
+                        theListeners.remove(hashMap);
+                        break;
+                    }
+                }
+                if (theListeners.isEmpty()) {
+                    evaluators.remove(eventName);
+                }
+                if (evaluators.isEmpty()) {
+                    setProperty(PROPERTY_HAS_JAVA_LISTENER, false);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Send an event to the view who is next to receive the event.
+     * 
+     * @param eventName
+     *            event to send to the next view
+     * @param data
+     *            the data to include in the event
+     * @return true if the event was handled
+     */
     @Kroll.method(name = "_fireEventToParent")
     public boolean fireEventToParent(String eventName, Object data) {
         if (bubbleParent) {
@@ -1094,6 +1156,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (eventOverrideDelegate != null) {
             data = eventOverrideDelegate.overrideEvent(data, event, this);
         }
+        if (evaluators != null && data instanceof HashMap) {
+            List<KrollDict> theListeners = null;
+            synchronized (evaluators) {
+                theListeners = evaluators.get(event);
+            }
+            if (theListeners != null) {
+                for (KrollDict hashMap : theListeners) {
+                    TiUIHelper.applyMathDict(hashMap, TiConvert.toKrollDict(data));
+                }
+            }
+        }
+        
+        
         Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT,
                 data);
         message.getData().putString(PROPERTY_NAME, event);
@@ -1253,6 +1328,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public boolean _hasListeners(String event) {
         return hasNonJSEventListener(event)
+                || hasEvaluatorListener(event)
                 || getKrollObject().hasListeners(event);
     }
 
@@ -1721,6 +1797,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         return eventListeners.containsKey(event)
                 && eventListeners.get(event) != null;
     }
+    
+    public boolean hasEvaluatorListener(String event) {
+        return evaluators != null && evaluators.get(event) != null;
+    }
 
     /**
      * Resolves the passed in scheme / path, and uses the Proxy's creationUrl if
@@ -1829,6 +1909,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     if (value instanceof KrollFunction) {
                         addEventListener(key, new KrollEventFunction(
                                 getKrollObject(), (KrollFunction) value));
+                    } else {
+                        addEvaluator(key, value);
                     }
                 }
             }
