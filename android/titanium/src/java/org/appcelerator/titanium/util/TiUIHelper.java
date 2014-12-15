@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.objecthunter.exp4j.ExpressionBuilder;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -1529,6 +1531,7 @@ public class TiUIHelper
 	    return result;
 	}
 
+    private static final char VAR_PREFIX = '_';
     public static void applyMathDict(KrollDict mathDict, KrollDict event) {
         if (event == null) return;
         KrollDict expressions = new KrollDict();
@@ -1536,7 +1539,7 @@ public class TiUIHelper
         HashMap<String, Object> vars = mathDict.getHashMap("variables");
 	    if (vars != null) {
 	        for (Map.Entry<String, Object> entry : vars.entrySet()) {
-	            expressions.put(entry.getKey(), getValueForKeyPath(TiConvert.toString(entry.getValue()), event));
+	            expressions.put(VAR_PREFIX+entry.getKey(), getValueForKeyPath(TiConvert.toString(entry.getValue()), event));
 	        }
 	    }
 	    
@@ -1559,9 +1562,9 @@ public class TiUIHelper
 	            try {
                   Expression expression = new Expression(TiConvert.toString(entry.getValue()));
 	                for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-                      expression.with("$"+entry2.getKey(), TiConvert.toString(entry2.getValue()));
+                      expression.with(entry2.getKey(), TiConvert.toString(entry2.getValue()));
                     }
-                  expressions.put(entry.getKey(), expression.eval().toPlainString());
+                  expressions.put(VAR_PREFIX+entry.getKey(), expression.eval().toPlainString());
                 } catch (Exception e) {
                 }
             }
@@ -1582,10 +1585,10 @@ public class TiUIHelper
                             final String value = TiConvert.toString(entry.getValue());
                             Object current = ((KrollProxy) target).getProperty(key);
                             if (current != null) {
-                                expressions.put("current", current);
+                                expressions.put(VAR_PREFIX+"current", current);
                             }
                             else {
-                                expressions.put("current", 0);
+                                expressions.put(VAR_PREFIX+"current", 0);
                             }
                             
 //                            Scope scope = Scope.create();
@@ -1607,14 +1610,14 @@ public class TiUIHelper
                             
                             Expression expression = new Expression(value);
                             for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-                                expression.with("$"+entry2.getKey(), TiConvert.toString(entry2.getValue()));
+                                expression.with(entry2.getKey(), TiConvert.toString(entry2.getValue()));
                             }
                             try {
                                 realProps.put(key, expression.eval().toPlainString());
                             } catch (Exception e) {
                                 String result = new String(value);
                                 for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-                                    result = TiUtils.fastReplace(result, "$"+entry2.getKey(), TiConvert.toString(entry2.getValue()));
+                                    result = TiUtils.fastReplace(result, entry2.getKey(), TiConvert.toString(entry2.getValue()));
                                 }
                                 realProps.put(key, result);
                             }

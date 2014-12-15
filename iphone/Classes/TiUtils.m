@@ -2567,7 +2567,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
                 [toUse setObject:current forKey:@"current"];
                 [realProps setValue:[[eval evaluateString:obj withSubstitutions:toUse error:&error] stringValue] forKey:key];
                 if (error) {
-                    [realProps setValue:[TiUtils replacingStringsIn:obj fromDictionary:toUse withPrefix:@"$"] forKey:key];
+                    [realProps setValue:[TiUtils replacingStringsIn:obj fromDictionary:toUse withPrefix:@"_"] forKey:key];
                 }
             }];
             [target setValuesForKeysWithDictionary:realProps];
