@@ -198,6 +198,11 @@ public class TiConvert
 	public static int fillLayout(String key, Object value, LayoutParams layoutParams, boolean withMatrix)
     {
         switch (key) {
+        case TiC.PROPERTY_TRANSFORM:
+            if (withMatrix) {
+                layoutParams.matrix = TiConvert.toMatrixWithReuse(value, layoutParams.matrix);
+                return TiUIView.TIFLAG_NEEDS_INVALIDATE;
+            }
         case TiC.PROPERTY_LEFT:
             layoutParams.optionLeft = toTiDimension(value, TiDimension.TYPE_LEFT);
             return TiUIView.TIFLAG_NEEDS_LAYOUT;
@@ -285,11 +290,6 @@ public class TiConvert
         case TiC.PROPERTY_ZINDEX:
             layoutParams.optionZIndex = toInt(value, 0);
             return TiUIView.TIFLAG_NEEDS_LAYOUT | TiUIView.TIFLAG_NEEDS_LAYOUT_INFORMPARENT;
-        case TiC.PROPERTY_TRANSFORM:
-            if (withMatrix) {
-                layoutParams.matrix = TiConvert.toMatrix(value);
-                return TiUIView.TIFLAG_NEEDS_INVALIDATE;
-            }
         case TiC.PROPERTY_ANCHOR_POINT:
             if (value instanceof HashMap) {
                 HashMap point = (HashMap) value;
