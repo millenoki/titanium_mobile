@@ -41,7 +41,7 @@ public class Ti2DMatrix extends KrollProxy {
 	
 	public ArrayList<Operation> operations = new ArrayList<Operation>();
 
-	public TiPoint anchor;
+	public TiPoint anchor = null;
 	protected boolean ownFrameCoord = false;
 
 	protected AffineTransform transform = null;
@@ -221,12 +221,37 @@ public class Ti2DMatrix extends KrollProxy {
 	}
 	
 	public Ti2DMatrix(HashMap map) {
-        if (map instanceof KrollDict) {
-            handleCreationDict((KrollDict) map);
+	    handleCreationDict(TiConvert.toKrollDict(map));
+    }
+	
+	public Ti2DMatrix reuseForNewMatrix(HashMap map) {
+	    operations.clear();
+	    anchor = null;
+	    ownFrameCoord = false;
+	    transform = null;
+	    
+        handleCreationDict(TiConvert.toKrollDict(map));
+        return this;
+	}
+	
+	public Ti2DMatrix reuseForNewMatrix(String string) {
+        operations.clear();
+        anchor = null;
+        ownFrameCoord = false;
+        transform = null;
+        
+        Pattern p = Pattern.compile(REGEX);
+        Matcher m = p.matcher(string);
+        while (m.find()) {
+            String group = m.group(1);
+            if (group.equals("o")) {
+                ownFrameCoord = true;
+            }
+            else {
+                operations.add(new Operation(group));
+            }
         }
-        else {
-            handleCreationDict(new KrollDict(map));
-        }
+        return this;
     }
 
 
