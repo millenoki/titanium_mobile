@@ -13,6 +13,8 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -549,22 +551,46 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		{
 			private boolean scrollValid = false;
 			private int lastValidfirstItem = 0;
+			private Timer endTimer = null;
+			
+			public void cancelEndCall() {
+			    if (endTimer != null) {
+                    endTimer.cancel();
+                    endTimer = null;
+                }
+			}
+			public void delayEndCall() {
+			    cancelEndCall();
+			    endTimer = new Timer();
+
+			    TimerTask action = new TimerTask() {
+			        public void run() {
+                        scrollValid = false;
+                        if(fProxy.hasListeners(TiC.EVENT_SCROLLEND, false)) {
+                            fProxy.fireEvent(TiC.EVENT_SCROLLEND, dictForScrollEvent(), false, false);
+                        }
+			        }
+
+			    };
+
+			    this.endTimer.schedule(action, 200); 
+			}
 			
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState)
 			{
                 
-				view.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);		
+				view.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);
 				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
 				    if (scrollValid) {
-				        scrollValid = false;
-				        if(fProxy.hasListeners(TiC.EVENT_SCROLLEND, false)) {
-		                    fProxy.fireEvent(TiC.EVENT_SCROLLEND, dictForScrollEvent(), false, false);
-		                }
+	                    delayEndCall();
 				    }
-					
 				}
+				else if (scrollState == OnScrollListener.SCROLL_STATE_FLING) {
+				    cancelEndCall();
+                }
 				else if (scrollState == OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    cancelEndCall();
 				    if (hideKeyboardOnScroll && hasFocus()) {
 	                    blur();
 	                }
