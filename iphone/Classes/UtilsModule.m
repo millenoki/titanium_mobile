@@ -12,6 +12,7 @@
 #import "TiFile.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
+#import "DDMathEvaluator.h"
 
 @implementation UtilsModule
 
@@ -110,6 +111,25 @@
     TiBlob* result = [[TiBlob alloc] initWithFile:args];
     result.executionContext = [self executionContext];
     return [result autorelease];
+}
+
+- (NSString *)replacingStringsIn:(NSString*)string fromDictionary:(NSDictionary *)dict
+{
+    NSMutableString *result = [string mutableCopy];
+    for (NSString *target in dict) {
+        [result replaceOccurrencesOfString:target withString:[dict objectForKey:target]
+                                   options:0 range:NSMakeRange(0, [string length])];
+    }
+    return [result autorelease];
+}
+
+-(void)parseMathDict:(id)args
+{
+    NSDictionary* parameters = nil;
+    NSDictionary* eventtest = nil;
+    ENSURE_ARG_AT_INDEX(parameters, args, 0, NSDictionary);
+    ENSURE_ARG_AT_INDEX(eventtest, args, 1, NSDictionary);
+    [TiUtils applyMathDict:parameters forEvent:eventtest];
 }
 
 @end
