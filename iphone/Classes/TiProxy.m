@@ -1032,7 +1032,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     
     
     NSArray* theEvaluators = [evaluators valueForKey:type];
-    if (evaluators) {
+    if (theEvaluators) {
         for (NSDictionary* theEvaluator in theEvaluators) {
             [TiUtils applyMathDict:theEvaluator forEvent:obj];
         }
