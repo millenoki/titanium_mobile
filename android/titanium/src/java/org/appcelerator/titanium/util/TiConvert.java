@@ -1208,6 +1208,35 @@ public class TiConvert
         return IDENTITY_MATRIX;
     }
     
+    public static Ti2DMatrix toMatrixWithReuse(Object value, Ti2DMatrix reuse)
+    {
+        Ti2DMatrix result = reuse != IDENTITY_MATRIX ? reuse : null;
+        if (value instanceof Ti2DMatrix) {
+            return (Ti2DMatrix) value;
+
+        } else if (value instanceof HashMap) {
+            if (result != null) {
+                result.reuseForNewMatrix((HashMap)value);
+            }
+            else {
+                result = new Ti2DMatrix((HashMap)value);
+            }
+        } else if (value instanceof String) {
+            if (result != null) {
+                result.reuseForNewMatrix((String)value);
+            }
+            else {
+                result = new Ti2DMatrix((String)value);
+            }
+        }
+        else if (value != null && value.getClass().getSuperclass().equals(Ti2DMatrix.class)) {
+            return new Ti2DMatrix((Ti2DMatrix)value); // case of _2DMatrixProxy
+        } else {
+            result = IDENTITY_MATRIX;
+        }
+        return result;
+    }
+    
     /**
      * convert value to a Ti2DMatrix, if can't return def
      * @param value the value to convert.
