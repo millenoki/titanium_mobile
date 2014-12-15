@@ -2559,12 +2559,12 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
             NSMutableDictionary* realProps = [NSMutableDictionary dictionaryWithCapacity:[props count]];
             __block NSError* error;
             [props enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-                NSDictionary* toUse = expressions;
+                NSMutableDictionary* toUse = [NSMutableDictionary dictionaryWithDictionary:expressions];
                 id current = [target valueForKey:key];
-                if (current && !IS_OF_CLASS(current, NSNull)) {
-                    toUse = [NSMutableDictionary dictionaryWithObject:current forKey:key];
-                    [(NSMutableDictionary*)toUse addEntriesFromDictionary:expressions];
+                if (!current || IS_OF_CLASS(current, NSNull)) {
+                    current = @(0);
                 }
+                [toUse setObject:current forKey:@"current"];
                 [realProps setValue:[[eval evaluateString:obj withSubstitutions:toUse error:&error] stringValue] forKey:key];
                 if (error) {
                     [realProps setValue:[TiUtils replacingStringsIn:obj fromDictionary:toUse withPrefix:@"$"] forKey:key];
