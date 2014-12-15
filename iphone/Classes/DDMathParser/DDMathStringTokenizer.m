@@ -317,7 +317,7 @@
         token = [self _parseNumberWithError:error];
     }
     
-    if (token == nil && next == '$') {
+    if (token == nil && (next == '$' ||  next == '_')) {
         token = [self _parseVariableWithError:error];
     }
     
