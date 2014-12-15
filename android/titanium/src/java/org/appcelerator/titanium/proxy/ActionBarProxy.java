@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
@@ -39,12 +40,14 @@ import android.view.View;
         TiC.PROPERTY_BACKGROUND_COLOR,
         TiC.PROPERTY_BACKGROUND_IMAGE,
         TiC.PROPERTY_BACKGROUND_GRADIENT,
+        TiC.PROPERTY_BACKGROUND_OPACITY,
         TiC.PROPERTY_LOGO,
 		TiC.PROPERTY_ICON
 })
 
 public class ActionBarProxy extends KrollProxy
 {
+    private static final boolean JELLY_BEAN_MR1_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1);
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_DISPLAY_HOME_AS_UP = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_BACKGROUND_IMAGE = MSG_FIRST_ID + 101;
@@ -62,6 +65,7 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_SUBTITLE = MSG_FIRST_ID + 113;
 	private static final int MSG_SET_DISPLAY_SHOW_HOME = MSG_FIRST_ID + 114;
 	private static final int MSG_SET_DISPLAY_SHOW_TITLE = MSG_FIRST_ID + 115;
+    private static final int MSG_SET_BACKGROUND_OPACITY = MSG_FIRST_ID + 116;
 
 	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
@@ -78,6 +82,30 @@ public class ActionBarProxy extends KrollProxy
 	private boolean showTitleEnabled = true;
 	private int defaultColor = 0;
 	private boolean customBackgroundSet = false;
+    private Drawable mActionBarBackgroundDrawable;
+    
+    private Drawable.Callback mDrawableCallback = new Drawable.Callback() {
+        @Override
+        public void invalidateDrawable(Drawable who) {
+            actionBar.setBackgroundDrawable(who);
+        }
+
+        @Override
+        public void scheduleDrawable(Drawable who, Runnable what, long when) {
+        }
+
+        @Override
+        public void unscheduleDrawable(Drawable who, Runnable what) {
+        }
+    };
+    
+    private void setActionBarDrawable(final Drawable drawable) {
+        mActionBarBackgroundDrawable = drawable;
+        if (mActionBarBackgroundDrawable != null && !JELLY_BEAN_MR1_OR_GREATER) {
+            mActionBarBackgroundDrawable.setCallback(mDrawableCallback);
+        }
+        actionBar.setBackgroundDrawable(mActionBarBackgroundDrawable);
+    }
 
 	public ActionBarProxy(TiBaseActivity activity)
 	{
@@ -223,6 +251,15 @@ public class ActionBarProxy extends KrollProxy
 			getMainHandler().obtainMessage(MSG_SET_BACKGROUND_GRADIENT, gradient).sendToTarget();
 		}
 	}
+	
+	public void setBackgroundOpacity(float alpha)
+    {
+        if (TiApplication.isUIThread()) {
+            handleSetBackgroundOpacity(alpha);
+        } else {
+            getMainHandler().obtainMessage(MSG_SET_BACKGROUND_OPACITY, Float.valueOf(alpha)).sendToTarget();
+        }
+    }
 
 	@Kroll.method @Kroll.setProperty
 	public void setTitle(String title)
@@ -406,15 +443,25 @@ public class ActionBarProxy extends KrollProxy
 			return;
 		}
 
-		Drawable backgroundImage = getDrawableFromUrl(url);
-		//This is a workaround due to https://code.google.com/p/styled-action-bar/issues/detail?id=3. [TIMOB-12148]
-		if (backgroundImage != null) {
-			actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
-			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
-			actionBar.setBackgroundDrawable(backgroundImage);
-	        customBackgroundSet = true;
-		}
+		actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+        
+        setActionBarDrawable(getDrawableFromUrl(url));
+        customBackgroundSet = (mActionBarBackgroundDrawable != null);
 	}
+	
+	private void handleSetBackgroundOpacity(float alpha)
+    {
+        if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        
+        if (mActionBarBackgroundDrawable == null) {
+            handleSetBackgroundColor(defaultColor);
+        }
+        mActionBarBackgroundDrawable.setAlpha((int) (alpha*255.0f));
+    }
 	
 	private void handleSetBackgroundColor(int color)
 	{
@@ -422,8 +469,11 @@ public class ActionBarProxy extends KrollProxy
 			Log.w(TAG, "ActionBar is not enabled");
 			return;
 		}
-		actionBar.setBackgroundDrawable(new ColorDrawable(color));
-        customBackgroundSet = color != defaultColor;
+		
+        actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+        setActionBarDrawable(new ColorDrawable(color));
+        customBackgroundSet = (mActionBarBackgroundDrawable != null) && color != defaultColor;
 	}
 	
 	private void handleSetBackgroundGradient(KrollDict gradDict)
@@ -432,10 +482,11 @@ public class ActionBarProxy extends KrollProxy
 			Log.w(TAG, "ActionBar is not enabled");
 			return;
 		}
-		Drawable drawable =  TiUIHelper.buildGradientDrawable(gradDict);
 
-		actionBar.setBackgroundDrawable(drawable);
-        customBackgroundSet = true;
+        actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+        setActionBarDrawable(TiUIHelper.buildGradientDrawable(gradDict));
+        customBackgroundSet = (mActionBarBackgroundDrawable != null);
 	}
 	
 	private void activateHomeButton(boolean value)
@@ -568,18 +619,25 @@ public class ActionBarProxy extends KrollProxy
             setDisplayHomeAsUp(TiConvert.toBoolean(newValue, false));
             break;
         case TiC.PROPERTY_BACKGROUND_IMAGE:
+        case TiC.PROPERTY_BAR_IMAGE:
             setBackgroundImage(TiConvert.toString(newValue));
             break;
         case TiC.PROPERTY_BACKGROUND_COLOR:
+        case TiC.PROPERTY_BAR_COLOR:
             setBackgroundColor(TiConvert.toColor(newValue));
             break;
         case TiC.PROPERTY_BACKGROUND_GRADIENT:
             setBackgroundGradient(TiConvert.toKrollDict(newValue));
             break;
+        case TiC.PROPERTY_BACKGROUND_OPACITY:
+        case TiC.PROPERTY_BAR_OPACITY:
+            setBackgroundOpacity(TiConvert.toFloat(newValue, 1.0f));
+            break;
         case TiC.PROPERTY_LOGO:
             setLogo(TiConvert.toString(newValue));
             break;
         case TiC.PROPERTY_ICON:
+        case TiC.PROPERTY_BAR_ICON:
             if (newValue != null) {
                 if (newValue instanceof String) {
                     setIcon((String)newValue);

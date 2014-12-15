@@ -911,11 +911,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BAR_ICON = "barIcon";
-	
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_BAR_IMAGE = "barImage";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_BAR_IMAGE = "barImage";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_BAR_OPACITY = "barOpacity";
 
 	/**
 	 * @module.api

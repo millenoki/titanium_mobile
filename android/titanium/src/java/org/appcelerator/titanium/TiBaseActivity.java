@@ -285,6 +285,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (windowProperties.containsKey(TiC.PROPERTY_BAR_ICON) && !actionBarDict.containsKey(TiC.PROPERTY_ICON)) {
 			actionBarDict.put(TiC.PROPERTY_ICON, windowProperties.get(TiC.PROPERTY_BAR_ICON));
 		}
+		if (windowProperties.containsKey(TiC.PROPERTY_BAR_OPACITY) && !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_OPACITY)) {
+            actionBarDict.put(TiC.PROPERTY_BACKGROUND_OPACITY, windowProperties.get(TiC.PROPERTY_BAR_OPACITY));
+        }
 		properties.put(TiC.PROPERTY_ACTION_BAR, actionBarDict);
 		return properties;
 	}
