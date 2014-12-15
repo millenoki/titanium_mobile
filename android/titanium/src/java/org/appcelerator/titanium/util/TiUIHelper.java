@@ -41,6 +41,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import com.squareup.picasso.Cache;
 import com.trevorpage.tpsvg.SVGDrawable;
 import com.trevorpage.tpsvg.SVGFlyweightFactory;
+import com.udojava.evalex.Expression;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -1506,4 +1507,123 @@ public class TiUIHelper
 	    int blue = Color.blue(color);
 	    return Color.argb(alpha, red, green, blue);
 	}
+	
+	
+	private static Object getValueForKeyPath(final String key, HashMap object) {
+	    HashMap current = object;
+	    Object result = null;
+	    String[] parts = TiUtils.fastSplit(key, '.');
+	    int length = parts.length;
+	    int canReturnIndex = length - 1;
+	    for (int i = 0; i < length; i++) {
+	        result = current.get(parts[i]);
+            if (result instanceof HashMap){
+                current = (HashMap) result;
+            } else {
+                if (i != canReturnIndex) {
+                    return null;
+                }
+                break;
+            }
+        }
+	    return result;
+	}
+
+    public static void applyMathDict(KrollDict mathDict, KrollDict event) {
+        if (event == null) return;
+        KrollDict expressions = new KrollDict();
+	    
+        HashMap<String, Object> vars = mathDict.getHashMap("variables");
+	    if (vars != null) {
+	        for (Map.Entry<String, Object> entry : vars.entrySet()) {
+	            expressions.put(entry.getKey(), getValueForKeyPath(TiConvert.toString(entry.getValue()), event));
+	        }
+	    }
+	    
+        HashMap<String, Object> exps = mathDict.getHashMap("expressions");
+	    if (exps != null) {
+	        for (Map.Entry<String, Object> entry : exps.entrySet()) {
+	            
+//	            Scope scope = Scope.create();
+//	            try {
+//                    for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
+//                        Variable v = scope.getVariable("$"+entry2.getKey());
+//                        v.setValue(TiConvert.toFloat(entry2.getValue()));
+//                    }
+//                    parsii.eval.Expression expr = Parser.parse(TiConvert.toString(entry.getValue()), scope);
+//                    expressions.put(entry.getKey(), expr.evaluate());
+//                    
+//                } catch (ParseException e1) {
+//                } 
+	            
+	            try {
+                  Expression expression = new Expression(TiConvert.toString(entry.getValue()));
+	                for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
+                      expression.with("$"+entry2.getKey(), TiConvert.toString(entry2.getValue()));
+                    }
+                  expressions.put(entry.getKey(), expression.eval().toPlainString());
+                } catch (Exception e) {
+                }
+            }
+	    }
+	    
+	    Object[] targets = mathDict.getArray("targets");
+	    
+	    if (targets != null) {
+	        for (Object obj : targets) {
+	            HashMap<String, Object> targetDict = TiConvert.toHashMap(obj);
+                if (targetDict != null) {
+                    Object target = targetDict.get("target");
+                    if (target instanceof KrollProxy) {
+                        HashMap<String, Object> props = TiConvert.toHashMap(targetDict.get("properties"));
+                        KrollDict realProps = new KrollDict();
+                        for (Map.Entry<String, Object> entry : props.entrySet()) {
+                            final String key = entry.getKey();
+                            final String value = TiConvert.toString(entry.getValue());
+                            Object current = ((KrollProxy) target).getProperty(key);
+                            if (current != null) {
+                                expressions.put("current", current);
+                            }
+                            else {
+                                expressions.put("current", 0);
+                            }
+                            
+//                            Scope scope = Scope.create();
+//                            try {
+//                                for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
+//                                    Variable v = scope.getVariable("$"+entry2.getKey());
+//                                    v.setValue(TiConvert.toFloat(entry2.getValue(), 0));
+//                                }
+//                                parsii.eval.Expression expr = Parser.parse(value, scope);
+//                                realProps.put(entry.getKey(), expr.evaluate());
+//                                
+//                            } catch (ParseException e1) {
+//                                String result = new String(value);
+//                              for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
+//                                  result = replace(result, "$"+entry2.getKey(), TiConvert.toString(entry2.getValue()));
+//                              }
+//                              realProps.put(key, result);
+//                            } 
+                            
+                            Expression expression = new Expression(value);
+                            for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
+                                expression.with("$"+entry2.getKey(), TiConvert.toString(entry2.getValue()));
+                            }
+                            try {
+                                realProps.put(key, expression.eval().toPlainString());
+                            } catch (Exception e) {
+                                String result = new String(value);
+                                for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
+                                    result = TiUtils.fastReplace(result, "$"+entry2.getKey(), TiConvert.toString(entry2.getValue()));
+                                }
+                                realProps.put(key, result);
+                            }
+                        }
+                        ((KrollProxy) target).applyPropertiesInternal(realProps, false, false);
+                    }
+                }
+            }
+	    }
+	}
+
 }

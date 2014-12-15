@@ -13,6 +13,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -22,7 +23,9 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 @Kroll.module
 public class UtilsModule extends KrollModule
@@ -180,4 +183,11 @@ public class UtilsModule extends KrollModule
 	{
 		return "Ti.Utils";
 	}
+	
+	@Kroll.method
+    public void parseMathDict(HashMap parameters, HashMap eventtest)
+	{
+	    TiUIHelper.applyMathDict(TiConvert.toKrollDict(parameters), TiConvert.toKrollDict(eventtest));
+	}
+
 }
