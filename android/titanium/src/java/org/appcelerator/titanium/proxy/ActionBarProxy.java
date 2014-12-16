@@ -83,6 +83,7 @@ public class ActionBarProxy extends KrollProxy
 	private int defaultColor = 0;
 	private boolean customBackgroundSet = false;
     private Drawable mActionBarBackgroundDrawable;
+    private int backgroundAlpha = 255;
     
     private Drawable.Callback mDrawableCallback = new Drawable.Callback() {
         @Override
@@ -101,8 +102,11 @@ public class ActionBarProxy extends KrollProxy
     
     private void setActionBarDrawable(final Drawable drawable) {
         mActionBarBackgroundDrawable = drawable;
-        if (mActionBarBackgroundDrawable != null && !JELLY_BEAN_MR1_OR_GREATER) {
-            mActionBarBackgroundDrawable.setCallback(mDrawableCallback);
+        if (mActionBarBackgroundDrawable != null) {
+            if (!JELLY_BEAN_MR1_OR_GREATER) {
+                mActionBarBackgroundDrawable.setCallback(mDrawableCallback);
+            }
+            mActionBarBackgroundDrawable.setAlpha(backgroundAlpha);
         }
         actionBar.setBackgroundDrawable(mActionBarBackgroundDrawable);
     }
@@ -457,10 +461,12 @@ public class ActionBarProxy extends KrollProxy
             return;
         }
         
+        backgroundAlpha = (int) (alpha*255.0f);
         if (mActionBarBackgroundDrawable == null) {
             handleSetBackgroundColor(defaultColor);
+        } else {
+            mActionBarBackgroundDrawable.setAlpha(backgroundAlpha);
         }
-        mActionBarBackgroundDrawable.setAlpha((int) (alpha*255.0f));
     }
 	
 	private void handleSetBackgroundColor(int color)
