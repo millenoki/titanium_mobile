@@ -2517,7 +2517,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 {
     NSMutableString *result = [string mutableCopy];
     [dict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        [result replaceOccurrencesOfString:[prefix stringByAppendingString:key] withString:obj
+        [result replaceOccurrencesOfString:[prefix stringByAppendingString:key] withString:[TiUtils stringValue:obj]
                                    options:0 range:NSMakeRange(0, [result length])];
         
     }];
@@ -2531,7 +2531,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 {
     NSMutableDictionary* variables = nil;
     NSMutableDictionary* expressions = nil;
-    
+
     NSDictionary* vars = [mathDict objectForKey:@"variables"];
     if (vars) {
         variables = [NSMutableDictionary dictionaryWithCapacity:[vars count]];
@@ -2545,7 +2545,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     if (exps) {
         expressions = [NSMutableDictionary dictionaryWithDictionary:variables];
         [exps enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-            [expressions setObject:[[eval evaluateString:obj withSubstitutions:variables] stringValue] forKey:key];
+            [expressions setObject:[eval evaluateString:obj withSubstitutions:variables] forKey:key];
             
         }];
     }
@@ -2556,16 +2556,30 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         for (NSDictionary* targetDict in targets) {
             id target = [targetDict valueForKey:@"target"];
             NSDictionary* props = [targetDict valueForKey:@"properties"];
+            NSDictionary* targetVariables = [targetDict valueForKey:@"targetVariables"];
+            NSMutableDictionary* targetVariablesComputed = nil;
+            if (targetVariables) {
+                targetVariablesComputed = [NSMutableDictionary dictionaryWithCapacity:[targetVariables count]];
+                [targetVariables enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+                    id value = [target valueForKey:obj];
+                    [targetVariablesComputed setObject:value?value:@"0" forKey:key];
+                }];
+            }
             NSMutableDictionary* realProps = [NSMutableDictionary dictionaryWithCapacity:[props count]];
             __block NSError* error;
+            __block NSMutableDictionary* toUse;
             [props enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-                NSMutableDictionary* toUse = [NSMutableDictionary dictionaryWithDictionary:expressions];
+                toUse = [NSMutableDictionary dictionaryWithDictionary:expressions];
+                if (targetVariablesComputed) {
+                    [toUse addEntriesFromDictionary:targetVariablesComputed];
+                }
                 id current = [target valueForKey:key];
                 if (!current || IS_OF_CLASS(current, NSNull)) {
-                    current = @(0);
+                    current = @"0";
                 }
                 [toUse setObject:current forKey:@"current"];
-                [realProps setValue:[[eval evaluateString:obj withSubstitutions:toUse error:&error] stringValue] forKey:key];
+
+                [realProps setValue:[eval evaluateString:obj withSubstitutions:toUse error:&error] forKey:key];
                 if (error) {
                     [realProps setValue:[TiUtils replacingStringsIn:obj fromDictionary:toUse withPrefix:@"_"] forKey:key];
                 }
