@@ -1405,9 +1405,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      */
     public void setPropertyAndFire(String name, Object value) {
         Object current = getProperty(name);
-        setProperty(name, value);
 
         if (shouldFireChange(current, value)) {
+            setProperty(name, value);
             firePropertyChanged(name, current, value);
         }
     }
