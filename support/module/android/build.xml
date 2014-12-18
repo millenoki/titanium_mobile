@@ -118,6 +118,7 @@ timodule.xml.
 	<property name="libs" location="${ti.module.root}/libs"/>
 	<property name="assets" location="${ti.module.root}/assets"/>
 	<property name="javac.debug" value="true"/>
+	<property name="jversion" value="1.7"/>
 
 	<path id="project.classpath">
 		<fileset dir="${lib}">
@@ -192,8 +193,9 @@ timodule.xml.
 		<javac 
 			srcdir="${src}" 
 			destdir="${classes}"
-			target="1.6"
-			source="1.6"
+			target="${jversion}"
+			source="${jversion}"
+			fork="true"
 			debug="${javac.debug}"
 			includeantruntime="false">
 			<src path="${genjava}" />
@@ -259,8 +261,9 @@ timodule.xml.
 		<javac 
 			destdir="${classes}"
 			debug="${javac.debug}"
-			target="1.6"
-			source="1.6"
+			target="${jversion}"
+			source="${jversion}"
+			fork="true"
 			includeantruntime="false">
 			<src path="${src}" />
 			<src path="${genjava}" />
@@ -485,6 +488,7 @@ timodule.xml.
 			<zipfileset dir="${lib}" includes="**/*.jar" prefix="${zip.prefix}/lib"/>
 			<zipfileset dir="${ti.module.root}" includes="platform/**" excludes="platform/README" prefix="${zip.prefix}"/>
 			<zipfileset dir="${ti.module.root}" includes="license.json" prefix="${zip.prefix}"/>
+			<zipfileset dir="${ti.module.root}" includes="dependency.json" prefix="${zip.prefix}"/>
 			<zipfileset dir="${ti.module.root}" includes="example/**" prefix="${zip.prefix}"/>
 			<zipfileset file="${dist}/respackageinfo" prefix="${zip.prefix}"/>
 		</zip>
