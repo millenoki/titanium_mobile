@@ -385,11 +385,14 @@ public abstract class TiUIView
 			view.setId(idGenerator.incrementAndGet());
 		}
 		
-		if (borderView != null)
-		{
-			borderView.removeView(nativeView);
+		
+		
+		if (this.nativeView == view) {
+		    return;
 		}
-				
+		if (this.nativeView != null) {
+		    TiUIHelper.removeViewFromSuperView(this.nativeView);
+		}
 		this.nativeView = view;
 
 		doSetClickable();
