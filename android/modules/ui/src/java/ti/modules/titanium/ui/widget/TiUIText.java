@@ -436,7 +436,7 @@ public class TiUIText extends TiUINonViewGroupView
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_COLOR:
-            color = TiConvert.toColor(newValue, this.color);
+            color = selectedColor = disabledColor = color = TiConvert.toColor(newValue, this.color);
             mProcessUpdateFlags |= TIFLAG_NEEDS_COLORS;
             break;
         case TiC.PROPERTY_SELECTED_COLOR:
