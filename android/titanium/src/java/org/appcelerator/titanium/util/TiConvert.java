@@ -203,6 +203,7 @@ public class TiConvert
                 layoutParams.matrix = TiConvert.toMatrixWithReuse(value, layoutParams.matrix);
                 return TiUIView.TIFLAG_NEEDS_INVALIDATE;
             }
+            break;
         case TiC.PROPERTY_LEFT:
             layoutParams.optionLeft = toTiDimension(value, TiDimension.TYPE_LEFT);
             return TiUIView.TIFLAG_NEEDS_LAYOUT;
