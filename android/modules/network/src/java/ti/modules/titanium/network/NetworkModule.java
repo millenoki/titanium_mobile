@@ -35,8 +35,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.json.JSONObject;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import android.Manifest;
@@ -85,7 +83,6 @@ public class NetworkModule extends KrollModule {
 	@Kroll.constant public static final int TLS_VERSION_1_1 = 2;
 	@Kroll.constant public static final int TLS_VERSION_1_2 = 3;
 
-	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     public static final String PROPERTY_GCM_REG_ID = "gcm_registration_id";
     public static final String PROPERTY_GCM_CURRENT_VERSION = "gcm_current_app_version";
     
@@ -1079,29 +1076,6 @@ public class NetworkModule extends KrollModule {
         return stats;
     }
 	
-	/**
-	 * Check the device to make sure it has the Google Play Services APK. If
-	 * it doesn't, display a dialog that allows users to download the APK from
-	 * the Google Play Store or enable it in the device's system settings.
-	 */
-	private boolean checkPlayServices(final Context context) {
-	    int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
-	    if (resultCode != ConnectionResult.SUCCESS) {
-	        
-            try {
-                if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                    GooglePlayServicesUtil.getErrorDialog(resultCode, getActivity(),
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
-                } else {
-                    Log.i(TAG, "This device is not supported.");
-                }
-            } catch (Exception e) {
-                return false;
-            }
-	        return false;
-	    }
-	    return true;
-	}
 
 	/**
 	 * Gets the current registration ID for application on GCM service.
@@ -1187,8 +1161,8 @@ public class NetworkModule extends KrollModule {
     @Kroll.method
     public void registerForPushNotifications(HashMap options) {
         final Context context = TiApplication.getInstance().getApplicationContext();
-       
-        if (checkPlayServices(context)) {
+        int state = TiApplication.getGooglePlayServicesState();
+        if (state == 0) {
             String senderId = null;
             if (options.containsKey(TiC.PROPERTY_SENDER_ID)) {
                 senderId = (String)options.get(TiC.PROPERTY_SENDER_ID);
