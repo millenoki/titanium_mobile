@@ -41,7 +41,8 @@
 			"okio-1.0.0.jar",
 			"picasso-2.4.0.jar"
 		],
-		"network": ["thirdparty.jar", "google-play-services.jar"],
+		"googleplayservices": ["google-play-services.jar"],
+		"network": ["thirdparty.jar"],
         "appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
         "analytics":["aps-analytics.jar"]
 	},
@@ -53,5 +54,6 @@
         "googleplayservices":"com.google.android.gms",
         "appcompat":"android.support.v7.appcompat",
 		"ui": "ti.modules.titanium.ui"
-	}
+	},
+	"googleplayservices_features":["com.google.android.gms.gcm.*"]
 }

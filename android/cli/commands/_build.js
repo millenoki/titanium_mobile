@@ -934,8 +934,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
     // get the javac params
     this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
-    this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
-    this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+    this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
+    this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
     this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 
     // manually inject the build profile settings into the tiapp.xml
@@ -946,6 +946,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
             this.allowDebugging = false;
             this.allowProfiling = false;
             this.includeAllTiModules = false;
+            this.googlePlayServicesProp = false;
             this.proguard = false;
             break;
 
@@ -955,6 +956,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
             this.allowDebugging = true;
             this.allowProfiling = true;
             this.includeAllTiModules = false;
+            this.googlePlayServicesProp = false;
             this.proguard = false;
             break;
 
@@ -965,6 +967,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
             this.allowDebugging = true;
             this.allowProfiling = true;
             this.includeAllTiModules = true;
+            this.googlePlayServicesProp = false;
             this.proguard = false;
     }
     // check the app name
@@ -1706,6 +1709,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
         'createBuildDirs',
         'removeOldFiles',
         'copyResources',
+        'handleGooglePlayServices',
         'copyModuleResources',
         'compileJSS',
         'generateJavaFiles',
@@ -1816,6 +1820,11 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
         this.includeAllTiModules = includeAllTiModulesProp.value;
     }
 
+    var googlePlayServicesProp = this.tiapp.properties['ti.android.google_play_services'];
+    if (googlePlayServicesProp !== undefined) {
+        this.googlePlayServices = googlePlayServicesProp.value;
+    }
+
     // directories
     this.buildAssetsDir             = path.join(this.buildDir, 'assets');
     this.buildBinDir                = path.join(this.buildDir, 'bin');
@@ -1829,6 +1838,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     this.buildResDir                = path.join(this.buildDir, 'res');
     this.buildResDrawableDir        = path.join(this.buildResDir, 'drawable')
     this.buildSrcDir                = path.join(this.buildDir, 'src');
+    this.buildLibDir                = path.join(this.buildDir, 'lib');
     this.buildSrcPackageDir         = path.join(this.buildSrcDir, this.appid.split('.').join(path.sep));
     this.templatesDir               = path.join(this.platformPath, 'templates', 'build');
 
@@ -2857,9 +2867,12 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
         resPackages = this.resPackages = {},
         appModules = this.appModules = [], // also used in the App.java template
         appModulesMap = {},
+        googlePlayServicesFeaturesKey = "googleplayservices_features",
+        googlePlayServicesKeep = this.googlePlayServicesKeep = depMap[googlePlayServicesFeaturesKey],
         customModules = this.customModules = [],
         ignoreNamespaces = /^(addEventListener|builddate|buildhash|fireEvent|include|_JSON|name|removeEventListener|userAgent|version)$/;
 
+    this.needsGooglePlayServices = false;
     // reorg the modules map by module => jar instead of jar => modules
     Object.keys(modulesMap).forEach(function (jar) {
         modulesMap[jar].forEach(function (name) {
@@ -2903,11 +2916,16 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
         if (ignoreNamespaces.test(namespace) || tiNamespaces[namespace]) return;
         tiNamespaces[namespace] = [];
 
+        if (namespace === "googleplayservices") {
+            this.needsGooglePlayServices = true;
+            return;
+        }
+
         var jar = moduleJarMap[namespace];
         if (jar) {
             jar = jar == 'titanium.jar' ? path.join(this.platformPath, jar) : path.join(this.platformPath, 'modules', jar);
             if (fs.existsSync(jar) && !jarLibraries[jar]) {
-                this.logger.debug(__('Adding library %s', jar.cyan));
+                this.logger.debug(__('Adding library %s for namespace %s', jar.cyan, namespace.cyan));
                 jarLibraries[jar] = 1;
             }
         } else {
@@ -2916,7 +2934,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
         depMap.libraries[namespace] && depMap.libraries[namespace].forEach(function (jar) {
             if (fs.existsSync(jar = path.join(this.platformPath, jar)) && !jarLibraries[jar]) {
-                this.logger.debug(__('Adding dependency library %s', jar.cyan));
+                this.logger.debug(__('Adding dependency library %s for namespace %s', jar.cyan, namespace.cyan));
                 jarLibraries[jar] = 1;
             }
         }, this);
@@ -3050,6 +3068,21 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
                     r && appModules.push(r);
                 }
             });
+
+            var moduleDependencyFile = path.join(module.modulePath, 'dependency.json');
+            if (fs.existsSync(moduleDependencyFile)) {
+                var moduleDepMap = JSON.parse(fs.readFileSync(moduleDependencyFile));
+                if (moduleDepMap) {
+                    if (moduleDepMap[googlePlayServicesFeaturesKey]) {
+                        moduleDepMap[googlePlayServicesFeaturesKey].forEach(function (keep) {
+                            if (googlePlayServicesKeep.indexOf(keep) == -1) {
+                                googlePlayServicesKeep.push(keep);
+                            }
+                        });
+                        this.needsGooglePlayServices = true;
+                    }
+                }
+            }
         }, this);
     }, this);
 
@@ -3062,6 +3095,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
     }));
     this.encryptJS && this.jsFilesToEncrypt.push('app.json');
 
+
     this.jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
     if (this.jarLibHash != this.buildManifest.jarLibHash) {
         if (!this.forceRebuild) {
@@ -3071,6 +3105,82 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
     }
 
     next();
+};
+
+AndroidBuilder.prototype.runJarJar = function runJarJar(serviceRulesFile, inputPath, outputPath, next) {
+
+    jarjarHook = this.cli.createHook('build.android.jarjar', this, function (exe, args, opts, done) {
+        this.logger.info(__('Running Jarjar: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+        appc.subprocess.run(exe, args, opts, function (code, out, err) {
+            if (code) {
+                this.logger.error(__('Failed to run Jarjar'));
+                err.trim().split('\n').forEach(this.logger.error);
+                this.logger.log();
+                process.exit(1);
+            }
+            this.logger.debug(__('test'));
+            done();
+        }.bind(this));
+    });
+
+    jarjarHook(
+        this.jdkInfo.executables.java,
+        [   '-jar', path.join(this.platformPath, 'lib', 'jarjar.jar'),
+            'process', 
+            serviceRulesFile, 
+            inputPath, 
+            outputPath
+        ],
+        {},
+        next
+    );
+};
+
+AndroidBuilder.prototype.handleGooglePlayServices = function handleGooglePlayServices(next) {
+    var _t = this,
+        jarLibraries = this.jarLibraries,
+        needsGooglePlayServices = this.needsGooglePlayServices,
+        googlePlayServicesKeep = this.googlePlayServicesKeep;
+
+    if (needsGooglePlayServices) {
+        this.logger.debug(__('needsGooglePlayServices %s', JSON.stringify(googlePlayServicesKeep).cyan));
+        //we are going to create a strip version of gps with the features we need
+        Object.keys(jarLibraries).forEach(function (jar) {
+            if (/google-play-services_/.test(jar)) {
+                delete jarLibraries[jar];
+            }
+        });
+        var tmpServiceRulesFile = temp.path();
+        fs.existsSync(tmpServiceRulesFile) && fs.unlinkSync(tmpServiceRulesFile);
+        for (var i = 0; i < googlePlayServicesKeep.length; i++) {
+            googlePlayServicesKeep[i] = "keep " + googlePlayServicesKeep[i];
+        }
+
+        fs.writeFileSync(tmpServiceRulesFile, googlePlayServicesKeep.join("\n"));
+
+
+        var outputPath = path.join(this.buildLibDir, 'googleplayservices.jar');
+        this.runJarJar(tmpServiceRulesFile, 
+            path.join(this.platformPath, 'google-play-services.jar'),
+            outputPath,
+            function() {
+                if (!fs.existsSync(outputPath)) {
+                    _t.logger.error(__('Unable to find generated %s', outputPath.cyan) + '\n');
+                    process.exit(1);
+                }
+                jarLibraries[outputPath] = 1;
+                _t.jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
+                if (_t.jarLibHash != _t.buildManifest.jarLibHash) {
+                    if (!_t.forceRebuild) {
+                        _t.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
+                    }
+                    _t.forceRebuild = true;
+                }
+                next();
+            });
+    } else {
+        next();
+    }
 };
 
 AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
@@ -3526,7 +3636,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
         geoPermissions = [ 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION' ],
         vibratePermissions = [ 'android.permission.VIBRATE' ],
         wallpaperPermissions = [ 'android.permission.SET_WALLPAPER' ],
-
+        configChanges = ["keyboard", "keyboardHidden", "orientation", "screenLayout", "uiMode", "screenSize", "smallestScreenSize"],
         permissions = {
             'android.permission.INTERNET': 1,
             'android.permission.ACCESS_WIFI_STATE': 1,
@@ -3573,7 +3683,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
             'Map.createView': {
                 'activity': {
                     'name': 'ti.modules.titanium.map.TiMapActivity',
-                    'configChanges': ['keyboardHidden', 'orientation'],
+                    'configChanges': configChanges,
                     'launchMode': 'singleTask'
                 },
                 'uses-library': {
@@ -3583,7 +3693,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
             'Media.createVideoPlayer': {
                 'activity': {
                     'name': 'ti.modules.titanium.media.TiVideoActivity',
-                    'configChanges': ['keyboardHidden', 'orientation'],
+                    'configChanges': configChanges,
                     'theme': '@style/Theme.Titanium.Fullscreen',
                     'launchMode': 'singleTask'
                 }
@@ -3591,7 +3701,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
             'Media.showCamera': {
                 'activity': {
                     'name': 'ti.modules.titanium.media.TiCameraActivity',
-                    'configChanges': ['keyboardHidden', 'orientation'],
+                    'configChanges': configChanges,
                     'theme': '@style/Theme.Titanium.NoActionBar.Fullscreen'
                 }
             },
@@ -3733,7 +3843,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                     a[key.replace(/^android\:/, '')] = activity[key];
                 }
             });
-            a.configChanges || (a.configChanges = ['keyboardHidden', 'orientation']);
+            a.configChanges || (a.configChanges = configChanges);
             finalAndroidManifest.application.activity || (finalAndroidManifest.application.activity = {});
             finalAndroidManifest.application.activity[a.name] = a;
         }
@@ -3829,16 +3939,16 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
     // if the target sdk is Android 3.2 or newer, then we need to add 'screenSize' to
     // the default AndroidManifest.xml's 'configChanges' attribute for all <activity>
     // elements, otherwise changes in orientation will cause the app to restart
-    if (this.targetSDK >= 13) {
-        Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
-            var activity = finalAndroidManifest.application.activity[name];
-            if (!activity.configChanges) {
-                activity.configChanges = ['screenSize'];
-            } else if (activity.configChanges.indexOf('screenSize') == -1) {
-                activity.configChanges.push('screenSize');
-            }
-        });
-    }
+    // if (this.targetSDK >= 13) {
+    //     Object.keys(finalAndroidManifest.application.activity).forEach(function (name) {
+    //         var activity = finalAndroidManifest.application.activity[name];
+    //         if (!activity.configChanges) {
+    //             activity.configChanges = ['screenSize'];
+    //         } else if (activity.configChanges.indexOf('screenSize') == -1) {
+    //             activity.configChanges.push('screenSize');
+    //         }
+    //     });
+    // }
 
     // add permissions
     Array.isArray(finalAndroidManifest['uses-permission']) || (finalAndroidManifest['uses-permission'] = []);
