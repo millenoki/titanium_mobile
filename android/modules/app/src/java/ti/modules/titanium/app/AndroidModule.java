@@ -19,8 +19,6 @@ import org.appcelerator.titanium.proxy.RProxy;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 
 @Kroll.module(parentModule=AppModule.class)
 public class AndroidModule extends KrollModule
@@ -103,5 +101,11 @@ public class AndroidModule extends KrollModule
 	{
 		return "Ti.App.Android";
 	}
+	
+    @Kroll.method
+    public int getGooglePlayServicesState() {
+        return TiApplication.getGooglePlayServicesState();
+    }
+
 }
 
