@@ -475,6 +475,19 @@ public abstract class TiUIView
 		}
 	}
 	
+	protected void invalidate() {
+	    View view = getOuterView();
+        if (view != null) {
+            if (!useCustomLayoutParams) {
+                view.setLayoutParams(layoutParams);
+            }
+            ViewParent viewParent = view.getParent();
+            if (view.getVisibility() == View.VISIBLE && viewParent instanceof View) {
+                ((View) viewParent).postInvalidate();
+            }
+        }
+	}
+	
 	public void applyAnchorPoint(Object anchorPoint)
 	{
 		View view = getOuterView();
