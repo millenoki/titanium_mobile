@@ -17,6 +17,7 @@ import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -24,6 +25,7 @@ import org.appcelerator.titanium.util.TiSensorHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -37,6 +39,8 @@ import android.provider.Settings;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
@@ -435,4 +439,19 @@ public class AppModule extends KrollModule implements SensorEventListener
         result.put("installId", getInstallId());
         return result;
     }
+    
+    @Kroll.method
+    @Kroll.getProperty
+    public double getDefaultBarHeight() {
+        Activity activity = TiApplication.getInstance().getCurrentActivity();
+        if (activity instanceof ActionBarActivity) {
+            ActionBar actionBar = ((ActionBarActivity)activity).getSupportActionBar();
+            if (actionBar != null) {
+                TiDimension nativeHeight = new TiDimension(actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
+                return nativeHeight.getAsDefault();
+            }
+        }
+        return 0;
+    }
+
 }

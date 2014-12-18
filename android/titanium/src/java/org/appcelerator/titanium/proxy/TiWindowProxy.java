@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiWindowManager;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.animation.TiAnimator;
@@ -35,6 +36,8 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Message;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -508,6 +511,20 @@ public abstract class TiWindowProxy extends TiViewProxy
 			return null;
 		}
 	}
+	
+    @Kroll.method
+    @Kroll.getProperty
+    public double getBarHeight() {
+        Activity activity = getActivity();
+        if (activity instanceof ActionBarActivity) {
+            ActionBar actionBar = ((ActionBarActivity)activity).getSupportActionBar();
+            if (actionBar != null) {
+                TiDimension nativeHeight = new TiDimension(actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
+                return nativeHeight.getAsDefault();
+            }
+        }
+        return 0;
+    }
 
 	protected abstract void handleOpen(KrollDict options);
 	protected abstract void handleClose(KrollDict options);

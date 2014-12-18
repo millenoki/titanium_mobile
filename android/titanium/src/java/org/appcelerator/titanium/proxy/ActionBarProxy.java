@@ -6,8 +6,6 @@
  */
 package org.appcelerator.titanium.proxy;
 
-import java.util.Map;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -15,6 +13,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -335,8 +334,19 @@ public class ActionBarProxy extends KrollProxy
 		}
 		return (String) actionBar.getSubtitle();
 	}
+	
+    @Kroll.method
+    @Kroll.getProperty
+    public double getHeight() {
+        if (actionBar == null) {
+            return 0;
+        }
+        TiDimension nativeHeight = new TiDimension(actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
+        return nativeHeight.getAsDefault();
+    }
 
-	public int getNavigationMode()
+	@SuppressWarnings("deprecation")
+    public int getNavigationMode()
 	{
 		if (actionBar == null) {
 			return 0;
