@@ -932,6 +932,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_BASE_URL_WEBVIEW = "baseURL";
 
+	/**
+     * @module.api
+     */
+	public static final String PROPERTY_BEARING = "bearing";
+
     /**
      * @module.api
      */
