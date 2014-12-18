@@ -99,16 +99,17 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 		}
 	}
 
-	@Override
-	public boolean hasListeners(final String event, final boolean bubbles)
-	{
-		// In order to fire the "itemclick" event when the children views are clicked,
-		// the children views' "click" events must be fired and bubbled up. (TIMOB-14901)
-		if (event.equals(TiC.EVENT_CLICK)) {
-			return true;
-		}
-		return super.hasListeners(event, bubbles);
-	}
+//	@Override
+//	public boolean hasListeners(final String event, final boolean bubbles)
+//	{
+//		// In order to fire the "itemclick" event when the children views are clicked,
+//		// the children views' "click" events must be fired and bubbled up. (TIMOB-14901)
+//		if (event.equals(TiC.EVENT_CLICK)) {
+//			return super.hasListeners(TiC.EVENT_CLICK, bubbles) || 
+//			        super.hasListeners(TiC.EVENT_ITEM_CLICK, bubbles);
+//		}
+//		return super.hasListeners(event, bubbles);
+//	}
 
 	public void release()
 	{
