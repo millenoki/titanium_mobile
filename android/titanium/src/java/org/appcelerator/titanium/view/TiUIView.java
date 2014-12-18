@@ -69,6 +69,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
@@ -1689,17 +1690,17 @@ public abstract class TiUIView
 				return false;
 			}
 			
-			@Override
-            public boolean onSingleTapUp(MotionEvent e)
-            {
-//                if (hierarchyHasListener(TiC.EVENT_CLICK)) {
-//                    return fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(e));
+//			@Override
+//            public boolean onSingleTapUp(MotionEvent e)
+//            {
+////                if (hierarchyHasListener(TiC.EVENT_CLICK)) {
+////                    return fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(e));
+////                }
+//                if (!hasListeners(TiC.EVENT_SINGLE_TAP) && hierarchyHasListener(TiC.EVENT_CLICK)) {
+//                    fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
 //                }
-                if (!hasListeners(TiC.EVENT_SINGLE_TAP) && hierarchyHasListener(TiC.EVENT_CLICK)) {
-                    fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
-                }
-                return false;
-            }
+//                return false;
+//            }
 
 			@Override
 			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
@@ -1993,16 +1994,16 @@ public abstract class TiUIView
 	{
 	    if (view instanceof AdapterView) return;
 
-//		view.setOnClickListener(new OnClickListener()
-//		{
-//			public void onClick(View view)
-//			{
-//			    //if singletap is active dont send click
-//				if (!hasListeners(TiC.EVENT_SINGLE_TAP) && hierarchyHasListener(TiC.EVENT_CLICK)) {
-//					fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
-//				}
-//			}
-//		});
+		view.setOnClickListener(new OnClickListener()
+		{
+			public void onClick(View view)
+			{
+			    //if singletap is active dont send click
+				if (!hasListeners(TiC.EVENT_SINGLE_TAP) && hierarchyHasListener(TiC.EVENT_CLICK)) {
+					fireEventNoCheck(TiC.EVENT_CLICK, dictFromEvent(lastUpEvent));
+				}
+			}
+		});
 	}
 	
 	protected void removeOnClickListener(View view)
