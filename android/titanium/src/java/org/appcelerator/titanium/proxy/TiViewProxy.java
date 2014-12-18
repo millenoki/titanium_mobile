@@ -229,12 +229,8 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 					if (v != null) {
 						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
-
-						// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-						View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
-
-						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+						d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault());
+						d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault());
 					}
 				}
 				if (!d.containsKey(TiC.PROPERTY_WIDTH)) {

@@ -122,15 +122,15 @@ public class Ti2DMatrix extends KrollProxy {
             }
 		}
 
-		public void apply(Context context, int width, int height, int parentWidth, int parentHeight, AffineTransform transform) {
+		public void apply(int width, int height, int parentWidth, int parentHeight, AffineTransform transform) {
 			float anchorX = 0;
 			float anchorY = 0;
 			if (type == TYPE_SCALE || type == TYPE_ROTATE) {
 				TiPoint realAnchor = this.anchor;
 				if (realAnchor == null)
 					realAnchor = DEFAULT_ANCHOR_VALUE;
-				anchorX = realAnchor.getX().getAsPixels(context, width, height);
-				anchorY = realAnchor.getY().getAsPixels(context, width, height);
+				anchorX = realAnchor.getX().getAsPixels(width, height);
+				anchorY = realAnchor.getY().getAsPixels(width, height);
 				
 				anchorX = anchorX - width/2;
 				anchorY = anchorY - height/2;
@@ -141,15 +141,15 @@ public class Ti2DMatrix extends KrollProxy {
 				transform.scale(scaleToX, scaleToY, anchorX, anchorY);
 			case TYPE_TRANSLATE:
 				
-				float translateToX = translateTo.getX().getAsPixels(context, parentWidth, parentHeight);
-				float translateToY = translateTo.getY().getAsPixels(context, parentWidth, parentHeight);
+				float translateToX = translateTo.getX().getAsPixels(parentWidth, parentHeight);
+				float translateToY = translateTo.getY().getAsPixels(parentWidth, parentHeight);
 				transform.translate(translateToX, translateToY);
 				break;
 			case TYPE_ROTATE:
 				transform.rotate(rotateOf, anchorX, anchorY);
 				break;
 			case TYPE_MULTIPLY:
-				transform.multiply(multiplyWith.getAffineTransform(context, width, height, parentWidth, parentHeight));
+				transform.multiply(multiplyWith.getAffineTransform(width, height, parentWidth, parentHeight));
 				break;
 			case TYPE_INVERT:
 				transform.inverse();
@@ -377,7 +377,7 @@ public class Ti2DMatrix extends KrollProxy {
 		return getMatrix(proxy.getOuterView());
 	}
 	
-	public AffineTransform getAffineTransform(Context context, int width, int height, int parentWidth, int parentHeight) {
+	public AffineTransform getAffineTransform(int width, int height, int parentWidth, int parentHeight) {
 		if (transform != null) return transform;
 		if (ownFrameCoord) {
 			parentWidth = width;
@@ -387,7 +387,7 @@ public class Ti2DMatrix extends KrollProxy {
 		if (width == 0 || height == 0 || parentWidth == 0 || parentHeight == 0 ) return result;
 		for (Operation op : operations) {
 			if (op != null) {
-				op.apply(context, width, height, parentWidth, parentHeight, result);
+				op.apply(width, height, parentWidth, parentHeight, result);
 			}
 		}
 		return result;
@@ -403,8 +403,7 @@ public class Ti2DMatrix extends KrollProxy {
 			parent = view;
 //		ViewHelper.setPivotX(view, (float) 0.5);
 //		ViewHelper.setPivotY(view, (float) 0.5);
-		return getAffineTransform(view.getContext(),
-				view.getMeasuredWidth(), view.getMeasuredHeight(),
+		return getAffineTransform(view.getMeasuredWidth(), view.getMeasuredHeight(),
 				parent.getMeasuredWidth(), parent.getMeasuredHeight());
 	}
 
@@ -412,13 +411,12 @@ public class Ti2DMatrix extends KrollProxy {
 		View parent = (View) view.getParent();
 		if (parent == null)
 			parent = view;
-		return getMatrix(view.getContext(),
-				view.getMeasuredWidth(), view.getMeasuredHeight(),
+		return getMatrix(view.getMeasuredWidth(), view.getMeasuredHeight(),
 				parent.getMeasuredWidth(), parent.getMeasuredHeight());
 	}
 	
-	public Matrix getMatrix(Context context, int width, int height, int parentWidth, int parentHeight) {
-		AffineTransform transform = getAffineTransform(context, width, height, parentWidth, parentHeight);
+	public Matrix getMatrix(int width, int height, int parentWidth, int parentHeight) {
+		AffineTransform transform = getAffineTransform(width, height, parentWidth, parentHeight);
 		return (transform != null) ? transform.toMatrix() : null;
 	}
 	

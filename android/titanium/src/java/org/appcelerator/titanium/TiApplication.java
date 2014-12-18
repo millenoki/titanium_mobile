@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,6 +51,7 @@ import ti.modules.titanium.TitaniumModule;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -866,7 +868,7 @@ public abstract class TiApplication extends Application implements
     
     public static float getAppDensity() {
         if (mAppDensity == -1) {
-            DisplayMetrics metrics = TiDimension.getDisplayMetrics(getAppContext());
+            DisplayMetrics metrics = TiDimension.getDisplayMetrics();
             mAppDensity = metrics.density;
         }
         return mAppDensity;
@@ -874,7 +876,7 @@ public abstract class TiApplication extends Application implements
     
     public static float getAppScaledDensity() {
         if (mAppScaledDensity == -1) {
-            DisplayMetrics metrics = TiDimension.getDisplayMetrics(getAppContext());
+            DisplayMetrics metrics = TiDimension.getDisplayMetrics();
             mAppScaledDensity = metrics.scaledDensity;
         }
         return mAppScaledDensity;
@@ -1213,4 +1215,35 @@ public abstract class TiApplication extends Application implements
         int res = getAppContext().checkCallingOrSelfPermission("android.permission." + permission);
         return (res == PackageManager.PERMISSION_GRANTED);
     }
+    
+    
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    public static int getGooglePlayServicesState() {
+        final Activity activity = getAppRootOrCurrentActivity();
+        int resultCode = 1;
+        try {
+            Class<?> c = Class.forName("GooglePlayServicesUtil");
+            Method  isGooglePlayServicesAvailable = c.getDeclaredMethod ("isGooglePlayServicesAvailable", Activity.class);
+            resultCode = (int) isGooglePlayServicesAvailable.invoke(null, new Object[] {activity});
+            if (resultCode != 0) {
+                Method  isUserRecoverableError = c.getDeclaredMethod ("isUserRecoverableError", int.class);
+                Method  getErrorDialog = c.getDeclaredMethod ("getErrorDialog", int.class, Activity.class, int.class);
+                if ((boolean) isUserRecoverableError.invoke(null, new Object[] {resultCode})) {
+                    ((Dialog)getErrorDialog.invoke(null, new Object[] {resultCode, activity,
+                            PLAY_SERVICES_RESOLUTION_REQUEST})).show();
+                } else {
+                    Log.i(TAG, "This device is not supported.");
+                }
+            }
+            return resultCode;
+        } catch (Exception e) {
+            return resultCode;
+        }
+    }
+
 }

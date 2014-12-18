@@ -448,8 +448,8 @@ public class TiCompositeLayout extends FreeLayout implements
 		if (p != null) {
 			if (p.maxWidth != null || p.minWidth != null) {
 				int minMeasuredWidth = measuredWidth;
-				if (p.minWidth != null) minMeasuredWidth = Math.max(minMeasuredWidth, p.minWidth.getAsPixels(getContext(), w, h));
-				if (p.maxWidth != null) minMeasuredWidth = Math.min(minMeasuredWidth, p.maxWidth.getAsPixels(getContext(), w, h));
+				if (p.minWidth != null) minMeasuredWidth = Math.max(minMeasuredWidth, p.minWidth.getAsPixels(w, h));
+				if (p.maxWidth != null) minMeasuredWidth = Math.min(minMeasuredWidth, p.maxWidth.getAsPixels(w, h));
 				if (minMeasuredWidth != measuredWidth) {
 					widthMeasureSpec = MeasureSpec.makeMeasureSpec(minMeasuredWidth, MeasureSpec.EXACTLY);
 					measuredWidth = getMeasuredHeight(minMeasuredWidth, widthMeasureSpec);
@@ -458,8 +458,8 @@ public class TiCompositeLayout extends FreeLayout implements
 	
 			if (p.maxHeight != null || p.minHeight != null) {
 				int minMeasuredHeight = measuredHeight;
-				if (p.minHeight != null) minMeasuredHeight = Math.max(minMeasuredHeight, p.minHeight.getAsPixels(getContext(), w, h));
-				if (p.maxHeight != null) minMeasuredHeight = Math.min(minMeasuredHeight, p.maxHeight.getAsPixels(getContext(), w, h));
+				if (p.minHeight != null) minMeasuredHeight = Math.max(minMeasuredHeight, p.minHeight.getAsPixels(w, h));
+				if (p.maxHeight != null) minMeasuredHeight = Math.min(minMeasuredHeight, p.maxHeight.getAsPixels(w, h));
 				if (minMeasuredHeight != measuredHeight) {
 					heightMeasureSpec = MeasureSpec.makeMeasureSpec(minMeasuredHeight, MeasureSpec.EXACTLY);
 					measuredHeight = getMeasuredHeight(minMeasuredHeight, heightMeasureSpec);
@@ -580,8 +580,8 @@ public class TiCompositeLayout extends FreeLayout implements
             final Context context = child.getContext();
             if (p.maxWidth != null || p.minWidth != null) {
                 int newWidth = childWidth;
-                if (p.minWidth != null) newWidth = Math.max(newWidth, p.minWidth.getAsPixels(context, width, height));
-                if (p.maxWidth != null) newWidth = Math.min(newWidth, p.maxWidth.getAsPixels(context, width, height));
+                if (p.minWidth != null) newWidth = Math.max(newWidth, p.minWidth.getAsPixels(width, height));
+                if (p.maxWidth != null) newWidth = Math.min(newWidth, p.maxWidth.getAsPixels(width, height));
                 if (newWidth != childWidth) {
                     widthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY);
                     if (parent instanceof TiCompositeLayout) {
@@ -596,8 +596,8 @@ public class TiCompositeLayout extends FreeLayout implements
 
             if (p.maxHeight != null || p.minHeight != null) {
                 int newHeight = childHeight;
-                if (p.minHeight != null) newHeight = Math.max(newHeight, p.minHeight.getAsPixels(context, width, height));
-                if (p.maxHeight != null) newHeight = Math.min(newHeight, p.maxHeight.getAsPixels(context, width, height));
+                if (p.minHeight != null) newHeight = Math.max(newHeight, p.minHeight.getAsPixels(width, height));
+                if (p.maxHeight != null) newHeight = Math.min(newHeight, p.maxHeight.getAsPixels(width, height));
                 if (newHeight != childHeight) {
                     heightSpec = MeasureSpec.makeMeasureSpec(newHeight, MeasureSpec.EXACTLY);
                     if (parent instanceof TiCompositeLayout) {

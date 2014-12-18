@@ -222,7 +222,7 @@ public class TiImageHelper
 	public static Bitmap imageCropped(Bitmap bitmap, TiRect rect) {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
-		RectF realRect = rect.getAsPixels(TiApplication.getInstance().getBaseContext(), width, height);
+		RectF realRect = rect.getAsPixels(width, height);
 		try {
 			bitmap = Bitmap.createBitmap(bitmap, (int)realRect.left, (int)realRect.top, (int)realRect.width(), (int)realRect.height());
 		} catch (Exception e) {
