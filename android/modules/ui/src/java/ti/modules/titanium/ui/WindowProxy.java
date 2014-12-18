@@ -481,19 +481,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		boolean modal = false;
 		if (hasProperty(TiC.PROPERTY_MODAL)) {
 			modal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_MODAL), false);
-			if (modal) {
-				intent.setClass(activity, TiTranslucentActivity.class);
-			}
+
 			intent.putExtra(TiC.PROPERTY_MODAL, modal);
 		}
 		if (modal || hasProperty(TiC.PROPERTY_OPACITY) || (hasProperty(TiC.PROPERTY_BACKGROUND_COLOR) && 
 				Color.alpha(TiConvert.toColor(getProperty(TiC.PROPERTY_BACKGROUND_COLOR))) < 255 )) {
 			intent.setClass(activity, TiTranslucentActivity.class);
-		} else if (hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			int bgColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
-			if (Color.alpha(bgColor) < 0xFF) {
-				intent.setClass(activity, TiTranslucentActivity.class);
-			}
 		}
 		if (hasProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT), PixelFormat.UNKNOWN));
