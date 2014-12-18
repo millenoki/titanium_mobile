@@ -706,6 +706,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public void updateKrollObjectProperties() {
         updateKrollObjectProperties(getProperties());
+        propertiesToUpdateNativeSide = null;
     }
 
     public void updateKrollObjectProperties(HashMap<String, Object> props) {
@@ -1879,7 +1880,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void addBinding(String bindId, KrollProxy bindingProxy) {
         if (bindId == null)
             return;
-        setProperty(bindId, bindingProxy);
+        //dont update JS side yet
+        setPropertyJava(bindId, bindingProxy);
         addPropToUpdateNativeSide(bindId, bindingProxy);
     }
 

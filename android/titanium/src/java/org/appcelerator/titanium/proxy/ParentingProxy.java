@@ -45,7 +45,7 @@ public class ParentingProxy extends KrollProxy {
             updateKrollObjectProperties();
         } else {
             // we don't need to update them all, bindings might be there though
-            updatePropertiesNativeSide();
+            setReadyToUpdateNativeSideProperties(true);
         }
     }
 
