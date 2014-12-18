@@ -174,12 +174,19 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 				if (shouldFireClick) {
 					KrollDict data = dictFromEvent(lastUpEvent);
 					handleFireItemClick(new KrollDict(data));
-					fireEvent(TiC.EVENT_CLICK, data);
+	                fireEvent(TiC.EVENT_CLICK, data, true, true);
 				}
                 shouldFireClick = true;
 			}
 		});
 	}
+	
+//	   public boolean hierarchyHasListener(String event) {
+//	       if (event.equals(TiC.EVENT_CLICK) && !shouldFireClick) {
+//	           return false;
+//	       }
+//	        return proxy.hierarchyHasListener(event);
+//	    }
 	
 	protected void handleFireItemClick (KrollDict data) {
 //		TiViewProxy listViewProxy = ((ListItemProxy)proxy).getListProxy();
