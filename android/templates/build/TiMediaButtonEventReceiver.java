@@ -1,4 +1,4 @@
-package akylas.ipdn.successradio;
+package <%- appid %>;
 
 import ti.modules.titanium.media.TiSound;
 import android.content.BroadcastReceiver;
