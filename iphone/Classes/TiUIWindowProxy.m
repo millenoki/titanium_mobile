@@ -637,6 +637,16 @@ else{\
 	}
 }
 
+-(id)barHeight
+{
+    id navController = [self navControllerForController:controller];
+    if (navController == nil) {
+        return @(0);
+    }
+    UINavigationBar * ourNB = [navController navigationBar];
+    return @(ourNB.frame.size.height);
+}
+
 -(void)setShadowImage:(id)value
 {
 	[self replaceValue:value forKey:@"shadowImage" notification:NO];
