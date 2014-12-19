@@ -6,11 +6,16 @@ import java.util.regex.Pattern;
 
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiDimension;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 
 public class TiActivityHelper {
     /**
@@ -51,5 +56,63 @@ public class TiActivityHelper {
             className = "_" + className;
         }
         return appInfo.getId() + "." + className + "Activity";
+    }
+    
+    public static ActionBar getActionBar(final Activity activity) {
+        if (activity instanceof ActionBarActivity) {
+            if (activity instanceof TiBaseActivity && !((TiBaseActivity) activity).isReadyToQueryActionBar()) {
+                return null;
+            }
+            try {
+                return ((ActionBarActivity) activity)
+                        .getSupportActionBar();
+            } catch (NullPointerException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+    
+    public static double getActionBarHeight(final Activity activity) {
+        ActionBar actionBar = getActionBar(activity);
+        if (actionBar != null) {
+            try {
+                TiDimension nativeHeight = new TiDimension(
+                        actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
+                return nativeHeight.getAsDefault();
+            } catch (NullPointerException e) {
+                // no internal action bar
+            }
+        }
+        return 0;
+    }
+    
+    public static void setActionBarHidden(final Activity activity, final boolean hidden) {
+        ActionBar actionBar = getActionBar(activity);
+        if (actionBar != null) {
+            try {
+                if (hidden) {
+                    actionBar.hide();
+                }
+                else {
+                    actionBar.show();
+                }
+            } catch (NullPointerException e) {
+                // no internal action bar
+            }
+        }
+    }
+    
+    public static boolean setActionBarTitle(final Activity activity, final String title) {
+        ActionBar actionBar = getActionBar(activity);
+        if (actionBar != null) {
+            try {
+                actionBar.setTitle(title);
+                return true;
+            } catch (NullPointerException e) {
+                // no internal action bar
+            }
+        }
+        return false;
     }
 }

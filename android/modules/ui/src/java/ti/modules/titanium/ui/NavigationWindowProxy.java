@@ -33,6 +33,7 @@ import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -161,8 +162,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 	
 	private void updateHomeButton(TiWindowProxy proxy){
 		boolean canGoBack = (windows.size() > 1);
-    	ActionBarProxy actionBarProxy = proxy.getActivityProxy().getActionBar();
-    	ActionBar actionBar = ((TiBaseActivity)getActivity()).getSupportActionBar();
+    	ActionBar actionBar = TiActivityHelper.getActionBar(getActivity());
     	if (actionBar == null) return;
 //    	if (proxy == null) {
 //    		actionBar.setDisplayHomeAsUpEnabled(canGoBack);
@@ -581,9 +581,14 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 	
 	private void prepareCurrentWindow(TiWindowProxy proxy) {
         TiBaseActivity activity = ((TiBaseActivity) getActivity()); 
-	    if (!proxy.isOpenedOrOpening()) proxy.onWindowActivityCreated();
+	    if (!proxy.isOpenedOrOpening()) {
+	        proxy.setActivity(activity);
+	        proxy.onWindowActivityCreated();
+	    }
         updateHomeButton(proxy);
-        if (activity != null) activity.setWindowProxy(proxy);
+        if (activity != null) {
+            activity.setWindowProxy(proxy);
+        }
         proxy.focus();
 	}
 	

@@ -31,6 +31,7 @@ import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
@@ -58,9 +59,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -93,7 +92,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<OnActivityResultEvent>();
 	private TiWeakList<OnCreateOptionsMenuEvent>  onCreateOptionsMenuListeners = new TiWeakList<OnCreateOptionsMenuEvent>();
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
-	private APSAnalytics analytics = APSAnalytics.getInstance();
+//	private APSAnalytics analytics = APSAnalytics.getInstance();
 
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
@@ -123,6 +122,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private boolean defaultNavBarHidden = false;
 	private int defaultSoftInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN |  WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
 	private int softInputMode = defaultSoftInputMode;
+	private boolean mReadyToQueryActionBar = false;
 
 	public class DialogWrapper {
 		boolean isPersistent;
@@ -315,12 +315,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 		if (newNavBarHidden != this.navBarHidden) {
 			this.navBarHidden = newNavBarHidden;
-			ActionBar actionBar = getSupportActionBar();
-			if (actionBar != null) {
-				if (this.navBarHidden) actionBar.hide();
-				else actionBar.show();
-			}
-			
+	        TiActivityHelper.setActionBarHidden(this, this.navBarHidden);
 		}
 		
 		
@@ -480,16 +475,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 			if (!newTitle.equals(oldTitle)) {
 				final String fnewTitle = newTitle;
-				final ActionBar actionBar = getSupportActionBar();
-				if (actionBar != null) {
-					actionBar.setTitle(fnewTitle);
-				}
-				else {
-					runOnUiThread(new Runnable(){
-						public void run() {
-							setTitle(fnewTitle);
-						}
-					});
+				if (!TiActivityHelper.setActionBarTitle(this, fnewTitle)) {
+				    runOnUiThread(new Runnable(){
+                        public void run() {
+                            setTitle(fnewTitle);
+                        }
+                    });
 				}
 			}
 		}
@@ -508,7 +499,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 	}
 	
-	private Toolbar toolbar = null;
+//	private Toolbar toolbar = null;
 	// Subclasses can override to provide a custom layout
 	protected View createLayout()
 	{
@@ -611,25 +602,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 	}
 	
-
-	protected void setNavBarHidden(final boolean hidden)
-	{
-		final ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-		    try {
-		        if (hidden) {
-	                actionBar.hide();
-	            }
-	            else {
-	                actionBar.show();
-	            }
-            } catch (NullPointerException e) {
-                //no internal action bar
-            }
-			
-		}
+	public final boolean isReadyToQueryActionBar() {
+	    return mReadyToQueryActionBar;
 	}
-	
 	
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
 	protected void windowCreated()
@@ -642,12 +617,8 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
 		final Window window = getWindow();
 		
-//	    getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-//		window.requestFeature(Window.FEATURE_PROGRESS);
-//		window.requestFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		
 		setFullscreen(fullscreen);
-		setNavBarHidden(navBarHidden);	
+		TiActivityHelper.setActionBarHidden(this, navBarHidden);
 		
 		if (windowFlags > 0) {
 			window.addFlags(windowFlags);
@@ -761,23 +732,28 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
 		super.onCreate(savedInstanceState);
+		
+		// set the current activity back to what it was originally
+        tiApp.setCurrentActivity(this, tempCurrentActivity);
 
+        setContentView(layout);
+        //sometimes we get a weird right and bottom padding :s
+        getWindow().getDecorView().setPadding(0, 0, 0, 0);
+        
+        mReadyToQueryActionBar = true;
+        
+        //make sure we call windowCreated after setContentView because
+        //it's a bad idea to query the actionBar before.
 		windowCreated();
-
 
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
 			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
 		}
-
-		// set the current activity back to what it was originally
-		tiApp.setCurrentActivity(this, tempCurrentActivity);
-
-		setContentView(layout);
 		
-		if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
+//		if (toolbar != null) {
+//            setSupportActionBar(toolbar);
+//        }
 		
 		sendMessage(msgActivityCreatedId);
 		// for backwards compatibility

@@ -22,6 +22,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
@@ -29,6 +30,7 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUIActionBarTabGroup;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
+import android.support.v7.app.ActionBar;
 import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
@@ -357,7 +359,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		activity.setLayoutProxy(this);
 		setActivity(activity);
 
-		if (activity.getSupportActionBar() != null) {
+        ActionBar actionBar = TiActivityHelper.getActionBar(getActivity());
+		if (actionBar != null) {
 			view = new TiUIActionBarTabGroup(this, activity);
 			if (!swipeTabs) {
 				TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;

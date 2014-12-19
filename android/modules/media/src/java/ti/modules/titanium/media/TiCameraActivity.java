@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiActivityHelper;
 
 import android.app.Activity;
 import android.content.Context;
@@ -209,7 +210,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		try {
 			//This needs to be called to make sure action bar is gone
 			if (android.os.Build.VERSION.SDK_INT < 11) {
-				ActionBar actionBar = getSupportActionBar();
+		        ActionBar actionBar = TiActivityHelper.getActionBar(this);
 				if (actionBar != null) {
 					actionBar.hide();
 				}

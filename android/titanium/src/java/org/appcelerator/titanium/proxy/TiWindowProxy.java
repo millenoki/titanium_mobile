@@ -24,6 +24,7 @@ import org.appcelerator.titanium.TiWindowManager;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.animation.TiAnimator;
 import org.appcelerator.titanium.animation.TiAnimatorSet;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiOrientationHelper;
@@ -515,15 +516,7 @@ public abstract class TiWindowProxy extends TiViewProxy
     @Kroll.method
     @Kroll.getProperty
     public double getBarHeight() {
-        Activity activity = getActivity();
-        if (activity instanceof ActionBarActivity) {
-            ActionBar actionBar = ((ActionBarActivity)activity).getSupportActionBar();
-            if (actionBar != null) {
-                TiDimension nativeHeight = new TiDimension(actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
-                return nativeHeight.getAsDefault();
-            }
-        }
-        return 0;
+        return TiActivityHelper.getActionBarHeight(getActivity());
     }
 
 	protected abstract void handleOpen(KrollDict options);

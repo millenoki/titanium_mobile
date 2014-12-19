@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
@@ -258,26 +259,26 @@ public class ActivityProxy extends KrollProxy
 	@Kroll.method @Kroll.getProperty
 	public ActionBarProxy getActionBar()
 	{
-	    if (actionBarProxy == null) {
-	        TiBaseActivity activity = (TiBaseActivity)getWrappedActivity();
-	        actionBarProxy = new ActionBarProxy(activity);
-	    }
-
-		return actionBarProxy;
+		return getOrCreateActionBarProxy();
 	}
 	
+    public ActionBarProxy getActionBarProxy() {
+        return actionBarProxy;
+    }
+
+    public ActionBarProxy getOrCreateActionBarProxy() {
+        if (actionBarProxy == null) {
+            TiBaseActivity activity = (TiBaseActivity) getWrappedActivity();
+            actionBarProxy = new ActionBarProxy(activity);
+        }
+
+        return actionBarProxy;
+    }
+
     @Kroll.method
     @Kroll.getProperty
     public double getActionBarHeight() {
-        Activity activity = getWrappedActivity();
-        if (activity instanceof ActionBarActivity) {
-            ActionBar actionBar = ((ActionBarActivity)activity).getSupportActionBar();
-            if (actionBar != null) {
-                TiDimension nativeHeight = new TiDimension(actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
-                return nativeHeight.getAsDefault();
-            }
-        }
-        return 0;
+        return TiActivityHelper.getActionBarHeight(getWrappedActivity());
     }
 
 	@Kroll.method

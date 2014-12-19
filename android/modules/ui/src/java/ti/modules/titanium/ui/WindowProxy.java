@@ -534,7 +534,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                 break;
             case TiC.PROPERTY_BAR_COLOR:
             {
-                ActionBarProxy aBarProxy  = activity.getActivityProxy().getActionBar();
+                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
                 if (aBarProxy != null) {
                     aBarProxy.setPropertyAndFire(TiC.PROPERTY_BACKGROUND_COLOR, value);
                 }
@@ -542,7 +542,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
             }
             case TiC.PROPERTY_BAR_OPACITY:
             {
-                ActionBarProxy aBarProxy  = activity.getActivityProxy().getActionBar();
+                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
                 if (aBarProxy != null) {
                     aBarProxy.setPropertyAndFire(TiC.PROPERTY_BACKGROUND_OPACITY, value);
                 }
@@ -550,7 +550,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
             }
             case TiC.PROPERTY_BAR_ICON:
             {
-                ActionBarProxy aBarProxy  = activity.getActivityProxy().getActionBar();
+                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
                 if (aBarProxy != null) {
                     aBarProxy.setPropertyAndFire(TiC.PROPERTY_ICON, value);
                 }
@@ -558,7 +558,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
             }
             case TiC.PROPERTY_BAR_IMAGE:
             {
-                ActionBarProxy aBarProxy  = activity.getActivityProxy().getActionBar();
+                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
                 if (aBarProxy != null) {
                     aBarProxy.setPropertyAndFire(TiC.PROPERTY_BACKGROUND_IMAGE, value);
                 }

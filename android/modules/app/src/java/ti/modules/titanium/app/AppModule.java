@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiProperties;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
@@ -443,15 +444,8 @@ public class AppModule extends KrollModule implements SensorEventListener
     @Kroll.method
     @Kroll.getProperty
     public double getDefaultBarHeight() {
-        Activity activity = TiApplication.getInstance().getCurrentActivity();
-        if (activity instanceof ActionBarActivity) {
-            ActionBar actionBar = ((ActionBarActivity)activity).getSupportActionBar();
-            if (actionBar != null) {
-                TiDimension nativeHeight = new TiDimension(actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
-                return nativeHeight.getAsDefault();
-            }
-        }
-        return 0;
+//        return 0;
+        return TiActivityHelper.getActionBarHeight(TiApplication.getInstance().getCurrentActivity());
     }
 
 }

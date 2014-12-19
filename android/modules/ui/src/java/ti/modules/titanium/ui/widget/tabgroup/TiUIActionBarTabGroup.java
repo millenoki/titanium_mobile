@@ -15,6 +15,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.ActionBarProxy;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.kroll.common.Log;
@@ -75,15 +76,19 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		activity.addOnLifecycleEventListener(this);
 
 		// Setup the action bar for navigation tabs.
-		actionBar = activity.getSupportActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		actionBar.setDisplayShowTitleEnabled(true);
+        actionBar = TiActivityHelper.getActionBar(activity);
+        if (actionBar != null) {
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            actionBar.setDisplayShowTitleEnabled(true);
+        }
 
 		if (proxy.hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN) && 
 			TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN))) {
-			actionBar.setDisplayShowTitleEnabled(false);
-			actionBar.setDisplayShowHomeEnabled(false);
-			actionBar.setDisplayUseLogoEnabled(false);
+	        if (actionBar != null) {
+	            actionBar.setDisplayShowTitleEnabled(false);
+	            actionBar.setDisplayShowHomeEnabled(false);
+	            actionBar.setDisplayUseLogoEnabled(false);
+	        }
 		}
 
 		swipeable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SWIPEABLE), true);
@@ -109,7 +114,9 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			@Override
 			public void onPageSelected(int position) {
 				// on changing the page simply select the tab
-				actionBar.setSelectedNavigationItem(position);
+		        if (actionBar != null) {
+		            actionBar.setSelectedNavigationItem(position);
+		        }
 			}
 
 			@Override
@@ -124,7 +131,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
 		((ViewGroup) activity.getLayout()).addView(tabGroupViewPager, params);
-		if (proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
+		if (actionBar != null && proxy.hasProperty(TiC.PROPERTY_TABS_BACKGROUND_COLOR)) {
 			actionBar.setBackgroundDrawable(TiConvert.toColorDrawable(proxy.getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR).toString()));
 		}
 		setNativeView(tabGroupViewPager);
@@ -175,12 +182,15 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			if (tabsDisabled) {
 				return savedFragment;
 			} else {
-				ActionBar.Tab tab = actionBar.getTabAt(i);
-				TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
-				if (tabView.fragment == null) {
-					tabView.initializeFragment();
-				}
-				return tabView.fragment;
+		        if (actionBar != null) {
+		            ActionBar.Tab tab = actionBar.getTabAt(i);
+		            TiUIActionBarTab tabView = (TiUIActionBarTab) tab.getTag();
+		            if (tabView.fragment == null) {
+		                tabView.initializeFragment();
+		            }
+		            return tabView.fragment;
+		        }
+		        return null;
 			}
 		}
 
@@ -189,7 +199,10 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			if (tabsDisabled) {
 				return 1;
 			} else {
-				return actionBar.getNavigationItemCount();
+		        if (actionBar != null) {
+		            return actionBar.getNavigationItemCount();
+		        }
+		        return 1;
 			}
 		}
 
@@ -217,14 +230,18 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_TITLE:
-            actionBar.setTitle(TiConvert.toString(newValue));
+            if (actionBar != null) {
+                actionBar.setTitle(TiConvert.toString(newValue));
+            }
             break;
         case TiC.PROPERTY_SWIPEABLE:
             swipeable = TiConvert.toBoolean(newValue);
             break;
         case TiC.PROPERTY_TABS_BACKGROUND_COLOR:
             if (changedProperty) {
-                actionBar.setBackgroundDrawable(TiConvert.toColorDrawable(newValue));
+                if (actionBar != null) {
+                    actionBar.setBackgroundDrawable(TiConvert.toColorDrawable(newValue));
+                }
             }
             break;
         default:
@@ -235,6 +252,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 	@Override
 	public void addTab(TabProxy tabProxy) {
+        if (actionBar == null) return;
 		ActionBar.Tab tab = actionBar.newTab();
 		tab.setTabListener(this);
 
@@ -253,6 +271,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 
 	@Override
 	public void removeTab(TabProxy tabProxy) {
+        if (actionBar == null) return;
 		int tabIndex = ((TabGroupProxy) proxy).getTabIndex(tabProxy);
 		TabFragment fragment = (TabFragment) tabGroupPagerAdapter.getRegisteredFragment(tabIndex);
 		TiUIActionBarTab tabView = (TiUIActionBarTab) tabProxy.peekView();
@@ -278,12 +297,17 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 			selectedTabOnResume = tabView.tab;
 
 		} else {
-			actionBar.selectTab(tabView.tab);
+	        if (actionBar != null) {
+	            actionBar.selectTab(tabView.tab);
+	        }
 		}
 	}
 
 	@Override
 	public TabProxy getSelectedTab() {
+        if (actionBar == null) {
+            return null;
+        }
 		ActionBar.Tab tab = actionBar.getSelectedTab();
 		if (tab == null) {
 			// There is no selected tab currently for this action bar.
@@ -355,7 +379,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 	public void onDestroy(Activity activity) { }
 
 	public void disableTabNavigation(boolean disable) {
-		if (disable && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_TABS) {
+		if (disable && actionBar != null && actionBar.getNavigationMode() == ActionBar.NAVIGATION_MODE_TABS) {
 			savedSwipeable = swipeable;
 			swipeable = false;
 			ActionBar.Tab tab = actionBar.getSelectedTab();

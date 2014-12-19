@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -113,14 +114,16 @@ public class ActionBarProxy extends KrollProxy
 	public ActionBarProxy(TiBaseActivity activity)
 	{
 		super();
-		try {
-		    actionBar = activity.getSupportActionBar();
-		    //trick to actually know if the internal action bar exists
-	        actionBar.isShowing();
-        } catch (NullPointerException e) {
-            //no internal action bar
-            actionBar = null;
-        }
+        actionBar = TiActivityHelper.getActionBar(activity);
+
+//		try {
+//		    actionBar = activity.getSupportActionBar();
+//		    //trick to actually know if the internal action bar exists
+//	        actionBar.isShowing();
+//        } catch (NullPointerException e) {
+//            //no internal action bar
+//            actionBar = null;
+//        }
 		int resourceId = 0;
 		try {
 		    TypedValue typedValue = new TypedValue(); 
