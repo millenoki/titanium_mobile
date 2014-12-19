@@ -18,11 +18,28 @@
             <item name="colorControlActivated">#00ffff</item>
             <item name="colorControlHighlight">#00ffff</item>
     </style>
-
-	
- 	<style name="Theme.Titanium" parent="BaseTheme">
+    
+    <!-- ACTION BAR STYLES -->
+    <style name="TransparentActionBar" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:backgroundStacked">@android:color/transparent</item>
     </style>
 
+	
+ 	<style name="myEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textCursorDrawable">@null</item>
+    </style>
+    <style name="Theme.Titanium" parent="BaseTheme">
+        <item name="android:editTextStyle">@style/myEditText</item>
+    </style>
+    
+
+    <style name="Theme.Titanium.Overlay" parent="Theme.Titanium">
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+    <style name="Theme.Titanium.TranslucentActionBar.Overlay" parent="Theme.Titanium.Overlay">
+        <item name="android:actionBarStyle">@style/TransparentActionBar</item>
+    </style>
 	<style name="Theme.Titanium.NoActionBar" parent="Theme.Titanium">
 		<item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
@@ -40,4 +57,11 @@
 		<item name="android:windowIsTranslucent">true</item>
 		<item name="android:background">#00000000</item>
 	</style>
+	
+	 <style name="Theme.Titanium.Translucent.Overlay" parent="Theme.Titanium.Translucent">
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+    <style name="Theme.Titanium.Translucent.TranslucentActionBar.Overlay" parent="Theme.Titanium.Translucent.Overlay">
+        <item name="android:actionBarStyle">@style/TransparentActionBar</item>
+    </style>
 </resources>
