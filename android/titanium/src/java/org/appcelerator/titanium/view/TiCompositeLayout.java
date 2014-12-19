@@ -522,8 +522,6 @@ public class TiCompositeLayout extends FreeLayout implements
                     
                 }
             }
-            
-            
     
             widthSpec = ViewGroup.getChildMeasureSpec(
                     MeasureSpec.makeMeasureSpec(width, wMode), widthPadding,
@@ -797,7 +795,8 @@ public class TiCompositeLayout extends FreeLayout implements
 						vertical);
 				//we need to update horizontal and vertical with animationFraction because computePosition
 				//will assume 0 for optionLeft==null when it should be startRect.left
-				if (params instanceof AnimationLayoutParams) {
+				if (params instanceof AnimationLayoutParams && 
+				        params.fullscreen == false) {
 					float fraction = ((AnimationLayoutParams) params).animationFraction;
 					if (fraction < 1.0f) {
 						Rect startRect = ((AnimationLayoutParams) params).startRect;
