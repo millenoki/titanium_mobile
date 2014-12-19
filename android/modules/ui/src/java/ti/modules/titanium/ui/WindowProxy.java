@@ -519,6 +519,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		if ((opening || opened) && !lightweight) {
 		    TiBaseActivity activity = getWindowActivity();
+		    if (activity == null) {
+		        return;
+		    }
 			switch (name) {
 			case TiC.PROPERTY_WINDOW_PIXEL_FORMAT:
                 getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, value).sendToTarget();
