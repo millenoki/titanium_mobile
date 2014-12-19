@@ -1,6 +1,6 @@
 package com.akylas.titanium.ks;
 
-import ti.modules.titanium.media.TiSound;
+import ti.modules.titanium.audio.TiSound;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
