@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -382,7 +383,10 @@ public class TiUIText extends TiUINonViewGroupView
 	public TiUIText(final TiViewProxy proxy, boolean field)
 	{
 		super(proxy);
-		Log.d(TAG, "Creating a text field2", Log.DEBUG_MODE);
+		if (keySequence == null) {
+            keySequence = new ArrayList<String>();
+            keySequence.add(TiC.PROPERTY_COLOR);
+        }
 		this.focusKeyboardState = TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS;
 		this.isFocusable = true; //default to true
 		this.field = field;

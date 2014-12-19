@@ -120,7 +120,8 @@ public abstract class TiUIView
 
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
-	protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
+    protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
+    protected static ArrayList<String> keySequence = null;
 
 	protected LayoutParams layoutParams;
 	protected TiBackgroundDrawable background;
@@ -995,12 +996,24 @@ public abstract class TiUIView
         setEnabled(getOuterView(), enabled && isEnabled, enabled && isFocusable, setChildren);
     }
 	
+	protected void handleProperties(KrollDict d, final boolean changed) {
+	    if (keySequence != null) {
+	        for (String key : keySequence) {
+	            if (d.containsKey(key)) {
+	                propertySet(key, d.get(key), null, changed);
+	                d.remove(key);
+	            }
+            }
+	    }
+	    for (Map.Entry<String, Object> entry : d.entrySet()) {
+            propertySet(entry.getKey(), entry.getValue(), null, changed);
+        }
+	}
+	
 	@Override
     public void processApplyProperties(KrollDict d) {
         aboutToProcessProperties(d);
-        for (Map.Entry<String, Object> entry : d.entrySet()) {
-            propertySet(entry.getKey(), entry.getValue(), null, true);
-        }
+        handleProperties(d, true);
         didProcessProperties();
     }
 
@@ -1008,10 +1021,7 @@ public abstract class TiUIView
 	public void processProperties(KrollDict d)
 	{
         aboutToProcessProperties(d);
-		
-		for (Map.Entry<String, Object> entry : d.entrySet()) {
-            propertySet(entry.getKey(), entry.getValue(), null, false);
-	    }
+        handleProperties(d, false);
         didProcessProperties();
         
         if (!(layoutParams instanceof AnimationLayoutParams) && getOuterView() != null && !useCustomLayoutParams) {

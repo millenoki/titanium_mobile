@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
@@ -118,13 +119,14 @@ public class TiUILabel extends TiUINonViewGroupView
 	        }
 		}
 		
-		@Override
-		protected void drawableStateChanged() {
-		
-		}
-		
+//		@Override
+//		protected void drawableStateChanged() {
+//		
+//		}
+//		
 		@Override
 		public void childDrawableStateChanged(View child) {
+		    super.childDrawableStateChanged(child);
 			if (child == textView) {
 				propagateChildDrawableState(child);
 			}
@@ -144,29 +146,6 @@ public class TiUILabel extends TiUINonViewGroupView
 			TiUIHelper.styleText(textView, null);
 			addView(textView, getTextLayoutParams());
 		}
-		
-//		@SuppressLint("NewApi")
-//		private EllipsizingTextView cloneTextView(EllipsizingTextView original, CharSequence text){
-//			EllipsizingTextView newView = new EllipsizingTextView(getContext());
-//			newView.setInputType(original.getInputType());
-//			newView.setGravity(original.getGravity());
-//			newView.setKeyListener(original.getKeyListener());
-////			TiUIHelper.styleText(newView, getProxy().getProperties().getKrollDict(TiC.PROPERTY_FONT));
-//			newView.setEllipsize(original.ellipsize);
-//			newView.setSingleLine(original.singleline); //the order is important as setSingleLine also set Maxlines
-//			newView.setMaxLines(original.maxLines);
-//			newView.setMaxTextSize(original.getMaxTextSize());
-//			newView.setMinTextSize(original.getMinTextSize());
-//			newView.lineAdditionalVerticalPadding = original.lineAdditionalVerticalPadding;
-//			newView.lineSpacingMultiplier = original.lineSpacingMultiplier;
-//			newView.setMultiLineEllipsize(original.getMultiLineEllipsize());
-//			newView.setTextColor(original.getTextColors());
-//			newView.setPadding(original.getPaddingLeft(), original.getPaddingTop(), original.getPaddingRight(), original.getPaddingBottom());
-//			newView.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
-//			setText(newView, text);
-//			newView.SetReadyToEllipsize(true);
-//			return newView;
-//		}
 		
 		private ViewGroup.LayoutParams getTextLayoutParams() {
 			ViewGroup.LayoutParams params  = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
@@ -196,7 +175,7 @@ public class TiUILabel extends TiUINonViewGroupView
                 maxWidth = Math.max(maxWidth,
                 		textView.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
                 maxHeight = Math.max(maxHeight,
-                		textView.getMeasuredHeight() + lp.topMargin + lp.bottomMargin);                
+                		textView.getMeasuredHeight() + lp.topMargin + lp.bottomMargin);
             }
 	        // Account for padding too
 	        maxWidth += getPaddingLeft() + getPaddingRight();
@@ -273,7 +252,6 @@ public class TiUILabel extends TiUINonViewGroupView
 	        };
 	        
 	        currentTransitionSet = TransitionHelper.transitionViews(this, textView, oldTextView, onDone, transition, getTextLayoutParams());
-//			requestLayout();
 		}
 	}
 
@@ -292,7 +270,6 @@ public class TiUILabel extends TiUINonViewGroupView
 		private float lineAdditionalVerticalPadding = 0.0f;
 		private float minTextSize;
 		private float maxTextSize;
-//		private String textStr;
 		
 		float lastEllipsizeWidth = -1;
 		float lastEllipsizeHeight = -1;
@@ -301,7 +278,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
 			int w = MeasureSpec.getSize(widthMeasureSpec);
-			int wm = MeasureSpec.getMode(widthMeasureSpec);
+//			int wm = MeasureSpec.getMode(widthMeasureSpec);
 			int h = MeasureSpec.getSize(heightMeasureSpec);
 			int hm = MeasureSpec.getMode(heightMeasureSpec);
 			if (hm == 0) h = 100000;
@@ -323,8 +300,6 @@ public class TiUILabel extends TiUINonViewGroupView
 				}
 			}
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-			int height =getMeasuredHeight();
-			int width =getMeasuredWidth();
 		}
 
         @Override
@@ -480,16 +455,6 @@ public class TiUILabel extends TiUINonViewGroupView
 		public int getMaxLines() {
 			return maxLines;
 		}
-		
-//		private void resetText(){
-//			if (isEllipsized){
-//				isEllipsized = false;
-//				try {
-//					setText(fullText);
-//				} finally {
-//				}
-//			}
-//		}
 
 		@Override
 		public void setLineSpacing(float add, float mult) {
@@ -518,12 +483,6 @@ public class TiUILabel extends TiUINonViewGroupView
 			super.setText(text, type);
 			updateEllipsize();
 		}
-
-//		@Override
-//		protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-//			super.onSizeChanged(w, h, oldw, oldh);
-//			// updateEllipsize();
-//		}
 		
 		@Override
 		public void setPadding(int left, int top, int right, int bottom) {
@@ -546,7 +505,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		}
 
 		@Override
-		public void setEllipsize(TruncateAt where) {			
+		public void setEllipsize(TruncateAt where) {
 			super.setEllipsize(where);
 			ellipsize = where;
 			updateEllipsize();
@@ -589,61 +548,6 @@ public class TiUILabel extends TiUINonViewGroupView
 		}
 	}
 	
-//		private CharSequence ellipsisWithStyle(CharSequence text, TruncateAt where)
-//		{
-//			int length = ELLIPSIZE_CHAR.length();
-//			if (text instanceof Spanned){
-//				SpannableStringBuilder builder = new SpannableStringBuilder(text);
-//				SpannableStringBuilder htmlText = (SpannableStringBuilder) text;
-//				if (where == TruncateAt.END){
-//					Object[] spans = htmlText.getSpans(text.length() - 1, text.length(), Object.class);
-//					builder.append(ELLIPSIZE_CHAR);
-//					for (int i = 0; i < spans.length; i++) {
-//						int flags = htmlText.getSpanFlags(spans[i]);
-//						int start = htmlText.getSpanStart(spans[i]);
-//						int end = htmlText.getSpanEnd(spans[i]);
-//						builder.setSpan(spans[i], start, end + length, flags);
-//					}
-//				}
-//				else if (where == TruncateAt.START){
-//					Object[] spans = htmlText.getSpans(0, 1, Object.class);
-//					builder.insert(0, ELLIPSIZE_CHAR);
-//					for (int i = 0; i < spans.length; i++) {
-//						int flags = htmlText.getSpanFlags(spans[i]);
-//						int start = htmlText.getSpanStart(spans[i]);
-//						int end = htmlText.getSpanEnd(spans[i]);
-//						builder.setSpan(spans[i], start, end + length, flags);
-//					}
-//				}
-//				else if (where == TruncateAt.MIDDLE){
-//					int middle = (int) Math.floor(htmlText.length() / 2);
-//					Object[] spans = htmlText.getSpans(middle-1, middle, Object.class);
-//					builder.insert(middle, ELLIPSIZE_CHAR);
-//					for (int i = 0; i < spans.length; i++) {
-//						int flags = htmlText.getSpanFlags(spans[i]);
-//						int start = htmlText.getSpanStart(spans[i]);
-//						int end = htmlText.getSpanEnd(spans[i]);
-//						builder.setSpan(spans[i], start, end + length, flags);
-//					}
-//				}
-//				return builder;
-//			}
-//			else {
-//				if (where == TruncateAt.END){
-//					return TextUtils.concat(text, ELLIPSIZE_CHAR);
-//				}
-//				else if (where == TruncateAt.START){
-//					return TextUtils.concat(ELLIPSIZE_CHAR , text);
-//
-//				}
-//				else if (where == TruncateAt.MIDDLE){
-//					int middle = (int) Math.floor(text.length() / 2);
-//					return TextUtils.concat(text.subSequence(0, middle), ELLIPSIZE_CHAR, text.subSequence(middle, text.length()));
-//				}
-//			}
-//			return text;
-//		}
-		
 		private CharSequence strimText(CharSequence text)
 		{
 			int strimEnd = text.toString().trim().length();
@@ -977,6 +881,10 @@ public class TiUILabel extends TiUINonViewGroupView
 	public TiUILabel(final TiViewProxy proxy)
 	{
 		super(proxy);
+		if (keySequence == null) {
+		    keySequence = new ArrayList<String>();
+		    keySequence.add(TiC.PROPERTY_COLOR);
+		}
 		Log.d(TAG, "Creating a text label", Log.DEBUG_MODE);
 		tv = new TiLabelView(getProxy().getActivity()) {
 			@Override
@@ -1020,8 +928,8 @@ public class TiUILabel extends TiUINonViewGroupView
 		tv.textView.setTextColor(colorStateList);
 	}
 	
-	protected void makeLinkClickable(SpannableStringBuilder strBuilder, URLSpan span)
-	{
+//	protected void makeLinkClickable(SpannableStringBuilder strBuilder, URLSpan span)
+//	{
 //	    int start = strBuilder.getSpanStart(span);
 //	    int end = strBuilder.getSpanEnd(span);
 //	    int flags = strBuilder.getSpanFlags(span);
@@ -1036,7 +944,7 @@ public class TiUILabel extends TiUINonViewGroupView
 //	    };
 //	    strBuilder.setSpan(clickable, start, end, flags);
 //	    strBuilder.removeSpan(span);
-	}
+//	}
 	
 	protected Spanned prepareHtml(String html)
 	{
@@ -1049,7 +957,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	    return fromHtml(html);
 	}
 
-
+	@Override
     protected void aboutToProcessProperties(KrollDict d) {
         super.aboutToProcessProperties(d);
         getTextView().SetReadyToEllipsize(false);
@@ -1081,9 +989,8 @@ public class TiUILabel extends TiUINonViewGroupView
             TiUIHelper.linkifyIfEnabled(getTextView(), autoLink);
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_LINKIFY;
         }
-        getTextView().SetReadyToEllipsize(true);
-//        getTextView().requestLayout();
         //call after so that a layout computes ellipsize
+        getTextView().SetReadyToEllipsize(true);
         super.didProcessProperties();
     }
  
@@ -1217,10 +1124,6 @@ public class TiUILabel extends TiUINonViewGroupView
         }
     }
 
-	public void setClickable(boolean clickable) {
-		tv.setClickable(clickable);
-	}
-	
 	@SuppressLint("NewApi")
 	@Override
 	protected KrollDict dictFromEvent(MotionEvent e)
