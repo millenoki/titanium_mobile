@@ -51,6 +51,7 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 	
 	public ListItemProxy()
 	{
+	    shouldAskForGC = false;
 		bindingsMap = new HashMap<String, ProxyListItem>();
 		nonBindingProxies = new ArrayList();
 	}

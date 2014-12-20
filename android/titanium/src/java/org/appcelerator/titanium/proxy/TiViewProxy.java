@@ -139,13 +139,14 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 	private AtomicBoolean batchPropertyApply = new AtomicBoolean();
 
-	private static int defaultTransitionStyle = TransitionHelper.Types.kTransitionSwipe.ordinal();
-	private static int defaultTransitionSubStyle = TransitionHelper.SubTypes.kRightToLeft.ordinal();
+//	private static int defaultTransitionStyle = TransitionHelper.Types.kTransitionSwipe.ordinal();
+//	private static int defaultTransitionSubStyle = TransitionHelper.SubTypes.kRightToLeft.ordinal();
 	
 	protected ArrayList<HashMap> pendingTransitions;
 	protected Object pendingTransitionLock;
 
     private boolean viewRealised = false;
+    protected boolean shouldAskForGC = true; 
 	/**
 	 * Constructs a new TiViewProxy instance.
 	 * @module.api
@@ -657,7 +658,9 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			viewRealised = false;
 		}
 		setModelListener(null);
-		KrollRuntime.suggestGC();
+		if (shouldAskForGC && krollObject != null) {
+	        KrollRuntime.suggestGC();
+		}
 	}
 	
 
