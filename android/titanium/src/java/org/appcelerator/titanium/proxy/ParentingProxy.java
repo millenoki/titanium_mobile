@@ -109,6 +109,7 @@ public class ParentingProxy extends KrollProxy {
     public void setParent(ParentingProxy parent) {
         if (parent == null) {
             this.parent = null;
+            this.parentForBubbling = null;
             return;
         }
 
