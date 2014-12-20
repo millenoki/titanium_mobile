@@ -3485,6 +3485,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		return finished();
 	}
 
+	if (symbols.indexOf('FILESYSTEM') === -1 && 
+		(symbols.indexOf('MEDIA') !== -1 || 
+			symbols.indexOf('AUDIO') !== -1 || 
+			symbols.indexOf('DATABASE') !== -1)) {
+		symbols.push('FILESYSTEM');
+	}
+
 	// build the defines.h file
 	var dest = path.join(this.buildDir, 'Classes', 'defines.h'),
 		contents = [
