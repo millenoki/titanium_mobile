@@ -242,7 +242,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (!opened) { return; }
 		closing = false;
 		opened = false;
-        activity = null;
         parent = null;
 
 		KrollDict data = null;
