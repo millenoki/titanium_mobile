@@ -86,7 +86,8 @@ public abstract class KrollRuntime implements Handler.Callback
 			super(null, null, TAG, stackSize);
 			this.runtime = runtime;
 		}
-
+		
+		@Override
 		public void run()
 		{
 			Looper looper;
