@@ -460,6 +460,13 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public void releaseViews(boolean activityFinishing)
 	{
+	    if (this.activity != null) {
+            TiBaseActivity tiActivity = (TiBaseActivity) this.activity.get();
+            if (tiActivity != null) {
+                tiActivity.removeOnLifecycleEventListener(this);
+                tiActivity.removeInterceptOnBackPressedEventListener(this);
+            }
+        }
 		if (activityFinishing) {
 			TiUIWebView webView = (TiUIWebView) peekView();
 			if (webView != null) {
@@ -470,8 +477,6 @@ public class WebViewProxy extends ViewProxy
 				// the polling.
 				webView.destroyWebViewBinding();
 			}
-
-			super.releaseViews(activityFinishing);
 		}
 		else {
 			TiUIWebView view = (TiUIWebView) peekView();
@@ -479,6 +484,7 @@ public class WebViewProxy extends ViewProxy
 				view.pauseWebView();
 			}
 		}
+        super.releaseViews(activityFinishing);
 	}
 
 	@Kroll.method
