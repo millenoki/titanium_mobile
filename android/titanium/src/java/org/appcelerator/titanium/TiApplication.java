@@ -1095,6 +1095,17 @@ public abstract class TiApplication extends Application implements
     }
 
     public void dispose() {
+        appEventProxies.clear();
+        proxyMap.clear();
+        if (TiApplication.activityTransitionListeners != null) {
+            TiApplication.activityTransitionListeners.clear();
+        }
+        if (TiApplication.appStateListeners != null) {
+            TiApplication.appStateListeners.clear();
+        }
+        if (TiApplication.activityStack != null) {
+            TiApplication.activityStack.clear();
+        }
         TiActivityWindows.dispose();
         TiActivitySupportHelpers.dispose();
         TiFileHelper.getInstance().destroyTempFiles();
@@ -1113,9 +1124,14 @@ public abstract class TiApplication extends Application implements
     public void beforeForcedRestart() {
         restartPending = false;
         currentActivity = null;
+        appEventProxies.clear();
+        proxyMap.clear();
         TiApplication.isActivityTransition.set(false);
         if (TiApplication.activityTransitionListeners != null) {
             TiApplication.activityTransitionListeners.clear();
+        }
+        if (TiApplication.appStateListeners != null) {
+            TiApplication.appStateListeners.clear();
         }
         if (TiApplication.activityStack != null) {
             TiApplication.activityStack.clear();
