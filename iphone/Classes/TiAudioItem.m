@@ -4,12 +4,12 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
-#import "TiMediaItem.h"
-#import "MediaModule.h"
+#ifdef USE_TI_AUDIO
+#import "TiAudioItem.h"
+#import "AudioModule.h"
 
 
-@implementation TiMediaItem
+@implementation TiAudioItem
 
 #pragma mark Internal
 
@@ -29,7 +29,7 @@
 
 -(NSString*)apiName
 {
-    return @"Ti.Media.Item";
+    return @"Ti.Audio.Item";
 }
 
 -(MPMediaItem*)item
@@ -51,9 +51,9 @@
 // This is a sleazy way of getting properties so that I don't have to write 15 functions.
 -(id)valueForUndefinedKey:(NSString *)key
 {
-	id propertyName = [[MediaModule itemProperties] objectForKey:key];
+	id propertyName = [[AudioModule itemProperties] objectForKey:key];
 	if (propertyName == nil) {
-        propertyName = [[MediaModule filterableItemProperties] objectForKey:key];
+        propertyName = [[AudioModule filterableItemProperties] objectForKey:key];
         if (propertyName == nil) {
             return [super valueForUndefinedKey:key];
         }

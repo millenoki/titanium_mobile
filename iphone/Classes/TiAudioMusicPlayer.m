@@ -4,11 +4,11 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
-#import "TiMediaMusicPlayer.h"
-#import "MediaModule.h"
+#ifdef USE_TI_AUDIO
+#import "TiAudioMusicPlayer.h"
+#import "AudioModule.h"
 
-@implementation TiMediaMusicPlayer
+@implementation TiAudioMusicPlayer
 
 #pragma mark Internal
 
@@ -68,17 +68,17 @@
 	}
 	NSMutableArray* items = [NSMutableArray array];
 	if ([arg isKindOfClass:[NSDictionary class]]) {
-		for (TiMediaItem* item in [arg objectForKey:@"items"]) {
+		for (TiAudioItem* item in [arg objectForKey:@"items"]) {
 			[items addObject:[item item]];
 		}
 	}
 	else if ([arg isKindOfClass:[NSArray class]]) {
-		for (TiMediaItem* item in arg) {
+		for (TiAudioItem* item in arg) {
 			[items addObject:[item item]];
 		}
 	}
-	else if ([arg isKindOfClass:[TiMediaItem class]]) {
-		[items addObject:[(TiMediaItem*)arg item]];
+	else if ([arg isKindOfClass:[TiAudioItem class]]) {
+		[items addObject:[(TiAudioItem*)arg item]];
 	}
 	else {
 		[self throwException:[NSString stringWithFormat:@"Invalid object type %@ for player queue",[arg class]]
@@ -158,9 +158,9 @@
 	return NUMINT([player playbackState]);
 }
 
--(TiMediaItem*)nowPlaying
+-(TiAudioItem*)nowPlaying
 {
-	return [[[TiMediaItem alloc] _initWithPageContext:[self pageContext] item:[player nowPlayingItem]] autorelease];
+	return [[[TiAudioItem alloc] _initWithPageContext:[self pageContext] item:[player nowPlayingItem]] autorelease];
 }
 
 -(NSNumber*)repeatMode

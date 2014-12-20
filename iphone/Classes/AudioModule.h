@@ -1,39 +1,35 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Akylas
+ * Copyright (c) 2014-2015 by Akylas. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
 #import "TiModule.h"
 #import "KrollCallback.h"
-#import "TiMediaAudioSession.h"
+#import "TiAudioSession.h"
 #import "MediaPlayer/MediaPlayer.h"
-#import "TiMediaMusicPlayer.h"
 #import "TiViewProxy.h"
 
-@interface MediaModule : TiModule
+@class TiAudioMusicPlayer;
+@interface AudioModule : TiModule
 <
 	UINavigationControllerDelegate,
-	UIImagePickerControllerDelegate,
 	MPMediaPickerControllerDelegate,
 	UIPopoverControllerDelegate,
-	UIPopoverPresentationControllerDelegate,
-	UIVideoEditorControllerDelegate
+	UIPopoverPresentationControllerDelegate
 > {
 @private
-	// Camera picker
-	UIImagePickerController *picker;
-	BOOL autoHidePicker;
-	BOOL saveToRoll;
+
+    BOOL autoHidePicker;
 
 	// Music picker
 	MPMediaPickerController* musicPicker;
 	
 	// Music players
-	TiMediaMusicPlayer* systemMusicPlayer;
-	TiMediaMusicPlayer* appMusicPlayer;
+	TiAudioMusicPlayer* systemMusicPlayer;
+	TiAudioMusicPlayer* appMusicPlayer;
 	
 	// Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
 	BOOL animatedPicker;
@@ -42,12 +38,6 @@
 	KrollCallback *pickerCancelCallback;
 	
 	id popover;
-    TiViewProxy* cameraView;
-	
-	UIVideoEditorController *editor;
-	KrollCallback *editorSuccessCallback;
-	KrollCallback *editorErrorCallback;
-	KrollCallback *editorCancelCallback;
 	UIPopoverArrowDirection arrowDirection;
 }
 
@@ -60,48 +50,12 @@
 @property(nonatomic,readonly) NSNumber* averageMicrophonePower;
 @property(nonatomic,readonly) NSDictionary* currentRoute;
 @property(nonatomic,readonly) NSNumber* audioPlaying;
-@property(nonatomic,readonly) NSNumber* isCameraSupported;
 @property(nonatomic, assign) NSNumber* audioSessionMode;
 @property(nonatomic, assign) NSString* audioSessionCategory;
-@property(nonatomic,readonly) TiMediaMusicPlayer* systemMusicPlayer;
-@property(nonatomic,readonly) TiMediaMusicPlayer* appMusicPlayer;
+@property(nonatomic,readonly) TiAudioMusicPlayer* systemMusicPlayer;
+@property(nonatomic,readonly) TiAudioMusicPlayer* appMusicPlayer;
 
-@property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
-@property(nonatomic,readonly) NSNumber* DEVICE_BUSY;
-@property(nonatomic,readonly) NSNumber* NO_CAMERA;
-@property(nonatomic,readonly) NSNumber* NO_VIDEO;
 @property(nonatomic,readonly) NSNumber* NO_MUSIC_PLAYER;
-
-// these have been deprecated in 3.2 but we map them to their new values
-@property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_DEFAULT;
-@property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_VOLUME_ONLY;
-@property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_HIDDEN;
-
-@property(nonatomic,readonly) NSNumber* VIDEO_SCALING_NONE;
-@property(nonatomic,readonly) NSNumber* VIDEO_SCALING_ASPECT_FIT;
-@property(nonatomic,readonly) NSNumber* VIDEO_SCALING_ASPECT_FILL;
-@property(nonatomic,readonly) NSNumber* VIDEO_SCALING_MODE_FILL;
-
-@property(nonatomic,readonly) NSNumber* QUALITY_HIGH;
-@property(nonatomic,readonly) NSNumber* QUALITY_MEDIUM;
-@property(nonatomic,readonly) NSNumber* QUALITY_LOW;
-@property(nonatomic,readonly) NSNumber* QUALITY_640x480;
-
-@property(nonatomic,readonly) NSArray* availableCameraMediaTypes;
-@property(nonatomic,readonly) NSArray* availablePhotoMediaTypes;
-@property(nonatomic,readonly) NSArray* availablePhotoGalleryMediaTypes;
-
-@property(nonatomic,readonly) NSNumber* CAMERA_FRONT;
-@property(nonatomic,readonly) NSNumber* CAMERA_REAR;
-@property(nonatomic,readonly) NSArray* availableCameras;
-
-@property(nonatomic,readonly) NSNumber* CAMERA_FLASH_OFF;
-@property(nonatomic,readonly) NSNumber* CAMERA_FLASH_AUTO;
-@property(nonatomic,readonly) NSNumber* CAMERA_FLASH_ON;
-
-@property(nonatomic,readonly) NSString* MEDIA_TYPE_VIDEO;
-@property(nonatomic,readonly) NSString* MEDIA_TYPE_PHOTO;
-
 @property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_LINEAR_PCM;
 @property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ULAW;
 @property(nonatomic,readonly) NSNumber* AUDIO_FORMAT_ALAW;
@@ -167,43 +121,6 @@
 @property(nonatomic,readonly) NSNumber* SHUFFLE_SONGS;
 @property(nonatomic,readonly) NSNumber* SHUFFLE_ALBUMS;
 
-
-
-// NOTE: these are introduced in 3.2
-@property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_NONE;			// No controls
-@property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_EMBEDDED;		// Controls for an embedded view
-@property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_FULLSCREEN;	// Controls for fullscreen playback
-
-@property(nonatomic,readonly) NSNumber* VIDEO_MEDIA_TYPE_NONE;
-@property(nonatomic,readonly) NSNumber* VIDEO_MEDIA_TYPE_VIDEO;
-@property(nonatomic,readonly) NSNumber* VIDEO_MEDIA_TYPE_AUDIO;
-
-@property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_UNKNOWN;
-@property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_FILE;
-@property(nonatomic,readonly) NSNumber* VIDEO_SOURCE_TYPE_STREAMING;
-
-@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_STOPPED;
-@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_PLAYING;
-@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_PAUSED;
-@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_INTERRUPTED;
-@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_SEEKING_FORWARD;
-@property(nonatomic,readonly) NSNumber* VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD;
-
-@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_UNKNOWN;
-@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_PLAYABLE;
-@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_PLAYTHROUGH_OK;
-@property(nonatomic,readonly) NSNumber* VIDEO_LOAD_STATE_STALLED;
-
-@property(nonatomic,readonly) NSNumber* VIDEO_REPEAT_MODE_NONE;
-@property(nonatomic,readonly) NSNumber* VIDEO_REPEAT_MODE_ONE;
-
-@property(nonatomic,readonly) NSNumber* VIDEO_TIME_OPTION_NEAREST_KEYFRAME;
-@property(nonatomic,readonly) NSNumber* VIDEO_TIME_OPTION_EXACT;
-
-@property(nonatomic,readonly) NSNumber* VIDEO_FINISH_REASON_PLAYBACK_ENDED;
-@property(nonatomic,readonly) NSNumber* VIDEO_FINISH_REASON_PLAYBACK_ERROR;
-@property(nonatomic,readonly) NSNumber* VIDEO_FINISH_REASON_USER_EXITED;
-
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_PORT_LINEIN;
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_PORT_BUILTINMIC;
 @property(nonatomic,readonly) NSString* AUDIO_SESSION_PORT_HEADSETMIC;
@@ -231,9 +148,6 @@
 @property(nonatomic,readonly) NSNumber* AUDIO_UNAVAILABLE;
 @property(nonatomic,readonly) NSNumber* AUDIO_UNKNOWN;
 @property(nonatomic,readonly) NSNumber* audioLineType;
-
-
-+(UIImage*) takeScreenshotWithScale:(CGFloat)scale;
 
 @end
 

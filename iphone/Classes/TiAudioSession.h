@@ -4,15 +4,15 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#if defined(USE_TI_AUDIO)
 
-extern NSString * const kTiMediaAudioSessionInterruptionBegin;
-extern NSString * const kTiMediaAudioSessionInterruptionEnd;
-extern NSString * const kTiMediaAudioSessionRouteChange;
-extern NSString * const kTiMediaAudioSessionVolumeChange;
-extern NSString * const kTiMediaAudioSessionInputChange;
+extern NSString * const kTiAudioSessionInterruptionBegin;
+extern NSString * const kTiAudioSessionInterruptionEnd;
+extern NSString * const kTiAudioSessionRouteChange;
+extern NSString * const kTiAudioSessionVolumeChange;
+extern NSString * const kTiAudioSessionInputChange;
 
-@interface TiMediaAudioSession : NSObject {
+@interface TiAudioSession : NSObject {
 @private
 	NSInteger count;
 	NSLock *lock;
@@ -20,7 +20,7 @@ extern NSString * const kTiMediaAudioSessionInputChange;
 
 @property (readwrite, assign) NSString* sessionMode;
 
-+(TiMediaAudioSession*)sharedSession;
++(TiAudioSession*)sharedSession;
 
 -(void)startAudioSession;
 -(void)stopAudioSession;

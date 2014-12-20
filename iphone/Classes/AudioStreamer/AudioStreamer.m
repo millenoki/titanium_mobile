@@ -11,7 +11,7 @@
 //  this copyright and permission notice. Attribution in compiled projects is
 //  appreciated but not required.
 //
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
 #import "AudioStreamer.h"
 #import "AudioStreamerCUR.h"

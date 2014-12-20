@@ -4,19 +4,19 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>
 #import <AVFoundation/AVAudioSession.h>
 
-#import "TiMediaSoundProxy.h"
+#import "TiAudioSoundProxy.h"
 #import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiFile.h"
-#import "TiMediaAudioSession.h"
+#import "TiAudioSession.h"
 
-@implementation TiMediaSoundProxy
+@implementation TiAudioSoundProxy
 
 #pragma mark Internal
 
@@ -58,7 +58,7 @@
 	if (player != nil) {
 		if ([player isPlaying] || paused) {
 			[player stop];
-			[[TiMediaAudioSession sharedSession] stopAudioSession];
+			[[TiAudioSession sharedSession] stopAudioSession];
 		}
 		[player setDelegate:nil];
 	}
@@ -80,14 +80,14 @@
     [self rememberSelf];
     TiThreadPerformOnMainThread(^{
         // indicate we're going to start playback
-        if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+        if (![[TiAudioSession sharedSession] canPlayback]) {
             [self throwException:@"Improper audio session mode for playback"
-                       subreason:[[TiMediaAudioSession sharedSession] sessionMode]
+                       subreason:[[TiAudioSession sharedSession] sessionMode]
                         location:CODELOCATION];
         }
         
         if (player == nil || !([player isPlaying] || paused)) {
-            [[TiMediaAudioSession sharedSession] startAudioSession];
+            [[TiAudioSession sharedSession] startAudioSession];
         }
         [[self player] play];
         paused = NO;
@@ -101,7 +101,7 @@
             if ([player isPlaying] || paused) {
                 [player stop];
                 [player setCurrentTime:0];
-                [[TiMediaAudioSession sharedSession] stopAudioSession];
+                [[TiAudioSession sharedSession] stopAudioSession];
             }
         }
         resumeTime = 0;
@@ -126,7 +126,7 @@
     TiThreadPerformOnMainThread(^{
         if (player != nil) {
             if (!([player isPlaying] || paused)) {
-                [[TiMediaAudioSession sharedSession] startAudioSession];
+                [[TiAudioSession sharedSession] startAudioSession];
             }
             
             [player stop];
@@ -295,7 +295,7 @@
 		[self fireEvent:@"complete" withObject:nil errorCode:(flag?0:-1) message:message];
 	}
 	if (flag) {
-		[[TiMediaAudioSession sharedSession] stopAudioSession];
+		[[TiAudioSession sharedSession] stopAudioSession];
 	}
     [self forgetSelf];
 }

@@ -6,16 +6,16 @@
  */
 
 
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
 #import <MediaPlayer/MPNowPlayingInfoCenter.h>
 #import <AVFoundation/AVFoundation.h>
 #import <MediaPlayer/MPMusicPlayerController.h>
 
-#import "TiMediaAudioStreamerProxy.h"
+#import "TiAudioStreamerProxy.h"
 #import "TiUtils.h"
-#import "TiMediaAudioSession.h"
-#import "TiMediaSoundProxy.h"
+#import "TiAudioSession.h"
+#import "TiAudioSoundProxy.h"
 #import "TiFile.h"
 #import "TiApp.h"
 
@@ -66,7 +66,7 @@ typedef enum {
 @end
 
 
-@interface TiMediaAudioStreamerProxy()
+@interface TiAudioStreamerProxy()
 @property (strong, nonatomic) NSArray *originalQueue;
 @property (strong, nonatomic, readwrite) NSArray *queue;
 @property (strong, nonatomic, readwrite) AVPlayerItem *nowPlayingItem;
@@ -76,8 +76,8 @@ typedef enum {
 
 @end
 
-@class TiMediaSoundProxy;
-@implementation TiMediaAudioStreamerProxy{
+@class TiAudioSoundProxy;
+@implementation TiAudioStreamerProxy{
 @private
     double _duration;
     double _currentProgress;
@@ -98,7 +98,7 @@ typedef enum {
 void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID inPropertyID, UInt32 inPropertyValueSize, const void *inPropertyValue) {
     if (inPropertyID != kAudioSessionProperty_AudioRouteChange) return;
     
-    TiMediaAudioStreamerProxy* streamer = (__bridge TiMediaAudioStreamerProxy *)inUserData;
+    TiAudioStreamerProxy* streamer = (__bridge TiAudioStreamerProxy *)inUserData;
     
     CFDictionaryRef routeChangeDictionary = inPropertyValue;
     
@@ -161,7 +161,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 	
     if ([[self playing] boolValue]) {
         [self stop:nil];
-        [[TiMediaAudioSession sharedSession] stopAudioSession];
+        [[TiAudioSession sharedSession] stopAudioSession];
     }
     [self cleanAVPlayer];
     [super _destroy];
@@ -336,8 +336,8 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 - (void)setNowPlayingItem:(id)item {
     
     NSURL* url = nil;
-    if (IS_OF_CLASS(item, TiMediaSoundProxy)) {
-        url = ((TiMediaSoundProxy*)item).url;
+    if (IS_OF_CLASS(item, TiAudioSoundProxy)) {
+        url = ((TiAudioSoundProxy*)item).url;
     } else if (IS_OF_CLASS(item, TiFile)) {
         url = [TiUtils toURL:((TiFile*)item).path proxy:self];
     } else if (IS_OF_CLASS(item, NSDictionary)) {
@@ -722,9 +722,9 @@ PROP_BOOL(muted,isMute);
         [player play];
 //        [self updateStateForPlayer:player];
     } else {
-        if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+        if (![[TiAudioSession sharedSession] canPlayback]) {
             [self throwException:@"Improper audio session mode for playback"
-                       subreason:[[TiMediaAudioSession sharedSession] sessionMode]
+                       subreason:[[TiAudioSession sharedSession] sessionMode]
                         location:CODELOCATION];
         }
         if ([_queue count]) {
@@ -997,13 +997,13 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
     if (_state != newState) {
         _state = newState;
         if (_state == STATE_PLAYING) {
-            [[TiMediaAudioSession sharedSession] startAudioSession];
+            [[TiAudioSession sharedSession] startAudioSession];
         } else {
             if (_state == STATE_STOPPED || _state == STATE_ERROR) {
                 _duration = 0;
                 _currentProgress = 0;
                 [self removePlayerTimeObserver];
-                [[TiMediaAudioSession sharedSession] stopAudioSession];
+                [[TiAudioSession sharedSession] stopAudioSession];
                 
             }
         }

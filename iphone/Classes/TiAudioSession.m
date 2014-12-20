@@ -4,20 +4,20 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#if defined(USE_TI_AUDIO)
 
-#import "TiMediaAudioSession.h"
+#import "TiAudioSession.h"
 #import "TiUtils.h"
 #import <AVFoundation/AVAudioSession.h>
 #import "TiApp.h"
 
-NSString * const kTiMediaAudioSessionInterruptionBegin = @"TiMediaAudioSessionInterruptionBegin";
-NSString * const kTiMediaAudioSessionInterruptionEnd = @"TiMediaAudioSessionInterruptionEnd";
-NSString * const kTiMediaAudioSessionRouteChange = @"TiMediaAudioSessionRouteChange";
-NSString * const kTiMediaAudioSessionVolumeChange = @"TiMediaAudioSessionVolumeChange";
-NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputChange";
+NSString * const kTiAudioSessionInterruptionBegin = @"TiAudioSessionInterruptionBegin";
+NSString * const kTiAudioSessionInterruptionEnd = @"TiAudioSessionInterruptionEnd";
+NSString * const kTiAudioSessionRouteChange = @"TiAudioSessionRouteChange";
+NSString * const kTiAudioSessionVolumeChange = @"TiAudioSessionVolumeChange";
+NSString * const kTiAudioSessionInputChange = @"TiAudioSessionInputChange";
 
-@implementation TiMediaAudioSession
+@implementation TiAudioSession
 
 -(void)deactivateSession
 {
@@ -81,7 +81,7 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
     AVAudioSessionRouteDescription* oldRoute = [userInfo objectForKey:AVAudioSessionRouteChangePreviousRouteKey];
     [event setObject:[self routeDescriptionToDictionary:oldRoute] forKey:@"oldRoute"];
     [event setObject:[self routeDescriptionToDictionary:[[AVAudioSession sharedInstance] currentRoute]] forKey:@"currentRoute"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionRouteChange object:self userInfo:event];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiAudioSessionRouteChange object:self userInfo:event];
 }
 
 -(void)interruptionCallback:(NSNotification*)note
@@ -89,11 +89,11 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
     NSDictionary* userInfo = [note userInfo];
     NSNumber *interruptionType = [userInfo objectForKey:AVAudioSessionInterruptionTypeKey];
     if (interruptionType.unsignedIntValue == AVAudioSessionInterruptionTypeBegan) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionInterruptionBegin object:self];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiAudioSessionInterruptionBegin object:self];
     } else if (interruptionType.unsignedIntValue == AVAudioSessionInterruptionTypeEnded) {
         NSNumber *interruptionOption = [userInfo objectForKey:AVAudioSessionInterruptionOptionKey];
         BOOL shouldResume = (interruptionOption.unsignedIntValue == AVAudioSessionInterruptionOptionShouldResume);
-        [[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionInterruptionEnd object:self userInfo:[NSDictionary dictionaryWithObject:NUMBOOL(shouldResume) forKey:@"resume"]];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiAudioSessionInterruptionEnd object:self userInfo:[NSDictionary dictionaryWithObject:NUMBOOL(shouldResume) forKey:@"resume"]];
     } else {
         DebugLog(@"Unknown interruptionType");
     }
@@ -104,9 +104,9 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
     if ([keyPath isEqualToString:@"outputVolume"]) {
         id newVal = [change objectForKey:NSKeyValueChangeNewKey];
         if (newVal != nil && [newVal isKindOfClass:[NSNumber class]]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionVolumeChange object:self userInfo:[NSDictionary dictionaryWithObject:newVal forKey:@"volume"]];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiAudioSessionVolumeChange object:self userInfo:[NSDictionary dictionaryWithObject:newVal forKey:@"volume"]];
         } else {
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiMediaAudioSessionVolumeChange object:self];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiAudioSessionVolumeChange object:self];
         }
     } else {
         DebugLog(@"Unknown keypath %@",keyPath);
@@ -160,13 +160,13 @@ NSString * const kTiMediaAudioSessionInputChange = @"TiMediaAudioSessionInputCha
     return self;
 }
 
-+(TiMediaAudioSession*)sharedSession
++(TiAudioSession*)sharedSession
 {
-    static TiMediaAudioSession *session = nil;
+    static TiAudioSession *session = nil;
     @synchronized(self) {
         if (session == nil)
         {
-            session = [[TiMediaAudioSession alloc] init];
+            session = [[TiAudioSession alloc] init];
         }
     }
     return session;

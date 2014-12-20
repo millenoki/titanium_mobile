@@ -14,17 +14,10 @@
 #import "Mimetypes.h"
 #import "TiViewProxy.h"
 #import "Ti2DMatrix.h"
-#import "SCListener.h"
-#import "TiMediaAudioSession.h"
-#import "TiMediaMusicPlayer.h"
-#import "TiMediaItem.h"
 
-#import <AudioToolbox/AudioToolbox.h>
-#import <AVFoundation/AVAudioPlayer.h>
-#import <AVFoundation/AVAudioSession.h>
+#import <AVFoundation/AVMediaFormat.h>
 #import <AVFoundation/AVAsset.h>
 #import <AVFoundation/AVAssetExportSession.h>
-#import <AVFoundation/AVMediaFormat.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/UTCoreTypes.h>
 #import <QuartzCore/QuartzCore.h>
@@ -42,25 +35,8 @@ enum
 	MediaModuleErrorUnknown,
 	MediaModuleErrorBusy,
 	MediaModuleErrorNoCamera,
-	MediaModuleErrorNoVideo,
-	MediaModuleErrorNoMusicPlayer
+	MediaModuleErrorNoVideo
 };
-
-// Have to distinguish between filterable and nonfilterable properties
-static NSDictionary* TI_itemProperties;
-static NSDictionary* TI_filterableItemProperties;
-
-#pragma mark - Backwards compatibility for pre-iOS 7.0
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED < __IPHONE_7_0
-
-@protocol AVAudioSessionIOS7Support <NSObject>
-@optional
-- (void)requestRecordPermission:(PermissionBlock)response;
-typedef void (^PermissionBlock)(BOOL granted)
-@end
-
-#endif
 
 @interface TiImagePickerController:UIImagePickerController {
 @private
@@ -115,47 +91,11 @@ typedef void (^PermissionBlock)(BOOL granted)
 -(void)dealloc
 {
     [self destroyPicker];
-    RELEASE_TO_NIL(systemMusicPlayer);
-    RELEASE_TO_NIL(appMusicPlayer);
+//    RELEASE_TO_NIL(systemMusicPlayer);
+//    RELEASE_TO_NIL(appMusicPlayer);
     RELEASE_TO_NIL(popoverView);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [super dealloc];
-}
-
-#pragma mark Static Properties
-
-+(NSDictionary*)filterableItemProperties
-{
-    if (TI_filterableItemProperties == nil) {
-        TI_filterableItemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyMediaType, @"mediaType", // Filterable
-                                                                                   MPMediaItemPropertyTitle, @"title", // Filterable
-                                                                                   MPMediaItemPropertyAlbumTitle, @"albumTitle", // Filterable
-                                                                                   MPMediaItemPropertyArtist, @"artist", // Filterable
-                                                                                   MPMediaItemPropertyAlbumArtist, @"albumArtist", //Filterable
-                                                                                   MPMediaItemPropertyGenre, @"genre", // Filterable
-                                                                                   MPMediaItemPropertyComposer, @"composer", // Filterable
-                                                                                   MPMediaItemPropertyIsCompilation, @"isCompilation", // Filterable
-                                                                                   nil];
-    }
-    return TI_filterableItemProperties;
-}
-
-+(NSDictionary*)itemProperties
-{
-	if (TI_itemProperties == nil) {
-		TI_itemProperties = [[NSDictionary alloc] initWithObjectsAndKeys:MPMediaItemPropertyPlaybackDuration, @"playbackDuration",
-                                                                         MPMediaItemPropertyAlbumTrackNumber, @"albumTrackNumber",
-                                                                         MPMediaItemPropertyAlbumTrackCount, @"albumTrackCount",
-                                                                         MPMediaItemPropertyDiscNumber, @"discNumber",
-                                                                         MPMediaItemPropertyDiscCount, @"discCount",
-                                                                         MPMediaItemPropertyLyrics, @"lyrics",
-                                                                         MPMediaItemPropertyPodcastTitle, @"podcastTitle",
-                                                                         MPMediaItemPropertyPlayCount, @"playCount",
-                                                                         MPMediaItemPropertySkipCount, @"skipCount",
-                                                                         MPMediaItemPropertyRating, @"rating",
-                                                                         nil	];		
-	}
-	return TI_itemProperties;
 }
 
 #pragma mark Public Properties
@@ -163,106 +103,6 @@ typedef void (^PermissionBlock)(BOOL granted)
 {
     return @"Ti.Media";
 }
-
-MAKE_SYSTEM_UINT(AUDIO_FORMAT_LINEAR_PCM,kAudioFormatLinearPCM);
-MAKE_SYSTEM_UINT(AUDIO_FORMAT_ULAW,kAudioFormatULaw);
-MAKE_SYSTEM_UINT(AUDIO_FORMAT_ALAW,kAudioFormatALaw);
-MAKE_SYSTEM_UINT(AUDIO_FORMAT_IMA4,kAudioFormatAppleIMA4);
-MAKE_SYSTEM_UINT(AUDIO_FORMAT_ILBC,kAudioFormatiLBC);
-MAKE_SYSTEM_UINT(AUDIO_FORMAT_APPLE_LOSSLESS,kAudioFormatAppleLossless);
-MAKE_SYSTEM_UINT(AUDIO_FORMAT_AAC,kAudioFormatMPEG4AAC);
-
-MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_WAVE,kAudioFileWAVEType);
-MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AIFF,kAudioFileAIFFType);
-MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_MP3,kAudioFileMP3Type);
-MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_MP4,kAudioFileMPEG4Type);
-MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_MP4A,kAudioFileM4AType);
-MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_CAF,kAudioFileCAFType);
-MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GPP,kAudioFile3GPType);
-MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_3GP2,kAudioFile3GP2Type);
-MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
-
-//Constants for audioLineType
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADPHONES,-1,@"Media.AUDIO_HEADPHONES",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADSET_INOUT,-2,@"Media.AUDIO_HEADSET_INOUT",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_RECEIVER_AND_MIC,-3,@"Media.AUDIO_RECEIVER_AND_MIC",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_HEADPHONES_AND_MIC,-4,@"Media.AUDIO_HEADPHONES_AND_MIC",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_LINEOUT,-5,@"Media.AUDIO_LINEOUT",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_SPEAKER,-6,@"Media.AUDIO_SPEAKER",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_MICROPHONE,-7,@"Media.AUDIO_MICROPHONE",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_MUTED,-8,@"Media.AUDIO_MUTED",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_UNAVAILABLE,-9,@"Media.AUDIO_UNAVAILABLE",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(AUDIO_UNKNOWN,-10,@"Media.AUDIO_UNKNOWN",@"3.4.2",@"3.5.0");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(audioLineType,-10,@"Media.audioLineType",@"3.4.2",@"3.5.0",@"Media.currentRoute");
-
-//Constants for currentRoute
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEIN,AVAudioSessionPortLineIn)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BUILTINMIC,AVAudioSessionPortBuiltInMic)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_HEADSETMIC,AVAudioSessionPortHeadsetMic)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEOUT,AVAudioSessionPortLineOut)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_HEADPHONES,AVAudioSessionPortHeadphones)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BLUETOOTHA2DP,AVAudioSessionPortBluetoothA2DP)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BUILTINRECEIVER,AVAudioSessionPortBuiltInReceiver)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BUILTINSPEAKER,AVAudioSessionPortBuiltInSpeaker)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_HDMI,AVAudioSessionPortHDMI)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_AIRPLAY,AVAudioSessionPortAirPlay)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BLUETOOTHHFP,AVAudioSessionPortBluetoothHFP)
-MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
-
--(NSString*)AUDIO_SESSION_PORT_BLUETOOTHLE
-{
-    if ([TiUtils isIOS7OrGreater]) {
-        return AVAudioSessionPortBluetoothLE;
-    }
-    return @"Unavailable";
-}
-
--(NSString*)AUDIO_SESSION_PORT_CARAUDIO
-{
-    if ([TiUtils isIOS7OrGreater]) {
-        return AVAudioSessionPortCarAudio;
-    }
-    return @"Unavailable";
-}
-
-
-//Constants for AudioSessions
--(NSNumber*)AUDIO_SESSION_MODE_AMBIENT
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_AmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_SOLO_AMBIENT
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_SoloAmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAYBACK
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_MediaPlayback];
-}
--(NSNumber*)AUDIO_SESSION_MODE_RECORD
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_RecordAudio];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAY_AND_RECORD
-{
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_PlayAndRecord];
-}
-
-//Constants for AudioSessions
-MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_AMBIENT,AVAudioSessionCategoryAmbient);
-MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_SOLO_AMBIENT, AVAudioSessionCategorySoloAmbient);
-MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAYBACK, AVAudioSessionCategoryPlayback);
-MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_RECORD, AVAudioSessionCategoryRecord);
-MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD, AVAudioSessionCategoryPlayAndRecord);
-
-
-MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNone);
-MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
 
 //Constants for Camera
 MAKE_SYSTEM_PROP(CAMERA_FRONT,UIImagePickerControllerCameraDeviceFront);
@@ -272,51 +112,11 @@ MAKE_SYSTEM_PROP(CAMERA_FLASH_OFF,UIImagePickerControllerCameraFlashModeOff);
 MAKE_SYSTEM_PROP(CAMERA_FLASH_AUTO,UIImagePickerControllerCameraFlashModeAuto);
 MAKE_SYSTEM_PROP(CAMERA_FLASH_ON,UIImagePickerControllerCameraFlashModeOn);
 
-//Constants for mediaTypes in openMusicLibrary
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_MUSIC, MPMediaTypeMusic);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_PODCAST, MPMediaTypePodcast);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_AUDIOBOOK, MPMediaTypeAudioBook);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ANY_AUDIO, MPMediaTypeAnyAudio);
--(NSNumber*)MUSIC_MEDIA_TYPE_ALL
-{
-    return NUMUINTEGER(MPMediaTypeAny);
-}
-//Constants for grouping in queryMusicLibrary
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_TITLE, MPMediaGroupingTitle);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ALBUM, MPMediaGroupingAlbum);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ARTIST, MPMediaGroupingArtist);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ALBUM_ARTIST, MPMediaGroupingAlbumArtist);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_COMPOSER, MPMediaGroupingComposer);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_GENRE, MPMediaGroupingGenre);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_PLAYLIST, MPMediaGroupingPlaylist);
-MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_PODCAST_TITLE, MPMediaGroupingPodcastTitle);
-
-//Constants for MusicPlayer playback state
-MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
-MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);
-MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PAUSED, MPMusicPlaybackStatePaused);
-MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_INTERRUPTED, MPMusicPlaybackStateInterrupted);
-MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SKEEK_FORWARD, MPMusicPlaybackStateSeekingForward);
-MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SEEK_BACKWARD, MPMusicPlaybackStateSeekingBackward);
-
-//Constants for MusicPlayer repeatMode
-MAKE_SYSTEM_PROP(REPEAT_DEFAULT, MPMusicRepeatModeDefault);
-MAKE_SYSTEM_PROP(REPEAT_NONE, MPMusicRepeatModeNone);
-MAKE_SYSTEM_PROP(REPEAT_ONE, MPMusicRepeatModeOne);
-MAKE_SYSTEM_PROP(REPEAT_ALL, MPMusicRepeatModeAll);
-
-//Constants for MusicPlayer shuffleMode
-MAKE_SYSTEM_PROP(SHUFFLE_DEFAULT, MPMusicShuffleModeDefault);
-MAKE_SYSTEM_PROP(SHUFFLE_NONE, MPMusicShuffleModeOff);
-MAKE_SYSTEM_PROP(SHUFFLE_SONGS, MPMusicShuffleModeSongs);
-MAKE_SYSTEM_PROP(SHUFFLE_ALBUMS, MPMusicShuffleModeAlbums);
-
 //Error constants for MediaModule
 MAKE_SYSTEM_PROP(UNKNOWN_ERROR,MediaModuleErrorUnknown);
 MAKE_SYSTEM_PROP(DEVICE_BUSY,MediaModuleErrorBusy);
 MAKE_SYSTEM_PROP(NO_CAMERA,MediaModuleErrorNoCamera);
 MAKE_SYSTEM_PROP(NO_VIDEO,MediaModuleErrorNoVideo);
-MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,MediaModuleErrorNoMusicPlayer);
 
 //Constants for mediaTypes in showCamera
 MAKE_SYSTEM_STR(MEDIA_TYPE_VIDEO,kUTTypeMovie);
@@ -388,102 +188,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE,MPMovieRepeatModeOne);
 MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_NEAREST_KEYFRAME,MPMovieTimeOptionNearestKeyFrame);
 MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
--(TiMediaMusicPlayer*)systemMusicPlayer
-{
-    if (systemMusicPlayer == nil) {
-        if (![NSThread isMainThread]) {
-            __block id result;
-            TiThreadPerformOnMainThread(^{result = [self systemMusicPlayer];}, YES);
-            return result;
-        }
-        if ([TiUtils isIOS8OrGreater]) {
-            systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController systemMusicPlayer]];
-        } else {
-            systemMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController iPodMusicPlayer]];
-        }
-    }
-    return systemMusicPlayer;
-}
-
--(TiMediaMusicPlayer*)appMusicPlayer
-{
-    if (appMusicPlayer == nil) {
-        if (![NSThread isMainThread]) {
-            __block id result;
-            TiThreadPerformOnMainThread(^{result = [self appMusicPlayer];}, YES);
-            return appMusicPlayer;
-        }
-        appMusicPlayer = [[TiMediaMusicPlayer alloc] _initWithPageContext:[self pageContext] player:[MPMusicPlayerController applicationMusicPlayer]];
-    }
-    return appMusicPlayer;
-}
-
--(void)setDefaultAudioSessionMode:(NSNumber*)mode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
-    [self setAudioSessionMode:mode];
-}
-
--(NSNumber*)defaultAudioSessionMode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
-    return [self audioSessionMode];
-}
-
--(void)setAudioSessionMode:(NSNumber*)mode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
-    switch ([mode unsignedIntegerValue]) {
-        case kAudioSessionCategory_AmbientSound:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
-            break;
-        case kAudioSessionCategory_SoloAmbientSound:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]];
-            break;
-        case kAudioSessionCategory_PlayAndRecord:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]];
-            break;
-        case kAudioSessionCategory_RecordAudio:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_RECORD]];
-            break;
-        case kAudioSessionCategory_MediaPlayback:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAYBACK]];
-            break;
-        default:
-            DebugLog(@"Unsupported audioSessionMode specified");
-            break;
-    }
-    
-}
-
--(NSNumber*)audioSessionMode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
-    NSString* category = [self audioSessionCategory];
-    if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_SOLO_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAYBACK]]) {
-        return [self AUDIO_SESSION_MODE_PLAYBACK];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_RECORD];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_PLAY_AND_RECORD];
-    } else {
-        return NUMINT(-1);
-    }
-}
-
--(void)setAudioSessionCategory:(NSString*)mode
-{
-    [[TiMediaAudioSession sharedSession] setSessionMode:mode];
-}
-
--(NSString*)audioSessionCategory
-{
-    return [[TiMediaAudioSession sharedSession] sessionMode];
-}
 
 -(NSArray*)availableCameraMediaTypes
 {
@@ -538,107 +242,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
 }
 
--(NSNumber*)canRecord
-{
-    return NUMBOOL([[TiMediaAudioSession sharedSession] hasInput]);
-}
-
 -(NSNumber*)isCameraSupported
 {
     return NUMBOOL([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]);
 }
 
--(NSNumber*)volume
-{
-    return NUMFLOAT([[TiMediaAudioSession sharedSession] volume]);
-}
-
--(NSNumber*)audioPlaying
-{
-    return NUMBOOL([[TiMediaAudioSession sharedSession] isAudioPlaying]);
-}
-
--(NSDictionary*)currentRoute
-{
-    return [[TiMediaAudioSession sharedSession] currentRoute];
-}
-
 #pragma mark Public Methods
-
--(void)beep:(id)unused
-{
-    ENSURE_UI_THREAD(beep,unused);
-    AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
-}
-
--(void)vibrate:(id)args
-{
-    //No pattern support on iOS
-    [self beep:nil];
-}
-
--(void)setOverrideAudioRoute:(NSNumber*)mode
-{
-    [[TiMediaAudioSession sharedSession] setRouteOverride:[mode unsignedIntValue]];
-}
-
-/**
- Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
- **/
--(void) requestAuthorization:(id)args
-{
-    ENSURE_SINGLE_ARG(args, KrollCallback);
-    KrollCallback * callback = args;
-    if ([[AVAudioSession sharedInstance] respondsToSelector:@selector(requestRecordPermission:)]) {
-        TiThreadPerformOnMainThread(^(){
-            [[AVAudioSession sharedInstance] requestRecordPermission:^(BOOL granted){
-                KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                        eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
-                                                                         thisObject:self];
-                [[callback context] enqueue:invocationEvent];
-				RELEASE_TO_NIL(invocationEvent);
-            }];
-        }, NO);
-    } else {
-        NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
-        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
-        [callback call:invocationArray thisObject:self];
-        [invocationArray release];
-        return;
-    }
-}
-
--(void)startMicrophoneMonitor:(id)args
-{
-    [[SCListener sharedListener] listen];
-}
-
--(void)stopMicrophoneMonitor:(id)args
-{
-    [[SCListener sharedListener] stop];
-}
-
--(NSNumber*)peakMicrophonePower
-{
-    if ([[SCListener sharedListener] isListening])
-    {
-        return NUMFLOAT([[SCListener sharedListener] peakPower]);
-    }
-    return NUMFLOAT(-1);
-}
-
--(NSNumber*)averageMicrophonePower
-{
-    if ([[SCListener sharedListener] isListening])
-    {
-        return NUMFLOAT([[SCListener sharedListener] averagePower]);
-    }
-    return NUMFLOAT(-1);
-}
-
-/**
- End Microphone and Recording Support
- **/
 
 -(NSNumber*)isMediaTypeSupported:(id)args
 {
@@ -974,124 +583,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 }
 
 /**
- Music Library Support
- **/
--(void)openMusicLibrary:(id)args
-{
-    ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-    ENSURE_UI_THREAD(openMusicLibrary,args);
-    
-    if (musicPicker != nil) {
-        [self sendPickerError:MediaModuleErrorBusy];
-        return;
-    }
-    
-    animatedPicker = YES;
-    
-    // Have to perform setup & manual check for simulator; otherwise things
-    // fail less than gracefully.
-    [self commonPickerSetup:args];
-    
-    // iPod not available on simulator
-#if TARGET_IPHONE_SIMULATOR
-    [self sendPickerError:MediaModuleErrorNoMusicPlayer];
-    return;
-#endif
-    
-    if (args != nil)
-    {
-        MPMediaType mediaTypes = 0;
-        id mediaList = [args objectForKey:@"mediaTypes"];
-        
-        if (mediaList!=nil) {
-            if ([mediaList isKindOfClass:[NSArray class]]) {
-                for (NSNumber* type in mediaList) {
-                    switch ([type integerValue]) {
-                        case MPMediaTypeMusic:
-                        case MPMediaTypeAnyAudio:
-                        case MPMediaTypeAudioBook:
-                        case MPMediaTypePodcast:
-                        case MPMediaTypeAny:
-                            mediaTypes |= [type integerValue];
-                    }
-                }
-            }
-            else {
-                ENSURE_TYPE(mediaList, NSNumber);
-                switch ([mediaList integerValue]) {
-                    case MPMediaTypeMusic:
-                    case MPMediaTypeAnyAudio:
-                    case MPMediaTypeAudioBook:
-                    case MPMediaTypePodcast:
-                    case MPMediaTypeAny:
-                        mediaTypes = [mediaList integerValue];
-                }
-            }
-        }
-        
-        if (mediaTypes == 0) {
-            mediaTypes = MPMediaTypeAny;
-        }
-        
-        musicPicker = [[MPMediaPickerController alloc] initWithMediaTypes:mediaTypes];
-        musicPicker.allowsPickingMultipleItems = [TiUtils boolValue:[args objectForKey:@"allowMultipleSelections"] def:NO];
-    }
-    else {
-        musicPicker = [[MPMediaPickerController alloc] init];
-    }
-    [musicPicker setDelegate:self];
-    
-    [self displayModalPicker:musicPicker settings:args];
-}
-
--(void)hideMusicLibrary:(id)args
-{
-    ENSURE_UI_THREAD(hideMusicLibrary,args);
-    if (musicPicker != nil)
-    {
-        [[TiApp app] hideModalController:musicPicker animated:animatedPicker];
-        [[TiApp controller] repositionSubviews];
-        [self destroyPicker];
-    }
-}
-
--(NSArray*)queryMusicLibrary:(id)arg
-{
-    ENSURE_SINGLE_ARG(arg, NSDictionary);
-    
-    NSMutableSet* predicates = [NSMutableSet set];
-    for (NSString* prop in [MediaModule filterableItemProperties]) {
-        id value = [arg valueForKey:prop];
-        if (value != nil) {
-            if ([value isKindOfClass:[NSDictionary class]]) {
-                id propVal = [value objectForKey:@"value"];
-                bool exact = [TiUtils boolValue:[value objectForKey:@"exact"] def:YES];
-                MPMediaPredicateComparison comparison = (exact) ? MPMediaPredicateComparisonEqualTo : MPMediaPredicateComparisonContains;
-                [predicates addObject:[MPMediaPropertyPredicate predicateWithValue:propVal
-                                                                       forProperty:[[MediaModule filterableItemProperties] valueForKey:prop]
-                                                                    comparisonType:comparison]];
-            }
-            else {
-                [predicates addObject:[MPMediaPropertyPredicate predicateWithValue:value
-                                                                       forProperty:[[MediaModule filterableItemProperties] valueForKey:prop]]];
-            }
-        }
-    }
-    
-    MPMediaQuery* query = [[[MPMediaQuery alloc] initWithFilterPredicates:predicates] autorelease];
-    NSMutableArray* result = [NSMutableArray arrayWithCapacity:[[query items] count]];
-    for (MPMediaItem* item in [query items]) {
-        TiMediaItem* newItem = [[[TiMediaItem alloc] _initWithPageContext:[self pageContext] item:item] autorelease];
-        [result addObject:newItem];
-    }
-    return result;
-}
-
-/**
- End Music Library Support
- **/
-
-/**
  Video Editing Support
  **/
 -(void)startVideoEditing:(id)args
@@ -1187,7 +678,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	RELEASE_TO_NIL(editorSuccessCallback);
 	RELEASE_TO_NIL(editorErrorCallback);
 	RELEASE_TO_NIL(editorCancelCallback);
-	RELEASE_TO_NIL(musicPicker);
 	RELEASE_TO_NIL(picker);
 	RELEASE_TO_NIL(pickerSuccessCallback);
 	RELEASE_TO_NIL(pickerErrorCallback);
@@ -1603,10 +1093,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 #pragma mark UIPopoverControllerDelegate
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
 {
-    if([popoverController contentViewController] == musicPicker) {
-        RELEASE_TO_NIL(musicPicker);
-    }
-    
     RELEASE_TO_NIL(popover);
     [self sendPickerCancel];
     //Unregister for interface change notification
@@ -1661,10 +1147,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 - (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
 {
-    if([popoverPresentationController presentedViewController] == musicPicker) {
-        RELEASE_TO_NIL(musicPicker);
-    }
-    
     [self sendPickerCancel];
 }
 
@@ -1830,36 +1312,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	[self sendPickerCancel];
 }
 
-#pragma mark MPMediaPickerControllerDelegate
-- (void)mediaPicker:(MPMediaPickerController*)mediaPicker_ didPickMediaItems:(MPMediaItemCollection*)collection
-{
-	if (autoHidePicker) {
-		[self closeModalPicker:musicPicker];
-	}
-	
-	TiMediaItem* representative = [[[TiMediaItem alloc] _initWithPageContext:[self pageContext] item:[collection representativeItem]] autorelease];
-	NSNumber* mediaTypes = [NSNumber numberWithUnsignedInteger:[collection mediaTypes]];
-	NSMutableArray* items = [NSMutableArray array];
-	
-	for (MPMediaItem* item in [collection items]) {
-		TiMediaItem* newItem = [[[TiMediaItem alloc] _initWithPageContext:[self pageContext] item:item] autorelease];
-		[items addObject:newItem];
-	}
-	
-	NSMutableDictionary* picked = [TiUtils dictionaryWithCode:0 message:nil];
-	[picked setObject:representative forKey:@"representative"];
-	[picked setObject:mediaTypes forKey:@"types"];
-	[picked setObject:items forKey:@"items"];
-	
-	[self sendPickerSuccess:picked];
-}
-
-- (void)mediaPickerDidCancel:(MPMediaPickerController *)mediaPicker_
-{
-	[self closeModalPicker:musicPicker];
-	[self sendPickerCancel];
-}
-
 #pragma mark UIVideoEditorControllerDelegate
 
 - (void)videoEditorController:(UIVideoEditorController *)editor_ didSaveEditedVideoToPath:(NSString *)editedVideoPath
@@ -1906,67 +1358,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 		[NSThread detachNewThreadSelector:@selector(dispatchCallback:) toTarget:self withObject:[NSArray arrayWithObjects:@"error",event,listener,nil]];
 	}
 }
-
-#pragma mark Event Listener Management
-
--(void)audioRouteChanged:(NSNotification*)note
-{
-    NSDictionary *event = [note userInfo];
-    [self fireEvent:@"routechange" withObject:event];
-}
-
--(void)audioVolumeChanged:(NSNotification*)note
-{
-    NSDictionary* userInfo = [note userInfo];
-    if (userInfo != nil) {
-        [self fireEvent:@"volume" withObject:userInfo];
-    } else {
-        NSMutableDictionary *event = [NSMutableDictionary dictionary];
-        [event setObject:[self volume] forKey:@"volume"];
-        [self fireEvent:@"volume" withObject:event];
-    }
-}
-
--(void)_listenerAdded:(NSString *)type count:(int)count
-{
-    if (count == 1 && [type isEqualToString:@"routechange"])
-    {
-        WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe
-        [[TiMediaAudioSession sharedSession] startAudioSession]; // Have to start a session to get a listener
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioRouteChanged:) name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
-    }
-    else if (count == 1 && [type isEqualToString:@"volume"])
-    {
-        WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-        [[TiMediaAudioSession sharedSession] startAudioSession]; // Have to start a session to get a listener
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
-    }
-    else if (count == 1 && [type isEqualToString:@"recordinginput"])
-    {
-        DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Check the inputs property fo the currentRoute property to check if an input line is available");
-    }
-    else if (count == 1 && [type isEqualToString:@"linechange"])
-    {
-        DebugLog(@"[WARN] This event is no longer supported by the MediaModule. Listen for the routechange event instead");
-    }
-}
-
--(void)_listenerRemoved:(NSString *)type count:(int)count
-{
-    if (count == 0 && [type isEqualToString:@"routechange"])
-    {
-        WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-        [[TiMediaAudioSession sharedSession] stopAudioSession];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
-    }
-    else if (count == 0 && [type isEqualToString:@"volume"])
-    {
-        WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-        [[TiMediaAudioSession sharedSession] stopAudioSession];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
-    }
-}
-
 
 @end
 

@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
 #import "TiProxy.h"
 #import "TiFile.h"
@@ -17,7 +17,7 @@ typedef enum
     RecordPaused = 2
 } RecorderState;
 
-@interface TiMediaAudioRecorderProxy : TiProxy<AVAudioRecorderDelegate> {
+@interface TiAudioRecorderProxy : TiProxy<AVAudioRecorderDelegate> {
 @private
     AVAudioRecorder *recorder;
     TiFile *file;

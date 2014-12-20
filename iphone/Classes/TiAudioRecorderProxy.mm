@@ -4,16 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
-#import "TiMediaAudioRecorderProxy.h"
+#import "TiAudioRecorderProxy.h"
 #import "TiUtils.h"
 #import "TiFile.h"
-#import "TiMediaAudioSession.h"
+#import "TiAudioSession.h"
 #import "TiFilesystemFileProxy.h"
 #import <AudioToolbox/AudioFile.h>
 
-@implementation TiMediaAudioRecorderProxy
+@implementation TiAudioRecorderProxy
 
 @synthesize format, compression;
 
@@ -50,9 +50,9 @@
 
 -(void)start:(id)args
 {
-    if (![[TiMediaAudioSession sharedSession] canRecord]) {
+    if (![[TiAudioSession sharedSession] canRecord]) {
         [self throwException:@"Improper audio session mode for recording"
-                   subreason:[[TiMediaAudioSession sharedSession] sessionMode]
+                   subreason:[[TiAudioSession sharedSession] sessionMode]
                     location:CODELOCATION];
         return;
     }
@@ -65,9 +65,9 @@
     TiThreadPerformOnMainThread(^{
         [self configureRecorder];
         if (recorder != nil) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
-            [[TiMediaAudioSession sharedSession] startAudioSession];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiAudioSessionInterruptionBegin object:[TiAudioSession sharedSession]];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiAudioSessionInterruptionEnd object:[TiAudioSession sharedSession]];
+            [[TiAudioSession sharedSession] startAudioSession];
             [recorder record];
             curState = RecordStarted;
         }
@@ -84,7 +84,7 @@
     TiThreadPerformOnMainThread(^{
         if (recorder != nil) {
             [recorder stop];
-            [[TiMediaAudioSession sharedSession] stopAudioSession];
+            [[TiAudioSession sharedSession] stopAudioSession];
         }
         curState = RecordStopped;
         [[NSNotificationCenter defaultCenter] removeObserver:self];

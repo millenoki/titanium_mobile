@@ -6,7 +6,7 @@
 #import "TiViewProxy.h"
 #import "TiImageHelper.h"
 
-#define USE_TI_MEDIA
+#define USE_TI_IMAGE
 
 #import "MediaModule.h"
 

@@ -4,14 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
-#import "TiMediaAudioPlayerProxy.h"
+#import "TiAudioPlayerProxy.h"
 #import "TiUtils.h"
-#import "TiMediaAudioSession.h"
+#import "TiAudioSession.h"
 #include <AudioToolbox/AudioToolbox.h>
 
-@implementation TiMediaAudioPlayerProxy
+@implementation TiAudioPlayerProxy
 
 #pragma mark Internal
 
@@ -32,7 +32,7 @@
 	{
 		if ([player isPlaying] || [player isPaused] || [player isWaiting]) {
 			[player stop];
-			[[TiMediaAudioSession sharedSession] stopAudioSession];
+			[[TiAudioSession sharedSession] stopAudioSession];
 		}
 	}
 	[player setDelegate:nil];
@@ -97,7 +97,7 @@
 		if ([player isPlaying] || [player isPaused] || [player isWaiting])
 		{
 			[player stop];
-			[[TiMediaAudioSession sharedSession] stopAudioSession];
+			[[TiAudioSession sharedSession] stopAudioSession];
 		}
 		[player setDelegate:nil];
 		RELEASE_TO_NIL(player);
@@ -239,14 +239,14 @@ PLAYER_PROP_DOUBLE(state,state);
 		return;
 	}
 	// indicate we're going to start playing
-	if (![[TiMediaAudioSession sharedSession] canPlayback]) {
+	if (![[TiAudioSession sharedSession] canPlayback]) {
 		[self throwException:@"Improper audio session mode for playback"
-				   subreason:[[TiMediaAudioSession sharedSession] sessionMode]
+				   subreason:[[TiAudioSession sharedSession] sessionMode]
 					location:CODELOCATION];
 	}
 	
 	if (player == nil || !([player isPlaying] || [player isPaused] || [player isWaiting])) {
-		[[TiMediaAudioSession sharedSession] startAudioSession];
+		[[TiAudioSession sharedSession] startAudioSession];
 	}
 	[[self player] start];
 }
@@ -262,7 +262,7 @@ PLAYER_PROP_DOUBLE(state,state);
 		if ([player isPlaying] || [player isPaused] || [player isWaiting])
 		{
 			[player stop];
-			[[TiMediaAudioSession sharedSession] stopAudioSession];
+			[[TiAudioSession sharedSession] stopAudioSession];
 		}
 	}
 }
@@ -332,7 +332,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 		[self fireEvent:@"change" withObject:event checkForListener:NO];
 	}
 	if (player.errorCode != AS_NO_ERROR && player.state == AS_STOPPED) {
-		[[TiMediaAudioSession sharedSession] stopAudioSession];
+		[[TiAudioSession sharedSession] stopAudioSession];
 	}
 }
 

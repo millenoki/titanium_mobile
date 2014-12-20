@@ -4,14 +4,14 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
 #import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import "TiProxy.h"
-#import "TiMediaItem.h"
+#import "TiAudioItem.h"
 
-@interface TiMediaMusicPlayer : TiProxy {
+@interface TiAudioMusicPlayer : TiProxy {
 	MPMusicPlayerController* player;
 }
 
@@ -36,7 +36,7 @@
 @property(nonatomic,assign) NSNumber* repeatMode;
 @property(nonatomic,assign) NSNumber* shuffleMode;
 @property(nonatomic,assign) NSNumber* volume;
-@property(nonatomic,readonly) TiMediaItem* nowPlaying;
+@property(nonatomic,readonly) TiAudioItem* nowPlaying;
 
 @end
 

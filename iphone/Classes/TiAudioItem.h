@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
 #import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayer.h>
@@ -13,7 +13,7 @@
 
 // Not 'officially' a proxy since we don't want users being able to create these; they're
 // generated internally only for the media player.
-@interface TiMediaItem : TiProxy {
+@interface TiAudioItem : TiProxy {
 	MPMediaItem* item;
 }
 

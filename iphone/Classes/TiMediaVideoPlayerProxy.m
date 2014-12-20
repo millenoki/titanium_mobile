@@ -17,7 +17,7 @@
 #import "TiFile.h"
 #import "TiViewProxy.h"
 #import "TiBlob.h"
-#import "TiMediaAudioSession.h"
+#import "TiAudioSession.h"
 #import "TiApp.h"
 
 /** 

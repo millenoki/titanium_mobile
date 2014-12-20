@@ -6,12 +6,12 @@
  */
 
 
-#ifdef USE_TI_MEDIA
+#ifdef USE_TI_AUDIO
 
 #import "TiProxy.h"
 #import "ImageLoader.h"
 
-@interface TiMediaAudioStreamerProxy : TiProxy<ImageLoaderDelegate>
+@interface TiAudioStreamerProxy : TiProxy<ImageLoaderDelegate>
 
 @property (nonatomic,readonly) NSURL *url;
 @property (nonatomic,readwrite,assign)  NSNumber *paused;
