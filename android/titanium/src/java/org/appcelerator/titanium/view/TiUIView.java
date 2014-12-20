@@ -393,7 +393,20 @@ public abstract class TiUIView
 		    return;
 		}
 		if (this.nativeView != null) {
-		    TiUIHelper.removeViewFromSuperView(this.nativeView);
+		    //if the nativeView already has a parent make sure to add the newOne to it
+		    ViewGroup savedParent = null;
+	        int savedIndex = 0;
+	        if (view != null && this.nativeView.getParent() != null) {
+	            ViewParent nativeParent = this.nativeView.getParent();
+	            if (nativeParent instanceof ViewGroup) {
+	                savedParent = (ViewGroup) nativeParent;
+	                savedIndex = savedParent.indexOfChild(this.nativeView);
+	                savedParent.removeView(this.nativeView);
+	            }
+	        }
+	        if (savedParent != null) {
+	            savedParent.addView(view, savedIndex,getLayoutParams());
+	        }
 		}
 		this.nativeView = view;
 
