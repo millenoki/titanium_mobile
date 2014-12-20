@@ -287,7 +287,7 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 		else {
 			Log.e(TAG, "handleWindowClosed called with not activity, shouldn't be possible");
 		}
-		toRemove.setActivity(null);
+//		toRemove.setActivity(null);
 		toRemove.closeFromActivity(true);
 	}
 	
