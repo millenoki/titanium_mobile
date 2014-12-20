@@ -95,6 +95,25 @@ public class ListViewProxy extends TiViewProxy {
 		super.handleCreationArgs(createdInModule, args);
 		
 	}
+	
+    @Override
+    public void setActivity(Activity activity) {
+        super.setActivity(activity);
+        TiUIView listView = peekView();
+
+        if (listView != null) {
+            ListSectionProxy[] sections = ((TiListView) listView).getSections();
+            for (ListSectionProxy section : sections) {
+                section.setActivity(activity);
+            }
+        }
+    }
+    
+//    @Override
+//    public void releaseViews(boolean activityFinishing) {
+//        TiUIView listView = peekView();
+//        super.releaseViews(activityFinishing);
+//    }
 
 	@Override
 	public void handleCreationDict(KrollDict options) {

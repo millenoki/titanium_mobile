@@ -871,9 +871,10 @@ public class ListSectionProxy extends ViewProxy {
 		data = template.prepareDataDict(data);
 		ListItemProxy itemProxy = (ListItemProxy) cellContent.getView().getProxy();
 		itemProxy.setCurrentItem(sectionIndex, itemIndex, this);
+		itemProxy.setActivity(this.getActivity());
 
 		KrollDict listItemProperties;
-		String itemId = null;
+//		String itemId = null;
 
 		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			listItemProperties = new KrollDict(
@@ -895,11 +896,11 @@ public class ListSectionProxy extends ViewProxy {
 //		}
 		
 
-		// find out if we need to update itemId
-		if (listItemProperties.containsKey(TiC.PROPERTY_ITEM_ID)) {
-			itemId = TiConvert.toString(listItemProperties
-					.get(TiC.PROPERTY_ITEM_ID));
-		}
+//		// find out if we need to update itemId
+//		if (listItemProperties.containsKey(TiC.PROPERTY_ITEM_ID)) {
+//			itemId = TiConvert.toString(listItemProperties
+//					.get(TiC.PROPERTY_ITEM_ID));
+//		}
 
 		// update extra event data for list item
 		itemProxy.setEventOverrideDelegate(itemProxy);
@@ -1143,10 +1144,22 @@ public class ListSectionProxy extends ViewProxy {
 		mCurrentItemCount = 0;
 		super.release();
 	}
-
-	public void releaseViews() {
-		listView = null;
-	}
+	
+    @Override
+    public void releaseViews(boolean activityFinishing) {
+        listView = null;
+        if (this.footerView != null) {
+            this.footerView.releaseViews(false);
+            this.footerView.setParent(null);
+            this.footerView = null;
+        }
+        if (this.headerView != null) {
+            this.headerView.releaseViews(false);
+            this.headerView.setParent(null);
+            this.headerView = null;
+        }
+        super.releaseViews(activityFinishing);
+    }
 
 	@Override
 	public String getApiName() {
