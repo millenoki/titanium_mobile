@@ -45,8 +45,7 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
 	public KrollDict prepareDataDict(KrollDict dict)
 	{
 		KrollDict result = super.prepareDataDict(dict);
-		if (!result.containsKey(TiC.PROPERTY_PROPERTIES)) return dict;
-		KrollDict properties = result.getKrollDict(TiC.PROPERTY_PROPERTIES);
+		KrollDict properties = result.containsKey(TiC.PROPERTY_PROPERTIES)?result.getKrollDict(TiC.PROPERTY_PROPERTIES):dict;
 		if (properties.containsKey(TiC.PROPERTY_TITLE) || properties.containsKey(TiC.PROPERTY_FONT) || properties.containsKey(TiC.PROPERTY_COLOR))
 		{
 			KrollDict labelDict = result.getKrollDict("titleView");
