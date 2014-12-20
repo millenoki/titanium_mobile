@@ -1945,6 +1945,19 @@ static NSDictionary* replaceKeysForRow;
 	return height < 1 ? tableView.rowHeight : height;
 }
 
+-(NSMutableArray*)visibleCellsProxies {
+    NSArray* visibleCells = _tableView.visibleCells;
+    if (!visibleCells) return nil;
+    NSMutableArray* result = [NSMutableArray arrayWithCapacity:[visibleCells count]];
+    [visibleCells enumerateObjectsUsingBlock:^(TiUIListItem* obj, NSUInteger idx, BOOL *stop) {
+        if ([obj isKindOfClass:[TiUIListItem class]]) {
+            [result addObject:((TiUIListItem*)obj).proxy];
+        }
+        
+    }];
+    return result;
+}
+
 -(TiUIListItem*)visibleCellAtIndexPath:(NSIndexPath *)indexPath {
     NSArray* visibleCells = _tableView.visibleCells;
     if (!visibleCells) return nil;

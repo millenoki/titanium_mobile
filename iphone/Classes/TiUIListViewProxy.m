@@ -273,6 +273,11 @@ static NSDictionary* listViewKeysToReplace;
     return self.listView.tableView;
 }
 
+//-(NSArray*)visibleChildren
+//{
+//    return [self.listView visibleCellsProxies];
+//}
+
 #pragma mark - Public API
 
 - (NSArray *)sections
