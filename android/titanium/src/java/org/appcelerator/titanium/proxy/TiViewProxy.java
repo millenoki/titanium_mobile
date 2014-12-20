@@ -657,6 +657,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			view = null;
 			viewRealised = false;
 		}
+		activity = null;
 		setModelListener(null);
 		if (shouldAskForGC && krollObject != null) {
 	        KrollRuntime.suggestGC();
