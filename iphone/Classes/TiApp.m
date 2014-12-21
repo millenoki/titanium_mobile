@@ -12,9 +12,7 @@
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
-#ifdef TI_DEBUGGER_PROFILER
 #import "TiDebugger.h"
-#endif
 #import "TiProfiler/TiProfiler.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
@@ -175,7 +173,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	
 	sessionId = [[TiUtils createUUID] retain];
 	TITANIUM_VERSION = [[NSString stringWithCString:TI_VERSION_STR encoding:NSUTF8StringEncoding] retain];
-#ifdef TI_DEBUGGER_PROFILER
 	NSString *filePath = [[NSBundle mainBundle] pathForResource:@"debugger" ofType:@"plist"];
     if (filePath != nil) {
         NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
@@ -208,8 +205,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #endif
 		[params release];
     }
-#endif
-	NSString* filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
+    filePath = [[NSBundle mainBundle] pathForResource:@"profiler" ofType:@"plist"];
 	if (!self.debugMode && filePath != nil) {
         NSMutableDictionary *params = [[NSMutableDictionary alloc] initWithContentsOfFile:filePath];
         NSString *host = [params objectForKey:@"host"];
@@ -942,9 +938,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(remoteNotification);
 	RELEASE_TO_NIL(splashScreenImage);
     if ([self debugMode]) {
-#ifdef TI_DEBUGGER_PROFILER
         TiDebuggerStop();
-#endif
     }
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);

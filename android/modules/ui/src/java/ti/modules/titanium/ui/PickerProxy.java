@@ -27,6 +27,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerColumnProxy.PickerColumnListener;
+import ti.modules.titanium.ui.widget.picker.TiDatePickerDialog;
+import ti.modules.titanium.ui.widget.picker.TiTimePickerDialog;
 import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
 import ti.modules.titanium.ui.widget.picker.TiUIDateSpinner;
 import ti.modules.titanium.ui.widget.picker.TiUINativePicker;
@@ -34,10 +36,12 @@ import ti.modules.titanium.ui.widget.picker.TiUIPicker;
 import ti.modules.titanium.ui.widget.picker.TiUISpinner;
 import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 import ti.modules.titanium.ui.widget.picker.TiUITimeSpinner;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Message;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
@@ -512,6 +516,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener
 	// This is meant to be a kind of "static" method, in the sense that
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public void showDatePickerDialog(Object[] args)
 	{
@@ -580,12 +585,28 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener
 		 * should show up on top of the current activity when called - not just the
 		 * activity it was created in
 		 */
-		DatePickerDialog dialog = new DatePickerDialog(
+		
+		// DatePickerDialog has a bug in Android 4.x
+		// If build version is using Android 4.x, use
+		// our TiDatePickerDialog. It was fixed from Android 5.0.		
+		DatePickerDialog dialog;
+		
+		if((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) 
+				&& (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)){
+			dialog = new TiDatePickerDialog(
 					TiApplication.getAppCurrentActivity(),
 					dateSetListener,
 					calendar.get(Calendar.YEAR),
 					calendar.get(Calendar.MONTH),
 					calendar.get(Calendar.DAY_OF_MONTH));
+		} else {
+			dialog = new DatePickerDialog(
+					TiApplication.getAppCurrentActivity(),
+					dateSetListener,
+					calendar.get(Calendar.YEAR),
+					calendar.get(Calendar.MONTH),
+					calendar.get(Calendar.DAY_OF_MONTH));
+		}
 		
 		Date minMaxDate = null;
 		if (settings.containsKey(TiC.PROPERTY_MIN_DATE)) {
@@ -593,7 +614,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener
 		} else if (properties.containsKey(TiC.PROPERTY_MIN_DATE)) {
 			minMaxDate = (Date) properties.get(TiC.PROPERTY_MIN_DATE);
 		}
-		if (minMaxDate != null) {
+		if (minMaxDate != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			dialog.getDatePicker().setMinDate(trimDate(minMaxDate).getTime());
 		}
 		minMaxDate = null;
@@ -602,7 +623,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener
 		} else if (properties.containsKey(TiC.PROPERTY_MAX_DATE)) {
 			minMaxDate = (Date) properties.get(TiC.PROPERTY_MAX_DATE);
 		}
-		if (minMaxDate != null) {
+		if (minMaxDate != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			dialog.getDatePicker().setMaxDate(trimDate(minMaxDate).getTime());
 		}
 		
@@ -703,12 +724,29 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener
 				}
 			};
 		}
-		TimePickerDialog dialog = new TimePickerDialog(
+		
+		// TimePickerDialog has a bug in Android 4.x
+		// If build version is using Android 4.x, use
+		// our TiTimePickerDialog. It was fixed from Android 5.0.
+		TimePickerDialog dialog;
+		
+		if((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) 
+				&& (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)){
+			dialog = new TiTimePickerDialog(
 					getActivity(),
 					timeSetListener,
 					calendar.get(Calendar.HOUR_OF_DAY),
 					calendar.get(Calendar.MINUTE),
 					is24HourView);
+		} else {
+			dialog = new TimePickerDialog(
+					getActivity(),
+					timeSetListener,
+					calendar.get(Calendar.HOUR_OF_DAY),
+					calendar.get(Calendar.MINUTE),
+					is24HourView);
+		}
+
 		dialog.setCancelable(true);
 		if (dismissListener != null) {
 			dialog.setOnDismissListener(dismissListener);

@@ -960,6 +960,16 @@ If the new path starts with / and the base url is app://..., we have to massage 
 //    }
 
 	result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
+    
+    //TIMOB-18262
+    if (result && ([[result scheme] isEqualToString:@"file"])){
+        BOOL isDir = NO;
+        BOOL exists = [[NSFileManager defaultManager] fileExistsAtPath:[result path] isDirectory:&isDir];
+        
+        if (exists && !isDir) {
+            return [TiUtils checkFor2XImage:result];
+        }
+    }
 
 	//TODO: Make this less ugly.
 	if ([relativeString hasPrefix:@"/"])
@@ -1958,7 +1968,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 {
     //Must be called on the main thread
     if ([NSThread isMainThread]) {
-        if ([theObject conformsToProtocol:@protocol(VolumeSupport)]) {
+        if ([theObject respondsToSelector:@selector(setVolume:)]) {
             [(id<VolumeSupport>)theObject setVolume:volume];
         } else {
             DebugLog(@"[WARN] The Object %@ does not respond to method -(void)setVolume:(float)volume",[theObject description]);
@@ -1971,7 +1981,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     //Must be called on the main thread
     float returnValue = def;
     if ([NSThread isMainThread]) {
-        if ([theObject conformsToProtocol:@protocol(VolumeSupport)]) {
+        if ([theObject respondsToSelector:@selector(volume)]) {
             returnValue = [(id<VolumeSupport>)theObject volume];
         } else {
             DebugLog(@"[WARN] The Object %@ does not respond to method -(float)volume",[theObject description]);
@@ -2446,6 +2456,23 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         NSLog(@"Could not parse JSON. Error: %@", error);
     }
     return r;
+}
+
++(NSString*)currentArchitecture
+{
+#ifdef __arm64__
+    return @"arm64";
+#endif
+#ifdef __arm__
+    return @"armv7";
+#endif
+#ifdef __x86_64__
+    return @"x86_64";
+#endif
+#ifdef __i386__
+    return @"i386";
+#endif
+    return @"Unknown";
 }
 
 +(NSString*)base64encode:(NSData*)toEncode

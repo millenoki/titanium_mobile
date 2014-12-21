@@ -607,7 +607,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	}
 	
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
-	protected void windowCreated()
+	protected void windowCreated(Bundle savedInstanceState)
 	{
 		defaultFullscreen = fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
 		defaultNavBarHidden = navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
@@ -639,7 +639,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		boolean useActivityWindow = getIntentBoolean(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
 		if (useActivityWindow) {
 			int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, -1);
-			TiActivityWindows.windowCreated(this, windowId);
+			TiActivityWindows.windowCreated(this, windowId, savedInstanceState);
 		}
 	}
 
@@ -744,7 +744,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
         
         //make sure we call windowCreated after setContentView because
         //it's a bad idea to query the actionBar before.
-		windowCreated();
+		windowCreated(savedInstanceState);
 
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
@@ -1691,7 +1691,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 				Log.e(TAG, "Unable to retrieve the activity support helper.");
 			}
 		}
-
 		synchronized (instanceStateListeners.synchronizedList()) {
 			for (OnInstanceStateEvent listener : instanceStateListeners.nonNull()) {
 				try {

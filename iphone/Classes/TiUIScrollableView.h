@@ -46,5 +46,4 @@
 -(void)setCurrentPage:(id)page animated:(NSNumber*)animate;
 @end
 
-
 #endif

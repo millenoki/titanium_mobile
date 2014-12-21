@@ -205,7 +205,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)configureFooter
 {
     if (_footerViewProxy == nil) {
-        _footerViewProxy = [[self initWrapperProxy] retain];
+        _footerViewProxy = [[self wrapperProxy] retain];
         [self setHeaderFooter:_footerViewProxy isHeader:NO];
     }
 }
@@ -709,7 +709,7 @@ static NSDictionary* replaceKeysForRow;
                                 filteredIndices = [[NSMutableArray alloc] init];
                             }
                             [filteredTitles addObject:theTitle];
-                            [filteredIndices addObject:NUMUINTEGER([_searchResults count] -1)];
+                            [filteredIndices addObject:NUMUINTEGER([_searchResults count] - 1 )];
                         }
                     }
                 }
@@ -1165,6 +1165,23 @@ static NSDictionary* replaceKeysForRow;
 -(void)setHideSearchOnSelection_:(id)yn
 {
     hideOnSearch = [TiUtils boolValue:yn def:NO];
+}
+
+-(void)cleanup:(id)unused
+{
+    if ([[self searchController] isActive]) {
+        [[self searchController] setActive:NO animated:NO];
+    }
+
+    if (_headerViewProxy != nil) {
+        [_headerViewProxy windowWillClose];
+        [_headerViewProxy windowDidClose];
+    }
+    
+    if (_footerViewProxy != nil) {
+        [_footerViewProxy windowWillClose];
+        [_footerViewProxy windowDidClose];
+    }
 }
 
 #pragma mark - SectionIndexTitle Support
@@ -1714,8 +1731,8 @@ static NSDictionary* replaceKeysForRow;
                                           @"section":section,
                                           @"item":item,
                                           @"searchResult":NUMBOOL([self isSearchActive]),
-                                          @"sectionIndex":NUMINT(indexPath.section),
-                                          @"itemIndex":NUMINT(indexPath.row)
+                                          @"sectionIndex":NUMINTEGER(indexPath.section),
+                                          @"itemIndex":NUMINTEGER(indexPath.row)
         };
         [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
     }
@@ -1970,7 +1987,7 @@ static NSDictionary* replaceKeysForRow;
         if ([obj isKindOfClass:[TiUIListItem class]]) {
             if ([obj.proxy.indexPath compare:indexPath] == NSOrderedSame) {
                 result = obj;
-                stop = YES;
+                *stop = YES;
             }
         }
         
@@ -2056,12 +2073,12 @@ static NSDictionary* replaceKeysForRow;
 }
 
 - (void)fireScrollEvent:(UIScrollView *)scrollView {
-	if ([self.proxy _hasListeners:@"scroll" checkParent:NO])
+	if ([[self viewProxy] _hasListeners:@"scroll" checkParent:NO])
 	{
         NSArray* visibles = [_tableView indexPathsForVisibleRows];
         NSMutableDictionary* event = [self eventObjectForScrollView:scrollView];
-        [event setObject:NUMINT(((NSIndexPath*)[visibles objectAtIndex:0]).row) forKey:@"firstVisibleItem"];
-        [event setObject:NUMINT([visibles count]) forKey:@"visibleItemCount"];
+        [event setObject:NUMINTEGER(((NSIndexPath*)[visibles objectAtIndex:0]).row) forKey:@"firstVisibleItem"];
+        [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
 		[self.proxy fireEvent:@"scroll" withObject:event checkForListener:NO];
 	}
 }
@@ -2072,11 +2089,11 @@ static NSDictionary* replaceKeysForRow;
     NSInteger section = [indexPath section];
     if (_currentSection != section) {
         _currentSection = section;
-        if ([self.proxy _hasListeners:@"headerchange" checkParent:NO])
+        if ([[self viewProxy] _hasListeners:@"headerchange" checkParent:NO])
         {
             NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:_tableView];
-            [event setObject:NUMINT(indexPath.row) forKey:@"firstVisibleItem"];
-            [event setObject:NUMINT([visibles count]) forKey:@"visibleItemCount"];
+            [event setObject:NUMINTEGER(indexPath.row) forKey:@"firstVisibleItem"];
+            [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
             TiViewProxy* headerView = [self currentSectionViewProxy:_currentSection forLocation:@"headerView"];
             if (headerView) {
                 [event setObject:headerView forKey:@"headerView"];
@@ -2423,8 +2440,8 @@ static NSDictionary* replaceKeysForRow;
 
 
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath {
-    int numOfSections = [self numberOfSectionsInTableView:self.tableView];
-    int nextSection = ((indexPath.section + 1) % numOfSections);
+    NSInteger numOfSections = [self numberOfSectionsInTableView:self.tableView];
+    NSInteger nextSection = ((indexPath.section + 1) % numOfSections);
     
     if (indexPath.row + 1 == [self tableView:self.tableView numberOfRowsInSection:indexPath.section]) {
         return [NSIndexPath indexPathForRow:0 inSection:nextSection];

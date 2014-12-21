@@ -544,6 +544,7 @@
         
         [self fireEvent:@"click" withObject:event];
     }
+    [self cleanup];
 }
 
 -(void)cleanup

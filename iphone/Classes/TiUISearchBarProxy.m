@@ -62,6 +62,15 @@ NSArray* keySequence;
 	[self makeViewPerformSelector:@selector(focus:) withObject:args createIfNeeded:YES waitUntilDone:NO];
 }
 
+- (void)windowWillClose
+{
+    if([self viewInitialized])
+    {
+        [self makeViewPerformSelector:@selector(blur:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+    }
+    [super windowWillClose];
+}
+
 -(void)setShowCancel:(id)value withObject:(id)object
 {
 	//ViewAttached gives a false negative when not attached to a window.

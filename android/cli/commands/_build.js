@@ -15,30 +15,29 @@
  */
 
 var ADB = require('titanium-sdk/lib/adb'),
-    AdmZip = require('adm-zip'),
-    android = require('titanium-sdk/lib/android'),
-    androidDetect = require('../lib/detect').detect,
-    AndroidManifest = require('../lib/AndroidManifest'),
-    appc = require('node-appc'),
-    archiver = require('archiver'),
-    archiverCore = require('archiver/lib/archiver/core'),
-    async = require('async'),
-    Builder = require('titanium-sdk/lib/builder'),
-    cleanCSS = require('clean-css'),
-    crypto = require('crypto'),
-    DOMParser = require('xmldom').DOMParser,
-    ejs = require('ejs'),
-    EmulatorManager = require('titanium-sdk/lib/emulator'),
-    fields = require('fields'),
-    fs = require('fs'),
-    i18n = require('titanium-sdk/lib/i18n'),
-    jsanalyze = require('titanium-sdk/lib/jsanalyze'),
-    path = require('path'),
-    temp = require('temp'),
-    ti = require('titanium-sdk'),
-    tiappxml = require('titanium-sdk/lib/tiappxml'),
-    util = require('util'),
-    wrench = require('wrench'),
+	AdmZip = require('adm-zip'),
+	android = require('titanium-sdk/lib/android'),
+	androidDetect = require('../lib/detect').detect,
+	AndroidManifest = require('../lib/AndroidManifest'),
+	appc = require('node-appc'),
+	archiver = require('archiver'),
+	archiverCore = require('archiver/lib/archiver/core'),
+	async = require('async'),
+	Builder = require('titanium-sdk/lib/builder'),
+	cleanCSS = require('clean-css'),
+	DOMParser = require('xmldom').DOMParser,
+	ejs = require('ejs'),
+	EmulatorManager = require('titanium-sdk/lib/emulator'),
+	fields = require('fields'),
+	fs = require('fs'),
+	i18n = require('titanium-sdk/lib/i18n'),
+	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	path = require('path'),
+	temp = require('temp'),
+	ti = require('titanium-sdk'),
+	tiappxml = require('titanium-sdk/lib/tiappxml'),
+	util = require('util'),
+	wrench = require('wrench'),
 
     afs = appc.fs,
     i18nLib = appc.i18n(__dirname),
@@ -81,10 +80,6 @@ archiverCore.prototype._processQueue = function _processQueue() {
         this._finalize();
     }
 };
-
-function hash(s) {
-    return crypto.createHash('md5').update(s || '').digest('hex');
-}
 
 function AndroidBuilder() {
     Builder.apply(this, arguments);
@@ -921,8 +916,10 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 };
 
 AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
+	Builder.prototype.validate.apply(this, arguments);
+
     this.target = cli.argv.target;
-    this.deployType = /^device|emulator$/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
+	this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
     this.buildType = cli.argv['build-type'] || '';
     this.buildDate = Date.now();
 
@@ -1483,61 +1480,20 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         cli.tiapp.icon = 'appicon.png';
     }
 
-    return function (finished) {
-        // validate modules
-        var moduleSearchPaths = [ cli.argv['project-dir'] ],
-            customSDKPaths = config.get('paths.sdks'),
-            customModulePaths = config.get('paths.modules'),
-            addSearchPath = function (p) {
-                p = afs.resolvePath(p);
-                if (fs.existsSync(p) && moduleSearchPaths.indexOf(p) == -1) {
-                    moduleSearchPaths.push(p);
-                }
-            };
-        cli.env.os.sdkPaths.forEach(addSearchPath);
-        Array.isArray(customSDKPaths) && customSDKPaths.forEach(addSearchPath);
-        Array.isArray(customModulePaths) && customModulePaths.forEach(addSearchPath);
-
-        appc.timodule.find(cli.tiapp.modules, 'android', this.deployType, this.titaniumSdkVersion, moduleSearchPaths, config, logger, function (modules) {
-            if (modules.missing.length) {
-                logger.error(__('Could not find all required Titanium Modules:'))
-                modules.missing.forEach(function (m) {
-                    logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t deploy-type: ' + m.deployType);
-                }, this);
-                logger.log();
-                process.exit(1);
-            }
-
-            if (modules.incompatible.length) {
-                logger.error(__('Found incompatible Titanium Modules:'));
-                modules.incompatible.forEach(function (m) {
-                    logger.error('   id: ' + m.id + '\t version: ' + (m.version || 'latest') + '\t platform: ' + m.platform + '\t min sdk: ' + (m.manifest && m.manifest.minsdk || '?'));
-                }, this);
-                logger.log();
-                process.exit(1);
-            }
-
-            if (modules.conflict.length) {
-                logger.error(__('Found conflicting Titanium modules:'));
-                modules.conflict.forEach(function (m) {
-                    logger.error('   ' + __('Titanium module "%s" requested for both Android and CommonJS platforms, but only one may be used at a time.', m.id));
-                }, this);
-                logger.log();
-                process.exit(1);
-            }
-
+    return function (callback) {
+        this.validateTiModules('android', this.deployType, function (err, modules) {
             this.modules = modules.found;
+            
             this.commonJsModules = [];
             this.nativeLibModules = [];
 
             var manifestHashes = [],
                 nativeHashes = [],
                 bindingsHashes = [],
-                jarHashes = {},
-                ignoreDirs = this.ignoreDirs;
+                jarHashes = {};
 
             modules.found.forEach(function (module) {
-                manifestHashes.push(hash(JSON.stringify(module.manifest)));
+                manifestHashes.push(this.hash(JSON.stringify(module.manifest)));
 
                 if (module.platform.indexOf('commonjs') != -1) {
                     module.native = false;
@@ -1564,7 +1520,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                         module.jarName = module.jarFile = null;
                     } else {
                         // get the jar hashes
-                        var jarHash = module.hash = hash(fs.readFileSync(module.jarFile).toString());
+                        var jarHash = module.hash = this.hash(fs.readFileSync(module.jarFile).toString());
                         nativeHashes.push(jarHash);
                         jarHashes[module.jarName] || (jarHashes[module.jarName] = []);
                         jarHashes[module.jarName].push({
@@ -1580,11 +1536,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                         if (jarRegExp.test(name) && fs.existsSync(file)) {
                             jarHashes[name] || (jarHashes[name] = []);
                             jarHashes[name].push({
-                                hash: hash(fs.readFileSync(file).toString()),
+                                hash: this.hash(fs.readFileSync(file).toString()),
                                 module: module
                             });
                         }
-                    });
+                    }, this);
 
                     // determine the module's ABIs
                     module.abis = [];
@@ -1593,7 +1549,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                     fs.existsSync(libsDir) && fs.readdirSync(libsDir).forEach(function (abi) {
                         var dir = path.join(libsDir, abi),
                             added = false;
-                        if (!ignoreDirs.test(abi) && fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
+                        if (!this.ignoreDirs.test(abi) && fs.existsSync(dir) && fs.statSync(dir).isDirectory()) {
                             fs.readdirSync(dir).forEach(function (name) {
                                 if (soRegExp.test(name)) {
                                     var file = path.join(dir, name);
@@ -1628,7 +1584,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                                 logger.error(__('Module %s version %s is missing bindings json file', module.id.cyan, (module.manifest.version || 'latest').cyan) + '\n');
                                 process.exit(1);
                             }
-                            bindingsHashes.push(hash(JSON.stringify(module.bindings)));
+                            bindingsHashes.push(this.hash(JSON.stringify(module.bindings)));
                         } catch (ex) {
                             logger.error(__('The module "%s" has an invalid jar file: %s', module.id, module.jarFile) + '\n');
                             process.exit(1);
@@ -1642,9 +1598,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                 cli.scanHooks(path.join(module.modulePath, 'hooks'));
             }, this);
 
-            this.modulesManifestHash = hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
-            this.modulesNativeHash = hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
-            this.modulesBindingsHash = hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
+            this.modulesManifestHash = this.hash(manifestHashes.length ? manifestHashes.sort().join(',') : '');
+            this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+            this.modulesBindingsHash = this.hash(bindingsHashes.length ? bindingsHashes.sort().join(',') : '');
 
             // check if we have any conflicting jars
             var possibleConflicts = Object.keys(jarHashes).filter(function (jar) { return jarHashes[jar].length > 1; });
@@ -1681,7 +1637,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                 }
             }
 
-            finished();
+            callback();
         }.bind(this)); // end timodule.find()
     }.bind(this); // end returned callback
 };
@@ -1744,13 +1700,13 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
                 this.logger.info(__('Finished building the application in %s', delta.cyan));
             }
 
-            cli.emit('build.post.compile', this, next);
-        }
-    ], function (err) {
-        cli.emit('build.finalize', this, function () {
-            finished(err);
-        });
-    });
+			cli.emit('build.post.compile', this, next);
+		},
+
+		function (next) {
+			cli.emit('build.finalize', this, next);
+		}
+	], finished);
 };
 
 AndroidBuilder.prototype.doAnalytics = function doAnalytics(next) {
@@ -1893,37 +1849,39 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
 };
 
 AndroidBuilder.prototype.computeHashes = function computeHashes(next) {
-    // modules
-    this.modulesHash = !Array.isArray(this.tiapp.modules) ? '' : crypto.createHash('md5').update(this.tiapp.modules.filter(function (m) {
-        return !m.platform || /^iphone|ipad|commonjs$/.test(m.platform);
-    }).map(function (m) {
-        return m.id + ',' + m.platform + ',' + m.version;
-    }).join('|')).digest('hex');
+	// modules
+	this.modulesHash = !Array.isArray(this.tiapp.modules) ? '' : this.hash(this.tiapp.modules.filter(function (m) {
+		return !m.platform || /^android|commonjs$/.test(m.platform);
+	}).map(function (m) {
+		return m.id + ',' + m.platform + ',' + m.version;
+	}).join('|'));
 
-    // tiapp.xml properties, activities, and services
-    this.propertiesHash = hash(this.tiapp.properties ? JSON.stringify(this.tiapp.properties) : '');
-    var android = this.tiapp.android;
-    this.activitiesHash = hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
-    this.servicesHash = hash(android && android.services ? JSON.stringify(android.services) : '');
+	// tiapp.xml properties, activities, and services
+	this.propertiesHash = this.hash(this.tiapp.properties ? JSON.stringify(this.tiapp.properties) : '');
+	var android = this.tiapp.android;
+	this.activitiesHash = this.hash(android && android.application && android.application ? JSON.stringify(android.application.activities) : '');
+	this.servicesHash = this.hash(android && android.services ? JSON.stringify(android.services) : '');
 
-    function walk(dir, re) {
-        var hashes = [];
-        fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
-            var file = path.join(dir, name);
-            if (fs.existsSync(file)) {
-                var stat = fs.statSync(file);
-                if (stat.isFile() && re.test(name)) {
-                    hashes.push(hash(fs.readFileSync(file).toString()));
-                } else if (stat.isDirectory()) {
-                    hashes = hashes.concat(walk(file, re));
-                }
-            }
-        });
-        return hashes;
-    }
+	var self = this;
 
-    // jss files
-    this.jssFilesHash = hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
+	function walk(dir, re) {
+		var hashes = [];
+		fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (name) {
+			var file = path.join(dir, name);
+			if (fs.existsSync(file)) {
+				var stat = fs.statSync(file);
+				if (stat.isFile() && re.test(name)) {
+					hashes.push(self.hash(fs.readFileSync(file).toString()));
+				} else if (stat.isDirectory()) {
+					hashes = hashes.concat(walk(file, re));
+				}
+			}
+		});
+		return hashes;
+	}
+
+	// jss files
+	this.jssFilesHash = this.hash(walk(path.join(this.projectDir, 'Resources'), /\.jss$/).join(','));
 
     next();
 };
@@ -2375,25 +2333,25 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] + 'dpi' : 'drawable-' + m[1].substring(4)
                     );
 
-                    if (splashScreenRegExp.test(filename)) {
-                        // we have a splash screen image
-                        to = path.join(destDir, 'background' + origExt);
-                    } else {
-                        to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + hash(name + hashExt).substring(0, 10) + origExt);
-                    }
-                    isDrawable = true;
-                } else if (m = relPath.match(relSplashScreenRegExp)) {
-                    // we have a splash screen
-                    // if it's a 9 patch, then the image goes in drawable-nodpi, not drawable
-                    if (m[1] == '9.png') {
-                        destDir = path.join(_t.buildResDir, 'drawable-nodpi');
-                        to = path.join(destDir, filename.replace('default.', 'background.'));
-                    } else {
-                        destDir = _t.buildResDrawableDir;
-                        to = path.join(_t.buildResDrawableDir, filename.replace('default.', 'background.'));
-                    }
-                    isDrawable = true;
-                }
+					if (splashScreenRegExp.test(filename)) {
+						// we have a splash screen image
+						to = path.join(destDir, 'background' + origExt);
+					} else {
+						to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + _t.hash(name + hashExt).substring(0, 10) + origExt);
+					}
+					isDrawable = true;
+				} else if (m = relPath.match(relSplashScreenRegExp)) {
+					// we have a splash screen
+					// if it's a 9 patch, then the image goes in drawable-nodpi, not drawable
+					if (m[1] == '9.png') {
+						destDir = path.join(_t.buildResDir, 'drawable-nodpi');
+						to = path.join(destDir, filename.replace('default.', 'background.'));
+					} else {
+						destDir = _t.buildResDrawableDir;
+						to = path.join(_t.buildResDrawableDir, filename.replace('default.', 'background.'));
+					}
+					isDrawable = true;
+				}
 
                 if (isDrawable) {
                     var _from = from.replace(_t.projectDir, '').substring(1),
@@ -3096,7 +3054,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
     this.encryptJS && this.jsFilesToEncrypt.push('app.json');
 
 
-    this.jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
+    this.jarLibHash = this.hash(Object.keys(jarLibraries).sort().join('|'));
     if (this.jarLibHash != this.buildManifest.jarLibHash) {
         if (!this.forceRebuild) {
             this.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
@@ -3169,7 +3127,7 @@ AndroidBuilder.prototype.handleGooglePlayServices = function handleGooglePlaySer
                     process.exit(1);
                 }
                 jarLibraries[outputPath] = 1;
-                _t.jarLibHash = hash(Object.keys(jarLibraries).sort().join('|'));
+                _t.jarLibHash = this.hash(Object.keys(jarLibraries).sort().join('|'));
                 if (_t.jarLibHash != _t.buildManifest.jarLibHash) {
                     if (!_t.forceRebuild) {
                         _t.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
@@ -4069,10 +4027,10 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
         classpath[jarFile] = 1;
     });
 
-    this.modules.forEach(function (module) {
-        var filename = path.basename(module.jarFile);
-        if (fs.existsSync(module.jarFile)) {
-            var jarHash = hash(fs.readFileSync(module.jarFile).toString());
+	this.modules.forEach(function (module) {
+		var filename = path.basename(module.jarFile);
+		if (fs.existsSync(module.jarFile)) {
+			var jarHash = this.hash(fs.readFileSync(module.jarFile).toString());
 
             if (!jarNames[jarHash]) {
                 moduleJars[module.jarFile] = 1;
@@ -4085,21 +4043,21 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
             var libDir = path.join(module.modulePath, 'lib'),
                 jarRegExp = /\.jar$/;
 
-            fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
-                var jarFile = path.join(libDir, name);
-                if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
-                    var jarHash = hash(fs.readFileSync(jarFile).toString());
-                    if (!jarNames[jarHash]) {
-                        moduleJars[jarFile] = 1;
-                        classpath[jarFile] = 1;
-                        jarNames[jarHash] = 1;
-                    } else {
-                        this.logger.debug(__('Skipping duplicate jar file: %s', jarFile.cyan));
-                    }
-                }
-            }, this);
-        }
-    }, this);
+			fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
+				var jarFile = path.join(libDir, name);
+				if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
+					var jarHash = this.hash(fs.readFileSync(jarFile).toString());
+					if (!jarNames[jarHash]) {
+						moduleJars[jarFile] = 1;
+						classpath[jarFile] = 1;
+						jarNames[jarHash] = 1;
+					} else {
+						this.logger.debug(__('Skipping duplicate jar file: %s', jarFile.cyan));
+					}
+				}
+			}, this);
+		}
+	}, this);
 
     if (!this.forceRebuild) {
         // if we don't have to compile the java files, then we can return here

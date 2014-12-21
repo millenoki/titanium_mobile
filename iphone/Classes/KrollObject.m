@@ -780,11 +780,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
                     [invocation getReturnValue:&i];
                     return [NSNumber numberWithInt:i];
                 }
-				else if ([attributes hasPrefix:@"TI,"])
+                else if ([attributes hasPrefix:@"TI,"])
                 {
-                    int i;
-                    [invocation getReturnValue:&i];
-                    return [NSNumber numberWithUnsignedInt:i];
+                    unsigned int ui;
+                    [invocation getReturnValue:&ui];
+                    return [NSNumber numberWithUnsignedInt:ui];
                 }
                 else if ([attributes hasPrefix:@"Tl,"])
                 {
@@ -792,11 +792,41 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
                     [invocation getReturnValue:&l];
                     return [NSNumber numberWithLong:l];
                 }
+                else if ([attributes hasPrefix:@"TL,"])
+                {
+                    unsigned long ul;
+                    [invocation getReturnValue:&ul];
+                    return [NSNumber numberWithUnsignedLong:ul];
+                }
                 else if ([attributes hasPrefix:@"Tc,"])
                 {
                     char c;
                     [invocation getReturnValue:&c];
                     return [NSNumber numberWithChar:c];
+                }
+                else if ([attributes hasPrefix:@"TC,"])
+                {
+                    unsigned char uc;
+                    [invocation getReturnValue:&uc];
+                    return [NSNumber numberWithUnsignedChar:uc];
+                }
+                else if ([attributes hasPrefix:@"Ts,"])
+                {
+                    short s;
+                    [invocation getReturnValue:&s];
+                    return [NSNumber numberWithShort:s];
+                }
+                else if ([attributes hasPrefix:@"TS,"])
+                {
+                    unsigned short us;
+                    [invocation getReturnValue:&us];
+                    return [NSNumber numberWithUnsignedShort:us];
+                }
+                else if ([attributes hasPrefix:@"Tq,"])
+                {
+                    long long ll;
+                    [invocation getReturnValue:&ll];
+                    return [NSNumber numberWithLongLong:ll];
                 }
                 else if ([attributes hasPrefix:@"TQ,"])
                 {
@@ -804,10 +834,16 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
                     [invocation getReturnValue:&ull];
                     return [NSNumber numberWithUnsignedLongLong:ull];
                 }
-                else 
+                else if ([attributes hasPrefix:@"TB,"])
+                {
+                    bool b;
+                    [invocation getReturnValue:&b];
+                    return [NSNumber numberWithBool:b];
+                }
+                else
                 {
                     // let it fall through and return undefined
-                    DeveloperLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@",key,target,attributes);
+                    DebugLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@",key,target,attributes);
                 }
 			}
 		}

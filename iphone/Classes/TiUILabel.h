@@ -27,5 +27,4 @@
 -(int)characterIndexAtPoint:(CGPoint)p;
 @end
 
-
 #endif

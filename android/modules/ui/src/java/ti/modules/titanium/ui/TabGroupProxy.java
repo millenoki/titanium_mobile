@@ -31,13 +31,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_TABS_BACKGROUND_COLOR,
 	TiC.PROPERTY_ACTIVE_TAB_BACKGROUND_COLOR,
 	TiC.PROPERTY_SWIPEABLE,
-	TiC.PROPERTY_EXIT_ON_CLOSE
+	TiC.PROPERTY_EXIT_ON_CLOSE,
+	TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
 })
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -64,6 +67,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_SWIPEABLE, true);
+		defaultValues.put(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK, true);
 		customHandleOpenEvent(true);
 	}
 
@@ -353,7 +357,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void windowCreated(TiBaseActivity activity) {
+	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState) {
 		tabGroupActivity = new WeakReference<TiBaseActivity>(activity);
 		activity.setWindowProxy(this);
 		activity.setLayoutProxy(this);
@@ -361,7 +365,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
         ActionBar actionBar = TiActivityHelper.getActionBar(getActivity());
 		if (actionBar != null) {
-			view = new TiUIActionBarTabGroup(this, activity);
+			view = new TiUIActionBarTabGroup(this, activity, savedInstanceState);
 			if (!swipeTabs) {
 				TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
 			}

@@ -829,7 +829,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
             case TO_STREAM: {
                 // Perform the write to stream
                 id<TiStreamInternal> stream = [info valueForKey:@"destination"];
-                int size = [TiUtils intValue:[info valueForKey:@"chunkSize"]];
+                NSInteger size = [TiUtils intValue:[info valueForKey:@"chunkSize"]];
                 KrollCallback* callback = [info valueForKey:@"callback"];
                 
                 TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
@@ -846,7 +846,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
             case TO_CALLBACK: {
                 // Perform the pump to callback
                 KrollCallback* callback = [info valueForKey:@"callback"];
-                int size = [TiUtils intValue:[info valueForKey:@"chunkSize"]];
+                NSInteger size = [TiUtils intValue:[info valueForKey:@"chunkSize"]];
                 
                 TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
                 [tempBuffer setData:[NSMutableData dataWithData:data]];

@@ -45,6 +45,7 @@ import com.nineoldandroids.animation.AnimatorSet;
 import ti.modules.titanium.ui.transitionstyle.TransitionStyleModule;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.util.Pair;
@@ -468,8 +469,8 @@ public class NavigationWindowProxy extends WindowProxy implements OnLifecycleEve
 	
 	
 	@Override
-	public void windowCreated(TiBaseActivity activity) {
-		super.windowCreated(activity);
+	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState) {
+		super.windowCreated(activity, savedInstanceState);
 
 	}
 	
