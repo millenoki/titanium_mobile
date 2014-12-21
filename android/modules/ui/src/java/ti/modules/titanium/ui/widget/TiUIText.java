@@ -224,7 +224,7 @@ public class TiUIText extends TiUINonViewGroupView
 
 			editText = new TiEditText(context);
 			editText.setId(200);
-			params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+			params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1);
 			this.addView(editText, params);
 
 			rightPane = new TiCompositeLayout(context);
@@ -263,7 +263,7 @@ public class TiUIText extends TiUINonViewGroupView
             }
             
             if (this.leftView != null) {
-                leftPane.addView((this.leftView.getOrCreateView()).getOuterView());
+                TiUIHelper.safeAddView(leftPane, this.leftView.getOrCreateView().getOuterView());
                 leftPane.setVisibility(View.VISIBLE);
             }
             else if (leftView instanceof View) {
@@ -303,7 +303,7 @@ public class TiUIText extends TiUINonViewGroupView
             }
             
             if (this.rightView != null) {
-                rightPane.addView((this.rightView.getOrCreateView()).getOuterView());
+                TiUIHelper.safeAddView(rightPane, this.rightView.getOrCreateView().getOuterView());
                 rightPane.setVisibility(View.VISIBLE);
             }
             else if (rightView instanceof View) {
