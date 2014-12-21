@@ -2071,7 +2071,10 @@ public abstract class TiUIView
 		{
 			public boolean onLongClick(View view)
 			{
-				return fireEvent(TiC.EVENT_LONGCLICK, dictFromEvent(lastDownEvent));
+                if (hierarchyHasListener(TiC.EVENT_LONGCLICK)) {
+                    return fireEvent(TiC.EVENT_LONGCLICK, dictFromEvent(lastDownEvent), true, false);
+                }
+                return false;
 			}
 		});
 	}
