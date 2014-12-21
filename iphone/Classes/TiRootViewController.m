@@ -889,6 +889,9 @@
                 presentedViewController = nil;
             }
         }
+        if ([presentedViewController isBeingDismissed]) {
+            presentedViewController = nil;
+        }
         if (presentedViewController != nil) {
             topmostController = presentedViewController;
             presentedViewController = nil;
