@@ -1423,7 +1423,7 @@ public class TiUIHelper
 		return false;
 	}
 	
-	public static void removeViewFromSuperView(View view) {
+	public static void removeViewFromSuperView(final View view) {
 		if (view == null) return;
 		 ViewGroup parentViewGroup = (ViewGroup) view.getParent();
         if (parentViewGroup != null) {
@@ -1431,6 +1431,13 @@ public class TiUIHelper
         }
 	}
 	
+    public static void safeAddView(final ViewGroup parent, final View view) {
+        if (parent == null || view == null)
+            return;
+        removeViewFromSuperView(view);
+        parent.addView(view);
+    }
+
 	public static void addView(ViewGroup parent, View view) {
 		removeViewFromSuperView(view);
 		parent.addView(view);
