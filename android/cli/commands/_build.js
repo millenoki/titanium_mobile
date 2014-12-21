@@ -919,7 +919,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	Builder.prototype.validate.apply(this, arguments);
 
     this.target = cli.argv.target;
-	this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
+    this.deployType = !/^dist-appstore/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
     this.buildType = cli.argv['build-type'] || '';
     this.buildDate = Date.now();
 
