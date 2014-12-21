@@ -1,6 +1,6 @@
 
-#import "TiModule.h"
 #ifdef USE_TI_IMAGE
+#import "TiModule.h"
 
 @class GPUImageFilter;
 @interface ImageModule : TiModule {

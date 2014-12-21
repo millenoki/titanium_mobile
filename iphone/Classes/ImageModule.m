@@ -1,12 +1,11 @@
 
+#ifdef USE_TI_IMAGE
 #import "TiBase.h"
 
 #import "ImageModule.h"
 #import "GPUImage/GPUImage.h"
 #import "TiViewProxy.h"
 #import "TiImageHelper.h"
-
-#define USE_TI_IMAGE
 
 #import "MediaModule.h"
 
@@ -138,3 +137,4 @@ typedef UIImage* (^ProcessImageBlock) ();
 
 #pragma mark Public Constants
 @end
+#endif
