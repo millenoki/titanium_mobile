@@ -2136,19 +2136,6 @@ SEL GetterForKrollProperty(NSString * key)
 
 #pragma mark Listener Management
 
-
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message checkForListener:(BOOL)checkForListener;
-{
-    if (checkForListener && ![self _hasListeners:type])
-	{
-		return;
-	}
-    if (_bubbleParentDefined) {
-        propagate = _bubbleParent;
-    }
-	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:NO];
-}
-
 -(void)parentListenersChanged
 {
     TiThreadPerformOnMainThread(^{

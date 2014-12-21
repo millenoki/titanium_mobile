@@ -1026,6 +1026,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         return;
     }
     
+    if (_bubbleParentDefined) {
+        propagate = _bubbleParent;
+    }
+    
     if (eventOverrideDelegate != nil) {
         obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
     }
