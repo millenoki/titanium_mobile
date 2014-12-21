@@ -169,11 +169,12 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 
 -(void)fireErrorEventAndSkip:(int)code withDescription:(NSString*)desc
 {
+    [self updateState:STATE_ERROR];
     if ([self _hasListeners:@"error"])
     {
         NSError* error = [NSError errorWithDomain:@"TiMediaAudioStreamer" code:code userInfo:@{ NSLocalizedDescriptionKey : desc}];
         [self fireEvent:@"error" withObject:@{
-                                              @"track":_currentItem,
+                                              @"track":_currentItem?_currentItem:[NSNull null],
                                               @"index":@(self.indexOfNowPlayingItem)
                                               }errorCode:[error code] message:[TiUtils messageFromError:error]];
     }
