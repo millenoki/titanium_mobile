@@ -242,6 +242,7 @@
             NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
             paragraphStyle.alignment = self.textAlignment;
             [self.placeholder drawInRect:UIEdgeInsetsInsetRect(self.bounds, self.textContainerInset) withAttributes:@{NSFontAttributeName:self.font, NSForegroundColorAttributeName:self.placeholderColor, NSParagraphStyleAttributeName:paragraphStyle}];
+            [paragraphStyle release];
         }
         else {
             [self.placeholderColor set];

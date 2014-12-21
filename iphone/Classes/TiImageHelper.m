@@ -116,6 +116,7 @@
             group.initialFilters = @[[group filterAtIndex:0]];
             group.terminalFilter = [group filterAtIndex:[group filterCount] - 1];
             image = [group imageByFilteringImage:image];
+            [group release];
         }
     }
     
@@ -142,6 +143,7 @@
                          @"secondaryColor":[TiUtils colorHexString:color.secondaryColor],
                          @"detailColor":[TiUtils colorHexString:color.detailColor],
                          } forKey:@"colorArt"];
+        [color release];
     }
     
     image.info = info;

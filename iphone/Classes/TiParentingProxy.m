@@ -161,6 +161,7 @@
 -(void)addProxy:(id)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
 {
     ENSURE_SINGLE_ARG_OR_NIL(child, TiProxy)
+    if (child == nil) return;
     [self rememberProxy:child];
     pthread_rwlock_wrlock(&childrenLock);
     if (children==nil)

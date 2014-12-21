@@ -2461,9 +2461,9 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 +(NSData*)base64decode:(NSString*)encoded
 {
     if ([NSData respondsToSelector:@selector(initWithBase64EncodedString:options:)]) {
-        return [[NSData alloc] initWithBase64EncodedString:encoded options:0];
+        return [[[NSData alloc] initWithBase64EncodedString:encoded options:0] autorelease];
     } else {
-        return [[NSData alloc] initWithBase64Encoding:encoded];
+        return [[[NSData alloc] initWithBase64Encoding:encoded] autorelease];
     }
 }
 

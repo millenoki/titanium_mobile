@@ -47,6 +47,7 @@
     if (self) {
         _itemsMapping = [[NSMutableDictionary alloc] init];
     }
+    [items release];
     
     return self;
 }
@@ -59,10 +60,10 @@
     if (!activity) {
         if ([_delegate respondsToSelector:@selector(activityViewController:itemsForActivityType:)]) {
             items = [_delegate activityViewController:activityViewController itemsForActivityType:activityType];
-            activity = [[NSMutableDictionary alloc] initWithObjectsAndKeys:items, @"items", [NSNumber numberWithInt:0], @"index", nil];
+            activity = [NSMutableDictionary dictionaryWithObjectsAndKeys:items, @"items", [NSNumber numberWithInt:0], @"index", nil];
         }
         else {
-            activity = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithInt:0], @"index", nil];
+            activity = [NSMutableDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:0], @"index", nil];
         }
         [_itemsMapping setObject:activity forKey:activityType];
     } else {

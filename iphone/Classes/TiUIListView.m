@@ -180,16 +180,16 @@ static NSDictionary* replaceKeysForRow;
     [super dealloc];
 }
 
--(TiViewProxy*)initWrapperProxyWithVerticalLayout:(BOOL)vertical
+-(TiViewProxy*)wrapperProxyWithVerticalLayout:(BOOL)vertical
 {
     WrapperViewProxy* theProxy = [[WrapperViewProxy alloc] initWithVerticalLayout:vertical];
     [theProxy setParent:(TiParentingProxy*)self.proxy];
     return [theProxy autorelease];
 }
 
--(TiViewProxy*)initWrapperProxy
+-(TiViewProxy*)wrapperProxy
 {
-    return [self initWrapperProxyWithVerticalLayout:NO];
+    return [self wrapperProxyWithVerticalLayout:NO];
 }
 
 -(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header
@@ -213,7 +213,7 @@ static NSDictionary* replaceKeysForRow;
 -(TiViewProxy*)getOrCreateFooterHolder
 {
     if (_footerViewProxy == nil) {
-        _footerViewProxy = [[self initWrapperProxy] retain];
+        _footerViewProxy = [[self wrapperProxy] retain];
         [self setHeaderFooter:_footerViewProxy isHeader:NO];
     }
     return _footerViewProxy;
@@ -222,10 +222,10 @@ static NSDictionary* replaceKeysForRow;
 -(TiViewProxy*)getOrCreateHeaderHolder
 {
     if (_headerViewProxy == nil) {
-        _headerViewProxy = [[self initWrapperProxyWithVerticalLayout:YES] retain];
+        _headerViewProxy = [[self wrapperProxyWithVerticalLayout:YES] retain];
         
-        _searchWrapper = [[self initWrapperProxy] retain];
-        _headerWrapper = [[self initWrapperProxy] retain];
+        _searchWrapper = [[self wrapperProxy] retain];
+        _headerWrapper = [[self wrapperProxy] retain];
         
         [_headerViewProxy add:@[_searchWrapper, _headerWrapper]];
         

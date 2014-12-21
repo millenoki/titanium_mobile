@@ -140,13 +140,14 @@
         {
             [self.visibleHeaderAndFooterSet addObject:item.indexPath];
         }
+        [springBehaviour release];
     }];
 }
 
 - (NSArray *) layoutAttributesForElementsInRect:(CGRect)rect {
     NSMutableArray *answer = [[self.dynamicAnimator itemsInRect:rect] mutableCopy];
 
-    if (!stickyHeaders) return answer;
+    if (!stickyHeaders) return [answer autorelease];
     UICollectionView * const cv = self.collectionView;
     CGPoint const contentOffset = cv.contentOffset;
     
@@ -208,7 +209,7 @@
             }
         }
     }
-    return answer;
+    return [answer autorelease];
 }
 
 - (BOOL)shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
@@ -280,6 +281,7 @@
             springBehaviour.damping = 0.8f;
             springBehaviour.frequency = 1.0f;
             [self.dynamicAnimator addBehavior:springBehaviour];
+            [springBehaviour release];
         }
     }];
 }

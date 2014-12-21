@@ -52,9 +52,8 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 	NSString *uti = [(NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, (CFStringRef)mimeType, NULL) autorelease];
 	if (uti == nil) {
 		// Should we do this? Lets us copy/paste custom data, anyway.
-		uti = mimeType;
+		return mimeType;
 	}
-    else [uti autorelease];
 	return uti;
 }
 

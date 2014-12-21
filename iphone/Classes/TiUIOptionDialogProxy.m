@@ -69,7 +69,7 @@
     UIView* view  = [[UIView alloc] initWithFrame:tiBounds];
     view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [view addSubview:tiview];
-    return view;
+    return [view autorelease];
 }
 
 - (IBAction)customButtonPressed:(id)sender {

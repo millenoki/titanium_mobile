@@ -13,7 +13,7 @@
 #import "NSDictionary+Merge.h"
 
 @interface TiUIListView()
--(TiViewProxy*)initWrapperProxyWithVerticalLayout:(BOOL)vertical;
+-(TiViewProxy*)wrapperProxyWithVerticalLayout:(BOOL)vertical;
 @end
 
 @interface TiUIListSectionProxy ()
@@ -127,7 +127,7 @@
         if (viewLayout->width.type == TiDimensionTypeUndefined) {
             viewLayout->width = TiDimensionAutoFill;
         }
-        TiViewProxy* wrapperProxy = [listView initWrapperProxyWithVerticalLayout:YES];
+        TiViewProxy* wrapperProxy = [listView wrapperProxyWithVerticalLayout:YES];
         [wrapperProxy add:viewproxy];
         [_storedSectionViews setObject:wrapperProxy forKey:location];
         return wrapperProxy;

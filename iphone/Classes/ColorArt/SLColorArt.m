@@ -103,6 +103,7 @@
                                                        threshold:threshold];
         dispatch_async(dispatch_get_main_queue(), ^{
             completeBlock(colorArt);
+            [colorArt release];
         });
     });
     
@@ -178,7 +179,7 @@
     [dict setObject:detailColor forKey:kAnalyzedDetailColor];
 
 
-    return [NSDictionary dictionaryWithDictionary:dict];
+    return [NSDictionary dictionaryWithDictionary:[dict autorelease]];
 }
 
 typedef struct RGBAPixel
@@ -232,6 +233,7 @@ typedef struct RGBAPixel
             if (0 == x || y == 0)
                 [edgeColors addObject:color];
             [imageColors addObject:color];
+            [color release];
         }
     }
     CGContextRelease(bmContext);
@@ -249,10 +251,7 @@ typedef struct RGBAPixel
 		NSUInteger colorCount = [edgeColors countForObject:curColor];
 		if ( colorCount <= realThreshold ) // prevent using random colors
 			continue;
-
-		PCCountedColor *container = [[PCCountedColor alloc] initWithColor:curColor count:colorCount];
-
-		[sortedColors addObject:container];
+		[sortedColors addObject:[[[PCCountedColor alloc] initWithColor:curColor count:colorCount] autorelease]];
 	}
 
 	[sortedColors sortUsingSelector:@selector(compare:)];
@@ -308,9 +307,7 @@ typedef struct RGBAPixel
 
 		if ( [curColor pc_isDarkColor] == findDarkTextColor )
 		{
-            PCCountedColor *container = [[PCCountedColor alloc] initWithColor:curColor count:colorCount];
-
-			[sortedColors addObject:container];
+			[sortedColors addObject:[[[PCCountedColor alloc] initWithColor:curColor count:colorCount] autorelease]];
 		}
 	}
 

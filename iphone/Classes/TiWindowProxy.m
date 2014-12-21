@@ -513,7 +513,7 @@
             UIViewController* theController = [self hostingController];
             if (![TiUtils boolValue:[self valueForUndefinedKey:@"navBarHidden"] def:YES]) {
                 //put it in a navigation controller to get the navbar if it was explicitely asked for
-                theController = [[TiModalNavViewController alloc] initWithRootViewController:theController];
+                theController = [[[TiModalNavViewController alloc] initWithRootViewController:theController] autorelease];
             }
             [self windowWillOpen];
             NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
