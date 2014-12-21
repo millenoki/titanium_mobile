@@ -316,14 +316,19 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		public void notifyDataSetChanged()
 		{
 		    canShowMenus = false;
-			// save index and top position
-			int index = listView.getFirstVisiblePosition();
-			View v = listView.getListChildAt(0);
-			int top = (v == null) ? 0 : v.getTop();
-			super.notifyDataSetChanged();
-			// restore
-			//
-			listView.getWrappedList().setSelectionFromTop(index, top);
+		    if (listView != null) {
+		     // save index and top position
+	            int index = listView.getFirstVisiblePosition();
+	            View v = listView.getListChildAt(0);
+	            int top = (v == null) ? 0 : v.getTop();
+	            super.notifyDataSetChanged();
+	            // restore
+	            //
+	            listView.getWrappedList().setSelectionFromTop(index, top);
+		    }
+		    else {
+                super.notifyDataSetChanged();
+		    }
 		}
 
         @Override
