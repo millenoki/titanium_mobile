@@ -1925,10 +1925,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             KrollProxy result = createProxyFromTemplate((HashMap) data,
                     rootProxy, updateKrollProperties);
             if (result != null) {
+                result.setActivity(rootProxy.getActivity());
                 result.updateKrollObjectProperties();
             }
             return result;
         } else if (data instanceof KrollProxy) {
+            ((KrollProxy) data).setActivity(rootProxy.getActivity());
             return (KrollProxy) data;
         }
         return null;
