@@ -446,7 +446,7 @@
         NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                    url, @"url",
                                    nil];
-        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO];
+        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
     }
     else [[UIApplication sharedApplication] openURL:url];
 }
@@ -467,11 +467,12 @@ didSelectLinkWithAddress:(NSDictionary *)addressComponents
     if((temp = [addressComponents objectForKey:NSTextCheckingCountryKey]))
         [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
     NSString* urlString = [NSString stringWithFormat:@"http://maps.google.com/maps?q=%@", [address stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                               urlString, @"url",
+                               nil];
     if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
-        NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   urlString, @"url",
-                                   nil];
-        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO];
+
+        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
     }
     else [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlString]];
 }
@@ -484,7 +485,7 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
         NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                    url, @"url",
                                    nil];
-        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO];
+        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
     }
     else [[UIApplication sharedApplication] openURL:url];
 }
