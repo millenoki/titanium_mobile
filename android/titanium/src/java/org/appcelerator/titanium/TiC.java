@@ -1762,11 +1762,16 @@ public class TiC
 	 */
 	public static final String PROPERTY_INTENT = "intent";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_ITEM_ID = "itemId";
-	
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_ITEM = "item";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_ITEM_ID = "itemId";
+    
 	/**
 	 * @module.api
 	 */

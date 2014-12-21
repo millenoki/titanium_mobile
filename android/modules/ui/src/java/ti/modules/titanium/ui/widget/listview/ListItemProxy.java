@@ -23,6 +23,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.listview.ListSectionProxy.ListItemData;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class)
@@ -32,17 +33,19 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
 	
 	private HashMap<String, ProxyListItem> bindingsMap;
 	private List<KrollProxy> nonBindingProxies;
-	private ProxyListItem listItem;
+    private ProxyListItem listItem;
+    private ListItemData itemData;
 	
 	public int sectionIndex = -1;
     public int itemIndex = -1;
     protected WeakReference<ListSectionProxy> sectionProxy;
 	
-	public void setCurrentItem(final int sectionIndex, final int itemIndex, final ListSectionProxy sectionProxy)
+	public void setCurrentItem(final int sectionIndex, final int itemIndex, final ListSectionProxy sectionProxy, final ListItemData itemData)
     {
         this.sectionIndex = sectionIndex;
         this.itemIndex = itemIndex;
         this.sectionProxy = new WeakReference<ListSectionProxy>(sectionProxy);
+        this.itemData = itemData;
     }
 	
 	public void updateItemIndex(final int index) {
@@ -202,10 +205,10 @@ public class ListItemProxy extends TiViewProxy implements KrollProxy.SetProperty
         else if (dict.containsKey(TiC.PROPERTY_SECTION)) {
             return data; //already done
         }
-
         dict.put(TiC.PROPERTY_SECTION, sectionProxy.get());
         dict.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
         dict.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
+        dict.put(TiC.PROPERTY_ITEM, itemData.getProperties());
         String bindId = TiConvert.toString(
                 proxy.getProperty(TiC.PROPERTY_BIND_ID), null);
         if (bindId != null) {

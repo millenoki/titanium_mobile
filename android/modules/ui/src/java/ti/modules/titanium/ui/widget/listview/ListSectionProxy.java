@@ -709,7 +709,7 @@ public class ListSectionProxy extends ViewProxy {
 	    
 	    TiListView listView = getListView();
         
-	    HashMap currentItem = KrollDict.merge((HashMap)itemProperties.get(itemIndex), (HashMap)(data));
+	    KrollDict currentItem = KrollDict.merge((HashMap)itemProperties.get(itemIndex), (HashMap)(data));
 	    if (currentItem == null) return;
 	    itemProperties.set(itemIndex, currentItem);
 	    // only process items when listview's properties is processed.
@@ -729,7 +729,7 @@ public class ListSectionProxy extends ViewProxy {
             if (listItem != null) {
                 if (listItem.getItemIndex() == itemIndex) {
                     TiListViewTemplate template = getListView().getTemplate(itemD.getTemplate());
-                    populateViews(d, listItem, template, nonRealItemIndex, this.sectionIndex, content, false);
+                    populateViews(itemD, listItem, template, nonRealItemIndex, this.sectionIndex, content, false);
                 }
                 else {
                     Log.d(TAG, "wrong item index", Log.DEBUG_MODE);
@@ -834,17 +834,17 @@ public class ListSectionProxy extends ViewProxy {
 	 *            Entry's index relative to its section
 	 * @return
 	 */
-	public void generateCellContent(int sectionIndex, KrollDict data,
+	public void generateCellContent(int sectionIndex, final ListItemData item, 
 			ListItemProxy itemProxy, TiBaseListViewItem itemContent, TiListViewTemplate template,
 			int itemPosition, View item_layout) {
 		// Create corresponding TiUIView for item proxy
-		TiListItem item = new TiListItem(itemProxy, itemContent, item_layout);
-		itemProxy.setView(item);
-		itemContent.setView(item);
+		TiListItem listItem = new TiListItem(itemProxy, itemContent, item_layout);
+		itemProxy.setView(listItem);
+		itemContent.setView(listItem);
 		itemProxy.realizeViews();
 
-		if (data != null && template != null) {
-			populateViews(data, itemContent, template, itemPosition,
+		if (template != null) {
+			populateViews(item, itemContent, template, itemPosition,
 					sectionIndex, item_layout, false);
 		}
 	}
@@ -857,7 +857,7 @@ public class ListSectionProxy extends ViewProxy {
 	    return getRealPosition(result);
 	}
 
-	public void populateViews(KrollDict data, TiBaseListViewItem cellContent, TiListViewTemplate template, int itemIndex, int sectionIndex,
+	public void populateViews(final ListItemData item, TiBaseListViewItem cellContent, TiListViewTemplate template, int itemIndex, int sectionIndex,
 			View item_layout, boolean reusing) {
 		TiListItem listItem = (TiListItem)cellContent.getView();
 		// Handling root item, since that is not in the views map.
@@ -868,9 +868,9 @@ public class ListSectionProxy extends ViewProxy {
 		int realItemIndex = getUserItemIndexFromSectionPosition(itemIndex);
 		cellContent.setCurrentItem(sectionIndex, realItemIndex, this);
 		
-		data = template.prepareDataDict(data);
+		KrollDict data = template.prepareDataDict(item.getProperties());
 		ListItemProxy itemProxy = (ListItemProxy) cellContent.getView().getProxy();
-		itemProxy.setCurrentItem(sectionIndex, itemIndex, this);
+		itemProxy.setCurrentItem(sectionIndex, itemIndex, this, item);
 		itemProxy.setActivity(this.getActivity());
 
 		KrollDict listItemProperties;
@@ -1063,7 +1063,7 @@ public class ListSectionProxy extends ViewProxy {
 		return null;
 	}
 
-	private ListItemData getItemDataAt(int position)
+	public ListItemData getItemDataAt(int position)
 	{
 		return listItemData.get(getRealPosition(position));
 	}

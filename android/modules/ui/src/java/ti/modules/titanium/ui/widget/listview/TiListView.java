@@ -257,7 +257,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 			
 			//Handling templates
 			ListItemData item = section.getListItem(sectionItemIndex);
-			KrollDict data = item.getProperties();
+//			KrollDict data = item.getProperties();
 			TiListViewTemplate template = getTemplate(item.getTemplate());
 			
 			TiBaseListViewItem itemContent = null;
@@ -267,7 +267,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 				boolean reusing = sectionIndex != itemContent.sectionIndex || 
 						itemContent.itemIndex >= section.getItemCount() || 
 						item != section.getListItem(itemContent.itemIndex);
-				section.populateViews(data, itemContent, template, sectionItemIndex, sectionIndex, content, reusing);
+				section.populateViews(item, itemContent, template, sectionItemIndex, sectionIndex, content, reusing);
 			} else {
 				content = new TiBaseListViewItemHolder(getContext());
 				itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
@@ -276,10 +276,10 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 //                params.autoFillsWidth = true;
 //                params.width = LayoutParams.MATCH_PARENT;
 //				itemContent.setLayoutParams(params);
-				ListItemProxy itemProxy = template.generateCellProxy(data, proxy);
+				ListItemProxy itemProxy = template.generateCellProxy(item, proxy);
 				itemProxy.setListProxy(getProxy());
 				addHandledProxy(itemProxy);
-				section.generateCellContent(sectionIndex, data, itemProxy, itemContent, template, sectionItemIndex, content);
+				section.generateCellContent(sectionIndex, item, itemProxy, itemContent, template, sectionItemIndex, content);
 			}
 		    canShowMenus |= itemContent.getListItem().canShowMenus();
 

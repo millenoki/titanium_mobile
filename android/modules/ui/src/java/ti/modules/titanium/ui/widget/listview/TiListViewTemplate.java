@@ -15,6 +15,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
+import ti.modules.titanium.ui.widget.listview.ListSectionProxy.ListItemData;
+
 public class TiListViewTemplate {
 	
 	protected static final String TAG = "TiTemplate";
@@ -161,7 +163,7 @@ public class TiListViewTemplate {
 	}
 	
 	
-	public ListItemProxy generateCellProxy(KrollDict data, KrollProxy proxy)
+	public ListItemProxy generateCellProxy(final ListItemData item, KrollProxy proxy)
 	{
 		ListItemProxy result = (ListItemProxy) proxy.createTypeViewFromDict(properties, "Ti.UI.ListItem");
 		return result;
