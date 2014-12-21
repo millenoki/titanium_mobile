@@ -3724,7 +3724,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                     }]
                 },
                 'service': {
-                    'name': 'ti.modules.titanium.media.streamer.AudioStreamerExoService'
+                    'name': 'ti.modules.titanium.audio.streamer.AudioStreamerExoService'
                 },
                 permissions:['android.permission.WAKE_LOCK']
             }
