@@ -1672,6 +1672,7 @@ static NSDictionary* replaceKeysForRow;
         NSDictionary *item = [section itemAtIndex:indexPath.row];
         NSDictionary * propertiesDict = @{
                                           @"view":((TiUICollectionItem*)cell).proxy,
+                                          @"item": item,
                                           @"listView": self.proxy,
                                           @"section":section,
                                           @"searchResult":NUMBOOL([self isSearchActive]),
@@ -2513,7 +2514,8 @@ referenceSizeForFooterInSection:(NSInteger)section
     TiUICollectionSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
 	NSDictionary *item = [section itemAtIndex:indexPath.row];
     NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-										section, @"section",
+                                        item, @"item",
+                                        section, @"section",
 										self.proxy, @"listView",
 										NUMBOOL([self isSearchActive]), @"searchResult",
 										NUMINT(indexPath.section), @"sectionIndex",

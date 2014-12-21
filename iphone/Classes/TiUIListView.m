@@ -1309,6 +1309,7 @@ static NSDictionary* replaceKeysForRow;
                                                 theSection, @"section",
                                                 self.proxy, @"listView",
                                                 NUMINTEGER(indexPath.section), @"sectionIndex",
+                                                theItem, @"item",
                                                 NUMINTEGER(indexPath.row), @"itemIndex",
                                                 nil];
             id propertiesValue = [theItem objectForKey:@"properties"];
@@ -1408,6 +1409,7 @@ static NSDictionary* replaceKeysForRow;
             
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 self.proxy, @"listView",
+                                                theItem, @"item",
                                                 theSection, @"section",
                                                 NUMINTEGER(fromSectionIndex), @"sectionIndex",
                                                 NUMINTEGER(fromRowIndex), @"itemIndex",
@@ -1448,6 +1450,7 @@ static NSDictionary* replaceKeysForRow;
             
             NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                 fromSection, @"section",
+                                                theItem, @"item",
                                                 self.proxy, @"listView",
                                                 NUMINTEGER(fromSectionIndex), @"sectionIndex",
                                                 NUMINTEGER(fromRowIndex), @"itemIndex",
@@ -1709,6 +1712,7 @@ static NSDictionary* replaceKeysForRow;
                                           @"view":((TiUIListItem*)cell).proxy,
                                           @"listView": self.proxy,
                                           @"section":section,
+                                          @"item":item,
                                           @"searchResult":NUMBOOL([self isSearchActive]),
                                           @"sectionIndex":NUMINT(indexPath.section),
                                           @"itemIndex":NUMINT(indexPath.row)
@@ -2372,7 +2376,8 @@ static NSDictionary* replaceKeysForRow;
                                         self.proxy, @"listView",
 										NUMBOOL([self isSearchActive]), @"searchResult",
 										NUMINTEGER(indexPath.section), @"sectionIndex",
-										NUMINTEGER(indexPath.row), @"itemIndex",
+                                        item, @"item",
+                                        NUMINTEGER(indexPath.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];
