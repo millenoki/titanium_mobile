@@ -984,7 +984,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 									case 'dist-appstore':
 										_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
 
-                                        if (value === 'dist-appstore')_t.conf.options['deploy-type'].values = ['production'];
+                                        if (value === 'dist-appstore') _t.conf.options['deploy-type'].values = ['production'];
 										_t.conf.options['device-id'].required = false;
 										_t.conf.options['distribution-name'].required = true;
 										_t.conf.options['pp-uuid'].required = true;
@@ -1049,7 +1049,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 	if (cli.argv.xcode) {
 		this.deployType = cli.argv['deploy-type'] || this.deployTypes[this.target];
 	} else {
-		this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
+		this.deployType = !/^dist-appstore/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
 	}
 
     this.buildType = cli.argv['build-type'] || '';
@@ -1539,7 +1539,7 @@ iOSBuilder.prototype.initialize = function initialize(next) {
 	this.keychain = argv.keychain;
 	this.deviceId = argv['device-id'];
 	this.deviceInfo = this.deviceId ? this.getDeviceInfo().udids[this.deviceId] : null;
-	this.xcodeTarget = process.env.CONFIGURATION || (/^device|simulator$/.test(this.target) ? 'Debug' : 'Release');
+	this.xcodeTarget = process.env.CONFIGURATION || (/^device|simulator$/.test(this.target) || this.deployType === 'development' ? 'Debug' : 'Release');
 	this.xcodeTargetOS = (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos') + version.format(this.iosSdkVersion, 2, 2);
 	this.iosBuildDir = path.join(this.buildDir, 'build', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos'));
 	this.xcodeAppDir = argv.xcode && process.env.TARGET_BUILD_DIR && process.env.CONTENTS_FOLDER_PATH ? path.join(process.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
@@ -2780,7 +2780,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries(next
 	dest = path.join(dir, 'libti_ios_profiler.a');
 	fs.existsSync(dest) || appc.fs.copyFileSync(path.join(this.platformPath, 'libti_ios_profiler.a'), dest, { logger: this.logger.debug });
 
-    appc.fs.copyDirRecursive(path.join(this.titaniumIosSdkPath, 'libexternals'), 
+    appc.fs.copyDirRecursive(path.join(this.platformPath, 'libexternals'), 
         path.join(this.buildDir, 'libexternals'), next);
 };
 
