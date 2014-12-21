@@ -1946,6 +1946,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public KrollProxy createProxyFromTemplate(HashMap template_,
             KrollProxy rootProxy, boolean updateKrollProperties,
             boolean recursive) {
+        if (template_ == null || template_.isEmpty()) {
+            return null;
+        }
         String type = TiConvert.toString(template_, TiC.PROPERTY_TYPE,
                 "Ti.UI.View");
         Object props = (template_.containsKey(TiC.PROPERTY_PROPERTIES)) ? template_
