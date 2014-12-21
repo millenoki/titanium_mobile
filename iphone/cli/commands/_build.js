@@ -604,7 +604,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						},
 						'developer-name': {
 							abbr: 'V',
-							default: process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME && /iPhone Developer/.test(process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME) && process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME.replace(/^iPhone Developer(?:\: )?/, '') || config.get('ios.developerName'),
+							default: (process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME && /iPhone Developer/.test(process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME) && process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME.replace(/^iPhone Developer(?:\: )?/, '')) || config.get('ios.developerName'),
 							desc: __('the iOS Developer Certificate to use; required when target is %s', 'device'.cyan),
 							hint: 'name',
 							order: 170,
@@ -1003,7 +1003,7 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 										});
 								}
 							},
-							default: process.env.CURRENT_ARCH && process.env.CURRENT_ARCH !== 'i386' ? ((process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME && /iPhone Distribution/.test(process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME))?'dist-adhoc':'device') : 'simulator',
+							default: process.env.CURRENT_ARCH && !/(i386|x86_64)/.test(process.env.CURRENT_ARCH) ? ((process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME && /iPhone Distribution/.test(process.env.EXPANDED_CODE_SIGN_IDENTITY_NAME))?'dist-adhoc':'device') : 'simulator',
 							desc: __('the target to build for'),
 							order: 110,
 							required: true,
@@ -3485,10 +3485,10 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		return finished();
 	}
 
-	if (symbols.indexOf('FILESYSTEM') === -1 && 
-		(symbols.indexOf('MEDIA') !== -1 || 
-			symbols.indexOf('AUDIO') !== -1 || 
-			symbols.indexOf('DATABASE') !== -1)) {
+	if (symbols['FILESYSTEM'] !== 1 && 
+		(symbols['MEDIA'] === 1 || 
+			symbols['AUDIO'] === 1  || 
+			symbols['DATABASE'] === 1 )) {
 		symbols.push('FILESYSTEM');
 	}
 
