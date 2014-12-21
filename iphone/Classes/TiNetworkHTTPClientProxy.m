@@ -321,24 +321,23 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)request:(APSHTTPRequest *)request onLoad:(APSHTTPResponse *)response
 {
-    if([request cancelled]) {
-        return;
-    }
-    NSInteger responseCode = [response status];
-    /**
-     *    Per customer request, successful communications that resulted in an
-     *    4xx or 5xx response is treated as an error instead of an onload.
-     *    For backwards compatibility, if no error handler is provided, even
-     *    an 4xx or 5xx response will fall back onto an onload.
-     */
-    if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
-        NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
-        [event setObject:@"error" forKey:@"type"];
-        [self fireCallback:@"onerror" withArg:event withSource:self];
-    } else if(hasOnload) {
-        NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:nil];
-        [event setObject:@"load" forKey:@"type"];
-        [self fireCallback:@"onload" withArg:event withSource:self];
+    if(![request cancelled]) {
+        NSInteger responseCode = [response status];
+        /**
+         *    Per customer request, successful communications that resulted in an
+         *    4xx or 5xx response is treated as an error instead of an onload.
+         *    For backwards compatibility, if no error handler is provided, even
+         *    an 4xx or 5xx response will fall back onto an onload.
+         */
+        if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
+            NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
+            [event setObject:@"error" forKey:@"type"];
+            [self fireCallback:@"onerror" withArg:event withSource:self];
+        } else if(hasOnload) {
+            NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:nil];
+            [event setObject:@"load" forKey:@"type"];
+            [self fireCallback:@"onload" withArg:event withSource:self];
+        }
     }
     
     [self forgetSelf];
@@ -346,16 +345,14 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
-    if([request cancelled]) {
-        return;
+    if(![request cancelled]) {
+        if(hasOnerror) {
+            NSError *error = [response error];
+            NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+            [event setObject:@"error" forKey:@"type"];
+            [self fireCallback:@"onerror" withArg:event withSource:self];
+        }
     }
-    if(hasOnerror) {
-        NSError *error = [response error];
-        NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
-        [event setObject:@"error" forKey:@"type"];
-        [self fireCallback:@"onerror" withArg:event withSource:self];
-    }
-    
     [self forgetSelf];
 }
 
