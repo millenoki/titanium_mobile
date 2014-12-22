@@ -385,34 +385,39 @@ timodule.xml.
 	</target>
 
 	<target name="check.build.arch">
-		<dirset id="build.archs" dir="${libs}" includes="*"/>
+		<if>
+			<isset property="manifest.architectures"/> 
+			<then>
+				<dirset id="build.archs" dir="${libs}" includes="*"/>
 
-		<echo>Architectures in manifest: ${manifest.architectures}</echo>
-		<echo>Compiled binary architectures: ${toString:build.archs}</echo>
+				<echo>Architectures in manifest: ${manifest.architectures}</echo>
+				<echo>Compiled binary architectures: ${toString:build.archs}</echo>
 
-		<property name="manifest.archs" value="${manifest.architectures};" />
+				<property name="manifest.archs" value="${manifest.architectures};" />
 
-		<loadresource property="new.manifest.archs">
-			<propertyresource name="manifest.archs"/>
-			<filterchain>
-				<tokenfilter>
-					<filetokenizer/>
-					<replacestring from=" " to=";"/>
-				</tokenfilter>
-			</filterchain>
-		</loadresource>
+				<loadresource property="new.manifest.archs">
+					<propertyresource name="manifest.archs"/>
+					<filterchain>
+						<tokenfilter>
+							<filetokenizer/>
+							<replacestring from=" " to=";"/>
+						</tokenfilter>
+					</filterchain>
+				</loadresource>
 
-		<for param="line" list="${toString:build.archs}" delimiter=";">
-			<sequential>
-				<fail message="There is discrepancy between the architectures specified in manifest and compiled binary.">
-					<condition>
-						<not>
-							<contains string="${new.manifest.archs}" substring="@{line};"/>
-						</not>
-					</condition>
-				</fail>
-			</sequential>
-		</for>
+				<for param="line" list="${toString:build.archs}" delimiter=";">
+					<sequential>
+						<fail message="There is discrepancy between the architectures specified in manifest and compiled binary.">
+							<condition>
+								<not>
+									<contains string="${new.manifest.archs}" substring="@{line};"/>
+								</not>
+							</condition>
+						</fail>
+					</sequential>
+				</for>
+			</then>
+		</if>
 	</target>
 
 	<target name="js.compile" if="${isJSModule}">
