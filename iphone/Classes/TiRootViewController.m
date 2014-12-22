@@ -810,10 +810,6 @@
 
 -(void)hideControllerModal:(UIViewController*)theController animated:(BOOL)animated
 {
-    UIViewController* topVC = [self topPresentedController];
-    if (topVC != theController) {
-        DebugLog(@"[WARN] Dismissing a view controller when it is not the top presented view controller. Will probably crash now.");
-    }
     BOOL trulyAnimated = animated;
     UIViewController* presenter = [theController presentingViewController];
     
@@ -909,22 +905,18 @@
     while ( topmostController != nil ) {
         presentedViewController = [topmostController presentedViewController];
         if ((presentedViewController != nil) && checkPopover && [TiUtils isIOS8OrGreater]) {
-            if (presentedViewController.modalPresentationStyle == UIModalPresentationPopover) {
-                presentedViewController = nil;
-            } else if ([presentedViewController isKindOfClass:[UIAlertController class]]) {
-                presentedViewController = nil;
+            if (presentedViewController.modalPresentationStyle == UIModalPresentationPopover ||
+                [presentedViewController isKindOfClass:[UIAlertController class]]) {
+                break;
             }
         }
         if ([presentedViewController isBeingDismissed]) {
             presentedViewController = [presentedViewController presentingViewController];
         }
-        if (presentedViewController != nil) {
-            topmostController = presentedViewController;
-            presentedViewController = nil;
-        }
-        else {
+        if (!presentedViewController || topmostController == presentedViewController) {
             break;
         }
+        topmostController = presentedViewController;
     }
     return topmostController;
 }
