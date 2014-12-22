@@ -3130,8 +3130,8 @@ AndroidBuilder.prototype.handleGooglePlayServices = function handleGooglePlaySer
                     _t.logger.error(__('Unable to find generated %s', outputPath.cyan) + '\n');
                     process.exit(1);
                 }
-                jarLibraries[outputPath] = 1;
-                _t.jarLibHash = this.hash(Object.keys(jarLibraries).sort().join('|'));
+                jarLibraries[outputPath] = path.join(_t.platformPath, 'modules', 'titanium-googleplayservices.jar');
+                _t.jarLibHash = _t.hash(Object.keys(jarLibraries).sort().join('|'));
                 if (_t.jarLibHash != _t.buildManifest.jarLibHash) {
                     if (!_t.forceRebuild) {
                         _t.logger.info(__('Forcing rebuild: Detected change in Titanium APIs used and need to recompile'));
@@ -3167,6 +3167,10 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
 
     var tasks = Object.keys(this.jarLibraries).map(function (jarFile) {
             return function (done) {
+                if (this.jarLibraries[jarFile] !== 1) {
+                    //trick if the jar file is not at the same location as the respackage (googleplayservices)
+                    jarFile = this.jarLibraries[jarFile];
+                }
                 var resFile = jarFile.replace(/\.jar$/, '.res.zip'),
                     resPkgFile = jarFile.replace(/\.jar$/, '.respackage');
 
@@ -3175,7 +3179,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
                     return done();
                 }
 
-                if (!fs.existsSync(jarFile) || !fs.existsSync(resFile)) return done();
+                if (!fs.existsSync(resFile)) return done();
                 this.logger.info(__('Extracting module resources: %s', resFile.cyan));
 
                 var tmp = temp.path();
