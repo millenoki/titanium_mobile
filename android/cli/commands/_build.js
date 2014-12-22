@@ -1565,7 +1565,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                                 }
                             });
                         }
-                    });
+                    }, this);
 
                     // check missing abis
                     var missingAbis = module.abis.length && this.abis.filter(function (a) { return module.abis.indexOf(a) == -1; });
