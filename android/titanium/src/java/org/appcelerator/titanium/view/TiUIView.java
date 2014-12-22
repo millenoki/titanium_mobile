@@ -18,6 +18,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll.getProperty;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -1010,16 +1011,18 @@ public abstract class TiUIView
     }
 	
 	protected void handleProperties(KrollDict d, final boolean changed) {
+	    final KrollProxy proxy = this.proxy;
 	    if (keySequence != null) {
-	        for (String key : keySequence) {
+	        for (final String key : keySequence) {
 	            if (d.containsKey(key)) {
-	                propertySet(key, d.get(key), null, changed);
+	                propertySet(key, d.get(key), proxy.getProperty(key), changed);
 	                d.remove(key);
 	            }
             }
 	    }
 	    for (Map.Entry<String, Object> entry : d.entrySet()) {
-            propertySet(entry.getKey(), entry.getValue(), null, changed);
+	        final String key = entry.getKey();
+            propertySet(key, entry.getValue(), proxy.getProperty(key), changed);
         }
 	}
 	
