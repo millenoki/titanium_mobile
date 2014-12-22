@@ -45,7 +45,7 @@
 	TiGlobalContextRef context;
 	NSMutableDictionary *timers;
 	NSRecursiveLock *timerLock;
-//	void *debugger;
+	void *debugger;
 	id cachedThreadId;
 }
 
@@ -57,7 +57,7 @@
 -(BOOL)running;
 -(void)gc;
 -(TiGlobalContextRef)context;
-//-(void*)debugger;
+-(void*)debugger;
 -(BOOL)isKJSThread;
 
 #ifdef DEBUG

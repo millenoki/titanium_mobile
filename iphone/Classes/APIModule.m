@@ -9,7 +9,7 @@
 #import "TiBase.h"
 #import "TiApp.h"
 #import "TiExceptionHandler.h"
-//#import "TiDebugger.h"
+#import "TiDebugger.h"
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 
 @implementation APIModule
@@ -22,49 +22,42 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 -(void)logMessage:(NSArray*)args severity:(NSString*)severity
 {
     
-//    NSString* lcSeverity = [severity lowercaseString];
-//    DebuggerLogLevel level = OUT;
-//    if ([lcSeverity isEqualToString:@"warn"]) {
-//        level = WARN;
-//    }
-//    else if ([lcSeverity isEqualToString:@"error"] ||
-//             [lcSeverity isEqualToString:@"critical"] ||
-//             [lcSeverity isEqualToString:@"fatal"]) {
-//        level = ERR;
-//    }
-//    else if ([lcSeverity isEqualToString:@"trace"]) {
-//        level = TRACE;
-//    }
-//    else if ([lcSeverity isEqualToString:@"debug"]) {
-//        level = LOG_DEBUG;
-//    }
+    NSString* lcSeverity = [severity lowercaseString];
+    DebuggerLogLevel level = OUT;
+    if ([lcSeverity isEqualToString:@"warn"]) {
+        level = WARN;
+    }
+    else if ([lcSeverity isEqualToString:@"error"] ||
+             [lcSeverity isEqualToString:@"critical"] ||
+             [lcSeverity isEqualToString:@"fatal"]) {
+        level = ERR;
+    }
+    else if ([lcSeverity isEqualToString:@"trace"]) {
+        level = TRACE;
+    }
+    else if ([lcSeverity isEqualToString:@"debug"]) {
+        level = LOG_DEBUG;
+    }
     
-//    if ([[TiApp app] debugMode]) {
-//        NSMutableArray* messages = [NSMutableArray arrayWithArray:args];
-//        
-//        if (![lcSeverity isEqualToString:@"info"]) { // Custom severity, or just a badly-formed log; either way, debugger treats it as info
-//            [messages insertObject:[NSString stringWithFormat:@"[%@]", severity] atIndex:0];
-//        }
-//        
-//        TiDebuggerLogMessage(level, [messages componentsJoinedByString:@" "]);
-//    }
-//    else
-//    {
+    if ([[TiApp app] debugMode]) {
+        NSMutableArray* messages = [NSMutableArray arrayWithArray:args];
+        
+        if (![lcSeverity isEqualToString:@"info"]) { // Custom severity, or just a badly-formed log; either way, debugger treats it as info
+            [messages insertObject:[NSString stringWithFormat:@"[%@]", severity] atIndex:0];
+        }
+        
+        TiDebuggerLogMessage(level, [messages componentsJoinedByString:@" "]);
+    }
+    else
+    {
         if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
-//            if (level != ERR) {
-//                return;
-//            }
-                NSString* lcSeverity = [severity lowercaseString];
-           if ([lcSeverity isEqualToString:@"error"] ||
-                             [lcSeverity isEqualToString:@"critical"] ||
-                             [lcSeverity isEqualToString:@"fatal"]) {
+            if (level != ERR) {
                 return;
             }
-
         }
         [TiApp TiNSLog:[NSString stringWithFormat:@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]]];
         fflush(stderr);
-//    }
+    }
 }
 
 -(id)transform:(id)arg

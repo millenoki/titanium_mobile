@@ -568,6 +568,8 @@
 		B6C5206118035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
 		B6C5206218035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
 		B6C5206318035AF3002471C6 /* TiUIiOSAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6C5206018035AF3002471C6 /* TiUIiOSAttributedStringProxy.m */; };
+		B6DFC5D01A3B902300A857B7 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
+		B6DFC5D11A3B902400A857B7 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D506FB0C18E5DD06007E4A5B /* (null) in Sources */ = {isa = PBXBuildFile; };
@@ -973,6 +975,7 @@
 		D5C92DA7182AA88F0072D117 /* TouchDelegate_Views.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */; };
 		D5C92DA8182AA88F0072D117 /* TouchDelegate_Views.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */; };
 		D5C92DA9182AA88F0072D117 /* TouchDelegate_Views.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */; };
+		D5CBCFA11A475B2000A16276 /* libti_ios_debugger.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */; };
 		D5DC32F8180EED41006CCEBD /* TiTransitionCube.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */; };
 		D5DC32F9180EED41006CCEBD /* TiTransitionCube.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */; };
 		D5DC32FA180EED41006CCEBD /* TiTransitionCube.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */; };
@@ -2664,6 +2667,7 @@
 				D5937DC01A24DD710098DA47 /* libtiverify.a in Frameworks */,
 				D5937D9F1A24DCB10098DA47 /* libDTCoreText.a in Frameworks */,
 				D5937DA81A24DCD60098DA47 /* libTiCore.a in Frameworks */,
+				D5CBCFA11A475B2000A16276 /* libti_ios_debugger.a in Frameworks */,
 				D5937DA01A24DCBA0098DA47 /* libSVGKit-iOS.a in Frameworks */,
 				D5937DB11A24DCEB0098DA47 /* OpenGLES.framework in Frameworks */,
 				D5A016CA1926109E0005158A /* Accelerate.framework in Frameworks */,
@@ -2726,6 +2730,7 @@
 				24D8E4A1119B9D8A00F8CAA6 /* MessageUI.framework in Frameworks */,
 				24D8E4A2119B9D8A00F8CAA6 /* MobileCoreServices.framework in Frameworks */,
 				D544CEA21949AA8900419D57 /* libtiverify.a in Frameworks */,
+				B6DFC5D01A3B902300A857B7 /* libti_ios_debugger.a in Frameworks */,
 				24D8E4A3119B9D8A00F8CAA6 /* OpenGLES.framework in Frameworks */,
 				24D8E4A4119B9D8A00F8CAA6 /* QuartzCore.framework in Frameworks */,
 				24D8E4A5119B9D8A00F8CAA6 /* SystemConfiguration.framework in Frameworks */,
@@ -2772,6 +2777,7 @@
 				DABB37AA12E8CB280026A6EA /* MessageUI.framework in Frameworks */,
 				D544CEA31949AA8900419D57 /* libtiverify.a in Frameworks */,
 				DABB37AB12E8CB280026A6EA /* MobileCoreServices.framework in Frameworks */,
+				B6DFC5D11A3B902400A857B7 /* libti_ios_debugger.a in Frameworks */,
 				DABB37AC12E8CB280026A6EA /* OpenGLES.framework in Frameworks */,
 				DABB37AD12E8CB280026A6EA /* QuartzCore.framework in Frameworks */,
 				DABB37AE12E8CB280026A6EA /* SystemConfiguration.framework in Frameworks */,

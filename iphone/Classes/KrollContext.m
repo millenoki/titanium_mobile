@@ -12,7 +12,7 @@
 #import "TiLocale.h"
 
 #include <pthread.h>
-//#import "TiDebugger.h"
+#import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
 #import "TiExceptionHandler.h"
 
@@ -818,7 +818,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[lock setName:[NSString stringWithFormat:@"%@ Lock",[self threadName]]];
 		stopped = YES;
 		KrollContextCount++;
-//        debugger = NULL;
+        debugger = NULL;
 		
 		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
 		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
@@ -942,12 +942,12 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	{
 		[condition lock];
 		stopped = YES;
-//		if (debugger!=NULL)
-//		{
-//			TiObjectRef globalRef = TiContextGetGlobalObject(context);
-//			TiDebuggerDestroy(self,globalRef,debugger);
-//            debugger = NULL;
-//		}
+		if (debugger!=NULL)
+		{
+			TiObjectRef globalRef = TiContextGetGlobalObject(context);
+			TiDebuggerDestroy(self,globalRef,debugger);
+            debugger = NULL;
+		}
 		[condition signal];
 		[condition unlock];
 	}
@@ -1164,9 +1164,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
     // TODO: We might want to be smarter than this, and do some KVO on the delegate's
     // 'debugMode' property or something... and start/stop the debugger as necessary.
-//    if ([[self delegate] shouldDebugContext]) {
-//        debugger = TiDebuggerCreate(self,globalRef);
-//    }
+    if ([[self delegate] shouldDebugContext]) {
+        debugger = TiDebuggerCreate(self,globalRef);
+    }
     if ([[self delegate] shouldProfileContext]) {
         TiProfilerEnable(globalRef,context);
     }
@@ -1485,10 +1485,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[pool release];
 }
 
-//-(void*)debugger
-//{
-//	return debugger;
-//}
+-(void*)debugger
+{
+	return debugger;
+}
 
 @end
 

@@ -6,7 +6,7 @@
  */
 #import "TiBase.h"
 #import "TiApp.h"
-//#import "TiDebugger.h"
+#import "TiDebugger.h"
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/time.h>
@@ -90,12 +90,12 @@ void TiLogMessage(NSString* str, ...) {
     
     NSString* message = [[NSString alloc] initWithFormat:str arguments:args];
 #if defined(DEBUG) || defined(DEVELOPER)
-//    if ([[TiApp app] debugMode]) {
-//#ifdef TI_DEBUGGER_PROFILER
-//        TiDebuggerLogMessage(OUT, message);
-//#endif
-//    }
-//    else {
+    if ([[TiApp app] debugMode]) {
+#ifdef TI_DEBUGGER_PROFILER
+        TiDebuggerLogMessage(OUT, message);
+#endif
+    }
+    else {
         
         if (ApplicationBeingDebugged()) {
             const char* s = [message UTF8String];
@@ -115,7 +115,7 @@ void TiLogMessage(NSString* str, ...) {
             [TiApp TiNSLog:message];
 #if defined(DEBUG) || defined(DEVELOPER)
         }
-//    }
+    }
 #endif
     [message release];
 }
@@ -135,11 +135,11 @@ void TiLogMoreMessage(const char *file, int lineNumber, const char *functionName
 #else
     message = [[NSString alloc] initWithFormat:format arguments:ap];
 #endif
-//    if ([[TiApp app] debugMode]) {
-//        TiDebuggerLogMessage(OUT, message);
-//    }
-//    else {
-    
+    if ([[TiApp app] debugMode]) {
+        TiDebuggerLogMessage(OUT, message);
+    }
+    else {
+        
         if (ApplicationBeingDebugged()) {
             const char* s = [message UTF8String];
             if (s[0]=='[')
@@ -159,7 +159,7 @@ void TiLogMoreMessage(const char *file, int lineNumber, const char *functionName
             [TiApp TiNSLog:message];
 #pragma pop
         }
-//    }
+    }
     [message release];
 }
 
