@@ -3080,7 +3080,6 @@ AndroidBuilder.prototype.runJarJar = function runJarJar(serviceRulesFile, inputP
                 this.logger.log();
                 process.exit(1);
             }
-            this.logger.debug(__('test'));
             done();
         }.bind(this));
     });
