@@ -12,7 +12,7 @@
 #import "TiErrorController.h"
 #import "NSData+Additions.h"
 #import "ImageLoader.h"
-#import "TiDebugger.h"
+//#import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
@@ -179,29 +179,29 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         NSString *host = [params objectForKey:@"host"];
         NSInteger port = [[params objectForKey:@"port"] integerValue];
         NSString *airkey = [params objectForKey:@"airkey"];
-        if (([host length] > 0) && ![host isEqualToString:@"__DEBUGGER_HOST__"])
-        {
-            [self setDebugMode:YES];
-            TiDebuggerStart(host, port);
-        }
+//        if (([host length] > 0) && ![host isEqualToString:@"__DEBUGGER_HOST__"])
+//        {
+//            [self setDebugMode:YES];
+//            TiDebuggerStart(host, port);
+//        }
 #if !TARGET_IPHONE_SIMULATOR
-		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
-		{
-			NSArray *hosts = nil;
-			NSString *hostsString = [params objectForKey:@"hosts"];
-			if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
-				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
-			}
-			TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
-				if (host != nil) {
-					[self setDebugMode:YES];
-					TiDebuggerStart(host, port);
-				}
-				[self appBoot];
-			});
-			[params release];
-			return;
-		}
+//		else if (([airkey length] > 0) && ![airkey isEqualToString:@"__DEBUGGER_AIRKEY__"])
+//		{
+//			NSArray *hosts = nil;
+//			NSString *hostsString = [params objectForKey:@"hosts"];
+//			if (![hostsString isEqualToString:@"__DEBUGGER_HOSTS__"]) {
+//				hosts = [hostsString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
+//			}
+//			TiDebuggerDiscoveryStart(airkey, hosts, ^(NSString *host, NSInteger port) {
+//				if (host != nil) {
+//					[self setDebugMode:YES];
+//					TiDebuggerStart(host, port);
+//				}
+//				[self appBoot];
+//			});
+//			[params release];
+//			return;
+//		}
 #endif
 		[params release];
     }
@@ -937,9 +937,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	RELEASE_TO_NIL(remoteDeviceUUID);
 	RELEASE_TO_NIL(remoteNotification);
 	RELEASE_TO_NIL(splashScreenImage);
-    if ([self debugMode]) {
-        TiDebuggerStop();
-    }
+//    if ([self debugMode]) {
+//        TiDebuggerStop();
+//    }
 	RELEASE_TO_NIL(backgroundServices);
 	RELEASE_TO_NIL(localNotification);
 	RELEASE_TO_NIL(defaultsObject);
