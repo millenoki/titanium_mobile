@@ -258,6 +258,7 @@ public class TiTableView extends FrameLayout
 				if (item.className.equals(TableViewProxy.CLASSNAME_HEADERVIEW)) {
 					TiViewProxy vproxy = item.proxy;
 					TiUIView headerView = layoutHeaderOrFooter(vproxy);
+					TiUIHelper.removeViewFromSuperview(headerView.getOuterView().getParent());
 					v = new TiTableViewHeaderItem(proxy.getActivity(), headerView);
 					v.setClassName(TableViewProxy.CLASSNAME_HEADERVIEW);
 					return v;
