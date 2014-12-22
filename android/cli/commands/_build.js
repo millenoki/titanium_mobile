@@ -1264,7 +1264,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
             }
         }, this);
     }
-
+    if (/emulator/.test(this.target)) {
+        if (this.abis.indexOf('x86') == -1) {
+            this.abis.push('x86');
+        }
+    }
     var deviceId = cli.argv['device-id'];
 
     if (!cli.argv['build-only'] && /^device|emulator$/.test(this.target) && deviceId === undefined && config.get('android.autoSelectDevice', true)) {
