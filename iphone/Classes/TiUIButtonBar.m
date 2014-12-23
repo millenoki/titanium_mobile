@@ -89,7 +89,7 @@
 
 -(void)setIndex_:(id)value
 {
-    int newIndex =[TiUtils intValue:value def:selectedIndex];
+    NSInteger newIndex =[TiUtils intValue:value def:selectedIndex];
     if (newIndex == selectedIndex) return;
     selectedIndex = newIndex;
 	[[self segmentedControl] setSelectedSegmentIndex:selectedIndex];
@@ -166,7 +166,7 @@
 	
 	[self.proxy replaceValue:NUMINTEGER(newIndex) forKey:@"index" notification:NO];
     if ([self.proxy.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
-        [self.proxy.eventOverrideDelegate viewProxy:self.proxy updatedValue:NUMINT(newIndex) forType:@"index"];
+        [self.proxy.eventOverrideDelegate viewProxy:self.proxy updatedValue:NUMINTEGER(newIndex) forType:@"index"];
     }
 	
 	if (newIndex == selectedIndex)

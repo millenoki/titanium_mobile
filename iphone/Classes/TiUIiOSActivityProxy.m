@@ -36,7 +36,7 @@
 
 -(UIActivity*)asActivity
 {
-    return [TiActivity activityWithProxy:self ofCategory:_category];
+    return [TiActivity activityWithProxy:self ofCategory:[_category integerValue]];
 }
 
 -(BOOL)performActivity:(TiActivity*)activity withItems:(NSArray *)items

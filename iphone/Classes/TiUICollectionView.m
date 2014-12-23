@@ -777,7 +777,7 @@ static NSDictionary* replaceKeysForRow;
                                 filteredIndices = [[NSMutableArray alloc] init];
                             }
                             [filteredTitles addObject:theTitle];
-                            [filteredIndices addObject:[NSNumber numberWithInt:([_searchResults count] -1)]];
+                            [filteredIndices addObject:NUMINTEGER([_searchResults count] -1)];
                         }
                     }
                 }
@@ -1676,8 +1676,8 @@ static NSDictionary* replaceKeysForRow;
                                           @"listView": self.proxy,
                                           @"section":section,
                                           @"searchResult":NUMBOOL([self isSearchActive]),
-                                          @"sectionIndex":NUMINT(indexPath.section),
-                                          @"itemIndex":NUMINT(indexPath.row)
+                                          @"sectionIndex":NUMINTEGER(indexPath.section),
+                                          @"itemIndex":NUMINTEGER(indexPath.row)
         };
         [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
     }
@@ -2198,12 +2198,12 @@ referenceSizeForFooterInSection:(NSInteger)section
 }
 
 - (void)fireScrollEvent:(UIScrollView *)scrollView {
-	if ([self.proxy _hasListeners:@"scroll" checkParent:NO])
+	if ([[self viewProxy] _hasListeners:@"scroll" checkParent:NO])
 	{
         NSArray* visibles = [_tableView indexPathsForVisibleItems];
         NSMutableDictionary* event = [self eventObjectForScrollView:scrollView];
-        [event setObject:NUMINT(((NSIndexPath*)[visibles objectAtIndex:0]).row) forKey:@"firstVisibleItem"];
-        [event setObject:NUMINT([visibles count]) forKey:@"visibleItemCount"];
+        [event setObject:NUMINTEGER(((NSIndexPath*)[visibles objectAtIndex:0]).row) forKey:@"firstVisibleItem"];
+        [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
 		[self.proxy fireEvent:@"scroll" withObject:event checkForListener:NO];
 	}
 }
@@ -2335,7 +2335,8 @@ referenceSizeForFooterInSection:(NSInteger)section
 -(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
 {
     BOOL viaSearch = [self isSearchActive];
-    UICollectionView* theCollectionView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
+//    UICollectionView* theCollectionView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
+    UICollectionView* theCollectionView = [self tableView];
     CGPoint point = [recognizer locationInView:theCollectionView];
     NSIndexPath* indexPath = [theCollectionView indexPathForItemAtPoint:point];
     indexPath = [self pathForSearchPath:indexPath];
@@ -2361,7 +2362,8 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     if ([recognizer state] == UIGestureRecognizerStateBegan) {
         BOOL viaSearch = [self isSearchActive];
-        UICollectionView* theCollectionView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
+//        UICollectionView* theCollectionView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
+        UICollectionView* theCollectionView = [self tableView];
         CGPoint point = [recognizer locationInView:theCollectionView];
         NSIndexPath* indexPath = [theCollectionView indexPathForItemAtPoint:point];
         indexPath = [self pathForSearchPath:indexPath];
@@ -2518,8 +2520,8 @@ referenceSizeForFooterInSection:(NSInteger)section
                                         section, @"section",
 										self.proxy, @"listView",
 										NUMBOOL([self isSearchActive]), @"searchResult",
-										NUMINT(indexPath.section), @"sectionIndex",
-										NUMINT(indexPath.row), @"itemIndex",
+										NUMINTEGER(indexPath.section), @"sectionIndex",
+										NUMINTEGER(indexPath.row), @"itemIndex",
 										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];
@@ -2565,8 +2567,8 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath {
-    int numOfSections = [self numberOfSectionsInCollectionView:self.tableView];
-    int nextSection = ((indexPath.section + 1) % numOfSections);
+    NSInteger numOfSections = [self numberOfSectionsInCollectionView:self.tableView];
+    NSInteger nextSection = ((indexPath.section + 1) % numOfSections);
     
     if (indexPath.row + 1 == [self collectionView:self.tableView numberOfItemsInSection:indexPath.section]) {
         return [NSIndexPath indexPathForRow:0 inSection:nextSection];

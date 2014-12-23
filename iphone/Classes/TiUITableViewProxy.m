@@ -528,7 +528,7 @@ USE_VIEW_FOR_CONTENT_SIZE
         }
     }
     else if ([theArg isKindOfClass:[NSNumber class]]) {
-        int index = [TiUtils intValue:theArg];
+        NSInteger index = [TiUtils intValue:theArg];
         section = [self sectionForIndex:index row:&row];
         if (section == nil || row == nil)
         {
@@ -563,7 +563,7 @@ USE_VIEW_FOR_CONTENT_SIZE
 {
 //	ENSURE_UI_THREAD(insertRowBefore,args);
 	
-	int index = [TiUtils intValue:[args objectAtIndex:0]];
+	NSInteger index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
 	NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	
@@ -641,7 +641,7 @@ USE_VIEW_FOR_CONTENT_SIZE
 {
 //	ENSURE_UI_THREAD(insertRowAfter,args);
 	
-	int index = [TiUtils intValue:[args objectAtIndex:0]];
+	NSInteger index = [TiUtils intValue:[args objectAtIndex:0]];
 	NSDictionary *data = [args objectAtIndex:1];
 	NSDictionary *anim = [args count] > 2 ? [args objectAtIndex:2] : nil;
 
@@ -873,7 +873,7 @@ USE_VIEW_FOR_CONTENT_SIZE
 		arg1 = [args objectAtIndex:0];
 		arg2 = [args count] > 1 ? [args objectAtIndex:1] : [NSDictionary dictionary];
 	}
-	[[self view] performSelector:@selector(setContentInsets_:withObject:) withObject:arg1 withObject:arg2];
+	[[self view] performSelector:NSSelectorFromString(@"setContentInsets_:withObject:") withObject:arg1 withObject:arg2];
 }
 
 DEFINE_DEF_PROP(scrollsToTop,@YES);

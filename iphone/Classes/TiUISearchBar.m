@@ -326,7 +326,7 @@
 	[self.proxy replaceValue:text forKey:@"value" notification:NO];
 	
 	//No need to setValue, because it's already been set.
-	if ([self.proxy _hasListeners:@"focus"  checkParent:NO])
+	if ([[self viewProxy] _hasListeners:@"focus"  checkParent:NO])
 	{
 		[self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO checkForListener:NO];
 	}
@@ -344,7 +344,7 @@
 	[self.proxy replaceValue:text forKey:@"value" notification:NO];
 	
 	//No need to setValue, because it's already been set.
-	if ([self.proxy _hasListeners:@"blur"  checkParent:NO])
+	if ([[self viewProxy] _hasListeners:@"blur"  checkParent:NO])
 	{
 		[self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO checkForListener:NO];
 	}

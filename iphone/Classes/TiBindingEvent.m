@@ -172,8 +172,7 @@ void TiBindingEventFire(TiBindingEvent event)
     
     if ([targetProxy respondsToSelector:@selector(createEventObject:)]) {
         NSDictionary *curPayload = event->payloadDictionary;
-        NSDictionary *modifiedPayload = [targetProxy createEventObject:curPayload];
-        event->payloadDictionary = [modifiedPayload copy];
+        NSDictionary *modifiedPayload = [targetProxy performSelector:@selector(createEventObject:) withObject:curPayload];
         [curPayload release];
     }
 	

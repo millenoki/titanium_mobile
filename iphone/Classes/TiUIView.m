@@ -798,8 +798,8 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 - (NSComparisonResult)compare:(TiUIView *)otherView {
-    int val1 = ((TiViewProxy*)self.proxy).vzIndex;
-    int val2 = ((TiViewProxy*)otherView.proxy).vzIndex;
+    NSInteger val1 = ((TiViewProxy*)self.proxy).vzIndex;
+    NSInteger val2 = ((TiViewProxy*)otherView.proxy).vzIndex;
     if (val1 < val2) {
         return NSOrderedAscending;
     } else if(val1 > val2) {
@@ -1219,7 +1219,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if ([value isKindOfClass:[NSArray class]]) {
         radii =(CGFloat*)malloc(8*sizeof(CGFloat));
         NSArray* array = (NSArray*)value;
-        int count = [array count];
+        NSUInteger count = [array count];
         if (count == 4)
         {
             for (int i = 0; i < count; ++i){
@@ -1823,7 +1823,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 		return NO;
 	}
     
-    UIView * ourView = [[oldProxy parent] parentViewForChild:oldProxy];
+    UIView * ourView = [(TiViewProxy*)[oldProxy parent] parentViewForChild:oldProxy];
     UIView *parentView = [self superview];
     if (parentView!=ourView)
     {
@@ -2101,7 +2101,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)handleControlEvents:(UIControlEvents)events
 {
 	// For subclasses (esp. buttons) to override when they have event handlers.
-	TiViewProxy* parentProxy = [[self viewProxy] parent];
+	TiViewProxy* parentProxy = (TiViewProxy*)[[self viewProxy] parent];
 	if ([parentProxy viewAttached] && [parentProxy canHaveControllerParent]) {
 		[[parentProxy view] handleControlEvents:events];
 	}
@@ -2358,7 +2358,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     }
 }
 
--(void)listenerAdded:(NSString*)event count:(int)count
+-(void)listenerAdded:(NSString*)event count:(NSInteger)count
 {
 	if (count == 1 && [self viewSupportsBaseTouchEvents])
 	{
@@ -2367,7 +2367,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	}
 }
 
--(void)listenerRemoved:(NSString*)event count:(int)count
+-(void)listenerRemoved:(NSString*)event count:(NSInteger)count
 {
 	if (count == 0)
 	{

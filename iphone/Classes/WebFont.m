@@ -51,7 +51,7 @@
 
 - (NSString *)classifyString:(NSString*)string {
 	if (!string) return nil;
-    unsigned int len = [string length];
+    NSUInteger len = [string length];
     
     BOOL capitalizeNext = YES;
 	NSMutableString *underscored = [NSMutableString new];

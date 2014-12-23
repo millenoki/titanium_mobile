@@ -128,7 +128,7 @@
 
 -(void)setStyle_:(id)style_
 {
-	int s = [TiUtils intValue:style_ def:UIButtonTypeCustom];
+	NSInteger s = [TiUtils intValue:style_ def:UIButtonTypeCustom];
 	if (s == style)
 	{
 		return;
@@ -406,9 +406,9 @@
 {
 	BOOL shouldWordWrap = [TiUtils boolValue:value def:YES];
 	if (shouldWordWrap)
-		[[button titleLabel] setLineBreakMode:UILineBreakModeWordWrap];
+		[[button titleLabel] setLineBreakMode:NSLineBreakByWordWrapping];
 	else 
-		[[button titleLabel] setLineBreakMode:UILineBreakModeTailTruncation];
+		[[button titleLabel] setLineBreakMode:NSLineBreakByTruncatingTail];
     [button setNeedsLayout];
 }
 

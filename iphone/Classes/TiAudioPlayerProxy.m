@@ -46,7 +46,7 @@
     return @"Ti.Media.AudioPlayer";
 }
 
--(void)_listenerAdded:(NSString *)type count:(int)count
+-(void)_listenerAdded:(NSString *)type count:(NSInteger)count
 {
 	if (count == 1 && [type isEqualToString:@"progress"])
 	{
@@ -54,7 +54,7 @@
 	}
 }
 
--(void)_listenerRemoved:(NSString *)type count:(int)count
+-(void)_listenerRemoved:(NSString *)type count:(NSInteger)count
 {
 	if (count == 0 && [type isEqualToString:@"progress"])
 	{
@@ -290,7 +290,7 @@ MAKE_SYSTEM_PROP(STATE_STOPPED,AS_STOPPED);
 MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 
 
--(NSString*)stateToString:(int)state
+-(NSString*)stateToString:(NSInteger)state
 {
 	switch(state)
 	{

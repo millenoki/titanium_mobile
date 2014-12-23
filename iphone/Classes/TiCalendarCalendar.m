@@ -229,7 +229,7 @@
     ENSURE_ARG_COUNT(args, 1);
     
     NSDateComponents *comps = [[NSDateComponents alloc] init];
-    int year = [TiUtils intValue:[args objectAtIndex:0]];
+    NSInteger year = [TiUtils intValue:[args objectAtIndex:0]];
     
     [comps setDay:1];
     [comps setMonth:1];

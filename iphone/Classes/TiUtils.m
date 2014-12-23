@@ -249,7 +249,7 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 		return value;
 	}
     else {
-        int milliseconds = [self intValue:value def:-1];
+        NSInteger milliseconds = [self intValue:value def:-1];
         if (milliseconds != -1) {
             return [[[NSDate alloc] initWithTimeIntervalSince1970:milliseconds/1000] autorelease];
         }
@@ -627,7 +627,7 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
     return [shadow autorelease];
 }
 
-+(int)intValue:(id)value def:(int)def valid:(BOOL *) isValid {
++(NSInteger)intValue:(id)value def:(NSInteger)def valid:(BOOL *) isValid {
 	if ([value respondsToSelector:@selector(intValue)])
 	{	
 		if(isValid != NULL) {
@@ -641,12 +641,12 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 	return def;	
 }
 
-+(int)intValue:(id)value def:(int)def
++(NSInteger)intValue:(id)value def:(NSInteger)def
 {
 	return [self intValue:value def:def valid:NULL];
 }
 
-+(int)intValue:(id)value
++(NSInteger)intValue:(id)value
 {
 	return [self intValue:value def:0];
 }
@@ -1946,7 +1946,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     
     NSUInteger result = 0;
     for (id mode in prop) {
-        int value = [TiUtils intValue:mode def:0];
+        NSInteger value = [TiUtils intValue:mode def:0];
         switch (value) {
             case 0:
             case 1:

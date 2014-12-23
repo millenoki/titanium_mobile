@@ -1913,7 +1913,7 @@
 		NSString *title = [entry objectForKey:@"title"];
 		id theindex = [entry objectForKey:@"index"];
 		[sectionIndex addObject:title];
-		[sectionIndexMap setObject:[NSNumber numberWithInt:[TiUtils intValue:theindex]] forKey:title];
+		[sectionIndexMap setObject:NUMINTEGER([TiUtils intValue:theindex]) forKey:title];
 	}
 
     // Instead of calling back through our mechanism to reload specific sections, because the entire index of the table
@@ -2017,7 +2017,7 @@
             return;
         }
 		tableHeaderPullView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height)];
-		tableHeaderPullView.backgroundColor = [UIColor clearGrayColor];
+		tableHeaderPullView.backgroundColor = [UIColor clearColor];
 		UIView *view = [value getOrCreateView];
 		[[self tableView] addSubview:tableHeaderPullView];
 		[tableHeaderPullView addSubview:view];

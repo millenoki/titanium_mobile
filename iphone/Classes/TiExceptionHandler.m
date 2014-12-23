@@ -139,7 +139,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (NSString *)oneLineDescription
 {
 	if (self.sourceURL != nil) {
-		return [NSString stringWithFormat:@"%@:%d:\"%@\"", [self.sourceURL stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding], self.lineNo, self.message];
+		return [NSString stringWithFormat:@"%@:%ld:\"%@\"", [self.sourceURL stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding], (long)self.lineNo, self.message];
 	} else {
 		return [NSString stringWithFormat:@"%@", self.message];
 	}

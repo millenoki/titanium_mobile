@@ -229,7 +229,7 @@
     isModal = (tab == nil && !self.isManaged) ? [TiUtils boolValue:[self valueForUndefinedKey:@"modal"] def:NO] : NO;
     hidesStatusBar = [TiUtils boolValue:[self valueForUndefinedKey:@"fullscreen"] def:[[[TiApp app] controller] statusBarInitiallyHidden]];
 
-	int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
+	NSInteger theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
         case UIStatusBarStyleLightContent:
@@ -263,7 +263,7 @@
 
 -(void)setStatusBarStyle:(id)style
 {
-    int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
+    NSInteger theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
         case UIStatusBarStyleLightContent:

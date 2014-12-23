@@ -8,7 +8,6 @@
 /**
  * Please read the remarks at the top of HLSLayerAnimation.m
  */
-
 @interface TiViewAnimation ()
 
 @property (nonatomic, retain) TiViewProxy* tiViewProxy;
@@ -21,6 +20,7 @@
 @property(nonatomic,retain,readwrite) NSNumber	*opaque;
 @property(nonatomic,retain,readwrite) NSNumber	*visible;
 @property(nonatomic,retain,readwrite) TiProxy	*transform;
+
 
 - (TiViewProxy*)viewProxy;
 
@@ -288,9 +288,8 @@ doReposition = YES;\
         {
             //we have to use setBackgroundColor_ because setBackgroundColor has been overriden
             // on purpose
-            [_view setBackgroundColor_:[backgroundColor _color]];
+            [uiview setBackgroundColor_:[backgroundColor _color]];
         }
-        
         if (color!=nil && [uiview respondsToSelector:@selector(setColor_:)])
         {
             [uiview performSelector:@selector(setColor_:) withObject:color];

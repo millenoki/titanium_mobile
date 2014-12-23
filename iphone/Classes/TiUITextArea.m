@@ -272,7 +272,7 @@
     NSTimer* _caretVisibilityTimer;
     UIEdgeInsets _padding;
     BOOL suppressReturn;
-    int _maxLines;
+    NSInteger _maxLines;
 }
 
 @synthesize becameResponder, padding = _padding;

@@ -442,7 +442,7 @@ DebugLog(@"[WARN] Ti%@.%@ DEPRECATED in %@, in favor of %@.",@"tanium",api,in,ne
 [NSNumber numberWithInteger:x]\
 
 #define NUMUINTEGER(x) \
-[NSNumber numberWithUnsignedInt:x]\
+[NSNumber numberWithUnsignedInteger:x]\
     
 #define DEFINE_SUBPROXY(methodName,ivarName)	\
 -(TiProxy*)methodName	\

@@ -477,7 +477,7 @@
 	
 	if ([icon isKindOfClass:[NSNumber class]])
 	{
-		int value = [TiUtils intValue:icon];
+		NSInteger value = [TiUtils intValue:icon];
 		UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
 		[newItem setBadgeValue:badgeValue];
 		[rootController setTabBarItem:newItem];

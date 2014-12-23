@@ -41,6 +41,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @class TiViewProxy;
 @class ADTransition;
 @class TiViewAnimationStep;
+@class TiRect;
 
 /**
  Base class for all Titanium views.
@@ -147,6 +148,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  Performs view's initialization procedure.
  */
 -(void)initializeState;
+- (void) initialize;
 
 /**
  Performs view's configuration procedure.
@@ -235,6 +237,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)handleControlEvents:(UIControlEvents)events;
 
 -(void)setVisible_:(id)visible;
+-(void)setSelected_:(id)arg;
 
 -(void)setBackgroundImage_:(id)value;
 
@@ -292,6 +295,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(NSDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture;
 -(UIViewController*)getContentController;
+-(void)fillBoundsToRect:(TiRect*)rect;
 
 @end
 

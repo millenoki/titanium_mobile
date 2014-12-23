@@ -423,8 +423,8 @@ static NetworkModule *_sharedInstance = nil;
     return @{
              @"boottime":NUMLONGLONG([boottime timeIntervalSince1970]*1000.0),
              @"timestamp":NUMLONGLONG([now timeIntervalSince1970]*1000.0),
-             @"wifi":@{@"sent_bytes": NUMLONG(abs(WiFiSent)), @"received_bytes": NUMLONG(abs(WiFiReceived))},
-             @"wwan":@{@"sent_bytes": NUMLONG(abs(WWANSent)), @"received_bytes": NUMLONG(abs(WWANReceived))}
+             @"wifi":@{@"sent_bytes": NUMLONGLONG(ABS(WiFiSent)), @"received_bytes": NUMLONGLONG(ABS(WiFiReceived))},
+             @"wwan":@{@"sent_bytes": NUMLONGLONG(ABS(WWANSent)), @"received_bytes": NUMLONGLONG(ABS(WWANReceived))}
     };
 }
 

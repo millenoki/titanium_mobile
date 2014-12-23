@@ -259,7 +259,7 @@
 -(void)setCollisionMode:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSNumber);
-    int newVal = [TiUtils intValue:args def:-1];
+    NSInteger newVal = [TiUtils intValue:args def:-1];
     UICollisionBehaviorMode newMode;
     switch (newVal) {
         case 0:

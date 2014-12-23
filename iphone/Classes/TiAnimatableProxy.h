@@ -5,7 +5,6 @@
 @property(nonatomic,assign) BOOL animating;
 
 -(void)animate:(id)arg;
--(void)cancelAllAnimations:(id)arg;
 
 -(HLSAnimation*)animationForAnimation:(TiAnimation*)animation;
 
@@ -13,7 +12,6 @@
 -(void)handleAnimation:(TiAnimation*)animation witDelegate:(id)delegate;
 -(void)handlePendingAnimation:(TiAnimation*)pendingAnimation;
 -(void)handlePendingAnimation;
--(void)handleAnimation:(TiAnimation*)animation;
 -(void)cancelAnimation:(TiAnimation *)animation;
 -(void)cancelAnimation:(TiAnimation *)animation shouldReset:(BOOL)reset;
 

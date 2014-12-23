@@ -209,7 +209,7 @@ NSArray* bufferKeySequence = nil;
                     location:CODELOCATION];
     }
 
-    int offsetVal = [TiUtils intValue:offset];
+    NSInteger offsetVal = [TiUtils intValue:offset];
     BOOL valid = NO;
     NSUInteger lengthVal = [TiUtils intValue:length def:0 valid:&valid];
     if (!valid) {
@@ -219,7 +219,7 @@ NSArray* bufferKeySequence = nil;
     // For now, do the sensible thing... throw an exception.
     if (offsetVal > [data length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Offset %d extends past data length %lu", offsetVal, (unsigned long)[data length]]
+                   subreason:[NSString stringWithFormat:@"Offset %ld extends past data length %lu", (long)offsetVal, (unsigned long)[data length]]
                     location:CODELOCATION];
     }
     if (lengthVal > [data length]) {
@@ -258,7 +258,7 @@ NSArray* bufferKeySequence = nil;
     }
     
     char byte = [TiUtils intValue:fillByte];
-    int offsetVal = [TiUtils intValue:offset];
+    NSInteger offsetVal = [TiUtils intValue:offset];
     BOOL valid = NO;
     NSUInteger lengthVal = [TiUtils intValue:length def:0 valid:&valid];
     if (!valid) {
@@ -269,7 +269,7 @@ NSArray* bufferKeySequence = nil;
     // For now, do the sensible thing... throw an exception.
     if (offsetVal > [data length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Offset %d extends past data length %lu", offsetVal, (unsigned long)[data length]]
+                   subreason:[NSString stringWithFormat:@"Offset %ld extends past data length %lu", (long)offsetVal, (unsigned long)[data length]]
                     location:CODELOCATION];
     }
     if (lengthVal > [data length]) {
@@ -285,7 +285,7 @@ NSArray* bufferKeySequence = nil;
     } 
     
     void* bytes = [data mutableBytes];
-    for (int i=offsetVal; i < offsetVal+lengthVal; i++) {
+    for (NSUInteger i=offsetVal; i < offsetVal+lengthVal; i++) {
         *(char*)(bytes+i) = byte;
     }
 }
@@ -316,7 +316,7 @@ NSArray* bufferKeySequence = nil;
 
 -(void)setLength:(NSNumber*)length
 {
-    int len = [TiUtils intValue:length];
+    NSInteger len = [TiUtils intValue:length];
     if (len == 0) {
         RELEASE_TO_NIL(data);
         return;

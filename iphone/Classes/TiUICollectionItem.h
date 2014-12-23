@@ -36,10 +36,8 @@ typedef enum
 - (id)initWithProxy:(TiUICollectionItemProxy *)proxy;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
-- (void)setPosition:(int)position isGrouped:(BOOL)grouped;
 -(void)configurationStart;
 -(void)configurationSet;
-- (void) ensureVisibleSelectorWithTableView:(UITableView*)tableView;
 - (BOOL) hasSwipeButtons;
 @end
 

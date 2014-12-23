@@ -96,7 +96,6 @@
 -(NSIndexPath*)indexPathFromSearchIndex:(NSInteger)index;
 -(IBAction)hideSearchScreen:(id)sender;
 -(TDUITableView*)tableView;
--(CGFloat)tableRowHeight:(CGFloat)height;
 -(void)setScrollsToTop_:(id)value;
 -(TiUITableViewRowProxy*)rowAtPoint:(CGPoint)point;
 

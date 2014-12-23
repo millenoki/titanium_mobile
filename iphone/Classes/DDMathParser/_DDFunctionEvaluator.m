@@ -412,9 +412,9 @@ static NSString *const _DDFunctionSelectorSuffix = @":variables:error:";
         upperBound = [[params objectAtIndex:1] longLongValue];
     }
     
-    long long random = arc4random_uniform(upperBound);
+    long long random = arc4random_uniform((uint32_t)upperBound);
     while (random < lowerBound) {
-        random = arc4random_uniform(upperBound);
+        random = arc4random_uniform((uint32_t)upperBound);
     }
 	
 	return [DDExpression numberExpressionWithNumber:@(random)];

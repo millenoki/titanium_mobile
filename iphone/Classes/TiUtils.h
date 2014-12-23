@@ -322,7 +322,7 @@ typedef enum
  @return The int representation of the value.
  @see intValue:def:
  */
-+(int)intValue:(id)value;
++(NSInteger)intValue:(id)value;
 
 /**
  Converts input value into an int with default fallback.
@@ -331,7 +331,7 @@ typedef enum
  @return The int representation of the value.
  @see intValue:
  */
-+(int)intValue:(id)value def:(int)def;
++(NSInteger)intValue:(id)value def:(NSInteger)def;
 
 /**
  Converts input value into an int with default fallback.
@@ -341,7 +341,7 @@ typedef enum
  @return The int representation of the value.
  @see intValue:
  */
-+(int)intValue:(id)value def:(int)def valid:(BOOL*)isValid;
++(NSInteger)intValue:(id)value def:(NSInteger)def valid:(BOOL*)isValid;
 
 /**
  Converts input value into the color type.

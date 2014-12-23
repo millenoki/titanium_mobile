@@ -71,7 +71,7 @@
     }
     
     // Get the item
-    int index = [[activity objectForKey:@"index"] integerValue];
+    NSInteger index = [[activity objectForKey:@"index"] integerValue];
     id item = nil;
     
     if (index < [items count]) {
@@ -80,7 +80,7 @@
     
     // Increase the index, and reset
     index = (index + 1) % _maximumNumberOfItems;
-    [activity setObject:[NSNumber numberWithInt:index] forKey:@"index"];
+    [activity setObject:[NSNumber numberWithInteger:index] forKey:@"index"];
     
     return [item isKindOfClass:[NSNull class]]?nil:item;
 }

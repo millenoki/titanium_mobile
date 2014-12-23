@@ -59,7 +59,7 @@ static NSSet* transferableProps = nil;
 #pragma mark public API
 
 @synthesize vzIndex, parentVisible, preventListViewSelection;
--(void)setVzIndex:(int)newZindex
+-(void)setVzIndex:(NSInteger)newZindex
 {
 	if(newZindex == vzIndex)
 	{
@@ -67,7 +67,7 @@ static NSSet* transferableProps = nil;
 	}
 
 	vzIndex = newZindex;
-	[self replaceValue:NUMINT(vzIndex) forKey:@"vzIndex" notification:NO];
+	[self replaceValue:NUMINTEGER(vzIndex) forKey:@"vzIndex" notification:NO];
 	[self willChangeZIndex];
 }
 
@@ -1048,7 +1048,7 @@ SEL GetterForKrollProperty(NSString * key)
                 }
             }
             
-            int nbWidthAutoFill = [widthFillChildren count];
+            NSUInteger nbWidthAutoFill = [widthFillChildren count];
             if (nbWidthAutoFill > 0) {
                 CGFloat usableWidth = floorf((size.width - result.width) / nbWidthAutoFill);
                 CGRect usableRect = CGRectMake(0,0,usableWidth, size.height);
@@ -1066,7 +1066,7 @@ SEL GetterForKrollProperty(NSString * key)
                 }
             }
             
-            int nbHeightAutoFill = [heightFillChildren count];
+            NSUInteger nbHeightAutoFill = [heightFillChildren count];
             if (nbHeightAutoFill > 0) {
                 CGFloat usableHeight = floorf((size.height - result.height) / nbHeightAutoFill);
                 CGRect usableRect = CGRectMake(0,0,size.width, usableHeight);
@@ -1340,6 +1340,12 @@ SEL GetterForKrollProperty(NSString * key)
     defaultReadyToCreateView = readyToCreateView = ready;
 }
 
+
+-(void)setReadyToCreateViewNSNumber:(NSNumber*)ready
+{
+    [self setReadyToCreateView:[ready boolValue]];
+}
+
 -(void)setReadyToCreateView:(BOOL)ready
 {
     [self setReadyToCreateView:YES recursive:YES];
@@ -1350,7 +1356,7 @@ SEL GetterForKrollProperty(NSString * key)
     readyToCreateView = ready;
     if (!recursive) return;
     
-    [self makeChildrenPerformSelector:@selector(setReadyToCreateView:) withObject:ready];
+    [self makeChildrenPerformSelector:@selector(setReadyToCreateViewNSNumber:) withObject:@(ready)];
 }
 
 -(TiUIView*)getOrCreateView
@@ -1471,12 +1477,17 @@ SEL GetterForKrollProperty(NSString * key)
     [self makeChildrenPerformSelector:@selector(prepareForReuse) withObject:nil];
 }
 
+-(void)clearViewNSNumber:(NSNumber*)recurse
+{
+    [self clearView:[recurse boolValue]];
+}
+
 //CAUTION: TO BE USED ONLY WITH TABLEVIEW MAGIC
 -(void)clearView:(BOOL)recurse
 {
     [self setView:nil];
     if (recurse)
-    [self makeChildrenPerformSelector:@selector(clearView:) withObject:recurse];
+    [self makeChildrenPerformSelector:@selector(clearViewNSNumber:) withObject:@(recurse)];
 }
 
 //CAUTION: TO BE USED ONLY WITH TABLEVIEW MAGIC
@@ -2145,7 +2156,7 @@ SEL GetterForKrollProperty(NSString * key)
     }, NO);
 }
 
--(void)_listenerAdded:(NSString*)type count:(int)count
+-(void)_listenerAdded:(NSString*)type count:(NSInteger)count
 {
 	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerAdded:count:)])
 	{
@@ -2161,7 +2172,7 @@ SEL GetterForKrollProperty(NSString * key)
     [super _listenerAdded:type count:count];
 }
 
--(void)_listenerRemoved:(NSString*)type count:(int)count
+-(void)_listenerRemoved:(NSString*)type count:(NSInteger)count
 {
 	if (self.modelDelegate!=nil && [(NSObject*)self.modelDelegate respondsToSelector:@selector(listenerRemoved:count:)])
 	{
@@ -2620,7 +2631,10 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         [self refreshViewIfNeeded:YES];
     }
 }
-
+-(void)refreshViewIfNeededNSNumber:(NSNumber*)recursive
+{
+    [self refreshViewIfNeeded:[recursive boolValue]];
+}
 -(void)refreshViewIfNeeded:(BOOL)recursive
 {
     BOOL needsRefresh = OSAtomicTestAndClear(TiRefreshViewEnqueued, &dirtyflags);
@@ -2633,7 +2647,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     {
         //even if our sandbox is null and we are not ready (next test) let s still call refresh our our children. They wont refresh but at least they will clear their TiRefreshViewEnqueued flags !
         if (recursive){
-            [self makeChildrenPerformSelector:@selector(refreshViewIfNeeded:) withObject:recursive];
+            [self makeChildrenPerformSelector:@selector(refreshViewIfNeededNSNumber:) withObject:@(recursive)];
         }
         return;
 	}
@@ -2809,8 +2823,8 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         }
     }
     NSArray *sortedArray = [parentViewToSort sortedArrayUsingComparator:^NSComparisonResult(TiUIView* a, TiUIView* b) {
-        int first = [(TiViewProxy*)(a.proxy) vzIndex];
-        int second = [(TiViewProxy*)(b.proxy) vzIndex];
+        NSInteger first = [(TiViewProxy*)(a.proxy) vzIndex];
+        NSInteger second = [(TiViewProxy*)(b.proxy) vzIndex];
         return (first > second) ? NSOrderedDescending : ( first < second ? NSOrderedAscending : NSOrderedSame );
     }];
     for (TiUIView* view in sortedArray) {
@@ -2821,8 +2835,8 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(void)reorderZChildren{
 	if (view == nil) return;
     NSArray *sortedArray = [[self viewChildren] sortedArrayUsingComparator:^NSComparisonResult(TiViewProxy* a, TiViewProxy* b) {
-        int first = [a vzIndex];
-        int second = [b vzIndex];
+        NSInteger first = [a vzIndex];
+        NSInteger second = [b vzIndex];
         return (first > second) ? NSOrderedDescending : ( first < second ? NSOrderedAscending : NSOrderedSame );
     }];
     for (TiViewProxy* child in sortedArray) {
@@ -3162,7 +3176,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     //If it is a horizontal layout ensure that all the children in a row have the
     //same height for the sandbox
     
-    int nbWidthAutoFill = [widthFillChildren count];
+    NSUInteger nbWidthAutoFill = [widthFillChildren count];
     if (nbWidthAutoFill > 0) {
         //it is horizontalNoWrap
         horizontalLayoutBoundary = 0;
@@ -3182,7 +3196,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         }
     }
     
-    int nbHeightAutoFill = [heightFillChildren count];
+    NSUInteger nbHeightAutoFill = [heightFillChildren count];
     if (nbHeightAutoFill > 0) {
         //it is vertical
         verticalLayoutBoundary = 0;
@@ -3676,7 +3690,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 #pragma mark - View Templates
 
-+ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context
++ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy inContext:(id<TiEvaluator>)context
 {
 	return [[self class] createFromDictionary:dictionary rootProxy:rootProxy inContext:context defaultType:@"Ti.UI.View"];
 }
@@ -3821,11 +3835,16 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         [[self view] blurBackground:args];
     }
 }
+-(void)configurationStartNSNumber:(NSNumber*)ready
+{
+    [self configurationStart:[ready boolValue]];
+}
+
 -(void)configurationStart:(BOOL)recursive
 {
     needsContentChange = allowContentChange = NO;
     [view configurationStart];
-    if (recursive)[self makeChildrenPerformSelector:@selector(configurationStart:) withObject:recursive];
+    if (recursive)[self makeChildrenPerformSelector:@selector(configurationStartNSNumber:) withObject:@(recursive)];
 }
 
 -(void)configurationStart
@@ -3833,10 +3852,15 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     [self configurationStart:NO];
 }
 
+-(void)configurationSetNSNumber:(NSNumber*)ready
+{
+    [self configurationSet:[ready boolValue]];
+}
+
 -(void)configurationSet:(BOOL)recursive
 {
     [view configurationSet];
-    if (recursive)[self makeChildrenPerformSelector:@selector(configurationSet:) withObject:recursive];
+    if (recursive)[self makeChildrenPerformSelector:@selector(configurationSetNSNumber:) withObject:@(recursive)];
     allowContentChange = YES;
 }
 

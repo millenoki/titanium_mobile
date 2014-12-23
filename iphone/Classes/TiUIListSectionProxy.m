@@ -173,12 +173,12 @@
 
 - (void)show:(id)arg
 {
-	[self setVisible:YES];
+	[self setVisible:@(YES)];
 }
 
 -(void)hide:(id)arg
 {
-	[self setVisible:NO];
+	[self setVisible:@(NO)];
 }
 
 - (NSArray *)items

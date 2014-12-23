@@ -7,7 +7,7 @@
 {
     [super viewDidInitialize];
     if (parentVisible) {
-        [[NSNotificationCenter defaultCenter] addObserver:self.view selector:@selector(updateKeyboardInset) name:kTiKeyboardHeightChangedNotification object:nil];
+         [[NSNotificationCenter defaultCenter] addObserver:self.view selector:@selector(updateKeyboardInset) name:kTiKeyboardHeightChangedNotification object:nil];
     }
 }
 

@@ -231,7 +231,7 @@ else{\
     UIViewController* winController = [self controllerForWindow:window];
     if (winController != nil) {
         TiWindowProxy *realWindow = rootWindow;
-        int index = [[navController viewControllers] indexOfObject:winController];
+        NSUInteger index = [[navController viewControllers] indexOfObject:winController];
         if (index > 0) {
             realWindow = (TiWindowProxy *)[[[navController viewControllers] objectAtIndex:(index-1)] proxy];
             TiThreadPerformOnMainThread(^{
@@ -281,7 +281,7 @@ else{\
 
 -(id)stackSize
 {
-    return [NSNumber numberWithInt:[[navController viewControllers] count]];
+    return NUMINTEGER([[navController viewControllers] count]);
 }
 
 -(void)windowClosing:(TiWindowProxy*)window animated:(BOOL)animated
@@ -403,9 +403,9 @@ else{\
 -(NSDictionary*)propsDictFromTransition:(ADTransition*)transition
 {
     if (!transition) return @{};
-    return @{@"duration": NUMINT([transition duration]*1000),
+    return @{@"duration": NUMINTEGER([transition duration]*1000),
              @"style": [TiTransitionHelper tiTransitionTypeForADTransition:transition],
-             @"substyle": NUMINT(transition.orientation),
+             @"substyle": NUMINTEGER(transition.orientation),
              @"reverse": NUMBOOL(transition.isReversed)};
 }
 
@@ -416,7 +416,7 @@ else{\
     if (onstackchange || hasEvent) {
         NSDictionary* dict = @{@"window": ((TiViewController*)viewController).proxy,
                                @"transition":[self propsDictFromTransition:transition],
-                               @"stackIndex":NUMINT([[navController viewControllers] indexOfObject:viewController]),
+                               @"stackIndex":NUMINTEGER([[navController viewControllers] indexOfObject:viewController]),
                                @"animated": NUMBOOL(transition != nil)};
         if (onstackchange){
             NSMutableDictionary * event = [dict mutableCopy];

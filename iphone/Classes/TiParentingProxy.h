@@ -6,7 +6,7 @@
     TiParentingProxy *parent;
     pthread_rwlock_t childrenLock;
     NSMutableArray *children;
-    int childrenCount;
+    NSUInteger childrenCount;
 }
 
 /**

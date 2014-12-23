@@ -799,8 +799,6 @@
 		D5809D5E19129CEB005A1F02 /* APSHTTPResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4F19129CEB005A1F02 /* APSHTTPResponse.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D585BC8517E630AB0062275E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8417E630AB0062275E /* CoreVideo.framework */; };
 		D585BC8717E630BA0062275E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8417E630AB0062275E /* CoreVideo.framework */; };
-		D585BC8917E630CD0062275E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8817E630CD0062275E /* CoreMedia.framework */; };
-		D585BC8B17E630DA0062275E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8817E630CD0062275E /* CoreMedia.framework */; };
 		D586DCC219716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D586DCC319716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D586DCC419716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -2710,7 +2708,6 @@
 				84D4CA1519EF0B4D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C2190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
 				D57193E317E996E30033897A /* CoreTelephony.framework in Frameworks */,
-				D585BC8B17E630DA0062275E /* CoreMedia.framework in Frameworks */,
 				D585BC8517E630AB0062275E /* CoreVideo.framework in Frameworks */,
 				D93DAA6B16CBFD6400AD64C9 /* EventKit.framework in Frameworks */,
 				D5B6C729181124C200A2612A /* libDTCoreText.a in Frameworks */,
@@ -2756,7 +2753,6 @@
 				8465E6BE19F86463008479E6 /* CoreMedia.framework in Frameworks */,
 				84D4CA1419EF0B3D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C3190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
-				D585BC8917E630CD0062275E /* CoreMedia.framework in Frameworks */,
 				D585BC8717E630BA0062275E /* CoreVideo.framework in Frameworks */,
 				D54E789E17D8901600443386 /* CoreTelephony.framework in Frameworks */,
 				D93DAA6916CBFD5600AD64C9 /* EventKit.framework in Frameworks */,
@@ -4963,7 +4959,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0610;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
 						SystemCapabilities = {
@@ -6625,6 +6621,7 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -6640,6 +6637,7 @@
 				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
@@ -6657,6 +6655,7 @@
 					"\"$(SRCROOT)/../libexternals\"",
 					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-DDEBUG",
 					"-DTI_POST_1_2",
@@ -6681,6 +6680,7 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -6696,6 +6696,7 @@
 				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
@@ -6734,6 +6735,7 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
@@ -6749,6 +6751,7 @@
 				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_SHADOW = NO;
 				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;

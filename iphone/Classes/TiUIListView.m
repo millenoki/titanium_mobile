@@ -1205,7 +1205,7 @@ static NSDictionary* replaceKeysForRow;
             NSString *title = [entry objectForKey:@"title"];
             id index = [entry objectForKey:@"index"];
             [sectionTitles addObject:title];
-            [sectionIndices addObject:[NSNumber numberWithInt:[TiUtils intValue:index]]];
+            [sectionIndices addObject:NUMINTEGER([TiUtils intValue:index])];
         }
     }
     if (searchViewProxy == nil) {

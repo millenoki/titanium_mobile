@@ -14,6 +14,7 @@
 #import "TiSelectableBackgroundLayer.h"
 #import "TiCellBackgroundView.h"
 #import "ImageLoader.h"
+#import "TiSVGImage.h"
 
 
 #define GROUP_ROUND_RADIUS 6
@@ -27,10 +28,7 @@
     TiUIView* _viewHolder;
     TiCellBackgroundView* _bgSelectedView;
     TiCellBackgroundView* _bgView;
-    TiDimension leftCap;
-    TiDimension topCap;
-    TiDimension bottomCap;
-    TiDimension rightCap;
+    TiCap imageCap;
     BOOL _needsLayout;
     BOOL configurationSet;
     BOOL _unHighlightOnSelect;
@@ -253,34 +251,22 @@ DEFINE_EXCEPTIONS
 
 -(void)setImageCap_:(id)arg
 {
-    ENSURE_SINGLE_ARG(arg,NSDictionary);
-    NSDictionary* dict = (NSDictionary*)arg;
-    if ([dict objectForKey:@"left"]) {
-        leftCap = TiDimensionFromObject([dict objectForKey:@"left"]);
-    }
-    if ([dict objectForKey:@"right"]) {
-        rightCap = TiDimensionFromObject([dict objectForKey:@"right"]);
-    }
-    if ([dict objectForKey:@"top"]) {
-        topCap = TiDimensionFromObject([dict objectForKey:@"top"]);
-    }
-    if ([dict objectForKey:@"bottom"]) {
-        bottomCap = TiDimensionFromObject([dict objectForKey:@"bottom"]);
-    }
+    imageCap = [TiUtils capValue:arg def:TiCapUndefined];
 }
 
 -(UIImage*)loadImage:(id)arg
 {
     if (arg==nil) return nil;
-    UIImage *image = nil;
-	if (TiDimensionIsUndefined(leftCap) && TiDimensionIsUndefined(topCap) &&
-        TiDimensionIsUndefined(rightCap) && TiDimensionIsUndefined(bottomCap)) {
-        image =  [TiUtils loadBackgroundImage:arg forProxy:_proxy];
+    id result = nil;
+    if (TiCapIsUndefined(imageCap)) {
+        result =  [TiUtils loadBackgroundImage:arg forProxy:_proxy];
     }
     else {
-        image =  [TiUtils loadBackgroundImage:arg forProxy:_proxy withLeftCap:leftCap topCap:topCap rightCap:rightCap bottomCap:bottomCap];
+        result =  [TiUtils loadBackgroundImage:arg forProxy:_proxy withCap:imageCap];
     }
-	return image;
+    if ([result isKindOfClass:[UIImage class]]) return result;
+    else if ([result isKindOfClass:[TiSVGImage class]]) return [((TiSVGImage*)result) fullImage];
+    return nil;
 }
 
 -(void) setBackgroundImage_:(id)image

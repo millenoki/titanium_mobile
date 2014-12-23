@@ -468,7 +468,7 @@ DEFINE_EXCEPTIONS
 
 -(void)loadImageInBackground:(NSNumber*)pos
 {
-    int position = [TiUtils intValue:pos];
+    NSInteger position = [TiUtils intValue:pos];
     NSURL *theurl = [TiUtils toURL:[_images objectAtIndex:position] proxy:self.proxy];
     id theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
     if (theimage==nil)

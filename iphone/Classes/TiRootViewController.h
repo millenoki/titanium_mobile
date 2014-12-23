@@ -56,12 +56,12 @@
 -(CGRect)getKeyboardFrameInView:(UIView*)view;
 -(UIView *)viewForKeyboardAccessory;
 
-@property(nonatomic,readonly) TiViewProxy * keyboardFocusedProxy;
+@property(nonatomic,readonly) TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy;
 #if defined(DEBUG) || defined(DEVELOPER)
 -(void)shutdownUi:(id)arg;
-- (void) updateStatusBar;
 #endif
 - (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom;
 
+-(void) handleNewNewKeyboardStatus;
 
 @end

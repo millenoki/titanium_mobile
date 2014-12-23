@@ -14,18 +14,19 @@
 
 #define kDefaultFontSize 12.0
 
-static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment alignment)
-{
-    switch (alignment) {
-        case UITextAlignmentLeft:
-            return kCTLeftTextAlignment;
-        case UITextAlignmentRight:
-            return kCTRightTextAlignment;
-        default:
-            return kCTCenterTextAlignment;
-            break;
-    }
-}
+//static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment alignment)
+//{
+//    switch (alignment) {
+//        case UITextAlignmentLeft:
+//            return kCTLeftTextAlignment;
+//        case UITextAlignmentRight:
+//            return kCTRightTextAlignment;
+//        default:
+//            return kCTCenterTextAlignment;
+//            break;
+//    }
+//}
+
 
 static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode linebreak)
 {
@@ -182,7 +183,7 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
             maxSize.width -= _padding.left + _padding.right;
             if ([_realLabelContent isKindOfClass:[NSAttributedString class]])
             {
-                int numberOfLines = 0;
+                NSInteger numberOfLines = 0;
                 if ([self valueForKey:@"maxLines"])
                 {
                     numberOfLines = [TiUtils intValue:[self valueForKey:@"maxLines"]];
@@ -191,7 +192,7 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
             }
             else
             {
-                UILineBreakMode breakMode = UILineBreakModeWordWrap;
+                NSLineBreakMode breakMode = NSLineBreakByWordWrapping;
                 if ([self valueForKey:@"ellipsize"])
                     breakMode = [TiUtils intValue:[self valueForKey:@"ellipsize"]];
                 id fontValue = [self valueForKey:@"font"];
@@ -204,7 +205,7 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
                 {
                     font = [UIFont systemFontOfSize:17];
                 }
-                int numberOfLines = 0;
+                NSInteger numberOfLines = 0;
                 if ([self valueForKey:@"maxLines"])
                 {
                     numberOfLines = [TiUtils intValue:[self valueForKey:@"maxLines"]];
@@ -325,7 +326,7 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
 
 -(void)setTextAlign:(id)alignment
 {
-    [options setValue:[NSNumber numberWithInt:UITextAlignmentToCTTextAlignment([TiUtils textAlignmentValue:alignment])] forKey:DTDefaultTextAlignment];
+    [options setValue:NUMINTEGER(DTNSTextAlignmentToCTTextAlignment([TiUtils textAlignmentValue:alignment])) forKey:DTDefaultTextAlignment];
     
     //we need to reset the text to update default paragraph settings
 	[self replaceValue:alignment forKey:@"textAlign" notification:YES];
@@ -343,10 +344,10 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
 
 -(void)setMultiLineEllipsize:(id)value
 {
-    int multilineBreakMode = [TiUtils intValue:value];
+    NSInteger multilineBreakMode = [TiUtils intValue:value];
     if (multilineBreakMode != UILineBreakModeWordWrap)
     {
-        [options setValue:[NSNumber numberWithInt:UILineBreakModeToCTLineBreakMode(multilineBreakMode)]  forKey:DTDefaultLineBreakMode];
+        [options setValue:NUMINTEGER(UILineBreakModeToCTLineBreakMode(multilineBreakMode)) forKey:DTDefaultLineBreakMode];
         
         //we need to update the text
         [self updateAttributeText];
@@ -366,9 +367,9 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
     // we don't preserve the string but compare it's hash
     //NSString hash method is wrong and can return same value
     // for 2 different strings
-	NSUInteger newHash = [newContentString md5Checksum];
+	NSString* newHash = [newContentString md5Checksum];
 	
-	if (newHash == _contentHash)
+	if ([newHash isEqual:_contentHash])
 	{
 		return;
 	}
@@ -387,13 +388,13 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
 
 -(id)characterIndexAtPoint:(id)args
 {
-    int result = -1;
+    NSInteger result = -1;
     if (view!=nil) {
         ENSURE_SINGLE_ARG(args, NSDictionary)
         CGPoint point = [TiUtils pointValue:args];
         result = [(TiUILabel*)view characterIndexAtPoint:point];
     }
-    return NUMINT(result);
+    return NUMINTEGER(result);
 }
 
 

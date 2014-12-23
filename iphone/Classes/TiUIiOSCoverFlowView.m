@@ -123,7 +123,7 @@
 
 -(void)setSelected_:(id)arg
 {
-	int index = [TiUtils intValue:arg];
+	NSInteger index = [TiUtils intValue:arg];
 	AFOpenFlowView *flow = [self view];
 	
 	if (index >= 0 && index < [flow numberOfImages])
@@ -253,7 +253,8 @@
 		
 		[loading setValue:[[ImageLoader sharedLoader] loadImage:[NSURL URLWithString:urlString]
 														delegate:self
-														userInfo:userInfo]
+                                                        options:userInfo
+                                                        userInfo:userInfo]
 				   forKey:[NUMINTEGER(index) stringValue]];
 	}
 	[loadLock unlock];

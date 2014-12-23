@@ -597,12 +597,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	}
 }
 
--(void)_listenerAdded:(NSString*)type count:(int)count
+-(void)_listenerAdded:(NSString*)type count:(NSInteger)count
 {
 	// for subclasses
 }
 
--(void)_listenerRemoved:(NSString*)type count:(int)count
+-(void)_listenerRemoved:(NSString*)type count:(NSInteger)count
 {
 	// for subclasses
 }
@@ -1056,12 +1056,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     TiBindingEventFire(ourEvent);
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
 {
     [self fireEvent:type withObject:obj withSource:self propagate:propagate reportSuccess:report errorCode:code message:message];
 }
 
--(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message
 {
     [self fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:YES];
 }
@@ -1473,13 +1473,13 @@ DEFINE_EXCEPTIONS
 	}
 }
 
-+ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context
++ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy inContext:(id<TiEvaluator>)context
 {
 	return [[self class] createFromDictionary:dictionary rootProxy:rootProxy inContext:context defaultType:nil];
 }
 
 // Returns protected proxy, caller should do forgetSelf.
-+ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context defaultType:(NSString*)defaultType
++ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy inContext:(id<TiEvaluator>)context defaultType:(NSString*)defaultType
 {
 	if (dictionary == nil) {
 		return nil;

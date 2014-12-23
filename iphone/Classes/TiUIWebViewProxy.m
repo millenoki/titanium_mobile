@@ -229,6 +229,10 @@ USE_VIEW_FOR_CONTENT_SIZE
 	TiThreadPerformOnMainThread(^{result=[[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];}, YES);
 	return [result autorelease];
 }
+-(void)includeFile:(NSString *)file withBaseUrl:(NSURL*)baseUrl
+{
+    
+}
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {

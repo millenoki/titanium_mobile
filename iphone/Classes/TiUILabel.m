@@ -144,7 +144,7 @@
     return nil;
 }
 
-- (int)characterIndexAtPoint:(CGPoint)p;
+- (NSInteger)characterIndexAtPoint:(CGPoint)p;
 {
     return [label characterIndexAtPoint:p];
 }
@@ -423,10 +423,10 @@
 
 -(void)setMultiLineEllipsize_:(id)value
 {
-    int multilineBreakMode = [TiUtils intValue:value];
-    if (multilineBreakMode != UILineBreakModeWordWrap)
+    NSInteger multilineBreakMode = [TiUtils intValue:value];
+    if (multilineBreakMode != NSLineBreakByWordWrapping)
     {
-        [[self label] setLineBreakMode:UILineBreakModeWordWrap];
+        [[self label] setLineBreakMode:NSLineBreakByWordWrapping];
     }
 }
 

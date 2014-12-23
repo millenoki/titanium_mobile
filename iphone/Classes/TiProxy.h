@@ -82,14 +82,14 @@ typedef enum {
  @param type The listener type.
  @param count The current number of active listeners
  */
--(void)listenerAdded:(NSString*)type count:(int)count;
+-(void)listenerAdded:(NSString*)type count:(NSInteger)count;
 
 /**
  Tells the delegate that a listener has been removed to the proxy.
  @param type The listener type.
  @param count The current number of active listeners after the remove
  */
--(void)listenerRemoved:(NSString*)type count:(int)count;
+-(void)listenerRemoved:(NSString*)type count:(NSInteger)count;
 
 /**
  Tells the delegate to detach from proxy.
@@ -315,8 +315,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 -(void)removeEventListener:(NSArray*)args;
 
 
--(void)_listenerAdded:(NSString*)type count:(int)count;
--(void)_listenerRemoved:(NSString*)type count:(int)count;
+-(void)_listenerAdded:(NSString*)type count:(NSInteger)count;
+-(void)_listenerRemoved:(NSString*)type count:(NSInteger)count;
 
 -(void)fireEvent:(id)args;
 -(void)fireEvent:(NSString*)type propagate:(BOOL)yn;
@@ -332,8 +332,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message checkForListener:(BOOL)checkForListener;
 //What classes should actually use.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message checkForListener:(BOOL)checkForListener;
--(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
--(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
+-(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;
 
 /**
  Returns a dictionary of all properties set on the proxy object.
@@ -368,8 +368,9 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 -(void)setExecutionContext:(id<TiEvaluator>)context;
 
 + (id)createProxy:(Class)proxyClass withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context;
-+ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context;
-+ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiProxy*)rootProxy inContext:(id<TiEvaluator>)context defaultType:(NSString*)defaultType;
++ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy inContext:(id<TiEvaluator>)context;
++ (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy inContext:(id<TiEvaluator>)context defaultType:(NSString*)defaultType;
+- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents inContext:(id<TiEvaluator>)context;
 
 -(void)applyProperties:(id)args;
 -(NSString*)apiName;

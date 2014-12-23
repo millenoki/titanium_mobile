@@ -73,7 +73,7 @@ DEFINE_EXCEPTIONS
 	id systemButton = [proxy_ valueForKey:@"systemButton"];
 	if (systemButton!=nil)
 	{
-		int type = [TiUtils intValue:systemButton];
+		NSInteger type = [TiUtils intValue:systemButton];
 		UIView *button = [TiButtonUtil systemButtonWithType:type];
 		if (button!=nil)
 		{

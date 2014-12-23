@@ -234,7 +234,7 @@
 	}
 
 	[self ensureOffsetArraySize:[newColors count]];
-	int currentIndex=0;
+	NSInteger currentIndex=0;
 	offsetsDefined = 0;
 
 	Class dictClass = [NSDictionary class];
@@ -295,7 +295,7 @@
        return;
     }
     CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
-	CGContextRef cacheContext = CGBitmapContextCreate(nil, cacheSize.width, cacheSize.height, 8, cacheSize.width * (CGColorSpaceGetNumberOfComponents(space) + 1), space, kCGImageAlphaPremultipliedLast);
+	CGContextRef cacheContext = CGBitmapContextCreate(nil, cacheSize.width, cacheSize.height, 8, cacheSize.width * (CGColorSpaceGetNumberOfComponents(space) + 1), space, (CGBitmapInfo)kCGImageAlphaPremultipliedLast);
 	CGColorSpaceRelease(space);
 	CGGradientDrawingOptions options = 0;
 	if(backfillStart)
@@ -374,23 +374,23 @@
 - (CGImageRef)newSweepImageGradientInRect:(CGRect)rect
 {
     cacheSize = rect.size;
-	int w = CGRectGetWidth(rect);
-	int h = CGRectGetHeight(rect);
-	int bitsPerComponent = 8;
-	int bpp = 4 * bitsPerComponent / 8;
-	int byteCount = w * h * bpp;
+	NSInteger w = CGRectGetWidth(rect);
+	NSInteger h = CGRectGetHeight(rect);
+	NSInteger bitsPerComponent = 8;
+	NSInteger bpp = 4 * bitsPerComponent / 8;
+	NSInteger byteCount = w * h * bpp;
     
-	int colorCount = CFArrayGetCount(colorValues);
-	int locationCount = 0;
-	int* colors = NULL;
-	float* locations = NULL;
+	NSInteger colorCount = CFArrayGetCount(colorValues);
+	NSInteger locationCount = 0;
+	NSInteger* colors = NULL;
+	CGFloat* locations = NULL;
     
 	if (colorCount > 0) {
 		colors = calloc(colorCount, bpp);
-		int *p = colors;
-        for (int i=0; i<colorCount; i++) {
+		NSInteger *p = colors;
+        for (NSInteger i=0; i<colorCount; i++) {
             CGColorRef c = (CGColorRef)CFArrayGetValueAtIndex(colorValues, i);
-            float r, g, b, a;
+            CGFloat r, g, b, a;
             
 			size_t n = CGColorGetNumberOfComponents(c);
 			const CGFloat *comps = CGColorGetComponents(c);
@@ -434,11 +434,11 @@
 	return img;
 }
 
-static inline byte blerp(byte a, byte b, float w)
+static inline byte blerp(byte a, byte b, CGFloat w)
 {
 	return a + w * (b - a);
 }
-static inline int lerp(int a, int b, float w)
+static inline NSInteger lerp(NSInteger a, NSInteger b, CGFloat w)
 {
 	return RGBA(blerp(RGBA_R(a), RGBA_R(b), w),
 				blerp(RGBA_G(a), RGBA_G(b), w),
@@ -446,24 +446,24 @@ static inline int lerp(int a, int b, float w)
 				blerp(RGBA_A(a), RGBA_A(b), w));
 }
 
-void angleGradient(byte* data, int w, int h, int* colors, int colorCount, float* locations, int locationCount, CGPoint center, float startAngle)
+void angleGradient(byte* data, NSInteger w, NSInteger h, NSInteger* colors, NSInteger colorCount, CGFloat* locations, NSInteger locationCount, CGPoint center, CGFloat startAngle)
 {
 	if (colorCount < 1) return;
 	if (locationCount > 0 && locationCount != colorCount) return;
     
-	int* p = (int*)data;
+	NSInteger* p = (NSInteger*)data;
     
-	for (int y = 0; y < h; y++)
-        for (int x = 0; x < w; x++) {
-            float dirX = x - center.x;
-            float dirY = y - center.y;
-            float angle = -atan2f(dirY, dirX);
+	for (NSInteger y = 0; y < h; y++)
+        for (NSInteger x = 0; x < w; x++) {
+            CGFloat dirX = x - center.x;
+            CGFloat dirY = y - center.y;
+            CGFloat angle = -atan2f(dirY, dirX);
             angle += startAngle;
             if (angle < 0) angle += 2 * M_PI;
             angle /= 2 * M_PI;
             
-            int index = 0, nextIndex = 0;
-            float t = 0;
+            NSInteger index = 0, nextIndex = 0;
+            CGFloat t = 0;
             
             if (locationCount > 0) {
                 for (index = locationCount - 1; index >= 0; index--) {
@@ -474,7 +474,7 @@ void angleGradient(byte* data, int w, int h, int* colors, int colorCount, float*
                 if (index >= locationCount) index = locationCount - 1;
                 nextIndex = index + 1;
                 if (nextIndex >= locationCount) nextIndex = locationCount - 1;
-                float ld = (locations[nextIndex] - locations[index]);
+                CGFloat ld = (locations[nextIndex] - locations[index]);
                 t = ld <= 0 ? 0 : (angle - locations[index]) / ld;
             }
             else {
@@ -485,9 +485,9 @@ void angleGradient(byte* data, int w, int h, int* colors, int colorCount, float*
                 if (nextIndex >= colorCount) nextIndex = colorCount - 1;
             }
             
-            int lc = colors[index];
-            int rc = colors[nextIndex];
-            int color = lerp(lc, rc, t);
+            NSInteger lc = colors[index];
+            NSInteger rc = colors[nextIndex];
+            NSInteger color = lerp(lc, rc, t);
             *p++ = color;
         }
 }

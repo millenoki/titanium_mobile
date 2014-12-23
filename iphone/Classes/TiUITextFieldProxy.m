@@ -95,7 +95,7 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
         CGSize maxSize = CGSizeMake(size.width<=0 ? 480 : size.width, size.height<=0 ? 10000 : size.height);
         maxSize.width -= _padding.left + _padding.right;
         
-        UILineBreakMode breakMode = UILineBreakModeWordWrap;
+        NSLineBreakMode breakMode = NSLineBreakByWordWrapping;
         id fontValue = [self valueForKey:@"font"];
         UIFont * font;
         if (fontValue!=nil)

@@ -505,7 +505,7 @@ DEFINE_EXCEPTIONS
 	}
 	else if (value != nil)
 	{
-		int index = [TiUtils intValue:value];
+		NSInteger index = [TiUtils intValue:value];
 		if (index >= 0 && index < [[self tabController].viewControllers count])
 		{
 			active = [[self tabController].viewControllers objectAtIndex:index];
@@ -554,7 +554,7 @@ DEFINE_EXCEPTIONS
         
         if (thisTab != nil && thisTab != [NSNull null]) {
             if (![thisTab isKindOfClass:[TiUITabProxy class]]) {
-                int index = [TiUtils intValue:thisTab];
+                NSInteger index = [TiUtils intValue:thisTab];
                 if (index < [tabs count]) {
                     theActiveTab = [tabs objectAtIndex:index];
                 }

@@ -464,7 +464,7 @@ static NSDictionary* listViewKeysToReplace;
         NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
         NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
         NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
-        UITableViewScrollPosition scrollPosition = [TiUtils intValue:@"position" properties:properties def:UITableViewScrollPositionNone];
+        UICollectionViewScrollPosition scrollPosition = [TiUtils intValue:@"position" properties:properties def:UICollectionViewScrollPositionNone];
         BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
         TiThreadPerformOnMainThread(^{
             if ([_sections count] <= sectionIndex) {
@@ -553,8 +553,8 @@ static NSDictionary* listViewKeysToReplace;
                 return;
             }
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
-            [self.listView.tableView selectItemAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionNone];
-            [self.listView.tableView scrollToItemAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+            [self.listView.tableView selectItemAtIndexPath:indexPath animated:YES scrollPosition:UICollectionViewScrollPositionNone];
+            [self.listView.tableView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:YES];
         }, NO);
     }
 }
@@ -706,8 +706,8 @@ static NSDictionary* listViewKeysToReplace;
 {
     ENSURE_SINGLE_ARG(args, NSDictionary);
     pthread_rwlock_wrlock(&_markerLock);
-    int section = [TiUtils intValue:[args objectForKey:@"sectionIndex"] def:NSIntegerMax];
-    int row = [TiUtils intValue:[args objectForKey:@"itemIndex"] def:NSIntegerMax];
+    NSInteger section = [TiUtils intValue:[args objectForKey:@"sectionIndex"] def:NSIntegerMax];
+    NSInteger row = [TiUtils intValue:[args objectForKey:@"itemIndex"] def:NSIntegerMax];
     RELEASE_TO_NIL(marker);
     marker = [[NSIndexPath indexPathForRow:row inSection:section] retain];
     pthread_rwlock_unlock(&_markerLock);

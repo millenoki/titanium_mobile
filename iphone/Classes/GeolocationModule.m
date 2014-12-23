@@ -14,6 +14,7 @@
 #import "NSData+Additions.h"
 #import "APSAnalytics.h"
 #import "APSHTTPRequest.h"
+#import "APSHTTPResponse.h"
 #import "NetworkModule.h"
 
 extern NSString * const TI_APPLICATION_GUID;
@@ -438,7 +439,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 }
 
--(void)_listenerAdded:(NSString *)type count:(int)count
+-(void)_listenerAdded:(NSString *)type count:(NSInteger)count
 {
 	BOOL startStop = NO;
 	
@@ -457,7 +458,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 	}
 }
 
--(void)_listenerRemoved:(NSString *)type count:(int)count
+-(void)_listenerRemoved:(NSString *)type count:(NSInteger)count
 {
 	BOOL check = NO;
 	if (count == 0 && [type isEqualToString:@"heading"])
@@ -830,7 +831,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     }
     ENSURE_SINGLE_ARG(value, NSNumber);
    
-    CLAuthorizationStatus requested = [TiUtils intValue: value];
+    CLAuthorizationStatus requested = (int)[TiUtils intValue: value];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
     
     if(requested == kCLAuthorizationStatusAuthorizedWhenInUse){

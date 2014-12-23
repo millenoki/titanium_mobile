@@ -87,7 +87,7 @@
         BOOL valid = NO;
         BOOL isString = [obj isKindOfClass:[NSString class]];
         if (!isString || (isString && [self isParseableString:obj ofType:type])) {
-            result = NUMINT([TiUtils intValue:obj def:0 valid:&valid]);
+            result = NUMINTEGER([TiUtils intValue:obj def:0 valid:&valid]);
         }
         if (!valid) {
             [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"Couldn't cast from %@ to int", [obj class]] location:CODELOCATION];
@@ -151,7 +151,7 @@
 	ENSURE_ARRAY(args);
 	if (results!=nil)
 	{
-	    id result = [results objectForColumnIndex:[TiUtils intValue:[args objectAtIndex:0]]];
+	    id result = [results objectForColumnIndex:(int)[TiUtils intValue:[args objectAtIndex:0]]];
 		if ([result isKindOfClass:[NSData class]]) {
 			result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
 		}
@@ -190,7 +190,7 @@
 	ENSURE_SINGLE_ARG(args,NSObject);
 	if (results != nil)
 	{
-		int requestedIndex = [TiUtils intValue:args def:INT_MAX];
+		NSInteger requestedIndex = [TiUtils intValue:args def:INT_MAX];
 		if (requestedIndex == INT_MAX)
 		{
 			[self throwException:TiExceptionInvalidType subreason:nil location:CODELOCATION];

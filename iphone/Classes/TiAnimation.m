@@ -183,11 +183,11 @@ static NSArray *animProps;
     [self handleCompletedAnimation:!autoreverse];
 }
 
--(float) getDuration {
+-(CGFloat) getDuration {
     return duration/1000;
 }
 
--(float) delay {
+-(CGFloat) delay {
     return delay/1000;
 }
 
@@ -332,7 +332,7 @@ static NSArray *animProps;
     else if ([value isKindOfClass:[NSArray class]])
     {
         NSArray* array = (NSArray*)value;
-        int count = [array count];
+        NSUInteger count = [array count];
         if (count == 4)
         {
             _curve = [[CAMediaTimingFunction functionWithControlPoints: [[array objectAtIndex:0] doubleValue] : [[array objectAtIndex:1] doubleValue] : [[array objectAtIndex:2] doubleValue] : [[array objectAtIndex:3] doubleValue]] retain];

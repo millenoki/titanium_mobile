@@ -22,7 +22,7 @@
 - (void)dispatchBlock:(void(^)(UITableView *tableView))block;
 - (id)dispatchBlockWithResult:(id(^)(void))block;
 - (id<TiUIListViewDelegateView>) delegateView;
--(void)hideDeleteButton:(id)args;
+//-(void)hideDeleteButton:(id)args;
 
 @end
 

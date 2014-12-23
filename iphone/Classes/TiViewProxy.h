@@ -52,7 +52,7 @@ enum
 
 #pragma mark Layout properties
 	LayoutConstraint layoutProperties;
-	int vzIndex;
+	NSInteger vzIndex;
 	BOOL hidden;	//This is the boolean version of ![TiUtils boolValue:visible def:yes]
 		//And has nothing to do with whether or not it's onscreen or
     
@@ -109,7 +109,7 @@ enum
 /*
  Provides access to z-index value.
  */
-@property(nonatomic,readwrite,assign) int vzIndex;
+@property(nonatomic,readwrite,assign) NSInteger vzIndex;
 /**
  Provides access to visibility of parent view proxy.
  */
@@ -540,6 +540,9 @@ enum
 -(void)childWillResize:(TiViewProxy *)child withinAnimation:(TiViewAnimationStep*)animation;
 -(void)aboutToBeAnimated;
 
+/**
+ The current running animation
+ */
 -(TiViewAnimationStep*)runningAnimation;
 -(void)setRunningAnimation:(TiViewAnimationStep*)animation;
 
@@ -559,10 +562,6 @@ enum
 -(void)configurationSet;
 -(void)configurationSet:(BOOL)recursive;
 -(BOOL)isConfigurationSet;
-
-
--(BOOL) widthIsAutoSize;
--(BOOL) heightIsAutoSize;
 
 /**
  foucs methods
@@ -591,10 +590,7 @@ enum
  */
 -(void)removeFakeAnimation;
 
-/**
- The current running animation
- */
--(TiViewAnimationStep*)runningAnimation;
+
 -(void)performBlock:(void (^)(void))block withinOurAnimationOnProxy:(TiViewProxy*)viewProxy;
 
 /**

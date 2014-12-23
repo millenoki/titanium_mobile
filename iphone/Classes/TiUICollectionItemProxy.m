@@ -413,8 +413,8 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 {
 	NSMutableDictionary *updatedEventObject = [eventObject mutableCopy];
     [updatedEventObject setObject:_listItem.dataItem forKey:@"item"];
-    [updatedEventObject setObject:NUMINT(_indexPath.section) forKey:@"sectionIndex"];
-	[updatedEventObject setObject:NUMINT(_indexPath.row) forKey:@"itemIndex"];
+    [updatedEventObject setObject:NUMINTEGER(_indexPath.section) forKey:@"sectionIndex"];
+	[updatedEventObject setObject:NUMINTEGER(_indexPath.row) forKey:@"itemIndex"];
 	[updatedEventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
 	id propertiesValue = [_listItem.dataItem objectForKey:@"properties"];
 	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -479,7 +479,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     NSArray* subproxies = [self children];
     NSInteger index=child?[subproxies indexOfObject:child]:-1;
     if(!child || NSNotFound != index) {
-        for (int i = index + 1; i < [subproxies count] ; i++) {
+        for (NSUInteger i = index + 1; i < [subproxies count] ; i++) {
             TiProxy* obj = [subproxies objectAtIndex:i];
             if ([obj isKindOfClass:theClass] && [obj canBeNextResponder]) {
 //                [[_listViewProxy tableView] scrollToRowAtIndexPath:_indexPath atScrollPosition:UITableViewScrollPositionNone animated:YES];

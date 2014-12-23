@@ -36,7 +36,7 @@
 -(id)item:(id)args
 {
     ENSURE_SINGLE_ARG(args,NSObject);
-    int index = [TiUtils intValue:args];
+    NSInteger index = [TiUtils intValue:args];
     
     if ( (index < [nodes count]) && (index >=0) ) {
         GDataXMLNode* theNode = [nodes objectAtIndex:index];

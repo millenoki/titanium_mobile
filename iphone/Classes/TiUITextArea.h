@@ -28,6 +28,8 @@
 
 @property(nonatomic,readonly) BOOL becameResponder;
 @property(nonatomic,assign) UIEdgeInsets padding;
+
+-(void)updateCaretPosition;
 @end
 
 #endif

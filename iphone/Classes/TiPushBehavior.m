@@ -187,7 +187,7 @@
 -(void)setPushMode:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSNumber);
-    int newVal = [TiUtils intValue:args def:0];
+    NSInteger newVal = [TiUtils intValue:args def:0];
     if (newVal == 1) {
         _mode = UIPushBehaviorModeInstantaneous;
     } else {

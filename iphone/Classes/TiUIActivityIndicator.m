@@ -217,7 +217,7 @@
 
 -(void)setStyle_:(id)value
 {
-	int newStyle = [TiUtils intValue:value];
+	NSInteger newStyle = [TiUtils intValue:value];
 	
 	if (style == newStyle)
 	{

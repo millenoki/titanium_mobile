@@ -176,8 +176,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 -(TiParentingProxy*)parentForNextWidget
 {
-    if (self.eventOverrideDelegate) {
-        return self.eventOverrideDelegate;
+    if (IS_OF_CLASS(self.eventOverrideDelegate, TiParentingProxy)) {
+        return (TiParentingProxy*)self.eventOverrideDelegate;
     }
     return [self parent];
 }

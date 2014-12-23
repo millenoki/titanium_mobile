@@ -49,17 +49,17 @@
     return TiDimensionAutoSize;
 }
 
--(CGFloat) verifyWidth:(CGFloat)suggestedWidth
-{
-    int width = MAX(suggestedWidth,[(TiUIiOSAdView*)[self view] contentWidthForWidth:suggestedWidth]);
-    return width;
-}
-
--(CGFloat) verifyHeight:(CGFloat)suggestedHeight
-{
-    int height = MAX(suggestedHeight,[(TiUIiOSAdView*)[self view] contentHeightForWidth:suggestedHeight]);
-    return height;
-}
+//-(CGFloat) verifyWidth:(CGFloat)suggestedWidth
+//{
+//    int width = MAX(suggestedWidth,[(TiUIiOSAdView*)[self view] contentWidthForWidth:suggestedWidth]);
+//    return width;
+//}
+//
+//-(CGFloat) verifyHeight:(CGFloat)suggestedHeight
+//{
+//    int height = MAX(suggestedHeight,[(TiUIiOSAdView*)[self view] contentHeightForWidth:suggestedHeight]);
+//    return height;
+//}
 
 USE_VIEW_FOR_CONTENT_SIZE
 

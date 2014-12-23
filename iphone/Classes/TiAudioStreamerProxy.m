@@ -167,7 +167,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     [super _destroy];
 }
 
--(void)fireErrorEventAndSkip:(int)code withDescription:(NSString*)desc
+-(void)fireErrorEventAndSkip:(NSInteger)code withDescription:(NSString*)desc
 {
     [self updateState:STATE_ERROR];
     if ([self _hasListeners:@"error"])
@@ -235,7 +235,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 
 -(void)setRepeatMode:(NSNumber*)value
 {
-    int mode = [TiUtils intValue:value];
+    NSInteger mode = [TiUtils intValue:value];
     // Sanity check
     switch (mode) {
         case MPMusicRepeatModeAll:
@@ -258,7 +258,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 
 -(void)setShuffleMode:(id)value
 {
-    int mode = [TiUtils intValue:value];
+    NSInteger mode = [TiUtils intValue:value];
     // Sanity check
     switch (mode) {
         case MPMusicShuffleModeOff:
@@ -1016,7 +1016,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
     }
 }
 
--(NSString*)stateToString:(int)state
+-(NSString*)stateToString:(NSInteger)state
 {
 	switch(state)
 	{

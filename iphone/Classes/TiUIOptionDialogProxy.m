@@ -75,7 +75,7 @@
 - (IBAction)customButtonPressed:(id)sender {
     UIBarButtonItem *button = (UIBarButtonItem*)sender;
     NSInteger index = button.tag;
-    NSAssert((index >= 0 && index < self.customButtons.count), @"Bad custom button tag: %d, custom button count: %d", index, self.customButtons.count);
+    NSAssert((index >= 0 && index < self.customButtons.count), @"Bad custom button tag: %ld, custom button count: %lu", (long)index, (unsigned long)self.customButtons.count);
 }
 
 @end
@@ -96,8 +96,8 @@
     BOOL persistentFlag;
     BOOL forceOpaqueBackground;
     BOOL hideOnClick;
-    int cancelButtonIndex;
-    int destructiveButtonIndex;
+    NSInteger cancelButtonIndex;
+    NSInteger destructiveButtonIndex;
 }
 
 @synthesize dialogView;

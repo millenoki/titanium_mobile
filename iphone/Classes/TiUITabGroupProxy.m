@@ -92,7 +92,7 @@ static NSArray* tabGroupKeySequence;
     {
         if (![tabProxy isKindOfClass:[TiUITabProxy class]])
         {
-            int value = [TiUtils intValue:tabProxy];
+            NSInteger value = [TiUtils intValue:tabProxy];
             tabProxy = [tabs objectAtIndex:value];
             if (tabProxy==nil)
             {

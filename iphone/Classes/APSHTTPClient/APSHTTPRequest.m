@@ -254,7 +254,7 @@ static BOOL _disableNetworkActivityIndicator;
     if ([self response] != nil) {
         APSHTTPResponseState curState = [[self response] readyState];
         if (curState != APSHTTPResponseStateUnsent) {
-            NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ",curState);
+            NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ",(int)curState);
             return;
         }
     }

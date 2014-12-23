@@ -43,7 +43,6 @@
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
 -(void)setVerticalLayout:(BOOL)value;
 -(NSArray*)wrappers;
--(void)setCurrentPage:(id)page animated:(NSNumber*)animate;
 @end
 
 #endif

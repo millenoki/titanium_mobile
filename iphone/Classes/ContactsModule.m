@@ -242,7 +242,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 -(TiContactsPerson*)getPersonByID:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg, NSObject)
-	__block int idNum = [TiUtils intValue:arg];
+	__block int idNum = (int)[TiUtils intValue:arg];
 	__block BOOL validId = NO;	
 	dispatch_sync(dispatch_get_main_queue(),^{
 		ABAddressBookRef ourAddressBook = [self addressBook];
@@ -266,7 +266,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 -(TiContactsGroup*)getGroupByID:(id)arg
 {
 	ENSURE_SINGLE_ARG(arg, NSObject)
-	__block int idNum = [TiUtils intValue:arg];
+	__block int idNum = (int)[TiUtils intValue:arg];
 	__block BOOL validId = NO;	
 	dispatch_sync(dispatch_get_main_queue(),^{
 		ABAddressBookRef ourAddressBook = [self addressBook];

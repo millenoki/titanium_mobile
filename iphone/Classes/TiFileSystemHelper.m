@@ -30,7 +30,7 @@ static NSString* _lineEnding = @"\n";
 #ifdef USE_TI_FILESYSTEM
 	if ([arg isKindOfClass:[TiFilesystemFileProxy class]])
 	{
-		return [arg path];
+		return [(TiFilesystemFileProxy*)arg path];
 	}
 #endif
 	return [TiUtils stringValue:arg];

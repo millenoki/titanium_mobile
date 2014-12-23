@@ -71,7 +71,7 @@ extern NSString * const TI_APPLICATION_GUID;
             RELEASE_TO_NIL(apsConnectionDelegate);
         } else {
             NSLog(@"[ERROR] open can only be called if client is disconnected(0) or done(4). Current state is %d ",curState);
-            return;
+            return nil;
         }
     }
     

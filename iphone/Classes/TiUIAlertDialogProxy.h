@@ -12,8 +12,8 @@
     UIAlertController* alertController;
     BOOL persistentFlag;
     BOOL hideOnClick;
-    int cancelIndex;
-    int style;
+    NSInteger cancelIndex;
+    NSInteger style;
 }
 
 -(void)show:(id)args;

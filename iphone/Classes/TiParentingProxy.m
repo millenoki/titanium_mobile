@@ -268,11 +268,12 @@
 }
 
 
--(void)_listenerAdded:(NSString*)type count:(int)count
+-(void)_listenerAdded:(NSString*)type count:(NSInteger)count
 {
     //TIMOB-15991 Update children as well
 	NSArray* childrenArray = [[self children] retain];
     for (id child in childrenArray) {
+        
         if ([child respondsToSelector:@selector(parentListenersChanged)]) {
             [child performSelector:@selector(parentListenersChanged)];
         }
@@ -280,7 +281,7 @@
 	[childrenArray release];
 }
 
--(void)_listenerRemoved:(NSString*)type count:(int)count
+-(void)_listenerRemoved:(NSString*)type count:(NSInteger)count
 {
     //TIMOB-15991 Update children as well
     NSArray* childrenArray = [[self children] retain];
@@ -394,7 +395,7 @@
     NSArray* subproxies = [self children];
     NSInteger index=[subproxies indexOfObject:child];
     if(NSNotFound != index) {
-        for (int i = index + 1; i < [subproxies count] ; i++) {
+        for (NSInteger i = index + 1; i < [subproxies count] ; i++) {
             TiProxy* obj = [subproxies objectAtIndex:i];
             if ([obj isKindOfClass:theClass] && [obj canBeNextResponder]) {
                     return obj;

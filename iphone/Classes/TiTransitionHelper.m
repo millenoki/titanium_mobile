@@ -258,7 +258,7 @@ reversed{
                               [adTransition isKindOfClass:[ADTransformTransition class]]) && ![holder.layer isKindOfClass:[CATransformLayer class]];
     UIView* workingView = holder;
     UIView* workingView2 = holder;
-    int index = viewOut?[[holder subviews] indexOfObject:viewOut]:[[holder subviews] count];
+    NSUInteger index = viewOut?[[holder subviews] indexOfObject:viewOut]:[[holder subviews] count];
     
     if (needsTransformFix) {
         if([transition isKindOfClass:[TiTransitionPerspective class]]) {

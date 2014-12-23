@@ -189,7 +189,7 @@
 
 -(void)renderView:(TiViewProxy*)viewProxy forIndex:(int)index withRefresh:(BOOL)refresh
 {
-	int svSubviewsCount = [_wrappers count];
+	NSInteger svSubviewsCount = [_wrappers count];
     
 	if ((index < 0) || (index >= svSubviewsCount))
 	{
@@ -263,12 +263,12 @@
     }
 }
 
--(void)manageCache:(int)page
+-(void)manageCache:(NSInteger)page
 {
     [self manageCache:page withRefresh:NO];
 }
 
--(void)listenerAdded:(NSString*)event count:(int)count
+-(void)listenerAdded:(NSString*)event count:(NSInteger)count
 {
     [super listenerAdded:event count:count];
     NSArray * childrenArray = [[[self proxy] views] retain];
@@ -280,7 +280,7 @@
     [childrenArray release];
 }
 
--(void)listenerRemoved:(NSString*)event count:(int)count
+-(void)listenerRemoved:(NSString*)event count:(NSInteger)count
 {
     [super listenerRemoved:event count:count];
     NSArray * childrenArray = [[[self proxy] views] retain];
@@ -613,7 +613,7 @@
     }
 }
 
--(void)setContentOffsetForPage:(int)pageNumber animated:(BOOL)animated
+-(void)setContentOffsetForPage:(NSInteger)pageNumber animated:(BOOL)animated
 {
     CGPoint offset;
     if (verticalLayout) {
@@ -628,9 +628,9 @@
     [self didScroll];
 }
 
--(int)pageNumFromArg:(id)args
+-(NSInteger)pageNumFromArg:(id)args
 {
-	int pageNum = 0;
+	NSInteger pageNum = 0;
 	if ([args isKindOfClass:[TiViewProxy class]])
 	{
 		[[self proxy] lockViews];
@@ -652,7 +652,7 @@
     BOOL animated = YES;
     ENSURE_ARG_AT_INDEX(data, args, 0, NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(anim, args, 1, NSNumber);
-	int pageNum = [self pageNumFromArg:data];
+	NSInteger pageNum = [self pageNumFromArg:data];
 	if (anim != nil)
 		animated = [anim boolValue];
     
@@ -662,7 +662,7 @@
     {
         [UIView animateWithDuration:switchPageAnimationDuration/1000
                               delay:0.00
-                            options:UIViewAnimationCurveLinear
+                            options:UIViewAnimationOptionCurveLinear
                          animations:^{[self setContentOffsetForPage:pageNum animated:NO];}
                          completion:^(BOOL finished){
                              [self scrollViewDidEndDecelerating:[self scrollview]];
@@ -676,8 +676,8 @@
 
 -(void)moveNext:(id)args
 {
-	int page = [self currentPage];
-	int pageCount = [[self proxy] viewCount];
+	NSInteger page = [self currentPage];
+	NSInteger pageCount = [[self proxy] viewCount];
 
 	if (page < pageCount-1)
 	{
@@ -688,7 +688,7 @@
 
 -(void)movePrevious:(id)args
 {
-	int page = [self currentPage];
+	NSInteger page = [self currentPage];
 
 	if (page > 0)
 	{
@@ -697,12 +697,12 @@
 	}
 }
 
--(void)updateCurrentPage:(int)newPage
+-(void)updateCurrentPage:(NSInteger)newPage
 {
     [self updateCurrentPage:newPage andPageControl:YES];
 }
 
--(void)updateCurrentPage:(int)newPage andPageControl:(BOOL)updatePageControl
+-(void)updateCurrentPage:(NSInteger)newPage andPageControl:(BOOL)updatePageControl
 {
     if (newPage == currentPage) return;
     currentPage = newPage;
@@ -738,8 +738,8 @@
 -(void)setCurrentPage_:(id)page
 {
 	
-	int newPage = [TiUtils intValue:page];
-	int viewsCount = [[self proxy] viewCount];
+	NSInteger newPage = [TiUtils intValue:page];
+	NSInteger viewsCount = [[self proxy] viewCount];
 
 	if (newPage >=0 && newPage < viewsCount && newPage != currentPage)
 	{
@@ -886,7 +886,7 @@
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
 	//switch page control at 50% across the center - this visually looks better
-    int page = currentPage;
+    NSInteger page = currentPage;
     float nextPageAsFloat = [self getPageFromOffset:scrollview.contentOffset];
     int nextPage = MIN(floor(nextPageAsFloat - 0.5) + 1, [[self proxy] viewCount] - 1);
     if (page != nextPage) {
