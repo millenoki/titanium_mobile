@@ -5,11 +5,9 @@
 #import "SWActionSheet.h"
 
 
-static UIWindow *SWActionSheetWindow = nil;
+static const CGFloat delay = 0.f;
 
-static const float delay = 0.f;
-
-static const float duration = .3f;
+static const CGFloat duration = .25f;
 
 static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEaseIn;
 
@@ -22,6 +20,9 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
 
 
 @interface SWActionSheet ()
+{
+    UIWindow *SWActionSheetWindow;
+}
 
 @property (nonatomic, assign) BOOL presented;
 
@@ -35,10 +36,9 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
 {
     UIView *view;
     UIView *_bgView;
-    id<SWActionSheetDelegate> _delegate;
 }
 
-- (void)dismissWithClickedButtonIndex:(int)i animated:(BOOL)animated
+- (void)dismissWithClickedButtonIndex:(NSInteger)i animated:(BOOL)animated
 {
     CGPoint fadeOutToPoint = CGPointMake(view.center.x,
             self.center.y + CGRectGetHeight(view.frame));
@@ -52,15 +52,9 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
     void (^completion)(BOOL) = ^(BOOL finished) {
     //    if (![appWindow isKeyWindow])
     //        [appWindow makeKeyAndVisible];
-        [SWActionSheet destroyWindow];
-        if ([_delegate respondsToSelector:@selector(actionSheet:didDismissWithButtonIndex:)]) {
-            [_delegate actionSheet:self didDismissWithButtonIndex:i];
-        }
+        [self destroyWindow];
         [self removeFromSuperview];
     };
-    if ([_delegate respondsToSelector:@selector(actionSheet:willDismissWithButtonIndex:)]) {
-        [_delegate actionSheet:self willDismissWithButtonIndex:i];
-    }
     // Do actions animated or not
     if (animated) {
         [UIView animateWithDuration:duration delay:delay options:options animations:actions completion:completion];
@@ -71,11 +65,11 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
     self.presented = NO;
 }
 
-+ (void)destroyWindow
+- (void)destroyWindow
 {
     if (SWActionSheetWindow)
     {
-        [SWActionSheet actionSheetContainer].actionSheet = nil;
+        [self actionSheetContainer].actionSheet = nil;
         SWActionSheetWindow.hidden = YES;
         if ([SWActionSheetWindow isKeyWindow])
             [SWActionSheetWindow resignFirstResponder];
@@ -83,20 +77,27 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
     }
 }
 
-+ (UIWindow *)window
+- (UIWindow *)window
 {
-    return (SWActionSheetWindow ?: (SWActionSheetWindow = ({
-        UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-        window.windowLevel = UIWindowLevelAlert;
-        window.backgroundColor = [UIColor clearColor];
-        window.rootViewController = [SWActionSheetVC new];
-        window;
-    })));
+    if ( SWActionSheetWindow )
+    {
+        return SWActionSheetWindow;
+    }
+    else
+    {
+        return SWActionSheetWindow = ({
+            UIWindow *window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+            window.windowLevel        = UIWindowLevelAlert;
+            window.backgroundColor    = [UIColor clearColor];
+            window.rootViewController = [SWActionSheetVC new];
+            window;
+        });
+    }
 }
 
-+ (SWActionSheetVC *)actionSheetContainer
+- (SWActionSheetVC *)actionSheetContainer
 {
-    return (SWActionSheetVC *) [SWActionSheet window].rootViewController;
+    return (SWActionSheetVC *) [self window].rootViewController;
 }
 
 - (instancetype)initWithView:(UIView *)aView
@@ -129,19 +130,17 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
 
 - (void)showInContainerView
 {
-    
     // Make sheet window visible and active
-    UIWindow *sheetWindow = [SWActionSheet window];
+    UIWindow *sheetWindow = [self window];
     if (![sheetWindow isKeyWindow])
         [sheetWindow makeKeyAndVisible];
     sheetWindow.hidden = NO;
     // Put our ActionSheet in Container (it will be presented as soon as possible)
-    [SWActionSheet actionSheetContainer].actionSheet = self;
+    [self actionSheetContainer].actionSheet = self;
 }
 
 - (void)showInContainerViewAnimated:(BOOL)animated
 {
-    
     CGPoint toPoint;
     CGFloat y = self.center.y - CGRectGetHeight(view.frame);
     toPoint = CGPointMake(self.center.x, y);
@@ -149,20 +148,12 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
     void (^animations)() = ^{
         self.center = toPoint;
         self.backgroundColor = [UIColor colorWithWhite:0.f alpha:0.5f];
-        
-    };
-    void (^completion)(BOOL) = ^(BOOL finished) {
-        if ([_delegate respondsToSelector:@selector(didPresentActionSheet:)]) {
-            [_delegate didPresentActionSheet:self];
-        }
     };
     // Present sheet
     if (animated)
-        [UIView animateWithDuration:duration delay:delay options:options animations:animations completion:completion];
-    else {
+        [UIView animateWithDuration:duration delay:delay options:options animations:animations completion:nil];
+    else
         animations();
-        completion(YES);
-    }
     self.presented = YES;
 }
 
@@ -189,9 +180,6 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    if ([_actionSheet.delegate respondsToSelector:@selector(willPresentActionSheet:)]) {
-        [_actionSheet.delegate willPresentActionSheet:_actionSheet];
-    }
     [super viewWillAppear:animated];
     [self presentActionSheetAnimated:YES];
 }
@@ -206,6 +194,10 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
         [self.view addSubview:_actionSheet];
         [_actionSheet showInContainerViewAnimated:animated];
     }
+}
+
+- (BOOL)prefersStatusBarHidden {
+	return [UIApplication sharedApplication].statusBarHidden;
 }
 
 @end
