@@ -209,9 +209,9 @@
         [customActionSheet setHtmlTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
         
         NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
-        int cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
+        cancelButtonIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
         
-        customActionSheet.tapOutDismiss = [TiUtils boolValue:[self valueForKey:@"tapOutDismiss"] def:cancelIndex != -1];
+        customActionSheet.tapOutDismiss = [TiUtils boolValue:[self valueForKey:@"tapOutDismiss"] def:cancelButtonIndex != -1];
         if (buttonNames==nil || (id)buttonNames == [NSNull null])
         {
             buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
@@ -225,12 +225,12 @@
         
         if (buttonNames!=nil && (id)buttonNames != [NSNull null])
         {
-            if (cancelIndex != -1 && cancelIndex < [buttonNames count]) {
-                NSString* cancelText = [buttonNames objectAtIndex:cancelIndex];
+            if (cancelButtonIndex != -1 && cancelButtonIndex < [buttonNames count]) {
+                NSString* cancelText = [buttonNames objectAtIndex:cancelButtonIndex];
                 [customActionSheet setCancelButton:[self createButtonWithTitle:cancelText target:self action:@selector(actionSheetCancelButtonClicked:)]];
-                [buttonNames removeObjectAtIndex:cancelIndex];
+                [buttonNames removeObjectAtIndex:cancelButtonIndex];
             }
-            NSString* doneText = [buttonNames lastObject];
+            NSString* doneText = [buttonNames firstObject];
             if (doneText) {
                 [customActionSheet setDoneButton:[self createButtonWithTitle:doneText target:self action:@selector(actionSheetDoneButtonClicked:)]];
                 [buttonNames removeObject:doneText];
@@ -246,7 +246,7 @@
                 [customActionSheet setDoneButton:[self createButtonWithTitle:[self valueForUndefinedKey:@"ok"] target:self action:@selector(actionSheetDoneButtonClicked:)]];
             }
             else {
-                [customActionSheet setDoneButton:[self createButtonWithStyle:UIBarButtonItemStyleDone target:self action:@selector(actionSheetDoneButtonClicked:)]];
+                [customActionSheet setDoneButton:[self createButtonWithStyle:UIBarButtonSystemItemDone target:self action:@selector(actionSheetDoneButtonClicked:)]];
             }
             
             [customActionSheet setCancelButton:[self createButtonWithStyle:UIBarButtonSystemItemCancel target:self action:@selector(actionSheetDoneButtonClicked:)]];
@@ -349,20 +349,30 @@
             dialogRect = CGRectZero;
         }
     }
-    currentOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    currentOrientation = [[UIDevice currentDevice] orientation];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceRotationBegan:) name:UIDeviceOrientationDidChangeNotification object:nil];
     
     [self updateOptionDialogNow];
     
 }
 
--(void)completeWithButton:(int)buttonIndex
+-(void)actionSheetDoneButtonClicked:(id)sender
+{
+    [self completeWithButton:0];
+}
+
+-(void)actionSheetCancelButtonClicked:(id)sender
+{
+    [self completeWithButton:cancelButtonIndex];
+}
+
+-(void)completeWithButton:(NSInteger)buttonIndex
 {
     if (customActionSheet) {
         if ([self _hasListeners:@"click"])
         {
             BOOL isCancel = (buttonIndex == 0);
-            int index = isCancel?[TiUtils boolValue:[self valueForKey:@"cancel"] def:-1]:buttonIndex;
+            NSInteger index = isCancel?cancelButtonIndex:buttonIndex;
             NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                                    @(index),@"index",
                                    @(isCancel),@"cancel",
@@ -538,7 +548,7 @@
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                       NUMUINTEGER(indexOfAction),@"index",
                                       NUMBOOL(indexOfAction == cancelButtonIndex),@"cancel",
-                                      NUMINT(destructiveButtonIndex),@"destructive",
+                                      NUMINTEGER(destructiveButtonIndex),@"destructive",
                                       nil];
         
         
