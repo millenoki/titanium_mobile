@@ -28,7 +28,6 @@
 -(BOOL)isVisible;
 - (void)dismissAnimated:(BOOL)animated;
 - (void)dismiss;
-- (UIBarButtonItem *)createButtonWithType:(UIBarButtonSystemItem)type target:(id)target action:(SEL)buttonAction;
 - (void)showFromToolbar:(UIToolbar *)view;
 - (void)showFromTabBar:(UITabBar *)view;
 - (void)showFromBarButtonItem:(UIBarButtonItem *)item animated:(BOOL)animated;

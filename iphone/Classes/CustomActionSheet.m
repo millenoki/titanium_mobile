@@ -15,31 +15,48 @@ CG_INLINE BOOL isIPhone4()
     return ([modelName rangeOfString:@"iPhone3"].location != NSNotFound);
 }
 
-@interface CustomActionSheet()
+@interface AbstractActionSheetPicker ()
+
 @property(nonatomic, strong) UIBarButtonItem *barButtonItem;
 @property(nonatomic, strong) UIBarButtonItem *doneBarButtonItem;
 @property(nonatomic, strong) UIBarButtonItem *cancelBarButtonItem;
-@property (nonatomic, strong) UIBarButtonItem *titleBarButtonItem;
-@property (nonatomic, assign) BOOL animated;
+@property(nonatomic, strong) UIView *containerView;
+@property(nonatomic, strong) SWActionSheet *actionSheet;
 @property(nonatomic, strong) UIPopoverController *popOverController;
 @property(nonatomic, strong) NSObject *selfReference;
-@property(nonatomic, strong) UIView *containerView;
-
 
 - (void)presentPickerForView:(UIView *)aView;
+
 - (void)configureAndPresentPopoverForView:(UIView *)aView;
+
 - (void)configureAndPresentActionSheetForView:(UIView *)aView;
-- (void)presentActionSheet:(UIActionSheet *)actionSheet;
+
+- (void)presentActionSheet:(SWActionSheet *)actionSheet;
+
 - (void)presentPopover:(UIPopoverController *)popover;
-- (void)dismiss;
+
+- (void)dismissPicker;
+
 - (BOOL)isViewPortrait;
+
 - (BOOL)isValidOrigin:(id)origin;
+
 - (id)storedOrigin;
-- (UIBarButtonItem *)createToolbarLabelWithTitle:(NSString *)aTitle;
-- (UIToolbar *)createToolbarWithTitle:(NSString *)aTitle;
+
+- (UIToolbar *)createPickerToolbarWithTitle:(NSString *)aTitle;
+
 - (UIBarButtonItem *)createButtonWithType:(UIBarButtonSystemItem)type target:(id)target action:(SEL)buttonAction;
-- (IBAction)actionDone:(id)sender;
-- (IBAction)actionCancel:(id)sender;
+
+- (IBAction)actionPickerDone:(id)sender;
+
+- (IBAction)actionPickerCancel:(id)sender;
+@end
+
+
+@interface CustomActionSheet()
+@property (nonatomic, strong) UIBarButtonItem *titleBarButtonItem;
+@property (nonatomic, assign) BOOL animated;
+
 @end
 
 @implementation CustomActionSheet
@@ -239,7 +256,7 @@ static NSDictionary* htmlOptions;
 - (IBAction)customButtonPressed:(id)sender {
     UIBarButtonItem *button = (UIBarButtonItem*)sender;
     NSInteger index = button.tag;
-    NSAssert((index >= 0 && index < self.customButtons.count), @"Bad custom button tag: %d, custom button count: %d", index, self.customButtons.count);
+    NSAssert((index >= 0 && index < self.customButtons.count), @"Bad custom button tag: %ld, custom button count: %lu", (long)index, (unsigned long)self.customButtons.count);
     NSLog(@"customButtonPressed not overridden");
 }
 
