@@ -434,18 +434,29 @@ public class TiCompositeLayout extends FreeLayout implements
 			if (p.fullscreen || p.optionHeight == null && p.autoFillsHeight) {
 				maxHeight = h;
 			}
-			
+			 
 		}
+		
 		
 		// check minimums
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
 		
-		
+	   
+
 		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
 		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
 		
 		if (p != null) {
+		 // check MATCH
+            if (p.heightMatchWidth) {
+                measuredHeight = measuredWidth;
+                heightMeasureSpec = MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY);
+            } else if(p.widthMatchHeight) {
+                measuredWidth = measuredHeight;
+                widthMeasureSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
+            }
+            
 			if (p.maxWidth != null || p.minWidth != null) {
 				int minMeasuredWidth = measuredWidth;
 				if (p.minWidth != null) minMeasuredWidth = Math.max(minMeasuredWidth, p.minWidth.getAsPixels(w, h));
@@ -1236,6 +1247,9 @@ public class TiCompositeLayout extends FreeLayout implements
 		 * @module.api
 		 */
 		public boolean autoFillsHeight = false;
+
+        public boolean widthMatchHeight = false;
+        public boolean heightMatchWidth = false;
 
 		public LayoutParams() {
 			super(WRAP_CONTENT, WRAP_CONTENT);

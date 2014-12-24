@@ -256,6 +256,12 @@ public class TiConvert
                 layoutParams.sizeOrFillWidthEnabled = true;
                 layoutParams.autoFillsWidth = false;
                 layoutParams.width = LayoutParams.WRAP_CONTENT;
+            } else if (value.equals(TiC.LAYOUT_MATCH)) {
+                // size
+                layoutParams.optionWidth = null;
+                layoutParams.sizeOrFillWidthEnabled = false;
+                layoutParams.autoFillsWidth = false;
+                layoutParams.widthMatchHeight = true;
             } else {
                 layoutParams.optionWidth = toTiDimension(value, TiDimension.TYPE_WIDTH);
                 layoutParams.sizeOrFillWidthEnabled = false;
@@ -283,6 +289,12 @@ public class TiConvert
                 layoutParams.sizeOrFillHeightEnabled = true;
                 layoutParams.autoFillsHeight = false;
                 layoutParams.height = LayoutParams.WRAP_CONTENT;
+            } else if (value.equals(TiC.LAYOUT_MATCH)) {
+                // size
+                layoutParams.optionWidth = null;
+                layoutParams.sizeOrFillWidthEnabled = false;
+                layoutParams.autoFillsWidth = false;
+                layoutParams.heightMatchWidth = true;
             } else {
                 layoutParams.optionHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
                 layoutParams.sizeOrFillHeightEnabled = false;

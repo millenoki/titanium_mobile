@@ -139,7 +139,8 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_ALL = 3;
 
 	@Kroll.constant public static final String SIZE = TiC.LAYOUT_SIZE;
-	@Kroll.constant public static final String FILL = TiC.LAYOUT_FILL;
+    @Kroll.constant public static final String FILL = TiC.LAYOUT_FILL;
+    @Kroll.constant public static final String MATCH = TiC.LAYOUT_MATCH;
 	@Kroll.constant public static final String UNIT_PX = TiDimension.UNIT_PX;
 	@Kroll.constant public static final String UNIT_MM = TiDimension.UNIT_MM;
 	@Kroll.constant public static final String UNIT_CM = TiDimension.UNIT_CM;
