@@ -127,13 +127,13 @@ public class FreeLayout extends FrameLayout {
             this(width,height,null);
         }
         public LayoutParams(FreeLayout.LayoutParams source) {
-            super(source);
+            this((ViewGroup.LayoutParams)source);
             this.matrix = source.matrix;
             this.anchorX = source.anchorX;
             this.anchorY = source.anchorY;
         }
         public LayoutParams(FrameLayout.LayoutParams source) {
-            super((ViewGroup.LayoutParams)source);
+            this((ViewGroup.LayoutParams)source);
         }
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
