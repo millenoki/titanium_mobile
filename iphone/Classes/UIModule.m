@@ -555,6 +555,10 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
     return kTiBehaviorFill;
 }
+-(NSString*)MATCH
+{
+    return kTiBehaviorMatch;
+}
 -(NSString*)UNIT_PX
 {
     return kTiUnitPixel;
