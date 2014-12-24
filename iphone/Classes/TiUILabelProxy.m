@@ -115,23 +115,26 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
     }
     
     RELEASE_TO_NIL(_realLabelContent);
-    switch (_contentType) {
-        case kContentTypeHTML:
-        {
-//            if ([TiUtils isIOS7OrGreater]) {
-//                _realLabelContent = [[NSAttributedString alloc] initWithData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil error:nil];
-//            }
-//            else {
+    if (contentString) {
+        switch (_contentType) {
+            case kContentTypeHTML:
+            {
+                //            if ([TiUtils isIOS7OrGreater]) {
+                //                _realLabelContent = [[NSAttributedString alloc] initWithData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil error:nil];
+                //            }
+                //            else {
                 _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
-//            }
-            break;
-        }
-        default:
-        {
-            _realLabelContent = [contentString retain];
-            break;
+                //            }
+                break;
+            }
+            default:
+            {
+                _realLabelContent = [contentString retain];
+                break;
+            }
         }
     }
+   
     if (view!=nil) {
         [(TiUILabel*)view setAttributedTextViewContent];
     }
@@ -356,24 +359,10 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
 }
 
 - (void)setAttributedTextViewContent:(id)newContentString ofType:(ContentType)contentType {
-    if (newContentString == nil) {
-        RELEASE_TO_NIL(contentString);
-        RELEASE_TO_NIL(_realLabelContent);
-        _contentHash = 0;
-        [self updateAttributeText];
+    if ((newContentString == nil && contentString == nil) || [newContentString isEqual:contentString])
+    {
         return;
     }
-    
-    // we don't preserve the string but compare it's hash
-    //NSString hash method is wrong and can return same value
-    // for 2 different strings
-	NSString* newHash = [newContentString md5Checksum];
-	
-	if ([newHash isEqual:_contentHash])
-	{
-		return;
-	}
-    _contentHash = newHash;
     RELEASE_TO_NIL(contentString);
     contentString = [newContentString retain];
     _contentType = contentType;
