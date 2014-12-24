@@ -208,6 +208,7 @@ NSString * const kTiUserNotificationSettingsNotification = @"TiUserNotificationS
 
 NSString* const kTiBehaviorSize = @"SIZE";
 NSString* const kTiBehaviorFill = @"FILL";
+NSString* const kTiBehaviorMatch = @"MATCH";
 NSString* const kTiBehaviorAuto = @"auto";
 NSString* const kTiUnitPixel = @"px";
 NSString* const kTiUnitCm = @"cm";

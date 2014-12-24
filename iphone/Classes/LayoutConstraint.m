@@ -100,10 +100,13 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         }
     }
     
+    BOOL flexibleWidth = NO;
+    BOOL flexibleHeight = NO;
+    BOOL heigthMatchWidth = NO;
+    BOOL widthMatchHeight = NO;
 
     
     TiDimension dimension = constraint->width;
-    BOOL flexibleWidth = NO;
     switch (dimension.type)
     {
         case TiDimensionTypeDip:
@@ -152,11 +155,15 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
             width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
             break;
         }
+        case TiDimensionTypeMatch:
+        {
+            widthMatchHeight = YES;
+            break;
+        }
     }
     
     
     dimension = constraint->height;
-    BOOL flexibleHeight = NO;
     switch (dimension.type)
     {
         case TiDimensionTypeDip:
@@ -204,6 +211,11 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
             flexibleHeight = YES;
             height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
 			break;
+        }
+        case TiDimensionTypeMatch:
+        {
+            heigthMatchWidth = YES;
+            break;
         }
     }
     
@@ -254,6 +266,12 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
     }
     else if(flexibleHeight && resultResizing != NULL){
         *resultResizing |= UIViewAutoresizingFlexibleHeight;
+    }
+    
+    if (heigthMatchWidth) {
+        height = width;
+    } else if (heigthMatchWidth) {
+        width = height;
     }
     
     return completion();

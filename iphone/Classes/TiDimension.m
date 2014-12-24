@@ -13,6 +13,7 @@ const TiDimension TiDimensionZero = {TiDimensionTypeDip, 0};
 const TiDimension TiDimensionAuto = {TiDimensionTypeAuto, 0};
 const TiDimension TiDimensionAutoSize = {TiDimensionTypeAutoSize, 0};
 const TiDimension TiDimensionAutoFill = {TiDimensionTypeAutoFill, 0};
+const TiDimension TiDimensionMatch = {TiDimensionTypeMatch, 0};
 const TiDimension TiDimensionUndefined = {TiDimensionTypeUndefined, 0};
 
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)
@@ -80,6 +81,10 @@ TiDimension TiDimensionFromObject(id object)
 		{
 			return TiDimensionAutoFill;
 		}
+        if ([object caseInsensitiveCompare:kTiBehaviorMatch]==NSOrderedSame)
+        {
+            return TiDimensionMatch;
+        }
 		if ([object caseInsensitiveCompare:kTiBehaviorSize]==NSOrderedSame)
 		{
 			return TiDimensionAutoSize;

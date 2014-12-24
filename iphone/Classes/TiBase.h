@@ -661,6 +661,7 @@ extern NSString * const kTiNetworkChangedNotification;
 
 extern NSString* const kTiBehaviorSize;
 extern NSString* const kTiBehaviorFill;
+extern NSString* const kTiBehaviorMatch;
 extern NSString* const kTiBehaviorAuto;
 extern NSString* const kTiUnitPixel;
 extern NSString* const kTiUnitCm;

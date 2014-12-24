@@ -20,7 +20,8 @@ typedef enum {
 	TiDimensionTypeAuto,
     TiDimensionTypeAutoSize,
     TiDimensionTypeAutoFill,
-	TiDimensionTypePercent,
+    TiDimensionTypePercent,
+    TiDimensionTypeMatch
 } TiDimensionType;
 
 /**
@@ -39,6 +40,7 @@ extern const TiDimension TiDimensionZero;
 extern const TiDimension TiDimensionAuto;
 extern const TiDimension TiDimensionAutoSize;
 extern const TiDimension TiDimensionAutoFill;
+extern const TiDimension TiDimensionMatch;
 extern const TiDimension TiDimensionUndefined;
 
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value);
@@ -82,6 +84,11 @@ TI_INLINE bool TiDimensionIsDip(TiDimension dimension)
 TI_INLINE bool TiDimensionIsUndefined(TiDimension dimension)
 {
 	return dimension.type == TiDimensionTypeUndefined;
+}
+
+TI_INLINE bool TiDimensionIsMatch(TiDimension dimension)
+{
+    return dimension.type == TiDimensionTypeMatch;
 }
 
 TI_INLINE bool TiDimensionEqual(TiDimension dimension1, TiDimension dimension2)
