@@ -39,6 +39,18 @@ else (width is invalid)
 CGSize minmaxSize(LayoutConstraint * constraint, CGSize size, CGSize parentSize)
 {
     CGSize result = size;
+    
+    if (TiDimensionIsMatch(constraint->width)) {
+        result.width = result.height;
+    } else if (TiDimensionIsMatch(constraint->height)) {
+        result.height = result.width;
+    }
+    
+    if (constraint->squared == YES) {
+        CGFloat min = MIN(result.width, result.height);
+        result.width = min;
+        result.height = min;
+    }
     result.width = MAX(TiDimensionCalculateValueDef(constraint->minimumWidth, parentSize.width, result.width),result.width);
     result.height = MAX(TiDimensionCalculateValueDef(constraint->minimumHeight, parentSize.height, result.height),result.height);
     result.width = MIN(TiDimensionCalculateValueDef(constraint->maximumWidth, parentSize.width, result.width),result.width);
@@ -48,20 +60,41 @@ CGSize minmaxSize(LayoutConstraint * constraint, CGSize size, CGSize parentSize)
 
 CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, NSObject<LayoutAutosizing> * autoSizer, CGSize referenceSize, UIViewAutoresizing * resultResizing)
 {
-	//TODO: Refactor for elegance.
 	__block CGFloat width;
     __block CGFloat height;
-    BOOL ignorePercent = NO;
+    BOOL ignoreWPercent = NO;
+    BOOL ignoreHPercent = NO;
     BOOL needsWidthAutoCompute = NO;
     BOOL needsHeightAutoCompute = NO;
     BOOL parentCanGrow = NO;
     CGSize parentSize = CGSizeZero;
     
-    CGSize (^completion)() = ^() {
-        // when you use negative top, you get into a situation where you get smaller
-        // then intended sizes when using auto.  this allows you to set a floor for
+    BOOL flexibleWidth = NO;
+    BOOL flexibleHeight = NO;
+    BOOL autoSizeComputed = NO;
+    
+    __block CGFloat offsetx = TiDimensionCalculateValue(constraint->left, referenceSize.width)
+    + TiDimensionCalculateValue(constraint->right, referenceSize.width);
+    
+    __block CGFloat offsety = TiDimensionCalculateValue(constraint->top, referenceSize.height)
+    + TiDimensionCalculateValue(constraint->bottom, referenceSize.height);
 
-        CGSize result = minmaxSize(constraint, CGSizeMake(width, height), ignorePercent?parentSize:referenceSize);
+    
+    __block BOOL followsFillWBehavior = TiDimensionIsAutoFill([autoSizer defaultAutoWidthBehavior:nil]);
+    __block BOOL followsFillHBehavior = TiDimensionIsAutoFill([autoSizer defaultAutoHeightBehavior:nil]);
+    
+    CGSize (^completion)() = ^() {
+
+        CGSize result = CGSizeMake(width, height);
+//        if (followsFillWBehavior) {
+//            result.width -= offsetx;
+//        }
+//        if (followsFillHBehavior) {
+//            result.height -= offsety;
+//        }
+        result = minmaxSize(constraint, result, (ignoreWPercent || ignoreHPercent)?parentSize:referenceSize);
+//        result.width += offsetx;
+//        result.height += offsety;
         
         //Should we always do this or only for auto
         if ([autoSizer respondsToSelector:@selector(verifySize:)])
@@ -80,146 +113,120 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 	{
 		*resultResizing &= ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
 	}
-    
-    if (constraint->fullscreen == YES) {
-		*resultResizing |= (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-        width = referenceSize.width;
-        height = referenceSize.height;
-        return completion();
-    }
-    
+
     
     if ([autoSizer isKindOfClass:[TiViewProxy class]]) {
         TiViewProxy* parent = (TiViewProxy*)[(TiViewProxy*)autoSizer parent];
-        if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
+        LayoutConstraint* parentConstraints = [parent layoutProperties];
+        if (parent != nil && (!TiLayoutRuleIsAbsolute(parentConstraints->layoutStyle))) {
             //Sandbox with percent values is garbage
-            ignorePercent = YES;
+//            ignorePercent = YES;
+            ignoreHPercent = TiLayoutRuleIsHorizontal(parentConstraints->layoutStyle);
+            ignoreWPercent = TiLayoutRuleIsVertical(parentConstraints->layoutStyle) || (ignoreHPercent && TiLayoutFlagsHasHorizontalWrap(parentConstraints));
             UIView *parentView = [parent parentViewForChild:(TiViewProxy*)autoSizer];
             parentSize = (parentView != nil) ? parentView.bounds.size : CGSizeZero;
             parentCanGrow = TiDimensionIsAutoSize([parent layoutProperties]->height);
         }
     }
     
-    BOOL flexibleWidth = NO;
-    BOOL flexibleHeight = NO;
-    BOOL heigthMatchWidth = NO;
-    BOOL widthMatchHeight = NO;
-
+    __block CGFloat boundingWidth = ignoreWPercent?parentSize.width:referenceSize.width;
+    __block CGFloat boundingHeight = ignoreHPercent?parentSize.height:referenceSize.height;
+    
+    
+    if (constraint->fullscreen == YES) {
+        *resultResizing |= (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+        width = boundingWidth ;
+        height = boundingHeight;
+        return completion();
+    }
     
     TiDimension dimension = constraint->width;
-    switch (dimension.type)
+    if (TiDimensionIsDip(dimension))
     {
-        case TiDimensionTypeDip:
-            width = TiDimensionCalculateValue(dimension, referenceSize.width);
-            break;
-        case TiDimensionTypePercent:
-            flexibleWidth = YES;
-            if (ignorePercent) {
-                width = roundf(TiDimensionCalculateValue(dimension, parentSize.width));
-            }
-            else {
-                width = roundf(TiDimensionCalculateValue(dimension, referenceSize.width));
-            }
-            break;
-        case TiDimensionTypeUndefined:
-            flexibleWidth = YES;
-            if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->centerX) ) {
-                width = 2 * ( TiDimensionCalculateValue(constraint->centerX, referenceSize.width) - TiDimensionCalculateValue(constraint->left, referenceSize.width) );
-                break;
-            }
-            else if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->right) ) {
-                width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
-                break;
-            }
-            else if (!TiDimensionIsUndefined(constraint->centerX) && !TiDimensionIsUndefined(constraint->right) ) {
-                width = 2 * ( referenceSize.width - TiDimensionCalculateValue(constraint->right, referenceSize.width) - TiDimensionCalculateValue(constraint->centerX, referenceSize.width));
-                break;
-            }
-            else {
-                flexibleWidth = NO;
-            }
-        case TiDimensionTypeAutoSize:
-        {
-            needsWidthAutoCompute = YES;
-            width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
-            break;
+        width = roundf(TiDimensionCalculateValue(dimension, boundingWidth));
+    }
+    else if (TiDimensionIsPercent(dimension)) {
+        flexibleWidth = YES;
+        width = roundf(TiDimensionCalculateValue(dimension, boundingWidth));
+    }
+    else if (followsFillWBehavior && TiDimensionIsUndefined(dimension))
+    {
+        flexibleWidth = YES;
+        if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->centerX) ) {
+            width = 2 * ( TiDimensionCalculateValue(constraint->centerX, boundingWidth) - TiDimensionCalculateValue(constraint->left, boundingWidth) );
         }
-        case TiDimensionTypeAuto:
-        {
-            width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
-            break;
+        else if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->right) ) {
+            followsFillWBehavior = YES;
+            width = boundingWidth - offsetx;
         }
-        case TiDimensionTypeAutoFill:
-        {
-            flexibleWidth = YES;
-            width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
-            break;
+        else if (!TiDimensionIsUndefined(constraint->centerX) && !TiDimensionIsUndefined(constraint->right) ) {
+            width = 2 * ( boundingWidth - TiDimensionCalculateValue(constraint->right, boundingWidth) - TiDimensionCalculateValue(constraint->centerX, boundingWidth));
         }
-        case TiDimensionTypeMatch:
-        {
-            widthMatchHeight = YES;
-            break;
+        else {
+            followsFillWBehavior = YES;
+            width = boundingWidth - offsetx;
         }
     }
+    else if(TiDimensionIsAutoFill(dimension) || (TiDimensionIsAuto(dimension) && followsFillWBehavior)){
+        flexibleWidth = YES;
+        followsFillWBehavior = YES;
+        width = boundingWidth - offsetx;
+    }
+    else if(TiDimensionIsMatch(dimension)){
+        width = 0.0f;
+    }
+    else {
+        //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
+        needsWidthAutoCompute = YES;
+        followsFillWBehavior = NO;
+        width = boundingWidth - offsetx;
+    }
+
     
     
     dimension = constraint->height;
-    switch (dimension.type)
+    
+    if (TiDimensionIsDip(dimension))
     {
-        case TiDimensionTypeDip:
-            height = TiDimensionCalculateValue(dimension, referenceSize.height);
-            break;
-        case TiDimensionTypePercent:
-            flexibleHeight = YES;
-            if (ignorePercent) {
-                height = roundf(TiDimensionCalculateValue(dimension, parentSize.height));
-            }
-            else {
-                height = roundf(TiDimensionCalculateValue(dimension, referenceSize.height));
-            }
-            break;
-        case TiDimensionTypeUndefined:
-            flexibleHeight = YES;
-            if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->centerY) ) {
-                height = 2 * ( TiDimensionCalculateValue(constraint->centerY, referenceSize.height) - TiDimensionCalculateValue(constraint->top, referenceSize.height) );
-                break;
-            }
-            else if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->bottom) ) {
-                height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
-                break;
-            }
-            else if (!TiDimensionIsUndefined(constraint->centerY) && !TiDimensionIsUndefined(constraint->bottom) ) {
-                height = 2 * ( referenceSize.height - TiDimensionCalculateValue(constraint->centerY, referenceSize.height) - TiDimensionCalculateValue(constraint->bottom, referenceSize.height) );
-                break;
-            }
-            else {
-                flexibleHeight = NO;
-            }
-        case TiDimensionTypeAutoSize:
-        {
-            needsHeightAutoCompute = YES;
-            height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
-			break;
+        height = roundf(TiDimensionCalculateValue(dimension, boundingHeight));
+    }
+    else if (TiDimensionIsPercent(dimension)) {
+        flexibleHeight = YES;
+        height = roundf(TiDimensionCalculateValue(dimension, boundingHeight));
+    }
+    else if (followsFillHBehavior && TiDimensionIsUndefined(dimension))
+    {
+        flexibleHeight = YES;
+        if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->centerY) ) {
+            height = 2 * ( TiDimensionCalculateValue(constraint->centerY, boundingHeight) - TiDimensionCalculateValue(constraint->top, boundingHeight) );
         }
-        case TiDimensionTypeAuto:
-        {
-            height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
-			break;
+        else if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->bottom) ) {
+            followsFillHBehavior = YES;
+            height = boundingHeight - offsety;
         }
-        case TiDimensionTypeAutoFill:
-        {
-            flexibleHeight = YES;
-            height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
-			break;
+        else if (!TiDimensionIsUndefined(constraint->centerY) && !TiDimensionIsUndefined(constraint->bottom) ) {
+            height = 2 * ( boundingHeight - TiDimensionCalculateValue(constraint->bottom, boundingHeight) - TiDimensionCalculateValue(constraint->centerY, boundingHeight));
         }
-        case TiDimensionTypeMatch:
-        {
-            heigthMatchWidth = YES;
-            break;
+        else {
+            followsFillHBehavior = YES;
+            height = boundingHeight - offsety;
         }
     }
+    else if(TiDimensionIsAutoFill(dimension) || (TiDimensionIsAuto(dimension) && followsFillHBehavior)){
+        flexibleHeight = YES;
+        followsFillHBehavior = YES;
+        height = boundingHeight - offsety;
+    }
+    else if(TiDimensionIsMatch(dimension)){
+        height = 0.0f;
+    }
+    else {
+        //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
+        needsHeightAutoCompute = YES;
+        followsFillHBehavior = NO;
+        height = boundingHeight - offsety;
+    }
     
-    BOOL autoSizeComputed = NO;
     
     CGSize autoSize;
     
@@ -266,12 +273,6 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
     }
     else if(flexibleHeight && resultResizing != NULL){
         *resultResizing |= UIViewAutoresizingFlexibleHeight;
-    }
-    
-    if (heigthMatchWidth) {
-        height = width;
-    } else if (heigthMatchWidth) {
-        width = height;
     }
     
     return completion();
