@@ -374,21 +374,21 @@
 - (CGImageRef)newSweepImageGradientInRect:(CGRect)rect
 {
     cacheSize = rect.size;
-	NSInteger w = CGRectGetWidth(rect);
-	NSInteger h = CGRectGetHeight(rect);
+	CGFloat w = CGRectGetWidth(rect);
+	CGFloat h = CGRectGetHeight(rect);
 	NSInteger bitsPerComponent = 8;
 	NSInteger bpp = 4 * bitsPerComponent / 8;
 	NSInteger byteCount = w * h * bpp;
     
-	NSInteger colorCount = CFArrayGetCount(colorValues);
-	NSInteger locationCount = 0;
+	CFIndex colorCount = CFArrayGetCount(colorValues);
+	CFIndex locationCount = 0;
 	NSInteger* colors = NULL;
 	CGFloat* locations = NULL;
     
 	if (colorCount > 0) {
 		colors = calloc(colorCount, bpp);
 		NSInteger *p = colors;
-        for (NSInteger i=0; i<colorCount; i++) {
+        for (CFIndex i=0; i<colorCount; i++) {
             CGColorRef c = (CGColorRef)CFArrayGetValueAtIndex(colorValues, i);
             CGFloat r, g, b, a;
             
