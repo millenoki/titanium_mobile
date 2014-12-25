@@ -19,6 +19,7 @@
 #import "TiLayoutQueue.h"
 #import <libkern/OSAtomic.h>
 #import "TiLayoutQueue.h"
+#import "TableView_Categories.h"
 
 static NSInteger const kRowContainerTag = 100;
 NSString * const defaultRowTableClass = @"_default_";

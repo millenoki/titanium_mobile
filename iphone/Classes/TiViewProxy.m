@@ -53,8 +53,7 @@
 
 @synthesize controller = controller;
 
-static NSArray* layoutProps = nil;
-static NSSet* transferableProps = nil;
+
 
 #pragma mark public API
 
@@ -408,15 +407,6 @@ LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeS
     return layoutProps;
 }
 
-+(NSSet*)transferableProperties
-{
-    if (transferableProps == nil) {
-        transferableProps = [[NSSet alloc] initWithObjects:@"imageCap",@"visible", @"backgroundImage", @"backgroundGradient", @"backgroundColor", @"backgroundSelectedImage", @"backgroundSelectedGradient", @"backgroundSelectedColor", @"backgroundDisabledImage", @"backgroundDisabledGradient", @"backgroundDisabledColor", @"backgroundRepeat",@"focusable", @"touchEnabled", @"viewShadow", @"viewMask", @"accessibilityLabel", @"accessibilityValue", @"accessibilityHint", @"accessibilityHidden",
-            @"opacity", @"borderWidth", @"borderColor", @"borderRadius", @"tileBackground",
-            @"transform", @"center", @"anchorPoint", @"clipChildren", @"touchPassThrough", @"transform", nil];
-    }
-    return transferableProps;
-}
 
 -(NSArray *)keySequence
 {

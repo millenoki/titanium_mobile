@@ -617,6 +617,9 @@
 		D51697F217FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
 		D51697F317FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
 		D51697F417FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
+		D51D5AC41A4C682E00B0BC5D /* TableView_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */; };
+		D51D5AC51A4C682E00B0BC5D /* TableView_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */; };
+		D51D5AC61A4C682E00B0BC5D /* TableView_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */; };
 		D51DEFC719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D51DEFC819D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D51DEFC919D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -2194,6 +2197,8 @@
 		D5162E9E1A20D1F7008A4048 /* TiUICollectionViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUICollectionViewProxy.m; sourceTree = "<group>"; };
 		D51697F017FFF63300B4FDB8 /* ImageModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageModule.h; sourceTree = "<group>"; };
 		D51697F117FFF63300B4FDB8 /* ImageModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageModule.m; sourceTree = "<group>"; };
+		D51D5AC21A4C682E00B0BC5D /* TableView_Categories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableView_Categories.h; sourceTree = "<group>"; };
+		D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableView_Categories.m; sourceTree = "<group>"; };
 		D51DEFB619D9ACDA00CF28B0 /* AbstractActionSheetPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AbstractActionSheetPicker.h; path = ../Classes/ActionSheetPicker/AbstractActionSheetPicker.h; sourceTree = "<group>"; };
 		D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AbstractActionSheetPicker.m; path = ../Classes/ActionSheetPicker/AbstractActionSheetPicker.m; sourceTree = "<group>"; };
 		D51DEFB819D9ACDA00CF28B0 /* ActionSheetCustomPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActionSheetCustomPicker.h; path = ../Classes/ActionSheetPicker/ActionSheetCustomPicker.h; sourceTree = "<group>"; };
@@ -3517,6 +3522,8 @@
 				243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */,
 				243EC7D5112634AF00639DF4 /* TiUITableViewAction.h */,
 				243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */,
+				D51D5AC21A4C682E00B0BC5D /* TableView_Categories.h */,
+				D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */,
 			);
 			name = "Tableview & Groupview";
 			sourceTree = "<group>";
@@ -5494,6 +5501,7 @@
 				24ADC5161299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */,
 				84EB340017A8CAA700723B1E /* TiWindowProxy.m in Sources */,
 				D54C7D0C18115C0900F592A9 /* TiTransitionGhost.m in Sources */,
+				D51D5AC41A4C682E00B0BC5D /* TableView_Categories.m in Sources */,
 				D54C7D2018115D7D00F592A9 /* TiTransitionModernPush.m in Sources */,
 				D5EEA1671A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */,
 				24ADC634129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */,
@@ -5796,6 +5804,7 @@
 				24D8E457119B9D8A00F8CAA6 /* APIModule.m in Sources */,
 				24D8E459119B9D8A00F8CAA6 /* AccelerometerModule.m in Sources */,
 				24D8E45A119B9D8A00F8CAA6 /* TiUIScrollableViewProxy.m in Sources */,
+				D51D5AC51A4C682E00B0BC5D /* TableView_Categories.m in Sources */,
 				24D8E45B119B9D8A00F8CAA6 /* TiUIScrollableView.m in Sources */,
 				24D8E45C119B9D8A00F8CAA6 /* TiUIScrollViewProxy.m in Sources */,
 				D557959A1839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,
@@ -6210,6 +6219,7 @@
 				DABB372F12E8CB280026A6EA /* APIModule.m in Sources */,
 				DABB373112E8CB280026A6EA /* AccelerometerModule.m in Sources */,
 				DABB373212E8CB280026A6EA /* TiUIScrollableViewProxy.m in Sources */,
+				D51D5AC61A4C682E00B0BC5D /* TableView_Categories.m in Sources */,
 				DABB373312E8CB280026A6EA /* TiUIScrollableView.m in Sources */,
 				DABB373412E8CB280026A6EA /* TiUIScrollViewProxy.m in Sources */,
 				D557959B1839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,

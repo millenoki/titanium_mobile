@@ -14,13 +14,6 @@
     UIEdgeInsets _padding;
 }
 
-+(NSSet*)transferableProperties
-{
-    NSSet *common = [TiUITextWidgetProxy transferableProperties];
-    return [common setByAddingObjectsFromSet:[NSSet setWithObjects:@"enabled",
-                                              @"scrollable",@"editable",@"autoLink",
-                                              @"borderStyle", nil]];
-}
 
 #pragma mark Defaults
 

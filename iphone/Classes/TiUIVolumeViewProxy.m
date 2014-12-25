@@ -13,20 +13,6 @@ NSArray* keySequence;
 
 @implementation TiUIVolumeViewProxy
 
-+(NSSet*)transferableProperties
-{
-    NSSet *common = [TiViewProxy transferableProperties];
-    return [common setByAddingObjectsFromSet:[NSSet setWithObjects:@"leftTrackLeftCap",
-                                              @"leftTrackTopCap",@"rightTrackLeftCap",
-                                              @"rightTrackTopCap", @"thumbImage",
-                                              @"selectedThumbImage",@"highlightedThumbImage",
-                                              @"disabledThumbImage", @"leftTrackImage",
-                                              @"selectedLeftTrackImage",@"highlightedLeftTrackImage",
-                                              @"disabledLeftTrackImage", @"rightTrackImage",
-                                              @"selectedRightTrackImage",@"highlightedRightTrackImage",
-                                              @"disabledRightTrackImage", nil]];
-}
-
 -(NSArray *)keySequence
 {
     if (keySequence == nil)

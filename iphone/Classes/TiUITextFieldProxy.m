@@ -14,17 +14,6 @@
     UIEdgeInsets _padding;
 }
 
-+(NSSet*)transferableProperties
-{
-    NSSet *common = [TiUITextWidgetProxy transferableProperties];
-    return [common setByAddingObjectsFromSet:[NSSet setWithObjects:@"paddingLeft",
-                                              @"paddingRight",@"leftButtonPadding",@"rightButtonPadding",
-                                              @"editable", @"enabled", @"hintText", @"minimumFontSize",
-                                              @"clearOnEdit", @"borderStyle", @"clearButtonMode",
-                                              @"leftButton", @"leftButtonMode", @"verticalAlign", 
-                                              @"rightButton", @"rightButtonMode",
-                                              @"backgroundDisabledImage", nil]];
-}
 
 #pragma mark Defaults
 

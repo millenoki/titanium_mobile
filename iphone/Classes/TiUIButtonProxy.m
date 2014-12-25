@@ -16,23 +16,6 @@
     UIEdgeInsets _padding;
 }
 
-+(NSSet*)transferableProperties
-{
-    NSSet *common = [TiViewProxy transferableProperties];
-    return [common setByAddingObjectsFromSet:[NSSet setWithObjects:@"style", @"title",
-                                              @"color", @"highlightedColor", @"selectedColor",
-                                              @"enabled", @"selected", @"style",
-                                              @"image", @"backgroundHighlightedImage",
-                                              @"backgroundDisabledImage", @"backgroundSelectedImage",
-                                              @"backgroundFocusedImage", @"verticalAlign",
-                                              @"textAlign", @"font", @"backgroundPaddingLeft",
-                                              @"backgroundPaddingRight",
-                                              @"backgroundPaddingBottom", @"backgroundPaddingTop",
-                                              @"shadowOffset", @"shadowRadius", @"shadowColor",
-                                              @"padding",
-                                              @"wordWrap", @"borderWidth", nil]];
-}
-
 -(id)init
 {
     if (self = [super init]) {

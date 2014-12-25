@@ -53,20 +53,6 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
     UIEdgeInsets _padding;
 }
 
-+(NSSet*)transferableProperties
-{
-    NSSet *common = [TiViewProxy transferableProperties];
-    return [common setByAddingObjectsFromSet:[NSSet setWithObjects:@"text",@"html",
-                                              @"color", @"highlightedColor", @"autoLink",
-                                              @"verticalAlign", @"textAlign", @"font",
-                                              @"minimumFontSize", @"backgroundPaddingLeft",
-                                              @"backgroundPaddingRight", @"backgroundPaddingBottom", @"backgroundPaddingTop", @"shadowOffset",
-                                              @"shadowRadius", @"shadowColor",
-                                              @"padding",
-                                              @"wordWrap", @"borderWidth", @"maxLines",
-                                              @"ellipsize", @"multiLineEllipsize", nil]];
-}
-
 -(NSString*)apiName
 {
     return @"Ti.UI.Label";

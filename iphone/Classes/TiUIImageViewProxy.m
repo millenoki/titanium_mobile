@@ -22,14 +22,6 @@
 @implementation TiUIImageViewProxy
 @synthesize imageURL;
 
-+(NSSet*)transferableProperties
-{
-    NSSet *common = [TiViewProxy transferableProperties];
-    return [common setByAddingObjectsFromSet:[NSSet setWithObjects:@"image",
-                                              @"scaleType",@"localLoadSync",@"images",
-                                              @"duration", @"repeatCount", @"reverse",@"animatedImages", nil]];
-}
-
 static NSArray* imageKeySequence;
 
 #pragma mark Internal

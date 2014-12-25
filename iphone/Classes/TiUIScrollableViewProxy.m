@@ -22,16 +22,6 @@ NSArray* keySequence;
 	return keySequence;
 }
 
-+(NSSet*)transferableProperties
-{
-    NSSet *common = [TiViewProxy transferableProperties];
-    return [common setByAddingObjectsFromSet:[NSSet setWithObjects:@"currentPage",
-                                              @"pagingControlColor",@"pagingControlHeight",@"showPagingControl",
-                                              @"pagingControlAlpha",@"overlayEnabled",
-                                              @"pagingControlOnTop", @"cacheSize", @"views",
-                                              @"pageControlHeight", @"scrollingEnabled", @"disableBounce", nil]];
-}
-
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     pthread_rwlock_init(&viewsLock, NULL);

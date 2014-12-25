@@ -546,10 +546,6 @@ enum
 -(TiViewAnimationStep*)runningAnimation;
 -(void)setRunningAnimation:(TiViewAnimationStep*)animation;
 
-
-+(NSArray*)layoutProperties;
-+(NSSet*)transferableProperties;
-
 - (void)prepareForReuse;
 
 //+ (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate inContext:(id<TiEvaluator>)context;

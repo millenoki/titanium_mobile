@@ -1636,17 +1636,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 #pragma mark Property Change Support
 
--(SEL)selectorForProperty:(NSString*)key
-{
-	NSString *method = [NSString stringWithFormat:@"set%@%@_:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
-	return NSSelectorFromString(method);
-}
-
--(SEL)selectorForlayoutProperty:(NSString*)key
-{
-	NSString *method = [NSString stringWithFormat:@"set%@%@:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
-	return NSSelectorFromString(method);
-}
+//-(SEL)selectorForProperty:(NSString*)key
+//{
+//	NSString *method = [NSString stringWithFormat:@"set%@%@_:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+//	return NSSelectorFromString(method);
+//}
 
 -(void)readProxyValuesWithKeys:(id<NSFastEnumeration>)keys
 {
@@ -1659,29 +1653,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 
-//Todo: Generalize.
--(void)setKrollValue:(id)value forKey:(NSString *)key withObject:(id)props
-{
-	if(value == [NSNull null])
-	{
-		value = nil;
-	}
-
-	NSString *method = SetterStringForKrollProperty(key);
-    
-	SEL methodSel = NSSelectorFromString([method stringByAppendingString:@"withObject:"]);
-	if([self respondsToSelector:methodSel])
-	{
-		[self performSelector:methodSel withObject:value withObject:props];
-		return;
-	}		
-
-	methodSel = NSSelectorFromString(method);
-	if([self respondsToSelector:methodSel])
-	{
-		[self performSelector:methodSel withObject:value];
-	}
-}
 
 - (void)detachViewProxy {
     if(!proxy) return;
@@ -1690,171 +1661,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         if ([subview isKindOfClass:[TiUIView class]])
             [(TiUIView*)subview detachViewProxy];
     }
-}
-
--(void)transferProxy:(TiViewProxy*)newProxy
-{
-    [self transferProxy:newProxy deep:NO];
-}
-
--(void)transferProxy:(TiViewProxy*)newProxy deep:(BOOL)deep
-{
-    [self transferProxy:newProxy withBlockBefore:nil withBlockAfter:nil deep:deep];
-}
-
--(void)transferProxy:(TiViewProxy*)newProxy withBlockBefore:(void (^)(TiViewProxy* proxy))blockBefore
-                withBlockAfter:(void (^)(TiViewProxy* proxy))blockAfter deep:(BOOL)deep
-{
-	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
-	
-	// We can safely skip everything if we're transferring to ourself.
-	if (oldProxy != newProxy) {
-        
-        if(blockBefore)
-        {
-            blockBefore(newProxy);
-        }
-        
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        [transferLock lock];
-        
-        if (deep) {
-			NSArray *subProxies = [newProxy children];
-			[[oldProxy children] enumerateObjectsUsingBlock:^(TiViewProxy *oldSubProxy, NSUInteger idx, BOOL *stop) {
-				TiViewProxy *newSubProxy = idx < [subProxies count] ? [subProxies objectAtIndex:idx] : nil;
-				[[oldSubProxy view] transferProxy:newSubProxy withBlockBefore:blockBefore withBlockAfter:blockAfter deep:deep];
-			}];
-		}
-        
-        NSSet* transferableProperties = [[oldProxy class] transferableProperties];
-        NSMutableSet* oldProperties = [NSMutableSet setWithArray:(NSArray *)[oldProxy allKeys]];
-        NSMutableSet* newProperties = [NSMutableSet setWithArray:(NSArray *)[newProxy allKeys]];
-        NSMutableSet* keySequence = [NSMutableSet setWithArray:[newProxy keySequence]];
-        NSMutableSet* layoutProps = [NSMutableSet setWithArray:[TiViewProxy layoutProperties]];
-        [oldProperties minusSet:newProperties];
-        [oldProperties minusSet:layoutProps];
-        [newProperties minusSet:keySequence];
-        [layoutProps intersectSet:newProperties];
-        [newProperties intersectSet:transferableProperties];
-        [oldProperties intersectSet:transferableProperties];
-        
-        id<NSFastEnumeration> keySeq = keySequence;
-        id<NSFastEnumeration> oldProps = oldProperties;
-        id<NSFastEnumeration> newProps = newProperties;
-        id<NSFastEnumeration> fastLayoutProps = layoutProps;
-        
-		[oldProxy retain];
-		
-        [self configurationStart];
-		[newProxy setReproxying:YES];
-        
-		[oldProxy setView:nil];
-		[newProxy setView:self];
-        
-		[self setProxy:newProxy];
-
-        //The important sequence first:
-		for (NSString * thisKey in keySeq)
-		{
-			id newValue = [newProxy valueForKey:thisKey];
-			id oldValue = [oldProxy valueForKey:thisKey];
-			if ((oldValue != newValue) && ![oldValue isEqual:newValue]) {
-				[self setKrollValue:newValue forKey:thisKey withObject:nil];
-			}
-		}
-        
-		for (NSString * thisKey in fastLayoutProps)
-		{
-			id newValue = [newProxy valueForKey:thisKey];
-			id oldValue = [oldProxy valueForKey:thisKey];
-			if ((oldValue != newValue) && ![oldValue isEqual:newValue]) {
-                SEL selector = [self selectorForlayoutProperty:thisKey];
-				if([[self proxy] respondsToSelector:selector])
-                {
-                    [[self proxy] performSelector:selector withObject:newValue];
-                }
-			}
-		}
-
-		for (NSString * thisKey in oldProps)
-		{
-			[self setKrollValue:nil forKey:thisKey withObject:nil];
-		}
-
-		for (NSString * thisKey in newProps)
-		{
-			id newValue = [newProxy valueForKey:thisKey];
-			id oldValue = [oldProxy valueForKey:thisKey];
-			if ((oldValue != newValue) && ![oldValue isEqual:newValue]) {
-				[self setKrollValue:newValue forKey:thisKey withObject:nil];
-			}
-		}
-        
-        [pool release];
-        pool = nil;
-
-        [self configurationSet];
-        
-		[oldProxy release];
-		
-		[newProxy setReproxying:NO];
-
- 
-        if(blockAfter)
-        {
-          blockAfter(newProxy);  
-        }
-
-        [transferLock unlock];
-        
-	}
-    
-}
-
--(BOOL)validateTransferToProxy:(TiViewProxy*)newProxy deep:(BOOL)deep
-{
-	TiViewProxy * oldProxy = (TiViewProxy *)[self proxy];
-	
-	if (oldProxy == newProxy) {
-		return YES;
-	}    
-	if (![newProxy isMemberOfClass:[oldProxy class]]) {
-        DebugLog(@"[ERROR] Cannot reproxy not same proxy class");
-		return NO;
-	}
-    
-    UIView * ourView = [(TiViewProxy*)[oldProxy parent] parentViewForChild:oldProxy];
-    UIView *parentView = [self superview];
-    if (parentView!=ourView)
-    {
-        DebugLog(@"[ERROR] Cannot reproxy not same parent view");
-        return NO;
-    }
-	
-	__block BOOL result = YES;
-	if (deep) {
-		NSArray *subProxies = [newProxy children];
-		NSArray *oldSubProxies = [oldProxy children];
-		if ([subProxies count] != [oldSubProxies count]) {
-            DebugLog(@"[ERROR] Cannot reproxy not same number of subproxies");
-			return NO;
-		}
-		[oldSubProxies enumerateObjectsUsingBlock:^(TiViewProxy *oldSubProxy, NSUInteger idx, BOOL *stop) {
-			TiViewProxy *newSubProxy = [subProxies objectAtIndex:idx];
-            TiUIView* view = [oldSubProxy view];
-            if (!view){
-                DebugLog(@"[ERROR] Cannot reproxy no subproxy view");
-                result = NO;
-                *stop = YES;
-            }
-            else
-                result = [view validateTransferToProxy:newSubProxy deep:YES]; //we assume that the view is already created
-			if (!result) {
-				*stop = YES;
-			}
-		}];
-	}
-	return result;
 }
 
 -(id)proxyValueForKey:(NSString *)key
