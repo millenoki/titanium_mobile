@@ -2755,6 +2755,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_SPOUSE = "spouse";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SQUARED = "squared";
+
 	/**
 	 * @module.api
 	 */
@@ -3094,10 +3099,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_WEBVIEW_IGNORE_SSL_ERROR = "ignoreSslError";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_WHEN = "when";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_WEIGHT = "weight";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_WHEN = "when";
 
 	/**
 	 * @module.api

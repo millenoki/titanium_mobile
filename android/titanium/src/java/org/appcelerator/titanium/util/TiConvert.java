@@ -234,6 +234,12 @@ public class TiConvert
         case TiC.PROPERTY_FULLSCREEN:
             layoutParams.fullscreen = toBoolean(value, false);
             return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_SQUARED:
+            layoutParams.squared = toBoolean(value, false);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+        case TiC.PROPERTY_WEIGHT:
+            layoutParams.weight = toFloat(value, 1.0f);
+            return TiUIView.TIFLAG_NEEDS_LAYOUT;
         case TiC.PROPERTY_WIDTH:
             if (value == null) {
                 layoutParams.optionWidth = null;
