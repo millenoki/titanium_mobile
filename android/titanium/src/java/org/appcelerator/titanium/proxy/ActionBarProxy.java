@@ -144,7 +144,6 @@ public class ActionBarProxy extends KrollProxy
         } catch (ResourceNotFoundException e) {
         }
 	}
-	
 	protected static TypedArray obtainStyledAttrsFromThemeAttr(Context context,
             int[] styleAttrs) throws ResourceNotFoundException {
         // Need to get resource id of style pointed to from the theme attr
@@ -153,35 +152,38 @@ public class ActionBarProxy extends KrollProxy
        context.getTheme().resolveAttribute(resourceId, outValue, true);
         final int styleResId =  outValue.resourceId;
 
-        // Now return the values (from styleAttrs) from the style
         return context.obtainStyledAttributes(styleResId, styleAttrs);
     }
 	
 	protected Drawable getActionBarBackground(Context context) {
-        int[] android_styleable_ActionBar = {android.R.attr.background};
-//        int[] android_styleable_ActionBarNew = {android.R.attr.colorPrimary};
-        TypedArray abStyle = null;
-        
+        TypedArray values = null;
         try {
-//            abStyle = obtainStyledAttrsFromThemeAttr(context, android_styleable_ActionBarNew);
-//            return abStyle.getDrawable(0);
-            abStyle = obtainStyledAttrsFromThemeAttr(context, android_styleable_ActionBar);
-            // background is the first attr in the array above so it's index is 0.
-            return abStyle.getDrawable(0);
+            int resourceId = TiRHelper.getResource("android.support.v7.appcompat.R$", "attr.background");
+            int[] attrs = {resourceId};
+            values = context.getTheme().obtainStyledAttributes(attrs);
+            return values.getDrawable(0);
         } catch (ResourceNotFoundException e) {
-			return null;
-		} finally {
-            if (abStyle != null) abStyle.recycle();
+            return null;
+        } finally {
+            if (values != null) {
+                values.recycle();
+            }
         }
     }
 
-    protected int getActionBarSize(Context context) {
-        int[] attrs = {	android.R.attr.actionBarSize};
-        TypedArray values = context.getTheme().obtainStyledAttributes(attrs);
+    public static int getActionBarSize(Context context) {
+        TypedArray values = null;
         try {
+            int resourceId = TiRHelper.getResource("android.support.v7.appcompat.R$", "attr.actionBarSize");
+            int[] attrs = {resourceId};
+            values = context.getTheme().obtainStyledAttributes(attrs);
             return values.getDimensionPixelSize(0, 0);
+        } catch (ResourceNotFoundException e) {
+            return 0;
         } finally {
-            values.recycle();
+            if (values != null) {
+                values.recycle();
+            }
         }
     }
 	

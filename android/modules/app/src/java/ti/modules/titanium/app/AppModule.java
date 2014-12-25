@@ -444,7 +444,6 @@ public class AppModule extends KrollModule implements SensorEventListener
     @Kroll.method
     @Kroll.getProperty
     public double getDefaultBarHeight() {
-//        return 0;
         return TiActivityHelper.getActionBarHeight(TiApplication.getInstance().getCurrentActivity());
     }
 

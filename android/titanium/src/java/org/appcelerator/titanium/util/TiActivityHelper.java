@@ -8,14 +8,17 @@ import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.ActionBarProxy;
 
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.TypedValue;
 
 public class TiActivityHelper {
     /**
@@ -76,13 +79,9 @@ public class TiActivityHelper {
     public static double getActionBarHeight(final Activity activity) {
         ActionBar actionBar = getActionBar(activity);
         if (actionBar != null) {
-            try {
-                TiDimension nativeHeight = new TiDimension(
-                        actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
-                return nativeHeight.getAsDefault();
-            } catch (NullPointerException e) {
-                // no internal action bar
-            }
+             // Calculate ActionBar height
+            int actionBarHeight = ActionBarProxy.getActionBarSize(activity);
+            return new TiDimension(actionBarHeight, TiDimension.TYPE_HEIGHT).getAsDefault();
         }
         return 0;
     }
