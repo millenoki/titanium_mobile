@@ -77,13 +77,13 @@ public class TiActivityHelper {
     }
     
     public static double getActionBarHeight(final Activity activity) {
-        ActionBar actionBar = getActionBar(activity);
-        if (actionBar != null) {
+//        ActionBar actionBar = getActionBar(activity);
+//        if (actionBar != null) {
              // Calculate ActionBar height
             int actionBarHeight = ActionBarProxy.getActionBarSize(activity);
             return new TiDimension(actionBarHeight, TiDimension.TYPE_HEIGHT).getAsDefault();
-        }
-        return 0;
+//        }
+//        return 0;
     }
     
     public static void setActionBarHidden(final Activity activity, final boolean hidden) {
