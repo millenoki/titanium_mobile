@@ -382,7 +382,7 @@ public class TiCompositeLayout extends FreeLayout implements
 		}
 		int countFillWidth = autoFillWidthViews.size() ;
 		if (countFillWidth > 0) {
-            int counter = 0;
+		    float counter = 0;
 			for (int i = 0; i < countFillWidth; i++) {
 				View child = autoFillWidthViews.get(i);
 				TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
@@ -405,7 +405,7 @@ public class TiCompositeLayout extends FreeLayout implements
 
 		int countFillHeight = autoFillHeightViews.size() ;
 		if (countFillHeight > 0) {
-		    int counter = 0;
+		    float counter = 0;
 			for (int i = 0; i < countFillHeight; i++) {
 				View child = autoFillHeightViews.get(i);
 				TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
@@ -949,28 +949,32 @@ public class TiCompositeLayout extends FreeLayout implements
 			int measuredSize, int layoutPosition0, int layoutPosition1,
 			int[] pos) {
 		int dist = layoutPosition1 - layoutPosition0;
-		if (leftOrTop != null && !leftOrTop.isUnitUndefined()) {
+        final boolean leftTopDef = (leftOrTop != null && !leftOrTop.isUnitUndefined());
+        final boolean rightBotDef = (rightOrBottom != null && !rightOrBottom.isUnitUndefined());
+        if (optionCenter != null && !optionCenter.isUnitUndefined()
+                && optionCenter.getValue() != 0.0) {
+            // Don't calculate position based on center dimension if it's 0.0
+            int halfSize = measuredSize / 2;
+            pos[0] = layoutPosition0 + getLayoutOptionAsPixels(optionCenter, optionCenter.getValueType(), params, parent)
+                    - halfSize;
+            pos[1] = pos[0] + measuredSize;
+        } else if ((leftTopDef && rightBotDef) || (!leftTopDef && !rightBotDef)) {
+         // Center
+            int offset = (dist - measuredSize) / 2;
+            pos[0] = layoutPosition0 + offset;
+            pos[1] = pos[0] + measuredSize;
+        } else if (leftTopDef) {
 			// peg left/top
 			int leftOrTopPixels = getLayoutOptionAsPixels(leftOrTop, leftOrTop.getValueType(), params, parent);
 			pos[0] = layoutPosition0 + leftOrTopPixels;
 			pos[1] = layoutPosition0 + leftOrTopPixels + measuredSize;
-		} else if (optionCenter != null && !optionCenter.isUnitUndefined()
-				&& optionCenter.getValue() != 0.0) {
-			// Don't calculate position based on center dimension if it's 0.0
-			int halfSize = measuredSize / 2;
-			pos[0] = layoutPosition0 + getLayoutOptionAsPixels(optionCenter, optionCenter.getValueType(), params, parent)
-					- halfSize;
-			pos[1] = pos[0] + measuredSize;
-		} else if (rightOrBottom != null && !rightOrBottom.isUnitUndefined()) {
+		} else if (rightBotDef) {
 			// peg right/bottom
 			int rightOrBottomPixels = getLayoutOptionAsPixels(rightOrBottom, rightOrBottom.getValueType(), params, parent);
 			pos[0] = dist - rightOrBottomPixels - measuredSize;
 			pos[1] = dist - rightOrBottomPixels;
 		} else {
-			// Center
-			int offset = (dist - measuredSize) / 2;
-			pos[0] = layoutPosition0 + offset;
-			pos[1] = pos[0] + measuredSize;
+			
 		}
 	}
 
