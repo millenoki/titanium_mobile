@@ -6,7 +6,7 @@
  */
 
 
-#ifdef USE_TI_AUDIO
+#ifdef USE_TI_AUDIOSTREAMER
 
 #import "TiProxy.h"
 #import "ImageLoader.h"

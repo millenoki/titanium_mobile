@@ -6,7 +6,7 @@
  */
 
 
-#ifdef USE_TI_AUDIO
+#ifdef USE_TI_AUDIOSTREAMER
 
 #import <MediaPlayer/MPNowPlayingInfoCenter.h>
 #import <AVFoundation/AVFoundation.h>
