@@ -3460,8 +3460,6 @@
 				B4F97C57111BAD4700E2F72C /* TiUIiPhoneScrollIndicatorStyleProxy.m */,
 				243EC9681126632700639DF4 /* TiUIiPhoneTableViewStyleProxy.h */,
 				243EC9691126632700639DF4 /* TiUIiPhoneTableViewStyleProxy.m */,
-				243ECB2311267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h */,
-				243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */,
 				243ED8EB11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.h */,
 				243ED8EC11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.m */,
 				245B455F1139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.h */,
@@ -3508,6 +3506,9 @@
 		24CA8C63111165890084E2DE /* Tableview & Groupview */ = {
 			isa = PBXGroup;
 			children = (
+				243ECB2311267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.h */,
+				243ECB2411267CC100639DF4 /* TiUITableViewSeparatorStyleProxy.m */,
+				B4D5829511264FF500A6B66C /* TiUITextWidget.h */,
 				D5908158168B593B00362307 /* TiUIHorizontalTableView.m */,
 				D5908159168B593B00362307 /* TiUIHorizontalTableViewProxy.m */,
 				D590815A168B593B00362307 /* TiUIHorizontalTableViewProxy.h */,
@@ -3585,7 +3586,6 @@
 				B4D5828E11264F8600A6B66C /* Textarea */,
 				B4D5828F11264FD000A6B66C /* TiUITextWidgetProxy.h */,
 				B4D5829011264FD000A6B66C /* TiUITextWidgetProxy.m */,
-				B4D5829511264FF500A6B66C /* TiUITextWidget.h */,
 				B4D5829611264FF500A6B66C /* TiUITextWidget.m */,
 			);
 			name = "Text widgets";
