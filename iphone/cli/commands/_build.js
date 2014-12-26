@@ -3444,6 +3444,25 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		}
 	});
 
+	var dependencies = {
+		'ui.listview': ['ui.label', 'ui.imageview'],
+		'ui.textarea': ['ui.textwidget'],
+		'ui.textfield': ['ui.textwidget'],
+		'ui.listviewseparatorstyle': ['ui.tableviewseparatorstyle'],
+		'media': ['filesystem'],
+		'audio': ['filesystem'],
+		'database': ['filesystem'],
+	};
+	for (var key in dependencies) {
+		if (dependencies.hasOwnProperty(key)) {
+			var depend = key.replace(/^(Ti|Titanium)./, '').split('.').join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(/\-/g, '_').toUpperCase();
+			if (symbols[depend] === 1) {
+				dependencies[key].forEach(addSymbol);
+			}
+		}
+	}
+
+	this.logger.info(__('symbols %s', JSON.stringify(symbols)));
 	// for each Titanium namespace, copy any resources
 	this.logger.info(__('Processing Titanium namespace resources'));
 	Object.keys(namespaces).forEach(function (ns) {
@@ -3458,14 +3477,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 	if (this.target === 'simulator' || this.includeAllTiModules) {
 		return finished();
 	}
-
-	if (symbols['FILESYSTEM'] !== 1 && 
-		(symbols['MEDIA'] === 1 || 
-			symbols['AUDIO'] === 1  || 
-			symbols['DATABASE'] === 1 )) {
-		symbols.push('FILESYSTEM');
-	}
-
 	// build the defines.h file
 	var dest = path.join(this.buildDir, 'Classes', 'defines.h'),
 		contents = [
@@ -3477,6 +3488,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 	contents = contents.concat(Object.keys(symbols).sort().map(function (s) {
 		return '#define USE_TI_' + s;
 	}));
+
 
 	var infoPlist = this.infoPlist;
 	if (!infoPlist) {
@@ -3490,23 +3502,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		contents.push('#define USE_TI_FETCH');
 	}
 
-	contents.push(
-		'#ifdef USE_TI_UILISTVIEW',
-		'#define USE_TI_UILABEL',
-		'#define USE_TI_UIBUTTON',
-		'#define USE_TI_UIIMAGEVIEW',
-		'#define USE_TI_UIPROGRESSBAR',
-		'#define USE_TI_UIACTIVITYINDICATOR',
-		'#define USE_TI_UISWITCH',
-		'#define USE_TI_UISLIDER',
-		'#define USE_TI_UITEXTFIELD',
-		'#define USE_TI_UITEXTAREA',
-		'#endif'
-	);
-
-    contents.push('#ifdef USE_TI_UILISTVIEWSEPARATORSTYLE',
-        '#define USE_TI_UITABLEVIEWSEPARATORSTYLE',
-        '#endif');
     contents = contents.join('\n');
 
 	if (!fs.existsSync(dest) || fs.readFileSync(dest).toString() !== contents) {
