@@ -3399,13 +3399,15 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 
 iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 	var namespaces = {
-			'analytics': 1,
 			'api': 1,
 			'network': 1,
 			'platform': 1,
 			'ui': 1
 		},
 		symbols = {};
+	if (!this.tiapp.hasOwnProperty('analytics') ||  !!this.tiapp.analytics) {
+		namespaces['analytics'] = 1;
+	}
 
 	// generate the default symbols
 	Object.keys(namespaces).forEach(function (ns) {
