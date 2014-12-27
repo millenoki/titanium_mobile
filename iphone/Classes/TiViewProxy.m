@@ -3145,11 +3145,25 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     UIView * ourView = [self parentViewForChild:child];
     if (!ourView) return CGRectZero;
     CGRect result = [ourView bounds];
-    if (!TiLayoutFlagsHasHorizontalWrap(&layoutProperties)) {
-        result.size.width -= horizontalLayoutBoundary;
+    BOOL autoWidth = [self widthIsAutoSize];
+    BOOL autoHeight = [self heightIsAutoSize];
+    if (autoWidth || autoHeight) {
+        CGRect parentBounds = [[self viewParent] boundsForMeasureForChild:self];
+        if (!CGSizeEqualToSize(parentBounds.size, CGSizeZero)) {
+            if (autoWidth) {
+                result.size.width = parentBounds.size.width;
+            }
+            if (autoHeight) {
+                result.size.height = parentBounds.size.height;
+            }
+        }
+        
     }
-    result.size.height -= verticalLayoutBoundary;
-    return [ourView bounds];
+//    if (!TiLayoutFlagsHasHorizontalWrap(&layoutProperties)) {
+//        result.size.width -= horizontalLayoutBoundary;
+//    }
+//    result.size.height -= verticalLayoutBoundary;
+    return result;
 }
 
 -(NSArray*)measureChildren:(NSArray*)childArray
@@ -3340,6 +3354,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     __block BOOL fullscreen = childConstraint->fullscreen;
     __block BOOL autoSizeComputed = FALSE;
     __block BOOL recalculateWidth = NO;
+    UIView *parentView = [self parentViewForChild:child];
     __block CGFloat boundingWidth = bounds.size.width;
     __block CGFloat boundingHeight = bounds.size.height;
     if (boundingHeight < 0) {

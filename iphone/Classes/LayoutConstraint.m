@@ -92,7 +92,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 //        if (followsFillHBehavior) {
 //            result.height -= offsety;
 //        }
-        result = minmaxSize(constraint, result, (ignoreWPercent || ignoreHPercent)?parentSize:referenceSize);
+//        result = minmaxSize(constraint, result, (ignoreWPercent || ignoreHPercent)?parentSize:referenceSize);
 //        result.width += offsetx;
 //        result.height += offsety;
         
@@ -359,7 +359,9 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint * const
     ignoreMargins = NO;
     CGFloat frameTop = 0.0;
     parentSize = sandboxSize;
-    if (horizontalNoWrap) parentSize = referenceSize;
+    if ((!horizontal && !vertical) || horizontalNoWrap) {
+        parentSize = referenceSize;
+    }
     if(!flexibleSize) {
         if (TiDimensionIsUndefined(constraint->height)) {
             ignoreMargins = TiDimensionDidCalculateValue(constraint->centerY, referenceSize.height, &centerY);
