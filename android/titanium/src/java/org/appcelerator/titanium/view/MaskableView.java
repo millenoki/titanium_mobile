@@ -1,21 +1,16 @@
 package org.appcelerator.titanium.view;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Shader;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
@@ -130,7 +125,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 //	}
 //}
 
-public class MaskableView extends FreeLayout implements OnGlobalLayoutListener {
+public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutListener {
 
     // Constants
     private static final String TAG = "MaskableView";
@@ -164,8 +159,7 @@ public class MaskableView extends FreeLayout implements OnGlobalLayoutListener {
     private Drawable mDrawableMask = null;
 
     private Bitmap mFinalMask = null;
-    
-    private MaskableView mOnDrawnListener = null;
+    private boolean enabled = false;
 
     // Drawing props
     private Paint mPaint = null;
@@ -177,7 +171,6 @@ public class MaskableView extends FreeLayout implements OnGlobalLayoutListener {
 
     public MaskableView(Context context) {
         super(context);
-        construct(context);
     }
 
     public MaskableView(Context context, AttributeSet attrs) {
@@ -191,7 +184,6 @@ public class MaskableView extends FreeLayout implements OnGlobalLayoutListener {
     private void construct(Context context) {
         mHandler = new Handler();
         mPaint = createPaint();
-        // registerMeasure();
     }
     
     private void disableHWAcceleration() {
@@ -225,12 +217,7 @@ public class MaskableView extends FreeLayout implements OnGlobalLayoutListener {
         if (mDrawableMask instanceof AnimationDrawable) {
             mDrawableMask.setCallback(this);
         }
-        if (mDrawableMask != null) {
-            disableHWAcceleration();
-        }
-        else {
-            enableHWAcceleration();
-        }
+        updateEnabledState();
     }
 
     public Drawable getDrawableMask() {
@@ -301,18 +288,36 @@ public class MaskableView extends FreeLayout implements OnGlobalLayoutListener {
         swapBitmapMask(makeBitmapMask(mDrawableMask));
         invalidate();
     }
+    
+    private void updateEnabledState() {
+        boolean newEnabled = (mDrawableMask != null || mMaskView != null);
+        if (newEnabled != enabled) {
+            enabled = newEnabled;
+            if (enabled) {
+                if (mPaint == null) {
+                    construct(getContext());
+                }
+                disableHWAcceleration();
+            }
+            else {
+                enableHWAcceleration();
+            }
+        }
+    }
 
 //     Once the size has changed we need to remake the mask.
      @Override
      protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-     super.onSizeChanged(w, h, oldw, oldh);
-         setSize(w, h);
+         super.onSizeChanged(w, h, oldw, oldh);
+         if (enabled) {
+             setSize(w, h);
+         }
      }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
-        if (changed) {
+        if (enabled && changed) {
             setSize(getMeasuredWidth(), getMeasuredHeight());
         }
     }
@@ -341,16 +346,21 @@ public class MaskableView extends FreeLayout implements OnGlobalLayoutListener {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        drawMask(canvas);
+        if (enabled) {
+            drawMask(canvas);
+        }
     }
 
     @Override
     public void draw(Canvas canvas) {
-        maskindispatch = false;
-        super.draw(canvas);
-
-        maskindispatch = true;
-        drawMask(canvas);
+        if (enabled) {
+            maskindispatch = false;
+            super.draw(canvas);
+            maskindispatch = true;
+            drawMask(canvas);
+        } else {
+            super.draw(canvas);
+        }
     }
     
     private View mMaskView = null;
@@ -375,13 +385,12 @@ public class MaskableView extends FreeLayout implements OnGlobalLayoutListener {
     public void setMaskView(View maskView) {
         if (maskView == null) {
             clearMaskView();
-            enableHWAcceleration();
         }
         else {
             mMaskView = maskView;
-            disableHWAcceleration();
             addObserverForView(mMaskView);
         }
+        updateEnabledState();
         invalidate();
     }
     
