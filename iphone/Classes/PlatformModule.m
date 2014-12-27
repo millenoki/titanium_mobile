@@ -166,6 +166,7 @@
 {
     return @{
         @"dpi": [[self displayCaps] dpi],
+        @"osname": [self valueForKey:@"osname"],
         @"density": [[self displayCaps] density],
         @"version": [self version],
         @"name": [self name],
