@@ -4059,21 +4059,21 @@ AndroidBuilder.prototype.compileJavaClasses = function compileJavaClasses(next) 
             var libDir = path.join(module.modulePath, 'lib'),
                 jarRegExp = /\.jar$/;
 
-			fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
-				var jarFile = path.join(libDir, name);
-				if (jarRegExp.test(name) && fs.existsSync(jarFile)) {
-					var jarHash = this.hash(fs.readFileSync(jarFile).toString());
-					if (!jarNames[jarHash]) {
-						moduleJars[jarFile] = 1;
-						classpath[jarFile] = 1;
-						jarNames[jarHash] = 1;
-					} else {
-						this.logger.debug(__('Skipping duplicate jar file: %s', jarFile.cyan));
-					}
-				}
-			}, this);
-		}
-	}, this);
+            fs.existsSync(libDir) && fs.readdirSync(libDir).forEach(function (name) {
+                var jarFile = path.join(libDir, name);
+                if (jarRegExp.test(name) && (!this.needsGooglePlayServices || !/google-play-services_/.test(name)) && fs.existsSync(jarFile)) {
+                    var jarHash = this.hash(fs.readFileSync(jarFile).toString());
+                    if (!jarNames[jarHash]) {
+                        moduleJars[jarFile] = 1;
+                        classpath[jarFile] = 1;
+                        jarNames[jarHash] = 1;
+                    } else {
+                        this.logger.debug(__('Skipping duplicate jar file: %s', jarFile.cyan));
+                    }
+                }
+            }, this);
+        }
+    }, this);
 
     if (!this.forceRebuild) {
         // if we don't have to compile the java files, then we can return here
