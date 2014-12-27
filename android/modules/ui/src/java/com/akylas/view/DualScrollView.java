@@ -1,6 +1,5 @@
 package com.akylas.view;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Canvas;
