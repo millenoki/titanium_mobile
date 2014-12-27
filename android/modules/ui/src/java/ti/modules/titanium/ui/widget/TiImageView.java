@@ -576,39 +576,45 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 		int maxWidth = 0;
 		int maxHeight = 0;
 
-//		if (DBG) {
-		int w = MeasureSpec.getSize(widthMeasureSpec);
-		int wm = MeasureSpec.getMode(widthMeasureSpec);
-		int h = MeasureSpec.getSize(heightMeasureSpec);
-		int hm = MeasureSpec.getMode(heightMeasureSpec);
+		int measuredWidth = getMeasuredWidth();
+        int measuredHeight = getMeasuredHeight();
+        maxWidth = Math.max(maxWidth, measuredWidth);
+        maxHeight = Math.max(maxHeight, measuredHeight);
+        if (getImageDrawable() != null) {
+            int w = MeasureSpec.getSize(widthMeasureSpec);
+            int wm = MeasureSpec.getMode(widthMeasureSpec);
+            int h = MeasureSpec.getSize(heightMeasureSpec);
+            int hm = MeasureSpec.getMode(heightMeasureSpec);
 
-//			Log.i(TAG, "w: " + w + " wm: " + wm + " h: " + h + " hm: " + hm);
-//		}
-
-		// TODO padding and margins
-
-		measureChild(imageView, widthMeasureSpec, heightMeasureSpec);
-		int measuredWidth = imageView.getMeasuredWidth();
-		int measuredHeight = imageView.getMeasuredHeight();
+            measureChild(imageView, widthMeasureSpec, heightMeasureSpec);
+            measuredWidth = imageView.getMeasuredWidth();
+            measuredHeight = imageView.getMeasuredHeight();
+            if (measuredWidth > 0 && measuredHeight > 0) {
+                if(hm == MeasureSpec.EXACTLY && (wm == MeasureSpec.AT_MOST || wm == MeasureSpec.UNSPECIFIED)) { 
+                    maxHeight = Math.max(h, Math.max(maxHeight, measuredHeight));
+                    float ratio =  getImageRatio();
+                    maxWidth = (int) Math.floor(maxHeight * ratio);
+                }
+                else if(wm == MeasureSpec.EXACTLY && (hm == MeasureSpec.AT_MOST || hm == MeasureSpec.UNSPECIFIED)) { 
+                    maxWidth = Math.max(w, Math.max(maxWidth, measuredWidth));
+                    float ratio =  getImageRatio();
+                    if (ratio > 0)
+                        maxHeight = (int) Math.floor(maxWidth / ratio);
+                }
+                else {
+                    maxWidth = Math.max(maxWidth, measuredWidth);
+                    maxHeight = Math.max(maxHeight, measuredHeight);
+                }
+            }
+        }
+//        else {
+//            maxWidth = Math.max(maxWidth, measuredWidth);
+//            maxHeight = Math.max(maxHeight, measuredHeight);
+//        }
 		
 		
-		if (measuredWidth > 0 && measuredHeight > 0) {
-			if(hm == MeasureSpec.EXACTLY && (wm == MeasureSpec.AT_MOST || wm == MeasureSpec.UNSPECIFIED)) { 
-				maxHeight = Math.max(h, Math.max(maxHeight, measuredHeight));
-				float ratio =  getImageRatio();
-				maxWidth = (int) Math.floor(maxHeight * ratio);
-			}
-			else if(wm == MeasureSpec.EXACTLY && (hm == MeasureSpec.AT_MOST || hm == MeasureSpec.UNSPECIFIED)) { 
-				maxWidth = Math.max(w, Math.max(maxWidth, measuredWidth));
-				float ratio =  getImageRatio();
-				if (ratio > 0)
-					maxHeight = (int) Math.floor(maxWidth / ratio);
-			}
-			else {
-				maxWidth = Math.max(maxWidth, measuredWidth);
-				maxHeight = Math.max(maxHeight, measuredHeight);
-			}
-		}
+		
+		
 
 		
 		// Allow for zoom controls.
