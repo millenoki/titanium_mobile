@@ -32,7 +32,6 @@ public class ViewProxy extends TiViewProxy {
 		params.sizeOrFillWidthEnabled = true;
 		params.sizeOrFillHeightEnabled = true;
 		params.autoFillsHeight = true;
-		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
 		return view; 
 	}
