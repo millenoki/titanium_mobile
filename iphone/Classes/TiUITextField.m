@@ -27,49 +27,49 @@
 -(void)configure
 {
     _padding = UIEdgeInsetsMake(0, 5, 0, 5);
-	[super setLeftViewMode:UITextFieldViewModeAlways];
-	[super setRightViewMode:UITextFieldViewModeAlways];
+    [super setLeftViewMode:UITextFieldViewModeAlways];
+    [super setRightViewMode:UITextFieldViewModeAlways];
     _hintColor = nil;
 }
 
 -(void)dealloc
 {
-	[super dealloc];
+    [super dealloc];
 }
 
 -(void)setTouchHandler:(TiUIView*)handler
 {
-	touchHandler = handler;
+    touchHandler = handler;
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	[touchHandler processTouchesBegan:touches withEvent:event];
-	[super touchesBegan:touches withEvent:event];
+    [touchHandler processTouchesBegan:touches withEvent:event];
+    [super touchesBegan:touches withEvent:event];
 }
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	[touchHandler processTouchesMoved:touches withEvent:event];
-	[super touchesMoved:touches withEvent:event];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-	[touchHandler processTouchesEnded:touches withEvent:event];
-	[super touchesEnded:touches withEvent:event];
+    [touchHandler processTouchesMoved:touches withEvent:event];
+    [super touchesMoved:touches withEvent:event];
 }
 
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	[touchHandler processTouchesCancelled:touches withEvent:event];
-	[super touchesCancelled:touches withEvent:event];
+    [touchHandler processTouchesEnded:touches withEvent:event];
+    [super touchesEnded:touches withEvent:event];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [touchHandler processTouchesCancelled:touches withEvent:event];
+    [super touchesCancelled:touches withEvent:event];
 }
 
 -(UIView*)newPadView:(CGFloat)width height:(CGFloat)height
 {
-	UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
-	view.backgroundColor = [UIColor clearColor];
-	return view;
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+    view.backgroundColor = [UIColor clearColor];
+    return view;
 }
 
 -(void)setPadding:(UIEdgeInsets)value
@@ -79,7 +79,7 @@
 }
 -(BOOL)canBecomeFirstResponder
 {
-	return self.isEnabled;
+    return self.isEnabled;
 }
 
 -(BOOL)resignFirstResponder
@@ -92,8 +92,8 @@
         }
         return YES;
     }
-
-	return NO;
+    
+    return NO;
 }
 
 -(BOOL)becomeFirstResponder
@@ -110,8 +110,8 @@
 
 -(BOOL)isFirstResponder
 {
-	if (becameResponder) return YES;
-	return [super isFirstResponder];
+    if (becameResponder) return YES;
+    return [super isFirstResponder];
 }
 
 - (CGRect)textRectForBounds:(CGRect)bounds
@@ -137,20 +137,20 @@
 
 - (CGRect)leftViewRectForBounds:(CGRect)bounds
 {
-    if ([[self leftView] isKindOfClass:[TiUIView class]]){
-        TiViewProxy* proxy  = (TiViewProxy*)[((TiUIView*)[self leftView]) proxy];
-        CGRect frame = [proxy computeBoundsForParentBounds:bounds];
-        return frame;
+    UIView* view = [self leftView];
+    if ([view isKindOfClass:[TiUIView class]]){
+        TiViewProxy* proxy  = (TiViewProxy*)[((TiUIView*)view) proxy];
+        return [proxy computeBoundsForParentBounds:bounds];
     }
-    return [super rightViewRectForBounds:bounds];
+    return [super leftViewRectForBounds:bounds];
 }
 
 - (CGRect)rightViewRectForBounds:(CGRect)bounds
 {
-    if ([[self rightView] isKindOfClass:[TiUIView class]]){
-        TiViewProxy* proxy  = (TiViewProxy*)[((TiUIView*)[self rightView]) proxy];
-        CGRect frame = [proxy computeBoundsForParentBounds:bounds];
-        return frame;
+    UIView* view = [self rightView];
+    if ([view isKindOfClass:[TiUIView class]]){
+        TiViewProxy* proxy  = (TiViewProxy*)[((TiUIView*)view) proxy];
+        return [proxy computeBoundsForParentBounds:bounds];
     }
     return [super rightViewRectForBounds:bounds];
 }
@@ -216,44 +216,44 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-	[TiUtils setView:textWidgetView positionRect:bounds];
-	[super frameSizeChanged:frame bounds:bounds];
+    [TiUtils setView:textWidgetView positionRect:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 - (void) dealloc
 {
-	WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
-	[super dealloc];
+    WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
+    [super dealloc];
 }
 
 
 -(UIView<UITextInputTraits>*)textWidgetView
 {
-	if (textWidgetView==nil)
-	{
+    if (textWidgetView==nil)
+    {
         TiTextField* textfield = [[TiTextField alloc] initWithFrame:CGRectZero];
         textWidgetView = textfield;
-//        textfield.backgroundColor = [UIColor clearColor];
-		textfield.delegate = self;
-		textfield.text = @"";
-		textfield.textAlignment = UITextAlignmentLeft;
-		textfield.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
-		[textfield configure];
-		[textfield setTouchHandler:self];
-		[self addSubview:textWidgetView];
-		self.clipsToBounds = YES;
-		WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
-		NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
-		[theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
-	}
-	return textWidgetView;
+        //        textfield.backgroundColor = [UIColor clearColor];
+        textfield.delegate = self;
+        textfield.text = @"";
+        textfield.textAlignment = UITextAlignmentLeft;
+        textfield.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+        [textfield configure];
+        [textfield setTouchHandler:self];
+        [self addSubview:textWidgetView];
+        self.clipsToBounds = YES;
+        WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+        NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
+        [theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
+    }
+    return textWidgetView;
 }
 
 -(void)setExclusiveTouch:(BOOL)value
 {
     [super setExclusiveTouch:value];
-	[[self textWidgetView] setExclusiveTouch:value];
+    [[self textWidgetView] setExclusiveTouch:value];
 }
 
 #pragma mark Public APIs
@@ -265,8 +265,8 @@
 
 -(void)setEditable_:(id)value
 {
-	BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
-	[[self textWidgetView] setEnabled:_trulyEnabled];
+    BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
+    [[self textWidgetView] setEnabled:_trulyEnabled];
     [self setBgState:UIControlStateNormal];
 }
 
@@ -276,20 +276,20 @@
 
 -(void)setCustomUserInteractionEnabled:(BOOL)value
 {
-	BOOL _trulyEnabled = (value && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
+    BOOL _trulyEnabled = (value && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"editable"] def:YES]);
     [super setCustomUserInteractionEnabled:_trulyEnabled];
-	[[self textWidgetView] setEnabled:_trulyEnabled];
+    [[self textWidgetView] setEnabled:_trulyEnabled];
 }
 
 -(void)setHintText_:(id)value
 {
-	[[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
+    [[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
 }
 
 
 -(void)setHintColor_:(id)value
 {
-	[self textWidgetView].hintColor = [[TiUtils colorValue:value] color];
+    [self textWidgetView].hintColor = [[TiUtils colorValue:value] color];
 }
 
 -(void)setAttributedHintText_:(id)value
@@ -302,32 +302,32 @@
 
 -(void)setMinimumFontSize_:(id)value
 {
-	CGFloat newSize = [TiUtils floatValue:value];
-	if (newSize < 4) {
-		[[self textWidgetView] setAdjustsFontSizeToFitWidth:NO];
-		[[self textWidgetView] setMinimumFontSize:0.0];
-	}
-	else {
-		[[self textWidgetView] setAdjustsFontSizeToFitWidth:YES];
-		[[self textWidgetView] setMinimumFontSize:newSize];
-	}
+    CGFloat newSize = [TiUtils floatValue:value];
+    if (newSize < 4) {
+        [[self textWidgetView] setAdjustsFontSizeToFitWidth:NO];
+        [[self textWidgetView] setMinimumFontSize:0.0];
+    }
+    else {
+        [[self textWidgetView] setAdjustsFontSizeToFitWidth:YES];
+        [[self textWidgetView] setMinimumFontSize:newSize];
+    }
 }
 
 -(void)setClearOnEdit_:(id)value
 {
-	[[self textWidgetView] setClearsOnBeginEditing:[TiUtils boolValue:value]];
+    [[self textWidgetView] setClearsOnBeginEditing:[TiUtils boolValue:value]];
 }
 
 -(void)setBorderStyle_:(id)value
 {
-	TiThreadPerformOnMainThread(^{
-		[[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
-	}, NO);
+    TiThreadPerformOnMainThread(^{
+        [[self textWidgetView] setBorderStyle:[TiUtils intValue:value]];
+    }, NO);
 }
 
 -(void)setClearButtonMode_:(id)value
 {
-	[[self textWidgetView] setClearButtonMode:[TiUtils intValue:value]];
+    [[self textWidgetView] setClearButtonMode:[TiUtils intValue:value]];
 }
 
 //TODO: rename
@@ -336,21 +336,25 @@
 {
     TiViewProxy* vp = ( TiViewProxy*)[(TiUITextWidgetProxy*)self.proxy createChildFromObject:value];
     UIView* leftView = [[self textWidgetView] leftView];
-	if ([leftView isKindOfClass:[TiUIView class]]){
+    if ([leftView isKindOfClass:[TiUIView class]]){
         TiViewProxy* oldVp = (TiViewProxy*)[((TiUIView*)leftView) proxy];
         [oldVp detachView];
         [oldVp setParent:nil];
         [self.proxy forgetProxy:oldVp];
+        [self.proxy removeBindingForKey:@"__leftButton__"];
         leftView = nil;
     }
     if (vp) {
+        // to make sure the proxy is not released
+        //we need the proxy to be retained to compute the rect
+        [self.proxy addBinding:vp forKey:@"__leftButton__"];
         [vp setParent:(TiParentingProxy*)self.proxy];
         LayoutConstraint* constraint = [vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->left))
         {
             constraint->left = TiDimensionDip(0);
         }
-		leftView = [vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
+        leftView = [vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
         
     }
     [[self textWidgetView] setLeftView:leftView];
@@ -358,28 +362,32 @@
 
 -(void)setLeftButtonMode_:(id)value
 {
-	[[self textWidgetView] setLeftViewMode:[TiUtils intValue:value]];
+    [[self textWidgetView] setLeftViewMode:[TiUtils intValue:value]];
 }
 
 -(void)setRightButton_:(id)value
 {
     TiViewProxy* vp = ( TiViewProxy*)[(TiUITextWidgetProxy*)self.proxy createChildFromObject:value];
     UIView* rightView = [[self textWidgetView] rightView];
-	if ([rightView isKindOfClass:[TiUIView class]]){
+    if ([rightView isKindOfClass:[TiUIView class]]){
         TiViewProxy* oldVp = (TiViewProxy*)[((TiUIView*)rightView) proxy];
         [oldVp detachView];
         [oldVp setParent:nil];
         [self.proxy forgetProxy:oldVp];
+        [self.proxy removeBindingForKey:@"__rightButton__"];
         rightView = nil;
     }
     if (vp) {
+        // to make sure the proxy is not released
+        //we need the proxy to be retained to compute the rect
+        [self.proxy addBinding:vp forKey:@"__rightButton__"];
         [vp setParent:(TiParentingProxy*)self.proxy];
         LayoutConstraint* constraint = [vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->right))
         {
             constraint->right = TiDimensionDip(0);
         }
-		rightView = [vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
+        rightView = [vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
         
     }
     [[self textWidgetView] setRightView:rightView];
@@ -387,7 +395,7 @@
 
 -(void)setRightButtonMode_:(id)value
 {
-	[[self textWidgetView] setRightViewMode:[TiUtils intValue:value]];
+    [[self textWidgetView] setRightViewMode:[TiUtils intValue:value]];
 }
 
 -(void)setVerticalAlign_:(id)value
@@ -400,8 +408,8 @@
 
 -(BOOL)hasText
 {
-	UITextField *f = [self textWidgetView];
-	return [[f text] length] > 0;
+    UITextField *f = [self textWidgetView];
+    return [[f text] length] > 0;
 }
 
 #pragma mark UITextFieldDelegate
@@ -418,8 +426,8 @@
     }
     [self setViewState:UIControlStateHighlighted];
     
-	[self textWidget:tf didFocusWithText:[tf text]];
-	[self performSelector:@selector(textFieldDidChange:) onThread:[NSThread currentThread] withObject:nil waitUntilDone:NO];
+    [self textWidget:tf didFocusWithText:[tf text]];
+    [self performSelector:@selector(textFieldDidChange:) onThread:[NSThread currentThread] withObject:nil waitUntilDone:NO];
 }
 
 
@@ -427,18 +435,18 @@
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField;        // return NO to disallow editing.
 {
-	return YES;
+    return YES;
 }
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-	NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
-   
+    NSString *curText = [[tf text] stringByReplacingCharactersInRange:range withString:string];
+    
     if ( (maxLength > -1) && ([curText length] > maxLength) ) {
         [self setValue_:curText];
         return NO;
     }
-	return YES;
+    return YES;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)tf
@@ -446,7 +454,7 @@
     if (!_editing) return;
     _editing = NO;
     [self setViewState:-1];
-	[self textWidget:tf didBlurWithText:[tf text]];
+    [self textWidget:tf didBlurWithText:[tf text]];
 }
 
 - (void)textFieldDidChange:(NSNotification *)notification
@@ -454,7 +462,7 @@
     TiUITextWidgetProxy * ourProxy = (TiUITextWidgetProxy *)[self proxy];
     
     
-   //TIMOB-14563. This is incorrect when passowrd mark is used. Just ignore.
+    //TIMOB-14563. This is incorrect when passowrd mark is used. Just ignore.
     if ([ourProxy suppressFocusEvents]) {
         return;
     }
@@ -463,39 +471,39 @@
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)tf
 {
-	return YES;
+    return YES;
 }
 
 - (BOOL)textFieldShouldClear:(UITextField *)tf
 {
-	// we notify proxy so he can serialize in the model
-	[(TiUITextFieldProxy *)self.proxy noteValueChange:@""];
-	return YES;
+    // we notify proxy so he can serialize in the model
+    [(TiUITextFieldProxy *)self.proxy noteValueChange:@""];
+    return YES;
 }
 
--(BOOL)textFieldShouldReturn:(UITextField *)tf 
+-(BOOL)textFieldShouldReturn:(UITextField *)tf
 {
     if ([(TiViewProxy*)self.proxy _hasListeners:@"return" checkParent:NO])
-	{
-		[self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"] propagate:NO checkForListener:NO];
-	}
+    {
+        [self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:[tf text] forKey:@"value"] propagate:NO checkForListener:NO];
+    }
     
     if ([self textWidgetView].returnKeyType == UIReturnKeyNext)
     {
         return ![(TiUITextWidgetProxy *)self.proxy selectNextTextWidget];
     }
-
-	if (suppressReturn)
-	{
-		[tf resignFirstResponder];
-		return NO;
-	}
-	return YES;
+    
+    if (suppressReturn)
+    {
+        [tf resignFirstResponder];
+        return NO;
+    }
+    return YES;
 }
 
 -(CGSize)contentSizeForSize:(CGSize)size
 {
-	return [[self textWidgetView] sizeThatFits:size];
+    return [[self textWidgetView] sizeThatFits:size];
 }
 
 @end
