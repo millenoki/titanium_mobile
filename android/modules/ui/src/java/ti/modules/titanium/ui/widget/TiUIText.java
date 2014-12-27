@@ -191,7 +191,6 @@ public class TiUIText extends TiUINonViewGroupView
 
 	public class FocusFixedEditText extends LinearLayout {
 		TiEditText editText;
-		LinearLayout layout;
 		protected TiCompositeLayout leftPane;
 		protected TiCompositeLayout rightPane;
 		private TiViewProxy leftView;
@@ -203,7 +202,6 @@ public class TiUIText extends TiUINonViewGroupView
 		}
 
 		private void init(Context context) {
-			layout = this;
 			this.setFocusableInTouchMode(true);
 			this.setFocusable(true);
 			this.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
@@ -224,7 +222,7 @@ public class TiUIText extends TiUINonViewGroupView
 
 			editText = new TiEditText(context);
 			editText.setId(200);
-			params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1);
+			params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 			this.addView(editText, params);
 
 			rightPane = new TiCompositeLayout(context);
@@ -235,8 +233,7 @@ public class TiUIText extends TiUINonViewGroupView
 			rightPane.setFocusable(false);
 			params = createBaseParams();
 			params.gravity = Gravity.CENTER;
-			layout.addView(rightPane, params);
-
+			this.addView(rightPane, params);
 		}
 
 		public FocusFixedEditText(Context context) {
@@ -910,9 +907,9 @@ public class TiUIText extends TiUINonViewGroupView
 		
 		//setSingleLine() append the flag TYPE_TEXT_FLAG_MULTI_LINE to the current inputType, so we want to call this
 		//after we set inputType.
-		if (!field) {
-			realtv.setSingleLine(false);
-		}
+//		if (!field) {
+//			realtv.setSingleLine(false);
+//		}
 
 	}
 
