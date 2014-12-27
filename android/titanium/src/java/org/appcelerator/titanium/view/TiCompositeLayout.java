@@ -1320,6 +1320,18 @@ public class TiCompositeLayout extends FreeLayout implements
                 autoFillsHeight = true;
             }
         }
+		
+		public LayoutParams(int width, int height) {
+            super(width, height);
+            if (width == MATCH_PARENT) {
+                sizeOrFillWidthEnabled = true;
+                autoFillsWidth = true;
+            }
+            if (height == MATCH_PARENT) {
+                sizeOrFillHeightEnabled = true;
+                autoFillsHeight = true;
+            }
+        }
 
         public boolean autoSizeHeight() {
 			return ((!this.sizeOrFillHeightEnabled && !this.autoFillsHeight && this.optionHeight == null) || (this.sizeOrFillHeightEnabled && !this.autoFillsHeight));
