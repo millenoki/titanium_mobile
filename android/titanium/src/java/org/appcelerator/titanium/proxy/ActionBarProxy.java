@@ -6,6 +6,9 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -45,7 +48,7 @@ import android.view.View;
 		TiC.PROPERTY_ICON
 })
 
-public class ActionBarProxy extends KrollProxy
+public class ActionBarProxy extends ReusableProxy
 {
     private static final boolean JELLY_BEAN_MR1_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1);
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
@@ -66,24 +69,26 @@ public class ActionBarProxy extends KrollProxy
 	private static final int MSG_SET_DISPLAY_SHOW_HOME = MSG_FIRST_ID + 114;
 	private static final int MSG_SET_DISPLAY_SHOW_TITLE = MSG_FIRST_ID + 115;
     private static final int MSG_SET_BACKGROUND_OPACITY = MSG_FIRST_ID + 116;
+    private static final int MSG_SET_CUSTOMVIEW = MSG_FIRST_ID + 117;
 
-	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
-	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
-	private static final String BACKGROUND_IMAGE = "backgroundImage";
-	private static final String TITLE = "title";
-	private static final String LOGO = "logo";
-	private static final String ICON = "icon";
-	private static final String NAVIGATION_MODE = "navigationMode";
+//	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
+//	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
+//	private static final String BACKGROUND_IMAGE = "backgroundImage";
+//	private static final String TITLE = "title";
+//	private static final String LOGO = "logo";
+//	private static final String ICON = "icon";
+//	private static final String NAVIGATION_MODE = "navigationMode";
 	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
 	private Drawable themeBackgroundDrawable;
 	private Drawable themeIconDrawable = null;
-	private boolean showTitleEnabled = true;
+    private boolean showTitleEnabled = true;
 	private int defaultColor = 0;
 	private boolean customBackgroundSet = false;
     private Drawable mActionBarBackgroundDrawable;
     private int backgroundAlpha = 255;
+    private TiViewProxy customView = null;
     
     private Drawable.Callback mDrawableCallback = new Drawable.Callback() {
         @Override
@@ -207,26 +212,26 @@ public class ActionBarProxy extends KrollProxy
         }
     }
 
-	@Kroll.method @Kroll.setProperty
+//	@Kroll.method @Kroll.setProperty
 	private void setDisplayHomeAsUp(boolean showHomeAsUp)
 	{
 		if(TiApplication.isUIThread()) {
 			handlesetDisplayHomeAsUp(showHomeAsUp);
 		} else {
-			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, showHomeAsUp);
-			message.getData().putBoolean(SHOW_HOME_AS_UP, showHomeAsUp);
+			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, Boolean.valueOf(showHomeAsUp));
+//			message.getData().putBoolean(SHOW_HOME_AS_UP, showHomeAsUp);
 			message.sendToTarget();
 		}
 	}
 
-	@Kroll.method @Kroll.setProperty
+//	@Kroll.method @Kroll.setProperty
 	public void setNavigationMode(int navigationMode)
 	{
 		if (TiApplication.isUIThread()) {
 			handlesetNavigationMode(navigationMode);
 		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_NAVIGATION_MODE, navigationMode);
-			message.getData().putInt(NAVIGATION_MODE, navigationMode);
+			Message message = getMainHandler().obtainMessage(MSG_SET_NAVIGATION_MODE, Integer.valueOf(navigationMode));
+//			message.getData().putInt(NAVIGATION_MODE, navigationMode);
 			message.sendToTarget();
 		}
 	}
@@ -237,7 +242,7 @@ public class ActionBarProxy extends KrollProxy
 			handleSetBackgroundImage(url);
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_SET_BACKGROUND_IMAGE, url);
-			message.getData().putString(BACKGROUND_IMAGE, url);
+//			message.getData().putString(BACKGROUND_IMAGE, url);
 			message.sendToTarget();
 		}
 	}
@@ -269,28 +274,36 @@ public class ActionBarProxy extends KrollProxy
         }
     }
 
-	@Kroll.method @Kroll.setProperty
 	public void setTitle(String title)
 	{
 		if (TiApplication.isUIThread()) {
 			handleSetTitle(title);
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_SET_TITLE, title);
-			message.getData().putString(TITLE, title);
 			message.sendToTarget();
 		}
 	}
+	
+	public void setCustomView(Object view)
+    {
+        if (TiApplication.isUIThread()) {
+            handleSetCustomView(view);
+        } else {
+            Message message = getMainHandler().obtainMessage(MSG_SET_CUSTOMVIEW, view);
+            message.sendToTarget();
+        }
+    }
 
-	@Kroll.method @Kroll.getProperty
-	public String getTitle()
-	{
-		if (actionBar == null) {
-			return null;
-		}
-		return (String) actionBar.getTitle();
-	}
 
-	@Kroll.method @Kroll.setProperty
+//	@Kroll.method
+//	public String getTitle()
+//	{
+//		if (actionBar == null) {
+//			return null;
+//		}
+//		return (String) actionBar.getTitle();
+//	}
+
 	public void setSubtitle(String subTitle)
 	{
 		if (TiApplication.isUIThread()) {
@@ -302,7 +315,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 	
-	@Kroll.method 
 	public void setDisplayShowHomeEnabled(boolean show) {
 		if (actionBar == null) {
 			return;
@@ -316,7 +328,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 	
-	@Kroll.method
 	public void setDisplayShowTitleEnabled(boolean show) {
 		if (actionBar == null) {
 			return;
@@ -330,16 +341,7 @@ public class ActionBarProxy extends KrollProxy
 			message.sendToTarget();
 		}
 	}
-	
-	@Kroll.method @Kroll.getProperty
-	public String getSubtitle()
-	{
-		if (actionBar == null) {
-			return null;
-		}
-		return (String) actionBar.getSubtitle();
-	}
-	
+
     @Kroll.method
     @Kroll.getProperty
     public double getHeight() {
@@ -385,7 +387,6 @@ public class ActionBarProxy extends KrollProxy
 			handleSetLogo(url);
 		} else {
 			Message message = getMainHandler().obtainMessage(MSG_SET_LOGO, url);
-			message.getData().putString(LOGO, url);
 			message.sendToTarget();
 		}
 		
@@ -430,12 +431,55 @@ public class ActionBarProxy extends KrollProxy
 	private void handleSetSubTitle(String subTitle)
 	{
 		if (actionBar != null) {
-			actionBar.setDisplayShowTitleEnabled(true);
+		    showTitleEnabled = true;
+			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
 			actionBar.setSubtitle(subTitle);
 		} else {
 			Log.w(TAG, "ActionBar is not enabled");
 		}
 	}
+	
+	private void handleSetCustomView(Object view)
+    {
+        if (actionBar != null) {
+            if (this.customView != null) {
+                this.customView.releaseViews(false);
+                this.customView.setParent(null);
+                this.customView = null;
+            }
+            if (view instanceof HashMap) {
+                this.customView = (TiViewProxy)this.createProxyFromTemplate((HashMap) view,
+                       this, true);
+                if (this.customView != null) {
+                    this.customView.updateKrollObjectProperties();
+                }
+            }
+            else if (view instanceof TiViewProxy) {
+                this.customView = (TiViewProxy)view;
+            }
+            
+            if (this.customView != null) {
+                View viewToAdd = this.customView.getOrCreateView().getOuterView();
+                TiUIHelper.removeViewFromSuperView(viewToAdd);
+                actionBar.setCustomView(viewToAdd);
+                
+                showTitleEnabled = false;
+                actionBar.setDisplayShowCustomEnabled(true);
+            }
+            else if (view instanceof View) {
+                actionBar.setCustomView((View) view);
+                showTitleEnabled = false;
+                actionBar.setDisplayShowCustomEnabled(true);
+            } else {
+                actionBar.setCustomView(null);
+                showTitleEnabled = true;
+                actionBar.setDisplayShowCustomEnabled(false);
+            }
+            actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+        } else {
+            Log.w(TAG, "ActionBar is not enabled");
+        }
+    }
 	
 	private void handleShow()
 	{
@@ -491,10 +535,14 @@ public class ActionBarProxy extends KrollProxy
 			return;
 		}
 		
-        actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
-        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+        resetTitleEnabled();
         setActionBarDrawable(new ColorDrawable(color));
         customBackgroundSet = (mActionBarBackgroundDrawable != null) && color != defaultColor;
+	}
+	
+	private void resetTitleEnabled() {
+        actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
 	}
 	
 	private void handleSetBackgroundGradient(KrollDict gradDict)
@@ -503,9 +551,7 @@ public class ActionBarProxy extends KrollProxy
 			Log.w(TAG, "ActionBar is not enabled");
 			return;
 		}
-
-        actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
-        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+		resetTitleEnabled();
         setActionBarDrawable(TiUIHelper.buildGradientDrawable(gradDict));
         customBackgroundSet = (mActionBarBackgroundDrawable != null);
 	}
@@ -570,22 +616,22 @@ public class ActionBarProxy extends KrollProxy
 	{
 		switch (msg.what) {
 			case MSG_DISPLAY_HOME_AS_UP:
-				handlesetDisplayHomeAsUp(msg.getData().getBoolean(SHOW_HOME_AS_UP));
+				handlesetDisplayHomeAsUp((Boolean)msg.obj);
 				return true;
 			case MSG_SET_NAVIGATION_MODE:
-				handlesetNavigationMode(msg.getData().getInt(NAVIGATION_MODE));
+				handlesetNavigationMode((Integer)msg.obj);
 				return true;
 			case MSG_SET_BACKGROUND_COLOR:
 				handleSetBackgroundColor((Integer)msg.obj);
 				return true;
 			case MSG_SET_BACKGROUND_IMAGE:
-				handleSetBackgroundImage(msg.getData().getString(BACKGROUND_IMAGE));
+				handleSetBackgroundImage((String)msg.obj);
 				return true;
 			case MSG_SET_BACKGROUND_GRADIENT:
 				handleSetBackgroundGradient((KrollDict) (msg.obj));
 				return true;
 			case MSG_SET_TITLE:
-				handleSetTitle(msg.getData().getString(TITLE));
+				handleSetTitle((String)msg.obj);
 				return true;
 			case MSG_SET_SUBTITLE:
 				handleSetSubTitle(msg.getData().getString(TiC.PROPERTY_SUBTITLE));
@@ -618,7 +664,7 @@ public class ActionBarProxy extends KrollProxy
 				actionBar.setIcon(themeIconDrawable);
 				return true;
 			case MSG_SET_LOGO:
-				handleSetLogo(msg.getData().getString(LOGO));
+				handleSetLogo((String)msg.obj);
 				return true;
 			case MSG_SET_ICON:
 				handleSetIcon(msg.obj);
@@ -629,7 +675,19 @@ public class ActionBarProxy extends KrollProxy
 		}
 		return super.handleMessage(msg);
 	}
+	
+	private static final ArrayList<String> KEY_SEQUENCE;
+    static{
+      ArrayList<String> tmp = new ArrayList<String>();
+      tmp.add(TiC.PROPERTY_DISPLAY_HOME_TITLE_ENABLED);
+      KEY_SEQUENCE = tmp;
+    }
+    @Override
+    protected ArrayList<String> keySequence() {
+        return KEY_SEQUENCE;
+    }
 
+	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
         switch (key) {
@@ -638,6 +696,12 @@ public class ActionBarProxy extends KrollProxy
             break;
         case TiC.PROPERTY_DISPLAY_HOME_AS_UP:
             setDisplayHomeAsUp(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_DISPLAY_HOME_TITLE_ENABLED:
+            setDisplayShowTitleEnabled(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED:
+            setDisplayShowHomeEnabled(TiConvert.toBoolean(newValue, false));
             break;
         case TiC.PROPERTY_BACKGROUND_IMAGE:
         case TiC.PROPERTY_BAR_IMAGE:
@@ -654,8 +718,18 @@ public class ActionBarProxy extends KrollProxy
         case TiC.PROPERTY_BAR_OPACITY:
             setBackgroundOpacity(TiConvert.toFloat(newValue, 1.0f));
             break;
+        case TiC.PROPERTY_CUSTOM_VIEW:
+        case TiC.PROPERTY_TITLE_VIEW:
+            setCustomView(newValue);
+            break;
         case TiC.PROPERTY_LOGO:
             setLogo(TiConvert.toString(newValue));
+            break;
+        case TiC.PROPERTY_TITLE:
+            setTitle(TiConvert.toString(newValue));
+            break;
+        case TiC.PROPERTY_SUBTITLE:
+            setSubtitle(TiConvert.toString(newValue));
             break;
         case TiC.PROPERTY_ICON:
         case TiC.PROPERTY_BAR_ICON:
@@ -675,13 +749,14 @@ public class ActionBarProxy extends KrollProxy
                 }
             }
         default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
             break;
         }
     }
     
     @Override
-    public void setProperties(KrollDict newProps) {
-        super.setProperties(newProps);
+    protected void didProcessProperties() {
+        super.didProcessProperties();
         if (customBackgroundSet && properties.get(TiC.PROPERTY_BACKGROUND_COLOR) == null && 
                 properties.get(TiC.PROPERTY_BACKGROUND_IMAGE) == null &&  
                 properties.get(TiC.PROPERTY_BACKGROUND_GRADIENT) == null )
@@ -699,11 +774,6 @@ public class ActionBarProxy extends KrollProxy
             customBackgroundSet = false;
         }
     }
-	
-	@Override
-	public void onPropertyChanged(String key, Object newValue, Object oldValue) {
-        propertySet(key, newValue, oldValue, true);
-	}
 
 	@Override
 	public String getApiName()

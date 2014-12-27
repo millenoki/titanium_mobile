@@ -552,6 +552,14 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                 }
                 break;
             }
+            case TiC.PROPERTY_TITLE_VIEW:
+            {
+                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
+                if (aBarProxy != null) {
+                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_CUSTOM_VIEW, value);
+                }
+                break;
+            }
             case TiC.PROPERTY_BAR_ICON:
             {
                 ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
