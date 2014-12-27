@@ -379,14 +379,20 @@ public class TiUIText extends TiUINonViewGroupView
 	        }
 	    }
 	}
-
+	private static final ArrayList<String> KEY_SEQUENCE;
+    static{
+      ArrayList<String> tmp = new ArrayList<String>();
+      tmp.add(TiC.PROPERTY_COLOR);
+      KEY_SEQUENCE = tmp;
+    }
+    @Override
+    protected ArrayList<String> keySequence() {
+        return KEY_SEQUENCE;
+    }
+    
 	public TiUIText(final TiViewProxy proxy, boolean field)
 	{
 		super(proxy);
-		if (keySequence == null) {
-            keySequence = new ArrayList<String>();
-            keySequence.add(TiC.PROPERTY_COLOR);
-        }
 		this.focusKeyboardState = TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS;
 		this.isFocusable = true; //default to true
 		this.field = field;

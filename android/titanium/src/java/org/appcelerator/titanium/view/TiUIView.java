@@ -1009,10 +1009,14 @@ public abstract class TiUIView
         setEnabled(getOuterView(), enabled && isEnabled, enabled && isFocusable, setChildren);
     }
 	
+	protected ArrayList<String> keySequence() {
+	    return null;
+	}
+	
 	protected void handleProperties(KrollDict d, final boolean changed) {
 	    final KrollProxy proxy = this.proxy;
-	    if (keySequence != null) {
-	        for (final String key : keySequence) {
+	    if (keySequence() != null) {
+	        for (final String key : keySequence()) {
 	            if (d.containsKey(key)) {
 	                propertySet(key, d.get(key), proxy.getProperty(key), changed);
 	                d.remove(key);

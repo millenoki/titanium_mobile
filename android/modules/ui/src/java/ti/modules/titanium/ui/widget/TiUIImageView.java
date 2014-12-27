@@ -170,6 +170,18 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             }
         }
     }
+    
+    
+    private static final ArrayList<String> KEY_SEQUENCE;
+    static{
+      ArrayList<String> tmp = new ArrayList<String>();
+      tmp.add(TiC.PROPERTY_FILTER_OPTIONS);
+      KEY_SEQUENCE = tmp;
+    }
+    @Override
+    protected ArrayList<String> keySequence() {
+        return KEY_SEQUENCE;
+    }
 
     public TiUIImageView(final TiViewProxy proxy) {
         super(proxy);
@@ -186,7 +198,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
             @Override
             public boolean dispatchTouchEvent(MotionEvent event) {
-                if (touchPassThrough(childrenHolder, event))
+                if (TiUIImageView.this.touchPassThrough(childrenHolder, event))
                     return false;
                 if (touchPassThrough == true)
                     return false;

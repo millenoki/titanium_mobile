@@ -877,14 +877,19 @@ public class TiUILabel extends TiUINonViewGroupView
 	    }
 	}
 
-
+	private static final ArrayList<String> KEY_SEQUENCE;
+    static{
+      ArrayList<String> tmp = new ArrayList<String>();
+      tmp.add(TiC.PROPERTY_COLOR);
+      KEY_SEQUENCE = tmp;
+    }
+    @Override
+    protected ArrayList<String> keySequence() {
+        return KEY_SEQUENCE;
+    }
 	public TiUILabel(final TiViewProxy proxy)
 	{
 		super(proxy);
-		if (keySequence == null) {
-		    keySequence = new ArrayList<String>();
-		    keySequence.add(TiC.PROPERTY_COLOR);
-		}
 		Log.d(TAG, "Creating a text label", Log.DEBUG_MODE);
 		tv = new TiLabelView(getProxy().getActivity()) {
 			@Override
@@ -984,6 +989,7 @@ public class TiUILabel extends TiUINonViewGroupView
             }
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT;
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_HTML;
+            
         }
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_LINKIFY) != 0) {
             TiUIHelper.linkifyIfEnabled(getTextView(), autoLink);
