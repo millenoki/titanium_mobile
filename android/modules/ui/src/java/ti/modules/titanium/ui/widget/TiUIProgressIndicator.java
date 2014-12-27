@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget;
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -25,7 +24,6 @@ import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
 
 public class TiUIProgressIndicator extends TiUIView
 	implements Handler.Callback, DialogInterface.OnCancelListener
