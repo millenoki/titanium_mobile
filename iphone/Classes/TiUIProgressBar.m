@@ -27,7 +27,7 @@
 -(void)dealloc
 {
 	RELEASE_TO_NIL(progress);
-	RELEASE_TO_NIL(messageLabel);
+//	RELEASE_TO_NIL(messageLabel);
 	[super dealloc];
 }
 
@@ -36,22 +36,34 @@
     return progress;
 }
 
--(CGSize)sizeForFont:(CGFloat)suggestedWidth
-{
-	NSAttributedString *value = [messageLabel attributedText];
-	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
-    CGSize returnVal = [value boundingRectWithSize:maxSize
-                                  options:NSStringDrawingUsesLineFragmentOrigin
-                                  context:nil].size;
-    return CGSizeMake(ceilf(returnVal.width), ceilf(returnVal.height));
-}
+//-(CGSize)sizeForFont:(CGFloat)suggestedWidth
+//{
+//	NSAttributedString *value = [messageLabel attributedText];
+//	CGSize maxSize = CGSizeMake(suggestedWidth<=0 ? 480 : suggestedWidth, 1000);
+//    CGSize returnVal = [value boundingRectWithSize:maxSize
+//                                  options:NSStringDrawingUsesLineFragmentOrigin
+//                                  context:nil].size;
+//    return CGSizeMake(ceilf(returnVal.width), ceilf(returnVal.height));
+//}
 
 -(CGSize)contentSizeForSize:(CGSize)size
 {
-    CGSize fontSize = [self sizeForFont:size.width];
-	CGSize progressSize = [progress sizeThatFits:fontSize];
-    return CGSizeMake(fontSize.width, fontSize.height + progressSize.height);
+//    CGSize fontSize = [self sizeForFont:size.width];
+	return [progress sizeThatFits:size];
+//    return CGSizeMake(fontSize.width, fontSize.height + progressSize.height);
 }
+
+- (id)accessibilityElement
+{
+    return [self progress];
+}
+
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+    [progress setFrame:bounds];
+    [super frameSizeChanged:frame bounds:bounds];
+}
+
 
 #pragma mark Accessors
 
@@ -66,59 +78,59 @@
 	return progress;
 }
 
--(UILabel *)messageLabel
-{
-	if (messageLabel==nil)
-	{
-		messageLabel=[[UILabel alloc] init];
-		[messageLabel setBackgroundColor:[UIColor clearColor]];
-		
-		[self setNeedsLayout];
-		[self addSubview:messageLabel];
-	}
-	return messageLabel;
-}
+//-(UILabel *)messageLabel
+//{
+//	if (messageLabel==nil)
+//	{
+//		messageLabel=[[UILabel alloc] init];
+//		[messageLabel setBackgroundColor:[UIColor clearColor]];
+//		
+//		[self setNeedsLayout];
+//		[self addSubview:messageLabel];
+//	}
+//	return messageLabel;
+//}
 
-- (id)accessibilityElement
-{
-	return [self messageLabel];
-}
+//- (id)accessibilityElement
+//{
+//	return [self messageLabel];
+//}
 
 #pragma mark Repositioning
 
--(void)layoutSubviews
-{
-	if(progress == nil)
-	{
-		return;
-	}
-
-	CGRect boundsRect = [self bounds];
-	
-	CGSize barSize = [progress sizeThatFits:boundsRect.size];
-
-	CGPoint centerPoint = CGPointMake(boundsRect.origin.x + (boundsRect.size.width/2),
-			boundsRect.origin.y + (boundsRect.size.height/2));
-
-	[progress setBounds:CGRectMake(0, 0, barSize.width, barSize.height)];
-
-	if (messageLabel == nil)
-	{
-		[progress setCenter:centerPoint];
-		return;
-	}
-
-	CGSize messageSize = [messageLabel sizeThatFits:boundsRect.size];
-	
-	float fittingHeight = barSize.height + messageSize.height + 5;
-	
-	[progress setCenter:CGPointMake(centerPoint.x,
-			centerPoint.y + (fittingHeight - barSize.height)/2)];
-
-	[messageLabel setBounds:CGRectMake(0, 0, messageSize.width, messageSize.height)];
-	[messageLabel setCenter:CGPointMake(centerPoint.x,
-			centerPoint.y - (fittingHeight - messageSize.height)/2)];
-}
+//-(void)layoutSubviews
+//{
+//	if(progress == nil)
+//	{
+//		return;
+//	}
+//
+//	CGRect boundsRect = [self bounds];
+//	
+//	CGSize barSize = [progress sizeThatFits:boundsRect.size];
+//
+//	CGPoint centerPoint = CGPointMake(boundsRect.origin.x + (boundsRect.size.width/2),
+//			boundsRect.origin.y + (boundsRect.size.height/2));
+//
+//	[progress setBounds:CGRectMake(0, 0, barSize.width, barSize.height)];
+//
+//	if (messageLabel == nil)
+//	{
+//		[progress setCenter:centerPoint];
+//		return;
+//	}
+//
+//	CGSize messageSize = [messageLabel sizeThatFits:boundsRect.size];
+//	
+//	float fittingHeight = barSize.height + messageSize.height + 5;
+//	
+//	[progress setCenter:CGPointMake(centerPoint.x,
+//			centerPoint.y + (fittingHeight - barSize.height)/2)];
+//
+//	[messageLabel setBounds:CGRectMake(0, 0, messageSize.width, messageSize.height)];
+//	[messageLabel setCenter:CGPointMake(centerPoint.x,
+//			centerPoint.y - (fittingHeight - messageSize.height)/2)];
+//}
 
 #pragma mark Properties
 
@@ -139,37 +151,37 @@
 }
 
 
--(void)setFont_:(id)value
-{
-	WebFont * newFont = [TiUtils fontValue:value def:[WebFont defaultFont]];
-	[[self messageLabel] setFont:[newFont font]];
-	[self setNeedsLayout];
-}
+//-(void)setFont_:(id)value
+//{
+//	WebFont * newFont = [TiUtils fontValue:value def:[WebFont defaultFont]];
+//	[[self messageLabel] setFont:[newFont font]];
+//	[self setNeedsLayout];
+//}
 
 
--(void)setColor_:(id)value
-{
-	UIColor * newColor = [[TiUtils colorValue:value] _color];
-	if (newColor == nil) {
-		newColor = [UIColor blackColor];
-	}
-	[[self messageLabel] setTextColor:newColor];
-}
+//-(void)setColor_:(id)value
+//{
+//	UIColor * newColor = [[TiUtils colorValue:value] _color];
+//	if (newColor == nil) {
+//		newColor = [UIColor blackColor];
+//	}
+//	[[self messageLabel] setTextColor:newColor];
+//}
 
--(void)setMessage_:(id)value
-{
-	NSString * text = [TiUtils stringValue:value];
-	if ([text length]>0)
-	{
-		[[self messageLabel] setText:text];
-	}
-	else
-	{
-		[messageLabel removeFromSuperview];
-		RELEASE_TO_NIL(messageLabel);
-	}
-	[self setNeedsLayout];
-}
+//-(void)setMessage_:(id)value
+//{
+//	NSString * text = [TiUtils stringValue:value];
+//	if ([text length]>0)
+//	{
+//		[[self messageLabel] setText:text];
+//	}
+//	else
+//	{
+//		[messageLabel removeFromSuperview];
+//		RELEASE_TO_NIL(messageLabel);
+//	}
+//	[self setNeedsLayout];
+//}
 
 
 @end
