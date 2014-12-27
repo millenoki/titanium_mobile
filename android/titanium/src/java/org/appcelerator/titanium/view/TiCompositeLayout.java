@@ -294,141 +294,145 @@ public class TiCompositeLayout extends FreeLayout implements
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int childCount = getChildCount();
-		int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
-		int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
-		int wSuggested = getSuggestedMinimumWidth();
-		int hSuggested = getSuggestedMinimumHeight();
-		int w = Math.max(wFromSpec, wSuggested);
-		int wMode = MeasureSpec.getMode(widthMeasureSpec);
-		int h = Math.max(hFromSpec, hSuggested);
-		int hMode = MeasureSpec.getMode(heightMeasureSpec);
-
 		int maxWidth = 0;
 		int maxHeight = 0;
+		int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
+        int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
+        int wSuggested = getSuggestedMinimumWidth();
+        int hSuggested = getSuggestedMinimumHeight();
+        int w = Math.max(wFromSpec, wSuggested);
+        int h = Math.max(hFromSpec, hSuggested);
+		
+		if (childCount > 0) {
+		    
+	        int wMode = MeasureSpec.getMode(widthMeasureSpec);
+	        int hMode = MeasureSpec.getMode(heightMeasureSpec);
+		 // Used for horizontal layout only
+	        int horizontalRowWidth = 0;
+	        int horizontalRowHeight = 0;
 
-		// Used for horizontal layout only
-		int horizontalRowWidth = 0;
-		int horizontalRowHeight = 0;
+	        // we need to first get the list/number of autoFillsWidth views
+	        List<View> autoFillWidthViews = new ArrayList<View>();
+	        List<View> autoFillHeightViews = new ArrayList<View>();
 
-		// we need to first get the list/number of autoFillsWidth views
-		List<View> autoFillWidthViews = new ArrayList<View>();
-		List<View> autoFillHeightViews = new ArrayList<View>();
+	        boolean horizontal = isHorizontalArrangement();
+	        boolean horizontalNoWrap = horizontal && !enableHorizontalWrap;
+	        boolean horizontalWrap = horizontal && enableHorizontalWrap;
+	        boolean vertical = isVerticalArrangement();
+	        float autoFillWidthTotalWeight = 0;
+	        float autoFillHeightTotalWeight = 0;
+	        for (int i = 0; i < childCount; i++) {
+	            View child = getChildAt(i);
+	            if (child.getVisibility() == View.GONE) {
+	                continue;
+	            }
+	            TiCompositeLayout.LayoutParams params = getChildParams(child);
+	            Boolean needsProcessing = true;
+	            if (horizontalNoWrap && viewShouldFillHorizontalLayout(child, params)) {
+	                autoFillWidthViews.add(child);
+	                autoFillWidthTotalWeight += params.weight;
+	                needsProcessing = false;
+	            }
+	            if ((vertical || horizontalWrap) && viewShouldFillVerticalLayout(child, params)) {
+	                autoFillHeightViews.add(child);
+	                autoFillHeightTotalWeight += params.weight;
+	                needsProcessing = false;
+	            }
 
-		boolean horizontal = isHorizontalArrangement();
-		boolean horizontalNoWrap = horizontal && !enableHorizontalWrap;
-		boolean horizontalWrap = horizontal && enableHorizontalWrap;
-		boolean vertical = isVerticalArrangement();
-        float autoFillWidthTotalWeight = 0;
-        float autoFillHeightTotalWeight = 0;
-		for (int i = 0; i < childCount; i++) {
-			View child = getChildAt(i);
-			if (child.getVisibility() == View.GONE) {
-				continue;
-			}
-			TiCompositeLayout.LayoutParams params = getChildParams(child);
-			Boolean needsProcessing = true;
-			if (horizontalNoWrap && viewShouldFillHorizontalLayout(child, params)) {
-				autoFillWidthViews.add(child);
-                autoFillWidthTotalWeight += params.weight;
-				needsProcessing = false;
-			}
-			if ((vertical || horizontalWrap) && viewShouldFillVerticalLayout(child, params)) {
-				autoFillHeightViews.add(child);
-				autoFillHeightTotalWeight += params.weight;
-				needsProcessing = false;
-			}
+	            if (!needsProcessing)
+	                continue;
+	            
+	            int widthPadding = getViewWidthPadding(child, params, this);
+	            int heightPadding = getViewHeightPadding(child, params, this);
+	            constrainChild(child, params, horizontalNoWrap?(w - horizontalRowWidth):w, wMode, h, hMode, widthPadding, heightPadding);
 
-			if (!needsProcessing)
-				continue;
-			
-			int widthPadding = getViewWidthPadding(child, params, this);
-			int heightPadding = getViewHeightPadding(child, params, this);
-			constrainChild(child, params, horizontalNoWrap?(w - horizontalRowWidth):w, wMode, h, hMode, widthPadding, heightPadding);
+	            int childWidth = child.getMeasuredWidth() + widthPadding;
+	            int childHeight = child.getMeasuredHeight() + heightPadding;
 
-			int childWidth = child.getMeasuredWidth() + widthPadding;
-			int childHeight = child.getMeasuredHeight() + heightPadding;
+	            if (horizontal) {
+	                if (enableHorizontalWrap) {
 
-			if (horizontal) {
-				if (enableHorizontalWrap) {
+	                    if ((horizontalRowWidth + childWidth) > w) {
+	                        horizontalRowWidth = childWidth;
+	                        maxHeight += horizontalRowHeight;
+	                        horizontalRowHeight = childHeight;
 
-					if ((horizontalRowWidth + childWidth) > w) {
-						horizontalRowWidth = childWidth;
-						maxHeight += horizontalRowHeight;
-						horizontalRowHeight = childHeight;
+	                    } else {
+	                        horizontalRowWidth += childWidth;
+	                        maxWidth = Math.max(maxWidth, horizontalRowWidth);
+	                    }
 
-					} else {
-						horizontalRowWidth += childWidth;
-						maxWidth = Math.max(maxWidth, horizontalRowWidth);
-					}
+	                } else {
 
-				} else {
+	                    // For horizontal layout without wrap, just keep on adding
+	                    // the widths since it doesn't wrap
+	                    maxWidth += childWidth;
+	                }
+	                horizontalRowHeight = Math
+	                        .max(horizontalRowHeight, childHeight);
 
-					// For horizontal layout without wrap, just keep on adding
-					// the widths since it doesn't wrap
-					maxWidth += childWidth;
-				}
-				horizontalRowHeight = Math
-						.max(horizontalRowHeight, childHeight);
+	            } else {
+	                maxWidth = Math.max(maxWidth, childWidth);
 
-			} else {
-				maxWidth = Math.max(maxWidth, childWidth);
+	                if (vertical) {
+	                    maxHeight += childHeight;
+	                } else {
+	                    maxHeight = Math.max(maxHeight, childHeight);
+	                }
+	            }
+	        }
+	        int countFillWidth = autoFillWidthViews.size() ;
+	        if (countFillWidth > 0) {
+	            float counter = 0;
+	            for (int i = 0; i < countFillWidth; i++) {
+	                View child = autoFillWidthViews.get(i);
+	                TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
+	                        .getLayoutParams();
+	                final float weight = params.weight;
+	                final int childW = (int) ((w - maxWidth)*weight / (autoFillWidthTotalWeight - counter));
+	                counter += weight;
+	                
+	                final int widthPadding = getViewWidthPadding(child, params, this);
+	                final int heightPadding = getViewHeightPadding(child, params, this);
+	                constrainChild(child, params, childW, wMode, h, hMode, widthPadding, heightPadding);
+	                final int childWidth = child.getMeasuredWidth() + widthPadding;
+	                final int childHeight = child.getMeasuredHeight() + heightPadding;
+	                
+	                maxWidth += childWidth;
+	                horizontalRowHeight = Math
+	                        .max(horizontalRowHeight, childHeight);
+	            }
+	        }
 
-				if (vertical) {
-					maxHeight += childHeight;
-				} else {
-					maxHeight = Math.max(maxHeight, childHeight);
-				}
-			}
+	        int countFillHeight = autoFillHeightViews.size() ;
+	        if (countFillHeight > 0) {
+	            float counter = 0;
+	            for (int i = 0; i < countFillHeight; i++) {
+	                View child = autoFillHeightViews.get(i);
+	                TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
+	                        .getLayoutParams();
+	                final float weight = params.weight;
+	                final int childH = (int) ((h - maxHeight)*weight / (autoFillHeightTotalWeight - counter));
+	                counter += weight;
+
+	                final int widthPadding = getViewWidthPadding(child, params, this);
+	                final int heightPadding = getViewHeightPadding(child, params, this);
+	                constrainChild(child, params, w, wMode, childH, hMode, widthPadding, heightPadding);
+	                final int childWidth = child.getMeasuredWidth() + widthPadding;
+	                final int childHeight = child.getMeasuredHeight() + heightPadding;
+	                
+	                maxHeight += childHeight;
+	                maxWidth = Math.max(maxWidth, childWidth);
+	            }
+	        }
+
+	        // Add height for last row in horizontal layout
+	        if (horizontal) {
+	            maxHeight += horizontalRowHeight;
+	        }
 		}
-		int countFillWidth = autoFillWidthViews.size() ;
-		if (countFillWidth > 0) {
-		    float counter = 0;
-			for (int i = 0; i < countFillWidth; i++) {
-				View child = autoFillWidthViews.get(i);
-				TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
-						.getLayoutParams();
-				final float weight = params.weight;
-				final int childW = (int) ((w - maxWidth)*weight / (autoFillWidthTotalWeight - counter));
-                counter += weight;
-				
-                final int widthPadding = getViewWidthPadding(child, params, this);
-                final int heightPadding = getViewHeightPadding(child, params, this);
-				constrainChild(child, params, childW, wMode, h, hMode, widthPadding, heightPadding);
-				final int childWidth = child.getMeasuredWidth() + widthPadding;
-				final int childHeight = child.getMeasuredHeight() + heightPadding;
-				
-				maxWidth += childWidth;
-				horizontalRowHeight = Math
-						.max(horizontalRowHeight, childHeight);
-			}
-		}
 
-		int countFillHeight = autoFillHeightViews.size() ;
-		if (countFillHeight > 0) {
-		    float counter = 0;
-			for (int i = 0; i < countFillHeight; i++) {
-				View child = autoFillHeightViews.get(i);
-				TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
-						.getLayoutParams();
-                final float weight = params.weight;
-                final int childH = (int) ((h - maxHeight)*weight / (autoFillHeightTotalWeight - counter));
-                counter += weight;
-
-                final int widthPadding = getViewWidthPadding(child, params, this);
-                final int heightPadding = getViewHeightPadding(child, params, this);
-				constrainChild(child, params, w, wMode, childH, hMode, widthPadding, heightPadding);
-				final int childWidth = child.getMeasuredWidth() + widthPadding;
-				final int childHeight = child.getMeasuredHeight() + heightPadding;
-				
-				maxHeight += childHeight;
-				maxWidth = Math.max(maxWidth, childWidth);
-			}
-		}
-
-		// Add height for last row in horizontal layout
-		if (horizontal) {
-			maxHeight += horizontalRowHeight;
-		}
+		
 
 		// account for padding
 		maxWidth += getPaddingLeft() + getPaddingRight();
@@ -575,6 +579,13 @@ public class TiCompositeLayout extends FreeLayout implements
             child.measure(wMode, hMode);
         }
 	}
+	
+    public static int getChildMeasureSpec(int size, int mode, int padding, int childDimension) {
+        return ViewGroup.getChildMeasureSpec(
+                MeasureSpec.makeMeasureSpec(size, mode), padding,
+                childDimension);
+    }
+	
     protected void constrainChild(View child, View parent, LayoutParams p, int width, int wMode, int height,
             int hMode, int widthPadding, int heightPadding) {
         if (!p.fullscreen) {
@@ -618,10 +629,8 @@ public class TiCompositeLayout extends FreeLayout implements
                     
                 }
             }
-    
-            wMode = ViewGroup.getChildMeasureSpec(
-                    MeasureSpec.makeMeasureSpec(width, wMode), widthPadding,
-                    childDimension);
+            wMode = getChildMeasureSpec(width, wMode, widthPadding, childDimension);
+            
             // If autoFillsHeight is false, and optionHeight is null, then we use
             // size behavior.
             childDimension = LayoutParams.WRAP_CONTENT;
@@ -659,10 +668,7 @@ public class TiCompositeLayout extends FreeLayout implements
                     }
                 }
             }
-    
-            hMode = ViewGroup.getChildMeasureSpec(
-                    MeasureSpec.makeMeasureSpec(height, hMode), heightPadding,
-                    childDimension);
+            hMode = getChildMeasureSpec(height, hMode, heightPadding, childDimension);
         }
         measureChild(child, p, wMode, hMode, widthPadding, heightPadding, width, height);
     }
