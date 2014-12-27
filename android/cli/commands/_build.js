@@ -2912,6 +2912,10 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
         Object.keys(moduleJarMap).forEach(addTitaniumLibrary, this);
     }
 
+    if (!this.tiapp.hasOwnProperty('analytics') ||  !!this.tiapp.analytics) {
+        addTitaniumLibrary.call(this, 'analytics');
+    }
+
     // for each Titanium symbol found when we copied the JavaScript files, we need
     // extract the Titanium namespace and make sure we include its jar library
     Object.keys(this.tiSymbols).forEach(function (file) {
