@@ -2876,7 +2876,6 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
     function addTitaniumLibrary(namespace) {
         namespace = namespace.toLowerCase();
         if (ignoreNamespaces.test(namespace) || tiNamespaces[namespace]) return;
-        tiNamespaces[namespace] = [];
 
         if (namespace === "googleplayservices") {
             this.needsGooglePlayServices = true;
@@ -2889,6 +2888,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
             if (fs.existsSync(jar) && !jarLibraries[jar]) {
                 this.logger.debug(__('Adding library %s for namespace %s', jar.cyan, namespace.cyan));
                 jarLibraries[jar] = 1;
+                tiNamespaces[namespace] = [];
             }
         } else {
             this.logger.debug(__('Unknown namespace %s, skipping', namespace.cyan));
@@ -2897,6 +2897,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
         depMap.libraries[namespace] && depMap.libraries[namespace].forEach(function (jar) {
             if (fs.existsSync(jar = path.join(this.platformPath, jar)) && !jarLibraries[jar]) {
                 this.logger.debug(__('Adding dependency library %s for namespace %s', jar.cyan, namespace.cyan));
+                tiNamespaces[namespace] = [];
                 jarLibraries[jar] = 1;
             }
         }, this);
@@ -2920,20 +2921,24 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
     // extract the Titanium namespace and make sure we include its jar library
     Object.keys(this.tiSymbols).forEach(function (file) {
         this.tiSymbols[file].forEach(function (symbol) {
-            var parts = symbol.split('.').slice(0, -1), // strip last part which should be the method or property
-                namespace;
 
-            // add this namespace and all parent namespaces
-            while (parts.length) {
-                namespace = parts.join('.');
+            var parts = symbol.replace(/^(Ti|Titanium)./, '').replace(/\.create/gi, '').split('.').slice(0, -1);
+            if (parts.length) {
+                if (parts.indexOf('iPhone') !== -1 || parts.indexOf('iOS') !== -1) return;
+                
+                var namespace = parts[0].toLowerCase();
                 if (namespace) {
                     addTitaniumLibrary.call(this, namespace);
                     if (tiNamespaces[namespace]) {
-                        // track each method/property
-                        tiNamespaces[namespace].push(parts[parts.length - 1]);
+                        while (parts.length > 1) {
+                            var binding  = parts[parts.length - 1];
+                            if (tiNamespaces[namespace].indexOf(binding) === -1) {
+                                tiNamespaces[namespace].push(binding);
+                            }
+                            parts.pop();
+                        }
                     }
                 }
-                parts.pop();
             }
         }, this);
     }, this);
