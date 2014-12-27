@@ -121,7 +121,6 @@ public abstract class TiUIView
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
     protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
-    protected static ArrayList<String> keySequence = null;
 
 	protected LayoutParams layoutParams;
 	protected TiBackgroundDrawable background;
