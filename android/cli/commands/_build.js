@@ -3682,15 +3682,16 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                     'theme': '@style/Theme.Titanium.NoActionBar.Fullscreen'
                 }
             },
-            'Media.createAudioPlayer': {
+            'Audio.createPlayer': {
                 'receiver': {
                     'name': '.TiMediaButtonEventReceiver',
                     'intent-filter': [{
                         action:['android.intent.action.MEDIA_BUTTON', 'android.media.AUDIO_BECOMING_NOISY']
                     }]
-                }
+                },
+                permissions:['android.permission.WAKE_LOCK']
             },
-            'Media.createAudioStreamer': {
+            'Audio.createStreamer': {
                 'receiver': {
                     'name': '.TiMediaButtonIntentReceiver',
                     'intent-filter': [{
