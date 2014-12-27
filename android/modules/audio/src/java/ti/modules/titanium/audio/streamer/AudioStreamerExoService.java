@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.HandlerThread;
@@ -33,6 +32,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.view.KeyEvent;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -63,6 +63,7 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.filesystem.FileProxy;
 import ti.modules.titanium.audio.AudioFocusHelper;
+import ti.modules.titanium.audio.FocusableAudioWidget;
 import ti.modules.titanium.audio.StreamerProxy;
 import ti.modules.titanium.audio.AudioModule;
 import ti.modules.titanium.audio.MediaButtonHelper;
@@ -107,94 +108,94 @@ import com.squareup.picasso.Picasso.LoadedFrom;
  */
 @SuppressWarnings("deprecation")
 public class AudioStreamerExoService extends TiEnhancedService implements
-        Target, Callback, AppStateListener {
+        Target, Callback, AppStateListener, FocusableAudioWidget {
     private static final String TAG = "AudioStreamerService";
     /**
      * Indicates that the music has paused or resumed
      */
-    public static final String PLAYSTATE_CHANGED = "ti.modules.titanium.media.streamer.playstatechanged";
+    public static final String PLAYSTATE_CHANGED = "ti.modules.titanium.audio.streamer.playstatechanged";
 
     /**
      * Indicates the meta data has changed in some way, like a track change
      */
-    public static final String META_CHANGED = "ti.modules.titanium.media.streamer.metachanged";
+    public static final String META_CHANGED = "ti.modules.titanium.audio.streamer.metachanged";
 
     /**
      * Indicates the queue has been updated
      */
-    public static final String QUEUE_CHANGED = "ti.modules.titanium.media.streamer.queuechanged";
+    public static final String QUEUE_CHANGED = "ti.modules.titanium.audio.streamer.queuechanged";
 
     /**
      * Indicates the repeat mode chaned
      */
-    public static final String REPEATMODE_CHANGED = "ti.modules.titanium.media.streamer.repeatmodechanged";
+    public static final String REPEATMODE_CHANGED = "ti.modules.titanium.audio.streamer.repeatmodechanged";
 
     /**
      * Indicates the shuffle mode chaned
      */
-    public static final String SHUFFLEMODE_CHANGED = "ti.modules.titanium.media.streamer.shufflemodechanged";
+    public static final String SHUFFLEMODE_CHANGED = "ti.modules.titanium.audio.streamer.shufflemodechanged";
 
     /**
      * Called to indicate a general service commmand. Used in
      * {@link TiMediaButtonIntentReceiver}
      */
-    public static final String SERVICECMD = "ti.modules.titanium.media.streamer.musicservicecommand";
+    public static final String SERVICECMD = "ti.modules.titanium.audio.streamer.musicservicecommand";
 
     /**
      * Called to go toggle between pausing and playing the music
      */
-    public static final String TOGGLEPAUSE_ACTION = "ti.modules.titanium.media.streamer.togglepause";
+    public static final String TOGGLEPAUSE_ACTION = "ti.modules.titanium.audio.streamer.togglepause";
 
     /**
      * Called to go to pause the playback
      */
-    public static final String PAUSE_ACTION = "ti.modules.titanium.media.streamer.pause";
+    public static final String PAUSE_ACTION = "ti.modules.titanium.audio.streamer.pause";
 
     /**
      * Called to go to stop the playback
      */
-    public static final String STOP_ACTION = "ti.modules.titanium.media.streamer.stop";
+    public static final String STOP_ACTION = "ti.modules.titanium.audio.streamer.stop";
 
     /**
      * Called to go to the previous track
      */
-    public static final String PREVIOUS_ACTION = "ti.modules.titanium.media.streamer.previous";
+    public static final String PREVIOUS_ACTION = "ti.modules.titanium.audio.streamer.previous";
 
     /**
      * Called to go to the next track
      */
-    public static final String NEXT_ACTION = "ti.modules.titanium.media.streamer.next";
+    public static final String NEXT_ACTION = "ti.modules.titanium.audio.streamer.next";
 
     /**
      * Called to change the repeat mode
      */
-    public static final String REPEAT_ACTION = "ti.modules.titanium.media.streamer.repeat";
+    public static final String REPEAT_ACTION = "ti.modules.titanium.audio.streamer.repeat";
 
     /**
      * Called to change the shuffle mode
      */
-    public static final String SHUFFLE_ACTION = "ti.modules.titanium.media.streamer.shuffle";
+    public static final String SHUFFLE_ACTION = "ti.modules.titanium.audio.streamer.shuffle";
 
     /**
      * Called to kill the notification while Apollo is in the foreground
      */
-    public static final String KILL_FOREGROUND = "ti.modules.titanium.media.streamer.killforeground";
+    public static final String KILL_FOREGROUND = "ti.modules.titanium.audio.streamer.killforeground";
 
     /**
      * Used to easily notify a list that it should refresh. i.e. A playlist
      * changes
      */
-    public static final String REFRESH = "ti.modules.titanium.media.streamer.refresh";
+    public static final String REFRESH = "ti.modules.titanium.audio.streamer.refresh";
 
     /**
      * Called to build the notification while Apollo is in the background
      */
-    public static final String START_BACKGROUND = "ti.modules.titanium.media.streamer.startbackground";
+    public static final String START_BACKGROUND = "ti.modules.titanium.audio.streamer.startbackground";
 
     /**
      * Called to update the remote control client
      */
-    public static final String UPDATE_LOCKSCREEN = "ti.modules.titanium.media.streamer.updatelockscreen";
+    public static final String UPDATE_LOCKSCREEN = "ti.modules.titanium.audio.streamer.updatelockscreen";
 
     public static final String CMDNAME = "command";
 
@@ -425,23 +426,6 @@ public class AudioStreamerExoService extends TiEnhancedService implements
     protected Handler uiHandler;
     MetadataEditorCompat currentMetadataEditor = null;
 
-    public static AudioStreamerExoService sFocusedStreamer = null;
-
-    public static void streamerGetsFocus(final AudioStreamerExoService streamer) {
-        sFocusedStreamer = streamer;
-    }
-
-    public static void streamerAbandonsFocus(
-            final AudioStreamerExoService streamer) {
-        if (streamer == sFocusedStreamer) {
-            sFocusedStreamer = null;
-        }
-    }
-
-    public static AudioStreamerExoService focusedStreamer() {
-        return sFocusedStreamer;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -591,7 +575,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         String packageName = TiApplication.getInstance().getPackageName();
         mMediaButtonReceiverComponent = new ComponentName(packageName,
-                packageName + ".TiMediaButtonIntentReceiver");
+                packageName + ".TiMediaButtonEventReceiver");
         MediaButtonHelper.registerMediaButtonEventReceiverCompat(mAudioManager,
                 mMediaButtonReceiverComponent);
 
@@ -760,6 +744,37 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         }
 
     }
+    
+    @Override
+    public void onMediaKey(KeyEvent key) {
+        switch (key.getKeyCode()) {
+        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+            if (isPlaying()) {
+                pause();
+            } else {
+                play();
+            }
+            break;
+        case KeyEvent.KEYCODE_MEDIA_PLAY:
+            play();
+            break;
+        case KeyEvent.KEYCODE_HEADSETHOOK:
+        case KeyEvent.KEYCODE_MEDIA_PAUSE:
+            pause();
+            break;
+        case KeyEvent.KEYCODE_MEDIA_STOP:
+            stop();
+            break;
+        case KeyEvent.KEYCODE_MEDIA_NEXT:
+            gotoNext();
+            break;
+        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+            prev();
+            break;
+        default:
+            return;
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -788,7 +803,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         if (mBuildNotification || inBackground) {
             try {
                 mNotificationHelper.buildNotificationIfNeeded();
-                updateMetadata();
+//                updateMetadata();
             } catch (final IllegalStateException parcelBitmap) {
                 parcelBitmap.printStackTrace();
             }
@@ -830,6 +845,9 @@ public class AudioStreamerExoService extends TiEnhancedService implements
      *            True to go to the idle state, false otherwise
      */
     private void stop(final boolean remove_status_icon) {
+        if (isStopped()) {
+            return;
+        }
         setState(STATE_STOPPING);
         if (mPlayPending) {
             mStopPending = true;
@@ -840,7 +858,6 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         } else {
             setState(STATE_STOPPED);
         }
-        // mFileToPlay = null;
         closeCursor();
         if (remove_status_icon) {
             stopForeground(false);
@@ -901,7 +918,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
                         play();
                     }
                 }
-                notifyChange(META_CHANGED);
+//                notifyChange(META_CHANGED);
             }
             return last - first + 1;
         }
@@ -967,7 +984,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         currentLength = getPlaylistSize();
         if (currentLength == 0) {
             closeCursor();
-            notifyChange(META_CHANGED);
+//            notifyChange(META_CHANGED);
         } else {
             notifyChange(QUEUE_CHANGED);
         }
@@ -1156,6 +1173,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             mNotificationHelper.goToIdleState(mIsSupposedToBePlaying);
             // }
         } else if (what.equals(META_CHANGED)) {
+            Log.d(TAG,"updateRemoteControlClient " + what);
             updateMetadata();
         }
 
@@ -1421,6 +1439,8 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             if (mPlayer.isPrepared()) {
                 mPlayPending = false;
                 mPlayer.start();
+                mIsSupposedToBePlaying = mPlayer.isPlaying();
+                notifyChange(PLAYSTATE_CHANGED);
 
                 mPlayerHandler.removeMessages(FADEDOWN);
                 mPlayerHandler.sendEmptyMessage(FADEUP);
@@ -1433,13 +1453,14 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         } else {
             openCurrentAndNext();
             play();
-            notifyChange(META_CHANGED);
+//            notifyChange(META_CHANGED);
         }
     }
 
     /**
      * Temporarily pauses playback.
      */
+    @Override
     public void pause() {
         synchronized (this) {
             mPlayerHandler.removeMessages(FADEUP);
@@ -1486,7 +1507,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             if (mPlayPending) {
                 play();
             }
-            notifyChange(META_CHANGED);
+//            notifyChange(META_CHANGED);
         }
     }
     
@@ -1513,7 +1534,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             stop(false);
             openCurrent();
             play();
-            notifyChange(META_CHANGED);
+//            notifyChange(META_CHANGED);
         }
     }
 
@@ -1615,7 +1636,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         @Override
         public void onReceive(final Context context, final Intent intent) {
             final String action = intent.getAction();
-            final String command = intent.getStringExtra("command");
+            final String command = intent.getStringExtra(CMDNAME);
             if (CMDNEXT.equals(command) || NEXT_ACTION.equals(action)) {
                 gotoNext();
             } else if (CMDPREVIOUS.equals(command)
@@ -1811,8 +1832,8 @@ public class AudioStreamerExoService extends TiEnhancedService implements
                 if (mService.get().mPlayPos != -1) {
                     mService.get().mCursor = mService.get().mQueue.get(mService
                             .get().mPlayPos);
-                    mService.get().notifyChange(META_CHANGED);
                     mService.get().buildNotification();
+//                    mService.get().notifyChange(META_CHANGED);
                     mService.get().setNextTrack();
                     break;
                 }
@@ -2970,7 +2991,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             mAudioFocus = AudioFocus.Focused;
             RemoteControlHelper.registerRemoteControlClient(mAudioManager,
                     mRemoteControlClientCompat);
-            streamerGetsFocus(this);
+            AudioModule.widgetGetsFocused(this);
         }
         aquireWifiLock();
 
@@ -2984,7 +3005,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             mAudioFocus = AudioFocus.NoFocusNoDuck;
             RemoteControlHelper.unregisterRemoteControlClient(mAudioManager,
                     mRemoteControlClientCompat);
-            streamerAbandonsFocus(this);
+            AudioModule.widgetAbandonsFocused(this);
         }
         releaseWifiLock();
 

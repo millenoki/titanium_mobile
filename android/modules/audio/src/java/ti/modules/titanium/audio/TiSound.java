@@ -63,7 +63,7 @@ import android.webkit.URLUtil;
 public class TiSound implements MediaPlayer.OnCompletionListener,
         MediaPlayer.OnErrorListener, KrollProxyListener,
         MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener,
-        MediaPlayer.OnPreparedListener, Target, Callback, MusicFocusable {
+        MediaPlayer.OnPreparedListener, Target, Callback, MusicFocusable, FocusableAudioWidget {
     private static final String TAG = "TiSound";
 
     public static final int STATE_BUFFERING = 0; // current playback is in the
@@ -196,7 +196,6 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
      */
     private boolean mEnableLockscreenControls;
 
-    public static TiSound sFocusedSound = null;
     // The volume we set the media player to when we lose audio focus, but are
     // allowed to reduce
     // the volume instead of stopping playback.
@@ -227,20 +226,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
 
     private int mState;
 
-    public static void soundGetsFocus(final TiSound sound) {
-        sFocusedSound = sound;
-    }
-
-    public static void soundAbandonsFocus(final TiSound sound) {
-        if (sound == sFocusedSound) {
-            sFocusedSound = null;
-        }
-    }
-
-    public static TiSound focussedSound() {
-        return sFocusedSound;
-    }
-
+    @Override
     public void onMediaKey(KeyEvent key) {
         switch (key.getKeyCode()) {
         case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
@@ -370,14 +356,14 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
                 && mAudioFocusHelper.requestFocus())
             mAudioFocus = AudioFocus.Focused;
         MediaButtonHelper.registerMediaButtonEventReceiverCompat(mAudioManager, mMediaButtonReceiverComponent);
-        soundGetsFocus(this);
+        AudioModule.widgetGetsFocused(this);
     }
 
     void giveUpAudioFocus() {
         if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null
                 && mAudioFocusHelper.abandonFocus())
             mAudioFocus = AudioFocus.NoFocusNoDuck;
-        soundAbandonsFocus(this);
+        AudioModule.widgetAbandonsFocused(this);
     }
 
     /**

@@ -79,7 +79,7 @@ public class StreamerProxy extends TiEnhancedServiceProxy {
     private void runAction(String cmd) {
         Intent intent = new Intent(getIntent().getIntent());
         // intent.setAction(action);
-        intent.putExtra("command", cmd);
+        intent.putExtra(AudioStreamerExoService.CMDNAME, cmd);
         startService(intent);
         // else if (target == mPauseButton)
         // startService(new Intent(AudioStreamerExoService.ACTION_PAUSE));

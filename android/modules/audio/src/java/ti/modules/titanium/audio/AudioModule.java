@@ -12,6 +12,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiContext;
 
+import ti.modules.titanium.audio.streamer.AudioStreamerExoService;
 import android.os.Handler;
 
 @Kroll.module @ContextSpecific
@@ -40,5 +41,22 @@ public class AudioModule extends KrollModule
 	{
 		this();
 	}
+	
+    public static FocusableAudioWidget sFocusedAudioWidget = null;
+
+    public static void widgetGetsFocused(final FocusableAudioWidget widget) {
+        sFocusedAudioWidget = widget;
+    }
+
+    public static void widgetAbandonsFocused(
+            final FocusableAudioWidget widget) {
+        if (widget == sFocusedAudioWidget) {
+            sFocusedAudioWidget = null;
+        }
+    }
+
+    public static FocusableAudioWidget focusedAudioWidget() {
+        return sFocusedAudioWidget;
+    }
 }
 

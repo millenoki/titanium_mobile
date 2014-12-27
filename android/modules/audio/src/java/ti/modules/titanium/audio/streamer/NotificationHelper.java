@@ -66,6 +66,7 @@ public class NotificationHelper {
     public static final String NOTIFICATION_EXPANDED_ARTIST = "tiasn_expanded_artist";
     public static final String NOTIFICATION_EXPANDED_ALBUM = "tiasn_expanded_album";
     public static final String NOTIFICATION_EXPANDED_IMAGE = "tiasn_expanded_image";
+    private static final String TAG = "NotificationHelper";
     private int id_notification_expanded_collapse = 0;
     private int id_notification_expanded_prev = 0;
     private int id_notification_expanded_next = 0;
@@ -266,7 +267,7 @@ public class NotificationHelper {
      */
     private PendingIntent getPendingIntent() {
         return PendingIntent.getActivity(mService, 0, new Intent(
-                "com.andrew.apollo.AUDIO_PLAYER")
+                "ti.modules.titanium.audio.STREAMER")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
     }
 
@@ -341,25 +342,25 @@ public class NotificationHelper {
         switch (which) {
         case 1:
             // Play and pause
-            action = new Intent(AudioStreamerService.TOGGLEPAUSE_ACTION);
+            action = new Intent(AudioStreamerExoService.TOGGLEPAUSE_ACTION);
             action.setComponent(serviceName);
             pendingIntent = PendingIntent.getService(mService, 1, action, 0);
             return pendingIntent;
         case 2:
             // Skip tracks
-            action = new Intent(AudioStreamerService.NEXT_ACTION);
+            action = new Intent(AudioStreamerExoService.NEXT_ACTION);
             action.setComponent(serviceName);
             pendingIntent = PendingIntent.getService(mService, 2, action, 0);
             return pendingIntent;
         case 3:
             // Previous tracks
-            action = new Intent(AudioStreamerService.PREVIOUS_ACTION);
+            action = new Intent(AudioStreamerExoService.PREVIOUS_ACTION);
             action.setComponent(serviceName);
             pendingIntent = PendingIntent.getService(mService, 3, action, 0);
             return pendingIntent;
         case 4:
             // Stop and collapse the notification
-            action = new Intent(AudioStreamerService.STOP_ACTION);
+            action = new Intent(AudioStreamerExoService.STOP_ACTION);
             action.setComponent(serviceName);
             pendingIntent = PendingIntent.getService(mService, 4, action, 0);
             return pendingIntent;
@@ -417,6 +418,7 @@ public class NotificationHelper {
     }
 
     public void updateMetadata(final HashMap<String, Object> dict) {
+        Log.d(TAG, "updateMetadata" + dict);
         String title = null;
         String artist = null;
         String album = null;
@@ -441,10 +443,12 @@ public class NotificationHelper {
     public void showNotification() {
         if (mNotification != null) {
             CharSequence oldvalue = mNotification.tickerText;
-            if (oldvalue.toString().endsWith(" ")) {
-                mNotification.tickerText = oldvalue.subSequence(0, -1);
-            } else {
-                mNotification.tickerText = oldvalue + " ";
+            if (oldvalue != null) {
+                if (oldvalue.toString().endsWith(" ")) {
+                    mNotification.tickerText = oldvalue.subSequence(0, -1);
+                } else {
+                    mNotification.tickerText = oldvalue + " ";
+                }
             }
             mNotificationManager.notify(mNotificationId, mNotification);
         }

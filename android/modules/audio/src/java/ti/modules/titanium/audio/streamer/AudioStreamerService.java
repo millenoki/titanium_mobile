@@ -88,94 +88,92 @@ import com.squareup.picasso.Picasso.LoadedFrom;
 public class AudioStreamerService extends TiEnhancedService implements Target,
         Callback, AppStateListener {
     private static final String TAG = "AudioStreamerService";
-    private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
-    private static final boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
     /**
      * Indicates that the music has paused or resumed
      */
-    public static final String PLAYSTATE_CHANGED = "ti.modules.titanium.media.streamer.playstatechanged";
+    public static final String PLAYSTATE_CHANGED = "ti.modules.titanium.audio.streamer.playstatechanged";
 
     /**
      * Indicates the meta data has changed in some way, like a track change
      */
-    public static final String META_CHANGED = "ti.modules.titanium.media.streamer.metachanged";
+    public static final String META_CHANGED = "ti.modules.titanium.audio.streamer.metachanged";
 
     /**
      * Indicates the queue has been updated
      */
-    public static final String QUEUE_CHANGED = "ti.modules.titanium.media.streamer.queuechanged";
+    public static final String QUEUE_CHANGED = "ti.modules.titanium.audio.streamer.queuechanged";
 
     /**
      * Indicates the repeat mode chaned
      */
-    public static final String REPEATMODE_CHANGED = "ti.modules.titanium.media.streamer.repeatmodechanged";
+    public static final String REPEATMODE_CHANGED = "ti.modules.titanium.audio.streamer.repeatmodechanged";
 
     /**
      * Indicates the shuffle mode chaned
      */
-    public static final String SHUFFLEMODE_CHANGED = "ti.modules.titanium.media.streamer.shufflemodechanged";
+    public static final String SHUFFLEMODE_CHANGED = "ti.modules.titanium.audio.streamer.shufflemodechanged";
 
     /**
      * Called to indicate a general service commmand. Used in
      * {@link TiMediaButtonIntentReceiver}
      */
-    public static final String SERVICECMD = "ti.modules.titanium.media.streamer.musicservicecommand";
+    public static final String SERVICECMD = "ti.modules.titanium.audio.streamer.musicservicecommand";
 
     /**
      * Called to go toggle between pausing and playing the music
      */
-    public static final String TOGGLEPAUSE_ACTION = "ti.modules.titanium.media.streamer.togglepause";
+    public static final String TOGGLEPAUSE_ACTION = "ti.modules.titanium.audio.streamer.togglepause";
 
     /**
      * Called to go to pause the playback
      */
-    public static final String PAUSE_ACTION = "ti.modules.titanium.media.streamer.pause";
+    public static final String PAUSE_ACTION = "ti.modules.titanium.audio.streamer.pause";
 
     /**
      * Called to go to stop the playback
      */
-    public static final String STOP_ACTION = "ti.modules.titanium.media.streamer.stop";
+    public static final String STOP_ACTION = "ti.modules.titanium.audio.streamer.stop";
 
     /**
      * Called to go to the previous track
      */
-    public static final String PREVIOUS_ACTION = "ti.modules.titanium.media.streamer.previous";
+    public static final String PREVIOUS_ACTION = "ti.modules.titanium.audio.streamer.previous";
 
     /**
      * Called to go to the next track
      */
-    public static final String NEXT_ACTION = "ti.modules.titanium.media.streamer.next";
+    public static final String NEXT_ACTION = "ti.modules.titanium.audio.streamer.next";
 
     /**
      * Called to change the repeat mode
      */
-    public static final String REPEAT_ACTION = "ti.modules.titanium.media.streamer.repeat";
+    public static final String REPEAT_ACTION = "ti.modules.titanium.audio.streamer.repeat";
 
     /**
      * Called to change the shuffle mode
      */
-    public static final String SHUFFLE_ACTION = "ti.modules.titanium.media.streamer.shuffle";
+    public static final String SHUFFLE_ACTION = "ti.modules.titanium.audio.streamer.shuffle";
 
     /**
      * Called to kill the notification while Apollo is in the foreground
      */
-    public static final String KILL_FOREGROUND = "ti.modules.titanium.media.streamer.killforeground";
+    public static final String KILL_FOREGROUND = "ti.modules.titanium.audio.streamer.killforeground";
 
     /**
      * Used to easily notify a list that it should refresh. i.e. A playlist
      * changes
      */
-    public static final String REFRESH = "ti.modules.titanium.media.streamer.refresh";
+    public static final String REFRESH = "ti.modules.titanium.audio.streamer.refresh";
 
     /**
      * Called to build the notification while Apollo is in the background
      */
-    public static final String START_BACKGROUND = "ti.modules.titanium.media.streamer.startbackground";
+    public static final String START_BACKGROUND = "ti.modules.titanium.audio.streamer.startbackground";
 
     /**
      * Called to update the remote control client
      */
-    public static final String UPDATE_LOCKSCREEN = "ti.modules.titanium.media.streamer.updatelockscreen";
+    public static final String UPDATE_LOCKSCREEN = "ti.modules.titanium.audio.streamer.updatelockscreen";
 
     public static final String CMDNAME = "command";
 
@@ -191,7 +189,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 
     public static final String CMDNEXT = "next";
 
-    public static final String CMDNOTIF = "buttonId";
+//    public static final String CMDNOTIF = "buttonId";
 
     /**
      * Moves a list to the front of the queue
@@ -416,6 +414,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
     public static final String EVENT_ERROR = "error";
     public static final String EVENT_STATE = "state";
     public static final String EVENT_CHANGE = "change";
+    public static final String EVENT_ACTION = "action";
     public static final String EVENT_PROGRESS = "progress";
     public static final int STATE_BUFFERING = 0; // current playback is in the
     // buffering from the network
@@ -524,9 +523,8 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
             setState(STATE_BUFFERING);
         }
         if (proxyHasListeners(EVENT_BUFFERING, false)) {
-            KrollDict event = new KrollDict();
+            KrollDict event = dictForEvent();
             event.put(TiC.PROPERTY_PROGRESS, percent);
-            event.put(TiC.PROPERTY_DURATION, duration());
             proxy.fireEvent(EVENT_BUFFERING, event, false, false);
         }
     }
@@ -719,7 +717,12 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         }
         if (intent != null) {
             final String action = intent.getAction();
-            final String command = intent.getStringExtra("command");
+            final String command = intent.getStringExtra(CMDNAME);
+            if (proxyHasListeners(EVENT_ACTION, false)) {
+                KrollDict event = dictForEvent();
+                event.put("command", command);
+                proxy.fireEvent(EVENT_ACTION, event, false, false);
+            }
             if (CMDNEXT.equals(command) || NEXT_ACTION.equals(action)) {
                 gotoNext(false);
             } else if (CMDPREVIOUS.equals(command)
@@ -1192,11 +1195,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 
         if (what.equals(META_CHANGED)) {
             if (proxyHasListeners(EVENT_CHANGE, false)) {
-                KrollDict data = new KrollDict();
-                data.put("track", mCursor);
-                data.put(TiC.PROPERTY_DURATION, duration());
-                data.put(TiC.PROPERTY_INDEX, mPlayPos);
-                proxy.fireEvent(EVENT_CHANGE, data, false, false);
+                proxy.fireEvent(EVENT_CHANGE, dictForEvent(), false, false);
             }
             getMetadataFromUrl(mPlayer.getPlayingFile());
         } else if (what.equals(QUEUE_CHANGED)) {
@@ -3130,9 +3129,8 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 //            mRemoteControlClientCompat.setPlaybackState(mRemoteControlClientState, position, 1.0f);
 //        }
         if (proxyHasListeners(EVENT_PROGRESS, false)) {
-            KrollDict event = new KrollDict();
+            KrollDict event = dictForEvent();
             event.put("progress", position);
-            event.put(TiC.PROPERTY_DURATION, duration());
             proxy.fireEvent(EVENT_PROGRESS, event, false, false);
         }
     }
@@ -3402,7 +3400,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
 
     
     void tryToGetAudioFocus() {
-        if (mAudioFocus != AudioFocus.Focused && AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==mAudioManager.requestAudioFocus(mAudioFocusListener, AudioManager.STREAM_MUSIC,
+        if (mAudioFocus != AudioFocus.Focused && AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAudioManager.requestAudioFocus(mAudioFocusListener, AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN)) {
             mAudioFocus = AudioFocus.Focused;
             RemoteControlHelper
@@ -3424,5 +3422,11 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
         releaseWifiLock();
             
     }
-    
+    private KrollDict dictForEvent() {
+        KrollDict data = new KrollDict();
+        data.put("track", mCursor);
+        data.put(TiC.PROPERTY_DURATION, duration());
+        data.put(TiC.PROPERTY_INDEX, mPlayPos);
+        return data;
+    }
 }
