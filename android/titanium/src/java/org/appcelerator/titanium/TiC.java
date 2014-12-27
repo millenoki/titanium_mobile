@@ -2932,10 +2932,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_TIMEOUT = "timeout";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_TIMESTAMP = "timestamp";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_TIMESTAMP = "timestamp";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_TINT_COLOR = "tintColor";
 
 	/**
 	 * @module.api
