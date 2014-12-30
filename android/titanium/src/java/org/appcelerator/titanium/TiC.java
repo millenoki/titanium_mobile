@@ -1359,6 +1359,16 @@ public class TiC
 	 */
 	public static final String PROPERTY_DISPLAY_HOME_AS_UP = "displayHomeAsUp";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_DISPLAY_HOME_TITLE_ENABLED = "displayShowTitleEnabled";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_DISPLAY_SHOW_HOME_ENABLED = "displayShowHomeEnabled";
+
 	/**
 	 * @module.api
 	 */
@@ -2959,6 +2969,10 @@ public class TiC
      * @module.api
      */
     public static final String PROPERTY_TITLES = "titles";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_TITLE_VIEW = "titleView";
 	/**
 	 * @module.api
 	 */
