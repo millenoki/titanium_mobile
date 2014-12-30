@@ -48,7 +48,7 @@ import android.view.View;
 		TiC.PROPERTY_ICON
 })
 
-public class ActionBarProxy extends ReusableProxy
+public class ActionBarProxy extends AnimatableReusableProxy
 {
     private static final boolean JELLY_BEAN_MR1_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1);
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
@@ -88,7 +88,6 @@ public class ActionBarProxy extends ReusableProxy
 	private boolean customBackgroundSet = false;
     private Drawable mActionBarBackgroundDrawable;
     private int backgroundAlpha = 255;
-    private TiViewProxy customView = null;
     
     private Drawable.Callback mDrawableCallback = new Drawable.Callback() {
         @Override
@@ -149,6 +148,12 @@ public class ActionBarProxy extends ReusableProxy
         } catch (ResourceNotFoundException e) {
         }
 	}
+	@Override
+    public void release() {
+	    actionBar = null;
+        super.release();
+    }
+	   
 	protected static TypedArray obtainStyledAttrsFromThemeAttr(Context context,
             int[] styleAttrs) throws ResourceNotFoundException {
         // Need to get resource id of style pointed to from the theme attr
@@ -284,12 +289,12 @@ public class ActionBarProxy extends ReusableProxy
 		}
 	}
 	
-	public void setCustomView(Object view)
+	public void setCustomView(Object view, final boolean shouldHold)
     {
         if (TiApplication.isUIThread()) {
-            handleSetCustomView(view);
+            handleSetCustomView(view, shouldHold);
         } else {
-            Message message = getMainHandler().obtainMessage(MSG_SET_CUSTOMVIEW, view);
+            Message message = getMainHandler().obtainMessage(MSG_SET_CUSTOMVIEW, shouldHold?1:0, 0, view);
             message.sendToTarget();
         }
     }
@@ -351,7 +356,7 @@ public class ActionBarProxy extends ReusableProxy
         TiDimension nativeHeight = new TiDimension(actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
         return nativeHeight.getAsDefault();
     }
-
+    
 	@SuppressWarnings("deprecation")
     public int getNavigationMode()
 	{
@@ -439,46 +444,30 @@ public class ActionBarProxy extends ReusableProxy
 		}
 	}
 	
-	private void handleSetCustomView(Object view)
+	private void handleSetCustomView(Object view, final boolean shouldHold)
     {
-        if (actionBar != null) {
-            if (this.customView != null) {
-                this.customView.releaseViews(false);
-                this.customView.setParent(null);
-                this.customView = null;
-            }
-            if (view instanceof HashMap) {
-                this.customView = (TiViewProxy)this.createProxyFromTemplate((HashMap) view,
-                       this, true);
-                if (this.customView != null) {
-                    this.customView.updateKrollObjectProperties();
-                }
-            }
-            else if (view instanceof TiViewProxy) {
-                this.customView = (TiViewProxy)view;
-            }
-            
-            if (this.customView != null) {
-                View viewToAdd = this.customView.getOrCreateView().getOuterView();
-                TiUIHelper.removeViewFromSuperView(viewToAdd);
+	    KrollProxy viewProxy = null;
+	    //the customView can come from the window titleView. In that case don't hold it
+	    // as the window already did it.
+	    if (shouldHold) {
+	        viewProxy = addProxyToHold(view, "customView");
+	    } else if (view instanceof KrollProxy) {
+	        viewProxy = (KrollProxy) view;
+	    }
+        if (viewProxy instanceof TiViewProxy) {
+            View viewToAdd = ((TiViewProxy) viewProxy).getOrCreateView().getOuterView();
+            if (actionBar.getCustomView() != viewToAdd) {
+                TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
                 actionBar.setCustomView(viewToAdd);
-                
                 showTitleEnabled = false;
                 actionBar.setDisplayShowCustomEnabled(true);
             }
-            else if (view instanceof View) {
-                actionBar.setCustomView((View) view);
-                showTitleEnabled = false;
-                actionBar.setDisplayShowCustomEnabled(true);
-            } else {
-                actionBar.setCustomView(null);
-                showTitleEnabled = true;
-                actionBar.setDisplayShowCustomEnabled(false);
-            }
-            actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
         } else {
-            Log.w(TAG, "ActionBar is not enabled");
+            actionBar.setCustomView(null);
+            showTitleEnabled = true;
+            actionBar.setDisplayShowCustomEnabled(false);
         }
+        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
     }
 	
 	private void handleShow()
@@ -631,9 +620,12 @@ public class ActionBarProxy extends ReusableProxy
 				handleSetBackgroundGradient((KrollDict) (msg.obj));
 				return true;
 			case MSG_SET_TITLE:
-				handleSetTitle((String)msg.obj);
-				return true;
-			case MSG_SET_SUBTITLE:
+                handleSetTitle((String)msg.obj);
+                return true;
+			case MSG_SET_CUSTOMVIEW:
+                handleSetCustomView(msg.obj, (msg.arg1 == 1));
+                return true;
+            case MSG_SET_SUBTITLE:
 				handleSetSubTitle(msg.getData().getString(TiC.PROPERTY_SUBTITLE));
 				return true;
 			case MSG_SET_DISPLAY_SHOW_HOME: {
@@ -719,8 +711,10 @@ public class ActionBarProxy extends ReusableProxy
             setBackgroundOpacity(TiConvert.toFloat(newValue, 1.0f));
             break;
         case TiC.PROPERTY_CUSTOM_VIEW:
+            setCustomView(newValue, true);
+            break;
         case TiC.PROPERTY_TITLE_VIEW:
-            setCustomView(newValue);
+            setCustomView(newValue, false);
             break;
         case TiC.PROPERTY_LOGO:
             setLogo(TiConvert.toString(newValue));

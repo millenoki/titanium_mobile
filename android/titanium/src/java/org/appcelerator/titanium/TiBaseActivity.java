@@ -266,32 +266,50 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		return this.window;
 	}
 
-	private KrollDict updatePropertiesFromWindow(KrollDict properties, KrollDict windowProperties)
+	private KrollDict updatePropertiesFromWindow(KrollDict properties, final TiWindowProxy window)
 	{
 		KrollDict actionBarDict = null;
-		if (properties.containsKey(TiC.PROPERTY_ACTION_BAR)) {
+		if (properties != null && properties.containsKey(TiC.PROPERTY_ACTION_BAR)) {
 			actionBarDict = properties.getKrollDict(TiC.PROPERTY_ACTION_BAR);
 		}
-		else {
-			actionBarDict = new KrollDict(); //to make sure we go into processProperties
-		}
+		KrollDict windowProperties = window.getProperties();
 		
-		if (windowProperties.containsKey(TiC.PROPERTY_BAR_COLOR) && !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			actionBarDict.put(TiC.PROPERTY_BACKGROUND_COLOR, windowProperties.get(TiC.PROPERTY_BAR_COLOR));
+		if (windowProperties.containsKey(TiC.PROPERTY_BAR_COLOR) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_COLOR))) {
+			if (actionBarDict == null) {
+			    actionBarDict = new KrollDict(); 
+			}
+		    actionBarDict.put(TiC.PROPERTY_BACKGROUND_COLOR, windowProperties.get(TiC.PROPERTY_BAR_COLOR));
 		}
-		if (windowProperties.containsKey(TiC.PROPERTY_BAR_IMAGE) && !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			actionBarDict.put(TiC.PROPERTY_BACKGROUND_IMAGE, windowProperties.get(TiC.PROPERTY_BAR_IMAGE));
+		if (windowProperties.containsKey(TiC.PROPERTY_BAR_IMAGE) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE))) {
+		    if (actionBarDict == null) {
+                actionBarDict = new KrollDict(); 
+            }
+		    actionBarDict.put(TiC.PROPERTY_BACKGROUND_IMAGE, windowProperties.get(TiC.PROPERTY_BAR_IMAGE));
 		}
-		if (windowProperties.containsKey(TiC.PROPERTY_BAR_ICON) && !actionBarDict.containsKey(TiC.PROPERTY_ICON)) {
-			actionBarDict.put(TiC.PROPERTY_ICON, windowProperties.get(TiC.PROPERTY_BAR_ICON));
+		if (windowProperties.containsKey(TiC.PROPERTY_BAR_ICON) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_ICON))) {
+		    if (actionBarDict == null) {
+                actionBarDict = new KrollDict(); 
+            }
+            actionBarDict.put(TiC.PROPERTY_ICON, windowProperties.get(TiC.PROPERTY_BAR_ICON));
 		}
-		if (windowProperties.containsKey(TiC.PROPERTY_BAR_OPACITY) && !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_OPACITY)) {
+		if (windowProperties.containsKey(TiC.PROPERTY_BAR_OPACITY) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_OPACITY))) {
+		    if (actionBarDict == null) {
+                actionBarDict = new KrollDict(); 
+            }
             actionBarDict.put(TiC.PROPERTY_BACKGROUND_OPACITY, windowProperties.get(TiC.PROPERTY_BAR_OPACITY));
         }
-		if (windowProperties.containsKey(TiC.PROPERTY_TITLE_VIEW) && !actionBarDict.containsKey(TiC.PROPERTY_CUSTOM_VIEW)) {
-            actionBarDict.put(TiC.PROPERTY_CUSTOM_VIEW, windowProperties.get(TiC.PROPERTY_TITLE_VIEW));
+		if (windowProperties.containsKey(TiC.PROPERTY_TITLE_VIEW) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_CUSTOM_VIEW))) {
+		    if (actionBarDict == null) {
+                actionBarDict = new KrollDict(); 
+            }
+            actionBarDict.put(TiC.PROPERTY_TITLE_VIEW, window.getHoldedProxy(TiC.PROPERTY_TITLE_VIEW));
         }
-		properties.put(TiC.PROPERTY_ACTION_BAR, actionBarDict);
+		if (actionBarDict != null) {
+		    if (properties == null) {
+                properties = new KrollDict();
+		    }
+	        properties.put(TiC.PROPERTY_ACTION_BAR, actionBarDict);
+		}
 		return properties;
 	}
 
@@ -326,14 +344,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);  
 		}
-		KrollDict activityDict = null;
-		if (this.window.hasProperty(TiC.PROPERTY_ACTIVITY)) {
-			activityDict = new KrollDict((HashMap)this.window.getProperty(TiC.PROPERTY_ACTIVITY));
-		}
-		else {
-			activityDict = new KrollDict(); //to make sure we update actionbar
-		}
-		updatePropertiesFromWindow(activityDict, this.window.getProperties());
+		KrollDict activityDict = updatePropertiesFromWindow(props.getKrollDict(TiC.PROPERTY_ACTIVITY), this.window);
 
 		getActivityProxy().setProperties(activityDict);
 	}
