@@ -783,23 +783,23 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)childAdded:(TiProxy*)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
 {
-    if (![child isKindOfClass:[TiViewProxy class]]){
-        return;
-    }
-    TiViewProxy* childViewProxy = (TiViewProxy*)child;
-    
     if ([NSThread isMainThread])
 	{
+        [super childAdded:child atIndex:position shouldRelayout:shouldRelayout];
+        if (![child isKindOfClass:[TiViewProxy class]]){
+            return;
+        }
+        TiViewProxy* childViewProxy = (TiViewProxy*)child;
         [childViewProxy windowDidOpen];
         if (readyToCreateView)
             [childViewProxy setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
 		
         
+        if (!shouldRelayout) return;
         if (!readyToCreateView || [childViewProxy isHidden]) return;
         [childViewProxy performBlockWithoutLayout:^{
             [childViewProxy getOrCreateView];
         }];
-        if (!shouldRelayout) return;
         
         [self contentsWillChange];
         if(parentVisible && !hidden)
@@ -818,12 +818,12 @@ SEL GetterForKrollProperty(NSString * key)
     }
     else if (windowOpened && shouldRelayout) {
         TiThreadPerformOnMainThread(^{[self childAdded:child atIndex:position shouldRelayout:shouldRelayout];}, NO);
-        return;
     }
 }
 
 -(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
 {
+    [super childRemoved:child wasChild:wasChild shouldDetach:shouldDetach];
     if (![child isKindOfClass:[TiViewProxy class]]){
         return;
     }
@@ -831,6 +831,7 @@ SEL GetterForKrollProperty(NSString * key)
     TiViewProxy* childViewProxy = (TiViewProxy*)child;
     
     if (shouldDetach) {
+        [childViewProxy setProxyObserver:nil];
         [childViewProxy windowWillClose];
         [childViewProxy setParentVisible:NO];
         [childViewProxy windowDidClose]; //will call detach view
@@ -844,7 +845,6 @@ SEL GetterForKrollProperty(NSString * key)
     {
         [self willChangeLayout];
     }
-    
 }
 
 -(void)removeAllChildren:(id)arg
