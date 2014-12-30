@@ -678,8 +678,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		switch (msg.what) {
 			case MSG_SET_PIXEL_FORMAT: {
-				Activity activity = getWindowActivity();
-				if (activity != null) {
+			    TiBaseActivity activity = getWindowActivity();
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
 					Window win = activity.getWindow();
 					if (win != null) {
 						win.setFormat(TiConvert.toInt((Object)(msg.obj), PixelFormat.UNKNOWN));
@@ -689,8 +689,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				return true;
 			}
 			case MSG_SET_TITLE: {
-				Activity activity = getWindowActivity();
-				if (activity != null) {
+				TiBaseActivity activity = getWindowActivity();
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
 					activity.setTitle(TiConvert.toString((Object)(msg.obj), ""));
 				}
 				return true;
