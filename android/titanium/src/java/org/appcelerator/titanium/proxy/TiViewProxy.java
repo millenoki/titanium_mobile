@@ -146,7 +146,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	protected Object pendingTransitionLock;
 
     private boolean viewRealised = false;
-    protected boolean shouldAskForGC = true; 
 	/**
 	 * Constructs a new TiViewProxy instance.
 	 * @module.api
@@ -520,7 +519,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			oldProxy.setModelListener(null);
 		}
 		view = transferview;
-		modelListener = transferview;
+		setModelListener(transferview, false);
 		view.setProxy(this);
 	}
 	
@@ -658,16 +657,14 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			viewRealised = false;
 		}
 		activity = null;
-		setModelListener(null);
-		if (shouldAskForGC && krollObject != null) {
-	        KrollRuntime.suggestGC();
-		}
+		modelListener = null;
 	}
 	
-
-
-	
-
+	@Override
+    public void release() {
+        releaseViews(true);
+        super.release();
+    }
 	/**
 	 * Implementing classes should use this method to create and return the appropriate view.
 	 * @param activity the context activity.
