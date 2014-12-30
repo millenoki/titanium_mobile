@@ -191,6 +191,10 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		
 		updateTitle(proxy);
 	}
+	
+	public boolean isCurrentWindow(final TiWindowProxy proxy) {
+	    return this.window == proxy;
+	}
 
 	public void removeWindowFromStack(TiWindowProxy proxy)
 	{
