@@ -1840,11 +1840,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
     }
 
-    // TODO RM_TICONTEXT
-    @Deprecated
-    public TiContext getTiContext() {
-        return new TiContext(getActivity(), proxyId);
-    }
+//    // TODO RM_TICONTEXT
+//    @Deprecated
+//    public TiContext getTiContext() {
+//        return new TiContext(getActivity(), proxyId);
+//    }
 
     // For subclasses to override
     @Kroll.method

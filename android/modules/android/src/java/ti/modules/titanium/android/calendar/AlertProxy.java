@@ -148,7 +148,7 @@ public class AlertProxy extends KrollProxy {
 		// PendingIntent sender = PendingIntent.getActivity(context.getActivity(), 0, intent,
 		// 		PendingIntent.FLAG_CANCEL_CURRENT);
 
-		AlarmManager manager = (AlarmManager) getTiContext().getActivity().getSystemService(Context.ALARM_SERVICE);
+		AlarmManager manager = (AlarmManager) TiApplication.getAppSystemService(Context.ALARM_SERVICE);
 
 //		manager.set(AlarmManager.RTC_WAKEUP, alarmTime.getTime()+2000, sender);
 		manager.set(AlarmManager.RTC_WAKEUP,System.currentTimeMillis(),sender);
