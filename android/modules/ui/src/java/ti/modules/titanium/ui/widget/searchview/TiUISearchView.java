@@ -228,6 +228,13 @@ public class TiUISearchView extends TiUIView implements SearchView.OnQueryTextLi
         // we must reset input type
         searchView.setInputType(searchView.getInputType());
     }
+    
+    @Override
+    public void release()
+    {
+        searchChangeListener = null;
+        super.release();
+    }
 
 	@Override
 	public boolean onClose() {

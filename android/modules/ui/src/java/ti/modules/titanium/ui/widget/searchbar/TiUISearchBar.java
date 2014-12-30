@@ -128,6 +128,13 @@ public class TiUISearchBar extends TiUIText
             break;
         }
     }
+	
+    @Override
+    public void release()
+    {
+        searchChangeListener = null;
+        super.release();
+    }
 
 	public void setOnSearchChangeListener(OnSearchChangeListener listener) {
 		this.searchChangeListener = listener;
