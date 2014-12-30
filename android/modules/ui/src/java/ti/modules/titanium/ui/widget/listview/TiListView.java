@@ -27,6 +27,7 @@ import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -49,6 +50,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListViewAbstract;
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.ViewProxy;
 import android.annotation.SuppressLint;
 import ti.modules.titanium.ui.android.SearchViewProxy;
 import ti.modules.titanium.ui.widget.CustomListView;
@@ -100,10 +102,6 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	private int[] marker = new int[2];
 	private View headerView;
 	private View footerView;
-    private TiViewProxy pullView;
-    private TiViewProxy searchView;
-    private TiViewProxy headerViewProxy;
-    private TiViewProxy footerViewProxy;
 	private String searchText;
 	private boolean caseInsensitive;
 	private RelativeLayout searchLayout;
@@ -1028,69 +1026,45 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	}
 	private void setHeaderOrFooterView (Object viewObj, boolean isHeader) {
 	    View view = null;
-	    if (isHeader) {
-	        if (headerViewProxy != null) {
-	            headerViewProxy.releaseViews(true);
-	            headerViewProxy.setParent(null);
-	            headerViewProxy = null;
-	        }
-	        headerViewProxy = (TiViewProxy)proxy.createProxyFromObject(viewObj, proxy, false);
-	        view = layoutHeaderOrFooterView(headerViewProxy, proxy);
-	    } else {
-	        if (footerViewProxy != null) {
-	            footerViewProxy.releaseViews(true);
-	            footerViewProxy.setParent(null);
-	            footerViewProxy = null;
+        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, isHeader?"header":"footer");
+        if (viewProxy instanceof TiViewProxy) {
+            view = layoutHeaderOrFooterView((TiViewProxy) viewProxy, proxy);
+        }
+        if (view != null) {
+            if (isHeader) {
+                headerView = view;
+            } else {
+                footerView = view;
             }
-	        footerViewProxy = (TiViewProxy)proxy.createProxyFromObject(viewObj, proxy, false);
-            view = layoutHeaderOrFooterView(footerViewProxy, proxy);
-	    }
-		if (view != null) {
-			if (isHeader) {
-				headerView = view;
-			} else {
-				footerView = view;
-			}
-		}
+        }
 	}
 	
 	private void setSearchView (Object viewObj, boolean addInHeader) {
-        if (searchView != null) {
-            searchView.releaseViews(true);
-            searchView.setParent(null);
-            searchView = null;
-        }
-        TiViewProxy newView = (TiViewProxy)proxy.createProxyFromObject(viewObj, proxy, false);
-        if (isSearchViewValid(newView)) {
-            searchView = newView;
-            TiUIView search = searchView.getOrCreateView();
-            setSearchListener(searchView, search);
-            if (addInHeader) layoutSearchView(searchView);
+        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "search");
+        if (isSearchViewValid(viewProxy)) {
+            TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
+            TiUIView search = ((TiViewProxy) viewProxy).getOrCreateView();
+            setSearchListener((TiViewProxy) viewProxy, search);
+            if (addInHeader) layoutSearchView((TiViewProxy) viewProxy);
         } else {
             Log.e(TAG, "Searchview type is invalid");
         }
     }
 	
 	private View setPullView (Object viewObj) {
-		if (pullView != null) {
-			pullView.releaseViews(true);
-			pullView.setParent(null);
-			pullView = null;
-		}
-		pullView = (TiViewProxy)proxy.createProxyFromObject(viewObj, proxy, false);
-		return layoutHeaderOrFooterView(pullView, proxy);
+        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "pull");
+        if (viewProxy instanceof ViewProxy) {
+            return layoutHeaderOrFooterView((TiViewProxy) viewProxy, proxy);
+        }
+        return null;
 	}
 	
 	public void showPullView(boolean animated) {
-		if (pullView != null) {
-			listView.showHeaderPullView(animated);
-		}
+		listView.showHeaderPullView(animated);
 	}
 	
 	public void closePullView(boolean animated) {
-		if (pullView != null) {
-			listView.closeHeaderPullView(animated);
-		}
+		listView.closeHeaderPullView(animated);
 	}
     
     public void closeSwipeMenu(boolean animated) {
@@ -1181,22 +1155,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	}
 	
 	public View layoutHeaderOrFooterView (TiViewProxy viewProxy, TiViewProxy parent) {
-		
-		viewProxy.setParentForBubbling(this.proxy);
-		TiUIView tiView = viewProxy.peekView();
-		if (tiView != null) {
-			ParentingProxy parentProxy = viewProxy.getParent();
-			//Remove parent view if possible
-			if (parentProxy != null && parentProxy instanceof TiViewProxy) {
-				TiUIView parentView = ((TiViewProxy) parentProxy).peekView();
-				if (parentView != null) {
-					parentView.remove(tiView);
-				}
-			}
-		} else {
-			tiView = viewProxy.forceCreateView();
-		}
-		
+		TiUIView tiView = viewProxy.getOrCreateView();
 		View outerView = null;
 		ViewGroup parentView = null;
 		if (tiView != null) {
@@ -1206,11 +1165,12 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		if (parentView != null && parentView.getId() == HEADER_FOOTER_WRAP_ID) {
 			return parentView;
 		} else {
+	        TiUIHelper.removeViewFromSuperView(viewProxy);
 			//add a wrapper so layout params such as height, width takes in effect.
 			TiCompositeLayout wrapper = new TiCompositeLayout(viewProxy.getActivity(), LayoutArrangement.DEFAULT, null);
 			AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT);
 			wrapper.setLayoutParams(params);
-			if (outerView != null) {
+			if (outerView != null && tiView != null) {
 	            wrapper.addView(outerView, tiView.getLayoutParams());
 			}
 			wrapper.setId(HEADER_FOOTER_WRAP_ID);
@@ -1515,28 +1475,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 		    viewProxy.setParent(null);
         }
 		handledProxies = null;
-		
-		if (searchView != null) {
-            searchView.releaseViews(true);
-            searchView.setParent(null);
-            searchView = null;
-        }
-		if (pullView != null) {
-		    pullView.releaseViews(true);
-		    pullView.setParent(null);
-		    pullView = null;
-        }
-		
-		if (headerViewProxy != null) {
-		    headerViewProxy.releaseViews(true);
-		    headerViewProxy.setParent(null);
-		    headerViewProxy = null;
-        }
-		if (footerViewProxy != null) {
-		    footerViewProxy.releaseViews(true);
-		    footerViewProxy.setParent(null);
-		    footerViewProxy = null;
-        }
+
 
 		if (listView != null) {
 			listView.setAdapter(null);

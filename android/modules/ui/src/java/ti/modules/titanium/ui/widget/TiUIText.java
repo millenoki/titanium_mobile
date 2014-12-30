@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -193,8 +194,6 @@ public class TiUIText extends TiUINonViewGroupView
 		TiEditText editText;
 		protected TiCompositeLayout leftPane;
 		protected TiCompositeLayout rightPane;
-		private TiViewProxy leftView;
-		private TiViewProxy rightView;
 
 		private LinearLayout.LayoutParams createBaseParams()
 		{
@@ -242,72 +241,38 @@ public class TiUIText extends TiUINonViewGroupView
 		}
 
 		public void setLeftView(Object leftView) {
-			leftPane.removeAllViews();
-			if (this.leftView != null) {
-                this.leftView.releaseViews(false);
-                this.leftView.setParent(null);
-                this.leftView = null;
-            }
-			if (leftView instanceof HashMap) {
-                this.leftView = (TiViewProxy)proxy.createProxyFromTemplate((HashMap) leftView,
-                       proxy, true);
-                if (this.leftView != null) {
-                    this.leftView.updateKrollObjectProperties();
-                }
-            }
-            else if (leftView instanceof TiViewProxy) {
-                this.leftView = (TiViewProxy)leftView;
-            }
-            
-            if (this.leftView != null) {
-                TiUIHelper.safeAddView(leftPane, this.leftView.getOrCreateView().getOuterView());
-                leftPane.setVisibility(View.VISIBLE);
-            }
-            else if (leftView instanceof View) {
+		    leftPane.removeAllViews();
+            if (leftView instanceof View) {
                 leftPane.addView((View)leftView);
                 leftPane.setVisibility(View.VISIBLE);
             } else {
-                leftPane.setVisibility(View.GONE);
+                KrollProxy viewProxy = proxy.addProxyToHold(leftView, "leftButton");
+                if (viewProxy instanceof TiViewProxy) {
+                    TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
+                    TiUIHelper.safeAddView(leftPane, ((TiViewProxy) viewProxy).getOrCreateView().getOuterView());
+                    leftPane.setVisibility(View.VISIBLE);
+                }
+                else {
+                    leftPane.setVisibility(View.GONE);
+                }
             }
-		}
-
-		public TiViewProxy getLeftView()
-		{
-			return leftView;
-		}
-
-		public TiViewProxy getRightView()
-		{
-			return rightView;
 		}
 
 		public void setRightView(Object rightView) {
-			rightPane.removeAllViews();
-            if (this.rightView != null) {
-                this.rightView.releaseViews(false);
-                this.rightView.setParent(null);
-                this.rightView = null;
-            }
-            if (rightView instanceof HashMap) {
-                this.rightView = (TiViewProxy)proxy.createProxyFromTemplate((HashMap) rightView,
-                       proxy, true);
-                if (this.rightView != null) {
-                    this.rightView.updateKrollObjectProperties();
-                }
-            }
-            else if (rightView instanceof TiViewProxy) {
-                this.rightView = (TiViewProxy)rightView;
-            }
-            
-            if (this.rightView != null) {
-                TiUIHelper.safeAddView(rightPane, this.rightView.getOrCreateView().getOuterView());
-                rightPane.setVisibility(View.VISIBLE);
-            }
-            else if (rightView instanceof View) {
+		    rightPane.removeAllViews();
+		    if (rightView instanceof View) {
                 rightPane.addView((View)rightView);
                 rightPane.setVisibility(View.VISIBLE);
             } else {
-                rightPane.setVisibility(View.GONE);
+                KrollProxy viewProxy = proxy.addProxyToHold(rightView, "rightButton");
+                if (viewProxy instanceof TiViewProxy) {
+                    TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
+                    TiUIHelper.safeAddView(leftPane, ((TiViewProxy) viewProxy).getOrCreateView().getOuterView());
+                    rightPane.setVisibility(View.VISIBLE);
+                }
+                else {
+                    rightPane.setVisibility(View.GONE);
+                }
             }
 		}
 
@@ -318,9 +283,7 @@ public class TiUIText extends TiUINonViewGroupView
 
 		public void showLeftView()
 		{
-			if (leftView != null){
-				leftPane.setVisibility(View.VISIBLE);
-			}
+			leftPane.setVisibility(View.VISIBLE);
 		}
 
 		public void hideRightView()
@@ -330,9 +293,7 @@ public class TiUIText extends TiUINonViewGroupView
 
 		public void showRightView()
 		{
-			if (rightView != null){
-				rightPane.setVisibility(View.VISIBLE);
-			}
+			rightPane.setVisibility(View.VISIBLE);
 		}
 
 		public void onFocusChange(View v, boolean hasFocus)
