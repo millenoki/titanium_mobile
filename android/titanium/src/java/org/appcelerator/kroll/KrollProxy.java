@@ -92,7 +92,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     protected WeakReference<Activity> activity;
     protected String proxyId;
     protected TiUrl creationUrl;
-    protected KrollProxyListener modelListener;
+    protected WeakReference<KrollProxyListener> modelListener;
     protected SetPropertyChangeListener setPropertyListener;
     protected KrollModule createdInModule;
     protected boolean coverageEnabled;
@@ -104,7 +104,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     private KrollDict langConversionTable = null;
     private boolean bubbleParent = true;
     private boolean bubbleParentDefined = false;
-    private TiViewEventOverrideDelegate eventOverrideDelegate = null;
+    private WeakReference<TiViewEventOverrideDelegate> eventOverrideDelegate = null;
 
     private List<String> mSyncEvents;
 
@@ -212,11 +212,15 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     protected void initActivity(Activity activity) {
-        this.activity = new WeakReference<Activity>(activity);
+        setActivity(activity);
     }
 
     public void setActivity(Activity activity) {
-        this.activity = new WeakReference<Activity>(activity);
+        if (activity != null) {
+            this.activity = new WeakReference<Activity>(activity);
+        } else {
+            this.activity = null;
+        }
     }
 
 	public void attachActivityLifecycle(Activity activity)
@@ -489,7 +493,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 
         if (modelListener != null) {
-            modelListener.processProperties(dict);
+            modelListener.get().processProperties(dict);
         }
     }
 
@@ -584,7 +588,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             }
 
             if (modelListener != null) {
-                modelListener.propertyChanged((String) name,
+                modelListener.get().propertyChanged((String) name,
                         change[INDEX_OLD_VALUE], change[INDEX_VALUE], this);
             }
         }
@@ -759,7 +763,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
         if (modelListener != null) {
             if (TiApplication.isUIThread()) {
-                modelListener.processApplyProperties(changedProps);
+                modelListener.get().processApplyProperties(changedProps);
             } else {
                 Message message = getMainHandler().obtainMessage(
                         MSG_MODEL_APPLY_PROPERTIES, changedProps);
@@ -831,7 +835,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
         if (modelListener != null) {
             if (TiApplication.isUIThread()) {
-                modelListener.processApplyProperties(changedProps);
+                modelListener.get().processApplyProperties(changedProps);
             } else {
                 if (wait) {
                     TiMessenger.sendBlockingMainMessage(getMainHandler()
@@ -1155,7 +1159,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             bubbles = bubbleParent;
         }
         if (eventOverrideDelegate != null) {
-            data = eventOverrideDelegate.overrideEvent(data, event, this);
+            data = eventOverrideDelegate.get().overrideEvent(data, event, this);
         }
         if (evaluators != null && data instanceof HashMap) {
             List<KrollDict> theListeners = null;
@@ -1298,7 +1302,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         onPropertyChanged(name, newValue, oldValue);
         if (modelListener != null) {
             if (TiApplication.isUIThread()) {
-                modelListener.propertyChanged(name, oldValue, newValue, this);
+                modelListener.get().propertyChanged(name, oldValue, newValue, this);
 
             } else {
                 KrollPropertyChange pch = new KrollPropertyChange(name,
@@ -1474,7 +1478,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 properties.put(nameString, change[INDEX_VALUE]);
             }
             if (isUiThread && modelListener != null) {
-                modelListener.propertyChanged(nameString,
+                modelListener.get().propertyChanged(nameString,
                         change[INDEX_OLD_VALUE], value, this);
             }
         }
@@ -1530,7 +1534,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
         case MSG_MODEL_PROPERTY_CHANGE: {
-            ((KrollPropertyChange) msg.obj).fireEvent(this, modelListener);
+            ((KrollPropertyChange) msg.obj).fireEvent(this, modelListener.get());
 
             return true;
         }
@@ -1557,7 +1561,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 synchronized (properties) {
                     props = (KrollDict) properties.clone();
                 }
-                modelListener.processProperties(props);
+                modelListener.get().processProperties(props);
             }
             return true;
         }
@@ -1566,12 +1570,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 if (msg.obj instanceof AsyncResult) {
                     AsyncResult result = (AsyncResult) msg.obj;
                     modelListener
-                            .processApplyProperties((KrollDict) result.getArg());
+                            .get().processApplyProperties((KrollDict) result.getArg());
                     result.setResult(null);
                     return true;
 
                 } else {
-                    modelListener.processApplyProperties((KrollDict) msg.obj);
+                    modelListener.get().processApplyProperties((KrollDict) msg.obj);
                 }
             }
             return true;
@@ -1656,7 +1660,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * @return <code>void</code>
      */
     protected void eventListenerAdded(String event, int count, KrollProxy proxy) {
-        modelListener.listenerAdded(event, count, this);
+        if (modelListener != null) {
+            modelListener.get().listenerAdded(event, count, this);
+        }
     }
 
     /**
@@ -1674,7 +1680,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      */
     protected void eventListenerRemoved(String event, int count,
             KrollProxy proxy) {
-        modelListener.listenerRemoved(event, count, this);
+        if (modelListener != null) {
+            modelListener.get().listenerRemoved(event, count, this);
+        }
     }
 
     /**
@@ -1689,7 +1697,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     public KrollProxyListener getModelListener() {
-        return modelListener;
+        return modelListener.get();
     }
 
     public void setSetPropertyListener(SetPropertyChangeListener listener) {
@@ -1697,25 +1705,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     public void setModelListener(KrollProxyListener modelListener,
-            Boolean applyProps) {
-        // Double-setting the same modelListener can potentially have weird
-        // side-effects.
-        if (this.modelListener != null
-                && this.modelListener.equals(modelListener)) {
-            return;
-        }
-
-        this.modelListener = modelListener;
-        if (modelListener != null && applyProps) {
-            if (TiApplication.isUIThread()) {
-                KrollDict props = null;
-                synchronized (properties) {
-                    props = (KrollDict) properties.clone();
-                }
-                modelListener.processProperties(props);
-            } else {
-                getMainHandler().sendEmptyMessage(MSG_MODEL_PROCESS_PROPERTIES);
+            boolean applyProps) {
+        if (modelListener != null) {
+            if (modelListener.equals(this.modelListener)) {
+                return;
             }
+            this.modelListener = new WeakReference<KrollProxyListener>(modelListener);
+            if (applyProps) {
+                if (TiApplication.isUIThread()) {
+                    KrollDict props = null;
+                    synchronized (properties) {
+                        props = (KrollDict) properties.clone();
+                    }
+                    modelListener.processProperties(props);
+                } else {
+                    getMainHandler().sendEmptyMessage(MSG_MODEL_PROCESS_PROPERTIES);
+                }
+            }
+        } else {
+            this.modelListener = null;
         }
     }
 
@@ -1993,7 +2001,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void reloadProperties() {
         if (modelListener != null) {
             synchronized (properties) {
-                modelListener.processProperties(getProperties());
+                modelListener.get().processProperties(getProperties());
             }
         }
     }
@@ -2019,7 +2027,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public void setEventOverrideDelegate(
             final TiViewEventOverrideDelegate eventOverrideDelegate) {
-        this.eventOverrideDelegate = eventOverrideDelegate;
+        if (eventOverrideDelegate != null) {
+            this.eventOverrideDelegate = new WeakReference<TiViewEventOverrideDelegate>(eventOverrideDelegate);
+        } else {
+            this.eventOverrideDelegate = null;
+        }
     }
 
 /**
