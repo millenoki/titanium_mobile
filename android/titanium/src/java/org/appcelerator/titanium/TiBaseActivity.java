@@ -7,7 +7,6 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -111,7 +110,6 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
-	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 	
 	private boolean isPaused = false;
@@ -196,7 +194,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	    return this.window == proxy;
 	}
 
-	public void removeWindowFromStack(TiWindowProxy proxy)
+	public void removeWindowFromStack(final TiWindowProxy proxy)
 	{
 	    boolean wasCurrentWindow = this.window == proxy;
 		proxy.onWindowFocusChange(false);
@@ -1641,7 +1639,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		layout = null;
 
 		//LW windows
-		if (window == null && view != null) {
+		if (view != null) {
 			view.releaseViews(isFinishing);
 			view = null;
 		}
