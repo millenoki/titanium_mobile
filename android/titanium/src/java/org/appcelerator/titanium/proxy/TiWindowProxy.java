@@ -35,8 +35,6 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Message;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -69,7 +67,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected PostOpenListener postOpenListener;
 	protected boolean windowActivityCreated = false;
 	
-	private TiWindowManager winManager = null;
+	protected TiWindowManager winManager = null;
 	
 	protected boolean customHandleOpenEvent = false;
 	
@@ -226,25 +224,17 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
 	}
-	
-	@Override
-    public void releaseViews(boolean activityFinishing)
-    {
-        super.releaseViews(activityFinishing);
-        closeFromActivity(activityFinishing);
-    }
-    
 
 	public void closeFromActivity(boolean activityIsFinishing)
 	{
 		if (!opened) { return; }
 		closing = false;
 		opened = false;
-        parent = null;
 
 		KrollDict data = null;
 		if (activityIsFinishing) {
 			releaseViews(true);
+	        setParent(null);
 		} else {
 			// If the activity is forced to destroy by Android OS due to lack of memory or 
 			// enabling "Don't keep activities" (TIMOB-12939), we will not release the
@@ -253,7 +243,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 			data = new KrollDict();
 			data.put("_closeFromActivityForcedToDestroy", true);
 		}
-		
 
 		// Once the window's activity is destroyed we will fire the close event.
 		// And it will dispose the handler of the window in the JS if the activity
