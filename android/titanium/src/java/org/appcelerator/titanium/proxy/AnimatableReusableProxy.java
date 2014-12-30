@@ -1,5 +1,6 @@
 package org.appcelerator.titanium.proxy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,9 +36,7 @@ public class AnimatableReusableProxy extends AnimatableProxy implements KrollPro
     @Override
     public void processApplyProperties(KrollDict d) {
         aboutToProcessProperties(d);
-        for (Map.Entry<String, Object> entry : d.entrySet()) {
-            propertySet(entry.getKey(), entry.getValue(), null, true);
-        }
+        handleProperties(d, true);
         didProcessProperties();
     }
     
@@ -45,9 +44,7 @@ public class AnimatableReusableProxy extends AnimatableProxy implements KrollPro
     public void processProperties(KrollDict d)
     {
         aboutToProcessProperties(d);
-        for (Map.Entry<String, Object> entry : d.entrySet()) {
-            propertySet(entry.getKey(), entry.getValue(), null, false);
-        }
+        handleProperties(d, false);
         didProcessProperties();
 
     }
@@ -67,9 +64,34 @@ public class AnimatableReusableProxy extends AnimatableProxy implements KrollPro
     @Override
     public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy)
     {
-        for (KrollPropertyChange change : changes) {
-            propertySet(change.getName(), change.getNewValue(), change.getOldValue(), true);
-        }
+        handleProperties(changes, true);
         didProcessProperties();
+    }
+    
+    protected ArrayList<String> keySequence() {
+        return null;
+    }
+    
+    protected void handleProperties(KrollDict d, final boolean changed) {
+        if (keySequence() != null) {
+            for (final String key : keySequence()) {
+                if (d.containsKey(key)) {
+                    propertySet(key, d.get(key), getProperty(key), changed);
+                    d.remove(key);
+                }
+            }
+        }
+        for (Map.Entry<String, Object> entry : d.entrySet()) {
+            final String key = entry.getKey();
+            propertySet(key, entry.getValue(), getProperty(key), changed);
+        }
+    }
+    
+    protected void handleProperties(List<KrollPropertyChange> changes, final boolean changed) {
+        KrollDict d = new KrollDict();
+        for (KrollPropertyChange change : changes) {
+            d.put(change.getName(), change.getNewValue());
+        }
+        handleProperties(d, changed);
     }
 }
