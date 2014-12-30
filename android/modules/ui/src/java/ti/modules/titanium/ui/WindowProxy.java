@@ -93,6 +93,124 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			TiCompositeLayout layout = new TiCompositeLayout(proxy.getActivity(), this);
 			setNativeView(layout);
 		}
+		
+        @Override
+        public void propertySet(String key, Object newValue, Object oldValue,
+                boolean changedProperty) {
+            TiBaseActivity activity = getWindowActivity();
+            switch (key) {
+            case TiC.PROPERTY_WINDOW_PIXEL_FORMAT:
+                getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, newValue)
+                        .sendToTarget();
+                break;
+            case TiC.PROPERTY_TITLE:
+                getMainHandler().obtainMessage(MSG_SET_TITLE, newValue)
+                        .sendToTarget();
+                break;
+
+            case TiC.PROPERTY_BAR_COLOR: {
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                    ActionBarProxy aBarProxy = activity.getActivityProxy()
+                            .getOrCreateActionBarProxy();
+                    if (aBarProxy != null) {
+                        aBarProxy.setPropertyAndFire(
+                                TiC.PROPERTY_BACKGROUND_COLOR, newValue);
+                    }
+                }
+                break;
+            }
+            case TiC.PROPERTY_BAR_OPACITY: {
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                    ActionBarProxy aBarProxy = activity.getActivityProxy()
+                            .getOrCreateActionBarProxy();
+                    if (aBarProxy != null) {
+                        aBarProxy.setPropertyAndFire(
+                                TiC.PROPERTY_BACKGROUND_OPACITY, newValue);
+                    }
+                }
+                break;
+            }
+            case TiC.PROPERTY_TITLE_VIEW: {
+                KrollProxy viewProxy = addProxyToHold(newValue,
+                        TiC.PROPERTY_TITLE_VIEW);
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                    ActionBarProxy aBarProxy = activity.getActivityProxy()
+                            .getOrCreateActionBarProxy();
+                    if (aBarProxy != null) {
+                        aBarProxy.setPropertyAndFire(TiC.PROPERTY_TITLE_VIEW,
+                                viewProxy);
+                    }
+                }
+                break;
+            }
+            case TiC.PROPERTY_BAR_ICON: {
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                    ActionBarProxy aBarProxy = activity.getActivityProxy()
+                            .getOrCreateActionBarProxy();
+                    if (aBarProxy != null) {
+                        aBarProxy.setPropertyAndFire(TiC.PROPERTY_ICON,
+                                newValue);
+                    }
+                }
+                break;
+            }
+            case TiC.PROPERTY_BAR_IMAGE: {
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                    ActionBarProxy aBarProxy = activity.getActivityProxy()
+                            .getOrCreateActionBarProxy();
+                    if (aBarProxy != null) {
+                        aBarProxy.setPropertyAndFire(
+                                TiC.PROPERTY_BACKGROUND_IMAGE, newValue);
+                    }
+                }
+                break;
+            }
+            case TiC.PROPERTY_TOUCH_ENABLED:
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                    if (TiConvert.toBoolean(newValue, true)) {
+                        activity.getWindow()
+                                .clearFlags(
+                                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                                                | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    } else {
+                        activity.getWindow()
+                                .addFlags(
+                                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                                                | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    }
+                }
+                break;
+            case TiC.PROPERTY_FOCUSABLE:
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                    if (TiConvert.toBoolean(newValue, true)) {
+                        activity.getWindow().clearFlags(
+                                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+                    } else {
+                        activity.getWindow().addFlags(
+                                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+                    }
+                }
+                break;
+            case TiC.PROPERTY_EXIT_ON_CLOSE:
+                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                    Intent intent = activity.getIntent();
+                    intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT,
+                            TiConvert.toBoolean(newValue));
+                }
+                break;
+            case TiC.PROPERTY_TOP:
+            case TiC.PROPERTY_BOTTOM:
+            case TiC.PROPERTY_LEFT:
+            case TiC.PROPERTY_RIGHT:
+                if (!lightweight) {
+                    break;
+                }
+                break;
+            default:
+                super.propertySet(key, newValue, oldValue, changedProperty);
+                break;
+            }
+        }
 	}
 	 
 	
@@ -517,101 +635,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				intent.putExtra(TiC.PROPERTY_SPLIT_ACTIONBAR, splitActionBar);
 			}
 		}
-	}
-
-	@Override
-    public void onPropertyChanged(String name, Object value, Object oldValue)
-	{
-		if ((opening || opened) && !lightweight) {
-		    TiBaseActivity activity = getWindowActivity();
-		    if (activity == null) {
-		        return;
-		    }
-			switch (name) {
-			case TiC.PROPERTY_WINDOW_PIXEL_FORMAT:
-                getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, value).sendToTarget();
-                break;
-			case TiC.PROPERTY_TITLE:
-                getMainHandler().obtainMessage(MSG_SET_TITLE, value).sendToTarget();
-                break;
-            case TiC.PROPERTY_TOP:
-            case TiC.PROPERTY_BOTTOM:
-            case TiC.PROPERTY_LEFT:
-            case TiC.PROPERTY_RIGHT:
-                // The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
-                break;
-            case TiC.PROPERTY_BAR_COLOR:
-            {
-                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
-                if (aBarProxy != null) {
-                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_BACKGROUND_COLOR, value);
-                }
-                break;
-            }
-            case TiC.PROPERTY_BAR_OPACITY:
-            {
-                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
-                if (aBarProxy != null) {
-                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_BACKGROUND_OPACITY, value);
-                }
-                break;
-            }
-            case TiC.PROPERTY_TITLE_VIEW:
-            {
-                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
-                if (aBarProxy != null) {
-                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_CUSTOM_VIEW, value);
-                }
-                break;
-            }
-            case TiC.PROPERTY_BAR_ICON:
-            {
-                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
-                if (aBarProxy != null) {
-                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_ICON, value);
-                }
-                break;
-            }
-            case TiC.PROPERTY_BAR_IMAGE:
-            {
-                ActionBarProxy aBarProxy  = activity.getActivityProxy().getOrCreateActionBarProxy();
-                if (aBarProxy != null) {
-                    aBarProxy.setPropertyAndFire(TiC.PROPERTY_BACKGROUND_IMAGE, value);
-                }
-                break;
-            }
-			case TiC.PROPERTY_TOUCH_ENABLED:
-                if (TiConvert.toBoolean(value, true))
-                {
-                    activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                            | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                }
-                else {
-                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-                        | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                }
-                break;
-			case TiC.PROPERTY_FOCUSABLE:
-                if (TiConvert.toBoolean(value, true))
-                {
-                    activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-                }
-                else {
-                    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-                }
-                break;
-			case TiC.PROPERTY_EXIT_ON_CLOSE:
-			    if (activity != null) {
-                    Intent intent = activity.getIntent();
-                    intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, TiConvert.toBoolean(value));
-                }
-                break;
-
-            default:
-                break;
-            }
-		}
-		super.onPropertyChanged(name, value, oldValue);
 	}
 
 	@Override
