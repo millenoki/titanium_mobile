@@ -53,7 +53,7 @@ exports.bootstrap = function(Titanium) {
 		var handle = new PersistentHandle(this);
 
 		var self = this;
-		this.on("close", function(e) {
+		this.once("close", function(e) {
 			if (e._closeFromActivityForcedToDestroy) {
 				if (kroll.DBG) {
 					kroll.log(TAG, "Window is closed because the activity is forced to destroy by Android OS.");
@@ -67,6 +67,7 @@ exports.bootstrap = function(Titanium) {
 				self._urlContext = null;
 			}
 			handle.dispose();
+			handle = null;
 
 			if (kroll.DBG) {
 				kroll.log(TAG, "Window is closed normally.");
