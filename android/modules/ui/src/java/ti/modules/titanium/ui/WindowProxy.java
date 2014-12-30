@@ -99,9 +99,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		TiUIView v = new TiWindowView(this);
-		setView(v);
-		return v;
+//		TiUIView v = new TiWindowView(this);
+//		setView(v);
+		return new TiWindowView(this);
 	}
 
 	public void addLightweightWindowToStack() 
