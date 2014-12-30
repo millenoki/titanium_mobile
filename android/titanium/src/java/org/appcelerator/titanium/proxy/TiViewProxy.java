@@ -703,26 +703,21 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
     }
 
 	protected void handleChildRemoved(KrollProxy child, final boolean shouldDetach) {
-	    if (peekView() != null) {
+//	    if (peekView() != null) {
             if (TiApplication.isUIThread()) {
                 handleRemove((TiViewProxy) child, shouldDetach);
                 return;
             }
             ArrayList<Object> args = new ArrayList<Object>();
             TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_REMOVE_CHILD, shouldDetach?1:0, 0), child);
-        }
+//        }
+	    super.handleChildRemoved(child, shouldDetach);
     }
 
     public void handleRemove(TiViewProxy child, final boolean shouldDetach)
     {
         if (view != null) {
             view.remove(child.peekView());
-        }
-        if (child != null) {
-            if (shouldDetach) {
-                child.releaseViews(false);
-            }
-            child.setActivity(null);
         }
     }
 
