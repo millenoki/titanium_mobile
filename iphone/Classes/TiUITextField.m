@@ -334,27 +334,17 @@
 
 -(void)setLeftButton_:(id)value
 {
-    TiViewProxy* vp = ( TiViewProxy*)[(TiUITextWidgetProxy*)self.proxy createChildFromObject:value];
-    UIView* leftView = [[self textWidgetView] leftView];
-    if ([leftView isKindOfClass:[TiUIView class]]){
-        TiViewProxy* oldVp = (TiViewProxy*)[((TiUIView*)leftView) proxy];
-        [oldVp detachView];
-        [oldVp setParent:nil];
-        [self.proxy forgetProxy:oldVp];
-        [self.proxy removeBindingForKey:@"__leftButton__"];
-        leftView = nil;
-    }
-    if (vp) {
+    UIView* leftView = nil;
+    TiProxy* vp = [[self viewProxy] addObjectToHold:value forKey:@"leftButton"];
+    if (IS_OF_CLASS(vp, TiViewProxy)) {
         // to make sure the proxy is not released
         //we need the proxy to be retained to compute the rect
-        [self.proxy addBinding:vp forKey:@"__leftButton__"];
-        [vp setParent:(TiParentingProxy*)self.proxy];
-        LayoutConstraint* constraint = [vp layoutProperties];
+        LayoutConstraint* constraint = [(TiViewProxy*)vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->left))
         {
             constraint->left = TiDimensionDip(0);
         }
-        leftView = [vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
+        leftView = [(TiViewProxy*)vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
         
     }
     [[self textWidgetView] setLeftView:leftView];
@@ -367,27 +357,15 @@
 
 -(void)setRightButton_:(id)value
 {
-    TiViewProxy* vp = ( TiViewProxy*)[(TiUITextWidgetProxy*)self.proxy createChildFromObject:value];
-    UIView* rightView = [[self textWidgetView] rightView];
-    if ([rightView isKindOfClass:[TiUIView class]]){
-        TiViewProxy* oldVp = (TiViewProxy*)[((TiUIView*)rightView) proxy];
-        [oldVp detachView];
-        [oldVp setParent:nil];
-        [self.proxy forgetProxy:oldVp];
-        [self.proxy removeBindingForKey:@"__rightButton__"];
-        rightView = nil;
-    }
-    if (vp) {
-        // to make sure the proxy is not released
-        //we need the proxy to be retained to compute the rect
-        [self.proxy addBinding:vp forKey:@"__rightButton__"];
-        [vp setParent:(TiParentingProxy*)self.proxy];
-        LayoutConstraint* constraint = [vp layoutProperties];
+    UIView* rightView = nil;
+    TiProxy* vp = [[self viewProxy] addObjectToHold:value forKey:@"rightButton"];
+    if (IS_OF_CLASS(vp, TiViewProxy)) {
+        LayoutConstraint* constraint = [(TiViewProxy*)vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->right))
         {
             constraint->right = TiDimensionDip(0);
         }
-        rightView = [vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
+        rightView = [(TiViewProxy*)vp getAndPrepareViewForOpening:[self textWidgetView].bounds];
         
     }
     [[self textWidgetView] setRightView:rightView];
