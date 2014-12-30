@@ -1845,7 +1845,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void release() {
         if (krollObject != null) {
             krollObject.release();
+            krollObject = null;
         }
+        synchronized (properties) {
+            properties = null;
+        }
+        modelListener = null;
+        evaluators = null;
+        eventListeners = null;
+        eventOverrideDelegate = null;
+        mSyncEvents = null;
+        defaultValues = null;
+        createdInModule = null;
     }
 
 //    // TODO RM_TICONTEXT
