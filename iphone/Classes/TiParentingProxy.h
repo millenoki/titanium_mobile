@@ -52,7 +52,8 @@
  */
 -(void)removeAllChildren:(id)arg;
 
-
+-(void)childAdded:(TiProxy*)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout;
+-(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach;
 /**
  get the next children of a certain class starting from a child
  @param class The child class looked for
@@ -64,7 +65,11 @@
 -(void)runBlock:(void (^)(TiProxy* proxy))block recursive:(BOOL)recursive;
 -(void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object;
 
--(void)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key;
--(void)removeHoldedProxyForKey:(NSString*)key;
+-(TiProxy*)addObjectToHold:(id)value forKey:(NSString*)key;
+-(TiProxy*)addObjectToHold:(id)value forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout;
+-(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key;
+-(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout;
+-(TiProxy*)removeHoldedProxyForKey:(NSString*)key;
 -(TiProxy*)holdedProxyForKey:(NSString*)key;
+-(NSArray*)allKeysForHoldedProxy:(id)object;
 @end

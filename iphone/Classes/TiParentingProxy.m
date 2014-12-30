@@ -156,6 +156,9 @@
 
 -(void)childAdded:(TiProxy*)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
 {
+    if ([child respondsToSelector:@selector(setParent:)]) {
+        [(id)child setParent:self];
+    }
 }
 
 -(void)addProxy:(id)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
@@ -177,7 +180,6 @@
     }
     childrenCount = [children count];
     pthread_rwlock_unlock(&childrenLock);
-    [child setParent:self];
     [self childAdded:child atIndex:position shouldRelayout:shouldRelayout];
 }
 
@@ -202,6 +204,10 @@
 
 -(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
 {
+    if ([child respondsToSelector:@selector(setParent:)]) {
+        [(id)child setParent:nil];
+    }
+    [self forgetProxy:child];
 }
 
 -(void)removeProxy:(id)child shouldDetach:(BOOL)shouldDetach
@@ -215,9 +221,7 @@
 	}
 	pthread_rwlock_unlock(&childrenLock);
     
-	[child setParent:nil];
     [self childRemoved:child wasChild:wasChild shouldDetach:shouldDetach];
-   	[self forgetProxy:child];
 }
 
 -(void)removeProxy:(id)child
@@ -427,32 +431,54 @@
     [[self children] makeObjectsPerformSelector:selector withObject:object];
 }
 
--(void)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key
+-(TiProxy*)addObjectToHold:(id)value forKey:(NSString*)key
 {
-    if ([_holdedProxies objectForKey:key]) {
-        NSLog(@"[WARN] there is already an holded proxy for the key %@", key);
-        return;
+    return [self addObjectToHold:value forKey:key shouldRelayout:NO];
+}
+-(TiProxy*)addObjectToHold:(id)value forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout
+{
+    TiProxy* theProxy = [self createChildFromObject:value];
+    
+    return [self addProxyToHold:theProxy forKey:key shouldRelayout:shouldRelayout];
+}
+-(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key
+{
+    [self addProxyToHold:proxy forKey:key shouldRelayout:NO];
+}
+-(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout
+{
+
+    TiProxy* oldProxy = [_holdedProxies objectForKey:key];
+    if (oldProxy) {
+        if (oldProxy == proxy) return proxy;
+        [self childRemoved:oldProxy wasChild:YES shouldDetach:YES];
     }
-    [self rememberProxy:proxy];
-    if ([proxy respondsToSelector:@selector(setParent:)]) {
-        [(id)proxy setParent:self];
+    if (proxy) {
+        [self rememberProxy:proxy];
+        [_holdedProxies setValue:proxy forKey:key];
+        [self childAdded:proxy atIndex:-1 shouldRelayout:shouldRelayout];
+    } else {
+        [_holdedProxies removeObjectForKey:key];
     }
-    [_holdedProxies setValue:proxy forKey:key];
+    return proxy;
 }
 
--(void)removeHoldedProxyForKey:(NSString*)key
+-(TiProxy*)removeHoldedProxyForKey:(NSString*)key
 {
     if (!key) return;
     TiProxy* proxy = [_holdedProxies objectForKey:key];
     if (!proxy) {
         NSLog(@"[WARN] there is no holded proxy for the key %@", key);
-        return;
+        return nil;
     }
-    if ([proxy respondsToSelector:@selector(setParent:)]) {
-        [(id)proxy setParent:nil];
-    }
-    [self forgetProxy:proxy];
+    [self childRemoved:proxy wasChild:YES shouldDetach:YES];
     [_holdedProxies removeObjectForKey:key];
+    return proxy;
+}
+
+-(NSArray*)allKeysForHoldedProxy:(id)object
+{
+    return [_holdedProxies allKeysForObject:object];
 }
 
 -(TiProxy*)holdedProxyForKey:(NSString*)key
