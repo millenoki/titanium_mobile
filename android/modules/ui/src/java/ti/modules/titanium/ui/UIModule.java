@@ -280,21 +280,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 			TiBaseActivity tiBaseActivity = (TiBaseActivity)activity;
 			TiWindowProxy windowProxy = tiBaseActivity.getWindowProxy();
 
-			if (windowProxy == null)
-			{
-				if (tiBaseActivity.lwWindow != null)
-				{
-					tiBaseActivity.lwWindow.setOrientationModes(orientationModes);
-				}
-				else
-				{
-					Log.e(TAG, "No window has been associated with activity, unable to set orientation");
-				}
-			}
-			else
-			{
-				windowProxy.setOrientationModes(orientationModes);
-			}
+			windowProxy.setOrientationModes(orientationModes);
 		}	
 	}
 
