@@ -204,6 +204,7 @@ public abstract class TiUIView
 		if (child != null) {
 			View cv = child.getOuterView();
 			if (cv != null) {
+			    TiUIHelper.removeViewFromSuperView(cv);
 			    if (!isEnabled) {
                     child.setEnabled(isEnabled, true);
                 }
