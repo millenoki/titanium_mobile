@@ -116,12 +116,20 @@ public abstract class KrollObject implements Handler.Callback
 	{
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
 			doRelease();
-
 		} else {
 			Message message = handler.obtainMessage(MSG_RELEASE, null);
 			message.sendToTarget();
 		}
 	}
+	
+	@Override
+    protected void finalize() throws Throwable
+    {
+        super.finalize();
+        if (proxySupport != null) {
+            proxySupport.release();
+        }
+    }
 
 	public void setWindow(Object windowProxyObject)
 	{
@@ -138,7 +146,6 @@ public abstract class KrollObject implements Handler.Callback
 		switch (msg.what) {
 			case MSG_RELEASE: {
 				doRelease();
-
 				return true;
 			}
 			case MSG_SET_WINDOW: {
