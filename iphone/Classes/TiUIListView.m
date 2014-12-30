@@ -53,7 +53,7 @@
     TiViewProxy *_searchWrapper;
     TiViewProxy *_headerWrapper;
     TiViewProxy *_footerViewProxy;
-    TiViewProxy *_pullViewProxy;
+//    TiViewProxy *_pullViewProxy;
 #ifdef USE_TI_UIREFRESHCONTROL
     TiUIRefreshControlProxy* _refreshControlProxy;
 #endif
@@ -69,6 +69,7 @@
     UIView *_pullViewWrapper;
     CGFloat pullThreshhold;
     BOOL _pullViewVisible;
+    BOOL _hasPullView;
 
     BOOL pullActive;
 //    CGPoint tapPoint;
@@ -127,6 +128,7 @@ static NSDictionary* replaceKeysForRow;
         _updateInsetWithKeyboard = NO;
         _currentSection = -1;
         _canSwipeCells = NO;
+        _hasPullView = NO;
     }
     return self;
 }
@@ -144,12 +146,6 @@ static NSDictionary* replaceKeysForRow;
     RELEASE_TO_NIL(_pullViewWrapper)
     RELEASE_TO_NIL(_searchWrapper)
     RELEASE_TO_NIL(_headerWrapper)
-    if (_pullViewProxy)
-    {
-		[_pullViewProxy setProxyObserver:nil];
-        [_pullViewProxy detachView];
-        RELEASE_TO_NIL(_pullViewProxy)
-    }
     if (_headerViewProxy)
     {
 		[_headerViewProxy setProxyObserver:nil];
@@ -329,7 +325,6 @@ static NSDictionary* replaceKeysForRow;
     }
     if (_pullViewWrapper != nil) {
         _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
-        [_pullViewProxy parentSizeWillChange];
     }
 }
 
@@ -371,19 +366,25 @@ static NSDictionary* replaceKeysForRow;
 -(void)proxyDidRelayout:(id)sender
 {
 //    TiThreadPerformOnMainThread(^{
-        if (sender == _headerViewProxy) {
-            UIView* headerView = [[self tableView] tableHeaderView];
-            [headerView setFrame:[headerView bounds]];
-            [[self tableView] setTableHeaderView:headerView];
-            [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
-        } else if (sender == _footerViewProxy) {
-            UIView *footerView = [[self tableView] tableFooterView];
-            [footerView setFrame:[footerView bounds]];
-            [[self tableView] setTableFooterView:footerView];
-            [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
-        } else if (sender == _pullViewProxy) {
-            pullThreshhold = -[self tableView].contentInset.top + ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
+    if (sender == _headerViewProxy) {
+        UIView* headerView = [[self tableView] tableHeaderView];
+        [headerView setFrame:[headerView bounds]];
+        [[self tableView] setTableHeaderView:headerView];
+        [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
+    } else if (sender == _footerViewProxy) {
+        UIView *footerView = [[self tableView] tableFooterView];
+        [footerView setFrame:[footerView bounds]];
+        [[self tableView] setTableFooterView:footerView];
+        [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
+    } else {
+        NSArray* keys = [[self viewProxy] allKeysForHoldedProxy:sender];
+        if ([keys count] > 0) {
+            NSString* key = [keys objectAtIndex:0];
+            if ([key isEqualToString:@"pullView"]) {
+                pullThreshhold = -[self tableView].contentInset.top + ([(TiViewProxy*)sender view].frame.origin.y - _pullViewWrapper.bounds.size.height);
+            }
         }
+    }
 //    },YES);
 }
 
@@ -569,7 +570,7 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)closePullView:(NSNumber*)anim
 {
-    if (!_pullViewVisible) return;
+    if (!_hasPullView || !_pullViewVisible) return;
     _pullViewVisible = NO;
     BOOL animated = YES;
 	if (anim != nil)
@@ -591,7 +592,7 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)showPullView:(NSNumber*)anim
 {
-    if (!_pullViewProxy || _pullViewVisible) {
+    if (!_hasPullView || _pullViewVisible) {
         return;
     }
     _pullViewVisible = YES;
@@ -919,27 +920,22 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setPullView_:(id)args
 {
-    TiViewProxy* viewproxy = (TiViewProxy*)[(TiUIListViewProxy*)self.proxy createChildFromObject:args];
-    if (viewproxy == nil) {
-        [_pullViewProxy setProxyObserver:nil];
-        [_pullViewProxy windowWillClose];
-        [_pullViewWrapper removeFromSuperview];
-        [_pullViewProxy windowDidClose];
-        [self.proxy forgetProxy:_pullViewProxy];
-        RELEASE_TO_NIL(_pullViewWrapper);
-        RELEASE_TO_NIL(_pullViewProxy);
-    } else {
-        if ([self tableView].bounds.size.width==0)
-        {
-            [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
-            return;
-        }
-        if (_pullViewProxy != nil) {
-            [_pullViewProxy setProxyObserver:nil];
-            [_pullViewProxy windowWillClose];
-            [_pullViewProxy windowDidClose];
-            RELEASE_TO_NIL(_pullViewProxy);
-        }
+    if ([self tableView].bounds.size.width==0)
+    {
+        [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
+        return;
+    }
+    TiProxy* vp = [[self viewProxy] addObjectToHold:args forKey:@"pullView"];
+    if (IS_OF_CLASS(vp, TiViewProxy)) {
+        TiViewProxy* viewproxy = (TiViewProxy*)vp;
+        _hasPullView = YES;
+
+//        if (_pullViewProxy != nil) {
+//            [_pullViewProxy setProxyObserver:nil];
+//            [_pullViewProxy windowWillClose];
+//            [_pullViewProxy windowDidClose];
+//            RELEASE_TO_NIL(_pullViewProxy);
+//        }
         if (_pullViewWrapper == nil) {
             _pullViewWrapper = [[UIView alloc] init];
             _pullViewWrapper.backgroundColor = [UIColor clearColor];
@@ -947,8 +943,8 @@ static NSDictionary* replaceKeysForRow;
         }
         CGSize refSize = _tableView.bounds.size;
         [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
-        _pullViewProxy = [viewproxy retain];
-        LayoutConstraint *viewLayout = [_pullViewProxy layoutProperties];
+//        _pullViewProxy = [viewproxy retain];
+        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
         //If height is not dip, explicitly set it to SIZE
         if (viewLayout->height.type != TiDimensionTypeDip) {
             viewLayout->height = TiDimensionAutoSize;
@@ -961,11 +957,21 @@ static NSDictionary* replaceKeysForRow;
         viewLayout->top = TiDimensionUndefined;
         viewLayout->centerY = TiDimensionUndefined;
         
-        [_pullViewProxy setProxyObserver:self];
-        [_pullViewWrapper addSubview:[_pullViewProxy getAndPrepareViewForOpening:_pullViewWrapper.bounds]];
+        [viewproxy setCanBeResizedByFrame:YES];
+        [viewproxy setProxyObserver:self];
+        [_pullViewWrapper addSubview:[viewproxy getAndPrepareViewForOpening:_pullViewWrapper.bounds]];
         if (_pullViewVisible) {
             [self showPullView:@(NO)];
         }
+    } else {
+        _hasPullView = NO;
+        //        [_pullViewProxy setProxyObserver:nil];
+        //        [_pullViewProxy windowWillClose];
+        [_pullViewWrapper removeFromSuperview];
+        //        [_pullViewProxy windowDidClose];
+        //        [self.proxy forgetProxy:_pullViewProxy];
+        RELEASE_TO_NIL(_pullViewWrapper);
+        //        RELEASE_TO_NIL(_pullViewProxy);
     }
     
 }
@@ -2109,7 +2115,7 @@ static NSDictionary* replaceKeysForRow;
 	{
         [self fireScrollEvent:scrollView];
     }
-    if ( (_pullViewProxy != nil) && ([scrollView isTracking]) ) {
+    if ( _hasPullView && ([scrollView isTracking]) ) {
         BOOL pullChanged = NO;
         if ( (scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO) ) {
             pullActive = YES;
@@ -2156,7 +2162,7 @@ static NSDictionary* replaceKeysForRow;
     
     [self detectSectionChange];
     
-    if ( (_pullViewProxy != nil) && (pullActive == YES) ) {
+    if ( _hasPullView && (pullActive == YES) ) {
         pullActive = NO;
         [self.proxy fireEvent:@"pullend" propagate:NO];
     }
