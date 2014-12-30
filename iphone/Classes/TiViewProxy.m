@@ -1323,6 +1323,7 @@ SEL GetterForKrollProperty(NSString * key)
 - (TiUIView *)barButtonViewForRect:(CGRect)bounds
 {
     self.canBeResizedByFrame = YES;
+    isUsingBarButtonItem = YES;
     //TODO: This logic should have a good place in case that refreshLayout is used.
 	LayoutConstraint barButtonLayout = layoutProperties;
 	if (TiDimensionIsUndefined(barButtonLayout.width))
@@ -2027,6 +2028,8 @@ SEL GetterForKrollProperty(NSString * key)
         [self makeChildrenPerformSelector:@selector(detachView) withObject:nil];
     }
     
+    [self removeBarButtonView];
+    
 	if (view!=nil)
 	{
 		[self viewWillDetach];
@@ -2694,7 +2697,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(void)refreshViewIfNeeded:(BOOL)recursive
 {
     BOOL needsRefresh = OSAtomicTestAndClear(TiRefreshViewEnqueued, &dirtyflags);
-    TiViewProxy* viewParent = [self viewParent];
+    TiViewProxy* viewParent = isUsingBarButtonItem?nil:[self viewParent];
     if (viewParent && [viewParent willBeRelaying] && ![viewParent absoluteLayout]) {
         return;
     }
@@ -2713,7 +2716,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         return;
     }
     
-	if(parent && !parentVisible)
+	if(viewParent && !parentVisible)
 	{
 		VerboseLog(@"[INFO] Parent Invisible");
 		return;
@@ -2727,7 +2730,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     if (view != nil)
 	{
         BOOL relayout = ![self suppressesRelayout];
-        if (parent != nil && ![viewParent absoluteLayout]) {
+        if (viewParent != nil && ![viewParent absoluteLayout]) {
             //Do not mess up the sandbox in vertical/horizontal layouts
             relayout = NO;
         }
