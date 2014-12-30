@@ -88,10 +88,19 @@ def prepare_xcode():
 	return process_return_code
 
 def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None, ignore_files=None):
-	for root, dirs, files in os.walk(dir):
-		for name in ignoreDirs:
-			if name in dirs:
-				dirs.remove(name)	# don't visit ignored directories
+	for root, dirs, files in os.walk(dir, topdown=True):
+		dirs[:] = [d for d in dirs if d not in ignoreDirs]
+		files[:] = [f for f in files if not f.startswith('.')]
+		
+		skip = False
+		if ignore_paths != None:
+			for p in ignore_paths:
+				if root.startswith(p):
+					skip = True
+					break
+		if skip:
+			continue
+
 		for  dd  in  dirs:
 			from_ = os.path.join(root, dd)
 			if os.path.islink(from_):
@@ -102,15 +111,10 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None, ignore_files=N
 				a.external_attr  = 2716663808L
 				zf.writestr(a,os.readlink(from_))
 		for file in files:
-			skip = False
-			if ignore_paths != None:
-				for p in ignore_paths:
-					if root.startswith(p):
-						skip = True
-						continue
 			from_ = os.path.join(root, file)
-			if skip or (ignore_files != None and from_ in ignore_files):
+			if (ignore_files != None and from_ in ignore_files):
 				continue
+
 			e = os.path.splitext(file)
 			if len(e)==2 and e[1] in ignoreExtensions: continue
 			to_ = from_.replace(dir, basepath, 1)
@@ -322,9 +326,9 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	ignore_paths=[]
 	ignore_paths.append(os.path.join(iphoneSrc, xcodeProject))
 	ignore_paths.append(os.path.join(iphoneSrc,  'Build'))
-	ignore_paths.append(os.path.join(iphoneSrc,  'build'))
+	ignore_paths.append(os.path.join(iphoneSrc, 'build'))
 
-	zip_dir(zf,iphoneSrc,iphoneDst,subs, ignore_paths=ignore_paths)
+	zip_dir(zf,iphoneSrc,iphoneDst,subs, None, ignore_paths)
 	if (prepare_xcode() == 0):
 		zip_dir(zf,os.path.join(top_dir, 'dist', 'ios', xcodeProject),iphoneDst + '/' +  xcodeProject,subs)
 	else:
