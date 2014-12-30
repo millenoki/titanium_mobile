@@ -491,13 +491,14 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 			if (!newTitle.equals(oldTitle)) {
 				final String fnewTitle = newTitle;
-				if (!TiActivityHelper.setActionBarTitle(this, fnewTitle)) {
+				
 				    runOnUiThread(new Runnable(){
                         public void run() {
-                            setTitle(fnewTitle);
+                            if (!TiActivityHelper.setActionBarTitle(TiBaseActivity.this, fnewTitle)) {
+                                setTitle(fnewTitle);
+                            }
                         }
                     });
-				}
 			}
 		}
 	}
