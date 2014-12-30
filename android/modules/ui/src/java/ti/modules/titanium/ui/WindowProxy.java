@@ -145,6 +145,18 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			
 		}
 	}
+	
+	private static final ArrayList<String> KEYS_TO_KEEP;
+    static{
+      ArrayList<String> tmp = new ArrayList<String>();
+      tmp.add(TiC.PROPERTY_FULLSCREEN);
+      tmp.add(TiC.PROPERTY_ORIENTATION_MODES);
+      tmp.add(TiC.PROPERTY_LIGHTWEIGHT);
+      tmp.add(TiC.PROPERTY_MODAL);
+      tmp.add(TiC.PROPERTY_NAV_BAR_HIDDEN);
+      tmp.add(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE);
+      KEYS_TO_KEEP = tmp;
+    }
 
 	@Override
 	public void open(@Kroll.argument(optional = true) Object arg)
@@ -152,20 +164,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		HashMap<String, Object> option = null;
 		if (arg instanceof HashMap) {
 			option = (HashMap<String, Object>) arg;
+			if (option != null) {
+	            KrollDict props = TiConvert.toKrollDict(option);
+	            props.keySet().retainAll(KEYS_TO_KEEP);
+	            properties.putAll(props);
+	        }
 		}
-		if (option != null) {
-		    KrollDict props = new KrollDict(option);
-		    Set<String> propsToKeep = new HashSet<String>();
-            propsToKeep.add(TiC.PROPERTY_FULLSCREEN);
-            propsToKeep.add(TiC.PROPERTY_ORIENTATION_MODES);
-            propsToKeep.add(TiC.PROPERTY_LIGHTWEIGHT);
-            propsToKeep.add(TiC.PROPERTY_MODAL);
-            propsToKeep.add(TiC.PROPERTY_NAV_BAR_HIDDEN);
-            propsToKeep.add(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE);
-            props.keySet().retainAll(propsToKeep);
-			properties.putAll(props);
-		}
-
 		if (hasProperty(TiC.PROPERTY_ORIENTATION_MODES)) {
 			Object obj = getProperty(TiC.PROPERTY_ORIENTATION_MODES);
 			if (obj instanceof Object[]) {
