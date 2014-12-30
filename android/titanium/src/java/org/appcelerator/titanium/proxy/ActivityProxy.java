@@ -353,6 +353,10 @@ public class ActivityProxy extends KrollProxy
 	public void release()
 	{
 		super.release();
+		if (actionBarProxy != null) {
+		    actionBarProxy.release();
+		    actionBarProxy = null;
+		}
 		wrappedActivity = null;
 	}
 
