@@ -34,6 +34,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.proxy.ParentingProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
@@ -1432,6 +1434,19 @@ public class TiUIHelper
 		 ViewGroup parentViewGroup = (ViewGroup) view.getParent();
         if (parentViewGroup != null) {
             parentViewGroup.removeView(view);
+        }
+	}
+	
+	public static void removeViewFromSuperView(final TiViewProxy viewProxy) {
+	    ParentingProxy parentProxy = viewProxy.getParent();
+        //Remove parent view if possible
+        if (parentProxy != null && parentProxy instanceof TiViewProxy) {
+            TiUIView tiView = viewProxy.peekView();
+            TiUIView parentView = ((TiViewProxy) parentProxy).peekView();
+            if (parentView != null && tiView != null) {
+                parentView.remove(tiView);
+            }
+            viewProxy.setParent(null);
         }
 	}
 	
