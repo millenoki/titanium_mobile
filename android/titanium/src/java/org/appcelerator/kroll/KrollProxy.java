@@ -1534,7 +1534,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
         case MSG_MODEL_PROPERTY_CHANGE: {
-            ((KrollPropertyChange) msg.obj).fireEvent(this, modelListener.get());
+            if (modelListener != null) {
+                ((KrollPropertyChange) msg.obj).fireEvent(this, modelListener.get());
+            }
 
             return true;
         }
@@ -1561,7 +1563,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 synchronized (properties) {
                     props = (KrollDict) properties.clone();
                 }
-                modelListener.get().processProperties(props);
+                if (modelListener != null) {
+                    modelListener.get().processProperties(props);
+                }
             }
             return true;
         }
@@ -1847,9 +1851,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             krollObject.release();
             krollObject = null;
         }
-        synchronized (properties) {
-            properties = null;
+        if (properties != null) {
+            synchronized (properties) {
+                properties = null;
+            }
         }
+        
         modelListener = null;
         evaluators = null;
         eventListeners = null;
