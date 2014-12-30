@@ -8,11 +8,11 @@
 package ti.modules.titanium.ui;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -74,8 +74,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public WindowProxy()
 	{
 		super();
-		defaultValues.put(TiC.PROPERTY_WINDOW_PIXEL_FORMAT, PixelFormat.UNKNOWN);
-	}
+	}  
 
 	@Override
 	protected KrollDict getLangConversionTable()
@@ -252,16 +251,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public void removeLightweightWindowFromStack()
 	{
 		// Remove LW window from decor view and remove it from stack
-		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
-		if (activity != null) {
-			ActivityProxy activityProxy = activity.getActivityProxy();
-			closeFromActivity(true);
-			if (activityProxy != null) {
-				activityProxy.getDecorView().remove(this);
-			}
-			activity.removeWindowFromStack(this);
-			
-		}
+        closeFromActivity(true);
 	}
 	
 	private static final ArrayList<String> KEYS_TO_KEEP;
@@ -493,7 +483,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		opened = true;
 		opening = false;
 		
-		if (parent == null && windowActivity != null) {
+		if (parent == null && winManager == null && windowActivity != null) {
 			TiBaseActivity activity = windowActivity.get();
 			// Fire the open event after setContentView() because getActionBar() need to be called
 			// after setContentView(). (TIMOB-14914)
@@ -512,7 +502,14 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public void closeFromActivity(boolean activityIsFinishing)
 	{
 		super.closeFromActivity(activityIsFinishing);
-		windowActivity = null;
+        if (parent == null && winManager == null && windowActivity != null) {
+            TiBaseActivity activity = windowActivity.get();
+            // Fire the open event after setContentView() because getActionBar() need to be called
+            // after setContentView(). (TIMOB-14914)
+            activity.getActivityProxy().getDecorView().remove(this);
+            activity.removeWindowFromStack(this);
+            windowActivity = null;
+        }
 	}
 
 	@Override
