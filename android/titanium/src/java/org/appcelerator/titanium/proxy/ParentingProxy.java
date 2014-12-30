@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -23,6 +24,7 @@ public class ParentingProxy extends KrollProxy {
     protected WeakReference<KrollProxy> parentForBubbling;
     protected HashMap<String, KrollProxy> holdedProxies = null;
     private static final String TAG = "ParentingProxy";
+    protected boolean shouldAskForGC = true; 
 
     @Override
     public void handleCreationDict(KrollDict options) {
@@ -345,7 +347,16 @@ public class ParentingProxy extends KrollProxy {
 
     protected void handleChildRemoved(KrollProxy child,
             final boolean shouldDetach) {
-
+        if (child != null) {
+            if (shouldDetach && child instanceof TiViewProxy) {
+                ((TiViewProxy) child).releaseViews(shouldDetach);
+            }
+            child.setActivity(null);
+            if (child instanceof ParentingProxy) {
+                ((ParentingProxy) child).setParent(null);
+            }
+        }
+        KrollRuntime.suggestGC();
     }
 
     @Override
@@ -408,14 +419,35 @@ public class ParentingProxy extends KrollProxy {
     }
     
     public KrollProxy addProxyToHold(final Object arg, final String key) {
-        removeHoldedProxy(key);
+        return addProxyToHold(arg, key, true, false);
+    }
+    
+    public KrollProxy addProxyToHold(final Object arg, final String key, final boolean setParent, final boolean setParentBubbling) {
         if (arg instanceof KrollProxy) {
             if (holdedProxies == null) {
                 holdedProxies = new HashMap<String, KrollProxy>();
             }
-            holdedProxies.put(key, (KrollProxy) arg);
-            return (KrollProxy) arg;
+            final KrollProxy newOne =  (KrollProxy) arg;
+            if (holdedProxies.containsKey(key)) {
+                final KrollProxy oldOne =  holdedProxies.get(key);
+                if (oldOne.equals(arg)) {
+                    return oldOne;
+                }
+                handleChildRemoved(oldOne, true);
+
+            }
+            holdedProxies.put(key, newOne);
+            if (newOne instanceof ParentingProxy) {
+                if (setParent) {
+                    ((ParentingProxy) newOne).setParent(this);
+                } else if (setParentBubbling) {
+                    ((ParentingProxy) newOne).setParentForBubbling(this);
+                }
+            }
+            
+            return newOne;
         } else if (arg instanceof HashMap) {
+            removeHoldedProxy(key);
             KrollProxy obj = createProxyFromTemplate((HashMap) arg, this, true);
             if (obj != null) {
                 obj.updateKrollObjectProperties();
@@ -424,5 +456,4 @@ public class ParentingProxy extends KrollProxy {
         }
         return null;
     }
-
 }
