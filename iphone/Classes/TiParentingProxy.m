@@ -53,16 +53,10 @@
 	pthread_rwlock_destroy(&childrenLock);
     
     pthread_rwlock_wrlock(&_holdedProxiesLock);
-    NSArray* holded = [[_holdedProxies allValues] retain];
+    [[_holdedProxies allValues] makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
     RELEASE_TO_NIL(_holdedProxies);
     pthread_rwlock_unlock(&_holdedProxiesLock);
     pthread_rwlock_destroy(&_holdedProxiesLock);
-    for (TiProxy* proxy in holded) {
-        if ([proxy respondsToSelector:@selector(setParent:)]) {
-            [(id)proxy setParent:nil];
-        }
-    }
-    [holded release];
     
 	[super _destroy];
 }
