@@ -3368,11 +3368,13 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         
         if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
         {
+            followsFillHBehavior = NO;
             return  TiDimensionCalculateValue(constraint, boundingHeight-offsety);
         }
         else if (followsFillHBehavior && TiDimensionIsUndefined(constraint))
         {
             if (!TiDimensionIsUndefined(childConstraint->top) && !TiDimensionIsUndefined(childConstraint->centerY) ) {
+                followsFillHBehavior = NO;
                 return 2 * ( TiDimensionCalculateValue(childConstraint->centerY, boundingHeight) - TiDimensionCalculateValue(childConstraint->top, boundingHeight) );
             }
             else if (!TiDimensionIsUndefined(childConstraint->top) && !TiDimensionIsUndefined(childConstraint->bottom) ) {
@@ -3394,13 +3396,14 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             return boundingHeight-offsety;
         }
         else if(TiDimensionIsMatch(constraint)){
+            followsFillHBehavior = NO;
             return 0.0f;
         }
         else {
             //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
             computeAutoSize();
-            return autoSize.height;
             followsFillHBehavior = NO;
+           return autoSize.height;
         }
     };
     
@@ -3413,6 +3416,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         
         if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
         {
+            followsFillWBehavior = NO;
             return  TiDimensionCalculateValue(constraint, boundingWidth-offsetx);
         }
         else if (followsFillWBehavior && TiDimensionIsUndefined(constraint))
@@ -3439,14 +3443,15 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             return boundingWidth-offsetx;
         }
         else if(TiDimensionIsMatch(constraint)){
+            followsFillWBehavior = NO;
             return 0.0f;
         }
         else {
             //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
             recalculateWidth = YES;
             computeAutoSize();
-            return autoSize.width;
             followsFillWBehavior = NO;
+            return autoSize.width;
         }
     };
     
