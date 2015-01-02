@@ -14,6 +14,7 @@
 @optional
 
 -(CGSize)minimumParentSizeForSize:(CGSize)size;
+-(CGSize)minimumParentSizeForSizeNoPadding:(CGSize)size;
 
 -(CGSize)autoSizeForSize:(CGSize)size;
 
