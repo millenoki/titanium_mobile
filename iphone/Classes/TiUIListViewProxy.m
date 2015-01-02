@@ -28,6 +28,19 @@
 @synthesize propertiesForItems = _propertiesForItems;
 @synthesize autoResizeOnImageLoad;
 
+#pragma mark Internal
+static NSArray* keySequence;
+
+
+-(NSArray *)keySequence
+{
+    if (keySequence == nil)
+    {
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"style", @"templates", @"defaultItemTemplate", @"sections", @"backgroundColor", @"searchHidden", @"keepSectionsInSearch"]] retain];
+    }
+    return keySequence;
+}
+
 static NSArray* keysToGetFromListView;
 -(NSArray *)keysToGetFromListView
 {
@@ -247,15 +260,6 @@ static NSDictionary* listViewKeysToReplace;
     [self forgetProxy:section];
 }
 
-- (NSArray *)keySequence
-{
-	static dispatch_once_t onceToken;
-	static NSArray *keySequence = nil;
-	dispatch_once(&onceToken, ^{
-		keySequence = [[NSArray alloc] initWithObjects:@"style", @"templates", @"defaultItemTemplate", @"sections", @"backgroundColor",nil];
-	});
-	return keySequence;
-}
 
 - (void)viewDidInitialize
 {
