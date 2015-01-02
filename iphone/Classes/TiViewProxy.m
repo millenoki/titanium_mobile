@@ -783,42 +783,40 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)childAdded:(TiProxy*)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
 {
-    if ([NSThread isMainThread])
-	{
-        [super childAdded:child atIndex:position shouldRelayout:shouldRelayout];
-        if (![child isKindOfClass:[TiViewProxy class]]){
-            return;
-        }
-        TiViewProxy* childViewProxy = (TiViewProxy*)child;
-        [childViewProxy windowDidOpen];
-        if (readyToCreateView)
-            [childViewProxy setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
-		
-        
-        if (!shouldRelayout) return;
-        if (!readyToCreateView || [childViewProxy isHidden]) return;
-        [childViewProxy performBlockWithoutLayout:^{
-            [childViewProxy getOrCreateView];
-        }];
-        
-        [self contentsWillChange];
-        if(parentVisible && !hidden)
-        {
-            [childViewProxy parentWillShow];
-        }
-        
-        //If layout is non absolute push this into the layout queue
-        //else just layout the child with current bounds
-        if (![self absoluteLayout]) {
+    [super childAdded:child atIndex:position shouldRelayout:shouldRelayout];
+    if (![child isKindOfClass:[TiViewProxy class]]){
+        return;
+    }
+    
+        TiThreadPerformBlockOnMainThread(^{
+            TiViewProxy* childViewProxy = (TiViewProxy*)child;
+            [childViewProxy windowDidOpen];
+            if (readyToCreateView)
+                [childViewProxy setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
+            
+            
+            if (!windowOpened || !shouldRelayout)  return;
+            if (!readyToCreateView || [childViewProxy isHidden]) return;
+            [childViewProxy performBlockWithoutLayout:^{
+                [childViewProxy getOrCreateView];
+            }];
+            
             [self contentsWillChange];
-        }
-        else {
-            [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
-        }
-    }
-    else if (windowOpened && shouldRelayout) {
-        TiThreadPerformOnMainThread(^{[self childAdded:child atIndex:position shouldRelayout:shouldRelayout];}, NO);
-    }
+            if(parentVisible && !hidden)
+            {
+                [childViewProxy parentWillShow];
+            }
+            
+            //If layout is non absolute push this into the layout queue
+            //else just layout the child with current bounds
+            if (![self absoluteLayout]) {
+                [self contentsWillChange];
+            }
+            else {
+                [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
+            }
+        }, NO);
+//    }
 }
 
 -(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
@@ -827,7 +825,7 @@ SEL GetterForKrollProperty(NSString * key)
     if (![child isKindOfClass:[TiViewProxy class]]){
         return;
     }
-    ENSURE_UI_THREAD_1_ARG(child);
+    ENSURE_UI_THREAD_WAIT_1_ARG(child);
     TiViewProxy* childViewProxy = (TiViewProxy*)child;
     
     if (shouldDetach) {
@@ -2075,32 +2073,12 @@ SEL GetterForKrollProperty(NSString * key)
 	//Part of super's _destroy is to release the modelDelegate, which in our case is ALSO the view.
 	//As such, we need to have the super happen before we release the view, so that we can insure that the
 	//release that triggers the dealloc happens on the main thread.
-	
-	if (barButtonItem != nil)
-	{
-		if ([NSThread isMainThread])
-		{
-			RELEASE_TO_NIL(barButtonItem);
-		}
-		else
-		{
-			TiThreadReleaseOnMainThread(barButtonItem, NO);
-			barButtonItem = nil;
-		}
-	}
-
 	if (view!=nil)
 	{
-		if ([NSThread isMainThread])
-		{
-			[self detachView];
-		}
-		else
-		{
-			view.proxy = nil;
-			TiThreadReleaseOnMainThread(view, NO);
-			view = nil;
-		}
+        TiThreadPerformBlockOnMainThread(^{
+            //don't call it recursively, should be done by the children _destroy
+            [self detachView:NO];
+        }, YES);
 	}
 	[destroyLock unlock];
 }
@@ -3905,10 +3883,10 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 
 
--(BOOL)containsView:(id)args
+-(id)containsView:(id)args
 {
     ENSURE_SINGLE_ARG(args, TiProxy);
-    return [self containsChild:args];
+    return @([self containsChild:args]);
 }
 
 -(BOOL)canBeNextResponder
