@@ -5,8 +5,6 @@
 @implementation TiParentingProxy
 {
     BOOL _unarchiving;
-    NSMutableDictionary* _holdedProxies;
-    pthread_rwlock_t _holdedProxiesLock;
 }
 @synthesize children;
 @synthesize parent;
@@ -19,8 +17,6 @@
         _unarchiving = NO;
 		pthread_rwlock_init(&childrenLock, NULL);
         childrenCount = 0;
-        pthread_rwlock_init(&_holdedProxiesLock, NULL);
-        _holdedProxies = [[NSMutableDictionary alloc] init];
 	}
 	return self;
 }
@@ -124,6 +120,10 @@
 {
     [self addInternal:arg atIndex:-1 shouldRelayout:YES];
 }
+-(void)add:(id)arg atIndex:(NSInteger)position {
+    [self addInternal:arg atIndex:position shouldRelayout:YES];
+}
+
 
 -(void)addInternal:(id)arg atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
 {
@@ -449,17 +449,26 @@
     }
     if (proxy) {
         [self rememberProxy:proxy];
+        if (!_holdedProxies) {
+            pthread_rwlock_init(&_holdedProxiesLock, NULL);
+            _holdedProxies = [[NSMutableDictionary alloc] init];
+        }
+        pthread_rwlock_wrlock(&_holdedProxiesLock);
         [_holdedProxies setValue:proxy forKey:key];
         [self childAdded:proxy atIndex:-1 shouldRelayout:shouldRelayout];
-    } else {
+        pthread_rwlock_unlock(&_holdedProxiesLock);
+    } else if (_holdedProxies) {
+        pthread_rwlock_wrlock(&_holdedProxiesLock);
         [_holdedProxies removeObjectForKey:key];
+        pthread_rwlock_unlock(&_holdedProxiesLock);
     }
     return proxy;
 }
 
 -(TiProxy*)removeHoldedProxyForKey:(NSString*)key
 {
-    if (!key) return;
+    if (!key || !_holdedProxies) return;
+    pthread_rwlock_wrlock(&_holdedProxiesLock);
     TiProxy* proxy = [_holdedProxies objectForKey:key];
     if (!proxy) {
         NSLog(@"[WARN] there is no holded proxy for the key %@", key);
@@ -467,17 +476,24 @@
     }
     [self childRemoved:proxy wasChild:YES shouldDetach:YES];
     [_holdedProxies removeObjectForKey:key];
+    pthread_rwlock_unlock(&_holdedProxiesLock);
     return proxy;
 }
 
 -(NSArray*)allKeysForHoldedProxy:(id)object
 {
-    return [_holdedProxies allKeysForObject:object];
+    pthread_rwlock_wrlock(&_holdedProxiesLock);
+    NSArray* result = [_holdedProxies allKeysForObject:object];
+    pthread_rwlock_unlock(&_holdedProxiesLock);
+    return result;
 }
 
 -(TiProxy*)holdedProxyForKey:(NSString*)key
 {
-    return [_holdedProxies objectForKey:key];
+    pthread_rwlock_wrlock(&_holdedProxiesLock);
+    TiProxy* result = [_holdedProxies objectForKey:key];
+    pthread_rwlock_unlock(&_holdedProxiesLock);
+    return result;
 }
 
 

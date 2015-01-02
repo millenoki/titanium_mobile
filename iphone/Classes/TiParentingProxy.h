@@ -3,10 +3,13 @@
 @interface TiParentingProxy : TiProxy
 {
     #pragma mark Parent/Children relationships
+@protected
     TiParentingProxy *parent;
     pthread_rwlock_t childrenLock;
     NSMutableArray *children;
     NSUInteger childrenCount;
+    NSMutableDictionary* _holdedProxies;
+    pthread_rwlock_t _holdedProxiesLock;
 }
 
 /**
