@@ -879,7 +879,10 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(TiViewProxy*)viewParent
 {
-    return (TiViewProxy*)parent;
+    if (IS_OF_CLASS(parent, TiViewProxy)) {
+        return (TiViewProxy*)parent;
+    }
+    return nil;
 }
 
 -(NSArray*)viewChildren

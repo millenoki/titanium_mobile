@@ -116,7 +116,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
 
     
     if ([autoSizer isKindOfClass:[TiViewProxy class]]) {
-        TiViewProxy* parent = (TiViewProxy*)[(TiViewProxy*)autoSizer parent];
+        TiViewProxy* parent = [(TiViewProxy*)autoSizer viewParent];
         LayoutConstraint* parentConstraints = [parent layoutProperties];
         if (parent != nil && (!TiLayoutRuleIsAbsolute(parentConstraints->layoutStyle))) {
             //Sandbox with percent values is garbage

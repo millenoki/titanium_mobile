@@ -167,6 +167,7 @@ enum
 -(TiUIView*)getOrCreateView;
 -(void)fakeOpening;
 
+-(TiViewProxy*)viewParent;
 -(void)setParent:(TiViewProxy*)parent_ checkForOpen:(BOOL)check;
 -(void)runBlock:(void (^)(TiViewProxy* proxy))block onlyVisible:(BOOL)onlyVisible recursive:(BOOL)recursive;
 -(void)runBlockOnMainThread:(void (^)(TiViewProxy* proxy))block onlyVisible:(BOOL)onlyVisible recursive:(BOOL)recursive;
