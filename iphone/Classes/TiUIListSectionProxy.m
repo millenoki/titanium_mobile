@@ -16,14 +16,9 @@
 -(TiViewProxy*)wrapperProxyWithVerticalLayout:(BOOL)vertical;
 @end
 
-@interface TiUIListSectionProxy ()
-@property (nonatomic, readonly) id<TiUIListViewDelegate> dispatcher;
-@end
-
 @implementation TiUIListSectionProxy {
 	NSMutableArray *_items;
     BOOL _hidden;
-    NSMutableDictionary* _storedSectionViews;
 }
 
 @synthesize delegate = _delegate;
@@ -36,7 +31,6 @@
     self = [super init];
     if (self) {
 		_items = [[NSMutableArray alloc] initWithCapacity:20];
-        _storedSectionViews = [[NSMutableDictionary alloc] init];
         _hidden = false;
     }
     return self;
@@ -48,14 +42,6 @@
     RELEASE_TO_NIL(_items)
     RELEASE_TO_NIL(_headerTitle)
     RELEASE_TO_NIL(_footerTitle)
-    if (_storedSectionViews) {
-        [_storedSectionViews enumerateKeysAndObjectsUsingBlock:^(id key, TiViewProxy* childProxy, BOOL *stop) {
-            [childProxy setParent:nil];
-            [childProxy detachView];
-            [self forgetProxy:childProxy];
-        }];
-        RELEASE_TO_NIL(_storedSectionViews)
-    }
 	[super dealloc];
 }
 
@@ -103,23 +89,33 @@
     }
 }
 
+-(void)setHeaderView:(id)value
+{
+    [self replaceValue:value forKey:@"headerView" notification:NO];
+    [self removeHoldedProxyForKey:@"headerView"];
+}
+
+-(void)setFooterView:(id)value
+{
+    [self replaceValue:value forKey:@"footerView" notification:NO];
+    [self removeHoldedProxyForKey:@"footerView"];
+}
+
 -(TiViewProxy*)currentViewForLocation:(NSString*)location inListView:(TiUIListView*)listView
 {
-    if ([_storedSectionViews objectForKey:location]) {
-        return [[[_storedSectionViews objectForKey:location] children] firstObject];
-    }
-    return nil;
+    return (TiViewProxy*)[self holdedProxyForKey:location];
 }
 
 -(TiViewProxy*)sectionViewForLocation:(NSString*)location inListView:(TiUIListView*)listView
 {
-    if ([_storedSectionViews objectForKey:location]) {
-        return [_storedSectionViews objectForKey:location];
+    TiProxy* vp = [self holdedProxyForKey:location];
+    if (vp) {
+        return (TiViewProxy*)vp;
     }
-    id value = [self valueForKey:location];
-    TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:value];
-    if (viewproxy) {
-        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
+    vp = [self addObjectToHold:[self valueForKey:location] forKey:location];
+    if (IS_OF_CLASS(vp, TiViewProxy)) {
+        
+        LayoutConstraint *viewLayout = [(TiViewProxy*)vp layoutProperties];
         //If height is not dip, explicitly set it to SIZE
         if (viewLayout->height.type != TiDimensionTypeDip) {
             viewLayout->height = TiDimensionAutoSize;
@@ -127,10 +123,7 @@
         if (viewLayout->width.type == TiDimensionTypeUndefined) {
             viewLayout->width = TiDimensionAutoFill;
         }
-        TiViewProxy* wrapperProxy = [listView wrapperProxyWithVerticalLayout:YES];
-        [wrapperProxy add:viewproxy];
-        [_storedSectionViews setObject:wrapperProxy forKey:location];
-        return wrapperProxy;
+        return (TiViewProxy*)vp;
     }
     return nil;
 }
