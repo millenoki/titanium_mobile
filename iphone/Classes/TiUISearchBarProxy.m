@@ -51,6 +51,11 @@ NSArray* keySequence;
 	[super _configure];
 }
 
+-(void)viewDidDetach
+{
+    canHaveSearchDisplayController = NO;
+}
+
 
 -(void)blur:(id)args
 {

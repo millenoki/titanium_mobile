@@ -76,6 +76,7 @@
 
 -(void)dealloc
 {
+    delegate = nil;
 	[searchView setDelegate:nil];
 	RELEASE_TO_NIL(searchView);
 	[self releaseSearchController];
