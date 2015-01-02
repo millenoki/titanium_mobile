@@ -693,6 +693,11 @@ void incrementKrollCounter();
 void decrementKrollCounter();
     
 /**
+ *	Make sure the block is called on the main thread.
+ *	only calls TiThreadPerformBlockOnMainThread if necessary
+ */
+void TiThreadPerformBlockOnMainThread(void (^mainBlock)(void),BOOL waitForFinish);
+/**
  *	TiThreadPerformOnMainThread should replace all Titanium instances of
  *	performSelectorOnMainThread, ESPECIALLY if wait is to be yes. That way,
  *	exceptional-case main thread activities can process them outside of the

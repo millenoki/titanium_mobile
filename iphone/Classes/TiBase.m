@@ -251,6 +251,17 @@ NSString *JavascriptNameForClass(Class c)
 	return NSStringFromClass(c);
 }
 
+void TiThreadPerformBlockOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
+{
+    if ([NSThread isMainThread]) {
+        mainBlock();
+    }
+    else
+    {
+        TiThreadPerformOnMainThread(mainBlock, waitForFinish);
+    }
+}
+
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
 {
 	if (releasedObject == nil) {
