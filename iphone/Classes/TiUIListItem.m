@@ -305,7 +305,6 @@ DEFINE_EXCEPTIONS
 - (void)dealloc
 {
 	[_proxy detachView];
-	[_proxy cleanup];
 	[_proxy deregisterProxy:[_proxy pageContext]];
 	_proxy.listItem = nil;
 	_proxy.modelDelegate = nil;
@@ -320,7 +319,6 @@ DEFINE_EXCEPTIONS
 
 - (void)prepareForReuse
 {
-//	RELEASE_TO_NIL(_dataItem);
     [_proxy prepareForReuse];
 	[super prepareForReuse];
 }
