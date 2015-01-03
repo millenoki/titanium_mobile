@@ -3449,6 +3449,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 		'ui.textarea': ['ui.textwidget'],
 		'ui.textfield': ['ui.textwidget'],
 		'ui.listviewseparatorstyle': ['ui.tableviewseparatorstyle'],
+		'image': ['media'],
 		'media': ['filesystem'],
 		'audio': ['filesystem'],
 		'database': ['filesystem'],
