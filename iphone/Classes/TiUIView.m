@@ -707,7 +707,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	{
 		childrenInitialized=YES;
 		[(TiViewProxy*)self.proxy layoutChildren:NO];
-	}
+    } else if (CGRectIsEmpty(frame)) {
+        childrenInitialized=NO;
+    }
 }
 
 -(void)updateBounds:(CGRect)newBounds
