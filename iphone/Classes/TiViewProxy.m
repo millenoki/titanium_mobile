@@ -1326,15 +1326,15 @@ SEL GetterForKrollProperty(NSString * key)
     self.canBeResizedByFrame = YES;
     isUsingBarButtonItem = YES;
     //TODO: This logic should have a good place in case that refreshLayout is used.
-	LayoutConstraint barButtonLayout = layoutProperties;
-	if (TiDimensionIsUndefined(barButtonLayout.width))
+//	LayoutConstraint barButtonLayout = layoutProperties;
+	if (TiDimensionIsUndefined(layoutProperties.width))
 	{
-		barButtonLayout.width = TiDimensionAutoSize;
+		layoutProperties.width = TiDimensionAutoSize;
         
 	}
-	if (TiDimensionIsUndefined(barButtonLayout.height))
+	if (TiDimensionIsUndefined(layoutProperties.height))
 	{
-		barButtonLayout.height = TiDimensionAutoSize;
+		layoutProperties.height = TiDimensionAutoSize;
 	}
     return [self getAndPrepareViewForOpening:bounds];
 }
