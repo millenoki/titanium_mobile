@@ -680,23 +680,25 @@ else{\
 -(void)updateNavButtons
 {
     //Update LeftNavButton
-    NSDictionary* lProperties = [self valueForUndefinedKey:@"leftNavSettings"];
-    id leftNavButtons = [self valueForUndefinedKey:@"leftNavButtons"];
-    if (!IS_NULL_OR_NIL(leftNavButtons)) {
-        [self setLeftNavButtons:leftNavButtons withObject:lProperties];
-    } else {
-        leftNavButtons = [self valueForUndefinedKey:@"leftNavButton"];
-        [self setLeftNavButton:leftNavButtons withObject:lProperties];
-    }
-    //Update RightNavButton
-    NSDictionary* rProperties = [self valueForUndefinedKey:@"rightNavSettings"];
-    id rightNavButtons = [self valueForUndefinedKey:@"rightNavButtons"];
-    if (!IS_NULL_OR_NIL(rightNavButtons)) {
-        [self setRightNavButtons:rightNavButtons withObject:rProperties];
-    } else {
-        rightNavButtons = [self valueForUndefinedKey:@"rightNavButton"];
-        [self setRightNavButton:rightNavButtons withObject:rProperties];
-    }
+//    NSDictionary* lProperties = [self valueForUndefinedKey:@"leftNavSettings"];
+//    id leftNavButtons = [self valueForUndefinedKey:@"leftNavButtons"];
+//    if (!IS_NULL_OR_NIL(leftNavButtons)) {
+//        [self setLeftNavButtons:leftNavButtons withObject:lProperties];
+//    } else {
+//        leftNavButtons = [self valueForUndefinedKey:@"leftNavButton"];
+//        [self setLeftNavButton:leftNavButtons withObject:lProperties];
+//    }
+//    //Update RightNavButton
+//    NSDictionary* rProperties = [self valueForUndefinedKey:@"rightNavSettings"];
+//    id rightNavButtons = [self valueForUndefinedKey:@"rightNavButtons"];
+//    if (!IS_NULL_OR_NIL(rightNavButtons)) {
+//        [self setRightNavButtons:rightNavButtons withObject:rProperties];
+//    } else {
+//        rightNavButtons = [self valueForUndefinedKey:@"rightNavButton"];
+//        [self setRightNavButton:rightNavButtons withObject:rProperties];
+//    }
+    [self refreshLeftNavButtons:nil];
+    [self refreshRightNavButtons:nil];
 }
 
 -(void)refreshRightNavButtons:(id)unused
@@ -710,18 +712,19 @@ else{\
     	return;
     }
     navButtonNotSet = NO;
-    NSArray* theObjects = [self valueForUndefinedKey:@"rightNavButtons"];
+    NSArray* theObjects = [self holdedProxyForKey:@"rightNavButtons"];
     NSDictionary* theProperties = [self valueForUndefinedKey:@"rightNavSettings"];
     
     ENSURE_TYPE_OR_NIL(theObjects, NSArray);
     ENSURE_TYPE_OR_NIL(theProperties, NSDictionary);
     
+    
     UINavigationBar * ouNB = [navController navigationBar];
     CGRect barFrame = [ouNB bounds];
     NSMutableArray* theItems = [[NSMutableArray alloc] init];
-    for (TiViewProxy* theProxy in theObjects) {
-        if ([theProxy supportsNavBarPositioning]) {
-            [theItems addObject:[theProxy barButtonItemForRect:barFrame]];
+    for (TiProxy* theProxy in theObjects) {
+        if (IS_OF_CLASS(theProxy, TiViewProxy) && [(TiViewProxy*)theProxy supportsNavBarPositioning]) {
+            [theItems addObject:[(TiViewProxy*)theProxy barButtonItemForRect:barFrame]];
         } else {
             DebugLog(@"%@ does not support nav bar positioning", theProxy);
         }
@@ -748,35 +751,49 @@ else{\
     ENSURE_TYPE_OR_NIL(properties, NSDictionary);
     
     // detach existing one
-    NSArray* currentButtons = controller.navigationItem.rightBarButtonItems;
-    for (id item in currentButtons) {
-        if ([item respondsToSelector:@selector(proxy)])
-        {
-            TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-            if (![arg containsObject:p]) {
-                [p removeBarButtonView];
-            }
-        }
-    }
+//    NSArray* currentButtons = controller.navigationItem.rightBarButtonItems;
+//    for (id item in currentButtons) {
+//        if ([item respondsToSelector:@selector(proxy)])
+//        {
+//            TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+//            if (![arg containsObject:p]) {
+//                [p removeBarButtonView];
+//            }
+//        }
+//    }
     
+    [self addObjectToHold:arg forKey:@"rightNavButtons" shouldRelayout:NO];
     [self replaceValue:arg forKey:@"rightNavButtons" notification:NO];
     [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
-    TiThreadPerformOnMainThread(^{
+    TiThreadPerformBlockOnMainThread(^{
         [self refreshRightNavButtons:nil];
     }, NO);
     
 }
 
+-(void)setRightNavButtons:(id)value
+{
+    id firstarg = value;
+    id secondarg = [NSDictionary dictionary];
+    
+    if ([firstarg isKindOfClass:[TiComplexValue class]])
+    {
+        firstarg = [(TiComplexValue*)value value];
+        secondarg = [(TiComplexValue*)value properties];
+    }
+    [self setRightNavButtons:firstarg withObject:secondarg];
+}
+
 -(void)setRightNavButton:(id)proxy withObject:(id)properties
 {
-    UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
-    if ([item respondsToSelector:@selector(proxy)])
-    {
-        TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-        if (p != proxy) {
-            [p removeBarButtonView];
-        }
-    }
+//    UIBarButtonItem *item = controller.navigationItem.rightBarButtonItem;
+//    if ([item respondsToSelector:@selector(proxy)])
+//    {
+//        TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+//        if (p != proxy) {
+//            [p removeBarButtonView];
+//        }
+//    }
     [self replaceValue:proxy forKey:@"rightNavButton" notification:NO];
     if (IS_NULL_OR_NIL(proxy)) {
         [self setRightNavButtons:nil withObject:properties];
@@ -784,6 +801,19 @@ else{\
         [self setRightNavButtons:[NSArray arrayWithObject:proxy] withObject:properties];
     }
 
+}
+
+-(void)setRightNavButton:(id)value
+{
+    id firstarg = value;
+    id secondarg = [NSDictionary dictionary];
+    
+    if ([firstarg isKindOfClass:[TiComplexValue class]])
+    {
+        firstarg = [(TiComplexValue*)value value];
+        secondarg = [(TiComplexValue*)value properties];
+    }
+    [self setRightNavButton:firstarg withObject:secondarg];
 }
 
 -(void)refreshLeftNavButtons:(id)unused
@@ -796,7 +826,7 @@ else{\
     	navButtonNotSet = YES;
     	return;
     }
-    NSArray* theObjects = [self valueForUndefinedKey:@"leftNavButtons"];
+    NSArray* theObjects = [self holdedProxyForKey:@"leftNavButtons"];
     NSDictionary* theProperties = [self valueForUndefinedKey:@"leftNavSettings"];
     
     ENSURE_TYPE_OR_NIL(theObjects, NSArray);
@@ -806,9 +836,9 @@ else{\
     UINavigationBar * ouNB = [navController navigationBar];
     CGRect barFrame = [ouNB bounds];
     NSMutableArray* theItems = [[NSMutableArray alloc] init];
-    for (TiViewProxy* theProxy in theObjects) {
-        if ([theProxy supportsNavBarPositioning]) {
-            [theItems addObject:[theProxy barButtonItemForRect:barFrame]];
+    for (TiProxy* theProxy in theObjects) {
+        if (IS_OF_CLASS(theProxy, TiViewProxy) && [(TiViewProxy*)theProxy supportsNavBarPositioning]) {
+            [theItems addObject:[(TiViewProxy*)theProxy barButtonItemForRect:barFrame]];
         } else {
             DebugLog(@"%@ does not support nav bar positioning", theProxy);
         }
@@ -828,41 +858,69 @@ else{\
     [theItems release];
 }
 
+-(void)setLeftNavButtons:(id)value
+{
+    id firstarg = value;
+    id secondarg = [NSDictionary dictionary];
+    
+    if ([firstarg isKindOfClass:[TiComplexValue class]])
+    {
+        firstarg = [(TiComplexValue*)value value];
+        secondarg = [(TiComplexValue*)value properties];
+    }
+    [self setLeftNavButtons:firstarg withObject:secondarg];
+}
+
 -(void)setLeftNavButtons:(id)arg withObject:(id)properties
 {
     ENSURE_TYPE_OR_NIL(arg, NSArray);
     ENSURE_TYPE_OR_NIL(properties, NSDictionary);
     
     // detach existing one
-    NSArray* currentButtons = controller.navigationItem.leftBarButtonItems;
-    for (id item in currentButtons) {
-        if ([item respondsToSelector:@selector(proxy)])
-        {
-            TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-            if (![arg containsObject:p]) {
-                [p removeBarButtonView];
-            }
-        }
-    }
-    
+//    NSArray* currentButtons = controller.navigationItem.leftBarButtonItems;
+//    for (id item in currentButtons) {
+//        if ([item respondsToSelector:@selector(proxy)])
+//        {
+//            TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+//            if (![arg containsObject:p]) {
+//                [p removeBarButtonView];
+//            }
+//        }
+//    }
+//    
+    [self addObjectToHold:arg forKey:@"leftNavButtons" shouldRelayout:NO];
     [self replaceValue:arg forKey:@"leftNavButtons" notification:NO];
     [self replaceValue:properties forKey:@"leftNavSettings" notification:NO];
-    TiThreadPerformOnMainThread(^{
+    TiThreadPerformBlockOnMainThread(^{
         [self refreshLeftNavButtons:nil];
     }, NO);
 
 }
 
+
+-(void)setLeftNavButton:(id)value
+{
+    id firstarg = value;
+    id secondarg = [NSDictionary dictionary];
+    
+    if ([firstarg isKindOfClass:[TiComplexValue class]])
+    {
+        firstarg = [(TiComplexValue*)value value];
+        secondarg = [(TiComplexValue*)value properties];
+    }
+    [self setLeftNavButton:firstarg withObject:secondarg];
+}
+
 -(void)setLeftNavButton:(id)proxy withObject:(id)properties
 {
-    UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
-    if ([item respondsToSelector:@selector(proxy)])
-    {
-        TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
-        if (p != proxy) {
-            [p removeBarButtonView];
-        }
-    }
+//    UIBarButtonItem *item = controller.navigationItem.leftBarButtonItem;
+//    if ([item respondsToSelector:@selector(proxy)])
+//    {
+//        TiViewProxy* p = (TiViewProxy*)[item performSelector:@selector(proxy)];
+//        if (p != proxy) {
+//            [p removeBarButtonView];
+//        }
+//    }
     [self replaceValue:proxy forKey:@"leftNavButton" notification:NO];
     if (IS_NULL_OR_NIL(proxy)) {
         [self setLeftNavButtons:nil withObject:properties];
