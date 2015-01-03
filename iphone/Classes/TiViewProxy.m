@@ -3371,7 +3371,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             followsFillHBehavior = NO;
             return  TiDimensionCalculateValue(constraint, boundingHeight-offsety);
         }
-        else if (followsFillHBehavior && TiDimensionIsUndefined(constraint))
+        else if (TiDimensionIsUndefined(constraint))
         {
             if (!TiDimensionIsUndefined(childConstraint->top) && !TiDimensionIsUndefined(childConstraint->centerY) ) {
                 followsFillHBehavior = NO;
@@ -3385,10 +3385,14 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             else if (!TiDimensionIsUndefined(childConstraint->centerY) && !TiDimensionIsUndefined(childConstraint->bottom) ) {
                 return 2 * ( boundingHeight - TiDimensionCalculateValue(childConstraint->bottom, boundingHeight) - TiDimensionCalculateValue(childConstraint->centerY, boundingHeight));
             }
-            else {
+            else if (followsFillHBehavior){
                 recalculateWidth = YES;
-                followsFillHBehavior = YES;
                 return boundingHeight-offsety;
+            } else {
+                //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
+                computeAutoSize();
+                followsFillHBehavior = NO;
+                return autoSize.height;
             }
         }
         else if(TiDimensionIsAutoFill(constraint) || (TiDimensionIsAuto(constraint) && followsFillHBehavior)){
@@ -3403,7 +3407,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
             computeAutoSize();
             followsFillHBehavior = NO;
-           return autoSize.height;
+            return autoSize.height;
         }
     };
     
@@ -3419,7 +3423,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             followsFillWBehavior = NO;
             return  TiDimensionCalculateValue(constraint, boundingWidth-offsetx);
         }
-        else if (followsFillWBehavior && TiDimensionIsUndefined(constraint))
+        else if (TiDimensionIsUndefined(constraint))
         {
             if (!TiDimensionIsUndefined(childConstraint->left) && !TiDimensionIsUndefined(childConstraint->centerX) ) {
                 return 2 * ( TiDimensionCalculateValue(childConstraint->centerX, boundingWidth) - TiDimensionCalculateValue(childConstraint->left, boundingWidth) );
@@ -3432,10 +3436,15 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             else if (!TiDimensionIsUndefined(childConstraint->centerX) && !TiDimensionIsUndefined(childConstraint->right) ) {
                 return 2 * ( boundingWidth - TiDimensionCalculateValue(childConstraint->right, boundingWidth) - TiDimensionCalculateValue(childConstraint->centerX, boundingWidth));
             }
-            else {
+            else if (followsFillWBehavior){
                 recalculateWidth = YES;
-                followsFillWBehavior = YES;
                 return boundingWidth-offsetx;
+            } else {
+                //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
+                recalculateWidth = YES;
+                computeAutoSize();
+                followsFillWBehavior = NO;
+                return autoSize.width;
             }
         }
         else if(TiDimensionIsAutoFill(constraint) || (TiDimensionIsAuto(constraint) && followsFillWBehavior)){
