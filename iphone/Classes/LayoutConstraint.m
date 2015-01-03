@@ -143,16 +143,19 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
     TiDimension dimension = constraint->width;
     if (TiDimensionIsDip(dimension))
     {
+        followsFillWBehavior = NO;
         width = roundf(TiDimensionCalculateValue(dimension, boundingWidth));
     }
     else if (TiDimensionIsPercent(dimension)) {
+        followsFillWBehavior = NO;
         flexibleWidth = YES;
         width = roundf(TiDimensionCalculateValue(dimension, boundingWidth));
     }
-    else if (followsFillWBehavior && TiDimensionIsUndefined(dimension))
+    else if (TiDimensionIsUndefined(dimension))
     {
         flexibleWidth = YES;
         if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->centerX) ) {
+            followsFillWBehavior = NO;
             width = 2 * ( TiDimensionCalculateValue(constraint->centerX, boundingWidth) - TiDimensionCalculateValue(constraint->left, boundingWidth) );
         }
         else if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->right) ) {
@@ -160,10 +163,15 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
             width = boundingWidth - offsetx;
         }
         else if (!TiDimensionIsUndefined(constraint->centerX) && !TiDimensionIsUndefined(constraint->right) ) {
+            followsFillWBehavior = NO;
             width = 2 * ( boundingWidth - TiDimensionCalculateValue(constraint->right, boundingWidth) - TiDimensionCalculateValue(constraint->centerX, boundingWidth));
         }
-        else {
-            followsFillWBehavior = YES;
+        else if (followsFillWBehavior){
+            width = boundingWidth - offsetx;
+        } else {
+            //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
+            needsWidthAutoCompute = YES;
+            followsFillWBehavior = NO;
             width = boundingWidth - offsetx;
         }
     }
@@ -173,6 +181,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         width = boundingWidth - offsetx;
     }
     else if(TiDimensionIsMatch(dimension)){
+        followsFillWBehavior = NO;
         width = 0.0f;
     }
     else {
@@ -181,23 +190,26 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         followsFillWBehavior = NO;
         width = boundingWidth - offsetx;
     }
-
+    
     
     
     dimension = constraint->height;
     
     if (TiDimensionIsDip(dimension))
     {
+        followsFillHBehavior = NO;
         height = roundf(TiDimensionCalculateValue(dimension, boundingHeight));
     }
     else if (TiDimensionIsPercent(dimension)) {
+        followsFillHBehavior = NO;
         flexibleHeight = YES;
         height = roundf(TiDimensionCalculateValue(dimension, boundingHeight));
     }
-    else if (followsFillHBehavior && TiDimensionIsUndefined(dimension))
+    else if (TiDimensionIsUndefined(dimension))
     {
         flexibleHeight = YES;
         if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->centerY) ) {
+            followsFillHBehavior = NO;
             height = 2 * ( TiDimensionCalculateValue(constraint->centerY, boundingHeight) - TiDimensionCalculateValue(constraint->top, boundingHeight) );
         }
         else if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->bottom) ) {
@@ -205,10 +217,15 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
             height = boundingHeight - offsety;
         }
         else if (!TiDimensionIsUndefined(constraint->centerY) && !TiDimensionIsUndefined(constraint->bottom) ) {
+            followsFillHBehavior = NO;
             height = 2 * ( boundingHeight - TiDimensionCalculateValue(constraint->bottom, boundingHeight) - TiDimensionCalculateValue(constraint->centerY, boundingHeight));
         }
-        else {
-            followsFillHBehavior = YES;
+        else if (followsFillHBehavior){
+            height = boundingHeight - offsety;
+        } else {
+            //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
+            needsHeightAutoCompute = YES;
+            followsFillHBehavior = NO;
             height = boundingHeight - offsety;
         }
     }
@@ -218,6 +235,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         height = boundingHeight - offsety;
     }
     else if(TiDimensionIsMatch(dimension)){
+        followsFillHBehavior = NO;
         height = 0.0f;
     }
     else {
