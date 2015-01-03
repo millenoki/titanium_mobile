@@ -826,7 +826,7 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setHeaderView_:(id)args
 {
-    TiProxy* vp = [[self viewProxy] addObjectToHold:args forKey:@"headerView"];
+    id vp = [[self viewProxy] addObjectToHold:args forKey:@"headerView"];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         [(TiViewProxy*)vp setProxyObserver:self];
         [[self getOrCreateHeaderHolder] addProxy:vp atIndex:1 shouldRelayout:YES];
@@ -835,7 +835,7 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setFooterView_:(id)args
 {
-    TiProxy* vp = [[self viewProxy] addObjectToHold:args forKey:@"footerView"];
+    id vp = [[self viewProxy] addObjectToHold:args forKey:@"footerView"];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         [(TiViewProxy*)vp setProxyObserver:self];
         ((TiViewProxy*)vp).canBeResizedByFrame = YES;
@@ -849,7 +849,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)setRefreshControl_:(id)args
 {
 #ifdef USE_TI_UIREFRESHCONTROL
-    TiProxy* vp = [[self viewProxy] addObjectToHold:args forKey:@"refreshControl"];
+    id vp = [[self viewProxy] addObjectToHold:args forKey:@"refreshControl"];
     if (IS_OF_CLASS(vp, TiUIRefreshControlProxy)) {
         [[self tableView] addSubview:[(TiUIRefreshControlProxy*)vp control]];
     }
@@ -863,7 +863,7 @@ static NSDictionary* replaceKeysForRow;
         [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
         return;
     }
-    TiProxy* vp = [[self viewProxy] addObjectToHold:args forKey:@"pullView"];
+    id vp = [[self viewProxy] addObjectToHold:args forKey:@"pullView"];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         TiViewProxy* viewproxy = (TiViewProxy*)vp;
         _hasPullView = YES;
@@ -1008,7 +1008,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)setSearchViewExternal_:(id)args {
     [self tableView];
     RELEASE_TO_NIL(tableController);
-    TiProxy* vp = [[self viewProxy] addObjectToHold:args forKey:@"searchView"];
+    id vp = [[self viewProxy] addObjectToHold:args forKey:@"searchView"];
     if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
         [(TiUISearchBarProxy*)vp setReadyToCreateView:YES];
         [(TiUISearchBarProxy*)vp setDelegate:self];
@@ -1032,7 +1032,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)setSearchView_:(id)args
 {
     RELEASE_TO_NIL(tableController);
-    TiProxy* vp = [[self viewProxy] addObjectToHold:args forKey:@"searchView"];
+    id vp = [[self viewProxy] addObjectToHold:args forKey:@"searchView"];
     if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
         [(TiUISearchBarProxy*)vp setReadyToCreateView:YES];
         [(TiUISearchBarProxy*)vp setDelegate:self];
