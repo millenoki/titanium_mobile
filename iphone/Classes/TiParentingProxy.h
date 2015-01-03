@@ -68,11 +68,11 @@
 -(void)runBlock:(void (^)(TiProxy* proxy))block recursive:(BOOL)recursive;
 -(void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object;
 
--(TiProxy*)addObjectToHold:(id)value forKey:(NSString*)key;
--(TiProxy*)addObjectToHold:(id)value forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout;
+-(id)addObjectToHold:(id)value forKey:(NSString*)key;
+-(id)addObjectToHold:(id)value forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout;
 -(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key;
 -(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout;
--(TiProxy*)removeHoldedProxyForKey:(NSString*)key;
--(TiProxy*)holdedProxyForKey:(NSString*)key;
+-(id)removeHoldedProxyForKey:(NSString*)key;
+-(id)holdedProxyForKey:(NSString*)key;
 -(NSArray*)allKeysForHoldedProxy:(id)object;
 @end
