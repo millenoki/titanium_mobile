@@ -335,7 +335,7 @@
 -(void)setLeftButton_:(id)value
 {
     UIView* leftView = nil;
-    TiProxy* vp = [[self viewProxy] addObjectToHold:value forKey:@"leftButton"];
+    id vp = [[self viewProxy] addObjectToHold:value forKey:@"leftButton"];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         // to make sure the proxy is not released
         //we need the proxy to be retained to compute the rect
@@ -358,7 +358,7 @@
 -(void)setRightButton_:(id)value
 {
     UIView* rightView = nil;
-    TiProxy* vp = [[self viewProxy] addObjectToHold:value forKey:@"rightButton"];
+    id vp = [[self viewProxy] addObjectToHold:value forKey:@"rightButton"];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         LayoutConstraint* constraint = [(TiViewProxy*)vp layoutProperties];
         if (TiDimensionIsUndefined(constraint->right))
