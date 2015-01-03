@@ -114,7 +114,7 @@
     }
     vp = [self addObjectToHold:[self valueForKey:location] forKey:location];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
-        
+        ((TiViewProxy*)vp).canBeResizedByFrame = YES;
         LayoutConstraint *viewLayout = [(TiViewProxy*)vp layoutProperties];
         //If height is not dip, explicitly set it to SIZE
         if (viewLayout->height.type != TiDimensionTypeDip) {
