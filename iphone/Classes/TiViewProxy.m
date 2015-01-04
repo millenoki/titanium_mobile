@@ -877,7 +877,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(TiViewProxy*)viewParent
 {
-    if (IS_OF_CLASS(parent, TiViewProxy)) {
+    if (IS_OF_CLASS(parent, TiViewProxy) && !isUsingBarButtonItem) {
         return (TiViewProxy*)parent;
     }
     return nil;
@@ -2921,13 +2921,14 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 -(BOOL)relayout
 {
-	if (!repositioning && !CGSizeEqualToSize(sandboxBounds.size, CGSizeZero))
-	{
-		ENSURE_UI_THREAD_0_ARGS
+    if (!repositioning && !CGSizeEqualToSize(sandboxBounds.size, CGSizeZero))
+    {
+        ENSURE_UI_THREAD_0_ARGS
         OSAtomicTestAndClear(TiRefreshViewEnqueued, &dirtyflags);
-		repositioning = YES;
-
-        UIView *parentView = [[self viewParent] parentViewForChild:self];
+        repositioning = YES;
+        
+        TiViewProxy* parentViewProxy = [self viewParent];
+        UIView *parentView = [parentViewProxy parentViewForChild:self];
         CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
         if (CGSizeEqualToSize(referenceSize, CGSizeZero)) {
             repositioning = NO;
@@ -2939,7 +2940,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         BOOL layoutChanged = NO;
         if (needsSize) {
             CGSize size;
-            if (parent != nil && ![[self viewParent] absoluteLayout] ) {
+            if (parentViewProxy != nil && ![parentViewProxy absoluteLayout] ) {
                 size = SizeConstraintViewWithSizeAddingResizing(&layoutProperties,self, sandboxBounds.size, &autoresizeCache);
             }
             else {
@@ -2952,9 +2953,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         }
         if (needsPosition) {
             CGPoint position;
-            position = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, [[self viewParent] layoutProperties], self, sizeCache.size,
-            [[view layer] anchorPoint], referenceSize, sandboxBounds.size, &autoresizeCache);
-
+            position = PositionConstraintGivenSizeBoundsAddingResizing(&layoutProperties, [parentViewProxy layoutProperties], self, sizeCache.size,
+                                                                       [[view layer] anchorPoint], referenceSize, sandboxBounds.size, &autoresizeCache);
+            
             position.x += sizeCache.origin.x + sandboxBounds.origin.x;
             position.y += sizeCache.origin.y + sandboxBounds.origin.y;
             if (!CGPointEqualToPoint(position, positionCache)) {
@@ -2971,7 +2972,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             layoutChanged = layoutChanged || !(CGSizeEqualToSize(oldSize,sizeCache.size) || !CGRectEqualToRect([view bounds], sizeCache) || !CGPointEqualToPoint([view center], positionCache));
         }
         
-		
+        
         [view setAutoresizingMask:autoresizeCache];
         [view setCenter:positionCache];
         [view setBounds:sizeCache];
@@ -2981,18 +2982,18 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         if ([observer respondsToSelector:@selector(proxyDidRelayout:)]) {
             [observer proxyDidRelayout:self];
         }
-
+        
         if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
             [self fireEvent:@"postlayout" propagate:NO];
         }
         repositioning = NO;
         return layoutChanged;
-	}
+    }
 #ifdef VERBOSE
-	else
-	{
-		DeveloperLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
-	}
+    else
+    {
+        DeveloperLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
+    }
 #endif
     return NO;
 }
