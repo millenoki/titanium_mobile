@@ -113,6 +113,7 @@
     BOOL noNavBar;
     CGFloat _defaultNavBarTop;
     CGFloat _defaultToolbarTop;
+    BOOL _setingUpWindowDecorations;
 }
 
 
@@ -153,6 +154,7 @@ NSArray* keySequence;
     toolbarBarWillShow = NO;
     _defaultNavBarTop = [TiUtils isIOS7OrGreater]?20:0;
     _defaultToolbarTop = [TiUtils appFrame].size.height - 44;
+    _setingUpWindowDecorations = NO;
 	[super _configure];
 }
 
@@ -433,32 +435,33 @@ else{\
 
 -(void)setNavTintColor:(id)colorString
 {
+    ENSURE_UI_THREAD(setNavTintColor,colorString);
     NSString *color = [TiUtils stringValue:colorString];
     [self replaceValue:color forKey:@"navTintColor" notification:NO];
     if (![TiUtils isIOS7OrGreater]) {
         return;
     }
     
-    TiThreadPerformOnMainThread(^{
-        if(controller != nil) {
-			id navController = [self navControllerForController:controller];
-        	TiColor * newColor = [TiUtils colorValue:color];
-			if (newColor == nil) {
-                //Get from TabGroup
-                newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
-            }
-            
-        	UINavigationBar * navBar = [navController navigationBar];
-            if (newColor == nil && [TiUtils isIOS7OrGreater]) {
-                [navBar setTintColor:[self view].tintColor];
-            }
-            else {
-                [navBar setTintColor:[newColor color]];
-            }
-        	[self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+    if(controller != nil) {
+        id navController = [self navControllerForController:controller];
+        TiColor * newColor = [TiUtils colorValue:color];
+        if (newColor == nil) {
+            //Get from TabGroup
+            newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
         }
         
-    }, NO);    
+        UINavigationBar * navBar = [navController navigationBar];
+        if (newColor == nil && [TiUtils isIOS7OrGreater]) {
+            [navBar setTintColor:[self view].tintColor];
+        }
+        else {
+            [navBar setTintColor:[newColor color]];
+        }
+        if (!_setingUpWindowDecorations) {
+            [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+        }
+    }
+        
 }
 
 -(void)setBarColor:(id)colorString
@@ -485,7 +488,9 @@ else{\
         } else {
             [navBar setTintColor:barColor];
         }
-        [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+        if (!_setingUpWindowDecorations) {
+            [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+        }
     }
 }
 
@@ -649,19 +654,21 @@ else{\
 
 -(void)setShadowImage:(id)value
 {
+    ENSURE_UI_THREAD(setShadowImage,value);
 	[self replaceValue:value forKey:@"shadowImage" notification:NO];
 	if (controller!=nil)
 	{
-		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
+		[self updateBarImage];
 	}
 }
 
 -(void)setHideShadow:(id)value
 {
+    ENSURE_UI_THREAD(setHideShadow,value);
 	[self replaceValue:value forKey:@"hideShadow" notification:NO];
 	if (controller!=nil)
 	{
-		TiThreadPerformOnMainThread(^{[self updateBarImage];}, NO);
+        [self updateBarImage];
 	}
 }
 
@@ -968,27 +975,30 @@ else{\
 	UIViewController * prevController = [controllerArray objectAtIndex:controllerPosition-1];
 	UIBarButtonItem * backButton = nil;
     
-	UIImage * backImage = [TiUtils image:[self valueForKey:@"backButtonTitleImage"] proxy:self];
-	if (backImage != nil)
-	{
-		backButton = [[UIBarButtonItem alloc] initWithImage:backImage style:UIBarButtonItemStylePlain target:nil action:nil];
-	}
-	else
-	{
-		NSString * backTitle = [TiUtils stringValue:[self valueForKey:@"backButtonTitle"]];
-		if ((backTitle == nil) && [prevController isKindOfClass:[TiViewController class]])
-		{
-			id tc = [(TiViewController*)prevController proxy];
-			backTitle = [TiUtils stringValue:[tc valueForKey:@"title"]];
-		}
-		if (backTitle != nil)
-		{
-			backButton = [[UIBarButtonItem alloc] initWithTitle:backTitle style:UIBarButtonItemStylePlain target:nil action:nil];
-		}
-	}
+
+    UIImage * backImage = [TiUtils image:[self valueForKey:@"backButtonTitleImage"] proxy:self];
+    if (backImage != nil)
+    {
+        backButton = [[[UIBarButtonItem alloc] initWithImage:backImage style:UIBarButtonItemStylePlain target:nil action:nil] autorelease];
+    }
+    else
+    {
+        NSString * backTitle = [TiUtils stringValue:[self valueForKey:@"backButtonTitle"]];
+        if ((backTitle == nil) && [prevController isKindOfClass:[TiViewController class]])
+        {
+            id tc = [(TiViewController*)prevController proxy];
+            backTitle = [TiUtils stringValue:[tc valueForKey:@"title"]];
+        }
+        if (backTitle != nil)
+        {
+            backButton = [[[UIBarButtonItem alloc] initWithTitle:backTitle style:UIBarButtonItemStylePlain target:nil action:nil] autorelease];
+        }
+    }
+    
+	
 	[[prevController navigationItem] setBackBarButtonItem:backButton];
-	[backButton release];
 }
+
 
 -(void)setBackButtonTitle:(id)proxy
 {
@@ -1217,6 +1227,7 @@ else{\
     if ((controller == nil) || navController == nil) {
         return;
     }
+    _setingUpWindowDecorations = YES;
     
     [navController setToolbarHidden:!hasToolbar animated:YES];
     
@@ -1247,6 +1258,7 @@ else{\
             [self showNavBar:properties];
         }
     }
+    _setingUpWindowDecorations = NO;
 }
 
 -(void)cleanupWindowDecorations
