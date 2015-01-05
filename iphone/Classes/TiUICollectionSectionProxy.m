@@ -202,11 +202,6 @@
 	}] unsignedIntegerValue];
 }
 
-- (TiUICollectionItemProxy*)getItemAtInternal:(NSUInteger)itemIndex
-{
-    return (itemIndex < [_items count]) ? [_items objectAtIndex:itemIndex] : nil;
-}
-
 - (id)getItemAt:(id)args
 {
 	ENSURE_ARG_COUNT(args, 1);
