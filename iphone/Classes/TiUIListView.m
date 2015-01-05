@@ -1648,23 +1648,22 @@ static NSDictionary* replaceKeysForRow;
         return nil;
     }
     
+    NSInteger realSection = section;
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            NSInteger realSection = [self sectionForSearchSection:section];
-            return [self sectionView:realSection forLocation:@"headerView" section:nil];
+            realSection = [self sectionForSearchSection:section];
         } else {
             return nil;
         }
     }
     
-    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
-    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
+    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0 || (tableView.style == UITableViewStyleGrouped && sectionProxy.headerTitle))
     {
         return nil;
     }
     
-    
-    return [self sectionView:section forLocation:@"headerView" section:nil];
+    return [self sectionView:realSection forLocation:@"headerView" section:nil];
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
@@ -1673,21 +1672,21 @@ static NSDictionary* replaceKeysForRow;
         return nil;
     }
     
+    NSInteger realSection = section;
     if (searchActive) {
         if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-            NSInteger realSection = [self sectionForSearchSection:section];
-            return [self sectionView:realSection forLocation:@"footerView" section:nil];
+            realSection = [self sectionForSearchSection:section];
         } else {
             return nil;
         }
     }
-    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
-    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
+    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0 || (tableView.style == UITableViewStyleGrouped && sectionProxy.headerTitle))
     {
         return nil;
     }
     
-    return [self sectionView:section forLocation:@"footerView" section:nil];
+    return [self sectionView:realSection forLocation:@"footerView" section:nil];
 }
 
 #define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
