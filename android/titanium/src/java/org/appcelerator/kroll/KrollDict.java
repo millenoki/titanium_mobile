@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.TiC;
@@ -47,6 +46,10 @@ public class KrollDict
 			Object json = fromJSON(value);
 			put(key, json);
 		}
+	}
+	
+	public KrollDict(final String jsonString) throws JSONException {
+	    this(new JSONObject(jsonString));
 	}
 		
 	public static Object fromJSON(Object value) {
