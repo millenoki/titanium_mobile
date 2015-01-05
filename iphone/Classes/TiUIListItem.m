@@ -475,12 +475,12 @@ static NSArray* handledKeys;
 
 -(void)setTitle_:(id)newValue
 {
-    self.textLabel.text = [newValue description];
+    self.textLabel.text = [TiUtils stringValue:newValue];
 }
 
 -(void)setSubtitle_:(id)newValue
 {
-    self.detailTextLabel.text = [newValue description];
+    self.detailTextLabel.text = [TiUtils stringValue:newValue];
 }
 - (BOOL) hasSwipeButtons {
     return [self.proxy valueForKey:@"leftSwipeButtons"] || [self.proxy valueForKey:@"rightSwipeButtons"];
