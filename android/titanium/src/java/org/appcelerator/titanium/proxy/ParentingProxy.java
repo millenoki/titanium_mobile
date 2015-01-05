@@ -146,10 +146,11 @@ public class ParentingProxy extends KrollProxy {
         if (children == null) {
             children = new ArrayList<KrollProxy>();
         }
+        int realIndex = Math.max(0, Math.min(children.size(), index));
         synchronized (children) {
             children.remove(child);
             if (index >= 0) {
-                children.add(index, child);
+                children.add(realIndex, child);
             } else {
                 children.add(child);
             }
@@ -159,7 +160,7 @@ public class ParentingProxy extends KrollProxy {
             ((ParentingProxy) child).parent = new WeakReference<ParentingProxy>(
                     this);
         }
-        handleChildAdded(child, index);
+        handleChildAdded(child, realIndex);
 
     }
 
