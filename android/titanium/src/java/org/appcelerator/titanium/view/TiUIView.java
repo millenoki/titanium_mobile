@@ -398,7 +398,7 @@ public abstract class TiUIView
 	        int savedIndex = 0;
 	        if (view != null && this.nativeView.getParent() != null) {
 	            ViewParent nativeParent = this.nativeView.getParent();
-	            if (nativeParent instanceof ViewGroup) {
+	            if (nativeParent instanceof ViewGroup && nativeParent != view) {
 	                savedParent = (ViewGroup) nativeParent;
 	                savedIndex = savedParent.indexOfChild(this.nativeView);
 	                savedParent.removeView(this.nativeView);
