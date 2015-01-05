@@ -129,7 +129,7 @@ public class KrollDict
 	public boolean equalsKrollDict(KrollDict otherDict)
 	{
 		if (otherDict.size() != size()) return false;
-		for(Entry<String, Object> e: entrySet()){
+		for(Map.Entry<String, Object> e: entrySet()){
 			String key = e.getKey();
 			Object newvalue = e.getValue();
 			if (!otherDict.containsKeyWithValue(key, newvalue))
