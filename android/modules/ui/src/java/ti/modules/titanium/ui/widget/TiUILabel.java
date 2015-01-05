@@ -299,6 +299,10 @@ public class TiUILabel extends TiUINonViewGroupView
 						MeasureSpec.UNSPECIFIED);
 				}
 			}
+			if (hm == MeasureSpec.AT_MOST && (fullText == null || fullText.length() == 0)) {
+			    heightMeasureSpec = MeasureSpec.makeMeasureSpec(0,
+                        MeasureSpec.EXACTLY);
+			}
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 
