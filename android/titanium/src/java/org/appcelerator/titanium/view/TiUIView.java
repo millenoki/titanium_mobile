@@ -2454,4 +2454,11 @@ public abstract class TiUIView
 			} 
 		}
 	}
+	
+	public void setCustomLayoutParams(ViewGroup.LayoutParams params) {
+        useCustomLayoutParams = true;
+        if (nativeView != null) {
+            nativeView.setLayoutParams(params);
+        }
+	}
 }
