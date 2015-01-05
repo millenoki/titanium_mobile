@@ -91,7 +91,8 @@ public class ListViewProxy extends TiViewProxy {
 		preloadSections = new ArrayList<ListSectionProxy>();
 		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
         defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
-        defaultValues.put(TiC.PROPERTY_ROW_HEIGHT, 40);
+        defaultValues.put(TiC.PROPERTY_ROW_HEIGHT, 50);
+        defaultValues.put(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR, "#474747");
 		super.handleCreationArgs(createdInModule, args);
 		
 	}
