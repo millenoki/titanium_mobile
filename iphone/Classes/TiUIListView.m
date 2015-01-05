@@ -174,9 +174,9 @@ static NSDictionary* replaceKeysForRow;
 {
     if (_tableView == nil) {
         UITableViewStyle style = UITableViewStylePlain;
-        if (![TiUtils isIOS7OrGreater]) {
+//        if (![TiUtils isIOS7OrGreater]) {
             style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:style];
-        }
+//        }
 
         _tableView = [[TiTableView alloc] initWithFrame:self.bounds style:style];
         _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
