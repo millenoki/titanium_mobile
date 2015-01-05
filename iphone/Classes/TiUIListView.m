@@ -108,7 +108,7 @@ static NSDictionary* replaceKeysForRow;
 {
     self = [super init];
     if (self) {
-        _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
+        _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleSubtitle] retain];
         allowsSelection = YES;
         _defaultSeparatorInsets = UIEdgeInsetsZero;
         _scrollSuspendImageLoading = NO;
