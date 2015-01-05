@@ -32,6 +32,7 @@
     BOOL _needsLayout;
     BOOL configurationSet;
     BOOL _unHighlightOnSelect;
+    BOOL _customBackground;
 }
 
 @synthesize templateStyle = _templateStyle;
@@ -80,13 +81,9 @@ DEFINE_EXCEPTIONS
 
 -(void) initialize
 {
-    self.contentView.backgroundColor = [UIColor clearColor];
-    if ([TiUtils isIOS7OrGreater]) {
-        self.backgroundColor = [UIColor clearColor];
-    }
-    self.contentView.opaque = NO;
+
     _unHighlightOnSelect = YES;
-    
+    _customBackground = NO;
     _proxy.listItem = self;
     _proxy.modelDelegate = [self autorelease]; //without the autorelease we got a memory leak
     configurationSet = NO;
@@ -120,6 +117,24 @@ DEFINE_EXCEPTIONS
     }
     if (_bgView) {
         [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
+    }
+    
+    BOOL newValue = [[_bgView selectableLayer] willDrawForState:UIControlStateNormal];
+    if (_customBackground != newValue) {
+        _customBackground = newValue;
+        if (_customBackground) {
+            self.contentView.backgroundColor = [UIColor clearColor];
+            if ([TiUtils isIOS7OrGreater]) {
+                self.backgroundColor = [UIColor clearColor];
+            }
+            self.contentView.opaque = NO;
+        } else {
+            self.contentView.backgroundColor = [UIColor whiteColor];
+            if ([TiUtils isIOS7OrGreater]) {
+                self.backgroundColor = [UIColor whiteColor];
+            }
+            self.contentView.opaque = YES;
+        }
     }
 }
 
