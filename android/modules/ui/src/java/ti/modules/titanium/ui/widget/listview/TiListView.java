@@ -22,8 +22,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -34,6 +32,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import org.appcelerator.titanium.view.TiUIView;
+import org.json.JSONException;
 
 import com.nhaarman.listviewanimations.ListViewAnimationsBaseAdapter;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
@@ -68,7 +67,6 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v4.view.ViewPager;
 import android.util.Pair;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -77,9 +75,7 @@ import android.view.ViewParent;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.SectionIndexer;
-import android.widget.TextView;
 import android.widget.AbsListView.OnScrollListener;
 
 @SuppressLint("NewApi")
@@ -96,15 +92,14 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	public static int hasChild;
 	public static int disclosure;
 	public static int accessory = 24124;
-	private int headerFooterId;
+//	private int headerFooterId;
 	public static LayoutInflater inflater;
-	private int titleId;
+//	private int titleId;
 	private int[] marker = new int[2];
-	private View headerView;
-	private View footerView;
+//	private View headerView;
+//	private View footerView;
 	private String searchText;
 	private boolean caseInsensitive;
-	private RelativeLayout searchLayout;
 	private static final String TAG = "TiListView";
 	private boolean hideKeyboardOnScroll = true;
 	private boolean canShowMenus = false;
@@ -132,9 +127,8 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	public static final String MIN_SEARCH_HEIGHT = "50dp";
 	public static final int HEADER_FOOTER_WRAP_ID = 12345;
 	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
-	public static final int HEADER_FOOTER_TITLE_TYPE = 1;
-	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
-	public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 3;
+	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
+	public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 2;
 	
 	
 	private void addHandledProxy(final TiViewProxy proxy) {
@@ -205,12 +199,10 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 			Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
 			ListSectionProxy section = info.first;
 			int sectionItemIndex = info.second.second;
-			if (section.isHeaderTitle(sectionItemIndex) || section.isFooterTitle(sectionItemIndex))
-				return HEADER_FOOTER_TITLE_TYPE;
 			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex)) {
 				return HEADER_FOOTER_VIEW_TYPE;
 			}
-			return getTemplate(section.getTemplateByIndex(sectionItemIndex)).getType();			
+			return getTemplate(section.getTemplateByIndex(sectionItemIndex)).getType();
 		}
 
 		@Override
@@ -232,35 +224,25 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 			}
 
 			View content = convertView;
-
-			//Handles header/footer views and titles.
-//			if (section.isHeaderView(sectionItemIndex) || 
-//			        section.isFooterView(sectionItemIndex) || 
-//			        section.isHeaderTitle(sectionItemIndex) || 
-//			        section.isFooterTitle(sectionItemIndex)) {
-//				return null;
-//			}
 			
 			if (section.isFooterView(sectionItemIndex)) {
-                return section.getOrCreateFooterView(sectionItemIndex);
-            } else if (section.isFooterTitle(sectionItemIndex)) {
-                //No content to reuse, so we create a new view
-                if (content == null) {
-                    content = inflater.inflate(headerFooterId, null);
-                }
-                TextView title = (TextView)content.findViewById(titleId);
-                title.setText(section.getHeaderOrFooterTitle(sectionItemIndex));
-                return content;
+			    KrollProxy vp = section.getHoldedProxy("footerView");
+	            if (vp instanceof TiViewProxy) {
+	                return layoutHeaderOrFooterView((TiViewProxy) vp);
+	            }
+	            return null;
             }
 			
 			//Handling templates
 			ListItemData item = section.getListItem(sectionItemIndex);
-//			KrollDict data = item.getProperties();
 			TiListViewTemplate template = getTemplate(item.getTemplate());
 			
 			TiBaseListViewItem itemContent = null;
-			if (content != null) {
+			if (content != null && content.getId() != HEADER_FOOTER_WRAP_ID) {
 				itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
+				if (itemContent == null) {
+				    return content;
+				}
 				setBoundsForBaseItem(itemContent);
 				boolean reusing = sectionIndex != itemContent.sectionIndex || 
 						itemContent.itemIndex >= section.getItemCount() || 
@@ -270,10 +252,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 				content = new TiBaseListViewItemHolder(getContext());
 				itemContent = (TiBaseListViewItem) content.findViewById(listContentId);
 				setBoundsForBaseItem(itemContent);
-//				LayoutParams params = new LayoutParams();
-//                params.autoFillsWidth = true;
-//                params.width = LayoutParams.MATCH_PARENT;
-//				itemContent.setLayoutParams(params);
+
 				ListItemProxy itemProxy = template.generateCellProxy(item, proxy);
 				itemProxy.setListProxy(getProxy());
 				addHandledProxy(itemProxy);
@@ -342,24 +321,12 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
             //Get section info from index
             Pair<ListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
             ListSectionProxy section = info.first;
-//            int sectionItemIndex = info.second.second;
-//            int sectionIndex = info.second.first;
-
             
-            if (section.getHeaderView() != null) {
-                return section.getOrCreateHeaderView();
+            KrollProxy vp = section.getHoldedProxy("headerView");
+            if (vp instanceof TiViewProxy) {
+                return layoutHeaderOrFooterView((TiViewProxy) vp);
             }
-            else if (section.getHeaderTitle() != null) {
-              //No content to reuse, so we create a new view
-                View content = convertView;
-                if (content == null || content.getTag() == null || (Integer)content.getTag() != headerFooterId) {
-                    content = inflater.inflate(headerFooterId, null);
-                    content.setTag(headerFooterId);
-                }
-                TextView title = (TextView)content.findViewById(titleId);
-                title.setText(section.getHeaderTitle());
-                return content;
-            }
+
             if (convertView != null) {
                 return convertView;
             }
@@ -694,7 +661,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
                             return;
                         }
                     }
-                    data.put(TiC.PROPERTY_HEADER_VIEW, section.getCurrentHeaderViewProxy());
+                    data.put(TiC.PROPERTY_HEADER_VIEW, section.getHoldedProxy(TiC.PROPERTY_HEADER_VIEW));
                     data.put(TiC.PROPERTY_SECTION, section);
                     data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
                     fProxy.fireEvent(TiC.EVENT_HEADER_CHANGE, data, false, false);
@@ -717,8 +684,8 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		listView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
 		try {
-			headerFooterId = TiRHelper.getApplicationResource("layout.titanium_ui_list_header_or_footer");
-			titleId = TiRHelper.getApplicationResource("id.titanium_ui_list_header_or_footer_title");
+//			headerFooterId = TiRHelper.getApplicationResource("layout.titanium_ui_list_header_or_footer");
+//			titleId = TiRHelper.getApplicationResource("id.titanium_ui_list_header_or_footer_title");
 			isCheck = TiRHelper.getApplicationResource("drawable.btn_check_buttonless_on_64");
 			hasChild = TiRHelper.getApplicationResource("drawable.btn_more_64");
 			disclosure = TiRHelper.getApplicationResource("drawable.disclosure_64");
@@ -757,21 +724,21 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	}
 
 	public void setHeaderTitle(String title) {
-		TextView textView = (TextView) headerView.findViewById(titleId);
-		if (textView == null) return;
-		textView.setText(title);
-		if (textView.getVisibility() == View.GONE) {
-			textView.setVisibility(View.VISIBLE);
-		}
+	    if (title != null) {
+            ViewProxy vp = (ViewProxy) this.proxy.addProxyToHold(headerViewDict(title), "headerView");
+            getOrCreateHeaderWrapperView().add(vp, 1);
+	    } else {
+	        this.proxy.removeHoldedProxy("headerView");
+	    }
 	}
 	
 	public void setFooterTitle(String title) {
-		TextView textView = (TextView) footerView.findViewById(titleId);
-        if (textView == null) return;
-		textView.setText(title);
-		if (textView.getVisibility() == View.GONE) {
-			textView.setVisibility(View.VISIBLE);
-		}
+	    if (title != null) {
+            ViewProxy vp = (ViewProxy) this.proxy.addProxyToHold(footerViewDict(title), "footerView");
+            getOrCreateFooterWrapperView().add(vp, 1);
+        } else {
+            this.proxy.removeHoldedProxy("footerView");
+        }
 	}
 
 //	private TiUIView layoutHeaderOrFooter(TiViewProxy viewProxy)
@@ -905,23 +872,18 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
             setHeaderOrFooterView(newValue, true);
             break;
         case TiC.PROPERTY_HEADER_TITLE:
-            if (headerView == null || headerView.getId() != HEADER_FOOTER_WRAP_ID) {
-                if (headerView == null) {
-                    headerView = inflater.inflate(headerFooterId, null);
-                }
-                setHeaderTitle(TiConvert.toString(newValue));
-            }
+            setHeaderTitle(TiConvert.toString(newValue));
             break;
         case TiC.PROPERTY_FOOTER_VIEW:
             setHeaderOrFooterView(newValue, false);
             break;
         case TiC.PROPERTY_FOOTER_TITLE:
-            if (footerView == null || footerView.getId() != HEADER_FOOTER_WRAP_ID) {
-                if (footerView == null) {
-                    footerView = inflater.inflate(headerFooterId, null);
-                }
+//            if (footerView == null || footerView.getId() != HEADER_FOOTER_WRAP_ID) {
+//                if (footerView == null) {
+//                    footerView = inflater.inflate(headerFooterId, null);
+//                }
                 setFooterTitle(TiConvert.toString(newValue));
-            }
+//            }
             break;
         case TiC.PROPERTY_SCROLLING_ENABLED:
             listView.setScrollingEnabled(newValue);
@@ -938,7 +900,13 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	
 	@Override
 	public void processProperties(KrollDict d) {
-		
+	    //Check to see if headerView and footerView are specified. If not, we hide the views
+        
+//        if (footerView == null) {
+//            footerView = inflater.inflate(headerFooterId, null);
+//            footerView.findViewById(titleId).setVisibility(View.GONE);
+//        }
+        
 		super.processProperties(d);
 
         ListViewProxy listProxy = (ListViewProxy) proxy;
@@ -949,20 +917,10 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	        listProxy.clearPreloadSections();
 		}
 
-		//Check to see if headerView and footerView are specified. If not, we hide the views
-		if (headerView == null) {
-			headerView = inflater.inflate(headerFooterId, null);
-			headerView.findViewById(titleId).setVisibility(View.GONE);
-		}
 		
-		if (footerView == null) {
-			footerView = inflater.inflate(headerFooterId, null);
-			footerView.findViewById(titleId).setVisibility(View.GONE);
-		}
 
 		//Have to add header and footer before setting adapter
-		listView.addHeaderView(headerView, null, false);
-		listView.addFooterView(footerView, null, false);
+//		listView.addFooterView(footerView, null, false);
 		
 		mSwipeMenuAdapater = new SwipeMenuAdapter(adapter, getProxy().getActivity(), mMenuCallback);
 		StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(mSwipeMenuAdapater);
@@ -970,71 +928,14 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		listView.setAdapter(stickyListHeadersAdapterDecorator);
 		
 	}
-
-	private void layoutSearchView(TiViewProxy searchView) {
-	    if (searchLayout != null) {
-            searchLayout.removeAllViews();
-        }
-		TiUIView search = searchView.getOrCreateView();
-		RelativeLayout layout = new RelativeLayout(proxy.getActivity());
-		layout.setGravity(Gravity.NO_GRAVITY);
-		layout.setPadding(0, 0, 0, 0);
-		addSearchLayout(layout, searchView, search);
-		setNativeView(layout);	
-	}
 	
-	private void addSearchLayout(RelativeLayout layout, TiViewProxy searchView, TiUIView search) {
-		RelativeLayout.LayoutParams p = createBasicSearchLayout();
-		p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-
-		TiDimension rawHeight;
-		if (searchView.hasProperty(TiC.PROPERTY_HEIGHT)) {
-			rawHeight = TiConvert.toTiDimension(searchView.getProperty(TiC.PROPERTY_HEIGHT), 0);
-		} else {
-			rawHeight = TiConvert.toTiDimension(MIN_SEARCH_HEIGHT, 0);
-		}
-		p.height = rawHeight.getAsPixels(layout);
-
-		View nativeView = search.getNativeView();
-		layout.addView(nativeView, p);
-
-		p = createBasicSearchLayout();
-		p.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		p.addRule(RelativeLayout.BELOW, nativeView.getId());
-		ViewParent parentView = getNativeView().getParent();
-		if (parentView instanceof ViewGroup) {
-			//get the previous layout params so we can reset with new layout
-			ViewGroup.LayoutParams lp = getNativeView().getLayoutParams();
-//			ViewGroup parentView = (ViewGroup) parentView;
-			//remove view from parent
-			((ViewGroup) parentView).removeView(getNativeView());
-			//add new layout
-			layout.addView(getNativeView(), p);
-			((ViewGroup) parentView).addView(layout, lp);
-			
-		} else {
-			layout.addView(getNativeView(), p);
-		}
-		this.searchLayout = layout;
-	}
-
-	private RelativeLayout.LayoutParams createBasicSearchLayout() {
-		RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-		p.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		p.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-		return p;
-	}
 	private void setHeaderOrFooterView (Object viewObj, boolean isHeader) {
-	    View view = null;
-        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, isHeader?"header":"footer");
+        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, isHeader?"headerView":"footerView");
         if (viewProxy instanceof TiViewProxy) {
-            view = layoutHeaderOrFooterView((TiViewProxy) viewProxy, proxy);
-        }
-        if (view != null) {
             if (isHeader) {
-                headerView = view;
+                getOrCreateHeaderWrapperView().add(viewProxy, 1);
             } else {
-                footerView = view;
+                getOrCreateFooterWrapperView().add(viewProxy, 1);
             }
         }
 	}
@@ -1042,10 +943,13 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	private void setSearchView (Object viewObj, boolean addInHeader) {
         KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "search");
         if (isSearchViewValid(viewProxy)) {
-            TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
+//            TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
+            
             TiUIView search = ((TiViewProxy) viewProxy).getOrCreateView();
             setSearchListener((TiViewProxy) viewProxy, search);
-            if (addInHeader) layoutSearchView((TiViewProxy) viewProxy);
+            if (addInHeader) {
+                getOrCreateHeaderWrapperView().add(viewProxy, 0);
+            }
         } else {
             Log.e(TAG, "Searchview type is invalid");
         }
@@ -1054,7 +958,7 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 	private View setPullView (Object viewObj) {
         KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "pull");
         if (viewProxy instanceof ViewProxy) {
-            return layoutHeaderOrFooterView((TiViewProxy) viewProxy, proxy);
+            return layoutHeaderOrFooterView((TiViewProxy) viewProxy);
         }
         return null;
 	}
@@ -1154,7 +1058,64 @@ public class TiListView extends TiUINonViewGroupView implements OnSearchChangeLi
 		}
 	}
 	
-	public View layoutHeaderOrFooterView (TiViewProxy viewProxy, TiViewProxy parent) {
+	private ViewProxy getOrCreateHeaderWrapperView() {
+	    ViewProxy vp = (ViewProxy) this.proxy.getHoldedProxy("headerWrapper");
+	    if (vp == null) {
+	        KrollDict props = new KrollDict();
+            props.put("width", "FILL");
+            props.put("height", "SIZE");
+            props.put("layout", "vertical");
+            vp = (ViewProxy) this.proxy.addProxyToHold(props, "headerWrapper");
+            TiUIView view = ((ViewProxy)vp).getOrCreateView();
+            view.setCustomLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT));
+            listView.addHeaderView(view.getOuterView(), null, false);
+	    }
+	    return vp;
+	}
+	private ViewProxy getOrCreateFooterWrapperView() {
+        ViewProxy vp = (ViewProxy) this.proxy.getHoldedProxy("footerWrapper");
+        if (vp == null) {
+            KrollDict props = new KrollDict();
+            props.put("width", "FILL");
+            props.put("height", "SIZE");
+            props.put("layout", "vertical");
+            vp = (ViewProxy) this.proxy.addProxyToHold(props, "footerWrapper");
+            TiUIView view = ((ViewProxy)vp).getOrCreateView();
+            view.setCustomLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT));
+            listView.addFooterView(view.getOuterView(), null, false);
+        }
+        return vp;
+    }
+	
+	
+	private static KrollDict DEFAULT_HEADER_DICT = null;
+	public static KrollDict headerViewDict(final String text) {
+	    try {
+	        if (DEFAULT_HEADER_DICT == null) {
+//                DEFAULT_HEADER_DICT = new KrollDict("{type:'Ti.UI.Label',font:{size:14, weight:'bold'},padding:{left:8, right:8,top:7, bottom:7},borderPadding:{left:-2.5, right:-2.5, top:-2.5},borderColor:'#666',borderWidth:2.5,color:'#ccc',width:'FILL',left:15,right:15,autocapitalization:true}");
+                DEFAULT_HEADER_DICT = new KrollDict("{type:'Ti.UI.Label',font:{size:14, weight:'bold'},padding:{left:8, right:8,top:7, bottom:7},borderPadding:{left:-2.5, right:-2.5, top:-2.5},borderColor:'#666',borderWidth:2.5,color:'#ccc',width:'FILL',left:15,right:15,autocapitalization:true}");
+	        }
+        } catch (JSONException e) {
+        }
+	    KrollDict result = new KrollDict(DEFAULT_HEADER_DICT);
+	    result.put(TiC.PROPERTY_TEXT, text);
+	    return result;
+    }
+	
+	private static KrollDict DEFAULT_FOOTER_DICT = null;
+    public static KrollDict footerViewDict(final String text) {
+        try {
+            if (DEFAULT_FOOTER_DICT == null) {
+                DEFAULT_FOOTER_DICT = new KrollDict("{type:'Ti.UI.Label',font:{size:14},padding:{left:8, right:8,top:8, bottom:8},color:'#ccc',width:'FILL',left:15,right:15}");
+            }
+        } catch (JSONException e) {
+        }
+        KrollDict result = new KrollDict(DEFAULT_FOOTER_DICT);
+        result.put(TiC.PROPERTY_TEXT, text);
+        return result;
+    }
+	
+	public static View layoutHeaderOrFooterView (TiViewProxy viewProxy) {
 		TiUIView tiView = viewProxy.getOrCreateView();
 		View outerView = null;
 		ViewGroup parentView = null;
@@ -1464,7 +1425,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 	@Override
 	public void release() {
 		for (int i = 0; i < sections.size(); i++) {
-			sections.get(i).releaseViews(true);
+			sections.get(i).release();
 		}
 		
 		templatesByBinding.clear();
@@ -1481,8 +1442,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 			listView.setAdapter(null);
 			listView = null;
 		}
-		headerView = null;
-		footerView = null;
+//		footerView = null;
 
 		super.release();
 	}
