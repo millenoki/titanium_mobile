@@ -202,6 +202,10 @@ inline static CGRect CGRectCenterRectForResizableImage(UIImage *image) {
     RELEASE_TO_NIL(_bufferImage);
     [self setInLayer:layer  onlyCreateImage:onlyCreate animated:NO];
 }
+
+- (BOOL) willDraw {
+    return color || gradient || image || _innerShadows;
+}
 @end
 
 @implementation TiSelectableBackgroundLayer
@@ -358,6 +362,13 @@ inline static CGRect CGRectCenterRectForResizableImage(UIImage *image) {
     return drawable;
 }
 
+- (BOOL) willDrawForState:(UIControlState)state {
+    TiDrawable* drawable = [self getDrawableForState:state];
+    if (drawable) {
+        return [drawable willDraw];
+    }
+    return NO;
+}
 
 -(TiDrawable*) getDrawableForState:(UIControlState)state
 {
