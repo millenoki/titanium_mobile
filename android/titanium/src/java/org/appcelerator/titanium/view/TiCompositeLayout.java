@@ -441,7 +441,8 @@ public class TiCompositeLayout extends FreeLayout implements
 		maxWidth += getPaddingLeft() + getPaddingRight();
 		maxHeight += getPaddingTop() + getPaddingBottom();
 		
-		ViewGroup.LayoutParams params = getLayoutParams();
+		//if we are in a borderView our layoutParams are not the ones we wnat to look at
+		ViewGroup.LayoutParams params = (view != null)?view.get().getLayoutParams():getLayoutParams();
 		LayoutParams p = (params instanceof LayoutParams)?(LayoutParams)params:null;
 		if (p != null) {
 			//if we are fill we need to fill ….
