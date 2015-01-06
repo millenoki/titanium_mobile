@@ -145,24 +145,12 @@ public class FreeLayout extends FrameLayout {
     }
     
     ///////////////////////////////////////////// implementation
-
-//	@Override
-//	protected void onSizeChanged (int w, int h, int oldw, int oldh) {
-////		transformedMatrix = null;
-//		super.onSizeChanged(w, h, oldw, oldh);
-//	}
 	
     @Override
 	public void setLayoutParams(ViewGroup.LayoutParams params) {
 		 transformedMatrix = null;
 		super.setLayoutParams(params);
 	}
-	
-    @Override
-    protected void onMeasure(int widthMeasureSpec,int heightMeasureSpec) {
-//		 transformedMatrix = null;
-		 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
 
     @Override
     protected FrameLayout.LayoutParams generateDefaultLayoutParams() {
