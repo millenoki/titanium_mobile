@@ -1379,9 +1379,10 @@ public abstract class TiUIView
 		}
 		nativeView.setTag(null);
 		borderView.setTag(this);
+		borderView.setLayoutParams(getLayoutParams());
 		borderView.addView(rootView, params);
 		if (savedParent != null) {
-			savedParent.addView(borderView, savedIndex,getLayoutParams());
+			savedParent.addView(borderView, savedIndex);
 		}
 		
 //		if ((borderView.getRadius() != null || hardwareAccEnabled == false) && HONEYCOMB_OR_GREATER) {
