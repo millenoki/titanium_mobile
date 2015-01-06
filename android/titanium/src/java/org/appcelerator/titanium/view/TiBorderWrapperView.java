@@ -22,6 +22,7 @@ import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 
 /**
@@ -42,7 +43,7 @@ public class TiBorderWrapperView extends MaskableView
 	private boolean clipChildren = true;
 	private RectF mBorderPadding = null;
 	private TiViewProxy proxy;
-	private boolean mDrawableSizeChanged = false;
+//	private boolean mDrawableSizeChanged = false;
 	
 	private View borderDrawableHoldingView = null;
 	
@@ -79,14 +80,15 @@ public class TiBorderWrapperView extends MaskableView
 			mDrawable.setRadiusWidth(radius, borderWidth);
 			mDrawable.setPadding(mBorderPadding);
 			
-			mDrawableSizeChanged = true;
+//			mDrawableSizeChanged = true;
 			if (mDrawable.isStateful()) {
 				mDrawable.setState(getDrawableState());
             }
 //			mDrawable.setVisible(getVisibility() == VISIBLE, false);
 			TiUIView. setBackgroundDrawable(borderDrawableHoldingView, mDrawable);
-			addView(borderDrawableHoldingView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+			addView(borderDrawableHoldingView, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 			invalidate();
+			
 		}
 		return mDrawable;
 	}
