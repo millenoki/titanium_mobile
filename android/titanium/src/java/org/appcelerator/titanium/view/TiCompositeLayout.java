@@ -181,7 +181,7 @@ public class TiCompositeLayout extends FreeLayout implements
 
 		setNeedsSort(true);
 		setOnHierarchyChangeListener(this);
-		this.view = new WeakReference<TiUIView>(view);
+		setView(view);
 	}
 
 	private String viewToString(View view) {
@@ -944,7 +944,7 @@ public class TiCompositeLayout extends FreeLayout implements
 			currentHeight += getLayoutOptionAsPixels(params.optionTop, TiDimension.TYPE_TOP, params, this);
 		}
 
-		TiUIView view = (this.view == null ? null : this.view.get());
+		TiUIView view = getView();
 		TiUIHelper.firePostLayoutEvent(view);
 
 	}
@@ -1412,7 +1412,12 @@ public class TiCompositeLayout extends FreeLayout implements
 	}
 
 	public void setView(TiUIView view) {
-		this.view = new WeakReference<TiUIView>(view);
+	    if (view != null) {
+	        this.view = new WeakReference<TiUIView>(view);
+	    }
+	    else {
+	        this.view = null;
+	    }
 	}
 	public TiUIView getView() {
 		if (view != null) return view.get();
@@ -1420,7 +1425,7 @@ public class TiCompositeLayout extends FreeLayout implements
 	}
 	@Override
 	public void dispatchSetPressed(boolean pressed) {
-		TiUIView view = (this.view == null ? null : this.view.get());
+		TiUIView view = getView();
 		if (view != null && (view.getDispatchPressed() == true))
 		{
 			int count = getChildCount();
