@@ -243,7 +243,8 @@ public class TiCompositeLayout extends FreeLayout implements
 	
 	private boolean viewShouldFillHorizontalLayout(View view, LayoutParams params)
 	{
-		if (params.fullscreen == true) return true;
+        if (view.getVisibility() == View.GONE) return false;
+        if (params.fullscreen == true) return true;
 		if (params.sizeOrFillWidthEnabled == false) return false;
 		if (params.autoFillsWidth) return true;
 		boolean borderView = (view instanceof TiBorderWrapperView);
@@ -262,14 +263,16 @@ public class TiCompositeLayout extends FreeLayout implements
 	
 	private boolean viewShouldFillVerticalLayout(View view, LayoutParams params)
 	{
+        if (view.getVisibility() == View.GONE) return false;
 		if (params.fullscreen == true) return true;
 		if (params.sizeOrFillHeightEnabled == false) return false;
 		if (params.autoFillsHeight) return true;
+        boolean borderView = (view instanceof TiBorderWrapperView);
 		if (view instanceof ViewGroup) {
 			ViewGroup viewGroup = (ViewGroup)view;
 	        for (int i=0; i<viewGroup.getChildCount(); i++) {
 	            View child = viewGroup.getChildAt(i);
-	        	ViewGroup.LayoutParams childParams = child.getLayoutParams();
+	        	ViewGroup.LayoutParams childParams = borderView?params:child.getLayoutParams();
 	        	if (childParams instanceof LayoutParams && viewShouldFillVerticalLayout(child, (LayoutParams) childParams)) {
 	        		return true;
 	        	}
