@@ -14,7 +14,7 @@ public class TiUINonViewGroupView extends TiUIView {
 		super(proxy);
 	}
 
-	protected TiCompositeLayout childrenHolder;
+	protected TiCompositeLayout childrenHolder = null;
 	@Override
 	public void add(TiUIView child, int index)
 	{
