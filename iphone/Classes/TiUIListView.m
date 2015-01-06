@@ -1658,7 +1658,7 @@ static NSDictionary* replaceKeysForRow;
     }
     
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0 || (tableView.style == UITableViewStyleGrouped && sectionProxy.headerTitle))
+    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0 || [sectionProxy.headerTitle length] > 0)
     {
         return nil;
     }
@@ -1681,7 +1681,7 @@ static NSDictionary* replaceKeysForRow;
         }
     }
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0 || (tableView.style == UITableViewStyleGrouped && sectionProxy.headerTitle))
+    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0 || [sectionProxy.footerTitle length] > 0)
     {
         return nil;
     }
@@ -1712,6 +1712,10 @@ static NSDictionary* replaceKeysForRow;
     {
         return 0.0;
     }
+    if([sectionProxy.headerTitle length] > 0)
+    {
+        return [tableView sectionHeaderHeight];
+    }
     TiViewProxy* viewProxy = [sectionProxy sectionViewForLocation:@"headerView" inListView:self];
 	
     CGFloat size = 0.0;
@@ -1731,26 +1735,6 @@ static NSDictionary* replaceKeysForRow;
             default:
                 size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
                 break;
-        }
-    }
-    /*
-     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
-     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
-     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
-     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
-     * provided it is NOT the empty string.
-     *
-     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
-     * return a 0.0 height that is overridden by the system.
-     */
-    else if ([sectionProxy headerTitle]!=nil) {
-        if ([[sectionProxy headerTitle] isEqualToString:@""]) {
-            return size;
-        }
-        size+=[tableView sectionHeaderHeight];
-        
-        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
-            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
         }
     }
     return size;
@@ -1777,6 +1761,10 @@ static NSDictionary* replaceKeysForRow;
     {
         return 0.0;
     }
+    if([sectionProxy.footerTitle length] > 0)
+    {
+        return [tableView sectionFooterHeight];
+    }
     TiViewProxy* viewProxy = [sectionProxy sectionViewForLocation:@"footerView" inListView:self];
 	
     CGFloat size = 0.0;
@@ -1796,26 +1784,6 @@ static NSDictionary* replaceKeysForRow;
             default:
                 size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
                 break;
-        }
-    }
-    /*
-     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
-     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
-     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
-     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
-     * provided it is NOT the empty string.
-     *
-     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
-     * return a 0.0 height that is overridden by the system.
-     */
-    else if ([sectionProxy footerTitle]!=nil) {
-        if ([[sectionProxy footerTitle] isEqualToString:@""]) {
-            return size;
-        }
-        size+=[tableView sectionFooterHeight];
-        
-        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
-            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
         }
     }
     return size;

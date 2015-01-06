@@ -92,7 +92,7 @@ DEFINE_EXCEPTIONS
 
 -(void)setGrouped:(BOOL)grouped
 {
-    _grouped = grouped && ![TiUtils isIOS7OrGreater];
+    _grouped = grouped;
 }
 
 -(void)configurationStart
@@ -118,8 +118,7 @@ DEFINE_EXCEPTIONS
     if (_bgView) {
         [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
     }
-    
-    BOOL newValue = [[_bgView selectableLayer] willDrawForState:UIControlStateNormal];
+    BOOL newValue = (_templateStyle == TiUIListItemTemplateStyleCustom) || [[_bgView selectableLayer] willDrawForState:UIControlStateNormal];
     if (_customBackground != newValue) {
         _customBackground = newValue;
         if (_customBackground) {
@@ -136,10 +135,11 @@ DEFINE_EXCEPTIONS
             self.contentView.opaque = YES;
         }
     }
+    
 }
 
 -(void) updateBackgroundLayerCorners:(TiCellBackgroundView*)view {
-    if (_grouped) {
+    if (_grouped && ![TiUtils isIOS7OrGreater]) {
         UIRectCorner corners = -10;
         switch (_positionMask) {
             case TiGroupedListItemPositionBottom:
