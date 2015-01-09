@@ -227,6 +227,7 @@ public class TiUIProgressIndicator extends TiUIView
 
 			progressDialog.setMessage(message);
 			progressDialog.setCancelable(cancelable);
+			progressDialog.setCanceledOnTouchOutside(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
 
 			if (type == INDETERMINANT) {
 				progressDialog.setIndeterminate(true);

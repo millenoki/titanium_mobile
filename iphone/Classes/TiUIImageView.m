@@ -200,22 +200,21 @@ DEFINE_EXCEPTIONS
     if (stopped) {
         return;
     }
-    
-    // don't let the placeholder stomp on our new _images
+
+    // don't let the placeholder stomp on our new images
     placeholderLoading = NO;
-    
+
     NSInteger position = index % loadTotal;
-    NSInteger nextIndex = (reverse) ? --index : ++index;
-    
+
     if (position<0)
     {
         position=loadTotal-1;
         index=position-1;
     }
     UIView *view = [[container subviews] objectAtIndex:position];
-    
+
     // see if we have an activity indicator... if we do, that means the image hasn't yet loaded
-    // and we want to start the spinner to let the user know that we're still loading. we
+    // and we want to start the spinner to let the user know that we're still loading. we 
     // don't initially start the spinner when added since we don't want to prematurely show
     // the spinner (usually for the first image) and then immediately remove it with a flash
     UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
@@ -224,34 +223,37 @@ DEFINE_EXCEPTIONS
         [(UIActivityIndicatorView*)spinner startAnimating];
         [view bringSubviewToFront:spinner];
     }
-    
+
     // the container sits on top of the image in case the first frame (via setUrl) is first
     [self bringSubviewToFront:container];
-    
-    view.hidden = NO;
-    
+
     if (previous!=nil)
     {
         previous.hidden = YES;
         RELEASE_TO_NIL(previous);
     }
-    
+
     previous = [view retain];
-    
-    if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
+    previous.hidden = NO;
+
+    if ([self.proxy _hasListeners:@"change"])
     {
         NSDictionary *evt = [NSDictionary dictionaryWithObject:NUMINTEGER(position) forKey:@"index"];
-        [self.proxy fireEvent:@"change" withObject:evt propagate:NO checkForListener:NO];
+        [self.proxy fireEvent:@"change" withObject:evt];
     }
-    
-    if (repeatCount > 0 && ((reverse==NO && nextIndex == loadTotal) || (reverse && nextIndex==0)))
+
+    if (repeatCount > 0 && ((reverse==NO && position == (loadTotal-1)) || (reverse && position==0)))
     {
         iterations++;
         if (iterations == repeatCount) {
             stopped = YES;
+            [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
+            [self.proxy replaceValue:NUMBOOL(YES) forKey:@"stopped" notification:NO];
+            [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
             [self stopTimerWithEvent:@"stop"];
         }
     }
+    index = (reverse? --index : ++index);
 }
 
 -(void)queueImage:(id)img index:(NSUInteger)index_
@@ -701,28 +703,32 @@ DEFINE_EXCEPTIONS
     [self stopTimerWithEvent:@"stop"];
     ready = NO;
     index = -1;
-    if (_animatedImage) {
+    iterations = -1;
+	if (_animatedImage) {
         [_animatedImage stop];
     }
     [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
-    [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
+    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"stopped" notification:NO];
+    [self.proxy replaceValue:NUMBOOL(YES) forKey:@"paused" notification:NO];
 }
 
 -(void)start
 {
     stopped = NO;
+    BOOL paused = [TiUtils boolValue:[self.proxy valueForKey:@"paused"] def:NO];
     [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
-    if (_animatedImage) {
+    [self.proxy replaceValue:NUMBOOL(NO) forKey:@"stopped" notification:NO];
+	if (_animatedImage) {
         [self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
         [_animatedImage start];
         return;
     }
-    if (iterations<0)
+    if (iterations<0 || !paused)
     {
         iterations = 0;
     }
-    
-    if (index<0)
+
+    if (index<0 || !paused)
     {
         if (reverse)
         {
@@ -733,9 +739,9 @@ DEFINE_EXCEPTIONS
             index = 0;
         }
     }
-    
-    
-    // refuse to start animation if you don't have any _images
+
+
+    // refuse to start animation if you don't have any images
     if (loadTotal > 0)
     {
         ready = YES;

@@ -142,7 +142,8 @@ public class TiHTTPClient
 	private LocalResponseHandler handler;
 	private Credentials credentials;
 	private TiBlob responseData;
-	protected OutputStream responseOut;
+	private OutputStream responseOut;
+	private StatusLine responseStatusLine;
 	private String charset;
 	protected String contentType;
 	protected long maxBufferSize;
@@ -267,12 +268,7 @@ public class TiHTTPClient
 					}
 				}
 
-				StatusLine statusLine = response.getStatusLine();
-				if (statusLine.getStatusCode() >= 400) {
-					setResponseText(response.getEntity());
-					throw new HttpResponseException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
-				}
-
+				responseStatusLine = response.getStatusLine();
 				entity = response.getEntity();
 				contentEncoding = response.getFirstHeader("Content-Encoding");
 				if (entity != null) {
@@ -1348,6 +1344,11 @@ public class TiHTTPClient
 				}
 				connected = false;
 				setResponseText(result);
+
+				if (responseStatusLine.getStatusCode() >= 400) {
+					throw new HttpResponseException(responseStatusLine.getStatusCode(), responseStatusLine.getReasonPhrase());
+				}
+
 				if (!aborted) {
 					setReadyState(READY_STATE_DONE);
 				}
