@@ -1660,7 +1660,7 @@ public class TiUIHelper
 	 */
 	public static Uri getRedirectUri(Uri mUri) throws MalformedURLException, IOException
 	{
-		if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB &&
+		if (!TiC.HONEYCOMB_OR_GREATER &&
 				("http".equals(mUri.getScheme()) || "https".equals(mUri.getScheme()))) {
 			// Media player doesn't handle redirects, try to follow them
 			// here. (Redirects work fine without this in ICS.)

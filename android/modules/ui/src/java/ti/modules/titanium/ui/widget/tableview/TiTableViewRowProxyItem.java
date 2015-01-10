@@ -32,7 +32,6 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Handler;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
@@ -44,7 +43,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 	// Only check this once, since we potentially use this information
 	// every time we add a row. No sense checking it each time.
-	private static boolean ICS_OR_GREATER = (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH);
 
 	private static final int LEFT_MARGIN = 5;
 	private static final int RIGHT_MARGIN = 7;
@@ -261,7 +259,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			// version 3.0.0 we support explore-by-touch on ICS and above, so for
 			// accessibility purposes we should not be disabling touch if
 			// accessibility is currently turned on.
-			if (!ICS_OR_GREATER || !TiApplication.getInstance().getAccessibilityManager().isEnabled()) {
+			if (!TiC.ICS_OR_GREATER || !TiApplication.getInstance().getAccessibilityManager().isEnabled()) {
 				rp.setProperty(TiC.PROPERTY_TOUCH_ENABLED, false);
 			}
 		}
@@ -392,7 +390,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			content.setEnableHorizontalWrap(TiConvert.toBoolean(p, TiC.PROPERTY_HORIZONTAL_WRAP));
 		}
 		
-		if (ICS_OR_GREATER) {
+		if (TiC.ICS_OR_GREATER) {
 			Object accessibilityHiddenVal = p.get(TiC.PROPERTY_ACCESSIBILITY_HIDDEN);
 			if (accessibilityHiddenVal != null) {
 				boolean hidden = TiConvert.toBoolean(accessibilityHiddenVal);

@@ -52,7 +52,6 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -642,7 +641,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		}
 		
 		if (modal) {
-			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+			if (TiC.ICS_OR_GREATER) {
 				// This flag is deprecated in API 14. On ICS, the background is not blurred but straight black.
 				window.addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
 			}

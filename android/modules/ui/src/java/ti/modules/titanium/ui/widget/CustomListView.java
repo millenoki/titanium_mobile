@@ -1,6 +1,5 @@
 package ti.modules.titanium.ui.widget;
 
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -9,7 +8,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +16,11 @@ import android.widget.EditText;
 public class CustomListView extends RefreshableListView {
 	private int mPosition;
 	private boolean mScrollingEnabled = true;
+	private static boolean HONEYCOMB_MR1_OR_HIGHER = Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR1;
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
 	private void init(final Context context) {
-		if (Build.VERSION.SDK_INT > TiC.API_LEVEL_HONEYCOMB_MR1) {
+		if (HONEYCOMB_MR1_OR_HIGHER) {
 			addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
 				private int top;
 				private int index;

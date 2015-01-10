@@ -51,7 +51,6 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Looper;
@@ -460,7 +459,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
             } else {
                 Uri uri = Uri.parse(url);
                 if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-                    if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+                    if (TiC.ICS_OR_GREATER) {
                         mp.setDataSource(uri.getPath());
                     } else {
                         // For 2.2 and below, MediaPlayer uses the native player

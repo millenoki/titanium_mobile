@@ -481,7 +481,7 @@ public abstract class TiApplication extends Application implements
     @SuppressLint("NewApi")
     @Override
     public void onTrimMemory(int level) {
-        if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB
+        if (TiC.HONEYCOMB_OR_GREATER
                 && level >= TRIM_MEMORY_RUNNING_LOW) {
             // Release all the cached images
             if (_picassoMermoryCache != null) {

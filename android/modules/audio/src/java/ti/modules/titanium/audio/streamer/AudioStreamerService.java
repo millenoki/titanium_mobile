@@ -26,7 +26,6 @@ import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.HandlerThread;
@@ -2401,7 +2400,7 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                     } else {
                         Uri uri = Uri.parse(url);
                         if (uri.getScheme().equals(TiC.PROPERTY_FILE)) {
-                            if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_ICE_CREAM_SANDWICH) {
+                            if (TiC.ICS_OR_GREATER) {
                                 mPlayingFile = new PlayingItem(uri.getPath());
                                 setDataSource(mPlayingFile.path);
                             } else {

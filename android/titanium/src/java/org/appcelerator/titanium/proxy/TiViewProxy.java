@@ -42,7 +42,6 @@ import android.util.DisplayMetrics;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.os.AsyncTask;
@@ -782,7 +781,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		if (view == null) return;
 		if (pendingAnimations.size() > 0) {
 			if (forceQueue || !(TiApplication.isUIThread())) {
-				if (Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
+				if (!TiC.HONEYCOMB_OR_GREATER) {
 					// Even this very small delay can help eliminate the bug
 					// whereby the animated view's parent suddenly becomes
 					// transparent (pre-honeycomb). cf. TIMOB-9813.

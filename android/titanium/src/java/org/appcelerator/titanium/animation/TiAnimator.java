@@ -19,7 +19,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.AnimatableProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
-import android.os.Build;
 import android.os.Looper;
 import android.os.MessageQueue;
 import android.view.animation.Interpolator;
@@ -200,7 +199,7 @@ public class TiAnimator
 			// a bug in versions before Honeycomb where this
 			// onAnimationEnd listener can be called even before the
 			// animation is really complete.
-			if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+			if (TiC.HONEYCOMB_OR_GREATER) {
 				this.animationProxy.fireEvent(TiC.EVENT_COMPLETE);
 			} else {
 				Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {

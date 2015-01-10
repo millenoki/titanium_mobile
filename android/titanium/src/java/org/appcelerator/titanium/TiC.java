@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium;
 
+import android.os.Build;
+
 /**
  * A comprehensive list of global Titanium events and properties constants.
  * These are sorted alphabetically.
@@ -13,10 +15,9 @@ package org.appcelerator.titanium;
 public class TiC
 
 {
-	public static final int API_LEVEL_HONEYCOMB = 11;
-	public static final int API_LEVEL_HONEYCOMB_MR1 = 12;
-	public static final int API_LEVEL_ICE_CREAM_SANDWICH = 14;
-	public static final int API_LEVEL_JELLY_BEAN = 16;
+    public static boolean HONEYCOMB_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    public static boolean ICS_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH);
+    public static boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN);
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";

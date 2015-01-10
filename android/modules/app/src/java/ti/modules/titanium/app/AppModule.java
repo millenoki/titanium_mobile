@@ -236,7 +236,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 		AccessibilityManager manager = TiApplication.getInstance().getAccessibilityManager();
 		boolean enabled = manager.isEnabled();
 
-		if (!enabled && Build.VERSION.SDK_INT < TiC.API_LEVEL_HONEYCOMB) {
+		if (!enabled && !TiC.HONEYCOMB_OR_GREATER) {
 			// Prior to Honeycomb, AccessibilityManager.isEnabled() would sometimes
 			// return false erroneously the because manager service would asynchronously set the
 			// enabled property in the manager client. So when checking the value, it

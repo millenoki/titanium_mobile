@@ -232,7 +232,7 @@ public class TiUINativePicker extends TiUIPicker
 		fireSelectionChange(0, position);
 
 		// Invalidate the parent view after the item is selected (TIMOB-13540).
-		if (Build.VERSION.SDK_INT >= TiC.API_LEVEL_HONEYCOMB) {
+		if (TiC.HONEYCOMB_OR_GREATER) {
 			ViewParent p = nativeView.getParent();
 			if (p instanceof View) {
 				((View) p).invalidate();
