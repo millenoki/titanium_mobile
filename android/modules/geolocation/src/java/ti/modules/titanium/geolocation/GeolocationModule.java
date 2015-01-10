@@ -200,7 +200,7 @@ public class GeolocationModule extends KrollModule
 
 		// create these now but we don't want to include these in the rule set unless the simple GPS provider is enabled
 		simpleLocationNetworkRule = new LocationRuleProxy(PROVIDER_NETWORK, SIMPLE_LOCATION_NETWORK_DISTANCE_RULE, SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE, null, SIMPLE_LOCATION_NETWORK_MIN_DISTANCE_RULE, null);
-		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, SIMPLE_LOCATION_GPS_MIN_AGE_RULE, null);
+		simpleLocationGpsRule = new LocationRuleProxy(PROVIDER_GPS, null, SIMPLE_LOCATION_GPS_MIN_AGE_RULE, null, null, null);
 	}
 
 	/**
