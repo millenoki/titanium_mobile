@@ -89,7 +89,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
-        AbsListItemProxy itemProxy = (AbsListItemProxy)getProxy();
+//        AbsListItemProxy itemProxy = (AbsListItemProxy)getProxy();
 	
 		if (key.equals(TiC.PROPERTY_ACCESSORY_TYPE)) {
 			int accessory = TiConvert.toInt(newValue, -1);
@@ -173,7 +173,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 				
 				if (shouldFireClick) {
 					KrollDict data = dictFromEvent(lastUpEvent);
-					handleFireItemClick(new KrollDict(data));
+					handleFireItemClick(data);
 	                fireEvent(TiC.EVENT_CLICK, data, true, true);
 				}
                 shouldFireClick = true;
