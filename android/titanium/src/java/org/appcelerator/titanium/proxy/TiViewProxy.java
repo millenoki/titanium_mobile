@@ -151,6 +151,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	 */
 	public TiViewProxy()
 	{
+	    mProcessInUIThread = true;
 		pendingTransitionLock = new Object();
 		pendingTransitions = new ArrayList<HashMap>();
 //		defaultValues.put(TiC.PROPERTY_BACKGROUND_REPEAT, false);

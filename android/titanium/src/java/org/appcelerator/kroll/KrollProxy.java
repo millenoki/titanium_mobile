@@ -112,6 +112,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     private boolean readyToUpdateNativeSideProperties = false;
 
     public static final String PROXY_ID_PREFIX = "proxy$";
+    
+    protected boolean mProcessInUIThread = false; 
 
     public KrollProxy(TiContext tiContext) {
         this();
@@ -762,7 +764,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
 
         if (modelListener != null) {
-            if (TiApplication.isUIThread()) {
+            if (!mProcessInUIThread || TiApplication.isUIThread()) {
                 modelListener.get().processApplyProperties(changedProps);
             } else {
                 Message message = getMainHandler().obtainMessage(
@@ -834,7 +836,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             }
         }
         if (modelListener != null) {
-            if (TiApplication.isUIThread()) {
+            if (!mProcessInUIThread || TiApplication.isUIThread()) {
                 modelListener.get().processApplyProperties(changedProps);
             } else {
                 if (wait) {
@@ -1301,7 +1303,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             Object newValue) {
         onPropertyChanged(name, newValue, oldValue);
         if (modelListener != null) {
-            if (TiApplication.isUIThread()) {
+            if (!mProcessInUIThread || TiApplication.isUIThread()) {
                 modelListener.get().propertyChanged(name, oldValue, newValue, this);
 
             } else {
@@ -1458,7 +1460,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public void onPropertiesChanged(Object[][] changes) {
         int changesLength = changes.length;
-        boolean isUiThread = TiApplication.isUIThread();
+        boolean isUiThread = !mProcessInUIThread || TiApplication.isUIThread();
 
         for (int i = 0; i < changesLength; ++i) {
             Object[] change = changes[i];
@@ -1716,7 +1718,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             }
             this.modelListener = new WeakReference<KrollProxyListener>(modelListener);
             if (applyProps) {
-                if (TiApplication.isUIThread()) {
+                if (!mProcessInUIThread || TiApplication.isUIThread()) {
                     KrollDict props = null;
                     synchronized (properties) {
                         props = (KrollDict) properties.clone();
