@@ -13,6 +13,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -149,11 +150,14 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         return listView.getWrappedList();
 	}
 
+    private HashMap<Integer, Object> mSectionInfoCache = new HashMap<Integer, Object>();
 	public class TiBaseAdapter extends ListViewAnimationsBaseAdapter implements StickyListHeadersAdapter
 	, SectionIndexer, MenuAdapter , Insertable<Object> , Removable<Object>
 	{
 
 		Activity context;
+		private boolean mCounted = false;
+		private int mCount = 0;
 		
 		public TiBaseAdapter(Activity activity) {
 		    super();
@@ -166,14 +170,18 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 
 		@Override
 		public int getCount() {
-			int count = 0;
+		    if (mCounted) {
+		        return mCount;
+		    }
+			mCount = 0;
 			synchronized (sections) {
 			    for (int i = 0; i < sections.size(); i++) {
 	                AbsListSectionProxy section = sections.get(i);
-	                count += section.getItemCount();
+	                mCount += section.getItemCount();
 	            }
             }
-			return count;
+			mCounted = true;
+			return mCount;
 		}
 
 		@Override
@@ -291,6 +299,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		public void notifyDataSetChanged()
 		{
 		    canShowMenus = false;
+		    mCounted = false;
+		    mSectionInfoCache.clear();
 		    if (listView != null) {
 		     // save index and top position
 	            int index = listView.getFirstVisiblePosition();
@@ -1214,16 +1224,22 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
         }
 	}
 	
+	
 	protected Pair<AbsListSectionProxy, Pair<Integer, Integer>> getSectionInfoByEntryIndex(int index) {
 		if (index < 0) {
 			return null;
+		}
+		if (mSectionInfoCache .containsKey(index)) {
+		    return (Pair<AbsListSectionProxy, Pair<Integer, Integer>>) mSectionInfoCache.get(index);
 		}
         synchronized (sections) {
     		for (int i = 0; i < sections.size(); i++) {
     			AbsListSectionProxy section = sections.get(i);
     			int sectionItemCount = section.getItemCount();
     			if (index <= sectionItemCount - 1) {
-    				return new Pair<AbsListSectionProxy, Pair<Integer, Integer>>(section, new Pair<Integer, Integer>(i, index));
+    			    Pair<AbsListSectionProxy, Pair<Integer, Integer>> result = new Pair<AbsListSectionProxy, Pair<Integer, Integer>>(section, new Pair<Integer, Integer>(i, index));
+    			    mSectionInfoCache.put(index, result);
+    				return result;
     			} else {
     				index -= sectionItemCount;
     			}
@@ -1237,8 +1253,6 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
         int result = 0;
         synchronized (sections) {
             for (int i = 0; i < sectionIndex; i++) {
-                AbsListSectionProxy section = sections.get(i);
-                int sectionItemCount = section.getItemCount();
                 result += sections.get(i).getItemCount();
             }
         }
