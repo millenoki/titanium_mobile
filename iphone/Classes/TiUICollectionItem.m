@@ -46,6 +46,7 @@ DEFINE_EXCEPTIONS
         _viewHolder = [[TiUIView alloc] initWithFrame:self.contentView.bounds];
         _viewHolder.proxy = _proxy;
         _viewHolder.shouldHandleSelection = NO;
+    [_viewHolder setBackgroundColor_:[UIColor redColor]];
         [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
         [_viewHolder setClipsToBounds: YES];
         [_viewHolder.layer setMasksToBounds: YES];
@@ -56,11 +57,11 @@ DEFINE_EXCEPTIONS
 
 -(void) initialize
 {
-    self.contentView.backgroundColor = [UIColor clearColor];
-    if ([TiUtils isIOS7OrGreater]) {
-        self.backgroundColor = [UIColor clearColor];
-    }
-    self.contentView.opaque = NO;
+//    self.contentView.backgroundColor = [UIColor clearColor];
+//    if ([TiUtils isIOS7OrGreater]) {
+//        self.backgroundColor = [UIColor clearColor];
+//    }
+//    self.contentView.opaque = NO;
     _unHighlightOnSelect = YES;
     
     _proxy.listItem = self;
@@ -382,7 +383,6 @@ static NSArray* handledKeys;
         CGRect newBounds = CGRectMake(0, 0, frame.size.width, frame.size.height);
         if (!CGRectEqualToRect(newBounds, currentbounds))
         {
-//            [(TiViewProxy*)self.proxy setSandboxBounds:newBounds];
             [(TiViewProxy*)self.proxy dirtyItAll];
         }
 	}

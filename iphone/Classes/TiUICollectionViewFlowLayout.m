@@ -99,37 +99,37 @@
         CGPoint center = item.center;
         UIAttachmentBehavior *springBehaviour = [[UIAttachmentBehavior alloc] initWithItem:item attachedToAnchor:center];
         
-        springBehaviour.length = 1.0f;
-        springBehaviour.damping = 0.8f;
-        springBehaviour.frequency = 1.0f;
+//        springBehaviour.length = 1.0f;
+//        springBehaviour.damping = 0.8f;
+//        springBehaviour.frequency = 1.0f;
         
         // If our touchLocation is not (0,0), we'll need to adjust our item's center "in flight"
-        if (!CGPointEqualToPoint(CGPointZero, touchLocation)) {
-            if (self.scrollDirection == UICollectionViewScrollDirectionVertical) {
-                CGFloat distanceFromTouch = fabsf(touchLocation.y - springBehaviour.anchorPoint.y);
-                
-                CGFloat scrollResistance;
-                if (self.scrollResistanceFactor) scrollResistance = distanceFromTouch / self.scrollResistanceFactor;
-                else scrollResistance = distanceFromTouch / kScrollResistanceFactorDefault;
-                
-                if (self.latestDelta < 0) center.y += MAX(self.latestDelta, self.latestDelta*scrollResistance);
-                else center.y += MIN(self.latestDelta, self.latestDelta*scrollResistance);
-                
-                item.center = center;
-                
-            } else {
-                CGFloat distanceFromTouch = fabsf(touchLocation.x - springBehaviour.anchorPoint.x);
-                
-                CGFloat scrollResistance;
-                if (self.scrollResistanceFactor) scrollResistance = distanceFromTouch / self.scrollResistanceFactor;
-                else scrollResistance = distanceFromTouch / kScrollResistanceFactorDefault;
-                
-                if (self.latestDelta < 0) center.x += MAX(self.latestDelta, self.latestDelta*scrollResistance);
-                else center.x += MIN(self.latestDelta, self.latestDelta*scrollResistance);
-                
-                item.center = center;
-            }
-        }
+//        if (!CGPointEqualToPoint(CGPointZero, touchLocation)) {
+//            if (self.scrollDirection == UICollectionViewScrollDirectionVertical) {
+//                CGFloat distanceFromTouch = fabsf(touchLocation.y - springBehaviour.anchorPoint.y);
+//                
+//                CGFloat scrollResistance;
+//                if (self.scrollResistanceFactor) scrollResistance = distanceFromTouch / self.scrollResistanceFactor;
+//                else scrollResistance = distanceFromTouch / kScrollResistanceFactorDefault;
+//                
+//                if (self.latestDelta < 0) center.y += MAX(self.latestDelta, self.latestDelta*scrollResistance);
+//                else center.y += MIN(self.latestDelta, self.latestDelta*scrollResistance);
+//                
+//                item.center = center;
+//                
+//            } else {
+//                CGFloat distanceFromTouch = fabsf(touchLocation.x - springBehaviour.anchorPoint.x);
+//                
+//                CGFloat scrollResistance;
+//                if (self.scrollResistanceFactor) scrollResistance = distanceFromTouch / self.scrollResistanceFactor;
+//                else scrollResistance = distanceFromTouch / kScrollResistanceFactorDefault;
+//                
+//                if (self.latestDelta < 0) center.x += MAX(self.latestDelta, self.latestDelta*scrollResistance);
+//                else center.x += MIN(self.latestDelta, self.latestDelta*scrollResistance);
+//                
+//                item.center = center;
+//            }
+//        }
         
         [self.dynamicAnimator addBehavior:springBehaviour];
         if(item.representedElementCategory == UICollectionElementCategoryCell)
@@ -277,9 +277,9 @@
             
             UIAttachmentBehavior *springBehaviour = [[UIAttachmentBehavior alloc] initWithItem:attributes attachedToAnchor:attributes.center];
             
-            springBehaviour.length = 1.0f;
-            springBehaviour.damping = 0.8f;
-            springBehaviour.frequency = 1.0f;
+//            springBehaviour.length = 1.0f;
+//            springBehaviour.damping = 0.8f;
+//            springBehaviour.frequency = 1.0f;
             [self.dynamicAnimator addBehavior:springBehaviour];
             [springBehaviour release];
         }

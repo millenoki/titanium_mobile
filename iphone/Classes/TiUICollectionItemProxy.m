@@ -201,6 +201,15 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     }
 }
 
+-(void)setWidth:(id)value
+{
+    //width is handled in the TiUICollectionView sizeForItemAtIndexPath
+}
+-(void)setHeight:(id)value
+{
+    //height is handled in the TiUICollectionView sizeForItemAtIndexPath
+}
+
 -(void)setValue:(id)value forKeyPath:(NSString *)keyPath
 {
     if([keyPath isEqualToString:@"properties"])

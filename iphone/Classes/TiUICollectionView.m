@@ -107,7 +107,7 @@ static NSDictionary* replaceKeysForRow;
 {
 	if (replaceKeysForRow == nil)
 	{
-		replaceKeysForRow = [@{@"itemWidth":@"width", @"itemHeight":@"height"} retain];
+		replaceKeysForRow = [@{@"columnWidth":@"width", @"rowHeight":@"height"} retain];
 	}
 	return replaceKeysForRow;
 }
@@ -1926,7 +1926,7 @@ static NSDictionary* replaceKeysForRow;
     if (!visible) return result;
     result = collectionView.bounds.size;
     
-    id widthValue = [self valueWithKey:@"itemWidth" atIndexPath:realIndexPath];
+    id widthValue = [self valueWithKey:@"columnWidth" atIndexPath:realIndexPath];
     TiDimension width = _itemWidth;
     if (widthValue != nil) {
         width = [TiUtils dimensionValue:widthValue];
@@ -1938,7 +1938,7 @@ static NSDictionary* replaceKeysForRow;
         result.width = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(width, collectionView.bounds.size.width)];
     }
     
-    id heightValue = [self valueWithKey:@"itemHeight" atIndexPath:realIndexPath];
+    id heightValue = [self valueWithKey:@"rowHeight" atIndexPath:realIndexPath];
     TiDimension height = _itemHeight;
     if (heightValue != nil) {
         height = [TiUtils dimensionValue:heightValue];
@@ -2012,12 +2012,12 @@ static NSDictionary* replaceKeysForRow;
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
-    return [TiUtils floatValue:[theSection valueForKey:@"itemSpacing"] def:2.0];
+    return [TiUtils floatValue:[theSection valueForKey:@"itemSpacing"] def:0];
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
-    return [TiUtils floatValue:[theSection valueForKey:@"lineSpacing"] def:2.0];
+    return [TiUtils floatValue:[theSection valueForKey:@"lineSpacing"] def:0];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
