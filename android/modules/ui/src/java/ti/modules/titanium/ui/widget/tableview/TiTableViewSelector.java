@@ -17,6 +17,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ListView;
 
 
@@ -31,7 +32,7 @@ public class TiTableViewSelector extends Drawable
 	private ColorFilter colorFilter;
 
 
-    private ListView getInternalListView() {
+    private AbsListView getInternalListView() {
         return listView.getWrappedList();
     }
     

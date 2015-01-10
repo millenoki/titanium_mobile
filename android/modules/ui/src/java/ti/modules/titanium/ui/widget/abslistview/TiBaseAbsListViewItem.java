@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package ti.modules.titanium.ui.widget.listview;
+package ti.modules.titanium.ui.widget.abslistview;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -14,23 +14,23 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.content.Context;
 import android.util.AttributeSet;
 
-public class TiBaseListViewItem extends TiCompositeLayout{
+public class TiBaseAbsListViewItem extends TiCompositeLayout{
 
 	
 	public int sectionIndex = -1;
 	public int itemIndex = -1;
-	public TiBaseListViewItem(Context context) {
+	public TiBaseAbsListViewItem(Context context) {
 		super(context);
-        setId(TiListView.listContentId);
+        setId(TiAbsListView.listContentId);
 	}
 	
-	public TiBaseListViewItem(Context context, AttributeSet set) {
+	public TiBaseAbsListViewItem(Context context, AttributeSet set) {
 		super(context, set);
-        setId(TiListView.listContentId);
+        setId(TiAbsListView.listContentId);
 	}
 	
 	
-	public void setCurrentItem(int sectionIndex, int itemIndex, ListSectionProxy sectionProxy)
+	public void setCurrentItem(int sectionIndex, int itemIndex, AbsListSectionProxy sectionProxy)
 	{
 		this.sectionIndex = sectionIndex;
 		this.itemIndex = itemIndex;
@@ -43,14 +43,14 @@ public class TiBaseListViewItem extends TiCompositeLayout{
         return sectionIndex;
     }
 	
-	public TiListItem getListItem() {
-        return (TiListItem) getView();
+	public TiAbsListItem getListItem() {
+        return (TiAbsListItem) getView();
     }
     
-	public ListItemProxy getProxy() {
+	public AbsListItemProxy getProxy() {
 	    TiUIView view  = getView();
         if (view != null) {
-            return (ListItemProxy)view.getProxy();
+            return (AbsListItemProxy)view.getProxy();
         }
         return null;
 	}
@@ -58,7 +58,7 @@ public class TiBaseListViewItem extends TiCompositeLayout{
 	public KrollProxy getViewProxyFromBinding(String binding) {
 		TiUIView view  = getView();
 		if (view != null) {
-			ListItemProxy proxy = (ListItemProxy)view.getProxy();
+			AbsListItemProxy proxy = (AbsListItemProxy)view.getProxy();
 			if (proxy != null)
 			{
 				return proxy.getProxyFromBinding(binding);

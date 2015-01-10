@@ -54,12 +54,10 @@ public class CustomListView extends RefreshableListView {
 
 	public CustomListView(Context context) {
 		super(context);
-		init(context);
 	}
 
 	public CustomListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context);
 	}
 
 	public CustomListView(Context context, AttributeSet attrs, int defStyle) {

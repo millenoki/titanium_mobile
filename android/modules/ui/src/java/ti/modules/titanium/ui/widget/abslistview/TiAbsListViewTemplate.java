@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package ti.modules.titanium.ui.widget.listview;
+package ti.modules.titanium.ui.widget.abslistview;
 
 import java.util.HashMap;
 
@@ -15,9 +15,9 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.ui.widget.listview.ListSectionProxy.ListItemData;
+import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 
-public class TiListViewTemplate {
+public class TiAbsListViewTemplate {
 	
 	protected static final String TAG = "TiTemplate";
 
@@ -64,7 +64,7 @@ public class TiListViewTemplate {
 		}
 	}
 
-	public TiListViewTemplate(String id, KrollDict properties) {
+	public TiAbsListViewTemplate(String id, KrollDict properties) {
 		//Init our binding hashmaps
 		dataItems = new HashMap<String, DataItem>();
 
@@ -163,9 +163,9 @@ public class TiListViewTemplate {
 	}
 	
 	
-	public ListItemProxy generateCellProxy(final ListItemData item, KrollProxy proxy)
+	public AbsListItemProxy generateCellProxy(final AbsListItemData item, KrollProxy proxy)
 	{
-		ListItemProxy result = (ListItemProxy) proxy.createTypeViewFromDict(properties, "Ti.UI.ListItem");
+		AbsListItemProxy result = (AbsListItemProxy) proxy.createTypeViewFromDict(properties, "Ti.UI.ListItem");
 		return result;
 	}
 

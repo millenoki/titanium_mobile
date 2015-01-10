@@ -1,21 +1,22 @@
-package ti.modules.titanium.ui.widget.listview;
+package ti.modules.titanium.ui.widget.abslistview;
 
 
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
+import se.emilsjolander.stickylistheaders.StickyListHeadersListViewAbstract;
 import ti.modules.titanium.ui.widget.CustomListView;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
-public class TiBaseListViewItemHolder extends TiCompositeLayout {
-	private CustomListView listView = null;
+public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
+	private StickyListHeadersListViewAbstract listView = null;
 
-	public TiBaseListViewItemHolder(Context context) {
+	public TiBaseAbsListViewItemHolder(Context context) {
 		super(context, LayoutArrangement.HORIZONTAL, null);
-		addView(new TiBaseListViewItem(context));
+		addView(new TiBaseAbsListViewItem(context));
 		
 	    final float scale = getResources().getDisplayMetrics().density;
 		TiCompositeLayout.LayoutParams p = new TiCompositeLayout.LayoutParams();
@@ -26,7 +27,7 @@ public class TiBaseListViewItemHolder extends TiCompositeLayout {
         p.optionLeft = new TiDimension(5, TiDimension.TYPE_LEFT);
         p.optionRight = new TiDimension(5, TiDimension.TYPE_RIGHT);
 		ImageView imageView = new ImageView(context);
-		imageView.setId(TiListView.accessory);
+		imageView.setId(TiAbsListView.accessory);
         imageView.setFocusable(false);
         imageView.setAdjustViewBounds(true);
         imageView.setMaxWidth((int) (25 * scale));
@@ -36,10 +37,10 @@ public class TiBaseListViewItemHolder extends TiCompositeLayout {
         addView(imageView, p);
 	}
 
-	public TiBaseListViewItemHolder(Context context, AttributeSet set) {
+	public TiBaseAbsListViewItemHolder(Context context, AttributeSet set) {
         this(context);
 	}
-	public void setListView(CustomListView listView2) {
+	public void setListView(StickyListHeadersListViewAbstract listView2) {
 		listView = listView2;
 	}
 

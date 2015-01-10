@@ -186,7 +186,7 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
     }
 
     private ListView getInternalListView() {
-        return getListView().getWrappedList();
+        return (ListView) getListView().getWrappedList();
     }
     
     private void handleSetSearch(final Object searchObj) {

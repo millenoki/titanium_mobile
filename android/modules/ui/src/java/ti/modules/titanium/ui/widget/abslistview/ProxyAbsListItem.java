@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package ti.modules.titanium.ui.widget.listview;
+package ti.modules.titanium.ui.widget.abslistview;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,13 +13,13 @@ import java.util.Iterator;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 
-public class ProxyListItem {
+public class ProxyAbsListItem {
 	KrollProxy proxy;
 	KrollDict initialProperties;
 	KrollDict currentProperties;
 	KrollDict diffProperties;
 	
-	public ProxyListItem(KrollProxy proxy, KrollDict props) {
+	public ProxyAbsListItem(KrollProxy proxy, KrollDict props) {
 		initialProperties = (KrollDict)props.clone();
 		this.proxy = proxy;
 		diffProperties = new KrollDict();

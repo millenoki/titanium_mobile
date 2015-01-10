@@ -502,7 +502,7 @@ public class TiTableView extends FrameLayout
 		return null;
 	}
 
-    private ListView getInternalListView() {
+    private AbsListView getInternalListView() {
         return listView.getWrappedList();
     }
     

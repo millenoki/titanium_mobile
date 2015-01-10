@@ -4,13 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.ui.widget.listview;
+package ti.modules.titanium.ui.widget.abslistview;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.json.JSONException;
 
-public class TiDefaultListViewTemplate extends TiListViewTemplate {
+public class TiDefaultAbsListViewTemplate extends TiAbsListViewTemplate {
 	private static final KrollDict TEMPLATE_DICT = createTemplateDict();
     private static KrollDict createTemplateDict() {
         try {
@@ -20,7 +20,7 @@ public class TiDefaultListViewTemplate extends TiListViewTemplate {
         }
     }
 
-	public TiDefaultListViewTemplate(String id) {
+	public TiDefaultAbsListViewTemplate(String id) {
 		super(id, TEMPLATE_DICT);
 	}
 	

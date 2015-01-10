@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-package ti.modules.titanium.ui.widget.listview;
+package ti.modules.titanium.ui.widget.abslistview;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ import android.view.ViewParent;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
-public class TiListItem extends TiUIView implements TiTouchDelegate {
+public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
     private static final String TAG = "TiListItem";
 	TiUIView mClickDelegate;
 	View listItemLayout;
@@ -44,11 +44,11 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
     private boolean canShowRightMenuDefined = false;
     private List<TiViewProxy> leftButtons = null;
     private List<TiViewProxy> rightButtons = null;
-	public TiListItem(TiViewProxy proxy) {
+	public TiAbsListItem(TiViewProxy proxy) {
 		super(proxy);
 	}
 
-	public TiListItem(TiViewProxy proxy, View v, View item_layout) {
+	public TiAbsListItem(TiViewProxy proxy, View v, View item_layout) {
 		super(proxy);
 //		layoutParams = p;
         layoutParams.sizeOrFillWidthEnabled = true;
@@ -61,7 +61,7 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 	
 	private List<TiViewProxy> proxiesArrayFromValue(Object value) {
 	    List<TiViewProxy> result = null;
-	    final ListItemProxy itemProxy = (ListItemProxy) proxy;
+	    final AbsListItemProxy itemProxy = (AbsListItemProxy) proxy;
 	    if (value instanceof Object[]) {
 	        result = new ArrayList<TiViewProxy>();
 	        Object[] array  = (Object[]) value;
@@ -89,7 +89,7 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
-        ListItemProxy itemProxy = (ListItemProxy)getProxy();
+        AbsListItemProxy itemProxy = (AbsListItemProxy)getProxy();
 	
 		if (key.equals(TiC.PROPERTY_ACCESSORY_TYPE)) {
 			int accessory = TiConvert.toInt(newValue, -1);
@@ -138,22 +138,22 @@ public class TiListItem extends TiUIView implements TiTouchDelegate {
 
 	private void handleAccessory(int accessory) {
 		
-		ImageView accessoryImage = (ImageView) listItemLayout.findViewById(TiListView.accessory);
+		ImageView accessoryImage = (ImageView) listItemLayout.findViewById(TiAbsListView.accessory);
 
 		switch(accessory) {
 
 			case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
                 accessoryImage.setVisibility(View.VISIBLE);
-				accessoryImage.setImageResource(TiListView.isCheck);
+				accessoryImage.setImageResource(TiAbsListView.isCheck);
 				break;
 			case UIModule.LIST_ACCESSORY_TYPE_DETAIL:
                 accessoryImage.setVisibility(View.VISIBLE);
-				accessoryImage.setImageResource(TiListView.hasChild);
+				accessoryImage.setImageResource(TiAbsListView.hasChild);
 				break;
 
 			case UIModule.LIST_ACCESSORY_TYPE_DISCLOSURE:
                 accessoryImage.setVisibility(View.VISIBLE);
-				accessoryImage.setImageResource(TiListView.disclosure);
+				accessoryImage.setImageResource(TiAbsListView.disclosure);
 				break;
 	
 			default:
