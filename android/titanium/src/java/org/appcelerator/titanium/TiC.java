@@ -1203,10 +1203,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_CODE = "code";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_COLOR = "color";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_COLOR = "color";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_COLUMN_WIDTH = "columnWidth";
 
 	/**
 	 * @module.api
@@ -2155,6 +2160,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_NUMBER = "number";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_NUM_COLUMNS = "numColumns";
 
 	/**
 	 * @module.api
