@@ -5,7 +5,6 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListViewAbstract;
-import ti.modules.titanium.ui.widget.CustomListView;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
