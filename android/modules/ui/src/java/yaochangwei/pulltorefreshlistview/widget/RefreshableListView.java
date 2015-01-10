@@ -41,12 +41,10 @@ public class RefreshableListView extends DynamicStickyListHeadersListView {
 
 	public RefreshableListView(Context context) {
 		super(context);
-		initialize();
 	}
 	
 	public RefreshableListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		initialize();
 	}
 
 	public RefreshableListView(Context context, AttributeSet attrs, int defStyle) {
