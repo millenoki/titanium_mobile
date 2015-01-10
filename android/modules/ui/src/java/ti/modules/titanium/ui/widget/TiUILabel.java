@@ -974,6 +974,7 @@ public class TiUILabel extends TiUINonViewGroupView
     
     @Override
     protected void didProcessProperties() {
+        boolean needsLayout = false;
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_COLORS) != 0) {
             updateTextColors();
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_COLORS;
@@ -993,7 +994,7 @@ public class TiUILabel extends TiUINonViewGroupView
             }
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT;
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_HTML;
-            
+            needsLayout = true;
         }
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_LINKIFY) != 0) {
             TiUIHelper.linkifyIfEnabled(getTextView(), autoLink);
@@ -1001,6 +1002,9 @@ public class TiUILabel extends TiUINonViewGroupView
         }
         //call after so that a layout computes ellipsize
         getTextView().SetReadyToEllipsize(true);
+        if (needsLayout) {
+            getTextView().requestLayout();
+        }
         super.didProcessProperties();
     }
  
