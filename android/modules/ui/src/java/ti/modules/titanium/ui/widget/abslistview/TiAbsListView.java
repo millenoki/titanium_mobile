@@ -1103,6 +1103,16 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT);
 			wrapper.setLayoutParams(params);
 			if (outerView != null && tiView != null) {
+			    TiCompositeLayout.LayoutParams headerParams = tiView.getLayoutParams();
+			      //If height is not dip, explicitly set it to SIZE
+		        if (!headerParams.fixedSizeHeight()) {
+		            headerParams.sizeOrFillHeightEnabled = true;
+		            headerParams.autoFillsHeight = false;
+		        }
+		        if (headerParams.optionWidth == null && !viewProxy.hasProperty(TiC.PROPERTY_WIDTH)) {
+		            headerParams.sizeOrFillWidthEnabled = true;
+		            headerParams.autoFillsWidth = true;
+		        }
 	            wrapper.addView(outerView, tiView.getLayoutParams());
 			}
 			wrapper.setId(HEADER_FOOTER_WRAP_ID);
