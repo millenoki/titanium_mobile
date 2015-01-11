@@ -112,25 +112,9 @@
         [self releaseSearchController];
     }
     else {
-        if (searchController) {
-            TiSearchDisplayController* oldController = searchController;
-            searchController = nil;
-            [self searchController];
-            searchController.preventHiddingNavBar = oldController.preventHiddingNavBar;
-            searchController.searchResultsDataSource = oldController.searchResultsDataSource;
-            searchController.searchResultsDelegate = oldController.searchResultsDelegate;
-            searchController.delegate = oldController.delegate;
-            
-            oldController.searchResultsDataSource = nil;
-            oldController.searchResultsDelegate = nil;
-            oldController.delegate = nil;
-            RELEASE_TO_NIL(oldController)
-        }
-        else {
-            [self searchController];
-        }
+        RELEASE_TO_NIL(searchController)
+        [self searchController];
     }
-	
 }
 
 -(TiSearchDisplayController*)searchController {
@@ -139,6 +123,9 @@
         if (controller) {
             searchController = [[TiSearchDisplayController alloc] initWithSearchBar:[self searchBar] contentsController:controller];
             searchController.preventHiddingNavBar = !hideNavBarWithSearch;
+            searchController.searchResultsDataSource = delegate;
+            searchController.searchResultsDelegate = delegate;
+            searchController.delegate = delegate;
         }
     }
     return searchController;
@@ -170,6 +157,10 @@
 -(void)setDelegate:(id<UISearchBarDelegate>)delegate_
 {
 	delegate = delegate_;
+    if (searchController) {
+        RELEASE_TO_NIL(searchController)
+        [self searchController];
+    }
 }
 
 #pragma mark View controller stuff

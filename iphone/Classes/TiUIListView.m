@@ -50,7 +50,7 @@
     TiDimension _minRowHeight;
     TiDimension _maxRowHeight;
 
-    UITableViewController *tableController;
+//    UITableViewController *tableController;
 
     NSMutableArray * sectionTitles;
     NSMutableArray * sectionIndices;
@@ -126,6 +126,7 @@ static NSDictionary* replaceKeysForRow;
         _currentSection = -1;
         _canSwipeCells = NO;
         _hasPullView = NO;
+        caseInsensitiveSearch = YES;
     }
     return self;
 }
@@ -142,7 +143,7 @@ static NSDictionary* replaceKeysForRow;
     RELEASE_TO_NIL(_searchResults)
     RELEASE_TO_NIL(_pullViewWrapper)
 
-    RELEASE_TO_NIL(tableController)
+//    RELEASE_TO_NIL(tableController)
     RELEASE_TO_NIL(sectionTitles)
     RELEASE_TO_NIL(sectionIndices)
     RELEASE_TO_NIL(filteredTitles)
@@ -601,6 +602,20 @@ static NSDictionary* replaceKeysForRow;
     return theValue;
 }
 
+-(id)firstItemValueForKeys:(NSArray*)keys atIndexPath:(NSIndexPath*)indexPath
+{
+    NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
+    NSDictionary* properties = [item objectForKey:@"properties"]?[item objectForKey:@"properties"]:item;
+    __block id theResult = nil;
+    [keys enumerateObjectsUsingBlock:^(NSString* key, NSUInteger idx, BOOL *stop) {
+        theResult = [properties objectForKey:key];
+        if (theResult) {
+            *stop = YES;
+        }
+    }];
+    return theResult;
+}
+
 
 -(void)buildResultsForSearchText
 {
@@ -626,7 +641,7 @@ static NSDictionary* replaceKeysForRow;
             NSUInteger maxItems = [[self.listViewProxy sectionForIndex:i] itemCount];
             for (int j = 0; j < maxItems; j++) {
                 NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:i];
-                id theValue = [self valueWithKey:@"searchableText" atIndexPath:thePath];
+                id theValue = [self firstItemValueForKeys:@[@"searchableText", @"title"] atIndexPath:thePath];
                 if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
                     (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
                     hasResults = YES;
@@ -678,10 +693,10 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)updateSearchResults:(id)unused
 {
-    if (searchActive) {
+    if ([self isSearchActive]) {
         [self buildResultsForSearchText];
     }
-    [_tableView reloadData];
+    [self reloadTableViewData];
     if ([[self searchController] isActive]) {
         [[[self searchController] searchResultsTableView] reloadData];
     } 
@@ -938,7 +953,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)setAllowsSelection_:(id)value
 {
     allowsSelection = [TiUtils boolValue:value];
-    [tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
+//    [tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
 }
 
 -(void)setAllowsSelectionDuringEditing_:(id)arg
@@ -986,7 +1001,11 @@ static NSDictionary* replaceKeysForRow;
 
 -(TiSearchDisplayController*) searchController
 {
-    return [(TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"] searchController];
+    id obj = [self holdedProxyForKey:@"searchView"];
+    if (obj) {
+        return [(TiUISearchBarProxy*) obj searchController];
+    }
+    return nil;
 }
 
 -(void)setCaseInsensitiveSearch_:(id)args
@@ -1014,54 +1033,49 @@ static NSDictionary* replaceKeysForRow;
     [self reloadTableViewData];
 }
 
+//-(UITableViewController*)tableViewController
+//{
+//    if (!tableController) {
+//        tableController = [[UITableViewController alloc] init];
+//        [TiUtils configureController:tableController withObject:nil];
+//        tableController.tableView = [self tableView];
+//        [tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
+//    }
+//    return tableController;
+//}
+
 -(void)setSearchViewExternal_:(id)args {
-    [self tableView];
-    RELEASE_TO_NIL(tableController);
-    id vp = [[self viewProxy] addObjectToHold:args forKey:@"searchView"];
+    ENSURE_SINGLE_ARG_OR_NIL(args, TiUISearchBarProxy);
+//    RELEASE_TO_NIL(tableController);
+    id vp = [[self viewProxy] addProxyToHold:args setParent:NO forKey:@"searchView" shouldRelayout:NO];
     if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
+//        [self tableView];
         [(TiUISearchBarProxy*)vp setReadyToCreateView:YES];
         [(TiUISearchBarProxy*)vp setDelegate:self];
         ((TiUISearchBarProxy*)vp).canHaveSearchDisplayController = YES;
-        tableController = [[UITableViewController alloc] init];
-        [TiUtils configureController:tableController withObject:nil];
-        tableController.tableView = [self tableView];
-        [tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
-        
-        TiSearchDisplayController* searchController = [self searchController];
-        searchController.searchResultsDataSource = self;
-        searchController.searchResultsDelegate = self;
-        searchController.delegate = self;
         if (searchHidden)
         {
             [self hideSearchScreen:nil animated:NO];
         }
     }
+    
 }
 
 -(void)setSearchView_:(id)args
 {
-    RELEASE_TO_NIL(tableController);
+//    RELEASE_TO_NIL(tableController);
     id vp = [[self viewProxy] addObjectToHold:args forKey:@"searchView"];
     if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
         [(TiUISearchBarProxy*)vp setReadyToCreateView:YES];
         [(TiUISearchBarProxy*)vp setDelegate:self];
-        tableController = [[UITableViewController alloc] init];
-        [TiUtils configureController:tableController withObject:nil];
-        tableController.tableView = [self tableView];
-		[tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
+        ((TiUISearchBarProxy*)vp).canHaveSearchDisplayController = YES;
         [[self getOrCreateHeaderHolder] addProxy:vp atIndex:0 shouldRelayout:YES];
-
-        TiSearchDisplayController* searchController = [self searchController];
-        searchController.searchResultsDataSource = self;
-        searchController.searchResultsDelegate = self;
-        searchController.delegate = self;
         if (searchHidden)
 		{
 			[self hideSearchScreen:nil animated:NO];
 		}
     }
 }
-
 
 -(void)setSearchHidden_:(id)hide
 {
@@ -2165,8 +2179,6 @@ static NSDictionary* replaceKeysForRow;
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
     self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
-    [self buildResultsForSearchText];
-    [[[self searchController] searchResultsTableView] reloadData];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
@@ -2205,6 +2217,7 @@ static NSDictionary* replaceKeysForRow;
 {
     searchViewAnimating = YES;
 	[_tableView setContentOffset:CGPointZero animated:NO];
+    
 }
 
 - (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller {
@@ -2213,6 +2226,9 @@ static NSDictionary* replaceKeysForRow;
 
 - (void) searchDisplayControllerDidBeginSearch:(UISearchDisplayController *)controller {
     searchViewAnimating = NO;
+    [controller.searchBar setText:self.searchString];
+    [self buildResultsForSearchText];
+    [[controller searchResultsTableView] reloadData];
 }
 
 - (void) searchDisplayControllerDidEndSearch:(UISearchDisplayController *)controller
