@@ -363,9 +363,10 @@ static NSDictionary* replaceKeysForRow;
             [cellProxy release];
             NSString *cellIdentifier = [key isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", key]: [key description];
             
-            if ([cellIdentifier containsString:@"header"]) {
+            
+            if ([cellIdentifier rangeOfString:@"header" options:NSCaseInsensitiveSearch].location != NSNotFound) {
                 [[self tableView] registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:cellIdentifier];
-            } else if ([cellIdentifier containsString:@"footer"]) {
+            } else if ([cellIdentifier rangeOfString:@"footer" options:NSCaseInsensitiveSearch].location != NSNotFound) {
                 [[self tableView] registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:cellIdentifier];
             } else {
                 [[self tableView] registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:cellIdentifier];
