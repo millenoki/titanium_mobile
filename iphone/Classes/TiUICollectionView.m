@@ -149,16 +149,16 @@ static NSDictionary* replaceKeysForRow;
     [super dealloc];
 }
 
--(WrapperViewProxy*)initWrapperProxyWithVerticalLayout:(BOOL)vertical
+-(WrapperViewProxy*)wrapperProxyWithVerticalLayout:(BOOL)vertical
 {
     WrapperViewProxy* theProxy = [[WrapperViewProxy alloc] initWithVerticalLayout:vertical];
     [theProxy setParent:(TiParentingProxy*)self.proxy];
     return [theProxy autorelease];
 }
 
--(WrapperViewProxy*)initWrapperProxy
+-(WrapperViewProxy*)wrapperProxy
 {
-    return [self initWrapperProxyWithVerticalLayout:NO];
+    return [self wrapperProxyWithVerticalLayout:NO];
 }
 
 -(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header

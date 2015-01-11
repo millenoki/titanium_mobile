@@ -108,7 +108,8 @@
 
 -(TiViewProxy*)sectionViewForLocation:(NSString*)location inListView:(TiUIListView*)listView
 {
-    TiProxy* vp = [self holdedProxyForKey:location];
+    NSString* wrapperKey = [NSString stringWithFormat:@"%@Wrapper", location];
+    TiProxy* vp = [self holdedProxyForKey:wrapperKey];
     if (vp) {
         return (TiViewProxy*)vp;
     }
@@ -123,7 +124,11 @@
         if (viewLayout->width.type == TiDimensionTypeUndefined) {
             viewLayout->width = TiDimensionAutoFill;
         }
-        return (TiViewProxy*)vp;
+        
+        TiViewProxy* wrapperProxy = [listView wrapperProxyWithVerticalLayout:YES];
+        [wrapperProxy add:vp];
+        [self addProxyToHold:wrapperProxy forKey:wrapperKey];
+        return wrapperProxy;
     }
     return nil;
 }

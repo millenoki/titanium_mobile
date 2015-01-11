@@ -104,6 +104,13 @@ static NSDictionary* replaceKeysForRow;
     return result?result:key;
 }
 
+-(WrapperViewProxy*)wrapperProxyWithVerticalLayout:(BOOL)vertical
+{
+    WrapperViewProxy* theProxy = [[WrapperViewProxy alloc] initWithVerticalLayout:vertical];
+    [theProxy setParent:(TiParentingProxy*)self.proxy];
+    return [theProxy autorelease];
+}
+
 - (id)init
 {
     self = [super init];

@@ -14,7 +14,7 @@
 #import "NSDictionary+Merge.h"
 
 @interface TiUICollectionView()
--(TiViewProxy*)initWrapperProxyWithVerticalLayout:(BOOL)vertical;
+-(TiViewProxy*)wrapperProxyWithVerticalLayout:(BOOL)vertical;
 @end
 
 @interface TiUICollectionSectionProxy ()
