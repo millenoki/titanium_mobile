@@ -1463,7 +1463,6 @@ static NSDictionary* replaceKeysForRow;
         }
         
         [cellProxy release];
-        [cell autorelease];
     }
     
     cell.dataItem = item;
