@@ -13,9 +13,12 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -23,6 +26,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.BatteryManager;
 
@@ -333,5 +337,18 @@ public class PlatformModule extends KrollModule
         result.put("height", getDisplayCaps().getPlatformHeight());
         return result;
     }
+    
+    @Kroll.getProperty @Kroll.method
+    public TiBlob getSplashImageForCurrentOrientation() {
+        Drawable drawable = TiUIHelper.getResourceDrawable((Object)"background.9.png");
+        if (drawable == null) {
+            drawable = TiUIHelper.getResourceDrawable((Object)"background.png");
+        }
+        if (drawable != null) {
+            return TiBlob.blobFromObject(drawable);
+        }
+        return null;
+    }
+
 
 }

@@ -290,6 +290,16 @@
 	return NUMFLOAT([[UIDevice currentDevice] batteryLevel]);
 }
 
+-(TiBlob*)splashImageForCurrentOrientation {
+    UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
+    UIUserInterfaceIdiom imageIdiom;
+    UIDeviceOrientation imageOrientation;
+    UIImage * defaultImage = [[[TiApp app] controller] defaultImageForOrientation:
+                              [[UIDevice currentDevice] orientation]
+                                         resultingOrientation:&imageOrientation idiom:&imageIdiom];
+    return [[[TiBlob alloc] initWithImage:defaultImage] autorelease];
+}
+
 
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNKNOWN,UIDeviceBatteryStateUnknown);
 MAKE_SYSTEM_PROP(BATTERY_STATE_UNPLUGGED,UIDeviceBatteryStateUnplugged);
