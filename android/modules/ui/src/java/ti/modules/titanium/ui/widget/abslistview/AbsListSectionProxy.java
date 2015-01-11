@@ -117,9 +117,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             if (properties.containsKey(TiC.PROPERTY_TEMPLATE)) {
                 this.template = properties.getString(TiC.PROPERTY_TEMPLATE);
             }
-            else {
-                this.template = getListView().getDefaultTemplateBinding();
-            }
             // set searchableText
             updateSearchableAndVisible();
         }
