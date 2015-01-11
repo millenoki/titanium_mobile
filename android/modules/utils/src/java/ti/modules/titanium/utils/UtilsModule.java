@@ -57,10 +57,10 @@ public class UtilsModule extends KrollModule
 	public TiBlob base64encode(Object obj)
 	{
 		if (obj instanceof TiBlob) {
-			return TiBlob.blobFromString(((TiBlob) obj).toBase64());
+			return TiBlob.blobFromObject(((TiBlob) obj).toBase64());
 		} else if (obj instanceof TiFileProxy) {
 			try {
-				return TiBlob.blobFromStreamBase64(((TiFileProxy) obj).getInputStream(),
+				return TiBlob.blobFromObject(((TiFileProxy) obj).getInputStream(),
 					TiMimeTypeHelper.getMimeType(((TiFileProxy) obj).getBaseFile().nativePath()));
 			} catch (IOException e) {
 				Log.e(TAG, "Problem reading file");
@@ -69,7 +69,7 @@ public class UtilsModule extends KrollModule
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
-				return TiBlob.blobFromString(new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
+				return TiBlob.blobFromObject(new String(Base64.encodeBase64(data.getBytes("UTF-8")), "UTF-8"));
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "UTF-8 is not a supported encoding type");
 			}
@@ -83,7 +83,7 @@ public class UtilsModule extends KrollModule
 		String data = convertToString(obj);
 		if (data != null) {
 			try {
-				return TiBlob.blobFromData(Base64.decodeBase64(data.getBytes("UTF-8")));
+				return TiBlob.blobFromObject(Base64.decodeBase64(data.getBytes("UTF-8")));
 			} catch (UnsupportedEncodingException e) {
 				Log.e(TAG, "UTF-8 is not a supported encoding type");
 			}

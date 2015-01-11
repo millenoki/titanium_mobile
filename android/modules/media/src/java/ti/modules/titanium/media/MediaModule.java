@@ -355,7 +355,7 @@ public class MediaModule extends KrollModule
 		try {
 			//Make sure our processing argument is a Blob
 			if (arg instanceof TiFileProxy) {
-				theBlob = TiBlob.blobFromFile(((TiFileProxy)arg).getBaseFile());
+				theBlob = TiBlob.blobFromObject(((TiFileProxy)arg).getBaseFile());
 			} else {
 				theBlob = (TiBlob) arg;
 			}
@@ -690,7 +690,7 @@ public class MediaModule extends KrollModule
 					//Create a blob for response
 					try {
 						TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
-						TiBlob theBlob = TiBlob.blobFromFile(theFile);
+						TiBlob theBlob = TiBlob.blobFromObject(theFile);
 						KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
 						if (successCallback != null) {
 							successCallback.callAsync(getKrollObject(), response);
@@ -855,7 +855,7 @@ public class MediaModule extends KrollModule
 
 	protected static KrollDict createDictForImage(String path, String mimeType) {
 		String[] parts = { path };
-		TiBlob imageData = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(parts, false), mimeType);
+		TiBlob imageData = TiBlob.blobFromObject(TiFileFactory.createTitaniumFile(parts, false), mimeType);
 		return createDictForImage(imageData, mimeType);
 	}
 
@@ -909,7 +909,7 @@ public class MediaModule extends KrollModule
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
 		d.put("mediaType", MEDIA_TYPE_PHOTO);
-		d.put("media", TiBlob.blobFromData(data, "image/png"));
+		d.put("media", TiBlob.blobFromObject(data, "image/png"));
 
 		return d;
 	}
@@ -1028,7 +1028,7 @@ public class MediaModule extends KrollModule
 				if (winScale != 1.0f) {
 					bitmap = TiImageHelper.imageScaled(bitmap, winScale);
 				}
-				TiBlob blob = TiBlob.blobFromImage(bitmap);
+				TiBlob blob = TiBlob.blobFromObject(bitmap);
 				KrollDict result = new KrollDict();
 				result.put("image", blob);
 				callback.callAsync(getKrollObject(), new Object[] { result });

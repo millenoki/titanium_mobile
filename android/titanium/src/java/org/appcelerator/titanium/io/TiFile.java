@@ -347,7 +347,7 @@ public class TiFile extends TiBaseFile
 	@Override
 	public TiBlob read() throws IOException
 	{
-		return TiBlob.blobFromFile(this);
+		return TiBlob.blobFromObject(this);
 	}
 
 	@Override

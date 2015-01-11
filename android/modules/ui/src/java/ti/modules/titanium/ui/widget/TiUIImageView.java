@@ -588,7 +588,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         if (hasListeners(TiC.EVENT_LOAD)) {
             KrollDict data = new KrollDict();
             if (bitmap != null) {
-                data.put("image", TiBlob.blobFromImage(bitmap));
+                data.put("image", TiBlob.blobFromObject(bitmap));
             }
             data.put(TiC.EVENT_PROPERTY_STATE, state);
             if (bitmapInfo != null) {
@@ -1201,7 +1201,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 } else if (drawable instanceof SVGDrawable) {
                     bitmap = ((SVGDrawable) drawable).getBitmap();
                 }
-                return bitmap == null ? null : TiBlob.blobFromImage(bitmap);
+                return bitmap == null ? null : TiBlob.blobFromObject(bitmap);
             }
         }
 

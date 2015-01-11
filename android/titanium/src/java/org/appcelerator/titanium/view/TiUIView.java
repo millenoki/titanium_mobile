@@ -1917,7 +1917,7 @@ public abstract class TiUIView
 		if (scaleValue != 1.0f) {
 			bitmap = TiImageHelper.imageScaled(bitmap, scaleValue);
 		}
-		return TiBlob.blobFromImage(bitmap);
+		return TiBlob.blobFromObject(bitmap);
 	}
 
 	protected View getTouchView()
@@ -2408,7 +2408,7 @@ public abstract class TiUIView
 		@Override
 		protected void onPostExecute(Bitmap image)
 		{
-			TiBlob blob = TiBlob.blobFromImage(image);
+			TiBlob blob = TiBlob.blobFromObject(image);
 			if (properties != null) {
 				for (String prop : properties) {
 					proxy.setPropertyAndFire(prop, blob);

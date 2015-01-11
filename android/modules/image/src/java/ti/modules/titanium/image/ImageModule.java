@@ -149,7 +149,7 @@ public class ImageModule extends KrollModule {
         }
 
         if (result != null) {
-            TiBlob blob = TiBlob.blobFromImage(result.first);
+            TiBlob blob = TiBlob.blobFromObject(result.first);
             blob.addInfo(result.second);
             return blob;
         }

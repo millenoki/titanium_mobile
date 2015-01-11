@@ -117,7 +117,7 @@ public class TiThumbnailRetriever implements Handler.Callback{
 							event.put(TiC.PROPERTY_TIME, sec);
 							event.put(TiC.ERROR_PROPERTY_CODE, TiC.ERROR_CODE_NO_ERROR);
 							event.put(TiC.PROPERTY_SUCCESS, true);
-							event.put(TiC.PROPERTY_IMAGE, TiBlob.blobFromImage(mBitmapFrame));
+							event.put(TiC.PROPERTY_IMAGE, TiBlob.blobFromObject(mBitmapFrame));
 						} else {
 							event = new KrollDict();
 							event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, "Error getting Thumbnail");

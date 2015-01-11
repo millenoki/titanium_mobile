@@ -901,7 +901,7 @@ public class TiUIHelper
 		cropRect.put(TiC.PROPERTY_WIDTH, width);
 		cropRect.put(TiC.PROPERTY_HEIGHT, height);
 		d.put(TiC.PROPERTY_CROP_RECT, cropRect);
-		d.put(TiC.PROPERTY_MEDIA, TiBlob.blobFromData(data, MIME_TYPE_PNG));
+		d.put(TiC.PROPERTY_MEDIA, TiBlob.blobFromObject(data, MIME_TYPE_PNG));
 
 		return d;
 	}
@@ -1035,7 +1035,7 @@ public class TiUIHelper
 	{
 		Bitmap bitmap = viewToBitmap(proxyDict, view);
 		if (bitmap != null) {
-			return TiBlob.blobFromImage(bitmap);
+			return TiBlob.blobFromObject(bitmap);
 		}
 		return null;
 	}

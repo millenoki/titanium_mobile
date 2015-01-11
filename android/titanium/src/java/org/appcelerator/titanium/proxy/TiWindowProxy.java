@@ -633,7 +633,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (scaleValue != 1.0f) {
 			bitmap = TiImageHelper.imageScaled(bitmap, scaleValue);
 		}
-		return TiBlob.blobFromImage(bitmap);
+		return TiBlob.blobFromObject(bitmap);
 	}
 	
 	

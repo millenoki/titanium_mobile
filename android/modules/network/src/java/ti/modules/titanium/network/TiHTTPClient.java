@@ -357,11 +357,11 @@ public class TiHTTPClient
 
 			if (dumpResponseOut) {
 				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
-				tiFile.write(TiBlob.blobFromData(byteStream.toByteArray()), false);
+				tiFile.write(TiBlob.blobFromObject(byteStream.toByteArray()), false);
 			}
 
 			responseOut = new FileOutputStream(outFile, dumpResponseOut);
-			responseData = TiBlob.blobFromFile(tiFile, contentType);
+			responseData = TiBlob.blobFromObject(tiFile, contentType);
 			return tiFile;
 		}
 		
@@ -394,7 +394,7 @@ public class TiHTTPClient
 			byte[] blobData = new byte[size];
 			System.arraycopy(data, 0, blobData, 0, size);
 
-			TiBlob blob = TiBlob.blobFromData(blobData, contentType);
+			TiBlob blob = TiBlob.blobFromObject(blobData, contentType);
 			callbackData.put("blob", blob);
 			double progress = ((double)totalSize)/((double)contentLength);
 			// return progress as -1 if it is outside the valid range
@@ -410,7 +410,7 @@ public class TiHTTPClient
 		{
 			if (responseOut instanceof ByteArrayOutputStream) {
 				ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
-				responseData = TiBlob.blobFromData(byteStream.toByteArray(), contentType);
+				responseData = TiBlob.blobFromObject(byteStream.toByteArray(), contentType);
 			}
 			responseOut.close();
 			responseOut = null;

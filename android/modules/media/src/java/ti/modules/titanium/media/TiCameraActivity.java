@@ -545,7 +545,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 				File imageFile = writeToFile(data, saveToPhotoGallery);
 				if (successCallback != null) {
 					TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
-					TiBlob theBlob = TiBlob.blobFromFile(theFile);
+					TiBlob theBlob = TiBlob.blobFromObject(theFile);
 					KrollDict response = MediaModule.createDictForImage(theBlob, theBlob.getMimeType());
 					successCallback.callAsync(callbackContext, response);
 				}				

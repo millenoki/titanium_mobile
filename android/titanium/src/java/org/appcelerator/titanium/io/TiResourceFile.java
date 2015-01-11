@@ -124,8 +124,8 @@ public class TiResourceFile extends TiBaseFile
 	public TiBlob read() throws IOException
 	{
 		if (KrollAssetHelper.fileExists(path))
-			return TiBlob.blobFromString(KrollAssetHelper.readAsset(path));
-		return TiBlob.blobFromFile(this);
+			return TiBlob.blobFromObject(KrollAssetHelper.readAsset(path));
+		return TiBlob.blobFromObject(this);
 	}
 
 	@Override

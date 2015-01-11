@@ -113,7 +113,7 @@ public class TiResultSetProxy extends KrollProxy
 				} else if (cursor.isNull(index)) {
 					result = null;
 				} else if (cursor.isBlob(index)) {
-					result = TiBlob.blobFromData(cursor.getBlob(index));
+					result = TiBlob.blobFromObject(cursor.getBlob(index));
 				} else {
 					fromString = true;
 				}

@@ -32,6 +32,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.os.Build;
@@ -73,12 +75,15 @@ public class TiBlob extends KrollProxy
 	 * Represents a Blob that contains stream data that needs to be converted to base64.
 	 * @module.api
 	 */
-	public static final int TYPE_STREAM_BASE64 = 4;
+    public static final int TYPE_STREAM_BASE64 = 4;
+    
+    public static final int TYPE_DRAWABLE = 5;
 
 	private int type;
 	private Object data;
 	private String mimetype;
-	private Bitmap image;
+    private Bitmap image;
+    private Drawable drawable;
 	private int width, height;
 	private KrollDict extraInfo;
 
@@ -88,115 +93,88 @@ public class TiBlob extends KrollProxy
 		this.type = type;
 		this.data = data;
 		this.mimetype = mimetype;
-		this.image = null;
+        this.image = null;
+        this.drawable = null;
 		this.width = 0;
 		this.height = 0;
 	}
 
-	/**
-	 * Creates a new TiBlob object from String data.
-	 * @param data the data used to create blob.
-	 * @return new instance of TiBlob.
-	 * @module.api
-	 */
-	public static TiBlob blobFromString(String data)
-	{
-		return new TiBlob(TYPE_STRING, data, "text/plain");
+	public static String getMimeTypeOfFile(Object object) {
+	    Bitmap bitmap = null;
+	    if(object instanceof Bitmap) {
+	        bitmap = (Bitmap) object;
+	    } else if (object instanceof BitmapDrawable) {
+            bitmap = ((BitmapDrawable) object).getBitmap();
+	    }
+	    if (bitmap != null) {
+	        ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
+	        bitmap.compress(CompressFormat.PNG, 0 /*ignored for PNG*/, bos); 
+	        byte[] bitmapdata = bos.toByteArray();
+	        ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
+	        BitmapFactory.Options opt = new BitmapFactory.Options();
+	        opt.inJustDecodeBounds = true;
+	        BitmapFactory.decodeStream(bs, null, opt);
+	        return opt.outMimeType;
+	    }
+        return null;
 	}
+	
+	public static TiBlob blobFromObject(Object object) {
+	    return blobFromObject(object, null);
+	}
+	
+    public static TiBlob blobFromObject(Object object, String mimetype)
+    {
+        if (object instanceof byte[]) {
+            byte[] data = (byte[]) object;
+            
+            if (mimetype == null || mimetype.length() == 0) {
+                mimetype = "application/octet-stream";
+            }
+            TiBlob blob = new TiBlob(TYPE_DATA, data, mimetype);
+            blob.loadBitmapInfo();
+            return blob;
+        } else if (object instanceof Drawable) {
+            Drawable drawable = (Drawable) object;
+            if (mimetype == null || mimetype.length() == 0) {
+                mimetype = getMimeTypeOfFile(drawable);
+            }
+            TiBlob blob = new TiBlob(TYPE_DRAWABLE, null, mimetype);
+            blob.drawable = drawable;
+            blob.width = drawable.getIntrinsicWidth();
+            blob.height = drawable.getIntrinsicHeight();
+            return blob;
+        } else if (object instanceof Bitmap) {
+            Bitmap image = (Bitmap) object;
+            if (mimetype == null || mimetype.length() == 0) {
+                mimetype = getMimeTypeOfFile(image);
+            }
+            TiBlob blob = new TiBlob(TYPE_IMAGE, null, mimetype);
+            blob.image = image;
+            blob.width = image.getWidth();
+            blob.height = image.getHeight();
+            return blob;
+        } else if (object instanceof TiBaseFile) {
+            TiBaseFile file = (TiBaseFile) object;
+            if (mimetype == null || mimetype.length() == 0) {
+                mimetype = TiMimeTypeHelper.getMimeType(file.nativePath());
+            }
+            TiBlob blob = new TiBlob(TYPE_FILE, file, mimetype);
+            blob.loadBitmapInfo();
+            return blob;
+        } else if (object instanceof InputStream) {
+            InputStream stream = (InputStream) object;
+            return new TiBlob(TYPE_STREAM_BASE64, stream, mimetype);
+        } else if (object instanceof String) {
+            String data = (String) object;
+            if (mimetype == null || mimetype.length() == 0) {
+                mimetype = "text/plain";
+            }
+            return new TiBlob(TYPE_STRING, data, mimetype);
 
-	/**
-	 * Creates a blob from a file and sets a mimeType based on the file name.
-	 * @param file the file used to create blob.
-	 * @return new instane of TiBlob.
-	 * @module.api
-	 */
-	public static TiBlob blobFromFile(TiBaseFile file)
-	{
-		return blobFromFile(file, TiMimeTypeHelper.getMimeType(file.nativePath()));
-	}
-	
-	/**
-	 * Creates a blob from a stream to convert to base64.
-	 * @param stream the stream used to create blob.
-	 * @return new instane of TiBlob.
-	 */
-	public static TiBlob blobFromStreamBase64(InputStream stream, String mimeType)
-	{
-		return new TiBlob(TYPE_STREAM_BASE64, stream, mimeType);
-	}
-
-	/**
-	 * Creates a blob from a file with the specified mimeType. If the passed mimeType is null, 
-	 * the mimeType will be determined using the file name.
-	 * @param file the file used to create blob.
-	 * @param mimeType the mimeType used to create blob.
-	 * @return new instance of TiBlob.
-	 * @module.api
-	 */
-	public static TiBlob blobFromFile(TiBaseFile file, String mimeType)
-	{
-		if (mimeType == null) {
-			mimeType = TiMimeTypeHelper.getMimeType(file.nativePath());
-		}
-		TiBlob blob = new TiBlob(TYPE_FILE, file, mimeType);
-		blob.loadBitmapInfo();
-		return blob;
-	}
-	
-	public static String getMimeTypeOfFile(Bitmap image) {
-	    ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
-	    image.compress(CompressFormat.PNG, 0 /*ignored for PNG*/, bos); 
-	    byte[] bitmapdata = bos.toByteArray();
-	    ByteArrayInputStream bs = new ByteArrayInputStream(bitmapdata);
-	    BitmapFactory.Options opt = new BitmapFactory.Options();
-	    opt.inJustDecodeBounds = true;
-	    BitmapFactory.decodeStream(bs, null, opt);
-	    return opt.outMimeType;
-	}
-	
-	/**
-	 * Creates a blob from a bitmap.
-	 * @param image the image used to create blob.
-	 * @return new instance of TiBlob.
-	 * @module.api
-	 */
-	public static TiBlob blobFromImage(Bitmap image)
-	{
-		TiBlob blob = new TiBlob(TYPE_IMAGE, null, getMimeTypeOfFile(image));
-		blob.image = image;
-		blob.width = image.getWidth();
-		blob.height = image.getHeight();
-		return blob;
-	}
-
-	/**
-	 * Creates a blob from binary data, with mimeType as "application/octet-stream".
-	 * @param data data used to create blob.
-	 * @return new instance of TiBlob.
-	 * @module.api
-	 */
-	public static TiBlob blobFromData(byte[] data)
-	{
-		return blobFromData(data, "application/octet-stream");
-	}
-	
-	/**
-	 * Creates a blob from binary data with the specified mimetype.
-	 * If the passed mimetype is null, "application/octet-stream" will be used instead.
-	 * @param data  binary data used to create blob.
-	 * @param mimetype mimetype used to create blob.
-	 * @return a new instance of TiBlob.
-	 * @module.api
-	 */
-	public static TiBlob blobFromData(byte[] data, String mimetype)
-	{
-		if (mimetype == null || mimetype.length() == 0) {
-			return new TiBlob(TYPE_DATA, data, "application/octet-stream");
-		}
-		TiBlob blob = new TiBlob(TYPE_DATA, data, mimetype);
-		blob.loadBitmapInfo();
-		return blob;
-	}
+        }
+        return null;
+    }
 
 	/**
 	 * Determines the MIME-type by reading first few characters from the given input stream.
@@ -589,6 +567,11 @@ public class TiBlob extends KrollProxy
 	{
 		return new String(Base64.encodeBase64(getBytes()));
 	}
+	
+	   public Drawable getDrawable()
+	    {
+	        return drawable;
+	    }
 
 	public Bitmap getImage()
 	{
@@ -655,7 +638,7 @@ public class TiBlob extends KrollProxy
 				context)* scale);
 		try {
 			Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped, heightCropped);
-			return blobFromImage(imageCropped);
+			return blobFromObject(imageCropped);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to crop the image. Not enough memory: " + e.getMessage(), e);
 			return null;
@@ -716,7 +699,7 @@ public class TiBlob extends KrollProxy
 				img.recycle();
 				img = null;
 			}
-			return blobFromImage(imageResized);
+			return blobFromObject(imageResized);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to resize the image. Not enough memory: " + e.getMessage(), e);
 			return null;
@@ -767,7 +750,7 @@ public class TiBlob extends KrollProxy
 				}
 			}
 
-			return blobFromImage(imageFinal);
+			return blobFromObject(imageFinal);
 
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to get the thumbnail image. Not enough memory: " + e.getMessage(), e);
@@ -796,7 +779,7 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 
-			return blobFromImage(imageWithAlpha);
+			return blobFromObject(imageWithAlpha);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to get the image with alpha. Not enough memory: " + e.getMessage(), e);
 			return null;
@@ -829,7 +812,7 @@ public class TiBlob extends KrollProxy
 				img.recycle();
 				img = null;
 			}
-			return blobFromImage(imageRoundedCorner);
+			return blobFromObject(imageRoundedCorner);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to get the image with rounded corner. Not enough memory: " + e.getMessage(), e);
 			return null;
@@ -857,7 +840,7 @@ public class TiBlob extends KrollProxy
 				img.recycle();
 				img = null;
 			}
-			return blobFromImage(imageWithBorder);
+			return blobFromObject(imageWithBorder);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to get the image with transparent border. Not enough memory: " + e.getMessage(), e);
 			return null;
@@ -878,7 +861,7 @@ public class TiBlob extends KrollProxy
 			return null;
 		}
 		Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(bitmap, options);
-		TiBlob blob = TiBlob.blobFromImage(result.first);
+		TiBlob blob = TiBlob.blobFromObject(result.first);
 		blob.addInfo(result.second);
 		return blob;
 	}
