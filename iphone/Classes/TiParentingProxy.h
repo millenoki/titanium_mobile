@@ -72,6 +72,7 @@
 -(id)addObjectToHold:(id)value forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout;
 -(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key;
 -(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout;
+-(TiProxy*)addProxyToHold:(TiProxy*)proxy setParent:(BOOL)setParent forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout;
 -(id)removeHoldedProxyForKey:(NSString*)key;
 -(id)holdedProxyForKey:(NSString*)key;
 -(NSArray*)allKeysForHoldedProxy:(id)object;

@@ -205,7 +205,7 @@
 
 -(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
 {
-    if ([child respondsToSelector:@selector(setParent:)]) {
+    if (wasChild && [child respondsToSelector:@selector(setParent:)]) {
         [(id)child setParent:nil];
     }
     [self forgetProxy:child];
@@ -457,11 +457,16 @@
 }
 -(TiProxy*)addProxyToHold:(TiProxy*)proxy forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout
 {
+    return [self addProxyToHold:proxy setParent:YES forKey:key shouldRelayout:shouldRelayout];
+}
 
+-(TiProxy*)addProxyToHold:(TiProxy*)proxy setParent:(BOOL)setParent forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout
+{
+    
     TiProxy* oldProxy = [_holdedProxies objectForKey:key];
     if (oldProxy) {
         if (oldProxy == proxy) return proxy;
-        [self childRemoved:oldProxy wasChild:YES shouldDetach:YES];
+        [self childRemoved:oldProxy wasChild:setParent shouldDetach:YES];
     }
     if (proxy) {
         [self rememberProxy:proxy];
@@ -471,7 +476,9 @@
         }
         pthread_rwlock_wrlock(&_holdedProxiesLock);
         [_holdedProxies setValue:proxy forKey:key];
-        [self childAdded:proxy atIndex:-1 shouldRelayout:shouldRelayout];
+        if (setParent) {
+            [self childAdded:proxy atIndex:-1 shouldRelayout:shouldRelayout];
+        }
         pthread_rwlock_unlock(&_holdedProxiesLock);
     } else if (_holdedProxies) {
         pthread_rwlock_wrlock(&_holdedProxiesLock);
