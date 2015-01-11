@@ -226,6 +226,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	{
 		_bubbleParent = YES;
         _bubbleParentDefined = NO;
+        _shouldRetainModelDelegate = YES;
 #if PROXY_MEMORY_TRACK == 1
 		NSLog(@"[DEBUG] INIT: %@ (%d)",self,[self hash]);
 #endif
@@ -286,11 +287,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 -(void)setModelDelegate:(id <TiProxyDelegate>)md
 {
 	// TODO; revisit modelDelegate/TiProxy typing issue
-    if ((void*)modelDelegate != self) {
+    if (_shouldRetainModelDelegate && (void*)modelDelegate != self) {
         RELEASE_TO_NIL(modelDelegate);
     }
     
-    if ((void*)md != self) {
+    if (_shouldRetainModelDelegate && (void*)md != self) {
         modelDelegate = [md retain];
     }
     else {

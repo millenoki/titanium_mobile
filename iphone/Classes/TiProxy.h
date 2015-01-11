@@ -126,7 +126,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 	BOOL reproxying;
 //    BOOL initPropertiesOnCreation;
 @protected
-	NSMutableDictionary *dynprops; 
+    BOOL _shouldRetainModelDelegate;
+	NSMutableDictionary *dynprops;
 	pthread_rwlock_t dynpropsLock; // NOTE: You must respect the dynprops lock when accessing dynprops elsewhere!
 
 	int bridgeCount;
