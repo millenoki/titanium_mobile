@@ -35,9 +35,7 @@ import android.widget.ImageView;
 
 public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
     private static final String TAG = "TiListItem";
-	TiUIView mClickDelegate;
 	View listItemLayout;
-	private boolean shouldFireClick = true;
     private boolean canShowLeftMenu = false;
     private boolean canShowLeftMenuDefined = false;
     private boolean canShowRightMenu = false;
@@ -50,7 +48,6 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 
 	public TiAbsListItem(TiViewProxy proxy, View v, View item_layout) {
 		super(proxy);
-//		layoutParams = p;
         layoutParams.sizeOrFillWidthEnabled = true;
         layoutParams.autoFillsWidth = true;
 		listItemLayout = item_layout;
@@ -133,7 +130,6 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 		else {
 		    super.propertySet(key, newValue, oldValue, changedProperty);
 		}
-//		super.processProperties(d);
 	}
 
 	private void handleAccessory(int accessory) {
@@ -162,53 +158,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 				break;
 		}
 	}
-	
-	@Override
-	protected void setOnClickListener(View view)
-	{
-		view.setOnClickListener(new OnClickListener()
-		{
-			public void onClick(View view)
-			{
-				
-				if (shouldFireClick) {
-					KrollDict data = dictFromEvent(lastUpEvent);
-					handleFireItemClick(data);
-	                fireEvent(TiC.EVENT_CLICK, data, true, true);
-				}
-                shouldFireClick = true;
-			}
-		});
-	}
-	
-//	   public boolean hierarchyHasListener(String event) {
-//	       if (event.equals(TiC.EVENT_CLICK) && !shouldFireClick) {
-//	           return false;
-//	       }
-//	        return proxy.hierarchyHasListener(event);
-//	    }
-	
-	protected void handleFireItemClick (KrollDict data) {
-//		TiViewProxy listViewProxy = ((ListItemProxy)proxy).getListProxy();
-//		if (listViewProxy != null && listViewProxy.hasListeners(TiC.EVENT_ITEM_CLICK)) {
-			// TiUIView listView = listViewProxy.peekView();
-			// if (listView != null) {
-			// 	KrollDict d = listView.getAdditionalEventData();
-			// 	if (d == null) {
-			// 		listView.setAdditionalEventData(new KrollDict((HashMap) additionalEventData));
-			// 	} else {
-			// 		d.clear();
-			// 		d.putAll(additionalEventData);
-			// 	}
-				if (mClickDelegate == null) {
-				    //fire on the ListItemProxy so that the event data gets overriden
-				    // and thus filled
-					proxy.fireEvent(TiC.EVENT_ITEM_CLICK, data, true, true);
-				}
-			// }
-//		}
-	}
-	
+
 	public void release() {
 		if (listItemLayout != null) {
 			listItemLayout = null;
@@ -216,11 +166,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 		removeUnsetPressCallback();
 		super.release();
 	}
-	@Override
-	protected void handleTouchEvent(MotionEvent event) {
-		mClickDelegate = null;
-		super.handleTouchEvent(event);
-	}
+
 	private boolean prepressed = false;
 	private final class UnsetPressedState implements Runnable {
         public void run() {
@@ -261,12 +207,6 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
     public void onTouchEvent(MotionEvent event, TiUIView fromView) {
         if (fromView == this)
             return;
-        shouldFireClick = false;
-        if (fromView instanceof TiUIButton || fromView instanceof TiUISwitch
-                || fromView instanceof TiUISlider
-                || fromView instanceof TiUIText)
-            return;
-        mClickDelegate = fromView;
 
         if (nativeView != null && !fromView.getPreventListViewSelection()) {
             final boolean pressed = nativeView.isPressed();
@@ -306,22 +246,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
                     break;
 
                 case MotionEvent.ACTION_DOWN:
-
-                    // Walk up the hierarchy to determine if we're inside a
-                    // scrolling container.
-                    boolean isInScrollingContainer = isInScrollingContainer(nativeView);
-
-                    // For views inside a scrolling container, delay the pressed
-                    // feedback for
-                    // a short period in case this is a scroll.
-                    if (isInScrollingContainer) {
                         prepressed = true;
-
-                    } else {
-                        // Not inside a scrolling container, so show the
-                        // feedback right away
-                        nativeView.setPressed(true);
-                    }
                     break;
 
                 case MotionEvent.ACTION_CANCEL:

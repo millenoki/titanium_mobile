@@ -84,21 +84,16 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
 
 	public boolean fireEvent(final String event, final Object data, boolean bubbles, boolean checkParent)
 	{
-		if (event.equals(TiC.EVENT_CLICK)) fireItemClick(event, data);
+		if (event.equals(TiC.EVENT_CLICK)) {
+		    fireItemClick(event, data);
+		}
 		return super.fireEvent(event, data, bubbles, checkParent);
 	}
 
 	private void fireItemClick(String event, Object data)
 	{
-		TiViewProxy listViewProxy = listProxy.get();
-		if (listViewProxy != null) {
-		if (listViewProxy != null && listViewProxy.hasListeners(TiC.EVENT_ITEM_CLICK)) {
-			KrollDict eventData = new KrollDict((HashMap) data);
-			Object source = eventData.get(TiC.EVENT_PROPERTY_SOURCE);
-			if (source != null && !source.equals(this) && listProxy != null) {
-					listViewProxy.fireEvent(TiC.EVENT_ITEM_CLICK, eventData, false, false);
-				}
-			}
+        if (super.hasListeners(TiC.EVENT_ITEM_CLICK)) {
+			super.fireEvent(TiC.EVENT_ITEM_CLICK, data, true, false);
 		}
 	}
 
