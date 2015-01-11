@@ -850,8 +850,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             break;
         case TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE:
             defaultTemplateBinding = TiConvert.toString(newValue);
-            if (changedProperty) {
-                refreshItems();
+            if (changedProperty && adapter != null) {
+                adapter.notifyDataSetChanged();
             }
             break;
         case TiC.PROPERTY_SECTIONS:
@@ -1004,16 +1004,6 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             ((ListView) internalListView).setDividerHeight(dividerHeight);
         }
 	}
-
-	private void refreshItems() {
-	    synchronized (sections) {
-	        for (int i = 0; i < sections.size(); i++) {
-	            AbsListSectionProxy section = sections.get(i);
-	            section.refreshItems();
-	        }
-        }
-	}
-	
 	
 	public TiAbsListViewTemplate getTemplate(String template)
 	{
