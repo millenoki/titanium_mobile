@@ -420,11 +420,11 @@ public class IntentProxy extends KrollProxy
 				}
 				buf = bos.toByteArray();
 
-				return TiBlob.blobFromData(buf);
+				return TiBlob.blobFromObject(buf);
 			} else if (returnData instanceof Bitmap) {
 
 				Bitmap returnBitmapData = (Bitmap) returnData;
-				return TiBlob.blobFromImage(returnBitmapData);
+				return TiBlob.blobFromObject(returnBitmapData);
 			}
 
 		} catch (Exception e) {
