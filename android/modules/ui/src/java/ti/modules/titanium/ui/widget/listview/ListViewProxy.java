@@ -103,4 +103,10 @@ public class ListViewProxy extends AbsListViewProxy {
             handler.sendMessage(handler.obtainMessage(MSG_CLOSE_PULL_VIEW, obj));
         }
     }
+
+    @Override
+    public String getApiName()
+    {
+        return "Ti.UI.ListView";
+    }
 }
