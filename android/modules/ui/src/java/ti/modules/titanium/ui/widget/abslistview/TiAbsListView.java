@@ -13,7 +13,6 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -154,7 +153,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         return "Ti.UI.ListItem";
     }
 
-    private HashMap<Integer, Object> mSectionInfoCache = new HashMap<Integer, Object>();
+//    private HashMap<Integer, Object> mSectionInfoCache = new HashMap<Integer, Object>();
 	public class TiBaseAdapter extends ListViewAnimationsBaseAdapter implements StickyListHeadersAdapter
 	, SectionIndexer, MenuAdapter , Insertable<Object> , Removable<Object>
 	{
@@ -306,7 +305,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		{
 		    canShowMenus = false;
 		    mCounted = false;
-		    mSectionInfoCache.clear();
+//		    mSectionInfoCache.clear();
 		    if (listView != null) {
 		     // save index and top position
 	            int index = listView.getFirstVisiblePosition();
@@ -1225,16 +1224,16 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 		if (index < 0) {
 			return null;
 		}
-		if (mSectionInfoCache .containsKey(index)) {
-		    return (Pair<AbsListSectionProxy, Pair<Integer, Integer>>) mSectionInfoCache.get(index);
-		}
+//		if (mSectionInfoCache .containsKey(index)) {
+//		    return (Pair<AbsListSectionProxy, Pair<Integer, Integer>>) mSectionInfoCache.get(index);
+//		}
         synchronized (sections) {
     		for (int i = 0; i < sections.size(); i++) {
     			AbsListSectionProxy section = sections.get(i);
     			int sectionItemCount = section.getItemCount();
     			if (index <= sectionItemCount - 1) {
     			    Pair<AbsListSectionProxy, Pair<Integer, Integer>> result = new Pair<AbsListSectionProxy, Pair<Integer, Integer>>(section, new Pair<Integer, Integer>(i, index));
-    			    mSectionInfoCache.put(index, result);
+//    			    mSectionInfoCache.put(index, result);
     				return result;
     			} else {
     				index -= sectionItemCount;
