@@ -20,8 +20,7 @@ public class TiBaseAbsListViewItem extends TiCompositeLayout{
 	public int sectionIndex = -1;
 	public int itemIndex = -1;
 	public TiBaseAbsListViewItem(Context context) {
-		super(context);
-        setId(TiAbsListView.listContentId);
+		this(context, null);
 	}
 	
 	public TiBaseAbsListViewItem(Context context, AttributeSet set) {
