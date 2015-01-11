@@ -43,6 +43,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 {
     self = [self _initWithPageContext:context];
     if (self) {
+        _shouldRetainModelDelegate = NO; //important to prevent memory leak
         unarchived = NO;
         enumeratingResetKeys = NO;
         _buildingBindings = NO;

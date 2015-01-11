@@ -65,7 +65,7 @@ DEFINE_EXCEPTIONS
     _unHighlightOnSelect = YES;
     
     _proxy.listItem = self;
-    _proxy.modelDelegate = [self autorelease]; //without the autorelease we got a memory leak
+    _proxy.modelDelegate = self;
     configurationSet = NO;
     [_proxy dirtyItAll];
 }
@@ -247,7 +247,6 @@ DEFINE_EXCEPTIONS
         _bgSelectedView.alpha = self.contentView.alpha;
     }
 }
-
 
 - (void)dealloc
 {
