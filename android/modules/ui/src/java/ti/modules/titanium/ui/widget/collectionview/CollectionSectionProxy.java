@@ -17,9 +17,15 @@ import android.annotation.SuppressLint;
 @SuppressLint("DefaultLocale")
 public class CollectionSectionProxy extends AbsListSectionProxy {
 
-	private static final String TAG = "ListSectionProxy";
+	private static final String TAG = "CollectionSectionProxy";
     
 	public CollectionSectionProxy() {
 	    super();
 	}
+
+    @Override
+    public String getApiName()
+    {
+        return "Ti.UI.CollectionSection";
+    }
 }

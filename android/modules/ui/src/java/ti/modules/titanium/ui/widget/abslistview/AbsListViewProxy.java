@@ -520,13 +520,6 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		ArrayList<AbsListSectionProxy> preloadedSections = getPreloadSections();
 		return preloadedSections.toArray(new AbsListSectionProxy[preloadedSections.size()]);
 	}
-
-	@Override
-	public String getApiName()
-	{
-		return "Ti.UI.ListView";
-	}
-
 	   
     public void handleCloseSwipeMenu(Object obj) {
         Boolean animated = true;

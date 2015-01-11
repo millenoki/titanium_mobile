@@ -22,4 +22,11 @@ public class ListSectionProxy extends AbsListSectionProxy {
 	public ListSectionProxy() {
 	    super();
 	}
+	
+
+    @Override
+    public String getApiName()
+    {
+        return "Ti.UI.ListSection";
+    }
 }

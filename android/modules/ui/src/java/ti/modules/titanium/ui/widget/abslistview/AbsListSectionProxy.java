@@ -1054,11 +1054,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		super.release();
 	}
 
-	@Override
-	public String getApiName() {
-		return "Ti.UI.ListSection";
-	}
-
     public void setIndex(int index) {
         this.sectionIndex = index;
         

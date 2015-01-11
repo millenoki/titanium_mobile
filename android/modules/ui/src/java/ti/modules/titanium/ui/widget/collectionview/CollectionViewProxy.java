@@ -37,4 +37,10 @@ public class CollectionViewProxy extends AbsListViewProxy {
         params.autoFillsWidth = true;
 		return view;
 	}
+
+    @Override
+    public String getApiName()
+    {
+        return "Ti.UI.CollectionView";
+    }
 }

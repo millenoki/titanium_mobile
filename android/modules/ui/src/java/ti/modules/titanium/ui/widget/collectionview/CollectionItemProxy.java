@@ -19,4 +19,10 @@ public class CollectionItemProxy extends AbsListItemProxy
 	{
 	    super();
 	}
+
+    @Override
+    public String getApiName()
+    {
+        return "Ti.UI.CollectionItem";
+    }
 }

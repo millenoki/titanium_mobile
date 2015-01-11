@@ -22,11 +22,10 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import android.app.Activity;
 
-@Kroll.proxy(creatableInModule = UIModule.class)
+@Kroll.proxy
 public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPropertyChangeListener, TiViewEventOverrideDelegate
 {
     protected WeakReference<TiViewProxy> listProxy;
@@ -127,13 +126,6 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
 		    sectionProxy = null;
         }
 	}
-
-	@Override
-	public String getApiName()
-	{
-		return "Ti.UI.ListItem";
-	}
-	
 
 	public KrollProxy getProxyFromBinding(final String binding) {
 		ProxyAbsListItem viewItem = bindingsMap.get(binding);
