@@ -83,10 +83,16 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 	    return result;
 	}
 	
+    @Override
+    protected int fillLayout(KrollDict d) {
+        //ignore width property
+        d.remove(TiC.PROPERTY_WIDTH);
+        return TiConvert.fillLayout(d, layoutParams, true);
+    }
+	
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
-//        AbsListItemProxy itemProxy = (AbsListItemProxy)getProxy();
 	
 		if (key.equals(TiC.PROPERTY_ACCESSORY_TYPE)) {
 			int accessory = TiConvert.toInt(newValue, -1);
