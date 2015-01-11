@@ -149,6 +149,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	private AbsListView getInternalListView() {
         return listView.getWrappedList();
 	}
+	
+	protected static String getCellProxyRootType() {
+        return "Ti.UI.ListItem";
+    }
 
     private HashMap<Integer, Object> mSectionInfoCache = new HashMap<Integer, Object>();
 	public class TiBaseAdapter extends ListViewAnimationsBaseAdapter implements StickyListHeadersAdapter
@@ -259,7 +263,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 				itemContent = (TiBaseAbsListViewItem) content.findViewById(listContentId);
 				setBoundsForBaseItem(itemContent);
 
-				AbsListItemProxy itemProxy = template.generateCellProxy(item, proxy);
+				AbsListItemProxy itemProxy = template.generateCellProxy(item, proxy, getCellProxyRootType());
 				itemProxy.setListProxy(getProxy());
 				addHandledProxy(itemProxy);
 				section.generateCellContent(sectionIndex, item, itemProxy, itemContent, template, sectionItemIndex, content);
@@ -269,6 +273,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			return content;
 
 		}
+		
+		
 
 		private void setBoundsForBaseItem(TiBaseAbsListViewItem item)  {
 			TiBaseAbsListViewItemHolder holder;

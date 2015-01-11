@@ -66,6 +66,10 @@ public class TiCollectionView extends TiAbsListView<CustomGridView> {
         return result;
     }
     
+    protected static String getCellProxyRootType() {
+        return "Ti.UI.CollectionItem";
+    }
+    
     @Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
