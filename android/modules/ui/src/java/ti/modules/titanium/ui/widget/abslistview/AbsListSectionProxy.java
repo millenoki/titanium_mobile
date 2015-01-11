@@ -777,6 +777,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //	    if (hasHeader()) {
 //	        result -= 1;
 //        }
+	    if (isFilterOn()) {
+	        return getRealPosition(filterIndices.get(result));
+	    }
 	    return getRealPosition(result);
 	}
 
@@ -793,7 +796,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		
 		KrollDict data = template.prepareDataDict(item.getProperties());
 		AbsListItemProxy itemProxy = (AbsListItemProxy) cellContent.getView().getProxy();
-		itemProxy.setCurrentItem(sectionIndex, itemIndex, this, item);
+		itemProxy.setCurrentItem(sectionIndex, realItemIndex, this, item);
 		itemProxy.setActivity(this.getActivity());
 
 		KrollDict listItemProperties;
