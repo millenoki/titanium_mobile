@@ -495,30 +495,39 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	
 	public void processPreloadData() {
 		if (itemProperties != null && preload) {
-			handleSetItems(itemProperties.toArray());
+            mItemCount = itemProperties.size();
+            processData(itemProperties, 0);
 			preload = false;
 		}
 	}
 
-	public void refreshItems() {
-		handleSetItems(itemProperties.toArray());
-	}
-
-	private void processData(Object[] items, int offset) {
+	private void processData(Object items, int offset) {
 		if (listItemData == null) {
 			return;
 		}
-
-		// Second pass we would merge properties
-		for (int i = 0; i < items.length; i++) {
-			Object itemData = items[i];
-			if (itemData instanceof HashMap) {
-				KrollDict d = new KrollDict((HashMap) itemData);
-				AbsListItemData itemD = new AbsListItemData(d);
-				listItemData.add(i + offset, itemD);
-				hiddenItems.add(i + offset, !itemD.isVisible());
-			}
+		if (items instanceof Object[]) {
+		    Object[] array = (Object[])items;
+		 // Second pass we would merge properties
+	        for (int i = 0; i < array.length; i++) {
+	            KrollDict d = TiConvert.toKrollDict(array[i]);
+	            if (d!= null) {
+	                AbsListItemData itemD = new AbsListItemData(d);
+	                listItemData.add(i + offset, itemD);
+	                hiddenItems.add(i + offset, !itemD.isVisible());
+	            }
+	        }
+		} else if (items instanceof ArrayList) {
+		    ArrayList<Object> array = (ArrayList<Object>)items;
+		    for (int i = 0; i < array.size(); i++) {
+	            KrollDict d = TiConvert.toKrollDict(array.get(i));
+	            if (d!= null) {
+	                AbsListItemData itemD = new AbsListItemData(d);
+	                listItemData.add(i + offset, itemD);
+	                hiddenItems.add(i + offset, !itemD.isVisible());
+	            }
+	        }
 		}
+		
 		updateCurrentItemCount();
 		// Notify adapter that data has changed.
 		if (preload == false) {
