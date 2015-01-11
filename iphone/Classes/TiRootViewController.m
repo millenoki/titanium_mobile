@@ -745,7 +745,9 @@
         [self childOrientationControllerChangedFlags:theWindow];
         [theWindow gainFocus];
     }
-    [self dismissDefaultImage];
+    if (![theWindow isManaged]) {
+        [self dismissDefaultImage];
+    }
 }
 
 -(void)willCloseWindow:(id<TiWindowProtocol>)theWindow
