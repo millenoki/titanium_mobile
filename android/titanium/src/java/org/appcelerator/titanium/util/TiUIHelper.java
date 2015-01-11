@@ -801,76 +801,85 @@ public class TiUIHelper
 		-android.R.attr.state_enabled
 	};
 
-	public static ColorDrawable buildColorDrawable(int color) {	
-		return new ColorDrawable(color);
-	}
-	
-	public static ColorDrawable buildColorDrawable(String color) {
-		ColorDrawable colorDrawable = null;
-		if (color != null) {
-			colorDrawable = buildColorDrawable(TiColorHelper.parseColor(color));
-		}			
-		return colorDrawable;
+	public static ColorDrawable buildColorDrawable(Object color) {	
+	    if (color instanceof Integer) {
+	        return new ColorDrawable((Integer)color);
+	    } else if (color instanceof String) {
+	        ColorDrawable colorDrawable = null;
+	        if (color != null) {
+	            colorDrawable = buildColorDrawable(TiColorHelper.parseColor((String) color));
+	        }           
+	        return colorDrawable;
+	    }
+	    return null;
 	}
 	
 	private static String resolveImageUrl(String path, KrollProxy proxy) {
 		return path.length() > 0 ? proxy.resolveUrl(null, path) : null;
 	}
-	
-	public static Drawable buildImageDrawable(String image, boolean tileImage, KrollProxy proxy) {
-		if (image != null) {
-			image = resolveImageUrl(image, proxy);
-		}
-		Drawable imageDrawable = null;
-		if (image != null) {
-		    Cache cache = TiApplication.getImageMemoryCache();
-            Bitmap bitmap = cache.get(image);
-            if (bitmap == null) {
-                TiFileHelper tfh = TiFileHelper.getInstance();
-                imageDrawable = tfh.loadDrawable(image, false, true);
-                if (imageDrawable instanceof BitmapDrawable) {
-                    bitmap = ((BitmapDrawable)imageDrawable).getBitmap();
-                    cache.set(image, ((BitmapDrawable)imageDrawable).getBitmap());
-                }
-            } else {
-                imageDrawable = new BitmapDrawable(proxy.getActivity().getResources(), bitmap);
-            }
-			
 
-			if (tileImage) {
-				if (imageDrawable instanceof BitmapDrawable) {
-					BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
-					tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
-					tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
-				}
-			}
-		}
-		return imageDrawable;
-	}
-	
-	public static Drawable buildImageDrawable(Object object, boolean tileImage, KrollProxy proxy) {
-	    Drawable drawable = null;
-        if (object instanceof TiBlob) {
-            drawable = buildImageDrawable(proxy.getActivity(), ((TiBlob)object).getImage(), tileImage, proxy);
-            }
-        else {
-            drawable = buildImageDrawable(TiConvert.toString(object), tileImage, proxy);
-        }
-		return drawable;
-	}
-	
-	public static Drawable buildImageDrawable(Context context, Bitmap image, boolean tileImage, KrollProxy proxy) {
-        BitmapDrawable imageDrawable = new BitmapDrawable(context.getResources(), image);
+	public static Drawable buildImageDrawable(Context context, Object object, boolean tileImage, KrollProxy proxy) {
         
-        if (tileImage) {
-            if (imageDrawable instanceof BitmapDrawable) {
+	    if (object instanceof TiBlob) {
+	        switch (((TiBlob) object).getType()) {
+            case TiBlob.TYPE_DRAWABLE:
+                return buildImageDrawable(context, ((TiBlob) object).getDrawable(), tileImage, proxy);
+            case TiBlob.TYPE_IMAGE:
+                return buildImageDrawable(context, ((TiBlob) object).getImage(), tileImage, proxy);
+            default:
+                return null;
+            }
+        } else if (object instanceof String) {
+            String url = (String) object;
+            if (url != null) {
+                url = resolveImageUrl(url, proxy);
+            }
+            Drawable imageDrawable = null;
+            if (url != null) {
+                Cache cache = TiApplication.getImageMemoryCache();
+                Bitmap bitmap = cache.get(url);
+                if (bitmap == null) {
+                    TiFileHelper tfh = TiFileHelper.getInstance();
+                    imageDrawable = tfh.loadDrawable(url, false, true);
+                    if (imageDrawable instanceof BitmapDrawable) {
+                        bitmap = ((BitmapDrawable)imageDrawable).getBitmap();
+                        cache.set(url, ((BitmapDrawable)imageDrawable).getBitmap());
+                    }
+                } else {
+                    imageDrawable = new BitmapDrawable(proxy.getActivity().getResources(), bitmap);
+                }
+                
+
+                if (tileImage) {
+                    if (imageDrawable instanceof BitmapDrawable) {
+                        BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
+                        tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
+                        tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
+                    }
+                }
+            }
+            return imageDrawable;
+        } else if (object instanceof Drawable) {
+            Drawable imageDrawable = (Drawable) object;
+            if (tileImage&& imageDrawable instanceof BitmapDrawable) {
                 BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
                 tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
                 tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
-                imageDrawable = tiledBackground;
             }
-        }
-        return imageDrawable;
+            return imageDrawable;
+        } else if (object instanceof Bitmap) {
+	        BitmapDrawable imageDrawable = new BitmapDrawable(context.getResources(), (Bitmap) object);
+	        if (tileImage) {
+	            if (imageDrawable instanceof BitmapDrawable) {
+	                BitmapDrawable tiledBackground = (BitmapDrawable) imageDrawable;
+	                tiledBackground.setTileModeX(Shader.TileMode.REPEAT);
+	                tiledBackground.setTileModeY(Shader.TileMode.REPEAT);
+	                imageDrawable = tiledBackground;
+	            }
+	        }
+	        return imageDrawable;
+	    }
+        return null;
     }
 	
 	public static TiGradientDrawable buildGradientDrawable(KrollDict gradientProperties) {

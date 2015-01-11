@@ -564,6 +564,9 @@ public class TiDrawableReference
 		if (isSVG()) {
 			return getSVG();
 		}
+		if (isTypeBlob() && blob.getType() == TiBlob.TYPE_DRAWABLE) {
+            return blob.getDrawable();
+        }
 		Drawable drawable = getResourceDrawable();
 		if (drawable == null) {
 		    if (isTypeUrl()) {

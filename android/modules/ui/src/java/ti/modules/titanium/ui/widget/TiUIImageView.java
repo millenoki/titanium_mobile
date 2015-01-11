@@ -1152,7 +1152,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
         boolean tileImage = proxy.getProperties().optBoolean(
                 TiC.PROPERTY_BACKGROUND_REPEAT, false);
-        view.setMask(TiUIHelper.buildImageDrawable(mask, tileImage, proxy));
+        view.setMask(TiUIHelper.buildImageDrawable(nativeView.getContext(), mask, tileImage, proxy));
     }
 
     public void onDestroy(Activity activity) {

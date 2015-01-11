@@ -968,13 +968,8 @@ public abstract class TiUIView
 
 	protected void setBackgroundImageDrawable(Object object, boolean backgroundRepeat, int[][] states) {
 		TiBackgroundDrawable bgdDrawable = getOrCreateBackground();
-		Drawable drawable = null;
-		if (object instanceof TiBlob) {
-			drawable = TiUIHelper.buildImageDrawable(nativeView.getContext(), ((TiBlob)object).getImage(), backgroundRepeat, proxy);
-			}
-		else {
-			drawable = TiUIHelper.buildImageDrawable(TiConvert.toString(object), backgroundRepeat, proxy);
-		}
+		Drawable drawable = TiUIHelper.buildImageDrawable(nativeView.getContext(), object, backgroundRepeat, proxy);
+		
 		for (int i = 0; i < states.length; i++) {
 			bgdDrawable.setImageDrawableForState(states[i], drawable);
 		}
@@ -1464,7 +1459,7 @@ public abstract class TiUIView
 	private void setViewMask(Object mask){
 		boolean tileImage = proxy.getProperties().optBoolean(
                 TiC.PROPERTY_BACKGROUND_REPEAT, false);
-		getOrCreateBorderView().setMask(TiUIHelper.buildImageDrawable(mask, tileImage, proxy));
+		getOrCreateBorderView().setMask(TiUIHelper.buildImageDrawable(nativeView.getContext(), mask, tileImage, proxy));
 //		disableHWAcceleration();
 	}
 
