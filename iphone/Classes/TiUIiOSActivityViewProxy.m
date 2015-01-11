@@ -45,6 +45,7 @@
 -(void)detach {
     if (_controller) {
         [_controller removeFromParentViewController];
+        _controller.completionHandler = nil;
         RELEASE_TO_NIL(_controller);
     }
 }
@@ -83,9 +84,8 @@
             }
             [self fireEvent:@"completed" withObject:event];
             [event release];
-            _controller.completionHandler = nil;
-            [self forgetSelf];
             [self detach];
+            [self forgetSelf];
         };
     }
     return _controller;
