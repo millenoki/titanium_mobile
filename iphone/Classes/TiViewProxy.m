@@ -787,36 +787,31 @@ SEL GetterForKrollProperty(NSString * key)
     if (![child isKindOfClass:[TiViewProxy class]]){
         return;
     }
-    
-        TiThreadPerformBlockOnMainThread(^{
-            TiViewProxy* childViewProxy = (TiViewProxy*)child;
-            [childViewProxy windowDidOpen];
-            if (readyToCreateView)
-                [childViewProxy setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
-            
-            
-            if (!windowOpened || !shouldRelayout)  return;
-            if (!readyToCreateView || [childViewProxy isHidden]) return;
-            [childViewProxy performBlockWithoutLayout:^{
-                [childViewProxy getOrCreateView];
-            }];
-            
+    TiThreadPerformBlockOnMainThread(^{
+        TiViewProxy* childViewProxy = (TiViewProxy*)child;
+        [childViewProxy setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
+        if (!windowOpened || !shouldRelayout)  return;
+        if (!readyToCreateView || [childViewProxy isHidden]) return;
+        [childViewProxy windowDidOpen];
+        [childViewProxy performBlockWithoutLayout:^{
+            [childViewProxy getOrCreateView];
+        }];
+        
+        [self contentsWillChange];
+        if(parentVisible && !hidden)
+        {
+            [childViewProxy parentWillShow];
+        }
+        
+        //If layout is non absolute push this into the layout queue
+        //else just layout the child with current bounds
+        if (![self absoluteLayout]) {
             [self contentsWillChange];
-            if(parentVisible && !hidden)
-            {
-                [childViewProxy parentWillShow];
-            }
-            
-            //If layout is non absolute push this into the layout queue
-            //else just layout the child with current bounds
-            if (![self absoluteLayout]) {
-                [self contentsWillChange];
-            }
-            else {
-                [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
-            }
-        }, NO);
-//    }
+        }
+        else {
+            [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
+        }
+    }, NO);
 }
 
 -(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
