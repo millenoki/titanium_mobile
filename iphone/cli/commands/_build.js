@@ -1205,7 +1205,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		process.exit(1);
 	}
 
-    if (cli.argv.target != 'dist-appstore') {
+    if (cli.argv.target != 'dist-appstore' && cli.argv.target !== 'simulator') {
         // determine if we're going to be minifying javascript
         var compileJSProp = cli.tiapp.properties['ti.compilejs'];
         if (cli.argv['skip-js-minify']) {
