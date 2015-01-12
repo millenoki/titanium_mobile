@@ -60,7 +60,7 @@ CGSize minmaxSize(LayoutConstraint * constraint, CGSize size, CGSize parentSize)
 
 CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, NSObject<LayoutAutosizing> * autoSizer, CGSize referenceSize, UIViewAutoresizing * resultResizing)
 {
-	__block CGFloat width;
+    __block CGFloat width;
     __block CGFloat height;
     BOOL ignoreWPercent = NO;
     BOOL ignoreHPercent = NO;
@@ -78,23 +78,23 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
     
     __block CGFloat offsety = TiDimensionCalculateValue(constraint->top, referenceSize.height)
     + TiDimensionCalculateValue(constraint->bottom, referenceSize.height);
-
+    
     
     __block BOOL followsFillWBehavior = TiDimensionIsAutoFill([autoSizer defaultAutoWidthBehavior:nil]);
     __block BOOL followsFillHBehavior = TiDimensionIsAutoFill([autoSizer defaultAutoHeightBehavior:nil]);
     
     CGSize (^completion)() = ^() {
-
+        
         CGSize result = CGSizeMake(width, height);
-//        if (followsFillWBehavior) {
-//            result.width -= offsetx;
-//        }
-//        if (followsFillHBehavior) {
-//            result.height -= offsety;
-//        }
-//        result = minmaxSize(constraint, result, (ignoreWPercent || ignoreHPercent)?parentSize:referenceSize);
-//        result.width += offsetx;
-//        result.height += offsety;
+        //        if (followsFillWBehavior) {
+        //            result.width -= offsetx;
+        //        }
+        //        if (followsFillHBehavior) {
+        //            result.height -= offsety;
+        //        }
+        //        result = minmaxSize(constraint, result, (ignoreWPercent || ignoreHPercent)?parentSize:referenceSize);
+        //        result.width += offsetx;
+        //        result.height += offsety;
         
         //Should we always do this or only for auto
         if ([autoSizer respondsToSelector:@selector(verifySize:)])
@@ -109,18 +109,18 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         return result;
     };
     
-	if(resultResizing != NULL)
-	{
-		*resultResizing &= ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
-	}
-
+    if(resultResizing != NULL)
+    {
+        *resultResizing &= ~(UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+    }
+    
     
     if ([autoSizer isKindOfClass:[TiViewProxy class]]) {
         TiViewProxy* parent = [(TiViewProxy*)autoSizer viewParent];
         LayoutConstraint* parentConstraints = [parent layoutProperties];
         if (parent != nil && (!TiLayoutRuleIsAbsolute(parentConstraints->layoutStyle))) {
             //Sandbox with percent values is garbage
-//            ignorePercent = YES;
+            //            ignorePercent = YES;
             ignoreHPercent = TiLayoutRuleIsHorizontal(parentConstraints->layoutStyle);
             ignoreWPercent = TiLayoutRuleIsVertical(parentConstraints->layoutStyle) || (ignoreHPercent && TiLayoutFlagsHasHorizontalWrap(parentConstraints));
             UIView *parentView = [parent parentViewForChild:(TiViewProxy*)autoSizer];
@@ -158,10 +158,10 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
             followsFillWBehavior = NO;
             width = 2 * ( TiDimensionCalculateValue(constraint->centerX, boundingWidth) - TiDimensionCalculateValue(constraint->left, boundingWidth) );
         }
-        else if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->right) ) {
-            followsFillWBehavior = YES;
-            width = boundingWidth - offsetx;
-        }
+        //        else if (!TiDimensionIsUndefined(constraint->left) && !TiDimensionIsUndefined(constraint->right) ) {
+        ////            followsFillWBehavior = YES;
+        //            width = boundingWidth - offsetx;
+        //        }
         else if (!TiDimensionIsUndefined(constraint->centerX) && !TiDimensionIsUndefined(constraint->right) ) {
             followsFillWBehavior = NO;
             width = 2 * ( boundingWidth - TiDimensionCalculateValue(constraint->right, boundingWidth) - TiDimensionCalculateValue(constraint->centerX, boundingWidth));
@@ -212,10 +212,10 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
             followsFillHBehavior = NO;
             height = 2 * ( TiDimensionCalculateValue(constraint->centerY, boundingHeight) - TiDimensionCalculateValue(constraint->top, boundingHeight) );
         }
-        else if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->bottom) ) {
-            followsFillHBehavior = YES;
-            height = boundingHeight - offsety;
-        }
+        //        else if (!TiDimensionIsUndefined(constraint->top) && !TiDimensionIsUndefined(constraint->bottom) ) {
+        ////            followsFillHBehavior = YES;
+        //            height = boundingHeight - offsety;
+        //        }
         else if (!TiDimensionIsUndefined(constraint->centerY) && !TiDimensionIsUndefined(constraint->bottom) ) {
             followsFillHBehavior = NO;
             height = 2 * ( boundingHeight - TiDimensionCalculateValue(constraint->bottom, boundingHeight) - TiDimensionCalculateValue(constraint->centerY, boundingHeight));

@@ -3346,7 +3346,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     
     CGFloat offsety = fullscreen?0:TiDimensionCalculateValue(childConstraint->top, boundingHeight)
     + TiDimensionCalculateValue(childConstraint->bottom, boundingHeight);
-   
+    
     
     void (^computeAutoSize)() = ^() {
         if (autoSizeComputed == FALSE) {
@@ -3373,11 +3373,11 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
                 followsFillHBehavior = NO;
                 return 2 * ( TiDimensionCalculateValue(childConstraint->centerY, boundingHeight) - TiDimensionCalculateValue(childConstraint->top, boundingHeight) );
             }
-            else if (!TiDimensionIsUndefined(childConstraint->top) && !TiDimensionIsUndefined(childConstraint->bottom) ) {
-                recalculateWidth = YES;
-                followsFillHBehavior = YES;
-                return boundingHeight-offsety;
-            }
+            //            else if (!TiDimensionIsUndefined(childConstraint->top) && !TiDimensionIsUndefined(childConstraint->bottom) ) {
+            //                recalculateWidth = YES;
+            ////                followsFillHBehavior = YES;
+            //                return boundingHeight-offsety;
+            //            }
             else if (!TiDimensionIsUndefined(childConstraint->centerY) && !TiDimensionIsUndefined(childConstraint->bottom) ) {
                 return 2 * ( boundingHeight - TiDimensionCalculateValue(childConstraint->bottom, boundingHeight) - TiDimensionCalculateValue(childConstraint->centerY, boundingHeight));
             }
@@ -3424,11 +3424,11 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             if (!TiDimensionIsUndefined(childConstraint->left) && !TiDimensionIsUndefined(childConstraint->centerX) ) {
                 return 2 * ( TiDimensionCalculateValue(childConstraint->centerX, boundingWidth) - TiDimensionCalculateValue(childConstraint->left, boundingWidth) );
             }
-            else if (!TiDimensionIsUndefined(childConstraint->left) && !TiDimensionIsUndefined(childConstraint->right) ) {
-                recalculateWidth = YES;
-                followsFillWBehavior = YES;
-                return boundingWidth-offsetx;
-            }
+            //            else if (!TiDimensionIsUndefined(childConstraint->left) && !TiDimensionIsUndefined(childConstraint->right) ) {
+            //                recalculateWidth = YES;
+            ////                followsFillWBehavior = YES;
+            //                return boundingWidth-offsetx;
+            //            }
             else if (!TiDimensionIsUndefined(childConstraint->centerX) && !TiDimensionIsUndefined(childConstraint->right) ) {
                 return 2 * ( boundingWidth - TiDimensionCalculateValue(childConstraint->right, boundingWidth) - TiDimensionCalculateValue(childConstraint->centerX, boundingWidth));
             }
@@ -3462,18 +3462,18 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     
     bounds.size = CGSizeMake(computeWidth(), computeHeight());
     
-//    if (followsFillWBehavior) {
-//        bounds.size.width -= offsetx;
-//    }
-//    if (followsFillHBehavior) {
-//        bounds.size.height -= offsety;
-//    }
+    //    if (followsFillWBehavior) {
+    //        bounds.size.width -= offsetx;
+    //    }
+    //    if (followsFillHBehavior) {
+    //        bounds.size.height -= offsety;
+    //    }
     
     bounds.size.width += offsetx;
     bounds.size.height += offsety;
     
     bounds.size = minmaxSize(childConstraint, bounds.size, originalBounds.size);
-
+    
     if(TiLayoutRuleIsVertical(layoutProperties.layoutStyle))
     {
         bounds.origin.y = verticalLayoutBoundary;
@@ -3481,8 +3481,8 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     }
     else if(TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle))
     {
-		BOOL horizontalWrap = TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
-
+        BOOL horizontalWrap = TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
+        
         CGFloat desiredWidth = bounds.size.width;
         
         if (horizontalWrap && (horizontalLayoutBoundary + desiredWidth >   boundingWidth)) {
@@ -3552,13 +3552,13 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             {
                 //FILL that fits in left over space. Move to next row
                 bounds.size.width = boundingWidth;
-				if (horizontalWrap) {
-					horizontalLayoutBoundary = 0.0;
-                	verticalLayoutBoundary += horizontalLayoutRowHeight;
-					horizontalLayoutRowHeight = 0.0;
-				} else {
-					horizontalLayoutBoundary += bounds.size.width;
-				}
+                if (horizontalWrap) {
+                    horizontalLayoutBoundary = 0.0;
+                    verticalLayoutBoundary += horizontalLayoutRowHeight;
+                    horizontalLayoutRowHeight = 0.0;
+                } else {
+                    horizontalLayoutBoundary += bounds.size.width;
+                }
             }
             else
             {
@@ -3571,7 +3571,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     else {
         //        CGSize autoSize = [child minimumParentSizeForSize:bounds.size];
     }
-
+    
     return bounds;
 }
 
