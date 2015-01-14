@@ -540,7 +540,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 	public TiUIView getOrCreateView(boolean enableModelListener, boolean processProperties)
 	{
-		if (activity == null || view != null) {
+	    if (activity == null) {
+	        return null;
+	    }
+		if (view != null) {
 			return view;
 		}
 
