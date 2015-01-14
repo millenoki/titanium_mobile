@@ -154,8 +154,12 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
     }
 
 //    private HashMap<Integer, Object> mSectionInfoCache = new HashMap<Integer, Object>();
-	public class TiBaseAdapter extends ListViewAnimationsBaseAdapter implements StickyListHeadersAdapter
-	, SectionIndexer, MenuAdapter , Insertable<Object> , Removable<Object>
+	public class TiBaseAdapter extends ListViewAnimationsBaseAdapter 
+	    implements  StickyListHeadersAdapter,
+	                SectionIndexer, 
+	                MenuAdapter ,
+	                Insertable<Object> , 
+	                Removable<Object>
 	{
 
 		Activity context;
