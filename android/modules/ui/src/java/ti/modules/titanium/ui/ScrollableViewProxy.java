@@ -72,7 +72,13 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		return new TiUIScrollableView(this, (TiBaseActivity) activity);
+		TiUIView view = new TiUIScrollableView(this, (TiBaseActivity) activity);
+        LayoutParams params = view.getLayoutParams();
+        params.sizeOrFillWidthEnabled = true;
+        params.sizeOrFillHeightEnabled = true;
+        params.autoFillsHeight = true;
+        params.autoFillsWidth = true;
+        return view; 
 	}
 	
 	//only for tableview magic
