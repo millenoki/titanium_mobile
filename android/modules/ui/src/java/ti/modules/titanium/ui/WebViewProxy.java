@@ -155,7 +155,7 @@ public class WebViewProxy extends ViewProxy
 	@Kroll.method @Kroll.getProperty
 	public String getHtml()
 	{
-		if (!hasProperty(TiC.PROPERTY_HTML)) {
+		if (!hasProperty(TiC.PROPERTY_HTML) && peekView() != null) {
 			return getWebView().getJSValue("document.documentElement.outerHTML");
 		}
 		return (String) getProperty(TiC.PROPERTY_HTML);
