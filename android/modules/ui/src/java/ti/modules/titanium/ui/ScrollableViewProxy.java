@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import ti.modules.titanium.ui.widget.TiUIScrollableView;
 import android.app.Activity;
@@ -341,6 +342,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Override
 	public void setActivity(Activity activity)
 	{
+	    super.setActivity(activity);
 		Object viewsObject = getProperty(TiC.PROPERTY_VIEWS);
 		if (viewsObject instanceof Object[]) {
 			Object[] views = (Object[])viewsObject;
