@@ -156,10 +156,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
 	
 	public boolean hasHeader() {
-        return getHoldedProxy(TiC.PROPERTY_HEADER_VIEW) != null;
+        return !hideHeaderOrFooter() && getHoldedProxy(TiC.PROPERTY_HEADER_VIEW) != null;
 	}
 	public boolean hasFooter() {
-        return getHoldedProxy(TiC.PROPERTY_FOOTER_VIEW) != null;
+        return !hideHeaderOrFooter() && getHoldedProxy(TiC.PROPERTY_FOOTER_VIEW) != null;
     }
 	
 	private static final ArrayList<String> KEY_SEQUENCE;
@@ -926,18 +926,18 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                 totalCount = mItemCount;
             }
         }
-        else if (!hideHeaderOrFooter() && hasHeader()) {
-            totalCount += 1;
-        }
-
-        if (!hideHeaderOrFooter()) {
-//          if (hasHeader()) {
-//              totalCount += 1;
-//          }
-            if (hasFooter()) {
-                totalCount += 1;
-            }
-        }
+//        else if (!hideHeaderOrFooter() && hasHeader()) {
+//            totalCount += 1;
+//        }
+//
+//        if (!hideHeaderOrFooter()) {
+////          if (hasHeader()) {
+////              totalCount += 1;
+////          }
+//            if (hasFooter()) {
+//                totalCount += 1;
+//            }
+//        }
         totalCount -= getHiddenCount();
         mCurrentItemCount = totalCount;
 	}
@@ -958,8 +958,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
 
 	private boolean hideHeaderOrFooter() {
-		TiAbsListView listview = getListView();
-		return (listview.getSearchText() != null && filterIndices.isEmpty());
+		return (isFilterOn() && filterIndices.isEmpty());
 	}
 
 	public boolean isHeaderView(int pos) {
