@@ -666,8 +666,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	@Override
     public void release() {
         releaseViews(true);
-        modelListener = null;
-        activity = null;
         super.release();
     }
 	/**

@@ -396,6 +396,7 @@ public class ParentingProxy extends KrollProxy {
     @Override
     public void release() {
         super.release();
+        activity = null;
         if (children != null) {
             synchronized (children) {
                 for (KrollProxy child : children) {
