@@ -679,6 +679,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	public abstract TiUIView createView(Activity activity);
 	
 	protected void handleChildAdded(KrollProxy child, int index) {
+	    super.handleChildAdded(child, index);
 	    if (peekView() != null) {
             if (TiApplication.isUIThread()) {
                 handleAdd((TiViewProxy) child, index);
@@ -691,7 +692,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	
     public void handleAdd(TiViewProxy child, int index)
     {
-        child.setActivity(getActivity());
         if (child instanceof TiWindowProxy && !((TiWindowProxy)child).isOpenedOrOpening()) {
             TiWindowProxy childWin = (TiWindowProxy)child;
             childWin.onWindowActivityCreated();

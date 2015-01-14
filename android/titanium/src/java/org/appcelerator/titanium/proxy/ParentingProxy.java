@@ -343,7 +343,7 @@ public class ParentingProxy extends KrollProxy {
     }
 
     protected void handleChildAdded(KrollProxy child, int index) {
-
+        child.setActivity(getActivity());
     }
 
     protected void handleChildRemoved(KrollProxy child,
@@ -368,6 +368,13 @@ public class ParentingProxy extends KrollProxy {
                 for (KrollProxy child : children) {
                     child.setActivity(activity);
                 }
+            }
+        }
+        if (holdedProxies != null) {
+            Iterator it = holdedProxies.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pairs = (Map.Entry)it.next();
+                ((KrollProxy) pairs.getValue()).setActivity(activity);
             }
         }
     }
