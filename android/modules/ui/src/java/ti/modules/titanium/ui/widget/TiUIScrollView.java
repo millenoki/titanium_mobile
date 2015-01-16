@@ -400,7 +400,9 @@ public class TiUIScrollView extends TiUIView
 	{
 		// we create the view after the properties are processed
 		super(proxy);
-		getLayoutParams().autoFillsHeight = true;
+        getLayoutParams().sizeOrFillWidthEnabled = true;
+        getLayoutParams().autoFillsHeight = true;
+        getLayoutParams().sizeOrFillHeightEnabled = true;
 		getLayoutParams().autoFillsWidth = true;
 		TiScrollView view = new TiScrollView(proxy.getActivity());
 		setNativeView(view);
