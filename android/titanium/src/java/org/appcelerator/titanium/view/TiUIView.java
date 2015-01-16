@@ -1569,10 +1569,11 @@ public abstract class TiUIView
 		if (mTouchDelegate != null) {
 			mTouchDelegate.onTouchEvent(event, TiUIView.this);
 		}
+		int action = event.getAction();
 		if (exclusiveTouch) {
 			ViewGroup parent =  (ViewGroup)getTouchView().getParent();
 			if(parent != null) {
-				switch (event.getAction()) {
+				switch (action) {
 			    case MotionEvent.ACTION_MOVE: 
 			        parent.requestDisallowInterceptTouchEvent(true);
 			        break;
@@ -1585,13 +1586,13 @@ public abstract class TiUIView
 			}
 			
 		}
-		if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL
-				|| event.getAction() == MotionEvent.ACTION_OUTSIDE) {
+		if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL
+				|| action == MotionEvent.ACTION_OUTSIDE) {
 			lastUpEvent = event;
 			pointerDown = false;
 		}
 
-		if (event.getAction() == MotionEvent.ACTION_DOWN ) {
+		if (action == MotionEvent.ACTION_DOWN ) {
 			lastDownEvent = event;
 			pointerDown = true;
 		}
@@ -1615,7 +1616,7 @@ public abstract class TiUIView
 			} else {
 				pointersDown++;
 			}
-		} else if (event.getAction() == MotionEvent.ACTION_UP) {
+		} else if (action == MotionEvent.ACTION_UP) {
 			if (pointersDown == 1) {
 				if (hierarchyHasListener(TiC.EVENT_TWOFINGERTAP)) {
 					fireEventNoCheck(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
