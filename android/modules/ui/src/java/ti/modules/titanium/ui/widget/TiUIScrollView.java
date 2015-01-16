@@ -78,10 +78,6 @@ public class TiUIScrollView extends TiUIView
 			if (!canCancelEvents) {
 				requestDisallowInterceptTouchEvent(true);
 			}
-			
-			if (touchPassThrough == true)
-				return false;
-
 			return super.dispatchTouchEvent(ev);
 		}
 
@@ -111,7 +107,7 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		protected int getWidthMeasureSpec(View child)
 		{
-			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
+//			int contentWidth = getContentProperty(TiC.PROPERTY_CONTENT_WIDTH);
 			if (contentWidth == AUTO) {
 				return MeasureSpec.UNSPECIFIED;
 			} else {
@@ -151,7 +147,6 @@ public class TiUIScrollView extends TiUIView
 		protected int getMeasuredHeight(int maxHeight, int heightSpec)
 		{
             int theHeight = contentHeight;
-//			int contentHeight = getContentProperty(TiC.PROPERTY_CONTENT_HEIGHT);
 			if (theHeight == AUTO) {
 			    theHeight = maxHeight; // measuredHeight;
 			}
