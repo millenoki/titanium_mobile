@@ -965,11 +965,17 @@ public class TiCompositeLayout extends FreeLayout implements
             pos[0] = layoutPosition0 + getLayoutOptionAsPixels(optionCenter, optionCenter.getValueType(), params, parent)
                     - halfSize;
             pos[1] = pos[0] + measuredSize;
-        } else if ((leftTopDef && rightBotDef) || (!leftTopDef && !rightBotDef)) {
+        } else if (!leftTopDef && !rightBotDef) {
          // Center
             int offset = (dist - measuredSize) / 2;
             pos[0] = layoutPosition0 + offset;
             pos[1] = pos[0] + measuredSize;
+        } else if ((leftTopDef && rightBotDef)) {
+            int leftOrTopPixels = getLayoutOptionAsPixels(leftOrTop, leftOrTop.getValueType(), params, parent);
+            int rightOrBottomPixels = getLayoutOptionAsPixels(rightOrBottom, rightOrBottom.getValueType(), params, parent);
+            
+            pos[0] = layoutPosition0 + leftOrTopPixels;
+            pos[1] = dist - rightOrBottomPixels;
         } else if (leftTopDef) {
 			// peg left/top
 			int leftOrTopPixels = getLayoutOptionAsPixels(leftOrTop, leftOrTop.getValueType(), params, parent);
