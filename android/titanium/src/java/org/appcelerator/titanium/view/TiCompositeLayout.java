@@ -447,12 +447,11 @@ public class TiCompositeLayout extends FreeLayout implements
 		if (p != null) {
 			//if we are fill we need to fill ….
 			if (p.fullscreen || p.optionWidth == null && p.autoFillsWidth) {
-				maxWidth = w;
+				maxWidth = Math.max(maxWidth, w);
 			}
 			if (p.fullscreen || p.optionHeight == null && p.autoFillsHeight) {
-				maxHeight = h;
+		        maxHeight = Math.max(maxHeight, h);
 			}
-			 
 		}
 		
 		
@@ -460,8 +459,6 @@ public class TiCompositeLayout extends FreeLayout implements
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
 		
-	   
-
 		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
 		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
 		
