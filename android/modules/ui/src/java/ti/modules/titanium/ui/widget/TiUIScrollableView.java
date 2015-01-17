@@ -101,7 +101,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		}
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (mEnabled) {
+			if (mScrollingEnabled) {
 				return super.onTouchEvent(event);
 			}
 
@@ -110,7 +110,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 
 		@Override
 		public boolean onInterceptTouchEvent(MotionEvent event) {
-			if (mEnabled) {
+            if (mScrollingEnabled && isTouchEnabled) {
 				return super.onInterceptTouchEvent(event);
 			}
 
@@ -160,7 +160,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		}
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
-			if (mEnabled) {
+			if (mScrollingEnabled) {
 				return super.onTouchEvent(event);
 			}
 
@@ -169,7 +169,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 
 		@Override
 		public boolean onInterceptTouchEvent(MotionEvent event) {
-			if (mEnabled) {
+			if (mScrollingEnabled) {
 				return super.onInterceptTouchEvent(event);
 			}
 
@@ -220,7 +220,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	private final Object viewsLock;
 
 	private int mCurIndex = -1;
-	private boolean mEnabled = true;
+	private boolean mScrollingEnabled = true;
 	
 	private boolean isValidScroll = false;
 	private boolean justFiredDragEnd = false;
@@ -233,14 +233,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		mViews = new ArrayList<TiViewProxy>();
 		viewsLock = new Object();
 		buildViewPager(activity);
-		mContainer = new TiViewPagerLayout(activity) {
-			@Override
-			public boolean dispatchTouchEvent(MotionEvent event) {
-				if (touchPassThrough == true)
-					return false;
-				return super.dispatchTouchEvent(event);
-			}
-		};
+		mContainer = new TiViewPagerLayout(activity);
 		mContainer.addView((View)mPager, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		mPagingControl = buildPagingControl(activity);
 		mContainer.addView(mPagingControl, buildFillLayoutParams());
@@ -550,7 +543,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
             }
             break;
         case TiC.PROPERTY_SCROLLING_ENABLED:
-            mEnabled = TiConvert.toBoolean(newValue);
+            mScrollingEnabled = TiConvert.toBoolean(newValue);
             break;
         case TiC.PROPERTY_OVER_SCROLL_MODE:
             mPager.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
@@ -717,15 +710,15 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		scrollTo(view, false);
 	}
 
-	public void setEnabled(Object value)
-	{
-		mEnabled = TiConvert.toBoolean(value);
-	}
-
-	public boolean getEnabled()
-	{
-		return mEnabled;
-	}
+//	public void setScrollingEnabled(Object value)
+//	{
+//		mScrollingEnabled = TiConvert.toBoolean(value);
+//	}
+//
+//	public boolean getScrollingEnabled()
+//	{
+//		return mScrollingEnabled;
+//	}
 
 	public void clearViewsList()
 	{
@@ -1043,7 +1036,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		
 		public TiViewPagerLayout(Context context)
 		{
-			super(context, TiUIScrollableView.this);      
+			super(context, TiUIScrollableView.this);
 			setFocusable(true);
 			setFocusableInTouchMode(true);
 			setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);

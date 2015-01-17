@@ -199,7 +199,7 @@ public class TiUIScrollView extends TiUIView
 		
 		@Override
 		public boolean onInterceptTouchEvent(MotionEvent event) {
-			if (mScrollingEnabled) {
+            if (mScrollingEnabled && isTouchEnabled) {
 				return super.onInterceptTouchEvent(event);
 			}
 
