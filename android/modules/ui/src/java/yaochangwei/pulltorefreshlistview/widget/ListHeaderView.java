@@ -74,7 +74,7 @@ public class ListHeaderView extends ViewGroup {
 			return;
 		}
 
-		final int childViewWidth = childView.getMeasuredWidth();
+//		final int childViewWidth = childView.getMeasuredWidth();
 		final int childViewHeight = childView.getMeasuredHeight();
 		final int measuredHeight = getMeasuredHeight();
 		final int measuredWidth = getMeasuredWidth();
@@ -82,8 +82,7 @@ public class ListHeaderView extends ViewGroup {
 				measuredHeight);
 		if (needsMaxHeightCompute) {
 			needsMaxHeightCompute = false;
-			mMaxPullHeight = childView.getMeasuredHeight() + (int)(getContext().getResources().getDisplayMetrics().density
-					* MAX_PULL_HEIGHT_DP * 0.2f + 0.5f);
+			mMaxPullHeight = childView.getMeasuredHeight();
 		}
 	}
 
