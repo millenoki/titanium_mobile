@@ -3,7 +3,6 @@ package yaochangwei.pulltorefreshlistview.widget;
 import yaochangwei.pulltorefreshlistview.widget.RefreshableListView.OnHeaderViewChangedListener;
 import android.content.Context;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
@@ -74,7 +73,6 @@ public class ListHeaderView extends ViewGroup {
 			return;
 		}
 
-//		final int childViewWidth = childView.getMeasuredWidth();
 		final int childViewHeight = childView.getMeasuredHeight();
 		final int measuredHeight = getMeasuredHeight();
 		final int measuredWidth = getMeasuredWidth();
@@ -82,7 +80,8 @@ public class ListHeaderView extends ViewGroup {
 				measuredHeight);
 		if (needsMaxHeightCompute) {
 			needsMaxHeightCompute = false;
-			mMaxPullHeight = childView.getMeasuredHeight();
+			mMaxPullHeight = childView.getMeasuredHeight() + (int)(getContext().getResources().getDisplayMetrics().density
+					* MAX_PULL_HEIGHT_DP * 0.2f + 0.5f);
 		}
 	}
 
