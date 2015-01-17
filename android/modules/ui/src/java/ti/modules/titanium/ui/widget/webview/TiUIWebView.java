@@ -29,6 +29,7 @@ import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.WebViewProxy;
@@ -46,7 +47,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 @SuppressLint("NewApi")
-public class TiUIWebView extends TiUIView
+public class TiUIWebView extends TiUINonViewGroupView
 {
 
 	private static final String TAG = "TiUIWebView";
@@ -97,12 +98,32 @@ public class TiUIWebView extends TiUIView
         {
             return true;
         }
+		
+		@Override
+        public boolean dispatchTouchEvent(MotionEvent event) {
+            if (touchPassThrough(this, event))
+                return false;
+            return super.dispatchTouchEvent(event);
+        }
+		
+		@Override
+        public boolean onInterceptTouchEvent(MotionEvent event) {
+            if (mScrollingEnabled && isTouchEnabled) {
+                return super.onInterceptTouchEvent(event);
+            }
+            return false;
+        }
+		
+        @Override
+	    public boolean canScrollHorizontally(int direction) {
+            if (!mScrollingEnabled || !isTouchEnabled) return false;
+            return super.canScrollHorizontally(direction);
+	    }
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event)
 		{
-			
-			boolean handled = false;
+//			boolean handled = false;
 			
 			switch (event.getAction()) {
                 case MotionEvent.ACTION_MOVE:
@@ -187,21 +208,7 @@ public class TiUIWebView extends TiUIView
 	{
 		super(proxy);
 		this.isFocusable = true;
-		TiWebView webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()){
-			@Override
-			public boolean dispatchTouchEvent(MotionEvent event) {
-				if (touchPassThrough == true)
-					return false;
-				return super.dispatchTouchEvent(event);
-			}
-		} : new NonHTCWebView(proxy.getActivity()){
-			@Override
-			public boolean dispatchTouchEvent(MotionEvent event) {
-				if (touchPassThrough == true)
-					return false;
-				return super.dispatchTouchEvent(event);
-			}
-		};
+		TiWebView webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
 		webView.setVerticalScrollbarOverlay(true);
 
 		WebSettings settings = webView.getSettings();
@@ -303,11 +310,11 @@ public class TiUIWebView extends TiUIView
 		}
 	}
 
-	@Override
-	protected void doSetClickable(View view, boolean clickable)
-	{
-		super.doSetClickable(view, clickable);
-	}
+//	@Override
+//	protected void doSetClickable(View view, boolean clickable)
+//	{
+//		super.doSetClickable(view, clickable);
+//	}
 	
 	public void setScrollingEnabled(Object value)
 	{
