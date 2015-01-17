@@ -1492,13 +1492,15 @@ public class TiUIHelper
 		TiDimension nativeLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
 		TiDimension nativeTop = new TiDimension(view.getTop(), TiDimension.TYPE_TOP);
 
-		// TiDimension needs a view to grab the window manager, so we'll just use the decorview of the current window
-		View decorView = TiApplication.getAppCurrentActivity().getWindow().getDecorView();
-		KrollDict d = new KrollDict();
-		d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-		d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
-		d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
-		d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
+        KrollDict d = new KrollDict();
+		Activity activity  = TiApplication.getAppCurrentActivity();
+        if (activity != null) {
+            View decorView = activity.getWindow().getDecorView();
+            d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+            d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+            d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
+            d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
+        }
 		return d;
 	}
 	
