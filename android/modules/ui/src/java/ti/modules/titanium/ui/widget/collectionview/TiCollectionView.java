@@ -7,32 +7,36 @@
 
 package ti.modules.titanium.ui.widget.collectionview;
 
-import in.srain.cube.views.GridViewWithHeaderAndFooter;
-
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.ui.widget.CustomGridView;
+import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
+import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
+
+import se.emilsjolander.stickylistheaders.ListViewGridAdapter;
+import ti.modules.titanium.ui.widget.CustomListView;
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListView;
 import android.app.Activity;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 
-public class TiCollectionView extends TiAbsListView<CustomGridView> {
+public class TiCollectionView extends TiAbsListView<CustomListView> {
 
 	public TiCollectionView(TiViewProxy proxy, Activity activity) {
 		super(proxy, activity);
 	}
 	
-	private TiDimension mColumnsWidth = null;
+    private TiDimension mColumnsWidth = null;
+    private int mNumColumns = 0;
+	private ListViewGridAdapter gridAdapter = null;
 	
     @Override
-    protected CustomGridView createListView(final Activity activity) {
+    protected CustomListView createListView(final Activity activity) {
         final KrollProxy fProxy = this.proxy;
-        CustomGridView result = new CustomGridView(activity) {
+        CustomListView result = new CustomListView(activity) {
             
             @Override
             protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
@@ -41,8 +45,17 @@ public class TiCollectionView extends TiAbsListView<CustomGridView> {
                 if (changed && fProxy != null && fProxy.hasListeners(TiC.EVENT_POST_LAYOUT, false)) {
                     fProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
                 }
+                
+            }
+            
+            @Override
+            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
                 if (mColumnsWidth != null && !mColumnsWidth.isUnitFixed()) {
-                    setColumnWidth(mColumnsWidth.getAsPixels(this));
+                    gridAdapter.setColumnWidth(mColumnsWidth.getAsPixels(this));
+                } else if(gridAdapter.updateNumColumns()) {
+                    gridAdapter.notifyDataSetChanged();
                 }
             }
             
@@ -62,8 +75,22 @@ public class TiCollectionView extends TiAbsListView<CustomGridView> {
                 }
             }
         };
-        
+
         return result;
+    }
+    
+    @Override
+    protected void setListViewAdapter (TiBaseAdapter adapter) {
+        gridAdapter = new ListViewGridAdapter(listView.getWrappedList(), adapter);
+        if (mColumnsWidth != null) {
+            gridAdapter.setColumnWidth(mColumnsWidth.getAsPixels(listView));
+        } else {
+            gridAdapter.setNumColumns( mNumColumns );
+        }
+        
+        StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(gridAdapter);
+        stickyListHeadersAdapterDecorator.setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
+        listView.setAdapter(stickyListHeadersAdapterDecorator);
     }
     
     protected static String getCellProxyRootType() {
@@ -79,14 +106,19 @@ public class TiCollectionView extends TiAbsListView<CustomGridView> {
             break;
         case TiC.PROPERTY_COLUMN_WIDTH:
             mColumnsWidth = TiConvert.toTiDimension(newValue, TiDimension.TYPE_WIDTH);
-            listView.setNumColumns( GridViewWithHeaderAndFooter.AUTO_FIT );
-            if (mColumnsWidth != null) {
-                listView.setColumnWidth(mColumnsWidth.getAsPixels(listView));
+            if (gridAdapter != null) {
+                if (mColumnsWidth != null) {
+                    gridAdapter.setColumnWidth(mColumnsWidth.getAsPixels(listView));
+                }
             }
+            
             break;
         case TiC.PROPERTY_NUM_COLUMNS:
             mColumnsWidth = null;
-            listView.setNumColumns( TiConvert.toInt(newValue));
+            mNumColumns = TiConvert.toInt(newValue);
+            if (gridAdapter != null) {
+                gridAdapter.setNumColumns(mNumColumns);
+            }
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);

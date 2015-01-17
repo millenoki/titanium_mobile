@@ -19,10 +19,6 @@ import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
-import ti.modules.titanium.ui.widget.TiUIButton;
-import ti.modules.titanium.ui.widget.TiUISlider;
-import ti.modules.titanium.ui.widget.TiUISwitch;
-import ti.modules.titanium.ui.widget.TiUIText;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.MotionEvent;
@@ -30,7 +26,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
 public class TiAbsListItem extends TiUIView implements TiTouchDelegate {

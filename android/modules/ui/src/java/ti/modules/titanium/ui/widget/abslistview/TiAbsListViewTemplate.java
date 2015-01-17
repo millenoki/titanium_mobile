@@ -12,7 +12,6 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;

@@ -7,16 +7,18 @@
 
 package ti.modules.titanium.ui.widget.listview;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
+import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
+import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuAdapter;
+import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuCallback;
+import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
+
 import android.annotation.SuppressLint;
-import ti.modules.titanium.ui.ViewProxy;
 import ti.modules.titanium.ui.widget.CustomListView;
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListView;
-import yaochangwei.pulltorefreshlistview.widget.RefreshableListView.OnPullListener;
 import android.app.Activity;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
@@ -25,7 +27,36 @@ import android.view.View;
 @SuppressLint("NewApi")
 public class TiListView extends TiAbsListView<CustomListView> {
 
-	public TiListView(TiViewProxy proxy, Activity activity) {
+    private SwipeMenuAdapter mSwipeMenuAdapater;
+    private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
+        @Override
+        public void onStartSwipe(View view, int position, int direction) {
+
+        }
+
+        @Override
+        public void onMenuShown(View view, int position, int direction) {
+
+        }
+
+        @Override
+        public void onMenuClosed(View view, int position, int direction) {
+
+        }
+
+        @Override
+        public void beforeMenuShow(View view, int position, int direction) {
+
+        }
+
+        @Override
+        public void beforeMenuClose(View view, int position, int direction) {
+
+        }
+
+    };
+
+    public TiListView(TiViewProxy proxy, Activity activity) {
 		super(proxy, activity);
 	}
 	
@@ -59,35 +90,16 @@ public class TiListView extends TiAbsListView<CustomListView> {
                 }
             }
         };
-        result.setOnPullListener( new OnPullListener() {
-            private boolean canUpdate = false;
-            @Override
-            public void onPull(boolean canUpdate) {
-                if (canUpdate != this.canUpdate) {
-                    this.canUpdate = canUpdate;
-                    if(fProxy.hasListeners(TiC.EVENT_PULL_CHANGED, false)) {
-                        KrollDict event = dictForScrollEvent();
-                        event.put("active", canUpdate);
-                        fProxy.fireEvent(TiC.EVENT_PULL_CHANGED, event, false, false);
-                    }
-                }
-                if(fProxy.hasListeners(TiC.EVENT_PULL, false)) {
-                    KrollDict event = dictForScrollEvent();
-                    event.put("active", canUpdate);
-                    fProxy.fireEvent(TiC.EVENT_PULL, event, false, false);
-                }
-            }
-    
-            @Override
-            public void onPullEnd(boolean canUpdate) {
-                if(fProxy.hasListeners(TiC.EVENT_PULL_END, false)) {
-                    KrollDict event = dictForScrollEvent();
-                    event.put("active", canUpdate);
-                    fProxy.fireEvent(TiC.EVENT_PULL_END, event, false, false);
-                }
-            }
-        });
+        
         return result;
+    }
+    
+    @Override
+    protected void setListViewAdapter (TiBaseAdapter adapter) {
+        mSwipeMenuAdapater = new SwipeMenuAdapter(adapter, getProxy().getActivity(), mMenuCallback);
+        StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(mSwipeMenuAdapater);
+        stickyListHeadersAdapterDecorator.setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
+        listView.setAdapter(stickyListHeadersAdapterDecorator);
     }
     
     @Override
@@ -97,28 +109,20 @@ public class TiListView extends TiAbsListView<CustomListView> {
         case TiC.PROPERTY_SCROLLING_ENABLED:
             listView.setScrollingEnabled(newValue);
             break;
-        case TiC.PROPERTY_PULL_VIEW:
-            listView.setHeaderPullView(setPullView(newValue));
-            break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
         }
     }
     
-    private View setPullView (Object viewObj) {
-        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "pull");
-        if (viewProxy instanceof ViewProxy) {
-            return layoutHeaderOrFooterView((TiViewProxy) viewProxy);
+    public void closeSwipeMenu(boolean animated) {
+        if (mSwipeMenuAdapater != null) {
+            if (animated) {
+                mSwipeMenuAdapater.closeMenusAnimated();
+            }
+            else {
+                mSwipeMenuAdapater.closeMenus();
+            }
         }
-        return null;
-    }
-    
-    public void showPullView(boolean animated) {
-        listView.showHeaderPullView(animated);
-    }
-    
-    public void closePullView(boolean animated) {
-        listView.closeHeaderPullView(animated);
     }
 }

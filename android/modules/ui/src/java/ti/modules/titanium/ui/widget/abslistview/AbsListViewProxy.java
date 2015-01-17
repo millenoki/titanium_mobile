@@ -7,7 +7,6 @@
 
 package ti.modules.titanium.ui.widget.abslistview;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -25,6 +24,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.widget.listview.TiListView;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
@@ -60,10 +60,11 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	private static final int MSG_SCROLL_TO_TOP = MSG_FIRST_ID + 405;
 	private static final int MSG_SCROLL_TO_BOTTOM = MSG_FIRST_ID + 406;
 	private static final int MSG_GET_SECTIONS = MSG_FIRST_ID + 407;
+    private static final int MSG_CLOSE_PULL_VIEW = MSG_FIRST_ID + 408;
+    private static final int MSG_SHOW_PULL_VIEW = MSG_FIRST_ID + 409;
 //	private static final int MSG_SET_SECTIONS = MSG_FIRST_ID + 408;
-    private static final int MSG_CLOSE_SWIPE_MENU = MSG_FIRST_ID + 409;
 
-    protected static final int MSG_LAST_ID = MSG_CLOSE_SWIPE_MENU;
+    protected static final int MSG_LAST_ID = MSG_SHOW_PULL_VIEW;
 
 
 	//indicate if user attempts to add/modify/delete sections before TiListView is created 
@@ -332,16 +333,20 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 				result.setResult(null);
 				return true;
 			}
-			case MSG_CLOSE_SWIPE_MENU: {
-                handleCloseSwipeMenu(msg.obj);
-                return true;
-            }
+			
 			case MSG_GET_SECTIONS: {
 				AsyncResult result = (AsyncResult)msg.obj;
 				result.setResult(handleSections());
 				return true;
 			}
-			
+	        case MSG_SHOW_PULL_VIEW: {
+	            handleShowPullView(msg.obj);
+	            return true;
+	        }
+	        case MSG_CLOSE_PULL_VIEW: {
+	            handleClosePullView(msg.obj);
+	            return true;
+	        }
 //			case MSG_SET_SECTIONS: {
 //				AsyncResult result = (AsyncResult)msg.obj;
 //				TiUIView listView = peekView();
@@ -521,27 +526,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		return preloadedSections.toArray(new AbsListSectionProxy[preloadedSections.size()]);
 	}
 	   
-    public void handleCloseSwipeMenu(Object obj) {
-        Boolean animated = true;
-        if (obj != null) {
-            animated = TiConvert.toBoolean(obj);
-        }
-        TiUIView listView = peekView();
-        if (listView != null) {
-            ((TiAbsListView) listView).closeSwipeMenu(animated);
-        }
-    }
-	
-    @Kroll.method()
-    public void closeSwipeMenu(@Kroll.argument(optional = true) Object obj) {
-        if (TiApplication.isUIThread()) {
-            handleCloseSwipeMenu(obj);
-        } else {
-            Handler handler = getMainHandler();
-            handler.sendMessage(handler.obtainMessage(MSG_CLOSE_SWIPE_MENU, obj));
-        }
-    }
-    	
+
 	
 	@Kroll.method
 	public void appendItems(int sectionIndex, Object data) {
@@ -597,4 +582,48 @@ public abstract class AbsListViewProxy extends TiViewProxy {
             Log.e(TAG, "updateItemAt wrong section index");
         }
 	}
+	
+
+    public void handleShowPullView(Object obj) {
+        Boolean animated = true;
+        if (obj != null) {
+            animated = TiConvert.toBoolean(obj);
+        }
+        TiUIView listView = peekView();
+        if (listView != null) {
+            ((TiListView) listView).showPullView(animated);
+        }
+    }
+
+    public void handleClosePullView(Object obj) {
+        Boolean animated = true;
+        if (obj != null) {
+            animated = TiConvert.toBoolean(obj);
+        }
+        TiUIView listView = peekView();
+        if (listView != null) {
+            ((TiListView) listView).closePullView(animated);
+        }
+    }
+
+    @Kroll.method()
+    public void showPullView(@Kroll.argument(optional = true) Object obj) {
+        if (TiApplication.isUIThread()) {
+            handleShowPullView(obj);
+        } else {
+            Handler handler = getMainHandler();
+            handler.sendMessage(handler.obtainMessage(MSG_SHOW_PULL_VIEW, obj));
+        }
+    }
+
+    @Kroll.method()
+    public void closePullView(@Kroll.argument(optional = true) Object obj) {
+        if (TiApplication.isUIThread()) {
+            handleClosePullView(obj);
+        } else {
+            Handler handler = getMainHandler();
+            handler.sendMessage(handler.obtainMessage(MSG_CLOSE_PULL_VIEW, obj));
+        }
+    }
+
 }

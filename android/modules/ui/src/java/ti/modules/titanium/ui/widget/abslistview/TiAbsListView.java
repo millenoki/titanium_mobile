@@ -35,15 +35,11 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONException;
 
 import com.nhaarman.listviewanimations.ListViewAnimationsBaseAdapter;
-import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
 import com.nhaarman.listviewanimations.itemmanipulation.DynamicListItemView;
 import com.nhaarman.listviewanimations.itemmanipulation.DynamicStickyListHeadersAbsListViewInterface;
 import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.MenuAdapter;
-import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuAdapter;
-import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuCallback;
 import com.nhaarman.listviewanimations.util.Insertable;
 import com.nhaarman.listviewanimations.util.Removable;
-import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
 
 import se.emilsjolander.stickylistheaders.OnStickyHeaderChangedListener;
 import se.emilsjolander.stickylistheaders.StickyListHeadersAdapter;
@@ -53,19 +49,20 @@ import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.ViewProxy;
 import android.annotation.SuppressLint;
 import ti.modules.titanium.ui.android.SearchViewProxy;
+import ti.modules.titanium.ui.widget.CustomListView;
 import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
+import yaochangwei.pulltorefreshlistview.widget.RefreshableListView;
+import yaochangwei.pulltorefreshlistview.widget.RefreshableListView.OnPullListener;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v4.view.ViewPager;
 import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,12 +87,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	public static int hasChild;
 	public static int disclosure;
 	public static int accessory = 24124;
-//	private int headerFooterId;
-	public static LayoutInflater inflater;
-//	private int titleId;
 	private int[] marker = new int[2];
-//	private View headerView;
-//	private View footerView;
 	private String searchText;
 	private boolean caseInsensitive;
 	private static final String TAG = "TiListView";
@@ -107,7 +99,6 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 
 	private int currentScrollOffset = -1;
 	
-	private SwipeMenuAdapter mSwipeMenuAdapater;
 	
 	private static final String defaultTemplateKey = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
 	private static final TiAbsListViewTemplate defaultTemplate = new TiDefaultAbsListViewTemplate(defaultTemplateKey);
@@ -138,12 +129,12 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	    }
 	}
 	
-	private void removeHandledProxy(final TiViewProxy proxy) {
-        if (handledProxies == null) {
-            return;
-        }
-        handledProxies.remove(proxy);
-    }
+//	private void removeHandledProxy(final TiViewProxy proxy) {
+//        if (handledProxies == null) {
+//            return;
+//        }
+//        handledProxies.remove(proxy);
+//    }
 	
 	private AbsListView getInternalListView() {
         return listView.getWrappedList();
@@ -478,33 +469,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         return dictForScrollEvent(getScroll());
     }
 	
-	private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
-        @Override
-        public void onStartSwipe(View view, int position, int direction) {
-
-        }
-
-        @Override
-        public void onMenuShown(View view, int position, int direction) {
-
-        }
-
-        @Override
-        public void onMenuClosed(View view, int position, int direction) {
-
-        }
-
-        @Override
-        public void beforeMenuShow(View view, int position, int direction) {
-
-        }
-
-        @Override
-        public void beforeMenuClose(View view, int position, int direction) {
-
-        }
-
-    };
+	
     
     protected abstract C createListView(final Activity activity);
 
@@ -531,38 +496,43 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		final KrollProxy fProxy = proxy;
 		//initializing listView
 		listView = createListView(activity);
-//		listView = new CustomListView(activity) {
-//		    
-//		    @Override
-//	        protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-//	            
-//	            super.onLayout(changed, left, top, right, bottom);
-//	            if (changed && fProxy != null && fProxy.hasListeners(TiC.EVENT_POST_LAYOUT, false)) {
-//	                fProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
-//	            }
-//	        }
-//	        
-//	        @Override
-//	        public boolean dispatchTouchEvent(MotionEvent event) {
-//	            if (touchPassThrough == true)
-//	                return false;
-//	            return super.dispatchTouchEvent(event);
-//	        }
-//	        
-//			@Override
-//		    protected void dispatchDraw(Canvas canvas) {
-//		        try {
-//		            super.dispatchDraw(canvas);
-//		        } catch (IndexOutOfBoundsException e) {
-//		            // samsung error
-//		        }
-//		    }
-//		};
+		listView.setSelector(android.R.color.transparent);
 		listView.setDuplicateParentStateEnabled(true);
 		AbsListView internalListView = getInternalListView();
         if (internalListView instanceof ListView) {
             ((ListView) internalListView).setHeaderDividersEnabled(false);
             ((ListView) internalListView).setFooterDividersEnabled(false);
+        }
+        
+        if (listView instanceof CustomListView) {
+            ((CustomListView)listView).setOnPullListener( new OnPullListener() {
+                private boolean canUpdate = false;
+                @Override
+                public void onPull(boolean canUpdate) {
+                    if (canUpdate != this.canUpdate) {
+                        this.canUpdate = canUpdate;
+                        if(fProxy.hasListeners(TiC.EVENT_PULL_CHANGED, false)) {
+                            KrollDict event = dictForScrollEvent();
+                            event.put("active", canUpdate);
+                            fProxy.fireEvent(TiC.EVENT_PULL_CHANGED, event, false, false);
+                        }
+                    }
+                    if(fProxy.hasListeners(TiC.EVENT_PULL, false)) {
+                        KrollDict event = dictForScrollEvent();
+                        event.put("active", canUpdate);
+                        fProxy.fireEvent(TiC.EVENT_PULL, event, false, false);
+                    }
+                }
+        
+                @Override
+                public void onPullEnd(boolean canUpdate) {
+                    if(fProxy.hasListeners(TiC.EVENT_PULL_END, false)) {
+                        KrollDict event = dictForScrollEvent();
+                        event.put("active", canUpdate);
+                        fProxy.fireEvent(TiC.EVENT_PULL_END, event, false, false);
+                    }
+                }
+            });
         }
 
 		adapter = new TiBaseAdapter(activity);
@@ -669,12 +639,6 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             }
         });
 
-		
-		//init inflater
-		if (inflater == null) {
-			inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
-		
 		getInternalListView().setCacheColorHint(Color.TRANSPARENT);
 		listView.setEnabled(true);
 		getLayoutParams().autoFillsHeight = true;
@@ -895,6 +859,9 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
                 setFooterTitle(TiConvert.toString(newValue));
 //            }
             break;
+        case TiC.PROPERTY_PULL_VIEW:
+            ((RefreshableListView) listView).setHeaderPullView(setPullView(newValue));
+            break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
@@ -925,11 +892,11 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		//Have to add header and footer before setting adapter
 //		listView.addFooterView(footerView, null, false);
 		
-		mSwipeMenuAdapater = new SwipeMenuAdapter(adapter, getProxy().getActivity(), mMenuCallback);
-		StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(mSwipeMenuAdapater);
-        stickyListHeadersAdapterDecorator.setListViewWrapper(new StickyListHeadersListViewWrapper(listView));
-		listView.setAdapter(stickyListHeadersAdapterDecorator);
-		
+		setListViewAdapter(adapter);
+	}
+	
+	protected void setListViewAdapter (TiBaseAdapter adapter) {
+        listView.setAdapter(adapter);
 	}
 	
 	private void setHeaderOrFooterView (Object viewObj, boolean isHeader) {
@@ -958,17 +925,6 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         }
     }
     
-    public void closeSwipeMenu(boolean animated) {
-        if (mSwipeMenuAdapater != null) {
-            if (animated) {
-                mSwipeMenuAdapater.closeMenusAnimated();
-            }
-            else {
-                mSwipeMenuAdapater.closeMenus();
-            }
-        }
-    }
-
 
 	private void reFilter(String searchText) {
         synchronized (sections) {
@@ -1427,11 +1383,14 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 		templatesByBinding.clear();
 		sections.clear();
 		
-		for (TiViewProxy viewProxy : handledProxies) {
-		    viewProxy.releaseViews(true);
-		    viewProxy.setParent(null);
-        }
-		handledProxies = null;
+		if (handledProxies != null) {
+		    for (TiViewProxy viewProxy : handledProxies) {
+	            viewProxy.releaseViews(true);
+	            viewProxy.setParent(null);
+	        }
+	        handledProxies = null;
+		}
+		
 
 
 		if (listView != null) {
@@ -1508,4 +1467,21 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
     public <T> void remove( final int position, final int count) {
         listView.remove(position - listView.getHeaderViewsCount(), count);
     }
+    
+    private View setPullView (Object viewObj) {
+        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "pull");
+        if (viewProxy instanceof ViewProxy) {
+            return layoutHeaderOrFooterView((TiViewProxy) viewProxy);
+        }
+        return null;
+    }
+    
+    public void showPullView(boolean animated) {
+        ((RefreshableListView) listView).showHeaderPullView(animated);
+    }
+    
+    public void closePullView(boolean animated) {
+        ((RefreshableListView) listView).closeHeaderPullView(animated);
+    }
+    
 }
