@@ -2437,7 +2437,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         if (!TiDimensionIsUndefined(layoutProperties.right) ) {
             pinCount ++;
         }
-        if ( (pinCount < 2) || (!centerDefined) ){
+        if (!centerDefined){
             isAutoFill = followsFillBehavior;
         }
     }
@@ -2472,7 +2472,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         if (!TiDimensionIsUndefined(layoutProperties.bottom) ) {
             pinCount ++;
         }
-        if ( (pinCount < 2) || (!centerDefined) ) {
+        if ((!centerDefined) ) {
             isAutoFill = followsFillBehavior;
         }
     }
