@@ -40,6 +40,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 {
     self = [self _initWithPageContext:context];
     if (self) {
+        _shouldRetainModelDelegate = NO; //important to prevent memory leak
         unarchived = NO;
         enumeratingResetKeys = NO;
         _buildingBindings = NO;
@@ -92,23 +93,20 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return self;
 }
 
--(void)cleanup
-{
-    //    if (_listViewProxy) {
-    //        [_listViewProxy forgetProxy:self];
-    //        [self.pageContext unregisterProxy:self];
-    //        _listViewProxy = nil;
-    //    }
-    _wrapperView = nil;
-}
 
 -(void) setWrapperView:(TiUICollectionWrapperView *)wrapperView
 {
     //we must not retain the item or we get a cyclic retain problem
     //    RELEASE_TO_NIL(_listItem);
-    _wrapperView = wrapperView;
-    if (wrapperView)
+    
+    if (_wrapperView && wrapperView) {
+        wrapperView.viewHolder = view;
+        RELEASE_TO_NIL(_wrapperView)
+        _wrapperView = [wrapperView retain];
+    }
+    else if (wrapperView)
     {
+        _wrapperView = [wrapperView retain];
         view = wrapperView.viewHolder;
         [view initializeState];
         viewInitialized = YES;
@@ -117,6 +115,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         windowOpened = YES;
     }
     else {
+        RELEASE_TO_NIL(_wrapperView)
         view = nil;
         viewInitialized = NO;
         parentVisible = NO;
@@ -127,7 +126,8 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(void)dealloc
 {
-    [self cleanup];
+//    [self cleanup];
+    RELEASE_TO_NIL(_wrapperView)
     RELEASE_TO_NIL(_initialValues)
     RELEASE_TO_NIL(_currentValues)
     RELEASE_TO_NIL(_resetKeys)

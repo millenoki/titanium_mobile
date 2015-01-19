@@ -15,7 +15,7 @@
 }
 
 @property (nonatomic, readonly) TiUICollectionWrapperViewProxy *proxy;
-@property (nonatomic, readonly) TiUIView *viewHolder;
+@property (nonatomic, retain) TiUIView *viewHolder;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
 
 - (id)initWithProxy:(TiUICollectionWrapperViewProxy *)proxy;

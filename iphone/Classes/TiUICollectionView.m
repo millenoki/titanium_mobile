@@ -163,12 +163,12 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header
 {
-    [theProxy setProxyObserver:self];
-    if (header) {
-        [self.tableView setTableHeaderView:[theProxy getAndPrepareViewForOpening:CGRectZero]];
-    } else {
-        [self.tableView setTableFooterView:[theProxy getAndPrepareViewForOpening:CGRectZero]];
-    }
+//    [theProxy setProxyObserver:self];
+//    if (header) {
+//        [self.tableView setTableHeaderView:[theProxy getAndPrepareViewForOpening:CGRectZero]];
+//    } else {
+//        [self.tableView setTableFooterView:[theProxy getAndPrepareViewForOpening:CGRectZero]];
+//    }
 }
 
 -(TiViewProxy*)getOrCreateHeaderHolder
@@ -193,6 +193,7 @@ static NSDictionary* replaceKeysForRow;
          TiUICollectionViewFlowLayout* layout = [[TiUICollectionViewFlowLayout alloc] init];
 
         _tableView = [[TiCollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
+        [layout release];
         _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         _tableView.delegate = self;
         _tableView.dataSource = self;
@@ -1483,33 +1484,63 @@ static NSDictionary* replaceKeysForRow;
     if (templateId == nil) {
         templateId = (kind == UICollectionElementKindSectionHeader)?@"header":@"footer";
     }
-    TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
+   
     
-    if (view.proxy == nil) {
-        id<TiEvaluator> context = self.listViewProxy.executionContext;
-        if (context == nil) {
-            context = self.listViewProxy.pageContext;
+    id template = [_templates objectForKey:templateId];
+    if (template != nil) {
+        TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
+        if (view.proxy == nil) {
+            id<TiEvaluator> context = self.listViewProxy.executionContext;
+            if (context == nil) {
+                context = self.listViewProxy.pageContext;
+            }
+            TiUICollectionWrapperViewProxy *viewProxy = [[TiUICollectionWrapperViewProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
+            [view initWithProxy:viewProxy];
+            [view configurationStart];
+            [view configurationSet];
+            
+            if ([TiUtils isIOS8OrGreater] && (collectionView == _tableView)) {
+                [view setLayoutMargins:UIEdgeInsetsZero];
+            }
+            
+            [viewProxy release];
+//            [view autorelease];
         }
-        TiUICollectionWrapperViewProxy *viewProxy = [[TiUICollectionWrapperViewProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
-        [view initWithProxy:viewProxy];
-        [view configurationStart];
-        id template = [_templates objectForKey:templateId];
-        if (template != nil) {
-            [viewProxy unarchiveFromTemplate:template withEvents:YES];
+        view.dataItem = item;
+        view.proxy.indexPath = realIndexPath;
+        return view;
+    } else {
+        TiViewProxy* child = [theSection sectionViewForLocation:@"headerView" inCollectionView:self];
+        if (child && !child.parent) {
+            TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
+            id<TiEvaluator> context = self.listViewProxy.executionContext;
+            if (context == nil) {
+                context = self.listViewProxy.pageContext;
+            }
+            TiUICollectionWrapperViewProxy *viewProxy = [[TiUICollectionWrapperViewProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
+            [view initWithProxy:viewProxy];
+            [view configurationStart];
+
+            [viewProxy addProxy:child atIndex:0 shouldRelayout:YES];
+            [view configurationSet];
+            
+            if ([TiUtils isIOS8OrGreater] && (collectionView == _tableView)) {
+                [view setLayoutMargins:UIEdgeInsetsZero];
+            }
+            [viewProxy release];
+//            [view autorelease];
+            view.proxy.indexPath = realIndexPath;
+            return view;
+        } else if (child) {
+            TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
+            TiUICollectionWrapperViewProxy *viewProxy = (TiUICollectionWrapperViewProxy*)child.parent;
+            viewProxy.wrapperView = view ;
+//            [view initWithProxy:viewProxy];
+            viewProxy.indexPath = realIndexPath;
+            return view;
         }
-        [view configurationSet];
-        
-        if ([TiUtils isIOS8OrGreater] && (collectionView == _tableView)) {
-            [view setLayoutMargins:UIEdgeInsetsZero];
-        }
-        
-        [viewProxy release];
-        [view autorelease];
     }
-    
-    view.dataItem = item;
-    view.proxy.indexPath = realIndexPath;
-    return view;
+    return nil;
 }
 //
 //#pragma mark - MGSwipeTableCell Delegate
@@ -1890,8 +1921,8 @@ static NSDictionary* replaceKeysForRow;
         if (cellProxy != nil) {
             [cellProxy setDataItem:item];
             CGSize autoSize = [cellProxy minimumParentSizeForSize:result];
-            result.width = [self collectionView:collectionView itemWidth:result.width];
-            result.height = [self collectionView:collectionView itemHeight:result.height];
+            result.width = [self collectionView:collectionView itemWidth:autoSize.width];
+            result.height = [self collectionView:collectionView itemHeight:autoSize.height];
         }
     }
     
@@ -1960,8 +1991,8 @@ referenceSizeForHeaderInSection:(NSInteger)section
         return CGSizeZero;
     }
     NSString* location = @"headerView";
-    
-    NSDictionary *item = [[self.listViewProxy sectionForIndex:section] valueForKey:location];
+    TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
+    NSDictionary *item = [theSection valueForKey:location];
     if (!item) {
         return CGSizeZero;
     }
@@ -1969,52 +2000,96 @@ referenceSizeForHeaderInSection:(NSInteger)section
     if (templateId == nil) {
         templateId = @"header";
     }
-    
-    id visibleProp = [self valueWithKey:@"visible" forSectionItem:item template:templateId];
-    BOOL visible = visibleProp?[visibleProp boolValue]:YES;
     CGSize result = CGSizeZero;
-    if (!visible) return result;
-    result = collectionView.bounds.size;
-    
-    id widthValue = [self valueWithKey:@"width" forSectionItem:item template:templateId];
-    TiDimension width = _itemWidth;
-    if (widthValue != nil) {
-        width = [TiUtils dimensionValue:widthValue];
-    }
-    if (TiDimensionIsDip(width)) {
-        result.width = [self collectionView:collectionView itemWidth:width.value];
-    }
-    else if (TiDimensionIsPercent(width) || TiDimensionIsAutoFill(width)) {
-        result.width = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(width, collectionView.bounds.size.width)];
-    }
-    
-    id heightValue = [self valueWithKey:@"height" forSectionItem:item template:templateId];
-    TiDimension height = _itemHeight;
-    if (heightValue != nil) {
-        height = [TiUtils dimensionValue:heightValue];
-    }
-    if (TiDimensionIsDip(height)) {
-        result.height = [self collectionView:collectionView itemHeight:height.value];
-    }
-    else if (TiDimensionIsPercent(height) || TiDimensionIsAutoFill(height)) {
-        result.height = [self collectionView:collectionView itemHeight:TiDimensionCalculateValue(height, collectionView.bounds.size.height)];
-    }
-    
-    
-    if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) ||
-        TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height))
-    {
-        TiUICollectionItemProxy *cellProxy = nil;
-        if (!cellProxy) {
-            cellProxy = [_measureProxies objectForKey:templateId];
+    id template = [_templates objectForKey:templateId];
+    if (template != nil) {
+        id visibleProp = [self valueWithKey:@"visible" forSectionItem:item template:templateId];
+        BOOL visible = visibleProp?[visibleProp boolValue]:YES;
+        if (!visible) return result;
+        result = collectionView.bounds.size;
+        
+        id widthValue = [self valueWithKey:@"width" forSectionItem:item template:templateId];
+        TiDimension width = _itemWidth;
+        if (widthValue != nil) {
+            width = [TiUtils dimensionValue:widthValue];
         }
-        if (cellProxy != nil) {
-            [cellProxy setDataItem:item];
-            CGSize autoSize = [cellProxy minimumParentSizeForSize:result];
-            result.width = [self collectionView:collectionView itemWidth:result.width];
-            result.height = [self collectionView:collectionView itemHeight:result.height];
+        if (TiDimensionIsDip(width)) {
+            result.width = [self collectionView:collectionView itemWidth:width.value];
+        }
+        else if (TiDimensionIsPercent(width) || TiDimensionIsAutoFill(width)) {
+            result.width = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(width, collectionView.bounds.size.width)];
+        }
+        
+        id heightValue = [self valueWithKey:@"height" forSectionItem:item template:templateId];
+        TiDimension height = _itemHeight;
+        if (heightValue != nil) {
+            height = [TiUtils dimensionValue:heightValue];
+        }
+        if (TiDimensionIsDip(height)) {
+            result.height = [self collectionView:collectionView itemHeight:height.value];
+        }
+        else if (TiDimensionIsPercent(height) || TiDimensionIsAutoFill(height)) {
+            result.height = [self collectionView:collectionView itemHeight:TiDimensionCalculateValue(height, collectionView.bounds.size.height)];
+        }
+        
+        
+        if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) ||
+            TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height))
+        {
+            TiUICollectionItemProxy *cellProxy = nil;
+            if (!cellProxy) {
+                cellProxy = [_measureProxies objectForKey:templateId];
+            }
+            if (cellProxy != nil) {
+                [cellProxy setDataItem:item];
+                CGSize autoSize = [cellProxy minimumParentSizeForSize:result];
+                result.width = [self collectionView:collectionView itemWidth:result.width];
+                result.height = [self collectionView:collectionView itemHeight:result.height];
+            }
+        }
+    } else {
+        TiViewProxy* child = [theSection sectionViewForLocation:@"headerView" inCollectionView:self];
+        if (child) {
+            id visibleProp = [child valueForKey:@"visible"];
+            BOOL visible = visibleProp?[visibleProp boolValue]:YES;
+            if (!visible) return result;
+            result = collectionView.bounds.size;
+            
+            id widthValue = [child valueForKey:@"width"];
+            TiDimension width = _itemWidth;
+            if (widthValue != nil) {
+                width = [TiUtils dimensionValue:widthValue];
+            }
+            if (TiDimensionIsDip(width)) {
+                result.width = [self collectionView:collectionView itemWidth:width.value];
+            }
+            else if (TiDimensionIsPercent(width) || TiDimensionIsAutoFill(width)) {
+                result.width = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(width, collectionView.bounds.size.width)];
+            }
+            
+            id heightValue = [child valueForKey:@"height"];
+            TiDimension height = _itemHeight;
+            if (heightValue != nil) {
+                height = [TiUtils dimensionValue:heightValue];
+            }
+            if (TiDimensionIsDip(height)) {
+                result.height = [self collectionView:collectionView itemHeight:height.value];
+            }
+            else if (TiDimensionIsPercent(height) || TiDimensionIsAutoFill(height)) {
+                result.height = [self collectionView:collectionView itemHeight:TiDimensionCalculateValue(height, collectionView.bounds.size.height)];
+            }
+            
+            
+            if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) ||
+                TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height))
+            {
+                CGSize autoSize = [child minimumParentSizeForSize:result];
+                result.width = [self collectionView:collectionView itemWidth:result.width];
+                result.height = [self collectionView:collectionView itemHeight:result.height];
+            }
         }
     }
+
     
     UIEdgeInsets sectionInset = [(UICollectionViewFlowLayout *)collectionView.collectionViewLayout sectionInset];
     result.width -= (sectionInset.left + sectionInset.right);

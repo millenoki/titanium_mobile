@@ -37,15 +37,25 @@ DEFINE_EXCEPTIONS
 - (id)initWithProxy:(TiUICollectionWrapperViewProxy *)proxy
 {
     _proxy = [proxy retain];
-    _viewHolder = [[TiUIView alloc] initWithFrame:self.bounds];
-    _viewHolder.proxy = _proxy;
+    self.viewHolder = [[TiUIView alloc] initWithFrame:self.bounds];
     _viewHolder.shouldHandleSelection = NO;
     [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
     [_viewHolder setClipsToBounds: YES];
     [_viewHolder.layer setMasksToBounds: YES];
-    //    [_viewHolder selectableLayer].animateTransition = YES;
-    [self addSubview:_viewHolder];
+        //    [_viewHolder selectableLayer].animateTransition = YES;
     [self initialize];
+}
+
+-(void)setViewHolder:(TiUIView *)viewHolder
+{
+    if (_viewHolder) {
+        _viewHolder.proxy = nil;
+        [_viewHolder removeFromSuperview];
+        RELEASE_TO_NIL(_viewHolder);
+    }
+    _viewHolder = [viewHolder retain];
+    _viewHolder.proxy = _proxy;
+    [self addSubview:_viewHolder];
 }
 
 -(void) initialize
@@ -79,7 +89,6 @@ DEFINE_EXCEPTIONS
 - (void)dealloc
 {
     [_proxy detachView];
-    [_proxy cleanup];
     [_proxy deregisterProxy:[_proxy pageContext]];
     _proxy.wrapperView = nil;
     _proxy.modelDelegate = nil;
