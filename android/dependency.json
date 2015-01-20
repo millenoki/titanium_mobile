@@ -23,7 +23,7 @@
 		"utils": [],
 		"xml": []
 	},
-	"required": ["android", "app", "ui", "locale"],
+	"required": ["android", "app", "ui", "locale", "analytics"],
 	"libraries": {
 		"android": ["jaxen-1.1.1.jar", 
 			"ti-commons-codec-1.3.jar", 
