@@ -146,14 +146,13 @@ public class ParentingProxy extends KrollProxy {
         if (children == null) {
             children = new ArrayList<KrollProxy>();
         }
-        int realIndex = Math.max(0, Math.min(children.size(), index));
+        int realIndex = index;
+        if(index < 0 || index > children.size()) {
+            realIndex = children.size();
+        }
         synchronized (children) {
             children.remove(child);
-            if (index >= 0) {
-                children.add(realIndex, child);
-            } else {
-                children.add(child);
-            }
+            children.add(realIndex, child);
         }
 
         if (child instanceof ParentingProxy) {
@@ -205,7 +204,7 @@ public class ParentingProxy extends KrollProxy {
                 }
             }
             if (child != null) {
-                int i = -1; // no index by default
+                int i = -1; // default to top
                 if (index instanceof Number) {
                     i = ((Number) index).intValue();
                 }
