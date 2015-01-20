@@ -68,7 +68,12 @@
 -(TiUIView*)newView
 {
 	TiUIWindow * win = (TiUIWindow*)[super newView];
-    win.frame =[TiUtils appFrame];
+    //try no to set frame because it might be wrong. Let it be computed
+    //in viewWillAppear
+    if (!controller) {
+        win.frame =[TiUtils appFrame];
+    }
+    
 	return win;
 }
 
