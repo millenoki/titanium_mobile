@@ -20,30 +20,38 @@
 -(void)setFrame:(CGRect)frame
 {
     BOOL needsLayout = NO;
+//    BOOL needsDirtyItAll = NO;
     
     // this happens when a controller resizes its view
-	if (!CGRectIsEmpty(frame) && [self.proxy isKindOfClass:[TiViewProxy class]])
-	{
+    if (!CGRectIsEmpty(frame) && [self.proxy isKindOfClass:[TiViewProxy class]])
+    {
         CGRect currentframe = [self frame];
         if (!CGRectEqualToRect(frame, currentframe))
         {
             needsLayout = YES;
+//            needsDirtyItAll = CGRectIsEmpty(currentframe);
             CGRect bounds = CGRectMake(0, 0, frame.size.width, frame.size.height);
             [(TiViewProxy*)self.proxy setSandboxBounds:bounds];
         }
-	}
+    }
     [super setFrame:frame];
     if (needsLayout) {
-        if ([[self.layer animationKeys] count] > 0) {
-            [(TiViewProxy*)self.proxy performBlockWithoutLayout:^{
-                [(TiViewProxy*)self.proxy parentSizeWillChange];
-            }];
-            
-            [(TiViewProxy*)self.proxy refreshViewOrParent];
-        }
-        else {
-            [(TiViewProxy*)self.proxy parentSizeWillChange];
-        }
+//        if (needsDirtyItAll) {
+//            [(TiViewProxy*)self.proxy dirtyItAll];
+//            [(TiViewProxy*)self.proxy refreshViewOrParent];
+//            
+//        } else {
+            if ([[self.layer animationKeys] count] > 0) {
+                [(TiViewProxy*)self.proxy performBlockWithoutLayout:^{
+                    [(TiViewProxy*)self.proxy parentSizeWillChange];
+                }];
+                
+                [(TiViewProxy*)self.proxy refreshViewOrParent];
+            }
+            else {
+                [(TiViewProxy*)self.proxy contentsWillChange];
+            }
+//        }
     }
 }
 
