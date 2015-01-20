@@ -485,7 +485,7 @@ public class TiUIText extends TiUINonViewGroupView
                 getEditText().setHint(AttributedStringProxy.toSpannable((AttributedStringProxy) newValue, TiApplication.getAppCurrentActivity()));
             }
             break;
-        case TiC.PROPERTY_ATTRIBUTED_TEXT:
+        case TiC.PROPERTY_ATTRIBUTED_STRING:
             if (newValue instanceof AttributedStringProxy) {
                 disableChangeEvent = !changedProperty;
                 getEditText().setText(AttributedStringProxy.toSpannable((AttributedStringProxy) newValue, TiApplication.getAppCurrentActivity()));

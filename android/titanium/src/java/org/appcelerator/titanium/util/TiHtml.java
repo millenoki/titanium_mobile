@@ -108,14 +108,20 @@ public class TiHtml {
 //
 //    }
 	
-	public static Spanned fromHtml(String html, final boolean disableLinkStyle) {
-		Document doc = Jsoup.parse(html);
-		TiHTMLFormattingVisitor formatter = new TiHTMLFormattingVisitor(disableLinkStyle);
-        NodeTraversor traversor = new NodeTraversor(formatter);
-        traversor.traverse(doc); // walk the DOM, and call .head() and .tail() for each node
-        return formatter.spannable();
+	public static Spanned fromHtml(CharSequence html, final boolean disableLinkStyle) {
+		if (html instanceof String) {
+		    Document doc = Jsoup.parse((String)html);
+	        TiHTMLFormattingVisitor formatter = new TiHTMLFormattingVisitor(disableLinkStyle);
+	        NodeTraversor traversor = new NodeTraversor(formatter);
+	        traversor.traverse(doc); // walk the DOM, and call .head() and .tail() for each node
+	        return formatter.spannable();
+		}
+		else if (html instanceof Spanned) {
+		    return (Spanned) html;
+		}
+		return null;
 	}
-    public static Spanned fromHtml(String html) {
+    public static Spanned fromHtml(CharSequence html) {
         return fromHtml(html, false);
     }
 }

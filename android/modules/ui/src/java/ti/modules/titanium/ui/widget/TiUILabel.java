@@ -94,7 +94,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	private int shadowColor = Color.TRANSPARENT;
     private boolean disableLinkStyle = false;
     private boolean autoLink = false;
-    private String text = null;
+    private CharSequence text = null;
 
 
 	private RectF textPadding;
@@ -912,7 +912,7 @@ public class TiUILabel extends TiUINonViewGroupView
 
 	}
 
-	private Spanned fromHtml(String str)
+	private Spanned fromHtml(CharSequence str)
 	{
 		SpannableStringBuilder htmlText = new SpannableStringBuilder(TiHtml.fromHtml(str, disableLinkStyle));
 		return htmlText;
@@ -955,7 +955,7 @@ public class TiUILabel extends TiUINonViewGroupView
 //	    strBuilder.removeSpan(span);
 //	}
 	
-	protected Spanned prepareHtml(String html)
+	protected Spanned prepareHtml(CharSequence html)
 	{
 //	    CharSequence sequence = fromHtml(html);
 //	        SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
@@ -1121,7 +1121,6 @@ public class TiUILabel extends TiUINonViewGroupView
             }
             break;
         case TiC.PROPERTY_ATTRIBUTED_STRING:
-        	Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
 			if (newValue instanceof AttributedStringProxy) {
 				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), TiApplication.getAppCurrentActivity());
 				text = spannableText;
@@ -1140,15 +1139,6 @@ public class TiUILabel extends TiUINonViewGroupView
             disableLinkStyle = TiConvert.toBoolean(newValue);
             mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
             break;
-            if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-			if (attributedString instanceof AttributedStringProxy) {
-				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)attributedString), TiApplication.getAppCurrentActivity());
-				if (spannableText != null) {
-					tv.setText(spannableText);
-				}
-			}
-		}
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
