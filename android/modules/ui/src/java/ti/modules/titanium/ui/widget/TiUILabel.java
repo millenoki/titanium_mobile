@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.transition.Transition;
@@ -29,6 +30,7 @@ import com.nineoldandroids.animation.AnimatorSet;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.os.Build;
@@ -1118,6 +1120,14 @@ public class TiUILabel extends TiUINonViewGroupView
                 mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
             }
             break;
+        case TiC.PROPERTY_ATTRIBUTED_STRING:
+        	Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			if (newValue instanceof AttributedStringProxy) {
+				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), TiApplication.getAppCurrentActivity());
+				text = spannableText;
+                mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
+			}
+            break;
         case TiC.PROPERTY_TRANSITION:
             if (newValue instanceof HashMap) {
                 transitionDict = (HashMap) newValue;
@@ -1130,6 +1140,15 @@ public class TiUILabel extends TiUINonViewGroupView
             disableLinkStyle = TiConvert.toBoolean(newValue);
             mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
             break;
+            if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			if (attributedString instanceof AttributedStringProxy) {
+				Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)attributedString), TiApplication.getAppCurrentActivity());
+				if (spannableText != null) {
+					tv.setText(spannableText);
+				}
+			}
+		}
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;

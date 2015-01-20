@@ -12,6 +12,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -21,6 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.AttributedStringProxy;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -29,6 +31,7 @@ import android.os.Build;
 import android.support.v7.internal.widget.TintEditText;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.Spannable;
 import android.text.TextUtils.TruncateAt;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
@@ -477,6 +480,20 @@ public class TiUIText extends TiUINonViewGroupView
         case TiC.PROPERTY_HINT_TEXT:
             getEditText().setHint(TiConvert.toString(newValue));
             break;
+        case TiC.PROPERTY_ATTRIBUTED_HINT_TEXT:
+            if (newValue instanceof AttributedStringProxy) {
+                getEditText().setHint(AttributedStringProxy.toSpannable((AttributedStringProxy) newValue, TiApplication.getAppCurrentActivity()));
+            }
+            break;
+        case TiC.PROPERTY_ATTRIBUTED_TEXT:
+            if (newValue instanceof AttributedStringProxy) {
+                disableChangeEvent = !changedProperty;
+                getEditText().setText(AttributedStringProxy.toSpannable((AttributedStringProxy) newValue, TiApplication.getAppCurrentActivity()));
+                int pos = getEditText().getText().length();
+                getEditText().setSelection(pos);
+                disableChangeEvent = false;
+            }
+            break;    
         case TiC.PROPERTY_VALUE:
             disableChangeEvent = !changedProperty;
             getEditText().setText(TiConvert.toString(newValue));
@@ -952,13 +969,4 @@ public class TiUIText extends TiUINonViewGroupView
 		}
 		return super.focus();
 	}
-
-//	@Override
-//	public boolean blur()
-//	{
-//		if (tv != null) {
-//			return tv.blur();
-//		}
-//		return false;
-//	}
 }

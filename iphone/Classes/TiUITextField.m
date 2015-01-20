@@ -13,9 +13,8 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
+#if defined (USE_TI_UIATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
 #endif
 
 @implementation TiTextField
@@ -292,13 +291,13 @@
     [self textWidgetView].hintColor = [[TiUtils colorValue:value] color];
 }
 
+#if defined (USE_TI_UIATTRIBUTEDSTRING)
 -(void)setAttributedHintText_:(id)value
 {
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    ENSURE_SINGLE_ARG(value,TiUIiOSAttributedStringProxy);
-    [[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
-#endif
+	ENSURE_SINGLE_ARG(value,TiUIAttributedStringProxy);
+	[[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
 }
+#endif
 
 -(void)setMinimumFontSize_:(id)value
 {
@@ -433,6 +432,8 @@
     _editing = NO;
     [self setViewState:-1];
     [self textWidget:tf didBlurWithText:[tf text]];
+	//TIMOB-18365. Value not updated when autocorrect is up and return is pressed
+	[self textFieldDidChange:nil];
 }
 
 - (void)textFieldDidChange:(NSNotification *)notification

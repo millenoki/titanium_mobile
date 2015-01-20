@@ -160,6 +160,14 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int URL_ERROR_UNKNOWN = WebViewClient.ERROR_UNKNOWN;
 	@Kroll.constant public static final int URL_ERROR_UNSUPPORTED_SCHEME = WebViewClient.ERROR_UNSUPPORTED_SCHEME;
 	
+	@Kroll.constant public static final int ATTRIBUTE_FONT = 0;
+	@Kroll.constant public static final int ATTRIBUTE_FOREGROUND_COLOR = 1;
+	@Kroll.constant public static final int ATTRIBUTE_BACKGROUND_COLOR = 2;
+	@Kroll.constant public static final int ATTRIBUTE_STRIKETHROUGH_STYLE = 3;
+	@Kroll.constant public static final int ATTRIBUTE_UNDERLINES_STYLE = 4;
+	@Kroll.constant public static final int ATTRIBUTE_LINK = 5;
+	@Kroll.constant public static final int ATTRIBUTE_UNDERLINE_COLOR = 6;
+	
 	@Kroll.constant public static final int LEFT_VIEW = 0;
 	@Kroll.constant public static final int RIGHT_VIEW = 1;
 	

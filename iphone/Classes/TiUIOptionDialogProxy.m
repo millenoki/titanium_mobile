@@ -486,6 +486,7 @@
     
     //Fell through.
     UIViewController* presentingController = [alertController presentingViewController];
+    popoverPresentationController.permittedArrowDirections = 0;
     popoverPresentationController.sourceView = [presentingController view];
     popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, dialogRect)?CGRectMake(presentingController.view.bounds.size.width/2, presentingController.view.bounds.size.height/2, 1, 1):dialogRect);;
 }
@@ -543,7 +544,12 @@
 -(void) fireClickEventWithAction:(UIAlertAction*)theAction
 {
     if ([self _hasListeners:@"click"]) {
-        NSUInteger indexOfAction = [[alertController actions] indexOfObject:theAction];
+        NSArray *actions = [alertController actions];
+        NSInteger indexOfAction = [actions indexOfObject:theAction];
+        
+        if ([TiUtils isIPad] && (cancelButtonIndex == -1) && (indexOfAction == ([actions count]-1)) ) {
+            indexOfAction = cancelButtonIndex;
+        }
         
         NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                       NUMUINTEGER(indexOfAction),@"index",

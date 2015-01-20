@@ -11,9 +11,8 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUtils.h"
-
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-#import "TiUIiOSAttributedStringProxy.h"
+#if defined (USE_TI_UIATTRIBUTEDSTRING)
+#import "TiUIAttributedStringProxy.h"
 #endif
 
 @interface TiUITextWidgetProxy()
@@ -40,13 +39,13 @@
     return [self textWidgetView];
 }
 
+#if defined (USE_TI_UIATTRIBUTEDSTRING)
 -(void)setAttributedString_:(id)arg
 {
-#ifdef USE_TI_UIIOSATTRIBUTEDSTRING
-    ENSURE_SINGLE_ARG(arg, TiUIiOSAttributedStringProxy);
-    [(id)[self textWidgetView] setAttributedText:[arg attributedString]];
-#endif
+	ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
+	[(id)[self textWidgetView] setAttributedText:[arg attributedString]];
 }
+#endif
 
 -(void)setValue_:(id)value
 {
