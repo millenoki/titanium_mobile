@@ -930,14 +930,15 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //            totalCount += 1;
 //        }
 //
-//        if (!hideHeaderOrFooter()) {
+        if (!hideHeaderOrFooter()) {
 ////          if (hasHeader()) {
 ////              totalCount += 1;
 ////          }
-//            if (hasFooter()) {
-//                totalCount += 1;
-//            }
-//        }
+            //footer must be counted in!
+            if (hasFooter()) {
+                totalCount += 1;
+            }
+        }
         totalCount -= getHiddenCount();
         mCurrentItemCount = totalCount;
 	}
