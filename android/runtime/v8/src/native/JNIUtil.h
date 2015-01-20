@@ -123,7 +123,7 @@ public:
 	static jmethodID krollProxyCreateProxyMethod;
 	static jmethodID krollProxyCreateDeprecatedProxyMethod;
 	static jfieldID krollProxyKrollObjectField;
-	static jfieldID krollProxyModelListenerField;
+	// static jfieldID krollProxyModelListenerField;
 	static jmethodID krollProxySetIndexedPropertyMethod;
 	static jmethodID krollProxyGetIndexedPropertyMethod;
 	static jmethodID krollProxyOnPropertyChangedMethod;
