@@ -1970,10 +1970,10 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 {
     if ([self interactionEnabled])
 	{
-		if ([proxy _hasListeners:event])
+        if ([self.viewProxy _hasListeners:event checkParent:YES])
 		{
             NSDictionary *evt = [self dictionaryFromTouch:touch];
-			[proxy fireEvent:event withObject:evt checkForListener:NO];
+            [proxy fireEvent:event withObject:evt propagate:YES checkForListener:NO];
 //			[self handleControlEvents:UIControlEventTouchDown];
 		}
 	}

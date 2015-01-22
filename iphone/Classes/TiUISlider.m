@@ -295,9 +295,9 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 -(IBAction)sliderBegin:(id)sender
 {
     NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
-    if ([[self viewProxy] _hasListeners:@"touchstart" checkParent:NO])
+    if ([[self viewProxy] _hasListeners:@"touchstart" checkParent:YES])
     {
-        [[self proxy] fireEvent:@"touchstart" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO checkForListener:NO];
+        [[self proxy] fireEvent:@"touchstart" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:YES checkForListener:NO];
     }
     if ([[self viewProxy] _hasListeners:@"start" checkParent:NO])
     {
@@ -315,9 +315,9 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     NSTimeInterval currentTimeInterval = [now timeIntervalSinceDate:lastTouchUp];
     if (!(lastTimeInterval < 0.1 && currentTimeInterval < 0.1)) {
         NSNumber * newValue = [NSNumber numberWithFloat:[(UISlider*)sender value]];
-        if ([[self viewProxy] _hasListeners:@"touchend" checkParent:NO])
+        if ([[self viewProxy] _hasListeners:@"touchend" checkParent:YES])
         {
-            [[self proxy] fireEvent:@"touchend" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO checkForListener:NO];
+            [[self proxy] fireEvent:@"touchend" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:YES checkForListener:NO];
         }
         if ([[self viewProxy] _hasListeners:@"stop" checkParent:NO])
         {
