@@ -1079,6 +1079,12 @@
 		D5F980F819ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5F980F919ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5F980FA19ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5FB4F321A70E8B1000C3831 /* BluetoothModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FB4F311A70E8B1000C3831 /* BluetoothModule.m */; };
+		D5FB4F331A70E8B1000C3831 /* BluetoothModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FB4F311A70E8B1000C3831 /* BluetoothModule.m */; };
+		D5FB4F341A70E8B1000C3831 /* BluetoothModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FB4F311A70E8B1000C3831 /* BluetoothModule.m */; };
+		D5FB4F371A70E94F000C3831 /* TiBluetoothDeviceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FB4F361A70E94F000C3831 /* TiBluetoothDeviceProxy.m */; };
+		D5FB4F381A70E94F000C3831 /* TiBluetoothDeviceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FB4F361A70E94F000C3831 /* TiBluetoothDeviceProxy.m */; };
+		D5FB4F391A70E94F000C3831 /* TiBluetoothDeviceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FB4F361A70E94F000C3831 /* TiBluetoothDeviceProxy.m */; };
 		D5FD09DC1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
 		D5FD09DD1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
 		D5FD09DE1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
@@ -2596,6 +2602,10 @@
 		D5F9620D19A63941000E464F /* TiScrollingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiScrollingView.m; sourceTree = "<group>"; };
 		D5F980F319ECFC240071A3C6 /* MGSwipeTableCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MGSwipeTableCell.h; path = ../Classes/MGSwipeTableCell/MGSwipeTableCell.h; sourceTree = "<group>"; };
 		D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MGSwipeTableCell.m; path = ../Classes/MGSwipeTableCell/MGSwipeTableCell.m; sourceTree = "<group>"; };
+		D5FB4F301A70E8B1000C3831 /* BluetoothModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BluetoothModule.h; sourceTree = "<group>"; };
+		D5FB4F311A70E8B1000C3831 /* BluetoothModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BluetoothModule.m; sourceTree = "<group>"; };
+		D5FB4F351A70E94F000C3831 /* TiBluetoothDeviceProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBluetoothDeviceProxy.h; sourceTree = "<group>"; };
+		D5FB4F361A70E94F000C3831 /* TiBluetoothDeviceProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBluetoothDeviceProxy.m; sourceTree = "<group>"; };
 		D5FD09DA1830EFE2000FF4C5 /* TiAnimatedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAnimatedImage.h; sourceTree = "<group>"; };
 		D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAnimatedImage.m; sourceTree = "<group>"; };
 		D930111C16DA9D61002E25C2 /* TiCalendarRecurrenceRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarRecurrenceRule.h; sourceTree = "<group>"; };
@@ -3010,6 +3020,7 @@
 		24CA8A09111161D60084E2DE /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				D5FB4F291A70E891000C3831 /* Bluetooth */,
 				D50FDC011A4469EE00D962C9 /* Audio */,
 				D5509FD5194B1C2100655C61 /* Analytics */,
 				D55795781837BF3C0057DD41 /* Animation */,
@@ -4844,6 +4855,17 @@
 			name = MGSwipeTableCell;
 			sourceTree = "<group>";
 		};
+		D5FB4F291A70E891000C3831 /* Bluetooth */ = {
+			isa = PBXGroup;
+			children = (
+				D5FB4F301A70E8B1000C3831 /* BluetoothModule.h */,
+				D5FB4F311A70E8B1000C3831 /* BluetoothModule.m */,
+				D5FB4F351A70E94F000C3831 /* TiBluetoothDeviceProxy.h */,
+				D5FB4F361A70E94F000C3831 /* TiBluetoothDeviceProxy.m */,
+			);
+			name = Bluetooth;
+			sourceTree = "<group>";
+		};
 		D93DAA4C16CBF8A000AD64C9 /* Calendar */ = {
 			isa = PBXGroup;
 			children = (
@@ -5324,6 +5346,7 @@
 				24CA8BAA111161FE0084E2DE /* TiUIButton.m in Sources */,
 				24CA8BAB111161FE0084E2DE /* TiUIiPhoneAnimationStyleProxy.m in Sources */,
 				24CA8BAC111161FE0084E2DE /* TiUIAlertDialogProxy.m in Sources */,
+				D5FB4F371A70E94F000C3831 /* TiBluetoothDeviceProxy.m in Sources */,
 				D5EEA1551A37486100E8BB3F /* _DDFunctionTerm.m in Sources */,
 				24CA8BAD111161FE0084E2DE /* TiUIActivityIndicatorStyleProxy.m in Sources */,
 				24CA8BAE111161FE0084E2DE /* TiUIActivityIndicatorProxy.m in Sources */,
@@ -5341,6 +5364,7 @@
 				D56E6699180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
 				24CA8BBE111161FE0084E2DE /* TiAudioPlayerProxy.m in Sources */,
 				D5C8C98217EF45C900F54C19 /* ADGlueTransition.m in Sources */,
+				D5FB4F321A70E8B1000C3831 /* BluetoothModule.m in Sources */,
 				D5EEA1611A37486100E8BB3F /* _DDOperatorTerm.m in Sources */,
 				24CA8BC2111161FE0084E2DE /* TiHost.m in Sources */,
 				24CA8BC3111161FE0084E2DE /* TiFilesystemFileProxy.m in Sources */,
@@ -5658,6 +5682,7 @@
 				24D8E3E2119B9D8A00F8CAA6 /* KrollContext.m in Sources */,
 				D54C7D2118115D7D00F592A9 /* TiTransitionModernPush.m in Sources */,
 				24D8E3E3119B9D8A00F8CAA6 /* KrollMethod.m in Sources */,
+				D5FB4F331A70E8B1000C3831 /* BluetoothModule.m in Sources */,
 				D54C7CF918115BAF00F592A9 /* TiTransitionPushRotate.m in Sources */,
 				24D8E3E4119B9D8A00F8CAA6 /* KrollMethodDelegate.m in Sources */,
 				24D8E3E5119B9D8A00F8CAA6 /* KrollObject.m in Sources */,
@@ -5803,6 +5828,7 @@
 				24D8E455119B9D8A00F8CAA6 /* Bridge.m in Sources */,
 				24D8E456119B9D8A00F8CAA6 /* AppModule.m in Sources */,
 				24D8E457119B9D8A00F8CAA6 /* APIModule.m in Sources */,
+				D5FB4F381A70E94F000C3831 /* TiBluetoothDeviceProxy.m in Sources */,
 				24D8E459119B9D8A00F8CAA6 /* AccelerometerModule.m in Sources */,
 				24D8E45A119B9D8A00F8CAA6 /* TiUIScrollableViewProxy.m in Sources */,
 				D51D5AC51A4C682E00B0BC5D /* TableView_Categories.m in Sources */,
@@ -6073,6 +6099,7 @@
 				DABB36BE12E8CB280026A6EA /* KrollContext.m in Sources */,
 				D54C7D2218115D7D00F592A9 /* TiTransitionModernPush.m in Sources */,
 				DABB36BF12E8CB280026A6EA /* KrollMethod.m in Sources */,
+				D5FB4F341A70E8B1000C3831 /* BluetoothModule.m in Sources */,
 				D54C7CFA18115BAF00F592A9 /* TiTransitionPushRotate.m in Sources */,
 				DABB36C012E8CB280026A6EA /* KrollMethodDelegate.m in Sources */,
 				DABB36C112E8CB280026A6EA /* KrollObject.m in Sources */,
@@ -6218,6 +6245,7 @@
 				DABB372D12E8CB280026A6EA /* Bridge.m in Sources */,
 				DABB372E12E8CB280026A6EA /* AppModule.m in Sources */,
 				DABB372F12E8CB280026A6EA /* APIModule.m in Sources */,
+				D5FB4F391A70E94F000C3831 /* TiBluetoothDeviceProxy.m in Sources */,
 				DABB373112E8CB280026A6EA /* AccelerometerModule.m in Sources */,
 				DABB373212E8CB280026A6EA /* TiUIScrollableViewProxy.m in Sources */,
 				D51D5AC61A4C682E00B0BC5D /* TableView_Categories.m in Sources */,
