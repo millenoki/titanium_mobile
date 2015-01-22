@@ -139,9 +139,20 @@
 	[[self textWidgetView] setEnablesReturnKeyAutomatically:[TiUtils boolValue:value]];
 }
 
+-(void)refreshInputView
+{
+    [[self textWidgetView] reloadInputViews]; // does not work on iOS8 !
+    
+    if ([[self textWidgetView] isFirstResponder]) {
+        [[self textWidgetView] resignFirstResponder];
+        [[self textWidgetView] becomeFirstResponder];
+    }
+}
+
 -(void)setKeyboardType_:(id)value
 {
 	[[self textWidgetView] setKeyboardType:[TiUtils intValue:value]];
+    [self refreshInputView];
 }
 
 -(void)setAutocorrect_:(id)value
