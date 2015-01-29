@@ -20,7 +20,7 @@
 
 @property (nonatomic, readonly, copy) id value_;
 
--(NSArray*)columns;
+//-(NSArray*)columns;
 -(void)reloadColumn:(id)column;
 -(TiProxy*)selectedRowForColumn:(NSInteger)column;
 -(void)selectRowForColumn:(NSInteger)column row:(NSInteger)row animated:(BOOL)animated;

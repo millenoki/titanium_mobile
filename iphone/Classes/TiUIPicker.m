@@ -110,10 +110,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	[(UIPickerView*)[self picker] reloadAllComponents];
 }
 
--(NSArray*)columns 
-{
-	return [self.proxy valueForKey:@"columns"];
-}
+//-(NSArray*)columns 
+//{
+//	return [self.proxy valueForKey:@"columns"];
+//}
 
 -(TiProxy*)selectedRowForColumn:(NSInteger)column
 {
@@ -127,9 +127,26 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	{
 		return nil;
 	}
-	TiUIPickerColumnProxy *columnProxy = [[self columns] objectAtIndex:column];
-	return [columnProxy rowAt:row];
+	TiUIPickerColumnProxy *columnProxy = [self columnAt:column];
+	return [columnProxy childAt:row];
 }
+
+-(TiUIPickerColumnProxy*)columnAt:(NSUInteger)index
+{
+    return (TiUIPickerColumnProxy*)[[self viewProxy] childAt:index];
+}
+
+
+-(NSUInteger)columnsCount
+{
+    return [[self viewProxy] childrenCount];
+}
+
+-(NSArray*)columns
+{
+    return [[self viewProxy] children];
+}
+
 
 -(void)selectRowForColumn:(NSInteger)column row:(NSInteger)row animated:(BOOL)animated
 {
@@ -268,14 +285,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 // returns the number of 'columns' to display.
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView
 {
-	return [[self columns] count];
+	return [self columnsCount];
 }
 
 // returns the # of rows in each component..
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
-	TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
-	return [proxy rowCount];
+	TiUIPickerColumnProxy *proxy = [self columnAt:component];
+	return [proxy childrenCount];
 }
 
 #pragma mark Delegates (only for UIPickerView) 
@@ -285,27 +302,30 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component
 {
 	//TODO: add blain's super duper width algorithm
-    NSArray* theColumns = [self columns];
-    if (component >= [theColumns count]) {
+//    NSArray* theColumns = [self columns];
+//    if (component >= [theColumns count]) {
+//        return 0;
+//    }
+	// first check to determine if this column has a width
+	TiUIPickerColumnProxy *proxy = [self columnAt:component];
+    if (!proxy) {
         return 0;
     }
-	// first check to determine if this column has a width
-	TiUIPickerColumnProxy *proxy = [theColumns objectAtIndex:component];
 	id width = [proxy valueForKey:@"width"];
 	if (width != nil)
 	{
 		return [TiUtils floatValue:width];
 	}
-	return (pickerView.frame.size.width - DEFAULT_COLUMN_PADDING) / [theColumns count];
+    CGFloat result = (pickerView.frame.size.width - DEFAULT_COLUMN_PADDING) / [self columnsCount];
+	return result;
 }
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component
 {
-    NSArray* theColumns = [self columns];
-    if (component >= [theColumns count]) {
+    TiUIPickerColumnProxy *proxy = [self columnAt:component];
+    if (!proxy) {
         return 0;
     }
-	TiUIPickerColumnProxy *proxy = [theColumns objectAtIndex:component];
 	id height = [proxy valueForKey:@"height"];
 	if (height != nil)
 	{
@@ -320,14 +340,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 // If you return back a different object, the old one will be released. the view will be centered in the row rect  
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
-	TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
+	TiUIPickerColumnProxy *proxy = [self columnAt:component];
 	TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
 	return [rowproxy valueForKey:@"title"];
 }
 
 - (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view
 {
-    TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
+    TiUIPickerColumnProxy *proxy = [self columnAt:component];
     TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
     CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component]-20, [self pickerView:pickerView rowHeightForComponent:component]);
 
@@ -346,8 +366,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
 	{
-		TiUIPickerColumnProxy *proxy = [[self columns] objectAtIndex:component];
-		TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+        TiUIPickerColumnProxy *proxy = [self columnAt:component];
+        TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
 		NSMutableArray *selected = [NSMutableArray array];
 		NSInteger colIndex = 0;
 		for (TiUIPickerColumnProxy *col in [self columns])
