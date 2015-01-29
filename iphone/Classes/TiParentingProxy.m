@@ -301,6 +301,11 @@
 
 - (TiProxy *)createChildFromObject:(id)object
 {
+    return [self createChildFromObject:object rootProxy:self];
+}
+
+- (TiProxy *)createChildFromObject:(id)object rootProxy:(TiParentingProxy*)rootProxy
+{
     TiProxy *child = nil;
     NSString* bindId = nil;
     if ([object isKindOfClass:[NSDictionary class]]) {
@@ -309,12 +314,12 @@
         if (context == nil) {
             context = self.pageContext;
         }
-        child = [[self class] createFromDictionary:object rootProxy:self inContext:context];
+        child = [[self class] createFromDictionary:object rootProxy:rootProxy inContext:context];
         [self rememberProxy:child];
         [context.krollContext invokeBlockOnThread:^{
             [child forgetSelf];
         }];
-   }
+    }
     else if(([object isKindOfClass:[TiProxy class]]))
     {
         child = (TiProxy *)object;
@@ -322,10 +327,11 @@
     }
     if (child && bindId) {
         [child setValue:bindId forKey:@"bindId"];
-        [self addBinding:child forKey:bindId];
+        [rootProxy addBinding:child forKey:bindId];
     }
     return child;
 }
+
 
 
 - (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy
@@ -343,7 +349,7 @@
     NSArray* childTemplates = (NSArray*)[dictionary objectForKey:@"childTemplates"];
 	
 	[childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
-        TiProxy *child = [rootProxy createChildFromObject:childTemplate];
+        TiProxy *child = [self createChildFromObject:childTemplate rootProxy:rootProxy];
 		if (child != nil) {
 			[self addProxy:child atIndex:-1 shouldRelayout:NO];
             [context.krollContext invokeBlockOnThread:^{
