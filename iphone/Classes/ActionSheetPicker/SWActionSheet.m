@@ -54,6 +54,9 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
     //        [appWindow makeKeyAndVisible];
         [self destroyWindow];
         [self removeFromSuperview];
+        if (_delegate) {
+            [_delegate actionSheet:self didDismissWithButtonIndex:i];
+        }
     };
     // Do actions animated or not
     if (animated) {
@@ -63,6 +66,7 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
         completion(YES);
     }
     self.presented = NO;
+    
 }
 
 - (void)destroyWindow
@@ -182,6 +186,14 @@ static const enum UIViewAnimationOptions options = UIViewAnimationOptionCurveEas
 {
     [super viewWillAppear:animated];
     [self presentActionSheetAnimated:YES];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    if (self.actionSheet.delegate) {
+        [self.actionSheet.delegate didPresentActionSheet:self.actionSheet];
+    }
 }
 
 - (void)presentActionSheetAnimated:(BOOL)animated

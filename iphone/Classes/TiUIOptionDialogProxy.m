@@ -202,7 +202,7 @@
     }
     
     if([self valueForKey:@"customView"]) {
-        customActionSheet = [[TiCustomActionSheet alloc] init];
+        customActionSheet = [[TiCustomActionSheet alloc] initWithTarget:self];
         [customActionSheet setDelegate:self];
         customActionSheet.dismissOnAction = hideOnClick;
         [customActionSheet setCustomView:[self valueForKey:@"customView"] fromProxy:self];

@@ -68,6 +68,7 @@ static NSString *const kActionTarget  = @"buttonActionTarget";
 
     // For subclasses.
 - (id)initWithTarget:(id)target successAction:(SEL)successAction cancelAction:(SEL)cancelActionOrNil origin:(id)origin;
+- (id)initWithTarget:(id)target;
 
     // Present the ActionSheetPicker
 - (void)showActionSheetPicker;

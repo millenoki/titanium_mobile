@@ -129,6 +129,23 @@ CG_INLINE BOOL isIPhone4()
     return self;
 }
 
+- (id)initWithTarget:(id)target
+{
+    self = [super init];
+    if ( self )
+    {
+        self.target = target;
+        self.presentFromRect = CGRectZero;
+        self.popoverBackgroundViewClass = nil;
+        self.supportedInterfaceOrientations = (UIInterfaceOrientationMask) [[UIApplication sharedApplication]
+                                                                            supportedInterfaceOrientationsForWindow:
+                                                                            [UIApplication sharedApplication].keyWindow];
+        //allows us to use this without needing to store a reference in calling class
+        self.selfReference = self;
+    }
+    return self;
+}
+
 - (void)dealloc
 {
     //need to clear picker delegates and datasources, otherwise they may call this object after it's gone
@@ -225,7 +242,10 @@ CG_INLINE BOOL isIPhone4()
         [_actionSheet dismissWithClickedButtonIndex:0 animated:YES];
     else if ( self.popOverController && self.popOverController.popoverVisible )
         [_popOverController dismissPopoverAnimated:YES];
-    self.actionSheet = nil;
+    if (_actionSheet) {
+        _actionSheet.delegate = nil;
+        self.actionSheet = nil;
+    }
     self.popOverController = nil;
     self.selfReference = nil;
 }
