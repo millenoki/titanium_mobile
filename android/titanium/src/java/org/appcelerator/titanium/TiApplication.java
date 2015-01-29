@@ -1243,8 +1243,8 @@ public abstract class TiApplication extends Application implements
         final Activity activity = getAppRootOrCurrentActivity();
         int resultCode = 1;
         try {
-            Class<?> c = Class.forName("GooglePlayServicesUtil");
-            Method  isGooglePlayServicesAvailable = c.getDeclaredMethod ("isGooglePlayServicesAvailable", Activity.class);
+            Class<?> c = Class.forName("com.google.android.gms.common.GooglePlayServicesUtil");
+            Method  isGooglePlayServicesAvailable = c.getDeclaredMethod ("isGooglePlayServicesAvailable", Context.class);
             resultCode = (int) isGooglePlayServicesAvailable.invoke(null, new Object[] {activity});
             if (resultCode != 0) {
                 Method  isUserRecoverableError = c.getDeclaredMethod ("isUserRecoverableError", int.class);
