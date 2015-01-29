@@ -881,7 +881,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	    }
 	}
 
-	private static final ArrayList<String> KEY_SEQUENCE;
+	protected static final ArrayList<String> KEY_SEQUENCE;
     static{
       ArrayList<String> tmp = new ArrayList<String>();
       tmp.add(TiC.PROPERTY_COLOR);
