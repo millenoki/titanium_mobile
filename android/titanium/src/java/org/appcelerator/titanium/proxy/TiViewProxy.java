@@ -490,13 +490,13 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		}
 	}
 
-	public TiUIView forceCreateView(boolean enableModelListener, boolean processProperties)
+	public TiUIView forceCreateView(final boolean enableModelListener, final boolean processProperties)
 	{
 		this.view = null;
 		return getOrCreateView(enableModelListener, processProperties);
 	}
 	
-	public TiUIView forceCreateView(boolean enableModelListener)
+	public TiUIView forceCreateView(final boolean enableModelListener)
 	{
 		return forceCreateView(enableModelListener, true);
 	}
@@ -533,12 +533,12 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		return getOrCreateView(true);
 	}
 	
-	public TiUIView getOrCreateView(boolean enableModelListener)
+	public TiUIView getOrCreateView(final boolean enableModelListener)
 	{
 		return getOrCreateView(enableModelListener, true);
 	}
 
-	public TiUIView getOrCreateView(boolean enableModelListener, boolean processProperties)
+	public TiUIView getOrCreateView(final boolean enableModelListener, final boolean processProperties)
 	{
 	    if (activity == null) {
 	        return null;
@@ -554,12 +554,12 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		return (TiUIView) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETVIEW, (enableModelListener) ? 1 : 0, (processProperties) ? 1 : 0), 0);
 	}
 
-	protected TiUIView handleGetView(boolean enableModelListener)
+	protected TiUIView handleGetView(final boolean enableModelListener)
 	{
 		return handleGetView(enableModelListener, true);
 	}
 
-	protected TiUIView handleGetView(boolean enableModelListener, boolean processProperties)
+	protected TiUIView handleGetView(final boolean enableModelListener, final boolean processProperties)
 	{
 		Activity activity = getActivity();
 		if (view == null && activity != null) {
@@ -571,16 +571,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			if (isDecorView) {
 				if (activity != null) {
 					((TiBaseActivity)activity).setViewProxy(view.getProxy());
-				} else {
-					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
+//				} else {
+//					Log.w(TAG, "Activity is null", Log.DEBUG_MODE);
 				}
 			}
 			realizeViews(view, enableModelListener, processProperties);
-			if (processProperties == false && enableModelListener == false) {
-				view.registerForTouch();
-				view.registerForKeyPress();
-			}
-			viewRealised  = true;
 		}
 		return view;
 	}
@@ -595,12 +590,12 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		realizeViews(view, true, true);
 	}
 
-	public void realizeViews(TiUIView view, boolean enableModelListener)
+	public void realizeViews(TiUIView view, final boolean enableModelListener)
 	{
 		realizeViews(view, enableModelListener, true);
 	}
 
-	public void realizeViews(TiUIView view, boolean enableModelListener, boolean processProperties)
+	public void realizeViews(TiUIView view, final boolean enableModelListener, final boolean processProperties)
 	{
 		if (enableModelListener)
 		{
@@ -632,8 +627,17 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                 }
 	        }
 		}
-
-		handlePendingAnimation();
+		viewDidRealize(enableModelListener, processProperties);
+	}
+	
+	protected void viewDidRealize(final boolean enableModelListener, final boolean processProperties) {
+	    if (processProperties == false && enableModelListener == false) {
+            view.registerForTouch();
+            view.registerForKeyPress();
+        }
+        viewRealised  = true;
+	    view.didRealize();
+        handlePendingAnimation();
 	}
 	
 	public void realizeViews(TiUIView view)
@@ -641,7 +645,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		realizeViews(view, true);
 	}
 	
-	public void releaseViews(boolean activityFinishing)
+	public void releaseViews(final boolean activityFinishing)
 	{
 		if (view != null) {
 			view.blur();
@@ -676,7 +680,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	 */
 	public abstract TiUIView createView(Activity activity);
 	
-	protected void handleChildAdded(KrollProxy child, int index) {
+	protected void handleChildAdded(KrollProxy child, final int index) {
 	    super.handleChildAdded(child, index);
 	    if (peekView() != null) {
             if (TiApplication.isUIThread()) {

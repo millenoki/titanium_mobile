@@ -2459,4 +2459,8 @@ public abstract class TiUIView
             view.setLayoutParams(params);
         }
 	}
+
+    public void didRealize() {
+        
+    }
 }
