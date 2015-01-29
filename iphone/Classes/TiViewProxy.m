@@ -3707,9 +3707,14 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 #pragma mark - View Templates
 
++ (NSString*)defaultTemplateType
+{
+    return @"Ti.UI.View";
+}
+
 + (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy inContext:(id<TiEvaluator>)context
 {
-	return [[self class] createFromDictionary:dictionary rootProxy:rootProxy inContext:context defaultType:@"Ti.UI.View"];
+	return [[self class] createFromDictionary:dictionary rootProxy:rootProxy inContext:context defaultType:[[self class] defaultTemplateType]];
 }
 
 
