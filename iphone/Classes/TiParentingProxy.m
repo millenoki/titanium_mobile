@@ -100,12 +100,20 @@
 	return ((copy != nil) ? [copy autorelease] : [NSMutableArray array]);
 }
 
--(NSUInteger)childrenCount {
-    NSUInteger result = 0;
-    pthread_rwlock_rdlock(&childrenLock);
-    result = [children count];
-    pthread_rwlock_unlock(&childrenLock);
+-(TiProxy*)childAt:(NSInteger)index
+{
+    TiProxy* result = nil;
+    if (index >= 0 && index < childrenCount)
+    {
+        pthread_rwlock_rdlock(&childrenLock);
+        result = [children objectAtIndex:index];
+        pthread_rwlock_unlock(&childrenLock);
+    }
     return result;
+}
+
+-(NSUInteger)childrenCount {
+    return childrenCount;
 }
 
 -(BOOL)containsChild:(TiProxy*)child
