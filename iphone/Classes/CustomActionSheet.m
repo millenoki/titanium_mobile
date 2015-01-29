@@ -85,6 +85,17 @@ CG_INLINE BOOL isIPhone4()
     return self;
 }
 
+- (id)initWithTarget:(id)target  {
+    self = [super initWithTarget:target];
+    if (self) {
+        self.presentFromRect = CGRectZero;
+        self.dismissOnAction = YES;
+        self.tapOutDismiss = NO;
+        self.style = UIActionSheetStyleDefault;
+    }
+    return self;
+}
+
 - (id)init  {
     self = [super init];
     if (self) {
@@ -187,6 +198,12 @@ static NSDictionary* htmlOptions;
 
     [masterView addSubview:self.pickerView];
     [self presentPickerForView:masterView];
+}
+
+- (void)presentActionSheet:(SWActionSheet *)actionSheet
+{
+    [super presentActionSheet:actionSheet];
+    actionSheet.delegate = self;
 }
 
 - (IBAction)actionDone:(id)sender {
@@ -328,6 +345,7 @@ static NSDictionary* htmlOptions;
         [self configureAndPresentPopoverForView:aView];
     else
         [self configureAndPresentActionSheetForView:aView];
+    self.actionSheet.delegate = self;
 }
 
 //- (void)configureAndPresentActionSheetForView:(UIView *)aView {
@@ -414,7 +432,7 @@ static NSDictionary* htmlOptions;
 }
 
 - (void)actionSheetCancel:(SWActionSheet *)actionSheet {
-    if ([_delegate respondsToSelector:@selector(customActionSheet:didDismissWithButtonIndex:)]) {
+    if ([_delegate respondsToSelector:@selector(customActionSheet:actionSheetCancel:)]) {
         [_delegate customActionSheetCancel:self];
     }
 }
