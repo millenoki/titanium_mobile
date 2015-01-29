@@ -238,21 +238,21 @@ public abstract class TiUIView
 		}
 	}
 
-	private int findChildIndex(TiUIView child)
-	{
-		int idxChild = -1;
-		if (child != null) {
-			View cv = child.getOuterView();
-			if (cv != null) {
-				View nv = getNativeView();
-				if (nv instanceof ViewGroup) {
-					idxChild = ((ViewGroup) nv).indexOfChild(cv);
-
-				}
-			}
-		}
-		return idxChild;
-	}
+//	private int findChildIndex(TiUIView child)
+//	{
+//		int idxChild = -1;
+//		if (child != null) {
+//			View cv = child.getOuterView();
+//			if (cv != null) {
+//				View nv = getNativeView();
+//				if (nv instanceof ViewGroup) {
+//					idxChild = ((ViewGroup) nv).indexOfChild(cv);
+//
+//				}
+//			}
+//		}
+//		return idxChild;
+//	}
 
 	/**
 	 * Removes the child view from the ViewGroup, if child exists.
@@ -2273,7 +2273,7 @@ public abstract class TiUIView
 	}
 
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes", "null" })
 	public void prepareAnimatorSet(TiAnimatorSet tiSet, List<Animator> list, List<Animator> listReverse,
 			HashMap options) {		
 		
