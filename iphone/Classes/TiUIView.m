@@ -10,9 +10,7 @@
 #import "TiRect.h"
 #import "TiUtils.h"
 #import "ImageLoader.h"
-#ifdef USE_TI_UI2DMATRIX	
-	#import "Ti2DMatrix.h"
-#endif
+#import "Ti2DMatrix.h"
 #if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
 	#import "Ti3DMatrix.h"
 #endif
@@ -768,7 +766,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)updateTransform
 {
-#ifdef USE_TI_UI2DMATRIX	
 	if ([transformMatrix isKindOfClass:[Ti2DMatrix class]] && self.superview != nil)
 	{
         CGSize size = self.bounds.size;
@@ -776,7 +773,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 		self.transform = [(Ti2DMatrix*)transformMatrix matrixInViewSize:size andParentSize:parentSize];
 		return;
 	}
-#endif
 #if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
 	if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
