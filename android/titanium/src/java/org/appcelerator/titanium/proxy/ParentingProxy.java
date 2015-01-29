@@ -11,6 +11,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
@@ -269,15 +270,19 @@ public class ParentingProxy extends KrollProxy {
             Log.e(TAG, "Add called with a null child");
             return;
         }
+        int index = -1;
         if (children != null) {
             synchronized (children) {
-                children.remove(child);
+                index = children.indexOf(child);
+                if (index >= 0) {
+                    children.remove(index);
+                }
                 if (child instanceof ParentingProxy) {
                     ((ParentingProxy) child).setParent(null);
                 }
             }
         }
-        handleChildRemoved(child, shouldDetach);
+        handleChildRemoved(child, index, shouldDetach);
     }
 
     public void removeProxy(Object args) {
@@ -293,11 +298,21 @@ public class ParentingProxy extends KrollProxy {
      * @module.api
      */
     @Kroll.method
-    public void remove(Object args) {
+    public void remove(final Object args) {
         if (args == null) {
             Log.e(TAG, "remove called with null");
             return;
         }
+//        if (!TiApplication.isUIThread()) {
+//            getActivity().runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    remove(args);
+//                }
+//            });
+//            return;
+//        }
+        
         if (args instanceof Object[]) {
             for (Object obj : (Object[]) args) {
                 remove(obj);
@@ -335,28 +350,40 @@ public class ParentingProxy extends KrollProxy {
                 childViews.addAll(children);
                 children.clear();
             }
-            for (KrollProxy child : childViews) {
-                handleChildRemoved(child, true);
+            for (int i = 0; i < childViews.size(); i++) {
+                handleChildRemoved(childViews.get(i), i, true);
             }
         }
     }
 
-    protected void handleChildAdded(KrollProxy child, int index) {
+    protected void handleChildAdded(KrollProxy child, final int index) {
         child.setActivity(getActivity());
     }
 
-    protected void handleChildRemoved(KrollProxy child,
+    protected void handleChildRemoved(final KrollProxy child, final int index,
             final boolean shouldDetach) {
-        if (child != null) {
-            if (shouldDetach && child instanceof TiViewProxy) {
-                ((TiViewProxy) child).releaseViews(shouldDetach);
-            }
-            child.setActivity(null);
-            if (child instanceof ParentingProxy) {
-                ((ParentingProxy) child).setParent(null);
-            }
+        if (child == null) return;
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    handleChildRemoved(child, shouldDetach);
+                }
+            });
+            return;
+        }
+        if (shouldDetach && child instanceof TiViewProxy) {
+            ((TiViewProxy) child).releaseViews(shouldDetach);
+        }
+        child.setActivity(null);
+        if (child instanceof ParentingProxy) {
+            ((ParentingProxy) child).setParent(null);
         }
         KrollRuntime.suggestGC();
+    }
+    
+    protected void handleChildRemoved(KrollProxy child, final boolean shouldDetach) {
+        handleChildRemoved(child, -1, shouldDetach);
     }
 
     @Override
@@ -389,6 +416,14 @@ public class ParentingProxy extends KrollProxy {
             return new KrollProxy[0];
         synchronized (children) {
             return children.toArray(new KrollProxy[children.size()]);
+        }
+    }
+    
+    public int getChildrenCount() {
+        if (children == null)
+            return 0;
+        synchronized (children) {
+            return children.size();
         }
     }
 
@@ -461,6 +496,8 @@ public class ParentingProxy extends KrollProxy {
                 obj.updateKrollObjectProperties();
                 return addProxyToHold(obj, key);
             }
+        } else if(arg == null) {
+            removeHoldedProxy(key);
         }
         return null;
     }
