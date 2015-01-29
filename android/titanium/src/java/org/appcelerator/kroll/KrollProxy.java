@@ -1525,6 +1525,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public KrollDict getProperties() {
         return properties;
     }
+    
+    public KrollDict getClonedProperties() {
+        KrollDict props = null;
+        synchronized (properties) {
+            props = (KrollDict) properties.clone();
+        }
+        return props;
+    }
 
     /**
      * @return the KrollModule that this proxy was created in.
@@ -1561,13 +1569,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
         case MSG_MODEL_PROCESS_PROPERTIES: {
             if (modelListener != null) {
-                KrollDict props = null;
-                synchronized (properties) {
-                    props = (KrollDict) properties.clone();
-                }
-                if (modelListener != null) {
-                    modelListener.get().processProperties(props);
-                }
+                modelListener.get().processProperties(getClonedProperties());
             }
             return true;
         }
@@ -1719,11 +1721,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             this.modelListener = new WeakReference<KrollProxyListener>(modelListener);
             if (applyProps) {
                 if (!mProcessInUIThread || TiApplication.isUIThread()) {
-                    KrollDict props = null;
-                    synchronized (properties) {
-                        props = (KrollDict) properties.clone();
-                    }
-                    modelListener.processProperties(props);
+                    modelListener.processProperties(getClonedProperties());
                 } else {
                     getMainHandler().sendEmptyMessage(MSG_MODEL_PROCESS_PROPERTIES);
                 }
@@ -2021,7 +2019,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void reloadProperties() {
         if (modelListener != null) {
             synchronized (properties) {
-                modelListener.get().processProperties(getProperties());
+                modelListener.get().processProperties(getClonedProperties());
             }
         }
     }
