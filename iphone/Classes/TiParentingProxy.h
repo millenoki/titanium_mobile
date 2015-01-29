@@ -40,6 +40,7 @@
 
 -(void)addProxy:(id)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout;
 - (TiProxy *)createChildFromObject:(id)object;
+- (TiProxy *)createChildFromObject:(id)object rootProxy:(TiParentingProxy*)rootProxy;
 
 /**
  Tells the view proxy to remove a child proxy.
@@ -64,6 +65,7 @@
  */
 -(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiProxy*)child;
 -(BOOL)containsChild:(TiProxy*)child;
+-(TiProxy*)childAt:(NSInteger)index;
 -(NSUInteger)childrenCount;
 -(void)runBlock:(void (^)(TiProxy* proxy))block recursive:(BOOL)recursive;
 -(void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object;
