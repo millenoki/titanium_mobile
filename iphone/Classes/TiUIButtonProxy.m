@@ -180,6 +180,7 @@
     if (view != nil)
         [(TiUIButton*)view setPadding:_padding];
     [self contentsWillChange];
+    [self replaceValue:value forKey:@"padding" notification:NO];
 }
 
 -(void)configurationSet
