@@ -64,23 +64,19 @@ public abstract class TiUIPicker extends TiUIView
 		}
 	}
 	
+    
     @Override
-    public void propertySet(String key, Object newValue, Object oldValue,
-            boolean changedProperty) {
-        switch (key) {
-        case TiC.PROPERTY_SELECTED_ROW:
-            if (newValue instanceof Object[]) {
-                Object[] params = (Object[])newValue;
+    public void didRealize() {
+        if (proxy.hasProperty(TiC.PROPERTY_SELECTED_ROW)) {
+            Object value = proxy.getProperty(TiC.PROPERTY_SELECTED_ROW);
+            if (value instanceof Object[]) {
+                Object[] params = (Object[])value;
                 if (params.length == 2) {
                     selectRow(TiConvert.toInt(params[0]), TiConvert.toInt(params[1]), false);
                 } else if (params.length >= 3) {
                     selectRow(TiConvert.toInt(params[0]), TiConvert.toInt(params[1]), TiConvert.toBoolean(params[2]));
                 }
             }
-            break;
-        default:
-            super.propertySet(key, newValue, oldValue, changedProperty);
-            break;
         }
     }
 }
