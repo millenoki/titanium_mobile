@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_UILISTVIEW
 #import "TiTableView.h"
 #import "TiBase.h"
 #import "TiUIListView.h"
@@ -88,3 +89,5 @@
 }
 
 @end
+
+#endif

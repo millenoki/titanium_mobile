@@ -5,9 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifdef USE_TI_UILISTVIEW
 #import "TouchDelegate_Views.h"
 
 @interface TiTableView : TDUITableView
 -(BOOL)shouldHighlightCurrentListItem;
 -(CGPoint) touchPoint;
 @end
+#endif
