@@ -7,11 +7,6 @@
 
 package ti.modules.titanium.ui.widget.picker;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -124,7 +119,7 @@ public class TiUISpinner extends TiUIPicker
         switch (key) {
         case TiC.PROPERTY_VISIBLE_ITEMS:
         case TiC.PROPERTY_SELECTION_INDICATOR:
-            propagateProperty(key, TiConvert.toInt(newValue));
+            propagateProperty(key, newValue);
             if (changedProperty && TiC.PROPERTY_VISIBLE_ITEMS.equals(key)) {
                 forceRequestLayout();
             }
@@ -145,6 +140,9 @@ public class TiUISpinner extends TiUIPicker
 			child.getProxy().setPropertyAndFire(TiC.PROPERTY_SELECTION_INDICATOR, TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SELECTION_INDICATOR)));
 		}
 		super.add(child, index);
+		if (child instanceof TiUISpinnerColumn) {
+            ((TiUISpinnerColumn)child).refreshNativeView();
+        }
 	}
 	public void forceRequestLayout()
 	{

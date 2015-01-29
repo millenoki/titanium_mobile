@@ -8,7 +8,9 @@ package ti.modules.titanium.ui.widget.picker;
 
 import java.util.ArrayList;
 
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.PickerProxy;
@@ -61,4 +63,24 @@ public abstract class TiUIPicker extends TiUIView
 			selectRow(colnum, rownum, false);
 		}
 	}
+	
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_SELECTED_ROW:
+            if (newValue instanceof Object[]) {
+                Object[] params = (Object[])newValue;
+                if (params.length == 2) {
+                    selectRow(TiConvert.toInt(params[0]), TiConvert.toInt(params[1]), false);
+                } else if (params.length >= 3) {
+                    selectRow(TiConvert.toInt(params[0]), TiConvert.toInt(params[1]), TiConvert.toBoolean(params[2]));
+                }
+            }
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
 }

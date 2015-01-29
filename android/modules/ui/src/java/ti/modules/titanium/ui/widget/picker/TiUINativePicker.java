@@ -13,6 +13,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -22,7 +23,6 @@ import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.support.v7.internal.widget.TintSpinner;
 import android.view.MotionEvent;
 import android.view.View;
@@ -141,20 +141,29 @@ public class TiUINativePicker extends TiUIPicker
 	}
 
 	@Override
-	public void selectRow(int columnIndex, int rowIndex, boolean animated)
+	public void selectRow(final int columnIndex, final int rowIndex, final boolean animated)
 	{
 		// At the moment we only support one column.
 		if (columnIndex != 0) {
 			Log.w(TAG, "Only one column is supported. Ignoring request to set selected row of column " + columnIndex);
 			return;
 		}
-        Spinner spinner = getSpinner();
+        final Spinner spinner = getSpinner();
 		int rowCount = spinner.getAdapter().getCount();
 		if (rowIndex < 0 || rowIndex >= rowCount) {
 			Log.w(TAG, "Ignoring request to select out-of-bounds row index " + rowIndex);
 			return;
 		}
-		spinner.setSelection(rowIndex, animated);
+		if (TiApplication.isUIThread()) {
+	        spinner.setSelection(rowIndex, animated);
+        } else {
+            proxy.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    spinner.setSelection(rowIndex, animated);
+                }
+            });
+        }
 	}
 	
 	@Override

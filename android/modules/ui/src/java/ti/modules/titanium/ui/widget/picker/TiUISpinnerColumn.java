@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import kankan.wheel.widget.WheelView;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -23,7 +23,6 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import ti.modules.titanium.ui.PickerRowProxy;
-import ti.modules.titanium.ui.widget.picker.TiUINativePicker.TiSpinnerAdapter;
 
 public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelectedListener
 {
@@ -119,7 +118,9 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		if (nativeView instanceof WheelView) {
 			view = (WheelView)nativeView;
 		} else {
-			view = new WheelView(proxy.getActivity());
+			view = new WheelView(proxy.getActivity()) {
+			    
+			};
 			Float defaultFontSize = new Float(TiUIHelper.getSize(TiUIHelper.getDefaultFontSize(proxy.getActivity())));
 			view.setTextSize(defaultFontSize.intValue());
 			setNativeView(view);
@@ -143,15 +144,24 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 		view.setAdapter(adapter);
 	}
 	
-	public void selectRow(int rowIndex)
+	public void selectRow(final int rowIndex)
 	{
 		if (nativeView instanceof WheelView) {
-			WheelView view = (WheelView)nativeView;
+			final WheelView view = (WheelView)nativeView;
 			if (rowIndex < 0 || rowIndex >= view.getAdapter().getItemsCount()) {
 				Log.w(TAG, "Ignoring attempt to select out-of-bound row index " + rowIndex);
 				return;
 			}
-			view.setCurrentItem(rowIndex);
+			if (TiApplication.isUIThread()) {
+	            view.setCurrentItem(rowIndex);
+	        } else {
+	            proxy.getActivity().runOnUiThread(new Runnable() {
+	                @Override
+	                public void run() {
+	                    view.setCurrentItem(rowIndex);
+	                }
+	            });
+	        }
 		}
 	}
 
