@@ -275,7 +275,7 @@ public class NetworkModule extends KrollModule {
 
 		ConnectivityManager cm = getConnectivityManager();
 		if (cm != null) {
-			NetworkInfo ni = getConnectivityManager().getActiveNetworkInfo();
+			NetworkInfo ni = cm.getActiveNetworkInfo();
 
 			if(ni != null && ni.isAvailable() && ni.isConnected()) {
 				result = true;
