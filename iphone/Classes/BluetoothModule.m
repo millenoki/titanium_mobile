@@ -6,6 +6,7 @@
  */
 
 
+#ifdef USE_TI_BLUETOOTH
 #import "BluetoothModule.h"
 #import <ExternalAccessory/ExternalAccessory.h>
 
@@ -145,3 +146,5 @@
 }
 
 @end
+
+#endif
