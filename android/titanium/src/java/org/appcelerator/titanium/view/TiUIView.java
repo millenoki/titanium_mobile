@@ -1563,6 +1563,10 @@ public abstract class TiUIView
 		}
 	}
 	
+	protected void setPointerDown(final boolean value) {
+	    pointerDown = value;
+	}
+	
 	private int pointersDown = 0;
 	private boolean pointerDown = false;
 	public boolean customInterceptTouchEvent(MotionEvent event) {
@@ -1589,12 +1593,12 @@ public abstract class TiUIView
 		if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL
 				|| action == MotionEvent.ACTION_OUTSIDE) {
 			lastUpEvent = event;
-			pointerDown = false;
+			setPointerDown(false);
 		}
 
 		if (action == MotionEvent.ACTION_DOWN ) {
 			lastDownEvent = event;
-			pointerDown = true;
+            setPointerDown(true);
 		}
 
 		scaleDetector.onTouchEvent(event);
