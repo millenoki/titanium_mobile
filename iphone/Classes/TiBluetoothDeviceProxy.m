@@ -11,7 +11,8 @@
 #import "TiUtils.h"
 #import "TiBlob.h"
 
-#define DATA_CHUNK_SIZE     (1024)
+#define DATA_CHUNK_SIZE     (64)
+#define BUFSIZE 65536U
 
 @implementation TiBluetoothDeviceProxy
 {
@@ -29,15 +30,12 @@
         [self throwException:@"Invalid argument passed to protocol property" subreason:@"You must pass a protocol String" location:CODELOCATION];
     }
     _protocolString = [[TiUtils stringValue:arg] retain];
+    _outbuf = [NSMutableData new];
     [super _initWithProperties:properties];
 }
 
--(void)connect:(id)args
+-(EAAccessory*)accessory
 {
-    if (_session) {
-        return;
-    }
-    
     if (!_accessory) {
         NSArray *accList = [[EAAccessoryManager sharedAccessoryManager] connectedAccessories];
         for(EAAccessory *acc in accList) {
@@ -47,16 +45,29 @@
                 break;
             }
         }
-        if (!_accessory) {
-            return;
+        if (_accessory) {
+            _accessory.delegate = self;
         }
-        _accessory.delegate = self;
     }
-   
-    _session = [[EASession alloc] initWithAccessory:_accessory forProtocol:_protocolString];
+    return _accessory;
+}
+
+-(void)connect:(id)args
+{
+    if (_session) {
+        return;
+    }
+
+    if ([self accessory]) {
+        _session = [[EASession alloc] initWithAccessory:_accessory forProtocol:_protocolString];
+    } else {
+        [self fireEvent:@"error" withObject:[TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"Accessory not found for protocol %@",_protocolString]]];
+        return NO;
+    }
     
     if(!_session) {
         NSLog(@"Couldn't create session!");
+        [self fireEvent:@"error" withObject:[TiUtils dictionaryWithCode:-1 message:[NSString stringWithFormat:@"Couldn't create session. Did you add the protocol \"%@\" to the Info.plist?",_protocolString]]];
         return NO;
     }
     
@@ -65,12 +76,15 @@
     [_session.inputStream setDelegate:self];
     
     // Schedule stream I/O in the current runloop
-    [_session.inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-    [_session.outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+    [_session.inputStream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    [_session.outputStream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     
     // Open fire
     [_session.inputStream open];
     [_session.outputStream open];
+    if (_session.inputStream.streamStatus == NSStreamStatusOpen) {
+        [self fireEvent:@"connected"];
+    }
 }
 
 -(void)disconnect:(id)args
@@ -81,83 +95,137 @@
     [self fireEvent:@"disconnected"];
     if (_session) {
         [[_session inputStream] close];
-        [[_session inputStream] removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+        [[_session inputStream] removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
         [[_session inputStream] setDelegate:nil];
         [[_session outputStream] close];
-        [[_session outputStream] removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+        [[_session outputStream] removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
         [[_session outputStream] setDelegate:nil];
         RELEASE_TO_NIL(_session);
     }
-    RELEASE_TO_NIL(_accessory)
 }
 -(id)connected
 {
-    if (_accessory) {
-        return NUMBOOL([_accessory isConnected]);
+    if (_session) {
+        return NUMBOOL(YES);
     }
     return NUMBOOL(NO);
 }
 
+-(id)paired
+{
+//    if (_accessory && _session) {
+        return NUMBOOL([[self accessory] isConnected]);
+//    }
+//    return NUMBOOL(NO);
+}
+
 -(id)connectionID
 {
-    if (_accessory) {
-        return NUMUINTEGER([_accessory connectionID]);
-    }
-    return NUMUINTEGER(-1);
+//    if (_accessory) {
+        return NUMUINTEGER([[self accessory] connectionID]);
+//    }
+//    return NUMUINTEGER(-1);
 }
 
 -(id)manufacturer
 {
-    if (_accessory) {
-        return [_accessory manufacturer];
-    }
-    return nil;
+//    if (_accessory) {
+        return [[self accessory] manufacturer];
+//    }
+//    return nil;
 }
 
 -(id)modelNumber
 {
-    if (_accessory) {
-        return [_accessory modelNumber];
-    }
-    return nil;
+//    if (_accessory) {
+        return [[self accessory] modelNumber];
+//    }
+//    return nil;
 }
 
 -(id)serialNumber
 {
-    if (_accessory) {
-        return [_accessory serialNumber];
-    }
-    return nil;
+//    if (_accessory) {
+        return [[self accessory] serialNumber];
+//    }
+//    return nil;
 }
 
 -(id)firmwareRevision
 {
-    if (_accessory) {
-        return [_accessory firmwareRevision];
-    }
-    return nil;
+//    if (_accessory) {
+        return [[self accessory] firmwareRevision];
+//    }
+//    return nil;
 }
 
 -(id)hardwareRevision
 {
-    if (_accessory) {
-        return [_accessory hardwareRevision];
+//    if (_accessory) {
+        return [[self accessory] hardwareRevision];
+//    }
+//    return nil;
+}
+
+-(NSData *)dataWithContentsOfStream:(NSInputStream *)input initialCapacity:(NSUInteger)capacity error:(NSError **)error {
+    size_t bufsize = MIN(BUFSIZE, capacity);
+    uint8_t * buf = malloc(bufsize);
+    if (buf == NULL) {
+        if (error) {
+            *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:ENOMEM userInfo:nil];
+        }
+        return nil;
     }
-    return nil;
+    
+    NSMutableData* result = capacity == NSUIntegerMax ? [NSMutableData data] : [NSMutableData dataWithCapacity:capacity];
+    @try {
+        while ([input hasBytesAvailable]) {
+            NSInteger n = [input read:buf maxLength:bufsize];
+            if (n < 0) {
+                result = nil;
+                if (error) {
+                    *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:errno userInfo:nil];
+                }
+                break;
+            }
+            else if (n == 0) {
+                break;
+            }
+            else {
+                [result appendBytes:buf length:n];
+            }
+        }
+    }
+    @catch (NSException * exn) {
+        NSLog(@"Caught exception writing to file: %@", exn);
+        result = nil;
+        if (error) {
+            *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:EIO userInfo:nil];
+        }
+    }
+    
+    free(buf);
+    return result;
 }
 
 // This is called when we get an incoming data event. Notify the appDelegate that we have data to print.
 - (void)handleIncoming:(NSInputStream*)stream {
-    while ([stream hasBytesAvailable]) {
-        unsigned char buf[DATA_CHUNK_SIZE];
-        NSUInteger len;
-        len = [stream read:buf maxLength:DATA_CHUNK_SIZE];
-        if(len>0) {
-            [self fireEvent:@"read" withObject:@{
-                                                 @"length":NUMUINTEGER(len),
-                                                 @"data":[NSString stringWithCString:(const char*)buf encoding:NSUTF8StringEncoding]}];
-        }
+    NSError* error = nil;
+    NSData* result = [self dataWithContentsOfStream:stream initialCapacity:DATA_CHUNK_SIZE error:&error];
+    if (error) {
+        [self fireEvent:@"error" withObject:[TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]]];
+    } else if (result.length > 0) {
+        [self fireEvent:@"read" withObject:@{
+                                             @"timestamp":NUMDOUBLE([[NSDate date] timeIntervalSince1970]*1000),
+                                             @"length":NUMUINTEGER(result.length),
+                                             @"data":[[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease]}];
     }
+//        unsigned char buf[DATA_CHUNK_SIZE];
+//        NSUInteger len;
+//        len = [stream read:buf maxLength:DATA_CHUNK_SIZE];
+//        if(len>0) {
+//            
+//        }
 }
 
 - (void)handleSpace:(NSOutputStream*)stream {
@@ -166,8 +234,15 @@
         NSLog(@"handleSpace: streamStatus invalid!");
         return;
     }
-    NSInteger done = [_session.outputStream write:[_outbuf bytes] maxLength:[_outbuf length]];
-    if(done > 0) [_outbuf replaceBytesInRange:NSMakeRange(0, done) withBytes:nil length:0]; // Remove sent bytes from buffer
+    
+    @try {
+        NSInteger done = [_session.outputStream write:[_outbuf bytes] maxLength:[_outbuf length]];
+        if(done > 0) [_outbuf replaceBytesInRange:NSMakeRange(0, done) withBytes:nil length:0]; // Remove sent bytes from buffer
+    }
+    @catch (NSException * exn) {
+        NSLog(@"Caught exception writing to stream: %@", exn);
+    }
+    
 }
 
 - (void)sendData:(uint8_t*)data length:(NSUInteger)len {
@@ -177,8 +252,26 @@
     }
 }
 
--(void)write:(id)args
+- (void)sendData:(NSData*)data {
+    [_outbuf appendData:data];
+    if([_session.outputStream hasSpaceAvailable]) {
+        [self handleSpace:_session.outputStream];
+    }
+
+}
+
+-(void)send:(id)args
 {
+    
+    ENSURE_SINGLE_ARG(args, NSObject)
+    if ([args isKindOfClass:[TiBlob class]]) {
+        TiBlob *blob = (TiBlob*)args;
+        [self sendData:blob.data];
+    }
+    else if ([args isKindOfClass:[NSString class]]) {
+        // called within this class
+        [self sendData: [args dataUsingEncoding:NSUTF8StringEncoding]];
+    }
 //    TiStreamProxy<TiStreamInternal>* stream = nil;
 //    ENSURE_ARG_AT_INDEX(stream, args, 0, TiStreamProxy);
 //    
@@ -200,15 +293,18 @@
         return;
     }
     
-    if(stream == _session.inputStream && event & NSStreamEventHasBytesAvailable)
+    if(stream == _session.inputStream && event & NSStreamEventHasBytesAvailable) {
         [self handleIncoming:(NSInputStream*) stream];
+    }
     
-    if(stream == _session.outputStream && event & NSStreamEventHasSpaceAvailable)
+    if(stream == _session.outputStream && event & NSStreamEventHasSpaceAvailable) {
         [self handleSpace:(NSOutputStream*) stream];
+    }
 }
 
 - (void)dealloc {
     [self disconnect:nil];
+    RELEASE_TO_NIL(_accessory)
     RELEASE_TO_NIL(_protocolString)
     RELEASE_TO_NIL(_outbuf)
     [super dealloc];
@@ -217,6 +313,7 @@
 - (void)accessoryDidDisconnect:(EAAccessory *)accessory {
     if (accessory == _accessory) {
         [self disconnect:nil];
+        RELEASE_TO_NIL(_accessory)
     }
 }
 
