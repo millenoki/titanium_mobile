@@ -2680,10 +2680,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_SELECTED_COLOR = "selectedColor";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_SELECTED_INDEX = "selectedIndex";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SELECTED_INDEX = "selectedIndex";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SELECTED_ROW = "selectedRow";
 
 	/**
 	 * @module.api
