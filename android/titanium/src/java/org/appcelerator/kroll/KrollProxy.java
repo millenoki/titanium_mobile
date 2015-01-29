@@ -709,7 +709,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             message.sendToTarget();
         }
     }
-
+    
     public void updateKrollObjectProperties() {
         updateKrollObjectProperties(getProperties());
         propertiesToUpdateNativeSide = null;
@@ -1967,6 +1967,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         return createProxyFromTemplate(template_, rootProxy,
                 updateKrollProperties, true);
     }
+    
+    private static final String DEFAULT_TEMPLATE_TYPE = "Ti.UI.View";
+    protected String defaultProxyTypeFromTemplate() {
+        return DEFAULT_TEMPLATE_TYPE;
+    }
 
     @SuppressWarnings("unchecked")
     public KrollProxy createProxyFromTemplate(HashMap template_,
@@ -1975,8 +1980,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (template_ == null || template_.isEmpty()) {
             return null;
         }
-        String type = TiConvert.toString(template_, TiC.PROPERTY_TYPE,
-                "Ti.UI.View");
+        String type = TiConvert.toString(template_, TiC.PROPERTY_TYPE, defaultProxyTypeFromTemplate());
         Object props = (template_.containsKey(TiC.PROPERTY_PROPERTIES)) ? template_
                 .get(TiC.PROPERTY_PROPERTIES) : template_;
         try {
