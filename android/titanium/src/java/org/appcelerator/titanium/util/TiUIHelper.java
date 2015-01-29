@@ -79,6 +79,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -1703,5 +1707,20 @@ public class TiUIHelper
 			}
 		}
 		return mUri;
+	}
+	
+	public static FragmentTransaction transactionFragment(final Fragment fragment, final View container, final FragmentActivity activity) {
+	    FragmentManager manager = activity.getSupportFragmentManager();
+        Fragment tabFragment = manager.findFragmentById(android.R.id.tabcontent);
+        // check if is opened inside an actionbar tab, which is
+        // another fragment
+        if (tabFragment != null) {
+            manager = tabFragment.getChildFragmentManager();
+        }
+        FragmentTransaction transaction = null;
+        transaction = manager.beginTransaction();
+        transaction.add(container.getId(), fragment);
+        transaction.commit();
+        return transaction;
 	}
 }
