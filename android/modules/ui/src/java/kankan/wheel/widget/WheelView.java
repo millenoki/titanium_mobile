@@ -225,7 +225,7 @@ public class WheelView extends View {
 			valueLayout = null;
 			currentItem = index;
 			invalidate();
-			if (this.itemSelectedListener != null) {
+			if (!pointerDown && this.itemSelectedListener != null) {
 				itemSelectedListener.onItemSelected(this, index);
 			}
 		}
@@ -651,14 +651,27 @@ public class WheelView extends View {
 		centerDrawable.setBounds(0, center - offset, getWidth(), center + offset);
 		centerDrawable.draw(canvas);
 	}
-
+	
+	private boolean pointerDown = false;
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		WheelAdapter adapter = getAdapter();
 		if (adapter == null) {
 			return true;
 		}
-		
+		int action = event.getAction();
+		if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL
+                || action == MotionEvent.ACTION_OUTSIDE) {
+		    pointerDown = false;
+            if (this.itemSelectedListener != null) {
+                itemSelectedListener.onItemSelected(this, currentItem);
+            }
+        }
+
+        if (action == MotionEvent.ACTION_DOWN ) {
+            pointerDown = true;
+
+        }
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 			lastYTouch = event.getY();
