@@ -25,7 +25,7 @@
 {
 	if (size < 4) 
 	{
-		size=14;
+		size=[UIFont labelFontSize];
 	}
 	return size;
 }
