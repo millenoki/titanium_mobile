@@ -49,7 +49,7 @@
                 [(TiViewProxy*)self.proxy refreshViewOrParent];
             }
             else {
-                [(TiViewProxy*)self.proxy contentsWillChange];
+                [(TiViewProxy*)self.proxy willChangeSize];
             }
 //        }
     }

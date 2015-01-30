@@ -602,6 +602,7 @@ enum
  Perform a block while preventing relayout
  */
 -(void)performBlockWithoutLayout:(void (^)(void))block;
+-(void)performLayoutBlockAndRefresh:(void (^)(void))block;
 
 /**
  Make the view dirty so that it will get refreshed on the next run

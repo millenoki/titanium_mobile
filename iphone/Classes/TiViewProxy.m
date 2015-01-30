@@ -2543,6 +2543,11 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     allowContentChange = YES;
     [self refreshViewOrParent];
 }
+-(void)performLayoutBlockAndRefresh:(void (^)(void))block
+{
+    [self performBlockWithoutLayout:block];
+    [self refreshViewOrParent];
+}
 
 -(void)contentsWillChangeAnimated:(NSTimeInterval)duration
 {
