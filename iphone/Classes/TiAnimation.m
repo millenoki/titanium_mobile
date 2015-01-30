@@ -68,7 +68,7 @@ static NSArray *animProps;
 -(void)setCallBack:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
 {
     RELEASE_TO_NIL(callback);
-    if (context_ != nil) {
+    if (context_ != nil && callback_ != nil) {
         callback = [[ListenerEntry alloc] initWithListener:callback_ context:context_ proxy:self];
     }
 }
