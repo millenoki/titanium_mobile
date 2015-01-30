@@ -1364,8 +1364,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setAnchorPoint_:(id)point
 {
 	CGPoint anchorPoint = [TiUtils pointValue:point];
-    self.layer.anchorPoint = anchorPoint;
-    [(TiViewProxy*)[self proxy] willChangePosition];
+    [[self viewProxy] performLayoutBlockAndRefresh:^{
+        //setting the anchorPoint will immediately call for a layout
+        self.layer.anchorPoint = anchorPoint;
+        [(TiViewProxy*)[self proxy] willChangePosition];
+    }];
 }
 
 -(void)setTransform_:(id)transform_
