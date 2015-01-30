@@ -240,9 +240,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			//Handling templates
 			AbsListItemData item = section.getListItem(sectionItemIndex);
 			TiAbsListViewTemplate template = getTemplate(item.getTemplate());
+			int itemViewType = template.getType();
 			
 			TiBaseAbsListViewItem itemContent = null;
-			if (content != null && content.getId() != HEADER_FOOTER_WRAP_ID) {
+			if (content != null && content.getId() != HEADER_FOOTER_WRAP_ID && (int)content.getTag() == itemViewType) {
 				itemContent = (TiBaseAbsListViewItem) content.findViewById(listContentId);
 				if (itemContent == null) {
 				    return content;
@@ -254,6 +255,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 				section.populateViews(item, itemContent, template, sectionItemIndex, sectionIndex, content, reusing);
 			} else {
 				content = new TiBaseAbsListViewItemHolder(getContext());
+				content.setTag(itemViewType);
 				itemContent = (TiBaseAbsListViewItem) content.findViewById(listContentId);
 				setBoundsForBaseItem(itemContent);
 
