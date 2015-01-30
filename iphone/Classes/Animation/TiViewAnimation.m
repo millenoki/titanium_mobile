@@ -272,12 +272,13 @@ doReposition = YES;\
     {
         TiUIView *uiview = (TiUIView*)_view;
         
+        [self applyLayoutConstraintsForStep:step];
+        
         if (transformDefined == YES)
         {
             [uiview setTransform_:transform];
         }
         
-        [self applyLayoutConstraintsForStep:step];
         
         if (zIndex!=nil)
         {
