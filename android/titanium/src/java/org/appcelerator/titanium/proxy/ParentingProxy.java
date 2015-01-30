@@ -148,11 +148,13 @@ public class ParentingProxy extends KrollProxy {
             children = new ArrayList<KrollProxy>();
         }
         int realIndex = index;
+        synchronized (children) {
+            children.remove(child);
+        }
         if(index < 0 || index > children.size()) {
             realIndex = children.size();
         }
         synchronized (children) {
-            children.remove(child);
             children.add(realIndex, child);
         }
 
