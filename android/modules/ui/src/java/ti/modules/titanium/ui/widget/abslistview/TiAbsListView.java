@@ -304,7 +304,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		    mCounted = false;
 //		    mSectionInfoCache.clear();
 		    if (listView != null) {
-		     // save index and top position
+		        // save index and top position
 	            int index = listView.getFirstVisiblePosition();
 	            View v = listView.getListChildAt(0);
 	            int top = (v == null) ? 0 : v.getTop();
@@ -1088,7 +1088,6 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	}
 
 	protected void processSections(Object[] sections) {
-        Log.d(TAG, "processSections");
 		synchronized (this.sections) {
 		    this.sections.clear();
 	        for (int i = 0; i < sections.length; i++) {
@@ -1126,7 +1125,6 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
     }
 	
 	protected void processSection(Object sec, int index) {
-	    Log.d(TAG, "processSection " + index);
 		if (sec instanceof AbsListSectionProxy) {
 			AbsListSectionProxy section = (AbsListSectionProxy) sec;
             section.setListView(this);
