@@ -1514,6 +1514,7 @@ static NSDictionary* replaceKeysForRow;
     } else {
         TiViewProxy* child = [theSection sectionViewForLocation:@"headerView" inCollectionView:self];
         if (child && !child.parent) {
+            //view is retained by the collectionView
             TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
             id<TiEvaluator> context = self.listViewProxy.executionContext;
             if (context == nil) {
@@ -1534,11 +1535,9 @@ static NSDictionary* replaceKeysForRow;
             view.proxy.indexPath = realIndexPath;
             return view;
         } else if (child) {
+            //view is retained by the collectionView
             TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
-            TiUICollectionWrapperViewProxy *viewProxy = (TiUICollectionWrapperViewProxy*)child.parent;
-            viewProxy.wrapperView = view ;
-//            [view initWithProxy:viewProxy];
-            viewProxy.indexPath = realIndexPath;
+            [view updateProxy:(TiUICollectionWrapperViewProxy*)child.parent forIndexPath:realIndexPath];
             return view;
         }
     }

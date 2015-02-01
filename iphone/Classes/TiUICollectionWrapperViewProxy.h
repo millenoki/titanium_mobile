@@ -20,7 +20,6 @@
 - (id)initWithCollectionViewProxy:(TiUICollectionViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context;
 - (NSDictionary *)bindings;
 - (void)setDataItem:(NSDictionary *)dataItem;
--(void)cleanup;
 
 -(void)deregisterProxy:(id<TiEvaluator>)context;
 @end

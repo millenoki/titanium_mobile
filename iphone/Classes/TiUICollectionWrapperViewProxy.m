@@ -100,14 +100,13 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     //    RELEASE_TO_NIL(_listItem);
     
     if (_wrapperView && wrapperView) {
-        wrapperView.viewHolder = view;
-        RELEASE_TO_NIL(_wrapperView)
-        _wrapperView = [wrapperView retain];
+        _wrapperView = wrapperView;
+        self.view = wrapperView.viewHolder;
     }
     else if (wrapperView)
     {
-        _wrapperView = [wrapperView retain];
-        view = wrapperView.viewHolder;
+        _wrapperView = wrapperView;
+        self.view = wrapperView.viewHolder;
         [view initializeState];
         viewInitialized = YES;
         parentVisible = YES;
@@ -115,8 +114,8 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         windowOpened = YES;
     }
     else {
-        RELEASE_TO_NIL(_wrapperView)
-        view = nil;
+        _wrapperView = nil;
+        self.view = nil;
         viewInitialized = NO;
         parentVisible = NO;
         readyToCreateView = NO;
@@ -145,7 +144,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 - (void)detachView
 {
-    view = nil;
     [super detachView];
 }
 

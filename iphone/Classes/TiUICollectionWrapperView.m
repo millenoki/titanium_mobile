@@ -36,13 +36,13 @@ DEFINE_EXCEPTIONS
 
 - (id)initWithProxy:(TiUICollectionWrapperViewProxy *)proxy
 {
+    //we are retained by the collectionView
     _proxy = [proxy retain];
-    self.viewHolder = [[TiUIView alloc] initWithFrame:self.bounds];
+    self.viewHolder = [[[TiUIView alloc] initWithFrame:self.bounds] autorelease];
     _viewHolder.shouldHandleSelection = NO;
     [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
     [_viewHolder setClipsToBounds: YES];
     [_viewHolder.layer setMasksToBounds: YES];
-        //    [_viewHolder selectableLayer].animateTransition = YES;
     [self initialize];
 }
 
@@ -55,7 +55,16 @@ DEFINE_EXCEPTIONS
     }
     _viewHolder = [viewHolder retain];
     _viewHolder.proxy = _proxy;
+    _viewHolder.frame = self.bounds;
     [self addSubview:_viewHolder];
+}
+
+-(void)updateProxy:(TiUICollectionWrapperViewProxy *)viewProxy forIndexPath:(NSIndexPath*)indexPath
+{
+    self.proxy = viewProxy;
+    self.viewHolder = viewProxy.view;
+    viewProxy.wrapperView = self ;
+    viewProxy.indexPath = indexPath;
 }
 
 -(void) initialize
@@ -67,7 +76,6 @@ DEFINE_EXCEPTIONS
     self.opaque = NO;
     
     _proxy.wrapperView = self;
-    _proxy.modelDelegate = [self autorelease]; //without the autorelease we got a memory leak
     configurationSet = NO;
     [_proxy dirtyItAll];
 }
@@ -102,7 +110,6 @@ DEFINE_EXCEPTIONS
 
 - (void)prepareForReuse
 {
-    //	RELEASE_TO_NIL(_dataItem);
     [_proxy prepareForReuse];
     [super prepareForReuse];
 }
@@ -131,21 +138,31 @@ DEFINE_EXCEPTIONS
     [_proxy setDataItem:_dataItem];
 }
 
--(void)setFrame:(CGRect)frame
+-(void)checkBoundsForChange:(CGRect)bounds
 {
-    // this happens when a controller resizes its view
-    
-    if (!CGRectIsEmpty(frame))
+    if (!CGRectIsEmpty(bounds))
     {
         CGRect currentbounds = [_viewHolder bounds];
-        CGRect newBounds = CGRectMake(0, 0, frame.size.width, frame.size.height);
+        CGRect newBounds = CGRectMake(0, 0, bounds.size.width, bounds.size.height);
         if (!CGRectEqualToRect(newBounds, currentbounds))
         {
-            //            [(TiViewProxy*)self.proxy setSandboxBounds:newBounds];
+            [(TiViewProxy*)self.proxy setSandboxBounds:newBounds];
             [(TiViewProxy*)self.proxy dirtyItAll];
         }
     }
+}
+
+-(void)setFrame:(CGRect)frame
+{
+    [self checkBoundsForChange:frame];
     [super setFrame:frame];
+    
+}
+
+-(void)setBounds:(CGRect)bounds
+{
+    [self checkBoundsForChange:bounds];
+    [super setBounds:bounds];
     
 }
 

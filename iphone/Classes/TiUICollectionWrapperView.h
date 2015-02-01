@@ -14,11 +14,12 @@
 {
 }
 
-@property (nonatomic, readonly) TiUICollectionWrapperViewProxy *proxy;
+@property (nonatomic,readwrite,retain) TiUICollectionWrapperViewProxy *proxy;
 @property (nonatomic, retain) TiUIView *viewHolder;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
 
 - (id)initWithProxy:(TiUICollectionWrapperViewProxy *)proxy;
+-(void)updateProxy:(TiUICollectionWrapperViewProxy *)viewProxy forIndexPath:(NSIndexPath*)indexPath;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
 -(void)configurationStart;
