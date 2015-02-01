@@ -1214,15 +1214,14 @@ public class TiConvert
     public static Ti2DMatrix toMatrix(Object value)
     {
         if (value instanceof Ti2DMatrix) {
+            if (value.getClass() != Ti2DMatrix.class) {
+                return new Ti2DMatrix((Ti2DMatrix)value); // case of _2DMatrixProxy
+            }
             return (Ti2DMatrix)value;
-
         } else if (value instanceof HashMap) {
             return new Ti2DMatrix((HashMap)value);
         } else if (value instanceof String) {
             return new Ti2DMatrix((String)value);
-        }
-        else if (value != null && value.getClass().getSuperclass().equals(Ti2DMatrix.class)) {
-            return new Ti2DMatrix((Ti2DMatrix)value); // case of _2DMatrixProxy
         }
         return IDENTITY_MATRIX;
     }
