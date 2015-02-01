@@ -328,6 +328,7 @@ DEFINE_EXCEPTIONS
     RELEASE_TO_NIL(_viewHolder)
     RELEASE_TO_NIL(_dataItem)
     RELEASE_TO_NIL(_bgView)
+    RELEASE_TO_NIL(_bgSelectedView)
     RELEASE_TO_NIL(_proxy)
 	[super dealloc];
 }
