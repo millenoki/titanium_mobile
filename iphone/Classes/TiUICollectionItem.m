@@ -24,9 +24,6 @@
 	NSInteger _templateStyle;
 	NSDictionary *_dataItem;
     TiUIView* _viewHolder;
-    TiCellBackgroundView* _bgSelectedView;
-    TiCellBackgroundView* _bgView;
-    TiCap imageCap;
     BOOL _needsLayout;
     BOOL configurationSet;
     BOOL _unHighlightOnSelect;
@@ -50,18 +47,12 @@ DEFINE_EXCEPTIONS
         [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
         [_viewHolder setClipsToBounds: YES];
         [_viewHolder.layer setMasksToBounds: YES];
-        //    [_viewHolder selectableLayer].animateTransition = YES;
         [self.contentView addSubview:_viewHolder];
         [self initialize];
 }
 
 -(void) initialize
 {
-//    self.contentView.backgroundColor = [UIColor clearColor];
-//    if ([TiUtils isIOS7OrGreater]) {
-//        self.backgroundColor = [UIColor clearColor];
-//    }
-//    self.contentView.opaque = NO;
     _unHighlightOnSelect = YES;
     
     _proxy.listItem = self;
@@ -72,180 +63,13 @@ DEFINE_EXCEPTIONS
 
 -(void)configurationStart
 {
-    configurationSet = NO;
     [_viewHolder configurationStart];
-    if (_bgSelectedView) {
-        [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
-    }
-    if (_bgView) {
-        [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
-    }
 }
 
 -(void)configurationSet
 {
-	// can be used to trigger things after all properties are set
     configurationSet = YES;
     [_viewHolder configurationSet];
-    if (_bgSelectedView) {
-        [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
-    }
-    if (_bgView) {
-        [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
-    }
-}
-
-//TIMOB-17373. Workaround for separators disappearing on iOS7 and above
-//- (void) ensureVisibleSelectorWithTableView:(UICollectionView*)tableView
-//{
-//    if (![TiUtils isIOS7OrGreater] || [self selectedOrHighlighted]) {
-//        return;
-//    }
-//    UICollectionView* attachedTableView = tableView;
-//    UIView* superView = [self superview];
-//    while (attachedTableView == nil && superView != nil) {
-//        if ([superView isKindOfClass:[UICollectionView class]]) {
-//            attachedTableView = (UICollectionView*)superView;
-//        }
-//        superView = [superView superview];
-//    }
-//    
-//    if (attachedTableView != nil && attachedTableView.separatorStyle != UITableViewCellSeparatorStyleNone) {
-//        for (UIView *subview in self.contentView.superview.subviews) {
-//            if ([NSStringFromClass(subview.class) hasSuffix:@"SeparatorView"]) {
-//                subview.hidden = NO;
-//            }
-//        }
-//    }
-//}
-
--(TiCellBackgroundView*)getOrCreateSelectedBackgroundView
-{
-    if (_bgSelectedView != nil) {
-        return _bgSelectedView;
-    }
-    
-    self.selectedBackgroundView = [[[TiCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
-    _bgSelectedView = (TiCellBackgroundView*)self.selectedBackgroundView;
-    [_bgSelectedView selectableLayer].animateTransition = YES;
-    _bgSelectedView.alpha = self.contentView.alpha;
-
-    [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
-    return _bgSelectedView;
-}
-
--(void)setBackgroundView:(UIView*)view
-{
-    
-    [super setBackgroundView:view];
-    if (view == nil) {
-        RELEASE_TO_NIL(_bgView);
-    }
-    if (_bgView && ![view isKindOfClass:[TiCellBackgroundView class]]){
-        [_bgView setFrame:view.bounds];
-        [view addSubview:_bgView];
-    }
-}
-
--(TiCellBackgroundView*)getOrCreateBackgroundView
-{
-    if (_bgView == nil) {
-        _bgView = [[TiCellBackgroundView alloc] initWithFrame:CGRectZero];
-        if ([TiUtils isIOS7OrGreater]) {
-            self.backgroundView = _bgView;
-        }
-        else if(self.backgroundView !=nil){
-            [_bgView setFrame:self.backgroundView.bounds];
-            [self.backgroundView addSubview:_bgView];
-        }
-        _bgView.alpha = self.contentView.alpha;
-    }
-
-    return _bgView;
-}
-
--(void) setBackgroundGradient_:(id)newGradientDict
-{
-    TiGradient * newGradient = [TiGradient gradientFromObject:newGradientDict proxy:self.proxy];
-    [[self getOrCreateBackgroundView].selectableLayer setGradient:newGradient forState:UIControlStateNormal];
-}
-
--(void) setBackgroundSelectedGradient_:(id)newGradientDict
-{
-    TiGradient * newGradient = [TiGradient gradientFromObject:newGradientDict proxy:self.proxy];
-    [[self getOrCreateSelectedBackgroundView].selectableLayer setGradient:newGradient forState:UIControlStateNormal];
-}
-
--(void) setBackgroundColor_:(id)color
-{
-    UIColor* uicolor;
-	if ([color isKindOfClass:[UIColor class]])
-	{
-        uicolor = (UIColor*)color;
-	}
-	else
-	{
-		uicolor = [[TiUtils colorValue:color] _color];
-	}
-    [[self getOrCreateBackgroundView].selectableLayer setColor:uicolor forState:UIControlStateNormal];
-    
-}
-
--(void) setBackgroundSelectedColor_:(id)color
-{
-    UIColor* uiColor = [TiUtils colorValue:color].color;
-    [[self getOrCreateSelectedBackgroundView].selectableLayer setColor:uiColor forState:UIControlStateNormal];
-}
-
-
--(void)setImageCap_:(id)arg
-{
-    imageCap = [TiUtils capValue:arg def:TiCapUndefined];
-}
-
--(UIImage*)loadImage:(id)arg
-{
-    if (arg==nil) return nil;
-    UIImage *image = nil;
-	if (TiCapIsUndefined(imageCap)) {
-        image =  [TiUtils loadBackgroundImage:arg forProxy:_proxy];
-    }
-    else {
-        image =  [TiUtils loadBackgroundImage:arg forProxy:_proxy withCap:imageCap];
-    }
-	return image;
-}
-
--(void) setBackgroundImage_:(id)image
-{
-    UIImage* bgImage = [self loadImage:image];
-    [[self getOrCreateBackgroundView].selectableLayer setImage:bgImage forState:UIControlStateNormal];
-}
-
--(void) setBackgroundSelectedImage_:(id)image
-{
-    UIImage* bgImage = [self loadImage:image];
-    [[self getOrCreateSelectedBackgroundView].selectableLayer setImage:bgImage forState:UIControlStateNormal];
-}
-
--(void)setBackgroundOpacity_:(id)opacity
-{
-    [self getOrCreateBackgroundView].selectableLayer.opacity = [TiUtils floatValue:opacity def:1.0f];
-}
-
--(void)setOpacity_:(id)opacity
-{
- 	ENSURE_UI_THREAD_1_ARG(opacity);
-    
-	self.contentView.alpha = [TiUtils floatValue:opacity];
-    if (_bgView)
-    {
-        _bgView.alpha = self.contentView.alpha;
-    }
-    if (_bgSelectedView)
-    {
-        _bgSelectedView.alpha = self.contentView.alpha;
-    }
 }
 
 - (void)dealloc
@@ -259,14 +83,12 @@ DEFINE_EXCEPTIONS
     
     RELEASE_TO_NIL(_viewHolder)
     RELEASE_TO_NIL(_dataItem)
-    RELEASE_TO_NIL(_bgView)
     RELEASE_TO_NIL(_proxy)
 	[super dealloc];
 }
 
 - (void)prepareForReuse
 {
-//	RELEASE_TO_NIL(_dataItem);
     [_proxy prepareForReuse];
 	[super prepareForReuse];
 }
@@ -284,7 +106,7 @@ static NSArray* handledKeys;
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
 {
-    if (_templateStyle == TiUICollectionItemTemplateStyleCustom && [[self handledKeys] indexOfObject:key] == NSNotFound)
+    if ([[self handledKeys] indexOfObject:key] == NSNotFound)
     {
         DoProxyDelegateChangedValuesWithProxy(_viewHolder, key, oldValue, newValue, proxy_);
     } else {
@@ -369,9 +191,12 @@ static NSArray* handledKeys;
     _unHighlightOnSelect = [TiUtils boolValue:newValue def:YES];
 }
 
-- (BOOL) hasSwipeButtons {
-    return [self.proxy valueForKey:@"leftSwipeButtons"] || [self.proxy valueForKey:@"rightSwipeButtons"];
+-(void)touchSetHighlighted:(BOOL)highlighted
+{
+    if (!_unHighlightOnSelect) return;
+    [self setHighlighted:highlighted];
 }
+
 -(void)setFrame:(CGRect)frame
 {
 	// this happens when a controller resizes its view
@@ -405,16 +230,6 @@ static NSArray* handledKeys;
         }
     }
 }
-
-
-//override to get the correct backgroundColor
-//-(UIColor *) backgroundColorForSwipe
-//{
-//    if (self.swipeBackgroundColor) {
-//        return self.swipeBackgroundColor; //user defined color
-//    }
-//    return [[_bgView selectableLayer] getColorForState:UIControlStateNormal];
-//}
 
 @end
 

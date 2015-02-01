@@ -90,7 +90,7 @@
     
     NSInteger _currentSection;
     
-    BOOL _canSwipeCells;
+//    BOOL _canSwipeCells;
     BOOL _stickyHeaders;
 //    MGSwipeTableCell * _currentSwipeCell;
 }
@@ -124,7 +124,7 @@ static NSDictionary* replaceKeysForRow;
         searchViewAnimating = NO;
         _updateInsetWithKeyboard = NO;
         _currentSection = -1;
-        _canSwipeCells = NO;
+//        _canSwipeCells = NO;
         _hasPullView = NO;
         _stickyHeaders = NO;
     }
@@ -229,7 +229,7 @@ static NSDictionary* replaceKeysForRow;
 }
 
 -(void)reloadTableViewData {
-    _canSwipeCells = NO;
+//    _canSwipeCells = NO;
     [_tableView reloadData];
 }
 
@@ -1471,7 +1471,7 @@ static NSDictionary* replaceKeysForRow;
     
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
-    _canSwipeCells |= [cell hasSwipeButtons];
+//    _canSwipeCells |= [cell hasSwipeButtons];
     return cell;
 }
 

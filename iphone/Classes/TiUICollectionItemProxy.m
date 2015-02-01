@@ -206,10 +206,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 {
     //width is handled in the TiUICollectionView sizeForItemAtIndexPath
 }
-//-(void)setHeight:(id)value
-//{
-    //height is handled in the TiUICollectionView sizeForItemAtIndexPath
-//}
 
 -(void)setValue:(id)value forKeyPath:(NSString *)keyPath
 {
@@ -369,16 +365,16 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 - (void)buildBindingsForViewProxy:(TiProxy *)viewProxy intoDictionary:(NSMutableDictionary *)dict
 {
     NSInteger templateStyle = TiUICollectionItemTemplateStyleCustom;
-    if ([viewProxy isKindOfClass:[TiUICollectionItemProxy class]]) { //toplevel
-        TiUICollectionItem* CollectionItem = ((TiUICollectionItemProxy*)viewProxy).listItem;
-        templateStyle = (_listItem != nil)?_listItem.templateStyle:TiUICollectionItemTemplateStyleCustom;
-        [[self valueForKey:@"rightSwipeButtons"] enumerateObjectsUsingBlock:^(TiProxy *childViewProxy, NSUInteger idx, BOOL *stop) {
-            [self buildBindingsForViewProxy:childViewProxy intoDictionary:dict];
-        }];
-        [[self valueForKey:@"leftSwipeButtons"] enumerateObjectsUsingBlock:^(TiProxy *childViewProxy, NSUInteger idx, BOOL *stop) {
-            [self buildBindingsForViewProxy:childViewProxy intoDictionary:dict];
-        }];
-    }
+//    if ([viewProxy isKindOfClass:[TiUICollectionItemProxy class]]) { //toplevel
+//        TiUICollectionItem* CollectionItem = ((TiUICollectionItemProxy*)viewProxy).listItem;
+//        templateStyle = (_listItem != nil)?_listItem.templateStyle:TiUICollectionItemTemplateStyleCustom;
+//        [[self valueForKey:@"rightSwipeButtons"] enumerateObjectsUsingBlock:^(TiProxy *childViewProxy, NSUInteger idx, BOOL *stop) {
+//            [self buildBindingsForViewProxy:childViewProxy intoDictionary:dict];
+//        }];
+//        [[self valueForKey:@"leftSwipeButtons"] enumerateObjectsUsingBlock:^(TiProxy *childViewProxy, NSUInteger idx, BOOL *stop) {
+//            [self buildBindingsForViewProxy:childViewProxy intoDictionary:dict];
+//        }];
+//    }
     switch (templateStyle) {
         case UITableViewCellStyleSubtitle:
         case UITableViewCellStyleValue1:
@@ -505,53 +501,53 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return result;
 }
 
--(NSArray*)proxiesArrayFromValue:(id)value
-{
-    NSArray* buttons = nil;
-    if (IS_OF_CLASS(value, NSArray)) {
-        NSMutableArray* buttonProxies = [NSMutableArray arrayWithCapacity:[value count]];
-        [value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:obj];
-            if (viewproxy) {
-                [viewproxy setParent:self];
-                [buttonProxies addObject:viewproxy];
-            }
-        }];
-        buttons = [NSArray arrayWithArray:buttonProxies];
-    } else {
-        TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:value];
-        if (viewproxy) {
-            [viewproxy setParent:self];
-            buttons = [NSArray arrayWithObject:viewproxy];
-        }
-    }
-    SetEventOverrideDelegateRecursive(buttons, self);
-    return buttons;
-}
+//-(NSArray*)proxiesArrayFromValue:(id)value
+//{
+//    NSArray* buttons = nil;
+//    if (IS_OF_CLASS(value, NSArray)) {
+//        NSMutableArray* buttonProxies = [NSMutableArray arrayWithCapacity:[value count]];
+//        [value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//            TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:obj];
+//            if (viewproxy) {
+//                [viewproxy setParent:self];
+//                [buttonProxies addObject:viewproxy];
+//            }
+//        }];
+//        buttons = [NSArray arrayWithArray:buttonProxies];
+//    } else {
+//        TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:value];
+//        if (viewproxy) {
+//            [viewproxy setParent:self];
+//            buttons = [NSArray arrayWithObject:viewproxy];
+//        }
+//    }
+//    SetEventOverrideDelegateRecursive(buttons, self);
+//    return buttons;
+//}
 
--(void)setLeftSwipeButtons:(id)value
-{
-    id oldValue = [self valueForKey:@"leftSwipeButtons"];
-    if (oldValue) {
-        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
-            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
-            [self removeProxy:obj];
-        }];
-    }
-    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"leftSwipeButtons" notification:NO];
-}
-
--(void)setRightSwipeButtons:(id)value
-{
-    id oldValue = [self valueForKey:@"rightSwipeButtons"];
-    if (oldValue) {
-        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
-            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
-            [self removeProxy:obj];
-        }];
-    }
-    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"rightSwipeButtons" notification:NO];
-}
+//-(void)setLeftSwipeButtons:(id)value
+//{
+//    id oldValue = [self valueForKey:@"leftSwipeButtons"];
+//    if (oldValue) {
+//        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
+//            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
+//            [self removeProxy:obj];
+//        }];
+//    }
+//    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"leftSwipeButtons" notification:NO];
+//}
+//
+//-(void)setRightSwipeButtons:(id)value
+//{
+//    id oldValue = [self valueForKey:@"rightSwipeButtons"];
+//    if (oldValue) {
+//        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
+//            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
+//            [self removeProxy:obj];
+//        }];
+//    }
+//    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"rightSwipeButtons" notification:NO];
+//}
 
 @end
 

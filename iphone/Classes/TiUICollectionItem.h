@@ -38,7 +38,7 @@ typedef enum
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
 -(void)configurationStart;
 -(void)configurationSet;
-- (BOOL) hasSwipeButtons;
+//- (BOOL) hasSwipeButtons;
 @end
 
 #endif
