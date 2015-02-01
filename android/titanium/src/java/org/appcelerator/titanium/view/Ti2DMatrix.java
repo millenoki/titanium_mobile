@@ -20,7 +20,6 @@ import org.appcelerator.titanium.util.AffineTransform;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
-import android.content.Context;
 import android.graphics.Matrix;
 import android.view.View;
 
