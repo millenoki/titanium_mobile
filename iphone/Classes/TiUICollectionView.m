@@ -1980,6 +1980,10 @@ static NSDictionary* replaceKeysForRow;
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] collectionView:collectionView accessoryButtonTapped:NO];
+    if (allowsSelection == NO)
+    {
+        [collectionView deselectItemAtIndexPath:indexPath animated:YES];
+    }
 }
 
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView
