@@ -1990,7 +1990,23 @@ static NSDictionary* replaceKeysForRow;
         insetForSectionAtIndex:(NSInteger)section
 {
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
-    return [TiUtils insetValue:[theSection valueForKey:@"inset"]];
+    if ([theSection valueForKey:@"inset"]) {
+        return [TiUtils insetValue:[theSection valueForKey:@"inset"]];
+    }
+    
+    CGFloat itemWidth = 0;
+    if (TiDimensionIsDip(_itemWidth)) {
+        itemWidth = [self collectionView:collectionView itemWidth:_itemWidth.value];
+    }
+    else if (TiDimensionIsPercent(_itemWidth) || TiDimensionIsAutoFill(_itemWidth)) {
+        itemWidth = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(_itemWidth, collectionView.bounds.size.width)];
+    }
+    if (itemWidth > 0) {
+        NSInteger numberOfCells = self.frame.size.width / itemWidth;
+        NSInteger edgeInsets = (self.frame.size.width - (numberOfCells * itemWidth)) / (numberOfCells + 1);
+        return UIEdgeInsetsMake(0, edgeInsets, 0, edgeInsets);
+    }
+    return UIEdgeInsetsZero;
 }
 
 - (CGSize)collectionView:(UICollectionView *)collectionView
