@@ -91,6 +91,7 @@
     NSInteger _currentSection;
     
     BOOL _canSwipeCells;
+    BOOL _stickyHeaders;
 //    MGSwipeTableCell * _currentSwipeCell;
 }
 
@@ -125,6 +126,7 @@ static NSDictionary* replaceKeysForRow;
         _currentSection = -1;
         _canSwipeCells = NO;
         _hasPullView = NO;
+        _stickyHeaders = NO;
     }
     return self;
 }
@@ -819,7 +821,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)setStickyHeaders_:(id)args
 {
     TiUICollectionViewFlowLayout* layout = (TiUICollectionViewFlowLayout*)[self tableView].collectionViewLayout;
-    layout.stickyHeaders = [TiUtils boolValue:args def:YES];
+    _stickyHeaders = [TiUtils boolValue:args def:YES];
     [layout invalidateLayout];
 }
 
@@ -1951,6 +1953,11 @@ static NSDictionary* replaceKeysForRow;
 //}
 
 #pragma mark UICollectionViewDelegateFlowLayout
+
+- (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section
+{
+    return _stickyHeaders;
+}
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
 {

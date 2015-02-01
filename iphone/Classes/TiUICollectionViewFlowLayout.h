@@ -7,6 +7,10 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol TiUICollectionViewFlowLayoutDelegate<UICollectionViewDelegateFlowLayout>
+@optional
+- (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section;
+@end
+
 @interface TiUICollectionViewFlowLayout : UICollectionViewFlowLayout
-@property (nonatomic, assign) BOOL stickyHeaders;
 @end
