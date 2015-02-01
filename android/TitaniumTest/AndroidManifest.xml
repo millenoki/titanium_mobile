@@ -53,14 +53,18 @@
         android:allowBackup="false"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
-        android:label="TitaniumTest"
-        android:theme="@style/Theme.Titanium" >
+         android:icon="@drawable/appicon"
+        android:label="AkSync"
+        android:theme="@style/Theme.Titanium.Overlay" >
          <meta-data
             android:name="com.google.android.gms.version"
-            android:value="5077000" />
+            android:value="6587000" />
          <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyA4DiNxX9WbOV6anySJHjGeyW9CJf3AhZ0" />
+         <activity android:name="com.google.android.gms.ads.AdActivity"
+                   android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+                   android:theme="@style/Theme.Titanium.Translucent" />
 
         <!-- 
      		<receiver android:name="ti.modules.titanium.android.BootUpReceiver"
@@ -83,7 +87,7 @@
 
         <activity
             android:name="com.akylas.titanium.ks.TitaniumtestActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:label="TitaniumTest"
             android:theme="@style/Theme.Titanium.SplashScreen" >
             <intent-filter>
@@ -97,10 +101,10 @@
 
         <activity
             android:name="org.appcelerator.titanium.TiActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
         <activity
             android:name="org.appcelerator.titanium.TiTranslucentActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@style/Theme.Titanium.Translucent" />
         <activity android:name="ti.modules.titanium.ui.android.TiPreferencesActivity" />
         <!-- TI_SERVICES -->
@@ -156,8 +160,8 @@
                 <action android:name="android.media.AUDIO_BECOMING_NOISY"/>
             </intent-filter>
         </receiver>
-        <service android:name="ti.modules.titanium.media.streamer.AudioStreamerService"/>
-        <service android:name="ti.modules.titanium.media.streamer.AudioStreamerExoService"/>
+        <service android:name="ti.modules.titanium.audio.streamer.AudioStreamerService"/>
+        <service android:name="ti.modules.titanium.audio.streamer.AudioStreamerExoService"/>
         </application>
 
     <!-- TI_PERMISSIONS -->

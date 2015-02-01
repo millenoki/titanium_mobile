@@ -6,17 +6,17 @@
 
     <style name="BaseTheme" parent="Theme.AppCompat">
 
-		    <item name="colorPrimary">#FF0000</item>
+		    <item name="colorPrimary">#31B7ED</item>
 		
 		    <!-- colorPrimaryDark is used for the status bar -->
-		    <item name="colorPrimaryDark">#550000</item>
+		    <item name="colorPrimaryDark">#3E7B8D</item>
 		
 		    <!-- colorAccent is used as the default value for colorControlActivated
 		         which is used to tint widgets -->
-		    <item name="colorAccent">#00ffff</item>
+		    <item name="colorAccent">#31B7ED</item>
 		    <item name="colorControlNormal">#c5c5c5</item>
-            <item name="colorControlActivated">#00ffff</item>
-            <item name="colorControlHighlight">#00ffff</item>
+            <item name="colorControlActivated">#31B7ED</item>
+            <item name="colorControlHighlight">#31B7ED</item>
     </style>
     
     <!-- ACTION BAR STYLES -->
