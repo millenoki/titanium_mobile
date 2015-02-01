@@ -75,4 +75,27 @@
     }
     return shouldStickToTop;
 }
+
+
+//code to left align
+//- (UICollectionViewLayoutAttributes *)layoutAttributesForItemAtIndexPath:(NSIndexPath *)indexPath {
+//    UICollectionViewLayoutAttributes* atts =
+//    [super layoutAttributesForItemAtIndexPath:indexPath];
+//    
+//    if (indexPath.item == 0) // degenerate case 1, first item of section
+//        return atts;
+//    
+//    NSIndexPath* ipPrev =
+//    [NSIndexPath indexPathForItem:indexPath.item-1 inSection:indexPath.section];
+//    
+//    CGRect fPrev = [self layoutAttributesForItemAtIndexPath:ipPrev].frame;
+//    CGFloat rightPrev = fPrev.origin.x + fPrev.size.width + 10;
+//    if (atts.frame.origin.x <= rightPrev) // degenerate case 2, first item of line
+//        return atts;
+//    
+//    CGRect f = atts.frame;
+//    f.origin.x = rightPrev;
+//    atts.frame = f;
+//    return atts;
+//}
 @end
