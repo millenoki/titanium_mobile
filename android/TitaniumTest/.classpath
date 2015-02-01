@@ -11,7 +11,7 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/titanium-dist"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-geolocation"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-media"/>
-	<classpathentry exported="true" kind="lib" path="lib/googleplayservices.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-network"/>
+	<classpathentry exported="true" kind="lib" path="/titanium-googleplayservices/lib/google-play-services.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
