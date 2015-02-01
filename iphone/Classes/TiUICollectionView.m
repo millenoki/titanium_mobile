@@ -847,32 +847,32 @@ static NSDictionary* replaceKeysForRow;
     [self reloadTableViewData];
 }
 
-- (void)setItemWidth_:(id)height
+- (void)setColumnWidth_:(id)height
 {
 	_itemWidth = [TiUtils dimensionValue:height];
 }
 
-- (void)setMinItemWidth_:(id)height
+- (void)setMinColumnWidth_:(id)height
 {
 	_minItemWidth = [TiUtils dimensionValue:height];
 }
 
-- (void)setMaxItemWidth_:(id)height
+- (void)setMaxColumnWidth_:(id)height
 {
 	_maxItemWidth = [TiUtils dimensionValue:height];
 }
 
-- (void)setItemHeight_:(id)height
+- (void)setRowHeight_:(id)height
 {
     _itemHeight = [TiUtils dimensionValue:height];
 }
 
-- (void)setMinItemHeight_:(id)height
+- (void)setMinRowHeight_:(id)height
 {
     _minItemHeight = [TiUtils dimensionValue:height];
 }
 
-- (void)setMaxItemHeight_:(id)height
+- (void)setMaxRowmHeight_:(id)height
 {
     _maxItemHeight = [TiUtils dimensionValue:height];
 }
@@ -1877,8 +1877,8 @@ static NSDictionary* replaceKeysForRow;
     if (!visible) return result;
     result = collectionView.bounds.size;
     
-    id widthValue = [self valueWithKey:@"columnWidth" atIndexPath:realIndexPath];
     TiDimension width = _itemWidth;
+    id widthValue = [self valueWithKey:@"columnWidth" atIndexPath:realIndexPath];
     if (widthValue != nil) {
         width = [TiUtils dimensionValue:widthValue];
     }
@@ -1893,6 +1893,7 @@ static NSDictionary* replaceKeysForRow;
     TiDimension height = _itemHeight;
     if (heightValue != nil) {
         height = [TiUtils dimensionValue:heightValue];
+        
     }
     if (TiDimensionIsDip(height)) {
         result.height = [self collectionView:collectionView itemHeight:height.value];
@@ -2034,23 +2035,14 @@ referenceSizeForHeaderInSection:(NSInteger)section
         if (!visible) return result;
         result = collectionView.bounds.size;
         
-        id widthValue = [self valueWithKey:@"width" forSectionItem:item template:templateId];
-        TiDimension width = _itemWidth;
-        if (widthValue != nil) {
-            width = [TiUtils dimensionValue:widthValue];
-        }
+        TiDimension width = [TiUtils dimensionValue:[self valueWithKey:@"width" forSectionItem:item template:templateId]];
         if (TiDimensionIsDip(width)) {
             result.width = [self collectionView:collectionView itemWidth:width.value];
         }
         else if (TiDimensionIsPercent(width) || TiDimensionIsAutoFill(width)) {
             result.width = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(width, collectionView.bounds.size.width)];
         }
-        
-        id heightValue = [self valueWithKey:@"height" forSectionItem:item template:templateId];
-        TiDimension height = _itemHeight;
-        if (heightValue != nil) {
-            height = [TiUtils dimensionValue:heightValue];
-        }
+         TiDimension height = [TiUtils dimensionValue:[self valueWithKey:@"height" forSectionItem:item template:templateId]];
         if (TiDimensionIsDip(height)) {
             result.height = [self collectionView:collectionView itemHeight:height.value];
         }
