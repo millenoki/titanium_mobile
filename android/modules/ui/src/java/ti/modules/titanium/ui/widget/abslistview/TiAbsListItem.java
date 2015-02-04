@@ -88,27 +88,27 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
-	
-		if (key.equals(TiC.PROPERTY_ACCESSORY_TYPE)) {
+	    switch (key) {
+        case TiC.PROPERTY_ACCESSORY_TYPE:
 			int accessory = TiConvert.toInt(newValue, -1);
 			handleAccessory(accessory);
-		}
-		else if (key.equals(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
+		break;
+        case TiC.PROPERTY_SELECTED_BACKGROUND_COLOR:
 		    super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, newValue, oldValue, changedProperty);
-		}
-		else if (key.equals(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE)) {
+	        break;
+        case TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE:
             super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, newValue, oldValue, changedProperty);
-		}
-		else if (key.equals(TiC.PROPERTY_CAN_SWIPE_LEFT)) {
+            break;
+        case TiC.PROPERTY_CAN_SWIPE_LEFT:
             canShowLeftMenu = TiConvert.toBoolean(newValue, true);
             canShowLeftMenuDefined = true;
-        }
-		else if (key.equals(TiC.PROPERTY_CAN_SWIPE_RIGHT)) {
+            break;
+        case TiC.PROPERTY_CAN_SWIPE_RIGHT:
             canShowRightMenu = TiConvert.toBoolean(newValue, true);
             canShowRightMenuDefined = true;
-        }
+            break;
 		
-		else if (key.equals(TiC.PROPERTY_LEFT_SWIPE_BUTTONS)) {
+        case TiC.PROPERTY_LEFT_SWIPE_BUTTONS:
 		    if (leftButtons != null) {
 		        for (TiViewProxy viewProxy : leftButtons) {
 		            proxy.removeHoldedProxy(TiConvert.toString(
@@ -117,8 +117,8 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 		        }
 		    }
             leftButtons = proxiesArrayFromValue(newValue);
-        }
-		else if (key.equals(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS)) {
+            break;
+        case TiC.PROPERTY_RIGHT_SWIPE_BUTTONS:
             if (rightButtons != null) {
                 for (TiViewProxy viewProxy : leftButtons) {
                     proxy.removeHoldedProxy(TiConvert.toString(
@@ -127,8 +127,8 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
                 }
             }
             rightButtons = proxiesArrayFromValue(newValue);
-        }
-		else {
+            break;
+		default:
 		    super.propertySet(key, newValue, oldValue, changedProperty);
 		}
 	}
