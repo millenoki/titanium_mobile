@@ -821,7 +821,7 @@ public class TiCompositeLayout extends FreeLayout implements
 //			childMeasuredWidth = calculateWidthFromPins(params, left, right,
 //					getWidth(), childMeasuredWidth, true);
 			
-			computePosition(this, params, params.optionLeft, params.optionCenterX,
+			computePosition(this, params, params.optionLeft, params.optionCenterX, params.optionWidth,
 						params.optionRight, childMeasuredWidth, left, right,
 						horizontal);
 			
@@ -832,7 +832,7 @@ public class TiCompositeLayout extends FreeLayout implements
 				// (used as padding)
 				currentHeight +=  getLayoutOptionAsPixels(params.optionBottom, TiDimension.TYPE_BOTTOM, params, this);
 			} else {
-				computePosition(this, params, params.optionTop, params.optionCenterY,
+				computePosition(this, params, params.optionTop, params.optionCenterY, params.optionHeight,
 						params.optionBottom, childMeasuredHeight, top, bottom,
 						vertical);
 				//we need to update horizontal and vertical with animationFraction because computePosition
@@ -952,12 +952,13 @@ public class TiCompositeLayout extends FreeLayout implements
 
 	// option0 is left/top, option1 is right/bottom
 	public static void computePosition(View parent, LayoutParams params, TiDimension leftOrTop,
-			TiDimension optionCenter, TiDimension rightOrBottom,
+			TiDimension optionCenter, TiDimension optionWidthOrHeight, TiDimension rightOrBottom,
 			int measuredSize, int layoutPosition0, int layoutPosition1,
 			int[] pos) {
 		int dist = layoutPosition1 - layoutPosition0;
         final boolean leftTopDef = (leftOrTop != null && !leftOrTop.isUnitUndefined());
         final boolean rightBotDef = (rightOrBottom != null && !rightOrBottom.isUnitUndefined());
+        final boolean widthHeightDef = (optionWidthOrHeight != null && !optionWidthOrHeight.isUnitUndefined());
         if (optionCenter != null && !optionCenter.isUnitUndefined()
                 && optionCenter.getValue() != 0.0) {
             // Don't calculate position based on center dimension if it's 0.0
@@ -965,7 +966,7 @@ public class TiCompositeLayout extends FreeLayout implements
             pos[0] = layoutPosition0 + getLayoutOptionAsPixels(optionCenter, optionCenter.getValueType(), params, parent)
                     - halfSize;
             pos[1] = pos[0] + measuredSize;
-        } else if (!leftTopDef && !rightBotDef) {
+        } else if ((!leftTopDef && !rightBotDef) || (leftTopDef && rightBotDef && widthHeightDef)) {
          // Center
             int offset = (dist - measuredSize) / 2;
             pos[0] = layoutPosition0 + offset;
@@ -1115,7 +1116,7 @@ public class TiCompositeLayout extends FreeLayout implements
 //		}
 
 		// Get vertical position into vpos
-		computePosition(this, params, params.optionTop, params.optionCenterY,
+		computePosition(this, params, params.optionTop, params.optionCenterY, params.optionHeight,
 				params.optionBottom, measuredHeight, layoutTop, layoutBottom,
 				vpos);
 		if (params.optionTop != null && !params.optionTop.isUnitUndefined() &&
