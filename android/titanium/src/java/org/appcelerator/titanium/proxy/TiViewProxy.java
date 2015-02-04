@@ -658,7 +658,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	                }
 	            }
 			}
-			if (modelListener.get() == view) {
+			if (modelListener != null && modelListener.get() == view) {
                 modelListener = null;
             }
 			view.release();
