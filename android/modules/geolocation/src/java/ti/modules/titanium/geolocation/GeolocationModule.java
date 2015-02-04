@@ -166,7 +166,7 @@ public class GeolocationModule extends KrollModule
 	private LocationRuleProxy simpleLocationGpsRule;
 	private LocationRuleProxy simpleLocationNetworkRule;
 	private int simpleLocationAccuracyProperty = ACCURACY_LOW;
-	private Location currentLocation;
+	private Location lastRulesCheckedLocation;
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
@@ -265,7 +265,7 @@ public class GeolocationModule extends KrollModule
 		lastLocation = location;
 		if (shouldUseUpdate(location)) {
 			fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
-			currentLocation = location;
+			lastRulesCheckedLocation = location;
 			doAnalytics(location);
 		}
 	}
@@ -547,8 +547,10 @@ public class GeolocationModule extends KrollModule
 					locationProviders = simpleLocationProviders;
 				}
 				enableLocationProviders(locationProviders);
-
-				// fire off an initial location fix if one is available
+				
+				//restart rules to be sure.
+				lastRulesCheckedLocation = null;
+                // fire off an initial location fix if one is available
 				onLocationChanged(tiLocation.getLastKnownLocation());
 			}
 		}
@@ -775,7 +777,7 @@ public class GeolocationModule extends KrollModule
 				callback.call(this.getKrollObject(), new Object[] {
 					buildLocationEvent(latestKnownLocation, tiLocation.locationManager.getProvider(latestKnownLocation.getProvider()))
 				});
-
+				lastRulesCheckedLocation = latestKnownLocation;
 			} else {
 				Log.e(TAG, "Unable to get current position, location is null");
 				callback.call(this.getKrollObject(), new Object[] {
@@ -854,7 +856,7 @@ public class GeolocationModule extends KrollModule
 		if (getManualMode()) {
 			if (androidModule.manualLocationRules.size() > 0) {
 				for(LocationRuleProxy rule : androidModule.manualLocationRules) {
-					if (rule.check(currentLocation, newLocation)) {
+					if (rule.check(lastRulesCheckedLocation, newLocation)) {
 						passed = true;
 
 						break;
@@ -867,7 +869,7 @@ public class GeolocationModule extends KrollModule
 
 		} else if (!legacyModeActive) {
 			for(LocationRuleProxy rule : simpleLocationRules) {
-				if (rule.check(currentLocation, newLocation)) {
+				if (rule.check(lastRulesCheckedLocation, newLocation)) {
 					passed = true;
 
 					break;
