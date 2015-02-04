@@ -60,15 +60,15 @@ public class TiBackgroundDrawable extends Drawable {
         return -1;
     }
 	
-	private int keyOfFirstMatchingStateSet(int[] stateSet) {
-		int length = mStateSets.size();
-		for(int i = 0; i < length; i++) {
-		   if (StateSet.stateSetMatches(mStateSets.valueAt(i), stateSet)) {
-               return mStateSets.keyAt(i);
-           }
-		}
-        return -1;
-    }
+//	private int keyOfFirstMatchingStateSet(int[] stateSet) {
+//		int length = mStateSets.size();
+//		for(int i = 0; i < length; i++) {
+//		   if (StateSet.stateSetMatches(mStateSets.valueAt(i), stateSet)) {
+//               return mStateSets.keyAt(i);
+//           }
+//		}
+//        return -1;
+//    }
 	
 	private int keyOfBestMatchingStateSet(int[] stateSet) {
 		int length = mStateSets.size();
@@ -115,14 +115,14 @@ public class TiBackgroundDrawable extends Drawable {
 		return result;
 	}
 	
-	private float[] insetRadius(float[] radius, float inset)
-	{
-		float[] result = new float[8];
-		for (int i = 0; i < result.length; i++) {
-			result[i] = radius[i] + inset;
-		}
-		return result;
-	}
+//	private float[] insetRadius(float[] radius, float inset)
+//	{
+//		float[] result = new float[8];
+//		for (int i = 0; i < result.length; i++) {
+//			result[i] = radius[i] + inset;
+//		}
+//		return result;
+//	}
 	
 	private void updatePath(){
 		if (bounds.isEmpty()) return;
