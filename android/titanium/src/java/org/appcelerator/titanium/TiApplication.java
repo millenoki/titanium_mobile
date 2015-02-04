@@ -1247,14 +1247,14 @@ public abstract class TiApplication extends Application implements
             Method  isGooglePlayServicesAvailable = c.getDeclaredMethod ("isGooglePlayServicesAvailable", Context.class);
             resultCode = (int) isGooglePlayServicesAvailable.invoke(null, new Object[] {activity});
             if (resultCode != 0) {
-                Method  isUserRecoverableError = c.getDeclaredMethod ("isUserRecoverableError", int.class);
-                Method  getErrorDialog = c.getDeclaredMethod ("getErrorDialog", int.class, Activity.class, int.class);
-                if ((boolean) isUserRecoverableError.invoke(null, new Object[] {resultCode})) {
-                    ((Dialog)getErrorDialog.invoke(null, new Object[] {resultCode, activity,
-                            PLAY_SERVICES_RESOLUTION_REQUEST})).show();
-                } else {
-                    Log.i(TAG, "This device is not supported.");
-                }
+//                Method  isUserRecoverableError = c.getDeclaredMethod ("isUserRecoverableError", int.class);
+//                Method  getErrorDialog = c.getDeclaredMethod ("getErrorDialog", int.class, Activity.class, int.class);
+//                if ((boolean) isUserRecoverableError.invoke(null, new Object[] {resultCode})) {
+//                    ((Dialog)getErrorDialog.invoke(null, new Object[] {resultCode, activity,
+//                            PLAY_SERVICES_RESOLUTION_REQUEST})).show();
+//                } else {
+//                    Log.i(TAG, "This device is not supported.");
+//                }
             }
             return resultCode;
         } catch (Exception e) {
