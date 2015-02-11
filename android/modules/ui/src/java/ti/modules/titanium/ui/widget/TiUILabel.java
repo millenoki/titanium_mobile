@@ -91,6 +91,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
 	private float shadowY = -1f; // to have the same value as ios
+	private boolean shadowEnabled = false;
 	private int shadowColor = Color.TRANSPARENT;
     private boolean disableLinkStyle = false;
     private boolean autoLink = false;
@@ -395,7 +396,9 @@ public class TiUILabel extends TiUINonViewGroupView
 			newView.multiLineEllipsize = this.multiLineEllipsize;
 			newView.setTextColor(getTextColors());
 			newView.setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight(), getPaddingBottom());
-			newView.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+			if (shadowEnabled) {
+	            newView.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+			}
 			if (text instanceof Spannable)
 			{
 				newView.setText(text, TextView.BufferType.SPANNABLE);
@@ -448,12 +451,19 @@ public class TiUILabel extends TiUINonViewGroupView
 		public void updateEllipsize(int width, int height){
 			if (needsEllipsize())  {
 				needsEllipsing = true;
-				if (readyToEllipsize == true) ellipseText(width, height);
+				if (readyToEllipsize == true) {
+				    ellipseText(width, height);
+				}
 			}
 		}
 		
 		public void updateEllipsize(){
-			updateEllipsize(getMeasuredWidth(), getMeasuredHeight());
+		    if (needsEllipsize())  {
+                needsEllipsing = true;
+                if (readyToEllipsize == true) {
+                    ellipseText(getMeasuredWidth(), getMeasuredHeight());
+                }
+            }
 		}
 
 		public int getMaxLines() {
@@ -487,12 +497,6 @@ public class TiUILabel extends TiUINonViewGroupView
 			super.setText(text, type);
 			updateEllipsize();
 		}
-		
-		@Override
-		public void setPadding(int left, int top, int right, int bottom) {
-			super.setPadding(left + (int)Math.max(0, -shadowX), top + (int)Math.max(0, -shadowY), right + (int)Math.max(0, shadowX), bottom + (int)Math.max(0, shadowY));
-		}
-		
 		
 		@Override
 		public void setSingleLine (boolean singleLine) {
@@ -904,10 +908,10 @@ public class TiUILabel extends TiUINonViewGroupView
 			}
 		};
 		textPadding = new RectF();
-		
 		tv.setFocusable(false);
 		tv.setFocusableInTouchMode(true);
-		widgetDefaultColor = color = disabledColor = selectedColor = tv.textView.getCurrentTextColor();
+		widgetDefaultColor = color = disabledColor = selectedColor = getTextView().getCurrentTextColor();
+        updatePadding();
 		setNativeView(tv);
 
 	}
@@ -971,6 +975,23 @@ public class TiUILabel extends TiUINonViewGroupView
         super.aboutToProcessProperties(d);
         getTextView().SetReadyToEllipsize(false);
     }
+	
+	private void updatePadding() {
+      if (shadowEnabled) {
+          getTextView().setPadding(
+                  (int)textPadding.left + (int)Math.max(0, -shadowX), 
+                  (int)textPadding.top + (int)Math.max(0, -shadowY), 
+                  (int)textPadding.right + (int)Math.max(0, shadowX),
+                  (int)textPadding.bottom + (int)Math.max(0, shadowY));
+      } else {
+          getTextView().setPadding(
+                  (int)textPadding.left, 
+                  (int)textPadding.top, 
+                  (int)textPadding.right,
+                  (int)textPadding.bottom);
+      }
+	    
+	}
     
     @Override
     protected void didProcessProperties() {
@@ -980,10 +1001,11 @@ public class TiUILabel extends TiUINonViewGroupView
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_COLORS;
         }
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_SHADOW) != 0) {
+            shadowEnabled = shadowRadius != 0 && shadowColor != Color.TRANSPARENT;
             getTextView().setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_SHADOW;
             //reset padding after shadow is necessary
-            TiUIHelper.setPadding(getTextView(), textPadding);
+            updatePadding();
         }
 
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT) != 0) {
@@ -1048,7 +1070,7 @@ public class TiUILabel extends TiUINonViewGroupView
             break;
         case TiC.PROPERTY_TEXT_PADDING:
             textPadding = TiConvert.toPaddingRect(newValue);
-            TiUIHelper.setPadding(getTextView(), textPadding);
+            updatePadding();
             setNeedsLayout();
             break;
         case TiC.PROPERTY_ELLIPSIZE:
