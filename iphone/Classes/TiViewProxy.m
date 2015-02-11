@@ -3131,20 +3131,20 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     UIView * ourView = [self parentViewForChild:child];
     if (!ourView) return CGRectZero;
     CGRect result = [ourView bounds];
-    BOOL autoWidth = [self widthIsAutoSize];
-    BOOL autoHeight = [self heightIsAutoSize];
-    if (autoWidth || autoHeight) {
-        CGRect parentBounds = [[self viewParent] boundsForMeasureForChild:self];
-        if (!CGSizeEqualToSize(parentBounds.size, CGSizeZero)) {
-            if (autoWidth) {
-                result.size.width = parentBounds.size.width;
-            }
-            if (autoHeight) {
-                result.size.height = parentBounds.size.height;
-            }
-        }
-        
-    }
+//    BOOL autoWidth = [self widthIsAutoSize];
+//    BOOL autoHeight = [self heightIsAutoSize];
+//    if (autoWidth || autoHeight) {
+//        CGRect parentBounds = [[self viewParent] boundsForMeasureForChild:self];
+//        if (!CGSizeEqualToSize(parentBounds.size, CGSizeZero)) {
+//            if (autoWidth) {
+//                result.size.width = parentBounds.size.width;
+//            }
+//            if (autoHeight) {
+//                result.size.height = parentBounds.size.height;
+//            }
+//        }
+//        
+//    }
 //    if (!TiLayoutFlagsHasHorizontalWrap(&layoutProperties)) {
 //        result.size.width -= horizontalLayoutBoundary;
 //    }
