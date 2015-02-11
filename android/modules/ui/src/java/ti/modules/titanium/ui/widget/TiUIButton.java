@@ -76,9 +76,7 @@ public class TiUIButton extends TiUINonViewGroupView
 
 			@Override
 			public boolean dispatchTouchEvent(MotionEvent event) {
-				if (touchPassThrough(childrenHolder, event)) return false;
-				if (touchPassThrough == true)
-					return false;
+	            if (touchPassThrough(childrenHolder, event)) return false;
 				return super.dispatchTouchEvent(event);
 			}
 
