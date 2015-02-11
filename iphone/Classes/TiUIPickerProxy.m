@@ -45,12 +45,11 @@ NSArray* pickerKeySequence;
 
 -(void)viewDidAttach
 {
-    //Window might not have opened yet, so delay till we get windowDidOpen
-    if (selectOnLoad != nil && [self viewAttached]) {
+    [super viewDidAttach];
+    if (selectOnLoad != nil) {
         [self setSelectedRow:selectOnLoad];
         RELEASE_TO_NIL(selectOnLoad);
     }
-    [super viewDidAttach];
 }
 
 -(void)windowDidOpen
