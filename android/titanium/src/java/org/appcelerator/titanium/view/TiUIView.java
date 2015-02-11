@@ -89,8 +89,6 @@ public abstract class TiUIView
 	implements KrollProxyReusableListener, OnFocusChangeListener, Handler.Callback
 {
 
-	private static final boolean HONEYCOMB_OR_GREATER = (Build.VERSION.SDK_INT >= 11);
-	private static final boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 	private static final String TAG = "TiUIView";
 	
 
@@ -429,7 +427,7 @@ public abstract class TiUIView
 			addBorderView();
 		}
 		
-		if (HONEYCOMB_OR_GREATER && hardwareAccEnabled == false) {
+		if (TiC.HONEYCOMB_OR_GREATER && hardwareAccEnabled == false) {
 			disableHWAcceleration(getOuterView());
 		}
 		applyAccessibilityProperties();
@@ -1314,7 +1312,7 @@ public abstract class TiUIView
 	@SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
 	public static void setBackgroundDrawable(View view, Drawable drawable) {
-		if(JELLY_BEAN_OR_GREATER) {
+		if(TiC.JELLY_BEAN_OR_GREATER) {
 			view.setBackground(drawable);
 		} else {
 			view.setBackgroundDrawable(drawable);
@@ -1326,7 +1324,7 @@ public abstract class TiUIView
 		if (background == null) {
 			background = new TiBackgroundDrawable();
 				float alpha = 1.0f;
-			if (!HONEYCOMB_OR_GREATER) {
+			if (!TiC.HONEYCOMB_OR_GREATER) {
 				if (proxy.hasProperty(TiC.PROPERTY_OPACITY))
 					alpha *= TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_OPACITY));
 			}
@@ -2092,7 +2090,7 @@ public abstract class TiUIView
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	protected void disableHWAcceleration(View view)
 	{
-		if (HONEYCOMB_OR_GREATER) {
+		if (TiC.HONEYCOMB_OR_GREATER) {
 			view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 	}
@@ -2100,7 +2098,7 @@ public abstract class TiUIView
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	protected void enableHWAcceleration(View view)
 	{
-		if (HONEYCOMB_OR_GREATER) {
+		if (TiC.HONEYCOMB_OR_GREATER) {
 			view.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 		}
 	}
