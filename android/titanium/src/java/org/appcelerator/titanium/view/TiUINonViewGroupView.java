@@ -55,7 +55,9 @@ public class TiUINonViewGroupView extends TiUIView {
 			boolean value = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_CHILDREN));
 			childrenHolder.setClipChildren(value);	
 		}
-		
+        if (TiC.LOLLIPOP_OR_GREATER) {
+            childrenHolder.setElevation(1000);
+        }
 		getOrCreateBorderView().addView(childrenHolder, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		updateLayoutForChildren(proxy.getProperties());	
 	}
