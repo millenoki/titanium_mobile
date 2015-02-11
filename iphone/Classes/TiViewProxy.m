@@ -3607,10 +3607,10 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     [child dirtyItAll]; //for multileve recursion we need to make sure the child resizes itself
     [self performBlock:^{
         [child relayout];
+        // tell our children to also layout
+        [child layoutChildren:optimize];
     } withinOurAnimationOnProxy:child];
-
-	// tell our children to also layout
-	[child layoutChildren:optimize];
+	
     [child handlePendingAnimation];
 }
 
