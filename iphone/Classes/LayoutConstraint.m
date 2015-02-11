@@ -121,7 +121,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         if (parent != nil && (!TiLayoutRuleIsAbsolute(parentConstraints->layoutStyle))) {
             //Sandbox with percent values is garbage
             //            ignorePercent = YES;
-            ignoreHPercent = TiLayoutRuleIsHorizontal(parentConstraints->layoutStyle);
+            ignoreHPercent = TiLayoutRuleIsHorizontal(parentConstraints->layoutStyle) || TiLayoutRuleIsVertical(parentConstraints->layoutStyle);
             ignoreWPercent = TiLayoutRuleIsVertical(parentConstraints->layoutStyle) || (ignoreHPercent && TiLayoutFlagsHasHorizontalWrap(parentConstraints));
             UIView *parentView = [parent parentViewForChild:(TiViewProxy*)autoSizer];
             parentSize = (parentView != nil) ? parentView.bounds.size : CGSizeZero;
@@ -129,8 +129,8 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         }
     }
     
-    __block CGFloat boundingWidth = ignoreWPercent?parentSize.width:referenceSize.width;
-    __block CGFloat boundingHeight = ignoreHPercent?parentSize.height:referenceSize.height;
+    __block CGFloat boundingWidth = referenceSize.width;
+    __block CGFloat boundingHeight = referenceSize.height;
     
     
     if (constraint->fullscreen == YES) {
@@ -149,6 +149,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
     else if (TiDimensionIsPercent(dimension)) {
         followsFillWBehavior = NO;
         flexibleWidth = YES;
+        if (ignoreWPercent) {
+            boundingWidth = parentSize.width;
+        }
         width = roundf(TiDimensionCalculateValue(dimension, boundingWidth));
     }
     else if (TiDimensionIsUndefined(dimension))
@@ -203,6 +206,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
     else if (TiDimensionIsPercent(dimension)) {
         followsFillHBehavior = NO;
         flexibleHeight = YES;
+        if (ignoreHPercent) {
+            boundingHeight = parentSize.height;
+        }
         height = roundf(TiDimensionCalculateValue(dimension, boundingHeight));
     }
     else if (TiDimensionIsUndefined(dimension))
