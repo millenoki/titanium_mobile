@@ -210,22 +210,23 @@
 
 // This is called when we get an incoming data event. Notify the appDelegate that we have data to print.
 - (void)handleIncoming:(NSInputStream*)stream {
+    double timestamp = [[NSDate date] timeIntervalSince1970]*1000;
     NSError* error = nil;
     NSData* result = [self dataWithContentsOfStream:stream initialCapacity:DATA_CHUNK_SIZE error:&error];
     if (error) {
         [self fireEvent:@"error" withObject:[TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]]];
     } else if (result.length > 0) {
         [self fireEvent:@"read" withObject:@{
-                                             @"timestamp":NUMDOUBLE([[NSDate date] timeIntervalSince1970]*1000),
+                                             @"timestamp":NUMDOUBLE(timestamp),
                                              @"length":NUMUINTEGER(result.length),
                                              @"data":[[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease]}];
     }
-//        unsigned char buf[DATA_CHUNK_SIZE];
-//        NSUInteger len;
-//        len = [stream read:buf maxLength:DATA_CHUNK_SIZE];
-//        if(len>0) {
-//            
-//        }
+    //        unsigned char buf[DATA_CHUNK_SIZE];
+    //        NSUInteger len;
+    //        len = [stream read:buf maxLength:DATA_CHUNK_SIZE];
+    //        if(len>0) {
+    //
+    //        }
 }
 
 - (void)handleSpace:(NSOutputStream*)stream {
