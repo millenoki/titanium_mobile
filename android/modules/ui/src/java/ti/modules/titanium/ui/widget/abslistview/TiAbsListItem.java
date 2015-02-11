@@ -49,6 +49,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 		setNativeView(v);
 		registerForTouch(v);
 		v.setFocusable(false);
+//		applyCustomForeground();
 	}
 	
 	private List<TiViewProxy> proxiesArrayFromValue(Object value) {

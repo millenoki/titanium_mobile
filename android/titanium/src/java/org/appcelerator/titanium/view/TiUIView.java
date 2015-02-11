@@ -48,6 +48,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -121,7 +122,8 @@ public abstract class TiUIView
     protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
 
 	protected LayoutParams layoutParams;
-	protected TiBackgroundDrawable background;
+    protected TiBackgroundDrawable background;
+    protected Drawable mForegroundDrawable;
 	
     protected boolean preventListViewSelection = false;
     protected boolean touchPassThrough = false;
@@ -1352,6 +1354,31 @@ public abstract class TiUIView
 			setBackgroundDrawable(view, background);
 		}
 	}
+	
+    protected void applyCustomForeground() {
+        if (mForegroundDrawable == null) {
+            TypedArray a = getContext().obtainStyledAttributes(
+                    new int[] { android.R.attr.selectableItemBackground });
+            mForegroundDrawable = a.getDrawable(0);
+            a.recycle();
+        }
+        if (mForegroundDrawable != null) {
+            TiCompositeLayout view = (TiCompositeLayout) ((nativeView instanceof TiCompositeLayout) ? nativeView
+                    : getOrCreateBorderView());
+            if (view != null) {
+                if (mForegroundDrawable != null) {
+                    mForegroundDrawable.setCallback(view);
+                }
+                view.setForeground(mForegroundDrawable);
+            }
+        } else {
+            TiCompositeLayout view = (TiCompositeLayout) ((nativeView instanceof TiCompositeLayout) ? nativeView
+                    : borderView);
+            if (view != null) {
+                borderView.setForeground(mForegroundDrawable);
+            }
+        }
+    }
 	
 	private void addBorderView(){
 		View rootView = getRootView();
