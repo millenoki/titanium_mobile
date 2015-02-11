@@ -93,7 +93,7 @@ USE_VIEW_FOR_CONTENT_SIZE
 		for (TiUITableViewRowProxy *row in section)
 		{
 			row.section = section;
-            [row setParent:section checkForOpen:NO];
+            [row setParent:section];
 		}
 	}
 }

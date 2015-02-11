@@ -1513,6 +1513,8 @@ static NSDictionary* replaceKeysForRow;
             id template = [_templates objectForKey:templateId];
             if (template != nil) {
                 [cellProxy unarchiveFromTemplate:template withEvents:YES];
+                [cellProxy windowWillOpen];
+                [cellProxy windowDidOpen];
             }
             [cell configurationSet];
         }

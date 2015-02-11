@@ -792,9 +792,10 @@ SEL GetterForKrollProperty(NSString * key)
         [childViewProxy setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
         if (!windowOpened || !shouldRelayout)  return;
         if (!readyToCreateView || [childViewProxy isHidden]) return;
-        [childViewProxy windowDidOpen];
         [childViewProxy performBlockWithoutLayout:^{
+            [childViewProxy windowWillOpen];
             [childViewProxy getOrCreateView];
+            [childViewProxy windowDidOpen];
         }];
         
         [self contentsWillChange];
@@ -849,25 +850,20 @@ SEL GetterForKrollProperty(NSString * key)
     }];
 }
 
--(void)setParent:(TiParentingProxy*)parent_ checkForOpen:(BOOL)check
-{
-    [super setParent:parent_];
+//-(void)setParent:(TiParentingProxy*)parent_ checkForOpen:(BOOL)check
+//{
+//    [super setParent:parent_];
 	
-	if (check && parent!=nil && ([parent isKindOfClass:[TiViewProxy class]]) && [[self viewParent] windowHasOpened])
-	{
-		[self windowWillOpen];
-	}
-}
+//	if (check && parent!=nil && ([parent isKindOfClass:[TiViewProxy class]]) && [[self viewParent] windowHasOpened])
+//	{
+//		[self windowWillOpen];
+//	}
+//}
 
--(void)setParent:(TiParentingProxy*)parent_
-{
-	[super setParent:parent_];
-	
-	if (parent!=nil && ([parent isKindOfClass:[TiViewProxy class]]) && [[self viewParent] windowHasOpened])
-	{
-		[self windowWillOpen];
-	}
-}
+//-(void)setParent:(TiParentingProxy*)parent_
+//{
+//    [self setParent:parent_ checkForOpen:YES];
+//}
 
 
 -(TiViewProxy*)viewParent
@@ -1469,6 +1465,10 @@ SEL GetterForKrollProperty(NSString * key)
             [self refreshView];
             [self handlePendingAnimation];
         }
+        
+        if (windowOpening) {
+            [self viewDidAttach];
+        }
 	}
 
 	CGRect bounds = [view bounds];
@@ -1634,8 +1634,9 @@ SEL GetterForKrollProperty(NSString * key)
 	windowOpened = YES;
 	windowOpening = YES;
     
-    [self viewDidAttach];
-    	
+    if (view != nil) {
+        [self viewDidAttach];
+    }
 	// If the window was previously opened, it may need to have
 	// its existing children redrawn
 	// Maybe need to call layout children instead for non absolute layout
