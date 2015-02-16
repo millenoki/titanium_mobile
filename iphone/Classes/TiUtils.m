@@ -1667,10 +1667,10 @@ If the new path starts with / and the base url is app://..., we have to massage 
 	{
 		align = [alignment intValue];
 		switch (align) {
-            case UITextAlignmentLeft:
+            case NSTextAlignmentLeft:
                 align = UIControlContentHorizontalAlignmentLeft;
                 break;
-            case UITextAlignmentRight:
+            case NSTextAlignmentRight:
                 align = UIControlContentHorizontalAlignmentRight;
                 break;
             default:
@@ -2465,20 +2465,20 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 +(NSString*)base64encode:(NSData*)toEncode
 {
     NSString* result = nil;
-    if ([toEncode respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
+//    if ([toEncode respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
         return [toEncode base64EncodedStringWithOptions:0];
-    } else {
-        return [toEncode base64Encoding];
-    }
+//    } else {
+//        return [toEncode base64Encoding];
+//    }
 }
 
 +(NSData*)base64decode:(NSString*)encoded
 {
-    if ([NSData respondsToSelector:@selector(initWithBase64EncodedString:options:)]) {
+//    if ([NSData respondsToSelector:@selector(initWithBase64EncodedString:options:)]) {
         return [[[NSData alloc] initWithBase64EncodedString:encoded options:0] autorelease];
-    } else {
-        return [[[NSData alloc] initWithBase64Encoding:encoded] autorelease];
-    }
+//    } else {
+//        return [[[NSData alloc] initWithBase64Encoding:encoded] autorelease];
+//    }
 }
 
 +(NSString *)colorHexString:(UIColor *)color {
