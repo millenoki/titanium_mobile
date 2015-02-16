@@ -40,6 +40,7 @@ DEFINE_EXCEPTIONS
 {
 		_templateStyle = TiUICollectionItemTemplateStyleCustom;
 		_proxy = [proxy retain];
+    
         _viewHolder = [[TiUIView alloc] initWithFrame:self.contentView.bounds];
         _viewHolder.proxy = _proxy;
         _viewHolder.shouldHandleSelection = NO;

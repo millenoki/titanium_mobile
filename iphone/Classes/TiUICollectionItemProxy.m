@@ -116,9 +116,9 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         view = _listItem.viewHolder;
         [view initializeState];
         viewInitialized = YES;
-        parentVisible = YES;
+//        parentVisible = YES;
         readyToCreateView = YES;
-        windowOpened = YES;
+//        windowOpened = YES;
     }
     else {
         view = nil;

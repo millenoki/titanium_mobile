@@ -1438,17 +1438,18 @@ static NSDictionary* replaceKeysForRow;
         }
         TiUICollectionItemProxy *cellProxy = [[TiUICollectionItemProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
         [cell initWithProxy:cellProxy];
-            [cell configurationStart];
-            id template = [_templates objectForKey:templateId];
-            if (template != nil) {
-                [cellProxy unarchiveFromTemplate:template withEvents:YES];
-            }
-            [cell configurationSet];
+        [cell configurationStart];
+        id template = [_templates objectForKey:templateId];
+        if (template != nil) {
+            [cellProxy unarchiveFromTemplate:template withEvents:YES];
+            [cellProxy windowWillOpen];
+            [cellProxy windowDidOpen];
+        }
+        [cell configurationSet];
         
         if ([TiUtils isIOS8OrGreater] && (collectionView == _tableView)) {
             [cell setLayoutMargins:UIEdgeInsetsZero];
         }
-        
         [cellProxy release];
     }
     
