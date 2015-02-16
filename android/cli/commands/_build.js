@@ -91,9 +91,11 @@ function AndroidBuilder() {
 
     this.tiSymbols = {};
 
-    this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
-    this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
-    this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
+	this.dexAgent = false;
+
+	this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
+	this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
+	this.maxSupportedApiLevel = parseInt(version.parseMax(this.packageJson.vendorDependencies['android sdk']));
 
     this.deployTypes = {
         'emulator': 'development',
@@ -1035,13 +1037,13 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
     }
 
     // check that the proguard config exists
-    var proguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
-    if (this.proguard && !fs.existsSync(proguardConfigFile)) {
-        logger.error(__('Missing ProGuard configuration file'));
-        logger.error(__('ProGuard settings must go in the file "%s"', proguardConfigFile));
-        logger.error(__('For example configurations, visit %s', 'http://proguard.sourceforge.net/index.html#manual/examples.html') + '\n');
-        process.exit(1);
-    }
+	var proguardConfigFile = path.join(cli.argv['project-dir'], cli.argv['platform-dir'] || 'platform', 'android', 'proguard.cfg');
+	if (this.proguard && !fs.existsSync(proguardConfigFile)) {
+		logger.error(__('Missing ProGuard configuration file'));
+		logger.error(__('ProGuard settings must go in the file "%s"', proguardConfigFile));
+		logger.error(__('For example configurations, visit %s', 'http://proguard.sourceforge.net/index.html#manual/examples.html') + '\n');
+		process.exit(1);
+	}
 
     // map sdk versions to sdk targets instead of by id
     var targetSDKMap = {};
@@ -1060,12 +1062,12 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
     }
 
     try {
-        var customAndroidManifestFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'AndroidManifest.xml');
-        this.customAndroidManifest = fs.existsSync(customAndroidManifestFile) && (new AndroidManifest(customAndroidManifestFile));
-    } catch (ex) {
-        logger.error(__('Malformed custom AndroidManifest.xml file: %s', customAndroidManifestFile) + '\n');
-        process.exit(1);
-    }
+		var customAndroidManifestFile = path.join(cli.argv['project-dir'], cli.argv['platform-dir'] || 'platform', 'android', 'AndroidManifest.xml');
+		this.customAndroidManifest = fs.existsSync(customAndroidManifestFile) && (new AndroidManifest(customAndroidManifestFile));
+	} catch (ex) {
+		logger.error(__('Malformed custom AndroidManifest.xml file: %s', customAndroidManifestFile) + '\n');
+		process.exit(1);
+	}
 
     // validate the sdk levels
     var usesSDK = (tiappAndroidManifest && tiappAndroidManifest['uses-sdk']) || (this.customAndroidManifest && this.customAndroidManifest['uses-sdk']);
@@ -2522,7 +2524,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         platformPaths.push(path.join(module.modulePath, 'platform', 'android'));
     });
 
-    platformPaths.push(path.join(this.projectDir, 'platform', 'android'));
+	platformPaths.push(path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'android'));
     this.cli.createHook('build.android.platformsPaths', this, function (platformPaths) {
         platformPaths.forEach(function (dir) {
             if (fs.existsSync(dir)) {
@@ -3914,6 +3916,11 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
                 delete am['uses-sdk'];
                 finalAndroidManifest.merge(am);
             }
+
+			// point to the .jar file if the timodule.xml file has properties of 'dexAgent'
+			if (moduleXml.properties && moduleXml.properties['dexAgent']) {
+				this.dexAgent = path.join(module.modulePath, moduleXml.properties['dexAgent'].value);
+			}
         }
     });
 
@@ -4209,9 +4216,15 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
             path.join(this.platformPath, 'lib', 'titanium-verify.jar')
         ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
 
-    if (this.allowDebugging && this.debugPort) {
-        dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
-    }
+	// inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
+	// dexAgent is set in the module's timodule.xml
+	if (this.dexAgent) {
+		dexArgs.unshift('-javaagent:' + this.dexAgent);
+	}
+
+	if (this.allowDebugging && this.debugPort) {
+		dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
+	}
 
     if (this.allowProfiling && this.profilerPort) {
         dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));

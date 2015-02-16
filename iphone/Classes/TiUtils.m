@@ -156,49 +156,49 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 	return scale > 1.0;
 }
 
-+(BOOL)isIOS4_2OrGreater
-{
-    static BOOL isIOS4_2OrGreater;
-    static dispatch_once_t predicate;
-    dispatch_once(&predicate, ^{
-        isIOS4_2OrGreater = [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
-    });
-    
-    return isIOS4_2OrGreater;
-}
+//+(BOOL)isIOS4_2OrGreater
+//{
+//    static BOOL isIOS4_2OrGreater;
+//    static dispatch_once_t predicate;
+//    dispatch_once(&predicate, ^{
+//        isIOS4_2OrGreater = [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
+//    });
+//    
+//    return isIOS4_2OrGreater;
+//}
 
-+(BOOL)isIOS5OrGreater
-{
-    static BOOL isIOS5OrGreater;
-    static dispatch_once_t predicate;
-    dispatch_once(&predicate, ^{
-        isIOS5OrGreater = [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
-    });
-    
-    return isIOS5OrGreater;
-}
+//+(BOOL)isIOS5OrGreater
+//{
+//    static BOOL isIOS5OrGreater;
+//    static dispatch_once_t predicate;
+//    dispatch_once(&predicate, ^{
+//        isIOS5OrGreater = [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
+//    });
+//    
+//    return isIOS5OrGreater;
+//}
+//
+//+(BOOL)isIOS6OrGreater
+//{
+//    static BOOL isIOS6OrGreater;
+//    static dispatch_once_t predicate;
+//    dispatch_once(&predicate, ^{
+//        isIOS6OrGreater = [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
+//    });
+//    
+//    return isIOS6OrGreater;
+//}
 
-+(BOOL)isIOS6OrGreater
-{
-    static BOOL isIOS6OrGreater;
-    static dispatch_once_t predicate;
-    dispatch_once(&predicate, ^{
-        isIOS6OrGreater = [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
-    });
-    
-    return isIOS6OrGreater;
-}
-
-+(BOOL)isIOS7OrGreater
-{
-    static BOOL isIOS7OrGreater;
-    static dispatch_once_t predicate;
-    dispatch_once(&predicate, ^{
-        isIOS7OrGreater = [UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)];
-    });
-
-    return isIOS7OrGreater;
-}
+//+(BOOL)isIOS7OrGreater
+//{
+//    static BOOL isIOS7OrGreater;
+//    static dispatch_once_t predicate;
+//    dispatch_once(&predicate, ^{
+//        isIOS7OrGreater = [UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)];
+//    });
+//
+//    return isIOS7OrGreater;
+//}
 
 +(BOOL)isIOS8OrGreater
 {
@@ -1477,13 +1477,8 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(CGRect)appFrame
 {
-	CGRect result;
-    if ([TiUtils isIOS7OrGreater]) {
-        result = [[UIScreen mainScreen] bounds];
-    }
-    else {
-        result = [[UIScreen mainScreen] applicationFrame];
-    }
+	CGRect result = [[UIScreen mainScreen] bounds];
+
 	switch ([[UIApplication sharedApplication] statusBarOrientation])
 	{
 		case UIInterfaceOrientationLandscapeLeft:
@@ -1836,7 +1831,9 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 		}
 		if ([appurlstr hasPrefix:@"/"])
 		{
-//			leadingSlashRemoved = YES;
+#ifndef __clang_analyzer__
+			leadingSlashRemoved = YES;
+#endif
 			appurlstr = [appurlstr substringFromIndex:1];
 		}
 #if TARGET_IPHONE_SIMULATOR
@@ -2029,26 +2026,16 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     UIBarStyle barStyle = [self barStyleForColor:color];
     BOOL isTranslucent = [self barTranslucencyForColor:color];
 
-    BOOL isIOS7 = [self isIOS7OrGreater];
-
     UINavigationBar * navBar = [navController navigationBar];
     [navBar setBarStyle:barStyle];
     [navBar setTranslucent:isTranslucent];
-    if(isIOS7) {
-        [navBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-    } else {
-        [navBar setTintColor:barColor];
-    }
+    [navBar setBarTintColor:barColor];
     
     //This should not be here but in setToolBar. But keeping in place. Clean in 3.2.0
     UIToolbar * toolBar = [navController toolbar];
     [toolBar setBarStyle:barStyle];
     [toolBar setTranslucent:isTranslucent];
-    if(isIOS7) {
-        [toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-    } else {
-        [toolBar setTintColor:barColor];
-    }
+    [toolBar setBarTintColor:barColor];
 }
 
 +(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString

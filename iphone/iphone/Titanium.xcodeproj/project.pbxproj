@@ -527,6 +527,12 @@
 		84E00A9C17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E00A9B17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m */; };
 		84E00A9D17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E00A9B17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m */; };
 		84E00A9E17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E00A9B17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m */; };
+		84EB08011A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */; };
+		84EB08021A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */; };
+		84EB08031A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */; };
+		84EB08061A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */; };
+		84EB08071A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */; };
+		84EB08081A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */; };
 		84EB340017A8CAA700723B1E /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */; };
 		84EB340117A8CAA700723B1E /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */; };
 		84EB340217A8CAA700723B1E /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */; };
@@ -2013,6 +2019,10 @@
 		84DEE9161815CF52000D7B78 /* TiUIRefreshControlProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIRefreshControlProxy.m; sourceTree = "<group>"; };
 		84E00A9A17B646EE00B6DCE2 /* TiUINavigationWindowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUINavigationWindowProxy.h; sourceTree = "<group>"; };
 		84E00A9B17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUINavigationWindowProxy.m; sourceTree = "<group>"; };
+		84EB07FF1A71932D00D35815 /* TiUIiOSSplitWindowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSplitWindowProxy.h; sourceTree = "<group>"; };
+		84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSSplitWindowProxy.m; sourceTree = "<group>"; };
+		84EB08041A71948C00D35815 /* TiUIiOSSplitWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSplitWindow.h; sourceTree = "<group>"; };
+		84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSSplitWindow.m; sourceTree = "<group>"; };
 		84EB33FE17A8CAA700723B1E /* TiWindowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiWindowProxy.h; sourceTree = "<group>"; };
 		84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiWindowProxy.m; sourceTree = "<group>"; };
 		ABD472F213BB73BF00502912 /* KrollCoverage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KrollCoverage.h; path = ../Classes/KrollCoverage.h; sourceTree = "<group>"; };
@@ -3702,6 +3712,7 @@
 				B6A0A2AF180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.h */,
 				B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */,
 				84A00FED17FB392E00D4BF94 /* Dynamics */,
+				84EB07FE1A71920300D35815 /* SplitViewWindow */,
 				2B0B6E0F15951FC200F3170F /* DocumentViewer */,
 				2BDEA4F41448FFCB004EC750 /* Tabbedbar */,
 				2BCD59C91429563400DEC2E8 /* Toolbar */,
@@ -3725,13 +3736,6 @@
 				24D06FE711D0219B00F615D8 /* TiUIiOSAdView.m */,
 			);
 			name = iAd;
-			sourceTree = "<group>";
-		};
-		24DDF65B11646D0F006FD6E1 /* Document View */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = "Document View";
 			sourceTree = "<group>";
 		};
 		24DEDAC21123719700398D86 /* XML */ = {
@@ -3821,7 +3825,6 @@
 		24FB4ECF115C8120001AAF99 /* iPad */ = {
 			isa = PBXGroup;
 			children = (
-				24DDF65B11646D0F006FD6E1 /* Document View */,
 				24FB4ED2115C813F001AAF99 /* Popover */,
 				24FB4ED0115C812E001AAF99 /* Split View */,
 				24FB4F40115C8C4E001AAF99 /* TiUIiPadProxy.h */,
@@ -4074,6 +4077,17 @@
 				843FA58317BD4DFF0064E061 /* TiUINavigationWindow.m */,
 			);
 			name = "Nav Window";
+			sourceTree = "<group>";
+		};
+		84EB07FE1A71920300D35815 /* SplitViewWindow */ = {
+			isa = PBXGroup;
+			children = (
+				84EB07FF1A71932D00D35815 /* TiUIiOSSplitWindowProxy.h */,
+				84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */,
+				84EB08041A71948C00D35815 /* TiUIiOSSplitWindow.h */,
+				84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */,
+			);
+			name = SplitViewWindow;
 			sourceTree = "<group>";
 		};
 		B43663DA11138AB300782262 /* Scrollable View */ = {
@@ -5442,6 +5456,7 @@
 				24A1E519112D33AF003DA834 /* TiAudioSession.m in Sources */,
 				D5809D5919129CEB005A1F02 /* APSHTTPRequest.m in Sources */,
 				D5EEA1851A37486100E8BB3F /* DDParser.m in Sources */,
+				84EB08061A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */,
 				24A1E875112DF80B003DA834 /* TiUIPickerProxy.m in Sources */,
 				24A1E87B112DF83E003DA834 /* TiUIPicker.m in Sources */,
 				D5C8C99717EF45C900F54C19 /* ADTransformTransition.m in Sources */,
@@ -5497,6 +5512,7 @@
 				DAA905CE11A359F10030B119 /* TiAudioItem.m in Sources */,
 				B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
 				D5AADFAB17EC32A6008987EF /* UIControl+TiUIView.m in Sources */,
+				84EB08011A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */,
 				242E967711BAD2F20046A0D0 /* AsyncSocket.m in Sources */,
 				D56E6694180BF0B900F1B737 /* TiTransitionSwipeFade.m in Sources */,
 				242E967811BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */,
@@ -5856,6 +5872,7 @@
 				D5B6535719A1E03100F30AAB /* TiModalNavViewController.m in Sources */,
 				D512A7B4187F1813004E3AB1 /* ADTransitioningViewController.m in Sources */,
 				D5C8C99817EF45C900F54C19 /* ADTransformTransition.m in Sources */,
+				84EB08071A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */,
 				24D8E46F119B9D8A00F8CAA6 /* SCListener.m in Sources */,
 				D57007F518255BBD0063F7FE /* ADSwipeDualFadeTransition.m in Sources */,
 				24D8E470119B9D8A00F8CAA6 /* TiAudioSession.m in Sources */,
@@ -5908,6 +5925,7 @@
 				D586DCC319716E28002FBBBB /* CustomActionSheet.m in Sources */,
 				24D8E495119B9D8A00F8CAA6 /* TiErrorController.m in Sources */,
 				D56E6695180BF0B900F1B737 /* TiTransitionSwipeFade.m in Sources */,
+				84EB08021A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */,
 				DAA905CF11A35A010030B119 /* TiAudioMusicPlayer.m in Sources */,
 				DAA905D011A35A010030B119 /* TiAudioItem.m in Sources */,
 				B468B4F211B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
@@ -6273,6 +6291,7 @@
 				D5B6535819A1E03100F30AAB /* TiModalNavViewController.m in Sources */,
 				D512A7B5187F1813004E3AB1 /* ADTransitioningViewController.m in Sources */,
 				D5C8C99917EF45C900F54C19 /* ADTransformTransition.m in Sources */,
+				84EB08081A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */,
 				DABB374712E8CB280026A6EA /* SCListener.m in Sources */,
 				D57007F618255BBD0063F7FE /* ADSwipeDualFadeTransition.m in Sources */,
 				DABB374812E8CB280026A6EA /* TiAudioSession.m in Sources */,
@@ -6327,6 +6346,7 @@
 				D56E6696180BF0B900F1B737 /* TiTransitionSwipeFade.m in Sources */,
 				DABB376F12E8CB280026A6EA /* TiAudioMusicPlayer.m in Sources */,
 				DABB377012E8CB280026A6EA /* TiAudioItem.m in Sources */,
+				84EB08031A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */,
 				DABB377112E8CB280026A6EA /* TiLayoutQueue.m in Sources */,
 				DABB377312E8CB280026A6EA /* AsyncSocket.m in Sources */,
 				DABB377412E8CB280026A6EA /* AsyncUdpSocket.m in Sources */,
@@ -6686,7 +6706,7 @@
 					"$(SRCROOT)/../headers/**",
 					"${BUILT_PRODUCTS_DIR}/include/**",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -6745,7 +6765,7 @@
 					"$(SRCROOT)/../headers/**",
 					"${BUILT_PRODUCTS_DIR}/include/**",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -6800,7 +6820,7 @@
 					"$(SRCROOT)/../headers/**",
 					"${BUILT_PRODUCTS_DIR}/include/**",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",

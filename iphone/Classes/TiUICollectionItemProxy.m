@@ -466,7 +466,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         }
     }
     
-    if (updateForiOS7 && [TiUtils isIOS7OrGreater]) {
+    if (updateForiOS7) {
         width -= IOS7_ACCESSORY_EXTRA_OFFSET;
     }
 	

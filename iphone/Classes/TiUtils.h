@@ -595,25 +595,25 @@ typedef enum
  Whether or not the current OS version is equal to or greater than 4.2.
  @return _YES_ if the current OS version is equal to or greater than 4.2, _NO_ otherwise.
  */
-+(BOOL)isIOS4_2OrGreater;
+//+(BOOL)isIOS4_2OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 5.0.
  @return _YES_ if the current OS version is equal to or greater thann 5.0, _NO_ otherwise.
  */
-+(BOOL)isIOS5OrGreater;
+//+(BOOL)isIOS5OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 6.0.
  @return _YES_ if the current OS version is equal to or greater thann 6.0, _NO_ otherwise.
  */
-+(BOOL)isIOS6OrGreater;
+//+(BOOL)isIOS6OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 7.0.
  @return _YES_ if the current OS version is equal to or greater thann 7.0, _NO_ otherwise.
  */
-+(BOOL)isIOS7OrGreater;
+//+(BOOL)isIOS7OrGreater;
 
 /**
  Whether or not the current OS version is equal to or greater than 8.0.

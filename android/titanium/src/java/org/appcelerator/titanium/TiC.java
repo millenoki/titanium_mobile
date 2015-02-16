@@ -1468,6 +1468,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ENABLE_JAVASCRIPT_INTERFACE = "enableJavascriptInterface";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ENABLE_RETURN_KEY = "enableReturnKey";
 
 	/**
@@ -1569,22 +1574,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_FONTFAMILY = "fontFamily";
+	public static final String PROPERTY_FONTFAMILY = "family";
 
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_FONTWEIGHT = "fontWeight";
+	public static final String PROPERTY_FONTWEIGHT = "weight";
 
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_FONTSIZE = "fontSize";
+	public static final String PROPERTY_FONTSIZE = "size";
 	
 	/**
 	 * @module.api
 	 */
-	public static final String PROPERTY_FONTSTYLE = "fontStyle";
+	public static final String PROPERTY_FONTSTYLE = "style";
 
 	/**
 	 * @module.api
@@ -1601,6 +1606,10 @@ public class TiC
 	 */
 	public static final String PROPERTY_FONT_SIZE = "font-size";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FONT_STYLE = "font-style";
 	/**
 	 * @module.api
 	 */

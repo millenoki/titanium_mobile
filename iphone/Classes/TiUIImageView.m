@@ -462,7 +462,7 @@ DEFINE_EXCEPTIONS
     CGFloat realHeight = imageToUse.size.height * factor;
     autoWidth = realWidth;
     autoHeight = realHeight;
-    if (_tintColorImage && [TiUtils isIOS7OrGreater]) {
+    if (_tintColorImage) {
         imageToUse = [imageToUse imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     }
     return imageToUse;

@@ -70,9 +70,7 @@ DEFINE_EXCEPTIONS
 -(void) initialize
 {
     self.backgroundColor = [UIColor clearColor];
-    if ([TiUtils isIOS7OrGreater]) {
-        self.backgroundColor = [UIColor clearColor];
-    }
+    self.backgroundColor = [UIColor clearColor];
     self.opaque = NO;
     
     _proxy.wrapperView = self;

@@ -217,9 +217,8 @@
 		[self setBadge:[self valueForKey:@"badge"]];
 		controllerStack = [[NSMutableArray alloc] init];
 		[controllerStack addObject:[self rootController]];
-		if ([TiUtils isIOS7OrGreater]) {
-			[_controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
-		}
+		[_controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
+
 	}
 	return _controller;
 }
@@ -571,9 +570,6 @@
 
 -(void)setIconIsMask:(id)value
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return;
-    }
     [self replaceValue:value forKey:@"iconIsMask" notification:NO];
     BOOL newValue = ![TiUtils boolValue:value def:YES];
     if (newValue != iconOriginal) {
@@ -584,9 +580,6 @@
 
 -(void)setActiveIconIsMask:(id)value
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return;
-    }
     [self replaceValue:value forKey:@"activeIconIsMask" notification:NO];
     BOOL newValue = ![TiUtils boolValue:value def:YES];
     if (newValue != activeIconOriginal) {

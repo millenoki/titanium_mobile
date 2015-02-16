@@ -251,15 +251,13 @@
             
             [customActionSheet setCancelButton:[self createButtonWithStyle:UIBarButtonSystemItemCancel target:self action:@selector(actionSheetDoneButtonClicked:)]];
         }
-        if ([TiUtils isIOS7OrGreater]) {
-            if ([self valueForKey:@"tintColor"]) {
-                TiColor *ticolor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
-                customActionSheet.tintColor = [ticolor _color];
-            }
-            else {
-                UIView* topView = [[[TiApp app] controller] topWindowProxyView];
-                customActionSheet.tintColor = topView.tintColor;
-            }
+        if ([self valueForKey:@"tintColor"]) {
+            TiColor *ticolor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
+            customActionSheet.tintColor = [ticolor _color];
+        }
+        else {
+            UIView* topView = [[[TiApp app] controller] topWindowProxyView];
+            customActionSheet.tintColor = topView.tintColor;
         }
     }
     else {
@@ -519,7 +517,7 @@
 - (void)willPresentActionSheet:(UIActionSheet *)actionSheet_
 {
     //TIMOB-15939. Workaround rendering issue on iPAD on iOS7
-    if (actionSheet_ == actionSheet && forceOpaqueBackground &&[TiUtils isIOS7OrGreater] && [TiUtils isIPad]) {
+    if (actionSheet_ == actionSheet && forceOpaqueBackground && [TiUtils isIPad]) {
         NSArray* subviews = [actionSheet subviews];
         
         for (UIView* subview in subviews) {

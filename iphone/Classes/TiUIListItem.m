@@ -123,15 +123,11 @@ DEFINE_EXCEPTIONS
         _customBackground = newValue;
         if (_customBackground) {
             self.contentView.backgroundColor = [UIColor clearColor];
-            if ([TiUtils isIOS7OrGreater]) {
-                self.backgroundColor = [UIColor clearColor];
-            }
+            self.backgroundColor = [UIColor clearColor];
             self.contentView.opaque = NO;
         } else {
             self.contentView.backgroundColor = [UIColor whiteColor];
-            if ([TiUtils isIOS7OrGreater]) {
-                self.backgroundColor = [UIColor whiteColor];
-            }
+            self.backgroundColor = [UIColor whiteColor];
             self.contentView.opaque = YES;
         }
     }
@@ -139,29 +135,29 @@ DEFINE_EXCEPTIONS
 }
 
 -(void) updateBackgroundLayerCorners:(TiCellBackgroundView*)view {
-    if (_grouped && ![TiUtils isIOS7OrGreater]) {
-        UIRectCorner corners = -10;
-        switch (_positionMask) {
-            case TiGroupedListItemPositionBottom:
-                corners = (UIRectCornerBottomLeft | UIRectCornerBottomRight);
-                break;
-            case TiGroupedListItemPositionTop:
-                corners = (UIRectCornerTopLeft | UIRectCornerTopRight);
-                break;
-            case TiGroupedListItemPositionSingleLine:
-                corners = UIRectCornerAllCorners;
-                break;
-            default:
-                break;
-        }
-        [view setRoundedRadius:GROUP_ROUND_RADIUS inCorners:corners];
-    }
+//    if (_grouped && ![TiUtils isIOS7OrGreater]) {
+//        UIRectCorner corners = -10;
+//        switch (_positionMask) {
+//            case TiGroupedListItemPositionBottom:
+//                corners = (UIRectCornerBottomLeft | UIRectCornerBottomRight);
+//                break;
+//            case TiGroupedListItemPositionTop:
+//                corners = (UIRectCornerTopLeft | UIRectCornerTopRight);
+//                break;
+//            case TiGroupedListItemPositionSingleLine:
+//                corners = UIRectCornerAllCorners;
+//                break;
+//            default:
+//                break;
+//        }
+//        [view setRoundedRadius:GROUP_ROUND_RADIUS inCorners:corners];
+//    }
 }
 
 //TIMOB-17373. Workaround for separators disappearing on iOS7 and above
 - (void) ensureVisibleSelectorWithTableView:(UITableView*)tableView
 {
-    if (![TiUtils isIOS7OrGreater] || [self selectedOrHighlighted]) {
+    if ([self selectedOrHighlighted]) {
         return;
     }
     UITableView* attachedTableView = tableView;
@@ -216,13 +212,13 @@ DEFINE_EXCEPTIONS
 {
     if (_bgView == nil) {
         _bgView = [[TiCellBackgroundView alloc] initWithFrame:CGRectZero];
-        if (!_grouped || [TiUtils isIOS7OrGreater]) {
+//        if (!_grouped || [TiUtils isIOS7OrGreater]) {
             self.backgroundView = _bgView;
-        }
-        else if(self.backgroundView !=nil){
-            [_bgView setFrame:self.backgroundView.bounds];
-            [self.backgroundView addSubview:_bgView];
-        }
+//        }
+//        else if(self.backgroundView !=nil){
+//            [_bgView setFrame:self.backgroundView.bounds];
+//            [self.backgroundView addSubview:_bgView];
+//        }
         [self updateBackgroundLayerCorners:_bgView];
         _bgView.alpha = self.contentView.alpha;
     }
@@ -469,10 +465,8 @@ static NSArray* handledKeys;
 
 -(void)setTintColor_:(id)newValue
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        UIColor *color = newValue != nil ? [[TiUtils colorValue:newValue] _color] : [UIColor blackColor];
-        [self.textLabel setTintColor:color];
-    }
+    UIColor *color = newValue != nil ? [[TiUtils colorValue:newValue] _color] : [UIColor blackColor];
+    [self.textLabel setTintColor:color];
 }
 
 -(void)setFont_:(id)fontValue

@@ -109,7 +109,7 @@
         label = [[TiLabel alloc] initWithFrame:CGRectZero];
         label.backgroundColor = [UIColor clearColor];
         label.numberOfLines = 0;//default wordWrap to True
-        label.lineBreakMode = UILineBreakModeWordWrap; //default ellipsis to none
+        label.lineBreakMode = NSLineBreakByWordWrapping; //default ellipsis to none
         label.layer.shadowRadius = 0; //for backward compatibility
         label.layer.shadowOffset = CGSizeZero;
 		label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -119,15 +119,9 @@
         label.cornerRadiusAttributeProperty = DTBackgroundCornerRadiusAttribute;
         label.paddingAttributeProperty = DTPaddingAttribute;
         label.linkAttributeProperty = DTLinkAttribute;
-        if ([TiUtils isIOS6OrGreater])
-        {
-            label.strikeOutAttributeProperty = NSStrikethroughStyleAttributeName;
-            label.backgroundColorAttributeProperty = NSBackgroundColorAttributeName;
-        }
-        else {
-            label.strikeOutAttributeProperty = DTStrikeOutAttribute;
-            label.backgroundColorAttributeProperty = DTBackgroundColorAttribute;
-        }
+        label.strikeOutAttributeProperty = NSStrikethroughStyleAttributeName;
+        label.backgroundColorAttributeProperty = NSBackgroundColorAttributeName;
+
         label.delegate = self;
         [self addSubview:label];
 	}
@@ -330,11 +324,12 @@
     CGFloat newSize = [TiUtils floatValue:size];
     if (newSize < 4) { // Beholden to 'most minimum' font size
         [[self label] setAdjustsFontSizeToFitWidth:NO];
-        [[self label] setMinimumFontSize:0.0];
+        [[self label] setMinimumScaleFactor:0.0];
     }
     else {
         [[self label] setAdjustsFontSizeToFitWidth:YES];
-        [[self label] setMinimumFontSize:newSize];
+        
+        [[self label] setMinimumScaleFactor:(newSize / [self label].font.pointSize)];
     }
     [self updateNumberLines];   
 }
@@ -386,7 +381,7 @@
 
 -(void) updateNumberLines
 {
-    if ([[self label] minimumFontSize] >= 4.0)
+    if ([[self label] minimumScaleFactor] != 0)
     {
         [[self label] setNumberOfLines:1];
     }

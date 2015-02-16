@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -345,27 +345,27 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 
 -(NSString*)TEXT_STYLE_HEADLINE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleHeadline : @"INVALID";
+    return UIFontTextStyleHeadline;
 }
 -(NSString*)TEXT_STYLE_SUBHEADLINE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleSubheadline : @"INVALID";
+    return UIFontTextStyleSubheadline;
 }
 -(NSString*)TEXT_STYLE_BODY
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleBody : @"INVALID";
+    return UIFontTextStyleBody;
 }
 -(NSString*)TEXT_STYLE_FOOTNOTE
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleFootnote : @"INVALID";
+    return UIFontTextStyleFootnote;
 }
 -(NSString*)TEXT_STYLE_CAPTION1
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption1 : @"INVALID";
+    return UIFontTextStyleCaption1;
 }
 -(NSString*)TEXT_STYLE_CAPTION2
 {
-    return [TiUtils isIOS7OrGreater] ? UIFontTextStyleCaption2 : @"INVALID";
+    return UIFontTextStyleCaption2;
 }
 
 -(NSNumber*)isLandscape:(id)args
@@ -650,67 +650,67 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 
 -(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
 {
-	return NUMINT(NSUnderlineStyleNone);
+    return NUMINTEGER(NSUnderlineStyleNone);
 }
 -(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_SINGLE
 {
-	return NUMINT(NSUnderlineStyleSingle);
+    return NUMINTEGER(NSUnderlineStyleSingle);
 }
 -(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_THICK
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleThick): NUMINT(NSUnderlineStyleNone));
+    return NUMINTEGER(NSUnderlineStyleThick);
 }
 -(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineStyleDouble): NUMINT(NSUnderlineStyleNone));
+    return NUMINTEGER(NSUnderlineStyleDouble);
 }
 -(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_SOLID
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternSolid): NUMINT(NSUnderlineStyleNone));
+    return NUMINTEGER(NSUnderlinePatternSolid);
 }
 -(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DOT
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDot): NUMINT(NSUnderlineStyleNone));
+    return NUMINTEGER(NSUnderlinePatternDot);
 }
 -(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDash): NUMINT(NSUnderlineStyleNone));
+    return NUMINTEGER(NSUnderlinePatternDash);
 }
 -(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDot): NUMINT(NSUnderlineStyleNone));
+    return NUMINTEGER(NSUnderlinePatternDashDot);
 }
 -(NSNumber*)ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlinePatternDashDotDot): NUMINT(NSUnderlineStyleNone));
+    return NUMINTEGER(NSUnderlinePatternDashDotDot);
 }
 -(NSNumber*)ATTRIBUTE_UNDERLINE_BY_WORD
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSUnderlineByWord): NUMINT(NSUnderlineStyleNone));
+    return NUMINTEGER(NSUnderlineByWord);
 }
 -(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_NATURAL
 {
-	return NUMINT(NSWritingDirectionNatural);
+    return NUMINTEGER(NSWritingDirectionNatural);
 }
 -(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
 {
-	return NUMINT(NSWritingDirectionLeftToRight);
+    return NUMINTEGER(NSWritingDirectionLeftToRight);
 }
 -(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
 {
-	return NUMINT(NSWritingDirectionRightToLeft);
+    return NUMINTEGER(NSWritingDirectionRightToLeft);
 }
 -(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionEmbedding): NUMINT(NSWritingDirectionNatural));
+    return NUMINTEGER(NSTextWritingDirectionEmbedding);
 }
 -(NSNumber*)ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
 {
-	return ([TiUtils isIOS7OrGreater] ? NUMINT(NSTextWritingDirectionOverride): NUMINT(NSWritingDirectionNatural));
+    return NUMINTEGER(NSTextWritingDirectionOverride);
 }
 -(NSString *)ATTRIBUTE_LETTERPRESS_STYLE
 {
-	return ([TiUtils isIOS7OrGreater] ? NSTextEffectLetterpressStyle : @"");
+    return NSTextEffectLetterpressStyle;
 }
 
 #endif

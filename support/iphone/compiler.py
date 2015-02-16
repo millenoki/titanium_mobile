@@ -217,6 +217,10 @@ class Compiler(object):
 
 		self.classes_dir = os.path.join(self.iphone_dir,'Classes')
 		self.assets_dir = os.path.join(self.iphone_dir,'assets')
+
+		if deploytype == 'commonjs':
+			self.assets_dir = os.path.join(self.iphone_dir, '..', 'assets')
+
 		self.modules = []
 		self.modules_metadata = []
 		self.exports = []
@@ -733,5 +737,3 @@ if __name__ == "__main__":
 	name = ti.properties['name']
 	c = Compiler(project_dir,appid,name,deploytype)
 	c.compileProject(xcode,devicefamily,ios,sdk=sdk)
-
-

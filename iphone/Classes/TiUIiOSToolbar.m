@@ -29,14 +29,12 @@
         [toolBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleBottomMargin];
 
         [self addSubview:toolBar];
-        if ([TiUtils isIOS7OrGreater]) {
-            id extendVal = [[self proxy] valueForUndefinedKey:@"extendBackground"];
-            extendsBackground = [TiUtils boolValue:extendVal def:NO];
-            if (extendsBackground) {
-                [toolBar setDelegate:(id<UIToolbarDelegate>)self];
-                [self setClipsToBounds:NO];
-                return toolBar;
-            }
+        id extendVal = [[self proxy] valueForUndefinedKey:@"extendBackground"];
+        extendsBackground = [TiUtils boolValue:extendVal def:NO];
+        if (extendsBackground) {
+            [toolBar setDelegate:(id<UIToolbarDelegate>)self];
+            [self setClipsToBounds:NO];
+            return toolBar;
         }
 
         [self setClipsToBounds:YES];
@@ -63,34 +61,23 @@
 	return [self toolBar];
 }
 
--(void)drawRect:(CGRect)rect
+-(void)layoutSubviews
 {
-	[super drawRect:rect];
-	if (!showBottomBorder || [TiUtils isIOS7OrGreater])
+	CGRect ourBounds = [self bounds];
+	CGFloat height = ourBounds.size.height;	
+	if (height != [self verifyHeight:height])
 	{
+		[(TiViewProxy *)[self proxy] willChangeSize];
 		return;
 	}
 
-	CGRect toolFrame = [self bounds];
 
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetGrayStrokeColor(context, 0.0, 1.0);
-	CGContextSetLineWidth(context, 1.0);
-	CGContextSetShouldAntialias(context,false);
-	CGPoint bottomBorder[2];
-	
-	CGFloat x = toolFrame.origin.x;
-	CGFloat y = toolFrame.origin.y+toolFrame.size.height;
-	if ([self respondsToSelector:@selector(contentScaleFactor)] && [self contentScaleFactor] > 1.0)
-	{ //Yes, this seems very hackish. Very low priority would be to use something more elegant.
-		y -= 0.5;
-	}
-	bottomBorder[0]=CGPointMake(x,y);
-	x += toolFrame.size.width;
-	bottomBorder[1]=CGPointMake(x,y);
-	CGContextStrokeLineSegments(context,bottomBorder,2);
+	CGRect toolBounds;
+	toolBounds.size = [[self toolBar] sizeThatFits:ourBounds.size];
+	toolBounds.origin.x = 0.0;
+	toolBounds.origin.y = hideTopBorder?-1.0:0.0;
+	[toolBar setFrame:toolBounds];
 }
-
 
 -(void)setItems_:(id)value
 {
@@ -134,32 +121,6 @@
 	}
 }
 
--(void)setBorderTop_:(id)value
-{
-    if (![TiUtils isIOS7OrGreater]) {
-        hideTopBorder = ![TiUtils boolValue:value def:YES];
-        [(TiViewProxy *)[self proxy] willChangeSize];
-    }
-}
-
--(void)setBorderBottom_:(id)value
-{
-    if (![TiUtils isIOS7OrGreater]) {
-        showBottomBorder = [TiUtils boolValue:value def:NO];
-        [(TiViewProxy *)[self proxy] willChangeSize];
-    }
-}
-
--(void)setBackgroundImage_:(id)arg
-{
-    if ([TiUtils isIOS7OrGreater]) {
-        UIImage *image = [self loadImage:arg];
-        [[self toolBar] setBackgroundImage:image forToolbarPosition:(extendsBackground?UIBarPositionTopAttached:UIBarPositionAny) barMetrics:UIBarMetricsDefault];
-    } else {
-        [super setBackgroundImage_:arg];
-    }
-}
-
 -(void)setBarColor_:(id)value
 {
 	TiColor * newBarColor = [TiUtils colorValue:value];
@@ -168,21 +129,15 @@
 	[toolBar setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
 	UIColor* barColor = [TiUtils barColorForColor:newBarColor];
 
-	if ([TiUtils isIOS7OrGreater]) {
-		[toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
-	} else {
-		[toolBar setTintColor:barColor];
-	}
+    [toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
 }
 
 -(void)setTintColor_:(id)color
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        TiColor *ticolor = [TiUtils colorValue:color];
-        UIColor* theColor = [ticolor _color];
-        [[self toolBar] performSelector:@selector(setTintColor:) withObject:theColor];
-        [self performSelector:@selector(setTintColor:) withObject:theColor];
-    }
+    TiColor *ticolor = [TiUtils colorValue:color];
+    UIColor* theColor = [ticolor _color];
+    [[self toolBar] performSelector:@selector(setTintColor:) withObject:theColor];
+    [self performSelector:@selector(setTintColor:) withObject:theColor];
 }
 
 -(void)setTranslucent_:(id)value

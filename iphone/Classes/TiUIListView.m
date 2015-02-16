@@ -182,9 +182,7 @@ static NSDictionary* replaceKeysForRow;
 {
     if (_tableView == nil) {
         UITableViewStyle style = UITableViewStylePlain;
-//        if (![TiUtils isIOS7OrGreater]) {
-            style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:style];
-//        }
+        style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:style];
 
         _tableView = [[TiTableView alloc] initWithFrame:self.bounds style:style];
         _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
@@ -197,7 +195,7 @@ static NSDictionary* replaceKeysForRow;
         }
         id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
         BOOL doSetBackground = YES;
-        if ([TiUtils isIOS6OrGreater] && (style == UITableViewStyleGrouped)) {
+        if (style == UITableViewStyleGrouped) {
             doSetBackground = (backgroundColor != nil);
         }
         if (doSetBackground) {
@@ -207,9 +205,7 @@ static NSDictionary* replaceKeysForRow;
         tapGestureRecognizer.delegate = self;
         [_tableView addGestureRecognizer:tapGestureRecognizer];
         [tapGestureRecognizer release];
-        if ([TiUtils isIOS7OrGreater]) {
-            _defaultSeparatorInsets = [_tableView separatorInset];
-        }
+        _defaultSeparatorInsets = [_tableView separatorInset];
         
         if ([TiUtils isIOS8OrGreater]) {
             [_tableView setLayoutMargins:UIEdgeInsetsZero];
@@ -727,18 +723,16 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setSeparatorInsets_:(id)arg
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        [self tableView];
-        if ([arg isKindOfClass:[NSDictionary class]]) {
-            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
-            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
-            [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
-        } else {
-            [_tableView setSeparatorInset:_defaultSeparatorInsets];
-        }
-        if (![self isSearchActive]) {
-            [_tableView setNeedsDisplay];
-        }
+    [self tableView];
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
+        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
+        [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
+    } else {
+        [_tableView setSeparatorInset:_defaultSeparatorInsets];
+    }
+    if (![self isSearchActive]) {
+        [_tableView setNeedsDisplay];
     }
 }
 
@@ -1817,9 +1811,6 @@ static NSDictionary* replaceKeysForRow;
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = _tableView.bounds.size.width;
-	if ((self.tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
-		rowWidth -= GROUPED_MARGIN_WIDTH;
-	}
     
     // Apple does not provide a good way to get information about the index sidebar size
     // in the event that it exists - it silently resizes row content which is "flexible width"
@@ -2367,7 +2358,7 @@ static NSDictionary* replaceKeysForRow;
 	
 	// WORKAROUND FOR APPLE BUG: 4.2 and lower don't like setting background color for grouped table views on iPad.
 	// So, we check the table style and device, and if they match up wrong, we replace the background view with our own.
-	if ([table style] == UITableViewStyleGrouped && ([TiUtils isIPad] || [TiUtils isIOS6OrGreater])) {
+	if ([table style] == UITableViewStyleGrouped) {
 		UIView* bgView = [[[UIView alloc] initWithFrame:[table frame]] autorelease];
 		[table setBackgroundView:bgView];
 	}

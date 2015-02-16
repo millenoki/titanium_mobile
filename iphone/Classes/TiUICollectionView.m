@@ -782,23 +782,6 @@ static NSDictionary* replaceKeysForRow;
 
 #pragma mark - Public API
 
-//-(void)setSeparatorInsets_:(id)arg
-//{
-//    if ([TiUtils isIOS7OrGreater]) {
-//        [self tableView];
-//        if ([arg isKindOfClass:[NSDictionary class]]) {
-//            CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
-//            CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
-//            [_tableView setSeparatorInset:UIEdgeInsetsMake(0, left, 0, right)];
-//        } else {
-//            [_tableView setSeparatorInset:_defaultSeparatorInsets];
-//        }
-//        if (![self isSearchActive]) {
-//            [_tableView setNeedsDisplay];
-//        }
-//    }
-//}
-
 -(void)setPruneSectionsOnEdit_:(id)args
 {
     pruneSections = [TiUtils boolValue:args def:NO];
@@ -1471,7 +1454,6 @@ static NSDictionary* replaceKeysForRow;
     
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
-//    _canSwipeCells |= [cell hasSwipeButtons];
     return cell;
 }
 
@@ -1506,7 +1488,6 @@ static NSDictionary* replaceKeysForRow;
             }
             
             [viewProxy release];
-//            [view autorelease];
         }
         view.dataItem = item;
         view.proxy.indexPath = realIndexPath;
@@ -1531,7 +1512,6 @@ static NSDictionary* replaceKeysForRow;
                 [view setLayoutMargins:UIEdgeInsetsZero];
             }
             [viewProxy release];
-//            [view autorelease];
             view.proxy.indexPath = realIndexPath;
             return view;
         } else if (child) {
@@ -1543,76 +1523,7 @@ static NSDictionary* replaceKeysForRow;
     }
     return nil;
 }
-//
-//#pragma mark - MGSwipeTableCell Delegate
-//-(BOOL) swipeTableCell:(MGSwipeTableCell*) cell canSwipe:(MGSwipeDirection) direction {
-//    if (!_canSwipeCells) {
-//        return NO;
-//    }
-//    if (IS_OF_CLASS(cell, TiUICollectionItem)) {
-//        TiUICollectionItem* listItem = (TiUICollectionItem*)cell;
-//        NSIndexPath* indexPath = listItem.proxy.indexPath;
-//        BOOL isRight = (direction == MGSwipeDirectionRightToLeft);
-//        
-//        id theValue = [self valueWithKey:(isRight?@"canSwipeRight":@"canSwipeLeft") atIndexPath:indexPath];
-//        if (theValue) {
-//            return [theValue boolValue];
-//        }
-//        else {
-//            return [listItem hasSwipeButtons];
-//        }
-//    }
-//    return NO;
-//}
-//-(NSArray*) swipeTableCell:(MGSwipeTableCell*) cell swipeButtonsForDirection:(MGSwipeDirection)direction
-//             swipeSettings:(MGSwipeSettings*) swipeSettings expansionSettings:(MGSwipeExpansionSettings*) expansionSettings
-//{
-//    if (!_canSwipeCells) {
-//        return nil;
-//    }
-//    if (IS_OF_CLASS(cell, TiUICollectionItem)) {
-//        TiUICollectionItem* listItem = (TiUICollectionItem*)cell;
-//        NSIndexPath* indexPath = listItem.proxy.indexPath;
-//        BOOL isRight = (direction == MGSwipeDirectionRightToLeft);
-//        id theValue = [listItem.proxy valueForKey:(isRight?@"rightSwipeButtons":@"leftSwipeButtons")];
-//            if (IS_OF_CLASS(theValue, NSArray)) {
-//                NSMutableArray* buttonViews = [NSMutableArray arrayWithCapacity:[theValue count]];
-//                [theValue enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//                    if (IS_OF_CLASS(obj, TiViewProxy)) {
-//                        [(TiViewProxy*)obj setCanBeResizedByFrame:YES];
-////                        if ([(TiViewProxy*)obj viewAttached]) {
-////                            [(TiViewProxy*)obj refreshView];
-////                            [buttonViews addObject:[(TiViewProxy*)obj view]];
-////                        }
-////                        else {
-//                            [buttonViews addObject:[(TiViewProxy*)obj getAndPrepareViewForOpening]];
-////                        }
-//                    }
-//                }];
-//                theValue = [NSArray arrayWithArray:buttonViews];                
-//            }
-//        return theValue;
-//    }
-//    return nil;
-//}
-//
-//-(void) swipeTableCell:(MGSwipeTableCell*) cell didChangeSwipeState:(MGSwipeState) state gestureIsActive:(BOOL) gestureIsActive {
-//    if (state != MGSwipeStateNone) {
-//        _currentSwipeCell = cell;
-//    } else {
-//        _currentSwipeCell = nil;
-//    }
-//}
-//
-//-(void)closeSwipeMenu:(NSNumber*)anim {
-//    if (!_currentSwipeCell) return;
-//    BOOL animated = YES;
-//    if (anim != nil)
-//        animated = [anim boolValue];
-//    if (_currentSwipeCell) {
-//        [_currentSwipeCell hideSwipeAnimated:animated];
-//    }
-//}
+
 
 #pragma mark - UICollectionViewDelegate
 
@@ -1639,191 +1550,6 @@ static NSDictionary* replaceKeysForRow;
     [self.listViewProxy willDisplayCell:indexPath];
 }
 
-//- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
-//{
-//    if (tableView != _tableView) {
-//        return nil;
-//    }
-//    
-//    if (searchActive) {
-//        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-//            NSInteger realSection = [self sectionForSearchSection:section];
-//            return [self sectionView:realSection forLocation:@"footerView" section:nil];
-//        } else {
-//            return nil;
-//        }
-//    }
-//    TiUICollectionSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
-//    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
-//    {
-//        return nil;
-//    }
-//    
-//    return [self sectionView:section forLocation:@"footerView" section:nil];
-//}
-
-//#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
-//
-//- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-//{
-//    if (tableView != _tableView) {
-//        return 0.0;
-//    }
-//    
-//    NSInteger realSection = section;
-//    
-//    if (searchActive) {
-//        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-//            realSection = [self sectionForSearchSection:section];
-//        } else {
-//            return 0.0;
-//        }
-//    }
-//    
-//    TiUICollectionSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-//    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
-//    {
-//        return 0.0;
-//    }
-//    TiViewProxy* viewProxy = [sectionProxy sectionViewForLocation:@"headerView" inCollectionView:self];
-//	
-//    CGFloat size = 0.0;
-//    if (viewProxy!=nil) {
-//        [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
-//        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
-//        TiDimension constraint =  TiDimensionIsUndefined(viewLayout->height)?[viewProxy defaultAutoHeightBehavior:nil]:viewLayout->height;
-//        switch (constraint.type)
-//        {
-//            case TiDimensionTypeDip:
-//                size += constraint.value;
-//                break;
-//            case TiDimensionTypeAuto:
-//            case TiDimensionTypeAutoSize:
-//                size += [viewProxy minimumParentSizeForSize:[self.tableView bounds].size].height;
-//                break;
-//            default:
-//                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
-//                break;
-//        }
-//    }
-//    /*
-//     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
-//     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
-//     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
-//     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
-//     * provided it is NOT the empty string.
-//     *
-//     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
-//     * return a 0.0 height that is overridden by the system.
-//     */
-//    else if ([sectionProxy headerTitle]!=nil) {
-//        if ([[sectionProxy headerTitle] isEqualToString:@""]) {
-//            return size;
-//        }
-//        size+=[tableView sectionHeaderHeight];
-//        
-//        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
-//            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
-//        }
-//    }
-//    return size;
-//}
-//
-//- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
-//{
-//    if (tableView != _tableView) {
-//        return 0.0;
-//    }
-//    
-//    NSInteger realSection = section;
-//    
-//    if (searchActive) {
-//        if (keepSectionsInSearch && ([_searchResults count] > 0) ) {
-//            realSection = [self sectionForSearchSection:section];
-//        } else {
-//            return 0.0;
-//        }
-//    }
-//    
-//    TiUICollectionSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-//    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
-//    {
-//        return 0.0;
-//    }
-//    TiViewProxy* viewProxy = [sectionProxy sectionViewForLocation:@"footerView" inCollectionView:self];
-//	
-//    CGFloat size = 0.0;
-//    if (viewProxy!=nil) {
-//        [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
-//        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
-//        TiDimension constraint =  TiDimensionIsUndefined(viewLayout->height)?[viewProxy defaultAutoHeightBehavior:nil]:viewLayout->height;
-//        switch (constraint.type)
-//        {
-//            case TiDimensionTypeDip:
-//                size += constraint.value;
-//                break;
-//            case TiDimensionTypeAuto:
-//            case TiDimensionTypeAutoSize:
-//                size += [viewProxy minimumParentSizeForSize:[self.tableView bounds].size].height;
-//                break;
-//            default:
-//                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
-//                break;
-//        }
-//    }
-//    /*
-//     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
-//     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
-//     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
-//     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
-//     * provided it is NOT the empty string.
-//     *
-//     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
-//     * return a 0.0 height that is overridden by the system.
-//     */
-//    else if ([sectionProxy footerTitle]!=nil) {
-//        if ([[sectionProxy footerTitle] isEqualToString:@""]) {
-//            return size;
-//        }
-//        size+=[tableView sectionFooterHeight];
-//        
-//        if (size < DEFAULT_SECTION_HEADERFOOTER_HEIGHT) {
-//            size += DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
-//        }
-//    }
-//    return size;
-//}
-//
-//-(CGFloat)computeRowWidth
-//{
-//    CGFloat rowWidth = _tableView.bounds.size.width;
-//	if ((self.tableView.style == UITableViewStyleGrouped) && (![TiUtils isIOS7OrGreater]) ){
-//		rowWidth -= GROUPED_MARGIN_WIDTH;
-//	}
-//    
-//    // Apple does not provide a good way to get information about the index sidebar size
-//    // in the event that it exists - it silently resizes row content which is "flexible width"
-//    // but this is not useful for us. This is a problem when we have Ti.UI.SIZE/FILL behavior
-//    // on row contents, which rely on the height of the row to be accurately precomputed.
-//    //
-//    // The following is unreliable since it uses a private API name, but one which has existed
-//    // since iOS 3.0. The alternative is to grab a specific subview of the tableview itself,
-//    // which is more fragile.
-//    
-//    NSArray* subviews = [_tableView subviews];
-//    if ([subviews count] > 0) {
-//        // Obfuscate private class name
-//        Class indexview = NSClassFromString([@"UITableView" stringByAppendingString:@"Index"]);
-//        for (UIView* view in subviews) {
-//            if ([view isKindOfClass:indexview]) {
-//                rowWidth -= [view frame].size.width;
-//            }
-//        }
-//    }
-//    
-//    return rowWidth;
-//}
-//
 -(CGFloat)collectionView:(UICollectionView *)collectionView itemWidth:(CGFloat)width
 {
 	if (TiDimensionIsDip(_minItemWidth))
@@ -1849,24 +1575,7 @@ static NSDictionary* replaceKeysForRow;
     }
     return height;
 }
-//
-//-(TiUICollectionItem*)visibleCellAtIndexPath:(NSIndexPath *)indexPath {
-//    NSArray* visibleCells = _tableView.visibleCells;
-//    if (!visibleCells) return nil;
-//    __block TiUICollectionItem* result = nil;
-//    [visibleCells enumerateObjectsUsingBlock:^(TiUICollectionItem* obj, NSUInteger idx, BOOL *stop) {
-//        if ([obj isKindOfClass:[TiUICollectionItem class]]) {
-//            if ([obj.proxy.indexPath compare:indexPath] == NSOrderedSame) {
-//                result = obj;
-//                stop = YES;
-//            }
-//        }
-//        
-//    }];
-//    return result;
-//}
-//
-//
+
 - (CGSize)collectionView:(UICollectionView *)collectionView sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
@@ -1913,10 +1622,6 @@ static NSDictionary* replaceKeysForRow;
             templateId = _defaultItemTemplate;
         }
         TiUICollectionItemProxy *cellProxy = nil;
-//        TiUICollectionItem* visibleCell = [self visibleCellAtIndexPath:realIndexPath];
-//        if (visibleCell) {
-//            cellProxy = [((TiUICollectionItem*)visibleCell) proxy];
-//        }
         if (!cellProxy) {
             cellProxy = [_measureProxies objectForKey:templateId];
         }
@@ -1932,25 +1637,6 @@ static NSDictionary* replaceKeysForRow;
     result.width -= (sectionInset.left + sectionInset.right);
     return result;
 }
-
-//
-//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-//{
-//    if (allowsSelection==NO)
-//	{
-//		[tableView deselectRowAtIndexPath:indexPath animated:YES];
-//	}
-//    [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:NO];
-//}
-//
-//- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
-//{
-//    if (allowsSelection==NO)
-//	{
-//		[tableView deselectRowAtIndexPath:indexPath animated:YES];
-//	}
-//    [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:YES];
-//}
 
 #pragma mark UICollectionViewDelegateFlowLayout
 
@@ -2220,25 +1906,25 @@ referenceSizeForFooterInSection:(NSInteger)section
 	}
 }
 
-//-(void)detectSectionChange {
-//    NSArray* visibles = [_tableView indexPathsForVisibleItems];
-//    NSIndexPath* indexPath = [visibles firstObject];
-//    NSInteger section = [indexPath section];
-//    if (_currentSection != section) {
-//        _currentSection = section;
-//        if ([self.proxy _hasListeners:@"headerchange" checkParent:NO])
-//        {
-//            NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:_tableView];
-//            [event setObject:NUMINT(indexPath.row) forKey:@"firstVisibleItem"];
-//            [event setObject:NUMINT([visibles count]) forKey:@"visibleItemCount"];
-//            TiViewProxy* headerView = [self currentSectionViewProxy:_currentSection forLocation:@"headerView"];
-//            if (headerView) {
-//                [event setObject:headerView forKey:@"headerView"];
-//            }
-//            [self.proxy fireEvent:@"headerchange" withObject:event checkForListener:NO];
-//        }
-//    }
-//}
+-(void)detectSectionChange {
+    NSArray* visibles = [_tableView indexPathsForVisibleItems];
+    NSIndexPath* indexPath = [visibles firstObject];
+    NSInteger section = [indexPath section];
+    if (_currentSection != section) {
+        _currentSection = section;
+        if ([[self viewProxy] _hasListeners:@"headerchange" checkParent:NO])
+        {
+            NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath collectionView:_tableView];
+            [event setObject:NUMINTEGER(indexPath.row) forKey:@"firstVisibleItem"];
+            [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
+            TiViewProxy* headerView = [self currentSectionViewProxy:_currentSection forLocation:@"headerView"];
+            if (headerView) {
+                [event setObject:headerView forKey:@"headerView"];
+            }
+            [self.proxy fireEvent:@"headerchange" withObject:event checkForListener:NO];
+        }
+    }
+}
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
@@ -2262,7 +1948,7 @@ referenceSizeForFooterInSection:(NSInteger)section
             [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] propagate:NO checkForListener:NO];
         }
     }
-//    [self detectSectionChange];
+    [self detectSectionChange];
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
@@ -2279,7 +1965,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     if (decelerate==NO)
 	{
-//        [self detectSectionChange];
+        [self detectSectionChange];
         if (_scrollSuspendImageLoading) {
             // resume image loader when we're done scrolling
             [[ImageLoader sharedLoader] resume];
@@ -2291,7 +1977,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil] propagate:NO checkForListener:NO];
 	}
     
-//    [self detectSectionChange];
+    [self detectSectionChange];
     
     if ( _hasPullView && pullActive ) {
         pullActive = NO;
@@ -2307,7 +1993,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 	{
 		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView] propagate:NO checkForListener:NO];
 	}
-//    [self detectSectionChange];
+    [self detectSectionChange];
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView

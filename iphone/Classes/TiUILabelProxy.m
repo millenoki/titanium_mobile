@@ -70,15 +70,9 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
                     @(NO), DTIgnoreLinkStyleOption,
                     @"Helvetica", DTDefaultFontFamily,
                     @"Helvetica", NSFontAttributeName,
+                    @YES, DTUseiOS6Attributes,
                     [NSNumber numberWithFloat:(17 / kDefaultFontSize)], NSTextSizeMultiplierDocumentOption,
                     [NSNumber numberWithInt:kCTLineBreakByWordWrapping], DTDefaultLineBreakMode, nil] retain];
-        if ([TiUtils isIOS6OrGreater])
-        {
-            [options setObject:@YES forKey:DTUseiOS6Attributes];
-            if ([TiUtils isIOS7OrGreater])
-            {
-            }
-        }
     }
     return self;
 }

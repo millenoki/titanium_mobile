@@ -229,12 +229,10 @@
 
 -(void)setTintColor_:(id)color
 {
-    if ([TiUtils isIOS7OrGreater]) {
-        TiColor *ticolor = [TiUtils colorValue:color];
-        UIColor* theColor = [ticolor _color];
-        [[self searchBar] performSelector:@selector(setTintColor:) withObject:theColor];
-        [self performSelector:@selector(setTintColor:) withObject:theColor];
-    }
+    TiColor *ticolor = [TiUtils colorValue:color];
+    UIColor* theColor = [ticolor _color];
+    [[self searchBar] setTintColor:theColor];
+    [self setTintColor:theColor];
 }
 
 -(void)setBarColor_:(id)value
@@ -245,11 +243,7 @@
 	[search setBarStyle:[TiUtils barStyleForColor:newBarColor]];
 	[search setTranslucent:[TiUtils barTranslucencyForColor:newBarColor]];
 	UIColor* theColor = [TiUtils barColorForColor:newBarColor];
-	if ([TiUtils isIOS7OrGreater]) {
-		[search performSelector:@selector(setBarTintColor:) withObject:theColor];
-	} else {
-		[search setTintColor:theColor];
-	}
+	[search setBarTintColor:theColor];
 }
 
 -(void)setTranslucent_:(id)value

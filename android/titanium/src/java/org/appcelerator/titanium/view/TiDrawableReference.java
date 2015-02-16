@@ -20,14 +20,11 @@ import java.util.regex.Pattern;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiFastDev;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
-import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageHelper;
@@ -955,28 +952,12 @@ public class TiDrawableReference
 		InputStream stream = null;
 
 		if (isTypeUrl() && url != null) {
-//		    if (http != null) {
-//	            stream = http.getInputStream();
-//		    }
-//		    else {
-		        try {
-	                if (url.startsWith(TiC.URL_ANDROID_ASSET_RESOURCES)
-	                    && TiFastDev.isFastDevEnabled()) {
-	                    TiBaseFile tbf = TiFileFactory.createTitaniumFile(new String[] { url }, false);
-	                    if (!tbf.exists()) throw new FileNotFoundException();
-	                    stream = tbf.getInputStream();
-	                } else {
-	                    stream = TiFileHelper.getInstance().openInputStream(url, false);
-	                }
-	            } catch (FileNotFoundException e) {
-	                Log.e(TAG, "file not found with url " + url, e);
-	                throw e;
-	            }
-	            catch (IOException e) {
-	                    Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
-	            }
-//		    }
-			
+			try {
+				stream = TiFileHelper.getInstance().openInputStream(url, false);
+				
+			} catch (IOException e) {
+				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage(), e);
+			}
 
 		} else if (isTypeFile() && file != null) {
 			if (!file.exists()) throw new FileNotFoundException();
