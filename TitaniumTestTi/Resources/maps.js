@@ -1,4 +1,5 @@
 var Map = app.modules.map = require('akylas.map');
+Map.mapboxAccessToken = 'pk.eyJ1IjoiYmxlZWdlIiwiYSI6IkRGLTFPU00ifQ.qJpq3jytAL9A-z_tkNypqg';
 var simplify = require('simplifygeometry');
 
 function mapExs(_args) {
@@ -724,6 +725,7 @@ function initGeoSettings() {
 			app.location.gpsSFullRule = Ti.Geolocation.Android
 					.createLocationRule({
 						provider : Ti.Geolocation.Android.PROVIDER_GPS,
+						headingFilter:1,
 						// Updates should be accurate to 1m
 						minDistance : 1,
 						// Updates should be no older than 5m
@@ -834,16 +836,18 @@ function mapEx(_args) {
 	});
 	mbTiles.addEventListener('load', function() {
 		sdebug('mbTiles loaded');
-		mapview.region = mbTiles.region;
+		if (userLocationAnnot.visible == false) {
+			mapview.region = mbTiles.region;
+		}
 	});
 	var mapview = Map.createMapView({
 		tileSource : [ 'examples.map-z2effxa8', mbTiles ],
 		// mapType: Map.NORMAL_TYPE,
 		defaultCalloutTemplate : 'default',
 		calloutUseTemplates : true,
-		userLocationEnabled : true,
+//		userLocationEnabled : true,
 		toolbar : false,
-		userTrackingMode : 2,
+//		userTrackingMode : 2,
 		calloutTemplates : {
 			'default' : {
 				properties : {
@@ -897,10 +901,21 @@ function mapEx(_args) {
 		annotations : [ bridge, opera ]
 	// < add these annotations upon creation
 	});
+	var userFollow = true;
 	mapview.addEventListener('longpress', sdebug);
+	mapview.addEventListener('locationButton', function(e) {
+		sdebug(e.type);
+		userFollow = true;
+	});
+	mapview.addEventListener('followUserLocation', function(e) {
+		sdebug(e.type);
+		userFollow = e.value;
+	});
+	
 	var userLocationAnnot = Map.createAnnotation({
 //		latitude : -33.8569,
 //		longitude : 151.2153,
+		flat:true,
 		visible:false,
 		anchorPoint : {
 			x : 0.5,
@@ -909,14 +924,27 @@ function mapEx(_args) {
 		image : '/images/direction_arrow.png',
 		showInfoWindow:false
 	});
+	
+	
 	function onLocation(e) {
-		sdebug(e);
+//		sdebug(e);
 		if (!e.coords || e.success === false || e.error) {
 			return;
 		}
-		userLocationAnnot.applyProperties(e.coords);
+		userLocationAnnot.applyProperties(_.assign({
+			visible:true
+		}, e.coords));
+		if (userFollow) {
+			mapview.updateCamera({
+				centerCoordinate:[e.coords.latitude, e.coords.longitude],
+				bearing:e.coords.heading,
+				zoom:Math.max(mapview.zoom, 15),
+				animate:true
+			});
+		}
 	}
 	app.location.setFullGPS();
+	Titanium.Geolocation.getCurrentPosition(onLocation);
 	Titanium.Geolocation.addEventListener('location', onLocation);
 	// Titanium.Geolocation.removeEventListener('location', onLocation);
 	win.addEventListener('close', function() {
