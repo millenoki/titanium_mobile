@@ -11,7 +11,7 @@
 #import "TiUtils.h"
 #import "TiBlob.h"
 
-#define DATA_CHUNK_SIZE     (64)
+#define DATA_CHUNK_SIZE     (1024)
 #define BUFSIZE 65536U
 
 @implementation TiBluetoothDeviceProxy
@@ -169,14 +169,7 @@
 
 -(NSData *)dataWithContentsOfStream:(NSInputStream *)input initialCapacity:(NSUInteger)capacity error:(NSError **)error {
     size_t bufsize = MIN(BUFSIZE, capacity);
-    uint8_t * buf = malloc(bufsize);
-    if (buf == NULL) {
-        if (error) {
-            *error = [NSError errorWithDomain:NSPOSIXErrorDomain code:ENOMEM userInfo:nil];
-        }
-        return nil;
-    }
-    
+    uint8_t buf[bufsize];
     NSMutableData* result = capacity == NSUIntegerMax ? [NSMutableData data] : [NSMutableData dataWithCapacity:capacity];
     @try {
         while ([input hasBytesAvailable]) {
@@ -192,7 +185,7 @@
                 break;
             }
             else {
-                [result appendBytes:buf length:n];
+                [result appendBytes:(const void *)buf length:n];
             }
         }
     }
