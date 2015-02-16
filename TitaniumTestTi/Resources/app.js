@@ -1283,25 +1283,25 @@ function buttonAndLabelEx() {
 			bottom: 30,
 			right: 30
 		},
-		height: 50,
-		disableHW: true,
+		height: 130,
+		//		disableHW : true,
 		bubbleParent: false,
 		borderRadius: 10,
 		borderColor: 'red',
-		backgroundColor: 'gray',
-		touchEnabled: false,
-		backgroundSelectedGradient: {
-			type: 'linear',
-			colors: ['#333', 'transparent'],
-			startPoint: {
-				x: 0,
-				y: 0
-			},
-			endPoint: {
-				x: 0,
-				y: "100%"
-			}
-		},
+		//		backgroundColor : 'gray',
+		//		touchEnabled : false,
+		//		backgroundSelectedGradient : {
+		//			type : 'linear',
+		//			colors : [ '#333', 'transparent' ],
+		//			startPoint : {
+		//				x : 0,
+		//				y : 0
+		//			},
+		//			endPoint : {
+		//				x : 0,
+		//				y : "100%"
+		//			}
+		//		},
 		title: 'test buutton'
 	});
 	button.add(Ti.UI.createView({
@@ -1342,116 +1342,124 @@ function buttonAndLabelEx() {
 	});
 
 	win.add(button);
-	// var label = Ti.UI.createLabel({
-	// textAlign: 'center',
-	// backgroundColor: 'red',
-	// verticalAlign: 'bottom',
-	// font: {
-	// weight: 'bold',
-	// size: 16
-	// },
-	// bottom: 20,
-	// height: 34,
-	// width: 140,
-	// borderRadius: 2,
-	// bubbleParent: false,
-	// selectedColor: 'green',
-	// backgroundSelectedGradient: {
-	// type: 'linear',
-	// colors: ['#333', 'transparent'],
-	// startPoint: {
-	// x: 0,
-	// y: 0
-	// },
-	// endPoint: {
-	// x: 0,
-	// y: "100%"
-	// }
-	// },
-	// verticalAlign: 'bottom',
-	// text: 'This is a sample\n text for a label'
-	// });
-	// label.add(Ti.UI.createView({
-	// touchEnabled: false,
-	// backgroundColor: 'red',
-	// backgroundSelectedColor: 'white',
-	// left: 10,
-	// width: 15,
-	// height: 15
-	// }));
-	// label.add(Ti.UI.createView({
-	// backgroundColor: 'green',
-	// bottom: 10,
-	// width: 15,
-	// height: 15
-	// }));
-	// label.add(Ti.UI.createView({
-	// backgroundColor: 'yellow',
-	// top: 10,
-	// width: 15,
-	// height: 15
-	// }));
-	// label.add(Ti.UI.createView({
-	// backgroundColor: 'orange',
-	// right: 10,
-	// width: 15,
-	// height: 15
-	// }));
+
 	var t3 = Ti.UI.create2DMatrix().scale(2.0, 2.0).translate(0, -40)
 		.rotate(90);
-	label.addEventListener('longpress', function(e) {
-		label.animate({
-			duration: 5000,
-			// width:'FILL',
-			// height:'FILL',
-			// bottom:0,
-			autoreverse: true,
-			fullscreen: !label.fullscreen
-				// transform: varSwitch(label.transform, t3, t1),
-		});
-	});
-	win.add(label);
-	var button2 = Ti.UI.createButton({
-		padding: {
-			left: 80
-		},
-		bubbleParent: false,
-		backgroundColor: 'gray',
-		dispatchPressed: true,
-		selectedColor: 'red',
-		backgroundSelectedGradient: {
-			type: 'linear',
-			colors: ['#333', 'transparent'],
-			startPoint: {
-				x: 0,
-				y: 0
+	win.add({
+		type: 'Ti.UI.Label',
+		properties: {
+			textAlign: 'center',
+			backgroundColor: 'red',
+			verticalAlign: 'bottom',
+			font: {
+				weight: 'bold',
+				size: 16
 			},
-			endPoint: {
-				x: 0,
-				y: "100%"
-			}
-		},
-		title: 'test buutton'
-	});
-	button2.add(Ti.UI.createButton({
-		left: 0,
-		backgroundColor: 'green',
-		selectedColor: 'red',
-		backgroundSelectedGradient: {
-			type: 'linear',
-			colors: ['#333', 'transparent'],
-			startPoint: {
-				x: 0,
-				y: 0
+			bottom: 20,
+			height: 34,
+			width: 140,
+			borderRadius: 2,
+			bubbleParent: false,
+			selectedColor: 'green',
+			backgroundSelectedGradient: {
+				type: 'linear',
+				colors: ['#333', 'transparent'],
+				startPoint: {
+					x: 0,
+					y: 0
+				},
+				endPoint: {
+					x: 0,
+					y: "100%"
+				}
 			},
-			endPoint: {
-				x: 0,
-				y: "100%"
-			}
+			verticalAlign: 'bottom',
+			text: 'This is a sample\n text for a label'
 		},
-		title: 'Osd'
-	}));
-	win.add(button2);
+		childTemplates: [{
+			touchEnabled: false,
+			backgroundColor: 'red',
+			backgroundSelectedColor: 'white',
+			left: 10,
+			width: 15,
+			height: 15
+		}, {
+			backgroundColor: 'green',
+			bottom: 10,
+			width: 15,
+			height: 15
+		}, {
+			backgroundColor: 'yellow',
+			top: 10,
+			width: 15,
+			height: 15
+		}, {
+			backgroundColor: 'orange',
+			right: 10,
+			width: 15,
+			height: 15
+		}],
+		events: {
+			'longpress': function(e) {
+				e.source.animate({
+					duration: 5000,
+					// width:'FILL',
+					// height:'FILL',
+					// bottom:0,
+					autoreverse: true,
+					fullscreen: !e.source.fullscreen
+						// transform: varSwitch(label.transform, t3, t1),
+				});
+			}
+		}
+	});
+	win.add({
+		type: 'Ti.UI.Button',
+		properties: {
+			padding: {
+				left: 80
+			},
+			bubbleParent: false,
+			backgroundColor: 'gray',
+			dispatchPressed: true,
+			selectedColor: 'red',
+			backgroundSelectedGradient: {
+				type: 'linear',
+				colors: ['#333', 'transparent'],
+				startPoint: {
+					x: 0,
+					y: 0
+				},
+				endPoint: {
+					x: 0,
+					y: "100%"
+				}
+			},
+			title: 'test buutton'
+		},
+		childTemplates: [{
+			type: 'Ti.UI.Button',
+			properties: {
+				left: 0,
+				backgroundColor: 'green',
+				selectedColor: 'red',
+				backgroundSelectedGradient: {
+					type: 'linear',
+					colors: ['#333', 'transparent'],
+					startPoint: {
+						x: 0,
+						y: 0
+					},
+					endPoint: {
+						x: 0,
+						y: "100%"
+					}
+				},
+				title: 'Osd'
+			}
+		}]
+
+	});
 
 	openWin(win);
 }
@@ -4100,7 +4108,7 @@ var firstWindow = createWin({
 	top: 0,
 	// barColor:'rgba(255,255,255,0)',
 	title: 'main',
-	extendEdges : [ Ti.UI.EXTEND_EDGE_ALL ],
+	extendEdges: [Ti.UI.EXTEND_EDGE_ALL],
 	// hideShadow:true,
 	autoAdjustScrollViewInsets: true,
 	translucent: true,
@@ -4119,22 +4127,22 @@ firstWindow
 		properties: {
 
 			// headerTitle: 'DEVICE',
-			headerView : headerView,
+			headerView: headerView,
 			footerTitle: 'This is a footer textfor the list view',
 			overScrollMode: 2,
 			searchHidden: true,
 			// style:1,
 			allowsSelection: false,
 			// searchView: {
-			// 	type: 'Ti.UI.SearchBar',
-			// 	properties: {
-			// 		// hideNavBarWithSearch:false,
-			// 		// barColor: '#000',
-			// 		showCancel: true,
-			// 		height: 84,
-			// 		value: 'test',
-			// 		top: 0,
-			// 	}
+			// type: 'Ti.UI.SearchBar',
+			// properties: {
+			// // hideNavBarWithSearch:false,
+			// // barColor: '#000',
+			// showCancel: true,
+			// height: 84,
+			// value: 'test',
+			// top: 0,
+			// }
 			// },
 			sections: [{
 					// footerTitle: 'This is a footer text',
@@ -6770,19 +6778,19 @@ function pickerColumnsTest(_args) {
 		backgroundColor: 'transparent',
 		navBarHidden: true
 	}, _args));
-	//    var pickerCol = new PickerColumn({
-	//    	width: 'FILL'
-	//    });
+	// var pickerCol = new PickerColumn({
+	// width: 'FILL'
+	// });
 	//
-	//    var data = [];
-	//    for (i = 0; i <= 30; i++) {
-	//        data[i] = new PickerRow({
-	//            title: (i + 1).toString()
-	//        });
-	//        pickerCol.addRow(data[i]);
-	//    }
+	// var data = [];
+	// for (i = 0; i <= 30; i++) {
+	// data[i] = new PickerRow({
+	// title: (i + 1).toString()
+	// });
+	// pickerCol.addRow(data[i]);
+	// }
 	// picker.selectionIndicator = true;
-	//    picker.add(pickerCol);
+	// picker.add(pickerCol);
 
 	var billingPicker = new View({
 		properties: {
@@ -6840,11 +6848,11 @@ function pickerColumnsTest(_args) {
 				selectedRow: [0, 21]
 			},
 			// childTemplates: [{
-			// 	childTemplates: _.times(31, function(n) {
-			// 		return {
-			// 			title: '' + (n + 1)
-			// 		};
-			// 	})
+			// childTemplates: _.times(31, function(n) {
+			// return {
+			// title: '' + (n + 1)
+			// };
+			// })
 			// }],
 			events: {
 				'change': function(e) {
@@ -6861,7 +6869,7 @@ function pickerColumnsTest(_args) {
 	billingPicker.doneButton.addEventListener('click', function() {
 		win.close();
 	});
-	//    billingPicker.originalValue = billingView.button.text;
+	// billingPicker.originalValue = billingView.button.text;
 	// picker.setSelectedRow(0, 1);
 	win.add(billingPicker);
 	billingPicker.animate({
@@ -6870,4 +6878,3 @@ function pickerColumnsTest(_args) {
 	});
 	win.open();
 }
-
