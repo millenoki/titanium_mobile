@@ -107,7 +107,6 @@ import org.appcelerator.titanium.util.TiUrl;
 import ti.modules.titanium.xml.DocumentProxy;
 import ti.modules.titanium.xml.XMLModule;
 import android.net.Uri;
-import android.os.Build;
 import android.util.Base64OutputStream;
 
 public class TiHTTPClient
