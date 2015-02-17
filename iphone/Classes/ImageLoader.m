@@ -793,9 +793,13 @@ DEFINE_EXCEPTIONS
 	return result;
 }
 
--(void)clearCache
+-(void)clearMemoryCache
 {
     [cache removeAllObjects];
+}
+
+-(void)clearDiskCache
+{
     NSFileManager* fm = [NSFileManager defaultManager];
     NSError* error = nil;
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, (NSUserDomainMask | NSLocalDomainMask), YES);
@@ -809,6 +813,12 @@ DEFINE_EXCEPTIONS
             DebugLog(@"Error removing file at path: %@", error.localizedDescription);
         }
     }
+}
+
+-(void)clearCache
+{
+    [self clearMemoryCache];
+    [self clearDiskCache];
 }
 
 

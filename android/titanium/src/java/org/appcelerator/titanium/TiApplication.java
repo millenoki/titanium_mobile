@@ -528,7 +528,7 @@ public abstract class TiApplication extends Application implements
         if (_picasso == null) {
             _picasso = new Picasso.Builder(getInstance().getApplicationContext())
             .memoryCache(getImageMemoryCache())
-            .downloader(new OkHttpDownloader(getOkHttpClientInstance()))
+            .downloader(new OkHttpDownloader(getPicassoHttpClientInstance()))
             .build();
         }
         return _picasso;
@@ -545,45 +545,81 @@ public abstract class TiApplication extends Application implements
         return cache;
     }
     
-    
-    private String currentCacheDir = null;
-    private Cache currentCache = null;
-    private Cache createCache() {
-        File cacheDir = createDefaultCacheDir(getApplicationContext(), "http");
-        if (currentCacheDir == null || cacheDir == null || cacheDir.equals(currentCacheDir.toString())) {
-            int maxCacheSize = getInstance().getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024 * 1024;
-            currentCacheDir = (cacheDir != null )?cacheDir.toString():null;
-            try {
-                currentCache  = (currentCacheDir != null)?(new Cache(cacheDir, maxCacheSize)): null;
-            } catch (IOException e) {
-                currentCache = null;
-                currentCacheDir = null;
-            } 
+    private static HashMap<String, String> _currentCacheDir = new HashMap<>();
+    private static HashMap<String, Cache> _currentCache = new HashMap<>();
+
+    public static Cache getDiskCache(final String name) {
+        if (_currentCache.get(name) == null) {
+            File cacheDir = createDefaultCacheDir(getAppContext(), name);
+            if (_currentCacheDir.get(name) == null || cacheDir == null || !cacheDir.equals(_currentCacheDir.get(name).toString())) {
+                    if (cacheDir != null ) {
+                        int maxCacheSize = getInstance().getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024 * 1024;
+                        try {
+                            _currentCacheDir.put(name, cacheDir.toString());
+                            _currentCache.put(name, new Cache(cacheDir, maxCacheSize));
+                        } catch (IOException e) {
+                            _currentCache.remove(name);
+                            _currentCacheDir.remove(name);
+                        }
+                    } else {
+                        _currentCache.remove(name);
+                        _currentCacheDir.remove(name);
+                    }
+            }
         }
-        return currentCache;
+        return _currentCache.get(name);
+    }
+//    public static Cache getHttpDiskCache() {
+//        return getDiskCache("http");
+//    }
+    
+    public static void clearDiskCache(final String name) {
+        Cache cache = getDiskCache(name);
+        if (cache != null) {
+            try {
+                cache.evictAll();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    public static void closeCache(final String name) {
+        Cache cache = _currentCache.get(name);
+        if (cache != null) {
+            try {
+                cache.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            _currentCache.remove(name);
+        }
     }
     
     private static OkHttpClient _httpClient;
+    private static OkHttpClient _picassoHttpClient;
     private static final String CACHE_SIZE_KEY = "ti.android.cache.size.max";
     private static final int DEFAULT_CACHE_SIZE = 25; // 25MB
     public static OkHttpClient getOkHttpClientInstance() {
         if (_httpClient == null) {
-            
-            int maxCacheSize = getInstance().getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024 * 1024;
-            Log.d(TAG, "max cache size is:" + maxCacheSize, Log.DEBUG_MODE);
-            
-            Cache cache = null;
-            try {
-                File cacheDir = createDefaultCacheDir(getInstance().getApplicationContext(), "http");
-                cache = new Cache(cacheDir, maxCacheSize); 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
             _httpClient = new OkHttpClient();
-            _httpClient.setCache(getInstance().createCache());
+            _httpClient.setCache(getDiskCache("http"));
         }
         return _httpClient;
+    }
+    public static OkHttpClient getPicassoHttpClientInstance() {
+        if (_picassoHttpClient == null) {
+            _picassoHttpClient = new OkHttpClient();
+            _picassoHttpClient.setCache(getDiskCache("image"));
+        }
+        return _picassoHttpClient;
+    }
+    
+    private static void updateCaches() {
+        closeCache("http");
+        closeCache("image");
+        getOkHttpClientInstance().setCache(getDiskCache("http"));
+        getPicassoHttpClientInstance().setCache(getDiskCache("image"));
     }
     
     
@@ -1063,14 +1099,14 @@ public abstract class TiApplication extends Application implements
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (Intent.ACTION_MEDIA_MOUNTED.equals(intent.getAction())) {
-                    getOkHttpClientInstance().setCache(createCache());
+                    updateCaches();
                     Log.i(TAG,
                             "SD card has been mounted. Enabling cache for http responses.",
                             Log.DEBUG_MODE);
 
                 } else {
                     // if the sd card is removed, we don't cache http responses
-                    getOkHttpClientInstance().setCache(createCache());
+                    updateCaches();
                     Log.i(TAG,
                             "SD card has been unmounted. Disabling cache for http responses.",
                             Log.DEBUG_MODE);

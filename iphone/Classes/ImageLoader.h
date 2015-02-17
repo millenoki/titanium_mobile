@@ -223,4 +223,6 @@ typedef enum {
 -(id)cache:(id)image forURL:(NSURL*)url;
 
 -(void)clearCache;
+-(void)clearMemoryCache;
+-(void)clearDiskCache;
 @end

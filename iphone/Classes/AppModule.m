@@ -649,6 +649,15 @@ extern long long const TI_APPLICATION_BUILD_DATE;
     [[TiApp app] setForceSplashAsSnapshot:flag];
 }
 
+-(void)clearImageMemoryCache:(id)args
+{
+    [[ImageLoader sharedLoader] clearMemoryCache];
+}
+
+-(void)clearImageDiskCache:(id)args
+{
+    [[ImageLoader sharedLoader] clearDiskCache];
+}
 -(void)clearImageCache:(id)args
 {
     [[ImageLoader sharedLoader] clearCache];

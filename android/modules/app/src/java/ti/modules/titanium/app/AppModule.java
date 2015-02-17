@@ -17,7 +17,6 @@ import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiProperties;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
@@ -26,7 +25,6 @@ import org.appcelerator.titanium.util.TiSensorHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -35,13 +33,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
 import android.provider.Settings;
 import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
@@ -296,10 +291,23 @@ public class AppModule extends KrollModule implements SensorEventListener
 	}
 	
 	@Kroll.method
-	public void clearImageCache()
+	public void clearImageMemoryCache()
 	{
-	    TiApplication.getImageMemoryCache().clear();
+        TiApplication.getImageMemoryCache().clear();
 	}
+
+    @Kroll.method
+    public void clearImageDiskCache()
+    {
+        TiApplication.clearDiskCache("image");
+    }
+
+    @Kroll.method
+    public void clearImageCache()
+    {
+        TiApplication.getImageMemoryCache().clear();
+        TiApplication.clearDiskCache("image");
+    }
 
 	@Override
 	public void onHasListenersChanged(String event, boolean hasListeners)
