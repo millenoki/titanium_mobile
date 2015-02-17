@@ -677,46 +677,59 @@ public abstract class TiApplication extends Application implements
         }
     }
     
-    public static OkHttpClient httpClient(HashMap options) {
+//    public com.squareup.okhttp.Request httpRequest(final String url, final HashMap options) {
+//        com.squareup.okhttp.Request.Builder builder =
+//                new com.squareup.okhttp.Request.Builder().url(url);
+//        if (options != null) {
+//            Object value = options.get("headers");
+//            if (value != null && value instanceof HashMap) {
+//                HashMap<String, Object> headers = (HashMap<String, Object>)value;
+//                for (Map.Entry<String, Object> entry : headers.entrySet()) {
+//                    builder.addHeader(entry.getKey(), TiConvert.toString(entry.getValue()));
+//                }
+//            }
+////            if (options.containsKey("method"))
+////            {
+////                MediaType mediaType; = 
+////                Object data = options.get("data");
+////                if (data instanceof String) {
+////                    builder.addHeader("Content-Type", "charset=utf-8");
+////                }
+////                else if (data instanceof HashMap) {
+////                    builder.addHeader("Content-Type", "application/json; charset=utf-8");
+////                }
+////                String method =  TiConvert.toString(options.get("method"));
+////                String dataToSend =  TiConvert.toString(data);
+////                
+////                if (dataToSend != null) {
+////                    byte[] outputInBytes = dataToSend.getBytes("UTF-8");
+////                    OutputStream os = http.getOutputStream();
+////                    os.write( outputInBytes );
+////                    os.close();
+////                    builder.post(new FormEncodingBuilder().)
+////                }
+////                
+////            }
+//        }
+//        return builder.build();
+//    }
+    
+    public static OkHttpClient httpClient(final HashMap options) {
         if (options == null) {
             return getOkHttpClientInstance();
         }
         OkHttpClient client = getOkHttpClientInstance().clone();
-        int timeout = 20000;
-        
-        Object value = options.get("headers");
-        if (value != null && value instanceof HashMap) {
-            HashMap<String, Object> headers = (HashMap<String, Object>)value;
-            for (Map.Entry<String, Object> entry : headers.entrySet()) {
-//                    builder.header(entry.getKey(), TiConvert.toString(entry.getValue()));
-            }
-        }
+        int timeout = 20000;        
+
         if (options.containsKey("timeout")) {
             timeout = TiConvert.toInt(options, "timeout");
         }
         if (options.containsKey("autoRedirect")) {
             client.setFollowSslRedirects(TiConvert.toBoolean(options, "autoRedirect"));
         }
-        if (options.containsKey("method"))
-        {
-//                Object data = options.get("data");
-//                if (data instanceof String) {
-//                    builder.header("Content-Type", "charset=utf-8");
-//                }
-//                else if (data instanceof HashMap) {
-//                    builder.header("Content-Type", "application/json; charset=utf-8");
-//                }
-//                String dataToSend =  TiConvert.toString(data);
-//                if (dataToSend != null) {
-//                    byte[] outputInBytes = dataToSend.getBytes("UTF-8");
-//                    OutputStream os = http.getOutputStream();
-//                    os.write( outputInBytes );
-//                    os.close();
-//                    builder.post(new FormEncodingBuilder().)
-//                }
-            
-        }
+
         client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
+        client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
         return client;
     }
 
