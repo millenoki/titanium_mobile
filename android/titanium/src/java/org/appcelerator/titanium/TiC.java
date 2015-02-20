@@ -963,6 +963,11 @@ public class TiC
      * @module.api
      */
     public static final String PROPERTY_BAR_OPACITY = "barOpacity";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_BAR_UP_INDICATOR = "barUpIndicator";
 
 	/**
 	 * @module.api
@@ -3097,7 +3102,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TYPE = "type";
-
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_UP_INDICATOR = "upIndicator";
 	/**
 	 * @module.api
 	 */

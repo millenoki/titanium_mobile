@@ -7,7 +7,6 @@
 package org.appcelerator.titanium.proxy;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -19,11 +18,9 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUrl;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -35,6 +32,8 @@ import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 
 @SuppressLint("InlinedApi")
 @Kroll.proxy(propertyAccessors = {
@@ -45,6 +44,7 @@ import android.view.View;
         TiC.PROPERTY_BACKGROUND_GRADIENT,
         TiC.PROPERTY_BACKGROUND_OPACITY,
         TiC.PROPERTY_LOGO,
+        TiC.PROPERTY_UP_INDICATOR,
 		TiC.PROPERTY_ICON
 })
 
@@ -52,24 +52,8 @@ public class ActionBarProxy extends AnimatableReusableProxy
 {
     private static final boolean JELLY_BEAN_MR1_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1);
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-	private static final int MSG_DISPLAY_HOME_AS_UP = MSG_FIRST_ID + 100;
-	private static final int MSG_SET_BACKGROUND_IMAGE = MSG_FIRST_ID + 101;
-	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 102;
-	private static final int MSG_SHOW = MSG_FIRST_ID + 103;
-	private static final int MSG_HIDE = MSG_FIRST_ID + 104;
-	private static final int MSG_SET_LOGO = MSG_FIRST_ID + 105;
-	private static final int MSG_SET_ICON = MSG_FIRST_ID + 106;
-	private static final int MSG_SET_HOME_BUTTON_ENABLED = MSG_FIRST_ID + 107;
-	private static final int MSG_SET_NAVIGATION_MODE = MSG_FIRST_ID + 108;
-	private static final int MSG_SET_BACKGROUND_COLOR = MSG_FIRST_ID + 109;
-	private static final int MSG_SET_BACKGROUND_GRADIENT = MSG_FIRST_ID + 110;
+
 	private static final int MSG_RESET_BACKGROUND = MSG_FIRST_ID + 111;
-	private static final int MSG_RESET_ICON = MSG_FIRST_ID + 112;
-	private static final int MSG_SET_SUBTITLE = MSG_FIRST_ID + 113;
-	private static final int MSG_SET_DISPLAY_SHOW_HOME = MSG_FIRST_ID + 114;
-	private static final int MSG_SET_DISPLAY_SHOW_TITLE = MSG_FIRST_ID + 115;
-    private static final int MSG_SET_BACKGROUND_OPACITY = MSG_FIRST_ID + 116;
-    private static final int MSG_SET_CUSTOMVIEW = MSG_FIRST_ID + 117;
 
 //	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
 //	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
@@ -105,6 +89,19 @@ public class ActionBarProxy extends AnimatableReusableProxy
     };
     
     private void setActionBarDrawable(final Drawable drawable) {
+        if (drawable == mActionBarBackgroundDrawable ) {
+            return;
+        }
+        if (mActionBarBackgroundDrawable != null) {
+            if (!JELLY_BEAN_MR1_OR_GREATER) {
+                mActionBarBackgroundDrawable.setCallback(null);
+            }
+            mActionBarBackgroundDrawable = null;
+        }
+        if (drawable == themeBackgroundDrawable) {
+            actionBar.setBackgroundDrawable(themeBackgroundDrawable);
+            return;
+        }
         mActionBarBackgroundDrawable = drawable;
         if (mActionBarBackgroundDrawable != null) {
             if (!JELLY_BEAN_MR1_OR_GREATER) {
@@ -118,6 +115,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
 	public ActionBarProxy(TiBaseActivity activity)
 	{
 		super();
+		setActivity(activity);
         actionBar = TiActivityHelper.getActionBar(activity);
 
 //		try {
@@ -217,135 +215,316 @@ public class ActionBarProxy extends AnimatableReusableProxy
         }
     }
 
-//	@Kroll.method @Kroll.setProperty
-	private void setDisplayHomeAsUp(boolean showHomeAsUp)
+	private void setDisplayHomeAsUp(final boolean showHomeAsUp)
 	{
-		if(TiApplication.isUIThread()) {
-			handlesetDisplayHomeAsUp(showHomeAsUp);
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_DISPLAY_HOME_AS_UP, Boolean.valueOf(showHomeAsUp));
-//			message.getData().putBoolean(SHOW_HOME_AS_UP, showHomeAsUp);
-			message.sendToTarget();
-		}
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setDisplayHomeAsUp(showHomeAsUp);
+                }
+            });
+            return;
+        }
+        actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
 	}
 
-//	@Kroll.method @Kroll.setProperty
-	public void setNavigationMode(int navigationMode)
+	public void setNavigationMode(final int navigationMode)
 	{
-		if (TiApplication.isUIThread()) {
-			handlesetNavigationMode(navigationMode);
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_NAVIGATION_MODE, Integer.valueOf(navigationMode));
-//			message.getData().putInt(NAVIGATION_MODE, navigationMode);
-			message.sendToTarget();
-		}
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setNavigationMode(navigationMode);
+                }
+            });
+            return;
+        }
+        actionBar.setNavigationMode(navigationMode);
+
 	}
 
-	public void setBackgroundImage(String url)
+	public void setBackgroundImage(final Object value)
 	{
-		if (TiApplication.isUIThread()) {
-			handleSetBackgroundImage(url);
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_BACKGROUND_IMAGE, url);
-//			message.getData().putString(BACKGROUND_IMAGE, url);
-			message.sendToTarget();
-		}
-	}
-	
-	public void setBackgroundColor(int color)
-	{
-		if (TiApplication.isUIThread()) {
-			handleSetBackgroundColor(color);
-		} else {
-			getMainHandler().obtainMessage(MSG_SET_BACKGROUND_COLOR, Integer.valueOf(color)).sendToTarget();
-		}
-	}
-	
-	public void setBackgroundGradient(KrollDict gradient)
-	{
-		if (TiApplication.isUIThread()) {
-			handleSetBackgroundGradient(gradient);
-		} else {
-			getMainHandler().obtainMessage(MSG_SET_BACKGROUND_GRADIENT, gradient).sendToTarget();
-		}
-	}
-	
-	public void setBackgroundOpacity(float alpha)
-    {
-        if (TiApplication.isUIThread()) {
-            handleSetBackgroundOpacity(alpha);
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setBackgroundImage(value);
+                }
+            });
+            return;
+        }
+        actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+        
+        if (value instanceof Drawable) {
+            
         } else {
-            getMainHandler().obtainMessage(MSG_SET_BACKGROUND_OPACITY, Float.valueOf(alpha)).sendToTarget();
+            setActionBarDrawable((Drawable) value);
+        }
+        setActionBarDrawable(getDrawable(value));
+        customBackgroundSet = (mActionBarBackgroundDrawable != null);
+	}
+	
+	public void setBackgroundColor(final int color)
+	{
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+	    if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setBackgroundColor(color);
+                }
+            });
+            return;
+        }
+        
+        resetTitleEnabled();
+        setActionBarDrawable(new ColorDrawable(color));
+        customBackgroundSet = (mActionBarBackgroundDrawable != null) && color != defaultColor;
+	}
+	
+	public void setBackgroundGradient(final KrollDict gradDict)
+	{
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setBackgroundGradient(gradDict);
+                }
+            });
+            return;
+        }
+        resetTitleEnabled();
+        setActionBarDrawable(TiUIHelper.buildGradientDrawable(gradDict));
+        customBackgroundSet = (mActionBarBackgroundDrawable != null);
+	}
+	
+	public void setBackgroundOpacity(final float alpha)
+    {
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setBackgroundOpacity(alpha);
+                }
+            });
+            return;
+        }
+        backgroundAlpha = (int) (alpha*255.0f);
+        if (mActionBarBackgroundDrawable == null) {
+            setBackgroundColor(defaultColor);
+        } else {
+            mActionBarBackgroundDrawable.setAlpha(backgroundAlpha);
         }
     }
 
-	public void setTitle(String title)
+	public void setTitle(final String title)
 	{
-		if (TiApplication.isUIThread()) {
-			handleSetTitle(title);
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_TITLE, title);
-			message.sendToTarget();
-		}
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setTitle(title);
+                }
+            });
+            return;
+        }
+        actionBar.setTitle(title);
 	}
 	
-	public void setCustomView(Object view, final boolean shouldHold)
+	public void setCustomView(final Object view, final boolean shouldHold)
     {
-        if (TiApplication.isUIThread()) {
-            handleSetCustomView(view, shouldHold);
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setCustomView(view, shouldHold);
+                }
+            });
+            return;
+        }
+        KrollProxy viewProxy = null;
+        //the customView can come from the window titleView. In that case don't hold it
+        // as the window already did it.
+        if (shouldHold) {
+            viewProxy = addProxyToHold(view, "customView");
+        } else if (view instanceof KrollProxy) {
+            viewProxy = (KrollProxy) view;
+        }
+        if (viewProxy instanceof TiViewProxy) {
+            View viewToAdd = ((TiViewProxy) viewProxy).getOrCreateView().getOuterView();
+            if (actionBar.getCustomView() != viewToAdd) {
+                TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
+                actionBar.setCustomView(viewToAdd);
+                showTitleEnabled = false;
+                actionBar.setDisplayShowCustomEnabled(true);
+            }
         } else {
-            Message message = getMainHandler().obtainMessage(MSG_SET_CUSTOMVIEW, shouldHold?1:0, 0, view);
-            message.sendToTarget();
+            actionBar.setCustomView(null);
+            showTitleEnabled = true;
+            actionBar.setDisplayShowCustomEnabled(false);
+        }
+        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+    }
+
+	public void setSubtitle(final String subTitle)
+	{
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setSubtitle(subTitle);
+                }
+            });
+            return;
+        }
+        showTitleEnabled = true;
+        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+        actionBar.setSubtitle(subTitle);
+	}
+	
+	public void setDisplayShowHomeEnabled(final boolean show) {
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setDisplayShowHomeEnabled(show);
+                }
+            });
+            return;
+        }
+        actionBar.setDisplayShowHomeEnabled(show);
+	}
+	
+	public void setDisplayShowTitleEnabled(final boolean show) {
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setDisplayShowTitleEnabled(show);
+                }
+            });
+            return;
+        }
+		actionBar.setDisplayShowTitleEnabled(show);
+		showTitleEnabled = show;
+	}
+	
+
+    public void setLogo(final Object value)
+    {
+        if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setLogo(value);
+                }
+            });
+            return;
+        }
+        Drawable logo = getDrawable(value);
+        actionBar.setLogo(logo);
+    }
+
+    public void setIcon(final Object value)
+    {
+        if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setIcon(value);
+                }
+            });
+            return;
+        }
+        Drawable icon = getDrawable(value);
+        if (icon == null) {
+            actionBar.setIcon(themeIconDrawable);
+        } else {
+            actionBar.setIcon(icon);
+        } 
+    }
+    
+    
+    private void setUpIndicator(final Object value) {
+        if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setUpIndicator(value);
+                }
+            });
+            return;
+        }
+        Drawable drawable = getDrawable(value);
+        ImageView view = getUpIndicatorView();
+        if (view != null) {
+            if (drawable != null) {
+                view.setImageDrawable(drawable);
+            }
+            else {
+                view.setImageDrawable(view.getDrawable());
+            }
         }
     }
 
-
-//	@Kroll.method
-//	public String getTitle()
-//	{
-//		if (actionBar == null) {
-//			return null;
-//		}
-//		return (String) actionBar.getTitle();
-//	}
-
-	public void setSubtitle(String subTitle)
-	{
-		if (TiApplication.isUIThread()) {
-			handleSetSubTitle(subTitle);
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_SUBTITLE, subTitle);
-			message.getData().putString(TiC.PROPERTY_SUBTITLE, subTitle);
-			message.sendToTarget();
-		}
-	}
-	
-	public void setDisplayShowHomeEnabled(boolean show) {
-		if (actionBar == null) {
-			return;
-		}
-		
-		if (TiApplication.isUIThread()) {
-			actionBar.setDisplayShowHomeEnabled(show);
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_DISPLAY_SHOW_HOME, show);
-			message.sendToTarget();
-		}
-	}
-	
-	public void setDisplayShowTitleEnabled(boolean show) {
-		if (actionBar == null) {
-			return;
-		}
-		
-		if (TiApplication.isUIThread()) {
-			actionBar.setDisplayShowTitleEnabled(show);
-			showTitleEnabled = show;
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_DISPLAY_SHOW_TITLE, show);
-			message.sendToTarget();
-		}
-	}
 
     @Kroll.method
     @Kroll.getProperty
@@ -369,300 +548,99 @@ public class ActionBarProxy extends AnimatableReusableProxy
 	@Kroll.method
 	public void show()
 	{
-		if (TiApplication.isUIThread()) {
-			handleShow();
-		} else {
-			getMainHandler().obtainMessage(MSG_SHOW).sendToTarget();
-		}
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    show();
+                }
+            });
+            return;
+        }
+        actionBar.show();
 	}
 
 	@Kroll.method
 	public void hide()
 	{
-		if (TiApplication.isUIThread()) {
-			handleHide();
-		} else {
-			getMainHandler().obtainMessage(MSG_HIDE).sendToTarget();
-		}
-	}
-
-	public void setLogo(String url)
-	{
-		if (TiApplication.isUIThread()) {
-			handleSetLogo(url);
-		} else {
-			Message message = getMainHandler().obtainMessage(MSG_SET_LOGO, url);
-			message.sendToTarget();
-		}
-		
-	}
-
-	public void setIcon(Object value)
-	{
-			if (TiApplication.isUIThread()) {
-				handleSetIcon(value);
-			} else {
-				getMainHandler().obtainMessage(MSG_SET_ICON, value).sendToTarget();
-			}		
-	}
-
-	private void handleSetIcon(Object value)
-	{
-		if (actionBar == null) {
-			Log.w(TAG, "ActionBar is not enabled");
-			return;
-		}
-		Drawable icon = null;
-		if (value instanceof String) {
-			 icon = getDrawableFromUrl(TiConvert.toString(value));
-		}
-		else {
-			icon = TiUIHelper.getResourceDrawable(TiConvert.toInt(value));
-		}
-		if (icon != null) {
-			actionBar.setIcon(icon);
-		} 
-	}
-	
-	private void handleSetTitle(String title)
-	{
-		if (actionBar != null) {
-			actionBar.setTitle(title);
-		} else {
-			Log.w(TAG, "ActionBar is not enabled");
-		}
-	}
-
-	private void handleSetSubTitle(String subTitle)
-	{
-		if (actionBar != null) {
-		    showTitleEnabled = true;
-			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
-			actionBar.setSubtitle(subTitle);
-		} else {
-			Log.w(TAG, "ActionBar is not enabled");
-		}
-	}
-	
-	private void handleSetCustomView(Object view, final boolean shouldHold)
-    {
-	    KrollProxy viewProxy = null;
-	    //the customView can come from the window titleView. In that case don't hold it
-	    // as the window already did it.
-	    if (shouldHold) {
-	        viewProxy = addProxyToHold(view, "customView");
-	    } else if (view instanceof KrollProxy) {
-	        viewProxy = (KrollProxy) view;
-	    }
-        if (viewProxy instanceof TiViewProxy) {
-            View viewToAdd = ((TiViewProxy) viewProxy).getOrCreateView().getOuterView();
-            if (actionBar.getCustomView() != viewToAdd) {
-                TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
-                actionBar.setCustomView(viewToAdd);
-                showTitleEnabled = false;
-                actionBar.setDisplayShowCustomEnabled(true);
-            }
-        } else {
-            actionBar.setCustomView(null);
-            showTitleEnabled = true;
-            actionBar.setDisplayShowCustomEnabled(false);
-        }
-        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
-    }
-	
-	private void handleShow()
-	{
-		if (actionBar != null) {
-			actionBar.show();
-		} else {
-			Log.w(TAG, "ActionBar is not enabled");
-		}
-	}
-
-	private void handleHide()
-	{
-		if (actionBar != null) {
-			actionBar.hide();
-		} else {
-			Log.w(TAG, "ActionBar is not enabled");
-		}
-	}
-
-	private void handleSetBackgroundImage(String url)
-	{
-		if (actionBar == null) {
-			Log.w(TAG, "ActionBar is not enabled");
-			return;
-		}
-
-		actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
-        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
-        
-        setActionBarDrawable(getDrawableFromUrl(url));
-        customBackgroundSet = (mActionBarBackgroundDrawable != null);
-	}
-	
-	private void handleSetBackgroundOpacity(float alpha)
-    {
-        if (actionBar == null) {
+	    if (actionBar == null) {
             Log.w(TAG, "ActionBar is not enabled");
             return;
         }
-        
-        backgroundAlpha = (int) (alpha*255.0f);
-        if (mActionBarBackgroundDrawable == null) {
-            handleSetBackgroundColor(defaultColor);
-        } else {
-            mActionBarBackgroundDrawable.setAlpha(backgroundAlpha);
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    hide();
+                }
+            });
+            return;
         }
-    }
-	
-	private void handleSetBackgroundColor(int color)
-	{
-		if (actionBar == null) {
-			Log.w(TAG, "ActionBar is not enabled");
-			return;
-		}
-		
-        resetTitleEnabled();
-        setActionBarDrawable(new ColorDrawable(color));
-        customBackgroundSet = (mActionBarBackgroundDrawable != null) && color != defaultColor;
+        actionBar.hide();
 	}
+
 	
 	private void resetTitleEnabled() {
         actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
         actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
 	}
 	
-	private void handleSetBackgroundGradient(KrollDict gradDict)
+	private void resetBackgroundDrawable() {
+	    if (defaultColor != 0) {
+            setBackgroundColor(defaultColor);
+        } else {
+            if (TiApplication.isUIThread()) {
+                actionBar.setBackgroundDrawable(themeBackgroundDrawable);
+            } else {
+                getMainHandler().obtainMessage(MSG_RESET_BACKGROUND).sendToTarget();
+            }
+        }
+        actionBar.setBackgroundDrawable(themeBackgroundDrawable);
+
+	}
+
+	private void activateHomeButton(final boolean value)
 	{
-		if (actionBar == null) {
-			Log.w(TAG, "ActionBar is not enabled");
-			return;
-		}
-		resetTitleEnabled();
-        setActionBarDrawable(TiUIHelper.buildGradientDrawable(gradDict));
-        customBackgroundSet = (mActionBarBackgroundDrawable != null);
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    activateHomeButton(value);
+                }
+            });
+            return;
+        }
+
+        actionBar.setHomeButtonEnabled(value);
 	}
 	
-	private void activateHomeButton(boolean value)
+
+	private Drawable getDrawable(Object value)
 	{
-		if (actionBar == null) {
-			Log.w(TAG, "ActionBar is not enabled");
-			return;
-		}
-
-		// If we have a listener on the home icon item, then enable the home button (we need to do this for ICS and
-		// above)
-		if (TiApplication.isUIThread()) {
-			actionBar.setHomeButtonEnabled(value);
-		} else {
-			getMainHandler().obtainMessage(MSG_SET_HOME_BUTTON_ENABLED, Boolean.valueOf(value)).sendToTarget();
-		}
-	}
-
-
-	private void handlesetDisplayHomeAsUp(boolean showHomeAsUp)
-	{
-		if (actionBar != null) {
-			actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
-		} else {
-			Log.w(TAG, "ActionBar is not enabled");
-		}
-	}
-
-	private void handlesetNavigationMode(int navigationMode)
-	{
-	    if (actionBar != null) {
-	        actionBar.setNavigationMode(navigationMode);
-        } else {
-            Log.w(TAG, "ActionBar is not enabled");
-        }
-	}
-
-	private void handleSetLogo(String url)
-	{
-		if (actionBar == null) {
-			Log.w(TAG, "ActionBar is not enabled");
-			return;
-		}
-
-		Drawable logo = getDrawableFromUrl(url);
-		if (logo != null) {
-			actionBar.setLogo(logo);
-		}
-	}
-
-	private Drawable getDrawableFromUrl(String url)
-	{
-		TiUrl imageUrl = new TiUrl((String) url);
-		TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-		return tfh.loadDrawable(imageUrl.resolve(), false);
+//	    if (value instanceof String) {
+//	        TiUrl imageUrl = new TiUrl((String) value);
+//	        TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
+//	        return tfh.loadDrawable(imageUrl.resolve(), false);
+//	    } else if (value instanceof Number) {
+	        return TiUIHelper.getResourceDrawable(value);
+//	    }
+//		return null;
 	}
 
 	@Override
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-			case MSG_DISPLAY_HOME_AS_UP:
-				handlesetDisplayHomeAsUp((Boolean)msg.obj);
-				return true;
-			case MSG_SET_NAVIGATION_MODE:
-				handlesetNavigationMode((Integer)msg.obj);
-				return true;
-			case MSG_SET_BACKGROUND_COLOR:
-				handleSetBackgroundColor((Integer)msg.obj);
-				return true;
-			case MSG_SET_BACKGROUND_IMAGE:
-				handleSetBackgroundImage((String)msg.obj);
-				return true;
-			case MSG_SET_BACKGROUND_GRADIENT:
-				handleSetBackgroundGradient((KrollDict) (msg.obj));
-				return true;
-			case MSG_SET_TITLE:
-                handleSetTitle((String)msg.obj);
-                return true;
-			case MSG_SET_CUSTOMVIEW:
-                handleSetCustomView(msg.obj, (msg.arg1 == 1));
-                return true;
-            case MSG_SET_SUBTITLE:
-				handleSetSubTitle(msg.getData().getString(TiC.PROPERTY_SUBTITLE));
-				return true;
-			case MSG_SET_DISPLAY_SHOW_HOME: {
-				boolean show = TiConvert.toBoolean(msg.obj, true);
-				if (actionBar != null) {
-					actionBar.setDisplayShowHomeEnabled(show);
-				}
-				return true;
-			}
-			case MSG_SET_DISPLAY_SHOW_TITLE: {
-				boolean show = TiConvert.toBoolean(msg.obj, true);
-				if (actionBar != null) {
-					actionBar.setDisplayShowTitleEnabled(show);
-					showTitleEnabled = show;
-				}
-				return true;
-			}
-			case MSG_SHOW:
-				handleShow();
-				return true;
-			case MSG_HIDE:
-				handleHide();
-				return true;
 			case MSG_RESET_BACKGROUND:
 				actionBar.setBackgroundDrawable(themeBackgroundDrawable);
-				return true;
-			case MSG_RESET_ICON:
-				actionBar.setIcon(themeIconDrawable);
-				return true;
-			case MSG_SET_LOGO:
-				handleSetLogo((String)msg.obj);
-				return true;
-			case MSG_SET_ICON:
-				handleSetIcon(msg.obj);
-				return true;
-			case MSG_SET_HOME_BUTTON_ENABLED:
-				actionBar.setHomeButtonEnabled((Boolean)msg.obj);
 				return true;
 		}
 		return super.handleMessage(msg);
@@ -717,7 +695,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
             setCustomView(newValue, false);
             break;
         case TiC.PROPERTY_LOGO:
-            setLogo(TiConvert.toString(newValue));
+            setLogo(newValue);
             break;
         case TiC.PROPERTY_TITLE:
             setTitle(TiConvert.toString(newValue));
@@ -725,23 +703,14 @@ public class ActionBarProxy extends AnimatableReusableProxy
         case TiC.PROPERTY_SUBTITLE:
             setSubtitle(TiConvert.toString(newValue));
             break;
+        case TiC.PROPERTY_UP_INDICATOR:
+        case TiC.PROPERTY_BAR_UP_INDICATOR:
+            setUpIndicator(newValue);
+            break;
         case TiC.PROPERTY_ICON:
         case TiC.PROPERTY_BAR_ICON:
-            if (newValue != null) {
-                if (newValue instanceof String) {
-                    setIcon((String)newValue);
-                }
-                else if (newValue instanceof Number){
-                    setIcon(TiConvert.toInt(newValue));
-                }
-            }
-            else {
-                if (TiApplication.isUIThread()) {
-                    actionBar.setIcon(themeIconDrawable);
-                } else {
-                    getMainHandler().obtainMessage(MSG_RESET_ICON).sendToTarget();
-                }
-            }
+            setIcon(newValue);
+            break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
@@ -758,11 +727,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
             if (defaultColor != 0) {
                 setBackgroundColor(defaultColor);
             } else {
-                if (TiApplication.isUIThread()) {
-                    actionBar.setBackgroundDrawable(themeBackgroundDrawable);
-                } else {
-                    getMainHandler().obtainMessage(MSG_RESET_BACKGROUND).sendToTarget();
-                }
+                setBackgroundImage(themeBackgroundDrawable);
             }
             
             customBackgroundSet = false;
@@ -774,4 +739,21 @@ public class ActionBarProxy extends AnimatableReusableProxy
 	{
 		return "Ti.Android.ActionBar";
 	}
+	
+	private ImageView getUpIndicatorView() {
+	    String appPackage = getActivity().getPackageName();
+
+        // Attempt to find AppCompat up indicator
+        final int homeId = getActivity().getResources().getIdentifier("home", "id", appPackage);
+        View v = getActivity().findViewById(homeId);
+        if (v != null) {
+            ViewGroup parent = (ViewGroup) v.getParent();
+            final int upId = getActivity().getResources().getIdentifier("up", "id", appPackage);
+            if (parent != null) {
+                return (ImageView) parent.findViewById(upId);
+            }
+        }
+        return null;
+	}
+
 }
