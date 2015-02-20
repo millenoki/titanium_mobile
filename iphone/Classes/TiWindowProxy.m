@@ -71,7 +71,7 @@
     //try no to set frame because it might be wrong. Let it be computed
     //in viewWillAppear
 //    if (!controller) {
-        win.frame =[TiUtils appFrame];
+    win.frame = CGRectIsEmpty(self.sandboxBounds) ? [TiUtils appFrame] : self.sandboxBounds;
 //    }
     
 	return win;
