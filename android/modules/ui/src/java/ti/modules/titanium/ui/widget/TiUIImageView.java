@@ -101,9 +101,6 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private static final int SET_PROGRESS = 10006;
     private static final int SET_INDEX = 10007;
 
-    // This handles the memory cache of images.
-//    private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
-
     private HashMap transitionDict = null;
     
     private class FilterAndSetTask extends AsyncTask<Bitmap, Void, Bitmap> {
@@ -248,9 +245,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             return true;
         }
         case SET_DRAWABLE: {
-//            AsyncResult result = (AsyncResult) msg.obj;
             handleSetDrawable((Drawable) msg.obj, msg.arg1 == 1);
-//            result.setResult(null);
             return true;
         }
         case START:
@@ -259,9 +254,6 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         case STOP:
             handleStop();
             return true;
-            // case PAUSE:
-            // handlePause();
-            // return true;
         case RESUME:
             handleResume();
             return true;
