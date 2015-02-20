@@ -74,9 +74,16 @@ public class ActivityProxy extends KrollProxy
 	public void setWrappedActivity(Activity activity)
 	{
 		this.wrappedActivity = activity;
-		Intent intent = activity.getIntent();
-		if (intent != null) {
-			intentProxy = new IntentProxy(activity.getIntent());
+		if (actionBarProxy != null) {
+		    actionBarProxy.setActivity(this.wrappedActivity);
+		}
+		if (this.wrappedActivity != null) {
+		    Intent intent = activity.getIntent();
+	        if (intent != null) {
+	            intentProxy = new IntentProxy(activity.getIntent());
+	        }
+		} else {
+		    intentProxy = null;
 		}
 	}
 
