@@ -24,6 +24,7 @@
 //    BOOL _hasOnStackChange;
     BOOL _swipeToClose;
     UIScreenEdgePanGestureRecognizer* popRecognizer;
+    CGRect barFrameBeforePush;
 //    BOOL transitionIsAnimating;
 //    BOOL transitionWithGesture;
 }
@@ -319,6 +320,9 @@ else{\
         
         BOOL transitionWithGesture = NO;
         if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
+            if (!CGRectIsEmpty(barFrameBeforePush)) {
+                [[navController navigationBar] setFrame:barFrameBeforePush];
+            }
             transitionWithGesture = _navigationDelegate.isInteracting;
             if (!transitionWithGesture) {
                 ADTransition* transition = [(ADTransitioningViewController*)(winclosing?[current hostingController]:viewController) transition];
@@ -468,6 +472,7 @@ else{\
 
 - (void)_pushViewController:(UIViewController *)viewController withTransition:(ADTransition *)transition {
     if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
+        barFrameBeforePush = [[navController navigationBar] frame];
 //        [(ADTransitioningViewController*)viewController setTransition:transition];
         [navController pushViewController:viewController animated:YES];
     } else {
