@@ -299,6 +299,12 @@ public abstract class TiBaseActivity extends ActionBarActivity
             }
             actionBarDict.put(TiC.PROPERTY_BACKGROUND_OPACITY, windowProperties.get(TiC.PROPERTY_BAR_OPACITY));
         }
+		if (windowProperties.containsKey(TiC.PROPERTY_BAR_UP_INDICATOR) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_UP_INDICATOR))) {
+            if (actionBarDict == null) {
+                actionBarDict = new KrollDict(); 
+            }
+            actionBarDict.put(TiC.PROPERTY_UP_INDICATOR, windowProperties.get(TiC.PROPERTY_BAR_UP_INDICATOR));
+        }
 		if (windowProperties.containsKey(TiC.PROPERTY_TITLE_VIEW) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_CUSTOM_VIEW))) {
 		    if (actionBarDict == null) {
                 actionBarDict = new KrollDict(); 
@@ -321,6 +327,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	@SuppressLint("NewApi")
 	public void setWindowProxy(TiWindowProxy proxy)
 	{
+//	    proxy = proxy.getTopWindow();
 	    if(this.window == proxy) return;
 		this.window = proxy;
 		updateTitle(this.window);
@@ -779,13 +786,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		// for later use
 		originalOrientationMode = getRequestedOrientation();
 
-		if (window != null) {
-			if (window.getWindowManager() != null)
-				window.getWindowManager().onWindowActivityCreated();
-			else {
-				window.onWindowActivityCreated();
-			}
-		}
+		
 		synchronized (lifecycleListeners.synchronizedList()) {
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
 				try {
@@ -797,6 +798,19 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			}
 		}
 	}
+	
+	@Override
+    public void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (window != null) {
+            if (window.getWindowManager() != null)
+                window.getWindowManager().onWindowActivityCreated();
+            else {
+                window.onWindowActivityCreated();
+            }
+        }
+    }
+
 
 	public int getOriginalOrientationMode()
 	{
