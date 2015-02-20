@@ -383,11 +383,9 @@ public abstract class TiUIView
 	 */
 	protected void setNativeView(View view)
 	{
-		if (view.getId() == View.NO_ID) {
+		if (view != null && view.getId() == View.NO_ID) {
 			view.setId(idGenerator.incrementAndGet());
 		}
-		
-		
 		
 		if (this.nativeView == view) {
 		    return;
