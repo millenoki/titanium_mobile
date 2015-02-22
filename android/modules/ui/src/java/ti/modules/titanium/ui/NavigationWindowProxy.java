@@ -153,8 +153,11 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 				}
 			}
 		}
-		popCurrentWindow(null);
-		return true;
+		if (windows.size() > 1) {
+		    popCurrentWindow(null);
+	        return true;
+		}
+		return false;
 	}
 	
 	private void updateHomeButton(TiWindowProxy proxy){
