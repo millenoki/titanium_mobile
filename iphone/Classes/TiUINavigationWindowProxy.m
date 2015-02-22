@@ -562,6 +562,7 @@ else{\
 {
     if (navController != nil) {
         [[navController view] setFrame:bounds];
+        barFrameBeforePush = [[navController navigationBar] frame];
     }
 }
 
@@ -832,6 +833,7 @@ else{\
 {
     if ([self viewAttached]) {
         [navController didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+        barFrameBeforePush = [[navController navigationBar] frame];
     }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
