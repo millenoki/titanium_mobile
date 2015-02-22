@@ -8,6 +8,7 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -266,51 +267,29 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	{
 		return this.window;
 	}
+	
+	private static <K, V> V getOrDefault(Map<K,V> map, K key, V defaultValue) {
+	    return map.containsKey(key) ? map.get(key) : defaultValue;
+	}
 
 	private KrollDict updatePropertiesFromWindow(KrollDict properties, final TiWindowProxy window)
 	{
 		KrollDict actionBarDict = null;
-		if (properties != null && properties.containsKey(TiC.PROPERTY_ACTION_BAR)) {
+		if (properties != null) {
 			actionBarDict = properties.getKrollDict(TiC.PROPERTY_ACTION_BAR);
 		}
 		KrollDict windowProperties = window.getProperties();
-		
-		if (windowProperties.containsKey(TiC.PROPERTY_BAR_COLOR) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_COLOR))) {
-			if (actionBarDict == null) {
-			    actionBarDict = new KrollDict(); 
-			}
-		    actionBarDict.put(TiC.PROPERTY_BACKGROUND_COLOR, windowProperties.get(TiC.PROPERTY_BAR_COLOR));
+		for (String key : ActionBarProxy.windowProps()) {
+		    if (windowProperties.containsKey(key)) {
+		        String realKey = getOrDefault(ActionBarProxy.propsToReplace(), key, key);
+		        if (actionBarDict == null || !actionBarDict.containsKey(realKey)) {
+		            if (actionBarDict == null) {
+		                actionBarDict = new KrollDict(); 
+		            }
+		            actionBarDict.put(realKey, windowProperties.get(key));
+		        }
+		    }
 		}
-		if (windowProperties.containsKey(TiC.PROPERTY_BAR_IMAGE) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE))) {
-		    if (actionBarDict == null) {
-                actionBarDict = new KrollDict(); 
-            }
-		    actionBarDict.put(TiC.PROPERTY_BACKGROUND_IMAGE, windowProperties.get(TiC.PROPERTY_BAR_IMAGE));
-		}
-		if (windowProperties.containsKey(TiC.PROPERTY_BAR_ICON) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_ICON))) {
-		    if (actionBarDict == null) {
-                actionBarDict = new KrollDict(); 
-            }
-            actionBarDict.put(TiC.PROPERTY_ICON, windowProperties.get(TiC.PROPERTY_BAR_ICON));
-		}
-		if (windowProperties.containsKey(TiC.PROPERTY_BAR_OPACITY) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_BACKGROUND_OPACITY))) {
-		    if (actionBarDict == null) {
-                actionBarDict = new KrollDict(); 
-            }
-            actionBarDict.put(TiC.PROPERTY_BACKGROUND_OPACITY, windowProperties.get(TiC.PROPERTY_BAR_OPACITY));
-        }
-		if (windowProperties.containsKey(TiC.PROPERTY_BAR_UP_INDICATOR) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_UP_INDICATOR))) {
-            if (actionBarDict == null) {
-                actionBarDict = new KrollDict(); 
-            }
-            actionBarDict.put(TiC.PROPERTY_UP_INDICATOR, windowProperties.get(TiC.PROPERTY_BAR_UP_INDICATOR));
-        }
-		if (windowProperties.containsKey(TiC.PROPERTY_TITLE_VIEW) && (actionBarDict == null || !actionBarDict.containsKey(TiC.PROPERTY_CUSTOM_VIEW))) {
-		    if (actionBarDict == null) {
-                actionBarDict = new KrollDict(); 
-            }
-            actionBarDict.put(TiC.PROPERTY_TITLE_VIEW, window.getHoldedProxy(TiC.PROPERTY_TITLE_VIEW));
-        }
 		if (actionBarDict != null) {
 		    if (properties == null) {
                 properties = new KrollDict();

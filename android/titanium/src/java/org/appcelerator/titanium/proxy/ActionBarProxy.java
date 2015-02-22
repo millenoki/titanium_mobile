@@ -7,8 +7,10 @@
 package org.appcelerator.titanium.proxy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -45,6 +47,7 @@ import android.widget.ImageView;
         TiC.PROPERTY_BACKGROUND_OPACITY,
         TiC.PROPERTY_LOGO,
         TiC.PROPERTY_UP_INDICATOR,
+        TiC.PROPERTY_HOME_AS_UP_INDICATOR,
 		TiC.PROPERTY_ICON
 })
 
@@ -53,15 +56,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
     private static final boolean JELLY_BEAN_MR1_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1);
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 
-	private static final int MSG_RESET_BACKGROUND = MSG_FIRST_ID + 111;
 
-//	private static final String SHOW_HOME_AS_UP = "showHomeAsUp";
-//	private static final String HOME_BUTTON_ENABLED = "homeButtonEnabled";
-//	private static final String BACKGROUND_IMAGE = "backgroundImage";
-//	private static final String TITLE = "title";
-//	private static final String LOGO = "logo";
-//	private static final String ICON = "icon";
-//	private static final String NAVIGATION_MODE = "navigationMode";
 	private static final String TAG = "ActionBarProxy";
 
 	private ActionBar actionBar;
@@ -275,7 +270,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
         } else {
             setActionBarDrawable((Drawable) value);
         }
-        setActionBarDrawable(getDrawable(value));
+        setActionBarDrawable(TiUIHelper.getResourceDrawable(value));
         customBackgroundSet = (mActionBarBackgroundDrawable != null);
 	}
 	
@@ -471,7 +466,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
             });
             return;
         }
-        Drawable logo = getDrawable(value);
+        Drawable logo = TiUIHelper.getResourceDrawable(value);
         actionBar.setLogo(logo);
     }
 
@@ -490,7 +485,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
             });
             return;
         }
-        Drawable icon = getDrawable(value);
+        Drawable icon = TiUIHelper.getResourceDrawable(value);
         if (icon == null) {
             actionBar.setIcon(themeIconDrawable);
         } else {
@@ -513,7 +508,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
             });
             return;
         }
-        Drawable drawable = getDrawable(value);
+        Drawable drawable = TiUIHelper.getResourceDrawable(value);
         ImageView view = getUpIndicatorView();
         if (view != null) {
             if (drawable != null) {
@@ -523,6 +518,24 @@ public class ActionBarProxy extends AnimatableReusableProxy
                 view.setImageDrawable(view.getDrawable());
             }
         }
+    }
+    
+    private void setHomeAsUpIndicator(final Object value) {
+        if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    setUpIndicator(value);
+                }
+            });
+            return;
+        }
+        Drawable drawable = TiUIHelper.getResourceDrawable(value);
+        actionBar.setHomeAsUpIndicator(drawable);
     }
 
 
@@ -589,19 +602,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
         actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
 	}
 	
-	private void resetBackgroundDrawable() {
-	    if (defaultColor != 0) {
-            setBackgroundColor(defaultColor);
-        } else {
-            if (TiApplication.isUIThread()) {
-                actionBar.setBackgroundDrawable(themeBackgroundDrawable);
-            } else {
-                getMainHandler().obtainMessage(MSG_RESET_BACKGROUND).sendToTarget();
-            }
-        }
-        actionBar.setBackgroundDrawable(themeBackgroundDrawable);
 
-	}
 
 	private void activateHomeButton(final boolean value)
 	{
@@ -625,36 +626,59 @@ public class ActionBarProxy extends AnimatableReusableProxy
 
 	private Drawable getDrawable(Object value)
 	{
-//	    if (value instanceof String) {
-//	        TiUrl imageUrl = new TiUrl((String) value);
-//	        TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-//	        return tfh.loadDrawable(imageUrl.resolve(), false);
-//	    } else if (value instanceof Number) {
-	        return TiUIHelper.getResourceDrawable(value);
-//	    }
-//		return null;
+	    return TiUIHelper.getResourceDrawable(value);
 	}
 
-	@Override
-	public boolean handleMessage(Message msg)
-	{
-		switch (msg.what) {
-			case MSG_RESET_BACKGROUND:
-				actionBar.setBackgroundDrawable(themeBackgroundDrawable);
-				return true;
-		}
-		return super.handleMessage(msg);
-	}
-	
 	private static final ArrayList<String> KEY_SEQUENCE;
     static{
       ArrayList<String> tmp = new ArrayList<String>();
       tmp.add(TiC.PROPERTY_DISPLAY_HOME_TITLE_ENABLED);
+      tmp.add(TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED);
+      tmp.add(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
+      tmp.add(TiC.PROPERTY_DISPLAY_HOME_AS_UP);
       KEY_SEQUENCE = tmp;
     }
     @Override
     protected ArrayList<String> keySequence() {
         return KEY_SEQUENCE;
+    }
+    
+    private static final HashMap<String, String> BAR_PROPERTIES_MAP;
+    static{
+        HashMap<String, String> tmp = new HashMap<String, String>();
+        tmp.put(TiC.PROPERTY_BAR_COLOR, TiC.PROPERTY_BACKGROUND_COLOR);
+        tmp.put(TiC.PROPERTY_BAR_IMAGE, TiC.PROPERTY_BACKGROUND_IMAGE);
+        tmp.put(TiC.PROPERTY_BAR_OPACITY, TiC.PROPERTY_BACKGROUND_OPACITY);
+        tmp.put(TiC.PROPERTY_BAR_GRADIENT, TiC.PROPERTY_BACKGROUND_GRADIENT);
+        BAR_PROPERTIES_MAP = tmp;
+    }
+    public static HashMap<String, String> propsToReplace() {
+        return BAR_PROPERTIES_MAP;
+    }
+    
+    private static final ArrayList<String> BAR_PROPERTIES;
+    static{
+      ArrayList<String> tmp = new ArrayList<String>();
+      tmp.add(TiC.PROPERTY_BAR_COLOR);
+      tmp.add(TiC.PROPERTY_BAR_IMAGE);
+      tmp.add(TiC.PROPERTY_BAR_OPACITY);
+      tmp.add(TiC.PROPERTY_BAR_GRADIENT);
+      tmp.add(TiC.PROPERTY_LOGO);
+      tmp.add(TiC.PROPERTY_ICON);
+      tmp.add(TiC.PROPERTY_UP_INDICATOR);
+      tmp.add(TiC.PROPERTY_HOME_AS_UP_INDICATOR);
+      tmp.add(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
+      tmp.add(TiC.PROPERTY_DISPLAY_HOME_AS_UP);
+      tmp.add(TiC.PROPERTY_DISPLAY_HOME_TITLE_ENABLED);
+      tmp.add(TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED);
+      tmp.add(TiC.PROPERTY_TITLE);
+      tmp.add(TiC.PROPERTY_SUBTITLE);
+      tmp.add(TiC.PROPERTY_TITLE_VIEW);
+      tmp.add(TiC.PROPERTY_CUSTOM_VIEW);
+      BAR_PROPERTIES = tmp;
+    }
+    public static ArrayList<String> windowProps() {
+        return BAR_PROPERTIES;
     }
 
 	@Override
@@ -662,7 +686,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED:
-            activateHomeButton(TiConvert.toBoolean(newValue, false));
+            activateHomeButton(newValue instanceof KrollFunction);
             break;
         case TiC.PROPERTY_DISPLAY_HOME_AS_UP:
             setDisplayHomeAsUp(TiConvert.toBoolean(newValue, false));
@@ -674,18 +698,15 @@ public class ActionBarProxy extends AnimatableReusableProxy
             setDisplayShowHomeEnabled(TiConvert.toBoolean(newValue, false));
             break;
         case TiC.PROPERTY_BACKGROUND_IMAGE:
-        case TiC.PROPERTY_BAR_IMAGE:
             setBackgroundImage(TiConvert.toString(newValue));
             break;
         case TiC.PROPERTY_BACKGROUND_COLOR:
-        case TiC.PROPERTY_BAR_COLOR:
             setBackgroundColor(TiConvert.toColor(newValue));
             break;
         case TiC.PROPERTY_BACKGROUND_GRADIENT:
             setBackgroundGradient(TiConvert.toKrollDict(newValue));
             break;
         case TiC.PROPERTY_BACKGROUND_OPACITY:
-        case TiC.PROPERTY_BAR_OPACITY:
             setBackgroundOpacity(TiConvert.toFloat(newValue, 1.0f));
             break;
         case TiC.PROPERTY_CUSTOM_VIEW:
@@ -704,12 +725,13 @@ public class ActionBarProxy extends AnimatableReusableProxy
             setSubtitle(TiConvert.toString(newValue));
             break;
         case TiC.PROPERTY_UP_INDICATOR:
-        case TiC.PROPERTY_BAR_UP_INDICATOR:
             setUpIndicator(newValue);
             break;
         case TiC.PROPERTY_ICON:
-        case TiC.PROPERTY_BAR_ICON:
             setIcon(newValue);
+            break;
+        case TiC.PROPERTY_HOME_AS_UP_INDICATOR:
+            setHomeAsUpIndicator(newValue);
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);

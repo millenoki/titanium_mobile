@@ -957,6 +957,11 @@ public class TiC
     /**
      * @module.api
      */
+    public static final String PROPERTY_BAR_GRADIENT = "barGradient";
+    
+    /**
+     * @module.api
+     */
     public static final String PROPERTY_BAR_IMAGE = "barImage";
     
     /**
@@ -1413,12 +1418,12 @@ public class TiC
     /**
      * @module.api
      */
-    public static final String PROPERTY_DISPLAY_HOME_TITLE_ENABLED = "displayShowTitleEnabled";
+    public static final String PROPERTY_DISPLAY_HOME_TITLE_ENABLED = "displayShowTitle";
 
     /**
      * @module.api
      */
-    public static final String PROPERTY_DISPLAY_SHOW_HOME_ENABLED = "displayShowHomeEnabled";
+    public static final String PROPERTY_DISPLAY_SHOW_HOME_ENABLED = "displayShowHome";
 
 	/**
 	 * @module.api
@@ -1742,6 +1747,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_HOME = "home";
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_HOME_AS_UP_INDICATOR = "homeAsUpIndicator";
 	
 	/**
 	 * @module.api
