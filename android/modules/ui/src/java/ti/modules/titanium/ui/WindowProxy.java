@@ -30,6 +30,7 @@ import org.appcelerator.titanium.proxy.DecorViewProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -47,7 +48,8 @@ import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_MODAL,
-	TiC.PROPERTY_ACTIVITY,
+    TiC.PROPERTY_ACTIVITY,
+    TiC.PROPERTY_DISPLAY_HOME_AS_UP,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
 	TiC.PROPERTY_FLAG_SECURE
@@ -97,6 +99,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
         public void propertySet(String key, Object newValue, Object oldValue,
                 boolean changedProperty) {
             TiBaseActivity activity = getWindowActivity();
+            
             switch (key) {
             case TiC.PROPERTY_WINDOW_PIXEL_FORMAT:
                 getMainHandler().obtainMessage(MSG_SET_PIXEL_FORMAT, newValue)
@@ -107,74 +110,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                         .sendToTarget();
                 break;
 
-            case TiC.PROPERTY_BAR_COLOR: {
-                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
-                    ActionBarProxy aBarProxy = activity.getActivityProxy()
-                            .getOrCreateActionBarProxy();
-                    if (aBarProxy != null) {
-                        aBarProxy.setPropertyAndFire(
-                                TiC.PROPERTY_BACKGROUND_COLOR, newValue);
-                    }
-                }
-                break;
-            }
-            case TiC.PROPERTY_BAR_OPACITY: {
-                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
-                    ActionBarProxy aBarProxy = activity.getActivityProxy()
-                            .getOrCreateActionBarProxy();
-                    if (aBarProxy != null) {
-                        aBarProxy.setPropertyAndFire(
-                                TiC.PROPERTY_BACKGROUND_OPACITY, newValue);
-                    }
-                }
-                break;
-            }
-            case TiC.PROPERTY_BAR_UP_INDICATOR: {
-                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
-                    ActionBarProxy aBarProxy = activity.getActivityProxy()
-                            .getOrCreateActionBarProxy();
-                    if (aBarProxy != null) {
-                        aBarProxy.setPropertyAndFire(
-                                TiC.PROPERTY_UP_INDICATOR, newValue);
-                    }
-                }
-                break;
-            }
-            case TiC.PROPERTY_TITLE_VIEW: {
-                KrollProxy viewProxy = addProxyToHold(newValue,
-                        TiC.PROPERTY_TITLE_VIEW);
-                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
-                    ActionBarProxy aBarProxy = activity.getActivityProxy()
-                            .getOrCreateActionBarProxy();
-                    if (aBarProxy != null) {
-                        aBarProxy.setPropertyAndFire(TiC.PROPERTY_TITLE_VIEW,
-                                viewProxy);
-                    }
-                }
-                break;
-            }
-            case TiC.PROPERTY_BAR_ICON: {
-                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
-                    ActionBarProxy aBarProxy = activity.getActivityProxy()
-                            .getOrCreateActionBarProxy();
-                    if (aBarProxy != null) {
-                        aBarProxy.setPropertyAndFire(TiC.PROPERTY_ICON,
-                                newValue);
-                    }
-                }
-                break;
-            }
-            case TiC.PROPERTY_BAR_IMAGE: {
-                if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
-                    ActionBarProxy aBarProxy = activity.getActivityProxy()
-                            .getOrCreateActionBarProxy();
-                    if (aBarProxy != null) {
-                        aBarProxy.setPropertyAndFire(
-                                TiC.PROPERTY_BACKGROUND_IMAGE, newValue);
-                    }
-                }
-                break;
-            }
             case TiC.PROPERTY_TOUCH_ENABLED:
                 if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
                     if (TiConvert.toBoolean(newValue, true)) {
@@ -217,7 +152,18 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                 }
                 break;
             default:
-                super.propertySet(key, newValue, oldValue, changedProperty);
+                if (ActionBarProxy.windowProps().contains(key)) {
+                    String realKey = TiUtils.mapGetOrDefault(ActionBarProxy.propsToReplace(), key, key);
+                    if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                        ActionBarProxy aBarProxy = activity.getActivityProxy()
+                                .getOrCreateActionBarProxy();
+                        if (aBarProxy != null) {
+                            aBarProxy.setPropertyAndFire(realKey, newValue);
+                        }
+                    }
+                }else {
+                    super.propertySet(key, newValue, oldValue, changedProperty);
+                }
                 break;
             }
         }
