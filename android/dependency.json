@@ -28,6 +28,7 @@
 		"android": ["jaxen-1.1.1.jar", 
 			"kroll-common.jar", 
 			"gpuimage-1.0.jar", 
+			"ti-commons-codec-1.3.jar",
 			"titanium.jar"],
 		"xml": ["jaxen-1.1.1.jar"],
 		"ui": [
