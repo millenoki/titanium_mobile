@@ -378,8 +378,10 @@ public class ActionBarProxy extends AnimatableReusableProxy
             viewProxy = addProxyToHold(view, "customView");
         } else if (view instanceof KrollProxy) {
             viewProxy = (KrollProxy) view;
+            viewProxy.setActivity(getActivity());
         }
         if (viewProxy instanceof TiViewProxy) {
+            viewProxy.setActivity(getActivity());
             View viewToAdd = ((TiViewProxy) viewProxy).getOrCreateView().getOuterView();
             if (actionBar.getCustomView() != viewToAdd) {
                 TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
