@@ -165,8 +165,8 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
     	ActionBar actionBar = TiActivityHelper.getActionBar(getActivity());
     	if (actionBar == null) return;
 
-    	actionBar.setDisplayHomeAsUpEnabled(canGoBack);
-    	actionBar.setHomeButtonEnabled(canGoBack);
+    	actionBar.setDisplayHomeAsUpEnabled(canGoBack || TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_DISPLAY_HOME_AS_UP), false));
+    	actionBar.setHomeButtonEnabled(canGoBack || TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED), false));
 	}
 	
 	private void removeWindow(final TiWindowProxy proxy) {
