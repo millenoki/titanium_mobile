@@ -39,6 +39,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
@@ -267,10 +268,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	{
 		return this.window;
 	}
-	
-	private static <K, V> V getOrDefault(Map<K,V> map, K key, V defaultValue) {
-	    return map.containsKey(key) ? map.get(key) : defaultValue;
-	}
+
 
 	private KrollDict updatePropertiesFromWindow(KrollDict properties, final TiWindowProxy window)
 	{
@@ -281,7 +279,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		KrollDict windowProperties = window.getProperties();
 		for (String key : ActionBarProxy.windowProps()) {
 		    if (windowProperties.containsKey(key)) {
-		        String realKey = getOrDefault(ActionBarProxy.propsToReplace(), key, key);
+		        String realKey = TiUtils.mapGetOrDefault(ActionBarProxy.propsToReplace(), key, key);
 		        if (actionBarDict == null || !actionBarDict.containsKey(realKey)) {
 		            if (actionBarDict == null) {
 		                actionBarDict = new KrollDict(); 

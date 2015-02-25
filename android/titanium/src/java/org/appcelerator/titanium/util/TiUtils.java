@@ -1,5 +1,7 @@
 package org.appcelerator.titanium.util;
 
+import java.util.Map;
+
 public class TiUtils {
     public static String fastReplace(String source, String os, String ns) {
         if (source == null) {
@@ -53,5 +55,10 @@ public class TiUtils {
  
         return array;
  
+    }
+    
+    
+    public static <K, V> V mapGetOrDefault(Map<K,V> map, K key, V defaultValue) {
+        return map.containsKey(key) ? map.get(key) : defaultValue;
     }
 }
