@@ -114,7 +114,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 	private static final int MSG_GETVIEW = MSG_FIRST_ID + 100;
 	private static final int MSG_ADD_CHILD = MSG_FIRST_ID + 102;
-	private static final int MSG_REMOVE_CHILD = MSG_FIRST_ID + 103;
 	private static final int MSG_BLUR = MSG_FIRST_ID + 104;
 	private static final int MSG_FOCUS = MSG_FIRST_ID + 105;
 	private static final int MSG_SHOW = MSG_FIRST_ID + 106;
@@ -174,12 +173,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 				AsyncResult result = (AsyncResult) msg.obj;
 				handleAdd((TiViewProxy) result.getArg(), msg.arg1);
 				result.setResult(null); //Signal added.
-				return true;
-			}
-			case MSG_REMOVE_CHILD : {
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleRemove((TiViewProxy) result.getArg(), (msg.arg1 == 1));
-				result.setResult(null); //Signal removed.
 				return true;
 			}
 			case MSG_BLUR : {
