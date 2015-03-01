@@ -7,18 +7,17 @@
 package ti.modules.titanium.ui.android;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import android.app.Activity;
-import android.os.Build;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_COLOR,
-	TiC.PROPERTY_ICONIFIED,
+    TiC.PROPERTY_ICONIFIED,
+    TiC.PROPERTY_ICONIFY_ON_BLUR,
 	TiC.PROPERTY_ICONIFIED_BY_DEFAULT,
 	TiC.PROPERTY_HINT_TEXT,
 	TiC.PROPERTY_VALUE })
@@ -29,7 +28,8 @@ public class SearchViewProxy extends TiViewProxy
 	public SearchViewProxy()
 	{
 		super();
-		defaultValues.put(TiC.PROPERTY_ICONIFIED_BY_DEFAULT, true);
+        defaultValues.put(TiC.PROPERTY_ICONIFIED_BY_DEFAULT, true);
+        defaultValues.put(TiC.PROPERTY_ICONIFIED, true);
 	}
 
 	@Override
@@ -43,4 +43,17 @@ public class SearchViewProxy extends TiViewProxy
 	{
 		return "Ti.UI.Android.SearchView";
 	}
+	
+	
+	@Kroll.method
+    public void iconify() {
+
+	    setPropertyAndFire(TiC.PROPERTY_ICONIFIED, true);
+    }
+	
+	@Kroll.method
+    public void expand() {
+
+        setPropertyAndFire(TiC.PROPERTY_ICONIFIED, false);
+    }
 }
