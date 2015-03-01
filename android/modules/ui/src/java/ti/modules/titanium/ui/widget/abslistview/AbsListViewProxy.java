@@ -94,7 +94,9 @@ public abstract class AbsListViewProxy extends TiViewProxy {
         if (listView != null) {
             AbsListSectionProxy[] sections = ((TiAbsListView) listView).getSections();
             for (AbsListSectionProxy section : sections) {
-                section.setActivity(activity);
+                if (section != null) {
+                    section.setActivity(activity);
+                }
             }
         }
     }
