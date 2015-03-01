@@ -1,7 +1,6 @@
 var Map = app.modules.map = require('akylas.map');
 Map.mapboxAccessToken = 'pk.eyJ1IjoiYmxlZWdlIiwiYSI6IkRGLTFPU00ifQ.qJpq3jytAL9A-z_tkNypqg';
 var simplify = require('simplifygeometry');
-
 function mapExs(_args) {
 	var win = createWin(_args);
 	var listview = createListView();
@@ -16,10 +15,14 @@ function mapExs(_args) {
 				title : 'Map'
 			},
 			callback : mapEx
+		} , {
+			properties : {
+				title : 'Directions'
+			},
+			callback : directionEx
 		} ]
 	} ];
 	win.add(listview);
-	initGeoSettings();
 	openWin(win);
 }
 
@@ -63,7 +66,8 @@ function addTestRoute(_map) {
 	// };
 	// info('after ' + realPoints.length);
 	_map.addRoute(Map.createRoute({
-		width : 4,
+		width : 7,
+		color : '#660000ff',
 		points : JSON.parse(points)
 	}));
 
@@ -83,6 +87,7 @@ function addTestRoute(_map) {
 }
 
 function mapboxEx() {
+	initGeoSettings();
 	var win = createWin({
 		layout:'vertical'
 	});
@@ -700,6 +705,7 @@ function mapboxEx() {
 }
 
 function initGeoSettings() {
+	if (app.location) return;
 	app.location = {};
 	Titanium.Geolocation.purpose = 'suggest_a_move';
 	if (__APPLE__) {
@@ -783,15 +789,17 @@ function initGeoSettings() {
 }
 
 function mapEx(_args) {
+	initGeoSettings();
 	var win = createWin(_args);
+
 	var opera = Map.createAnnotation({
-		latitude : -33.8569,
-		longitude : 151.2153,
+		latitude : 45.18807902343494,
+		longitude : 5.728310979902744,
 		anchorPoint : {
 			x : 0.5,
 			y : 0.5
 		},
-		image : '/images/customPin.png',
+		pincolor : Map.ANNOTATION_AZURE,
 		title : 'Sydney Opera House',
 		subtitle : 'Sydney, New South Wales, Australia'
 	});
@@ -841,13 +849,14 @@ function mapEx(_args) {
 		}
 	});
 	var mapview = Map.createMapView({
-		tileSource : [ 'examples.map-z2effxa8', mbTiles ],
-		// mapType: Map.NORMAL_TYPE,
+// tileSource : [ 'examples.map-z2effxa8', mbTiles ],
+		 mapType: Map.NORMAL_TYPE,
 		defaultCalloutTemplate : 'default',
 		calloutUseTemplates : true,
-//		userLocationEnabled : true,
+// userLocationEnabled : true,
 		toolbar : false,
-//		userTrackingMode : 2,
+		compass:true,
+// userTrackingMode : 2,
 		calloutTemplates : {
 			'default' : {
 				properties : {
@@ -898,23 +907,26 @@ function mapEx(_args) {
 				} ]
 			}
 		},
-		annotations : [ bridge, opera ]
+// annotations : [ bridge, opera ]
 	// < add these annotations upon creation
 	});
 	var userFollow = true;
-	mapview.addEventListener('longpress', sdebug);
-	mapview.addEventListener('locationButton', function(e) {
-		sdebug(e.type);
-		userFollow = true;
-	});
-	mapview.addEventListener('followUserLocation', function(e) {
-		sdebug(e.type);
-		userFollow = e.value;
+	mapview.addEventListener('longpress', function(e) {
+		sdebug(_.pick(e, 'latitude', 'longitude', 'region', 'zoom'));
 	});
 	
+// mapview.addEventListener('locationButton', function(e) {
+// sdebug(e.type);
+// userFollow = true;
+// });
+// mapview.addEventListener('followUserLocation', function(e) {
+// sdebug(e.type);
+// userFollow = e.value;
+// });
+	
 	var userLocationAnnot = Map.createAnnotation({
-//		latitude : -33.8569,
-//		longitude : 151.2153,
+// latitude : -33.8569,
+// longitude : 151.2153,
 		flat:true,
 		visible:false,
 		anchorPoint : {
@@ -927,7 +939,7 @@ function mapEx(_args) {
 	
 	
 	function onLocation(e) {
-//		sdebug(e);
+// sdebug(e);
 		if (!e.coords || e.success === false || e.error) {
 			return;
 		}
@@ -956,5 +968,341 @@ function mapEx(_args) {
 	mapview.addAnnotation([random, userLocationAnnot]);
 	win.add(mapview);
 	addTestRoute(mapview);
+	openWin(win);
+}
+
+
+function queryString(params, _start) {
+    var first = true;
+    return _.reduce(params, function(memo, value, key) {
+        if ((!_.isNumber(value) && _.isEmpty(value)) || _.isFunction(value)) return memo;
+        if (first) {
+            first = false;
+            return memo + (_start ? '?' : '') + key + '=' + (_.isObject(value) ? stringify(value) :
+                value);
+        } else return memo + '&' + key + '=' + (_.isObject(value) ? stringify(value) : value);
+    }, _start || '');
+}
+
+function decodeLine(encoded) {
+    var len = encoded.length;
+    var index = 0;
+    var array = [];
+    var lat = 0;
+    var lng = 0;
+ 
+    while (index < len) {
+        var b;
+        var shift = 0;
+        var result = 0;
+        do {
+            b = encoded.charCodeAt(index++) - 63;
+            result |= (b & 0x1f) << shift;
+            shift += 5;
+        } while (b >= 0x20);
+ 
+        var dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        lat += dlat;
+ 
+        shift = 0;
+        result = 0;
+        do {
+            b = encoded.charCodeAt(index++) - 63;
+            result |= (b & 0x1f) << shift;
+            shift += 5;
+        } while (b >= 0x20);
+ 
+        var dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        lng += dlng;
+ 
+        array.push([lat * 1e-5, lng * 1e-5]);
+    }
+ 
+    return array;
+}
+
+function queryDirections(_orig, _dest, _callback) {
+	var requestUrl = queryString({
+		key: apiKey,
+		origin: _orig,
+		destination: _dest,
+		language: 'fr',
+		region:'fr'
+	}, 'https://maps.googleapis.com/maps/api/directions/json');
+	var request = new HTTPClient({
+        showActivity: true,
+        timeout: 10000,
+        onload: function(e) {
+        	var response = this.responseText;
+            var json = JSON.parse(response);
+            sdebug();
+        	var step = json.routes[0].legs[0].steps;
+            var intStep = 0, intSteps = step.length, points = [];
+            var decodedPolyline, intPoint = 0, intPoints = 0;
+            for (intStep = 0; intStep < intSteps; intStep = intStep + 1) {
+                decodedPolyline = decodeLine(step[intStep].polyline.points);
+                intPoints = decodedPolyline.length;
+                for (intPoint = 0; intPoint < intPoints; intPoint = intPoint + 1) {
+                    if (decodedPolyline[intPoint] != null) {
+                        points.push([decodedPolyline[intPoint][0], decodedPolyline[intPoint][1]]);
+                    }
+                }
+            }
+            if (_callback) {
+            	_callback(json, points);
+            }
+        },
+        onerror: function(e) {
+           alert(e.error);
+        }
+    });
+	request.open('GET', requestUrl);
+	request.send();
+}
+
+var apiKey  ='AIzaSyAKh0_FyCXBWWsuAhJh7JA7WPOWm_GEmfc';
+function addressAutocomplete(_query, _callback) {
+	var requestUrl = queryString({
+		key: apiKey,
+		input: _query,
+		language: 'fr',
+		components:'country:fr'
+	}, 'https://maps.googleapis.com/maps/api/place/autocomplete/json');
+	var request = new HTTPClient({
+        showActivity: true,
+        timeout: 10000,
+        onload: function(e) {
+        	var response = this.responseText;
+            var json = JSON.parse(response);
+            if (_callback) {
+            	_callback(_.pluck(json.predictions, 'description'));
+            }
+        },
+        onerror: function(e) {
+           alert(e.error);
+        }
+    });
+	request.open('GET', requestUrl);
+	request.send();
+}
+
+function directionEx(_args) {
+	initGeoSettings();
+	var searchView = Ti.UI.Android.createSearchView({
+		iconifiedByDefault:true,
+		hintText: 'Cherchez ou entrez une adresse',
+		ellipsize: Ti.UI.TEXT_ELLIPSIZE_TAIL,
+//		font: {
+//			size: 14
+//		}
+	});
+
+	var win = createWin(_.assign({
+		title:'Directions',
+		activity: {
+			onCreateOptionsMenu: function(e) {
+				var menu = e.menu;
+				menu.add({
+					actionView : searchView,
+					showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS
+				});
+				menu.add({
+					title: 'test',
+					showAsAction: Ti.Android.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
+				});
+			}
+		}
+	}, _args));
+	var mapView = Map.createMapView({
+		 mapType: Map.NORMAL_TYPE,
+		defaultCalloutTemplate : 'default',
+		calloutUseTemplates : true,
+		toolbar : false,
+		compass:true,
+		calloutTemplates : {
+			'default' : {
+				properties : {
+					backgroundColor : 'blue',
+					height : 50,
+					width : 100
+				},
+				childTemplates : [ {
+					type : 'Ti.UI.Label',
+					bindId : 'label',
+					properties : {
+						opacity : '80%',
+						backgroundColor : 'yellow',
+						color : 'red',
+						selectedColor : 'green',
+						backgroundColor : 'gray',
+						font : {
+							fontSize : 16,
+							fontWeight : 'bold'
+						}
+					}
+				} ],
+				events : {
+					'click' : function(_event) {
+						sdebug('click test', _event);
+					}
+				}
+			},
+			'leftView' : {
+				properties : {
+					backgroundColor : 'green',
+					width : 'SIZE'
+				},
+				childTemplates : [ {
+					type : 'Ti.UI.Button',
+					bindId : 'button',
+					properties : {
+						tintColor : 'red',
+					},
+					events : {
+						'click' : function(_event) {
+							sdebug('click test', _event);
+						}
+					}
+				} ]
+			}
+		},
+	});
+	var searchListView = Ti.UI.createListView({
+        properties: {
+            bubbleParent: false,
+            backgroundColor:'white',
+            rowHeight:30
+        },
+        events: {
+            'itemclick': function(_event) {
+                if (_event.hasOwnProperty('item')) {
+                    var dest = _event.item.title;
+                    // circle = item.circle;
+//                    searchView.value = dest;
+                    searchView.blur();
+            		if (!dest || dest == null) {
+            			return;
+            		}
+            		var currentLocation = Titanium.Geolocation.lastGeolocation;
+            		if (!currentLocation || currentLocation == null) {
+            			alert('gps seems to be turned off ??');
+            			return;
+            		}
+            		var string = currentLocation.latitude + ',' + currentLocation.longitude;
+            		queryDirections(string, dest, function(_json, _points) {
+            			sdebug(_points);
+            			mapView.routes = [{
+            				width : 7,
+            				color : '#660000ff',
+            				points : _points
+            			}];
+            			var bounds = _json.routes[0].bounds;
+            			mapView.region =  {
+            					ne:[bounds.northeast.lat, bounds.northeast.lng],
+            					sw:[bounds.southwest.lat, bounds.southwest.lng]
+            			}
+            		});
+                }
+            }
+        }
+    });
+	var searchListViewHolder = Ti.UI.createView({
+		touchPassThrough: true,
+		verticalAlign:'center',
+		top: 0,
+		left:15,
+		right:15
+	});
+	var searchListViewVisible = false;
+
+	
+	function showSearchListView() {
+		if (searchListViewVisible) {
+			return;
+		}
+		searchListViewVisible = true;
+		searchListViewHolder.transitionViews(null, searchListView, {
+            style: Ti.UI.TransitionStyle.FADE
+        });
+	}
+	
+	function hideSearchListView() {
+		if (!searchListViewVisible) {
+			return;
+		}
+		searchListViewVisible = false;
+		searchListViewHolder.transitionViews(searchListView, null, {
+            style: Ti.UI.TransitionStyle.FADE
+        });
+	}
+	
+	
+	searchView.addEventListener('blur', function(e) {
+		sdebug('blur', e.value);
+		hideSearchListView();
+	});
+	searchView.addEventListener('change', _.debounce(function(e) {
+		var dest = e.value;
+		if (!dest || dest == null) {
+			hideSearchListView();
+			return;
+		}
+		addressAutocomplete(dest, function(_results) {
+			searchListView.sections = [{
+	            items: _.reduce(_results, function(result, n, key) {
+	            	  result.push({title:n, color:'black'});
+	            	  return result;
+	            }, [])
+	        }];
+			showSearchListView();
+		});
+	},300));
+	searchView.addEventListener('return', function(e) {
+		hideSearchListView();
+	});
+	win.add([mapView, searchView, searchListViewHolder])
+	
+	var userFollow = false;
+	mapView.addEventListener('longpress', function(e) {
+		sdebug(_.pick(e, 'latitude', 'longitude', 'region', 'zoom'));
+	});
+	var userLocationAnnot = Map.createAnnotation({
+		flat:true,
+		visible:false,
+		anchorPoint : {
+			x : 0.5,
+			y : 0.5
+		},
+		image : '/images/direction_arrow.png',
+		showInfoWindow:false
+	});
+	
+	function onLocation(e) {
+		if (!e.coords || e.success === false || e.error) {
+			return;
+		}
+		userLocationAnnot.applyProperties(_.assign({
+			visible:true
+		}, e.coords));
+		if (userFollow) {
+			mapView.updateCamera({
+				centerCoordinate:[e.coords.latitude, e.coords.longitude],
+				bearing:e.coords.heading,
+				tilt:60,
+				zoom:Math.max(mapView.zoom, 15),
+				animate:true
+			});
+		}
+	}
+	
+	app.location.setFullGPS();
+	Titanium.Geolocation.getCurrentPosition(onLocation);
+	Titanium.Geolocation.addEventListener('location', onLocation);
+	// Titanium.Geolocation.removeEventListener('location', onLocation);
+	win.addEventListener('close', function() {
+		info('close');
+		app.location.setSlowGPS();
+		Titanium.Geolocation.removeEventListener('location', onLocation);
+	});
 	openWin(win);
 }
