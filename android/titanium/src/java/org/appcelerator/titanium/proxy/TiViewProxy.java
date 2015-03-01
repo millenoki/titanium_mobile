@@ -709,26 +709,33 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
         }
     }
 
-	protected void handleChildRemoved(final KrollProxy child, final boolean shouldDetach) {
+	protected void handleChildRemoved(final KrollProxy child, final int index,
+            final boolean shouldDetach) {
+	    if (!(child instanceof TiViewProxy)) {
+	        return;
+	    }
 	    if (!TiApplication.isUIThread()) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    handleChildRemoved(child, shouldDetach);
+                    handleChildRemoved(child, index, shouldDetach);
                 }
             });
             return;
 		}
-        handleRemove((TiViewProxy) child, shouldDetach);
-	    super.handleChildRemoved(child, shouldDetach);
-    }
-
-    public void handleRemove(TiViewProxy child, final boolean shouldDetach)
-    {
-        if (view != null) {
-            view.remove(child.peekView());
+	    if (view != null) {
+            view.remove(((TiViewProxy)child).peekView());
         }
+//        handleRemove((TiViewProxy) child, shouldDetach);
+	    super.handleChildRemoved(child, index, shouldDetach);
     }
+//
+//    public void handleRemove(TiViewProxy child, final boolean shouldDetach)
+//    {
+//        if (view != null) {
+//            view.remove(child.peekView());
+//        }
+//    }
 
 	@Kroll.method
 	public void show(@Kroll.argument(optional=true) KrollDict options)
