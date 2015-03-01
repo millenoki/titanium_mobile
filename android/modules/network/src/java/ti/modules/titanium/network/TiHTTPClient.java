@@ -1133,7 +1133,7 @@ public class TiHTTPClient
 		return client;
 	}
 
-	public void send(Object userData) throws MethodNotSupportedException
+	public void send(Object userData)
 	{
 		aborted = false;
 
@@ -1211,7 +1211,12 @@ public class TiHTTPClient
 		Log.d(TAG, "Instantiating http request with method='" + method + "' and this url:", Log.DEBUG_MODE);
 		Log.d(TAG, this.url, Log.DEBUG_MODE);
 
-		request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
+		try {
+            request = new DefaultHttpRequestFactory().newHttpRequest(method, this.url);
+        } catch (MethodNotSupportedException e) {
+            handleError(e);
+            return;
+        }
 		request.setHeader(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
 		for (String header : headers.keySet()) {
 			request.setHeader(header, headers.get(header));
@@ -1353,30 +1358,7 @@ public class TiHTTPClient
 				}
 
 			} catch(Throwable t) {
-				if (client != null) {
-					Log.d(TAG, "clearing the expired and idle connections", Log.DEBUG_MODE);
-					client.getConnectionManager().closeExpiredConnections();
-					client.getConnectionManager().closeIdleConnections(0, TimeUnit.NANOSECONDS);
-
-				} else {
-					Log.d(TAG, "client is not valid, unable to clear expired and idle connections");
-				}
-
-				String msg = t.getMessage();
-				if (msg == null && t.getCause() != null) {
-					msg = t.getCause().getMessage();
-				}
-				if (msg == null) {
-					msg = t.getClass().getName();
-				}
-				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
-				int statusCode = TiC.ERROR_CODE_UNKNOWN;
-				if (t instanceof HttpResponseException) {
-				    statusCode = ((HttpResponseException)t).getStatusCode();
-				}
-				KrollDict data = new KrollDict();
-				data.putCodeAndMessage(statusCode, msg);
-				dispatchCallback("onerror", data);
+			    handleError(t);
 			} finally {
 				deleteTmpFiles();
 				
@@ -1397,6 +1379,33 @@ public class TiHTTPClient
 			}
 
 		}
+	}
+	
+	private void handleError(Throwable t) {
+	    if (client != null) {
+            Log.d(TAG, "clearing the expired and idle connections", Log.DEBUG_MODE);
+            client.getConnectionManager().closeExpiredConnections();
+            client.getConnectionManager().closeIdleConnections(0, TimeUnit.NANOSECONDS);
+
+        } else {
+            Log.d(TAG, "client is not valid, unable to clear expired and idle connections");
+        }
+
+        String msg = t.getMessage();
+        if (msg == null && t.getCause() != null) {
+            msg = t.getCause().getMessage();
+        }
+        if (msg == null) {
+            msg = t.getClass().getName();
+        }
+        Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+        int statusCode = TiC.ERROR_CODE_UNKNOWN;
+        if (t instanceof HttpResponseException) {
+            statusCode = ((HttpResponseException)t).getStatusCode();
+        }
+        KrollDict data = new KrollDict();
+        data.putCodeAndMessage(statusCode, msg);
+        dispatchCallback("onerror", data);
 	}
 
 	private void deleteTmpFiles()
