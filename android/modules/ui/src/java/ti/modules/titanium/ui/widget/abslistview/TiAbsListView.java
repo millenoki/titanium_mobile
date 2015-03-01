@@ -351,7 +351,9 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 
         @Override
         public Object[] getSections() {
-            return sections.toArray();
+            synchronized (sections) {
+                return sections.toArray();
+            }
         }
 
         @Override
@@ -1411,7 +1413,9 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 	
 	public AbsListSectionProxy[] getSections()
 	{
-		return sections.toArray(new AbsListSectionProxy[sections.size()]);
+	    synchronized (sections) {
+	        return sections.toArray(new AbsListSectionProxy[sections.size()]);
+        }
 	}
 	
 	public KrollProxy getChildByBindId(int sectionIndex, int itemIndex, String bindId) {
