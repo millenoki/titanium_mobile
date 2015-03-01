@@ -8,7 +8,6 @@ package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -485,20 +484,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			}
 		}
 	}
-	
-	private void checkUpEventSent(MotionEvent event){
-		if (!windowStack.isEmpty()) {
-			Iterator itr = windowStack.iterator();
-		    while( itr.hasNext() ) {
-		        TiWindowProxy window = (TiWindowProxy)itr.next();
-		        window.checkUpEventSent(event);
-		    }
-		}
-		if (window != null) {
-			 window.checkUpEventSent(event);
-		}
-	}
-	
+
 //	private Toolbar toolbar = null;
 	// Subclasses can override to provide a custom layout
 	protected View createLayout()
@@ -583,9 +569,17 @@ public abstract class TiBaseActivity extends ActionBarActivity
                     handler.postDelayed(new Runnable() {
                       @Override
                       public void run() {
-                          checkUpEventSent(copy);
+                          if (!windowStack.isEmpty()) {
+                              TiWindowProxy win = (TiWindowProxy)windowStack.lastElement();
+                              if (win != null) {
+                                  window.checkUpEventSent(copy);
+                              }
+                          }
+                          else if (window != null) {
+                               window.checkUpEventSent(copy);
+                          }
                       }
-                    }, 10);
+                    }, 0);
                 }
                 return super.onInterceptTouchEvent(event);
             }
