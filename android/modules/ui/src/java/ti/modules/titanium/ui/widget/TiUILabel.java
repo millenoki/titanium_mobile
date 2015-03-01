@@ -1010,9 +1010,9 @@ public class TiUILabel extends TiUINonViewGroupView
 
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT) != 0) {
             if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_HTML) != 0) {
-                getTextView().setText(prepareHtml(text));
+                tv.setText(prepareHtml(text));
             } else {
-                getTextView().setText(text);
+                tv.setText(text);
             }
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT;
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_HTML;
