@@ -87,7 +87,7 @@ import android.widget.AdapterView;
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
  */
 public abstract class TiUIView
-	implements KrollProxyReusableListener, OnFocusChangeListener, Handler.Callback
+	implements KrollProxyReusableListener, OnFocusChangeListener, Handler.Callback, OnTouchListener
 {
 
 	private static final String TAG = "TiUIView";
@@ -1582,7 +1582,7 @@ public abstract class TiUIView
 	
 	public void checkUpEventSent(MotionEvent event){
 		if (pointerDown) {
-			customInterceptTouchEvent(event);
+		    getTouchView().dispatchTouchEvent(event);
 		}
 		else {
 			for (TiUIView child : children) {
@@ -1597,7 +1597,8 @@ public abstract class TiUIView
 	
 	private int pointersDown = 0;
 	private boolean pointerDown = false;
-	public boolean customInterceptTouchEvent(MotionEvent event) {
+	@Override
+    public boolean onTouch(View v, MotionEvent event) {
 		if (mTouchDelegate != null) {
 			mTouchDelegate.onTouchEvent(event, TiUIView.this);
 		}
@@ -1786,13 +1787,7 @@ public abstract class TiUIView
 			}
 		});
 		
-		touchable.setOnTouchListener(new OnTouchListener()
-		{
-			public boolean onTouch(View view, MotionEvent event)
-			{
-				return customInterceptTouchEvent(event);
-			}
-		});
+		touchable.setOnTouchListener(this);
 		
 	}
 	
