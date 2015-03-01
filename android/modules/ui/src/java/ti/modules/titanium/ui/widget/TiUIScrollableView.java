@@ -935,7 +935,9 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		}
 
 		@Override
-		public void finishUpdate(View container) {}
+		public void finishUpdate(View container) {
+		    
+		}
 
 		@Override
 		public int getCount()
