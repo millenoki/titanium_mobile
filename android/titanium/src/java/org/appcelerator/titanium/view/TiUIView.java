@@ -1093,14 +1093,19 @@ public abstract class TiUIView
     }
     
 	
-	public void onFocusChange(final View v, boolean hasFocus)
+	public void onFocusChange(final View v, final boolean hasFocus)
 	{
+	    if (!TiApplication.isUIThread()) {
+            proxy.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    onFocusChange(v, hasFocus);
+                }
+            });
+            return;
+        }
 		if (hasFocus) {
-			TiMessenger.postOnMain(new Runnable() {
-				public void run() {
-					TiUIHelper.requestSoftInputChange(TiUIView.this, v);
-				}
-			});
+			TiUIHelper.requestSoftInputChange(TiUIView.this, v);
 			fireEvent(TiC.EVENT_FOCUS, getFocusEventObject(hasFocus), false, true);
 		} else {
 			fireEvent(TiC.EVENT_BLUR, getFocusEventObject(hasFocus), false, true);
