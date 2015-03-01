@@ -1792,7 +1792,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
-
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_ICONIFY_ON_BLUR = "iconifyOnBlur";
 
 	/**
 	 * @module.api
