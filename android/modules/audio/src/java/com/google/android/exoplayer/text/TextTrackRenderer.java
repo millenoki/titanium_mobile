@@ -38,20 +38,6 @@ import java.io.IOException;
 @TargetApi(16)
 public class TextTrackRenderer extends TrackRenderer implements Callback {
 
-  /**
-   * An interface for components that render text.
-   */
-  public interface TextRenderer {
-
-    /**
-     * Invoked each time there is a change in the text to be rendered.
-     *
-     * @param text The text to render, or null if no text is to be rendered.
-     */
-    void onText(String text);
-
-  }
-
   private static final int MSG_UPDATE_OVERLAY = 0;
 
   private final Handler textRendererHandler;
@@ -191,8 +177,9 @@ public class TextTrackRenderer extends TrackRenderer implements Callback {
     if (!inputStreamEnded && subtitle == null) {
       try {
         SampleHolder sampleHolder = parserHelper.getSampleHolder();
+        sampleHolder.clearData();
         int result = source.readData(trackIndex, positionUs, formatHolder, sampleHolder, false);
-        if (result == SampleSource.SAMPLE_READ) {
+        if (result == SampleSource.SAMPLE_READ && !sampleHolder.decodeOnly) {
           parserHelper.startParseOperation();
           textRendererNeedsUpdate = false;
         } else if (result == SampleSource.END_OF_STREAM) {

@@ -23,22 +23,22 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.chunk.Chunk;
 import com.google.android.exoplayer.chunk.ChunkOperationHolder;
 import com.google.android.exoplayer.chunk.ChunkSource;
+import com.google.android.exoplayer.chunk.ContainerMediaChunk;
 import com.google.android.exoplayer.chunk.Format;
 import com.google.android.exoplayer.chunk.Format.DecreasingBandwidthComparator;
 import com.google.android.exoplayer.chunk.FormatEvaluator;
 import com.google.android.exoplayer.chunk.FormatEvaluator.Evaluation;
 import com.google.android.exoplayer.chunk.MediaChunk;
-import com.google.android.exoplayer.chunk.Mp4MediaChunk;
 import com.google.android.exoplayer.chunk.SingleSampleMediaChunk;
+import com.google.android.exoplayer.chunk.parser.Extractor;
+import com.google.android.exoplayer.chunk.parser.mp4.FragmentedMp4Extractor;
+import com.google.android.exoplayer.chunk.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.dash.mpd.AdaptationSet;
 import com.google.android.exoplayer.dash.mpd.ContentProtection;
 import com.google.android.exoplayer.dash.mpd.MediaPresentationDescription;
 import com.google.android.exoplayer.dash.mpd.Period;
 import com.google.android.exoplayer.dash.mpd.RangedUri;
 import com.google.android.exoplayer.dash.mpd.Representation;
-import com.google.android.exoplayer.parser.Extractor;
-import com.google.android.exoplayer.parser.mp4.FragmentedMp4Extractor;
-import com.google.android.exoplayer.parser.webm.WebmExtractor;
 import com.google.android.exoplayer.text.webvtt.WebvttParser;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DataSpec;
@@ -86,6 +86,7 @@ public class DashChunkSource implements ChunkSource {
   private final Evaluation evaluation;
   private final StringBuilder headerBuilder;
   private final long liveEdgeLatencyUs;
+  private final long elapsedRealtimeOffsetUs;
   private final int maxWidth;
   private final int maxHeight;
 
@@ -140,7 +141,8 @@ public class DashChunkSource implements ChunkSource {
    */
   public DashChunkSource(MediaPresentationDescription manifest, int adaptationSetIndex,
       int[] representationIndices, DataSource dataSource, FormatEvaluator formatEvaluator) {
-    this(null, manifest, adaptationSetIndex, representationIndices, dataSource, formatEvaluator, 0);
+    this(null, manifest, adaptationSetIndex, representationIndices, dataSource, formatEvaluator, 0,
+        0);
   }
 
   /**
@@ -162,18 +164,21 @@ public class DashChunkSource implements ChunkSource {
    *     manifest). Choosing a small value will minimize latency introduced by the player, however
    *     note that the value sets an upper bound on the length of media that the player can buffer.
    *     Hence a small value may increase the probability of rebuffering and playback failures.
+   * @param elapsedRealtimeOffsetMs If known, an estimate of the instantaneous difference between
+   *    server-side unix time and {@link SystemClock#elapsedRealtime()} in milliseconds, specified
+   *    as the server's unix time minus the local elapsed time. It unknown, set to 0.
    */
   public DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       int adaptationSetIndex, int[] representationIndices, DataSource dataSource,
-      FormatEvaluator formatEvaluator, long liveEdgeLatencyMs) {
+      FormatEvaluator formatEvaluator, long liveEdgeLatencyMs, long elapsedRealtimeOffsetMs) {
     this(manifestFetcher, manifestFetcher.getManifest(), adaptationSetIndex, representationIndices,
-        dataSource, formatEvaluator, liveEdgeLatencyMs * 1000);
+        dataSource, formatEvaluator, liveEdgeLatencyMs * 1000, elapsedRealtimeOffsetMs * 1000);
   }
 
   private DashChunkSource(ManifestFetcher<MediaPresentationDescription> manifestFetcher,
       MediaPresentationDescription initialManifest, int adaptationSetIndex,
       int[] representationIndices, DataSource dataSource, FormatEvaluator formatEvaluator,
-      long liveEdgeLatencyUs) {
+      long liveEdgeLatencyUs, long elapsedRealtimeOffsetUs) {
     this.manifestFetcher = manifestFetcher;
     this.currentManifest = initialManifest;
     this.adaptationSetIndex = adaptationSetIndex;
@@ -181,6 +186,7 @@ public class DashChunkSource implements ChunkSource {
     this.dataSource = dataSource;
     this.evaluator = formatEvaluator;
     this.liveEdgeLatencyUs = liveEdgeLatencyUs;
+    this.elapsedRealtimeOffsetUs = elapsedRealtimeOffsetUs;
     this.evaluation = new Evaluation();
     this.headerBuilder = new StringBuilder();
 
@@ -326,8 +332,12 @@ public class DashChunkSource implements ChunkSource {
       return;
     }
 
-    // TODO: Use UtcTimingElement where possible.
-    long nowUs = System.currentTimeMillis() * 1000;
+    long nowUs;
+    if (elapsedRealtimeOffsetUs != 0) {
+      nowUs = (SystemClock.elapsedRealtime() * 1000) + elapsedRealtimeOffsetUs;
+    } else {
+      nowUs = System.currentTimeMillis() * 1000;
+    }
 
     int firstAvailableSegmentNum = segmentIndex.getFirstSegmentNum();
     int lastAvailableSegmentNum = segmentIndex.getLastSegmentNum();
@@ -349,7 +359,7 @@ public class DashChunkSource implements ChunkSource {
     int segmentNum;
     if (queue.isEmpty()) {
       if (currentManifest.dynamic) {
-        seekPositionUs = getLiveSeekPosition(nowUs, indexUnbounded);
+        seekPositionUs = getLiveSeekPosition(nowUs, indexUnbounded, segmentIndex.isExplicit());
       }
       segmentNum = segmentIndex.getSegmentNum(seekPositionUs);
     } else {
@@ -451,7 +461,7 @@ public class DashChunkSource implements ChunkSource {
     DataSpec dataSpec = new DataSpec(segmentUri.getUri(), segmentUri.start, segmentUri.length,
         representation.getCacheKey());
 
-    long presentationTimeOffsetUs = representation.presentationTimeOffsetMs * 1000;
+    long presentationTimeOffsetUs = representation.presentationTimeOffsetUs;
     if (representation.format.mimeType.equals(MimeTypes.TEXT_VTT)) {
       if (representationHolder.vttHeaderOffsetUs != presentationTimeOffsetUs) {
         // Update the VTT header.
@@ -464,9 +474,9 @@ public class DashChunkSource implements ChunkSource {
       return new SingleSampleMediaChunk(dataSource, dataSpec, representation.format, 0,
           startTimeUs, endTimeUs, nextAbsoluteSegmentNum, null, representationHolder.vttHeader);
     } else {
-      return new Mp4MediaChunk(dataSource, dataSpec, representation.format, trigger, startTimeUs,
-          endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, psshInfo, false,
-          presentationTimeOffsetUs);
+      return new ContainerMediaChunk(dataSource, dataSpec, representation.format, trigger,
+          startTimeUs, endTimeUs, nextAbsoluteSegmentNum, representationHolder.extractor, psshInfo,
+          false, presentationTimeOffsetUs);
     }
   }
 
@@ -476,9 +486,10 @@ public class DashChunkSource implements ChunkSource {
    *
    * @param nowUs An estimate of the current server time, in microseconds.
    * @param indexUnbounded True if the segment index for this source is unbounded. False otherwise.
+   * @param indexExplicit True if the segment index is explicit. False otherwise.
    * @return The seek position in microseconds.
    */
-  private long getLiveSeekPosition(long nowUs, boolean indexUnbounded) {
+  private long getLiveSeekPosition(long nowUs, boolean indexUnbounded, boolean indexExplicit) {
     long liveEdgeTimestampUs;
     if (indexUnbounded) {
       liveEdgeTimestampUs = nowUs - currentManifest.availabilityStartTime * 1000;
@@ -490,6 +501,12 @@ public class DashChunkSource implements ChunkSource {
         long indexLiveEdgeTimestampUs = segmentIndex.getTimeUs(lastSegmentNum)
             + segmentIndex.getDurationUs(lastSegmentNum);
         liveEdgeTimestampUs = Math.max(liveEdgeTimestampUs, indexLiveEdgeTimestampUs);
+      }
+      if (!indexExplicit) {
+        // Some segments defined by the index may not be available yet. Bound the calculated live
+        // edge based on the elapsed time since the manifest became available.
+        liveEdgeTimestampUs = Math.min(liveEdgeTimestampUs,
+            nowUs - currentManifest.availabilityStartTime * 1000);
       }
     }
     return liveEdgeTimestampUs - liveEdgeLatencyUs;

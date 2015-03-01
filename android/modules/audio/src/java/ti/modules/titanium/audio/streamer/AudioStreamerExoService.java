@@ -77,25 +77,27 @@ import ti.modules.titanium.audio.streamer.StreamerExoPlayer.RendererBuilder;
 import ti.modules.titanium.audio.streamer.StreamerExoPlayer.RendererBuilderCallback;
 
 import com.google.android.exoplayer.ExoPlayer;
-import com.google.android.exoplayer.FrameworkSampleSource;
 import com.google.android.exoplayer.MediaCodecAudioTrackRenderer;
 import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializationException;
-import com.google.android.exoplayer.MediaCodecUtil;
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack.InitializationException;
+import com.google.android.exoplayer.audio.AudioTrack.WriteException;
 import com.google.android.exoplayer.hls.HlsChunkSource;
 import com.google.android.exoplayer.hls.HlsPlaylist;
 import com.google.android.exoplayer.hls.HlsPlaylistParser;
 import com.google.android.exoplayer.hls.HlsSampleSource;
 import com.google.android.exoplayer.metadata.Id3Parser;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
+import com.google.android.exoplayer.source.DefaultSampleSource;
+import com.google.android.exoplayer.source.FrameworkSampleExtractor;
 import com.google.android.exoplayer.upstream.DataSource;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer.upstream.HttpDataSource.InvalidResponseCodeException;
 import com.google.android.exoplayer.upstream.UriDataSource;
 import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.ManifestFetcher.ManifestCallback;
-import com.google.android.exoplayer.util.MimeTypes;
 import com.squareup.picasso.Cache;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
@@ -109,7 +111,7 @@ import com.squareup.picasso.Picasso.LoadedFrom;
 @SuppressWarnings("deprecation")
 public class AudioStreamerExoService extends TiEnhancedService implements
         Target, Callback, AppStateListener, FocusableAudioWidget {
-    private static final String TAG = "AudioStreamerService";
+    private static final String TAG = "AudioStreamerExoService";
     /**
      * Indicates that the music has paused or resumed
      */
@@ -1966,80 +1968,69 @@ public class AudioStreamerExoService extends TiEnhancedService implements
 
             if (isHLS) {
                 HlsPlaylistParser parser = new HlsPlaylistParser();
-                ManifestFetcher<HlsPlaylist> playlistFetcher = new ManifestFetcher<HlsPlaylist>(
-                        parser, null, url, userAgent);
+                ManifestFetcher<HlsPlaylist> playlistFetcher =
+                        new ManifestFetcher<HlsPlaylist>(url, new DefaultHttpDataSource(userAgent, null), parser);
                 playlistFetcher.singleLoad(player.getMainHandler().getLooper(),
                         this);
             } else {
                 // Build the video and audio renderers.
-                FrameworkSampleSource sampleSource = new FrameworkSampleSource(
-                        AudioStreamerExoService.this, Uri.parse(url), null, 2);
-                MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
-                        sampleSource, null, true,
-                        MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null,
-                        player.getMainHandler(), player, 50);
-                MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(
-                        sampleSource, null, true, player.getMainHandler(),
-                        player);
+                
+                DefaultSampleSource sampleSource =
+                        new DefaultSampleSource(new FrameworkSampleExtractor(AudioStreamerExoService.this, Uri.parse(url), null), 2);
+                    MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
+                        null, true, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, null, player.getMainHandler(),
+                        player, 50);
+                    MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource,
+                        null, true, player.getMainHandler(), player);
 
-                MetadataTrackRenderer<Map<String, Object>> id3Renderer = new MetadataTrackRenderer<Map<String, Object>>(
-                        sampleSource, new Id3Parser(),
-                        player.getId3MetadataRenderer(), player
-                                .getMainHandler().getLooper());
-
-                // Invoke the callback.
-                TrackRenderer[] renderers = new TrackRenderer[StreamerExoPlayer.RENDERER_COUNT];
-                renderers[StreamerExoPlayer.TYPE_VIDEO] = videoRenderer;
-                renderers[StreamerExoPlayer.TYPE_AUDIO] = audioRenderer;
-                renderers[StreamerExoPlayer.TYPE_TIMED_METADATA] = id3Renderer;
-                callback.onRenderers(null, null, renderers);
+                    MetadataTrackRenderer<Map<String, Object>> id3Renderer = new MetadataTrackRenderer<Map<String, Object>>(
+                            sampleSource, new Id3Parser(),
+                            player.getId3MetadataRenderer(), player
+                                    .getMainHandler().getLooper());
+                    
+                    // Invoke the callback.
+                    TrackRenderer[] renderers = new TrackRenderer[StreamerExoPlayer.RENDERER_COUNT];
+                    renderers[StreamerExoPlayer.TYPE_VIDEO] = videoRenderer;
+                    renderers[StreamerExoPlayer.TYPE_AUDIO] = audioRenderer;
+                    renderers[StreamerExoPlayer.TYPE_TIMED_METADATA] = id3Renderer;
+//                    renderers[StreamerExoPlayer.TYPE_DEBUG] = debugRenderer;
+                    callback.onRenderers(null, null, renderers);
             }
 
         }
-
+        
         @Override
-        public void onManifestError(String contentId, IOException e) {
-            callback.onRenderersError(e);
-        }
-
-        @Override
-        public void onManifest(String contentId, HlsPlaylist manifest) {
+        public void onSingleManifest(HlsPlaylist manifest) {
+            
             DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
 
             DataSource dataSource = new UriDataSource(userAgent, bandwidthMeter);
-            boolean adaptiveDecoder = MediaCodecUtil.getDecoderInfo(
-                    MimeTypes.VIDEO_H264, false).adaptive;
-            HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url,
-                    manifest, bandwidthMeter, null,
-                    adaptiveDecoder ? HlsChunkSource.ADAPTIVE_MODE_SPLICE
-                            : HlsChunkSource.ADAPTIVE_MODE_NONE);
-            HlsSampleSource sampleSource = new HlsSampleSource(chunkSource,
-                    true, 3);
-            MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(
-                    sampleSource, MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT,
-                    0, player.getMainHandler(), player, 50);
-            MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(
-                    sampleSource);
-            MetadataTrackRenderer<Map<String, Object>> id3Renderer = new MetadataTrackRenderer<Map<String, Object>>(
-                    sampleSource, new Id3Parser(),
-                    player.getId3MetadataRenderer(), player.getMainHandler()
-                            .getLooper());
+            HlsChunkSource chunkSource = new HlsChunkSource(dataSource, url, manifest, bandwidthMeter, null,
+                HlsChunkSource.ADAPTIVE_MODE_SPLICE);
+            HlsSampleSource sampleSource = new HlsSampleSource(chunkSource, true, 3);
+            MediaCodecVideoTrackRenderer videoRenderer = new MediaCodecVideoTrackRenderer(sampleSource,
+                MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT, 5000, player.getMainHandler(), player, 50);
+            MediaCodecAudioTrackRenderer audioRenderer = new MediaCodecAudioTrackRenderer(sampleSource);
 
-            // MetadataTrackRenderer<List<ClosedCaption>>
-            // closedCaptionRenderer =
-            // new MetadataTrackRenderer<List<ClosedCaption>>(sampleSource,
-            // new Eia608Parser(),
-            // player.getClosedCaptionMetadataRenderer(),
-            // player.getMainHandler().getLooper());
+            MetadataTrackRenderer<Map<String, Object>> id3Renderer =
+                new MetadataTrackRenderer<Map<String, Object>>(sampleSource, new Id3Parser(),
+                    player.getId3MetadataRenderer(), player.getMainHandler().getLooper());
+
+//            Eia608TrackRenderer closedCaptionRenderer = new Eia608TrackRenderer(sampleSource, player,
+//                player.getMainHandler().getLooper());
 
             TrackRenderer[] renderers = new TrackRenderer[StreamerExoPlayer.RENDERER_COUNT];
             renderers[StreamerExoPlayer.TYPE_VIDEO] = videoRenderer;
             renderers[StreamerExoPlayer.TYPE_AUDIO] = audioRenderer;
             renderers[StreamerExoPlayer.TYPE_TIMED_METADATA] = id3Renderer;
-            // renderers[StreamerExoPlayer.TYPE_TEXT] =
-            // closedCaptionRenderer;
+//            renderers[DemoPlayer.TYPE_TEXT] = closedCaptionRenderer;
             callback.onRenderers(null, null, renderers);
             player.setVolume(mVolume);
+        }
+
+        @Override
+        public void onSingleManifestError(IOException e) {
+            callback.onRenderersError(e);
         }
 
     }
@@ -2382,47 +2373,6 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         // public void setAudioStreamType(final int streamtype) {
         // mCurrentMediaPlayer.setAudioStreamType(streamtype);
         // }
-        /**
-         * {@inheritDoc}
-         */
-        public boolean onError(final StreamerExoPlayer mp, final int what,
-                final int extra) {
-            state = ExoPlayer.STATE_IDLE;
-            int code = what;
-            if (what == 0) {
-                code = -1;
-            }
-            boolean needsStop = false;
-            String msg = "Unknown media error.";
-            if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
-                msg = "Media server died";
-                needsStop = true;
-            }
-            if (extra == MediaPlayer.MEDIA_ERROR_IO) {
-                code = 404;
-                msg = "File can't be accessed: " + mPlayingFile.path;
-                needsStop = true;
-            }
-            mService.get().onError(code, msg);
-            if (needsStop) {
-                mIsInitialized = false;
-                mPlayingFile = null;
-                mService.get().closeCursor();
-            }
-            switch (what) {
-            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-//                releasePlayer(mCurrentMediaPlayer);
-//                mCurrentMediaPlayer = null;
-                mHandler.sendMessageDelayed(
-                        mHandler.obtainMessage(SERVER_DIED), 2000);
-                break;
-            default:
-                mHandler.sendMessageDelayed(
-                        mHandler.obtainMessage(TRACK_ENDED), 200);
-                break;
-            }
-            return needsStop;
-        }
 
         private void startProgressTimer() {
             if (mProgressTimer == null) {
@@ -2481,6 +2431,12 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         public void onAudioTrackInitializationError(StreamerExoPlayer player,
                 InitializationException e) {
 //            onError(player, e);
+        }
+
+        @Override
+        public void onAudioTrackWriteError(StreamerExoPlayer player,
+                WriteException e) {
+//          onError(player, e);
         }
 
         @Override
@@ -2602,19 +2558,50 @@ public class AudioStreamerExoService extends TiEnhancedService implements
 
         @Override
         public void onError(StreamerExoPlayer player, Exception e) {
-            String message = e.getLocalizedMessage();
             Log.e(TAG, "onError " + e.getLocalizedMessage());
-            
+            state = ExoPlayer.STATE_IDLE;
+            int code = -1;
+            boolean needsStop = false;
+            String msg = "Unknown media error.";
+            int what = 0;
+//            if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
+//                msg = "Media server died";
+//                needsStop = true;
+//            }
             if (e instanceof FileNotFoundException) {
-                onError(player, -1, MediaPlayer.MEDIA_ERROR_IO);
+                what  = MediaPlayer.MEDIA_ERROR_IO;
+                code = 404;
+                msg = "File can't be accessed: " + mPlayingFile.path;
+                needsStop = true;
+            } else if (e instanceof InvalidResponseCodeException)  {
+                what  = MediaPlayer.MEDIA_ERROR_IO;
+                code = ((InvalidResponseCodeException) e).responseCode;
+                msg = e.getLocalizedMessage();
+                needsStop = true;
+            }
+            mService.get().onError(code, msg);
+            if (needsStop) {
+                mIsInitialized = false;
+                mPlayingFile = null;
+                mService.get().closeCursor();
+            }
+            switch (what) {
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+//                releasePlayer(mCurrentMediaPlayer);
+//                mCurrentMediaPlayer = null;
+                mHandler.sendMessageDelayed(
+                        mHandler.obtainMessage(SERVER_DIED), 2000);
+                break;
+            default:
+                mHandler.sendMessageDelayed(
+                        mHandler.obtainMessage(TRACK_ENDED), 200);
+                break;
             }
         }
 
         @Override
         public void onVideoSizeChanged(StreamerExoPlayer player, int width,
                 int height, float pixelWidthHeightRatio) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
@@ -2649,6 +2636,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             }
             return 0;
         }
+
     }
 
     private class LoadLocalCoverArtTask extends

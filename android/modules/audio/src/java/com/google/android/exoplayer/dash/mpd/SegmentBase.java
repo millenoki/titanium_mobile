@@ -57,6 +57,15 @@ public abstract class SegmentBase {
   }
 
   /**
+   * Gets the presentation time offset, in microseconds.
+   *
+   * @return The presentation time offset, in microseconds.
+   */
+  public long getPresentationTimeOffsetUs() {
+    return Util.scaleLargeTimestamp(presentationTimeOffset, C.MICROS_PER_SECOND, timescale);
+  }
+
+  /**
    * A {@link SegmentBase} that defines a single segment.
    */
   public static class SingleSegmentBase extends SegmentBase {
@@ -87,8 +96,15 @@ public abstract class SegmentBase {
       this.indexLength = indexLength;
     }
 
+    /**
+     * @param uri The uri of the segment.
+     */
+    public SingleSegmentBase(Uri uri) {
+      this(null, 1, 0, uri, 0, -1);
+    }
+
     public RangedUri getIndex() {
-      return new RangedUri(uri, null, indexStart, indexLength);
+      return indexLength <= 0 ? null : new RangedUri(uri, null, indexStart, indexLength);
     }
 
   }
@@ -128,15 +144,23 @@ public abstract class SegmentBase {
       this.segmentTimeline = segmentTimeline;
     }
 
+    /**
+     * @see DashSegmentIndex#getSegmentNum(long)
+     */
     public int getSegmentNum(long timeUs) {
+      final int firstSegmentNum = getFirstSegmentNum();
+      int lowIndex = firstSegmentNum;
+      int highIndex = getLastSegmentNum();
       if (segmentTimeline == null) {
         // All segments are of equal duration (with the possible exception of the last one).
         long durationUs = (duration * C.MICROS_PER_SECOND) / timescale;
-        return startNumber + (int) (timeUs / durationUs);
+        int segmentNum = startNumber + (int) (timeUs / durationUs);
+        // Ensure we stay within bounds.
+        return segmentNum < lowIndex ? lowIndex
+            : highIndex != DashSegmentIndex.INDEX_UNBOUNDED && segmentNum > highIndex ? highIndex
+            : segmentNum;
       } else {
-        // Identify the segment using binary search.
-        int lowIndex = getFirstSegmentNum();
-        int highIndex = getLastSegmentNum();
+        // The high index cannot be unbounded. Identify the segment using binary search.
         while (lowIndex <= highIndex) {
           int midIndex = (lowIndex + highIndex) / 2;
           long midTimeUs = getSegmentTimeUs(midIndex);
@@ -148,10 +172,13 @@ public abstract class SegmentBase {
             return midIndex;
           }
         }
-        return lowIndex - 1;
+        return lowIndex == firstSegmentNum ? lowIndex : highIndex;
       }
     }
 
+    /**
+     * @see DashSegmentIndex#getDurationUs(int)
+     */
     public final long getSegmentDurationUs(int sequenceNumber) {
       if (segmentTimeline != null) {
         long duration = segmentTimeline.get(sequenceNumber - startNumber).duration;
@@ -163,6 +190,9 @@ public abstract class SegmentBase {
       }
     }
 
+    /**
+     * @see DashSegmentIndex#getTimeUs(int)
+     */
     public final long getSegmentTimeUs(int sequenceNumber) {
       long unscaledSegmentTime;
       if (segmentTimeline != null) {
@@ -174,13 +204,32 @@ public abstract class SegmentBase {
       return Util.scaleLargeTimestamp(unscaledSegmentTime, C.MICROS_PER_SECOND, timescale);
     }
 
+    /**
+     * Returns a {@link RangedUri} defining the location of a segment for the given index in the
+     * given representation.
+     *
+     * @see DashSegmentIndex#getSegmentUrl(int)
+     */
     public abstract RangedUri getSegmentUrl(Representation representation, int index);
 
+    /**
+     * @see DashSegmentIndex#getFirstSegmentNum()
+     */
     public int getFirstSegmentNum() {
       return startNumber;
     }
 
+    /**
+     * @see DashSegmentIndex#getLastSegmentNum()
+     */
     public abstract int getLastSegmentNum();
+
+    /**
+     * @see DashSegmentIndex#isExplicit()
+     */
+    public boolean isExplicit() {
+      return segmentTimeline != null;
+    }
 
   }
 
@@ -223,6 +272,11 @@ public abstract class SegmentBase {
     @Override
     public int getLastSegmentNum() {
       return startNumber + mediaSegments.size() - 1;
+    }
+
+    @Override
+    public boolean isExplicit() {
+      return true;
     }
 
   }
@@ -301,7 +355,7 @@ public abstract class SegmentBase {
         return DashSegmentIndex.INDEX_UNBOUNDED;
       } else {
         long durationMs = (duration * 1000) / timescale;
-        return startNumber + (int) (periodDurationMs / durationMs);
+        return startNumber + (int) ((periodDurationMs + durationMs - 1) / durationMs) - 1;
       }
     }
 

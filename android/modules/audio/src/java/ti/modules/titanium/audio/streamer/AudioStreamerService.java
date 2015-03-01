@@ -2172,8 +2172,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @param path
          *            The path of the file, or the http/rtsp URL of the stream
          *            you want to play
+         * @throws Exception 
          */
-        public void setDataSource(final String path) {
+        public void setDataSource(final String path) throws Exception {
             mIsInitialized = setDataSourceImpl(mCurrentMediaPlayer, path,
                     mIsPreparing);
             if (mIsInitialized) {
@@ -2186,8 +2187,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @param path
          *            The path of the file, or the http/rtsp URL of the stream
          *            you want to play
+         * @throws Exception 
          */
-        public void setDataSource(FileDescriptor fd, long offset, long length) {
+        public void setDataSource(FileDescriptor fd, long offset, long length) throws Exception {
             mIsInitialized = setDataSourceImpl(mCurrentMediaPlayer, fd, offset,
                     length);
             if (mIsInitialized) {
@@ -2200,8 +2202,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @param path
          *            The path of the file, or the http/rtsp URL of the stream
          *            you want to play
+         * @throws Exception 
          */
-        public void setDataSource(FileDescriptor fd) {
+        public void setDataSource(FileDescriptor fd) throws Exception {
             mIsInitialized = setDataSourceImpl(mCurrentMediaPlayer, fd);
             if (mIsInitialized) {
                 final String next = null;
@@ -2217,9 +2220,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          *            you want to play
          * @return True if the <code>player</code> has been prepared and is
          *         ready to play, false otherwise
+         * @throws Exception 
          */
         private boolean setDataSourceImpl(final MediaPlayer player,
-                final String path, boolean remote) {
+                final String path, boolean remote) throws Exception {
             try {
                 player.reset();
                 player.setOnCompletionListener(this);
@@ -2244,12 +2248,10 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
                 } else {
                     player.prepare();
                 }
-            } catch (final IOException todo) {
+            } catch (final Exception e) {
                 // TODO: notify the user why the file couldn't be opened
-                return false;
-            } catch (final IllegalArgumentException todo) {
-                // TODO: notify the user why the file couldn't be opened
-                return false;
+                throw e;
+//                return false;
             }
             if (player == mCurrentMediaPlayer) {
                 final Intent intent = new Intent(
@@ -2466,8 +2468,9 @@ public class AudioStreamerService extends TiEnhancedService implements Target,
          * @param path
          *            The path of the file, or the http/rtsp URL of the stream
          *            you want to play
+         * @throws Exception 
          */
-        public void setNextDataSource(final String path) {
+        public void setNextDataSource(final String path) throws Exception {
             mCurrentMediaPlayer.setNextMediaPlayer(null);
             if (mNextMediaPlayer != null) {
                 mNextMediaPlayer.release();

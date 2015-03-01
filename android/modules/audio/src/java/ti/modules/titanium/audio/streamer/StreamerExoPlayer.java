@@ -8,12 +8,12 @@ import com.google.android.exoplayer.MediaCodecTrackRenderer.DecoderInitializatio
 import com.google.android.exoplayer.MediaCodecVideoTrackRenderer;
 import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer.audio.AudioTrack;
+import com.google.android.exoplayer.audio.AudioTrack.WriteException;
 import com.google.android.exoplayer.chunk.ChunkSampleSource;
 import com.google.android.exoplayer.chunk.MultiTrackChunkSource;
 import com.google.android.exoplayer.drm.StreamingDrmSessionManager;
-import com.google.android.exoplayer.metadata.ClosedCaption;
 import com.google.android.exoplayer.metadata.MetadataTrackRenderer;
-import com.google.android.exoplayer.text.TextTrackRenderer;
+import com.google.android.exoplayer.text.TextRenderer;
 import com.google.android.exoplayer.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer.util.PlayerControl;
 
@@ -26,7 +26,6 @@ import android.view.Surface;
 import android.widget.MediaController.MediaPlayerControl;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -39,7 +38,7 @@ public class StreamerExoPlayer implements ExoPlayer.Listener,
         ChunkSampleSource.EventListener, DefaultBandwidthMeter.EventListener,
         MediaCodecVideoTrackRenderer.EventListener,
         MediaCodecAudioTrackRenderer.EventListener,
-        TextTrackRenderer.TextRenderer,
+        TextRenderer,
         StreamingDrmSessionManager.EventListener, MediaPlayerControl {
 
     /**
@@ -130,6 +129,7 @@ public class StreamerExoPlayer implements ExoPlayer.Listener,
         void onConsumptionError(StreamerExoPlayer player, int sourceId, IOException e);
 
         void onDrmSessionManagerError(StreamerExoPlayer player, Exception e);
+        void onAudioTrackWriteError(StreamerExoPlayer player, AudioTrack.WriteException e);
     }
 
     /**
@@ -514,15 +514,6 @@ public class StreamerExoPlayer implements ExoPlayer.Listener,
         };
     }
 
-    /* package */MetadataTrackRenderer.MetadataRenderer<List<ClosedCaption>> getClosedCaptionMetadataRenderer() {
-        return new MetadataTrackRenderer.MetadataRenderer<List<ClosedCaption>>() {
-            @Override
-            public void onMetadata(List<ClosedCaption> metadata) {
-                processClosedCaption(metadata);
-            }
-        };
-    }
-
     @Override
     public void onPlayWhenReadyCommitted() {
         // Do nothing.
@@ -621,33 +612,6 @@ public class StreamerExoPlayer implements ExoPlayer.Listener,
             return;
         }
         textListener.onText(this, text);
-    }
-
-    /* package */void processClosedCaption(List<ClosedCaption> metadata) {
-        if (textListener == null || selectedTracks[TYPE_TEXT] == DISABLED_TRACK) {
-            return;
-        }
-        closedCaptionStringBuilder.setLength(0);
-        for (ClosedCaption caption : metadata) {
-            // Ignore control characters and just insert a new line in between
-            // words.
-            if (caption.type == ClosedCaption.TYPE_CTRL) {
-                if (closedCaptionStringBuilder.length() > 0
-                        && closedCaptionStringBuilder
-                                .charAt(closedCaptionStringBuilder.length() - 1) != '\n') {
-                    closedCaptionStringBuilder.append('\n');
-                }
-            } else if (caption.type == ClosedCaption.TYPE_TEXT) {
-                closedCaptionStringBuilder.append(caption.text);
-            }
-        }
-        if (closedCaptionStringBuilder.length() > 0
-                && closedCaptionStringBuilder.charAt(closedCaptionStringBuilder
-                        .length() - 1) == '\n') {
-            closedCaptionStringBuilder.deleteCharAt(closedCaptionStringBuilder
-                    .length() - 1);
-        }
-        textListener.onText(this, closedCaptionStringBuilder.toString());
     }
 
     private class InternalRendererBuilderCallback implements
@@ -786,5 +750,12 @@ public class StreamerExoPlayer implements ExoPlayer.Listener,
     public void seekTo(int timeMillis) {
         // MediaController arrow keys generate unbounded values.
         player.seekTo(Math.min(Math.max(0, timeMillis), getDuration()));
+    }
+
+    @Override
+    public void onAudioTrackWriteError(WriteException e) {
+        if (internalErrorListener != null) {
+            internalErrorListener.onAudioTrackWriteError(this, e);
+          }
     }
 }

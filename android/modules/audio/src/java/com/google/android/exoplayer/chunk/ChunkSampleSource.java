@@ -137,7 +137,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
   /**
    * The default minimum number of times to retry loading data prior to failing.
    */
-  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 1;
+  public static final int DEFAULT_MIN_LOADABLE_RETRY_COUNT = 3;
 
   private static final int STATE_UNPREPARED = 0;
   private static final int STATE_PREPARED = 1;
@@ -276,13 +276,14 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     boolean haveSamples = false;
     if (isPendingReset() || mediaChunks.isEmpty()) {
       // No sample available.
-    } else if (mediaChunks.getFirst().sampleAvailable()) {
+    } else if (sampleAvailableOrFinishedLastChunk(mediaChunks.getFirst())) {
       // There's a sample available to be read from the current chunk.
       haveSamples = true;
     } else {
       // It may be the case that the current chunk has been fully read but not yet discarded and
       // that the next chunk has an available sample. Return true if so, otherwise false.
-      haveSamples = mediaChunks.size() > 1 && mediaChunks.get(1).sampleAvailable();
+      haveSamples = mediaChunks.size() > 1
+          && sampleAvailableOrFinishedLastChunk(mediaChunks.get(1));
     }
 
     if (!haveSamples) {
@@ -417,7 +418,7 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     if (currentLoadable != null && mediaChunk == currentLoadable) {
       // Linearly interpolate partially-fetched chunk times.
       long chunkLength = mediaChunk.getLength();
-      if (chunkLength != C.LENGTH_UNBOUNDED) {
+      if (chunkLength != C.LENGTH_UNBOUNDED && chunkLength != 0) {
         return mediaChunk.startTimeUs + ((mediaChunk.endTimeUs - mediaChunk.startTimeUs) *
             mediaChunk.bytesLoaded()) / chunkLength;
       } else {
@@ -714,6 +715,10 @@ public class ChunkSampleSource implements SampleSource, Loader.Callback {
     }
     notifyUpstreamDiscarded(startTimeUs, endTimeUs, totalBytes);
     return true;
+  }
+
+  private boolean sampleAvailableOrFinishedLastChunk(MediaChunk chunk) throws IOException {
+    return chunk.sampleAvailable() || (chunk.isLastChunk() && chunk.isReadFinished());
   }
 
   private boolean isMediaChunk(Chunk chunk) {
