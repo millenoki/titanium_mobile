@@ -6,11 +6,8 @@
  */
 package org.appcelerator.titanium.proxy;
 
-import java.util.List;
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -21,19 +18,19 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
+import org.appcelerator.titanium.view.TiUIView;
+
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
 import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
-import android.view.MenuItem.OnActionExpandListener;
 import android.view.View;
 
 @SuppressLint("NewApi")
 @Kroll.proxy
-public class MenuItemProxy extends KrollProxy
+public class MenuItemProxy extends AnimatableReusableProxy
 {
 	private static final String TAG = "MenuItem";
 
@@ -350,10 +347,14 @@ public class MenuItemProxy extends KrollProxy
 		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_VISIBLE), visible);
 	}
 
-	public void setActionView(Object view)
+	public void setActionView(Object value)
 	{
-		if (view instanceof TiViewProxy) {
-			final View v = ((TiViewProxy) view).getOrCreateView().getOuterView();
+//        KrollProxy viewProxy = addProxyToHold(view, "rightButton");
+
+		if (value instanceof TiViewProxy) {
+		    
+		    TiUIHelper.removeViewFromSuperView((TiViewProxy) value);
+			final View v = ((TiViewProxy) value).getOrCreateView().getOuterView();
 			TiMessenger.postOnMain(new Runnable() {
 				public void run() {
 					if (ICS) {
@@ -430,60 +431,39 @@ public class MenuItemProxy extends KrollProxy
 		return "Ti.Android.MenuItem";
 	}
 
-	public void onPropertyChanged(String key, Object oldValue, Object newValue) {
-		if (key.equals(TiC.PROPERTY_ACTION_VIEW)) {
+	@Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_ACTION_VIEW: 
 			setActionView(newValue);
-		}
-		else if (key.equals(TiC.PROPERTY_CHECKABLE)) {
+			break;
+        case TiC.PROPERTY_CHECKABLE: 
 			setCheckable(TiConvert.toBoolean(newValue));
-		}
-		else if (key.equals(TiC.PROPERTY_CHECKED)) {
+			break;
+        case TiC.PROPERTY_CHECKED: 
 			setChecked(TiConvert.toBoolean(newValue));
-		}
-		else if (key.equals(TiC.PROPERTY_ENABLED)) {
+			break;
+        case TiC.PROPERTY_ENABLED: 
 			setEnabled(TiConvert.toBoolean(newValue));
-		}
-		else if (key.equals(TiC.PROPERTY_ICON)) {
+			break;
+        case TiC.PROPERTY_ICON: 
 			setIcon(newValue);
-		}
-		else if (key.equals(TiC.PROPERTY_SHOW_AS_ACTION)) {
+			break;
+        case TiC.PROPERTY_SHOW_AS_ACTION: 
 			setShowAsAction(TiConvert.toInt(newValue));
-		}
-		else if (key.equals(TiC.PROPERTY_TITLE_CONDENSED)) {
+		break;
+        case TiC.PROPERTY_TITLE_CONDENSED: 
 			setTitleCondensed(TiConvert.toString(newValue));
-		}
-		else if (key.equals(TiC.PROPERTY_VISIBLE)) {
+		break;
+        case TiC.PROPERTY_VISIBLE: 
 			setVisible(TiConvert.toBoolean(newValue));
-		}
+			break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
 	}
 
-	@Override
-    public void handleCreationDict(final KrollDict d)
-    {
-        super.handleCreationDict(d);
-		if (d.containsKey(TiC.PROPERTY_ACTION_VIEW)) {
-			setActionView(d.get(TiC.PROPERTY_ACTION_VIEW));
-		}
-		if (d.containsKey(TiC.PROPERTY_CHECKABLE)) {
-			setCheckable(TiConvert.toBoolean(d, TiC.PROPERTY_CHECKABLE));
-		}
-		if (d.containsKey(TiC.PROPERTY_CHECKED)) {
-			setChecked(TiConvert.toBoolean(d, TiC.PROPERTY_CHECKED));
-		}
-		if (d.containsKey(TiC.PROPERTY_ENABLED)) {
-			setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED));
-		}
-		if (d.containsKey(TiC.PROPERTY_ICON)) {
-			setIcon(d.get(TiC.PROPERTY_ICON));
-		}
-		if (d.containsKey(TiC.PROPERTY_SHOW_AS_ACTION)) {
-			setShowAsAction(TiConvert.toInt(d, TiC.PROPERTY_SHOW_AS_ACTION));
-		}
-		if (d.containsKey(TiC.PROPERTY_TITLE_CONDENSED)) {
-			setTitleCondensed(TiConvert.toString(d, TiC.PROPERTY_TITLE_CONDENSED));
-		}
-		if (d.containsKey(TiC.PROPERTY_VISIBLE)) {
-			setVisible(TiConvert.toBoolean(d, TiC.PROPERTY_VISIBLE));
-		}
-	}
+
 }
