@@ -200,43 +200,43 @@ public class TiUIText extends TiUINonViewGroupView
 
 		private LinearLayout.LayoutParams createBaseParams()
 		{
-			return new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+		    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, 0.0f);
+            params.gravity = Gravity.CENTER;
+			return params;
 		}
 
 		private void init(Context context) {
-			this.setFocusableInTouchMode(true);
-			this.setFocusable(true);
-			this.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-			this.requestFocus();
+			this.setFocusableInTouchMode(false);
+			this.setFocusable(false);
+			this.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+//			this.requestFocus();
 			this.setOrientation(LinearLayout.HORIZONTAL);
-
-			LinearLayout.LayoutParams params;
 
 			leftPane = new TiCompositeLayout(context);
 			leftPane.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 			leftPane.setFocusable(false);
 			leftPane.setId(100);
 			leftPane.setVisibility(View.GONE);
-			leftPane.setTag("leftPane");
-			params = createBaseParams();
-			params.gravity = Gravity.CENTER;
-			this.addView(leftPane, params);
+//			leftPane.setTag("leftPane");
+			this.addView(leftPane, createBaseParams());
 
 			editText = new TiEditText(context);
 			editText.setId(200);
-			params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-			this.addView(editText, params);
+			this.addView(editText, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f));
 
 			rightPane = new TiCompositeLayout(context);
 			rightPane.setId(300);
 			rightPane.setVisibility(View.GONE);
-			rightPane.setTag("rightPane");
+//			rightPane.setTag("rightPane");
 			rightPane.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 			rightPane.setFocusable(false);
-			params = createBaseParams();
-			params.gravity = Gravity.CENTER;
-			this.addView(rightPane, params);
+			this.addView(rightPane, createBaseParams());
 		}
+		
+		@Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
 
 		public FocusFixedEditText(Context context) {
 			super(context);
@@ -246,17 +246,17 @@ public class TiUIText extends TiUINonViewGroupView
 		public void setLeftView(Object leftView) {
 		    leftPane.removeAllViews();
             if (leftView instanceof View) {
-                leftPane.addView((View)leftView);
-                leftPane.setVisibility(View.VISIBLE);
+                TiUIHelper.safeAddView(leftPane, (View)leftView);
+                showLeftView();
             } else {
                 KrollProxy viewProxy = proxy.addProxyToHold(leftView, "leftButton");
                 if (viewProxy instanceof TiViewProxy) {
                     TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
                     TiUIHelper.safeAddView(leftPane, ((TiViewProxy) viewProxy).getOrCreateView().getOuterView());
-                    leftPane.setVisibility(View.VISIBLE);
+                    showLeftView();
                 }
                 else {
-                    leftPane.setVisibility(View.GONE);
+                    hideLeftView();
                 }
             }
 		}
@@ -264,17 +264,17 @@ public class TiUIText extends TiUINonViewGroupView
 		public void setRightView(Object rightView) {
 		    rightPane.removeAllViews();
 		    if (rightView instanceof View) {
-                rightPane.addView((View)rightView);
-                rightPane.setVisibility(View.VISIBLE);
+                TiUIHelper.safeAddView(rightPane, (View)rightView);
+                showRightView();
             } else {
                 KrollProxy viewProxy = proxy.addProxyToHold(rightView, "rightButton");
                 if (viewProxy instanceof TiViewProxy) {
                     TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
-                    TiUIHelper.safeAddView(leftPane, ((TiViewProxy) viewProxy).getOrCreateView().getOuterView());
-                    rightPane.setVisibility(View.VISIBLE);
+                    TiUIHelper.safeAddView(rightPane, ((TiViewProxy) viewProxy).getOrCreateView().getOuterView());
+                    showRightView();
                 }
                 else {
-                    rightPane.setVisibility(View.GONE);
+                    hideRightView();
                 }
             }
 		}
@@ -298,12 +298,12 @@ public class TiUIText extends TiUINonViewGroupView
 		{
 			rightPane.setVisibility(View.VISIBLE);
 		}
-
-		public void onFocusChange(View v, boolean hasFocus)
-		{
-			Log.d(TAG, "onFocusChange "  + hasFocus + "  for FocusFixedEditText with text " + editText.getText(), Log.DEBUG_MODE);
-
-		}
+		
+//		public void onFocusChange(View v, boolean hasFocus)
+//		{
+//			Log.d(TAG, "onFocusChange "  + hasFocus + "  for FocusFixedEditText with text " + editText.getText(), Log.DEBUG_MODE);
+//
+//		}
 		
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent event) {
@@ -321,24 +321,24 @@ public class TiUIText extends TiUINonViewGroupView
 			return editText;
 		}
 		
-		public boolean hasFocus() {
-			return editText.hasFocus();
-		}
+//		public boolean hasFocus() {
+//			return editText.hasFocus();
+//		}
 
 		public void setOnFocusChangeListener(OnFocusChangeListener l) {
 			editText.setOnFocusChangeListener(l);
 		}
 		
-		@Override
-	    public void clearFocus() {
-		    //clear focused is called in setInputType and clearfocus request the focus
-            //in root even if we didnt have the focus. DUMB!
-	        if (!hasFocus()) {
-	            return;
-	        } else {
-                super.clearFocus();
-	        }
-	    }
+//		@Override
+//	    public void clearFocus() {
+//		    //clear focused is called in setInputType and clearfocus request the focus
+//            //in root even if we didnt have the focus. DUMB!
+//	        if (!hasFocus()) {
+//	            return;
+//	        } else {
+//                super.clearFocus();
+//	        }
+//	    }
 	}
 	private static final ArrayList<String> KEY_SEQUENCE;
     static{
@@ -546,11 +546,7 @@ public class TiUIText extends TiUINonViewGroupView
             mProcessUpdateFlags |= TIFLAG_NEEDS_KEYBOARD;
             break;
         case TiC.PROPERTY_EDITABLE:
-            isEditable = TiConvert.toBoolean(newValue, true);
-            boolean focusable = isEditable && isEnabled;
-            TiUIView.setFocusable(realtv, focusable);
-            TiUIView.setFocusable(tv, focusable);
-            realtv.setCursorVisible(focusable);
+            setEditable(TiConvert.toBoolean(newValue, true));   
             break;
         case TiC.PROPERTY_RETURN_KEY_TYPE:
             returnKeyType = TiConvert.toInt(newValue, UIModule.RETURNKEY_DEFAULT);
@@ -650,7 +646,7 @@ public class TiUIText extends TiUINonViewGroupView
 		//Since Jelly Bean, pressing the 'return' key won't trigger onEditorAction callback
 		//http://stackoverflow.com/questions/11311790/oneditoraction-is-not-called-after-enter-key-has-been-pressed-on-jelly-bean-em
 		//So here we need to handle the 'return' key manually
-		if (Build.VERSION.SDK_INT >= 16 && before == 0 && s.length() > start && s.charAt(start) == '\n' && hasListeners(TiC.EVENT_RETURN)) {
+		if (Build.VERSION.SDK_INT >= 16 && before == 0 && s.length() > start && s.charAt(start) == '\n' && hasListeners(TiC.EVENT_RETURN, false)) {
 			//We use the previous value to make it consistent with pre Jelly Bean behavior (onEditorAction is called before 
 			//onTextChanged.
 			String value = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_VALUE));
@@ -682,7 +678,7 @@ public class TiUIText extends TiUINonViewGroupView
 		if (!isTruncatingText 
 			&& proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), text)) {
             proxy.setProperty(TiC.PROPERTY_VALUE, text);
-		    if (hasListeners(TiC.EVENT_CHANGE)) {
+		    if (hasListeners(TiC.EVENT_CHANGE, false)) {
 		        KrollDict data = new KrollDict();
 	            data.put(TiC.PROPERTY_VALUE, text);
 	            fireEvent(TiC.EVENT_CHANGE, data, false, false);
@@ -727,7 +723,7 @@ public class TiUIText extends TiUINonViewGroupView
 			Log.d(TAG, "onFocusChange "  + hasFocus + "  for FocusFixedEditText with text " + realtv.getText(), Log.DEBUG_MODE);
 		else
 			Log.d(TAG, "onFocusChange "  + hasFocus + "  for FocusFixedEditText  layout with text " + realtv.getText(), Log.DEBUG_MODE);
-		if (!v.isFocusable()) return;
+		if (!realtv.isFocusable()) return;
 		if (hasFocus) {
 			Boolean clearOnEdit = (Boolean) proxy.getProperty(TiC.PROPERTY_CLEAR_ON_EDIT);
 			if (clearOnEdit != null && clearOnEdit) {
@@ -738,10 +734,10 @@ public class TiUIText extends TiUINonViewGroupView
 			nativeView.requestRectangleOnScreen(r);
 
 		}
-		else {
-			tv.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-			tv.requestFocus();
-		}
+//		else {
+//			tv.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+//			tv.requestFocus();
+//		}
 		super.onFocusChange(v, hasFocus);
 	}
 
@@ -779,7 +775,7 @@ public class TiUIText extends TiUINonViewGroupView
 		if (((actionId == EditorInfo.IME_NULL && keyEvent != null) || 
 				actionId == EditorInfo.IME_ACTION_NEXT || 
 				actionId == EditorInfo.IME_ACTION_DONE )) {
-			if (hasListeners(TiC.EVENT_RETURN)) 
+			if (hasListeners(TiC.EVENT_RETURN, false)) 
 			{
 				KrollDict data = new KrollDict();
 				data.put(TiC.PROPERTY_VALUE, value);
@@ -795,7 +791,7 @@ public class TiUIText extends TiUINonViewGroupView
 			result = true;
 		}
 		
-		tv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+//		tv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 		return result;
 	}
 
