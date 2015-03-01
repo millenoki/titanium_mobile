@@ -41,6 +41,7 @@ public class TransitionFade extends Transition {
         float dest = multiplier * position * (adjustScroll ? 1 : 0);
 
         ViewHelper.setAlpha(view, alpha);
+        view.setVisibility((alpha == 0)?View.INVISIBLE:View.VISIBLE);
         if (TransitionHelper.isVerticalSubType(subType)) {
             TiViewHelper.setTranslationRelativeY(view, dest);
         } else {
