@@ -88,6 +88,23 @@
 	return YES;
 }
 
+-(BOOL)resignFirstResponder
+{
+    [super resignFirstResponder];
+    return [[self textWidgetView] resignFirstResponder];
+}
+
+-(BOOL)becomeFirstResponder
+{
+    return [[self textWidgetView] becomeFirstResponder];
+}
+
+-(BOOL)isFirstResponder
+{
+    return [textWidgetView isFirstResponder];
+}
+
+
 #pragma mark Must override
 -(BOOL)hasText
 {
