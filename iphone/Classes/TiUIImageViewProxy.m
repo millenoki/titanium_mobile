@@ -186,14 +186,9 @@ static NSArray* imageKeySequence;
 }
 
 -(CGSize) imageSize {
-    CGSize _imagesize = CGSizeMake(TiDimensionCalculateValue(layoutProperties.width, 0.0),
-                                   TiDimensionCalculateValue(layoutProperties.height,0.0));
-    if ([TiUtils boolValue:[self valueForKey:@"hires"]])
-    {
-        _imagesize.width *= 2;
-        _imagesize.height *= 2;
-    }
-    return _imagesize;
+    CGFloat scale = [TiUtils screenScale];
+    return CGSizeMake(TiDimensionCalculateValue(layoutProperties.width, 0.0) * scale,
+                      TiDimensionCalculateValue(layoutProperties.height,0.0) * scale);
 }
 
 -(UIImage*)rotatedImage:(UIImage*)originalImage
