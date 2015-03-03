@@ -200,7 +200,6 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	[scrollView setContentOffset:offsetPoint animated:YES];
 }
 
-NSArray* listenerArray = nil;
 
 @interface TiUIView () {
     TiSelectableBackgroundLayer* _bgLayer;
@@ -399,11 +398,19 @@ DEFINE_EXCEPTIONS
     }
 }
 
+-(NSArray*)gestureListenersArray {
+    static NSArray* gestureListenersArray = nil;
+    if (gestureListenersArray == nil) {
+        gestureListenersArray = [[NSArray alloc] initWithObjects:@"singletap", @"doubletap", @"twofingertap", @"swipe", @"pinch", @"longpress", nil];
+    }
+    return gestureListenersArray;
+}
+
 -(BOOL)proxyHasTapListener
 {
     static NSArray* tapListeners = nil;
     if (tapListeners == nil) {
-        tapListeners = @[@"singletap", @"doubletap", @"twofingertap"];
+        tapListeners = [[NSArray alloc] initWithObjects:@"singletap", @"doubletap", @"twofingertap", nil];
     }
 	return [proxy _hasAnyListeners:tapListeners];
 }
@@ -412,7 +419,7 @@ DEFINE_EXCEPTIONS
 {
     static NSArray* touchListeners = nil;
     if (touchListeners == nil) {
-        touchListeners = @[@"touchstart", @"touchcancel", @"touchend", @"touchmove", @"click", @"dblclick"];
+        touchListeners = [[NSArray alloc] initWithObjects:@"touchstart", @"touchcancel", @"touchend", @"touchmove", @"click", @"dblclick", nil];
     }
 	return [proxy _hasAnyListeners:touchListeners];
 }
@@ -421,7 +428,7 @@ DEFINE_EXCEPTIONS
 {
     static NSArray* gestureListeners = nil;
     if (gestureListeners == nil) {
-        gestureListeners = @[@"swipe", @"pinch", @"longpress"];
+        gestureListeners = [[NSArray alloc] initWithObjects:@"swipe", @"pinch", @"longpress", nil];
     }
 	return [proxy _hasAnyListeners:gestureListeners];
 }
@@ -2195,11 +2202,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)sanitycheckListeners	//TODO: This can be optimized and unwound later.
 {
-	if(listenerArray == nil){
-		listenerArray = [[NSArray alloc] initWithObjects: @"singletap",
-						 @"doubletap",@"twofingertap",@"swipe",@"pinch",@"longpress",nil];
-	}
-	for (NSString * eventName in listenerArray) {
+	for (NSString * eventName in [self gestureListenersArray]) {
 		if ([proxy _hasListeners:eventName]) {
 			[self handleListenerAddedWithEvent:eventName];
 		}
