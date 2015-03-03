@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -298,14 +298,13 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 //To fire the keyboard frame change event.
 -(void)keyboardFrameChanged:(NSNotification*) notification
 {
-    BOOL hasEvent = [self _hasListeners:@"keyboardframechanged"];
-    if (!hasEvent)
+    if (![self _hasListeners:@"keyboardframechanged"])
     {
         return;
     }
     
     NSDictionary *userInfo = [notification userInfo];
-    
+    NSNumber* duration = [userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey];
     CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
     if (![TiUtils isIOS8OrGreater]) {
         // window for keyboard
@@ -315,8 +314,10 @@ extern long long const TI_APPLICATION_BUILD_DATE;
     }
     
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                [TiUtils rectToDictionary:keyboardEndFrame], @"keyboardFrame",
-                                nil];
+                           [TiUtils rectToDictionary:keyboardEndFrame], @"keyboardFrame",
+                           duration, @"animationDuration",
+                           nil];
+    
     
     [self fireEvent:@"keyboardframechanged" withObject:event];
 }
@@ -400,7 +401,7 @@ extern long long const TI_APPLICATION_BUILD_DATE;
     [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
     [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
 
-    [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardDidChangeFrameNotification object:nil];
+    [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
     [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
     
     [super startup];

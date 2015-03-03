@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -41,6 +41,7 @@ public class TiUISlider extends TiUIView
     private int maxRangeValue;
     private boolean maxRangeDefined = false;
 	private int scaleFactor;
+	private ClipDrawable rightClipDrawable;
 	private String leftTrackImage = null;
 	private String rightTrackImage = null;
 	private boolean suppressEvent = false;
@@ -152,14 +153,27 @@ public class TiUISlider extends TiUIView
             updateControl();
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_CONTROLS;
         }
+		updateRightDrawable();
     }
 
+	private void updateRightDrawable()
+	{
+		if(rightClipDrawable != null) {
+			SeekBar seekBar = (SeekBar) getNativeView();
+			double percent = (double) seekBar.getProgress()/ (double)seekBar.getMax();
+			int level = 10000 - (int)Math.floor(percent*10000);
+			rightClipDrawable.setLevel(level);
+		}
+	}
+
 	private void updateRange() {
-		minRange = Math.max(minRangeValue, min);
-		minRange = Math.min(minRangeValue, max);
+		minRange = Math.max(minRange, min);
+		minRange = Math.min(minRange, max);
+		proxy.setProperty("minRange", minRange);
 		
-		maxRange = Math.min(maxRangeValue, max);
-		maxRange = Math.max(maxRangeValue, minRangeValue);
+		maxRange = Math.min(maxRange, max);
+		maxRange = Math.max(maxRange, minRange);
+		proxy.setProperty("maxRange", maxRange);
 	}
 	
 	private void updateControl() {
@@ -211,41 +225,38 @@ public class TiUISlider extends TiUIView
 	private void updateTrackingImages() 
 	{
         SeekBar seekBar = getSeekBar();
-		TiFileHelper tfh = null;
-		if (leftTrackImage != null && rightTrackImage != null) {
-			if (tfh == null) {
-				tfh = new TiFileHelper(seekBar.getContext());
-			}
+		TiFileHelper tfh = tfh = new TiFileHelper(seekBar.getContext());
+		Drawable leftDrawable = null;
+		Drawable rightDrawable = null;
+		if (leftTrackImage != null) {
 			String leftUrl = proxy.resolveUrl(null, leftTrackImage);
-			String rightUrl = proxy.resolveUrl(null, rightTrackImage);
-
-			Drawable rightDrawable = tfh.loadDrawable(rightUrl, false, true);
-			Drawable leftDrawable = tfh.loadDrawable(leftUrl, false, true);
-			if (rightDrawable != null && leftDrawable != null) {
-				Drawable[] lda = {
-					rightDrawable,
-					new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)
-				};
-				LayerDrawable ld = new LayerDrawable(lda);
-				ld.setId(0, android.R.id.background);
-				ld.setId(1, android.R.id.progress);
-				seekBar.setProgressDrawable(ld);
-			} else {
-				if (leftDrawable == null) {
-					Log.e(TAG, "Unable to locate left image for progress bar: " + leftUrl);
-				}
-				if (rightDrawable == null) {
-					Log.e(TAG, "Unable to locate right image for progress bar: " + rightUrl);
-				}
-				// release
-				leftDrawable = null;
-				rightDrawable = null;
+			if(leftUrl != null) {
+				leftDrawable = tfh.loadDrawable(leftUrl, false, true);
 			}
-		} else if (leftTrackImage == null && rightTrackImage == null) {
-			seekBar.setProgressDrawable(null);
-		} else {
-			Log.w(TAG, "Custom tracking images must both be set before they will be drawn.");
 		}
+		if (rightTrackImage != null) {
+			String rightUrl = proxy.resolveUrl(null, rightTrackImage);
+			if(rightUrl != null) {
+				rightDrawable = tfh.loadDrawable(rightUrl, false, true);
+			}
+		}
+		LayerDrawable ld = null;
+		if(rightDrawable == null) {
+			Drawable[] lda = {new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)};
+			ld = new LayerDrawable(lda);
+			ld.setId(0, android.R.id.progress);
+		} else if(leftDrawable == null) {
+			rightClipDrawable = new ClipDrawable(rightDrawable, Gravity.RIGHT, ClipDrawable.HORIZONTAL);
+			Drawable[] lda = {rightClipDrawable};
+			ld = new LayerDrawable(lda);
+			ld.setId(0, android.R.id.secondaryProgress);
+		} else {
+			Drawable[] lda = {rightDrawable, new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)};
+			ld = new LayerDrawable(lda);
+			ld.setId(0, android.R.id.background);
+			ld.setId(1, android.R.id.progress);
+		}
+		seekBar.setProgressDrawable(ld);
 	}
 	
 
@@ -267,6 +278,9 @@ public class TiUISlider extends TiUIView
 			seekBar.setProgress(actualMaxRange*scaleFactor);
 			pos = maxRange;
 		}
+
+		updateRightDrawable();
+
         float scaledValue = scaledValue();
         proxy.setProperty(TiC.PROPERTY_VALUE, scaledValue);
         Log.d(TAG,

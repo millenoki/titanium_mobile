@@ -120,4 +120,10 @@ static NSString* _lineEnding = @"\n";
 	return _tempDirectory;
 }
 
++(NSString*)directoryForSuite:(NSString*)suitePath
+{
+    return [NSString stringWithFormat:@"%@/",fileURLify(suitePath)];
+
+}
+
 @end

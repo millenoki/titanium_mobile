@@ -129,19 +129,19 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
     this.ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
     this.ignoreFiles = new RegExp(config.get('cli.ignoreFiles'));
 
-    function assertIssue(logger, issues, name) {
-        var i = 0,
-            len = issues.length;
-        for (; i < len; i++) {
-            if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
-                issues[i].message.split('\n').forEach(function (line) {
-                    logger.error(line.replace(/(__(.+?)__)/g, '$2'.bold));
-                });
-                logger.log();
-                process.exit(1);
-            }
-        }
-    }
+	function assertIssue(logger, issues, name) {
+		var i = 0,
+			len = issues.length;
+		for (; i < len; i++) {
+			if ((typeof name == 'string' && issues[i].id == name) || (typeof name == 'object' && name.test(issues[i].id))) {
+				issues[i].message.split('\n').forEach(function (line) {
+					logger[issues[i].type === 'error' ? 'error' : 'warn'](line.replace(/(__(.+?)__)/g, '$2'.bold));
+				});
+				logger.log();
+				if (issues[i].type === 'error') {process.exit(1);}
+			}
+		}
+	}
 
     // we hook into the pre-validate event so that we can stop the build before
     // prompting if we know the build is going to fail.
@@ -155,13 +155,14 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
             return callback();
         }
 
-        async.series([
-            function (next) {
-                // detect android environment
-                androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
-                    _t.androidInfo = androidInfo;
-                    assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
-                    assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
+		async.series([
+			function (next) {
+				// detect android environment
+				androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
+					_t.androidInfo = androidInfo;
+					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
+					assertIssue(logger, androidInfo.issues, 'ANDROID_BUILD_TOOLS_TOO_NEW');
 
                     if (!cli.argv.prompt) {
                         // check that the Android SDK is found and sane

@@ -349,7 +349,13 @@ public class TiUILabel extends TiUINonViewGroupView
                     if (link.length != 0) {
                         ClickableSpan cSpan = link[0];
                         if (action == MotionEvent.ACTION_UP) {
-                            cSpan.onClick(textView);
+							//if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
+							//	KrollDict evnt = new KrollDict();
+							//	evnt.put("url", ((URLSpan)cSpan).getURL());
+							//	proxy.fireEvent("link", evnt, false);
+							//} else {
+								cSpan.onClick(textView);
+							//}
                         } else if (action == MotionEvent.ACTION_DOWN) {
                             Selection.setSelection(buffer,
                                     buffer.getSpanStart(cSpan),

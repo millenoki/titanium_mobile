@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -401,17 +401,29 @@ DEFINE_EXCEPTIONS
 
 -(BOOL)proxyHasTapListener
 {
-	return [proxy _hasAnyListeners:[NSArray arrayWithObjects:@"singletap", @"doubletap", @"twofingertap", nil]];
+    static NSArray* tapListeners = nil;
+    if (tapListeners == nil) {
+        tapListeners = @[@"singletap", @"doubletap", @"twofingertap"];
+    }
+	return [proxy _hasAnyListeners:tapListeners];
 }
 
 -(BOOL)proxyHasTouchListener
 {
-	return [proxy _hasAnyListeners:[NSArray arrayWithObjects:@"touchstart", @"touchcancel", @"touchend", @"touchmove", @"click", @"dblclick", nil]];
+    static NSArray* touchListeners = nil;
+    if (touchListeners == nil) {
+        touchListeners = @[@"touchstart", @"touchcancel", @"touchend", @"touchmove", @"click", @"dblclick"];
+    }
+	return [proxy _hasAnyListeners:touchListeners];
 }
 
 -(BOOL) proxyHasGestureListeners
 {
-	return [proxy _hasAnyListeners:[NSArray arrayWithObjects:@"swipe", @"pinch", @"longpress", nil]];
+    static NSArray* gestureListeners = nil;
+    if (gestureListeners == nil) {
+        gestureListeners = @[@"swipe", @"pinch", @"longpress"];
+    }
+	return [proxy _hasAnyListeners:gestureListeners];
 }
 
 -(void)updateTouchHandling
@@ -1676,7 +1688,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 #pragma mark Recognizers
 
--(UITapGestureRecognizer*)singleTapRecognizer;
+-(UITapGestureRecognizer*)singleTapRecognizer
 {
 	if (singleTapRecognizer == nil) {
 		singleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSingleTap:)];
@@ -1690,7 +1702,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	return singleTapRecognizer;
 }
 
--(UITapGestureRecognizer*)doubleTapRecognizer;
+-(UITapGestureRecognizer*)doubleTapRecognizer
 {
 	if (doubleTapRecognizer == nil) {
 		doubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedDoubleTap:)];
@@ -1705,7 +1717,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	return doubleTapRecognizer;
 }
 
--(UITapGestureRecognizer*)twoFingerTapRecognizer;
+-(UITapGestureRecognizer*)twoFingerTapRecognizer
 {
 	if (twoFingerTapRecognizer == nil) {
 		twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSingleTap:)];
@@ -1716,7 +1728,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	return twoFingerTapRecognizer;
 }
 
--(UIPinchGestureRecognizer*)pinchRecognizer;
+-(UIPinchGestureRecognizer*)pinchRecognizer
 {
 	if (pinchRecognizer == nil) {
 		pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
@@ -1726,7 +1738,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	return pinchRecognizer;
 }
 
--(UISwipeGestureRecognizer*)leftSwipeRecognizer;
+-(UISwipeGestureRecognizer*)leftSwipeRecognizer
 {
 	if (leftSwipeRecognizer == nil) {
 		leftSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
@@ -1737,7 +1749,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	return leftSwipeRecognizer;
 }
 
--(UISwipeGestureRecognizer*)rightSwipeRecognizer;
+-(UISwipeGestureRecognizer*)rightSwipeRecognizer
 {
 	if (rightSwipeRecognizer == nil) {
 		rightSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
@@ -1747,7 +1759,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	}
 	return rightSwipeRecognizer;
 }
--(UISwipeGestureRecognizer*)upSwipeRecognizer;
+-(UISwipeGestureRecognizer*)upSwipeRecognizer
 {
 	if (upSwipeRecognizer == nil) {
 		upSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
@@ -1757,7 +1769,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	}
 	return upSwipeRecognizer;
 }
--(UISwipeGestureRecognizer*)downSwipeRecognizer;
+-(UISwipeGestureRecognizer*)downSwipeRecognizer
 {
 	if (downSwipeRecognizer == nil) {
 		downSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
@@ -1768,7 +1780,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	return downSwipeRecognizer;
 }
 
--(UILongPressGestureRecognizer*)longPressRecognizer;
+-(UILongPressGestureRecognizer*)longPressRecognizer
 {
 	if (longPressRecognizer == nil) {
 		longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];

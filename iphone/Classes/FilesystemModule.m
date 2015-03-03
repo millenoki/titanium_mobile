@@ -111,6 +111,17 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	return [TiFileSystemHelper tempDirectory];
 }
 
+-(id)directoryForSuite:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSString);
+    NSURL *groupURL = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:args];
+    if (!groupURL) {
+        NSLog(@"[ERROR] Directory not found for suite: %@ check the com.apple.security.application-groups entitlement.", args);
+        return [NSNull null];
+    }
+    return [TiFileSystemHelper directoryForSuite:[groupURL path]];
+}
+
 -(NSString*)separator
 {
 	return [TiFileSystemHelper separator];
