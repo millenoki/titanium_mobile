@@ -384,16 +384,16 @@ DEFINE_EXCEPTIONS
 
 -(void)ensureGestureListeners
 {
-    if ([[self viewProxy] _hasListeners:@"swipe"]) {
+    if ([[self viewProxy] _hasListeners:@"swipe" checkParent:NO]) {
         [[self gestureRecognizerForEvent:@"uswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"dswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:YES];
     }
-    if ([[self viewProxy] _hasListeners:@"pinch"]) {
+    if ([[self viewProxy] _hasListeners:@"pinch" checkParent:NO]) {
          [[self gestureRecognizerForEvent:@"pinch"] setEnabled:YES];
     }
-    if ([[self viewProxy] _hasListeners:@"longpress"]) {
+    if ([[self viewProxy] _hasListeners:@"longpress" checkParent:NO]) {
         [[self gestureRecognizerForEvent:@"longpress"] setEnabled:YES];
     }
 }
@@ -1804,7 +1804,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 		[proxy fireEvent:@"twofingertap" withObject:event checkForListener:NO];
 	}
     else
-        [proxy fireEvent:@"singletap" withObject:event checkForListener:NO];
+        [proxy fireEvent:@"singletap" withObject:event propagate:NO checkForListener:NO];
 }
 
 -(void)recognizedDoubleTap:(UITapGestureRecognizer*)recognizer
@@ -1818,7 +1818,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if ([proxy _hasListeners:@"dblclick"]) {
         [proxy fireEvent:@"dblclick" withObject:event checkForListener:NO];
     }
-    [proxy fireEvent:@"doubletap" withObject:event checkForListener:NO];
+    [proxy fireEvent:@"doubletap" withObject:event propagate:NO checkForListener:NO];
 }
 
 -(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
@@ -1827,14 +1827,14 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
                            NUMDOUBLE(recognizer.scale), @"scale", 
                            NUMDOUBLE(recognizer.velocity), @"velocity", 
                            nil]; 
-    [self.proxy fireEvent:@"pinch" withObject:event checkForListener:NO];
+    [self.proxy fireEvent:@"pinch" withObject:event propagate:NO checkForListener:NO];
 }
 
 -(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer 
 { 
     if ([recognizer state] == UIGestureRecognizerStateBegan) {
         NSDictionary *event = [TiUtils dictionaryFromGesture:recognizer inView:self];
-        [self.proxy fireEvent:@"longpress" withObject:event checkForListener:NO];
+        [self.proxy fireEvent:@"longpress" withObject:event propagate:NO checkForListener:NO];
     }
 }
 
@@ -1865,7 +1865,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 {
 	NSMutableDictionary *event = [[TiUtils dictionaryFromGesture:recognizer inView:self] mutableCopy];
 	[event setValue:[self swipeStringFromGesture:recognizer] forKey:@"direction"];
-	[proxy fireEvent:@"swipe" withObject:event checkForListener:NO];
+	[proxy fireEvent:@"swipe" withObject:event propagate:NO checkForListener:NO];
 	[event release];
 
 }

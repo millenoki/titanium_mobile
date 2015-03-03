@@ -1651,8 +1651,8 @@ public abstract class TiUIView
 			}
 		} else if (action == MotionEvent.ACTION_UP) {
 			if (pointersDown == 1) {
-				if (hierarchyHasListener(TiC.EVENT_TWOFINGERTAP)) {
-					fireEventNoCheck(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event));
+				if (hasListeners(TiC.EVENT_TWOFINGERTAP, false)) {
+					fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event), false, false);
 				}
 				pointersDown = 0;
 				return true;
@@ -1679,7 +1679,7 @@ public abstract class TiUIView
 				@Override
 				public boolean onScale(ScaleGestureDetector sgd)
 				{
-					if (hierarchyHasListener(TiC.EVENT_PINCH)) {
+					if (hasListeners(TiC.EVENT_PINCH, false)) {
 						float timeDelta = sgd.getTimeDelta() == 0 ? minTimeDelta : sgd.getTimeDelta();
 
 					// Suppress scale events (and allow for possible two-finger tap events)
@@ -1697,7 +1697,7 @@ public abstract class TiUIView
 							data.put(TiC.EVENT_PROPERTY_VELOCITY, (sgd.getScaleFactor() - 1.0f) / timeDelta * 1000);
 							data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
 	
-							return fireEventNoCheck(TiC.EVENT_PINCH, data);
+							return fireEvent(TiC.EVENT_PINCH, data, false, false);
 						}
 					}
 					return false;
@@ -1716,12 +1716,12 @@ public abstract class TiUIView
 			@Override
 			public boolean onDoubleTap(MotionEvent e)
 			{
-				boolean hasDoubleTap = hierarchyHasListener(TiC.EVENT_DOUBLE_TAP);
+				boolean hasDoubleTap = hasListeners(TiC.EVENT_DOUBLE_TAP, false);
 				boolean hasDoubleClick = hierarchyHasListener(TiC.EVENT_DOUBLE_CLICK);
 				
 				if (hasDoubleTap || hasDoubleClick) {
 					KrollDict event = dictFromEvent(e);
-					if (hasDoubleTap) fireEventNoCheck(TiC.EVENT_DOUBLE_TAP, event);
+					if (hasDoubleTap) fireEvent(TiC.EVENT_DOUBLE_TAP, event, false, false);
 					if (hasDoubleClick) fireEventNoCheck(TiC.EVENT_DOUBLE_CLICK, event);
 					return true;
 				}
@@ -1732,8 +1732,8 @@ public abstract class TiUIView
 			public boolean onSingleTapConfirmed(MotionEvent e)
 			{
 				Log.d(TAG, "TAP, TAP, TAP on " + proxy, Log.DEBUG_MODE);
-				if (hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
-					return fireEventNoCheck(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
+				if (hasListeners(TiC.EVENT_SINGLE_TAP, false)) {
+					return fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e), false, false);
 					// Moved click handling to the onTouch listener, because a single tap is not the
 					// same as a click. A single tap is a quick tap only, whereas clicks can be held
 					// before lifting.
@@ -1763,14 +1763,14 @@ public abstract class TiUIView
 			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
 			{
 				Log.d(TAG, "SWIPE on " + proxy, Log.DEBUG_MODE);
-				if (hierarchyHasListener(TiC.EVENT_SWIPE)) {
+				if (hasListeners(TiC.EVENT_SWIPE, false)) {
 					KrollDict data = dictFromEvent(e2);
 					if (Math.abs(velocityX) > Math.abs(velocityY)) {
 						data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityX > 0 ? "right" : "left");
 					} else {
 						data.put(TiC.EVENT_PROPERTY_DIRECTION, velocityY > 0 ? "down" : "up");
 					}
-					fireEventNoCheck(TiC.EVENT_SWIPE, data);
+					fireEvent(TiC.EVENT_SWIPE, data, false, false);
 					return false;
 				}
 				return false;
@@ -1781,8 +1781,8 @@ public abstract class TiUIView
 			{
 				Log.d(TAG, "LONGPRESS on " + proxy, Log.DEBUG_MODE);
 
-				if (hierarchyHasListener(TiC.EVENT_LONGPRESS)) {
-					fireEventNoCheck(TiC.EVENT_LONGPRESS, dictFromEvent(e));
+				if (hasListeners(TiC.EVENT_LONGPRESS, false)) {
+					fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e), false, false);
 				}
 			}
 		});
