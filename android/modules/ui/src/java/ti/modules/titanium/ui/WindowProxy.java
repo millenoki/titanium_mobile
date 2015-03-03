@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -122,6 +121,17 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                                 .addFlags(
                                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                                                 | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+                    }
+                }
+                break;
+            case TiC.PROPERTY_FULLSCREEN:
+                if (changedProperty && activity != null && activity.isCurrentWindow(WindowProxy.this)) {
+                    if (TiConvert.toBoolean(newValue, true)) {
+                        activity.getWindow()
+                                .addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                    } else {
+                        activity.getWindow()
+                                .clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     }
                 }
                 break;
