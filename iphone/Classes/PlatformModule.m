@@ -182,6 +182,7 @@
         @"dpi": [[self displayCaps] dpi],
         @"osname": [self valueForKey:@"osname"],
         @"density": [[self displayCaps] density],
+        @"retinaSuffix": [[self displayCaps] retinaSuffix],
         @"version": [self version],
         @"name": [self name],
         @"ostype": [self ostype],
