@@ -16,6 +16,7 @@
 #endif
 
 #import "TiApp.h"
+#import "TiComplexValue.h"
 
 TiClassRef KrollMethodClassRef = NULL;
 
@@ -236,9 +237,15 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 -(id)call:(NSArray*)args
 {
 	// special property setter delegator against the target
-	if (type == KrollMethodPropertySetter && [args count]==1)
+	if (type == KrollMethodPropertySetter)
 	{
-		id newValue = [KrollObject nonNull:[args objectAtIndex:0]];
+        int argsCount = [args count];
+        id newValue = nil;
+        if (argsCount > 1 && IS_OF_CLASS([args objectAtIndex:1], NSDictionary)) {
+            newValue = [KrollObject nonNull:[[[TiComplexValue alloc] initWithValue:[args objectAtIndex:0] properties:[args objectAtIndex:1]] autorelease]];
+        } else {
+            newValue = [KrollObject nonNull:[args objectAtIndex:0]];
+        }
 		[self updateJSObjectWithValue:newValue forKey:name];
 		[target setValue:newValue forKey:name];
 		return self;
