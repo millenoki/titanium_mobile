@@ -65,27 +65,29 @@ void DoProxyDelegateChangedValuesWithProxy(id<TiProxyDelegate> target, NSString 
 	if ([target respondsToSelector:sel])
 	{
 		id firstarg = newValue;
-		id secondarg = [NSDictionary dictionary];
+		id secondarg = nil;
 		
 		if ([firstarg isKindOfClass:[TiComplexValue class]])
 		{
 			firstarg = [(TiComplexValue*)newValue value];
 			secondarg = [(TiComplexValue*)newValue properties];
 		}
-		
-		if ([NSThread isMainThread])
-		{
-			[target performSelector:sel withObject:firstarg withObject:secondarg];
-		}
-		else
-		{
-			if (![key hasPrefix:@"set"])
-			{
-				key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
-			}
-			NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
-			TiThreadPerformOnMainThread(^{[proxy _dispatchWithObjectOnUIThread:arg];}, YES);
-		}
+        TiThreadPerformBlockOnMainThread(^{
+            [target performSelector:sel withObject:firstarg withObject:secondarg];
+        }, YES);
+//		if ([NSThread isMainThread])
+//		{
+//			[target performSelector:sel withObject:firstarg withObject:secondarg];
+//		}
+//		else
+//		{
+//			if (![key hasPrefix:@"set"])
+//			{
+//				key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
+//			}
+//			NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
+//			TiThreadPerformOnMainThread(^{[proxy _dispatchWithObjectOnUIThread:arg];}, YES);
+//		}
 		return;
 	}
 	
@@ -99,7 +101,7 @@ void DoProxyDelegateChangedValuesWithProxy(id<TiProxyDelegate> target, NSString 
 void DoProxyDispatchToSecondaryArg(id<TiProxyDelegate> target, SEL sel, NSString *key, id newValue, TiProxy * proxy)
 {
 	id firstarg = newValue;
-	id secondarg = [NSDictionary dictionary];
+	id secondarg = nil;
 	
 	if ([firstarg isKindOfClass:[TiComplexValue class]])
 	{
