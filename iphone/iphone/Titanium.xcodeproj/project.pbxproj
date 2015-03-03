@@ -3898,9 +3898,6 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
-				D5E75A6E187C58F00016542B /* icon.png */,
-				D5E75A7A187C59060016542B /* icon_120@2x.png */,
-				D5E75A70187C58F00016542B /* icon@2x.png */,
 				D55ED5781861B3C90035749B /* _dependencies_ */,
 				24CA8902111160BE0084E2DE /* Classes */,
 				24CA8903111160C30084E2DE /* Thirdparty */,
@@ -4549,6 +4546,9 @@
 		D55ED5781861B3C90035749B /* _dependencies_ */ = {
 			isa = PBXGroup;
 			children = (
+				D5E75A6E187C58F00016542B /* icon.png */,
+				D5E75A7A187C59060016542B /* icon_120@2x.png */,
+				D5E75A70187C58F00016542B /* icon@2x.png */,
 				D50FDC0D1A4475A900D962C9 /* akylas.admob.xcodeproj */,
 				D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */,
 				D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */,
