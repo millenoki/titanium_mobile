@@ -405,9 +405,12 @@ public class TiConvert
 			return (Boolean) value;
 
 		} else if (value instanceof String) {
-			return Boolean.parseBoolean(((String) value));
+            return Boolean.parseBoolean(((String) value));
 
-		} else {
+        }  else if (value instanceof Number) {
+            return ((Number) value).intValue() > 0;
+
+        } else {
 			throw new IllegalArgumentException("Unable to convert " + (value == null ? "null" : value.getClass().getName()) + " to boolean.");
 		}
 	}
