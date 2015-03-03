@@ -107,54 +107,75 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 
 +(BOOL)isRetinaFourInch
 {
-    CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
-    if ([TiUtils isIOS8OrGreater]) {
-        return (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
-    }
-    return (mainScreenBoundsSize.height == 568);
+    static BOOL isRetinaFourInch = NO;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+        if ([TiUtils isIOS8OrGreater]) {
+            isRetinaFourInch = (mainScreenBoundsSize.height == 568 || mainScreenBoundsSize.width == 568);
+        } else {
+            isRetinaFourInch =  (mainScreenBoundsSize.height == 568);
+        }
+    });
+    return isRetinaFourInch;
 }
 
 +(BOOL)isRetinaiPhone6
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
-        return (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
-    }
-    return NO;
+    static BOOL isRetinaiPhone6 = NO;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        if ([TiUtils isIOS8OrGreater]) {
+            CGSize mainScreenBoundsSize = [[UIScreen mainScreen] bounds].size;
+            isRetinaiPhone6 = (mainScreenBoundsSize.height == 667 || mainScreenBoundsSize.width == 667);
+        }
+    });
+    return isRetinaiPhone6;
 }
 
 +(BOOL)isRetinaHDDisplay
 {
-    if ([TiUtils isIOS8OrGreater]) {
-        return ([UIScreen mainScreen].scale == 3.0);
+    static BOOL isRetinaHDDisplay;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        isRetinaHDDisplay = ([UIScreen mainScreen].scale == 3.0);
+    });
+    return isRetinaHDDisplay;
+}
+
+
++(CGFloat)screenScale {
+    static CGFloat scale = 0.0;
+    if (scale == 0.0)
+    {
+        // NOTE: iPad in iPhone compatibility mode will return a scale factor of 2.0
+        // when in 2x zoom, which leads to false positives and bugs. This tries to
+        // future proof against possible different model names, but in the event of
+        // an iPad with a retina display, this will need to be fixed.
+        // Credit to Brion on github for the origional fix.
+        if(UI_USER_INTERFACE_IDIOM()==UIUserInterfaceIdiomPhone)
+        {
+            NSRange iPadStringPosition = [[[UIDevice currentDevice] model] rangeOfString:@"iPad"];
+            if(iPadStringPosition.location != NSNotFound)
+            {
+                scale = 1.0;
+            }
+        }
+        scale = [[UIScreen mainScreen] scale];
     }
-    return NO;
+    return scale;
 }
 
 +(BOOL)isRetinaDisplay
 {
-	// since we call this alot, cache it
-	static CGFloat scale = 0.0;
-	if (scale == 0.0)
-	{
-// NOTE: iPad in iPhone compatibility mode will return a scale factor of 2.0
-// when in 2x zoom, which leads to false positives and bugs. This tries to
-// future proof against possible different model names, but in the event of
-// an iPad with a retina display, this will need to be fixed.
-// Credit to Brion on github for the origional fix.
-		if(UI_USER_INTERFACE_IDIOM()==UIUserInterfaceIdiomPhone)
-		{
-			NSRange iPadStringPosition = [[[UIDevice currentDevice] model] rangeOfString:@"iPad"];
-			if(iPadStringPosition.location != NSNotFound)
-			{
-				scale = 1.0;
-				return NO;
-			}
-		}
-		scale = [[UIScreen mainScreen] scale];
-	}
-	return scale > 1.0;
+    static BOOL isRetinaDisplay;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        isRetinaDisplay = [TiUtils screenScale] > 1.0;
+    });
+    return isRetinaDisplay;
 }
+
 
 //+(BOOL)isIOS4_2OrGreater
 //{

@@ -622,6 +622,12 @@ typedef enum
 +(BOOL)isIOS8OrGreater;
 
 /**
+ Screen scale for retina displays. Used for image computation
+ @return scale as float.
+ */
++(CGFloat)screenScale;
+
+/**
  Whether or not the current device is an iPhone 4.
  @return _YES_ if the current device is an iPhone 4, _NO_ otherwise.
  */

@@ -458,10 +458,10 @@ DEFINE_EXCEPTIONS
     {
         factor /= screenScale;
     }
-    CGFloat realWidth = imageToUse.size.width * factor;
-    CGFloat realHeight = imageToUse.size.height * factor;
-    autoWidth = realWidth;
-    autoHeight = realHeight;
+//    CGFloat realWidth = imageToUse.size.width * factor;
+//    CGFloat realHeight = imageToUse.size.height * factor;
+    autoWidth = imageToUse.size.width;
+    autoHeight = imageToUse.size.height;
     if (_tintColorImage) {
         imageToUse = [imageToUse imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     }
@@ -566,8 +566,9 @@ DEFINE_EXCEPTIONS
                                    TiDimensionCalculateValue(height,0.0));
     if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]])
     {
-        _imagesize.width *= 2;
-        _imagesize.height *= 2;
+        CGFloat scale = [TiUtils screenScale];
+        _imagesize.width *= scale;
+        _imagesize.height *= scale;
     }
     return _imagesize;
 }
