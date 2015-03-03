@@ -1907,6 +1907,10 @@ public class TiC
 	 */
 	public static final String PROPERTY_LAYOUT = "layout";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_LAYOUT_FULLSCREEN = "layoutFullscreen";
 	/**
 	 * @module.api
 	 */
