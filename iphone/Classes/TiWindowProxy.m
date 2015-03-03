@@ -647,8 +647,8 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     readyToBeLayout = YES;
-    if (isModal) {
-        [(TiRootViewController*)[[TiApp app] controller] updateStatusBar];
+    if (isModal || self.isManaged) {
+        [(TiRootViewController*)[[TiApp app] controller] updateStatusBar:animated];
     }
 	id navBarHidden = [self valueForKey:@"navBarHidden"];
     if (navBarHidden!=nil) {
