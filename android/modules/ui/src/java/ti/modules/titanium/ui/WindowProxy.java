@@ -481,6 +481,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		windowActivity = new WeakReference<TiBaseActivity>((TiBaseActivity) activity);
 		super.setActivity(activity);
 		if (activity == null) return;
+		if (!hasProperty(TiC.PROPERTY_FULLSCREEN)) {
+		    setProperty(TiC.PROPERTY_FULLSCREEN, ((TiBaseActivity) activity).getDefaultFullscreen());
+		}
 		if (hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
 			boolean active = TiConvert.toBoolean(getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
 			if (active)

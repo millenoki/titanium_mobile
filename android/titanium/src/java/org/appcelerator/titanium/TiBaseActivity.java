@@ -1815,5 +1815,9 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		TiApplication.getInstance().cancelPauseEvent();
 		return super.onCreateDialog(id, args);
 	}
+	
+	public boolean getDefaultFullscreen() {
+	    return defaultFullscreen;
+	}
 }
 
