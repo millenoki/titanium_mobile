@@ -83,19 +83,12 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
     __block BOOL followsFillWBehavior = TiDimensionIsAutoFill([autoSizer defaultAutoWidthBehavior:nil]);
     __block BOOL followsFillHBehavior = TiDimensionIsAutoFill([autoSizer defaultAutoHeightBehavior:nil]);
     
+    __block CGFloat boundingWidth = referenceSize.width;
+    __block CGFloat boundingHeight = referenceSize.height;
+    
     CGSize (^completion)() = ^() {
         
-        CGSize result = CGSizeMake(width, height);
-        //        if (followsFillWBehavior) {
-        //            result.width -= offsetx;
-        //        }
-        //        if (followsFillHBehavior) {
-        //            result.height -= offsety;
-        //        }
-        //        result = minmaxSize(constraint, result, (ignoreWPercent || ignoreHPercent)?parentSize:referenceSize);
-        //        result.width += offsetx;
-        //        result.height += offsety;
-        
+        CGSize result = minmaxSize(constraint, CGSizeMake(width, height), CGSizeMake(boundingWidth, boundingHeight));
         //Should we always do this or only for auto
         if ([autoSizer respondsToSelector:@selector(verifySize:)])
         {
@@ -129,8 +122,6 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         }
     }
     
-    __block CGFloat boundingWidth = referenceSize.width;
-    __block CGFloat boundingHeight = referenceSize.height;
     
     
     if (constraint->fullscreen == YES) {
