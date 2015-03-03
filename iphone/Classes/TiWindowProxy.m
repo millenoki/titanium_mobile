@@ -232,16 +232,16 @@
     opening = YES;
     
     isModal = (tab == nil && !self.isManaged) ? [TiUtils boolValue:[self valueForUndefinedKey:@"modal"] def:NO] : NO;
-    hidesStatusBar = [TiUtils boolValue:[self valueForUndefinedKey:@"fullscreen"] def:[[[TiApp app] controller] statusBarInitiallyHidden]];
+    _hidesStatusBar = [TiUtils boolValue:[self valueForUndefinedKey:@"fullscreen"] def:[[[TiApp app] controller] statusBarInitiallyHidden]];
 
 	NSInteger theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
     switch (theStyle){
         case UIStatusBarStyleDefault:
         case UIStatusBarStyleLightContent:
-            statusBarStyle = theStyle;
+            _internalStatusBarStyle = theStyle;
             break;
         default:
-            statusBarStyle = UIStatusBarStyleDefault;
+            _internalStatusBarStyle = UIStatusBarStyleDefault;
     }
     
     if (!isModal && (tab==nil)) {
@@ -266,24 +266,35 @@
     _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
 }
 
--(void)setStatusBarStyle:(id)style
-{
-    NSInteger theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
-    switch (theStyle){
-        case UIStatusBarStyleDefault:
-        case UIStatusBarStyleLightContent:
-            statusBarStyle = theStyle;
-            break;
-        default:
-            statusBarStyle = UIStatusBarStyleDefault;
-    }
-    [self setValue:NUMINT(statusBarStyle) forUndefinedKey:@"statusBarStyle"];
-    if([self focussed]) {
-        TiThreadPerformOnMainThread(^{
-            [(TiRootViewController*)[[TiApp app] controller] updateStatusBar];
-        }, YES); 
-    }
-}
+//-(void)setStatusBarStyle:(id)style
+//{
+//    NSInteger theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
+//    switch (theStyle){
+//        case UIStatusBarStyleDefault:
+//        case UIStatusBarStyleLightContent:
+//            _internalStatusBarStyle = theStyle;
+//            break;
+//        default:
+//            _internalStatusBarStyle = UIStatusBarStyleDefault;
+//    }
+//    [self setValue:NUMINT(_internalStatusBarStyle) forUndefinedKey:@"statusBarStyle"];
+//}
+
+//-(void)setFullscreen:(id)value
+//{
+//    BOOL newValue = [TiUtils boolValue:[self valueForUndefinedKey:@"fullscreen"] def:[[[TiApp app] controller] statusBarInitiallyHidden]];
+//    
+//    if (_hidesStatusBar != newValue) {
+//        _hidesStatusBar = newValue;
+//        [self setValue:NUMINT(hidesStatusBar) forUndefinedKey:@"fullscreen"];
+//        if([self focussed]) {
+//            TiThreadPerformOnMainThread(^{
+//                [(TiRootViewController*)[[TiApp app] controller] updateStatusBar:YES];
+//            }, YES);
+//        }
+//    }
+//    
+//}
 
 -(void)close:(id)args
 {
@@ -400,12 +411,12 @@
 
 -(BOOL)hidesStatusBar
 {
-    return hidesStatusBar;
+    return _hidesStatusBar;
 }
 
 -(UIStatusBarStyle)preferredStatusBarStyle;
 {
-    return statusBarStyle;
+    return _internalStatusBarStyle;
 }
 
 -(BOOL)handleFocusEvents

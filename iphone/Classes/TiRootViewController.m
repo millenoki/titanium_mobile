@@ -1275,7 +1275,7 @@
         [[self hostingView] setTransform:CGAffineTransformIdentity];
         [[self view] setNeedsLayout];
         if (updateStatusBar) {
-            [self updateStatusBar];
+            [self updateStatusBar:NO];
         }
     }
 }
@@ -1439,7 +1439,7 @@
     if ([self presentedViewController] == nil ||
         ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]]) && isCurrentlyVisible) {
         [self refreshOrientationWithDuration:nil forController:(id<TiOrientationController>) orientationController];
-        [self updateStatusBar];
+        [self updateStatusBar:NO];
     }
 }
 
@@ -1609,13 +1609,18 @@
     return YES;
 }
 
-- (void) updateStatusBar
+- (void) updateStatusBar:(BOOL)animated
+{
+    [self updateStatusBar:animated withStyle:animated?UIStatusBarAnimationFade:UIStatusBarAnimationNone];
+}
+
+- (void) updateStatusBar:(BOOL)animated withStyle:(UIStatusBarAnimation)style
 {
     if (viewControllerControlsStatusBar) {
         [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
     } else {
-        [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:UIStatusBarAnimationNone];
-        [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:NO];
+        [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:style];
+        [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:animated];
         [self resizeView];
     }
 }
