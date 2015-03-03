@@ -321,7 +321,9 @@ else{\
         BOOL transitionWithGesture = NO;
         if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
             if (!CGRectIsEmpty(barFrameBeforePush)) {
-                [[navController navigationBar] setFrame:barFrameBeforePush];
+                CGRect frame = [[navController navigationBar] frame];
+                frame.size = barFrameBeforePush.size;
+                [[navController navigationBar] setFrame:frame];
             }
             transitionWithGesture = _navigationDelegate.isInteracting;
             if (!transitionWithGesture) {
