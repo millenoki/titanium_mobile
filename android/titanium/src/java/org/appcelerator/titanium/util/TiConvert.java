@@ -231,7 +231,7 @@ public class TiConvert
         case TiC.PROPERTY_MAX_HEIGHT:
             layoutParams.maxHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
             return TiUIView.TIFLAG_NEEDS_LAYOUT;
-        case TiC.PROPERTY_FULLSCREEN:
+        case TiC.PROPERTY_LAYOUT_FULLSCREEN:
             layoutParams.fullscreen = toBoolean(value, false);
             return TiUIView.TIFLAG_NEEDS_LAYOUT;
         case TiC.PROPERTY_SQUARED:

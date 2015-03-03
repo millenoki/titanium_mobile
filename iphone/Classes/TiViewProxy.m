@@ -433,7 +433,7 @@ LAYOUTPROPERTIES_SETTER(setMinWidth,minimumWidth,TiDimensionFromObject,[self wil
 LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiDimensionFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setMaxWidth,maximumWidth,TiDimensionFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setMaxHeight,maximumHeight,TiDimensionFromObject,[self willChangeSize])
-LAYOUTPROPERTIES_SETTER(setFullscreen,fullscreen,TO_BOOL,[self willChange])
+LAYOUTPROPERTIES_SETTER(setLayoutFullscreen,fullscreen,TO_BOOL,[self willChange])
 LAYOUTPROPERTIES_SETTER(setSquared,squared,TO_BOOL,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setWeight,weight,TO_FLOAT,[self willChangeSize])
 
