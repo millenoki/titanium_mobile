@@ -115,10 +115,10 @@
     if (!opened){
         opening = YES;
     }
-    [super windowWillOpen];
     if (tab == nil && (self.isManaged == NO) && controller == nil) {
         [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
     }
+    [super windowWillOpen];
 }
 
 -(void)windowDidOpen
