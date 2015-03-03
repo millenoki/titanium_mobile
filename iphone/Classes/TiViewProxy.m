@@ -1107,7 +1107,7 @@ SEL GetterForKrollProperty(NSString * key)
     {
         result.width =  TiDimensionCalculateValue(layoutProperties.width, suggestedWidth);
     }
-    else if (TiDimensionIsAutoFill(layoutProperties.width) || (TiDimensionIsAuto(layoutProperties.width) && followsFillWBehavior) )
+    else if (TiDimensionIsAutoFill(layoutProperties.width))
     {
         result.width = size.width;
         result.width -= offsetx;
@@ -1123,21 +1123,16 @@ SEL GetterForKrollProperty(NSString * key)
         else if (!TiDimensionIsUndefined(layoutProperties.centerX) && !TiDimensionIsUndefined(layoutProperties.right) ) {
             result.width = 2 * ( size.width - TiDimensionCalculateValue(layoutProperties.right, suggestedWidth) - TiDimensionCalculateValue(layoutProperties.centerX, suggestedWidth));
         }
-        else {
+        else if (followsFillWBehavior) {
             result.width = size.width;
             result.width -= offsetx;
         }
-    }
-    else
-    {
-        result.width = size.width;
-        result.width -= offsetx;
     }
     
     if (TiDimensionIsDip(layoutProperties.height) || TiDimensionIsPercent(layoutProperties.height))        {
         result.height = TiDimensionCalculateValue(layoutProperties.height, suggestedHeight);
     }
-    else if (TiDimensionIsAutoFill(layoutProperties.height) || (TiDimensionIsAuto(layoutProperties.height) && followsFillHBehavior) )
+    else if (TiDimensionIsAutoFill(layoutProperties.height))
     {
         result.height = size.height;
         result.height -= offsety;
@@ -1153,13 +1148,10 @@ SEL GetterForKrollProperty(NSString * key)
         else if (!TiDimensionIsUndefined(layoutProperties.centerY) && !TiDimensionIsUndefined(layoutProperties.bottom) ) {
             result.height = 2 * ( suggestedHeight - TiDimensionCalculateValue(layoutProperties.bottom, suggestedHeight) - TiDimensionCalculateValue(layoutProperties.centerY, suggestedHeight));
         }
-        else {
+        else if (followsFillHBehavior){
             result.height = size.height;
             result.height -= offsety;
         }
-    }
-    else {
-        result.height -= offsety;
     }
     result = minmaxSize(&layoutProperties, result, size);
     return result;
