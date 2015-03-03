@@ -328,7 +328,7 @@ public class ActivityProxy extends KrollProxy
 	private void handleInvalidateOptionsMenu()
 	{
 		TiBaseActivity activity = (TiBaseActivity) getWrappedActivity();
-		if (activity != null && activity.getMenu() != null ) {
+		if (activity != null) {
 			activity.supportInvalidateOptionsMenu();
 		}
 	}
@@ -386,10 +386,17 @@ public class ActivityProxy extends KrollProxy
 	public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
 	    switch (key) {
-        case TiC.PROPERTY_ACTION_BAR:
+	    case TiC.PROPERTY_ACTION_BAR:
             ActionBarProxy actionBarProxy = getActionBar();
             if (actionBarProxy != null) {
                 actionBarProxy.setProperties(TiConvert.toKrollDict(newValue));
+                invalidateOptionsMenu();
+            }
+            break;
+
+        case TiC.PROPERTY_ON_CREATE_OPTIONS_MENU:
+        case TiC.PROPERTY_ON_PREPARE_OPTIONS_MENU:
+            if (changedProperty) {
                 invalidateOptionsMenu();
             }
             break;
