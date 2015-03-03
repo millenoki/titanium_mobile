@@ -18,14 +18,48 @@
 
 - (id)density
 {
-    if ([TiUtils isRetinaHDDisplay]) {
-        return @"xhigh";
-    }
-	if ([TiUtils isRetinaDisplay]) {
-		return @"high";
-	}
-	return @"medium";
+    static NSString* density;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        int dpi = [TiUtils dpi];
+        switch (dpi) {
+                break;
+            case 640:
+                density = @"xxxhigh";
+                break;
+            case 480:
+                density = @"xxhigh";
+                break;
+            case 320:
+                density = @"xhigh";
+                break;
+            case 260:
+            case 240:
+                density = @"high";
+                break;
+            default: //130, 160
+                density = @"medium";
+                break;
+        }
+    });
+	return density;
 }
+
+- (id)retinaSuffix
+{
+    static NSString* retinaSuffix;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        float scale =  [TiUtils screenScale];
+        if (scale > 1) {
+            retinaSuffix = [NSString stringWithFormat:@"@%dx", (int)floorf(scale)];
+        } else {
+            retinaSuffix = @"";
+        }
+    });
+    return retinaSuffix;
+}
+
 
 -(NSString*)apiName
 {
