@@ -700,11 +700,7 @@ SEL GetterForKrollProperty(NSString * key)
         CGRect rect = CGRectMake(0, 0, size.width, size.height);
         [TiUtils setView:myview positionRect:rect];
     }
-    if ([TiUtils isRetinaDisplay])
-    {
-        scale*=2;
-        
-    }
+    scale *= [TiUtils screenScale];
     UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], scale);
     float oldOpacity = myview.alpha;
     myview.alpha = 1;
