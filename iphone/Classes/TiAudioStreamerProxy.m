@@ -625,6 +625,11 @@ return [self func:nil];\
     return @(_state);
 }
 
+-(id)stateDescription
+{
+    return [self stateToString:_state];
+}
+
 -(id)isPaused:(id)args
 {
     return @(_state == STATE_PAUSED);
