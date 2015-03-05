@@ -1598,6 +1598,9 @@
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
+    if ([modalWindows count] > 0) {
+        return [[modalWindows lastObject] preferredStatusBarStyle];
+    }
     if ([containedWindows count] > 0) {
         return [[containedWindows lastObject] preferredStatusBarStyle];
     }
