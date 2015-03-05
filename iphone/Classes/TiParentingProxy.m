@@ -34,7 +34,9 @@
 -(void)_initWithProperties:(NSDictionary*)properties
 {
     if (!_unarchiving && ([properties objectForKey:@"properties"] || [properties objectForKey:@"childTemplates"])) {
-        [self unarchiveFromDictionary:properties rootProxy:self];
+        [self invokeBlockOnJSThread:^{
+            [self unarchiveFromDictionary:properties rootProxy:self];
+        }];
         return;
     }
 	[super _initWithProperties:properties];
@@ -43,19 +45,29 @@
 -(void)_destroy
 {
 	pthread_rwlock_wrlock(&childrenLock);
-	[children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
+//	[children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
+    [children enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        //        if ([obj respondsToSelector:@selector(makeObjectsPerformSelector:withObject:)]) {
+        //            [obj makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
+        //        }
+        //        else {
+        [self childRemoved:obj wasChild:YES shouldDetach:YES];
+        //            [obj setParent:nil];
+        //        }
+    }];
 	RELEASE_TO_NIL(children);
 	pthread_rwlock_unlock(&childrenLock);
 	pthread_rwlock_destroy(&childrenLock);
     
     pthread_rwlock_wrlock(&_holdedProxiesLock);
     [[_holdedProxies allValues] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        if ([obj respondsToSelector:@selector(makeObjectsPerformSelector:withObject:)]) {
-            [obj makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
-        }
-        else {
-            [obj setParent:nil];
-        }
+//        if ([obj respondsToSelector:@selector(makeObjectsPerformSelector:withObject:)]) {
+//            [obj makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
+//        }
+//        else {
+            [self childRemoved:obj wasChild:YES shouldDetach:YES];
+//            [obj setParent:nil];
+//        }
     }];
     RELEASE_TO_NIL(_holdedProxies);
     pthread_rwlock_unlock(&_holdedProxiesLock);
@@ -217,6 +229,9 @@
         [(id)child setParent:nil];
     }
     [self forgetProxy:child];
+    if (child.createdFromDictionary) {
+        [child forgetSelf];
+    }
 }
 
 -(void)removeProxy:(id)child shouldDetach:(BOOL)shouldDetach
@@ -324,9 +339,8 @@
         }
         child = [[self class] createFromDictionary:object rootProxy:rootProxy inContext:context];
         [self rememberProxy:child];
-        [context.krollContext invokeBlockOnThread:^{
-            [child forgetSelf];
-        }];
+//        [context.krollContext invokeBlockOnThread:^{
+//        }];
     }
     else if(([object isKindOfClass:[TiProxy class]]))
     {
@@ -360,9 +374,25 @@
         TiProxy *child = [self createChildFromObject:childTemplate rootProxy:rootProxy];
 		if (child != nil) {
 			[self addProxy:child atIndex:-1 shouldRelayout:NO];
-            [context.krollContext invokeBlockOnThread:^{
-				[child forgetSelf];
-			}];
+//            [context.krollContext invokeBlockOnThread:^{
+//				[child forgetSelf];
+//			}];
+//            if (IS_OF_CLASS(childTemplate, NSDictionary)) {
+//                NSDictionary* events = (NSDictionary*)[childTemplate objectForKey:@"events"];
+//                if ([events count] > 0) {
+//                    [context.krollContext invokeBlockOnThread:^{
+//                        [events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, KrollCallback *listener, BOOL *stop) {
+//                            if ([listener isKindOfClass:[KrollCallback class]]) {
+//                                KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(listener);
+//                                [wrapper protectJsobject];
+//                                [child addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
+//                            } else {
+//                                [child addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
+//                            }
+//                        }];
+//                    }];
+//                }
+//            }
 		}
 	}];
 	_unarchiving = NO;

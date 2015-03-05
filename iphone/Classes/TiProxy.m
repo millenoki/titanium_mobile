@@ -206,6 +206,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 @implementation TiProxy
 {
     NSMutableDictionary *_proxyBindings;
+    BOOL _createdFromDictionary;
 }
 
 +(void)performSelectorDuringRunLoopStart:(SEL)selector
@@ -219,6 +220,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 @synthesize pageContext, executionContext;
 @synthesize modelDelegate;
 @synthesize eventOverrideDelegate = eventOverrideDelegate;
+@synthesize createdFromDictionary = _createdFromDictionary;
 
 #pragma mark Private
 
@@ -229,6 +231,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		_bubbleParent = YES;
         _bubbleParentDefined = NO;
         _shouldRetainModelDelegate = YES;
+        _createdFromDictionary = NO;
 #if PROXY_MEMORY_TRACK == 1
 		NSLog(@"[DEBUG] INIT: %@ (%d)",self,[self hash]);
 #endif
@@ -236,6 +239,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		pthread_rwlock_init(&dynpropsLock, NULL);
 	}
 	return self;
+}
+
+-(void)internalSetCreatedFromDictionary
+{
+    _createdFromDictionary = YES;
 }
 
 -(void)initializeProperty:(NSString*)name defaultValue:(id)value
@@ -346,6 +354,13 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		pageContext = nil;
 		pageKrollObject = nil;
 	}
+}
+
+-(void)invokeBlockOnJSThread:(void (^)())block {
+    if (pageContext != nil)
+    {
+        [pageContext.krollContext invokeBlockOnThread:block];
+    }
 }
 
 -(void)setExecutionContext:(id<TiEvaluator>)context
@@ -1491,12 +1506,13 @@ DEFINE_EXCEPTIONS
     
 	if (defaultType == nil) defaultType = @"Ti.UI.View";
 	if (type == nil) type = defaultType;
-    TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
-    [context.krollContext invokeBlockOnThread:^{
-        [context registerProxy:proxy];
-        [proxy rememberSelf];
-    }];
-    [proxy unarchiveFromDictionary:dictionary rootProxy:rootProxy];
+    TiProxy *proxy = proxy = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
+    [proxy internalSetCreatedFromDictionary]; //private access
+    [proxy rememberSelf];
+    if (proxy) {
+        [proxy unarchiveFromDictionary:dictionary rootProxy:rootProxy];
+    }
+    
     return proxy;
 }
 

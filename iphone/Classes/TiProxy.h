@@ -154,6 +154,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 @property(readonly,nonatomic)			int bindingRunLoopCount;
 @property(readonly,nonatomic)			TiBindingRunLoop primaryBindingRunLoop;
 @property(readonly,nonatomic)			NSArray * bindingRunLoopArray;
+@property(readonly,nonatomic)           BOOL createdFromDictionary;
 
 /**
  Provides access to proxy delegate.
@@ -388,4 +389,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 
 -(void)addBinding:(TiProxy*)proxy forKey:(NSString*)key;
 -(void)removeBindingForKey:(NSString*)key;
+
+-(void)invokeBlockOnJSThread:(void (^)())block;
 @end
