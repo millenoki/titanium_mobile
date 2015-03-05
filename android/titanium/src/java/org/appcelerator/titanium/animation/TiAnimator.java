@@ -29,12 +29,14 @@ public class TiAnimator
 	private static final String TAG = "TiAnimator";
 
 	public Double delay = null;
-	public Double duration = null;
+    private Double duration = null;
+    private Double reverseDuration = null;
 	public int repeat = 1;
 	public Boolean autoreverse = false;
 	public Boolean restartFromBeginning = false;
 	public Boolean cancelRunningAnimations = false;
-	public Interpolator curve = null;
+    private Interpolator curve = null;
+    private Interpolator reverseCurve = null;
 	protected boolean animating;
 
 	public TiAnimation animationProxy;
@@ -101,6 +103,9 @@ public class TiAnimator
 		if (options.containsKey(TiC.PROPERTY_DURATION)) {
 			duration = TiConvert.toDouble(options, TiC.PROPERTY_DURATION);
 		}
+		if (options.containsKey(TiC.PROPERTY_REVERSE_DURATION)) {
+            reverseDuration = TiConvert.toDouble(options, TiC.PROPERTY_REVERSE_DURATION);
+        }
 		if (options.containsKey(TiC.PROPERTY_REPEAT)) {
 			repeat = TiConvert.toInt(options, TiC.PROPERTY_REPEAT);
 
@@ -137,6 +142,19 @@ public class TiAnimator
 				}
 			}
 		}
+		if (options.containsKey(TiC.PROPERTY_REVERSE_CURVE)) {
+            Object value = options.get(TiC.PROPERTY_REVERSE_CURVE);
+            if (value instanceof Number) {
+                reverseCurve = TiInterpolator.getInterpolator(TiConvert.toInt(value), duration);
+            }
+            
+            else if (value instanceof Object[]) {
+                double[] values = TiConvert.toDoubleArray((Object[]) value);
+                if (values.length == 4) {
+                    reverseCurve =new CubicBezierInterpolator(values[0], values[1], values[2], values[3]);
+                }
+            }
+        }
 
 		this.options = options;
 	}
@@ -286,4 +304,26 @@ public class TiAnimator
 //
 //		animationSet.addAnimation(animation);
 //	}
+	
+	public Interpolator getCurve() {
+	    return curve;
+	}
+	public Interpolator getReverseCurve() {
+	    if (reverseCurve != null) {
+	        return reverseCurve;
+	    } else if (curve != null) {
+            return new TiInterpolator.ReverseInterpolator(reverseCurve);
+        }
+        return null;
+    }
+	
+	public Double getDuration() {
+        return duration;
+    }
+    public Double getReverseDuration() {
+        if (reverseDuration != null) {
+            return reverseDuration;
+        }
+        return duration;
+    }
 }

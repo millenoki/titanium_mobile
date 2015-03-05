@@ -107,12 +107,14 @@ enum TiAnimCurve
 
 // properties that control the animation 
 @property(nonatomic,retain) CAMediaTimingFunction* curve;
+@property(nonatomic,retain) CAMediaTimingFunction* reverseCurve;
 @property(nonatomic,retain) NSNumber* repeat;
 @property(nonatomic,assign) BOOL autoreverse;
 @property(nonatomic,assign) BOOL restartFromBeginning;
 @property(nonatomic,assign) BOOL cancelRunningAnimations;
 @property(nonatomic,assign) CGFloat delay;
 @property(nonatomic,assign) CGFloat duration;
+@property(nonatomic,assign) CGFloat reverseDuration;
 @property(nonatomic,retain) TiAnimatableProxy	*animatedProxy;
 @property(nonatomic,retain) HLSAnimation	*animation;
 
@@ -128,9 +130,11 @@ enum TiAnimCurve
 -(id)initWithDictionary:(NSDictionary*)properties context:(id<TiEvaluator>)context_ callback:(KrollCallback*)callback_;
 -(BOOL)isTransitionAnimation;
 -(NSTimeInterval)getAnimationDuration;
+-(NSTimeInterval)getAnimationReverseDuration;
 -(NSUInteger) repeatCount;
 +(CAMediaTimingFunction*) timingFunctionForCurve:(int)curve_;
 +(CAMediaTimingFunction*)reverseCurve:(CAMediaTimingFunction*)curve_;
++ (CAMediaTimingFunction *)inverseFunction:(CAMediaTimingFunction*)function;
 -(NSDictionary*)propertiesForAnimation:(TiHLSAnimation*)anim;
 -(void)cancelMyselfBeforeStarting;
 -(void)simulateFinish:(TiAnimatableProxy*)proxy;

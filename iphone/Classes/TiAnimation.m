@@ -22,7 +22,8 @@
 @end
 
 @implementation TiAnimation
-@synthesize callback, duration, repeat, autoreverse, delay, restartFromBeginning, curve = _curve, cancelRunningAnimations;
+@synthesize callback, duration, reverseDuration, repeat, autoreverse, delay, restartFromBeginning, cancelRunningAnimations;
+@synthesize curve = _curve, reverseCurve = _reverseCurve;
 @synthesize animation, animatedProxy;
 @synthesize animated, transition, view;
 
@@ -35,6 +36,7 @@ static NSArray *animProps;
         autoreverse = NO;
         repeat = [NSNumber numberWithInt:1];
         duration = 0;
+        reverseDuration = 0;
         _curve = [[TiAnimation timingFunctionForCurve:kTiAnimCurveEaseInOut] retain];
         
         transition = UIViewAnimationTransitionNone;
@@ -187,6 +189,10 @@ static NSArray *animProps;
     return duration/1000;
 }
 
+-(CGFloat) getReverseDuration {
+    return reverseDuration/1000;
+}
+
 -(CGFloat) delay {
     return delay/1000;
 }
@@ -211,12 +217,20 @@ static NSArray *animProps;
 
 -(NSTimeInterval)getAnimationDuration
 {
-    NSTimeInterval animDuration = ([self isTransitionAnimation]) ? 1 : 0.2;
     if (self.duration!=0)
 	{
-		animDuration = [self getDuration];
+		return [self getDuration];
 	}
-    return animDuration;
+    return ([self isTransitionAnimation]) ? 1 : 0.2;
+}
+
+-(NSTimeInterval)getAnimationReverseDuration
+{
+    if (self.reverseDuration!=0)
+    {
+        return [self getReverseDuration];
+    }
+    return [self getAnimationDuration];
 }
 
 +(CAMediaTimingFunction*) timingFunctionForCurve:(int)curve_
@@ -261,6 +275,21 @@ static NSArray *animProps;
     [curve_ getControlPointAtIndex:2 values:coords2];
     CAMediaTimingFunction* function = [CAMediaTimingFunction functionWithControlPoints:coords2[0] :coords1[1] :coords1[0] :coords2[1]];
     return function;
+}
+
++ (CAMediaTimingFunction *)inverseFunction:(CAMediaTimingFunction*)function
+{
+    float values1[2];
+    memset(values1, 0, sizeof(values1));
+    [function getControlPointAtIndex:1 values:values1];
+    
+    float values2[2];
+    memset(values2, 0, sizeof(values2));
+    [function getControlPointAtIndex:2 values:values2];
+    
+    // Flip the original curve around the y = 1 - x axis
+    // Refer to the "Introduction to Animation Types and Timing Programming Guide"
+    return [CAMediaTimingFunction functionWithControlPoints:1.f - values2[0] :1.f - values2[1] :1.f - values1[0] :1.f - values1[1]];
 }
 
 -(void)cancelMyselfBeforeStarting
@@ -339,6 +368,25 @@ static NSArray *animProps;
         }
     }
     [self replaceValue:value forKey:@"curve" notification:NO];
+}
+
+-(void)setReverseCurve:(id)value
+{
+    RELEASE_TO_NIL(_curve);
+    if ([value isKindOfClass:[NSNumber class]])
+    {
+        _reverseCurve = [[TiAnimation timingFunctionForCurve:[value intValue]] retain];
+    }
+    else if ([value isKindOfClass:[NSArray class]])
+    {
+        NSArray* array = (NSArray*)value;
+        NSUInteger count = [array count];
+        if (count == 4)
+        {
+            _reverseCurve = [[CAMediaTimingFunction functionWithControlPoints: [[array objectAtIndex:0] doubleValue] : [[array objectAtIndex:1] doubleValue] : [[array objectAtIndex:2] doubleValue] : [[array objectAtIndex:3] doubleValue]] retain];
+        }
+    }
+    [self replaceValue:value forKey:@"reverseCurve" notification:NO];
 }
 
 #pragma mark -

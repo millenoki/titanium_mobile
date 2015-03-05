@@ -154,14 +154,14 @@ public class AnimatableProxy extends ParentingProxy {
 		
 		int repeatCount = (tiSet.repeat == ValueAnimator.INFINITE ? tiSet.repeat : tiSet.repeat - 1);
 		tiSet.setRepeatCount(repeatCount);
-		Interpolator interpolator = tiSet.curve;
+		Interpolator interpolator = tiSet.getCurve();
 
 		for (int i = 0; i < list.size(); i++) {
 			ValueAnimator anim = (ValueAnimator) list.get(i);
 			if (tiSet.delay != null)
 				anim.setStartDelay(tiSet.delay.longValue());
-			if (tiSet.duration != null)
-				anim.setDuration(tiSet.duration.longValue());
+			if (tiSet.getDuration() != null)
+				anim.setDuration(tiSet.getDuration().longValue());
 			if (interpolator != null)
 				anim.setInterpolator(interpolator);
 		}
@@ -170,12 +170,12 @@ public class AnimatableProxy extends ParentingProxy {
 		//reverse set
 		if (listReverse != null) {
 			AnimatorSet reverseSet = tiSet.getOrCreateReverseSet();
-			Interpolator reverseInterpolator = (interpolator != null)?new TiInterpolator.ReverseInterpolator(interpolator):null;
+			Interpolator reverseInterpolator = tiSet.getReverseCurve();
 			for (int i = 0; i < listReverse.size(); i++) {
 				ValueAnimator anim = (ValueAnimator) listReverse.get(i);
 				//no startdelay for the reversed animation
-				if (tiSet.duration != null)
-					anim.setDuration(tiSet.duration.longValue());
+				if (tiSet.getReverseDuration() != null)
+					anim.setDuration(tiSet.getReverseDuration().longValue());
 				if (reverseInterpolator != null)
 					anim.setInterpolator(reverseInterpolator);
 			}

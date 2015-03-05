@@ -114,6 +114,7 @@
 
 #pragma mark Reverse animation
 
+
 - (CAMediaTimingFunction *)inverseFunction:(CAMediaTimingFunction*)function
 {
     float values1[2];
@@ -132,7 +133,16 @@
 - (id)reverseAnimationStep
 {
     TiViewAnimationStep *reverseAnimationStep = [super reverseAnimationStep];
-    reverseAnimationStep.curve = [self inverseFunction:self.curve];
+    if ([self.objects count] == 1) {
+        TiViewAnimation *viewAnimation = (TiViewAnimation *)[self objectAnimationForObject:[self.objects firstObject]];
+        TiAnimation* anim = viewAnimation.animationProxy;
+        if (anim.reverseCurve) {
+            reverseAnimationStep.curve = anim.reverseCurve;
+        }
+        if (anim.reverseDuration > 0) {
+            reverseAnimationStep.duration = [anim getAnimationReverseDuration];
+        }
+    }
 
     return reverseAnimationStep;
 }

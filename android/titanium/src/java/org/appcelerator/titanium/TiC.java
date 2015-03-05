@@ -2560,6 +2560,15 @@ public class TiC
 
 	public static final String PROPERTY_REVERSE = "reverse";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_REVERSE_CURVE = "reverseCurve";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_REVERSE_DURATION = "reverseDuration";
 	/**
 	 * @module.api
 	 */
