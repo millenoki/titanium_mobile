@@ -28,7 +28,6 @@
     BOOL needsToRefreshScrollView;
 
     // See the code for why we need this...
-    NSInteger lastPage;
     BOOL enforceCacheRecalculation;
     NSInteger cacheSize;
     BOOL verticalLayout;

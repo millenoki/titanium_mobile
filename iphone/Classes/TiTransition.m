@@ -44,20 +44,15 @@
     }
     return self;
 }
--(void)transformView:(UIView*)view withPosition:(CGFloat)position adjustTranslation:(BOOL)adjust size:(CGSize)size;
-{
-}
--(void)transformView:(UIView*)view withPosition:(CGFloat)position adjustTranslation:(BOOL)adjust
-{
-    [self transformView:view withPosition:position adjustTranslation:adjust size:view.bounds.size];
-}
+
 -(void)transformView:(UIView*)view withPosition:(CGFloat)position size:(CGSize)size
 {
-    [self transformView:view withPosition:position adjustTranslation:NO size:size];
+    view.layer.hidden = YES;
+    view.layer.transform = CATransform3DIdentity;
 }
 -(void)transformView:(UIView*)view withPosition:(CGFloat)position
 {
-    [self transformView:view withPosition:position adjustTranslation:NO size:view.bounds.size];
+    [self transformView:view withPosition:position size:view.bounds.size];
 }
 -(BOOL)needsReverseDrawOrder{
     return NO;
