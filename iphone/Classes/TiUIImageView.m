@@ -1090,8 +1090,9 @@ DEFINE_EXCEPTIONS
         } else if ([self.proxy valueForKey:@"animatedImages"]) {
             [self setAnimatedImages_:[self.proxy valueForKey:@"animatedImages"]];
         }
+    } else {
+        [self loadDefaultImage];
     }
-    
 }
 
 -(void)setPreventDefaultImage_:(id)value
