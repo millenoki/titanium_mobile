@@ -766,8 +766,8 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 			for (int i = 0; i < views.length; i++) {
 				if (views[i] instanceof TiViewProxy) {
 					TiViewProxy tv = (TiViewProxy)views[i];
-					tv.setActivity(activity);
-					tv.setParent(this.proxy);
+//					tv.setActivity(activity);
+//					tv.setParent(this.proxy);
 					mViews.add(tv);
 					changed = true;
 				}
@@ -963,20 +963,16 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		{
 			synchronized (viewsLock) {
 				ViewGroup pager = (ViewGroup) container;
-                Activity activity = proxy.getActivity();
 				TiViewProxy tiProxy = mViews.get(position);
-				tiProxy.setActivity(activity);
-				TiUIView tiView = tiProxy.getOrCreateView();
-				View view = tiView.getOuterView();
-				ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-				TiCompositeLayout layout = new TiCompositeLayout(activity);
-				ViewParent parent = view.getParent();
-				if (parent instanceof ViewGroup) {
-					pager.removeView((View) parent);
-					ViewGroup group = (ViewGroup) parent;
-					group.removeView(view);
+                Activity activity = proxy.getActivity();
+				if (tiProxy.getParent() != TiUIScrollableView.this.proxy) {
+	                tiProxy.setActivity(activity);
+	                TiUIHelper.removeViewFromSuperView(tiProxy);
+	                tiProxy.setParent(TiUIScrollableView.this.proxy);
 				}
-				layout.addView(view, tiView.getLayoutParams());
+                TiCompositeLayout layout = new TiCompositeLayout(activity);
+                TiUIHelper.addView(layout, tiProxy);
+				ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 				if (position < pager.getChildCount()) {
 					pager.addView(layout, position, params);
 				} else {
