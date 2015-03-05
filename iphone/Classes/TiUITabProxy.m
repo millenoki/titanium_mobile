@@ -284,7 +284,10 @@
 {
     //NO OP NOW
 }
-
+-(void)windowSetUpDecoration:(TiWindowProxy*)window animated:(BOOL)animated
+{
+    //NO OP NOW
+}
 #pragma mark - UINavigationControllerDelegate
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION

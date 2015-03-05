@@ -114,6 +114,9 @@
     CGFloat _defaultNavBarTop;
     CGFloat _defaultToolbarTop;
     BOOL _setingUpWindowDecorations;
+    
+    CGRect startingNavbarFrame;
+    CGRect startingToolbarFrame;
 }
 
 
@@ -155,6 +158,9 @@ NSArray* keySequence;
     _defaultNavBarTop = 20;
     _defaultToolbarTop = [TiUtils appFrame].size.height - 44;
     _setingUpWindowDecorations = NO;
+    startingNavbarFrame = CGRectZero;
+    startingToolbarFrame = CGRectZero;
+    
 	[super _configure];
 }
 
@@ -333,6 +339,12 @@ NSArray* keySequence;
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
     shouldUpdateNavBar = !noNavBar;
+    id navController = [self navControllerForController:controller];
+    if (navController) {
+        startingNavbarFrame = [navController navigationBar].frame;
+        startingToolbarFrame = [navController toolbar].frame;
+    }
+
     [self setupWindowDecorations:animated];
 	[super viewWillAppear:animated];
 }
@@ -346,6 +358,21 @@ NSArray* keySequence;
 - (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
 {
     shouldUpdateNavBar = NO;
+    id navController = [self navControllerForController:controller];
+    if (navController) {
+        if (animated) {
+            [UIView beginAnimations:@"navbarAnim" context:NULL];
+            [UIView setAnimationBeginsFromCurrentState:YES];
+        }
+        
+        [navController navigationBar].frame = startingNavbarFrame;
+        [navController toolbar].frame = startingToolbarFrame;
+        if (animated) {
+            [UIView commitAnimations];
+        }
+    }
+    
+
 	[super viewWillDisappear:animated];
 }
 
@@ -491,34 +518,30 @@ else{\
 
 -(void)setBarDeltaY:(id)value {
     ENSURE_UI_THREAD(setBarDeltaY,value);
-    [self replaceValue:value forKey:@"barDeltaY" notification:NO];
     id navController = [self navControllerForController:controller];
     if (shouldUpdateNavBar && navController != nil)
     {
         CGFloat deltaY = [TiUtils floatValue:value def:0];
         UINavigationBar * navBar = [navController navigationBar];
         CGRect frame = navBar.frame;
-        
-        CGFloat current = frame.origin.y;
-//        frame.origin.y = MIN(MAX(_defaultNavBarTop - deltaY, _defaultNavBarTop - frame.size.height), _defaultNavBarTop);
-        frame.origin.y = _defaultNavBarTop - deltaY;
+        frame.origin.y = startingNavbarFrame.origin.y - deltaY;
         navBar.frame = frame;
     }
-
+    [self replaceValue:value forKey:@"barDeltaY" notification:NO];
 }
 
 -(void)setToolbarDeltaY:(id)value {
     ENSURE_UI_THREAD(setBarDeltaY,value);
-    [self replaceValue:value forKey:@"toolbarDeltaY" notification:NO];
     id navController = [self navControllerForController:controller];
     if (shouldUpdateNavBar && navController != nil)
     {
         CGFloat deltaY = [TiUtils floatValue:value def:0];
         UIToolbar * toolBar = [navController toolbar];
         CGRect frame = toolBar.frame;
-        frame.origin.y = _defaultToolbarTop + deltaY;
+        frame.origin.y = startingToolbarFrame.origin.y + deltaY;
         toolBar.frame = frame;
     }
+    [self replaceValue:value forKey:@"toolbarDeltaY" notification:NO];
 }
 
 -(void)setBarStyle:(id)value
@@ -1228,8 +1251,16 @@ else{\
     SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
     SETPROP(@"barStyle",setBarStyle);
+    if (animated) {
+        [UIView beginAnimations:@"navbarAnim" context:NULL];
+        [UIView setAnimationBeginsFromCurrentState:YES];
+    }
     SETPROP(@"barDeltaY",setBarDeltaY);
     SETPROP(@"toolbarDeltaY",setToolbarDeltaY);
+    if (animated) {
+        [UIView commitAnimations];
+    }
+    
     SETPROP(@"tabBarHidden",setTabBarHidden);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
@@ -1247,6 +1278,9 @@ else{\
         }
     }
     _setingUpWindowDecorations = NO;
+    if (self.tab) {
+        [self.tab windowSetUpDecoration:self animated:animated];
+    }
 }
 
 -(void)cleanupWindowDecorations
