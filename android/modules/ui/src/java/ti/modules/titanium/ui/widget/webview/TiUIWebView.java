@@ -249,10 +249,14 @@ public class TiUIWebView extends TiUINonViewGroupView
 			initializePluginAPI(webView);
 		}
 
+        boolean enableJavascriptInterface = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		chromeClient = new TiWebChromeClient(this);
 		webView.setWebChromeClient(chromeClient);
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
+		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
+            client.getBinding().addJavascriptInterfaces();
+        }
 		webView.client = client;
 
 		if (proxy instanceof WebViewProxy) {
@@ -375,6 +379,14 @@ public class TiUIWebView extends TiUINonViewGroupView
             break;
         case TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR:
             nativeView.setVerticalScrollBarEnabled(TiConvert.toBoolean(newValue));
+            break;
+        case TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE:
+            boolean enableJavascriptInterface = TiConvert.toBoolean(newValue, true);
+            if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
+                client.getBinding().addJavascriptInterfaces();
+            } else {
+                client.getBinding().removeJavascriptInterfaces();
+            }
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
