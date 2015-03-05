@@ -304,8 +304,30 @@ public class StreamerProxy extends TiEnhancedServiceProxy {
         if (tiService != null) {
             long time = tiService.position();
             setProperty(TiC.PROPERTY_TIME, time);
+            return time;
         }
         return TiConvert.toLong(getProperty(TiC.PROPERTY_TIME));
+    }
+    
+    @Kroll.method
+    @Kroll.getProperty
+    public int getState() {
+        if (tiService != null) {
+            int state = tiService.state();
+            setProperty(TiC.PROPERTY_STATE, state);
+            return state;
+        }
+        return TiConvert.toInt(getProperty(TiC.PROPERTY_TIME));
+    }
+    
+    @Kroll.method
+    @Kroll.getProperty
+    public String getStateDescription() {
+        if (tiService != null) {
+            String description = tiService.stateDescription();
+            return description;
+        }
+        return AudioStreamerExoService.STATE_STOPPED_DESC;
     }
     
     @Kroll.method

@@ -1325,6 +1325,25 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         }
         return -1;
     }
+    
+    /**
+     * Returns the current state 
+     * 
+     * @return The current player state
+     */
+    public int state() {
+        return mState;
+    }
+    
+    /**
+     * Returns the current state description
+     * 
+     * @return The current player state description
+     */
+    public String stateDescription() {
+        return mStateDescription;
+    }
+
 
     /**
      * Returns the full duration of the current track
@@ -1729,6 +1748,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         }
     };
     private int mState;
+    private String mStateDescription;
 
     private static final class DelayedHandler extends Handler {
 
@@ -2864,40 +2884,42 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             return;
         mState = state;
 
-        String stateDescription = "";
         int remoteState = mRemoteControlClientState;
         switch (state) {
         case STATE_BUFFERING:
-            stateDescription = STATE_BUFFERING_DESC;
+            mStateDescription = STATE_BUFFERING_DESC;
             break;
         case STATE_INITIALIZED:
-            stateDescription = STATE_INITIALIZED_DESC;
+            mStateDescription = STATE_INITIALIZED_DESC;
             break;
         case STATE_PAUSED:
             remoteState = RemoteControlClient.PLAYSTATE_PAUSED;
-            stateDescription = STATE_PAUSED_DESC;
+            mStateDescription = STATE_PAUSED_DESC;
             break;
         case STATE_PLAYING:
             remoteState = RemoteControlClient.PLAYSTATE_PLAYING;
-            stateDescription = STATE_PLAYING_DESC;
+            mStateDescription = STATE_PLAYING_DESC;
             break;
         case STATE_STARTING:
-            stateDescription = STATE_STARTING_DESC;
+            mStateDescription = STATE_STARTING_DESC;
             break;
         case STATE_STOPPED:
             remoteState = RemoteControlClient.PLAYSTATE_STOPPED;
-            stateDescription = STATE_STOPPED_DESC;
+            mStateDescription = STATE_STOPPED_DESC;
             break;
         case STATE_STOPPING:
             remoteState = RemoteControlClient.PLAYSTATE_STOPPED;
-            stateDescription = STATE_STOPPING_DESC;
+            mStateDescription = STATE_STOPPING_DESC;
             break;
         case STATE_WAITING_FOR_DATA:
-            stateDescription = STATE_WAITING_FOR_DATA_DESC;
+            mStateDescription = STATE_WAITING_FOR_DATA_DESC;
             break;
         case STATE_WAITING_FOR_QUEUE:
-            stateDescription = STATE_WAITING_FOR_QUEUE_DESC;
+            mStateDescription = STATE_WAITING_FOR_QUEUE_DESC;
             break;
+         default:
+             mStateDescription = "";
+             break;
         }
         if (mRemoteControlClientCompat != null
                 && mRemoteControlClientState != remoteState) {
@@ -2909,12 +2931,12 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             proxy.setProperty("state", state);
             // proxy.setProperty("stateDescription", stateDescription);
         }
-        Log.d(TAG, "Audio state changed: " + stateDescription, Log.DEBUG_MODE);
+        Log.d(TAG, "Audio state changed: " + mStateDescription, Log.DEBUG_MODE);
 
         if (proxyHasListeners(EVENT_STATE, false)) {
             KrollDict data = new KrollDict();
             data.put("state", state);
-            data.put("description", stateDescription);
+            data.put("description", mStateDescription);
             proxy.fireEvent(EVENT_STATE, data, false, false);
         }
     }
