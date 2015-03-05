@@ -19,6 +19,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiViewHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
@@ -129,15 +130,13 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 					
 					@Override
 					public void transformPage(View page, float position) {
-						if (transition != null) {
-							transition.transformView(page, position, true);
-						}
+	                    transformView(page, transition, position);
 					}
 				});
 				for (int i = 0; i < getChildCount(); i++) {
 		            final View child = getChildAt(i);
 		            TiViewHelper.resetValues(child);
-		            transition.transformView(child, i - mCurIndex, true);
+		            transformView(child, transition, i - mCurIndex);
 		        }
 			}
 			else {
@@ -188,15 +187,13 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 				
 					@Override
 					public void transformPage(View page, float position) {
-						if (transition != null) {
-							transition.transformView(page, position, true);
-						}
+	                    transformView(page, transition, position);
 					}
 				});
 				for (int i = 0; i < getChildCount(); i++) {
 		            final View child = getChildAt(i);
 		            TiViewHelper.resetValues(child);
-		            transition.transformView(child, i - mCurIndex, true);
+                    transformView(child, transition, i - mCurIndex);
 		        }
 			}
 			else {
@@ -742,6 +739,20 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 				viewProxy.clearViews();
 			}
 		}
+	}
+	
+	private void transformView (View view, Transition transition, float position) {
+	    if (transition != null) {
+            TiViewHelper.setTranslationRelativeX(view, 0);
+            TiViewHelper.setTranslationRelativeY(view, 0);
+            transition.transformView(view, position);
+//          float dest = multiplier * position * (adjustScroll ? 1 : 0);
+            if (verticalLayout) {
+                TiViewHelper.setTranslationRelativeY(view, TiViewHelper.getTranslationRelativeY(view) - position);
+            } else {
+                TiViewHelper.setTranslationRelativeX(view, TiViewHelper.getTranslationRelativeX(view) - position);
+            }
+        }
 	}
 
 	public void setViews(Object viewsObject)
