@@ -46,34 +46,35 @@
 {
 	pthread_rwlock_wrlock(&childrenLock);
 //	[children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
-    [children enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        //        if ([obj respondsToSelector:@selector(makeObjectsPerformSelector:withObject:)]) {
-        //            [obj makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
-        //        }
-        //        else {
-        [self childRemoved:obj wasChild:YES shouldDetach:YES];
-        //            [obj setParent:nil];
-        //        }
-    }];
-	RELEASE_TO_NIL(children);
+    [self releaseChildOnDestroy:children];
+    RELEASE_TO_NIL(children);
 	pthread_rwlock_unlock(&childrenLock);
 	pthread_rwlock_destroy(&childrenLock);
     
     pthread_rwlock_wrlock(&_holdedProxiesLock);
-    [[_holdedProxies allValues] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//        if ([obj respondsToSelector:@selector(makeObjectsPerformSelector:withObject:)]) {
-//            [obj makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
-//        }
-//        else {
-            [self childRemoved:obj wasChild:YES shouldDetach:YES];
-//            [obj setParent:nil];
-//        }
-    }];
+    [self releaseChildOnDestroy:_holdedProxies];
     RELEASE_TO_NIL(_holdedProxies);
     pthread_rwlock_unlock(&_holdedProxiesLock);
     pthread_rwlock_destroy(&_holdedProxiesLock);
     
 	[super _destroy];
+}
+
+
+-(void)releaseChildOnDestroy:(id)child {
+    if (!child) return;
+    if (IS_OF_CLASS(child, NSArray)) {
+        [child enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [self releaseChildOnDestroy:obj];
+        }];
+        return;
+    } else if (IS_OF_CLASS(child, NSDictionary)) {
+        [[child allValues] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [self releaseChildOnDestroy:obj];
+        }];
+        return;
+    }
+    [self childRemoved:child wasChild:YES shouldDetach:YES];
 }
 
 -(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check
