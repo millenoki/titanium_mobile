@@ -473,7 +473,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
             TiBaseActivity activity = windowActivity.get();
             // Fire the open event after setContentView() because getActionBar() need to be called
             // after setContentView(). (TIMOB-14914)
-            activity.getActivityProxy().getDecorView().remove(this);
+            ActivityProxy proxy = activity.getActivityProxy();
+            if (proxy != null) {
+                proxy.getDecorView().remove(this);
+            }
             activity.removeWindowFromStack(this);
             windowActivity = null;
         }
