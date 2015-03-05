@@ -3165,7 +3165,6 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     for (id child in childArray)
     {
         CGRect bounds = [self boundsForMeasureForChild:child];
-        TiRect * childRect = [[TiRect alloc] init];
         CGRect childBounds = CGRectZero;
         
         if(![self absoluteLayout])
@@ -3200,9 +3199,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         else {
             childBounds = bounds;
         }
-        [childRect setRect:childBounds];
-        [measuredBounds addObject:childRect];
-        [childRect release];
+        [measuredBounds addObject:[NSValue valueWithCGRect:childBounds]];
     }
     //If it is a horizontal layout ensure that all the children in a row have the
     //same height for the sandbox
@@ -3222,11 +3219,8 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
                 CGRect usableRect = CGRectMake(0,0,width, bounds.size.height);
                 CGRect result = [self computeChildSandbox:child withBounds:usableRect];
                 maxHeight = MAX(maxHeight, result.size.height);
-                [(TiRect*)[measuredBounds objectAtIndex:i] setRect:result];
+                [measuredBounds replaceObjectAtIndex:i withObject:[NSValue valueWithCGRect:result]];
             }
-//            else {
-//                horizontalLayoutBoundary += [[(TiRect*)[measuredBounds objectAtIndex:i] width] floatValue];
-//            }
         }
     }
     
@@ -3244,11 +3238,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
                 counter += weight;
                 CGRect usableRect = CGRectMake(0,0,bounds.size.width, height);
                 CGRect result = [self computeChildSandbox:child withBounds:usableRect];
-                [(TiRect*)[measuredBounds objectAtIndex:i] setRect:result];
-            }
-//            else {
-//                verticalLayoutBoundary += [[(TiRect*)[measuredBounds objectAtIndex:i] height] floatValue];
-//            }
+                [measuredBounds replaceObjectAtIndex:i withObject:[NSValue valueWithCGRect:result]];
+           }
+
         }
     }
 	if (horizontalNoWrap)
@@ -3256,9 +3248,10 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         int currentLeft = 0;
 		for (i=0; i<count; i++)
 		{
-            [(TiRect*)[measuredBounds objectAtIndex:i] setX:[NSNumber numberWithInt:currentLeft]];
-            currentLeft += [[(TiRect*)[measuredBounds objectAtIndex:i] width] integerValue];
-//			[(TiRect*)[measuredBounds objectAtIndex:i] setHeight:[NSNumber numberWithInt:maxHeight]];
+            CGRect rect = [[measuredBounds objectAtIndex:i] CGRectValue];
+            rect.origin.x = currentLeft;
+            [measuredBounds replaceObjectAtIndex:i withObject:[NSValue valueWithCGRect:rect]];
+            currentLeft += rect.size.width;
 		}
 	}
     else if(vertical && (count > 1) )
@@ -3266,8 +3259,10 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         int currentTop = 0;
 		for (i=0; i<count; i++)
 		{
-            [(TiRect*)[measuredBounds objectAtIndex:i] setY:[NSNumber numberWithInt:currentTop]];
-            currentTop += [[(TiRect*)[measuredBounds objectAtIndex:i] height] integerValue];
+            CGRect rect = [[measuredBounds objectAtIndex:i] CGRectValue];
+            rect.origin.y = currentTop;
+            [measuredBounds replaceObjectAtIndex:i withObject:[NSValue valueWithCGRect:rect]];
+            currentTop += rect.size.height;
 		}
     }
 	else if(horizontal && (count > 1) )
@@ -3276,7 +3271,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         startIndex = endIndex = maxHeight = currentTop = -1;
         for (i=0; i<count; i++)
         {
-            CGRect childSandbox = (CGRect)[(TiRect*)[measuredBounds objectAtIndex:i] rect];
+            CGRect childSandbox = [[measuredBounds objectAtIndex:i] CGRectValue];
             if (startIndex == -1)
             {
                 //FIRST ELEMENT
@@ -3292,7 +3287,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
                     endIndex = i;
                     for (int j=startIndex; j<endIndex; j++)
                     {
-                        [(TiRect*)[measuredBounds objectAtIndex:j] setHeight:[NSNumber numberWithInt:maxHeight]];
+                        CGRect rect = [[measuredBounds objectAtIndex:j] CGRectValue];
+                        rect.size.height = maxHeight;
+                        [measuredBounds replaceObjectAtIndex:j withObject:[NSValue valueWithCGRect:rect]];
                     }
                     startIndex = i;
                     endIndex = -1;
@@ -3311,7 +3308,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             //LAST ROW
             for (i=startIndex; i<count; i++)
             {
-                [(TiRect*)[measuredBounds objectAtIndex:i] setHeight:[NSNumber numberWithInt:maxHeight]];
+                CGRect rect = [[measuredBounds objectAtIndex:i] CGRectValue];
+                rect.size.height = maxHeight;
+                [measuredBounds replaceObjectAtIndex:i withObject:[NSValue valueWithCGRect:rect]];
             }
         }
     }
@@ -3635,7 +3634,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             NSUInteger childIndex;
             for (childIndex = 0; childIndex < childCount; childIndex++) {
                 id child = [childrenArray objectAtIndex:childIndex];
-                CGRect childSandBox = (CGRect)[(TiRect*)[measuredBounds objectAtIndex:childIndex] rect];
+                CGRect childSandBox = [[measuredBounds objectAtIndex:childIndex] CGRectValue];
                 [self layoutChild:child optimize:optimize withMeasuredBounds:childSandBox];
             }
             [measuredBounds release];
