@@ -213,9 +213,9 @@
 		return;
 	}
 
-	if ([ourProxy _hasListeners:@"focus"])
+	if ([ourProxy _hasListeners:@"focus" checkParent:NO])
 	{
-		[ourProxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO];
+		[ourProxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO checkForListener:NO];
 	}
 }
 
@@ -229,9 +229,9 @@
 		return;
 	}
 	
-	if ([ourProxy _hasListeners:@"blur"])
+	if ([ourProxy _hasListeners:@"blur" checkParent:NO])
 	{
-		[ourProxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO];
+		[ourProxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO checkForListener:NO];
 	}
 	
 	// In order to capture gestures properly, we need to force the root view to become the first responder.
