@@ -201,7 +201,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		
 		public void setText(CharSequence sequence)
 		{
-			if(textView != null && textView.fullText.equals(sequence)) return;
+			if(textView != null && textView.fullText != null && textView.fullText.equals(sequence)) return;
 			Transition transition = (transitionDict != null && proxy.viewInitialised())?TransitionHelper.transitionFromObject(transitionDict, null, null):null;
 			if (transition != null) 
 			{
