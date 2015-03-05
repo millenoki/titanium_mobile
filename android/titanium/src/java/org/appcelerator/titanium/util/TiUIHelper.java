@@ -1468,6 +1468,16 @@ public class TiUIHelper
 		parent.addView(view);
 	}
 	
+	public static void addView(ViewGroup parent, TiViewProxy viewProxy) {
+	    TiUIView tiView = viewProxy.getOrCreateView();
+	    if (tiView == null) return;
+        View view = tiView.getOuterView();
+        if (view == null) return;
+        removeViewFromSuperView(view);
+        parent.addView(view, tiView.getLayoutParams());
+    }
+    
+	
 	public static void addView(ViewGroup parent, View view, int index) {
 		removeViewFromSuperView(view);
 		parent.addView(view, index);
