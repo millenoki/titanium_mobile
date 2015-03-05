@@ -339,20 +339,15 @@ NSArray* keySequence;
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
     shouldUpdateNavBar = !noNavBar;
-    id navController = [self navControllerForController:controller];
-    if (navController) {
-        startingNavbarFrame = [navController navigationBar].frame;
-        startingToolbarFrame = [navController toolbar].frame;
-    }
-
+    
     [self setupWindowDecorations:animated];
-	[super viewWillAppear:animated];
+    [super viewWillAppear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
 {
-	[self updateTitleView];
-	[super viewDidAppear:animated];
+    [self updateTitleView];
+    [super viewDidAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
@@ -364,17 +359,21 @@ NSArray* keySequence;
             [UIView beginAnimations:@"navbarAnim" context:NULL];
             [UIView setAnimationBeginsFromCurrentState:YES];
         }
-        
-        [navController navigationBar].frame = startingNavbarFrame;
-        [navController toolbar].frame = startingToolbarFrame;
+        if (![navController navigationBar].hidden) {
+            [navController navigationBar].frame = startingNavbarFrame;
+        }
+        if (![navController toolbar].hidden) {
+            [navController toolbar].frame = startingToolbarFrame;
+        }
         if (animated) {
             [UIView commitAnimations];
         }
     }
     
-
-	[super viewWillDisappear:animated];
+    
+    [super viewWillDisappear:animated];
 }
+
 
 -(void)windowWillOpen
 {
@@ -1251,16 +1250,6 @@ else{\
     SETPROP(@"navTintColor",setNavTintColor);
     SETPROP(@"translucent",setTranslucent);
     SETPROP(@"barStyle",setBarStyle);
-    if (animated) {
-        [UIView beginAnimations:@"navbarAnim" context:NULL];
-        [UIView setAnimationBeginsFromCurrentState:YES];
-    }
-    SETPROP(@"barDeltaY",setBarDeltaY);
-    SETPROP(@"toolbarDeltaY",setToolbarDeltaY);
-    if (animated) {
-        [UIView commitAnimations];
-    }
-    
     SETPROP(@"tabBarHidden",setTabBarHidden);
     SETPROPOBJ(@"toolbar",setToolbar);
     [self updateBarImage];
@@ -1277,6 +1266,22 @@ else{\
             [self showNavBar:properties];
         }
     }
+    
+    if (navController) {
+        startingNavbarFrame = [navController navigationBar].frame;
+        startingToolbarFrame = [navController toolbar].frame;
+    }
+    
+    if (animated) {
+        [UIView beginAnimations:@"navbarAnim" context:NULL];
+        [UIView setAnimationBeginsFromCurrentState:YES];
+    }
+    SETPROP(@"barDeltaY",setBarDeltaY);
+    SETPROP(@"toolbarDeltaY",setToolbarDeltaY);
+    if (animated) {
+        [UIView commitAnimations];
+    }
+    
     _setingUpWindowDecorations = NO;
     if (self.tab) {
         [self.tab windowSetUpDecoration:self animated:animated];
