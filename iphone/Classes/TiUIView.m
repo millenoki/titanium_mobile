@@ -862,7 +862,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     [[[self backgroundWrapperView] layer] insertSublayer:_bgLayer atIndex:0];
     _bgLayer.frame = UIEdgeInsetsInsetRect([[self backgroundWrapperView] layer].bounds, _backgroundPadding);
     _bgLayer.opacity = backgroundOpacity;
-    _bgLayer.opaque = backgroundOpacity == 1.0f;
     _bgLayer.shadowPath = self.layer.shadowPath;
     if (_nonRetina){
         [_bgLayer setNonRetina:_nonRetina];
@@ -899,7 +898,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     }
     _borderLayer.readyToCreateDrawables = configurationSet;
     _borderLayer.opacity = backgroundOpacity;
-    _borderLayer.opaque = backgroundOpacity == 1.0f;
     return _borderLayer;
 }
 
@@ -1181,11 +1179,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
     if (_bgLayer) {
         _bgLayer.opacity = backgroundOpacity;
-        _bgLayer.opaque = backgroundOpacity == 1.0f;
     }
     if (_borderLayer) {
         _borderLayer.opacity = backgroundOpacity;
-        _borderLayer.opaque = backgroundOpacity == 1.0f;
     }
 }
 
