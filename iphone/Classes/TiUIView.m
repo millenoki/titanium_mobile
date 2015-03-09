@@ -862,6 +862,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     [[[self backgroundWrapperView] layer] insertSublayer:_bgLayer atIndex:0];
     _bgLayer.frame = UIEdgeInsetsInsetRect([[self backgroundWrapperView] layer].bounds, _backgroundPadding);
     _bgLayer.opacity = backgroundOpacity;
+    _bgLayer.opaque = backgroundOpacity == 1.0f;
     _bgLayer.shadowPath = self.layer.shadowPath;
     if (_nonRetina){
         [_bgLayer setNonRetina:_nonRetina];
@@ -898,6 +899,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     }
     _borderLayer.readyToCreateDrawables = configurationSet;
     _borderLayer.opacity = backgroundOpacity;
+    _borderLayer.opaque = backgroundOpacity == 1.0f;
     return _borderLayer;
 }
 
@@ -988,13 +990,14 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	{
 		uicolor = [[TiUtils colorValue:color] _color];
 	}
-    if (backgroundOpacity < 1.0f) {
-        const CGFloat* components = CGColorGetComponents(uicolor.CGColor);
-        float alpha = CGColorGetAlpha(uicolor.CGColor) * backgroundOpacity;
-        uicolor = [UIColor colorWithRed:components[0] green:components[1] blue:components[2] alpha:alpha];
-    }
+    
     if (clipChildren || radii == nil)
     {
+        if (backgroundOpacity < 1.0f) {
+            const CGFloat* components = CGColorGetComponents(uicolor.CGColor);
+            float alpha = CGColorGetAlpha(uicolor.CGColor) * backgroundOpacity;
+            uicolor = [uicolor colorWithAlphaComponent:alpha];
+        }
         super.backgroundColor = uicolor;
     }
     else
@@ -1175,14 +1178,14 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setBackgroundOpacity_:(id)opacity
 {
     backgroundOpacity = [TiUtils floatValue:opacity def:1.0f];
-    
-    id value = [proxy valueForKey:@"backgroundColor"];
-    if (value!=nil) {
-        [self setBackgroundColor_:value];
-    }
 
     if (_bgLayer) {
         _bgLayer.opacity = backgroundOpacity;
+        _bgLayer.opaque = backgroundOpacity == 1.0f;
+    }
+    if (_borderLayer) {
+        _borderLayer.opacity = backgroundOpacity;
+        _borderLayer.opaque = backgroundOpacity == 1.0f;
     }
 }
 

@@ -422,7 +422,7 @@ LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeS
 	static NSArray *keySequence = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-		keySequence = [@[@"visible", @"clipChildren"] retain];
+		keySequence = [@[@"visible", @"clipChildren", @"backgroundOpacity"] retain];
 	});
 	return keySequence;
 }
