@@ -1566,6 +1566,7 @@
 }
 -(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
 {
+    
     _rotating = NO;
     for (id<TiWindowProtocol> thisWindow in containedWindows) {
         [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
@@ -1577,7 +1578,12 @@
 - (BOOL)prefersStatusBarHidden
 {
     BOOL oldStatus = statusBarIsHidden;
-    if ([containedWindows count] > 0) {
+    if ([modalWindows count] > 0) {
+        statusBarIsHidden = [[modalWindows lastObject] hidesStatusBar];
+        if ([TiUtils isIOS8OrGreater] && curTransformAngle != 0) {
+            statusBarIsHidden = YES;
+        }
+    } if ([containedWindows count] > 0) {
         statusBarIsHidden = [[containedWindows lastObject] hidesStatusBar];
         if ([TiUtils isIOS8OrGreater] && curTransformAngle != 0) {
             statusBarIsHidden = YES;
