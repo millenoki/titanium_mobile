@@ -92,6 +92,16 @@
     _proxy = nil;
 }
 
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    BOOL statusBarHidden = [self prefersStatusBarHidden];
+    
+    //fixes a bug on ios8 where the statusbar would get hidden on the first landscape orientation change
+    [[UIApplication sharedApplication] setStatusBarHidden:!statusBarHidden withAnimation:UIStatusBarAnimationNone];
+    [[UIApplication sharedApplication] setStatusBarHidden:statusBarHidden withAnimation:UIStatusBarAnimationNone];
+}
+
 #ifdef DEVELOPER
 - (void)viewWillLayoutSubviews
 {
