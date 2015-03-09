@@ -1231,6 +1231,17 @@ else{\
 	
 }
 
+-(void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation
+{
+    id navController = [self navControllerForController:controller];
+    if (navController) {
+//        CGRect frame = [navController navigationBar].frame;
+        startingNavbarFrame.size = [navController navigationBar].frame.size;
+        startingToolbarFrame.size = [navController toolbar].frame.size;
+    }
+    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+}
+
 -(void)setupWindowDecorations:(BOOL)animated
 {
     id navController = [self navControllerForController:controller];
@@ -1267,10 +1278,7 @@ else{\
         }
     }
     
-    if (navController) {
-        startingNavbarFrame = [navController navigationBar].frame;
-        startingToolbarFrame = [navController toolbar].frame;
-    }
+    
     
     if (animated) {
         [UIView beginAnimations:@"navbarAnim" context:NULL];

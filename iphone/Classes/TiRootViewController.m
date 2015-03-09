@@ -1628,7 +1628,29 @@
     if (viewControllerControlsStatusBar) {
         [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
     } else {
-        [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:style];
+        BOOL oldValue = [[UIApplication sharedApplication] isStatusBarHidden];
+        BOOL newValue = [self prefersStatusBarHidden];
+        if (oldValue != newValue) {
+            if (animated) {
+                [UIView beginAnimations:@"navbarAnim" context:NULL];
+                [UIView setAnimationBeginsFromCurrentState:YES];
+            }
+            UIViewController* topController = [self topWindow].controller;
+            CGFloat newY = newValue?0:20;
+            CGRect navFrame = topController.navigationController.navigationBar.frame;
+            CGFloat realDelta = newY - navFrame.origin.y;
+            navFrame.origin.y += realDelta;
+            topController.navigationController.navigationBar.frame = navFrame;
+            CGRect viewFrame = topController.view.frame;
+            viewFrame.origin.y += realDelta;
+            viewFrame.size.height -= realDelta;
+            topController.view.frame = viewFrame;
+            [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:style];
+            if (animated) {
+                [UIView commitAnimations];
+            }
+            
+        }
         [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:animated];
         [self resizeView];
     }
