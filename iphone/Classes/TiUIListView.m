@@ -2048,6 +2048,7 @@ static NSDictionary* replaceKeysForRow;
 {
 	// resume image loader when we're done scrolling
 	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
+    [self fireScrollEvent:scrollView];
 	if ([(TiViewProxy*)self.proxy _hasListeners:@"scrollend" checkParent:NO])
 	{
 		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView] propagate:NO checkForListener:NO];
