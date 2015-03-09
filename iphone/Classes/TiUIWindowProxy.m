@@ -1276,6 +1276,16 @@ else{\
         [UIView beginAnimations:@"navbarAnim" context:NULL];
         [UIView setAnimationBeginsFromCurrentState:YES];
     }
+    
+    if (isModal || self.isManaged) {
+        [(TiRootViewController*)[[TiApp app] controller] updateStatusBar:animated];
+    }
+    
+    if (navController) {
+        startingNavbarFrame = [navController navigationBar].frame;
+        startingToolbarFrame = [navController toolbar].frame;
+    }
+    
     SETPROP(@"barDeltaY",setBarDeltaY);
     SETPROP(@"toolbarDeltaY",setToolbarDeltaY);
     if (animated) {
