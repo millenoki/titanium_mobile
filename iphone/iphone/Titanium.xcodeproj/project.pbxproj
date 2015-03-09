@@ -6651,15 +6651,6 @@
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/lib,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
 				);
-				"OTHER_LDFLAGS[sdk=iphoneos*]" = (
-					"$(inherited)",
-					"-weak_framework",
-					iAd,
-					"-weak_framework",
-					CoreMedia,
-					"-weak_framework",
-					CoreVideo,
-				);
 				PRODUCT_NAME = Titanium;
 				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = 1;
