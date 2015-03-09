@@ -1499,7 +1499,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
 +(CGRect)appFrame
 {
 	CGRect result = [[UIScreen mainScreen] bounds];
-
+    if ([TiUtils isIOS8OrGreater]) {
+        return result;
+    }
 	switch ([[UIApplication sharedApplication] statusBarOrientation])
 	{
 		case UIInterfaceOrientationLandscapeLeft:
