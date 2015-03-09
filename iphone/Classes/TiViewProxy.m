@@ -44,6 +44,7 @@
 	unsigned int animationDelayGuard;
     BOOL _transitioning;
     id _pendingTransition;
+    BOOL needsFocusOnAttach;
 }
 @end
 
@@ -1363,8 +1364,8 @@ SEL GetterForKrollProperty(NSString * key)
     [self setSandboxBounds:bounds];
     [self parentWillShow];
     [self windowWillOpen];
-    [self windowDidOpen];
     TiUIView* tiview = [self getOrCreateView];
+    [self windowDidOpen];
     return tiview;
 }
 
@@ -1375,8 +1376,8 @@ SEL GetterForKrollProperty(NSString * key)
     [self determineSandboxBoundsForce];
     [self parentWillShow];
     [self windowWillOpen];
-    [self windowDidOpen];
     TiUIView* tiview = [self getOrCreateView];
+    [self windowDidOpen];
     return tiview;
 }
 
@@ -1454,7 +1455,7 @@ SEL GetterForKrollProperty(NSString * key)
             [self handlePendingAnimation];
         }
         
-        if (windowOpening) {
+        if (windowOpening || windowOpened) {
             [self viewDidAttach];
         }
 	}
@@ -1690,6 +1691,10 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)viewDidAttach
 {
+    if (needsFocusOnAttach) {
+        [self focus:nil];
+        needsFocusOnAttach = NO;
+    }
 	// for subclasses
 }
 
@@ -1822,6 +1827,7 @@ SEL GetterForKrollProperty(NSString * key)
         vzIndex = 0;
         instantUpdates = NO;
         _canBeResizedByFrame = NO;
+        needsFocusOnAttach = NO;
 	}
 	return self;
 }
@@ -3735,7 +3741,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	if ([self viewAttached])
 	{
 		[[self view] becomeFirstResponder];
-	}
+    } else {
+        needsFocusOnAttach = YES;
+    }
 }
 
 - (BOOL)focused:(id)unused
