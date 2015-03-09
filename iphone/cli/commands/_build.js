@@ -2842,6 +2842,7 @@ iOSBuilder.prototype.populateIosFiles = function populateIosFiles(next) {
 		// add the modules to the xcconfig file
 		this.modules.forEach(function (m) {
 			var moduleId = m.manifest.moduleid.toLowerCase(),
+				modulePath = m.modulePath,
 				moduleName = m.manifest.name.toLowerCase(),
 				prefix = m.manifest.moduleid.toUpperCase().replace(/\./g, '_');
 
@@ -2854,7 +2855,7 @@ iOSBuilder.prototype.populateIosFiles = function populateIosFiles(next) {
 						var name = (prefix + '_' + key).replace(/[^\w]/g, '_');
 						variables[key] || (variables[key] = []);
 						variables[key].push(name);
-						xcconfigContents.push((name + '=' + xc[key]).replace(new RegExp('\$\(' + key + '\)', 'g'), '$(' + name + ')'));
+						xcconfigContents.push((name + '=' + xc[key]).replace(new RegExp('\$\(' + key + '\)', 'g'), '$(' + name + ')').replace('$(SRCROOT)', modulePath));
 					});
 				}
 			});
