@@ -1090,7 +1090,7 @@ DEFINE_EXCEPTIONS
         } else if ([self.proxy valueForKey:@"animatedImages"]) {
             [self setAnimatedImages_:[self.proxy valueForKey:@"animatedImages"]];
         }
-    } else {
+    } else if (![self.proxy valueForKey:@"image"]) {
         [self loadDefaultImage];
     }
 }

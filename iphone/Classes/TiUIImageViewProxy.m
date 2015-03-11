@@ -368,14 +368,14 @@ static NSArray* imageKeySequence;
 
 - (void)prepareForReuse
 {
-    [(TiUIImageView *)[self view] setReusing:YES];
+    [(TiUIImageView *)view setReusing:YES];
     [super prepareForReuse];
 }
 
 
 - (void)configurationSet:(BOOL)recursive
 {
-    [(TiUIImageView *)[self view] setReusing:NO];
+    [(TiUIImageView *)view setReusing:NO];
     [super configurationSet:recursive];
 }
 
