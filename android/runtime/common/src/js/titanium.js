@@ -65,10 +65,19 @@ bootstrap.defineLazyBinding(Titanium, "API")
 // Ti.Android.currentActivity, and others are implemented.
 function TitaniumWrapper(context) {
 	var sourceUrl = this.sourceUrl = context.sourceUrl;
+	
 
 	// The "context" specific global object
 	this.global = context.global;
 	var self = this;
+
+	{
+		var value = sourceUrl.replace("app://", "");
+		var splitValue = value.split('/');
+		if (splitValue.length > 1 || stringEndsWith(value, '.js')) 
+			value = splitValue.slice(0, -1).join('/');
+		this.resourcesRelativePath = value;
+	}
 
 	// Special version of include to handle relative paths based on sourceUrl.
 	this.include = function() {
@@ -94,16 +103,11 @@ function TitaniumWrapper(context) {
 	this.Android = new AndroidWrapper(context);
 	this.UI = new UIWrapper(context, this.Android);
 
-	Object.defineProperty(this, "resourcesRelativePath", {
-		get: function() {
-
-			var value = context.sourceUrl.replace("app://", "");
-			var splitValue = value.split('/');
-			if (splitValue.length > 1 || stringEndsWith(value, '.js')) 
-				value = value.split('/').slice(0, -1).join('/');
-			return value;
-		}
-	});
+	// Object.defineProperty(this, "resourcesRelativePath", {
+	// 	get: function() {
+	// 		return self.resourcesRelativePath;
+	// 	}
+	// });
 
 	var scopeVars = new kroll.ScopeVars({
 		sourceUrl: sourceUrl,
