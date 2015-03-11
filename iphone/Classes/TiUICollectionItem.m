@@ -122,6 +122,10 @@ static NSArray* handledKeys;
 	return [self isSelected] || [self isHighlighted];
 }
 
+-(BOOL)isUserInteractionEnabled {
+    return _viewHolder.userInteractionEnabled;
+}
+
 -(void)unHighlight:(NSArray*)views
 {
     for (UIView *subview in views) {
