@@ -179,6 +179,9 @@
                     UIFont* theFont = [UIFont boldSystemFontOfSize:self.size];
                     if (self.isItalicStyle) {
                         NSString* fontFamily = [theFont familyName];
+                        if ([fontFamily isEqualToString:@".Helvetica Neue Interface"]) {
+                            fontFamily = @"Helvetica Neue";
+                        }
                         NSArray* fontNames = [UIFont fontNamesForFamilyName:fontFamily];
                         NSString* foundFontName = nil;
                         for (NSString* name in fontNames) {
