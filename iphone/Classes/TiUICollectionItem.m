@@ -123,7 +123,10 @@ static NSArray* handledKeys;
 }
 
 -(BOOL)isUserInteractionEnabled {
-    return _viewHolder.userInteractionEnabled;
+    if (_viewHolder) {
+        return _viewHolder.userInteractionEnabled;
+    }
+    return super.userInteractionEnabled;
 }
 
 -(void)unHighlight:(NSArray*)views
