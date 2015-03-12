@@ -1628,7 +1628,7 @@
     if (viewControllerControlsStatusBar) {
         [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
     } else {
-        BOOL oldValue = [[UIApplication sharedApplication] isStatusBarHidden];
+        BOOL oldValue = statusBarIsHidden;;
         BOOL newValue = [self prefersStatusBarHidden];
         if (oldValue != newValue) {
             if (animated) {
@@ -1645,7 +1645,7 @@
             viewFrame.origin.y += realDelta;
             viewFrame.size.height -= realDelta;
             topController.view.frame = viewFrame;
-            [[UIApplication sharedApplication] setStatusBarHidden:[self prefersStatusBarHidden] withAnimation:style];
+            [[UIApplication sharedApplication] setStatusBarHidden:newValue withAnimation:style];
             if (animated) {
                 [UIView commitAnimations];
             }
