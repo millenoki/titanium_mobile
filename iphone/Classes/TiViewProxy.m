@@ -26,6 +26,7 @@
 #import <pthread.h>
 #import "TiViewController.h"
 #import "TiWindowProxy.h"
+#import "TiDraggableGesture.h"
 
 
 @interface TiFakeAnimation : TiViewAnimationStep
@@ -45,6 +46,7 @@
     BOOL _transitioning;
     id _pendingTransition;
     BOOL needsFocusOnAttach;
+    TiDraggableGesture* _dragGesture;
 }
 @end
 
@@ -589,6 +591,19 @@ SEL GetterForKrollProperty(NSString * key)
     if ([value respondsToSelector:@selector(intValue)]) {
         [self setVzIndex:[TiUtils intValue:value]];
         [self replaceValue:value forKey:@"zindex_" notification:NO];
+    }
+}
+
+-(void)setDraggable:(id)value
+{
+    if (value) {
+        if (!_dragGesture) {
+            _dragGesture = [[TiDraggableGesture alloc] initWithProxy:self andOptions:value];
+        } else {
+            [_dragGesture setConfig:value];
+        }
+    } else {
+        RELEASE_TO_NIL(_dragGesture)
     }
 }
 
@@ -1937,6 +1952,7 @@ SEL GetterForKrollProperty(NSString * key)
         controller = nil;
     }
 	RELEASE_TO_NIL(destroyLock);
+    RELEASE_TO_NIL(_dragGesture)
 	
 	
 	[super dealloc];
@@ -3909,5 +3925,6 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 {
     return !hidden && [[self view] interactionEnabled];
 }
+
 
 @end

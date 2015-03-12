@@ -598,7 +598,6 @@
 		D50FDC0A1A446A2700D962C9 /* AudioModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D50FDC091A446A2700D962C9 /* AudioModule.m */; };
 		D50FDC0B1A446A2700D962C9 /* AudioModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D50FDC091A446A2700D962C9 /* AudioModule.m */; };
 		D50FDC0C1A446A2700D962C9 /* AudioModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D50FDC091A446A2700D962C9 /* AudioModule.m */; };
-		D50FDC191A44785C00D962C9 /* libakylas.admob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D50FDC121A4475A900D962C9 /* libakylas.admob.a */; };
 		D512A7AD187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D512A7A8187F1813004E3AB1 /* ADNavigationControllerDelegate.m */; };
 		D512A7AE187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D512A7A8187F1813004E3AB1 /* ADNavigationControllerDelegate.m */; };
 		D512A7AF187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D512A7A8187F1813004E3AB1 /* ADNavigationControllerDelegate.m */; };
@@ -653,6 +652,9 @@
 		D521693F183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */ = {isa = PBXBuildFile; fileRef = D521693B183A598500FBB24B /* TiTransitionAnimationStep.m */; };
 		D5216940183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */ = {isa = PBXBuildFile; fileRef = D521693B183A598500FBB24B /* TiTransitionAnimationStep.m */; };
 		D5216941183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */ = {isa = PBXBuildFile; fileRef = D521693B183A598500FBB24B /* TiTransitionAnimationStep.m */; };
+		D522F30F1AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */; };
+		D522F3101AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */; };
+		D522F3111AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */; };
 		D522FE0D16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = D522FE0C16D2AC8D008C6CC4 /* JRSwizzle.m */; };
 		D522FE0E16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = D522FE0C16D2AC8D008C6CC4 /* JRSwizzle.m */; };
 		D522FE0F16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = D522FE0C16D2AC8D008C6CC4 /* JRSwizzle.m */; };
@@ -1420,20 +1422,6 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
-		D50FDC111A4475A900D962C9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D50FDC0D1A4475A900D962C9 /* akylas.admob.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = ti.akylas.admob;
-		};
-		D50FDC131A44769B00D962C9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D50FDC0D1A4475A900D962C9 /* akylas.admob.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.admob;
-		};
 		D57E7F6D195AB34D00C17ADE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */;
@@ -2232,7 +2220,6 @@
 		D50E112F1A223AC5008FD092 /* TiUICollectionViewFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUICollectionViewFlowLayout.m; sourceTree = "<group>"; };
 		D50FDC081A446A2700D962C9 /* AudioModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioModule.h; sourceTree = "<group>"; };
 		D50FDC091A446A2700D962C9 /* AudioModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioModule.m; sourceTree = "<group>"; };
-		D50FDC0D1A4475A900D962C9 /* akylas.admob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.admob.xcodeproj; path = ../../../modules/akylas_modules/admob/ios/akylas.admob.xcodeproj; sourceTree = "<group>"; };
 		D512A7A7187F1813004E3AB1 /* ADNavigationControllerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADNavigationControllerDelegate.h; path = ../Classes/ADTransitionController/ADNavigationControllerDelegate.h; sourceTree = "<group>"; };
 		D512A7A8187F1813004E3AB1 /* ADNavigationControllerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADNavigationControllerDelegate.m; path = ../Classes/ADTransitionController/ADNavigationControllerDelegate.m; sourceTree = "<group>"; };
 		D512A7A9187F1813004E3AB1 /* ADTransitioningDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADTransitioningDelegate.h; path = ../Classes/ADTransitionController/ADTransitioningDelegate.h; sourceTree = "<group>"; };
@@ -2281,6 +2268,8 @@
 		D5216939183A598500FBB24B /* TiTransitionAnimation+Friend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TiTransitionAnimation+Friend.h"; path = "Animation/TiTransitionAnimation+Friend.h"; sourceTree = "<group>"; };
 		D521693A183A598500FBB24B /* TiTransitionAnimationStep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiTransitionAnimationStep.h; path = Animation/TiTransitionAnimationStep.h; sourceTree = "<group>"; };
 		D521693B183A598500FBB24B /* TiTransitionAnimationStep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiTransitionAnimationStep.m; path = Animation/TiTransitionAnimationStep.m; sourceTree = "<group>"; };
+		D522F30D1AB1E21F00B0D678 /* TiDraggableGesture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDraggableGesture.h; sourceTree = "<group>"; };
+		D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDraggableGesture.m; sourceTree = "<group>"; };
 		D522FE0B16D2AC8D008C6CC4 /* JRSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JRSwizzle.h; path = ../Classes/JRSwizzle/JRSwizzle.h; sourceTree = "<group>"; };
 		D522FE0C16D2AC8D008C6CC4 /* JRSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JRSwizzle.m; path = ../Classes/JRSwizzle/JRSwizzle.m; sourceTree = "<group>"; };
 		D525399E183A8787006FF1BB /* libCoconutKitAnimation.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCoconutKitAnimation.a; path = ../libexternals/libCoconutKitAnimation.a; sourceTree = "<group>"; };
@@ -2710,7 +2699,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D50FDC191A44785C00D962C9 /* libakylas.admob.a in Frameworks */,
 				D57E7F74195AB92800C17ADE /* libakylas.location.a in Frameworks */,
 				D58ED9081928F49F00BA0E04 /* libakylas.map.a in Frameworks */,
 				D58ED9071928F49F00BA0E04 /* libakylas.commonjs.a in Frameworks */,
@@ -3157,6 +3145,8 @@
 				D5E897B018A3FA0B00E565E1 /* NSDictionary+Merge.m */,
 				D5B04533191D2EC4001CF02F /* TiFileSystemHelper.h */,
 				D5B04534191D2EC4001CF02F /* TiFileSystemHelper.m */,
+				D522F30D1AB1E21F00B0D678 /* TiDraggableGesture.h */,
+				D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -4365,14 +4355,6 @@
 			name = Audio;
 			sourceTree = "<group>";
 		};
-		D50FDC0E1A4475A900D962C9 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D50FDC121A4475A900D962C9 /* libakylas.admob.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		D5162E8E1A20D1E2008A4048 /* CollectionView */ = {
 			isa = PBXGroup;
 			children = (
@@ -4549,7 +4531,6 @@
 				D5E75A6E187C58F00016542B /* icon.png */,
 				D5E75A7A187C59060016542B /* icon_120@2x.png */,
 				D5E75A70187C58F00016542B /* icon@2x.png */,
-				D50FDC0D1A4475A900D962C9 /* akylas.admob.xcodeproj */,
 				D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */,
 				D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */,
 				D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */,
@@ -4992,7 +4973,6 @@
 				D56915C5168F19E800C3F89F /* PBXBuildRule */,
 			);
 			dependencies = (
-				D50FDC141A44769B00D962C9 /* PBXTargetDependency */,
 				D57E7F73195AB91D00C17ADE /* PBXTargetDependency */,
 				D59A20C6194AF3D300BC5B93 /* PBXTargetDependency */,
 				D58ED9051928F49600BA0E04 /* PBXTargetDependency */,
@@ -5078,10 +5058,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = D50FDC0E1A4475A900D962C9 /* Products */;
-					ProjectRef = D50FDC0D1A4475A900D962C9 /* akylas.admob.xcodeproj */;
-				},
-				{
 					ProductGroup = D59A20BA194AF3C800BC5B93 /* Products */;
 					ProjectRef = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
 				},
@@ -5116,13 +5092,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		D50FDC121A4475A900D962C9 /* libakylas.admob.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libakylas.admob.a;
-			remoteRef = D50FDC111A4475A900D962C9 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		D57E7F6E195AB34D00C17ADE /* libakylas.location.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -5519,6 +5488,7 @@
 				D521693F183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
 				24A1EAF8112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
 				D5C5EC291863584100357DE4 /* TiUILabel.m in Sources */,
+				D522F30F1AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */,
 				245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */,
 				245B45641139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
 				24C0128C1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */,
@@ -6107,6 +6077,7 @@
 				D56E66A9180C664400F1B737 /* TiTransitionFade.m in Sources */,
 				D5EEA14D1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */,
 				D5C8C97D17EF45C900F54C19 /* ADFoldTransition.m in Sources */,
+				D522F3101AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */,
 				D5C8C99217EF45C900F54C19 /* ADSwipeFadeTransition.m in Sources */,
 				D5C8C9A917EF5E6D00F54C19 /* TiUITransitionStyleProxy.m in Sources */,
 				D59EC23E180FDC5D00FDDD11 /* TiTransitionFold.m in Sources */,
@@ -6527,6 +6498,7 @@
 				D5C8C98A17EF45C900F54C19 /* ADScaleTransition.m in Sources */,
 				D5EEA14E1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */,
 				D56E66AA180C664400F1B737 /* TiTransitionFade.m in Sources */,
+				D522F3111AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */,
 				D5C8C97E17EF45C900F54C19 /* ADFoldTransition.m in Sources */,
 				D5C8C99317EF45C900F54C19 /* ADSwipeFadeTransition.m in Sources */,
 				D5C8C9AA17EF5E6D00F54C19 /* TiUITransitionStyleProxy.m in Sources */,
@@ -6550,11 +6522,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		D50FDC141A44769B00D962C9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = akylas.admob;
-			targetProxy = D50FDC131A44769B00D962C9 /* PBXContainerItemProxy */;
-		};
 		D57E7F73195AB91D00C17ADE /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = akylas.location;
