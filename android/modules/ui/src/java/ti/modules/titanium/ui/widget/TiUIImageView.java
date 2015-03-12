@@ -904,6 +904,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             // here we can transition to the default image
             setDefaultImage(proxy.viewInitialised());
             currentRef = null;
+            loadingRef = null;
             return;
         }
 
@@ -1277,8 +1278,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     @Override
     public void onBitmapFailed(Drawable errorDrawable) {
-        fireError("Download Failed", loadingRef.getUrl());
-        loadingRef = null;
+        if (loadingRef != null) {
+            fireError("Download Failed", loadingRef.getUrl());
+            loadingRef = null;
+        }        
     }
 
     @Override
