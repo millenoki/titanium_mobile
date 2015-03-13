@@ -28,6 +28,7 @@
 {
     if (self = [super init]) {
         _adTransition = [[[self adTransitionClass] alloc] initWithDuration:duration orientation:_orientation sourceRect:sourceRect reversed:reversed];
+        self.duration = duration;
     }
     return self;
 }
