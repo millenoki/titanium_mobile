@@ -1378,12 +1378,14 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 
 	@Override
 	public void release() {
-		for (int i = 0; i < sections.size(); i++) {
-			sections.get(i).release();
-		}
-		
-		templatesByBinding.clear();
-		sections.clear();
+        synchronized (sections) {
+    		for (int i = 0; i < sections.size(); i++) {
+    			sections.get(i).release();
+    		}
+    		
+    		sections.clear();
+        }
+        templatesByBinding.clear();
 		
 		if (handledProxies != null) {
 		    for (TiViewProxy viewProxy : handledProxies) {
