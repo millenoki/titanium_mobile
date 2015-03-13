@@ -751,35 +751,36 @@ public abstract class TiUIView
             return;
         } else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
             TiBorderWrapperView view = getOrCreateBorderView();
-            TiBackgroundDrawable borderDrawable = view.getBorderDrawable();
+//            TiBackgroundDrawable borderDrawable = view.getBorderDrawable();
             switch (key) {
             case TiC.PROPERTY_BORDER_COLOR:
             {
                 int color = TiConvert.toColor(newValue);
-                borderDrawable.setDefaultColor(color);
-                borderDrawable.setColorForState(TiUIHelper.BACKGROUND_DEFAULT_STATE_1,
-                        color);
-                borderDrawable.setColorForState(TiUIHelper.BACKGROUND_DEFAULT_STATE_2,
-                        color);
+                view.setColor(color);
+//                borderDrawable.setDefaultColor(color);
+//                borderDrawable.setColorForState(TiUIHelper.BACKGROUND_DEFAULT_STATE_1,
+//                        color);
+//                borderDrawable.setColorForState(TiUIHelper.BACKGROUND_DEFAULT_STATE_2,
+//                        color);
                 break;
             }
             case TiC.PROPERTY_BORDER_SELECTED_COLOR:
             {
-                borderDrawable.setColorForState(
+                view.setColorForState(
                         TiUIHelper.BACKGROUND_SELECTED_STATE,
                         TiConvert.toColor(newValue));
                 break;
             }
             case TiC.PROPERTY_BORDER_FOCUSED_COLOR:
             {
-                borderDrawable.setColorForState(
+                view.setColorForState(
                         TiUIHelper.BACKGROUND_FOCUSED_STATE,
                         TiConvert.toColor(newValue));
                 break;
             }
             case TiC.PROPERTY_BORDER_DISABLED_COLOR:
             {
-                borderDrawable.setColorForState(
+                view.setColorForState(
                         TiUIHelper.BACKGROUND_DISABLED_STATE,
                         TiConvert.toColor(newValue));
                 break;
@@ -788,7 +789,7 @@ public abstract class TiUIView
             {
                 Drawable drawable = TiUIHelper.buildGradientDrawable(TiConvert
                         .toKrollDict(newValue));
-                borderDrawable.setGradientDrawableForState(
+                view.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_SELECTED_STATE, drawable);
                 break;
             }
@@ -796,7 +797,7 @@ public abstract class TiUIView
             {
                 Drawable drawable = TiUIHelper.buildGradientDrawable(TiConvert
                         .toKrollDict(newValue));
-                borderDrawable.setGradientDrawableForState(
+                view.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_FOCUSED_STATE, drawable);
                 break;
             }
@@ -804,7 +805,7 @@ public abstract class TiUIView
             {
                 Drawable drawable = TiUIHelper.buildGradientDrawable(TiConvert
                         .toKrollDict(newValue));
-                borderDrawable.setGradientDrawableForState(
+                view.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_DISABLED_STATE, drawable);
                 break;
             }
@@ -812,9 +813,9 @@ public abstract class TiUIView
             {
                 Drawable drawable = TiUIHelper.buildGradientDrawable(TiConvert
                         .toKrollDict(newValue));
-                borderDrawable.setGradientDrawableForState(
+                view.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_DEFAULT_STATE_1, drawable);
-                borderDrawable.setGradientDrawableForState(
+                view.setGradientDrawableForState(
                         TiUIHelper.BACKGROUND_DEFAULT_STATE_2, drawable);
                 break;
             }
