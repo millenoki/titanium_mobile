@@ -2564,7 +2564,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return [result autorelease];
 }
 
-+(void)applyMathDict:(NSDictionary*)mathDict forEvent:(NSDictionary*)event
++(void)applyMathDict:(NSDictionary*)mathDict forEvent:(NSDictionary*)event fromProxy:(TiProxy*)proxy
 {
     NSMutableDictionary* variables = nil;
     NSMutableDictionary* expressions = nil;
@@ -2585,6 +2585,8 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
             [expressions setObject:[eval evaluateString:obj withSubstitutions:variables] forKey:key];
             
         }];
+    } else {
+        expressions = variables;
     }
     
     NSArray* targets = [mathDict objectForKey:@"targets"];
@@ -2592,6 +2594,13 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     if (targets) {
         for (NSDictionary* targetDict in targets) {
             id target = [targetDict valueForKey:@"target"];
+            
+            if (!target) {
+                target = proxy;
+            } else if (IS_OF_CLASS(target, NSString)) {
+                target = [proxy valueForKey:target];
+            }
+            if (!target) continue;
             NSDictionary* props = [targetDict valueForKey:@"properties"];
             NSDictionary* targetVariables = [targetDict valueForKey:@"targetVariables"];
             NSMutableDictionary* targetVariablesComputed = nil;
@@ -2621,7 +2630,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
                     [realProps setValue:[TiUtils replacingStringsIn:obj fromDictionary:toUse withPrefix:@"_"] forKey:key];
                 }
             }];
-            [target setValuesForKeysWithDictionary:realProps];
+            [target applyProperties:realProps];
         }
     }
 }

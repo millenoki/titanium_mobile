@@ -123,15 +123,6 @@
     return [result autorelease];
 }
 
--(void)parseMathDict:(id)args
-{
-    NSDictionary* parameters = nil;
-    NSDictionary* eventtest = nil;
-    ENSURE_ARG_AT_INDEX(parameters, args, 0, NSDictionary);
-    ENSURE_ARG_AT_INDEX(eventtest, args, 1, NSDictionary);
-    [TiUtils applyMathDict:parameters forEvent:eventtest];
-}
-
 @end
 
 #endif
