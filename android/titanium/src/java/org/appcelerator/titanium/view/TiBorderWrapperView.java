@@ -17,6 +17,7 @@ import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.Path.FillType;
+import android.graphics.drawable.Drawable;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.MotionEvent;
@@ -35,7 +36,7 @@ public class TiBorderWrapperView extends MaskableView
 
 //	private int color = Color.TRANSPARENT;
 	private float[] radius = null;
-	private float borderWidth = 0;
+	private float borderWidth = -1;
 	private int alpha = -1;
 	private RectF clipRect;
 	private Path clipPath;
@@ -68,15 +69,15 @@ public class TiBorderWrapperView extends MaskableView
 					return false;
 				}
 			};
-			if (this.borderWidth == 0) {
-				this.borderWidth = TiUIHelper.getRawSize(1, null);
-			}
-			mDrawable = new TiBackgroundDrawable();
+//			if (this.borderWidth == -1) {
+//				this.borderWidth = TiUIHelper.getRawSize(1, null);
+//			}
+			mDrawable = new TiBackgroundDrawable(true);
 			if (alpha < 1.0)
 				mDrawable.setAlpha(Math.round(alpha * 255));
 			if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_REPEAT))
 				mDrawable.setImageRepeat(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_BACKGROUND_REPEAT)));
-			mDrawable.setRadiusWidth(radius, borderWidth);
+			mDrawable.setRadius(radius);
 			mDrawable.setPadding(mBorderPadding);
 			
 //			mDrawableSizeChanged = true;
@@ -244,6 +245,16 @@ public class TiBorderWrapperView extends MaskableView
         	borderDrawableHoldingView.bringToFront();
         }
     }
+	
+	private void onColorSet() {
+	    if (this.borderWidth == -1) {
+            this.borderWidth = TiUIHelper.getRawSize(1, null);
+            if (mDrawable != null) 
+            {
+                mDrawable.setPathWidth(borderWidth);
+            }
+	    }
+	}
 
 	public void setColor(int color)
 	{
@@ -251,16 +262,30 @@ public class TiBorderWrapperView extends MaskableView
 		bgdDrawable.setDefaultColor(color);
 		bgdDrawable.setColorForState(TiUIHelper.BACKGROUND_DEFAULT_STATE_1, color);
 		bgdDrawable.setColorForState(TiUIHelper.BACKGROUND_DEFAULT_STATE_2, color);
-//		this.color = color;
-		if (this.borderWidth == 0) {
-			this.borderWidth = TiUIHelper.getRawSize(1, null);
-			if (mDrawable != null) 
-			{
-				mDrawable.setPathWidth(borderWidth);
-			}
-		}
+		onColorSet();
 		postInvalidate();
 	}
+	
+	public void setColorForState(int[] stateSet, int color)
+    {
+	    getOrCreateDrawable().setColorForState(stateSet, color);
+        onColorSet();
+        postInvalidate();
+    }
+	
+	public void setImageDrawableForState(int[] stateSet, Drawable drawable)
+    {
+	    getOrCreateDrawable().setImageDrawableForState(stateSet, drawable);
+        onColorSet();
+        postInvalidate();
+    }
+    
+    public void setGradientDrawableForState(int[] stateSet, Drawable drawable)
+    {
+        getOrCreateDrawable().setGradientDrawableForState(stateSet, drawable);
+        onColorSet();
+        postInvalidate();
+    }
 
 	public void setRadius(float[] radius)
 	{

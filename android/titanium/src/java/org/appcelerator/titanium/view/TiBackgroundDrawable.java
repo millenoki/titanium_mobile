@@ -39,16 +39,23 @@ public class TiBackgroundDrawable extends Drawable {
 	private float pathWidth = 0;
 	private RectF mPadding;
 	private Paint paint = new Paint();
+	private final boolean isBorder;
 	
 
 	public TiBackgroundDrawable()
 	{
-		currentDrawable = null;
-		mPadding = null;
-		mStateSets = new SparseArray<int[]>();
-		drawables = new SparseArray<OneStateDrawable>();
-//		innerRect = new RectF();
+        this(false);
 	}
+	
+	public TiBackgroundDrawable(final boolean isBorder)
+    {
+        this.isBorder = isBorder;
+        currentDrawable = null;
+        mPadding = null;
+        mStateSets = new SparseArray<int[]>();
+        drawables = new SparseArray<OneStateDrawable>();
+//      innerRect = new RectF();
+    }
 	
 	private int keyOfStateSet(int[] stateSet) {
 		int length = mStateSets.size();
@@ -129,8 +136,8 @@ public class TiBackgroundDrawable extends Drawable {
 		path = null;
 		RectF outerRect = TiUIHelper.insetRect(boundsF, mPadding);
 		if (radius != null) {
-			path = new Path();
-			path.setFillType(FillType.EVEN_ODD);
+		    path = new Path();
+            path.setFillType(FillType.EVEN_ODD);
 			if (pathWidth > 0) {
 				path.addRoundRect(outerRect, radius, Direction.CW);
 				float padding = 0;
@@ -141,15 +148,18 @@ public class TiBackgroundDrawable extends Drawable {
 				innerRect.set(outerRect.left + padding, outerRect.top + padding, outerRect.right - padding, outerRect.bottom - padding);
 				path.addRoundRect(innerRect, innerRadiusFromPadding(outerRect, padding), Direction.CCW);
 			}
-			else {
+			else if (!isBorder){
+                
 				//adjustment not see background under border because of antialias
 				path.addRoundRect(TiUIHelper.insetRect(outerRect, 0.3f), radius, Direction.CW);
 			}
 		}
 		else {
+		    if (isBorder || pathWidth > 0) {
+		        path = new Path();
+                path.setFillType(FillType.EVEN_ODD);
+		    }
 			if (pathWidth > 0) {
-				path = new Path();
-				path.setFillType(FillType.EVEN_ODD);
 				path.addRect(outerRect, Direction.CW);
 				int padding = 0;
 				int maxPadding = 0;
