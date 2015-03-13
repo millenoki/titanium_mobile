@@ -183,11 +183,5 @@ public class UtilsModule extends KrollModule
 	{
 		return "Ti.Utils";
 	}
-	
-	@Kroll.method
-    public void parseMathDict(HashMap parameters, HashMap eventtest)
-	{
-	    TiUIHelper.applyMathDict(TiConvert.toKrollDict(parameters), TiConvert.toKrollDict(eventtest));
-	}
 
 }

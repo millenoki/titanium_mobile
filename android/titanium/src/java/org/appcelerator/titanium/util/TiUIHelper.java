@@ -1574,7 +1574,7 @@ public class TiUIHelper
 	}
 
     private static final char VAR_PREFIX = '_';
-    public static void applyMathDict(KrollDict mathDict, KrollDict event) {
+    public static void applyMathDict(KrollDict mathDict, KrollDict event, final KrollProxy source) {
         if (event == null) return;
         KrollDict expressions = new KrollDict();
 	    
@@ -1619,7 +1619,27 @@ public class TiUIHelper
 	            HashMap<String, Object> targetDict = TiConvert.toHashMap(obj);
                 if (targetDict != null) {
                     Object target = targetDict.get("target");
+                    if (target == null) {
+                        target = source;
+                    } else if(target instanceof String) {
+                        target = source.getProperty((String) target);
+                    }
                     if (target instanceof KrollProxy) {
+                        HashMap<String, Object> targetVariables = TiConvert.toHashMap(targetDict.get("targetVariables"));
+                        if (targetVariables != null) {
+                            for (Map.Entry<String, Object> entry : targetVariables.entrySet()) {
+                                final String key = entry.getKey();
+                                Object current = ((KrollProxy) target).getProperty(TiConvert.toString(entry.getValue()), true);
+                                if (current != null) {
+                                    expressions.put(VAR_PREFIX + key, current);
+                                }
+                                else {
+                                    expressions.put(VAR_PREFIX + key, 0);
+                                }
+                            }
+                        }
+                        
+                        
                         HashMap<String, Object> props = TiConvert.toHashMap(targetDict.get("properties"));
                         KrollDict realProps = new KrollDict();
                         for (Map.Entry<String, Object> entry : props.entrySet()) {
