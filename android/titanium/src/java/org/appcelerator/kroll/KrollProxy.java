@@ -78,7 +78,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     protected static final int MSG_CALL_PROPERTY_SYNC = KrollObject.MSG_LAST_ID + 110;
     protected static final int MSG_MODEL_APPLY_PROPERTIES = KrollObject.MSG_LAST_ID + 111;
     protected static final int MSG_UPDATE_KROLL_PROPERTIES = KrollObject.MSG_LAST_ID + 112;
-    protected static final int MSG_LAST_ID = MSG_UPDATE_KROLL_PROPERTIES;
+    protected static final int MSG_GET_PROPERTY = KrollObject.MSG_LAST_ID + 113;
+    protected static final int MSG_LAST_ID = MSG_GET_PROPERTY;
     protected static final String PROPERTY_NAME = "name";
     protected static final String PROPERTY_BUBBLES = "checkParent";
     protected static final String PROPERTY_HAS_JAVA_LISTENER = "_hasJavaListener";
@@ -636,6 +637,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             return properties.get(name);
         }
     }
+    
+    public Object getProperty(String name, boolean lookJS) {
+        synchronized (properties) {
+            Object value = properties.get(name);
+            if (!lookJS || value != null) {
+                return value;
+            }
+            return getJsPropertySync(name);
+        }
+    }
 
     /**
      * Returns the property value given its key. Properties are cached on the
@@ -898,16 +909,27 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             TiMessenger.sendBlockingRuntimeMessage(msg, args);
         }
     }
+    
+    public Object getJsPropertySync(String name) {
+        if (KrollRuntime.getInstance().isRuntimeThread()) {
+            return getKrollObject().getProperty(name);
+        } else {
+            Message msg = getRuntimeHandler().obtainMessage(
+                    MSG_GET_PROPERTY);
+            msg.getData().putString(PROPERTY_NAME, name);
+            return TiMessenger.sendBlockingRuntimeMessage(msg);
+        }
+    }
 
     protected void doSetProperty(String name, Object value) {
         getKrollObject().setProperty(name, value);
     }
 
-    private void doUpdateKrollObjectProperties() {
+    protected void doUpdateKrollObjectProperties() {
         getKrollObject().updateNativeProperties(getProperties());
     }
 
-    private void doUpdateKrollObjectProperties(HashMap<String, Object> props) {
+    protected void doUpdateKrollObjectProperties(HashMap<String, Object> props) {
         getKrollObject().updateNativeProperties(props);
     }
 
@@ -1604,6 +1626,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             String property = msg.getData().getString(PROPERTY_NAME);
             doSetProperty(property, value);
 
+            return true;
+        }
+        case MSG_GET_PROPERTY: {
+            AsyncResult asyncResult = (AsyncResult) msg.obj;
+            String propertyName = msg.getData().getString(PROPERTY_NAME);
+            asyncResult.setResult(getKrollObject().getProperty(propertyName));
             return true;
         }
         case MSG_FIRE_EVENT: {

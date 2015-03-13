@@ -59,6 +59,28 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 	properties->Set(jsName, jsValue);
 }
 
+JNIEXPORT jobject JNICALL
+Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeGetProperty
+	(JNIEnv *env, jobject object, jlong ptr, jstring name)
+{
+	ENTER_V8(V8Runtime::globalContext);
+	titanium::JNIScope jniScope(env);
+
+	Handle<Object> jsObject;
+	if (ptr != 0) {
+		jsObject = Persistent<Object>((Object *) ptr);
+	} else {
+		jsObject = TypeConverter::javaObjectToJsValue(env, object)->ToObject();
+	}
+
+	Handle<Object> properties = jsObject->Get(Proxy::propertiesSymbol)->ToObject();
+	Handle<Value> jsName = TypeConverter::javaStringToJsString(env, name);
+
+	Local<Value> jsValue = Local<Value>::New(jsObject->Get(jsName));
+	bool isNew;
+	return TypeConverter::jsValueToJavaObject(env, jsValue, &isNew);
+}
+
 JNIEXPORT void JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeUpdateProperties
 	(JNIEnv *env, jobject object, jlong ptr, jobject jprops)
