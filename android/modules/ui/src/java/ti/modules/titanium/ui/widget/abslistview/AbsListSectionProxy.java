@@ -129,26 +129,24 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
     
 	public AbsListSectionProxy() {
-		// initialize variables
-		if (toPassProps == null) {
-			toPassProps = new HashMap<String, String>();
-			toPassProps.put(TiC.PROPERTY_ACCESSORY_TYPE,
-					TiC.PROPERTY_ACCESSORY_TYPE);
-			toPassProps.put(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR,
-					TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
-			toPassProps.put(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE,
-					TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE);
-			toPassProps.put(TiC.PROPERTY_SELECTED_BACKGROUND_GRADIENT,
-					TiC.PROPERTY_BACKGROUND_SELECTED_GRADIENT);
-			toPassProps.put(TiC.PROPERTY_ROW_HEIGHT, TiC.PROPERTY_HEIGHT);
-			toPassProps.put(TiC.PROPERTY_MIN_ROW_HEIGHT, TiC.PROPERTY_MIN_HEIGHT);
-			toPassProps.put(TiC.PROPERTY_MAX_ROW_HEIGHT, TiC.PROPERTY_MAX_HEIGHT);
-		}
-		listItemData = new ArrayList<AbsListItemData>();
-		filterIndices = new ArrayList<Integer>();
-		hiddenItems = new ArrayList<Boolean>();
-		mItemCount = 0;
-		preload = false;
+	    if (toPassProps == null) {
+            toPassProps = new HashMap<String, String>();
+            toPassProps.put(TiC.PROPERTY_ACCESSORY_TYPE,
+                    TiC.PROPERTY_ACCESSORY_TYPE);
+            toPassProps.put(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR,
+                    TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
+            toPassProps.put(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE,
+                    TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE);
+            toPassProps.put(TiC.PROPERTY_SELECTED_BACKGROUND_GRADIENT,
+                    TiC.PROPERTY_BACKGROUND_SELECTED_GRADIENT);
+            toPassProps.put(TiC.PROPERTY_ROW_HEIGHT, TiC.PROPERTY_HEIGHT);
+            toPassProps.put(TiC.PROPERTY_MIN_ROW_HEIGHT, TiC.PROPERTY_MIN_HEIGHT);
+            toPassProps.put(TiC.PROPERTY_MAX_ROW_HEIGHT, TiC.PROPERTY_MAX_HEIGHT);
+        }
+        listItemData = new ArrayList<AbsListItemData>();
+        filterIndices = new ArrayList<Integer>();
+        hiddenItems = new ArrayList<Boolean>();
+        mItemCount = 0;
 	}
 
 	public void setAdapter(TiBaseAdapter a) {
@@ -972,6 +970,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	public void setListView(TiAbsListView l) {
 		listView = new WeakReference<TiAbsListView>(l);
+        listItemData = new ArrayList<AbsListItemData>();
+        filterIndices = new ArrayList<Integer>();
+        hiddenItems = new ArrayList<Boolean>();
+        mItemCount = 0;
 	}
 
 	public TiAbsListView getListView() {
