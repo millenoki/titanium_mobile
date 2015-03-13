@@ -2218,9 +2218,13 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 -(void)performBlockWithoutLayout:(void (^)(void))block
 {
-    allowContentChange = NO;
-    block();
-    allowContentChange = YES;
+    if (!allowContentChange) {
+        block();
+    } else {
+        allowContentChange = NO;
+        block();
+        allowContentChange = YES;
+    }
 }
 
 -(void)performBlock:(void (^)(void))block withinAnimation:(TiViewAnimationStep*)animation
