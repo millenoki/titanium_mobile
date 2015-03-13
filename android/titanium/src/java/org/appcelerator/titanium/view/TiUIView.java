@@ -155,6 +155,8 @@ public abstract class TiUIView
 	
 	protected GestureDetector detector = null;
 	protected ScaleGestureDetector scaleDetector = null;
+	
+	private DraggableGesture _dragGesture = null;
 
 	protected Handler handler;
 
@@ -944,21 +946,32 @@ public abstract class TiUIView
             else
                 enableHWAcceleration();
             break;
-	        case TiC.PROPERTY_MASK_FROM_VIEW:
-	            KrollProxy maskProxy = proxy.addProxyToHold(newValue, "maskView");
-                if (maskProxy != null && maskProxy instanceof TiViewProxy) {
-                    TiUIView tiView = ((TiViewProxy)maskProxy).getOrCreateView();
-                    View view = tiView.getOuterView();
-                    if (tiView.getParent() == null) {
-                        view.setVisibility(View.GONE);
-                        add(tiView);
-                    }
-                    getOrCreateBorderView().setMaskView(view);
+        case TiC.PROPERTY_MASK_FROM_VIEW:
+            KrollProxy maskProxy = proxy.addProxyToHold(newValue, "maskView");
+            if (maskProxy != null && maskProxy instanceof TiViewProxy) {
+                TiUIView tiView = ((TiViewProxy)maskProxy).getOrCreateView();
+                View view = tiView.getOuterView();
+                if (tiView.getParent() == null) {
+                    view.setVisibility(View.GONE);
+                    add(tiView);
                 }
-                else if (borderView != null) {
-                    getOrCreateBorderView().setMaskView(null);
+                getOrCreateBorderView().setMaskView(view);
+            }
+            else if (borderView != null) {
+                getOrCreateBorderView().setMaskView(null);
+            }
+            break;
+        case TiC.PROPERTY_DRAGGABLE:
+            if (newValue != null) {
+                
+                if (_dragGesture == null) {
+                    _dragGesture = new DraggableGesture((TiViewProxy) proxy, this);
                 }
-	            break;
+                _dragGesture.applyProperties(newValue);
+            } else {
+                _dragGesture = null;
+            }
+            break;
         default:
             break;
         }
@@ -1218,6 +1231,7 @@ public abstract class TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
 		}
+		_dragGesture = null;
 		proxy.cancelAllAnimations();
 		View nv = getRootView();
 		if (nv != null) {
@@ -1602,6 +1616,9 @@ public abstract class TiUIView
     public boolean onTouch(View v, MotionEvent event) {
 		if (mTouchDelegate != null) {
 			mTouchDelegate.onTouchEvent(event, TiUIView.this);
+		}
+		if (_dragGesture != null) {
+		    _dragGesture.onTouch(v, event);
 		}
 		int action = event.getAction();
 		if (exclusiveTouch) {

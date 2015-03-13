@@ -1443,6 +1443,11 @@ public class TiC
     /**
      * @module.api
      */
+    public static final String PROPERTY_DRAGGABLE = "draggable";
+
+    /**
+     * @module.api
+     */
     public static final String PROPERTY_DRAW_FULL_UNDERLINE = "drawFullUnderline";
     
 	/**
