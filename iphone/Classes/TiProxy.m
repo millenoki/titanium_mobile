@@ -1532,17 +1532,26 @@ DEFINE_EXCEPTIONS
 	NSDictionary* events = (NSDictionary*)[dictionary objectForKey:@"events"];
 	if ([events count] > 0) {
 		[context.krollContext invokeBlockOnThread:^{
-			[events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, KrollCallback *listener, BOOL *stop) {
-                if ([listener isKindOfClass:[KrollCallback class]]) {
-                    KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(listener);
-                    [wrapper protectJsobject];
-                    [self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
-                } else {
-                    [self addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
-                }
+			[events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, id listener, BOOL *stop) {
+                [self addEventListener:listener forEventType:eventName];
 			}];
 		}];
 	}
+}
+
+-(void)addEventListener:(id)listener forEventType:(NSString*)eventName
+{
+    if (IS_OF_CLASS(listener, NSArray)) {
+        [listener enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [self addEventListener:obj forEventType:eventName];
+        }];
+    } else if (IS_OF_CLASS(listener, KrollCallback)) {
+        KrollWrapper *wrapper = ConvertKrollCallbackToWrapper(listener);
+        [wrapper protectJsobject];
+        [self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
+    } else {
+        [self addEventListener:[NSArray arrayWithObjects:eventName, listener, nil]];
+    }
 }
 
 -(BOOL)canBeNextResponder
