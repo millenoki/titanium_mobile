@@ -285,18 +285,18 @@ LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setMaxTop,_maxTop,TiDimensionFromObject,[se
     float left = [panningProxy view].frame.origin.x;
     float top = [panningProxy view].frame.origin.y;
 
-    if([panningProxy _hasListeners:@"start" checkParent:NO] && [panRecognizer state] == UIGestureRecognizerStateBegan)
+    if([panningProxy _hasListeners:@"dragstart" checkParent:NO] && [panRecognizer state] == UIGestureRecognizerStateBegan)
     {
-        [panningProxy fireEvent:@"start" withObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+        [panningProxy fireEvent:@"dragstart" withObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                      [NSNumber numberWithFloat:left], @"left",
                                                      [NSNumber numberWithFloat:top], @"top",
                                                      [TiUtils pointToDictionary:self.proxy.view.center], @"center",
                                                      [TiUtils pointToDictionary:[panRecognizer velocityInView:self.proxy.view]], @"velocity",
                                                      nil] propagate:NO checkForListener:NO];
     }
-    else if([panningProxy _hasListeners:@"move" checkParent:NO] && [panRecognizer state] == UIGestureRecognizerStateChanged)
+    else if([panningProxy _hasListeners:@"dragmove" checkParent:NO] && [panRecognizer state] == UIGestureRecognizerStateChanged)
     {
-        [panningProxy fireEvent:@"move" withObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
+        [panningProxy fireEvent:@"dragmove" withObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                     [NSNumber numberWithFloat:left], @"left",
                                                     [NSNumber numberWithFloat:top], @"top",
                                                     [TiUtils pointToDictionary:self.proxy.view.center], @"center",
@@ -305,13 +305,13 @@ LAYOUTPROPERTIES_SETTER_IGNORES_AUTO(setMaxTop,_maxTop,TiDimensionFromObject,[se
     }
     else if([panRecognizer state] == UIGestureRecognizerStateEnded || [panRecognizer state] == UIGestureRecognizerStateCancelled)
     {
-        NSString* event = ([panRecognizer state] == UIGestureRecognizerStateCancelled ? @"cancel" : @"end");
-        if([panningProxy _hasListeners:event checkParent:NO]) {
-            [panningProxy fireEvent:event
+        if([panningProxy _hasListeners:@"dragend" checkParent:NO]) {
+            [panningProxy fireEvent:@"dragend"
                          withObject:[NSMutableDictionary dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:
                                                                                        [NSNumber numberWithFloat:touchEnd.x - touchStart.x], @"x",
                                                                                        [NSNumber numberWithFloat:touchEnd.y - touchStart.y], @"y",
-                                                                                       nil], @"distance", nil]];
+                                                                                       nil], @"distance",
+                                     @([panRecognizer state] == UIGestureRecognizerStateCancelled), @"cancel", nil]];
         }
         
     }
