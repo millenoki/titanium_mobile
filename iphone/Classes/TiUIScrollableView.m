@@ -866,7 +866,7 @@
 {
     //calculate offset
     CGRect bounds = view.bounds;
-    CATransform3D transform = view.layer.transform;
+    view.layer.transform = CATransform3DIdentity;
     NSInteger index = view.index;
     CGFloat offset = index - currentPageAsFloat;
     CGFloat realOffset = offset;
@@ -880,7 +880,7 @@
     }
     
     [_transition transformView:view withPosition:realOffset];
-    transform = view.layer.transform;
+    CATransform3D transform = view.layer.transform;
     if (verticalLayout) {
         CGFloat translateY = -offset * view.bounds.size.height;
         transform = CATransform3DConcat(transform, CATransform3DMakeTranslation(0, translateY,0));
