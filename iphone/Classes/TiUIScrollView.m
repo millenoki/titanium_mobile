@@ -22,7 +22,7 @@
 {
     //If the content view is of type TiUIView touch events will automatically propagate
     //If it is not of type TiUIView we will fire touch events with ourself as source
-    if ([view isKindOfClass:[TiUIView class]]) {
+    if ([view isKindOfClass:[TiUIView class]] || [view respondsToSelector:@selector(touchDelegate)]) {
         touchedContentView= view;
     }
     else {
