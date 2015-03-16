@@ -375,8 +375,8 @@ static NSArray* imageKeySequence;
 
 - (void)configurationSet:(BOOL)recursive
 {
-    [(TiUIImageView *)view setReusing:NO];
     [super configurationSet:recursive];
+    [(TiUIImageView *)view setReusing:NO];
 }
 
 @end

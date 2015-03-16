@@ -895,8 +895,6 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     }
 
     private void setImageInternal() {
-        // Set default image or clear previous image first.
-        setDefaultImage(false);
 
         if (imageSources == null || imageSources.size() == 0
                 || imageSources.get(0) == null
@@ -906,6 +904,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             currentRef = null;
             loadingRef = null;
             return;
+        }
+        
+        if (reusing) {
+            setDefaultImage(false);
         }
 
         if (imageSources.size() == 1) {
@@ -1015,18 +1017,6 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         TiImageView view = getView();
         if (view != null) {
             view.setConfigured(true);
-        }
-    }
-    
-    @Override
-    protected void aboutToProcessProperties(KrollDict d) {
-        super.aboutToProcessProperties(d);
-        if (reusing) {
-            TiImageView view = getView();
-            if (view != null) {
-                view.setImageBitmap(null);
-                view.setImageDrawable(null);
-            }
         }
     }
 

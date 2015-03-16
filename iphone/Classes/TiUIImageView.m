@@ -873,9 +873,9 @@ DEFINE_EXCEPTIONS
 {
     if (!configurationSet) {
         _needsSetImage = YES;
-        if (_reusing) {
-            [self loadDefaultImage];
-        }
+//        if (_reusing) {
+//            [self loadDefaultImage];
+//        }
         return;
     }
     _needsSetImage = NO;
@@ -896,16 +896,15 @@ DEFINE_EXCEPTIONS
         
     }
     
-    if (_reusing) {
-        
-        [self loadDefaultImage];
-    }
-    
     
     if (arg==nil || [arg isEqual:@""] || [arg isKindOfClass:[NSNull class]])
     {
         [self loadDefaultImage];
         return;
+    }
+    
+    if (_reusing) {
+        [self loadDefaultImage];
     }
     
     id image = nil;
@@ -1090,8 +1089,6 @@ DEFINE_EXCEPTIONS
         } else if ([self.proxy valueForKey:@"animatedImages"]) {
             [self setAnimatedImages_:[self.proxy valueForKey:@"animatedImages"]];
         }
-    } else if (![self.proxy valueForKey:@"image"]) {
-        [self loadDefaultImage];
     }
 }
 
