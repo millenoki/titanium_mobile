@@ -877,6 +877,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 -(BOOL)locationFarEnough:(CLLocation*) loc1 fromLocation:(CLLocation*) loc2{
     if (!loc2) return true;
     float dist = [loc2 distanceFromLocation:loc1];
+//    if (dist == 0 && loc1.altitude == loc2.altitude && loc1.course == loc2.course) {
+//        //same exact coord
+//        return false;
+//    }
     return dist > distance;
 }
 
