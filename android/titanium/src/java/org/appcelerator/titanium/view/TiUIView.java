@@ -1973,29 +1973,40 @@ public abstract class TiUIView
 		return null;
 	}
 	
+	private static boolean viewContainsTouch(final View view, final double rawx, final double rawy, int[] location) {
+	    if (location == null) {
+	        location = new int[2];
+	    }
+	    view.getLocationOnScreen(location);
+        return (location[0] <= rawx && rawx <= (location[0] + view.getWidth()) && 
+                location[1] <= rawy && rawy <= (location[1] + view.getHeight()));
+	}
+	
 	public boolean touchPassThrough(View view, MotionEvent event)
 	{
-	    if (!isTouchEnabled) return true;
+	    if (!isTouchEnabled) {
+	        return true;
+	    }
 		if (touchPassThrough == true)
 		{
 		    if (view != null) {
 		        int[] location = new int[2];
-                double x = event.getRawX();
-                double y = event.getRawY();
-    		    for (int i = 0; i < children.size(); i++) {
-                    TiUIView child = children.get(i);
-                    View childView = child.getOuterView();
-                    if (childView == null) continue;
-                    childView.getLocationOnScreen(location);
-                    if(location[0] <= x && x <= (location[0] + childView.getWidth()) && 
-                            location[1] <= y && y <= (location[1] + childView.getHeight())){
-                        if (!child.touchPassThrough(childView, event)) {
-                            return false;
-                        }
-                    }
-                }
+		        final double x = event.getRawX();
+		        final double y = event.getRawY();
+		        if (viewContainsTouch(view, x, y, location)) {
+		            for (int i = 0; i < children.size(); i++) {
+	                    TiUIView child = children.get(i);
+	                    View childView = child.getOuterView();
+	                    if (childView == null) continue;
+	                    if(viewContainsTouch(childView, x, y, location)){
+	                        if (!child.touchPassThrough(childView, event)) {
+	                            return false;
+	                        }
+	                    }
+	                }
+	                return true;
+		        }
 			}
-			return true;
 		}
 		return false;
 	}
