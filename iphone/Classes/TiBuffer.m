@@ -52,18 +52,29 @@ NSArray* bufferKeySequence = nil;
 // two conversions, to int and uint - one for typechecking, the other for indexing.)
 -(NSNumber*)append:(id)args
 {
-    TiBuffer* source = nil;
+    NSObject* source = nil;
+    NSData* sourceData = nil;
     NSUInteger sourceOffset;
     BOOL hasSourceOffset;
     NSUInteger sourceLength;
     BOOL hasSourceLength;
     
-    ENSURE_ARG_AT_INDEX(source, args, 0, TiBuffer);
+    ENSURE_ARG_AT_INDEX(source, args, 0, NSObject);
     ENSURE_INT_OR_NIL_AT_INDEX(sourceOffset, args, 1, hasSourceOffset);
     ENSURE_INT_OR_NIL_AT_INDEX(sourceLength, args, 2, hasSourceLength);
     
+    if (IS_OF_CLASS(source, TiBuffer)) {
+        sourceData = [(TiBuffer*)source data];
+    } else if (IS_OF_CLASS(source, TiBlob)) {
+        sourceData = [(TiBlob*)source data];
+    } else {
+        [self throwException:[NSString stringWithFormat:@"cant copy from source"]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    
     sourceOffset = (hasSourceOffset) ? sourceOffset : 0;
-    sourceLength = (hasSourceLength) ? sourceLength : [[source data] length];
+    sourceLength = (hasSourceLength) ? sourceLength : [sourceData length];
     
     
     if (hasSourceOffset && !hasSourceLength) {
@@ -72,20 +83,20 @@ NSArray* bufferKeySequence = nil;
                     location:CODELOCATION];
     }
     
-    if (sourceOffset >= [[source data] length]) {
+    if (sourceOffset >= [sourceData length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Source offset %lu is past source bounds (length %lu)",(unsigned long)sourceOffset,(unsigned long)[[source data] length]]
+                   subreason:[NSString stringWithFormat:@"Source offset %lu is past source bounds (length %lu)",(unsigned long)sourceOffset,(unsigned long)[sourceData length]]
                     location:CODELOCATION];
     }
     
-    if (sourceLength > [[source data] length]) {
+    if (sourceLength > [sourceData length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Source length %lu is longer than source (length %lu)", (unsigned long)sourceLength,(unsigned long)[[source data] length]]
+                   subreason:[NSString stringWithFormat:@"Source length %lu is longer than source (length %lu)", (unsigned long)sourceLength,(unsigned long)[sourceData length]]
                     location:CODELOCATION];
     }
     
-    NSUInteger length = MIN(sourceLength, [[source data] length] - sourceOffset);
-    const void* bytes = [[source data] bytes];
+    NSUInteger length = MIN(sourceLength, [sourceData length] - sourceOffset);
+    const void* bytes = [sourceData bytes];
 	if(data == nil) {
 		data = [[NSMutableData alloc] initWithBytes:bytes+sourceOffset length:length];
 	} else {
@@ -97,20 +108,32 @@ NSArray* bufferKeySequence = nil;
 
 -(NSNumber*)insert:(id)args
 {
-    TiBuffer* source = nil;
+    NSObject* source = nil;
+    NSData* sourceData = nil;
     int offset;
     int sourceOffset;
     BOOL hasSourceOffset;
     NSUInteger sourceLength;
     BOOL hasSourceLength;
     
-    ENSURE_ARG_AT_INDEX(source, args, 0, TiBuffer);
+    ENSURE_ARG_AT_INDEX(source, args, 0, NSObject);
     ENSURE_INT_AT_INDEX(offset, args, 1);
     ENSURE_INT_OR_NIL_AT_INDEX(sourceOffset, args, 2, hasSourceOffset);
     ENSURE_INT_OR_NIL_AT_INDEX(sourceLength, args, 3, hasSourceLength);
     
+    if (IS_OF_CLASS(source, TiBuffer)) {
+        sourceData = [(TiBuffer*)source data];
+    } else if (IS_OF_CLASS(source, TiBlob)) {
+        sourceData = [(TiBlob*)source data];
+    } else {
+        [self throwException:[NSString stringWithFormat:@"cant copy from source"]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+
+    
     sourceOffset = (hasSourceOffset) ? sourceOffset : 0;
-    sourceLength = (hasSourceLength) ? sourceLength : [[source data] length];
+    sourceLength = (hasSourceLength) ? sourceLength : [sourceData length];
     
     if (hasSourceOffset && !hasSourceLength) {
         [self throwException:@"TiArgsException"
@@ -122,14 +145,14 @@ NSArray* bufferKeySequence = nil;
                    subreason:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %lu)",offset,(unsigned long)[data length]]
                     location:CODELOCATION];
     }
-    if (sourceOffset >= [[source data] length]) {
+    if (sourceOffset >= [sourceData length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %lu)",sourceOffset,(unsigned long)[[source data] length]]
+                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %lu)",sourceOffset,(unsigned long)[sourceData length]]
                     location:CODELOCATION];
     }
-    if (sourceLength > [[source data] length]) {
+    if (sourceLength > [sourceData length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Source length %lu is longer than source (length %lu)", (unsigned long)sourceLength,(unsigned long)[[source data] length]]
+                   subreason:[NSString stringWithFormat:@"Source length %lu is longer than source (length %lu)", (unsigned long)sourceLength,(unsigned long)[sourceData length]]
                     location:CODELOCATION];
     }
     
@@ -140,7 +163,7 @@ NSArray* bufferKeySequence = nil;
     
     // Here we have 2 possible lengths: sourceLength, or the data from sourceOffset to the end of the source buffer.
     // We're extending the buffer, so the end of our current data is IRRELEVANT.
-    NSUInteger length = MIN(sourceLength, [[source data] length]-sourceOffset);
+    NSUInteger length = MIN(sourceLength, [sourceData length]-sourceOffset);
     
     // 1.
     [data increaseLengthBy:length];
@@ -150,7 +173,7 @@ NSArray* bufferKeySequence = nil;
     [data replaceBytesInRange:NSMakeRange(offset+length,[data length]-(offset+length)) withBytes:(currentBytes+offset)];
     
     // 3.
-    const void* newBytes = [[source data] bytes];
+    const void* newBytes = [sourceData bytes];
     [data replaceBytesInRange:NSMakeRange(offset,length) withBytes:(newBytes+sourceOffset)];
     
     return NUMUINTEGER(length);
@@ -158,39 +181,50 @@ NSArray* bufferKeySequence = nil;
 
 -(NSNumber*)copy:(id)args
 {
-    TiBuffer* sourceBuffer = nil;
+    NSObject* source = nil;
+    NSData* sourceData = nil;
     int offset;
     int sourceOffset;
     BOOL hasSourceOffset;
     NSUInteger sourceLength;
     BOOL hasSourceLength;
     
-    ENSURE_ARG_AT_INDEX(sourceBuffer, args, 0, TiBuffer);
+    ENSURE_ARG_AT_INDEX(source, args, 0, NSObject);
     ENSURE_INT_AT_INDEX(offset, args, 1);
     ENSURE_INT_OR_NIL_AT_INDEX(sourceOffset, args, 2, hasSourceOffset);
     ENSURE_INT_OR_NIL_AT_INDEX(sourceLength, args, 3, hasSourceLength);
     
+    if (IS_OF_CLASS(source, TiBuffer)) {
+        sourceData = [(TiBuffer*)source data];
+    } else if (IS_OF_CLASS(source, TiBlob)) {
+        sourceData = [(TiBlob*)source data];
+    } else {
+        [self throwException:[NSString stringWithFormat:@"cant copy from source"]
+                   subreason:nil
+                    location:CODELOCATION];
+    }
+    
     sourceOffset = (hasSourceOffset) ? sourceOffset : 0;
-    sourceLength = (hasSourceLength) ? sourceLength : [[sourceBuffer data] length];
+    sourceLength = (hasSourceLength) ? sourceLength : [sourceData length];
     
     if (offset >= [data length]) {
         [self throwException:@"TiBoundsException"
                    subreason:[NSString stringWithFormat:@"Offset %d is past buffer bounds (length %lu)",offset,(unsigned long)[data length]]
                     location:CODELOCATION];
     }
-    if (sourceOffset >= [[sourceBuffer data] length]) {
+    if (sourceOffset >= [sourceData length]) {
         [self throwException:@"TiBoundsException"
-                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %lu)",sourceOffset,(unsigned long)[[sourceBuffer data] length]]
+                   subreason:[NSString stringWithFormat:@"Source offset %d is past source bounds (length %lu)",sourceOffset,(unsigned long)[sourceData length]]
                     location:CODELOCATION];
     }
     
     // Assume that "sourceLength" is a hint; don't throw an exception if it extends past the end of the source
-    const void* source = [[sourceBuffer data] bytes];
+    const void* sourceBytes = [sourceData bytes];
     
     // We have three possible lengths: sourceLength, the remaining length in our destination buffer, the remaining length in the source buffer.
     // We pick the smallest one!
-    NSRange replacement = NSMakeRange(offset, MIN(MIN(sourceLength, [data length]-offset), [[sourceBuffer data] length]-sourceOffset));
-    [data replaceBytesInRange:replacement withBytes:(source+sourceOffset)];
+    NSRange replacement = NSMakeRange(offset, MIN(MIN(sourceLength, [data length]-offset), [sourceData length]-sourceOffset));
+    [data replaceBytesInRange:replacement withBytes:(sourceBytes+sourceOffset)];
 	//ignore leak, Xcode getting confused over the function name
 #ifndef __clang_analyzer__
     return NUMUINTEGER(replacement.length);
