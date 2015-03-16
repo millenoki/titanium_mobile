@@ -1511,6 +1511,9 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
     else {
         result = CTFramesetterSuggestFrameSizeForAttributedStringWithConstraints([self framesetter], _attributedText, size, (NSUInteger)self.numberOfLines);
     }
+    if (CGSizeEqualToSize(result, CGSizeZero)) {
+        return result;
+    }
     if (size.width > 0) result.width = MIN(result.width,  size.width);
     if (size.height > 0) result.height = MIN(result.height,  size.height);
     
