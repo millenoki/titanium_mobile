@@ -262,12 +262,12 @@ public class GeolocationModule extends KrollModule
 	 */
 	public void onLocationChanged(Location location)
 	{
-		lastLocation = location;
 		if (shouldUseUpdate(location)) {
 			fireEvent(TiC.EVENT_LOCATION, buildLocationEvent(location, tiLocation.locationManager.getProvider(location.getProvider())));
 			lastRulesCheckedLocation = location;
 			doAnalytics(location);
 		}
+        lastLocation = location;
 	}
 
 	/**
@@ -853,6 +853,14 @@ public class GeolocationModule extends KrollModule
 	{
 		boolean passed = false;
 		if (newLocation == null) return passed;
+//		if (lastLocation != null) {
+//		    if (lastLocation.getAltitude() == newLocation.getAltitude() && 
+//		            lastLocation.getLatitude() == newLocation.getLatitude() &&
+//		                    lastLocation.getLongitude() == newLocation.getLongitude() &&
+//		                            lastLocation.getBearing() == newLocation.getBearing()) {
+//		        return passed;
+//		    }
+//		}
 		if (getManualMode()) {
 			if (androidModule.manualLocationRules.size() > 0) {
 				for(LocationRuleProxy rule : androidModule.manualLocationRules) {
