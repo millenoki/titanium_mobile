@@ -540,6 +540,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			itemProperties = new ArrayList<Object>(Arrays.asList(items));
 			listItemData.clear();
 			hiddenItems.clear();
+			filterIndices.clear();
 			// only process items when listview's properties is processed.
 			if (getListView() == null) {
 				preload = true;
@@ -970,10 +971,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	public void setListView(TiAbsListView l) {
 		listView = new WeakReference<TiAbsListView>(l);
-        listItemData = new ArrayList<AbsListItemData>();
-        filterIndices = new ArrayList<Integer>();
-        hiddenItems = new ArrayList<Boolean>();
-        mItemCount = 0;
 	}
 
 	public TiAbsListView getListView() {
@@ -985,7 +982,11 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	public AbsListItemData getItemDataAt(int position)
 	{
-		return listItemData.get(getRealPosition(position));
+	    if (listItemData.size() > 0) {
+	        return listItemData.get(getRealPosition(position));
+	    } else {
+	        return null;
+	    }
 	}
 
 //	public KrollDict getListItemData(int position) {
@@ -1049,19 +1050,25 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	public void release() {
 		if (listItemData != null) {
 			listItemData.clear();
-			listItemData = null;
+//			listItemData = null;
 		}
 		
 		if (hiddenItems != null) {
 			hiddenItems.clear();
-			hiddenItems = null;
+//			hiddenItems = null;
 		}
+		
+		if (filterIndices != null) {
+		    filterIndices.clear();
+//          hiddenItems = null;
+        }
 
 		if (itemProperties != null) {
 			itemProperties.clear();
-			itemProperties = null;
+//			itemProperties = null;
 		}
 		mCurrentItemCount = 0;
+		mItemCount = 0;
 		super.release();
 	}
 
