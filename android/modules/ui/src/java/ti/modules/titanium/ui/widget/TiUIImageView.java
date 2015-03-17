@@ -362,6 +362,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     private class Loader implements Runnable {
         private ArrayBlockingQueue<BitmapWithIndex> bitmapQueue;
+		private LinkedList<Integer> hashTable;
         private int waitTime = 0;
         private int sleepTime = 50; // ms
         private int repeatIndex = 0;
@@ -369,13 +370,15 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         public Loader() {
             bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(
                     FRAME_QUEUE_SIZE);
+			hashTable = new LinkedList<Integer>()
         }
 
         private boolean isRepeating() {
-            if (repeatCount <= INFINITE) {
-                return true;
-            }
-            return repeatIndex < repeatCount;
+            int repeatCount = getRepeatCount();
+			if (repeatCount <= 0) {
+				return true;
+			}
+			return repeatIndex < repeatCount;
         }
 
         private int getStart() {
@@ -417,6 +420,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             repeatIndex = 0;
             isLoading.set(true);
             firedLoad = false;
+			boolean shouldCache = getRepeatCount() >= 5 ? true : false;
             topLoop: while (isRepeating()) {
 
                 if (imageSources == null) {
@@ -463,9 +467,21 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                         if (imageSources == null || j >= imageSources.size()) {
                             break topLoop;
                         }
-                        currentRef = imageSources.get(j);
-                        Bitmap b = currentRef.getBitmap(true);
-                        BitmapWithIndex bIndex = new BitmapWithIndex(b, j);
+                        TiDrawableReference imageRef = imageSources.get(j);
+						Bitmap b = null;
+						if (shouldCache) {
+							int hash = imageRef.hashCode();
+							b = mMemoryCache.get(hash);
+							if (b == null) {
+								Log.i(TAG, "Image isn't cached");
+								b = imageRef.getBitmap(true);
+								mMemoryCache.put(hash, b);
+								hashTable.add(hash);
+							}
+						} else {
+							b = imageRef.getBitmap(true);
+						}
+						BitmapWithIndex bIndex = new BitmapWithIndex(b,j);
                         while (waitTime < duration * imageSources.size()) {
                             try {
                                 if (!bitmapQueue.offer(bIndex)) {
@@ -496,6 +512,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
             }
             isLoading.set(false);
+			//clean out the cache after animation
+			while (!hashTable.isEmpty()) {
+				mMemoryCache.remove(hashTable.pop());
+			}
         }
 
         public ArrayBlockingQueue<BitmapWithIndex> getBitmapQueue() {
@@ -608,6 +628,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         if (hasListeners(TiC.EVENT_LOAD)) {
             fireImageEvent(TiC.EVENT_LOAD, null);
         }
+        
     }
 
     private void fireError(String message, String imageUrl) {
@@ -645,7 +666,13 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                     }
                 }
 
-                BitmapWithIndex b = loader.getBitmapQueue().take();
+                //Fire stop event when animation finishes
+                if (!isLoading.get() && bitmapQueue.isEmpty()) {
+                    fireStop();
+                }
+                ArrayBlockingQueue<BitmapWithIndex> bitmapQueue = loader.getBitmapQueue();
+
+                BitmapWithIndex b = bitmapQueue.take();
                 Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
                 setImage(b.bitmap, false);
                 fireChange(b.index);

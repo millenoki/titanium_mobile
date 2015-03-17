@@ -100,6 +100,29 @@
     return NUMINT(-1);
 }
 
+#ifdef USE_TI_UILISTVIEW
+-(NSNumber*) ROW_ACTION_STYLE_DEFAULT
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINTEGER(UITableViewRowActionStyleDefault);
+    }
+    return nil;
+}
+-(NSNumber*) ROW_ACTION_STYLE_DESTRUCTIVE
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINTEGER(UITableViewRowActionStyleDestructive);
+    }
+    return nil;
+}
+-(NSNumber*) ROW_ACTION_STYLE_NORMAL
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINTEGER(UITableViewRowActionStyleNormal);
+    }
+    return nil;
+}
+
 #ifdef USE_TI_UIIOSADVIEW
 
 -(NSString*)AD_SIZE_PORTRAIT 

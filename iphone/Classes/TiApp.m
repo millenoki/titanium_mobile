@@ -167,6 +167,20 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     }
 }
 
+- (void)createDefaultDirectories
+{
+    NSError* error = nil;
+    NSURL* dir = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
+                                                        inDomain:NSUserDomainMask
+                                               appropriateForURL:nil
+                                                          create:YES
+                                                           error:&error];
+    if(error)
+    {
+        DebugLog(@"[ERROR]  %@ %@", error, [error userInfo]);
+    }
+}
+
 - (void)boot
 {
 	DebugLog(@"[INFO] %@/%@ (%s.__GITHASH__)",TI_APPLICATION_NAME,TI_APPLICATION_VERSION,TI_VERSION_STR);
@@ -378,7 +392,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
     [self launchToUrl];
 	[self boot];
-	
+    [self createDefaultDirectories];
 	return YES;
 }
 

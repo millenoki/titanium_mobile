@@ -2721,7 +2721,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         done();
                     }.bind(this));
                 }),
-                args = [ this.appid, this.buildAssetsEncryptDir ].concat(jsFilesToEncrypt),
+                args = [ this.tiapp.guid, this.appid, this.buildAssetsEncryptDir ].concat(jsFilesToEncrypt),
                 opts = {
                     env: appc.util.mix({}, process.env, {
                         // we force the JAVA_HOME so that titaniumprep doesn't complain
@@ -2743,10 +2743,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     if (!err) {
                         return next();
                     }
-
-                    if (process.platform != 'win32') {
-                        fatal(err);
-                    }
+					if (process.platform !== 'win32' || !/jvm\.dll/i.test(err.msg)) {
+						fatal(err);
+					}
 
                     // windows 64-bit failed, try again using 32-bit
                     this.logger.debug(__('32-bit titanium prep failed, trying again using 64-bit'));

@@ -138,7 +138,6 @@ description: |
 extends: Titanium.UI.View
 excludes:
     methods: [ add, removeAllChildren ]
-    properties: [ enabled ]
 since: "0.8"
 methods:
 
@@ -273,7 +272,7 @@ methods:
       - name: password
         summary: Basic auth password.
         type: String
-    exclude-platforms: [blackberry]
+
 
   - name: stopLoading
     summary: Stops loading a currently loading page.
@@ -290,7 +289,7 @@ methods:
       - name: hardStop
         summary: Forces the web view to destroy the iFrame (Mobile Web only).
         type: Boolean
-    exclude-platforms: [blackberry]
+
 
 events:
 
@@ -404,7 +403,7 @@ properties:
 
         See also: [url](Titanium.UI.WebView.url) and [html](Titanium.UI.WebView.html).
     type: [Titanium.Blob, Titanium.Filesystem.File]
-    exclude-platforms: [blackberry]
+
 
   - name: disableBounce
     summary: |
@@ -492,7 +491,7 @@ properties:
   - name: loading
     summary: Indicates if the webview is loading content.
     type: Boolean
-    exclude-platforms: [blackberry]
+
 
 
   - name: onCreateWindow
