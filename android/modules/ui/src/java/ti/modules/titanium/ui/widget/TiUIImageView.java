@@ -1005,7 +1005,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private void setDefaultImage(final boolean withTransition) {
         TiImageView view = getView();
 
-        if (view == null || (!withTransition && proxy.viewInitialised() && transitionDict != null)) {
+        if (view == null 
+//                || (!withTransition && proxy.viewInitialised() && transitionDict != null)
+                ) {
             return;
         }
         
