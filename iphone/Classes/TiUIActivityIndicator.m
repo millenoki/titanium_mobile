@@ -82,7 +82,7 @@
 		//TIMOB-17572. When a cell is reused all animations are removed. That will hide the
         //ActivityIndicator. Setting it to false ensures that visibility is controlled by the
         //visible property of the ActivityIndicator (initialized to false)
-        [indicatorView setHidesWhenStopped:NO]
+        [indicatorView setHidesWhenStopped:NO];
         [self updateStyle];
 		[self setNeedsLayout];
 		[self addSubview:indicatorView];

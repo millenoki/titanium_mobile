@@ -122,6 +122,7 @@
     }
     return nil;
 }
+#endif
 
 #ifdef USE_TI_UIIOSADVIEW
 
