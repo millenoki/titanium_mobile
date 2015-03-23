@@ -276,7 +276,10 @@ DEFINE_EXCEPTIONS
 	[rightSwipeRecognizer release];
 	[upSwipeRecognizer release];
 	[downSwipeRecognizer release];
-	[longPressRecognizer release];
+    [longPressRecognizer release];
+    [panRecognizer release];
+    [shoveRecognizer release];
+    [rotationRecognizer release];
 	[runningAnimation release];
 	proxy = nil;
 	touchDelegate = nil;
@@ -396,12 +399,21 @@ DEFINE_EXCEPTIONS
     if ([[self viewProxy] _hasListeners:@"longpress" checkParent:NO]) {
         [[self gestureRecognizerForEvent:@"longpress"] setEnabled:YES];
     }
+    if ([[self viewProxy] _hasListeners:@"pan" checkParent:NO]) {
+        [[self gestureRecognizerForEvent:@"pan"] setEnabled:YES];
+    }
+    if ([[self viewProxy] _hasListeners:@"rotate" checkParent:NO]) {
+        [[self gestureRecognizerForEvent:@"rotate"] setEnabled:YES];
+    }
+    if ([[self viewProxy] _hasListeners:@"shove" checkParent:NO]) {
+        [[self gestureRecognizerForEvent:@"shove"] setEnabled:YES];
+    }
 }
 
 -(NSArray*)gestureListenersArray {
     static NSArray* gestureListenersArray = nil;
     if (gestureListenersArray == nil) {
-        gestureListenersArray = [[NSArray alloc] initWithObjects:@"singletap", @"doubletap", @"twofingertap", @"swipe", @"pinch", @"longpress", nil];
+        gestureListenersArray = [[NSArray alloc] initWithObjects:@"singletap", @"doubletap", @"twofingertap", @"swipe", @"pinch", @"longpress", @"pan", @"rotate", @"shove", nil];
     }
     return gestureListenersArray;
 }
@@ -428,7 +440,7 @@ DEFINE_EXCEPTIONS
 {
     static NSArray* gestureListeners = nil;
     if (gestureListeners == nil) {
-        gestureListeners = [[NSArray alloc] initWithObjects:@"swipe", @"pinch", @"longpress", nil];
+        gestureListeners = [[NSArray alloc] initWithObjects:@"swipe", @"pinch", @"longpress", @"pan", @"shove", @"rotate", nil];
     }
 	return [proxy _hasAnyListeners:gestureListeners];
 }
@@ -1704,6 +1716,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 		if (doubleTapRecognizer != nil) {
 			[singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
 		}
+        if (longPressRecognizer != nil) {
+            [singleTapRecognizer requireGestureRecognizerToFail:longPressRecognizer];
+        }
 	}
 	return singleTapRecognizer;
 }
@@ -1792,13 +1807,52 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 		longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
 		[self configureGestureRecognizer:longPressRecognizer];
 		[self addGestureRecognizer:longPressRecognizer];
+        if (singleTapRecognizer != nil) {
+            [singleTapRecognizer requireGestureRecognizerToFail:longPressRecognizer];
+        }
 	}
 	return longPressRecognizer;
 }
 
+-(UIPanGestureRecognizer*)panRecognizer
+{
+    if (panRecognizer == nil) {
+        panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPan:)];
+        [self configureGestureRecognizer:panRecognizer];
+        [self addGestureRecognizer:panRecognizer];
+    }
+    return panRecognizer;
+}
+
+-(UIPanGestureRecognizer*)shoveRecognizer
+{
+    if (shoveRecognizer == nil) {
+        shoveRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedShove:)];
+        [self configureGestureRecognizer:shoveRecognizer];
+        shoveRecognizer.minimumNumberOfTouches = 2;
+        shoveRecognizer.maximumNumberOfTouches = 2;
+        [self addGestureRecognizer:shoveRecognizer];
+    }
+    return shoveRecognizer;
+}
+
+-(UIRotationGestureRecognizer*)rotateRecognizer
+{
+    if (rotationRecognizer == nil) {
+        rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedRotation:)];
+        [self configureGestureRecognizer:rotationRecognizer];
+        [self addGestureRecognizer:rotationRecognizer];
+    }
+    return rotationRecognizer;
+}
+
+-(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)recognizer {
+    return [TiUtils dictionaryFromGesture:recognizer inView:self];
+}
+
 -(void)recognizedSingleTap:(UITapGestureRecognizer*)recognizer
 {
-	NSDictionary *event = [TiUtils dictionaryFromGesture:recognizer inView:self];
+	NSDictionary *event = [self dictionaryFromGesture:recognizer];
     if ([recognizer numberOfTouchesRequired] == 2) {
 		[proxy fireEvent:@"twofingertap" withObject:event checkForListener:NO];
 	}
@@ -1808,7 +1862,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)recognizedDoubleTap:(UITapGestureRecognizer*)recognizer
 {
-	NSDictionary *event = [TiUtils dictionaryFromGesture:recognizer inView:self];
+	NSDictionary *event = [self dictionaryFromGesture:recognizer];
     //Because double-tap suppresses touchStart and double-click, we must do this:
     if ([proxy _hasListeners:@"touchstart"])
     {
@@ -1821,52 +1875,47 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 -(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer 
-{ 
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                           NUMDOUBLE(recognizer.scale), @"scale", 
-                           NUMDOUBLE(recognizer.velocity), @"velocity", 
-                           nil]; 
-    [self.proxy fireEvent:@"pinch" withObject:event propagate:NO checkForListener:NO];
+{
+    [self fireGestureEvent:recognizer ofType:@"pinch"];
 }
 
 -(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer 
 { 
     if ([recognizer state] == UIGestureRecognizerStateBegan) {
-        NSDictionary *event = [TiUtils dictionaryFromGesture:recognizer inView:self];
-        [self.proxy fireEvent:@"longpress" withObject:event propagate:NO checkForListener:NO];
+        [self.proxy fireEvent:@"longpress" withObject:[self dictionaryFromGesture:recognizer] propagate:NO checkForListener:NO];
     }
 }
 
--(NSString*) swipeStringFromGesture:(UISwipeGestureRecognizer *)recognizer
+-(void)fireGestureEvent:(UIGestureRecognizer*)recognizer ofType:(NSString*)type {
+    NSDictionary* data = [self dictionaryFromGesture:recognizer];
+    if ([recognizer state] == UIGestureRecognizerStateBegan) {
+        [self.proxy fireEvent:[NSString stringWithFormat:@"%@start", type] withObject:data propagate:NO checkForListener:YES];
+    } else if ([recognizer state] == UIGestureRecognizerStateEnded ||
+               [recognizer state] == UIGestureRecognizerStateCancelled) {
+        [self.proxy fireEvent:[NSString stringWithFormat:@"%@end", type] withObject:data propagate:NO checkForListener:YES];
+    }
+    [self.proxy fireEvent:type withObject:data propagate:NO checkForListener:NO];
+}
+
+-(void)recognizedPan:(UIPanGestureRecognizer*)recognizer
 {
-    NSString* swipeString;
-	switch ([recognizer direction]) {
-		case UISwipeGestureRecognizerDirectionUp:
-			swipeString = @"up";
-			break;
-		case UISwipeGestureRecognizerDirectionDown:
-			swipeString = @"down";
-			break;
-		case UISwipeGestureRecognizerDirectionLeft:
-			swipeString = @"left";
-			break;
-		case UISwipeGestureRecognizerDirectionRight:
-			swipeString = @"right";
-			break;
-		default:
-			swipeString = @"unknown";
-			break;
-	}
-    return swipeString;
+    [self fireGestureEvent:recognizer ofType:@"pan"];
 }
 
 -(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
 {
-	NSMutableDictionary *event = [[TiUtils dictionaryFromGesture:recognizer inView:self] mutableCopy];
-	[event setValue:[self swipeStringFromGesture:recognizer] forKey:@"direction"];
-	[proxy fireEvent:@"swipe" withObject:event propagate:NO checkForListener:NO];
-	[event release];
+    [self fireGestureEvent:recognizer ofType:@"swipe"];
 
+}
+
+-(void)recognizedRotation:(UIRotationGestureRecognizer*)recognizer
+{
+    [self fireGestureEvent:recognizer ofType:@"rotate"];
+}
+
+-(void)recognizedShove:(UIPanGestureRecognizer*)recognizer
+{
+    [self fireGestureEvent:recognizer ofType:@"shove"];
 }
 
 #pragma mark Touch Events
@@ -1971,14 +2020,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     [self setHighlighted:highlighted];
 }
 
--(NSDictionary*)dictionaryFromTouch:(UITouch*)touch
+-(NSMutableDictionary*)dictionaryFromTouch:(UITouch*)touch
 {
     return [TiUtils dictionaryFromTouch:touch inView:self];
-}
-
--(NSDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture
-{
-    return [TiUtils dictionaryFromGesture:gesture inView:self];
 }
 
 -(void)handleTouchEvent:(NSString*)event forTouch:(UITouch*)touch
@@ -2109,12 +2153,17 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         }
     }
 }
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
+}
 
 -(void)configureGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
 {
     [gestureRecognizer setDelaysTouchesBegan:NO];
     [gestureRecognizer setDelaysTouchesEnded:NO];
     [gestureRecognizer setCancelsTouchesInView:NO];
+    [gestureRecognizer setDelegate:(id<UIGestureRecognizerDelegate>)self];
 }
 
 - (UIGestureRecognizer *)gestureRecognizerForEvent:(NSString *)event
@@ -2143,8 +2192,17 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if ([event isEqualToString:@"pinch"]) {
         return [self pinchRecognizer];
     }
+    if ([event isEqualToString:@"rotate"]) {
+        return [self rotateRecognizer];
+    }
+    if ([event isEqualToString:@"shove"]) {
+        return [self shoveRecognizer];
+    }
     if ([event isEqualToString:@"longpress"]) {
         return [self longPressRecognizer];
+    }
+    if ([event isEqualToString:@"pan"]) {
+        return [self panRecognizer];
     }
     return nil;
 }

@@ -77,7 +77,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	UISwipeGestureRecognizer*		rightSwipeRecognizer;
 	UISwipeGestureRecognizer*		upSwipeRecognizer;
 	UISwipeGestureRecognizer*		downSwipeRecognizer;
-	UILongPressGestureRecognizer*	longPressRecognizer;
+    UILongPressGestureRecognizer*	longPressRecognizer;
+    UIPanGestureRecognizer*         panRecognizer;
+    UIPanGestureRecognizer*         shoveRecognizer;
+    UIRotationGestureRecognizer*    rotationRecognizer;
 	
 	//Resizing handling
 	CGSize oldSize;
@@ -259,8 +262,9 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer;
 -(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer;
 -(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer;
-
--(NSString*) swipeStringFromGesture:(UISwipeGestureRecognizer *)recognizer;
+-(void)recognizedPan:(UIPanGestureRecognizer *)recognizer;
+-(void)recognizedRotate:(UIPanGestureRecognizer *)recognizer;
+-(void)recognizedShove:(UIRotationGestureRecognizer *)recognizer;
 
 -(void)detach;
 
@@ -277,9 +281,9 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(UIView*)parentViewForChildren;
 -(void)onCreateCustomBackground;
 
--(NSDictionary*)dictionaryFromTouch:(UITouch*)touch;
+-(NSMutableDictionary*)dictionaryFromTouch:(UITouch*)touch;
 
--(NSDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture;
+-(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture;
 -(UIViewController*)getContentController;
 -(void)fillBoundsToRect:(TiRect*)rect;
 

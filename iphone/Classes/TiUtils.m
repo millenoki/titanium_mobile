@@ -1401,9 +1401,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
 }
 
 
-+(NSDictionary*)dictionaryFromTouchableEvent:(id)touch inView:(UIView*)view
++(NSMutableDictionary*)dictionaryFromTouchableEvent:(id)touch inView:(UIView*)view
 {
-    if (touch == nil) return [NSDictionary dictionary];
+    if (touch == nil) return [NSMutableDictionary dictionary];
     CGPoint localPoint = [touch locationInView:view];
     CGPoint globalPoint = [touch locationInView:nil];
     NSString* xProp = @"x";
@@ -1435,25 +1435,83 @@ If the new path starts with / and the base url is app://..., we have to massage 
             break;
     }
     
-    NSDictionary *evt = [NSDictionary dictionaryWithObjectsAndKeys:
-                         [NSNumber numberWithDouble:xFactor*localPoint.x],xProp,
-                         [NSNumber numberWithDouble:yFactor*localPoint.y],yProp,
-                         [NSDictionary dictionaryWithObjectsAndKeys:
-                          [NSNumber numberWithDouble:xFactor*globalPoint.x],xProp,
-                          [NSNumber numberWithDouble:yFactor*globalPoint.y],yProp,
-                          nil], @"globalPoint",
-                         nil];
-    return evt;
+    return [NSMutableDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithDouble:xFactor*localPoint.x],xProp,
+            [NSNumber numberWithDouble:yFactor*localPoint.y],yProp,
+            [NSDictionary dictionaryWithObjectsAndKeys:
+             [NSNumber numberWithDouble:xFactor*globalPoint.x],xProp,
+             [NSNumber numberWithDouble:yFactor*globalPoint.y],yProp,
+             nil], @"globalPoint",
+            nil];
 }
 
-+(NSDictionary*)dictionaryFromTouch:(UITouch*)touch inView:(UIView*)view
++(NSString*) stateStringFromGesture:(UIGestureRecognizer *)recognizer
+{
+    NSString* swipeString;
+    switch ([recognizer state]) {
+        case UIGestureRecognizerStateBegan:
+            return @"start";
+            break;
+        case UIGestureRecognizerStateEnded:
+            return @"end";
+            break;
+        case UIGestureRecognizerStateChanged:
+            return @"move";
+            break;
+        default:
+        case UIGestureRecognizerStateCancelled:
+            return @"cancel";
+            break;
+    }
+}
+
++(NSString*) swipeStringFromGesture:(UISwipeGestureRecognizer *)recognizer
+{
+    NSString* swipeString;
+    switch ([recognizer direction]) {
+        case UISwipeGestureRecognizerDirectionUp:
+            swipeString = @"up";
+            break;
+        case UISwipeGestureRecognizerDirectionDown:
+            swipeString = @"down";
+            break;
+        case UISwipeGestureRecognizerDirectionLeft:
+            swipeString = @"left";
+            break;
+        case UISwipeGestureRecognizerDirectionRight:
+            swipeString = @"right";
+            break;
+        default:
+            swipeString = @"unknown";
+            break;
+    }
+    return swipeString;
+}
+
++(NSMutableDictionary*)dictionaryFromTouch:(UITouch*)touch inView:(UIView*)view
 {
     return [self dictionaryFromTouchableEvent:touch inView:view];
 }
 
-+(NSDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture inView:(UIView*)view
++(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)recognizer inView:(UIView*)view
 {
-    return [self dictionaryFromTouchableEvent:gesture inView:view];
+    NSMutableDictionary* event = [self dictionaryFromTouchableEvent:recognizer inView:view];
+    [event setValue:[TiUtils stateStringFromGesture:((UISwipeGestureRecognizer*)recognizer)] forKey:@"state"];
+    if (IS_OF_CLASS(recognizer, UIPinchGestureRecognizer)) {
+        [event setValue:NUMDOUBLE(((UIPinchGestureRecognizer*)recognizer).scale) forKey:@"scale"];
+        [event setValue:NUMDOUBLE(((UIPinchGestureRecognizer*)recognizer).velocity) forKey:@"velocity"];
+    } else if(IS_OF_CLASS(recognizer, UISwipeGestureRecognizer)) {
+        [event setValue:[TiUtils swipeStringFromGesture:((UISwipeGestureRecognizer*)recognizer)] forKey:@"direction"];
+    } else if(IS_OF_CLASS(recognizer, UIPanGestureRecognizer)) {
+        CGPoint translation = [((UIPanGestureRecognizer*)recognizer) translationInView:view];
+        [event setValue:[TiUtils pointToDictionary:[((UIPanGestureRecognizer*)recognizer) translationInView:view]] forKey:@"translation"];
+        [event setValue:[TiUtils pointToDictionary:[((UIPanGestureRecognizer*)recognizer) velocityInView:view]] forKey:@"velocity"];
+    } else if(IS_OF_CLASS(recognizer, UIRotationGestureRecognizer)) {
+        [event setValue:NUMDOUBLE(((UIRotationGestureRecognizer*)recognizer).rotation * 180 / M_PI) forKey:@"rotation"];
+        [event setValue:NUMDOUBLE(((UIRotationGestureRecognizer*)recognizer).velocity) forKey:@"velocity"];
+
+    }
+    return event;
 }
 
 +(NSDictionary*)pointToDictionary:(CGPoint)point

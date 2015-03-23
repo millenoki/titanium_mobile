@@ -506,8 +506,8 @@ typedef enum
 +(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties def:(TiCap)def exists:(BOOL*) exists;
 
 +(NSDictionary*)pointToDictionary:(CGPoint)point;
-+(NSDictionary*)dictionaryFromTouch:(UITouch*)touch inView:(UIView*)view;
-+(NSDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture inView:(UIView*)view;
++(NSMutableDictionary*)dictionaryFromTouch:(UITouch*)touch inView:(UIView*)view;
++(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture inView:(UIView*)view;
 
 +(NSDictionary*)rectToDictionary:(CGRect)rect;
 
