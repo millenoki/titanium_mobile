@@ -506,17 +506,16 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
     return event;
 }
 
--(NSDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture
+-(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture
 {
-    NSDictionary* event = [super dictionaryFromGesture:gesture];
+    NSMutableDictionary* event = [super dictionaryFromGesture:gesture];
     
     NSAttributedString* attString = label.attributedText;
     if (attString != nil) {
         CGPoint localPoint = [gesture locationInView:label];
         NSURL* url = [self checkLinkAttributeForString:attString atPoint:localPoint];
         if (url){
-            event = [NSMutableDictionary dictionaryWithDictionary:event];
-            [(NSMutableDictionary*)event setObject:url forKey:@"link"];
+            [event setObject:url forKey:@"link"];
         }
     }
     return event;
