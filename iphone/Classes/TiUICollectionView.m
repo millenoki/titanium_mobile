@@ -200,6 +200,7 @@ static NSDictionary* replaceKeysForRow;
         _tableView.delegate = self;
         _tableView.dataSource = self;
         _tableView.touchDelegate = self;
+        _tableView.alwaysBounceVertical = YES;
         
         id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
         BOOL doSetBackground = (backgroundColor != nil);
