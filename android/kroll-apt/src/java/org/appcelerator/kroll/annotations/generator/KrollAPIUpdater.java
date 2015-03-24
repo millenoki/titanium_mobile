@@ -210,7 +210,7 @@ public class KrollAPIUpdater
 
 			modulesJSON.put(name, moduleNames);
 		}
-		//Hack in the actionbarsherlock module for now. revisit later.
+		//Hack in the appcompat module for now. revisit later.
 		ArrayList<String> appCompatHack = new ArrayList<String>();
 		// appCompatHack.add("actionbarsherlock");
 		// modulesJSON.put("titanium-actionbarsherlock.jar", appCompatHack);

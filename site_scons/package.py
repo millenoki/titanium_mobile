@@ -178,7 +178,7 @@ def zip_android(zf, basepath, version):
 	zip_dir(zf, os.path.join(top_dir, 'android', 'cli'), basepath+'/android/cli')
 	zip_dir(zf, os.path.join(top_dir, 'android', 'templates'), basepath+'/android/templates')
 
-	zip_dir(zf, os.path.join(top_dir, 'android', 'externals', 'actionbarsherlock', 'res'), basepath+'/android/externals/actionbarsherlock/res')
+	# zip_dir(zf, os.path.join(top_dir, 'android', 'externals', 'actionbarsherlock', 'res'), basepath+'/android/externals/actionbarsherlock/res')
 
 
 	# include headers for v8 3rd party module building
