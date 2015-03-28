@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -122,7 +121,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	private static final int MSG_TOIMAGE = MSG_FIRST_ID + 109;
 	private static final int MSG_GETSIZE = MSG_FIRST_ID + 110;
 	private static final int MSG_GETRECT = MSG_FIRST_ID + 111;
-	private static final int MSG_FINISH_APPLY_PROPS = MSG_FIRST_ID + 112;
 	private static final int MSG_GETABSRECT = MSG_FIRST_ID + 113;
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
 	private static final int MSG_TRANSITION_VIEWS = MSG_FIRST_ID + 115;
@@ -134,8 +132,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 	protected TiUIView view;
 	private boolean isDecorView = false;
-
-	private AtomicBoolean batchPropertyApply = new AtomicBoolean();
 
 //	private static int defaultTransitionStyle = TransitionHelper.Types.kTransitionSwipe.ordinal();
 //	private static int defaultTransitionSubStyle = TransitionHelper.SubTypes.kRightToLeft.ordinal();
@@ -292,10 +288,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 				result.setResult(d);
 				return true;
 			}
-			case MSG_FINISH_APPLY_PROPS : {
-				handleFinishBatchPropertyApply();
-				return true;
-			}
+
 			case MSG_TRANSITION_VIEWS : {
 				ArrayList<Object> args = (ArrayList<Object>)msg.obj;
 				handleTransitionViews((TiViewProxy)args.get(0), (TiViewProxy)args.get(1), args.get(2));
@@ -1090,36 +1083,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		return destPoint;
 	}
 
-	public boolean inBatchPropertyApply()
-	{
-		return batchPropertyApply.get();
-	}
 
-	@Override
-	public void applyPropertiesInternal(Object arg, boolean force, boolean wait)
-	{
-		batchPropertyApply.set(true);
-		super.applyPropertiesInternal(arg, force, true);
-		if (TiApplication.isUIThread()) {
-			handleFinishBatchPropertyApply();
-		} else {
-			getMainHandler().sendEmptyMessage(MSG_FINISH_APPLY_PROPS);
-		}
-		batchPropertyApply.set(false);
-	}
-
-
-	protected void handleFinishBatchPropertyApply()
-	{
-//		if (view == null) return;
-//		if (view.iszIndexChanged()) {
-//			view.forceLayoutNativeView(true);
-//			view.setzIndexChanged(false);
-//		} else {
-//			view.forceLayoutNativeView(false);
-//		}
-	}
-	
 	public View parentViewForChild(TiViewProxy child)
 	{
 		return getNativeView();
