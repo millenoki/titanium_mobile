@@ -212,12 +212,10 @@ public class KrollAPIUpdater
 		}
 		//Hack in the appcompat module for now. revisit later.
 		ArrayList<String> appCompatHack = new ArrayList<String>();
-		// appCompatHack.add("actionbarsherlock");
-		// modulesJSON.put("titanium-actionbarsherlock.jar", appCompatHack);
         appCompatHack.add("appcompat");
         modulesJSON.put("titanium-appcompat.jar", appCompatHack);
 
-        //Hack in the actionbarsherlock module for now. revisit later.
+        //Hack in the googlplayservices module for now. revisit later.
         ArrayList<String> googleplayservicesHack = new ArrayList<String>();
         googleplayservicesHack.add("googleplayservices");
         modulesJSON.put("titanium-googleplayservices.jar", googleplayservicesHack);
