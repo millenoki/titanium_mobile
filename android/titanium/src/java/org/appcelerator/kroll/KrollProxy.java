@@ -32,8 +32,10 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiViewEventOverrideDelegate;
 import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -732,17 +734,23 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     public void updateKrollObjectProperties(HashMap<String, Object> props) {
+        updateKrollObjectProperties(props, true);
+    }
+    
+    public void updateKrollObjectProperties(HashMap<String, Object> props, final boolean wait) {
         if (KrollRuntime.getInstance().isRuntimeThread()) {
             doUpdateKrollObjectProperties(props);
 
         } else {
-            Message msg = getRuntimeHandler().obtainMessage(
-                    MSG_UPDATE_KROLL_PROPERTIES);
-            TiMessenger.sendBlockingRuntimeMessage(msg, props);
-            // Message message =
-            // getRuntimeHandler().obtainMessage(MSG_UPDATE_KROLL_PROPERTIES,
-            // props);
-            // message.sendToTarget();
+            if (wait) {
+                Message msg = getRuntimeHandler().obtainMessage(
+                        MSG_UPDATE_KROLL_PROPERTIES);
+                TiMessenger.sendBlockingRuntimeMessage(msg, props);
+            } else {
+                Message message = getRuntimeHandler().obtainMessage(
+                        MSG_UPDATE_KROLL_PROPERTIES, props);
+                message.sendToTarget();
+            }
         }
     }
 
@@ -866,6 +874,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 }
             }
         }
+        updateKrollObjectProperties(props, wait);
     }
 
     public void applyPropertiesInternal(Object arg, boolean force) {
@@ -1684,10 +1693,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             return true;
         }
         case MSG_UPDATE_KROLL_PROPERTIES: {
-            AsyncResult asyncResult = (AsyncResult) msg.obj;
-            doUpdateKrollObjectProperties((HashMap<String, Object>) asyncResult
-                    .getArg());
-            asyncResult.setResult(null);
+            if (msg.obj instanceof AsyncResult) {
+                AsyncResult asyncResult = (AsyncResult) msg.obj;
+                doUpdateKrollObjectProperties((HashMap<String, Object>) asyncResult
+                        .getArg());
+                asyncResult.setResult(null);
+                return true;
+
+            } else {
+                doUpdateKrollObjectProperties((HashMap<String, Object>) msg.obj);
+            }
+           
             return true;
         }
         }
@@ -1897,6 +1913,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
         if (properties != null) {
             synchronized (properties) {
+//                Iterator it = properties.entrySet().iterator();
+//                while (it.hasNext()) {
+//                    Map.Entry pairs = (Map.Entry)it.next();
+//                    Object value = pairs.getValue();
+//                    if (value instanceof KrollProxy) {
+//                        ((KrollProxy) value).release();
+//                    }
+//                }
                 properties = null;
             }
         }
