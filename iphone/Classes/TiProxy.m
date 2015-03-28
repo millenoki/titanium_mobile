@@ -588,30 +588,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 -(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject_
 {
 	TiHost *host = [self _host];
-	
-	NSMutableDictionary* eventObject = nil;
-	if ([obj isKindOfClass:[NSDictionary class]])
-	{
-		eventObject = [NSMutableDictionary dictionaryWithDictionary:obj];
-	}
-	else 
-	{
-		eventObject = [NSMutableDictionary dictionary];
-	}
-	
-	// common event properties for all events we fire.. IF they're undefined.
-    if ([eventObject objectForKey:@"type"] == nil) {
-        [eventObject setObject:type forKey:@"type"];
-    }
-    if ([eventObject objectForKey:@"source"] == nil) {
-        [eventObject setObject:self forKey:@"source"];
-    }
-	
+    
 	KrollContext* context = [listener context];
 	if (context!=nil)
 	{
 		id<TiEvaluator> evaluator = (id<TiEvaluator>)context.delegate;
-		[host fireEvent:listener withObject:eventObject remove:NO context:evaluator thisObject:thisObject_];
+		[host fireEvent:listener withObject:obj remove:NO context:evaluator thisObject:thisObject_];
 	}
 }
 
@@ -1051,18 +1033,29 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     if (eventOverrideDelegate != nil) {
         obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
     }
+
+    
+    NSMutableDictionary* eventObject = (IS_OF_CLASS(obj, NSDictionary))? [NSMutableDictionary dictionaryWithDictionary:obj] : [NSMutableDictionary dictionary];
+    
+    // common event properties for all events we fire.. IF they're undefined.
+    if ([eventObject objectForKey:@"type"] == nil) {
+        [eventObject setObject:type forKey:@"type"];
+    }
+    if ([eventObject objectForKey:@"source"] == nil) {
+        [eventObject setObject:self forKey:@"source"];
+    }
     
     
     NSArray* theEvaluators = [evaluators valueForKey:type];
     if (theEvaluators) {
         for (NSDictionary* theEvaluator in theEvaluators) {
-            [TiUtils applyMathDict:theEvaluator forEvent:obj fromProxy:self];
+            [TiUtils applyMathDict:theEvaluator forEvent:eventObject fromProxy:self];
         }
     }
     
     TiBindingEvent ourEvent;
     
-    ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, obj);
+    ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, eventObject);
     if (report || (code != 0)) {
         TiBindingEventSetErrorCode(ourEvent, code);
     }
