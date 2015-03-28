@@ -623,6 +623,7 @@ DEFINE_EXCEPTIONS
             [(TiUIImageViewProxy*)[self proxy] setImageURL:url_];
             
             if (_filterOptions) {
+                shouldTransition = YES;
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
                {
                    RELEASE_TO_NIL(_currentImage);
