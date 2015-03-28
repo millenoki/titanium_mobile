@@ -826,10 +826,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			((TiViewAnimator) pendingAnimation).simulateFinish(this);
 			return;
 		}
-//		else if (view.getWidth() == 0 && view.getHeight() == 0) {
-//			getMainHandler().sendEmptyMessage(MSG_QUEUED_ANIMATE);
-//			return;
-//		}
+		else if (view.getWidth() == 0 && view.getHeight() == 0) {
+			getMainHandler().sendEmptyMessage(MSG_QUEUED_ANIMATE);
+			return;
+		}
+		peekView().forceLayoutNativeView(true);
 		super.handlePendingAnimation();
 	}
 
