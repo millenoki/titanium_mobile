@@ -151,13 +151,13 @@ AndroidWrapper.prototype = Titanium.Android;
 // -----------------------------------------------------------------------
 
 function createSandbox(ti, sourceUrl) {
-	var newSandbox = { Ti: ti, Titanium: ti };
+	var newSandbox = {
+		Ti: ti,
+		Titanium: ti
+	};
 
 	// The require function we want to wrap for this context
-	var contextRequire = global.require;
-	if (ti.global) {
-		contextRequire = ti.global.require;
-	}
+	var contextRequire = undefined;
 
 	// Wrap require in Ti.include contexts so the relative sourceUrl is correct
 	newSandbox.require = function(path, context) {
@@ -167,6 +167,10 @@ function createSandbox(ti, sourceUrl) {
 
 		if (!context.sourceUrl) {
 			context.sourceUrl = sourceUrl;
+		}
+
+		if (contextRequire === undefined) {
+			contextRequire = ti.global ? ti.global.require : global.require;
 		}
 
 		return contextRequire(path, context, sourceUrl);
