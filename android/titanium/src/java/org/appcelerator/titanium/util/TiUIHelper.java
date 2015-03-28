@@ -1562,15 +1562,29 @@ public class TiUIHelper
 	
 	
 	private static Object getValueForKeyPath(final String key, HashMap object) {
-	    HashMap current = object;
+	    Object current = object;
 	    Object result = null;
 	    String[] parts = TiUtils.fastSplit(key, '.');
 	    int length = parts.length;
 	    int canReturnIndex = length - 1;
 	    for (int i = 0; i < length; i++) {
-	        result = current.get(parts[i]);
-            if (result instanceof HashMap){
-                current = (HashMap) result;
+	        final String part = parts[i];
+	        if (current instanceof KrollProxy) {
+	            final String getter = "get" + Character.toUpperCase(part.charAt(0)) + part.substring(1);
+	            Method method;
+                try {
+                    method = current.getClass().getMethod(getter, (Class<?>[]) null);
+                    result = method.invoke(current, (Object[]) null);
+                } catch (Exception e) {
+                    result = null;
+                }
+	        } else if (current instanceof HashMap) {
+	            result = ((HashMap) current).get(parts[i]);
+	        } else {
+	            result = null;
+	        }
+            if (result != null){
+                current = result;
             } else {
                 if (i != canReturnIndex) {
                     return null;
