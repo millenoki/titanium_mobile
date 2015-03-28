@@ -122,16 +122,17 @@ typedef UIImage* (^ProcessImageBlock) ();
 
 -(id)getFilteredScreenshot:(id)args
 {
+//    ENSURE_UI_THREAD_WAIT_1_ARG(args)
     ENSURE_TYPE(args, NSArray)
-    float scale = 1.0f;
+//    float scale = 1.0f;
     NSDictionary *options = nil;
     ENSURE_ARG_OR_NIL_AT_INDEX(options, args, 0, NSDictionary);
     
-    if ([options objectForKey:@"scale"]) {
-        scale = [[options objectForKey:@"scale"] floatValue];
-    }
+//    if ([options objectForKey:@"scale"]) {
+//        scale = [[options objectForKey:@"scale"] floatValue];
+//    }
     return [self processImage:^UIImage *{
-        return [MediaModule takeScreenshotWithScale:scale];
+        return [MediaModule takeScreenshotWithScale:0.0f];
     } withOptions:options];
 }
 
