@@ -117,8 +117,8 @@
 
 -(void)cancelAnimation:(TiAnimation *)animation shouldReset:(BOOL)reset
 {
-    if (reset) [self resetProxyPropertiesForAnimation:animation];
     [self animationDidComplete:animation];
+    if (reset) [self resetProxyPropertiesForAnimation:animation];
 }
 
 -(HLSAnimation*)animationForAnimation:(TiAnimation*)animation
