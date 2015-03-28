@@ -211,6 +211,7 @@ public class ParentingProxy extends KrollProxy {
                     i = ((Number) index).intValue();
                 }
                 addProxy(child, i);
+                updatePropertiesNativeSide();
             }
         }
     }
