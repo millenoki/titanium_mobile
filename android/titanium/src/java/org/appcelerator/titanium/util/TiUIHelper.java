@@ -955,8 +955,12 @@ public class TiUIHelper
             Log.e(TAG, "failed getViewBitmap(" + v + ")");
             return null;
         }
-
-        Bitmap bitmap = Bitmap.createBitmap(cacheBitmap);
+        Bitmap bitmap = null;
+        try {
+            bitmap = Bitmap.createBitmap(cacheBitmap);
+        } catch (Exception e) {
+            bitmap = null;
+        }
 
         // Restore the view
         v.destroyDrawingCache();
@@ -1032,11 +1036,15 @@ public class TiUIHelper
 						bitmapConfig = Config.RGB_565;
 					}
 				}
-	
-				bitmap = Bitmap.createBitmap(width, height, bitmapConfig);
-				Canvas canvas = new Canvas(bitmap);
-				view.draw(canvas);
-				canvas = null;
+				try {
+	                bitmap = Bitmap.createBitmap(width, height, bitmapConfig);
+	                Canvas canvas = new Canvas(bitmap);
+	                view.draw(canvas);
+	                canvas = null;
+                } catch (Exception e) {
+                    bitmap = null;
+                }
+				
 			}
 		}
 
