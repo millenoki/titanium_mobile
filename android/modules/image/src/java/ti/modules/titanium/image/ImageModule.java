@@ -145,7 +145,7 @@ public class ImageModule extends KrollModule {
                     return null;
                 }
             }
-            result = TiImageHelper.imageFiltered(bitmap, options);
+            result = TiImageHelper.imageFiltered(bitmap, options, true);
         }
 
         if (result != null) {
@@ -242,7 +242,7 @@ public class ImageModule extends KrollModule {
             } else {
                 bitmap = (Bitmap) TiMessenger.sendBlockingMainMessage(
                         getMainHandler().obtainMessage(MSG_GETVIEWIMAGE),
-                        new Object[] { view.getOuterView() });
+                        view.getOuterView());
             }
         } catch (Exception e) {
             bitmap = null;
@@ -276,7 +276,7 @@ public class ImageModule extends KrollModule {
             } else {
                 bitmap = (Bitmap) TiMessenger.sendBlockingMainMessage(
                         getMainHandler().obtainMessage(MSG_GETVIEWIMAGE),
-                        new Object[] { view });
+                        view);
             }
             Rect statusBar = new Rect();
             view.getWindowVisibleDisplayFrame(statusBar);

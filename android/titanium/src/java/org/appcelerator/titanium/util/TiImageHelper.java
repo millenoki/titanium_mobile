@@ -239,6 +239,7 @@ public class TiImageHelper
 			int dstWidth = (int) (width * scale);
 			int dstHeight = (int) (height * scale);
 			try {
+			    
 				bitmap = Bitmap.createScaledBitmap(bitmap, dstWidth, dstHeight, true);
 				
 			} catch (OutOfMemoryError e) {
@@ -257,19 +258,30 @@ public class TiImageHelper
 		return getFilteredBitmap(bitmap, filterType, options);
 	}
 	
-	public static Pair<Bitmap, KrollDict> imageFiltered(Bitmap bitmap, HashMap options) {
+	public static Pair<Bitmap, KrollDict> imageFiltered(Bitmap bitmap, HashMap options, final boolean shouldCopySource) {
 	    if (bitmap == null) {
             return null;
         }
+	    if (shouldCopySource) {
+	        bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
+	    }
 	    KrollDict infoData = new KrollDict();
 		if (options.containsKey("crop")) {
 			TiRect rect = new TiRect(options.get("crop"));
+            Bitmap oldBitmap  = bitmap;
 			bitmap = TiImageHelper.imageCropped(bitmap, rect);
+            bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
+            oldBitmap.recycle();
+            oldBitmap = null;
 		}
 
         if (options.containsKey("scale")) {
             float scale = TiConvert.toFloat(options, "scale", 1.0f);
+            Bitmap oldBitmap  = bitmap;
             bitmap = TiImageHelper.imageScaled(bitmap, scale);
+            bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
+            oldBitmap.recycle();
+            oldBitmap = null;
         }
 
 		if (options.containsKey("filters")) {
@@ -284,16 +296,24 @@ public class TiImageHelper
 			        }
 			    }
 			}
+            Bitmap oldBitmap  = bitmap;
 			bitmap = getGPUImage().getBitmapWithFilterApplied(bitmap, 
 			        group, 
                     ScaleType.CENTER_CROP, 
                     Rotation.NORMAL);
+            bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
+            oldBitmap.recycle();
+            oldBitmap = null;
 		}
 		
 		if (options.containsKey("tint")) {
 			int tint = TiConvert.toColor(options, "tint", 0);
 			Mode mode = Mode.values()[TiConvert.toInt(options, "blend", Mode.LIGHTEN.ordinal())];
+            Bitmap oldBitmap  = bitmap;
 			bitmap = TiImageHelper.imageTinted(bitmap, tint, mode);
+			bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
+            oldBitmap.recycle();
+            oldBitmap = null;
 		}
 		
 		if (options.containsKey("colorArt")) {
