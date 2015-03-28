@@ -981,6 +981,16 @@ static NSDictionary* replaceKeysForRow;
 	[[self tableView] setBounces:![TiUtils boolValue:value]];
 }
 
+-(void)setHorizontalBounce_:(id)value
+{
+    [[self tableView] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
+}
+
+-(void)setVerticalBounce_:(id)value
+{
+    [[self tableView] setAlwaysBounceVertical:[TiUtils boolValue:value]];
+}
+
 -(void)setScrollHidesKeyboard_:(id)value
 {
     _scrollHidesKeyboard = [TiUtils boolValue:value def:_scrollHidesKeyboard];
