@@ -5,14 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.animation.TiAnimator;
 import org.appcelerator.titanium.animation.TiAnimatorListener;
 import org.appcelerator.titanium.animation.TiAnimatorSet;
-import org.appcelerator.titanium.animation.TiInterpolator;
 
 import android.view.animation.Interpolator;
 
