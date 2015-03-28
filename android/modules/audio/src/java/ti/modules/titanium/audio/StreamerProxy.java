@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiEnhancedServiceProxy;
@@ -26,7 +25,6 @@ import android.content.Intent;
 @Kroll.proxy(creatableInModule = AudioModule.class, propertyAccessors = {
         TiC.PROPERTY_VOLUME, 
         TiC.PROPERTY_METADATA, 
-        TiC.PROPERTY_PLAYLIST,
         TiC.PROPERTY_REPEAT_MODE,
         TiC.PROPERTY_SHUFFLE_MODE,
         })
@@ -90,20 +88,7 @@ public class StreamerProxy extends TiEnhancedServiceProxy {
         // else if (target == mStopButton)
         // startService(new Intent(AudioStreamerExoService.ACTION_STOP));
     }
-
-    // @Override
-    // public void initActivity(Activity activity)
-    // {
-    // //In our case the service must always be started, so start it even if not
-    // started already!
-    // Log.d(TAG, "initActivity",Log.DEBUG_MODE);
-    // super.initActivity(activity);
-    // startService();
-    // }
-
-    // we override ServiceProxy methods to make sure we call our static methods
-    // in all cases.
-
+    
     private boolean mEnableLockscreenControls = true;
 
     private List<Object> addItemToPlaylist(Object item) {
@@ -141,78 +126,74 @@ public class StreamerProxy extends TiEnhancedServiceProxy {
 
         return null;
     }
-
+//
+//    @Override
+//    public void handleCreationDict(KrollDict options) {
+//        super.handleCreationDict(options);
+//        if (options.containsKey(TiC.PROPERTY_PLAYLIST)) {
+//            addItemToPlaylist(options.get(TiC.PROPERTY_PLAYLIST));
+//        }
+//        // } else if (options.containsKey(TiC.PROPERTY_SOUND)) {
+//        // FileProxy fp = (FileProxy) options.get(TiC.PROPERTY_SOUND);
+//        // if (fp != null) {
+//        // String url = fp.getNativePath();
+//        // setProperty(TiC.PROPERTY_URL, url);
+//        // }
+//        // }
+//        // if (options.containsKey(TiC.PROPERTY_ALLOW_BACKGROUND)) {
+//        // allowBackground = options.optBoolean(TiC.PROPERTY_ALLOW_BACKGROUND,
+//        // allowBackground);
+//        // }
+//        // Log.i(TAG,
+//        // "Creating audio player proxy for url: "
+//        // + TiConvert.toString(getProperty(TiC.PROPERTY_URL)),
+//        // Log.DEBUG_MODE);
+//    }
+    
     @Override
-    public void handleCreationDict(KrollDict options) {
-        super.handleCreationDict(options);
-        if (options.containsKey(TiC.PROPERTY_PLAYLIST)) {
-            addItemToPlaylist(options.get(TiC.PROPERTY_PLAYLIST));
-        }
-        // } else if (options.containsKey(TiC.PROPERTY_SOUND)) {
-        // FileProxy fp = (FileProxy) options.get(TiC.PROPERTY_SOUND);
-        // if (fp != null) {
-        // String url = fp.getNativePath();
-        // setProperty(TiC.PROPERTY_URL, url);
-        // }
-        // }
-        // if (options.containsKey(TiC.PROPERTY_ALLOW_BACKGROUND)) {
-        // allowBackground = options.optBoolean(TiC.PROPERTY_ALLOW_BACKGROUND,
-        // allowBackground);
-        // }
-        // Log.i(TAG,
-        // "Creating audio player proxy for url: "
-        // + TiConvert.toString(getProperty(TiC.PROPERTY_URL)),
-        // Log.DEBUG_MODE);
-    }
-
-    @Override
-    public void onPropertyChanged(String name, Object value, Object oldValue) {
-        if (name.equals(TiC.PROPERTY_PLAYLIST)) {
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_PLAYLIST:
             mPlaylist = null;
-            addItemToPlaylist(value);
-            if (tiService != null) {
+            addItemToPlaylist(newValue);
+            if (tiService != null && changedProperty) {
                 tiService.setPlaylist(mPlaylist);
             }
-            else {
+            else if (changedProperty){
                 needsStopOnBind = true;
             }
-        } else if (TiC.PROPERTY_VOLUME.equals(name)) {
+            break;
+        case TiC.PROPERTY_VOLUME:
             if (tiService != null) {
-                tiService.setVolume(TiConvert.toFloat(value, 1.0f));
+                tiService.setVolume(TiConvert.toFloat(newValue, 1.0f));
             }
-        } else if (TiC.PROPERTY_TIME.equals(name)) {
+            break;
+        case TiC.PROPERTY_TIME:
             if (tiService != null) {
-                tiService.seek(TiConvert.toLong(value));
+                tiService.seek(TiConvert.toLong(newValue));
             }
-        } else if (name.equals(TiC.PROPERTY_METADATA)) {
+            break;
+        case TiC.PROPERTY_METADATA:
             if (tiService != null) {
                 tiService.updateMetadata();
             }
-        } else if (TiC.PROPERTY_REPEAT_MODE.equals(name)) {
+            break;
+        case TiC.PROPERTY_REPEAT_MODE:
             if (tiService != null) {
-                tiService.setRepeatMode(TiConvert.toInt(value, tiService.getRepeatMode()));
+                tiService.setRepeatMode(TiConvert.toInt(newValue, tiService.getRepeatMode()));
             }
-        } else if (TiC.PROPERTY_SHUFFLE_MODE.equals(name)) {
+            break;
+        case TiC.PROPERTY_SHUFFLE_MODE:
             if (tiService != null) {
-                tiService.setShuffleMode(TiConvert.toInt(value, tiService.getShuffleMode()));
+                tiService.setShuffleMode(TiConvert.toInt(newValue, tiService.getShuffleMode()));
             }
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
         }
     }
-
-    // @Kroll.getProperty
-    // @Kroll.method
-    // public String getUrl() {
-    // return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
-    // }
-    //
-    // @Kroll.setProperty
-    // @Kroll.method
-    // public void setUrl(String url) {
-    // if (url != null) {
-    // setProperty(TiC.PROPERTY_URL,
-    // resolveUrl(null, TiConvert.toString(url)));
-    // }
-    // }
 
     @Kroll.getProperty
     @Kroll.method
@@ -335,6 +316,8 @@ public class StreamerProxy extends TiEnhancedServiceProxy {
     public Object getCurrentItem() {
         if (tiService != null) {
             return tiService.getCurrent();
+        } else if (mPlaylist != null) {
+            return mPlaylist.get(0);
         }
         return null;
     }
@@ -363,6 +346,8 @@ public class StreamerProxy extends TiEnhancedServiceProxy {
     public int getIndex() {
         if (tiService != null) {
             return tiService.getQueuePosition();
+        } else if (mPlaylist != null) {
+            return 0;
         }
         return -1;
     }

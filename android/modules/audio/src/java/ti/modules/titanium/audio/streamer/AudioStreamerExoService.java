@@ -395,6 +395,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
     public static final String EVENT_STATE = "state";
     public static final String EVENT_CHANGE = "change";
     public static final String EVENT_PROGRESS = "progress";
+    public static final String EVENT_END = "end";
     public static final int STATE_BUFFERING = 0; // current playback is in the
     // buffering from the network
     // state
@@ -421,6 +422,8 @@ public class AudioStreamerExoService extends TiEnhancedService implements
     private float mVolume = 1.0f;
     private boolean inBackground = false;
 
+    private List<Intent> mPendingCommandIntents = new ArrayList<Intent>();
+    private boolean mIgnoreStateChange = false;
     /**
      * Used to build the notification
      */
@@ -462,7 +465,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         }
         return super.onUnbind(intent);
     }
-
+    
     public void onError(final int what, final String msg) {
 //        mPlayPending = false;
 //        mPausePending = false;
@@ -529,6 +532,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
                     ((StreamerProxy) proxy).getNotificationViewId(),
                     ((StreamerProxy) proxy)
                             .getNotificationExtandedViewId());
+           
             // Use the remote control APIs (if available and the user allows it)
             // to
             // set the playback state
@@ -538,7 +542,12 @@ public class AudioStreamerExoService extends TiEnhancedService implements
 
             setVolume(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_VOLUME),
                     1.0f));
-
+            if (mStarted) {
+                //we were already started
+                if (mState == STATE_PLAYING) {
+                    buildNotification();
+                }
+            }
         }
     }
 
@@ -677,8 +686,6 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         mWakeLock.release();
 
     }
-
-    private List<Intent> mPendingCommandIntents = new ArrayList<Intent>();
 
     private void handleIntent(final Intent intent) {
         if (!mStarted) {
@@ -1292,7 +1299,12 @@ public class AudioStreamerExoService extends TiEnhancedService implements
      * @return The current track
      */
     public Object getCurrent() {
-        return mCursor;
+        if (mCursor != null) {
+            return mCursor;
+        } else if (mOriginalQueue != null){
+            return mOriginalQueue.get(mPlayPos);
+        }
+        return null;
     }
 
     /**
@@ -1364,7 +1376,10 @@ public class AudioStreamerExoService extends TiEnhancedService implements
      */
     public Object[] getQueue() {
         synchronized (this) {
-            return mQueue.toArray();
+            if (mQueue != null) {
+                return mQueue.toArray();
+            }
+            return null;
         }
     }
     
@@ -1375,7 +1390,10 @@ public class AudioStreamerExoService extends TiEnhancedService implements
      */
     public Object[] getPlaylist() {
         synchronized (this) {
-            return mOriginalQueue.toArray();
+            if (mOriginalQueue != null) {
+                return mOriginalQueue.toArray();
+            }
+            return null;
         }
     }
 
@@ -1515,8 +1533,9 @@ public class AudioStreamerExoService extends TiEnhancedService implements
                 if (pos < 0) {
                     gotoIdleState();
                     if (mIsSupposedToBePlaying) {
-                        mIsSupposedToBePlaying = false;
-                        notifyChange(PLAYSTATE_CHANGED);
+                        proxy.fireEvent(EVENT_END, null, false, true);
+                        stop();
+                        mPlayPos = -1;
                     }
                     return;
                 }
@@ -1601,14 +1620,20 @@ public class AudioStreamerExoService extends TiEnhancedService implements
     }
 
     public void setPlaylist(final List<Object> list) {
+        final boolean playing = mState == STATE_PLAYING;
+        final boolean emptyPlaylist = list != null;
+        mIgnoreStateChange = emptyPlaylist;
         stop();
+        mIgnoreStateChange = false;
         mOriginalQueue = null;
         mQueue = null;
         mPlayPos = 0;
         if (list != null) {
             addToPlayList(list, Integer.MAX_VALUE);
         }
-
+        if (!emptyPlaylist && playing) {
+            play();
+        }
     }
 
     /**
@@ -2933,7 +2958,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
         }
         Log.d(TAG, "Audio state changed: " + mStateDescription, Log.DEBUG_MODE);
 
-        if (proxyHasListeners(EVENT_STATE, false)) {
+        if (!mIgnoreStateChange && proxyHasListeners(EVENT_STATE, false)) {
             KrollDict data = new KrollDict();
             data.put("state", state);
             data.put("description", mStateDescription);
