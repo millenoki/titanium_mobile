@@ -17,7 +17,6 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiPlatformHelper;
-import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
