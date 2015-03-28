@@ -98,6 +98,15 @@ public class TiBlob extends KrollProxy
 		this.width = 0;
 		this.height = 0;
 	}
+	
+	@Override
+	public void release() {
+	    super.release();
+	    if (this.image != null) {
+	        this.image.recycle();
+	        this.image = null;
+	    }
+	}
 
 	public static String getMimeTypeOfFile(Object object) {
 	    Bitmap bitmap = null;
@@ -860,7 +869,7 @@ public class TiBlob extends KrollProxy
 		if (bitmap != null) {
 			return null;
 		}
-		Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(bitmap, options);
+		Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(bitmap, options, true);
 		TiBlob blob = TiBlob.blobFromObject(result.first);
 		blob.addInfo(result.second);
 		return blob;
