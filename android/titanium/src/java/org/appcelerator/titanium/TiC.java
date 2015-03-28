@@ -19,6 +19,7 @@ public class TiC
     public static boolean HONEYCOMB_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     public static boolean ICS_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH);
     public static boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN);
+    public static boolean KIT_KAT_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT);
 	public static final String ERROR_PROPERTY_CODE = "code";
 	public static final String ERROR_PROPERTY_ERRORCODE = "errorcode";
 	public static final String ERROR_PROPERTY_MESSAGE = "message";
@@ -235,6 +236,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_PADDING = "padding";
 
+    /**
+     * @module.api
+     */
+    public static final String EVENT_PAN = "pan";   
+
 	/**
 	 * @module.api
 	 */
@@ -265,10 +271,14 @@ public class TiC
 	 */
 	public static final String EVENT_PLAYING = "playing";
 
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
+    /**
+     * @module.api
+     */
+    public static final String EVENT_PROPERTY_ANGLE = "angle";
+    /**
+     * @module.api
+     */
+    public static final String EVENT_PROPERTY_CLICKSOURCE = "clicksource";
 
 	/**
 	 * @module.api
@@ -465,6 +475,11 @@ public class TiC
 	 */
 	public static final String EVENT_RESUME = "resume";
 	
+    /**
+     * @module.api
+     */
+    public static final String EVENT_ROTATE = "rotate";
+	
 	/**
 	 * @module.api
 	 */
@@ -490,6 +505,10 @@ public class TiC
 	 */
 	public static final String EVENT_DRAGEND = "dragend";
 
+    /**
+     * @module.api
+     */
+    public static final String EVENT_SHOVE = "shove";
 	/**
 	 * @module.api
 	 */
@@ -515,10 +534,10 @@ public class TiC
 	 */
 	public static final String EVENT_SUBMIT = "submit";
 
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_SWIPE = "swipe";
+    /**
+     * @module.api
+     */
+    public static final String EVENT_SWIPE = "swipe";
 
 	/**
 	 * @module.api
@@ -2871,6 +2890,11 @@ public class TiC
 	* @module.api
 	*/
 	public static final String PROPERTY_SPLIT_ACTIONBAR = "splitActionBar";
+
+    /**
+    * @module.api
+    */
+    public static final String PROPERTY_ACTIONBAR_OVERLAY = "actionBarOverlay";
 
 	/**
 	 * @module.api
