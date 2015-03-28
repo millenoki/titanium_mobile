@@ -38,6 +38,7 @@ public class TiAnimator
     private Interpolator curve = null;
     private Interpolator reverseCurve = null;
 	protected boolean animating;
+	protected boolean cancelled = false;
 
 	public TiAnimation animationProxy;
 	protected KrollFunction callback;
@@ -47,26 +48,28 @@ public class TiAnimator
 	public TiAnimator()
 	{
 		animating = false;
+		cancelled = false;
 	}
 	
 	protected void handleCancel() {
-		if (proxy != null) {
-			proxy.animationFinished(this);
-		}
-		resetAnimationProperties();
-		proxy.afterAnimationReset();
+        cancelled = true;
+//		if (proxy != null) {
+//			proxy.animationFinished(this);
+//		}
+//		resetAnimationProperties();
+//		proxy.afterAnimationReset();
 	};
 	
 	public void cancel(){
-		if (animating == false) return;
+		if (animating == false || cancelled == true) return;
+        cancelled = true;
 		Log.d(TAG, "cancel", Log.DEBUG_MODE);
-		animating = false; //will prevent the call the handleFinish
 		handleCancel();
 	}
 	
 	public void cancelWithoutResetting(){
 		if (animating == false) return;
-		Log.d(TAG, "cancel", Log.DEBUG_MODE);
+		Log.d(TAG, "cancelWithoutResetting", Log.DEBUG_MODE);
 		animating = false; //will prevent the call the handleFinish
 	}
 	
@@ -195,11 +198,11 @@ public class TiAnimator
 			}
 		}
 		proxy.applyPropertiesInternal(resetProps, true, true);
+        proxy.afterAnimationReset();
 	}
 	
 	protected void handleFinish()
-	{
-		
+	{		
 		if (autoreverse == true) {
 			resetAnimationProperties();
 		}
