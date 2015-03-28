@@ -91,6 +91,7 @@ public abstract class TiApplication extends Application implements
 
     private static float mAppDensity = -1;
     private static float mAppScaledDensity = -1;
+    private static String mAppDensityString = null;
 
     protected static WeakReference<TiApplication> tiApp = null;
 
@@ -118,7 +119,6 @@ public abstract class TiApplication extends Application implements
     private WeakReference<TiRootActivity> rootActivity;
     private TiProperties appProperties;
     private WeakReference<Activity> currentActivity;
-    private String density;
     private String buildVersion = "", buildTimestamp = "", buildHash = "";
     private String defaultUnit;
     private BroadcastReceiver externalStorageReceiver;
@@ -769,25 +769,7 @@ public abstract class TiApplication extends Application implements
     public void setRootActivity(TiRootActivity rootActivity) {
         this.rootActivity = new WeakReference<TiRootActivity>(rootActivity);
         rootActivityLatch.countDown();
-
-        // calculate the display density
-        DisplayMetrics dm = new DisplayMetrics();
-        rootActivity.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        switch (dm.densityDpi) {
-        case DisplayMetrics.DENSITY_HIGH: {
-            density = "high";
-            break;
-        }
-        case DisplayMetrics.DENSITY_MEDIUM: {
-            density = "medium";
-            break;
-        }
-        case DisplayMetrics.DENSITY_LOW: {
-            density = "low";
-            break;
-        }
-        }
-
+        
         TiPlatformHelper.getInstance().initAnalytics();
         TiPlatformHelper.getInstance().setSdkVersion(
                 "ti." + getTiBuildVersion());
@@ -929,6 +911,29 @@ public abstract class TiApplication extends Application implements
         }
         return mAppScaledDensity;
     }
+    
+    public static String getAppDensityString() {
+        if (mAppDensityString == null) {
+            DisplayMetrics metrics = TiDimension.getDisplayMetrics();
+            switch(metrics.densityDpi) {
+            case DisplayMetrics.DENSITY_HIGH :
+                mAppDensityString = "high";
+            case DisplayMetrics.DENSITY_MEDIUM :
+                mAppDensityString = "medium";
+            case 320 : // DisplayMetrics.DENSITY_XHIGH (API 9)
+                mAppDensityString = "xhigh";
+            case 480 :
+                mAppDensityString = "xxhigh";
+            case 640 :
+                mAppDensityString = "xxxhigh";
+            case DisplayMetrics.DENSITY_LOW :
+                mAppDensityString = "low";
+            default :
+                mAppDensityString = "medium";
+            }
+        }
+        return mAppDensityString;
+    }
 
     /**
      * @return the app's GUID. Each application has a unique GUID.
@@ -940,7 +945,7 @@ public abstract class TiApplication extends Application implements
     public KrollDict getStylesheet(String basename, Collection<String> classes,
             String objectId) {
         if (stylesheet != null) {
-            return stylesheet.getStylesheet(objectId, classes, density,
+            return stylesheet.getStylesheet(objectId, classes, getAppDensityString(),
                     basename);
         }
         return null;
