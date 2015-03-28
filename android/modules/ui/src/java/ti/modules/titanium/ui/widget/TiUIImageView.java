@@ -115,7 +115,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         @Override
         protected Bitmap doInBackground(Bitmap... params) {
             Bitmap bitmap = params[0];
-            Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(bitmap, filterOptions);
+            Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(bitmap, filterOptions, true);
             if (result != null) {
                 bitmapInfo = result.second;
                 return result.first;
