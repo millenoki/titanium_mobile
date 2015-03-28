@@ -21,6 +21,8 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiActivityHelper.Command;
+import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -31,6 +33,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Message;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.util.TypedValue;
 import android.view.View;
@@ -210,151 +213,55 @@ public class ActionBarProxy extends AnimatableReusableProxy
         }
     }
 
-	private void setDisplayHomeAsUp(final boolean showHomeAsUp)
-	{
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setDisplayHomeAsUp(showHomeAsUp);
-                }
-            });
-            return;
-        }
-        actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
-	}
-
-	public void setNavigationMode(final int navigationMode)
-	{
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setNavigationMode(navigationMode);
-                }
-            });
-            return;
-        }
-        actionBar.setNavigationMode(navigationMode);
-
-	}
 
 	public void setBackgroundImage(final Object value)
 	{
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setBackgroundImage(value);
+	    runInUiThread(new CommandNoReturn() {
+            public void execute() {
+                actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+                actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+                
+                if (value instanceof Drawable) {
+                    setActionBarDrawable((Drawable) value);
+                    
+                } else {
+                    setActionBarDrawable(TiUIHelper.getResourceDrawable(value));
                 }
-            });
-            return;
-        }
-        actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
-        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
-        
-        if (value instanceof Drawable) {
-            
-        } else {
-            setActionBarDrawable((Drawable) value);
-        }
-        setActionBarDrawable(TiUIHelper.getResourceDrawable(value));
-        customBackgroundSet = (mActionBarBackgroundDrawable != null);
+                customBackgroundSet = (mActionBarBackgroundDrawable != null);
+            }
+        });
 	}
 	
 	public void setBackgroundColor(final int color)
 	{
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-	    if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setBackgroundColor(color);
-                }
-            });
-            return;
-        }
-        
-        resetTitleEnabled();
-        setActionBarDrawable(new ColorDrawable(color));
-        customBackgroundSet = (mActionBarBackgroundDrawable != null) && color != defaultColor;
+	    runInUiThread(new CommandNoReturn() {
+            public void execute() {
+                resetTitleEnabled();
+                setActionBarDrawable(new ColorDrawable(color));
+                customBackgroundSet = (mActionBarBackgroundDrawable != null) && color != defaultColor;
+            }
+        });
 	}
+
+
+	@Override
+	public <T> T getValueInUIThread(final Command<T> command, T defaultValue){
+	    if (actionBar == null) {
+            Log.w(TAG, "ActionBar is not enabled");
+            return defaultValue;
+        }
+        return super.getValueInUIThread(command, defaultValue);
+    }
 	
-	public void setBackgroundGradient(final KrollDict gradDict)
-	{
+	@Override
+	public void runInUiThread(final CommandNoReturn command) {
 	    if (actionBar == null) {
             Log.w(TAG, "ActionBar is not enabled");
             return;
         }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setBackgroundGradient(gradDict);
-                }
-            });
-            return;
-        }
-        resetTitleEnabled();
-        setActionBarDrawable(TiUIHelper.buildGradientDrawable(gradDict));
-        customBackgroundSet = (mActionBarBackgroundDrawable != null);
-	}
-	
-	public void setBackgroundOpacity(final float alpha)
-    {
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setBackgroundOpacity(alpha);
-                }
-            });
-            return;
-        }
-        backgroundAlpha = (int) (alpha*255.0f);
-        if (mActionBarBackgroundDrawable == null) {
-            setBackgroundColor(defaultColor);
-        } else {
-            mActionBarBackgroundDrawable.setAlpha(backgroundAlpha);
-        }
+        super.runInUiThread(command);
     }
 
-	public void setTitle(final String title)
-	{
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setTitle(title);
-                }
-            });
-            return;
-        }
-        actionBar.setTitle(title);
-	}
 	
 	public void setCustomView(final Object view, final boolean shouldHold)
     {
@@ -396,82 +303,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
         }
         actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
     }
-
-	public void setSubtitle(final String subTitle)
-	{
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setSubtitle(subTitle);
-                }
-            });
-            return;
-        }
-        showTitleEnabled = true;
-        actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
-        actionBar.setSubtitle(subTitle);
-	}
 	
-	public void setDisplayShowHomeEnabled(final boolean show) {
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setDisplayShowHomeEnabled(show);
-                }
-            });
-            return;
-        }
-        actionBar.setDisplayShowHomeEnabled(show);
-	}
-	
-	public void setDisplayShowTitleEnabled(final boolean show) {
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setDisplayShowTitleEnabled(show);
-                }
-            });
-            return;
-        }
-		actionBar.setDisplayShowTitleEnabled(show);
-		showTitleEnabled = show;
-	}
-	
-
-    public void setLogo(final Object value)
-    {
-        if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setLogo(value);
-                }
-            });
-            return;
-        }
-        Drawable logo = TiUIHelper.getResourceDrawable(value);
-        actionBar.setLogo(logo);
-    }
-
     public void setIcon(final Object value)
     {
         if (actionBar == null) {
@@ -494,108 +326,47 @@ public class ActionBarProxy extends AnimatableReusableProxy
             actionBar.setIcon(icon);
         } 
     }
-    
-    
-    private void setUpIndicator(final Object value) {
-        if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setUpIndicator(value);
-                }
-            });
-            return;
-        }
-        Drawable drawable = TiUIHelper.getResourceDrawable(value);
-        ImageView view = getUpIndicatorView();
-        if (view != null) {
-            if (drawable != null) {
-                view.setImageDrawable(drawable);
-            }
-            else {
-                view.setImageDrawable(view.getDrawable());
-            }
-        }
-    }
-    
-    private void setHomeAsUpIndicator(final Object value) {
-        if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    setUpIndicator(value);
-                }
-            });
-            return;
-        }
-        Drawable drawable = TiUIHelper.getResourceDrawable(value);
-        actionBar.setHomeAsUpIndicator(drawable);
-    }
-
 
     @Kroll.method
     @Kroll.getProperty
     public double getHeight() {
-        if (actionBar == null) {
-            return 0;
-        }
-        TiDimension nativeHeight = new TiDimension(actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
-        return nativeHeight.getAsDefault();
+        return getValueInUIThread(new Command<Double>() {
+            public Double execute() {
+                TiDimension nativeHeight = new TiDimension(actionBar.getHeight(), TiDimension.TYPE_HEIGHT);
+                return nativeHeight.getAsDefault();
+            };
+        }, 0.0);
     }
     
-	@SuppressWarnings("deprecation")
+    @Kroll.method
+    @Kroll.getProperty
     public int getNavigationMode()
 	{
-		if (actionBar == null) {
-			return 0;
-		}
-		return (int) actionBar.getNavigationMode();
+	    return getValueInUIThread(new Command<Integer>() {
+            public Integer execute() {
+                return (int) actionBar.getNavigationMode();
+            };
+        }, 0);
 	}
 
 	@Kroll.method
 	public void show()
 	{
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    show();
-                }
-            });
-            return;
-        }
-        actionBar.show();
+	    runInUiThread(new CommandNoReturn() {
+            public void execute() {
+                actionBar.show();
+            }
+        });
 	}
 
 	@Kroll.method
 	public void hide()
 	{
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    hide();
-                }
-            });
-            return;
-        }
-        actionBar.hide();
+	    runInUiThread(new CommandNoReturn() {
+            public void execute() {
+                actionBar.hide();
+            }
+        });
 	}
 
 	
@@ -606,24 +377,6 @@ public class ActionBarProxy extends AnimatableReusableProxy
 	
 
 
-	private void activateHomeButton(final boolean value)
-	{
-	    if (actionBar == null) {
-            Log.w(TAG, "ActionBar is not enabled");
-            return;
-        }
-        if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    activateHomeButton(value);
-                }
-            });
-            return;
-        }
-
-        actionBar.setHomeButtonEnabled(value);
-	}
 	
 
 	private Drawable getDrawable(Object value)
@@ -684,56 +437,129 @@ public class ActionBarProxy extends AnimatableReusableProxy
     }
 
 	@Override
-    public void propertySet(String key, Object newValue, Object oldValue,
+    public void propertySet(String key, final Object newValue, Object oldValue,
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED:
-            activateHomeButton(newValue instanceof KrollFunction);
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    actionBar.setHomeButtonEnabled((newValue instanceof KrollFunction));
+                }
+            });
             break;
         case TiC.PROPERTY_DISPLAY_HOME_AS_UP:
-            setDisplayHomeAsUp(TiConvert.toBoolean(newValue, false));
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    actionBar.setDisplayHomeAsUpEnabled(TiConvert.toBoolean(newValue, false));
+
+                }
+            });
             break;
         case TiC.PROPERTY_DISPLAY_HOME_TITLE_ENABLED:
-            setDisplayShowTitleEnabled(TiConvert.toBoolean(newValue, false));
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    showTitleEnabled = TiConvert.toBoolean(newValue, false);
+                    actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+                }
+            });
             break;
         case TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED:
-            setDisplayShowHomeEnabled(TiConvert.toBoolean(newValue, false));
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    actionBar.setDisplayShowHomeEnabled(TiConvert.toBoolean(newValue, false));
+                }
+            });
             break;
         case TiC.PROPERTY_BACKGROUND_IMAGE:
-            setBackgroundImage(TiConvert.toString(newValue));
+            setBackgroundImage(newValue);
             break;
         case TiC.PROPERTY_BACKGROUND_COLOR:
             setBackgroundColor(TiConvert.toColor(newValue));
             break;
         case TiC.PROPERTY_BACKGROUND_GRADIENT:
-            setBackgroundGradient(TiConvert.toKrollDict(newValue));
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    resetTitleEnabled();
+                    setActionBarDrawable(TiUIHelper.buildGradientDrawable(TiConvert.toKrollDict(newValue)));
+                    customBackgroundSet = (mActionBarBackgroundDrawable != null);
+                }
+            });
             break;
         case TiC.PROPERTY_BACKGROUND_OPACITY:
-            setBackgroundOpacity(TiConvert.toFloat(newValue, 1.0f));
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    backgroundAlpha = (int) (TiConvert.toFloat(newValue, 1.0f)*255.0f);
+                    if (mActionBarBackgroundDrawable == null) {
+                        setBackgroundColor(defaultColor);
+                    } else {
+                        mActionBarBackgroundDrawable.setAlpha(backgroundAlpha);
+                    }
+                }
+            });
             break;
         case TiC.PROPERTY_CUSTOM_VIEW:
             setCustomView(newValue, true);
+            break;
+        case "navigationMode": 
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    actionBar.setNavigationMode(TiConvert.toInt(newValue, 0));
+                }
+            });
             break;
         case TiC.PROPERTY_TITLE_VIEW:
             setCustomView(newValue, false);
             break;
         case TiC.PROPERTY_LOGO:
-            setLogo(newValue);
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    Drawable logo = TiUIHelper.getResourceDrawable(newValue);
+                    actionBar.setLogo(logo);
+                }
+            });
             break;
         case TiC.PROPERTY_TITLE:
-            setTitle(TiConvert.toString(newValue));
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    actionBar.setTitle(TiConvert.toString(newValue));
+                }
+            });
             break;
         case TiC.PROPERTY_SUBTITLE:
-            setSubtitle(TiConvert.toString(newValue));
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    showTitleEnabled = true;
+                    actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+                    actionBar.setSubtitle(TiConvert.toString(newValue));
+                }
+            });
             break;
         case TiC.PROPERTY_UP_INDICATOR:
-            setUpIndicator(newValue);
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    Drawable drawable = TiUIHelper.getResourceDrawable(newValue);
+                    ImageView view = getUpIndicatorView();
+                    if (view != null) {
+                        if (drawable != null) {
+                            view.setImageDrawable(drawable);
+                        }
+                        else {
+                            view.setImageDrawable(view.getDrawable());
+                        }
+                    }
+                }
+            });
             break;
         case TiC.PROPERTY_ICON:
             setIcon(newValue);
             break;
         case TiC.PROPERTY_HOME_AS_UP_INDICATOR:
-            setHomeAsUpIndicator(newValue);
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    Drawable drawable = TiUIHelper.getResourceDrawable(newValue);
+                    actionBar.setHomeAsUpIndicator(drawable);
+                }
+            });
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
