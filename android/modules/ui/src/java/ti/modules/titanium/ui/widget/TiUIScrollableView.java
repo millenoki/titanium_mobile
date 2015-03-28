@@ -838,29 +838,23 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		public Object instantiateItem(View container, int position)
 		{
 			synchronized (viewsLock) {
-				ViewPager pager = (ViewPager) container;
-				Activity activity = proxy.getActivity();
+			    
+			    ViewGroup pager = (ViewGroup) container;
                 TiViewProxy tiProxy = mViews.get(position);
-                tiProxy.setActivity(activity);
-				TiUIView tiView = tiProxy.getOrCreateView();
-				if (tiView != null) {
-				    View view = tiView.getOuterView();
-	                ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-	                TiCompositeLayout layout = new TiCompositeLayout(activity);
-	                ViewParent parent = view.getParent();
-	                if (parent instanceof ViewGroup) {
-	                    pager.removeView((View) parent);
-	                    ViewGroup group = (ViewGroup) parent;
-	                    group.removeView(view);
-	                }
-	                layout.addView(view, tiView.getLayoutParams());
-	                if (position < pager.getChildCount()) {
-	                    pager.addView(layout, position, params);
-	                } else {
-	                    pager.addView(layout, params);
-	                }
-				}
-				
+                Activity activity = proxy.getActivity();
+                if (tiProxy.getParent() != TiUIScrollableView.this.proxy) {
+                    tiProxy.setActivity(activity);
+                    TiUIHelper.removeViewFromSuperView(tiProxy);
+                    tiProxy.setParent(TiUIScrollableView.this.proxy);
+                }
+                TiCompositeLayout layout = new TiCompositeLayout(activity);
+                TiUIHelper.addView(layout, tiProxy);
+                ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                if (position < pager.getChildCount()) {
+                    pager.addView(layout, position, params);
+                } else {
+                    pager.addView(layout, params);
+                }                
 				return tiProxy;
 			}
 		}
