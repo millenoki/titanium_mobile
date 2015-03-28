@@ -1937,6 +1937,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             propertiesToUpdateNativeSide = null;
         }
     }
+    
+    public boolean isReadyToUpdateNativeSideProperties() {
+        return readyToUpdateNativeSideProperties;
+    }
 
     protected void setReadyToUpdateNativeSideProperties(final boolean value) {
         if (readyToUpdateNativeSideProperties != value) {
