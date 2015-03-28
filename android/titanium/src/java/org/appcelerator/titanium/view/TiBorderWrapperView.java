@@ -81,11 +81,14 @@ public class TiBorderWrapperView extends MaskableView
 			mDrawable.setPadding(mBorderPadding);
 			
 //			mDrawableSizeChanged = true;
-			if (mDrawable.isStateful()) {
-				mDrawable.setState(getDrawableState());
-            }
+			
 //			mDrawable.setVisible(getVisibility() == VISIBLE, false);
 			TiUIView. setBackgroundDrawable(borderDrawableHoldingView, mDrawable);
+			
+			borderDrawableHoldingView.setEnabled(isEnabled());
+            if (mDrawable.isStateful()) {
+                mDrawable.setState(getDrawableState());
+            }
 			addView(borderDrawableHoldingView, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 			invalidate();
 			
