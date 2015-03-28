@@ -26,7 +26,6 @@
 #import <pthread.h>
 #import "TiViewController.h"
 #import "TiWindowProxy.h"
-#import "TiDraggableGesture.h"
 
 
 @interface TiFakeAnimation : TiViewAnimationStep
@@ -46,7 +45,6 @@
     BOOL _transitioning;
     id _pendingTransition;
     BOOL needsFocusOnAttach;
-    TiDraggableGesture* _dragGesture;
 }
 @end
 
@@ -326,7 +324,7 @@
 
 -(void)resetProxyPropertiesForAnimation:(TiAnimation*)animation
 {
-    TiThreadPerformOnMainThread(^{
+    TiThreadPerformBlockOnMainThread(^{
         [super resetProxyPropertiesForAnimation:animation];
 		[[self viewParent] layoutChildren:NO];
     }, YES);
@@ -594,18 +592,6 @@ SEL GetterForKrollProperty(NSString * key)
     }
 }
 
--(void)setDraggable:(id)value
-{
-    if (value) {
-        if (!_dragGesture) {
-            _dragGesture = [[TiDraggableGesture alloc] initWithProxy:self andOptions:value];
-        } else {
-            [_dragGesture setConfig:value];
-        }
-    } else {
-        RELEASE_TO_NIL(_dragGesture)
-    }
-}
 
 -(NSMutableDictionary*)center
 {
@@ -1951,9 +1937,7 @@ SEL GetterForKrollProperty(NSString * key)
         TiThreadReleaseOnMainThread(controller, NO);
         controller = nil;
     }
-	RELEASE_TO_NIL(destroyLock);
-    RELEASE_TO_NIL(_dragGesture)
-	
+	RELEASE_TO_NIL(destroyLock);	
 	
 	[super dealloc];
 }
