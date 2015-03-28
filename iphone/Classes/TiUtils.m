@@ -1507,7 +1507,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
         [event setValue:[TiUtils pointToDictionary:[((UIPanGestureRecognizer*)recognizer) translationInView:view]] forKey:@"translation"];
         [event setValue:[TiUtils pointToDictionary:[((UIPanGestureRecognizer*)recognizer) velocityInView:view]] forKey:@"velocity"];
     } else if(IS_OF_CLASS(recognizer, UIRotationGestureRecognizer)) {
-        [event setValue:NUMDOUBLE(((UIRotationGestureRecognizer*)recognizer).rotation * 180 / M_PI) forKey:@"rotation"];
+        [event setValue:NUMDOUBLE(((UIRotationGestureRecognizer*)recognizer).rotation * 180 / M_PI) forKey:@"angle"];
         [event setValue:NUMDOUBLE(((UIRotationGestureRecognizer*)recognizer).velocity) forKey:@"velocity"];
 
     }
