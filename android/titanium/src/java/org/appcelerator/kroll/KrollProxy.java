@@ -35,6 +35,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
+import org.appcelerator.titanium.util.TiActivityHelper.Command;
+import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -2131,4 +2133,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void onStop(Activity activity) {
 	}
+
+    public <T> T getValueInUIThread(final Command<T> command, T defaultValue){
+        return TiActivityHelper.getValueInUIThread(getActivity(), this, command, defaultValue);
+    }
+    
+    public void runInUiThread(final CommandNoReturn command) {
+        TiActivityHelper.runInUiThread(getActivity(), command);
+    }
 }

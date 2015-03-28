@@ -1,9 +1,13 @@
 package org.appcelerator.titanium.util;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -111,5 +115,52 @@ public class TiActivityHelper {
             }
         }
         return false;
+    }
+    
+    
+    public static interface Command<T>{
+        public T execute();
+    }
+    
+    public static interface CommandNoReturn{
+        public void execute();
+    }
+    
+    public static <T> T getValueInUIThread(final Activity activity, final KrollProxy proxy, final Command<T> command, String defaultProp){
+        return getValueInUIThread(activity, proxy, command, (T) proxy.getProperty(defaultProp));
+    }
+    
+    public static <T> T getValueInUIThread(final Activity activity, final KrollProxy proxy, final Command<T> command, T defaultValue){
+        if (TiApplication.isUIThread()) {
+            return command.execute();
+        }
+
+        FutureTask<T> futureResult = new FutureTask<T>(
+                new Callable<T>() {
+                    @Override
+                    public T call() throws Exception {
+                        return command.execute();
+                    }
+                });
+        // this block until the result is calculated!
+        try {
+            activity.runOnUiThread(futureResult);
+            return futureResult.get();
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+    
+    public static void runInUiThread(final Activity activity, final CommandNoReturn command) {
+        if (TiApplication.isUIThread()) {
+            command.execute();
+        } else if(activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    command.execute();
+                }
+            });
+        }
     }
 }
