@@ -60,25 +60,7 @@ public class DisplayCapsProxy extends KrollProxy
 
 	@Kroll.getProperty @Kroll.method
 	public String getDensity() {
-		synchronized(dm) {
-			getDisplay().getMetrics(dm);
-			switch(dm.densityDpi) {
-			case DisplayMetrics.DENSITY_HIGH :
-				return "high";
-			case DisplayMetrics.DENSITY_MEDIUM :
-				return "medium";
-			case 320 : // DisplayMetrics.DENSITY_XHIGH (API 9)
-				return "xhigh";
-			case 480 :
-                return "xxhigh";
-			case 640 :
-                return "xxxhigh";
-            case DisplayMetrics.DENSITY_LOW :
-				return "low";
-			default :
-				return "medium";
-			}
-		}
+		return TiApplication.getAppDensityString();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -107,10 +89,7 @@ public class DisplayCapsProxy extends KrollProxy
 
 	@Kroll.getProperty @Kroll.method
 	public float getLogicalDensityFactor() {
-		synchronized(dm) {
-			getDisplay().getMetrics(dm);
-			return dm.density;
-		}
+        return TiApplication.getAppDensity();
 	}
 
 	@Override
