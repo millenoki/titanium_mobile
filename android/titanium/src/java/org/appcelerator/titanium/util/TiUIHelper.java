@@ -1694,7 +1694,10 @@ public class TiUIHelper
                             
                             Expression expression = new Expression(value);
                             for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-                                expression.with(entry2.getKey(), TiConvert.toString(entry2.getValue()));
+                                Object value2 = entry2.getValue();
+                                if (value2 != null) {
+                                    expression.with(entry2.getKey(), TiConvert.toString(value2));
+                                }
                             }
                             try {
                                 realProps.put(key, expression.eval().toPlainString());
