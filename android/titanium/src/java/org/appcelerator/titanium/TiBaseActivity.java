@@ -307,7 +307,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 //	    proxy = proxy.getTopWindow();
 	    if(this.window == proxy) return;
 		this.window = proxy;
-		updateTitle(this.window);
+//		updateTitle(this.window);
 		
 		KrollDict props = this.window.getProperties();
 		boolean fullscreen = props.optBoolean(TiC.PROPERTY_FULLSCREEN, this.defaultFullscreen);
