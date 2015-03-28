@@ -73,8 +73,10 @@ public class MenuItemProxy extends AnimatableReusableProxy
         }
     }
 
-    protected MenuItemProxy(MenuItem item)
+    protected MenuItemProxy(MenuItem item, Activity activity)
 	{
+        super();
+        setActivity(activity);
 		this.item = item;
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 	}

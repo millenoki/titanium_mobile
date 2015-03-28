@@ -17,13 +17,11 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiUIView;
 
+import android.app.Activity;
 import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
 @Kroll.proxy
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -44,8 +42,10 @@ public class MenuProxy extends KrollProxy
 	protected Menu menu;
 	protected HashMap<MenuItem, MenuItemProxy> menuMap;
 
-	public MenuProxy(Menu menu) 
+	public MenuProxy(Menu menu, final Activity activity) 
 	{
+	    super();
+	    setActivity(activity);
 		this.menu = menu;
 		menuMap = new HashMap<MenuItem,MenuItemProxy>();
 	}
@@ -137,7 +137,7 @@ public class MenuProxy extends KrollProxy
 		}
 		
 		MenuItem item = menu.add(groupId, itemId, order, title);
-		mip = new MenuItemProxy(item);
+		mip = new MenuItemProxy(item, getActivity());
 		mip.setProperties(d); //apply to actually update properties
 		synchronized(menuMap) {
 			menuMap.put(item, mip);
