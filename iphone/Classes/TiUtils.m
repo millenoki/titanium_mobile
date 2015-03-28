@@ -2631,7 +2631,10 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     if (vars) {
         variables = [NSMutableDictionary dictionaryWithCapacity:[vars count]];
         [vars enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-            [variables setObject:[event valueForKeyPath:obj] forKey:key];
+            id value = [event valueForKeyPath:obj];
+            if (value) {
+                [variables setObject:value forKey:key];
+            }
         }];
     }
     
