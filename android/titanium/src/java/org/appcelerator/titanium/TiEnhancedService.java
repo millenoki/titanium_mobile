@@ -20,7 +20,7 @@ import android.os.IBinder;
 @SuppressLint("NewApi")
 public class TiEnhancedService extends Service implements TiEnhancedServiceInterface {
 
-    static final String TAG = "AkVpnService";
+    static final String TAG = "TiEnhancedService";
     public static final String TI_SERVICE_INTENT_ID_KEY = "$__TITANIUM_SERVICE_INTENT_ID__$";
     protected AtomicInteger proxyCounter = new AtomicInteger();
 
@@ -102,7 +102,7 @@ public class TiEnhancedService extends Service implements TiEnhancedServiceInter
                     Log.DEBUG_MODE);
         }
     }
-
+    
     public void start(TiEnhancedServiceProxy proxy) {
         Log.d(logTAG(), "start", Log.DEBUG_MODE);
 

@@ -1,14 +1,10 @@
 package org.appcelerator.titanium.proxy;
 
-
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.IntentProxy;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiConvert;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -23,16 +19,16 @@ import android.os.Bundle;
 import android.os.IBinder;
 
 @Kroll.proxy
-public class TiEnhancedServiceProxy extends KrollProxy {
+public class TiEnhancedServiceProxy extends ReusableProxy {
     
     @Kroll.constant public static final String EVENT_STARTED = "started";
     protected Service service = null;
     
     public interface TiEnhancedServiceInterface {
 
-        void start(TiEnhancedServiceProxy vpnServiceProxy);
+        void start(TiEnhancedServiceProxy serviceProxy);
 
-        void unbindProxy(TiEnhancedServiceProxy vpnServiceProxy);
+        void unbindProxy(TiEnhancedServiceProxy serviceProxy);
         public int nextServiceInstanceId();
         
         void stop();
