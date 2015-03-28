@@ -176,6 +176,7 @@ public class ParentingProxy extends KrollProxy {
         
         if (args == null) return;
         if (args instanceof Object[]) {
+            boolean oldValue  = isReadyToUpdateNativeSideProperties();
             setReadyToUpdateNativeSideProperties(false);
             int i = -1; // no index by default
             if (index instanceof Number) {
@@ -187,7 +188,7 @@ public class ParentingProxy extends KrollProxy {
                 if (arrayIndex != -1)
                     arrayIndex++;
             }
-            setReadyToUpdateNativeSideProperties(true);
+            setReadyToUpdateNativeSideProperties(oldValue);
             return;
         } else {
             KrollProxy child = null;
