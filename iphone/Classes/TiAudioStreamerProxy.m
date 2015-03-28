@@ -91,6 +91,7 @@ typedef enum {
     id timeObserver;
     MPMusicRepeatMode _repeatMode; // note: MPMusicRepeatModeDefault is not supported
     MPMusicShuffleMode _shuffleMode; // note: only MPMusicShuffleModeOff and MPMusicShuffleModeSongs are supported
+    BOOL _ignoreStateChange;
 
 }
 #pragma mark Internal
@@ -124,6 +125,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 {
     _playerInitialized = NO;
     volume = 1.0f;
+    _ignoreStateChange = NO;
     self.indexOfNowPlayingItem = NSNotFound;
     _repeatMode = MPMusicRepeatModeNone;
     _shuffleMode = MPMusicShuffleModeOff;
@@ -337,9 +339,12 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
 - (void)setNowPlayingItem:(id)item {
     
     NSURL* url = nil;
+#ifdef USE_TI_AUDIOSOUND
     if (IS_OF_CLASS(item, TiAudioSoundProxy)) {
         url = ((TiAudioSoundProxy*)item).url;
-    } else if (IS_OF_CLASS(item, TiFile)) {
+    } else
+#endif
+        if (IS_OF_CLASS(item, TiFile)) {
         url = [TiUtils toURL:((TiFile*)item).path proxy:self];
     } else if (IS_OF_CLASS(item, NSDictionary)) {
         url = [TiUtils toURL:[item valueForKey:@"url"] proxy:self];
@@ -408,7 +413,6 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         [player removeObserver:self forKeyPath:kRateKey];
         RELEASE_TO_NIL(player)
     }
-    [self updateState:STATE_STOPPED];
 }
 
 -(AVPlayer*)playerWithItem:(AVPlayerItem*)item {
@@ -689,16 +693,23 @@ PROP_BOOL(muted,isMute);
 	}
 }
 
-
 -(void)setPlaylist:(id)args
 {
+    BOOL playing = _state == STATE_PLAYING;
+    BOOL emptyPlaylist = args && !IS_OF_CLASS(args, NSNull);
+    _ignoreStateChange = emptyPlaylist;
     [self stop:nil];
-    
+    _ignoreStateChange = NO;
     if (IS_OF_CLASS(args, NSArray)) {
         [self setOriginalQueue:[NSMutableArray arrayWithArray:args]];
     }
-    else {
+    else if (args) {
         [self setOriginalQueue:[NSMutableArray arrayWithObject:args]];
+    } else {
+        [self setOriginalQueue:nil];
+    }
+    if (!emptyPlaylist && playing) {
+        [self play:nil];
     }
 }
 
@@ -750,6 +761,7 @@ PROP_BOOL(muted,isMute);
 -(void)stop:(id)args
 {
     [self cleanAVPlayer];
+    [self updateState:STATE_STOPPED];
 }
 
 -(void)pause:(id)args
@@ -1013,7 +1025,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
                 
             }
         }
-        if ([self _hasListeners:@"state"])
+        if (!_ignoreStateChange && [self _hasListeners:@"state"])
         {
             NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@(_state),@"state",[self stateToString:_state],@"description",nil];
             [self fireEvent:@"state" withObject:event checkForListener:NO];
