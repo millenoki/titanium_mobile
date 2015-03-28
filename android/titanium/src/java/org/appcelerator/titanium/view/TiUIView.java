@@ -156,7 +156,6 @@ public abstract class TiUIView
 	protected GestureDetector detector = null;
 	protected ScaleGestureDetector scaleDetector = null;
 	
-	private DraggableGesture _dragGesture = null;
 
 	protected Handler handler;
 
@@ -961,17 +960,6 @@ public abstract class TiUIView
                 getOrCreateBorderView().setMaskView(null);
             }
             break;
-        case TiC.PROPERTY_DRAGGABLE:
-            if (newValue != null) {
-                
-                if (_dragGesture == null) {
-                    _dragGesture = new DraggableGesture((TiViewProxy) proxy, this);
-                }
-                _dragGesture.applyProperties(newValue);
-            } else {
-                _dragGesture = null;
-            }
-            break;
         default:
             break;
         }
@@ -1231,7 +1219,6 @@ public abstract class TiUIView
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
 		}
-		_dragGesture = null;
 		proxy.cancelAllAnimations();
 		View nv = getRootView();
 		if (nv != null) {

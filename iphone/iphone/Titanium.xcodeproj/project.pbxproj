@@ -652,9 +652,6 @@
 		D521693F183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */ = {isa = PBXBuildFile; fileRef = D521693B183A598500FBB24B /* TiTransitionAnimationStep.m */; };
 		D5216940183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */ = {isa = PBXBuildFile; fileRef = D521693B183A598500FBB24B /* TiTransitionAnimationStep.m */; };
 		D5216941183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */ = {isa = PBXBuildFile; fileRef = D521693B183A598500FBB24B /* TiTransitionAnimationStep.m */; };
-		D522F30F1AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */; };
-		D522F3101AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */; };
-		D522F3111AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */; };
 		D522FE0D16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = D522FE0C16D2AC8D008C6CC4 /* JRSwizzle.m */; };
 		D522FE0E16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = D522FE0C16D2AC8D008C6CC4 /* JRSwizzle.m */; };
 		D522FE0F16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = D522FE0C16D2AC8D008C6CC4 /* JRSwizzle.m */; };
@@ -2268,8 +2265,6 @@
 		D5216939183A598500FBB24B /* TiTransitionAnimation+Friend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TiTransitionAnimation+Friend.h"; path = "Animation/TiTransitionAnimation+Friend.h"; sourceTree = "<group>"; };
 		D521693A183A598500FBB24B /* TiTransitionAnimationStep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiTransitionAnimationStep.h; path = Animation/TiTransitionAnimationStep.h; sourceTree = "<group>"; };
 		D521693B183A598500FBB24B /* TiTransitionAnimationStep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiTransitionAnimationStep.m; path = Animation/TiTransitionAnimationStep.m; sourceTree = "<group>"; };
-		D522F30D1AB1E21F00B0D678 /* TiDraggableGesture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDraggableGesture.h; sourceTree = "<group>"; };
-		D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDraggableGesture.m; sourceTree = "<group>"; };
 		D522FE0B16D2AC8D008C6CC4 /* JRSwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JRSwizzle.h; path = ../Classes/JRSwizzle/JRSwizzle.h; sourceTree = "<group>"; };
 		D522FE0C16D2AC8D008C6CC4 /* JRSwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JRSwizzle.m; path = ../Classes/JRSwizzle/JRSwizzle.m; sourceTree = "<group>"; };
 		D525399E183A8787006FF1BB /* libCoconutKitAnimation.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCoconutKitAnimation.a; path = ../libexternals/libCoconutKitAnimation.a; sourceTree = "<group>"; };
@@ -3145,8 +3140,6 @@
 				D5E897B018A3FA0B00E565E1 /* NSDictionary+Merge.m */,
 				D5B04533191D2EC4001CF02F /* TiFileSystemHelper.h */,
 				D5B04534191D2EC4001CF02F /* TiFileSystemHelper.m */,
-				D522F30D1AB1E21F00B0D678 /* TiDraggableGesture.h */,
-				D522F30E1AB1E21F00B0D678 /* TiDraggableGesture.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -5488,7 +5481,6 @@
 				D521693F183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
 				24A1EAF8112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
 				D5C5EC291863584100357DE4 /* TiUILabel.m in Sources */,
-				D522F30F1AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */,
 				245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */,
 				245B45641139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
 				24C0128C1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */,
@@ -6077,7 +6069,6 @@
 				D56E66A9180C664400F1B737 /* TiTransitionFade.m in Sources */,
 				D5EEA14D1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */,
 				D5C8C97D17EF45C900F54C19 /* ADFoldTransition.m in Sources */,
-				D522F3101AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */,
 				D5C8C99217EF45C900F54C19 /* ADSwipeFadeTransition.m in Sources */,
 				D5C8C9A917EF5E6D00F54C19 /* TiUITransitionStyleProxy.m in Sources */,
 				D59EC23E180FDC5D00FDDD11 /* TiTransitionFold.m in Sources */,
@@ -6498,7 +6489,6 @@
 				D5C8C98A17EF45C900F54C19 /* ADScaleTransition.m in Sources */,
 				D5EEA14E1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */,
 				D56E66AA180C664400F1B737 /* TiTransitionFade.m in Sources */,
-				D522F3111AB1E21F00B0D678 /* TiDraggableGesture.m in Sources */,
 				D5C8C97E17EF45C900F54C19 /* ADFoldTransition.m in Sources */,
 				D5C8C99317EF45C900F54C19 /* ADSwipeFadeTransition.m in Sources */,
 				D5C8C9AA17EF5E6D00F54C19 /* TiUITransitionStyleProxy.m in Sources */,
