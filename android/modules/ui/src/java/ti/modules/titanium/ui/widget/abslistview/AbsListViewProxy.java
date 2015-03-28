@@ -593,7 +593,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
         }
         TiUIView listView = peekView();
         if (listView != null) {
-            ((TiListView) listView).showPullView(animated);
+            ((TiAbsListView) listView).showPullView(animated);
         }
     }
 
@@ -604,7 +604,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
         }
         TiUIView listView = peekView();
         if (listView != null) {
-            ((TiListView) listView).closePullView(animated);
+            ((TiAbsListView) listView).closePullView(animated);
         }
     }
 
