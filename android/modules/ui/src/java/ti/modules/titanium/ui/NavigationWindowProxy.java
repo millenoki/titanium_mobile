@@ -438,7 +438,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 		else {
 			opened = true; //because handlePush needs this
 			opening = false;
-            prepareCurrentWindow(getCurrentWindowInternal());
+//            prepareCurrentWindow(getCurrentWindow());
 			super.onWindowActivityCreated();
 			getParentViewForChild().setId(viewId++);
 			handlePushFirst();
