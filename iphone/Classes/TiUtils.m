@@ -1997,10 +1997,10 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	UIColor * result = [color _color];
 	// TODO: Return nil for the appropriate colors once Apple fixes how the 'cancel' button
 	// is displayed on nil-color bars.
-	if ((result == [UIColor clearColor]))
-	{
-		return nil;
-	}
+//	if ((result == [UIColor clearColor]))
+//	{
+//		return nil;
+//	}
 	return result;
 }
 
