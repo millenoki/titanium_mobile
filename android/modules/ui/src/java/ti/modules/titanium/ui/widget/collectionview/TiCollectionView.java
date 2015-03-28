@@ -80,6 +80,13 @@ public class TiCollectionView extends TiAbsListView<CustomListView> {
     }
     
     @Override
+    protected void notifyDataSetChanged() {
+        if (gridAdapter != null) {
+            gridAdapter.notifyDataSetChanged();
+        }
+    }
+    
+    @Override
     protected void setListViewAdapter (TiBaseAdapter adapter) {
         gridAdapter = new ListViewGridAdapter(listView.getWrappedList(), adapter);
         if (mColumnsWidth != null) {

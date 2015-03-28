@@ -763,14 +763,20 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		
 	}
 	
+	protected void notifyDataSetChanged() {
+	    if (adapter != null) {
+	        adapter.notifyDataSetChanged();
+	    }
+	}
+	
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_TEMPLATES:
             processTemplates((HashMap)newValue);
-            if (changedProperty && adapter != null) {
-                adapter.notifyDataSetChanged();
+            if (changedProperty) {
+                notifyDataSetChanged();
             }
             break;
         case TiC.PROPERTY_SEARCH_TEXT:
@@ -821,8 +827,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             break;
         case TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE:
             defaultTemplateBinding = TiConvert.toString(newValue);
-            if (changedProperty && adapter != null) {
-                adapter.notifyDataSetChanged();
+            if (changedProperty) {
+               notifyDataSetChanged();
             }
             break;
         case TiC.PROPERTY_SECTIONS:
@@ -937,9 +943,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 				section.applyFilter(searchText);
 			}
 		}
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
+		notifyDataSetChanged();
 	}
 
 	private boolean isSearchViewValid(Object proxy) {
@@ -1119,9 +1123,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
         
         @Override
         protected void onPostExecute(Void result) {
-            if (adapter != null) {
-                adapter.notifyDataSetChanged();
-            }
+            notifyDataSetChanged();
         }
 
     }
@@ -1245,14 +1247,14 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 		} else {
 			processSection(section, -1);
 		}
-		adapter.notifyDataSetChanged();
+		notifyDataSetChanged();
 	}
 	
 	public void deleteSectionAt(int index) {
         synchronized (sections) {
     		if (index >= 0 && index < sections.size()) {
     			sections.remove(index);
-    			adapter.notifyDataSetChanged();
+    			notifyDataSetChanged();
     		} else {
     			Log.e(TAG, "Invalid index to delete section");
     		}
@@ -1275,7 +1277,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 		} else {
 			processSection(section, index);
 		}
-		adapter.notifyDataSetChanged();
+		notifyDataSetChanged();
 	}
 	
 	public void replaceSectionAt(int index, Object section) {
