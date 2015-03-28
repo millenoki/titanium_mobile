@@ -194,6 +194,7 @@ public class TiConvert
 		return toColorDrawable(TiConvert.toString(hashMap.get(key)));
 	}
 	
+	private static final int DEFAULT_FLAG_RETURN =  TiUIView.TIFLAG_NEEDS_LAYOUT;
 	
 	public static int fillLayout(String key, Object value, LayoutParams layoutParams, boolean withMatrix)
     {
@@ -206,40 +207,40 @@ public class TiConvert
             break;
         case TiC.PROPERTY_LEFT:
             layoutParams.optionLeft = toTiDimension(value, TiDimension.TYPE_LEFT);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_TOP:
             layoutParams.optionTop = toTiDimension(value, TiDimension.TYPE_TOP);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_CENTER:
             updateLayoutCenter(value, layoutParams);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_RIGHT:
             layoutParams.optionRight = toTiDimension(value, TiDimension.TYPE_RIGHT);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_BOTTOM:
             layoutParams.optionBottom = toTiDimension(value, TiDimension.TYPE_BOTTOM);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_MIN_WIDTH:
             layoutParams.minWidth = toTiDimension(value, TiDimension.TYPE_WIDTH);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_MIN_HEIGHT:
             layoutParams.minHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_MAX_WIDTH:
             layoutParams.maxWidth = toTiDimension(value, TiDimension.TYPE_WIDTH);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_MAX_HEIGHT:
             layoutParams.maxHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_LAYOUT_FULLSCREEN:
             layoutParams.fullscreen = toBoolean(value, false);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_SQUARED:
             layoutParams.squared = toBoolean(value, false);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_WEIGHT:
             layoutParams.weight = toFloat(value, 1.0f);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_WIDTH:
             if (value == null) {
                 layoutParams.optionWidth = null;
@@ -272,7 +273,7 @@ public class TiConvert
                 layoutParams.optionWidth = toTiDimension(value, TiDimension.TYPE_WIDTH);
                 layoutParams.sizeOrFillWidthEnabled = false;
             }
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_HEIGHT:
             if (value == null) {
                 layoutParams.optionHeight = null;
@@ -305,16 +306,16 @@ public class TiConvert
                 layoutParams.optionHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
                 layoutParams.sizeOrFillHeightEnabled = false;
             }
-            return TiUIView.TIFLAG_NEEDS_LAYOUT;
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_ZINDEX:
             layoutParams.optionZIndex = toInt(value, 0);
-            return TiUIView.TIFLAG_NEEDS_LAYOUT | TiUIView.TIFLAG_NEEDS_LAYOUT_INFORMPARENT;
+            return DEFAULT_FLAG_RETURN | TiUIView.TIFLAG_NEEDS_LAYOUT_INFORMPARENT;
         case TiC.PROPERTY_ANCHOR_POINT:
             if (value instanceof HashMap) {
                 HashMap point = (HashMap) value;
                 layoutParams.anchorX = TiConvert.toFloat(point, TiC.PROPERTY_X);
                 layoutParams.anchorY = TiConvert.toFloat(point, TiC.PROPERTY_Y);
-                return TiUIView.TIFLAG_NEEDS_LAYOUT;
+                return DEFAULT_FLAG_RETURN;
             }
             break;
         default:
