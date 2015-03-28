@@ -1190,6 +1190,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (eventOverrideDelegate != null) {
             data = eventOverrideDelegate.get().overrideEvent(data, event, this);
         }
+        HashMap<String, Object> dict = (HashMap) data;
+        if (dict == null) {
+            data = dict = new KrollDict();
+            dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+        } else if (dict instanceof HashMap) {
+            Object sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
+            if (sourceProxy == null) {
+                dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+            }
+        }
+        dict.put(TiC.EVENT_PROPERTY_TYPE, event);
         if (evaluators != null && data instanceof HashMap) {
             List<KrollDict> theListeners = null;
             synchronized (evaluators) {
@@ -1221,17 +1232,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
         /* TODO: Is eventListeners still used? */
         if (!eventListeners.isEmpty()) {
-            HashMap<String, Object> dict = (HashMap) data;
-            if (dict == null) {
-                dict = new KrollDict();
-                dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
-            } else if (dict instanceof HashMap) {
-                Object sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
-                if (sourceProxy == null) {
-                    dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
-                }
-            }
-            dict.put(TiC.EVENT_PROPERTY_TYPE, event);
+//            HashMap<String, Object> dict = (HashMap) data;
+//            if (dict == null) {
+//                dict = new KrollDict();
+//                dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+//            } else if (dict instanceof HashMap) {
+//                Object sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
+//                if (sourceProxy == null) {
+//                    dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+//                }
+//            }
+//            dict.put(TiC.EVENT_PROPERTY_TYPE, event);
             // onEventFired(event, dict);
             HashMap<Integer, KrollEventCallback> listeners = eventListeners
                     .get(event);
@@ -1239,7 +1250,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 for (Integer listenerId : listeners.keySet()) {
                     KrollEventCallback callback = listeners.get(listenerId);
                     if (callback != null) {
-                        callback.call(dict);
+                        callback.call(data);
                     }
                 }
             }
