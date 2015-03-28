@@ -58,6 +58,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -713,6 +714,10 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (intent != null && intent.hasExtra(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
 			getWindow().setUiOptions(ActivityInfo.UIOPTION_SPLIT_ACTION_BAR_WHEN_NARROW);
 		}
+		
+        if (intent != null && intent.hasExtra(TiC.PROPERTY_ACTIONBAR_OVERLAY)) {
+            supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+        }
 
 		
 		// we only want to set the current activity for good in the resume state but we need it right now.
