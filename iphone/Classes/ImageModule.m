@@ -54,7 +54,7 @@ typedef UIImage* (^ProcessImageBlock) ();
         id callback = [options objectForKey:@"callback"];
         ENSURE_TYPE(callback, KrollCallback)
         if (callback != nil) {
-            TiThreadPerformOnMainThread(^{
+            TiThreadPerformBlockOnMainThread(^{
                 UIImage* result = [[TiImageHelper imageFiltered:block() withOptions:options] retain];
                 TiBlob* blob = [[TiBlob alloc] initWithImage:result];
                 NSDictionary *event = [NSDictionary dictionaryWithObject:blob forKey:@"image"];
