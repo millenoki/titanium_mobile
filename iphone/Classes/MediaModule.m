@@ -14,6 +14,7 @@
 #import "Mimetypes.h"
 #import "TiViewProxy.h"
 #import "Ti2DMatrix.h"
+#import "TouchCapturingWindow.h"
 
 #import <AVFoundation/AVMediaFormat.h>
 #import <AVFoundation/AVAsset.h>
@@ -296,7 +297,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     // Iterate over every window from back to front
     for (UIWindow *window in [[UIApplication sharedApplication] windows])
     {
-        if (![window respondsToSelector:@selector(screen)] || [window screen] == [UIScreen mainScreen])
+        if (IS_OF_CLASS(window, TouchCapturingWindow) && (![window respondsToSelector:@selector(screen)] || [window screen] == [UIScreen mainScreen]))
         {
             // -renderInContext: renders in the coordinate space of the layer,
             // so we must first apply the layer's geometry to the graphics context
@@ -347,7 +348,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 -(TiBlob*)takeScreenshot:(id)args
 {
     KrollCallback *callback = nil;
-    float scale = 1.0f;
+    float scale = 0.0f;
     
     id obj = nil;
     if( [args count] > 0) {
@@ -358,14 +359,14 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         }
         
         if( [args count] > 1) {
-            scale = [TiUtils floatValue:[args objectAtIndex:1] def:1.0f];
+            scale = [TiUtils floatValue:[args objectAtIndex:1] def:0.0f];
         }
     }
     ENSURE_SINGLE_ARG_OR_NIL(obj,KrollCallback);
     callback = (KrollCallback*)obj;
     TiBlob *blob = [[[TiBlob alloc] init] autorelease];
     
-    TiThreadPerformOnMainThread(^{
+    TiThreadPerformBlockOnMainThread(^{
         // Retrieve the screenshot image
         UIImage *image = [MediaModule takeScreenshotWithScale:scale];
         [blob setImage:image];
