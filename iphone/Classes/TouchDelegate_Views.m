@@ -58,7 +58,7 @@
     return self;
 }
 
-#pragma mark - UIResponder
+#pragma mark - TDTTTAttributedLabel
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
