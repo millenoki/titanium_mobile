@@ -277,8 +277,7 @@ public class TiFileHelper implements Handler.Callback
 					is = handleNetworkURL(path);
 				}
 			} else if (path.startsWith(RESOURCE_ROOT_ASSETS)) {
-				int len = "file:///android_asset/".length();
-				path = path.substring(len);
+				path = path.substring(22); // length of "file:///android_asset/"
 				boolean found = false;
 				
 				if (foundResourcePathCache.contains(path)) {
