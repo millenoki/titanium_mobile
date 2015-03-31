@@ -18,6 +18,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.ReusableProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -34,7 +35,6 @@ import ti.modules.titanium.android.RemoteViewsProxy;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -48,7 +48,7 @@ import android.support.v4.app.NotificationCompat.Builder;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
         TiC.PROPERTY_CONTENT_TEXT, TiC.PROPERTY_CONTENT_TITLE })
-public class NotificationProxy extends KrollProxy implements Target {
+public class NotificationProxy extends ReusableProxy implements Target {
     private static final String TAG = "TiNotification";
     private static final boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 
@@ -63,6 +63,9 @@ public class NotificationProxy extends KrollProxy implements Target {
     private RemoteViewsProxy contentView = null;
     private RemoteViewsProxy bigContentView = null;
     private int iconLevel;
+    
+    protected int mProcessUpdateFlags = 0;
+    public static final int TIFLAG_NEEDS_UPDATE          = 0x00000001;
 	
 	public NotificationProxy() 
 	{
@@ -82,86 +85,102 @@ public class NotificationProxy extends KrollProxy implements Target {
 		this();
 	}
 
+
 	@Override
-    public void handleCreationDict(KrollDict d) {
-        super.handleCreationDict(d);
-        if (d == null) {
-            return;
+    protected void didProcessProperties() {
+        super.didProcessProperties();
+        if ((mProcessUpdateFlags & TIFLAG_NEEDS_UPDATE) != 0) {
+            if (this.currentId >= 0) {
+                NotificationManager manager = getManager();
+                Log.d(TAG, "updating notification " + this.currentId, Log.DEBUG_MODE);
+                manager.notify(this.currentId, getNotification());
+                mProcessUpdateFlags &= ~TIFLAG_NEEDS_UPDATE;
+            }
         }
-        for (String key : d.keySet()) {
-            propertySet(key, d.get(key), null, false);
-        }
-        checkLatestEventInfoProperties(d);
-    }
-	
-	@Override
-    public void onPropertyChanged(String name, Object value, Object oldValue) {
-        propertySet(name, value, oldValue, true);
-        update();
     }
 
+
+    @Override
 	public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
-        if (key.equals(TiC.PROPERTY_ICON)) {
+        switch (key) {
+        case TiC.PROPERTY_ICON:
             setIcon(newValue);
-        }
-        else if (key.equals(TiC.PROPERTY_TICKER_TEXT)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_TICKER_TEXT:
             setTickerText(TiConvert.toString(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_WHEN)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_WHEN:
             setWhen(newValue);
-        }
-        else if (key.equals(TiC.PROPERTY_AUDIO_STREAM_TYPE)) {
+            break;
+        case TiC.PROPERTY_AUDIO_STREAM_TYPE:
             setAudioStreamType(TiConvert.toInt(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_CONTENT_VIEW)) {
+            break;
+        case TiC.PROPERTY_CONTENT_VIEW:
             setContentView(newValue);
-        }
-        else if (key.equals(TiC.PROPERTY_BIG_CONTENT_VIEW)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_BIG_CONTENT_VIEW:
             setBigContentView(newValue);
-        }
-        else if (key.equals(TiC.PROPERTY_CONTENT_INTENT)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_CONTENT_INTENT:
             setContentIntent(newValue);
-        }
-        else if (key.equals(TiC.PROPERTY_DEFAULTS)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_DEFAULTS:
             setDefaults(TiConvert.toInt(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_DELETE_INTENT)) {
+            break;
+        case TiC.PROPERTY_DELETE_INTENT:
             setDeleteIntent(newValue);
-        }
-        else if (key.equals(TiC.PROPERTY_FLAGS)) {
+            break;
+        case TiC.PROPERTY_FLAGS:
             setFlags(TiConvert.toInt(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_ICON_LEVEL)) {
+            break;
+        case TiC.PROPERTY_ICON_LEVEL:
             setIconLevel(TiConvert.toInt(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_LED_ARGB)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_LED_ARGB:
             setLedARGB(TiConvert.toInt(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_LED_OFF_MS)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_LED_OFF_MS:
             setLedOffMS(TiConvert.toInt(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_LED_ON_MS)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_LED_ON_MS:
             setLedOnMS(TiConvert.toInt(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_NUMBER)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_NUMBER:
             setNumber(TiConvert.toInt(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_SOUND)) {
+            break;
+        case TiC.PROPERTY_SOUND:
             setSound(TiConvert.toString(newValue));
-        }
-        else if (key.equals(TiC.PROPERTY_VIBRATE_PATTERN)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_VIBRATE_PATTERN:
             setVibratePattern((Object[]) newValue);
-        }
-		else if (key.equals(TiC.PROPERTY_VISIBILITY)) {
+            break;
+        case TiC.PROPERTY_VISIBILITY:
 			setVisibility(TiConvert.toInt(newValue));
-		}
-		else if (key.equals(TiC.PROPERTY_CATEGORY)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_CATEGORY:
 			setCategory(TiConvert.toString(newValue));
-		}
-		else if (key.equals(TiC.PROPERTY_PRIORITY)) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        case TiC.PROPERTY_PRIORITY:
 			setPriority(TiConvert.toInt(newValue));
-		}
+            mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
     }
 
     private class LoadLocalCoverArtTask extends

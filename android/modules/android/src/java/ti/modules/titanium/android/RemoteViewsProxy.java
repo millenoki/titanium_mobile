@@ -20,6 +20,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.AnimatableReusableProxy;
 import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiHtml;
@@ -52,7 +53,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
-public class RemoteViewsProxy extends ParentingProxy implements Target {
+public class RemoteViewsProxy extends AnimatableReusableProxy implements Target {
     private static final String TAG = "RemoteViewsProxy";
     protected String packageName;
     protected int layoutId;
@@ -316,51 +317,72 @@ public class RemoteViewsProxy extends ParentingProxy implements Target {
     }
     
     @Override
-    public void onPropertyChanged(String name, Object value, Object oldValue) {
-        propertySet(name, value, oldValue, true);
-    }
-
-    
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
-        if (key.equals(TiC.PROPERTY_PACKAGE_NAME)) {
+        switch (key) {
+        case TiC.PROPERTY_PACKAGE_NAME:
             packageName = TiConvert.toString(newValue);
-        }
-        else if (key.equals(TiC.PROPERTY_LAYOUT_ID)) {
+            break;
+        case TiC.PROPERTY_LAYOUT_ID:
             layoutId = TiConvert.toInt(newValue);
-        } else {
+            break;
+        default:
             try {
                 int viewId = TiRHelper.getResource("id." + key);
                 if (viewId > 0) {
                     for (Map.Entry<String, Object> entry2 : ((HashMap<String, Object>) newValue).entrySet()) {
                         viewPropertySet(viewId, entry2.getKey(), entry2.getValue());
                     }
+                } else {
+                    super.propertySet(key, newValue, oldValue, changedProperty);
                 }
             } catch (Exception e) {
             }
+            break;
         }
     }
     
     public void viewPropertySet(int viewId, String key, Object newValue) {
-        
-        if (key.equals(TiC.PROPERTY_VISIBLE)) {
-            remoteViews.setViewVisibility(viewId, (TiConvert.toBoolean(newValue, true) ? View.VISIBLE
-                    : View.GONE));
-        } else if (key.equals(TiC.PROPERTY_TEXT)) {
+        switch (key) {
+        case TiC.PROPERTY_VISIBLE:
+            remoteViews.setViewVisibility(viewId, (TiConvert.toBoolean(
+                    newValue, true) ? View.VISIBLE : View.GONE));
+            break;
+        case TiC.PROPERTY_TEXT:
             remoteViews.setTextViewText(viewId, TiConvert.toString(newValue));
-        } else if (key.equals(TiC.PROPERTY_HTML)) {
-            remoteViews.setTextViewText(viewId, TiHtml.fromHtml((TiConvert.toString(newValue))));
-        } else if (key.equals(TiC.PROPERTY_IMAGE)) {
+            break;
+        case TiC.PROPERTY_HTML:
+            remoteViews.setTextViewText(viewId,
+                    TiHtml.fromHtml((TiConvert.toString(newValue))));
+            break;
+        case TiC.PROPERTY_PROGRESS:
+            if (newValue instanceof HashMap) {
+                HashMap map = (HashMap)newValue;
+                int max = TiConvert.toInt(map, TiC.PROPERTY_MAX);
+                int progress = TiConvert.toInt(map, TiC.PROPERTY_VALUE);
+                boolean indeterminate = TiConvert.toBoolean(map, TiC.PROPERTY_INDETERMINATE);
+                remoteViews.setProgressBar(viewId, max, progress, indeterminate);
+            }
+            break;
+        case TiC.PROPERTY_IMAGE:
             setImageViewImage(viewId, newValue);
-        } else if (key.equals(TiC.PROPERTY_FONT)) {
-            FontDesc desc = TiUIHelper.getFontStyle(getActivity(), (HashMap<String, Object>) newValue);
+            break;
+        case TiC.PROPERTY_FONT:
+            FontDesc desc = TiUIHelper.getFontStyle(getActivity(),
+                    (HashMap<String, Object>) newValue);
             remoteViews.setTextViewTextSize(viewId, desc.sizeUnit, desc.size);
-        } else if (key.equals(TiC.PROPERTY_COLOR)) {
+            break;
+        case TiC.PROPERTY_COLOR:
             remoteViews.setTextColor(viewId, TiConvert.toColor(newValue));
-        } else if(key.equals("onClickPendingIntent")) {
-            PendingIntentProxy pendingProxy = PendingIntentProxy.fromObject(newValue);
+            break;
+        case "onClickPendingIntent":
+            PendingIntentProxy pendingProxy = PendingIntentProxy
+                    .fromObject(newValue);
             remoteViews.setOnClickPendingIntent(viewId,
                     pendingProxy.getPendingIntent());
+            break;
+        default:
+            break;
         }
     }
 
