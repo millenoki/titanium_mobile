@@ -1869,8 +1869,13 @@ public class TiC
     /**
      * @module.api
      */
+    public static final String PROPERTY_INDETERMINATE = "indeterminate";
+    
+    /**
+     * @module.api
+     */
     public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
-	
+    
 	/**
 	 * @module.api
 	 */

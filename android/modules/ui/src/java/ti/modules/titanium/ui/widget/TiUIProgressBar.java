@@ -119,6 +119,9 @@ public class TiUIProgressBar extends TiUIView {
             max = TiConvert.toFloat(newValue, 0);
             updateProgress();
             break;
+        case TiC.PROPERTY_INDETERMINATE:
+            progress.setIndeterminate(TiConvert.toBoolean(newValue));
+            break;
         case TiC.PROPERTY_TINT_COLOR:
             if (newValue != null) {
                 getProgressBar().getProgressDrawable().setColorFilter(TiConvert.toColor(newValue), Mode.SRC_IN);
