@@ -92,7 +92,7 @@ typedef enum {
     MPMusicRepeatMode _repeatMode; // note: MPMusicRepeatModeDefault is not supported
     MPMusicShuffleMode _shuffleMode; // note: only MPMusicShuffleModeOff and MPMusicShuffleModeSongs are supported
     BOOL _ignoreStateChange;
-
+    
 }
 #pragma mark Internal
 
@@ -131,7 +131,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     _shuffleMode = MPMusicShuffleModeOff;
     self.shouldReturnToBeginningWhenSkippingToPreviousItem = YES;
     _state = STATE_STOPPED;
-// Handle unplugging of headphones
+    // Handle unplugging of headphones
     AudioSessionAddPropertyListener (kAudioSessionProperty_AudioRouteChange, audioRouteChangeListenerCallback, (__bridge void*)self);
     [self initializeProperty:@"volume" defaultValue:@(volume)];
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -151,7 +151,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     if (self.nowPlayingItem) {
         [self initProgressTimer];
     }
-
+    
 }
 
 
@@ -160,7 +160,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     dispatch_sync(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] removeObserver:self];
     });
-	
+    
     if ([[self playing] boolValue]) {
         [self stop:nil];
         [[TiAudioSession sharedSession] stopAudioSession];
@@ -180,7 +180,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
                                               @"index":@(self.indexOfNowPlayingItem)
                                               }errorCode:[error code] message:[TiUtils messageFromError:error]];
     }
-    [self handleAVPlayerItemDidPlayToEndTimeNotification];
+    [self handleAVPlayerItemDidPlayToEndTimeNotification:nil];
 }
 
 -(NSString*)apiName
@@ -205,9 +205,9 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
             // Wrap around back to the first track
             self.indexOfNowPlayingItem = 0;
         } else {
-            if (_state == STATE_PLAYING) {
+            if (_state == STATE_PLAYING || _state == STATE_PAUSED) {
                 if (_nowPlayingItem != nil) {
-                    //TODO: end of playlist
+                    [self fireEvent:@"end" withObject:nil checkForListener:YES];
                 }
             }
             NSLog(@"TiMediaAudioStreamer: end of queue reached");
@@ -269,7 +269,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         case MPMusicShuffleModeAlbums:
             break;
         default:
-            [self throwException:@"Invalid shuffle mode" 
+            [self throwException:@"Invalid shuffle mode"
                        subreason:nil
                         location:CODELOCATION];
     }
@@ -345,12 +345,12 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     } else
 #endif
         if (IS_OF_CLASS(item, TiFile)) {
-        url = [TiUtils toURL:((TiFile*)item).path proxy:self];
-    } else if (IS_OF_CLASS(item, NSDictionary)) {
-        url = [TiUtils toURL:[item valueForKey:@"url"] proxy:self];
-    } else {
-        url = [TiUtils toURL:[TiUtils stringValue:item] proxy:self];
-    }
+            url = [TiUtils toURL:((TiFile*)item).path proxy:self];
+        } else if (IS_OF_CLASS(item, NSDictionary)) {
+            url = [TiUtils toURL:[item valueForKey:@"url"] proxy:self];
+        } else {
+            url = [TiUtils toURL:[TiUtils stringValue:item] proxy:self];
+        }
     
     if (url == nil) {
         [self fireErrorEventAndSkip:404 withDescription:@"no url provided"];
@@ -372,7 +372,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
                             [self prepareToPlayAsset:asset withKeys:requestedKeys];
                         });
      }];
-
+    
     
     // Used to prevent duplicate notifications
     
@@ -382,8 +382,8 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     [self setIndexOfNowPlayingItem:index];
 }
 
-- (void)handleAVPlayerItemDidPlayToEndTimeNotification {
-
+- (void)handleAVPlayerItemDidPlayToEndTimeNotification:(NSNotification*)note {
+    
     _duration = 0;
     _currentProgress = 0;
     if (!self.isLoadingAsset) {
@@ -424,8 +424,8 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     
     /* Update the scrubber during normal playback. */
     timeObserver = [[player addPeriodicTimeObserverForInterval:CMTimeMake(1, 10)
-                                                                queue:NULL
-                                                           usingBlock:
+                                                         queue:NULL
+                                                    usingBlock:
                      ^(CMTime time)
                      {
                          double progress = CMTimeGetSeconds(time);
@@ -443,8 +443,8 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
                          
                      }] retain];
     [player setVolume:[TiUtils doubleValue:[self valueForKey:@"volume"] def:1.0f]];
-
-//        avPlayerLayer.hidden = YES;
+    
+    //        avPlayerLayer.hidden = YES;
     /* Observe the AVPlayer "currentItem" property to find out when any
      AVPlayer replaceCurrentItemWithPlayerItem: replacement will/did
      occur.*/
@@ -485,8 +485,8 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     }
     /* Update the scrubber during normal playback. */
     timeObserver = [[player addPeriodicTimeObserverForInterval:CMTimeMake(1, 10)
-                                                                queue:NULL
-                                                           usingBlock:
+                                                         queue:NULL
+                                                    usingBlock:
                      ^(CMTime time)
                      {
                          double progress = CMTimeGetSeconds(time);
@@ -512,6 +512,22 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     {
         [player removeTimeObserver:timeObserver];
         RELEASE_TO_NIL(timeObserver)
+    }
+}
+
+-(void)clearNowPlayingItem {
+    /* Stop observing our prior AVPlayerItem, if we have one. */
+    if (_nowPlayingItem)
+    {
+        /* Remove existing player item key value observers and notifications. */
+        
+        [_nowPlayingItem removeObserver:self forKeyPath:kStatusKey];
+        //        [_nowPlayingItem removeObserver:self forKeyPath:kLoadingKey];
+        
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                        name:AVPlayerItemDidPlayToEndTimeNotification
+                                                      object:_nowPlayingItem];
+        RELEASE_TO_NIL(_nowPlayingItem)
     }
 }
 
@@ -545,22 +561,11 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         
         /* Display the error to the user. */
         [self assetFailedToPrepareForPlayback:assetCannotBePlayedError];
-      
+        
         return;
     }
     
-    /* Stop observing our prior AVPlayerItem, if we have one. */
-    if (_nowPlayingItem)
-    {
-        /* Remove existing player item key value observers and notifications. */
-        
-        [_nowPlayingItem removeObserver:self forKeyPath:kStatusKey];
-//        [_nowPlayingItem removeObserver:self forKeyPath:kLoadingKey];
-        
-        [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                        name:AVPlayerItemDidPlayToEndTimeNotification
-                                                      object:_nowPlayingItem];
-    }
+    [self clearNowPlayingItem];
     
     /* Create a new instance of AVPlayerItem from the now successfully loaded AVAsset. */
     _nowPlayingItem = [[AVPlayerItem playerItemWithAsset:asset] retain];
@@ -583,13 +588,13 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     if (! player || player.currentItem != _nowPlayingItem)
     {
         [[self playerWithItem:_nowPlayingItem] play];
-       
+        
         /* Replace the player item with a new player item. The item replacement occurs
          asynchronously; observe the currentItem property to find out when the
          replacement will/did occur*/
-//        [player replaceCurrentItemWithPlayerItem:_nowPlayingItem];
+        //        [player replaceCurrentItemWithPlayerItem:_nowPlayingItem];
     }
-//    [self performSelector:@selector(play:) withObject:nil afterDelay:0.1];
+    //    [self performSelector:@selector(play:) withObject:nil afterDelay:0.1];
 }
 
 #pragma mark Public APIs
@@ -671,7 +676,7 @@ PROP_BOOL(muted,isMute);
 
 -(NSNumber *)duration
 {
-	return @(_duration);
+    return @(_duration);
 }
 
 
@@ -683,14 +688,14 @@ PROP_BOOL(muted,isMute);
 
 -(NSNumber *)volume
 {
-	return @(volume);
+    return @(volume);
 }
 
 -(void)setVolume:(NSNumber *)newVolume
 {
-	if (player != nil) {
-		[player setVolume:volume];
-	}
+    if (player != nil) {
+        [player setVolume:volume];
+    }
 }
 
 -(void)setPlaylist:(id)args
@@ -737,7 +742,7 @@ PROP_BOOL(muted,isMute);
     if (![[self stopped] boolValue])
     {
         [player play];
-//        [self updateStateForPlayer:player];
+        //        [self updateStateForPlayer:player];
     } else {
         if (![[TiAudioSession sharedSession] canPlayback]) {
             [self throwException:@"Improper audio session mode for playback"
@@ -761,6 +766,7 @@ PROP_BOOL(muted,isMute);
 -(void)stop:(id)args
 {
     [self cleanAVPlayer];
+    [self clearNowPlayingItem];
     [self updateState:STATE_STOPPED];
 }
 
@@ -800,7 +806,7 @@ PROP_BOOL(muted,isMute);
             }
             [self play:nil];
             return;
-
+            
         }
     }
     [self skipToPreviousItem];
@@ -813,7 +819,7 @@ PROP_BOOL(muted,isMute);
     if (player) {
         [player seekToTime:CMTimeMakeWithSeconds(time, 1)];
     }
-
+    
     
 }
 
@@ -823,18 +829,18 @@ NSDictionary* metadataKeys;
 {
     if (metadataKeys == nil) {
         metadataKeys = [@{
-                         @"title":MPMediaItemPropertyTitle,
-                         @"artist":MPMediaItemPropertyArtist,
-                         @"album":MPMediaItemPropertyAlbumTitle,
-                         @"duration":MPMediaItemPropertyPlaybackDuration,
-                         @"tracknumber":MPMediaItemPropertyAlbumTrackNumber,
-                         @"date":MPMediaItemPropertyReleaseDate,
-                         @"year":MPMediaItemPropertyReleaseDate,
-                         @"composer":MPMediaItemPropertyComposer,
-                         @"comment":MPMediaItemPropertyComments,
-                         @"genre":MPMediaItemPropertyGenre,
-                         @"compilation":MPMediaItemPropertyIsCompilation
-                         } retain];
+                          @"title":MPMediaItemPropertyTitle,
+                          @"artist":MPMediaItemPropertyArtist,
+                          @"album":MPMediaItemPropertyAlbumTitle,
+                          @"duration":MPMediaItemPropertyPlaybackDuration,
+                          @"tracknumber":MPMediaItemPropertyAlbumTrackNumber,
+                          @"date":MPMediaItemPropertyReleaseDate,
+                          @"year":MPMediaItemPropertyReleaseDate,
+                          @"composer":MPMediaItemPropertyComposer,
+                          @"comment":MPMediaItemPropertyComments,
+                          @"genre":MPMediaItemPropertyGenre,
+                          @"compilation":MPMediaItemPropertyIsCompilation
+                          } retain];
     }
     return metadataKeys;
 }
@@ -1035,27 +1041,27 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
 
 -(NSString*)stateToString:(NSInteger)state
 {
-	switch(state)
-	{
-		case STATE_INITIALIZED:
-			return @"initialized";
-		case STATE_ERROR:
-			return @"error";
-		case STATE_PLAYING:
-			return @"playing";
-		case STATE_BUFFERING:
-			return @"buffering";
+    switch(state)
+    {
+        case STATE_INITIALIZED:
+            return @"initialized";
+        case STATE_ERROR:
+            return @"error";
+        case STATE_PLAYING:
+            return @"playing";
+        case STATE_BUFFERING:
+            return @"buffering";
         case STATE_PAUSED:
             return @"paused";
-		case STATE_STOPPED:
-			return @"stopped";
-	}
+        case STATE_STOPPED:
+            return @"stopped";
+    }
 }
 
 -(NSString*)stateDescription:(id)arg
 {
-	ENSURE_SINGLE_ARG(arg,NSNumber);
-	return [self stateToString:[TiUtils intValue:arg]];
+    ENSURE_SINGLE_ARG(arg,NSNumber);
+    return [self stateToString:[TiUtils intValue:arg]];
 }
 
 #pragma mark Delegates
@@ -1148,7 +1154,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
             }
         }
         
-//        [self updateStateForPlayer:player];
+        //        [self updateStateForPlayer:player];
     }
     else if (context == MyStreamingMovieViewControllerPlayerItemDurationObserverContext)
     {
