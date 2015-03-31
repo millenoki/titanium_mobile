@@ -25,6 +25,7 @@ import android.view.MotionEvent;
 
 public class TiCollectionView extends TiAbsListView<CustomListView> {
 
+    private static final String TAG = "TiCollectionView";
 	public TiCollectionView(TiViewProxy proxy, Activity activity) {
 		super(proxy, activity);
 	}
