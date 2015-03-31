@@ -508,6 +508,7 @@ typedef enum
 +(NSDictionary*)pointToDictionary:(CGPoint)point;
 +(NSMutableDictionary*)dictionaryFromTouch:(UITouch*)touch inView:(UIView*)view;
 +(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture inView:(UIView*)view;
++(NSMutableDictionary*)dictionaryFromPoint:(CGPoint)localPoint inView:(UIView*)view;
 
 +(NSDictionary*)rectToDictionary:(CGRect)rect;
 

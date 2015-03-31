@@ -1401,6 +1401,48 @@ If the new path starts with / and the base url is app://..., we have to massage 
 }
 
 
++(NSMutableDictionary*)dictionaryFromPoint:(CGPoint)localPoint inView:(UIView*)view
+{
+    CGPoint globalPoint = [view convertPoint:localPoint toView:nil];
+    NSString* xProp = @"x";
+    NSString* yProp = @"y";
+    float xFactor = 1;
+    float yFactor = 1;
+    
+    UIInterfaceOrientation o = (UIInterfaceOrientation)[[UIApplication sharedApplication] statusBarOrientation];
+    
+    switch (o) {
+        case UIInterfaceOrientationPortraitUpsideDown:
+            
+            xFactor = -1;
+            yFactor = -1;
+            break;
+            
+        case UIInterfaceOrientationLandscapeLeft:
+            xProp = @"y";
+            yProp = @"x";
+            yFactor = -1;
+            break;
+            
+        case UIInterfaceOrientationLandscapeRight:
+            xProp = @"y";
+            yProp = @"x";
+            xFactor = -1;
+            break;
+        default:
+            break;
+    }
+    
+    return [NSMutableDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithDouble:xFactor*localPoint.x],xProp,
+            [NSNumber numberWithDouble:yFactor*localPoint.y],yProp,
+            [NSDictionary dictionaryWithObjectsAndKeys:
+             [NSNumber numberWithDouble:xFactor*globalPoint.x],xProp,
+             [NSNumber numberWithDouble:yFactor*globalPoint.y],yProp,
+             nil], @"globalPoint",
+            nil];
+}
+
 +(NSMutableDictionary*)dictionaryFromTouchableEvent:(id)touch inView:(UIView*)view
 {
     if (touch == nil) return [NSMutableDictionary dictionary];
