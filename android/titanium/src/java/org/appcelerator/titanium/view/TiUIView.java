@@ -1024,7 +1024,9 @@ public abstract class TiUIView
 	protected void setBackgroundImageDrawable(Object object, boolean backgroundRepeat, int[][] states) {
 		TiBackgroundDrawable bgdDrawable = getOrCreateBackground();
 		Drawable drawable = TiUIHelper.buildImageDrawable(nativeView.getContext(), object, backgroundRepeat, proxy);
-		
+		if (drawable == null) {
+		    return;
+		}
 		for (int i = 0; i < states.length; i++) {
 			bgdDrawable.setImageDrawableForState(states[i], drawable);
 		}

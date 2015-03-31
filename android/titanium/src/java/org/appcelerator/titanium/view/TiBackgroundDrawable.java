@@ -303,8 +303,13 @@ public class TiBackgroundDrawable extends Drawable {
 	{
 		if (drawable != null) {
 			drawable.setBounds(this.getBounds());
+	        getOrCreateDrawableForState(stateSet).setBitmapDrawable(drawable);
+		} else {
+		    int key = keyOfStateSet(stateSet);
+	        if (key != -1) {
+                drawables.get(key).setBitmapDrawable(drawable);	            
+	        }
 		}
-		getOrCreateDrawableForState(stateSet).setBitmapDrawable(drawable);
 		invalidateSelf();
 	}
 	
@@ -312,8 +317,13 @@ public class TiBackgroundDrawable extends Drawable {
 	{
 		if (drawable != null) {
 			drawable.setBounds(this.getBounds());
+			getOrCreateDrawableForState(stateSet).setGradientDrawable(drawable);
+        } else {
+            int key = keyOfStateSet(stateSet);
+            if (key != -1) {
+                drawables.get(key).setGradientDrawable(drawable);             
+            }
 		}
-		getOrCreateDrawableForState(stateSet).setGradientDrawable(drawable);
 		invalidateSelf();
 	}
 	
