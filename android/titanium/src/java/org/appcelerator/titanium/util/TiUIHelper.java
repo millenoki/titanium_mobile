@@ -842,8 +842,7 @@ public class TiUIHelper
                 Cache cache = TiApplication.getImageMemoryCache();
                 Bitmap bitmap = cache.get(url);
                 if (bitmap == null) {
-                    TiFileHelper tfh = TiFileHelper.getInstance();
-                    imageDrawable = tfh.loadDrawable(url, false, true);
+                    imageDrawable = TiFileHelper.getInstance().loadDrawable(url, false, true);
                     if (imageDrawable instanceof BitmapDrawable) {
                         bitmap = ((BitmapDrawable)imageDrawable).getBitmap();
                         cache.set(url, ((BitmapDrawable)imageDrawable).getBitmap());
@@ -1098,6 +1097,19 @@ public class TiUIHelper
     private static final Pattern drawablePattern = Pattern.compile("/Resources/(.*)\\.png$", Pattern.CASE_INSENSITIVE);
     private static final Pattern imagePattern = Pattern.compile("^.*/Resources/images/(.*$)");
 	
+    
+    private static BitmapFactory.Options bmpOptions = null;
+    private static BitmapFactory.Options getBitmapOptions() {
+        if (bmpOptions == null) {
+            bmpOptions = new BitmapFactory.Options();
+            bmpOptions.inPurgeable = true;
+            bmpOptions.inInputShareable = true;
+            bmpOptions.inDensity = DisplayMetrics.DENSITY_DEFAULT;
+            bmpOptions.inTargetDensity = TiApplication.getAppDensityDpi();
+            bmpOptions.inScaled = true;
+        }
+        return bmpOptions;
+    }
 	/**
 	 * Creates and returns a density scaled Bitmap from an InputStream.
 	 * @param stream an InputStream to read bitmap data.
@@ -1105,19 +1117,9 @@ public class TiUIHelper
 	 */
 	public static Bitmap createDensityScaledBitmap(InputStream stream)
 	{
-		Rect pad = new Rect();
-		BitmapFactory.Options opts = new BitmapFactory.Options();
-		opts.inPurgeable = true;
-		opts.inInputShareable = true;
-		DisplayMetrics dm = new DisplayMetrics();
-		dm.setToDefaults();
-		opts.inDensity = DisplayMetrics.DENSITY_MEDIUM;
-		opts.inTargetDensity = dm.densityDpi;
-		opts.inScaled = true;
-
 		Bitmap b = null;
 		try {
-			b = BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
+			b = BitmapFactory.decodeResourceStream(null, null, stream, null, getBitmapOptions());
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}
