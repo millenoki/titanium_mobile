@@ -327,8 +327,10 @@ public class StreamerProxy extends TiEnhancedServiceProxy {
     public Object[] getPlaylist() {
         if (tiService != null) {
             return tiService.getPlaylist();
+        } else if (mPlaylist != null) {
+            return mPlaylist.toArray();
         }
-        return mPlaylist.toArray();
+        return null;
     }
     
     @Kroll.method
