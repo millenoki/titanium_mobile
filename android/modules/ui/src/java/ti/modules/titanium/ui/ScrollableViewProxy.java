@@ -98,47 +98,50 @@ public class ScrollableViewProxy extends TiViewProxy
 	public boolean handleMessage(Message msg)
 	{
 		boolean handled = false;
-
+		TiUIScrollableView view = getView();
+        if (view == null) {
+            return true;
+        }
 		switch(msg.what) {
 			case MSG_HIDE_PAGER:
-				getView().hidePager();
+			    view.hidePager();
 				handled = true;
 				break;
 			case MSG_MOVE_PREV:
 				inScroll.set(true);
-				getView().movePrevious(msg.arg1 == 1);
+				view.movePrevious(msg.arg1 == 1);
 				inScroll.set(false);
 				handled = true;
 				break;
 			case MSG_MOVE_NEXT:
 				inScroll.set(true);
-				getView().moveNext(msg.arg1 == 1);
+				view.moveNext(msg.arg1 == 1);
 				inScroll.set(false);
 				handled = true;
 				break;
 			case MSG_SCROLL_TO:
 				inScroll.set(true);
-				getView().scrollTo(msg.obj, msg.arg1 == 1);
+				view.scrollTo(msg.obj, msg.arg1 == 1);
 				inScroll.set(false);
 				handled = true;
 				break;
 			case MSG_SET_CURRENT:
-				getView().setCurrentPage(msg.obj);
+			    view.setCurrentPage(msg.obj);
 				handled = true;
 				break;
 			case MSG_SET_VIEWS: {
 				AsyncResult holder = (AsyncResult) msg.obj;
 				Object views = holder.getArg(); 
-				getView().setViews(views);
+				view.setViews(views);
 				holder.setResult(null);
 				handled = true;
 				break;
 			}
 			case MSG_ADD_VIEW: {
 				AsyncResult holder = (AsyncResult) msg.obj;
-				Object view = holder.getArg();
-				if (view instanceof TiViewProxy) {
-					getView().addView((TiViewProxy) view);
+				Object proxy = holder.getArg();
+				if (proxy instanceof TiViewProxy) {
+				    view.addView((TiViewProxy) proxy);
 					handled = true;
 				} else if (view != null) {
 					Log.w(TAG, "addView() ignored. Expected a Titanium view object, got " + view.getClass().getSimpleName());
@@ -148,12 +151,12 @@ public class ScrollableViewProxy extends TiViewProxy
 			}
 			case MSG_REMOVE_VIEW: {
 				AsyncResult holder = (AsyncResult) msg.obj;
-				Object view = holder.getArg(); 
-				if (view instanceof TiViewProxy) {
-					getView().removeView((TiViewProxy) view);
+				Object proxy = holder.getArg(); 
+				if (proxy instanceof TiViewProxy) {
+				    view.removeView((TiViewProxy) proxy);
 					handled = true;
-				} else if (view instanceof Integer) {
-					getView().removeView((Integer) view);
+				} else if (proxy instanceof Integer) {
+				    view.removeView((Integer) proxy);
 					handled = true;
 				} else if (view != null) {
 					Log.w(TAG, "removeView() ignored. Expected a Titanium view object, got " + view.getClass().getSimpleName());
