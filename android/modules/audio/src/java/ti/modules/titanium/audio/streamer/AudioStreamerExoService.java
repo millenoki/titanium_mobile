@@ -458,7 +458,7 @@ public class AudioStreamerExoService extends TiEnhancedService implements
             // before stopping the service, so that pause/resume isn't slow.
             // Also delay stopping the service if we're transitioning between
             // tracks.
-        } else if (mQueue.size() > 0 || mPlayerHandler.hasMessages(TRACK_ENDED)) {
+        } else if ((mQueue != null && mQueue.size() > 0) || mPlayerHandler.hasMessages(TRACK_ENDED)) {
             final Message msg = mDelayedStopHandler.obtainMessage();
             mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
             return true;
