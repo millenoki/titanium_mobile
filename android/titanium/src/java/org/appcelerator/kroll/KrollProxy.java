@@ -1815,10 +1815,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 eventListeners.put(eventName, listeners);
             }
 
-            if (Log.isDebugModeEnabled()) {
-                Log.d(TAG, "Added for eventName '" + eventName + "' with id "
-                        + listenerId, Log.DEBUG_MODE);
-            }
+            // if (Log.isDebugModeEnabled()) {
+            //     Log.d(TAG, "Added for eventName '" + eventName + "' with id "
+            //             + listenerId, Log.DEBUG_MODE);
+            // }
             listenerId = listenerIdGenerator.incrementAndGet();
             listeners.put(listenerId, callback);
         }
