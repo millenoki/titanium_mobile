@@ -39,10 +39,12 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
+import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -89,6 +91,7 @@ public abstract class TiApplication extends Application implements
     
     private static long mainThreadId = 0;
 
+    private static int mAppDensityDpi = -1;
     private static float mAppDensity = -1;
     private static float mAppScaledDensity = -1;
     private static String mAppDensityString = null;
@@ -513,12 +516,14 @@ public abstract class TiApplication extends Application implements
         }
     }
     
+    
+    
     private static TiBitmapMemoryCache _picassoMermoryCache;
     public static TiBitmapMemoryCache getImageMemoryCache() {
         if (_picassoMermoryCache == null) {
             int maxMemory = (int) (Runtime.getRuntime().maxMemory());
             int cacheSize = maxMemory / 7;
-            _picassoMermoryCache = new TiBitmapMemoryCache(cacheSize);
+            _picassoMermoryCache = new TiBitmapMemoryCache(TiActivityHelper.calculateMemoryCacheSize(getAppContext()));
         }
         return _picassoMermoryCache;
     }
@@ -526,7 +531,7 @@ public abstract class TiApplication extends Application implements
     private static Picasso _picasso;
     public static Picasso getPicassoInstance() {
         if (_picasso == null) {
-            _picasso = new Picasso.Builder(getInstance().getApplicationContext())
+            _picasso = new Picasso.Builder(getAppContext())
             .memoryCache(getImageMemoryCache())
             .downloader(new OkHttpDownloader(getPicassoHttpClientInstance()))
             .build();
@@ -535,9 +540,9 @@ public abstract class TiApplication extends Application implements
     }
     
     static File createDefaultCacheDir(Context context, String path) {
-        File cacheDir = context.getApplicationContext().getExternalCacheDir();
+        File cacheDir = getAppContext().getExternalCacheDir();
         if (cacheDir == null)
-            cacheDir = context.getApplicationContext().getCacheDir();
+            cacheDir = getAppContext().getCacheDir();
         File cache = new File(cacheDir, path);
         if (!cache.exists()) {
             cache.mkdirs();
@@ -554,13 +559,8 @@ public abstract class TiApplication extends Application implements
             if (_currentCacheDir.get(name) == null || cacheDir == null || !cacheDir.equals(_currentCacheDir.get(name).toString())) {
                     if (cacheDir != null ) {
                         int maxCacheSize = getInstance().getAppProperties().getInt(CACHE_SIZE_KEY, DEFAULT_CACHE_SIZE) * 1024 * 1024;
-                        try {
-                            _currentCacheDir.put(name, cacheDir.toString());
-                            _currentCache.put(name, new Cache(cacheDir, maxCacheSize));
-                        } catch (IOException e) {
-                            _currentCache.remove(name);
-                            _currentCacheDir.remove(name);
-                        }
+                        _currentCacheDir.put(name, cacheDir.toString());
+                        _currentCache.put(name, new Cache(cacheDir, maxCacheSize));
                     } else {
                         _currentCache.remove(name);
                         _currentCacheDir.remove(name);
@@ -898,24 +898,28 @@ public abstract class TiApplication extends Application implements
     
     public static float getAppDensity() {
         if (mAppDensity == -1) {
-            DisplayMetrics metrics = TiDimension.getDisplayMetrics();
-            mAppDensity = metrics.density;
+            mAppDensity =  TiDimension.getDisplayMetrics().density;
         }
         return mAppDensity;
     }
     
+    public static int getAppDensityDpi() {
+        if (mAppDensityDpi == -1) {
+            mAppDensityDpi =  TiDimension.getDisplayMetrics().densityDpi;
+        }
+        return mAppDensityDpi;
+    }
+    
     public static float getAppScaledDensity() {
         if (mAppScaledDensity == -1) {
-            DisplayMetrics metrics = TiDimension.getDisplayMetrics();
-            mAppScaledDensity = metrics.scaledDensity;
+            mAppScaledDensity =  TiDimension.getDisplayMetrics().scaledDensity;
         }
         return mAppScaledDensity;
     }
     
     public static String getAppDensityString() {
         if (mAppDensityString == null) {
-            DisplayMetrics metrics = TiDimension.getDisplayMetrics();
-            switch(metrics.densityDpi) {
+            switch(getAppDensityDpi()) {
             case DisplayMetrics.DENSITY_HIGH :
                 mAppDensityString = "high";
             case DisplayMetrics.DENSITY_MEDIUM :
