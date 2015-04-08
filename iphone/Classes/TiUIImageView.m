@@ -1103,7 +1103,11 @@ DEFINE_EXCEPTIONS
 {
     RELEASE_TO_NIL(_defaultImageUrl)
     _defaultImageUrl = [[TiUtils toURL:value proxy:self.proxy] retain];
-    if (configurationSet) [self setImage_:[self.proxy valueForKey:@"image"]];
+    if (configurationSet) {
+        [self setImage_:[self.proxy valueForKey:@"image"]];
+    } else if (_defaultImageUrl) {
+        _needsSetImage = YES;
+    }
 }
 
 -(void)setFilterOptions_:(id)value
