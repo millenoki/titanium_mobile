@@ -219,6 +219,7 @@ typedef enum
  @return The textual representation of the value.
  */
 +(NSString*)stringValue:(id)value;
++(NSString*)stringValue:(id)value def:(NSString*)def;
 
 +(NSString*)replaceString:(NSString *)string characters:(NSCharacterSet *)characterSet withString:(NSString *)replacementString;
 

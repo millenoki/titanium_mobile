@@ -438,6 +438,14 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 	return [value description];
 }
 
++(NSString*)stringValue:(id)value def:(NSString*)def
+{
+    NSString* result = [self stringValue:value];
+    if (result)
+        return result;
+    return def;
+}
+
 +(BOOL)boolValue:(id)value def:(BOOL)def;
 {
 	if ([value respondsToSelector:@selector(boolValue)])
@@ -701,8 +709,9 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 
 +(TiPoint*)tiPointValue:(id)value def:(TiPoint*)def
 {
-    if (value != nil)
-        return [TiPoint pointWithObject:value];
+    TiPoint* result = [TiPoint pointWithObject:value];
+    if (result)
+        return result;
     return def;
 }
 
