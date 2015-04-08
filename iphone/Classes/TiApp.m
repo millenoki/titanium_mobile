@@ -112,7 +112,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 -(void)initController
 {
 	sharedApp = self;
-	
+    _networkConnected = YES;
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
 	// attach our main view controller... IF we haven't already loaded the main window.
@@ -1249,6 +1249,11 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 #undef NSLog
     NSLog(@"%@",message);
 #pragma pop
+}
+
+-(void)setNetworkConnected:(BOOL)networkConnected
+{
+    _networkConnected = networkConnected;
 }
 
 @end

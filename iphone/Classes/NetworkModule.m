@@ -33,6 +33,11 @@ NSString* const DATA_IFACE = @"pdp_ip0";
 NSString* const INADDR_ANY_token = @"INADDR_ANY";
 static NSOperationQueue *_operationQueue = nil;
 static NetworkModule *_sharedInstance = nil;
+
+@interface TiApp()
+@property (nonatomic, assign) BOOL networkConnected;
+@end
+
 @implementation NetworkModule
 {
     dispatch_semaphore_t _startingSema;
@@ -151,6 +156,7 @@ static NetworkModule *_sharedInstance = nil;
         dispatch_semaphore_signal(_startingSema);
         
     }
+    [TiApp app].networkConnected = [[self online] boolValue];
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                            [self networkType], @"networkType",
                            [self online], @"online",

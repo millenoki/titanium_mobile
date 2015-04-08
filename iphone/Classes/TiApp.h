@@ -200,6 +200,9 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 //if you override it make sure to undef NSLog 
 +(void)TiNSLog:(NSString*) message;
 
+//only valid if network module loaded
+@property (nonatomic, readonly) BOOL networkConnected;
+
 -(void)clearRemoteNotification;
 @end
 
