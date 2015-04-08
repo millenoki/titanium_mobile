@@ -139,6 +139,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
     });
+    [super _initWithProperties:properties];
 }
 
 -(void)paused:(id)sender
@@ -152,6 +153,10 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
         [self initProgressTimer];
     }
     
+}
+
+-(void)dealloc {
+    [super dealloc];
 }
 
 
@@ -529,6 +534,7 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
                                                       object:_nowPlayingItem];
         RELEASE_TO_NIL(_nowPlayingItem)
     }
+    _currentItem = nil;
 }
 
 - (void)prepareToPlayAsset:(AVURLAsset *)asset withKeys:(NSArray *)requestedKeys
