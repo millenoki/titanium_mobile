@@ -20,7 +20,6 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -89,7 +88,7 @@ public class NotificationHelper {
     /**
      * Context
      */
-    private final Service mService;
+    private final AudioService mService;
     private final Class mServiceClass;
 
     /**
@@ -119,7 +118,7 @@ public class NotificationHelper {
      * @param service
      *            The {@link Context} to use
      */
-    public NotificationHelper(final Service service, int icon,
+    public NotificationHelper(final AudioService service, int icon,
             int viewId, int expandedViewId) {
         mService = service;
         mServiceClass = mService.getClass();
@@ -334,6 +333,7 @@ public class NotificationHelper {
      *            Which {@link PendingIntent} to return
      * @return A {@link PendingIntent} ready to control playback
      */
+    @SuppressWarnings("static-access")
     private final PendingIntent retreivePlaybackActions(final int which) {
         Intent action;
         PendingIntent pendingIntent;
@@ -342,25 +342,25 @@ public class NotificationHelper {
         switch (which) {
         case 1:
             // Play and pause
-            action = new Intent(AudioStreamerExoService.TOGGLEPAUSE_ACTION);
+            action = new Intent(mService.cmds.TOGGLEPAUSE_ACTION);
             action.setComponent(serviceName);
             pendingIntent = PendingIntent.getService(mService, 1, action, 0);
             return pendingIntent;
         case 2:
             // Skip tracks
-            action = new Intent(AudioStreamerExoService.NEXT_ACTION);
+            action = new Intent(mService.cmds.NEXT_ACTION);
             action.setComponent(serviceName);
             pendingIntent = PendingIntent.getService(mService, 2, action, 0);
             return pendingIntent;
         case 3:
             // Previous tracks
-            action = new Intent(AudioStreamerExoService.PREVIOUS_ACTION);
+            action = new Intent(mService.cmds.PREVIOUS_ACTION);
             action.setComponent(serviceName);
             pendingIntent = PendingIntent.getService(mService, 3, action, 0);
             return pendingIntent;
         case 4:
             // Stop and collapse the notification
-            action = new Intent(AudioStreamerExoService.STOP_ACTION);
+            action = new Intent(mService.cmds.STOP_ACTION);
             action.setComponent(serviceName);
             pendingIntent = PendingIntent.getService(mService, 4, action, 0);
             return pendingIntent;
