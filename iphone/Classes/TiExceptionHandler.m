@@ -20,44 +20,44 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 + (TiExceptionHandler *)defaultExceptionHandler
 {
-	static TiExceptionHandler *defaultExceptionHandler;
-	static dispatch_once_t onceToken;
-	dispatch_once(&onceToken, ^{
-		defaultExceptionHandler = [[self alloc] init];
-		prevUncaughtExceptionHandler = NSGetUncaughtExceptionHandler();
-		NSSetUncaughtExceptionHandler(&TiUncaughtExceptionHandler);
-	});
-	return defaultExceptionHandler;
+    static TiExceptionHandler *defaultExceptionHandler;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        defaultExceptionHandler = [[self alloc] init];
+        prevUncaughtExceptionHandler = NSGetUncaughtExceptionHandler();
+        NSSetUncaughtExceptionHandler(&TiUncaughtExceptionHandler);
+    });
+    return defaultExceptionHandler;
 }
 
 - (void)reportException:(NSException *)exception withStackTrace:(NSArray *)stackTrace
 {
-	NSString *message = [NSString stringWithFormat:
-				@"[ERROR] The application has crashed with an uncaught exception '%@'.\nReason:\n%@\nStack trace:\n\n%@\n",
-				exception.name, exception.reason, [stackTrace componentsJoinedByString:@"\n"]];
-	NSLog(@"%@",message);
-	id <TiExceptionHandlerDelegate> currentDelegate = _delegate;
-	if (currentDelegate == nil) {
-		currentDelegate = self;
-	}
-	[currentDelegate handleUncaughtException:exception withStackTrace:stackTrace];
+    NSString *message = [NSString stringWithFormat:
+                         @"[ERROR] The application has crashed with an uncaught exception '%@'.\nReason:\n%@\nStack trace:\n\n%@\n",
+                         exception.name, exception.reason, [stackTrace componentsJoinedByString:@"\n"]];
+    NSLog(@"%@",message);
+    id <TiExceptionHandlerDelegate> currentDelegate = _delegate;
+    if (currentDelegate == nil) {
+        currentDelegate = self;
+    }
+    [currentDelegate handleUncaughtException:exception withStackTrace:stackTrace];
 }
 
 - (void)reportScriptError:(TiScriptError *)scriptError
 {
-	DebugLog(@"[ERROR] Script Error at %@", [scriptError oneLineDescription]);
-	DebugLog(@"[ERROR] Script Error %@", [scriptError detailedDescription]);
-	
-	id <TiExceptionHandlerDelegate> currentDelegate = _delegate;
-	if (currentDelegate == nil) {
-		currentDelegate = self;
-	}
-	[currentDelegate handleScriptError:scriptError];
+    DebugLog(@"[ERROR] Script Error at %@", [scriptError oneLineDescription]);
+    DebugLog(@"[ERROR] backtrace:\n%@", [scriptError stackDescription]);
+    
+    id <TiExceptionHandlerDelegate> currentDelegate = _delegate;
+    if (currentDelegate == nil) {
+        currentDelegate = self;
+    }
+    [currentDelegate handleScriptError:scriptError];
 }
 
 - (void)showScriptError:(TiScriptError *)error
 {
-	[[TiApp app] showModalError:[error description]];
+    [[TiApp app] showModalError:[error description]];
 }
 
 #pragma mark - TiExceptionHandlerDelegate
@@ -68,7 +68,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)handleScriptError:(TiScriptError *)error
 {
-	[self showScriptError:error];
+    [self showScriptError:error];
 }
 
 @end
@@ -85,9 +85,9 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 {
     self = [super init];
     if (self) {
-		_message = [message copy];
-		_sourceURL = [sourceURL copy];
-		_lineNo = lineNo;
+        _message = [message copy];
+        _sourceURL = [sourceURL copy];
+        _lineNo = lineNo;
     }
     return self;
 }
@@ -100,7 +100,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     }
     NSString *sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
     NSInteger lineNo = [[dictionary objectForKey:@"line"] integerValue];
-
+    
     self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
     if (self) {
         _backtrace = [[[dictionary objectForKey:@"backtrace"] description] copy];
@@ -114,35 +114,43 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)dealloc
 {
-	RELEASE_TO_NIL(_message);
-	RELEASE_TO_NIL(_sourceURL);
-	RELEASE_TO_NIL(_backtrace);
-	RELEASE_TO_NIL(_dictionaryValue);
+    RELEASE_TO_NIL(_message);
+    RELEASE_TO_NIL(_sourceURL);
+    RELEASE_TO_NIL(_backtrace);
+    RELEASE_TO_NIL(_dictionaryValue);
     [super dealloc];
 }
 
 - (NSString *)description
 {
-	if (self.sourceURL != nil) {
-		return [NSString stringWithFormat:@"%@ at %@ (line %ld)", self.message,[self.sourceURL lastPathComponent], (long)self.lineNo];
-	} else {
-		return [NSString stringWithFormat:@"%@", self.message];
-	}
+    if (self.sourceURL != nil) {
+        return [NSString stringWithFormat:@"%@ at %@ (line %ld)", self.message,[self.sourceURL lastPathComponent], (long)self.lineNo];
+    } else {
+        return [NSString stringWithFormat:@"%@", self.message];
+    }
 }
 
 - (NSString *)detailedDescription
 {
-	return _dictionaryValue != nil ? [_dictionaryValue description] : [self description];
+    return _dictionaryValue != nil ? [_dictionaryValue description] : [self description];
 }
 
 
+- (NSString *)stackDescription
+{
+    if (_backtrace) {
+        return [_backtrace stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+    }
+    return @"";
+}
+
 - (NSString *)oneLineDescription
 {
-	if (self.sourceURL != nil) {
-		return [NSString stringWithFormat:@"%@:%ld:\"%@\"", [self.sourceURL stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding], (long)self.lineNo, self.message];
-	} else {
-		return [NSString stringWithFormat:@"%@", self.message];
-	}
+    if (self.sourceURL != nil) {
+        return [NSString stringWithFormat:@"%@:%ld:\"%@\"", [self.sourceURL stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding], (long)self.lineNo, self.message];
+    } else {
+        return [NSString stringWithFormat:@"%@", self.message];
+    }
 }
 
 @end
@@ -152,37 +160,37 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 //
 static void TiUncaughtExceptionHandler(NSException *exception)
 {
-	static BOOL insideException = NO;
-	
-	// prevent recursive exceptions
-	if (insideException==YES) {
-		exit(1);
-		return;
-	}
-	insideException = YES;
-	
+    static BOOL insideException = NO;
+    
+    // prevent recursive exceptions
+    if (insideException==YES) {
+        exit(1);
+        return;
+    }
+    insideException = YES;
+    
     NSArray *callStackArray = [exception callStackReturnAddresses];
     int frameCount = (int)[callStackArray count];
     void *backtraceFrames[frameCount];
-	
+    
     for (int i = 0; i < frameCount; ++i) {
         backtraceFrames[i] = (void *)[[callStackArray objectAtIndex:i] unsignedIntegerValue];
     }
-	char **frameStrings = backtrace_symbols(&backtraceFrames[0], frameCount);
-	
-	NSMutableArray *stack = [[NSMutableArray alloc] initWithCapacity:frameCount];
-	if (frameStrings != NULL) {
-		for (int i = 0; (i < frameCount) && (frameStrings[i] != NULL); ++i) {
-			[stack addObject:[NSString stringWithCString:frameStrings[i] encoding:NSASCIIStringEncoding]];
-		}
-		free(frameStrings);
-	}
-	
-	[[TiExceptionHandler defaultExceptionHandler] reportException:exception withStackTrace:[[stack copy] autorelease]];
-	[stack release];
-	
-	insideException=NO;
-	if (prevUncaughtExceptionHandler != NULL) {
-		prevUncaughtExceptionHandler(exception);
-	}
+    char **frameStrings = backtrace_symbols(&backtraceFrames[0], frameCount);
+    
+    NSMutableArray *stack = [[NSMutableArray alloc] initWithCapacity:frameCount];
+    if (frameStrings != NULL) {
+        for (int i = 0; (i < frameCount) && (frameStrings[i] != NULL); ++i) {
+            [stack addObject:[NSString stringWithCString:frameStrings[i] encoding:NSASCIIStringEncoding]];
+        }
+        free(frameStrings);
+    }
+    
+    [[TiExceptionHandler defaultExceptionHandler] reportException:exception withStackTrace:[[stack copy] autorelease]];
+    [stack release];
+    
+    insideException=NO;
+    if (prevUncaughtExceptionHandler != NULL) {
+        prevUncaughtExceptionHandler(exception);
+    }
 }

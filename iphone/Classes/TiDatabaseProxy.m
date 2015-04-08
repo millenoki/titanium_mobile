@@ -9,7 +9,9 @@
 #import "TiDatabaseProxy.h"
 #import "TiDatabaseResultSetProxy.h"
 #import "TiUtils.h"
+#if defined(USE_TI_FILESYSTEM)
 #import "TiFilesystemFileProxy.h"
+#endif
 
 @implementation TiDatabaseProxy
 
@@ -100,8 +102,10 @@
     {
         dbDir = [[self dbDir] stringByAppendingPathComponent:name_];
     }
-    
-    return [dbDir stringByAppendingPathExtension:@"sql"];
+    if ([[dbDir pathExtension] length] == 0) {
+        return [dbDir stringByAppendingPathExtension:@"sql"];
+    }
+    return dbDir;
 }
 
 -(void)open:(NSString*)name_
@@ -280,10 +284,17 @@
 {
 	return name;
 }
+
+-(NSString*)path
+{
+    return [self dbPath:name];
+}
+#if defined(USE_TI_FILESYSTEM)
 -(TiFilesystemFileProxy*)file
 {
 	return [[[TiFilesystemFileProxy alloc] initWithFile:[self dbPath:name]] autorelease];
 }
+#endif
 
 #pragma mark Internal
 -(PLSqliteDatabase*)database
