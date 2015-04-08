@@ -3615,7 +3615,7 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 						}
 					})(from, to, done);
 				} catch (ex) {
-					ex.message.split('\n').forEach(this.logger.error);
+					this.logger.error(ex.message);
 					this.logger.log();
 					process.exit(1);
 				}
