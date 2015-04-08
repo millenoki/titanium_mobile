@@ -3035,28 +3035,33 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
 
             customModules.push(result);
 
-            metadata && metadata.exports.forEach(function (namespace) {
-                if (!appModulesMap[namespace]) {
-                    var r = createModuleDescriptor(namespace);
-                    r && appModules.push(r);
-                }
-            });
+            
+        }, this);
 
-            var moduleDependencyFile = path.join(module.modulePath, 'dependency.json');
-            if (fs.existsSync(moduleDependencyFile)) {
-                var moduleDepMap = JSON.parse(fs.readFileSync(moduleDependencyFile));
-                if (moduleDepMap) {
-                    if (moduleDepMap[googlePlayServicesFeaturesKey]) {
-                        moduleDepMap[googlePlayServicesFeaturesKey].forEach(function (keep) {
-                            if (googlePlayServicesKeep.indexOf(keep) == -1) {
-                                googlePlayServicesKeep.push(keep);
-                            }
-                        });
-                        this.needsGooglePlayServices = true;
-                    }
+        metadata && metadata.exports.forEach(function (namespace) {
+            if (!appModulesMap[namespace]) {
+                var r = createModuleDescriptor(namespace);
+                r && appModules.push(r);
+            }
+        });
+
+        var moduleDependencyFile = path.join(module.modulePath, 'dependency.json');
+        if (fs.existsSync(moduleDependencyFile)) {
+            var moduleDepMap = JSON.parse(fs.readFileSync(moduleDependencyFile));
+            if (moduleDepMap) {
+                if (moduleDepMap[googlePlayServicesFeaturesKey]) {
+                    moduleDepMap[googlePlayServicesFeaturesKey].forEach(function (keep) {
+                        if (googlePlayServicesKeep.indexOf(keep) == -1) {
+                            googlePlayServicesKeep.push(keep);
+                        }
+                    });
+                    this.needsGooglePlayServices = true;
+                }
+                if (moduleDepMap.required) {
+                    moduleDepMap.required.forEach(addTitaniumLibrary, this);
                 }
             }
-        }, this);
+        }
     }, this);
 
     // write the app.json
@@ -3698,7 +3703,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
             },
             'Audio.createStreamer': {
                 'receiver': {
-                    'name': '.TiMediaButtonIntentReceiver',
+                    'name': '.TiMediaButtonEventReceiver',
                     'intent-filter': [{
                         action:['android.intent.action.MEDIA_BUTTON', 'android.media.AUDIO_BECOMING_NOISY']
                     }]
