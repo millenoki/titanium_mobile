@@ -1,5 +1,16 @@
-var Map = app.modules.map = require('akylas.map');
-Map.mapboxAccessToken = 'pk.eyJ1IjoiYmxlZWdlIiwiYSI6IkRGLTFPU00ifQ.qJpq3jytAL9A-z_tkNypqg';
+var GoogleMap, Map, Mapbox;
+
+// Map.mapboxAccessToken = 'pk.eyJ1IjoiYmxlZWdlIiwiYSI6IkRGLTFPU00ifQ.qJpq3jytAL9A-z_tkNypqg';
+
+// GoogleMap = require('akylas.googleMap');
+// GoogleMap.googleMapAPIKey = 'AIzaSyAKh0_FyCXBWWsuAhJh7JA7WPOWm_GEmfc';
+
+ Map = require('akylas.map');
+
+//Mapbox = require('akylas.mapbox');
+//Mapbox.mapboxAccessToken = 'pk.eyJ1IjoiYmxlZWdlIiwiYSI6IkRGLTFPU00ifQ.qJpq3jytAL9A-z_tkNypqg';
+
+
 var simplify = require('simplifygeometry');
 function mapExs(_args) {
 	var win = createWin(_args);
@@ -9,12 +20,17 @@ function mapExs(_args) {
 			properties : {
 				title : 'MapBox'
 			},
-			callback : mapboxEx
+			callback : _.partial(mapboxEx, Mapbox)
 		}, {
 			properties : {
 				title : 'Map'
 			},
-			callback : mapEx
+			callback : _.partial(mapEx, Map)
+		}, {
+			properties : {
+				title : 'GoogleMap'
+			},
+			callback : _.partial(googlemapEx, GoogleMap)
 		} , {
 			properties : {
 				title : 'Directions'
@@ -65,18 +81,18 @@ function addTestRoute(_map) {
 	// }
 	// };
 	// info('after ' + realPoints.length);
-	_map.addRoute(Map.createRoute({
+	_map.addRoute({
 		width : 7,
 		color : '#660000ff',
 		points : JSON.parse(points)
-	}));
+	});
 
-	var route = Map.createRoute({
+	_map.addRoute({
 		width : 7.0,
-		color : '#99ff0000',
+		// color : '#99ff0000',
+		spans:[['red', 40], ['red', 'yellow']],
 		points : JSON.parse(realPoints)
 	});
-	_map.addRoute(route);
 
 	// var i = 4000;
 	// setInterval(function() {
@@ -86,7 +102,7 @@ function addTestRoute(_map) {
 	// }, 500)
 }
 
-function mapboxEx() {
+function mapboxEx(_module, _args) {
 	initGeoSettings();
 	var win = createWin({
 		layout:'vertical'
@@ -182,29 +198,29 @@ function mapboxEx() {
 		}
 	});
 
-	var anno = Map.createAnnotation({
+	var anno = _module.createAnnotation({
 		latitude : -33.87365,
 		longitude : 151.20689,
 		title : "Sydney",
 		subtitle : "Sydney is quite chill",
 		draggable : true
 	});
-	var anno2 = Map.createAnnotation({
+	var anno2 = _module.createAnnotation({
 		latitude : -33.86365,
-		pincolor : 'green',
+		color : 'green',
 		longitude : 151.21689,
 		title : "Anno2",
 		subtitle : "This is anno2",
 		draggable : true
 	});
-	var anno3 = Map.createAnnotation({
+	var anno3 = _module.createAnnotation({
 		latitude : -33.85365,
 		longitude : 151.20689,
 		title : "Anno3",
 		subtitle : "This is anno3",
 		draggable : false
 	});
-	var anno4 = Map.createAnnotation({
+	var anno4 = _module.createAnnotation({
 		latitude : -33.86365,
 		longitude : 151.22689,
 		title : "Anno4",
@@ -215,11 +231,16 @@ function mapboxEx() {
 	Ti.API.info("Latitude:" + anno.latitude);
 	Ti.API.info("Title:" + anno.title);
 
-	var map = Map.createMapboxView({
+	var map = _module.createView({
 		userLocationEnabled : true,
 		userTrackingMode : 1,
 		backgroundColor : 'gray',
-		tileSource : 'mapquest',
+		tileSource : [{
+			source:'ign',
+			userAgent:'iOS',
+			key:'5zyrs486q5348gsjl7705y9a'
+		
+			}],
 		diskCache : true,
 		// userLocationRequiredZoom:5,
 		animate : true,
@@ -227,7 +248,7 @@ function mapboxEx() {
 		disableHW : true,
 		zoom : 6,
 		maxZoom : 18.99,
-		mapType : Map.NORMAL_TYPE,
+		mapType : _module.NONE_TYPE,
 		centerCoordinate : [ 46, 2 ],
 		// defaultPinImage: 'map_pin.png',
 		// animate: true,
@@ -242,6 +263,7 @@ function mapboxEx() {
 		height : 'FILL',
 		width : 'FILL',
 	});
+//	map.clearCache();
 	win.add(map);
 	// map.add({
 	// backgroundColor:'red',
@@ -329,7 +351,7 @@ function mapboxEx() {
 	}
 
 	function onDownloadedTrail(_trailId, _file) {
-		tileSource = Map.createTileSource({
+		tileSource = _module.createTileSource({
 			source : _file.nativePath
 		});
 		// tileSource.addEventListener('cachebegin', onEventInfo);
@@ -467,24 +489,22 @@ function mapboxEx() {
 		// });
 		// });
 	}
-	var source = Map
+	var source = _module
 			.createTileSource({
 				source : Ti.Filesystem
 						.getFile(Ti.Filesystem.applicationDataDirectory,
 								'offline_traces',
 								"bThtbFlFM21Ma2pZQTBZMGlpaVp3dndDVjlpY21FbFpDaE52UVczSk5sWSUzRA==.mbtiles").nativePath
 			})
-
+//
 	map.addTileSource(source, 0);
 
 	var test = Ti.Database.open('test.MBTiles');
-	// var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory,
-	// "fWD3wU1eWWqugvvIcw0FV9sMNyO0ewrGsWtNndDQVh8%3D.mbtiles");
-	var source = Map.createTileSource({
+	var source = _module.createTileSource({
 		source : test
 	});
 
-	map.addTileSource(source);
+	map.addTileSource(source, 0);
 
 	// downloadTile(1325);
 
@@ -772,7 +792,7 @@ function initGeoSettings() {
 		} else if (__ANDROID__) {
 			info("setFullGPS");
 			Ti.Geolocation.Android
-					.removeLocationRule(app.location.gpsSSlowRule);
+				.removeLocationRule(app.location.gpsSSlowRule);
 			Ti.Geolocation.Android.addLocationRule(app.location.gpsSFullRule);
 		}
 	};
@@ -782,32 +802,32 @@ function initGeoSettings() {
 			Titanium.Geolocation.distanceFilter = 100;
 		} else if (__ANDROID__) {
 			Ti.Geolocation.Android
-					.removeLocationRule(app.location.gpsSFullRule);
+				.removeLocationRule(app.location.gpsSFullRule);
 			Ti.Geolocation.Android.addLocationRule(app.location.gpsSSlowRule);
 		}
 	};
 }
 
-function mapEx(_args) {
+function mapEx(_module, _args) {
 	initGeoSettings();
 	var win = createWin(_args);
 
-	var opera = Map.createAnnotation({
+	var opera = _module.createAnnotation({
 		latitude : 45.18807902343494,
 		longitude : 5.728310979902744,
 		anchorPoint : {
 			x : 0.5,
 			y : 0.5
 		},
-		pincolor : Map.ANNOTATION_AZURE,
+		pincolor : _module.ANNOTATION_AZURE,
 		title : 'Sydney Opera House',
 		subtitle : 'Sydney, New South Wales, Australia'
 	});
 
-	var bridge = Map.createAnnotation({
+	var bridge = _module.createAnnotation({
 		latitude : -33.852222,
 		longitude : 151.210556,
-		pincolor : Map.ANNOTATION_AZURE,
+		pincolor : _module.ANNOTATION_AZURE,
 		// Even though we are creating a button, it does not respond to Button
 		// events or animates.
 		// Use the Map View's click event and monitor the clicksource property
@@ -825,10 +845,10 @@ function mapEx(_args) {
 		subtitle : 'Port Jackson'
 	});
 
-	var random = Map.createAnnotation({
+	var random = _module.createAnnotation({
 		latitude : -33.87365,
 		longitude : 151.20689,
-		pincolor : Map.ANNOTATION_VIOLET,
+		pincolor : _module.ANNOTATION_VIOLET,
 		// Even though we are creating a label, it does not respond to Label
 		// events.
 		// Use the Map View's events instead.
@@ -839,7 +859,7 @@ function mapEx(_args) {
 		},
 		draggable : true
 	});
-	var mbTiles = Map.createTileSource({
+	var mbTiles = _module.createTileSource({
 		source : 'test.MBTiles'
 	});
 	mbTiles.addEventListener('load', function() {
@@ -848,9 +868,9 @@ function mapEx(_args) {
 			mapview.region = mbTiles.region;
 		}
 	});
-	var mapview = Map.createMapView({
+	var mapview = _module.createView({
 // tileSource : [ 'examples.map-z2effxa8', mbTiles ],
-		 mapType: Map.NORMAL_TYPE,
+		 mapType: _module.NORMAL_TYPE,
 		defaultCalloutTemplate : 'default',
 		calloutUseTemplates : true,
 // userLocationEnabled : true,
@@ -924,7 +944,7 @@ function mapEx(_args) {
 // userFollow = e.value;
 // });
 	
-	var userLocationAnnot = Map.createAnnotation({
+	var userLocationAnnot = _module.createAnnotation({
 // latitude : -33.8569,
 // longitude : 151.2153,
 		flat:true,
@@ -971,6 +991,218 @@ function mapEx(_args) {
 	openWin(win);
 }
 
+function googlemapEx(_module, _args) {
+	initGeoSettings();
+	var win = createWin(_args);
+
+	var opera = _module.createAnnotation({
+		latitude : 45.18807902343494,
+		longitude : 5.728310979902744,
+		anchorPoint : {
+			x : 0.5,
+			y : 0
+		},
+		calloutAnchorPoint : {
+			x : 0.5,
+			y : 1
+		},
+		pincolor : _module.ANNOTATION_AZURE,
+		title : 'Sydney Opera House',
+		subtitle : 'Sydney, New South Wales, Australia'
+	});
+
+	var bridge = _module.createAnnotation({
+		latitude : -33.852222,
+		longitude : 151.210556,
+		pincolor : _module.ANNOTATION_AZURE,
+		// Even though we are creating a button, it does not respond to Button
+		// events or animates.
+		// Use the Map View's click event and monitor the clicksource property
+		// for 'leftPane'.
+		leftView : {
+			template : 'leftView',
+			button : {
+				title : 'Detail'
+			}
+		},
+		
+		// For eventing, use the Map View's click event
+		// and monitor the clicksource property for 'rightPane'.
+		rightButton : '/images/star_on.png',
+		title : 'Sydney Harbour Bridge',
+		subtitle : 'Port Jackson'
+	});
+
+	var random = _module.createAnnotation({
+		latitude : -33.87365,
+		longitude : 151.20689,
+		color : 'blue',
+		// Even though we are creating a label, it does not respond to Label
+		// events.
+		// Use the Map View's events instead.
+		customView : {
+			label : {
+				text : 'test1'
+			}
+		},
+		anchorPoint : {
+			x : 0.5,
+			y : 1
+		},
+		calloutAnchorPoint : {
+			x : 0,
+			y : 1
+		},
+		draggable : true
+	});
+	var mbTiles = _module.createTileSource({
+		source : 'test.MBTiles'
+	});
+	mbTiles.addEventListener('load', function() {
+		sdebug('mbTiles loaded');
+		if (userLocationAnnot.visible == false) {
+			mapview.region = mbTiles.region;
+		}
+	});
+	var mapview = _module.createView({
+		tileSource : [
+		 {
+			source:'ign',
+			userAgent:'iOS',
+			key:'5zyrs486q5348gsjl7705y9a'
+			},
+			'test.MBTiles'
+			],
+		// mapType: _module.NONE_TYPE,
+		defaultCalloutTemplate : 'default',
+		calloutUseTemplates : true,
+		centerCoordinate:[-33.87365,151.20689],
+		userLocationEnabled : true,
+		toolbar : false,
+		compass:true,
+		padding:{top:100},
+		userTrackingMode : 2,
+		calloutTemplates : {
+			'default' : {
+				properties : {
+					backgroundColor : 'blue',
+					height : 50,
+					width : 100
+				},
+				childTemplates : [ {
+					type : 'Ti.UI.Label',
+					bindId : 'label',
+					properties : {
+						opacity : '80%',
+						backgroundColor : 'yellow',
+						color : 'red',
+						selectedColor : 'green',
+						backgroundColor : 'gray',
+						font : {
+							fontSize : 16,
+							fontWeight : 'bold'
+						}
+					}
+				} ],
+				events : {
+					'click' : function(_event) {
+						sdebug('click test', _event);
+					}
+				}
+			},
+			'leftView' : {
+				properties : {
+					backgroundColor : 'green',
+					width : 'SIZE'
+				},
+				childTemplates : [ {
+					type : 'Ti.UI.Button',
+					bindId : 'button',
+					properties : {
+						// height:'FILL',
+						// width:'SIZE',
+						tintColor : 'red',
+					// backgroundColor:'orange',
+					},
+					events : {
+						'click' : function(_event) {
+							sdebug('click test', _event);
+						}
+					}
+				} ]
+			}
+		},
+		childTemplates:[{
+			widht:100,
+			height:100,
+			bottom:0,
+			left:0,
+			backgroundColor:'#77000000'
+		}]
+// annotations : [ bridge, opera ]
+	// < add these annotations upon creation
+	});
+	var userFollow = true;
+	mapview.addEventListener('longpress', function(e) {
+		sdebug(_.pick(e, 'latitude', 'longitude', 'region', 'zoom'));
+	});
+	
+// mapview.addEventListener('locationButton', function(e) {
+// sdebug(e.type);
+// userFollow = true;
+// });
+// mapview.addEventListener('followUserLocation', function(e) {
+// sdebug(e.type);
+// userFollow = e.value;
+// });
+	
+	var userLocationAnnot = _module.createAnnotation({
+// latitude : -33.8569,
+// longitude : 151.2153,
+		flat:true,
+		visible:false,
+		anchorPoint : {
+			x : 0.5,
+			y : 0.5
+		},
+		image : '/images/direction_arrow.png',
+		showInfoWindow:false
+	});
+	
+	
+	function onLocation(e) {
+// sdebug(e);
+		if (!e.coords || e.success === false || e.error) {
+			return;
+		}
+		userLocationAnnot.applyProperties(_.assign({
+			visible:true
+		}, e.coords));
+		if (userFollow) {
+			mapview.updateCamera({
+				centerCoordinate:[e.coords.latitude, e.coords.longitude],
+				bearing:e.coords.heading,
+				zoom:Math.max(mapview.zoom, 15),
+				animate:true
+			});
+		}
+	}
+	app.location.setFullGPS();
+	Titanium.Geolocation.getCurrentPosition(onLocation);
+	Titanium.Geolocation.addEventListener('location', onLocation);
+	Ti.Geolocation.getCurrentPosition(onLocation);
+	// Titanium.Geolocation.removeEventListener('location', onLocation);
+	win.addEventListener('close', function() {
+		info('close');
+		app.location.setSlowGPS();
+		Titanium.Geolocation.removeEventListener('location', onLocation);
+	});
+	// Add this annotation after creation
+	mapview.addAnnotation([random, userLocationAnnot]);
+	win.add(mapview);
+	addTestRoute(mapview);
+	openWin(win);
+}
 
 function queryString(params, _start) {
     var first = true;
@@ -1198,8 +1430,8 @@ function directionEx(_args) {
             			}];
             			var bounds = _json.routes[0].bounds;
             			mapView.region =  {
-            					ne:[bounds.northeast.lat, bounds.northeast.lng],
-            					sw:[bounds.southwest.lat, bounds.southwest.lng]
+            					ne:bounds.northeast,
+            					sw:bounds.southwest
             			}
             		});
                 }

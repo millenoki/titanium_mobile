@@ -2,8 +2,7 @@ app = require('akylas.commonjs').createApp(this, { // not using var seems very
 	// important, cant really
 	// see why!
 	modules: {
-		slidemenu: require('akylas.slidemenu'),
-		location: require('akylas.location')
+		slidemenu: require('akylas.slidemenu')
 	},
 	iconicfonts: {
 		webhostinghub: '/fonts/font_webhostinghub',
@@ -78,6 +77,29 @@ if (isiOS7) {
 
 function createWin(_args, _customTitleView) {
 	_args = _args || {};
+	if (__ANDROID__) {
+		var buttons = [];
+		_.each(['rightNavButton', 'rightNavButtons'], function(prop, index, list) {
+			if (_args[prop]) {
+				var data = _args[prop];
+				buttons = _.union(buttons, _.isArray(data) ? data : [data]);
+				delete _args[prop];
+			}
+		});
+		if (buttons.length > 0) {
+			_args.activity = _args.activity || {};
+			_args.activity.onCreateOptionsMenu = function(e) {
+				var menu = e.menu;
+				_.each(buttons, function(view, index, list) {
+					var args = {
+						actionView: view,
+						showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM
+					};
+					menu.add(args);
+				});
+			};
+		}
+	}
 	if (!!_customTitleView) {
 		var titleView = {
 			type: 'Ti.UI.Label',
@@ -937,7 +959,7 @@ function layout1Ex(_args) {
 			// restartFromBeginning:true,
 			duration: 3000,
 			autoreverse: true,
-			fullscreen: !view2.fullscreen
+			layoutFullscreen: !view2.layoutFullscreen
 				// repeat: 4,
 				// width: Ti.UI.FILL,
 				// height: 100,
@@ -1407,7 +1429,7 @@ function buttonAndLabelEx() {
 					// height:'FILL',
 					// bottom:0,
 					autoreverse: true,
-					fullscreen: !e.source.fullscreen
+					layoutFullscreen: !e.source.layoutFullscreen
 						// transform: varSwitch(label.transform, t3, t1),
 				});
 			}
@@ -2415,6 +2437,9 @@ var transitionsMap = [{
 	title: 'SwipFade',
 	id: Ti.UI.TransitionStyle.SWIPE_FADE
 }, {
+	title: 'SwipDualFade',
+	id: Ti.UI.TransitionStyle.SWIPE_DUAL_FADE
+}, {
 	title: 'Flip',
 	id: Ti.UI.TransitionStyle.FLIP
 }, {
@@ -2756,7 +2781,7 @@ function navWindowEx() {
 	});
 	tr1.addEventListener('click', function(e) {
 		transitionViewHolder.transitionViews(tr1, tr2, {
-			style: Ti.UI.TransitionStyle.FOLD,
+			style: Ti.UI.TransitionStyle.SWIPE_DUAL_FADE,
 			duration: 3000
 		});
 		videoOverlayTest();
@@ -2770,7 +2795,7 @@ function navWindowEx() {
 	});
 	tr2.addEventListener('click', function(e) {
 		transitionViewHolder.transitionViews(tr2, tr1, {
-			style: Ti.UI.TransitionStyle.SWIPE
+			style: Ti.UI.TransitionStyle.FOLD
 		});
 	});
 	transitionViewHolder.add(tr1);
@@ -4055,17 +4080,29 @@ function antiAliasTest(_args) {
 	win.add(view);
 	openWin(win);
 }
-var modules = ['shapes', 'maps', 'charts', 'admob'];
+var modules = ['shapes', 'maps', 'charts'];
 for (var i = 0; i < modules.length; i++) {
 	Ti.include(modules[i] + '.js');
 };
 
 function modulesExs(_args) {
+	var button = Titanium.UI.createButton({
+		title: 'Close'
+	});
+	button.addEventListener('click', function() {
+		var current = win.fullscreen;
+		sdebug(current);
+		// win.fullscreen = [1-current, {
+		// 	animationStyle:Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE
+		// }];
+		win.setFullscreen(1 - current, {
+			animationStyle: 2
+		});
+	})
 	var win = createWin(_.assign({
 		tintColor: 'purple',
-		rightNavButton: Titanium.UI.createButton({
-			title: 'Close'
-		}),
+		statusBarStyle: 1,
+		rightNavButton: button,
 	}, _args), true);
 	var listview = createListView();
 	listview.sections = [{
@@ -4084,11 +4121,11 @@ function modulesExs(_args) {
 				title: 'Charts'
 			},
 			callback: chartsExs
-		}, {
-			properties: {
-				title: 'Admob'
-			},
-			callback: admobExs
+		// }, {
+		// 	properties: {
+		// 		title: 'Admob'
+		// 	},
+		// 	callback: admobExs
 		}]
 	}];
 	win.add(listview);
@@ -4417,10 +4454,10 @@ function textFieldTest(_args) {
 			backgroundColor: 'gray'
 		}
 	}]);
-	win.addEventListener('click', function() {
-		win.textfield.focus()
-	})
-
+	// win.addEventListener('click', function() {
+	// 	win.textfield.focus()
+	// })
+	win.textfield.focus()
 	openWin(win);
 }
 
@@ -6218,15 +6255,24 @@ function scrollableViewTest(_args) {
 				backgroundColor: 'blue',
 				// layout: 'vertical',
 				height: 30
+			},
+			events: {
+				'click': function() {
+					win.scrollable.scrollToView(win.scrollable.currentPage - 2, true);
+				}
 			}
 		}, {
 			type: 'Ti.UI.ScrollableView',
+			bindId: 'scrollable',
 			properties: {
 				backgroundColor: 'yellow',
 				// layout: 'vertical',
 				height: 'FILL',
 				width: 'FILL',
-				views: tabs
+				views: tabs,
+				transition: {
+					style: Ti.UI.TransitionStyle.FLIP
+				}
 			}
 		}, {
 			type: 'Ti.UI.View',
@@ -6234,6 +6280,11 @@ function scrollableViewTest(_args) {
 				backgroundColor: 'red',
 				// layout: 'vertical',
 				height: 30
+			},
+			events: {
+				'click': function() {
+					win.scrollable.scrollToView(win.scrollable.currentPage + 2, true);
+				}
 			}
 		}]
 	}, _args));
@@ -6579,7 +6630,24 @@ function testPlayer() {
 	app.ui.createAndOpenWindow('PlayerWindow');
 }
 
-// testPlayer();
+
+function testTritonPlayer() {
+	var Triton = app.modules.triton = require('akylas.triton');
+	Ti.Audio.audioSessionCategory = Ti.Audio.AUDIO_SESSION_CATEGORY_PLAYBACK;
+	app.player = Triton.createPlayer({
+		notifIcon: "status_icon",
+		notifViewId: "notification_template_base",
+		notifExpandedViewId: "notification_template_expanded_base"
+	});
+	app.player.shuffleMode = Ti.Audio.SHUFFLE_SONGS;
+	app.player.playlist = [{
+		broadcaster:'Triton Digital',
+		mount:'BASIC_CONFIGAAC',
+		station_name:'BASIC_CONFIG'
+	}];
+	app.player.play();
+	app.ui.createAndOpenWindow('PlayerWindow');
+}
 
 function switchTest() {
 	var win = Ti.UI.createWindow({
@@ -6877,4 +6945,134 @@ function pickerColumnsTest(_args) {
 		duration: 300
 	});
 	win.open();
+}
+
+function evaluatorsEx(_args) {
+	var win = createWin(_.assign({}, _args)),
+		sliderWidth = 0,
+		$infoWidgetWidth = 200,
+		$thumbHeight = 80,
+		thumbWidth = 0,
+		sliderOn = false,
+		firstLayout = true,
+		slider = new Label({
+			properties: {
+				right: 20,
+				left: 10,
+				width: 'FILL',
+				height: $thumbHeight,
+				borderRadius: $thumbHeight / 2,
+				textAlign: 'center',
+				backgroundColor: '#141419',
+			},
+			childTemplates: [{
+				type: 'Ti.UI.Label',
+				bindId: 'thumb',
+				properties: {
+					width: $thumbHeight,
+					height: $thumbHeight,
+					backgroundColor: 'blue',
+					left: 0,
+					text: 's',
+					textAlign: 'center',
+					borderRadius: $thumbHeight / 2
+				},
+				events: {
+					//						                    'touchstart': function(e) {
+					//						                        e.source.maxX = slider.rect.width - e.source.rect.width;
+					//						                        e.source.globalStartX = e.globalPoint.x;
+					//						                    },
+					'panstart': {
+						variables: {
+							offset: 'globalPoint.x',
+							width: 'source.rect.width',
+							parentWidth: 'source.parent.rect.width',
+						},
+						targets: [{
+							properties: {
+								globalStartX: '_offset',
+								maxX: '_parentWidth - _width'
+							}
+						}]
+
+					},
+					'pan': {
+						variables: {
+							offset: 'globalPoint.x'
+						},
+						targets: [{
+							targetVariables: {
+								maxX: 'maxX',
+								globalStartX: 'globalStartX'
+							},
+							properties: {
+								left: 'min(max(_offset - _globalStartX,0),_maxX)'
+							}
+						}]
+
+					},
+					'postlayout': function(e) {
+						//							if (firstLayout) {
+						//								firstLayout = false;
+						//								//important for the java objet to receive the change
+						////								e.source.setProperty('maxX', slider.rect.width - e.source.rect.width);
+						//								e.source.maxX = slider.rect.width - e.source.rect.width;
+						//							}
+
+						var current = sliderOn;
+						sliderOn = e.source.left > e.source.maxX - 10;
+						sdebug('postlayout');
+						if (current != sliderOn) {
+							e.source.applyProperties({
+								color: sliderOn ? 'green' : 'red',
+							})
+						}
+					},
+					'panend': function(e) {
+						sdebug('panend', e.source);
+						// if (sliderWidth === 0) {
+						if (sliderOn) {
+							e.source.left = 0;
+							sliderOn = false;
+						} else {
+							e.source.animate({
+								left: 0,
+								duration: 200
+							});
+							sliderOn = false;
+						}
+						// }
+					}
+				}
+			}]
+		})
+
+	var gdebug = _.flow(_.partialRight(_.pick, 'type'), sdebug);
+	win.addEventListener('pinch', gdebug)
+	win.addEventListener('pan', gdebug)
+	win.addEventListener('rotate', gdebug)
+	win.addEventListener('shove', gdebug)
+	win.addEventListener('doubletap', gdebug)
+	win.addEventListener('singletap', gdebug)
+	win.addEventListener('longpress', gdebug)
+	win.addEventListener('touchstart', gdebug)
+	win.addEventListener('touchmove', gdebug)
+	win.addEventListener('touchend', gdebug)
+	win.addEventListener('twofingertap', gdebug)
+	win.addEventListener('click', gdebug)
+		//		win.add({
+		//			backgroundColor: 'red',
+		//			width: 100,
+		//			height: 100,
+		//			borderRadius: 3,
+		//			draggable: {
+		//				axis: 'x',
+		//				minLeft: 0,
+		//				maxRight: '100%',
+		//				minTop: 0,
+		//				maxTop: Ti.Platform.displayCaps.platformHeight - 100,
+		//			}
+		//		});
+	win.add(slider);
+	openWin(win);
 }

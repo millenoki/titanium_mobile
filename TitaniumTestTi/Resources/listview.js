@@ -34,8 +34,16 @@ var movies = JSON.parse(
 function listViewExs(_args) {
     var win = createWin(_.assign(_args, {
         title: 'listviews',
+        fullscreen:true,
         // barColor:'blue',
-        layout: 'vertical'
+        layout: 'vertical',
+        backgroundImage: Ti.Image.getFilteredScreenshot({
+            scale: 0.6,
+            filters: [{
+                radius:8,
+                type: Ti.Image.FILTER_IOS_BLUR
+            }]
+        })
     }));
     var listview = createListView({
         updateInsetWithKeyboard: true

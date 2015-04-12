@@ -162,6 +162,7 @@
         </receiver>
         <service android:name="ti.modules.titanium.audio.streamer.AudioStreamerService"/>
         <service android:name="ti.modules.titanium.audio.streamer.AudioStreamerExoService"/>
+        <service android:name="akylas.triton.TritonAudioService"/>
         </application>
 
     <!-- TI_PERMISSIONS -->
