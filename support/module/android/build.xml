@@ -119,6 +119,9 @@ timodule.xml.
 	<property name="assets" location="${ti.module.root}/assets"/>
 	<property name="javac.debug" value="true"/>
 	<property name="jversion" value="1.7"/>
+	<property name="dependency.json" location="${ti.module.root}/dependency.json"/>
+	<property name="ti.dependencies" location="none"/>
+	<property name="ti.dependency.json" location="${titanium.platform}/dependency.json"/>
 
 	<path id="project.classpath">
 		<fileset dir="${lib}">
@@ -212,6 +215,7 @@ timodule.xml.
 
 	<macrodef name="generate.runtime.bindings">
 		<attribute name="outdir"/>
+		
 		<sequential>
 			<java classname="org.appcelerator.kroll.annotations.generator.KrollBindingGenerator" classpathref="project.classpath">
 				<!-- output directory -->
@@ -221,7 +225,7 @@ timodule.xml.
 				<!-- modulePackage -->
 				<arg value="${manifest.moduleid}"/>
 				<!-- dependency json -->
-				<arg value="${ti.module.root}/dependency.json"/>
+				<arg value="${ti.dependencies}"/>
 				<!-- binding json -->
 				<arg value="${genjson}/org/appcelerator/titanium/bindings/${manifest.name}.json"/>
 			</java>
@@ -229,6 +233,47 @@ timodule.xml.
 	</macrodef>
 
 	<target name="generate.v8.bindings">
+		<script language="javascript">
+	        importClass(java.io.File);
+	        importClass(java.io.FileReader);
+	        importClass(java.io.BufferedReader);
+	        importClass(java.io.FileWriter);
+	        importClass(java.io.BufferedWriter); 
+
+	        function union(a1, a2) {
+	        	if (!a2) {
+	        		return a1;
+	        	}
+	        	var r = a1.slice(0);
+			    a2.forEach(function(i) { if (r.indexOf(i) &lt; 0) r.push(i); });
+			    return r;
+	        }
+
+	        function getJSONRequired(path) {
+		        var file = new File(path);
+		        if (file.exists()) {
+		         	var fr = new FileReader(file);
+		         	var json = '';
+		         	var line ;
+			        var br = new BufferedReader(fr);
+			        while ((line = br.readLine()) != null)
+			        {
+			        	json +=  line;
+			        }
+			        // Evaluate the JSON.
+			        var struct = eval("(" + json + ")");
+			        return struct['required'];
+		        }
+		        return undefined;
+	        }
+	        var required = [];
+	        required = union(required, getJSONRequired(project.getProperty('ti.dependency.json')));
+	        required = union(required, getJSONRequired(project.getProperty('dependency.json')));
+	        if (required.length > 0) {
+	        	project.setProperty('ti.dependencies', required.join(','));
+	        }
+	       
+	    </script>
 		<generate.runtime.bindings outdir="${genjni}"/>
 		<property name="bootstrap.py" location="${ti.module.support.dir}/android/bootstrap.py"/>
 		<property name="js2c.py" location="${ti.module.support.dir}/android/js2c.py"/>

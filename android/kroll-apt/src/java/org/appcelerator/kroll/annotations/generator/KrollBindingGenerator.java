@@ -135,10 +135,13 @@ public class KrollBindingGenerator
 
 		while (parentModuleClass != null) {
 			Map<String, Object> parent = jsonUtils.getStringMap(proxies, parentModuleClass);
-			if ((boolean) jsonUtils.getStringMap(parent, "proxyAttrs").get("creatable")) {
-			    String parentName = (String) jsonUtils.getStringMap(parent, "proxyAttrs").get("name");
-	            fullApiName = parentName + "." + fullApiName;
+			if (parent != null) {
+			    Map<String, Object> proxyAttrs = jsonUtils.getStringMap(parent, "proxyAttrs");
+			    if (proxyAttrs != null && (!proxyAttrs.containsKey("creatable") || (boolean) proxyAttrs.get("creatable"))) {
+			        String parentName = (String) proxyAttrs.get("name");
+	                fullApiName = parentName + "." + fullApiName;
 
+			    }
 			}
 			
 			parentModuleClass = getParentModuleClass(parent);
@@ -339,7 +342,7 @@ public class KrollBindingGenerator
 		String outDir = args[0];
 		boolean isModule = "true".equalsIgnoreCase(args[1]);
         String packageName = args[2];
-        String dependencyJSON = args[3];
+        String tiDeps = args[3];
 
 		KrollBindingGenerator generator = new KrollBindingGenerator( outDir, packageName);
 		
@@ -351,24 +354,14 @@ public class KrollBindingGenerator
 			generator.loadBindings(args[i]);
 		}
 
-		if (isModule) {
+		if (isModule ) {
 			generator.loadTitaniumBindings();
 			//look for ti dependencies
-            try {
-                FileReader reader = new FileReader(dependencyJSON);
-                Map<String, Object> properties = (Map<String, Object>)
-                    JSONValue.parseWithException(reader);
-                reader.close();
-                Object required = properties.get("required");
-                
-                if (required instanceof List) {
-                    List<Object> dependencies = (List<Object>)required;
-                    for (Object dep: dependencies) {
-                        generator.loadTitaniumModuleBindings((String) dep);
-                    }
+            if (!"none".equals(tiDeps)) {
+                String[] array = tiDeps.split(",");
+                for (int i = 0; i < array.length; i++) {
+                    generator.loadTitaniumModuleBindings(array[i]);
                 }
-            } catch (Exception e) {
-                System.out.println("error loading dependencies " + e.getLocalizedMessage());
             }
 		}
 
