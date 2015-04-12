@@ -625,6 +625,7 @@
 		D51697F217FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
 		D51697F317FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
 		D51697F417FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
+		D51B7E001AD97F9B0041A357 /* libakylas.mapbox.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D55C82801AD6CD0400339334 /* libakylas.mapbox.a */; };
 		D51D5AC41A4C682E00B0BC5D /* TableView_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */; };
 		D51D5AC51A4C682E00B0BC5D /* TableView_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */; };
 		D51D5AC61A4C682E00B0BC5D /* TableView_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */; };
@@ -810,7 +811,6 @@
 		D57644B91A1B7F9C00322E0D /* TiAudioStreamerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644B81A1B7F9C00322E0D /* TiAudioStreamerProxy.m */; };
 		D57644BA1A1B7F9C00322E0D /* TiAudioStreamerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644B81A1B7F9C00322E0D /* TiAudioStreamerProxy.m */; };
 		D57644BB1A1B7F9C00322E0D /* TiAudioStreamerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D57644B81A1B7F9C00322E0D /* TiAudioStreamerProxy.m */; };
-		D57E7F74195AB92800C17ADE /* libakylas.location.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D57E7F6E195AB34D00C17ADE /* libakylas.location.a */; };
 		D5809D5019129CEB005A1F02 /* APSHTTPHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5809D5119129CEB005A1F02 /* APSHTTPHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5809D5219129CEB005A1F02 /* APSHTTPHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -844,7 +844,6 @@
 		D58DCBD317FF193D0011FE0E /* TiTransitionHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D58DCBD117FF193D0011FE0E /* TiTransitionHelper.m */; };
 		D58DCBD417FF193D0011FE0E /* TiTransitionHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D58DCBD117FF193D0011FE0E /* TiTransitionHelper.m */; };
 		D58ED9071928F49F00BA0E04 /* libakylas.commonjs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D58ED8FB1928E6F800BA0E04 /* libakylas.commonjs.a */; };
-		D58ED9081928F49F00BA0E04 /* libakylas.map.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D58ED8E91928E6F700BA0E04 /* libakylas.map.a */; };
 		D58ED9091928F49F00BA0E04 /* libakylas.shapes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D58ED8EF1928E6F700BA0E04 /* libakylas.shapes.a */; };
 		D58ED90A1928F49F00BA0E04 /* libakylas.slidemenu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D58ED8F51928E6F800BA0E04 /* libakylas.slidemenu.a */; };
 		D590815C168B593B00362307 /* TiUIHorizontalTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5908158168B593B00362307 /* TiUIHorizontalTableView.m */; };
@@ -897,7 +896,6 @@
 		D597CF0717D719C4009A080B /* TiCellBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D597CF0617D719C4009A080B /* TiCellBackgroundView.m */; };
 		D597CF0817D719C4009A080B /* TiCellBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D597CF0617D719C4009A080B /* TiCellBackgroundView.m */; };
 		D597CF0917D719C4009A080B /* TiCellBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D597CF0617D719C4009A080B /* TiCellBackgroundView.m */; };
-		D599F2651ACAA3AE00EB7A9B /* libakylas.admob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D599F2361AC9338A00EB7A9B /* libakylas.admob.a */; };
 		D59A20C7194AF3D800BC5B93 /* libakylas.charts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D59A20C0194AF3C800BC5B93 /* libakylas.charts.a */; };
 		D59DD42718096186002FDCDF /* ADModernPushTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D59DD42618096186002FDCDF /* ADModernPushTransition.m */; };
 		D59DD42818096186002FDCDF /* ADModernPushTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D59DD42618096186002FDCDF /* ADModernPushTransition.m */; };
@@ -919,7 +917,6 @@
 		D5B6C72A181124C200A2612A /* libDTCoreText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5B6C727181124C200A2612A /* libDTCoreText.a */; };
 		D5B9289418C1EEC200E26393 /* GPUImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5B9289218C1EEC200E26393 /* GPUImage.framework */; };
 		D5B9289518C1EEC200E26393 /* GPUImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5B9289218C1EEC200E26393 /* GPUImage.framework */; };
-		D5BC29AA1AD287F700DD8CE8 /* libakylas.triton.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D51B53891AD0141500D3AF98 /* libakylas.triton.a */; };
 		D5C06C1F17C7D8F700FA0E98 /* TiUIHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C06C1E17C7D8F700FA0E98 /* TiUIHelper.m */; };
 		D5C06C2017C7D8F700FA0E98 /* TiUIHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C06C1E17C7D8F700FA0E98 /* TiUIHelper.m */; };
 		D5C06C2117C7D8F700FA0E98 /* TiUIHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C06C1E17C7D8F700FA0E98 /* TiUIHelper.m */; };
@@ -1436,33 +1433,19 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
-		D51B53881AD0141500D3AF98 /* PBXContainerItemProxy */ = {
+		D51B7DFE1AD97F940041A357 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = D51B537D1AD0141500D3AF98 /* akylas.triton.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.triton;
-		};
-		D57E7F6D195AB34D00C17ADE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.location;
-		};
-		D57E7F72195AB91D00C17ADE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */;
+			containerPortal = D55C82791AD6CD0400339334 /* akylas.mapbox.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.location;
+			remoteInfo = akylas.mapbox;
 		};
-		D58ED8E81928E6F700BA0E04 /* PBXContainerItemProxy */ = {
+		D55C827F1AD6CD0400339334 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */;
+			containerPortal = D55C82791AD6CD0400339334 /* akylas.mapbox.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.map;
+			remoteInfo = akylas.mapbox;
 		};
 		D58ED8EE1928E6F700BA0E04 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1485,13 +1468,6 @@
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = akylas.commonjs;
 		};
-		D58ED8FE1928F48E00BA0E04 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.map;
-		};
 		D58ED9001928F49000BA0E04 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */;
@@ -1512,13 +1488,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
 			remoteInfo = akylas.shapes;
-		};
-		D599F2351AC9338A00EB7A9B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D599F2311AC9338A00EB7A9B /* akylas.admob.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.admob;
 		};
 		D59A20BF194AF3C800BC5B93 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2272,7 +2241,6 @@
 		D5162E9E1A20D1F7008A4048 /* TiUICollectionViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUICollectionViewProxy.m; sourceTree = "<group>"; };
 		D51697F017FFF63300B4FDB8 /* ImageModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageModule.h; sourceTree = "<group>"; };
 		D51697F117FFF63300B4FDB8 /* ImageModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageModule.m; sourceTree = "<group>"; };
-		D51B537D1AD0141500D3AF98 /* akylas.triton.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.triton.xcodeproj; path = ../../../modules/akylas_modules/triton/ios/akylas.triton.xcodeproj; sourceTree = "<group>"; };
 		D51D5AC21A4C682E00B0BC5D /* TableView_Categories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableView_Categories.h; sourceTree = "<group>"; };
 		D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableView_Categories.m; sourceTree = "<group>"; };
 		D51DEFB619D9ACDA00CF28B0 /* AbstractActionSheetPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AbstractActionSheetPicker.h; path = ../Classes/ActionSheetPicker/AbstractActionSheetPicker.h; sourceTree = "<group>"; };
@@ -2333,8 +2301,6 @@
 		D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectableBackgroundLayer.m; sourceTree = "<group>"; };
 		D52A8E71183606F6001AC6A1 /* TiAnimatableProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiAnimatableProxy.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D52A8E72183606F6001AC6A1 /* TiAnimatableProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TiAnimatableProxy.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.map.xcodeproj; path = ../../../modules/akylas_modules/mapbox/ios/akylas.map.xcodeproj; sourceTree = "<group>"; };
-		D52DF22C18C7A0550076FB71 /* libMapbox.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMapbox.a; path = "../../../../ios/MapBox/MapView/build/Debug-iphoneos/libMapbox.a"; sourceTree = "<group>"; };
 		D535603618609A2800F8DEFD /* TiHLSLayerAnimationStep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiHLSLayerAnimationStep.h; path = Animation/TiHLSLayerAnimationStep.h; sourceTree = "<group>"; };
 		D535603718609A2800F8DEFD /* TiHLSLayerAnimationStep.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiHLSLayerAnimationStep.m; path = Animation/TiHLSLayerAnimationStep.m; sourceTree = "<group>"; };
 		D535CCE019CF2C77005E114E /* SLColorArt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLColorArt.h; path = ../Classes/ColorArt/SLColorArt.h; sourceTree = "<group>"; };
@@ -2401,6 +2367,7 @@
 		D55B29BA1ACC2825008C0279 /* TiCacheObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCacheObject.h; sourceTree = "<group>"; };
 		D55B29BB1ACC2825008C0279 /* TiCacheObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCacheObject.m; sourceTree = "<group>"; };
 		D55B2DCC1ACC5EF5008C0279 /* libFMDB-IOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libFMDB-IOS.a"; path = "../libexternals/libFMDB-IOS.a"; sourceTree = "<group>"; };
+		D55C82791AD6CD0400339334 /* akylas.mapbox.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.mapbox.xcodeproj; path = ../../../modules/akylas_modules/mapbox/ios/akylas.mapbox.xcodeproj; sourceTree = "<group>"; };
 		D55EB01E18630B08004DCAF7 /* TiLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLabel.h; sourceTree = "<group>"; };
 		D55EB01F18630B08004DCAF7 /* TiLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLabel.m; sourceTree = "<group>"; };
 		D5691303168F0F4200C3F89F /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
@@ -2437,7 +2404,6 @@
 		D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libSVGKit-iOS.a"; path = "../libexternals/libSVGKit-iOS.a"; sourceTree = "<group>"; };
 		D57644B71A1B7F9C00322E0D /* TiAudioStreamerProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAudioStreamerProxy.h; sourceTree = "<group>"; };
 		D57644B81A1B7F9C00322E0D /* TiAudioStreamerProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAudioStreamerProxy.m; sourceTree = "<group>"; };
-		D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.location.xcodeproj; path = ../../../modules/akylas_modules/location/ios/akylas.location.xcodeproj; sourceTree = "<group>"; };
 		D5809D4519129CEB005A1F02 /* APSHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPClient.h; sourceTree = "<group>"; };
 		D5809D4619129CEB005A1F02 /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
 		D5809D4719129CEB005A1F02 /* APSHTTPHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APSHTTPHelper.m; sourceTree = "<group>"; };
@@ -2472,7 +2438,6 @@
 		D5937DC11A24DD800098DA47 /* libAPSAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSAnalytics.a; path = ../Classes/APSAnalytics/libAPSAnalytics.a; sourceTree = "<group>"; };
 		D597CF0517D719C4009A080B /* TiCellBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCellBackgroundView.h; sourceTree = "<group>"; };
 		D597CF0617D719C4009A080B /* TiCellBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCellBackgroundView.m; sourceTree = "<group>"; };
-		D599F2311AC9338A00EB7A9B /* akylas.admob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.admob.xcodeproj; path = ../../../modules/akylas_modules/admob/ios/akylas.admob.xcodeproj; sourceTree = "<group>"; };
 		D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.charts.xcodeproj; path = ../../../modules/akylas_modules/charts/ios/akylas.charts.xcodeproj; sourceTree = "<group>"; };
 		D59DD42518096186002FDCDF /* ADModernPushTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ADModernPushTransition.h; path = ../Classes/ADTransitionController/ADModernPushTransition.h; sourceTree = "<group>"; };
 		D59DD42618096186002FDCDF /* ADModernPushTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ADModernPushTransition.m; path = ../Classes/ADTransitionController/ADModernPushTransition.m; sourceTree = "<group>"; };
@@ -2742,11 +2707,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D5BC29AA1AD287F700DD8CE8 /* libakylas.triton.a in Frameworks */,
+				D51B7E001AD97F9B0041A357 /* libakylas.mapbox.a in Frameworks */,
 				D55B2DCD1ACC5EF5008C0279 /* libFMDB-IOS.a in Frameworks */,
-				D599F2651ACAA3AE00EB7A9B /* libakylas.admob.a in Frameworks */,
-				D57E7F74195AB92800C17ADE /* libakylas.location.a in Frameworks */,
-				D58ED9081928F49F00BA0E04 /* libakylas.map.a in Frameworks */,
 				D58ED9071928F49F00BA0E04 /* libakylas.commonjs.a in Frameworks */,
 				D58ED9091928F49F00BA0E04 /* libakylas.shapes.a in Frameworks */,
 				D59A20C7194AF3D800BC5B93 /* libakylas.charts.a in Frameworks */,
@@ -3994,7 +3956,6 @@
 				D5937DC11A24DD800098DA47 /* libAPSAnalytics.a */,
 				502E9D2316CAFB9D00C1BD26 /* libti_ios_profiler.a */,
 				DAA4B2AD134E3DBD00AB6011 /* libti_ios_debugger.a */,
-				D52DF22C18C7A0550076FB71 /* libMapbox.a */,
 				D525399E183A8787006FF1BB /* libCoconutKitAnimation.a */,
 				D544CEA01949AA8900419D57 /* libtiverify.a */,
 				D5B6C727181124C200A2612A /* libDTCoreText.a */,
@@ -4459,14 +4420,6 @@
 			name = Image;
 			sourceTree = "<group>";
 		};
-		D51B537E1AD0141500D3AF98 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D51B53891AD0141500D3AF98 /* libakylas.triton.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		D51DEFAF19D9ACBF00CF28B0 /* ActionSheetPicker */ = {
 			isa = PBXGroup;
 			children = (
@@ -4603,17 +4556,22 @@
 			name = Animation;
 			sourceTree = "<group>";
 		};
+		D55C827A1AD6CD0400339334 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D55C82801AD6CD0400339334 /* libakylas.mapbox.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D55ED5781861B3C90035749B /* _dependencies_ */ = {
 			isa = PBXGroup;
 			children = (
 				D5E75A6E187C58F00016542B /* icon.png */,
 				D5E75A7A187C59060016542B /* icon_120@2x.png */,
 				D5E75A70187C58F00016542B /* icon@2x.png */,
-				D51B537D1AD0141500D3AF98 /* akylas.triton.xcodeproj */,
-				D599F2311AC9338A00EB7A9B /* akylas.admob.xcodeproj */,
-				D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */,
+				D55C82791AD6CD0400339334 /* akylas.mapbox.xcodeproj */,
 				D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */,
-				D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */,
 				D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */,
 				D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */,
 				D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */,
@@ -4690,14 +4648,6 @@
 			name = "UIImage+ImageEffects";
 			sourceTree = "<group>";
 		};
-		D57E7F67195AB34C00C17ADE /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D57E7F6E195AB34D00C17ADE /* libakylas.location.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		D58709B3197964EE002E8817 /* Activity */ = {
 			isa = PBXGroup;
 			children = (
@@ -4708,14 +4658,6 @@
 				D58709B419796501002E8817 /* ActivityProxy.h */,
 			);
 			name = Activity;
-			sourceTree = "<group>";
-		};
-		D58ED8E41928E6F700BA0E04 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D58ED8E91928E6F700BA0E04 /* libakylas.map.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		D58ED8EA1928E6F700BA0E04 /* Products */ = {
@@ -4749,14 +4691,6 @@
 				D59355631A2342ED00522BC3 /* SevenSwitch.m */,
 			);
 			name = SevenSwitch;
-			sourceTree = "<group>";
-		};
-		D599F2321AC9338A00EB7A9B /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D599F2361AC9338A00EB7A9B /* libakylas.admob.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		D59A20BA194AF3C800BC5B93 /* Products */ = {
@@ -5061,12 +4995,11 @@
 				D56915C5168F19E800C3F89F /* PBXBuildRule */,
 			);
 			dependencies = (
-				D57E7F73195AB91D00C17ADE /* PBXTargetDependency */,
+				D51B7DFF1AD97F940041A357 /* PBXTargetDependency */,
 				D59A20C6194AF3D300BC5B93 /* PBXTargetDependency */,
 				D58ED9051928F49600BA0E04 /* PBXTargetDependency */,
 				D58ED9031928F49300BA0E04 /* PBXTargetDependency */,
 				D58ED9011928F49000BA0E04 /* PBXTargetDependency */,
-				D58ED8FF1928F48E00BA0E04 /* PBXTargetDependency */,
 			);
 			name = "Titanium-KitchenSink";
 			productName = Titanium;
@@ -5146,10 +5079,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = D599F2321AC9338A00EB7A9B /* Products */;
-					ProjectRef = D599F2311AC9338A00EB7A9B /* akylas.admob.xcodeproj */;
-				},
-				{
 					ProductGroup = D59A20BA194AF3C800BC5B93 /* Products */;
 					ProjectRef = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
 				},
@@ -5158,12 +5087,8 @@
 					ProjectRef = D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */;
 				},
 				{
-					ProductGroup = D57E7F67195AB34C00C17ADE /* Products */;
-					ProjectRef = D57E7F66195AB34C00C17ADE /* akylas.location.xcodeproj */;
-				},
-				{
-					ProductGroup = D58ED8E41928E6F700BA0E04 /* Products */;
-					ProjectRef = D52DF1CD18C77AF80076FB71 /* akylas.map.xcodeproj */;
+					ProductGroup = D55C827A1AD6CD0400339334 /* Products */;
+					ProjectRef = D55C82791AD6CD0400339334 /* akylas.mapbox.xcodeproj */;
 				},
 				{
 					ProductGroup = D58ED8EA1928E6F700BA0E04 /* Products */;
@@ -5172,10 +5097,6 @@
 				{
 					ProductGroup = D58ED8F01928E6F800BA0E04 /* Products */;
 					ProjectRef = D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */;
-				},
-				{
-					ProductGroup = D51B537E1AD0141500D3AF98 /* Products */;
-					ProjectRef = D51B537D1AD0141500D3AF98 /* akylas.triton.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -5188,25 +5109,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		D51B53891AD0141500D3AF98 /* libakylas.triton.a */ = {
+		D55C82801AD6CD0400339334 /* libakylas.mapbox.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libakylas.triton.a;
-			remoteRef = D51B53881AD0141500D3AF98 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		D57E7F6E195AB34D00C17ADE /* libakylas.location.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libakylas.location.a;
-			remoteRef = D57E7F6D195AB34D00C17ADE /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		D58ED8E91928E6F700BA0E04 /* libakylas.map.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libakylas.map.a;
-			remoteRef = D58ED8E81928E6F700BA0E04 /* PBXContainerItemProxy */;
+			path = libakylas.mapbox.a;
+			remoteRef = D55C827F1AD6CD0400339334 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		D58ED8EF1928E6F700BA0E04 /* libakylas.shapes.a */ = {
@@ -5228,13 +5135,6 @@
 			fileType = archive.ar;
 			path = libakylas.commonjs.a;
 			remoteRef = D58ED8FA1928E6F800BA0E04 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		D599F2361AC9338A00EB7A9B /* libakylas.admob.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libakylas.admob.a;
-			remoteRef = D599F2351AC9338A00EB7A9B /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		D59A20C0194AF3C800BC5B93 /* libakylas.charts.a */ = {
@@ -5306,7 +5206,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -R -f $BUILT_PRODUCTS_DIR/Mapbox.bundle $BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/\ncp -R -f $BUILT_PRODUCTS_DIR/GoogleMaps.bundle $BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/";
+			shellScript = "cp -R -f $BUILT_PRODUCTS_DIR/modules $BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/\n";
 		};
 		24D8E3B9119B9D8A00F8CAA6 /* Pre-Compile */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -6641,15 +6541,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		D57E7F73195AB91D00C17ADE /* PBXTargetDependency */ = {
+		D51B7DFF1AD97F940041A357 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = akylas.location;
-			targetProxy = D57E7F72195AB91D00C17ADE /* PBXContainerItemProxy */;
-		};
-		D58ED8FF1928F48E00BA0E04 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = akylas.map;
-			targetProxy = D58ED8FE1928F48E00BA0E04 /* PBXContainerItemProxy */;
+			name = akylas.mapbox;
+			targetProxy = D51B7DFE1AD97F940041A357 /* PBXContainerItemProxy */;
 		};
 		D58ED9011928F49000BA0E04 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6699,6 +6594,7 @@
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/lib,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
+					"/Volumes/data/mguillon/Desktop/ios/build/Debug-iphoneos",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -6734,6 +6630,7 @@
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/lib,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
+					"/Volumes/data/mguillon/Desktop/ios/build/Debug-iphoneos",
 				);
 				PRODUCT_NAME = Titanium;
 				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-Bridging-Header.h";
@@ -6999,6 +6896,7 @@
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/lib,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
+					"/Volumes/data/mguillon/Desktop/ios/build/Debug-iphoneos",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",

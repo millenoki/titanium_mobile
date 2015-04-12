@@ -1,5 +1,6 @@
 TI_VERSION=0.0.0
 
-OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd -weak_framework MapKit -weak_framework GoogleMobileAds
-OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd -weak_framework MapKit -weak_framework GoogleMobileAds
+//OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd -weak_framework MapKit -weak_framework GoogleMobileAds -weak_framework GoogleMaps -framework GLKit -weak_framework TritonPlayerSDK
+//OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd -weak_framework MapKit -weak_framework GoogleMobileAds -weak_framework GoogleMaps -framework GLKit -weak_framework TritonPlayerSDK
 
+OTHER_LDFLAGS=$(inherited) -weak_framework MapKit -framework GLKit
