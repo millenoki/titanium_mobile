@@ -368,8 +368,13 @@ Common ant tasks and macros for building Android-based Titanium modules and proj
 				<arg file="@{dest}"/>
 				<!-- isModule -->
 				<arg value="false"/>
+				
 				<!-- moduleId (Titanium for platform) -->
 				<arg value="titanium"/>
+
+				<!-- no ti module dependency(only for modules) -->
+				<arg value="nodep"/>
+
 				<fileset dir="${dist.json.dir}" includes="**/*.json"/>
 			</apply>
 		</sequential>

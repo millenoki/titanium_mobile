@@ -220,6 +220,8 @@ timodule.xml.
 				<arg value="true"/>
 				<!-- modulePackage -->
 				<arg value="${manifest.moduleid}"/>
+				<!-- dependency json -->
+				<arg value="${ti.module.root}/dependency.json"/>
 				<!-- binding json -->
 				<arg value="${genjson}/org/appcelerator/titanium/bindings/${manifest.name}.json"/>
 			</java>
