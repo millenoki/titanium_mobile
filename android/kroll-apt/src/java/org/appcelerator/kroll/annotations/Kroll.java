@@ -224,6 +224,12 @@ public @interface Kroll
 		 * @module.api
 		 */
 		String[] propertyAccessors() default {};
+		
+		/**
+         * <p>When set to false, the module won't be seen as an instantiable module. Useful for inheritance</p>
+         * @module.api
+         */
+        boolean creatable() default true;
 	}
 
 	/**

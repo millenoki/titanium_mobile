@@ -133,9 +133,12 @@ public class KrollBindingGenerator
 
 		while (parentModuleClass != null) {
 			Map<String, Object> parent = jsonUtils.getStringMap(proxies, parentModuleClass);
-			String parentName = (String) jsonUtils.getStringMap(parent, "proxyAttrs").get("name");
-			fullApiName = parentName + "." + fullApiName;
+			if ((boolean) jsonUtils.getStringMap(parent, "proxyAttrs").get("creatable")) {
+			    String parentName = (String) jsonUtils.getStringMap(parent, "proxyAttrs").get("name");
+	            fullApiName = parentName + "." + fullApiName;
 
+			}
+			
 			parentModuleClass = getParentModuleClass(parent);
 		}
 
