@@ -258,16 +258,14 @@
 {
     
     ENSURE_SINGLE_ARG(args, NSObject)
-    if (IS_OF_CLASS(args, TiBlob)) {
-        TiBlob *blob = (TiBlob*)args;
-        [self sendData:blob.data];
-    }
-    else if (IS_OF_CLASS(args, NSString)) {
+    if (IS_OF_CLASS(args, NSString)) {
         // called within this class
         [self sendData: [args dataUsingEncoding:NSUTF8StringEncoding]];
     }else if (IS_OF_CLASS(args, NSArray)) {
         //supposed to be a byte array
         [self sendData: [NSKeyedArchiver archivedDataWithRootObject:args]];
+    } else if ([args respondsToSelector:@selector(data)]) {
+        [self sendData:[args data]];
     }
 //    TiStreamProxy<TiStreamInternal>* stream = nil;
 //    ENSURE_ARG_AT_INDEX(stream, args, 0, TiStreamProxy);
