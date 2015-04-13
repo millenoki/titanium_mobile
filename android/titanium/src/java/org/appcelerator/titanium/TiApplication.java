@@ -42,9 +42,9 @@ import org.appcelerator.titanium.analytics.TiAnalyticsEventFactory;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiHTTPHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,13 +58,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.v4.util.LruCache;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
@@ -72,6 +70,7 @@ import com.appcelerator.analytics.APSAnalytics;
 import com.appcelerator.analytics.APSAnalytics.DeployType;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.LruCache;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 
@@ -499,20 +498,10 @@ public abstract class TiApplication extends Application implements
         TiPlatformHelper.getInstance().initialize();
     }
     
-    public static class TiBitmapMemoryCache extends LruCache<String, Bitmap> implements com.squareup.picasso.Cache
+    public static class TiBitmapMemoryCache extends LruCache
     {
         public TiBitmapMemoryCache(int maxSize) {
             super(maxSize);
-        }
-
-        @Override
-        public void set(String key, Bitmap bitmap) {
-            super.put(key, bitmap);
-        }
-
-        @Override
-        public void clear() {
-            super.evictAll();
         }
     }
     
@@ -521,8 +510,8 @@ public abstract class TiApplication extends Application implements
     private static TiBitmapMemoryCache _picassoMermoryCache;
     public static TiBitmapMemoryCache getImageMemoryCache() {
         if (_picassoMermoryCache == null) {
-            int maxMemory = (int) (Runtime.getRuntime().maxMemory());
-            int cacheSize = maxMemory / 7;
+//            int maxMemory = (int) (Runtime.getRuntime().maxMemory());
+//            int cacheSize = maxMemory / 7;
             _picassoMermoryCache = new TiBitmapMemoryCache(TiActivityHelper.calculateMemoryCacheSize(getAppContext()));
         }
         return _picassoMermoryCache;
@@ -604,6 +593,18 @@ public abstract class TiApplication extends Application implements
         if (_httpClient == null) {
             _httpClient = new OkHttpClient();
             _httpClient.setCache(getDiskCache("http"));
+            _httpClient.interceptors().add(new com.squareup.okhttp.Interceptor() {
+                @Override public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
+                    com.squareup.okhttp.Request.Builder builder = chain.request().newBuilder();
+                    builder.addHeader("TiCache", "true");
+                    builder.addHeader("Cache-Control", "no-cached");
+                    builder.addHeader("User-Agent", TiApplication.getInstance()
+                            .getUserAgent());
+                    builder.addHeader("X-Requested-With", "XMLHttpRequest");
+                    
+                    return chain.proceed(builder.build());
+                }
+              });
         }
         return _httpClient;
     }
@@ -677,42 +678,40 @@ public abstract class TiApplication extends Application implements
         }
     }
     
-//    public com.squareup.okhttp.Request httpRequest(final String url, final HashMap options) {
-//        com.squareup.okhttp.Request.Builder builder =
-//                new com.squareup.okhttp.Request.Builder().url(url);
-//        if (options != null) {
-//            Object value = options.get("headers");
-//            if (value != null && value instanceof HashMap) {
-//                HashMap<String, Object> headers = (HashMap<String, Object>)value;
-//                for (Map.Entry<String, Object> entry : headers.entrySet()) {
-//                    builder.addHeader(entry.getKey(), TiConvert.toString(entry.getValue()));
-//                }
-//            }
-////            if (options.containsKey("method"))
-////            {
-////                MediaType mediaType; = 
-////                Object data = options.get("data");
-////                if (data instanceof String) {
-////                    builder.addHeader("Content-Type", "charset=utf-8");
-////                }
-////                else if (data instanceof HashMap) {
-////                    builder.addHeader("Content-Type", "application/json; charset=utf-8");
-////                }
-////                String method =  TiConvert.toString(options.get("method"));
-////                String dataToSend =  TiConvert.toString(data);
-////                
-////                if (dataToSend != null) {
-////                    byte[] outputInBytes = dataToSend.getBytes("UTF-8");
-////                    OutputStream os = http.getOutputStream();
-////                    os.write( outputInBytes );
-////                    os.close();
-////                    builder.post(new FormEncodingBuilder().)
-////                }
-////                
-////            }
-//        }
-//        return builder.build();
-//    }
+    public static OkHttpClient getPicassoHttpClient(final KrollDict options) {
+        OkHttpClient client = getPicassoHttpClientInstance();
+        if (options == null) {
+            return client;
+        }
+        client = client.clone();
+        if (options.containsKey("timeout")) {
+            int timeout = TiConvert.toInt(options, "timeout");
+            client.setConnectTimeout(timeout, TimeUnit.MILLISECONDS);
+            client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
+            client.setWriteTimeout(timeout, TimeUnit.MILLISECONDS);
+        }
+        if (options.containsKey("autoRedirect")) {
+            boolean redirect = TiConvert.toBoolean(options, "autoRedirect");
+            client.setFollowRedirects(redirect);
+            client.setFollowSslRedirects(redirect);
+        }
+        client.interceptors().add(new com.squareup.okhttp.Interceptor() {
+          @Override public com.squareup.okhttp.Response intercept(Chain chain) throws IOException {
+              com.squareup.okhttp.Request.Builder builder = chain.request().newBuilder();
+              TiHTTPHelper.prepareBuilder(builder, TiConvert.toString(options, "method", "get"), options.get("data"));
+              Object value = options.get("headers");
+              if (value != null && value instanceof HashMap) {
+                  HashMap<String, Object> headers = (HashMap<String, Object>) value;
+                  for (Map.Entry<String, Object> entry : headers.entrySet()) {
+                      builder.addHeader(entry.getKey(), TiConvert.toString(entry.getValue()));
+                  }
+              }
+              return chain.proceed(builder.build());
+          }
+        });
+        return client;
+    }
+
     
     public static OkHttpClient httpClient(final HashMap options) {
         if (options == null) {

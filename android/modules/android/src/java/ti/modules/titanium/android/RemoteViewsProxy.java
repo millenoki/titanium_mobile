@@ -6,8 +6,6 @@
  */
 package ti.modules.titanium.android;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -16,15 +14,15 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.AnimatableReusableProxy;
-import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiHtml;
+import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiImageHelper.TiDrawableTarget;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper.FontDesc;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -32,10 +30,6 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.android.notificationmanager.NotificationProxy;
 
-import com.squareup.picasso.Cache;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.squareup.picasso.Picasso.LoadedFrom;
 
 import android.app.PendingIntent;
@@ -47,13 +41,11 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Message;
 import android.view.View;
 import android.widget.RemoteViews;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class)
-public class RemoteViewsProxy extends AnimatableReusableProxy implements Target {
+public class RemoteViewsProxy extends AnimatableReusableProxy implements TiDrawableTarget {
     private static final String TAG = "RemoteViewsProxy";
     protected String packageName;
     protected int layoutId;
@@ -68,37 +60,6 @@ public class RemoteViewsProxy extends AnimatableReusableProxy implements Target 
     private static final String ACTION_CLICK = "TI_REMOTEVIEWS_CLICK";
     private static final String ACTION_INTENT_ID = "action.id";
     private static final String ACTION_REMOTE_VIEW_ID = "remoteview.id";
-    private static final int MSG_FIRST_ID = 100;
-    private static final int MSG_PICASSO_REQUEST = MSG_FIRST_ID + 1;
-
-    private class LoadLocalCoverArtTask extends
-            AsyncTask<TiDrawableReference, Void, Drawable> {
-        private Cache cache;
-        private TiDrawableReference imageref;
-
-        LoadLocalCoverArtTask(Cache cache) {
-            this.cache = cache;
-        }
-
-        @Override
-        protected Drawable doInBackground(TiDrawableReference... params) {
-            imageref = params[0];
-            return imageref.getDrawable();
-
-        }
-
-        @Override
-        protected void onPostExecute(Drawable drawable) {
-            Bitmap bitmap = null;
-            if (drawable instanceof BitmapDrawable) {
-                bitmap = ((BitmapDrawable) drawable).getBitmap();
-                cache.set(imageref.getUrl(), bitmap);
-            }
-            remoteViews.setImageViewBitmap(loadingBitmapViewId, bitmap);
-            update();
-            loadingBitmapViewId = 0;
-        }
-    }
     
     private BroadcastReceiver onClickReicever = new BroadcastReceiver() {
         @Override
@@ -155,17 +116,6 @@ public class RemoteViewsProxy extends AnimatableReusableProxy implements Target 
         if (this.notification != null) {
             this.notification.update();
         }
-    }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-        switch (msg.what) {
-        case MSG_PICASSO_REQUEST: {
-            runPicassoRequest((TiDrawableReference) msg.obj);
-            return true;
-        }
-        }
-        return super.handleMessage(msg);
     }
 
     @Override
@@ -395,64 +345,13 @@ public class RemoteViewsProxy extends AnimatableReusableProxy implements Target 
         return "Ti.Android.RemoteViews";
     }
     
-    private void runPicassoRequest(final TiDrawableReference imageref) {
-        Picasso picasso = TiApplication.getPicassoInstance();
-
-        if (hasProperty(TiC.PROPERTY_HTTP_OPTIONS)) {
-            // Prepare OkHttp
-            final Context context = TiApplication.getAppContext();
-            picasso = new Picasso.Builder(context).downloader(
-                    new OkHttpDownloader(context) {
-                        @Override
-                        protected HttpURLConnection openConnection(Uri uri)
-                                throws IOException {
-                            HttpURLConnection connection = super
-                                    .openConnection(uri);
-                            TiApplication
-                                    .prepareURLConnection(
-                                            connection,
-                                            (HashMap) getProperty(TiC.PROPERTY_HTTP_OPTIONS));
-                            return connection;
-                        }
-                    }).build();
-        }
-        // picasso will cancel running request if reusing
-        picasso.cancelRequest(this);
-        picasso.load(imageref.getUrl()).into(this);
-    }
-
+    
+    
     private void handleSetImageViewBitmap(int viewId, final Object obj) {
         TiDrawableReference imageref = TiDrawableReference
                 .fromObject(this, obj);
-        if (imageref.isNetworkUrl()) {
-            //only picasso requests needs to be run in main thread
-            loadingBitmapViewId = viewId;
-            if (TiApplication.isUIThread()) {
-                runPicassoRequest(imageref);
-            } else {
-                getMainHandler().obtainMessage(MSG_PICASSO_REQUEST, imageref).sendToTarget();
-            }
-        } else {
-            String cacheKey = imageref.getCacheKey();
-            Cache cache = TiApplication.getImageMemoryCache();
-            Bitmap bitmap = (cacheKey != null) ? cache.get(cacheKey) : null;
-            if (bitmap == null && imageref.isTypeResourceId()) {
-                Drawable drawable = imageref.getDrawable();
-                if (drawable instanceof BitmapDrawable) {
-                    bitmap = ((BitmapDrawable) drawable).getBitmap();
-                    if (cacheKey != null) {
-                        cache.set(cacheKey, bitmap);
-                    }
-                }
-            }
-            if (bitmap == null) {
-                loadingBitmapViewId = viewId;
-                (new LoadLocalCoverArtTask(cache)).execute(imageref);
-                return;
-            }
-            Log.d(TAG, "update image for " + viewId, Log.DEBUG_MODE);
-            remoteViews.setImageViewBitmap(viewId, bitmap);
-        }
+        loadingBitmapViewId = viewId;
+        TiImageHelper.downloadDrawable(this, imageref, true, this);
     }
 
     @Override
@@ -471,5 +370,12 @@ public class RemoteViewsProxy extends AnimatableReusableProxy implements Target 
 
     @Override
     public void onPrepareLoad(Drawable placeHolderDrawable) {
+    }
+
+    @Override
+    public void onDrawableLoaded(Drawable drawable, LoadedFrom from) {
+        if (drawable instanceof BitmapDrawable) {
+            onBitmapLoaded(((BitmapDrawable) drawable).getBitmap(), from);
+        }        
     }
 }

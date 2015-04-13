@@ -20,11 +20,22 @@ import jp.co.cyberagent.android.gpuimage.GPUImage.ScaleType;
 import jp.co.cyberagent.android.gpuimage.Rotation;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.michaelevans.colorart.library.ColorArt;
 
+import com.squareup.picasso.Cache;
+import com.squareup.picasso.OkHttpDownloader;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Picasso.LoadedFrom;
+import com.squareup.picasso.Target;
+
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -32,8 +43,11 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.PorterDuff.Mode;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.RectF;
 import android.media.ExifInterface;
+import android.os.AsyncTask;
 import android.util.Pair;
 
 /**
@@ -385,5 +399,87 @@ public class TiImageHelper
 		Matrix matrix = new Matrix();
 	    matrix.postRotate(rotation);
 	    return Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
+	}
+	
+	
+	public interface TiDrawableTarget extends Target {
+	    public void onDrawableLoaded(Drawable drawable, LoadedFrom from);
+	}
+	
+	private static class LoadLocalDrawableTask extends AsyncTask<TiDrawableReference, Void, Drawable> {
+        private TiDrawableTarget target;
+        private Cache cache;
+        private TiDrawableReference imageref;
+        
+        LoadLocalDrawableTask(Cache cache, TiDrawableTarget target) { 
+            this.target = target;
+            this.cache = cache;
+       }
+        @Override
+        protected Drawable doInBackground(TiDrawableReference... params) {
+            imageref = params[0];
+            return imageref.getDrawable();
+
+        }
+        
+        @Override
+        protected void onPostExecute(Drawable drawable) {
+            Bitmap bitmap = null;
+            if (drawable instanceof BitmapDrawable) {
+                bitmap = ((BitmapDrawable)drawable).getBitmap();
+                if (imageref.getUrl() != null) {
+                    cache.set(imageref.getUrl(), bitmap);
+                }
+            }
+            target.onDrawableLoaded(drawable, LoadedFrom.DISK);
+        }
+    }
+    
+	public static void downloadDrawableReference(final TiDrawableReference imageref, final KrollDict options, final Target target) {
+        
+        Picasso picasso = TiApplication.getPicassoInstance();
+        
+        if (options != null) {
+            final Context context = TiApplication.getAppContext();
+            picasso = new Picasso.Builder(context).downloader(new OkHttpDownloader(TiApplication.getPicassoHttpClient(options))).build();
+        }
+        // picasso will cancel running request if reusing
+        picasso.cancelRequest(target);
+        picasso.load(imageref.getUrl()).into(target);
+    }
+	
+	public static void downloadDrawable(final KrollProxy proxy, final TiDrawableReference imageref, final boolean localLoadSync, final TiDrawableTarget target) {
+	    Picasso picasso = TiApplication.getPicassoInstance();
+	    picasso.cancelRequest(target);
+        if (imageref.isNetworkUrl()) {
+            final KrollDict properties =  (KrollDict) ((proxy != null) ? TiConvert.toKrollDict(proxy.getProperty(TiC.PROPERTY_HTTP_OPTIONS)) : null);
+            TiActivityHelper.runInUiThread(TiApplication.getAppCurrentActivity(), new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    downloadDrawableReference(imageref, properties, target);
+                }
+            });
+        } else {
+            String cacheKey = imageref.getCacheKey();
+            Cache cache = TiApplication.getImageMemoryCache();
+            Bitmap bitmap = (cacheKey != null) ? cache.get(cacheKey) : null;
+            Drawable drawable = null;
+            if (bitmap == null) {
+                if (!localLoadSync && !imageref.isTypeBlob() && !imageref.isTypeResourceId()) {
+                    (new LoadLocalDrawableTask(cache, target)).execute(imageref);
+                    return;
+                }
+                drawable = imageref.getDrawable();
+                if (drawable instanceof BitmapDrawable) {
+                    bitmap = ((BitmapDrawable) drawable).getBitmap();
+                    if (cacheKey != null) {
+                        cache.set(cacheKey, bitmap);
+                    }
+                }
+                target.onDrawableLoaded(drawable, LoadedFrom.DISK);
+            } else {
+                target.onBitmapLoaded(bitmap, LoadedFrom.MEMORY);
+            }
+        }
 	}
 }

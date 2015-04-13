@@ -8,7 +8,6 @@ package ti.modules.titanium.audio;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,16 +22,15 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiImageHelper.TiDrawableTarget;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.audio.RemoteControlClientCompat.MetadataEditorCompat;
 
 import com.squareup.picasso.Cache;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.LoadedFrom;
-import com.squareup.picasso.Target;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -52,9 +50,6 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.Handler.Callback;
-import android.os.Looper;
-import android.os.Message;
 import android.os.PowerManager;
 import android.view.KeyEvent;
 import android.webkit.URLUtil;
@@ -62,7 +57,7 @@ import android.webkit.URLUtil;
 public class TiSound implements MediaPlayer.OnCompletionListener,
         MediaPlayer.OnErrorListener, KrollProxyListener,
         MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnInfoListener,
-        MediaPlayer.OnPreparedListener, Target, Callback, MusicFocusable, FocusableAudioWidget {
+        MediaPlayer.OnPreparedListener, TiDrawableTarget, MusicFocusable, FocusableAudioWidget {
     private static final String TAG = "TiSound";
 
     public static final int STATE_BUFFERING = 0; // current playback is in the
@@ -162,9 +157,6 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
     public static final String EVENT_COMPLETE_JSON = "{ type : '"
             + EVENT_COMPLETE + "' }";
 
-    private static final int MSG_FIRST_ID = 100;
-    private static final int MSG_PICASSO_REQUEST = MSG_FIRST_ID + 1;
-    private static final int MSG_UPDATE_BITMAP_METADATA = MSG_FIRST_ID + 2;
 
     protected Handler handler;
 
@@ -258,7 +250,6 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
         this.playOnResume = false;
         this.remote = false;
         final Context context = TiApplication.getAppContext();
-        handler = new Handler(Looper.getMainLooper(), this);
         
         wifiManager = (WifiManager) context
                 .getSystemService(Context.WIFI_SERVICE);
@@ -289,21 +280,6 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
         setUpRemoteControlClient();
     }
 
-    // This handler callback is tied to the UI thread.
-    public boolean handleMessage(Message msg) {
-        switch (msg.what) {
-        case MSG_PICASSO_REQUEST: {
-            runPicassoRequest((TiDrawableReference) msg.obj);
-//            handleUpdateMetadata((HashMap<String, Object>) msg.obj);
-            return true;
-        }
-        case MSG_UPDATE_BITMAP_METADATA: {
-            handleUpdateBitmapMetadata((Bitmap) msg.obj);
-            return true;
-        }
-        }
-        return false;
-    }
     
 
     
@@ -1085,32 +1061,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
             put("year", MediaMetadataRetriever.METADATA_KEY_YEAR);
         }
     };
-    
-    private void runPicassoRequest(final TiDrawableReference imageref) {
-        Picasso picasso = TiApplication.getPicassoInstance();
 
-        if (proxy.hasProperty(TiC.PROPERTY_HTTP_OPTIONS)) {
-            // Prepare OkHttp
-            final Context context = TiApplication.getAppContext();
-            picasso = new Picasso.Builder(context).downloader(
-                    new OkHttpDownloader(context) {
-                        @Override
-                        protected HttpURLConnection openConnection(Uri uri)
-                                throws IOException {
-                            HttpURLConnection connection = super
-                                    .openConnection(uri);
-                            TiApplication
-                                    .prepareURLConnection(
-                                            connection,
-                                            (HashMap) proxy.getProperty(TiC.PROPERTY_HTTP_OPTIONS));
-                            return connection;
-                        }
-                    }).build();
-        }
-        // picasso will cancel running request if reusing
-        picasso.cancelRequest(this);
-        picasso.load(imageref.getUrl()).into(this);
-    }
 
     private void handleUpdateBitmapMetadata(final Bitmap bitmap) {
         //this needs to be called in a background thread because of the copy
@@ -1155,17 +1106,8 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
 
         TiDrawableReference imageref = TiDrawableReference.fromObject(proxy,
                 dict.get("artwork"));
-        if (imageref.isNetworkUrl()) {
-          //only picasso requests needs to be run in main thread
-            loadingUrl = imageref.getUrl();
-            if (TiApplication.isUIThread()) {
-                runPicassoRequest(imageref);
-            } else {
-                handler.obtainMessage(MSG_PICASSO_REQUEST, imageref).sendToTarget();
-            }
-
-        } else if (!imageref.isTypeNull()) {
-            (new LoadLocalCoverArtTask(TiApplication.getImageMemoryCache())).execute(imageref);
+        if (!imageref.isTypeNull()) {
+            TiImageHelper.downloadDrawable(proxy, imageref, true, this);
         }
         currentMetadataEditor.apply();
         currentMetadataEditor = null;
@@ -1192,6 +1134,13 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
     public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
         loadingUrl = null;
         updateBitmapMetadata(bitmap);
+    }
+    
+    @Override
+    public void onDrawableLoaded(Drawable drawable, LoadedFrom from) {
+        if (drawable instanceof BitmapDrawable) {
+            onBitmapLoaded(((BitmapDrawable) drawable).getBitmap(), from);
+        }        
     }
 
     @Override

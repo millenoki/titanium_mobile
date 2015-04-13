@@ -6,13 +6,10 @@
  */
 package ti.modules.titanium.android.notificationmanager;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -20,13 +17,12 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ReusableProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiImageHelper.TiDrawableTarget;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import com.squareup.picasso.Cache;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.squareup.picasso.Picasso.LoadedFrom;
 
 import ti.modules.titanium.android.AndroidModule;
@@ -35,7 +31,6 @@ import ti.modules.titanium.android.RemoteViewsProxy;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -48,7 +43,7 @@ import android.support.v4.app.NotificationCompat.Builder;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
         TiC.PROPERTY_CONTENT_TEXT, TiC.PROPERTY_CONTENT_TITLE })
-public class NotificationProxy extends ReusableProxy implements Target {
+public class NotificationProxy extends ReusableProxy implements TiDrawableTarget {
     private static final String TAG = "TiNotification";
     private static final boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 
@@ -492,45 +487,12 @@ public class NotificationProxy extends ReusableProxy implements Target {
 	{
 		return "Ti.Android.Notification";
 	}
-
+	
+	
 	private void handleSetLargeIcon(final Object obj) {
         TiDrawableReference imageref = TiDrawableReference
                 .fromObject(this, obj);
-        if (imageref.isNetworkUrl()) {
-            Picasso picasso = TiApplication.getPicassoInstance();
-
-            if (hasProperty(TiC.PROPERTY_HTTP_OPTIONS)) {
-                // Prepare OkHttp
-                final Context context = TiApplication.getAppContext();
-                picasso = new Picasso.Builder(context).downloader(
-                        new OkHttpDownloader(context) {
-                            @Override
-                            protected HttpURLConnection openConnection(Uri uri)
-                                    throws IOException {
-                                HttpURLConnection connection = super
-                                        .openConnection(uri);
-                                TiApplication
-                                        .prepareURLConnection(
-                                                connection,
-                                                (HashMap) getProperty(TiC.PROPERTY_HTTP_OPTIONS));
-                                return connection;
-                            }
-                        }).build();
-            }
-            // picasso will cancel running request if reusing
-            picasso.cancelRequest(this);
-            picasso.load(imageref.getUrl()).into(this);
-        } else {
-            String cacheKey = imageref.getCacheKey();
-            Cache cache = TiApplication.getImageMemoryCache();
-            Bitmap bitmap = (cacheKey != null) ? cache.get(cacheKey) : null;
-            if (bitmap == null) {
-                (new LoadLocalCoverArtTask(cache)).execute(imageref);
-                return;
-            }
-            handleSetLargeIcon(bitmap);
-            update();
-        }
+        TiImageHelper.downloadDrawable(this, imageref, true, this);
     }
 
 	@Override
@@ -547,7 +509,12 @@ public class NotificationProxy extends ReusableProxy implements Target {
 
     @Override
     public void onPrepareLoad(Drawable placeHolderDrawable) {
-        // TODO Auto-generated method stub
+    }
 
+    @Override
+    public void onDrawableLoaded(Drawable drawable, LoadedFrom from) {
+        if (drawable instanceof BitmapDrawable) {
+            onBitmapLoaded(((BitmapDrawable) drawable).getBitmap(), from);
+        }
     }
 }

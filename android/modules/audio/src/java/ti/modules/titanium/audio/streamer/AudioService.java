@@ -1,8 +1,6 @@
 package ti.modules.titanium.audio.streamer;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +17,8 @@ import org.appcelerator.titanium.TiEnhancedService;
 import org.appcelerator.titanium.TiApplication.AppStateListener;
 import org.appcelerator.titanium.proxy.TiEnhancedServiceProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiImageHelper;
+import org.appcelerator.titanium.util.TiImageHelper.TiDrawableTarget;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import ti.modules.titanium.audio.AudioFocusHelper;
@@ -61,13 +61,11 @@ import android.os.PowerManager.WakeLock;
 import android.view.KeyEvent;
 
 import com.squareup.picasso.Cache;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.squareup.picasso.Picasso.LoadedFrom;
 
 @SuppressWarnings({ "deprecation", "serial" })
-public abstract class AudioService extends TiEnhancedService implements Target,
+public abstract class AudioService extends TiEnhancedService implements TiDrawableTarget,
         Callback, AppStateListener, FocusableAudioWidget {
     private static final String TAG = "AudioService";
 
@@ -2071,33 +2069,6 @@ public abstract class AudioService extends TiEnhancedService implements Target,
         }
     };
 
-    private void runPicassoRequest(final TiDrawableReference imageref) {
-        Picasso picasso = TiApplication.getPicassoInstance();
-
-        if (proxy != null && proxy.hasProperty(TiC.PROPERTY_HTTP_OPTIONS)) {
-            // Prepare OkHttp
-            final Context context = TiApplication.getAppContext();
-            picasso = new Picasso.Builder(context).downloader(
-                    new OkHttpDownloader(context) {
-                        @Override
-                        protected HttpURLConnection openConnection(Uri uri)
-                                throws IOException {
-                            HttpURLConnection connection = super
-                                    .openConnection(uri);
-                            TiApplication
-                                    .prepareURLConnection(
-                                            connection,
-                                            (HashMap) proxy
-                                                    .getProperty(TiC.PROPERTY_HTTP_OPTIONS));
-                            return connection;
-                        }
-                    }).build();
-        }
-        // picasso will cancel running request if reusing
-        picasso.cancelRequest(this);
-        picasso.load(imageref.getUrl()).into(this);
-    }
-
     protected void onProgress() {
         if (proxyHasListeners(Events.PROGRESS, false)) {
             KrollDict event = getTrackEvent();
@@ -2158,18 +2129,9 @@ public abstract class AudioService extends TiEnhancedService implements Target,
             }
             TiDrawableReference imageref = TiDrawableReference.fromObject(
                     proxy, metadata.get("artwork"));
-            if (imageref.isNetworkUrl()) {
-                // only picasso requests needs to be run in main thread
-                if (TiApplication.isUIThread()) {
-                    runPicassoRequest(imageref);
-                } else {
-                    uiHandler.obtainMessage(MSG_PICASSO_REQUEST, imageref)
-                            .sendToTarget();
-                }
 
-            } else if (!imageref.isTypeNull()) {
-                (new LoadLocalCoverArtTask(TiApplication.getImageMemoryCache()))
-                        .execute(imageref);
+            if (!imageref.isTypeNull()) {
+                TiImageHelper.downloadDrawable(proxy, imageref, true, this);
             }
 
         }
@@ -2211,6 +2173,13 @@ public abstract class AudioService extends TiEnhancedService implements Target,
     }
 
     @Override
+    public void onDrawableLoaded(Drawable drawable, LoadedFrom from) {
+        if (drawable instanceof BitmapDrawable) {
+            onBitmapLoaded(((BitmapDrawable) drawable).getBitmap(), from);
+        }        
+    }
+
+    @Override
     public void onBitmapFailed(Drawable errorDrawable) {
         updateBitmapMetadata(null);
     }
@@ -2222,11 +2191,6 @@ public abstract class AudioService extends TiEnhancedService implements Target,
     @Override
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
-        case MSG_PICASSO_REQUEST: {
-            runPicassoRequest((TiDrawableReference) msg.obj);
-            // handleUpdateMetadata((HashMap<String, Object>) msg.obj);
-            return true;
-        }
         case MSG_UPDATE_BITMAP_METADATA: {
             handleUpdateBitmapMetadata((Bitmap) msg.obj);
             return true;
