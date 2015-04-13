@@ -345,7 +345,7 @@ NSArray* bufferKeySequence = nil;
 
 -(NSString*)toString:(id)_void 
 {
-    return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+    return [data description];
 }
 
 #pragma mark Public API : Properties
