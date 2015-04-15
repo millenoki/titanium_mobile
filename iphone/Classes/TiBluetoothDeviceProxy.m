@@ -197,7 +197,7 @@
         }
     }
     
-    free(buf);
+//    free(buf);
     return result;
 }
 
