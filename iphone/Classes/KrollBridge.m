@@ -1047,8 +1047,13 @@ loadNativeJS:
 		return module;
 	}
 	
-	NSString *arch = [TiUtils currentArchitecture];
-	@throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil];
+    NSString *arch = [TiUtils currentArchitecture];
+    if (moduleClass) {
+        @throw [NSException exceptionWithName:@"org.test.kroll" reason:[NSString stringWithFormat:@"Couldn't find module: %@ for architecture: %@", path, arch] userInfo:nil];
+    } else {
+        NSLog([NSString stringWithFormat:@"[ERROR] Couldn't find js module: %@", path]);
+        return nil;
+    }
 }
 
 + (NSArray *)krollBridgesUsingProxy:(id)proxy
