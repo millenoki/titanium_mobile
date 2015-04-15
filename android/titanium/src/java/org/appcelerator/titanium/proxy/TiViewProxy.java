@@ -28,6 +28,7 @@ import org.appcelerator.titanium.animation.TiAnimatorSet;
 import org.appcelerator.titanium.animation.TiViewAnimator;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
+import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -123,7 +124,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	private static final int MSG_GETRECT = MSG_FIRST_ID + 111;
 	private static final int MSG_GETABSRECT = MSG_FIRST_ID + 113;
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
-	private static final int MSG_TRANSITION_VIEWS = MSG_FIRST_ID + 115;
+//	private static final int MSG_TRANSITION_VIEWS = MSG_FIRST_ID + 115;
 	private static final int MSG_BLUR_BACKGROUND = MSG_FIRST_ID + 116;
 	private static final int MSG_INSERT_VIEW_AT = MSG_FIRST_ID + 117;
 	private static final int MSG_HIDE_KEYBOARD = MSG_FIRST_ID + 118;
@@ -290,11 +291,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 				return true;
 			}
 
-			case MSG_TRANSITION_VIEWS : {
-				ArrayList<Object> args = (ArrayList<Object>)msg.obj;
-				handleTransitionViews((TiViewProxy)args.get(0), (TiViewProxy)args.get(1), args.get(2));
-				return true;
-			}
+//			case MSG_TRANSITION_VIEWS : {
+//				ArrayList<Object> args = (ArrayList<Object>)msg.obj;
+//				handleTransitionViews((TiViewProxy)args.get(0), (TiViewProxy)args.get(1), args.get(2));
+//				return true;
+//			}
 			case MSG_BLUR_BACKGROUND : {
 				handleBlurBackground((HashMap) msg.obj);
 				return true;
@@ -1253,7 +1254,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	}
 	
 	@Kroll.method
-	public void transitionViews(final TiViewProxy viewOut, final TiViewProxy viewIn, Object arg)
+	public void transitionViews(final TiViewProxy viewOut, final TiViewProxy viewIn, @Kroll.argument(optional=true) final Object arg)
 	{
 		if (transitioning) {
 			synchronized (pendingTransitionLock) {
@@ -1266,15 +1267,21 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			return;
 		}
 		transitioning = true;
-		if (TiApplication.isUIThread()) {
-			handleTransitionViews(viewOut, viewIn, arg);
-		} else {
-			ArrayList<Object> args = new ArrayList<Object>();
-			args.add(viewOut);
-			args.add(viewIn);
-			args.add(arg);
-			getMainHandler().obtainMessage(MSG_TRANSITION_VIEWS, args).sendToTarget();
-		}
+		runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                handleTransitionViews(viewOut, viewIn, arg);                
+            }
+        });
+//		if (TiApplication.isUIThread()) {
+//			handleTransitionViews(viewOut, viewIn, arg);
+//		} else {
+//			ArrayList<Object> args = new ArrayList<Object>();
+//			args.add(viewOut);
+//			args.add(viewIn);
+//			args.add(arg);
+//			getMainHandler().obtainMessage(MSG_TRANSITION_VIEWS, args).sendToTarget();
+//		}
 	}
 	
 	
