@@ -1483,6 +1483,17 @@ public abstract class TiBaseActivity extends ActionBarActivity
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_STOP, null);
 		}
+		synchronized (lifecycleListeners.synchronizedList()) {
+            for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+                try {
+                    TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_STOP);
+
+                } catch (Throwable t) {
+                    Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
+                }
+            }
+        }
+		
 		super.onStop();
 
 		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
@@ -1498,16 +1509,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			activityProxy.fireEvent(TiC.EVENT_STOP, null);
 		}
 
-		synchronized (lifecycleListeners.synchronizedList()) {
-			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
-				try {
-					TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_STOP);
-
-				} catch (Throwable t) {
-					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
-				}
-			}
-		}
+		
 		KrollRuntime.suggestGC();
 	}
 
