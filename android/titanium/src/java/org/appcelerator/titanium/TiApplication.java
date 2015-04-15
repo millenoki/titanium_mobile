@@ -1314,6 +1314,7 @@ public abstract class TiApplication extends Application implements
             }
             return resultCode;
         } catch (Exception e) {
+            e.printStackTrace();
             return resultCode;
         }
     }
