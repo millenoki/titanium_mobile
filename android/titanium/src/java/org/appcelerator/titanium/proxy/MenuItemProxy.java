@@ -359,6 +359,4 @@ public class MenuItemProxy extends AnimatableReusableProxy
             break;
         }
     }
-
-
 }

@@ -238,22 +238,6 @@ public abstract class TiUIView
 		}
 	}
 
-//	private int findChildIndex(TiUIView child)
-//	{
-//		int idxChild = -1;
-//		if (child != null) {
-//			View cv = child.getOuterView();
-//			if (cv != null) {
-//				View nv = getNativeView();
-//				if (nv instanceof ViewGroup) {
-//					idxChild = ((ViewGroup) nv).indexOfChild(cv);
-//
-//				}
-//			}
-//		}
-//		return idxChild;
-//	}
-
 	/**
 	 * Removes the child view from the ViewGroup, if child exists.
 	 * @param child the view to be removed.

@@ -6,8 +6,6 @@
  */
 package org.appcelerator.titanium.proxy;
 
-import java.util.Map;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
@@ -16,7 +14,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -26,8 +23,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,

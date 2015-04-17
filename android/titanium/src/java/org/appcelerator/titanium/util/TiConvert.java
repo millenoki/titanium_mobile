@@ -60,7 +60,6 @@ public class TiConvert
 			}
 			d.put(key, nd);
 			value = nd;
-
 		} else if (value instanceof Object[]) {
 			Object[] a = (Object[]) value;
 			int len = a.length;
