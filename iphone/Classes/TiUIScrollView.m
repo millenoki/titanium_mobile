@@ -165,69 +165,71 @@
 
 -(void)handleContentSize
 {
-	if (!needsHandleContentSize) {
-		return;
-	}
-	CGSize newContentSize = [self bounds].size;
-	CGFloat scale = [scrollView zoomScale];
+    if (!needsHandleContentSize) {
+        return;
+    }
+    CGSize newContentSize = [self bounds].size;
+    CGFloat scale = [scrollView zoomScale];
     
     CGSize autoSize;
-
-	if ([self flexibleContentWidth] || [self flexibleContentHeight])
+    
+    if ([self flexibleContentWidth] || [self flexibleContentHeight])
     {
         autoSize = [(TiViewProxy *)[self proxy] autoSizeForSize:newContentSize];
     }
-
-	switch (contentWidth.type)
-	{
-		case TiDimensionTypeDip:
-		{
-			newContentSize.width = MAX(newContentSize.width,contentWidth.value);
-			break;
-		}
+    
+    switch (contentWidth.type)
+    {
+        case TiDimensionTypeDip:
+        case TiDimensionTypePercent:
+        {
+            newContentSize.width = TiDimensionCalculateValue(contentWidth, newContentSize.width);
+            break;
+        }
         case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoSize:
-		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
-		{
-			newContentSize.width = MAX(newContentSize.width,autoSize.width);
-			break;
-		}
+        case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
+        {
+            newContentSize.width = MAX(newContentSize.width,autoSize.width);
+            break;
+        }
         case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
-		default: {
-			break;
-		}
-	}
-
-	switch (contentHeight.type)
-	{
-		case TiDimensionTypeDip:
-		{
-			minimumContentHeight = contentHeight.value;
-			break;
-		}
+        default: {
+            break;
+        }
+    }
+    
+    switch (contentHeight.type)
+    {
+        case TiDimensionTypeDip:
+        case TiDimensionTypePercent:
+        {
+            minimumContentHeight = TiDimensionCalculateValue(contentHeight, newContentSize.height);
+            break;
+        }
         case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoSize:
-		case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"            
-		{
-			minimumContentHeight = autoSize.height;
-			break;
-		}
-        case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec           
-		default:
-			minimumContentHeight = newContentSize.height;
-			break;
-	}
-	newContentSize.width *= scale;
-	newContentSize.height = scale * MAX(newContentSize.height,minimumContentHeight);
-
-	[scrollView setContentSize:newContentSize];
-	CGRect wrapperBounds;
-	wrapperBounds.origin = CGPointZero;
-	wrapperBounds.size = newContentSize;
-	[wrapperView setFrame:wrapperBounds];
-	[self scrollViewDidZoom:scrollView];
-	needsHandleContentSize = NO;
-	[(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
+        case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
+        {
+            minimumContentHeight = autoSize.height;
+            break;
+        }
+        case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
+        default:
+            minimumContentHeight = newContentSize.height;
+            break;
+    }
+    newContentSize.width *= scale;
+    newContentSize.height = scale * MAX(newContentSize.height,minimumContentHeight);
+    
+    [scrollView setContentSize:newContentSize];
+    CGRect wrapperBounds;
+    wrapperBounds.origin = CGPointZero;
+    wrapperBounds.size = newContentSize;
+    [wrapperView setFrame:wrapperBounds];
+    [self scrollViewDidZoom:scrollView];
+    needsHandleContentSize = NO;
+    [(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
