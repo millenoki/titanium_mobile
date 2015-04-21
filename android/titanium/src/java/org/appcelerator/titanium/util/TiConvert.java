@@ -1144,31 +1144,35 @@ public class TiConvert
 		return toRect(hashMap.get(key));
 	}
 	
-	public static RectF toPaddingRect(Object value)
-	{
-		if (value instanceof RectF) {
-			return (RectF)value;
+	
+	public static RectF toPaddingRect(Object value, RectF reuse)
+    {
+	    if (reuse == null) {
+	        reuse = new RectF();
+	    }
+        if (value instanceof RectF) {
+            reuse.set((RectF)value);
+        } else if (value instanceof HashMap<?,?>) {
+            KrollDict dict = new KrollDict((HashMap<String, Object>)value);
+            reuse.left = TiUIHelper.getInPixels(dict,
+                        TiC.PROPERTY_LEFT);
+            reuse.right = TiUIHelper.getInPixels(dict,
+                        TiC.PROPERTY_RIGHT);
+            reuse.top = TiUIHelper.getInPixels(dict,
+                        TiC.PROPERTY_TOP);
+            reuse.bottom = TiUIHelper.getInPixels(dict,
+                        TiC.PROPERTY_BOTTOM);
+        } else if (value instanceof Number) {
+            float padding = TiUIHelper.getRawSize(TiConvert.toString(value), null);
+            reuse.set(padding, padding, padding, padding);
+        }
+        return reuse;
+    }
 
-		} else if (value instanceof HashMap<?,?>) {
-			KrollDict dict = new KrollDict((HashMap<String, Object>)value);
-			RectF result = new RectF();
-				result.left = TiUIHelper.getInPixels(dict,
-						TiC.PROPERTY_LEFT);
-				result.right = TiUIHelper.getInPixels(dict,
-						TiC.PROPERTY_RIGHT);
-				result.top = TiUIHelper.getInPixels(dict,
-						TiC.PROPERTY_TOP);
-				result.bottom = TiUIHelper.getInPixels(dict,
-						TiC.PROPERTY_BOTTOM);
-			return result;
-		}
-
-		return null;
-	}
-	public static RectF toPaddingRect(HashMap<String, Object> hashMap, String key)
-	{
-		return toPaddingRect(hashMap.get(key));
-	}
+	public static RectF toPaddingRect(HashMap<String, Object> hashMap, String key, RectF reuse)
+    {
+        return toPaddingRect(hashMap.get(key), reuse);
+    }
 	
 	/**
 	 * Converts value into Rect object and returns it.

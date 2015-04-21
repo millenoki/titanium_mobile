@@ -98,7 +98,7 @@ public class TiUILabel extends TiUINonViewGroupView
     private CharSequence text = null;
 
 
-	private RectF textPadding;
+	private RectF textPadding = null;
 	private String ELLIPSIZE_CHAR = "...";
 
 	private TiLabelView tv;
@@ -371,7 +371,7 @@ public class TiUILabel extends TiUINonViewGroupView
 
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent event) {
-			if (touchPassThrough(childrenHolder, event)) return false;
+			if (touchPassThrough(getParentViewForChild(), event)) return false;
 			return super.dispatchTouchEvent(event);
 		}
 		
@@ -1075,7 +1075,7 @@ public class TiUILabel extends TiUINonViewGroupView
             setNeedsLayout();
             break;
         case TiC.PROPERTY_TEXT_PADDING:
-            textPadding = TiConvert.toPaddingRect(newValue);
+            textPadding = TiConvert.toPaddingRect(newValue, textPadding);
             updatePadding();
             setNeedsLayout();
             break;

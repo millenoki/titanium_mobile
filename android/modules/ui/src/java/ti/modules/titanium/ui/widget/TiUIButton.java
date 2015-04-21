@@ -49,6 +49,7 @@ public class TiUIButton extends TiUINonViewGroupView
 	private RectF titlePadding;
 	private Drawable imageDrawable;
 	private int imageGravity;
+    protected RectF padding = null;
 
 	public TiUIButton(final TiViewProxy proxy)
 	{
@@ -76,7 +77,7 @@ public class TiUIButton extends TiUINonViewGroupView
 
 			@Override
 			public boolean dispatchTouchEvent(MotionEvent event) {
-	            if (touchPassThrough(childrenHolder, event)) return false;
+	            if (touchPassThrough(getParentViewForChild(), event)) return false;
 				return super.dispatchTouchEvent(event);
 			}
 
@@ -170,7 +171,8 @@ public class TiUIButton extends TiUINonViewGroupView
             setNeedsLayout();
             break;
         case TiC.PROPERTY_TITLE_PADDING:
-            TiUIHelper.setPadding(getButton(), TiConvert.toPaddingRect(newValue));
+            padding = TiConvert.toPaddingRect(newValue, padding);
+            TiUIHelper.setPadding(getButton(), padding);
             setNeedsLayout();
             break;
         case TiC.PROPERTY_IMAGE_ANCHOR:

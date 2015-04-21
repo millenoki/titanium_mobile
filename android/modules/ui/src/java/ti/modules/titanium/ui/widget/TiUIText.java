@@ -26,6 +26,7 @@ import ti.modules.titanium.ui.AttributedStringProxy;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.internal.widget.TintEditText;
@@ -83,6 +84,7 @@ public class TiUIText extends TiUINonViewGroupView
 	private boolean disableChangeEvent = false;
     protected boolean isEditable = true;
     private boolean suppressReturn = true;
+    protected RectF padding = null;
 
 	protected FocusFixedEditText tv;
 	protected TiEditText realtv;
@@ -431,7 +433,8 @@ public class TiUIText extends TiUINonViewGroupView
             setNeedsLayout();
             break;
         case TiC.PROPERTY_PADDING:
-            TiUIHelper.setPadding(getEditText(), TiConvert.toPaddingRect(newValue));
+            padding = TiConvert.toPaddingRect(newValue, padding);
+            TiUIHelper.setPadding(getEditText(), padding);
             setNeedsLayout();
             break;
         case TiC.PROPERTY_WORD_WRAP:

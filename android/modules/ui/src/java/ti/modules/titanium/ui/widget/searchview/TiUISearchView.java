@@ -28,6 +28,7 @@ import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListe
 import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.view.MotionEvent;
 import android.view.View;
@@ -70,6 +71,7 @@ public class TiUISearchView extends TiUIView implements
     int autocorrect = InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
     int autoCapValue = 0;
     int returnKeyType = UIModule.RETURNKEY_DEFAULT;
+    protected RectF padding = null;
 
     private boolean field;
 //    private boolean disableChangeEvent = false;
@@ -176,8 +178,8 @@ public class TiUISearchView extends TiUIView implements
             setNeedsLayout();
             break;
         case TiC.PROPERTY_PADDING:
-            TiUIHelper.setPadding(getTextView(),
-                    TiConvert.toPaddingRect(newValue));
+            padding = TiConvert.toPaddingRect(newValue, padding);
+            TiUIHelper.setPadding(getTextView(), padding);
             setNeedsLayout();
             break;
         case TiC.PROPERTY_WORD_WRAP:

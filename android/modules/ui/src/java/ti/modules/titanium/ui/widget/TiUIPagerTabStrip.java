@@ -37,6 +37,7 @@ public class TiUIPagerTabStrip extends TiUIView {
     private int shadowColor = Color.TRANSPARENT;
     private static final String TAG = "TiUIPagerTabStrip";
     private PagerTabStrip strip = null;
+    private RectF textPadding = null;
     
     public TiUIPagerTabStrip(final TiViewProxy proxy)
     {
@@ -203,7 +204,7 @@ public class TiUIPagerTabStrip extends TiUIView {
             strip.setDrawFullUnderline(TiConvert.toBoolean(newValue, true));
             break;
         case TiC.PROPERTY_PADDING:
-            RectF textPadding = TiConvert.toPaddingRect(newValue);
+            textPadding = TiConvert.toPaddingRect(newValue, textPadding);
             strip.setPadding((int) textPadding.left, (int) textPadding.top,
                     (int) textPadding.right, (int) textPadding.bottom);
         default:
