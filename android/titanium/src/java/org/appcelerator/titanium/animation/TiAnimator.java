@@ -315,7 +315,7 @@ public class TiAnimator
 	    if (reverseCurve != null) {
 	        return reverseCurve;
 	    } else if (curve != null) {
-            return new TiInterpolator.ReverseInterpolator(reverseCurve);
+            return new TiInterpolator.ReverseInterpolator(curve);
         }
         return null;
     }
