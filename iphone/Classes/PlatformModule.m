@@ -189,8 +189,9 @@
         @"model": [self model],
         @"locale": [self locale],
         @"id": [self id],
-        @"width": [[self displayCaps] platformWidth],
-        @"height": [[self displayCaps] platformHeight]
+        @"densityFactor": [[self displayCaps] logicalDensityFactor],
+        @"pixelWidth": [[self displayCaps] platformWidth],
+        @"pixelHeight": [[self displayCaps] platformHeight]
     };
 }
 

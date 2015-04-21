@@ -332,8 +332,9 @@ public class PlatformModule extends KrollModule
         result.put("model", getModel());
         result.put("locale", getLocale());
         result.put("id", getId());
-        result.put("width", getDisplayCaps().getPlatformWidth());
-        result.put("height", getDisplayCaps().getPlatformHeight());
+        result.put("pixelWidth", getDisplayCaps().getPlatformWidth());
+        result.put("pixelHeight", getDisplayCaps().getPlatformHeight());
+        result.put("densityFactor", getDisplayCaps().getLogicalDensityFactor());
         return result;
     }
     

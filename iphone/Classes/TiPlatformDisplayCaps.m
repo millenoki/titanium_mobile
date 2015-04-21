@@ -85,20 +85,19 @@
 	return  UIInterfaceOrientationIsPortrait(orientation);
 }
 
-
 - (NSNumber*) platformWidth
 {
     static int platformWidth;
     static dispatch_once_t predicate;
     dispatch_once(&predicate, ^{
         CGFloat scale = [[UIScreen mainScreen] scale];
-        if ([TiUtils isIOS8OrGreater] || [self isUIPortrait])
+        if ([TiUtils isIOS8OrGreater] && ![self isUIPortrait])
         {
-            platformWidth = [[UIScreen mainScreen] bounds].size.width * scale;
+            platformWidth = [[UIScreen mainScreen] bounds].size.height * scale;
         }
         else
         {
-            platformWidth = [[UIScreen mainScreen] bounds].size.height * scale;
+            platformWidth = [[UIScreen mainScreen] bounds].size.width * scale;
         }
     });
     
@@ -111,13 +110,13 @@
     static dispatch_once_t predicate;
     dispatch_once(&predicate, ^{
         CGFloat scale = [[UIScreen mainScreen] scale];
-        if ([TiUtils isIOS8OrGreater] || [self isUIPortrait])
+        if ([TiUtils isIOS8OrGreater] && ![self isUIPortrait])
         {
-            platformHeight = [[UIScreen mainScreen] bounds].size.height * scale;
+            platformHeight = [[UIScreen mainScreen] bounds].size.width * scale;
         }
         else
         {
-            platformHeight = [[UIScreen mainScreen] bounds].size.width * scale;
+            platformHeight = [[UIScreen mainScreen] bounds].size.height * scale;
         }
     });
     
