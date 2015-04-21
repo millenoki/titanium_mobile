@@ -324,6 +324,43 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	        TiActivityHelper.setActionBarHidden(this, this.navBarHidden);
 		}
 		
+		if (TiC.LOLLIPOP_OR_GREATER) {
+		    if(props.containsKey("statusBarColor")) {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+	            getWindow().setStatusBarColor(TiConvert.toColor(props, "statusBarColor"));
+	        }
+		    if(props.containsKey("navigationBarColor")) {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                getWindow().setNavigationBarColor(TiConvert.toColor(props, "navigationBarColor"));
+            }
+		    
+		    int uiVisibility = View.SYSTEM_UI_FLAG_VISIBLE;
+		    if(props.containsKey("immersive")) {
+		        int immersive = TiConvert.toInt(props, "immersive");
+		        switch (immersive) {
+		        case 1:
+                    uiVisibility |= View.SYSTEM_UI_FLAG_IMMERSIVE;
+                    break;
+		        case 2:
+                    uiVisibility |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                    break;
+                case 0:
+                default:
+                    break;
+                }
+            }
+		    if (fullscreen) {
+                uiVisibility |= View.SYSTEM_UI_FLAG_FULLSCREEN;
+		    }
+		    if(props.containsKey("navigationHidden")) {
+                boolean value =  TiConvert.toBoolean(props, "navigationHidden");
+                if (value) {
+                    uiVisibility |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+                }
+            }
+            getWindow().getDecorView().setSystemUiVisibility(uiVisibility);
+		}
+
 		
 		if (hasSoftInputMode && softInputMode != this.softInputMode) {
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
