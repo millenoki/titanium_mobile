@@ -3477,10 +3477,10 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     //        bounds.size.height -= offsety;
     //    }
     
+    bounds.size = minmaxSize(childConstraint, bounds.size, originalBounds.size);
+    
     bounds.size.width += offsetx;
     bounds.size.height += offsety;
-    
-    bounds.size = minmaxSize(childConstraint, bounds.size, originalBounds.size);
     
     if(TiLayoutRuleIsVertical(layoutProperties.layoutStyle))
     {
