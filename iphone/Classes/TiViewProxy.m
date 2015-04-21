@@ -2491,7 +2491,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(BOOL)wantsToFillVerticalLayout
 {
     if ([self heightIsAutoFill]) return YES;
-    if (TiDimensionIsDip(layoutProperties.height) || TiDimensionIsPercent(layoutProperties.height))return NO;
+    BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
+    if (TiDimensionIsDip(layoutProperties.height) || TiDimensionIsPercent(layoutProperties.height) ||
+        (!followsFillBehavior && TiDimensionIsUndefined(layoutProperties.height)))return NO;
     NSArray* subproxies = [self visibleChildren];
     for (TiViewProxy* child in subproxies) {
         if ([child wantsToFillVerticalLayout]) return YES;
@@ -2507,13 +2509,16 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(BOOL)wantsToFillHorizontalLayout
 {
     if ([self widthIsAutoFill]) return YES;
-    if (TiDimensionIsDip(layoutProperties.width) || TiDimensionIsPercent(layoutProperties.width))return NO;
+    BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]);
+    if (TiDimensionIsDip(layoutProperties.width) || TiDimensionIsPercent(layoutProperties.width) ||
+        (!followsFillBehavior && TiDimensionIsUndefined(layoutProperties.width)))return NO;
     NSArray* subproxies = [self visibleChildren];
     for (TiViewProxy* child in subproxies) {
         if ([child wantsToFillHorizontalLayout]) return YES;
     }
     return NO;
 }
+
 
 -(void)contentsWillChange
 {
