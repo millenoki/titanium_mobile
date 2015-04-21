@@ -2000,6 +2000,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
         if (template_.containsKey(TiC.PROPERTY_EVENTS)) {
             Object events = template_.get(TiC.PROPERTY_EVENTS);
+
             if (events instanceof HashMap) {
                 Iterator entries = ((HashMap) events).entrySet().iterator();
                 while (entries.hasNext()) {
@@ -2052,9 +2053,15 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (template_ == null || template_.isEmpty()) {
             return null;
         }
+        boolean creationArgsHandlesTemplate = true;
         String type = TiConvert.toString(template_, TiC.PROPERTY_TYPE, defaultProxyTypeFromTemplate());
-        Object props = (template_.containsKey(TiC.PROPERTY_PROPERTIES)) ? template_
-                .get(TiC.PROPERTY_PROPERTIES) : template_;
+        Object props = template_;
+        if (template_.containsKey(TiC.PROPERTY_PROPERTIES)) {
+            props =  template_.get(TiC.PROPERTY_PROPERTIES);
+            creationArgsHandlesTemplate = false;
+        } else {
+            
+        }
         try {
             Class<? extends KrollProxy> cls = (Class<? extends KrollProxy>) Class
                     .forName(APIMap.getProxyClass(type));
@@ -2062,6 +2069,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     new Object[] { props }, null);
             if (proxy == null)
                 return null;
+            if (creationArgsHandlesTemplate) {
+                template_.remove(TiC.PROPERTY_EVENTS);
+                template_.remove(TiC.PROPERTY_CHILD_TEMPLATES);
+            }
             proxy.initFromTemplate(template_, rootProxy, updateKrollProperties,
                     recursive);
             if (updateKrollProperties) {
