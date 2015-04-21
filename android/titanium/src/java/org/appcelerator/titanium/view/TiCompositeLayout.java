@@ -392,7 +392,7 @@ public class TiCompositeLayout extends FreeLayout implements
 	                TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
 	                        .getLayoutParams();
 	                final float weight = params.weight;
-	                final int childW = (int) ((w - maxWidth)*weight / (autoFillWidthTotalWeight - counter));
+	                final int childW = (int) (Math.max(0, w - maxWidth)*weight / (autoFillWidthTotalWeight - counter));
 	                counter += weight;
 	                
 	                final int widthPadding = getViewWidthPadding(child, params, this);
