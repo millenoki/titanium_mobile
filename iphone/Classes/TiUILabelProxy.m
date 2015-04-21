@@ -151,6 +151,11 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
     if (view != nil)
         [(TiUILabel*)view setPadding:_padding];
     [self contentsWillChange];
+    [self replaceValue:value forKey:@"padding" notification:NO];
+}
+
+-(id)padding {
+    return [self valueForUndefinedKey:@"padding"];
 }
 
 -(CGSize) suggestedSizeForSize:(CGSize)size

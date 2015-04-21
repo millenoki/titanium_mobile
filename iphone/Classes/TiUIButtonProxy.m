@@ -183,6 +183,11 @@
     [self replaceValue:value forKey:@"padding" notification:NO];
 }
 
+-(id)padding {
+    return [self valueForUndefinedKey:@"padding"];
+}
+
+
 -(void)configurationSet
 {
     [super configurationSet];

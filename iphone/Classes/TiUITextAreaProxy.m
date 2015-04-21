@@ -40,6 +40,11 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
     if (view != nil)
         [(TiUITextArea*)view setPadding:_padding];
     [self contentsWillChange];
+    [self replaceValue:value forKey:@"padding" notification:NO];
+}
+
+-(id)padding {
+    return [self valueForUndefinedKey:@"padding"];
 }
 
 -(void)configurationSet
