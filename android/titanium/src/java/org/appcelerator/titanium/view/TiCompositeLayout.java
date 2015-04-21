@@ -559,15 +559,17 @@ public class TiCompositeLayout extends FreeLayout implements
             }
         }
         if (p instanceof AnimationLayoutParams) {
-            float fraction = ((AnimationLayoutParams) p).animationFraction;
+            AnimationLayoutParams animP = (AnimationLayoutParams) p;
+            float fraction = animP.animationFraction;
             if (fraction < 1.0f) {
-                Rect startRect = ((AnimationLayoutParams) p).startRect;
+                Rect startRect = animP.startRect;
                 if (startRect != null) {
+                    animP.finalWidth = measuredWidth;
+                    animP.finalHeight = measuredHeight;
                     measuredWidth = (int) (measuredWidth * fraction + (1 - fraction)
                             * startRect.width());
                     measuredHeight = (int) (measuredHeight * fraction + (1 - fraction)
                             * startRect.height());
-                    
                     wMode = MeasureSpec.makeMeasureSpec(measuredWidth,
                         MeasureSpec.EXACTLY);
                     hMode = MeasureSpec.makeMeasureSpec(measuredHeight,
@@ -794,8 +796,31 @@ public class TiCompositeLayout extends FreeLayout implements
 		int i = indexOfChild(child);
 		// Dimension is required from Measure. Positioning is determined here.
 
-		int childMeasuredHeight = child.getMeasuredHeight();
-		int childMeasuredWidth = child.getMeasuredWidth();
+		final int childMeasuredHeight = child.getMeasuredHeight();
+		final int childMeasuredWidth = child.getMeasuredWidth();
+		int toUseWidth = childMeasuredWidth;
+		int toUseHeight = childMeasuredHeight;
+        Rect startRect = null;
+        float animFraction = 0.0f;
+        
+        
+		if (params instanceof AnimationLayoutParams && 
+                params.fullscreen == false) {
+            AnimationLayoutParams animP = (AnimationLayoutParams) params;
+
+		    animFraction = animP.animationFraction;
+            if (animFraction < 1.0f) {
+                startRect = animP.startRect;
+                if (startRect != null ) {
+                    if (animP.optionWidth != null) {
+                      toUseWidth = animP.finalWidth;
+                    }
+                    if (animP.optionHeight != null) {
+                      toUseHeight = animP.finalHeight;
+                    }
+                }
+            }
+		}
 
 		if (isHorizontalArrangement()) {
 			if (firstVisibleChild) {
@@ -806,8 +831,8 @@ public class TiCompositeLayout extends FreeLayout implements
 				horiztonalLayoutPreviousRight = 0;
 				updateRowForHorizontalWrap(right, i);
 			}
-			computeHorizontalLayoutPosition(params, childMeasuredWidth,
-					childMeasuredHeight, right, top, bottom, horizontal,
+			computeHorizontalLayoutPosition(params, toUseWidth,
+			        toUseHeight, right, top, bottom, horizontal,
 					vertical, i);
 
 		} else {
@@ -822,7 +847,7 @@ public class TiCompositeLayout extends FreeLayout implements
 //					getWidth(), childMeasuredWidth, true);
 			
 			computePosition(this, params, params.optionLeft, params.optionCenterX, params.optionWidth,
-						params.optionRight, childMeasuredWidth, left, right,
+						params.optionRight, toUseWidth, left, right,
 						horizontal);
 			
 			if (verticalArr) {
@@ -833,25 +858,18 @@ public class TiCompositeLayout extends FreeLayout implements
 				currentHeight +=  getLayoutOptionAsPixels(params.optionBottom, TiDimension.TYPE_BOTTOM, params, this);
 			} else {
 				computePosition(this, params, params.optionTop, params.optionCenterY, params.optionHeight,
-						params.optionBottom, childMeasuredHeight, top, bottom,
+						params.optionBottom, toUseHeight, top, bottom,
 						vertical);
 				//we need to update horizontal and vertical with animationFraction because computePosition
 				//will assume 0 for optionLeft==null when it should be startRect.left
-				if (params instanceof AnimationLayoutParams && 
-				        params.fullscreen == false) {
-					float fraction = ((AnimationLayoutParams) params).animationFraction;
-					if (fraction < 1.0f) {
-						Rect startRect = ((AnimationLayoutParams) params).startRect;
-						if (startRect != null) {
-							horizontal[0] = (int) (horizontal[0] * fraction + (1 - fraction)
-									* startRect.left);
-							horizontal[1] = horizontal[0] + childMeasuredWidth;
+				if (startRect != null) {
+					horizontal[0] = (int) (horizontal[0] * animFraction + (1 - animFraction)
+							* startRect.left);
+					horizontal[1] = horizontal[0] + childMeasuredWidth;
 
-							vertical[0] = (int) (vertical[0] * fraction + (1 - fraction)
-									* startRect.top);
-							vertical[1] = vertical[0] + childMeasuredHeight;
-						}
-					}
+					vertical[0] = (int) (vertical[0] * animFraction + (1 - animFraction)
+							* startRect.top);
+					vertical[1] = vertical[0] + childMeasuredHeight;
 				}
 			}
 			
@@ -1380,6 +1398,8 @@ public class TiCompositeLayout extends FreeLayout implements
 		public float animationFraction = 1.0f;
 		public LayoutParams oldParams = null;
 		public Rect startRect = null;
+		public int finalWidth = 0;
+		public int finalHeight = 0;
 
 		public AnimationLayoutParams() {
 			super();
