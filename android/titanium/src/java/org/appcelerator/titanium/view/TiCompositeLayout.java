@@ -566,9 +566,9 @@ public class TiCompositeLayout extends FreeLayout implements
                 if (startRect != null) {
                     animP.finalWidth = measuredWidth;
                     animP.finalHeight = measuredHeight;
-                    measuredWidth = (int) (measuredWidth * fraction + (1 - fraction)
+                    measuredWidth = (int) Math.floor(measuredWidth * fraction + (1 - fraction)
                             * startRect.width());
-                    measuredHeight = (int) (measuredHeight * fraction + (1 - fraction)
+                    measuredHeight = (int) Math.floor(measuredHeight * fraction + (1 - fraction)
                             * startRect.height());
                     wMode = MeasureSpec.makeMeasureSpec(measuredWidth,
                         MeasureSpec.EXACTLY);
@@ -863,11 +863,11 @@ public class TiCompositeLayout extends FreeLayout implements
 				//we need to update horizontal and vertical with animationFraction because computePosition
 				//will assume 0 for optionLeft==null when it should be startRect.left
 				if (startRect != null) {
-					horizontal[0] = (int) (horizontal[0] * animFraction + (1 - animFraction)
+					horizontal[0] = (int) Math.floor(horizontal[0] * animFraction + (1 - animFraction)
 							* startRect.left);
 					horizontal[1] = horizontal[0] + childMeasuredWidth;
 
-					vertical[0] = (int) (vertical[0] * animFraction + (1 - animFraction)
+					vertical[0] = (int) Math.floor(vertical[0] * animFraction + (1 - animFraction)
 							* startRect.top);
 					vertical[1] = vertical[0] + childMeasuredHeight;
 				}
@@ -1060,7 +1060,7 @@ public class TiCompositeLayout extends FreeLayout implements
 					break;
 				}
 				int oldValue = (oldParam != null)?oldParam.getAsPixels(parent):0;
-				result = (int) (result * fraction + (1 - fraction)* oldValue);
+				result = (int) Math.floor(result * fraction + (1 - fraction)* oldValue);
 			}
 		}
 		return result;
