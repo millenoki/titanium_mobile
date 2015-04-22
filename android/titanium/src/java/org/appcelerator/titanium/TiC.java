@@ -1479,6 +1479,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_EDITABLE = "editable";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_ELEVATION = "elevation";
+    
 	/**
 	 * @module.api
 	 */
@@ -2628,10 +2633,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_RIGHT_IMAGE = "rightImage";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_RIGHT_VIEW = "rightView";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_RIGHT_VIEW = "rightView";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SELECTOR = "selector";
 
 	/**
 	 * @module.api
