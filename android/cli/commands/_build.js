@@ -966,7 +966,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
             this.encryptJS = false;
             this.allowDebugging = true;
             this.allowProfiling = true;
-            this.includeAllTiModules = true;
+            this.includeAllTiModules = false;
             this.googlePlayServicesProp = false;
             this.proguard = false;
     }
