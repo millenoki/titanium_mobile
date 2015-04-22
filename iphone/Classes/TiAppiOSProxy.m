@@ -375,6 +375,81 @@
             nil];
 }
 
+- (NSDictionary *)buildNotificationPayload:(UILocalNotification *)notification
+{
+    //We need to map the repeatInterval interval to something Titanium can read
+    NSString *interval =@"none";
+    if([notification repeatInterval]== kCFCalendarUnitYear)
+    {
+        interval = @"yearly";
+        
+    }
+    if([notification repeatInterval]== kCFCalendarUnitMonth)
+    {
+        interval = @"monthly";
+        
+    }
+    if([notification repeatInterval]== kCFCalendarUnitWeek)
+    {
+        interval = @"weekly";
+        
+    }
+    if([notification repeatInterval]== kCFCalendarUnitDay)
+    {
+        interval = @"daily";
+        
+    }
+    
+    NSMutableDictionary *data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                 [notification fireDate],@"date",
+                                 interval,@"repeat",
+                                 NUMBOOL([notification hasAction]),@"hasAction",
+                                 nil];
+    
+    if([notification alertBody]!=nil)
+    {
+        [data setObject:[notification alertBody] forKey:@"alertBody"];
+    }
+    if([notification alertAction]!=nil)
+    {
+        [data setObject:[notification alertAction] forKey:@"alertAction"];
+    }
+    if([notification alertLaunchImage]!=nil)
+    {
+        [data setObject:[notification alertLaunchImage] forKey:@"alertLaunchImage"];
+    }
+    if([notification soundName]!=nil)
+    {
+        [data setObject:[notification soundName] forKey:@"sound"];
+    }
+    if([notification applicationIconBadgeNumber]!=0)
+    {
+        [data setObject:NUMINTEGER([notification applicationIconBadgeNumber]) forKey:@"badge"];
+    }
+    
+    if([notification userInfo]!=nil)
+    {
+        [data setObject:[notification userInfo] forKey:@"userInfo"];
+    }
+    
+    //NSLog(@"data: %@", data);
+    return data;
+}
+
+-(id) scheduledLocalNotifications
+{
+    //Get a list of all of the notifications I've got scheduled
+    NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
+    
+    //Check if we have any notifications scheduled
+    NSUInteger notificationCount = [notifications count];
+    NSMutableArray *notificationData = [NSMutableArray arrayWithCapacity:notificationCount];
+    [notifications enumerateObjectsUsingBlock:^(UILocalNotification* obj, NSUInteger idx, BOOL *stop) {
+        [notificationData addObject:[self buildNotificationPayload:obj]];
+    }];
+    return notificationData;
+}
+
 -(id)scheduleLocalNotification:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSDictionary);
