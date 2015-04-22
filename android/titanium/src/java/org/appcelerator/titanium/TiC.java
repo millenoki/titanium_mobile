@@ -1104,10 +1104,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_BROTHER = "brother";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_BUTTON = "button";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_BUTTON = "button";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_BUTTONS = "buttons";
 
 	/**
 	 * @module.api
