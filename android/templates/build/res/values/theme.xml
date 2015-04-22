@@ -60,8 +60,8 @@
 
     <!-- No ActionBar themes -->
     <style name="Theme.Titanium.NoActionBar" parent="Theme.Titanium">
-        <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="Theme.Titanium.NoActionBar.Fullscreen" parent="Theme.Titanium.NoActionBar">

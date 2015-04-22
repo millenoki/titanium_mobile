@@ -20,6 +20,7 @@ import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatButton;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.view.Gravity;
@@ -59,7 +60,7 @@ public class TiUIButton extends TiUINonViewGroupView
 		titlePadding.left = 8;
 		titlePadding.right = 8;
 		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
-		Button btn = new Button(proxy.getActivity())
+		AppCompatButton btn = new AppCompatButton(proxy.getActivity())
 		{
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)

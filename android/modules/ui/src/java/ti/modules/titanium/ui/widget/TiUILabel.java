@@ -34,6 +34,7 @@ import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
 import android.graphics.RectF;
 import android.os.Build;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -258,7 +259,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		}
 	}
 
-	public class EllipsizingTextView extends TextView {
+	public class EllipsizingTextView extends AppCompatTextView {
 
 		private TruncateAt ellipsize = null;
 		private TruncateAt multiLineEllipsize = null;

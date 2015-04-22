@@ -20,12 +20,12 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.widget.ListView;
 import android.widget.Button;
 import android.view.KeyEvent;
@@ -81,7 +81,7 @@ public class TiUIDialog extends TiUIView
 	}
 	
 	private void clearDialog() {
-        AlertDialog dialog = dialogWrapper.getDialog();
+        Dialog dialog = dialogWrapper.getDialog();
 	    if (dialog != null) {
             dialog.dismiss();
             dialog = null;
@@ -91,7 +91,7 @@ public class TiUIDialog extends TiUIView
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
-        AlertDialog dialog = dialogWrapper.getDialog();
+        AlertDialog dialog = (AlertDialog) dialogWrapper.getDialog();
 	    if (key.startsWith(TiC.PROPERTY_ACCESSIBILITY_PREFIX)) {
             if (dialog != null) {
                 ListView listView = dialog.getListView();
@@ -240,10 +240,10 @@ public class TiUIDialog extends TiUIView
 				getBuilder().setPositiveButton(text, null);
 				break;
 			case 1:
-				getBuilder().setNeutralButton(text, null);
+                getBuilder().setNegativeButton(text, null);
 				break;
 			case 2:
-				getBuilder().setNegativeButton(text, null);
+                getBuilder().setNeutralButton(text, null);
 				break;
 			default:
 				Log.e(TAG, "Only 3 buttons are supported");
@@ -277,7 +277,7 @@ public class TiUIDialog extends TiUIView
 
 	public void show(KrollDict options)
 	{
-		AlertDialog dialog = dialogWrapper.getDialog();
+		AlertDialog dialog = (AlertDialog) dialogWrapper.getDialog();
 		if (dialog == null) {
 			if (dialogWrapper.getActivity() == null) {
 				TiBaseActivity dialogActivity = (TiBaseActivity) getCurrentActivity();
@@ -365,7 +365,7 @@ public class TiUIDialog extends TiUIView
 	public void hide(KrollDict options)
 	{
 		fireEvent(TiC.EVENT_CLOSE, null, false);
-		AlertDialog dialog = dialogWrapper.getDialog();
+		Dialog dialog = dialogWrapper.getDialog();
 		if (dialog != null) {
 			dialog.dismiss();
 			dialogWrapper.getActivity().removeDialog(dialog);

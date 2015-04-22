@@ -18,7 +18,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.android.AndroidModule;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v7.internal.widget.TintCheckBox;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.SwitchCompat;
 import android.view.MotionEvent;
 import android.widget.CheckBox;
@@ -206,7 +206,7 @@ public class TiUISwitch extends TiUIView
 		switch (style) {
 			case AndroidModule.SWITCH_STYLE_CHECKBOX:
 				if (!(currentButton instanceof CheckBox)) {
-					button = new TintCheckBox(proxy.getActivity())
+					button = new AppCompatCheckBox(proxy.getActivity())
 					{
 						@Override
 						protected void onLayout(boolean changed, int left, int top, int right, int bottom)

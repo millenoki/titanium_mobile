@@ -23,7 +23,7 @@ import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import android.app.Activity;
 import android.content.Context;
-import android.support.v7.internal.widget.TintSpinner;
+import android.support.v7.widget.AppCompatSpinner;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,7 +86,7 @@ public class TiUINativePicker extends TiUIPicker
 	public TiUINativePicker(final TiViewProxy proxy, Activity activity)
 	{
 		this(proxy);
-		TintSpinner spinner = new TintSpinner(activity)
+		AppCompatSpinner spinner = new AppCompatSpinner(activity)
 		{
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
@@ -113,8 +113,8 @@ public class TiUINativePicker extends TiUIPicker
 		spinner.setOnItemSelectedListener(this);
 	}
 	
-	private Spinner getSpinner() {
-	    return (TintSpinner)getNativeView();
+	private AppCompatSpinner getSpinner() {
+	    return (AppCompatSpinner)getNativeView();
 	}
 	
 	private void preselectRows()

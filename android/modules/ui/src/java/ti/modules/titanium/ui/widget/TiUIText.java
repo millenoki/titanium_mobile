@@ -29,7 +29,7 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.support.v7.internal.widget.TintEditText;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
@@ -89,7 +89,7 @@ public class TiUIText extends TiUINonViewGroupView
 	protected FocusFixedEditText tv;
 	protected TiEditText realtv;
 
-	public class TiEditText extends TintEditText 
+	public class TiEditText extends AppCompatEditText 
 	{
 	    
 		public TiEditText(Context context) 

@@ -16,6 +16,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
@@ -27,7 +28,7 @@ public class TiUIActivityIndicator extends TiUIView
 	private static final String TAG = "TiUIActivityIndicator";
 
 	protected int currentStyle;
-	private TextView label;
+	private AppCompatTextView label;
 	private ProgressBar progress;
 	private LinearLayout view;
 
@@ -64,7 +65,7 @@ public class TiUIActivityIndicator extends TiUIView
 		view.setOrientation(LinearLayout.HORIZONTAL);
 		view.setGravity(Gravity.CENTER);
 
-		label = new TextView(activity);
+		label = new AppCompatTextView(activity);
 		label.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
 		label.setPadding(0, 0, 0, 0);
 		label.setSingleLine(false);

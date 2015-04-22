@@ -35,7 +35,6 @@ public class SwitchProxy extends ViewProxy
 	public SwitchProxy()
 	{
 		super();
-
         defaultValues.put(TiC.PROPERTY_VALUE, false);
         defaultValues.put(TiC.PROPERTY_STYLE, AndroidModule.SWITCH_STYLE_SWITCH);
 	}

@@ -45,7 +45,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -60,6 +59,8 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatDialog;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -125,10 +126,10 @@ public abstract class TiBaseActivity extends ActionBarActivity
 
 	public class DialogWrapper {
 		boolean isPersistent;
-		AlertDialog dialog;
+		Dialog dialog;
 		WeakReference<TiBaseActivity> dialogActivity;
 		
-		public DialogWrapper(AlertDialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
+		public DialogWrapper(Dialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
 			isPersistent = persistent;
 			dialog = d;
 			dialogActivity = activity;
@@ -148,7 +149,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 			dialogActivity = da;
 		}
 
-		public AlertDialog getDialog() {
+		public Dialog getDialog() {
 			return dialog;
 		}
 		
