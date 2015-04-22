@@ -2876,7 +2876,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
     }
 
     function addTitaniumLibrary(namespace) {
-        namespace = namespace.toLowerCase();
+        namespace = namespace.split('.')[0].toLowerCase();
         if (ignoreNamespaces.test(namespace) || tiNamespaces[namespace]) return;
 
         if (namespace === "googleplayservices") {
