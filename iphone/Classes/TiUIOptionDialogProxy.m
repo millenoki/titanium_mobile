@@ -136,14 +136,20 @@
     return @"Ti.UI.OptionDialog";
 }
 
-- (UIBarButtonItem *)createButtonWithTitle:(NSString*)title target:(id)target action:(SEL)buttonAction {
+
+- (UIBarButtonItem *)createButtonWithTitle:(NSString*)title style:(int)style target:(id)target action:(SEL)buttonAction {
     
-    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:target action:buttonAction];
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithTitle:title style:style target:target action:buttonAction];
     
     if (NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_6_1)
         [barButton setTintColor: [[UIApplication sharedApplication] keyWindow].tintColor];
     
     return barButton;
+}
+
+
+- (UIBarButtonItem *)createButtonWithTitle:(NSString*)title target:(id)target action:(SEL)buttonAction {
+    return [self createButtonWithTitle:title style:UIBarButtonItemStylePlain target:target action:buttonAction];
 }
 
 - (UIBarButtonItem *)createButtonWithStyle:(UIBarButtonSystemItem)style target:(id)target action:(SEL)buttonAction {
@@ -235,10 +241,16 @@
                 [customActionSheet setDoneButton:[self createButtonWithTitle:doneText target:self action:@selector(actionSheetDoneButtonClicked:)]];
                 [buttonNames removeObject:doneText];
             }
+            int curIndex = 0;
             for (id buttonName in buttonNames)
             {
                 NSString * thisButtonName = [TiUtils stringValue:buttonName];
-                [customActionSheet addCustomButtonWithTitle:thisButtonName value:buttonName];
+                if (curIndex == cancelButtonIndex) {
+                    [customActionSheet setCancelButton:[self createButtonWithTitle:thisButtonName style:UIBarButtonSystemItemCancel target:self action:@selector(actionSheetDoneButtonClicked:)]];
+                } else {
+                    [customActionSheet addCustomButtonWithTitle:thisButtonName value:buttonName];
+                }
+                curIndex++;
             }
         }
         else {
@@ -251,13 +263,15 @@
             
             [customActionSheet setCancelButton:[self createButtonWithStyle:UIBarButtonSystemItemCancel target:self action:@selector(actionSheetDoneButtonClicked:)]];
         }
-        if ([self valueForKey:@"tintColor"]) {
-            TiColor *ticolor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
-            customActionSheet.tintColor = [ticolor _color];
-        }
-        else {
-            UIView* topView = [[[TiApp app] controller] topWindowProxyView];
-            customActionSheet.tintColor = topView.tintColor;
+        if (NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_6_1) {
+            if ([self valueForKey:@"tintColor"]) {
+                TiColor *ticolor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
+                customActionSheet.tintColor = [ticolor _color];
+            }
+            else {
+                UIView* topView = [[[TiApp app] controller] topWindowProxyView];
+                customActionSheet.tintColor = [[UIApplication sharedApplication] keyWindow].tintColor;
+            }
         }
     }
     else {

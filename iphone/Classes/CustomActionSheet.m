@@ -115,6 +115,7 @@ CG_INLINE BOOL isIPhone4()
     if (self.titleBarButtonItem) {
         UILabel* label = (UILabel*)[self.titleBarButtonItem customView];
         [label setText:title];
+        [label sizeToFit];
     }
 }
 
@@ -143,6 +144,7 @@ static NSDictionary* htmlOptions;
         TiLabel* label = (TiLabel*)[self.titleBarButtonItem customView];
         
         [label setText:[[NSAttributedString alloc] initWithHTMLData:[htmlTitle dataUsingEncoding:NSUTF8StringEncoding] options:[self htmlOptions] documentAttributes:nil]];
+        [label sizeToFit];
     }
 }
 
@@ -330,7 +332,8 @@ static NSDictionary* htmlOptions;
     [toolBarItemlabel setTextAlignment:NSTextAlignmentCenter];
     [toolBarItemlabel setTextColor: (NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_6_1) ? [UIColor blackColor] : [UIColor whiteColor]];
     [toolBarItemlabel setFont:[UIFont boldSystemFontOfSize:16]];    
-    [toolBarItemlabel setBackgroundColor:[UIColor clearColor]];    
+    [toolBarItemlabel setBackgroundColor:[UIColor clearColor]];
+    [toolBarItemlabel sizeToFit];
     UIBarButtonItem *buttonLabel = [[UIBarButtonItem alloc]initWithCustomView:toolBarItemlabel];
     return buttonLabel;
 }
@@ -434,6 +437,17 @@ static NSDictionary* htmlOptions;
 - (void)actionSheetCancel:(SWActionSheet *)actionSheet {
     if ([_delegate respondsToSelector:@selector(customActionSheet:actionSheetCancel:)]) {
         [_delegate customActionSheetCancel:self];
+    }
+}
+
+- (void)notifyTarget:(id)target didSucceedWithAction:(SEL)successAction origin:(id)origin
+{
+    if ( target && successAction && [target respondsToSelector:successAction] )
+    {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [target performSelector:successAction withObject:origin];
+#pragma clang diagnostic pop
     }
 }
 
