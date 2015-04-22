@@ -768,7 +768,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 		windows.clear();
 	}
 
-	public void onStop(Activity activity) {
+	public void onDestroy(Activity activity) {
 		clearWindowsStack(true);
 	}
 	
