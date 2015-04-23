@@ -2095,7 +2095,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     null);
             if (proxy == null)
                 return null;
-            proxy.initFromTemplate(template_, proxy, false, true);
+            proxy.initFromTemplate(template_, proxy, true, true);
             return proxy;
         } catch (Exception e) {
             Log.e(TAG, "Error creating view from dict: " + e.toString());
