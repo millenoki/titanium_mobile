@@ -1404,7 +1404,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
     public Object getCurrent() {
         if (mCursor != null) {
             return mCursor;
-        } else if (mOriginalQueue != null) {
+        } else if (mOriginalQueue != null && mPlayPos >=0) {
             return mOriginalQueue.get(mPlayPos);
         }
         return null;
@@ -1591,6 +1591,9 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                 open(getPlayerProxy().getInternalPlaylist(), 0);
             }
         } else {
+            if (mPlayPos == -1) {
+                mPlayPos = 0;
+            }
             openCurrentAndNext();
             play();
             // notifyChange(META_CHANGED);
