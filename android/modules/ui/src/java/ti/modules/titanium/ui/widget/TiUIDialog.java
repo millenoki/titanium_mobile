@@ -210,9 +210,9 @@ public class TiUIDialog extends TiUIView
 		Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
 		if (button!= null )button.setOnClickListener(new ClickHandler(0 | BUTTON_MASK));
 		button = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-		if (button!= null )button.setOnClickListener(new ClickHandler(2 | BUTTON_MASK));
-		button = dialog.getButton(DialogInterface.BUTTON_NEUTRAL);
 		if (button!= null )button.setOnClickListener(new ClickHandler(1 | BUTTON_MASK));
+		button = dialog.getButton(DialogInterface.BUTTON_NEUTRAL);
+		if (button!= null )button.setOnClickListener(new ClickHandler(2 | BUTTON_MASK));
 	}
 
 	private void processButtons(String[] buttonText)
