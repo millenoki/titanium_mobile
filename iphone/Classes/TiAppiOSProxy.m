@@ -520,7 +520,7 @@
 		}
 	}
 	
-	TiThreadPerformOnMainThread(^{
+	TiThreadPerformBlockOnMainThread(^{
 		if (date!=nil) {
 			[[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
 		}
@@ -534,6 +534,28 @@
 
 	[localNotif release];
 	return lp;
+}
+
+-(id)isLocalNotificationScheduled:(id)args
+{
+    ENSURE_SINGLE_ARG(args,NSObject);
+    __block BOOL result = NO;
+    TiThreadPerformBlockOnMainThread(^{
+        NSArray *notifications = [[UIApplication sharedApplication] scheduledLocalNotifications];
+        if (notifications!=nil)
+        {
+            for (UILocalNotification *notification in notifications)
+            {
+                if([[[notification userInfo] objectForKey:@"id"] isEqual:args])
+                {
+                    result = YES;
+                    break;
+                }
+            }
+        }
+    }, YES);
+    
+    return @(result);
 }
 
 -(void)cancelAllLocalNotifications:(id)args
