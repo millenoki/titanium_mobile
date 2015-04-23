@@ -158,6 +158,7 @@ public class TiUISwitch extends TiUIView
     protected void didProcessProperties() {
         super.didProcessProperties();
         getButton().invalidate();
+        ignoreChangeEvent = false;
     }
 	
 	private CompoundButton getButton() {
