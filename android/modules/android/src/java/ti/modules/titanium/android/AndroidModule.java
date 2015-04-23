@@ -364,6 +364,17 @@ public class AndroidModule extends KrollModule
 		return _AppActivityClassName;
 	}
 
+	
+	@Kroll.method
+    public void showMainActivity()
+    {
+        TiApplication app = TiApplication.getInstance();
+	    Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        i.setAction(Intent.ACTION_MAIN);
+        app.startActivity(i);
+    }
 
 	@Kroll.method
 	public void startService(IntentProxy intentProxy)
