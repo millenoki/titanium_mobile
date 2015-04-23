@@ -363,7 +363,6 @@ public class AndroidModule extends KrollModule
 		}
 		return _AppActivityClassName;
 	}
-
 	
 	@Kroll.method
     public void showMainActivity()
@@ -377,8 +376,12 @@ public class AndroidModule extends KrollModule
     }
 
 	@Kroll.method
-	public void startService(IntentProxy intentProxy)
+	public void startService(Object intentValue)
 	{
+	    IntentProxy intentProxy = IntentProxy.fromObject(intentValue);
+        if (intentProxy == null) { 
+            return;
+        }
 		TiApplication app = TiApplication.getInstance();
 		if (app != null) {
 			app.startService(intentProxy.getIntent());
@@ -388,8 +391,12 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void stopService(IntentProxy intentProxy)
+	public void stopService(Object intentValue)
 	{
+	    IntentProxy intentProxy = IntentProxy.fromObject(intentValue);
+        if (intentProxy == null) { 
+            return;
+        }
 		TiApplication app = TiApplication.getInstance();
 		if (app != null) {
 			app.stopService(intentProxy.getIntent());
@@ -399,8 +406,12 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public boolean isServiceRunning(IntentProxy intentProxy)
-	{
+	public boolean isServiceRunning(Object intentValue)
+    {
+        IntentProxy intentProxy = IntentProxy.fromObject(intentValue);
+        if (intentProxy == null) { 
+            return false;
+        }
 		Intent intent = intentProxy.getIntent();
 		if (intent == null) {
 			Log.w(TAG, "isServiceRunning called with empty intent.  Will return false, but value is meaningless.");
@@ -460,8 +471,12 @@ public class AndroidModule extends KrollModule
 	 * A "bound" service instance. Returns the proxy so that .start and .stop can be called directly on the service.
 	 */
 	@Kroll.method
-	public ServiceProxy createService(IntentProxy intentProxy)
-	{
+	public ServiceProxy createService(Object intentValue)
+    {
+        IntentProxy intentProxy = IntentProxy.fromObject(intentValue);
+        if (intentProxy == null) { 
+            return null;
+        }
 		return new ServiceProxy(intentProxy);
 	}
 

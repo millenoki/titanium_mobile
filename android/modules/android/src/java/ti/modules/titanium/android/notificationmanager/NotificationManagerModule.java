@@ -80,8 +80,9 @@ public class NotificationManagerModule extends KrollModule
 	}
 	
 	@Kroll.method
-	public void notify(int id, NotificationProxy notificationProxy)
+	public void notify(int id, Object notificationValue)
 	{
+	    NotificationProxy notificationProxy = NotificationProxy.fromObject(notificationValue);
 		NotificationManager manager = getManager();
 		if (manager != null && notificationProxy != null) {
 		    try {
