@@ -111,8 +111,6 @@ CG_INLINE BOOL isIPhone4()
             self.barButtonItem = origin;
         else if ( [origin isKindOfClass:[UIView class]] )
             self.containerView = origin;
-        else
-            NSAssert(NO, @"Invalid origin provided to ActionSheetPicker ( %@ )", origin);
 
         UIBarButtonItem *sysDoneButton = [self createButtonWithType:UIBarButtonSystemItemDone target:self
                                                              action:@selector(actionPickerDone:)];
@@ -239,7 +237,7 @@ CG_INLINE BOOL isIPhone4()
 #else
     if (self.actionSheet && [self.actionSheet isVisible])
 #endif
-        [_actionSheet dismissWithClickedButtonIndex:0 animated:YES];
+        [_actionSheet dismissWithClickedButtonIndex:-1 animated:YES];
     else if ( self.popOverController && self.popOverController.popoverVisible )
         [_popOverController dismissPopoverAnimated:YES];
     if (_actionSheet) {

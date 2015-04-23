@@ -80,6 +80,7 @@ CG_INLINE BOOL isIPhone4()
         self.presentFromRect = CGRectZero;
         self.dismissOnAction = YES;
         self.tapOutDismiss = NO;
+        self.cancelIndex = -1;
         self.style = UIActionSheetStyleDefault;
     }
     return self;
@@ -387,7 +388,7 @@ static NSDictionary* htmlOptions;
 -(void)tapOut:(UIGestureRecognizer *)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.pickerView.superview];
     if (p.y < 0) { // They tapped outside
-        [self dismissWithClickedButtonIndex:0 animated:YES];
+        [self dismissWithClickedButtonIndex:self.cancelIndex animated:YES];
     }
 }
 

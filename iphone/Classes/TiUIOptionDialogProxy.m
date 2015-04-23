@@ -208,15 +208,14 @@
     }
     
     if([self valueForKey:@"customView"]) {
-        customActionSheet = [[TiCustomActionSheet alloc] initWithTarget:self];
+        customActionSheet = [[TiCustomActionSheet alloc] initWithTarget:self successAction:@selector(actionSheetDoneButtonClicked:) cancelAction:@selector(actionSheetCancelButtonClicked:) origin:nil];
         [customActionSheet setDelegate:self];
         customActionSheet.dismissOnAction = hideOnClick;
         [customActionSheet setCustomView:[self valueForKey:@"customView"] fromProxy:self];
         [customActionSheet setHtmlTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
         
         NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
-        cancelButtonIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
-        
+        cancelButtonIndex = customActionSheet.cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
         customActionSheet.tapOutDismiss = [TiUtils boolValue:[self valueForKey:@"tapOutDismiss"] def:cancelButtonIndex != -1];
         if (buttonNames==nil || (id)buttonNames == [NSNull null])
         {
@@ -246,7 +245,7 @@
             {
                 NSString * thisButtonName = [TiUtils stringValue:buttonName];
                 if (curIndex == cancelButtonIndex) {
-                    [customActionSheet setCancelButton:[self createButtonWithTitle:thisButtonName style:UIBarButtonSystemItemCancel target:self action:@selector(actionSheetDoneButtonClicked:)]];
+                    [customActionSheet setCancelButton:[self createButtonWithTitle:thisButtonName style:UIBarButtonSystemItemCancel target:self action:@selector(actionSheetCancelButtonClicked:)]];
                 } else {
                     [customActionSheet addCustomButtonWithTitle:thisButtonName value:buttonName];
                 }
@@ -261,7 +260,7 @@
                 [customActionSheet setDoneButton:[self createButtonWithStyle:UIBarButtonSystemItemDone target:self action:@selector(actionSheetDoneButtonClicked:)]];
             }
             
-            [customActionSheet setCancelButton:[self createButtonWithStyle:UIBarButtonSystemItemCancel target:self action:@selector(actionSheetDoneButtonClicked:)]];
+            [customActionSheet setCancelButton:[self createButtonWithStyle:UIBarButtonSystemItemCancel target:self action:@selector(actionSheetCancelButtonClicked:)]];
         }
         if (NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_6_1) {
             if ([self valueForKey:@"tintColor"]) {
@@ -383,10 +382,9 @@
     if (customActionSheet) {
         if ([self _hasListeners:@"click"])
         {
-            BOOL isCancel = (buttonIndex == 0);
-            NSInteger index = isCancel?cancelButtonIndex:buttonIndex;
+            BOOL isCancel = (buttonIndex == cancelButtonIndex);
             NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   @(index),@"index",
+                                   @(buttonIndex),@"index",
                                    @(isCancel),@"cancel",
                                    nil];
             [self fireEvent:@"click" withObject:event];
