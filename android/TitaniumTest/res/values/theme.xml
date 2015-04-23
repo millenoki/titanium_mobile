@@ -6,11 +6,12 @@
 
     <style name="BaseTheme" parent="Theme.AppCompat">
 
-		    <item name="colorPrimary">#31B7ED</item>
-		
+            <item name="colorPrimary">#31B7ED</item>
+            <item name="colorPrimary">#31B7ED</item>
+            		
 		    <!-- colorPrimaryDark is used for the status bar -->
 		    <item name="colorPrimaryDark">#3E7B8D</item>
-		
+		    		
 		    <!-- colorAccent is used as the default value for colorControlActivated
 		         which is used to tint widgets -->
 		    <item name="colorAccent">#31B7ED</item>
@@ -40,8 +41,8 @@
         <item name="android:actionBarStyle">@style/TransparentActionBar</item>
     </style>
 	<style name="Theme.Titanium.NoActionBar" parent="Theme.Titanium">
-		<item name="android:windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
+		<item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
 	</style>
 	<style name="Theme.Titanium.NoActionBar.Fullscreen" parent="Theme.Titanium.NoActionBar">
 		<item name="android:windowFullscreen">true</item>

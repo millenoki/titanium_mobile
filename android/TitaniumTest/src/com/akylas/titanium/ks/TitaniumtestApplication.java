@@ -39,9 +39,9 @@ public final class TitaniumtestApplication extends TiApplication
 			      put("akylas.commonjs", new Class[]{akylas.commonjs.AkylasCommonjsBootstrap.class, akylas.commonjs.AkylasCommonjsModule.class});
 			      put("akylas.slidemenu", new Class[]{akylas.slidemenu.AkylasSlidemenuBootstrap.class, akylas.slidemenu.AkylasSlidemenuModule.class});
 //                  put("akylas.mapbox", new Class[]{akylas.mapbox.AkylasMapboxBootstrap.class, akylas.mapbox.AkylasMapboxModule.class});
-                  put("akylas.map", new Class[]{akylas.map.AkylasMapBootstrap.class, akylas.googlemap.AkylasGoogleMapModule.class});
-                  put("akylas.charts", new Class[]{akylas.charts.AkylasChartsBootstrap.class, akylas.charts.AkylasChartsModule.class});
-                  put("akylas.location", new Class[]{akylas.location.AkylasLocationBootstrap.class, akylas.location.AkylasLocationModule.class});
+//                  put("akylas.googlemap", new Class[]{akylas.googlemap.AkylasGooglemapBootstrap.class, akylas.googlemap.AkylasGooglemapModule.class});
+//                  put("akylas.charts", new Class[]{akylas.charts.AkylasChartsBootstrap.class, akylas.charts.AkylasChartsModule.class});
+//                  put("akylas.location", new Class[]{akylas.location.AkylasLocationBootstrap.class, akylas.location.AkylasLocationModule.class});
 //                  put("akylas.admob", new Class[]{akylas.admob.AkylasAdmobBootstrap.class, akylas.admob.AkylasAdmobModule.class});
 //                  put("akylas.triton", new Class[]{akylas.triton.AkylasTritonBootstrap.class, akylas.admob.AkylasAdmobModule.class});
 //                  put("facebook", new Class[]{facebook.FacebookBootstrap.class, facebook.FacebookModule.class});
