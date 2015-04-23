@@ -2,7 +2,6 @@ package org.appcelerator.titanium.util;
 
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,21 +70,25 @@ public class TiActivityHelper {
                 + line.substring(1).toLowerCase();
     }
 
+    private static String sMainActivityName = null;
     public static String getMainActivityName() {
-        Pattern pattern = Pattern.compile("[^A-Za-z0-9_]");
-        ITiAppInfo appInfo = TiApplication.getInstance().getAppInfo();
-        String str = appInfo.getName();
-        String className = "";
-        String[] splitStr = pattern.split(str);
-        for (int i = 0; i < splitStr.length; i++) {
-            className = className + capitalize(splitStr[i]);
+        if (sMainActivityName == null) {
+            Pattern pattern = Pattern.compile("[^A-Za-z0-9_]");
+            ITiAppInfo appInfo = TiApplication.getInstance().getAppInfo();
+            String str = appInfo.getName();
+            String className = "";
+            String[] splitStr = pattern.split(str);
+            for (int i = 0; i < splitStr.length; i++) {
+                className = className + capitalize(splitStr[i]);
+            }
+            Pattern pattern2 = Pattern.compile("^[0-9]");
+            Matcher matcher = pattern2.matcher(className);
+            if (matcher.matches()) {
+                className = "_" + className;
+            }
+            sMainActivityName = appInfo.getId() + "." + className + "Activity";
         }
-        Pattern pattern2 = Pattern.compile("^[0-9]");
-        Matcher matcher = pattern2.matcher(className);
-        if (matcher.matches()) {
-            className = "_" + className;
-        }
-        return appInfo.getId() + "." + className + "Activity";
+        return sMainActivityName;
     }
 
     public static ActionBar getActionBar(final Activity activity) {
