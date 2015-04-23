@@ -877,9 +877,6 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         return source;
     }
 
-    private void setDefaultImageSource(Object object) {
-        defaultImageSource = makeImageSource(object);
-    }
 
     private void setImageInternal() {
 
@@ -940,6 +937,11 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 }
             }
         }
+        if (imageSources == null || imageSources.size() == 0
+                || imageSources.get(0) == null
+                || imageSources.get(0).isTypeNull()) {
+            setDefaultImage(false);
+        }
         super.didProcessProperties();
     }
     
@@ -991,6 +993,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                     setDrawable(currentImage, !onlyTransitionIfRemote);
                 }
             }
+            break;
+        case TiC.PROPERTY_DEFAULT_IMAGE:
+            defaultImageSource = makeImageSource(newValue);
             break;
         case TiC.PROPERTY_IMAGE:
             boolean changeImage = true;
