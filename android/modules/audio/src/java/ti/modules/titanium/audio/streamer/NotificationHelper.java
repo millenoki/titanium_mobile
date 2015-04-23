@@ -180,6 +180,7 @@ public class NotificationHelper {
             // Notification Builder
             mNotification = new NotificationCompat.Builder(mService)
                     .setSmallIcon(mIcon).setContentIntent(getPendingIntent())
+                    .setOngoing(true)
                     .setPriority(Notification.PRIORITY_DEFAULT)
                     .setContent(mView).build();
             // Control playback from the notification
