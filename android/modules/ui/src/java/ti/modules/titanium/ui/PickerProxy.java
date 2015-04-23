@@ -31,6 +31,7 @@ import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
 import ti.modules.titanium.ui.widget.picker.TiUIDateSpinner;
 import ti.modules.titanium.ui.widget.picker.TiUINativePicker;
 import ti.modules.titanium.ui.widget.picker.TiUIPicker;
+import ti.modules.titanium.ui.widget.picker.TiUIPickerInterface;
 import ti.modules.titanium.ui.widget.picker.TiUISpinner;
 import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 import ti.modules.titanium.ui.widget.picker.TiUITimeSpinner;
@@ -45,7 +46,7 @@ import android.widget.DatePicker;
 import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
-        "locale", "visibleItems", TiC.PROPERTY_VALUE,
+        "locale", "visibleItems",
         TiC.PROPERTY_CALENDAR_VIEW_SHOWN, TiC.PROPERTY_FONT })
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class PickerProxy extends ViewProxy implements PickerColumnListener {
@@ -143,6 +144,18 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
     public boolean getUseSpinner() {
         return useSpinner;
     }
+    
+
+    @Kroll.getProperty
+    @Kroll.method
+    public Object getValue() {
+        TiUIView view = peekView();
+        if (view instanceof TiUIPickerInterface) {
+            return ((TiUIPickerInterface) view).getValue();
+        }
+        return getProperty(TiC.PROPERTY_VALUE);
+    }
+
 
     @Kroll.setProperty
     @Kroll.method

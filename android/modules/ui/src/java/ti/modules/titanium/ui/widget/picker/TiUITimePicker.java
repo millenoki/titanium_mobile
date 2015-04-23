@@ -22,7 +22,7 @@ import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
 public class TiUITimePicker extends TiUIView
-	implements OnTimeChangedListener
+	implements OnTimeChangedListener, TiUIPickerInterface
 {
 	private static final String TAG = "TiUITimePicker";
 	private boolean suppressChangeEvent = false;
@@ -39,7 +39,7 @@ public class TiUITimePicker extends TiUIView
 		this(proxy);
 		Log.d(TAG, "Creating a time picker", Log.DEBUG_MODE);
 		
-		TimePicker picker = new TimePicker(activity)
+		final TimePicker picker = new TimePicker(activity)
 		{
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
@@ -50,7 +50,18 @@ public class TiUITimePicker extends TiUIView
 		};
 		picker.setIs24HourView(false);
 		picker.setOnTimeChangedListener(this);
+		
 		setNativeView(picker);
+	}
+	
+	@Override
+	public void release() {
+	    updateValue();
+	    super.release();
+	}
+	
+	private TimePicker getPicker() {
+	    return (TimePicker) nativeView;
 	}
 	
     @Override
@@ -139,15 +150,36 @@ public class TiUITimePicker extends TiUIView
 	@Override
 	public void onTimeChanged(TimePicker view, int hourOfDay, int minute)
 	{
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-		calendar.set(Calendar.MINUTE, minute);
-		if (!suppressChangeEvent && hasListeners(TiC.EVENT_CHANGE)) {
-			KrollDict data = new KrollDict();
-			data.put("value", calendar.getTime());
-			fireEvent(TiC.EVENT_CHANGE, data, false, false);		
-		}
-		// Make sure .value is readable by user
-		proxy.setProperty("value", calendar.getTime());
+	    updateValue();
 	}
+	
+	private void updateValue() {
+        int hours = getPicker().getCurrentHour();
+        int minutes = getPicker().getCurrentMinute();
+        Date currentDate = (Date) proxy.getProperty(TiC.PROPERTY_VALUE);
+        boolean needsUpdate = currentDate == null;
+        Calendar calendar = Calendar.getInstance();
+        if (currentDate != null) {
+            calendar.setTime(currentDate);
+            needsUpdate = calendar.get(Calendar.MINUTE) != minutes ||
+                    calendar.get(Calendar.HOUR_OF_DAY) != hours;
+        }
+        if (needsUpdate) {
+            calendar.set(Calendar.HOUR_OF_DAY, hours);
+            calendar.set(Calendar.MINUTE, minutes);
+            if (!suppressChangeEvent && hasListeners(TiC.EVENT_CHANGE)) {
+                KrollDict data = new KrollDict();
+                data.put(TiC.PROPERTY_VALUE, calendar.getTime());
+                fireEvent(TiC.EVENT_CHANGE, data, false, false);        
+            }
+            // Make sure .value is readable by user
+            proxy.setProperty(TiC.PROPERTY_VALUE, calendar.getTime());
+        }
+	}
+	
+    @Override
+    public Object getValue() {
+        updateValue();
+        return proxy.getProperty(TiC.PROPERTY_VALUE);
+    }
 }
