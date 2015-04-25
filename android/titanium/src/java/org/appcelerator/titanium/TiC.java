@@ -2785,7 +2785,7 @@ public class TiC
     /**
      * @module.api
      */
-    public static final String PROPERTY_SELECTED_ROW = "selectedRow";
+    public static final String PROPERTY_SELECTED_ROW = "selectedRows";
 
 	/**
 	 * @module.api
