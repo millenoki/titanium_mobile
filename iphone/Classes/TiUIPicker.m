@@ -14,9 +14,20 @@
 #define DEFAULT_ROW_HEIGHT 40
 #define DEFAULT_COLUMN_PADDING 30
 
-@implementation TiUIPicker
+@implementation TiUIPicker {
+    WebFont* _font;
+}
 
 #pragma mark Internal
+
+-(id)init
+{
+    if (self = [super init]) {
+        _font = [[WebFont defaultFont] retain];
+    }
+    return self;
+}
+
 
 -(void)dealloc
 {
@@ -213,6 +224,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	}
 }
 
+-(void)setFont_:(id)fontValue
+{
+    _font = [[TiUtils fontValue:fontValue def:[WebFont defaultFont]] retain];
+}
+
 //TODO: minute interval
 
 -(void)setValue_:(id)date
@@ -231,7 +247,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 	if ([self isDatePicker] && ([(UIDatePicker*)picker datePickerMode] != UIDatePickerModeCountDownTimer)) {
 		return [(UIDatePicker*)[self picker] date];
 	}
-	return nil;
+	return [self.proxy valueForUndefinedKey:@"value"];
 }
 
 -(void)setLocale_:(id)value
@@ -349,10 +365,17 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
     TiUIPickerColumnProxy *proxy = [self columnAt:component];
     TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+    WebFont* font = _font;
+    if ([rowproxy valueForKey:@"font"]) {
+        font = [TiUtils fontValue:[rowproxy valueForKey:@"font"] def:_font];
+    } else if ([proxy valueForKey:@"font"]) {
+        font = [TiUtils fontValue:[proxy valueForKey:@"font"] def:_font];
+    }
+    
     CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component]-20, [self pickerView:pickerView rowHeightForComponent:component]);
-
+    
     //Get the View
-    UIView* theView = [rowproxy viewWithFrame:frame reusingView:view];
+    UIView* theView = [rowproxy viewWithFrame:frame reusingView:view withFont:font];
     
     //Configure Accessibility
     theView.isAccessibilityElement = YES;
@@ -364,44 +387,50 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
-	if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
-	{
-        TiUIPickerColumnProxy *proxy = [self columnAt:component];
-        TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
-		NSMutableArray *selected = [NSMutableArray array];
-		NSInteger colIndex = 0;
-		for (TiUIPickerColumnProxy *col in [self columns])
-		{
-			NSInteger rowIndex = row;
-			if (component!=colIndex)
-			{
-				rowIndex = [pickerView selectedRowInComponent:colIndex];
-			}
-			TiUIPickerRowProxy *rowSelected = [col rowAt:rowIndex];
-			NSString *title = [rowSelected valueForUndefinedKey:@"title"];
-			// if they have a title, make that the value otherwise use the row proxy
-			if (title!=nil)
-			{
-				[selected addObject:title];
-			}
-			else if(rowSelected!=nil)
-			{
-				[selected addObject:rowSelected];
-			}
-			else
-			{
-				[selected addObject:[NSNull null]];
-			}
+	
+    TiUIPickerColumnProxy *proxy = [self columnAt:component];
+    TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+    NSMutableArray *selected = [NSMutableArray array];
+    NSMutableArray *selectedIndexes = [NSMutableArray array];
+    NSInteger colIndex = 0;
+    for (TiUIPickerColumnProxy *col in [self columns])
+    {
+        NSInteger rowIndex = row;
+        if (component!=colIndex)
+        {
+            rowIndex = [pickerView selectedRowInComponent:colIndex];
+        }
+        [selectedIndexes addObject:@(rowIndex)];
+        TiUIPickerRowProxy *rowSelected = [col rowAt:rowIndex];
+        NSString *title = [rowSelected valueForUndefinedKey:@"title"];
+        // if they have a title, make that the value otherwise use the row proxy
+        if (title!=nil)
+        {
+            [selected addObject:title];
+        }
+        else if(rowSelected!=nil)
+        {
+            [selected addObject:rowSelected];
+        }
+        else
+        {
+            [selected addObject:[NSNull null]];
+        }
 
-			colIndex++;
-		}
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-							   selected,@"selectedValue",
-							   NUMINTEGER(row),@"rowIndex",
-							   NUMINTEGER(component),@"columnIndex",
-							   proxy,@"column",
-							   rowproxy,@"row",
-							   nil];
+        colIndex++;
+    }
+    
+    [self.proxy replaceValue:selectedIndexes forKey:@"selectedRows" notification:NO];
+    [self.proxy replaceValue:selected forKey:@"value" notification:NO];
+    if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
+    {
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               selected,@"value",
+                               NUMINTEGER(row),@"rowIndex",
+                               NUMINTEGER(component),@"columnIndex",
+                               proxy,@"column",
+                               rowproxy,@"row",
+                               nil];
 		[self.proxy fireEvent:@"change" withObject:event propagate:NO checkForListener:NO];
 	}
 }
@@ -410,20 +439,20 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
     if (sender == picker) {
         
+        NSDictionary *event = nil;
+        if ( [self isDatePicker] && [(UIDatePicker*)picker datePickerMode] == UIDatePickerModeCountDownTimer ) {
+            double val = [(UIDatePicker*)picker countDownDuration]*1000;
+            NSNumber* newDuration = [NSNumber numberWithDouble:val];
+            event = [NSDictionary dictionaryWithObjectsAndKeys:newDuration,@"value",nil];
+            [self.proxy replaceValue:newDuration forKey:@"value" notification:NO];
+        }
+        else {
+            NSDate *date = [(UIDatePicker*)picker date];
+            event = [NSDictionary dictionaryWithObjectsAndKeys:date,@"value",nil];
+            [self.proxy replaceValue:date forKey:@"value" notification:NO];
+        }
         if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
         {
-            NSDictionary *event = nil;
-            if ( [self isDatePicker] && [(UIDatePicker*)picker datePickerMode] == UIDatePickerModeCountDownTimer ) {
-                double val = [(UIDatePicker*)picker countDownDuration]*1000;
-                NSNumber* newDuration = [NSNumber numberWithDouble:val];
-                event = [NSDictionary dictionaryWithObjectsAndKeys:newDuration,@"countDownDuration",nil];
-                [self.proxy replaceValue:newDuration forKey:@"countDownDuration" notification:NO];
-            }
-            else {
-                NSDate *date = [(UIDatePicker*)picker date];
-                event = [NSDictionary dictionaryWithObjectsAndKeys:date,@"value",nil];
-                [self.proxy replaceValue:date forKey:@"value" notification:NO];
-            }
             [self.proxy fireEvent:@"change" withObject:event propagate:NO checkForListener:NO];
         }
     }

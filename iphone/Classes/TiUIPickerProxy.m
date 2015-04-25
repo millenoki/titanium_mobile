@@ -37,29 +37,23 @@ NSArray* pickerKeySequence;
     return @"Ti.UI.Picker";
 }
 
--(void)_destroy
-{
-	RELEASE_TO_NIL(selectOnLoad);
-	[super _destroy];
-}
-
 -(void)viewDidAttach
 {
     [super viewDidAttach];
+    NSArray* selectOnLoad  =[self valueForUndefinedKey:@"selectedRows"];
     if (selectOnLoad != nil) {
-        [self setSelectedRow:selectOnLoad];
-        RELEASE_TO_NIL(selectOnLoad);
+        [self setSelectedRows:selectOnLoad];
     }
 }
 
--(void)windowDidOpen
-{
-    [super windowDidOpen];
-    if (selectOnLoad != nil) {
-        [self setSelectedRow:selectOnLoad];
-        RELEASE_TO_NIL(selectOnLoad);
-    }
-}
+//-(void)windowDidOpen
+//{
+//    [super windowDidOpen];
+//    NSArray* selectOnLoad  =[self valueForUndefinedKey:@"selectedRows"];
+//    if (selectOnLoad != nil) {
+//        [self setSelectedRows:selectOnLoad];
+//    }
+//}
 
 -(BOOL)supportsNavBarPositioning
 {
@@ -295,42 +289,19 @@ NSArray* pickerKeySequence;
 //	//TODO
 //}
 
--(id)getSelectedRow:(id)args
+-(void)setSelectedRows:(id)args
 {
-	ENSURE_SINGLE_ARG(args,NSObject);
 	if ([self viewAttached])
 	{
-		return [(TiUIPicker*)[self view] selectedRowForColumn:[TiUtils intValue:args]];
+        TiThreadPerformBlockOnMainThread(^{
+            BOOL animated = YES;
+            for (int i = 0; i < [args count]; i++) {
+                [(TiUIPicker*)[self view] selectRowForColumn:i row:[TiUtils intValue:[args objectAtIndex:i]] animated:animated];
+            }
+        }, NO);
+		
 	}
-	return nil;
-}
-
--(void)setSelectedRow:(id)args
-{
-	ENSURE_UI_THREAD(setSelectedRow,args);
-	
-	if ([self viewAttached])
-	{
-		NSInteger column = [TiUtils intValue:[args objectAtIndex:0]];
-		NSInteger row = [TiUtils intValue:[args objectAtIndex:1]];
-		BOOL animated = [args count]>2 ? [TiUtils boolValue:[args objectAtIndex:2]] : YES;
-		[(TiUIPicker*)[self view] selectRowForColumn:column row:row animated:animated];
-	}
-	else {
-		if (selectOnLoad != args) {
-			RELEASE_TO_NIL(selectOnLoad);
-			// Hilarious!  selectOnLoad CAN'T be animated - otherwise the picker doesn't actually set the row.
-			// This is a tasty classic of an Apple bug.  So, we manually set the 'animated' value to NO, 100 of the time.
-			NSMutableArray* mutableArgs = [NSMutableArray arrayWithArray:args];
-			if ([mutableArgs count] > 2) {
-				[mutableArgs replaceObjectAtIndex:2 withObject:NUMBOOL(NO)];
-			}
-			else {
-				[mutableArgs addObject:NUMBOOL(NO)];
-			}
-			selectOnLoad = [mutableArgs retain];
-		}
-	}
+    [self replaceValue:args forKey:@"selectedRows" notification:NO];
 }
 
 -(void)setColumns:(id)args
@@ -344,7 +315,9 @@ NSArray* pickerKeySequence;
             if (IS_OF_CLASS(rows, NSArray)) {
                 TiUIPickerColumnProxy *column = [self columnAt:idx];
                 [rows enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    NSDictionary* params = IS_OF_CLASS(obj, NSDictionary)?obj:@{@"title":[TiUtils stringValue:obj]};
+                    NSDictionary* params = IS_OF_CLASS(obj, NSDictionary)?obj:@{
+                                                                                @"title":[TiUtils stringValue:obj]
+                                                                                };
                     [column add:params];
                 }];
             }

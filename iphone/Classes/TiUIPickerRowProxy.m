@@ -21,7 +21,7 @@
     return @"Ti.UI.PickerRow";
 }
 
--(UIView*)viewWithFrame:(CGRect)theFrame reusingView:(UIView*)theView
+-(UIView*)viewWithFrame:(CGRect)theFrame reusingView:(UIView*)theView withFont:( WebFont *)pickerFont
 {
     //The picker on IOS seems to consist of 3 tableViews (or some derivative of it) each of which calls the
     //delegate method. So we have a singleView from our proxy residing in 3 superViews.
@@ -31,7 +31,6 @@
     //Upside -> It works and is performant. Accessibility is configured on the delegate
     
     NSString *title = [self valueForKey:@"title"];
-    WebFont *pickerFont = [TiUtils fontValue:[self valueForKey:@"font"] def:[WebFont defaultFont]];
     if (title!=nil) {
         UILabel *pickerLabel = nil;
 		
