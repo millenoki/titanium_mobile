@@ -357,7 +357,7 @@
 +(WebFont *)defaultBoldFont
 {
 	WebFont * result = [[self alloc] init];
-	result.size = 15;
+	result.size = [UIFont labelFontSize];
 	result.isBoldWeight = YES;
 	return [result autorelease];
 }
@@ -365,7 +365,7 @@
 +(WebFont *)defaultItalicFont
 {
     WebFont * result = [[self alloc] init];
-    result.size = 15;
+    result.size = [UIFont labelFontSize];
     result.isItalicStyle = YES;
     return [result autorelease];
 }
@@ -374,7 +374,7 @@
 +(WebFont *)defaultFont
 {
 	WebFont * result = [[self alloc] init];
-	result.size = 15;
+	result.size = [UIFont labelFontSize];
 	return [result autorelease];
 }
 
@@ -382,7 +382,7 @@
 {
 	WebFont * result = [[self alloc] init];
 	result.family = [[name copy] autorelease];
-	result.size = 15;
+	result.size = [UIFont labelFontSize];
 	return [result autorelease];
 }
 
