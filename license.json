@@ -129,14 +129,14 @@
             "copyright":"Copyright 2012 Udo Klimaschewski",
             "licenseId":"mit"
         },
-        "MaterialEditText":{
-            "title":"MaterialEditText",
-            "copyright":"Copyright 2014 rengwuxian",
-            "licenseId":"apache_2"
-        },
         "ExoPlayer":{
             "title":"ExoPlayer",
             "copyright":"Copyright (C) 2014 The Android Open Source Project",
+            "licenseId":"apache_2"
+        },
+        "SpinnerWheel":{
+            "title":"SpinnerWheel",
+            "copyright":"Copyright 2011 Yuri Kanivets",
             "licenseId":"apache_2"
         }
    }

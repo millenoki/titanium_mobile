@@ -7,10 +7,6 @@
 
 package ti.modules.titanium.ui.widget.picker;
 
-import java.util.ArrayList;
-
-import kankan.wheel.widget.WheelView;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -18,13 +14,20 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUIHelper.FontDesc;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.content.Context;
+import android.graphics.Color;
+import antistatic.spinnerwheel.AbstractWheel;
+import antistatic.spinnerwheel.OnWheelChangedListener;
+import antistatic.spinnerwheel.WheelVerticalView;
+import antistatic.spinnerwheel.adapters.AbstractWheelTextAdapter;
 import ti.modules.titanium.ui.PickerColumnProxy;
 import ti.modules.titanium.ui.PickerProxy;
 import ti.modules.titanium.ui.PickerRowProxy;
 
-public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelectedListener
+public class TiUISpinnerColumn extends TiUIView implements OnWheelChangedListener
 {
 	
 	private static final String TAG = "TiUISpinnerColumn";
@@ -37,41 +40,49 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			layoutParams.autoFillsWidth = true;
 		}
 		refreshNativeView();
-		preselectRow();
-		((WheelView)nativeView).setItemSelectedListener(this);
+		((AbstractWheel)nativeView).addChangingListener(this);
 	}
 	
-	private void preselectRow()
-	{
-		if (proxy.getParent() instanceof PickerProxy) {
-			ArrayList<Integer> preselectedRows = ((PickerProxy)proxy.getParent()).getPreselectedRows();
-			if (preselectedRows == null || preselectedRows.size() == 0) {
-				return;
-			}
-			int columnIndex = ((PickerColumnProxy)proxy).getThisColumnIndex();
-			if (columnIndex >= 0 && columnIndex < preselectedRows.size()) {
-				Integer rowIndex = preselectedRows.get(columnIndex);
-				if (rowIndex != null && rowIndex.intValue() >= 0) {
-					selectRow(rowIndex);
-				}
-			}
-		}
+	public AbstractWheel getWheelView() {
+	    return (AbstractWheel)nativeView;
 	}
+	public TextWheelAdapter getWheelAdapter() {
+	    if (nativeView != null) {
+	        return (TextWheelAdapter) getWheelView().getViewAdapter();
+	    }
+	    return null;
+    }
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_FONT:
-            setFontProperties(TiConvert.toKrollDict(newValue));
+            AbstractWheelTextAdapter adapter = getWheelAdapter();
+            FontDesc desc = TiUIHelper.getFontStyle(getContext(),
+                    TiConvert.toKrollDict(newValue));            
+            boolean dirty = false;
+            if (!desc.typeface.equals(adapter.getTextTypeface())) {
+                dirty = true;
+                adapter.setTextTypeface(desc.typeface);
+            }
+            if (desc.size != adapter.getTextSize()) {
+                dirty = true;
+                adapter.setTextSize(desc.size.intValue());
+            }
+            if (dirty) {
+                ((PickerColumnProxy)proxy).parentShouldRequestLayout();
+            }
             break;
         case TiC.PROPERTY_COLOR:
-            ((WheelView)nativeView).setTextColor(new Integer(TiConvert.toColor(newValue)));
+            if (getWheelAdapter() != null) {
+                getWheelAdapter().setTextColor(new Integer(TiConvert.toColor(newValue)));
+            }
             break;
         case TiC.PROPERTY_VISIBLE_ITEMS:
-            ((WheelView)nativeView).setVisibleItems(TiConvert.toInt(newValue));
+            getWheelView().setVisibleItems(TiConvert.toInt(newValue));
             break;
         case TiC.PROPERTY_SELECTION_INDICATOR:
-            ((WheelView)nativeView).setShowSelectionIndicator(TiConvert.toBoolean(newValue));
+//            getWheelView().setShowSelectionIndicator(TiConvert.toBoolean(newValue));
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
@@ -83,46 +94,24 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 	public void processProperties(KrollDict d) {
 		super.processProperties(d);
 		if (!d.containsKey(TiC.PROPERTY_VISIBLE_ITEMS)) {
-			((WheelView)nativeView).setVisibleItems(PickerProxy.DEFAULT_VISIBLE_ITEMS_COUNT);
+		    getWheelView().setVisibleItems(PickerProxy.DEFAULT_VISIBLE_ITEMS_COUNT);
 		}
 		refreshNativeView();
 	}
 
-	private void setFontProperties(KrollDict d)
-	{
-		WheelView view = (WheelView)nativeView;
-
-		TiUIHelper.FontDesc desc = TiUIHelper.getFontStyle(view.getContext(), d);
-		
-		boolean dirty = false;
-		if (!desc.typeface.equals(view.getTypeface())) {
-			dirty = true;
-			view.setTypeface(desc.typeface);
-		}
-		if (desc.style != view.getTypefaceWeight()) {
-			dirty = true;
-			view.setTypefaceWeight(desc.style);
-		}
-		if (desc.size != view.getTextSize()) {
-			dirty = true;
-			view.setTextSize(desc.size.intValue());
-		}
-		if (dirty) {
-			((PickerColumnProxy)proxy).parentShouldRequestLayout();
-		}
-	}
-
 	public void refreshNativeView()
 	{
-		WheelView view = null;
-		if (nativeView instanceof WheelView) {
-			view = (WheelView)nativeView;
+	    AbstractWheel view = null;
+	    TextWheelAdapter adapter = null;
+		if (nativeView instanceof AbstractWheel) {
+			view = (AbstractWheel)nativeView;
+			adapter = getWheelAdapter();
 		} else {
-			view = new WheelView(proxy.getActivity()) {
-			    
-			};
-			Float defaultFontSize = new Float(TiUIHelper.getSize(TiUIHelper.getDefaultFontSize(proxy.getActivity())));
-			view.setTextSize(defaultFontSize.intValue());
+		    final Context context = proxy.getActivity();
+			view = new WheelVerticalView(context);
+            adapter = new TextWheelAdapter(context, new Object[] {});
+            adapter.setTextColor(Color.WHITE);
+            view.setViewAdapter(adapter);
 			setNativeView(view);
 		}
 		int selectedRow = view.getCurrentItem();
@@ -137,18 +126,16 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 			}
 			suppressItemSelected = false;
 		}
-		TextWheelAdapter adapter = null;
 		if (rows != null) {
-			adapter = new TextWheelAdapter(rows);
+	        adapter.setValues(rows);
 		}
-		view.setAdapter(adapter);
 	}
 	
 	public void selectRow(final int rowIndex)
 	{
-		if (nativeView instanceof WheelView) {
-			final WheelView view = (WheelView)nativeView;
-			if (rowIndex < 0 || rowIndex >= view.getAdapter().getItemsCount()) {
+		if (nativeView instanceof AbstractWheel) {
+			final AbstractWheel view = (AbstractWheel)nativeView;
+			if (rowIndex < 0 || rowIndex >= view.getViewAdapter().getItemsCount()) {
 				Log.w(TAG, "Ignoring attempt to select out-of-bound row index " + rowIndex);
 				return;
 			}
@@ -166,27 +153,26 @@ public class TiUISpinnerColumn extends TiUIView implements WheelView.OnItemSelec
 	}
 
 	@Override
-	public void onItemSelected(WheelView view, int index)
-	{
+    public void onChanged(AbstractWheel wheel, int oldValue, int newValue) {
 		if (suppressItemSelected) {
 			return;
 		}
-		((PickerColumnProxy)proxy).onItemSelected(index);
+		((PickerColumnProxy)proxy).onItemSelected(newValue);
 	}
 	
 	public int getSelectedRowIndex()
 	{
 		int result = -1;
-		if (nativeView instanceof WheelView) {
-			result = ((WheelView)nativeView).getCurrentItem();
+		if (nativeView instanceof AbstractWheel) {
+			result = getWheelView().getCurrentItem();
 		}
 		return result;
 	}
 
 	public void forceRequestLayout()
 	{
-		if (nativeView instanceof WheelView) {
-			((WheelView)nativeView).fullLayoutReset();
+		if (nativeView instanceof AbstractWheel) {
+			getWheelView().requestLayout();
 		}
 	}
 

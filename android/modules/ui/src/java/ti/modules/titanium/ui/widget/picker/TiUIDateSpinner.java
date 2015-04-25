@@ -15,27 +15,28 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import kankan.wheel.widget.WheelView;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUIHelper.FontDesc;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.graphics.Typeface;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
+import antistatic.spinnerwheel.AbstractWheel;
+import antistatic.spinnerwheel.OnWheelChangedListener;
+import antistatic.spinnerwheel.WheelVerticalView;
 
 public class TiUIDateSpinner extends TiUIView implements
-        WheelView.OnItemSelectedListener {
+    OnWheelChangedListener {
     private static final String TAG = "TiUIDateSpinner";
-    private WheelView monthWheel;
-    private WheelView dayWheel;
-    private WheelView yearWheel;
+    private WheelVerticalView monthWheel;
+    private WheelVerticalView dayWheel;
+    private WheelVerticalView yearWheel;
 
     private FormatNumericWheelAdapter monthAdapter;
     private FormatNumericWheelAdapter dayAdapter;
@@ -66,17 +67,17 @@ public class TiUIDateSpinner extends TiUIView implements
         maxDate.set(calendar.get(Calendar.YEAR) + 100, 11, 31);
         minDate.set(calendar.get(Calendar.YEAR) - 100, 0, 1);
 
-        monthWheel = new WheelView(activity);
-        dayWheel = new WheelView(activity);
-        yearWheel = new WheelView(activity);
+        monthWheel = new WheelVerticalView(activity);
+        dayWheel = new WheelVerticalView(activity);
+        yearWheel = new WheelVerticalView(activity);
 
-        monthWheel.setTextSize(20);
-        dayWheel.setTextSize(monthWheel.getTextSize());
-        yearWheel.setTextSize(monthWheel.getTextSize());
+//        monthWheel.setTextSize(20);
+//        dayWheel.setTextSize(monthWheel.getTextSize());
+//        yearWheel.setTextSize(monthWheel.getTextSize());
 
-        monthWheel.setItemSelectedListener(this);
-        dayWheel.setItemSelectedListener(this);
-        yearWheel.setItemSelectedListener(this);
+        monthWheel.addChangingListener(this);
+        dayWheel.addChangingListener(this);
+        yearWheel.addChangingListener(this);
 
         LinearLayout layout = new LinearLayout(activity) {
             @Override
@@ -102,11 +103,12 @@ public class TiUIDateSpinner extends TiUIView implements
         }
 
         addViewToPicker(yearWheel, layout);
+        setAdapters();
         setNativeView(layout);
 
     }
 
-    private void addViewToPicker(WheelView v, LinearLayout layout) {
+    private void addViewToPicker(AbstractWheel v, LinearLayout layout) {
         layout.addView(v, new LinearLayout.LayoutParams(
                 LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
                 (float) .33));
@@ -151,7 +153,17 @@ public class TiUIDateSpinner extends TiUIView implements
             numericMonths = TiConvert.toBoolean(newValue);
             break;
         case TiC.PROPERTY_FONT:
-            setFontProperties();
+            FontDesc desc = TiUIHelper.getFontStyle(getContext(),
+                    TiConvert.toKrollDict(newValue));
+            dayAdapter.setTextTypeface(desc.typeface);
+            monthAdapter.setTextTypeface(desc.typeface);
+            yearAdapter.setTextTypeface(desc.typeface);
+            dayAdapter.setTextSize(desc.size.intValue());
+            monthAdapter.setTextSize(desc.size.intValue());
+            yearAdapter.setTextSize(desc.size.intValue());
+            yearWheel.invalidate();
+            monthWheel.invalidate();
+            dayWheel.invalidate();
             break;
 
         default:
@@ -182,53 +194,10 @@ public class TiUIDateSpinner extends TiUIView implements
 
     }
 
-    private void setFontProperties() {
-        Float fontSize = null;
-        Typeface typeface = null;
-        String[] fontProperties = TiUIHelper.getFontProperties(proxy
-                .getProperties());
-
-        if (fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
-            fontSize = Float.valueOf(TiUIHelper
-                    .getSize(fontProperties[TiUIHelper.FONT_SIZE_POSITION]));
-        }
-
-        if (fontProperties[TiUIHelper.FONT_FAMILY_POSITION] != null) {
-            typeface = TiUIHelper
-                    .toTypeface(fontProperties[TiUIHelper.FONT_FAMILY_POSITION]);
-        }
-        Integer typefaceWeight = null;
-        if (fontProperties[TiUIHelper.FONT_WEIGHT_POSITION] != null) {
-            typefaceWeight = Integer.valueOf(TiUIHelper.toTypefaceStyle(
-                    fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
-                    fontProperties[TiUIHelper.FONT_SIZE_POSITION]));
-        }
-
-        if (typeface != null) {
-            dayWheel.setTypeface(typeface);
-            monthWheel.setTypeface(typeface);
-            yearWheel.setTypeface(typeface);
-        }
-        if (typefaceWeight != null) {
-            dayWheel.setTypefaceWeight(typefaceWeight);
-            monthWheel.setTypefaceWeight(typefaceWeight);
-            yearWheel.setTypefaceWeight(typefaceWeight);
-        }
-        if (fontSize != null) {
-            dayWheel.setTextSize(fontSize.intValue());
-            monthWheel.setTextSize(fontSize.intValue());
-            yearWheel.setTextSize(fontSize.intValue());
-        }
-        dayWheel.invalidate();
-        monthWheel.invalidate();
-        yearWheel.invalidate();
-    }
-
     private void setAdapters() {
         setYearAdapter();
         setMonthAdapter();
         setDayAdapter();
-
     }
 
     private void setYearAdapter() {
@@ -238,11 +207,11 @@ public class TiUIDateSpinner extends TiUIView implements
                 && yearAdapter.getMaxValue() == maxYear) {
             return;
         }
-        yearAdapter = new FormatNumericWheelAdapter(minYear, maxYear,
+        yearAdapter = new FormatNumericWheelAdapter(getProxy().getActivity(), minYear, maxYear,
                 new DecimalFormat("0000"), 4);
 
         ignoreItemSelection = true;
-        yearWheel.setAdapter(yearAdapter);
+        yearWheel.setViewAdapter(yearAdapter);
         ignoreItemSelection = false;
     }
 
@@ -282,10 +251,10 @@ public class TiUIDateSpinner extends TiUIView implements
                 format = new MonthFormat(this.locale);
                 width = ((MonthFormat) format).getLongestMonthName();
             }
-            monthAdapter = new FormatNumericWheelAdapter(setMinMonth,
+            monthAdapter = new FormatNumericWheelAdapter(getProxy().getActivity(), setMinMonth,
                     setMaxMonth, format, width);
             ignoreItemSelection = true;
-            monthWheel.setAdapter(monthAdapter);
+            monthWheel.setViewAdapter(monthAdapter);
             ignoreItemSelection = false;
         }
 
@@ -317,10 +286,10 @@ public class TiUIDateSpinner extends TiUIView implements
         }
 
         if (currentMin != setMinDay || currentMax != setMaxDay) {
-            dayAdapter = new FormatNumericWheelAdapter(setMinDay, setMaxDay,
+            dayAdapter = new FormatNumericWheelAdapter(getProxy().getActivity(), setMinDay, setMaxDay,
                     new DecimalFormat("00"), 4);
             ignoreItemSelection = true;
-            dayWheel.setAdapter(dayAdapter);
+            dayWheel.setViewAdapter(dayAdapter);
             ignoreItemSelection = false;
         }
     }
@@ -453,15 +422,6 @@ public class TiUIDateSpinner extends TiUIView implements
         return c.getTime();
     }
 
-    @Override
-    public void onItemSelected(WheelView view, int index) {
-        if (ignoreItemSelection) {
-            return;
-        }
-        setValue();
-
-    }
-
     class MonthFormat extends NumberFormat {
         private static final long serialVersionUID = 1L;
         private DateFormatSymbols symbols = new DateFormatSymbols(
@@ -508,6 +468,14 @@ public class TiUIDateSpinner extends TiUIView implements
             return max;
         }
 
+    }
+
+    @Override
+    public void onChanged(AbstractWheel wheel, int oldValue, int newValue) {
+        if (ignoreItemSelection) {
+            return;
+        }
+        setValue();
     }
 
 }

@@ -16,6 +16,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -108,7 +109,6 @@ public class TiUINativePicker extends TiUIPicker
 		};
 		setNativeView(spinner);
 		refreshNativeView();
-		preselectRows();
 
 		spinner.setOnItemSelectedListener(this);
 	}
@@ -117,28 +117,24 @@ public class TiUINativePicker extends TiUIPicker
 	    return (AppCompatSpinner)getNativeView();
 	}
 	
-	private void preselectRows()
-	{
-		ArrayList<Integer> preselectedRows = getPickerProxy().getPreselectedRows();
-		if (preselectedRows == null || preselectedRows.size() == 0) {
-			return;
-		}
-		Spinner spinner = getSpinner();
-		if (spinner == null)return;
-		try {
-			spinner.setOnItemSelectedListener(null);
-			for (int i = 0; i < preselectedRows.size(); i++) {
-				Integer rowIndex = preselectedRows.get(i);
-				if (rowIndex == 0 || rowIndex.intValue() < 0) {
-					continue;
-				}
-				selectRow(i, rowIndex, false);
-			}
-		} finally {
-			spinner.setOnItemSelectedListener(this);
-			firstSelectedFired = true;
-		}
-	}
+	@Override
+	protected void handlePreselectedRows(Object[] preselectedRows){
+	    Spinner spinner = getSpinner();
+        if (spinner == null)return;
+        try {
+            spinner.setOnItemSelectedListener(null);
+            for (int i = 0; i < preselectedRows.length; i++) {
+                Integer rowIndex = TiConvert.toInt(preselectedRows[i], -1);
+                if (rowIndex == 0 || rowIndex.intValue() < 0) {
+                    continue;
+                }
+                selectRow(i, rowIndex, false);
+            }
+        } finally {
+            spinner.setOnItemSelectedListener(this);
+            firstSelectedFired = true;
+        }
+    }
 
 	@Override
 	public void selectRow(final int columnIndex, final int rowIndex, final boolean animated)

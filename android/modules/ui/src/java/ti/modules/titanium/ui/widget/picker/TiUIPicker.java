@@ -64,18 +64,21 @@ public abstract class TiUIPicker extends TiUIView
 		}
 	}
 	
+    protected void handlePreselectedRows(Object[] preselectedRows){
+        
+    }
     
     @Override
     public void didRealize() {
         if (proxy.hasProperty(TiC.PROPERTY_SELECTED_ROW)) {
             Object value = proxy.getProperty(TiC.PROPERTY_SELECTED_ROW);
             if (value instanceof Object[]) {
-                Object[] params = (Object[])value;
-                if (params.length == 2) {
-                    selectRow(TiConvert.toInt(params[0]), TiConvert.toInt(params[1]), false);
-                } else if (params.length >= 3) {
-                    selectRow(TiConvert.toInt(params[0]), TiConvert.toInt(params[1]), TiConvert.toBoolean(params[2]));
-                }
+                handlePreselectedRows((Object[])value);
+//                if (params.length == 2) {
+//                    selectRow(TiConvert.toInt(params[0]), TiConvert.toInt(params[1]), false);
+//                } else if (params.length >= 3) {
+//                    selectRow(TiConvert.toInt(params[0]), TiConvert.toInt(params[1]), TiConvert.toBoolean(params[2]));
+//                }
             }
         }
     }

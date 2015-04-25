@@ -51,7 +51,6 @@ import android.widget.TimePicker;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class PickerProxy extends ViewProxy implements PickerColumnListener {
     private int type = UIModule.PICKER_TYPE_PLAIN;
-    private ArrayList<Integer> preselectedRows = new ArrayList<Integer>();
     private static final String TAG = "PickerProxy";
     public static final int DEFAULT_VISIBLE_ITEMS_COUNT = 5;
     private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
@@ -448,18 +447,14 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
 
     @Kroll.getProperty
     @Kroll.method
-    public PickerColumnProxy[] getColumns() {
+    public Object[] getColumns() {
         if (!isPlainPicker()) {
             Log.w(TAG,
                     "Cannot get columns from date/time or countdown picker.",
                     Log.DEBUG_MODE);
             return null;
         }
-        if (children == null) {
-            return new PickerColumnProxy[] {};
-        } else {
-            return children.toArray(new PickerColumnProxy[children.size()]);
-        }
+        return getChildren();
     }
 
     @Kroll.setProperty
@@ -550,12 +545,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
     }
 
     public int getColumnCount() {
-        TiViewProxy[] columns = getColumns();
-        if (columns == null) {
-            return 0;
-        } else {
-            return columns.length;
-        }
+        return getChildrenCount();
     }
 
     public PickerColumnProxy getColumn(int index) {
@@ -571,6 +561,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
         PickerColumnProxy column = getColumn(index);
         if (column == null && createIfMissing) {
             column = new PickerColumnProxy();
+            column.handleCreationDict(getProperties());
             column.setCreateIfMissing(true);
             add(column);
         }
@@ -949,8 +940,12 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
         fireSelectionChange(columnIndex, rowIndex);
     }
 
-    public ArrayList<Integer> getPreselectedRows() {
-        return preselectedRows;
+    public Object[] getPreselectedRows() {
+        Object value = getProperty(TiC.PROPERTY_SELECTED_ROW);
+        if (value instanceof Object[]) {
+            return (Object[]) value;
+        }
+        return null;
     }
 
     public void forceRequestLayout() {
