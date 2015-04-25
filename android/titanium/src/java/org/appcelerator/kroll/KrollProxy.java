@@ -2053,14 +2053,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (template_ == null || template_.isEmpty()) {
             return null;
         }
-        boolean creationArgsHandlesTemplate = true;
+//        boolean creationArgsHandlesTemplate = true;
         String type = TiConvert.toString(template_, TiC.PROPERTY_TYPE, defaultProxyTypeFromTemplate());
         Object props = template_;
         if (template_.containsKey(TiC.PROPERTY_PROPERTIES)) {
             props =  template_.get(TiC.PROPERTY_PROPERTIES);
-            creationArgsHandlesTemplate = false;
-        } else {
-            
+//            creationArgsHandlesTemplate = false;
+        } else if (template_.containsKey(TiC.PROPERTY_CHILD_TEMPLATES) || 
+                template_.containsKey(TiC.PROPERTY_EVENTS)){
+            props = new HashMap(template_);
+            ((HashMap) props).remove(TiC.PROPERTY_EVENTS);
+            ((HashMap) props).remove(TiC.PROPERTY_CHILD_TEMPLATES);
         }
         try {
             Class<? extends KrollProxy> cls = (Class<? extends KrollProxy>) Class
@@ -2069,10 +2072,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     new Object[] { props }, null);
             if (proxy == null)
                 return null;
-            if (creationArgsHandlesTemplate) {
-                template_.remove(TiC.PROPERTY_EVENTS);
-                template_.remove(TiC.PROPERTY_CHILD_TEMPLATES);
-            }
+//            if (creationArgsHandlesTemplate) {
+//                template_.remove(TiC.PROPERTY_EVENTS);
+//                template_.remove(TiC.PROPERTY_CHILD_TEMPLATES);
+//            }
             proxy.initFromTemplate(template_, rootProxy, updateKrollProperties,
                     recursive);
             if (updateKrollProperties) {
