@@ -86,7 +86,6 @@ import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.FrameLayout;
 
 /**
  * This class is for Titanium View implementations, that correspond with
