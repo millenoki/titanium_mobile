@@ -44,13 +44,7 @@ public class TiUINonViewGroupView extends TiUIView {
     }
 
 	protected void createChildrenHolder(){
-		childrenHolder = new TiCompositeLayout(proxy.getActivity(), this) {
-		    @Override
-		    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-		    {
-		        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		    }
-		};
+		childrenHolder = new TiCompositeLayout(proxy.getActivity(), this);
 		if (proxy.hasProperty(TiC.PROPERTY_CLIP_CHILDREN)) {
 			boolean value = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_CHILDREN));
 			childrenHolder.setClipChildren(value);	
