@@ -69,12 +69,12 @@ public class TiUIButton extends TiUINonViewGroupView
 				TiUIHelper.firePostLayoutEvent(TiUIButton.this);
 			}
 
-            @Override
-            public void dispatchSetPressed(boolean pressed) {
-                if (childrenHolder != null && dispatchPressed) {
-                    childrenHolder.setPressed(pressed);
-                }
-            }
+			@Override
+	        public void dispatchSetPressed(boolean pressed) {
+	            if (propagateSetPressed(this, pressed)) {
+	                super.dispatchSetPressed(pressed);
+	            }
+	        }
 
 			@Override
 			public boolean dispatchTouchEvent(MotionEvent event) {

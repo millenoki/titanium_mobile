@@ -164,8 +164,8 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
             @Override
             public void dispatchSetPressed(boolean pressed) {
-                if (childrenHolder != null && dispatchPressed) {
-                    childrenHolder.setPressed(pressed);
+                if (propagateSetPressed(this, pressed)) {
+                    super.dispatchSetPressed(pressed);
                 }
             }
         };

@@ -154,14 +154,12 @@ public class TiUIText extends TiUINonViewGroupView
 		}
 		
 
-        @Override
+		@Override
         public void dispatchSetPressed(boolean pressed) {
-            super.dispatchSetPressed(pressed);
-            if (childrenHolder != null && dispatchPressed) {
-                childrenHolder.setPressed(pressed);
+            if (propagateSetPressed(this, pressed)) {
+                super.dispatchSetPressed(pressed);
             }
         }
-        
 
         @Override
         public void clearFocus() {

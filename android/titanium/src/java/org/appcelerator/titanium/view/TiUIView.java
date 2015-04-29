@@ -1343,6 +1343,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
+    public boolean propagateSetPressed(final View view, final boolean pressed) {
+        // if (view != borderView && borderView != null) {
+        // borderView.setPressed(pressed);
+        // }
+        return dispatchPressed;
+    }
+
     protected TiBackgroundDrawable getOrCreateBackground() {
         if (background == null) {
             applyCustomBackground();

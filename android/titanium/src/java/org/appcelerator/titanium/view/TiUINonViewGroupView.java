@@ -61,6 +61,16 @@ public class TiUINonViewGroupView extends TiUIView {
 		getOrCreateBorderView().addView(childrenHolder, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		updateLayoutForChildren(proxy.getProperties());	
 	}
+	
+	@Override
+	public boolean propagateSetPressed(final View view, boolean pressed) {
+        if (dispatchPressed) {
+            if (childrenHolder != null) {
+                childrenHolder.setPressed(pressed);
+            }
+        }
+        return dispatchPressed;
+    }
 
 	@Override
 	public View getParentViewForChild()
