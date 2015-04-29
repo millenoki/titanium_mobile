@@ -442,7 +442,7 @@ public class TiCompositeLayout extends FreeLayout implements
 		maxHeight += getPaddingTop() + getPaddingBottom();
 		
 		//if we are in a borderView our layoutParams are not the ones we wnat to look at
-		ViewGroup.LayoutParams params = (view != null)?view.get().getLayoutParams():getLayoutParams();
+		ViewGroup.LayoutParams params = getLayoutParams();
 		LayoutParams p = (params instanceof LayoutParams)?(LayoutParams)params:null;
 		if (p != null) {
 			//if we are fill we need to fill ….
@@ -503,6 +503,17 @@ public class TiCompositeLayout extends FreeLayout implements
 
 		setMeasuredDimension(measuredWidth, measuredHeight);
 	}
+	
+	
+	@Override
+	public ViewGroup.LayoutParams getLayoutParams() {
+	    TiUIView view = getView();
+        if (view != null)
+        {
+            return view.getLayoutParams();
+        }
+        return super.getLayoutParams();
+    }
 	
 	
 	protected void measureChild(final View child, final LayoutParams p, int wMode,

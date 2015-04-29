@@ -3180,6 +3180,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_TRANSITION = "transition";
 
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_TRANSLATION_Z = "translationZ";
+
 	/**
 	 * @module.api
 	 */
