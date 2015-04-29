@@ -14,6 +14,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.graphics.PixelFormat;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
@@ -139,8 +140,15 @@ public class TiUIVideoView extends TiUIView
         case TiC.PROPERTY_VOLUME:
             videoView.setVolume(TiConvert.toFloat(newValue, 1.0f));
             break;
+        case TiC.PROPERTY_REPEAT_MODE:
+            videoView.setRepeatMode(TiConvert.toInt(newValue, MediaModule.VIDEO_REPEAT_MODE_NONE));
+            break;
         case TiC.PROPERTY_SCALING_MODE:
             videoView.setScalingMode(TiConvert.toInt(newValue));
+            break;
+        case "zOrderOnTop":
+            videoView.setZOrderOnTop(TiConvert.toBoolean(newValue));
+            videoView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);

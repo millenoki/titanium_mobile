@@ -72,6 +72,8 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	@SuppressWarnings("unused")
 	private Map<String, String> mHeaders;
 	private int mDuration;
+	private boolean repeat = false;
+	private boolean ignoreListener = false;
 
 	// all possible internal states
 	private static final int STATE_ERROR = -1;
@@ -277,8 +279,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		mVideoWidth = 0;
 		mVideoHeight = 0;
-		getHolder().addCallback(mSHCallback);
-		getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        final SurfaceHolder holder = getHolder();
+        holder.addCallback(mSHCallback);
+        holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		setFocusable(true);
 		setFocusableInTouchMode(true);
 		requestFocus();
@@ -329,7 +332,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		if (mMediaPlayer != null) {
 			mMediaPlayer.stop();
 			// TITANIUM
-			if (mPlaybackListener != null) {
+			if (!ignoreListener && mPlaybackListener != null) {
 				mPlaybackListener.onStopPlayback();
 			}
 			mMediaPlayer.release();
@@ -520,14 +523,22 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
 		public void onCompletion(MediaPlayer mp)
 		{
-			mCurrentState = STATE_PLAYBACK_COMPLETED;
-			mTargetState = STATE_PLAYBACK_COMPLETED;
-			if (mMediaController != null) {
-				mMediaController.hide();
-			}
-			if (mOnCompletionListener != null) {
-				mOnCompletionListener.onCompletion(mMediaPlayer);
-			}
+		    if (repeat) {
+		        ignoreListener = true;
+		        stopPlayback();
+		        openVideo();
+		        ignoreListener = true;
+		    } else {
+		        mCurrentState = STATE_PLAYBACK_COMPLETED;
+	            mTargetState = STATE_PLAYBACK_COMPLETED;
+	            if (mMediaController != null) {
+	                mMediaController.hide();
+	            }
+	            if (mOnCompletionListener != null) {
+	                mOnCompletionListener.onCompletion(mMediaPlayer);
+	            }
+		    }
+			
 		}
 	};
 
@@ -720,7 +731,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			int oldState = mCurrentState;
 			mCurrentState = STATE_PLAYING;
 			// TITANIUM
-			if (mPlaybackListener != null) {
+			if (!ignoreListener && mPlaybackListener != null) {
 				mPlaybackListener.onStartPlayback();
 				// Fired after a stop or play is called after a after url change.
 				if (oldState == STATE_PREPARED || oldState == STATE_PREPARING) {
@@ -871,4 +882,8 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+    public void setRepeatMode(int repeat) {
+        this.repeat = repeat == 1;
+    }
 }

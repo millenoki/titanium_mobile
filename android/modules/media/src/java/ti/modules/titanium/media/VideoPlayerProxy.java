@@ -134,16 +134,8 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		super.handleCreationDict(options);
 
 		Object mcStyle = options.get(TiC.PROPERTY_MEDIA_CONTROL_STYLE);
-		Object mcModeDeprecated = options.get(PROPERTY_MOVIE_CONTROL_MODE);
-		Object mcStyleDeprecated = options.get(PROPERTY_MOVIE_CONTROL_STYLE);
 		if (mcStyle != null) {
 			mediaControlStyle = TiConvert.toInt(mcStyle);
-		} else if (mcModeDeprecated != null) {
-			Log.w(TAG, "movieControlMode is deprecated.  Use mediaControlStyle instead.");
-			mediaControlStyle = TiConvert.toInt(mcModeDeprecated);
-		} else if (mcStyleDeprecated != null) {
-			Log.w(TAG, "movieControlStyle is deprecated.  Use mediaControlStyle instead.");
-			mediaControlStyle = TiConvert.toInt(mcStyleDeprecated);
 		}
 
 		Object sMode = options.get(TiC.PROPERTY_SCALING_MODE);
