@@ -1416,9 +1416,10 @@ DEFINE_EXCEPTIONS
 		proxyClass = NSClassFromString(className);
 		if (proxyClass==nil) {
 			DebugLog(@"[WARN] Attempted to load %@: Could not find class definition.", className);
-			@throw [NSException exceptionWithName:@"org.appcelerator.module"
-                                           reason:[NSString stringWithFormat:@"Class not found: %@", qualifiedName]
-                                         userInfo:nil];
+//			@throw [NSException exceptionWithName:@"org.appcelerator.module"
+//                                           reason:[NSString stringWithFormat:@"Class not found: %@", qualifiedName]
+//                                         userInfo:nil];
+            return nil;
 		}
 		CFDictionarySetValue([TiProxy classNameLookup], qualifiedName, proxyClass);
 	}
