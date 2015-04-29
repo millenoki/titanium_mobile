@@ -30,7 +30,7 @@ public class TiUIDatePicker extends TiUIView
 	private static final String TAG = "TiUIDatePicker";
 
 	protected Date minDate, maxDate;
-	protected int minuteInterval;
+//	protected int minuteInterval;
 	
 	public TiUIDatePicker(TiViewProxy proxy)
 	{
@@ -53,6 +53,11 @@ public class TiUIDatePicker extends TiUIView
 		picker.setCalendarViewShown(false);
 		setNativeView(picker);
 	}
+	
+	private DatePicker getPicker() {
+	    return (DatePicker) nativeView;
+	}
+		
     @Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
@@ -62,35 +67,42 @@ public class TiUIDatePicker extends TiUIView
             break;
         case TiC.PROPERTY_MIN_DATE:
         {
-            Date date = TiConvert.toDate(newValue);
-            if (date != null) {
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(date);
-                calendar.set(Calendar.HOUR_OF_DAY, 0);
-                calendar.set(Calendar.MINUTE, 0);
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
-    
-                this.minDate = calendar.getTime();
-            } else {
-                this.minDate = null;
+            this.minDate = TiConvert.toDate(newValue);
+            Log.d(Log.DEBUG_MODE, "minDate " + minDate.toLocaleString());
+            if (TiC.HONEYCOMB_OR_GREATER) {
+                getPicker().setMinDate(this.minDate.getTime() - 1000);
             }
             break;
         }
         case TiC.PROPERTY_MAX_DATE:
         {
             this.maxDate = TiConvert.toDate(newValue);
+            if (TiC.HONEYCOMB_OR_GREATER) {
+                getPicker().setMaxDate(this.maxDate.getTime());
+            }
             break;
         }
         case TiC.PROPERTY_CALENDAR_VIEW_SHOWN:
-            setCalendarView(TiConvert.toBoolean(newValue, false));
-            break;
-        case "minuteInterval":
-            int mi = TiConvert.toInt(newValue, 0);
-            if (mi >= 1 && mi <= 30 && mi % 60 == 0) {
-                this.minuteInterval = mi; 
+            if (TiC.HONEYCOMB_OR_GREATER) {
+                getPicker().setCalendarViewShown(TiConvert.toBoolean(newValue, false));
             }
             break;
+        case "spinnerShown":
+            if (TiC.HONEYCOMB_OR_GREATER) {
+                getPicker().setSpinnersShown(TiConvert.toBoolean(newValue, false));
+            }
+            break;
+        case "firstDayOfTheWeek":
+            if (TiC.HONEYCOMB_OR_GREATER) {
+                getPicker().setFirstDayOfWeek(TiConvert.toInt(newValue, 1));
+            }
+            break;
+//        case "minuteInterval":
+//            int mi = TiConvert.toInt(newValue, 0);
+//            if (mi >= 1 && mi <= 30 && mi % 60 == 0) {
+//                this.minuteInterval = mi; 
+//            }
+//            break;
 
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
@@ -118,6 +130,7 @@ public class TiUIDatePicker extends TiUIView
         }
 	}
 	
+	@Override
 	public void onDateChanged(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
 	{
     	Calendar targetCalendar = Calendar.getInstance();
@@ -181,14 +194,4 @@ public class TiUIDatePicker extends TiUIView
         suppressChangeEvent = false;
 		
 	}
-	
-	@SuppressLint("NewApi")
-	public void setCalendarView(boolean value)
-	{
-		if (Build.VERSION.SDK_INT >= 11) {
-			DatePicker picker = (DatePicker) getNativeView();
-			picker.setCalendarViewShown(value);
-		}
-	}
-	 
 }
