@@ -134,7 +134,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	            textView.setTextIsSelectable(false);
 			}
             textView.setSelectAllOnFocus(false);
-			TiUIHelper.styleText(textView, null);
+			TiUIHelper.styleText(textView, (HashMap)null);
 			addView(textView, getTextLayoutParams());
 		}
 		
