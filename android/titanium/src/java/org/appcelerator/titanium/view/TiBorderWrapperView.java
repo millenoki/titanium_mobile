@@ -12,6 +12,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import android.animation.StateListAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Path;
@@ -53,6 +54,7 @@ public class TiBorderWrapperView extends MaskableView
 	{
 		super(context);
 		this.proxy = proxy;
+		this.setAddStatesFromChildren(true);
 		clipRect = new RectF();
 		
 		//we dont need it but this is a trick to get the mask to also mask the border
@@ -83,7 +85,7 @@ public class TiBorderWrapperView extends MaskableView
 //			mDrawableSizeChanged = true;
 			
 //			mDrawable.setVisible(getVisibility() == VISIBLE, false);
-			TiUIView. setBackgroundDrawable(borderDrawableHoldingView, mDrawable);
+			TiUIView.setBackgroundDrawable(borderDrawableHoldingView, mDrawable);
 			
 			borderDrawableHoldingView.setEnabled(isEnabled());
             if (mDrawable.isStateful()) {
@@ -155,7 +157,8 @@ public class TiBorderWrapperView extends MaskableView
     }
 	@Override
 	public void childDrawableStateChanged(View child) {
-		if (child != proxy.getFocusView()) return;
+	    super.childDrawableStateChanged(child);
+//		if (child != proxy.getFocusView()) return;
 		if (mDrawable != null && mDrawable.isStateful()) {
         	mDrawable.setState(child.getDrawableState());
         	invalidate();
@@ -173,6 +176,7 @@ public class TiBorderWrapperView extends MaskableView
 //        super.setVisibility(visibility);
 //        if (mDrawable != null) mDrawable.setVisible(visibility == VISIBLE, false);
 //    }
+
 	
 	@Override
 	protected void dispatchDraw(Canvas canvas)

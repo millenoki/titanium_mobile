@@ -122,22 +122,9 @@ public class TiUILabel extends TiUINonViewGroupView
 	            child.setPressed(pressed);
 	        }
 		}
-		
-//		@Override
-//		protected void drawableStateChanged() {
-//		
-//		}
-//		
-		@Override
-		public void childDrawableStateChanged(View child) {
-		    super.childDrawableStateChanged(child);
-			if (child == textView) {
-				propagateChildDrawableState(child);
-			}
-		}
-		
 		public TiLabelView(Context context) {
 			super(context);
+			this.setAddStatesFromChildren(true);
 			textView = new EllipsizingTextView(context);
 			textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
  			textView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);

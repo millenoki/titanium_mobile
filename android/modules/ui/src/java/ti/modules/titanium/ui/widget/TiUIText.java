@@ -96,14 +96,6 @@ public class TiUIText extends TiUINonViewGroupView
 		{
 			super(context);
 		}
-
-		
-		@Override
-		protected void drawableStateChanged() {
-		    super.drawableStateChanged();
-			if (hasFocus()) propagateDrawableState(TiUIHelper.BACKGROUND_SELECTED_STATE);
-			else propagateChildDrawableState(this);
-		}
 		
 		@Override
 		public View focusSearch(int direction) {
@@ -210,6 +202,7 @@ public class TiUIText extends TiUINonViewGroupView
 		private void init(Context context) {
 			this.setFocusableInTouchMode(false);
 			this.setFocusable(false);
+			this.setAddStatesFromChildren(true);
 			this.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 //			this.requestFocus();
 			this.setOrientation(LinearLayout.HORIZONTAL);
@@ -219,7 +212,6 @@ public class TiUIText extends TiUINonViewGroupView
 			leftPane.setFocusable(false);
 			leftPane.setId(100);
 			leftPane.setVisibility(View.GONE);
-//			leftPane.setTag("leftPane");
 			this.addView(leftPane, createBaseParams());
 
 			editText = new TiEditText(context);
@@ -229,7 +221,6 @@ public class TiUIText extends TiUINonViewGroupView
 			rightPane = new TiCompositeLayout(context);
 			rightPane.setId(300);
 			rightPane.setVisibility(View.GONE);
-//			rightPane.setTag("rightPane");
 			rightPane.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 			rightPane.setFocusable(false);
 			this.addView(rightPane, createBaseParams());
