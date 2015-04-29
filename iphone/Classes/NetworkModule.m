@@ -82,12 +82,19 @@ static NetworkModule *_sharedInstance = nil;
 }
 -(void)startReachability
 {
-	NSAssert([NSThread currentThread],@"not on the main thread for startReachability");
-	// reachability runs on the current run loop so we need to make sure we're
-	// on the main UI thread
-	reachability = [[Reachability reachabilityForInternetConnection] retain];
+    NSAssert([NSThread currentThread],@"not on the main thread for startReachability");
+    // reachability runs on the current run loop so we need to make sure we're
+    // on the main UI thread
+    
+    NSDictionary* tiappProperties = [TiApp tiAppProperties];
+    BOOL onLocalNetwork = [TiUtils boolValue:[tiappProperties objectForKey:@"network.local"] def:NO];
+    if (onLocalNetwork) {
+        reachability = [[Reachability reachabilityForLocalWiFi] retain];
+    } else {
+        reachability = [[Reachability reachabilityForInternetConnection] retain];
+    }
     [reachability startNotifier];
-	[self updateReachabilityStatus];
+    [self updateReachabilityStatus];
 }
 
 -(void)stopReachability
