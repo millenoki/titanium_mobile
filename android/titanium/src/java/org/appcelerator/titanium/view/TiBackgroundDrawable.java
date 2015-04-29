@@ -41,7 +41,6 @@ public class TiBackgroundDrawable extends Drawable {
 	private Paint paint = new Paint();
 	private final boolean isBorder;
 	
-
 	public TiBackgroundDrawable()
 	{
         this(false);
@@ -174,12 +173,17 @@ public class TiBackgroundDrawable extends Drawable {
 	public Path getPath(){
 		return path;
 	}
+	
+	public final Rect bounds()  {
+        return this.bounds;
+    }
+	        
 
 	@Override
 	protected void onBoundsChange(Rect bounds)
 	{
-		this.boundsF = new RectF(bounds);
-		this.bounds = bounds;
+		this.boundsF.set(bounds);
+		this.bounds.set(bounds);
 		super.onBoundsChange(bounds);
 		updatePath();
 		int length = drawables.size();
