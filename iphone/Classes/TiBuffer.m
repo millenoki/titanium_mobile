@@ -343,6 +343,49 @@ NSArray* bufferKeySequence = nil;
     return [[[TiBlob alloc] initWithData:[[data copy] autorelease] mimetype:@"application/octet-stream"] autorelease];
 }
 
+
+- (NSString *)hexString
+{
+    /* Returns hexadecimal string of NSData. Empty string if data is empty.   */
+    
+    const unsigned char *dataBuffer = (const unsigned char *)[data bytes];
+    
+    if (!dataBuffer)
+    {
+        return [NSString string];
+    }
+    
+    NSUInteger          dataLength  = [data length];
+    NSMutableString     *hexString  = [NSMutableString stringWithCapacity:(dataLength * 2)];
+    
+    for (int i = 0; i < dataLength; ++i)
+    {
+        [hexString appendFormat:@"%02x", (unsigned int)dataBuffer[i]];
+    }
+    
+    return [NSString stringWithString:hexString];
+}
+
+-(NSArray*)bytes
+{
+    const unsigned char *dataBuffer = (const unsigned char *)[data bytes];
+    
+    if (!dataBuffer)
+    {
+        return [NSMutableArray array];
+    }
+    
+    NSUInteger          dataLength  = [data length];
+    NSMutableArray     *hexArray  = [NSMutableArray arrayWithCapacity:dataLength];
+    
+    for (int i = 0; i < dataLength; ++i)
+    {
+        [hexArray addObject:NUMINTEGER((unsigned int)dataBuffer[i])];
+    }
+    
+    return [NSArray arrayWithArray:hexArray];
+}
+
 -(NSString*)toString:(id)_void 
 {
     return [data description];
