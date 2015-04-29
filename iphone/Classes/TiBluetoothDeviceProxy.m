@@ -230,8 +230,10 @@
     }
     
     @try {
-        NSInteger done = [_session.outputStream write:[_outbuf bytes] maxLength:[_outbuf length]];
-        if(done > 0) [_outbuf replaceBytesInRange:NSMakeRange(0, done) withBytes:nil length:0]; // Remove sent bytes from buffer
+        @synchronized(_outbuf) {
+            NSInteger done = [_session.outputStream write:[_outbuf bytes] maxLength:[_outbuf length]];
+            if(done > 0) [_outbuf replaceBytesInRange:NSMakeRange(0, done) withBytes:nil length:0]; // Remove sent bytes from buffer
+        }
     }
     @catch (NSException * exn) {
         NSLog(@"Caught exception writing to stream: %@", exn);
@@ -240,14 +242,18 @@
 }
 
 - (void)sendData:(uint8_t*)data length:(NSUInteger)len {
-    [_outbuf appendBytes:data length:len];
+    @synchronized(_outbuf) {
+        [_outbuf appendBytes:data length:len];
+    }
     if([_session.outputStream hasSpaceAvailable]) {
         [self handleSpace:_session.outputStream];
     }
 }
 
 - (void)sendData:(NSData*)data {
-    [_outbuf appendData:data];
+    @synchronized(_outbuf) {
+        [_outbuf appendData:data];
+    }
     if([_session.outputStream hasSpaceAvailable]) {
         [self handleSpace:_session.outputStream];
     }
@@ -301,7 +307,10 @@
     [self disconnect:nil];
     RELEASE_TO_NIL(_accessory)
     RELEASE_TO_NIL(_protocolString)
-    RELEASE_TO_NIL(_outbuf)
+    
+    @synchronized(_outbuf) {
+        RELEASE_TO_NIL(_outbuf)
+    }
     [super dealloc];
 }
 
