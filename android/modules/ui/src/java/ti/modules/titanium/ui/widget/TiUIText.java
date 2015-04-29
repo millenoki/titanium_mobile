@@ -32,7 +32,6 @@ import android.os.Build;
 import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.Spannable;
 import android.text.TextUtils.TruncateAt;
 import android.text.TextWatcher;
 import android.text.method.DialerKeyListener;
@@ -290,12 +289,6 @@ public class TiUIText extends TiUINonViewGroupView
 			rightPane.setVisibility(View.VISIBLE);
 		}
 		
-//		public void onFocusChange(View v, boolean hasFocus)
-//		{
-//			Log.d(TAG, "onFocusChange "  + hasFocus + "  for FocusFixedEditText with text " + editText.getText(), Log.DEBUG_MODE);
-//
-//		}
-		
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent event) {
 			if (touchPassThrough == true)
@@ -311,25 +304,11 @@ public class TiUIText extends TiUINonViewGroupView
 		public TiEditText getRealEditText() {
 			return editText;
 		}
-		
-//		public boolean hasFocus() {
-//			return editText.hasFocus();
-//		}
 
+		@Override
 		public void setOnFocusChangeListener(OnFocusChangeListener l) {
 			editText.setOnFocusChangeListener(l);
 		}
-		
-//		@Override
-//	    public void clearFocus() {
-//		    //clear focused is called in setInputType and clearfocus request the focus
-//            //in root even if we didnt have the focus. DUMB!
-//	        if (!hasFocus()) {
-//	            return;
-//	        } else {
-//                super.clearFocus();
-//	        }
-//	    }
 	}
 	private static final ArrayList<String> KEY_SEQUENCE;
     static{
@@ -726,10 +705,6 @@ public class TiUIText extends TiUINonViewGroupView
 			nativeView.requestRectangleOnScreen(r);
 
 		}
-//		else {
-//			tv.setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
-//			tv.requestFocus();
-//		}
 		super.onFocusChange(v, hasFocus);
 	}
 
@@ -783,7 +758,6 @@ public class TiUIText extends TiUINonViewGroupView
 			result = true;
 		}
 		
-//		tv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 		return result;
 	}
 
