@@ -432,6 +432,15 @@ public class ActionBarProxy extends AnimatableReusableProxy
     public static ArrayList<String> windowProps() {
         return BAR_PROPERTIES;
     }
+    
+    
+    private boolean getActionBarDisplayOption(final int option) {
+        if (actionBar == null) {
+            return false;
+        }
+        // Determine which display options are enabled
+        return (actionBar.getDisplayOptions() & option) != 0;
+    }
 
 	@Override
     public void propertySet(String key, final Object newValue, Object oldValue,
@@ -447,8 +456,8 @@ public class ActionBarProxy extends AnimatableReusableProxy
         case TiC.PROPERTY_DISPLAY_HOME_AS_UP:
             runInUiThread(new CommandNoReturn() {
                 public void execute() {
-                    actionBar.setDisplayHomeAsUpEnabled(TiConvert.toBoolean(newValue, false));
-
+                    actionBar.setDisplayHomeAsUpEnabled(TiConvert.toBoolean(newValue, getActionBarDisplayOption(ActionBar.DISPLAY_HOME_AS_UP)));
+//                    actionBar.setDisplayHomeAsUpEnabled(TiConvert.toBoolean(newValue, false));
                 }
             });
             break;
@@ -463,7 +472,7 @@ public class ActionBarProxy extends AnimatableReusableProxy
         case TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED:
             runInUiThread(new CommandNoReturn() {
                 public void execute() {
-                    actionBar.setDisplayShowHomeEnabled(TiConvert.toBoolean(newValue, false));
+                    actionBar.setDisplayShowHomeEnabled(TiConvert.toBoolean(newValue, getActionBarDisplayOption(ActionBar.DISPLAY_SHOW_HOME)));
                 }
             });
             break;
