@@ -124,7 +124,7 @@ public class TiUIHelper
 		public Typeface typeface = null;
 		public int style = Typeface.NORMAL;
 		
-		public void setDefaults(Context context){
+		public void setDefaults(final Context context){
 			typeface = toTypeface(context, null);
 			float[] result = new float[2];
 			getSizeAndUnits(null, result);
@@ -186,7 +186,7 @@ public class TiUIHelper
 			.setCancelable(false).create().show();
 	}
 	
-	public static void linkifyIfEnabled(TextView tv, Object autoLink)
+	public static void linkifyIfEnabled(final TextView tv, final Object autoLink)
 	{ 
 		if (autoLink != null) {
 			//Default to Ti.UI.AUTOLINK_NONE
@@ -250,7 +250,7 @@ public class TiUIHelper
 		final OnClickListener fListener = listener;
 		waitForCurrentActivity(new CurrentActivityListener() {
 			// TODO @Override
-			public void onCurrentActivityReady(Activity activity)
+			public void onCurrentActivityReady(final Activity activity)
 			{
 				//add dialog to activity for cleaning up purposes
 				if (!activity.isFinishing()) {
@@ -276,7 +276,7 @@ public class TiUIHelper
 		});
 	}
 
-	public static int toTypefaceStyle(String fontWeight, String fontStyle)
+	public static int toTypefaceStyle(final String fontWeight, final String fontStyle)
 	{
 		int style = Typeface.NORMAL;
 
@@ -296,7 +296,7 @@ public class TiUIHelper
 		return style;
 	}
 
-	public static int getSizeUnits(String size) {
+	public static int getSizeUnits(final String size) {
 		int units = TypedValue.COMPLEX_UNIT_PX;
 		String unitString = null;
 
@@ -336,7 +336,7 @@ public class TiUIHelper
 		return units;
 	}
 	
-	public static void getSizeAndUnits(String size, float[] result) {
+	public static void getSizeAndUnits(final String size, final float[] result) {
 		int units = TypedValue.COMPLEX_UNIT_PX;
 		float value = 15.0f;
 		String unitString = null;
@@ -379,7 +379,7 @@ public class TiUIHelper
 		result[1] = value;
 	}
 
-	public static float getSize(String size) {
+	public static float getSize(final String size) {
 		float value = 15.0f;
 		if (size != null) {
 			Matcher m = SIZED_VALUE.matcher(size.trim());
@@ -391,7 +391,7 @@ public class TiUIHelper
 		return value;
 	}
 	
-	public static float getRawSize(int unit, float size, Context context) {
+	public static float getRawSize(final int unit, final float size, final Context context) {
 		Resources r;
 		if (context != null) {
 			r = context.getResources();
@@ -401,36 +401,36 @@ public class TiUIHelper
 		return TypedValue.applyDimension(unit, size, r.getDisplayMetrics());
 	}
 
-	public static float getRawSize(int unit, float size) {
+	public static float getRawSize(final int unit, final float size) {
 		return getRawSize(unit, size, null);
 	}
 	
-	public static float getRawDIPSize(float size, Context context) {
+	public static float getRawDIPSize(final float size, final Context context) {
 		return getRawSize(TypedValue.COMPLEX_UNIT_DIP, size, context);
 	}
 	
-	public static float getRawSize(String size, Context context) {
+	public static float getRawSize(final String size, final Context context) {
 		float[] result = new float[2];
 		getSizeAndUnits(size, result);
 		return getRawSize((int)result[0], result[1], context);
 	}
 	
-	public static float getRawSize(int size, Context context) {
+	public static float getRawSize(final int size, final Context context) {
 		float[] result = new float[2];
 		getSizeAndUnits(null, result);
 		return getRawSize((int)result[0], size, context);
 	}
 
-	public static float getInPixels(String size) {
+	public static float getInPixels(final String size) {
 		
 		return getRawSize(size, null);
 	}
 	
-	public static float getInPixels(String size, Context context) {
+	public static float getInPixels(final String size, final Context context) {
 		return getInPixels(size, 0.0f, context);
 	}
 	
-	public static float getInPixels(String size, float defaultValue, Context context) {
+	public static float getInPixels(final String size, final float defaultValue, final Context context) {
         if (size == null || size.length() == 0) {
             if (defaultValue > 0) {
                 return getRawSize(TypedValue.COMPLEX_UNIT_DIP, defaultValue, context);
@@ -440,8 +440,8 @@ public class TiUIHelper
         return getRawSize(size, context);
     }
 
-	public static float getInPixels(HashMap dict, String property,
-			float defaultValue, Context context) {
+	public static float getInPixels(final HashMap dict, final String property,
+	        final float defaultValue, final Context context) {
 		if (dict.containsKey(property)) {
 			return getRawSize(TiConvert.toString(dict.get(property)), context);
 		}
@@ -451,38 +451,38 @@ public class TiUIHelper
 		return 0;
 	}
 	
-	public static float getInPixels(HashMap dict, String property,
+	public static float getInPixels(final HashMap dict, final String property,
             Context context) {
         return getInPixels(dict, property, 0.0f, context);
     }
 
-	public static float getInPixels(HashMap dict, String property) {
+	public static float getInPixels(final HashMap dict, final String property) {
 		return getInPixels(dict, property, null);
 	}
 	
     @Deprecated
-	public static float getRawSizeOrZero(HashMap dict, String property) {
+	public static float getRawSizeOrZero(final HashMap dict, final String property) {
         return getInPixels(dict, property, null);
     }
 	
-	public static float getInPixels(HashMap dict, String property, float defaultValue) {
+	public static float getInPixels(final HashMap dict, final String property, final float defaultValue) {
         return getInPixels(dict, property, defaultValue, null);
     }
 
-	public static float getInPixels(Object value) {
+	public static float getInPixels(final Object value) {
 		return getInPixels(TiConvert.toString(value), null);
 	}
 	
 	@Deprecated
-	public static float getRawSizeOrZero(Object value) {
+	public static float getRawSizeOrZero(final Object value) {
         return getInPixels(TiConvert.toString(value), null);
     }
 	
-	public static float getInPixels(Object value, float defaultValue) {
+	public static float getInPixels(final Object value, final float defaultValue) {
         return getInPixels(TiConvert.toString(value), defaultValue, null);
     }
 	
-	public static FontDesc getFontStyle(Context context, HashMap<String, Object> d) {
+	public static FontDesc getFontStyle(final Context context, final HashMap<String, Object> d) {
 		FontDesc desc = new FontDesc();
 		if (d == null) {
 			desc.setDefaults(context);
@@ -521,33 +521,36 @@ public class TiUIHelper
 		return desc;
 	}
 	
-	public static void setPadding(View view, RectF padding) {
+	public static void setPadding(final View view, final RectF padding) {
 		view.setPadding((int)padding.left, (int)padding.top, (int)padding.right,
 				(int)padding.bottom);
 	}
 
-	public static void styleText(TextView tv, HashMap<String, Object> d) {
-		FontDesc desc = getFontStyle(tv.getContext(), d);
-		tv.setTypeface(desc.typeface, desc.style);
-		tv.setTextSize(desc.sizeUnit, desc.size);
+	public static void styleText(final TextView tv, final HashMap<String, Object> d) {
+	    styleText(tv, getFontStyle(tv.getContext(), d));
 	}
+	
+	public static void styleText(final TextView tv, final FontDesc desc) {
+        tv.setTypeface(desc.typeface, desc.style);
+        tv.setTextSize(desc.sizeUnit, desc.size);
+    }
 
-	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight)
-	{
-		styleText(tv, fontFamily, fontSize, fontWeight, null);
-	}
+//	public static void styleText(final TextView tv, final String fontFamily, final String fontSize, final String fontWeight)
+//	{
+//		styleText(tv, fontFamily, fontSize, fontWeight, null);
+//	}
+//
+//	public static void styleText(TextView tv, final String fontFamily, final String fontSize, final String fontWeight, final String fontStyle)
+//	{
+//		Typeface tf = tv.getTypeface();
+//		tf = toTypeface(tv.getContext(), fontFamily);
+//		tv.setTypeface(tf, toTypefaceStyle(fontWeight, fontStyle));
+//		float[] result = new float[2];
+//		getSizeAndUnits(fontSize, result);
+//		tv.setTextSize((int)result[0], result[1]);
+//	}
 
-	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight, String fontStyle)
-	{
-		Typeface tf = tv.getTypeface();
-		tf = toTypeface(tv.getContext(), fontFamily);
-		tv.setTypeface(tf, toTypefaceStyle(fontWeight, fontStyle));
-		float[] result = new float[2];
-		getSizeAndUnits(fontSize, result);
-		tv.setTextSize((int)result[0], result[1]);
-	}
-
-	public static Typeface toTypeface(Context context, String fontFamily, String weight)
+	public static Typeface toTypeface(final Context context, String fontFamily, String weight)
 	{
 		Typeface tf = Typeface.SANS_SERIF; // default
 		if (weight != null) {
@@ -587,16 +590,16 @@ public class TiUIHelper
 		return tf;
 	}
 	
-	public static Typeface toTypeface(Context context, String fontFamily)
+	public static Typeface toTypeface(final Context context, String fontFamily)
     {
 	    return toTypeface(context, fontFamily, null);
     }
-	public static Typeface toTypeface(String fontFamily) {
+	public static Typeface toTypeface(final String fontFamily) {
 		return toTypeface(null, fontFamily);
 	}
 
 	@SuppressLint("DefaultLocale")
-	private static Typeface loadTypeface(Context context, String fontFamily)
+	private static Typeface loadTypeface(final Context context, final String fontFamily)
 	{
 		if (context == null) {
 			return null;
@@ -632,7 +635,7 @@ public class TiUIHelper
 		return null;
 	}
 
-	public static String getDefaultFontSize(Context context) {
+	public static String getDefaultFontSize(final Context context) {
 		String size = "15.0px";
 		TextView tv = new TextView(context);
 		if (tv != null) {
@@ -643,7 +646,7 @@ public class TiUIHelper
 		return size;
 	}
 
-	public static String getDefaultFontWeight(Context context) {
+	public static String getDefaultFontWeight(final Context context) {
 		String style = "normal";
 		TextView tv = new TextView(context);
 		if (tv != null) {
@@ -656,7 +659,7 @@ public class TiUIHelper
 		return style;
 	}
 
-	public static int getGravity(String align, boolean vertical) {
+	public static int getGravity(final String align, final boolean vertical) {
 		if (align != null) {
 			if ("left".equals(align)) {
 				 return Gravity.LEFT;
@@ -673,7 +676,7 @@ public class TiUIHelper
 		return Gravity.NO_GRAVITY;
 	}
 
-	public static void setAlignment(TextView tv, String textAlign, String verticalAlign) 
+	public static void setAlignment(final TextView tv, final String textAlign, final String verticalAlign) 
 	{
 		int gravity = Gravity.NO_GRAVITY;
 		
@@ -729,7 +732,7 @@ public class TiUIHelper
 	public static final int FONT_WEIGHT_POSITION = 2;
 	public static final int FONT_STYLE_POSITION = 3;
 	
-	public static String[] getFontProperties(KrollDict fontProps)
+	public static String[] getFontProperties(final KrollDict fontProps)
 	{
 		boolean bFontSet = false;
 		String[] fontProperties = new String[4];
@@ -771,7 +774,7 @@ public class TiUIHelper
 		}
 		return fontProperties;
 	}
-	public static void setTextViewDIPPadding(TextView textView, int horizontalPadding, int verticalPadding) {
+	public static void setTextViewDIPPadding(final TextView textView, final int horizontalPadding, final int verticalPadding) {
 		int rawHPadding = (int)getRawDIPSize(horizontalPadding, textView.getContext());
 		int rawVPadding = (int)getRawDIPSize(verticalPadding, textView.getContext());
 		textView.setPadding(rawHPadding, rawVPadding, rawHPadding, rawVPadding);
@@ -804,7 +807,7 @@ public class TiUIHelper
 		-android.R.attr.state_enabled
 	};
 
-	public static ColorDrawable buildColorDrawable(Object color) {	
+	public static ColorDrawable buildColorDrawable(final Object color) {	
 	    if (color instanceof Integer) {
 	        return new ColorDrawable((Integer)color);
 	    } else if (color instanceof String) {
@@ -817,11 +820,11 @@ public class TiUIHelper
 	    return null;
 	}
 	
-	private static String resolveImageUrl(String path, KrollProxy proxy) {
+	private static String resolveImageUrl(final String path, final KrollProxy proxy) {
 		return path.length() > 0 ? proxy.resolveUrl(null, path) : null;
 	}
 
-	public static Drawable buildImageDrawable(Context context, Object object, boolean tileImage, KrollProxy proxy) {
+	public static Drawable buildImageDrawable(final Context context, final Object object, final boolean tileImage, final KrollProxy proxy) {
         
 	    if (object instanceof TiBlob) {
 	        switch (((TiBlob) object).getType()) {
@@ -884,7 +887,7 @@ public class TiUIHelper
         return null;
     }
 	
-	public static TiGradientDrawable buildGradientDrawable(KrollDict gradientProperties) {
+	public static TiGradientDrawable buildGradientDrawable(final KrollDict gradientProperties) {
 		TiGradientDrawable gradientDrawable = null;
 		if (gradientProperties != null) {
 			try {
@@ -897,7 +900,7 @@ public class TiUIHelper
 		return gradientDrawable;
 	}
 
-	public static KrollDict createDictForImage(int width, int height, byte[] data)
+	public static KrollDict createDictForImage(final int width, final int height, final byte[] data)
 	{
 		KrollDict d = new KrollDict();
 		d.put(TiC.PROPERTY_X, 0);
@@ -917,7 +920,7 @@ public class TiUIHelper
 		return d;
 	}
 
-	public static TiBlob getImageFromDict(KrollDict dict)
+	public static TiBlob getImageFromDict(final KrollDict dict)
 	{
 		if (dict != null) {
 			if (dict.containsKey(TiC.PROPERTY_MEDIA)) {
@@ -933,7 +936,7 @@ public class TiUIHelper
 	 /**
      * Draw the view into a bitmap.
      */
-    public static Bitmap getViewBitmap(View v) {
+    public static Bitmap getViewBitmap(final View v) {
         v.clearFocus();
         v.setPressed(false);
 
@@ -969,7 +972,7 @@ public class TiUIHelper
         return bitmap;
     }
 	
-	public static Bitmap viewToBitmap(KrollDict proxyDict, View view)
+	public static Bitmap viewToBitmap(final KrollDict proxyDict, final View view)
 	{
 		Bitmap bitmap = null;
 
@@ -1050,7 +1053,7 @@ public class TiUIHelper
 		return bitmap;
 	}
 
-	public static TiBlob viewToImage(KrollDict proxyDict, View view)
+	public static TiBlob viewToImage(final KrollDict proxyDict, final View view)
 	{
 		Bitmap bitmap = viewToBitmap(proxyDict, view);
 		if (bitmap != null) {
@@ -1066,7 +1069,7 @@ public class TiUIHelper
 	 * @return a new bitmap instance.
 	 * @module.api
 	 */
-	public static Bitmap createBitmap(InputStream stream, BitmapFactory.Options opts)
+	public static Bitmap createBitmap(final InputStream stream, BitmapFactory.Options opts)
 	{
 		Rect pad = new Rect();
 		if (opts == null) {
@@ -1089,7 +1092,7 @@ public class TiUIHelper
 	 * @return a new bitmap instance.
 	 * @module.api
 	 */
-	public static Bitmap createBitmap(InputStream stream)
+	public static Bitmap createBitmap(final InputStream stream)
 	{
 		return createBitmap(stream, null);
 	}
@@ -1115,7 +1118,7 @@ public class TiUIHelper
 	 * @param stream an InputStream to read bitmap data.
 	 * @return a new bitmap instance.
 	 */
-	public static Bitmap createDensityScaledBitmap(InputStream stream)
+	public static Bitmap createDensityScaledBitmap(final InputStream stream)
 	{
 		Bitmap b = null;
 		try {
@@ -1126,7 +1129,7 @@ public class TiUIHelper
 		return b;
 	}
 	
-	private static String getResourceKeyForImage(String url)
+	private static String getResourceKeyForImage(final String url)
 	{
 		if (resourceImageKeys.containsKey(url)) {
 			return resourceImageKeys.get(url);
@@ -1178,7 +1181,7 @@ public class TiUIHelper
 		return sResult;
 	}
 	
-	public static int getResourceId(String url)
+	public static int getResourceId(final String url)
 	{
 		if (!url.contains("Resources/")) {
 			return 0;
@@ -1202,7 +1205,7 @@ public class TiUIHelper
 	 * @return a new bitmap instance
 	 * @module.api
 	 */
-	public static Bitmap getResourceBitmap(String url)
+	public static Bitmap getResourceBitmap(final String url)
 	{
 		int id = getResourceId(url);
 		if (id == 0) {
@@ -1218,7 +1221,7 @@ public class TiUIHelper
 	 * @return a new bitmap instance.
 	 * @module.api
 	 */
-	public static Bitmap getResourceBitmap(int res_id)
+	public static Bitmap getResourceBitmap(final int res_id)
 	{
 		BitmapFactory.Options opts = new BitmapFactory.Options();
 		opts.inPurgeable = true;
@@ -1233,7 +1236,7 @@ public class TiUIHelper
 		return bitmap;
 	}
 
-	public static Drawable loadFastDevDrawable(String url)
+	public static Drawable loadFastDevDrawable(final String url)
 	{
 		try {
 			TiBaseFile tbf = TiFileFactory.createTitaniumFile(new String[] { url }, false);
@@ -1247,7 +1250,7 @@ public class TiUIHelper
 		return null;
 	}
 
-	public static Drawable getResourceDrawable(String url)
+	public static Drawable getResourceDrawable(final String url)
 	{
 		int id = getResourceId(url);
 		if (id == 0) {
@@ -1261,12 +1264,12 @@ public class TiUIHelper
 		}
 	}
 	
-	public static Drawable getResourceDrawable(int res_id)
+	public static Drawable getResourceDrawable(final int res_id)
 	{
 		return TiApplication.getInstance().getResources().getDrawable(res_id);
 	}
 
-	public static Drawable getResourceDrawable(Object path)
+	public static Drawable getResourceDrawable(final Object path)
 	{
 		Drawable d = null;
 		
@@ -1286,7 +1289,7 @@ public class TiUIHelper
 		return d;
 	}
 
-	public static void overridePendingTransition(Activity activity) 
+	public static void overridePendingTransition(final Activity activity) 
 	{
 		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
 			return;
@@ -1312,7 +1315,7 @@ public class TiUIHelper
 		}
 	}
 	
-	public static ColorFilter createColorFilterForOpacity(float opacity) {
+	public static ColorFilter createColorFilterForOpacity(final float opacity) {
 		// 5x4 identity color matrix + fade the alpha to achieve opacity
 		float[] matrix = {
 			1, 0, 0, 0, 0,
@@ -1324,7 +1327,7 @@ public class TiUIHelper
 		return new ColorMatrixColorFilter(new ColorMatrix(matrix));
 	}
 	
-	public static void setDrawableOpacity(Drawable drawable, float opacity) {
+	public static void setDrawableOpacity(final Drawable drawable, final float opacity) {
 		if (drawable instanceof ColorDrawable || drawable instanceof TiBackgroundDrawable) {
 			drawable.setAlpha(Math.round(opacity * 255));
 		} else if (drawable != null) {
@@ -1332,11 +1335,11 @@ public class TiUIHelper
 		}
 	}
 	
-	public static void setPaintOpacity(Paint paint, float opacity) {
+	public static void setPaintOpacity(final Paint paint, final float opacity) {
 		paint.setColorFilter(createColorFilterForOpacity(opacity));
 	}
 
-	public static void requestSoftInputChange(TiUIView uiView, View view) 
+	public static void requestSoftInputChange(final TiUIView uiView, final View view) 
 	{
 		int focusState = uiView.getFocusState();
 		if (focusState > TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS) {
@@ -1354,7 +1357,7 @@ public class TiUIHelper
 	 * hides the soft keyboard.
 	 * @param view the current focused view.
 	 */
-	public static void hideSoftKeyboard(View view) 
+	public static void hideSoftKeyboard(final View view) 
 	{
 		showSoftKeyboard(view, false);
 	}
@@ -1364,7 +1367,7 @@ public class TiUIHelper
 	 * @param view the current focused view.
 	 * @param show whether to show soft keyboard.
 	 */
-	public static void showSoftKeyboard(View view, boolean show) 
+	public static void showSoftKeyboard(final View view, final boolean show) 
 	{
 		if (view == null) return;
 		InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);
@@ -1425,14 +1428,14 @@ public class TiUIHelper
 		}
 	}
 
-	public static void firePostLayoutEvent(TiUIView view)
+	public static void firePostLayoutEvent(final TiUIView view)
 	{
 		if (view != null && view.getProxy() != null) {
 			view.getProxy().fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 		}
 	}
 
-	public static boolean isViewInsideViewOfClass(View view, Class<?>[] testClass) {
+	public static boolean isViewInsideViewOfClass(final View view, final Class<?>[] testClass) {
 		ViewParent parent = view.getParent();
 		if (parent != null) {
 			for (int i = 0; i < testClass.length; i++) {
@@ -1473,12 +1476,12 @@ public class TiUIHelper
         parent.addView(view);
     }
 
-	public static void addView(ViewGroup parent, View view) {
+	public static void addView(final ViewGroup parent, final View view) {
 		removeViewFromSuperView(view);
 		parent.addView(view);
 	}
 	
-	public static void addView(ViewGroup parent, TiViewProxy viewProxy) {
+	public static void addView(final ViewGroup parent, final TiViewProxy viewProxy) {
 	    TiUIView tiView = viewProxy.getOrCreateView();
 	    if (tiView == null) return;
         View view = tiView.getOuterView();
@@ -1488,22 +1491,22 @@ public class TiUIHelper
     }
     
 	
-	public static void addView(ViewGroup parent, View view, int index) {
+	public static void addView(final ViewGroup parent, final View view, final int index) {
 		removeViewFromSuperView(view);
 		parent.addView(view, index);
 	}
 	
-	public static void addView(ViewGroup parent, View view, ViewGroup.LayoutParams params) {
+	public static void addView(final ViewGroup parent, final View view, final ViewGroup.LayoutParams params) {
 		removeViewFromSuperView(view);
 		parent.addView(view, params);
 	}
 	
-	public static void addView(ViewGroup parent, View view, int index, ViewGroup.LayoutParams params) {
+	public static void addView(final ViewGroup parent, final View view, final int index, ViewGroup.LayoutParams params) {
 		removeViewFromSuperView(view);
 		parent.addView(view, index, params);
 	}
 	
-	public static KrollDict getViewRectDict(View view) {
+	public static KrollDict getViewRectDict(final View view) {
 		TiDimension nativeWidth = new TiDimension(view.getWidth(), TiDimension.TYPE_WIDTH);
 		TiDimension nativeHeight = new TiDimension(view.getHeight(), TiDimension.TYPE_HEIGHT);
 		TiDimension nativeLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
@@ -1521,7 +1524,7 @@ public class TiUIHelper
 		return d;
 	}
 	
-	public static RectF insetRect(RectF source, RectF inset) {
+	public static RectF insetRect(final RectF source, final RectF inset) {
 		if (inset == null) return source;
 		return new RectF(source.left + inset.left, 
 				source.top + inset.top, 
@@ -1529,7 +1532,7 @@ public class TiUIHelper
 				source.bottom - inset.bottom);
 	}
 	
-	public static RectF insetRect(RectF source, float inset) {
+	public static RectF insetRect(final RectF source, final float inset) {
 		if (inset == 0.0) return source;
 		return new RectF(source.left + inset, 
 				source.top + inset, 
@@ -1537,7 +1540,7 @@ public class TiUIHelper
 				source.bottom - inset);
 	}
 	
-	public static Shadow getShadow(KrollDict dict) {
+	public static Shadow getShadow(final KrollDict dict) {
 		Shadow result = new Shadow();
 		if (dict == null) return result;
 		if (dict.containsKey(TiC.PROPERTY_OFFSET)) 
@@ -1554,7 +1557,7 @@ public class TiUIHelper
 		return result;
 	}
 	
-	public static int adjustColorAlpha(int color, float factor) {
+	public static int adjustColorAlpha(final int color, final float factor) {
 	    int alpha = Math.round(Color.alpha(color) * factor);
 	    int red = Color.red(color);
 	    int green = Color.green(color);
@@ -1563,7 +1566,7 @@ public class TiUIHelper
 	}
 	
 	
-	private static Object getValueForKeyPath(final String key, HashMap object) {
+	private static Object getValueForKeyPath(final String key, final HashMap object) {
 	    Object current = object;
 	    Object result = null;
 	    String[] parts = TiUtils.fastSplit(key, '.');
@@ -1598,7 +1601,7 @@ public class TiUIHelper
 	}
 
     private static final char VAR_PREFIX = '_';
-    public static void applyMathDict(KrollDict mathDict, KrollDict event, final KrollProxy source) {
+    public static void applyMathDict(final KrollDict mathDict, final KrollDict event, final KrollProxy source) {
         if (event == null) return;
         KrollDict expressions = new KrollDict();
 	    
