@@ -532,22 +532,30 @@ NSArray* moviePlayerKeys = nil;
 
 -(void)setBackgroundColor:(id)color
 {
-	[self replaceValue:color forKey:@"backgroundColor" notification:NO];
-	
-	RELEASE_TO_NIL(backgroundColor);
-	backgroundColor = [[TiUtils colorValue:color] retain];
-	
-	if (movie != nil) {
-		UIView *background = [movie backgroundView];
-		if (background!=nil)
-		{
-			TiThreadPerformOnMainThread(^{[background setBackgroundColor:[backgroundColor _color]];}, NO);
-			return;
-		}
-	}
-	else {
-		[loadProperties setValue:color forKey:@"backgroundColor"];
-	}
+    [self replaceValue:color forKey:@"backgroundColor" notification:NO];
+    
+    RELEASE_TO_NIL(backgroundColor);
+    backgroundColor = [[TiUtils colorValue:color] retain];
+    
+    if (movie != nil) {
+        UIView *background = [movie backgroundView];
+        if (background!=nil)
+        {
+            TiThreadPerformOnMainThread(^{
+                UIColor* color = [backgroundColor _color];
+                movie.view.backgroundColor = [UIColor clearColor];
+                for(UIView *aSubView in movie.view.subviews) {
+                    aSubView.backgroundColor = [UIColor clearColor];
+                }
+                [background setBackgroundColor:color];
+                
+            }, NO);
+            return;
+        }
+    }
+    else {
+        [loadProperties setValue:color forKey:@"backgroundColor"];
+    }
 }
 
 -(NSNumber*)playableDuration
