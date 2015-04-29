@@ -176,6 +176,11 @@ public class TiUIButton extends TiUINonViewGroupView
             TiUIHelper.setPadding(getButton(), padding);
             setNeedsLayout();
             break;
+        case TiC.PROPERTY_AUTOCAPITALIZATION:
+            if (TiC.ICS_OR_GREATER) {
+                getButton().setAllCaps(TiConvert.toBoolean(newValue));
+            }
+            break;
         case TiC.PROPERTY_IMAGE_ANCHOR:
             imageGravity = TiUIHelper.getGravity(TiConvert.toString(newValue), false);
             mProcessUpdateFlags |= TIFLAG_NEEDS_IMAGE;
