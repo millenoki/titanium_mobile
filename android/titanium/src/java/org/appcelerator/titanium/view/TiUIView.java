@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.view;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,6 +47,8 @@ import com.nineoldandroids.animation.PropertyValuesHolder;
 import com.nineoldandroids.view.ViewHelper;
 import com.nineoldandroids.view.animation.AnimatorProxy;
 
+import android.animation.AnimatorSet;
+import android.animation.StateListAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -127,13 +130,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected boolean preventListViewSelection = false;
     protected boolean touchPassThrough = false;
     protected boolean dispatchPressed = false;
+    protected boolean clipChildren = true;
     protected boolean reusing = false;
 
     protected boolean isEnabled = true;
     protected boolean isFocusable = false;
     protected boolean isTouchEnabled = true;
-
-    private boolean clipChildren = true;
 
     protected MotionEvent lastUpEvent = null;
     protected MotionEvent lastDownEvent = null;
@@ -146,6 +148,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     private boolean zIndexChanged = false;
     protected TiBorderWrapperView borderView;
     private TiDimension mElevation = null;
+    private TiDimension mTranslationZ = null;
 
     // to maintain sync visibility between borderview and view. Default is
     // visible
@@ -233,13 +236,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     }
 
                     child.parent = proxy;
-                    TiViewProxy childProxy = child.proxy;
-                    if (childProxy.hasProperty(TiC.PROPERTY_CLIP_CHILDREN)) {
-                        boolean value = TiConvert.toBoolean(childProxy
-                                .getProperty(TiC.PROPERTY_CLIP_CHILDREN));
-                        if (value == false) {
-                            ((ViewGroup) nv).setClipChildren(false);
-                        }
+                    if (!child.getClipChildren()) {
+                        ((ViewGroup) nv).setClipChildren(false);
                     }
                 }
             }
@@ -393,8 +391,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (savedParent != null) {
                 savedParent.addView(view, savedIndex, getLayoutParams());
             }
+            ((TiCompositeLayout) this.nativeView).setView(null);
         }
         this.nativeView = view;
+        if (this.nativeView instanceof TiCompositeLayout) {
+            ((TiCompositeLayout) this.nativeView).setView(this);
+        }
 
         doSetClickable();
         getFocusView().setOnFocusChangeListener(this);
@@ -778,16 +780,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             return;
         } else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
             TiBorderWrapperView view = getOrCreateBorderView();
-            // TiBackgroundDrawable borderDrawable = view.getBorderDrawable();
             switch (key) {
             case TiC.PROPERTY_BORDER_COLOR: {
                 int color = TiConvert.toColor(newValue);
                 view.setColor(color);
-                // borderDrawable.setDefaultColor(color);
-                // borderDrawable.setColorForState(TiUIHelper.BACKGROUND_DEFAULT_STATE_1,
-                // color);
-                // borderDrawable.setColorForState(TiUIHelper.BACKGROUND_DEFAULT_STATE_2,
-                // color);
                 break;
             }
             case TiC.PROPERTY_BORDER_SELECTED_COLOR: {
@@ -938,7 +934,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             preventListViewSelection = TiConvert.toBoolean(newValue, false);
             break;
         case TiC.PROPERTY_CLIP_CHILDREN: {
-            clipChildren = TiConvert.toBoolean(newValue, false);
+            clipChildren = TiConvert.toBoolean(newValue, true);
             View parentViewForChild = getParentViewForChild();
             if (parentViewForChild instanceof ViewGroup) {
                 ((ViewGroup) parentViewForChild).setClipChildren(clipChildren);
@@ -953,26 +949,64 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             }
             break;
         }
+        case TiC.PROPERTY_TRANSLATION_Z: {
+            if (TiC.LOLLIPOP_OR_GREATER) {
+                mTranslationZ = TiConvert.toTiDimension(newValue,
+                        TiDimension.TYPE_WIDTH);
+                View view = getOuterView();
+                if (view != null) {
+                    view.setTranslationZ(mTranslationZ.getAsPixels(view));
+                    updateStateListAnimator();
+                }
+            }
+            break;
+        }
         case TiC.PROPERTY_ELEVATION:
+        {
             if (TiC.LOLLIPOP_OR_GREATER) {
                 mElevation = TiConvert.toTiDimension(newValue,
                         TiDimension.TYPE_WIDTH);
                 View view = getOuterView();
+                if (outlineProvider == null) {
+                    outlineProvider = new ViewOutlineProvider() {
+
+                        @Override
+                        public void getOutline(View view, Outline outline) {
+                            if (mElevation == null && view.getElevation() == 0) {
+                                outline.setEmpty();
+                            } else {
+                                Path path = background.getPath();
+                                if (path != null) {
+                                    outline.setConvexPath(path);
+                                } else {
+                                    outline.setRect(0, 0,
+                                            view.getMeasuredWidth(),
+                                            view.getMeasuredHeight());
+                                }
+                            }
+
+                        }
+                    };
+                    if (view != null) {
+                        view.setOutlineProvider(outlineProvider);
+                    }
+                }
                 if (view != null) {
-                    ViewGroup parent = (ViewGroup) view.getParent();
-                    view.setElevation(mElevation.getAsPixels(parent));
+                    view.setElevation(mElevation.getAsPixels(view));
+                    updateStateListAnimator();
                 }
             }
             break;
+        }
         case TiC.PROPERTY_SELECTOR:
             if (newValue instanceof Boolean) {
                 TypedArray a = getContext().obtainStyledAttributes(
                         new int[] { android.R.attr.colorAccent });
-                applyCustomForeground(a.getColor(0, 0));
+                applyCustomForeground(a.getColor(0, 0), TiConvert.toBoolean(newValue, false));
                 a.recycle();
             } else {
                 int color = TiConvert.toColor(newValue);
-                applyCustomForeground(color);
+                applyCustomForeground(color, true);
             }
             break;
 
@@ -1000,6 +1034,72 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         default:
             break;
         }
+    }
+
+    protected void updateStateListAnimator() {
+        View view = getOuterView();
+        if (view == null) {
+            return;
+        }
+        float elevation = view.getElevation();
+        float translationSelectedZ = 2.0f;
+        float translationZ = view.getTranslationZ();
+        int animationDuration = 100;
+        StateListAnimator listAnimator = new StateListAnimator();
+        List<android.animation.Animator> animators = new ArrayList<android.animation.Animator>();
+        AnimatorSet set = new AnimatorSet();
+        android.animation.Animator animator = android.animation.ObjectAnimator
+                .ofFloat(view, "translationZ", translationSelectedZ);
+        animator.setDuration(animationDuration);
+        animators.add(animator);
+        animator = android.animation.ObjectAnimator.ofFloat(view, "elevation",
+                elevation);
+        animator.setDuration(0);
+        animators.add(animator);
+        set.playTogether(animators);
+        listAnimator.addState(TiUIHelper.BACKGROUND_SELECTED_STATE, set);
+
+        animators.clear();
+        set = new AnimatorSet();
+        animator = android.animation.ObjectAnimator.ofFloat(view,
+                "translationZ", translationSelectedZ);
+        animator.setDuration(animationDuration);
+        animators.add(animator);
+        animator = android.animation.ObjectAnimator.ofFloat(view, "elevation",
+                elevation);
+        animator.setDuration(0);
+        animators.add(animator);
+        set.playTogether(animators);
+        listAnimator.addState(TiUIHelper.BACKGROUND_FOCUSED_STATE, set);
+
+        animators.clear();
+        set = new AnimatorSet();
+        animator = android.animation.ObjectAnimator.ofFloat(view,
+                "translationZ", translationZ);
+        animator.setDuration(animationDuration);
+        animator.setStartDelay(animationDuration);
+        animators.add(animator);
+        animator = android.animation.ObjectAnimator.ofFloat(view, "elevation",
+                elevation);
+        animator.setDuration(0);
+        animators.add(animator);
+        set.playTogether(animators);
+        listAnimator.addState(TiUIHelper.BACKGROUND_DEFAULT_STATE_2, set);
+
+        animators.clear();
+        set = new AnimatorSet();
+        animator = android.animation.ObjectAnimator.ofFloat(view,
+                "translationZ", translationZ);
+        animator.setDuration(0);
+        animators.add(animator);
+        animator = android.animation.ObjectAnimator.ofFloat(view, "elevation",
+                elevation);
+        animator.setDuration(0);
+        animators.add(animator);
+        set.playTogether(animators);
+        listAnimator.addState(new int[] {}, set);
+
+        view.setStateListAnimator(listAnimator);
     }
 
     protected void setBackgroundImageDrawable(Object object,
@@ -1330,14 +1430,28 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    public void propagateChildDrawableState(View child) {
-        propagateDrawableState(child.getDrawableState());
-    }
+    // public void propagateChildDrawableState(View child) {
+    // propagateDrawableState(child, child.getDrawableState());
+    // }
 
-    public void propagateDrawableState(int[] state) {
-        if (background != null) {
-            background.setState(state);
+    // public void propagateChildHotspotChanged(View child, final float x, final
+    // float y) {
+    // if (nativeView != null) {
+    // nativeView.drawableHotspotChanged(x, y);
+    // }
+    // if (borderView != null) {
+    // borderView.drawableHotspotChanged(x, y);
+    // }
+    // }
+
+    public void propagateDrawableState(final View child, final int[] state) {
+        if (child != nativeView) {
+            Drawable drawable = nativeView.getBackground();
+            if (drawable != null && drawable.isStateful()) {
+                drawable.setState(state);
+            }
         }
+
         if (borderView != null) {
             borderView.setDrawableState(state);
         }
@@ -1362,9 +1476,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     public static void setBackgroundDrawable(View view, Drawable drawable) {
         if (TiC.JELLY_BEAN_OR_GREATER) {
             view.setBackground(drawable);
-             if (drawable != null) {
-                 drawable.setCallback(view);
-             }
+            if (drawable != null) {
+                drawable.setCallback(view);
+            }
         } else {
             view.setBackgroundDrawable(drawable);
         }
@@ -1409,33 +1523,23 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    protected void applyCustomForeground(final int pressedColor) {
+    private ViewOutlineProvider outlineProvider = null;
+
+    protected void applyCustomForeground(final int pressedColor, final boolean enabled) {
         if (TiC.LOLLIPOP_OR_GREATER) {
-            
+
             View view = getNativeView();
             if (view != null) {
-                view.setOutlineProvider(new ViewOutlineProvider() {
-
-                    @Override
-                    public void getOutline(View view, Outline outline) {
-                        if (mElevation == null && view.getElevation() == 0) {
-                            outline.setEmpty();
-                        } else {
-                            Path path = background.getPath();
-                            if (path != null) {
-                                outline.setConvexPath(path);
-                            } else {
-                                outline.setRect(background.getBounds());
-                            }
-                        }
-
-                    }
-                });
-                RippleDrawable drawable = new RippleDrawable(
-                        new ColorStateList(new int[][] { new int[] {} },
-                                new int[] { pressedColor }),
-                        getOrCreateBackground(), null);
-                setBackgroundDrawable(view, drawable);
+                if (enabled) {
+                    RippleDrawable drawable = new RippleDrawable(
+                            new ColorStateList(new int[][] {
+                                    TiUIHelper.BACKGROUND_SELECTED_STATE,
+                                    new int[] {} }, new int[] { pressedColor,
+                                    pressedColor }), getOrCreateBackground(), null);
+                    setBackgroundDrawable(view, drawable);
+                } else {
+                    setBackgroundDrawable(view, getOrCreateBackground());
+                }
             }
         }
     }
@@ -1464,13 +1568,17 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         borderView.setTag(this);
         borderView.setLayoutParams(getLayoutParams());
         borderView.addView(rootView, params);
+        if (TiC.LOLLIPOP_OR_GREATER) {
+            float elevation = rootView.getElevation();
+            float translationZ = rootView.getTranslationZ();
+            rootView.setElevation(0);
+            rootView.setTranslationZ(0);
+
+            borderView.setElevation(elevation);
+            borderView.setTranslationZ(translationZ);
+        }
         if (savedParent != null) {
             savedParent.addView(borderView, savedIndex);
-            rootView.setElevation(0);
-        }
-
-        if (mElevation != null) {
-            borderView.setElevation(mElevation.getAsPixels(savedParent));
         }
 
         // if ((borderView.getRadius() != null || hardwareAccEnabled == false)
@@ -1491,10 +1599,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             borderView.setVisibility(this.visibility);
             borderView.setEnabled(isEnabled);
 
-            if (proxy.hasProperty(TiC.PROPERTY_CLIP_CHILDREN)) {
-                boolean value = TiConvert.toBoolean(proxy
-                        .getProperty(TiC.PROPERTY_CLIP_CHILDREN));
-                borderView.setClipChildren(value);
+            if (!clipChildren) {
+                borderView.setClipChildren(clipChildren);
             }
 
             if (mBorderPadding != null)
@@ -1632,13 +1738,21 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         pointerDown = value;
     }
 
-    private int pointersDown = 0;
     private boolean pointerDown = false;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (mTouchDelegate != null) {
             mTouchDelegate.onTouchEvent(event, TiUIView.this);
+        }
+
+        if (TiC.LOLLIPOP_OR_GREATER) {
+            if (nativeView != v) {
+                nativeView.drawableHotspotChanged(event.getX(), event.getY());
+            }
+            if (borderView != null) {
+                borderView.drawableHotspotChanged(event.getX(), event.getY());
+            }
         }
 
         int action = event.getAction();
