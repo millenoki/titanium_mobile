@@ -14,6 +14,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Stack;
 
@@ -304,8 +305,12 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatCurrency")
-	public String stringFormatCurrency(double currency)
+	public String stringFormatCurrency(double currency, @Kroll.argument(optional=true) String localeString)
 	{
+	    if (localeString != null) {
+	        Locale locale = TiPlatformHelper.getInstance().getLocale(localeString);
+	        return NumberFormat.getCurrencyInstance(locale).format(currency);
+	    }
 		return NumberFormat.getCurrencyInstance().format(currency);
 	}
 

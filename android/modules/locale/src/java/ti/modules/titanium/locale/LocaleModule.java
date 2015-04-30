@@ -8,6 +8,7 @@ package ti.modules.titanium.locale;
 
 import java.util.Locale;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -113,4 +114,15 @@ public class LocaleModule extends KrollModule
 	{
 		return "Ti.Locale";
 	}
+	
+	@Kroll.getProperty
+    @Kroll.method
+    public KrollDict getFullInfo() {
+        KrollDict result = new KrollDict();
+        result.put("currencySymbol", getCurrencySymbol(getCurrentLocale()));
+        result.put("currentLocale", getCurrentLocale());
+        result.put("currentCountry", getCurrentCountry());
+        result.put("currentLanguage", getCurrentLanguage());
+        return result;
+    }
 }
