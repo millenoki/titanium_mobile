@@ -402,21 +402,24 @@
 // Returns protected proxy, caller should do forgetSelf.
 + (TiProxy *)unarchiveFromTemplate:(id)viewTemplate_ inContext:(id<TiEvaluator>)context withEvents:(BOOL)withEvents
 {
-	TiProxyTemplate *viewTemplate = [TiProxyTemplate templateFromViewTemplate:viewTemplate_];
-	if (viewTemplate == nil) {
-		return;
-	}
-	
-	if (viewTemplate.type != nil) {
-		TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:viewTemplate.type] withProperties:nil inContext:context];
-		[context.krollContext invokeBlockOnThread:^{
-			[context registerProxy:proxy];
-			[proxy rememberSelf];
-		}];
-		[proxy unarchiveFromTemplate:viewTemplate withEvents:withEvents];
-		return proxy;
-	}
-	return nil;
+    TiProxyTemplate *viewTemplate = [TiProxyTemplate templateFromViewTemplate:viewTemplate_];
+    if (viewTemplate == nil) {
+        return;
+    }
+    
+    if (viewTemplate.type != nil) {
+        TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:viewTemplate.type] withProperties:nil inContext:context];
+        if (proxy) {
+            [context.krollContext invokeBlockOnThread:^{
+                [context registerProxy:proxy];
+                [proxy rememberSelf];
+            }];
+            [proxy unarchiveFromTemplate:viewTemplate withEvents:withEvents];
+            
+        }
+        return proxy;
+    }
+    return nil;
 }
 
 - (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents inContext:(id<TiEvaluator>)context
