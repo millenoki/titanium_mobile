@@ -85,11 +85,11 @@ public class OneStateDrawable extends Drawable {
 		if (needsDrawing && !bounds.isEmpty()) {
 			Path path = parent.getPath();
 			if (path != null){
-				try {
-					canvas.clipPath(path);
-				} catch (Exception e) {
-					Log.w(TAG, "clipPath failed on canvas: " + e.getMessage(), Log.DEBUG_MODE);
-				}
+//				try {
+//					canvas.clipPath(path);
+//				} catch (Exception e) {
+//					Log.w(TAG, "clipPath failed on canvas: " + e.getMessage(), Log.DEBUG_MODE);
+//				}
 				if (color != Color.TRANSPARENT) {
 					paint.setColor(color);
 					canvas.drawPath(path, paint);		
