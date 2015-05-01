@@ -119,7 +119,7 @@ public class LocaleModule extends KrollModule
     @Kroll.method
     public KrollDict getFullInfo() {
         KrollDict result = new KrollDict();
-        result.put("currencySymbol", getCurrencySymbol(getCurrentLocale()));
+        result.put("currencySymbol", TiPlatformHelper.getInstance().getCurrencySymbol(Locale.getDefault()));
         result.put("currentLocale", getCurrentLocale());
         result.put("currentCountry", getCurrentCountry());
         result.put("currentLanguage", getCurrentLanguage());
