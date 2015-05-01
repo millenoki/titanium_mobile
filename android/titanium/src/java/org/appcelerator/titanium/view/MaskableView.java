@@ -310,6 +310,7 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
      protected void onSizeChanged(int w, int h, int oldw, int oldh) {
          super.onSizeChanged(w, h, oldw, oldh);
          if (enabled) {
+             viewRect.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
              setSize(w, h);
          }
      }
@@ -318,6 +319,7 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         if (enabled && changed) {
+            viewRect.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
             setSize(getMeasuredWidth(), getMeasuredHeight());
         }
     }
@@ -335,8 +337,6 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
     
     private void drawMask(Canvas canvas) {
         if (maskindispatch && mFinalMask != null && mPaint != null) {
-            viewRect.set(0, 0, getMeasuredWidth(), getMeasuredHeight());
-            maskRect.set(0, 0, mFinalMask.getWidth(), mFinalMask.getHeight());
             canvas.drawBitmap(mFinalMask, maskRect, viewRect, mPaint);
         }
     }
@@ -435,6 +435,9 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
             mFinalMask.recycle();
         }
         mFinalMask = newMask;
+        if (mFinalMask != null) {
+            maskRect.set(0, 0, mFinalMask.getWidth(), mFinalMask.getHeight());
+        }
     }
 
     // Utils
