@@ -391,7 +391,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (savedParent != null) {
                 savedParent.addView(view, savedIndex, getLayoutParams());
             }
-            ((TiCompositeLayout) this.nativeView).setView(null);
+            if (this.nativeView instanceof TiCompositeLayout) {
+                ((TiCompositeLayout) this.nativeView).setView(null);
+            }
         }
         this.nativeView = view;
         if (this.nativeView instanceof TiCompositeLayout) {
