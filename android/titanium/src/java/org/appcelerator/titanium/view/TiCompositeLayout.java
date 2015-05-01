@@ -75,6 +75,8 @@ public class TiCompositeLayout extends FreeLayout implements
 	private static final int HAS_SIZE_FILL_CONFLICT = 1;
 	private static final int NO_SIZE_FILL_CONFLICT = 2;
 
+	
+	private boolean mInterTouchPassThrough = false;
 
 	// We need these two constructors for backwards compatibility with modules
 
@@ -203,6 +205,10 @@ public class TiCompositeLayout extends FreeLayout implements
 			Log.d(TAG, "Attaching: " + viewToString(child) + " to "
 					+ viewToString(parent), Log.DEBUG_MODE);
 		}
+	}
+	
+	public void setInternalTouchPassThrough(boolean value) {
+	    mInterTouchPassThrough = value;
 	}
 
 	public void onChildViewRemoved(View parent, View child) {
@@ -1496,7 +1502,7 @@ public class TiCompositeLayout extends FreeLayout implements
 	public boolean touchPassThrough(MotionEvent event) {
 	    TiUIView view = (this.view == null ? null : this.view.get());
 	    if (view != null) return view.touchPassThrough(this, event);
-	    return false;
+	    return mInterTouchPassThrough;
 	}
 
 	private void setNeedsSort(boolean value) {

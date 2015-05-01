@@ -1075,6 +1075,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			TiCompositeLayout wrapper = new TiCompositeLayout(viewProxy.getActivity(), LayoutArrangement.DEFAULT, null);
 			AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT);
 			wrapper.setLayoutParams(params);
+			wrapper.setInternalTouchPassThrough(true);
 			if (outerView != null && tiView != null) {
 			    TiCompositeLayout.LayoutParams headerParams = tiView.getLayoutParams();
 			      //If height is not dip, explicitly set it to SIZE
