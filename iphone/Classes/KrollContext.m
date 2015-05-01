@@ -560,10 +560,22 @@ static TiValueRef StringFormatCurrencyCallback (TiContextRef jsContext, TiObject
 	}
 	
 	KrollContext *ctx = GetKrollContext(jsContext);
+    NSString* locale = nil;
 	NSNumber* number = [KrollObject toID:ctx value:args[0]];
+    if (argCount >= 2) {
+        locale = [KrollObject toID:ctx value:args[1]];
+    }
 	
 	@try 
 	{
+        if (locale) {
+            NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+            [numberFormatter setLocale:[NSLocale localeWithLocaleIdentifier:locale]];
+            [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+            TiValueRef value = [KrollObject toValue:ctx value:[numberFormatter stringFromNumber:number]];
+            [numberFormatter release];
+            return value;
+        }
 		NSString* result = [NSNumberFormatter localizedStringFromNumber:number numberStyle:NSNumberFormatterCurrencyStyle];
 		TiValueRef value = [KrollObject toValue:ctx value:result];
 		return value;
