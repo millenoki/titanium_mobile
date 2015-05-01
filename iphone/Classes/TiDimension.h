@@ -203,23 +203,23 @@ TI_INLINE CGFloat TiDimensionCalculateMargins(TiDimension dimension1, TiDimensio
 //TODO: Do these ALL have to be TI_INLINE?
 TI_INLINE CGRect TiDimensionLayerContentCenter(TiDimension top, TiDimension left, TiDimension bottom, TiDimension right, CGSize imageSize)
 {
-	CGRect result;
-	result.origin.y = TiDimensionCalculateRatio(top,imageSize.height);
-	result.size.height = 1.0 - TiDimensionCalculateRatio(bottom,imageSize.height) - result.origin.y;
-	result.origin.x = TiDimensionCalculateRatio(left,imageSize.width);
-	result.size.width = 1.0 - TiDimensionCalculateRatio(right,imageSize.width) - result.origin.x;
-
-	return result;
+    CGRect result;
+    result.origin.y = TiDimensionCalculateRatio(top,imageSize.height);
+    result.size.height = 1.0 / imageSize.height;
+    result.origin.x = TiDimensionCalculateRatio(left,imageSize.width);
+    result.size.width = 1.0 / imageSize.width;
+    
+    return result;
 }
 TI_INLINE CGRect TiDimensionLayerContentCenterFromInsents(UIEdgeInsets insents, CGSize imageSize)
 {
-	CGRect result;
-	result.origin.y = insents.top / imageSize.height;
-	result.size.height = 1.0 - insents.bottom / imageSize.height - result.origin.y;
-	result.origin.x = insents.left / imageSize.width;
-	result.size.width = 1.0 - insents.right / imageSize.width - result.origin.x;
+    CGRect result;
+    result.origin.y = insents.top / imageSize.height;
+    result.size.height = 1.0 / imageSize.height;
+    result.origin.x = insents.left / imageSize.width;
+    result.size.width = 1.0 / imageSize.width;
     
-	return result;
+    return result;
 }
 
 TI_INLINE UIEdgeInsets TiUIEdgeInsets(TiDimension top, TiDimension left, TiDimension bottom, TiDimension right, CGSize imageSize)
