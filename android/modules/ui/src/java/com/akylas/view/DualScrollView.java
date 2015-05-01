@@ -1827,9 +1827,9 @@ public class DualScrollView extends FrameLayout {
         super.requestLayout();
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
+//    @Override
+//    protected void onDetachedFromWindow() {
+//        super.onDetachedFromWindow();
 //
 //        if (mScrollStrictSpan != null) {
 //            mScrollStrictSpan.finish();
@@ -1839,7 +1839,7 @@ public class DualScrollView extends FrameLayout {
 //            mFlingStrictSpan.finish();
 //            mFlingStrictSpan = null;
 //        }
-    }
+//    }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
