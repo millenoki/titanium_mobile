@@ -507,6 +507,16 @@ public class TiViewGestureHandler {
             this.velocityTracker = null;
         }
     }
+    
+    private VelocityTracker getVelocityTracker() {
+        if (this.velocityTracker == null) {
+            // Retrieve a new VelocityTracker object to watch
+            // the
+            // velocity of a motion.
+            this.velocityTracker = VelocityTracker.obtain();
+        }
+        return this.velocityTracker;
+    }
 
     public boolean onTouch(final View view, final MotionEvent event) {
         if (!mEnabled) {
@@ -518,20 +528,15 @@ public class TiViewGestureHandler {
         int action = event.getActionMasked();
         switch (action) {
         case MotionEvent.ACTION_DOWN:
-            if (this.velocityTracker == null) {
-                // Retrieve a new VelocityTracker object to watch
-                // the
-                // velocity of a motion.
-                this.velocityTracker = VelocityTracker.obtain();
-            } else {
+            if (this.velocityTracker != null) {
                 // Reset the velocity tracker back to its initial
                 // state.
                 this.velocityTracker.clear();
             }
-            this.velocityTracker.addMovement(event);
+            getVelocityTracker().addMovement(event);
             break;
         case MotionEvent.ACTION_MOVE:
-            this.velocityTracker.addMovement(event);
+            getVelocityTracker().addMovement(event);
         default:
             break;
         }
