@@ -71,4 +71,15 @@
 	[TiLocale setLocale:args];
 }
 
+-(id)fullInfo
+{
+    return @{
+         @"currencySymbol": [self getCurrencySymbol:[self currentLocale]],
+         @"currentLocale": [self currentLocale],
+         @"currentCountry": [self currentCountry],
+         @"currentLanguage": [self currentLanguage]
+     };
+}
+
+
 @end
