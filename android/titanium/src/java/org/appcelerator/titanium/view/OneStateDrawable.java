@@ -17,7 +17,6 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -54,6 +53,7 @@ public class OneStateDrawable extends Drawable {
 	public OneStateDrawable(TiBackgroundDrawable parent) 
 	{
 		this.parent = parent;
+		paint.setAntiAlias(true);
 	}
 
 
