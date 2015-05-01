@@ -501,7 +501,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		//initializing listView
 		listView = createListView(activity);
 		listView.setSelector(android.R.color.transparent);
-		listView.setDuplicateParentStateEnabled(true);
+//		listView.setDuplicateParentStateEnabled(true);
 		AbsListView internalListView = getInternalListView();
         if (internalListView instanceof ListView) {
             ((ListView) internalListView).setHeaderDividersEnabled(false);
