@@ -7,7 +7,6 @@
 package org.appcelerator.titanium.view;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -113,9 +112,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     // flags for updates requests during properties process
     protected int mProcessUpdateFlags = 0;
-    public static final int TIFLAG_NEEDS_LAYOUT = 0x10000000;
-    public static final int TIFLAG_NEEDS_LAYOUT_INFORMPARENT = 0x20000000;
-    public static final int TIFLAG_NEEDS_INVALIDATE = 0x40000000;
+    public static final int TIFLAG_NEEDS_LAYOUT                 = 0x10000000;
+    public static final int TIFLAG_NEEDS_LAYOUT_INFORMPARENT    = 0x20000000;
+    public static final int TIFLAG_NEEDS_INVALIDATE             = 0x40000000;
+    public static final int TIFLAG_NEEDS_STATE_LIST_ANIMATOR    = 0x80000000;
 
     protected View nativeView; // Native View object
 
@@ -958,8 +958,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 View view = getOuterView();
                 if (view != null) {
                     view.setTranslationZ(mTranslationZ.getAsPixels(view));
-                    updateStateListAnimator();
                 }
+                mProcessUpdateFlags |= TIFLAG_NEEDS_STATE_LIST_ANIMATOR;
             }
             break;
         }
@@ -969,8 +969,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 mElevation = TiConvert.toTiDimension(newValue,
                         TiDimension.TYPE_WIDTH);
                 View view = getOuterView();
-                if (outlineProvider == null) {
-                    outlineProvider = new ViewOutlineProvider() {
+                if (mOutlineProvider == null) {
+                    mOutlineProvider = new ViewOutlineProvider() {
 
                         @Override
                         public void getOutline(View view, Outline outline) {
@@ -990,13 +990,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         }
                     };
                     if (view != null) {
-                        view.setOutlineProvider(outlineProvider);
+                        view.setOutlineProvider(mOutlineProvider);
                     }
                 }
                 if (view != null) {
                     view.setElevation(mElevation.getAsPixels(view));
-                    updateStateListAnimator();
                 }
+                mProcessUpdateFlags |= TIFLAG_NEEDS_STATE_LIST_ANIMATOR;
             }
             break;
         }
@@ -1044,8 +1044,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             return;
         }
         float elevation = view.getElevation();
-        float translationSelectedZ = 2.0f;
         float translationZ = view.getTranslationZ();
+        float translationSelectedZ = translationZ + 2.0f;
         int animationDuration = 100;
         StateListAnimator listAnimator = new StateListAnimator();
         List<android.animation.Animator> animators = new ArrayList<android.animation.Animator>();
@@ -1207,6 +1207,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             layoutNativeView(((mProcessUpdateFlags & TIFLAG_NEEDS_LAYOUT_INFORMPARENT) != 0));
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_LAYOUT;
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_LAYOUT_INFORMPARENT;
+        }
+        if ((mProcessUpdateFlags & TIFLAG_NEEDS_STATE_LIST_ANIMATOR) != 0) {
+            updateStateListAnimator();
+            mProcessUpdateFlags &= ~TIFLAG_NEEDS_STATE_LIST_ANIMATOR;
         }
 
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_INVALIDATE) != 0) {
@@ -1525,7 +1529,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    private ViewOutlineProvider outlineProvider = null;
+    private ViewOutlineProvider mOutlineProvider = null;
 
     protected void applyCustomForeground(final int pressedColor, final boolean enabled) {
         if (TiC.LOLLIPOP_OR_GREATER) {
@@ -1570,14 +1574,15 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         borderView.setTag(this);
         borderView.setLayoutParams(getLayoutParams());
         borderView.addView(rootView, params);
-        if (TiC.LOLLIPOP_OR_GREATER) {
-            float elevation = rootView.getElevation();
-            float translationZ = rootView.getTranslationZ();
+        if (TiC.LOLLIPOP_OR_GREATER && (mElevation != null || mTranslationZ != null)) {
+            borderView.setElevation(rootView.getElevation());
+            borderView.setTranslationZ(rootView.getTranslationZ());
+            borderView.setOutlineProvider(mOutlineProvider);
+            borderView.setStateListAnimator(rootView.getStateListAnimator());
             rootView.setElevation(0);
             rootView.setTranslationZ(0);
-
-            borderView.setElevation(elevation);
-            borderView.setTranslationZ(translationZ);
+            rootView.setOutlineProvider(null);
+            rootView.setStateListAnimator(null);
         }
         if (savedParent != null) {
             savedParent.addView(borderView, savedIndex);
