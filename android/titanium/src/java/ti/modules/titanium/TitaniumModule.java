@@ -297,9 +297,18 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel("String.formatTime")
-	public String stringFormatTime(Date time)
+	public String stringFormatTime(Date time, @Kroll.argument(optional=true) String format)
 	{
 		int style = DateFormat.SHORT;
+		
+		if (format != null) {
+            if (format.equals("medium")) {
+                style = DateFormat.MEDIUM;
+
+            } else if (format.equals("long")) {
+                style = DateFormat.LONG;
+            }
+        }
 
 		return (DateFormat.getTimeInstance(style)).format(time);
 	}
