@@ -39,6 +39,9 @@ public class KrollAssetHelper
 
 	public static void init(Context context)
 	{
+	    if (KrollAssetHelper.manager != null) {
+	        return;
+	    }
 		KrollAssetHelper.manager = new WeakReference<AssetManager>(context.getAssets());
 		KrollAssetHelper.packageName = context.getPackageName();
 		KrollAssetHelper.cacheDir = context.getCacheDir().getAbsolutePath();
