@@ -400,6 +400,10 @@ public class TiProperties
 			editor.commit();
 		}
 	}
+	
+	public static boolean systemPropertiesLoaded( ) {
+	    return systemProperties != null;
+	}
 
 	public static void setSystemProperties(JSONObject prop) {
 		systemProperties = prop;
