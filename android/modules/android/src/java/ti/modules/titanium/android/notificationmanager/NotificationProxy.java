@@ -10,13 +10,11 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.ReusableProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiImageHelper;
@@ -32,7 +30,6 @@ import ti.modules.titanium.android.RemoteViewsProxy;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -73,7 +70,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
 	public NotificationProxy() 
 	{
 		super();
-		notificationBuilder =  new NotificationCompat.Builder(TiApplication.getAppCurrentActivity())
+		notificationBuilder =  new NotificationCompat.Builder(TiApplication.getAppContext())
         .setSmallIcon(android.R.drawable.stat_sys_warning)
         .setWhen(System.currentTimeMillis());
 		
