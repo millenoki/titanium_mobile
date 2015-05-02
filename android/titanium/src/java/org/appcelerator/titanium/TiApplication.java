@@ -411,9 +411,14 @@ public abstract class TiApplication extends Application implements
             }
         }
     }
-
-    private void loadAppProperties() {
+    
+    private boolean loadingProps = false;
+    public void loadAppProperties() {
         // Load the JSON file:
+        if (loadingProps || TiProperties.systemPropertiesLoaded()) {
+            return;
+        }
+        loadingProps = true;
         String appPropertiesString = KrollAssetHelper
                 .readAsset("Resources/_app_props_.json");
         if (appPropertiesString != null) {
@@ -424,6 +429,7 @@ public abstract class TiApplication extends Application implements
                 Log.e(TAG, "Unable to load app properties.");
             }
         }
+        loadingProps = false;
     }
 
     @Override
@@ -874,6 +880,7 @@ public abstract class TiApplication extends Application implements
      * @module.api
      */
     public TiProperties getAppProperties() {
+        loadAppProperties();
         return appProperties;
     }
 
