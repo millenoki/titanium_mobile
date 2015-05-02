@@ -10,7 +10,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
-import org.appcelerator.titanium.util.TiBindingHelper;
+//import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIActivityWindow;
 
@@ -56,7 +56,7 @@ public abstract class TiJSActivity extends TiLaunchActivity
 		super.contextCreated();
 		TiActivityWindowProxy window = new TiActivityWindowProxy();
 		window.setActivity(this);
-		TiBindingHelper.bindCurrentWindow(window);
+//		TiBindingHelper.bindCurrentWindow(window);
 		setWindowProxy(window);
 		setLayoutProxy(window);
 	}
