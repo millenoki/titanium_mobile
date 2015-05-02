@@ -15,8 +15,11 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.WindowManager;
 
 @Kroll.proxy(parentModule=PlatformModule.class)
 public class DisplayCapsProxy extends KrollProxy
@@ -73,9 +76,16 @@ public class DisplayCapsProxy extends KrollProxy
 
 	private Display getDisplay() {
 		if (softDisplay == null || softDisplay.get() == null) {
-			// we only need the window manager so it doesn't matter if the root or current activity is used
-			// for accessing it
-			softDisplay = new SoftReference<Display>(TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay());
+		    Activity activity = TiApplication.getAppRootOrCurrentActivity();
+		    if (activity != null) {
+		     // we only need the window manager so it doesn't matter if the root or current activity is used
+	            // for accessing it
+	            softDisplay = new SoftReference<Display>(activity.getWindowManager().getDefaultDisplay());
+		    } else {
+		        
+	            softDisplay = new SoftReference<Display>(((WindowManager)TiApplication.getAppSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay());
+		    }
+			
 		}
 		return softDisplay.get();
 	}
