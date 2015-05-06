@@ -87,7 +87,7 @@ public class TiUILabel extends TiUINonViewGroupView
     protected static final int TIFLAG_NEEDS_SHADOW               = 0x00000008;
     protected static final int TIFLAG_NEEDS_LINKIFY              = 0x00000010;
 
-	private int selectedColor, color, disabledColor, widgetDefaultColor;
+	private int selectedColor, color, disabledColor;
 	private boolean wordWrap = true;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
@@ -904,7 +904,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		textPadding = new RectF();
 		tv.setFocusable(false);
 		tv.setFocusableInTouchMode(true);
-		widgetDefaultColor = color = disabledColor = selectedColor = getTextView().getCurrentTextColor();
+		color = disabledColor = selectedColor = getTextView().getCurrentTextColor();
         updatePadding();
 		setNativeView(tv);
 
