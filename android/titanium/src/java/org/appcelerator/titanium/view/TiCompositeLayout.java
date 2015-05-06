@@ -985,7 +985,8 @@ public class TiCompositeLayout extends FreeLayout implements
 	}
 
 	// option0 is left/top, option1 is right/bottom
-	public static void computePosition(View parent, LayoutParams params, TiDimension leftOrTop,
+	@SuppressWarnings("null")
+    public static void computePosition(View parent, LayoutParams params, TiDimension leftOrTop,
 			TiDimension optionCenter, TiDimension optionWidthOrHeight, TiDimension rightOrBottom,
 			int measuredSize, int layoutPosition0, int layoutPosition1,
 			int[] pos) {
