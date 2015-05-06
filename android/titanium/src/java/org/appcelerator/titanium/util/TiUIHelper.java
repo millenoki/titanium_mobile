@@ -37,6 +37,7 @@ import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiGradientDrawable;
@@ -55,6 +56,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -1775,5 +1777,21 @@ public class TiUIHelper
         transaction.add(container.getId(), fragment);
         transaction.commit();
         return transaction;
+	}
+	
+	public static int getColorAccent(final Context context) {
+	    TypedArray values = null;
+        try {
+            int resourceId = TiRHelper.getResource("android.support.v7.appcompat.R$", "attr.colorAccent");
+            int[] attrs = {resourceId};
+            values = context.getTheme().obtainStyledAttributes(attrs);
+            return values.getColor(0, 0);
+        } catch (ResourceNotFoundException e) {
+            return 0;
+        } finally {
+            if (values != null) {
+                values.recycle();
+            }
+        }
 	}
 }
