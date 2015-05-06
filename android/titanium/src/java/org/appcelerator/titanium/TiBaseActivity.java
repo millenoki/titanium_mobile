@@ -380,7 +380,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	public void setLayoutProxy(TiViewProxy proxy)
 	{
 		if (layout instanceof TiCompositeLayout) {
-			((TiCompositeLayout) layout).setView(proxy.peekView());
+//			((TiCompositeLayout) layout).setView(proxy.peekView());
 		}
 	}
 
