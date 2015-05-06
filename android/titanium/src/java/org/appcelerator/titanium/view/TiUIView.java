@@ -53,7 +53,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -1002,10 +1001,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         case TiC.PROPERTY_SELECTOR:
             if (newValue instanceof Boolean) {
-                TypedArray a = getContext().obtainStyledAttributes(
-                        new int[] { android.R.attr.colorAccent });
-                applyCustomForeground(a.getColor(0, 0), TiConvert.toBoolean(newValue, false));
-                a.recycle();
+                int color = TiUIHelper.getColorAccent(getContext());
+                applyCustomForeground(color, TiConvert.toBoolean(newValue, false));
             } else {
                 int color = TiConvert.toColor(newValue);
                 applyCustomForeground(color, true);
@@ -1043,8 +1040,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (view == null) {
             return;
         }
-        float elevation = view.getElevation();
-        float translationZ = view.getTranslationZ();
+        float elevation = ViewCompat.getElevation(view);
+        float translationZ = ViewCompat.getTranslationZ(view);
         float translationSelectedZ = translationZ + 2.0f;
         int animationDuration = 100;
         StateListAnimator listAnimator = new StateListAnimator();
@@ -1547,6 +1544,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     setBackgroundDrawable(view, getOrCreateBackground());
                 }
             }
+        } else {
+            getOrCreateBackground().setColorForState(
+                    TiUIHelper.BACKGROUND_SELECTED_STATE, pressedColor);
         }
     }
 
@@ -1574,15 +1574,19 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         borderView.setTag(this);
         borderView.setLayoutParams(getLayoutParams());
         borderView.addView(rootView, params);
-        if (TiC.LOLLIPOP_OR_GREATER && (mElevation != null || mTranslationZ != null)) {
-            borderView.setElevation(rootView.getElevation());
-            borderView.setTranslationZ(rootView.getTranslationZ());
-            borderView.setOutlineProvider(mOutlineProvider);
-            borderView.setStateListAnimator(rootView.getStateListAnimator());
-            rootView.setElevation(0);
-            rootView.setTranslationZ(0);
-            rootView.setOutlineProvider(null);
-            rootView.setStateListAnimator(null);
+        if (mElevation != null || mTranslationZ != null) {
+            ViewCompat.setElevation(borderView, ViewCompat.getElevation(rootView));
+            ViewCompat.setTranslationZ(borderView, ViewCompat.getTranslationZ(rootView));
+            ViewCompat.setElevation(rootView, 0);
+            ViewCompat.setTranslationZ(rootView, 0);
+            
+            if (TiC.LOLLIPOP_OR_GREATER) {
+                borderView.setOutlineProvider(mOutlineProvider);
+                borderView.setStateListAnimator(rootView.getStateListAnimator());
+                rootView.setOutlineProvider(null);
+                rootView.setStateListAnimator(null);
+            }
+            
         }
         if (savedParent != null) {
             savedParent.addView(borderView, savedIndex);
