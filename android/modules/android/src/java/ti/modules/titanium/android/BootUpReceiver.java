@@ -1,6 +1,5 @@
 package ti.modules.titanium.android;
 
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiProperties;
