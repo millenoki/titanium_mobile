@@ -30,13 +30,17 @@ import android.widget.ListView;
 import android.widget.Button;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewParent;
 import android.text.Html;
 
 public class TiUIDialog extends TiUIView
 {
 	private static final String TAG = "TiUIDialog";
 	private static final int BUTTON_MASK = 0x10000000;
+    public static final int TIFLAG_NEEDS_OPTIONS                 = 0x10000000;
 
+    int cancelIndex = -1;
+    int optionsCount = 0;
 	protected Builder builder;
 	private DialogWrapper dialogWrapper;
     private boolean hideOnClick = true;
@@ -50,7 +54,7 @@ public class TiUIDialog extends TiUIView
 			this.result = id;
 		}
 		public void onClick(View v) {
-			handleEvent(result);
+			handleEvent(result, false);
 			Log.d(TAG, "onClick hideOnClick: "  + hideOnClick, Log.DEBUG_MODE);
 			if (hideOnClick == true) hide(null);
 		}
@@ -139,30 +143,17 @@ public class TiUIDialog extends TiUIView
         case TiC.PROPERTY_PERSISTENT:
             dialogWrapper.setPersistent(TiConvert.toBoolean(newValue));
             break;
+        case TiC.PROPERTY_CANCEL: 
+            cancelIndex = TiConvert.toInt(newValue, -1);
+            break;
         case TiC.PROPERTY_OPTIONS:
         {
-            clearDialog();
-            getBuilder().setView(null);
-            String[] optionText = TiConvert.toStringArray(newValue);
-            int selectedIndex = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SELECTED_INDEX), -1); 
-            if(selectedIndex >= optionText.length){
-                Log.d(TAG, "Ooops invalid selected index specified: " + selectedIndex, Log.DEBUG_MODE);
-                selectedIndex = -1;
-            }
-            processOptions(optionText, selectedIndex);
+            mProcessUpdateFlags |= TIFLAG_NEEDS_OPTIONS;
             break;
         }
         case TiC.PROPERTY_SELECTED_INDEX:
         {
-            clearDialog();
-            getBuilder().setView(null);
-            String[] optionText = TiConvert.toStringArray(proxy.getProperty(TiC.PROPERTY_OPTIONS));
-            int selectedIndex = TiConvert.toInt(newValue, -1); 
-            if(selectedIndex >= optionText.length){
-                Log.d(TAG, "Ooops invalid selected index specified: " + selectedIndex, Log.DEBUG_MODE);
-                selectedIndex = -1;
-            }
-            processOptions(optionText, selectedIndex);
+            mProcessUpdateFlags |= TIFLAG_NEEDS_OPTIONS;
             break;
         }
         case TiC.PROPERTY_HIDE_ON_CLICK:
@@ -183,6 +174,22 @@ public class TiUIDialog extends TiUIView
         }
     }
 	
+	protected void didProcessProperties() {
+	    if ((mProcessUpdateFlags & TIFLAG_NEEDS_OPTIONS) != 0) {
+	        clearDialog();
+            getBuilder().setView(null);
+            String[] optionText = TiConvert.toStringArray(proxy.getProperty(TiC.PROPERTY_OPTIONS));
+            int selectedIndex = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SELECTED_INDEX), -1); 
+            if(selectedIndex >= optionText.length){
+                selectedIndex = -1;
+            }
+            processOptions(optionText, selectedIndex);
+            mProcessUpdateFlags &= ~TIFLAG_NEEDS_OPTIONS;
+        }
+	    super.didProcessProperties();
+        
+    }
+	
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -200,15 +207,18 @@ public class TiUIDialog extends TiUIView
 	{
 		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				handleEvent(which);
+				handleEvent(which, true);
 				if (hideOnClick == true) hide(null);
 			}
 		});
+		optionsCount = (optionText != null) ? optionText.length : 0;
 	}
 
 	private void setButtonsListeners(AlertDialog dialog){
 		Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-		if (button!= null )button.setOnClickListener(new ClickHandler(0 | BUTTON_MASK));
+		if (button!= null ) {
+		    button.setOnClickListener(new ClickHandler(0 | BUTTON_MASK));
+		}
 		button = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
 		if (button!= null )button.setOnClickListener(new ClickHandler(1 | BUTTON_MASK));
 		button = dialog.getButton(DialogInterface.BUTTON_NEUTRAL);
@@ -289,7 +299,7 @@ public class TiUIDialog extends TiUIView
 				public void onCancel(DialogInterface dlg) {
 					int cancelIndex = (proxy.hasProperty(TiC.PROPERTY_CANCEL)) ? TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL)) : -1;
 					Log.d(TAG, "onCancelListener called. Sending index: " + cancelIndex + ", hideOnClick: " + hideOnClick, Log.DEBUG_MODE);
-					handleEvent(cancelIndex);
+					handleEvent(cancelIndex, false);
 					if (hideOnClick == true) hide(null);
 				}
 			});
@@ -313,8 +323,7 @@ public class TiUIDialog extends TiUIView
                             proxy.fireEvent(TiC.EVENT_ANDROID_BACK);
                         }
                         else if (hideOnClick){
-                            int cancelIndex = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL), -1);
-                            handleEvent(cancelIndex);
+                            handleEvent(cancelIndex, false);
                             hide(null);
                         }
                     }
@@ -392,9 +401,8 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
-	public void handleEvent(int id)
+	public void handleEvent(int id, final boolean isOption)
 	{
-		int cancelIndex = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_CANCEL), -1);
 		KrollDict data = new KrollDict();
 		if (id != -1 && (id & BUTTON_MASK) != 0) {
 			data.put(TiC.PROPERTY_BUTTON, true);
@@ -406,8 +414,12 @@ public class TiUIDialog extends TiUIView
 				proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, id);
 			}
 		}
+		int realcancelIndex = cancelIndex;
+		if (realcancelIndex != -1 && isOption) {
+		    realcancelIndex += optionsCount;
+		}
 		data.put(TiC.EVENT_PROPERTY_INDEX, id);
-		data.put(TiC.PROPERTY_CANCEL, id == cancelIndex);
+		data.put(TiC.PROPERTY_CANCEL, (id == realcancelIndex));
 		fireEvent(TiC.EVENT_CLICK, data, false);
 	}
 }
