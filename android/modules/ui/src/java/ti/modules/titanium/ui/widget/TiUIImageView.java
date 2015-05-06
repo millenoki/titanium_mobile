@@ -920,6 +920,13 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         }
     }
     
+    
+    private boolean isArrayNullOrEmpty(ArrayList<TiDrawableReference> array) {
+        return (array == null || array.size() == 0
+                || array.get(0) == null
+                || array.get(0).isTypeNull());
+    }
+    
     @Override
     protected void didProcessProperties() {
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_LAYOUT) != 0) {
@@ -937,12 +944,20 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 }
             }
         }
-        if (imageSources == null || imageSources.size() == 0
-                || imageSources.get(0) == null
-                || imageSources.get(0).isTypeNull()) {
+        if (isArrayNullOrEmpty(imageSources) && 
+                isArrayNullOrEmpty(animatedImageSources)) {
             setDefaultImage(false);
         }
         super.didProcessProperties();
+    }
+    
+    @Override
+    public void didRealize() {
+        super.didRealize();
+        boolean animating = TiConvert.toBoolean(proxy.getProperty("animating"), false);
+        if (animating) {
+            start();
+        }
     }
     
 
@@ -1141,15 +1156,15 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         }
         animating.set(false);
         isStopping.set(true);
+        TiApplication.getPicassoInstance().cancelRequest(this);
         synchronized (releasedLock) {
             if (imageSources != null) {
-                TiApplication.getPicassoInstance().cancelRequest(this);
-//                for (TiDrawableReference imageref : imageSources) {
-//                    int hash = imageref.hashCode();
-//                    mMemoryCache.remove(hash); // Release the cached images
-//                }
                 imageSources.clear();
                 imageSources = null;
+            }
+            if (animatedImageSources != null) {
+                animatedImageSources.clear();
+                animatedImageSources = null;
             }
         }
 

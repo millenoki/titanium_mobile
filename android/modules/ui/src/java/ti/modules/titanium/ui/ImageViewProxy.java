@@ -87,6 +87,11 @@ public class ImageViewProxy extends ViewProxy
 	
 	@Kroll.method
 	public void resume() {
+        boolean animating = TiConvert.toBoolean(getProperty("animating"), false);
+        if (!animating) {
+            start();
+            return;
+        }
 		setProperty("paused", false);
 		if (view != null) {
 			((TiUIImageView)view).resume();
@@ -95,7 +100,6 @@ public class ImageViewProxy extends ViewProxy
 	
 	@Kroll.method
 	public void pauseOrResume() {
-		boolean animating = TiConvert.toBoolean(getProperty("animating"), false);
 		boolean paused = TiConvert.toBoolean(getProperty("paused"), true);
 		if (paused) resume();
 		else pause();
