@@ -251,17 +251,26 @@ public class AppModule extends KrollModule implements SensorEventListener
         return TiApplication.getInstance().isPaused();
     }
 
-	@Kroll.method(name = "_restart")
-	public void restart()
+
+	@Kroll.method
+	public void restart(@Kroll.argument(optional = true) Object arg)
 	{
-		Application app = (Application) KrollRuntime.getInstance().getKrollApplication();
-		Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
-		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		i.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-		i.addCategory(Intent.CATEGORY_LAUNCHER);
-		i.setAction(Intent.ACTION_MAIN);
-		app.startActivity(i);
+	    int delay = TiConvert.toInt(arg, 250);
+	    TiApplication.getInstance().scheduleRestart(delay);
+
 	}
+	
+	@Kroll.method(name = "_restart")
+    public void internalRestart()
+    {
+        Application app = (Application) KrollRuntime.getInstance().getKrollApplication();
+        Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        i.setAction(Intent.ACTION_MAIN);
+        app.startActivity(i);
+    }
 
 	@Kroll.method
 	public void fireSystemEvent(String eventName, @Kroll.argument(optional = true) Object arg)
