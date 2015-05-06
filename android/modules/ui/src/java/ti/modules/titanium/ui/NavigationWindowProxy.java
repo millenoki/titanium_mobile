@@ -319,6 +319,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 					
 		final ViewGroup viewToRemoveFrom = (ViewGroup) getParentViewForChild();
 		
+        toRemove.onWindowFocusChange(false);
 		final boolean viewWasOpened = winToFocus.isOpenedOrOpening();
 		if (viewToRemoveFrom != null) {
 			final View viewToRemove = toRemove.getOuterView();
@@ -359,6 +360,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 		
         toRemove.blur();
         prepareCurrentWindow(winToFocus);
+        winToFocus.onWindowFocusChange(true);
 
 		return true;
 	}
@@ -515,6 +517,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 			viewToAdd.setVisibility(View.GONE);
 			TiUIHelper.addView(viewToAddTo, viewToAdd, proxy.peekView().getLayoutParams());
 			TiWindowProxy winToBlur = getCurrentWindowInternal();
+			winToBlur.onWindowFocusChange(false);
 			final View viewToHide = winToBlur.getOuterView();
 			if (transition != null) {
 				proxy.customHandleOpenEvent(true);
@@ -548,6 +551,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 				pushing = false; 
 			}
    			handleSetViewVisible(viewToAdd, View.VISIBLE);
+   			proxy.onWindowFocusChange(true);
 		}
 		addWindow(proxy, transition);
         prepareCurrentWindow(proxy);
@@ -797,5 +801,10 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
         } else if (name.equals(TiC.PROPERTY_WINDOW)) {
             setWindow((TiWindowProxy) value);
         }
+    }
+	
+	@Override
+	public void onWindowFocusChange(boolean focused) {
+	    getCurrentWindow().onWindowFocusChange(focused);
     }
 }
