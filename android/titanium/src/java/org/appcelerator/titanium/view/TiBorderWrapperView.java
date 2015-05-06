@@ -12,7 +12,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import android.animation.StateListAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Path;
@@ -38,7 +37,7 @@ public class TiBorderWrapperView extends MaskableView
 //	private int color = Color.TRANSPARENT;
 	private float[] radius = null;
 	private float borderWidth = -1;
-	private int alpha = -1;
+	private int borderAlpha = -1;
 	private RectF clipRect;
 	private Path clipPath;
 	private boolean clipChildren = true;
@@ -75,8 +74,8 @@ public class TiBorderWrapperView extends MaskableView
 //				this.borderWidth = TiUIHelper.getRawSize(1, null);
 //			}
 			mDrawable = new TiBackgroundDrawable(true);
-			if (alpha < 1.0)
-				mDrawable.setAlpha(Math.round(alpha * 255));
+			if (borderAlpha < 1.0)
+				mDrawable.setAlpha(Math.round(borderAlpha * 255));
 			if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_REPEAT))
 				mDrawable.setImageRepeat(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_BACKGROUND_REPEAT)));
 			mDrawable.setRadius(radius);
@@ -319,7 +318,7 @@ public class TiBorderWrapperView extends MaskableView
 
 	public void setBorderAlpha(int alpha)
 	{
-		this.alpha = alpha;
+		this.borderAlpha = alpha;
 		if (mDrawable != null) {
 			mDrawable.setAlpha(alpha);
 		}
