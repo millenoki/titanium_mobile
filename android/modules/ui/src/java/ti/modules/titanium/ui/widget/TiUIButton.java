@@ -40,7 +40,7 @@ public class TiUIButton extends TiUINonViewGroupView
     protected static final int TIFLAG_NEEDS_SHADOW               = 0x00000008;
     protected static final int TIFLAG_NEEDS_IMAGE                = 0x00000010;
 
-	private int defaultColor, selectedColor, color, disabledColor;
+	private int selectedColor, color, disabledColor;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
 	private float shadowY = 0f;
@@ -85,7 +85,7 @@ public class TiUIButton extends TiUINonViewGroupView
 		};
 		TiUIHelper.setPadding(btn, titlePadding);
 		btn.setGravity(Gravity.CENTER);
-		color = disabledColor = selectedColor = defaultColor = btn.getCurrentTextColor();
+		color = disabledColor = selectedColor = btn.getCurrentTextColor();
 		setNativeView(btn);
 	}
 	
@@ -148,7 +148,7 @@ public class TiUIButton extends TiUINonViewGroupView
             mProcessUpdateFlags |= TIFLAG_NEEDS_COLORS;
             break;
         case TiC.PROPERTY_COLOR:
-            color = TiConvert.toColor(newValue, this.color);
+            color = selectedColor = disabledColor = color = TiConvert.toColor(newValue, this.color);
             mProcessUpdateFlags |= TIFLAG_NEEDS_COLORS;
             break;
         case TiC.PROPERTY_SELECTED_COLOR:
