@@ -190,10 +190,11 @@
     
     showDialog = YES;
     NSMutableArray *options = [self valueForKey:@"options"];
-    if (IS_NULL_OR_NIL(options))
+    NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
+    if (IS_NULL_OR_NIL(buttonNames))
     {
-        options = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
-        [options addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
+        buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
+        [buttonNames addObject:NSLocalizedString(@"OK",@"Alert OK Button")];
     }
     
     hideOnClick = [TiUtils boolValue:[self valueForKey:@"hideOnClick"] def:YES];
@@ -214,7 +215,6 @@
         [customActionSheet setCustomView:[self valueForKey:@"customView"] fromProxy:self];
         [customActionSheet setHtmlTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
         
-        NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
         cancelButtonIndex = customActionSheet.cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
         customActionSheet.tapOutDismiss = [TiUtils boolValue:[self valueForKey:@"tapOutDismiss"] def:cancelButtonIndex != -1];
         if (buttonNames==nil || (id)buttonNames == [NSNull null])
@@ -274,8 +274,20 @@
         }
     }
     else {
-        cancelButtonIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
+        NSInteger optionsCount = 0;
+        NSArray* buttons = buttonNames;
+        if (!IS_NULL_OR_NIL(options)) {
+            optionsCount = [options count];
+            buttons = [options arrayByAddingObjectsFromArray:buttonNames];
+        }
+        cancelButtonIndex =  [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
+        if (cancelButtonIndex != -1) {
+            cancelButtonIndex += optionsCount;
+        }
         destructiveButtonIndex = [TiUtils intValue:[self valueForKey:@"destructive"] def:-1];
+        if (destructiveButtonIndex != -1) {
+            destructiveButtonIndex += optionsCount;
+        }
         [[[TiApp app] controller] incrementActiveAlertControllerCount];
         if ([TiUtils isIOS8OrGreater]) {
             RELEASE_TO_NIL(alertController);
@@ -285,7 +297,7 @@
             
             int curIndex = 0;
             //Configure the Buttons
-            for (id btn in options) {
+            for (id btn in buttons) {
                 NSString* btnName = [TiUtils stringValue:btn];
                 if (!IS_NULL_OR_NIL(btnName)) {
                     UIAlertAction* theAction = [UIAlertAction actionWithTitle:btnName
@@ -331,12 +343,11 @@
             
             [actionSheet setTitle:[TiUtils stringValue:[self valueForKey:@"title"]]];
             
-            for (id thisOption in options)
+            for (id name in buttons)
             {
-                NSString * thisButtonName = [TiUtils stringValue:thisOption];
+                NSString * thisButtonName = [TiUtils stringValue:name];
                 [actionSheet addButtonWithTitle:thisButtonName];
             }
-            
             
             [actionSheet setCancelButtonIndex:cancelButtonIndex];
             [actionSheet setDestructiveButtonIndex:destructiveButtonIndex];
