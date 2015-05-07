@@ -42,17 +42,11 @@ typedef enum : short {
 /** @name Querying the Cache */
 
 /** Returns an image from the cache if it exists.
- *   @param tile A desired RMTile.
+ *   @param aKey the key.
  *   @param cacheKey The key representing a certain cache.
  *   @return An image of the tile that can be used to draw a portion of the map. */
 - (UIImage *)cachedImage:(NSNumber*)aKey withCacheKey:(NSString *)cacheKey;
 
-/** Returns an image from the cache if it exists.
- *   @param tile A desired RMTile.
- *   @param cacheKey The key representing a certain cache.
- *   @param shouldBypassMemoryCache Whether to only consult disk-based caches.
- *   @return An image of the tile that can be used to draw a portion of the map. */
-- (UIImage *)cachedImage:(NSNumber*)aKey withCacheKey:(NSString *)cacheKey bypassingMemoryCache:(BOOL)shouldBypassMemoryCache;
 
 - (void)didReceiveMemoryWarning;
 
@@ -60,21 +54,21 @@ typedef enum : short {
 
 /** @name Adding to the Cache */
 
-/** Adds a tile image to the specified cache.
- *   @param image A tile image to be cached.
+/** Adds an image to the specified cache.
+ *   @param image An image to be cached.
  *   @param aKey The key
  *   @param cacheKey The key representing a certain cache. */
 - (void)addImage:(UIImage *)image forKey:(NSNumber*)aKey withCacheKey:(NSString *)aCacheKey;
 
-/** Adds tile image data to the specified cache, bypassing the memory cache and only writing to disk. This is useful for instances where many tiles are downloaded directly to disk for later use offline.
- *   @param data The tile image data to be cached.
+/** Adds image data to the specified cache, bypassing the memory cache and only writing to disk. This is useful for instances where many images are downloaded directly to disk for later use offline.
+ *   @param data The image data to be cached.
  *   @param aKey The key
  *   @param cacheKey The key representing a certain cache. */
 - (void)addDiskCachedImageData:(NSData *)data forKey:(NSNumber*)aKey withCacheKey:(NSString *)cacheKey;
 
 /** @name Clearing the Cache */
 
-/** Removes all tile images from a cache. */
+/** Removes all images from a cache. */
 - (void)removeAllCachedImages;
 - (void)removeAllCachedImagesForCacheKey:(NSString *)cacheKey;
 
@@ -84,7 +78,7 @@ typedef enum : short {
 
 /** An TiCache object manages memory-based and disk-based caches for images that have been retrieved from the network.
  *
- *   An TiCache is a key component of offline image access. All tile requests pass through the tile cache and are served from cache if available, avoiding network operation.
+ *   An TiCache is a key component of offline image access. All image requests pass through the cache and are served from cache if available, avoiding network operation.
  *
  *   @see [TiDatabaseCache initUsingCacheDir:] */
 @interface TiCache : NSObject <TiCache>
@@ -93,9 +87,9 @@ typedef enum : short {
 
 /** Initializes and returns a newly allocated cache object with specified expiry period.
  *
- *   If the `init` method is used to initialize a cache instead, a period of `0` is used. In that case, time-based expiration of tiles is not performed, but rather the cached tile count is used instead.
+ *   If the `init` method is used to initialize a cache instead, a period of `0` is used. In that case, time-based expiration of images is not performed, but rather the cached count is used instead.
  *
- *   @param period A period of time after which tiles should be expunged from the cache.
+ *   @param period A period of time after which images should be expunged from the cache.
  *   @return An initialized cache object or `nil` if the object couldn't be created. */
 - (id)initWithConfig:(NSArray*)cacheCfg expiryPeriod:(NSTimeInterval)period;
 
@@ -107,8 +101,15 @@ typedef enum : short {
 - (void)addCache:(id <TiCache>)cache;
 - (void)insertCache:(id <TiCache>)cache atIndex:(NSUInteger)index;
 
+/** Returns an image from the cache if it exists.
+ *   @param aKey the key.
+ *   @param cacheKey The key representing a certain cache.
+ *   @param shouldBypassMemoryCache Whether to only consult disk-based caches.
+ *   @return An image of the tile that can be used to draw a portion of the map. */
+- (UIImage *)cachedImage:(NSNumber*)aKey withCacheKey:(NSString *)cacheKey bypassingMemoryCache:(BOOL)shouldBypassMemoryCache;
+
 /** The list of caches managed by a cache manager. This could include memory-based, disk-based, or other types of caches. */
-@property (nonatomic, readonly, strong) NSArray *tileCaches;
+@property (nonatomic, readonly, strong) NSArray *caches;
 
 - (void)didReceiveMemoryWarning;
 

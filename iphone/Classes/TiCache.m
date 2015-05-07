@@ -41,7 +41,7 @@
 
 @implementation TiCache
 {
-    NSMutableArray *_tileCaches;
+    NSMutableArray *_caches;
     
     // The memory cache, if we have one
     // This one has its own variable because we want to propagate cache hits down in
@@ -49,7 +49,7 @@
     TiMemoryCache *_memoryCache;
     NSTimeInterval _expiryPeriod;
     
-    dispatch_queue_t _tileCacheQueue;
+    dispatch_queue_t _cacheQueue;
 }
 
 - (id)initWithConfig:(NSArray*)cacheCfg expiryPeriod:(NSTimeInterval)period
@@ -57,8 +57,8 @@
     if (!(self = [super init]))
         return nil;
     
-    _tileCaches = [NSMutableArray new];
-    _tileCacheQueue = dispatch_queue_create("ti.tileCacheQueue", DISPATCH_QUEUE_CONCURRENT);
+    _caches = [NSMutableArray new];
+    _cacheQueue = dispatch_queue_create("ti.tileCacheQueue", DISPATCH_QUEUE_CONCURRENT);
     
     _memoryCache = nil;
     _expiryPeriod = period;
@@ -88,7 +88,7 @@
                 newCache = [self databaseCacheWithConfig:cfg];
             
             if (newCache)
-                [_tileCaches addObject:newCache];
+                [_caches addObject:newCache];
             else
                 DebugLog(@"failed to create cache of type %@", type);
             
@@ -112,39 +112,39 @@
 - (void)dealloc
 {
     
-    dispatch_barrier_sync(_tileCacheQueue, ^{
+    dispatch_barrier_sync(_cacheQueue, ^{
         [_memoryCache release];
         _memoryCache = nil;
-        [_tileCaches release];
-        _tileCaches = nil;
+        [_caches release];
+        _caches = nil;
     });
     
 #if ! OS_OBJECT_USE_OBJC
-    dispatch_release(_tileCacheQueue);
+    dispatch_release(_cacheQueue);
 #endif
     [super dealloc];
 }
 
 - (void)addCache:(id <TiCache>)cache
 {
-    dispatch_barrier_async(_tileCacheQueue, ^{
-        [_tileCaches addObject:cache];
+    dispatch_barrier_async(_cacheQueue, ^{
+        [_caches addObject:cache];
     });
 }
 
 - (void)insertCache:(id <TiCache>)cache atIndex:(NSUInteger)index
 {
-    dispatch_barrier_async(_tileCacheQueue, ^{
-        if (index >= [_tileCaches count])
-            [_tileCaches addObject:cache];
+    dispatch_barrier_async(_cacheQueue, ^{
+        if (index >= [_caches count])
+            [_caches addObject:cache];
         else
-            [_tileCaches insertObject:cache atIndex:index];
+            [_caches insertObject:cache atIndex:index];
     });
 }
 
-- (NSArray *)tileCaches
+- (NSArray *)caches
 {
-    return [NSArray arrayWithArray:_tileCaches];
+    return [NSArray arrayWithArray:_caches];
 }
 
 - (UIImage *)cachedImage:(NSNumber*)aKey withCacheKey:(NSString *)aCacheKey
@@ -162,9 +162,9 @@
     if (image)
         return image;
     
-    dispatch_sync(_tileCacheQueue, ^{
+    dispatch_sync(_cacheQueue, ^{
         
-        for (id <TiCache> cache in _tileCaches)
+        for (id <TiCache> cache in _caches)
         {
             image = [cache cachedImage:aKey withCacheKey:aCacheKey];
             
@@ -187,9 +187,9 @@
     
     [_memoryCache addImage:image forKey:aKey withCacheKey:aCacheKey];
     
-    dispatch_sync(_tileCacheQueue, ^{
+    dispatch_sync(_cacheQueue, ^{
         
-        for (id <TiCache> cache in _tileCaches)
+        for (id <TiCache> cache in _caches)
         {
             if ([cache respondsToSelector:@selector(addImage:forKey:withCacheKey:)])
                 [cache addImage:image forKey:aKey withCacheKey:aCacheKey];
@@ -203,9 +203,9 @@
     if (!data || !aCacheKey)
         return;
     
-    dispatch_sync(_tileCacheQueue, ^{
+    dispatch_sync(_cacheQueue, ^{
         
-        for (id <TiCache> cache in _tileCaches)
+        for (id <TiCache> cache in _caches)
         {
             if ([cache respondsToSelector:@selector(addDiskCachedImageData:forKey:withCacheKey:)])
                 [cache addDiskCachedImageData:data forKey:aKey withCacheKey:aCacheKey];
@@ -218,9 +218,9 @@
 {
     [_memoryCache didReceiveMemoryWarning];
     
-    dispatch_sync(_tileCacheQueue, ^{
+    dispatch_sync(_cacheQueue, ^{
         
-        for (id<TiCache> cache in _tileCaches)
+        for (id<TiCache> cache in _caches)
         {
             [cache didReceiveMemoryWarning];
         }
@@ -232,9 +232,9 @@
 {
     [_memoryCache removeAllCachedImages];
     
-    dispatch_sync(_tileCacheQueue, ^{
+    dispatch_sync(_cacheQueue, ^{
         
-        for (id<TiCache> cache in _tileCaches)
+        for (id<TiCache> cache in _caches)
         {
             [cache removeAllCachedImages];
         }
@@ -246,9 +246,9 @@
 {
     [_memoryCache removeAllCachedImagesForCacheKey:cacheKey];
     
-    dispatch_sync(_tileCacheQueue, ^{
+    dispatch_sync(_cacheQueue, ^{
         
-        for (id<TiCache> cache in _tileCaches)
+        for (id<TiCache> cache in _caches)
         {
             [cache removeAllCachedImagesForCacheKey:cacheKey];
         }
