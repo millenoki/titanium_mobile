@@ -8,6 +8,7 @@
 
 #ifdef USE_TI_UIBLENDMODE
 #import "TiUIBlendModeProxy.h"
+#import "TiBase.h"
 
 @implementation TiUIBlendModeProxy
 MAKE_SYSTEM_PROP(DARKEN,kCGBlendModeDarken);
