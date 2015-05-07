@@ -30,8 +30,7 @@ public final class TitaniumtestApplication extends TiApplication
 	{
 		super.onCreate();
 
-		appInfo = new TitaniumtestAppInfo(this);
-		postAppInfo();
+        
 		
 		HashMap<String,Class[]> modules = new HashMap<String, Class[]>() {
 		     {
@@ -49,8 +48,8 @@ public final class TitaniumtestApplication extends TiApplication
 //                  put("akylas.millenoki.location", new Class[]{akylas.millenoki.location.MillenokiLocationModuleBootstrap.class, akylas.millenoki.location.MillenokiLocationModule.class});
 		     }
 		 };
+	    V8Runtime runtime = new V8Runtime();
 
-		V8Runtime runtime = new V8Runtime();
 		Iterator it = modules.entrySet().iterator();
 	    while (it.hasNext()) {
 	        Map.Entry pairs = (Map.Entry)it.next();
@@ -58,12 +57,10 @@ public final class TitaniumtestApplication extends TiApplication
 					(Class<? extends KrollExternalModule>) (((Class[])(pairs.getValue()))[0]));
 	    }
 		runtime.addExternalCommonJsModule("akylas.commonjs", akylas.commonjs.CommonJsSourceProvider.class);
-
 		
-
-		KrollRuntime.init(this, runtime);
-		
-
+        KrollRuntime.init(this, runtime);
+        appInfo = new TitaniumtestAppInfo(this);
+        postAppInfo();
 		// stylesheet = new ApplicationStylesheet();
 		postOnCreate();
 		TiConfig.DEBUG = TiConfig.LOGD = true;
