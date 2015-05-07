@@ -9,18 +9,18 @@
 
 #import "TiUIVolumeViewProxy.h"
 
-NSArray* keySequence;
 
 @implementation TiUIVolumeViewProxy
 
 -(NSArray *)keySequence
 {
-    if (keySequence == nil)
-    {
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"leftTrackLeftCap",@"leftTrackTopCap",@"rightTrackLeftCap",@"rightTrackTopCap",
-                                                                                  @"leftTrackImage",@"selectedLeftTrackImage", @"highlightedLeftTrackImage", @"disabledLeftTrackImage",
-                                                                                  @"rightTrackImage",@"selectedRightTrackImage", @"highlightedRightTrackImage", @"disabledRightTrackImage"]] retain];
-    }
+                                                                                          @"leftTrackImage",@"selectedLeftTrackImage", @"highlightedLeftTrackImage", @"disabledLeftTrackImage",
+                                                                                          @"rightTrackImage",@"selectedRightTrackImage", @"highlightedRightTrackImage", @"disabledRightTrackImage"]] retain];;
+    });
     return keySequence;
 }
 

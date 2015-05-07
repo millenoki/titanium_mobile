@@ -22,18 +22,19 @@
 @implementation TiUIImageViewProxy
 @synthesize imageURL;
 
-static NSArray* imageKeySequence;
 
 #pragma mark Internal
 
 -(NSArray *)keySequence
 {
-	if (imageKeySequence == nil)
-	{
-		imageKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"width",@"height",@"scaleType",@"localLoadSync",  @"duration", @"repeatCount", @"reverse",@"image",@"animatedImages"]] retain];
-	}
-	return imageKeySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"width",@"height",@"scaleType",@"localLoadSync",  @"duration", @"repeatCount", @"reverse",@"image",@"animatedImages"]] retain];;
+    });
+    return keySequence;
 }
+
 
 -(NSString*)apiName
 {

@@ -8,20 +8,20 @@
 
 #import "TiUISliderProxy.h"
 
-NSArray* sliderKeySequence;
-
 @implementation TiUISliderProxy
 
 -(NSArray *)keySequence
 {
-	if (sliderKeySequence == nil)
-	{
-		sliderKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"min",@"max",@"value",@"leftTrackLeftCap",@"leftTrackTopCap",@"rightTrackLeftCap",@"rightTrackTopCap",
-                              @"leftTrackImage",@"selectedLeftTrackImage", @"highlightedLeftTrackImage", @"disabledLeftTrackImage",
-                              @"rightTrackImage",@"selectedRightTrackImage", @"highlightedRightTrackImage", @"disabledRightTrackImage"]] retain];
-	}
-	return sliderKeySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"min",@"max",@"value",@"leftTrackLeftCap",@"leftTrackTopCap",@"rightTrackLeftCap",@"rightTrackTopCap",
+                                                                            @"leftTrackImage",@"selectedLeftTrackImage", @"highlightedLeftTrackImage", @"disabledLeftTrackImage",
+                                                                            @"rightTrackImage",@"selectedRightTrackImage", @"highlightedRightTrackImage", @"disabledRightTrackImage"]] retain];;
+    });
+    return keySequence;
 }
+
 
 -(NSString*)apiName
 {

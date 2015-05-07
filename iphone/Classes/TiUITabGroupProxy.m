@@ -13,15 +13,14 @@
 
 @implementation TiUITabGroupProxy
 
-static NSArray* tabGroupKeySequence;
 -(NSArray *)keySequence
 {
-    if (tabGroupKeySequence == nil)
-    {
-        //URL has to be processed first since the spinner depends on URL being remote
-        tabGroupKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"tabs",@"activeTab", @"barColor"]] retain];
-    }
-    return tabGroupKeySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"tabs",@"activeTab", @"barColor"]] retain];;
+    });
+    return keySequence;
 }
 
 -(void)dealloc

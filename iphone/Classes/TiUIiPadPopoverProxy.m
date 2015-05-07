@@ -22,18 +22,19 @@ TiUIiPadPopoverProxy * currentPopover;
 
 @implementation TiUIiPadPopoverProxy
 
-static NSArray* popoverSequence;
-
 #pragma mark Internal
+
 
 -(NSArray *)keySequence
 {
-	if (popoverSequence == nil)
-	{
-		popoverSequence = [[NSArray arrayWithObjects:@"contentView",@"width",@"height",nil] retain];
-	}
-	return popoverSequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"contentView",@"width",@"height"]] retain];;
+    });
+    return keySequence;
 }
+
 #pragma mark Setup
 
 -(id)init

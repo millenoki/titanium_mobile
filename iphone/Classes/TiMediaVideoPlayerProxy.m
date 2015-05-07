@@ -53,12 +53,14 @@ NSArray* moviePlayerKeys = nil;
 
 #pragma mark Internal
 
--(NSArray*)keySequence
+-(NSArray *)keySequence
 {
-	if (moviePlayerKeys == nil) {
-		moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url",nil];
-	}
-	return moviePlayerKeys;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"url"]] retain];;
+    });
+    return keySequence;
 }
 
 -(void)_initWithProperties:(NSDictionary *)properties

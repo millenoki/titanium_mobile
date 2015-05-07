@@ -12,14 +12,14 @@
 @implementation TiUIScrollableViewProxy
 @synthesize viewProxies, verticalLayout;
 
-NSArray* keySequence;
-
--(NSArray*)keySequence
+-(NSArray *)keySequence
 {
-	if (keySequence == nil) {
-		keySequence = [[NSArray alloc] initWithObjects:@"views",@"currentPage",nil];
-	}
-	return keySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"views",@"currentPage"]] retain];;
+    });
+    return keySequence;
 }
 
 -(void)_initWithProperties:(NSDictionary *)properties

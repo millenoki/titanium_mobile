@@ -14,9 +14,6 @@
 
 @implementation TiUIWebViewProxy
 
-
-static NSArray* webKeySequence;
-
 #ifdef DEBUG_MEMORY
 -(void)dealloc
 {
@@ -36,12 +33,12 @@ static NSArray* webKeySequence;
 
 -(NSArray *)keySequence
 {
-    if (webKeySequence == nil)
-    {
-        //URL has to be processed first since the spinner depends on URL being remote
-        webKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"asyncLoad", @"url"]] retain];
-    }
-    return webKeySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"asyncLoad", @"url"]] retain];;
+    });
+    return keySequence;
 }
 
 -(NSString*)apiName

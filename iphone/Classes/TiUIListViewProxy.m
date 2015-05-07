@@ -29,15 +29,14 @@
 @synthesize autoResizeOnImageLoad;
 
 #pragma mark Internal
-static NSArray* keySequence;
-
 
 -(NSArray *)keySequence
 {
-    if (keySequence == nil)
-    {
-        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"style", @"templates", @"defaultItemTemplate", @"sections", @"backgroundColor", @"searchHidden", @"keepSectionsInSearch"]] retain];
-    }
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"style", @"templates", @"defaultItemTemplate", @"sections", @"backgroundColor", @"searchHidden", @"keepSectionsInSearch"]] retain];;
+    });
     return keySequence;
 }
 

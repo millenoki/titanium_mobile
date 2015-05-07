@@ -12,15 +12,16 @@
 
 @implementation TiUIiOSToolbarProxy
 
-NSArray* keySequence;
-
--(NSArray*)keySequence
+-(NSArray *)keySequence
 {
-	if (keySequence == nil) {
-		keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"barColor"]] retain];
-	}
-	return keySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"barColor"]] retain];;
+    });
+    return keySequence;
 }
+
 
 //USE_VIEW_FOR_VERIFY_HEIGHT
 

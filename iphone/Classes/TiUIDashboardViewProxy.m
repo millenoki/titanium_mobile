@@ -14,17 +14,16 @@
 #import "LauncherButton.h"
 #import "LauncherView.h"
 
-NSArray* dashboardKeySequence;
-
 @implementation TiUIDashboardViewProxy
 
 -(NSArray *)keySequence
 {
-	if (dashboardKeySequence == nil)
-	{
-		dashboardKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"rowCount",@"columnCount"]] retain];
-	}
-	return dashboardKeySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"rowCount",@"columnCount"]] retain];;
+    });
+    return keySequence;
 }
 
 -(id)init

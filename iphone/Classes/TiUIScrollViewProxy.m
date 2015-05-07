@@ -13,16 +13,16 @@
 
 @implementation TiUIScrollViewProxy
 
-static NSArray* scrollViewKeySequence;
 -(NSArray *)keySequence
 {
-    if (scrollViewKeySequence == nil)
-    {
-        //URL has to be processed first since the spinner depends on URL being remote
-        scrollViewKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"minZoomScale",@"maxZoomScale",@"zoomScale"]] retain];
-    }
-    return scrollViewKeySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"minZoomScale",@"maxZoomScale",@"zoomScale"]] retain];;
+    });
+    return keySequence;
 }
+
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {

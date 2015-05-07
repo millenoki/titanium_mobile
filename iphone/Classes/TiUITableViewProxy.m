@@ -21,7 +21,6 @@
 #import "TiComplexValue.h"
 #import "TiApp.h"
 
-NSArray * tableKeySequence;
 
 @interface TiUITableViewProxy ()
 -(void)setData:(id)args withObject:(id)properties immediate:(BOOL)immediate;
@@ -98,13 +97,15 @@ USE_VIEW_FOR_CONTENT_SIZE
 	}
 }
 
+
 -(NSArray *)keySequence
 {
-	if (tableKeySequence == nil)
-	{
-		tableKeySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"style",@"data",@"search",@"backgroundColor"]] retain];
-	}
-	return tableKeySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"style",@"data",@"search",@"backgroundColor"]] retain];;
+    });
+    return keySequence;
 }
 
 -(NSInteger)indexForRow:(TiUITableViewRowProxy*)row

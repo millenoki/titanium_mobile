@@ -232,14 +232,15 @@ static NSDictionary* listViewKeysToReplace;
     [self forgetProxy:section];
 }
 
-- (NSArray *)keySequence
+
+-(NSArray *)keySequence
 {
-	static dispatch_once_t onceToken;
-	static NSArray *keySequence = nil;
-	dispatch_once(&onceToken, ^{
-		keySequence = [[NSArray alloc] initWithObjects:@"style", @"templates", @"defaultItemTemplate", @"sections", @"backgroundColor",nil];
-	});
-	return keySequence;
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"style", @"templates", @"defaultItemTemplate", @"sections"]] retain];;
+    });
+    return keySequence;
 }
 
 - (void)viewDidInitialize
