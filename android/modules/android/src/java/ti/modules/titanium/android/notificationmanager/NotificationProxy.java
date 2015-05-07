@@ -103,7 +103,6 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_ICON:
-
             notificationBuilder.setSmallIcon(TiUIHelper.getResourceId(newValue, this));
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
