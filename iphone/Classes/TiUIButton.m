@@ -95,7 +95,7 @@
 		style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
 		UIView *btn = [TiButtonUtil buttonWithType:style];
 		button = (UIButton*)[btn retain];
-		[button titleLabel].lineBreakMode = UILineBreakModeWordWrap; //default wordWrap to True
+		[button titleLabel].lineBreakMode = NSLineBreakByWordWrapping; //default wordWrap to True
         [[[button titleLabel] layer] setShadowRadius:0]; //default like label
 		[self addSubview:button];
 		if (style==UIButtonTypeCustom)
@@ -409,6 +409,12 @@
 		[[button titleLabel] setLineBreakMode:NSLineBreakByWordWrapping];
 	else 
 		[[button titleLabel] setLineBreakMode:NSLineBreakByTruncatingTail];
+    [button setNeedsLayout];
+}
+
+-(void)setEllipsize_:(id)value
+{
+    [[button titleLabel] setLineBreakMode:[TiUtils intValue:value]];
     [button setNeedsLayout];
 }
 

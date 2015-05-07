@@ -180,7 +180,7 @@ DEFINE_EXCEPTIONS
         newColor = [UIColor lightTextColor];
     }
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[self titleTextAttributesForState:UIControlStateHighlighted]];
-    [dict setObject:newColor forKey:UITextAttributeTextColor];
+    [dict setObject:newColor forKey:NSForegroundColorAttributeName];
     [super setTitleTextAttributes:dict forState:UIControlStateHighlighted];
 }
 
@@ -191,10 +191,10 @@ DEFINE_EXCEPTIONS
         newColor = [UIColor lightTextColor];
     }
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[self titleTextAttributesForState:UIControlStateHighlighted]];
-    [dict setObject:newColor forKey:UITextAttributeTextColor];
+    [dict setObject:newColor forKey:NSForegroundColorAttributeName];
     [super setTitleTextAttributes:dict forState:UIControlStateHighlighted];
     dict = [NSMutableDictionary dictionaryWithDictionary:[self titleTextAttributesForState:UIControlStateSelected]];
-    [dict setObject:newColor forKey:UITextAttributeTextColor];
+    [dict setObject:newColor forKey:NSForegroundColorAttributeName];
     [super setTitleTextAttributes:dict forState:UIControlStateSelected];
 }
 
@@ -205,7 +205,7 @@ DEFINE_EXCEPTIONS
         newColor = [UIColor lightTextColor];
     }
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[self titleTextAttributesForState:UIControlStateDisabled]];
-    [dict setObject:newColor forKey:UITextAttributeTextColor];
+    [dict setObject:newColor forKey:NSForegroundColorAttributeName];
     [super setTitleTextAttributes:dict forState:UIControlStateDisabled];
 }
 

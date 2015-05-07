@@ -28,20 +28,20 @@
 //}
 
 
-static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode linebreak)
+static inline CTLineBreakMode NSLineBreakModeToCTLineBreakMode(NSLineBreakMode linebreak)
 {
     switch (linebreak) {
-        case UILineBreakModeClip:
+        case NSLineBreakByClipping:
             return kCTLineBreakByClipping;
-        case UILineBreakModeCharacterWrap:
+        case NSLineBreakByCharWrapping:
             return kCTLineBreakByCharWrapping;
-        case UILineBreakModeHeadTruncation:
+        case NSLineBreakByTruncatingHead:
             return kCTLineBreakByTruncatingHead;
-        case UILineBreakModeTailTruncation:
+        case NSLineBreakByTruncatingTail:
             return kCTLineBreakByTruncatingTail;
-        case UILineBreakModeMiddleTruncation:
+        case NSLineBreakByTruncatingMiddle:
             return kCTLineBreakByTruncatingMiddle;
-        case UILineBreakModeWordWrap:
+        case NSLineBreakByWordWrapping:
         default:
             return kCTLineBreakByWordWrapping;
             break;
@@ -198,7 +198,7 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
                 {
                     numberOfLines = [TiUtils intValue:[self valueForKey:@"maxLines"]];
                 }
-                font.lineHeight;
+//                font.lineHeight;
                 result = [(NSString*)_realLabelContent sizeWithFont:font constrainedToSize:maxSize lineBreakMode:breakMode];
                 if (numberOfLines > 0)
                 {
@@ -333,9 +333,9 @@ static inline CTLineBreakMode UILineBreakModeToCTLineBreakMode(UILineBreakMode l
 -(void)setMultiLineEllipsize:(id)value
 {
     NSInteger multilineBreakMode = [TiUtils intValue:value];
-    if (multilineBreakMode != UILineBreakModeWordWrap)
+    if (multilineBreakMode != NSLineBreakByWordWrapping)
     {
-        [options setValue:NUMINTEGER(UILineBreakModeToCTLineBreakMode(multilineBreakMode)) forKey:DTDefaultLineBreakMode];
+        [options setValue:NUMINTEGER(NSLineBreakModeToCTLineBreakMode(multilineBreakMode)) forKey:DTDefaultLineBreakMode];
         
         //we need to update the text
         [self updateAttributeText];
