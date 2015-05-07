@@ -2116,9 +2116,6 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
         	}
         }
     }
-    
-    plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version, 3, 3);
-
 
 	if (!(ios && ios.plist && ios.plist.CFBundleShortVersionString) && !(custom && custom.CFBundleShortVersionString)) {
 		plist.CFBundleShortVersionString = appc.version.format(this.tiapp.version, 3, 3);
@@ -2228,7 +2225,10 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 		}, this);
 	}
 
+	this.logger.info(__('testing font'));
 	if (!(ios && ios.plist && ios.plist.UIAppFonts) && !(custom && custom.UIAppFonts)) {
+	this.logger.info(__('no custom font'));
+
 		var fontMap = {};
 
 		// scan for ttf and otf font files
@@ -2236,7 +2236,7 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 			fontMap[f] = 1;
 		});
 
-		(function scanFonts(dir, isRoot) {
+		function scanFonts(dir, isRoot) {
 			fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (file) {
 				var p = path.join(dir, file);
 				if (fs.statSync(p).isDirectory() && (!isRoot || file === 'iphone' || file === 'ios' || ti.availablePlatformsNames.indexOf(file) === -1)) {
@@ -2245,11 +2245,19 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 					fontMap['/' + p.replace(iphoneDir, '').replace(iosDir, '').replace(resourceDir, '').replace(/^\//, '')] = 1;
 				}
 			});
-		}(resourceDir, true));
+		};
+
+		var resourcesPaths = [path.join(this.projectDir, 'Resources'), path.join(this.projectDir, 'Resources', 'iphone'), path.join(this.projectDir, 'Resources', 'ios')];
+		this.cli.createHook('build.ios.resourcesPaths', this, function (resourcesPaths) {
+	        resourcesPaths.forEach(function (dir) {
+	            scanFonts.call(this, dir, true, dir);
+	        }, this);
+	    })(resourcesPaths, function () {});
 
 		var fonts = Object.keys(fontMap);
 		fonts.length && (plist.UIAppFonts = fonts);
 	}
+
 
 	// write the Info.plist
 	fs.writeFile(dest, plist.toString('xml'), next);
