@@ -5,6 +5,8 @@
 // these defined here mainly for when running inside xcode
 //
 
+//#define USE_JSCORE_FRAMEWORK
+
 // MODULES
 
 #define USE_TI_STREAM
