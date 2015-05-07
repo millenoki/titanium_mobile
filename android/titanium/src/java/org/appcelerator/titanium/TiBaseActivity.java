@@ -41,6 +41,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
 import android.annotation.SuppressLint;
@@ -598,6 +599,11 @@ public abstract class TiBaseActivity extends ActionBarActivity
                     return false;
                 }
                 return super.requestFocus(direction, previouslyFocusedRect);
+            }
+            
+            //make sure no TiUIView is attached
+            @Override
+            public void setView(TiUIView view) {
             }
             
             @Override
