@@ -102,7 +102,8 @@
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_HEAD;
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_MIDDLE;
 @property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_TAIL;
-
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_CHAR;
+@property(nonatomic,readonly) NSNumber *TEXT_ELLIPSIZE_WORD;
 
 @property(nonatomic,readonly) NSNumber *INPUT_BUTTONMODE_NEVER;
 @property(nonatomic,readonly) NSNumber *INPUT_BUTTONMODE_ALWAYS;
