@@ -263,7 +263,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer;
 -(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer;
 -(void)recognizedPan:(UIPanGestureRecognizer *)recognizer;
--(void)recognizedRotate:(UIPanGestureRecognizer *)recognizer;
+-(void)recognizedRotation:(UIPanGestureRecognizer *)recognizer;
 -(void)recognizedShove:(UIRotationGestureRecognizer *)recognizer;
 
 -(void)detach;
