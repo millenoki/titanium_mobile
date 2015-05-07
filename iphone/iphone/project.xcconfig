@@ -1,6 +1,5 @@
 TI_VERSION=0.0.0
-
-//OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) -weak_framework iAd -weak_framework MapKit -weak_framework GoogleMobileAds -weak_framework GoogleMaps -framework GLKit -weak_framework TritonPlayerSDK
-//OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) -weak_framework iAd -weak_framework MapKit -weak_framework GoogleMobileAds -weak_framework GoogleMaps -framework GLKit -weak_framework TritonPlayerSDK
-
-OTHER_LDFLAGS=$(inherited) -weak_framework MapKit -framework GLKit
+JSCORE_LD_FLAGS=-weak_framework JavaScriptCore //Linker flag when USE_JSCORE_FRAMEWORK is defined
+TICORE_LD_FLAGS=-weak-lti_ios_profiler -weak-lti_ios_debugger -weak-lTiCore //Linker flags when USE_JSCORE_FRAMEWORK is undefined
+OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(TICORE_LD_FLAGS)
+OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(TICORE_LD_FLAGS)

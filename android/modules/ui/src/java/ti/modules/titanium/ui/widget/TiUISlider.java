@@ -204,13 +204,9 @@ public class TiUISlider extends TiUIView
 	private void updateThumb(String thumbImage) 
 	{
         SeekBar seekBar = getSeekBar();
-		TiFileHelper tfh = null;
 		if (thumbImage != null) {
-			if (tfh == null) {
-				tfh = new TiFileHelper(seekBar.getContext());
-			}
 			String url = proxy.resolveUrl(null, thumbImage);
-			Drawable thumb = tfh.loadDrawable(url, false);
+			Drawable thumb = TiFileHelper.loadDrawable(url);
 		 	if (thumb != null) {
 				thumbDrawable = new SoftReference<Drawable>(thumb);
 				seekBar.setThumb(thumb);
@@ -225,19 +221,18 @@ public class TiUISlider extends TiUIView
 	private void updateTrackingImages() 
 	{
         SeekBar seekBar = getSeekBar();
-		TiFileHelper tfh = tfh = new TiFileHelper(seekBar.getContext());
 		Drawable leftDrawable = null;
 		Drawable rightDrawable = null;
 		if (leftTrackImage != null) {
 			String leftUrl = proxy.resolveUrl(null, leftTrackImage);
 			if(leftUrl != null) {
-				leftDrawable = tfh.loadDrawable(leftUrl, false, true);
+				leftDrawable = TiFileHelper.loadDrawable(leftUrl);
 			}
 		}
 		if (rightTrackImage != null) {
 			String rightUrl = proxy.resolveUrl(null, rightTrackImage);
 			if(rightUrl != null) {
-				rightDrawable = tfh.loadDrawable(rightUrl, false, true);
+				rightDrawable = TiFileHelper.loadDrawable(rightUrl);
 			}
 		}
 		LayerDrawable ld = null;

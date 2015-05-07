@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -24,9 +23,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.text.util.Linkify;
@@ -225,19 +222,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	{
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
-			Drawable imageDrawable = null;
-
-			if (image instanceof Number) {
-				try {
-					imageDrawable = TiUIHelper.getResourceDrawable((Integer)image);
-				} catch (Resources.NotFoundException e) {
-					Log.w(TAG , "Unable to set background drawable for root window.  An integer id was provided but no such drawable resource exists.");
-				}
-			} else {
-				imageDrawable = TiUIHelper.getResourceDrawable(image);
-			}
-
-			root.setBackgroundImage(imageDrawable);
+			root.setBackgroundImage(TiUIHelper.getResourceDrawable(image));
 		}
 	}
 

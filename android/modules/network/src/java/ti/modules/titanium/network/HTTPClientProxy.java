@@ -21,8 +21,8 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
-import android.os.Build;
 import ti.modules.titanium.xml.DocumentProxy;
+import android.os.Build;
 
 @Kroll.proxy(creatableInModule=NetworkModule.class, propertyAccessors = {
 	TiC.PROPERTY_FILE

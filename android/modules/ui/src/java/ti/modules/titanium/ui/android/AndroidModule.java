@@ -28,7 +28,6 @@ import android.webkit.WebSettings;
 import android.preference.PreferenceManager;
 import android.content.Context;
 
-@SuppressLint("InlinedApi")
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule=UIModule.class)
 @Kroll.dynamicApis(properties = {

@@ -6,10 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
-import java.lang.ref.SoftReference;
-
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -38,7 +35,7 @@ public class TiUIVolumeView extends TiUIView
     protected static final int TIFLAG_NEEDS_THUMBS              = 0x00000004;
     protected static final int TIFLAG_NEEDS_POS                 = 0x00000008;
 
-    private int min;
+//    private int min;
     private int max;
     private int volumeStream = AudioManager.STREAM_MUSIC;
     
@@ -48,7 +45,7 @@ public class TiUIVolumeView extends TiUIView
     
     private AudioManager mAudioManager = null; 
 
-    private SoftReference<Drawable> thumbDrawable;
+//    private SoftReference<Drawable> thumbDrawable;
 
     public TiUIVolumeView(final TiViewProxy proxy)
     {
@@ -145,9 +142,9 @@ public class TiUIVolumeView extends TiUIView
                 tfh = new TiFileHelper(seekBar.getContext());
             }
             String url = proxy.resolveUrl(null, thumbImage);
-            Drawable thumb = tfh.loadDrawable(url, false);
+            Drawable thumb = tfh.loadDrawable(url);
             if (thumb != null) {
-                thumbDrawable = new SoftReference<Drawable>(thumb);
+//                thumbDrawable = new SoftReference<Drawable>(thumb);
                 seekBar.setThumb(thumb);
             } else {
                 Log.e(TAG, "Unable to locate thumb image for progress bar: " + url);
@@ -168,8 +165,8 @@ public class TiUIVolumeView extends TiUIView
             String leftUrl = proxy.resolveUrl(null, leftTrackImage);
             String rightUrl = proxy.resolveUrl(null, rightTrackImage);
 
-            Drawable rightDrawable = tfh.loadDrawable(rightUrl, false, true);
-            Drawable leftDrawable = tfh.loadDrawable(leftUrl, false, true);
+            Drawable rightDrawable = tfh.loadDrawable(rightUrl);
+            Drawable leftDrawable = tfh.loadDrawable(leftUrl);
             if (rightDrawable != null && leftDrawable != null) {
                 Drawable[] lda = {
                     rightDrawable,

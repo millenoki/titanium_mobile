@@ -399,7 +399,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		// If it is a modal window, set a translucent dimmed background to the window.
 		// If the opacity is given, set a transparent background to the window. In this case, if no backgroundColor or
 		// backgroundImage is given, the window will be completely transparent.
-		boolean modal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_MODAL), false);
+//		boolean modal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_MODAL), false);
 //		Drawable background = null;
 //		if (modal) {
 //			background = new ColorDrawable(0x9F000000);

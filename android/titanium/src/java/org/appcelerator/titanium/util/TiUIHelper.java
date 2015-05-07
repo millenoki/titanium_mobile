@@ -100,7 +100,7 @@ import android.widget.TextView;
 /**
  * A set of utility methods focused on UI and View operations.
  */
-@SuppressLint("DefaultLocale")
+@SuppressWarnings("deprecation")
 public class TiUIHelper
 {
 	private static final String TAG = "TiUIHelper";
@@ -536,21 +536,20 @@ public class TiUIHelper
         tv.setTypeface(desc.typeface, desc.style);
         tv.setTextSize(desc.sizeUnit, desc.size);
     }
-
-//	public static void styleText(final TextView tv, final String fontFamily, final String fontSize, final String fontWeight)
-//	{
-//		styleText(tv, fontFamily, fontSize, fontWeight, null);
-//	}
-//
-//	public static void styleText(TextView tv, final String fontFamily, final String fontSize, final String fontWeight, final String fontStyle)
-//	{
-//		Typeface tf = tv.getTypeface();
-//		tf = toTypeface(tv.getContext(), fontFamily);
-//		tv.setTypeface(tf, toTypefaceStyle(fontWeight, fontStyle));
-//		float[] result = new float[2];
-//		getSizeAndUnits(fontSize, result);
-//		tv.setTextSize((int)result[0], result[1]);
-//	}
+	
+	public static boolean isAndroidTypeface(String fontFamily)
+    {
+        if (fontFamily != null) {
+            if ("monospace".equals(fontFamily)) {
+                return true;
+            } else if ("serif".equals(fontFamily)) {
+                return true;
+            } else if ("sans-serif".equals(fontFamily)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 	public static Typeface toTypeface(final Context context, String fontFamily, String weight)
 	{
@@ -847,7 +846,7 @@ public class TiUIHelper
                 Cache cache = TiApplication.getImageMemoryCache();
                 Bitmap bitmap = cache.get(url);
                 if (bitmap == null) {
-                    imageDrawable = TiFileHelper.getInstance().loadDrawable(url, false, true);
+                    imageDrawable = TiFileHelper.loadDrawable(url);
                     if (imageDrawable instanceof BitmapDrawable) {
                         bitmap = ((BitmapDrawable)imageDrawable).getBitmap();
                         cache.set(url, ((BitmapDrawable)imageDrawable).getBitmap());
@@ -1201,6 +1200,20 @@ public class TiUIHelper
 		}
 	}
 	
+	public static int getResourceId(final Object value, final KrollProxy proxy)
+    {
+	    if (value instanceof Number) {
+	        return ((Number)value).intValue();
+        } else {
+            String iconUrl = TiConvert.toString(value);
+            if (iconUrl == null) {
+                return 0;
+            }
+            String iconFullUrl = proxy.resolveUrl(null, iconUrl);
+            return TiUIHelper.getResourceId(iconFullUrl);
+        }
+    }
+	
 	/**
 	 * Creates and returns a bitmap from its url.
 	 * @param url the bitmap url.
@@ -1277,10 +1290,11 @@ public class TiUIHelper
 		
 		try {
 	
-			if (path instanceof String) {
+		    if (path instanceof Number) {
+                return getResourceDrawable(((Number) path).intValue());
+            } else if (path instanceof String) {
 				TiUrl imageUrl = new TiUrl((String) path);
-				TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-				d = tfh.loadDrawable(imageUrl.resolve(), false);
+				d = TiFileHelper.loadDrawable(imageUrl.resolve());
 			} else {
 				d = TiDrawableReference.fromObject(TiApplication.getInstance().getCurrentActivity(), path).getDrawable();
 			}
@@ -1293,10 +1307,6 @@ public class TiUIHelper
 
 	public static void overridePendingTransition(final Activity activity) 
 	{
-		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.DONUT) {
-			return;
-		}
-		
 		if (overridePendingTransition == null) {
 			try {
 				overridePendingTransition = Activity.class.getMethod("overridePendingTransition", Integer.TYPE, Integer.TYPE);

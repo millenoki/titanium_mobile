@@ -41,7 +41,6 @@ import com.nineoldandroids.animation.AnimatorSet;
 import ti.modules.titanium.ui.transitionstyle.TransitionStyleModule;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.util.Pair;

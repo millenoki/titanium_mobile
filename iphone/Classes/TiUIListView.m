@@ -83,6 +83,10 @@
     BOOL _updateInsetWithKeyboard;
     
     NSInteger _currentSection;
+
+	BOOL canFireScrollStart;
+    BOOL canFireScrollEnd;
+    BOOL isScrollingToTop;
     
     BOOL _canSwipeCells;
     MGSwipeTableCell * _currentSwipeCell;
@@ -127,6 +131,8 @@ static NSDictionary* replaceKeysForRow;
         _canSwipeCells = NO;
         _hasPullView = NO;
         caseInsensitiveSearch = YES;
+		canFireScrollEnd = NO;
+        canFireScrollStart = YES;
     }
     return self;
 }
@@ -2091,6 +2097,47 @@ static NSDictionary* replaceKeysForRow;
     [self detectSectionChange];
 }
 
+
+// For now, this is fired on `scrollstart` and `scrollend`
+- (void)fireScrollEvent:(NSString*)eventName forTableView:(UITableView*)tableView
+{
+    if([(TiViewProxy*)[self proxy] _hasListeners:eventName checkParent:NO])
+    {
+        NSArray* indexPaths = [tableView indexPathsForVisibleRows];
+        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+
+        NSUInteger visibleItemCount = [indexPaths count];
+        
+        TiUIListSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+
+        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+        [eventArgs setValue:section forKey:@"firstVisibleSection"];
+        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+
+        [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
+    }
+}
+
+- (void)fireScrollEnd:(UITableView*)tableView
+{
+    if(canFireScrollEnd) {
+        canFireScrollEnd = NO;
+        canFireScrollStart = YES;
+        [self fireScrollEvent:@"scrollend" forTableView:tableView];
+    }
+}
+- (void)fireScrollStart:(UITableView *)tableView
+{
+    if(canFireScrollStart) {
+        canFireScrollStart = NO;
+        canFireScrollEnd = YES;
+        [self fireScrollEvent:@"scrollstart" forTableView:tableView];
+    }
+}
+
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     if (_scrollHidesKeyboard) {
@@ -2098,20 +2145,20 @@ static NSDictionary* replaceKeysForRow;
     }
 	// suspend image loader while we're scrolling to improve performance
 	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
+	[self fireScrollStart: (UITableView*)scrollView];
     [self.proxy fireEvent:@"dragstart" propagate:NO];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if (decelerate==NO)
-	{
+	if(!decelerate) {
         [self detectSectionChange];
-        if (_scrollSuspendImageLoading) {
+		if (_scrollSuspendImageLoading) {
             // resume image loader when we're done scrolling
             [[ImageLoader sharedLoader] resume];
         }
-		
-	}
+        [self fireScrollEnd:(UITableView *)scrollView];
+    }    
 	if ([(TiViewProxy*)self.proxy _hasListeners:@"dragend" checkParent:NO])
 	{
 		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil] propagate:NO checkForListener:NO];
@@ -2130,10 +2177,11 @@ static NSDictionary* replaceKeysForRow;
 	// resume image loader when we're done scrolling
 	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
     [self fireScrollEvent:scrollView];
-	if ([(TiViewProxy*)self.proxy _hasListeners:@"scrollend" checkParent:NO])
-	{
-		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView] propagate:NO checkForListener:NO];
-	}
+	if(isScrollingToTop) {
+        isScrollingToTop = NO;
+    } else {
+        [self fireScrollEnd:(UITableView *)scrollView];
+    }
     [self detectSectionChange];
 }
 
@@ -2141,12 +2189,16 @@ static NSDictionary* replaceKeysForRow;
 {
 	// suspend image loader while we're scrolling to improve performance
 	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
+	isScrollingToTop = YES;
+    [self fireScrollStart:(UITableView*) scrollView];
 	return YES;
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    [self fireScrollEvent:scrollView];
+    if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
+    [self fireScrollEnd:(UITableView *)scrollView];
+    //Events none (maybe scroll later)
 }
 
 #pragma mark Overloaded view handling

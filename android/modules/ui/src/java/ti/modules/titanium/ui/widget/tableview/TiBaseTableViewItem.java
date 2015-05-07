@@ -148,13 +148,6 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 		return createDrawable(checkIndicatorBitmap);
 	}
 
-	public Drawable loadDrawable(String url) {
-		if (tfh == null) {
-			tfh = new TiFileHelper(getContext());
-		}
-		return tfh.loadDrawable(url, false);
-	}
-
 	public String getClassName() {
 		return className;
 	}
@@ -165,7 +158,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	
 	public Drawable getBackgroundImageDrawable(KrollProxy proxy, String path) {
 		String url = proxy.resolveUrl(null, path);
-		return loadDrawable(url);
+		return TiFileHelper.loadDrawable(url);
 	}
 
 	public void setBackgroundDrawable(KrollDict d, Drawable drawable)

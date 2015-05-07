@@ -34,7 +34,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
 
@@ -42,7 +41,6 @@ import android.support.v4.app.NotificationCompat.Builder;
         TiC.PROPERTY_CONTENT_TEXT, TiC.PROPERTY_CONTENT_TITLE })
 public class NotificationProxy extends ReusableProxy implements TiDrawableTarget {
     private static final String TAG = "TiNotification";
-    private static final boolean JELLY_BEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 
     private int currentId = -1;
 	protected Builder notificationBuilder;
@@ -105,17 +103,8 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_ICON:
-            if (newValue instanceof Number) {
-                notificationBuilder.setSmallIcon(((Number)newValue).intValue());
-            } else {
-                String iconUrl = TiConvert.toString(newValue);
-                if (iconUrl == null) {
-                    Log.e(TAG, "Url is null");
-                    return;
-                }
-                String iconFullUrl = resolveUrl(null, iconUrl);
-                notificationBuilder.setSmallIcon(TiUIHelper.getResourceId(iconFullUrl));
-            }
+
+            notificationBuilder.setSmallIcon(TiUIHelper.getResourceId(newValue, this));
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
         case TiC.PROPERTY_TICKER_TEXT:
@@ -144,7 +133,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             }
             break;
         case TiC.PROPERTY_CONTENT_VIEW:
-            if (JELLY_BEAN_OR_GREATER) {
+            if (TiC.JELLY_BEAN_OR_GREATER) {
                 if (contentView != null) {
                     contentView.didHide();
                     contentView.setNotification(null);
@@ -159,7 +148,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
             mProcessUpdateFlags |= TIFLAG_NEEDS_UPDATE;
             break;
         case TiC.PROPERTY_BIG_CONTENT_VIEW:
-            if (JELLY_BEAN_OR_GREATER) {
+            if (TiC.JELLY_BEAN_OR_GREATER) {
                 if (bigContentView != null) {
                     bigContentView.didHide();
                     bigContentView.setNotification(null);
@@ -352,7 +341,7 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
         if (this.contentView != null) {
             notification.contentView = this.contentView.getRemoteViews();
         }
-        if (JELLY_BEAN_OR_GREATER && this.bigContentView != null) {
+        if (TiC.JELLY_BEAN_OR_GREATER && this.bigContentView != null) {
             notification.bigContentView = this.bigContentView.getRemoteViews();
         }
 		return notification;

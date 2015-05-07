@@ -10,7 +10,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiContext;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
@@ -24,7 +23,6 @@ import android.util.Log;
 public class PickerColumnProxy extends ViewProxy implements PickerRowListener
 {
 	private static final String TAG = "PickerColumnProxy";
-	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private PickerColumnListener columnListener  = null;
 	private boolean useSpinner = false;
 	private boolean suppressListenerEvents = false;

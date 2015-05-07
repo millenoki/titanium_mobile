@@ -37,7 +37,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-@SuppressLint("InlinedApi")
+@SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = {
 		TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED,
         TiC.PROPERTY_DISPLAY_HOME_AS_UP,

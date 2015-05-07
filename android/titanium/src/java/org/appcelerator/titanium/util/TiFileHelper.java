@@ -53,6 +53,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.webkit.URLUtil;
 
+@SuppressWarnings("deprecation")
 public class TiFileHelper implements Handler.Callback
 {
 	private static final String TAG = "TiFileHelper";
@@ -469,8 +470,8 @@ public class TiFileHelper implements Handler.Callback
 	 * @param report  this is not being used.
 	 * @return a Drawable instance.
 	 */
-	public Drawable loadDrawable(String path, boolean report) {
-		return loadDrawable(path, report, false);
+	public static Drawable loadDrawable(String path) {
+		return getInstance().loadDrawable(path, false, true, false);
 	}
 	
 	private Drawable getDrawableFromStream(String path, InputStream is) 
@@ -494,9 +495,10 @@ public class TiFileHelper implements Handler.Callback
 	 * @param path  the path/url of the Drawable 
 	 * @param report  this is not being used. 
 	 * @param checkForNinePatch  a boolean to determine whether the returning Drawable is a NinePatch Drawable.
+	 * @param densityScaled  a boolean to determine whether the returning Drawable is scaled based on device density.
 	 * @return  a Drawable instance.
 	 */
-	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch)
+	public Drawable loadDrawable(String path, boolean report, boolean checkForNinePatch, boolean densityScaled)
 	{
 		Drawable d = null;
 		InputStream is = null;
@@ -528,11 +530,21 @@ public class TiFileHelper implements Handler.Callback
 				if (is == null) {
 					is = openInputStream(path, report);
 				}
-				Bitmap b = TiUIHelper.createBitmap(is);
+				Bitmap b = null;
+				if (densityScaled) {
+					b = TiUIHelper.createDensityScaledBitmap(is);
+				} else {
+					b = TiUIHelper.createBitmap(is);
+				}
 				d = nph.process(b);
 			} else {
 				is = openInputStream(path, report);
-				Bitmap b = TiUIHelper.createBitmap(is);
+				Bitmap b = null;
+				if (densityScaled) {
+					b = TiUIHelper.createDensityScaledBitmap(is);
+				} else {
+					b = TiUIHelper.createBitmap(is);
+				}
 				if (b != null) {
 					d = new BitmapDrawable(b);
 				}

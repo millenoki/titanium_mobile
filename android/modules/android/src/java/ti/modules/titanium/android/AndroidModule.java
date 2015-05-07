@@ -42,7 +42,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.media.AudioManager;
 import android.view.MenuItem;
 
-@SuppressLint("InlinedApi")
+@SuppressWarnings("deprecation")
 @Kroll.module
 public class AndroidModule extends KrollModule
 {

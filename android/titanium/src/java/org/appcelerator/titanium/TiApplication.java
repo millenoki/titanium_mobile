@@ -927,13 +927,17 @@ public abstract class TiApplication extends Application implements
         if (mAppDensityString == null) {
             switch(getAppDensityDpi()) {
             case DisplayMetrics.DENSITY_HIGH :
+            case 213: //TV
                 mAppDensityString = "high";
             case DisplayMetrics.DENSITY_MEDIUM :
                 mAppDensityString = "medium";
+            case 280: //Introduce in API 22.
             case 320 : // DisplayMetrics.DENSITY_XHIGH (API 9)
                 mAppDensityString = "xhigh";
+            case 400:
             case 480 :
                 mAppDensityString = "xxhigh";
+            case 560:
             case 640 :
                 mAppDensityString = "xxxhigh";
             case DisplayMetrics.DENSITY_LOW :

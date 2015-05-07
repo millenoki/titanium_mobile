@@ -2,12 +2,12 @@ package ti.modules.titanium.platform;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 
 import android.os.Build;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.os.Build;
 
 @Kroll.module(parentModule=PlatformModule.class)
 public class AndroidModule extends PlatformModule{

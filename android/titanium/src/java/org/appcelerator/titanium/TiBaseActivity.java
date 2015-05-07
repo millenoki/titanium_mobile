@@ -640,6 +640,7 @@ public abstract class TiBaseActivity extends ActionBarActivity
 	}
 	
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
+	@SuppressWarnings("deprecation")
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		defaultFullscreen = fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);

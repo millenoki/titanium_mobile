@@ -59,6 +59,7 @@ import android.telephony.TelephonyManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
+@SuppressWarnings("deprecation")
 @Kroll.module
 public class NetworkModule extends KrollModule {
 

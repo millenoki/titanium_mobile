@@ -56,7 +56,7 @@ import android.webkit.URLUtil;
 /**
  * Helper class for loading, scaling, and caching images if necessary.
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings("deprecation")
 public class TiDrawableReference
 {
 	private static Map<Integer, Bounds> boundsCache;
@@ -592,7 +592,7 @@ public class TiDrawableReference
 		if (drawable == null) {
 		    if (isTypeUrl()) {
 		        TiFileHelper tfh = TiFileHelper.getInstance();
-		        drawable = tfh.loadDrawable(url, false, true);
+		        drawable = tfh.loadDrawable(url, false, true, false);
 		    }
 		    if (drawable == null) {
     			Bitmap b = getBitmap(needsRetry);

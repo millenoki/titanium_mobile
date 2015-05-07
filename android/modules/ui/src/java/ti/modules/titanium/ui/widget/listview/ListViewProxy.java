@@ -8,7 +8,7 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
@@ -16,9 +16,9 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.abslistview.AbsListViewProxy;
 import android.app.Activity;
-import android.os.Handler;
 import android.os.Message;
 
+@SuppressWarnings("unused")
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class ListViewProxy extends AbsListViewProxy {
 
@@ -76,14 +76,13 @@ public class ListViewProxy extends AbsListViewProxy {
     }
 
     @Kroll.method()
-    public void closeSwipeMenu(@Kroll.argument(optional = true) Object obj) {
-        if (TiApplication.isUIThread()) {
-            handleCloseSwipeMenu(obj);
-        } else {
-            Handler handler = getMainHandler();
-            handler.sendMessage(handler
-                    .obtainMessage(MSG_CLOSE_SWIPE_MENU, obj));
-        }
+    public void closeSwipeMenu(final @Kroll.argument(optional = true) Object obj) {
+        runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                handleCloseSwipeMenu(obj);                
+            }
+        });
     }
 
 }

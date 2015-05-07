@@ -32,7 +32,6 @@ import android.content.Intent;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
@@ -61,7 +60,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private WeakReference<TiBaseActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private boolean isFocused;
-	private boolean swipeTabs = true;
+//	private boolean swipeTabs = true;
 	
 	public TabGroupProxy()
 	{
@@ -370,9 +369,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
         ActionBar actionBar = TiActivityHelper.getActionBar(getActivity());
 		if (actionBar != null) {
 			view = new TiUIActionBarTabGroup(this, activity, savedInstanceState);
-			if (!swipeTabs) {
-				TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
-			}
+//			if (!swipeTabs) {
+//				TiUIActionBarTabGroup tabGroup = (TiUIActionBarTabGroup) view;
+//			}
 		} else {
 			Log.e(TAG, "ActionBar not available for TabGroup");
 			return;

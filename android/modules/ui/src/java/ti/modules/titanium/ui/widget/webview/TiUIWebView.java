@@ -153,7 +153,6 @@ public class TiUIWebView extends TiUINonViewGroupView
             return super.onTouchEvent(event);
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 		{

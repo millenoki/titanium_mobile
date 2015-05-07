@@ -154,6 +154,7 @@ public class TextAreaProxy extends ViewProxy
 		return "Ti.UI.TextArea";
 	}
 	
+    @SuppressWarnings("null")
     @Override
     public boolean shouldFireChange(Object oldValue, Object newValue)
     {

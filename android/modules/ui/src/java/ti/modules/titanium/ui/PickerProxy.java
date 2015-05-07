@@ -531,18 +531,18 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
         }
     }
 
-    private void handleSelectRow(KrollDict dict) {
-        handleSelectRow(dict.getInt("column"), dict.getInt("row"),
-                dict.getBoolean("animated"));
-    }
+//    private void handleSelectRow(KrollDict dict) {
+//        handleSelectRow(dict.getInt("column"), dict.getInt("row"),
+//                dict.getBoolean("animated"));
+//    }
 
-    private void handleSelectRow(int column, int row, boolean animated) {
-        if (peekView() == null) {
-            return;
-        }
-        ((TiUIPicker) peekView()).selectRow(column, row, animated);
-        ((TiUIPicker) peekView()).openPicker();
-    }
+//    private void handleSelectRow(int column, int row, boolean animated) {
+//        if (peekView() == null) {
+//            return;
+//        }
+//        ((TiUIPicker) peekView()).selectRow(column, row, animated);
+//        ((TiUIPicker) peekView()).openPicker();
+//    }
 
     public int getColumnCount() {
         return getChildrenCount();

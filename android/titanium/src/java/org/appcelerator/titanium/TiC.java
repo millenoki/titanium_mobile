@@ -126,17 +126,22 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_DOUBLE_CLICK = "dblclick";
-
-	/**
-	 * @module.api
-	 */
 	public static final String EVENT_DISPOSE_HANDLE = "disposehandle";
 
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_DOUBLE_CLICK = "dblclick";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
+
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_DRAGEND = "dragend";
 
 	/**
 	 * @module.api
@@ -499,12 +504,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_SCROLLSTART= "scrollstart";
-
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_DRAGEND = "dragend";
+	public static final String EVENT_SCROLLSTART = "scrollstart";
 
     /**
      * @module.api
@@ -609,7 +609,7 @@ public class TiC
 	public static final String INTENT_PROPERTY_ON_BOOT = "onBoot";
 	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
 	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
-	public static final String LAYOUT_FILL = "FILL";
+	public static final String LAYOUT_FILL = "fill";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
     public static final String LAYOUT_SIZE = "SIZE";
     public static final String LAYOUT_MATCH = "MATCH";
@@ -1458,6 +1458,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_DIVIDER_HEIGHT = "dividerHeight";
+	
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_DOMAIN = "domain";
 
 	/**
@@ -1676,6 +1681,11 @@ public class TiC
 	public static final String PROPERTY_FOOTER_VIEW = "footerView";
 
 	public static final String PROPERTY_FORWARD = "forward";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_FRAGMENT_ONLY = "fragmentOnly";
 
 	/**
 	 * @module.api

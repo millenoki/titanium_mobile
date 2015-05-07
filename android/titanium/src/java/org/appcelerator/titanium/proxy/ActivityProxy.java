@@ -23,6 +23,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Message;
+import android.support.v7.app.ActionBarActivity;
 
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_ON_CREATE_OPTIONS_MENU,

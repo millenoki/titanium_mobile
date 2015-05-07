@@ -64,7 +64,7 @@ public class ImageViewProxy extends ViewProxy
 		setProperty("animating", true);
 		setProperty("paused", false);
 		if (view != null) {
-			((TiUIImageView)view).start();
+		    getImageView().start();
 		}
 	}
 	
@@ -73,7 +73,7 @@ public class ImageViewProxy extends ViewProxy
 		setProperty("animating", false);
 		setProperty("paused", false);
 		if (view != null) {
-			((TiUIImageView)view).stop();
+		    getImageView().stop();
 		}
 	}
 	
@@ -81,7 +81,7 @@ public class ImageViewProxy extends ViewProxy
 	public void pause() {
 		setProperty("paused", true);
 		if (view != null) {
-			((TiUIImageView)view).pause();
+		    getImageView().pause();
 		}
 	}
 	
@@ -94,7 +94,7 @@ public class ImageViewProxy extends ViewProxy
         }
 		setProperty("paused", false);
 		if (view != null) {
-			((TiUIImageView)view).resume();
+		    getImageView().resume();
 		}
 	}
 	
@@ -120,7 +120,7 @@ public class ImageViewProxy extends ViewProxy
     @Kroll.method
     public int getIndex() {
         if (view != null) {
-            ((TiUIImageView)view).getCurrentIndex();
+            getImageView().getCurrentIndex();
         }
         return 0;
     }
@@ -129,7 +129,7 @@ public class ImageViewProxy extends ViewProxy
     @Kroll.method
     public float getProgress() {
         if (view != null) {
-            ((TiUIImageView)view).getProgress();
+            getImageView().getProgress();
         }
         return 1;
     }

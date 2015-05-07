@@ -172,24 +172,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
 
 	private MenuItemProxy handleSetIcon(Object icon) 
 	{
-		if (icon != null) {
-			if (icon instanceof String) {
-				String iconPath = TiConvert.toString(icon);
-				TiUrl iconUrl = new TiUrl(iconPath);
-				if (iconPath != null) {
-					TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-					Drawable d = tfh.loadDrawable(iconUrl.resolve(), false);
-					if (d != null) {
-						item.setIcon(d);
-					}
-				}
-			} else if (icon instanceof Number) {
-				Drawable d = TiUIHelper.getResourceDrawable(TiConvert.toInt(icon));
-				if (d != null) {
-					item.setIcon(d);
-				}
-			}
-		}
+        item.setIcon(TiUIHelper.getResourceDrawable(icon));
 		return this;
 	}
 	public MenuItemProxy setIcon(Object icon) 

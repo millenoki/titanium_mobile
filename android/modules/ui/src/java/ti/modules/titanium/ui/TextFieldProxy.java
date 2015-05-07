@@ -156,7 +156,8 @@ public class TextFieldProxy extends ViewProxy
 		return "Ti.UI.TextField";
 	}
 	
-	@Override
+	@SuppressWarnings("null")
+    @Override
     public boolean shouldFireChange(Object oldValue, Object newValue)
     {
         boolean oldNullEmpty = oldValue == null || (oldValue instanceof String && TiConvert.toString(oldValue).length() == 0);

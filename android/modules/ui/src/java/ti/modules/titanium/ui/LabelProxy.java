@@ -71,6 +71,7 @@ public class LabelProxy extends ViewProxy
 	}
 	
 
+    @SuppressWarnings("null")
     @Override
     public boolean shouldFireChange(Object oldValue, Object newValue)
     {

@@ -9,6 +9,7 @@
 #ifdef USE_TI_UITRANSITIONSTYLE
 #import "TiUITransitionStyleProxy.h"
 #import "TiTransitionHelper.h"
+#import "TiBase.h"
 
 @implementation TiUITransitionStyleProxy
 

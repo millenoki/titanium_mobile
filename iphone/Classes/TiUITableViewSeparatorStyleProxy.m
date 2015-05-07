@@ -7,6 +7,7 @@
 #if defined(USE_TI_UITABLEVIEWSEPARATORSTYLE)
 
 #import "TiUITableViewSeparatorStyleProxy.h"
+#import "TiBase.h"
 
 @implementation TiUITableViewSeparatorStyleProxy
 

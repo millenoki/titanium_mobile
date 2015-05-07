@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -340,7 +341,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (p.containsKey(TiC.PROPERTY_RIGHT_IMAGE)) {
 			String path = TiConvert.toString(p, TiC.PROPERTY_RIGHT_IMAGE);
 				String url = getRowProxy().resolveUrl(null, path);
-				Drawable d = loadDrawable(url);
+				Drawable d = TiFileHelper.loadDrawable(url);
 				if (d != null) {
 					rightImage.setImageDrawable(d);
 					rightImage.setVisibility(VISIBLE);
@@ -361,7 +362,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		if (p.containsKey(TiC.PROPERTY_LEFT_IMAGE)) {
 			String path = TiConvert.toString(p, TiC.PROPERTY_LEFT_IMAGE);
 				String url = getRowProxy().resolveUrl(null, path);
-				Drawable d = loadDrawable(url);
+				Drawable d = TiFileHelper.loadDrawable(url);
 				if (d != null) {
 					leftImage.setImageDrawable(d);
 					leftImage.setVisibility(VISIBLE);
@@ -598,7 +599,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 				String path = TiConvert.toString(
 					rowProxy.getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE));
 				String url = rowProxy.resolveUrl(null, path);
-				selectorDrawable = loadDrawable(url);
+				selectorDrawable = TiFileHelper.loadDrawable(url);
 			} else if (rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR)) {
 				int color = TiConvert.toColor(rowProxy.getProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR).toString());
 				selectorDrawable = new TiTableViewColorSelector(color);

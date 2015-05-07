@@ -276,14 +276,17 @@ DEFINE_EXCEPTIONS
 -(void)startTimerWithEvent:(NSString *)eventName
 {
     RELEASE_TO_NIL(timer);
-    if (stopped)
-    {
-        return;
-    }
-    timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain];
-    if ([self.proxy _hasListeners:eventName])
-    {
-        [self.proxy fireEvent:eventName withObject:nil];
+    if (!stopped) {
+        if ([self.proxy _hasListeners:eventName]) {
+            [self.proxy fireEvent:eventName withObject:nil];
+        }
+
+        if ([eventName isEqualToString:@"start"] && previous == nil) {
+            //TIMOB-18830. Load the first image immediately
+            [self timerFired:nil];
+        }
+        
+        timer = [[NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerFired:) userInfo:nil repeats:YES] retain];
     }
 }
 

@@ -10,8 +10,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import org.appcelerator.kroll.common.Log;
-
 import ti.modules.titanium.ui.TabProxy;
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
@@ -22,7 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-@SuppressLint("ValidFragment")
+@SuppressWarnings("deprecation")
 public class TiUIActionBarTab extends TiUIAbstractTab {
 
 	private static final String TAG = "TiUIActionBarTab";
