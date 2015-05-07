@@ -609,7 +609,7 @@ public class TiC
 	public static final String INTENT_PROPERTY_ON_BOOT = "onBoot";
 	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
 	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
-	public static final String LAYOUT_FILL = "fill";
+	public static final String LAYOUT_FILL = "FILL";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
     public static final String LAYOUT_SIZE = "SIZE";
     public static final String LAYOUT_MATCH = "MATCH";
