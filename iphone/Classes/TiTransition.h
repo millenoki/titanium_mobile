@@ -41,7 +41,7 @@ static inline NSString* NSStringFromCATransform3D(CATransform3D transform) {
 }
 @property(nonatomic,readonly)	ADTransition* adTransition;
 @property(nonatomic,assign)	NWTransition type;
-@property(nonatomic,assign)	CGFloat duration;
+//@property(nonatomic,assign)	CGFloat duration;
 @property(nonatomic,readonly)	ADTransitionOrientation orientation;
 
 - (id)initWithADTransition:(ADTransition*)transition;
