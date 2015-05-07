@@ -23,7 +23,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 public class TiActivityHelper {
     /**
@@ -92,13 +92,13 @@ public class TiActivityHelper {
     }
 
     public static ActionBar getActionBar(final Activity activity) {
-        if (activity instanceof ActionBarActivity) {
+        if (activity instanceof AppCompatActivity) {
             if (activity instanceof TiBaseActivity
                     && !((TiBaseActivity) activity).isReadyToQueryActionBar()) {
                 return null;
             }
             try {
-                return ((ActionBarActivity) activity).getSupportActionBar();
+                return ((AppCompatActivity) activity).getDelegate().getSupportActionBar();
             } catch (NullPointerException e) {
                 return null;
             }
