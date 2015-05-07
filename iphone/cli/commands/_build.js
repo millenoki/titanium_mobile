@@ -2236,13 +2236,13 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 			fontMap[f] = 1;
 		});
 
-		function scanFonts(dir, isRoot) {
+		function scanFonts(dir, isRoot, replaceString) {
 			fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (file) {
 				var p = path.join(dir, file);
 				if (fs.statSync(p).isDirectory() && (!isRoot || file === 'iphone' || file === 'ios' || ti.availablePlatformsNames.indexOf(file) === -1)) {
-					scanFonts(p);
+					scanFonts(p, false, replaceString);
 				} else if (/\.(otf|ttf)$/i.test(file)) {
-					fontMap['/' + p.replace(iphoneDir, '').replace(iosDir, '').replace(resourceDir, '').replace(/^\//, '')] = 1;
+					fontMap['/' + p.replace(replaceString, '').replace(/^\//, '')] = 1;
 				}
 			});
 		};
