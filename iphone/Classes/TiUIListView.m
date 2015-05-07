@@ -2041,15 +2041,8 @@ static NSDictionary* replaceKeysForRow;
 			nil];
 }
 
-- (void)fireScrollEvent:(UIScrollView *)scrollView {
-	if ([[self viewProxy] _hasListeners:@"scroll" checkParent:NO])
-	{
-        NSArray* visibles = [_tableView indexPathsForVisibleRows];
-        NSMutableDictionary* event = [self eventObjectForScrollView:scrollView];
-        [event setObject:NUMINTEGER(((NSIndexPath*)[visibles objectAtIndex:0]).row) forKey:@"firstVisibleItem"];
-        [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
-		[self.proxy fireEvent:@"scroll" withObject:event checkForListener:NO];
-	}
+- (void)fireScrollEvent:(UITableView *)scrollView {
+    [self fireScrollEvent:@"scroll" forTableView:scrollView withAdditionalArgs:nil];
 }
 
 -(void)detectSectionChange {
@@ -2060,14 +2053,9 @@ static NSDictionary* replaceKeysForRow;
         _currentSection = section;
         if ([[self viewProxy] _hasListeners:@"headerchange" checkParent:NO])
         {
-            NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:_tableView];
-            [event setObject:NUMINTEGER(indexPath.row) forKey:@"firstVisibleItem"];
-            [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
-            TiViewProxy* headerView = [self currentSectionViewProxy:_currentSection forLocation:@"headerView"];
-            if (headerView) {
-                [event setObject:headerView forKey:@"headerView"];
-            }
-            [self.proxy fireEvent:@"headerchange" withObject:event checkForListener:NO];
+            [self fireScrollEvent:@"headerchange" forTableView:_tableView withAdditionalArgs:@{
+                                                                                               @"headerView":[self currentSectionViewProxy:_currentSection forLocation:@"headerView"]
+                                                                                               }];
         }
     }
 }
@@ -2076,7 +2064,7 @@ static NSDictionary* replaceKeysForRow;
 {
     if (scrollView.isDragging || scrollView.isDecelerating)
 	{
-        [self fireScrollEvent:scrollView];
+        [self fireScrollEvent:_tableView];
     }
     if ( _hasPullView && ([scrollView isTracking]) ) {
         BOOL pullChanged = NO;
@@ -2087,10 +2075,10 @@ static NSDictionary* replaceKeysForRow;
             pullActive = NO;
             pullChanged = YES;
         }
-        if (pullChanged && [(TiViewProxy*)self.proxy _hasListeners:@"pullchanged" checkParent:NO]) {
+        if (pullChanged && [[self viewProxy] _hasListeners:@"pullchanged" checkParent:NO]) {
             [self.proxy fireEvent:@"pullchanged" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] propagate:NO checkForListener:NO];
         }
-        if (scrollView.contentOffset.y <= 0 && [(TiViewProxy*)self.proxy _hasListeners:@"pull" checkParent:NO]) {
+        if (scrollView.contentOffset.y <= 0 && [[self viewProxy] _hasListeners:@"pull" checkParent:NO]) {
             [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] propagate:NO checkForListener:NO];
         }
     }
@@ -2099,9 +2087,9 @@ static NSDictionary* replaceKeysForRow;
 
 
 // For now, this is fired on `scrollstart` and `scrollend`
-- (void)fireScrollEvent:(NSString*)eventName forTableView:(UITableView*)tableView
+- (void)fireScrollEvent:(NSString*)eventName forTableView:(UITableView*)tableView withAdditionalArgs:(NSDictionary*)args
 {
-    if([(TiViewProxy*)[self proxy] _hasListeners:eventName checkParent:NO])
+    if([[self viewProxy] _hasListeners:eventName checkParent:NO])
     {
         NSArray* indexPaths = [tableView indexPathsForVisibleRows];
         NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
@@ -2109,14 +2097,14 @@ static NSDictionary* replaceKeysForRow;
         NSUInteger visibleItemCount = [indexPaths count];
         
         TiUIListSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
-        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
-
+        
+        NSMutableDictionary* eventArgs = [self eventObjectForScrollView:tableView];
+        [eventArgs setValuesForKeysWithDictionary:args];
         [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
         [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
         [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
         [eventArgs setValue:section forKey:@"firstVisibleSection"];
         [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
-
         [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
     }
 }
@@ -2126,7 +2114,7 @@ static NSDictionary* replaceKeysForRow;
     if(canFireScrollEnd) {
         canFireScrollEnd = NO;
         canFireScrollStart = YES;
-        [self fireScrollEvent:@"scrollend" forTableView:tableView];
+        [self fireScrollEvent:@"scrollend" forTableView:tableView withAdditionalArgs:nil];
     }
 }
 - (void)fireScrollStart:(UITableView *)tableView
@@ -2134,7 +2122,7 @@ static NSDictionary* replaceKeysForRow;
     if(canFireScrollStart) {
         canFireScrollStart = NO;
         canFireScrollEnd = YES;
-        [self fireScrollEvent:@"scrollstart" forTableView:tableView];
+        [self fireScrollEvent:@"scrollstart" forTableView:tableView withAdditionalArgs:nil];
     }
 }
 
@@ -2176,7 +2164,7 @@ static NSDictionary* replaceKeysForRow;
 {
 	// resume image loader when we're done scrolling
 	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
-    [self fireScrollEvent:scrollView];
+    [self fireScrollEvent:_tableView];
 	if(isScrollingToTop) {
         isScrollingToTop = NO;
     } else {
@@ -2233,7 +2221,7 @@ static NSDictionary* replaceKeysForRow;
     if (indexPath != nil) {
         if ([[self proxy] _hasListeners:@"swipe"]) {
             NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:theTableView];
-            [event setValue:[self swipeStringFromGesture:recognizer] forKey:@"direction"];
+            [event setValuesForKeysWithDictionary:[TiUtils dictionaryFromGesture:recognizer inView:theTableView]];
             [[self proxy] fireEvent:@"swipe" withObject:event checkForListener:NO];
         }
         
