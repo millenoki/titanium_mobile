@@ -2990,7 +2990,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         }
         
         if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
-            [self fireEvent:@"postlayout" propagate:NO];
+            [self fireEvent:@"postlayout" propagate:NO checkForListener:NO];
         }
         repositioning = NO;
         return layoutChanged;
