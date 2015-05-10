@@ -116,6 +116,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
     
 @private
     NSMutableDictionary *listeners;
+    NSMutableDictionary *listenersOnce;
     NSMutableDictionary *evaluators;
 	BOOL destroyed;
 	id<TiProxyDelegate> modelDelegate;
@@ -312,8 +313,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 
 +(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
 -(void)throwException:(NSString *) reason subreason:(NSString*)subreason location:(NSString *)location;
--(void)addEventListener:(NSArray*)args;
--(void)removeEventListener:(NSArray*)args;
+-(id)addEventListener:(NSArray*)args;
+-(id)removeEventListener:(NSArray*)args;
 
 
 -(void)_listenerAdded:(NSString*)type count:(NSInteger)count;

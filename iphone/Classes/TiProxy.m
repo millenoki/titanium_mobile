@@ -466,7 +466,8 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	
 	// remove all listeners JS side proxy
 	pthread_rwlock_wrlock(&listenerLock);
-	RELEASE_TO_NIL(listeners);
+    RELEASE_TO_NIL(listeners);
+    RELEASE_TO_NIL(listenersOnce);
 	pthread_rwlock_unlock(&listenerLock);
 	
 	pthread_rwlock_wrlock(&dynpropsLock);
@@ -861,10 +862,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	}
 }
 
--(void)addEventListener:(NSArray*)args
+
+-(id)internalAddEventListener:(NSString *)type withListener:(id)listener onlyOnce:(BOOL)onlyOnce
 {
-	NSString *type = [args objectAtIndex:0];
-	id listener = [args objectAtIndex:1];
 	if (![listener isKindOfClass:[KrollWrapper class]] &&
 		![listener isKindOfClass:[KrollCallback class]]) {
         if (IS_OF_CLASS(listener, NSDictionary)) {
@@ -876,9 +876,13 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
                 theListeners = [NSMutableArray array];
                 [evaluators setObject:theListeners forKey:type];
             }
+            if (onlyOnce) {
+                listener = [NSMutableDictionary dictionaryWithDictionary:listener];
+                [listener setValue:@(YES) forKey:@"__once__"];
+            }
             [theListeners addObject:listener];
             [self _listenerAdded:type count:[theListeners count]];
-            return;
+            return self;
         } else {
             ENSURE_TYPE(listener,KrollCallback);
         }
@@ -892,6 +896,17 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	int ourCallbackCount = 0;
 
 	pthread_rwlock_wrlock(&listenerLock);
+    if (onlyOnce) {
+        if(listenersOnce==nil){
+            listenersOnce = [[NSMutableDictionary alloc] initWithCapacity:3];
+        }
+        NSMutableArray* theListenersOnce = [listenersOnce objectForKey:type];
+        if (!theListenersOnce) {
+            theListenersOnce = [NSMutableArray array];
+            [listenersOnce setObject:theListenersOnce forKey:type];
+        }
+        [theListenersOnce addObject:listener];
+    }
 	ourCallbackCount = [[listeners objectForKey:type] intValue] + 1;
 	if(listeners==nil){
 		listeners = [[NSMutableDictionary alloc] initWithCapacity:3];
@@ -900,9 +915,55 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	pthread_rwlock_unlock(&listenerLock);
 
 	[self _listenerAdded:type count:ourCallbackCount];
+    return self;
+}
+
+-(void)checkForListenerOnce:(NSString *)type withListener:(TiObjectRef)callbackFunction
+{
+    pthread_rwlock_wrlock(&listenerLock);
+    if(listenersOnce == nil) {
+        return;
+    }
+    NSMutableArray* theListenersOnce = [listenersOnce objectForKey:type];
+    if (theListenersOnce == nil) {
+        return;
+    }
+    __block BOOL unlocked = NO;
+    [theListenersOnce enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        TiObjectRef function = (IS_OF_CLASS(obj, KrollCallback) ? [(KrollCallback *)obj function] : [(KrollWrapper *)obj jsobject]);
+        if (function == callbackFunction) {
+            *stop = YES;
+            pthread_rwlock_unlock(&listenerLock);
+            unlocked = YES;
+            [self removeEventListener:@[type, obj]];
+        }
+    }];
+    if (!unlocked) {
+        pthread_rwlock_unlock(&listenerLock);
+    }
+}
+
+
+-(id)addEventListener:(NSArray*)args
+{
+    NSString *type = [args objectAtIndex:0];
+    id listener = [args objectAtIndex:1];
+    return [self internalAddEventListener:type withListener:listener onlyOnce:NO];
+}
+
+-(id)on:(NSArray*)args
+{
+    return [self addEventListener:args];
+}
+
+-(id)once:(NSArray*)args
+{
+    NSString *type = [args objectAtIndex:0];
+    id listener = [args objectAtIndex:1];
+    return [self internalAddEventListener:type withListener:listener onlyOnce:YES];
 }
 	  
--(void)removeEventListener:(NSArray*)args
+-(id)removeEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
 	KrollCallback* listener = [args objectAtIndex:1];
@@ -919,7 +980,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
                 }
             }
         }
-        return;
+        return self;
     } else {
         ENSURE_TYPE(listener,KrollCallback);
     }
@@ -932,6 +993,18 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	int ourCallbackCount = 0;
 
 	pthread_rwlock_wrlock(&listenerLock);
+    if(listenersOnce){
+        NSMutableArray* theListenersOnce = [listenersOnce objectForKey:type];
+        if (theListenersOnce) {
+            [theListenersOnce removeObject:listener];
+            if ([theListenersOnce count] == 0) {
+                [listenersOnce removeObjectForKey:type];
+                if ([listenersOnce count] == 0) {
+                    RELEASE_TO_NIL(listenersOnce);
+                }
+            }
+        }
+    }
 	if ([listeners objectForKey:type]) {
         ourCallbackCount = [[listeners objectForKey:type] intValue] - 1;
     }
@@ -939,6 +1012,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 	pthread_rwlock_unlock(&listenerLock);
 
 	[self _listenerRemoved:type count:ourCallbackCount];
+    return self;
+}
+
+-(id)off:(NSArray*)args
+{
+    return [self removeEventListener:args];
 }
 
 -(void)fireEvent:(id)args
@@ -967,6 +1046,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 		params = nil; //No need to propagate when we already have this information
 	}
     [self fireEvent:type withObject:params withSource:self propagate:bubble reportSuccess:NO errorCode:0 message:nil];
+}
+
+-(void)emit:(id)args
+{
+    [self fireEvent:args];
 }
 
 -(void)fireEvent:(NSString*)type propagate:(BOOL)yn
@@ -1050,6 +1134,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     if (theEvaluators) {
         for (NSDictionary* theEvaluator in theEvaluators) {
             [TiUtils applyMathDict:theEvaluator forEvent:eventObject fromProxy:self];
+            if ([[theEvaluator valueForKey:@"__once__"] boolValue]) {
+                [self removeEventListener:@[type, theEvaluator]];
+            }
         }
     }
     
