@@ -2225,9 +2225,7 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 		}, this);
 	}
 
-	this.logger.info(__('testing font'));
 	if (!(ios && ios.plist && ios.plist.UIAppFonts) && !(custom && custom.UIAppFonts)) {
-	this.logger.info(__('no custom font'));
 
 		var fontMap = {};
 
