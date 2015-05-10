@@ -124,15 +124,13 @@
 -(BOOL)flexibleContentWidth
 {
     return TiDimensionIsAuto(contentWidth) ||
-    TiDimensionIsAutoSize(contentWidth) ||
-    TiDimensionIsUndefined(contentWidth);
+    TiDimensionIsAutoSize(contentWidth);
 }
 
 -(BOOL)flexibleContentHeight
 {
     return TiDimensionIsAuto(contentHeight) ||
-    TiDimensionIsAutoSize(contentHeight) ||
-    TiDimensionIsUndefined(contentHeight);
+    TiDimensionIsAutoSize(contentHeight);
 }
 
 -(void)setNeedsHandleContentSizeIfAutosizing
@@ -186,13 +184,13 @@
             newContentSize.width = TiDimensionCalculateValue(contentWidth, newContentSize.width);
             break;
         }
-        case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoSize:
         case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
         {
             newContentSize.width = MAX(newContentSize.width,autoSize.width);
             break;
         }
+        case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
         default: {
             break;
@@ -207,13 +205,13 @@
             minimumContentHeight = TiDimensionCalculateValue(contentHeight, newContentSize.height);
             break;
         }
-        case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoSize:
         case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
         {
             minimumContentHeight = autoSize.height;
             break;
         }
+        case TiDimensionTypeUndefined:
         case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
         default:
             minimumContentHeight = newContentSize.height;
