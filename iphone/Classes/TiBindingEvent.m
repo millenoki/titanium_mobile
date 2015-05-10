@@ -15,6 +15,10 @@
 #import "TiExceptionHandler.h"
 #import "TiUtils.h"
 
+@interface TiProxy()
+-(void)checkForListenerOnce:(NSString *)type withListener:(TiObjectRef)callbackFunction;
+@end
+
 extern TiStringRef kTiStringLength;
 
 /** Event lifecycle, a documentation.
@@ -292,6 +296,9 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 			if(TiValueToBoolean(context,cancelBubbleValue)){
 				event->cancelBubble = true; //Because we only set true, not read nor set false, there's no race condition?
 			}
+            if (event->targetProxy) {
+                [event->targetProxy checkForListenerOnce:event->eventString withListener:(TiObjectRef)currentCallback];
+            }
 		}
 	}
 	
