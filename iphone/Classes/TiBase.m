@@ -211,6 +211,7 @@ NSString * const kTiBackgroundLocalNotification = @"TiBackgroundLocalNotificatio
 NSString * const kTiLocalNotificationAction = @"TiLocalNotificationAction";
 NSString * const kTiRemoteNotificationAction = @"TiRemoteNotificationAction";
 NSString * const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
+NSString * const KTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 
 NSString* const kTiBehaviorSize = @"SIZE";
 NSString* const kTiBehaviorFill = @"FILL";
