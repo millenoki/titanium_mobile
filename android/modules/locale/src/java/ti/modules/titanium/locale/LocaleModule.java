@@ -47,6 +47,20 @@ public class LocaleModule extends KrollModule
 	}
 	
 	@Kroll.method @Kroll.getProperty
+    public String getCurrentCountryName()
+    {
+        return Locale.getDefault().getDisplayCountry();
+    }
+	
+	@Kroll.method @Kroll.getProperty
+    public String getCountryName(String localeString)
+    {
+        Locale locale = TiPlatformHelper.getInstance().getLocale(localeString);
+        return locale.getDisplayCountry(Locale.getDefault());
+    }
+    
+	
+	@Kroll.method @Kroll.getProperty
 	public String getCurrentLocale()
 	{
 		return TiPlatformHelper.getInstance().getLocale();
@@ -121,8 +135,10 @@ public class LocaleModule extends KrollModule
     public KrollDict getFullInfo() {
         KrollDict result = new KrollDict();
         result.put("currencySymbol", TiPlatformHelper.getInstance().getCurrencySymbol(Locale.getDefault()));
+        result.put("currencyCode", TiPlatformHelper.getInstance().getCurrencyCode(Locale.getDefault()));
         result.put("currentLocale", getCurrentLocale());
         result.put("currentCountry", getCurrentCountry());
+        result.put("currentCountryName", getCurrentCountryName());
         result.put("currentLanguage", getCurrentLanguage());
         return result;
     }
