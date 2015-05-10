@@ -135,7 +135,7 @@ Object.defineProperty(EventEmitter.prototype, "addListener", {
 	value: function(type, listener, view) {
 		if ('function' !== typeof listener) {
 			this._addEvaluator(type, listener);
-			return;
+			return this;
 			// throw new Error('addListener only takes instances of Function. The listener for event "' + type + '" is "' + (typeof listener) + '"');
 		}
 
@@ -174,7 +174,7 @@ Object.defineProperty(EventEmitter.prototype, "addListener", {
 			this._hasListenersForEventType(type, true);
 		}
 
-		return id;
+		return this;
 	},
 	enumerable: false
 });
@@ -220,7 +220,7 @@ Object.defineProperty(EventEmitter.prototype, "removeListener", {
 	value: function(type, listener) {
 		if ('function' !== typeof listener) {
 			this._removeEvaluator(type, listener);
-			return;
+			return this;
 			// throw new Error('removeListener only takes instances of Function');
 		}
 
@@ -281,6 +281,12 @@ Object.defineProperty(EventEmitter.prototype, "removeEventListener", {
 	enumerable: false,
 	writable: true
 });
+
+Object.defineProperty(EventEmitter.prototype, "off", {
+	value: EventEmitter.prototype.removeListener,
+	enumerable: false
+});
+
 
 Object.defineProperty(EventEmitter.prototype, "removeAllListeners", {
 	value: function(type) {
