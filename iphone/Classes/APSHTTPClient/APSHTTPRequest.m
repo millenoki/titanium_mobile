@@ -80,7 +80,8 @@ static BOOL _disableNetworkActivityIndicator;
         _request = [[NSMutableURLRequest alloc] init];
         [_request setCachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData];
         _response = [[APSHTTPResponse alloc] init];
-        [_response setReadyState: APSHTTPResponseStateUnsent];
+        _persistence = NSURLCredentialPersistenceForSession;
+       [_response setReadyState: APSHTTPResponseStateUnsent];
     }
     return self;
 }
@@ -254,7 +255,7 @@ static BOOL _disableNetworkActivityIndicator;
     if ([self response] != nil) {
         APSHTTPResponseState curState = [[self response] readyState];
         if (curState != APSHTTPResponseStateUnsent) {
-            NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ",(int)curState);
+            NSLog(@"[ERROR] send can only be called if client is disconnected(0). Current state is %d ",curState);
             return;
         }
     }
@@ -412,7 +413,35 @@ static BOOL _disableNetworkActivityIndicator;
     }
     
     if(useSubDelegate) {
-        [self.connectionDelegate connection:connection willSendRequestForAuthenticationChallenge:challenge];
+        @try {
+            [self.connectionDelegate connection:connection willSendRequestForAuthenticationChallenge:challenge];
+        }
+        @catch (NSException *exception) {
+            if (self.connection != nil) {
+                [self.connection cancel];
+                
+                NSMutableDictionary *dictionary = nil;
+                if (exception.userInfo) {
+                    dictionary = [NSMutableDictionary dictionaryWithDictionary:exception.userInfo];
+                } else {
+                    dictionary = [NSMutableDictionary dictionary];
+                }
+                if (exception.reason != nil) {
+                    [dictionary setObject:exception.reason forKey:NSLocalizedDescriptionKey];
+                }
+                
+                NSError* error = [NSError errorWithDomain:@"APSHTTPErrorDomain"
+                                                     code:APSRequestErrorConnectionDelegateFailed
+                                                 userInfo:dictionary];
+                
+
+                
+                [self connection:self.connection didFailWithError:error];
+            }
+        }
+        @finally {
+            //Do nothing
+        }
         return;
     }
     
@@ -463,6 +492,16 @@ static BOOL _disableNetworkActivityIndicator;
                                      persistence:NSURLCredentialPersistenceForSession]
                    forAuthenticationChallenge:challenge];
         }
+        else {
+            [self removeCredentialsWithURLURLProtectionSpace:challenge.protectionSpace];
+            if([[self delegate] respondsToSelector:@selector(request:onRequestForAuthenticationChallenge:)])
+            {
+                [[self delegate] request:self onRequestForAuthenticationChallenge:challenge];
+            }
+            else {
+                [[challenge sender] continueWithoutCredentialForAuthenticationChallenge:challenge];
+            }
+        }
     }
     
     if (!handled) {
@@ -478,11 +517,10 @@ static BOOL _disableNetworkActivityIndicator;
 {
     DebugLog(@"Code %li Redirecting from: %@ to: %@",(long)[(NSHTTPURLResponse*)response statusCode], [self.request URL] ,[request URL]);
     self.response.connected = YES;
-    if(!self.redirects && self.response.status != 0)
-    {
+    [self.response updateResponseParamaters:response];
+    if (!self.redirects && self.response.status != 0) {
         return nil;
     }
-    [self.response updateResponseParamaters:response];
     [self.response updateRequestParamaters:request];
     [self invokeCallbackWithState:APSHTTPCallbackStateRedirect];
     
