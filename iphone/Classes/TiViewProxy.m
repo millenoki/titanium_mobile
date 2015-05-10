@@ -688,8 +688,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(UIImage*)toImageWithScale:(CGFloat)scale
 {
-    TiUIView *myview = [self getOrCreateView];
-    [self windowWillOpen];
+    TiUIView *myview = [self getAndPrepareViewForOpening];
     CGSize size = myview.bounds.size;
    
     if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
@@ -1398,6 +1397,9 @@ SEL GetterForKrollProperty(NSString * key)
             [self setSandboxBounds:bounds];
         }
         else [self setSandboxBounds:([self viewParent]).sandboxBounds];
+    } else {
+        [self computeBoundsForParentBounds:CGRectZero];
+        [self setSandboxBounds:sizeCache];
     }
 }
 
