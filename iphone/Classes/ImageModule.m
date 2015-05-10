@@ -112,11 +112,8 @@ typedef UIImage* (^ProcessImageBlock) ();
 	ENSURE_ARG_AT_INDEX(viewProxy, args, 0, TiViewProxy);
     ENSURE_ARG_OR_NIL_AT_INDEX(options, args, 1, NSDictionary);
     
-    if ([options objectForKey:@"scale"]) {
-        scale = [[options objectForKey:@"scale"] floatValue];
-    }
     return [self processImage:^UIImage *{
-        return [viewProxy toImageWithScale:scale];
+        return [viewProxy toImageWithScale:0.0f];
     } withOptions:options];
 }
 
