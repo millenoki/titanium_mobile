@@ -973,7 +973,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 				done();
 			}.bind(this));
 		}.bind(this)),
-		args = [ this.manifest.moduleid, this.buildGenJsDir ].concat(this.jsFilesToEncrypt),
+		args = [ this.manifest.moduleid, this.buildGenJsDir, this.manifest.guid ].concat(this.jsFilesToEncrypt),
 		opts = {
 			env: appc.util.mix({}, process.env, {
 				// we force the JAVA_HOME so that titaniumprep doesn't complain
