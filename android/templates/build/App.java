@@ -29,7 +29,7 @@ public final class <%= classname %>Application extends TiApplication
 	{
 		super.onCreate();
 
-		
+		appInfo = new <%= classname %>AppInfo(this);
 
 <% if (encryptJS) { %>
 	    KrollAssetHelper.setAssetCrypt(new AssetCryptImpl());
@@ -44,10 +44,9 @@ public final class <%= classname %>Application extends TiApplication
 	<% } %>
 <% }); %>
 
+		postAppInfo();
 		KrollRuntime.init(this, runtime);
 
-		appInfo = new <%= classname %>AppInfo(this);
-		postAppInfo();
 
 		stylesheet = new ApplicationStylesheet();
 		postOnCreate();
