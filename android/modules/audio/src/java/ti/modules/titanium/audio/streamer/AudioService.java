@@ -1112,8 +1112,8 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
      * Called to open a new file as the current track and prepare the next for
      * playback
      */
-    private void openCurrentAndNext() {
-        openCurrentAndMaybeNext(true);
+    private boolean openCurrentAndNext() {
+        return openCurrentAndMaybeNext(true);
     }
 
     /**
@@ -1123,13 +1123,13 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
      * @param openNext
      *            True to prepare the next track for playback, false otherwise.
      */
-    private void openCurrentAndMaybeNext(final boolean openNext) {
+    private boolean openCurrentAndMaybeNext(final boolean openNext) {
         synchronized (this) {
             closeCursor();
             int currentLength = getQueueSize();
 
             if (currentLength == 0) {
-                return;
+                return false;
             }
             stop(false);
 
@@ -1147,7 +1147,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                             mIsSupposedToBePlaying = false;
                             notifyChange(cmds.PLAYSTATE_CHANGED);
                         }
-                        return;
+                        return false;
                     }
                     mPlayPos = pos;
                     stop(false);
@@ -1160,12 +1160,13 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                         mIsSupposedToBePlaying = false;
                         notifyChange(cmds.PLAYSTATE_CHANGED);
                     }
-                    return;
+                    return false;
                 }
             }
             if (openNext) {
                 setNextTrack();
             }
+            return true;
         }
     }
 
@@ -1590,12 +1591,13 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
             if (proxy != null) {
                 open(getPlayerProxy().getInternalPlaylist(), 0);
             }
-        } else {
+        } else if (getQueueSize() > 0){
             if (mPlayPos == -1) {
                 mPlayPos = 0;
             }
-            openCurrentAndNext();
-            play();
+            if (openCurrentAndNext()) {
+                play();
+            }
             // notifyChange(META_CHANGED);
         }
     }
@@ -1801,7 +1803,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                     .sendToTarget();
         }
     };
-    protected int mState;
+    protected int mState = State.STATE_STOPPED;
     private String mStateDescription;
 
     private static final class DelayedHandler extends Handler {
