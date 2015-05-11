@@ -11,7 +11,7 @@ package ti.modules.titanium.audio;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 
-import ti.modules.titanium.audio.streamer.AudioStreamerExoService;
+import ti.modules.titanium.audio.streamer.AudioStreamerService;
 
 @Kroll.proxy(creatableInModule = AudioModule.class, propertyAccessors = {
         TiC.PROPERTY_VOLUME, 
@@ -30,6 +30,6 @@ public class StreamerProxy extends BasePlayerProxy {
     @SuppressWarnings("rawtypes")
     @Override
     protected Class serviceClass() {
-        return AudioStreamerExoService.class;
+        return AudioStreamerService.class;
     }
 }
