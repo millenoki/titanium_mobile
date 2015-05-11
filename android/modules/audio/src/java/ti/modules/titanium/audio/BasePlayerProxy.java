@@ -19,6 +19,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 
 import ti.modules.titanium.audio.streamer.AudioService;
+import ti.modules.titanium.audio.streamer.AudioService.State;
 import android.app.Service;
 import android.content.Intent;
 
@@ -286,7 +287,7 @@ public class BasePlayerProxy extends TiEnhancedServiceProxy {
             setProperty(TiC.PROPERTY_TIME, time);
             return time;
         }
-        return TiConvert.toLong(getProperty(TiC.PROPERTY_TIME));
+        return TiConvert.toLong(getProperty(TiC.PROPERTY_TIME), 0);
     }
     
     @Kroll.method
@@ -297,7 +298,7 @@ public class BasePlayerProxy extends TiEnhancedServiceProxy {
             setProperty(TiC.PROPERTY_STATE, state);
             return state;
         }
-        return TiConvert.toInt(getProperty(TiC.PROPERTY_TIME));
+        return TiConvert.toInt(getProperty(TiC.PROPERTY_STATE), AudioService.State.STATE_STOPPED);
     }
     
     @Kroll.method
