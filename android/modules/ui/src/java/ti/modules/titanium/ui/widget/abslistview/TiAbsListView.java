@@ -1353,9 +1353,9 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 		final int position = findItemPosition(sectionIndex, sectionItemIndex);
 		if (position > -1) {
 			if (animated)
-				listView.smoothScrollToPosition(position + 1);
+				listView.smoothScrollToPosition(position);
 			else
-				ensureVisible(listView, position + 1);
+				ensureVisible(listView, position);
 		}
 	}
 
