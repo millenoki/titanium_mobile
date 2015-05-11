@@ -285,7 +285,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			}
 			else return;
 			//here the parent cant be null as we inflated
-			holder.setListView(listView);
+            holder.setListView(listView);
+            holder.setItem(item);
 //			String minRowHeight = MIN_ROW_HEIGHT;
 //			if (proxy != null && proxy.hasProperty(TiC.PROPERTY_MIN_ROW_HEIGHT)) {
 //				minRowHeight = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MIN_ROW_HEIGHT));
