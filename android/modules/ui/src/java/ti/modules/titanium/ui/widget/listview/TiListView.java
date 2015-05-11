@@ -28,6 +28,7 @@ import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 
 @SuppressLint("NewApi")
 public class TiListView extends TiAbsListView<CustomListView> {
@@ -35,6 +36,7 @@ public class TiListView extends TiAbsListView<CustomListView> {
     private Animator mAppearAnimators = null;
     private int mAppearAnimationDuration = 300;
     private SwipeMenuAdapter mSwipeMenuAdapater;
+    private boolean mNeedsSwipeMenu = true;
     private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
         @Override
         public void onStartSwipe(View view, int position, int direction) {
@@ -106,8 +108,9 @@ public class TiListView extends TiAbsListView<CustomListView> {
     @Override
     protected void setListViewAdapter(TiBaseAdapter adapter) {
         AnimationAdapter animationAdapter = null;
+        BaseAdapter currentAdapter = adapter;
         if (mAppearAnimators != null) {
-            animationAdapter = new AnimationAdapter(adapter) {
+            currentAdapter = animationAdapter = new AnimationAdapter(adapter) {
 
                 @Override
                 public Animator[] getAnimators(ViewGroup parent, View view) {
@@ -115,16 +118,15 @@ public class TiListView extends TiAbsListView<CustomListView> {
                     anim.setTarget(view);
                     return new Animator[] {anim};
                 }
-            };
-            mSwipeMenuAdapater = new SwipeMenuAdapter(animationAdapter,
-                    getProxy().getActivity(), mMenuCallback);
-        } else {
-            mSwipeMenuAdapater = new SwipeMenuAdapter(adapter, getProxy()
+            };            
+        }
+        if (mNeedsSwipeMenu) {
+            currentAdapter = mSwipeMenuAdapater = new SwipeMenuAdapter(currentAdapter, getProxy()
                     .getActivity(), mMenuCallback);
         }
 
         StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
-                mSwipeMenuAdapater);
+                currentAdapter);
         stickyListHeadersAdapterDecorator
                 .setListViewWrapper(new StickyListHeadersListViewWrapper(
                         listView));
