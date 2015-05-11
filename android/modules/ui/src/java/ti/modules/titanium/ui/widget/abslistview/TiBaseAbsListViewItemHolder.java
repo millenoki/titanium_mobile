@@ -1,11 +1,9 @@
 package ti.modules.titanium.ui.widget.abslistview;
 
-
 import java.lang.ref.WeakReference;
 
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiUIView;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListViewAbstract;
 import android.content.Context;
@@ -16,7 +14,7 @@ import android.widget.ImageView.ScaleType;
 
 public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 	private WeakReference<StickyListHeadersListViewAbstract> listView = null;
-	private WeakReference<TiBaseAbsListViewItem> item = null;
+	private boolean hasHeightRelyingOnPercent = false;
 
 	public TiBaseAbsListViewItemHolder(Context context) {
 		super(context, LayoutArrangement.HORIZONTAL, null);
@@ -44,33 +42,30 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 	public TiBaseAbsListViewItemHolder(Context context, AttributeSet set) {
         this(context);
 	}
-	public void setListView(StickyListHeadersListViewAbstract listView) {
-        if (listView != null) {
-            this.listView = new WeakReference<StickyListHeadersListViewAbstract>(listView);
-        } else {
-            this.listView = null;
-        }
-	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-	    if (item != null && listView != null) {
-	        ViewGroup.LayoutParams params = item.get().getTiLayoutParams();
-	        if (params instanceof TiCompositeLayout.LayoutParams) {
-	            TiDimension heightOption = ((TiCompositeLayout.LayoutParams)params).optionHeight;
-	            if (heightOption != null && heightOption.isUnitPercent()) {
-	                heightMeasureSpec = MeasureSpec.makeMeasureSpec(listView.get().getMeasuredHeight(), MeasureSpec.AT_MOST);
-	            }
-	        }
+	    if (hasHeightRelyingOnPercent) {
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(listView.get().getMeasuredHeight(), MeasureSpec.AT_MOST);
 	    }
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 
-    public void setItem(TiBaseAbsListViewItem item) {
-        if (item != null) {
-            this.item = new WeakReference<TiBaseAbsListViewItem>(item);
+    public void setItem(TiBaseAbsListViewItem item, StickyListHeadersListViewAbstract listView) {
+        hasHeightRelyingOnPercent = false;
+        if (listView != null) {
+            this.listView = new WeakReference<StickyListHeadersListViewAbstract>(listView);
+            if (item != null) {
+              ViewGroup.LayoutParams params = item.getTiLayoutParams();
+              if (params instanceof TiCompositeLayout.LayoutParams) {
+                  TiDimension heightOption = ((TiCompositeLayout.LayoutParams)params).optionHeight;
+                  if (heightOption != null && heightOption.isUnitPercent()) {
+                      hasHeightRelyingOnPercent = true;
+                  }
+              }
+          }
         } else {
-            this.item = null;
+            this.listView = null;
         }
     }
 }
