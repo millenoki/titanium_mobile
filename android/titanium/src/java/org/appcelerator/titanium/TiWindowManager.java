@@ -1,5 +1,6 @@
 package org.appcelerator.titanium;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 
@@ -9,5 +10,6 @@ public interface TiWindowManager {
 	public boolean shouldExitOnClose();
 	public void updateOrientationModes();
 	public void onWindowActivityCreated();
+	public TiWindowProxy getTopWindow();
 	public KrollProxy getParentForBubbling(TiWindowProxy proxy);
 }

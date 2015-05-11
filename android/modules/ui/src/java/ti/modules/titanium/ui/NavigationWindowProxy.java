@@ -137,19 +137,20 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	@Override
 	public boolean interceptOnHomePressed() {
 		if (pushing || poping) return true;
-		ActivityProxy activityProxy = getCurrentWindowInternal().getActivityProxy();
-		if (activityProxy != null) {
-			ActionBarProxy actionBarProxy = activityProxy.getActionBar();
-			if (actionBarProxy != null) {
-				KrollFunction onHomeIconItemSelected = (KrollFunction) actionBarProxy
+		TiWindowProxy windowProxy = getCurrentWindowInternal();
+//		ActivityProxy activityProxy = getCurrentWindowInternal().getActivityProxy();
+		if (windowProxy != null) {
+//			ActionBarProxy actionBarProxy = activityProxy.getActionBar();
+//			if (actionBarProxy != null) {
+				KrollFunction onHomeIconItemSelected = (KrollFunction) windowProxy
 					.getProperty(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
 				if (onHomeIconItemSelected != null) {
 					KrollDict event = new KrollDict();
-					event.put(TiC.EVENT_PROPERTY_SOURCE, actionBarProxy);
+					event.put(TiC.EVENT_PROPERTY_SOURCE, windowProxy);
 					event.put(TiC.EVENT_PROPERTY_WINDOW, ((TiBaseActivity) getActivity()).getWindowProxy());
-					onHomeIconItemSelected.call(activityProxy.getKrollObject(), new Object[] { event });
+					onHomeIconItemSelected.call(windowProxy.getKrollObject(), new Object[] { event });
 					return true;
-				}
+//				}
 			}
 		}
 		if (windows.size() > 1) {
@@ -159,13 +160,22 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 		return false;
 	}
 	
+	static KrollDict sActionBarDict = null;
+	
 	private void updateHomeButton(TiWindowProxy proxy){
 		boolean canGoBack = (windows.size() > 1);
-    	ActionBar actionBar = TiActivityHelper.getActionBar(getActivity());
-    	if (actionBar == null) return;
-
-    	actionBar.setDisplayHomeAsUpEnabled(canGoBack || TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_DISPLAY_HOME_AS_UP), false));
-    	actionBar.setHomeButtonEnabled(canGoBack || TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED), false));
+		ActionBarProxy actionBar = getActionBar();
+		if (actionBar != null) {
+		    if (sActionBarDict == null) {
+		        sActionBarDict = new KrollDict();
+		    }
+		    synchronized(sActionBarDict) {
+		        sActionBarDict.put(TiC.PROPERTY_DISPLAY_HOME_AS_UP, canGoBack);
+	            sActionBarDict.put(TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED, canGoBack);
+	            sActionBarDict.put(TiC.PROPERTY_HOME_AS_UP_INDICATOR, null);
+	            actionBar.applyProperties(sActionBarDict);
+		    }
+		}
 	}
 	
 	private void removeWindow(final TiWindowProxy proxy) {
@@ -806,4 +816,9 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	public void onWindowFocusChange(boolean focused) {
 	    getCurrentWindow().onWindowFocusChange(focused);
     }
+    @Override
+    public TiWindowProxy getTopWindow() {
+        return getCurrentWindow();
+    }
+
 }

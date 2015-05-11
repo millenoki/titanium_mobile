@@ -27,6 +27,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiWeakList;
 
@@ -649,4 +650,31 @@ public abstract class TiWindowProxy extends TiViewProxy
 			view.checkUpEventSent(event);
 		}
 	}
+	
+	public KrollDict getActivityProperties(KrollDict properties) {
+	    
+        KrollDict actionBarDict = null;
+        if (properties != null) {
+            actionBarDict = properties.getKrollDict(TiC.PROPERTY_ACTION_BAR);
+        }
+        KrollDict windowProperties = getProperties();
+        for (String key : ActionBarProxy.windowProps()) {
+            if (windowProperties.containsKey(key)) {
+                String realKey = TiUtils.mapGetOrDefault(ActionBarProxy.propsToReplace(), key, key);
+                if (actionBarDict == null || !actionBarDict.containsKey(realKey)) {
+                    if (actionBarDict == null) {
+                        actionBarDict = new KrollDict(); 
+                    }
+                    actionBarDict.put(realKey, windowProperties.get(key));
+                }
+            }
+        }
+        if (actionBarDict != null) {
+            if (properties == null) {
+                properties = new KrollDict();
+            }
+            properties.put(TiC.PROPERTY_ACTION_BAR, actionBarDict);
+        }
+        return properties;
+    }	    
 }

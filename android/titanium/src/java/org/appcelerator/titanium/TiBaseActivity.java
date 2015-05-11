@@ -271,32 +271,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 
 
-	private KrollDict updatePropertiesFromWindow(KrollDict properties, final TiWindowProxy window)
-	{
-		KrollDict actionBarDict = null;
-		if (properties != null) {
-			actionBarDict = properties.getKrollDict(TiC.PROPERTY_ACTION_BAR);
-		}
-		KrollDict windowProperties = window.getProperties();
-		for (String key : ActionBarProxy.windowProps()) {
-		    if (windowProperties.containsKey(key)) {
-		        String realKey = TiUtils.mapGetOrDefault(ActionBarProxy.propsToReplace(), key, key);
-		        if (actionBarDict == null || !actionBarDict.containsKey(realKey)) {
-		            if (actionBarDict == null) {
-		                actionBarDict = new KrollDict(); 
-		            }
-		            actionBarDict.put(realKey, windowProperties.get(key));
-		        }
-		    }
-		}
-		if (actionBarDict != null) {
-		    if (properties == null) {
-                properties = new KrollDict();
-		    }
-	        properties.put(TiC.PROPERTY_ACTION_BAR, actionBarDict);
-		}
-		return properties;
-	}
 
 	/**
 	 * Sets the window proxy.
@@ -367,8 +341,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);  
 		}
-		KrollDict activityDict = updatePropertiesFromWindow(props.getKrollDict(TiC.PROPERTY_ACTIVITY), this.window);
-
+		KrollDict activityDict = this.window.getActivityProperties(props.getKrollDict(TiC.PROPERTY_ACTIVITY));
+		if (this.window.getWindowManager() instanceof TiWindowProxy) {
+            activityDict = ((TiWindowProxy) this.window.getWindowManager()).getActivityProperties(activityDict);
+        }
 		getActivityProxy().setProperties(activityDict);
 	}
 
@@ -1485,7 +1461,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			return;
 		}
 
-		updateTitle(this.window);
+//		updateTitle(this.window);
 
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.

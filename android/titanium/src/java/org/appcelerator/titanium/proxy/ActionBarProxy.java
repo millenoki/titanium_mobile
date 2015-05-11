@@ -457,14 +457,13 @@ public class ActionBarProxy extends AnimatableReusableProxy
             runInUiThread(new CommandNoReturn() {
                 public void execute() {
                     actionBar.setDisplayHomeAsUpEnabled(TiConvert.toBoolean(newValue, getActionBarDisplayOption(ActionBar.DISPLAY_HOME_AS_UP)));
-//                    actionBar.setDisplayHomeAsUpEnabled(TiConvert.toBoolean(newValue, false));
                 }
             });
             break;
         case TiC.PROPERTY_DISPLAY_HOME_TITLE_ENABLED:
             runInUiThread(new CommandNoReturn() {
                 public void execute() {
-                    showTitleEnabled = TiConvert.toBoolean(newValue, false);
+                    showTitleEnabled = TiConvert.toBoolean(newValue, getActionBarDisplayOption(ActionBar.DISPLAY_SHOW_TITLE));
                     actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
                 }
             });
@@ -527,6 +526,8 @@ public class ActionBarProxy extends AnimatableReusableProxy
         case TiC.PROPERTY_TITLE:
             runInUiThread(new CommandNoReturn() {
                 public void execute() {
+                    showTitleEnabled = true;
+                    actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
                     actionBar.setTitle(TiConvert.toString(newValue));
                 }
             });
