@@ -117,7 +117,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
         }
         
         public boolean isPrepared() {
-            return mIsInitialized && mIsPreparing;
+            return mIsInitialized && !mIsPreparing;
         }
         
         protected abstract void stop();
