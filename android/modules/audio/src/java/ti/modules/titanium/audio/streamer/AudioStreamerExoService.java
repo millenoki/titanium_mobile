@@ -5,15 +5,12 @@ import android.media.MediaCodec;
 import android.media.MediaCodec.CryptoException;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Handler;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
