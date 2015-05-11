@@ -87,6 +87,15 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
             setRows(dict.get("rows"));
         }
     }
+    
+    @Override
+    public void releaseViews(final boolean activityFinishing)
+    {
+        if (peekView() instanceof TiUIPicker) {
+            setProperty(TiC.PROPERTY_SELECTED_ROW, getSelectedRows());
+        }
+        super.releaseViews(activityFinishing);
+    }
 
     @Override
     public TiUIView createView(Activity activity) {
@@ -443,6 +452,26 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
             }
         }
         return row;
+    }
+    
+    @Kroll.getProperty
+    @Kroll.method
+    public Object[] getSelectedRows() {
+        if (!isPlainPicker()) {
+            Log.w(TAG,
+                    "Cannot get selected rows in date/time or countdown picker.",
+                    Log.DEBUG_MODE);
+            return null;
+        }
+        if (!(peekView() instanceof TiUIPicker)) {
+            return getPreselectedRows();
+        }
+        int columnsCount = getColumnCount();
+        Object[] result = new Object[columnsCount];
+        for (int i = 0; i < columnsCount; i++) {
+            result[i] =  ((TiUIPicker) peekView()).getSelectedRowIndex(i);
+        }
+        return result;
     }
 
     @Kroll.getProperty
