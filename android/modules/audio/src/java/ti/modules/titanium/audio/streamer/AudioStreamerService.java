@@ -538,8 +538,9 @@ public class AudioStreamerService extends AudioService {
          * @return The duration in milliseconds
          */
         public long duration() {
-            if (isPrepared())
+            if (isPrepared()) {
                 return mCurrentMediaPlayer.getDuration();
+            }
             return -1;
         }
 
