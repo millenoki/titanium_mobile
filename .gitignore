@@ -37,3 +37,4 @@ anvil/driver/node_modules/*
 .tags
 apidoc/node_modules/*
 .recommenders
+.settings
