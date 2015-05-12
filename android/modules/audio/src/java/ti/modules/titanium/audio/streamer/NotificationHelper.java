@@ -12,7 +12,9 @@
 package ti.modules.titanium.audio.streamer;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
@@ -26,6 +28,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -218,17 +221,16 @@ public class NotificationHelper {
             }
             mService.startForeground(mNotificationId, mNotification);
         } else {
-            // FIXME: I do not understand why this happens, but the
-            // NotificationCompat
-            // API does not work on Gingerbread. Specifically, {@code
-            // #mBuilder.setContent()} won't apply the custom RV in Gingerbread.
-            // So,
-            // until this is fixed I'll just use the old way.
-            mNotification = new Notification();
+            Builder notificationBuilder = new NotificationCompat.Builder(mService);
+            notificationBuilder.setSmallIcon(mIcon);
+            notificationBuilder.setContentIntent(getPendingIntent());
+            notificationBuilder.setOngoing(true);
+            mNotification = notificationBuilder.build();
             mNotification.contentView = mView;
-            mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-            mNotification.icon = mIcon;
-            mNotification.contentIntent = getPendingIntent();
+            if (JELLY_BEAN_OR_GREATER) {
+                mNotification.bigContentView = mExpandedView;
+
+            }
             mService.startForeground(mNotificationId, mNotification);
         }
     }
@@ -266,9 +268,14 @@ public class NotificationHelper {
      * Open to the now playing screen
      */
     private PendingIntent getPendingIntent() {
-        return PendingIntent.getActivity(mService, 0, new Intent(
-                "ti.modules.titanium.audio.STREAMER")
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0);
+        TiApplication app = TiApplication.getInstance();
+        Intent i = app.getPackageManager().getLaunchIntentForPackage(app.getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        i.setAction(Intent.ACTION_MAIN);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                app, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        return pendingIntent;
     }
 
     /**
@@ -418,7 +425,7 @@ public class NotificationHelper {
         }
     }
 
-    public void updateMetadata(final HashMap<String, Object> dict) {
+    public void updateMetadata(final Map<String, Object> dict) {
         Log.d(TAG, "updateMetadata" + dict);
         String title = null;
         String artist = null;
