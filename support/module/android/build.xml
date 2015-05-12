@@ -122,6 +122,7 @@ timodule.xml.
 	<property name="dependency.json" location="${ti.module.root}/dependency.json"/>
 	<property name="ti.dependencies" location="none"/>
 	<property name="ti.dependency.json" location="${titanium.platform}/dependency.json"/>
+	<property name="v8.native" location="${titanium.platform}/native"/>
 
 	<path id="project.classpath">
 		<fileset dir="${lib}">
@@ -378,6 +379,7 @@ timodule.xml.
 				<arg value="NDK_PROJECT_PATH=${tmpdir}"/>
 				<arg value="NDK_APPLICATION_MK=${tmpdir}/Application.mk"/>
 				<arg value="PYTHON=${python.exec}"/>
+				<arg value="CUSTOM_APP_ABI=${app.abi}"/>
 				<arg value="V=${ndk.verbose}"/>
 			</exec>
 
@@ -417,6 +419,13 @@ timodule.xml.
 			file="${module.generated.dir}/Android.mk">
 			<filterset refid="ndk.filter"/>
 		</copy>
+
+		<mkdir dir="${gen}/v8"/>
+		<copy todir="${gen}/v8">
+			<fileset dir="${v8.native}">
+				<include name="**"/>
+			</fileset>
+		</copy>
 		
 		<copy overwrite="true" failonerror="false" tofile="${genjni.local}/Application.mk" file="${ti.module.root}/jni/Application.mk"/> <!-- will fail if the requested file does not exist. -->
 		<copy overwrite="true" failonerror="false" tofile="${gen}/Application.mk" file="${ti.module.root}/jni/Application.mk"/> <!-- will fail if the requested file does not exist. -->
@@ -427,6 +436,7 @@ timodule.xml.
 			<fileset dir="${gen}/libs">
 				<include name="**/*"/>
 				<exclude name="**/libstlport_shared.so"/>
+				<exclude name="**/libkroll-v8.so"/>
 			</fileset>
 		</copy>
 	</target>
