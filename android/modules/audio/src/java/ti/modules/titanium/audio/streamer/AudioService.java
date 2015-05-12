@@ -1115,6 +1115,17 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
     private boolean openCurrentAndNext() {
         return openCurrentAndMaybeNext(true);
     }
+    
+    private void setIsSupposeToBePlaying(final boolean newValue) {
+        if (mIsSupposedToBePlaying != newValue) {
+            mIsSupposedToBePlaying = newValue;
+            if (!mIsSupposedToBePlaying) {
+                gotoIdleState();
+            }
+            notifyChange(cmds.PLAYSTATE_CHANGED);
+            
+        }
+    }
 
     /**
      * Called to open a new file as the current track and prepare the next for
@@ -1142,11 +1153,8 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                 if (mOpenFailedCounter++ < 10 && currentLength > 1) {
                     final int pos = getNextPosition(false);
                     if (pos < 0) {
-                        gotoIdleState();
-                        if (mIsSupposedToBePlaying) {
-                            mIsSupposedToBePlaying = false;
-                            notifyChange(cmds.PLAYSTATE_CHANGED);
-                        }
+//                        gotoIdleState();
+//                        setIsSupposeToBePlaying(false);
                         return false;
                     }
                     mPlayPos = pos;
@@ -1155,11 +1163,8 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                     mCursor = mQueue.get(mPlayPos);
                 } else {
                     mOpenFailedCounter = 0;
-                    gotoIdleState();
-                    if (mIsSupposedToBePlaying) {
-                        mIsSupposedToBePlaying = false;
-                        notifyChange(cmds.PLAYSTATE_CHANGED);
-                    }
+//                    gotoIdleState();
+//                    setIsSupposeToBePlaying(false);
                     return false;
                 }
             }
@@ -1580,8 +1585,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
             if (mPlayer.isPrepared()) {
                 mPlayPending = false;
                 mPlayer.start();
-                mIsSupposedToBePlaying = mPlayer.isPlaying();
-                notifyChange(cmds.PLAYSTATE_CHANGED);
+//                setIsSupposeToBePlaying(mPlayer.isPlaying());
 
                 mPlayerHandler.removeMessages(FADEDOWN);
                 mPlayerHandler.sendEmptyMessage(FADEUP);
@@ -1612,9 +1616,8 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
 
             if (mIsSupposedToBePlaying) {
                 mPlayer.pause();
-                gotoIdleState();
-                mIsSupposedToBePlaying = false;
-                notifyChange(cmds.PLAYSTATE_CHANGED);
+//                gotoIdleState();
+//                setIsSupposeToBePlaying(false);
             } else if (mPlayPending) {
                 mPausePending = true;
                 mPlayPending = false;
@@ -2122,9 +2125,14 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                     currentMetadataEditor.putString(METADATAS.get(key),
                             TiConvert.toString(value));
                 } else if (METADATAS_LONG.containsKey(key)) {
-                    currentMetadataEditor.putLong(METADATAS_LONG.get(key),
-                            TiConvert.toInt(value));
-                }
+                    try {
+                       currentMetadataEditor.putLong(METADATAS_LONG.get(key),
+                                TiConvert.toLong(value));              
+                    }
+                    catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                   }
             }
             if (!metadata.containsKey("duration") && mPlayer != null
                     && mPlayer.isPlaying()) {
@@ -2138,11 +2146,11 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
             if (!imageref.isTypeNull()) {
                 TiImageHelper.downloadDrawable(proxy, imageref, true, this);
             }
-
         }
 
         currentMetadataEditor.apply();
         currentMetadataEditor = null;
+        mNotificationHelper.updateMetadata(metadata);
         updatingMetadata = false;
     }
 
@@ -2159,7 +2167,6 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
         }
 
         updateMetadata(metadata);
-        mNotificationHelper.updateMetadata(metadata);
     }
 
     private void updateBitmapMetadata(final Bitmap bitmap) {
@@ -2225,6 +2232,8 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
             mRemoteControlClientCompat
                     .setPlaybackState(mRemoteControlClientState);
         }
+        boolean playing = mState == State.STATE_PLAYING;
+        setIsSupposeToBePlaying(playing);
         if (proxy != null) {
             proxy.setProperty("state", state);
             // proxy.setProperty("stateDescription", stateDescription);
