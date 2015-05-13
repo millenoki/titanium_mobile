@@ -806,7 +806,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	relativePath = [relativePath stringByReplacingOccurrencesOfString:[[[NSBundle mainBundle] resourceURL] path] withString:@""];
 	relativePath = [[relativePath substringFromIndex:1] stringByDeletingLastPathComponent];
 
-	NSString *dirname = [relativePath length] == 0 ? @"." : relativePath;
 	/*
 	 * This is for parity with android, if the file is located in the Resources, then __dirname returns "."
 	 * otherwise the __dirname returns the folder names separated by "/"
@@ -816,7 +815,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	 */
 	
 	NSString *filename = [sourceURL lastPathComponent];
-	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, dirname, filename,code];
+    NSString *dirname = [relativePath length] == 0 ? filename : relativePath;
+	NSString *js = [[NSString alloc] initWithFormat:SuccessRadio$ModuleRequireFormat, dirname, filename,code];
 
 	/* This most likely should be integrated with normal code flow, but to
 	 * minimize impact until a in-depth reconsideration of KrollContext can be

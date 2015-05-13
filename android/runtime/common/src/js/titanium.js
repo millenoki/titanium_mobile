@@ -246,7 +246,11 @@ function TiInclude(filename, baseUrl, scopeVars) {
 	var ti = new TitaniumWrapper(scopeVars);
 
 	var inModule = false;
-	var modulePath = filename.split('/')[0];
+	var modulePath = filename;
+	if (modulePath[0] === '/') {
+		modulePath = modulePath.slice(1);
+	}
+	modulePath = modulePath.split('/')[0];
 	if (!stringEndsWith(modulePath, '.js')) //discard case app.js
 	{
 		inModule = kroll.isExternalCommonJsModule(modulePath);
