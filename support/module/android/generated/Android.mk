@@ -32,16 +32,16 @@ ABS_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
 BOOTSTRAP_CPP := $(wildcard $(LOCAL_PATH)/../*Bootstrap.cpp)
 
 LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES)) \
-    $(patsubst $(LOCAL_PATH)/%,%,$(BOOTSTRAP_CPP))
+	$(patsubst $(LOCAL_PATH)/%,%,$(BOOTSTRAP_CPP))
 
 LOCAL_SHARED_LIBRARIES := krollv8
 
 $(BOOTSTRAP_CPP): $(GEN_DIR)/KrollGeneratedBindings.cpp $(GEN_DIR)/BootstrapJS.cpp
 
 $(GEN_DIR)/KrollGeneratedBindings.cpp:
-    gperf -L C++ -E -t "$(GEN_DIR)/KrollGeneratedBindings.gperf" > "$(GEN_DIR)/KrollGeneratedBindings.cpp"
+	gperf -L C++ -E -t "$(GEN_DIR)/KrollGeneratedBindings.gperf" > "$(GEN_DIR)/KrollGeneratedBindings.cpp"
 
 $(GEN_DIR)/BootstrapJS.cpp:
-    "$(PYTHON)" "$(TI_MOBILE_SDK)/module/android/js2c.py" "$(GEN_DIR)/BootstrapJS.cpp" "$(GEN_DIR)/bootstrap.js"
+	"$(PYTHON)" "$(TI_MOBILE_SDK)/module/android/js2c.py" "$(GEN_DIR)/BootstrapJS.cpp" "$(GEN_DIR)/bootstrap.js"
 
 include $(BUILD_SHARED_LIBRARY)
