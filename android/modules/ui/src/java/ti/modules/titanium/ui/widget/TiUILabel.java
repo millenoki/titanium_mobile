@@ -48,6 +48,7 @@ import android.text.Layout.Alignment;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.Spannable.Factory;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
@@ -309,8 +310,9 @@ public class TiUILabel extends TiUINonViewGroupView
             TextView textView = (TextView) this;
             Object text = textView.getText();
             // For html texts, we will manually detect url clicks.
-            if (text instanceof SpannedString) {
-                SpannedString spanned = (SpannedString) text;
+            if (text instanceof SpannedString || 
+                    text instanceof SpannableString) {
+                CharSequence spanned = (CharSequence) text;
                 Spannable buffer = Factory.getInstance().newSpannable(
                         spanned.subSequence(0, spanned.length()));
 
@@ -337,13 +339,13 @@ public class TiUILabel extends TiUINonViewGroupView
                     if (link.length != 0) {
                         ClickableSpan cSpan = link[0];
                         if (action == MotionEvent.ACTION_UP) {
-							//if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
-							//	KrollDict evnt = new KrollDict();
-							//	evnt.put("url", ((URLSpan)cSpan).getURL());
-							//	proxy.fireEvent("link", evnt, false);
+							if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
+								KrollDict evnt = new KrollDict();
+								evnt.put("url", ((URLSpan)cSpan).getURL());
+								proxy.fireEvent("link", evnt, false);
 							//} else {
-								cSpan.onClick(textView);
-							//}
+//								cSpan.onClick(textView);
+							}
                         } else if (action == MotionEvent.ACTION_DOWN) {
                             Selection.setSelection(buffer,
                                     buffer.getSpanStart(cSpan),
