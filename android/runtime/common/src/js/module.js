@@ -15,6 +15,11 @@ var NativeModule = require('native_module'),
 
 var TAG = "Module";
 
+
+function stringEndsWith(str, suffix) {
+	return str.indexOf(suffix, str.length - suffix.length) !== -1;
+};
+
 function Module(id, parent, context) {
 	this.id = id;
 	this.exports = {};
@@ -330,6 +335,11 @@ Module.prototype._runScript = function (source, filename) {
 	context.module = this;
 
 	var ti = new Titanium.Wrapper(context);
+	var dirname = path.dirname(filename);
+	if (dirname === '.' && !stringEndsWith(filename, '.js')) //root we need to set dirname to module name
+	{
+		dirname = filename;
+	}
 
 	// In V8, we treat external modules the same as native modules.  First, we wrap the
 	// module code and then run it in the current context.  This will allow external modules to
