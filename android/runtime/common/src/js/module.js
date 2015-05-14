@@ -348,7 +348,7 @@ Module.prototype._runScript = function (source, filename) {
 	source = Module.wrap(source);
 
 	var f = Script.runInThisContext(source, filename, true);
-	return f(this.exports, require, this, filename, path.dirname(filename), ti, ti, global, kroll);
+	return f(this.exports, require, this, filename, dirname, ti, ti, global, kroll);
 }
 
 // Determine the paths where the requested module could live.
