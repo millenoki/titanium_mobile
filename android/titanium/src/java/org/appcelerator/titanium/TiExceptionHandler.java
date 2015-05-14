@@ -15,17 +15,16 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -39,6 +38,12 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static LinkedList<ExceptionMessage> errorMessages = new LinkedList<ExceptionMessage>();
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
+	private static int layoutId = -1;
+    private static int styleId;
+	private static int layoutLocationId;
+	private static int layoutMessageId;
+	private static int layoutSourceId;
+	private static int layoutCallstackId;
 
 	public void printError(String title, String message, String sourceName, int line, String lineSource,
 		int lineOffset, final String callstack)
@@ -76,7 +81,21 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			Log.w(TAG, "Activity is null or already finishing, skipping dialog.");
 			return;
 		}
-
+		String[] callstackArray = error.callstack.split("\n");
+        StringBuilder sb = new StringBuilder();
+		int i = 0;
+		for (i = 1; i < callstackArray.length; i++) {
+		    String value = callstackArray[i];
+		    if (value.indexOf("at Module._runScript") != -1) {
+		        break;
+		    }
+		    if (i != 1) {
+                sb.append("\n");
+            }
+            sb.append(value);
+		}
+		error.callstack = sb.toString();
+		
 		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset, error.callstack);
 
 		TiApplication tiApplication = TiApplication.getInstance();
@@ -89,7 +108,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			final ExceptionMessage fError = error;
 			application.waitForCurrentActivity(new CurrentActivityListener()
 			{
-				// TODO @Override
+				@Override
 				public void onCurrentActivityReady(Activity activity)
 				{
 					createDialog(fError);
@@ -102,59 +121,37 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 	protected static void createDialog(final ExceptionMessage error)
 	{
-		KrollApplication application = KrollRuntime.getInstance().getKrollApplication();
-		if (application == null) {
+		TiApplication application = TiApplication.getInstance();
+		if (layoutId == -1) {
+            try {
+                layoutId = TiRHelper.getApplicationResource("layout.ti_exception_dialog");
+                styleId = TiRHelper.getApplicationResource("style.TiExceptionDialogStyle");
+                layoutLocationId = TiRHelper.getApplicationResource("id.tiexd_location");
+                layoutSourceId = TiRHelper.getApplicationResource("id.tiexd_source");
+                layoutMessageId = TiRHelper.getApplicationResource("id.tiexd_message");
+                layoutCallstackId = TiRHelper.getApplicationResource("id.tiexd_callstack");
+            } catch (ResourceNotFoundException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+		if (application == null || layoutId <= 0) {
 			return;
 		}
+		
+		Activity activity = application.getRootOrCurrentActivity();
 
-		Context context = application.getCurrentActivity();
-		FrameLayout layout = new FrameLayout(context);
-		layout.setBackgroundColor(Color.rgb(128, 0, 0));
-
-		LinearLayout vlayout = new LinearLayout(context);
-		vlayout.setOrientation(LinearLayout.VERTICAL);
-		vlayout.setPadding(10, 10, 10, 10);
-		layout.addView(vlayout);
-
-		TextView sourceInfoView = new TextView(context);
-		sourceInfoView.setBackgroundColor(Color.WHITE);
-		sourceInfoView.setTextColor(Color.BLACK);
-		sourceInfoView.setPadding(4, 5, 4, 0);
-		sourceInfoView.setText("[" + error.line + "," + error.lineOffset + "] " + error.sourceName);
-
-		TextView messageView = new TextView(context);
-		messageView.setBackgroundColor(Color.WHITE);
-		messageView.setTextColor(Color.BLACK);
-		messageView.setPadding(4, 5, 4, 0);
-		messageView.setText(error.message);
-
-		TextView sourceView = new TextView(context);
-		sourceView.setBackgroundColor(Color.WHITE);
-		sourceView.setTextColor(Color.BLACK);
-		sourceView.setPadding(4, 5, 4, 0);
-		sourceView.setText(error.lineSource);
-
-		TextView infoLabel = new TextView(context);
-		infoLabel.setText("Location: ");
-		infoLabel.setTextColor(Color.WHITE);
-		infoLabel.setTextScaleX(1.5f);
-
-		TextView messageLabel = new TextView(context);
-		messageLabel.setText("Message: ");
-		messageLabel.setTextColor(Color.WHITE);
-		messageLabel.setTextScaleX(1.5f);
-
-		TextView sourceLabel = new TextView(context);
-		sourceLabel.setText("Source: ");
-		sourceLabel.setTextColor(Color.WHITE);
-		sourceLabel.setTextScaleX(1.5f);
-
-		vlayout.addView(infoLabel);
-		vlayout.addView(sourceInfoView);
-		vlayout.addView(messageLabel);
-		vlayout.addView(messageView);
-		vlayout.addView(sourceLabel);
-		vlayout.addView(sourceView);
+		LinearLayout layout = (LinearLayout) application.getCurrentActivity().getLayoutInflater().inflate(layoutId, null);
+		
+		if (layout == null) {
+		    return;
+            
+		}
+		
+		((TextView) layout.findViewById(layoutLocationId)).setText("[" + error.line + "," + error.lineOffset + "] " + error.sourceName);
+        ((TextView) layout.findViewById(layoutMessageId)).setText(error.message);
+        ((TextView) layout.findViewById(layoutSourceId)).setText(error.lineSource);
+        ((TextView) layout.findViewById(layoutCallstackId)).setText(error.callstack);
 
 		OnClickListener clickListener = new OnClickListener()
 		{
@@ -182,7 +179,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			}
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(context)
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity, styleId)
 			.setTitle(error.title).setView(layout)
 			.setPositiveButton("Kill", clickListener)
 			.setNeutralButton("Continue", clickListener)
