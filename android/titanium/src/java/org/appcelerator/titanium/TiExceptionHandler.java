@@ -41,12 +41,13 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static Handler mainHandler;
 
 	public void printError(String title, String message, String sourceName, int line, String lineSource,
-		int lineOffset)
+		int lineOffset, final String callstack)
 	{
 		Log.e(TAG, "----- Titanium Javascript " + title + " -----");
 		Log.e(TAG, "- In " + sourceName + ":" + line + "," + lineOffset);
 		Log.e(TAG, "- Message: " + message);
 		Log.e(TAG, "- Source: " + lineSource);
+		Log.e(TAG, "- Callstack: " + callstack);
 	}
 
 	public TiExceptionHandler()
@@ -76,7 +77,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			return;
 		}
 
-		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset);
+		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset, error.callstack);
 
 		TiApplication tiApplication = TiApplication.getInstance();
 		if (tiApplication.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {

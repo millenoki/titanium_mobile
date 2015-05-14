@@ -80,6 +80,79 @@ void V8Util::objectExtend(Handle<Object> dest, Handle<Object> src)
 
 static Persistent<String> nameSymbol, messageSymbol;
 
+void V8Util::PutStringInKrollDict(JNIEnv *env, jobject javaKrollDict, const char * key, v8::Local<v8::String> jsValue) 
+{
+	bool keyIsNew, valueIsNew;
+	jobject javaObjectPropertyKey = env->NewStringUTF(key);
+	jobject javaObjectPropertyValue = TypeConverter::jsStringToJavaString(env, jsValue);
+	jobject result = env->CallObjectMethod(javaKrollDict,
+		                                  JNIUtil::krollDictPutMethod,
+		                                  javaObjectPropertyKey,
+		                                  javaObjectPropertyValue);
+	env->DeleteLocalRef(result);
+	env->DeleteLocalRef(javaObjectPropertyKey);
+	env->DeleteLocalRef(javaObjectPropertyValue);
+}
+
+void V8Util::PutIntInKrollDict(JNIEnv *env, jobject javaKrollDict, const char * key, int value) 
+{
+	bool keyIsNew, valueIsNew;
+	jobject javaObjectPropertyKey = env->NewStringUTF(key);
+	jobject result = env->CallObjectMethod(javaKrollDict,
+		                                  JNIUtil::krollDictPutMethod,
+		                                  javaObjectPropertyKey,
+		                                  value);
+	env->DeleteLocalRef(result);
+	env->DeleteLocalRef(javaObjectPropertyKey);
+}
+
+void V8Util::PutBoolInKrollDict(JNIEnv *env, jobject javaKrollDict, const char * key, bool value) 
+{
+	bool keyIsNew, valueIsNew;
+	jobject javaObjectPropertyKey = env->NewStringUTF(key);
+	jobject result = env->CallObjectMethod(javaKrollDict,
+		                                  JNIUtil::krollDictPutMethod,
+		                                  javaObjectPropertyKey,
+		                                  value);
+	env->DeleteLocalRef(result);
+	env->DeleteLocalRef(javaObjectPropertyKey);
+}
+
+jobject V8Util::StackFrameToJavaKrollDict(JNIEnv *env, v8::Local<v8::StackFrame> stackFrame, bool *isNew)
+{
+	int numKeys = 8;
+	*isNew = true;
+	jobject javaKrollDict = env->NewObject(JNIUtil::krollDictClass, JNIUtil::krollDictInitMethod, numKeys);
+	PutIntInKrollDict(env, javaKrollDict, "lineNumber", stackFrame->GetLineNumber());
+	PutIntInKrollDict(env, javaKrollDict, "column", stackFrame->GetColumn());
+	PutStringInKrollDict(env, javaKrollDict, "functionName", stackFrame->GetFunctionName());
+	PutStringInKrollDict(env, javaKrollDict, "scriptName", stackFrame->GetScriptNameOrSourceURL());
+	return javaKrollDict;
+}
+
+jobjectArray V8Util::StackTraceToJavaArray(JNIEnv *env, v8::Handle<v8::StackTrace> stackTrace)
+{
+	jobjectArray result = NULL;
+	int length = stackTrace->GetFrameCount();
+	if (length > 0) {
+		result = env->NewObjectArray(length, JNIUtil::objectClass, NULL);
+		for (int i = 0; i < length; i++) {
+			v8::Local<v8::StackFrame> element = stackTrace->GetFrame(i);
+			bool isNew;
+
+			jobject javaObject = StackFrameToJavaKrollDict(env, element, &isNew);
+			env->SetObjectArrayElement(result, i, javaObject);
+
+			if (isNew) {
+				env->DeleteLocalRef(javaObject);
+			}
+		}
+
+	}
+	return result;
+	
+}
+
 void V8Util::reportException(TryCatch &tryCatch, bool showLine)
 {
 	HandleScope scope;
@@ -137,6 +210,8 @@ void V8Util::openJSErrorDialog(TryCatch &tryCatch)
 	jstring errorMessage = TypeConverter::jsValueToJavaString(env, message->Get());
 	jstring resourceName = TypeConverter::jsValueToJavaString(env, message->GetScriptResourceName());
 	jstring sourceLine = TypeConverter::jsValueToJavaString(env, message->GetSourceLine());
+	jstring traceString = TypeConverter::jsValueToJavaString(env, tryCatch.StackTrace());
+	
 
 	env->CallStaticVoidMethod(
 		JNIUtil::krollRuntimeClass,
@@ -146,9 +221,11 @@ void V8Util::openJSErrorDialog(TryCatch &tryCatch)
 		resourceName,
 		message->GetLineNumber(),
 		sourceLine,
-		message->GetEndColumn());
+		message->GetEndColumn(),
+		traceString);
 
 	env->DeleteLocalRef(title);
+	env->DeleteLocalRef(traceString);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
 	env->DeleteLocalRef(sourceLine);

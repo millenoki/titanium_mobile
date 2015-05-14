@@ -9,6 +9,8 @@
 
 #include <stdio.h>
 #include <v8.h>
+#include <jni.h>
+
 
 #define ENTER_V8(context) \
 	v8::HandleScope scope;
@@ -146,6 +148,14 @@ public:
 	static bool constructorNameMatches(v8::Handle<v8::Object>, const char* name);
 	static bool isNaN(v8::Handle<v8::Value> value);
 	static void dispose();
+
+	static void PutBoolInKrollDict(JNIEnv *env, jobject javaKrollDict, const char * key, bool value);
+	static void PutIntInKrollDict(JNIEnv *env, jobject javaKrollDict, const char * key, int value);
+	static void PutStringInKrollDict(JNIEnv *env, jobject javaKrollDict, const char * key, v8::Local<v8::String> jsValue);
+
+
+	static jobjectArray StackTraceToJavaArray(JNIEnv *env, v8::Handle<v8::StackTrace> stackTrace);
+	static jobject StackFrameToJavaKrollDict(JNIEnv *env, v8::Local<v8::StackFrame> stackFrame, bool *isNew);
 };
 
 }
