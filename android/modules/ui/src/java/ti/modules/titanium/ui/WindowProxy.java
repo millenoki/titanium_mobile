@@ -599,7 +599,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 		
-		// Set the splitActionBar property
+		// Set the actionBarOverlay property
 		if (hasProperty(TiC.PROPERTY_ACTIONBAR_OVERLAY)) {
 			boolean overlay = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ACTIONBAR_OVERLAY), false);
 			if (overlay){

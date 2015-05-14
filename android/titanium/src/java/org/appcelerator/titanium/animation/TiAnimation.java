@@ -2,7 +2,7 @@ package org.appcelerator.titanium.animation;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 
 @Kroll.proxy
 public class TiAnimation extends KrollProxy {
@@ -33,7 +33,7 @@ public class TiAnimation extends KrollProxy {
                     animator.cancel();
                 }
             }
-        });
+        }, true);
 		
 	}
 	
@@ -46,7 +46,7 @@ public class TiAnimation extends KrollProxy {
                     animator.cancelWithoutResetting();
                 }
             }
-        });
+        }, true);
 	}
 
 }

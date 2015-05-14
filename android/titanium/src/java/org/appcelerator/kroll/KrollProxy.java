@@ -26,6 +26,8 @@ import org.appcelerator.kroll.common.APIMap;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.TiMessenger.Command;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -40,8 +42,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUrl;
-import org.appcelerator.titanium.util.TiActivityHelper.Command;
-import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -2194,7 +2194,24 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         return TiActivityHelper.getValueInUIThread(getActivity(), this, command, defaultValue);
     }
     
-    public void runInUiThread(final CommandNoReturn command) {
-        TiActivityHelper.runInUiThread(getActivity(), command);
+    public void runInUiThread(final CommandNoReturn command, final boolean blocking) {
+        if (TiApplication.isUIThread()) {
+            command.execute();
+        } else {
+            if (blocking) {
+                TiMessenger.sendBlockingMainCommand(command);
+            } else {
+                TiMessenger.sendMainCommand(command);
+            }
+
+        }
+    }
+    public <T> T getInUiThread(final Command<T> command) {
+        if (TiApplication.isUIThread()) {
+            return command.execute();
+        } else {
+            return (T) TiMessenger.sendBlockingMainCommand(command);
+
+        }
     }
 }

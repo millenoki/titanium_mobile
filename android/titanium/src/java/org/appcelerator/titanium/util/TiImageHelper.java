@@ -23,9 +23,9 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.michaelevans.colorart.library.ColorArt;
 

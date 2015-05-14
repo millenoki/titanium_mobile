@@ -7,6 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.common.TiMessenger.Command;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -147,13 +149,6 @@ public class TiActivityHelper {
         return false;
     }
 
-    public static interface Command<T> {
-        public T execute();
-    }
-
-    public static interface CommandNoReturn {
-        public void execute();
-    }
 
     public static <T> T getValueInUIThread(final Activity activity,
             final KrollProxy proxy, final Command<T> command, String defaultProp) {

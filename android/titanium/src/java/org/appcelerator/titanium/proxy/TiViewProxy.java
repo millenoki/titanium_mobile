@@ -19,6 +19,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -28,7 +29,6 @@ import org.appcelerator.titanium.animation.TiAnimatorSet;
 import org.appcelerator.titanium.animation.TiViewAnimator;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
-import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -1272,7 +1272,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
             public void execute() {
                 handleTransitionViews(viewOut, viewIn, arg);                
             }
-        });
+        }, false);
 //		if (TiApplication.isUIThread()) {
 //			handleTransitionViews(viewOut, viewIn, arg);
 //		} else {

@@ -17,10 +17,9 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.kroll.common.TiMessenger.Command;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.AnimatableReusableProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -31,7 +30,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListView.TiBaseAdapter;
 import android.annotation.SuppressLint;
-import android.os.Message;
 import android.view.View;
 
 @Kroll.proxy
@@ -53,17 +51,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	private int sectionIndex;
 
 	private WeakReference<TiAbsListView> listView;
-
-	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-
-	private static final int MSG_SET_ITEMS = MSG_FIRST_ID + 700;
-	private static final int MSG_APPEND_ITEMS = MSG_FIRST_ID + 701;
-	private static final int MSG_INSERT_ITEMS_AT = MSG_FIRST_ID + 702;
-	private static final int MSG_DELETE_ITEMS_AT = MSG_FIRST_ID + 703;
-	private static final int MSG_GET_ITEM_AT = MSG_FIRST_ID + 704;
-	private static final int MSG_REPLACE_ITEMS_AT = MSG_FIRST_ID + 705;
-	private static final int MSG_UPDATE_ITEM_AT = MSG_FIRST_ID + 706;
-	private static final int MSG_GET_ITEMS = MSG_FIRST_ID + 707;
 
 	private static HashMap<String, String> toPassProps;
 
@@ -210,80 +197,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		});
 	}
 
-	@Override
-	public boolean handleMessage(Message msg) {
-		switch (msg.what) {
 
-		case MSG_SET_ITEMS: {
-			AsyncResult result = (AsyncResult) msg.obj;
-			handleSetItems(result.getArg());
-			result.setResult(null);
-			return true;
-		}
-
-		case MSG_GET_ITEMS: {
-			AsyncResult result = (AsyncResult) msg.obj;
-			result.setResult(itemProperties.toArray());
-			return true;
-		}
-
-		case MSG_APPEND_ITEMS: {
-			AsyncResult result = (AsyncResult) msg.obj;
-			handleAppendItems(result.getArg());
-			result.setResult(null);
-			return true;
-		}
-
-		case MSG_INSERT_ITEMS_AT: {
-			AsyncResult result = (AsyncResult) msg.obj;
-			KrollDict data = (KrollDict) result.getArg();
-			int index = data.getInt(TiC.EVENT_PROPERTY_INDEX);
-			handleInsertItemsAt(index, data.get(TiC.PROPERTY_DATA));
-			result.setResult(null);
-			return true;
-		}
-
-		case MSG_DELETE_ITEMS_AT: {
-			AsyncResult result = (AsyncResult) msg.obj;
-			KrollDict data = (KrollDict) result.getArg();
-			int index = data.getInt(TiC.EVENT_PROPERTY_INDEX);
-			int count = data.getInt(TiC.PROPERTY_COUNT);
-			handleDeleteItemsAt(index, count);
-			result.setResult(null);
-			return true;
-		}
-
-		case MSG_REPLACE_ITEMS_AT: {
-			AsyncResult result = (AsyncResult) msg.obj;
-			KrollDict data = (KrollDict) result.getArg();
-			int index = data.getInt(TiC.EVENT_PROPERTY_INDEX);
-			int count = data.getInt(TiC.PROPERTY_COUNT);
-			handleReplaceItemsAt(index, count, data.get(TiC.PROPERTY_DATA));
-			result.setResult(null);
-			return true;
-		}
-
-		case MSG_GET_ITEM_AT: {
-			AsyncResult result = (AsyncResult) msg.obj;
-			KrollDict item = handleGetItemAt(TiConvert.toInt(result.getArg()));
-			result.setResult(item);
-			return true;
-		}
-
-		case MSG_UPDATE_ITEM_AT: {
-			AsyncResult result = (AsyncResult) msg.obj;
-			KrollDict data = (KrollDict) result.getArg();
-			int index = data.getInt(TiC.EVENT_PROPERTY_INDEX);
-			handleUpdateItemAt(index, data.get(TiC.PROPERTY_DATA));
-			result.setResult(null);
-			return true;
-		}
-		default: {
-			return super.handleMessage(msg);
-		}
-
-		}
-	}
 	
 	@Kroll.method
     public KrollProxy getBinding(final int itemIndex, final String bindId) {
@@ -294,13 +208,13 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
     }
 
 	@Kroll.method
-	public KrollDict getItemAt(int index) {
-		if (TiApplication.isUIThread()) {
-			return handleGetItemAt(index);
-		} else {
-			return (KrollDict) TiMessenger.sendBlockingMainMessage(
-					getMainHandler().obtainMessage(MSG_GET_ITEM_AT), index);
-		}
+	public KrollDict getItemAt(final int index) {
+//		return getInUiThread(new Command<KrollDict>() {
+//		    @Override
+//            public KrollDict execute() {
+		        return handleGetItemAt(index);
+//            }
+//        });
 	}
 
 	private KrollDict handleGetItemAt(int index) {
@@ -345,113 +259,110 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	@Kroll.method
 	@Kroll.setProperty
-	public void setItems(Object data) {
-		if (TiApplication.isUIThread()) {
-			handleSetItems(data);
-		} else {
-			TiMessenger.sendBlockingMainMessage(
-					getMainHandler().obtainMessage(MSG_SET_ITEMS), data);
-		}
+	public void setItems(final Object data) {
+		runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                handleSetItems(data);
+            }
+        }, true);
 	}
 
 	@Kroll.method
 	@Kroll.getProperty
 	public Object[] getItems() {
-		if (itemProperties == null) {
+		if (itemProperties == null) 
 			return new Object[0];
-		} else if (TiApplication.isUIThread()) {
+//		} else if (TiApplication.isUIThread()) {
 			return itemProperties.toArray();
-		} else {
-			return (Object[]) TiMessenger
-					.sendBlockingMainMessage(getMainHandler().obtainMessage(
-							MSG_GET_ITEMS));
-		}
+//		} else {
+//			return (Object[]) TiMessenger
+//					.sendBlockingMainMessage(getMainHandler().obtainMessage(
+//							MSG_GET_ITEMS));
+//		}
 	}
 
 	@Kroll.method
-	public void appendItems(Object data) {
-		if (TiApplication.isUIThread()) {
-			handleAppendItems(data);
-		} else {
-			TiMessenger.sendBlockingMainMessage(
-					getMainHandler().obtainMessage(MSG_APPEND_ITEMS), data);
-		}
+	public void appendItems(final Object data) {
+		runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                handleAppendItems(data);    
+            }
+        }, true);
 	}
 
-	public boolean isIndexValid(int index) {
+	public boolean isIndexValid(final int index) {
 		return (index >= 0) ? true : false;
 	}
 
 	@Kroll.method
-	public void insertItemsAt(int index, Object data) {
+	public void insertItemsAt(final int index, final Object data) {
 		if (!isIndexValid(index)) {
 			return;
 		}
-
-		if (TiApplication.isUIThread()) {
-			handleInsertItemsAt(index, data);
-		} else {
-			KrollDict d = new KrollDict();
-			d.put(TiC.PROPERTY_DATA, data);
-			d.put(TiC.EVENT_PROPERTY_INDEX, index);
-			TiMessenger.sendBlockingMainMessage(
-					getMainHandler().obtainMessage(MSG_INSERT_ITEMS_AT), d);
-		}
+		runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                handleInsertItemsAt(index, data);    
+            }
+        }, true);
 	}
 
 	@Kroll.method
-	public void deleteItemsAt(int index, int count) {
+	public void deleteItemsAt(final int index, final int count) {
 		if (!isIndexValid(index)) {
 			return;
 		}
-
-		if (TiApplication.isUIThread()) {
-			handleDeleteItemsAt(index, count);
-		} else {
-			KrollDict d = new KrollDict();
-			d.put(TiC.EVENT_PROPERTY_INDEX, index);
-			d.put(TiC.PROPERTY_COUNT, count);
-			TiMessenger.sendBlockingMainMessage(
-					getMainHandler().obtainMessage(MSG_DELETE_ITEMS_AT), d);
-		}
+		runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                TiAbsListView listView = getListView();
+                if (listView != null) {
+                    int position = listView.findItemPosition(sectionIndex, index);
+                    listView.remove(position, count);
+                }
+                else {
+                    deleteItemsData(index, count);
+                    notifyDataChange();
+                }      
+            }
+        }, true);
 	}
 
 	@Kroll.method
-	public void replaceItemsAt(int index, int count, Object data) {
+	public void replaceItemsAt(final int index, final int count, final Object data) {
 		if (!isIndexValid(index)) {
 			return;
 		}
-
-		if (TiApplication.isUIThread()) {
-			handleReplaceItemsAt(index, count, data);
-		} else {
-			KrollDict d = new KrollDict();
-			d.put(TiC.EVENT_PROPERTY_INDEX, index);
-			d.put(TiC.PROPERTY_COUNT, count);
-			d.put(TiC.PROPERTY_DATA, data);
-			TiMessenger.sendBlockingMainMessage(
-					getMainHandler().obtainMessage(MSG_REPLACE_ITEMS_AT), d);
-		}
+		runInUiThread(new CommandNoReturn() {
+            
+            @Override
+            public void execute() {
+                if (count == 0) {
+                    handleInsertItemsAt(index, data);
+                } else if (deleteItemsData(index, count)) {
+                    handleInsertItemsAt(index, data);
+                }         
+            }
+        }, true);
 	}
 
 	@Kroll.method
-	public void updateItemAt(int index, Object data) {
+	public void updateItemAt(final int index, final Object data, @Kroll.argument(optional=true) final Object options) {
 		if (!isIndexValid(index) || !(data instanceof HashMap)) {
 			return;
 		}
-
-		if (TiApplication.isUIThread()) {
-			handleUpdateItemAt(index, data);
-		} else {
-			KrollDict d = new KrollDict();
-			d.put(TiC.EVENT_PROPERTY_INDEX, index);
-			d.put(TiC.PROPERTY_DATA, data );
-			TiMessenger.sendBlockingMainMessage(
-					getMainHandler().obtainMessage(MSG_UPDATE_ITEM_AT), d);
-		}
+		runInUiThread(new CommandNoReturn() {
+            
+            @Override
+            public void execute() {
+                handleUpdateItemAt(index, data, options);                
+            }
+        }, true);
 	}
 	
-	public void updateItemAt(int index, String binding, String key, Object value) {
+	public void updateItemAt(final int index, final String binding, final String key, final Object value) {
 	    if (index < 0 || index >= mItemCount) {
 	        return;
 	    }
@@ -620,7 +531,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
 	}
 	
-	private void handleUpdateItemAt(int itemIndex, Object data) {
+	private void handleUpdateItemAt(int itemIndex, Object data, Object options) {
 	    if (itemProperties == null) {
 	        return;
 	    }
@@ -722,26 +633,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         updateCurrentItemCount();
     }
 
-	private void handleDeleteItemsAt(int index, int count) {
-	    TiAbsListView listView = getListView();
-	    if (listView != null) {
-	        int position = listView.findItemPosition(sectionIndex, index);
-	        listView.remove(position, count);
-	    }
-	    else {
-	        deleteItemsData(index, count);
-	        notifyDataChange();
-	    }
-		
-	}
-
-	private void handleReplaceItemsAt(int index, int count, Object data) {
-		if (count == 0) {
-			handleInsertItemsAt(index, data);
-		} else if (deleteItemsData(index, count)) {
-			handleInsertItemsAt(index, data);
-		}
-	}
 
 //	private void handleUpdateItemAt(int index, Object data) {
 //		handleReplaceItemsAt(index, 1, data);

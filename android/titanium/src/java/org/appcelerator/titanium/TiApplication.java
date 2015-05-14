@@ -793,11 +793,11 @@ public abstract class TiApplication extends Application implements
 		// Just use type 'other' enum since it's open ended.
 		DeployType.OTHER.setName(deployType);
 		TiPlatformHelper.getInstance().setDeployType(DeployType.OTHER);
-        //TiPlatformHelper.getInstance().setDeployType(deployType);
+        Log.d(TAG, "TiPlatformHelper.deployType: " + TiPlatformHelper.getInstance().getDeployType(), Log.DEBUG_MODE);
         if (isAnalyticsEnabled()) {
             APSAnalytics.getInstance().sendAppEnrollEvent();
         } else {
-            Log.i(TAG, "Analytics have been disabled");
+            Log.d(TAG, "Analytics have been disabled", Log.DEBUG_MODE);
         }
         tempFileHelper.scheduleCleanTempDir();
     }

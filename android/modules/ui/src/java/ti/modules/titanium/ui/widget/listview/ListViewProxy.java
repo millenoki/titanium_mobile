@@ -8,7 +8,7 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
@@ -82,7 +82,7 @@ public class ListViewProxy extends AbsListViewProxy {
             public void execute() {
                 handleCloseSwipeMenu(obj);                
             }
-        });
+        }, false);
     }
 
 }

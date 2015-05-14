@@ -11,10 +11,10 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.TiMessenger.Command;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiActivityHelper.Command;
-import org.appcelerator.titanium.util.TiActivityHelper.CommandNoReturn;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -218,7 +218,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
                     MenuItemCompat.collapseActionView(item);
                 }
             }
-        });
+        }, false);
 	}
 
 	@Kroll.method
@@ -231,7 +231,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
                     MenuItemCompat.expandActionView(item);
                 }
             }
-        });
+        }, false);
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -267,7 +267,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
                 public void execute() {
                     item.setCheckable(toApply);
                 }
-            });
+            }, false);
             break;
         }
         case TiC.PROPERTY_CHECKED:
@@ -277,7 +277,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
                 public void execute() {
                     item.setChecked(toApply);
                 }
-            });
+            }, false);
             break;
         }
         case TiC.PROPERTY_ENABLED:
@@ -287,7 +287,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
                 public void execute() {
                     item.setEnabled(toApply);
                 }
-            });
+            }, false);
             break;
         }
         case TiC.PROPERTY_ICON:
@@ -304,7 +304,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
                         MenuItemCompat.setShowAsAction(item, toApply);
                     }
                 }
-            });
+            }, false);
             break;
         }
         case TiC.PROPERTY_TITLE_CONDENSED:
@@ -314,7 +314,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
                 public void execute() {
                     item.setTitleCondensed(toApply);
                 }
-            });
+            }, false);
             break;
         }
         case TiC.PROPERTY_TITLE:
@@ -324,7 +324,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
                 public void execute() {
                     item.setTitle(toApply);
                 }
-            });
+            }, false);
             break;
         }
         case TiC.PROPERTY_VISIBLE:
@@ -334,7 +334,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
                 public void execute() {
                     item.setVisible(toApply);
                 }
-            });
+            }, false);
             break;
         }
         default:

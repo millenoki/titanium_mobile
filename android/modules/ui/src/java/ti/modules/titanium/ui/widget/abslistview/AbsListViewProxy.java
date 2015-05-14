@@ -575,10 +575,10 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 
 	@Kroll.method
-	public void updateItemAt(int sectionIndex, int index, Object data) {
+	public void updateItemAt(int sectionIndex, int index, Object data, @Kroll.argument(optional = true) Object options) {
         AbsListSectionProxy section = getSectionAt(sectionIndex);
         if (section != null){
-            section.updateItemAt(index, data);
+            section.updateItemAt(index, data, options);
         }
         else {
             Log.e(TAG, "updateItemAt wrong section index");
