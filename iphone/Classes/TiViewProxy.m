@@ -169,11 +169,26 @@
 
 -(void)applyProperties:(id)args
 {
-    ENSURE_UI_THREAD_1_ARG(args)
-    [self configurationStart];
-    [super applyProperties:args];
-    [self configurationSet];
-    [self refreshViewOrParent];
+    id data = nil;
+    BOOL wait = NO;
+    if (IS_OF_CLASS(args, NSDictionary)) {
+        data = args;
+    } else {
+        NSNumber* waitArg = nil;
+        ENSURE_ARG_AT_INDEX(data, args, 0, NSObject);
+        ENSURE_ARG_OR_NIL_AT_INDEX(waitArg, args, 1, NSNumber);
+        if (waitArg != nil) {
+            wait = [waitArg boolValue];
+        }
+        
+    }
+    
+    TiThreadPerformBlockOnMainThread(^{
+        [self configurationStart];
+        [super applyProperties:@[data]];
+        [self configurationSet];
+        [self refreshViewOrParent];
+    }, wait);
 }
 
 -(void)startLayout:(id)arg

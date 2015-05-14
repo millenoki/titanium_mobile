@@ -882,8 +882,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     @Kroll.method
+    public void applyProperties(Object arg, @Kroll.argument(optional = true) Object wait) {
+        applyPropertiesInternal(arg, false, TiConvert.toBoolean(wait, false));
+    }
+    
     public void applyProperties(Object arg) {
-        applyPropertiesInternal(arg, false, false);
+        applyProperties(arg, null);
     }
 
     /**
