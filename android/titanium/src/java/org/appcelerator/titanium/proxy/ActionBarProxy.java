@@ -417,6 +417,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             }, true);
             return;
         }
+        super.handleProperties(d, changed);
     }
 
     @Override
