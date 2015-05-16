@@ -518,6 +518,10 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 	{
 		return CGPointMake([[value objectForKey:@"x"] floatValue],[[value objectForKey:@"y"] floatValue]);
 	}
+    if ([value isKindOfClass:[NSArray class]] && [value count] >= 2)
+    {
+        return CGPointMake([[value objectAtIndex:0] floatValue],[[value objectAtIndex:1] floatValue]);
+    }
 	return defaultValue;
 }
 
@@ -533,12 +537,12 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
             *isValid = YES;
         }
 		return [value point];
-	} else if ([value isKindOfClass:[NSDictionary class]]) {
+    } else if ([value isKindOfClass:[NSDictionary class]]) {
         id xVal = [value objectForKey:@"x"];
         id yVal = [value objectForKey:@"y"];
         if (xVal && yVal) {
             if (![xVal respondsToSelector:@selector(floatValue)] ||
-                ![yVal respondsToSelector:@selector(floatValue)]) 
+                ![yVal respondsToSelector:@selector(floatValue)])
             {
                 if (isValid) {
                     *isValid = NO;
@@ -551,7 +555,25 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
             }
             return CGPointMake([xVal floatValue], [yVal floatValue]);
         }
-	}
+    } else if ([value isKindOfClass:[NSArray class]] && [value count] >= 2) {
+        id xVal = [value objectAtIndex:0];
+        id yVal = [value objectAtIndex:1];
+        if (xVal && yVal) {
+            if (![xVal respondsToSelector:@selector(floatValue)] ||
+                ![yVal respondsToSelector:@selector(floatValue)])
+            {
+                if (isValid) {
+                    *isValid = NO;
+                }
+                return CGPointMake(0.0, 0.0);
+            }
+            
+            if (isValid) {
+                *isValid = YES;
+            }
+            return CGPointMake([xVal floatValue], [yVal floatValue]);
+        }
+    }
     if (isValid) {
         *isValid = NO;
     }
@@ -574,6 +596,11 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 		xDimension = [self dimensionValue:@"x" properties:value];
 		yDimension = [self dimensionValue:@"y" properties:value];
 	}
+    else if ([value isKindOfClass:[NSArray class]] && [value count] >= 2)
+    {
+        xDimension = [self dimensionValue:[value objectAtIndex:0]];
+        yDimension = [self dimensionValue:[value objectAtIndex:1]];
+    }
 	else
 	{
 		xDimension = TiDimensionUndefined;
@@ -1686,7 +1713,11 @@ If the new path starts with / and the base url is app://..., we have to massage 
         if ([paddingDict objectForKey:@"bottom"]) {
             inset.bottom = [TiUtils floatValue:[paddingDict objectForKey:@"bottom"]];
         }
+    } else if (IS_OF_CLASS(value, NSNumber)) {
+        CGFloat padding = [value floatValue];
+        inset = UIEdgeInsetsMake(padding, padding, padding, padding);
     }
+
     return inset;
 }
 
@@ -2021,7 +2052,12 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     NSString *appurlstr = urlstring;
     if (range.location!=NSNotFound)
     {
-        appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
+        if ([urlstring isEqualToString:resourceurl]) {
+            appurlstr = @"";
+        } else {
+            appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
+        }
+
     }
     static id AppRouter;
     if (AppRouter==nil)
