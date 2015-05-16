@@ -2317,7 +2317,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 + (TiViewProxy*)titleViewForText:(NSString*)text inTable:(UITableView *)tableView footer:(BOOL)footer
 {
     TiUILabelProxy* titleProxy = [[TiUILabelProxy alloc] init];
-    [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"17",@"fontSize",@"bold",@"fontWeight", nil] forKey:@"font"];
+    [titleProxy setValue:[NSDictionary dictionaryWithObjectsAndKeys:@"17",@"size",@"bold",@"weight", nil] forKey:@"font"];
     [titleProxy setValue:text forKey:@"text"];
     [titleProxy setValue:@"black" forKey:@"color"];
     [titleProxy setValue:@"white" forKey:@"shadowColor"];
