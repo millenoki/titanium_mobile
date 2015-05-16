@@ -1591,6 +1591,9 @@ DEFINE_EXCEPTIONS
     [proxy internalSetCreatedFromDictionary]; //private access
     [proxy rememberSelf];
     if (proxy) {
+        if (!rootProxy && IS_OF_CLASS(proxy, TiParentingProxy)) {
+            rootProxy = (TiParentingProxy*)proxy;
+        }
         [proxy unarchiveFromDictionary:dictionary rootProxy:rootProxy];
     }
     
@@ -1654,5 +1657,10 @@ DEFINE_EXCEPTIONS
     if (_proxyBindings) {
         [_proxyBindings removeObjectForKey:key];
     }
+}
+
+-(TiProxy*)bindingForKey:(NSString*)key
+{
+    return [_proxyBindings objectForKey:key];
 }
 @end

@@ -389,6 +389,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 
 -(void)addBinding:(TiProxy*)proxy forKey:(NSString*)key;
 -(void)removeBindingForKey:(NSString*)key;
+-(TiProxy*)bindingForKey:(NSString*)key;
 
 -(void)invokeBlockOnJSThread:(void (^)())block;
 @end
