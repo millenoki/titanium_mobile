@@ -108,11 +108,8 @@ extern long long const TI_APPLICATION_BUILD_DATE;
     return @"Ti.App";
 }
 
--(void)addEventListener:(NSArray*)args
+-(id)internalAddEventListener:(NSString *)type withListener:(id)listener onlyOnce:(BOOL)onlyOnce
 {
-	NSString *type = [args objectAtIndex:0];
-	id listener = [args objectAtIndex:1];
-	
 	if (appListeners==nil)
 	{
 		appListeners = [[NSMutableDictionary alloc] init];
@@ -141,6 +138,7 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 	}
 	[l addObject:entry];
 	[entry release];
+    return self;
 }
 
 -(void)removeEventListener:(NSArray*)args
@@ -173,7 +171,8 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 	}
 	
 	[[self _host] removeListener:listener context:pageContext];
-} 
+    return self;
+}
 
 -(BOOL)_hasListeners:(NSString *)type
 {
