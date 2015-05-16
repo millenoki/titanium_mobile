@@ -20,6 +20,7 @@
 #import "DTCoreText.h"
 #import "Mimetypes.h"
 #import "TouchCapturingWindow.h"
+#import "SBJSON.h"
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -967,18 +968,30 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 #endif
 
-//TODO: this should be compiled out in production mode
--(void)showModalError:(NSString*)message
+#ifndef TI_DEPLOY_TYPE_PRODUCTION
+-(void)showModalError:(TiScriptError*)error
 {
-	if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"])
-	{
-		NSLog(@"[ERROR] Application received error: %@",message);
-		return;
-	}
-	ENSURE_UI_THREAD(showModalError,message);
-	TiErrorController *error = [[[TiErrorController alloc] initWithError:message] autorelease];
-	[self showModalController:error animated:YES];
+    static NSDictionary* dict = nil;
+    if (dict == nil) {
+        NSError *error = nil;
+        dict = [[TiApp loadJSONProp:@"_error_template.json" error:&error] retain];
+        if (error) {
+            DebugLog(@"[ERROR] Could not load ErrorTemplate, error was %@", [error localizedDescription]);
+        }
+        if (!dict) {
+            dict = [[NSDictionary dictionary] retain];
+        }
+        if (error != nil)
+        {
+            DebugLog(@"[DEBUG] Can't parse ErrorDialog format: %@",error.localizedDescription);
+            return;
+        }
+    }
+	ENSURE_UI_THREAD(showModalError,error);
+	TiErrorController *errorDialog = [[[TiErrorController alloc] initWithError:error template:dict inContext:kjsBridge] autorelease];
+	[self showModalController:errorDialog animated:YES];
 }
+#endif
 
 -(void)showModalController:(UIViewController*)modalController animated:(BOOL)animated
 {
@@ -1160,6 +1173,25 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     return [self dictionaryWithLocalNotification: notification withIdentifier: nil];
 }
 
++(NSDictionary *)loadJSONProp:(NSString*)name error:(NSError**)error
+{
+    NSString *path = [[TiHost resourcePath] stringByAppendingPathComponent:name];
+    NSData *jsonData = [TiUtils loadAppResource: [NSURL fileURLWithPath:path]];
+    
+    if (jsonData==nil) {
+        // Not found in encrypted file, this means we're in development mode, get it from the filesystem
+        jsonData = [NSData dataWithContentsOfFile:path];
+    }
+    
+    // Get the JSON data and create the NSDictionary.
+    if(jsonData) {
+        return [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:error];
+    } else {
+        *error = [NSError errorWithDomain:@"File not found" code:-1 userInfo:nil];
+    }
+    return nil;
+}
+
 // Returns an NSDictionary with the properties from tiapp.xml
 // this is called from Ti.App.Properties and other places.
 +(NSDictionary *)tiAppProperties
@@ -1167,30 +1199,12 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     static NSDictionary* props;
     
     if(props == nil) {
-        // Get the props from the encrypted json file
-        NSString *tiAppPropertiesPath = [[TiHost resourcePath] stringByAppendingPathComponent:@"_app_props_.json"];
-        NSData *jsonData = [TiUtils loadAppResource: [NSURL fileURLWithPath:tiAppPropertiesPath]];
-        
-        if (jsonData==nil) {
-            // Not found in encrypted file, this means we're in development mode, get it from the filesystem
-            jsonData = [NSData dataWithContentsOfFile:tiAppPropertiesPath];
+        NSError *error = nil;
+        props = [[TiApp loadJSONProp:@"_app_props_.json" error:&error] retain];
+        if (error) {
+            DebugLog(@"[ERROR] Could not load tiapp.xml properties, error was %@", [error localizedDescription]);
         }
-        
-        NSString *errorString = nil;
-        // Get the JSON data and create the NSDictionary.
-        if(jsonData) {
-            NSError *error = nil;
-            props = [[NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error] retain];
-            errorString = [error localizedDescription];
-        } else {
-            // If we have no data...
-            // This should never happen on a Titanium app using the node.js CLI
-            errorString = @"File not found";
-        }
-        if(errorString != nil) {
-            // Let the developer know that we could not load the tiapp.xml properties.
-            DebugLog(@"[ERROR] Could not load tiapp.xml properties, error was %@", errorString);
-            // Create an empty dictioary to avoid running this code over and over again.
+        if (!props) {
             props = [[NSDictionary dictionary] retain];
         }
     }

@@ -18,6 +18,7 @@
 #import "TiConsole.h"
 #import "TiExceptionHandler.h"
 #import "APSAnalytics.h"
+#import "TiFileSystemHelper.h"
 
 #ifdef KROLL_COVERAGE
 # include "KrollCoverage.h"
@@ -472,7 +473,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	if (exception != NULL) {
 		id excm = [KrollObject toID:context value:exception];
 		evaluationError = YES;
-		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:[TiUtils scriptErrorValue:excm]];
+        TiScriptError* error = [TiUtils scriptErrorValue:excm];
+        NSInteger lineNb = error.lineNo;
+        error.sourceLine = [[[jcode componentsSeparatedByString:@"\n"] objectAtIndex:lineNb - 1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        
+		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:error];
 	}
 	
 	TiStringRelease(jsCode);
@@ -803,7 +808,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	// Get the relative path to the Resources directory
 	NSString *relativePath = [sourceURL path];
-	relativePath = [relativePath stringByReplacingOccurrencesOfString:[[[NSBundle mainBundle] resourceURL] path] withString:@""];
+    NSString *basePath = [[TiFileSystemHelper resourcesDirectory] stringByStandardizingPath];
+	relativePath = [relativePath stringByReplacingOccurrencesOfString:basePath withString:@""];
 	relativePath = [[relativePath substringFromIndex:1] stringByDeletingLastPathComponent];
 
 	/*
@@ -816,7 +822,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	
 	NSString *filename = [sourceURL lastPathComponent];
     NSString *dirname = [relativePath length] == 0 ? filename : relativePath;
-	NSString *js = [[NSString alloc] initWithFormat:SuccessRadio$ModuleRequireFormat, dirname, filename,code];
+	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, dirname, filename,code];
 
 	/* This most likely should be integrated with normal code flow, but to
 	 * minimize impact until a in-depth reconsideration of KrollContext can be

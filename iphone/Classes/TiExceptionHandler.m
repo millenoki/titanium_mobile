@@ -57,7 +57,9 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)showScriptError:(TiScriptError *)error
 {
-    [[TiApp app] showModalError:[error description]];
+#ifndef TI_DEPLOY_TYPE_PRODUCTION
+    [[TiApp app] showModalError:error];
+#endif
 }
 
 #pragma mark - TiExceptionHandlerDelegate
@@ -80,6 +82,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 @synthesize lineNo = _lineNo;
 @synthesize dictionaryValue = _dictionaryValue;
 @synthesize backtrace = _backtrace;
+@synthesize sourceLine;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo
 {
@@ -114,6 +117,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)dealloc
 {
+    RELEASE_TO_NIL(sourceLine);
     RELEASE_TO_NIL(_message);
     RELEASE_TO_NIL(_sourceURL);
     RELEASE_TO_NIL(_backtrace);
@@ -151,6 +155,11 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     } else {
         return [NSString stringWithFormat:@"%@", self.message];
     }
+}
+
+- (NSString *)scriptLocation
+{
+        return [NSString stringWithFormat:@"%@:%ld:%@", [self.sourceURL lastPathComponent], (long)self.lineNo, [_dictionaryValue valueForKey:@"column"]];
 }
 
 @end

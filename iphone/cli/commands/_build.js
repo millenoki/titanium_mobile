@@ -1449,6 +1449,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 		'copyTitaniumLibraries',
 		'copyItunesArtwork',
+		'copyErrorTemplate',
 		'copyGraphics',
 		'validateExtentions',
 		'invokeXcodeBuildOnExtensionDependencies',
@@ -2464,6 +2465,26 @@ iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork(next) {
 				});
 			}
 		}, this);
+	}
+	next();
+};
+
+iOSBuilder.prototype.copyErrorTemplate = function copyErrorTemplate(next) {
+	// note: iTunesArtwork is a png image WITHOUT the file extension and the
+	// purpose of this function is to copy it from the root of the project.
+	// The preferred location of this file is <project-dir>/Resources/iphone
+	// or <project-dir>/platform/iphone.
+	if (!/dist\-appstore/.test(this.target)) {
+		this.logger.info(__('Copying Error Template'));
+		var dirBase = this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir;
+		var src;
+		if (fs.existsSync(src = path.join(this.projectDir, "_error_template.json")) ||
+			fs.existsSync(src = path.join(this.templatesDir, '_error_template.json'))) {
+			appc.fs.copyFileSync(src, dirBase, {
+				logger: this.logger.debug
+			});
+			this.encryptJS && jsFilesToEncrypt.push('_error_template');
+		}
 	}
 	next();
 };
@@ -3885,7 +3906,8 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 	var contents = [
 			'// Warning: this is generated file. Do not modify!',
 			'',
-			'#define TI_VERSION ' + this.titaniumSdkVersion
+			'#define TI_VERSION ' + this.titaniumSdkVersion,
+			'#define TI_DEPLOY_TYPE_' + this.deployType.toUpperCase()
 		];
 
 	contents = contents.concat(Object.keys(symbols).sort().map(function (s) {

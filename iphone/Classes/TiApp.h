@@ -152,8 +152,9 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
  */
 -(NSString*)remoteDeviceUUID;
 
--(void)showModalError:(NSString*)message;
-
+#ifndef TI_DEPLOY_TYPE_PRODUCTION
+-(void)showModalError:(TiScriptError*)error;
+#endif
 /**
  Tells application to display modal view controller.
  
