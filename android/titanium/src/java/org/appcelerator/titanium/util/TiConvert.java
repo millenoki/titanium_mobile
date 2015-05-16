@@ -385,6 +385,9 @@ public class TiConvert
 	 */
 	public static boolean toBoolean(Object value, boolean def)
 	{
+	    if (value == null) {
+	        return def;
+	    }
 		try {
 			return toBoolean(value);
 		} catch (IllegalArgumentException e) {
