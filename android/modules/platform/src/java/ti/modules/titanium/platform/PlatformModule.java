@@ -28,6 +28,7 @@ import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Build;
 
 @Kroll.module
 public class PlatformModule extends KrollModule
@@ -98,6 +99,11 @@ public class PlatformModule extends KrollModule
 	public String getVersion() {
 		return TiPlatformHelper.getInstance().getVersion();
 	}
+	
+	@Kroll.getProperty @Kroll.method
+    public int getSDKVersion() {
+        return Build.VERSION.SDK_INT;
+    }
 	
 	@Kroll.getProperty @Kroll.method
 	public double getAvailableMemory() {
@@ -327,6 +333,7 @@ public class PlatformModule extends KrollModule
         result.put("dpi", getDisplayCaps().getDpi());
         result.put("density", getDisplayCaps().getDensity());
         result.put("version", getVersion());
+        result.put("SDKVersion", getSDKVersion());
         result.put("ostype", getOstype());
         result.put("name", getName());
         result.put("model", getModel());

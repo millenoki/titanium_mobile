@@ -15,7 +15,7 @@
 
 @implementation PlatformModule
 
-@synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory;
+@synthesize name, model, version, architecture, processorCount, username, ostype, availableMemory, SDKVersion;
 
 #pragma mark Internal
 
@@ -25,7 +25,8 @@
 	{
 		UIDevice *theDevice = [UIDevice currentDevice];
 		name = [[theDevice systemName] retain];
-		version = [[theDevice systemVersion] retain];
+        version = [[theDevice systemVersion] retain];
+        SDKVersion = [@([[version substringToIndex:1] integerValue]) retain];
 		processorCount = [[NSNumber numberWithInt:1] retain];
 		username = [[theDevice name] retain];
 #ifdef __LP64__
@@ -44,58 +45,72 @@
 			// iphone is a constant for Ti.Platform.osname
 			[self replaceValue:@"iphone" forKey:@"osname" notification:NO]; 
 		}
-		
-		NSString *themodel = [theDevice model];
-		
-		// attempt to determine extended phone info
-		struct utsname u;
-		uname(&u);
-		
-		// detect iPhone 3G model
-		if (!strcmp(u.machine, "iPhone1,2")) 
-		{
-			model = [[NSString stringWithFormat:@"%@ 3G",themodel] retain];
-		}
-		// detect iPhone 3Gs model
-		else if (!strcmp(u.machine, "iPhone2,1")) 
-		{
-			model = [[NSString stringWithFormat:@"%@ 3GS",themodel] retain];
-		}
-		// detect iPhone 4 model
-		else if (!strcmp(u.machine, "iPhone3,1")) 
-		{
-			model = [[NSString stringWithFormat:@"%@ 4",themodel] retain];
-		}
-		// detect iPod Touch 2G model
-		else if (!strcmp(u.machine, "iPod2,1")) 
-		{
-			model = [[NSString stringWithFormat:@"%@ 2G",themodel] retain];
-		}
-		// detect iPad 2 model
-		else if (!strcmp(u.machine, "iPad2,1")) 
-		{
-			model = [[NSString stringWithFormat:@"%@ 2",themodel] retain];
-		}
-		// detect simulator for i386
-		else if (!strcmp(u.machine, "i386")) 
-		{
-			model = [@"Simulator" retain];
-		}
-		// detect simulator for x86_64
-		else if (!strcmp(u.machine, "x86_64")) 
-		{
-			model = [@"Simulator" retain];
-		}
-		else 
-		{
-			model = [[NSString alloc] initWithUTF8String:u.machine];
-		}
+        model = [[self deviceName:[theDevice model]] retain];
 		architecture = [[TiUtils currentArchitecture] retain];
 
 		// needed for platform displayCaps orientation to be correct
 		[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 	}
 	return self;
+}
+
+-(NSString*)deviceId {
+    struct utsname systemInfo;
+    
+    uname(&systemInfo);
+    
+    return [NSString stringWithCString:systemInfo.machine
+                              encoding:NSUTF8StringEncoding];
+}
+
+- (NSString*) deviceName:(NSString*)defaultValue
+{
+    NSString* code = [self deviceId];
+    
+    static NSDictionary* deviceNamesByCode = nil;
+    
+    if (!deviceNamesByCode) {
+        
+        deviceNamesByCode = @{
+                              @"iPod1,1"   :@"iPod Touch",      // (Original)
+                              @"iPod2,1"   :@"iPod Touch",      // (Second Generation)
+                              @"iPod3,1"   :@"iPod Touch",      // (Third Generation)
+                              @"iPod4,1"   :@"iPod Touch",      // (Fourth Generation)
+                              @"iPhone1,1" :@"iPhone",          // (Original)
+                              @"iPhone1,2" :@"iPhone",          // (3G)
+                              @"iPhone2,1" :@"iPhone",          // (3GS)
+                              @"iPad1,1"   :@"iPad",            // (Original)
+                              @"iPad2,1"   :@"iPad 2",          //
+                              @"iPad3,1"   :@"iPad",            // (3rd Generation)
+                              @"iPhone3,1" :@"iPhone 4",        // (GSM)
+                              @"iPhone3,3" :@"iPhone 4",        // (CDMA/Verizon/Sprint)
+                              @"iPhone4,1" :@"iPhone 4S",       //
+                              @"iPhone5,1" :@"iPhone 5",        // (model A1428, AT&T/Canada)
+                              @"iPhone5,2" :@"iPhone 5",        // (model A1429, everything else)
+                              @"iPad3,4"   :@"iPad",            // (4th Generation)
+                              @"iPad2,5"   :@"iPad Mini",       // (Original)
+                              @"iPhone5,3" :@"iPhone 5c",       // (model A1456, A1532 | GSM)
+                              @"iPhone5,4" :@"iPhone 5c",       // (model A1507, A1516, A1526 (China), A1529 | Global)
+                              @"iPhone6,1" :@"iPhone 5s",       // (model A1433, A1533 | GSM)
+                              @"iPhone6,2" :@"iPhone 5s",       // (model A1457, A1518, A1528 (China), A1530 | Global)
+                              @"iPhone7,1" :@"iPhone 6 Plus",   //
+                              @"iPhone7,2" :@"iPhone 6",        //
+                              @"iPad4,1"   :@"iPad Air",        // 5th Generation iPad (iPad Air) - Wifi
+                              @"iPad4,2"   :@"iPad Air",        // 5th Generation iPad (iPad Air) - Cellular
+                              @"iPad4,4"   :@"iPad Mini",       // (2nd Generation iPad Mini - Wifi)
+                              @"iPad4,5"   :@"iPad Mini"        // (2nd Generation iPad Mini - Cellular)
+                              };
+    }
+    
+    NSString* deviceName = [deviceNamesByCode objectForKey:code];
+    
+    if (!deviceName) {
+        // Not found on database. At least guess main device type from string contents:
+        
+        return defaultValue;
+    }
+    
+    return deviceName;
 }
 
 -(void)dealloc
@@ -184,9 +199,11 @@
         @"density": [[self displayCaps] density],
         @"retinaSuffix": [[self displayCaps] retinaSuffix],
         @"version": [self version],
+        @"SDKVersion": [self SDKVersion],
         @"name": [self name],
         @"ostype": [self ostype],
         @"model": [self model],
+        @"modelId": [self deviceId],
         @"locale": [self locale],
         @"id": [self id],
         @"densityFactor": [[self displayCaps] logicalDensityFactor],
