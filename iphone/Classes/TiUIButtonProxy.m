@@ -74,6 +74,10 @@
 	return button;
 }
 
+-(UIButton*)button {
+    return [(TiUIButton*)view button];
+}
+
 -(CGFloat) verifyWidth:(CGFloat)suggestedWidth
 {
 	switch((int)styleCache)
