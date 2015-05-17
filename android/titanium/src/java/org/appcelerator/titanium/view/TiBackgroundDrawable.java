@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Path.Direction;
@@ -389,7 +390,11 @@ public class TiBackgroundDrawable extends Drawable {
 
 	@Override
 	public int getOpacity() {
-		return 0;
+	    if (currentDrawable != null) {
+	        return currentDrawable.getOpacity();
+//	        return 255;
+	    }
+		return PixelFormat.OPAQUE;
 	}
 
 	@Override

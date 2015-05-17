@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
@@ -179,7 +180,10 @@ public class OneStateDrawable extends Drawable {
 
 	@Override
 	public int getOpacity() {
-		return 0;
+	    if (alpha == 0 || color == Color.TRANSPARENT) {
+	        return PixelFormat.OPAQUE;
+	    }
+		return alpha;
 	}
 	
 	private void applyAlphaToDrawable (Drawable drawable)
@@ -244,6 +248,10 @@ public class OneStateDrawable extends Drawable {
 		applyAlphaToDrawable(colorDrawable);
 		this.color = color;
 		updateNeedsDrawing();
+	}
+	
+	public boolean hasOnlyColor() {
+	    return imageDrawable == null && gradientDrawable == null;
 	}
 	
 	public int getColor()
