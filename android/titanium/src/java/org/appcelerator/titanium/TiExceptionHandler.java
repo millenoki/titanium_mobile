@@ -150,7 +150,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		
 		((TextView) layout.findViewById(layoutLocationId)).setText("[" + error.line + "," + error.lineOffset + "] " + error.sourceName);
         ((TextView) layout.findViewById(layoutMessageId)).setText(error.message);
-        ((TextView) layout.findViewById(layoutSourceId)).setText(error.lineSource);
+        ((TextView) layout.findViewById(layoutSourceId)).setText(error.lineSource.trim());
         ((TextView) layout.findViewById(layoutCallstackId)).setText(error.callstack);
 
 		OnClickListener clickListener = new OnClickListener()
