@@ -139,7 +139,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			return;
 		}
 		
-		Activity activity = application.getRootOrCurrentActivity();
+		Activity activity = application.getCurrentActivity();
 
 		LinearLayout layout = (LinearLayout) application.getCurrentActivity().getLayoutInflater().inflate(layoutId, null);
 		
