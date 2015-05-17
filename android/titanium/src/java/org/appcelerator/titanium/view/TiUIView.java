@@ -660,24 +660,23 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 int color = TiConvert.toColor(newValue);
                 bgdDrawable.setDefaultColor(color);
                 bgdDrawable.setColorForState(
-                        TiUIHelper.BACKGROUND_DEFAULT_STATE_1, color);
+                        TiUIHelper.BACKGROUND_DEFAULT_STATE_1, newValue);
                 bgdDrawable.setColorForState(
-                        TiUIHelper.BACKGROUND_DEFAULT_STATE_2, color);
+                        TiUIHelper.BACKGROUND_DEFAULT_STATE_2, newValue);
                 break;
             case TiC.PROPERTY_BACKGROUND_SELECTED_COLOR:
                 bgdDrawable.setColorForState(
-                        TiUIHelper.BACKGROUND_SELECTED_STATE,
-                        TiConvert.toColor(newValue));
+                        TiUIHelper.BACKGROUND_SELECTED_STATE,newValue);
                 break;
             case TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR:
                 bgdDrawable.setColorForState(
                         TiUIHelper.BACKGROUND_FOCUSED_STATE,
-                        TiConvert.toColor(newValue));
+                        newValue);
                 break;
             case TiC.PROPERTY_BACKGROUND_DISABLED_COLOR:
                 bgdDrawable.setColorForState(
                         TiUIHelper.BACKGROUND_DISABLED_STATE,
-                        TiConvert.toColor(newValue));
+                        newValue);
                 break;
             case TiC.PROPERTY_BACKGROUND_SELECTED_GRADIENT: {
                 Drawable drawable = TiUIHelper.buildGradientDrawable(TiConvert

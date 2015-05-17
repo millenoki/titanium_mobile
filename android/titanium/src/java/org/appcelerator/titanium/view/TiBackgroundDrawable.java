@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.view;
 
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUIHelper.Shadow;
 
@@ -288,6 +289,15 @@ public class TiBackgroundDrawable extends Drawable {
 		return drawable;
 	}
 	
+	public void removeDrawableForState(int[] stateSet)
+    {
+        int key = keyOfStateSet(stateSet);
+        if (key != -1)
+        {
+            drawables.remove(key);
+        }
+    }
+	
 	public int getColorForState(int[] stateSet)
 	{
 		int result = 0;
@@ -302,6 +312,24 @@ public class TiBackgroundDrawable extends Drawable {
 		getOrCreateDrawableForState(stateSet).setColor(color);
 		invalidateSelf();
 	}
+	
+	public void setColorForState(int[] stateSet, Object color)
+    {
+	    if (color == null) {
+	        int key = keyOfStateSet(stateSet);
+            if (key != -1) {
+                OneStateDrawable drawable = drawables.get(key);
+                if (drawable.hasOnlyColor()) {
+                    drawables.remove(key);
+                } else {
+                    drawables.get(key).setColor(TiConvert.toColor(color));             
+                }
+            }
+	    } else {
+	        getOrCreateDrawableForState(stateSet).setColor(TiConvert.toColor(color));
+	    }
+        invalidateSelf();
+    }
 
 	
 	public void setImageDrawableForState(int[] stateSet, Drawable drawable)
