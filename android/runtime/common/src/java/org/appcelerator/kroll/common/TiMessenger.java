@@ -390,9 +390,14 @@ public class TiMessenger implements Handler.Callback
 		    }
 		    if (obj instanceof CommandNoReturn) {
 		        ((CommandNoReturn) obj).execute();
-		        result.setResult(null);
+		        if (result != null) {
+	                result.setResult(null);
+		        }
 		    } else if (obj instanceof Command) {
-                result.setResult(((Command) obj).execute());
+		        Object theResult = ((Command) obj).execute();
+                if (result != null) {
+                    result.setResult(theResult);
+                }
 		    }
 
 			return true;
