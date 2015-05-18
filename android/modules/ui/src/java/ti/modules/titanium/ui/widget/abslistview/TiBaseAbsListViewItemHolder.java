@@ -57,11 +57,8 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
             this.listView = new WeakReference<StickyListHeadersListViewAbstract>(listView);
             if (item != null) {
               ViewGroup.LayoutParams params = item.getTiLayoutParams();
-              if (params instanceof TiCompositeLayout.LayoutParams) {
-                  TiDimension heightOption = ((TiCompositeLayout.LayoutParams)params).optionHeight;
-                  if (heightOption != null && heightOption.isUnitPercent()) {
-                      hasHeightRelyingOnPercent = true;
-                  }
+              if (params instanceof TiCompositeLayout.LayoutParams && !((TiCompositeLayout.LayoutParams) params).fixedSizeHeight()) {
+                  hasHeightRelyingOnPercent = true;
               }
           }
         } else {
