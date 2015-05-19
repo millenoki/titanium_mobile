@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -25,8 +26,10 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.FreeLayout;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 
+import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorSet;
-
+import com.nineoldandroids.animation.ArgbEvaluator;
+import com.nineoldandroids.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -1190,6 +1193,34 @@ public class TiUILabel extends TiUINonViewGroupView
 	}
 	
 	@Override
+	protected void prepareAnimateProperty(final String key,
+            final Object toValue, final HashMap properties,
+            final View view, final View parentView,
+            List<Animator> list, final boolean needsReverse,
+            List<Animator> listReverse) {
+        switch (key) {
+
+        case TiC.PROPERTY_COLOR: {
+            ObjectAnimator anim = ObjectAnimator.ofInt(this, key,
+                    TiConvert.toColor(toValue));
+            anim.setEvaluator(new ArgbEvaluator());
+            list.add(anim);
+            if (needsReverse) {
+                anim = ObjectAnimator.ofInt(this, key,
+                        TiConvert.toColor(properties, key));
+                anim.setEvaluator(new ArgbEvaluator());
+                listReverse.add(anim);
+            }
+            break;
+        }
+        default: {
+             super.prepareAnimateProperty(key, toValue, properties, view, parentView, list, needsReverse, listReverse);
+             break;
+        }
+        }
+    }
+	
+	@Override
 	protected View getTouchView()
 	{
 		if (tv != null) {
@@ -1210,4 +1241,15 @@ public class TiUILabel extends TiUINonViewGroupView
 			}
 		}
 	}
+	
+	public void setColor(int color) {
+        int currentColor = getColor();
+        if (currentColor != color) {
+            tv.textView.setTextColor(color);
+        }
+    }
+
+    public int getColor() {
+        return color;
+    }
 }
