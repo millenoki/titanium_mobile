@@ -105,6 +105,7 @@ import android.widget.ViewSwitcher;
 	TiC.PROPERTY_TOUCH_PASSTHROUGH,
 	TiC.PROPERTY_CLIP_CHILDREN,
 	TiC.PROPERTY_VIEW_MASK,
+	TiC.PROPERTY_TRANSLATION_Z
 })
 public abstract class TiViewProxy extends AnimatableProxy implements Handler.Callback
 {
