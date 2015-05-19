@@ -155,6 +155,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 @property(readonly,nonatomic)			TiBindingRunLoop primaryBindingRunLoop;
 @property(readonly,nonatomic)			NSArray * bindingRunLoopArray;
 @property(readonly,nonatomic)           BOOL createdFromDictionary;
+@property(readwrite,nonatomic)          BOOL fakeApplyProperties;
 
 /**
  Provides access to proxy delegate.
