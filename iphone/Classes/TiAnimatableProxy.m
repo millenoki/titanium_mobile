@@ -95,7 +95,7 @@
 
 -(void)cancelRunning {
     pthread_rwlock_rdlock(&runningLock);
-    if ([_pendingAnimations count] == 0) {
+    if ([_runningAnimations count] == 0) {
         pthread_rwlock_unlock(&runningLock);
         return;
     }

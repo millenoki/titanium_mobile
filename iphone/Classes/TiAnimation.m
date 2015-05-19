@@ -22,7 +22,7 @@
 @end
 
 @implementation TiAnimation
-@synthesize callback, duration, reverseDuration, repeat, autoreverse, delay, restartFromBeginning, cancelRunningAnimations;
+@synthesize callback, duration, reverseDuration, repeat, autoreverse, delay, restartFromBeginning, cancelRunningAnimations, noDelegate;
 @synthesize curve = _curve, reverseCurve = _reverseCurve;
 @synthesize animation, animatedProxy;
 @synthesize animated, transition, view;
@@ -41,7 +41,7 @@ static NSArray *animProps;
         
         transition = UIViewAnimationTransitionNone;
         animated = NO;
-        
+        noDelegate = NO;
         [super _initWithProperties:properties];
         if (context_!=nil)
         {
@@ -65,6 +65,10 @@ static NSArray *animProps;
 	RELEASE_TO_NIL(_curve);
     self.delegate = nil;
 	[super dealloc];
+}
+
+-(BOOL)shouldBeginFromCurrentState {
+    return ![self valueForKey:@"from"] && (!restartFromBeginning && !cancelRunningAnimations);
 }
 
 -(void)setCallBack:(KrollCallback*)callback_ context:(id<TiEvaluator>)context_
@@ -146,6 +150,46 @@ static NSArray *animProps;
         [reverseProps release];
     }
     return properties;
+}
+
+-(NSDictionary*)propertiesForAnimation:(TiHLSAnimation*)anim destination:(BOOL)destination
+{
+    if (destination) {
+        NSDictionary* result = [self valueForUndefinedKey:@"to"];
+        if (!result) {
+            NSDictionary* from = [self valueForUndefinedKey:@"from"];
+            if (from) {
+                TiProxy* proxy = anim.animatedProxy;
+                result = [[NSMutableDictionary alloc]initWithCapacity:[from count]];
+                for (NSString* key in [from allKeys]) {
+                    id value = [proxy valueForUndefinedKey:key];
+                    if (value) [(NSMutableDictionary*)result setObject:value forKey:key];
+                    else {
+                        [(NSMutableDictionary*)result setObject:[NSNull null] forKey:key];
+                    }
+                }
+            } else {
+                result = [self allProperties];
+            }
+        }
+        return result;
+    } else {
+        NSDictionary* result = [self valueForUndefinedKey:@"from"];
+        if (!result) {
+            result = [anim.animatedProxy allProperties];
+        }
+        return result;
+    }
+}
+
+-(NSDictionary*)fromPropertiesForAnimation:(TiHLSAnimation*)anim
+{
+    return [self propertiesForAnimation:anim destination:anim.isReversed];
+}
+
+-(NSDictionary*)toPropertiesForAnimation:(TiHLSAnimation*)anim
+{
+    return [self propertiesForAnimation:anim destination:!anim.isReversed];
 }
 
 -(void)updateProxyProperties

@@ -112,6 +112,8 @@ enum TiAnimCurve
 @property(nonatomic,assign) BOOL autoreverse;
 @property(nonatomic,assign) BOOL restartFromBeginning;
 @property(nonatomic,assign) BOOL cancelRunningAnimations;
+@property(nonatomic,assign) BOOL noDelegate;
+@property(nonatomic,readonly) BOOL shouldBeginFromCurrentState;
 @property(nonatomic,assign) CGFloat delay;
 @property(nonatomic,assign) CGFloat duration;
 @property(nonatomic,assign) CGFloat reverseDuration;
@@ -135,7 +137,8 @@ enum TiAnimCurve
 +(CAMediaTimingFunction*) timingFunctionForCurve:(int)curve_;
 +(CAMediaTimingFunction*)reverseCurve:(CAMediaTimingFunction*)curve_;
 + (CAMediaTimingFunction *)inverseFunction:(CAMediaTimingFunction*)function;
--(NSDictionary*)propertiesForAnimation:(TiHLSAnimation*)anim;
+-(NSDictionary*)fromPropertiesForAnimation:(TiHLSAnimation*)anim;
+-(NSDictionary*)toPropertiesForAnimation:(TiHLSAnimation*)anim;
 -(void)cancelMyselfBeforeStarting;
 -(void)simulateFinish:(TiAnimatableProxy*)proxy;
 -(void)cancelWithReset:(BOOL)reset;

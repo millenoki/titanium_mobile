@@ -46,12 +46,12 @@
         
         TiViewAnimation *viewAnimation = (TiViewAnimation *)[self objectAnimationForObject:view];
         UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction); //Backwards compatible
-        if (!viewAnimation.animationProxy.restartFromBeginning && !viewAnimation.animationProxy.cancelRunningAnimations) {
+        if (viewAnimation.animationProxy.shouldBeginFromCurrentState) {
             options |= UIViewAnimationOptionBeginFromCurrentState;
         }
         NSTimeInterval animationDuration = self.duration;
         NSAssert(viewAnimation != nil, @"Missing view animation; data consistency failure");
-        [viewAnimation checkParameters];
+//        [viewAnimation checkParameters];
         void (^animation)() = ^{
             if (self.curve) {
                 [CATransaction begin];
@@ -66,10 +66,26 @@
             
         };
         
-        void (^complete)(BOOL) = ^(BOOL finished) {
+        void (^complete)(BOOL) = viewAnimation.animationProxy.noDelegate ? nil : ^(BOOL finished) {
             [self notifyAsynchronousAnimationStepDidStopFinished:finished];
         };
-    
+        
+        NSDictionary* fromProps = [viewAnimation fromProperties];
+        if (fromProps) {
+            TiViewProxy* proxy = viewAnimation.tiViewProxy;
+            [proxy setFakeApplyProperties:YES];
+            [proxy applyProperties:fromProps];
+            [proxy setFakeApplyProperties:NO];
+            [proxy refreshViewOrParent];
+            [view setNeedsDisplay];
+        }
+//        [UIView animateWithDuration:animationDuration
+//                              delay:0
+//             usingSpringWithDamping:0.0f
+//              initialSpringVelocity:0.0f
+//                            options:options
+//                         animations:animation
+//                         completion:complete];
         [UIView animateWithDuration:animationDuration
                               delay:0
                             options:options
