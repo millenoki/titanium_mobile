@@ -323,7 +323,7 @@
 
 -(void)playAnimation:(HLSAnimation*)animation withRepeatCount:(NSUInteger)repeatCount afterDelay:(double)delay
 {
-    TiThreadPerformOnMainThread(^{
+    TiThreadPerformBlockOnMainThread(^{
         [self aboutToBeAnimated];
         [animation playWithRepeatCount:repeatCount afterDelay:delay];
 	}, YES);
