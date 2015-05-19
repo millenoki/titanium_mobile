@@ -35,21 +35,22 @@
             if ([path hasSuffix:@"/"]) {
                 path = [path substringToIndex:path.length - 1];
             }
-            
-            [viewProxy applyProperties:@[@{
-                                         @"location":@{
-                                                 @"text":[error scriptLocation]
-                                                    },
-                                         @"message":@{
-                                                 @"text":[error message]
-                                                 },
-                                         @"source":@{
-                                                 @"text":error.sourceLine
-                                                 },
-                                         @"callstack":@{
-                                                 @"text":[[error backtrace] stringByReplacingOccurrencesOfString:path withString:@""]
-                                                 }
-                                         }, @(YES)]];
+            NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                         @{
+                                           @"text":[error scriptLocation]
+                                           }, @"location",
+                                         @{
+                                           @"text":[error message]
+                                           }, @"message",
+                                         @{
+                                           @"text":[[error backtrace] stringByReplacingOccurrencesOfString:path withString:@""]
+                                           }, @"callstack", nil];
+            if (error.sourceLine) {
+                [dict setObject:@{
+                                 @"text":error.sourceLine
+                                 } forKey:@"source"];
+            }
+            [viewProxy applyProperties:@[dict, @(YES)]];
         }
         
 	}
