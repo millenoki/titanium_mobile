@@ -173,7 +173,7 @@
     BOOL wait = NO;
     if (IS_OF_CLASS(args, NSDictionary)) {
         data = args;
-    } else {
+    } else if (args){
         NSNumber* waitArg = nil;
         ENSURE_ARG_AT_INDEX(data, args, 0, NSObject);
         ENSURE_ARG_OR_NIL_AT_INDEX(waitArg, args, 1, NSNumber);
@@ -185,7 +185,7 @@
     
     TiThreadPerformBlockOnMainThread(^{
         [self configurationStart];
-        [super applyProperties:@[data]];
+        [super applyProperties:data?@[data]:nil];
         [self configurationSet];
         [self refreshViewOrParent];
     }, wait);
