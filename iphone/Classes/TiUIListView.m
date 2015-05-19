@@ -32,6 +32,7 @@
 @interface TiUIListView ()
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
 @property (nonatomic,copy,readwrite) NSString * searchString;
+@property (nonatomic, strong) NSMutableSet *shownIndexes;
 @end
 
 @interface TiUIListSectionProxy()
@@ -90,6 +91,8 @@
     
     BOOL _canSwipeCells;
     MGSwipeTableCell * _currentSwipeCell;
+    id _appearAnimation;
+    CGFloat _appearAnimationDuration;
 }
 
 static NSDictionary* replaceKeysForRow;
@@ -133,6 +136,8 @@ static NSDictionary* replaceKeysForRow;
         caseInsensitiveSearch = YES;
 		canFireScrollEnd = NO;
         canFireScrollStart = YES;
+        _appearAnimationDuration = -1;
+        _appearAnimation = nil;
     }
     return self;
 }
@@ -226,6 +231,7 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)reloadTableViewData {
     _canSwipeCells = NO;
+    [_shownIndexes removeAllObjects];
     [_tableView reloadData];
 }
 
@@ -1007,6 +1013,26 @@ static NSDictionary* replaceKeysForRow;
     hasOnDisplayCell = [callback isKindOfClass:[KrollCallback class]] || [callback isKindOfClass:[KrollWrapper class]];
 }
 
+
+-(void)setAppearAnimation_:(id)value
+{
+    RELEASE_TO_NIL(_appearAnimation)
+    if (IS_OF_CLASS(TiAnimation, value)) {
+        _appearAnimation = [value retain];
+    } else {
+        ENSURE_SINGLE_ARG(value, NSDictionary);
+        _appearAnimation = [value retain];
+    }
+    if (!_shownIndexes) {
+        _shownIndexes = [[NSMutableSet set] retain];
+    }
+}
+
+-(void)setAppearAnimationDuration_:(id)value
+{
+    _appearAnimationDuration = [TiUtils floatValue:value];
+}
+
 #pragma mark - Search Support
 
 -(TiSearchDisplayController*) searchController
@@ -1727,6 +1753,9 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (searchActive || (tableView != _tableView)) {
+        return;
+    }
     if (hasOnDisplayCell) {
         TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
         NSDictionary *item = [section itemAtIndex:indexPath.row];
@@ -1741,8 +1770,17 @@ static NSDictionary* replaceKeysForRow;
         };
         [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
     }
-    if (searchActive || (tableView != _tableView)) {
-        return;
+    if (_shownIndexes && ![self.shownIndexes containsObject:indexPath]) {
+        [self.shownIndexes addObject:indexPath];
+        if (_appearAnimation) {
+            TiViewProxy* proxy = ((TiUIListItem*)cell).proxy;
+            TiAnimation * newAnimation = [TiAnimation animationFromArg:_appearAnimation context:[proxy executionContext] create:NO];
+            newAnimation.noDelegate = YES;
+            if (_appearAnimationDuration >= 0) {
+                newAnimation.duration = _appearAnimationDuration;
+            }
+            [proxy handleAnimation:newAnimation];
+        }
     }
     //Tell the proxy about the cell to be displayed
     [self.listViewProxy willDisplayCell:indexPath];

@@ -194,11 +194,16 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(void)setValue:(id)value forKey:(NSString *)key
 {
-    if ([self shouldUpdateValue:value forKeyPath:key]) {
-        [self recordChangeValue:value forKeyPath:key withBlock:^{
-            [super setValue:value forKey:key];
-        }];
+    if (self.fakeApplyProperties) {
+        [super setValue:value forKey:key];
+    } else {
+        if ([self shouldUpdateValue:value forKeyPath:key]) {
+            [self recordChangeValue:value forKeyPath:key withBlock:^{
+                [super setValue:value forKey:key];
+            }];
+        }
     }
+    
 }
 
 -(void)setValue:(id)value forKeyPath:(NSString *)keyPath
