@@ -176,7 +176,21 @@ static NSArray *animProps;
     } else {
         NSDictionary* result = [self valueForUndefinedKey:@"from"];
         if (!result) {
-            result = [anim.animatedProxy allProperties];
+            if (anim.isReversed) {
+                id<NSFastEnumeration> keys = [self allKeys];
+                NSMutableDictionary* reverseProps = [[NSMutableDictionary alloc]initWithCapacity:[(NSArray*)keys count]];
+                for (NSString* key in keys) {
+                    id value = [anim.animatedProxy valueForUndefinedKey:key];
+                    if (value) [reverseProps setObject:value forKey:key];
+                    else {
+                        [reverseProps setObject:[NSNull null] forKey:key];
+                    }
+                }
+                result = [NSDictionary dictionaryWithDictionary:reverseProps];
+                [reverseProps release];
+            } else {
+                result = [anim.animatedProxy allProperties];
+            }
         }
         return result;
     }
