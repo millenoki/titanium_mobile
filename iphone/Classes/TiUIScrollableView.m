@@ -507,7 +507,8 @@
     
     if (needsToRefreshScrollView)
     {
-        [self manageCache:[self currentPage]];
+        [self refreshScrollView:NO];
+//        [self manageCache:[self currentPage]];
     }
 }
 
