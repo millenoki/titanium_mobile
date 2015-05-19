@@ -16,13 +16,10 @@ import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
-import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;

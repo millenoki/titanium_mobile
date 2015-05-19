@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-import org.appcelerator.titanium.util.TiColorHelper;
-
 public class ColorArt {
     private final double COLOR_THRESHOLD_MINIMUM_PERCENTAGE = 0.01;
     private final double EDGE_COLOR_DISCARD_THRESHOLD = 0.3;

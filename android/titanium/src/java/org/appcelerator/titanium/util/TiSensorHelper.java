@@ -72,6 +72,7 @@ public class TiSensorHelper
 		SensorManager sensorManager = getSensorManager();
 		if (sensorManager == null) {
 			Log.w(TAG, "UnregisterListener failed, no sensor manager found.", Log.DEBUG_MODE);
+			return;
 		}
 
 		Sensor sensor = sensorManager.getDefaultSensor(type);

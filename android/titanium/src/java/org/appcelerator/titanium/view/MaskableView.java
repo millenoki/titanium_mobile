@@ -1,6 +1,7 @@
 package org.appcelerator.titanium.view;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -374,10 +375,10 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
     private void removeObserverForView(final View view) {
         final ViewTreeObserver treeObserver = view.getViewTreeObserver();
         if (treeObserver != null && treeObserver.isAlive()) {
-            if (Build.VERSION.SDK_INT < 16) {
-                treeObserver.removeGlobalOnLayoutListener(this);
-            } else {
+            if (TiC.JELLY_BEAN_OR_GREATER) {
                 treeObserver.removeOnGlobalLayoutListener(this);
+            } else {
+                treeObserver.removeGlobalOnLayoutListener(this);
             }
         }
     }

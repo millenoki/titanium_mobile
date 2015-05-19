@@ -21,7 +21,6 @@ import com.nineoldandroids.animation.Animator.AnimatorListener;
 import android.annotation.SuppressLint;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
 
 @SuppressLint("NewApi")
 public class TransitionHelper {
@@ -59,13 +58,13 @@ public class TransitionHelper {
 	}
 	
 	
-	private static Interpolator stepsInterpolator(final int numSteps) {
-		return new Interpolator() {
-	        public float getInterpolation(float time) {
-	            return time/numSteps;
-	       }
-		};
-    }
+//	private static Interpolator stepsInterpolator(final int numSteps) {
+//		return new Interpolator() {
+//	        public float getInterpolation(float time) {
+//	            return time/numSteps;
+//	       }
+//		};
+//    }
 	
 	public static Transition transitionForType(int type, int subtype, boolean isOut,
 			int duration) {

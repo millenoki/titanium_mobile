@@ -17,7 +17,7 @@ import com.nineoldandroids.view.ViewHelper;
 public class TransitionCube extends Transition {
 	private static final float translation = 1.0f;
 	private static final float angle = 90f;
-	private static final float scale = 0.5f;
+//	private static final float scale = 0.5f;
 	
 	
 	private int nbFaces = 4;

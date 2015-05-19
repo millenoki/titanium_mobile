@@ -46,7 +46,6 @@ import android.widget.ImageView;
         TiC.PROPERTY_ICON })
 public class ActionBarProxy extends AnimatableReusableProxy {
     private static final boolean JELLY_BEAN_MR1_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1);
-    private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 
     private static final String TAG = "ActionBarProxy";
 
@@ -337,10 +336,6 @@ public class ActionBarProxy extends AnimatableReusableProxy {
     private void resetTitleEnabled() {
         actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
         actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
-    }
-
-    private Drawable getDrawable(Object value) {
-        return TiUIHelper.getResourceDrawable(value);
     }
 
     private static final ArrayList<String> KEY_SEQUENCE;

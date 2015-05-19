@@ -19,7 +19,6 @@ import android.text.style.ReplacementSpan;
 import android.text.style.URLSpan;
 
 public class TiHtml {
-	private static final String TAG = "TiHtml";
 
 	public static class RoundedRectDrawable extends ShapeDrawable {
 	    private final Paint fillpaint, strokepaint;

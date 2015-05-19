@@ -761,15 +761,15 @@ public abstract class TiApplication extends Application implements
         KrollRuntime.setPrimaryExceptionHandler(new TiExceptionHandler());
     }
 
-    private File getRemoteCacheDir() {
-        File cacheDir = new File(tempFileHelper.getTempDirectory(),
-                "remote-cache");
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs();
-            tempFileHelper.excludeFileOnCleanup(cacheDir);
-        }
-        return cacheDir.getAbsoluteFile();
-    }
+//    private File getRemoteCacheDir() {
+//        File cacheDir = new File(tempFileHelper.getTempDirectory(),
+//                "remote-cache");
+//        if (!cacheDir.exists()) {
+//            cacheDir.mkdirs();
+//            tempFileHelper.excludeFileOnCleanup(cacheDir);
+//        }
+//        return cacheDir.getAbsoluteFile();
+//    }
 
     public void setRootActivity(TiRootActivity rootActivity) {
         this.rootActivity = new WeakReference<TiRootActivity>(rootActivity);
@@ -1300,7 +1300,7 @@ public abstract class TiApplication extends Application implements
     }
     
     
-    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+//    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     /**
      * Check the device to make sure it has the Google Play Services APK. If
      * it doesn't, display a dialog that allows users to download the APK from

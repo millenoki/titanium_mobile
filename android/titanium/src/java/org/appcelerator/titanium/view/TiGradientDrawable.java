@@ -78,13 +78,13 @@ public class TiGradientDrawable extends ShapeDrawable {
 		if (properties.containsKey("tileMode")) {
 			String mode = TiConvert.toString(properties, "tileMode");
 			if (mode.equalsIgnoreCase("repeat")){
-				tileMode = tileMode.REPEAT;
+				tileMode = TileMode.REPEAT;
 			}
 			else if(mode.equalsIgnoreCase("mirror")){
-				tileMode = tileMode.MIRROR;
+				tileMode = TileMode.MIRROR;
 			}
 			else {
-				tileMode = tileMode.CLAMP;
+				tileMode = TileMode.CLAMP;
 			}
 		}
 

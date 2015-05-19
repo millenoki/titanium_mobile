@@ -17,9 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.SoftReference;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,8 +35,6 @@ import org.appcelerator.titanium.TiApplication;
 
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
-import com.trevorpage.tpsvg.SVGDrawable;
-import com.trevorpage.tpsvg.SVGFlyweightFactory;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -82,14 +77,14 @@ public class TiFileHelper implements Handler.Callback
 	private static HashSet<String> notFoundResourcePathCache;
 	private static TiFileHelper _instance = null;
 
-	private static Resources RESOURCES = null;
-	
-	private static Resources getResources() {
-        if (RESOURCES == null) {
-            RESOURCES = TiApplication.getInstance().getResources();
-        }
-        return RESOURCES;
-    }
+//	private static Resources RESOURCES = null;
+//	
+//	private static Resources getResources() {
+//        if (RESOURCES == null) {
+//            RESOURCES = TiApplication.getInstance().getResources();
+//        }
+//        return RESOURCES;
+//    }
 
 	public TiFileHelper(Context context)
 	{
@@ -474,20 +469,20 @@ public class TiFileHelper implements Handler.Callback
 		return getInstance().loadDrawable(path, false, true, false);
 	}
 	
-	private Drawable getDrawableFromStream(String path, InputStream is) 
-	{
-		if (path.endsWith(".svg")) {
-			return new SVGDrawable(SVGFlyweightFactory.getInstance().get(is, path, TiApplication.getInstance().getCurrentActivity()));
-		}
-		else if (path.contains(".9.")) {
-			Bitmap b = TiUIHelper.createBitmap(is);
-			return nph.process(b);
-		}
-		else {
-            Bitmap b = TiUIHelper.createBitmap(is);
-            return new BitmapDrawable(getResources(), b);
-        }
-	}
+//	private Drawable getDrawableFromStream(String path, InputStream is) 
+//	{
+//		if (path.endsWith(".svg")) {
+//			return new SVGDrawable(SVGFlyweightFactory.getInstance().get(is, path, TiApplication.getInstance().getCurrentActivity()));
+//		}
+//		else if (path.contains(".9.")) {
+//			Bitmap b = TiUIHelper.createBitmap(is);
+//			return nph.process(b);
+//		}
+//		else {
+//            Bitmap b = TiUIHelper.createBitmap(is);
+//            return new BitmapDrawable(getResources(), b);
+//        }
+//	}
 
 	/**
 	 * This method creates a Drawable given the bitmap's path, and converts it to a NinePatch Drawable

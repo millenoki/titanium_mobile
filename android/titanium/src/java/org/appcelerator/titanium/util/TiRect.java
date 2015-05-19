@@ -5,7 +5,6 @@ import java.util.HashMap;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 
-import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.RectF;
 

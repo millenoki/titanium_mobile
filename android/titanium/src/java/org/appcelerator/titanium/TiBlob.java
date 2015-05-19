@@ -402,8 +402,8 @@ public class TiBlob extends KrollProxy
 		switch(type) {
 			case TYPE_STRING :
 				try {
-					String dataString = (String)data;
-					dataString += new String(blob.getBytes(), "utf-8");
+//					String dataString = (String)data;
+					data = (String)data + new String(blob.getBytes(), "utf-8");
 				} catch (UnsupportedEncodingException e) {
 					Log.w(TAG, e.getMessage(), e);
 				}

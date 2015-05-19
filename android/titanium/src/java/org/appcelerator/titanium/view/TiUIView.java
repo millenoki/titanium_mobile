@@ -93,9 +93,8 @@ import android.widget.AdapterView;
  * TiViewProxy. A TiUIView is responsible for creating and maintaining a native
  * Android View instance.
  */
-@SuppressWarnings("deprecation")
 public abstract class TiUIView implements KrollProxyReusableListener,
-        OnFocusChangeListener, Handler.Callback, OnTouchListener {
+        OnFocusChangeListener, Handler.Callback, OnTouchListener, TiBackgroundDrawableDelegate {
 
     private static final String TAG = "TiUIView";
 

@@ -1,7 +1,6 @@
 package org.appcelerator.titanium.transition;
 
 import org.appcelerator.titanium.animation.AlphaProperty;
-import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.view.View;
 

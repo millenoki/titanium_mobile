@@ -15,9 +15,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -34,7 +31,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiViewEventOverrideDelegate;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.util.TiActivityHelper;
@@ -1439,15 +1435,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     public boolean shouldFireChange(Object oldValue, Object newValue) {
-        if (!(oldValue == null && newValue == null)) {
-            if ((oldValue == null && newValue != null)
-                    || (newValue == null && oldValue != null)
-                    || (!oldValue.equals(newValue))) {
-                return true;
-            }
-        }
-
-        return false;
+        return (oldValue != null || newValue != null) && 
+                ((oldValue == null || newValue == null) || (!oldValue.equals(newValue)));
     }
 
     /**

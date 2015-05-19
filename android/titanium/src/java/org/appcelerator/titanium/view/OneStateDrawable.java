@@ -2,7 +2,6 @@ package org.appcelerator.titanium.view;
 
 import java.util.WeakHashMap;
 
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUIHelper.Shadow;
 
@@ -27,9 +26,6 @@ import android.util.Pair;
 public class OneStateDrawable extends Drawable {
 	
 	
-//	private static final boolean ICE_CREAM_OR_GREATER = (Build.VERSION.SDK_INT >= 14);
-	private static final String TAG = "OneStateDrawable";
-    public static final int DENSITY_NONE = 0;
 	private Rect bounds = new Rect();
 	
 	private static WeakHashMap<String, Pair<Canvas, Bitmap>> canvasStore;

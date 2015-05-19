@@ -36,7 +36,7 @@ public class ServiceProxy extends KrollProxy {
     public static final String EVENT_STARTED = "started";
     protected Service service = null;
     protected TiServiceInterface tiService = null;
-    private boolean forBoundServices;
+//    private boolean forBoundServices;
 
     // private Service service;
     private int serviceInstanceId;
@@ -68,7 +68,7 @@ public class ServiceProxy extends KrollProxy {
      */
     public ServiceProxy(IntentProxy intentProxy) {
         setIntent(intentProxy);
-        forBoundServices = true;
+//        forBoundServices = true;
     }
 
     /**
@@ -215,7 +215,7 @@ public class ServiceProxy extends KrollProxy {
 
     protected void bindAndInvokeService() {
         Context context = TiApplication.getInstance();
-        String className = serviceClass().toString();
+//        String className = serviceClass().toString();
         boolean alreadStarted = isServiceRunning();
         Intent intent = getIntent().getIntent();
         if (!alreadStarted) {

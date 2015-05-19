@@ -118,7 +118,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private boolean fullscreen = false;
 	private boolean defaultFullscreen = false;
 	private boolean navBarHidden = false;
-	private boolean defaultNavBarHidden = false;
+//	private boolean defaultNavBarHidden = false;
 	private int defaultSoftInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN |  WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
 	private int softInputMode = defaultSoftInputMode;
 	private boolean mReadyToQueryActionBar = false;
@@ -624,7 +624,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected void windowCreated(Bundle savedInstanceState)
 	{
 		defaultFullscreen = fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
-		defaultNavBarHidden = navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
+//		defaultNavBarHidden = navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
+		navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
 		softInputMode = getIntentInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, defaultSoftInputMode);
 		boolean hasSoftInputMode = softInputMode != -1;
@@ -1837,7 +1838,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	
 	@Override
 	protected Dialog onCreateDialog (int id, Bundle args) {
-		Log.d(TAG, "onCreateDialog");
 		TiApplication.getInstance().cancelPauseEvent();
 		return super.onCreateDialog(id, args);
 	}

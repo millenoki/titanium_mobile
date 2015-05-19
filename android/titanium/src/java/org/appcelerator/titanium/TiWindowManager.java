@@ -1,6 +1,5 @@
 package org.appcelerator.titanium;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 

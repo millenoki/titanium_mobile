@@ -78,7 +78,6 @@ public class TiDrawableReference
 	}
 
 	private static final String TAG = "TiDrawableReference";
-	private static final String FILE_PREFIX = "file://";
 	private static final int UNKNOWN = -1;
 	private static final int DEFAULT_SAMPLE_SIZE = 1;
 	private int resourceId = UNKNOWN;
@@ -538,7 +537,6 @@ public class TiDrawableReference
 	 * Gets a resource drawable directly if the reference is to a resource, else
 	 * makes a BitmapDrawable with the given attributes.
 	 */
-	@SuppressWarnings("deprecation")
 	public Drawable getDrawable(View parent, TiDimension destWidthDimension, TiDimension destHeightDimension)
 	{
 		Drawable drawable = getResourceDrawable();
@@ -891,7 +889,7 @@ public class TiDrawableReference
 				Log.e(TAG, "Problem closing stream: " + e.getMessage(), e);
 			}
 		}
-		if (Log.isDebugModeEnabled()) {
+		if (Log.isDebugModeEnabled() && b != null) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Details of returned bitmap: .getWidth()=" + b.getWidth());
 			sb.append("; getHeight()=" + b.getHeight());
@@ -1062,7 +1060,6 @@ public class TiDrawableReference
 	public int getOrientation()
 	{
 		String path = null;
-		int orientation = 0;
 
 		if (isTypeBlob() && blob != null) {
 			path = blob.getNativePath();

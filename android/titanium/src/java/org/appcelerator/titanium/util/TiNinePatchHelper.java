@@ -17,7 +17,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 
-@SuppressWarnings("deprecation")
 public class TiNinePatchHelper
 {
 

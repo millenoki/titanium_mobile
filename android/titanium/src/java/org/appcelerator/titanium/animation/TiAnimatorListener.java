@@ -53,18 +53,18 @@ public class TiAnimatorListener implements AnimatorListener {
         super();
     }
 
-    private void restartAnimatorSet() {
-        // start repeat without reverse
-        if (this.animationProxy != null) {
-            this.animationProxy.fireEvent(TiC.EVENT_REPEAT, null);
-        }
-        synchronized (tiSet) {
-            tiSet.currentRepeatCount = tiSet.currentRepeatCount - 1;
-            tiSet.resetReverseSet();
-            tiSet.set().start();
-        }
-
-    }
+//    private void restartAnimatorSet() {
+//        // start repeat without reverse
+//        if (this.animationProxy != null) {
+//            this.animationProxy.fireEvent(TiC.EVENT_REPEAT, null);
+//        }
+//        synchronized (tiSet) {
+//            tiSet.currentRepeatCount = tiSet.currentRepeatCount - 1;
+//            tiSet.resetReverseSet();
+//            tiSet.set().start();
+//        }
+//
+//    }
 
     public void onAnimationEnd(Animator animation) {
         if (tiSet == null) {

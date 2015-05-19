@@ -10,7 +10,6 @@ import java.util.HashMap;
 
 import org.appcelerator.titanium.util.TiConvert;
 
-import android.content.Context;
 import android.graphics.Point;
 import android.graphics.PointF;
 

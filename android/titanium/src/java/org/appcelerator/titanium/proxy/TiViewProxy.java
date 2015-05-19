@@ -124,9 +124,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	private static final int MSG_GETRECT = MSG_FIRST_ID + 111;
 	private static final int MSG_GETABSRECT = MSG_FIRST_ID + 113;
 	private static final int MSG_QUEUED_ANIMATE = MSG_FIRST_ID + 114;
-//	private static final int MSG_TRANSITION_VIEWS = MSG_FIRST_ID + 115;
 	private static final int MSG_BLUR_BACKGROUND = MSG_FIRST_ID + 116;
-	private static final int MSG_INSERT_VIEW_AT = MSG_FIRST_ID + 117;
 	private static final int MSG_HIDE_KEYBOARD = MSG_FIRST_ID + 118;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
@@ -1162,7 +1160,8 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		return true;
 	}
 	
-	private void handleTransitionViews(final TiViewProxy viewOut, final TiViewProxy viewIn, Object arg) {
+	@SuppressWarnings("null")
+    private void handleTransitionViews(final TiViewProxy viewOut, final TiViewProxy viewIn, Object arg) {
 		
 	    boolean viewOutIsNotChild = false;
         if (viewOut != null && children != null) {
@@ -1182,7 +1181,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 		if (viewToAddTo != null) {
 			if (viewIn!=null) viewIn.setActivity(getActivity());
-			final View viewToAdd = (viewIn!=null)?viewIn.getOrCreateView().getOuterView():null;
+			final View viewToAdd = (viewIn != null) ? viewIn.getOrCreateView().getOuterView() : null;
 			if (viewToAdd!=null) {
 				viewToAdd.setVisibility(View.GONE);
 				TiUIHelper.addView(viewToAddTo, viewToAdd, viewIn.peekView().getLayoutParams()); //make sure it s removed from its parent

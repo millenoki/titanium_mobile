@@ -19,6 +19,7 @@ package org.michaelevans.colorart.library;
 import java.util.HashMap;
 import java.util.Iterator;
 
+@SuppressWarnings("serial")
 public class HashBag<K> extends HashMap<K, Integer> {
 
     public HashBag() {

@@ -711,80 +711,80 @@ public class TiCompositeLayout extends FreeLayout implements
 	// Try to calculate width from pins, if we couldn't calculate from pins or
 	// we don't need to, then return the
 	// measured width
-	private int calculateWidthFromPins(LayoutParams params, int parentLeft,
-			int parentRight, int parentWidth, int measuredWidth, boolean canResizeFill) {
-		if (params.fullscreen) {
-			return measuredWidth;
-		}
-		int width = measuredWidth;
-
-		if (params.optionWidth != null || params.sizeOrFillWidthEnabled) {
-			if (canResizeFill && params.sizeOrFillWidthEnabled && params.autoFillsWidth) {
-				return parentWidth - getLayoutOptionAsPixels(params.optionRight, TiDimension.TYPE_RIGHT, params, this) -
-						getLayoutOptionAsPixels(params.optionLeft, TiDimension.TYPE_LEFT , params, this);
-			}
-			else 
-				return width;
-		}
-
-		TiDimension left = params.optionLeft;
-		TiDimension centerX = params.optionCenterX;
-		TiDimension right = params.optionRight;
-
-		if (left != null) {
-			if (centerX != null) {
-				width = (getLayoutOptionAsPixels(centerX, TiDimension.TYPE_CENTER_X, params, this) -
-						getLayoutOptionAsPixels(left, TiDimension.TYPE_LEFT, params, this) - parentLeft) * 2;
-			} else if (right != null) {
-				width = parentWidth - getLayoutOptionAsPixels(right, TiDimension.TYPE_RIGHT, params, this) -
-						getLayoutOptionAsPixels(left, TiDimension.TYPE_LEFT, params, this);
-			}
-		} else if (centerX != null && right != null) {
-			width =  (parentRight - getLayoutOptionAsPixels(right, TiDimension.TYPE_RIGHT, params, this) -
-					getLayoutOptionAsPixels(centerX, TiDimension.TYPE_CENTER_X , params, this)) * 2;
-		}
-		return width;
-	}
+//	private int calculateWidthFromPins(LayoutParams params, int parentLeft,
+//			int parentRight, int parentWidth, int measuredWidth, boolean canResizeFill) {
+//		if (params.fullscreen) {
+//			return measuredWidth;
+//		}
+//		int width = measuredWidth;
+//
+//		if (params.optionWidth != null || params.sizeOrFillWidthEnabled) {
+//			if (canResizeFill && params.sizeOrFillWidthEnabled && params.autoFillsWidth) {
+//				return parentWidth - getLayoutOptionAsPixels(params.optionRight, TiDimension.TYPE_RIGHT, params, this) -
+//						getLayoutOptionAsPixels(params.optionLeft, TiDimension.TYPE_LEFT , params, this);
+//			}
+//			else 
+//				return width;
+//		}
+//
+//		TiDimension left = params.optionLeft;
+//		TiDimension centerX = params.optionCenterX;
+//		TiDimension right = params.optionRight;
+//
+//		if (left != null) {
+//			if (centerX != null) {
+//				width = (getLayoutOptionAsPixels(centerX, TiDimension.TYPE_CENTER_X, params, this) -
+//						getLayoutOptionAsPixels(left, TiDimension.TYPE_LEFT, params, this) - parentLeft) * 2;
+//			} else if (right != null) {
+//				width = parentWidth - getLayoutOptionAsPixels(right, TiDimension.TYPE_RIGHT, params, this) -
+//						getLayoutOptionAsPixels(left, TiDimension.TYPE_LEFT, params, this);
+//			}
+//		} else if (centerX != null && right != null) {
+//			width =  (parentRight - getLayoutOptionAsPixels(right, TiDimension.TYPE_RIGHT, params, this) -
+//					getLayoutOptionAsPixels(centerX, TiDimension.TYPE_CENTER_X , params, this)) * 2;
+//		}
+//		return width;
+//	}
 
 	// Try to calculate height from pins, if we couldn't calculate from pins or
 	// we don't need to, then return the
 	// measured height
-	private int calculateHeightFromPins(LayoutParams params, int parentTop,
-			int parentBottom, int parentHeight, int measuredHeight, boolean canResizeFill) {
-		if (params.fullscreen) {
-			return measuredHeight;
-		}
-		int height = measuredHeight;
-
-		// Return if we don't need undefined behavior
-		if (params.optionHeight != null || params.sizeOrFillHeightEnabled) {
-			if (canResizeFill && params.sizeOrFillHeightEnabled && params.autoFillsHeight) {
-				return parentHeight - getLayoutOptionAsPixels(params.optionTop, TiDimension.TYPE_TOP, params, this) -
-						getLayoutOptionAsPixels(params.optionBottom, TiDimension.TYPE_BOTTOM , params, this);
-			}
-			else 
-				return height;
-		}
-
-		TiDimension top = params.optionTop;
-		TiDimension centerY = params.optionCenterY;
-		TiDimension bottom = params.optionBottom;
-
-		if (top != null) {
-			if (centerY != null) {
-				height = (getLayoutOptionAsPixels(centerY, TiDimension.TYPE_CENTER_Y, params, this) -
-						getLayoutOptionAsPixels(top, TiDimension.TYPE_TOP, params, this) - parentTop) * 2;
-			} else if (bottom != null) {
-				height = parentHeight - getLayoutOptionAsPixels(top, TiDimension.TYPE_TOP, params, this) -
-						getLayoutOptionAsPixels(bottom, TiDimension.TYPE_BOTTOM,  params, this);
-			}
-		} else if (centerY != null && bottom != null) {
-			height =  (parentBottom - getLayoutOptionAsPixels(bottom, TiDimension.TYPE_BOTTOM, params, this) -
-					getLayoutOptionAsPixels(centerY, TiDimension.TYPE_CENTER_Y , params, this)) * 2;
-		}
-
-		return height;
-	}
+//	private int calculateHeightFromPins(LayoutParams params, int parentTop,
+//			int parentBottom, int parentHeight, int measuredHeight, boolean canResizeFill) {
+//		if (params.fullscreen) {
+//			return measuredHeight;
+//		}
+//		int height = measuredHeight;
+//
+//		// Return if we don't need undefined behavior
+//		if (params.optionHeight != null || params.sizeOrFillHeightEnabled) {
+//			if (canResizeFill && params.sizeOrFillHeightEnabled && params.autoFillsHeight) {
+//				return parentHeight - getLayoutOptionAsPixels(params.optionTop, TiDimension.TYPE_TOP, params, this) -
+//						getLayoutOptionAsPixels(params.optionBottom, TiDimension.TYPE_BOTTOM , params, this);
+//			}
+//			else 
+//				return height;
+//		}
+//
+//		TiDimension top = params.optionTop;
+//		TiDimension centerY = params.optionCenterY;
+//		TiDimension bottom = params.optionBottom;
+//
+//		if (top != null) {
+//			if (centerY != null) {
+//				height = (getLayoutOptionAsPixels(centerY, TiDimension.TYPE_CENTER_Y, params, this) -
+//						getLayoutOptionAsPixels(top, TiDimension.TYPE_TOP, params, this) - parentTop) * 2;
+//			} else if (bottom != null) {
+//				height = parentHeight - getLayoutOptionAsPixels(top, TiDimension.TYPE_TOP, params, this) -
+//						getLayoutOptionAsPixels(bottom, TiDimension.TYPE_BOTTOM,  params, this);
+//			}
+//		} else if (centerY != null && bottom != null) {
+//			height =  (parentBottom - getLayoutOptionAsPixels(bottom, TiDimension.TYPE_BOTTOM, params, this) -
+//					getLayoutOptionAsPixels(centerY, TiDimension.TYPE_CENTER_Y , params, this)) * 2;
+//		}
+//
+//		return height;
+//	}
 	
 	protected static int getMeasuredWidthStatic(int maxWidth, int widthSpec) {
         return resolveSize(maxWidth, widthSpec);
@@ -1515,4 +1515,10 @@ public class TiCompositeLayout extends FreeLayout implements
 		}
 		needsSort = value;
 	}
+	
+	@Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        invalidateOutline();
+    }
 }

@@ -220,7 +220,7 @@ public class TiViewGestureHandler {
     }
     
     private final class OnScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
-        private float lastFocusX;
+//        private float lastFocusX;
 //      private float lastFocusY;
 
 //      private float firstFocusX;
@@ -321,7 +321,7 @@ public class TiViewGestureHandler {
             break;
         }
         case ACTION_MOVE: {
-            MoveGestureDetector detector = (MoveGestureDetector) theDetector;
+//            MoveGestureDetector detector = (MoveGestureDetector) theDetector;
             key = TiC.EVENT_PAN;
             break;
         }
