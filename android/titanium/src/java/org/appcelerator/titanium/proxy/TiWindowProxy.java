@@ -572,7 +572,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	    {
 	       ActivityProxy activityProxy = super.getActivityProxy();
 	       if (activityProxy != null) {
-	           activityProxy.getActionBar();
+	           return activityProxy.getActionBar();
 	       }
 	       return null;
 	    }
