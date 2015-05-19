@@ -248,21 +248,21 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 				if (itemContent == null) {
 				    return content;
 				}
-				setBoundsForBaseItem(itemContent);
 				boolean reusing = sectionIndex != itemContent.sectionIndex || 
 						itemContent.itemIndex >= section.getItemCount() || 
 						item != section.getListItem(itemContent.itemIndex);
 				section.populateViews(item, itemContent, template, sectionItemIndex, sectionIndex, content, reusing);
+                setBoundsForBaseItem(itemContent);
 			} else {
 				content = new TiBaseAbsListViewItemHolder(getContext());
 				content.setTag(itemViewType);
 				itemContent = (TiBaseAbsListViewItem) content.findViewById(listContentId);
-				setBoundsForBaseItem(itemContent);
 
 				AbsListItemProxy itemProxy = template.generateCellProxy(item, proxy, getCellProxyRootType());
 				itemProxy.setListProxy(getProxy());
 				addHandledProxy(itemProxy);
 				section.generateCellContent(sectionIndex, item, itemProxy, itemContent, template, sectionItemIndex, content);
+                setBoundsForBaseItem(itemContent);
 			}
 		    canShowMenus |= itemContent.getListItem().canShowMenus();
 
