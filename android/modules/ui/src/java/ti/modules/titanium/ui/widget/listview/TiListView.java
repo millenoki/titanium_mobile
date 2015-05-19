@@ -7,12 +7,15 @@
 
 package ti.modules.titanium.ui.widget.listview;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
-import com.nhaarman.listviewanimations.appearance.AnimationAdapter;
+import com.nhaarman.listviewanimations.appearance.SingleAnimationAdapter;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
 import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuCallback;
@@ -22,7 +25,10 @@ import com.nineoldandroids.animation.AnimatorInflater;
 
 import android.annotation.SuppressLint;
 import ti.modules.titanium.ui.widget.CustomListView;
+import ti.modules.titanium.ui.widget.abslistview.AbsListItemProxy;
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListView;
+import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItem;
+import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItemHolder;
 import android.app.Activity;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
@@ -33,8 +39,10 @@ import android.widget.BaseAdapter;
 @SuppressLint("NewApi")
 public class TiListView extends TiAbsListView<CustomListView> {
 
+    private Object mAppearAnimation = null;
     private Animator mAppearAnimators = null;
-    private int mAppearAnimationDuration = 300;
+    private long mAppearAnimationDuration = 300;
+    
     private SwipeMenuAdapter mSwipeMenuAdapater;
     private boolean mNeedsSwipeMenu = true;
     private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
@@ -100,6 +108,11 @@ public class TiListView extends TiAbsListView<CustomListView> {
                     // samsung error
                 }
             }
+            @Override 
+            public void setClipChildren(final boolean clip) {
+                super.setClipChildren(clip);
+                getWrappedList().setClipChildren(clip);
+            }
         };
 
         return result;
@@ -107,18 +120,24 @@ public class TiListView extends TiAbsListView<CustomListView> {
 
     @Override
     protected void setListViewAdapter(TiBaseAdapter adapter) {
-        AnimationAdapter animationAdapter = null;
+        SingleAnimationAdapter animationAdapter = null;
         BaseAdapter currentAdapter = adapter;
-        if (mAppearAnimators != null) {
-            currentAdapter = animationAdapter = new AnimationAdapter(adapter) {
-
+        if (mAppearAnimators != null || mAppearAnimation != null) {
+            currentAdapter = animationAdapter = new SingleAnimationAdapter(adapter) {
                 @Override
-                public Animator[] getAnimators(ViewGroup parent, View view) {
-                    Animator anim = mAppearAnimators.clone();
-                    anim.setTarget(view);
-                    return new Animator[] {anim};
+                protected Animator getAnimator(int position, View view, ViewGroup parent) {
+                    if (mAppearAnimators != null) {
+                        Animator anim = mAppearAnimators.clone();
+                        anim.setTarget(view);
+                        return anim;
+                    } else if (mAppearAnimation != null && view instanceof TiBaseAbsListViewItemHolder) {
+                        TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) view.findViewById(listContentId);
+                        AbsListItemProxy proxy = itemContent.getProxy();
+                        return proxy.getAnimatorSetForAnimation(mAppearAnimation);
+                    }
+                    return null;
                 }
-            };            
+            };
         }
         if (mNeedsSwipeMenu) {
             currentAdapter = mSwipeMenuAdapater = new SwipeMenuAdapter(currentAdapter, getProxy()
@@ -144,12 +163,20 @@ public class TiListView extends TiAbsListView<CustomListView> {
             listView.setScrollingEnabled(newValue);
             break;
         case "appearAnimation":
-            int id = TiConvert.toInt(newValue);
-            if (id != 0) {
-                mAppearAnimators = AnimatorInflater.loadAnimator(getProxy().getActivity(), id) ;
+            if (newValue instanceof HashMap || newValue instanceof TiAnimation) {
+                mAppearAnimation = newValue;
             } else {
-                mAppearAnimators = null;
+                int id = TiConvert.toInt(newValue);
+                if (id != 0) {
+                    mAppearAnimators = AnimatorInflater.loadAnimator(getProxy().getActivity(), id) ;
+                    if (mAppearAnimators.getDuration() != 0) {
+                        mAppearAnimationDuration = mAppearAnimators.getDuration();
+                    }
+                } else {
+                    mAppearAnimators = null;
+                }
             }
+            
             break;
         case "appearAnimationDuration":
             mAppearAnimationDuration = TiConvert.toInt(newValue);

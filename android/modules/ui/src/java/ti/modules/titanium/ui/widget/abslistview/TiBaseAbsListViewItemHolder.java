@@ -18,6 +18,7 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 
 	public TiBaseAbsListViewItemHolder(Context context) {
 		super(context, LayoutArrangement.HORIZONTAL, null);
+		setClipChildren(false);
 		addView(new TiBaseAbsListViewItem(context));
 		
 	    final float scale = getResources().getDisplayMetrics().density;

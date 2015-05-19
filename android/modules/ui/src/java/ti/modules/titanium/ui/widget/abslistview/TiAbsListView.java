@@ -642,7 +642,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             }
         });
 
-		getInternalListView().setCacheColorHint(Color.TRANSPARENT);
+		internalListView.setCacheColorHint(Color.TRANSPARENT);
 		listView.setEnabled(true);
 		getLayoutParams().autoFillsHeight = true;
 		getLayoutParams().autoFillsWidth = true;
@@ -1088,7 +1088,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		        }
 	            wrapper.addView(outerView, tiView.getLayoutParams());
 			}
-			wrapper.setId(HEADER_FOOTER_WRAP_ID);
+            wrapper.setId(HEADER_FOOTER_WRAP_ID);
+            wrapper.setTag(HEADER_FOOTER_WRAP_ID);
 			return wrapper;
 		}
 	}

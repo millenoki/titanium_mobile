@@ -171,7 +171,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             break;
         case TiC.PROPERTY_HEADER_TITLE:
             addProxyToHold(TiAbsListView.headerViewDict(TiConvert.toString(newValue)), TiC.PROPERTY_HEADER_VIEW);
-        case TiC.PROPERTY_FOOTER_TITLE:
+            break;
+       case TiC.PROPERTY_FOOTER_TITLE:
             addProxyToHold(TiAbsListView.footerViewDict(TiConvert.toString(newValue)), TiC.PROPERTY_FOOTER_VIEW);
             break;
         case TiC.PROPERTY_ITEMS:
