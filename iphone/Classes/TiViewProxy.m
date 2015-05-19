@@ -293,6 +293,14 @@
     
 }
 
+-(void)setFakeApplyProperties:(BOOL)newValue
+{
+    _fakeApplyProperties = newValue;
+    if (!_fakeApplyProperties) {
+        [self refreshViewOrParent];
+    }
+}
+
 -(HLSAnimation*)animationForAnimation:(TiAnimation*)animation
 {
     TiHLSAnimationStep* step;

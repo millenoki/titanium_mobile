@@ -268,7 +268,6 @@
     [m_tiViewProxy setFakeApplyProperties:YES];
     [m_tiViewProxy applyProperties:[self toProperties]];
     [m_tiViewProxy setFakeApplyProperties:NO];
-    [m_tiViewProxy refreshViewOrParent];
     [m_tiViewProxy setRunningAnimationRecursive:nil];
     //    if ([_view isKindOfClass:[TiUIView class]])
     //    {

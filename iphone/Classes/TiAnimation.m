@@ -152,17 +152,16 @@ static NSArray *animProps;
     return properties;
 }
 
--(NSDictionary*)propertiesForAnimation:(TiHLSAnimation*)anim destination:(BOOL)destination
+-(NSDictionary*)propertiesForAnimation:(TiAnimatableProxy*)animProxy destination:(BOOL)destination reverse:(BOOL)reversed
 {
     if (destination) {
         NSDictionary* result = [self valueForUndefinedKey:@"to"];
         if (!result) {
             NSDictionary* from = [self valueForUndefinedKey:@"from"];
             if (from) {
-                TiProxy* proxy = anim.animatedProxy;
                 result = [[NSMutableDictionary alloc]initWithCapacity:[from count]];
                 for (NSString* key in [from allKeys]) {
-                    id value = [proxy valueForUndefinedKey:key];
+                    id value = [animProxy valueForUndefinedKey:key];
                     if (value) [(NSMutableDictionary*)result setObject:value forKey:key];
                     else {
                         [(NSMutableDictionary*)result setObject:[NSNull null] forKey:key];
@@ -176,11 +175,11 @@ static NSArray *animProps;
     } else {
         NSDictionary* result = [self valueForUndefinedKey:@"from"];
         if (!result) {
-            if (anim.isReversed) {
+            if (reversed) {
                 id<NSFastEnumeration> keys = [self allKeys];
                 NSMutableDictionary* reverseProps = [[NSMutableDictionary alloc]initWithCapacity:[(NSArray*)keys count]];
                 for (NSString* key in keys) {
-                    id value = [anim.animatedProxy valueForUndefinedKey:key];
+                    id value = [animProxy valueForUndefinedKey:key];
                     if (value) [reverseProps setObject:value forKey:key];
                     else {
                         [reverseProps setObject:[NSNull null] forKey:key];
@@ -189,11 +188,17 @@ static NSArray *animProps;
                 result = [NSDictionary dictionaryWithDictionary:reverseProps];
                 [reverseProps release];
             } else {
-                result = [anim.animatedProxy allProperties];
+                result = [animProxy allProperties];
             }
         }
         return result;
     }
+}
+
+
+-(NSDictionary*)propertiesForAnimation:(TiHLSAnimation*)anim destination:(BOOL)destination
+{
+    return [self propertiesForAnimation:anim.animatedProxy destination:destination reverse:anim.isReversed];
 }
 
 -(NSDictionary*)fromPropertiesForAnimation:(TiHLSAnimation*)anim
@@ -204,6 +209,16 @@ static NSArray *animProps;
 -(NSDictionary*)toPropertiesForAnimation:(TiHLSAnimation*)anim
 {
     return [self propertiesForAnimation:anim destination:!anim.isReversed];
+}
+
+-(NSDictionary*)fromPropertiesForAnimatableProxy:(TiAnimatableProxy*)animProxy
+{
+    return [self propertiesForAnimation:animProxy destination:false reverse:true];
+}
+
+-(NSDictionary*)toPropertiesForAnimatableProxy:(TiAnimatableProxy*)animProxy
+{
+    return [self propertiesForAnimation:animProxy destination:true reverse:false];
 }
 
 -(void)updateProxyProperties

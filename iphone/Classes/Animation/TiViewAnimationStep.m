@@ -70,15 +70,7 @@
             [self notifyAsynchronousAnimationStepDidStopFinished:finished];
         };
         
-        NSDictionary* fromProps = [viewAnimation fromProperties];
-        if (fromProps) {
-            TiViewProxy* proxy = viewAnimation.tiViewProxy;
-            [proxy setFakeApplyProperties:YES];
-            [proxy applyProperties:fromProps];
-            [proxy setFakeApplyProperties:NO];
-            [proxy refreshViewOrParent];
-            [view setNeedsDisplay];
-        }
+        
 //        [UIView animateWithDuration:animationDuration
 //                              delay:0
 //             usingSpringWithDamping:0.0f

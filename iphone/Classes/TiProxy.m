@@ -223,6 +223,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 @synthesize modelDelegate;
 @synthesize eventOverrideDelegate = eventOverrideDelegate;
 @synthesize createdFromDictionary = _createdFromDictionary;
+@synthesize fakeApplyProperties = _fakeApplyProperties;
 
 #pragma mark Private
 
