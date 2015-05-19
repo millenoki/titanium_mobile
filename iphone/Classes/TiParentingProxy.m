@@ -23,6 +23,8 @@
 
 -(void)dealloc
 {
+    parent = nil;
+    _parentForBubbling = nil;
 	[super dealloc];
 }
 
