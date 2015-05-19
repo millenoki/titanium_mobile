@@ -94,7 +94,9 @@ void DoProxyDelegateChangedValuesWithProxy(id<TiProxyDelegate> target, NSString 
     sel = SetterForKrollProperty(key);
     if ([target respondsToSelector:sel])
     {
-        TiThreadPerformBlockOnMainThread(^{[target performSelector:sel withObject:newValue];}, YES);
+//        TiThreadPerformBlockOnMainThread(^{
+            [target performSelector:sel withObject:newValue];
+//        }, YES);
     }
 }
 
