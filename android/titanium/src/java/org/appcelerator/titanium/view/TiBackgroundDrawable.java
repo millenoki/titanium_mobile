@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.view;
 
+import java.lang.ref.WeakReference;
+
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUIHelper.Shadow;
@@ -28,6 +30,11 @@ public class TiBackgroundDrawable extends Drawable {
 	static final int NOT_SET = -1;
 	private int alpha = NOT_SET;
 	
+	public static interface TiBackgroundDrawableDelegate {
+	    public void onTiBackgroundDrawablePathUpdated();
+	}
+	
+	private WeakReference<TiBackgroundDrawableDelegate> mDelegate = null;
 //	private RectF innerRect;
 	private SparseArray<OneStateDrawable> drawables;
 	private OneStateDrawable currentDrawable;
@@ -171,6 +178,9 @@ public class TiBackgroundDrawable extends Drawable {
 				path.addRect(innerRect, Direction.CCW);
 			}
 		}
+		if (mDelegate != null) {
+		    mDelegate.get().onTiBackgroundDrawablePathUpdated();
+		}
 	}
 	public Path getPath(){
 		return path;
@@ -186,13 +196,14 @@ public class TiBackgroundDrawable extends Drawable {
 	{
 		this.boundsF.set(bounds);
 		this.bounds.set(bounds);
+        updatePath();
+        int length = drawables.size();
+        for(int i = 0; i < length; i++) {
+           Drawable drawable = drawables.valueAt(i);
+           drawable.setBounds(bounds);
+        }
 		super.onBoundsChange(bounds);
-		updatePath();
-		int length = drawables.size();
-		for(int i = 0; i < length; i++) {
-		   Drawable drawable = drawables.valueAt(i);
-		   drawable.setBounds(bounds);
-		}
+		
 	}
 	
 	public void setRadius(float[] radius)
@@ -294,7 +305,12 @@ public class TiBackgroundDrawable extends Drawable {
         int key = keyOfStateSet(stateSet);
         if (key != -1)
         {
+            OneStateDrawable drawable = drawables.get(key);
+            mStateSets.remove(key);
             drawables.remove(key);
+            if (drawable == currentDrawable) {
+                currentDrawable = null;
+            }
         }
     }
 	
@@ -320,7 +336,11 @@ public class TiBackgroundDrawable extends Drawable {
             if (key != -1) {
                 OneStateDrawable drawable = drawables.get(key);
                 if (drawable.hasOnlyColor()) {
+                    mStateSets.remove(key);
                     drawables.remove(key);
+                    if (drawable == currentDrawable) {
+                        currentDrawable = null;
+                    }
                 } else {
                     drawables.get(key).setColor(TiConvert.toColor(color));             
                 }
@@ -437,5 +457,14 @@ public class TiBackgroundDrawable extends Drawable {
 			OneStateDrawable drawable = drawables.valueAt(i);
 			drawable.setDefaultColor(defaultColor);
 		}
+	}
+	
+	public void setDelegate(TiBackgroundDrawableDelegate delegate) {
+	    if (delegate != null) {
+            this.mDelegate = new WeakReference<TiBackgroundDrawableDelegate>(delegate);
+        }
+        else {
+            this.mDelegate = null;
+        }
 	}
 }
