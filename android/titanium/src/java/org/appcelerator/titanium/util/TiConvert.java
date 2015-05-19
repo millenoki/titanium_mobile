@@ -323,7 +323,7 @@ public class TiConvert
         return 0;
     }
 	// Layout
-    public static int fillLayout(KrollDict hashMap, LayoutParams layoutParams,
+    public static int fillLayout(HashMap hashMap, LayoutParams layoutParams,
             boolean withMatrix) {
         int updateFlags = 0;
         Iterator it = hashMap.entrySet().iterator();
