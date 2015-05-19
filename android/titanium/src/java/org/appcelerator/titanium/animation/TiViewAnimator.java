@@ -110,10 +110,10 @@ public class TiViewAnimator extends TiAnimatorSet
 	}
 
 	@Override
-	public void applyOptions()
+	protected void applyOptions()
 	{
 		super.applyOptions();
-		HashMap options = getOptions();
+//		HashMap options = getOptions();
 		
 		if (options == null) {
 			return;
@@ -128,8 +128,9 @@ public class TiViewAnimator extends TiAnimatorSet
 			} else {
 				Log.e(TAG, "Invalid argument type for anchorPoint property. Ignoring");
 			}
+			options.remove(TiC.PROPERTY_ANCHOR_POINT);
 		}
-		this.options = options;
+//		this.options = options;
 	}
 	
 	public void simulateFinish(TiViewProxy proxy)

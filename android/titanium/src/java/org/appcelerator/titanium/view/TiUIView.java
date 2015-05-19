@@ -2355,8 +2355,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
     }
 
-    public void setTiBackgroundColor(int color) {
-        int currentColor = getTiBackgroundColor();
+    public void setBackgroundColor(int color) {
+        int currentColor = getBackgroundColor();
         if (currentColor != color) {
             TiBackgroundDrawable bgdDrawable = getOrCreateBackground();
             bgdDrawable.setDefaultColor(color);
@@ -2369,9 +2369,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    public int getTiBackgroundColor() {
-        // return
-        // TiColorHelper.parseColor(TiConvert.toString(proxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR)));
+    public int getBackgroundColor() {
         if (background == null) {
             return Color.TRANSPARENT;
         }
@@ -2401,55 +2399,108 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             View outerView = getOuterView();
             outerView.setLayoutParams(layoutParams);
             outerView.invalidate();
-            // ViewParent viewParent = outerView.getParent();
-            // if (outerView.getVisibility() == View.VISIBLE
-            // && viewParent instanceof View) {
-            // ((View) viewParent).postInvalidate();
-            // }
+        }
+    }
+    
+    protected void prepareAnimateProperty(final String key,
+            final Object toValue, final HashMap properties,
+            final View view, final View parentView,
+            List<Animator> list, final boolean needsReverse,
+            List<Animator> listReverse) {
+        switch (key) {
+        case TiC.PROPERTY_OPACITY: {
+            list.add(ObjectAnimator.ofFloat(this, key,
+                    TiConvert.toFloat(toValue, 1.0f)));
+            if (needsReverse) {
+                listReverse.add(ObjectAnimator.ofFloat(this, key,
+                        TiConvert.toFloat(properties, key, 1.0f)));
+            }
+            break;
+        }
+        case TiC.PROPERTY_BACKGROUND_COLOR: {
+            ObjectAnimator anim = ObjectAnimator.ofInt(this, key,
+                    TiConvert.toColor(toValue));
+            anim.setEvaluator(new ArgbEvaluator());
+            list.add(anim);
+            if (needsReverse) {
+                anim = ObjectAnimator.ofInt(this, key,
+                        TiConvert.toColor(properties, key));
+                anim.setEvaluator(new ArgbEvaluator());
+                listReverse.add(anim);
+            }
+            break;
+        }
+        case TiC.PROPERTY_TRANSFORM: {
+                Ti2DMatrix matrix = TiConvert.toMatrix(toValue);
+                if (parentView instanceof FreeLayout) {
+                    Ti2DMatrixEvaluator evaluator = new Ti2DMatrixEvaluator(view);
+                    ObjectAnimator anim = ObjectAnimator.ofObject(this,
+                            "ti2DMatrix", evaluator, matrix);
+                    list.add(anim);
+                    if (needsReverse) {
+                        Ti2DMatrix reverseMatrix = getLayoutParams().matrix;
+                        if (reverseMatrix == null) {
+                            reverseMatrix = TiConvert.IDENTITY_MATRIX;
+                        }
+                        listReverse.add(ObjectAnimator.ofObject(this, "ti2DMatrix",
+                                evaluator, reverseMatrix));
+                    }
+                } else {
+                    DecomposedType decompose = matrix.getAffineTransform(view)
+                            .decompose();
+                    List<PropertyValuesHolder> propertiesList = new ArrayList<PropertyValuesHolder>();
+                    propertiesList.add(PropertyValuesHolder.ofFloat("translationX",
+                            (float) decompose.translateX));
+                    propertiesList.add(PropertyValuesHolder.ofFloat("translationY",
+                            (float) decompose.translateY));
+                    propertiesList.add(PropertyValuesHolder.ofFloat("rotation",
+                            (float) (decompose.angle * 180 / Math.PI)));
+                    propertiesList.add(PropertyValuesHolder.ofFloat("scaleX",
+                            (float) decompose.scaleX));
+                    propertiesList.add(PropertyValuesHolder.ofFloat("scaleY",
+                            (float) decompose.scaleY));
+                    list.add(ObjectAnimator.ofPropertyValuesHolder(
+                            AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(view)
+                                    : view, propertiesList
+                                    .toArray(new PropertyValuesHolder[0])));
+                    if (needsReverse) {
+                        matrix = TiConvert.toMatrix(properties,
+                                TiC.PROPERTY_TRANSFORM);
+                        decompose = matrix.getAffineTransform(view).decompose();
+                        propertiesList = new ArrayList<PropertyValuesHolder>();
+                        propertiesList.add(PropertyValuesHolder.ofFloat(
+                                "translationX", (float) decompose.translateX));
+                        propertiesList.add(PropertyValuesHolder.ofFloat(
+                                "translationY", (float) decompose.translateY));
+                        propertiesList.add(PropertyValuesHolder.ofFloat("rotation",
+                                (float) (decompose.angle * 180 / Math.PI)));
+                        propertiesList.add(PropertyValuesHolder.ofFloat("scaleX",
+                                (float) decompose.scaleX));
+                        propertiesList.add(PropertyValuesHolder.ofFloat("scaleY",
+                                (float) decompose.scaleY));
+                        listReverse.add(ObjectAnimator.ofPropertyValuesHolder(
+                                AnimatorProxy.NEEDS_PROXY ? AnimatorProxy
+                                        .wrap(view) : view, propertiesList
+                                        .toArray(new PropertyValuesHolder[0])));
+                    }
+                }
+                break;
+            }
         }
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes", "null" })
+    @SuppressWarnings("null")
     public void prepareAnimatorSet(TiAnimatorSet tiSet, List<Animator> list,
-            List<Animator> listReverse, HashMap options) {
+            List<Animator> listReverse, HashMap<String, Object> options) {
 
         View view = getOuterView();
         ((TiViewAnimator) tiSet).setViewProxy(proxy);
         ((TiViewAnimator) tiSet).setView(view);
         boolean needsReverse = listReverse != null;
-        KrollDict properties = proxy.getProperties();
-
-        if (options.containsKey(TiC.PROPERTY_OPACITY)) {
-            show();
-            list.add(ObjectAnimator.ofFloat(this, "opacity",
-                    TiConvert.toFloat(options, TiC.PROPERTY_OPACITY, 1.0f)));
-            if (needsReverse) {
-                listReverse.add(ObjectAnimator.ofFloat(this, "opacity",
-                        TiConvert.toFloat(properties, TiC.PROPERTY_OPACITY,
-                                1.0f)));
-            }
-        }
-
-        if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-            // if (!proxy.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
-            // Log.w(TAG,
-            // "Cannot animate view without a backgroundColor. View doesn't have that property. Using #00000000");
-            // getNativeView().setBackgroundColor(Color.argb(0, 0, 0, 0));
-            // }
-            ObjectAnimator anim = ObjectAnimator.ofInt(this,
-                    "tiBackgroundColor",
-                    TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR));
-            anim.setEvaluator(new ArgbEvaluator());
-            list.add(anim);
-            if (needsReverse) {
-                anim = ObjectAnimator.ofInt(this, "tiBackgroundColor",
-                        TiConvert.toColor(properties,
-                                TiC.PROPERTY_BACKGROUND_COLOR));
-                anim.setEvaluator(new ArgbEvaluator());
-                listReverse.add(anim);
-            }
-        }
-
+        
+        HashMap<String, Object> fromProps = tiSet.getFromOptions();
+        HashMap<String, Object> toProps = tiSet.getToOptions();
+        
         ViewParent parent = view.getParent();
         View parentView = null;
 
@@ -2464,7 +2515,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             // fillLayout will try to reset animationFraction, here we dont want
             // that
             float oldAnimationFraction = animParams.animationFraction;
-            if (TiConvert.fillLayout(TiConvert.toKrollDict(options),
+            if (TiConvert.fillLayout(options,
                     animParams, false) != 0) {
                 animParams.startRect = new Rect(view.getLeft(), view.getTop(),
                         view.getRight(), view.getBottom());
@@ -2483,63 +2534,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 }
             }
         }
-
-        if (options.containsKey(TiC.PROPERTY_TRANSFORM)) {
-            Ti2DMatrix matrix = TiConvert.toMatrix(options,
-                    TiC.PROPERTY_TRANSFORM);
-            if (parentView instanceof FreeLayout) {
-                Ti2DMatrixEvaluator evaluator = new Ti2DMatrixEvaluator(view);
-                ObjectAnimator anim = ObjectAnimator.ofObject(this,
-                        "ti2DMatrix", evaluator, matrix);
-                list.add(anim);
-                if (needsReverse) {
-                    Ti2DMatrix reverseMatrix = getLayoutParams().matrix;
-                    if (reverseMatrix == null) {
-                        reverseMatrix = TiConvert.IDENTITY_MATRIX;
-                    }
-                    listReverse.add(ObjectAnimator.ofObject(this, "ti2DMatrix",
-                            evaluator, reverseMatrix));
-                }
-            } else {
-                DecomposedType decompose = matrix.getAffineTransform(view)
-                        .decompose();
-                List<PropertyValuesHolder> propertiesList = new ArrayList<PropertyValuesHolder>();
-                propertiesList.add(PropertyValuesHolder.ofFloat("translationX",
-                        (float) decompose.translateX));
-                propertiesList.add(PropertyValuesHolder.ofFloat("translationY",
-                        (float) decompose.translateY));
-                propertiesList.add(PropertyValuesHolder.ofFloat("rotation",
-                        (float) (decompose.angle * 180 / Math.PI)));
-                propertiesList.add(PropertyValuesHolder.ofFloat("scaleX",
-                        (float) decompose.scaleX));
-                propertiesList.add(PropertyValuesHolder.ofFloat("scaleY",
-                        (float) decompose.scaleY));
-                list.add(ObjectAnimator.ofPropertyValuesHolder(
-                        AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(view)
-                                : view, propertiesList
-                                .toArray(new PropertyValuesHolder[0])));
-                if (needsReverse) {
-                    matrix = TiConvert.toMatrix(properties,
-                            TiC.PROPERTY_TRANSFORM);
-                    decompose = matrix.getAffineTransform(view).decompose();
-                    propertiesList = new ArrayList<PropertyValuesHolder>();
-                    propertiesList.add(PropertyValuesHolder.ofFloat(
-                            "translationX", (float) decompose.translateX));
-                    propertiesList.add(PropertyValuesHolder.ofFloat(
-                            "translationY", (float) decompose.translateY));
-                    propertiesList.add(PropertyValuesHolder.ofFloat("rotation",
-                            (float) (decompose.angle * 180 / Math.PI)));
-                    propertiesList.add(PropertyValuesHolder.ofFloat("scaleX",
-                            (float) decompose.scaleX));
-                    propertiesList.add(PropertyValuesHolder.ofFloat("scaleY",
-                            (float) decompose.scaleY));
-                    listReverse.add(ObjectAnimator.ofPropertyValuesHolder(
-                            AnimatorProxy.NEEDS_PROXY ? AnimatorProxy
-                                    .wrap(view) : view, propertiesList
-                                    .toArray(new PropertyValuesHolder[0])));
-                }
-            }
+        
+        show();
+        for (Map.Entry<String, Object> entry : toProps.entrySet()) {
+            final String key = entry.getKey();
+            prepareAnimateProperty(key, entry.getValue(), fromProps, view, parentView, list, needsReverse, listReverse);
         }
+
         view.postInvalidate();
     }
 

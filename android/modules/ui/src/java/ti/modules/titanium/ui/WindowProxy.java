@@ -325,7 +325,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
         boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
         if (options.containsKey("_anim")) {
             animated = false;
-            animateInternal(options.get("_anim"), null);
+            animate(options.get("_anim"), null);
         }
 		if (!animated) {
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -366,7 +366,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		if (!activity.isFinishing()) {
 		    if (options.containsKey("_anim")) {
-		        _closingAnim = animateInternal(options.get("_anim"), null);
+		        _closingAnim = animate(options.get("_anim"), null);
 		        return;
             }
 			activity.finish();

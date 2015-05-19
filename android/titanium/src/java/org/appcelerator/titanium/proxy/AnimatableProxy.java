@@ -4,13 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.animation.TiAnimator;
 import org.appcelerator.titanium.animation.TiAnimatorListener;
 import org.appcelerator.titanium.animation.TiAnimatorSet;
+import org.appcelerator.titanium.util.TiConvert;
 
 import android.view.animation.Interpolator;
 
@@ -22,30 +26,28 @@ import com.nineoldandroids.animation.ValueAnimator;
 @Kroll.proxy
 public class AnimatableProxy extends ParentingProxy {
 	private static final String TAG = "AnimatableProxy";
-	protected ArrayList<TiAnimator> pendingAnimations;
-	protected ArrayList<TiAnimator> runningAnimations;
+	protected ArrayList<TiAnimatorSet> pendingAnimations;
+	protected ArrayList<TiAnimatorSet> runningAnimations;
 	protected Object pendingAnimationLock;
 	protected Object runningAnimationsLock;
 
 	public AnimatableProxy() {
 		super();
-		pendingAnimations = new ArrayList<TiAnimator>();
-		runningAnimations = new ArrayList<TiAnimator>();
+		pendingAnimations = new ArrayList<TiAnimatorSet>();
+		runningAnimations = new ArrayList<TiAnimatorSet>();
 		pendingAnimationLock = new Object();
 		runningAnimationsLock = new Object();
 	}
 
 	protected void handlePendingAnimation() {
-		TiAnimator pendingAnimation;
+	    TiAnimatorSet tiSet;
 		synchronized (pendingAnimationLock) {
 			if (pendingAnimations.size() == 0) {
 				return;
 			}
-			pendingAnimation = pendingAnimations.remove(0);
+			tiSet = pendingAnimations.remove(0);
 		}
-		pendingAnimation.setProxy(this);
-		pendingAnimation.applyOptions();
-		TiAnimatorSet tiSet = (TiAnimatorSet) pendingAnimation;
+		tiSet.setProxy(this);
 		
 		synchronized (runningAnimationsLock) {
 			tiSet.needsToRestartFromBeginning = (runningAnimations.size() > 0);
@@ -55,10 +57,10 @@ public class AnimatableProxy extends ParentingProxy {
 				}
 				runningAnimations.clear();
 			}
-			else if (pendingAnimation.animationProxy != null){
+			else if (tiSet.animationProxy != null){
 				for (int i = 0; i < runningAnimations.size(); i++) {
 					TiAnimator anim = runningAnimations.get(i);
-					if (anim.animationProxy == pendingAnimation.animationProxy) {
+					if (anim.animationProxy == tiSet.animationProxy) {
 						anim.cancelWithoutResetting();
 						runningAnimations.remove(anim);
 						break;
@@ -66,52 +68,53 @@ public class AnimatableProxy extends ParentingProxy {
 				}
 				runningAnimations.clear();
 			}
-			runningAnimations.add(pendingAnimation);
+			runningAnimations.add(tiSet);
 		}
+
 		prepareAnimatorSet(tiSet);
 		tiSet.set().start();
 	}
+	
+	public TiAnimatorSet createAnimator(Object arg) {
+	    if (arg == null) {
+	        return null;
+	    } else if (arg instanceof TiAnimatorSet) {
+	        return (TiAnimatorSet) arg;
+	    }
+	    TiAnimatorSet tiAnimator = createAnimator();
+        if (arg instanceof HashMap) {
+            HashMap options = (HashMap) arg;
+            tiAnimator.setOptions(options);
+        } else if (arg instanceof TiAnimation) {
+            TiAnimation anim = (TiAnimation) arg;
+            tiAnimator.setAnimation(anim);
+        } else {
+            throw new IllegalArgumentException(
+                    "Unhandled argument to animate: "
+                            + arg.getClass().getSimpleName());
+        }
+        return tiAnimator;
+	}
 
 	public AnimatorSet getAnimatorSetForAnimation(Object arg) {
-		TiAnimator tiAnimator = createAnimator();
-		if (!(tiAnimator instanceof TiAnimatorSet)) {
-			Log.e(TAG, "must be a TiAnimatorSet");
-			return null;
-		}
-		if (arg instanceof HashMap) {
-			HashMap options = (HashMap) arg;
-			tiAnimator.setOptions(options);
-		} else if (arg instanceof TiAnimation) {
-			TiAnimation anim = (TiAnimation) arg;
-			tiAnimator.setAnimation(anim);
-		} else {
-			throw new IllegalArgumentException(
-					"Unhandled argument to animate: "
-							+ arg.getClass().getSimpleName());
-		}
+	    TiAnimatorSet tiAnimator = createAnimator(arg);
 		tiAnimator.setProxy(this);
-		tiAnimator.applyOptions();
-		
-		prepareAnimatorSet((TiAnimatorSet) tiAnimator);
+		prepareAnimatorSet(tiAnimator);
 
 		return ((TiAnimatorSet) tiAnimator).set();
 	}
 
-	protected TiAnimator createAnimator() {
+	protected TiAnimatorSet createAnimator() {
 		return new TiAnimatorSet();
 	}
 
 	@Kroll.method
-	public void animate(Object arg,
+	public TiAnimator animate(Object arg,
 			@Kroll.argument(optional = true) KrollFunction callback) {
-	    animateInternal(arg, callback);
-	}
-	
-    public TiAnimator animateInternal(Object arg, KrollFunction callback) {
-        TiAnimator pendingAnimation;
+	    TiAnimatorSet pendingAnimation;
         synchronized (pendingAnimationLock) {
-            if (arg instanceof TiAnimator) {
-                pendingAnimation = (TiAnimator)arg;
+            if (arg instanceof TiAnimatorSet) {
+                pendingAnimation = (TiAnimatorSet)arg;
             }
             else {
                 pendingAnimation = createAnimator();
@@ -135,9 +138,21 @@ public class AnimatableProxy extends ParentingProxy {
         }
         handlePendingAnimation();
         return pendingAnimation;
+	}
+    
+    public void applyPropertiesWithoutSaving(final KrollDict dict) {
+        if (modelListener != null) {
+            if (!mProcessInUIThread || TiApplication.isUIThread()) {
+                modelListener.get().processApplyProperties(dict);
+            } else {
+                    TiMessenger.sendBlockingMainMessage(getMainHandler()
+                            .obtainMessage(MSG_MODEL_APPLY_PROPERTIES),
+                            dict);                  
+            }
+        }
     }
 	
-	protected void prepareAnimatorSet(TiAnimatorSet tiSet) {
+	public void prepareAnimatorSet(TiAnimatorSet tiSet) {
 		tiSet.aboutToBePrepared();
 		AnimatorSet set = tiSet.set();
 		HashMap options = tiSet.getOptions();
@@ -147,7 +162,10 @@ public class AnimatableProxy extends ParentingProxy {
 		
 		List<Animator> list = new ArrayList<Animator>();
 		List<Animator> listReverse = tiSet.autoreverse?new ArrayList<Animator>():null;
-		
+		   
+		if (options.containsKey("from")) {
+		    applyPropertiesWithoutSaving(TiConvert.toKrollDict(options.get("from")));
+		}
 		prepareAnimatorSet(tiSet, list, listReverse, (HashMap) options.clone());
 		
 		int repeatCount = (tiSet.repeat == ValueAnimator.INFINITE ? tiSet.repeat : tiSet.repeat - 1);

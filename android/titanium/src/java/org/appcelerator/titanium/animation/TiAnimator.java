@@ -76,11 +76,13 @@ public class TiAnimator
 	
 	public void setOptions(HashMap options) {
 		this.options = options;
+		applyOptions();
 	}
 	
 	public void setAnimation(TiAnimation animation) {
 		this.animationProxy = animation;
 		this.animationProxy.setAnimator(this);
+		this.setOptions(animation.getClonedProperties());
 	}
 	
 	public void setProxy(AnimatableProxy proxy) {
@@ -88,12 +90,13 @@ public class TiAnimator
 	}
 	
 	public HashMap getOptions() {
-		return (this.animationProxy != null)?this.animationProxy.getProperties():this.options ;
+	    return this.options;
+//		return (this.animationProxy != null)?this.animationProxy.getProperties():this.options ;
 	}
 
-	public void applyOptions()
+	protected void applyOptions()
 	{
-		HashMap options = getOptions();
+//		HashMap options = getOptions();
 		
 		if (options == null) {
 			return;
@@ -101,13 +104,16 @@ public class TiAnimator
 
 		if (options.containsKey(TiC.PROPERTY_DELAY)) {
 			delay = TiConvert.toDouble(options, TiC.PROPERTY_DELAY);
+			options.remove(TiC.PROPERTY_DELAY);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_DURATION)) {
 			duration = TiConvert.toDouble(options, TiC.PROPERTY_DURATION);
+            options.remove(TiC.PROPERTY_DURATION);
 		}
 		if (options.containsKey(TiC.PROPERTY_REVERSE_DURATION)) {
             reverseDuration = TiConvert.toDouble(options, TiC.PROPERTY_REVERSE_DURATION);
+            options.remove(TiC.PROPERTY_REVERSE_DURATION);
         }
 		if (options.containsKey(TiC.PROPERTY_REPEAT)) {
 			repeat = TiConvert.toInt(options, TiC.PROPERTY_REPEAT);
@@ -117,20 +123,24 @@ public class TiAnimator
 				// treats it as 1 and so should we.
 				repeat = 1;
 			}
+            options.remove(TiC.PROPERTY_REPEAT);
 		} else {
 			repeat = 1; // Default as indicated in our documentation.
 		}
 
 		if (options.containsKey(TiC.PROPERTY_AUTOREVERSE)) {
 			autoreverse = TiConvert.toBoolean(options, TiC.PROPERTY_AUTOREVERSE);
+            options.remove(TiC.PROPERTY_AUTOREVERSE);
 		}
 		
 		if (options.containsKey(TiC.PROPERTY_RESTART_FROM_BEGINNING)) {
 			restartFromBeginning = TiConvert.toBoolean(options, TiC.PROPERTY_RESTART_FROM_BEGINNING);
+            options.remove(TiC.PROPERTY_RESTART_FROM_BEGINNING);
 		}
 		
 		if (options.containsKey(TiC.PROPERTY_CANCEL_RUNNING_ANIMATIONS)) {
 			cancelRunningAnimations = TiConvert.toBoolean(options, TiC.PROPERTY_CANCEL_RUNNING_ANIMATIONS);
+            options.remove(TiC.PROPERTY_CANCEL_RUNNING_ANIMATIONS);
 		}
 		if (options.containsKey(TiC.PROPERTY_CURVE)) {
 			Object value = options.get(TiC.PROPERTY_CURVE);
@@ -144,6 +154,7 @@ public class TiAnimator
 					curve =new CubicBezierInterpolator(values[0], values[1], values[2], values[3]);
 				}
 			}
+            options.remove(TiC.PROPERTY_CURVE);
 		}
 		if (options.containsKey(TiC.PROPERTY_REVERSE_CURVE)) {
             Object value = options.get(TiC.PROPERTY_REVERSE_CURVE);
@@ -157,9 +168,10 @@ public class TiAnimator
                     reverseCurve =new CubicBezierInterpolator(values[0], values[1], values[2], values[3]);
                 }
             }
+            options.remove(TiC.PROPERTY_REVERSE_CURVE);
         }
 
-		this.options = options;
+//		this.options = options;
 	}
 	
 	public boolean animating() {
@@ -180,24 +192,34 @@ public class TiAnimator
 	protected List<String> animationResetProperties() {
 		return kAnimationProperties;
 	}
+	
+	public HashMap getToOptions() {
+	    if (this.options.containsKey("to")) {
+	        return (HashMap) this.options.get("to");
+	    } else if  (this.options.containsKey("from")) {
+	        KrollDict toProps = new KrollDict();
+	        KrollDict properties = proxy.getProperties();
+	        Iterator it = ((HashMap) this.options.get("from")).entrySet().iterator();        
+	        while (it.hasNext()) {
+	            Map.Entry pairs = (Map.Entry)it.next();
+	            String key = (String)pairs.getKey();
+	            toProps.put(key, properties.get(key));
+	        }
+	        return toProps;
+	    }
+	    return this.options;
+	}
+	
+	public HashMap getFromOptions() {
+        if (this.options.containsKey("from")) {
+            return (HashMap) this.options.get("from");
+        }
+        return proxy.getProperties();
+    }
 
 	public void resetAnimationProperties()
 	{
-		if (this.options == null || proxy == null) {
-			return;
-		}
-
-		Iterator it = this.options.entrySet().iterator();
-		List<String>animationProperties = animationProperties();
-		KrollDict resetProps = new KrollDict();
-		while (it.hasNext()) {
-			Map.Entry pairs = (Map.Entry)it.next();
-			String key = (String)pairs.getKey();
-			if (!animationProperties.contains(key)) {
-				resetProps.put(key, proxy.getProperty(key));
-			}
-		}
-		proxy.applyPropertiesInternal(resetProps, true, true);
+		applyResetProperties();
         proxy.afterAnimationReset();
 	}
 	
@@ -239,43 +261,29 @@ public class TiAnimator
 
 	protected void applyCompletionProperties()
 	{
-		HashMap options = getOptions();
 		if (options == null || proxy == null || autoreverse == true) {
 			return;
 		}
-
-		Iterator it = options.entrySet().iterator();
-		List<String>animationProperties = animationProperties();	
-		KrollDict resetProps = new KrollDict();
-		while (it.hasNext()) {
-			Map.Entry pairs = (Map.Entry)it.next();
-			String key = (String)pairs.getKey();
-			if (!animationProperties.contains(key)) {
-				resetProps.put(key, pairs.getValue());
-			}
-		}
-		proxy.applyPropertiesInternal(resetProps, true);
+        HashMap toProps = getToOptions();
+        proxy.applyPropertiesInternal(toProps, true);
 	}
 	
 	protected void applyResetProperties()
 	{
-		HashMap options = getOptions();
-		if (options == null || proxy == null) {
-			return;
-		}
+	    if (this.options == null || proxy == null) {
+            return;
+        }
+        HashMap toProps = getToOptions();
+        HashMap fromProps = getFromOptions();
 
-		Iterator it = options.entrySet().iterator();
-		List<String>animationProperties = animationResetProperties();	
-		KrollDict resetProps = new KrollDict();
-		while (it.hasNext()) {
-			Map.Entry pairs = (Map.Entry)it.next();
-			String key = (String)pairs.getKey();
-			if (!animationProperties.contains(key)) {
-				resetProps.put(key, proxy.getProperty(key));
-			}
-		}
-		//we must wait for it so that the first call to get current animation property value is correct
-		proxy.applyPropertiesInternal(resetProps, true, true);
+        Iterator it = toProps.entrySet().iterator();        
+        KrollDict resetProps = new KrollDict();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry)it.next();
+            String key = (String)pairs.getKey();
+            resetProps.put(key, fromProps.get(key));
+        }
+        proxy.applyPropertiesInternal(resetProps, true, true);
 	}
 
 	public void setCallback(KrollFunction callback)

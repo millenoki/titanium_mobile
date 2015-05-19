@@ -763,7 +763,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	}
 
 	@Override
-	protected TiAnimator createAnimator(){
+	protected TiAnimatorSet createAnimator(){
 		return new TiViewAnimator();
 	}
 	
@@ -815,8 +815,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 				}
 				pendingAnimation = pendingAnimations.remove(0);
 			}
-			
-			pendingAnimation.applyOptions();
 			((TiViewAnimator) pendingAnimation).simulateFinish(this);
 			return;
 		}
