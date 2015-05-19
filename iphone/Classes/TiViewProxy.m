@@ -2030,6 +2030,7 @@ SEL GetterForKrollProperty(NSString * key)
 -(void)detachView:(BOOL)recursive
 {
 	[destroyLock lock];
+    [self clearAnimations];
     
     if(recursive)
     {
@@ -2055,7 +2056,6 @@ SEL GetterForKrollProperty(NSString * key)
         self.modelDelegate = nil;
     }
 	[destroyLock unlock];
-    [self clearAnimations];
     [self resetDefaultValues];
 
 }
