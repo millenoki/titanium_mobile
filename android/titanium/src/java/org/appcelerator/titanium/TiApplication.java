@@ -88,14 +88,14 @@ public abstract class TiApplication extends Application implements
     private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
     private  static String TITANIUM_USER_AGENT;
     
-    private static long mainThreadId = 0;
+    private static long sMainThreadId = 0;
 
-    private static int mAppDensityDpi = -1;
-    private static float mAppDensity = -1;
-    private static float mAppScaledDensity = -1;
-    private static String mAppDensityString = null;
+    private static int sAppDensityDpi = -1;
+    private static float sAppDensity = -1;
+    private static float sAppScaledDensity = -1;
+    private static String sAppDensityString = null;
 
-    protected static WeakReference<TiApplication> tiApp = null;
+    protected static WeakReference<TiApplication> sTiApp = null;
 
     public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
     public static final String DEPLOY_TYPE_TEST = "test";
@@ -133,7 +133,7 @@ public abstract class TiApplication extends Application implements
     protected TiStylesheet stylesheet;
     protected static HashMap<String, WeakReference<KrollModule>> modules;
     
-    protected static ArrayList<AppStateListener> appStateListeners = new ArrayList<AppStateListener>();
+    protected static ArrayList<AppStateListener> sAppStateListeners = new ArrayList<AppStateListener>();
 
     public static interface AppStateListener {
         public void onAppPaused();
@@ -142,12 +142,12 @@ public abstract class TiApplication extends Application implements
 
     public static void addAppStateListener(
             AppStateListener a) {
-        appStateListeners.add(a);
+        sAppStateListeners.add(a);
     }
 
     public static void removeAppStateListener(
             AppStateListener a) {
-        appStateListeners.remove(a);
+        sAppStateListeners.remove(a);
     }
 
     public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
@@ -183,8 +183,8 @@ public abstract class TiApplication extends Application implements
 
         loadBuildProperties();
 
-        mainThreadId = Looper.getMainLooper().getThread().getId();
-        tiApp = new WeakReference<TiApplication>(this);
+        sMainThreadId = Looper.getMainLooper().getThread().getId();
+        sTiApp = new WeakReference<TiApplication>(this);
 
         modules = new HashMap<String, WeakReference<KrollModule>>();
         TiMessenger.getMessenger(); // initialize message queue for main thread
@@ -201,8 +201,8 @@ public abstract class TiApplication extends Application implements
      * @module.api
      */
     public static TiApplication getInstance() {
-        if (tiApp != null) {
-            TiApplication tiAppRef = tiApp.get();
+        if (sTiApp != null) {
+            TiApplication tiAppRef = sTiApp.get();
             if (tiAppRef != null) {
                 return tiAppRef;
             }
@@ -903,50 +903,50 @@ public abstract class TiApplication extends Application implements
     }
     
     public static float getAppDensity() {
-        if (mAppDensity == -1) {
-            mAppDensity =  TiDimension.getDisplayMetrics().density;
+        if (sAppDensity == -1) {
+            sAppDensity =  TiDimension.getDisplayMetrics().density;
         }
-        return mAppDensity;
+        return sAppDensity;
     }
     
     public static int getAppDensityDpi() {
-        if (mAppDensityDpi == -1) {
-            mAppDensityDpi =  TiDimension.getDisplayMetrics().densityDpi;
+        if (sAppDensityDpi == -1) {
+            sAppDensityDpi =  TiDimension.getDisplayMetrics().densityDpi;
         }
-        return mAppDensityDpi;
+        return sAppDensityDpi;
     }
     
     public static float getAppScaledDensity() {
-        if (mAppScaledDensity == -1) {
-            mAppScaledDensity =  TiDimension.getDisplayMetrics().scaledDensity;
+        if (sAppScaledDensity == -1) {
+            sAppScaledDensity =  TiDimension.getDisplayMetrics().scaledDensity;
         }
-        return mAppScaledDensity;
+        return sAppScaledDensity;
     }
     
     public static String getAppDensityString() {
-        if (mAppDensityString == null) {
+        if (sAppDensityString == null) {
             switch(getAppDensityDpi()) {
             case DisplayMetrics.DENSITY_HIGH :
             case 213: //TV
-                mAppDensityString = "high";
+                sAppDensityString = "high";
             case DisplayMetrics.DENSITY_MEDIUM :
-                mAppDensityString = "medium";
+                sAppDensityString = "medium";
             case 280: //Introduce in API 22.
             case 320 : // DisplayMetrics.DENSITY_XHIGH (API 9)
-                mAppDensityString = "xhigh";
+                sAppDensityString = "xhigh";
             case 400:
             case 480 :
-                mAppDensityString = "xxhigh";
+                sAppDensityString = "xxhigh";
             case 560:
             case 640 :
-                mAppDensityString = "xxxhigh";
+                sAppDensityString = "xxxhigh";
             case DisplayMetrics.DENSITY_LOW :
-                mAppDensityString = "low";
+                sAppDensityString = "low";
             default :
-                mAppDensityString = "medium";
+                sAppDensityString = "medium";
             }
         }
-        return mAppDensityString;
+        return sAppDensityString;
     }
 
     /**
@@ -1094,7 +1094,7 @@ public abstract class TiApplication extends Application implements
      * @module.api
      */
     public static boolean isUIThread() {
-        if (mainThreadId == Thread.currentThread().getId()) {
+        if (sMainThreadId == Thread.currentThread().getId()) {
             return true;
         }
 
@@ -1167,8 +1167,8 @@ public abstract class TiApplication extends Application implements
         if (TiApplication.activityTransitionListeners != null) {
             TiApplication.activityTransitionListeners.clear();
         }
-        if (TiApplication.appStateListeners != null) {
-            TiApplication.appStateListeners.clear();
+        if (TiApplication.sAppStateListeners != null) {
+            TiApplication.sAppStateListeners.clear();
         }
         if (TiApplication.activityStack != null) {
             TiApplication.activityStack.clear();
@@ -1197,8 +1197,8 @@ public abstract class TiApplication extends Application implements
         if (TiApplication.activityTransitionListeners != null) {
             TiApplication.activityTransitionListeners.clear();
         }
-        if (TiApplication.appStateListeners != null) {
-            TiApplication.appStateListeners.clear();
+        if (TiApplication.sAppStateListeners != null) {
+            TiApplication.sAppStateListeners.clear();
         }
         if (TiApplication.activityStack != null) {
             TiApplication.activityStack.clear();
@@ -1227,8 +1227,8 @@ public abstract class TiApplication extends Application implements
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == PAUSE) {
-                for (int i = 0; i < appStateListeners.size(); ++i) {
-                    appStateListeners.get(i).onAppPaused();
+                for (int i = 0; i < sAppStateListeners.size(); ++i) {
+                    sAppStateListeners.get(i).onAppPaused();
                 }
                 fireAppEvent(TiC.EVENT_PAUSE, null);
                 paused = true;
@@ -1263,8 +1263,8 @@ public abstract class TiApplication extends Application implements
         mHandler.removeMessages(PAUSE);
         if (paused && activity == getAppCurrentActivity()
                 && isCurrentActivityPaused()) {
-            for (int i = 0; i < appStateListeners.size(); ++i) {
-                appStateListeners.get(i).onAppResume();
+            for (int i = 0; i < sAppStateListeners.size(); ++i) {
+                sAppStateListeners.get(i).onAppResume();
             }
             fireAppEvent(TiC.EVENT_RESUME, null);
             paused = false;
