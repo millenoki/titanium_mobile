@@ -1516,9 +1516,10 @@ public class TiCompositeLayout extends FreeLayout implements
 		needsSort = value;
 	}
 	
-	@Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        invalidateOutline();
-    }
+	// @Override
+ //    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+ //        super.onSizeChanged(w, h, oldw, oldh);
+ //        if (TiC.)
+ //        invalidateOutline();
+ //    }
 }
