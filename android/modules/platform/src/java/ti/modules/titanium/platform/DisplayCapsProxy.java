@@ -43,33 +43,38 @@ public class DisplayCapsProxy extends KrollProxy
 	@SuppressWarnings("deprecation")
     private void querySize() {
 	    if (sizeSet == false) {
-	        if (TiC.JELLY_BEAN_MR1_OR_GREATER){
-	            //new pleasant way to get real metrics
-	            DisplayMetrics realMetrics = new DisplayMetrics();
-	            getDisplay().getRealMetrics(realMetrics);
-	            realWidth = realMetrics.widthPixels;
-	            realHeight = realMetrics.heightPixels;
-
-	        } else if (TiC.ICS_OR_GREATER) {
-	            //reflection for this weird in-between time
-                Display display = getDisplay();
-	            try {
-	                Method mGetRawH = Display.class.getMethod("getRawHeight");
-	                Method mGetRawW = Display.class.getMethod("getRawWidth");
-	                realWidth = (Integer) mGetRawW.invoke(display);
-	                realHeight = (Integer) mGetRawH.invoke(display);
-	            } catch (Exception e) {
-	                //this may not be 100% accurate, but it's all we've got
-	                realWidth = display.getWidth();
-	                realHeight = display.getHeight();
-	            }
-
-	        } else {
-                Display display = getDisplay();
-	            //This should be close, as lower API devices should not have window navigation bars
-	            realWidth = display.getWidth();
-	            realHeight = display.getHeight();
-	        }
+//	        if (TiC.JELLY_BEAN_MR1_OR_GREATER){
+//	            //new pleasant way to get real metrics
+//	            DisplayMetrics realMetrics = new DisplayMetrics();
+//	            getDisplay().getRealMetrics(realMetrics);
+//	            realWidth = realMetrics.widthPixels;
+//	            realHeight = realMetrics.heightPixels;
+//
+//	        } else 
+//	            if (TiC.ICS_OR_GREATER) {
+//	            //reflection for this weird in-between time
+//                Display display = getDisplay();
+//	            try {
+//	                Method mGetRawH = Display.class.getMethod("getRawHeight");
+//	                Method mGetRawW = Display.class.getMethod("getRawWidth");
+//	                realWidth = (Integer) mGetRawW.invoke(display);
+//	                realHeight = (Integer) mGetRawH.invoke(display);
+//	            } catch (Exception e) {
+//	                //this may not be 100% accurate, but it's all we've got
+//	                realWidth = display.getWidth();
+//	                realHeight = display.getHeight();
+//	            }
+//
+//	        } else {
+//                Display display = getDisplay();
+//	            //This should be close, as lower API devices should not have window navigation bars
+//	            realWidth = display.getWidth();
+//	            realHeight = display.getHeight();
+//	        }
+            DisplayMetrics displaymetrics = new DisplayMetrics();
+            getDisplay().getMetrics(displaymetrics);
+            realWidth = displaymetrics.heightPixels;
+            realHeight = displaymetrics.widthPixels;
 	        sizeSet = true;
 	    }
 	}
