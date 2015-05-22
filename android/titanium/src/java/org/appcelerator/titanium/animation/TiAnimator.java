@@ -75,7 +75,7 @@ public class TiAnimator
 	
 	
 	public void setOptions(HashMap options) {
-		this.options = options;
+		this.options = (HashMap) options.clone();
 		applyOptions();
 	}
 	
