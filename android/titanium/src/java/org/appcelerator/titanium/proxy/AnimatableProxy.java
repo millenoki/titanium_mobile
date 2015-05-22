@@ -172,30 +172,45 @@ public class AnimatableProxy extends ParentingProxy {
 		tiSet.setRepeatCount(repeatCount);
 		Interpolator interpolator = tiSet.getCurve();
 
-		for (int i = 0; i < list.size(); i++) {
-			ValueAnimator anim = (ValueAnimator) list.get(i);
-			if (tiSet.delay != null)
-				anim.setStartDelay(tiSet.delay.longValue());
-			if (tiSet.getDuration() != null)
-				anim.setDuration(tiSet.getDuration().longValue());
-			if (interpolator != null)
-				anim.setInterpolator(interpolator);
-		}
-		set.playTogether(list);
+		// for (int i = 0; i < list.size(); i++) {
+		// 	ValueAnimator anim = (ValueAnimator) list.get(i);
+		// 	if (tiSet.delay != null)
+		// 		anim.setStartDelay(tiSet.delay.longValue());
+		// 	if (tiSet.getDuration() != null)
+		// 		anim.setDuration(tiSet.getDuration().longValue());
+		// 	if (interpolator != null)
+		// 		anim.setInterpolator(interpolator);
+		// }
+        set.playTogether(list);
+        {
+            if (tiSet.delay != null)
+                set.setStartDelay(tiSet.delay.longValue());
+            if (tiSet.getDuration() != null)
+                set.setDuration(tiSet.getDuration().longValue());
+            if (interpolator != null)
+                set.setInterpolator(interpolator);
+        }
+
 		
 		//reverse set
 		if (listReverse != null) {
 			AnimatorSet reverseSet = tiSet.getOrCreateReverseSet();
 			Interpolator reverseInterpolator = tiSet.getReverseCurve();
-			for (int i = 0; i < listReverse.size(); i++) {
-				ValueAnimator anim = (ValueAnimator) listReverse.get(i);
-				//no startdelay for the reversed animation
-				if (tiSet.getReverseDuration() != null)
-					anim.setDuration(tiSet.getReverseDuration().longValue());
-				if (reverseInterpolator != null)
-					anim.setInterpolator(reverseInterpolator);
-			}
+			// for (int i = 0; i < listReverse.size(); i++) {
+			// 	ValueAnimator anim = (ValueAnimator) listReverse.get(i);
+			// 	//no startdelay for the reversed animation
+			// 	if (tiSet.getReverseDuration() != null)
+			// 		anim.setDuration(tiSet.getReverseDuration().longValue());
+			// 	if (reverseInterpolator != null)
+			// 		anim.setInterpolator(reverseInterpolator);
+			// }
 			reverseSet.playTogether(listReverse);
+            {
+                if (tiSet.getReverseDuration() != null)
+                    reverseSet.setDuration(tiSet.getReverseDuration().longValue());
+                if (reverseInterpolator != null)
+                    reverseSet.setInterpolator(reverseInterpolator);
+            }
 		}
 		///
 		
