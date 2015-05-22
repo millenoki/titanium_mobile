@@ -27,7 +27,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
-import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
@@ -66,7 +65,6 @@ import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -252,7 +250,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 						itemContent.itemIndex >= section.getItemCount() || 
 						item != section.getListItem(itemContent.itemIndex);
 				section.populateViews(item, itemContent, template, sectionItemIndex, sectionIndex, content, reusing);
-                setBoundsForBaseItem(itemContent);
+//                setBoundsForBaseItem(itemContent);
 			} else {
 				content = new TiBaseAbsListViewItemHolder(getContext());
 				content.setTag(itemViewType);
@@ -262,8 +260,12 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 				itemProxy.setListProxy(getProxy());
 				addHandledProxy(itemProxy);
 				section.generateCellContent(sectionIndex, item, itemProxy, itemContent, template, sectionItemIndex, content);
-                setBoundsForBaseItem(itemContent);
 			}
+			if (content instanceof TiBaseAbsListViewItemHolder) {
+			    ((TiBaseAbsListViewItemHolder) content).setItem(itemContent, item, listView);
+
+			}
+//            setBoundsForBaseItem(content, itemContent, item);
 		    canShowMenus |= itemContent.getListItem().canShowMenus();
 
 			return content;
@@ -272,19 +274,17 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		
 		
 
-		private void setBoundsForBaseItem(TiBaseAbsListViewItem item)  {
-			TiBaseAbsListViewItemHolder holder;
-			ViewParent parent = item.getParent();
-			if (parent instanceof TiBaseAbsListViewItemHolder)
-			{
-				holder = (TiBaseAbsListViewItemHolder) parent;
-			}
-			else if (parent instanceof TiBorderWrapperView)
-			{
-				holder = (TiBaseAbsListViewItemHolder) parent.getParent();
-			}
-			else return;
-            holder.setItem(item, listView);
+//		private void setBoundsForBaseItem(View content)  {
+//			TiBaseAbsListViewItemHolder holder;
+//			if (content instanceof TiBaseAbsListViewItemHolder)
+//			{
+//				holder = (TiBaseAbsListViewItemHolder) content;
+//			}
+//			else if (content instanceof TiBorderWrapperView)
+//			{
+//				holder = (TiBaseAbsListViewItemHolder) content.getParent();
+//			}
+//			else return;
 //			String minRowHeight = MIN_ROW_HEIGHT;
 //			if (proxy != null && proxy.hasProperty(TiC.PROPERTY_MIN_ROW_HEIGHT)) {
 //				minRowHeight = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_MIN_ROW_HEIGHT));
@@ -294,7 +294,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 //			if (proxy.hasProperty(TiC.PROPERTY_MAX_ROW_HEIGHT)) {
 //				item.setMaxHeight(TiConvert.toTiDimension(proxy.getProperty(TiC.PROPERTY_MAX_ROW_HEIGHT), TiDimension.TYPE_HEIGHT));
 //			}
-		}
+//		}
 		
 		@Override
 		public void notifyDataSetChanged()

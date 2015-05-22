@@ -29,6 +29,7 @@ import ti.modules.titanium.ui.widget.abslistview.AbsListItemProxy;
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListView;
 import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItem;
 import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItemHolder;
+import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import android.app.Activity;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
@@ -40,8 +41,8 @@ import android.widget.BaseAdapter;
 public class TiListView extends TiAbsListView<CustomListView> {
 
     private Object mAppearAnimation = null;
+    private boolean mUseAppearAnimation = false;
     private Animator mAppearAnimators = null;
-    private long mAppearAnimationDuration = 300;
     
     private SwipeMenuAdapter mSwipeMenuAdapater;
     private boolean mNeedsSwipeMenu = true;
@@ -122,18 +123,28 @@ public class TiListView extends TiAbsListView<CustomListView> {
     protected void setListViewAdapter(TiBaseAdapter adapter) {
         SingleAnimationAdapter animationAdapter = null;
         BaseAdapter currentAdapter = adapter;
-        if (mAppearAnimators != null || mAppearAnimation != null) {
+        if (mUseAppearAnimation) {
             currentAdapter = animationAdapter = new SingleAnimationAdapter(adapter) {
                 @Override
                 protected Animator getAnimator(int position, View view, ViewGroup parent) {
+                    
+                    
                     if (mAppearAnimators != null) {
                         Animator anim = mAppearAnimators.clone();
                         anim.setTarget(view);
                         return anim;
-                    } else if (mAppearAnimation != null && view instanceof TiBaseAbsListViewItemHolder) {
-                        TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) view.findViewById(listContentId);
-                        AbsListItemProxy proxy = itemContent.getProxy();
-                        return proxy.getAnimatorSetForAnimation(mAppearAnimation);
+                    } else if (view instanceof TiBaseAbsListViewItemHolder) {
+                        AbsListItemData data  = ((TiBaseAbsListViewItemHolder) view).getItemData();
+                        Object anim = data.getProperties().get("appearAnimation");
+                        if (anim == null) {
+                            anim = mAppearAnimation;
+                        }
+                        if (anim != null) {
+                            TiBaseAbsListViewItem itemContent = (TiBaseAbsListViewItem) view.findViewById(listContentId);
+                            AbsListItemProxy proxy = itemContent.getProxy();
+                            Animator animator = proxy.getAnimatorSetForAnimation(anim);
+                            return animator;
+                        }
                     }
                     return null;
                 }
@@ -150,7 +161,7 @@ public class TiListView extends TiAbsListView<CustomListView> {
                 .setListViewWrapper(new StickyListHeadersListViewWrapper(
                         listView));
         if (animationAdapter != null) {
-            animationAdapter.getViewAnimator().setAnimationDurationMillis(mAppearAnimationDuration);
+            animationAdapter.getViewAnimator().setAnimationDurationMillis(0);
         }
         listView.setAdapter(stickyListHeadersAdapterDecorator);
     }
@@ -165,21 +176,20 @@ public class TiListView extends TiAbsListView<CustomListView> {
         case "appearAnimation":
             if (newValue instanceof HashMap || newValue instanceof TiAnimation) {
                 mAppearAnimation = newValue;
+                mUseAppearAnimation = mAppearAnimation != null;
             } else {
                 int id = TiConvert.toInt(newValue);
                 if (id != 0) {
                     mAppearAnimators = AnimatorInflater.loadAnimator(getProxy().getActivity(), id) ;
-                    if (mAppearAnimators.getDuration() != 0) {
-                        mAppearAnimationDuration = mAppearAnimators.getDuration();
-                    }
                 } else {
                     mAppearAnimators = null;
                 }
+                mUseAppearAnimation = mAppearAnimators != null;
             }
             
             break;
-        case "appearAnimationDuration":
-            mAppearAnimationDuration = TiConvert.toInt(newValue);
+        case "useAppearAnimation":
+            mUseAppearAnimation = TiConvert.toBoolean(newValue, false);
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);

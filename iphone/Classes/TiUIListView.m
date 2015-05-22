@@ -92,7 +92,7 @@
     BOOL _canSwipeCells;
     MGSwipeTableCell * _currentSwipeCell;
     id _appearAnimation;
-    CGFloat _appearAnimationDuration;
+    BOOL _useAppearAnimation;
 }
 
 static NSDictionary* replaceKeysForRow;
@@ -136,8 +136,8 @@ static NSDictionary* replaceKeysForRow;
         caseInsensitiveSearch = YES;
 		canFireScrollEnd = NO;
         canFireScrollStart = YES;
-        _appearAnimationDuration = -1;
         _appearAnimation = nil;
+        _useAppearAnimation = NO;
     }
     return self;
 }
@@ -154,7 +154,8 @@ static NSDictionary* replaceKeysForRow;
     RELEASE_TO_NIL(_searchResults)
     RELEASE_TO_NIL(_pullViewWrapper)
 
-//    RELEASE_TO_NIL(tableController)
+    RELEASE_TO_NIL(_appearAnimation)
+    RELEASE_TO_NIL(_shownIndexes)
     RELEASE_TO_NIL(sectionTitles)
     RELEASE_TO_NIL(sectionIndices)
     RELEASE_TO_NIL(filteredTitles)
@@ -231,7 +232,6 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)reloadTableViewData {
     _canSwipeCells = NO;
-    [_shownIndexes removeAllObjects];
     [_tableView reloadData];
 }
 
@@ -1023,14 +1023,12 @@ static NSDictionary* replaceKeysForRow;
         ENSURE_SINGLE_ARG(value, NSDictionary);
         _appearAnimation = [value retain];
     }
-    if (!_shownIndexes) {
-        _shownIndexes = [[NSMutableSet set] retain];
-    }
+    _useAppearAnimation = _useAppearAnimation || _appearAnimation != nil;
 }
 
--(void)setAppearAnimationDuration_:(id)value
+-(void)setUseAppearAnimation_:(id)value
 {
-    _appearAnimationDuration = [TiUtils floatValue:value];
+    _useAppearAnimation = [TiUtils boolValue:value def:NO];
 }
 
 #pragma mark - Search Support
@@ -1756,32 +1754,40 @@ static NSDictionary* replaceKeysForRow;
     if (searchActive || (tableView != _tableView)) {
         return;
     }
+    TiUIListItem* item = (TiUIListItem*)cell;
+    NSDictionary *data = item.dataItem;
+    
     if (hasOnDisplayCell) {
         TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
-        NSDictionary *item = [section itemAtIndex:indexPath.row];
         NSDictionary * propertiesDict = @{
                                           @"view":((TiUIListItem*)cell).proxy,
                                           @"listView": self.proxy,
                                           @"section":section,
-                                          @"item":item,
+                                          @"item":data,
                                           @"searchResult":NUMBOOL([self isSearchActive]),
                                           @"sectionIndex":NUMINTEGER(indexPath.section),
                                           @"itemIndex":NUMINTEGER(indexPath.row)
         };
         [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
     }
-    if (_shownIndexes && ![self.shownIndexes containsObject:indexPath]) {
-        [self.shownIndexes addObject:indexPath];
-        if (_appearAnimation) {
-            TiViewProxy* proxy = ((TiUIListItem*)cell).proxy;
-            TiAnimation * newAnimation = [TiAnimation animationFromArg:_appearAnimation context:[proxy executionContext] create:NO];
-            newAnimation.noDelegate = YES;
-            if (_appearAnimationDuration >= 0) {
-                newAnimation.duration = _appearAnimationDuration;
+    if (_useAppearAnimation) {
+        if (!_shownIndexes) {
+            _shownIndexes = [[NSMutableSet set] retain];
+        }
+        if (![_shownIndexes containsObject:indexPath]) {
+            [_shownIndexes addObject:indexPath];
+            id appearAnimation = [data objectForKey:@"appearAnimation"];
+            if (!appearAnimation) {
+                appearAnimation = _appearAnimation;
             }
+            TiViewProxy* proxy = item.proxy;
+            TiAnimation * newAnimation = [TiAnimation animationFromArg:appearAnimation context:[proxy executionContext] create:NO];
+            newAnimation.noDelegate = YES;
             [proxy handleAnimation:newAnimation];
         }
     }
+    
+    
     //Tell the proxy about the cell to be displayed
     [self.listViewProxy willDisplayCell:indexPath];
 }
