@@ -117,12 +117,6 @@ public class TiBorderWrapperView extends MaskableView
 		super.setClipChildren(clipChildren);
     }
 	
-//	@Override
-//    public ViewParent invalidateChildInParent(final int[] location,final Rect dirty) {
-//		ViewParent result = super.invalidateChildInParent(location,dirty);
-//        return result;
-//    }
-	
 	
 
 	@Override
