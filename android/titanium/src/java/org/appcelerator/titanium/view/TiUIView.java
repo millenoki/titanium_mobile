@@ -125,7 +125,6 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected LayoutParams layoutParams;
     protected TiBackgroundDrawable background;
-    protected Drawable mForegroundDrawable;
 
     protected boolean preventListViewSelection = false;
     protected boolean touchPassThrough = false;
@@ -145,10 +144,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     // i.e., the view passed to registerForTouch.
     private WeakReference<View> touchView = null;
 
-    private boolean zIndexChanged = false;
+    // private boolean zIndexChanged = false;
     protected TiBorderWrapperView borderView;
     private TiDimension mElevation = null;
     private TiDimension mTranslationZ = null;
+    private ViewOutlineProvider mOutlineProvider = null;
 
     // to maintain sync visibility between borderview and view. Default is
     // visible
@@ -418,31 +418,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         nativeView.setTag(this);
         
         if (TiC.LOLLIPOP_OR_GREATER) {
-            if (mOutlineProvider == null) {
-                mOutlineProvider = new ViewOutlineProvider() {
-
-                    @Override
-                    public void getOutline(View view, Outline outline) {
-//                        if (mElevation == null && view.getElevation() == 0) {
-//                            outline.setEmpty();
-//                        } else {
-                        
-                            Path path = (background != null) ? background.getPath() : null;
-                            if (path != null) {
-                                outline.setConvexPath(path);
-                            } else {
-                                outline.setRect(0, 0,
-                                        view.getMeasuredWidth(),
-                                        view.getMeasuredHeight());
-                            }
-//                        }
-
-                    }
-                };
-            }
-            nativeView.setOutlineProvider(mOutlineProvider);
             nativeView.setClipToOutline(clipChildren);
-
         }
         
         if (borderView != null) {
@@ -648,9 +624,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    public boolean iszIndexChanged() {
-        return zIndexChanged;
-    }
+    // public boolean iszIndexChanged() {
+    //     return zIndexChanged;
+    // }
 
     protected void setNeedsLayout() {
         setNeedsLayout(false);
@@ -664,9 +640,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     }
 
-    public void setzIndexChanged(boolean zIndexChanged) {
-        this.zIndexChanged = zIndexChanged;
-    }
+    // public void setzIndexChanged(boolean zIndexChanged) {
+    //     this.zIndexChanged = zIndexChanged;
+    // }
 
     protected int fillLayout(String key, Object value, boolean withMatrix) {
         return TiConvert.fillLayout(key, value, layoutParams, true);
@@ -1014,6 +990,29 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (view != null) {
                     view.setElevation(mElevation.getAsPixels(view));
                 }
+                if (mOutlineProvider == null) {
+                    mOutlineProvider = new ViewOutlineProvider() {
+
+                        @Override
+                        public void getOutline(View view, Outline outline) {
+                           if (mElevation == null && view.getElevation() == 0) {
+                               outline.setEmpty();
+                           } else {
+                                Path path = (background != null) ? background.getPath() : null;
+                                if (path != null) {
+                                    outline.setConvexPath(path);
+                                } else {
+                                    outline.setRect(0, 0,
+                                        view.getMeasuredWidth(),
+                                        view.getMeasuredHeight());
+                                }
+                            }
+                        }
+                    };
+                    if (view != null) {
+                        view.setOutlineProvider(mOutlineProvider);
+                    }
+                }
                 mProcessUpdateFlags |= TIFLAG_NEEDS_STATE_LIST_ANIMATOR;
             }
             break;
@@ -1061,7 +1060,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         float elevation = ViewCompat.getElevation(view);
         float translationZ = ViewCompat.getTranslationZ(view);
-        float translationSelectedZ = translationZ + 2.0f;
+        float translationSelectedZ = (translationZ > 0) ? (translationZ * 2.0f): 2.0f;
         int animationDuration = 100;
         StateListAnimator listAnimator = new StateListAnimator();
         List<android.animation.Animator> animators = new ArrayList<android.animation.Animator>();
@@ -1556,7 +1555,6 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    private ViewOutlineProvider mOutlineProvider = null;
 
     protected void applyCustomForeground(final int pressedColor, final boolean enabled) {
         if (TiC.LOLLIPOP_OR_GREATER) {
@@ -1613,7 +1611,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             ViewCompat.setTranslationZ(rootView, 0);
         }
         if (TiC.LOLLIPOP_OR_GREATER) {
-            borderView.setOutlineProvider(mOutlineProvider);
+            if (mOutlineProvider != null) {
+                borderView.setOutlineProvider(mOutlineProvider);
+            }
             borderView.setClipToOutline(clipChildren);
             borderView.setStateListAnimator(rootView.getStateListAnimator());
             rootView.setOutlineProvider(null);
@@ -1621,15 +1621,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         borderView.setClipChildren(clipChildren);
         
-        
         if (savedParent != null) {
             savedParent.addView(borderView, savedIndex);
         }
-
-        // if ((borderView.getRadius() != null || hardwareAccEnabled == false)
-        // && HONEYCOMB_OR_GREATER) {
-        // disableHWAcceleration(borderView);
-        // }
     }
 
     protected TiBorderWrapperView getOrCreateBorderView() {
