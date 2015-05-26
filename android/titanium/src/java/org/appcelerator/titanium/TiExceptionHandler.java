@@ -81,20 +81,23 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			Log.w(TAG, "Activity is null or already finishing, skipping dialog.");
 			return;
 		}
-		String[] callstackArray = error.callstack.split("\n");
-        StringBuilder sb = new StringBuilder();
-		int i = 0;
-		for (i = 1; i < callstackArray.length; i++) {
-		    String value = callstackArray[i];
-		    if (value.indexOf("at Module._runScript") != -1) {
-		        break;
-		    }
-		    if (i != 1) {
-                sb.append("\n");
-            }
-            sb.append(value);
+		if (error.callstack != null) {
+		    String[] callstackArray = error.callstack.split("\n");
+	        StringBuilder sb = new StringBuilder();
+	        int i = 0;
+	        for (i = 1; i < callstackArray.length; i++) {
+	            String value = callstackArray[i];
+	            if (value.indexOf("at Module._runScript") != -1) {
+	                break;
+	            }
+	            if (i != 1) {
+	                sb.append("\n");
+	            }
+	            sb.append(value);
+	        }
+	        error.callstack = sb.toString();
 		}
-		error.callstack = sb.toString();
+		
 		
 		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset, error.callstack);
 
@@ -150,16 +153,19 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		
 		((TextView) layout.findViewById(layoutLocationId)).setText("[" + error.line + "," + error.lineOffset + "] " + error.sourceName);
         ((TextView) layout.findViewById(layoutMessageId)).setText(error.message);
-        ((TextView) layout.findViewById(layoutSourceId)).setText(error.lineSource.trim());
-        ((TextView) layout.findViewById(layoutCallstackId)).setText(error.callstack);
-
+        if (error.lineSource != null) {
+            ((TextView) layout.findViewById(layoutSourceId)).setText(error.lineSource.trim());
+        }
+        if (error.callstack != null) {
+            ((TextView) layout.findViewById(layoutCallstackId)).setText(error.callstack);
+        }
 		OnClickListener clickListener = new OnClickListener()
 		{
 			public void onClick(DialogInterface dialog, int which)
 			{
 				if (which == DialogInterface.BUTTON_POSITIVE) {
-					// Kill Process
-					Process.killProcess(Process.myPid());
+				    TiApplication.getAppRootOrCurrentActivity().finish();
+		             System.exit(0);
 
 				} else if (which == DialogInterface.BUTTON_NEUTRAL) {
 					// Continue
