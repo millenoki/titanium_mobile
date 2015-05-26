@@ -64,18 +64,16 @@
 - (CGSize)suggestedFrameSizeToFitEntireStringConstraintedToSize:(CGSize)size
 {
     CGSize maxSize = CGSizeMake(size.width<=0 ? 10000 : size.width, 10000);
-//    maxSize.width -= label.textInsets.left + label.textInsets.right;
-    
     CGSize result = [[self label] sizeThatFits:maxSize];
-//    if (size.width > 0) result.width = MIN(result.width,  size.width);
-//    if (size.height > 0) result.height = MIN(result.height,  size.height);
-//    //padding
-//    result.width += label.textInsets.left+ label.textInsets.right;
-//    result.height += label.textInsets.top + label.textInsets.bottom;
-    
-    CGSize shadowOffset = [label shadowOffset];
-    result.width += abs(shadowOffset.width);
-    result.height += abs(shadowOffset.height);
+    if ([label shadowRadius] > 0) {
+        CGSize shadowOffset = [label shadowOffset];
+        if (result.width > 0) {
+            result.width += fabs(shadowOffset.width);
+        }
+        if (result.height > 0) {
+            result.height += fabs(shadowOffset.height);
+        }
+    }
     return result;
 }
 
