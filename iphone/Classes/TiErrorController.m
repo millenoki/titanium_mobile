@@ -37,14 +37,18 @@
             }
             NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                          @{
-                                           @"text":[error scriptLocation]
-                                           }, @"location",
-                                         @{
                                            @"text":[error message]
-                                           }, @"message",
-                                         @{
-                                           @"text":[[error backtrace] stringByReplacingOccurrencesOfString:path withString:@""]
-                                           }, @"callstack", nil];
+                                           }, @"message", nil];
+            if (error.sourceURL) {
+                [dict setObject:@{
+                                  @"text":[error scriptLocation]
+                                  } forKey:@"source"];
+            }
+            if (error.backtrace) {
+                [dict setObject:@{
+                                  @"text":[[error backtrace] stringByReplacingOccurrencesOfString:path withString:@""]
+                                  } forKey:@"callstack"];
+            }
             if (error.sourceLine) {
                 [dict setObject:@{
                                  @"text":error.sourceLine

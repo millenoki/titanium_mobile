@@ -475,7 +475,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		evaluationError = YES;
         TiScriptError* error = [TiUtils scriptErrorValue:excm];
         NSInteger lineNb = error.lineNo;
-        error.sourceLine = [[[jcode componentsSeparatedByString:@"\n"] objectAtIndex:lineNb - 1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (lineNb > 0) {
+            error.sourceLine = [[[jcode componentsSeparatedByString:@"\n"] objectAtIndex:lineNb - 1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        }
+        
         
 		[[TiExceptionHandler defaultExceptionHandler] reportScriptError:error];
 	}

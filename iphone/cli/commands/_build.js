@@ -3374,6 +3374,7 @@ iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finish
 	this.logger.info(__('Initiating Xcode pre-compile phase'));
 
 	series(this, [
+		'copyErrorTemplate',
 		'copyResources',
 		'processTiSymbols',
 		'writeDebugProfilePlists',

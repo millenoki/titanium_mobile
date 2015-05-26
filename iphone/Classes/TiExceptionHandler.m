@@ -66,6 +66,8 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)handleUncaughtException:(NSException *)exception withStackTrace:(NSArray *)stackTrace
 {
+    [self showScriptError:[TiUtils scriptErrorValue:exception]];
+
 }
 
 - (void)handleScriptError:(TiScriptError *)error
