@@ -41,6 +41,7 @@ public class TiBorderWrapperView extends MaskableView
 	private RectF clipRect;
 	private Path clipPath;
 	private boolean clipChildren = true;
+	private boolean antiAlias = false;
 	private RectF mBorderPadding = null;
 	private TiViewProxy proxy;
 //	private boolean mDrawableSizeChanged = false;
@@ -98,7 +99,7 @@ public class TiBorderWrapperView extends MaskableView
 	}
 	
 	protected void clipCanvas(Canvas canvas) {
-		if (!this.clipChildren) return;
+		if (!this.clipChildren || this.antiAlias) return;
 		if (radius != null) {
 			// This still happens sometimes when hw accelerated so, catch and warn
 			try {
@@ -117,7 +118,11 @@ public class TiBorderWrapperView extends MaskableView
 		super.setClipChildren(clipChildren);
     }
 	
-	
+	public void setAntiAlias(boolean antialias) {
+        this.antiAlias = antialias;
+    }
+    
+    
 
 	@Override
 	protected void onSizeChanged (int w, int h, int oldw, int oldh) {
@@ -220,6 +225,10 @@ public class TiBorderWrapperView extends MaskableView
 			clipRect.set(outerRect);
 		}
 		invalidate();
+
+//        if (TiC.LOLLIPOP_OR_GREATER) {
+//            invalidateOutline();
+//        }
 	}
 
 	private void drawBorder(Canvas canvas)

@@ -792,11 +792,16 @@ public class TiC
 	 */
 	public static final String PROPERTY_ANNOTATION = "annotation";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_ANNOTATIONS = "annotations";
-	
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_ANNOTATIONS = "annotations";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_ANTI_ALIAS = "antiAlias";
+    
 	/**
 	 * @module.api
 	 */

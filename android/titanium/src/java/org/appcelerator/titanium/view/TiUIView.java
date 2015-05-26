@@ -161,6 +161,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected boolean exclusiveTouch = false;
     public boolean hardwareAccEnabled = true;
+    private boolean antiAlias = false;
+    float realRadius = 0.0f;
     protected TiTouchDelegate mTouchDelegate;
     private RectF mBorderPadding = null;
     protected boolean useCustomLayoutParams = false;
@@ -998,14 +1000,21 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                            if (mElevation == null && view.getElevation() == 0) {
                                outline.setEmpty();
                            } else {
-                                Path path = (background != null) ? background.getPath() : null;
-                                if (path != null) {
-                                    outline.setConvexPath(path);
-                                } else {
-                                    outline.setRect(0, 0,
+                                if (realRadius > 0) {
+                                    outline.setRoundRect(0, 0,
                                         view.getMeasuredWidth(),
-                                        view.getMeasuredHeight());
+                                        view.getMeasuredHeight(), realRadius);
+                                } else {
+                                    Path path = (background != null) ? background.getPath() : null;
+                                    if (path != null) {
+                                        outline.setConvexPath(path);
+                                    } else {
+                                        outline.setRect(0, 0,
+                                            view.getMeasuredWidth(),
+                                            view.getMeasuredHeight());
+                                    }
                                 }
+                                
                             }
                         }
                     };
@@ -1033,6 +1042,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 disableHWAcceleration();
             else
                 enableHWAcceleration();
+            break;
+        case TiC.PROPERTY_ANTI_ALIAS:
+            antiAlias = TiConvert.toBoolean(newValue);
+            if (borderView != null)
+                borderView.setAntiAlias(antiAlias);
             break;
         case TiC.PROPERTY_MASK_FROM_VIEW:
             KrollProxy maskProxy = proxy.addProxyToHold(newValue, "maskView");
@@ -1637,6 +1651,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             ViewHelper.setAlpha(borderView, oldAlpha);
             borderView.setVisibility(this.visibility);
             borderView.setEnabled(isEnabled);
+            borderView.setAntiAlias(antiAlias);
 
             
 
@@ -1664,7 +1679,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     }
 
     private float[] getBorderRadius(float radius) {
-        float realRadius = radius * TiApplication.getAppDensity();
+        realRadius = radius * TiApplication.getAppDensity();
         float[] result = new float[8];
         Arrays.fill(result, realRadius);
         return result;
@@ -1824,37 +1839,6 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (mGestureHandler != null) {
             mGestureHandler.onTouch(v, event);
         }
-
-        // scaleDetector.onTouchEvent(event);
-        // if (scaleDetector.isInProgress()) {
-        // pointersDown = 0;
-        // return true;
-        // }
-
-        // boolean handled = detector.onTouchEvent(event);
-        // if (handled) {
-        // pointersDown = 0;
-        // return true;
-        // }
-        //
-        // if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
-        // if (didScale) {
-        // didScale = false;
-        // pointersDown = 0;
-        // } else {
-        // pointersDown++;
-        // }
-        // } else if (action == MotionEvent.ACTION_UP) {
-        // if (pointersDown == 1) {
-        // if (hasListeners(TiC.EVENT_TWOFINGERTAP, false)) {
-        // fireEvent(TiC.EVENT_TWOFINGERTAP, dictFromEvent(event), false,
-        // false);
-        // }
-        // pointersDown = 0;
-        // return true;
-        // }
-        // pointersDown = 0;
-        // }
 
         handleTouchEvent(event);
         return !isTouchEnabled;
