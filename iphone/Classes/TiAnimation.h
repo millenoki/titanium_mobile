@@ -112,7 +112,7 @@ enum TiAnimCurve
 @property(nonatomic,assign) BOOL autoreverse;
 @property(nonatomic,assign) BOOL restartFromBeginning;
 @property(nonatomic,assign) BOOL cancelRunningAnimations;
-@property(nonatomic,assign) BOOL noDelegate;
+@property(nonatomic,assign) BOOL dontApplyOnFinish;
 @property(nonatomic,readonly) BOOL shouldBeginFromCurrentState;
 @property(nonatomic,assign) CGFloat delay;
 @property(nonatomic,assign) CGFloat duration;

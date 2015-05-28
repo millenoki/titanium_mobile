@@ -66,7 +66,7 @@
             
         };
         
-        void (^complete)(BOOL) = viewAnimation.animationProxy.noDelegate ? nil : ^(BOOL finished) {
+        void (^complete)(BOOL) = ^(BOOL finished) {
             [self notifyAsynchronousAnimationStepDidStopFinished:finished];
         };
         

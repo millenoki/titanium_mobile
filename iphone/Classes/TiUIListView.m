@@ -1782,7 +1782,7 @@ static NSDictionary* replaceKeysForRow;
             }
             TiViewProxy* proxy = item.proxy;
             TiAnimation * newAnimation = [TiAnimation animationFromArg:appearAnimation context:[proxy executionContext] create:NO];
-            newAnimation.noDelegate = YES;
+//            newAnimation.dontApplyOnFinish = YES;
             [proxy handleAnimation:newAnimation];
         }
     }

@@ -22,7 +22,7 @@
 @end
 
 @implementation TiAnimation
-@synthesize callback, duration, reverseDuration, repeat, autoreverse, delay, restartFromBeginning, cancelRunningAnimations, noDelegate;
+@synthesize callback, duration, reverseDuration, repeat, autoreverse, delay, restartFromBeginning, cancelRunningAnimations, dontApplyOnFinish;
 @synthesize curve = _curve, reverseCurve = _reverseCurve;
 @synthesize animation, animatedProxy;
 @synthesize animated, transition, view;
@@ -41,7 +41,7 @@ static NSArray *animProps;
         
         transition = UIViewAnimationTransitionNone;
         animated = NO;
-        noDelegate = NO;
+        dontApplyOnFinish = NO;
         [super _initWithProperties:properties];
         if (context_!=nil)
         {
@@ -486,7 +486,9 @@ static NSArray *animProps;
 	{
 		[self.delegate animationDidComplete:self];
 	}
-    [self handleCompletedAnimation:animated_];
+    if (!dontApplyOnFinish) {
+        [self handleCompletedAnimation:animated_];
+    }
 }
 
 /**
