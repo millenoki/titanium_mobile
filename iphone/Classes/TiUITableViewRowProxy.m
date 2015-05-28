@@ -642,10 +642,10 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 //	[destroyLock unlock];
 //}
 
-- (void)didReceiveMemoryWarning:(NSNotification *)notification
-{
-    [super didReceiveMemoryWarning:notification];
-}
+//- (void)didReceiveMemoryWarning:(NSNotification *)notification
+//{
+//    [super didReceiveMemoryWarning:notification];
+//}
 
 
 -(void)configureChildren:(UITableViewCell*)cell
