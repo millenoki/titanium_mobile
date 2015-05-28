@@ -209,7 +209,7 @@ Object.defineProperty(EventEmitter.prototype, "once", {
 		};
 
 		g.listener = listener;
-		self.on(type, g);
+		self.addListener(type, g);
 
 		return this;
 	},
