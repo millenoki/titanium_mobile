@@ -812,6 +812,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// Get the relative path to the Resources directory
 	NSString *relativePath = [sourceURL path];
     NSString *basePath = [[TiFileSystemHelper resourcesDirectory] stringByStandardizingPath];
+    
+    if ([basePath hasPrefix:@"/private"]) {
+        basePath = [basePath substringFromIndex:8];
+    }
+    if ([relativePath hasPrefix:@"/private"]) {
+        relativePath = [relativePath substringFromIndex:8];
+    }
+    
 	relativePath = [relativePath stringByReplacingOccurrencesOfString:basePath withString:@""];
 	relativePath = [[relativePath substringFromIndex:1] stringByDeletingLastPathComponent];
 
