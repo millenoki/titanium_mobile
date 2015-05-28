@@ -188,6 +188,7 @@
         [super applyProperties:data?@[data]:nil];
         [self configurationSet];
         [self refreshViewOrParent];
+        [self handlePendingAnimation];
     }, wait);
 }
 
