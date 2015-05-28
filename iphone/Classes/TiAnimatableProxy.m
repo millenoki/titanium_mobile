@@ -150,7 +150,7 @@
 {
     if (animation.animation)
     {
-        TiThreadPerformOnMainThread(^{
+        TiThreadPerformBlockOnMainThread(^{
             [animation.animation cancel];
             animation.animation = nil;
         }, YES);
