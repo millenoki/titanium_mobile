@@ -381,12 +381,13 @@ public class TiUILabel extends TiUINonViewGroupView
 		
 		public EllipsizingTextView clone(CharSequence text) {
 			EllipsizingTextView newView = new EllipsizingTextView(getContext());
-			newView.setInputType(getInputType());
+//			newView.setInputType(getInputType());
 			newView.setGravity(getGravity());
 			newView.setKeyListener(getKeyListener());
 			TiUIHelper.styleText(newView, getProxy().getProperties().getKrollDict(TiC.PROPERTY_FONT));
 			newView.setEllipsize(ellipsize);
 			newView.singleline = this.singleline;
+//			newView.setSingleLine(this.singleline);
 			newView.maxLines = this.maxLines;
 			newView.maxTextSize = this.maxTextSize;
 			newView.minTextSize = this.minTextSize;
