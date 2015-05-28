@@ -547,6 +547,30 @@ static NSArray* handledKeys;
     return [[_bgView selectableLayer] getColorForState:UIControlStateNormal];
 }
 
+-(void)setDelaysContentTouches:(BOOL)value
+{
+    _delaysContentTouches = value;
+    // iterate over all the UITableView's subviews
+    if (![TiUtils isIOS8OrGreater]) {
+        for (id view in self.subviews)
+        {
+            // looking for a UITableViewCellScrollView
+            if ([NSStringFromClass([view class]) isEqualToString:@"UITableViewCellScrollView"])
+            {
+                // this test is here for safety only, also there is no UITableViewCellScrollView in iOS8
+                if([view isKindOfClass:[UIScrollView class]])
+                {
+                    // turn OFF delaysContentTouches in the hidden subview
+                    UIScrollView *scroll = (UIScrollView *) view;
+                    scroll.delaysContentTouches = _delaysContentTouches;
+                }
+                break;
+            }
+        }
+    }
+}
+
+
 @end
 
 #endif

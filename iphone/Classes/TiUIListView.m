@@ -982,6 +982,10 @@ static NSDictionary* replaceKeysForRow;
     [[self tableView] setDelaysContentTouches:[TiUtils boolValue:value def:YES]];
 }
 
+-(void)setCanCancelEvents_:(id)args
+{
+    [[self tableView] setCanCancelContentTouches:[TiUtils boolValue:args def:YES]];
+}
 
 -(void)setScrollSuspendsImageLoading_:(id)value
 {
@@ -1623,6 +1627,7 @@ static NSDictionary* replaceKeysForRow;
             }
             [cell configurationSet];
         }
+        cell.delaysContentTouches = tableView.delaysContentTouches;
         cell.delegate = self;
         
         if ([TiUtils isIOS8OrGreater] && (tableView == _tableView)) {

@@ -32,6 +32,7 @@ typedef enum
 @property (nonatomic, readonly) TiUIListItemProxy *proxy;
 @property (nonatomic, retain) TiUIView *viewHolder;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
+@property(nonatomic) BOOL delaysContentTouches;
 
 - (id)initWithStyle:(UITableViewCellStyle)style position:(int)position grouped:(BOOL)grouped reuseIdentifier:(NSString *)reuseIdentifier proxy:(TiUIListItemProxy *)proxy;
 - (id)initWithProxy:(TiUIListItemProxy *)proxy position:(int)position grouped:(BOOL)grouped reuseIdentifier:(NSString *)reuseIdentifier;

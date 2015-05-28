@@ -67,6 +67,40 @@
     return [self findFirstViewProxyAsParent:view.superview];
 }
 
+-(void)setDelaysContentTouches:(BOOL)delaysContentTouches
+{
+    [super setDelaysContentTouches:delaysContentTouches];
+    // iterate over all the UITableView's subviews
+    if ([TiUtils isIOS8OrGreater]) {
+        for (id view in self.subviews)
+        {
+            // looking for a UITableViewWrapperView
+            if ([NSStringFromClass([view class]) isEqualToString:@"UITableViewWrapperView"])
+            {
+                // this test is necessary for safety and because a "UITableViewWrapperView" is NOT a UIScrollView in iOS7
+                if([view isKindOfClass:[UIScrollView class]])
+                {
+                    // turn OFF delaysContentTouches in the hidden subview
+                    UIScrollView *scroll = (UIScrollView *) view;
+                    scroll.delaysContentTouches = delaysContentTouches;
+                }
+                break;
+            }
+        }
+    }
+}
+
+- (BOOL)touchesShouldCancelInContentView:(UIView *)view {
+    // Because we set delaysContentTouches = NO, we return YES for UIButtons
+    // so that scrolling works correctly when the scroll gesture
+    // starts in the UIButtons.
+    BOOL exclusive = [view isExclusiveTouch];
+    if (exclusive) {
+        return NO;
+    }
+    return [super touchesShouldCancelInContentView:view];
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     UITouch *touch = [touches anyObject];
