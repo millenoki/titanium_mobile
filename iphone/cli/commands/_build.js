@@ -2124,16 +2124,24 @@ iOSBuilder.prototype.createInfoPlist = function createInfoPlist(next) {
 
 	if (!(ios && ios.plist && ios.plist.CFBundleIconFiles) && !(custom && custom.CFBundleIconFiles)) {
 		Array.isArray(plist.CFBundleIconFiles) || (plist.CFBundleIconFiles = []);
-		['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-60@3x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small@3x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
-			name = iconName + name;
-			if (fs.existsSync(path.join(this.projectDir, 'Resources', name)) ||
-				fs.existsSync(path.join(this.projectDir, 'Resources', 'iphone', name)) ||
-				fs.existsSync(path.join(this.projectDir, 'Resources', 'ios', name))) {
-				if (plist.CFBundleIconFiles.indexOf(name) === -1) {
-					plist.CFBundleIconFiles.push(name);
-				}
-			}
-		}, this);
+
+
+		var resourcesPaths = [path.join(this.projectDir, 'Resources'), path.join(this.projectDir, 'Resources', 'iphone'), path.join(this.projectDir, 'Resources', 'ios')];
+
+	    this.cli.createHook('build.ios.resourcesPaths', this, function (resourcesPaths) {
+	    	['.png', '@2x.png', '-72.png', '-60.png', '-60@2x.png', '-60@3x.png', '-76.png', '-76@2x.png', '-Small-50.png', '-72@2x.png', '-Small-50@2x.png', '-Small.png', '-Small@2x.png', '-Small@3x.png', '-Small-40.png', '-Small-40@2x.png'].forEach(function (name) {
+				name = iconName + name;
+				resourcesPaths.forEach(function (dir) {
+		        	if (fs.existsSync(path.join(dir, name))) {
+						if (plist.CFBundleIconFiles.indexOf(name) === -1) {
+							plist.CFBundleIconFiles.push(name);
+						}
+						return true;
+					}
+		        }, this);
+			}, this);
+	        
+	    })(resourcesPaths, function () {});
 	}
 
 	if (!(ios && ios.plist && (ios.plist.UILaunchImages || ios.plist['UILaunchImages~ipad'])) && !(custom && (custom.UILaunchImages || custom['UILaunchImages~ipad']))) {
