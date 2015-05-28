@@ -98,7 +98,6 @@ DEFINE_EXCEPTIONS
         _preventDefaultImage = NO;
         _filterOptions = nil;
         onlyTransitionIfRemote = NO;
-        
     }
     return self;
 }
@@ -200,21 +199,21 @@ DEFINE_EXCEPTIONS
     if (stopped) {
         return;
     }
-
+    
     // don't let the placeholder stomp on our new images
     placeholderLoading = NO;
-
+    
     NSInteger position = index % loadTotal;
-
+    
     if (position<0)
     {
         position=loadTotal-1;
         index=position-1;
     }
     UIView *view = [[container subviews] objectAtIndex:position];
-
+    
     // see if we have an activity indicator... if we do, that means the image hasn't yet loaded
-    // and we want to start the spinner to let the user know that we're still loading. we 
+    // and we want to start the spinner to let the user know that we're still loading. we
     // don't initially start the spinner when added since we don't want to prematurely show
     // the spinner (usually for the first image) and then immediately remove it with a flash
     UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
@@ -223,25 +222,25 @@ DEFINE_EXCEPTIONS
         [(UIActivityIndicatorView*)spinner startAnimating];
         [view bringSubviewToFront:spinner];
     }
-
+    
     // the container sits on top of the image in case the first frame (via setUrl) is first
     [self bringSubviewToFront:container];
-
+    
     if (previous!=nil)
     {
         previous.hidden = YES;
         RELEASE_TO_NIL(previous);
     }
-
+    
     previous = [view retain];
     previous.hidden = NO;
-
+    
     if ([self.proxy _hasListeners:@"change"])
     {
         NSDictionary *evt = [NSDictionary dictionaryWithObject:NUMINTEGER(position) forKey:@"index"];
         [self.proxy fireEvent:@"change" withObject:evt];
     }
-
+    
     if (repeatCount > 0 && ((reverse==NO && position == (loadTotal-1)) || (reverse && position==0)))
     {
         iterations++;
@@ -280,7 +279,7 @@ DEFINE_EXCEPTIONS
         if ([self.proxy _hasListeners:eventName]) {
             [self.proxy fireEvent:eventName withObject:nil];
         }
-
+        
         if ([eventName isEqualToString:@"start"] && previous == nil) {
             //TIMOB-18830. Load the first image immediately
             [self timerFired:nil];
@@ -349,14 +348,13 @@ DEFINE_EXCEPTIONS
 {
     LayoutConstraint* constraints = [(TiViewProxy*)[self proxy] layoutProperties];
     if (((TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width)) &&
-         (TiDimensionIsUndefined(constraints->left) || TiDimensionIsUndefined(constraints->right))) ||
+         (TiDimensionIsUndefined(constraints->left) || TiDimensionIsUndefined(constraints->right))) &&
         ((TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height)) &&
          (TiDimensionIsUndefined(constraints->top) || TiDimensionIsUndefined(constraints->bottom)))) {
             return UIViewContentModeScaleAspectFit;
+        } else {
+            return scaleType;
         }
-    else {
-        return scaleType;
-    }
 }
 
 -(void)updateContentMode
@@ -461,8 +459,8 @@ DEFINE_EXCEPTIONS
     {
         factor /= screenScale;
     }
-//    CGFloat realWidth = imageToUse.size.width * factor;
-//    CGFloat realHeight = imageToUse.size.height * factor;
+    //    CGFloat realWidth = imageToUse.size.width * factor;
+    //    CGFloat realHeight = imageToUse.size.height * factor;
     autoWidth = imageToUse.size.width;
     autoHeight = imageToUse.size.height;
     if (_tintColorImage) {
@@ -628,13 +626,13 @@ DEFINE_EXCEPTIONS
             if (_filterOptions) {
                 shouldTransition = YES;
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
-               {
-                   RELEASE_TO_NIL(_currentImage);
-                   _currentImage = [[TiImageHelper imageFiltered:image withOptions:_filterOptions] retain];
-                   TiThreadPerformOnMainThread(^{
-                       [self transitionToImage:_currentImage];
-                   }, NO);
-               });
+                               {
+                                   RELEASE_TO_NIL(_currentImage);
+                                   _currentImage = [[TiImageHelper imageFiltered:image withOptions:_filterOptions] retain];
+                                   TiThreadPerformOnMainThread(^{
+                                       [self transitionToImage:_currentImage];
+                                   }, NO);
+                               });
             }
             else {
                 RELEASE_TO_NIL(_currentImage);
@@ -709,7 +707,7 @@ DEFINE_EXCEPTIONS
     ready = NO;
     index = -1;
     iterations = -1;
-	if (_animatedImage) {
+    if (_animatedImage) {
         [_animatedImage stop];
     }
     [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
@@ -723,7 +721,7 @@ DEFINE_EXCEPTIONS
     BOOL paused = [TiUtils boolValue:[self.proxy valueForKey:@"paused"] def:NO];
     [self.proxy replaceValue:NUMBOOL(NO) forKey:@"paused" notification:NO];
     [self.proxy replaceValue:NUMBOOL(NO) forKey:@"stopped" notification:NO];
-	if (_animatedImage) {
+    if (_animatedImage) {
         [self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
         [_animatedImage start];
         return;
@@ -732,7 +730,7 @@ DEFINE_EXCEPTIONS
     {
         iterations = 0;
     }
-
+    
     if (index<0 || !paused)
     {
         if (reverse)
@@ -744,8 +742,8 @@ DEFINE_EXCEPTIONS
             index = 0;
         }
     }
-
-
+    
+    
     // refuse to start animation if you don't have any images
     if (loadTotal > 0)
     {
@@ -877,9 +875,9 @@ DEFINE_EXCEPTIONS
 {
     if (!configurationSet) {
         _needsSetImage = YES;
-//        if (_reusing) {
-//            [self loadDefaultImage];
-//        }
+        //        if (_reusing) {
+        //            [self loadDefaultImage];
+        //        }
         return;
     }
     _needsSetImage = NO;
@@ -929,15 +927,15 @@ DEFINE_EXCEPTIONS
         shouldTransition = YES;
         __block id imageSource = _currentImageSource;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
-       {
-           if (imageSource != _currentImageSource) return;
-           RELEASE_TO_NIL(_currentImage);
-           _currentImage = [[TiImageHelper imageFiltered:image withOptions:_filterOptions] retain];
-           TiThreadPerformOnMainThread(^{
-               if (imageSource != _currentImageSource) return;
-               [self transitionToImage:_currentImage];
-           }, NO);
-       });
+                       {
+                           if (imageSource != _currentImageSource) return;
+                           RELEASE_TO_NIL(_currentImage);
+                           _currentImage = [[TiImageHelper imageFiltered:image withOptions:_filterOptions] retain];
+                           TiThreadPerformOnMainThread(^{
+                               if (imageSource != _currentImageSource) return;
+                               [self transitionToImage:_currentImage];
+                           }, NO);
+                       });
     }
     else {
         RELEASE_TO_NIL(_currentImage);
@@ -1129,16 +1127,16 @@ DEFINE_EXCEPTIONS
     if (_filterOptions) {
         __block id imageSource = _currentImageSource;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void)
-           {
-               if (imageSource != _currentImageSource) return;
-               RELEASE_TO_NIL(_currentImage);
-               _currentImage = [[TiImageHelper imageFiltered:[self convertToUIImage:image] withOptions:_filterOptions] retain];
-               TiThreadPerformOnMainThread(^{
-                   if (imageSource != _currentImageSource) return;
-                   [self transitionToImage:_currentImage];
-               }, NO);
-           });
-
+                       {
+                           if (imageSource != _currentImageSource) return;
+                           RELEASE_TO_NIL(_currentImage);
+                           _currentImage = [[TiImageHelper imageFiltered:[self convertToUIImage:image] withOptions:_filterOptions] retain];
+                           TiThreadPerformOnMainThread(^{
+                               if (imageSource != _currentImageSource) return;
+                               [self transitionToImage:_currentImage];
+                           }, NO);
+                       });
+        
     }
     else {
         TiThreadPerformOnMainThread(^{
