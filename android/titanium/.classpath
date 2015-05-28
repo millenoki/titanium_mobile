@@ -10,7 +10,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/kroll-common"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry exported="true" kind="lib" path="/titanium-dist/lib/kroll-common.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/aps-analytics.jar"/>
 	<classpathentry kind="lib" path="/android-support-v7-appcompat/lib/android-support-v7-appcompat.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/okhttp-2.3.0.jar"/>
