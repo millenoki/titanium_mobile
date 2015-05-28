@@ -1190,8 +1190,13 @@ public class TiConvert
 			return (TiPoint)value;
 
 		} else if (value instanceof HashMap || value instanceof KrollDict) {
-			return new TiPoint((HashMap)value);
-		}
+            return new TiPoint((HashMap)value);
+        } else if (value instanceof Object[]) {
+            Object[] array = (Object[])value;
+            if (array.length >= 2) {
+                return new TiPoint(array[0], array[1]);
+            }
+        }
 
 		return null;
 	}
@@ -1207,6 +1212,12 @@ public class TiConvert
             
             return new PointF(TiConvert.toFloat(hashmap, TiC.PROPERTY_X, 0.0f),
                     TiConvert.toFloat(hashmap, TiC.PROPERTY_Y, 0.0f));
+        } else if (value instanceof Object[]) {
+            Object[] array = (Object[])value;
+            if (array.length >= 2) {
+                return new PointF(TiConvert.toFloat(array[0], 0.0f),
+                        TiConvert.toFloat(array[1], 0.0f));
+            }
         }
     
         return null;
