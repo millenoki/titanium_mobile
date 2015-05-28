@@ -35,7 +35,7 @@
 
 -(void)_initWithProperties:(NSDictionary*)properties
 {
-    if (!_unarchiving && ([properties objectForKey:@"properties"] || [properties objectForKey:@"childTemplates"])) {
+    if (!_unarchiving && ([properties objectForKey:@"properties"] || [properties objectForKey:@"childTemplates"] || [properties objectForKey:@"events"])) {
         [self invokeBlockOnJSThread:^{
             [self unarchiveFromDictionary:properties rootProxy:self];
         }];
