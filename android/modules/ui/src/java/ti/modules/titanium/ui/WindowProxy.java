@@ -90,6 +90,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			super(proxy);
 			layoutParams.autoFillsHeight = true;
 			layoutParams.autoFillsWidth = true;
+			layoutParams.sizeOrFillWidthEnabled = true;
+			layoutParams.sizeOrFillHeightEnabled = true;
 			TiCompositeLayout layout = new TiCompositeLayout(proxy.getActivity(), this);
 			setNativeView(layout);
 		}
