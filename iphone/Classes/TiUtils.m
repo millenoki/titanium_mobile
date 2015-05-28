@@ -2729,7 +2729,10 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     if (exps) {
         expressions = [NSMutableDictionary dictionaryWithDictionary:variables];
         [exps enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-            [expressions setObject:[eval evaluateString:obj withSubstitutions:variables] forKey:key];
+            NSNumber* result = [eval evaluateString:obj withSubstitutions:variables];
+            if (result) {
+                [expressions setObject:result forKey:key];
+            }
             
         }];
     } else {
