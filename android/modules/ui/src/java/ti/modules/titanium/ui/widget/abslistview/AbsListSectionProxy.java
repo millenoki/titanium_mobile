@@ -231,8 +231,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		int diff = 0;
 		for (int i = 0; i < hElements; i++) {
 			diff++;
-			if (hiddenItems.get(position + diff))
+			if (hiddenItems.get(position + diff)) {
 				i--;
+			}
 		}
 		return (position + diff);
 	}
@@ -242,8 +243,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		int diff = 0;
 		for (int i = 0; i < hElements; i++) {
 			diff++;
-			if (hiddenItems.get(position + diff))
+			if (hiddenItems.get(position + diff)) {
 				i--;
+			}
 		}
 		return (position - diff);
 	}
@@ -251,9 +253,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private int getHiddenCountUpTo(int location) {
 		int count = 0;
-		for (int i = 0; i < location; i++) {
-			if (hiddenItems.get(i))
+		for (int i = 0; i <= location; i++) {
+			if (hiddenItems.get(i)) {
 				count++;
+			}
 		}
 		return count;
 	}
@@ -553,7 +556,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
         View content = listView.getCellAt(this.sectionIndex, itemIndex);
         KrollDict d = new KrollDict(currentItem);
-        AbsListItemData itemD = getItemDataAt(itemIndex);
+        AbsListItemData itemD = listItemData.get(itemIndex);
         itemD.setProperties(d);
 //        listItemData.set(index, itemD);
         hiddenItems.set(itemIndex, !itemD.isVisible());
@@ -844,8 +847,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		int count = 0;
 		if (hidden || hiddenItems == null) return count;
 		for (int i = 0; i < hiddenItems.size(); i++)
-			if (hiddenItems.get(i) == true)
-				count++;
+			if (hiddenItems.get(i) == true) {
+                count++;
+			}
 		return count;
 	}
 
