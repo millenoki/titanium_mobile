@@ -21,7 +21,6 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 public class TiUIActivityIndicator extends TiUIView
 {
@@ -47,7 +46,7 @@ public class TiUIActivityIndicator extends TiUIView
 		 * should show up on top of the current activity when called - not just the
 		 * activity it was created in
 		 */
-		Activity activity = TiApplication.getAppCurrentActivity();
+		final Activity activity = proxy.getActivity();
 
 		if (activity == null) {
 			Log.w(TAG, "Unable to create an activity indicator. Activity is null");
@@ -132,7 +131,7 @@ public class TiUIActivityIndicator extends TiUIView
 
 	protected void setStyle(int style)
 	{
-		if (style == currentStyle) {
+		if (style == currentStyle || view == null) {
 			return;
 		}
 		if (style != PLAIN && style != BIG && style != DARK && style != BIG_DARK) {
@@ -141,7 +140,7 @@ public class TiUIActivityIndicator extends TiUIView
 		}
 
 		view.removeAllViews();
-		progress = new ProgressBar(TiApplication.getAppCurrentActivity(), null, style);
+		progress = new ProgressBar(proxy.getActivity(), null, style);
 		currentStyle = style;
 		view.addView(progress);
 		view.addView(label);
