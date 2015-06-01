@@ -475,8 +475,11 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		evaluationError = YES;
         TiScriptError* error = [TiUtils scriptErrorValue:excm];
         NSInteger lineNb = error.lineNo;
-        if (lineNb > 0) {
-            error.sourceLine = [[[jcode componentsSeparatedByString:@"\n"] objectAtIndex:lineNb - 1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (lineNb > 0 && [error.sourceURL isEqualToString:[url_ absoluteString]]) {
+            NSArray* lines = [jcode componentsSeparatedByString:@"\n"];
+            if (lineNb < [lines count]) {
+                error.sourceLine = [[lines objectAtIndex:lineNb - 1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            }
         }
         
         

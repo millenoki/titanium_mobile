@@ -42,7 +42,7 @@
             if (error.sourceURL) {
                 [dict setObject:@{
                                   @"text":[error scriptLocation]
-                                  } forKey:@"source"];
+                                  } forKey:@"location"];
             }
             if (error.backtrace) {
                 [dict setObject:@{
