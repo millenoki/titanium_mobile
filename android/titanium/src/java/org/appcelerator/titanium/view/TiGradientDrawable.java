@@ -67,7 +67,7 @@ public class TiGradientDrawable extends ShapeDrawable {
 		}
 		
 		if (properties.containsKey("endPoint")) {
-            startPoint = TiConvert.toPoint(properties.get("endPoint"));
+		    endPoint = TiConvert.toPoint(properties.get("endPoint"));
 		}
 		if (properties.containsKey("startRadius")) {
 			startRadius = TiConvert.toTiDimension(properties, "startRadius", TiDimension.TYPE_WIDTH);
