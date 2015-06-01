@@ -73,8 +73,8 @@ public class DisplayCapsProxy extends KrollProxy
 //	        }
             DisplayMetrics displaymetrics = new DisplayMetrics();
             getDisplay().getMetrics(displaymetrics);
-            realWidth = displaymetrics.heightPixels;
-            realHeight = displaymetrics.widthPixels;
+            realWidth = displaymetrics.widthPixels;
+            realHeight = displaymetrics.heightPixels;
 	        sizeSet = true;
 	    }
 	}
