@@ -421,11 +421,17 @@ public class TiC
 	 */
 	public static final String EVENT_PROPERTY_THUMB_OFFSET = "thumbOffset";
 
-	/**
-	 * @module.api
-	 */
-	public static final String EVENT_PROPERTY_THUMB_SIZE = "thumbSize";
+    /**
+     * @module.api
+     */
+    public static final String EVENT_PROPERTY_THUMB_SIZE = "thumbSize";
 
+    /**
+     * @module.api
+     */
+    public static final String EVENT_PROPERTY_TRANSLATION = "translation";
+
+    
 	/**
 	 * @module.api
 	 */
