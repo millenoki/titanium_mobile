@@ -4,6 +4,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.content.Context;
@@ -321,7 +322,26 @@ public class TiViewGestureHandler {
             break;
         }
         case ACTION_MOVE: {
-//            MoveGestureDetector detector = (MoveGestureDetector) theDetector;
+            MoveGestureDetector detector = (MoveGestureDetector) theDetector;
+            PointF translation = detector.getFocusDelta();
+            final float timeDelta = detector.getTimeDelta() == 0 ? 1 : detector
+                    .getTimeDelta();
+            TiDimension nativeValue = new TiDimension(0, TiDimension.TYPE_WIDTH);
+
+            KrollDict point = new KrollDict();
+            point.put(TiC.EVENT_PROPERTY_X, (translation.x - 1.0f) / timeDelta
+                    * 1000);
+            nativeValue.setValue((translation.y - 1.0f) / timeDelta * 1000);
+            point.put(TiC.EVENT_PROPERTY_Y, (translation.y - 1.0f) / timeDelta
+                    * 1000);
+            event.put(TiC.EVENT_PROPERTY_VELOCITY, point);
+            
+            point = new KrollDict();
+            nativeValue.setValue(translation.x);
+            point.put(TiC.EVENT_PROPERTY_X, nativeValue.getAsDefault());
+            nativeValue.setValue(translation.x);
+            point.put(TiC.EVENT_PROPERTY_Y, nativeValue.getAsDefault());
+            event.put(TiC.EVENT_PROPERTY_TRANSLATION, point);
             key = TiC.EVENT_PAN;
             break;
         }
