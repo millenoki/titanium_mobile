@@ -168,7 +168,7 @@ class TiHtmlToSpannedConverter implements ContentHandler {
                 } else {
                     int c = TiColorHelper.parseColor(f.mColor);
                     if (c != -1) {
-                        text.setSpan(new ForegroundColorSpan(c | 0xFF000000),
+                        text.setSpan(new ForegroundColorSpan(c),
                                 where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     }
                 }
