@@ -878,8 +878,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     @Kroll.method
-    public void applyProperties(Object arg, @Kroll.argument(optional = true) Object wait) {
-        applyPropertiesInternal(arg, false, TiConvert.toBoolean(wait, false));
+    public void applyProperties(Object arg, @Kroll.argument(optional = true) Object options) {
+        boolean wait = false;
+        if (options instanceof HashMap) {
+            wait = TiConvert.toBoolean((HashMap) options, "wait", wait);
+        }
+        applyPropertiesInternal(arg, false, wait);
     }
     
     public void applyProperties(Object arg) {
