@@ -24,7 +24,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Process;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
