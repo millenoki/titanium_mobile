@@ -896,11 +896,12 @@ public class TiHTTPClient
 		} else {
 			port = uri.getPort();
 		}
+        if (Log.isDebugModeEnabled()) {
 
-		Log.d(
-			TAG,
-			"Instantiating host with hostString='" + hostString + "', port='" + port + "', scheme='" + uri.getScheme() + "'",
-			Log.DEBUG_MODE);
+            Log.d(TAG, "Instantiating host with hostString='" + hostString
+                    + "', port='" + port + "', scheme='" + uri.getScheme()
+                    + "'", Log.DEBUG_MODE);
+        }
 
 		host = new HttpHost(hostString, port, uri.getScheme());
 		if (uri.getUserInfo() != null) {
