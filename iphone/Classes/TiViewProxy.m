@@ -2707,12 +2707,12 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 }
 -(void)refreshViewIfNeeded:(BOOL)recursive
 {
-    BOOL needsRefresh = OSAtomicTestAndClear(TiRefreshViewEnqueued, &dirtyflags);
     TiViewProxy* viewParent = isUsingBarButtonItem?nil:[self viewParent];
     if (viewParent && [viewParent willBeRelaying] && ![viewParent absoluteLayout]) {
         return;
     }
-    
+    BOOL needsRefresh = OSAtomicTestAndClear(TiRefreshViewEnqueued, &dirtyflags);
+
     if (!needsRefresh)
     {
         //even if our sandbox is null and we are not ready (next test) let s still call refresh our our children. They wont refresh but at least they will clear their TiRefreshViewEnqueued flags !
@@ -3849,10 +3849,10 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             TiUIView* view1 = nil;
             __block TiUIView* view2 = nil;
             if (view2Proxy) {
-                [view2Proxy performBlockWithoutLayout:^{
+//                [view2Proxy performBlockWithoutLayout:^{
                     [view2Proxy setParent:self];
                     view2 = [view2Proxy getAndPrepareViewForOpening];
-                }];
+//                }];
                 
                 id<TiEvaluator> context = self.executionContext;
                 if (context == nil) {
@@ -3865,7 +3865,11 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             }
             if (view1Proxy != nil) {
                 view1 = [view1Proxy getAndPrepareViewForOpening];
+                [view1Proxy refreshViewIfNeeded];
             }
+            [self refreshViewIfNeeded];
+            [view1Proxy refreshViewIfNeeded];
+            [view2Proxy refreshViewIfNeeded];
             
             TiTransition* transition = [TiTransitionHelper transitionFromArg:props containerView:self.view];
             transition.adTransition.type = ADTransitionTypePush;
