@@ -25,7 +25,10 @@ import org.appcelerator.titanium.util.TiSensorHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlarmManager;
 import android.app.Application;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -256,8 +259,17 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public void restart(@Kroll.argument(optional = true) Object arg)
 	{
 	    int delay = TiConvert.toInt(arg, 250);
-	    TiApplication.getInstance().scheduleRestart(delay);
-
+        AlarmManager restartAlarmManager = (AlarmManager) TiApplication.getAppSystemService(Context.ALARM_SERVICE);
+        if (restartAlarmManager != null) {
+            final Context context = TiApplication.getAppContext();
+            Intent relaunch = new Intent( context, TiApplication.getInstance().getRootActivity().getClass());
+            relaunch.setAction(Intent.ACTION_MAIN);
+            relaunch.addCategory(Intent.CATEGORY_LAUNCHER);
+            PendingIntent restartPendingIntent = PendingIntent.getActivity( context, 0, relaunch, PendingIntent.FLAG_ONE_SHOT);
+            restartAlarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + delay, restartPendingIntent);
+            TiApplication.getInstance().getRootActivity().finish();
+//            System.exit(0);
+        }
 	}
 	
 	@Kroll.method(name = "_restart")
