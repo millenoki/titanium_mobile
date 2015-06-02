@@ -163,8 +163,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			public void onClick(DialogInterface dialog, int which)
 			{
 				if (which == DialogInterface.BUTTON_POSITIVE) {
-				    TiApplication.getAppRootOrCurrentActivity().finish();
-		             System.exit(0);
+		            TiApplication.getInstance().getRootActivity().finish();
+		            System.exit(0);
 
 				} else if (which == DialogInterface.BUTTON_NEUTRAL) {
 					// Continue
