@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.MethodNotSupportedException;
 import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
