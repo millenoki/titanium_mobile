@@ -54,6 +54,8 @@
     {
         sweepStartAngle = 0;
         gradientRect = CGRectNull;
+        backfillStart = YES;
+        backfillEnd = YES;
     }
     return self;
 }
