@@ -1403,7 +1403,7 @@ public class TiHTTPClient
         if (msg == null) {
             msg = t.getClass().getName();
         }
-        Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+        Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg);
         int statusCode = TiC.ERROR_CODE_UNKNOWN;
         if (t instanceof HttpResponseException) {
             statusCode = ((HttpResponseException)t).getStatusCode();
