@@ -4,10 +4,15 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 
 import android.os.Build;
+//import android.os.PowerManager;
+//import android.os.PowerManager.WakeLock;
+//import android.app.KeyguardManager;
+//import android.app.KeyguardManager.KeyguardLock;
+//import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
-import android.os.Build;
+//import android.os.Build;
 
 @Kroll.module(parentModule=PlatformModule.class)
 public class AndroidModule extends PlatformModule{
@@ -56,4 +61,31 @@ public class AndroidModule extends PlatformModule{
 	        return false;
 	    }
     }
+//	
+//    @Kroll.method
+//    public void wakeUpScreen() {
+//        WakeLock screenLock = ((PowerManager) TiApplication
+//                .getAppSystemService(Context.POWER_SERVICE)).newWakeLock(
+//                PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+//                        | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
+//        screenLock.acquire();
+//
+//        // later
+//        screenLock.release();
+//    }
+//    
+//    @Kroll.method
+//    public void unlockDevice() {
+//        WakeLock screenLock = ((PowerManager) TiApplication
+//                .getAppSystemService(Context.POWER_SERVICE)).newWakeLock(
+//                PowerManager.SCREEN_BRIGHT_WAKE_LOCK
+//                        | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
+//        screenLock.acquire();
+//
+//        // later
+//        screenLock.release();
+//        KeyguardManager keyguardManager = (KeyguardManager) TiApplication.getAppSystemService(Context.KEYGUARD_SERVICE); 
+//        KeyguardLock keyguardLock = keyguardManager.newKeyguardLock("TAG");
+//        keyguardLock.disableKeyguard();
+//    }
 }
