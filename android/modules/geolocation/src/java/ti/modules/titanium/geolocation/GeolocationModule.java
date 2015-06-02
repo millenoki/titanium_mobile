@@ -288,51 +288,38 @@ public class GeolocationModule extends KrollModule
 		switch (state) {
 			case LocationProviderProxy.STATE_DISABLED:
 				message += " is disabled";
-				Log.i(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			case LocationProviderProxy.STATE_ENABLED:
 				message += " is enabled";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-
 				break;
 
 			case LocationProviderProxy.STATE_OUT_OF_SERVICE:
 				message += " is out of service";
-				Log.d(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			case LocationProviderProxy.STATE_UNAVAILABLE:
 				message += " is unavailable";
-				Log.d(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			case LocationProviderProxy.STATE_AVAILABLE:
 				message += " is available";
-				Log.d(TAG, message, Log.DEBUG_MODE);
-
 				break;
 
 			case LocationProviderProxy.STATE_UNKNOWN:
 				message += " is in a unknown state [" + state + "]";
-				Log.d(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 
 			default:
 				message += " is in a unknown state [" + state + "]";
-				Log.d(TAG, message, Log.DEBUG_MODE);
 				fireEvent(TiC.EVENT_LOCATION, buildLocationErrorEvent(state, message));
-
 				break;
 		}
+        Log.d(TAG, message, Log.DEBUG_MODE);
 	}
 
 	/**
