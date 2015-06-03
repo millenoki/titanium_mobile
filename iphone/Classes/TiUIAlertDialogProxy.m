@@ -17,6 +17,14 @@ static BOOL alertShowing = NO;
 @property(nonatomic, readwrite) BOOL hideOnClick;
 @end
 
+@interface TiAlertController : UIAlertController
+@property(nonatomic, assign) TiUIAlertDialogProxy* proxy;
+@end
+
+@interface TiUIAlertDialogProxy()
+-(void) cleanup;
+@end
+
 
 @implementation TiAlertView
 @synthesize hideOnClick;
@@ -25,6 +33,15 @@ static BOOL alertShowing = NO;
     if (!hideOnClick)
         return;
     [super dismissWithClickedButtonIndex:buttonIndex animated:animated];
+}
+
+@end
+
+@implementation TiAlertController
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    [_proxy cleanup];
 }
 
 @end
@@ -49,7 +66,10 @@ static BOOL alertShowing = NO;
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     RELEASE_TO_NIL(alert);
-    RELEASE_TO_NIL(alertController);
+    if (alertController) {
+        alertController.proxy = nil;
+        RELEASE_TO_NIL(alertController);
+    }
     [super _destroy];
 }
 
@@ -80,7 +100,10 @@ static BOOL alertShowing = NO;
 		[self forgetSelf];
 		[self autorelease];
 		RELEASE_TO_NIL(alert);
-		RELEASE_TO_NIL_AUTORELEASE(alertController);
+        if (alertController) {
+            alertController.proxy = nil;
+            RELEASE_TO_NIL(alertController);
+        }
 		[[[TiApp app] controller] decrementActiveAlertControllerCount];
 		[[NSNotificationCenter defaultCenter] removeObserver:self];
 	}
@@ -123,6 +146,7 @@ static BOOL alertShowing = NO;
             [alertCondition wait];
         }
         alertShowing = YES;
+        [alertCondition broadcast];
         [alertCondition unlock];
         // alert show should block the JS thread like the browser
         TiThreadPerformOnMainThread(^{[self show:args];}, YES);
@@ -152,9 +176,10 @@ static BOOL alertShowing = NO;
         if ([TiUtils isIOS8OrGreater]) {
             RELEASE_TO_NIL(alertController);
             
-            alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
+            alertController = [[TiAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
                                                                   message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                             preferredStyle:UIAlertControllerStyleAlert] retain];
+            alertController.proxy = self;
 //        ((TiAlertView*)alert).hideOnClick = hideOnClick;
             int curIndex = 0;
             //Configure the Buttons
