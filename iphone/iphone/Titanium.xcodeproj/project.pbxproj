@@ -1078,6 +1078,9 @@
 		D5EEA18B1A37486100E8BB3F /* DDTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1491A37486100E8BB3F /* DDTypes.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5EEA18C1A37486100E8BB3F /* DDTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1491A37486100E8BB3F /* DDTypes.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5EEA18D1A37486100E8BB3F /* DDTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = D5EEA1491A37486100E8BB3F /* DDTypes.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5F1CE561B1F514200077B43 /* TiLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = D55EB01F18630B08004DCAF7 /* TiLabel.m */; };
+		D5F1CE5B1B1F514200077B43 /* TiLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = D55EB01F18630B08004DCAF7 /* TiLabel.m */; };
+		D5F1CE5C1B1F514300077B43 /* TiLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = D55EB01F18630B08004DCAF7 /* TiLabel.m */; };
 		D5F3F9B019C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		D5F3F9B719C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		D5F3F9B819C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
@@ -5216,6 +5219,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5F1CE5C1B1F514300077B43 /* TiLabel.m in Sources */,
 				243ECCB21126984E00639DF4 /* TiUITableViewAction.m in Sources */,
 				243ECCB71126986F00639DF4 /* TiFile.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
@@ -5802,6 +5806,7 @@
 				24D8E440119B9D8A00F8CAA6 /* TiAppPropertiesProxy.m in Sources */,
 				D54C7CF01811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				24D8E441119B9D8A00F8CAA6 /* TiAnimation.m in Sources */,
+				D5F1CE5B1B1F514200077B43 /* TiLabel.m in Sources */,
 				24D8E442119B9D8A00F8CAA6 /* TiAction.m in Sources */,
 				84A0100017FB833000D4BF94 /* TiPushBehavior.m in Sources */,
 				24D8E444119B9D8A00F8CAA6 /* Ti2DMatrix.m in Sources */,
@@ -6226,6 +6231,7 @@
 				DABB371912E8CB280026A6EA /* TiAppPropertiesProxy.m in Sources */,
 				D54C7CF11811565A00F592A9 /* TiTransitionSlide.m in Sources */,
 				DABB371A12E8CB280026A6EA /* TiAnimation.m in Sources */,
+				D5F1CE561B1F514200077B43 /* TiLabel.m in Sources */,
 				DABB371B12E8CB280026A6EA /* TiAction.m in Sources */,
 				84A0100117FB833000D4BF94 /* TiPushBehavior.m in Sources */,
 				DABB371D12E8CB280026A6EA /* Ti2DMatrix.m in Sources */,

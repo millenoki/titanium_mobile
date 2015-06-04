@@ -19,16 +19,6 @@
 #import "TiTransitionHelper.h"
 #import "TiTransition.h"
 
-@implementation TiLabel
-
--(void)setFrame:(CGRect)frame
-{
-    [super setFrame:CGRectIntegral(frame)];
-}
-
-@end
-
-
 @interface TiUILabel()
 {
     BOOL _reusing;

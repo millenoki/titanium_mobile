@@ -7,11 +7,7 @@
 #ifdef USE_TI_UILABEL
 
 #import "TiUIView.h"
-#import "TTTAttributedLabel.h"
-
-@interface TiLabel : TDTTTAttributedLabel
-
-@end
+#import "TiLabel.h"
 
 @interface TiUILabel : TiUIView<LayoutAutosizing, TTTAttributedLabelDelegate> {
 @private
