@@ -1983,13 +1983,13 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 	if ([url isFileURL] || app)
 	{
 		BOOL leadingSlashRemoved = NO;
-		NSString *urlstring = [[url standardizedURL] path];
-		NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+        NSString *urlstring = [[url standardizedURL] path];
+        NSString *resourceurl = [[TiFileSystemHelper resourcesDirectory] stringByStandardizingPath];
 		NSRange range = [urlstring rangeOfString:resourceurl];
 		NSString *appurlstr = urlstring;
 		if (range.location!=NSNotFound)
 		{
-			appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
+			appurlstr = [urlstring substringFromIndex:range.location + range.length];
 		}
 		if ([appurlstr hasPrefix:@"/"])
 		{
@@ -2047,17 +2047,16 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 {
     NSURL *url = [NSURL fileURLWithPath:path];
     NSString *urlstring = [[url standardizedURL] path];
-    NSString *resourceurl = [[NSBundle mainBundle] resourcePath];
+    NSString *resourceurl = [[TiFileSystemHelper resourcesDirectory] stringByStandardizingPath];
     NSRange range = [urlstring rangeOfString:resourceurl];
     NSString *appurlstr = urlstring;
     if (range.location!=NSNotFound)
     {
-        if ([urlstring isEqualToString:resourceurl]) {
-            appurlstr = @"";
-        } else {
-            appurlstr = [urlstring substringFromIndex:range.location + range.length + 1];
-        }
-
+        appurlstr = [urlstring substringFromIndex:range.location + range.length];
+    }
+    if ([appurlstr hasPrefix:@"/"])
+    {
+        appurlstr = [appurlstr substringFromIndex:1];
     }
     static id AppRouter;
     if (AppRouter==nil)
