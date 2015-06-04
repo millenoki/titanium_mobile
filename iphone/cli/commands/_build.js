@@ -1449,7 +1449,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'injectApplicationDefaults', // if ApplicationDefaults.m was modified, forceRebuild will be set to true
 		'copyTitaniumLibraries',
 		'copyItunesArtwork',
-		'copyErrorTemplate',
 		'copyGraphics',
 		'validateExtentions',
 		'invokeXcodeBuildOnExtensionDependencies',
@@ -2477,26 +2476,6 @@ iOSBuilder.prototype.copyItunesArtwork = function copyItunesArtwork(next) {
 	next();
 };
 
-iOSBuilder.prototype.copyErrorTemplate = function copyErrorTemplate(next) {
-	// note: iTunesArtwork is a png image WITHOUT the file extension and the
-	// purpose of this function is to copy it from the root of the project.
-	// The preferred location of this file is <project-dir>/Resources/iphone
-	// or <project-dir>/platform/iphone.
-	if (!/dist\-appstore/.test(this.target)) {
-		this.logger.info(__('Copying Error Template'));
-		var dirBase = this.encryptJS ? this.buildAssetsDir : this.xcodeAppDir;
-		var src;
-		if (fs.existsSync(src = path.join(this.projectDir, "_error_template.json")) ||
-			fs.existsSync(src = path.join(this.templatesDir, '_error_template.json'))) {
-			appc.fs.copyFileSync(src, dirBase, {
-				logger: this.logger.debug
-			});
-			this.encryptJS && jsFilesToEncrypt.push('_error_template');
-		}
-	}
-	next();
-};
-
 iOSBuilder.prototype.copyGraphics = function copyGraphics(next) {
 	var paths = [
 			path.join(this.projectDir, 'Resources', 'iphone'),
@@ -3382,7 +3361,6 @@ iOSBuilder.prototype.xcodePrecompilePhase = function xcodePrecompilePhase(finish
 	this.logger.info(__('Initiating Xcode pre-compile phase'));
 
 	series(this, [
-		'copyErrorTemplate',
 		'copyResources',
 		'processTiSymbols',
 		'writeDebugProfilePlists',
@@ -3696,6 +3674,18 @@ iOSBuilder.prototype.copyResources = function copyResources(finished) {
 				}
 			};
 		}), function () {
+			if (!/dist\-appstore/.test(this.target)) {
+				this.logger.info(__('Copying Error Template'));
+				var dirBase = this.encryptJS ? path.join(this.buildAssetsDir, '_error_template_json') : path.join(this.xcodeAppDir, '_error_template.json');
+				var src;
+				if (fs.existsSync(src = path.join(this.projectDir, "_error_template.json")) ||
+					fs.existsSync(src = path.join(this.templatesDir, '_error_template.json'))) {
+					appc.fs.copyFileSync(src, dirBase, {
+						logger: this.logger.debug
+					});
+					this.encryptJS && jsFilesToEncrypt.push('_error_template_json');
+				}
+			}
 			// write the properties file
 			var appPropsFile = this.encryptJS ? path.join(this.buildAssetsDir, '_app_props__json') : path.join(this.xcodeAppDir, '_app_props_.json'),
 				props = {};
