@@ -816,15 +816,18 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	NSString *relativePath = [sourceURL path];
     NSString *basePath = [[TiFileSystemHelper resourcesDirectory] stringByStandardizingPath];
     
-    if ([basePath hasPrefix:@"/private"]) {
-        basePath = [basePath substringFromIndex:8];
-    }
-    if ([relativePath hasPrefix:@"/private"]) {
-        relativePath = [relativePath substringFromIndex:8];
-    }
     
-	relativePath = [relativePath stringByReplacingOccurrencesOfString:basePath withString:@""];
-	relativePath = [[relativePath substringFromIndex:1] stringByDeletingLastPathComponent];
+    NSRange range = [relativePath rangeOfString:basePath];
+    if (range.location!=NSNotFound)
+    {
+        relativePath = [relativePath substringFromIndex:range.location + range.length];
+    }
+    if ([relativePath hasPrefix:@"/"])
+    {
+        relativePath = [relativePath substringFromIndex:1];
+    }
+
+	relativePath = [relativePath stringByDeletingLastPathComponent];
 
 	/*
 	 * This is for parity with android, if the file is located in the Resources, then __dirname returns "."

@@ -29,7 +29,7 @@ extern NSString * const TI_APPLICATION_ID;
 {
     static NSString* resourcePath = nil;
     if (!resourcePath) {
-        resourcePath = [[NSBundle mainBundle] bundlePath];
+        resourcePath = [[NSBundle mainBundle] resourcePath];
 #if TARGET_IPHONE_SIMULATOR
         if (TI_APPLICATION_RESOURCE_DIR!=nil && ![TI_APPLICATION_RESOURCE_DIR isEqualToString:@""])
         {
