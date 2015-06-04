@@ -78,45 +78,54 @@ static NSString* _lineEnding = @"\n";
 	return _lineEnding;
 }
 
++(NSString*)getPlatformPath:(NSString*)path {
+    NSString* result = [NSString stringWithFormat:@"%@/",fileURLify(path)];
+    if ([result hasPrefix:@"/private"]) {
+        result = [result substringFromIndex:8];
+    }
+    return result;
+}
+
 +(NSString*)resourcesDirectory
 {
-    if (_resourcesDirectory == nil)
-        _resourcesDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([TiHost resourcePath])] retain];
+    if (_resourcesDirectory == nil) {
+        _resourcesDirectory = [[TiFileSystemHelper getPlatformPath:[TiHost resourcePath]] retain];
+    }
 	return _resourcesDirectory;
 }
 
 +(NSString*)applicationDirectory
 {
     if (_applicationDirectory == nil)
-        _applicationDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0])] retain];
+        _applicationDirectory = [[TiFileSystemHelper getPlatformPath:[NSSearchPathForDirectoriesInDomains(NSApplicationDirectory, NSUserDomainMask, YES) objectAtIndex:0]] retain];
 	return _applicationDirectory;
 }
 
 +(NSString*)applicationSupportDirectory
 {
     if (_applicationSupportDirectory == nil)
-        _applicationSupportDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0])] retain];
+        _applicationSupportDirectory = [[TiFileSystemHelper getPlatformPath:[NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0]] retain];
 	return _applicationSupportDirectory;
 }
 
 +(NSString*)applicationDataDirectory
 {
     if (_applicationDataDirectory == nil)
-        _applicationDataDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0])] retain];
+        _applicationDataDirectory = [[TiFileSystemHelper getPlatformPath:[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]] retain];
 	return _applicationDataDirectory;
 }
 
 +(NSString*)applicationCacheDirectory
 {
     if (_applicationCacheDirectory == nil)
-        _applicationCacheDirectory = [[NSString stringWithFormat:@"%@/",fileURLify([NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0])] retain];
+        _applicationCacheDirectory = [[TiFileSystemHelper getPlatformPath:[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0]] retain];
 	return _applicationCacheDirectory;
 }
 
 +(NSString*)tempDirectory
 {
     if (_tempDirectory == nil)
-        _tempDirectory = [[NSString stringWithFormat:@"%@/",fileURLify(NSTemporaryDirectory())] retain];
+        _tempDirectory = [[TiFileSystemHelper getPlatformPath:NSTemporaryDirectory()] retain];
 	return _tempDirectory;
 }
 
