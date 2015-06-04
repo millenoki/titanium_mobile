@@ -976,14 +976,14 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
         NSError *error = nil;
         dict = [[TiApp loadJSONProp:@"_error_template.json" error:&error] retain];
         if (error) {
-            DebugLog(@"[ERROR] Could not load ErrorTemplate, error was %@", [error localizedDescription]);
+            NSLog(@"[ERROR] Could not load ErrorTemplate, error was %@", [error localizedDescription]);
         }
         if (!dict) {
             dict = [[NSDictionary dictionary] retain];
         }
         if (error != nil)
         {
-            DebugLog(@"[DEBUG] Can't parse ErrorDialog format: %@",error.localizedDescription);
+            NSLog(@"[DEBUG] Can't parse ErrorDialog format: %@",error.localizedDescription);
             return;
         }
     }
@@ -1226,29 +1226,13 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     static NSDictionary* license;
     
     if(license == nil) {
-        // Get the props from the encrypted json file
-        NSString *tiLicensePath = [[TiHost resourcePath] stringByAppendingPathComponent:@"_license_.json"];
-        NSData *jsonData = [TiUtils loadAppResource: [NSURL fileURLWithPath:tiLicensePath]];
-        
-        if (jsonData==nil) {
-            // Not found in encrypted file, this means we're in development mode, get it from the filesystem
-            jsonData = [NSData dataWithContentsOfFile:tiLicensePath];
+        NSError *error = nil;
+        license = [[TiApp loadJSONProp:@"_license_.json" error:&error] retain];
+        if (error) {
+            DebugLog(@"[ERROR] Could not load licenses, error was %@", [error localizedDescription]);
         }
-        
-        NSString *errorString = nil;
-        // Get the JSON data and create the NSDictionary.
-        if(jsonData) {
-            NSError *error = nil;
-            license = [[NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error] retain];
-            errorString = [error localizedDescription];
-        } else {
-            // If we have no data...
-            // This should never happen on a Titanium app using the node.js CLI
-            errorString = @"File not found";
-        }
-        if(errorString != nil) {
-            // Let the developer know that we could not load the tiapp.xml properties.
-            DebugLog(@"[ERROR] Could not load _license_.json properties, error was %@", errorString);
+
+        if(!license) {
             // Create an empty dictioary to avoid running this code over and over again.
             license = [[NSDictionary dictionary] retain];
         }
