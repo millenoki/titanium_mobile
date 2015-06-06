@@ -374,6 +374,11 @@ public class BasePlayerProxy extends TiEnhancedServiceProxy {
         return TiConvert.toBoolean(getProperty("enableLockscreenControls"),
                 true);
     }
+    public boolean getEnableNotification() {
+        return TiConvert.toBoolean(getProperty("enableNotification"),
+                true);
+    }
+
 
     @Kroll.method
     public void addToPlaylist(Object item) {

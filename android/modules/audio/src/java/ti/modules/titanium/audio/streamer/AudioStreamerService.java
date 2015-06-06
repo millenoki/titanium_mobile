@@ -712,7 +712,6 @@ public class AudioStreamerService extends AudioService {
             if (mp == mCurrentMediaPlayer) {
                 mIsPreparing = false;
                 setState(State.STATE_INITIALIZED);
-                mService.get().notifyChange(cmds.PLAYSTATE_CHANGED);
                 if (mIsInitialized) {
                     mService.get().onStartPlaying(mPlayingItem);
                 }

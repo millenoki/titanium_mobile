@@ -413,6 +413,9 @@ public class NotificationHelper {
     }
 
     public void updateAlbumArt(final Bitmap bitmap) {
+        if (mNotification == null) {
+            return;
+        }
         if (mView != null) {
             mView.setImageViewBitmap(id_notification_base_image, bitmap);
         }
@@ -426,6 +429,9 @@ public class NotificationHelper {
     }
 
     public void updateMetadata(final Map<String, Object> dict) {
+        if (mNotification == null) {
+            return;
+        }
         Log.d(TAG, "updateMetadata" + dict);
         String title = null;
         String artist = null;
@@ -437,28 +443,35 @@ public class NotificationHelper {
         }
         updateCollapsedLayout(title, artist, album);
         updateExpandedLayout(title, artist, album);
-        if (mNotification != null) {
-            if (title != null && artist != null) {
-                mNotification.tickerText = title + " - " + artist;
-            }
-            else {
-                mNotification.tickerText = null;
-            }
-            mNotificationManager.notify(mNotificationId, mNotification);
+        if (title != null && artist != null) {
+            mNotification.tickerText = title + " - " + artist;
         }
+        else {
+            mNotification.tickerText = null;
+        }
+        mNotificationManager.notify(mNotificationId, mNotification);
     }
 
     public void showNotification() {
-        if (mNotification != null) {
-            CharSequence oldvalue = mNotification.tickerText;
-            if (oldvalue != null) {
-                if (oldvalue.toString().endsWith(" ")) {
-                    mNotification.tickerText = oldvalue.subSequence(0, -1);
-                } else {
-                    mNotification.tickerText = oldvalue + " ";
-                }
-            }
-            mNotificationManager.notify(mNotificationId, mNotification);
+        if (mNotification == null) {
+            return;
         }
+        CharSequence oldvalue = mNotification.tickerText;
+        if (oldvalue != null) {
+            if (oldvalue.toString().endsWith(" ")) {
+                mNotification.tickerText = oldvalue.subSequence(0, -1);
+            } else {
+                mNotification.tickerText = oldvalue + " ";
+            }
+        }
+        mNotificationManager.notify(mNotificationId, mNotification);
+    }
+    
+    public void hideNotification() {
+        if (mNotification == null) {
+            return;
+        }
+        mService.stopForeground(true);
+        mNotificationManager.cancel(mNotificationId);
     }
 }

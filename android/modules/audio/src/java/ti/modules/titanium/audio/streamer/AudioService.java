@@ -320,7 +320,8 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
     /**
      * Enables the remote control client
      */
-    protected boolean mEnableLockscreenControls;
+    protected boolean mEnableLockscreenControls = false;
+    protected boolean mEnableNotification = false;
 
     protected ComponentName mMediaButtonReceiverComponent;
 
@@ -528,12 +529,16 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
             setRepeatMode(TiConvert.toInt(
                     playerProxy.getProperty(TiC.PROPERTY_REPEAT_MODE),
                     mRepeatMode));
+            
+
+            mEnableNotification = playerProxy
+                    .getEnableNotification();
             // Initialze the notification helper
             mNotificationHelper = new NotificationHelper(this,
                     playerProxy.getNotificationIcon(),
                     playerProxy.getNotificationViewId(),
                     playerProxy.getNotificationExtandedViewId());
-
+            
             // Use the remote control APIs (if available and the user allows it)
             // to
             // set the playback state
@@ -811,7 +816,6 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                 pause();
                 mPausedByTransientLossOfFocus = false;
                 seek(0);
-                killNotification();
                 setState(State.STATE_STOPPED);
                 mBuildNotification = false;
             } else if (cmds.REPEAT_ACTION.equals(action)) {
@@ -916,7 +920,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
      * Builds the notification
      */
     public void buildNotification() {
-        if (mBuildNotification || inBackground) {
+        if (mEnableNotification && (mBuildNotification || inBackground)) {
             try {
                 mNotificationHelper.buildNotificationIfNeeded();
                 // updateMetadata();
@@ -931,27 +935,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
      */
     public void killNotification() {
         stopForeground(true);
-    }
-
-    /**
-     * Changes the notification buttons to a paused state and beging the
-     * countdown to calling {@code #stopForeground(true)}
-     */
-    private void gotoIdleState() {
-        mDelayedStopHandler.removeCallbacksAndMessages(null);
-        final Message msg = mDelayedStopHandler.obtainMessage();
-        mDelayedStopHandler.sendMessageDelayed(msg, IDLE_DELAY);
-
-        mDelayedStopHandler.postDelayed(new Runnable() {
-
-            /**
-             * {@inheritDoc}
-             */
-            @Override
-            public void run() {
-                killNotification();
-            }
-        }, IDLE_DELAY);
+        mNotificationHelper.hideNotification();
     }
 
     /**
@@ -973,11 +957,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
             setState(State.STATE_STOPPED);
         }
         closeCursor();
-        if (remove_status_icon) {
-            stopForeground(false);
-        } else {
-            gotoIdleState();
-        }
+        stopForeground(remove_status_icon);
         if (remove_status_icon) {
             mIsSupposedToBePlaying = false;
             giveUpAudioFocus();
@@ -1119,11 +1099,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
     private void setIsSupposeToBePlaying(final boolean newValue) {
         if (mIsSupposedToBePlaying != newValue) {
             mIsSupposedToBePlaying = newValue;
-            if (!mIsSupposedToBePlaying) {
-                gotoIdleState();
-            }
-            notifyChange(cmds.PLAYSTATE_CHANGED);
-            
+//            notifyChange(cmds.PLAYSTATE_CHANGED);
         }
     }
 
@@ -1257,7 +1233,15 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
             if (proxyHasListeners(Events.CHANGE, false)) {
                 proxy.fireEvent(Events.CHANGE, getTrackEvent(), false, false);
             }
+            updateMetadata();
         } else if (what.equals(cmds.QUEUE_CHANGED)) {
+        }
+        else if (what.equals(cmds.PLAYSTATE_CHANGED)) {
+            if (mState == State.STATE_STOPPED) {
+                killNotification();
+            } else {
+                mNotificationHelper.goToIdleState(mIsSupposedToBePlaying);
+            }
         }
 
         // Update the app-widgets
@@ -1272,12 +1256,6 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
         }
     }
 
-    /**
-     * Updates the lockscreen controls, if enabled.
-     * 
-     * @param what
-     *            The broadcast
-     */
     private void updateRemoteControlClient(final String what) {
         if (what.equals(cmds.PLAYSTATE_CHANGED)) {
             if (mEnableLockscreenControls && mRemoteControlClientCompat != null) {
@@ -1287,12 +1265,6 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                         .setPlaybackState(mIsSupposedToBePlaying ? RemoteControlClient.PLAYSTATE_PLAYING
                                 : RemoteControlClient.PLAYSTATE_PAUSED);
             }
-            // if (mBuildNotification) {
-            mNotificationHelper.goToIdleState(mIsSupposedToBePlaying);
-            // }
-        } else if (what.equals(cmds.META_CHANGED)) {
-            Log.d(TAG, "updateRemoteControlClient " + what);
-            updateMetadata();
         }
 
     }
@@ -1642,7 +1614,6 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
                     return;
                 }
                 if (pos < 0) {
-                    gotoIdleState();
                     if (mIsSupposedToBePlaying) {
                         proxy.fireEvent(Events.END, null, false, true);
                         stop();
@@ -2108,48 +2079,50 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
     private boolean updatingMetadata = false;
 
     protected void updateMetadata(final Map<String, Object> metadata) {
-        if (mRemoteControlClientCompat == null || updatingMetadata)
+        if (updatingMetadata)
             return;
         updatingMetadata = true;
-        // for now we DONT call with "true". There is a recycle on the bitmap
-        // which is bad news for when the bitmap is use somewhere else.
-        // instead we update all datas :s
-        currentMetadataEditor = mRemoteControlClientCompat.editMetadata(true);
-        currentMetadataEditor
-                .putBitmap(MetadataEditor.BITMAP_KEY_ARTWORK, null);
-        if (metadata != null) {
-            for (Map.Entry<String, Object> entry : metadata.entrySet()) {
-                String key = entry.getKey();
-                Object value = entry.getValue();
-                if (METADATAS.containsKey(key)) {
-                    currentMetadataEditor.putString(METADATAS.get(key),
-                            TiConvert.toString(value));
-                } else if (METADATAS_LONG.containsKey(key)) {
-                    try {
-                       currentMetadataEditor.putLong(METADATAS_LONG.get(key),
-                                TiConvert.toLong(value));              
-                    }
-                    catch(Exception e) {
-                        e.printStackTrace();
-                    }
-                   }
-            }
-            if (!metadata.containsKey("duration") && mPlayer != null
-                    && mPlayer.isPlaying()) {
-                currentMetadataEditor.putLong(
-                        MediaMetadataRetriever.METADATA_KEY_DURATION,
-                        mPlayer.duration());
-            }
-            TiDrawableReference imageref = TiDrawableReference.fromObject(
-                    proxy, metadata.get("artwork"));
+        if (mRemoteControlClientCompat != null) {
+         // for now we DONT call with "true". There is a recycle on the bitmap
+            // which is bad news for when the bitmap is use somewhere else.
+            // instead we update all datas :s
+            currentMetadataEditor = mRemoteControlClientCompat.editMetadata(true);
+            currentMetadataEditor
+                    .putBitmap(MetadataEditor.BITMAP_KEY_ARTWORK, null);
+            if (metadata != null) {
+                for (Map.Entry<String, Object> entry : metadata.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    if (METADATAS.containsKey(key)) {
+                        currentMetadataEditor.putString(METADATAS.get(key),
+                                TiConvert.toString(value));
+                    } else if (METADATAS_LONG.containsKey(key)) {
+                        try {
+                           currentMetadataEditor.putLong(METADATAS_LONG.get(key),
+                                    TiConvert.toLong(value));              
+                        }
+                        catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                       }
+                }
+                if (!metadata.containsKey("duration") && mPlayer != null
+                        && mPlayer.isPlaying()) {
+                    currentMetadataEditor.putLong(
+                            MediaMetadataRetriever.METADATA_KEY_DURATION,
+                            mPlayer.duration());
+                }
+                TiDrawableReference imageref = TiDrawableReference.fromObject(
+                        proxy, metadata.get("artwork"));
 
-            if (!imageref.isTypeNull()) {
-                TiImageHelper.downloadDrawable(proxy, imageref, true, this);
+                if (!imageref.isTypeNull()) {
+                    TiImageHelper.downloadDrawable(proxy, imageref, true, this);
+                }
             }
+            currentMetadataEditor.apply();
+            currentMetadataEditor = null;
         }
-
-        currentMetadataEditor.apply();
-        currentMetadataEditor = null;
+        
         mNotificationHelper.updateMetadata(metadata);
         updatingMetadata = false;
     }
@@ -2234,6 +2207,8 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
         }
         boolean playing = mState == State.STATE_PLAYING;
         setIsSupposeToBePlaying(playing);
+        notifyChange(cmds.PLAYSTATE_CHANGED);
+
         if (proxy != null) {
             proxy.setProperty("state", state);
             // proxy.setProperty("stateDescription", stateDescription);
@@ -2256,10 +2231,14 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
     @Override
     public void onAppPaused() {
         inBackground = true;
-        if (proxy != null
+        if (mIsSupposedToBePlaying && proxy != null
                 && TiConvert
                         .toBoolean(proxy.getProperty("notifyOnPause"), true)) {
-            mNotificationHelper.showNotification();
+            if (mState == State.STATE_STOPPED) {
+                killNotification();
+            } else {
+                mNotificationHelper.showNotification();
+            }
         }
     }
 
@@ -2278,7 +2257,7 @@ public abstract class AudioService extends TiEnhancedService implements TiDrawab
 
         if (!mIsSupposedToBePlaying) {
             mIsSupposedToBePlaying = true;
-            notifyChange(cmds.PLAYSTATE_CHANGED);
+//            notifyChange(cmds.PLAYSTATE_CHANGED);
         }
         // Update the notification
         mBuildNotification = mIsSupposedToBePlaying;
