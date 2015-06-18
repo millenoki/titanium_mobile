@@ -8,19 +8,16 @@ package org.appcelerator.titanium.proxy;
 
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.common.TiMessenger.Command;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import android.app.Activity;
-import android.os.Message;
 import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
 
@@ -33,7 +30,6 @@ public class MenuItemProxy extends AnimatableReusableProxy
 
 
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
-	private static final int MSG_SET_ICON = MSG_FIRST_ID + 200;
 
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 1000;
 	
@@ -55,23 +51,6 @@ public class MenuItemProxy extends AnimatableReusableProxy
         setActivity(activity);
 		this.item = item;
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
-	}
-
-	@Override
-	public boolean handleMessage(Message msg) 
-	{
-		AsyncResult result = null;
-		result = (AsyncResult) msg.obj;
-
-		switch(msg.what) {
-			case MSG_SET_ICON: {
-				result.setResult(handleSetIcon(result.getArg()));
-				return true;
-			}		
-			default : {
-				return super.handleMessage(msg);
-			}
-		}
 	}
 
 	@Kroll.method @Kroll.getProperty
@@ -164,21 +143,6 @@ public class MenuItemProxy extends AnimatableReusableProxy
                 return (Boolean) item.isVisible();
             };
         }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_VISIBLE)));
-	}
-	
-
-	private MenuItemProxy handleSetIcon(Object icon) 
-	{
-        item.setIcon(TiUIHelper.getResourceDrawable(icon));
-		return this;
-	}
-	public MenuItemProxy setIcon(Object icon) 
-	{
-		if (TiApplication.isUIThread()) {
-			return handleSetIcon(icon);
-		}
-
-		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_ICON), icon);	
 	}
 
 	public void setActionView(Object value)
@@ -288,8 +252,15 @@ public class MenuItemProxy extends AnimatableReusableProxy
             break;
         }
         case TiC.PROPERTY_ICON:
-            setIcon(newValue);
+        {
+            final Object toApply = newValue;
+            runInUiThread(new CommandNoReturn() {
+                public void execute() {
+                    item.setIcon(TiUIHelper.getResourceDrawable(toApply));
+                }
+            }, false);
             break;
+        }
         case TiC.PROPERTY_SHOW_AS_ACTION:
         {
             final int toApply = TiConvert.toInt(newValue);
