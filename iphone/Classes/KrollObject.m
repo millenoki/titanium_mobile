@@ -929,15 +929,15 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			[target performSelector:selector withObject:value withObject:nil];
 			return;
 		}
-		selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
-		if ([target respondsToSelector:selector] && ![name isEqualToString:@"ZIndex"])//TODO: Quick hack is quick.
-		{
-			[target performSelector:selector withObject:value];
-		}
-		else 
-		{
-			[target setValue:value forKey:key];
-		}
+        //		selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:",name]);
+        //		if ([target respondsToSelector:selector] && ![name isEqualToString:@"ZIndex"])//TODO: Quick hack is quick.
+        //		{
+        //			[target performSelector:selector withObject:value];
+        //		}
+        //		else
+        //		{
+        [target setValue:value forKey:key];
+        //		}
 #ifdef KROLL_COVERAGE
 		id<KrollCoverage> cSelf = (id<KrollCoverage>) self;
 		[cSelf increment:key coverageType:COVERAGE_TYPE_SET apiType:API_TYPE_PROPERTY];
