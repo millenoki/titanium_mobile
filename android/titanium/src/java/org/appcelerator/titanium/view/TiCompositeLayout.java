@@ -1154,8 +1154,8 @@ public class TiCompositeLayout extends FreeLayout implements
 		computePosition(this, params, params.optionTop, params.optionCenterY, params.optionHeight,
 				params.optionBottom, measuredHeight, layoutTop, layoutBottom,
 				vpos);
-		if (params.optionTop != null && !params.optionTop.isUnitUndefined() &&
-				params.optionBottom != null && !params.optionBottom.isUnitUndefined())
+		if (! params.autoFillHeight() && (params.optionTop != null && !params.optionTop.isUnitUndefined() &&
+				params.optionBottom != null && !params.optionBottom.isUnitUndefined()))
 		{
 			int height = vpos[1] - vpos[0];
 			vpos[0] = layoutTop + (layoutBottom - layoutTop)/2 - height/2;
@@ -1401,6 +1401,14 @@ public class TiCompositeLayout extends FreeLayout implements
 		public boolean autoSizeWidth() {
 			return ((!this.sizeOrFillWidthEnabled && !this.autoFillsWidth && this.optionWidth == null) || (this.sizeOrFillWidthEnabled && !this.autoFillsWidth));
 		}
+		
+		public boolean autoFillHeight() {
+            return this.sizeOrFillHeightEnabled && this.autoFillsHeight;
+        }
+
+        public boolean autoFillWidth() {
+            return this.sizeOrFillWidthEnabled && this.autoFillsWidth;
+        }
 		
 		public boolean fixedSizeWidth() {
             return (this.optionWidth != null && this.optionWidth.isUnitFixed());
