@@ -1168,6 +1168,8 @@ public class TiConvert
         } else if (value instanceof Number) {
             float padding = TiUIHelper.getRawSize(TiConvert.toString(value), null);
             reuse.set(padding, padding, padding, padding);
+        } else {
+            reuse.set(0, 0, 0, 0);
         }
         return reuse;
     }
