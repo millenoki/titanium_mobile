@@ -1918,7 +1918,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 //                        ((KrollProxy) value).release();
 //                    }
 //                }
-                properties = null;
+                properties.clear();
             }
         }
         
@@ -1927,7 +1927,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         eventListeners = null;
         eventOverrideDelegate = null;
         mSyncEvents = null;
-        defaultValues = null;
+        defaultValues.clear();
         createdInModule = null;
     }
 
