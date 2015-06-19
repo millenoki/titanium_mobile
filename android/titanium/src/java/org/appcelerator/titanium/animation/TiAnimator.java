@@ -6,9 +6,7 @@
  */
 package org.appcelerator.titanium.animation;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
 
@@ -178,20 +176,20 @@ public class TiAnimator
 		return animating;
 	}
 	
-	static List<String> kAnimationProperties = Arrays.asList(
-			TiC.PROPERTY_DURATION, TiC.PROPERTY_DELAY,
-			TiC.PROPERTY_AUTOREVERSE, TiC.PROPERTY_REPEAT,
-			TiC.PROPERTY_RESTART_FROM_BEGINNING,
-			TiC.PROPERTY_CANCEL_RUNNING_ANIMATIONS,
-			TiC.PROPERTY_CURVE);
-
-	protected List<String> animationProperties() {
-		return kAnimationProperties;
-	}
-	
-	protected List<String> animationResetProperties() {
-		return kAnimationProperties;
-	}
+//	static List<String> kAnimationProperties = Arrays.asList(
+//			TiC.PROPERTY_DURATION, TiC.PROPERTY_DELAY,
+//			TiC.PROPERTY_AUTOREVERSE, TiC.PROPERTY_REPEAT,
+//			TiC.PROPERTY_RESTART_FROM_BEGINNING,
+//			TiC.PROPERTY_CANCEL_RUNNING_ANIMATIONS,
+//			TiC.PROPERTY_CURVE);
+//
+//	protected List<String> animationProperties() {
+//		return kAnimationProperties;
+//	}
+//	
+//	protected List<String> animationResetProperties() {
+//		return kAnimationProperties;
+//	}
 	
 	public HashMap getToOptions() {
 	    if (this.options.containsKey("to")) {
