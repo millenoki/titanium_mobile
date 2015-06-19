@@ -29,7 +29,7 @@
     return @"Ti.Bluetooth";
 }
 
-- (id)connectedAcccessories {
+- (id)connectedDevices {
     // Get list of connected accessories
     NSArray *accList = [[EAAccessoryManager sharedAccessoryManager] connectedAccessories];
     NSMutableArray* accs = [NSMutableArray arrayWithCapacity:[accList count]];
@@ -137,12 +137,38 @@
             if (error != nil) {
                 [self _fireEventToListener:@"error" withObject:[TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]] listener:[args valueForKey:@"error"] thisObject:nil];
             } else {
-                [self _fireEventToListener:@"success" withObject:_pairingAccessory?@{@"accessory":[self dictFromAccessory:_pairingAccessory]}:@{} listener:[args valueForKey:@"success"] thisObject:nil];
+                [self _fireEventToListener:@"success" withObject:_pairingAccessory?@{@"device":[self dictFromAccessory:_pairingAccessory]}:@{} listener:[args valueForKey:@"success"] thisObject:nil];
             }
             RELEASE_TO_NIL(_pairingAccessory)
             _pairing = NO;
         }];
     }, YES);
+}
+
+-(void)enableBluetooth:(id)args
+{
+    //for android compat
+}
+
+-(void)disableBluetooth:(id)args
+{
+    //for android compat
+}
+
+-(id)supported
+{
+    //for android compat
+    return NUMBOOL(YES);
+}
+
+-(void)discover:(id)args
+{
+    //for android compat
+}
+
+-(void)unpairDevice:(id)args
+{
+    //for android compat
 }
 
 @end
