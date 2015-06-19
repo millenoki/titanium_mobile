@@ -3627,7 +3627,6 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
         geoPermissions = [ 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION' ],
         vibratePermissions = [ 'android.permission.VIBRATE' ],
         wallpaperPermissions = [ 'android.permission.SET_WALLPAPER' ],
-        bluetoothPermissions = [ 'android.permission.BLUETOOTH', 'android.permission.BLUETOOTH_ADMIN' ]
         configChanges = ["keyboard", "keyboardHidden", "orientation", "screenLayout", "uiMode", "screenSize", "smallestScreenSize"],
         permissions = {
             'android.permission.INTERNET': 1,
@@ -3637,8 +3636,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
         },
 
         tiNamespacePermissions = {
-            'geolocation': geoPermissions,
-            'bluetooth': bluetoothPermissions,
+            'geolocation': geoPermissions
         },
 
         tiMethodPermissions = {

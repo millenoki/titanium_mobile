@@ -7,7 +7,6 @@
 		"analytics":[],
 		"app": [],
 		"audio": ["filesystem"],
-		"bluetooth": [],
 		"calendar": [],
 		"contacts": [],
 		"database": [],

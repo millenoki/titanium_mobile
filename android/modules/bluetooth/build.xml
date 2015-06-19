@@ -1,3 +1,0 @@
-<project name="bluetooth" default="build">
-	<import file="../../build/build-module.xml"/>
-</project>
