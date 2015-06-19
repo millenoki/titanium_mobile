@@ -107,11 +107,9 @@ public class AnimatableProxy extends ParentingProxy {
 	protected TiAnimatorSet createAnimator() {
 		return new TiAnimatorSet();
 	}
-
-	@Kroll.method
-	public TiAnimator animate(Object arg,
-			@Kroll.argument(optional = true) KrollFunction callback) {
-	    TiAnimatorSet pendingAnimation;
+	
+	public TiAnimator animateInternal(Object arg, KrollFunction callback) {
+        TiAnimatorSet pendingAnimation;
         synchronized (pendingAnimationLock) {
             if (arg instanceof TiAnimatorSet) {
                 pendingAnimation = (TiAnimatorSet)arg;
@@ -138,6 +136,12 @@ public class AnimatableProxy extends ParentingProxy {
         }
         handlePendingAnimation();
         return pendingAnimation;
+    }
+	
+	@Kroll.method
+	public void animate(Object arg,
+			@Kroll.argument(optional = true) KrollFunction callback) {
+	    animateInternal(arg, callback);
 	}
     
     public void applyPropertiesWithoutSaving(final KrollDict dict) {
