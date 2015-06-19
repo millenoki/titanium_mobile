@@ -825,9 +825,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //        }
 //
         if (!hideHeaderOrFooter()) {
-////          if (hasHeader()) {
-////              totalCount += 1;
-////          }
+          if (hasHeader() && totalCount == 0) {
+              totalCount += 1;
+          }
             //footer must be counted in!
             if (hasFooter()) {
                 totalCount += 1;
