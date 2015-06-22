@@ -41,32 +41,9 @@ public final class TitaniumtestApplication extends TiApplication {
                 put("akylas.slidemenu", new Class[] {
                         akylas.slidemenu.AkylasSlidemenuBootstrap.class,
                         akylas.slidemenu.AkylasSlidemenuModule.class });
-                // put("akylas.mapbox", new
-                // Class[]{akylas.mapbox.AkylasMapboxBootstrap.class,
-                // akylas.mapbox.AkylasMapboxModule.class});
-                // put("akylas.googlemap", new
-                // Class[]{akylas.googlemap.AkylasGooglemapBootstrap.class,
-                // akylas.googlemap.AkylasGooglemapModule.class});
-                // put("akylas.charts", new
-                // Class[]{akylas.charts.AkylasChartsBootstrap.class,
-                // akylas.charts.AkylasChartsModule.class});
-                // put("akylas.location", new
-                // Class[]{akylas.location.AkylasLocationBootstrap.class,
-                // akylas.location.AkylasLocationModule.class});
-                // put("akylas.admob", new
-                // Class[]{akylas.admob.AkylasAdmobBootstrap.class,
-                // akylas.admob.AkylasAdmobModule.class});
-                // put("akylas.triton", new
-                // Class[]{akylas.triton.AkylasTritonBootstrap.class,
-                // akylas.admob.AkylasAdmobModule.class});
-                // put("facebook", new Class[]{facebook.FacebookBootstrap.class,
-                // facebook.FacebookModule.class});
-                // put("akylas.millenoki.vpn", new
-                // Class[]{akylas.millenoki.vpn.MillenokiVpnBootstrap.class,
-                // akylas.millenoki.vpn.MillenokiVpnModule.class});
-                // put("akylas.millenoki.location", new
-                // Class[]{akylas.millenoki.location.MillenokiLocationModuleBootstrap.class,
-                // akylas.millenoki.location.MillenokiLocationModule.class});
+                put("akylas.bluetooth", new Class[] {
+                        akylas.bluetooth.AkylasBluetoothBootstrap.class,
+                        akylas.bluetooth.AkylasBluetoothModule.class });
             }
         };
         V8Runtime runtime = new V8Runtime();
@@ -103,19 +80,20 @@ public final class TitaniumtestApplication extends TiApplication {
         postOnCreate();
 
     }
-//    @Override
-//    public void postOnCreate() {
-//    {
-//        TiProperties properties = getSystemProperties();
-//        TiProperties appProperties = getAppProperties();
-//                    
-//        properties.setString("ti.ui.defaultunit", "dp");
-//        appProperties.setString("ti.ui.defaultunit", "dp");
-//        properties.setBool("ti.android.bug2373.finishfalseroot", true);
-//        appProperties.setBool("ti.android.bug2373.finishfalseroot", true);
-//        properties.setBool("ti.android.fastdev", false);
-//        appProperties.setBool("ti.android.fastdev", false);
-//    }
+
+    // @Override
+    // public void postOnCreate() {
+    // {
+    // TiProperties properties = getSystemProperties();
+    // TiProperties appProperties = getAppProperties();
+    //
+    // properties.setString("ti.ui.defaultunit", "dp");
+    // appProperties.setString("ti.ui.defaultunit", "dp");
+    // properties.setBool("ti.android.bug2373.finishfalseroot", true);
+    // appProperties.setBool("ti.android.bug2373.finishfalseroot", true);
+    // properties.setBool("ti.android.fastdev", false);
+    // appProperties.setBool("ti.android.fastdev", false);
+    // }
 
     @Override
     public void verifyCustomModules(TiRootActivity rootActivity) {
