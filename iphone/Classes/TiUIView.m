@@ -1951,6 +1951,10 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	// on the view, we'd never get this event
 	if (hitView == [self viewForHitTest] && (touchPassThrough || (hasTouchListeners == NO && self.userInteractionEnabled==NO)))
 	{
+        if (touchPassThrough) {
+            //still send touchstart as it might be usefull
+            [self handleTouchEvent:@"touchstart" forTouch:[[event allTouches] anyObject]];
+        }
 		return nil;
 	}
 	
