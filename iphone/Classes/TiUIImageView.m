@@ -466,6 +466,9 @@ DEFINE_EXCEPTIONS
     if (_tintColorImage) {
         imageToUse = [imageToUse imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     }
+    if (!TiCapIsUndefined(imageCap)) {
+        return [TiUtils stretchedImage:imageToUse withCap:imageCap];
+    }
     return imageToUse;
 }
 
