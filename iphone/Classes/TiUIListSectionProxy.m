@@ -91,14 +91,16 @@
 
 -(void)setHeaderView:(id)value
 {
-    [self replaceValue:value forKey:@"headerView" notification:NO];
     [self removeHoldedProxyForKey:@"headerView"];
+    [self addObjectToHold:value forKey:@"headerView"];
+    [self replaceValue:value forKey:@"headerView" notification:NO];
 }
 
 -(void)setFooterView:(id)value
 {
-    [self replaceValue:value forKey:@"footerView" notification:NO];
+    [self addObjectToHold:value forKey:@"footerView"];
     [self removeHoldedProxyForKey:@"footerView"];
+    [self replaceValue:value forKey:@"footerView" notification:NO];
 }
 
 -(TiViewProxy*)currentViewForLocation:(NSString*)location inListView:(TiUIListView*)listView
@@ -113,7 +115,7 @@
     if (vp) {
         return (TiViewProxy*)vp;
     }
-    vp = [self addObjectToHold:[self valueForKey:location] forKey:location];
+    vp = [self addObjectToHold:[self holdedProxyForKey:location] forKey:location];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         ((TiViewProxy*)vp).canBeResizedByFrame = YES;
         LayoutConstraint *viewLayout = [(TiViewProxy*)vp layoutProperties];
