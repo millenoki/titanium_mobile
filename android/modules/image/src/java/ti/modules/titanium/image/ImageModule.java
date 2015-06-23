@@ -24,6 +24,8 @@ import org.appcelerator.kroll.common.TiMessenger;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Pair;
 import android.view.View;
 import android.os.AsyncTask;
@@ -111,41 +113,56 @@ public class ImageModule extends KrollModule {
                     new Object[] { result });
         }
     }
+    
+    private class FilterDrawableTask extends AsyncTask<Object, Void, TiBlob> {
+        KrollFunction callback;
+        KrollProxy proxy;
+
+        @Override
+        protected TiBlob doInBackground(Object... params) {
+            proxy = (KrollProxy) params[0];
+            Drawable drawable = (Drawable) params[1];
+            HashMap options = (HashMap) params[2];
+            callback = (KrollFunction) params[3];
+            return getFilteredImage(drawable, options);
+        }
+
+        /**
+         * Always invoked on UI thread.
+         */
+        @Override
+        protected void onPostExecute(TiBlob blobImage) {
+            KrollDict result = new KrollDict();
+            if (blobImage != null) {
+                result.put("image", blobImage);
+            }
+            this.callback.callAsync(this.proxy.getKrollObject(),
+                    new Object[] { result });
+        }
+    }
 
     @Kroll.method
     public TiBlob getFilteredImage(Object image,
             @Kroll.argument(optional = true) HashMap options) {
-        Bitmap bitmap = null;
-        if (image instanceof Bitmap) {
-            bitmap = (Bitmap) image;
-        } else if (image instanceof TiBlob) {
-            bitmap = ((TiBlob) image).getImage();
-        } else if (image instanceof String) {
-            try {
-                // Load the image from the application assets
-                String url = getPathToApplicationAsset((String) image);
-                TiBaseFile file = TiFileFactory.createTitaniumFile(
-                        new String[] { url }, false);
-                bitmap = TiUIHelper.createBitmap(file.getInputStream());
-            } catch (IOException e) {
-                Log.e(TAG, "Could not load image");
-                return null;
-            }
+        Drawable drawable = TiUIHelper.buildImageDrawable(getActivity(), image, false, this);
+        if (drawable == null) {
+            return null;
         }
-
-        Pair<Bitmap, KrollDict> result = null;
+//        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+        
+        Pair<Drawable, KrollDict> result = null;
         if (options != null) {
             if (options.containsKey("callback")) {
                 KrollFunction callback = (KrollFunction) options
                         .get("callback");
                 options.remove("callback");
                 if (callback != null) {
-                    (new FilterBitmapTask()).execute(this, bitmap, options,
+                    (new FilterDrawableTask()).execute(this, drawable, options,
                             callback);
                     return null;
                 }
             }
-            result = TiImageHelper.imageFiltered(bitmap, options, true);
+            result = TiImageHelper.drawableFiltered(drawable, options, true);
         }
 
         if (result != null) {

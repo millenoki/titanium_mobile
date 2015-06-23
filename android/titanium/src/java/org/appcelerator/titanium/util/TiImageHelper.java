@@ -36,6 +36,7 @@ import com.squareup.picasso.Picasso.LoadedFrom;
 import com.squareup.picasso.Target;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -43,8 +44,10 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.PorterDuff.Mode;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
 import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.os.AsyncTask;
@@ -228,6 +231,7 @@ public class TiImageHelper
 	public static Bitmap imageTinted(Bitmap bitmap, int tint, Mode mode) {
 		if (tint != 0) {
 			Canvas canvas = new Canvas(bitmap);
+			
 			canvas.drawColor(tint, mode);
 		}
 		return bitmap;
@@ -271,6 +275,29 @@ public class TiImageHelper
 		
 		return getFilteredBitmap(bitmap, filterType, options);
 	}
+	
+	public static Pair<Drawable, KrollDict> drawableFiltered(Drawable drawable, HashMap options, final boolean shouldCopySource) {
+        Bitmap bitmap = null;
+        byte[] chunk = null;
+        if (drawable instanceof BitmapDrawable) {
+            bitmap = ((BitmapDrawable) drawable).getBitmap();
+        } else if (drawable instanceof TiNinePatchDrawable) {
+            bitmap = ((TiNinePatchDrawable) drawable).getBitmap();
+        }
+        if (bitmap == null) {
+            return null;
+        }
+        Pair<Bitmap, KrollDict> result = imageFiltered(bitmap, options, shouldCopySource);
+        final Resources resources = TiApplication.getInstance().getResources();
+        if (drawable instanceof BitmapDrawable) {
+            return new Pair<Drawable, KrollDict>(new BitmapDrawable(resources, result.first), result.second);
+        } else if (drawable instanceof TiNinePatchDrawable) {
+            TiNinePatchDrawable npDrawable = (TiNinePatchDrawable)drawable;
+            return new Pair<Drawable, KrollDict>(new TiNinePatchDrawable(resources, result.first,
+                    npDrawable.getChunk(), npDrawable.getPadding(), ""), result.second);
+        }
+        return null;
+    }
 	
 	public static Pair<Bitmap, KrollDict> imageFiltered(Bitmap bitmap, HashMap options, final boolean shouldCopySource) {
 	    if (bitmap == null) {
