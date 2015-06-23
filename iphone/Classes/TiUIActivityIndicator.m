@@ -134,6 +134,7 @@
 
 -(void)setVisible_:(id)visible
 {
+    [super setVisible_:visible];
 	if ([TiUtils boolValue:visible])
 	{
 		[[self indicatorView] startAnimating];
