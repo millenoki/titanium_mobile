@@ -238,7 +238,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			//Handling templates
 			AbsListItemData item = section.getListItem(sectionItemIndex);
 			if (item == null) {
-			    return content;
+			    return null;
 			}
 			TiAbsListViewTemplate template = getTemplate(item.getTemplate());
 			int itemViewType = template.getType();
