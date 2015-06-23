@@ -1131,6 +1131,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     }
     if ([eventObject objectForKey:@"source"] == nil) {
         [eventObject setObject:self forKey:@"source"];
+        if ([self valueForKey:@"bindId"] != nil) {
+            [eventObject setObject:[self valueForKey:@"bindId"] forKey:@"bindId"];
+        }
     }
     
     
