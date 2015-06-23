@@ -2503,6 +2503,52 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return nil;
 }
 
++(UIImage*)stretchedImage:(UIImage*)image withCap:(TiCap)cap {
+    CGFloat maxWidth = [image size].width * image.scale;
+    CGFloat maxHeight = [image size].height * image.scale;
+    
+    NSInteger left = (TiDimensionIsAuto(cap.leftCap) || TiDimensionIsUndefined(cap.leftCap) || cap.leftCap.value == 0) ?
+    maxWidth/2  :
+    TiDimensionCalculateValue(cap.leftCap, maxWidth);
+    NSInteger top = (TiDimensionIsAuto(cap.topCap) || TiDimensionIsUndefined(cap.topCap) || cap.topCap.value == 0) ?
+    maxHeight/2  :
+    TiDimensionCalculateValue(cap.topCap, maxHeight);
+    
+    if ([image respondsToSelector:@selector(resizableImageWithCapInsets:resizingMode:)]) {
+        
+        if (left >= maxWidth) {
+            left = maxWidth - 2;
+        }
+        if (top >= maxHeight) {
+            top = maxHeight - 2;
+        }
+        
+        NSInteger right = TiDimensionIsUndefined(cap.rightCap)?left:TiDimensionCalculateValue(cap.rightCap, maxWidth);
+        NSInteger bottom = TiDimensionIsUndefined(cap.bottomCap)?top:TiDimensionCalculateValue(cap.bottomCap, maxHeight);
+        
+        if ((left + right) >= maxWidth) {
+            right = maxWidth - (left + 1);
+        }
+        if ((top + bottom) >= maxHeight) {
+            bottom = maxHeight - (top + 1);
+        }
+        
+        return [image resizableImageWithCapInsets:UIEdgeInsetsMake(top, left, bottom, right) resizingMode:UIImageResizingModeStretch];
+    }
+    else
+    {
+        if (left >= maxWidth) {
+            left = maxWidth - 2;
+        }
+        
+        if (top > maxHeight) {
+            top = maxHeight - 2;
+        }
+        return [image stretchableImageWithLeftCapWidth:left topCapHeight:top];
+    }
+    return image;
+}
+
 +(id)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy withCap:(TiCap)cap
 {
     UIImage* resultImage = nil;

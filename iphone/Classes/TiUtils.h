@@ -180,6 +180,7 @@ typedef enum
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy size:(CGSize)imageSize;
 +(UIImage*)toImage:(id)object proxy:(TiProxy*)proxy;
 +(UIImage*)scaleImage:(UIImage *)image toSize:(CGSize)newSize;
++(UIImage*)stretchedImage:(UIImage*)image withCap:(TiCap)cap;
 
 /**
  Constructs URL from string using provided base URL.
