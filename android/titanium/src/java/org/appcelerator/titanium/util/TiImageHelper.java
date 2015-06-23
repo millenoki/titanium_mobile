@@ -322,7 +322,7 @@ public class TiImageHelper
 		
 		if (options.containsKey("tint")) {
 			int tint = TiConvert.toColor(options, "tint", 0);
-			Mode mode = Mode.values()[TiConvert.toInt(options, "blend", Mode.LIGHTEN.ordinal())];
+			Mode mode = Mode.values()[TiConvert.toInt(options, "blend", Mode.MULTIPLY.ordinal())];
             Bitmap oldBitmap  = bitmap;
 			bitmap = TiImageHelper.imageTinted(bitmap, tint, mode);
 			bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
