@@ -8,6 +8,7 @@
 #import "ADTransition.h"
 
 typedef enum NWTransition {
+    NWTransitionUndefined,
     NWTransitionModernPush,
     NWTransitionSwipe,
     NWTransitionSwipeFade,

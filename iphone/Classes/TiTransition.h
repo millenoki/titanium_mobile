@@ -44,6 +44,11 @@ static inline NSString* NSStringFromCATransform3D(CATransform3D transform) {
 //@property(nonatomic,assign)	CGFloat duration;
 @property(nonatomic,readonly)	ADTransitionOrientation orientation;
 
+@property(nonatomic,assign)	BOOL custom;
+
+
+-(TiTransition*)initCustomTransitionWithDict:(NSDictionary*)options;
+
 - (id)initWithADTransition:(ADTransition*)transition;
 -(void)transformView:(UIView*)view withPosition:(CGFloat)position;
 -(void)transformView:(UIView*)view withPosition:(CGFloat)position size:(CGSize)size;
