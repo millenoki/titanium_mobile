@@ -3925,7 +3925,9 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols(finished) {
 	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
 		contents.push('#define USE_TI_FETCH');
 	}
-
+	if (this.deployType !== 'production') {
+		contents.push('#define USE_TI_UISCROLLVIEW');
+	}
 	contents.push(
 		'#ifdef USE_TI_UILISTVIEW',
 		'#define USE_TI_UILABEL',
