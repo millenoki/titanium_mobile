@@ -339,7 +339,7 @@
     
     [_queue inDatabase:^(FMDatabase *db)
      {
-         BOOL result = [db executeUpdate:@"DELETE FROM ZCACHE WHERE tile_hash IN (SELECT tile_hash FROM ZCACHE ORDER BY last_used LIMIT ?)", [NSNumber numberWithUnsignedLongLong:count]];
+         BOOL result = [db executeUpdate:@"DELETE FROM ZCACHE WHERE key IN (SELECT key FROM ZCACHE ORDER BY last_used LIMIT ?)", [NSNumber numberWithUnsignedLongLong:count]];
          
          if (result)
              result = [db executeUpdate:@"VACUUM"];
