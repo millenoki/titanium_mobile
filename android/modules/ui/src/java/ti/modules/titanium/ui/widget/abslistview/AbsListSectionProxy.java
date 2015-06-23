@@ -867,6 +867,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	public void setListView(TiAbsListView l) {
 		listView = new WeakReference<TiAbsListView>(l);
+        updateCurrentItemCount(); //needs to be updated if no item but with a header or footer
 	}
 
 	public TiAbsListView getListView() {
