@@ -1386,7 +1386,24 @@ DEFINE_EXCEPTIONS
 {
     if (!args) return;
     ENSURE_SINGLE_ARG(args, NSDictionary)
+    NSArray * keySequence = [self keySequence];
+    
+    for (NSString * thisKey in keySequence)
+    {
+        id thisValue = [args objectForKey:thisKey];
+        if (thisValue == nil) //Dictionary doesn't have this key. Skip.
+        {
+            continue;
+        }
+        if (thisValue == [NSNull null])
+        {
+            //When a null, we want to write a nil.
+            thisValue = nil;
+        }
+        [self setValue:thisValue forKey:thisKey];
+    }
     [args enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
+        if ([keySequence containsObject:key]) return;
         id obj = [_proxyBindings valueForKey:key];
         if ([obj isKindOfClass:[TiProxy class]] && [value isKindOfClass:[NSDictionary class]]) {
             [obj applyProperties:value];
