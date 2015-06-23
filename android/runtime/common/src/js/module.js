@@ -124,11 +124,15 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 
 	wrapper.addEventListener = function() {
 		externalModule.addEventListener.apply(externalModule, arguments);
+		return wrapper;
 	}
+	wrapper.on = wrapper.addEventListener;
 
 	wrapper.removeEventListener = function() {
 		externalModule.removeEventListener.apply(externalModule, arguments);
+		return wrapper;
 	}
+	wrapper.off = wrapper.removeEventListener;
 
 	wrapper.fireEvent = function() {
 		externalModule.fireEvent.apply(externalModule, arguments);
