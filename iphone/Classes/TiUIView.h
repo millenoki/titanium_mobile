@@ -54,6 +54,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
     NSMutableArray* childViews;
     UIControlState viewState;
 	BOOL _tintColorImage;
+    TiCap imageCap;
 @private
 	TiProxy *proxy;
 		
@@ -86,7 +87,6 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	CGSize oldSize;
     
     float backgroundOpacity;
-    TiCap imageCap;
 	NSRecursiveLock *transferLock;
 }
 
