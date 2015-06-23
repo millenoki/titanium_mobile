@@ -1813,7 +1813,7 @@ static NSDictionary* replaceKeysForRow;
     }
     
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0 || [sectionProxy.headerTitle length] > 0)
+    if([sectionProxy isHidden] || [sectionProxy.headerTitle length] > 0)
     {
         return nil;
     }
@@ -1836,7 +1836,7 @@ static NSDictionary* replaceKeysForRow;
         }
     }
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0 || [sectionProxy.footerTitle length] > 0)
+    if([sectionProxy isHidden] || [sectionProxy.footerTitle length] > 0)
     {
         return nil;
     }
@@ -1863,7 +1863,7 @@ static NSDictionary* replaceKeysForRow;
     }
     
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
+    if([sectionProxy isHidden])
     {
         return 0.0;
     }
@@ -1912,7 +1912,7 @@ static NSDictionary* replaceKeysForRow;
     }
     
     TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:realSection];
-    if(![sectionProxy isHidden] &&  sectionProxy.itemCount == 0)
+    if([sectionProxy isHidden])
     {
         return 0.0;
     }

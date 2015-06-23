@@ -166,7 +166,7 @@
 
 - (BOOL)isHidden
 {
-    return _hidden;
+    return _hidden || ([self itemCountInternal] == 0 && [self hideWhenEmpty]);
 }
 
 - (void)show:(id)arg
@@ -196,6 +196,10 @@
 	return [[self.dispatcher dispatchBlockWithResult:^() {
 		return _hidden?0:[NSNumber numberWithUnsignedInteger:[_items count]];
 	}] unsignedIntegerValue];
+}
+-(BOOL)hideWhenEmpty
+{
+    return NO;
 }
 
 - (id)getItemAt:(id)args
