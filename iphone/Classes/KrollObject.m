@@ -936,7 +936,11 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
         //		}
         //		else
         //		{
-        [target setValue:value forKey:key];
+        if (value == nil) {
+            [target setValue:[NSNull null] forKey:key];
+        } else {
+            [target setValue:value forKey:key];
+        }
         //		}
 #ifdef KROLL_COVERAGE
 		id<KrollCoverage> cSelf = (id<KrollCoverage>) self;
