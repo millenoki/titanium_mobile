@@ -62,14 +62,25 @@
     CGRect rect = CGRectMake(0, 0, source.size.width, source.size.height);
     UIGraphicsBeginImageContext(source.size);
     CGContextRef context = UIGraphicsGetCurrentContext();
+    // draw black background to preserve color of transparent pixels
+    CGContextSetBlendMode(context, kCGBlendModeNormal);
+    [[UIColor blackColor] setFill];
+    CGContextFillRect(context, rect);
+    
+    // draw original image
+    CGContextSetBlendMode(context, kCGBlendModeNormal);
     CGContextTranslateCTM(context, 0, source.size.height);
     CGContextScaleCTM(context, 1.0, -1.0);
-    CGContextSetBlendMode(context, kCGBlendModeNormal);
     CGContextDrawImage(context, rect, source.CGImage);
     
+    // tint image (loosing alpha) - the luminosity of the original image is preserved
     CGContextSetBlendMode(context, mode);
     [color setFill];
     CGContextFillRect(context, rect);
+    
+    // mask by alpha values of original image
+    CGContextSetBlendMode(context, kCGBlendModeDestinationIn);
+    CGContextDrawImage(context, rect, source.CGImage);
     UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return tintedImage;
