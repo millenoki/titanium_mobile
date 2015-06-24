@@ -544,13 +544,13 @@ public class TiFileHelper implements Handler.Callback
 					d = new BitmapDrawable(b);
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Log.e(TAG, path + " not found.", e);
 		} finally {
 			if (is != null) {
 				try {
 					is.close();
-				} catch (IOException e) {
+				} catch (Exception e) {
 					//Ignore
 				}
 			}
