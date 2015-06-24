@@ -1005,7 +1005,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * @return true if the event was handled
      */
     @Kroll.method(name = "_addEvaluator")
-    public void addEvaluator(String eventName, Object data) {
+    public int addEvaluator(String eventName, Object data) {
         if (eventName == null) {
             throw new IllegalStateException(
                     "addEvaluator expects a non-null eventName");
@@ -1027,6 +1027,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 evaluators.put(eventName, theListeners);
             }
             theListeners.add(TiConvert.toKrollDict(data));
+            return theListeners.size();
         }
     }
     
@@ -2004,12 +2005,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     Map.Entry entry = (Map.Entry) entries.next();
                     String key = (String) entry.getKey();
                     Object value = entry.getValue();
+                    int count = -1;
                     if (value instanceof KrollFunction) {
-                        addEventListener(key, new KrollEventFunction(
+                        count = addEventListener(key, new KrollEventFunction(
                                 getKrollObject(), (KrollFunction) value));
                     } else {
-                        addEvaluator(key, value);
+                        count = addEvaluator(key, value);
                     }
+                    eventListenerAdded(key, count, this);
                 }
             }
         }
