@@ -720,11 +720,11 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
         Log.d(TAG, "Audio state changed: " + stateDescription, Log.DEBUG_MODE);
         
         
-        if (proxy.hasListeners(EVENT_CHANGE, false)) {
+        if (proxy.hasListeners("state", false)) {
             KrollDict data = new KrollDict();
             data.put("state", state);
             data.put("description", stateDescription);
-            proxy.fireEvent(EVENT_CHANGE, data);
+            proxy.fireEvent("state", data, false, false);
         }
     }
 
