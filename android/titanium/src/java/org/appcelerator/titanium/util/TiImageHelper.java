@@ -44,10 +44,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.PorterDuff.Mode;
-import android.graphics.Rect;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.NinePatchDrawable;
 import android.graphics.RectF;
 import android.media.ExifInterface;
 import android.os.AsyncTask;
@@ -90,6 +89,19 @@ public class TiImageHelper
 		}
 		return image.copy(Bitmap.Config.ARGB_8888, true);
 	}
+	
+    public Bitmap imageWithAlpha(Bitmap src, float alpha) {
+        int width = src.getWidth();
+        int height = src.getHeight();
+        Bitmap transBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(transBitmap);
+//        canvas.drawARGB(0, 0, 0, 0);
+        // config paint
+        final Paint paint = new Paint();
+        paint.setAlpha((int) (alpha * 255));
+        canvas.drawBitmap(src, 0, 0, paint);
+        return transBitmap;
+    }
 
 	/**
 	 * Create a copy of the given image with rounded corners and a transparent border around its edges.
@@ -229,13 +241,30 @@ public class TiImageHelper
     }
 	
 	public static Bitmap imageTinted(Bitmap bitmap, int tint, Mode mode) {
+        Bitmap target = bitmap.copy (Bitmap.Config.ARGB_8888,true);; 
 		if (tint != 0) {
-			Canvas canvas = new Canvas(bitmap);
+			Canvas canvas = new Canvas(target);
 			
 			canvas.drawColor(tint, mode);
+			//fix for Mode not applying alpha
+            if (mode == Mode.LIGHTEN || mode == Mode.SCREEN) {
+			    composeAlpha(target, bitmap);
+			}
 		}
-		return bitmap;
+		bitmap.recycle();
+		bitmap = null;
+		return target;
 	}
+
+	public static Bitmap composeAlpha(Bitmap target, Bitmap sourceAlpha) {
+        Canvas c = new Canvas(target);
+
+        final Paint paint = new Paint();
+        paint.setXfermode(new PorterDuffXfermode(Mode.DST_IN));
+        c.drawBitmap(sourceAlpha, 0, 0, paint); 
+
+        return target;
+    }
 	
 	public static Bitmap imageCropped(Bitmap bitmap, TiRect rect) {
 		int width = bitmap.getWidth();
@@ -350,11 +379,7 @@ public class TiImageHelper
 		if (options.containsKey("tint")) {
 			int tint = TiConvert.toColor(options, "tint", 0);
 			Mode mode = Mode.values()[TiConvert.toInt(options, "blend", Mode.MULTIPLY.ordinal())];
-            Bitmap oldBitmap  = bitmap;
 			bitmap = TiImageHelper.imageTinted(bitmap, tint, mode);
-			bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
-            oldBitmap.recycle();
-            oldBitmap = null;
 		}
 		
 		if (options.containsKey("colorArt")) {
