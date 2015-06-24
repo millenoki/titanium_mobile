@@ -169,6 +169,16 @@ public class SoundProxy extends KrollProxy
 			s.pause();
 		}
 	}
+	
+
+    @Kroll.method
+    public void playPause() {
+        if (isPlaying()) {
+            pause();
+        } else {
+            play();
+        }
+    }
 
 	@Kroll.method
 	public void reset() {
