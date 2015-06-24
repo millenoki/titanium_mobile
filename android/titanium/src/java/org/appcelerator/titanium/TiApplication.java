@@ -1306,28 +1306,45 @@ public abstract class TiApplication extends Application implements
      * it doesn't, display a dialog that allows users to download the APK from
      * the Google Play Store or enable it in the device's system settings.
      */
+    private static int googlePlayServicesState = -1;
+    private static boolean googlePlayServicesAvailable = false;
+    private static String googlePlayServicesErrorMessage = null;
     public static int getGooglePlayServicesState() {
-        final Activity activity = getAppRootOrCurrentActivity();
-        int resultCode = 1;
-        try {
-            Class<?> c = Class.forName("com.google.android.gms.common.GooglePlayServicesUtil");
-            Method  isGooglePlayServicesAvailable = c.getDeclaredMethod ("isGooglePlayServicesAvailable", Context.class);
-            resultCode = (int) isGooglePlayServicesAvailable.invoke(null, new Object[] {activity});
-            if (resultCode != 0) {
-//                Method  isUserRecoverableError = c.getDeclaredMethod ("isUserRecoverableError", int.class);
-//                Method  getErrorDialog = c.getDeclaredMethod ("getErrorDialog", int.class, Activity.class, int.class);
-//                if ((boolean) isUserRecoverableError.invoke(null, new Object[] {resultCode})) {
-//                    ((Dialog)getErrorDialog.invoke(null, new Object[] {resultCode, activity,
-//                            PLAY_SERVICES_RESOLUTION_REQUEST})).show();
-//                } else {
-//                    Log.i(TAG, "This device is not supported.");
-//                }
+        if (googlePlayServicesState == -1) {
+            final Activity activity = getAppRootOrCurrentActivity();
+            try {
+                Class<?> c = Class.forName("com.google.android.gms.common.GooglePlayServicesUtil");
+                Method  isGooglePlayServicesAvailable = c.getDeclaredMethod ("isGooglePlayServicesAvailable", Context.class);
+                googlePlayServicesState = (int) isGooglePlayServicesAvailable.invoke(null, new Object[] {activity});
+            } catch (Exception e) {
+                googlePlayServicesState = 1;
+                Throwable cause = e.getCause();
+                if (cause != null) {
+                    googlePlayServicesErrorMessage = cause.getMessage();
+                }
+                e.printStackTrace();
             }
-            return resultCode;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return resultCode;
+            googlePlayServicesAvailable = googlePlayServicesState == 0;
         }
+        return googlePlayServicesState;
     }
-
+    public static String getGooglePlayServicesErrorString() {
+        if (googlePlayServicesErrorMessage == null) {
+            try {
+                Class<?> c = Class.forName("com.google.android.gms.common.GooglePlayServicesUtil");
+                Method  isGooglePlayServicesAvailable = c.getDeclaredMethod ("getErrorString", Integer.class);
+                googlePlayServicesErrorMessage = (String) isGooglePlayServicesAvailable.invoke(null, new Object[] {getGooglePlayServicesState()});
+                
+            } catch (Exception e) {
+            }
+        }
+        return googlePlayServicesErrorMessage;
+    }
+    
+    public static boolean isGooglePlayServicesAvailable() {
+        if (googlePlayServicesState == -1) {
+            getGooglePlayServicesState();
+        }
+        return googlePlayServicesAvailable;
+    }
 }
