@@ -54,5 +54,5 @@
         "appcompat":"android.support.v7.appcompat",
 		"ui": "ti.modules.titanium.ui"
 	},
-	"googleplayservices_features":["com.google.android.gms.gcm.*"]
+	"googleplayservices_features":["com.google.android.gms.gcm.*", "com.google.android.gms.common.GoogleApiAvailability", "com.google.android.gms.common.GooglePlayServicesUtil"]
 }
