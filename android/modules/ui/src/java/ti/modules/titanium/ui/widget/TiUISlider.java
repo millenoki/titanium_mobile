@@ -167,12 +167,12 @@ public class TiUISlider extends TiUIView
 	}
 
 	private void updateRange() {
-		minRange = Math.max(minRange, min);
-		minRange = Math.min(minRange, max);
+		minRange = Math.max(minRangeValue, min);
+		minRange = Math.min(minRangeValue, max);
 		proxy.setProperty("minRange", minRange);
 		
-		maxRange = Math.min(maxRange, max);
-		maxRange = Math.max(maxRange, minRange);
+		maxRange = Math.min(maxRangeValue, max);
+		maxRange = Math.max(maxRangeValue, minRange);
 		proxy.setProperty("maxRange", maxRange);
 	}
 	
