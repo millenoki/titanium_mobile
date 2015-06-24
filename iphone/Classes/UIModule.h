@@ -28,22 +28,6 @@
 #ifdef USE_TI_UICLIPBOARD	
 	TiProxy *clipboard;
 #endif
-#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-	TiProxy *activityIndicatorStyle;
-#endif
-#ifdef USE_TI_UITABLEVIEWSEPARATORSTYLE
-	TiProxy *tableViewSeparatorStyle;
-#endif
-
-#ifdef USE_TI_UILISTVIEWSEPARATORSTYLE
-	TiProxy *listViewSeparatorStyle;
-#endif
-#ifdef USE_TI_UITRANSITIONSTYLE
-	TiProxy *transitionStyle;
-#endif
-#ifdef USE_TI_UIBLENDMODE
-	TiProxy *blendMode;
-#endif
 }
 
 //TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
@@ -217,25 +201,6 @@
 
 #ifdef USE_TI_UICLIPBOARD
 @property(nonatomic,readonly)			TiProxy* Clipboard;
-#endif
-
-#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-@property(nonatomic,readonly)           TiProxy* ActivityIndicatorStyle;
-#endif
-
-#ifdef USE_TI_UITABLEVIEWSEPARATORSTYLE
-@property(nonatomic,readonly) TiProxy* TableViewSeparatorStyle;
-#endif
-
-#ifdef USE_TI_UILISTVIEWSEPARATORSTYLE
-@property(nonatomic,readonly) TiProxy* ListViewSeparatorStyle;
-#endif
-
-#ifdef USE_TI_UITRANSITIONSTYLE
-@property(nonatomic,readonly) TiProxy* TransitionStyle;
-#endif
-#ifdef USE_TI_UIBLENDMODE
-@property(nonatomic,readonly) TiProxy* BlendMode;
 #endif
 #if defined(USE_TI_UIATTRIBUTEDSTRING)
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_FONT;

@@ -36,7 +36,6 @@ import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.Animator.AnimatorListener;
 import com.nineoldandroids.animation.AnimatorSet;
 
-import ti.modules.titanium.ui.transitionstyle.TransitionStyleModule;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Message;
@@ -474,8 +473,8 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	
 	
 	static HashMap kDefaultTransition = new HashMap<String, Object>(){{
-	       put(TiC.PROPERTY_STYLE, Integer.valueOf(TransitionStyleModule.SWIPE));
-	       put(TiC.PROPERTY_SUBSTYLE,  Integer.valueOf(TransitionStyleModule.RIGHT_TO_LEFT));}};
+	       put(TiC.PROPERTY_STYLE, Integer.valueOf(TransitionHelper.Types.kTransitionSwipe.ordinal()));
+	       put(TiC.PROPERTY_SUBSTYLE,  Integer.valueOf(TransitionHelper.SubTypes.kLeftToRight.ordinal()));}};
 	       
 	private KrollDict getDictFromTransition(Transition transition)
 	{

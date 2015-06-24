@@ -45,11 +45,11 @@
     #import "TiUIiOSTabbedBarProxy.h"
 #endif
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-#import "TiUIActivityIndicatorStyleProxy.h"
+static NSDictionary* activityIndicatorStyle = nil;
 #endif
 
 #ifdef USE_TI_UITABLEVIEWSEPARATORSTYLE
-#import "TiUITableViewSeparatorStyleProxy.h"
+static NSDictionary* tableViewSeparatorStyle = nil;
 #endif
 #if defined (USE_TI_UIATTRIBUTEDSTRING)
 #import "TiUIAttributedStringProxy.h"
@@ -65,10 +65,11 @@
 #import "TiUINavigationWindowProxy.h"
 #endif
 #ifdef USE_TI_UITRANSITIONSTYLE
-#import "TiUITransitionStyleProxy.h"
+#import "TiTransitionHelper.h"
+static NSDictionary* transitionStyle = nil;
 #endif
 #ifdef USE_TI_UIBLENDMODE
-#import "TiUIBlendModeProxy.h"
+static NSDictionary* blendMode = nil;
 #endif
 
 #define DEFINE_SUBPROXY_AS(methodName,className, ivarName)	\
@@ -111,19 +112,16 @@ return ivarName;	\
     FORGET_AND_RELEASE(clipboard);
 #endif
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-    FORGET_AND_RELEASE(activityIndicatorStyle);
+    RELEASE_TO_NIL(activityIndicatorStyle);
 #endif
 #ifdef USE_TI_UITABLEVIEWSEPARATORSTYLE
-    FORGET_AND_RELEASE(tableViewSeparatorStyle);
-#endif
-#ifdef USE_TI_UILISTVIEWSEPARATORSTYLE
-	FORGET_AND_RELEASE(listViewSeparatorStyle);
+    RELEASE_TO_NIL(tableViewSeparatorStyle);
 #endif
 #ifdef USE_TI_UITRANSITIONSTYLE
-    FORGET_AND_RELEASE(transitionStyle);
+    RELEASE_TO_NIL(transitionStyle);
 #endif
 #ifdef USE_TI_UIBLENDMODE
-    FORGET_AND_RELEASE(blendMode);
+    RELEASE_TO_NIL(blendMode);
 #endif
 	[super dealloc];
 }
@@ -269,9 +267,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_LINK,UIDataDetectorTypeLink, @"U
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress, @"UI.AUTODETECT_ADDRESS", @"1.8.0", @"Ti.UI.AUTOLINK_MAP_ADDRESSES");
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent, @"UI.AUTODETECT_CALENDAR", @"1.8.0", @"Ti.UI.AUTOLINK_CALENDAR");
 
-#ifdef USE_TI_UILISTVIEWSEPARATORSTYLE
-DEFINE_SUBPROXY_AS(ListViewSeparatorStyle, TableViewSeparatorStyle, listViewSeparatorStyle);
-#endif
+
 
 -(void)setBackgroundColor:(id)color
 {
@@ -480,8 +476,12 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
 	if (activityIndicatorStyle==nil)
 	{
-		activityIndicatorStyle = [[TiUIActivityIndicatorStyleProxy alloc] _initWithPageContext:[self executionContext]];
-        [self rememberProxy:activityIndicatorStyle];
+        activityIndicatorStyle = [@{
+                                    @"PLAIN":@(UIActivityIndicatorViewStyleWhite),
+                                    @"BIG":@(UIActivityIndicatorViewStyleWhiteLarge),
+                                    @"BIG_DARK":@(UIActivityIndicatorViewStyleGray),
+                                    @"DARK":@(3)
+                                    } retain];
 	}
 	return activityIndicatorStyle;
 }
@@ -490,10 +490,19 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
 	if (tableViewSeparatorStyle==nil)
 	{
-		tableViewSeparatorStyle = [[TiUITableViewSeparatorStyleProxy alloc] _initWithPageContext:[self executionContext]];
-        [self rememberProxy:tableViewSeparatorStyle];
+        tableViewSeparatorStyle = [@{
+                             @"NONE":@(UITableViewCellSeparatorStyleNone),
+                             @"SINGLE_LINE":@(UITableViewCellSeparatorStyleSingleLine),
+                             @"SINGLE_LINE_ETCHED":@(UITableViewCellSeparatorStyleSingleLineEtched)
+                             } retain];
 	}
 	return tableViewSeparatorStyle;
+}
+#endif
+#ifdef USE_TI_UILISTVIEWSEPARATORSTYLE
+-(id)ListViewSeparatorStyle
+{
+    return [self TableViewSeparatorStyle];
 }
 #endif
 #ifdef USE_TI_UITRANSITIONSTYLE
@@ -501,8 +510,27 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
 	if (transitionStyle==nil)
 	{
-		transitionStyle = [[TiUITransitionStyleProxy alloc] _initWithPageContext:[self executionContext]];
-        [self rememberProxy:transitionStyle];
+        transitionStyle = [@{
+                       @"CUBE":@(NWTransitionCube),
+                       @"CAROUSEL":@(NWTransitionCarousel),
+                       @"CROSS":@(NWTransitionCross),
+                       @"GHOST":@(NWTransitionGhost),
+                       @"GLUE":@(NWTransitionGlue),
+                       @"ZOOM":@(NWTransitionZoom),
+                       @"SWIPE":@(NWTransitionSwipe),
+                       @"SWIPE_FADE":@(NWTransitionSwipeFade),
+                       @"SWIPE_DUAL_FADE":@(NWTransitionSwipeDualFade),
+                       @"FLIP":@(NWTransitionFlip),
+                       @"SWAP":@(NWTransitionSwap),
+                       @"SCALE":@(NWTransitionScale),
+                       @"FADE":@(NWTransitionFade),
+                       @"BACK_FADE":@(NWTransitionBackFade),
+                       @"FOLD":@(NWTransitionFold),
+                       @"PUSH_ROTATE":@(NWTransitionPushRotate),
+                       @"SCALE":@(NWTransitionScale),
+                       @"SLIDE":@(NWTransitionSlide),
+                       @"MODERN_PUSH":@(NWTransitionModernPush),
+                       } retain];
 	}
 	return transitionStyle;
 }
@@ -510,12 +538,30 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 #ifdef USE_TI_UIBLENDMODE
 -(id)BlendMode
 {
-	if (blendMode==nil)
-	{
-		blendMode = [[TiUIBlendModeProxy alloc] _initWithPageContext:[self executionContext]];
-        [self rememberProxy:blendMode];
-	}
-	return blendMode;
+    if (blendMode == nil)
+    {
+        blendMode = [@{
+                       @"DARKEN":@(kCGBlendModeDarken),
+                       @"LIGHTEN":@(kCGBlendModeLighten),
+                       @"MULTIPLY":@(kCGBlendModeMultiply),
+                       @"ADD":@(kCGBlendModeNormal),
+                       @"SCREEN":@(kCGBlendModeScreen),
+                       @"CLEAR":@(kCGBlendModeDarken),
+                       @"DST":@(kCGBlendModeCopy),
+                       @"SRC":@(kCGBlendModeCopy),
+                       @"DST_ATOP":@(kCGBlendModeDestinationAtop),
+                       @"DST_IN":@(kCGBlendModeDestinationIn),
+                       @"DST_OUT":@(kCGBlendModeDestinationOut),
+                       @"DST_OVER":@(kCGBlendModeDestinationOver),
+                       @"SRC_ATOP":@(kCGBlendModeSourceAtop),
+                       @"SRC_IN":@(kCGBlendModeSourceIn),
+                       @"SRC_OUT":@(kCGBlendModeSourceOut),
+                       @"SRC_OVER":@(kCGBlendModeDestinationOver),
+                       @"OVERLAY":@(kCGBlendModeDarken),
+                       @"XOR":@(kCGBlendModeXOR),
+                       } retain];
+    }
+    return blendMode;
 }
 #endif
 #endif
@@ -536,19 +582,16 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 	FORGET_AND_RELEASE(clipboard);
 #endif
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-	FORGET_AND_RELEASE(activityIndicatorStyle);
+	RELEASE_TO_NIL(activityIndicatorStyle);
 #endif
 #ifdef USE_TI_UITABLEVIEWSEPARATORSTYLE
-	FORGET_AND_RELEASE(tableViewSeparatorStyle);
-#endif
-#ifdef USE_TI_UILISTVIEWSEPARATORSTYLE
-	FORGET_AND_RELEASE(listViewSeparatorStyle);
+	RELEASE_TO_NIL(tableViewSeparatorStyle);
 #endif
 #ifdef USE_TI_UITRANSITIONSTYLE
-	FORGET_AND_RELEASE(transitionStyle);
+	RELEASE_TO_NIL(transitionStyle);
 #endif
 #ifdef USE_TI_UIBLENDMODE
-	FORGET_AND_RELEASE(blendMode);
+	RELEASE_TO_NIL(blendMode);
 #endif
 	[super didReceiveMemoryWarning:notification];
 }
