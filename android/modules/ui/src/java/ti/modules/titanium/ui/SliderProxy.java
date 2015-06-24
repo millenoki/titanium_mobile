@@ -25,6 +25,9 @@ public class SliderProxy extends ViewProxy
 	public SliderProxy()
 	{
 		super();
+		//there seems to be a bug with the latest appcompat. Without a background the
+        //switch is not showing
+        defaultValues.put(TiC.PROPERTY_BACKGROUND_COLOR, "transparent");
 	}
 
 	public SliderProxy(TiContext tiContext)
