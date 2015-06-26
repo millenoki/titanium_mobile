@@ -1214,6 +1214,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
             }
         }
+        Object bindId = getProperty(TiC.PROPERTY_BIND_ID);
+        if (bindId != null) {
+            dict.put(TiC.PROPERTY_BIND_ID, bindId);
+        }
         dict.put(TiC.EVENT_PROPERTY_TYPE, event);
         if (evaluators != null && data instanceof HashMap) {
             List<KrollDict> theListeners = null;
