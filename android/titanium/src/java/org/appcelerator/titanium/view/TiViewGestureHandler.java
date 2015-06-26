@@ -140,10 +140,10 @@ public class TiViewGestureHandler {
                                             velocityY > 0 ? "down" : "up");
                                 }
 
-                                return mProxy.fireEvent(TiC.EVENT_SWIPE, data,
+                                mProxy.fireEvent(TiC.EVENT_SWIPE, data,
                                         false, false);
                             }
-                            return false;
+                            return true;
                         }
 
                         @Override
