@@ -2051,7 +2051,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (!isTouchEnabled) {
             return true;
         }
-        if (touchPassThrough == true) {
+        if (touchPassThrough == true && !pointerDown) {
             if (view != null) {
                 int[] location = new int[2];
                 final double x = event.getRawX();
