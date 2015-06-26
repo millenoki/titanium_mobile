@@ -90,7 +90,7 @@ public class TiImageHelper
 		return image.copy(Bitmap.Config.ARGB_8888, true);
 	}
 	
-    public Bitmap imageWithAlpha(Bitmap src, float alpha) {
+    public static Bitmap imageWithAlpha(Bitmap src, float alpha) {
         int width = src.getWidth();
         int height = src.getHeight();
         Bitmap transBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
