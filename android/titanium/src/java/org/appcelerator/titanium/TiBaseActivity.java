@@ -582,7 +582,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
             
             @Override
             public boolean onInterceptTouchEvent(MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
+                final int action = event.getAction();
+                if (action == MotionEvent.ACTION_UP || 
+                        action == MotionEvent.ACTION_CANCEL) {
                     final MotionEvent copy = MotionEvent.obtain(event);
                     final Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
