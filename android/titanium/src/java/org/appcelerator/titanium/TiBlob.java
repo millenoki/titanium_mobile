@@ -308,7 +308,7 @@ public class TiBlob extends KrollProxy {
      * @module.api
      */
     public byte[] getBytes() {
-        byte[] bytes = new byte[0];
+        byte[] bytes = null;
 
         switch (type) {
         case TYPE_STRING:
@@ -320,6 +320,7 @@ public class TiBlob extends KrollProxy {
             break;
         case TYPE_DATA:
         case TYPE_IMAGE:
+        case TYPE_DRAWABLE:
             // TODO deal with mimetypes.
             bytes = (byte[]) getData();
             break;
@@ -379,6 +380,8 @@ public class TiBlob extends KrollProxy {
                 fileSize = ((TiBaseFile) data).size();
             }
             return (int) fileSize;
+        case TYPE_DRAWABLE:
+            return 0;
         case TYPE_DATA:
         case TYPE_IMAGE:
             if (image != null) {
@@ -485,7 +488,11 @@ public class TiBlob extends KrollProxy {
     @Kroll.getProperty
     @Kroll.method
     public String getHexString() {
-        return TiUtils.bytesToHex(getBytes());
+        byte[] bytes = getBytes();
+        if (bytes != null) {
+            return TiUtils.bytesToHex(bytes);
+        }
+        return null;
     }
 
     @Kroll.getProperty
@@ -546,9 +553,18 @@ public class TiBlob extends KrollProxy {
     public String toString() {
         // blob should return the text value on toString
         // if it's not null
-        String text = getText();
-        if (text != null) {
-            return text;
+        String result = getText();
+  
+//        switch (type) {
+//        case TYPE_STRING:
+//        case TYPE_STREAM_BASE64:
+//        case TYPE_DATA:
+//            result = getText();
+//        case TYPE_FILE:
+//            result = getNativePath();
+//        }
+        if (result != null) {
+            return result;
         }
         return "[object TiBlob]";
     }
