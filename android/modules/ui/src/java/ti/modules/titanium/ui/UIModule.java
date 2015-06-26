@@ -210,6 +210,7 @@ public class UIModule extends KrollModule implements Handler.Callback
         return TableViewSeparatorStyle;
     }
     
+    @Kroll.getProperty
     public KrollDict ListViewSeparatorStyle() {
         return TableViewSeparatorStyle();
     }
