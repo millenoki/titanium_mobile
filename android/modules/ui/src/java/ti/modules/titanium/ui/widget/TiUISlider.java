@@ -59,6 +59,7 @@ public class TiUISlider extends TiUIView
 		Log.d(TAG, "Creating a seekBar", Log.DEBUG_MODE);
 
 		layoutParams.autoFillsWidth = true;
+		layoutParams.sizeOrFillWidthEnabled = true;
 
 		this.min = 0;
 		this.max = 1;
