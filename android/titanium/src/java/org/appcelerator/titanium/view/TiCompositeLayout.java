@@ -235,15 +235,15 @@ public class TiCompositeLayout extends FreeLayout implements
 
 	protected static int getViewWidthPadding(View child, LayoutParams params, View parent) {
 		int padding = 0;
-		padding += getLayoutOptionAsPixels(params.optionLeft, TiDimension.TYPE_LEFT, params, parent);
-		padding += getLayoutOptionAsPixels(params.optionRight, TiDimension.TYPE_RIGHT, params, parent);
+		padding += Math.abs(getLayoutOptionAsPixels(params.optionLeft, TiDimension.TYPE_LEFT, params, parent));
+		padding += Math.abs(getLayoutOptionAsPixels(params.optionRight, TiDimension.TYPE_RIGHT, params, parent));
 		return padding;
 	}
 
 	protected static int getViewHeightPadding(View child, LayoutParams params, View parent) {
 		int padding = 0;
-		padding += getLayoutOptionAsPixels(params.optionTop, TiDimension.TYPE_TOP, params, parent);
-		padding += getLayoutOptionAsPixels(params.optionBottom, TiDimension.TYPE_BOTTOM, params, parent);
+		padding += Math.abs(getLayoutOptionAsPixels(params.optionTop, TiDimension.TYPE_TOP, params, parent));
+		padding += Math.abs(getLayoutOptionAsPixels(params.optionBottom, TiDimension.TYPE_BOTTOM, params, parent));
 		return padding;
 	}
 	
@@ -1031,11 +1031,12 @@ public class TiCompositeLayout extends FreeLayout implements
 			TiDimension optionTop, int measuredHeight, int layoutTop,
 			int[] pos, int maxBottom, LayoutParams params) {
 		int top = layoutTop + currentHeight;
-		top += (optionTop != null)?optionTop.getAsPixels(this):0;
+		top += (optionTop != null)?getLayoutOptionAsPixels(optionTop, TiDimension.TYPE_TOP, params, this):0;
 		// cap the bottom to make sure views don't go off-screen when user
 		// supplies a height value that is >= screen
 		// height and this view is below another view in vertical layout.
-		int bottom = Math.min(top + measuredHeight, maxBottom);
+//		int bottom = Math.min(top + measuredHeight, maxBottom);
+		int bottom = top + measuredHeight;
 		pos[0] = top;
 		pos[1] = bottom;
 	}
