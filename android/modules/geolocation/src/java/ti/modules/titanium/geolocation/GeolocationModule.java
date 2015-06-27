@@ -604,11 +604,19 @@ public class GeolocationModule extends KrollModule
 	        KrollDict coordinates = new KrollDict();
 	        coordinates.put(TiC.PROPERTY_LATITUDE, lastLocation.getLatitude());
 	        coordinates.put(TiC.PROPERTY_LONGITUDE, lastLocation.getLongitude());
-	        coordinates.put(TiC.PROPERTY_ALTITUDE, lastLocation.getAltitude());
-	        coordinates.put(TiC.PROPERTY_ACCURACY, lastLocation.getAccuracy());
-	        coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null); // Not provided
-	        coordinates.put(TiC.PROPERTY_HEADING, lastLocation.getBearing());
-	        coordinates.put(TiC.PROPERTY_SPEED, lastLocation.getSpeed());
+	        if (lastLocation.hasAccuracy()) {
+	            coordinates.put(TiC.PROPERTY_ACCURACY, lastLocation.getAccuracy());
+            }
+            if (lastLocation.hasAltitude()) {
+                coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null); // Not provided
+                coordinates.put(TiC.PROPERTY_ALTITUDE, lastLocation.getAltitude());
+            }
+            if (lastLocation.hasBearing()) {
+                coordinates.put(TiC.PROPERTY_HEADING, lastLocation.getBearing());
+            }
+	        if (lastLocation.hasSpeed()) {
+	            coordinates.put(TiC.PROPERTY_SPEED, lastLocation.getSpeed());
+	        }
 	        coordinates.put(TiC.PROPERTY_TIMESTAMP, lastLocation.getTime());
 	        return coordinates;
 	    }
