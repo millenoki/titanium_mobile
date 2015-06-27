@@ -623,6 +623,7 @@ Set the animation on its view and all it's children
  Create or access a managing controller. Only call if you want a controller!
  */
 -(UIViewController*) hostingController;
+-(UIViewController*) controller;
 -(TiUIView*) getAndPrepareViewForOpening:(CGRect)bounds;
 -(TiUIView*) getAndPrepareViewForOpening;
 +(void)reorderViewsInParent:(UIView*)parentView;
