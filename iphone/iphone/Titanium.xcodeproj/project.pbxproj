@@ -502,9 +502,6 @@
 		84C3870217417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
 		84C3870317417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
 		84C3870417417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
-		84D4CA1419EF0B3D009131F8 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		84D4CA1519EF0B4D009131F8 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		84D4CA1619EF0B5A009131F8 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84D541A31460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
 		84D541A41460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
 		84D541A51460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
@@ -663,6 +660,7 @@
 		D535CCE719CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
 		D535CCE819CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
 		D535CCE919CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
+		D535D0231B3E7F7F0068F7D4 /* libAkylasMotion.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D535D0201B3E7F6E0068F7D4 /* libAkylasMotion.a */; };
 		D5370D94194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D95194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D96194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
@@ -1425,6 +1423,20 @@
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
 			remoteInfo = akylas.bluetooth;
 		};
+		D535D01F1B3E7F6E0068F7D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC07E0554694100DB518D;
+			remoteInfo = akylas_motion_ios;
+		};
+		D535D0211B3E7F740068F7D4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = akylas_motion_ios;
+		};
 		D58ED8EE1928E6F700BA0E04 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */;
@@ -2002,7 +2014,6 @@
 		84BBA58716570F90006B8C22 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectedCellbackgroundView.h; sourceTree = "<group>"; };
 		84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectedCellbackgroundView.m; sourceTree = "<group>"; };
-		84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		84D541A11460B2DF005338D1 /* TiDOMNotationProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMNotationProxy.h; sourceTree = "<group>"; };
 		84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiDOMNotationProxy.m; sourceTree = "<group>"; };
 		84D541A61460B3C7005338D1 /* TiDOMEntityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiDOMEntityProxy.h; sourceTree = "<group>"; };
@@ -2280,6 +2291,7 @@
 		D535CCE119CF2C77005E114E /* SLColorArt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SLColorArt.m; path = ../Classes/ColorArt/SLColorArt.m; sourceTree = "<group>"; };
 		D535CCE519CF333A005E114E /* UIImage+UserInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+UserInfo.h"; sourceTree = "<group>"; };
 		D535CCE619CF333A005E114E /* UIImage+UserInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+UserInfo.m"; sourceTree = "<group>"; };
+		D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas_motion_ios.xcodeproj; path = ../../../modules/akylas_modules/motion/ios/akylas_motion_ios.xcodeproj; sourceTree = "<group>"; };
 		D5370D92194749DF000E30FC /* TiParentingProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiParentingProxy.h; sourceTree = "<group>"; };
 		D5370D93194749DF000E30FC /* TiParentingProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiParentingProxy.m; sourceTree = "<group>"; };
 		D53DC7B119CF427100BB31C9 /* UIImage+ColorArt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+ColorArt.h"; path = "../Classes/ColorArt/UIImage+ColorArt.h"; sourceTree = "<group>"; };
@@ -2672,6 +2684,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D535D0231B3E7F7F0068F7D4 /* libAkylasMotion.a in Frameworks */,
 				D50720401B344E31005B31E5 /* libakylas.bluetooth.a in Frameworks */,
 				D55B2DCD1ACC5EF5008C0279 /* libFMDB-IOS.a in Frameworks */,
 				D58ED9071928F49F00BA0E04 /* libakylas.commonjs.a in Frameworks */,
@@ -2692,7 +2705,6 @@
 				D5A016CA1926109E0005158A /* Accelerate.framework in Frameworks */,
 				D5937D9C1A24DCAD0098DA47 /* AdSupport.framework in Frameworks */,
 				D5937D9A1A24DCA00098DA47 /* GPUImage.framework in Frameworks */,
-				84D4CA1619EF0B5A009131F8 /* CoreMotion.framework in Frameworks */,
 				D5937DA11A24DCC00098DA47 /* CoreVideo.framework in Frameworks */,
 				D5937DA51A24DCC70098DA47 /* EventKitUI.framework in Frameworks */,
 				D5937DA61A24DCC90098DA47 /* ImageIO.framework in Frameworks */,
@@ -2726,7 +2738,6 @@
 			files = (
 				84ED2CCF1AEEC0B30049FB68 /* iAd.framework in Frameworks */,
 				8465E6BD19F86459008479E6 /* CoreMedia.framework in Frameworks */,
-				84D4CA1519EF0B4D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C2190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
 				D57193E317E996E30033897A /* CoreTelephony.framework in Frameworks */,
 				D585BC8517E630AB0062275E /* CoreVideo.framework in Frameworks */,
@@ -2770,7 +2781,6 @@
 			files = (
 				84ED2CCE1AEEC0A70049FB68 /* iAd.framework in Frameworks */,
 				8465E6BE19F86463008479E6 /* CoreMedia.framework in Frameworks */,
-				84D4CA1419EF0B3D009131F8 /* CoreMotion.framework in Frameworks */,
 				312E36C3190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
 				D585BC8717E630BA0062275E /* CoreVideo.framework in Frameworks */,
 				D54E789E17D8901600443386 /* CoreTelephony.framework in Frameworks */,
@@ -3910,7 +3920,6 @@
 				D5B6C727181124C200A2612A /* libDTCoreText.a */,
 				D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */,
 				8465E6BB19F8644D008479E6 /* CoreMedia.framework */,
-				84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */,
 				D5B9289218C1EEC200E26393 /* GPUImage.framework */,
 				D5A016C91926109E0005158A /* Accelerate.framework */,
 				D5818EAE18AA8872007EF771 /* AdSupport.framework */,
@@ -4423,6 +4432,14 @@
 			name = ColorArt;
 			sourceTree = "<group>";
 		};
+		D535D0171B3E7F6E0068F7D4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D535D0201B3E7F6E0068F7D4 /* libAkylasMotion.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D54E554D19953BD1004A7335 /* RDActivityViewController */ = {
 			isa = PBXGroup;
 			children = (
@@ -4516,6 +4533,7 @@
 		D55ED5781861B3C90035749B /* _dependencies_ */ = {
 			isa = PBXGroup;
 			children = (
+				D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */,
 				D50720381B344E1A005B31E5 /* akylas.bluetooth.xcodeproj */,
 				D5E75A6E187C58F00016542B /* icon.png */,
 				D5E75A7A187C59060016542B /* icon_120@2x.png */,
@@ -4931,6 +4949,7 @@
 				D56915C5168F19E800C3F89F /* PBXBuildRule */,
 			);
 			dependencies = (
+				D535D0221B3E7F740068F7D4 /* PBXTargetDependency */,
 				D507203F1B344E29005B31E5 /* PBXTargetDependency */,
 				D59A20C6194AF3D300BC5B93 /* PBXTargetDependency */,
 				D58ED9051928F49600BA0E04 /* PBXTargetDependency */,
@@ -5034,6 +5053,10 @@
 					ProductGroup = D58ED8F01928E6F800BA0E04 /* Products */;
 					ProjectRef = D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */;
 				},
+				{
+					ProductGroup = D535D0171B3E7F6E0068F7D4 /* Products */;
+					ProjectRef = D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -5050,6 +5073,13 @@
 			fileType = archive.ar;
 			path = libakylas.bluetooth.a;
 			remoteRef = D507203C1B344E1B005B31E5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D535D0201B3E7F6E0068F7D4 /* libAkylasMotion.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libAkylasMotion.a;
+			remoteRef = D535D01F1B3E7F6E0068F7D4 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		D58ED8EF1928E6F700BA0E04 /* libakylas.shapes.a */ = {
@@ -6466,6 +6496,11 @@
 			isa = PBXTargetDependency;
 			name = akylas.bluetooth;
 			targetProxy = D507203E1B344E29005B31E5 /* PBXContainerItemProxy */;
+		};
+		D535D0221B3E7F740068F7D4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = akylas_motion_ios;
+			targetProxy = D535D0211B3E7F740068F7D4 /* PBXContainerItemProxy */;
 		};
 		D58ED9011928F49000BA0E04 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
