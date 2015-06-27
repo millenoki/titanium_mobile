@@ -1068,6 +1068,11 @@ public class TiUILabel extends TiUINonViewGroupView
             TiUIHelper.setAlignment(getTextView(), null, TiConvert.toString(newValue));
             setNeedsLayout();
             break;
+        case "textIsSelectable":
+            if (TiC.HONEYCOMB_OR_GREATER) {
+                getTextView().setTextIsSelectable(TiConvert.toBoolean(newValue, false));
+            }
+            break;
         case TiC.PROPERTY_TEXT_PADDING:
             textPadding = TiConvert.toPaddingRect(newValue, textPadding);
             updatePadding();

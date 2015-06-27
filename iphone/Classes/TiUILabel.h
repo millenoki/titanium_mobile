@@ -19,7 +19,7 @@
 - (CGSize)suggestedFrameSizeToFitEntireStringConstraintedToSize:(CGSize)size;
 -(TiLabel*)label;
 -(void)setPadding:(UIEdgeInsets)inset;
--(void)setReusing:(BOOL)value;
+//-(void)setReusing:(BOOL)value;
 -(NSInteger)characterIndexAtPoint:(CGPoint)p;
 @end
 

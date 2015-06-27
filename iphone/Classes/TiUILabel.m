@@ -21,7 +21,9 @@
 
 @interface TiUILabel()
 {
-    BOOL _reusing;
+//    BOOL _reusing;
+    BOOL _textIsSelectable;
+    UILongPressGestureRecognizer* _longPressGestureRecognizer;
 }
 @property(nonatomic,retain) NSDictionary *transition;
 @end
@@ -34,6 +36,8 @@
 -(id)init
 {
     if (self = [super init]) {
+//        _reusing = NO;
+        _textIsSelectable = NO;
         self.transition = nil;
     }
     return self;
@@ -43,6 +47,7 @@
 {
 	RELEASE_TO_NIL(_transition);
     RELEASE_TO_NIL(label);
+    RELEASE_TO_NIL(_longPressGestureRecognizer)
     [super dealloc];
 }
 
@@ -254,6 +259,37 @@
     }
     else {
         [[self label] initLinksStyle];
+    }
+}
+
+-(void)setTextIsSelectable_:(id)value {
+     _textIsSelectable = [TiUtils boolValue:value def:NO];
+    if (_textIsSelectable) {
+        if (!_longPressGestureRecognizer) {
+            _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressGestureRecognized:)];
+            [label addGestureRecognizer:_longPressGestureRecognizer];
+        }
+    } else {
+        if (_longPressGestureRecognizer){
+            [label removeGestureRecognizer:_longPressGestureRecognizer];
+            RELEASE_TO_NIL(_longPressGestureRecognizer)
+        }
+    }
+}
+
+- (void)longPressGestureRecognized:(UILongPressGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer == _longPressGestureRecognizer)
+    {
+        if (gestureRecognizer.state == UIGestureRecognizerStateBegan)
+        {
+            [self becomeFirstResponder];    // must be called even when NS_BLOCK_ASSERTIONS=0
+            
+            UIMenuController *copyMenu = [UIMenuController sharedMenuController];
+            [copyMenu setTargetRect:self.bounds inView:self];
+            copyMenu.arrowDirection = UIMenuControllerArrowDefault;
+            [copyMenu setMenuVisible:YES animated:YES];
+        }
     }
 }
 
@@ -508,6 +544,50 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
     }
     return event;
 }
+
+
+#pragma mark - UIResponder
+
+- (BOOL)canBecomeFirstResponder
+{
+    return _textIsSelectable;
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+{
+    BOOL retValue = NO;
+    
+    if (action == @selector(copy:))
+    {
+        if (_textIsSelectable)
+        {
+            retValue = YES;
+        }
+    }
+    else
+    {
+        // Pass the canPerformAction:withSender: message to the superclass
+        // and possibly up the responder chain.
+        retValue = [super canPerformAction:action withSender:sender];
+    }
+    
+    return retValue;
+}
+
+- (void)copy:(id)sender
+{
+    if (_textIsSelectable)
+    {
+        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+        id string = [(TiUILabelProxy*)[self proxy] getLabelContent];
+        if (IS_OF_CLASS(string, NSAttributedString)) {
+            [pasteboard setString:[string string]];
+        } else {
+            [pasteboard setString:string];
+        }
+    }
+}
+
 @end
 
 #endif
