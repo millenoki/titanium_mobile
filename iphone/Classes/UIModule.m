@@ -758,6 +758,19 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
     return NSTextEffectLetterpressStyle;
 }
 
+-(NSNumber*)WINDOW_LEVEL_NORMAL
+{
+    return NUMINTEGER(UIWindowLevelNormal);
+}
+
+-(NSNumber*)WINDOW_LEVEL_ALERT
+{
+    return NUMINTEGER(UIWindowLevelAlert);
+}
+-(NSNumber*)WINDOW_LEVEL_STATUS_BAR
+{
+    return NUMINTEGER(UIWindowLevelStatusBar);
+}
 #endif
 
 @end

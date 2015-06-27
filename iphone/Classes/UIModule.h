@@ -244,6 +244,10 @@
 @property (nonatomic,readonly) NSNumber* ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT;
 
 @property (nonatomic,readonly) NSString * ATTRIBUTE_LETTERPRESS_STYLE;
+
+@property (nonatomic,readonly) NSNumber* WINDOW_LEVEL_NORMAL;
+@property (nonatomic,readonly) NSNumber* WINDOW_LEVEL_ALERT;
+@property (nonatomic,readonly) NSNumber* WINDOW_LEVEL_STATUS_BAR;
 #endif
 
 @end

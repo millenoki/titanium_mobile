@@ -13,6 +13,22 @@
 #import "TiTransitionAnimationStep.h"
 #import "TiModalNavViewController.h"
 
+@interface TiUITouchPassThroughWindow:UIWindow
+
+@end
+
+@implementation TiUITouchPassThroughWindow
+
+-(UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event{
+    UIView *hitView = [super hitTest:point withEvent:event];
+    if(hitView == self) {
+        return nil;
+    }
+    return hitView;
+}
+
+@end
+
 @interface TiWindowProxy(Private)
 -(void)openOnUIThread:(id)args;
 -(void)closeOnUIThread:(id)args;
@@ -22,6 +38,10 @@
 {
     BOOL readyToBeLayout;
     BOOL _isManaged;
+    
+    BOOL _useCustomUIWindow;
+    TiUITouchPassThroughWindow* _customUIWindow;
+    UIWindowLevel _windowLevel;
 }
 
 @synthesize tab = tab;
@@ -36,11 +56,14 @@
         opened = NO;
         readyToBeLayout = NO;
         _isManaged = NO;
+        _useCustomUIWindow = NO;
+        _windowLevel = UIWindowLevelNormal;
 	}
 	return self;
 }
 
 -(void) dealloc {
+    RELEASE_TO_NIL(_customUIWindow)
     FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
     FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
 
@@ -49,6 +72,15 @@
 #endif
     [super dealloc];
 }
+
+-(UIViewController*)controller;
+{
+    if (!_useCustomUIWindow) {
+        return [[TiApp app] controller];
+    }
+    return controller;
+}
+
 
 -(void)_destroy {
     [self windowWillClose];
@@ -117,7 +149,7 @@
     if (!opened){
         opening = YES;
     }
-    if (tab == nil && (self.isManaged == NO) && controller == nil) {
+    if (!_useCustomUIWindow && tab == nil && (self.isManaged == NO) && controller == nil) {
         [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
     }
     [super windowWillOpen];
@@ -133,7 +165,7 @@
     }
     [super windowDidOpen];
     FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
-    if (tab == nil && (self.isManaged == NO) && controller == nil) {
+    if (!_useCustomUIWindow && tab == nil && (self.isManaged == NO) && controller == nil) {
         [[[[TiApp app] controller] topContainerController] didOpenWindow:self];
     }
 }
@@ -141,7 +173,7 @@
 -(void) windowWillClose
 {
 //    [self viewWillDisappear:false];
-    if (tab == nil && (self.isManaged == NO) && controller == nil) {
+    if (!_useCustomUIWindow && tab == nil && (self.isManaged == NO) && controller == nil) {
         [[[[TiApp app] controller] topContainerController] willCloseWindow:self];
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -152,6 +184,14 @@
 {
     opened = NO;
     closing = NO;
+    if (_customUIWindow)
+    {
+        _customUIWindow.hidden = YES;
+        if ([_customUIWindow isKeyWindow]) {
+            [_customUIWindow resignFirstResponder];
+        }
+        RELEASE_TO_NIL(_customUIWindow)
+    }
 //    [self viewDidDisappear:false];
     [self fireEvent:@"close" propagate:NO];
     [[NSNotificationCenter defaultCenter] removeObserver:self]; //just to be sure
@@ -168,23 +208,26 @@
 
 -(void)attachViewToTopContainerController
 {
-    UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
-    UIView *rootView = [topContainerController hostingView];
-    TiUIView* theView = [self view];
-    [rootView addSubview:theView];
-    [rootView bringSubviewToFront:theView];
-    [[TiViewProxy class] reorderViewsInParent:rootView]; //make sure views are ordered along zindex
+    if (!controller) {
+        UIViewController<TiControllerContainment>* topContainerController = [[[TiApp app] controller] topContainerController];
+        UIView *rootView = [topContainerController hostingView];
+        TiUIView* theView = [self view];
+        [rootView addSubview:theView];
+        [rootView bringSubviewToFront:theView];
+        [[TiViewProxy class] reorderViewsInParent:rootView]; //make sure views are ordered along zindex
+    }
+    
 }
 
 -(BOOL)isRootViewLoaded
 {
-    return [[[TiApp app] controller] isViewLoaded];
+    return _useCustomUIWindow || [[[TiApp app] controller] isViewLoaded];
 }
 
 -(BOOL)isRootViewAttached
 {
     //When a modal window is up, just return yes
-    if ([[[TiApp app] controller] presentedViewController] != nil) {
+    if (_useCustomUIWindow || [[[TiApp app] controller] presentedViewController] != nil) {
         return YES;
     }
     return ([[[[TiApp app] controller] view] superview]!=nil);
@@ -194,7 +237,7 @@
 -(void)open:(id)args
 {
     //If an error is up, Go away
-    if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
+    if (!_useCustomUIWindow && [[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorController class]]) {
         DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
         return;
     }
@@ -343,12 +386,18 @@
 
 -(BOOL)_handleOpen:(id)args
 {
-    TiRootViewController* theController = [[TiApp app] controller];
-    if (isModal || (tab != nil) || self.isManaged) {
-        FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
+    if (_useCustomUIWindow) {
+       _customUIWindow = [[TiUITouchPassThroughWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        _customUIWindow.windowLevel        = _windowLevel;
+        _customUIWindow.backgroundColor    = [UIColor clearColor];
+        _customUIWindow.rootViewController = [self hostingController];
+        _customUIWindow;
+        _customUIWindow.hidden = NO;
     }
-    
-    if ( (!self.isManaged) && (!isModal) && (openAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
+    TiRootViewController* theController = [[TiApp app] controller];
+    if (_customUIWindow || isModal || (tab != nil) || self.isManaged) {
+        FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
+    } else if ((!self.isManaged) && (!isModal) && (openAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
         DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will open behind the presented controller without animations.")
         FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
     }
@@ -358,13 +407,13 @@
 
 -(BOOL)_handleClose:(id)args
 {
-    TiRootViewController* theController = [[TiApp app] controller];
     if (isModal || (tab != nil) || self.isManaged) {
         if (closeAnimation) {
             FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
         }
     }
-    if ( (!self.isManaged) && (!isModal) && (closeAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
+    TiRootViewController* theController = [[TiApp app] controller];
+    if (_customUIWindow || (!self.isManaged) && (!isModal) && (closeAnimation != nil) && ([theController topPresentedController] != [theController topContainerController]) ){
         DeveloperLog(@"[WARN] The top View controller is not a container controller. This window will close behind the presented controller without animations.")
         FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
     }
@@ -385,6 +434,17 @@
 {
     [self replaceValue:val forKey:@"modal" notification:NO];
 }
+
+-(void)setWindowLevel:(id)val
+{
+    if (opening || opened) {
+        return;
+    }
+    _windowLevel = [TiUtils floatValue:val];
+    _useCustomUIWindow = _windowLevel != UIWindowLevelNormal;
+    [self replaceValue:val forKey:@"windowLevel" notification:NO];
+}
+
 
 -(id)modal
 {
@@ -439,7 +499,7 @@
             [self fireEvent:@"focus" propagate:NO];
         }
         UIAccessibilityPostNotification(UIAccessibilityScreenChangedNotification, nil);
-        [[self view] setAccessibilityElementsHidden:NO];
+        [view setAccessibilityElementsHidden:NO];
     }
     TiThreadPerformOnMainThread(^{
         [self forceNavBarFrame];
@@ -454,7 +514,7 @@
         if ([self handleFocusEvents]) {
             [self fireEvent:@"blur" propagate:NO];
         }
-        [[self view] setAccessibilityElementsHidden:YES];
+        [view setAccessibilityElementsHidden:YES];
     }
 }
 
