@@ -132,18 +132,18 @@ static inline CTLineBreakMode NSLineBreakModeToCTLineBreakMode(NSLineBreakMode l
 {
     configSet = YES;
     [(TiUILabel*)view setPadding:_padding];
-    [(TiUILabel *)[self view] setReusing:NO];
+//    [(TiUILabel *)[self view] setReusing:NO];
     if (attributeTextNeedsUpdate)
         [self updateAttributeText];
     [super configurationSet:recursive];
 }
 
 
-- (void)prepareForReuse
-{
-    [(TiUILabel *)[self view] setReusing:YES];
-    [super prepareForReuse];
-}
+//- (void)prepareForReuse
+//{
+//    [(TiUILabel *)[self view] setReusing:YES];
+//    [super prepareForReuse];
+//}
 
 -(void)setPadding:(id)value
 {

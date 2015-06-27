@@ -474,10 +474,10 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
     else [[UIApplication sharedApplication] openURL:url];
 }
 
--(void)setReusing:(BOOL)value
-{
-    _reusing = value;
-}
+//-(void)setReusing:(BOOL)value
+//{
+//    _reusing = value;
+//}
 
 -(NSDictionary*)dictionaryFromTouch:(UITouch*)touch
 {
