@@ -327,7 +327,7 @@
 {
     ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
     [[self label] setAttributedText:[arg attributedString]];
-    [(TiViewProxy *)[self proxy] contentsWillChange];
+    [[self viewProxy] contentsWillChange];
 }
 #endif
 
@@ -426,7 +426,7 @@
 - (void)attributedLabel:(TTTAttributedLabel *)label
    didSelectLinkWithURL:(NSURL *)url
 {
-    if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
+    if ([[self viewProxy] _hasListeners:@"link" checkParent:NO]) {
         NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                    url, @"url",
                                    nil];
@@ -454,7 +454,7 @@ didSelectLinkWithAddress:(NSDictionary *)addressComponents
     NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                urlString, @"url",
                                nil];
-    if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
+    if ([[self viewProxy] _hasListeners:@"link" checkParent:NO]) {
 
         [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
     }
@@ -465,7 +465,7 @@ didSelectLinkWithAddress:(NSDictionary *)addressComponents
 didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
 {
     NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"tel://%@", phoneNumber]];
-    if ([(TiViewProxy*)[self proxy] _hasListeners:@"link" checkParent:NO]) {
+    if ([[self viewProxy] _hasListeners:@"link" checkParent:NO]) {
         NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                    url, @"url",
                                    nil];
