@@ -173,7 +173,28 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 @property(nonatomic,readwrite,retain) CLLocation* lastLocation;
 @end
 
-@implementation GeolocationModule
+@implementation GeolocationModule {
+    CLLocationManager *locationManager;
+    CLLocationManager *locationPermissionManager; // used for just permissions requests
+    
+    CLLocationAccuracy accuracy;
+    CLLocationDistance distance;
+    CLLocationDegrees heading;
+    BOOL calibration;
+    NSMutableArray *singleHeading;
+    NSMutableArray *singleLocation;
+    NSString *purpose;
+    BOOL trackingHeading;
+    BOOL trackingLocation;
+    BOOL trackSignificantLocationChange;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_6_0
+    CLActivityType activityType;
+    BOOL pauseLocationUpdateAutomatically;
+#endif
+    NSDictionary * lastLocationDict;
+    NSRecursiveLock* lock;
+}
+
 @synthesize lastLocation;
 
 #pragma mark Internal
@@ -206,7 +227,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)_destroy
 {
     [self shutdownLocationManager];
-    RELEASE_TO_NIL(tempManager);
     RELEASE_TO_NIL(locationPermissionManager);
     RELEASE_TO_NIL(singleHeading);
     RELEASE_TO_NIL(singleLocation);
@@ -292,7 +312,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     [lock lock];
     if (locationManager==nil)
     {
-        RELEASE_TO_NIL(tempManager);
         locationManager = [[CLLocationManager alloc] init];
         locationManager.delegate = self;
         if (!trackSignificantLocationChange) {
@@ -344,22 +363,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
     [lock unlock];
     return locationManager;
-}
-
-// this is useful for a few methods below that need to use an instance but we
-// don't necessarily want to hold on to this guy
--(CLLocationManager*)tempLocationManager
-{
-    if (locationManager!=nil)
-    {
-        // if we have an instance, just use it
-        return locationManager;
-    }
-    
-    if (tempManager == nil) {
-        tempManager = [[CLLocationManager alloc] init];
-    }
-    return tempManager;
 }
 
 -(void)startStopLocationManagerIfNeeded
@@ -854,21 +857,25 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     CLLocationCoordinate2D latlon = [newLocation coordinate];
     
     NSMutableDictionary * data = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                  [NSNumber numberWithFloat:latlon.latitude],@"latitude",
-                                  [NSNumber numberWithFloat:latlon.longitude],@"longitude",
-                                  [NSNumber numberWithFloat:[newLocation altitude]],@"altitude",
-                                  [NSNumber numberWithFloat:[newLocation horizontalAccuracy]],@"accuracy",
-                                  [NSNumber numberWithFloat:[newLocation verticalAccuracy]],@"altitudeAccuracy",
-                                  [NSNumber numberWithFloat:[newLocation course]],@"heading",
-                                  [NSNumber numberWithFloat:[newLocation speed]],@"speed",
-                                  [NSNumber numberWithLongLong:(long long)([[newLocation timestamp] timeIntervalSince1970] * 1000)],@"timestamp",
+                                  @(latlon.latitude),@"latitude",
+                                  @(latlon.longitude),@"longitude",
+                                  @([newLocation horizontalAccuracy]),@"accuracy",
+                                  @((long long)([[newLocation timestamp] timeIntervalSince1970] * 1000)),@"timestamp",
                                   nil];
-    
+    if ([newLocation verticalAccuracy] > 0) {
+        [data setObject:@([newLocation verticalAccuracy]) forKey:@"altitudeAccuracy"];
+        [data setObject:@([newLocation altitude]) forKey:@"altitude"];
+    }
+    if ([newLocation course] >= 0) {
+        [data setObject:@([newLocation course]) forKey:@"heading"];
+    }
+    if ([newLocation speed] >= 0) {
+        [data setObject:@([newLocation speed]) forKey:@"speed"];
+    }
     if ([TiUtils isIOS8OrGreater]) {
-        NSDictionary *floor = [NSDictionary dictionaryWithObjectsAndKeys:
-                               [NSNumber numberWithInteger:[[newLocation floor] level]],@"level",
-                               nil];
-        [data setObject:floor forKey:@"floor"];
+        [data setObject:@{
+                          @"level": @([[newLocation floor] level])
+                          } forKey:@"floor"];
     }
     
     return data;
