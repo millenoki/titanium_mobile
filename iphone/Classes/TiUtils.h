@@ -585,6 +585,7 @@ typedef enum
 +(BOOL)barTranslucencyForColor:(TiColor *)color;
 +(UIColor *)barColorForColor:(TiColor *)color;
 +(UIBarStyle)barStyleForColor:(TiColor *)color;
++ (UIImage *)imageFromColor:(UIColor *)color;
 
 +(void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController;
 

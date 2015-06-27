@@ -635,8 +635,12 @@ else{\
         if (clipValue) {
             
             if (theImage == nil) {
-                //You can only set up the shadow image with a custom background image.
-                [ourNB setBackgroundImage:[[[UIImage alloc] init] autorelease] forBarMetrics:UIBarMetricsDefault];
+                TiColor* barColor =[TiUtils colorValue:[self valueForUndefinedKey:@"barColor"]];
+                if (barColor && barColor.color != [UIColor clearColor]) {
+                    [ourNB setBackgroundImage:[TiUtils imageFromColor:barColor.color] forBarMetrics:UIBarMetricsDefault];
+                } else {
+                    [ourNB setBackgroundImage:[[[UIImage alloc] init] autorelease] forBarMetrics:UIBarMetricsDefault];
+                }
             }
             //Set an empty Image.
             ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
