@@ -22,7 +22,6 @@ import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiIntentHelper;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
