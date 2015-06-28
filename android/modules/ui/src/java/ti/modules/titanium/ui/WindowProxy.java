@@ -38,6 +38,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.os.Bundle;
 import android.view.View;
@@ -571,6 +573,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
 			intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, TiConvert.toBoolean(getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN), false));
 		}
+		
+		if (hasProperty(TiC.PROPERTY_WINDOW_TYPE)) {
+            intent.putExtra(TiC.PROPERTY_WINDOW_TYPE, TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_TYPE), WindowManager.LayoutParams.TYPE_APPLICATION));
+        }
 
 		boolean modal = false;
 		if (hasProperty(TiC.PROPERTY_MODAL)) {
