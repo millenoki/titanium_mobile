@@ -552,6 +552,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		
 		//Set the secure flag
+        if (hasProperty("intentFlags")) {
+            intent.addFlags(TiConvert.toInt(getProperty("intentFlags"), 0));
+        }
+		
+		//Set the secure flag
 		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
 			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
 			if (flagVal) {
