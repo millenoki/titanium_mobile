@@ -637,9 +637,14 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		setFullscreen(fullscreen);
 		TiActivityHelper.setActionBarHidden(this, navBarHidden);
 		
+		if (intentHasProperty(TiC.PROPERTY_WINDOW_TYPE)) {
+            window.setType(getIntentInt(TiC.PROPERTY_WINDOW_TYPE, WindowManager.LayoutParams.TYPE_APPLICATION));
+        }
+		
 		if (windowFlags > 0) {
 			window.addFlags(windowFlags);
 		}
+        
 		
 		if (modal) {
 			if (TiC.ICS_OR_GREATER) {

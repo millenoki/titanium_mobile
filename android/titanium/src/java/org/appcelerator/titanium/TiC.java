@@ -3330,6 +3330,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_WINDOW_FLAGS = "windowFlags";
+	
 	/**
 	 * @module.api
 	 */
@@ -3339,6 +3340,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_WINDOW_SOFT_INPUT_MODE = "windowSoftInputMode";
+	
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_WINDOW_TYPE = "windowType";
 
 	/**
 	 * @module.api
