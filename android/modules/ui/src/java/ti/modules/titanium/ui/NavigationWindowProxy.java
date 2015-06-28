@@ -474,7 +474,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	
 	static HashMap kDefaultTransition = new HashMap<String, Object>(){{
 	       put(TiC.PROPERTY_STYLE, Integer.valueOf(TransitionHelper.Types.kTransitionSwipe.ordinal()));
-	       put(TiC.PROPERTY_SUBSTYLE,  Integer.valueOf(TransitionHelper.SubTypes.kLeftToRight.ordinal()));}};
+	       put(TiC.PROPERTY_SUBSTYLE,  Integer.valueOf(TransitionHelper.SubTypes.kRightToLeft.ordinal()));}};
 	       
 	private KrollDict getDictFromTransition(Transition transition)
 	{
