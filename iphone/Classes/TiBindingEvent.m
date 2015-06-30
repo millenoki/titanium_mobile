@@ -242,22 +242,24 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void * payload)
 		//Convert to TIobjectrefs
 		if(eventObjectRef == NULL) {
 			eventObjectRef = TiBindingTiValueFromNSDictionary(context, event->payloadDictionary);
+            eventSourceRef = TiObjectGetProperty(context, eventObjectRef, jsEventSourceStringRef, NULL);
+            eventStringRef = TiObjectGetProperty(context, eventObjectRef, jsEventTypeStringRef, NULL);
 		}
 		if (eventTargetRef == NULL) {
 			eventTargetRef = TiBindingTiValueFromProxy(context, event->targetProxy);
 		}
 		if (eventSourceRef == NULL) {
 			eventSourceRef = TiBindingTiValueFromProxy(context, event->sourceProxy);
+            TiObjectSetProperty(context, eventObjectRef, jsEventSourceStringRef, eventSourceRef, kTiPropertyAttributeReadOnly, NULL);
 		}
 		if (eventStringRef == NULL) {
 			eventStringRef = TiValueMakeString(context, event->eventStringRef);
+            TiObjectSetProperty(context, eventObjectRef, jsEventTypeStringRef, eventStringRef, kTiPropertyAttributeReadOnly, NULL);
 		}
 		TiValueRef bubblesValue = TiValueMakeBoolean(context, event->bubbles);
 		TiValueRef cancelBubbleValue = TiValueMakeBoolean(context, false);
 		
 		TiObjectSetProperty(context, eventObjectRef, jsEventBubblesStringRef, bubblesValue, kTiPropertyAttributeReadOnly, NULL);
-		TiObjectSetProperty(context, eventObjectRef, jsEventTypeStringRef, eventStringRef, kTiPropertyAttributeReadOnly, NULL);
-		TiObjectSetProperty(context, eventObjectRef, jsEventSourceStringRef, eventSourceRef, kTiPropertyAttributeReadOnly, NULL);
 		
 		//Error reporting
 		if (event->reportError) {
