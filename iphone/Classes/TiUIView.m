@@ -1977,14 +1977,14 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 // TODO: Revisit this design decision in post-1.3.0
--(void)handleControlEvents:(UIControlEvents)events
-{
-	// For subclasses (esp. buttons) to override when they have event handlers.
-	TiViewProxy* parentProxy = (TiViewProxy*)[[self viewProxy] parent];
-	if ([parentProxy viewAttached] && [parentProxy canHaveControllerParent]) {
-		[[parentProxy view] handleControlEvents:events];
-	}
-}
+//-(void)handleControlEvents:(UIControlEvents)events
+//{
+//	// For subclasses (esp. buttons) to override when they have event handlers.
+//	TiViewProxy* parentProxy = (TiViewProxy*)[[self viewProxy] parent];
+//	if ([parentProxy viewAttached] && [parentProxy canHaveControllerParent]) {
+//		[[parentProxy view] handleControlEvents:events];
+//	}
+//}
 
 // For subclasses
 -(BOOL)touchedContentViewWithEvent:(UIEvent *)event
@@ -2105,28 +2105,27 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         BOOL hasClick = [proxy _hasListeners:@"click"];
 		if (hasTouchEnd || hasDblclick || hasClick)
 		{
+            CGPoint localPoint = [touch locationInView:self];
+            BOOL outside = (localPoint.x < -kTOUCH_MAX_DIST || (localPoint.x - self.frame.size.width)  > kTOUCH_MAX_DIST ||
+                            localPoint.y < -kTOUCH_MAX_DIST || (localPoint.y - self.frame.size.height)  > kTOUCH_MAX_DIST);
             NSDictionary *evt = [self dictionaryFromTouch:touch];
             if (hasTouchEnd) {
                 [proxy fireEvent:@"touchend" withObject:evt checkForListener:NO];
-                [self handleControlEvents:UIControlEventTouchCancel];
+//                [self handleControlEvents:UIControlEventTouchCancel];
             }
             
             // Click handling is special; don't propagate if we have a delegate,
             // but DO invoke the touch delegate.
             // clicks should also be handled by any control the view is embedded in.
-            if (hasDblclick && [touch tapCount] == 2) {
+            if (!outside && hasDblclick && [touch tapCount] == 2) {
                 [proxy fireEvent:@"dblclick" withObject:evt checkForListener:NO];
                 return;
             }
-            if (hasClick)
+            if (!outside && hasClick)
             {
-                CGPoint localPoint = [touch locationInView:self];
-                BOOL outside = (localPoint.x < -kTOUCH_MAX_DIST || (localPoint.x - self.frame.size.width)  > kTOUCH_MAX_DIST ||
-                                localPoint.y < -kTOUCH_MAX_DIST || (localPoint.y - self.frame.size.height)  > kTOUCH_MAX_DIST);
-                if (!outside && touchDelegate == nil) {
+                if (touchDelegate == nil) {
                     [proxy fireEvent:@"click" withObject:evt checkForListener:NO];
-                    return;
-                } 
+                }
             }
 		}
 	}
