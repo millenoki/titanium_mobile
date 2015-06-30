@@ -38,7 +38,7 @@ static NSArray *animProps;
         duration = 0;
         reverseDuration = 0;
         _curve = [[TiAnimation timingFunctionForCurve:kTiAnimCurveEaseInOut] retain];
-        
+        restartFromBeginning = NO;
         transition = UIViewAnimationTransitionNone;
         animated = NO;
         dontApplyOnFinish = NO;
