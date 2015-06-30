@@ -223,7 +223,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  */
 -(BOOL)hasTouchableListener;
 
--(void)handleControlEvents:(UIControlEvents)events;
+//-(void)handleControlEvents:(UIControlEvents)events;
 
 -(void)setVisible_:(id)visible;
 -(void)setSelected_:(id)arg;
