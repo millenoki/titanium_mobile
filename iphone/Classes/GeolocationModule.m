@@ -1038,12 +1038,29 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 //Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
 
--(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations{
+-(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
     NSMutableArray* coords = [self locationsDictionary:locations];
-    if (!coords || [coords count] == 0) return;
-    RELEASE_TO_NIL(lastLocationDict)
-    lastLocationDict = [[coords lastObject] retain];
-    [coords removeLastObject];
+    BOOL hasNewPosition = coords && [coords count] > 0;
+    BOOL hasPosition = hasNewPosition || lastLocationDict;
+    if (!hasPosition)
+    {
+        NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"empty location"];
+        BOOL recheck = [self fireSingleShotLocationIfNeeded:event stopIfNeeded:NO];
+        recheck = recheck || [self fireSingleShotHeadingIfNeeded:event stopIfNeeded:NO];
+        
+        if (recheck)
+        {
+            // check to make sure we don't need to stop after the single shot
+            [self startStopLocationManagerIfNeeded];
+        }
+        
+        return;
+    }
+    if (hasNewPosition) {
+        RELEASE_TO_NIL(lastLocationDict)
+        lastLocationDict = [[coords lastObject] retain];
+        [coords removeLastObject];
+    }
     
     //Must use dictionary because of singleshot.
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
