@@ -109,7 +109,7 @@ static NSArray *animProps;
 		arg = args;
 	}
     
-	if ([arg isKindOfClass:[NSDictionary class]])
+	if ([arg isKindOfClass:[NSDictionary class]] && [arg count] > 0)
 	{
 		NSDictionary *properties = arg;
 		KrollCallback *cb = nil;
