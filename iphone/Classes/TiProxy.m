@@ -1129,13 +1129,16 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     if ([eventObject objectForKey:@"type"] == nil) {
         [eventObject setObject:type forKey:@"type"];
     }
-    if ([eventObject objectForKey:@"source"] == nil) {
-        [eventObject setObject:self forKey:@"source"];
-        if ([self valueForKey:@"bindId"] != nil) {
-            [eventObject setObject:[self valueForKey:@"bindId"] forKey:@"bindId"];
-        }
-    }
     
+    id realSource = [eventObject objectForKey:@"source"];
+    if (!realSource) {
+        realSource = source;
+        [eventObject setObject:realSource forKey:@"source"];
+    }
+    id bindId = [realSource valueForKey:@"bindId"];
+    if (bindId != nil) {
+        [eventObject setObject:bindId forKey:@"bindId"];
+    }
     
     NSArray* theEvaluators = [evaluators valueForKey:type];
     if (theEvaluators) {
