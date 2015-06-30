@@ -2267,7 +2267,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)sanitycheckListeners	//TODO: This can be optimized and unwound later.
 {
 	for (NSString * eventName in [self gestureListenersArray]) {
-		if ([proxy _hasListeners:eventName]) {
+		if ([[self viewProxy] _hasListeners:eventName checkParent:NO]) {
 			[self handleListenerAddedWithEvent:eventName];
 		}
 	}
