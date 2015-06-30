@@ -67,6 +67,7 @@ static NSDictionary* tableViewSeparatorStyle = nil;
 #ifdef USE_TI_UITRANSITIONSTYLE
 #import "TiTransitionHelper.h"
 static NSDictionary* transitionStyle = nil;
+static NSDictionary* transitionSubStyle = nil;
 #endif
 #ifdef USE_TI_UIBLENDMODE
 static NSDictionary* blendMode = nil;
@@ -119,6 +120,7 @@ return ivarName;	\
 #endif
 #ifdef USE_TI_UITRANSITIONSTYLE
     RELEASE_TO_NIL(transitionStyle);
+    RELEASE_TO_NIL(transitionSubStyle);
 #endif
 #ifdef USE_TI_UIBLENDMODE
     RELEASE_TO_NIL(blendMode);
@@ -534,6 +536,19 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 	}
 	return transitionStyle;
 }
+-(id)TransitionSubStyle
+{
+    if (transitionSubStyle==nil)
+    {
+        transitionSubStyle = [@{
+                             @"TOP_TO_BOTTOM":@(ADTransitionTopToBottom),
+                             @"BOTTOM_TO_TOP":@(ADTransitionBottomToTop),
+                             @"RIGHT_TO_LEFT":@(ADTransitionRightToLeft),
+                             @"LEFT_TO_RIGHT":@(ADTransitionLeftToRight)
+                             } retain];
+    }
+    return transitionSubStyle;
+}
 #endif
 #ifdef USE_TI_UIBLENDMODE
 -(id)BlendMode
@@ -588,7 +603,8 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 	RELEASE_TO_NIL(tableViewSeparatorStyle);
 #endif
 #ifdef USE_TI_UITRANSITIONSTYLE
-	RELEASE_TO_NIL(transitionStyle);
+    RELEASE_TO_NIL(transitionStyle);
+    RELEASE_TO_NIL(transitionSubStyle);
 #endif
 #ifdef USE_TI_UIBLENDMODE
 	RELEASE_TO_NIL(blendMode);
