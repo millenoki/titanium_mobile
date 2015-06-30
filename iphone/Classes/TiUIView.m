@@ -1847,7 +1847,10 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 -(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)recognizer {
-    return [TiUtils dictionaryFromGesture:recognizer inView:self];
+    UIView* view = recognizer.view;
+    CGPoint loc = [recognizer locationInView:view];
+    UIView* subview = [view hitTest:loc withEvent:nil];
+    return [TiUtils dictionaryFromGesture:recognizer inView:subview];
 }
 
 -(void)recognizedSingleTap:(UITapGestureRecognizer*)recognizer

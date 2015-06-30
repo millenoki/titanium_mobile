@@ -23,6 +23,9 @@
 #import "TiFileSystemHelper.h"
 #import	"Ti2DMatrix.h"
 
+#import "TouchDelegate_Views.h"
+#import "TiUIView.h"
+
 #import "DDMathEvaluator.h"
 
 // for checking version
@@ -1480,13 +1483,25 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSMutableDictionary*)dictionaryFromTouchableEvent:(id)touch inView:(UIView*)view
 {
-    if (touch == nil) return [NSMutableDictionary dictionary];
+    NSMutableDictionary* result = [NSMutableDictionary dictionary] ;
+    if (touch == nil) {
+        return result;
+    }
     CGPoint localPoint = [touch locationInView:view];
     CGPoint globalPoint = [touch locationInView:nil];
     NSString* xProp = @"x";
     NSString* yProp = @"y";
     float xFactor = 1;
     float yFactor = 1;
+    
+    if (IS_OF_CLASS(view, TiUIView)) {
+        [result setObject:[(TiUIView*)view proxy] forKey:@"source"];
+    } else if ([view respondsToSelector:@selector(touchDelegate)]) {
+        id touchDelegate = [(id)view touchDelegate];
+        if (IS_OF_CLASS(touchDelegate, TiUIView)) {
+            [result setObject:[(TiUIView*)touchDelegate proxy] forKey:@"source"];
+        }
+    }
     
  	UIInterfaceOrientation o = (UIInterfaceOrientation)[[UIApplication sharedApplication] statusBarOrientation];
     
@@ -1511,15 +1526,13 @@ If the new path starts with / and the base url is app://..., we have to massage 
         default:
             break;
     }
-    
-    return [NSMutableDictionary dictionaryWithObjectsAndKeys:
-            [NSNumber numberWithDouble:xFactor*localPoint.x],xProp,
-            [NSNumber numberWithDouble:yFactor*localPoint.y],yProp,
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithDouble:xFactor*globalPoint.x],xProp,
-             [NSNumber numberWithDouble:yFactor*globalPoint.y],yProp,
-             nil], @"globalPoint",
-            nil];
+    [result setObject:@{
+                       xProp: [NSNumber numberWithDouble:xFactor*globalPoint.x],
+                       yProp: [NSNumber numberWithDouble:yFactor*globalPoint.y]
+                       } forKey:@"globalPoint"];
+    [result setObject:[NSNumber numberWithDouble:xFactor*localPoint.x] forKey:xProp];
+    [result setObject:[NSNumber numberWithDouble:yFactor*localPoint.y] forKey:yProp];
+    return result;
 }
 
 +(NSString*) stateStringFromGesture:(UIGestureRecognizer *)recognizer
