@@ -1304,7 +1304,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 CGRect ourRect = [ourRectValue CGRectValue];
                 
                 if ( (ourRect.size.width > editedImage.size.width) || (ourRect.size.height > editedImage.size.height) ){
-                    UIGraphicsBeginImageContext(ourRect.size);
+                    UIGraphicsBeginImageContextWithOptions(ourRect.size, NO, originalImage.scale);
                     CGContextRef context = UIGraphicsGetCurrentContext();
                     
                     // translated rectangle for drawing sub image 

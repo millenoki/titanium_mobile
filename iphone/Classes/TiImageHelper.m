@@ -60,7 +60,7 @@
 +(UIImage*)tintedImage:(UIImage*)source withColor:(UIColor*)color blendMode:(CGBlendMode)mode
 {
     CGRect rect = CGRectMake(0, 0, source.size.width, source.size.height);
-    UIGraphicsBeginImageContext(source.size);
+    UIGraphicsBeginImageContextWithOptions(source.size, NO, source.scale);
     CGContextRef context = UIGraphicsGetCurrentContext();
     // draw black background to preserve color of transparent pixels
     CGContextSetBlendMode(context, kCGBlendModeNormal);
