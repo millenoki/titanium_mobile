@@ -1726,6 +1726,12 @@ If the new path starts with / and the base url is app://..., we have to massage 
         if ([paddingDict objectForKey:@"bottom"]) {
             inset.bottom = [TiUtils floatValue:[paddingDict objectForKey:@"bottom"]];
         }
+    } else if (IS_OF_CLASS(value, NSArray) && [value count] == 4) {
+        NSArray* array = (NSArray*)value;
+        inset = UIEdgeInsetsMake([TiUtils floatValue:[array objectAtIndex:0]],
+                                 [TiUtils floatValue:[array objectAtIndex:1]],
+                                 [TiUtils floatValue:[array objectAtIndex:2]],
+                                 [TiUtils floatValue:[array objectAtIndex:3]]);
     } else if (IS_OF_CLASS(value, NSNumber)) {
         CGFloat padding = [value floatValue];
         inset = UIEdgeInsetsMake(padding, padding, padding, padding);
