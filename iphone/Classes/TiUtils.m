@@ -2116,7 +2116,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 + (UIImage *)imageFromColor:(UIColor *)color {
     CGRect rect = CGRectMake(0, 0, 1, 1);
-    UIGraphicsBeginImageContext(rect.size);
+    UIGraphicsBeginImageContextWithOptions( rect.size, NO, [UIScreen mainScreen].scale );
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSetFillColorWithColor(context, [color CGColor]);
     CGContextFillRect(context, rect);
