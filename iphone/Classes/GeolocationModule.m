@@ -193,6 +193,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 #endif
     NSDictionary * lastLocationDict;
     NSRecursiveLock* lock;
+    BOOL canReportSameLocation;
 }
 
 @synthesize lastLocation;
@@ -303,6 +304,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     pauseLocationUpdateAutomatically  = NO;
     
     lock = [[NSRecursiveLock alloc] init];
+    
+    canReportSameLocation = NO;
     
     [super _configure];
 }
@@ -579,6 +582,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
     // Otherwise, start the location manager.
     else {
+        canReportSameLocation = YES;
         if (singleLocation==nil)
         {
             singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
@@ -937,6 +941,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
         
         // after firing, we remove them
         RELEASE_TO_NIL(singleLocation);
+        canReportSameLocation = NO;
         
         // check to make sure we don't need to stop after the single shot
         if (stopIfNeeded)
@@ -1041,19 +1046,10 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
     NSMutableArray* coords = [self locationsDictionary:locations];
     BOOL hasNewPosition = coords && [coords count] > 0;
-    BOOL hasPosition = hasNewPosition || lastLocationDict;
+    BOOL hasPosition = hasNewPosition || (canReportSameLocation && lastLocationDict);
     if (!hasPosition)
     {
-        NSMutableDictionary * event = [TiUtils dictionaryWithCode:-1 message:@"empty location"];
-        BOOL recheck = [self fireSingleShotLocationIfNeeded:event stopIfNeeded:NO];
-        recheck = recheck || [self fireSingleShotHeadingIfNeeded:event stopIfNeeded:NO];
-        
-        if (recheck)
-        {
-            // check to make sure we don't need to stop after the single shot
-            [self startStopLocationManagerIfNeeded];
-        }
-        
+        [self startStopLocationManagerIfNeeded];
         return;
     }
     if (hasNewPosition) {
