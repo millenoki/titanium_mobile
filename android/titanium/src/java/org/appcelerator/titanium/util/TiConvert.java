@@ -1168,6 +1168,9 @@ public class TiConvert
         } else if (value instanceof Number) {
             float padding = TiUIHelper.getRawSize(TiConvert.toString(value), null);
             reuse.set(padding, padding, padding, padding);
+        } else if (value instanceof Object[] && ((Object[])value).length == 4) {
+            float[] array = TiConvert.toFloatArray((Object[]) value);
+            reuse.set(array[0], array[1], array[2], array[3]);
         } else {
             reuse.set(0, 0, 0, 0);
         }
