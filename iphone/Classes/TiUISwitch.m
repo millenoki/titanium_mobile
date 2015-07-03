@@ -152,25 +152,25 @@
 
 -(void)setValue_:(id)value
 {
-	// need to check if we're in a reproxy when this is set
-	// so we don't artifically trigger a change event or 
-	// animate the change -- this happens on the tableview
-	// reproxy as we scroll
-	BOOL reproxying = [self.proxy inReproxy];
-	BOOL newValue = [TiUtils boolValue:value];
-	BOOL animated = !reproxying;
-	SevenSwitch * ourSwitch = [self switchView];
+    // need to check if we're in a reproxy when this is set
+    // so we don't artifically trigger a change event or
+    // animate the change -- this happens on the tableview
+    // reproxy as we scroll
+    BOOL reproxying = [self.proxy inReproxy];
+    BOOL animated = !reproxying && [[self viewProxy] viewInitialized];
+    
+    
+    BOOL newValue = [TiUtils boolValue:value];
+    SevenSwitch * ourSwitch = [self switchView];
     if ([ourSwitch isOn] == newValue) {
         return;
     }
-	[ourSwitch setOn:newValue animated:animated];
-    if (configurationSet) {
-        // Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!  
-        // This only seems to happen in 4.2+ - could be an Apple bug.
-        if ((reproxying == NO) && configurationSet && [(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
-        {
-            [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO checkForListener:NO];
-        }
+    [ourSwitch setOn:newValue animated:animated];
+    // Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!
+    // This only seems to happen in 4.2+ - could be an Apple bug.
+    if (animated && [(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
+    {
+        [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO checkForListener:NO];
     }
 }
 
