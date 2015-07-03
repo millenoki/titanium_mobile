@@ -2159,9 +2159,12 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         }
     }
 }
+
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    return YES;
+    return gestureRecognizer.delegate &&
+    otherGestureRecognizer.delegate &&
+    gestureRecognizer.delegate == otherGestureRecognizer.delegate;
 }
 
 -(void)configureGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
