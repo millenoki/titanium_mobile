@@ -12,17 +12,9 @@ app = require('akylas.commonjs').createApp(this, { // not using var seems very
 		modules: ['ti', 'moment', 'lang'],
 		additions: ['string']
 	},
-	// templatesPreRjss: ['text'],
-	// templates: ['row', 'view'],
-	// utilities: true,
 	mappings: [
 		['slidemenu', 'SlideMenu', 'SlideMenu']
 	],
-	// ifApple: function(app) {
-	// if (app.info.deployType !== 'production') {
-	// app.modules.testflight = require('ti.testflight');
-	// }
-	// },
 	windowManager: true
 });
 app.main();
@@ -104,11 +96,11 @@ function createWin(_args, _customTitleView) {
 		var titleView = {
 			type: 'Ti.UI.Label',
 			properties: {
-				// backgroundColor:'#44ffff00',
+				backgroundColor: '#44ffff00',
 				// left:0,
 				color: 'black',
 				textAlign: 'center',
-				width: 'FILL',
+				width: 'SIZE',
 				height: 'FILL',
 				text: _args.title
 			}
@@ -260,22 +252,33 @@ function transform1Ex(_args) {
 	button.addEventListener('longpress', function(e) {
 		button.animate({
 			duration: 500,
+			color: varSwitch(button.color, 'red', 'black'),
 			transform: varSwitch(button.transform, t2, t1),
 		});
 	});
+	button.addEventListener('singletap', keyboardTest);
 	win.add(button);
 	var label = Ti.UI.createLabel({
 		bottom: 20,
 		backgroundColor: 'gray',
-		backgroundSelectedColor: '#ddd',
+		// backgroundSelectedColor: '#ddd',
 		bubbleParent: false,
 		text: 'This is a sample\n text for a label'
 	});
 	var t3 = 's2t0,-40r90';
 	label.addEventListener('longpress', function(e) {
 		label.animate({
-			duration: 500,
-			transform: varSwitch(label.transform, t3, t1),
+			duration: 5000,
+			from: {
+				color: 'red',
+				backgroundColor: 'gray',
+				transform: t1
+			},
+			to: {
+				color: 'green',
+				backgroundColor: 'blue',
+				transform: t3
+			}
 		});
 	});
 	win.add(label);
@@ -1143,14 +1146,14 @@ function layout2Ex(_args) {
 		var searchField = buttons.searchField;
 		searchField.applyProperties({
 			value: null,
-			opacity: 0,
+			//			opacity: 0,
 			width: 1,
 			visible: true
 		});
 		searchField.animate({
 			width: 'FILL',
-			opacity: 1,
-			duration: 300
+			//			opacity: 1,
+			duration: 3000
 		}, function() {
 			searchField.focus();
 		});
@@ -1169,8 +1172,8 @@ function layout2Ex(_args) {
 		searchField.value = '';
 		searchField.animate({
 			width: 1,
-			opacity: 0,
-			duration: 200
+			//			opacity: 0,
+			duration: 3000
 		}, function() {
 			searchField.visible = false;
 		});
@@ -1306,24 +1309,24 @@ function buttonAndLabelEx() {
 			right: 30
 		},
 		height: 130,
-		//		disableHW : true,
+		// disableHW : true,
 		bubbleParent: false,
 		borderRadius: 10,
 		borderColor: 'red',
-		//		backgroundColor : 'gray',
-		//		touchEnabled : false,
-		//		backgroundSelectedGradient : {
-		//			type : 'linear',
-		//			colors : [ '#333', 'transparent' ],
-		//			startPoint : {
-		//				x : 0,
-		//				y : 0
-		//			},
-		//			endPoint : {
-		//				x : 0,
-		//				y : "100%"
-		//			}
-		//		},
+		// backgroundColor : 'gray',
+		// touchEnabled : false,
+		// backgroundSelectedGradient : {
+		// type : 'linear',
+		// colors : [ '#333', 'transparent' ],
+		// startPoint : {
+		// x : 0,
+		// y : 0
+		// },
+		// endPoint : {
+		// x : 0,
+		// y : "100%"
+		// }
+		// },
 		title: 'test buutton'
 	});
 	button.add(Ti.UI.createView({
@@ -1432,6 +1435,9 @@ function buttonAndLabelEx() {
 					layoutFullscreen: !e.source.layoutFullscreen
 						// transform: varSwitch(label.transform, t3, t1),
 				});
+			},
+			'swipe': function(e) {
+				e.source.backgroundColor = 'green';
 			}
 		}
 	});
@@ -1589,8 +1595,7 @@ function ImageViewEx() {
 					method: 'GET',
 					autoRedirect: true
 				},
-				// image:
-				// 'http://192.168.1.12:2108/api/MediaCover/96/poster.jpg'
+				image: 'http://192.168.1.12:2108/api/MediaCover/96/poster.jpg'
 			}
 		}]
 	});
@@ -1809,189 +1814,189 @@ function scrollableEx() {
 }
 
 function fadeInEx() {
-		var win = createWin();
-		var view = Ti.UI.createView({
-			backgroundColor: 'red',
+	var win = createWin();
+	var view = Ti.UI.createView({
+		backgroundColor: 'red',
+		opacity: 0,
+		width: 200,
+		height: 200
+	});
+	view.add(Ti.UI.createView({
+		backgroundColor: 'blue',
+		bottom: 10,
+		width: 50,
+		height: 50
+	}));
+	var showMe = function() {
+		view.opacity = 0;
+		view.transform = Ti.UI.create2DMatrix().scale(0.6, 0.6);
+		win.add(view);
+		view.animate({
+			opacity: 1,
+			duration: 300,
+			transform: Ti.UI.create2DMatrix()
+		});
+	};
+	var hideMe = function(_callback) {
+		view.animate({
 			opacity: 0,
-			width: 200,
-			height: 200
+			duration: 200
+		}, function() {
+			win.remove(view);
 		});
-		view.add(Ti.UI.createView({
-			backgroundColor: 'blue',
-			bottom: 10,
-			width: 50,
-			height: 50
-		}));
-		var showMe = function() {
-			view.opacity = 0;
-			view.transform = Ti.UI.create2DMatrix().scale(0.6, 0.6);
-			win.add(view);
-			view.animate({
-				opacity: 1,
-				duration: 300,
-				transform: Ti.UI.create2DMatrix()
-			});
-		};
-		var hideMe = function(_callback) {
-			view.animate({
-				opacity: 0,
-				duration: 200
-			}, function() {
-				win.remove(view);
-			});
-		};
-		var button = Ti.UI.createButton({
-			top: 10,
-			width: 100,
-			bubbleParent: false,
-			title: 'test buutton'
-		});
-		button.addEventListener('click', function(e) {
-			if (view.opacity === 0)
-				showMe();
-			else
-				hideMe();
-		});
-		win.add(button);
-		openWin(win);
-	}
-	// if (false) {
-	// var set = Ti.UI.createAnimationSet({
-	// playMode : 1
-	// });
-	// set.addEventListener('complete', function(e) {
-	// gone = true;
-	// });
-	// set.add({
-	// duration : 800,
-	// transform : t1
-	// }, view);
-	// set.add({
-	// duration : 800,
-	// transform : t2
-	// }, view);
-	// set.add({
-	// duration : 500,
-	// transform : t3
-	// }, view);
-	// set.add({
-	// duration : 500,
-	// transform : t4
-	// }, view);
-	// view.addEventListener('click', function(e) {
-	// if (gone === true) {
-	// view.animate({
-	// duration : 300,
-	// transform : t0
-	// }, function() {
-	// gone = false
-	// });
-	// } else
-	// set.start();
-	// });
-	// win.addEventListener('click', function(e) {
-	// if (gone === true) {
-	// view.animate({
-	// duration : 300,
-	// transform : t0
-	// }, function() {
-	// gone = false
-	// });
-	// }
-	// });
-	// } else {
-	// function transform2Ex() {
-	// var win = createWin();
-	// var view = app.modules.shapes.createView({
-	// top : 150,
-	// borderRadius : 10,
-	// borderColor : 'red',
-	// borderWidth : 5,
-	// bubbleParent : false,
-	// width : 300,
-	// height : 100,
-	// backgroundColor : 'white',
-	// transform : Ti.UI.create2DMatrix().scale(2.0, 2.0),
-	// viewMask : '/images/body-mask.png'
-	// });
-	// var button = Ti.UI.createButton({
-	// top : 10,
-	// width : 100,
-	// transform : Ti.UI.create2DMatrix().scale(2.0, 2.0).translate(0, 40),
-	// bubbleParent : false,
-	// title : 'test buutton'
-	// });
-	// button.addEventListener('click', function(e) {
-	// view.top -=1;
-	// });
-	// button.add(Ti.UI.createView({
-	// backgroundColor : 'red',
-	// bottom : 10,
-	// width : 5,
-	// height : 5
-	// }));
-	// var shape = app.modules.shapes.createCircle({
-	// fillColor : '#bbb',
-	// lineColor : '#777',
-	// lineWidth : 1,
-	// lineShadow : {
-	// radius : 2,
-	// color : 'black'
-	// },
-	// radius : '45%'
-	// });
-	// view.add(shape);
-	// view.add(Ti.UI.createView({
-	// backgroundColor : 'red',
-	// bottom : 10,
-	// width : 30,
-	// height : 30
-	// }));
-	// view.addEventListener('click', function(e) {
-	// if (__ANDROID__)
-	// set.cancel();
-	// app.modules.shapes.animate({
-	// duration : 400,
-	// lineWidth : 20,
-	// autoreverse : true,
-	// lineColor : 'yellow',
-	// fillColor : 'blue'
-	// });
-	// });
-	// win.add(view);
-	// win.add(button);
-	// if (__ANDROID__) {
-	// var set = Ti.UI.createAnimationSet({
-	// playMode : 2
-	// });
-	// set.add({
-	// duration : 300,
-	// autoreverse : true,
-	// height : 300
-	// }, view);
-	// set.add({
-	// duration : 1000,
-	// lineWidth : 20,
-	// autoreverse : true,
-	// lineColor : 'yellow',
-	// fillColor : 'blue'
-	// }, shape);
-	// win.addEventListener('click', function(e) {
-	// app.modules.shapes.cancelAllAnimations();
-	// set.start();
-	// });
-	// }
-	// else {
-	// win.addEventListener('click', function(e) {
-	// view.animate({
-	// duration : 300,
-	// autoreverse : true,
-	// height : 300
-	// });
-	// });
-	// }
-	// openWin(win);
-	// }
+	};
+	var button = Ti.UI.createButton({
+		top: 10,
+		width: 100,
+		bubbleParent: false,
+		title: 'test buutton'
+	});
+	button.addEventListener('click', function(e) {
+		if (view.opacity === 0)
+			showMe();
+		else
+			hideMe();
+	});
+	win.add(button);
+	openWin(win);
+}
+// if (false) {
+// var set = Ti.UI.createAnimationSet({
+// playMode : 1
+// });
+// set.addEventListener('complete', function(e) {
+// gone = true;
+// });
+// set.add({
+// duration : 800,
+// transform : t1
+// }, view);
+// set.add({
+// duration : 800,
+// transform : t2
+// }, view);
+// set.add({
+// duration : 500,
+// transform : t3
+// }, view);
+// set.add({
+// duration : 500,
+// transform : t4
+// }, view);
+// view.addEventListener('click', function(e) {
+// if (gone === true) {
+// view.animate({
+// duration : 300,
+// transform : t0
+// }, function() {
+// gone = false
+// });
+// } else
+// set.start();
+// });
+// win.addEventListener('click', function(e) {
+// if (gone === true) {
+// view.animate({
+// duration : 300,
+// transform : t0
+// }, function() {
+// gone = false
+// });
+// }
+// });
+// } else {
+// function transform2Ex() {
+// var win = createWin();
+// var view = app.modules.shapes.createView({
+// top : 150,
+// borderRadius : 10,
+// borderColor : 'red',
+// borderWidth : 5,
+// bubbleParent : false,
+// width : 300,
+// height : 100,
+// backgroundColor : 'white',
+// transform : Ti.UI.create2DMatrix().scale(2.0, 2.0),
+// viewMask : '/images/body-mask.png'
+// });
+// var button = Ti.UI.createButton({
+// top : 10,
+// width : 100,
+// transform : Ti.UI.create2DMatrix().scale(2.0, 2.0).translate(0, 40),
+// bubbleParent : false,
+// title : 'test buutton'
+// });
+// button.addEventListener('click', function(e) {
+// view.top -=1;
+// });
+// button.add(Ti.UI.createView({
+// backgroundColor : 'red',
+// bottom : 10,
+// width : 5,
+// height : 5
+// }));
+// var shape = app.modules.shapes.createCircle({
+// fillColor : '#bbb',
+// lineColor : '#777',
+// lineWidth : 1,
+// lineShadow : {
+// radius : 2,
+// color : 'black'
+// },
+// radius : '45%'
+// });
+// view.add(shape);
+// view.add(Ti.UI.createView({
+// backgroundColor : 'red',
+// bottom : 10,
+// width : 30,
+// height : 30
+// }));
+// view.addEventListener('click', function(e) {
+// if (__ANDROID__)
+// set.cancel();
+// app.modules.shapes.animate({
+// duration : 400,
+// lineWidth : 20,
+// autoreverse : true,
+// lineColor : 'yellow',
+// fillColor : 'blue'
+// });
+// });
+// win.add(view);
+// win.add(button);
+// if (__ANDROID__) {
+// var set = Ti.UI.createAnimationSet({
+// playMode : 2
+// });
+// set.add({
+// duration : 300,
+// autoreverse : true,
+// height : 300
+// }, view);
+// set.add({
+// duration : 1000,
+// lineWidth : 20,
+// autoreverse : true,
+// lineColor : 'yellow',
+// fillColor : 'blue'
+// }, shape);
+// win.addEventListener('click', function(e) {
+// app.modules.shapes.cancelAllAnimations();
+// set.start();
+// });
+// }
+// else {
+// win.addEventListener('click', function(e) {
+// view.animate({
+// duration : 300,
+// autoreverse : true,
+// height : 300
+// });
+// });
+// }
+// openWin(win);
+// }
 
 function htmlLabelEx() {
 	var win = createWin({
@@ -2013,6 +2018,7 @@ function htmlLabelEx() {
 		height: Ti.UI.SIZE,
 		ellipsize: Ti.UI.TEXT_ELLIPSIZE_TAIL,
 		maxHeight: 100,
+		textIsSelectable:true,
 		bottom: 20,
 		html: html
 	}));
@@ -2433,58 +2439,12 @@ function cellColor(_index) {
 			break;
 	}
 }
-var transitionsMap = [{
-	title: 'SwipFade',
-	id: Ti.UI.TransitionStyle.SWIPE_FADE
-}, {
-	title: 'SwipDualFade',
-	id: Ti.UI.TransitionStyle.SWIPE_DUAL_FADE
-}, {
-	title: 'Flip',
-	id: Ti.UI.TransitionStyle.FLIP
-}, {
-	title: 'Cube',
-	id: Ti.UI.TransitionStyle.CUBE
-}, {
-	title: 'Fold',
-	id: Ti.UI.TransitionStyle.FOLD
-}, {
-	title: 'Fade',
-	id: Ti.UI.TransitionStyle.FADE
-}, {
-	title: 'Back Fade',
-	id: Ti.UI.TransitionStyle.BACK_FADE
-}, {
-	title: 'Scale',
-	id: Ti.UI.TransitionStyle.SCALE
-}, {
-	title: 'Push Rotate',
-	id: Ti.UI.TransitionStyle.PUSH_ROTATE
-}, {
-	title: 'Slide',
-	id: Ti.UI.TransitionStyle.SLIDE
-}, {
-	title: 'Modern Push',
-	id: Ti.UI.TransitionStyle.MODERN_PUSH
-}, {
-	title: 'Ghost',
-	id: Ti.UI.TransitionStyle.GHOST
-}, {
-	title: 'Zoom',
-	id: Ti.UI.TransitionStyle.ZOOM
-}, {
-	title: 'SWAP',
-	id: Ti.UI.TransitionStyle.SWAP
-}, {
-	title: 'CAROUSEL',
-	id: Ti.UI.TransitionStyle.CAROUSEL
-}, {
-	title: 'CROSS',
-	id: Ti.UI.TransitionStyle.CROSS
-}, {
-	title: 'GLUE',
-	id: Ti.UI.TransitionStyle.GLUE
-}];
+var transitionsMap = _.map(Ti.UI.TransitionStyle, function(value, key){
+	return {
+		title: _.startCase(key),
+		id:value
+	};
+});
 
 function navWindowEx() {
 	function close() {
@@ -2513,11 +2473,8 @@ function navWindowEx() {
 						showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM
 					});
 					closeMenuItem.addEventListener("click", function(e) {
-						newWin.close({
-							transition: {
-								duration: 300
-							}
-						});
+						sdebug('closeMenuItem');
+						newWin.close();
 					});
 				}
 			};
@@ -2578,7 +2535,7 @@ function navWindowEx() {
 					},
 					transition: {
 						style: Ti.UI.TransitionStyle.SWIPE_FADE,
-						substyle: Ti.UI.TransitionStyle.TOP_TO_BOTTOM
+						substyle: Ti.UI.TransitionSubStyle.TOP_TO_BOTTOM
 					}
 				}, {
 					properties: {
@@ -2589,7 +2546,7 @@ function navWindowEx() {
 					},
 					transition: {
 						style: Ti.UI.TransitionStyle.FLIP,
-						substyle: Ti.UI.TransitionStyle.BOTTOM_TO_TOP
+						substyle: Ti.UI.TransitionSubStyle.BOTTOM_TO_TOP
 					}
 				}, {
 					properties: {
@@ -2953,7 +2910,7 @@ function slideMenuEx() {
 			layout: 'vertical',
 			transition: {
 				style: Ti.UI.TransitionStyle.SWIPE_FADE,
-				substyle: Ti.UI.TransitionStyle.TOP_TO_BOTTOM
+				substyle: Ti.UI.TransitionSubStyle.BOTTOM_TO_TOP
 			}
 		});
 		var topView = Ti.UI.createView({
@@ -3386,7 +3343,7 @@ function slideMenuEx() {
 		// fading:1.0,
 		leftTransition: {
 			style: Ti.UI.TransitionStyle.SLIDE,
-			substyle: Ti.UI.TransitionStyle.LEFT_TO_RIGHT
+			substyle: Ti.UI.TransitionSubStyle.LEFT_TO_RIGHT
 		}
 	});
 	var listview = createListView({
@@ -3435,16 +3392,36 @@ function slideMenuEx() {
 		}]
 	});
 	slidingMenu.leftView = listview;
-	slidingMenu.centerView = Ti.UI.createWindow({
-		backgroundColor: 'red',
-		navBarHidden: true
+
+	function onMenuBtn() {
+		slidingMenu.toggleLeftView();
+	}
+	slidingMenu.centerView = Ti.UI.createNavigationWindow({
+		window: Ti.UI.createWindow({
+			backgroundColor: 'red',
+			displayHomeAsUp: true,
+			title: 'test',
+			onHomeIconItemSelected: onMenuBtn,
+			leftNavButton: {
+				type: 'Ti.UI.Button',
+				properties: {
+					title: 'M'
+				},
+				events: {
+					click: onMenuBtn
+				}
+			}
+		})
 	});
 	otherWindows.push(slidingMenu);
-	// slidingMenu.add(Ti.UI.createView({
-	// backgroundColor: 'red',
-	// height: 60,
-	// width: Ti.UI.FILL
-	// }));
+
+	var smDebug = _.wrap(sdebug, function(func, e) {
+		return func(_.pick(e, 'type', 'side', 'offset', 'percent'));
+	});
+	slidingMenu.addEventListener('scrollstart', smDebug);
+	slidingMenu.addEventListener('scrollend', smDebug);
+	slidingMenu.addEventListener('openmenu', smDebug);
+	slidingMenu.addEventListener('closedmenu', smDebug);
 	slidingMenu.open({
 		// activityEnterAnimation: Ti.App.Android.R.anim.push_up_in,
 		// activityExitAnimation: Ti.App.Android.R.anim.identity
@@ -3531,10 +3508,10 @@ function test2() {
 
 	win.addEventListener('click', function() {
 		info('click');
-		notificationView.showMessage({
-			message: 'test',
-			level: 'error'
-		});
+		// notificationView.showMessage({
+		// 	message: 'test',
+		// 	level: 'error'
+		// });
 	})
 	win.open();
 }
@@ -3548,9 +3525,9 @@ function keyboardTest() {
 	});
 	var dialog = Ti.UI.createAlertDialog({
 		title: 'test',
-		buttonNames: ['cancel', 'ok'],
+		buttonNames: ['ok', 'cancel'],
 		persistent: true,
-		cancel: 0,
+		cancel: 1,
 		customView: textfield
 	});
 	// textfield.addEventListener('change', function(e) {
@@ -4080,9 +4057,16 @@ function antiAliasTest(_args) {
 	win.add(view);
 	openWin(win);
 }
-var modules = ['shapes', 'maps', 'charts'];
+var modules = ['shapes', 'bluetooth'];
+var moduleItems = [];
 for (var i = 0; i < modules.length; i++) {
-	Ti.include(modules[i] + '.js');
+	var module = require(modules[i]).load(this);
+	moduleItems.push({
+		properties: {
+			title: _.capitalize(modules[i])
+		},
+		callback: module.exs
+	});
 };
 
 function modulesExs(_args) {
@@ -4093,7 +4077,7 @@ function modulesExs(_args) {
 		var current = win.fullscreen;
 		sdebug(current);
 		// win.fullscreen = [1-current, {
-		// 	animationStyle:Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE
+		// animationStyle:Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE
 		// }];
 		win.setFullscreen(1 - current, {
 			animationStyle: 2
@@ -4106,27 +4090,7 @@ function modulesExs(_args) {
 	}, _args), true);
 	var listview = createListView();
 	listview.sections = [{
-		items: [{
-			properties: {
-				title: 'Maps'
-			},
-			callback: mapExs
-		}, {
-			properties: {
-				title: 'Shapes'
-			},
-			callback: shapeExs
-		}, {
-			properties: {
-				title: 'Charts'
-			},
-			callback: chartsExs
-		// }, {
-		// 	properties: {
-		// 		title: 'Admob'
-		// 	},
-		// 	callback: admobExs
-		}]
+		items: moduleItems
 	}];
 	win.add(listview);
 	openWin(win);
@@ -4372,7 +4336,7 @@ var mainWin = Ti.UI.createNavigationWindow({
 	// backgroundColor: backColor,
 	swipeToClose: false,
 	exitOnClose: true,
-	theme: "Theme.Titanium.TranslucentActionBar.Overlay",
+	// theme: "Theme.Titanium.TranslucentActionBar.Overlay",
 	title: 'AKYLAS_MAIN_WINDOW',
 	window: firstWindow,
 	// transition: {
@@ -4397,9 +4361,10 @@ mainWin.addEventListener('closeWindow', function(e) {
 // width: 'FILL'
 // }
 // });
+// 
 mainWin.open();
 
-var notificationView = new NotificationWindow();
+// var notificationView = new NotificationWindow();
 
 function textFieldTest(_args) {
 	var win = createWin(_args);
@@ -4455,7 +4420,7 @@ function textFieldTest(_args) {
 		}
 	}]);
 	// win.addEventListener('click', function() {
-	// 	win.textfield.focus()
+	// win.textfield.focus()
 	// })
 	win.textfield.focus()
 	openWin(win);
@@ -4867,7 +4832,6 @@ function testMCTS(_args) {
 			"title": {
 				"childTemplates": [{
 					"properties": {
-						"rclass": "BigTitleRowLabel",
 						"font": {
 							"size": 20,
 							"weight": "bold"
@@ -4885,13 +4849,11 @@ function testMCTS(_args) {
 				}],
 				"properties": {
 					"height": "SIZE",
-					"rclass": "GenericRow SizeHeight"
 				}
 			},
 			"value": {
 				"childTemplates": [{
 					"properties": {
-						"rclass": "NZBGetTVRTitle",
 						"textAlign": "right",
 						"width": 90,
 						"font": {
@@ -4916,7 +4878,6 @@ function testMCTS(_args) {
 						},
 						"ellipsize": 'END',
 						"maxLines": 2,
-						"rclass": "NZBGetTVRValue",
 						"bottom": 4,
 						"font": {
 							"size": 14
@@ -4942,23 +4903,8 @@ function testMCTS(_args) {
 			},
 			"button": {
 				"childTemplates": [{
-					// "properties" : {
-					// "rclass" : "NZBGetTVRTitle",
-					// "textAlign" : "right",
-					// "width" : 90,
-					// "font" : {
-					// "size" : 14
-					// },
-					// "padding" : {
-					// "left" : 4,
-					// "right" : 4
-					// },
-					// "color" : "black"
-					// },
-					// "type" : "Ti.UI.Label",
-					// "bindId" : "title"
-					// }, {
 					"properties": {
+						// exclusiveTouch:true,
 						"verticalAlign": "middle",
 						"colors": ["#FEFEFE", "#E3E3E3"],
 						"color": "#686868",
@@ -5027,22 +4973,6 @@ function testMCTS(_args) {
 			},
 			"textfield": {
 				"childTemplates": [{
-					// "properties" : {
-					// "rclass" : "NZBGetTVRTitle",
-					// "textAlign" : "right",
-					// "width" : 90,
-					// "font" : {
-					// "size" : 14
-					// },
-					// "padding" : {
-					// "left" : 4,
-					// "right" : 4
-					// },
-					// "color" : "black"
-					// },
-					// "type" : "Ti.UI.Label",
-					// "bindId" : "title"
-					// }, {
 					"type": "Ti.UI.TextField",
 					"bindId": "textfield",
 					"events": {},
@@ -5087,12 +5017,7 @@ function testMCTS(_args) {
 				"title": {
 					"text": "name"
 				},
-				"textfield": {
-					// "value":
-					// "The.Conjuring.2013.1080p.BluRay.DTS.x264-CyTSuNee",
-					// "text" :
-					// "The.Conjuring.2013.1080p.BluRay.DTS.x264-CyTSuNee"
-				}
+				"textfield": {}
 			}, {
 				"template": "button",
 				"title": {
@@ -6630,7 +6555,6 @@ function testPlayer() {
 	app.ui.createAndOpenWindow('PlayerWindow');
 }
 
-
 function testTritonPlayer() {
 	var Triton = app.modules.triton = require('akylas.triton');
 	Ti.Audio.audioSessionCategory = Ti.Audio.AUDIO_SESSION_CATEGORY_PLAYBACK;
@@ -6641,9 +6565,9 @@ function testTritonPlayer() {
 	});
 	app.player.shuffleMode = Ti.Audio.SHUFFLE_SONGS;
 	app.player.playlist = [{
-		broadcaster:'Triton Digital',
-		mount:'BASIC_CONFIGAAC',
-		station_name:'BASIC_CONFIG'
+		broadcaster: 'Triton Digital',
+		mount: 'BASIC_CONFIGAAC',
+		station_name: 'BASIC_CONFIG'
 	}];
 	app.player.play();
 	app.ui.createAndOpenWindow('PlayerWindow');
@@ -6978,10 +6902,10 @@ function evaluatorsEx(_args) {
 					borderRadius: $thumbHeight / 2
 				},
 				events: {
-					//						                    'touchstart': function(e) {
-					//						                        e.source.maxX = slider.rect.width - e.source.rect.width;
-					//						                        e.source.globalStartX = e.globalPoint.x;
-					//						                    },
+					// 'touchstart': function(e) {
+					// e.source.maxX = slider.rect.width - e.source.rect.width;
+					// e.source.globalStartX = e.globalPoint.x;
+					// },
 					'panstart': {
 						variables: {
 							offset: 'globalPoint.x',
@@ -7012,12 +6936,14 @@ function evaluatorsEx(_args) {
 
 					},
 					'postlayout': function(e) {
-						//							if (firstLayout) {
-						//								firstLayout = false;
-						//								//important for the java objet to receive the change
-						////								e.source.setProperty('maxX', slider.rect.width - e.source.rect.width);
-						//								e.source.maxX = slider.rect.width - e.source.rect.width;
-						//							}
+						// if (firstLayout) {
+						// firstLayout = false;
+						// //important for the java objet to receive the change
+						// // e.source.setProperty('maxX', slider.rect.width -
+						// e.source.rect.width);
+						// e.source.maxX = slider.rect.width -
+						// e.source.rect.width;
+						// }
 
 						var current = sliderOn;
 						sliderOn = e.source.left > e.source.maxX - 10;
@@ -7060,19 +6986,245 @@ function evaluatorsEx(_args) {
 	win.addEventListener('touchend', gdebug)
 	win.addEventListener('twofingertap', gdebug)
 	win.addEventListener('click', gdebug)
-		//		win.add({
-		//			backgroundColor: 'red',
-		//			width: 100,
-		//			height: 100,
-		//			borderRadius: 3,
-		//			draggable: {
-		//				axis: 'x',
-		//				minLeft: 0,
-		//				maxRight: '100%',
-		//				minTop: 0,
-		//				maxTop: Ti.Platform.displayCaps.platformHeight - 100,
-		//			}
-		//		});
+		// win.add({
+		// backgroundColor: 'red',
+		// width: 100,
+		// height: 100,
+		// borderRadius: 3,
+		// draggable: {
+		// axis: 'x',
+		// minLeft: 0,
+		// maxRight: '100%',
+		// minTop: 0,
+		// maxTop: Ti.Platform.displayCaps.platformHeight - 100,
+		// }
+		// });
 	win.add(slider);
 	openWin(win);
 }
+
+function testElevation(_args) {
+	var win = createWin({
+		backgroundColor: '#ADCFFF',
+		statusBarColor: 'red',
+		navigationBarColor: 'green',
+		navigationHidden: true,
+		fullscreen: true,
+		immersive: 2,
+		layout: 'vertical'
+	}, _args);
+	win.add([{
+		type: 'Ti.UI.Button',
+		top: 10,
+		height: 40,
+		bottom: 10,
+		width: 200,
+		title: 'normal'
+	}, {
+		type: 'Ti.UI.Button',
+		top: 10,
+		height: 40,
+		bottom: 10,
+		width: 200,
+		elevation: 0,
+		title: 'elevation 0'
+	}, {
+		type: 'Ti.UI.Button',
+		top: 10,
+		height: 40,
+		bottom: 10,
+		width: 200,
+		backgroundColor: 'green',
+		selector: true,
+		title: 'custom Background color'
+	}, {
+		type: 'Ti.UI.Button',
+		top: 10,
+		height: 40,
+		bottom: 10,
+		width: 200,
+		backgroundColor: 'green',
+		borderRadius: 4,
+		selector: true,
+		title: 'selector'
+	}, {
+		type: 'Ti.UI.Button',
+		top: 10,
+		height: 40,
+		bottom: 10,
+		width: 200,
+		backgroundColor: 'green',
+		borderRadius: 4,
+		clipChildren: false,
+		selector: 'red',
+		title: 'selector red'
+	}, {
+		type: 'Ti.UI.View',
+		top: 10,
+		height: 40,
+		bottom: 10,
+		width: 200,
+		elevation: 2,
+		text: 'test elevation',
+		backgroundColor: 'white'
+	}, {
+		type: 'Ti.UI.Label',
+		top: 10,
+		height: 40,
+		bottom: 10,
+		width: 200,
+		text: 'test no elevation',
+		backgroundColor: 'green'
+	}]);
+	win.open();
+}
+
+function animationtest(_args) {
+	var win = createWin({
+		backgroundColor: 'white',
+	}, _args);
+	var testview = new View({
+		width: 100,
+		height: 100,
+		backgroundColor: 'red',
+		left: 10
+	});
+	//	win.add(testview);
+	var testview2 = new View({
+		width: 100,
+		height: 100,
+		backgroundColor: 'green',
+		right: 10,
+		childTemplates: [{
+			width: 30,
+			height: 30,
+			right: 10,
+			backgroundColor: 'red'
+		}]
+	});
+	win.add(testview2);
+	win.addEventListener('click', function() {
+		testview2.animate({
+			width: 300 - testview2.width,
+			duration: 300
+		});
+		//		testview.animate({
+		//			width:300-testview.width,
+		//			duration:300
+		//		});
+	})
+
+	win.open();
+}
+
+function gradientAnimationTest(_args) {
+	var randomColor = require('randomColor').randomColor;
+	var win = createWin({
+		backgroundColor: '#E4483E',
+		childTemplates: [{
+			type: 'Ti.UI.ImageView',
+			bindId: 'imageView',
+			properties: {
+				transition: {
+					// duration:200,
+					// from:{
+					// 	opacity:0
+					// },
+					// to:{
+					// 	opacity:0
+					// }
+					style: Ti.UI.TransitionStyle.FADE,
+					duration: 3000,
+					substyle: Ti.UI.TransitionSubStyle.BOTTOM_TO_TOP
+				},
+				width: '200%',
+				height: '200%',
+				scaleType: Ti.UI.SCALE_TYPE_ASPECT_FILL
+			}
+		}, {
+			type: 'Ti.UI.ImageView',
+			bindId: 'imageView2',
+			properties: {
+				transition: {
+					style: Ti.UI.TransitionSubStyle.FADE,
+					duration: 2000,
+					substyle: Ti.UI.TransitionSubStyle.BOTTOM_TO_TOP
+				},
+				transform: 'or180',
+				width: 'FILL',
+				height: 'FILL',
+				scaleType: Ti.UI.SCALE_TYPE_ASPECT_FILL
+			}
+		}]
+	}, _args);
+
+	setInterval(function() {
+		Ti.Image.getFilteredImage('images/gradient.png', {
+			tint: randomColor.randomColor(),
+			callback: function(e) {
+				win.imageView.image = e.image;
+			}
+		});
+	}, 10000);
+	setInterval(function() {
+		Ti.Image.getFilteredImage('images/gradient.png', {
+			tint: randomColor.randomColor(),
+			callback: function(e) {
+				win.imageView2.image = e.image;
+			}
+		});
+	}, 7000);
+	openWin(win);
+}
+
+// function blendModeTest(_args) {
+// 	var childTemplates = [];
+// 	_.each(Ti.UI.BlendMode, function(value, key, list){
+
+// 		sdebug(key, value);
+// 		childTemplates.push({
+// 			type: 'Ti.UI.ImageView',
+// 			properties: {
+// 				blendMode: key,
+// 				image: '/images/userLoc.png',
+// 				filterOptions: {
+// 					blend: value,
+// 					tint: '#ffff0000'
+// 				}
+// 			}
+// 		});
+// 	});
+// 	var win = createWin({
+// 		layout: 'horizontal',
+// 		horizontalWrap: true,
+// 		childTemplates: childTemplates
+// 	}, _args);
+
+// 	openWin(win);
+// }
+// blendModeTest();
+// 
+
+function windowLevelTest() {
+	var win = Ti.UI.createWindow({
+		lightweight:true,		
+		touchPassThrough:true,
+		backgroundColor:'transparent',
+		childTemplates:[{
+			type:'Ti.UI.View',
+			properties:{
+				backgroundColor:'blue',
+				bottom:0,
+				height:30
+			},
+			events:{
+				click:function(){
+					win.close();
+					win = null;
+				}
+			}
+		}]
+	});
+	win.open();
+}
+setTimeout(windowLevelTest, 1000);
