@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.lang.Math;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -762,15 +763,24 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 
 		if (viewsObject instanceof Object[]) {
 			Object[] views = (Object[])viewsObject;
-			Activity activity = this.proxy.getActivity();
+//			Activity activity = this.proxy.getActivity();
 			for (int i = 0; i < views.length; i++) {
-				if (views[i] instanceof TiViewProxy) {
-					TiViewProxy tv = (TiViewProxy)views[i];
-//					tv.setActivity(activity);
-//					tv.setParent(this.proxy);
-					mViews.add(tv);
-					changed = true;
-				}
+			    Object arg = views[i];
+			    KrollProxy child = null;
+                if (arg instanceof HashMap) {
+                    child = proxy.createProxyFromTemplate((HashMap) arg, proxy, true);
+                    if (child != null) {
+                        child.updateKrollObjectProperties();
+                    }
+                } else {
+                    child = (KrollProxy) arg;
+                }
+                if (child instanceof TiViewProxy) {
+//                  tv.setActivity(activity);
+//                  tv.setParent(this.proxy);
+                    mViews.add((TiViewProxy) child);
+                    changed = true;
+                }
 			}
 		}
 		if (changed) {
