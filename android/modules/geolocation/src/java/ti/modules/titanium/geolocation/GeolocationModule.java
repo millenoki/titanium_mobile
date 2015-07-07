@@ -30,6 +30,7 @@ import ti.modules.titanium.geolocation.android.LocationProviderProxy;
 import ti.modules.titanium.geolocation.android.LocationProviderProxy.LocationProviderListener;
 import ti.modules.titanium.geolocation.android.LocationRuleProxy;
 import android.app.Activity;
+import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
@@ -509,20 +510,41 @@ public class GeolocationModule extends KrollModule
 			legacyLocationPreferredProvider = preferredProviderProperty;
 		}
 	}
-
+	
+	private GpsStatus.Listener mStatusListener = null;
 	/**
 	 * @see org.appcelerator.kroll.KrollProxy#eventListenerAdded(java.lang.String, int, org.appcelerator.kroll.KrollProxy)
 	 */
 	@Override
 	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
 	{
-		if (TiC.EVENT_HEADING.equals(event)) {
-			if (!compassListenersRegistered) {
-				tiCompass.registerListener();
-				compassListenersRegistered = true;
+		if (TiC.EVENT_CHANGE.equals(event)) {
+			if (mStatusListener == null) {
+			    mStatusListener = new android.location.GpsStatus.Listener()
+			    {
+			        public void onGpsStatusChanged(int event)
+			        {
+			            switch(event)
+			            {
+			            case GpsStatus.GPS_EVENT_STARTED:
+			            case GpsStatus.GPS_EVENT_STOPPED:
+			                KrollDict data = new KrollDict();
+			                data.put(TiC.PROPERTY_ENABLED, event == GpsStatus.GPS_EVENT_STARTED);
+	                        fireEvent(TiC.EVENT_CHANGE, data);
+			                break;
+			            }
+			        }
+			    };
+			    tiLocation.locationManager.addGpsStatusListener(mStatusListener);
 			}
 
-		} else if (TiC.EVENT_LOCATION.equals(event)) {
+		} else if (TiC.EVENT_HEADING.equals(event)) {
+            if (!compassListenersRegistered) {
+                tiCompass.registerListener();
+                compassListenersRegistered = true;
+            }
+
+        } else if (TiC.EVENT_LOCATION.equals(event)) {
 			numLocationListeners++;
 			if (numLocationListeners == 1) {
 				HashMap<String, LocationProviderProxy> locationProviders = legacyLocationProviders;
@@ -551,7 +573,13 @@ public class GeolocationModule extends KrollModule
 	@Override
 	protected void eventListenerRemoved(String event, int count, KrollProxy proxy)
 	{
-		if (TiC.EVENT_HEADING.equals(event)) {
+	    if (TiC.EVENT_CHANGE.equals(event)) {
+            if (mStatusListener != null) {
+                tiLocation.locationManager.removeGpsStatusListener(mStatusListener);
+                mStatusListener = null;
+            }
+
+        } else if (TiC.EVENT_HEADING.equals(event)) {
 			if (compassListenersRegistered) {
 				tiCompass.unregisterListener();
 				compassListenersRegistered = false;

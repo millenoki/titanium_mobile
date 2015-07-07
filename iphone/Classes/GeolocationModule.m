@@ -1032,14 +1032,24 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 #endif
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    NSInteger state = [CLLocationManager authorizationStatus];
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                           NUMINT([CLLocationManager authorizationStatus]),@"authorizationStatus",nil];
+                           NUMINTEGER(state),@"authorizationStatus",nil];
     
     if ([self _hasListeners:@"authorization"])
     {
         [self fireEvent:@"authorization" withObject:event];
     }
+    
+    if ([self _hasListeners:@"change"])
+    {
+        [self fireEvent:@"change" withObject:@{
+                                               @"enabled":@(state == kCLAuthorizationStatusAuthorizedAlways || state == kCLAuthorizationStatusAuthorized),
+                                               @"authorizationStatus": NUMINTEGER(state)
+                                               }];
+    }
 }
+
 
 //Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
 
