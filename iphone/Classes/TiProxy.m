@@ -117,11 +117,7 @@ void DoProxyDispatchToSecondaryArg(id<TiProxyDelegate> target, SEL sel, NSString
     }
     else
     {
-        if (![key hasPrefix:@"set"])
-        {
-            key = [NSString stringWithFormat:@"set%@%@_", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]];
-        }
-        NSArray *arg = [NSArray arrayWithObjects:key,firstarg,secondarg,target,nil];
+        NSArray *arg = [NSArray arrayWithObjects:NSStringFromSelector(sel),firstarg,secondarg,target,nil];
         TiThreadPerformOnMainThread(^{[proxy _dispatchWithObjectOnUIThread:arg];}, YES);
     }
 }
@@ -1459,7 +1455,7 @@ DEFINE_EXCEPTIONS
 -(void)_dispatchWithObjectOnUIThread:(NSArray*)args
 {
     //NOTE: this is called by ENSURE_UI_THREAD_WITH_OBJ and will always be on UI thread when we get here
-    id method = [args objectAtIndex:0];
+    id selector = [args objectAtIndex:0];
     id firstobj = [args count] > 1 ? [args objectAtIndex:1] : nil;
     id secondobj = [args count] > 2 ? [args objectAtIndex:2] : nil;
     id target = [args count] > 3 ? [args objectAtIndex:3] : self;
@@ -1471,8 +1467,7 @@ DEFINE_EXCEPTIONS
     {
         secondobj = nil;
     }
-    SEL selector = NSSelectorFromString([NSString stringWithFormat:@"%@:withObject:",method]);
-    [target performSelector:selector withObject:firstobj withObject:secondobj];
+    [target performSelector: NSSelectorFromString(selector) withObject:firstobj withObject:secondobj];
 }
 
 #pragma mark Description for nice toString in JS
