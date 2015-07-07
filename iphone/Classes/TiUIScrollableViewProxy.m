@@ -98,23 +98,27 @@
 -(void)setViews:(id)args
 {
 	ENSURE_ARRAY(args);
-	for (id newViewProxy in args)
+    NSMutableArray* newViews = [NSMutableArray array];
+	for (id arg in args)
 	{
-		[self rememberProxy:newViewProxy];
-		[newViewProxy setParent:self];
+        TiProxy *child = [self createChildFromObject:arg];
+        if (child) {
+            [self rememberProxy:child];
+            [self childAdded:child atIndex:-1 shouldRelayout:NO];
+            [newViews addObject:child];
+        }
+		
 	}
 	[self lockViewsForWriting];
 	for (id oldViewProxy in viewProxies)
 	{
 		if (![args containsObject:oldViewProxy])
 		{
-			[oldViewProxy setParent:nil];
-			TiThreadPerformOnMainThread(^{[oldViewProxy detachView];}, NO);
-			[self forgetProxy:oldViewProxy];			
+            [self childRemoved:oldViewProxy wasChild:NO shouldDetach:YES];
 		}
 	}
-	[viewProxies autorelease];
-	viewProxies = [args mutableCopy];
+	[viewProxies release];
+	viewProxies = [newViews retain];
 	[self unlockViews];
 	[self replaceValue:args forKey:@"views" notification:YES];
 }

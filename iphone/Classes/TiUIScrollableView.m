@@ -191,7 +191,8 @@
     BOOL wasAttached = [viewProxy viewAttached];
     CGRect bounds = [wrapper bounds];
     BOOL needsRefresh = !CGRectEqualToRect(bounds, [viewProxy sandboxBounds]);
-    if ([[viewProxy view] superview] != wrapper) {
+    UIView* parentView = [[viewProxy view] superview];
+    if (parentView != wrapper) {
         [wrapper addSubview:[viewProxy getAndPrepareViewForOpening:[wrapper bounds]]];
         wrapper.attached = YES;
     }
@@ -398,8 +399,9 @@
 		{
 			TiSCrollableWrapperView *view = [[TiSCrollableWrapperView alloc] initWithFrame:viewBounds];
             view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
+            view.backgroundColor = [UIColor brownColor];
             view.index = i;
-            view.attached = false;
+            view.attached = NO;
 			[sv addSubview:view];
             [_wrappers addObject:view];
 			[view release];
@@ -659,7 +661,7 @@
 	}
 	else
 	{
-		pageNum = [TiUtils intValue:args];
+		pageNum = fmin(0, fmax([[self proxy] viewCount] - 1, [TiUtils intValue:args]));
 	}
 	
 	return pageNum;
@@ -673,6 +675,9 @@
     ENSURE_ARG_AT_INDEX(data, args, 0, NSObject);
     ENSURE_ARG_OR_NIL_AT_INDEX(anim, args, 1, NSNumber);
 	NSInteger pageNum = [self pageNumFromArg:data];
+    if (pageNum == currentPage) {
+        return;
+    }
 	if (anim != nil)
 		animated = [anim boolValue];
     
