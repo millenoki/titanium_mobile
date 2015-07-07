@@ -314,7 +314,6 @@ public class IntentProxy extends KrollProxy
 				Log.e(TAG, "Error unimplemented put conversion ", ex.getMessage());
 			}
 		} else {
-			Log.w(TAG, "Warning unimplemented put conversion for " + value.getClass().getCanonicalName() + " trying String");
 			intent.putExtra(key, TiConvert.toString(value));
 		}
 		return this;
