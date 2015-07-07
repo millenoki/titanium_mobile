@@ -1708,110 +1708,116 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(UITapGestureRecognizer*)singleTapRecognizer
 {
-	if (singleTapRecognizer == nil) {
-		singleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSingleTap:)];
-		[self configureGestureRecognizer:singleTapRecognizer];
-		[self addGestureRecognizer:singleTapRecognizer];
-
-		if (doubleTapRecognizer != nil) {
-			[singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
-		}
+    if (singleTapRecognizer == nil) {
+        singleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSingleTap:)];
+        [self configureGestureRecognizer:singleTapRecognizer];
+        [self addGestureRecognizer:singleTapRecognizer];
+        
+        if (doubleTapRecognizer != nil) {
+            [singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
+        }
         if (longPressRecognizer != nil) {
             [singleTapRecognizer requireGestureRecognizerToFail:longPressRecognizer];
         }
-	}
-	return singleTapRecognizer;
+    }
+    return singleTapRecognizer;
 }
 
 -(UITapGestureRecognizer*)doubleTapRecognizer
 {
-	if (doubleTapRecognizer == nil) {
-		doubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedDoubleTap:)];
-		[doubleTapRecognizer setNumberOfTapsRequired:2];
-		[self configureGestureRecognizer:doubleTapRecognizer];
-		[self addGestureRecognizer:doubleTapRecognizer];
-		
-		if (singleTapRecognizer != nil) {
-			[singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
-		}		
-	}
-	return doubleTapRecognizer;
+    if (doubleTapRecognizer == nil) {
+        doubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedDoubleTap:)];
+        [doubleTapRecognizer setNumberOfTapsRequired:2];
+        [self configureGestureRecognizer:doubleTapRecognizer];
+        [self addGestureRecognizer:doubleTapRecognizer];
+        
+        if (singleTapRecognizer != nil) {
+            [singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
+        }
+        if (longPressRecognizer != nil) {
+            [doubleTapRecognizer requireGestureRecognizerToFail:longPressRecognizer];
+        }
+    }
+    return doubleTapRecognizer;
 }
 
 -(UITapGestureRecognizer*)twoFingerTapRecognizer
 {
-	if (twoFingerTapRecognizer == nil) {
-		twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSingleTap:)];
-		[twoFingerTapRecognizer setNumberOfTouchesRequired:2];
-		[self configureGestureRecognizer:twoFingerTapRecognizer];
-		[self addGestureRecognizer:twoFingerTapRecognizer];
-	}
-	return twoFingerTapRecognizer;
+    if (twoFingerTapRecognizer == nil) {
+        twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSingleTap:)];
+        [twoFingerTapRecognizer setNumberOfTouchesRequired:2];
+        [self configureGestureRecognizer:twoFingerTapRecognizer];
+        [self addGestureRecognizer:twoFingerTapRecognizer];
+    }
+    return twoFingerTapRecognizer;
 }
 
 -(UIPinchGestureRecognizer*)pinchRecognizer
 {
-	if (pinchRecognizer == nil) {
-		pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
-		[self configureGestureRecognizer:pinchRecognizer];
-		[self addGestureRecognizer:pinchRecognizer];
-	}
-	return pinchRecognizer;
+    if (pinchRecognizer == nil) {
+        pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
+        [self configureGestureRecognizer:pinchRecognizer];
+        [self addGestureRecognizer:pinchRecognizer];
+    }
+    return pinchRecognizer;
 }
 
 -(UISwipeGestureRecognizer*)leftSwipeRecognizer
 {
-	if (leftSwipeRecognizer == nil) {
-		leftSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
-		[leftSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionLeft];
-		[self configureGestureRecognizer:leftSwipeRecognizer];
-		[self addGestureRecognizer:leftSwipeRecognizer];
-	}
-	return leftSwipeRecognizer;
+    if (leftSwipeRecognizer == nil) {
+        leftSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+        [leftSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionLeft];
+        [self configureGestureRecognizer:leftSwipeRecognizer];
+        [self addGestureRecognizer:leftSwipeRecognizer];
+    }
+    return leftSwipeRecognizer;
 }
 
 -(UISwipeGestureRecognizer*)rightSwipeRecognizer
 {
-	if (rightSwipeRecognizer == nil) {
-		rightSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
-		[rightSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionRight];
-		[self configureGestureRecognizer:rightSwipeRecognizer];
-		[self addGestureRecognizer:rightSwipeRecognizer];
-	}
-	return rightSwipeRecognizer;
+    if (rightSwipeRecognizer == nil) {
+        rightSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+        [rightSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionRight];
+        [self configureGestureRecognizer:rightSwipeRecognizer];
+        [self addGestureRecognizer:rightSwipeRecognizer];
+    }
+    return rightSwipeRecognizer;
 }
 -(UISwipeGestureRecognizer*)upSwipeRecognizer
 {
-	if (upSwipeRecognizer == nil) {
-		upSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
-		[upSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
-		[self configureGestureRecognizer:upSwipeRecognizer];
-		[self addGestureRecognizer:upSwipeRecognizer];
-	}
-	return upSwipeRecognizer;
+    if (upSwipeRecognizer == nil) {
+        upSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+        [upSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
+        [self configureGestureRecognizer:upSwipeRecognizer];
+        [self addGestureRecognizer:upSwipeRecognizer];
+    }
+    return upSwipeRecognizer;
 }
 -(UISwipeGestureRecognizer*)downSwipeRecognizer
 {
-	if (downSwipeRecognizer == nil) {
-		downSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
-		[downSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
-		[self configureGestureRecognizer:downSwipeRecognizer];
-		[self addGestureRecognizer:downSwipeRecognizer];
-	}
-	return downSwipeRecognizer;
+    if (downSwipeRecognizer == nil) {
+        downSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
+        [downSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
+        [self configureGestureRecognizer:downSwipeRecognizer];
+        [self addGestureRecognizer:downSwipeRecognizer];
+    }
+    return downSwipeRecognizer;
 }
 
 -(UILongPressGestureRecognizer*)longPressRecognizer
 {
-	if (longPressRecognizer == nil) {
-		longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
-		[self configureGestureRecognizer:longPressRecognizer];
-		[self addGestureRecognizer:longPressRecognizer];
+    if (longPressRecognizer == nil) {
+        longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
+        [self configureGestureRecognizer:longPressRecognizer];
+        [self addGestureRecognizer:longPressRecognizer];
         if (singleTapRecognizer != nil) {
             [singleTapRecognizer requireGestureRecognizerToFail:longPressRecognizer];
         }
-	}
-	return longPressRecognizer;
+        if (doubleTapRecognizer != nil) {
+            [doubleTapRecognizer requireGestureRecognizerToFail:longPressRecognizer];
+        }
+    }
+    return longPressRecognizer;
 }
 
 -(UIPanGestureRecognizer*)panRecognizer
