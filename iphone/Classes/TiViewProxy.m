@@ -1389,9 +1389,18 @@ SEL GetterForKrollProperty(NSString * key)
     [self setSandboxBounds:bounds];
     [self parentWillShow];
     [self windowWillOpen];
-    TiUIView* tiview = [self getOrCreateView];
-    [self windowDidOpen];
-    return tiview;
+    if (view) {
+        [self setSandboxBounds:bounds];
+        if (!CGRectIsEmpty(sandboxBounds))
+        {
+            [self refreshView];
+            [self handlePendingAnimation];
+        }
+    } else {
+        [self getOrCreateView];
+        [self windowDidOpen];
+    }
+    return view;
 }
 
 
