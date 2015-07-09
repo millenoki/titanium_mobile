@@ -34,6 +34,7 @@
 @interface TiUICollectionView ()
 @property (nonatomic, readonly) TiUICollectionViewProxy *listViewProxy;
 @property (nonatomic,copy,readwrite) NSString * searchString;
+@property (nonatomic, strong) NSMutableSet *shownIndexes;
 @end
 
 @interface TiUICollectionSectionProxy()
@@ -93,6 +94,9 @@
 //    BOOL _canSwipeCells;
     BOOL _stickyHeaders;
 //    MGSwipeTableCell * _currentSwipeCell;
+    
+    id _appearAnimation;
+    BOOL _useAppearAnimation;
 }
 
 static NSDictionary* replaceKeysForRow;
@@ -127,6 +131,8 @@ static NSDictionary* replaceKeysForRow;
 //        _canSwipeCells = NO;
         _hasPullView = NO;
         _stickyHeaders = NO;
+        _appearAnimation = nil;
+        _useAppearAnimation = NO;
     }
     return self;
 }
@@ -148,6 +154,8 @@ static NSDictionary* replaceKeysForRow;
     RELEASE_TO_NIL(filteredTitles)
     RELEASE_TO_NIL(filteredIndices)
     RELEASE_TO_NIL(_measureProxies)
+    RELEASE_TO_NIL(_appearAnimation)
+    RELEASE_TO_NIL(_shownIndexes)
     [super dealloc];
 }
 
@@ -799,6 +807,9 @@ static NSDictionary* replaceKeysForRow;
     UICollectionViewScrollDirection direction = ([args isKindOfClass:[NSString class]] && [args caseInsensitiveCompare:@"horizontal"]== NSOrderedSame)?UICollectionViewScrollDirectionHorizontal:UICollectionViewScrollDirectionVertical;
     TiUICollectionViewFlowLayout* layout = (TiUICollectionViewFlowLayout*)[self tableView].collectionViewLayout;
     layout.scrollDirection = direction;
+
+    _tableView.alwaysBounceVertical = direction == UICollectionViewScrollDirectionVertical;
+    _tableView.alwaysBounceHorizontal = direction == UICollectionViewScrollDirectionHorizontal;
 }
 
 
@@ -1078,6 +1089,23 @@ static NSDictionary* replaceKeysForRow;
 -(void)setOnDisplayCell_:(id)callback
 {
     hasOnDisplayCell = [callback isKindOfClass:[KrollCallback class]] || [callback isKindOfClass:[KrollWrapper class]];
+}
+
+-(void)setAppearAnimation_:(id)value
+{
+    RELEASE_TO_NIL(_appearAnimation)
+    if (IS_OF_CLASS(TiAnimation, value)) {
+        _appearAnimation = [value retain];
+    } else {
+        ENSURE_SINGLE_ARG(value, NSDictionary);
+        _appearAnimation = [value retain];
+    }
+    _useAppearAnimation = _useAppearAnimation || _appearAnimation != nil;
+}
+
+-(void)setUseAppearAnimation_:(id)value
+{
+    _useAppearAnimation = [TiUtils boolValue:value def:NO];
 }
 
 #pragma mark - Search Support
@@ -1541,12 +1569,17 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (searchActive || (collectionView != _tableView)) {
+        return;
+    }
+    TiUICollectionItem* item = (TiUICollectionItem*)cell;
+    NSDictionary *data = item.dataItem;
+    
     if (hasOnDisplayCell) {
         TiUICollectionSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
-        NSDictionary *item = [section itemAtIndex:indexPath.row];
         NSDictionary * propertiesDict = @{
                                           @"view":((TiUICollectionItem*)cell).proxy,
-                                          @"item": item,
+                                          @"item": data,
                                           @"listView": self.proxy,
                                           @"section":section,
                                           @"searchResult":NUMBOOL([self isSearchActive]),
@@ -1555,8 +1588,22 @@ static NSDictionary* replaceKeysForRow;
         };
         [self.proxy fireCallback:@"onDisplayCell" withArg:propertiesDict withSource:self.proxy];
     }
-    if (searchActive || (collectionView != _tableView)) {
-        return;
+    
+    if (_useAppearAnimation) {
+        if (!_shownIndexes) {
+            _shownIndexes = [[NSMutableSet set] retain];
+        }
+        if (![_shownIndexes containsObject:indexPath]) {
+            [_shownIndexes addObject:indexPath];
+            id appearAnimation = [data objectForKey:@"appearAnimation"];
+            if (!appearAnimation) {
+                appearAnimation = _appearAnimation;
+            }
+            TiViewProxy* proxy = item.proxy;
+            TiAnimation * newAnimation = [TiAnimation animationFromArg:appearAnimation context:[proxy executionContext] create:NO];
+            //            newAnimation.dontApplyOnFinish = YES;
+            [proxy handleAnimation:newAnimation];
+        }
     }
     //Tell the proxy about the cell to be displayed
     [self.listViewProxy willDisplayCell:indexPath];
