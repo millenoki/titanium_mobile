@@ -1,5 +1,6 @@
 #import "TiUIView.h"
 
-@interface TiScrollingView : TiUIView
+#import "INSPullToRefreshBackgroundView.h"
 
+@interface TiScrollingView : TiUIView<INSPullToRefreshBackgroundViewDelegate>
 @end
