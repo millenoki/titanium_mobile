@@ -1706,12 +1706,18 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 #pragma mark Recognizers
 
+
+-(UIView*)viewForGestures
+{
+    return self;
+}
+
 -(UITapGestureRecognizer*)singleTapRecognizer
 {
     if (singleTapRecognizer == nil) {
         singleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSingleTap:)];
         [self configureGestureRecognizer:singleTapRecognizer];
-        [self addGestureRecognizer:singleTapRecognizer];
+        [[self viewForGestures] addGestureRecognizer:singleTapRecognizer];
         
         if (doubleTapRecognizer != nil) {
             [singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
@@ -1729,7 +1735,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         doubleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedDoubleTap:)];
         [doubleTapRecognizer setNumberOfTapsRequired:2];
         [self configureGestureRecognizer:doubleTapRecognizer];
-        [self addGestureRecognizer:doubleTapRecognizer];
+        [[self viewForGestures] addGestureRecognizer:doubleTapRecognizer];
         
         if (singleTapRecognizer != nil) {
             [singleTapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
@@ -1747,7 +1753,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         twoFingerTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSingleTap:)];
         [twoFingerTapRecognizer setNumberOfTouchesRequired:2];
         [self configureGestureRecognizer:twoFingerTapRecognizer];
-        [self addGestureRecognizer:twoFingerTapRecognizer];
+        [[self viewForGestures] addGestureRecognizer:twoFingerTapRecognizer];
     }
     return twoFingerTapRecognizer;
 }
@@ -1757,7 +1763,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if (pinchRecognizer == nil) {
         pinchRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPinch:)];
         [self configureGestureRecognizer:pinchRecognizer];
-        [self addGestureRecognizer:pinchRecognizer];
+        [[self viewForGestures] addGestureRecognizer:pinchRecognizer];
     }
     return pinchRecognizer;
 }
@@ -1768,7 +1774,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         leftSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
         [leftSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionLeft];
         [self configureGestureRecognizer:leftSwipeRecognizer];
-        [self addGestureRecognizer:leftSwipeRecognizer];
+        [[self viewForGestures] addGestureRecognizer:leftSwipeRecognizer];
     }
     return leftSwipeRecognizer;
 }
@@ -1779,7 +1785,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         rightSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
         [rightSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionRight];
         [self configureGestureRecognizer:rightSwipeRecognizer];
-        [self addGestureRecognizer:rightSwipeRecognizer];
+        [[self viewForGestures] addGestureRecognizer:rightSwipeRecognizer];
     }
     return rightSwipeRecognizer;
 }
@@ -1789,7 +1795,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         upSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
         [upSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
         [self configureGestureRecognizer:upSwipeRecognizer];
-        [self addGestureRecognizer:upSwipeRecognizer];
+        [[self viewForGestures] addGestureRecognizer:upSwipeRecognizer];
     }
     return upSwipeRecognizer;
 }
@@ -1799,7 +1805,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         downSwipeRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedSwipe:)];
         [downSwipeRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
         [self configureGestureRecognizer:downSwipeRecognizer];
-        [self addGestureRecognizer:downSwipeRecognizer];
+        [[self viewForGestures] addGestureRecognizer:downSwipeRecognizer];
     }
     return downSwipeRecognizer;
 }
@@ -1809,7 +1815,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if (longPressRecognizer == nil) {
         longPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
         [self configureGestureRecognizer:longPressRecognizer];
-        [self addGestureRecognizer:longPressRecognizer];
+        [[self viewForGestures] addGestureRecognizer:longPressRecognizer];
         if (singleTapRecognizer != nil) {
             [singleTapRecognizer requireGestureRecognizerToFail:longPressRecognizer];
         }
@@ -1825,7 +1831,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if (panRecognizer == nil) {
         panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPan:)];
         [self configureGestureRecognizer:panRecognizer];
-        [self addGestureRecognizer:panRecognizer];
+        [[self viewForGestures] addGestureRecognizer:panRecognizer];
     }
     return panRecognizer;
 }
@@ -1837,7 +1843,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         [self configureGestureRecognizer:shoveRecognizer];
         shoveRecognizer.minimumNumberOfTouches = 2;
         shoveRecognizer.maximumNumberOfTouches = 2;
-        [self addGestureRecognizer:shoveRecognizer];
+        [[self viewForGestures] addGestureRecognizer:shoveRecognizer];
     }
     return shoveRecognizer;
 }
@@ -1847,7 +1853,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if (rotationRecognizer == nil) {
         rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedRotation:)];
         [self configureGestureRecognizer:rotationRecognizer];
-        [self addGestureRecognizer:rotationRecognizer];
+        [[self viewForGestures] addGestureRecognizer:rotationRecognizer];
     }
     return rotationRecognizer;
 }
