@@ -75,7 +75,7 @@
 
 -(UIViewController*)controller;
 {
-    if (!_useCustomUIWindow) {
+    if (!_useCustomUIWindow && !controller) {
         return [[TiApp app] controller];
     }
     return controller;
