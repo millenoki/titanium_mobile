@@ -339,35 +339,62 @@
 - (void)viewWillAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
 {
     shouldUpdateNavBar = !noNavBar;
-    
-    [self setupWindowDecorations:animated];
+    id delegate = [[self navControllerForController:controller] delegate];
+    BOOL isInteracting = NO;
+    if (IS_OF_CLASS(delegate, ADNavigationControllerDelegate)) {
+        isInteracting = [delegate isInteracting];
+    }
+    if (!isInteracting) {
+        [self setupWindowDecorations:animated];
+    }
     [super viewWillAppear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated;     // Called when the view has been fully transitioned onto the screen. Default does nothing
 {
-    [self updateTitleView];
+    BOOL isInteracting = NO;
+    id delegate = [[self navControllerForController:controller] delegate];
+    if (IS_OF_CLASS(delegate, ADNavigationControllerDelegate)) {
+        isInteracting = [delegate isInteracting];
+    }
+    if (isInteracting) {
+        [self setupWindowDecorations:animated];
+        ((ADNavigationControllerDelegate*)delegate).isInteracting = NO;
+    } else {
+        [self updateTitleView];
+    }
     [super viewDidAppear:animated];
 }
 
 - (void)viewWillDisappear:(BOOL)animated; // Called when the view is dismissed, covered or otherwise hidden. Default does nothing
 {
     shouldUpdateNavBar = NO;
+    
+    
     id navController = [self navControllerForController:controller];
     if (navController) {
-        if (animated) {
-            [UIView beginAnimations:@"navbarAnim" context:NULL];
-            [UIView setAnimationBeginsFromCurrentState:YES];
+        BOOL isInteracting = NO;
+        id delegate = [navController delegate];
+        if (IS_OF_CLASS(delegate, ADNavigationControllerDelegate)) {
+            isInteracting = [delegate isInteracting];
         }
-        if (![navController navigationBar].hidden) {
-            [navController navigationBar].frame = startingNavbarFrame;
+        if (!isInteracting) {
+            if (animated) {
+                [UIView beginAnimations:@"navbarAnim" context:NULL];
+                [UIView setAnimationBeginsFromCurrentState:YES];
+            }
+            if (![navController navigationBar].hidden) {
+                [navController navigationBar].frame = startingNavbarFrame;
+            }
+            if (![navController toolbar].hidden) {
+                [navController toolbar].frame = startingToolbarFrame;
+            }
+
+            if (animated) {
+                [UIView commitAnimations];
+            }
         }
-        if (![navController toolbar].hidden) {
-            [navController toolbar].frame = startingToolbarFrame;
-        }
-        if (animated) {
-            [UIView commitAnimations];
-        }
+        
     }
     
     
@@ -1112,13 +1139,15 @@ else{\
 
 -(void)setTitleView:(id)proxy
 {
-	ENSURE_UI_THREAD(setTitleView,proxy);
-	[self replaceValue:proxy forKey:@"titleView" notification:NO];
+    //	ENSURE_UI_THREAD(setTitleView,proxy);
+    [self replaceValue:proxy forKey:@"titleView" notification:NO];
     [self addObjectToHold:proxy forKey:@"titleView"];
-	if (controller!=nil)
-	{
-		[self updateTitleView];
-	}
+    if (controller!=nil)
+    {
+        TiThreadPerformBlockOnMainThread( ^{
+            [self updateTitleView];
+        }, NO);
+    }
 }
 
 -(void)setTitleImage:(id)image
@@ -1239,7 +1268,7 @@ else{\
 {
     id navController = [self navControllerForController:controller];
     if (navController) {
-//        CGRect frame = [navController navigationBar].frame;
+        CGRect frame = [navController navigationBar].frame;
         startingNavbarFrame.size = [navController navigationBar].frame.size;
         startingToolbarFrame.size = [navController toolbar].frame.size;
     }
@@ -1270,26 +1299,23 @@ else{\
     [self updateBarImage];
     [self updateNavButtons];
     [self refreshBackButton];
-    
-    id navBarHidden = [self valueForKey:@"navBarHidden"];
-    if (navBarHidden!=nil) {
-        id properties = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:@(animated) forKey:@"animated"]];
-        if ([TiUtils boolValue:navBarHidden]) {
-            [self hideNavBar:properties];
-        }
-        else {
-            [self showNavBar:properties];
-        }
-    }
-    
-    
-    
+
     if (animated) {
         [UIView beginAnimations:@"navbarAnim" context:NULL];
         [UIView setAnimationBeginsFromCurrentState:YES];
     }
     
-    if (isModal || self.isManaged) {
+    BOOL navBarHidden = [TiUtils boolValue:[self valueForKey:@"navBarHidden"] def:[navController isNavigationBarHidden]];
+    if (navBarHidden != [navController isNavigationBarHidden]) {
+        if (navBarHidden) {
+            [self hideNavBar:@[@{@"animated":@(NO)}]];
+        }
+        else {
+            [self showNavBar:@[@{@"animated":@(NO)}]];
+        }
+    }
+    
+    if ((isModal || self.isManaged)) {
         [(TiRootViewController*)[[TiApp app] controller] updateStatusBar:animated];
     }
     
@@ -1297,6 +1323,7 @@ else{\
         startingNavbarFrame = [navController navigationBar].frame;
         startingToolbarFrame = [navController toolbar].frame;
     }
+
     
     SETPROP(@"barDeltaY",setBarDeltaY);
     SETPROP(@"toolbarDeltaY",setToolbarDeltaY);
