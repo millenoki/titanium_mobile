@@ -417,9 +417,9 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 
 -(void)paused:(id)sender
 {
-	if ([self _hasListeners:@"paused"])
+	if ([self _hasListeners:@"pause"])
 	{
-		[self fireEvent:@"paused" withObject:nil];
+		[self fireEvent:@"pause" withObject:nil];
 	}
 }
 
@@ -428,9 +428,9 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 	// make sure we force any changes made on suspend in case we don't come back
 	[[NSUserDefaults standardUserDefaults] synchronize];
 	
-	if ([self _hasListeners:@"pause"])
+	if ([self _hasListeners:@"suspend"])
 	{
-		[self fireEvent:@"pause" withObject:nil];
+		[self fireEvent:@"suspend" withObject:nil];
 	}
 }
 
@@ -444,9 +444,9 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 
 -(void)resumed:(id)sender
 {
-	if ([self _hasListeners:@"resumed"])
+	if ([self _hasListeners:@"unsuspend"])
 	{
-		[self fireEvent:@"resumed" withObject:nil];
+		[self fireEvent:@"unsuspend" withObject:nil];
 	}
 }
 
