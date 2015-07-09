@@ -61,7 +61,7 @@
         cacheSize = 3;
         currentPage = -1; //so that the first change event is sent
         pageControlHeight=20;
-        pageControlBackgroundColor = [[UIColor blackColor] retain];
+        pageControlBackgroundColor = [[UIColor clearColor] retain];
         pagingControlOnTop = NO;
         overlayEnabled = NO;
         pagingControlAlpha = 1.0;
@@ -399,7 +399,6 @@
 		{
 			TiSCrollableWrapperView *view = [[TiSCrollableWrapperView alloc] initWithFrame:viewBounds];
             view.layer.rasterizationScale = [[UIScreen mainScreen] scale];
-            view.backgroundColor = [UIColor brownColor];
             view.index = i;
             view.attached = NO;
 			[sv addSubview:view];
