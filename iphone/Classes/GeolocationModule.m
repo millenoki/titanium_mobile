@@ -194,6 +194,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     NSDictionary * lastLocationDict;
     NSRecursiveLock* lock;
     BOOL canReportSameLocation;
+    BOOL _locationManagerCreated;
 }
 
 @synthesize lastLocation;
@@ -204,10 +205,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)shutdownLocationManager
 {
     [lock lock];
-    if (locationManager == nil) {
+    if (locationManager == nil || !_locationManagerCreated) {
         [lock unlock];
         return;
     }
+    _locationManagerCreated = NO;
     
     if (trackingHeading) {
         [locationManager stopUpdatingHeading];
@@ -221,13 +223,14 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
             [locationManager stopUpdatingLocation];
         }
     }
-    RELEASE_TO_NIL_AUTORELEASE(locationManager);
+//    RELEASE_TO_NIL_AUTORELEASE(locationManager);
     [lock unlock];
 }
 
 -(void)_destroy
 {
     [self shutdownLocationManager];
+    RELEASE_TO_NIL(locationManager);
     RELEASE_TO_NIL(locationPermissionManager);
     RELEASE_TO_NIL(singleHeading);
     RELEASE_TO_NIL(singleLocation);
@@ -280,7 +283,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)_configure
 {
-    // reasonable defaults:
+    _locationManagerCreated = NO;
+   // reasonable defaults:
     
     // accuracy by default
     accuracy = kCLLocationAccuracyThreeKilometers;
@@ -315,6 +319,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     [lock lock];
     if (locationManager==nil)
     {
+        _locationManagerCreated = YES;
         locationManager = [[CLLocationManager alloc] init];
         locationManager.delegate = self;
         if (!trackSignificantLocationChange) {
@@ -351,18 +356,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
         locationManager.activityType = activityType;
         locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
         
-        
-        if ([CLLocationManager locationServicesEnabled]== NO)
-        {
-            //NOTE: this is from Apple example from LocateMe and it works well. the developer can still check for the
-            //property and do this message themselves before calling geo. But if they don't, we at least do it for them.
-            NSString *title = NSLocalizedString(@"Location Services Disabled",@"Location Services Disabled Alert Title");
-            NSString *msg = NSLocalizedString(@"You currently have all location services for this device disabled. If you proceed, you will be asked to confirm whether location services should be reenabled.",@"Location Services Disabled Alert Message");
-            NSString *ok = NSLocalizedString(@"OK",@"Location Services Disabled Alert OK Button");
-            UIAlertView *servicesDisabledAlert = [[UIAlertView alloc] initWithTitle:title message:msg delegate:nil cancelButtonTitle:ok otherButtonTitles:nil];
-            [servicesDisabledAlert show];
-            [servicesDisabledAlert release];
-        }
+
     }
     [lock unlock];
     return locationManager;
@@ -393,6 +387,20 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     if (startHeading || startLocation)
     {
         CLLocationManager *lm = [self locationManager];
+        if (!_locationManagerCreated) {
+            _locationManagerCreated = YES;
+            if ([CLLocationManager locationServicesEnabled]== NO)
+            {
+                //NOTE: this is from Apple example from LocateMe and it works well. the developer can still check for the
+                //property and do this message themselves before calling geo. But if they don't, we at least do it for them.
+                NSString *title = NSLocalizedString(@"Location Services Disabled",@"Location Services Disabled Alert Title");
+                NSString *msg = NSLocalizedString(@"You currently have all location services for this device disabled. If you proceed, you will be asked to confirm whether location services should be reenabled.",@"Location Services Disabled Alert Message");
+                NSString *ok = NSLocalizedString(@"OK",@"Location Services Disabled Alert OK Button");
+                UIAlertView *servicesDisabledAlert = [[UIAlertView alloc] initWithTitle:title message:msg delegate:nil cancelButtonTitle:ok otherButtonTitles:nil];
+                [servicesDisabledAlert show];
+                [servicesDisabledAlert release];
+            }
+        }
         if (startHeading && trackingHeading==NO)
         {
             [lm startUpdatingHeading];
@@ -442,7 +450,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
     BOOL startStop = NO;
     
-    if (count == 1 && [type isEqualToString:@"heading"])
+    if (count == 1 && [type isEqualToString:@"change"])
+    {
+        TiThreadPerformOnMainThread(^{[self locationManager];}, YES);
+    } else
+        if (count == 1 && [type isEqualToString:@"heading"])
     {
         startStop = YES;
     }
@@ -1033,12 +1045,12 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     NSInteger state = [CLLocationManager authorizationStatus];
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                           NUMINTEGER(state),@"authorizationStatus",nil];
-    
     if ([self _hasListeners:@"authorization"])
     {
-        [self fireEvent:@"authorization" withObject:event];
+        [self fireEvent:@"authorization" withObject:@{
+                                                      @"enabled":@(state == kCLAuthorizationStatusAuthorizedAlways || state == kCLAuthorizationStatusAuthorized),
+                                                      @"authorizationStatus": NUMINTEGER(state)
+                                                      }];
     }
     
     if ([self _hasListeners:@"change"])
