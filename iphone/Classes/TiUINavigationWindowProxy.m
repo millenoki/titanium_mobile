@@ -58,7 +58,7 @@
 -(NSDictionary*)platformDefaultTransition
 {
     if (AD_SYSTEM_VERSION_GREATER_THAN_7) {
-        return @{ @"style" : [NSNumber numberWithInt:NWTransitionModernPush], @"duration" : @550 };
+        return @{ @"style" : [NSNumber numberWithInt:NWTransitionModernPush], @"duration" : @300 };
     }
     else {
         return @{ @"style" : [NSNumber numberWithInt:NWTransitionSwipe], @"duration" : @300 };
