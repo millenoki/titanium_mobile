@@ -77,6 +77,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	if (self != nil)
 	{
         _asyncLoad = NO;
+//        willHandleTouches = YES;
 	}
 	return self;
 }
@@ -126,27 +127,43 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 //    return webview;
 //}
 
-//-(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
-//{
-//	/*	webview is a little _special_ and refuses to share events.
-//	 *	As such, we have to take the events away if we have event listeners
-//	 *	Or let webview has his entire cake. Through experimenting, if the
-//	 *	webview is interested, a subview or subsubview will be the target.
-//	 */
-//
-//	UIView *view = [super hitTest:point withEvent:event];
-//	if ( ([self hasTouchableListener]) && willHandleTouches )
-//	{
-//		UIView *superview = [view superview];
-//		UIView *superduperview = [superview superview];
-//		if ((view == webview) || (superview == webview) || (superduperview == webview))
-//		{
-//			return self;
-//		}
-//	}
-//	
-//	return view;
-//}
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    id delegate1 = gestureRecognizer.delegate;
+    id delegate2 = otherGestureRecognizer.delegate;
+    
+    id superView1 = IS_OF_CLASS(delegate1, UIView)?[delegate1 superview]:delegate1;
+    id superView2 = IS_OF_CLASS(delegate2, UIView)?[delegate2 superview]:delegate2;
+    return delegate1 == delegate2 ||
+    (superView1 == [webview scrollView]  && delegate1 == self)  ||
+    (superView2 == [webview scrollView]  && delegate1 == self);
+    //    return gestureRecognizer.delegate &&
+    //    otherGestureRecognizer.delegate &&
+    //    gestureRecognizer.delegate == otherGestureRecognizer.delegate;
+    return YES;
+}
+
+-(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+	/*	webview is a little _special_ and refuses to share events.
+	 *	As such, we have to take the events away if we have event listeners
+	 *	Or let webview has his entire cake. Through experimenting, if the
+	 *	webview is interested, a subview or subsubview will be the target.
+	 */
+
+	UIView *view = [super hitTest:point withEvent:event];
+	if ( ([self hasTouchableListener]) && willHandleTouches )
+	{
+		UIView *superview = [view superview];
+		UIView *superduperview = [superview superview];
+		if ((view == webview) || (superview == webview) || (superduperview == webview))
+		{
+			return self;
+		}
+	}
+	
+	return view;
+}
 
 -(void)setWillHandleTouches_:(id)args
 {
@@ -950,6 +967,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		[webview stringByEvaluatingJavaScriptFromString:js];
 	}
 }
+
+
+
 
 @end
 
