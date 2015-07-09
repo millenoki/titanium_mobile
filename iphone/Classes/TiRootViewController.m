@@ -1640,19 +1640,22 @@
             CGRect navFrame = topController.navigationController.navigationBar.frame;
             CGFloat realDelta = newY - navFrame.origin.y;
             navFrame.origin.y += realDelta;
-            topController.navigationController.navigationBar.frame = navFrame;
+            if (!topController.navigationController.isNavigationBarHidden) {
+                topController.navigationController.navigationBar.frame = navFrame;
+            }
             CGRect viewFrame = topController.view.frame;
             viewFrame.origin.y += realDelta;
             viewFrame.size.height -= realDelta;
             topController.view.frame = viewFrame;
+            [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:animated];
             [[UIApplication sharedApplication] setStatusBarHidden:newValue withAnimation:style];
+            [self resizeView];
             if (animated) {
                 [UIView commitAnimations];
             }
             
         }
-        [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:animated];
-        [self resizeView];
+        
     }
 }
 
