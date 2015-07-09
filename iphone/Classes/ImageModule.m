@@ -96,7 +96,7 @@ typedef UIImage* (^ProcessImageBlock) ();
     
     if (image == nil) {
         NSLog(@"[ERROR] getFilteredImage: could not load image from object of type: %@",[imageArg class]);
-		return;
+		return nil;
     }
     return [self processImage:^UIImage *{
         return image;
