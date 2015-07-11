@@ -571,6 +571,12 @@
 		CEBC15731A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
+		D5016D7C1B51980800C10890 /* CMDActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5016D791B51980800C10890 /* CMDActivityViewController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5016D7D1B51980800C10890 /* CMDActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5016D791B51980800C10890 /* CMDActivityViewController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5016D7E1B51980800C10890 /* CMDActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5016D791B51980800C10890 /* CMDActivityViewController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5016D7F1B51980800C10890 /* CMDForwardingActivityItemSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D5016D7B1B51980800C10890 /* CMDForwardingActivityItemSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5016D801B51980800C10890 /* CMDForwardingActivityItemSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D5016D7B1B51980800C10890 /* CMDForwardingActivityItemSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D5016D811B51980800C10890 /* CMDForwardingActivityItemSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D5016D7B1B51980800C10890 /* CMDForwardingActivityItemSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D506FB0C18E5DD06007E4A5B /* (null) in Sources */ = {isa = PBXBuildFile; };
 		D506FB0D18E5DD06007E4A5B /* (null) in Sources */ = {isa = PBXBuildFile; };
 		D50720401B344E31005B31E5 /* libakylas.bluetooth.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D507203D1B344E1B005B31E5 /* libakylas.bluetooth.a */; };
@@ -716,9 +722,6 @@
 		D54C7D2018115D7D00F592A9 /* TiTransitionModernPush.m in Sources */ = {isa = PBXBuildFile; fileRef = D54C7D1F18115D7D00F592A9 /* TiTransitionModernPush.m */; };
 		D54C7D2118115D7D00F592A9 /* TiTransitionModernPush.m in Sources */ = {isa = PBXBuildFile; fileRef = D54C7D1F18115D7D00F592A9 /* TiTransitionModernPush.m */; };
 		D54C7D2218115D7D00F592A9 /* TiTransitionModernPush.m in Sources */ = {isa = PBXBuildFile; fileRef = D54C7D1F18115D7D00F592A9 /* TiTransitionModernPush.m */; };
-		D54E555719953BDC004A7335 /* RDActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D54E555519953BDC004A7335 /* RDActivityViewController.m */; };
-		D54E555819953BDC004A7335 /* RDActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D54E555519953BDC004A7335 /* RDActivityViewController.m */; };
-		D54E555919953BDC004A7335 /* RDActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D54E555519953BDC004A7335 /* RDActivityViewController.m */; };
 		D54E789E17D8901600443386 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D56FD2D6176EEAB0005BBC3F /* CoreTelephony.framework */; };
 		D5509FD8194B1C2D00655C61 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5509FD7194B1C2D00655C61 /* AnalyticsModule.m */; };
 		D5509FD9194B1C2D00655C61 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D5509FD7194B1C2D00655C61 /* AnalyticsModule.m */; };
@@ -2093,6 +2096,10 @@
 		CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserDefaultsProxy.m; sourceTree = "<group>"; };
 		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
 		D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIClipboardProxy.m; sourceTree = "<group>"; };
+		D5016D781B51980800C10890 /* CMDActivityViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMDActivityViewController.h; sourceTree = "<group>"; };
+		D5016D791B51980800C10890 /* CMDActivityViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMDActivityViewController.m; sourceTree = "<group>"; };
+		D5016D7A1B51980800C10890 /* CMDForwardingActivityItemSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMDForwardingActivityItemSource.h; sourceTree = "<group>"; };
+		D5016D7B1B51980800C10890 /* CMDForwardingActivityItemSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMDForwardingActivityItemSource.m; sourceTree = "<group>"; };
 		D50720381B344E1A005B31E5 /* akylas.bluetooth.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.bluetooth.xcodeproj; path = ../../../modules/akylas_modules/bluetooth/ios/akylas.bluetooth.xcodeproj; sourceTree = "<group>"; };
 		D50A302E18B0F6C1004CBD52 /* TouchCapturingWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TouchCapturingWindow.h; sourceTree = "<group>"; };
 		D50A302F18B0F6C1004CBD52 /* TouchCapturingWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TouchCapturingWindow.m; sourceTree = "<group>"; };
@@ -2336,9 +2343,6 @@
 		D54C7D1A18115C5200F592A9 /* TiTransitionSwap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionSwap.m; sourceTree = "<group>"; };
 		D54C7D1E18115D7D00F592A9 /* TiTransitionModernPush.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionModernPush.h; sourceTree = "<group>"; };
 		D54C7D1F18115D7D00F592A9 /* TiTransitionModernPush.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionModernPush.m; sourceTree = "<group>"; };
-		D54E555419953BDC004A7335 /* RDActivityViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RDActivityViewController.h; path = ../Classes/RDActivityViewController/RDActivityViewController.h; sourceTree = "<group>"; };
-		D54E555519953BDC004A7335 /* RDActivityViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RDActivityViewController.m; path = ../Classes/RDActivityViewController/RDActivityViewController.m; sourceTree = "<group>"; };
-		D54E555619953BDC004A7335 /* RDActivityViewControllerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RDActivityViewControllerDelegate.h; path = ../Classes/RDActivityViewController/RDActivityViewControllerDelegate.h; sourceTree = "<group>"; };
 		D5509FD6194B1C2D00655C61 /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
 		D5509FD7194B1C2D00655C61 /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
 		D55131B81A1DEB1D003A9872 /* TiUIVolumeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIVolumeView.h; sourceTree = "<group>"; };
@@ -2937,9 +2941,9 @@
 				D59355541A233EE000522BC3 /* SevenSwitch */,
 				D5F980EA19ECFC180071A3C6 /* MGSwipeTableCell */,
 				D56F98F119E67CF30050E727 /* UIImage+ImageEffects */,
+				D5016D771B51980800C10890 /* CMDActivityViewController */,
 				D51DEFAF19D9ACBF00CF28B0 /* ActionSheetPicker */,
 				D535CCD919CF2C6A005E114E /* ColorArt */,
-				D54E554D19953BD1004A7335 /* RDActivityViewController */,
 				D55795071837BEF90057DD41 /* CoconutKitAnimation */,
 				D5B6C6DD1811249F00A2612A /* DT */,
 				D5C8C93C17EF45BA00F54C19 /* ADTransitionController */,
@@ -4328,6 +4332,18 @@
 			name = SVGKit;
 			sourceTree = "<group>";
 		};
+		D5016D771B51980800C10890 /* CMDActivityViewController */ = {
+			isa = PBXGroup;
+			children = (
+				D5016D781B51980800C10890 /* CMDActivityViewController.h */,
+				D5016D791B51980800C10890 /* CMDActivityViewController.m */,
+				D5016D7A1B51980800C10890 /* CMDForwardingActivityItemSource.h */,
+				D5016D7B1B51980800C10890 /* CMDForwardingActivityItemSource.m */,
+			);
+			name = CMDActivityViewController;
+			path = ../Classes/CMDActivityViewController;
+			sourceTree = "<group>";
+		};
 		D50720391B344E1A005B31E5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -4459,16 +4475,6 @@
 				D535D0201B3E7F6E0068F7D4 /* libAkylasMotion.a */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		D54E554D19953BD1004A7335 /* RDActivityViewController */ = {
-			isa = PBXGroup;
-			children = (
-				D54E555419953BDC004A7335 /* RDActivityViewController.h */,
-				D54E555519953BDC004A7335 /* RDActivityViewController.m */,
-				D54E555619953BDC004A7335 /* RDActivityViewControllerDelegate.h */,
-			);
-			name = RDActivityViewController;
 			sourceTree = "<group>";
 		};
 		D5509FD5194B1C2100655C61 /* Analytics */ = {
@@ -5514,6 +5520,7 @@
 				843FA58417BD4DFF0064E061 /* TiUINavigationWindow.m in Sources */,
 				D5FD09DC1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */,
 				D55795881837C1680057DD41 /* TiHLSAnimation.m in Sources */,
+				D5016D7F1B51980800C10890 /* CMDForwardingActivityItemSource.m in Sources */,
 				248133A9115761DE00E3A9BA /* TiNetworkTCPSocketProxy.m in Sources */,
 				24813714115A852800E3A9BA /* TiDOMTextNodeProxy.m in Sources */,
 				2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */,
@@ -5592,7 +5599,6 @@
 				DABF3ED7134D2CA100836137 /* StreamModule.m in Sources */,
 				DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */,
 				DAA4B2B4134E75AC00AB6011 /* CodecModule.m in Sources */,
-				D54E555719953BDC004A7335 /* RDActivityViewController.m in Sources */,
 				D55B29B71ACC27F6008C0279 /* TiDatabaseCache.m in Sources */,
 				D5EEA1701A37486100E8BB3F /* _DDVariableTerm.m in Sources */,
 				D554336C1B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m in Sources */,
@@ -5678,6 +5684,7 @@
 				D5EEA18B1A37486100E8BB3F /* DDTypes.m in Sources */,
 				D5C8C99A17EF45C900F54C19 /* ADTransition.m in Sources */,
 				D5C8C9A317EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */,
+				D5016D7C1B51980800C10890 /* CMDActivityViewController.m in Sources */,
 				D5EEA15B1A37486100E8BB3F /* _DDNumberExpression.m in Sources */,
 				D51F03D91808411F005B4EE2 /* TiImageHelper.m in Sources */,
 				D56E66A3180C60E600F1B737 /* TiTransitionFlip.m in Sources */,
@@ -5905,7 +5912,6 @@
 				24D8E467119B9D8A00F8CAA6 /* ListenerEntry.m in Sources */,
 				24D8E468119B9D8A00F8CAA6 /* XMLModule.m in Sources */,
 				24D8E469119B9D8A00F8CAA6 /* TiUIiPhoneTableViewScrollPositionProxy.m in Sources */,
-				D54E555819953BDC004A7335 /* RDActivityViewController.m in Sources */,
 				24D8E46A119B9D8A00F8CAA6 /* TiAudioRecorderProxy.mm in Sources */,
 				D5B6535719A1E03100F30AAB /* TiModalNavViewController.m in Sources */,
 				D512A7B4187F1813004E3AB1 /* ADTransitioningViewController.m in Sources */,
@@ -5928,6 +5934,7 @@
 				24D8E477119B9D8A00F8CAA6 /* UIImage+RoundedCorner.m in Sources */,
 				B6A0A2B2180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				24D8E478119B9D8A00F8CAA6 /* UtilsModule.m in Sources */,
+				D5016D801B51980800C10890 /* CMDForwardingActivityItemSource.m in Sources */,
 				24D8E479119B9D8A00F8CAA6 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
 				24D8E47A119B9D8A00F8CAA6 /* TiUIMaskedImageProxy.m in Sources */,
 				843FA58517BD4DFF0064E061 /* TiUINavigationWindow.m in Sources */,
@@ -5943,6 +5950,7 @@
 				24D8E482119B9D8A00F8CAA6 /* TiUIiPadPopoverProxy.m in Sources */,
 				D54C7D1718115C3C00F592A9 /* TiTransitionZoom.m in Sources */,
 				24D8E484119B9D8A00F8CAA6 /* TiUIiPadProxy.m in Sources */,
+				D5016D7D1B51980800C10890 /* CMDActivityViewController.m in Sources */,
 				24D8E487119B9D8A00F8CAA6 /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
 				24D8E488119B9D8A00F8CAA6 /* LauncherButton.m in Sources */,
 				D5412E1819012A0D00B720DF /* UIGestureRecognizer+ADNavTransition.m in Sources */,
@@ -6328,7 +6336,6 @@
 				DABB373F12E8CB280026A6EA /* ListenerEntry.m in Sources */,
 				DABB374012E8CB280026A6EA /* XMLModule.m in Sources */,
 				DABB374112E8CB280026A6EA /* TiUIiPhoneTableViewScrollPositionProxy.m in Sources */,
-				D54E555919953BDC004A7335 /* RDActivityViewController.m in Sources */,
 				DABB374212E8CB280026A6EA /* TiAudioRecorderProxy.mm in Sources */,
 				D5B6535819A1E03100F30AAB /* TiModalNavViewController.m in Sources */,
 				D512A7B5187F1813004E3AB1 /* ADTransitioningViewController.m in Sources */,
@@ -6351,6 +6358,7 @@
 				DABB374F12E8CB280026A6EA /* UIImage+RoundedCorner.m in Sources */,
 				B6A0A2B3180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				DABB375012E8CB280026A6EA /* UtilsModule.m in Sources */,
+				D5016D811B51980800C10890 /* CMDForwardingActivityItemSource.m in Sources */,
 				DABB375112E8CB280026A6EA /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
 				DABB375212E8CB280026A6EA /* TiUIMaskedImageProxy.m in Sources */,
 				843FA58617BD4DFF0064E061 /* TiUINavigationWindow.m in Sources */,
@@ -6366,6 +6374,7 @@
 				DABB375A12E8CB280026A6EA /* TiUIiPadPopoverProxy.m in Sources */,
 				D54C7D1818115C3C00F592A9 /* TiTransitionZoom.m in Sources */,
 				DABB375C12E8CB280026A6EA /* TiUIiPadProxy.m in Sources */,
+				D5016D7E1B51980800C10890 /* CMDActivityViewController.m in Sources */,
 				DABB375F12E8CB280026A6EA /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
 				DABB376012E8CB280026A6EA /* LauncherButton.m in Sources */,
 				D5412E1919012A0D00B720DF /* UIGestureRecognizer+ADNavTransition.m in Sources */,

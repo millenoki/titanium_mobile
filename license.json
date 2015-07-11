@@ -81,6 +81,11 @@
             "title":"SevenSwitch",
             "copyright":"Copyright (c) 2013 Ben Vogelzang",
              "licenseId":"mit"
+        },
+        "CMDActivityViewController":{
+            "title":"CMDActivityViewController",
+            "copyright":"Copyright (c) Caleb Davenport 2014",
+             "licenseId":"mit"
         }
     },
     "android":{
