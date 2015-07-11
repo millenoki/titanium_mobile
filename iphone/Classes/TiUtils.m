@@ -2799,8 +2799,15 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
     
     DDMathEvaluator *eval = [DDMathEvaluator defaultMathEvaluator];
+    if ([mathDict objectForKey:@"condition"]) {
+        NSNumber* result = [eval evaluateString:[mathDict objectForKey:@"condition"] withSubstitutions:variables];
+        if ([result boolValue] == NO) {
+            return;
+        }
+    }
+    
     NSDictionary* exps = [mathDict objectForKey:@"expressions"];
-    if (exps) {
+    if ([mathDict objectForKey:@"expressions"]) {
         expressions = [NSMutableDictionary dictionaryWithDictionary:variables];
         [exps enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
             NSNumber* result = [eval evaluateString:obj withSubstitutions:variables];
