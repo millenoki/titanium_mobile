@@ -1602,31 +1602,28 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(NSDictionary*)pointToDictionary:(CGPoint)point
 {
-    CGFloat scale = [TiUtils screenScale];
-	return [NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithDouble:point.x / scale],@"x",
-			[NSNumber numberWithDouble:point.y / scale],@"y",
-			nil];
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithDouble:point.x],@"x",
+            [NSNumber numberWithDouble:point.y],@"y",
+            nil];
 }
 
 +(NSDictionary*)rectToDictionary:(CGRect)rect
 {
-    CGFloat scale = [TiUtils screenScale];
-	return [NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithDouble:rect.origin.x / scale],@"x",
-			[NSNumber numberWithDouble:rect.origin.y / scale],@"y",
-			[NSNumber numberWithDouble:rect.size.width / scale],@"width",
-			[NSNumber numberWithDouble:rect.size.height / scale],@"height",
-			nil];
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithDouble:rect.origin.x],@"x",
+            [NSNumber numberWithDouble:rect.origin.y],@"y",
+            [NSNumber numberWithDouble:rect.size.width],@"width",
+            [NSNumber numberWithDouble:rect.size.height],@"height",
+            nil];
 }
 
 +(NSDictionary*)sizeToDictionary:(CGSize)size
 {
-    CGFloat scale = [TiUtils screenScale];
-	return [NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithDouble:size.width / scale],@"width",
-			[NSNumber numberWithDouble:size.height / scale],@"height",
-			nil];
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithDouble:size.width],@"width",
+            [NSNumber numberWithDouble:size.height],@"height",
+            nil];
 }
 
 +(CGRect)contentFrame:(BOOL)window
