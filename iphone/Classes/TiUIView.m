@@ -24,7 +24,27 @@
 #import "TiViewAnimationStep.h"
 #import "TiBorderLayer.h"
 
+#import <objc/runtime.h>
+
 static NSString * const kTiViewShapeMaskKey = @"kTiViewShapeMask";
+static NSString * const kTiGestureStartTouchedView = @"kTiGestureStartTouchedView";
+
+
+@interface UIGestureRecognizer()
+
+@end
+@implementation UIGestureRecognizer (StartTouchedView)
+
+- (void)setStartTouchedView:(UIView *)view
+{
+    objc_setAssociatedObject(self, kTiGestureStartTouchedView, view, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (UIView*)startTouchedView
+{
+    return objc_getAssociatedObject(self, kTiGestureStartTouchedView);
+}
+@end
 
 @interface TiViewProxy()
 -(UIViewController*)getContentController;
@@ -1860,10 +1880,22 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 -(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)recognizer {
-    UIView* view = recognizer.view;
-    CGPoint loc = [recognizer locationInView:view];
-    UIView* subview = [view hitTest:loc withEvent:nil];
-    return [TiUtils dictionaryFromGesture:recognizer inView:subview];
+    UIGestureRecognizerState state = [recognizer state];
+    
+    UIView* theView = [recognizer startTouchedView];
+    if ([recognizer state] == UIGestureRecognizerStateBegan || !theView) {
+        UIView* view = recognizer.view;
+        CGPoint loc = [recognizer locationInView:view];
+        theView = [view hitTest:loc withEvent:nil];
+        if ([recognizer state] == UIGestureRecognizerStateBegan) {
+            [recognizer setStartTouchedView:theView];
+        }
+    } else if (state == UIGestureRecognizerStateEnded ||
+               state == UIGestureRecognizerStateCancelled) {
+        [recognizer setStartTouchedView:nil];
+    }
+    return [TiUtils dictionaryFromGesture:recognizer inView:theView];
+    
 }
 
 -(void)recognizedSingleTap:(UITapGestureRecognizer*)recognizer
@@ -1903,11 +1935,12 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 -(void)fireGestureEvent:(UIGestureRecognizer*)recognizer ofType:(NSString*)type {
+    UIGestureRecognizerState state = [recognizer state];
     NSDictionary* data = [self dictionaryFromGesture:recognizer];
-    if ([recognizer state] == UIGestureRecognizerStateBegan) {
+    if (state == UIGestureRecognizerStateBegan) {
         [self.proxy fireEvent:[NSString stringWithFormat:@"%@start", type] withObject:data propagate:NO checkForListener:YES];
-    } else if ([recognizer state] == UIGestureRecognizerStateEnded ||
-               [recognizer state] == UIGestureRecognizerStateCancelled) {
+    } else if (state == UIGestureRecognizerStateEnded ||
+               state == UIGestureRecognizerStateCancelled) {
         [self.proxy fireEvent:[NSString stringWithFormat:@"%@end", type] withObject:data propagate:NO checkForListener:YES];
     } else {
         [self.proxy fireEvent:type withObject:data propagate:NO checkForListener:NO];
