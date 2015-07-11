@@ -14,6 +14,8 @@
     UIView * touchedContentView;
 }
 -(void)setTouchHandler:(TiUIView*)handler;
+@property(nonatomic,assign) BOOL centerContent;
+
 @end
 
 @interface TiUIScrollView : TiScrollingView<TiScrolling,UIScrollViewDelegate> {
