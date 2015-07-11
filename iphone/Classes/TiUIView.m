@@ -1909,8 +1909,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     } else if ([recognizer state] == UIGestureRecognizerStateEnded ||
                [recognizer state] == UIGestureRecognizerStateCancelled) {
         [self.proxy fireEvent:[NSString stringWithFormat:@"%@end", type] withObject:data propagate:NO checkForListener:YES];
+    } else {
+        [self.proxy fireEvent:type withObject:data propagate:NO checkForListener:NO];
     }
-    [self.proxy fireEvent:type withObject:data propagate:NO checkForListener:NO];
 }
 
 -(void)recognizedPan:(UIPanGestureRecognizer*)recognizer
