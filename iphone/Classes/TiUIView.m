@@ -281,6 +281,7 @@ DEFINE_EXCEPTIONS
     [shoveRecognizer release];
     [rotationRecognizer release];
 	[runningAnimation release];
+    [proxy setModelDelegate:nil];
 	proxy = nil;
 	touchDelegate = nil;
 	childViews = nil;
