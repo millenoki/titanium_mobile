@@ -36,9 +36,9 @@
 -(void)_initWithProperties:(NSDictionary*)properties
 {
     if (!_unarchiving && ([properties objectForKey:@"properties"] || [properties objectForKey:@"childTemplates"] || [properties objectForKey:@"events"])) {
-        [self invokeBlockOnJSThread:^{
+//        [self invokeBlockOnJSThread:^{
             [self unarchiveFromDictionary:properties rootProxy:self];
-        }];
+//        }];
         return;
     }
 	[super _initWithProperties:properties];
@@ -376,10 +376,11 @@
 	[childTemplates enumerateObjectsUsingBlock:^(id childTemplate, NSUInteger idx, BOOL *stop) {
         TiProxy *child = [self createChildFromObject:childTemplate rootProxy:rootProxy];
 		if (child != nil) {
-			[self addProxy:child atIndex:-1 shouldRelayout:NO];
-//            [context.krollContext invokeBlockOnThread:^{
-//				[child forgetSelf];
-//			}];
+            [context.krollContext invokeBlockOnThread:^{
+                [self rememberProxy:child];
+				[child forgetSelf];
+			}];
+            [self addProxy:child atIndex:-1 shouldRelayout:NO];
 //            if (IS_OF_CLASS(childTemplate, NSDictionary)) {
 //                NSDictionary* events = (NSDictionary*)[childTemplate objectForKey:@"events"];
 //                if ([events count] > 0) {
@@ -436,10 +437,11 @@
 		TiProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context withEvents:withEvents];
 		if (child != nil) {
     
-			[self addProxy:child atIndex:-1 shouldRelayout:NO];
             [context.krollContext invokeBlockOnThread:^{
+                [self rememberProxy:child];
 				[child forgetSelf];
 			}];
+            [self addProxy:child atIndex:-1 shouldRelayout:NO];
 		}
 	}];
 }
