@@ -230,7 +230,7 @@
         case TiDimensionTypeAutoSize:
         case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
         {
-            minimumContentHeight = autoSize.height;
+            minimumContentHeight = MAX(newContentSize.height,autoSize.height);
             break;
         }
         case TiDimensionTypeUndefined:
@@ -240,7 +240,7 @@
             break;
     }
     newContentSize.width *= scale;
-    newContentSize.height = scale * MAX(newContentSize.height,minimumContentHeight);
+    newContentSize.height = scale * minimumContentHeight;
     
     [scrollView setContentSize:newContentSize];
     CGRect wrapperBounds;
