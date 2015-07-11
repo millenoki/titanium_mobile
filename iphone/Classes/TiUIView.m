@@ -1887,6 +1887,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         UIView* view = recognizer.view;
         CGPoint loc = [recognizer locationInView:view];
         theView = [view hitTest:loc withEvent:nil];
+        while (theView && !IS_OF_CLASS(theView, TiUIView)) {
+            theView = [theView superview];
+        }
         if ([recognizer state] == UIGestureRecognizerStateBegan) {
             [recognizer setStartTouchedView:theView];
         }
@@ -1895,7 +1898,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         [recognizer setStartTouchedView:nil];
     }
     return [TiUtils dictionaryFromGesture:recognizer inView:theView];
-    
 }
 
 -(void)recognizedSingleTap:(UITapGestureRecognizer*)recognizer
