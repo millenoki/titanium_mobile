@@ -729,6 +729,18 @@
 		D55131BF1A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D55131BE1A1DEB36003A9872 /* TiUIVolumeViewProxy.m */; };
 		D55131C01A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D55131BE1A1DEB36003A9872 /* TiUIVolumeViewProxy.m */; };
 		D55131C11A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D55131BE1A1DEB36003A9872 /* TiUIVolumeViewProxy.m */; };
+		D55433661B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D554335F1B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D55433671B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D554335F1B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D55433681B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D554335F1B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D55433691B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D55433611B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D554336A1B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D55433611B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D554336B1B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = D55433611B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D554336C1B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = D55433631B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D554336D1B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = D55433631B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D554336E1B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m in Sources */ = {isa = PBXBuildFile; fileRef = D55433631B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D554336F1B4EDA6300C5FD4D /* UIView+INSFirstReponder.m in Sources */ = {isa = PBXBuildFile; fileRef = D55433651B4EDA6300C5FD4D /* UIView+INSFirstReponder.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D55433701B4EDA6300C5FD4D /* UIView+INSFirstReponder.m in Sources */ = {isa = PBXBuildFile; fileRef = D55433651B4EDA6300C5FD4D /* UIView+INSFirstReponder.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D55433711B4EDA6300C5FD4D /* UIView+INSFirstReponder.m in Sources */ = {isa = PBXBuildFile; fileRef = D55433651B4EDA6300C5FD4D /* UIView+INSFirstReponder.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D557957E1837BF6C0057DD41 /* TiViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = D557957A1837BF6C0057DD41 /* TiViewAnimation.m */; };
 		D557957F1837BF6C0057DD41 /* TiViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = D557957A1837BF6C0057DD41 /* TiViewAnimation.m */; };
 		D55795801837BF6C0057DD41 /* TiViewAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = D557957A1837BF6C0057DD41 /* TiViewAnimation.m */; };
@@ -2333,6 +2345,14 @@
 		D55131B91A1DEB1D003A9872 /* TiUIVolumeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIVolumeView.m; sourceTree = "<group>"; };
 		D55131BD1A1DEB36003A9872 /* TiUIVolumeViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIVolumeViewProxy.h; sourceTree = "<group>"; };
 		D55131BE1A1DEB36003A9872 /* TiUIVolumeViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIVolumeViewProxy.m; sourceTree = "<group>"; };
+		D554335E1B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INSInfiniteScrollBackgroundView.h; sourceTree = "<group>"; };
+		D554335F1B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INSInfiniteScrollBackgroundView.m; sourceTree = "<group>"; };
+		D55433601B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INSPullToRefreshBackgroundView.h; sourceTree = "<group>"; };
+		D55433611B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INSPullToRefreshBackgroundView.m; sourceTree = "<group>"; };
+		D55433621B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+INSPullToRefresh.h"; sourceTree = "<group>"; };
+		D55433631B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+INSPullToRefresh.m"; sourceTree = "<group>"; };
+		D55433641B4EDA6300C5FD4D /* UIView+INSFirstReponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+INSFirstReponder.h"; sourceTree = "<group>"; };
+		D55433651B4EDA6300C5FD4D /* UIView+INSFirstReponder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+INSFirstReponder.m"; sourceTree = "<group>"; };
 		D55795791837BF6C0057DD41 /* TiViewAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiViewAnimation.h; path = Animation/TiViewAnimation.h; sourceTree = "<group>"; };
 		D557957A1837BF6C0057DD41 /* TiViewAnimation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiViewAnimation.m; path = Animation/TiViewAnimation.m; sourceTree = "<group>"; };
 		D557957B1837BF6C0057DD41 /* TiViewAnimation+Friend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TiViewAnimation+Friend.h"; path = "Animation/TiViewAnimation+Friend.h"; sourceTree = "<group>"; };
@@ -2911,6 +2931,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				D554335D1B4EDA6300C5FD4D /* INSPullToRefresh */,
 				D512D1CA1ACE75A40005550B /* fmdb */,
 				D5EEA1091A37468E00E8BB3F /* DDMathParser */,
 				D59355541A233EE000522BC3 /* SevenSwitch */,
@@ -4470,6 +4491,22 @@
 			name = VolumeView;
 			sourceTree = "<group>";
 		};
+		D554335D1B4EDA6300C5FD4D /* INSPullToRefresh */ = {
+			isa = PBXGroup;
+			children = (
+				D554335E1B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.h */,
+				D554335F1B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m */,
+				D55433601B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.h */,
+				D55433611B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m */,
+				D55433621B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.h */,
+				D55433631B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m */,
+				D55433641B4EDA6300C5FD4D /* UIView+INSFirstReponder.h */,
+				D55433651B4EDA6300C5FD4D /* UIView+INSFirstReponder.m */,
+			);
+			name = INSPullToRefresh;
+			path = ../Classes/INSPullToRefresh;
+			sourceTree = "<group>";
+		};
 		D55795071837BEF90057DD41 /* CoconutKitAnimation */ = {
 			isa = PBXGroup;
 			children = (
@@ -5332,6 +5369,7 @@
 				24CA8B90111161FE0084E2DE /* TiUISlider.m in Sources */,
 				24CA8B91111161FE0084E2DE /* TiUISearchBarProxy.m in Sources */,
 				24CA8B92111161FE0084E2DE /* TiUISearchBar.m in Sources */,
+				D554336F1B4EDA6300C5FD4D /* UIView+INSFirstReponder.m in Sources */,
 				84DEE9171815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */,
 				24CA8B93111161FE0084E2DE /* TiUIiPhoneRowAnimationStyleProxy.m in Sources */,
 				24CA8B94111161FE0084E2DE /* TiUIiPhoneProgressBarStyleProxy.m in Sources */,
@@ -5463,6 +5501,7 @@
 				D521693F183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
 				24A1EAF8112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
 				D5C5EC291863584100357DE4 /* TiUILabel.m in Sources */,
+				D55433661B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m in Sources */,
 				245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */,
 				245B45641139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
 				24C0128C1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */,
@@ -5498,6 +5537,7 @@
 				24E50F911160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
 				B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */,
 				24596694118E70D300519F79 /* ApplicationRouting.m in Sources */,
+				D55433691B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m in Sources */,
 				245972C611921D0D00519F79 /* TiUIiPadSplitWindow.m in Sources */,
 				24F6204F1199F1F400EEAD3C /* TopTiModule.m in Sources */,
 				24F620541199F26500EEAD3C /* TiApp.m in Sources */,
@@ -5555,6 +5595,7 @@
 				D54E555719953BDC004A7335 /* RDActivityViewController.m in Sources */,
 				D55B29B71ACC27F6008C0279 /* TiDatabaseCache.m in Sources */,
 				D5EEA1701A37486100E8BB3F /* _DDVariableTerm.m in Sources */,
+				D554336C1B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m in Sources */,
 				D54C7D1B18115C5200F592A9 /* TiTransitionSwap.m in Sources */,
 				DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
 				DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */,
@@ -5824,6 +5865,7 @@
 				24D8E447119B9D8A00F8CAA6 /* OperationQueue.m in Sources */,
 				24D8E448119B9D8A00F8CAA6 /* NetworkModule.m in Sources */,
 				24D8E449119B9D8A00F8CAA6 /* Mimetypes.m in Sources */,
+				D55433701B4EDA6300C5FD4D /* UIView+INSFirstReponder.m in Sources */,
 				D5EEA1681A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */,
 				24D8E44A119B9D8A00F8CAA6 /* MediaModule.m in Sources */,
 				24D8E44C119B9D8A00F8CAA6 /* LayoutConstraint.m in Sources */,
@@ -5961,6 +6003,7 @@
 				24ADC5171299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */,
 				24ADC635129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */,
 				D56D75A21A20DE2E001DEB9D /* TiCollectionView.m in Sources */,
+				D554336D1B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m in Sources */,
 				DA2B35C3134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */,
 				DABF3ED0134D210400836137 /* TiBuffer.m in Sources */,
 				D557957F1837BF6C0057DD41 /* TiViewAnimation.m in Sources */,
@@ -6020,6 +6063,7 @@
 				1DD9388D1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEF915F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
 				D93DAA5116CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
+				D55433671B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m in Sources */,
 				D93DAA5616CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
 				D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
@@ -6040,6 +6084,7 @@
 				D56915D6168F538F00C3F89F /* TTTAttributedLabel.m in Sources */,
 				D5EEA1801A37486100E8BB3F /* DDMathStringToken.m in Sources */,
 				D5EEA15F1A37486100E8BB3F /* _DDNumberTerm.m in Sources */,
+				D554336A1B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m in Sources */,
 				D522FE0E16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */,
 				D5C8C98F17EF45C900F54C19 /* ADSwapTransition.m in Sources */,
 				D5C8C9A117EF45C900F54C19 /* ADZoomTransition.m in Sources */,
@@ -6243,6 +6288,7 @@
 				DABB372012E8CB280026A6EA /* OperationQueue.m in Sources */,
 				DABB372112E8CB280026A6EA /* NetworkModule.m in Sources */,
 				DABB372212E8CB280026A6EA /* Mimetypes.m in Sources */,
+				D55433711B4EDA6300C5FD4D /* UIView+INSFirstReponder.m in Sources */,
 				D5EEA1691A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */,
 				DABB372312E8CB280026A6EA /* MediaModule.m in Sources */,
 				DABB372512E8CB280026A6EA /* LayoutConstraint.m in Sources */,
@@ -6380,6 +6426,7 @@
 				DABB378F12E8CB280026A6EA /* TiAppiOSBackgroundServiceProxy.m in Sources */,
 				DABB379012E8CB280026A6EA /* TiAppiOSLocalNotificationProxy.m in Sources */,
 				D56D75A31A20DE2E001DEB9D /* TiCollectionView.m in Sources */,
+				D554336E1B4EDA6300C5FD4D /* UIScrollView+INSPullToRefresh.m in Sources */,
 				DA2B35C4134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */,
 				DABF3ED1134D210400836137 /* TiBuffer.m in Sources */,
 				D55795801837BF6C0057DD41 /* TiViewAnimation.m in Sources */,
@@ -6439,6 +6486,7 @@
 				1DD9388E1609230900091777 /* TiBindingTiValue.m in Sources */,
 				5081CEFA15F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
 				D93DAA5216CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
+				D55433681B4EDA6300C5FD4D /* INSInfiniteScrollBackgroundView.m in Sources */,
 				D93DAA5716CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
 				D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
 				D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
@@ -6459,6 +6507,7 @@
 				D56915D1168F2E7400C3F89F /* TiUILabelProxy.m in Sources */,
 				D5EEA1811A37486100E8BB3F /* DDMathStringToken.m in Sources */,
 				D5EEA1601A37486100E8BB3F /* _DDNumberTerm.m in Sources */,
+				D554336B1B4EDA6300C5FD4D /* INSPullToRefreshBackgroundView.m in Sources */,
 				D56915D7168F538F00C3F89F /* TTTAttributedLabel.m in Sources */,
 				D522FE0F16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */,
 				D5C8C99017EF45C900F54C19 /* ADSwapTransition.m in Sources */,
