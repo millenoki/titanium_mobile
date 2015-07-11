@@ -76,6 +76,20 @@
         });
     }
 }
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    id delegate1 = gestureRecognizer.delegate;
+    id delegate2 = otherGestureRecognizer.delegate;
+    
+    id superView1 = IS_OF_CLASS(delegate1, UIView)?[delegate1 superview]:delegate1;
+    id superView2 = IS_OF_CLASS(delegate2, UIView)?[delegate2 superview]:delegate2;
+    return delegate1 == delegate2 ||
+    (superView1 == [self scrollview]  && delegate1 == self)  ||
+    (superView2 == [self scrollview]  && delegate1 == self);
+    return YES;
+}
+
 - (void)pullToRefreshBackgroundView:(INSPullToRefreshBackgroundView *)pullToRefreshBackgroundView didChangeState:(INSPullToRefreshBackgroundViewState)state
 {
     if (_pullViewVisible) {
