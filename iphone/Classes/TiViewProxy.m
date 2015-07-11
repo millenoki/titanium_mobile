@@ -820,7 +820,7 @@ SEL GetterForKrollProperty(NSString * key)
             [childViewProxy windowDidOpen];
         }];
         
-        [self contentsWillChange];
+        //        [self contentsWillChange];
         if(parentVisible && !hidden)
         {
             [childViewProxy parentWillShow];
@@ -829,7 +829,7 @@ SEL GetterForKrollProperty(NSString * key)
         //If layout is non absolute push this into the layout queue
         //else just layout the child with current bounds
         if (![self absoluteLayout]) {
-            [self contentsWillChange];
+            [childViewProxy refreshViewOrParent];
         }
         else {
             [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
