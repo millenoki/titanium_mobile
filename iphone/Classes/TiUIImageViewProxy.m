@@ -165,17 +165,21 @@
 
 	if (imageValue!=nil)
 	{
-		NSURL *url_ = [TiUtils toURL:[TiUtils stringValue:imageValue] proxy:self];
-		id theimage = [[ImageLoader sharedLoader] loadImmediateImage:url_];
-		
-		if (theimage == nil)
-		{
-            theimage = [[ImageLoader sharedLoader] loadRemote:url_ withOptions:[self valueForUndefinedKey:@"httpOptions"]];
-		}
-
-		// we're on the non-UI thread, we need to block to load
         TiUIImageView* imageView = (TiUIImageView*)[self view];
-        UIImage *imageToUse = [imageView prepareImage:[imageView convertToUIImage:theimage]];
+        UIImage* imageToUse = [imageView getImage];
+        if (!imageToUse) {
+            NSURL *url_ = [TiUtils toURL:[TiUtils stringValue:imageValue] proxy:self];
+            id theimage = [[ImageLoader sharedLoader] loadImmediateImage:url_];
+            
+            if (theimage == nil)
+            {
+                theimage = [[ImageLoader sharedLoader] loadRemote:url_ withOptions:[self valueForUndefinedKey:@"httpOptions"]];
+            }
+            
+            // we're on the non-UI thread, we need to block to load
+            UIImage *imageToUse = [imageView prepareImage:[imageView convertToUIImage:theimage]];
+        }
+		
 		return [[[TiBlob alloc] initWithImage:imageToUse] autorelease];
 	}
 	return nil;
