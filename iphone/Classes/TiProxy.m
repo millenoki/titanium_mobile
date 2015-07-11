@@ -1170,18 +1170,14 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     [self fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:YES];
 }
 
-- (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
-{
-    //It's possible that the 'setvalueforkey' has its own plans of what should be in the JS object,
-    //so we should do this first as to not overwrite the subclass's setter.
+-(void)handleSetValue:(id)value forKey:(NSString*)key {
+    if ([key isEqualToString:@"events"] || [key isEqualToString:@"childTemplates"]) {
+        return;
+    }
     if ((bridgeCount == 1) && (pageKrollObject != nil)) {
-        for (NSString * currentKey in keyedValues)
+        if([value isKindOfClass:[TiProxy class]] && [pageContext usesProxy:value])
         {
-            id currentValue = [keyedValues objectForKey:currentKey];
-            if([currentValue isKindOfClass:[TiProxy class]] && [pageContext usesProxy:currentValue])
-            {
-                [pageKrollObject noteKrollObject:[currentValue krollObjectForBridge:(KrollBridge*)pageContext] forKey:currentKey];
-            }
+            [pageKrollObject noteKrollObject:[value krollObjectForBridge:(KrollBridge*)pageContext] forKey:key];
         }
     }
     else
@@ -1189,51 +1185,39 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         for (KrollBridge * currentBridge in [KrollBridge krollBridgesUsingProxy:self])
         {
             KrollObject * currentKrollObject = [currentBridge krollObjectForProxy:self];
-            for (NSString * currentKey in keyedValues)
+            if([value isKindOfClass:[TiProxy class]] && [currentBridge usesProxy:value])
             {
-                id currentValue = [keyedValues objectForKey:currentKey];
-                
-                if([currentValue isKindOfClass:[TiProxy class]] && [currentBridge usesProxy:currentValue])
-                {
-                    [currentKrollObject noteKrollObject:[currentBridge krollObjectForProxy:currentValue] forKey:currentKey];
-                }
+                [currentKrollObject noteKrollObject:[currentBridge krollObjectForProxy:value] forKey:key];
             }
         }
     }
-    
+    if (value == nil) //Dictionary doesn't have this key. Skip.
+    {
+        return;
+    }
+    if (value == [NSNull null])
+    {
+        //When a null, we want to write a nil.
+        value = nil;
+    }
+    [self setValue:value forKey:key];
+}
+
+- (void)setValuesForKeysWithDictionary:(NSDictionary *)keyedValues
+{
     NSArray * keySequence = [self keySequence];
     
     for (NSString * thisKey in keySequence)
     {
-        id thisValue = [keyedValues objectForKey:thisKey];
-        if (thisValue == nil) //Dictionary doesn't have this key. Skip.
-        {
-            continue;
-        }
-        if (thisValue == [NSNull null])
-        {
-            //When a null, we want to write a nil.
-            thisValue = nil;
-        }
-        [self setValue:thisValue forKey:thisKey];
+        [self handleSetValue:[keyedValues objectForKey:thisKey] forKey:thisKey];
     }
     
     for (NSString * thisKey in keyedValues)
     {
         // don't set if already set above
         if ([keySequence containsObject:thisKey]) continue;
-        
-        id thisValue = [keyedValues objectForKey:thisKey];
-        if (thisValue == nil) //Dictionary doesn't have this key. Skip.
-        {
-            continue;
-        }
-        if (thisValue == [NSNull null])
-        {
-            //When a null, we want to write a nil.
-            thisValue = nil;
-        }
-        [self setValue:thisValue forKey:thisKey];
+        [self handleSetValue:[keyedValues objectForKey:thisKey] forKey:thisKey];
+
     }
 }
 
