@@ -510,7 +510,7 @@ SEL GetterForKrollProperty(NSString * key)
     return [super valueForKey:key];
 }
 
--(TiRect*)size
+-(id)size
 {
 	TiRect *rect = [[TiRect alloc] init];
     if ([self viewAttached]) {
@@ -523,8 +523,9 @@ SEL GetterForKrollProperty(NSString * key)
     else {
         [rect setRect:CGRectZero];
     }
-    
-    return [rect autorelease];
+    NSDictionary* result = [rect toJSON];
+    [rect release];
+    return result;
 }
 
 -(id)rect
