@@ -1311,11 +1311,12 @@ DEFINE_EXCEPTIONS
     
     if (self.modelDelegate!=nil && notify)
     {
-        [[(NSObject*)self.modelDelegate retain] autorelease];
+        NSObject* delegate = [self.modelDelegate retain];
         [self.modelDelegate propertyChanged:key
                                    oldValue:current
                                    newValue:propvalue
                                       proxy:self];
+        [delegate autorelease];
     }
     
     if (isCallback || !_fakeApplyProperties) {
