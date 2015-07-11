@@ -1643,10 +1643,10 @@
             if (!topController.navigationController.isNavigationBarHidden) {
                 topController.navigationController.navigationBar.frame = navFrame;
             }
-            CGRect viewFrame = topController.view.frame;
-            viewFrame.origin.y += realDelta;
-            viewFrame.size.height -= realDelta;
-            topController.view.frame = viewFrame;
+            //CGRect viewFrame = topController.view.frame;
+            //viewFrame.origin.y += realDelta;
+            //viewFrame.size.height -= realDelta;
+            //topController.view.frame = viewFrame;
             [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle] animated:animated];
             [[UIApplication sharedApplication] setStatusBarHidden:newValue withAnimation:style];
             [self resizeView];

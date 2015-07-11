@@ -159,7 +159,7 @@ static NSArray *animProps;
         if (!result) {
             NSDictionary* from = [self valueForUndefinedKey:@"from"];
             if (from) {
-                result = [[NSMutableDictionary alloc]initWithCapacity:[from count]];
+                result = [[[NSMutableDictionary alloc]initWithCapacity:[from count]] autorelease];
                 for (NSString* key in [from allKeys]) {
                     id value = [animProxy valueForUndefinedKey:key];
                     if (value) [(NSMutableDictionary*)result setObject:value forKey:key];
@@ -177,7 +177,7 @@ static NSArray *animProps;
         if (!result) {
             if (reversed) {
                 id<NSFastEnumeration> keys = [self allKeys];
-                NSMutableDictionary* reverseProps = [[NSMutableDictionary alloc]initWithCapacity:[(NSArray*)keys count]];
+                NSMutableDictionary* reverseProps = [[NSMutableDictionary alloc] initWithCapacity:[(NSArray*)keys count]];
                 for (NSString* key in keys) {
                     id value = [animProxy valueForUndefinedKey:key];
                     if (value) [reverseProps setObject:value forKey:key];

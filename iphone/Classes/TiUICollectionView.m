@@ -2327,6 +2327,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath {
     NSInteger numOfSections = [self numberOfSectionsInCollectionView:self.tableView];
+    if (numOfSections == 0) return nil;
     NSInteger nextSection = ((indexPath.section + 1) % numOfSections);
     
     if (indexPath.row + 1 == [self collectionView:self.tableView numberOfItemsInSection:indexPath.section]) {

@@ -162,7 +162,7 @@
     [self detachItems];
     if (theItems) {
         _items = [[NSMutableArray alloc] initWithCapacity:[theItems count]];
-        id<TiEvaluator> context = [self executionContext];
+//        id<TiEvaluator> context = [self executionContext];
         for (id obj in theItems) {
             if (obj == nil) continue;
             UIImage* img = [TiUtils image:obj proxy:self];

@@ -1348,7 +1348,10 @@ static NSDictionary* replaceKeysForRow;
         [theItem release];
         
         BOOL asyncDelete = [TiUtils boolValue:[self.proxy valueForKey:@"asyncDelete"] def:NO];
-        if (asyncDelete) return;
+        if (asyncDelete) {
+            [theSection release];
+            return;
+        }
         [tableView beginUpdates];
 //        [theSection willRemoveItemAt:indexPath];
 //        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
@@ -1710,7 +1713,7 @@ static NSDictionary* replaceKeysForRow;
     }
     if (IS_OF_CLASS(cell, TiUIListItem)) {
         TiUIListItem* listItem = (TiUIListItem*)cell;
-        NSIndexPath* indexPath = listItem.proxy.indexPath;
+//        NSIndexPath* indexPath = listItem.proxy.indexPath;
         BOOL isRight = (direction == MGSwipeDirectionRightToLeft);
         id theValue = [listItem.proxy valueForKey:(isRight?@"rightSwipeButtons":@"leftSwipeButtons")];
             if (IS_OF_CLASS(theValue, NSArray)) {
@@ -2499,6 +2502,7 @@ static NSDictionary* replaceKeysForRow;
 
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath {
     NSInteger numOfSections = [self numberOfSectionsInTableView:self.tableView];
+    if (numOfSections == 0) return nil;
     NSInteger nextSection = ((indexPath.section + 1) % numOfSections);
     
     if (indexPath.row + 1 == [self tableView:self.tableView numberOfRowsInSection:indexPath.section]) {

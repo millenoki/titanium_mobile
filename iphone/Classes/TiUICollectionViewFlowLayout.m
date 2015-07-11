@@ -63,7 +63,7 @@
             headerAttributes.zIndex = 1024;
         }
     }
-    return attributes;
+    return [attributes autorelease];
 }
 - (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section{
     BOOL shouldStickToTop=YES;

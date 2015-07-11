@@ -44,7 +44,7 @@
 
 + (instancetype)cacheObject:(id)anObject forKey:(NSNumber*)aKey withCacheKey:(NSString *)aCacheKey
 {
-    return [[self alloc] initWithObject:anObject forKey:aKey withCacheKey:aCacheKey];
+    return [[[self alloc] initWithObject:anObject forKey:aKey withCacheKey:aCacheKey] autorelease];
 }
 
 - (id)initWithObject:(id)anObject forKey:(NSNumber*)aKey withCacheKey:(NSString *)aCacheKey
