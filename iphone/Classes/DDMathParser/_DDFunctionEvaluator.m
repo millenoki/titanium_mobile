@@ -463,12 +463,12 @@ static NSString *const _DDFunctionSelectorSuffix = @":variables:error:";
 }
 
 - (DDExpression *)abs:(NSArray *)arguments variables:(NSDictionary *)variables error:(NSError **)error {
-	REQUIRE_N_ARGS(1);
+    REQUIRE_N_ARGS(1);
     NSNumber *n = [[self evaluator] evaluateExpression:[arguments objectAtIndex:0] withSubstitutions:variables error:error];
     RETURN_IF_NIL(n);
     
-    NSNumber *result = @(llabs([n longLongValue]));
-	return [DDExpression numberExpressionWithNumber:result];
+    NSNumber *result = @(fabs([n doubleValue]));
+    return [DDExpression numberExpressionWithNumber:result];
 }
 
 - (DDExpression *)floor:(NSArray *)arguments variables:(NSDictionary *)variables error:(NSError **)error {
