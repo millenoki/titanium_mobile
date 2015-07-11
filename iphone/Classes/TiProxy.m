@@ -1139,7 +1139,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     NSArray* theEvaluators = [evaluators valueForKey:type];
     if (theEvaluators) {
         for (NSDictionary* theEvaluator in theEvaluators) {
-            [TiUtils applyMathDict:theEvaluator forEvent:eventObject fromProxy:self];
+            [TiUtils applyMathDict:theEvaluator forEvent:eventObject fromProxy:realSource];
             if ([[theEvaluator valueForKey:@"__once__"] boolValue]) {
                 [self removeEventListener:@[type, theEvaluator]];
             }
