@@ -1172,22 +1172,18 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 +(CGPoint)pointValue:(NSString*)name properties:(NSDictionary*)properties def:(CGPoint)def exists:(BOOL*) exists
 {
-	if ([properties isKindOfClass:[NSDictionary class]])
-	{
-		id value = [properties objectForKey:name];
-		if ([value isKindOfClass:[NSDictionary class]])
-		{
-			NSDictionary *dict = (NSDictionary*)value;
-			CGPoint point;
-			point.x = [self doubleValue:@"x" properties:dict def:def.x];
-			point.y = [self doubleValue:@"y" properties:dict def:def.y];
-			if (exists != NULL) *exists = YES;
-			return point;
-		}
-	}
-
-	if (exists != NULL) *exists = NO;
-	return def;
+    if ([properties isKindOfClass:[NSDictionary class]])
+    {
+        id value = [properties objectForKey:name];
+        if (value)
+        {
+            if (exists != NULL) *exists = YES;
+            return [TiUtils pointValue:value def:def];
+        }
+    }
+    
+    if (exists != NULL) *exists = NO;
+    return def;
 }
 
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties def:(TiColor*)def exists:(BOOL*) exists
