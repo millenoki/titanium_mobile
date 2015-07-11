@@ -67,6 +67,28 @@
     }		
 	[super touchesCancelled:touches withEvent:event];
 }
+
+- (void)setContentOffset:(CGPoint)contentOffset
+{
+    if (_centerContent) {
+        const CGSize contentSize = self.contentSize;
+        const CGSize scrollViewSize = self.bounds.size;
+        
+        if (contentSize.width < scrollViewSize.width)
+        {
+            contentOffset.x = -(scrollViewSize.width - contentSize.width) / 2.0;
+        }
+        
+        if (contentSize.height < scrollViewSize.height)
+        {
+            contentOffset.y = -(scrollViewSize.height - contentSize.height) / 2.0;
+        }
+    }
+    
+    
+    [super setContentOffset:contentOffset];
+}
+
 @end
 
 @implementation TiUIScrollView
@@ -316,6 +338,12 @@
 -(void)setVerticalBounce_:(id)value
 {
 	[[self scrollView] setAlwaysBounceVertical:[TiUtils boolValue:value]];
+}
+
+
+-(void)setAlwaysCenterContent_:(id)value
+{
+    [[self scrollView] setCenterContent:[TiUtils boolValue:value]];
 }
 
 -(void)setContentOffset_:(id)value withObject:(id)property
