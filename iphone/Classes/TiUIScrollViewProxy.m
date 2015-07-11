@@ -40,6 +40,7 @@
 }
 
 -(TiPoint *) contentOffset{
+    __block TiPoint * contentOffset;
     if([self viewAttached]){
         TiThreadPerformOnMainThread(^{
                    contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(
