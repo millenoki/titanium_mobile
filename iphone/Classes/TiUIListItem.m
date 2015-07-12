@@ -445,8 +445,8 @@ static NSArray* handledKeys;
         RELEASE_TO_NIL(_dataItem)
         [(TiViewProxy*)self.proxy dirtyItAll];
     }
-	_dataItem = [dataItem retain];
-    [_proxy setDataItem:_dataItem];
+	_dataItem = [dataItem mutableCopy];
+    [_proxy setDataItem:dataItem];
 }
 
 -(void)setUnHighlightOnSelect_:(id)newValue

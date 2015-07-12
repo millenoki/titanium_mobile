@@ -440,7 +440,14 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 {
     [self.bindings enumerateKeysAndObjectsUsingBlock:^(id binding, id bindObject, BOOL *stop) {
         if (bindObject == viewProxy) {
-            [[_listItem.dataItem objectForKey:binding] setValue:value forKey:type];
+            NSDictionary* dict = [_listItem.dataItem objectForKey:binding];
+            if (IS_OF_CLASS(dict, NSMutableDictionary)) {
+                [dict setValue:value forKey:type];
+            } else {
+                dict = [NSMutableDictionary dictionaryWithDictionary:dict];
+                [_listItem.dataItem setValue:dict forKey:binding];
+            }
+            [dict setValue:value forKey:type];
             [_currentValues setValue:value forKey:[NSString stringWithFormat:@"%@.%@", binding, type]];
             return;
         }

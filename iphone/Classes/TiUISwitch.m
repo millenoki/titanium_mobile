@@ -204,9 +204,6 @@
     if ((current != newValue) && ![current isEqual:newValue])
 	{
         [self.proxy replaceValue:newValue forKey:@"value" notification:NO];
-        if ([self.proxy.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
-            [self.proxy.eventOverrideDelegate viewProxy:self.proxy updatedValue:newValue forType:@"value"];
-        }
         if ([(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO]) {
             [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"] propagate:NO checkForListener:NO];
         }

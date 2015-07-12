@@ -1319,12 +1319,19 @@ DEFINE_EXCEPTIONS
         [delegate autorelease];
     }
     
+    [self handleUpdatedValue:propvalue forKey:key];
+    
+    
     if (isCallback || !_fakeApplyProperties) {
         // Forget any old proxies so that they get cleaned up
         if (newValue && [current isKindOfClass:[TiProxy class]]) {
             [self forgetProxy:current];
         }
     }
+}
+
+-(void)handleUpdatedValue:(id)value forKey:(NSString*)key {
+    //to be overriden
 }
 
 // TODO: Shouldn't we be forgetting proxies and unprotecting callbacks and such here?

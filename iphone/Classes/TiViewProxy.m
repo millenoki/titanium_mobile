@@ -3913,6 +3913,12 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     [self configurationStart:[ready boolValue]];
 }
 
+-(void)handleUpdatedValue:(id)value forKey:(NSString*)key {
+    if ([self isConfigurationSet] && [self.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
+        [self.eventOverrideDelegate viewProxy:self updatedValue:value forType:key];
+    }
+}
+
 -(void)configurationStart:(BOOL)recursive
 {
     needsContentChange = allowContentChange = NO;

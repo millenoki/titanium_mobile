@@ -165,9 +165,6 @@
 	NSInteger newIndex = [(UISegmentedControl *)sender selectedSegmentIndex];
 	
 	[self.proxy replaceValue:NUMINTEGER(newIndex) forKey:@"index" notification:NO];
-    if ([self.proxy.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
-        [self.proxy.eventOverrideDelegate viewProxy:self.proxy updatedValue:NUMINTEGER(newIndex) forType:@"index"];
-    }
 	
 	if (newIndex == selectedIndex)
 	{
