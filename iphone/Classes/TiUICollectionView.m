@@ -2100,8 +2100,8 @@ referenceSizeForFooterInSection:(NSInteger)section
     if (indexPath != nil) {
         if ([[self proxy] _hasListeners:@"swipe"]) {
             NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath collectionView:theCollectionView];
-            [event setValue:[self swipeStringFromGesture:recognizer] forKey:@"direction"];
-            [[self proxy] fireEvent:@"swipe" withObject:event checkForListener:NO];
+            [event setValuesForKeysWithDictionary:[TiUtils dictionaryFromGesture:recognizer inView:theCollectionView]];
+            [[self proxy] fireEvent:@"swipe" withObject:event propagate:NO checkForListener:NO];
         }
         
     }
@@ -2129,7 +2129,8 @@ referenceSizeForFooterInSection:(NSInteger)section
         if (indexPath != nil) {
             if ([[self proxy] _hasListeners:@"longpress"]) {
                 NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath collectionView:theCollectionView atPoint:point];
-                [[self proxy] fireEvent:@"longpress" withObject:event checkForListener:NO];
+                [event setValuesForKeysWithDictionary:[TiUtils dictionaryFromGesture:recognizer inView:theCollectionView]];
+                [[self proxy] fireEvent:@"longpress" withObject:event propagate:NO checkForListener:NO];
             }
         }
         else {

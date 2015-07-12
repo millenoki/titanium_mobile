@@ -1956,8 +1956,8 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
 {
-    [self fireGestureEvent:recognizer ofType:@"swipe"];
-
+    NSDictionary *event = [self dictionaryFromGesture:recognizer];
+    [proxy fireEvent:@"swipe" withObject:event propagate:NO checkForListener:NO];
 }
 
 -(void)recognizedRotation:(UIRotationGestureRecognizer*)recognizer

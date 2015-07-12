@@ -2274,7 +2274,7 @@ static NSDictionary* replaceKeysForRow;
         if ([[self proxy] _hasListeners:@"swipe"]) {
             NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:theTableView];
             [event setValuesForKeysWithDictionary:[TiUtils dictionaryFromGesture:recognizer inView:theTableView]];
-            [[self proxy] fireEvent:@"swipe" withObject:event checkForListener:NO];
+            [[self proxy] fireEvent:@"swipe" withObject:event propagate:NO checkForListener:NO];
         }
         
     }
@@ -2301,7 +2301,8 @@ static NSDictionary* replaceKeysForRow;
         if (indexPath != nil) {
             if ([[self proxy] _hasListeners:@"longpress"]) {
                 NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:theTableView atPoint:point];
-                [[self proxy] fireEvent:@"longpress" withObject:event checkForListener:NO];
+                [event setValuesForKeysWithDictionary:[TiUtils dictionaryFromGesture:recognizer inView:theTableView]];
+                [[self proxy] fireEvent:@"longpress" withObject:event propagate:NO checkForListener:NO];
             }
         }
         else {
