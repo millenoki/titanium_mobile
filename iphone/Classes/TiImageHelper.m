@@ -130,8 +130,8 @@
             [group release];
         }
     }
-    
-    if ([options objectForKey:@"tint"]) {
+    id tint = [options objectForKey:@"tint"];
+    if (tint && tint != [NSNull null]) {
         UIColor* color = [[TiUtils colorValue:@"tint" properties:options].color retain];
         CGBlendMode mode = [TiUtils intValue:@"blend" properties:options def:kCGBlendModeMultiply];
         image = [self tintedImage:image withColor:color blendMode:mode];
