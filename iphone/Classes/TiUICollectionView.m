@@ -1955,14 +1955,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 }
 
 - (void)fireScrollEvent:(UIScrollView *)scrollView {
-	if ([[self viewProxy] _hasListeners:@"scroll" checkParent:NO])
-	{
-        NSArray* visibles = [_tableView indexPathsForVisibleItems];
-        NSMutableDictionary* event = [self eventObjectForScrollView:scrollView];
-        [event setObject:NUMINTEGER(((NSIndexPath*)[visibles objectAtIndex:0]).row) forKey:@"firstVisibleItem"];
-        [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
-		[self.proxy fireEvent:@"scroll" withObject:event checkForListener:NO];
-	}
+    [self fireScrollEvent:@"scroll" forTableView:scrollView withAdditionalArgs:nil];
 }
 
 -(void)detectSectionChange {
@@ -1985,6 +1978,29 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
 }
 
+// For now, this is fired on `scrollstart` and `scrollend`
+- (void)fireScrollEvent:(NSString*)eventName forTableView:(UICollectionView*)tableView withAdditionalArgs:(NSDictionary*)args
+{
+    if([[self viewProxy] _hasListeners:eventName checkParent:NO])
+    {
+        NSArray* indexPaths = [tableView indexPathsForVisibleItems];
+        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+        
+        NSUInteger visibleItemCount = [indexPaths count];
+        
+        TiUICollectionSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+        
+        NSMutableDictionary* eventArgs = [self eventObjectForScrollView:tableView];
+        [eventArgs setValuesForKeysWithDictionary:args];
+        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+        [eventArgs setValue:section forKey:@"firstVisibleSection"];
+        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
+    }
+}
+
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (scrollView.isDragging || scrollView.isDecelerating)
@@ -2001,10 +2017,11 @@ referenceSizeForFooterInSection:(NSInteger)section
             pullChanged = YES;
         }
         if (pullChanged && [(TiViewProxy*)self.proxy _hasListeners:@"pullchanged" checkParent:NO]) {
-            [self.proxy fireEvent:@"pullchanged" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] propagate:NO checkForListener:NO];
+            [self fireScrollEvent:@"pullchanged" forTableView:_tableView withAdditionalArgs:@{@"active": @(pullActive)}];
         }
         if (scrollView.contentOffset.y <= 0 && [(TiViewProxy*)self.proxy _hasListeners:@"pull" checkParent:NO]) {
-            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] propagate:NO checkForListener:NO];
+            [self fireScrollEvent:@"pull" forTableView:_tableView withAdditionalArgs:@{@"active": @(pullActive)}];
+
         }
     }
     [self detectSectionChange];
@@ -2017,7 +2034,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
 	// suspend image loader while we're scrolling to improve performance
 	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
-    [self.proxy fireEvent:@"dragstart" propagate:NO];
+    [self fireScrollEvent:@"dragstart" forTableView:_tableView withAdditionalArgs:nil];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
@@ -2033,14 +2050,14 @@ referenceSizeForFooterInSection:(NSInteger)section
 	}
 	if ([(TiViewProxy*)self.proxy _hasListeners:@"dragend" checkParent:NO])
 	{
-		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil] propagate:NO checkForListener:NO];
+        [self fireScrollEvent:@"dragend" forTableView:_tableView withAdditionalArgs:@{@"decelerate": @(decelerate)}];
 	}
     
     [self detectSectionChange];
     
     if ( _hasPullView && pullActive ) {
         pullActive = NO;
-        [self.proxy fireEvent:@"pullend" propagate:NO];
+        [self fireScrollEvent:@"pullend" forTableView:_tableView withAdditionalArgs:nil];
     }
 }
 
@@ -2050,7 +2067,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
 	if ([(TiViewProxy*)self.proxy _hasListeners:@"scrollend" checkParent:NO])
 	{
-		[self.proxy fireEvent:@"scrollend" withObject:[self eventObjectForScrollView:scrollView] propagate:NO checkForListener:NO];
+        [self fireScrollEvent:@"scrollend" forTableView:_tableView withAdditionalArgs:nil];
 	}
     [self detectSectionChange];
 }
