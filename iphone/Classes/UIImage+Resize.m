@@ -125,14 +125,23 @@
 // This method ignores the image's imageOrientation setting.
 + (UIImage *)croppedImage:(CGRect)bounds image:(UIImage*)image
 {
-	if(image == nil)
-	{
-		return nil;
-	}
-    CGImageRef imageRef = CGImageCreateWithImageInRect(image.CGImage, bounds);
-    UIImage *croppedImage = [UIImage imageWithCGImage:imageRef];
-    CGImageRelease(imageRef);
-    return croppedImage;
+    if(image != nil)
+    {
+        bounds = CGRectMake(bounds.origin.x * image.scale,
+                            bounds.origin.y * image.scale,
+                            bounds.size.width * image.scale,
+                            bounds.size.height * image.scale);
+        
+        CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], bounds);
+        
+        UIImage *croppedImage = [UIImage imageWithCGImage:imageRef scale:image.scale orientation:image.imageOrientation];
+        
+        CGImageRelease(imageRef);
+        
+        return croppedImage;
+    }
+    
+    return image;
 }
 
 // Returns a copy of this image that is squared to the thumbnail size.
