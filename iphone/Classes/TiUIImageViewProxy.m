@@ -61,9 +61,9 @@
         }
         [self fireEvent:@"load" withObject:event propagate:NO checkForListener:NO];
     }
-    else if(eventOverrideDelegate) {
-        [eventOverrideDelegate overrideEventObject:nil forEvent:@"load" fromViewProxy:self];
-    }
+//    else if(eventOverrideDelegate) {
+//        [eventOverrideDelegate overrideEventObject:nil forEvent:@"load" fromViewProxy:self];
+//    }
 }
 
 -(void)_configure
