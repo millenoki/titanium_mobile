@@ -60,6 +60,7 @@ static NSDictionary* tableViewSeparatorStyle = nil;
 #import "Webcolor.h"
 #import "TiUtils.h"
 #import "UIControl+TiUIView.h"
+#import "UIGestureRecognizer+Ti.h"
 
 #ifdef USE_TI_UINAVIGATIONWINDOW
 #import "TiUINavigationWindowProxy.h"
@@ -89,6 +90,7 @@ return ivarName;	\
 +(void)swizzle
 {
     [UIControl swizzle];
+    [UIGestureRecognizer swizzle];
 }
 
 -(void)startup

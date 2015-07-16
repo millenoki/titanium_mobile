@@ -25,26 +25,10 @@
 #import "TiBorderLayer.h"
 
 #import <objc/runtime.h>
+#import "UIGestureRecognizer+Ti.h"
 
 static NSString * const kTiViewShapeMaskKey = @"kTiViewShapeMask";
-static NSString * const kTiGestureStartTouchedView = @"kTiGestureStartTouchedView";
 
-
-@interface UIGestureRecognizer()
-
-@end
-@implementation UIGestureRecognizer (StartTouchedView)
-
-- (void)setStartTouchedView:(UIView *)view
-{
-    objc_setAssociatedObject(self, kTiGestureStartTouchedView, view, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (UIView*)startTouchedView
-{
-    return objc_getAssociatedObject(self, kTiGestureStartTouchedView);
-}
-@end
 
 @interface TiViewProxy()
 -(UIViewController*)getContentController;
@@ -1879,24 +1863,8 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     return rotationRecognizer;
 }
 
--(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)recognizer {
-    UIGestureRecognizerState state = [recognizer state];
-    
+-(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)recognizer {    
     UIView* theView = [recognizer startTouchedView];
-    if ([recognizer state] == UIGestureRecognizerStateBegan || !theView) {
-        UIView* view = recognizer.view;
-        CGPoint loc = [recognizer locationInView:view];
-        theView = [view hitTest:loc withEvent:nil];
-        while (theView && !IS_OF_CLASS(theView, TiUIView)) {
-            theView = [theView superview];
-        }
-        if ([recognizer state] == UIGestureRecognizerStateBegan) {
-            [recognizer setStartTouchedView:theView];
-        }
-    } else if (state == UIGestureRecognizerStateEnded ||
-               state == UIGestureRecognizerStateCancelled) {
-        [recognizer setStartTouchedView:nil];
-    }
     return [TiUtils dictionaryFromGesture:recognizer inView:theView];
 }
 
@@ -2182,7 +2150,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
 {
-    [self setBgState:UIControlStateNormal];
+//    [self setBgState:UIControlStateNormal];
     if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
         [self processTouchesCancelled:touches withEvent:event];
     }
