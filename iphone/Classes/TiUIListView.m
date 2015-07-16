@@ -1879,21 +1879,22 @@ static NSDictionary* replaceKeysForRow;
     CGFloat size = 0.0;
     if (viewProxy!=nil) {
         [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
-        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
-        TiDimension constraint =  TiDimensionIsUndefined(viewLayout->height)?[viewProxy defaultAutoHeightBehavior:nil]:viewLayout->height;
-        switch (constraint.type)
-        {
-            case TiDimensionTypeDip:
-                size += constraint.value;
-                break;
-            case TiDimensionTypeAuto:
-            case TiDimensionTypeAutoSize:
-                size += [viewProxy minimumParentSizeForSizeNoPadding:[self.tableView bounds].size].height;
-                break;
-            default:
-                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
-                break;
-        }
+        size += [[viewProxy view] bounds].size.height;
+//        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+//        TiDimension constraint =  TiDimensionIsUndefined(viewLayout->height)?[viewProxy defaultAutoHeightBehavior:nil]:viewLayout->height;
+//        switch (constraint.type)
+//        {
+//            case TiDimensionTypeDip:
+//                size += constraint.value;
+//                break;
+//            case TiDimensionTypeAuto:
+//            case TiDimensionTypeAutoSize:
+//                size += [viewProxy minimumParentSizeForSizeNoPadding:[self.tableView bounds].size].height;
+//                break;
+//            default:
+//                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+//                break;
+//        }
     }
     return size;
 }
@@ -1928,21 +1929,23 @@ static NSDictionary* replaceKeysForRow;
     CGFloat size = 0.0;
     if (viewProxy!=nil) {
         [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
-        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
-        TiDimension constraint =  TiDimensionIsUndefined(viewLayout->height)?[viewProxy defaultAutoHeightBehavior:nil]:viewLayout->height;
-        switch (constraint.type)
-        {
-            case TiDimensionTypeDip:
-                size += constraint.value;
-                break;
-            case TiDimensionTypeAuto:
-            case TiDimensionTypeAutoSize:
-                size += [viewProxy minimumParentSizeForSize:[self.tableView bounds].size].height;
-                break;
-            default:
-                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
-                break;
-        }
+        size += [[viewProxy view] bounds].size.height;
+//        [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
+//        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
+//        TiDimension constraint =  TiDimensionIsUndefined(viewLayout->height)?[viewProxy defaultAutoHeightBehavior:nil]:viewLayout->height;
+//        switch (constraint.type)
+//        {
+//            case TiDimensionTypeDip:
+//                size += constraint.value;
+//                break;
+//            case TiDimensionTypeAuto:
+//            case TiDimensionTypeAutoSize:
+//                size += [viewProxy minimumParentSizeForSize:[self.tableView bounds].size].height;
+//                break;
+//            default:
+//                size+=DEFAULT_SECTION_HEADERFOOTER_HEIGHT;
+//                break;
+//        }
     }
     return size;
 }
@@ -2128,10 +2131,10 @@ static NSDictionary* replaceKeysForRow;
             pullChanged = YES;
         }
         if (pullChanged && [[self viewProxy] _hasListeners:@"pullchanged" checkParent:NO]) {
-            [self.proxy fireEvent:@"pullchanged" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] propagate:NO checkForListener:NO];
+            [self fireScrollEvent:@"pullchanged" forTableView:_tableView withAdditionalArgs:@{@"active": @(pullActive)}];
         }
         if (scrollView.contentOffset.y <= 0 && [[self viewProxy] _hasListeners:@"pull" checkParent:NO]) {
-            [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive),@"active",nil] propagate:NO checkForListener:NO];
+            [self fireScrollEvent:@"pull" forTableView:_tableView withAdditionalArgs:@{@"active": @(pullActive)}];
         }
     }
     [self detectSectionChange];
@@ -2186,7 +2189,7 @@ static NSDictionary* replaceKeysForRow;
 	// suspend image loader while we're scrolling to improve performance
 	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
 	[self fireScrollStart: (UITableView*)scrollView];
-    [self.proxy fireEvent:@"dragstart" propagate:NO];
+    [self fireScrollEvent:@"dragstart" forTableView:(UITableView *)scrollView withAdditionalArgs:nil];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
@@ -2201,14 +2204,14 @@ static NSDictionary* replaceKeysForRow;
     }    
 	if ([(TiViewProxy*)self.proxy _hasListeners:@"dragend" checkParent:NO])
 	{
-		[self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate],@"decelerate",nil] propagate:NO checkForListener:NO];
+        [self fireScrollEvent:@"dragend" forTableView:(UITableView *)scrollView withAdditionalArgs:nil];
 	}
     
     [self detectSectionChange];
     
     if ( _hasPullView && (pullActive == YES) ) {
         pullActive = NO;
-        [self.proxy fireEvent:@"pullend" propagate:NO];
+        [self fireScrollEvent:@"pullend" forTableView:(UITableView *)scrollView withAdditionalArgs:nil];
     }
 }
 

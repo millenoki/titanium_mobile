@@ -118,15 +118,15 @@
     vp = [self addObjectToHold:[self holdedProxyForKey:location] forKey:location];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         ((TiViewProxy*)vp).canBeResizedByFrame = YES;
-        LayoutConstraint *viewLayout = [(TiViewProxy*)vp layoutProperties];
-        //If height is not dip, explicitly set it to SIZE
-        if (viewLayout->height.type != TiDimensionTypeDip) {
-            viewLayout->height = TiDimensionAutoSize;
-        }
-        if (viewLayout->width.type == TiDimensionTypeUndefined) {
-            viewLayout->width = TiDimensionAutoFill;
-        }
-        
+//        LayoutConstraint *viewLayout = [(TiViewProxy*)vp layoutProperties];
+//        //If height is not dip, explicitly set it to SIZE
+//        if (viewLayout->height.type != TiDimensionTypeDip) {
+//            viewLayout->height = TiDimensionAutoSize;
+//        }
+//        if (viewLayout->width.type == TiDimensionTypeUndefined) {
+//            viewLayout->width = TiDimensionAutoFill;
+//        }
+//        
         TiViewProxy* wrapperProxy = [listView wrapperProxyWithVerticalLayout:YES];
         [wrapperProxy add:vp];
         [self addProxyToHold:wrapperProxy forKey:wrapperKey];
