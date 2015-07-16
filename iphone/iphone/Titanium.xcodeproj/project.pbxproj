@@ -654,6 +654,9 @@
 		D526016C179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */; };
 		D526016D179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */; };
 		D526016E179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */; };
+		D52956FA1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */ = {isa = PBXBuildFile; fileRef = D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */; };
+		D52956FB1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */ = {isa = PBXBuildFile; fileRef = D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */; };
+		D52956FC1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */ = {isa = PBXBuildFile; fileRef = D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */; };
 		D52A8E73183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A8E72183606F6001AC6A1 /* TiAnimatableProxy.m */; };
 		D52A8E74183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A8E72183606F6001AC6A1 /* TiAnimatableProxy.m */; };
 		D52A8E75183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D52A8E72183606F6001AC6A1 /* TiAnimatableProxy.m */; };
@@ -2302,6 +2305,8 @@
 		D52539B8183A87A0006FF1BB /* NSString+HLSExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSString+HLSExtensions.h"; path = "../Classes/CoconutKitAnimation/NSString+HLSExtensions.h"; sourceTree = "<group>"; };
 		D526016A179DB3EA00FE5723 /* TiSelectableBackgroundLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectableBackgroundLayer.h; sourceTree = "<group>"; };
 		D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectableBackgroundLayer.m; sourceTree = "<group>"; };
+		D52956F81B579FE800DEDCA1 /* UIGestureRecognizer+Ti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+Ti.h"; sourceTree = "<group>"; };
+		D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+Ti.m"; sourceTree = "<group>"; };
 		D52A8E71183606F6001AC6A1 /* TiAnimatableProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiAnimatableProxy.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D52A8E72183606F6001AC6A1 /* TiAnimatableProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TiAnimatableProxy.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D535603618609A2800F8DEFD /* TiHLSLayerAnimationStep.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiHLSLayerAnimationStep.h; path = Animation/TiHLSLayerAnimationStep.h; sourceTree = "<group>"; };
@@ -3094,6 +3099,8 @@
 		24CA8A0A111161DC0084E2DE /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				D52956F81B579FE800DEDCA1 /* UIGestureRecognizer+Ti.h */,
+				D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */,
 				2B353A7F15901D41008FBD84 /* Ti3DMatrix.h */,
 				2B353A8015901D41008FBD84 /* Ti3DMatrix.m */,
 				24CA8A10111161FD0084E2DE /* WebFont.m */,
@@ -5470,6 +5477,7 @@
 				24CA8C08111161FE0084E2DE /* AppModule.m in Sources */,
 				24CA8C09111161FE0084E2DE /* APIModule.m in Sources */,
 				24CA8C0E111161FE0084E2DE /* AccelerometerModule.m in Sources */,
+				D52956FA1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */,
 				B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */,
 				B421C4161113AAA900DBCB42 /* TiUIScrollableView.m in Sources */,
 				B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */,
@@ -5825,6 +5833,7 @@
 				D5216940183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
 				D50E11211A223072008FD092 /* TiUICollectionWrapperView.m in Sources */,
 				24D8E428119B9D8A00F8CAA6 /* TiProxy.m in Sources */,
+				D52956FB1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */,
 				24D8E429119B9D8A00F8CAA6 /* TiPoint.m in Sources */,
 				D56E669A180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
 				24D8E42C119B9D8A00F8CAA6 /* TiModule.m in Sources */,
@@ -6249,6 +6258,7 @@
 				D5216941183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
 				D50E11221A223072008FD092 /* TiUICollectionWrapperView.m in Sources */,
 				DABB370312E8CB280026A6EA /* TiProxy.m in Sources */,
+				D52956FC1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */,
 				DABB370412E8CB280026A6EA /* TiPoint.m in Sources */,
 				D56E669B180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
 				DABB370712E8CB280026A6EA /* TiModule.m in Sources */,
