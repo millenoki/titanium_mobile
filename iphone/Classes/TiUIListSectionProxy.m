@@ -32,6 +32,7 @@
     if (self) {
 		_items = [[NSMutableArray alloc] initWithCapacity:20];
         _hidden = false;
+        _hideWhenEmpty = NO;
     }
     return self;
 }
@@ -199,10 +200,7 @@
 		return _hidden?0:[NSNumber numberWithUnsignedInteger:[_items count]];
 	}] unsignedIntegerValue];
 }
--(BOOL)hideWhenEmpty
-{
-    return NO;
-}
+
 
 - (id)getItemAt:(id)args
 {

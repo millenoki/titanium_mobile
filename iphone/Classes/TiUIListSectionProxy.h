@@ -30,6 +30,7 @@
 
 @property (nonatomic, readwrite, assign) id<TiUIListViewDelegate> delegate;
 @property (nonatomic, readwrite, assign) NSUInteger sectionIndex;
+@property (nonatomic, readwrite, assign) BOOL hideWhenEmpty;
 
 // Private API. Used by ListView directly. Not for public comsumption
 - (NSDictionary *)itemAtIndex:(NSUInteger)index;
