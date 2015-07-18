@@ -3038,12 +3038,6 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         repositioning = NO;
         return layoutChanged;
     }
-#ifdef VERBOSE
-    else
-    {
-        DeveloperLog(@"[INFO] %@ Calling Relayout from within relayout.",self);
-    }
-#endif
     return NO;
 }
 
