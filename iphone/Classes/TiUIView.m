@@ -949,6 +949,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         [_bgLayer setColor:color forState:state];
     }
     else {
+        if (self.backgroundColor)
+        {
+            [[self getOrCreateCustomBackgroundLayer] setColor:super.backgroundColor forState:UIControlStateNormal];
+            super.backgroundColor = nil;
+        }
         [[self getOrCreateCustomBackgroundLayer] setColor:color forState:state];
     }
 }
@@ -1006,7 +1011,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 		uicolor = [[TiUtils colorValue:color] _color];
 	}
     
-    if (clipChildren || radii == nil)
+    if (!_bgLayer && (clipChildren || radii == nil))
     {
         if (backgroundOpacity < 1.0f) {
             const CGFloat* components = CGColorGetComponents(uicolor.CGColor);
@@ -1582,11 +1587,17 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 {
     clipChildren = [TiUtils boolValue:arg];
     self.clipsToBounds = [self clipChildren];
+    if ([self parentViewForChildren] != self) {
+        [self parentViewForChildren].clipsToBounds = self.clipsToBounds;
+    }
 }
 
 -(void)setMasksToBounds_:(id)arg
 {
     self.layer.masksToBounds = [TiUtils boolValue:arg];
+    if ([self parentViewForChildren] != self) {
+        [self parentViewForChildren].layer.masksToBounds = self.layer.masksToBounds;
+    }
 }
 
 
@@ -1865,6 +1876,21 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)recognizer {    
     UIView* theView = [recognizer startTouchedView];
+    UIGestureRecognizerState state = [recognizer state];
+    if ([recognizer state] == UIGestureRecognizerStateBegan || !theView) {
+        UIView* view = recognizer.view;
+        CGPoint loc = [recognizer locationInView:view];
+        theView = [view hitTest:loc withEvent:nil];
+        while (theView && !IS_OF_CLASS(theView, TiUIView)) {
+            theView = [theView superview];
+        }
+        if ([recognizer state] == UIGestureRecognizerStateBegan) {
+            [recognizer setStartTouchedView:(TiUIView*)theView];
+        }
+    } else if (state == UIGestureRecognizerStateEnded ||
+               state == UIGestureRecognizerStateCancelled) {
+        [recognizer setStartTouchedView:nil];
+    }
     return [TiUtils dictionaryFromGesture:recognizer inView:theView];
 }
 
@@ -2186,6 +2212,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)configureGestureRecognizer:(UIGestureRecognizer*)gestureRecognizer
 {
+    [gestureRecognizer setTiGesture:YES];
     [gestureRecognizer setDelaysTouchesBegan:NO];
     [gestureRecognizer setDelaysTouchesEnded:NO];
 //    [gestureRecognizer setCancelsTouchesInView:NO];

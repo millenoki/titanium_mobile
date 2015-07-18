@@ -131,12 +131,21 @@
 	return scrollView;
 }
 
-
 -(UIView*)viewForHitTest
 {
     return wrapperView;
 }
 
+-(UIView*)parentViewForChildren
+{
+    return [self wrapperView];
+}
+
+-(void)setClipChildren_:(id)arg
+{
+    [super setClipChildren_:arg];
+    [self scrollView].clipsToBounds = self.clipsToBounds;
+}
 
 - (id)accessibilityElement
 {

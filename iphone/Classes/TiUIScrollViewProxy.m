@@ -133,11 +133,6 @@
     return YES;
 }
 
--(UIView *)parentViewForChild:(TiViewProxy *)child
-{
-	return [(TiUIScrollView *)[self view] wrapperView];
-}
-
 -(void)scrollTo:(id)args
 {
 	ENSURE_ARG_COUNT(args,2);
