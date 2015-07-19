@@ -1991,16 +1991,31 @@ SEL GetterForKrollProperty(NSString * key)
 -(void)viewWillAppear:(BOOL)animated
 {
     [self parentWillShowWithoutUpdate];
-    [self refreshView];
+    [self refreshViewIfNeeded];
+    [self runBlock:^(TiViewProxy *proxy) {
+        [proxy viewWillAppear:animated];
+    } onlyVisible:YES recursive:YES];
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [self runBlock:^(TiViewProxy *proxy) {
+        [proxy viewDidAppear:animated];
+    } onlyVisible:YES recursive:YES];
 }
 
 -(void)viewWillDisappear:(BOOL)animated
 {
+    [self runBlock:^(TiViewProxy *proxy) {
+        [proxy viewWillDisappear:animated];
+    } onlyVisible:YES recursive:YES];
 }
 
 -(void)viewDidDisappear:(BOOL)animated
 {
-    [self parentWillHide];
+    [self runBlock:^(TiViewProxy *proxy) {
+        [proxy viewDidDisappear:animated];
+    } onlyVisible:YES recursive:YES];
 }
 
 -(UIViewController*)hostingController;
