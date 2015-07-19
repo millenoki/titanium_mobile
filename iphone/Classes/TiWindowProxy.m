@@ -726,12 +726,14 @@
     if (controller != nil && !self.isManaged) {
         [self gainFocus];
     }
+    [super viewDidAppear:animated];
 }
 -(void)viewDidDisappear:(BOOL)animated
 {
     if (isModal && closing) {
         [self windowDidClose];
     }
+    [super viewDidDisappear:animated];
 }
 
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
