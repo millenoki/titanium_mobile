@@ -822,10 +822,10 @@ SEL GetterForKrollProperty(NSString * key)
         }];
         
         //        [self contentsWillChange];
-        if(parentVisible && !hidden)
-        {
-            [childViewProxy parentWillShow];
-        }
+//        if(parentVisible && !hidden)
+//        {
+//            [childViewProxy parentWillShow];
+//        }
         
         //If layout is non absolute push this into the layout queue
         //else just layout the child with current bounds
