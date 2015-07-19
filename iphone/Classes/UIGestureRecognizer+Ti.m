@@ -13,12 +13,27 @@
 #import "JRSwizzle.h"
 
 static NSString * const kTiGestureStartTouchedView = @"kTiGestureStartTouchedView";
+static NSString * const kIsTiGesture = @"kIsTiGesture";
 
 @implementation UIGestureRecognizer (StartTouchedView)
 
 + (void) swizzle
 {
     [UIGestureRecognizer jr_swizzleMethod:@selector(setState:) withMethod:@selector(setStateCustom:) error:nil];
+}
+
+- (void)setTiGesture:(BOOL)value
+{
+    objc_setAssociatedObject(self, kIsTiGesture, @(value), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (BOOL)tiGesture
+{
+    id obj = objc_getAssociatedObject(self, kIsTiGesture);
+    if (obj) {
+        return [obj boolValue];
+    }
+    return false;
 }
 
 - (void)setStartTouchedView:(TiUIView *)view
@@ -30,29 +45,19 @@ static NSString * const kTiGestureStartTouchedView = @"kTiGestureStartTouchedVie
 {
     return objc_getAssociatedObject(self, kTiGestureStartTouchedView);
 }
+
 -(void)setStateCustom:(UIGestureRecognizerState)state
 {
     //WARNING: this is the swizzle trick, will actually call [UIGestureRecognizer setState:]
     [self setStateCustom:state];
-    UIView* theView = [self startTouchedView];
-    if (state == UIGestureRecognizerStateBegan || !theView) {
-        UIView* view = self.view;
-        CGPoint loc = [self locationInView:view];
-        theView = [view hitTest:loc withEvent:nil];
-        while (theView && !IS_OF_CLASS(theView, TiUIView)) {
-            theView = [theView superview];
-        }
-        if (state == UIGestureRecognizerStateBegan) {
-            [self setStartTouchedView:(TiUIView*)theView];
-        }
-    } else if (state == UIGestureRecognizerStateRecognized) {
-        TiUIView* theView = [self startTouchedView];
-        [theView processTouchesCancelled:nil withEvent:nil];
-    } else if (state == UIGestureRecognizerStateEnded ||
-               state == UIGestureRecognizerStateCancelled) {
-        [self setStartTouchedView:nil];
+    BOOL tiGesture = [self tiGesture];
+    if (!tiGesture) {
+        return;
     }
-    
+    if (state == UIGestureRecognizerStateRecognized) {
+        UIView* theView = [self startTouchedView];
+        [(TiUIView*)theView processTouchesCancelled:nil withEvent:nil];
+    }
 }
 @end
 

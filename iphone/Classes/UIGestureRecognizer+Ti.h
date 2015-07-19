@@ -12,4 +12,6 @@
 @interface UIGestureRecognizer (StartTouchedView)
 - (void)setStartTouchedView:(TiUIView *)view;
 - (TiUIView*)startTouchedView;
+- (void)setTiGesture:(BOOL)value;
+- (BOOL)tiGesture;
 @end

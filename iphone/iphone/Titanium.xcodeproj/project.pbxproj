@@ -654,6 +654,7 @@
 		D526016C179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */; };
 		D526016D179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */; };
 		D526016E179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */; };
+		D526745A1B58E75200D442E5 /* libakylas.camera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D52674591B58E74D00D442E5 /* libakylas.camera.a */; };
 		D52956FA1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */ = {isa = PBXBuildFile; fileRef = D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */; };
 		D52956FB1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */ = {isa = PBXBuildFile; fileRef = D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */; };
 		D52956FC1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */ = {isa = PBXBuildFile; fileRef = D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */; };
@@ -669,7 +670,6 @@
 		D535CCE719CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
 		D535CCE819CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
 		D535CCE919CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
-		D535D0231B3E7F7F0068F7D4 /* libAkylasMotion.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D535D0201B3E7F6E0068F7D4 /* libAkylasMotion.a */; };
 		D5370D94194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D95194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D96194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
@@ -1441,19 +1441,19 @@
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
 			remoteInfo = akylas.bluetooth;
 		};
-		D535D01F1B3E7F6E0068F7D4 /* PBXContainerItemProxy */ = {
+		D52674581B58E74D00D442E5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */;
+			containerPortal = D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas_motion_ios;
+			remoteInfo = akylas.camera;
 		};
-		D535D0211B3E7F740068F7D4 /* PBXContainerItemProxy */ = {
+		D526745B1B58E75600D442E5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */;
+			containerPortal = D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */;
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas_motion_ios;
+			remoteInfo = akylas.camera;
 		};
 		D58ED8EE1928E6F700BA0E04 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2305,6 +2305,8 @@
 		D52539B8183A87A0006FF1BB /* NSString+HLSExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSString+HLSExtensions.h"; path = "../Classes/CoconutKitAnimation/NSString+HLSExtensions.h"; sourceTree = "<group>"; };
 		D526016A179DB3EA00FE5723 /* TiSelectableBackgroundLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectableBackgroundLayer.h; sourceTree = "<group>"; };
 		D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectableBackgroundLayer.m; sourceTree = "<group>"; };
+		D52674461B58E4E700D442E5 /* libAkylas.camera.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAkylas.camera.a; path = "../../../modules/akylas_modules/camera/ios/build/Debug-iphoneos/libAkylas.camera.a"; sourceTree = "<group>"; };
+		D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.camera.xcodeproj; path = ../../../modules/akylas_modules/camera/ios/akylas.camera.xcodeproj; sourceTree = "<group>"; };
 		D52956F81B579FE800DEDCA1 /* UIGestureRecognizer+Ti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+Ti.h"; sourceTree = "<group>"; };
 		D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+Ti.m"; sourceTree = "<group>"; };
 		D52A8E71183606F6001AC6A1 /* TiAnimatableProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiAnimatableProxy.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -2315,7 +2317,6 @@
 		D535CCE119CF2C77005E114E /* SLColorArt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SLColorArt.m; path = ../Classes/ColorArt/SLColorArt.m; sourceTree = "<group>"; };
 		D535CCE519CF333A005E114E /* UIImage+UserInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+UserInfo.h"; sourceTree = "<group>"; };
 		D535CCE619CF333A005E114E /* UIImage+UserInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+UserInfo.m"; sourceTree = "<group>"; };
-		D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas_motion_ios.xcodeproj; path = ../../../modules/akylas_modules/motion/ios/akylas_motion_ios.xcodeproj; sourceTree = "<group>"; };
 		D5370D92194749DF000E30FC /* TiParentingProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiParentingProxy.h; sourceTree = "<group>"; };
 		D5370D93194749DF000E30FC /* TiParentingProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiParentingProxy.m; sourceTree = "<group>"; };
 		D53DC7B119CF427100BB31C9 /* UIImage+ColorArt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+ColorArt.h"; path = "../Classes/ColorArt/UIImage+ColorArt.h"; sourceTree = "<group>"; };
@@ -2713,7 +2714,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D535D0231B3E7F7F0068F7D4 /* libAkylasMotion.a in Frameworks */,
+				D526745A1B58E75200D442E5 /* libakylas.camera.a in Frameworks */,
 				D50720401B344E31005B31E5 /* libakylas.bluetooth.a in Frameworks */,
 				D55B2DCD1ACC5EF5008C0279 /* libFMDB-IOS.a in Frameworks */,
 				D58ED9071928F49F00BA0E04 /* libakylas.commonjs.a in Frameworks */,
@@ -3940,6 +3941,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D52674461B58E4E700D442E5 /* libAkylas.camera.a */,
 				24CA8C8D111167B60084E2DE /* libsqlite3.dylib */,
 				D5EA4AD218EF05EB001F67E8 /* libresolv.dylib */,
 				24CA8C8F111167B60084E2DE /* libz.dylib */,
@@ -4463,6 +4465,14 @@
 			name = JRSwizzle;
 			sourceTree = "<group>";
 		};
+		D52674541B58E74D00D442E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D52674591B58E74D00D442E5 /* libakylas.camera.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D535CCD919CF2C6A005E114E /* ColorArt */ = {
 			isa = PBXGroup;
 			children = (
@@ -4474,14 +4484,6 @@
 				D535CCE119CF2C77005E114E /* SLColorArt.m */,
 			);
 			name = ColorArt;
-			sourceTree = "<group>";
-		};
-		D535D0171B3E7F6E0068F7D4 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				D535D0201B3E7F6E0068F7D4 /* libAkylasMotion.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		D5509FD5194B1C2100655C61 /* Analytics */ = {
@@ -4583,7 +4585,7 @@
 		D55ED5781861B3C90035749B /* _dependencies_ */ = {
 			isa = PBXGroup;
 			children = (
-				D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */,
+				D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */,
 				D50720381B344E1A005B31E5 /* akylas.bluetooth.xcodeproj */,
 				D5E75A6E187C58F00016542B /* icon.png */,
 				D5E75A7A187C59060016542B /* icon_120@2x.png */,
@@ -4999,7 +5001,7 @@
 				D56915C5168F19E800C3F89F /* PBXBuildRule */,
 			);
 			dependencies = (
-				D535D0221B3E7F740068F7D4 /* PBXTargetDependency */,
+				D526745C1B58E75600D442E5 /* PBXTargetDependency */,
 				D507203F1B344E29005B31E5 /* PBXTargetDependency */,
 				D59A20C6194AF3D300BC5B93 /* PBXTargetDependency */,
 				D58ED9051928F49600BA0E04 /* PBXTargetDependency */,
@@ -5088,6 +5090,10 @@
 					ProjectRef = D50720381B344E1A005B31E5 /* akylas.bluetooth.xcodeproj */;
 				},
 				{
+					ProductGroup = D52674541B58E74D00D442E5 /* Products */;
+					ProjectRef = D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */;
+				},
+				{
 					ProductGroup = D59A20BA194AF3C800BC5B93 /* Products */;
 					ProjectRef = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
 				},
@@ -5102,10 +5108,6 @@
 				{
 					ProductGroup = D58ED8F01928E6F800BA0E04 /* Products */;
 					ProjectRef = D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */;
-				},
-				{
-					ProductGroup = D535D0171B3E7F6E0068F7D4 /* Products */;
-					ProjectRef = D535D0161B3E7F6E0068F7D4 /* akylas_motion_ios.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -5125,11 +5127,11 @@
 			remoteRef = D507203C1B344E1B005B31E5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		D535D0201B3E7F6E0068F7D4 /* libAkylasMotion.a */ = {
+		D52674591B58E74D00D442E5 /* libakylas.camera.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libAkylasMotion.a;
-			remoteRef = D535D01F1B3E7F6E0068F7D4 /* PBXContainerItemProxy */;
+			path = libakylas.camera.a;
+			remoteRef = D52674581B58E74D00D442E5 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		D58ED8EF1928E6F700BA0E04 /* libakylas.shapes.a */ = {
@@ -6565,10 +6567,10 @@
 			name = akylas.bluetooth;
 			targetProxy = D507203E1B344E29005B31E5 /* PBXContainerItemProxy */;
 		};
-		D535D0221B3E7F740068F7D4 /* PBXTargetDependency */ = {
+		D526745C1B58E75600D442E5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = akylas_motion_ios;
-			targetProxy = D535D0211B3E7F740068F7D4 /* PBXContainerItemProxy */;
+			name = akylas.camera;
+			targetProxy = D526745B1B58E75600D442E5 /* PBXContainerItemProxy */;
 		};
 		D58ED9011928F49000BA0E04 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -6620,6 +6622,7 @@
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/lib,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
 					"/Volumes/data/mguillon/Desktop/ios/build/Debug-iphoneos",
+					"/Volumes/data/dev/titanium/modules/akylas_modules/camera/ios/build/Debug-iphoneos",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -6657,6 +6660,7 @@
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/lib,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
 					"/Volumes/data/mguillon/Desktop/ios/build/Debug-iphoneos",
+					"/Volumes/data/dev/titanium/modules/akylas_modules/camera/ios/build/Debug-iphoneos",
 				);
 				PRODUCT_NAME = Titanium;
 				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-Bridging-Header.h";
@@ -6927,6 +6931,7 @@
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/lib,
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
 					"/Volumes/data/mguillon/Desktop/ios/build/Debug-iphoneos",
+					"/Volumes/data/dev/titanium/modules/akylas_modules/camera/ios/build/Debug-iphoneos",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
