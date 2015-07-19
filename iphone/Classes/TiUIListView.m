@@ -167,9 +167,9 @@ static NSDictionary* replaceKeysForRow;
 {
     [theProxy setProxyObserver:self];
     if (header) {
-        [self.tableView setTableHeaderView:[theProxy getAndPrepareViewForOpening:CGRectZero]];
+        [self.tableView setTableHeaderView:[theProxy getAndPrepareViewForOpening:[TiUtils appFrame]]];
     } else {
-        [self.tableView setTableFooterView:[theProxy getAndPrepareViewForOpening:CGRectZero]];
+        [self.tableView setTableFooterView:[theProxy getAndPrepareViewForOpening:[TiUtils appFrame]]];
     }
 }
 
