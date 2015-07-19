@@ -2985,8 +2985,12 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 -(BOOL)relayout
 {
-    if (!repositioning && !CGSizeEqualToSize(sandboxBounds.size, CGSizeZero))
+    if (!repositioning)
     {
+        if (CGSizeEqualToSize(sandboxBounds.size, CGSizeZero)) {
+            dirtyflags = 0;
+            return NO;
+        }
         ENSURE_UI_THREAD_0_ARGS
         OSAtomicTestAndClear(TiRefreshViewEnqueued, &dirtyflags);
         repositioning = YES;
@@ -2996,6 +3000,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
         if (CGSizeEqualToSize(referenceSize, CGSizeZero)) {
             repositioning = NO;
+            dirtyflags = 0;
             return;
         }
         BOOL needsAll = CGRectIsEmpty(sizeCache);
