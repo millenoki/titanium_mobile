@@ -348,18 +348,6 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 
 #pragma mark Public Methods
 
--(void)beep:(id)unused
-{
-    ENSURE_UI_THREAD(beep,unused);
-    AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
-}
-
--(void)vibrate:(id)args
-{
-    //No pattern support on iOS
-    [self beep:nil];
-}
-
 -(void)setOverrideAudioRoute:(NSNumber*)mode
 {
     [[TiAudioSession sharedSession] setRouteOverride:[mode unsignedIntValue]];

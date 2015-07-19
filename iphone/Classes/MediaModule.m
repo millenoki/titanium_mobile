@@ -1402,6 +1402,19 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 	}
 }
 
+
+-(void)beep:(id)unused
+{
+    ENSURE_UI_THREAD(beep,unused);
+    AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
+}
+
+-(void)vibrate:(id)args
+{
+    //No pattern support on iOS
+    [self beep:nil];
+}
+
 @end
 
 #endif
