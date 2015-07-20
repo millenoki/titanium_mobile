@@ -1587,14 +1587,18 @@ public class TiUIHelper
 	    for (int i = 0; i < length; i++) {
 	        final String part = parts[i];
 	        if (current instanceof KrollProxy) {
-	            final String getter = "get" + Character.toUpperCase(part.charAt(0)) + part.substring(1);
-	            Method method;
-                try {
-                    method = current.getClass().getMethod(getter, (Class<?>[]) null);
-                    result = method.invoke(current, (Object[]) null);
-                } catch (Exception e) {
-                    result = null;
-                }
+	            result = ((KrollProxy)current).getProperty(part);
+	            if (result == null) {
+	                final String getter = "get" + Character.toUpperCase(part.charAt(0)) + part.substring(1);
+	                Method method;
+	                try {
+	                    method = current.getClass().getMethod(getter, (Class<?>[]) null);
+	                    result = method.invoke(current, (Object[]) null);
+	                } catch (Exception e) {
+	                    result = null;
+	                }
+	            }
+	            
 	        } else if (current instanceof HashMap) {
 	            result = ((HashMap) current).get(parts[i]);
 	        } else {
@@ -1624,6 +1628,23 @@ public class TiUIHelper
 	        }
 	    }
 	    
+	    String condition  = mathDict.getString("condition");
+	    if (condition != null) {
+	        try {
+                Expression expression = new Expression(condition);
+                  for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
+                      String value  = TiConvert.toString(entry2.getValue());
+                      if (value != null) {
+                          expression.with(entry2.getKey(), value);
+                      }
+                  }
+                if (expression.eval().intValue() == 0) {
+                    return;
+                }
+              } catch (Exception e) {
+              }
+	    }
+	    
         HashMap<String, Object> exps = mathDict.getHashMap("expressions");
 	    if (exps != null) {
 	        for (Map.Entry<String, Object> entry : exps.entrySet()) {
@@ -1643,10 +1664,15 @@ public class TiUIHelper
 	            try {
                   Expression expression = new Expression(TiConvert.toString(entry.getValue()));
 	                for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-                      expression.with(entry2.getKey(), TiConvert.toString(entry2.getValue()));
+	                    String value  = TiConvert.toString(entry2.getValue());
+	                    if (value != null) {
+	                        expression.with(entry2.getKey(), value);
+	                    }
                     }
                   expressions.put(VAR_PREFIX+entry.getKey(), expression.eval().toPlainString());
                 } catch (Exception e) {
+                    
+                    return;
                 }
             }
 	    }
