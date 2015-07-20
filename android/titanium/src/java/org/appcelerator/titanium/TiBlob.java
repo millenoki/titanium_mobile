@@ -553,16 +553,16 @@ public class TiBlob extends KrollProxy {
     public String toString() {
         // blob should return the text value on toString
         // if it's not null
-        String result = getText();
+        String result = null;
   
-//        switch (type) {
-//        case TYPE_STRING:
-//        case TYPE_STREAM_BASE64:
-//        case TYPE_DATA:
-//            result = getText();
-//        case TYPE_FILE:
-//            result = getNativePath();
-//        }
+        switch (type) {
+        case TYPE_STRING:
+        case TYPE_STREAM_BASE64:
+        case TYPE_DATA:
+            result = getText();
+        case TYPE_FILE:
+            result = getNativePath();
+        }
         if (result != null) {
             return result;
         }
