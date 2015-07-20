@@ -141,8 +141,8 @@ public class MoveGestureDetector extends BaseGestureDetector {
     }
     
     public PointF getTranslationDelta() {
-        float xDelta = Math.abs(mCurrEvent.getRawX() - mPrevEvent.getRawX());
-        float yDelta = Math.abs(mCurrEvent.getRawY() - mPrevEvent.getRawY());
+        float xDelta = mCurrEvent.getRawX() - mPrevEvent.getRawX();
+        float yDelta = mCurrEvent.getRawY() - mPrevEvent.getRawY();
         mTransDelta.set(xDelta, yDelta);
         return mTransDelta;
     }
