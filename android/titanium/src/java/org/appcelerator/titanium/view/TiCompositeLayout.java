@@ -829,10 +829,10 @@ public class TiCompositeLayout extends FreeLayout implements
                 startRect = animP.startRect;
                 if (startRect != null ) {
                     if (animP.optionWidth != null) {
-                      toUseWidth = animP.finalWidth;
+                      toUseWidth = (int) Math.floor(animP.finalWidth * animP.animationFraction + (1 - animP.animationFraction)* toUseWidth);
                     }
                     if (animP.optionHeight != null) {
-                      toUseHeight = animP.finalHeight;
+                      toUseHeight = (int) Math.floor(animP.finalHeight * animP.animationFraction + (1 - animP.animationFraction)* toUseHeight);
                     }
                 }
             }
