@@ -200,9 +200,9 @@ public class MediaModule extends KrollModule
 		File imageFile = null;
 		
 		if (saveToPhotoGallery) {
-			imageFile = MediaModule.createGalleryImageFile();
+			imageFile = TiFileHelper.createGalleryImageFile();
 		} else {
-			imageFile = MediaModule.createExternalStorageFile();
+			imageFile = TiFileHelper.createExternalStorageFile();
 		}
 		
 		//Sanity Checks
@@ -395,7 +395,7 @@ public class MediaModule extends KrollModule
 			
 			bis = new BufferedInputStream(theBlob.getInputStream());
 			
-			File imageFile = MediaModule.createGalleryImageFile(extension);
+			File imageFile = TiFileHelper.createGalleryImageFile(extension);
 			bos = new BufferedOutputStream(new FileOutputStream(imageFile));
 			byte[] buf = new byte[8096];
 			int len = 0;
@@ -457,57 +457,6 @@ public class MediaModule extends KrollModule
 		return super.handleMessage(message);
 	}
 
-	protected static File createExternalStorageFile() {
-		return createExternalStorageFile(null);
-	}
-	protected static File createGalleryImageFile() {
-		return createGalleryImageFile(null);
-	}
-	
-	private static File createExternalStorageFile(String extension) {
-		File pictureDir = TiApplication.getInstance().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-		File appPictureDir = new File(pictureDir, TiApplication.getInstance().getAppInfo().getName());
-		if (!appPictureDir.exists()) {
-			if (!appPictureDir.mkdirs()) {
-				Log.e(TAG, "Failed to create external storage directory.");
-				return null;
-			}
-		}
-		String ext = (extension == null) ? ".jpg" : extension;
-		File imageFile;
-		try {
-			imageFile = TiFileHelper.getInstance().getTempFile(appPictureDir, ext, false);
-
-		} catch (IOException e) {
-			Log.e(TAG, "Failed to create image file: " + e.getMessage());
-			return null;
-		}
-
-		return imageFile;
-	}
-	
-	private static File createGalleryImageFile(String extension) {
-		File pictureDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-		File appPictureDir = new File(pictureDir, TiApplication.getInstance().getAppInfo().getName());
-		if (!appPictureDir.exists()) {
-			if (!appPictureDir.mkdirs()) {
-				Log.e(TAG, "Failed to create application gallery directory.");
-				return null;
-			}
-		}
-		String ext = (extension == null) ? ".jpg" : extension;
-		File imageFile;
-		try {
-			imageFile = TiFileHelper.getInstance().getTempFile(appPictureDir, ext, false);
-
-		} catch (IOException e) {
-			Log.e(TAG, "Failed to create gallery image file: " + e.getMessage());
-			return null;
-		}
-
-		return imageFile;
-	}
-
 	protected class CameraResultHandler implements TiActivityResultHandler, Runnable
 	{
 		protected File imageFile;
@@ -559,7 +508,7 @@ public class MediaModule extends KrollModule
 							//Ignore error
 						}
 						
-						imageFile = saveToPhotoGallery? MediaModule.createGalleryImageFile() : MediaModule.createExternalStorageFile();
+						imageFile = saveToPhotoGallery? TiFileHelper.createGalleryImageFile() : TiFileHelper.createExternalStorageFile();
 					}
 					
 					long compareLength = (validFileCreated) ? imageFile.length() : 0;
