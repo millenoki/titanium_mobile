@@ -69,6 +69,16 @@ public class TiUIScrollView extends TiUIView
 		{
 			canCancelEvents = value;
 		}
+		
+		public void setClipChildren(boolean clipChildren) {
+            super.setClipChildren(clipChildren);
+            ((ViewGroup) nativeView).setClipChildren(clipChildren);
+        }
+        
+        public void setClipToOutline(boolean clipChildren) {
+            super.setClipToOutline(clipChildren);
+            ((ViewGroup) nativeView).setClipToOutline(clipChildren);
+        }
 
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent ev)
@@ -182,6 +192,7 @@ public class TiUIScrollView extends TiUIView
 		{
 			return layout;
 		}
+
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
