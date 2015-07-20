@@ -323,7 +323,7 @@ public class TiViewGestureHandler {
         }
         case ACTION_MOVE: {
             MoveGestureDetector detector = (MoveGestureDetector) theDetector;
-            PointF translation = detector.getFocusDelta();
+            PointF translation = detector.getTranslationDelta();
             final float timeDelta = detector.getTimeDelta() == 0 ? 1 : detector
                     .getTimeDelta();
             TiDimension nativeValue = new TiDimension(0, TiDimension.TYPE_WIDTH);
@@ -331,7 +331,6 @@ public class TiViewGestureHandler {
             KrollDict point = new KrollDict();
             point.put(TiC.EVENT_PROPERTY_X, (translation.x - 1.0f) / timeDelta
                     * 1000);
-            nativeValue.setValue((translation.y - 1.0f) / timeDelta * 1000);
             point.put(TiC.EVENT_PROPERTY_Y, (translation.y - 1.0f) / timeDelta
                     * 1000);
             event.put(TiC.EVENT_PROPERTY_VELOCITY, point);
@@ -339,7 +338,8 @@ public class TiViewGestureHandler {
             point = new KrollDict();
             nativeValue.setValue(translation.x);
             point.put(TiC.EVENT_PROPERTY_X, nativeValue.getAsDefault());
-            nativeValue.setValue(translation.x);
+            nativeValue.setValue(translation.y);
+            Log.d(TAG, "test " + translation.y + " , " + point.get(TiC.EVENT_PROPERTY_X));
             point.put(TiC.EVENT_PROPERTY_Y, nativeValue.getAsDefault());
             event.put(TiC.EVENT_PROPERTY_TRANSLATION, point);
             key = TiC.EVENT_PAN;
@@ -363,9 +363,9 @@ public class TiViewGestureHandler {
         if (event != null) {
             event.put(TiC.EVENT_PROPERTY_STATE, (state == 0)?"start":((state == 2)?"end":"move"));
             if (state == 0) {
-                mProxy.fireEvent(key + "start", event, true, false);
+                return mProxy.fireEvent(key + "start", event, false, false);
             } else if (state == 2) {
-                mProxy.fireEvent(key + "end", event, true, false);
+                return mProxy.fireEvent(key + "end", event, false, false);
             }
             return mProxy.fireEvent(key, event, false, false);
         }
@@ -499,7 +499,7 @@ public class TiViewGestureHandler {
                                 return true;
                             }
                             PointF delta = detector.getTranslationDelta();
-                            if (!mIsPaning && (delta.x > threshold || delta.y > threshold)) {
+                            if (!mIsPaning && (Math.abs(delta.x) > threshold || Math.abs(delta.y) > threshold)) {
                                 mIsPaning = true;
                                 fireEventForAction(ACTION_MOVE, detector, this, 0);
                             } else if (mIsPaning) {
