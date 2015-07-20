@@ -66,6 +66,9 @@ public class DualScrollView extends FrameLayout {
     private EdgeEffectCompat mEdgeGlowBottom;
     private EdgeEffectCompat mEdgeGlowLeft;
     private EdgeEffectCompat mEdgeGlowRight;
+    
+    private boolean canScrollH = false;
+    private boolean canScrollV = false;
 
 	private boolean shouldClampScroll = true;
 	
@@ -249,65 +252,41 @@ public class DualScrollView extends FrameLayout {
     }
 
     @Override
-    public void addView(View child) {
-        if (getChildCount() > 0) {
-            throw new IllegalStateException("ScrollView can host only one direct child");
-        }
-
-        super.addView(child);
-    }
-
-    @Override
-    public void addView(View child, int index) {
-        if (getChildCount() > 0) {
-            throw new IllegalStateException("ScrollView can host only one direct child");
-        }
-
-        super.addView(child, index);
-    }
-
-    @Override
-    public void addView(View child, ViewGroup.LayoutParams params) {
-        if (getChildCount() > 0) {
-            throw new IllegalStateException("ScrollView can host only one direct child");
-        }
-
-        super.addView(child, params);
-    }
-
-    @Override
     public void addView(View child, int index, ViewGroup.LayoutParams params) {
         if (getChildCount() > 0) {
             throw new IllegalStateException("ScrollView can host only one direct child");
         }
 
         super.addView(child, index, params);
+        updateCanScroll();
     }
 
     /**
      * @return Returns true this ScrollView can be scrolled
      */
     private boolean canScroll() {
-        return canScrollH() || canScrollV();
+        return canScrollH || canScrollV;
+    }
+    
+    private void updateCanScroll() {
+        View child = getChildAt(0);
+        canScrollH = false;
+        canScrollV = false;
+        if (child != null) {
+            int childWidth = child.getWidth();
+            canScrollH = (getWidth() < childWidth + getPaddingLeft()
+                            + getPaddingRight());
+            int childHeight = child.getHeight();
+            canScrollV = (getHeight() < childHeight + getPaddingTop()
+                    + getPaddingBottom());
+        }
     }
     
     private boolean canScrollH() {
-        View child = getChildAt(0);
-        if (child != null) {
-            int childWidth = child.getWidth();
-            return (getWidth() < childWidth + getPaddingLeft()
-                            + getPaddingRight());
-        }
-        return false;
+        return canScrollH;
     }
     private boolean canScrollV() {
-        View child = getChildAt(0);
-        if (child != null) {
-            int childHeight = child.getHeight();
-            return (getHeight() < childHeight + getPaddingTop()
-                    + getPaddingBottom());
-        }
-        return false;
+        return canScrollV;
     }
 
     /**
@@ -548,7 +527,7 @@ public class DualScrollView extends FrameLayout {
                 final int y = (int) ev.getY(pointerIndex);
                 final int xDiff = Math.abs(x - mLastMotionX);
                 final int yDiff = Math.abs(y - mLastMotionY);
-                if (yDiff > mTouchSlop || xDiff > mTouchSlop) {
+                if ((canScrollV && yDiff > mTouchSlop) || (canScrollH && xDiff > mTouchSlop)) {
                     mIsBeingDragged = true;
                     mLastMotionX = x;
                     mLastMotionY = y;
@@ -742,7 +721,7 @@ public class DualScrollView extends FrameLayout {
                 int deltaY = mLastMotionY - y;
                 if (rangeX == 0) deltaX = 0;
                 if (rangeY == 0) deltaY = 0;
-                if (!mIsBeingDragged && (Math.abs(deltaX) > mTouchSlop || Math.abs(deltaY) > mTouchSlop)) {
+                if (!mIsBeingDragged && ((canScrollH &&  Math.abs(deltaX) > mTouchSlop) || (canScrollV &&  Math.abs(deltaY) > mTouchSlop))) {
                     final ViewParent parent = getParent();
                     if (parent != null) {
                         parent.requestDisallowInterceptTouchEvent(true);
@@ -1844,6 +1823,7 @@ public class DualScrollView extends FrameLayout {
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
+        updateCanScroll();
         mIsLayoutDirty = false;
         // Give a child focus if it needs it
         if (mChildToScrollTo != null && isViewDescendantOf(mChildToScrollTo, this)) {
