@@ -188,6 +188,9 @@ public class TiUIWebView extends TiUINonViewGroupView
 		boolean isHTC = false;
 		
 		FeatureInfo[] features = TiApplication.getInstance().getApplicationContext().getPackageManager().getSystemAvailableFeatures();
+		if(features == null) { 
+			return isHTC;
+		}
 		for (FeatureInfo f : features) {
 			String fName = f.name;
 			if (fName != null) {

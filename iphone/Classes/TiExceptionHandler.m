@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -60,6 +60,9 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 #ifndef TI_DEPLOY_TYPE_PRODUCTION
     [[TiApp app] showModalError:error];
 #endif
+	[[NSNotificationCenter defaultCenter] postNotificationName:kTiErrorNotification
+	                                                    object:self
+	                                                  userInfo:error.dictionaryValue];
 }
 
 #pragma mark - TiExceptionHandlerDelegate

@@ -15,6 +15,7 @@
     BOOL persistentFlag;
     BOOL hideOnClick;
     NSInteger cancelIndex;
+    NSInteger destructiveIndex;
     NSInteger style;
 }
 

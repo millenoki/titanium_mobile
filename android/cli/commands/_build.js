@@ -1180,9 +1180,14 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
         }
 
         if (!this.targetSDK) {
-            logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
-            process.exit(1);
-        }
+			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
+			process.exit(1);
+		}
+
+		if (this.targetSDK < this.minTargetApiLevel) {
+			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
+			process.exit(1);
+		}
     }
 
     // check that we have this target sdk installed
@@ -2078,12 +2083,19 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
         return true;
     }
 
-    if (this.minSDK != manifest.minSDK) {
-        this.logger.info(__('Forcing rebuild: Android minimum SDK changed since last build'));
-        this.logger.info('  ' + __('Was: %s', manifest.minSDK));
-        this.logger.info('  ' + __('Now: %s', this.minSDK));
-        return true;
-    }
+	if (this.tiapp.navbarHidden != manifest.navbarHidden) {
+		this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.navbarHidden));
+		this.logger.info('  ' + __('Now: %s', this.tiapp.navbarHidden));
+		return true;
+	}
+
+	if (this.minSDK != manifest.minSDK) {
+		this.logger.info(__('Forcing rebuild: Android minimum SDK changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.minSDK));
+		this.logger.info('  ' + __('Now: %s', this.minSDK));
+		return true;
+	}
 
     if (this.targetSDK != manifest.targetSDK) {
         this.logger.info(__('Forcing rebuild: Android target SDK changed since last build'));
@@ -2704,7 +2716,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
             // encrypt the javascript
             var titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {
-                    this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+					this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(1).join('" "') + '"').cyan));
                     appc.subprocess.run(exe, args, opts, function (code, out, err) {
                         if (code) {
                             return done({
@@ -2741,7 +2753,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
             titaniumPrepHook(
                 path.join(this.platformPath, titaniumPrep),
-                args,
+				args.slice(0),
                 opts,
                 function (err) {
                     if (!err) {
@@ -3492,12 +3504,28 @@ AndroidBuilder.prototype.generateI18N = function generateI18N(next) {
         return s.replace(/./g, '\\u0020');
     }
 
-    Object.keys(data).forEach(function (locale) {
-        var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + locale), 'strings.xml'),
-            dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
-            root = dom.documentElement,
-            appname = data[locale].app && data[locale].app.appname || this.tiapp.name,
-            appnameNode = dom.createElement('string');
+	function resolveRegionName(locale) {
+		if (locale.match(/\w{2}(-|_)r?\w{2}/)) {
+			var parts = locale.split(/-|_/),
+			    lang = parts[0],
+			    region = parts[1],
+			    separator = '-';
+
+			if (region.length == 2) {
+				separator = '-r';
+			}
+
+			return lang + separator + region;
+		}
+		return locale;
+	}
+
+	Object.keys(data).forEach(function (locale) {
+		var dest = path.join(this.buildResDir, 'values' + (locale == 'en' ? '' : '-' + resolveRegionName(locale)), 'strings.xml'),
+			dom = new DOMParser().parseFromString('<resources/>', 'text/xml'),
+			root = dom.documentElement,
+			appname = data[locale].app && data[locale].app.appname || this.tiapp.name,
+			appnameNode = dom.createElement('string');
 
         appnameNode.setAttribute('name', 'app_name');
         appnameNode.setAttribute('formatted', 'false');
@@ -4494,43 +4522,44 @@ AndroidBuilder.prototype.zipAlignApk = function zipAlignApk(next) {
 AndroidBuilder.prototype.writeBuildManifest = function writeBuildManifest(callback) {
     this.logger.info(__('Writing build manifest: %s', this.buildManifestFile.cyan));
 
-    this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
-        fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
-        fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
-        fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
-    })({
-        target: this.target,
-        deployType: this.deployType,
-        classname: this.classname,
-        platformPath: this.platformPath,
-        modulesHash: this.modulesHash,
-        modulesManifestHash: this.modulesManifestHash,
-        modulesNativeHash: this.modulesNativeHash,
-        modulesBindingsHash: this.modulesBindingsHash,
-        gitHash: ti.manifest.githash,
-        outputDir: this.cli.argv['output-dir'],
-        name: this.tiapp.name,
-        id: this.tiapp.id,
-        analytics: this.tiapp.analytics,
-        publisher: this.tiapp.publisher,
-        url: this.tiapp.url,
-        version: this.tiapp.version,
-        description: this.tiapp.description,
-        copyright: this.tiapp.copyright,
-        guid: this.tiapp.guid,
-        icon: this.tiapp.icon,
-        fullscreen: this.tiapp.fullscreen,
-        skipJSMinification: !!this.cli.argv['skip-js-minify'],
-        mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', false),
-        encryptJS: this.encryptJS,
-        minSDK: this.minSDK,
-        targetSDK: this.targetSDK,
-        propertiesHash: this.propertiesHash,
-        activitiesHash: this.activitiesHash,
-        servicesHash: this.servicesHash,
-        jssFilesHash: this.jssFilesHash,
-        jarLibHash: this.jarLibHash
-    }, callback);
+	this.cli.createHook('build.android.writeBuildManifest', this, function (manifest, cb) {
+		fs.existsSync(this.buildDir) || wrench.mkdirSyncRecursive(this.buildDir);
+		fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
+		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
+	})({
+		target: this.target,
+		deployType: this.deployType,
+		classname: this.classname,
+		platformPath: this.platformPath,
+		modulesHash: this.modulesHash,
+		modulesManifestHash: this.modulesManifestHash,
+		modulesNativeHash: this.modulesNativeHash,
+		modulesBindingsHash: this.modulesBindingsHash,
+		gitHash: ti.manifest.githash,
+		outputDir: this.cli.argv['output-dir'],
+		name: this.tiapp.name,
+		id: this.tiapp.id,
+		analytics: this.tiapp.analytics,
+		publisher: this.tiapp.publisher,
+		url: this.tiapp.url,
+		version: this.tiapp.version,
+		description: this.tiapp.description,
+		copyright: this.tiapp.copyright,
+		guid: this.tiapp.guid,
+		icon: this.tiapp.icon,
+		fullscreen: this.tiapp.fullscreen,
+		navbarHidden: this.tiapp['navbar-hidden'],
+		skipJSMinification: !!this.cli.argv['skip-js-minify'],
+		mergeCustomAndroidManifest: this.config.get('android.mergeCustomAndroidManifest', false),
+		encryptJS: this.encryptJS,
+		minSDK: this.minSDK,
+		targetSDK: this.targetSDK,
+		propertiesHash: this.propertiesHash,
+		activitiesHash: this.activitiesHash,
+		servicesHash: this.servicesHash,
+		jssFilesHash: this.jssFilesHash,
+		jarLibHash: this.jarLibHash
+	}, callback);
 };
 
 // create the builder instance and expose the public api

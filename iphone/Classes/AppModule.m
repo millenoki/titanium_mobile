@@ -450,6 +450,14 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 	}
 }
 
+-(void)errored:(NSNotification *)notification
+{
+	if ([self _hasListeners:@"uncaughtException"])
+	{
+		[self fireEvent:@"uncaughtException" withObject:[notification userInfo]];
+	}
+}
+
 #pragma mark Delegate stuff
 
 -(void)proximityDetectionChanged:(NSNotification*)note

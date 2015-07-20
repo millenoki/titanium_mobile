@@ -626,6 +626,12 @@ typedef enum
 +(BOOL)isIOS8OrGreater;
 
 /**
+ Whether or not the current OS version is equal to or greater than 9.0.
+ @return _YES_ if the current OS version is equal to or greater thann 9.0, _NO_ otherwise.
+ */
++(BOOL)isIOS9OrGreater;
+
+/**
  Screen scale for retina displays. Used for image computation
  @return scale as float.
  */

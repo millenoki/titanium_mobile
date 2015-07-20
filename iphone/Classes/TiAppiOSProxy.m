@@ -15,7 +15,7 @@
 #import "TiAppiOSNotificationActionProxy.h"
 #import "TiAppiOSNotificationCategoryProxy.h"
 #import "TiAppiOSUserDefaultsProxy.h"
-
+#import "TiAppiOSUserActivityProxy.h"
 
 @implementation TiAppiOSProxy
 
@@ -84,7 +84,10 @@
         }
         if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(didReceiveWatchExtensionRequestNotification:) name:KTiWatchKitExtensionRequest object:nil];
+                                                 selector:@selector(didReceiveWatchExtensionRequestNotification:) name:kTiWatchKitExtensionRequest object:nil];
+        }
+        if ((count == 1) && [type isEqual:@"handoff"]) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveHandOffNotification:) name:kTiHandOff object:nil];
         }
     }
 
@@ -132,12 +135,26 @@
             [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiUserNotificationSettingsNotification object:nil];
         }
         if ((count == 1) && [type isEqual:@"watchkitextensionrequest"]) {
-            [[NSNotificationCenter defaultCenter] removeObserver:self name:KTiWatchKitExtensionRequest object:nil];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiWatchKitExtensionRequest object:nil];
+        }
+        if ((count == 1) && [type isEqual:@"handoff"]) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiHandOff object:nil];
         }
     }
 }
 
 #pragma mark Public
+
+-(id)createUserActivity:(id)args
+{
+    NSString* activityType;
+    ENSURE_SINGLE_ARG(args,NSDictionary);
+    ENSURE_ARG_FOR_KEY(activityType, args, @"activityType", NSString);
+    
+    TiAppiOSUserActivityProxy *userActivityProxy = [[[TiAppiOSUserActivityProxy alloc] initWithOptions:args] autorelease];
+    
+    return userActivityProxy;
+}
 
 -(id)createUserDefaults:(id)args
 {
@@ -323,6 +340,18 @@
     TiThreadPerformOnMainThread(^{
         [[UIApplication sharedApplication] registerUserNotificationSettings:notif];
     }, NO);
+}
+
+-(NSArray*)supportedUserActivityTypes
+{    
+    if (![TiUtils isIOS8OrGreater]) {
+        return nil;
+    }
+    
+    NSArray *supportedActivityTypes = [[NSBundle mainBundle]
+                                       objectForInfoDictionaryKey:@"NSUserActivityTypes"];
+    
+    return supportedActivityTypes;
 }
 
 -(NSDictionary*)currentUserNotificationSettings
@@ -599,6 +628,12 @@
 	}
 }
 
+-(void)didReceiveHandOffNotification:(NSNotification*)notif
+{
+    NSDictionary *notification = [notif userInfo];
+    [self fireEvent:@"handoff" withObject:notification];
+}
+
 -(void)didReceiveLocalNotification:(NSNotification*)note
 {
 	NSDictionary *notification = [note object];
@@ -666,6 +701,9 @@
 
 -(void)didReceiveWatchExtensionRequestNotification:(NSNotification*)notif
 {
+    if ([TiUtils isIOS9OrGreater]) {
+        DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
+    }
     [self fireEvent:@"watchkitextensionrequest" withObject:[notif userInfo]];
 }
 
@@ -673,6 +711,9 @@
 
 -(void)sendWatchExtensionReply:(id)args
 {
+    if ([TiUtils isIOS9OrGreater]) {
+        DebugLog(@"[WARN] Deprecated. Please use Ti.App.iOS.WatchConnectivity instead");
+    }
     if(![TiUtils isIOS8OrGreater]) {
         return;
     }

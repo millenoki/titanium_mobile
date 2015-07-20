@@ -132,6 +132,7 @@ public abstract class TiApplication extends Application implements
     protected ITiAppInfo appInfo;
     protected TiStylesheet stylesheet;
     protected static HashMap<String, WeakReference<KrollModule>> modules;
+	protected String[] filteredAnalyticsEvents;
     
     protected static ArrayList<AppStateListener> sAppStateListeners = new ArrayList<AppStateListener>();
 
@@ -983,9 +984,31 @@ public abstract class TiApplication extends Application implements
         return proxy;
     }
 
-    public boolean isAnalyticsEnabled() {
-        return getAppInfo().isAnalyticsEnabled();
-    }
+    public boolean isAnalyticsEnabled()
+	{
+		return getAppInfo().isAnalyticsEnabled();
+	}
+	
+	public void setFilterAnalyticsEvents(String[] events)
+	{
+		filteredAnalyticsEvents = events;
+	}
+	
+	public boolean isAnalyticsFiltered(String eventName)
+	{
+		if (filteredAnalyticsEvents == null) {
+			return false;
+		}
+
+		for (int i = 0; i < filteredAnalyticsEvents.length; ++i) {
+			String currentName = filteredAnalyticsEvents[i];
+			if (eventName.equals(currentName)) {
+				return true;
+			}
+					
+		}
+		return false;
+	}
 
     public String getDeployType() {
         return getAppInfo().getDeployType();

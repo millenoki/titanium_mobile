@@ -267,11 +267,25 @@
     return image;
 }
 
-//-(void)setBackgroundImage_:(id)arg
-//{
-//    [super setBackgroundImage_:arg];
-//    [[self searchBar] setSearchFieldBackgroundImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
-//}
+-(void)setBackgroundImage_:(id)arg
+{
+    UIImage *image = [self loadImage:arg];
+    UISearchBar* searchBar = [self searchBar];
+    // reset the image to nil so we can check if the next statement sets it
+    [searchBar setBackgroundImage:nil];
+    
+    // try to set the image with UIBarMetricsDefaultPrompt barMetrics
+    //
+    // Checking for the `prompt` property is not reliable, even if it's not set, the height
+    // of the searchbar determines wheather the barMetrics is `DefaultPrompt` or just `Default`
+    [searchBar setBackgroundImage:image forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefaultPrompt];
+    
+    // check that the image has been set, otherwise try the other barMetrics
+    if([searchBar backgroundImage] == nil) {
+        [searchBar setBackgroundImage:image forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefault];
+    }
+//    self.backgroundImage = arg;
+}
 //
 //-(void) setBackgroundColor_:(id)color
 //{

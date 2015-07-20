@@ -20,7 +20,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.app.Dialog;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.support.v4.view.ViewCompat;
@@ -85,7 +86,7 @@ public class TiUIDialog extends TiUIView
 	}
 	
 	private void clearDialog() {
-        Dialog dialog = dialogWrapper.getDialog();
+        AlertDialog dialog = (AlertDialog) dialogWrapper.getDialog();
 	    if (dialog != null) {
             dialog.dismiss();
             dialog = null;
@@ -313,7 +314,7 @@ public class TiUIDialog extends TiUIView
             dialog.setCancelable(hideOnClick);
             dialog.setCanceledOnTouchOutside(tapToDismiss);
 			
-			dialog.setOnKeyListener(new Dialog.OnKeyListener() {
+			dialog.setOnKeyListener(new AlertDialog.OnKeyListener() {
 
                 @Override
                 public boolean onKey(DialogInterface dialog, int keyCode,
@@ -374,7 +375,7 @@ public class TiUIDialog extends TiUIView
 	public void hide(KrollDict options)
 	{
 		fireEvent(TiC.EVENT_CLOSE, null, false);
-		Dialog dialog = dialogWrapper.getDialog();
+		AlertDialog dialog = (AlertDialog) dialogWrapper.getDialog();
 		if (dialog != null) {
 			dialog.dismiss();
 			dialogWrapper.getActivity().removeDialog(dialog);

@@ -86,7 +86,7 @@ exports.init = function (logger, config, cli) {
                                     ApplicationProperties: {
                                         ApplicationPath: appBundle,
                                         CFBundleIdentifier: origPlist.CFBundleIdentifier,
-                                        CFBundleShortVersionString: appc.version.format(origPlist.CFBundleVersion, 3, 3),
+                                        CFBundleShortVersionString: origPlist.CFBundleShortVersionString,
                                         IconPaths: [
                                             appBundle + '/' + build.tiapp.icon
                                         ]

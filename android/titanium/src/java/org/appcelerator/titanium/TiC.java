@@ -616,7 +616,7 @@ public class TiC
 	public static final String INTENT_PROPERTY_ON_BOOT = "onBoot";
 	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
 	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
-	public static final String LAYOUT_FILL = "FILL";
+	public static final String LAYOUT_FILL = "fill";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
     public static final String LAYOUT_SIZE = "SIZE";
     public static final String LAYOUT_MATCH = "MATCH";
@@ -1987,7 +1987,12 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
-
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_LINES = "lines";
+	
 	/**
 	 * @module.api
 	 */
@@ -2136,7 +2141,7 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
-
+	
 	/**
 	 * @module.api
 	 */
@@ -2354,21 +2359,46 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONDATASTREAM = "ondatastream";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONERROR = "onerror";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONLOAD = "onload";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_PREPARE_OPTIONS_MENU = "onPrepareOptionsMenu";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONREADYSTATECHANGE = "onreadystatechange";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_RECEIVED = "onReceived";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ONSENDSTREAM = "onsendstream";
 
     /**
      * @module.api
@@ -3196,16 +3226,26 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_TRANSFORM = "transform";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLATION_X = "translationX";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLATION_Y = "translationY";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSLATION_Z = "translationZ";
 
 	/**
 	 * @module.api
 	 */
 	public static final String PROPERTY_TRANSITION = "transition";
-
-    /**
-     * @module.api
-     */
-    public static final String PROPERTY_TRANSLATION_Z = "translationZ";
 
 	/**
 	 * @module.api

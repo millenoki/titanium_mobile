@@ -329,7 +329,7 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 	if ([self _hasListeners:@"change"])
 	{
 		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[self state],@"state",[self stateToString:player.state],@"description",nil];
-		[self fireEvent:@"change" withObject:event checkForListener:NO];
+		[self fireEvent:@"change" withObject:event propagate:NO checkForListener:NO];
 	}
 	if (player.errorCode != AS_NO_ERROR && player.state == AS_STOPPED) {
 		[[TiAudioSession sharedSession] stopAudioSession];
@@ -347,7 +347,15 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,AS_PAUSED);
 			value = player.progress;
 		}
 		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMDOUBLE(value) forKey:@"progress"];
-		[self fireEvent:@"progress" withObject:event];
+		[self fireEvent:@"progress" withObject:event propagate:NO checkForListener:NO];
+	}
+}
+
+-(void)errorReceived:(id)sender
+{
+	if ([self _hasListeners:@"error"]) {
+		NSDictionary *event = [TiUtils dictionaryWithCode:player.errorCode message:[AudioStreamer stringForErrorCode:player.errorCode]];
+		[self fireEvent:@"error" withObject:event propagate:NO checkForListener:NO];
 	}
 }
 

@@ -22,6 +22,7 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.animation.TiAnimator;

@@ -469,6 +469,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		public int getMaxLines() {
 			return maxLines;
 		}
+		
 
 		@Override
 		public void setLineSpacing(float add, float mult) {
@@ -1108,6 +1109,9 @@ public class TiUILabel extends TiUINonViewGroupView
             break;
         case TiC.PROPERTY_MAX_LINES:
             getTextView().setMaxLines(TiConvert.toInt(newValue, 0));
+            break;
+        case TiC.PROPERTY_LINES:
+            getTextView().setLines(TiConvert.toInt(newValue, 0));
             break;
         case TiC.PROPERTY_SELECTED:
             getTextView().setPressed(TiConvert.toBoolean(newValue));
