@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.Message;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -143,7 +144,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		
 		Activity activity = application.getCurrentActivity();
 
-		LinearLayout layout = (LinearLayout) application.getCurrentActivity().getLayoutInflater().inflate(layoutId, null);
+		ViewGroup layout = (ViewGroup) application.getCurrentActivity().getLayoutInflater().inflate(layoutId, null);
 		
 		if (layout == null) {
 		    return;
