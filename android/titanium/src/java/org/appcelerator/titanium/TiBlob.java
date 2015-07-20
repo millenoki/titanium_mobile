@@ -228,10 +228,10 @@ public class TiBlob extends KrollProxy {
             try {
 
                 // Look ahead up to 64 bytes for the longest encoded header
-                is.mark(64);
+//                is.mark(64);
                 byte[] bytes = new byte[64];
-                int length = is.read(bytes);
-                is.reset();
+                int length = is.read(bytes, 0, 64);
+//                is.reset();
                 if (length == -1) {
                     return null;
                 }
