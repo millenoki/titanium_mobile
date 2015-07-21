@@ -888,8 +888,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         }
     }
     
-    KrollObject * ourObject = [self krollObjectForContext:([listener isKindOfClass:[KrollCallback class]] ? [(KrollCallback *)listener context] : [(KrollWrapper *)listener bridge].krollContext)];
-    [ourObject storeListener:listener forEvent:type];
+    [[self getContext].krollContext invokeBlockOnThread:^{
+        KrollObject * ourObject = [self krollObjectForContext:([listener isKindOfClass:[KrollCallback class]] ? [(KrollCallback *)listener context] : [(KrollWrapper *)listener bridge].krollContext)];
+        [ourObject storeListener:listener forEvent:type];
+    }];
     
     //TODO: You know, we can probably nip this in the bud and do this at a lower level,
     //Or make this less onerous.
@@ -985,9 +987,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         ENSURE_TYPE(listener,KrollCallback);
     }
     
-    KrollObject * ourObject = [self krollObjectForContext:[listener context]];
-    [ourObject removeListener:listener forEvent:type];
-    
+    [[self getContext].krollContext invokeBlockOnThread:^{
+        KrollObject * ourObject = [self krollObjectForContext:[listener context]];
+        [ourObject removeListener:listener forEvent:type];
+        
+    }];
     //TODO: You know, we can probably nip this in the bud and do this at a lower level,
     //Or make this less onerous.
     int ourCallbackCount = 0;
@@ -1105,6 +1109,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 //What classes should actually use.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message checkForListener:(BOOL)checkForListener
 {
+    if (bridgeCount == 0) {
+        [[self getContext].krollContext invokeBlockOnThread:^{
+            [self fireEvent:type withObject:obj withSource:self propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
+        }];
+        return;
+    }
     if (checkForListener && ![self _hasListeners:type])
     {
         return;
@@ -1564,14 +1574,18 @@ DEFINE_EXCEPTIONS
 
 #pragma mark - View Templates
 
-- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents
-{
-    
+-(id<TiEvaluator>)getContext {
     id<TiEvaluator> context = self.executionContext;
     if (context == nil) {
         context = self.pageContext;
     }
-    [self unarchiveFromTemplate:viewTemplate_ withEvents:withEvents inContext:context];
+    return context;
+}
+
+- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents
+{
+    
+    [self unarchiveFromTemplate:viewTemplate_ withEvents:withEvents inContext:[self getContext]];
 }
 
 
@@ -1584,13 +1598,13 @@ DEFINE_EXCEPTIONS
     
     [self _initWithProperties:viewTemplate.properties];
     if (withEvents && [viewTemplate.events count] > 0) {
-        [context.krollContext invokeBlockOnThread:^{
-            [viewTemplate.events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, NSArray *list, BOOL *stop) {
-                [list enumerateObjectsUsingBlock:^(KrollWrapper *wrapper, NSUInteger idx, BOOL *stop) {
-                    [self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
-                }];
+        //        [context.krollContext invokeBlockOnThread:^{
+        [viewTemplate.events enumerateKeysAndObjectsUsingBlock:^(NSString *eventName, NSArray *list, BOOL *stop) {
+            [list enumerateObjectsUsingBlock:^(KrollWrapper *wrapper, NSUInteger idx, BOOL *stop) {
+                [self addEventListener:[NSArray arrayWithObjects:eventName, wrapper, nil]];
             }];
         }];
+        //        }];
     }
 }
 
