@@ -184,6 +184,7 @@ static NSDictionary* replaceKeysForRow;
                                                                @"height":@"SIZE"
                                                                } forKey:@"headerWrapper"];
         vp.canBeResizedByFrame = YES;
+        [vp setProxyObserver:self];
         [self setHeaderFooter:vp isHeader:YES];
     }
     return vp;
