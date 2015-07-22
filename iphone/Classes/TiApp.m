@@ -1293,9 +1293,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 {
 #pragma push
 #undef NSLog
-    const char *cString = [message cStringUsingEncoding:NSUTF8StringEncoding];
-    NSString *resultStr = [NSString stringWithCString:cString encoding:NSNonLossyASCIIStringEncoding];
-    NSLog(@"%@",resultStr);
+//    const char *cString = [message cStringUsingEncoding:NSUTF8StringEncoding];
+//    NSString *resultStr = [NSString stringWithCString:cString encoding:NSNonLossyASCIIStringEncoding];
+    NSLog(@"%@",message);
 #pragma pop
 }
 
