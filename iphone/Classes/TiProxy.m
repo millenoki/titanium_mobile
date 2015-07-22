@@ -1120,8 +1120,8 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
             [context invokeBlockOnThread:^{
                 [self fireEvent:type withObject:obj withSource:self propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
             }];
+            return;
         }
-        return;
     }
     if (checkForListener && ![self _hasListeners:type])
     {
