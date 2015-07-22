@@ -360,11 +360,18 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		case TiBlobTypeImage:
 		{
 			writeData = [self data];
+            CGFloat scale =[[self image] scale];
+            if ([destination rangeOfString:@"@"].location == NSNotFound) {
+                NSString* mainPath = [destination stringByDeletingPathExtension];
+                NSString* ext = [destination pathExtension];
+                destination = [NSString stringWithFormat:@"%@@%.0f%@", mainPath, scale, ext];
+            }
 			break;
 		}
 		case TiBlobTypeData:
 		{
 			writeData = data;
+            
 			break;
 		}
 	}
