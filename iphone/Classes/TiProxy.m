@@ -287,7 +287,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         executionContext = context; //To ensure there is an execution context during _configure.
         if([[self class] shouldRegisterOnInit]) // && ![NSThread isMainThread])
         {
-            [pageContext registerProxy:self];
+            [context.krollContext invokeBlockOnThread:^{
+                [pageContext registerProxy:self];
+            }];
             // allow subclasses to configure themselves
         }
         [self _configure];
