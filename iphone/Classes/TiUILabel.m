@@ -378,13 +378,30 @@
 {
 	if (color==nil)
 	{
-		[[[self label] layer]setShadowColor:nil];
+		[[self label] setShadowColor:nil];
 	}
 	else
 	{
 		color = [TiUtils colorValue:color];
 		[[self label] setShadowColor:[color _color]];
 	}
+}
+-(void)setStrokeColor_:(id)color
+{
+    if (color==nil)
+    {
+        [[self label] setStrokeColor:nil];
+    }
+    else
+    {
+        color = [TiUtils colorValue:color];
+        [[self label] setStrokeColor:[color _color]];
+    }
+}
+
+-(void)setStrokeWidth_:(id)arg
+{
+    [[self label] setStrokeWidth:[TiUtils floatValue:arg]];
 }
 
 -(void)setShadowRadius_:(id)arg

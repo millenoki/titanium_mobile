@@ -18,18 +18,19 @@
 {
     BOOL _hasStroke;
     UIColor* _strokeColor;
+    CGFloat _strokeWidth;
 }
 @synthesize hasStroke = _hasStroke;
 @synthesize strokeColor = _strokeColor;
+@synthesize strokeWidth = _strokeWidth;
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
         //initialize common properties
-        self.hasStroke = NO;
-        self.strokeColor = [UIColor blackColor];
-                
-        self.backgroundColor = [UIColor clearColor];
+        _hasStroke = NO;
+        _strokeWidth = 1.0f;
+//        self.backgroundColor = [UIColor clearColor];
         
         [self redrawLabel];
     }
@@ -63,8 +64,14 @@
     [_strokeColor release];
     _strokeColor = [color retain];
     //enable/disable stroke
-    self.hasStroke = (_strokeColor == nil);
+    self.hasStroke = (_strokeColor != nil);
 }
+
+- (void)setStrokeWidth:(CGFloat)width {
+    _strokeWidth = width;
+}
+
+
 
 
 - (void)setText:(NSString *)text {
@@ -86,18 +93,29 @@
 #pragma mark -
 
 
-- (void)drawTextInRect:(CGRect)rect
-{
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    
+- (void)drawTextInRect:(CGRect)rect {
     //draw stroke
-    if (self.hasStroke) {
-        CGContextSetRGBStrokeColor(context, 0.0, 0.0, 0.0, 1.0);
-        CGContextSetTextDrawingMode(context, kCGTextFillStroke);
+    if (_hasStroke) {
+        CGSize shadowOffset = self.shadowOffset;
+        UIColor *textColor = self.textColor;
+        
+        CGContextRef c = UIGraphicsGetCurrentContext();
+        CGContextSetLineWidth(c, _strokeWidth);
+        CGContextSetLineJoin(c, kCGLineJoinRound);
+        
+        CGContextSetTextDrawingMode(c, kCGTextStroke);
+        self.textColor = [UIColor whiteColor];
+        [super drawTextInRect:rect];
+        
+        CGContextSetTextDrawingMode(c, kCGTextFill);
+        self.textColor = textColor;
+        self.shadowOffset = CGSizeMake(0, 0);
+        [super drawTextInRect:rect];
+        self.shadowOffset = shadowOffset;
+    } else {
+        [super drawTextInRect:rect];
     }
     
-    [super drawTextInRect:rect];
 }
-
 
 @end
