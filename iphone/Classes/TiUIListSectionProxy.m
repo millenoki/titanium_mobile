@@ -33,6 +33,7 @@
 		_items = [[NSMutableArray alloc] initWithCapacity:20];
         _hidden = false;
         _hideWhenEmpty = NO;
+        _showHeaderWhenHidden = NO;
     }
     return self;
 }
@@ -169,8 +170,10 @@
 
 - (BOOL)isHidden
 {
-    return _hidden || ([self itemCountInternal] == 0 && [self hideWhenEmpty]);
+    return (_hidden && !_showHeaderWhenHidden) || ([_items count] == 0 && _hideWhenEmpty);
 }
+
+
 
 - (void)show:(id)arg
 {
