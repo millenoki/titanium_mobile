@@ -8,6 +8,7 @@
 
 #import "WrapperViewProxy.h"
 
+
 @implementation WrapperViewProxy
 {
     UITableView* _tableView;
@@ -17,6 +18,7 @@
 {
     self = [super init];
     if (self) {
+        _tableView = [tableView retain];
         self.canBeResizedByFrame = YES;
         LayoutConstraint* viewLayout = [self layoutProperties];
         viewLayout->width = TiDimensionAutoFill;
@@ -37,13 +39,14 @@
     [super dealloc];
 }
 
--(void)relayout
+-(BOOL)relayout
 {
     [UIView setAnimationsEnabled:[self animating]];
     [_tableView beginUpdates];
-    [super relayout];
+    BOOL result = [super relayout];
     [_tableView endUpdates];
     [UIView setAnimationsEnabled:YES];
+    return result;
 }
 
 
