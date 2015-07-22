@@ -113,7 +113,7 @@ static NSDictionary* replaceKeysForRow;
 
 -(WrapperViewProxy*)wrapperProxyWithVerticalLayout:(BOOL)vertical
 {
-    WrapperViewProxy* theProxy = [[WrapperViewProxy alloc] initWithVerticalLayout:vertical];
+    WrapperViewProxy* theProxy = [[WrapperViewProxy alloc] initWithVerticalLayout:vertical tableView:self.tableView];
     [theProxy setParent:(TiParentingProxy*)self.proxy];
     return [theProxy autorelease];
 }
@@ -180,6 +180,7 @@ static NSDictionary* replaceKeysForRow;
         vp = (TiViewProxy*)[[self viewProxy] addObjectToHold:@{
                                                                @"layout":@"vertical",
                                                                @"top":@(0),
+                                                               @"touchPassThrough":@(YES),
                                                                @"width":@"FILL",
                                                                @"height":@"SIZE"
                                                                } forKey:@"headerWrapper"];
@@ -317,7 +318,7 @@ static NSDictionary* replaceKeysForRow;
         NSString* key = [keys objectAtIndex:0];
         if ([key isEqualToString:@"pullView"]) {
             pullThreshhold = -[self tableView].contentInset.top + ([(TiViewProxy*)sender view].frame.origin.y - _pullViewWrapper.bounds.size.height);
-        } else if ([key isEqualToString:@"headerWrapper"]) {
+        } else if ([key isEqualToString:@"headerWrapper"] || [key isEqualToString:@"headerView"]) {
             UIView* headerView = [[self tableView] tableHeaderView];
             [headerView setFrame:[headerView bounds]];
             [[self tableView] setTableHeaderView:headerView];
@@ -2173,20 +2174,23 @@ static NSDictionary* replaceKeysForRow;
 {
     if([[self viewProxy] _hasListeners:eventName checkParent:NO])
     {
-        NSArray* indexPaths = [tableView indexPathsForVisibleRows];
-        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
-
-        NSUInteger visibleItemCount = [indexPaths count];
-        
-        TiUIListSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
-        
         NSMutableDictionary* eventArgs = [self eventObjectForScrollView:tableView];
+        NSArray* indexPaths = [tableView indexPathsForVisibleRows];
+        if ([indexPaths count] > 0) {
+            NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+            
+            NSUInteger visibleItemCount = [indexPaths count];
+            TiUIListSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+            [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        }
+        
+        
         [eventArgs setValuesForKeysWithDictionary:args];
-        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
-        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
-        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
-        [eventArgs setValue:section forKey:@"firstVisibleSection"];
-        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        
         [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
     }
 }
@@ -2272,16 +2276,21 @@ static NSDictionary* replaceKeysForRow;
 }
 
 #pragma mark Overloaded view handling
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+-(UIView*)viewForHitTest
 {
-	UIView * result = [super hitTest:point withEvent:event];
-	if(result == self)
-	{	//There is no valid reason why the TiUITableView will get an
-		//touch event; it should ALWAYS be a child view.
-		return nil;
-	}
-	return result;
+    return _tableView;
 }
+
+//- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+//{
+//	UIView * result = [super hitTest:point withEvent:event];
+//	if(result == self)
+//	{	//There is no valid reason why the TiUITableView will get an
+//		//touch event; it should ALWAYS be a child view.
+//		return nil;
+//	}
+//	return result;
+//}
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {

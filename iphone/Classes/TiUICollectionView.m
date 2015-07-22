@@ -188,6 +188,7 @@ static NSDictionary* replaceKeysForRow;
         vp = (TiViewProxy*)[[self viewProxy] addObjectToHold:@{
                                                                @"layout":@"vertical",
                                                                @"top":@(0),
+                                                               @"touchPassThrough":@(YES),
                                                                @"width":@"FILL",
                                                                @"height":@"SIZE"
                                                                } forKey:@"headerWrapper"];
@@ -1983,20 +1984,23 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     if([[self viewProxy] _hasListeners:eventName checkParent:NO])
     {
-        NSArray* indexPaths = [tableView indexPathsForVisibleItems];
-        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
-        
-        NSUInteger visibleItemCount = [indexPaths count];
-        
-        TiUICollectionSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
-        
         NSMutableDictionary* eventArgs = [self eventObjectForScrollView:tableView];
+        NSArray* indexPaths = [tableView indexPathsForVisibleItems];
+        if ([indexPaths count] > 0) {
+            NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+            
+            NSUInteger visibleItemCount = [indexPaths count];
+            TiUICollectionSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+            [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        }
+        
+        
         [eventArgs setValuesForKeysWithDictionary:args];
-        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
-        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
-        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
-        [eventArgs setValue:section forKey:@"firstVisibleSection"];
-        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+        
         [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
     }
 }
@@ -2085,16 +2089,20 @@ referenceSizeForFooterInSection:(NSInteger)section
 }
 
 #pragma mark Overloaded view handling
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+-(UIView*)viewForHitTest
 {
-	UIView * result = [super hitTest:point withEvent:event];
-	if(result == self)
-	{	//There is no valid reason why the TiUITableView will get an
-		//touch event; it should ALWAYS be a child view.
-		return nil;
-	}
-	return result;
+    return _tableView;
 }
+//- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+//{
+//	UIView * result = [super hitTest:point withEvent:event];
+//	if(result == self)
+//	{	//There is no valid reason why the TiUITableView will get an
+//		//touch event; it should ALWAYS be a child view.
+//		return nil;
+//	}
+//	return result;
+//}
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
