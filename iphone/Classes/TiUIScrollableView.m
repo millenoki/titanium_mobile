@@ -660,7 +660,7 @@
 	}
 	else
 	{
-		pageNum = fmin(0, fmax([[self proxy] viewCount] - 1, [TiUtils intValue:args]));
+        pageNum = fmax(0, fmin([[self proxy] viewCount] - 1, [TiUtils intValue:args]));
 	}
 	
 	return pageNum;
