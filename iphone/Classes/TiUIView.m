@@ -1198,7 +1198,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setBackgroundOpacity_:(id)opacity
 {
     backgroundOpacity = [TiUtils floatValue:opacity def:1.0f];
-
+    if (backgroundOpacity != 1 && self.backgroundColor)
+    {
+        [[self getOrCreateCustomBackgroundLayer] setColor:super.backgroundColor forState:UIControlStateNormal];
+        super.backgroundColor = nil;
+    }
     if (_bgLayer) {
         _bgLayer.opacity = backgroundOpacity;
     }
