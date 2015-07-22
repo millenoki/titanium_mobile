@@ -9,8 +9,11 @@
 #import "WrapperViewProxy.h"
 
 @implementation WrapperViewProxy
+{
+    UITableView* _tableView;
+}
 
-- (id)initWithVerticalLayout:(BOOL)vertical
+- (id)initWithVerticalLayout:(BOOL)vertical tableView:(UITableView*)tableView;
 {
     self = [super init];
     if (self) {
@@ -30,7 +33,19 @@
 }
 - (void)dealloc
 {
+    RELEASE_TO_NIL(_tableView)
     [super dealloc];
 }
+
+-(void)relayout
+{
+    [UIView setAnimationsEnabled:[self animating]];
+    [_tableView beginUpdates];
+    [super relayout];
+    [_tableView endUpdates];
+    [UIView setAnimationsEnabled:YES];
+}
+
+
 
 @end

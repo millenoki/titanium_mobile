@@ -9,6 +9,6 @@
 #import "TiViewProxy.h"
 
 @interface WrapperViewProxy : TiViewProxy
-- (id)initWithVerticalLayout:(BOOL)vertical;
+- (id)initWithVerticalLayout:(BOOL)vertical tableView:(UITableView*)tableView;
 
 @end
