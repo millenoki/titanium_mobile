@@ -21,7 +21,7 @@
         multiplier = 1;
     }
     CGFloat realAngle = -kAngle * position * multiplier;
-    BOOL hidden = (fabs(realAngle) > M_PI + 0.1);
+    BOOL hidden = (fabs(realAngle - M_PI) < 0.1);
     if (hidden) {
         view.layer.hidden = YES;
         view.layer.transform = CATransform3DIdentity;
@@ -29,17 +29,17 @@
         view.layer.hidden = NO;
         CATransform3D transform = CATransform3DIdentity;
         if ([self isTransitionVertical]) {
-//            CGFloat translateY = -position * view.bounds.size.height;
-//            if (adjust) transform = CATransform3DTranslate(transform, 0, translateY,0);
+            //            CGFloat translateY = -position * view.bounds.size.height;
+            //            if (adjust) transform = CATransform3DTranslate(transform, 0, translateY,0);
             transform = CATransform3DRotate(transform, 0, realAngle, 1, 0);
             
         }
         else {
-//            CGFloat translateX = -position * view.bounds.size.width;
-//            if (adjust) transform = CATransform3DTranslate(transform, translateX, 0,0);
+            //            CGFloat translateX = -position * view.bounds.size.width;
+            //            if (adjust) transform = CATransform3DTranslate(transform, translateX, 0,0);
             transform = CATransform3DRotate(transform, realAngle, 0, 1, 0);
         }
-//        NSLog(@"transformView view %f\n%@", radiansToDegrees(realAngle), NSStringFromCATransform3D(transform))
+        //        NSLog(@"transformView view %f\n%@", radiansToDegrees(realAngle), NSStringFromCATransform3D(transform))
         view.layer.transform = transform;
         view.layer.doubleSided = NO;
     }
