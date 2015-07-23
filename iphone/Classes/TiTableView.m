@@ -34,11 +34,9 @@
     }
     return self;
 }
-//- (void)setContentOffset:(CGPoint)contentOffset
-//{
-//    [super setContentOffset:contentOffset];
-//}
-//
+
+
+
 //- (void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
 //{
 ////    if (IOS_7) {
@@ -53,7 +51,7 @@
 //        [super setContentOffset:contentOffset animated:animated];
 ////    }
 //}
-//
+
 
 -(BOOL)shouldHighlightCurrentListItem {
     return _shouldHighlightCurrentItem;
@@ -120,6 +118,16 @@
 -(CGPoint) touchPoint
 {
     return touchPoint;
+}
+
+-(void)processBlock:(void(^)(UITableView * tableView))block animated:(BOOL)animated {
+    [UIView setAnimationsEnabled:animated];
+//    [CATransaction begin];
+    [self beginUpdates];
+    block(self);
+    [self endUpdates];
+//    [CATransaction commit];
+    [UIView setAnimationsEnabled:YES];
 }
 
 @end

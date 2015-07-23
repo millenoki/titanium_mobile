@@ -443,6 +443,8 @@ enum
  */
 -(void)contentsWillChange;
 
+-(BOOL)relayout;
+
 /**
  Tells the view proxy that the attached view contents will change and
  that it should layout immediately

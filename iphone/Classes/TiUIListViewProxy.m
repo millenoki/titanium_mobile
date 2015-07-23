@@ -208,7 +208,7 @@ static NSDictionary* listViewKeysToReplace;
 
 - (void)processUpdateActions
 {
-	UITableView *tableView = self.listView.tableView;
+	TiTableView *tableView = self.listView.tableView;
 	BOOL removeHead = NO;
     CGPoint offset;
 	while (YES) {

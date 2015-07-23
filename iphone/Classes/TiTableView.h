@@ -11,5 +11,6 @@
 @interface TiTableView : TDUITableView
 -(BOOL)shouldHighlightCurrentListItem;
 -(CGPoint) touchPoint;
+-(void)processBlock:(void(^)(UITableView * tableView))block animated:(BOOL)animated;
 @end
 #endif

@@ -7,14 +7,15 @@
 //
 
 #import "WrapperViewProxy.h"
+#import "TiTableView.h"
 
 
 @implementation WrapperViewProxy
 {
-    UITableView* _tableView;
+    TiTableView* _tableView;
 }
 
-- (id)initWithVerticalLayout:(BOOL)vertical tableView:(UITableView*)tableView;
+- (id)initWithVerticalLayout:(BOOL)vertical tableView:(TiTableView*)tableView;
 {
     self = [super init];
     if (self) {
@@ -41,14 +42,16 @@
 
 -(BOOL)relayout
 {
-    [UIView setAnimationsEnabled:[self animating]];
-    [_tableView beginUpdates];
-    BOOL result = [super relayout];
-    [_tableView endUpdates];
-    [UIView setAnimationsEnabled:YES];
+    __block BOOL result;
+    [_tableView processBlock:^void(UITableView * tableView) {
+        result = [super relayout];
+    } animated:NO];
     return result;
 }
 
-
+-(void)willChangePosition
+{
+    //we ignore position change as the tableview handles it
+}
 
 @end
