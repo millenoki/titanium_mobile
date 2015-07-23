@@ -211,7 +211,7 @@ DEFINE_EXCEPTIONS
 -(TiCellBackgroundView*)getOrCreateBackgroundView
 {
     if (_bgView == nil) {
-        _bgView = [[TiCellBackgroundView alloc] initWithFrame:CGRectZero];
+        _bgView = [[TiCellBackgroundView alloc] initWithFrame:self.bounds];
 //        if (!_grouped || [TiUtils isIOS7OrGreater]) {
             self.backgroundView = _bgView;
 //        }
