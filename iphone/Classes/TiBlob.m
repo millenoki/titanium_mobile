@@ -364,7 +364,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
             if ([destination rangeOfString:@"@"].location == NSNotFound) {
                 NSString* mainPath = [destination stringByDeletingPathExtension];
                 NSString* ext = [destination pathExtension];
-                destination = [NSString stringWithFormat:@"%@@%.0f.%@", mainPath, scale, ext];
+                destination = [NSString stringWithFormat:@"%@@%.0fx.%@", mainPath, scale, ext];
             }
 			break;
 		}
