@@ -104,7 +104,7 @@
         CGContextSetLineJoin(c, kCGLineJoinRound);
         
         CGContextSetTextDrawingMode(c, kCGTextStroke);
-        self.textColor = [UIColor whiteColor];
+        self.textColor = _strokeColor;
         [super drawTextInRect:rect];
         
         CGContextSetTextDrawingMode(c, kCGTextFill);
