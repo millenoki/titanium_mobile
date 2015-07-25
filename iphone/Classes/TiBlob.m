@@ -361,7 +361,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		{
 			writeData = [self data];
             CGFloat scale =[[self image] scale];
-            if ([destination rangeOfString:@"@"].location == NSNotFound) {
+            if (scale > 1 && [destination rangeOfString:@"@"].location == NSNotFound) {
                 NSString* mainPath = [destination stringByDeletingPathExtension];
                 NSString* ext = [destination pathExtension];
                 destination = [NSString stringWithFormat:@"%@@%.0fx.%@", mainPath, scale, ext];
