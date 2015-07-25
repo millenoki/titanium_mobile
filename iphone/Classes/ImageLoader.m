@@ -310,11 +310,11 @@
         NSFileManager* fm = [NSFileManager defaultManager];
         NSString* path = localPath;
         if (hires) {
-            if ([TiUtils isRetinaHDDisplay]) { // Save as @3x w/retina-hd
-                path = [NSString stringWithFormat:@"%@@3x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
-            } else if ([TiUtils isRetinaDisplay]) { // Save as @2x w/retina
-                path = [NSString stringWithFormat:@"%@@2x.%@", [localPath stringByDeletingPathExtension], [localPath pathExtension]];
+            CGFloat screenScale = [TiUtils screenScale];
+            if (screenScale > 1) {
+                path = [NSString stringWithFormat:@"%@@%.0fx.%@", [localPath stringByDeletingPathExtension], screenScale, [localPath pathExtension]];
             }
+            
         }
         
         if ([fm isDeletableFileAtPath:path]) {
@@ -757,7 +757,7 @@ DEFINE_EXCEPTIONS
             NSError* error = nil;
             NSDate* currentTimeStamp = [[[NSFileManager defaultManager] attributesOfItemAtPath:result.localPath  error:&error]  objectForKey:NSFileModificationDate];
             
-            if (![currentTimeStamp isEqualToDate:result.lastModified]) {
+            if (currentTimeStamp && ![currentTimeStamp isEqualToDate:result.lastModified]) {
                 //We should remove the cached image as the local file backing cached image has changed.
                 [self purge:url];
                 result = nil;
@@ -841,7 +841,7 @@ DEFINE_EXCEPTIONS
             NSError* error = nil;
             NSDate* currentTimeStamp = [[[NSFileManager defaultManager] attributesOfItemAtPath:result.localPath  error:&error]  objectForKey:NSFileModificationDate];
             
-            if (![currentTimeStamp isEqualToDate:result.lastModified]) {
+            if (currentTimeStamp && ![currentTimeStamp isEqualToDate:result.lastModified]) {
                //We should remove the cached image as the local file backing cached image has changed.
                [self purge:url];
                result = nil;
@@ -850,6 +850,7 @@ DEFINE_EXCEPTIONS
     }
     
     if (result == nil) {
+        CGFloat screenScale = [TiUtils screenScale];
         if ([url isFileURL]) // Load up straight from disk
         {
 			NSString * path = [url path];
@@ -869,10 +870,10 @@ DEFINE_EXCEPTIONS
 				if ([UIImage instancesRespondToSelector:@selector(imageWithCGImage:scale:orientation:)])
 				{
 					// if we specified a 2x, we need to upscale it
-					resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:([TiUtils isRetinaHDDisplay] ? 3.0 : 2.0) orientation:[resultImage imageOrientation]];
+					resultImage = [UIImage imageWithCGImage:[resultImage CGImage] scale:screenScale orientation:[resultImage imageOrientation]];
 				}
 			}
-		    result = [self setImage:resultImage forKey:url hires:NO];
+		    result = [self setImage:resultImage forKey:url hires:(screenScale > 1.0f)];
 		}
         else // Check and see if we cached a file to disk
         {
@@ -882,7 +883,7 @@ DEFINE_EXCEPTIONS
                 NSLog(@"[CACHE DEBUG] Retrieving local image [prefetch]: %@", diskCache);
 #endif
                 UIImage* resultImage = [UIImage imageWithContentsOfFile:diskCache];
-                result = [self setImage:resultImage forKey:url hires:NO];                
+                result = [self setImage:resultImage forKey:url hires:(screenScale > 1.0f)];
             }
         }
 	}
