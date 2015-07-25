@@ -1714,8 +1714,8 @@ static NSDictionary* replaceKeysForRow;
 }
 
 #pragma mark - MGSwipeTableCell Delegate
--(BOOL) swipeTableCell:(MGSwipeTableCell*) cell canSwipe:(MGSwipeDirection) direction {
-    if (!_canSwipeCells) {
+-(BOOL) swipeTableCell:(MGSwipeTableCell*) cell canSwipe:(MGSwipeDirection) direction fromPoint:(CGPoint) point {
+    if (!_canSwipeCells || (direction == MGSwipeDirectionLeftToRight && point.x < 20)) {
         return NO;
     }
     if (IS_OF_CLASS(cell, TiUIListItem)) {
