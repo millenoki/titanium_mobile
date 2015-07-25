@@ -85,12 +85,6 @@ TI_INLINE bool TiDimensionIsUndefined(TiDimension dimension)
 {
 	return dimension.type == TiDimensionTypeUndefined;
 }
-
-TI_INLINE bool TiDimensionIsMatch(TiDimension dimension)
-{
-    return dimension.type == TiDimensionTypeMatch;
-}
-
 TI_INLINE bool TiDimensionEqual(TiDimension dimension1, TiDimension dimension2)
 {
 	if (dimension1.type != dimension2.type)

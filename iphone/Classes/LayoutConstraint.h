@@ -95,7 +95,7 @@ typedef struct LayoutConstraint {
 	TiDimension maximumWidth;
     
     BOOL fullscreen;
-    BOOL squared;
+    CGFloat sizeRatio;
     CGFloat weight;
 	
 } LayoutConstraint;

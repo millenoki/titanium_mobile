@@ -423,24 +423,12 @@ LAYOUTPROPERTIES_SETTER(setHeight,height,TiDimensionFromObject,[self willChangeS
 //    [self willChangePosition];
 //}
 
-//-(void)setSquared:(id)value
-//{
-//    CHECK_LAYOUT_UPDATE(layoutName,value)
-//    layoutProperties.squared = [TiUtils boolValue:value def:NO];
-//    [self replaceValue:value forKey:@"squared" notification:YES];
-//    [self willChangeSize];
-//    [self willChangePosition];
-//}
 
 //-(id)getFullscreen
 //{
 //    return NUMBOOL(layoutProperties.fullscreen);
 //}
 //
-//-(id)getSquared
-//{
-//    return NUMBOOL(layoutProperties.squared);
-//}
 
 -(NSArray *)keySequence
 {
@@ -460,7 +448,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiDimensionFromObject,[self w
 LAYOUTPROPERTIES_SETTER(setMaxWidth,maximumWidth,TiDimensionFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setMaxHeight,maximumHeight,TiDimensionFromObject,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setLayoutFullscreen,fullscreen,TO_BOOL,[self willChange])
-LAYOUTPROPERTIES_SETTER(setSquared,squared,TO_BOOL,[self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setSizeRatio,sizeRatio,TO_FLOAT,[self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setWeight,weight,TO_FLOAT,[self willChangeSize])
 
 LAYOUTFLAGS_SETTER(setHorizontalWrap,horizontalWrap,horizontalWrap,[self willChangeLayout])
@@ -1897,8 +1885,8 @@ SEL GetterForKrollProperty(NSString * key)
 	// Set horizontal layout wrap:true as default 
 	layoutProperties.layoutFlags.horizontalWrap = NO;
     layoutProperties.fullscreen = NO;
-    layoutProperties.squared = NO;
     layoutProperties.weight = 1.0f;
+    layoutProperties.sizeRatio = 0.0f;
 	[self initializeProperty:@"visible" defaultValue:NUMBOOL(YES)];
 
 	if (properties!=nil)
@@ -2539,16 +2527,6 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
         }
     }
     return isAutoFill;
-}
-
--(BOOL) widthLayoutIsMatch
-{
-    return TiDimensionIsMatch(layoutProperties.width);
-}
-
--(BOOL) heightLayoutIsMatch
-{
-    return TiDimensionIsMatch(layoutProperties.height);
 }
 
 -(BOOL)wantsToFillVerticalLayout
@@ -3469,7 +3447,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             followsFillHBehavior = YES;
             return boundingHeight-offsety;
         }
-        else if(TiDimensionIsMatch(constraint)){
+        else if(childConstraint->sizeRatio > 0){
             followsFillHBehavior = NO;
             return 0.0f;
         }
@@ -3521,7 +3499,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             followsFillWBehavior = YES;
             return boundingWidth-offsetx;
         }
-        else if(TiDimensionIsMatch(constraint)){
+        else if(childConstraint->sizeRatio > 0){
             followsFillWBehavior = NO;
             return 0.0f;
         }

@@ -9,7 +9,7 @@ static NSSet* transferableProps = nil;
 +(NSArray*)layoutKeys
 {
     if (layoutKeys == nil) {
-        layoutKeys = [[NSArray alloc] initWithObjects:@"left", @"right", @"top", @"bottom", @"width", @"height", @"fullscreen", @"squared", @"weight", @"minWidth", @"minHeight", @"maxWidth", @"maxHeight", nil];
+        layoutKeys = [[NSArray alloc] initWithObjects:@"left", @"right", @"top", @"bottom", @"width", @"height", @"fullscreen", @"sizeRatio", @"weight", @"minWidth", @"minHeight", @"maxWidth", @"maxHeight", nil];
     }
     return layoutKeys;
 }

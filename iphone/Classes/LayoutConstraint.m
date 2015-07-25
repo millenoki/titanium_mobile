@@ -39,17 +39,12 @@ else (width is invalid)
 CGSize minmaxSize(LayoutConstraint * constraint, CGSize size, CGSize parentSize)
 {
     CGSize result = size;
-    
-    if (TiDimensionIsMatch(constraint->width)) {
-        result.width = result.height;
-    } else if (TiDimensionIsMatch(constraint->height)) {
-        result.height = result.width;
-    }
-    
-    if (constraint->squared == YES) {
-        CGFloat min = MIN(result.width, result.height);
-        result.width = min;
-        result.height = min;
+    if (constraint->sizeRatio > 0) {
+        if (TiDimensionIsUndefined(constraint->width)) {
+            result.width = constraint->sizeRatio * result.height;
+        } else if (TiDimensionIsUndefined(constraint->height)) {
+            result.height = constraint->sizeRatio * result.width;
+        }
     }
     result.width = MAX(TiDimensionCalculateValueDef(constraint->minimumWidth, parentSize.width, result.width),result.width);
     result.height = MAX(TiDimensionCalculateValueDef(constraint->minimumHeight, parentSize.height, result.height),result.height);
@@ -174,7 +169,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         followsFillWBehavior = YES;
         width = boundingWidth - offsetx;
     }
-    else if(TiDimensionIsMatch(dimension)){
+    else if(constraint->sizeRatio > 0){
         followsFillWBehavior = NO;
         width = 0.0f;
     }
@@ -231,7 +226,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
         followsFillHBehavior = YES;
         height = boundingHeight - offsety;
     }
-    else if(TiDimensionIsMatch(dimension)){
+    else if(constraint->sizeRatio > 0){
         followsFillHBehavior = NO;
         height = 0.0f;
     }
