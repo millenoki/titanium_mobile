@@ -778,20 +778,18 @@
 
 -(void)setCurrentPage_:(id)page
 {
-	
-	NSInteger newPage = [TiUtils intValue:page];
-	NSInteger viewsCount = [[self proxy] viewCount];
-
-	if (newPage >=0 && newPage < viewsCount && newPage != currentPage)
-	{
+    
+    NSInteger newPage = [self pageNumFromArg:page];
+    if (newPage != currentPage)
+    {
         [self setContentOffsetForPage:newPage animated:NO];
-		lastPage = newPage;
-		[self updateCurrentPage:newPage];
-		
+        lastPage = newPage;
+        [self updateCurrentPage:newPage];
+        
         [self manageCache:newPage];
         [self didScroll];
         
-	}
+    }
 }
 
 
