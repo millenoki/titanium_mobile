@@ -502,8 +502,30 @@ static NSArray* handledKeys;
 {
     self.detailTextLabel.text = [TiUtils stringValue:newValue];
 }
-- (BOOL) hasSwipeButtons {
-    return [self.proxy valueForKey:@"leftSwipeButtons"] || [self.proxy valueForKey:@"rightSwipeButtons"];
+
+
+-(BOOL)canSwipeLeft {
+    __block BOOL canSwipe = NO;
+    NSArray* buttons = [self.proxy valueForKey:@"leftSwipeButtons"];
+    [buttons enumerateObjectsUsingBlock:^(TiViewProxy* button, NSUInteger idx, BOOL *stop) {
+        if (!button.isHidden) {
+            canSwipe = YES;
+            *stop = YES;
+        }
+    }];
+    return canSwipe;
+}
+
+-(BOOL)canSwipeRight {
+    __block BOOL canSwipe = NO;
+    NSArray* buttons = [self.proxy valueForKey:@"rightSwipeButtons"];
+    [buttons enumerateObjectsUsingBlock:^(TiViewProxy* button, NSUInteger idx, BOOL *stop) {
+        if (!button.isHidden) {
+            canSwipe = YES;
+            *stop = YES;
+        }
+    }];
+    return canSwipe;
 }
 -(void)setFrame:(CGRect)frame
 {

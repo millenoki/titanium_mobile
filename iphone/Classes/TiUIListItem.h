@@ -42,7 +42,8 @@ typedef enum
 -(void)configurationStart;
 -(void)configurationSet;
 - (void) ensureVisibleSelectorWithTableView:(UITableView*)tableView;
-- (BOOL) hasSwipeButtons;
+-(BOOL)canSwipeLeft;
+-(BOOL)canSwipeRight;
 @end
 
 #endif

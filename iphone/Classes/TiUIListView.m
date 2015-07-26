@@ -123,7 +123,7 @@ static NSDictionary* replaceKeysForRow;
         searchViewAnimating = NO;
         _updateInsetWithKeyboard = NO;
         _currentSection = -1;
-        _canSwipeCells = NO;
+        _canSwipeCells = YES;
         caseInsensitiveSearch = YES;
         _appearAnimation = nil;
         _useAppearAnimation = NO;
@@ -228,7 +228,7 @@ static NSDictionary* replaceKeysForRow;
 
 
 -(void)reloadTableViewData {
-    _canSwipeCells = NO;
+//    _canSwipeCells = NO;
     [_tableView reloadData];
 }
 
@@ -1539,7 +1539,7 @@ static NSDictionary* replaceKeysForRow;
     
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
-    _canSwipeCells |= [cell hasSwipeButtons];
+//    _canSwipeCells |= [cell canSwipeLeft] || [cell canSwipeRight]];
     return cell;
 }
 
@@ -1580,7 +1580,7 @@ static NSDictionary* replaceKeysForRow;
 
 #pragma mark - MGSwipeTableCell Delegate
 -(BOOL) swipeTableCell:(MGSwipeTableCell*) cell canSwipe:(MGSwipeDirection) direction fromPoint:(CGPoint) point {
-    if (!_canSwipeCells || (direction == MGSwipeDirectionLeftToRight && point.x < 20)) {
+    if (!_canSwipeCells || (direction == MGSwipeDirectionLeftToRight && point.x < 30)) {
         return NO;
     }
     if (IS_OF_CLASS(cell, TiUIListItem)) {
@@ -1593,7 +1593,7 @@ static NSDictionary* replaceKeysForRow;
             return [theValue boolValue];
         }
         else {
-            return [listItem hasSwipeButtons];
+            return isRight?[listItem canSwipeRight]:[listItem canSwipeLeft];
         }
     }
     return NO;
