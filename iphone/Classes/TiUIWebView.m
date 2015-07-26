@@ -122,27 +122,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     return webview;
 }
 
-//-(UIView*)viewForGestures
-//{
-//    return webview;
-//}
-
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
-//    id delegate1 = gestureRecognizer.delegate;
-//    id delegate2 = otherGestureRecognizer.delegate;
-//    
-//    id superView1 = IS_OF_CLASS(delegate1, UIView)?[delegate1 superview]:delegate1;
-//    id superView2 = IS_OF_CLASS(delegate2, UIView)?[delegate2 superview]:delegate2;
-//    return delegate1 == delegate2 ||
-//    (superView1 == [webview scrollView]  && delegate1 == self)  ||
-//    (superView2 == [webview scrollView]  && delegate1 == self);
-    //    return gestureRecognizer.delegate &&
-    //    otherGestureRecognizer.delegate &&
-    //    gestureRecognizer.delegate == otherGestureRecognizer.delegate;
-    return YES;
-}
-
 -(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
 {
 	/*	webview is a little _special_ and refuses to share events.
