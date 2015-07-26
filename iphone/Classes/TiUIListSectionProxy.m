@@ -278,6 +278,10 @@
                 [indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
             }
             [tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+            if (insertIndex == 0) {
+                [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation: animation];
+            }
+
             [indexPaths release];
         }];
     }
@@ -312,8 +316,9 @@
             }
         }];
     } else {
-        [theDispatcher dispatchUpdateAction:^(UITableView* tableView) {
-            if ([_items count] < insertIndex) {
+        [theDispatcher dispatchUpdateAction :^(UITableView* tableView) {
+            NSInteger currentCount = [_items count];
+            if (currentCount < insertIndex) {
                 DebugLog(@"[WARN] ListView: Insert item index is out of range");
                 return;
             }
@@ -324,6 +329,10 @@
                 [indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
             }
             [tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
+            if (currentCount == 0) {
+                [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation: animation];
+                
+            }
             [indexPaths release];
         }];
     }

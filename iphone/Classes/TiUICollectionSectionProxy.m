@@ -282,6 +282,9 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
 		[tableView insertItemsAtIndexPaths:indexPaths];
+        if (insertIndex == 0) {
+            [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex]];
+        }
 		[indexPaths release];
 	} animated:(animation != UITableViewRowAnimationNone)];
 }
@@ -299,7 +302,8 @@
 	UITableViewRowAnimation animation = [TiUICollectionView animationStyleForProperties:properties];
 
     [self.dispatcher dispatchUpdateAction:^(UICollectionView *tableView) {
-        if ([_items count] < insertIndex) {
+        NSInteger currentCount = [_items count];
+        if (currentCount < insertIndex) {
             DebugLog(@"[WARN] ListView: Insert item index is out of range");
             return;
         }
@@ -310,6 +314,9 @@
 			[indexPaths addObject:[NSIndexPath indexPathForRow:insertIndex+i inSection:_sectionIndex]];
 		}
 		[tableView insertItemsAtIndexPaths:indexPaths];
+        if (insertIndex == 0) {
+            [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex]];
+        }
 		[indexPaths release];
 	} animated:(animation != UITableViewRowAnimationNone)];
 }
