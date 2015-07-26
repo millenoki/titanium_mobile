@@ -289,6 +289,7 @@
 -(void)setHintColor_:(id)value
 {
     [self textWidgetView].hintColor = [[TiUtils colorValue:value] color];
+    [[self textWidgetView] setNeedsDisplay];
 }
 
 #if defined (USE_TI_UIATTRIBUTEDSTRING)
