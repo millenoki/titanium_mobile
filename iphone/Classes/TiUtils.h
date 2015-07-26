@@ -728,5 +728,5 @@ typedef enum
 +(NSString*)base64encode:(NSData*)toEncode;
 +(NSData*)base64decode:(NSString*)encoded;
 +(NSString *)colorHexString:(UIColor *)color;
-+(void)applyMathDict:(NSDictionary*)mathDict forEvent:(NSDictionary*)event fromProxy:(TiProxy*)proxy;
++(BOOL)applyMathDict:(NSDictionary*)mathDict forEvent:(NSDictionary*)event fromProxy:(TiProxy*)proxy;
 @end

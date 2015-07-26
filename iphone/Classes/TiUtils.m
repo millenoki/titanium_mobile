@@ -2794,7 +2794,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return [result autorelease];
 }
 
-+(void)applyMathDict:(NSDictionary*)mathDict forEvent:(NSDictionary*)event fromProxy:(TiProxy*)proxy
++(BOOL)applyMathDict:(NSDictionary*)mathDict forEvent:(NSDictionary*)event fromProxy:(TiProxy*)proxy
 {
     NSMutableDictionary* variables = nil;
     NSMutableDictionary* expressions = nil;
@@ -2814,7 +2814,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     if ([mathDict objectForKey:@"condition"]) {
         NSNumber* result = [eval evaluateString:[mathDict objectForKey:@"condition"] withSubstitutions:variables];
         if ([result boolValue] == NO) {
-            return;
+            return NO;
         }
     }
     
@@ -2876,6 +2876,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
             [target applyProperties:realProps];
         }
     }
+    return YES;
 }
 
 
