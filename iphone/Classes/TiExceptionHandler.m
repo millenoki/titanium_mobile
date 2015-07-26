@@ -103,18 +103,32 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (id)initWithDictionary:(NSDictionary *)dictionary
 {
     NSString *message = [[dictionary objectForKey:@"message"] description];
-    if (message == nil) {
-        message = [[dictionary objectForKey:@"nativeReason"] description];
+    if ([dictionary objectForKey:@"nativeReason"]) {
+        if (message) {
+            message = [message stringByAppendingFormat:@" : %@", [[dictionary objectForKey:@"nativeReason"] description]];
+            
+        } else {
+            message = [[dictionary objectForKey:@"nativeReason"] description];
+        }
     }
     NSString *sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
     NSInteger lineNo = [[dictionary objectForKey:@"line"] integerValue];
     
     self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
     if (self) {
-        _backtrace = [[[dictionary objectForKey:@"backtrace"] description] copy];
-        if (_backtrace == nil) {
-            _backtrace = [[[dictionary objectForKey:@"stack"] description] copy];
+        NSString* backtrace = [[dictionary objectForKey:@"backtrace"] description];
+        if (backtrace == nil) {
+            backtrace = [[dictionary objectForKey:@"stack"] description];
         }
+        if ([dictionary objectForKey:@"nativeLocation"]) {
+            if (backtrace) {
+                backtrace = [NSString stringWithFormat:@"%@\n%@", [[dictionary objectForKey:@"nativeLocation"] description], backtrace];
+                
+            } else {
+                backtrace = [[dictionary objectForKey:@"nativeLocation"] description];
+            }
+        }
+        _backtrace = [backtrace retain];
         _dictionaryValue = [dictionary copy];
     }
     return self;
