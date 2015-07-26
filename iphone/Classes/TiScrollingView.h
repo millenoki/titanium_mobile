@@ -1,8 +1,6 @@
 #import "TiUIView.h"
 
-#import "INSPullToRefreshBackgroundView.h"
-
-@interface TiScrollingView : TiUIView<INSPullToRefreshBackgroundViewDelegate>
+@interface TiScrollingView : TiUIView
 {
     BOOL scrollingEnabled;
 }
@@ -23,5 +21,7 @@
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView;
 -(void)setContentOffset_:(id)value withObject:(id)property;
 -(void)setZoomScale_:(id)value withObject:(id)property;
+-(void)proxyDidRelayout:(id)sender;
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
 
 @end

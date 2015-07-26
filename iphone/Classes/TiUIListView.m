@@ -221,6 +221,12 @@ static NSDictionary* replaceKeysForRow;
     return _tableView;
 }
 
+
+-(UIScrollView*)scrollview {
+    return [self tableView];
+}
+
+
 -(void)reloadTableViewData {
     _canSwipeCells = NO;
     [_tableView reloadData];
@@ -317,6 +323,7 @@ static NSDictionary* replaceKeysForRow;
             [((TiUIListViewProxy*)[self proxy]) contentsWillChange];
         }
     }
+    [super proxyDidRelayout:sender];
 }
 
 -(void)setContentOffset_:(id)value withObject:(id)args
@@ -378,14 +385,14 @@ static NSDictionary* replaceKeysForRow;
 
 -(TiViewProxy*)sectionViewProxy:(NSInteger)section forLocation:(NSString*)location
 {
-    TiUIListSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
-    return [proxy sectionViewForLocation:location inListView:self];
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
+    return [sectionProxy sectionViewForLocation:location inListView:self];
 }
 
 -(TiViewProxy*)currentSectionViewProxy:(NSInteger)section forLocation:(NSString*)location
 {
-    TiUIListSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
-    return [proxy currentViewForLocation:location inListView:self];
+    TiUIListSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
+    return [sectionProxy currentViewForLocation:location inListView:self];
 }
 
 -(UIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUIListSectionProxy**)sectionResult
@@ -1674,10 +1681,10 @@ static NSDictionary* replaceKeysForRow;
             if (!appearAnimation) {
                 appearAnimation = _appearAnimation;
             }
-            TiViewProxy* proxy = item.proxy;
-            TiAnimation * newAnimation = [TiAnimation animationFromArg:appearAnimation context:[proxy executionContext] create:NO];
+            TiViewProxy* itemProxy = item.proxy;
+            TiAnimation * newAnimation = [TiAnimation animationFromArg:appearAnimation context:[itemProxy executionContext] create:NO];
 //            newAnimation.dontApplyOnFinish = YES;
-            [proxy handleAnimation:newAnimation];
+            [itemProxy handleAnimation:newAnimation];
         }
     }
     

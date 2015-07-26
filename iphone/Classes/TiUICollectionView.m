@@ -65,11 +65,6 @@
     NSMutableArray * filteredTitles;
     NSMutableArray * filteredIndices;
 
-    UIView *_pullViewWrapper;
-    CGFloat pullThreshhold;
-    BOOL _pullViewVisible;
-    BOOL _hasPullView;
-
     BOOL pullActive;
 //    CGPoint tapPoint;
     BOOL editing;
@@ -129,7 +124,6 @@ static NSDictionary* replaceKeysForRow;
         _updateInsetWithKeyboard = NO;
         _currentSection = -1;
 //        _canSwipeCells = NO;
-        _hasPullView = NO;
         _stickyHeaders = NO;
         _appearAnimation = nil;
         _useAppearAnimation = NO;
@@ -147,7 +141,6 @@ static NSDictionary* replaceKeysForRow;
     RELEASE_TO_NIL(_defaultItemTemplate)
     RELEASE_TO_NIL(_searchString)
     RELEASE_TO_NIL(_searchResults)
-    RELEASE_TO_NIL(_pullViewWrapper)
     RELEASE_TO_NIL(tableController)
     RELEASE_TO_NIL(sectionTitles)
     RELEASE_TO_NIL(sectionIndices)
@@ -237,6 +230,10 @@ static NSDictionary* replaceKeysForRow;
     }
     return _tableView;
 }
+-(UIScrollView*)scrollview {
+    return [self tableView];
+}
+
 
 -(void)reloadTableViewData {
 //    _canSwipeCells = NO;
@@ -277,9 +274,7 @@ static NSDictionary* replaceKeysForRow;
     if (vp) {
         [vp parentSizeWillChange];
     }
-    if (_pullViewWrapper != nil) {
-        _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
-    }
+    [super frameSizeChanged:frame bounds:bounds];
 }
 
 - (id)accessibilityElement
@@ -317,26 +312,25 @@ static NSDictionary* replaceKeysForRow;
     }];
 }
 
--(void)proxyDidRelayout:(id)sender
-{
-    NSArray* keys = [[self viewProxy] allKeysForHoldedProxy:sender];
-    if ([keys count] > 0) {
-        NSString* key = [keys objectAtIndex:0];
-        if ([key isEqualToString:@"pullView"]) {
-            pullThreshhold = -[self tableView].contentInset.top + ([(TiViewProxy*)sender view].frame.origin.y - _pullViewWrapper.bounds.size.height);
-//        } else if ([key isEqualToString:@"headerWrapper"]) {
-//            UIView* headerView = [[self tableView] tableHeaderView];
-//            [headerView setFrame:[headerView bounds]];
-//            [[self tableView] setTableHeaderView:headerView];
-//            [((TiUICollectionViewProxy*)[self proxy]) contentsWillChange];
-//        } else if ([key isEqualToString:@"footerView"]) {
-//            UIView* footerView = [[self tableView] tableFooterView];
-//            [footerView setFrame:[footerView bounds]];
-//            [[self tableView] setTableFooterView:footerView];
-//            [((TiUICollectionViewProxy*)[self proxy]) contentsWillChange];
-        }
-    }
-}
+//-(void)proxyDidRelayout:(id)sender
+//{
+//    NSArray* keys = [[self viewProxy] allKeysForHoldedProxy:sender];
+//    if ([keys count] > 0) {
+//        NSString* key = [keys objectAtIndex:0];
+//
+////        if ([key isEqualToString:@"headerWrapper"]) {
+////            UIView* headerView = [[self tableView] tableHeaderView];
+////            [headerView setFrame:[headerView bounds]];
+////            [[self tableView] setTableHeaderView:headerView];
+////            [((TiUICollectionViewProxy*)[self proxy]) contentsWillChange];
+////        } else if ([key isEqualToString:@"footerView"]) {
+////            UIView* footerView = [[self tableView] tableFooterView];
+////            [footerView setFrame:[footerView bounds]];
+////            [[self tableView] setTableFooterView:footerView];
+////            [((TiUICollectionViewProxy*)[self proxy]) contentsWillChange];
+//        }
+//    }
+//}
 
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
@@ -400,14 +394,14 @@ static NSDictionary* replaceKeysForRow;
 
 -(TiViewProxy*)sectionViewProxy:(NSInteger)section forLocation:(NSString*)location
 {
-    TiUICollectionSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
-    return [proxy sectionViewForLocation:location inCollectionView:self];
+    TiUICollectionSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
+    return [sectionProxy sectionViewForLocation:location inCollectionView:self];
 }
 
 -(TiViewProxy*)currentSectionViewProxy:(NSInteger)section forLocation:(NSString*)location
 {
-    TiUICollectionSectionProxy *proxy = [self.listViewProxy sectionForIndex:section];
-    return [proxy currentViewForLocation:location inCollectionView:self];
+    TiUICollectionSectionProxy *sectionProxy = [self.listViewProxy sectionForIndex:section];
+    return [sectionProxy currentViewForLocation:location inCollectionView:self];
 }
 
 -(UIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUICollectionSectionProxy**)sectionResult
@@ -565,39 +559,6 @@ static NSDictionary* replaceKeysForRow;
     }
 }
 
--(void)closePullView:(NSNumber*)anim
-{
-    if (!_hasPullView || !_pullViewVisible) return;
-    _pullViewVisible = NO;
-    BOOL animated = YES;
-	if (anim != nil)
-		animated = [anim boolValue];
-    
-    if (IOS_7) {
-        //we have to delay it on ios7 :s
-        double delayInSeconds = 0.01;
-        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            [_tableView setContentOffset:CGPointMake(0,-_tableView.contentInset.top) animated:animated];
-        });
-    }
-    else {
-        [_tableView setContentOffset:CGPointMake(0,-_tableView.contentInset.top) animated:animated];
-    }
-    
-}
-
--(void)showPullView:(NSNumber*)anim
-{
-    if (!_hasPullView || _pullViewVisible) {
-        return;
-    }
-    _pullViewVisible = YES;
-    BOOL animated = YES;
-	if (anim != nil)
-		animated = [anim boolValue];
-	[_tableView setContentOffset:CGPointMake(0,pullThreshhold) animated:animated];
-}
 
 -(BOOL)shouldHighlightCurrentCollectionItem {
     return [_tableView shouldHighlightCurrentCollectionItem];
@@ -956,50 +917,7 @@ static NSDictionary* replaceKeysForRow;
 #endif
 }
 
--(void)setPullView_:(id)args
-{
-    if ([self tableView].bounds.size.width==0)
-    {
-        [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
-        return;
-    }
-    id vp = [[self viewProxy] addObjectToHold:args forKey:@"pullView"];
-    if (IS_OF_CLASS(vp, TiViewProxy)) {
-        TiViewProxy* viewproxy = (TiViewProxy*)vp;
-        _hasPullView = YES;
-        if (_pullViewWrapper == nil) {
-            _pullViewWrapper = [[UIView alloc] init];
-            _pullViewWrapper.backgroundColor = [UIColor clearColor];
-            [_tableView addSubview:_pullViewWrapper];
-        }
-        CGSize refSize = _tableView.bounds.size;
-        [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
-        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
-        //If height is not dip, explicitly set it to SIZE
-        if (viewLayout->height.type != TiDimensionTypeDip) {
-            viewLayout->height = TiDimensionAutoSize;
-        }
-        //If bottom is not dip set it to 0
-        if (viewLayout->bottom.type != TiDimensionTypeDip) {
-            viewLayout->bottom = TiDimensionZero;
-        }
-        //Remove other vertical positioning constraints
-        viewLayout->top = TiDimensionUndefined;
-        viewLayout->centerY = TiDimensionUndefined;
-        
-        [viewproxy setCanBeResizedByFrame:YES];
-        [viewproxy setProxyObserver:self];
-        [_pullViewWrapper addSubview:[viewproxy getAndPrepareViewForOpening:_pullViewWrapper.bounds]];
-        if (_pullViewVisible) {
-            [self showPullView:@(NO)];
-        }
-    } else {
-        _hasPullView = NO;
-        [_pullViewWrapper removeFromSuperview];
-        RELEASE_TO_NIL(_pullViewWrapper);
-    }
-    
-}
+
 -(void)setKeepSectionsInSearch_:(id)args
 {
     TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
@@ -1559,10 +1477,10 @@ static NSDictionary* replaceKeysForRow;
             if (!appearAnimation) {
                 appearAnimation = _appearAnimation;
             }
-            TiViewProxy* proxy = item.proxy;
-            TiAnimation * newAnimation = [TiAnimation animationFromArg:appearAnimation context:[proxy executionContext] create:NO];
+            TiViewProxy* itemProxy = item.proxy;
+            TiAnimation * newAnimation = [TiAnimation animationFromArg:appearAnimation context:[itemProxy executionContext] create:NO];
             //            newAnimation.dontApplyOnFinish = YES;
-            [proxy handleAnimation:newAnimation];
+            [itemProxy handleAnimation:newAnimation];
         }
     }
     //Tell the proxy about the cell to be displayed
@@ -1905,19 +1823,6 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 #pragma mark - ScrollView Delegate
 
-- (NSMutableDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView
-{
-	return [NSMutableDictionary dictionaryWithObjectsAndKeys:
-			[TiUtils pointToDictionary:scrollView.contentOffset],@"contentOffset",
-			[TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
-			[TiUtils sizeToDictionary:_tableView.bounds.size], @"size",
-			nil];
-}
-
-- (void)fireScrollEvent:(UIScrollView *)scrollView {
-    [self fireScrollEvent:@"scroll" forTableView:scrollView withAdditionalArgs:nil];
-}
-
 -(void)detectSectionChange {
     NSArray* visibles = [_tableView indexPathsForVisibleItems];
     NSIndexPath* indexPath = [visibles firstObject];
@@ -1938,113 +1843,71 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
 }
 
-// For now, this is fired on `scrollstart` and `scrollend`
-- (void)fireScrollEvent:(NSString*)eventName forTableView:(UICollectionView*)tableView withAdditionalArgs:(NSDictionary*)args
+- (NSMutableDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView
 {
-    if([[self viewProxy] _hasListeners:eventName checkParent:NO])
-    {
-        NSMutableDictionary* eventArgs = [self eventObjectForScrollView:tableView];
-        NSArray* indexPaths = [tableView indexPathsForVisibleItems];
-        if ([indexPaths count] > 0) {
-            NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
-            
-            NSUInteger visibleItemCount = [indexPaths count];
-            TiUICollectionSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
-            [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
-            [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
-            [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
-            [eventArgs setValue:section forKey:@"firstVisibleSection"];
-            [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
-        }
+    NSMutableDictionary* eventArgs = [super eventObjectForScrollView:scrollView];
+    NSArray* indexPaths = [_tableView indexPathsForVisibleItems];
+    if ([indexPaths count] > 0) {
+        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
         
-        
-        [eventArgs setValuesForKeysWithDictionary:args];
-        
-        [[self proxy] fireEvent:eventName withObject:eventArgs propagate:NO];
+        NSUInteger visibleItemCount = [indexPaths count];
+        TiUICollectionSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
+        [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+        [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+        [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+        [eventArgs setValue:section forKey:@"firstVisibleSection"];
+        [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
     }
+    return eventArgs;
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    if (scrollView.isDragging || scrollView.isDecelerating)
-	{
-        [self fireScrollEvent:scrollView];
-    }
-    if ( _hasPullView && [scrollView isTracking] ) {
-        BOOL pullChanged = NO;
-        if ( (scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO) ) {
-            pullActive = YES;
-            pullChanged = YES;
-        } else if ( (scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES) ) {
-            pullActive = NO;
-            pullChanged = YES;
-        }
-        if (pullChanged && [(TiViewProxy*)self.proxy _hasListeners:@"pullchanged" checkParent:NO]) {
-            [self fireScrollEvent:@"pullchanged" forTableView:_tableView withAdditionalArgs:@{@"active": @(pullActive)}];
-        }
-        if (scrollView.contentOffset.y <= 0 && [(TiViewProxy*)self.proxy _hasListeners:@"pull" checkParent:NO]) {
-            [self fireScrollEvent:@"pull" forTableView:_tableView withAdditionalArgs:@{@"active": @(pullActive)}];
-
-        }
-    }
+    [super scrollViewDidScroll:scrollView];
+    
     [self detectSectionChange];
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    if (_scrollHidesKeyboard) {
-        [scrollView endEditing:YES];
-    }
-	// suspend image loader while we're scrolling to improve performance
-	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
-    [self fireScrollEvent:@"dragstart" forTableView:_tableView withAdditionalArgs:nil];
+    // suspend image loader while we're scrolling to improve performance
+    if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
+    [super scrollViewWillBeginDragging:scrollView];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-    if (decelerate==NO)
-	{
+    if(!decelerate) {
         [self detectSectionChange];
         if (_scrollSuspendImageLoading) {
             // resume image loader when we're done scrolling
             [[ImageLoader sharedLoader] resume];
         }
-		
-	}
-	if ([(TiViewProxy*)self.proxy _hasListeners:@"dragend" checkParent:NO])
-	{
-        [self fireScrollEvent:@"dragend" forTableView:_tableView withAdditionalArgs:@{@"decelerate": @(decelerate)}];
-	}
-    
-    [self detectSectionChange];
-    
-    if ( _hasPullView && pullActive ) {
-        pullActive = NO;
-        [self fireScrollEvent:@"pullend" forTableView:_tableView withAdditionalArgs:nil];
     }
+    [self detectSectionChange];
+    [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-	// resume image loader when we're done scrolling
-	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
-	if ([(TiViewProxy*)self.proxy _hasListeners:@"scrollend" checkParent:NO])
-	{
-        [self fireScrollEvent:@"scrollend" forTableView:_tableView withAdditionalArgs:nil];
-	}
+    // resume image loader when we're done scrolling
+    if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
     [self detectSectionChange];
+    [super scrollViewDidEndDecelerating:scrollView];
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
-	// suspend image loader while we're scrolling to improve performance
-	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
-	return YES;
+    // suspend image loader while we're scrolling to improve performance
+    if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
+    return [super scrollViewShouldScrollToTop:scrollView];
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    [self fireScrollEvent:scrollView];
+    if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
+    return [super scrollViewDidScrollToTop:scrollView];
+    //Events none (maybe scroll later)
 }
 
 #pragma mark Overloaded view handling

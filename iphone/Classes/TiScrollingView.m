@@ -2,18 +2,18 @@
 #import "TiApp.h"
 #import "TiViewProxy.h"
 
-#import "UIScrollView+INSPullToRefresh.h"
-
 @implementation TiScrollingView
 {
-    BOOL _hasPullView;
-    BOOL _pullViewVisible;
     BOOL canFireScrollStart;
     BOOL canFireScrollEnd;
     BOOL isScrollingToTop;
-    BOOL pullActive;
-    CGFloat pullThreshhold;
     BOOL _scrollHidesKeyboard;
+    
+    UIView *_pullViewWrapper;
+    CGFloat pullThreshhold;
+    BOOL _pullViewVisible;
+    BOOL _hasPullView;
+    BOOL pullActive;
 }
 
 - (id)init
@@ -40,26 +40,11 @@
 
 - (void)dealloc
 {
-    UIScrollView* scrollView = [self scrollview];
-    [scrollView ins_removeInfinityScroll];
-    [scrollView ins_removePullToRefresh];
+    RELEASE_TO_NIL(_pullViewWrapper)
+//    UIScrollView* scrollView = [self scrollview];
+//    [scrollView ins_removeInfinityScroll];
+//    [scrollView ins_removePullToRefresh];
     [super dealloc];
-}
-
-
--(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
-{
-    [super frameSizeChanged:frame bounds:bounds];
-    if (_hasPullView) {
-        TiViewProxy* vp = [[self viewProxy] holdedProxyForKey:@"pullView"];
-        if (vp) {
-            [vp setSandboxBounds:bounds];
-            [vp refreshView];
-            UIScrollView* scrollView = [self scrollview];
-            scrollView.ins_pullToRefreshBackgroundView.frame = [[vp view] bounds];
-        }
-    }
-    [self updateKeyboardInset];
 }
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
@@ -133,60 +118,69 @@
 //    return NO;
 //}
 
-- (void)pullToRefreshBackgroundView:(INSPullToRefreshBackgroundView *)pullToRefreshBackgroundView didChangeState:(INSPullToRefreshBackgroundViewState)state
-{
-    if (_pullViewVisible) {
-        return;
-    }
-    if (state == INSPullToRefreshBackgroundViewStateLoading) {
-        [[self viewProxy] fireEvent:@"pullend" propagate:NO];
-
-    } else {
-        if ([[self viewProxy] _hasListeners:@"pullchanged" checkParent:NO]) {
-            [self.proxy fireEvent:@"pullchanged" withObject:[NSDictionary dictionaryWithObjectsAndKeys:@(state != INSPullToRefreshBackgroundViewStateTriggered),@"active",nil] propagate:NO checkForListener:NO];
-        }
-    }
-}
-
-- (void)pullToRefreshBackgroundView:(INSPullToRefreshBackgroundView *)pullToRefreshBackgroundView didChangeTriggerStateProgress:(CGFloat)progress
-{
-    if ([[self viewProxy] _hasListeners:@"pull" checkParent:NO]) {
-        [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:@(YES),@"active",@(progress),@"progress",nil] propagate:NO checkForListener:NO];
-    }
-}
-
-
 -(void)setPullView_:(id)args
 {
     UIScrollView* scrollView = [self scrollview];
-    
-    if (!scrollView) {
+    if (scrollView.bounds.size.width==0)
+    {
+        [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
         return;
     }
     id vp = [[self viewProxy] addObjectToHold:args forKey:@"pullView"];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         TiViewProxy* viewproxy = (TiViewProxy*)vp;
         _hasPullView = YES;
-        [viewproxy setProxyObserver:self];
+        if (_pullViewWrapper == nil) {
+            _pullViewWrapper = [[UIView alloc] init];
+            _pullViewWrapper.backgroundColor = [UIColor clearColor];
+            [scrollView addSubview:_pullViewWrapper];
+        }
+        CGSize refSize = scrollView.bounds.size;
+        [_pullViewWrapper setFrame:CGRectMake(0.0, 0.0 - refSize.height, refSize.width, refSize.height)];
         LayoutConstraint *viewLayout = [viewproxy layoutProperties];
+        //If height is not dip, explicitly set it to SIZE
         if (viewLayout->height.type != TiDimensionTypeDip) {
             viewLayout->height = TiDimensionAutoSize;
         }
-
-        [scrollView ins_addPullToRefreshWithHeight:1.0 handler:^(UIScrollView *scrollView) {
-//            [scrollView ins_endPullToRefresh];
-        }];
-        scrollView.ins_pullToRefreshBackgroundView.delegate = self;
-        scrollView.ins_pullToRefreshBackgroundView.autoresizingMask = UIViewAutoresizingNone;
-        [scrollView.ins_pullToRefreshBackgroundView addSubview:[viewproxy getAndPrepareViewForOpening:scrollView.bounds]];
+        //If bottom is not dip set it to 0
+        if (viewLayout->bottom.type != TiDimensionTypeDip) {
+            viewLayout->bottom = TiDimensionZero;
+        }
+        //Remove other vertical positioning constraints
+        viewLayout->top = TiDimensionUndefined;
+        viewLayout->centerY = TiDimensionUndefined;
+        
+        [viewproxy setCanBeResizedByFrame:YES];
+        [viewproxy setProxyObserver:self];
+        [_pullViewWrapper addSubview:[viewproxy getAndPrepareViewForOpening:_pullViewWrapper.bounds]];
+        if (_pullViewVisible) {
+            [self showPullView:@(NO)];
+        }
     } else {
         _hasPullView = NO;
-        [scrollView ins_removeInfinityScroll];
-        [scrollView ins_removePullToRefresh];
+        [_pullViewWrapper removeFromSuperview];
+        RELEASE_TO_NIL(_pullViewWrapper);
     }
     
 }
 
+-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+{
+    [super frameSizeChanged:frame bounds:bounds];
+    if (_pullViewWrapper != nil && _hasPullView) {
+        _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
+    }
+//    if (_hasPullView) {
+//        TiViewProxy* vp = [[self viewProxy] holdedProxyForKey:@"pullView"];
+//        if (vp) {
+//            [vp setSandboxBounds:bounds];
+//            [vp refreshView];
+//            UIScrollView* scrollView = [self scrollview];
+//            scrollView.ins_pullToRefreshBackgroundView.frame = [[vp view] bounds];
+//        }
+//    }
+    [self updateKeyboardInset];
+}
 
 -(void)proxyDidRelayout:(id)sender
 {
@@ -195,32 +189,31 @@
         NSString* key = [keys objectAtIndex:0];
         if ([key isEqualToString:@"pullView"]) {
             CGRect frame = [(TiViewProxy*)sender view].frame;
-            pullThreshhold = -[self scrollview].contentInset.top + ([(TiViewProxy*)sender view].frame.origin.y - frame.size.height);
+            pullThreshhold = -[self scrollview].contentInset.top + ([(TiViewProxy*)sender view].frame.origin.y - _pullViewWrapper.bounds.size.height);
         }
     }
 }
 
-
 -(void)closePullView:(NSNumber*)anim
 {
     if (!_hasPullView || !_pullViewVisible) return;
-    UIScrollView* scrollView = [self scrollview];
-    
-    if (!scrollView) {
-        return;
-    }
     _pullViewVisible = NO;
     BOOL animated = YES;
-    if (anim != nil) {
+    if (anim != nil)
         animated = [anim boolValue];
+    
+    UIScrollView* scrollView = [self scrollview];
+    if (IOS_7) {
+        //we have to delay it on ios7 :s
+        double delayInSeconds = 0.01;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [scrollView setContentOffset:CGPointMake(0,-scrollView.contentInset.top) animated:animated];
+        });
     }
-    [CATransaction begin];
-    if (!animated) {
-        [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
+    else {
+        [scrollView setContentOffset:CGPointMake(0,-scrollView.contentInset.top) animated:animated];
     }
-    [scrollView ins_beginPullToRefresh];
-    [CATransaction commit];
-
     
 }
 
@@ -229,22 +222,12 @@
     if (!_hasPullView || _pullViewVisible) {
         return;
     }
-    UIScrollView* scrollView = [self scrollview];
-    
-    if (!scrollView) {
-        return;
-    }
     _pullViewVisible = YES;
     BOOL animated = YES;
-    if (anim != nil) {
+    UIScrollView* scrollView = [self scrollview];
+    if (anim != nil)
         animated = [anim boolValue];
-    }
-    [CATransaction begin];
-    if (!animated) {
-        [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-    }
-    [scrollView ins_beginPullToRefresh];
-    [CATransaction commit];
+    [scrollView setContentOffset:CGPointMake(0,pullThreshhold) animated:animated];
 }
 
 
