@@ -404,6 +404,7 @@
 -(void)setHintColor_:(id)value
 {
 	[(TiUITextViewImpl*)[self textWidgetView] setPlaceholderColor:[[TiUtils colorValue:value] color]];
+    [[self textWidgetView] setNeedsDisplay];
 }
 
 -(void)setMaxLines_:(id)value
