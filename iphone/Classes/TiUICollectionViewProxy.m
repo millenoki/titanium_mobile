@@ -543,6 +543,8 @@ static NSDictionary* listViewKeysToReplace;
         ENSURE_ARG_COUNT(args, 2);
         NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
         NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
+        NSDictionary *options = [args count] > 2 ? [args objectAtIndex:2] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
         TiThreadPerformOnMainThread(^{
             if ([_sections count] <= sectionIndex) {
                 DebugLog(@"[WARN] CollectionView: Select section index is out of range");
@@ -554,8 +556,7 @@ static NSDictionary* listViewKeysToReplace;
                 return;
             }
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
-            [self.listView.tableView selectItemAtIndexPath:indexPath animated:YES scrollPosition:UICollectionViewScrollPositionNone];
-            [self.listView.tableView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:YES];
+            [self.listView selectItem:indexPath animated:animated];
         }, NO);
     }
 }
@@ -566,6 +567,8 @@ static NSDictionary* listViewKeysToReplace;
         ENSURE_ARG_COUNT(args, 2);
         NSUInteger sectionIndex = [TiUtils intValue:[args objectAtIndex:0]];
         NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
+        NSDictionary *options = [args count] > 2 ? [args objectAtIndex:2] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
         TiThreadPerformOnMainThread(^{
             if ([_sections count] <= sectionIndex) {
                 DebugLog(@"[WARN] CollectionView: Select section index is out of range");
@@ -577,10 +580,11 @@ static NSDictionary* listViewKeysToReplace;
                 return;
             }
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
-            [self.listView.tableView deselectItemAtIndexPath:indexPath animated:YES];
+            [self.listView deselectItem:indexPath animated:animated];
         }, NO);
     }
 }
+
 
 -(void)setContentInsets:(id)args
 {

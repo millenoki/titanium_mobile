@@ -281,6 +281,20 @@ static NSDictionary* replaceKeysForRow;
 	return (TiUIListViewProxy *)self.proxy;
 }
 
+
+- (void)selectItem:(NSIndexPath*)indexPath animated:(BOOL)animated
+{
+    //    [self tableView:_tableView willSelectRowAtIndexPath:indexPath];
+    UITableViewScrollPosition pos = UITableViewScrollPositionMiddle;
+    [_tableView scrollToRowAtIndexPath:indexPath atScrollPosition:pos animated:animated];
+    [_tableView selectRowAtIndexPath:indexPath animated:animated scrollPosition:pos];
+    [self tableView:_tableView didSelectRowAtIndexPath:indexPath];
+}
+- (void)deselectItem:(NSIndexPath*)indexPath animated:(BOOL)animated
+{
+    [_tableView deselectRowAtIndexPath:indexPath animated:animated];
+}
+
 - (void)deselectAll:(BOOL)animated
 {
 	if (_tableView != nil) {

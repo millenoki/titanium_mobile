@@ -287,6 +287,19 @@ static NSDictionary* replaceKeysForRow;
 	return (TiUICollectionViewProxy *)self.proxy;
 }
 
+- (void)selectItem:(NSIndexPath*)indexPath animated:(BOOL)animated
+{
+    //    [self tableView:_tableView willSelectRowAtIndexPath:indexPath];
+    UICollectionViewScrollPosition pos = UICollectionViewScrollPositionCenteredVertically;
+    [_tableView scrollToItemAtIndexPath:indexPath atScrollPosition:pos animated:animated];
+    [_tableView selectItemAtIndexPath:indexPath animated:animated scrollPosition:pos];
+//    [self tableView:_tableView didSelectRowAtIndexPath:indexPath];
+}
+- (void)deselectItem:(NSIndexPath*)indexPath animated:(BOOL)animated
+{
+    [_tableView deselectItemAtIndexPath:indexPath animated:animated];
+}
+
 - (void)deselectAll:(BOOL)animated
 {
 	if (_tableView != nil) {
