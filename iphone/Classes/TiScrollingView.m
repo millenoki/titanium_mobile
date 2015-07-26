@@ -14,6 +14,13 @@
     BOOL _pullViewVisible;
     BOOL _hasPullView;
     BOOL pullActive;
+    
+    UIView *_pullBottomViewWrapper;
+    CGFloat pullBottomThreshhold;
+    BOOL _pullBottomViewVisible;
+    BOOL _hasPullBottomView;
+    BOOL pullBottomActive;
+
 }
 
 - (id)init
@@ -21,6 +28,7 @@
     self = [super init];
     if (self) {
         _hasPullView = NO;
+        _hasPullBottomView = NO;
         canFireScrollEnd = NO;
         canFireScrollStart = YES;
         _scrollHidesKeyboard = NO;
@@ -41,6 +49,7 @@
 - (void)dealloc
 {
     RELEASE_TO_NIL(_pullViewWrapper)
+    RELEASE_TO_NIL(_pullBottomViewWrapper)
 //    UIScrollView* scrollView = [self scrollview];
 //    [scrollView ins_removeInfinityScroll];
 //    [scrollView ins_removePullToRefresh];
@@ -164,11 +173,60 @@
     
 }
 
+-(void)setPullBottomView_:(id)args
+{
+    UIScrollView* scrollView = [self scrollview];
+    if (scrollView.bounds.size.width==0)
+    {
+        [self performSelector:@selector(setPullBottomView_:) withObject:args afterDelay:0.1];
+        return;
+    }
+    id vp = [[self viewProxy] addObjectToHold:args forKey:@"pullBottomView"];
+    if (IS_OF_CLASS(vp, TiViewProxy)) {
+        TiViewProxy* viewproxy = (TiViewProxy*)vp;
+        _hasPullBottomView = YES;
+        if (_pullBottomViewWrapper == nil) {
+            _pullBottomViewWrapper = [[UIView alloc] init];
+            _pullBottomViewWrapper.backgroundColor = [UIColor clearColor];
+            [scrollView addSubview:_pullBottomViewWrapper];
+        }
+        CGSize refSize = scrollView.bounds.size;
+        [_pullBottomViewWrapper setFrame:CGRectMake(0.0, scrollView.contentSize.height, refSize.width, refSize.height)];
+        LayoutConstraint *viewLayout = [viewproxy layoutProperties];
+        //If height is not dip, explicitly set it to SIZE
+        if (viewLayout->height.type != TiDimensionTypeDip) {
+            viewLayout->height = TiDimensionAutoSize;
+        }
+        //If bottom is not dip set it to 0
+        if (viewLayout->top.type != TiDimensionTypeDip) {
+            viewLayout->top = TiDimensionZero;
+        }
+        //Remove other vertical positioning constraints
+        viewLayout->bottom = TiDimensionUndefined;
+        viewLayout->centerY = TiDimensionUndefined;
+        
+        [viewproxy setCanBeResizedByFrame:YES];
+        [viewproxy setProxyObserver:self];
+        [_pullBottomViewWrapper addSubview:[viewproxy getAndPrepareViewForOpening:_pullBottomViewWrapper.bounds]];
+        if (_pullBottomViewVisible) {
+            [self showPullBottomView:@(NO)];
+        }
+    } else {
+        _hasPullBottomView = NO;
+        [_pullBottomViewWrapper removeFromSuperview];
+        RELEASE_TO_NIL(_pullBottomViewWrapper);
+    }
+    
+}
+
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     [super frameSizeChanged:frame bounds:bounds];
     if (_pullViewWrapper != nil && _hasPullView) {
         _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
+    }
+    if (_pullBottomViewWrapper != nil && _hasPullBottomView) {
+        _pullBottomViewWrapper.frame = CGRectMake(0.0f, [self scrollview].contentSize.height, bounds.size.width, bounds.size.height);
     }
 //    if (_hasPullView) {
 //        TiViewProxy* vp = [[self viewProxy] holdedProxyForKey:@"pullView"];
@@ -190,6 +248,10 @@
         if ([key isEqualToString:@"pullView"]) {
             CGRect frame = [(TiViewProxy*)sender view].frame;
             pullThreshhold = -[self scrollview].contentInset.top + ([(TiViewProxy*)sender view].frame.origin.y - _pullViewWrapper.bounds.size.height);
+        } else if ([key isEqualToString:@"pullBottomView"]) {
+            CGRect frame = [(TiViewProxy*)sender view].frame;
+            UIScrollView* scrollView = [self scrollview];
+            pullBottomThreshhold = scrollView.contentSize.height + scrollView.contentInset.bottom + ([(TiViewProxy*)sender view].frame.size.height);
         }
     }
 }
@@ -203,21 +265,61 @@
         animated = [anim boolValue];
     
     UIScrollView* scrollView = [self scrollview];
+    CGFloat offset = -scrollView.contentInset.top;
     if (IOS_7) {
         //we have to delay it on ios7 :s
         double delayInSeconds = 0.01;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-            [scrollView setContentOffset:CGPointMake(0,-scrollView.contentInset.top) animated:animated];
+            [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x,offset) animated:animated];
         });
     }
     else {
-        [scrollView setContentOffset:CGPointMake(0,-scrollView.contentInset.top) animated:animated];
+        [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x,offset) animated:animated];
     }
     
 }
 
 -(void)showPullView:(NSNumber*)anim
+{
+    if (!_hasPullBottomView || _pullBottomViewVisible) {
+        return;
+    }
+    _pullBottomViewVisible = YES;
+    BOOL animated = YES;
+    UIScrollView* scrollView = [self scrollview];
+    if (anim != nil)
+        animated = [anim boolValue];
+    CGFloat offset = pullThreshhold;
+    [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x,offset) animated:animated];
+}
+
+-(void)closePullBottomView:(NSNumber*)anim
+{
+    if (!_hasPullBottomView || !_pullBottomViewVisible) return;
+    _pullBottomViewVisible = NO;
+    BOOL animated = YES;
+    if (anim != nil)
+        animated = [anim boolValue];
+    
+    UIScrollView* scrollView = [self scrollview];
+    
+    CGFloat offset = scrollView.contentSize.height - scrollView.bounds.size.height + scrollView.contentInset.bottom;
+    if (IOS_7) {
+        //we have to delay it on ios7 :s
+        double delayInSeconds = 0.01;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x,offset) animated:animated];
+        });
+    }
+    else {
+        [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x,offset) animated:animated];
+    }
+    
+}
+
+-(void)showPullBottomView:(NSNumber*)anim
 {
     if (!_hasPullView || _pullViewVisible) {
         return;
@@ -227,7 +329,8 @@
     UIScrollView* scrollView = [self scrollview];
     if (anim != nil)
         animated = [anim boolValue];
-    [scrollView setContentOffset:CGPointMake(0,pullThreshhold) animated:animated];
+    CGFloat offset = pullThreshhold;
+    [scrollView setContentOffset:CGPointMake(scrollView.contentOffset.x,offset) animated:animated];
 }
 
 
@@ -277,7 +380,7 @@
     [scrollView zoomToRect:CGRectMake(touchX - xsize/2, touchY - ysize/2, xsize, ysize) animated:animated];
 }
 
--(void)scrollToBottom
+-(void)scrollToBottom:(BOOL)animated
 {
     /*
      * Calculate the bottom height & width and, sets the offset from the
@@ -294,7 +397,7 @@
     
     CGPoint newOffset = CGPointMake(bottomWidth,bottomHeight);
     
-    [currScrollView setContentOffset:newOffset animated:YES];
+    [currScrollView setContentOffset:newOffset animated:animated];
     
 }
 
@@ -453,21 +556,50 @@
     {
         [self fireScrollEvent:scrollView];
     }
-    if ( _hasPullView && ([scrollView isTracking]) ) {
-        BOOL pullChanged = NO;
-        if ( (scrollView.contentOffset.y < pullThreshhold) && (pullActive == NO) ) {
-            pullActive = YES;
-            pullChanged = YES;
-        } else if ( (scrollView.contentOffset.y > pullThreshhold) && (pullActive == YES) ) {
-            pullActive = NO;
-            pullChanged = YES;
+    if ([scrollView isTracking]) {
+        if ( _hasPullView) {
+            BOOL pullChanged = NO;
+            CGFloat offsetY = scrollView.contentOffset.y;
+            if ( (offsetY < pullThreshhold) && (pullActive == NO) ) {
+                pullActive = YES;
+                pullChanged = YES;
+            } else if ( (offsetY > pullThreshhold) && (pullActive == YES) ) {
+                pullActive = NO;
+                pullChanged = YES;
+            }
+            if (pullChanged) {
+                [self fireScrollEvent:@"pullchanged" forScrollView:scrollView withAdditionalArgs:@{@"active": @(pullActive)}];
+            }
+            CGFloat delta = pullThreshhold - offsetY;
+            if (delta >= pullThreshhold) {
+                CGFloat progress = fabs(1 - fabs( (delta / pullThreshhold)));
+                [self fireScrollEvent:@"pull" forScrollView:scrollView withAdditionalArgs:@{@"active": @(pullActive)}];
+            }
         }
-        if (pullChanged && [[self viewProxy] _hasListeners:@"pullchanged" checkParent:NO]) {
-            [self fireScrollEvent:@"pullchanged" forScrollView:scrollView withAdditionalArgs:@{@"active": @(pullActive)}];
+        if ( _hasPullBottomView) {
+            BOOL pullChanged = NO;
+            CGFloat offsetY = scrollView.contentOffset.y + scrollView.bounds.size.height;
+            CGFloat contentSizeH = scrollView.contentSize.height;
+            if ( (offsetY > contentSizeH) && (pullBottomActive == NO) ) {
+                pullBottomActive = YES;
+                pullChanged = YES;
+            } else if ( (offsetY < contentSizeH) && (pullBottomActive == YES) ) {
+                pullBottomActive = NO;
+                pullChanged = YES;
+            }
+            if (pullChanged) {
+                [self fireScrollEvent:@"pullchanged" forScrollView:scrollView withAdditionalArgs:@{
+                                                                                                   @"active": @(pullBottomActive),
+                                                                                                   @"bottom": @(YES)}];
+            }
+            CGFloat delta = pullBottomThreshhold - offsetY;
+            if (delta <= 0) {
+                CGFloat progress = fabs(1 - fabs( (delta / pullBottomThreshhold)));
+                [self fireScrollEvent:@"pullbottom" forScrollView:scrollView withAdditionalArgs:@{@"active": @(pullBottomActive),
+                                                                                                  @"bottom": @(YES)}];
+            }
         }
-        if (scrollView.contentOffset.y <= 0 && [[self viewProxy] _hasListeners:@"pull" checkParent:NO]) {
-            [self fireScrollEvent:@"pull" forScrollView:scrollView withAdditionalArgs:@{@"active": @(pullActive)}];
-        }
+        
     }
 }
 
@@ -513,6 +645,10 @@
     if ( _hasPullView && (pullActive == YES) ) {
         pullActive = NO;
         [self fireScrollEvent:@"pullend" forScrollView:scrollView withAdditionalArgs:nil];
+    }
+    if ( _hasPullBottomView && (pullBottomActive == YES) ) {
+        pullBottomActive = NO;
+        [self fireScrollEvent:@"pullend" forScrollView:scrollView withAdditionalArgs:@{@"bottom": @(YES)}];
     }
 }
 
