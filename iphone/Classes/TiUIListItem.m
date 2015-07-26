@@ -410,6 +410,9 @@ static NSArray* handledKeys;
 -(void)setHighlighted:(BOOL)yn animated:(BOOL)animated
 {
     [super setHighlighted:yn animated:animated];
+    if (self.isSelected && !yn) {
+        return;
+    }
     if ([self.proxy shouldHighlight]) {
         [_viewHolder setHighlighted:yn animated:animated];
     }
