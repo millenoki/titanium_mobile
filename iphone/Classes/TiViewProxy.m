@@ -330,13 +330,19 @@
     return [HLSAnimation animationWithAnimationStep:step];
 }
 
--(void)playAnimation:(HLSAnimation*)animation withRepeatCount:(NSUInteger)repeatCount afterDelay:(double)delay
+-(void)handleAnimation:(TiAnimation*)animation witDelegate:(id)delegate
 {
     TiThreadPerformBlockOnMainThread(^{
+        [super handleAnimation:animation witDelegate:delegate];
+    }, YES);
+}
+-(void)playAnimation:(HLSAnimation*)animation withRepeatCount:(NSUInteger)repeatCount afterDelay:(double)delay
+{
+//    TiThreadPerformBlockOnMainThread(^{
         [self refreshViewOrParent];
         [self aboutToBeAnimated];
         [animation playWithRepeatCount:repeatCount afterDelay:delay];
-	}, YES);
+//	}, YES);
 }
 
 //override
