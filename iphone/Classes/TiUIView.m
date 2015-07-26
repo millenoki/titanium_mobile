@@ -27,6 +27,8 @@
 #import <objc/runtime.h>
 #import "UIGestureRecognizer+Ti.h"
 
+#import "DirectionPanGestureRecognizer.h"
+
 static NSString * const kTiViewShapeMaskKey = @"kTiViewShapeMask";
 
 
@@ -364,14 +366,14 @@ DEFINE_EXCEPTIONS
 }
 
 
-- (id) init
-{
-	self = [super init];
-	if (self != nil)
-	{
-	}
-	return self;
-}
+//- (id) init
+//{
+//	self = [super init];
+//	if (self != nil)
+//	{
+//	}
+//	return self;
+//}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -1849,8 +1851,12 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(UIPanGestureRecognizer*)panRecognizer
 {
     if (panRecognizer == nil) {
-        panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPan:)];
+        panRecognizer = [[DirectionPanGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedPan:)];
         [self configureGestureRecognizer:panRecognizer];
+        id direction = [[self proxy] valueForKey:@"panDirection"];
+        if (direction) {
+            panRecognizer.direction = PanDirectionFromObject(direction);
+        }
         [[self viewForGestures] addGestureRecognizer:panRecognizer];
     }
     return panRecognizer;
@@ -1859,10 +1865,15 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(UIPanGestureRecognizer*)shoveRecognizer
 {
     if (shoveRecognizer == nil) {
-        shoveRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedShove:)];
+        shoveRecognizer = [[DirectionPanGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedShove:)];
         [self configureGestureRecognizer:shoveRecognizer];
         shoveRecognizer.minimumNumberOfTouches = 2;
         shoveRecognizer.maximumNumberOfTouches = 2;
+        shoveRecognizer.direction = DirectionPangestureRecognizerVertical;
+        id direction = [[self proxy] valueForKey:@"panDirection"];
+        if (direction) {
+            shoveRecognizer.direction = PanDirectionFromObject(direction);
+        }
         [[self viewForGestures] addGestureRecognizer:shoveRecognizer];
     }
     return shoveRecognizer;

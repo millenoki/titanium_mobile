@@ -42,7 +42,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @class ADTransition;
 @class TiViewAnimationStep;
 @class TiRect;
-
+@class DirectionPanGestureRecognizer;
 /**
  Base class for all Titanium views.
  @see TiViewProxy
@@ -55,7 +55,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
     UIControlState viewState;
 	BOOL _tintColorImage;
     TiCap imageCap;
-@private
+//@private
 	TiProxy *proxy;
 		
 	id transformMatrix;
@@ -79,8 +79,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 	UISwipeGestureRecognizer*		upSwipeRecognizer;
 	UISwipeGestureRecognizer*		downSwipeRecognizer;
     UILongPressGestureRecognizer*	longPressRecognizer;
-    UIPanGestureRecognizer*         panRecognizer;
-    UIPanGestureRecognizer*         shoveRecognizer;
+    DirectionPanGestureRecognizer*         panRecognizer;
+    DirectionPanGestureRecognizer*         shoveRecognizer;
     UIRotationGestureRecognizer*    rotationRecognizer;
 	
 	//Resizing handling
