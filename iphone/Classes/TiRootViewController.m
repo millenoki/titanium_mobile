@@ -1630,7 +1630,7 @@
     } else {
         BOOL oldValue = statusBarIsHidden;;
         BOOL newValue = [self prefersStatusBarHidden];
-        if (oldValue != newValue) {
+//        if (oldValue != newValue) {
             if (animated) {
                 [UIView beginAnimations:@"navbarAnim" context:NULL];
                 [UIView setAnimationBeginsFromCurrentState:YES];
@@ -1654,7 +1654,7 @@
                 [UIView commitAnimations];
             }
             
-        }
+//        }
         
     }
 }
