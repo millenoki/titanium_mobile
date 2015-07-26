@@ -126,13 +126,19 @@
 }
 
 
--(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent*)event
+//-(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent*)event
+//{
+//    UIView* child = nil;
+//    if ((child = [super hitTest:point withEvent:event]) == self)
+//    	return [self scrollview];
+//    return child;
+//}
+
+-(UIView*)viewForHitTest
 {
-    UIView* child = nil;
-    if ((child = [super hitTest:point withEvent:event]) == self)
-    	return [self scrollview];
-    return child;
+    return scrollview;
 }
+
 
 -(NSArray*)wrappers
 {
@@ -158,11 +164,6 @@
 		[self insertSubview:scrollview atIndex:0];
 	}
 	return scrollview;
-}
-
--(UIView*)viewForHitTest
-{
-    return scrollview;
 }
 
 
@@ -427,7 +428,7 @@
         contentBounds.width *= viewsCount;
     }
 	
-	[sv setContentSize:contentBounds];
+	[sv setContentSize:CGSizeMake(floorf(contentBounds.width), floorf(contentBounds.height))];
     [self didScroll];
 }
 
@@ -745,17 +746,20 @@
 -(void)updateCurrentPage:(NSInteger)newPage andPageControl:(BOOL)updatePageControl
 {
     if (newPage == currentPage) return;
+    [self.proxy replaceValue:NUMINTEGER(newPage) forKey:@"currentPage" notification:NO];
+    NSInteger oldPage = currentPage;
     currentPage = newPage;
     upcomingPage = currentPage;
     [self manageCache:currentPage];
     if (updatePageControl) {
         [pageControl setCurrentPage:newPage];
     }
-    [self.proxy replaceValue:NUMINTEGER(newPage) forKey:@"currentPage" notification:NO];
     if ([self.proxy _hasListeners:@"change" checkParent:NO])
 	{
 		[self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                   NUMINTEGER(newPage),@"currentPage",
+                                                    NUMINTEGER(newPage),@"currentPage",
+                                                    NUMINTEGER(oldPage),@"oldPage",
+                                                    [[self proxy] viewAtIndex:oldPage],@"oldView",
                                                    [[self proxy] viewAtIndex:newPage],@"view",nil] propagate:NO checkForListener:NO];
 	}
 }
@@ -799,18 +803,6 @@
     [self refreshScrollView:NO];
 }
 
-
--(void)setScrollingEnabled_:(id)enabled
-{
-    scrollingEnabled = [TiUtils boolValue:enabled];
-    [[self scrollview] setScrollEnabled:scrollingEnabled];
-}
-
--(void)setDisableBounce_:(id)value
-{
-	[[self scrollview] setBounces:![TiUtils boolValue:value]];
-}
-
 -(void)setTransition_:(id)value
 {
     
@@ -825,6 +817,7 @@
 	[self refreshScrollView:YES];
 	[self depthSortViews];
 }
+
 
 #pragma mark Rotation
 
@@ -847,7 +840,7 @@
     [self updateCurrentPage:pageNum];
 	[self manageCache:pageNum];
     
-    [self fireEventWithData:@"click" propagate:YES];
+    [self fireScrollEvent:@"click" forScrollView:scrollview withAdditionalArgs:nil];
 }
 
 
@@ -930,25 +923,26 @@
 	}
 }
 
--(void)fireEventWithData:(NSString*)event andPageAsFloat:(CGFloat)pageAsFloat
+- (NSMutableDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView
 {
-    [self fireEventWithData:event andPageAsFloat:pageAsFloat propagate:NO];
+    float nextPageAsFloat = [self getPageFromOffset:scrollview.contentOffset];
+    NSMutableDictionary* eventArgs = [super eventObjectForScrollView:scrollView];
+    [eventArgs setValue:@(currentPage) forKey:@"currentPage"];
+    [eventArgs setValue:@(nextPageAsFloat) forKey:@"currentPageAsFloat"];
+    [eventArgs setValue:[[self proxy] viewAtIndex:currentPage] forKey:@"view"];
+    return eventArgs;
 }
 
--(void)fireEventWithData:(NSString*)event propagate:(BOOL)propagate
+
+-(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
-    [self fireEventWithData:event andPageAsFloat:currentPage propagate:propagate];
+    _updatePageDuringScroll = NO;
 }
 
--(void)fireEventWithData:(NSString*)event
-{
-    [self fireEventWithData:event propagate:NO];
-}
-
--(void)scrollViewDidScroll:(UIScrollView *)scrollView
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
     if (animating) return;
-	//switch page control at 50% across the center - this visually looks better
+    //switch page control at 50% across the center - this visually looks better
     NSInteger page = currentPage;
     float nextPageAsFloat = [self getPageFromOffset:scrollview.contentOffset];
     int nextPage = MIN(floor(nextPageAsFloat - 0.5) + 1, [[self proxy] viewCount] - 1);
@@ -961,24 +955,25 @@
                 minCacheSize = cacheSize;
             }
         }
-        pageChanged = YES;
         cacheSize = minCacheSize;
         if (_updatePageDuringScroll)  {
             [self updateCurrentPage:nextPage];
+        } else {
+            pageChanged = YES;
         }
         cacheSize = curCacheSize;
     }
-	[self fireEventWithData:@"scroll" andPageAsFloat:nextPageAsFloat];
     [self didScroll];
+    [super scrollViewDidScroll:scrollView];
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     _updatePageDuringScroll = YES;
-	[self fireEventWithData:@"scrollstart"];
     if (pageChanged) {
         [self manageCache:[self currentPage]];
     }
+    [super scrollViewWillBeginDragging:scrollView];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
@@ -986,41 +981,68 @@
     _updatePageDuringScroll = NO;
     //Since we are now managing cache at end of scroll, ensure quick scroll is disabled to avoid blank screens.
     if (pageChanged) {
+        [self manageCache:[self currentPage]];
         [scrollview setUserInteractionEnabled:!decelerate];
     }
+    [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
 }
 
--(void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
-{
-    _updatePageDuringScroll = NO;
-	// called when setContentOffset/scrollRectVisible:animated: finishes. not called if not animating
-	[self scrollViewDidEndDecelerating:scrollView];
-    [self didScroll];
-}
-
-
--(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     _updatePageDuringScroll = NO;
     if (rotatedWhileScrolling) {
         [self setContentOffsetForPage:[self currentPage] animated:YES];
         rotatedWhileScrolling = NO;
     }
-
-	// At the end of scroll animation, reset the boolean used when scrolls originate from the UIPageControl
-	NSInteger pageNum = [self currentPage];
-	handlingPageControlEvent = NO;
+    
+    // At the end of scroll animation, reset the boolean used when scrolls originate from the UIPageControl
+    NSInteger pageNum = [self currentPage];
+    handlingPageControlEvent = NO;
     
     lastPage = pageNum;
     upcomingPage = pageNum;
     [self updateCurrentPage:pageNum];
-
-	[self fireEventWithData:@"scrollend"];
-	[self manageCache:currentPage];
-	pageChanged = NO;
-	[scrollview setUserInteractionEnabled:YES];
+    
+    [self manageCache:currentPage];
+    pageChanged = NO;
+    [scrollview setUserInteractionEnabled:YES];
     [self didScroll];
+
+    [super scrollViewDidEndDecelerating:scrollView];
 }
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+{
+    return [super scrollViewShouldScrollToTop:scrollView];
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
+{
+    return [super scrollViewDidScrollToTop:scrollView];
+}
+
+#pragma mark Keyboard delegate stuff
+
+-(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
+{
+    CGRect minimumContentRect = [scrollview bounds];
+    InsetScrollViewForKeyboard(scrollview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y);
+}
+
+-(void)scrollToShowView:(UIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
+{
+    if ([scrollview isScrollEnabled]) {
+        CGRect minimumContentRect = [scrollview bounds];
+        
+        CGRect responderRect = [self convertRect:[firstResponderView bounds] fromView:firstResponderView];
+        CGPoint offsetPoint = [scrollview contentOffset];
+        responderRect.origin.x += offsetPoint.x;
+        responderRect.origin.y += offsetPoint.y;
+        
+        OffsetScrollViewForRect(scrollview,keyboardTop,minimumContentRect.size.height + minimumContentRect.origin.y,responderRect);
+    }
+}
+
 
 @end
 

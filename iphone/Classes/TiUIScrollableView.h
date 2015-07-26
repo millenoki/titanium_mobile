@@ -6,9 +6,9 @@
  */
 #ifdef USE_TI_UISCROLLABLEVIEW
 
-#import "TiUIView.h"
+#import "TiScrollingView.h"
 
-@interface TiUIScrollableView : TiUIView<UIScrollViewDelegate> {
+@interface TiUIScrollableView : TiScrollingView<UIScrollViewDelegate, TiScrolling> {
 @private
 	UIScrollView *scrollview;
 	UIPageControl *pageControl;
@@ -18,7 +18,6 @@
 	CGFloat pageControlHeight;
     CGFloat pagingControlAlpha;
 	BOOL handlingPageControlEvent;
-    BOOL scrollingEnabled;
     BOOL pagingControlOnTop;
     BOOL overlayEnabled;
     

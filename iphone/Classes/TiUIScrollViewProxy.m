@@ -90,7 +90,9 @@
 		return;
 	}
 
-	[(TiUIScrollView *)[self view] handleContentSizeIfNeeded];
+    if (![(TiUIScrollView *)[self view] handleContentSizeIfNeeded]) {
+        [self layoutChildrenAfterContentSize:optimize];
+    }
 }
 
 -(void)layoutChildrenAfterContentSize:(BOOL)optimize
@@ -166,67 +168,11 @@
 }
 
 
--(NSDictionary*)dictForEventInScrollView:(UIScrollView *)scrollView_
-{
-    CGPoint offset = [scrollView_ contentOffset];
-    return [NSDictionary dictionaryWithObjectsAndKeys:
-            NUMFLOAT(offset.x),@"x",
-            NUMFLOAT(offset.y),@"y",
-            NUMFLOAT(scrollView_.zoomScale),@"curZoomScale",
-            NUMBOOL([scrollView_ isZooming]),@"zooming",
-            NUMBOOL([scrollView_ isDecelerating]),@"decelerating",
-            NUMBOOL([scrollView_ isDragging]),@"dragging",
-            nil];
-}
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_               // scrolling has ended
-{
-	if ([self _hasListeners:@"scrollend" checkParent:NO])
-	{
-        [self fireEvent:@"scrollend" withObject:[self dictForEventInScrollView:scrollView_] propagate:NO checkForListener:NO];
-	}
-}
-
--(void)scrollViewDidScroll:(UIScrollView *)scrollView_
-{
-	if ([self _hasListeners:@"scroll" checkParent:NO])
-	{
-        [self fireEvent:@"scroll" withObject:[self dictForEventInScrollView:scrollView_] propagate:NO checkForListener:NO];
-    }
-}
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(CGFloat)scale
 {
-	[self replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
 	
-	if ([self _hasListeners:@"scale" checkParent:NO])
-	{
-        NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[self dictForEventInScrollView:scrollView_]];
-        [dict setObject:@(scale) forKey:@"scale"];
-		[self fireEvent:@"scale" withObject:dict propagate:NO checkForListener:NO];
-	}
 }
-
--(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_
-{
-	if([self _hasListeners:@"dragstart" checkParent:NO])
-	{
-        [self fireEvent:@"dragstart" withObject:[self dictForEventInScrollView:scrollView_] propagate:NO checkForListener:NO];
-	}
-}
-
-//listerner which tells when dragging ended in the scroll view.
-
--(void)scrollViewDidEndDragging:(UIScrollView *)scrollView_ willDecelerate:(BOOL)decelerate
-{
-	if([self _hasListeners:@"dragend" checkParent:NO])
-	{
-        NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[self dictForEventInScrollView:scrollView_]];
-        [dict setObject:@(decelerate) forKey:@"decelerate"];
-        [self fireEvent:@"dragend" withObject:dict propagate:NO checkForListener:NO];
-	}
-}
-
-DEFINE_DEF_PROP(scrollsToTop,@YES);
 
 @end
 

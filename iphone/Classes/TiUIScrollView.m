@@ -68,67 +68,116 @@
 	[super touchesCancelled:touches withEvent:event];
 }
 
-- (void)setContentOffset:(CGPoint)contentOffset
-{
-    if (_centerContent) {
-        const CGSize contentSize = self.contentSize;
-        const CGSize scrollViewSize = self.bounds.size;
-        
-        if (contentSize.width < scrollViewSize.width)
-        {
-            contentOffset.x = -(scrollViewSize.width - contentSize.width) / 2.0;
-        }
-        
-        if (contentSize.height < scrollViewSize.height)
-        {
-            contentOffset.y = -(scrollViewSize.height - contentSize.height) / 2.0;
-        }
-    }
-    
-    
-    [super setContentOffset:contentOffset];
-}
+//-(void)setZoomScale:(CGFloat)zoomScale
+//{
+//    [super setZoomScale:zoomScale];
+//    if (self.zoomScale == self.minimumZoomScale) {
+//        self.scrollEnabled = NO;
+//    }else {
+//        self.scrollEnabled = YES;
+//    }
+//    NSLog(@"zoom scale %f", self.zoomScale)
+//}
+//-(void)setZoomScale:(CGFloat)zoomScale animated:(BOOL)animated
+//{
+//    [super setZoomScale:zoomScale animated:animated];
+//    
+//    NSLog(@"zoom scale animated %f", self.zoomScale)
+//}
+//- (void)setContentSize:(CGSize)contentSize
+//{
+////    contentSize = CGSizeMake(ceilf(contentSize.width), ceilf(contentSize.height));
+//    [super setContentSize:contentSize];
+//    NSLog(@"setContentSize animated %@", NSStringFromCGSize(contentSize))
+//}
+//-(void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+//{
+////    contentOffset = CGPointMake(ceilf(contentOffset.x), ceilf(contentOffset.y));
+//    [super setContentOffset:contentOffset animated:animated];
+//    NSLog(@"setContentOffset animated %@", NSStringFromCGPoint(contentOffset))
+//}
+//- (void)setContentOffset:(CGPoint)contentOffset
+//{
+//////    if (_centerContent) {
+//////        const CGSize contentSize = self.contentSize;
+//////        const CGSize scrollViewSize = self.bounds.size;
+//////        
+//////        if (contentSize.width < scrollViewSize.width)
+//////        {
+//////            contentOffset.x = -(scrollViewSize.width - contentSize.width) / 2.0;
+//////        }
+//////        
+//////        if (contentSize.height < scrollViewSize.height)
+//////        {
+//////            contentOffset.y = -(scrollViewSize.height - contentSize.height) / 2.0;
+//////        }
+//////    }
+////    contentOffset = CGPointMake(ceilf(contentOffset.x), ceilf(contentOffset.y));
+//    NSLog(@"setContentOffset %@, %f, %f", NSStringFromCGPoint(contentOffset), self.zoomScale, self.minimumZoomScale)
+//    [super setContentOffset:contentOffset];
+//}
 
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.contentSize = CGSizeMake(floorf(self.contentSize.width), floorf(self.contentSize.height));
+}
 @end
 
 @implementation TiUIScrollView
-@synthesize contentWidth;
+{
+    BOOL _flexibleContentWidth;
+    BOOL _flexibleContentHeight;
+}
+//@synthesize contentWidth;
 
 - (void) dealloc
 {
-	RELEASE_WITH_DELEGATE(scrollView);
+	RELEASE_WITH_DELEGATE(scrollview);
 	RELEASE_TO_NIL(wrapperView);
 	[super dealloc];
 }
+
+- (id) init
+{
+    self = [super init];
+    if (self != nil)
+    {
+        _flexibleContentWidth = NO;
+        _flexibleContentHeight = NO;
+    }
+    return self;
+}
+
 
 -(UIView *)wrapperView
 {
 	if (wrapperView == nil)
 	{
 		CGRect wrapperFrame;
-		wrapperFrame.size = [[self scrollView] contentSize];
+		wrapperFrame.size = [[self scrollview] contentSize];
 		wrapperFrame.origin = CGPointZero;
 		wrapperView = [[UIView alloc] initWithFrame:wrapperFrame];
 		[wrapperView setUserInteractionEnabled:YES];
-		[scrollView addSubview:wrapperView];
+		[scrollview addSubview:wrapperView];
 	}
 	return wrapperView;
 }
 
--(TiUIScrollViewImpl *)scrollView
+-(TiUIScrollViewImpl *)scrollview
 {
-	if(scrollView == nil)
+	if(scrollview == nil)
 	{
-		scrollView = [[TiUIScrollViewImpl alloc] initWithFrame:[self bounds]];
-		[scrollView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[scrollView setBackgroundColor:[UIColor clearColor]];
-		[scrollView setShowsHorizontalScrollIndicator:NO];
-		[scrollView setShowsVerticalScrollIndicator:NO];
-		[scrollView setDelegate:self];
-        [scrollView setTouchHandler:self];
-		[self addSubview:scrollView];
+		scrollview = [[TiUIScrollViewImpl alloc] initWithFrame:[self bounds]];
+		[scrollview setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+		[scrollview setBackgroundColor:[UIColor clearColor]];
+		[scrollview setShowsHorizontalScrollIndicator:NO];
+		[scrollview setShowsVerticalScrollIndicator:NO];
+		[scrollview setDelegate:self];
+        [scrollview setTouchHandler:self];
+		[self addSubview:scrollview];
 	}
-	return scrollView;
+	return scrollview;
 }
 
 -(UIView*)viewForHitTest
@@ -144,24 +193,22 @@
 -(void)setClipChildren_:(id)arg
 {
     [super setClipChildren_:arg];
-    [self scrollView].clipsToBounds = self.clipsToBounds;
+    [self scrollview].clipsToBounds = self.clipsToBounds;
 }
 
 - (id)accessibilityElement
 {
-	return [self scrollView];
+	return [self scrollview];
 }
 
 -(BOOL)flexibleContentWidth
 {
-    return TiDimensionIsAuto(contentWidth) ||
-    TiDimensionIsAutoSize(contentWidth);
+    return _flexibleContentWidth;
 }
 
 -(BOOL)flexibleContentHeight
 {
-    return TiDimensionIsAuto(contentHeight) ||
-    TiDimensionIsAutoSize(contentHeight);
+    return _flexibleContentHeight;
 }
 
 -(void)setNeedsHandleContentSizeIfAutosizing
@@ -198,7 +245,7 @@
         return;
     }
     CGSize newContentSize = [self bounds].size;
-    CGFloat scale = [scrollView zoomScale];
+    CGFloat scale = [scrollview zoomScale];
     
     CGSize autoSize;
     
@@ -251,12 +298,12 @@
     newContentSize.width *= scale;
     newContentSize.height = scale * minimumContentHeight;
     
-    [scrollView setContentSize:newContentSize];
+    [scrollview setContentSize:newContentSize];
     CGRect wrapperBounds;
     wrapperBounds.origin = CGPointZero;
     wrapperBounds.size = newContentSize;
     [wrapperView setFrame:wrapperBounds];
-    [self scrollViewDidZoom:scrollView];
+    [self scrollViewDidZoom:scrollview];
     needsHandleContentSize = NO;
     [(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 }
@@ -270,241 +317,122 @@
     [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
--(void)scrollToBottom
-{
-    /*
-     * Calculate the bottom height & width and, sets the offset from the 
-     * content view’s origin that corresponds to the receiver’s origin.
-     */ 
-    UIScrollView *currScrollView = [self scrollView];
-    
-    CGSize svContentSize = currScrollView.contentSize;
-    CGSize svBoundSize = currScrollView.bounds.size;
-    CGFloat svBottomInsets = currScrollView.contentInset.bottom;
-    
-    CGFloat bottomHeight = svContentSize.height - svBoundSize.height + svBottomInsets;
-    CGFloat bottomWidth = svContentSize.width - svBoundSize.width;
 
-    CGPoint newOffset = CGPointMake(bottomWidth,bottomHeight);
-    
-    [currScrollView setContentOffset:newOffset animated:YES];
-    
-}
-
--(void)setDecelerationRate_:(id)value
-{
-	[[self scrollView] setDecelerationRate:[TiUtils floatValue:value def:UIScrollViewDecelerationRateNormal]];
-}
 
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
+    _flexibleContentWidth = TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth);
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
 -(void)setContentHeight_:(id)value
 {
 	contentHeight = [TiUtils dimensionValue:value];
+    _flexibleContentHeight = TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight);
 	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
 }
 
--(void)setShowHorizontalScrollIndicator_:(id)value
-{
-	[[self scrollView] setShowsHorizontalScrollIndicator:[TiUtils boolValue:value]];
-}
-
--(void)setShowVerticalScrollIndicator_:(id)value
-{
-	[[self scrollView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
-}
-
--(void)setScrollIndicatorStyle_:(id)value
-{
-	[[self scrollView] setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
-}
-
--(void)setDisableBounce_:(id)value
-{
-	[[self scrollView] setBounces:![TiUtils boolValue:value]];
-}
-
--(void)setScrollingEnabled_:(id)enabled
-{
-    BOOL scrollingEnabled = [TiUtils boolValue:enabled def:YES];
-    [[self scrollView] setScrollEnabled:scrollingEnabled];
-}
-
--(void)setScrollsToTop_:(id)value
-{
-	[[self scrollView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
-}
-
--(void)setHorizontalBounce_:(id)value
-{
-	[[self scrollView] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
-}
-
--(void)setVerticalBounce_:(id)value
-{
-	[[self scrollView] setAlwaysBounceVertical:[TiUtils boolValue:value]];
-}
-
-
--(void)setAlwaysCenterContent_:(id)value
-{
-    [[self scrollView] setCenterContent:[TiUtils boolValue:value]];
-}
-
--(void)setContentOffset_:(id)value withObject:(id)property
-{
-    CGPoint newOffset = [TiUtils pointValue:value];
-	BOOL animated = [TiUtils boolValue:@"animated" properties:property def:(scrollView !=nil)];
-	[[self scrollView] setContentOffset:newOffset animated:animated];
-}
-
--(void)setZoomScale_:(id)value withObject:(id)property
-{
-	CGFloat scale = [TiUtils floatValue:value def:1.0];
-	BOOL animated = [TiUtils boolValue:@"animated" properties:property def:NO];
-    if ([property valueForKey:@"point"]) {
-        [self zoomToPoint:[TiUtils pointValue:@"point" properties:property] withScale:scale animated:animated];
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    // Center the image as it becomes smaller than the size of the screen
+    CGSize boundsSize = self.bounds.size;
+    CGRect frameToCenter = wrapperView.frame;
+    
+    // Horizontally
+    if (frameToCenter.size.width < boundsSize.width) {
+        frameToCenter.origin.x = floorf((boundsSize.width - frameToCenter.size.width) / 2.0);
     } else {
-        [[self scrollView] setZoomScale:scale animated:animated];
+        frameToCenter.origin.x = 0;
     }
     
-	scale = [[self scrollView] zoomScale]; //Why are we doing this? Because of minZoomScale or maxZoomScale.
-	if ([self.proxy _hasListeners:@"scale"])
-	{
-		[self.proxy fireEvent:@"scale" withObject:[NSDictionary dictionaryWithObjectsAndKeys:
-											NUMFLOAT(scale),@"scale",
-											nil]];
-	}
-}
-
-- (void)zoomToPoint:(CGPoint)zoomPoint withScale: (CGFloat)scale animated: (BOOL)animated
-{
-    [self scrollView];
-    //Normalize current content size back to content scale of 1.0f
-    CGSize contentSize;
-    contentSize.width = (scrollView.contentSize.width / scrollView.zoomScale);
-    contentSize.height = (scrollView.contentSize.height / scrollView.zoomScale);
-    
-    //translate the zoom point to relative to the content rect
-    zoomPoint.x = (zoomPoint.x / self.bounds.size.width) * contentSize.width;
-    zoomPoint.y = (zoomPoint.y / self.bounds.size.height) * contentSize.height;
-    
-    //derive the size of the region to zoom to
-    CGSize zoomSize;
-    zoomSize.width = self.bounds.size.width / scale;
-    zoomSize.height = self.bounds.size.height / scale;
-    
-    //offset the zoom rect so the actual zoom point is in the middle of the rectangle
-    CGRect zoomRect;
-    zoomRect.origin.x = zoomPoint.x - zoomSize.width / 2.0f;
-    zoomRect.origin.y = zoomPoint.y - zoomSize.height / 2.0f;
-    zoomRect.size.width = zoomSize.width;
-    zoomRect.size.height = zoomSize.height;
-    
-    //apply the resize
-    [scrollView zoomToRect: zoomRect animated: animated];
-}
-
-
--(void)setMaxZoomScale_:(id)args
-{
-    CGFloat val = [TiUtils floatValue:args def:1.0];
-    [[self scrollView] setMaximumZoomScale:val];
-    if ([[self scrollView] zoomScale] > val) {
-        [self setZoomScale_:args withObject:nil];
+    // Vertically
+    if (frameToCenter.size.height < boundsSize.height) {
+        frameToCenter.origin.y = floorf((boundsSize.height - frameToCenter.size.height) / 2.0);
+    } else {
+        frameToCenter.origin.y = 0;
     }
-    else if ([[self scrollView] zoomScale] < [[self scrollView] minimumZoomScale]){
-        [self setZoomScale_:[NSNumber numberWithFloat:[[self scrollView] minimumZoomScale]] withObject:nil];
+    
+    // Center
+    if (!CGRectEqualToRect(wrapperView.frame, frameToCenter)) {
+        wrapperView.frame = frameToCenter;
     }
 }
 
--(void)setMinZoomScale_:(id)args
+- (void)zoomToPoint:(CGPoint)touchPoint withScale: (CGFloat)scale animated: (BOOL)animated
 {
-    CGFloat val = [TiUtils floatValue:args def:1.0];
-    [[self scrollView] setMinimumZoomScale:val];
-    if ([[self scrollView] zoomScale] < val) {
-        [self setZoomScale_:args withObject:nil];
-    }
+    touchPoint.x -= wrapperView.frame.origin.x;
+    touchPoint.y -= wrapperView.frame.origin.y;
+    [super zoomToPoint:touchPoint withScale:scale animated:animated];
 }
-
--(void)setCanCancelEvents_:(id)args
-{
-	[[self scrollView] setCanCancelContentTouches:[TiUtils boolValue:args def:YES]];
-}
-
 #pragma mark scrollView delegate stuff
-
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_               // any offset changes
-{
-	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndDecelerating:scrollView_];
-}
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView_               // any offset changes
-{
-	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidScroll:scrollView_];
-}
 
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
 {
 	return [self wrapperView];
 }
 
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(CGFloat)scale
-{
-	// scale between minimum and maximum. called after any 'bounce' animations
-	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView*)view atScale:scale];
-}
-
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView_
 {
-	CGSize boundsSize = scrollView.bounds.size;
-    CGRect frameToCenter = wrapperView.frame;
-	if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
-		if (frameToCenter.size.width < boundsSize.width) {
-			frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2;
-		} else {
-			frameToCenter.origin.x = 0;
-		}
-	}
-	if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight) || TiDimensionIsUndefined(contentHeight)) {
-		if (frameToCenter.size.height < boundsSize.height) {
-			frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2;
-		} else {
-			frameToCenter.origin.y = 0;
-		}
-	}
-    wrapperView.frame = frameToCenter;	
+    [self setNeedsLayout];
+    [self layoutIfNeeded];
+    [super scrollViewDidZoom:scrollView_];
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView_  
+
+
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(CGFloat)scale
 {
-	// Tells the delegate when the scroll view is about to start scrolling the content.
-	[(id<UIScrollViewDelegate>)[self proxy] scrollViewWillBeginDragging:scrollView_];
+    [super scrollViewDidEndZooming:scrollView_ withView:view atScale:scale];
 }
 
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView_ willDecelerate:(BOOL)decelerate
+-(id)zoomScale_ {
+    return @(scrollview.zoomScale);
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-	//Tells the delegate when dragging ended in the scroll view.
-	[(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndDragging:scrollView_ willDecelerate:decelerate];
+    [super scrollViewDidScroll:scrollView];
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    [super scrollViewWillBeginDragging:scrollView];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    [super scrollViewDidEndDecelerating:scrollView];
+}
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+{
+    return [super scrollViewShouldScrollToTop:scrollView];
+}
+
+- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
+{
+    return [super scrollViewDidScrollToTop:scrollView];
 }
 
 #pragma mark Keyboard delegate stuff
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	InsetScrollViewForKeyboard(scrollView,keyboardTop,minimumContentHeight);
+	InsetScrollViewForKeyboard(scrollview,keyboardTop,minimumContentHeight);
 }
 
 -(void)scrollToShowView:(UIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
-    if ([scrollView isScrollEnabled]) {
+    if ([scrollview isScrollEnabled]) {
         CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
-        OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
+        OffsetScrollViewForRect(scrollview,keyboardTop,minimumContentHeight,responderRect);
     }
 }
 

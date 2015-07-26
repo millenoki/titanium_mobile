@@ -14,14 +14,13 @@
     UIView * touchedContentView;
 }
 -(void)setTouchHandler:(TiUIView*)handler;
-@property(nonatomic,assign) BOOL centerContent;
 
 @end
 
 @interface TiUIScrollView : TiScrollingView<TiScrolling,UIScrollViewDelegate> {
 
 @private
-	TiUIScrollViewImpl * scrollView;
+	TiUIScrollViewImpl * scrollview;
 	UIView * wrapperView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
@@ -32,18 +31,15 @@
 	
 }
 
-@property(nonatomic,retain,readonly) TiUIScrollViewImpl * scrollView;
+@property(nonatomic,retain,readonly) TiUIScrollViewImpl * scrollview;
 
-@property(nonatomic,readonly) TiDimension contentWidth;
+//@property(nonatomic,readonly) TiDimension contentWidth;
 
 -(void)setNeedsHandleContentSize;
 -(void)setNeedsHandleContentSizeIfAutosizing;
 -(BOOL)handleContentSizeIfNeeded;
 -(void)handleContentSize;
--(void)setContentOffset_:(id)value withObject:(id)property;
--(void)setZoomScale_:(id)value withObject:(id)property;
 -(UIView *)wrapperView;
--(void)scrollToBottom;
 -(BOOL)flexibleContentWidth;
 -(BOOL)flexibleContentHeight;
 @end

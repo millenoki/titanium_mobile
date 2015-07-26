@@ -797,12 +797,6 @@ static NSDictionary* replaceKeysForRow;
     pruneSections = [TiUtils boolValue:args def:NO];
 }
 
--(void)setScrollingEnabled_:(id)args
-{
-    UICollectionView *table = [self tableView];
-    [table setScrollEnabled:[TiUtils boolValue:args def:YES]];
-}
-
 -(void)setScrollDirection_:(id)args
 {
     UICollectionViewScrollDirection direction = ([args isKindOfClass:[NSString class]] && [args caseInsensitiveCompare:@"horizontal"]== NSOrderedSame)?UICollectionViewScrollDirectionHorizontal:UICollectionViewScrollDirectionVertical;
@@ -1020,21 +1014,6 @@ static NSDictionary* replaceKeysForRow;
     }
 }
 
-- (void)setScrollIndicatorStyle_:(id)value
-{
-	[self.tableView setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
-}
-
-- (void)setWillScrollOnStatusTap_:(id)value
-{
-	[self.tableView setScrollsToTop:[TiUtils boolValue:value def:YES]];
-}
-
-- (void)setShowVerticalScrollIndicator_:(id)value
-{
-	[self.tableView setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
-}
-
 -(void)setAllowsSelection_:(id)value
 {
     allowsSelection = [TiUtils boolValue:value];
@@ -1056,31 +1035,11 @@ static NSDictionary* replaceKeysForRow;
 //    }
 //}
 
--(void)setDelaysContentTouches_:(id)value
-{
-    [[self tableView] setDelaysContentTouches:[TiUtils boolValue:value def:YES]];
-}
-
-
 -(void)setScrollSuspendsImageLoading_:(id)value
 {
     _scrollSuspendImageLoading = [TiUtils boolValue:value def:_scrollSuspendImageLoading];
 }
 
--(void)setDisableBounce_:(id)value
-{
-	[[self tableView] setBounces:![TiUtils boolValue:value]];
-}
-
--(void)setHorizontalBounce_:(id)value
-{
-    [[self tableView] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
-}
-
--(void)setVerticalBounce_:(id)value
-{
-    [[self tableView] setAlwaysBounceVertical:[TiUtils boolValue:value]];
-}
 
 -(void)setScrollHidesKeyboard_:(id)value
 {

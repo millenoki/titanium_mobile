@@ -123,6 +123,16 @@
 	[self replaceValue:args forKey:@"views" notification:YES];
 }
 
+-(id)getView:(id)args
+{
+    ENSURE_SINGLE_ARG(args, NSNumber)
+    NSInteger index = [TiUtils intValue:args def:-1];
+    if (index >= 0 && index < [viewProxies count]) {
+        return [viewProxies objectAtIndex:index];
+    }
+    return nil;
+}
+
 -(void)addView:(id)args
 {
 	ENSURE_SINGLE_ARG(args,TiViewProxy);
