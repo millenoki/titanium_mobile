@@ -259,7 +259,7 @@
 
 -(CGSize)contentSizeForSize:(CGSize)size
 {
-    return [self sizeThatFits:CGSizeZero];
+    return [self sizeThatFits:size];
 }
 
 @end
