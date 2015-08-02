@@ -86,7 +86,12 @@
             "title":"CMDActivityViewController",
             "copyright":"Copyright (c) Caleb Davenport 2014",
              "licenseId":"mit"
-        }
+        },
+        "NJKWebViewProgress":{
+            "title":"NJKWebViewProgress",
+            "copyright":"Copyright (c) 2013 Satoshi Asano",
+             "licenseId":"mit"
+        },
     },
     "android":{
         "VerticalViewPager":{

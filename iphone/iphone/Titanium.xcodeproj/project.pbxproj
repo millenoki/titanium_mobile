@@ -673,6 +673,12 @@
 		D535CCE719CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
 		D535CCE819CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
 		D535CCE919CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
+		D535F3F91B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */; };
+		D535F3FA1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */; };
+		D535F3FB1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */; };
+		D535F3FC1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */; };
+		D535F3FD1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */; };
+		D535F3FE1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */; };
 		D5370D94194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D95194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D96194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
@@ -2313,6 +2319,10 @@
 		D535CCE119CF2C77005E114E /* SLColorArt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SLColorArt.m; path = ../Classes/ColorArt/SLColorArt.m; sourceTree = "<group>"; };
 		D535CCE519CF333A005E114E /* UIImage+UserInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+UserInfo.h"; sourceTree = "<group>"; };
 		D535CCE619CF333A005E114E /* UIImage+UserInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+UserInfo.m"; sourceTree = "<group>"; };
+		D535F3F51B6E53E300B06B5A /* NJKWebViewProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJKWebViewProgress.h; sourceTree = "<group>"; };
+		D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJKWebViewProgress.m; sourceTree = "<group>"; };
+		D535F3F71B6E53E300B06B5A /* NJKWebViewProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NJKWebViewProgressView.h; sourceTree = "<group>"; };
+		D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NJKWebViewProgressView.m; sourceTree = "<group>"; };
 		D5370D92194749DF000E30FC /* TiParentingProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiParentingProxy.h; sourceTree = "<group>"; };
 		D5370D93194749DF000E30FC /* TiParentingProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiParentingProxy.m; sourceTree = "<group>"; };
 		D53DC7B119CF427100BB31C9 /* UIImage+ColorArt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+ColorArt.h"; path = "../Classes/ColorArt/UIImage+ColorArt.h"; sourceTree = "<group>"; };
@@ -2933,6 +2943,7 @@
 		24CA8903111160C30084E2DE /* Thirdparty */ = {
 			isa = PBXGroup;
 			children = (
+				D535F3F41B6E53E300B06B5A /* NJKWebViewProgress */,
 				D512D1CA1ACE75A40005550B /* fmdb */,
 				D5EEA1091A37468E00E8BB3F /* DDMathParser */,
 				D59355541A233EE000522BC3 /* SevenSwitch */,
@@ -4478,6 +4489,18 @@
 			name = ColorArt;
 			sourceTree = "<group>";
 		};
+		D535F3F41B6E53E300B06B5A /* NJKWebViewProgress */ = {
+			isa = PBXGroup;
+			children = (
+				D535F3F51B6E53E300B06B5A /* NJKWebViewProgress.h */,
+				D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */,
+				D535F3F71B6E53E300B06B5A /* NJKWebViewProgressView.h */,
+				D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */,
+			);
+			name = NJKWebViewProgress;
+			path = ../Classes/NJKWebViewProgress;
+			sourceTree = "<group>";
+		};
 		D54324061B64DA47009C24EC /* Gestures */ = {
 			isa = PBXGroup;
 			children = (
@@ -5467,9 +5490,11 @@
 				24CA8C0E111161FE0084E2DE /* AccelerometerModule.m in Sources */,
 				D52956FA1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */,
 				B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */,
+				D535F3F91B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */,
 				B421C4161113AAA900DBCB42 /* TiUIScrollableView.m in Sources */,
 				B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */,
 				B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */,
+				D535F3FC1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */,
 				D5809D5619129CEB005A1F02 /* APSHTTPPostForm.m in Sources */,
 				24EB02C2111BF827001DC2D1 /* TiUIWebView.m in Sources */,
 				24EB07D4111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */,
@@ -5980,6 +6005,7 @@
 				24D0700711D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
 				D5EEA1561A37486100E8BB3F /* _DDFunctionTerm.m in Sources */,
 				2467310711E2549300D39AF7 /* Webcolor.m in Sources */,
+				D535F3FA1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */,
 				2465592511E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
 				243AAFB611FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
 				D58DCBD317FF193D0011FE0E /* TiTransitionHelper.m in Sources */,
@@ -6029,6 +6055,7 @@
 				1DCC543013FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
 				D5509FD9194B1C2D00655C61 /* AnalyticsModule.m in Sources */,
 				1D19459713FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
+				D535F3FD1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */,
 				1D19459C13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */,
 				D5C8C96B17EF45C900F54C19 /* ADCarrouselTransition.m in Sources */,
 				EF0ADCFB143F9ABF00977386 /* NSData+Additions.m in Sources */,
@@ -6403,6 +6430,7 @@
 				DABB377A12E8CB280026A6EA /* TiUIiOSProxy.m in Sources */,
 				D5EEA1571A37486100E8BB3F /* _DDFunctionTerm.m in Sources */,
 				DABB377E12E8CB280026A6EA /* Webcolor.m in Sources */,
+				D535F3FB1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */,
 				DABB377F12E8CB280026A6EA /* TiFilesystemBlobProxy.m in Sources */,
 				DABB378012E8CB280026A6EA /* TiUIDashboardItem.m in Sources */,
 				D58DCBD417FF193D0011FE0E /* TiTransitionHelper.m in Sources */,
@@ -6452,6 +6480,7 @@
 				1DCC543113FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
 				D5509FDA194B1C2D00655C61 /* AnalyticsModule.m in Sources */,
 				1D19459813FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
+				D535F3FE1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */,
 				1D19459D13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */,
 				D5C8C96C17EF45C900F54C19 /* ADCarrouselTransition.m in Sources */,
 				EF0ADCFC143F9ABF00977386 /* NSData+Additions.m in Sources */,
