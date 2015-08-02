@@ -68,6 +68,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
     APSHTTPRequest* _currentRequest;
     BOOL _asyncLoad;
+    NJKWebViewProgress* _progressProxy;
 }
 @synthesize reloadData, reloadDataProperties;
 
@@ -107,6 +108,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	RELEASE_TO_NIL(reloadDataProperties);
 	RELEASE_TO_NIL(lastValidLoad);
     RELEASE_TO_NIL(_currentRequest);
+    RELEASE_TO_NIL(_progressProxy)
 	[super dealloc];
 }
 
@@ -164,6 +166,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		webview.contentMode = UIViewContentModeRedraw;
 		webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 		[self addSubview:webview];
+        
+        _progressProxy = [[NJKWebViewProgress alloc] init]; // instance variable
+        webview.delegate = _progressProxy;
+        _progressProxy.webViewProxyDelegate = self;
+        _progressProxy.progressDelegate = self;
 
 		BOOL hideLoadIndicator = [TiUtils boolValue:[self.proxy valueForKey:@"hideLoadIndicator"] def:NO];
 		
@@ -848,6 +855,12 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
+    if ([[self viewProxy] _hasListeners:@"startload" checkParent:NO])
+    {
+        [self.proxy fireEvent:@"startload" withObject:@{
+                                                        @"url":[[webview request] URL]
+                                                        } propagate:NO checkForListener:NO];
+    }
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView
@@ -858,10 +871,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     NSString* urlAbs = [url absoluteString];
     [[self proxy] replaceValue:urlAbs forKey:@"url" notification:NO];
 	
-    if ([self.proxy _hasListeners:@"load"]) {
+    if ([[self viewProxy] _hasListeners:@"load" checkParent:NO])
+    {
         if (![urlAbs isEqualToString:lastValidLoad]) {
             NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
-            [self.proxy fireEvent:@"load" withObject:event];
+            [self.proxy fireEvent:@"load" withObject:event propagate:NO checkForListener:NO];
             [lastValidLoad release];
             lastValidLoad = [urlAbs retain];
         }
@@ -891,7 +905,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 	NSLog(@"[ERROR] Error loading: %@, Error: %@",offendingUrl,error);
 
-	if ([self.proxy _hasListeners:@"error"])
+    if ([[self viewProxy] _hasListeners:@"error" checkParent:NO])
 	{
 		NSString * message = [TiUtils messageFromError:error];
 		NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObject:message forKey:@"message"];
@@ -915,10 +929,20 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 		[event setObject:[NSNumber numberWithInteger:returnErrorCode] forKey:@"errorCode"];
 		[event setObject:offendingUrl forKey:@"url"];
-		[self.proxy fireEvent:@"error" withObject:event errorCode:returnErrorCode message:message];
+		[self.proxy fireEvent:@"error" withObject:event propagate:NO reportSuccess:YES errorCode:returnErrorCode message:message checkForListener:NO];
 	}
 }
 
+-(void)webViewProgress:(NJKWebViewProgress *)webViewProgress updateProgress:(float)progress
+{
+    if ([[self viewProxy] _hasListeners:@"loadprogress" checkParent:NO])
+    {
+        [self.proxy fireEvent:@"loadprogress" withObject:@{
+                                                           @"url":[[webview request] URL],
+                                                           @"progress":@(progress)
+                                                        } propagate:NO checkForListener:NO];
+    }
+}
 #pragma mark TiEvaluator
 
 - (void)evalFile:(NSString*)path
