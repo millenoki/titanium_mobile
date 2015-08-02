@@ -459,7 +459,7 @@ public class NotificationHelper {
         CharSequence oldvalue = mNotification.tickerText;
         if (oldvalue != null) {
             if (oldvalue.toString().endsWith(" ")) {
-                mNotification.tickerText = oldvalue.subSequence(0, -1);
+                mNotification.tickerText = oldvalue.subSequence(0, oldvalue.length() - 1);
             } else {
                 mNotification.tickerText = oldvalue + " ";
             }
