@@ -383,7 +383,7 @@ public class TiUILabel extends TiUINonViewGroupView
 			EllipsizingTextView newView = new EllipsizingTextView(getContext());
 //			newView.setInputType(getInputType());
 			newView.setGravity(getGravity());
-			newView.setKeyListener(getKeyListener());
+			newView.setKeyListener(null);
 			TiUIHelper.styleText(newView, getProxy().getProperties().getKrollDict(TiC.PROPERTY_FONT));
 			newView.setEllipsize(ellipsize);
 			newView.singleline = this.singleline;
