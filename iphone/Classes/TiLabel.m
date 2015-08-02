@@ -94,28 +94,38 @@
 
 
 - (void)drawTextInRect:(CGRect)rect {
-    //draw stroke
+    UIColor *shadowColor = self.shadowColor;
     if (_hasStroke) {
-        CGSize shadowOffset = self.shadowOffset;
         UIColor *textColor = self.textColor;
         
         CGContextRef c = UIGraphicsGetCurrentContext();
+        CGContextSaveGState(c);
         CGContextSetLineWidth(c, _strokeWidth);
         CGContextSetLineJoin(c, kCGLineJoinRound);
-        
         CGContextSetTextDrawingMode(c, kCGTextStroke);
+        if (shadowColor) {
+            self.shadowColor = nil;
+            CGContextSetShadowWithColor(c, self.shadowOffset, self.shadowRadius, [shadowColor CGColor]);
+        }
         self.textColor = _strokeColor;
         [super drawTextInRect:rect];
+        CGContextRestoreGState(c);
         
-        CGContextSetTextDrawingMode(c, kCGTextFill);
         self.textColor = textColor;
-        self.shadowOffset = CGSizeMake(0, 0);
         [super drawTextInRect:rect];
-        self.shadowOffset = shadowOffset;
     } else {
-        [super drawTextInRect:rect];
+        if (shadowColor) {
+            self.shadowColor = nil;
+            CGContextRef c = UIGraphicsGetCurrentContext();
+            CGContextSaveGState(c);
+            CGContextSetShadowWithColor(c, self.shadowOffset, self.shadowRadius, [shadowColor CGColor]);
+            [super drawTextInRect:rect];
+            CGContextRestoreGState(c);
+        } else {
+            [super drawTextInRect:rect];
+        }
     }
-    
+    self.shadowColor = shadowColor;
 }
 
 @end
