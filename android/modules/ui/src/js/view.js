@@ -14,10 +14,6 @@ exports.bootstrap = function(Titanium) {
 
 	var _add = View.prototype.add;
 	View.prototype.add = function(child) {
-		
-		if ((child instanceof TiWindow)) {
-			throw new Error("Cannot add window/tabGroup to a view.");	    
-		}
 		this._children = this._children || [];
 		_add.call(this, child);
 		// The children have to be retained by the view in the Javascript side
