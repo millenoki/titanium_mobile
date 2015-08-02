@@ -20,7 +20,7 @@
 @property(nonatomic,readwrite,assign) UIEdgeInsets padding;
 
 @property(nonatomic,readonly) BOOL becameResponder;
-@property(nonatomic,retain) UIColor* hintColor;
+//@property(nonatomic,retain) UIColor* hintColor;
 
 -(void)setTouchHandler:(TiUIView*)handler;
 

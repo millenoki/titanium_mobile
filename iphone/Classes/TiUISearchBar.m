@@ -51,6 +51,7 @@
     TiSearchDisplayController *searchController;
     BOOL hideNavBarWithSearch;
     BOOL showsCancelButton;
+    UITextField *searchBarTextField;
 }
 
 -(void)releaseSearchController {
@@ -78,6 +79,7 @@
 {
     delegate = nil;
 	[searchView setDelegate:nil];
+    RELEASE_TO_NIL(searchBarTextField)
 	RELEASE_TO_NIL(searchView);
 	[self releaseSearchController];
 	[super dealloc];
@@ -85,7 +87,23 @@
 
 -(CGSize)contentSizeForSize:(CGSize)size
 {
-    CGSizeMake(size.width, [[self searchBar] sizeThatFits:CGSizeZero].height);
+   return [[self searchBar] sizeThatFits:size];
+}
+
+-(UITextField*)textWidgetView {
+    if (!searchBarTextField) {
+        for (UIView *subView in self.searchBar.subviews)
+        {
+            for (UIView *secondLevelSubview in subView.subviews){
+                if ([secondLevelSubview isKindOfClass:[UITextField class]])
+                {
+                    searchBarTextField = [(UITextField *)secondLevelSubview retain];
+                    break;
+                }
+            }
+        }
+    }
+    return searchBarTextField;
 }
 
 -(UISearchBar*)searchBar
@@ -251,10 +269,17 @@
 	[[self searchBar] setTranslucent:[TiUtils boolValue:value]];
 }
 
--(void)setStyle_:(id)value
+-(void)setBarStyle_:(id)value
 {
 	[[self searchBar] setBarStyle:[TiUtils intValue:value def:[self searchBar].barStyle]];
 }
+
+
+-(void)setSearchBarStyle_:(id)value
+{
+    [[self searchBar] setSearchBarStyle:[TiUtils intValue:value def:[self searchBar].searchBarStyle]];
+}
+
 
 -(UIImage *)imageWithColor:(UIColor *)color andHeight:(int)height {
     CGRect rect = CGRectMake(0, 0, height, height);
@@ -308,7 +333,6 @@
         searchController.preventHiddingNavBar = !hideNavBarWithSearch;
     }
 }
-
 
 #pragma mark Delegate 
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar

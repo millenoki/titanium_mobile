@@ -135,6 +135,11 @@
 	[(id)[self textWidgetView] setTextColor:(newColor != nil)?newColor:[UIColor darkTextColor]];
 }
 
+-(void)setHintColor_:(id)value
+{
+    [[self textWidgetView] setValue:[[TiUtils colorValue:value] color] forKeyPath:@"_placeholderLabel.textColor"];
+}
+
 -(void)setFont_:(id)font
 {
 	[(id)[self textWidgetView] setFont:[[TiUtils fontValue:font] font]];
