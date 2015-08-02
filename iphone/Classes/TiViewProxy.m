@@ -3419,13 +3419,14 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             return boundingHeight;
         }
         TiDimension constraint = childConstraint->height;
-        
+        CGFloat ratio = childConstraint->sizeRatio;
+      
         if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
         {
             followsFillHBehavior = NO;
             return  TiDimensionCalculateValue(constraint, boundingHeight-offsety);
         }
-        else if (TiDimensionIsUndefined(constraint))
+        else if (TiDimensionIsUndefined(constraint) && ratio == 0)
         {
             if (!TiDimensionIsUndefined(childConstraint->top) && !TiDimensionIsUndefined(childConstraint->centerY) ) {
                 followsFillHBehavior = NO;
@@ -3453,7 +3454,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             followsFillHBehavior = YES;
             return boundingHeight-offsety;
         }
-        else if(childConstraint->sizeRatio > 0){
+        else if(ratio > 0){
             followsFillHBehavior = NO;
             return 0.0f;
         }
@@ -3471,13 +3472,14 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             return boundingWidth;
         }
         TiDimension constraint = childConstraint->width;
+        CGFloat ratio = childConstraint->sizeRatio;
         
         if (TiDimensionIsDip(constraint) || TiDimensionIsPercent(constraint))
         {
             followsFillWBehavior = NO;
             return  TiDimensionCalculateValue(constraint, boundingWidth-offsetx);
         }
-        else if (TiDimensionIsUndefined(constraint))
+        else if (TiDimensionIsUndefined(constraint) && ratio == 0)
         {
             if (!TiDimensionIsUndefined(childConstraint->left) && !TiDimensionIsUndefined(childConstraint->centerX) ) {
                 return 2 * ( TiDimensionCalculateValue(childConstraint->centerX, boundingWidth) - TiDimensionCalculateValue(childConstraint->left, boundingWidth) );
@@ -3505,7 +3507,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
             followsFillWBehavior = YES;
             return boundingWidth-offsetx;
         }
-        else if(childConstraint->sizeRatio > 0){
+        else if(ratio > 0){
             followsFillWBehavior = NO;
             return 0.0f;
         }
