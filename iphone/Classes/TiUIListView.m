@@ -42,7 +42,6 @@
 
 @implementation TiUIListView {
     TiTableView *_tableView;
-    NSDictionary *_templates;
     id _defaultItemTemplate;
     BOOL hideOnSearch;
     BOOL searchViewAnimating;
@@ -51,14 +50,13 @@
     TiDimension _minRowHeight;
     TiDimension _maxRowHeight;
 
-//    UITableViewController *tableController;
+    UITableViewController *tableController;
+    TiSearchDisplayController *searchController;
 
     NSMutableArray * sectionTitles;
     NSMutableArray * sectionIndices;
     NSMutableArray * filteredTitles;
     NSMutableArray * filteredIndices;
-
-//    UIView *_pullViewWrapper;
 
     BOOL editing;
     BOOL pruneSections;
@@ -73,14 +71,11 @@
     NSMutableArray* _searchResults;
     UIEdgeInsets _defaultSeparatorInsets;
     
-    NSMutableDictionary* _measureProxies;
     BOOL _scrollSuspendImageLoading;
     BOOL hasOnDisplayCell;
     BOOL _updateInsetWithKeyboard;
     
     NSInteger _currentSection;
-
-
     
     BOOL _canSwipeCells;
     MGSwipeTableCell * _currentSwipeCell;
@@ -137,11 +132,12 @@ static NSDictionary* replaceKeysForRow;
     _tableView.delegate = nil;
     _tableView.dataSource = nil;
     RELEASE_TO_NIL(_tableView)
-    RELEASE_TO_NIL(_templates)
     RELEASE_TO_NIL(_defaultItemTemplate)
     RELEASE_TO_NIL(_searchString)
     RELEASE_TO_NIL(_searchResults)
 //    RELEASE_TO_NIL(_pullViewWrapper)
+    RELEASE_TO_NIL(tableController);
+    RELEASE_TO_NIL(searchController);
 
     RELEASE_TO_NIL(_appearAnimation)
     RELEASE_TO_NIL(_shownIndexes)
@@ -149,7 +145,7 @@ static NSDictionary* replaceKeysForRow;
     RELEASE_TO_NIL(sectionIndices)
     RELEASE_TO_NIL(filteredTitles)
     RELEASE_TO_NIL(filteredIndices)
-    RELEASE_TO_NIL(_measureProxies)
+    
     [super dealloc];
 }
 -(void)setHeaderFooter:(TiViewProxy*)theProxy isHeader:(BOOL)header
@@ -362,40 +358,43 @@ static NSDictionary* replaceKeysForRow;
         setInset();
     }
 }
-
-- (void)setTemplates_:(id)args
+-(void)setTemplates_:(id)args
 {
-    ENSURE_TYPE_OR_NIL(args,NSDictionary);
-	NSMutableDictionary *templates = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
-	NSMutableDictionary *measureProxies = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
-	[(NSDictionary *)args enumerateKeysAndObjectsUsingBlock:^(NSString *key, id obj, BOOL *stop) {
-		TiProxyTemplate *template = [TiProxyTemplate templateFromViewTemplate:obj];
-		if (template != nil) {
-			[templates setObject:template forKey:key];
-            
-            //create fake proxy for height computation
-            id<TiEvaluator> context = self.listViewProxy.executionContext;
-            if (context == nil) {
-                context = self.listViewProxy.pageContext;
-            }
-            TiUIListItemProxy *cellProxy = [[TiUIListItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:context];
-            [cellProxy unarchiveFromTemplate:template withEvents:NO];
-            [cellProxy bindings];
-            [measureProxies setObject:cellProxy forKey:key];
-            [cellProxy release];
-		}
-	}];
-    
-	[_templates release];
-	_templates = [templates copy];
-	[templates release];
-    
-    [_measureProxies release];
-	_measureProxies = [measureProxies copy];
-	[measureProxies release];
-    
     [self reloadTableViewData];
 }
+//- (void)setTemplates_:(id)args
+//{
+//    ENSURE_TYPE_OR_NIL(args,NSDictionary);
+//	NSMutableDictionary *templates = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
+//	NSMutableDictionary *measureProxies = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
+//	[(NSDictionary *)args enumerateKeysAndObjectsUsingBlock:^(NSString *key, id obj, BOOL *stop) {
+//		TiProxyTemplate *template = [TiProxyTemplate templateFromViewTemplate:obj];
+//		if (template != nil) {
+//			[templates setObject:template forKey:key];
+//            
+//            //create fake proxy for height computation
+//            id<TiEvaluator> context = self.listViewProxy.executionContext;
+//            if (context == nil) {
+//                context = self.listViewProxy.pageContext;
+//            }
+//            TiUIListItemProxy *cellProxy = [[TiUIListItemProxy alloc] initWithListViewProxy:self.listViewProxy inContext:context];
+//            [cellProxy unarchiveFromTemplate:template withEvents:NO];
+//            [cellProxy bindings];
+//            [measureProxies setObject:cellProxy forKey:key];
+//            [cellProxy release];
+//		}
+//	}];
+//    
+//	[_templates release];
+//	_templates = [templates copy];
+//	[templates release];
+//    
+//    [_measureProxies release];
+//	_measureProxies = [measureProxies copy];
+//	[measureProxies release];
+//    
+//    [self reloadTableViewData];
+//}
 
 -(TiViewProxy*)sectionViewProxy:(NSInteger)section forLocation:(NSString*)location
 {
@@ -582,7 +581,7 @@ static NSDictionary* replaceKeysForRow;
             templateId = _defaultItemTemplate;
         }
         if (![templateId isKindOfClass:[NSNumber class]]) {
-            TiProxyTemplate *template = [_templates objectForKey:templateId];
+            TiProxyTemplate *template = [self.listViewProxy.templates objectForKey:templateId];
             theValue = [template.properties objectForKey:replaceKey];
         }
         if (theValue == nil) {
@@ -927,11 +926,11 @@ static NSDictionary* replaceKeysForRow;
 
 -(TiSearchDisplayController*) searchController
 {
-    id obj = [self holdedProxyForKey:@"searchView"];
-    if (obj) {
-        return [(TiUISearchBarProxy*) obj searchController];
+    TiUISearchBarProxy* vp = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
+    if (vp && vp.canHaveSearchDisplayController) {
+        return [(TiUISearchBarProxy*) vp searchController];
     }
-    return nil;
+    return searchController;
 }
 
 -(void)setCaseInsensitiveSearch_:(id)args
@@ -971,9 +970,11 @@ static NSDictionary* replaceKeysForRow;
 //}
 
 -(void)setSearchViewExternal_:(id)args {
-    ENSURE_SINGLE_ARG_OR_NIL(args, TiUISearchBarProxy);
-//    RELEASE_TO_NIL(tableController);
+    RELEASE_TO_NIL(tableController);
+    ENSURE_SINGLE_ARG_OR_NIL(args, TiUISearchBarProxy)
+    
     id vp = [[self viewProxy] addProxyToHold:args setParent:NO forKey:@"searchView" shouldRelayout:NO];
+    
     if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
 //        [self tableView];
         [(TiUISearchBarProxy*)vp setReadyToCreateView:YES];
@@ -989,12 +990,12 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setSearchView_:(id)args
 {
-//    RELEASE_TO_NIL(tableController);
+    RELEASE_TO_NIL(tableController);
     id vp = [[self viewProxy] addObjectToHold:args forKey:@"searchView"];
     if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
         [(TiUISearchBarProxy*)vp setReadyToCreateView:YES];
         [(TiUISearchBarProxy*)vp setDelegate:self];
-        ((TiUISearchBarProxy*)vp).canHaveSearchDisplayController = YES;
+//        ((TiUISearchBarProxy*)vp).canHaveSearchDisplayController = YES;
         [[self getOrCreateHeaderHolder] addProxy:vp atIndex:0 shouldRelayout:YES];
         if (searchHidden)
 		{
@@ -1101,10 +1102,14 @@ static NSDictionary* replaceKeysForRow;
         if (keepSectionsInSearch && ([_searchResults count] > 0) && (filteredTitles != nil) && (filteredIndices != nil) ) {
             // get the index for the title
             NSUInteger index = [filteredTitles indexOfObject:title];
+            int sectionIndex = [[filteredIndices objectAtIndex:index] intValue];
 
             if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
-                NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
-                [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+                [[self proxy] fireEvent:@"indexclick" withObject:@{
+                                                                   @"title":title,
+                                                                   @"index":@(index),
+                                                                   @"sectionIndex":@(sectionIndex),
+                                                                   } propagate:NO checkForListener:NO];
             }
 
             if (index > 0 && (index < [filteredIndices count]) ) {
@@ -1122,8 +1127,12 @@ static NSDictionary* replaceKeysForRow;
         int sectionIndex = [[sectionIndices objectAtIndex:index] intValue];
 
         if([(TiViewProxy*)[self proxy] _hasListeners:@"indexclick" checkParent:NO]) {
-            NSDictionary *eventArgs = [NSDictionary dictionaryWithObjectsAndKeys: title, @"title", NUMUINTEGER(index), @"index", nil];
-            [[self proxy] fireEvent:@"indexclick" withObject:eventArgs propagate:NO];
+            
+            [[self proxy] fireEvent:@"indexclick" withObject:@{
+                                                               @"title":title,
+                                                               @"index":@(index),
+                                                               @"sectionIndex":@(sectionIndex),
+                                                               } propagate:NO checkForListener:NO];
         }
 
         if (index > 0 && (index < [sectionIndices count]) ) {
@@ -1529,7 +1538,7 @@ static NSDictionary* replaceKeysForRow;
         } else {
             [cell configurationStart];
             cell = [[TiUIListItem alloc] initWithProxy:cellProxy position:position grouped:grouped reuseIdentifier:cellIdentifier];
-            id template = [_templates objectForKey:templateId];
+            id template = [self.listViewProxy.templates objectForKey:templateId];
             if (template != nil) {
                 [cellProxy unarchiveFromTemplate:template withEvents:YES];
                 [cellProxy windowWillOpen];
@@ -1958,7 +1967,7 @@ static NSDictionary* replaceKeysForRow;
 //            cellProxy = [((TiUIListItem*)visibleCell) proxy];
 //        }
         if (!cellProxy) {
-            cellProxy = [_measureProxies objectForKey:templateId];
+            cellProxy = [self.listViewProxy.measureProxies objectForKey:templateId];
         }
         if (cellProxy != nil) {
             CGFloat width = [cellProxy sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
@@ -2185,6 +2194,7 @@ static NSDictionary* replaceKeysForRow;
     if (vp) {
         [vp layoutProperties]->right = TiDimensionDip(0);
         [vp refreshViewIfNeeded];
+        [self initSearchController:self];
     }
 }
 
@@ -2261,6 +2271,7 @@ static NSDictionary* replaceKeysForRow;
         }
         [searchViewProxy ensureSearchBarHeirarchy];
     }
+    [self clearSearchController:self];
     [self reloadTableViewData];
     [self hideSearchScreen:nil];
 //    [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
@@ -2354,6 +2365,35 @@ static NSDictionary* replaceKeysForRow;
         return [NSIndexPath indexPathForRow:0 inSection:nextSection];
     } else {
         return [NSIndexPath indexPathForRow:(indexPath.row + 1) inSection:indexPath.section];
+    }
+}
+
+-(void)clearSearchController:(id)sender
+{
+    if (sender == self) {
+        TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
+        if (!searchViewProxy.canHaveSearchDisplayController) {
+            RELEASE_TO_NIL(tableController);
+            RELEASE_TO_NIL(searchController);
+            [searchViewProxy ensureSearchBarHeirarchy];
+        }
+        
+    }
+}
+
+-(void)initSearchController:(id)sender
+{
+    if (sender == self && tableController == nil) {
+        TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
+        if (!searchViewProxy.canHaveSearchDisplayController) {
+            tableController = [[UITableViewController alloc] init];
+            [TiUtils configureController:tableController withObject:nil];
+            tableController.tableView = [self tableView];
+            searchController = [[TiSearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
+            searchController.searchResultsDataSource = self;
+            searchController.searchResultsDelegate = self;
+            searchController.delegate = self;
+        }
     }
 }
 

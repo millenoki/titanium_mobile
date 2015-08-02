@@ -12,6 +12,7 @@
 #import "TiUICollectionItemProxy.h"
 #import "TiUILabelProxy.h"
 #import "TiUISearchBarProxy.h"
+#import "TiUISearchBar.h"
 #import "ImageLoader.h"
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
@@ -44,7 +45,7 @@
 
 @implementation TiUICollectionView {
     TiCollectionView *_tableView;
-    NSDictionary *_templates;
+
     id _defaultItemTemplate;
     BOOL hideOnSearch;
     BOOL searchViewAnimating;
@@ -59,6 +60,7 @@
 
 
     UICollectionViewController *tableController;
+    TiSearchDisplayController *searchController;
 
     NSMutableArray * sectionTitles;
     NSMutableArray * sectionIndices;
@@ -78,7 +80,6 @@
     NSMutableArray* _searchResults;
     UIEdgeInsets _defaultSeparatorInsets;
     
-    NSMutableDictionary* _measureProxies;
     BOOL _scrollSuspendImageLoading;
     BOOL _scrollHidesKeyboard;
     BOOL hasOnDisplayCell;
@@ -137,16 +138,16 @@ static NSDictionary* replaceKeysForRow;
     _tableView.delegate = nil;
     _tableView.dataSource = nil;
     RELEASE_TO_NIL(_tableView)
-    RELEASE_TO_NIL(_templates)
     RELEASE_TO_NIL(_defaultItemTemplate)
     RELEASE_TO_NIL(_searchString)
     RELEASE_TO_NIL(_searchResults)
     RELEASE_TO_NIL(tableController)
+    RELEASE_TO_NIL(searchController)
     RELEASE_TO_NIL(sectionTitles)
     RELEASE_TO_NIL(sectionIndices)
     RELEASE_TO_NIL(filteredTitles)
     RELEASE_TO_NIL(filteredIndices)
-    RELEASE_TO_NIL(_measureProxies)
+
     RELEASE_TO_NIL(_appearAnimation)
     RELEASE_TO_NIL(_shownIndexes)
     [super dealloc];
@@ -250,7 +251,7 @@ static NSDictionary* replaceKeysForRow;
     //            }
     //        }
     //
-    if (!searchViewAnimating && ![[self searchController] isActive]) {
+    if (!searchViewAnimating) {
         
         TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
         if (searchViewProxy) {
@@ -363,24 +364,8 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)setTemplates_:(id)args
 {
-    ENSURE_TYPE_OR_NIL(args,NSDictionary);
-	NSMutableDictionary *templates = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
-	NSMutableDictionary *measureProxies = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
-	[(NSDictionary *)args enumerateKeysAndObjectsUsingBlock:^(NSString *key, id obj, BOOL *stop) {
-		TiProxyTemplate *template = [TiProxyTemplate templateFromViewTemplate:obj];
-		if (template != nil) {
-			[templates setObject:template forKey:key];
-            
-            //create fake proxy for height computation
-            id<TiEvaluator> context = self.listViewProxy.executionContext;
-            if (context == nil) {
-                context = self.listViewProxy.pageContext;
-            }
-            TiUICollectionItemProxy *cellProxy = [[TiUICollectionItemProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
-            [cellProxy unarchiveFromTemplate:template withEvents:NO];
-            [cellProxy bindings];
-            [measureProxies setObject:cellProxy forKey:key];
-            [cellProxy release];
+	[self.listViewProxy.templates enumerateKeysAndObjectsUsingBlock:^(NSString *key, id obj, BOOL *stop) {
+
             NSString *cellIdentifier = [key isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUIListView__internal%@", key]: [key description];
             
             
@@ -391,16 +376,7 @@ static NSDictionary* replaceKeysForRow;
             } else {
                 [[self tableView] registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:cellIdentifier];
             }
-		}
 	}];
-    
-	[_templates release];
-	_templates = [templates copy];
-	[templates release];
-    
-    [_measureProxies release];
-	_measureProxies = [measureProxies copy];
-	[measureProxies release];
     
     [self reloadTableViewData];
 }
@@ -528,12 +504,6 @@ static NSDictionary* replaceKeysForRow;
     // * The hide when the search controller was active is animated
     // * The animation only occurs once
     
-    if ([[self searchController] isActive]) {
-        [[self searchController] setActive:NO animated:YES];
-        searchActive = NO;
-        return;
-    }
-    
     searchActive = NO;
     if (![(TiViewProxy*)self.proxy viewReady]) {
         return;
@@ -623,7 +593,7 @@ static NSDictionary* replaceKeysForRow;
             templateId = _defaultItemTemplate;
         }
         if (![templateId isKindOfClass:[NSNumber class]]) {
-            TiProxyTemplate *template = [_templates objectForKey:templateId];
+            TiProxyTemplate *template = [self.listViewProxy.templates objectForKey:templateId];
             theValue = [template.properties objectForKey:key];
         }
         if (theValue == nil) {
@@ -647,7 +617,7 @@ static NSDictionary* replaceKeysForRow;
             templateId = _defaultItemTemplate;
         }
         if (![templateId isKindOfClass:[NSNumber class]]) {
-            TiProxyTemplate *template = [_templates objectForKey:templateId];
+            TiProxyTemplate *template = [self.listViewProxy.templates objectForKey:templateId];
             theValue = [template.properties objectForKey:replaceKey];
         }
         if (theValue == nil) {
@@ -658,6 +628,19 @@ static NSDictionary* replaceKeysForRow;
     return theValue;
 }
 
+-(id)firstItemValueForKeys:(NSArray*)keys atIndexPath:(NSIndexPath*)indexPath
+{
+    NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
+    NSDictionary* properties = [item objectForKey:@"properties"]?[item objectForKey:@"properties"]:item;
+    __block id theResult = nil;
+    [keys enumerateObjectsUsingBlock:^(NSString* key, NSUInteger idx, BOOL *stop) {
+        theResult = [properties objectForKey:key];
+        if (theResult) {
+            *stop = YES;
+        }
+    }];
+    return theResult;
+}
 
 -(void)buildResultsForSearchText
 {
@@ -683,7 +666,7 @@ static NSDictionary* replaceKeysForRow;
             NSUInteger maxItems = [[self.listViewProxy sectionForIndex:i] itemCount];
             for (int j = 0; j < maxItems; j++) {
                 NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:i];
-                id theValue = [self valueWithKey:@"searchableText" atIndexPath:thePath];
+                id theValue = [self firstItemValueForKeys:@[@"searchableText", @"title"] atIndexPath:thePath];
                 if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
                     (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
                     hasResults = YES;
@@ -730,7 +713,7 @@ static NSDictionary* replaceKeysForRow;
 
 -(BOOL) isSearchActive
 {
-    return searchActive || [[self searchController] isActive];
+    return searchActive;
 }
 
 - (void)updateSearchResults:(id)unused
@@ -738,18 +721,16 @@ static NSDictionary* replaceKeysForRow;
     if (searchActive) {
         [self buildResultsForSearchText];
     }
-    if ([self isSearchActive]) {
-        [[[self searchController] searchResultsTableView] reloadData];
-    } else {
-        [self reloadTableViewData];
-    }
+    [self reloadTableViewData];
 }
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
 {
-    if (_searchResults != nil) {
+    if (_searchResults != nil && [_searchResults count] > indexPath.section) {
         NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
-        return [sectionResults objectAtIndex:indexPath.row];
+        if([sectionResults count] > indexPath.row) {
+            return [sectionResults objectAtIndex:indexPath.row];
+        }
     }
     return indexPath;
 }
@@ -1001,21 +982,17 @@ static NSDictionary* replaceKeysForRow;
 
 #pragma mark - Search Support
 
--(TiSearchDisplayController*) searchController
-{
-    return [(TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"] searchController];
-}
+//-(TiSearchDisplayController*) searchController
+//{
+//    return [(TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"] searchController];
+//}
 
 -(void)setCaseInsensitiveSearch_:(id)args
 {
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
     if (searchActive) {
         [self buildResultsForSearchText];
-        if ([[self searchController] isActive]) {
-            [[[self searchController] searchResultsTableView] reloadData];
-        } else {
-            [self reloadTableViewData];
-        }
+        [self reloadTableViewData];
     }
 }
 
@@ -1032,22 +1009,14 @@ static NSDictionary* replaceKeysForRow;
 }
 
 -(void)setSearchViewExternal_:(id)args {
-    [self tableView];
     RELEASE_TO_NIL(tableController);
-    id vp = [[self viewProxy] addObjectToHold:args forKey:@"searchView"];
+    ENSURE_SINGLE_ARG_OR_NIL(args, TiUISearchBarProxy)
+
+    id vp = [[self viewProxy] addProxyToHold:args setParent:NO forKey:@"searchView" shouldRelayout:NO];
     if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
         [(TiUISearchBarProxy*)vp setReadyToCreateView:YES];
         [(TiUISearchBarProxy*)vp setDelegate:self];
         ((TiUISearchBarProxy*)vp).canHaveSearchDisplayController = YES;
-        tableController = [[UICollectionViewController alloc] init];
-        [TiUtils configureController:tableController withObject:nil];
-        tableController.collectionView = [self tableView];
-        [tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
-        
-        TiSearchDisplayController* searchController = [self searchController];
-//        searchController.searchResultsDataSource = self;
-//        searchController.searchResultsDelegate = self;
-        searchController.delegate = self;
         if (searchHidden)
         {
             [self hideSearchScreen:nil animated:NO];
@@ -1062,16 +1031,7 @@ static NSDictionary* replaceKeysForRow;
     if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
         [(TiUISearchBarProxy*)vp setReadyToCreateView:YES];
         [(TiUISearchBarProxy*)vp setDelegate:self];
-        tableController = [[UICollectionViewController alloc] init];
-        [TiUtils configureController:tableController withObject:nil];
-        tableController.collectionView = [self tableView];
-        [tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
         [[self getOrCreateHeaderHolder] addProxy:vp atIndex:0 shouldRelayout:YES];
-        
-        TiSearchDisplayController* searchController = [self searchController];
-//        searchController.searchResultsDataSource = self;
-//        searchController.searchResultsDelegate = self;
-        searchController.delegate = self;
         if (searchHidden)
         {
             [self hideSearchScreen:nil animated:NO];
@@ -1344,22 +1304,14 @@ static NSDictionary* replaceKeysForRow;
 {
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
-    NSInteger maxItem = 0;
-    
-    if (_searchResults != nil) {
-        NSArray* sectionResults = [_searchResults objectAtIndex:indexPath.section];
-        maxItem = [sectionResults count];
-    } else {
-        maxItem = theSection.itemCount;
-    }
-    
+
     NSDictionary *item = [theSection itemAtIndex:realIndexPath.row];
     id templateId = [item objectForKey:@"template"];
     if (templateId == nil) {
         templateId = _defaultItemTemplate;
     }
     NSString *cellIdentifier = [templateId isKindOfClass:[NSNumber class]] ? [NSString stringWithFormat:@"TiUICollectionView__internal%@", templateId]: [templateId description];
-    TiUICollectionItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:realIndexPath];
+    TiUICollectionItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
     
     if (cell.proxy == nil) {
         id<TiEvaluator> context = self.listViewProxy.executionContext;
@@ -1369,7 +1321,7 @@ static NSDictionary* replaceKeysForRow;
         TiUICollectionItemProxy *cellProxy = [[TiUICollectionItemProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
         [cell initWithProxy:cellProxy];
         [cell configurationStart];
-        id template = [_templates objectForKey:templateId];
+        id template = [self.listViewProxy.templates objectForKey:templateId];
         if (template != nil) {
             [cellProxy unarchiveFromTemplate:template withEvents:YES];
             [cellProxy windowWillOpen];
@@ -1401,7 +1353,7 @@ static NSDictionary* replaceKeysForRow;
     }
    
     
-    id template = [_templates objectForKey:templateId];
+    id template = [self.listViewProxy.templates objectForKey:templateId];
     if (template != nil) {
         TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
         if (view.proxy == nil) {
@@ -1534,7 +1486,7 @@ static NSDictionary* replaceKeysForRow;
     BOOL visible = realIndexPath?[visibleProp boolValue]:true;
     CGSize result = CGSizeZero;
     if (!visible) return result;
-    result = collectionView.bounds.size;
+    result = self.bounds.size;
     
     TiDimension width = _itemWidth;
     id widthValue = [self valueWithKey:@"columnWidth" atIndexPath:realIndexPath];
@@ -1545,7 +1497,7 @@ static NSDictionary* replaceKeysForRow;
         result.width = [self collectionView:collectionView itemWidth:width.value];
     }
     else if (TiDimensionIsPercent(width) || TiDimensionIsAutoFill(width)) {
-        result.width = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(width, collectionView.bounds.size.width)];
+        result.width = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(width, result.width)];
     }
     
     id heightValue = [self valueWithKey:@"rowHeight" atIndexPath:realIndexPath];
@@ -1558,7 +1510,7 @@ static NSDictionary* replaceKeysForRow;
         result.height = [self collectionView:collectionView itemHeight:height.value];
     }
     else if (TiDimensionIsPercent(height) || TiDimensionIsAutoFill(height)) {
-        result.height = [self collectionView:collectionView itemHeight:TiDimensionCalculateValue(height, collectionView.bounds.size.height)];
+        result.height = [self collectionView:collectionView itemHeight:TiDimensionCalculateValue(height, result.height)];
     }
     
     
@@ -1573,7 +1525,7 @@ static NSDictionary* replaceKeysForRow;
         }
         TiUICollectionItemProxy *cellProxy = nil;
         if (!cellProxy) {
-            cellProxy = [_measureProxies objectForKey:templateId];
+            cellProxy = [self.listViewProxy.measureProxies objectForKey:templateId];
         }
         if (cellProxy != nil) {
             [cellProxy setDataItem:item];
@@ -1631,16 +1583,17 @@ static NSDictionary* replaceKeysForRow;
         return [TiUtils insetValue:[theSection valueForKey:@"inset"]];
     }
     
+    CGFloat width = self.frame.size.width;
     CGFloat itemWidth = 0;
     if (TiDimensionIsDip(_itemWidth)) {
         itemWidth = [self collectionView:collectionView itemWidth:_itemWidth.value];
     }
     else if (TiDimensionIsPercent(_itemWidth) || TiDimensionIsAutoFill(_itemWidth)) {
-        itemWidth = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(_itemWidth, collectionView.bounds.size.width)];
+        itemWidth = [self collectionView:collectionView itemWidth:TiDimensionCalculateValue(_itemWidth, width)];
     }
     if (itemWidth > 0) {
-        NSInteger numberOfCells = self.frame.size.width / itemWidth;
-        NSInteger edgeInsets = (self.frame.size.width - (numberOfCells * itemWidth)) / (numberOfCells + 1);
+        NSInteger numberOfCells = width / itemWidth;
+        NSInteger edgeInsets = (width - (numberOfCells * itemWidth)) / (numberOfCells + 1);
         return UIEdgeInsetsMake(0, edgeInsets, 0, edgeInsets);
     }
     return UIEdgeInsetsZero;
@@ -1664,7 +1617,7 @@ referenceSizeForHeaderInSection:(NSInteger)section
         templateId = @"header";
     }
     CGSize result = CGSizeZero;
-    id template = [_templates objectForKey:templateId];
+    id template = [self.listViewProxy.templates objectForKey:templateId];
     if (template != nil) {
         id visibleProp = [self valueWithKey:@"visible" forSectionItem:item template:templateId];
         BOOL visible = visibleProp?[visibleProp boolValue]:YES;
@@ -1692,7 +1645,7 @@ referenceSizeForHeaderInSection:(NSInteger)section
         {
             TiUICollectionItemProxy *cellProxy = nil;
             if (!cellProxy) {
-                cellProxy = [_measureProxies objectForKey:templateId];
+                cellProxy = [self.listViewProxy.measureProxies objectForKey:templateId];
             }
             if (cellProxy != nil) {
                 [cellProxy setDataItem:item];
@@ -1757,7 +1710,7 @@ referenceSizeForHeaderInSection:(NSInteger)section
     id theValue = [properties objectForKey:key];
     if (theValue == nil) {
         if (![templateId isKindOfClass:[NSNumber class]]) {
-            TiProxyTemplate *template = [_templates objectForKey:templateId];
+            TiProxyTemplate *template = [self.listViewProxy.templates objectForKey:templateId];
             theValue = [template.properties objectForKey:key];
         }
     }
@@ -1819,7 +1772,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     {
         TiUICollectionItemProxy *cellProxy = nil;
         if (!cellProxy) {
-            cellProxy = [_measureProxies objectForKey:templateId];
+            cellProxy = [self.listViewProxy.measureProxies objectForKey:templateId];
         }
         if (cellProxy != nil) {
             [cellProxy setDataItem:item];
@@ -2035,7 +1988,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
     [self buildResultsForSearchText];
-    [[[self searchController] searchResultsTableView] reloadData];
+    [self reloadTableViewData];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
@@ -2043,9 +1996,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     if ([searchBar.text length] == 0) {
         self.searchString = @"";
         [self buildResultsForSearchText];
-        if ([[self searchController] isActive]) {
-            [[self searchController] setActive:NO animated:YES];
-        }
+        [self reloadTableViewData];
     }
 }
 
@@ -2053,6 +2004,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     self.searchString = (searchText == nil) ? @"" : searchText;
     [self buildResultsForSearchText];
+    [self reloadTableViewData];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
@@ -2197,6 +2149,36 @@ referenceSizeForFooterInSection:(NSInteger)section
         return [NSIndexPath indexPathForRow:(indexPath.row + 1) inSection:indexPath.section];
     }
 }
+
+-(void)clearSearchController:(id)sender
+{
+    if (sender == self) {
+        TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
+        if (!searchViewProxy.canHaveSearchDisplayController) {
+            RELEASE_TO_NIL(tableController);
+            RELEASE_TO_NIL(searchController);
+            [searchViewProxy ensureSearchBarHeirarchy];
+        }
+        
+    }
+}
+
+-(void)initSearchController:(id)sender
+{
+    if (sender == self && tableController == nil) {
+        TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
+        if (!searchViewProxy.canHaveSearchDisplayController) {
+            tableController = [[UICollectionViewController alloc] init];
+            [TiUtils configureController:tableController withObject:nil];
+            tableController.collectionView = [self tableView];
+            searchController = [[TiSearchDisplayController alloc] initWithSearchBar:[searchViewProxy searchBar] contentsController:tableController];
+//            searchController.searchResultsDataSource = self;
+//            searchController.searchResultsDelegate = self;
+            searchController.delegate = self;
+        }
+    }
+}
+
 
 #pragma mark - UITapGestureRecognizer
 

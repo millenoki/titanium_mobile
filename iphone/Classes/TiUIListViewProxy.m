@@ -24,6 +24,8 @@
     pthread_mutex_t _operationQueueMutex;
     pthread_rwlock_t _markerLock;
     NSDictionary* _propertiesForItems;
+//    NSMutableDictionary* _measureProxies;
+//    NSDictionary *_templates;
 }
 @synthesize propertiesForItems = _propertiesForItems;
 @synthesize autoResizeOnImageLoad;
@@ -106,6 +108,8 @@ static NSDictionary* listViewKeysToReplace;
     RELEASE_TO_NIL(_sections);
 	RELEASE_TO_NIL(_markerArray);
     RELEASE_TO_NIL(_propertiesForItems);
+    RELEASE_TO_NIL(_measureProxies)
+    RELEASE_TO_NIL(_templates)
     [super dealloc];
 }
 
@@ -292,6 +296,41 @@ static NSDictionary* listViewKeysToReplace;
 //}
 
 #pragma mark - Public API
+
+- (void)setTemplates:(id)args
+{
+    ENSURE_TYPE_OR_NIL(args,NSDictionary);
+    NSMutableDictionary *templates = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
+    NSMutableDictionary *measureProxies = [[NSMutableDictionary alloc] initWithCapacity:[args count]];
+    [(NSDictionary *)args enumerateKeysAndObjectsUsingBlock:^(NSString *key, id obj, BOOL *stop) {
+        TiProxyTemplate *template = [TiProxyTemplate templateFromViewTemplate:obj];
+        if (template != nil) {
+            [templates setObject:template forKey:key];
+            
+            //create fake proxy for height computation
+            id<TiEvaluator> context = self.executionContext;
+            if (context == nil) {
+                context = self.pageContext;
+            }
+            TiUIListItemProxy *cellProxy = [[TiUIListItemProxy alloc] initWithListViewProxy:self inContext:context];
+            [cellProxy unarchiveFromTemplate:template withEvents:NO];
+            [cellProxy bindings];
+            [measureProxies setObject:cellProxy forKey:key];
+            [cellProxy release];
+        }
+    }];
+    
+    [_templates release];
+    _templates = [templates copy];
+    [templates release];
+    
+    [_measureProxies release];
+    _measureProxies = [measureProxies copy];
+    [measureProxies release];
+    
+    [self replaceValue:args forKey:@"templates" notification:YES];
+}
+
 
 - (NSArray *)sections
 {

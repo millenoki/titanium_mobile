@@ -18,6 +18,8 @@
 @property (nonatomic, readonly) NSNumber *sectionCount;
 @property (nonatomic, readonly) NSDictionary *propertiesForItems;
 @property (nonatomic, assign) BOOL autoResizeOnImageLoad;
+@property (nonatomic, readonly) NSDictionary *measureProxies;
+@property (nonatomic, readonly) NSDictionary *templates;
 
 - (TiUICollectionSectionProxy *)sectionForIndex:(NSUInteger)index;
 - (void) deleteSectionAtIndex:(NSUInteger)index;
