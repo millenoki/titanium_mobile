@@ -100,10 +100,11 @@ function AndroidBuilder() {
     this.deployTypes = {
         'emulator': 'development',
         'device': 'test',
+        'dist-adhoc': 'production',
         'dist-playstore': 'production'
     };
 
-    this.targets = ['emulator', 'device', 'dist-playstore'];
+    this.targets = ['emulator', 'device', 'dist-playstore', 'dist-adhoc'];
 
     this.validABIs = ['armeabi', 'armeabi-v7a', 'x86'];
 
