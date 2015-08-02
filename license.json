@@ -91,7 +91,7 @@
             "title":"NJKWebViewProgress",
             "copyright":"Copyright (c) 2013 Satoshi Asano",
              "licenseId":"mit"
-        },
+        }
     },
     "android":{
         "VerticalViewPager":{
