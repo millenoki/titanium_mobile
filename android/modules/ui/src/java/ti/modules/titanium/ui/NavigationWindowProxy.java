@@ -715,11 +715,8 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	if (pushing || poping) return true;
 		if (windows.size() >= 1) {
 			TiWindowProxy currentWindow = getCurrentWindowInternal();
-			if (currentWindow.hasListeners(TiC.EVENT_ANDROID_BACK, false)) {
-				currentWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null, false, false);
-				return true;
-			} else if (hasListeners(TiC.EVENT_ANDROID_BACK, false)) {
-				fireEvent(TiC.EVENT_ANDROID_BACK, null, false, false);
+			if (currentWindow.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+				currentWindow.fireEvent(TiC.EVENT_ANDROID_BACK, null, true);
 				return true;
 			}
 			if (windows.size() >= 2) {
