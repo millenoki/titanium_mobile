@@ -37,7 +37,9 @@
 {
     if (!_unarchiving && ([properties objectForKey:@"properties"] || [properties objectForKey:@"childTemplates"] || [properties objectForKey:@"events"])) {
 //        [self invokeBlockOnJSThread:^{
-            [self unarchiveFromDictionary:properties rootProxy:self];
+        [self rememberSelf];
+        [self unarchiveFromDictionary:properties rootProxy:self];
+        [self forgetSelf];
 //        }];
         return;
     }
@@ -542,33 +544,34 @@
 
 -(NSArray*)addProxiesArrayToHold:(NSArray*)proxies forKey:(NSString*)key shouldRelayout:(BOOL)shouldRelayout
 {
-    
+    if (!_holdedProxies) {
+        pthread_rwlock_init(&_holdedProxiesLock, NULL);
+        _holdedProxies = [[NSMutableDictionary alloc] init];
+    }
+    pthread_rwlock_wrlock(&_holdedProxiesLock);
     NSArray* oldProxies = [_holdedProxies objectForKey:key];
     if (oldProxies) {
-        if ([oldProxies isEqual:proxies]) return proxies;
+        if ([oldProxies isEqual:proxies]) {
+            pthread_rwlock_wrlock(&_holdedProxiesLock);
+            return proxies;
+        }
         [oldProxies enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            [self forgetProxy:obj];
             [self childRemoved:obj wasChild:YES shouldDetach:YES];
         }];
-    }
+        [_holdedProxies removeObjectForKey:key];
+   }
     if (proxies) {
-        if (!_holdedProxies) {
-            pthread_rwlock_init(&_holdedProxiesLock, NULL);
-            _holdedProxies = [[NSMutableDictionary alloc] init];
-        }
-        
-        pthread_rwlock_wrlock(&_holdedProxiesLock);
+
         [_holdedProxies setValue:proxies forKey:key];
         [proxies enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             [self rememberProxy:obj];
             [self childAdded:obj atIndex:-1 shouldRelayout:shouldRelayout];
         }];
-        pthread_rwlock_unlock(&_holdedProxiesLock);
-    } else if (_holdedProxies) {
-        [self removeHoldedProxyForKey:key];
     }
+    pthread_rwlock_unlock(&_holdedProxiesLock);
     return proxies;
 }
-
 -(id)removeHoldedProxyForKey:(NSString*)key
 {
     if (!key || !_holdedProxies) return;
@@ -576,6 +579,7 @@
     id object = [_holdedProxies objectForKey:key];
     if (!object) {
         NSLog(@"[WARN] there is no holded proxy for the key %@", key);
+        pthread_rwlock_unlock(&_holdedProxiesLock);
         return nil;
     }
     if (IS_OF_CLASS(object, NSArray)) {
