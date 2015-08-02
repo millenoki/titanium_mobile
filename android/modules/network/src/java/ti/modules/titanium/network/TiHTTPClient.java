@@ -572,7 +572,7 @@ public class TiHTTPClient
 
 		if (readyState == READY_STATE_DONE) {
 			KrollDict data1 = new KrollDict();
-			data1.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, null);
+			data1.putCodeAndMessage(status, statusText);
 			dispatchCallback(TiC.PROPERTY_ONLOAD, data1);
 		}
 	}
