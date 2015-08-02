@@ -165,6 +165,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 
 +(BOOL)shouldRegisterOnInit;
 
+-(id<TiEvaluator>)getContext;
 #pragma mark Private 
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context;
