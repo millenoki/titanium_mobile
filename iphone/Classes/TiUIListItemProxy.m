@@ -33,6 +33,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     BOOL unarchived;
     BOOL enumeratingResetKeys;
     BOOL _buildingBindings;
+    BOOL _inSetDataItem;
 }
 
 @synthesize listItem = _listItem;
@@ -46,6 +47,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         unarchived = NO;
         enumeratingResetKeys = NO;
         _buildingBindings = NO;
+        _inSetDataItem = NO;
         _initialValues = [[NSMutableDictionary alloc] initWithCapacity:10];
 		_currentValues = [[NSMutableDictionary alloc] initWithCapacity:10];
 		_resetKeys = [[NSMutableSet alloc] initWithCapacity:10];
@@ -271,6 +273,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 - (void)setDataItem:(NSDictionary *)dataItem
 {
     [self configurationStart:YES];
+    _inSetDataItem = YES;
 	[_resetKeys addObjectsFromArray:[_currentValues allKeys]];
     NSInteger templateStyle = (_listItem != nil)?_listItem.templateStyle:TiUIListItemTemplateStyleCustom;
 	switch (templateStyle) {
@@ -321,6 +324,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     }];
     
     [self configurationSet:YES];
+    _inSetDataItem = NO;
 }
 
 - (id)valueForUndefinedKey:(NSString *)key
@@ -437,6 +441,9 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 - (void)viewProxy:(TiProxy *)viewProxy updatedValue:(id)value forType:(NSString *)type;
 {
+    if (_inSetDataItem || viewProxy == self) {
+        return;
+    }
     [self.bindings enumerateKeysAndObjectsUsingBlock:^(id binding, id bindObject, BOOL *stop) {
         if (bindObject == viewProxy) {
             NSDictionary* dict = [_listItem.dataItem objectForKey:binding];
