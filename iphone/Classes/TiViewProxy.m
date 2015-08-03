@@ -3929,7 +3929,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 }
 
 -(void)handleUpdatedValue:(id)value forKey:(NSString*)key {
-    if ([self isConfigurationSet] && [self.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
+    if (eventOverrideDelegate && [self.eventOverrideDelegate respondsToSelector:@selector(viewProxy:updatedValue:forType:)]) {
         [self.eventOverrideDelegate viewProxy:self updatedValue:value forType:key];
     }
 }
