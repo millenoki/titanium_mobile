@@ -2122,18 +2122,7 @@ static NSDictionary* replaceKeysForRow;
     UITableView* theTableView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
     CGPoint point = [recognizer locationInView:theTableView];
     NSIndexPath* indexPath = [theTableView indexPathForRowAtPoint:point];
-    indexPath = [self pathForSearchPath:indexPath];
-    if (indexPath != nil) {
-        if ([[self proxy] _hasListeners:@"swipe"]) {
-            NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:theTableView];
-            [event setValuesForKeysWithDictionary:[TiUtils dictionaryFromGesture:recognizer inView:theTableView]];
-            [[self proxy] fireEvent:@"swipe" withObject:event propagate:NO checkForListener:NO];
-        }
-        
-    }
-    else {
-        [super recognizedSwipe:recognizer];
-    }
+    [super recognizedSwipe:recognizer];
     
     if (allowsSelection == NO)
     {
@@ -2141,27 +2130,29 @@ static NSDictionary* replaceKeysForRow;
     }
 }
 
+-(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)recognizer
+{
+    NSMutableDictionary* event = [super dictionaryFromGesture:recognizer];
+    
+    BOOL viaSearch = [self isSearchActive];
+    UITableView* theTableView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
+    CGPoint point = [recognizer locationInView:theTableView];
+    NSIndexPath* indexPath = [theTableView indexPathForRowAtPoint:point];
+    indexPath = [self pathForSearchPath:indexPath];
+    if (indexPath != nil) {
+        [event setValuesForKeysWithDictionary:[self EventObjectForItemAtIndexPath:indexPath tableView:theTableView atPoint:point]];
+    };
+    return event;
+}
+
 -(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer
 {
+    [super recognizedLongPress:recognizer];
     if ([recognizer state] == UIGestureRecognizerStateBegan) {
         BOOL viaSearch = [self isSearchActive];
         UITableView* theTableView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
         CGPoint point = [recognizer locationInView:theTableView];
         NSIndexPath* indexPath = [theTableView indexPathForRowAtPoint:point];
-        indexPath = [self pathForSearchPath:indexPath];
-        
-        NSMutableDictionary *event;
-        if (indexPath != nil) {
-            if ([[self proxy] _hasListeners:@"longpress"]) {
-                NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:theTableView atPoint:point];
-                [event setValuesForKeysWithDictionary:[TiUtils dictionaryFromGesture:recognizer inView:theTableView]];
-                [[self proxy] fireEvent:@"longpress" withObject:event propagate:NO checkForListener:NO];
-            }
-        }
-        else {
-            [super recognizedLongPress:recognizer];
-        }
-        
         if (allowsSelection == NO)
         {
             [theTableView deselectRowAtIndexPath:indexPath animated:YES];

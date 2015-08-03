@@ -210,10 +210,6 @@ static NSDictionary* replaceKeysForRow;
         if (doSetBackground) {
             [[self class] setBackgroundColor:[UIColor clearColor] onTable:_tableView];
         }
-        UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-        tapGestureRecognizer.delegate = self;
-        [_tableView addGestureRecognizer:tapGestureRecognizer];
-        [tapGestureRecognizer release];
 //        if ([TiUtils isIOS7OrGreater]) {
 //            _defaultSeparatorInsets = [_tableView separatorInset];
 //        }
@@ -1902,57 +1898,48 @@ referenceSizeForFooterInSection:(NSInteger)section
 	}
 }
 
+//-(UIView*)viewForGestures
+//{
+//    return [self tableView];
+//}
+
 -(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
 {
     BOOL viaSearch = [self isSearchActive];
-//    UICollectionView* theCollectionView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
-    UICollectionView* theCollectionView = [self tableView];
-    CGPoint point = [recognizer locationInView:theCollectionView];
-    NSIndexPath* indexPath = [theCollectionView indexPathForItemAtPoint:point];
-    indexPath = [self pathForSearchPath:indexPath];
-    if (indexPath != nil) {
-        if ([[self proxy] _hasListeners:@"swipe"]) {
-            NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath collectionView:theCollectionView];
-            [event setValuesForKeysWithDictionary:[TiUtils dictionaryFromGesture:recognizer inView:theCollectionView]];
-            [[self proxy] fireEvent:@"swipe" withObject:event propagate:NO checkForListener:NO];
-        }
-        
-    }
-    else {
-        [super recognizedSwipe:recognizer];
-    }
+    CGPoint point = [recognizer locationInView:_tableView];
+    NSIndexPath* indexPath = [_tableView indexPathForItemAtPoint:point];
+    [super recognizedSwipe:recognizer];
     
     if (allowsSelection == NO)
     {
-        [theCollectionView deselectItemAtIndexPath:indexPath animated:YES];
+        [_tableView deselectItemAtIndexPath:indexPath animated:YES];
     }
+}
+
+-(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)recognizer
+{
+    NSMutableDictionary* event = [super dictionaryFromGesture:recognizer];
+    
+    BOOL viaSearch = [self isSearchActive];
+    CGPoint point = [recognizer locationInView:_tableView];
+    NSIndexPath* indexPath = [_tableView indexPathForItemAtPoint:point];
+    indexPath = [self pathForSearchPath:indexPath];
+    if (indexPath != nil) {
+        [event setValuesForKeysWithDictionary:[self EventObjectForItemAtIndexPath:indexPath collectionView:_tableView atPoint:point]];
+    };
+    return event;
 }
 
 -(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer
 {
+    [super recognizedLongPress:recognizer];
     if ([recognizer state] == UIGestureRecognizerStateBegan) {
         BOOL viaSearch = [self isSearchActive];
-//        UICollectionView* theCollectionView = viaSearch ? [[self searchController] searchResultsTableView] : [self tableView];
-        UICollectionView* theCollectionView = [self tableView];
-        CGPoint point = [recognizer locationInView:theCollectionView];
-        NSIndexPath* indexPath = [theCollectionView indexPathForItemAtPoint:point];
-        indexPath = [self pathForSearchPath:indexPath];
-        
-        NSMutableDictionary *event;
-        if (indexPath != nil) {
-            if ([[self proxy] _hasListeners:@"longpress"]) {
-                NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath collectionView:theCollectionView atPoint:point];
-                [event setValuesForKeysWithDictionary:[TiUtils dictionaryFromGesture:recognizer inView:theCollectionView]];
-                [[self proxy] fireEvent:@"longpress" withObject:event propagate:NO checkForListener:NO];
-            }
-        }
-        else {
-            [super recognizedLongPress:recognizer];
-        }
-        
+        CGPoint point = [recognizer locationInView:_tableView];
+        NSIndexPath* indexPath = [_tableView indexPathForItemAtPoint:point];
         if (allowsSelection == NO)
         {
-            [theCollectionView deselectItemAtIndexPath:indexPath animated:YES];
+            [_tableView deselectItemAtIndexPath:indexPath animated:YES];
         }
         TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
         if (viaSearch && searchViewProxy) {
@@ -1969,10 +1956,10 @@ referenceSizeForFooterInSection:(NSInteger)section
                  */
                 [searchViewProxy performSelector:@selector(blur:) withObject:nil];
             }
+            
         }
     }
 }
-
 
 #pragma mark - UISearchBarDelegate Methods
 - (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
@@ -2179,19 +2166,6 @@ referenceSizeForFooterInSection:(NSInteger)section
     }
 }
 
-
-#pragma mark - UITapGestureRecognizer
-
-- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
-{
-//	tapPoint = [gestureRecognizer locationInView:gestureRecognizer.view];
-	return NO;
-}
-
-- (void)handleTap:(UITapGestureRecognizer *)tapGestureRecognizer
-{
-	// Never called
-}
 
 #pragma mark - Static Methods
 
