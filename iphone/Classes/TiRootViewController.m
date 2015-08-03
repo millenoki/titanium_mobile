@@ -647,9 +647,13 @@
     }
     
     if ([modalWindows count] > 0) {
-        return [[modalWindows lastObject] topWindow];
+        @synchronized(modalWindows) {
+            return [[modalWindows lastObject] topWindow];
+        }
     } else if ([containedWindows count] > 0) {
-        return [[containedWindows lastObject] topWindow];
+        @synchronized(containedWindows) {
+            return [[containedWindows lastObject] topWindow];
+        }
     } else {
         return nil;
     }
@@ -668,9 +672,15 @@
         }];
         return;
     }
+    NSArray* modalCopy;
+    NSArray* windowCopy;
     //At this point all modal stuff is done. Go ahead and clean up proxies.
-    NSArray* modalCopy = [modalWindows copy];
-    NSArray* windowCopy = [containedWindows copy];
+    @synchronized(modalWindows) {
+        modalCopy = [modalWindows copy];
+    }
+    @synchronized(containedWindows) {
+        windowCopy = [containedWindows copy];
+    }
     
     if(modalCopy != nil) {
         for (TiViewProxy* theWindow in [modalCopy reverseObjectEnumerator]) {
@@ -718,17 +728,23 @@
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
 {
     [self dismissKeyboardFromWindow:theWindow];
-    if ([containedWindows lastObject] != theWindow) {
-        [[containedWindows lastObject] resignFocus];
+    @synchronized(containedWindows) {
+        if ([containedWindows lastObject] != theWindow) {
+            [[containedWindows lastObject] resignFocus];
+        }
     }
     if ([theWindow isModal]) {
-        if (![modalWindows containsObject:theWindow]) {
-            [modalWindows addObject:theWindow];
+        @synchronized(modalWindows) {
+            if (![modalWindows containsObject:theWindow]) {
+                [modalWindows addObject:theWindow];
+            }
         }
     } else {
-        if (![containedWindows containsObject:theWindow]) {
-            [containedWindows addObject:theWindow];
-            theWindow.parentOrientationController = self;
+        @synchronized(containedWindows) {
+            if (![containedWindows containsObject:theWindow]) {
+                [containedWindows addObject:theWindow];
+                theWindow.parentOrientationController = self;
+            }
         }
         if ([self presentedViewController] == nil ||
             ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
@@ -755,9 +771,13 @@
     [self dismissKeyboardFromWindow:theWindow];
     [theWindow resignFocus];
     if ([theWindow isModal]) {
-        [modalWindows removeObject:theWindow];
+        @synchronized(modalWindows) {
+            [modalWindows removeObject:theWindow];
+        }
     } else {
-        [containedWindows removeObject:theWindow];
+        @synchronized(containedWindows) {
+            [containedWindows removeObject:theWindow];
+        }
         theWindow.parentOrientationController = nil;
         if ([self presentedViewController] == nil ||
             ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
@@ -771,7 +791,9 @@
     [self dismissKeyboardFromWindow:theWindow];
     if ([self presentedViewController] == nil ||
         ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
-        [[containedWindows lastObject] gainFocus];
+        @synchronized(containedWindows) {
+            [[containedWindows lastObject] gainFocus];
+        }
     }
 }
 
@@ -799,7 +821,9 @@
         }
     }
     if (topVC == self) {
-        [[containedWindows lastObject] resignFocus];
+        @synchronized(containedWindows) {
+            [[containedWindows lastObject] resignFocus];
+        }
     } else if ([topVC respondsToSelector:@selector(proxy)]) {
         id theProxy = [(id)topVC proxy];
         if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
@@ -1044,13 +1068,15 @@
 #ifdef DEVELOPER
     NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
 #endif
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
-            TiViewProxy* proxy = (TiViewProxy*)thisWindow;
-            if (!CGRectEqualToRect([proxy sandboxBounds], bounds)) {
-                [proxy setSandboxBounds:bounds];
+    @synchronized(containedWindows) {
+        for (id<TiWindowProtocol> thisWindow in containedWindows) {
+            if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
+                TiViewProxy* proxy = (TiViewProxy*)thisWindow;
+                if (!CGRectEqualToRect([proxy sandboxBounds], bounds)) {
+                    [proxy setSandboxBounds:bounds];
+                }
+                [proxy parentSizeWillChange];
             }
-            [proxy parentSizeWillChange];
         }
     }
     forceLayout = NO;
@@ -1200,19 +1226,23 @@
 #ifdef FORCE_WITH_MODAL
         [self forceRotateToOrientation:target];
 #else
-        //if this is the first window opened after application opens then dont animate
-        if ((0 == [containedWindows indexOfObject:orientationController] ||
-             0 == [modalWindows indexOfObject:orientationController]) && [orientationController conformsToProtocol:@protocol(TiWindowProtocol)] && [(id<TiWindowProtocol>)orientationController opening]) {
-            [self manuallyRotateToOrientation:target duration:0];
+        @synchronized(containedWindows) {
+            @synchronized(modalWindows) {
+               //if this is the first window opened after application opens then dont animate
+                if ((0 == [containedWindows indexOfObject:orientationController] ||
+                     0 == [modalWindows indexOfObject:orientationController]) && [orientationController conformsToProtocol:@protocol(TiWindowProtocol)] && [(id<TiWindowProtocol>)orientationController opening]) {
+                    [self manuallyRotateToOrientation:target duration:0];
+                }
+                else {
+                    if ([TiUtils isIOS8OrGreater]) {
+                        [self rotateHostingViewToOrientation:target fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                    } else {
+                        [self manuallyRotateToOrientation:target duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+                    }
+                }
+            }
         }
-        else {
-			if ([TiUtils isIOS8OrGreater]) {
-            	[self rotateHostingViewToOrientation:target fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-        	} else {
-            	[self manuallyRotateToOrientation:target duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-        	}
-        }
-        
+
         forcingRotation = NO;
 #endif
     } else {
@@ -1463,7 +1493,22 @@
 {
     TiOrientationFlags result = TiOrientationNone;
     if (checkModal) {
-        for (id<TiWindowProtocol> thisWindow in [modalWindows reverseObjectEnumerator])
+        @synchronized(modalWindows) {
+            for (id<TiWindowProtocol> thisWindow in [modalWindows reverseObjectEnumerator])
+            {
+                if ([thisWindow closing] == NO) {
+                    result = [thisWindow orientationFlags];
+                    if (result != TiOrientationNone)
+                    {
+                        return result;
+                    }
+                }
+            }
+        }
+        
+    }
+    @synchronized(containedWindows) {
+        for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator])
         {
             if ([thisWindow closing] == NO) {
                 result = [thisWindow orientationFlags];
@@ -1471,17 +1516,6 @@
                 {
                     return result;
                 }
-            }
-        }
-        
-    }
-    for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator])
-    {
-        if ([thisWindow closing] == NO) {
-            result = [thisWindow orientationFlags];
-            if (result != TiOrientationNone)
-            {
-                return result;
             }
         }
     }
@@ -1500,42 +1534,51 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow viewWillAppear:animated];
+    @synchronized(containedWindows) {
+        for (id<TiWindowProtocol> thisWindow in containedWindows) {
+            [thisWindow viewWillAppear:animated];
+        }
     }
+    
     [super viewWillAppear:animated];
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow viewWillDisappear:animated];
+    @synchronized(containedWindows) {
+        for (id<TiWindowProtocol> thisWindow in containedWindows) {
+            [thisWindow viewWillDisappear:animated];
+        }
+        [[containedWindows lastObject] resignFocus];
     }
-    [[containedWindows lastObject] resignFocus];
     [super viewWillDisappear:animated];
 }
 -(void)viewDidAppear:(BOOL)animated
 {
     isCurrentlyVisible = YES;
     [self.view becomeFirstResponder];
-    if ([containedWindows count] > 0) {
-        for (id<TiWindowProtocol> thisWindow in containedWindows) {
-            [thisWindow viewDidAppear:animated];
+    @synchronized(containedWindows) {
+        if ([containedWindows count] > 0) {
+            for (id<TiWindowProtocol> thisWindow in containedWindows) {
+                [thisWindow viewDidAppear:animated];
+            }
+            if (forcingRotation || [TiUtils isIOS8OrGreater]) {
+                forcingRotation = NO;
+                [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+            } else {
+                [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
+            }
+            [[containedWindows lastObject] gainFocus];
         }
-        if (forcingRotation || [TiUtils isIOS8OrGreater]) {
-            forcingRotation = NO;
-            [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-        } else {
-            [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
-        }
-        [[containedWindows lastObject] gainFocus];
     }
     [super viewDidAppear:animated];
 }
 -(void)viewDidDisappear:(BOOL)animated
 {
     isCurrentlyVisible = NO;
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow viewDidDisappear:animated];
+    @synchronized(containedWindows) {
+        for (id<TiWindowProtocol> thisWindow in containedWindows) {
+            [thisWindow viewDidDisappear:animated];
+        }
     }
     [super viewDidDisappear:animated];
 }
@@ -1549,8 +1592,10 @@
             [[((TiUIView*)accessory) viewProxy] refreshView];
         }
     }
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    @synchronized(containedWindows) {
+        for (id<TiWindowProtocol> thisWindow in containedWindows) {
+            [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+        }
     }
     [self updateOrientationHistory:toInterfaceOrientation];
     [self rotateDefaultImageViewToOrientation:toInterfaceOrientation];
@@ -1559,8 +1604,10 @@
 -(void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     _rotating = YES;
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    @synchronized(containedWindows) {
+        for (id<TiWindowProtocol> thisWindow in containedWindows) {
+            [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+        }
     }
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
 }
@@ -1568,8 +1615,10 @@
 {
     
     _rotating = NO;
-    for (id<TiWindowProtocol> thisWindow in containedWindows) {
-        [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    @synchronized(containedWindows) {
+        for (id<TiWindowProtocol> thisWindow in containedWindows) {
+            [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+        }
     }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
 }
@@ -1579,12 +1628,16 @@
 {
     BOOL oldStatus = statusBarIsHidden;
     if ([modalWindows count] > 0) {
-        statusBarIsHidden = [[modalWindows lastObject] hidesStatusBar];
+        @synchronized(modalWindows) {
+            statusBarIsHidden = [[modalWindows lastObject] hidesStatusBar];
+        }
         if ([TiUtils isIOS8OrGreater] && curTransformAngle != 0) {
             statusBarIsHidden = YES;
         }
-    } if ([containedWindows count] > 0) {
-        statusBarIsHidden = [[containedWindows lastObject] hidesStatusBar];
+    } else if ([containedWindows count] > 0) {
+        @synchronized(containedWindows) {
+            statusBarIsHidden = [[containedWindows lastObject] hidesStatusBar];
+        }
         if ([TiUtils isIOS8OrGreater] && curTransformAngle != 0) {
             statusBarIsHidden = YES;
         }
@@ -1604,11 +1657,15 @@
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
-    if ([modalWindows count] > 0) {
-        return [[modalWindows lastObject] preferredStatusBarStyle];
+    @synchronized(modalWindows) {
+       if ([modalWindows count] > 0) {
+            return [[modalWindows lastObject] preferredStatusBarStyle];
+        }
     }
-    if ([containedWindows count] > 0) {
-        return [[containedWindows lastObject] preferredStatusBarStyle];
+    @synchronized(containedWindows) {
+        if ([containedWindows count] > 0) {
+            return [[containedWindows lastObject] preferredStatusBarStyle];
+        }
     }
     return defaultStatusBarStyle;
 }
