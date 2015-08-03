@@ -350,9 +350,9 @@
 {
 	if (request == urlRequest)
 	{
-		if ([self _hasListeners:@"error"])
+        if ([self _hasListeners:@"error" checkParent:NO])
 		{
-			[self fireEvent:@"error" withObject:[NSDictionary dictionaryWithObject:[request url] forKey:@"image"] errorCode:[error code] message:[TiUtils messageFromError:error]];
+            [self fireEvent:@"error" withObject:[NSDictionary dictionaryWithObject:[request url] forKey:@"image"] propagate:NO reportSuccess:YES errorCode:[error code] message:[TiUtils messageFromError:error] checkForListener:NO];
 		}
 		RELEASE_TO_NIL(urlRequest);
 	}

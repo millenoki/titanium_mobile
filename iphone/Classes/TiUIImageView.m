@@ -235,10 +235,10 @@ DEFINE_EXCEPTIONS
     previous = [view retain];
     previous.hidden = NO;
     
-    if ([self.proxy _hasListeners:@"change"])
+    if ([[self viewProxy] _hasListeners:@"change" checkParent:NO])
     {
         NSDictionary *evt = [NSDictionary dictionaryWithObject:NUMINTEGER(position) forKey:@"index"];
-        [self.proxy fireEvent:@"change" withObject:evt];
+        [self.proxy fireEvent:@"change" withObject:evt propagate:NO checkForListener:NO];
     }
     
     if (repeatCount > 0 && ((reverse==NO && position == (loadTotal-1)) || (reverse && position==0)))
@@ -276,8 +276,9 @@ DEFINE_EXCEPTIONS
 {
     RELEASE_TO_NIL(timer);
     if (!stopped) {
-        if ([self.proxy _hasListeners:eventName]) {
-            [self.proxy fireEvent:eventName withObject:nil];
+        if ([[self viewProxy] _hasListeners:eventName checkParent:NO])
+        {
+            [self.proxy fireEvent:eventName withObject:nil propagate:NO checkForListener:NO];
         }
         
         if ([eventName isEqualToString:@"start"] && previous == nil) {
@@ -297,8 +298,9 @@ DEFINE_EXCEPTIONS
     if (timer != nil) {
         [timer invalidate];
         RELEASE_TO_NIL(timer);
-        if ([self.proxy _hasListeners:eventName]) {
-            [self.proxy fireEvent:eventName withObject:nil];
+        if ([[self viewProxy] _hasListeners:eventName checkParent:NO])
+        {
+            [self.proxy fireEvent:eventName withObject:nil propagate:NO checkForListener:NO];
         }
     }
 }
@@ -885,7 +887,12 @@ DEFINE_EXCEPTIONS
     }
     _needsSetImage = NO;
     if (_currentImageSource && [_currentImageSource isEqual:arg] && _currentImage) return;
-    
+    if ([[self viewProxy] _hasListeners:@"startload" checkParent:NO])
+    {
+        [self.proxy fireEvent:@"startload" withObject:@{
+                                                        @"image":arg
+                                                        } propagate:NO checkForListener:NO];
+    }
     RELEASE_TO_NIL(_currentImageSource)
     _currentImageSource = [arg retain];
     
