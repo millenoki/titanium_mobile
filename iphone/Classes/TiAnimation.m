@@ -223,7 +223,7 @@ static NSArray *animProps;
 
 -(void)updateProxyProperties
 {
-    NSDictionary* props = [self allProperties];
+    NSDictionary* props = [self toPropertiesForAnimatableProxy:animatedProxy];
     if (props) [animatedProxy applyProperties:props];
 }
 
