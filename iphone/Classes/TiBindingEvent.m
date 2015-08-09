@@ -191,7 +191,7 @@ void TiBindingEventFire(TiBindingEvent event)
 		event->targetProxy = [targetProxy retain];
 	}
 	event->pendingEvents = runloopcount;
-	if (runloopcount == 1) { //Main case: One run loop.
+	if (runloopcount <= 1) { //Main case: One run loop (or zero meaning it will come).
 		TiBindingRunLoop ourRunLoop = [targetProxy primaryBindingRunLoop];
 		if (ourRunLoop != nil) { // It's possible that the one remaining runloop
 			//Was not the primaryBindingRunLoop. In which case, we flow to the

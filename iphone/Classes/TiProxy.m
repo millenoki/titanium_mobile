@@ -706,7 +706,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 }
 - (TiBindingRunLoop) primaryBindingRunLoop
 {
-    if (pageKrollObject != nil) {
+    if (pageContext != nil) {
         return [pageContext krollContext];
     }
     return nil;
@@ -1114,15 +1114,15 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 //What classes should actually use.
 -(void)fireEvent:(NSString*)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message checkForListener:(BOOL)checkForListener
 {
-    if (bridgeCount == 0 && _aboutToBeBridge) {
-        KrollContext* context = [self getContext].krollContext;
-        if (![context isKJSThread]) {
-            [context invokeBlockOnThread:^{
-                [self fireEvent:type withObject:obj withSource:self propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
-            }];
-            return;
-        }
-    }
+//    if (bridgeCount == 0 && _aboutToBeBridge) {
+//        KrollContext* context = [self getContext].krollContext;
+//        if (![context isKJSThread]) {
+//            [context invokeBlockOnThread:^{
+//                [self fireEvent:type withObject:obj withSource:self propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
+//            }];
+//            return;
+//        }
+//    }
     if (checkForListener && ![self _hasListeners:type])
     {
         return;
