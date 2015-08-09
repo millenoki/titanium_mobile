@@ -112,9 +112,20 @@
         _shouldHighlightCurrentItem = NO;
     }
     [super touchesBegan:touches withEvent:event];
+//    _shouldHighlightCurrentItem = YES;
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesEnded:touches withEvent:event];
     _shouldHighlightCurrentItem = YES;
 }
 
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesCancelled:touches withEvent:event];
+    _shouldHighlightCurrentItem = YES;
+}
 -(CGPoint) touchPoint
 {
     return touchPoint;
