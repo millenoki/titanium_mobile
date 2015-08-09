@@ -495,6 +495,11 @@
 {
     [self dispatchUpdateAction:block animated:YES];
 }
+
+- (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block maintainPosition:(BOOL)maintain
+{
+    [self dispatchUpdateAction:block animated:YES];
+}
 -(void)dispatchUpdateAction:(void(^)(UITableView *tableView))block animated:(BOOL)animated
 {
     if (animated)
