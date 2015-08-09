@@ -784,8 +784,19 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)layoutSubviews
 {
-	[super layoutSubviews];
 	[self checkBounds];
+    if ([[self viewProxy] canBeResizedByFrame]) {
+//        [[self viewProxy] performBlock:^{
+//            [[self viewProxy] performBlockWithoutLayout:^{
+//                [[self viewProxy] willChangeSize];
+////                [self willChangePosition];
+//            }];
+//            
+//            [[self viewProxy] refreshViewOrParent];
+//        } withinAnimation:runningAnimation];
+        [[self viewProxy] repositionWithinAnimation:runningAnimation];
+    }
+    [super layoutSubviews];
 }
 
 
