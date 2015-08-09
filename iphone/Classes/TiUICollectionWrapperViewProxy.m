@@ -23,14 +23,15 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 @implementation TiUICollectionWrapperViewProxy {
     TiUICollectionViewProxy *_listViewProxy; // weak
-    NSDictionary *_bindings;
+//    NSDictionary *_bindings;
     NSDictionary *_templateProperties;
     NSMutableDictionary *_initialValues;
     NSMutableDictionary *_currentValues;
     NSMutableSet *_resetKeys;
     BOOL unarchived;
     BOOL enumeratingResetKeys;
-    BOOL _buildingBindings;
+    BOOL _inSetDataItem;
+//    BOOL _buildingBindings;
 }
 
 @synthesize wrapperView = _wrapperView;
@@ -43,7 +44,8 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         _shouldRetainModelDelegate = NO; //important to prevent memory leak
         unarchived = NO;
         enumeratingResetKeys = NO;
-        _buildingBindings = NO;
+        _inSetDataItem=  NO;
+//        _buildingBindings = NO;
         _initialValues = [[NSMutableDictionary alloc] initWithCapacity:10];
         _currentValues = [[NSMutableDictionary alloc] initWithCapacity:10];
         _resetKeys = [[NSMutableSet alloc] initWithCapacity:10];
@@ -131,7 +133,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     RELEASE_TO_NIL(_currentValues)
     RELEASE_TO_NIL(_resetKeys)
     RELEASE_TO_NIL(_indexPath)
-    RELEASE_TO_NIL(_bindings)
+//    RELEASE_TO_NIL(_bindings)
     RELEASE_TO_NIL(_templateProperties)
     [super dealloc];
 }
@@ -159,27 +161,36 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     _templateProperties = [[NSDictionary dictionaryWithDictionary:[self allProperties]] retain];
     if (withEvents) SetEventOverrideDelegateRecursive(self.children, self);
     unarchived = YES;
-    [self.bindings enumerateKeysAndObjectsUsingBlock:^(id binding, id bindObject, BOOL *stop) {
-        [[bindObject allProperties] enumerateKeysAndObjectsUsingBlock:^(id key, id prop, BOOL *stop) {
-            [_initialValues setValue:prop forKey:[NSString stringWithFormat:@"%@.%@",binding, key]];
-        }];
-    }];
+//    [self.bindings enumerateKeysAndObjectsUsingBlock:^(id binding, id bindObject, BOOL *stop) {
+//        [[bindObject allProperties] enumerateKeysAndObjectsUsingBlock:^(id key, id prop, BOOL *stop) {
+//            [_initialValues setValue:prop forKey:[NSString stringWithFormat:@"%@.%@",binding, key]];
+//        }];
+//    }];
     [_initialValues addEntriesFromDictionary:[self allProperties]];
     
 }
 
-- (NSDictionary *)bindings
+-(void)addBinding:(TiProxy*)proxy forKey:(NSString*)binding
 {
-    if (_bindings == nil &&  unarchived && !_buildingBindings) {
-        _buildingBindings = YES;
-        NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithCapacity:10];
-        [self buildBindingsForViewProxy:self intoDictionary:dict];
-        _bindings = [dict copy];
-        [dict release];
-        _buildingBindings = NO;
-    }
-    return _bindings;
+    [super addBinding:proxy forKey:binding];
+    
+    [[proxy allProperties] enumerateKeysAndObjectsUsingBlock:^(id key, id prop, BOOL *stop) {
+        [_initialValues setValue:prop forKey:[NSString stringWithFormat:@"%@.%@",binding, key]];
+    }];
 }
+
+//- (NSDictionary *)bindings
+//{
+//    if (_bindings == nil &&  unarchived && !_buildingBindings) {
+//        _buildingBindings = YES;
+//        NSMutableDictionary *dict = [[NSMutableDictionary alloc] initWithCapacity:10];
+//        [self buildBindingsForViewProxy:self intoDictionary:dict];
+//        _bindings = [dict copy];
+//        [dict release];
+//        _buildingBindings = NO;
+//    }
+//    return _bindings;
+//}
 
 -(void)setValue:(id)value forKey:(NSString *)key
 {
@@ -197,7 +208,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         [self setValuesForKeysWithDictionary:value];
     }
     else if ([value isKindOfClass:[NSDictionary class]]) {
-        id bindObject = [self.bindings objectForKey:keyPath];
+        id bindObject = [self bindingForKey:keyPath];
         if (bindObject != nil) {
             NSArray * keySequence = [bindObject keySequence];
             for (NSString * key in keySequence)
@@ -254,6 +265,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 - (void)setDataItem:(NSDictionary *)dataItem
 {
+    _inSetDataItem = YES;
     [self configurationStart:YES];
     [_resetKeys addObjectsFromArray:[_currentValues allKeys]];
     
@@ -266,7 +278,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         [listProps removeObjectsForKeys:[[dataItem objectForKey:@"properties"] allKeys]];
     }
     
-    [self.bindings enumerateKeysAndObjectsUsingBlock:^(id key, id bindObject, BOOL *stop) {
+    [_proxyBindings enumerateKeysAndObjectsUsingBlock:^(id key, id bindObject, BOOL *stop) {
         if ([bindObject isKindOfClass:[TiProxy class]]) {
             [bindObject setReproxying:YES];
         }
@@ -287,21 +299,22 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     [_resetKeys removeAllObjects];
     enumeratingResetKeys = NO;
     
-    [self.bindings enumerateKeysAndObjectsUsingBlock:^(id key, id bindObject, BOOL *stop) {
+    [_proxyBindings enumerateKeysAndObjectsUsingBlock:^(id key, id bindObject, BOOL *stop) {
         if ([bindObject isKindOfClass:[TiProxy class]]) {
             [bindObject setReproxying:NO];
         }
     }];
     
     [self configurationSet:YES];
+    _inSetDataItem = NO;
 }
 
-- (id)valueForUndefinedKey:(NSString *)key
-{
-    if (!_buildingBindings && [self.bindings objectForKey:key])
-        return [self.bindings objectForKey:key];
-    return [super valueForUndefinedKey:key];
-}
+//- (id)valueForUndefinedKey:(NSString *)key
+//{
+//    if (!_buildingBindings && [self.bindings objectForKey:key])
+//        return [self.bindings objectForKey:key];
+//    return [super valueForUndefinedKey:key];
+//}
 
 
 - (void)recordChangeValue:(id)value forKeyPath:(NSString *)keyPath withBlock:(void(^)(void))block
@@ -334,27 +347,27 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 #pragma mark - Static
 
-- (void)buildBindingsForViewProxy:(TiProxy *)viewProxy intoDictionary:(NSMutableDictionary *)dict
-{
-    if ([viewProxy isKindOfClass:[TiUICollectionWrapperViewProxy class]]) { //toplevel
-        TiUICollectionWrapperView* view = ((TiUICollectionWrapperViewProxy*)viewProxy).wrapperView;
-    }
-
-    if ([viewProxy isKindOfClass:[TiParentingProxy class]]) {
-        NSArray* myChildren = [(TiParentingProxy*)viewProxy children];
-        [myChildren enumerateObjectsUsingBlock:^(TiProxy *childViewProxy, NSUInteger idx, BOOL *stop) {
-            [self buildBindingsForViewProxy:childViewProxy intoDictionary:dict];
-        }];
-        
-    }
-    
-    if (![viewProxy isKindOfClass:[TiUICollectionWrapperViewProxy class]]) {
-        id bindId = [viewProxy valueForKey:@"bindId"];
-        if (bindId != nil) {
-            [dict setObject:viewProxy forKey:bindId];
-        }
-    }
-}
+//- (void)buildBindingsForViewProxy:(TiProxy *)viewProxy intoDictionary:(NSMutableDictionary *)dict
+//{
+//    if ([viewProxy isKindOfClass:[TiUICollectionWrapperViewProxy class]]) { //toplevel
+//        TiUICollectionWrapperView* view = ((TiUICollectionWrapperViewProxy*)viewProxy).wrapperView;
+//    }
+//
+//    if ([viewProxy isKindOfClass:[TiParentingProxy class]]) {
+//        NSArray* myChildren = [(TiParentingProxy*)viewProxy children];
+//        [myChildren enumerateObjectsUsingBlock:^(TiProxy *childViewProxy, NSUInteger idx, BOOL *stop) {
+//            [self buildBindingsForViewProxy:childViewProxy intoDictionary:dict];
+//        }];
+//        
+//    }
+//    
+//    if (![viewProxy isKindOfClass:[TiUICollectionWrapperViewProxy class]]) {
+//        id bindId = [viewProxy valueForKey:@"bindId"];
+//        if (bindId != nil) {
+//            [dict setObject:viewProxy forKey:bindId];
+//        }
+//    }
+//}
 
 -(BOOL)canHaveControllerParent
 {
@@ -385,12 +398,23 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 - (void)viewProxy:(TiProxy *)viewProxy updatedValue:(id)value forType:(NSString *)type;
 {
-    [self.bindings enumerateKeysAndObjectsUsingBlock:^(id binding, id bindObject, BOOL *stop) {
-        if (bindObject == viewProxy) {
-            [[_wrapperView.dataItem objectForKey:binding] setValue:value forKey:type];
-            [_currentValues setValue:value forKey:[NSString stringWithFormat:@"%@.%@", binding, type]];
-            return;
+    if (_inSetDataItem || viewProxy == self) {
+        return;
+    }
+    NSArray *keys = [_proxyBindings allKeysForObject:viewProxy];
+    [keys enumerateObjectsUsingBlock:^(id binding, NSUInteger idx, BOOL *stop) {
+        //        if (bindObject == viewProxy) {
+        NSDictionary* dict = [_wrapperView.dataItem objectForKey:binding];
+        if (IS_OF_CLASS(dict, NSMutableDictionary)) {
+            [dict setValue:value forKey:type];
+        } else {
+            dict = [NSMutableDictionary dictionaryWithDictionary:dict];
+            [_wrapperView.dataItem setValue:dict forKey:binding];
         }
+        [dict setValue:value forKey:type];
+        [_currentValues setValue:value forKey:[NSString stringWithFormat:@"%@.%@", binding, type]];
+        return;
+        //        }
     }];
 }
 

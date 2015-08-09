@@ -18,7 +18,7 @@
 @property (nonatomic, readwrite, retain) NSIndexPath *indexPath;
 
 - (id)initWithCollectionViewProxy:(TiUICollectionViewProxy *)listViewProxy inContext:(id<TiEvaluator>)context;
-- (NSDictionary *)bindings;
+//- (NSDictionary *)bindings;
 - (void)setDataItem:(NSDictionary *)dataItem;
 
 -(void)deregisterProxy:(id<TiEvaluator>)context;

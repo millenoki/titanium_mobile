@@ -116,14 +116,25 @@ static NSDictionary* listViewKeysToReplace;
 
 - (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block
 {
-    [self dispatchUpdateAction:block animated:YES];
+    [self dispatchUpdateAction:block animated:YES maintainPosition:YES];
 }
+
 -(void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block animated:(BOOL)animated
 {
-	if (view == nil) {
-		block(nil);
-		return;
-	}
+    [self dispatchUpdateAction:block animated:YES maintainPosition:YES];
+}
+
+- (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block maintainPosition:(BOOL)maintain
+{
+    [self dispatchUpdateAction:block animated:YES maintainPosition:maintain];
+}
+
+-(void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block animated:(BOOL)animated maintainPosition:(BOOL)maintain
+{
+    if (view == nil) {
+        block(nil);
+        return;
+    }
     
     if ([self.listView isSearchActive]) {
         block(nil);
@@ -133,24 +144,24 @@ static NSDictionary* listViewKeysToReplace;
         return;
     }
     
-	BOOL triggerMainThread;
-	pthread_mutex_lock(&_operationQueueMutex);
-	triggerMainThread = [_operationQueue count] == 0;
-	[_operationQueue addObject:Block_copy(block)];
+    BOOL triggerMainThread;
+    pthread_mutex_lock(&_operationQueueMutex);
+    triggerMainThread = [_operationQueue count] == 0;
+    [_operationQueue addObject:Block_copy(block)];
     pthread_mutex_unlock(&_operationQueueMutex);
-	if (triggerMainThread) {
-		TiThreadPerformOnMainThread(^{
+    if (triggerMainThread) {
+        TiThreadPerformBlockOnMainThread(^{
             if (animated)
             {
-                [self processUpdateActions];
+                [self processUpdateActions:maintain];
             }
             else {
                 [UIView setAnimationsEnabled:NO];
-                [self processUpdateActions];
+                [self processUpdateActions:maintain];
                 [UIView setAnimationsEnabled:YES];
             }
-		}, NO);
-	}
+        }, NO);
+    }
 }
 
 - (void)dispatchBlock:(void(^)(UICollectionView *tableView))block
@@ -180,7 +191,7 @@ static NSDictionary* listViewKeysToReplace;
 	return [result autorelease];
 }
 
-- (void)processUpdateActions
+- (void)processUpdateActions:(BOOL)maintainPosition
 {
 	UICollectionView *tableView = self.listView.tableView;
 	BOOL removeHead = NO;
@@ -197,11 +208,15 @@ static NSDictionary* listViewKeysToReplace;
 		}
 		pthread_mutex_unlock(&_operationQueueMutex);
 		if (block != nil) {
-            offset = [tableView contentOffset];
-//			[tableView beginUpdates];
-			block(tableView);
-//			[tableView endUpdates];
-            [tableView setContentOffset:offset animated:NO];
+            if (maintainPosition) {
+                offset = [tableView contentOffset];
+            }
+//            [tableView beginUpdates];
+            block(tableView);
+//            [tableView endUpdates];
+            if (maintainPosition) {
+                [tableView setContentOffset:offset animated:NO];
+            }
 			Block_release(block);
 		} else {
 			[self.listView updateIndicesForVisibleRows];
@@ -285,7 +300,7 @@ static NSDictionary* listViewKeysToReplace;
             id<TiEvaluator> context = [self getContext];
             TiUICollectionItemProxy *cellProxy = [[TiUICollectionItemProxy alloc] initWithCollectionViewProxy:self inContext:context];
             [cellProxy unarchiveFromTemplate:template withEvents:NO];
-            [cellProxy bindings];
+//            [cellProxy bindings];
             [measureProxies setObject:cellProxy forKey:key];
             [cellProxy release];
         }
@@ -617,6 +632,16 @@ static NSDictionary* listViewKeysToReplace;
     }
 }
 
+- (void)deselectAll:(id)args
+{
+    if (view != nil) {
+        NSDictionary *options = [args count] > 0 ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
+        TiThreadPerformBlockOnMainThread(^{
+            [self.listView deselectAll:animated];
+        }, NO);
+    }
+}
 
 -(void)setContentInsets:(id)args
 {
