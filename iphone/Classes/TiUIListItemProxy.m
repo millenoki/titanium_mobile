@@ -497,6 +497,9 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(TiViewAnimationStep*)runningAnimation
 {
+    if ([super runningAnimation]) {
+        return [super runningAnimation];
+    }
     return [_listViewProxy runningAnimation];
 }
 
