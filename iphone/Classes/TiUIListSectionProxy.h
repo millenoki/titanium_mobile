@@ -19,6 +19,8 @@
 
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block;
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block animated:(BOOL)animated;
+- (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block maintainPosition:(BOOL)maintain;
+- (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block animated:(BOOL)animated maintainPosition:(BOOL)maintain;
 - (void)dispatchBlock:(void(^)(UITableView *tableView))block;
 - (id)dispatchBlockWithResult:(id(^)(void))block;
 - (id<TiUIListViewDelegateView>) delegateView;

@@ -446,7 +446,7 @@
             }
             [tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
             [indexPaths release];
-        }];
+        } maintainPosition:NO];
     }
 }
 
