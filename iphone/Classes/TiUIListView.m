@@ -62,6 +62,7 @@
     BOOL pruneSections;
     
     BOOL allowsSelection;
+    BOOL allowsMultipleSelectionDuringEditing;
 
     BOOL caseInsensitiveSearch;
     NSString* _searchString;
@@ -112,6 +113,7 @@ static NSDictionary* replaceKeysForRow;
     if (self) {
         _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleSubtitle] retain];
         allowsSelection = YES;
+        allowsMultipleSelectionDuringEditing = YES;
         _defaultSeparatorInsets = UIEdgeInsetsZero;
         _scrollSuspendImageLoading = NO;
         hideOnSearch = NO;
@@ -289,6 +291,18 @@ static NSDictionary* replaceKeysForRow;
 - (void)deselectItem:(NSIndexPath*)indexPath animated:(BOOL)animated
 {
     [_tableView deselectRowAtIndexPath:indexPath animated:animated];
+}
+
+-(id)selectedItems_ {
+    NSMutableArray* array = [NSMutableArray array];
+    [_tableView.indexPathsForSelectedRows enumerateObjectsUsingBlock:^(NSIndexPath *indexPath, NSUInteger idx, BOOL *stop) {
+        [array addObject:@{
+                           @"index":@(indexPath.row),
+                           @"sectionIndex":@(indexPath.section),
+                           }];
+        
+    }];
+    return array;
 }
 
 - (void)deselectAll:(BOOL)animated
@@ -876,12 +890,26 @@ static NSDictionary* replaceKeysForRow;
 -(void)setAllowsSelection_:(id)value
 {
     allowsSelection = [TiUtils boolValue:value];
+//    [[self tableView] setAllowsSelection:allowsSelection];
 //    [tableController setClearsSelectionOnViewWillAppear:!allowsSelection];
 }
 
--(void)setAllowsSelectionDuringEditing_:(id)arg
+-(void)setAllowsSelectionDuringEditing_:(id)value
 {
-	[[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:arg def:NO]];
+    [[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:value]];
+}
+
+-(void)setAllowsMultipleSelection_:(id)value
+{
+    [[self tableView] setAllowsMultipleSelection:[TiUtils boolValue:value]];
+}
+
+-(void)setAllowsMultipleSelectionDuringEditing_:(id)value
+{
+    allowsMultipleSelectionDuringEditing = [TiUtils boolValue:value def:NO];
+    if (editing) {
+        [_tableView setAllowsMultipleSelectionDuringEditing:allowsMultipleSelectionDuringEditing];
+    }
 }
 
 -(void)setEditing_:(id)args
@@ -890,6 +918,7 @@ static NSDictionary* replaceKeysForRow;
         editing = !editing;
         [[self tableView] beginUpdates];
         [_tableView setEditing:editing animated:YES];
+        [_tableView setAllowsMultipleSelectionDuringEditing:editing?allowsMultipleSelectionDuringEditing:NO];
         [_tableView endUpdates];
     }
 }
@@ -1543,6 +1572,7 @@ static NSDictionary* replaceKeysForRow;
                 [cellProxy unarchiveFromTemplate:template withEvents:YES];
                 [cellProxy windowWillOpen];
                 [cellProxy windowDidOpen];
+                [cellProxy setParentVisible:YES];
             }
             [cell configurationSet];
         }
@@ -1637,6 +1667,7 @@ static NSDictionary* replaceKeysForRow;
                 [theValue enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                     if (IS_OF_CLASS(obj, TiViewProxy)) {
                         [(TiViewProxy*)obj setCanBeResizedByFrame:YES];
+                        [(TiViewProxy*)obj setCanRepositionItself:NO];
 //                        if ([(TiViewProxy*)obj viewAttached]) {
 //                            [(TiViewProxy*)obj refreshView];
 //                            [buttonViews addObject:[(TiViewProxy*)obj view]];
@@ -1985,16 +2016,24 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (allowsSelection==NO)
+    if (!editing && allowsSelection==NO)
 	{
 		[tableView deselectRowAtIndexPath:indexPath animated:YES];
 	}
     [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:NO];
 }
 
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (editing) {
+        [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:NO];
+    }
+    
+}
+
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-    if (allowsSelection==NO)
+    if (!editing && allowsSelection==NO)
 	{
 		[tableView deselectRowAtIndexPath:indexPath animated:YES];
 	}
@@ -2299,11 +2338,12 @@ static NSDictionary* replaceKeysForRow;
     NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
                                         self.proxy, @"listView",
-										NUMBOOL([self isSearchActive]), @"searchResult",
-										NUMINTEGER(indexPath.section), @"sectionIndex",
+                                        @(editing), @"editing",
+                                        @([self isSearchActive]), @"searchResult",
+										@(indexPath.section), @"sectionIndex",
                                         item, @"item",
-                                        NUMINTEGER(indexPath.row), @"itemIndex",
-										NUMBOOL(accessoryButtonTapped), @"accessoryClicked",
+                                        @(indexPath.row), @"itemIndex",
+										@(accessoryButtonTapped), @"accessoryClicked",
 										nil];
 	id propertiesValue = [item objectForKey:@"properties"];
 	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
@@ -2330,8 +2370,8 @@ static NSDictionary* replaceKeysForRow;
 - (NSMutableDictionary*)EventObjectForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView atPoint:(CGPoint)point
 {
     NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:tableView atPoint:point accessoryButtonTapped:NO];
-    [event setObject:NUMFLOAT(point.x) forKey:@"x"];
-    [event setObject:NUMFLOAT(point.y) forKey:@"y"];
+    [event setObject:@(point.x) forKey:@"x"];
+    [event setObject:@(point.y) forKey:@"y"];
     return event;
 }
 
