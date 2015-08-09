@@ -7,12 +7,14 @@
 #import "TiProxy.h"
 #import "TiGradient.h"
 #import "LayoutConstraint.h"
-#import "TiSelectableBackgroundLayer.h"
+//#import "TiSelectableBackgroundLayer.h"
 #import "TouchDelegate_Views.h"
 
 @class TiTransition;
 //By declaring a scrollView protocol, TiUITextWidget can access 
 @class TiUIView;
+@class TiSelectableBackgroundLayer;
+@class TiBorderLayer;
 /**
  The protocol for scrolling.
  */
@@ -233,6 +235,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 -(UIView *)backgroundWrapperView;
 -(void)setBgState:(UIControlState)state;
 @property (nonatomic, readonly) TiSelectableBackgroundLayer* backgroundLayer;
+@property (nonatomic, readonly) TiBorderLayer* borderLayer;
 @property(nonatomic,assign) BOOL shouldHandleSelection;
 @property(nonatomic,assign) BOOL animateBgdTransition;
 

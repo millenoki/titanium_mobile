@@ -243,7 +243,7 @@ DEFINE_EXCEPTIONS
 
 #define kTOUCH_MAX_DIST 70
 
-@synthesize proxy,touchDelegate,oldSize, backgroundLayer = _bgLayer, shouldHandleSelection = _shouldHandleSelection, animateBgdTransition, runningAnimation;
+@synthesize proxy,touchDelegate,oldSize, backgroundLayer = _bgLayer, borderLayer = _borderLayer, shouldHandleSelection = _shouldHandleSelection, animateBgdTransition, runningAnimation;
 
 #pragma mark Internal Methods
 
@@ -711,10 +711,10 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         [self updatePathForClipping:bounds];
     }
     if (_borderLayer) {
-        [_borderLayer setFrame:bounds withinAnimation:runningAnimation];
+        [_borderLayer setFrame:[self backgroundWrapperView].bounds withinAnimation:runningAnimation];
     }
     if (_bgLayer) {
-        _bgLayer.frame = UIEdgeInsetsInsetRect(bounds, _backgroundPadding);
+        _bgLayer.frame = UIEdgeInsetsInsetRect([self backgroundWrapperView].bounds, _backgroundPadding);
     }
     if (self.layer.mask != nil) {
         [self.layer.mask setFrame:bounds];
@@ -902,7 +902,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     return _bgLayer;
 }
 
-
 -(TiBorderLayer*)getOrCreateBorderLayer
 {
     if (_borderLayer != nil) {
@@ -931,10 +930,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     return _borderLayer;
 }
 
--(CALayer*)backgroundLayer
-{
-    return _bgLayer;
-}
 
 -(void)setBackgroundGradient:(TiGradient*)gradient forState:(UIControlState)state
 {
@@ -1228,7 +1223,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 {
     _backgroundPadding = [TiUtils insetValue:value];
     if (_bgLayer) {
-        _bgLayer.frame = UIEdgeInsetsInsetRect(self.bounds, _backgroundPadding);
+        _bgLayer.frame = UIEdgeInsetsInsetRect([self backgroundWrapperView].bounds, _backgroundPadding);
     }
 }
 

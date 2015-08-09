@@ -16,6 +16,21 @@
 #import "ImageLoader.h"
 #import "TiSVGImage.h"
 
+@interface TiUIListItem()
+-(UIView *)backgroundWrapperView;
+@end
+
+@interface TiUIListItemContentView:TiUIView
+@property (nonatomic, assign) TiUIListItem *listItem;
+
+@end
+@implementation TiUIListItemContentView
+
+-(UIView *)backgroundWrapperView
+{
+    return [_listItem backgroundWrapperView];
+}
+@end
 
 #define GROUP_ROUND_RADIUS 6
 
@@ -25,8 +40,8 @@
 	NSDictionary *_dataItem;
     int _positionMask;
     BOOL _grouped;
-    TiUIView* _viewHolder;
-    TiCellBackgroundView* _bgSelectedView;
+    TiUIListItemContentView* _viewHolder;
+//    TiCellBackgroundView* _bgSelectedView;
     TiCellBackgroundView* _bgView;
     TiCap imageCap;
     BOOL _needsLayout;
@@ -63,9 +78,10 @@ DEFINE_EXCEPTIONS
     if (self) {
 		_templateStyle = TiUIListItemTemplateStyleCustom;
 		_proxy = [proxy retain];
-        self.selectionStyle = UITableViewCellSelectionStyleNone;
-        _viewHolder = [[TiUIView alloc] initWithFrame:self.contentView.bounds];
+//        self.selectionStyle = UITableViewCellSelectionStyleNone;
+        _viewHolder = [[TiUIListItemContentView alloc] initWithFrame:self.contentView.bounds];
         _viewHolder.proxy = _proxy;
+        _viewHolder.listItem = self;
         _viewHolder.shouldHandleSelection = NO;
         [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
         [_viewHolder setClipsToBounds: YES];
@@ -99,12 +115,12 @@ DEFINE_EXCEPTIONS
 {
     configurationSet = NO;
     [_viewHolder configurationStart];
-    if (_bgSelectedView) {
-        [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
-    }
-    if (_bgView) {
-        [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
-    }
+//    if (_bgSelectedView) {
+//        [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
+//    }
+//    if (_bgView) {
+//        [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
+//    }
 }
 
 -(void)configurationSet
@@ -112,13 +128,13 @@ DEFINE_EXCEPTIONS
 	// can be used to trigger things after all properties are set
     configurationSet = YES;
     [_viewHolder configurationSet];
-    if (_bgSelectedView) {
-        [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
-    }
-    if (_bgView) {
-        [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
-    }
-    BOOL newValue = (_templateStyle == TiUIListItemTemplateStyleCustom) || [[_bgView selectableLayer] willDrawForState:UIControlStateNormal];
+//    if (_bgSelectedView) {
+//        [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
+//    }
+//    if (_bgView) {
+//        [_bgView selectableLayer].readyToCreateDrawables = configurationSet;
+//    }
+    BOOL newValue = (_templateStyle == TiUIListItemTemplateStyleCustom) || [[_viewHolder backgroundLayer] willDrawForState:UIControlStateNormal];
     if (_customBackground != newValue) {
         _customBackground = newValue;
         if (_customBackground) {
@@ -178,21 +194,23 @@ DEFINE_EXCEPTIONS
     }
 }
 
--(TiCellBackgroundView*)getOrCreateSelectedBackgroundView
-{
-    if (_bgSelectedView != nil) {
-        return _bgSelectedView;
-    }
-    
-    self.selectedBackgroundView = [[[TiCellBackgroundView alloc] initWithFrame:CGRectZero] autorelease];
-    _bgSelectedView = (TiCellBackgroundView*)self.selectedBackgroundView;
-    [_bgSelectedView selectableLayer].animateTransition = YES;
-    _bgSelectedView.alpha = self.contentView.alpha;
 
-    [self updateBackgroundLayerCorners:_bgSelectedView];
-    [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
-    return _bgSelectedView;
-}
+//-(TiCellBackgroundView*)getOrCreateSelectedBackgroundView
+//{
+//    if (_bgSelectedView != nil) {
+//        return _bgSelectedView;
+//    }
+//    
+//    self.selectedBackgroundView = [[[TiCellBackgroundView alloc] initWithFrame:self.bounds] autorelease];
+//    _bgSelectedView = (TiCellBackgroundView*)self.selectedBackgroundView;
+//    [_bgSelectedView selectableLayer].animateTransition = YES;
+//    _bgSelectedView.alpha = self.contentView.alpha;
+//    _bgSelectedView.backgroundColor = [UIColor redColor];
+//
+//    [self updateBackgroundLayerCorners:_bgSelectedView];
+//    [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
+//    return _bgSelectedView;
+//}
 
 -(void)setBackgroundView:(UIView*)view
 {
@@ -226,38 +244,43 @@ DEFINE_EXCEPTIONS
     return _bgView;
 }
 
--(void) setBackgroundGradient_:(id)newGradientDict
+-(UIView *)backgroundWrapperView
 {
-    TiGradient * newGradient = [TiGradient gradientFromObject:newGradientDict proxy:self.proxy];
-    [[self getOrCreateBackgroundView].selectableLayer setGradient:newGradient forState:UIControlStateNormal];
+    return [self getOrCreateBackgroundView];
 }
 
--(void) setBackgroundSelectedGradient_:(id)newGradientDict
-{
-    TiGradient * newGradient = [TiGradient gradientFromObject:newGradientDict proxy:self.proxy];
-    [[self getOrCreateSelectedBackgroundView].selectableLayer setGradient:newGradient forState:UIControlStateNormal];
-}
+//-(void) setBackgroundGradient_:(id)newGradientDict
+//{
+//    TiGradient * newGradient = [TiGradient gradientFromObject:newGradientDict proxy:self.proxy];
+//    [[self getOrCreateBackgroundView].selectableLayer setGradient:newGradient forState:UIControlStateNormal];
+//}
+//
+//-(void) setBackgroundSelectedGradient_:(id)newGradientDict
+//{
+//    TiGradient * newGradient = [TiGradient gradientFromObject:newGradientDict proxy:self.proxy];
+//    [[self getOrCreateSelectedBackgroundView].selectableLayer setGradient:newGradient forState:UIControlStateNormal];
+//}
+//
+//-(void) setBackgroundColor_:(id)color
+//{
+//    UIColor* uicolor;
+//	if ([color isKindOfClass:[UIColor class]])
+//	{
+//        uicolor = (UIColor*)color;
+//	}
+//	else
+//	{
+//		uicolor = [[TiUtils colorValue:color] _color];
+//	}
+//    [[self getOrCreateBackgroundView].selectableLayer setColor:uicolor forState:UIControlStateNormal];
+//    
+//}
 
--(void) setBackgroundColor_:(id)color
-{
-    UIColor* uicolor;
-	if ([color isKindOfClass:[UIColor class]])
-	{
-        uicolor = (UIColor*)color;
-	}
-	else
-	{
-		uicolor = [[TiUtils colorValue:color] _color];
-	}
-    [[self getOrCreateBackgroundView].selectableLayer setColor:uicolor forState:UIControlStateNormal];
-    
-}
-
--(void) setBackgroundSelectedColor_:(id)color
-{
-    UIColor* uiColor = [TiUtils colorValue:color].color;
-    [[self getOrCreateSelectedBackgroundView].selectableLayer setColor:uiColor forState:UIControlStateNormal];
-}
+//-(void) setBackgroundSelectedColor_:(id)color
+//{
+//    UIColor* uiColor = [TiUtils colorValue:color].color;
+//    [[self getOrCreateSelectedBackgroundView].selectableLayer setColor:uiColor forState:UIControlStateNormal];
+//}
 
 
 -(void)setImageCap_:(id)arg
@@ -265,37 +288,37 @@ DEFINE_EXCEPTIONS
     imageCap = [TiUtils capValue:arg def:TiCapUndefined];
 }
 
--(UIImage*)loadImage:(id)arg
-{
-    if (arg==nil) return nil;
-    id result = nil;
-    if (TiCapIsUndefined(imageCap)) {
-        result =  [TiUtils loadBackgroundImage:arg forProxy:_proxy];
-    }
-    else {
-        result =  [TiUtils loadBackgroundImage:arg forProxy:_proxy withCap:imageCap];
-    }
-    if ([result isKindOfClass:[UIImage class]]) return result;
-    else if ([result isKindOfClass:[TiSVGImage class]]) return [((TiSVGImage*)result) fullImage];
-    return nil;
-}
+//-(UIImage*)loadImage:(id)arg
+//{
+//    if (arg==nil) return nil;
+//    id result = nil;
+//    if (TiCapIsUndefined(imageCap)) {
+//        result =  [TiUtils loadBackgroundImage:arg forProxy:_proxy];
+//    }
+//    else {
+//        result =  [TiUtils loadBackgroundImage:arg forProxy:_proxy withCap:imageCap];
+//    }
+//    if ([result isKindOfClass:[UIImage class]]) return result;
+//    else if ([result isKindOfClass:[TiSVGImage class]]) return [((TiSVGImage*)result) fullImage];
+//    return nil;
+//}
 
--(void) setBackgroundImage_:(id)image
-{
-    UIImage* bgImage = [self loadImage:image];
-    [[self getOrCreateBackgroundView].selectableLayer setImage:bgImage forState:UIControlStateNormal];
-}
-
--(void) setBackgroundSelectedImage_:(id)image
-{
-    UIImage* bgImage = [self loadImage:image];
-    [[self getOrCreateSelectedBackgroundView].selectableLayer setImage:bgImage forState:UIControlStateNormal];
-}
-
--(void)setBackgroundOpacity_:(id)opacity
-{
-    [self getOrCreateBackgroundView].selectableLayer.opacity = [TiUtils floatValue:opacity def:1.0f];
-}
+//-(void) setBackgroundImage_:(id)image
+//{
+//    UIImage* bgImage = [self loadImage:image];
+//    [[self getOrCreateBackgroundView].selectableLayer setImage:bgImage forState:UIControlStateNormal];
+//}
+//
+//-(void) setBackgroundSelectedImage_:(id)image
+//{
+//    UIImage* bgImage = [self loadImage:image];
+//    [[self getOrCreateSelectedBackgroundView].selectableLayer setImage:bgImage forState:UIControlStateNormal];
+//}
+//
+//-(void)setBackgroundOpacity_:(id)opacity
+//{
+//    [self getOrCreateBackgroundView].selectableLayer.opacity = [TiUtils floatValue:opacity def:1.0f];
+//}
 
 -(void)setOpacity_:(id)opacity
 {
@@ -306,10 +329,10 @@ DEFINE_EXCEPTIONS
     {
         _bgView.alpha = self.contentView.alpha;
     }
-    if (_bgSelectedView)
-    {
-        _bgSelectedView.alpha = self.contentView.alpha;
-    }
+//    if (_bgSelectedView)
+//    {
+//        _bgSelectedView.alpha = self.contentView.alpha;
+//    }
 }
 
 
@@ -320,6 +343,7 @@ DEFINE_EXCEPTIONS
 	_proxy.listItem = nil;
 	_proxy.modelDelegate = nil;
     _viewHolder.proxy = nil;
+    _viewHolder.listItem = nil;
     
     RELEASE_TO_NIL(_viewHolder)
     RELEASE_TO_NIL(_dataItem)
@@ -428,9 +452,9 @@ static NSArray* handledKeys;
     if (_bgView != nil) {
         [self updateBackgroundLayerCorners:_bgView];
     }
-    if (_bgSelectedView != nil) {
-        [self updateBackgroundLayerCorners:_bgSelectedView];
-    }
+//    if (_bgSelectedView != nil) {
+//        [self updateBackgroundLayerCorners:_bgSelectedView];
+//    }
 }
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
@@ -464,7 +488,7 @@ static NSArray* handledKeys;
 
 -(void)setSelectionStyle_:(id)newValue
 {
-    self.selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleBlue];
+    self.selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleDefault];
 }
 
 -(void)setColor_:(id)newValue
@@ -531,34 +555,72 @@ static NSArray* handledKeys;
 {
 	// this happens when a controller resizes its view
     
-    if (!CGRectIsEmpty(frame))
-	{
-        CGRect currentbounds = [_viewHolder bounds];
-        CGRect newBounds = CGRectMake(0, 0, frame.size.width, frame.size.height);
-        if (!CGRectEqualToRect(newBounds, currentbounds))
-        {
-//            [(TiViewProxy*)self.proxy setSandboxBounds:newBounds];
-            [(TiViewProxy*)self.proxy dirtyItAll];
-        }
-	}
-    [super setFrame:frame];
-	
-}
-
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
+//    if (!CGRectIsEmpty(frame))
+//	{
+//        CGRect currentbounds = [_viewHolder bounds];
+//        CGRect newBounds = CGRectMake(0, 0, frame.size.width, frame.size.height);
+//        if (!CGRectEqualToRect(newBounds, currentbounds))
+//        {
+////            [(TiViewProxy*)self.proxy setSandboxBounds:newBounds];
+//            [(TiViewProxy*)self.proxy dirtyItAll];
+//        }
+//	}
+//    NSArray* animationKyes = self.layer.animationKeys;
     if (_templateStyle == TiUIListItemTemplateStyleCustom) {
         TiViewAnimationStep* anim = [_proxy runningAnimation];
         if (anim)
         {
             [_proxy setRunningAnimationRecursive:anim];
-            [_proxy refreshViewIfNeeded:YES];
+//            [_proxy refreshViewIfNeeded:YES];
+            [super setFrame:frame];
             [_proxy setRunningAnimationRecursive:nil];
         }
         else {
-            [_proxy refreshViewIfNeeded:YES];
+            [super setFrame:frame];
         }
+//        [super layoutSubviews];
+    }
+//    [super setFrame:frame];
+}
+
+-(void) setEditing:(BOOL)editing animated:(BOOL)animated
+{
+    if (animated) {
+        [_proxy setFakeAnimationOfDuration:0.3 andCurve:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+        [super setEditing:editing animated:animated];
+        [_proxy removeFakeAnimation];
+    } else {
+        [super setEditing:editing animated:animated];
+    }
+}
+
+//-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+//{
+//    if (_bgSelectedView) {
+//        [[_bgSelectedView selectableLayer] setFrame:bounds];
+//    }
+//    if (_bgView) {
+//        [[_bgView selectableLayer] setFrame:bounds];
+//    }
+//}
+
+
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    if (_templateStyle == TiUIListItemTemplateStyleCustom) {
+//        TiViewAnimationStep* anim = [_proxy runningAnimation];
+////        if (anim)
+////        {
+////            [_proxy setRunningAnimationRecursive:anim];
+//            [_proxy refreshViewIfNeeded:YES];
+////            [super layoutSubviews];
+////            [_proxy setRunningAnimationRecursive:nil];
+////        }
+////        else {
+            [_proxy refreshViewIfNeeded:YES];
+////        }
     }
 }
 
@@ -569,7 +631,7 @@ static NSArray* handledKeys;
     if (self.swipeBackgroundColor) {
         return self.swipeBackgroundColor; //user defined color
     }
-    return [[_bgView selectableLayer] getColorForState:UIControlStateNormal];
+    return [[_viewHolder backgroundLayer] getColorForState:UIControlStateNormal];
 }
 
 -(void)setDelaysContentTouches:(BOOL)value

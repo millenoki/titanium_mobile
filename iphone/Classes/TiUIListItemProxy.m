@@ -53,6 +53,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 		_resetKeys = [[NSMutableSet alloc] initWithCapacity:10];
 		_listViewProxy = listViewProxy;
         eventOverrideDelegate = self; // to make sure we also override events
+        self.canBeResizedByFrame = YES;
 		[context.krollContext invokeBlockOnThread:^{
 			[context registerProxy:self];
 			//Reusable cell will keep native proxy alive.
