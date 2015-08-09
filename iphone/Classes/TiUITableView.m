@@ -1386,35 +1386,35 @@
 	if (tableHeaderPullView!=nil)
 	{
 		tableHeaderPullView.frame = CGRectMake(0.0f, 0.0f - self.tableView.bounds.size.height, self.tableView.bounds.size.width, self.tableView.bounds.size.height);
-		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerPullView"];
-		[TiUtils setView:[proxy view] positionRect:[tableHeaderPullView bounds]];
-		[proxy windowWillOpen];
-		[proxy layoutChildren:NO];
+		TiViewProxy *theProxy = [self.proxy valueForUndefinedKey:@"headerPullView"];
+		[TiUtils setView:[theProxy view] positionRect:[tableHeaderPullView bounds]];
+		[theProxy windowWillOpen];
+		[theProxy layoutChildren:NO];
 	}
 	
 	if ([[self tableView] tableHeaderView]!=nil)
 	{
-		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"headerView"];
-		if (proxy!=nil)
+		TiViewProxy *theProxy = [self.proxy valueForUndefinedKey:@"headerView"];
+		if (theProxy!=nil)
 		{
-			[proxy windowWillOpen];
-            proxy.parentVisible=YES;
-            [proxy refreshSize];
-            [proxy willChangeSize];
-			[proxy layoutChildren:NO];
+			[theProxy windowWillOpen];
+            theProxy.parentVisible=YES;
+            [theProxy refreshSize];
+            [theProxy willChangeSize];
+			[theProxy layoutChildren:NO];
 		}
 	}
 
 	if ([tableview tableFooterView]!=nil)
 	{
-		TiViewProxy *proxy = [self.proxy valueForUndefinedKey:@"footerView"];
-		if (proxy!=nil)
+		TiViewProxy *theProxy = [self.proxy valueForUndefinedKey:@"footerView"];
+		if (theProxy!=nil)
 		{
-			[proxy windowWillOpen];
-            proxy.parentVisible=YES;
-            [proxy refreshSize];
-            [proxy willChangeSize];
-			[proxy layoutChildren:NO];
+			[theProxy windowWillOpen];
+            theProxy.parentVisible=YES;
+            [theProxy refreshSize];
+            [theProxy willChangeSize];
+			[theProxy layoutChildren:NO];
 		}
 	}
 }
@@ -1612,13 +1612,13 @@
 
 -(TiUIView*)sectionView:(NSInteger)section forLocation:(NSString*)location section:(TiUITableViewSectionProxy**)sectionResult
 {
-	TiUITableViewSectionProxy *proxy = [self sectionForIndex:section];
+	TiUITableViewSectionProxy *theProxy = [self sectionForIndex:section];
 	//In the event that proxy is nil, this all flows out to returning nil safely anyways.
 	if (sectionResult!=nil)
 	{
-		*sectionResult = proxy;
+		*sectionResult = theProxy;
 	}
-	TiViewProxy* viewproxy = [proxy valueForKey:location];
+	TiViewProxy* viewproxy = [theProxy valueForKey:location];
 	if (viewproxy!=nil && [viewproxy isKindOfClass:[TiViewProxy class]])
 	{
 		[viewproxy windowWillOpen];
