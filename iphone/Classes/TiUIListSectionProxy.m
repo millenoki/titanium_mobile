@@ -129,7 +129,7 @@
 //            viewLayout->width = TiDimensionAutoFill;
 //        }
 //        
-        TiViewProxy* wrapperProxy = [listView wrapperProxyWithVerticalLayout:YES];
+        TiViewProxy* wrapperProxy = [listView wrapperProxyWithVerticalLayout:NO];
         [wrapperProxy add:vp];
         [self addProxyToHold:wrapperProxy forKey:wrapperKey];
         return wrapperProxy;
