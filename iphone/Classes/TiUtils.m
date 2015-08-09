@@ -2217,13 +2217,13 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 +(CGRect)frameForController:(UIViewController*)theController
 {
-    CGRect mainScreen = [[UIScreen mainScreen] bounds];
     CGRect rect = [[UIScreen mainScreen] applicationFrame];
     NSUInteger edges = [theController edgesForExtendedLayout];
     //Check if I cover status bar
     if ( ((edges & UIRectEdgeTop) != 0) ){
-        return mainScreen;
+        rect = [[UIScreen mainScreen] bounds];
     }
+    
     return rect;
 }
 
