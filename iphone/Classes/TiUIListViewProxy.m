@@ -146,9 +146,19 @@ static NSDictionary* listViewKeysToReplace;
 
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block
 {
-    [self dispatchUpdateAction:block animated:YES];
+    [self dispatchUpdateAction:block animated:YES maintainPosition:YES];
 }
+
 -(void)dispatchUpdateAction:(void(^)(UITableView *tableView))block animated:(BOOL)animated
+{
+    [self dispatchUpdateAction:block animated:YES maintainPosition:YES];
+}
+
+- (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block maintainPosition:(BOOL)maintain
+{
+    [self dispatchUpdateAction:block animated:YES maintainPosition:maintain];
+}
+-(void)dispatchUpdateAction:(void(^)(UITableView *tableView))block animated:(BOOL)animated maintainPosition:(BOOL)maintain
 {
 	if (view == nil) {
 		block(nil);
@@ -169,14 +179,14 @@ static NSDictionary* listViewKeysToReplace;
 	[_operationQueue addObject:Block_copy(block)];
     pthread_mutex_unlock(&_operationQueueMutex);
 	if (triggerMainThread) {
-		TiThreadPerformOnMainThread(^{
+		TiThreadPerformBlockOnMainThread(^{
             if (animated)
             {
-                [self processUpdateActions];
+                [self processUpdateActions:maintain];
             }
             else {
                 [UIView setAnimationsEnabled:NO];
-                [self processUpdateActions];
+                [self processUpdateActions:maintain];
                 [UIView setAnimationsEnabled:YES];
             }
 		}, NO);
@@ -210,7 +220,7 @@ static NSDictionary* listViewKeysToReplace;
 	return [result autorelease];
 }
 
-- (void)processUpdateActions
+- (void)processUpdateActions:(BOOL)maintainPosition
 {
 	TiTableView *tableView = self.listView.tableView;
 	BOOL removeHead = NO;
@@ -227,11 +237,15 @@ static NSDictionary* listViewKeysToReplace;
 		}
 		pthread_mutex_unlock(&_operationQueueMutex);
 		if (block != nil) {
-            offset = [tableView contentOffset];
+            if (maintainPosition) {
+                offset = [tableView contentOffset];
+            }
 			[tableView beginUpdates];
 			block(tableView);
 			[tableView endUpdates];
-            [tableView setContentOffset:offset animated:NO];
+            if (maintainPosition) {
+                [tableView setContentOffset:offset animated:NO];
+            }
 			Block_release(block);
 		} else {
 			[self.listView updateIndicesForVisibleRows];
@@ -314,7 +328,7 @@ static NSDictionary* listViewKeysToReplace;
             }
             TiUIListItemProxy *cellProxy = [[TiUIListItemProxy alloc] initWithListViewProxy:self inContext:context];
             [cellProxy unarchiveFromTemplate:template withEvents:NO];
-            [cellProxy bindings];
+//            [cellProxy bindings];
             [measureProxies setObject:cellProxy forKey:key];
             [cellProxy release];
         }
@@ -645,6 +659,17 @@ static NSDictionary* listViewKeysToReplace;
             }
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:itemIndex inSection:sectionIndex];
             [self.listView deselectItem:indexPath animated:animated];
+        }, NO);
+    }
+}
+
+- (void)deselectAll:(id)args
+{
+    if (view != nil) {
+        NSDictionary *options = [args count] > 0 ? [args objectAtIndex:0] : nil;
+        BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
+        TiThreadPerformBlockOnMainThread(^{
+            [self.listView deselectAll:animated];
         }, NO);
     }
 }
