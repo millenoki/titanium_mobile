@@ -533,7 +533,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         [value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:obj];
             if (viewproxy) {
-                [viewproxy setParent:self];
+                [viewproxy setParentForBubbling:self];
                 [buttonProxies addObject:viewproxy];
             }
         }];
@@ -541,7 +541,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     } else {
         TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:value];
         if (viewproxy) {
-            [viewproxy setParent:self];
+            [viewproxy setParentForBubbling:self];
             buttons = [NSArray arrayWithObject:viewproxy];
         }
     }
