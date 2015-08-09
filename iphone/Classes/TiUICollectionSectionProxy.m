@@ -400,7 +400,7 @@
             });
         }
 		[indexPaths release];
-	} animated:animated];
+	} animated:animated maintainPosition:NO];
 }
 
 - (void)updateItemAt:(id)args
@@ -446,9 +446,20 @@
 
 - (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block
 {
-    [self dispatchUpdateAction:block animated:YES];
+    [self dispatchUpdateAction:block animated:YES maintainPosition:NO];
 }
--(void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block animated:(BOOL)animated
+
+- (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block maintainPosition:(BOOL)maintain
+{
+    [self dispatchUpdateAction:block animated:YES maintainPosition:NO];
+}
+
+- (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block animated:(BOOL)animated
+{
+    [self dispatchUpdateAction:block animated:animated maintainPosition:NO];
+}
+
+-(void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block animated:(BOOL)animated maintainPosition:(BOOL)maintain
 {
     if (animated)
     {

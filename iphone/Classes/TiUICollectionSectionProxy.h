@@ -16,6 +16,9 @@
 
 - (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block;
 - (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block animated:(BOOL)animated;
+- (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block maintainPosition:(BOOL)maintain;
+- (void)dispatchUpdateAction:(void(^)(UICollectionView *tableView))block animated:(BOOL)animated maintainPosition:(BOOL)maintain;
+- (void)dispatchBlock:(void(^)(UICollectionView *tableView))block;
 - (id)dispatchBlockWithResult:(id(^)(void))block;
 //-(void)hideDeleteButton:(id)args;
 
