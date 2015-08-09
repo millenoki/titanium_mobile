@@ -142,7 +142,7 @@
 - (void) dealloc
 {
 	RELEASE_TO_NIL(urlRequest);
-    [self replaceValue:nil forKey:@"image" notification:NO];
+//    [self replaceValue:nil forKey:@"image" notification:NO];
     
     RELEASE_TO_NIL(imageURL);
 	[super dealloc];
