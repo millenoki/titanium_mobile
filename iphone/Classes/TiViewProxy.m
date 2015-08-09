@@ -1870,6 +1870,8 @@ SEL GetterForKrollProperty(NSString * key)
         vzIndex = 0;
         instantUpdates = NO;
         _canBeResizedByFrame = NO;
+        _canRepositionItself = YES;
+        _canResizeItself = YES;
         needsFocusOnAttach = NO;
 	}
 	return self;
@@ -2300,6 +2302,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 -(void)willChangeSize
 {
+    if (!_canResizeItself) {
+        return;
+    }
 	SET_AND_PERFORM(TiRefreshViewSize,return);
 
 	if (![self absoluteLayout])
@@ -2328,6 +2333,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
 -(void)willChangePosition
 {
+    if (!_canRepositionItself) {
+        return;
+    }
 	SET_AND_PERFORM(TiRefreshViewPosition,return);
 
 	if(TiDimensionIsUndefined(layoutProperties.width) || 
