@@ -126,6 +126,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 	BOOL reproxying;
 //    BOOL initPropertiesOnCreation;
 @protected
+    NSMutableDictionary *_proxyBindings;
     BOOL _fakeApplyProperties;
     BOOL _shouldRetainModelDelegate;
 	NSMutableDictionary *dynprops;
@@ -375,7 +376,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 + (id)createProxy:(Class)proxyClass withProperties:(NSDictionary*)properties inContext:(id<TiEvaluator>)context;
 + (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy inContext:(id<TiEvaluator>)context;
 + (TiProxy *)createFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy inContext:(id<TiEvaluator>)context defaultType:(NSString*)defaultType;
-- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents inContext:(id<TiEvaluator>)context;
+- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents rootProxy:(TiProxy*)rootProxy;
+- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents;
 
 -(void)applyProperties:(id)args;
 -(NSString*)apiName;
@@ -383,7 +385,6 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 +(id)objectOfClass:(Class)theClass fromArg:(id)arg inContext:(id<TiEvaluator>)context_;
 +(CFMutableDictionaryRef)classNameLookup;
 - (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy;
-- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents;
 +(Class)proxyClassFromString:(NSString*)qualifiedName;
 
 @property (nonatomic,readwrite,assign) id<TiViewEventOverrideDelegate> eventOverrideDelegate;
@@ -392,6 +393,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 
 -(void)addBinding:(TiProxy*)proxy forKey:(NSString*)key;
 -(void)removeBindingForKey:(NSString*)key;
+-(void)removeBindingsForProxy:(TiProxy*)proxy;
 -(TiProxy*)bindingForKey:(NSString*)key;
 
 -(void)invokeBlockOnJSThread:(void (^)())block;

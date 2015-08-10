@@ -203,7 +203,6 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 
 @implementation TiProxy
 {
-    NSMutableDictionary *_proxyBindings;
     BOOL _createdFromDictionary;
     BOOL _aboutToBeBridge;
 }
@@ -1564,7 +1563,14 @@ DEFINE_EXCEPTIONS
 }
 
 -(id)objectOfClass:(Class)theClass fromArg:(id)arg {
-    return [TiProxy objectOfClass:theClass fromArg:arg inContext:[self pageContext]];
+    id result = [TiProxy objectOfClass:theClass fromArg:arg inContext:[self getContext]];
+    if (IS_OF_CLASS(result, TiProxy)) {
+        id bindId = [result valueForUndefinedKey:@"bindId"];
+        if (bindId) {
+            [self addBinding:result forKey:bindId];
+        }
+    }
+    return result;
 }
 
 +(id)objectOfClass:(Class)theClass fromArg:(id)arg inContext:(id<TiEvaluator>)context_ {
@@ -1593,11 +1599,11 @@ DEFINE_EXCEPTIONS
 - (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents
 {
     
-    [self unarchiveFromTemplate:viewTemplate_ withEvents:withEvents inContext:[self getContext]];
+    [self unarchiveFromTemplate:viewTemplate_ withEvents:withEvents rootProxy:self];
 }
 
 
-- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents inContext:(id<TiEvaluator>)context
+- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents rootProxy:(TiParentingProxy*)rootProxy
 {
     TiProxyTemplate *viewTemplate = [TiProxyTemplate templateFromViewTemplate:viewTemplate_];
     if (viewTemplate == nil) {
@@ -1700,6 +1706,14 @@ DEFINE_EXCEPTIONS
 {
     if (_proxyBindings) {
         [_proxyBindings removeObjectForKey:key];
+    }
+}
+
+-(void)removeBindingsForProxy:(TiProxy*)proxy
+{
+    if (_proxyBindings) {
+        NSArray *keys = [_proxyBindings allKeysForObject:proxy];
+        [_proxyBindings removeObjectsForKeys:keys];
     }
 }
 
