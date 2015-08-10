@@ -1673,7 +1673,7 @@ static NSDictionary* replaceKeysForRow;
 //                            [buttonViews addObject:[(TiViewProxy*)obj view]];
 //                        }
 //                        else {
-                            [buttonViews addObject:[(TiViewProxy*)obj getAndPrepareViewForOpening]];
+                        [buttonViews addObject:[(TiViewProxy*)obj getAndPrepareViewForOpening:listItem.bounds]];
 //                        }
                     }
                 }];
