@@ -48,8 +48,8 @@
 
 -(void)_destroy
 {
+    [super _destroy]; // call first so that destroyed is set
 	pthread_rwlock_wrlock(&childrenLock);
-//	[children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
     [self releaseChildOnDestroy:children];
     RELEASE_TO_NIL(children);
 	pthread_rwlock_unlock(&childrenLock);
@@ -61,7 +61,6 @@
     pthread_rwlock_unlock(&_holdedProxiesLock);
     pthread_rwlock_destroy(&_holdedProxiesLock);
     
-	[super _destroy];
 }
 
 
@@ -78,7 +77,7 @@
         }];
         return;
     }
-    [self childRemoved:child wasChild:NO shouldDetach:YES];
+    [self childRemoved:child wasChild:YES shouldDetach:YES];
 }
 
 -(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check
@@ -353,7 +352,7 @@
         bindId = [object valueForUndefinedKey:@"bindId"];
     }
     if (child && bindId) {
-        [child setValue:bindId forKey:@"bindId"];
+        [child setValue:bindId forUndefinedKey:@"bindId"];
         [rootProxy addBinding:child forKey:bindId];
     }
     return child;
@@ -405,46 +404,62 @@
 }
 
 // Returns protected proxy, caller should do forgetSelf.
-+ (TiProxy *)unarchiveFromTemplate:(id)viewTemplate_ inContext:(id<TiEvaluator>)context withEvents:(BOOL)withEvents
-{
-    TiProxyTemplate *viewTemplate = [TiProxyTemplate templateFromViewTemplate:viewTemplate_];
-    if (viewTemplate == nil) {
-        return;
-    }
-    
-    if (viewTemplate.type != nil) {
-        TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:viewTemplate.type] withProperties:nil inContext:context];
-        if (proxy) {
-            [context.krollContext invokeBlockOnThread:^{
-                [context registerProxy:proxy];
-                [proxy rememberSelf];
-            }];
-            [proxy unarchiveFromTemplate:viewTemplate withEvents:withEvents];
-            
-        }
-        return proxy;
-    }
-    return nil;
-}
+//+ (TiProxy *)unarchiveFromTemplate:(id)viewTemplate_ inContext:(id<TiEvaluator>)context withEvents:(BOOL)withEvents
+//{
+//    TiProxyTemplate *viewTemplate = [TiProxyTemplate templateFromViewTemplate:viewTemplate_];
+//    if (viewTemplate == nil) {
+//        return;
+//    }
+//    
+//    if (viewTemplate.type != nil) {
+//        TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:viewTemplate.type] withProperties:nil inContext:context];
+//        if (proxy) {
+//            [context.krollContext invokeBlockOnThread:^{
+//                [context registerProxy:proxy];
+//                [proxy rememberSelf];
+//            }];
+//            [proxy unarchiveFromTemplate:viewTemplate withEvents:withEvents];
+//            
+//        }
+//        return proxy;
+//    }
+//    return nil;
+//}
 
-- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents inContext:(id<TiEvaluator>)context
+- (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents rootProxy:(TiProxy*)rootProxy
 {
 	TiProxyTemplate *viewTemplate = [TiProxyTemplate templateFromViewTemplate:viewTemplate_];
 	if (viewTemplate == nil) {
 		return;
 	}
-	[super unarchiveFromTemplate:viewTemplate withEvents:withEvents inContext:context];
-	
+	[super unarchiveFromTemplate:viewTemplate withEvents:withEvents rootProxy:rootProxy];
+    id<TiEvaluator> context = [rootProxy getContext];
 	[viewTemplate.childTemplates enumerateObjectsUsingBlock:^(TiProxyTemplate *childTemplate, NSUInteger idx, BOOL *stop) {
-		TiProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context withEvents:withEvents];
-		if (child != nil) {
-    
-            [context.krollContext invokeBlockOnThread:^{
-                [self rememberProxy:child];
-				[child forgetSelf];
-			}];
-            [self addProxy:child atIndex:-1 shouldRelayout:NO];
-		}
+        if (childTemplate.type != nil) {
+            TiProxy *child = [[self class] createProxy:[[self class] proxyClassFromString:childTemplate.type] withProperties:nil inContext:context];
+            if (child) {
+                [context.krollContext invokeBlockOnThread:^{
+                    [context registerProxy:child];
+                    [child rememberSelf];
+                }];
+                [child unarchiveFromTemplate:childTemplate withEvents:withEvents rootProxy:rootProxy];
+                [context.krollContext invokeBlockOnThread:^{
+                    [self rememberProxy:child];
+                    [child forgetSelf];
+                }];
+                [self addProxy:child atIndex:-1 shouldRelayout:NO];
+                id bindId = [child valueForUndefinedKey:@"bindId"];
+                if (bindId) {
+                    [rootProxy addBinding:child forKey:bindId];
+                }
+            }
+//            return proxy;
+        }
+//
+//        TiProxy *child = [[self class] unarchiveFromTemplate:childTemplate inContext:context withEvents:withEvents];
+//		if (child != nil) {
+//            
+//		}
 	}];
 }
 

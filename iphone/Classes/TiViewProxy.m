@@ -835,7 +835,7 @@ SEL GetterForKrollProperty(NSString * key)
 -(void)childRemoved:(TiProxy*)child wasChild:(BOOL)wasChild shouldDetach:(BOOL)shouldDetach
 {
     [super childRemoved:child wasChild:wasChild shouldDetach:shouldDetach];
-    if (![child isKindOfClass:[TiViewProxy class]]){
+    if ([self destroyed] || ![child isKindOfClass:[TiViewProxy class]]){
         return;
     }
 //    ENSURE_UI_THREAD_WAIT_1_ARG(child);
