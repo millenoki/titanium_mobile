@@ -48,6 +48,8 @@
     BOOL configurationSet;
     BOOL _unHighlightOnSelect;
     BOOL _customBackground;
+    
+    UITableViewCellSelectionStyle _selectionStyle;
 }
 
 @synthesize templateStyle = _templateStyle;
@@ -78,7 +80,8 @@ DEFINE_EXCEPTIONS
     if (self) {
 		_templateStyle = TiUIListItemTemplateStyleCustom;
 		_proxy = [proxy retain];
-//        self.selectionStyle = UITableViewCellSelectionStyleNone;
+        _selectionStyle = UITableViewCellSelectionStyleNone;
+        self.selectionStyle = _selectionStyle;
         _viewHolder = [[TiUIListItemContentView alloc] initWithFrame:self.contentView.bounds];
         _viewHolder.proxy = _proxy;
         _viewHolder.listItem = self;
@@ -150,7 +153,7 @@ DEFINE_EXCEPTIONS
     
 }
 
--(void) updateBackgroundLayerCorners:(TiCellBackgroundView*)view {
+//-(void) updateBackgroundLayerCorners:(TiCellBackgroundView*)view {
 //    if (_grouped && ![TiUtils isIOS7OrGreater]) {
 //        UIRectCorner corners = -10;
 //        switch (_positionMask) {
@@ -168,7 +171,7 @@ DEFINE_EXCEPTIONS
 //        }
 //        [view setRoundedRadius:GROUP_ROUND_RADIUS inCorners:corners];
 //    }
-}
+//}
 
 //TIMOB-17373. Workaround for separators disappearing on iOS7 and above
 - (void) ensureVisibleSelectorWithTableView:(UITableView*)tableView
@@ -222,8 +225,13 @@ DEFINE_EXCEPTIONS
     if (_bgView && ![view isKindOfClass:[TiCellBackgroundView class]]){
         [_bgView setFrame:view.bounds];
         [view addSubview:_bgView];
-        [self updateBackgroundLayerCorners:_bgView];
+//        [self updateBackgroundLayerCorners:_bgView];
     }
+}
+
+-(void)setSelectedBackgroundView:(UIView *)selectedBackgroundView
+{
+    [super setSelectedBackgroundView:nil];
 }
 
 -(TiCellBackgroundView*)getOrCreateBackgroundView
@@ -232,12 +240,13 @@ DEFINE_EXCEPTIONS
         _bgView = [[TiCellBackgroundView alloc] initWithFrame:self.bounds];
 //        if (!_grouped || [TiUtils isIOS7OrGreater]) {
             self.backgroundView = _bgView;
+        self.selectedBackgroundView = nil;
 //        }
 //        else if(self.backgroundView !=nil){
 //            [_bgView setFrame:self.backgroundView.bounds];
 //            [self.backgroundView addSubview:_bgView];
 //        }
-        [self updateBackgroundLayerCorners:_bgView];
+//        [self updateBackgroundLayerCorners:_bgView];
         _bgView.alpha = self.contentView.alpha;
     }
 
@@ -449,9 +458,9 @@ static NSArray* handledKeys;
     _positionMask = position;
     [self setGrouped:grouped];
     
-    if (_bgView != nil) {
-        [self updateBackgroundLayerCorners:_bgView];
-    }
+//    if (_bgView != nil) {
+//        [self updateBackgroundLayerCorners:_bgView];
+//    }
 //    if (_bgSelectedView != nil) {
 //        [self updateBackgroundLayerCorners:_bgSelectedView];
 //    }
@@ -488,7 +497,10 @@ static NSArray* handledKeys;
 
 -(void)setSelectionStyle_:(id)newValue
 {
-    self.selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleDefault];
+    _selectionStyle = [TiUtils intValue:newValue def:UITableViewCellSelectionStyleNone];
+    if (! [self isEditing]) {
+        self.selectionStyle = _selectionStyle;
+    }
 }
 
 -(void)setColor_:(id)newValue
@@ -591,6 +603,13 @@ static NSArray* handledKeys;
         [_proxy removeFakeAnimation];
     } else {
         [super setEditing:editing animated:animated];
+    }
+
+    // Change the selection style based on if the cell is being edited or not
+    if (editing) {
+        self.selectionStyle = UITableViewCellSelectionStyleDefault;
+    } else {
+        self.selectionStyle = _selectionStyle;
     }
 }
 
