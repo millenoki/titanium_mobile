@@ -82,11 +82,11 @@
 }
 
 
--(void)_destroy {
-    [self windowWillClose];
-    [self windowDidClose];
-    [super _destroy];
-}
+//-(void)_destroy {
+//    [self windowWillClose];
+//    [self windowDidClose];
+//    [super _destroy];
+//}
 
 -(void)_configure
 {
