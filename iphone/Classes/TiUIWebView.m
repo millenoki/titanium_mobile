@@ -63,7 +63,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 @interface LocalProtocolHandler : NSURLProtocol
 @end
- 
+
 @implementation TiUIWebView
 {
     APSHTTPRequest* _currentRequest;
@@ -78,7 +78,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	if (self != nil)
 	{
         _asyncLoad = NO;
-//        willHandleTouches = YES;
+        willHandleTouches = NO;
 	}
 	return self;
 }
@@ -1039,6 +1039,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
 	// NO-OP
 }
+
+
+
 
 @end
 
