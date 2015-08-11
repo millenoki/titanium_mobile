@@ -334,7 +334,7 @@
 {
     TiThreadPerformBlockOnMainThread(^{
         [super handleAnimation:animation witDelegate:delegate];
-    }, YES);
+    }, NO);
 }
 -(void)playAnimation:(HLSAnimation*)animation withRepeatCount:(NSUInteger)repeatCount afterDelay:(double)delay
 {
@@ -2084,7 +2084,7 @@ SEL GetterForKrollProperty(NSString * key)
 	if (view!=nil)
 	{
 		[self viewWillDetach];
-        [self cancelAllAnimations:nil];
+//        [self cancelAllAnimations:nil];
 		[view removeFromSuperview];
 		view.proxy = nil;
         view.touchDelegate = nil;
@@ -2744,6 +2744,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 
     if (!needsRefresh)
     {
+        dirtyflags = 0;
         //even if our sandbox is null and we are not ready (next test) let s still call refresh our our children. They wont refresh but at least they will clear their TiRefreshViewEnqueued flags !
         if (recursive){
             [self makeChildrenPerformSelector:@selector(refreshViewIfNeededNSNumber:) withObject:@(recursive)];
@@ -2984,6 +2985,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     {
         if (CGSizeEqualToSize(sandboxBounds.size, CGSizeZero)) {
             dirtyflags = 0;
+            repositioning = NO;
             return NO;
         }
         ENSURE_UI_THREAD_0_ARGS
@@ -3157,7 +3159,10 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
     }
 }
 
-
+-(void)repositionWithinAnimation
+{
+    [self repositionWithinAnimation:[self runningAnimation]];
+}
 -(void)repositionWithinAnimation:(TiViewAnimationStep*)animation
 {
 	IGNORE_IF_NOT_OPENED
@@ -3791,25 +3796,27 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	ENSURE_UI_THREAD_1_ARG(arg);
 	if ([self viewAttached])
 	{
-		[[self view] endEditing:YES];
+		[[self view] resignFirstResponder];
 	}
 }
 
 -(void)blur:(id)args
 {
-	ENSURE_UI_THREAD_1_ARG(args)
 	if ([self viewAttached])
 	{
-		[[self view] endEditing:YES];
+        TiThreadPerformBlockOnMainThread(^{
+            [[self view] resignFirstResponder];
+        }, NO);
 	}
 }
 
 -(void)focus:(id)args
 {
-	ENSURE_UI_THREAD_1_ARG(args)
 	if ([self viewAttached])
 	{
-		[[self view] becomeFirstResponder];
+        TiThreadPerformBlockOnMainThread(^{
+            [[self view] becomeFirstResponder];
+        }, NO);
     } else {
         needsFocusOnAttach = YES;
     }

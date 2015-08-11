@@ -232,6 +232,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(void)setBackgroundImage_:(id)value;
 
+@property(nonatomic,readwrite,assign)	BOOL alwaysUseBackgroundLayer;
 -(UIView *)backgroundWrapperView;
 -(void)setBgState:(UIControlState)state;
 @property (nonatomic, readonly) TiSelectableBackgroundLayer* backgroundLayer;

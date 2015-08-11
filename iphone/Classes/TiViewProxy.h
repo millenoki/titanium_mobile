@@ -526,6 +526,7 @@ enum
 
 -(void)reposition;	//Todo: Replace
 -(void)repositionWithinAnimation:(TiViewAnimationStep*)animation;
+-(void)repositionWithinAnimation;
 /**
  Tells if the view is enqueued in the LayoutQueue
  */

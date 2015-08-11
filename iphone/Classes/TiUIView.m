@@ -341,6 +341,7 @@ DEFINE_EXCEPTIONS
 
 - (void) initialize
 {
+    _alwaysUseBackgroundLayer = NO;
     childViews  =[[NSMutableArray alloc] init];
     transferLock = [[NSRecursiveLock alloc] init];
     touchPassThrough = NO;
@@ -676,6 +677,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)updatePathForClipping:(CGRect)bounds
 {
+
     //the 0.5f is there to have a clean border where you don't see the background
     CGPathRef path = self.layer.shadowPath = CGPathCreateRoundiiRect(bounds, radii);
     if (clipChildren && usePathAsBorder && (!self.layer.mask || [self.layer.mask isKindOfClass:[CAShapeLayer class]]))
@@ -733,34 +735,51 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setFrame:(CGRect)frame
 {
 	[super setFrame:frame];
-    if (![self viewProxy].canBeResizedByFrame) return;
+    
+    if ([[self viewProxy] canBeResizedByFrame]) {
+        
+        [self checkBounds];
+        //        [[self viewProxy] performBlock:^{
+        //            [[self viewProxy] performBlockWithoutLayout:^{
+        //                [[self viewProxy] willChangeSize];
+        ////                [self willChangePosition];
+        //            }];
+        //
+        //            [[self viewProxy] refreshViewOrParent];
+        //        } withinAnimation:runningAnimation];
+//        [[self viewProxy] repositionWithinAnimation];
+    }
+//    if (![self viewProxy].canBeResizedByFrame) return;
 	// this happens when a view is added to another view but not
 	// through the framework (such as a tableview header) and it
 	// means we need to force the layout of our children
-	if (childrenInitialized==NO &&
-		CGRectIsEmpty(frame)==NO &&
-		[self.proxy isKindOfClass:[TiViewProxy class]])
-	{
-		childrenInitialized=YES;
-		[(TiViewProxy*)self.proxy layoutChildren:NO];
-    } else if (CGRectIsEmpty(frame)) {
-        childrenInitialized=NO;
-    }
+//	if (childrenInitialized==NO &&
+//		CGRectIsEmpty(frame)==NO &&
+//		[self.proxy isKindOfClass:[TiViewProxy class]])
+//	{
+//		childrenInitialized=YES;
+//		[(TiViewProxy*)self.proxy layoutChildren:NO];
+//    } else if (CGRectIsEmpty(frame)) {
+//        childrenInitialized=NO;
+//    }
 }
 
 -(void)updateBounds:(CGRect)newBounds
 {
     //TIMOB-11197, TC-1264
     [CATransaction begin];
-    if (runningAnimation == nil) {
+    
+    if (self.runningAnimation == nil) {
         [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
     }
     else {
-        [CATransaction setAnimationDuration:[runningAnimation duration]];
-        [CATransaction setAnimationTimingFunction:[runningAnimation curve]];
+        [CATransaction setAnimationDuration:[self.runningAnimation duration]];
+        [CATransaction setAnimationTimingFunction:[self.runningAnimation curve]];
     }
-    
     [self frameSizeChanged:[TiUtils viewPositionRect:self] bounds:newBounds];
+//    if ([[self viewProxy] canBeResizedByFrame]) {
+//        [[self viewProxy] refreshViewIfNeeded];
+//    }
     [CATransaction commit];
 }
 
@@ -769,8 +788,14 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 {
     CGRect newBounds = [self bounds];
     if(!CGSizeEqualToSize(oldSize, newBounds.size)) {
-        [self updateBounds:newBounds];
+        //make sure to change old first to prevent setBounds in relayout to call us again
         oldSize = newBounds.size;
+        if ([[self viewProxy] canBeResizedByFrame]) {
+            [[self viewProxy] performBlockWithoutLayout:^{
+                [[self viewProxy] willChangeSize];
+            }];
+        }
+        [self updateBounds:newBounds];
     }
 }
 
@@ -784,7 +809,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)layoutSubviews
 {
-	[self checkBounds];
+//	[self checkBounds];
     if ([[self viewProxy] canBeResizedByFrame]) {
 //        [[self viewProxy] performBlock:^{
 //            [[self viewProxy] performBlockWithoutLayout:^{
@@ -794,7 +819,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 //            
 //            [[self viewProxy] refreshViewOrParent];
 //        } withinAnimation:runningAnimation];
-        [[self viewProxy] repositionWithinAnimation:runningAnimation];
+        [[self viewProxy] refreshViewIfNeeded];
     }
     [super layoutSubviews];
 }
@@ -1019,7 +1044,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 		uicolor = [[TiUtils colorValue:color] _color];
 	}
     
-    if (!_bgLayer && (clipChildren || radii == nil))
+    if (!_alwaysUseBackgroundLayer && !_bgLayer && (clipChildren || radii == nil))
     {
         if (backgroundOpacity < 1.0f) {
             const CGFloat* components = CGColorGetComponents(uicolor.CGColor);
