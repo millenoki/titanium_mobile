@@ -38,7 +38,7 @@ DEFINE_EXCEPTIONS
 {
     //we are retained by the collectionView
     _proxy = [proxy retain];
-    self.viewHolder = [[[TiUIView alloc] initWithFrame:self.bounds] autorelease];
+    _viewHolder = [[TiUIView alloc] initWithFrame:self.bounds];
     _viewHolder.shouldHandleSelection = NO;
     [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
     [_viewHolder setClipsToBounds: YES];
