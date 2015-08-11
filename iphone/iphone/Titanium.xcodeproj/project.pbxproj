@@ -673,12 +673,12 @@
 		D535CCE719CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
 		D535CCE819CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
 		D535CCE919CF333A005E114E /* UIImage+UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = D535CCE619CF333A005E114E /* UIImage+UserInfo.m */; };
-		D535F3F91B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */; };
-		D535F3FA1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */; };
-		D535F3FB1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */; };
-		D535F3FC1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */; };
-		D535F3FD1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */; };
-		D535F3FE1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */; };
+		D535F3F91B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D535F3FA1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D535F3FB1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F61B6E53E300B06B5A /* NJKWebViewProgress.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D535F3FC1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D535F3FD1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D535F3FE1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = D535F3F81B6E53E300B06B5A /* NJKWebViewProgressView.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5370D94194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D95194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
 		D5370D96194749DF000E30FC /* TiParentingProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5370D93194749DF000E30FC /* TiParentingProxy.m */; };
