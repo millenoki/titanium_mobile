@@ -103,7 +103,7 @@ inline static CGRect CGRectCenterRectForResizableImage(UIImage *image) {
         if (gradient == nil && color == nil && _innerShadows == nil && image != nil) {
             _bufferImage = [image retain];
         }
-        else if (gradient || _innerShadows || svg) {
+        else if (gradient || _innerShadows || svg || (color && layer.shadowPath)) {
             if (CGRectEqualToRect(layer.frame, CGRectZero))
                 return;
             [self drawBufferFromLayer:layer];
