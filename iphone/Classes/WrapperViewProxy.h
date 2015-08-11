@@ -11,5 +11,7 @@
 @class TiTableView;
 @interface WrapperViewProxy : TiViewProxy
 - (id)initWithVerticalLayout:(BOOL)vertical tableView:(TiTableView*)tableView;
+- (id)initWithVerticalLayout:(BOOL)vertical;
+@property (nonatomic, readwrite, retain) TiTableView *tableView;
 
 @end

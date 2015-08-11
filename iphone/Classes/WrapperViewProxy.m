@@ -9,10 +9,28 @@
 #import "WrapperViewProxy.h"
 #import "TiTableView.h"
 
+//@interface WrapperView : TiUIView
+//
+//@end
+//
+//@implementation WrapperView
+//
+////-(void)setBounds:(CGRect)bounds
+////{
+////    [((WrapperViewProxy*)proxy).tableView processBlock:^void(UITableView * tableView) {
+////        [super setBounds:bounds];
+////    } animated:NO];
+////}
+//@end
 
 @implementation WrapperViewProxy
 {
     TiTableView* _tableView;
+}
+
+- (id)initWithVerticalLayout:(BOOL)vertical
+{
+    return [self initWithVerticalLayout:vertical tableView:nil];
 }
 
 - (id)initWithVerticalLayout:(BOOL)vertical tableView:(TiTableView*)tableView;
@@ -21,6 +39,7 @@
     if (self) {
         _tableView = [tableView retain];
         self.canBeResizedByFrame = YES;
+//        self.canRepositionItself = NO;
         LayoutConstraint* viewLayout = [self layoutProperties];
         viewLayout->width = TiDimensionAutoFill;
         viewLayout->height = TiDimensionAutoSize;
@@ -40,14 +59,14 @@
     [super dealloc];
 }
 
--(BOOL)relayout
-{
-    __block BOOL result;
-    [_tableView processBlock:^void(UITableView * tableView) {
-        result = [super relayout];
-    } animated:NO];
-    return result;
-}
+//-(BOOL)relayout
+//{
+//    __block BOOL result;
+//    [_tableView processBlock:^void(UITableView * tableView) {
+//        result = [super relayout];
+//    } animated:NO];
+//    return result;
+//}
 
 -(void)willChangePosition
 {
