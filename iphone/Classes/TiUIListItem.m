@@ -18,6 +18,7 @@
 
 @interface TiUIListItem()
 -(UIView *)backgroundWrapperView;
+-(void)disableSelectionStyle;
 @end
 
 @interface TiUIListItemContentView:TiUIView
@@ -26,9 +27,66 @@
 @end
 @implementation TiUIListItemContentView
 
+-(TiViewAnimationStep*)runningAnimation
+{
+    if ([super runningAnimation]) {
+        return [super runningAnimation];
+    }
+    return [((TiUIListItemProxy*)self.proxy).listViewProxy runningAnimation];
+}
+
+
 -(UIView *)backgroundWrapperView
 {
     return [_listItem backgroundWrapperView];
+}
+
+-(void)setBackgroundGradient:(TiGradient*)gradient forState:(UIControlState)state
+{
+    [super setBackgroundGradient:gradient forState:state];
+    if (state == UIControlStateHighlighted) {
+        [_listItem disableSelectionStyle];
+    }
+}
+
+-(void)setBackgroundImage:(id)image forState:(UIControlState)state
+{
+    [super setBackgroundImage:image forState:state];
+    if (state == UIControlStateHighlighted) {
+        [_listItem disableSelectionStyle];
+    }
+}
+
+-(void)setBackgroundColor:(UIColor*)color forState:(UIControlState)state
+{
+    [super setBackgroundColor:color forState:state];
+    if (state == UIControlStateHighlighted) {
+        [_listItem disableSelectionStyle];
+    }
+}
+
+-(void)setBorderGradient:(TiGradient*)gradient forState:(UIControlState)state
+{
+    [super setBorderGradient:gradient forState:state];
+    if (state == UIControlStateHighlighted) {
+        [_listItem disableSelectionStyle];
+    }
+}
+
+-(void)setBorderImage:(id)image forState:(UIControlState)state
+{
+    [super setBorderImage:image forState:state];
+    if (state == UIControlStateHighlighted) {
+        [_listItem disableSelectionStyle];
+    }
+}
+
+-(void)setBorderColor:(UIColor*)color forState:(UIControlState)state
+{
+    [super setBorderColor:color forState:state];
+    if (state == UIControlStateHighlighted) {
+        [_listItem disableSelectionStyle];
+    }
 }
 @end
 
@@ -66,8 +124,10 @@ DEFINE_EXCEPTIONS
 		_templateStyle = style;
         self.textLabel.backgroundColor = [UIColor clearColor];
         self.detailTextLabel.backgroundColor = [UIColor clearColor];
+        _selectionStyle = UITableViewCellSelectionStyleDefault;
 		_proxy = [proxy retain];
         [self initialize];
+        [self.contentView sendSubviewToBack:_viewHolder];
         [self setGrouped:grouped];
         _positionMask = position;
     }
@@ -80,27 +140,28 @@ DEFINE_EXCEPTIONS
     if (self) {
 		_templateStyle = TiUIListItemTemplateStyleCustom;
 		_proxy = [proxy retain];
-        _selectionStyle = UITableViewCellSelectionStyleNone;
-        self.selectionStyle = _selectionStyle;
-        _viewHolder = [[TiUIListItemContentView alloc] initWithFrame:self.contentView.bounds];
-        _viewHolder.proxy = _proxy;
-        _viewHolder.listItem = self;
-        _viewHolder.shouldHandleSelection = NO;
-        [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-        [_viewHolder setClipsToBounds: YES];
-        [_viewHolder.layer setMasksToBounds: YES];
-        //    [_viewHolder selectableLayer].animateTransition = YES;
-        [self.contentView addSubview:_viewHolder];
+        _selectionStyle = UITableViewCellSelectionStyleDefault;
         [self initialize];
         [self setGrouped:grouped];
         _positionMask = position;
+        [self disableSelectionStyle];
     }
     return self;
 }
 
 -(void) initialize
 {
-
+    self.selectionStyle = _selectionStyle;
+    _viewHolder = [[TiUIListItemContentView alloc] initWithFrame:self.contentView.bounds];
+    _viewHolder.proxy = _proxy;
+    _viewHolder.listItem = self;
+    _viewHolder.shouldHandleSelection = NO;
+    [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+    [_viewHolder setClipsToBounds: YES];
+    [_viewHolder.layer setMasksToBounds: YES];
+    //    [_viewHolder selectableLayer].animateTransition = YES;
+    [self.contentView addSubview:_viewHolder];
+    [_viewHolder setAlwaysUseBackgroundLayer:YES];
     _unHighlightOnSelect = YES;
     _customBackground = NO;
     _proxy.listItem = self;
@@ -150,7 +211,15 @@ DEFINE_EXCEPTIONS
             self.contentView.opaque = YES;
         }
     }
-    
+}
+
+-(void)disableSelectionStyle {
+    if (_selectionStyle != UITableViewCellSelectionStyleNone) {
+        _selectionStyle = UITableViewCellSelectionStyleNone;
+        self.selectionStyle = _selectionStyle;
+        self.selectedBackgroundView = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
+        self.multipleSelectionBackgroundView = [[[UIView alloc] initWithFrame:CGRectZero] autorelease];
+    }
 }
 
 //-(void) updateBackgroundLayerCorners:(TiCellBackgroundView*)view {
@@ -231,7 +300,11 @@ DEFINE_EXCEPTIONS
 
 -(void)setSelectedBackgroundView:(UIView *)selectedBackgroundView
 {
-    [super setSelectedBackgroundView:nil];
+//    if (_templateStyle == TiUIListItemTemplateStyleCustom) {
+        [super setSelectedBackgroundView:nil];
+//    } else {
+//        [super setSelectedBackgroundView:selectedBackgroundView];
+//    }
 }
 
 -(TiCellBackgroundView*)getOrCreateBackgroundView
@@ -239,8 +312,8 @@ DEFINE_EXCEPTIONS
     if (_bgView == nil) {
         _bgView = [[TiCellBackgroundView alloc] initWithFrame:self.bounds];
 //        if (!_grouped || [TiUtils isIOS7OrGreater]) {
-            self.backgroundView = _bgView;
-        self.selectedBackgroundView = nil;
+        self.backgroundView = _bgView;
+        
 //        }
 //        else if(self.backgroundView !=nil){
 //            [_bgView setFrame:self.backgroundView.bounds];
@@ -381,7 +454,7 @@ static NSArray* handledKeys;
 
 -(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy_
 {
-    if (_templateStyle == TiUIListItemTemplateStyleCustom && [[self handledKeys] indexOfObject:key] == NSNotFound)
+    if (_viewHolder && [[self handledKeys] indexOfObject:key] == NSNotFound)
     {
         DoProxyDelegateChangedValuesWithProxy(_viewHolder, key, oldValue, newValue, proxy_);
     } else {
@@ -563,47 +636,40 @@ static NSArray* handledKeys;
     }];
     return canSwipe;
 }
--(void)setFrame:(CGRect)frame
-{
-	// this happens when a controller resizes its view
-    
-//    if (!CGRectIsEmpty(frame))
-//	{
-//        CGRect currentbounds = [_viewHolder bounds];
-//        CGRect newBounds = CGRectMake(0, 0, frame.size.width, frame.size.height);
-//        if (!CGRectEqualToRect(newBounds, currentbounds))
+//-(void)setFrame:(CGRect)frame
+//{
+//	// this happens when a controller resizes its view
+//    
+//
+////    NSArray* animationKyes = self.layer.animationKeys;
+//    if (_templateStyle == TiUIListItemTemplateStyleCustom) {
+//        TiViewAnimationStep* anim = [_proxy runningAnimation];
+////            if (!CGRectIsEmpty(frame))
+////        	{
+////                CGRect currentbounds = [_viewHolder bounds];
+////                CGRect newBounds = CGRectMake(0, 0, frame.size.width, frame.size.height);
+////                if (!CGRectEqualToRect(newBounds, currentbounds))
+////                {
+////        //            [(TiViewProxy*)self.proxy setSandboxBounds:newBounds];
+////                    [(TiViewProxy*)self.proxy dirtyItAll];
+////                }
+////        	}
+//        if (anim)
 //        {
-////            [(TiViewProxy*)self.proxy setSandboxBounds:newBounds];
-//            [(TiViewProxy*)self.proxy dirtyItAll];
+//            [_proxy setRunningAnimationRecursive:anim];
+////            [_proxy refreshViewIfNeeded:YES];
+//            [super setFrame:frame];
+//            [_proxy setRunningAnimationRecursive:nil];
+//            return;
 //        }
-//	}
-//    NSArray* animationKyes = self.layer.animationKeys;
-    if (_templateStyle == TiUIListItemTemplateStyleCustom) {
-        TiViewAnimationStep* anim = [_proxy runningAnimation];
-        if (anim)
-        {
-            [_proxy setRunningAnimationRecursive:anim];
-//            [_proxy refreshViewIfNeeded:YES];
-            [super setFrame:frame];
-            [_proxy setRunningAnimationRecursive:nil];
-        }
-        else {
-            [super setFrame:frame];
-        }
-//        [super layoutSubviews];
-    }
+//    }
 //    [super setFrame:frame];
-}
+//}
+
 
 -(void) setEditing:(BOOL)editing animated:(BOOL)animated
 {
-    if (animated) {
-        [_proxy setFakeAnimationOfDuration:0.3 andCurve:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
-        [super setEditing:editing animated:animated];
-        [_proxy removeFakeAnimation];
-    } else {
-        [super setEditing:editing animated:animated];
-    }
+    [super setEditing:editing animated:animated];
 
     // Change the selection style based on if the cell is being edited or not
     if (editing) {
@@ -613,35 +679,24 @@ static NSArray* handledKeys;
     }
 }
 
-//-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
+//- (void)layoutSubviews
 //{
-//    if (_bgSelectedView) {
-//        [[_bgSelectedView selectableLayer] setFrame:bounds];
-//    }
-//    if (_bgView) {
-//        [[_bgView selectableLayer] setFrame:bounds];
-//    }
-//}
-
-
-
-- (void)layoutSubviews
-{
-    [super layoutSubviews];
-    if (_templateStyle == TiUIListItemTemplateStyleCustom) {
+//    if (_templateStyle == TiUIListItemTemplateStyleCustom) {
 //        TiViewAnimationStep* anim = [_proxy runningAnimation];
-////        if (anim)
-////        {
-////            [_proxy setRunningAnimationRecursive:anim];
-//            [_proxy refreshViewIfNeeded:YES];
-////            [super layoutSubviews];
-////            [_proxy setRunningAnimationRecursive:nil];
-////        }
+//        if (anim)
+//        {
+//            [_proxy setRunningAnimationRecursive:anim];
+////            [_proxy refreshViewIfNeeded:YES];
+//            [super layoutSubviews];
+//            [_proxy setRunningAnimationRecursive:nil];
+//            return;
+//////        }
 ////        else {
-            [_proxy refreshViewIfNeeded:YES];
-////        }
-    }
-}
+////            [_proxy refreshViewIfNeeded:YES];
+//        }
+//    }
+//    [super layoutSubviews];
+//}
 
 
 //override to get the correct backgroundColor

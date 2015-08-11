@@ -24,6 +24,7 @@
 
 -(void)deregisterProxy:(id<TiEvaluator>)context;
 -(BOOL)shouldHighlight;
+-(TiUIListViewProxy*)listViewProxy;
 @end
 
 #endif

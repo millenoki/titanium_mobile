@@ -102,7 +102,7 @@ static NSDictionary* replaceKeysForRow;
 
 -(WrapperViewProxy*)wrapperProxyWithVerticalLayout:(BOOL)vertical
 {
-    WrapperViewProxy* theProxy = [[WrapperViewProxy alloc] initWithVerticalLayout:vertical tableView:self.tableView];
+    WrapperViewProxy* theProxy = [[WrapperViewProxy alloc] initWithVerticalLayout:vertical];
     [theProxy setParent:(TiParentingProxy*)self.proxy];
     return [theProxy autorelease];
 }
@@ -171,7 +171,6 @@ static NSDictionary* replaceKeysForRow;
                                                                @"width":@"FILL",
                                                                @"height":@"SIZE"
                                                                } forKey:@"headerWrapper"];
-        vp.canBeResizedByFrame = YES;
         [vp setProxyObserver:self];
         [self setHeaderFooter:vp isHeader:YES];
     }
@@ -916,10 +915,12 @@ static NSDictionary* replaceKeysForRow;
 {
     if ([TiUtils boolValue:args def:NO] != editing) {
         editing = !editing;
+        [self.viewProxy setFakeAnimationOfDuration:0.3 andCurve:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
         [[self tableView] beginUpdates];
         [_tableView setEditing:editing animated:YES];
         [_tableView setAllowsMultipleSelectionDuringEditing:editing?allowsMultipleSelectionDuringEditing:NO];
         [_tableView endUpdates];
+        [self.viewProxy removeFakeAnimation];
     }
 }
 
@@ -1302,6 +1303,7 @@ static NSDictionary* replaceKeysForRow;
 //        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
 //        [tableView endUpdates];
         [theSection deleteItemsAt:@[@(indexPath.row), @(1), @{@"animated":@(YES)}]];
+        [theSection release];
     }
 }
 

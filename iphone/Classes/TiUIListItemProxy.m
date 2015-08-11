@@ -54,6 +54,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 		_listViewProxy = listViewProxy;
         eventOverrideDelegate = self; // to make sure we also override events
         self.canBeResizedByFrame = YES;
+        self.canRepositionItself = NO;
 		[context.krollContext invokeBlockOnThread:^{
 			[context registerProxy:self];
 			//Reusable cell will keep native proxy alive.
@@ -106,6 +107,10 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     //        _listViewProxy = nil;
     //    }
     _listItem = nil;
+}
+-(TiUIListViewProxy*)listViewProxy
+{
+    return _listViewProxy;
 }
 
 -(void) setListItem:(TiUIListItem *)newListItem
@@ -495,13 +500,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 }
 
 
--(TiViewAnimationStep*)runningAnimation
-{
-    if ([super runningAnimation]) {
-        return [super runningAnimation];
-    }
-    return [_listViewProxy runningAnimation];
-}
+
 
 -(id)getNextChildrenOfClass:(Class)theClass afterChild:(TiProxy*)child
 {
