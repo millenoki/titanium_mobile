@@ -191,9 +191,13 @@
 
 -(void)dealloc
 {
-    RELEASE_TO_NIL(barImageView);
     [super dealloc];
 }
+
+//-(oneway void)release
+//{
+//    [super release];
+//}
 
 -(void)boot:(BOOL)timeout args:args
 {
@@ -1185,6 +1189,11 @@ else{\
 	}
 }
 
+-(void)setToolbar:(id)items
+{
+    [self addObjectToHold:items forKey:@"toolbar"];
+    [self replaceValue:items forKey:@"toolbar" notification:NO];
+}
 -(void)setToolbar:(id)items withObject:(id)properties
 {
 	ENSURE_TYPE_OR_NIL(items,NSArray);
@@ -1196,24 +1205,27 @@ else{\
 	{
         [self setValue:properties forKey:@"toolbarSettings"];
     }
-	NSArray * oldarray = [self valueForUndefinedKey:@"toolbar"];
-	if((id)oldarray == [NSNull null])
-	{
-		oldarray = nil;
-	}
-	for(TiViewProxy * oldProxy in oldarray)
-	{
-		if(![items containsObject:oldProxy])
-		{
-			[self forgetProxy:oldProxy];
-		}
-	}
-	for (TiViewProxy *proxy in items)
-	{
-		[self rememberProxy:proxy];
-	}
-	[self replaceValue:items forKey:@"toolbar" notification:NO];
-	TiThreadPerformOnMainThread( ^{
+	NSArray * theProxies = [self holdedProxyForKey:@"toolbar"];
+//	if((id)oldarray == [NSNull null])
+//	{
+//		oldarray = nil;
+//	}
+//    
+//    for (TiViewProxy *proxy in items)
+//    {
+//        [self rememberProxy:proxy];
+//    }
+//    
+//	for(TiViewProxy * oldProxy in oldarray)
+//	{
+//		if(![items containsObject:oldProxy])
+//		{
+//			[self forgetProxy:oldProxy];
+//		}
+//	}
+	
+//	[self replaceValue:items forKey:@"toolbar" notification:NO];
+	TiThreadPerformBlockOnMainThread( ^{
         id navController = [self navControllerForController:controller];
 		if (shouldUpdateNavBar && navController != nil)
 		{
@@ -1233,7 +1245,7 @@ else{\
             UIToolbar * ouTB = [navController toolbar];
             CGRect barFrame = [ouTB bounds];
 			NSMutableArray * array = [[NSMutableArray alloc] initWithObjects:nil];
-			for (TiViewProxy *proxy in items)
+			for (TiViewProxy *proxy in theProxies)
 			{
 				if([proxy supportsNavBarPositioning])
 				{
