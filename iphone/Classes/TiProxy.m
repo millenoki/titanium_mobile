@@ -361,9 +361,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 }
 
 -(void)invokeBlockOnJSThread:(void (^)())block {
-    if (pageContext != nil)
+    if ([self getContext] != nil)
     {
-        [pageContext.krollContext invokeBlockOnThread:block];
+        [[self getContext].krollContext invokeBlockOnThread:block];
     }
 }
 
@@ -724,6 +724,13 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 {
     if (rememberedProxy == nil)
     {
+        return;
+    }
+    KrollContext* context = [self getContext].krollContext;
+    if ([rememberedProxy bindingRunLoopCount] == 0 && ![context isKJSThread]) {
+        [rememberedProxy invokeBlockOnJSThread:^{
+            [self rememberProxy:rememberedProxy];
+        }];
         return;
     }
     if ((bridgeCount == 1) && (pageKrollObject != nil))
