@@ -348,16 +348,16 @@ static NSDictionary* listViewKeysToReplace;
 
 - (NSArray *)sections
 {
-	return [self dispatchBlockWithResult:^() {
+//	return [self dispatchBlockWithResult:^() {
 		return [[_sections copy] autorelease];
-	}];
+//	}];
 }
 
 - (NSNumber *)sectionCount
 {
-	return [self dispatchBlockWithResult:^() {
-		return [NSNumber numberWithUnsignedInteger:[_sections count]];
-	}];
+//	return [self dispatchBlockWithResult:^() {
+    return @([_sections count]);
+//	}];
 }
 
 - (void)setSections:(id)args
@@ -716,7 +716,16 @@ static NSDictionary* listViewKeysToReplace;
 	return [_sections objectAtIndex:[sectionIndex integerValue]];
 }
 
-
+- (id)getSectionItemsCount:(id)args
+{
+    NSNumber *sectionIndex = nil;
+    ENSURE_ARG_AT_INDEX(sectionIndex, args, 0, NSNumber);
+    TiUIListSectionProxy* section = [_sections objectAtIndex:[sectionIndex integerValue]];
+    if (section) {
+        return [section length];
+    }
+    return 0;
+}
 
 - (TiUIListSectionProxy *)getItemAt:(id)args
 {

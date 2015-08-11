@@ -660,6 +660,17 @@ static NSDictionary* listViewKeysToReplace;
     }, NO);
 }
 
+- (id)getSectionItemsCount:(id)args
+{
+    NSNumber *sectionIndex = nil;
+    ENSURE_ARG_AT_INDEX(sectionIndex, args, 0, NSNumber);
+    TiUICollectionSectionProxy* section = [_sections objectAtIndex:[sectionIndex integerValue]];
+    if (section) {
+        return [section length];
+    }
+    return 0;
+}
+
 - (TiUICollectionSectionProxy *)getSectionAt:(id)args
 {
     NSNumber *sectionIndex = nil;

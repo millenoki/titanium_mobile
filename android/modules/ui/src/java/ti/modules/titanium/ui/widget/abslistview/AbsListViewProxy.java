@@ -174,10 +174,27 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	
 	@Kroll.method @Kroll.getProperty
 	public int getSectionCount() {
-		if (TiApplication.isUIThread()) {
-			return handleSectionCount();
+		// if (TiApplication.isUIThread()) {
+		// 	return handleSectionCount();
+		// } else {
+		// 	return (Integer) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SECTION_COUNT));
+		// }
+		TiAbsListView listView = (TiAbsListView)peekView();
+		if (listView != null) {
+			return listView.getSectionCount();
 		} else {
-			return (Integer) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SECTION_COUNT));
+			return preloadSections.size();
+
+		}
+	}
+
+	@Kroll.method
+	public int getSectionItemsCount(int sectionIndex) {
+		AbsListSectionProxy section = getSectionAt(sectionIndex);
+		if (section != null) {
+			return section.getLength();
+		} else {
+			return 0;
 		}
 	}
 	
@@ -196,13 +213,13 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		}
 	}
 	
-	public int handleSectionCount () {
-		TiUIView listView = peekView();
-		if (listView != null) {
-			return ((TiAbsListView) listView).getSectionCount();
-		}
-		return 0;
-	}
+	// public int handleSectionCount () {
+	// 	TiUIView listView = peekView();
+	// 	if (listView != null) {
+	// 		return ((TiAbsListView) listView).getSectionCount();
+	// 	}
+	// 	return 0;
+	// }
 
 	@Kroll.method
 	public void scrollToItem(int sectionIndex, int itemIndex, @Kroll.argument(optional = true) KrollDict options) {
@@ -281,11 +298,11 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 
 		switch (msg.what) {
 
-			case MSG_SECTION_COUNT: {
-				AsyncResult result = (AsyncResult)msg.obj;
-				result.setResult(handleSectionCount());
-				return true;
-			}
+			// case MSG_SECTION_COUNT: {
+			// 	AsyncResult result = (AsyncResult)msg.obj;
+			// 	result.setResult(handleSectionCount());
+			// 	return true;
+			// }
 
 			case MSG_SCROLL_TO_ITEM: {
 				AsyncResult result = (AsyncResult)msg.obj;

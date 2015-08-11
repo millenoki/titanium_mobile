@@ -192,6 +192,11 @@
 	}];
 }
 
+-(id)length
+{
+    return @([_items count]);
+}
+
 - (NSUInteger)itemCountInternal
 {
     return _hidden?0:[_items count];

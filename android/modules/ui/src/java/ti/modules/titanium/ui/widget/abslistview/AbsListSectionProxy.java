@@ -405,6 +405,12 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		return !hidden;
 	}
 
+    @Kroll.method
+    @Kroll.getProperty
+    public int getLength() {
+        return getItemCount();
+    }
+
 	
 	public void processPreloadData() {
 		if (itemProperties != null && preload) {
