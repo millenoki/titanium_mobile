@@ -21,10 +21,8 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 - (void)windowWillClose
 {
-	if([self viewInitialized])
-	{
-		[self blur:nil];
-	}
+    [self blur:nil];
+
     if (keyboardAccessoryProxy) {
         [keyboardAccessoryProxy windowWillClose];
     }
