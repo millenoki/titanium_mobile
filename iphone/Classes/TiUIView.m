@@ -734,9 +734,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)setFrame:(CGRect)frame
 {
-	[super setFrame:frame];
     
     if ([[self viewProxy] canBeResizedByFrame]) {
+        [super setFrame:frame];
         
         [self checkBounds];
         //        [[self viewProxy] performBlock:^{
