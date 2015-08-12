@@ -205,25 +205,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)shutdownLocationManager
 {
     [lock lock];
-    if (locationManager == nil || !_locationManagerCreated) {
+    if (locationManager == nil || !_locationManagerCreated)
+    {
         [lock unlock];
         return;
     }
     _locationManagerCreated = NO;
     
-    if (trackingHeading) {
-        [locationManager stopUpdatingHeading];
-    }
+    [self setHeadingUpdateState:NO];
+    [self setLocationUpdateState:NO];
     
-    if (trackingLocation) {
-        if (trackSignificantLocationChange) {
-            [locationManager stopMonitoringSignificantLocationChanges];
-        }
-        else{
-            [locationManager stopUpdatingLocation];
-        }
-    }
-//    RELEASE_TO_NIL_AUTORELEASE(locationManager);
     [lock unlock];
 }
 
@@ -257,11 +248,6 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                 [singleHeading removeObject:callback];
             }
         }
-        if ([singleHeading count]==0)
-        {
-            RELEASE_TO_NIL(singleHeading);
-            [locationManager stopUpdatingHeading];
-        }
     }
     if (singleLocation!=nil)
     {
@@ -273,12 +259,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                 [singleLocation removeObject:callback];
             }
         }
-        if ([singleLocation count]==0)
-        {
-            RELEASE_TO_NIL(singleLocation);
-            [locationManager stopUpdatingLocation];
-        }
     }
+    [self shutdownLocationManager];
 }
 
 -(void)_configure
@@ -401,48 +383,13 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                 [servicesDisabledAlert release];
             }
         }
-        if (startHeading && trackingHeading==NO)
-        {
-            [lm startUpdatingHeading];
-            trackingHeading = YES;
-        }
-        if (startLocation && trackingLocation==NO)
-        {
-            if (trackSignificantLocationChange) {
-                [lm startMonitoringSignificantLocationChanges];
-            }
-            else{
-                [lm startUpdatingLocation];
-            }
-            trackingLocation = YES;
-        }
+        
     }
-    else if ((!startHeading || !startLocation) && locationManager!=nil)
+    [self setHeadingUpdateState:startHeading];
+    [self setLocationUpdateState:startLocation];
+    if (!trackingHeading && !trackingLocation)
     {
-        CLLocationManager *lm = [self locationManager];
-        if (startHeading==NO && trackingHeading)
-        {
-            trackingHeading = NO;
-            [lm stopUpdatingHeading];
-        }
-        if (startLocation==NO && trackingLocation)
-        {
-            trackingLocation = NO;
-            if (trackSignificantLocationChange){
-                [lm stopMonitoringSignificantLocationChanges];
-            }
-            else{
-                [lm stopUpdatingLocation];
-            }
-            
-        }
-        if ((startHeading==NO && startLocation==NO) ||
-            (trackingHeading==NO && trackingLocation==NO))
-        {
-            [self shutdownLocationManager];
-            trackingLocation = NO;
-            trackingHeading = NO;
-        }
+        [self shutdownLocationManager];
     }
 }
 
@@ -452,6 +399,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     
     if (count == 1 && [type isEqualToString:@"change"])
     {
+        //in order to receive change state of the ios geolocation module,
+        //we need to create the locationManager
         TiThreadPerformOnMainThread(^{[self locationManager];}, YES);
     } else
         if (count == 1 && [type isEqualToString:@"heading"])
@@ -475,30 +424,67 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     if (count == 0 && [type isEqualToString:@"heading"])
     {
         check = YES;
-        if (trackingHeading)
-        {
-            trackingHeading = NO;
-            [locationManager stopUpdatingHeading];
-        }
+        [self setHeadingUpdateState:NO];
     }
     else if (count == 0 && [type isEqualToString:@"location"])
     {
         check = YES;
-        if (trackingLocation)
-        {
-            trackingLocation = NO;
-            [locationManager stopUpdatingLocation];
-        }
+        [self setLocationUpdateState:NO];
     }
     
     if (check && ![self _hasListeners:@"heading"] && ![self _hasListeners:@"location"])
     {
-        TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, YES);
+        TiThreadPerformBlockOnMainThread(^{[self startStopLocationManagerIfNeeded];}, YES);
         [self shutdownLocationManager];
-        trackingLocation = NO;
-        trackingHeading = NO;
+
         RELEASE_TO_NIL(singleHeading);
         RELEASE_TO_NIL(singleLocation);
+    }
+}
+
+-(void)setHeadingUpdateState:(BOOL)state {
+    if (trackingHeading != state)
+    {
+        trackingHeading = state;
+        if (state) {
+            [locationManager stopUpdatingHeading];
+        } else {
+            [locationManager stopUpdatingHeading];
+        }
+        if ([self _hasListeners:@"state"]) {
+            [self fireEvent:@"state" withObject:@{
+                                                  @"monitor":@"heading",
+                                                  @"state":@(state)
+                                                  }checkForListener:NO];
+        }
+    }
+}
+
+-(void)setLocationUpdateState:(BOOL)state {
+    if (trackingLocation != state)
+    {
+        trackingLocation = state;
+        if (state) {
+            if (trackSignificantLocationChange) {
+                [locationManager startMonitoringSignificantLocationChanges];
+            }
+            else{
+                [locationManager startUpdatingLocation];
+            }
+        } else {
+            if (trackSignificantLocationChange){
+                [locationManager stopMonitoringSignificantLocationChanges];
+            }
+            else{
+                [locationManager stopUpdatingLocation];
+            }
+        }
+        if ([self _hasListeners:@"state"]) {
+            [self fireEvent:@"state" withObject:@{
+                                                  @"monitor":@"location",
+                                                  @"state":@(state)
+                                                  }checkForListener:NO];
+        }
     }
 }
 
@@ -594,7 +580,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     }
     // Otherwise, start the location manager.
     else {
-        canReportSameLocation = YES;
+//        canReportSameLocation = YES;
         if (singleLocation==nil)
         {
             singleLocation = [[NSMutableArray alloc] initWithCapacity:1];
@@ -611,7 +597,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)highAccuracy
 {
-    return NUMBOOL(accuracy==kCLLocationAccuracyBest);
+    return @(accuracy==kCLLocationAccuracyBest);
 }
 
 -(void)setHighAccuracy:(NSNumber *)value
@@ -627,7 +613,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)accuracy
 {
-    return NUMDOUBLE(accuracy);
+    return @(accuracy);
 }
 
 -(void)setAccuracy:(NSNumber *)value
@@ -643,7 +629,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)distanceFilter
 {
-    return NUMDOUBLE(distance);
+    return @(distance);
 }
 
 -(void)setDistanceFilter:(NSNumber *)value
@@ -675,7 +661,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)showCalibration
 {
-    return NUMBOOL(calibration);
+    return @(calibration);
 }
 
 -(void)setShowCalibration:(NSNumber *)value
@@ -685,17 +671,17 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(NSNumber*)locationServicesEnabled
 {
-    return NUMBOOL([CLLocationManager locationServicesEnabled]);
+    return @([CLLocationManager locationServicesEnabled]);
 }
 
 -(NSNumber*)locationServicesAuthorization
 {
-    return NUMINT([CLLocationManager authorizationStatus]);
+    return @([CLLocationManager authorizationStatus]);
 }
 
 -(NSNumber*)trackSignificantLocationChange
 {
-    return NUMBOOL(trackSignificantLocationChange);
+    return @(trackSignificantLocationChange);
 }
 
 -(void)setTrackSignificantLocationChange:(id)value
@@ -707,11 +693,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
             if ( trackingLocation && locationManager != nil ) {
                 [lock lock];
                 [self shutdownLocationManager];
-                trackingHeading = NO;
-                trackingLocation = NO;
                 trackSignificantLocationChange = newval;
                 [lock unlock];
-                TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
+                TiThreadPerformBlockOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
                 return ;
             }
         }
@@ -733,7 +717,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)setActivityType:(NSNumber *)value
 {
     activityType = [TiUtils intValue:value];
-    TiThreadPerformOnMainThread(^{[locationManager setActivityType:activityType];}, NO);
+    TiThreadPerformBlockOnMainThread(^{[locationManager setActivityType:activityType];}, NO);
 }
 
 // Flag to decide whether or not the app should continue to send location updates while the app is in background.
@@ -746,7 +730,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)setPauseLocationUpdateAutomatically:(id)value
 {
     pauseLocationUpdateAutomatically = [TiUtils boolValue:value];
-    TiThreadPerformOnMainThread(^{[locationManager setPausesLocationUpdatesAutomatically:pauseLocationUpdateAutomatically];}, NO);
+    TiThreadPerformBlockOnMainThread(^{[locationManager setPausesLocationUpdatesAutomatically:pauseLocationUpdateAutomatically];}, NO);
 }
 #endif
 
@@ -755,11 +739,9 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 {
     [lock lock];
     [self shutdownLocationManager];
-    trackingHeading = NO;
-    trackingLocation = NO;
     [lock unlock];
     // must be on UI thread
-    TiThreadPerformOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
+    TiThreadPerformBlockOnMainThread(^{[self startStopLocationManagerIfNeeded];}, NO);
 }
 
 MAKE_SYSTEM_PROP_DBL(ACCURACY_BEST,kCLLocationAccuracyBest);
