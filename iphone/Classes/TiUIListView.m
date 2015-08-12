@@ -113,7 +113,7 @@ static NSDictionary* replaceKeysForRow;
     if (self) {
         _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleSubtitle] retain];
         allowsSelection = YES;
-        allowsMultipleSelectionDuringEditing = YES;
+        allowsMultipleSelectionDuringEditing = NO;
         _defaultSeparatorInsets = UIEdgeInsetsZero;
         _scrollSuspendImageLoading = NO;
         hideOnSearch = NO;
