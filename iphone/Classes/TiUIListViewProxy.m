@@ -99,6 +99,16 @@ static NSDictionary* listViewKeysToReplace;
     }
     [super windowWillClose];
 }
+-(void)windowDidClose
+{
+    if([self viewInitialized])
+    {
+        [self makeViewPerformSelector:@selector(windowDidClose:) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+    }
+    [super windowDidClose];
+
+}
+
 
 - (void)dealloc
 {

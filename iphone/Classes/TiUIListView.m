@@ -172,8 +172,8 @@ static NSDictionary* replaceKeysForRow;
                                                                @"height":@"SIZE"
                                                                } forKey:@"headerWrapper"];
         [vp setProxyObserver:self];
-        [self setHeaderFooter:vp isHeader:YES];
     }
+    [self setHeaderFooter:vp isHeader:YES];
     return vp;
 }
 
@@ -1061,6 +1061,19 @@ static NSDictionary* replaceKeysForRow;
         [[self searchController] setActive:NO animated:NO];
     }
 }
+
+-(void)windowDidClose:(id)unused
+{
+    UIView* view = [[self tableView] tableHeaderView];
+    if (IS_OF_CLASS(view, TiUIView)) {
+        [[(TiUIView*)view viewProxy] detachView:YES];
+    }
+    view = [[self tableView] tableFooterView];
+    if (IS_OF_CLASS(view, TiUIView)) {
+        [[(TiUIView*)view viewProxy] detachView:YES];
+    }
+}
+
 
 #pragma mark - SectionIndexTitle Support
 
