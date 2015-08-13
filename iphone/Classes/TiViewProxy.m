@@ -2246,16 +2246,19 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 -(void)willEnqueue
 {
 	SET_AND_PERFORM(TiRefreshViewEnqueued,return);
-    if (!allowContentChange || instantUpdates || hidden) return;
+    if (parentVisible && !hidden && (!allowContentChange || instantUpdates)) return;
 	[TiLayoutQueue addViewProxy:self];
 }
 
 -(void)willEnqueueIfVisible
 {
-	if(parentVisible && !hidden)
-	{
+//	if(parentVisible && !hidden)
+//	{
 		[self willEnqueue];
-	}
+//	}
+//    SET_AND_PERFORM(TiRefreshViewEnqueued,return);
+//    if (parentVisible && !hidden && (!allowContentChange || instantUpdates)) return;
+//    [TiLayoutQueue addViewProxy:self];
 }
 
 
@@ -3165,7 +3168,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 	IGNORE_IF_NOT_OPENED
 	
 //	UIView* superview = [[self view] superview];
-	if (![self viewReady] || view.hidden)
+	if (![self viewReady] || hidden)
 	{
 		VerboseLog(@"[INFO] Reposition is exiting early in %@.",self);
 		return;
