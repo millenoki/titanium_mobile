@@ -348,8 +348,8 @@
 //override
 -(void)animationDidComplete:(TiAnimation *)animation
 {
-	OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
-	[self willEnqueue];
+    OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
+    [self willEnqueue];
     [super animationDidComplete:animation];
 }
 
@@ -2237,7 +2237,7 @@ SEL GetterForKrollProperty(NSString * key)
 #pragma mark Layout events, internal and external
 
 #define SET_AND_PERFORM(flagBit,action)	\
-if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &dirtyflags)) \
+if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &dirtyflags)) \
 {	\
 	action;	\
 }
@@ -2246,7 +2246,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(void)willEnqueue
 {
 	SET_AND_PERFORM(TiRefreshViewEnqueued,return);
-    if (!allowContentChange || instantUpdates) return;
+    if (!allowContentChange || instantUpdates || hidden) return;
 	[TiLayoutQueue addViewProxy:self];
 }
 
@@ -2385,7 +2385,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(void)willHide;
 {
     //	SET_AND_PERFORM(TiRefreshViewZIndex,);
-    dirtyflags = 0;
+//    dirtyflags = 0;
 
     [self makeChildrenPerformSelector:@selector(parentWillHide) withObject:nil];
     
@@ -2737,7 +2737,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 -(void)refreshViewIfNeeded:(BOOL)recursive
 {
     TiViewProxy* viewParent = isUsingBarButtonItem?nil:[self viewParent];
-    if (viewParent && [viewParent willBeRelaying] && ![viewParent absoluteLayout]) {
+    if (hidden || (viewParent && [viewParent willBeRelaying] && ![viewParent absoluteLayout])) {
         return;
     }
     BOOL needsRefresh = OSAtomicTestAndClear(TiRefreshViewEnqueued, &dirtyflags);
@@ -2763,10 +2763,7 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 		return;
 	}
 	
-	if(hidden)
-	{
-		return;
-	}
+	
     
     if (view != nil)
 	{
@@ -3067,9 +3064,9 @@ if (!viewInitialized || hidden || !parentVisible || OSAtomicTestAndSetBarrier(fl
 	IGNORE_IF_NOT_OPENED
 	
     // if not visible, ignore layout
-    if (view.hidden)
+    if (hidden)
     {
-        OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
+//        OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
         return;
     }
     
