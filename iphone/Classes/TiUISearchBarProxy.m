@@ -113,9 +113,9 @@
     return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"prompt",@"promptid",@"hintText",@"hinttextid",nil];
 }
 
--(TiDimension)defaultAutoHeightBehavior:(id)unused
+-(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
-    return TiDimensionAutoSize;
+    return TiDimensionAutoFill;
 }
 
 -(TiSearchDisplayController*)searchController {
