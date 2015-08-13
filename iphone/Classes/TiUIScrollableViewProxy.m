@@ -123,6 +123,14 @@
 	[self replaceValue:args forKey:@"views" notification:YES];
 }
 
+-(void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object
+{
+    [super makeChildrenPerformSelector:selector withObject:object];
+    [self lockViewsForWriting];
+    [viewProxies makeObjectsPerformSelector:selector withObject:object];
+    [self unlockViews];
+}
+
 -(id)getView:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSNumber)
