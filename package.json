@@ -29,7 +29,7 @@
     "humanize": "0.0.9",
     "ioslib": "0.6.2",
     "moment": "2.10.6",
-	"node-appc": "git://github.com/Akylas/node-appc.git",
+	 "node-appc": "git://github.com/Akylas/node-appc.git",
     "node-uuid": "1.4.3",
     "png-size": "^0.1.0",
     "request": "2.60.0",
@@ -39,7 +39,7 @@
     "uglify-js": "2.4.24",
     "windowslib": "0.1.15",
     "wrench": "1.5.8",
-	"xcode": "git://github.com/Akylas/node-xcode.git"
+	 "xcode": "git://github.com/Akylas/node-xcode.git",
     "xmldom": "0.1.19"
   },
   "devDependencies": {
