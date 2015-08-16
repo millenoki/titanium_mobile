@@ -10,7 +10,8 @@
 
 @implementation TiUIiOSTabbedBarProxy
 
--(NSArray *)keySequence
+
+-(NSArray*)keySequence
 {
     static NSArray *keySequence = nil;
     static dispatch_once_t onceToken;

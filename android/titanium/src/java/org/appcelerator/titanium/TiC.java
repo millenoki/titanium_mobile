@@ -236,6 +236,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_NO_RESULTS = "noresults";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_OPEN = "open";
 
 	/**
@@ -1962,6 +1967,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LARGE_ICON = "largeIcon";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LASTNAME = "lastName";
 
 	/**
@@ -2848,6 +2858,11 @@ public class TiC
      * @module.api
      */
     public static final String PROPERTY_SENDER_ID = "senderId";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SELECTION_OPENS = "selectionOpens";
 
 	/**
 	 * @module.api

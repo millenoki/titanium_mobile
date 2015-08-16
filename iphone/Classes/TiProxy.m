@@ -482,8 +482,14 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     RELEASE_TO_NIL(baseURL);
     RELEASE_TO_NIL(krollDescription);
     if ((void*)modelDelegate != self) {
-        TiThreadReleaseOnMainThread(modelDelegate, YES);
+#ifdef TI_USE_KROLL_THREAD
+		TiThreadReleaseOnMainThread(modelDelegate, YES);
         modelDelegate = nil;
+#else
+        TiThreadPerformOnMainThread(^{
+            RELEASE_TO_NIL(modelDelegate);
+        }, YES);
+#endif
     }
     pageContext=nil;
     pageKrollObject = nil;
@@ -850,29 +856,31 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     }
     
 }
-
 -(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source
 {
-    NSMutableDictionary* eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:type,@"type",self,@"source",nil];
-    if ([argDict isKindOfClass:[NSDictionary class]])
-    {
-        [eventObject addEntriesFromDictionary:argDict];
-    }
-    
-    if ((bridgeCount == 1) && (pageKrollObject != nil)) {
-        [pageKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source];
-        return;
-    }
-    
-    
-    NSArray * bridges = [KrollBridge krollBridgesUsingProxy:self];
-    for (KrollBridge * currentBridge in bridges)
-    {
-        KrollObject * currentKrollObject = [currentBridge krollObjectForProxy:self];
-        [currentKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source];
-    }
+    [self fireCallback:type withArg:argDict withSource:source withHandler:nil];
 }
+-(void)fireCallback:(NSString*)type withArg:(NSDictionary *)argDict withSource:(id)source withHandler:(void(^)(id result))block
+{
+	NSMutableDictionary* eventObject = [NSMutableDictionary dictionaryWithObjectsAndKeys:type,@"type",self,@"source",nil];
+	if ([argDict isKindOfClass:[NSDictionary class]])
+	{
+		[eventObject addEntriesFromDictionary:argDict];
+	}
 
+	if ((bridgeCount == 1) && (pageKrollObject != nil)) {
+		[pageKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source onDone:block];
+		return;
+	}
+	
+	
+	NSArray * bridges = [KrollBridge krollBridgesUsingProxy:self];
+	for (KrollBridge * currentBridge in bridges)
+	{
+		KrollObject * currentKrollObject = [currentBridge krollObjectForProxy:self];
+		[currentKrollObject invokeCallbackForKey:type withObject:eventObject thisObject:source onDone:nil];
+	}
+}
 
 -(id)internalAddEventListener:(NSString *)type withListener:(id)listener onlyOnce:(BOOL)onlyOnce
 {
@@ -1170,18 +1178,24 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         }
     }
     
-    TiBindingEvent ourEvent;
-    
-    ourEvent = TiBindingEventCreateWithNSObjects(self, source, type, eventObject);
-    if (report || (code != 0)) {
-        TiBindingEventSetErrorCode(ourEvent, code);
-    }
-    if (message != nil)
-    {
-        TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
-    }
-    TiBindingEventSetBubbles(ourEvent, propagate);
-    TiBindingEventFire(ourEvent);
+#ifndef TI_USE_KROLL_THREAD
+    dispatch_async(dispatch_get_main_queue(), ^{
+#endif
+        TiBindingEvent ourEvent;
+        ourEvent = TiBindingEventCreateWithNSObjects(self, self, type, eventObject);
+        if (report || (code != 0))
+        {
+            TiBindingEventSetErrorCode(ourEvent, code);
+        }
+        if (message != nil)
+        {
+            TiBindingEventSetErrorMessageWithNSString(ourEvent, message);
+        }
+        TiBindingEventSetBubbles(ourEvent, propagate);
+        TiBindingEventFire(ourEvent);
+#ifndef TI_USE_KROLL_THREAD
+    });
+#endif
 }
 
 -(void)fireEvent:(NSString*)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString*)message;

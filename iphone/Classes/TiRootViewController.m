@@ -1578,7 +1578,9 @@
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated
 {
+#ifdef TI_USE_KROLL_THREAD
     TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
+#endif
     @synchronized(containedWindows) {
         for (id<TiWindowProtocol> thisWindow in containedWindows) {
             [thisWindow viewWillAppear:animated];

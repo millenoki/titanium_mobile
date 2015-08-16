@@ -275,6 +275,8 @@
     NSInteger _maxLines;
 }
 
+@synthesize leadingBarButtonGroups, trailingBarButtonGroups;
+
 @synthesize becameResponder, padding = _padding;
 
 -(id)init {
@@ -323,6 +325,14 @@
         
         textViewImpl.text = nil; //Setting TextArea text to empty string
         
+        // iOS9 QuickType (undo/redo)
+        if([TiUtils isIOS9OrGreater] == YES) {
+#if IS_XCODE_7
+            self.leadingBarButtonGroups = textViewImpl.inputAssistantItem.leadingBarButtonGroups;
+            self.trailingBarButtonGroups = textViewImpl.inputAssistantItem.trailingBarButtonGroups;
+#endif
+        }
+        
         textWidgetView = textViewImpl;
         
     }
@@ -349,6 +359,23 @@
 }
 
 #pragma mark Public APIs
+
+-(void)setShowUndoRedoActions_:(id)value
+{
+    if(![TiUtils isIOS9OrGreater]){
+        return;
+    }
+#if IS_XCODE_7
+    UITextView *tv = (UITextView *)[self textWidgetView];
+    if([TiUtils boolValue:value] == YES) {
+        tv.inputAssistantItem.leadingBarButtonGroups = self.leadingBarButtonGroups;
+        tv.inputAssistantItem.trailingBarButtonGroups = self.trailingBarButtonGroups;
+    } else {
+        tv.inputAssistantItem.leadingBarButtonGroups = @[];
+        tv.inputAssistantItem.trailingBarButtonGroups = @[];
+    }
+#endif
+}
 
 -(void)setCustomUserInteractionEnabled:(BOOL)value
 {

@@ -1976,11 +1976,16 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)dealloc
 {
-    if (controller != nil) {
+        if (controller != nil) {
         [controller detachProxy]; //make the controller knows we are done
+#ifdef TI_USE_KROLL_THREAD
         TiThreadReleaseOnMainThread(controller, NO);
         controller = nil;
-    }
+#else
+        TiThreadPerformOnMainThread(^{
+            RELEASE_TO_NIL(controller);
+        }, YES);
+#endif
 	RELEASE_TO_NIL(destroyLock);	
 	
 	[super dealloc];
@@ -2115,13 +2120,44 @@ SEL GetterForKrollProperty(NSString * key)
 	//Part of super's _destroy is to release the modelDelegate, which in our case is ALSO the view.
 	//As such, we need to have the super happen before we release the view, so that we can insure that the
 	//release that triggers the dealloc happens on the main thread.
-    [self retain];
+	
+	if (barButtonItem != nil)
+	{
+		if ([NSThread isMainThread])
+		{
+			RELEASE_TO_NIL(barButtonItem);
+		}
+		else
+		{
+#ifdef TI_USE_KROLL_THREAD
+			TiThreadReleaseOnMainThread(barButtonItem, NO);
+			barButtonItem = nil;
+#else
+            TiThreadPerformOnMainThread(^{
+                RELEASE_TO_NIL(barButtonItem);
+            }, NO);
+#endif
+		}
+	}
+
 	if (view!=nil)
 	{
-        TiThreadPerformBlockOnMainThread(^{
-            //don't call it recursively, should be done by the children _destroy
-            [self detachView:NO];
-        }, YES);
+		if ([NSThread isMainThread])
+		{
+			[self detachView];
+		}
+		else
+		{
+			view.proxy = nil;
+#ifdef TI_USE_KROLL_THREAD
+			TiThreadReleaseOnMainThread(view, NO);
+			view = nil;
+#else
+            TiThreadPerformOnMainThread(^{
+                RELEASE_TO_NIL(view);
+            }, YES);
+#endif
+		}
 	}
     
     // _destroy is called during a JS context shutdown, to inform the object to
@@ -2132,7 +2168,6 @@ SEL GetterForKrollProperty(NSString * key)
     [super _destroy];
     
 	[destroyLock unlock];
-    [self release];
 }
 
 -(void)destroy

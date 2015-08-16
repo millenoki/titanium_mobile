@@ -216,6 +216,9 @@ extern NSString * const TI_APPLICATION_GUID;
                         [form addFormData:[blob data] fileName:name fieldName:key];
                     }
                 }
+                else if ([value isKindOfClass:[NSDictionary class]]) {
+                    [form setJSONData:value];
+                }
                 else {
                     [form addFormKey:key
                             andValue:[TiUtils stringValue:value]];
@@ -237,7 +240,7 @@ extern NSString * const TI_APPLICATION_GUID;
             [form setStringData:[TiUtils stringValue:arg]];
         }
     }
-    
+
     if(form != nil) {
         [httpRequest setPostForm:form];
     }
@@ -344,8 +347,28 @@ extern NSString * const TI_APPLICATION_GUID;
             [self fireCallback:@"onload" withArg:event withSource:self];
         }
     }
-    
-    [self forgetSelf];
+    NSInteger responseCode = [response status];
+    /**
+     *    Per customer request, successful communications that resulted in an
+     *    4xx or 5xx response is treated as an error instead of an onload.
+     *    For backwards compatibility, if no error handler is provided, even
+     *    an 4xx or 5xx response will fall back onto an onload.
+     */
+    if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
+        NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
+        [event setObject:@"error" forKey:@"type"];
+        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result){
+            [self forgetSelf];
+        }];
+    } else if(hasOnload) {
+        NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+        [event setObject:@"load" forKey:@"type"];
+        [self fireCallback:@"onload" withArg:event withSource:self withHandler:^(id result){
+            [self forgetSelf];
+        }];
+    } else {
+        [self forgetSelf];
+    }
 }
 
 -(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
@@ -358,7 +381,16 @@ extern NSString * const TI_APPLICATION_GUID;
             [self fireCallback:@"onerror" withArg:event withSource:self];
         }
     }
-    [self forgetSelf];
+    if(hasOnerror) {
+        NSError *error = [response error];
+        NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+        [event setObject:@"error" forKey:@"type"];
+        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result) {
+            [self forgetSelf];
+        }];
+    } else {
+        [self forgetSelf];
+    }
 }
 
 

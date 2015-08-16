@@ -8,31 +8,22 @@
 
 /* Begin PBXBuildFile section */
 		1D0061C1160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
-		1D0061C2160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
-		1D0061C3160283820016BBEE /* TiBindingRunLoop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D0061C0160283820016BBEE /* TiBindingRunLoop.m */; };
 		1D1029A815F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
-		1D1029A915F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
-		1D1029AA15F9769200372EC0 /* TiBindingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D1029A715F9769100372EC0 /* TiBindingEvent.m */; };
 		1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
-		1D19459713FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
-		1D19459813FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459513FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m */; };
 		1D19459B13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459A13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m */; };
-		1D19459C13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459A13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m */; };
-		1D19459D13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D19459A13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1DCC542F13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */; };
-		1DCC543013FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */; };
-		1DCC543113FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC542E13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m */; };
 		1DD9388C1609230900091777 /* TiBindingTiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DD9388B1609230900091777 /* TiBindingTiValue.m */; };
 		1DD9388D1609230900091777 /* TiBindingTiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DD9388B1609230900091777 /* TiBindingTiValue.m */; };
 		1DD9388E1609230900091777 /* TiBindingTiValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DD9388B1609230900091777 /* TiBindingTiValue.m */; };
+		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
 		242E967711BAD2F20046A0D0 /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 242E967411BAD2F20046A0D0 /* AsyncSocket.m */; };
 		242E967811BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 242E967611BAD2F20046A0D0 /* AsyncUdpSocket.m */; };
 		242E967911BAD2F20046A0D0 /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 242E967411BAD2F20046A0D0 /* AsyncSocket.m */; };
 		242E967A11BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 242E967611BAD2F20046A0D0 /* AsyncUdpSocket.m */; };
+		242EA11611BD956F0046A0D0 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 242EA11511BD956F0046A0D0 /* ExternalAccessory.framework */; };
 		243AAFB511FCE62600E37D8B /* TiUIDashboardItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 243AAFB411FCE62600E37D8B /* TiUIDashboardItem.m */; };
-		243AAFB611FCE62600E37D8B /* TiUIDashboardItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 243AAFB411FCE62600E37D8B /* TiUIDashboardItem.m */; };
 		243ECCAA1126981C00639DF4 /* TiUITableViewSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC5EA112617F900639DF4 /* TiUITableViewSectionProxy.m */; };
 		243ECCAB1126981C00639DF4 /* TiUIiPhoneTableViewStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC9691126632700639DF4 /* TiUIiPhoneTableViewStyleProxy.m */; };
 		243ECCB21126984E00639DF4 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
@@ -46,10 +37,7 @@
 		245B3C3D11375A6600CE7530 /* UtilsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B3C3911375A6600CE7530 /* UtilsModule.m */; };
 		245B45641139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 245B45601139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m */; };
 		2465592411E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2465592311E5862F0059BBF4 /* TiFilesystemBlobProxy.m */; };
-		2465592511E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2465592311E5862F0059BBF4 /* TiFilesystemBlobProxy.m */; };
-		2467310711E2549300D39AF7 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2467310611E2549300D39AF7 /* Webcolor.m */; };
 		2467310811E2549300D39AF7 /* Webcolor.m in Sources */ = {isa = PBXBuildFile; fileRef = 2467310611E2549300D39AF7 /* Webcolor.m */; };
-		2478B2A511C447A4005814DF /* ApplicationMods.m in Sources */ = {isa = PBXBuildFile; fileRef = 2478B2A411C447A4005814DF /* ApplicationMods.m */; };
 		2478B2A611C447A4005814DF /* ApplicationMods.m in Sources */ = {isa = PBXBuildFile; fileRef = 2478B2A411C447A4005814DF /* ApplicationMods.m */; };
 		248133A7115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A2115761DE00E3A9BA /* TiNetworkBonjourBrowserProxy.m */; };
 		248133A8115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 248133A4115761DE00E3A9BA /* TiNetworkBonjourServiceProxy.m */; };
@@ -64,11 +52,8 @@
 		24A1EAF7112F4C02003DA834 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF3112F4C02003DA834 /* UIImage+Resize.m */; };
 		24A1EAF8112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */ = {isa = PBXBuildFile; fileRef = 24A1EAF5112F4C02003DA834 /* UIImage+RoundedCorner.m */; };
 		24ADC5121299F60C0014DB75 /* TiAppiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24ADC5111299F60C0014DB75 /* TiAppiOSProxy.m */; };
-		24ADC5131299F60C0014DB75 /* TiAppiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24ADC5111299F60C0014DB75 /* TiAppiOSProxy.m */; };
 		24ADC5161299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24ADC5151299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m */; };
-		24ADC5171299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24ADC5151299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m */; };
 		24ADC634129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24ADC633129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m */; };
-		24ADC635129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24ADC633129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m */; };
 		24C0128C1140D30B00A94CE2 /* TiUIMaskedImageProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C012881140D30B00A94CE2 /* TiUIMaskedImageProxy.m */; };
 		24C012921140D31C00A94CE2 /* TiUIMaskedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 24C0128E1140D31C00A94CE2 /* TiUIMaskedImage.m */; };
 		24CA895B111161050084E2DE /* AFItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA890B111161050084E2DE /* AFItemView.m */; };
@@ -179,9 +164,7 @@
 		24CA8C09111161FE0084E2DE /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B58111161FE0084E2DE /* APIModule.m */; };
 		24CA8C0E111161FE0084E2DE /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B64111161FE0084E2DE /* AccelerometerModule.m */; };
 		24D06FE111D0211100F615D8 /* TiUIiOSAdViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE011D0211100F615D8 /* TiUIiOSAdViewProxy.m */; };
-		24D06FE211D0211200F615D8 /* TiUIiOSAdViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE011D0211100F615D8 /* TiUIiOSAdViewProxy.m */; };
 		24D06FE811D0219B00F615D8 /* TiUIiOSAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE711D0219B00F615D8 /* TiUIiOSAdView.m */; };
-		24D06FE911D0219B00F615D8 /* TiUIiOSAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D06FE711D0219B00F615D8 /* TiUIiOSAdView.m */; };
 		24D0700611D0253D00F615D8 /* TiUIiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */; };
 		24D0700711D0253D00F615D8 /* TiUIiOSProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */; };
 		24D8E3BB119B9D8A00F8CAA6 /* TiUITableViewAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 243EC7D6112634AF00639DF4 /* TiUITableViewAction.m */; };
@@ -368,6 +351,7 @@
 		24D8E4AA119B9D8A00F8CAA6 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
 		24D8E4AB119B9D8A00F8CAA6 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
 		24D8E4AC119B9D8A00F8CAA6 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24597034118FF66300519F79 /* StoreKit.framework */; };
+		24D5C75911E6364F00F097E2 /* libtiverify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 24D5C75811E6364F00F097E2 /* libtiverify.a */; };
 		24DEDAC7112371A500398D86 /* XMLModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DEDAC4112371A500398D86 /* XMLModule.m */; };
 		24E25CC4112A698C0083D43D /* SCListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E25CC2112A698C0083D43D /* SCListener.m */; };
 		24E50CF91160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24E50CF31160569B00AF54AF /* TiUIiPadSplitWindowButtonProxy.m */; };
@@ -386,10 +370,9 @@
 		24EB0843111D500E001DC2D1 /* TiDOMNodeListProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB0842111D500E001DC2D1 /* TiDOMNodeListProxy.m */; };
 		24EB085D111D51D9001DC2D1 /* TiDOMAttrProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24EB085C111D51D9001DC2D1 /* TiDOMAttrProxy.m */; };
 		24F29E2E12209C920099351D /* TiStylesheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E2D12209C920099351D /* TiStylesheet.m */; };
+		24EB0A58111E1BAE001DC2D1 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
 		24F29E2F12209C920099351D /* TiStylesheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E2D12209C920099351D /* TiStylesheet.m */; };
-		24F29E701220CE0A0099351D /* TiLocale.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E6F1220CE0A0099351D /* TiLocale.m */; };
 		24F29E711220CE0A0099351D /* TiLocale.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29E6F1220CE0A0099351D /* TiLocale.m */; };
-		24F29F82122105C70099351D /* LocaleModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29F80122105C70099351D /* LocaleModule.m */; };
 		24F29F83122105C70099351D /* LocaleModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F29F80122105C70099351D /* LocaleModule.m */; };
 		24F5B146111FDFE8005C9199 /* ListenerEntry.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F5B145111FDFE8005C9199 /* ListenerEntry.m */; };
 		24F6204F1199F1F400EEAD3C /* TopTiModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24F6204E1199F1F400EEAD3C /* TopTiModule.m */; };
@@ -400,20 +383,10 @@
 		24FB4F42115C8C4E001AAF99 /* TiUIiPadProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24FB4F41115C8C4E001AAF99 /* TiUIiPadProxy.m */; };
 		24FBE58311293D06005C8D48 /* TiAudioRecorderProxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = 24FBE58211293D06005C8D48 /* TiAudioRecorderProxy.mm */; };
 		2B0B6E0C15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0B6E0B15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m */; };
-		2B0B6E0D15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0B6E0B15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m */; };
-		2B0B6E0E15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B0B6E0B15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m */; };
 		2B1F65771431031E006C5D37 /* ApplicationDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1F65761431031E006C5D37 /* ApplicationDefaults.m */; };
-		2B1F65781431031E006C5D37 /* ApplicationDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1F65761431031E006C5D37 /* ApplicationDefaults.m */; };
-		2B1F65791431031E006C5D37 /* ApplicationDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1F65761431031E006C5D37 /* ApplicationDefaults.m */; };
 		2B353A8115901D41008FBD84 /* Ti3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B353A8015901D41008FBD84 /* Ti3DMatrix.m */; };
-		2B353A8215901D41008FBD84 /* Ti3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B353A8015901D41008FBD84 /* Ti3DMatrix.m */; };
-		2B353A8315901D41008FBD84 /* Ti3DMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B353A8015901D41008FBD84 /* Ti3DMatrix.m */; };
 		2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
 		2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
-		2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
-		2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
-		2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
-		2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
 		2BCD59C51429561D00DEC2E8 /* TiUIiOSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C21429561D00DEC2E8 /* TiUIiOSToolbar.m */; };
 		2BCD59C61429561D00DEC2E8 /* TiUIiOSToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C41429561D00DEC2E8 /* TiUIiOSToolbarProxy.m */; };
 		2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEA4F21448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m */; };
@@ -421,96 +394,59 @@
 		2BDEA4F614490547004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEA4F21448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m */; };
 		312E36C2190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 312E36C0190B06D9008EAB8D /* libAPSAnalytics.a */; };
 		312E36C3190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 312E36C0190B06D9008EAB8D /* libAPSAnalytics.a */; };
+		312E36C1190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 312E36C0190B06D9008EAB8D /* libAPSAnalytics.a */; };
+		3186097F192BDB4E00093482 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 3186097E192BDB4E00093482 /* AnalyticsModule.m */; };
 		4688700715E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4688700615E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m */; };
-		4688700815E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4688700615E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m */; };
-		4688700915E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4688700615E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m */; };
 		4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */; };
 		502A68DA16EEAA7500661EF6 /* TiUIListItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D116EEAA7500661EF6 /* TiUIListItem.m */; };
-		502A68DB16EEAA7500661EF6 /* TiUIListItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D116EEAA7500661EF6 /* TiUIListItem.m */; };
-		502A68DC16EEAA7500661EF6 /* TiUIListItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D116EEAA7500661EF6 /* TiUIListItem.m */; };
 		502A68DD16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D316EEAA7500661EF6 /* TiUIListItemProxy.m */; };
-		502A68DE16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D316EEAA7500661EF6 /* TiUIListItemProxy.m */; };
-		502A68DF16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D316EEAA7500661EF6 /* TiUIListItemProxy.m */; };
 		502A68E016EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D516EEAA7500661EF6 /* TiUIListSectionProxy.m */; };
-		502A68E116EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D516EEAA7500661EF6 /* TiUIListSectionProxy.m */; };
-		502A68E216EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D516EEAA7500661EF6 /* TiUIListSectionProxy.m */; };
 		502A68E316EEAA7500661EF6 /* TiUIListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D716EEAA7500661EF6 /* TiUIListView.m */; };
-		502A68E416EEAA7500661EF6 /* TiUIListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D716EEAA7500661EF6 /* TiUIListView.m */; };
-		502A68E516EEAA7500661EF6 /* TiUIListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D716EEAA7500661EF6 /* TiUIListView.m */; };
 		502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */; };
 		502A68E716EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */; };
 		502A68E816EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */; };
 		502A68EB16F0428500661EF6 /* TiProxyTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68EA16F0428500661EF6 /* TiProxyTemplate.m */; };
 		502A68EC16F0428500661EF6 /* TiProxyTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68EA16F0428500661EF6 /* TiProxyTemplate.m */; };
 		502A68ED16F0428500661EF6 /* TiProxyTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68EA16F0428500661EF6 /* TiProxyTemplate.m */; };
+		502A68EB16F0428500661EF6 /* TiViewTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68EA16F0428500661EF6 /* TiViewTemplate.m */; };
 		5081CEF815F8100E00C881D8 /* TiExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */; };
 		5081CEF915F8100E00C881D8 /* TiExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */; };
 		5081CEFA15F8100E00C881D8 /* TiExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */; };
 		843FA58417BD4DFF0064E061 /* TiUINavigationWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUINavigationWindow.m */; };
 		843FA58517BD4DFF0064E061 /* TiUINavigationWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUINavigationWindow.m */; };
 		843FA58617BD4DFF0064E061 /* TiUINavigationWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUINavigationWindow.m */; };
+		823CC8AC1B7F0E4D00D220C7 /* TiAppiOSWatchSessionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* TiAppiOSWatchSessionProxy.m */; };
+		838159E21B7A9632002EE811 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 838159EC1B7C3EFA002EE811 /* Assets.xcassets */; };
+		83924E881B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */; };
+		841CCAD11807395C00C8DB76 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 841CCAD01807395C00C8DB76 /* CoreText.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		844E1F7E14883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
-		844E1F7F14883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
-		844E1F8014883A3700F5424C /* TiDOMValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 844E1F7D14883A3700F5424C /* TiDOMValidator.m */; };
 		8465E6BC19F8644D008479E6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8465E6BB19F8644D008479E6 /* CoreMedia.framework */; };
-		8465E6BD19F86459008479E6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8465E6BB19F8644D008479E6 /* CoreMedia.framework */; };
-		8465E6BE19F86463008479E6 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8465E6BB19F8644D008479E6 /* CoreMedia.framework */; };
 		8484E3A117A8279500C24B02 /* TiRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8484E3A017A8279500C24B02 /* TiRootViewController.m */; };
-		8484E3A217A8279500C24B02 /* TiRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8484E3A017A8279500C24B02 /* TiRootViewController.m */; };
-		8484E3A317A8279500C24B02 /* TiRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8484E3A017A8279500C24B02 /* TiRootViewController.m */; };
 		8484E3A717A865F700C24B02 /* TiViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8484E3A617A865F700C24B02 /* TiViewController.m */; };
-		8484E3A817A865F700C24B02 /* TiViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8484E3A617A865F700C24B02 /* TiViewController.m */; };
-		8484E3A917A865F700C24B02 /* TiViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8484E3A617A865F700C24B02 /* TiViewController.m */; };
 		848C2594145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C2593145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m */; };
-		848C2595145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C2593145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m */; };
-		848C2596145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C2593145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m */; };
 		848C259A145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C2599145F3FE100E1B0F1 /* TiDOMCommentProxy.m */; };
-		848C259B145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C2599145F3FE100E1B0F1 /* TiDOMCommentProxy.m */; };
-		848C259C145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C2599145F3FE100E1B0F1 /* TiDOMCommentProxy.m */; };
 		848C259F145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C259E145F46C200E1B0F1 /* TiDOMPIProxy.m */; };
-		848C25A0145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C259E145F46C200E1B0F1 /* TiDOMPIProxy.m */; };
-		848C25A1145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C259E145F46C200E1B0F1 /* TiDOMPIProxy.m */; };
 		848C25A4145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C25A3145F501600E1B0F1 /* TiDOMDocFragProxy.m */; };
-		848C25A5145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C25A3145F501600E1B0F1 /* TiDOMDocFragProxy.m */; };
-		848C25A6145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 848C25A3145F501600E1B0F1 /* TiDOMDocFragProxy.m */; };
 		84A00FF017FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FEF17FB39A100D4BF94 /* TiAnimatorProxy.m */; };
-		84A00FF117FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FEF17FB39A100D4BF94 /* TiAnimatorProxy.m */; };
-		84A00FF217FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FEF17FB39A100D4BF94 /* TiAnimatorProxy.m */; };
 		84A00FF517FB675E00D4BF94 /* TiSnapBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FF417FB675E00D4BF94 /* TiSnapBehavior.m */; };
-		84A00FF617FB675E00D4BF94 /* TiSnapBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FF417FB675E00D4BF94 /* TiSnapBehavior.m */; };
-		84A00FF717FB675E00D4BF94 /* TiSnapBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FF417FB675E00D4BF94 /* TiSnapBehavior.m */; };
 		84A00FFF17FB833000D4BF94 /* TiPushBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */; };
-		84A0100017FB833000D4BF94 /* TiPushBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */; };
-		84A0100117FB833000D4BF94 /* TiPushBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A00FFE17FB833000D4BF94 /* TiPushBehavior.m */; };
 		84A0100417FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100317FC8D3500D4BF94 /* TiGravityBehavior.m */; };
-		84A0100517FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100317FC8D3500D4BF94 /* TiGravityBehavior.m */; };
-		84A0100617FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100317FC8D3500D4BF94 /* TiGravityBehavior.m */; };
 		84A0100917FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */; };
-		84A0100A17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */; };
-		84A0100B17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100817FC9C2B00D4BF94 /* TiAnchorAttachBehavior.m */; };
 		84A0100E17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */; };
-		84A0100F17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */; };
-		84A0101017FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0100D17FCA9A700D4BF94 /* TiViewAttachBehavior.m */; };
 		84A0101317FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */; };
-		84A0101417FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */; };
-		84A0101517FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101217FCB46E00D4BF94 /* TiCollisionBehavior.m */; };
 		84A0101817FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101717FDC07000D4BF94 /* TiDynamicItemBehavior.m */; };
 		84A0101917FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101717FDC07000D4BF94 /* TiDynamicItemBehavior.m */; };
 		84A0101A17FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */ = {isa = PBXBuildFile; fileRef = 84A0101717FDC07000D4BF94 /* TiDynamicItemBehavior.m */; };
 		84BBA58A16570FA0006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84BBA58B16570FAF006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		84BBA58816570F90006B8C22 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84C3870217417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
 		84C3870317417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
 		84C3870417417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */; };
+		84D4CA1619EF0B5A009131F8 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4CA1319EF0B3D009131F8 /* CoreMotion.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84D541A31460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
-		84D541A41460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
-		84D541A51460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A21460B2DF005338D1 /* TiDOMNotationProxy.m */; };
 		84D541A81460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A71460B3C8005338D1 /* TiDOMEntityProxy.m */; };
-		84D541A91460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A71460B3C8005338D1 /* TiDOMEntityProxy.m */; };
-		84D541AA1460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541A71460B3C8005338D1 /* TiDOMEntityProxy.m */; };
 		84D541AD1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541AC1460B3ED005338D1 /* TiDOMEntityRefProxy.m */; };
-		84D541AE1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541AC1460B3ED005338D1 /* TiDOMEntityRefProxy.m */; };
-		84D541AF1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541AC1460B3ED005338D1 /* TiDOMEntityRefProxy.m */; };
 		84DEE9171815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84DEE9161815CF52000D7B78 /* TiUIRefreshControlProxy.m */; };
 		84DEE9181815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84DEE9161815CF52000D7B78 /* TiUIRefreshControlProxy.m */; };
 		84DEE9191815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84DEE9161815CF52000D7B78 /* TiUIRefreshControlProxy.m */; };
@@ -518,42 +454,26 @@
 		84E00A9D17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E00A9B17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m */; };
 		84E00A9E17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84E00A9B17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m */; };
 		84EB08011A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */; };
-		84EB08021A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */; };
-		84EB08031A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */; };
 		84EB08061A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */; };
-		84EB08071A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */; };
-		84EB08081A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */; };
 		84EB340017A8CAA700723B1E /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */; };
 		84EB340117A8CAA700723B1E /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */; };
 		84EB340217A8CAA700723B1E /* TiWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB33FF17A8CAA700723B1E /* TiWindowProxy.m */; };
 		84ED2CCE1AEEC0A70049FB68 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84ED2CCD1AEEC0A70049FB68 /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84ED2CCF1AEEC0B30049FB68 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84ED2CCD1AEEC0A70049FB68 /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
+		84ED2CD01AEEC0C00049FB68 /* iAd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84ED2CCD1AEEC0A70049FB68 /* iAd.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		ABD472F413BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; };
-		ABD472F513BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; };
-		ABD472F613BB73BF00502912 /* KrollCoverage.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD472F313BB73BF00502912 /* KrollCoverage.m */; };
-		B415067A136745E20084074A /* TiFilesystemFileStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */; };
-		B415067D136745FE0084074A /* TiFilesystemFileStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */; };
 		B421C4121113AA9300DBCB42 /* TiUIScrollableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4111113AA9300DBCB42 /* TiUIScrollableViewProxy.m */; };
 		B421C4161113AAA900DBCB42 /* TiUIScrollableView.m in Sources */ = {isa = PBXBuildFile; fileRef = B421C4151113AAA900DBCB42 /* TiUIScrollableView.m */; };
 		B440EF7E1209DC400045FEAE /* MGSplitCornersView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF791209DC400045FEAE /* MGSplitCornersView.m */; };
 		B440EF7F1209DC400045FEAE /* MGSplitDividerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7B1209DC400045FEAE /* MGSplitDividerView.m */; };
 		B440EF801209DC400045FEAE /* MGSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7D1209DC400045FEAE /* MGSplitViewController.m */; };
-		B440EF811209DC400045FEAE /* MGSplitCornersView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF791209DC400045FEAE /* MGSplitCornersView.m */; };
-		B440EF821209DC400045FEAE /* MGSplitDividerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7B1209DC400045FEAE /* MGSplitDividerView.m */; };
-		B440EF831209DC400045FEAE /* MGSplitViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B440EF7D1209DC400045FEAE /* MGSplitViewController.m */; };
 		B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */; };
-		B468B4F211B5816F007D1C1E /* TiLayoutQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */; };
 		B473FBA4126FB2DF00E29C73 /* TiPublicAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FBA3126FB2DF00E29C73 /* TiPublicAPI.m */; };
-		B473FBA5126FB2DF00E29C73 /* TiPublicAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FBA3126FB2DF00E29C73 /* TiPublicAPI.m */; };
 		B480501F1278AB010030AA3F /* TiThreading.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FB67126F8F7900E29C73 /* TiThreading.m */; };
-		B48050201278AB170030AA3F /* TiThreading.m in Sources */ = {isa = PBXBuildFile; fileRef = B473FB67126F8F7900E29C73 /* TiThreading.m */; };
 		B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */ = {isa = PBXBuildFile; fileRef = B4DE7E4D11823E990006DDE1 /* TiGradient.m */; };
-		B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */; };
 		B4F97B6F111A41B600E2F72C /* TiUIScrollViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B6E111A41B600E2F72C /* TiUIScrollViewProxy.m */; };
 		B4F97B73111A41C800E2F72C /* TiUIScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = B4F97B72111A41C800E2F72C /* TiUIScrollView.m */; };
 		B606EF35190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */; };
-		B606EF36190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */; };
-		B606EF37190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF34190B109D00663EFC /* TiNetworkHTTPClientProxy.m */; };
 		B606EF4A190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
 		B606EF4B190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
 		B606EF4C190B14ED00663EFC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B606EF49190B14ED00663EFC /* Reachability.m */; };
@@ -565,13 +485,10 @@
 		B6A0A2B3180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B6A0A2B0180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m */; };
 		BBD6C2931A3AA22C00FA700E /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
 		BBD6C2941A3AA22D00FA700E /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
+		BB26FC8019AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
+		BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		BBDD81341A2C71C9003CDA10 /* TiUIAttributedStringProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */; };
-		CA178E9D1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA178E9C1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m */; };
-		CA178E9E1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA178E9C1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m */; };
-		CA178E9F1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA178E9C1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m */; };
 		CEBC15711A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */; };
-		CEBC15721A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */; };
-		CEBC15731A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */; };
 		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D5016D7C1B51980800C10890 /* CMDActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5016D791B51980800C10890 /* CMDActivityViewController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -1107,20 +1024,10 @@
 		D5FD09DD1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
 		D5FD09DE1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FD09DB1830EFE2000FF4C5 /* TiAnimatedImage.m */; };
 		D930111E16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */; };
-		D930111F16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */; };
-		D930112016DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */ = {isa = PBXBuildFile; fileRef = D930111D16DA9D62002E25C2 /* TiCalendarRecurrenceRule.m */; };
 		D93DAA5016CBF8CB00AD64C9 /* CalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */; };
-		D93DAA5116CBF8CB00AD64C9 /* CalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */; };
-		D93DAA5216CBF8CB00AD64C9 /* CalendarModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA4F16CBF8CB00AD64C9 /* CalendarModule.m */; };
 		D93DAA5516CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5416CBF8E500AD64C9 /* TiCalendarCalendar.m */; };
-		D93DAA5616CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5416CBF8E500AD64C9 /* TiCalendarCalendar.m */; };
-		D93DAA5716CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5416CBF8E500AD64C9 /* TiCalendarCalendar.m */; };
 		D93DAA5A16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5916CBF8FB00AD64C9 /* TiCalendarAlert.m */; };
-		D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5916CBF8FB00AD64C9 /* TiCalendarAlert.m */; };
-		D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5916CBF8FB00AD64C9 /* TiCalendarAlert.m */; };
 		D93DAA5F16CBF91100AD64C9 /* TiCalendarEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5E16CBF91100AD64C9 /* TiCalendarEvent.m */; };
-		D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5E16CBF91100AD64C9 /* TiCalendarEvent.m */; };
-		D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA5E16CBF91100AD64C9 /* TiCalendarEvent.m */; };
 		D93DAA6416CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */; };
 		D93DAA6516CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */; };
 		D93DAA6616CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */ = {isa = PBXBuildFile; fileRef = D93DAA6316CBFC7C00AD64C9 /* TiCalendarReminder.m */; };
@@ -1128,24 +1035,15 @@
 		D93DAA6A16CBFD5600AD64C9 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */; };
 		D93DAA6B16CBFD6400AD64C9 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6716CBFD5600AD64C9 /* EventKit.framework */; };
 		D93DAA6C16CBFD6400AD64C9 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */; };
+		D93DAA6D16CBFD7100AD64C9 /* EventKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6716CBFD5600AD64C9 /* EventKit.framework */; };
+		D93DAA6E16CBFD7100AD64C9 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D93DAA6816CBFD5600AD64C9 /* EventKitUI.framework */; };
 		DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
-		DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
-		DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2556431353D2FC005D459C /* TiNetworkSocketProxy.m */; };
 		DA2B35C2134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2B35C1134514FE00056705 /* TiNetworkSocketTCPProxy.m */; };
-		DA2B35C3134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2B35C1134514FE00056705 /* TiNetworkSocketTCPProxy.m */; };
-		DA2B35C4134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DA2B35C1134514FE00056705 /* TiNetworkSocketTCPProxy.m */; };
-		DA3B2FA8143EDEE3000DC803 /* TiUIiOSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C21429561D00DEC2E8 /* TiUIiOSToolbar.m */; };
-		DA3B2FAA143EDEE3000DC803 /* TiUIiOSToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C41429561D00DEC2E8 /* TiUIiOSToolbarProxy.m */; };
-		DA3B2FAF143EDF3B000DC803 /* TiUIiOSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C21429561D00DEC2E8 /* TiUIiOSToolbar.m */; };
-		DA3B2FB1143EDF3B000DC803 /* TiUIiOSToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C41429561D00DEC2E8 /* TiUIiOSToolbarProxy.m */; };
 		DA4E12D711C0A55F00A55BAB /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
 		DA864E3211A2314A00B9CD68 /* TiAudioMusicPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = DA864E3111A2314A00B9CD68 /* TiAudioMusicPlayer.m */; };
 		DA9BE36F127F8F6C000FE9E1 /* UIImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9BE36E127F8F6C000FE9E1 /* UIImageExtras.m */; };
 		DA9FF584128A1F3600457759 /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
-		DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */; };
 		DAA4B2B4134E75AC00AB6011 /* CodecModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA4B2B3134E75AC00AB6011 /* CodecModule.m */; };
-		DAA4B2B5134E75AC00AB6011 /* CodecModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA4B2B3134E75AC00AB6011 /* CodecModule.m */; };
-		DAA4B2B6134E75AC00AB6011 /* CodecModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA4B2B3134E75AC00AB6011 /* CodecModule.m */; };
 		DAA72343156D642400757987 /* TiConsole.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA72342156D642400757987 /* TiConsole.m */; };
 		DAA72344156D642400757987 /* TiConsole.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA72342156D642400757987 /* TiConsole.m */; };
 		DAA72345156D642400757987 /* TiConsole.m in Sources */ = {isa = PBXBuildFile; fileRef = DAA72342156D642400757987 /* TiConsole.m */; };
@@ -1366,185 +1264,18 @@
 		DABB37B712E8CB280026A6EA /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */ = {isa = PBXBuildFile; fileRef = DA9FF582128A1F3600457759 /* AudioStreamerCUR.m */; };
 		DABF3ECF134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
-		DABF3ED0134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
-		DABF3ED1134D210400836137 /* TiBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ECE134D210400836137 /* TiBuffer.m */; };
 		DABF3ED7134D2CA100836137 /* StreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* StreamModule.m */; };
-		DABF3ED8134D2CA100836137 /* StreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* StreamModule.m */; };
-		DABF3ED9134D2CA100836137 /* StreamModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3ED6134D2CA100836137 /* StreamModule.m */; };
 		DABF3EDC134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
-		DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
-		DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DABF3EDB134D2E4300836137 /* TiStreamProxy.m */; };
 		DADD76E913CCF4FF00CD03AC /* MGSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADD76E813CCF4FF00CD03AC /* MGSplitView.m */; };
 		DADD76EA13CCF4FF00CD03AC /* MGSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADD76E813CCF4FF00CD03AC /* MGSplitView.m */; };
 		DADD76EB13CCF4FF00CD03AC /* MGSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = DADD76E813CCF4FF00CD03AC /* MGSplitView.m */; };
 		DADE76D613D65C6F0079FC75 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
 		DADE76D713D65C7D0079FC75 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
+		DADE76D413D65C590079FC75 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
 		DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
-		DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
-		DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */ = {isa = PBXBuildFile; fileRef = DAE541E213577BEC00A65123 /* TiDataStream.m */; };
 		EF0ADCFA143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
-		EF0ADCFB143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
-		EF0ADCFC143F9ABF00977386 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADCF9143F9ABF00977386 /* NSData+Additions.m */; };
 		EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
-		EF0ADD1B143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
-		EF0ADD1C143FA0CD00977386 /* GeolocationModule.m in Sources */ = {isa = PBXBuildFile; fileRef = EF0ADD19143FA0CD00977386 /* GeolocationModule.m */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXBuildRule section */
-		D56915C5168F19E800C3F89F /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
-			filePatterns = "*.css";
-			fileType = pattern.proxy;
-			isEditable = 1;
-			outputFiles = (
-				"${INPUT_FILE_BASE}.css.c",
-			);
-			script = "cd \"$INPUT_FILE_DIR\"  # move into file dir, otherwise xxd takes the full path for the symbol\n/usr/bin/xxd -i \"$INPUT_FILE_NAME\" \"$DERIVED_SOURCES_DIR/$INPUT_FILE_BASE.css.c\" # builds a c file with a hex array";
-		};
-		D5F017E016958B17005597BD /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
-			filePatterns = "*.css";
-			fileType = pattern.proxy;
-			isEditable = 1;
-			outputFiles = (
-				"${INPUT_FILE_BASE}.css.c",
-			);
-			script = "cd \"$INPUT_FILE_DIR\"  # move into file dir, otherwise xxd takes the full path for the symbol\n/usr/bin/xxd -i \"$INPUT_FILE_NAME\" \"$DERIVED_SOURCES_DIR/$INPUT_FILE_BASE.css.c\" # builds a c file with a hex array";
-		};
-		D5F017E116958B1C005597BD /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
-			filePatterns = "*.css";
-			fileType = pattern.proxy;
-			isEditable = 1;
-			outputFiles = (
-				"${INPUT_FILE_BASE}.css.c",
-			);
-			script = "cd \"$INPUT_FILE_DIR\"  # move into file dir, otherwise xxd takes the full path for the symbol\n/usr/bin/xxd -i \"$INPUT_FILE_NAME\" \"$DERIVED_SOURCES_DIR/$INPUT_FILE_BASE.css.c\" # builds a c file with a hex array";
-		};
-/* End PBXBuildRule section */
-
-/* Begin PBXContainerItemProxy section */
-		D507203C1B344E1B005B31E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D50720381B344E1A005B31E5 /* akylas.bluetooth.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.bluetooth;
-		};
-		D507203E1B344E29005B31E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D50720381B344E1A005B31E5 /* akylas.bluetooth.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.bluetooth;
-		};
-		D52674581B58E74D00D442E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.camera;
-		};
-		D526745B1B58E75600D442E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.camera;
-		};
-		D58ED8EE1928E6F700BA0E04 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.shapes;
-		};
-		D58ED8F41928E6F800BA0E04 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.slidemenu;
-		};
-		D58ED8FA1928E6F800BA0E04 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.commonjs;
-		};
-		D58ED9001928F49000BA0E04 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.commonjs;
-		};
-		D58ED9021928F49300BA0E04 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.slidemenu;
-		};
-		D58ED9041928F49600BA0E04 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.shapes;
-		};
-		D59A20BF194AF3C800BC5B93 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = akylas.charts;
-		};
-		D59A20C5194AF3D300BC5B93 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.charts;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		CEFFA0B81A8A7E1B0078F310 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CEFFA0B91A8A7E420078F310 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CEFFA0BA1A8A7E550078F310 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1D0061BF160283820016BBEE /* TiBindingRunLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBindingRunLoop.h; sourceTree = "<group>"; };
@@ -1875,6 +1606,7 @@
 		24D0700411D0253D00F615D8 /* TiUIiOSProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = TiUIiOSProxy.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		24D0700511D0253D00F615D8 /* TiUIiOSProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = TiUIiOSProxy.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		24D8E4B1119B9D8A00F8CAA6 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		24D5C75811E6364F00F097E2 /* libtiverify.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtiverify.a; path = ../lib/libtiverify.a; sourceTree = SOURCE_ROOT; };
 		24DD042A116A6C58006FD6E1 /* TiToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbar.h; sourceTree = "<group>"; };
 		24DD0455116A6F02006FD6E1 /* TiTabGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTabGroup.h; sourceTree = "<group>"; };
 		24DD0977116D8E07006FD6E1 /* TiToolbarButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiToolbarButton.h; sourceTree = "<group>"; };
@@ -1979,6 +1711,13 @@
 		502A68EA16F0428500661EF6 /* TiProxyTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiProxyTemplate.m; sourceTree = "<group>"; };
 		5081CEF615F8100E00C881D8 /* TiExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiExceptionHandler.h; sourceTree = "<group>"; };
 		5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiExceptionHandler.m; sourceTree = "<group>"; };
+		823CC8AA1B7F0E4D00D220C7 /* TiAppiOSWatchSessionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSWatchSessionProxy.h; sourceTree = "<group>"; };
+		823CC8AB1B7F0E4D00D220C7 /* TiAppiOSWatchSessionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSWatchSessionProxy.m; sourceTree = "<group>"; };
+		838159EC1B7C3EFA002EE811 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		83924E861B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserActivityProxy.h; sourceTree = "<group>"; };
+		83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserActivityProxy.m; sourceTree = "<group>"; };
+		83DCEC301B7A687900F282B3 /* Titanium.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Titanium.entitlements; sourceTree = "<group>"; };
+		841CCAD01807395C00C8DB76 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		843FA58217BD4DFF0064E061 /* TiUINavigationWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUINavigationWindow.h; sourceTree = "<group>"; };
 		843FA58317BD4DFF0064E061 /* TiUINavigationWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUINavigationWindow.m; sourceTree = "<group>"; };
 		844812C31A1D49FB00FBE03A /* TiProfiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiProfiler.h; sourceTree = "<group>"; };
@@ -2095,8 +1834,6 @@
 		BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSNotificationCategoryProxy.m; sourceTree = "<group>"; };
 		BBDD81321A2C71C9003CDA10 /* TiUIAttributedStringProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIAttributedStringProxy.h; sourceTree = "<group>"; };
 		BBDD81331A2C71C9003CDA10 /* TiUIAttributedStringProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIAttributedStringProxy.m; sourceTree = "<group>"; };
-		CA178E9B1B4087F5002A7702 /* TiAppiOSUserActivityProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserActivityProxy.h; sourceTree = "<group>"; };
-		CA178E9C1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserActivityProxy.m; sourceTree = "<group>"; };
 		CEBC156F1A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserDefaultsProxy.h; sourceTree = "<group>"; };
 		CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserDefaultsProxy.m; sourceTree = "<group>"; };
 		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
@@ -2762,94 +2499,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		24D8E497119B9D8A00F8CAA6 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				84ED2CCF1AEEC0B30049FB68 /* iAd.framework in Frameworks */,
-				8465E6BD19F86459008479E6 /* CoreMedia.framework in Frameworks */,
-				312E36C2190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
-				D57193E317E996E30033897A /* CoreTelephony.framework in Frameworks */,
-				D585BC8517E630AB0062275E /* CoreVideo.framework in Frameworks */,
-				D93DAA6B16CBFD6400AD64C9 /* EventKit.framework in Frameworks */,
-				D5B6C729181124C200A2612A /* libDTCoreText.a in Frameworks */,
-				D93DAA6C16CBFD6400AD64C9 /* EventKitUI.framework in Frameworks */,
-				D53D20F816A0900B00D36D2C /* CoreData.framework in Frameworks */,
-				D53D20F716A0900000D36D2C /* ImageIO.framework in Frameworks */,
-				D53D20F516A08FF600D36D2C /* CoreText.framework in Frameworks */,
-				84BBA58A16570FA0006B8C22 /* Security.framework in Frameworks */,
-				D572BF5E1827A71D00AB104A /* libSVGKit-iOS.a in Frameworks */,
-				24D8E498119B9D8A00F8CAA6 /* Foundation.framework in Frameworks */,
-				24D8E499119B9D8A00F8CAA6 /* UIKit.framework in Frameworks */,
-				24D8E49A119B9D8A00F8CAA6 /* CoreGraphics.framework in Frameworks */,
-				24D8E49C119B9D8A00F8CAA6 /* AddressBook.framework in Frameworks */,
-				24D8E49D119B9D8A00F8CAA6 /* AddressBookUI.framework in Frameworks */,
-				24D8E49E119B9D8A00F8CAA6 /* CFNetwork.framework in Frameworks */,
-				D55B2DCE1ACC5EF5008C0279 /* libFMDB-IOS.a in Frameworks */,
-				24D8E49F119B9D8A00F8CAA6 /* CoreLocation.framework in Frameworks */,
-				24D8E4A1119B9D8A00F8CAA6 /* MessageUI.framework in Frameworks */,
-				24D8E4A2119B9D8A00F8CAA6 /* MobileCoreServices.framework in Frameworks */,
-				24D8E4A3119B9D8A00F8CAA6 /* OpenGLES.framework in Frameworks */,
-				24D8E4A4119B9D8A00F8CAA6 /* QuartzCore.framework in Frameworks */,
-				24D8E4A5119B9D8A00F8CAA6 /* SystemConfiguration.framework in Frameworks */,
-				24D8E4A6119B9D8A00F8CAA6 /* libsqlite3.dylib in Frameworks */,
-				D5B9289418C1EEC200E26393 /* GPUImage.framework in Frameworks */,
-				24D8E4A7119B9D8A00F8CAA6 /* libz.dylib in Frameworks */,
-				24D8E4A8119B9D8A00F8CAA6 /* AudioToolbox.framework in Frameworks */,
-				24D8E4A9119B9D8A00F8CAA6 /* MediaPlayer.framework in Frameworks */,
-				24D8E4AA119B9D8A00F8CAA6 /* AVFoundation.framework in Frameworks */,
-				24D8E4AB119B9D8A00F8CAA6 /* libxml2.dylib in Frameworks */,
-				D52539A0183A8787006FF1BB /* libCoconutKitAnimation.a in Frameworks */,
-				24D8E4AC119B9D8A00F8CAA6 /* StoreKit.framework in Frameworks */,
-				DADE76D613D65C6F0079FC75 /* libicucore.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DABB37A112E8CB280026A6EA /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				84ED2CCE1AEEC0A70049FB68 /* iAd.framework in Frameworks */,
-				8465E6BE19F86463008479E6 /* CoreMedia.framework in Frameworks */,
-				312E36C3190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */,
-				D585BC8717E630BA0062275E /* CoreVideo.framework in Frameworks */,
-				D54E789E17D8901600443386 /* CoreTelephony.framework in Frameworks */,
-				D93DAA6916CBFD5600AD64C9 /* EventKit.framework in Frameworks */,
-				D5B6C72A181124C200A2612A /* libDTCoreText.a in Frameworks */,
-				D93DAA6A16CBFD5600AD64C9 /* EventKitUI.framework in Frameworks */,
-				D53D20FB16A0901D00D36D2C /* CoreText.framework in Frameworks */,
-				D53D20FA16A0901800D36D2C /* ImageIO.framework in Frameworks */,
-				D53D20F916A0901300D36D2C /* CoreData.framework in Frameworks */,
-				D572BF5F1827A71D00AB104A /* libSVGKit-iOS.a in Frameworks */,
-				84BBA58B16570FAF006B8C22 /* Security.framework in Frameworks */,
-				DABB37A212E8CB280026A6EA /* Foundation.framework in Frameworks */,
-				DABB37A312E8CB280026A6EA /* UIKit.framework in Frameworks */,
-				DABB37A412E8CB280026A6EA /* CoreGraphics.framework in Frameworks */,
-				DABB37A512E8CB280026A6EA /* AddressBook.framework in Frameworks */,
-				DABB37A612E8CB280026A6EA /* AddressBookUI.framework in Frameworks */,
-				DABB37A712E8CB280026A6EA /* CFNetwork.framework in Frameworks */,
-				D55B2DCF1ACC5EF5008C0279 /* libFMDB-IOS.a in Frameworks */,
-				DABB37A812E8CB280026A6EA /* CoreLocation.framework in Frameworks */,
-				DABB37AA12E8CB280026A6EA /* MessageUI.framework in Frameworks */,
-				D544CEA31949AA8900419D57 /* libtiverify.a in Frameworks */,
-				DABB37AB12E8CB280026A6EA /* MobileCoreServices.framework in Frameworks */,
-				DABB37AC12E8CB280026A6EA /* OpenGLES.framework in Frameworks */,
-				DABB37AD12E8CB280026A6EA /* QuartzCore.framework in Frameworks */,
-				DABB37AE12E8CB280026A6EA /* SystemConfiguration.framework in Frameworks */,
-				D5B9289518C1EEC200E26393 /* GPUImage.framework in Frameworks */,
-				DABB37AF12E8CB280026A6EA /* libsqlite3.dylib in Frameworks */,
-				DABB37B012E8CB280026A6EA /* libz.dylib in Frameworks */,
-				DABB37B112E8CB280026A6EA /* AudioToolbox.framework in Frameworks */,
-				DABB37B212E8CB280026A6EA /* MediaPlayer.framework in Frameworks */,
-				DABB37B312E8CB280026A6EA /* AVFoundation.framework in Frameworks */,
-				D52539A1183A8787006FF1BB /* libCoconutKitAnimation.a in Frameworks */,
-				DABB37B412E8CB280026A6EA /* libxml2.dylib in Frameworks */,
-				DABB37B512E8CB280026A6EA /* StoreKit.framework in Frameworks */,
-				DABB37B712E8CB280026A6EA /* (null) in Frameworks */,
-				DADE76D713D65C7D0079FC75 /* libicucore.dylib in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -2857,8 +2506,6 @@
 			isa = PBXGroup;
 			children = (
 				1D6058910D05DD3D006BFB54 /* Titanium.app */,
-				24D8E4B1119B9D8A00F8CAA6 /* Titanium.app */,
-				DABB37BC12E8CB280026A6EA /* Titanium.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2910,8 +2557,8 @@
 		24ADC50F1299F5A50014DB75 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				CA178E9B1B4087F5002A7702 /* TiAppiOSUserActivityProxy.h */,
-				CA178E9C1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m */,
+				823CC8AA1B7F0E4D00D220C7 /* TiAppiOSWatchSessionProxy.h */,
+				823CC8AB1B7F0E4D00D220C7 /* TiAppiOSWatchSessionProxy.m */,
 				24ADC5101299F60C0014DB75 /* TiAppiOSProxy.h */,
 				24ADC5111299F60C0014DB75 /* TiAppiOSProxy.m */,
 				24ADC5141299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.h */,
@@ -2922,6 +2569,8 @@
 				BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */,
 				BB26FC7E19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.h */,
 				BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */,
+				83924E861B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.h */,
+				83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */,
 				CEBC156F1A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.h */,
 				CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */,
 			);
@@ -3921,10 +3570,8 @@
 				32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 				241EAA21118AB3BB0081A5BE /* defines.h */,
-				241EAEC5118E2BA90081A5BE /* project.xcconfig */,
 				24596691118E70D300519F79 /* ApplicationRouting.h */,
 				24596692118E70D300519F79 /* ApplicationRouting.m */,
-				2464F96211AB996C001C035A /* module.xcconfig */,
 				2478B2A311C447A4005814DF /* ApplicationMods.h */,
 				2478B2A411C447A4005814DF /* ApplicationMods.m */,
 				2B1F65751431031E006C5D37 /* ApplicationDefaults.h */,
@@ -3936,6 +3583,10 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				838159EC1B7C3EFA002EE811 /* Assets.xcassets */,
+				241EAEC5118E2BA90081A5BE /* project.xcconfig */,
+				2464F96211AB996C001C035A /* module.xcconfig */,
+				83DCEC301B7A687900F282B3 /* Titanium.entitlements */,
 				24CA916411116F870084E2DE /* Titanium.plist */,
 			);
 			name = Resources;
@@ -4994,16 +4645,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1D6058900D05DD3D006BFB54 /* Titanium-KitchenSink */ = {
+		1D6058900D05DD3D006BFB54 /* Titanium */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink" */;
+			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Titanium" */;
 			buildPhases = (
 				241EAF36118E30260081A5BE /* Pre-Compile */,
-				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
-				24CA8D03111169070084E2DE /* Post-Compile */,
-				CEFFA0B81A8A7E1B0078F310 /* Embed App Extensions */,
+				838159D01B7A9632002EE811 /* Resources */,
 			);
 			buildRules = (
 				D56915C5168F19E800C3F89F /* PBXBuildRule */,
@@ -5016,51 +4665,9 @@
 				D58ED9031928F49300BA0E04 /* PBXTargetDependency */,
 				D58ED9011928F49000BA0E04 /* PBXTargetDependency */,
 			);
-			name = "Titanium-KitchenSink";
+			name = Titanium;
 			productName = Titanium;
 			productReference = 1D6058910D05DD3D006BFB54 /* Titanium.app */;
-			productType = "com.apple.product-type.application";
-		};
-		24D8E3B5119B9D8A00F8CAA6 /* Titanium-KitchenSink-iPad */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 24D8E4AE119B9D8A00F8CAA6 /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink-iPad" */;
-			buildPhases = (
-				24D8E3B9119B9D8A00F8CAA6 /* Pre-Compile */,
-				24D8E3B6119B9D8A00F8CAA6 /* Resources */,
-				24D8E3BA119B9D8A00F8CAA6 /* Sources */,
-				24D8E497119B9D8A00F8CAA6 /* Frameworks */,
-				24D8E4AD119B9D8A00F8CAA6 /* Post-Compile */,
-				CEFFA0B91A8A7E420078F310 /* Embed App Extensions */,
-			);
-			buildRules = (
-				D5F017E016958B17005597BD /* PBXBuildRule */,
-			);
-			dependencies = (
-			);
-			name = "Titanium-KitchenSink-iPad";
-			productName = Titanium;
-			productReference = 24D8E4B1119B9D8A00F8CAA6 /* Titanium.app */;
-			productType = "com.apple.product-type.application";
-		};
-		DABB369A12E8CB280026A6EA /* Titanium-KitchenSink-universal */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = DABB37B912E8CB280026A6EA /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink-universal" */;
-			buildPhases = (
-				DABB369F12E8CB280026A6EA /* Pre-Compile */,
-				DABB369B12E8CB280026A6EA /* Resources */,
-				DABB36A012E8CB280026A6EA /* Sources */,
-				DABB37A112E8CB280026A6EA /* Frameworks */,
-				DABB37B812E8CB280026A6EA /* Post-Compile */,
-				CEFFA0BA1A8A7E550078F310 /* Embed App Extensions */,
-			);
-			buildRules = (
-				D5F017E116958B1C005597BD /* PBXBuildRule */,
-			);
-			dependencies = (
-			);
-			name = "Titanium-KitchenSink-universal";
-			productName = Titanium;
-			productReference = DABB37BC12E8CB280026A6EA /* Titanium.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -5092,6 +4699,7 @@
 				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
+			productRefGroup = 19C28FACFE9D520D11CA2CBB /* Products */;
 			projectDirPath = "";
 			projectReferences = (
 				{
@@ -5121,9 +4729,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				1D6058900D05DD3D006BFB54 /* Titanium-KitchenSink */,
-				24D8E3B5119B9D8A00F8CAA6 /* Titanium-KitchenSink-iPad */,
-				DABB369A12E8CB280026A6EA /* Titanium-KitchenSink-universal */,
+				1D6058900D05DD3D006BFB54 /* Titanium */,
 			);
 		};
 /* End PBXProject section */
@@ -5174,33 +4780,11 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
-		1D60588D0D05DD3D006BFB54 /* Resources */ = {
+		838159D01B7A9632002EE811 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D5E75A71187C58F00016542B /* icon.png in Resources */,
-				D5E75A77187C58F00016542B /* icon@2x.png in Resources */,
-				D5E75A7B187C59060016542B /* icon_120@2x.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		24D8E3B6119B9D8A00F8CAA6 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D5E75A72187C58F00016542B /* icon.png in Resources */,
-				D5E75A78187C58F00016542B /* icon@2x.png in Resources */,
-				D5E75A7C187C59060016542B /* icon_120@2x.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DABB369B12E8CB280026A6EA /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D5E75A73187C58F00016542B /* icon.png in Resources */,
-				D5E75A79187C58F00016542B /* icon@2x.png in Resources */,
-				D5E75A7D187C59060016542B /* icon_120@2x.png in Resources */,
+				838159E21B7A9632002EE811 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5220,76 +4804,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\"$PROJECT_DIR/../../support/common/localecompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/common/css/csscompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios \"$PROJECT_DIR/../Resources\"";
-		};
-		24CA8D03111169070084E2DE /* Post-Compile */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Post-Compile";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if test -d $BUILT_PRODUCTS_DIR/modules; then cp -R -f $BUILT_PRODUCTS_DIR/modules $BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/; fi";
-		};
-		24D8E3B9119B9D8A00F8CAA6 /* Pre-Compile */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Pre-Compile";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink-iPad/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\n";
-		};
-		24D8E4AD119B9D8A00F8CAA6 /* Post-Compile */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Post-Compile";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "";
-		};
-		DABB369F12E8CB280026A6EA /* Pre-Compile */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Pre-Compile";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\n";
-		};
-		DABB37B812E8CB280026A6EA /* Post-Compile */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Post-Compile";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -5572,6 +5086,7 @@
 				DA864E3211A2314A00B9CD68 /* TiAudioMusicPlayer.m in Sources */,
 				D50E11301A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */,
 				DAA905CE11A359F10030B119 /* TiAudioItem.m in Sources */,
+				823CC8AC1B7F0E4D00D220C7 /* TiAppiOSWatchSessionProxy.m in Sources */,
 				B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
 				D5AADFAB17EC32A6008987EF /* UIControl+TiUIView.m in Sources */,
 				D55B29BC1ACC2825008C0279 /* TiCacheObject.m in Sources */,
@@ -5633,7 +5148,7 @@
 				1DCC542F13FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
 				D5162E9F1A20D1F7008A4048 /* TiUICollectionItem.m in Sources */,
 				1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
-				CA178E9D1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m in Sources */,
+				83924E881B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m in Sources */,
 				1D19459B13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */,
 				EF0ADCFA143F9ABF00977386 /* NSData+Additions.m in Sources */,
 				EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */,
@@ -5718,856 +5233,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		24D8E3BA119B9D8A00F8CAA6 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D5EEA16B1A37486100E8BB3F /* _DDRewriteRule.m in Sources */,
-				DA3B2FA8143EDEE3000DC803 /* TiUIiOSToolbar.m in Sources */,
-				DA3B2FAA143EDEE3000DC803 /* TiUIiOSToolbarProxy.m in Sources */,
-				24D8E3BB119B9D8A00F8CAA6 /* TiUITableViewAction.m in Sources */,
-				D5E999131869C8A2005B3664 /* TiBorderLayer.m in Sources */,
-				24D8E3BC119B9D8A00F8CAA6 /* TiFile.m in Sources */,
-				D5C8C97417EF45C900F54C19 /* ADDualTransition.m in Sources */,
-				D51DEFCB19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */,
-				24D8E3BE119B9D8A00F8CAA6 /* main.m in Sources */,
-				24D8E3BF119B9D8A00F8CAA6 /* AFItemView.m in Sources */,
-				24D8E3C0119B9D8A00F8CAA6 /* AFOpenFlowView.m in Sources */,
-				D5EEA16E1A37486100E8BB3F /* _DDVariableExpression.m in Sources */,
-				24D8E3C1119B9D8A00F8CAA6 /* AFUIImageReflection.m in Sources */,
-				84A00FF617FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
-				D53DC7B619CF427100BB31C9 /* UIImage+ColorArt.m in Sources */,
-				24D8E3C5119B9D8A00F8CAA6 /* TiUIiPhoneScrollIndicatorStyleProxy.m in Sources */,
-				24D8E3C8119B9D8A00F8CAA6 /* TiUITextWidgetProxy.m in Sources */,
-				D5162EA01A20D1F7008A4048 /* TiUICollectionItem.m in Sources */,
-				24D8E3CA119B9D8A00F8CAA6 /* TiUITableViewSectionProxy.m in Sources */,
-				24D8E3CB119B9D8A00F8CAA6 /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
-				24D8E3CE119B9D8A00F8CAA6 /* AudioStreamer.m in Sources */,
-				24D8E3CF119B9D8A00F8CAA6 /* Base64Transcoder.c in Sources */,
-				24D8E3D0119B9D8A00F8CAA6 /* TiUITextWidget.m in Sources */,
-				8484E3A817A865F700C24B02 /* TiViewController.m in Sources */,
-				24D8E3DB119B9D8A00F8CAA6 /* PlausibleDatabase.m in Sources */,
-				24D8E3DC119B9D8A00F8CAA6 /* PLSqliteDatabase.m in Sources */,
-				D5EEA1891A37486100E8BB3F /* DDParserTypes.m in Sources */,
-				24D8E3DD119B9D8A00F8CAA6 /* PLSqlitePreparedStatement.m in Sources */,
-				24D8E3DE119B9D8A00F8CAA6 /* PLSqliteResultSet.m in Sources */,
-				24D8E3DF119B9D8A00F8CAA6 /* SBJSON.m in Sources */,
-				24D8E3E0119B9D8A00F8CAA6 /* KrollBridge.m in Sources */,
-				84A0100A17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
-				D5EEA1531A37486100E8BB3F /* _DDFunctionExpression.m in Sources */,
-				24D8E3E1119B9D8A00F8CAA6 /* KrollCallback.m in Sources */,
-				D535CCE319CF2C77005E114E /* SLColorArt.m in Sources */,
-				24D8E3E2119B9D8A00F8CAA6 /* KrollContext.m in Sources */,
-				D54C7D2118115D7D00F592A9 /* TiTransitionModernPush.m in Sources */,
-				24D8E3E3119B9D8A00F8CAA6 /* KrollMethod.m in Sources */,
-				D55B29BD1ACC2825008C0279 /* TiCacheObject.m in Sources */,
-				D54C7CF918115BAF00F592A9 /* TiTransitionPushRotate.m in Sources */,
-				24D8E3E4119B9D8A00F8CAA6 /* KrollMethodDelegate.m in Sources */,
-				24D8E3E5119B9D8A00F8CAA6 /* KrollObject.m in Sources */,
-				24D8E3E6119B9D8A00F8CAA6 /* KrollPropertyDelegate.m in Sources */,
-				24D8E3E7119B9D8A00F8CAA6 /* KrollTimer.m in Sources */,
-				D54C7CFE18115BBE00F592A9 /* TiTransitionScale.m in Sources */,
-				24D8E3E8119B9D8A00F8CAA6 /* YahooModule.m in Sources */,
-				24D8E3E9119B9D8A00F8CAA6 /* XHRBridge.m in Sources */,
-				D5F9620F19A63941000E464F /* TiScrollingView.m in Sources */,
-				24D8E3EA119B9D8A00F8CAA6 /* WebFont.m in Sources */,
-				24D8E3EC119B9D8A00F8CAA6 /* UIModule.m in Sources */,
-				24D8E3EE119B9D8A00F8CAA6 /* TiViewProxy.m in Sources */,
-				24D8E3F0119B9D8A00F8CAA6 /* TiUtils.m in Sources */,
-				24D8E3F1119B9D8A00F8CAA6 /* TiUIWindowProxy.m in Sources */,
-				D512A7B1187F1813004E3AB1 /* ADTransitioningDelegate.m in Sources */,
-				84A0100517FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */,
-				24D8E3F2119B9D8A00F8CAA6 /* TiUIWindow.m in Sources */,
-				24D8E3F3119B9D8A00F8CAA6 /* TiUIWebViewProxy.m in Sources */,
-				24D8E3F4119B9D8A00F8CAA6 /* TiUIViewProxy.m in Sources */,
-				D5DC32F9180EED41006CCEBD /* TiTransitionCube.m in Sources */,
-				24D8E3F5119B9D8A00F8CAA6 /* TiUIView.m in Sources */,
-				D5C8C96817EF45C900F54C19 /* ADBackFadeTransition.m in Sources */,
-				D56F98FB19E67D140050E727 /* UIImage+ImageEffects.m in Sources */,
-				24D8E3F8119B9D8A00F8CAA6 /* TiUITextFieldProxy.m in Sources */,
-				D58DCBCE17FEF0F50011FE0E /* TiSVGImage.m in Sources */,
-				D5E897B218A3FA0B00E565E1 /* NSDictionary+Merge.m in Sources */,
-				24D8E3F9119B9D8A00F8CAA6 /* TiUITextField.m in Sources */,
-				D506FB0C18E5DD06007E4A5B /* (null) in Sources */,
-				D5809D5D19129CEB005A1F02 /* APSHTTPResponse.m in Sources */,
-				D5EEA17D1A37486100E8BB3F /* DDMathOperator.m in Sources */,
-				24D8E3FA119B9D8A00F8CAA6 /* TiUITextAreaProxy.m in Sources */,
-				24D8E3FB119B9D8A00F8CAA6 /* TiUITextArea.m in Sources */,
-				24D8E3FC119B9D8A00F8CAA6 /* TiUITabProxy.m in Sources */,
-				D57007FA18255C520063F7FE /* TiTransitionSwipeDualFade.m in Sources */,
-				24D8E3FD119B9D8A00F8CAA6 /* TiUITableViewProxy.m in Sources */,
-				24D8E3FE119B9D8A00F8CAA6 /* TiUITableView.m in Sources */,
-				D5C8C98C17EF45C900F54C19 /* ADSlideTransition.m in Sources */,
-				24D8E3FF119B9D8A00F8CAA6 /* TiUITabGroupProxy.m in Sources */,
-				D5C07A93187DA9CF00984901 /* CAMediaTimingFunction+AdditionalEquations.m in Sources */,
-				24D8E400119B9D8A00F8CAA6 /* TiUITabGroup.m in Sources */,
-				D51DEFDD19D9ACDA00CF28B0 /* SWActionSheet.m in Sources */,
-				D5F9620419A638CC000E464F /* TiScrollingViewProxy.m in Sources */,
-				24D8E403119B9D8A00F8CAA6 /* TiUIiPhoneSystemIconProxy.m in Sources */,
-				24D8E404119B9D8A00F8CAA6 /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
-				24D8E405119B9D8A00F8CAA6 /* TiUIiPhoneSystemButtonProxy.m in Sources */,
-				D597CF0817D719C4009A080B /* TiCellBackgroundView.m in Sources */,
-				D5412E131900156C00B720DF /* ADPercentDrivenInteractiveTransition.m in Sources */,
-				24D8E406119B9D8A00F8CAA6 /* TiUISwitchProxy.m in Sources */,
-				24D8E407119B9D8A00F8CAA6 /* TiUISwitch.m in Sources */,
-				24D8E408119B9D8A00F8CAA6 /* TiUIiPhoneStatusBarProxy.m in Sources */,
-				24D8E409119B9D8A00F8CAA6 /* TiUISliderProxy.m in Sources */,
-				84DEE9181815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */,
-				24D8E40A119B9D8A00F8CAA6 /* TiUISlider.m in Sources */,
-				24D8E40B119B9D8A00F8CAA6 /* TiUISearchBarProxy.m in Sources */,
-				24D8E40C119B9D8A00F8CAA6 /* TiUISearchBar.m in Sources */,
-				24D8E40D119B9D8A00F8CAA6 /* TiUIiPhoneRowAnimationStyleProxy.m in Sources */,
-				24D8E40E119B9D8A00F8CAA6 /* TiUIiPhoneProgressBarStyleProxy.m in Sources */,
-				D5C06C2017C7D8F700FA0E98 /* TiUIHelper.m in Sources */,
-				24D8E40F119B9D8A00F8CAA6 /* TiUIProgressBarProxy.m in Sources */,
-				24D8E410119B9D8A00F8CAA6 /* TiUIProgressBar.m in Sources */,
-				24D8E411119B9D8A00F8CAA6 /* TiUIOptionDialogProxy.m in Sources */,
-				24D8E412119B9D8A00F8CAA6 /* TiUINavBarButton.m in Sources */,
-				24D8E415119B9D8A00F8CAA6 /* TiUIiPhoneProxy.m in Sources */,
-				24D8E416119B9D8A00F8CAA6 /* TiUIImageViewProxy.m in Sources */,
-				24D8E417119B9D8A00F8CAA6 /* TiUIImageView.m in Sources */,
-				D55B29AE1ACC2735008C0279 /* TiCache.m in Sources */,
-				24D8E418119B9D8A00F8CAA6 /* TiUIEmailDialogProxy.m in Sources */,
-				BBD6C2931A3AA22C00FA700E /* TiUIAttributedStringProxy.m in Sources */,
-				24D8E41B119B9D8A00F8CAA6 /* TiUICanvasViewProxy.m in Sources */,
-				24D8E41C119B9D8A00F8CAA6 /* TiUICanvasView.m in Sources */,
-				24D8E41D119B9D8A00F8CAA6 /* TiUIButtonProxy.m in Sources */,
-				24D8E41E119B9D8A00F8CAA6 /* TiUIButtonBarProxy.m in Sources */,
-				24D8E41F119B9D8A00F8CAA6 /* TiUIButtonBar.m in Sources */,
-				24D8E420119B9D8A00F8CAA6 /* TiUIButton.m in Sources */,
-				24D8E421119B9D8A00F8CAA6 /* TiUIiPhoneAnimationStyleProxy.m in Sources */,
-				24D8E422119B9D8A00F8CAA6 /* TiUIAlertDialogProxy.m in Sources */,
-				24D8E424119B9D8A00F8CAA6 /* TiUIActivityIndicatorProxy.m in Sources */,
-				24D8E425119B9D8A00F8CAA6 /* TiUIActivityIndicator.m in Sources */,
-				24D8E426119B9D8A00F8CAA6 /* TiRect.m in Sources */,
-				D5EEA1771A37486100E8BB3F /* DDExpressionRewriter.m in Sources */,
-				D5216940183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
-				D50E11211A223072008FD092 /* TiUICollectionWrapperView.m in Sources */,
-				24D8E428119B9D8A00F8CAA6 /* TiProxy.m in Sources */,
-				D52956FB1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */,
-				24D8E429119B9D8A00F8CAA6 /* TiPoint.m in Sources */,
-				D56E669A180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
-				24D8E42C119B9D8A00F8CAA6 /* TiModule.m in Sources */,
-				24D8E42D119B9D8A00F8CAA6 /* TiMediaVideoPlayerProxy.m in Sources */,
-				D5EEA17A1A37486100E8BB3F /* DDMathEvaluator.m in Sources */,
-				24D8E42E119B9D8A00F8CAA6 /* TiAudioSoundProxy.m in Sources */,
-				D5C8C98317EF45C900F54C19 /* ADGlueTransition.m in Sources */,
-				24D8E42F119B9D8A00F8CAA6 /* TiAudioPlayerProxy.m in Sources */,
-				D55795821837BF6C0057DD41 /* TiViewAnimationStep.m in Sources */,
-				D5EEA15C1A37486100E8BB3F /* _DDNumberExpression.m in Sources */,
-				D54C7D0D18115C0900F592A9 /* TiTransitionGhost.m in Sources */,
-				24D8E433119B9D8A00F8CAA6 /* TiHost.m in Sources */,
-				D50A303118B0F6C1004CBD52 /* TouchCapturingWindow.m in Sources */,
-				D5C8C99517EF45C900F54C19 /* ADSwipeTransition.m in Sources */,
-				D5C8C96E17EF45C900F54C19 /* ADCrossTransition.m in Sources */,
-				24D8E434119B9D8A00F8CAA6 /* TiFilesystemFileProxy.m in Sources */,
-				D54C7D1218115C1800F592A9 /* TiTransitionGlue.m in Sources */,
-				D58791EB183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */,
-				D5C8C97717EF45C900F54C19 /* ADFadeTransition.m in Sources */,
-				24D8E437119B9D8A00F8CAA6 /* TiDimension.m in Sources */,
-				24D8E438119B9D8A00F8CAA6 /* TiDatabaseResultSetProxy.m in Sources */,
-				D59DD42818096186002FDCDF /* ADModernPushTransition.m in Sources */,
-				D543240F1B64DA5E009C24EC /* DirectionPanGestureRecognizer.m in Sources */,
-				24D8E439119B9D8A00F8CAA6 /* TiDatabaseProxy.m in Sources */,
-				84E00A9D17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m in Sources */,
-				8484E3A217A8279500C24B02 /* TiRootViewController.m in Sources */,
-				B606EF36190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */,
-				24D8E43A119B9D8A00F8CAA6 /* TiContactsPerson.m in Sources */,
-				24D8E43B119B9D8A00F8CAA6 /* TiComplexValue.m in Sources */,
-				24D8E43C119B9D8A00F8CAA6 /* TiColor.m in Sources */,
-				D5809D5A19129CEB005A1F02 /* APSHTTPRequest.m in Sources */,
-				24D8E43D119B9D8A00F8CAA6 /* TiButtonUtil.m in Sources */,
-				84A0101417FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */,
-				24D8E43E119B9D8A00F8CAA6 /* TiBlob.m in Sources */,
-				24D8E43F119B9D8A00F8CAA6 /* TiBase.m in Sources */,
-				D58709BF19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
-				24D8E440119B9D8A00F8CAA6 /* TiAppPropertiesProxy.m in Sources */,
-				D54C7CF01811565A00F592A9 /* TiTransitionSlide.m in Sources */,
-				24D8E441119B9D8A00F8CAA6 /* TiAnimation.m in Sources */,
-				D5F1CE5B1B1F514200077B43 /* TiLabel.m in Sources */,
-				24D8E442119B9D8A00F8CAA6 /* TiAction.m in Sources */,
-				84A0100017FB833000D4BF94 /* TiPushBehavior.m in Sources */,
-				24D8E444119B9D8A00F8CAA6 /* Ti2DMatrix.m in Sources */,
-				24D8E445119B9D8A00F8CAA6 /* TiPlatformDisplayCaps.m in Sources */,
-				24D8E446119B9D8A00F8CAA6 /* PlatformModule.m in Sources */,
-				24D8E447119B9D8A00F8CAA6 /* OperationQueue.m in Sources */,
-				24D8E448119B9D8A00F8CAA6 /* NetworkModule.m in Sources */,
-				24D8E449119B9D8A00F8CAA6 /* Mimetypes.m in Sources */,
-				D5EEA1681A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */,
-				24D8E44A119B9D8A00F8CAA6 /* MediaModule.m in Sources */,
-				24D8E44C119B9D8A00F8CAA6 /* LayoutConstraint.m in Sources */,
-				D5162EA61A20D1F7008A4048 /* TiUICollectionSectionProxy.m in Sources */,
-				24D8E44D119B9D8A00F8CAA6 /* ImageLoader.m in Sources */,
-				24D8E44E119B9D8A00F8CAA6 /* GestureModule.m in Sources */,
-				D5EEA1591A37486100E8BB3F /* _DDGroupTerm.m in Sources */,
-				D535CCE819CF333A005E114E /* UIImage+UserInfo.m in Sources */,
-				D55B29B81ACC27F6008C0279 /* TiDatabaseCache.m in Sources */,
-				D54C7D0818115BFA00F592A9 /* TiTransitionCross.m in Sources */,
-				24D8E450119B9D8A00F8CAA6 /* FilesystemModule.m in Sources */,
-				24D8E452119B9D8A00F8CAA6 /* DatabaseModule.m in Sources */,
-				24D8E453119B9D8A00F8CAA6 /* ContactsModule.m in Sources */,
-				24D8E454119B9D8A00F8CAA6 /* TiUITableViewRowProxy.m in Sources */,
-				24D8E455119B9D8A00F8CAA6 /* Bridge.m in Sources */,
-				24D8E456119B9D8A00F8CAA6 /* AppModule.m in Sources */,
-				24D8E457119B9D8A00F8CAA6 /* APIModule.m in Sources */,
-				24D8E459119B9D8A00F8CAA6 /* AccelerometerModule.m in Sources */,
-				24D8E45A119B9D8A00F8CAA6 /* TiUIScrollableViewProxy.m in Sources */,
-				D51D5AC51A4C682E00B0BC5D /* TableView_Categories.m in Sources */,
-				24D8E45B119B9D8A00F8CAA6 /* TiUIScrollableView.m in Sources */,
-				24D8E45C119B9D8A00F8CAA6 /* TiUIScrollViewProxy.m in Sources */,
-				D557959A1839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,
-				24D8E45D119B9D8A00F8CAA6 /* TiUIScrollView.m in Sources */,
-				D5F980F919ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */,
-				24D8E45E119B9D8A00F8CAA6 /* TiUIWebView.m in Sources */,
-				D50FDC0B1A446A2700D962C9 /* AudioModule.m in Sources */,
-				24D8E45F119B9D8A00F8CAA6 /* TiDOMDocumentProxy.m in Sources */,
-				24D8E460119B9D8A00F8CAA6 /* GDataXMLNode.m in Sources */,
-				24D8E461119B9D8A00F8CAA6 /* TiDOMNodeProxy.m in Sources */,
-				24D8E462119B9D8A00F8CAA6 /* TiDOMElementProxy.m in Sources */,
-				84A0101917FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */,
-				24D8E463119B9D8A00F8CAA6 /* TiDOMNamedNodeMapProxy.m in Sources */,
-				D59355651A2342ED00522BC3 /* SevenSwitch.m in Sources */,
-				24D8E464119B9D8A00F8CAA6 /* TiDOMNodeListProxy.m in Sources */,
-				24D8E465119B9D8A00F8CAA6 /* TiDOMAttrProxy.m in Sources */,
-				24D8E467119B9D8A00F8CAA6 /* ListenerEntry.m in Sources */,
-				24D8E468119B9D8A00F8CAA6 /* XMLModule.m in Sources */,
-				24D8E469119B9D8A00F8CAA6 /* TiUIiPhoneTableViewScrollPositionProxy.m in Sources */,
-				24D8E46A119B9D8A00F8CAA6 /* TiAudioRecorderProxy.mm in Sources */,
-				D5B6535719A1E03100F30AAB /* TiModalNavViewController.m in Sources */,
-				D512A7B4187F1813004E3AB1 /* ADTransitioningViewController.m in Sources */,
-				D5C8C99817EF45C900F54C19 /* ADTransformTransition.m in Sources */,
-				84EB08071A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */,
-				24D8E46F119B9D8A00F8CAA6 /* SCListener.m in Sources */,
-				D57007F518255BBD0063F7FE /* ADSwipeDualFadeTransition.m in Sources */,
-				24D8E470119B9D8A00F8CAA6 /* TiAudioSession.m in Sources */,
-				D5F3F9B719C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */,
-				D535603918609A2800F8DEFD /* TiHLSLayerAnimationStep.m in Sources */,
-				CEBC15721A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */,
-				24D8E471119B9D8A00F8CAA6 /* TiUIPickerProxy.m in Sources */,
-				24D8E472119B9D8A00F8CAA6 /* TiUIPicker.m in Sources */,
-				24D8E473119B9D8A00F8CAA6 /* TiUIPickerRowProxy.m in Sources */,
-				D5C5EC3218642FB100357DE4 /* TiTableView.m in Sources */,
-				D5EEA1711A37486100E8BB3F /* _DDVariableTerm.m in Sources */,
-				24D8E474119B9D8A00F8CAA6 /* TiUIPickerColumnProxy.m in Sources */,
-				24D8E475119B9D8A00F8CAA6 /* UIImage+Alpha.m in Sources */,
-				24D8E476119B9D8A00F8CAA6 /* UIImage+Resize.m in Sources */,
-				24D8E477119B9D8A00F8CAA6 /* UIImage+RoundedCorner.m in Sources */,
-				B6A0A2B2180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
-				24D8E478119B9D8A00F8CAA6 /* UtilsModule.m in Sources */,
-				D5016D801B51980800C10890 /* CMDForwardingActivityItemSource.m in Sources */,
-				24D8E479119B9D8A00F8CAA6 /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
-				24D8E47A119B9D8A00F8CAA6 /* TiUIMaskedImageProxy.m in Sources */,
-				843FA58517BD4DFF0064E061 /* TiUINavigationWindow.m in Sources */,
-				D5809D5719129CEB005A1F02 /* APSHTTPPostForm.m in Sources */,
-				24D8E47B119B9D8A00F8CAA6 /* TiUIMaskedImage.m in Sources */,
-				24D8E47C119B9D8A00F8CAA6 /* TiNetworkBonjourBrowserProxy.m in Sources */,
-				24D8E47D119B9D8A00F8CAA6 /* TiNetworkBonjourServiceProxy.m in Sources */,
-				24D8E47E119B9D8A00F8CAA6 /* TiNetworkTCPSocketProxy.m in Sources */,
-				24D8E47F119B9D8A00F8CAA6 /* TiDOMTextNodeProxy.m in Sources */,
-				D5EEA1861A37486100E8BB3F /* DDParser.m in Sources */,
-				24D8E480119B9D8A00F8CAA6 /* TiMediaVideoPlayer.m in Sources */,
-				24D8E481119B9D8A00F8CAA6 /* TiUIiPadSplitWindowProxy.m in Sources */,
-				24D8E482119B9D8A00F8CAA6 /* TiUIiPadPopoverProxy.m in Sources */,
-				D54C7D1718115C3C00F592A9 /* TiTransitionZoom.m in Sources */,
-				24D8E484119B9D8A00F8CAA6 /* TiUIiPadProxy.m in Sources */,
-				D5016D7D1B51980800C10890 /* CMDActivityViewController.m in Sources */,
-				24D8E487119B9D8A00F8CAA6 /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
-				24D8E488119B9D8A00F8CAA6 /* LauncherButton.m in Sources */,
-				D5412E1819012A0D00B720DF /* UIGestureRecognizer+ADNavTransition.m in Sources */,
-				D5EEA18C1A37486100E8BB3F /* DDTypes.m in Sources */,
-				24D8E489119B9D8A00F8CAA6 /* LauncherItem.m in Sources */,
-				24D8E48A119B9D8A00F8CAA6 /* LauncherView.m in Sources */,
-				24D8E48B119B9D8A00F8CAA6 /* TiUIDashboardViewProxy.m in Sources */,
-				D51DEFC819D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */,
-				24D8E48C119B9D8A00F8CAA6 /* TiUIDashboardView.m in Sources */,
-				24D8E48D119B9D8A00F8CAA6 /* TiUIDashboardItemProxy.m in Sources */,
-				24D8E490119B9D8A00F8CAA6 /* TiGradient.m in Sources */,
-				D55131BB1A1DEB1D003A9872 /* TiUIVolumeView.m in Sources */,
-				24D8E491119B9D8A00F8CAA6 /* ApplicationRouting.m in Sources */,
-				24D8E492119B9D8A00F8CAA6 /* TiUIiPadSplitWindow.m in Sources */,
-				B606EF4B190B14ED00663EFC /* Reachability.m in Sources */,
-				24D8E493119B9D8A00F8CAA6 /* TopTiModule.m in Sources */,
-				24D8E494119B9D8A00F8CAA6 /* TiApp.m in Sources */,
-				D5AADFAC17EC32A6008987EF /* UIControl+TiUIView.m in Sources */,
-				D586DCC319716E28002FBBBB /* CustomActionSheet.m in Sources */,
-				24D8E495119B9D8A00F8CAA6 /* TiErrorController.m in Sources */,
-				D56E6695180BF0B900F1B737 /* TiTransitionSwipeFade.m in Sources */,
-				84EB08021A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */,
-				DAA905CF11A35A010030B119 /* TiAudioMusicPlayer.m in Sources */,
-				DAA905D011A35A010030B119 /* TiAudioItem.m in Sources */,
-				B468B4F211B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
-				242E967911BAD2F20046A0D0 /* AsyncSocket.m in Sources */,
-				242E967A11BAD2F20046A0D0 /* AsyncUdpSocket.m in Sources */,
-				DAA17BE411C15A0000957ED1 /* TiContactsGroup.m in Sources */,
-				2478B2A511C447A4005814DF /* ApplicationMods.m in Sources */,
-				24D06FE211D0211200F615D8 /* TiUIiOSAdViewProxy.m in Sources */,
-				24D06FE911D0219B00F615D8 /* TiUIiOSAdView.m in Sources */,
-				24D0700711D0253D00F615D8 /* TiUIiOSProxy.m in Sources */,
-				D5EEA1561A37486100E8BB3F /* _DDFunctionTerm.m in Sources */,
-				2467310711E2549300D39AF7 /* Webcolor.m in Sources */,
-				D535F3FA1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */,
-				2465592511E5862F0059BBF4 /* TiFilesystemBlobProxy.m in Sources */,
-				243AAFB611FCE62600E37D8B /* TiUIDashboardItem.m in Sources */,
-				D58DCBD317FF193D0011FE0E /* TiTransitionHelper.m in Sources */,
-				B440EF811209DC400045FEAE /* MGSplitCornersView.m in Sources */,
-				B440EF821209DC400045FEAE /* MGSplitDividerView.m in Sources */,
-				B440EF831209DC400045FEAE /* MGSplitViewController.m in Sources */,
-				D5809D5119129CEB005A1F02 /* APSHTTPHelper.m in Sources */,
-				24F29E2E12209C920099351D /* TiStylesheet.m in Sources */,
-				24F29E701220CE0A0099351D /* TiLocale.m in Sources */,
-				24F29F82122105C70099351D /* LocaleModule.m in Sources */,
-				D4AB36F6123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */,
-				D54C7D1C18115C5200F592A9 /* TiTransitionSwap.m in Sources */,
-				B473FBA5126FB2DF00E29C73 /* TiPublicAPI.m in Sources */,
-				B48050201278AB170030AA3F /* TiThreading.m in Sources */,
-				DABDEB08128B5A8F00C85FEA /* AudioStreamerCUR.m in Sources */,
-				84EB340117A8CAA700723B1E /* TiWindowProxy.m in Sources */,
-				D512A7AE187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */,
-				D50E112C1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m in Sources */,
-				D5C5EC2D1863584100357DE4 /* TiUILabel.m in Sources */,
-				B4E9A913128E24FB006A111B /* UIImageExtras.m in Sources */,
-				84A0100F17FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
-				84A00FF117FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
-				24ADC5131299F60C0014DB75 /* TiAppiOSProxy.m in Sources */,
-				24ADC5171299F6AA0014DB75 /* TiAppiOSBackgroundServiceProxy.m in Sources */,
-				24ADC635129A1ED60014DB75 /* TiAppiOSLocalNotificationProxy.m in Sources */,
-				D56D75A21A20DE2E001DEB9D /* TiCollectionView.m in Sources */,
-				DA2B35C3134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */,
-				DABF3ED0134D210400836137 /* TiBuffer.m in Sources */,
-				D557957F1837BF6C0057DD41 /* TiViewAnimation.m in Sources */,
-				DABF3ED8134D2CA100836137 /* StreamModule.m in Sources */,
-				D521693D183A598500FBB24B /* TiTransitionAnimation.m in Sources */,
-				DABF3EDD134D2E4400836137 /* TiStreamProxy.m in Sources */,
-				DAA4B2B5134E75AC00AB6011 /* CodecModule.m in Sources */,
-				DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
-				D5F3F9BA19C6D2F90090B547 /* TiAppiOSNotificationActionProxy.m in Sources */,
-				DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */,
-				D5EEA1831A37486100E8BB3F /* DDMathStringTokenizer.m in Sources */,
-				D5FD09DD1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */,
-				B415067A136745E20084074A /* TiFilesystemFileStreamProxy.m in Sources */,
-				ABD472F513BB73BF00502912 /* KrollCoverage.m in Sources */,
-				DADD76EA13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
-				2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
-				D56D75AD1A20E18B001DEB9D /* WrapperViewProxy.m in Sources */,
-				2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
-				D55795891837C1680057DD41 /* TiHLSAnimation.m in Sources */,
-				CA178E9E1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m in Sources */,
-				1DCC543013FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
-				D5509FD9194B1C2D00655C61 /* AnalyticsModule.m in Sources */,
-				1D19459713FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
-				D535F3FD1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */,
-				1D19459C13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */,
-				D5C8C96B17EF45C900F54C19 /* ADCarrouselTransition.m in Sources */,
-				EF0ADCFB143F9ABF00977386 /* NSData+Additions.m in Sources */,
-				EF0ADD1B143FA0CD00977386 /* GeolocationModule.m in Sources */,
-				D55B29B31ACC27E6008C0279 /* TiMemoryCache.m in Sources */,
-				2B1F65781431031E006C5D37 /* ApplicationDefaults.m in Sources */,
-				848C2595145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */,
-				D5216935183A10AC00FBB24B /* CAAnimation+Blocks.m in Sources */,
-				D5EEA1501A37486100E8BB3F /* _DDFunctionEvaluator.m in Sources */,
-				D5C8C97A17EF45C900F54C19 /* ADFlipTransition.m in Sources */,
-				848C259B145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
-				848C25A0145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
-				D53DC7B919CF427100BB31C9 /* UIImage+Scale.m in Sources */,
-				D54C7CF41811570B00F592A9 /* TiTransition.m in Sources */,
-				D5162EA91A20D1F7008A4048 /* TiUICollectionView.m in Sources */,
-				848C25A5145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */,
-				84D541A41460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
-				84D541A91460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
-				84D541AE1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
-				B6465C2418D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */,
-				2BDEA4F514490546004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
-				844E1F7F14883A3700F5424C /* TiDOMValidator.m in Sources */,
-				D5370D95194749DF000E30FC /* TiParentingProxy.m in Sources */,
-				DAA72344156D642400757987 /* TiConsole.m in Sources */,
-				2B353A8215901D41008FBD84 /* Ti3DMatrix.m in Sources */,
-				D56E669F180C3BEB00F1B737 /* TiTransitionCarousel.m in Sources */,
-				2B0B6E0D15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
-				D5E9511D195DC34800DB8B37 /* TiProperties.m in Sources */,
-				D5EEA1741A37486100E8BB3F /* DDExpression.m in Sources */,
-				D54C7D0318115BD100F592A9 /* TitransitionBackFade.m in Sources */,
-				4688700815E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */,
-				1D1029A915F9769200372EC0 /* TiBindingEvent.m in Sources */,
-				1D0061C2160283820016BBEE /* TiBindingRunLoop.m in Sources */,
-				D55131C01A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */,
-				1DD9388D1609230900091777 /* TiBindingTiValue.m in Sources */,
-				5081CEF915F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
-				D93DAA5116CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
-				D93DAA5616CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
-				D93DAA5B16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
-				D93DAA6016CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
-				D93DAA6516CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
-				D5EEA1651A37486100E8BB3F /* _DDParserTerm.m in Sources */,
-				D930111F16DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */,
-				502A68DB16EEAA7500661EF6 /* TiUIListItem.m in Sources */,
-				502A68DE16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */,
-				502A68E116EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */,
-				502A68E416EEAA7500661EF6 /* TiUIListView.m in Sources */,
-				502A68E716EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
-				D5C8C97117EF45C900F54C19 /* ADCubeTransition.m in Sources */,
-				502A68EC16F0428500661EF6 /* TiProxyTemplate.m in Sources */,
-				D5C92DA8182AA88F0072D117 /* TouchDelegate_Views.m in Sources */,
-				D590815D168B593B00362307 /* TiUIHorizontalTableView.m in Sources */,
-				D5908160168B593B00362307 /* TiUIHorizontalTableViewProxy.m in Sources */,
-				D56915D0168F2E7400C3F89F /* TiUILabelProxy.m in Sources */,
-				D56915D6168F538F00C3F89F /* TTTAttributedLabel.m in Sources */,
-				D5EEA1801A37486100E8BB3F /* DDMathStringToken.m in Sources */,
-				D5EEA15F1A37486100E8BB3F /* _DDNumberTerm.m in Sources */,
-				D522FE0E16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */,
-				D5C8C98F17EF45C900F54C19 /* ADSwapTransition.m in Sources */,
-				D5C8C9A117EF45C900F54C19 /* ADZoomTransition.m in Sources */,
-				D57644BA1A1B7F9C00322E0D /* TiAudioStreamerProxy.m in Sources */,
-				D52A8E74183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */,
-				D50E11311A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */,
-				D5B04536191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */,
-				D5C8C98917EF45C900F54C19 /* ADScaleTransition.m in Sources */,
-				D58709BC19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
-				D56E66A9180C664400F1B737 /* TiTransitionFade.m in Sources */,
-				D5EEA14D1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */,
-				D5C8C97D17EF45C900F54C19 /* ADFoldTransition.m in Sources */,
-				D5C8C99217EF45C900F54C19 /* ADSwipeFadeTransition.m in Sources */,
-				D59EC23E180FDC5D00FDDD11 /* TiTransitionFold.m in Sources */,
-				D5C8C99B17EF45C900F54C19 /* ADTransition.m in Sources */,
-				D5162EA31A20D1F7008A4048 /* TiUICollectionItemProxy.m in Sources */,
-				D5C8C9A417EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */,
-				D51F03DA1808411F005B4EE2 /* TiImageHelper.m in Sources */,
-				D56E66A4180C60E600F1B737 /* TiTransitionFlip.m in Sources */,
-				D5EEA1621A37486100E8BB3F /* _DDOperatorTerm.m in Sources */,
-				D5162EAC1A20D1F7008A4048 /* TiUICollectionViewProxy.m in Sources */,
-				D5C8C98017EF45C900F54C19 /* ADGhostTransition.m in Sources */,
-				D5C8C99E17EF45C900F54C19 /* ADTransitionController.m in Sources */,
-				D5C8C98617EF45C900F54C19 /* ADPushRotateTransition.m in Sources */,
-				D526016D179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */,
-				84C3870317417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
-				D51697F317FFF63300B4FDB8 /* ImageModule.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DABB36A012E8CB280026A6EA /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D5EEA16C1A37486100E8BB3F /* _DDRewriteRule.m in Sources */,
-				DA3B2FAF143EDF3B000DC803 /* TiUIiOSToolbar.m in Sources */,
-				DA3B2FB1143EDF3B000DC803 /* TiUIiOSToolbarProxy.m in Sources */,
-				DABB36A112E8CB280026A6EA /* TiUITableViewAction.m in Sources */,
-				D5E999141869C8A2005B3664 /* TiBorderLayer.m in Sources */,
-				DABB36A212E8CB280026A6EA /* TiFile.m in Sources */,
-				D5C8C97517EF45C900F54C19 /* ADDualTransition.m in Sources */,
-				D51DEFCC19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */,
-				DABB36A412E8CB280026A6EA /* main.m in Sources */,
-				DABB36A512E8CB280026A6EA /* AFItemView.m in Sources */,
-				DABB36A612E8CB280026A6EA /* AFOpenFlowView.m in Sources */,
-				D5EEA16F1A37486100E8BB3F /* _DDVariableExpression.m in Sources */,
-				DABB36A712E8CB280026A6EA /* AFUIImageReflection.m in Sources */,
-				84A00FF717FB675E00D4BF94 /* TiSnapBehavior.m in Sources */,
-				D53DC7B719CF427100BB31C9 /* UIImage+ColorArt.m in Sources */,
-				DABB36AB12E8CB280026A6EA /* TiUIiPhoneScrollIndicatorStyleProxy.m in Sources */,
-				DABB36AE12E8CB280026A6EA /* TiUITextWidgetProxy.m in Sources */,
-				D5162EA11A20D1F7008A4048 /* TiUICollectionItem.m in Sources */,
-				DABB36B012E8CB280026A6EA /* TiUITableViewSectionProxy.m in Sources */,
-				DABB36B112E8CB280026A6EA /* TiUIiPhoneTableViewStyleProxy.m in Sources */,
-				DABB36B412E8CB280026A6EA /* AudioStreamer.m in Sources */,
-				DABB36B512E8CB280026A6EA /* Base64Transcoder.c in Sources */,
-				DABB36B612E8CB280026A6EA /* TiUITextWidget.m in Sources */,
-				8484E3A917A865F700C24B02 /* TiViewController.m in Sources */,
-				DABB36B712E8CB280026A6EA /* PlausibleDatabase.m in Sources */,
-				DABB36B812E8CB280026A6EA /* PLSqliteDatabase.m in Sources */,
-				D5EEA18A1A37486100E8BB3F /* DDParserTypes.m in Sources */,
-				DABB36B912E8CB280026A6EA /* PLSqlitePreparedStatement.m in Sources */,
-				DABB36BA12E8CB280026A6EA /* PLSqliteResultSet.m in Sources */,
-				DABB36BB12E8CB280026A6EA /* SBJSON.m in Sources */,
-				DABB36BC12E8CB280026A6EA /* KrollBridge.m in Sources */,
-				84A0100B17FC9C2C00D4BF94 /* TiAnchorAttachBehavior.m in Sources */,
-				D5EEA1541A37486100E8BB3F /* _DDFunctionExpression.m in Sources */,
-				DABB36BD12E8CB280026A6EA /* KrollCallback.m in Sources */,
-				D535CCE419CF2C77005E114E /* SLColorArt.m in Sources */,
-				DABB36BE12E8CB280026A6EA /* KrollContext.m in Sources */,
-				D54C7D2218115D7D00F592A9 /* TiTransitionModernPush.m in Sources */,
-				DABB36BF12E8CB280026A6EA /* KrollMethod.m in Sources */,
-				D55B29BE1ACC2825008C0279 /* TiCacheObject.m in Sources */,
-				D54C7CFA18115BAF00F592A9 /* TiTransitionPushRotate.m in Sources */,
-				DABB36C012E8CB280026A6EA /* KrollMethodDelegate.m in Sources */,
-				DABB36C112E8CB280026A6EA /* KrollObject.m in Sources */,
-				DABB36C212E8CB280026A6EA /* KrollPropertyDelegate.m in Sources */,
-				DABB36C312E8CB280026A6EA /* KrollTimer.m in Sources */,
-				D54C7CFF18115BBE00F592A9 /* TiTransitionScale.m in Sources */,
-				DABB36C412E8CB280026A6EA /* YahooModule.m in Sources */,
-				DABB36C512E8CB280026A6EA /* XHRBridge.m in Sources */,
-				D5F9621019A63941000E464F /* TiScrollingView.m in Sources */,
-				DABB36C612E8CB280026A6EA /* WebFont.m in Sources */,
-				DABB36C712E8CB280026A6EA /* UIModule.m in Sources */,
-				DABB36C912E8CB280026A6EA /* TiViewProxy.m in Sources */,
-				DABB36CB12E8CB280026A6EA /* TiUtils.m in Sources */,
-				DABB36CC12E8CB280026A6EA /* TiUIWindowProxy.m in Sources */,
-				D512A7B2187F1813004E3AB1 /* ADTransitioningDelegate.m in Sources */,
-				84A0100617FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */,
-				DABB36CD12E8CB280026A6EA /* TiUIWindow.m in Sources */,
-				DABB36CE12E8CB280026A6EA /* TiUIWebViewProxy.m in Sources */,
-				DABB36CF12E8CB280026A6EA /* TiUIViewProxy.m in Sources */,
-				D5DC32FA180EED41006CCEBD /* TiTransitionCube.m in Sources */,
-				DABB36D012E8CB280026A6EA /* TiUIView.m in Sources */,
-				D5C8C96917EF45C900F54C19 /* ADBackFadeTransition.m in Sources */,
-				D56F98FC19E67D140050E727 /* UIImage+ImageEffects.m in Sources */,
-				DABB36D312E8CB280026A6EA /* TiUITextFieldProxy.m in Sources */,
-				D58DCBCF17FEF0F50011FE0E /* TiSVGImage.m in Sources */,
-				D5E897B318A3FA0B00E565E1 /* NSDictionary+Merge.m in Sources */,
-				DABB36D412E8CB280026A6EA /* TiUITextField.m in Sources */,
-				D506FB0D18E5DD06007E4A5B /* (null) in Sources */,
-				D5809D5E19129CEB005A1F02 /* APSHTTPResponse.m in Sources */,
-				D5EEA17E1A37486100E8BB3F /* DDMathOperator.m in Sources */,
-				DABB36D512E8CB280026A6EA /* TiUITextAreaProxy.m in Sources */,
-				DABB36D612E8CB280026A6EA /* TiUITextArea.m in Sources */,
-				DABB36D712E8CB280026A6EA /* TiUITabProxy.m in Sources */,
-				D57007FB18255C520063F7FE /* TiTransitionSwipeDualFade.m in Sources */,
-				DABB36D812E8CB280026A6EA /* TiUITableViewProxy.m in Sources */,
-				DABB36D912E8CB280026A6EA /* TiUITableView.m in Sources */,
-				D5C8C98D17EF45C900F54C19 /* ADSlideTransition.m in Sources */,
-				DABB36DA12E8CB280026A6EA /* TiUITabGroupProxy.m in Sources */,
-				D5C07A94187DA9CF00984901 /* CAMediaTimingFunction+AdditionalEquations.m in Sources */,
-				DABB36DB12E8CB280026A6EA /* TiUITabGroup.m in Sources */,
-				D51DEFDE19D9ACDA00CF28B0 /* SWActionSheet.m in Sources */,
-				D5F9620519A638CC000E464F /* TiScrollingViewProxy.m in Sources */,
-				DABB36DE12E8CB280026A6EA /* TiUIiPhoneSystemIconProxy.m in Sources */,
-				DABB36DF12E8CB280026A6EA /* TiUIiPhoneSystemButtonStyleProxy.m in Sources */,
-				DABB36E012E8CB280026A6EA /* TiUIiPhoneSystemButtonProxy.m in Sources */,
-				D597CF0917D719C4009A080B /* TiCellBackgroundView.m in Sources */,
-				D5412E141900156C00B720DF /* ADPercentDrivenInteractiveTransition.m in Sources */,
-				DABB36E112E8CB280026A6EA /* TiUISwitchProxy.m in Sources */,
-				DABB36E212E8CB280026A6EA /* TiUISwitch.m in Sources */,
-				DABB36E312E8CB280026A6EA /* TiUIiPhoneStatusBarProxy.m in Sources */,
-				DABB36E412E8CB280026A6EA /* TiUISliderProxy.m in Sources */,
-				84DEE9191815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */,
-				DABB36E512E8CB280026A6EA /* TiUISlider.m in Sources */,
-				DABB36E612E8CB280026A6EA /* TiUISearchBarProxy.m in Sources */,
-				DABB36E712E8CB280026A6EA /* TiUISearchBar.m in Sources */,
-				DABB36E812E8CB280026A6EA /* TiUIiPhoneRowAnimationStyleProxy.m in Sources */,
-				DABB36E912E8CB280026A6EA /* TiUIiPhoneProgressBarStyleProxy.m in Sources */,
-				D5C06C2117C7D8F700FA0E98 /* TiUIHelper.m in Sources */,
-				DABB36EA12E8CB280026A6EA /* TiUIProgressBarProxy.m in Sources */,
-				DABB36EB12E8CB280026A6EA /* TiUIProgressBar.m in Sources */,
-				DABB36EC12E8CB280026A6EA /* TiUIOptionDialogProxy.m in Sources */,
-				DABB36ED12E8CB280026A6EA /* TiUINavBarButton.m in Sources */,
-				DABB36F012E8CB280026A6EA /* TiUIiPhoneProxy.m in Sources */,
-				DABB36F112E8CB280026A6EA /* TiUIImageViewProxy.m in Sources */,
-				DABB36F212E8CB280026A6EA /* TiUIImageView.m in Sources */,
-				D55B29AF1ACC2735008C0279 /* TiCache.m in Sources */,
-				DABB36F312E8CB280026A6EA /* TiUIEmailDialogProxy.m in Sources */,
-				BBD6C2941A3AA22D00FA700E /* TiUIAttributedStringProxy.m in Sources */,
-				DABB36F612E8CB280026A6EA /* TiUICanvasViewProxy.m in Sources */,
-				DABB36F712E8CB280026A6EA /* TiUICanvasView.m in Sources */,
-				DABB36F812E8CB280026A6EA /* TiUIButtonProxy.m in Sources */,
-				DABB36F912E8CB280026A6EA /* TiUIButtonBarProxy.m in Sources */,
-				DABB36FA12E8CB280026A6EA /* TiUIButtonBar.m in Sources */,
-				DABB36FB12E8CB280026A6EA /* TiUIButton.m in Sources */,
-				DABB36FC12E8CB280026A6EA /* TiUIiPhoneAnimationStyleProxy.m in Sources */,
-				DABB36FD12E8CB280026A6EA /* TiUIAlertDialogProxy.m in Sources */,
-				DABB36FF12E8CB280026A6EA /* TiUIActivityIndicatorProxy.m in Sources */,
-				DABB370012E8CB280026A6EA /* TiUIActivityIndicator.m in Sources */,
-				DABB370112E8CB280026A6EA /* TiRect.m in Sources */,
-				D5EEA1781A37486100E8BB3F /* DDExpressionRewriter.m in Sources */,
-				D5216941183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
-				D50E11221A223072008FD092 /* TiUICollectionWrapperView.m in Sources */,
-				DABB370312E8CB280026A6EA /* TiProxy.m in Sources */,
-				D52956FC1B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m in Sources */,
-				DABB370412E8CB280026A6EA /* TiPoint.m in Sources */,
-				D56E669B180C3B9000F1B737 /* TiTransitionSwipe.m in Sources */,
-				DABB370712E8CB280026A6EA /* TiModule.m in Sources */,
-				DABB370812E8CB280026A6EA /* TiMediaVideoPlayerProxy.m in Sources */,
-				D5EEA17B1A37486100E8BB3F /* DDMathEvaluator.m in Sources */,
-				DABB370912E8CB280026A6EA /* TiAudioSoundProxy.m in Sources */,
-				D5C8C98417EF45C900F54C19 /* ADGlueTransition.m in Sources */,
-				DABB370A12E8CB280026A6EA /* TiAudioPlayerProxy.m in Sources */,
-				D55795831837BF6C0057DD41 /* TiViewAnimationStep.m in Sources */,
-				D5EEA15D1A37486100E8BB3F /* _DDNumberExpression.m in Sources */,
-				D54C7D0E18115C0900F592A9 /* TiTransitionGhost.m in Sources */,
-				DABB370E12E8CB280026A6EA /* TiHost.m in Sources */,
-				D50A303218B0F6C1004CBD52 /* TouchCapturingWindow.m in Sources */,
-				D5C8C99617EF45C900F54C19 /* ADSwipeTransition.m in Sources */,
-				D5C8C96F17EF45C900F54C19 /* ADCrossTransition.m in Sources */,
-				DABB370F12E8CB280026A6EA /* TiFilesystemFileProxy.m in Sources */,
-				D54C7D1318115C1800F592A9 /* TiTransitionGlue.m in Sources */,
-				D58791EC183E790F007F5BF1 /* TiTransitionPerspective.m in Sources */,
-				D5C8C97817EF45C900F54C19 /* ADFadeTransition.m in Sources */,
-				DABB371012E8CB280026A6EA /* TiDimension.m in Sources */,
-				DABB371112E8CB280026A6EA /* TiDatabaseResultSetProxy.m in Sources */,
-				D59DD42918096186002FDCDF /* ADModernPushTransition.m in Sources */,
-				D54324101B64DA5E009C24EC /* DirectionPanGestureRecognizer.m in Sources */,
-				DABB371212E8CB280026A6EA /* TiDatabaseProxy.m in Sources */,
-				84E00A9E17B646EE00B6DCE2 /* TiUINavigationWindowProxy.m in Sources */,
-				8484E3A317A8279500C24B02 /* TiRootViewController.m in Sources */,
-				B606EF37190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */,
-				DABB371312E8CB280026A6EA /* TiContactsPerson.m in Sources */,
-				DABB371412E8CB280026A6EA /* TiComplexValue.m in Sources */,
-				DABB371512E8CB280026A6EA /* TiColor.m in Sources */,
-				D5809D5B19129CEB005A1F02 /* APSHTTPRequest.m in Sources */,
-				DABB371612E8CB280026A6EA /* TiButtonUtil.m in Sources */,
-				84A0101517FCB46E00D4BF94 /* TiCollisionBehavior.m in Sources */,
-				DABB371712E8CB280026A6EA /* TiBlob.m in Sources */,
-				DABB371812E8CB280026A6EA /* TiBase.m in Sources */,
-				D58709C019796508002E8817 /* TiUIiOSActivityProxy.m in Sources */,
-				DABB371912E8CB280026A6EA /* TiAppPropertiesProxy.m in Sources */,
-				D54C7CF11811565A00F592A9 /* TiTransitionSlide.m in Sources */,
-				DABB371A12E8CB280026A6EA /* TiAnimation.m in Sources */,
-				D5F1CE561B1F514200077B43 /* TiLabel.m in Sources */,
-				DABB371B12E8CB280026A6EA /* TiAction.m in Sources */,
-				84A0100117FB833000D4BF94 /* TiPushBehavior.m in Sources */,
-				DABB371D12E8CB280026A6EA /* Ti2DMatrix.m in Sources */,
-				DABB371E12E8CB280026A6EA /* TiPlatformDisplayCaps.m in Sources */,
-				DABB371F12E8CB280026A6EA /* PlatformModule.m in Sources */,
-				DABB372012E8CB280026A6EA /* OperationQueue.m in Sources */,
-				DABB372112E8CB280026A6EA /* NetworkModule.m in Sources */,
-				DABB372212E8CB280026A6EA /* Mimetypes.m in Sources */,
-				D5EEA1691A37486100E8BB3F /* _DDPrecisionFunctionEvaluator.m in Sources */,
-				DABB372312E8CB280026A6EA /* MediaModule.m in Sources */,
-				DABB372512E8CB280026A6EA /* LayoutConstraint.m in Sources */,
-				D5162EA71A20D1F7008A4048 /* TiUICollectionSectionProxy.m in Sources */,
-				DABB372612E8CB280026A6EA /* ImageLoader.m in Sources */,
-				DABB372712E8CB280026A6EA /* GestureModule.m in Sources */,
-				D5EEA15A1A37486100E8BB3F /* _DDGroupTerm.m in Sources */,
-				D535CCE919CF333A005E114E /* UIImage+UserInfo.m in Sources */,
-				D55B29B91ACC27F6008C0279 /* TiDatabaseCache.m in Sources */,
-				D54C7D0918115BFA00F592A9 /* TiTransitionCross.m in Sources */,
-				DABB372912E8CB280026A6EA /* FilesystemModule.m in Sources */,
-				DABB372A12E8CB280026A6EA /* DatabaseModule.m in Sources */,
-				DABB372B12E8CB280026A6EA /* ContactsModule.m in Sources */,
-				DABB372C12E8CB280026A6EA /* TiUITableViewRowProxy.m in Sources */,
-				DABB372D12E8CB280026A6EA /* Bridge.m in Sources */,
-				DABB372E12E8CB280026A6EA /* AppModule.m in Sources */,
-				DABB372F12E8CB280026A6EA /* APIModule.m in Sources */,
-				DABB373112E8CB280026A6EA /* AccelerometerModule.m in Sources */,
-				DABB373212E8CB280026A6EA /* TiUIScrollableViewProxy.m in Sources */,
-				D51D5AC61A4C682E00B0BC5D /* TableView_Categories.m in Sources */,
-				DABB373312E8CB280026A6EA /* TiUIScrollableView.m in Sources */,
-				DABB373412E8CB280026A6EA /* TiUIScrollViewProxy.m in Sources */,
-				D557959B1839398C0057DD41 /* TiHLSAnimationStep.m in Sources */,
-				DABB373512E8CB280026A6EA /* TiUIScrollView.m in Sources */,
-				D5F980FA19ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */,
-				DABB373612E8CB280026A6EA /* TiUIWebView.m in Sources */,
-				D50FDC0C1A446A2700D962C9 /* AudioModule.m in Sources */,
-				DABB373712E8CB280026A6EA /* TiDOMDocumentProxy.m in Sources */,
-				DABB373812E8CB280026A6EA /* GDataXMLNode.m in Sources */,
-				DABB373912E8CB280026A6EA /* TiDOMNodeProxy.m in Sources */,
-				DABB373A12E8CB280026A6EA /* TiDOMElementProxy.m in Sources */,
-				84A0101A17FDC07000D4BF94 /* TiDynamicItemBehavior.m in Sources */,
-				DABB373B12E8CB280026A6EA /* TiDOMNamedNodeMapProxy.m in Sources */,
-				D59355661A2342ED00522BC3 /* SevenSwitch.m in Sources */,
-				DABB373C12E8CB280026A6EA /* TiDOMNodeListProxy.m in Sources */,
-				DABB373D12E8CB280026A6EA /* TiDOMAttrProxy.m in Sources */,
-				DABB373F12E8CB280026A6EA /* ListenerEntry.m in Sources */,
-				DABB374012E8CB280026A6EA /* XMLModule.m in Sources */,
-				DABB374112E8CB280026A6EA /* TiUIiPhoneTableViewScrollPositionProxy.m in Sources */,
-				DABB374212E8CB280026A6EA /* TiAudioRecorderProxy.mm in Sources */,
-				D5B6535819A1E03100F30AAB /* TiModalNavViewController.m in Sources */,
-				D512A7B5187F1813004E3AB1 /* ADTransitioningViewController.m in Sources */,
-				D5C8C99917EF45C900F54C19 /* ADTransformTransition.m in Sources */,
-				84EB08081A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */,
-				DABB374712E8CB280026A6EA /* SCListener.m in Sources */,
-				CEBC15731A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */,
-				D57007F618255BBD0063F7FE /* ADSwipeDualFadeTransition.m in Sources */,
-				DABB374812E8CB280026A6EA /* TiAudioSession.m in Sources */,
-				D5F3F9B819C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */,
-				D535603A18609A2800F8DEFD /* TiHLSLayerAnimationStep.m in Sources */,
-				DABB374912E8CB280026A6EA /* TiUIPickerProxy.m in Sources */,
-				DABB374A12E8CB280026A6EA /* TiUIPicker.m in Sources */,
-				DABB374B12E8CB280026A6EA /* TiUIPickerRowProxy.m in Sources */,
-				D5C5EC3318642FB100357DE4 /* TiTableView.m in Sources */,
-				D5EEA1721A37486100E8BB3F /* _DDVariableTerm.m in Sources */,
-				DABB374C12E8CB280026A6EA /* TiUIPickerColumnProxy.m in Sources */,
-				DABB374D12E8CB280026A6EA /* UIImage+Alpha.m in Sources */,
-				DABB374E12E8CB280026A6EA /* UIImage+Resize.m in Sources */,
-				DABB374F12E8CB280026A6EA /* UIImage+RoundedCorner.m in Sources */,
-				B6A0A2B3180DF4DA00E3FAA6 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
-				DABB375012E8CB280026A6EA /* UtilsModule.m in Sources */,
-				D5016D811B51980800C10890 /* CMDForwardingActivityItemSource.m in Sources */,
-				DABB375112E8CB280026A6EA /* TiUIiPhoneTableViewCellSelectionStyleProxy.m in Sources */,
-				DABB375212E8CB280026A6EA /* TiUIMaskedImageProxy.m in Sources */,
-				843FA58617BD4DFF0064E061 /* TiUINavigationWindow.m in Sources */,
-				D5809D5819129CEB005A1F02 /* APSHTTPPostForm.m in Sources */,
-				DABB375312E8CB280026A6EA /* TiUIMaskedImage.m in Sources */,
-				DABB375412E8CB280026A6EA /* TiNetworkBonjourBrowserProxy.m in Sources */,
-				DABB375512E8CB280026A6EA /* TiNetworkBonjourServiceProxy.m in Sources */,
-				DABB375612E8CB280026A6EA /* TiNetworkTCPSocketProxy.m in Sources */,
-				DABB375712E8CB280026A6EA /* TiDOMTextNodeProxy.m in Sources */,
-				D5EEA1871A37486100E8BB3F /* DDParser.m in Sources */,
-				DABB375812E8CB280026A6EA /* TiMediaVideoPlayer.m in Sources */,
-				DABB375912E8CB280026A6EA /* TiUIiPadSplitWindowProxy.m in Sources */,
-				DABB375A12E8CB280026A6EA /* TiUIiPadPopoverProxy.m in Sources */,
-				D54C7D1818115C3C00F592A9 /* TiTransitionZoom.m in Sources */,
-				DABB375C12E8CB280026A6EA /* TiUIiPadProxy.m in Sources */,
-				D5016D7E1B51980800C10890 /* CMDActivityViewController.m in Sources */,
-				DABB375F12E8CB280026A6EA /* TiUIiPadSplitWindowButtonProxy.m in Sources */,
-				DABB376012E8CB280026A6EA /* LauncherButton.m in Sources */,
-				D5412E1919012A0D00B720DF /* UIGestureRecognizer+ADNavTransition.m in Sources */,
-				D5EEA18D1A37486100E8BB3F /* DDTypes.m in Sources */,
-				DABB376112E8CB280026A6EA /* LauncherItem.m in Sources */,
-				DABB376212E8CB280026A6EA /* LauncherView.m in Sources */,
-				DABB376312E8CB280026A6EA /* TiUIDashboardViewProxy.m in Sources */,
-				D51DEFC919D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */,
-				DABB376412E8CB280026A6EA /* TiUIDashboardView.m in Sources */,
-				DABB376512E8CB280026A6EA /* TiUIDashboardItemProxy.m in Sources */,
-				DABB376812E8CB280026A6EA /* TiGradient.m in Sources */,
-				D55131BC1A1DEB1D003A9872 /* TiUIVolumeView.m in Sources */,
-				DABB376912E8CB280026A6EA /* ApplicationRouting.m in Sources */,
-				DABB376A12E8CB280026A6EA /* TiUIiPadSplitWindow.m in Sources */,
-				B606EF4C190B14ED00663EFC /* Reachability.m in Sources */,
-				DABB376B12E8CB280026A6EA /* TopTiModule.m in Sources */,
-				DABB376C12E8CB280026A6EA /* TiApp.m in Sources */,
-				D5AADFAD17EC32A6008987EF /* UIControl+TiUIView.m in Sources */,
-				D586DCC419716E28002FBBBB /* CustomActionSheet.m in Sources */,
-				DABB376D12E8CB280026A6EA /* TiErrorController.m in Sources */,
-				D56E6696180BF0B900F1B737 /* TiTransitionSwipeFade.m in Sources */,
-				DABB376F12E8CB280026A6EA /* TiAudioMusicPlayer.m in Sources */,
-				DABB377012E8CB280026A6EA /* TiAudioItem.m in Sources */,
-				84EB08031A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */,
-				DABB377112E8CB280026A6EA /* TiLayoutQueue.m in Sources */,
-				DABB377312E8CB280026A6EA /* AsyncSocket.m in Sources */,
-				DABB377412E8CB280026A6EA /* AsyncUdpSocket.m in Sources */,
-				DABB377612E8CB280026A6EA /* TiContactsGroup.m in Sources */,
-				DABB377712E8CB280026A6EA /* ApplicationMods.m in Sources */,
-				DABB377812E8CB280026A6EA /* TiUIiOSAdViewProxy.m in Sources */,
-				DABB377912E8CB280026A6EA /* TiUIiOSAdView.m in Sources */,
-				DABB377A12E8CB280026A6EA /* TiUIiOSProxy.m in Sources */,
-				D5EEA1571A37486100E8BB3F /* _DDFunctionTerm.m in Sources */,
-				DABB377E12E8CB280026A6EA /* Webcolor.m in Sources */,
-				D535F3FB1B6E53E300B06B5A /* NJKWebViewProgress.m in Sources */,
-				DABB377F12E8CB280026A6EA /* TiFilesystemBlobProxy.m in Sources */,
-				DABB378012E8CB280026A6EA /* TiUIDashboardItem.m in Sources */,
-				D58DCBD417FF193D0011FE0E /* TiTransitionHelper.m in Sources */,
-				DABB378112E8CB280026A6EA /* MGSplitCornersView.m in Sources */,
-				DABB378212E8CB280026A6EA /* MGSplitDividerView.m in Sources */,
-				DABB378312E8CB280026A6EA /* MGSplitViewController.m in Sources */,
-				D5809D5219129CEB005A1F02 /* APSHTTPHelper.m in Sources */,
-				DABB378412E8CB280026A6EA /* TiStylesheet.m in Sources */,
-				DABB378512E8CB280026A6EA /* TiLocale.m in Sources */,
-				DABB378612E8CB280026A6EA /* LocaleModule.m in Sources */,
-				DABB378712E8CB280026A6EA /* TiUIClipboardProxy.m in Sources */,
-				D54C7D1D18115C5200F592A9 /* TiTransitionSwap.m in Sources */,
-				DABB378812E8CB280026A6EA /* TiPublicAPI.m in Sources */,
-				DABB378912E8CB280026A6EA /* TiThreading.m in Sources */,
-				DABB378B12E8CB280026A6EA /* AudioStreamerCUR.m in Sources */,
-				84EB340217A8CAA700723B1E /* TiWindowProxy.m in Sources */,
-				D512A7AF187F1813004E3AB1 /* ADNavigationControllerDelegate.m in Sources */,
-				D50E112D1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m in Sources */,
-				D5C5EC2E1863584200357DE4 /* TiUILabel.m in Sources */,
-				DABB378C12E8CB280026A6EA /* UIImageExtras.m in Sources */,
-				84A0101017FCA9A700D4BF94 /* TiViewAttachBehavior.m in Sources */,
-				84A00FF217FB39A100D4BF94 /* TiAnimatorProxy.m in Sources */,
-				DABB378E12E8CB280026A6EA /* TiAppiOSProxy.m in Sources */,
-				DABB378F12E8CB280026A6EA /* TiAppiOSBackgroundServiceProxy.m in Sources */,
-				DABB379012E8CB280026A6EA /* TiAppiOSLocalNotificationProxy.m in Sources */,
-				D56D75A31A20DE2E001DEB9D /* TiCollectionView.m in Sources */,
-				DA2B35C4134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */,
-				DABF3ED1134D210400836137 /* TiBuffer.m in Sources */,
-				D55795801837BF6C0057DD41 /* TiViewAnimation.m in Sources */,
-				DABF3ED9134D2CA100836137 /* StreamModule.m in Sources */,
-				D521693E183A598500FBB24B /* TiTransitionAnimation.m in Sources */,
-				DABF3EDE134D2E4400836137 /* TiStreamProxy.m in Sources */,
-				DAA4B2B6134E75AC00AB6011 /* CodecModule.m in Sources */,
-				DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
-				D5F3F9BB19C6D2F90090B547 /* TiAppiOSNotificationActionProxy.m in Sources */,
-				DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */,
-				D5EEA1841A37486100E8BB3F /* DDMathStringTokenizer.m in Sources */,
-				D5FD09DE1830EFE2000FF4C5 /* TiAnimatedImage.m in Sources */,
-				B415067D136745FE0084074A /* TiFilesystemFileStreamProxy.m in Sources */,
-				ABD472F613BB73BF00502912 /* KrollCoverage.m in Sources */,
-				DADD76EB13CCF4FF00CD03AC /* MGSplitView.m in Sources */,
-				2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
-				D56D75AE1A20E18B001DEB9D /* WrapperViewProxy.m in Sources */,
-				2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
-				D557958A1837C1680057DD41 /* TiHLSAnimation.m in Sources */,
-				CA178E9F1B4087F5002A7702 /* TiAppiOSUserActivityProxy.m in Sources */,
-				1DCC543113FF0B0800DF3EE5 /* TIDOMCharacterDataProxy.m in Sources */,
-				D5509FDA194B1C2D00655C61 /* AnalyticsModule.m in Sources */,
-				1D19459813FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
-				D535F3FE1B6E53E300B06B5A /* NJKWebViewProgressView.m in Sources */,
-				1D19459D13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */,
-				D5C8C96C17EF45C900F54C19 /* ADCarrouselTransition.m in Sources */,
-				EF0ADCFC143F9ABF00977386 /* NSData+Additions.m in Sources */,
-				EF0ADD1C143FA0CD00977386 /* GeolocationModule.m in Sources */,
-				D55B29B41ACC27E6008C0279 /* TiMemoryCache.m in Sources */,
-				2B1F65791431031E006C5D37 /* ApplicationDefaults.m in Sources */,
-				848C2596145F37A300E1B0F1 /* TiDOMCDATANodeProxy.m in Sources */,
-				D5216936183A10AC00FBB24B /* CAAnimation+Blocks.m in Sources */,
-				D5EEA1511A37486100E8BB3F /* _DDFunctionEvaluator.m in Sources */,
-				D5C8C97B17EF45C900F54C19 /* ADFlipTransition.m in Sources */,
-				848C259C145F3FE200E1B0F1 /* TiDOMCommentProxy.m in Sources */,
-				848C25A1145F46C300E1B0F1 /* TiDOMPIProxy.m in Sources */,
-				D53DC7BA19CF427100BB31C9 /* UIImage+Scale.m in Sources */,
-				D54C7CF51811570B00F592A9 /* TiTransition.m in Sources */,
-				D5162EAA1A20D1F7008A4048 /* TiUICollectionView.m in Sources */,
-				848C25A6145F501700E1B0F1 /* TiDOMDocFragProxy.m in Sources */,
-				84D541A51460B2E0005338D1 /* TiDOMNotationProxy.m in Sources */,
-				84D541AA1460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
-				84D541AF1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
-				B6465C2518D10126003C51A8 /* TiNetworkCookieProxy.m in Sources */,
-				2BDEA4F614490547004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
-				844E1F8014883A3700F5424C /* TiDOMValidator.m in Sources */,
-				D5370D96194749DF000E30FC /* TiParentingProxy.m in Sources */,
-				DAA72345156D642400757987 /* TiConsole.m in Sources */,
-				2B353A8315901D41008FBD84 /* Ti3DMatrix.m in Sources */,
-				D56E66A0180C3BEB00F1B737 /* TiTransitionCarousel.m in Sources */,
-				2B0B6E0E15951F9400F3170F /* TiUIiOSDocumentViewerProxy.m in Sources */,
-				D5E9511E195DC34800DB8B37 /* TiProperties.m in Sources */,
-				D5EEA1751A37486100E8BB3F /* DDExpression.m in Sources */,
-				D54C7D0418115BD100F592A9 /* TitransitionBackFade.m in Sources */,
-				4688700915E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */,
-				1D1029AA15F9769200372EC0 /* TiBindingEvent.m in Sources */,
-				1D0061C3160283820016BBEE /* TiBindingRunLoop.m in Sources */,
-				D55131C11A1DEB36003A9872 /* TiUIVolumeViewProxy.m in Sources */,
-				1DD9388E1609230900091777 /* TiBindingTiValue.m in Sources */,
-				5081CEFA15F8100E00C881D8 /* TiExceptionHandler.m in Sources */,
-				D93DAA5216CBF8CB00AD64C9 /* CalendarModule.m in Sources */,
-				D93DAA5716CBF8E500AD64C9 /* TiCalendarCalendar.m in Sources */,
-				D93DAA5C16CBF8FB00AD64C9 /* TiCalendarAlert.m in Sources */,
-				D93DAA6116CBF91100AD64C9 /* TiCalendarEvent.m in Sources */,
-				D93DAA6616CBFC7C00AD64C9 /* TiCalendarReminder.m in Sources */,
-				D5EEA1661A37486100E8BB3F /* _DDParserTerm.m in Sources */,
-				D930112016DA9D63002E25C2 /* TiCalendarRecurrenceRule.m in Sources */,
-				502A68DC16EEAA7500661EF6 /* TiUIListItem.m in Sources */,
-				502A68DF16EEAA7500661EF6 /* TiUIListItemProxy.m in Sources */,
-				502A68E216EEAA7500661EF6 /* TiUIListSectionProxy.m in Sources */,
-				502A68E516EEAA7500661EF6 /* TiUIListView.m in Sources */,
-				502A68E816EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */,
-				D5C8C97217EF45C900F54C19 /* ADCubeTransition.m in Sources */,
-				502A68ED16F0428500661EF6 /* TiProxyTemplate.m in Sources */,
-				D5C92DA9182AA88F0072D117 /* TouchDelegate_Views.m in Sources */,
-				84C3870417417CB800970D26 /* TiSelectedCellbackgroundView.m in Sources */,
-				D590815E168B593B00362307 /* TiUIHorizontalTableView.m in Sources */,
-				D5908161168B593B00362307 /* TiUIHorizontalTableViewProxy.m in Sources */,
-				D56915D1168F2E7400C3F89F /* TiUILabelProxy.m in Sources */,
-				D5EEA1811A37486100E8BB3F /* DDMathStringToken.m in Sources */,
-				D5EEA1601A37486100E8BB3F /* _DDNumberTerm.m in Sources */,
-				D56915D7168F538F00C3F89F /* TTTAttributedLabel.m in Sources */,
-				D522FE0F16D2AC8D008C6CC4 /* JRSwizzle.m in Sources */,
-				D5C8C99017EF45C900F54C19 /* ADSwapTransition.m in Sources */,
-				D57644BB1A1B7F9C00322E0D /* TiAudioStreamerProxy.m in Sources */,
-				D52A8E75183606F6001AC6A1 /* TiAnimatableProxy.m in Sources */,
-				D50E11321A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */,
-				D5B04537191D2EC4001CF02F /* TiFileSystemHelper.m in Sources */,
-				D5C8C9A217EF45C900F54C19 /* ADZoomTransition.m in Sources */,
-				D58709BD19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */,
-				D5C8C98A17EF45C900F54C19 /* ADScaleTransition.m in Sources */,
-				D5EEA14E1A37486100E8BB3F /* _DDDecimalFunctions.m in Sources */,
-				D56E66AA180C664400F1B737 /* TiTransitionFade.m in Sources */,
-				D5C8C97E17EF45C900F54C19 /* ADFoldTransition.m in Sources */,
-				D5C8C99317EF45C900F54C19 /* ADSwipeFadeTransition.m in Sources */,
-				D59EC23F180FDC5D00FDDD11 /* TiTransitionFold.m in Sources */,
-				D5162EA41A20D1F7008A4048 /* TiUICollectionItemProxy.m in Sources */,
-				D5C8C99C17EF45C900F54C19 /* ADTransition.m in Sources */,
-				D5C8C9A517EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */,
-				D51F03DB1808411F005B4EE2 /* TiImageHelper.m in Sources */,
-				D5EEA1631A37486100E8BB3F /* _DDOperatorTerm.m in Sources */,
-				D5162EAD1A20D1F7008A4048 /* TiUICollectionViewProxy.m in Sources */,
-				D56E66A5180C60E600F1B737 /* TiTransitionFlip.m in Sources */,
-				D5C8C98117EF45C900F54C19 /* ADGhostTransition.m in Sources */,
-				D5C8C99F17EF45C900F54C19 /* ADTransitionController.m in Sources */,
-				D5C8C98717EF45C900F54C19 /* ADPushRotateTransition.m in Sources */,
-				D526016E179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m in Sources */,
-				D51697F417FFF63300B4FDB8 /* ImageModule.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -6609,22 +5274,26 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
 				COPY_PHASE_STRIP = NO;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
 				);
+				ENABLE_BITCODE = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = Titanium.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
@@ -6633,15 +5302,9 @@
 					"/Volumes/data/mguillon/Desktop/ios/build/Debug-iphoneos",
 					"/Volumes/data/dev/titanium/modules/akylas_modules/camera/ios/build/Debug-iphoneos",
 				);
-				OTHER_CFLAGS = (
-					"-DDEBUG",
-					"-DTI_POST_1_2",
-				);
+				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_NAME = Titanium;
-				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -6650,19 +5313,23 @@
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
 				COPY_PHASE_STRIP = YES;
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
 				);
+				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = Titanium.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
@@ -6672,68 +5339,7 @@
 					"/Volumes/data/dev/titanium/modules/akylas_modules/camera/ios/build/Debug-iphoneos",
 				);
 				PRODUCT_NAME = Titanium;
-				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-Bridging-Header.h";
-				TARGETED_DEVICE_FAMILY = 1;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		24D8E4AF119B9D8A00F8CAA6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
-				GCC_THUMB_SUPPORT = NO;
-				INFOPLIST_FILE = Titanium.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
-				);
-				OTHER_CFLAGS = (
-					"-DIPAD",
-					"-DTI_POST_1_2",
-					"-DDEBUG",
-				);
-				PRODUCT_NAME = Titanium;
-				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-iPad-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGETED_DEVICE_FAMILY = 2;
-			};
-			name = Debug;
-		};
-		24D8E4B0119B9D8A00F8CAA6 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				COPY_PHASE_STRIP = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
-				GCC_THUMB_SUPPORT = NO;
-				INFOPLIST_FILE = Titanium.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
-				);
-				OTHER_CFLAGS = (
-					"-DIPAD",
-					"-DTI_POST_1_2",
-				);
-				PRODUCT_NAME = Titanium;
-				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-iPad-Bridging-Header.h";
-				TARGETED_DEVICE_FAMILY = 2;
-				VALIDATE_PRODUCT = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -6741,8 +5347,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -6752,20 +5360,18 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../libexternals\"";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
 				GCC_WARN_MISSING_PARENTHESES = NO;
-				GCC_WARN_SHADOW = NO;
-				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
-				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
@@ -6776,24 +5382,20 @@
 					"$(SRCROOT)/../headers/**",
 					"${BUILT_PRODUCTS_DIR}/include/**",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
 					"\"$(SRCROOT)/../libexternals\"",
 					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = (
-					"-DDEBUG",
-					"-DTI_POST_1_2",
-				);
+				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
-				USER_HEADER_SEARCH_PATHS = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -6801,8 +5403,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
@@ -6812,6 +5416,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../libexternals\"";
 				GCC_C_LANGUAGE_STANDARD = c99;
@@ -6819,13 +5424,9 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = NO;
 				GCC_WARN_MISSING_PARENTHESES = NO;
-				GCC_WARN_SHADOW = NO;
-				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
-				GCC_WARN_UNDECLARED_SELECTOR = NO;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_PARAMETER = NO;
@@ -6836,7 +5437,6 @@
 					"$(SRCROOT)/../headers/**",
 					"${BUILT_PRODUCTS_DIR}/include/**",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../lib\"",
@@ -6844,245 +5444,11 @@
 					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
 				);
 				OTHER_CFLAGS = "-DTI_POST_1_2";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = iphoneos;
-				USER_HEADER_SEARCH_PATHS = "";
-			};
-			name = Release;
-		};
-		DA60651C155C6EB200CEA37C /* Developer */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../libexternals\"";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
-				GCC_THUMB_SUPPORT = NO;
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = NO;
-				GCC_WARN_MISSING_PARENTHESES = NO;
-				GCC_WARN_SHADOW = NO;
-				GCC_WARN_STRICT_SELECTOR_MATCH = NO;
-				GCC_WARN_UNDECLARED_SELECTOR = NO;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_PARAMETER = NO;
-				GCC_WARN_UNUSED_VALUE = NO;
-				GCC_WARN_UNUSED_VARIABLE = NO;
-				HEADER_SEARCH_PATHS = (
-					"${\"SDKROOT\"}/usr/include/libxml2",
-					"$(SRCROOT)/../headers/**",
-					"${BUILT_PRODUCTS_DIR}/include/**",
-				);
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../lib\"",
-					"\"$(SRCROOT)/../libexternals\"",
-					"\"$(SRCROOT)/../Classes/APSAnalytics\"",
-				);
-				OTHER_CFLAGS = (
-					"-DDEBUG",
-					"-DTI_POST_1_2",
-					"-DDEVELOPER",
-				);
-				OTHER_LDFLAGS = "-ObjC";
-				PROVISIONING_PROFILE = "";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				RUN_CLANG_STATIC_ANALYZER = NO;
-				SDKROOT = iphoneos;
-				USER_HEADER_SEARCH_PATHS = "";
-			};
-			name = Developer;
-		};
-		DA60651D155C6EB200CEA37C /* Developer */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				COPY_PHASE_STRIP = NO;
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
-				);
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_CPP_RTTI = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
-				GCC_THUMB_SUPPORT = NO;
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				INFOPLIST_FILE = Titanium.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/lib,
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
-					"/Volumes/data/mguillon/Desktop/ios/build/Debug-iphoneos",
-					"/Volumes/data/dev/titanium/modules/akylas_modules/camera/ios/build/Debug-iphoneos",
-				);
-				OTHER_CFLAGS = (
-					"-DDEBUG",
-					"-DTI_POST_1_2",
-				);
-				PRODUCT_NAME = Titanium;
-				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Developer;
-		};
-		DA60651E155C6EB200CEA37C /* Developer */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
-				GCC_THUMB_SUPPORT = NO;
-				INFOPLIST_FILE = Titanium.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
-				);
-				OTHER_CFLAGS = (
-					"-DIPAD",
-					"-DTI_POST_1_2",
-					"-DDEBUG",
-				);
-				PRODUCT_NAME = Titanium;
-				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-iPad-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGETED_DEVICE_FAMILY = 2;
-			};
-			name = Developer;
-		};
-		DA60651F155C6EB200CEA37C /* Developer */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
-				GCC_THUMB_SUPPORT = NO;
-				INFOPLIST_FILE = Titanium.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
-				);
-				OTHER_CFLAGS = (
-					"-DIPAD",
-					"-DTI_POST_1_2",
-					"-DDEBUG",
-				);
-				"OTHER_CFLAGS[arch=*]" = (
-					"-DIPAD",
-					"-DTI_POST_1_2",
-					"-DDEBUG",
-				);
-				PRODUCT_NAME = Titanium;
-				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-universal-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Developer;
-		};
-		DABB37BA12E8CB280026A6EA /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
-				GCC_THUMB_SUPPORT = NO;
-				INFOPLIST_FILE = Titanium.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
-				);
-				OTHER_CFLAGS = (
-					"-DIPAD",
-					"-DTI_POST_1_2",
-					"-DDEBUG",
-				);
-				"OTHER_CFLAGS[arch=*]" = (
-					"-DIPAD",
-					"-DTI_POST_1_2",
-					"-DDEBUG",
-				);
-				PRODUCT_NAME = Titanium;
-				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-universal-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		DABB37BB12E8CB280026A6EA /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 241EAEC5118E2BA90081A5BE /* project.xcconfig */;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				COPY_PHASE_STRIP = YES;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
-				GCC_THUMB_SUPPORT = NO;
-				INFOPLIST_FILE = Titanium.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/Classes/APSAnalytics,
-					/Volumes/data/dev/titanium/titanium_mobile/iphone/libexternals,
-				);
-				OTHER_CFLAGS = (
-					"-DIPAD",
-					"-DTI_POST_1_2",
-				);
-				PRODUCT_NAME = Titanium;
-				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = "Titanium-KitchenSink-universal-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -7091,22 +5457,11 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink" */ = {
+		1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Titanium" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
-				DA60651D155C6EB200CEA37C /* Developer */,
 				1D6058950D05DD3E006BFB54 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		24D8E4AE119B9D8A00F8CAA6 /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink-iPad" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				24D8E4AF119B9D8A00F8CAA6 /* Debug */,
-				DA60651E155C6EB200CEA37C /* Developer */,
-				24D8E4B0119B9D8A00F8CAA6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -7115,18 +5470,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
-				DA60651C155C6EB200CEA37C /* Developer */,
 				C01FCF5008A954540054247B /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		DABB37B912E8CB280026A6EA /* Build configuration list for PBXNativeTarget "Titanium-KitchenSink-universal" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				DABB37BA12E8CB280026A6EA /* Debug */,
-				DA60651F155C6EB200CEA37C /* Developer */,
-				DABB37BB12E8CB280026A6EA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

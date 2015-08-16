@@ -179,7 +179,7 @@ static NSDictionary* listViewKeysToReplace;
         block(nil);
         TiThreadPerformOnMainThread(^{
             [self.listView updateSearchResults:nil];
-        }, NO);
+        }, [NSThread isMainThread]);
         return;
     }
     
@@ -662,7 +662,7 @@ static NSDictionary* listViewKeysToReplace;
         NSUInteger itemIndex = [TiUtils intValue:[args objectAtIndex:1]];
         NSDictionary *options = [args count] > 2 ? [args objectAtIndex:2] : nil;
         BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
-        TiThreadPerformOnMainThread(^{
+        TiThreadPerformBlockOnMainThread(^{
             if ([_sections count] <= sectionIndex) {
                 DebugLog(@"[WARN] ListView: Select section index is out of range");
                 return;

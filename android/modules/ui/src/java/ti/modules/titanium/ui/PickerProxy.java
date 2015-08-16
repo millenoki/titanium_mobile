@@ -47,7 +47,7 @@ import android.widget.TimePicker;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
         "locale", "visibleItems",
-        TiC.PROPERTY_CALENDAR_VIEW_SHOWN, TiC.PROPERTY_FONT })
+        TiC.PROPERTY_SELECTION_OPENS, TiC.PROPERTY_CALENDAR_VIEW_SHOWN, TiC.PROPERTY_FONT })
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class PickerProxy extends ViewProxy implements PickerColumnListener {
     private int type = UIModule.PICKER_TYPE_PLAIN;
@@ -565,13 +565,16 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
 //                dict.getBoolean("animated"));
 //    }
 
-//    private void handleSelectRow(int column, int row, boolean animated) {
-//        if (peekView() == null) {
-//            return;
-//        }
-//        ((TiUIPicker) peekView()).selectRow(column, row, animated);
-//        ((TiUIPicker) peekView()).openPicker();
-//    }
+	private void handleSelectRow(int column, int row, boolean animated)
+	{
+		if (peekView() == null) {
+			return;
+		}
+		((TiUIPicker)peekView()).selectRow(column, row, animated);
+		if (TiConvert.toBoolean(getProperty(TiC.PROPERTY_SELECTION_OPENS), false)) {
+			((TiUIPicker)peekView()).openPicker();
+		}
+	}
 
     public int getColumnCount() {
         return getChildrenCount();
