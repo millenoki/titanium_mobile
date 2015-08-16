@@ -47,6 +47,20 @@ static ClipboardType mimeTypeToDataType(NSString *mimeType)
 	}
 }
 
+static NSString * dataTypeToString(ClipboardType mimeType)
+{
+    switch (mimeType ){
+        case CLIPBOARD_URI_LIST:
+            return @"url";
+            case CLIPBOARD_IMAGE:
+            return @"image";
+        case CLIPBOARD_TEXT:
+            return @"text";
+            default:
+            return nil;
+    }
+ }
+
 static NSString *mimeTypeToUTType(NSString *mimeType)
 {
 	NSString *uti = [(NSString *)UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, (CFStringRef)mimeType, NULL) autorelease];
@@ -57,12 +71,89 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 	return uti;
 }
 
-@implementation TiUIClipboardProxy
+@implementation TiUIClipboardProxy {
+    NSUInteger pasteboardChangeCount_;
+    BOOL _registeredForChange;
+}
 
 -(NSString*)apiName
 {
     return @"Ti.UI.Clipboard";
 }
+-(void)startup
+{
+    pasteboardChangeCount_ = 0;
+    _registeredForChange = NO;
+    [super startup];
+}
+
+-(void)dealloc
+{
+    TiThreadPerformOnMainThread(^{
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+    }, YES);
+    
+    [super dealloc];
+}
+
+-(void)_listenerAdded:(NSString*)type count:(NSInteger)count
+{
+    if (count == 1 && [type isEqual:@"change"])
+    {
+        pasteboardChangeCount_ = 0;
+        _registeredForChange = YES;
+        TiThreadPerformOnMainThread(^{
+            [[NSNotificationCenter defaultCenter]
+             addObserver:self
+             selector:@selector(pasteboardChangedNotification:)
+             name:UIPasteboardChangedNotification
+             object:[UIPasteboard generalPasteboard]];
+            [[NSNotificationCenter defaultCenter]
+             addObserver:self
+             selector:@selector(pasteboardChangedNotification:)
+             name:UIPasteboardRemovedNotification
+             object:[UIPasteboard generalPasteboard]];
+        }, YES);
+    }
+}
+
+-(void)_listenerRemoved:(NSString*)type count:(NSInteger)count
+{
+    if (count == 0 && [type isEqual:@"change"])
+    {
+        _registeredForChange = NO;
+        TiThreadPerformOnMainThread(^{
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:UIPasteboardChangedNotification object:[UIPasteboard generalPasteboard]];
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:UIPasteboardRemovedNotification object:[UIPasteboard generalPasteboard]];
+        }, YES);
+    }
+}
+
+- (void)pasteboardChangedNotification:(NSNotification*)notification {
+    pasteboardChangeCount_ = [UIPasteboard generalPasteboard].changeCount;
+    UIPasteboard *board = [UIPasteboard generalPasteboard];
+    NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+    if (board.URL) {
+        [dict setObject:[board.URL absoluteString] forKey:dataTypeToString(CLIPBOARD_URI_LIST)];
+    }
+    if (board.image) {
+        [dict setObject:[[[TiBlob alloc] initWithImage: board.image] autorelease] forKey:dataTypeToString(CLIPBOARD_IMAGE)];
+    }
+    if (board.string) {
+        [dict setObject:board.string forKey:dataTypeToString(CLIPBOARD_TEXT)];
+    }
+    [self fireEvent:@"change" withObject:dict];
+}
+
+-(void)resumed:(id)sender
+{
+    if (pasteboardChangeCount_ != [UIPasteboard generalPasteboard].changeCount) {
+        [[NSNotificationCenter defaultCenter]
+         postNotificationName:UIPasteboardChangedNotification
+         object:[UIPasteboard generalPasteboard]];
+    }
+}
+
 
 -(void)clearData:(id)arg
 {
