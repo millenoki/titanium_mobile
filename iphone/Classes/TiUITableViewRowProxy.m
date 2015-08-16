@@ -170,7 +170,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
         RELEASE_TO_NIL(view);
     }, YES);
 #endif
-	rowContainerView = nil;
+	view = nil;
 	[callbackCell setProxy:nil];
 	callbackCell = nil;
 	[super _destroy];

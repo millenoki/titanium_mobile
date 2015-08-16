@@ -1976,7 +1976,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)dealloc
 {
-        if (controller != nil) {
+    if (controller != nil) {
         [controller detachProxy]; //make the controller knows we are done
 #ifdef TI_USE_KROLL_THREAD
         TiThreadReleaseOnMainThread(controller, NO);
@@ -1986,7 +1986,8 @@ SEL GetterForKrollProperty(NSString * key)
             RELEASE_TO_NIL(controller);
         }, YES);
 #endif
-	RELEASE_TO_NIL(destroyLock);	
+    }
+	RELEASE_TO_NIL(destroyLock);
 	
 	[super dealloc];
 }

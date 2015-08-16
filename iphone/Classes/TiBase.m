@@ -259,18 +259,8 @@ NSString *JavascriptNameForClass(Class c)
 	}
 	return NSStringFromClass(c);
 }
-#ifdef TI_USE_KROLL_THREAD
 
-void TiThreadPerformBlockOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
-{
-    if ([NSThread isMainThread]) {
-        mainBlock();
-    }
-    else
-    {
-        TiThreadPerformOnMainThread(mainBlock, waitForFinish);
-    }
-}
+#ifdef TI_USE_KROLL_THREAD
 
 void TiThreadReleaseOnMainThread(id releasedObject,BOOL waitForFinish)
 {
@@ -324,6 +314,7 @@ void TiThreadInitalize()
 	TiThreadBlockQueue = [[NSMutableArray alloc] initWithCapacity:10];
 }
 #endif
+
 
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
@@ -419,6 +410,17 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
         dispatch_async(dispatch_get_main_queue(), mainBlock);
     }
 #endif
+}
+
+void TiThreadPerformBlockOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
+{
+    if ([NSThread isMainThread]) {
+        mainBlock();
+    }
+    else
+    {
+        TiThreadPerformOnMainThread(mainBlock, waitForFinish);
+    }
 }
 
 
