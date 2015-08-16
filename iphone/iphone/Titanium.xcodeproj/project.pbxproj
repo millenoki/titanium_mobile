@@ -269,6 +269,12 @@
 		D5162EA81A20D1F7008A4048 /* TiUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5162E9C1A20D1F7008A4048 /* TiUICollectionView.m */; };
 		D5162EAB1A20D1F7008A4048 /* TiUICollectionViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5162E9E1A20D1F7008A4048 /* TiUICollectionViewProxy.m */; };
 		D51697F217FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
+		D518BD121B80D1BB0075199D /* libakylas.bluetooth.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5BE1B80C01D00C13E78 /* libakylas.bluetooth.a */; };
+		D518BD131B80D1BB0075199D /* libakylas.camera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C21B80C01D00C13E78 /* libakylas.camera.a */; };
+		D518BD141B80D1BB0075199D /* libakylas.charts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C61B80C01D00C13E78 /* libakylas.charts.a */; };
+		D518BD151B80D1BB0075199D /* libakylas.commonjs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5CA1B80C01D00C13E78 /* libakylas.commonjs.a */; };
+		D518BD161B80D1BB0075199D /* libakylas.shapes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5CE1B80C01D00C13E78 /* libakylas.shapes.a */; };
+		D518BD171B80D1BB0075199D /* libakylas.slidemenu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5D21B80C01D00C13E78 /* libakylas.slidemenu.a */; };
 		D51D5AC41A4C682E00B0BC5D /* TableView_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */; };
 		D51DEFC719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D51DEFCA19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB919D9ACDA00CF28B0 /* ActionSheetCustomPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -509,6 +515,48 @@
 			proxyType = 2;
 			remoteGlobalIDString = D2AAC07E0554694100DB518D;
 			remoteInfo = akylas.slidemenu;
+		};
+		D518BCFB1B80D1A30075199D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = akylas.camera;
+		};
+		D518BD081B80D1A50075199D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D50720381B344E1A005B31E5 /* akylas.bluetooth.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = akylas.bluetooth;
+		};
+		D518BD0A1B80D1A80075199D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D5EE1BE31860CAB900579573 /* akylas.commonjs.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = akylas.commonjs;
+		};
+		D518BD0C1B80D1AA0075199D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D59A20B9194AF3C800BC5B93 /* akylas.charts.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = akylas.charts;
+		};
+		D518BD0E1B80D1AE0075199D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = akylas.slidemenu;
+		};
+		D518BD101B80D1B10075199D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC07D0554694100DB518D;
+			remoteInfo = akylas.shapes;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1681,6 +1729,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D518BD121B80D1BB0075199D /* libakylas.bluetooth.a in Frameworks */,
+				D518BD131B80D1BB0075199D /* libakylas.camera.a in Frameworks */,
+				D518BD141B80D1BB0075199D /* libakylas.charts.a in Frameworks */,
+				D518BD151B80D1BB0075199D /* libakylas.commonjs.a in Frameworks */,
+				D518BD161B80D1BB0075199D /* libakylas.shapes.a in Frameworks */,
+				D518BD171B80D1BB0075199D /* libakylas.slidemenu.a in Frameworks */,
 				D55B2DCD1ACC5EF5008C0279 /* libFMDB-IOS.a in Frameworks */,
 				D5937DBC1A24DCFD0098DA47 /* libicucore.dylib in Frameworks */,
 				D5937D9B1A24DCA80098DA47 /* libresolv.dylib in Frameworks */,
@@ -3881,6 +3935,12 @@
 			buildRules = (
 			);
 			dependencies = (
+				D518BD111B80D1B10075199D /* PBXTargetDependency */,
+				D518BD0F1B80D1AE0075199D /* PBXTargetDependency */,
+				D518BD0D1B80D1AA0075199D /* PBXTargetDependency */,
+				D518BD0B1B80D1A80075199D /* PBXTargetDependency */,
+				D518BD091B80D1A50075199D /* PBXTargetDependency */,
+				D518BCFC1B80D1A30075199D /* PBXTargetDependency */,
 				D526745C1B58E75600D442E5 /* PBXTargetDependency */,
 				D507203F1B344E29005B31E5 /* PBXTargetDependency */,
 				D59A20C6194AF3D300BC5B93 /* PBXTargetDependency */,
@@ -4462,6 +4522,36 @@
 		D507203F1B344E29005B31E5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = akylas.bluetooth;
+		};
+		D518BCFC1B80D1A30075199D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = akylas.camera;
+			targetProxy = D518BCFB1B80D1A30075199D /* PBXContainerItemProxy */;
+		};
+		D518BD091B80D1A50075199D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = akylas.bluetooth;
+			targetProxy = D518BD081B80D1A50075199D /* PBXContainerItemProxy */;
+		};
+		D518BD0B1B80D1A80075199D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = akylas.commonjs;
+			targetProxy = D518BD0A1B80D1A80075199D /* PBXContainerItemProxy */;
+		};
+		D518BD0D1B80D1AA0075199D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = akylas.charts;
+			targetProxy = D518BD0C1B80D1AA0075199D /* PBXContainerItemProxy */;
+		};
+		D518BD0F1B80D1AE0075199D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = akylas.slidemenu;
+			targetProxy = D518BD0E1B80D1AE0075199D /* PBXContainerItemProxy */;
+		};
+		D518BD111B80D1B10075199D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = akylas.shapes;
+			targetProxy = D518BD101B80D1B10075199D /* PBXContainerItemProxy */;
 		};
 		D526745C1B58E75600D442E5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
