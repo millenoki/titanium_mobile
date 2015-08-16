@@ -305,6 +305,11 @@ static NSDictionary* listViewKeysToReplace;
     return [self.listView shouldHighlightCurrentListItem];
 }
 
+
+-(BOOL)editing {
+    return [self.listView editing];
+}
+
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath {
     return [self.listView nextIndexPath:indexPath];
 }

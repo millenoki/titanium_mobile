@@ -547,6 +547,10 @@ static NSDictionary* replaceKeysForRow;
     return [_tableView shouldHighlightCurrentListItem];
 }
 
+-(BOOL)editing {
+    return editing;
+}
+
 #pragma mark - Helper Methods
 
 -(CGFloat)computeRowWidth:(UITableView*)tableView

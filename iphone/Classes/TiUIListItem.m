@@ -679,9 +679,9 @@ static NSArray* handledKeys;
     }
 }
 
-//- (void)layoutSubviews
-//{
-//    if (_templateStyle == TiUIListItemTemplateStyleCustom) {
+- (void)layoutSubviews
+{
+    if (_templateStyle == TiUIListItemTemplateStyleCustom) {
 //        TiViewAnimationStep* anim = [_proxy runningAnimation];
 //        if (anim)
 //        {
@@ -692,11 +692,11 @@ static NSArray* handledKeys;
 //            return;
 //////        }
 ////        else {
-////            [_proxy refreshViewIfNeeded:YES];
+            [_proxy refreshViewIfNeeded:YES];
 //        }
-//    }
-//    [super layoutSubviews];
-//}
+    }
+    [super layoutSubviews];
+}
 
 
 //override to get the correct backgroundColor

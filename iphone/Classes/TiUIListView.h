@@ -25,6 +25,7 @@
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
 -(BOOL)shouldHighlightCurrentListItem;
+-(BOOL)editing;
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
 -(NSMutableArray*)visibleCellsProxies;
 

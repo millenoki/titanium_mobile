@@ -437,8 +437,9 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 {
 	NSMutableDictionary *updatedEventObject = [eventObject mutableCopy];
     [updatedEventObject setObject:_listItem.dataItem forKey:@"item"];
-	[updatedEventObject setObject:NUMINTEGER(_indexPath.section) forKey:@"sectionIndex"];
-	[updatedEventObject setObject:NUMINTEGER(_indexPath.row) forKey:@"itemIndex"];
+	[updatedEventObject setObject:@(_indexPath.section) forKey:@"sectionIndex"];
+    [updatedEventObject setObject:@(_indexPath.row) forKey:@"itemIndex"];
+    [updatedEventObject setObject:@(_listViewProxy.editing) forKey:@"editing"];
 	[updatedEventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
 	id propertiesValue = [_listItem.dataItem objectForKey:@"properties"];
 	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
