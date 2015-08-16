@@ -2082,31 +2082,39 @@ iOSBuilder.prototype.run = function(logger, config, cli, finished) {
 		//	ti.validateAppJsExists(this.projectDir, this.logger, ['iphone', 'ios']);
 		//},
 
-		// xcode related tasks
-		'createXcodeProject',
-		'writeEntitlementsPlist',
-		'writeInfoPlist',
-		'writeMain',
-		'writeXcodeConfigFiles',
-		'copyTitaniumLibraries',
-		'copyTitaniumiOSFiles',
-		'copyExtensionFiles',
-		'cleanXcodeDerivedData',
+		function (next) {
+			if (this.forceRebuild) {
+			series(this, [
+				// xcode related tasks
+					'createXcodeProject',
+					'writeEntitlementsPlist',
+					'writeInfoPlist',
+					'writeMain',
+					'writeXcodeConfigFiles',
+					'copyTitaniumLibraries',
+					'copyTitaniumiOSFiles',
+					'copyExtensionFiles',
+					'cleanXcodeDerivedData',
 
-		// titanium related tasks
-		'writeDebugProfilePlists',
-		'copyItunesArtwork',
-		'copyResources',
-		'encryptJSFiles',
-		'writeI18NFiles',
-		'processTiSymbols',
+					// titanium related tasks
+					'writeDebugProfilePlists',
+					'copyItunesArtwork',
+					'copyResources',
+					'encryptJSFiles',
+					'writeI18NFiles',
+					'processTiSymbols',
 
-		// cleanup and optimization
-		'removeFiles',
-		'optimizeFiles',
+					// cleanup and optimization
+					'removeFiles',
+					'optimizeFiles',
 
-		// build baby, build
-		'invokeXcodeBuild',
+					// build baby, build
+					'invokeXcodeBuild',
+				], next);
+			} else {
+				next();
+			}
+		},
 
 		// finalize
 		'writeBuildManifest',
@@ -2344,6 +2352,11 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 		return false;
 	}.call(this);
 
+	if (!this.forceCleanBuild && this.deployType !== 'development') {
+		this.logger.info(__('Forcing rebuild: deploy type is %s, so need to recompile ApplicationRouting.m', this.deployType));
+		this.forceCleanBuild = true;
+	}
+
 	// if true, this will cause xcodebuild to be called
 	// if false, it's possible that other steps after this will force xcodebuild to be called
 	this.forceRebuild = this.forceCleanBuild || function() {
@@ -2519,6 +2532,10 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 };
 
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
+	if (!this.forceRebuild) {
+		delete this.buildDirFiles[path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')];
+		return next();
+	}
 	this.logger.info(__('Creating Xcode project'));
 
 	var logger = this.logger,
@@ -3640,7 +3657,8 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 		}),
 		dest = path.join(this.buildDir, 'main.m');
 
-	if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+	// if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
+	if (!fs.existsSync(dest)) {
 		if (!this.forceRebuild) {
 			this.logger.info(__('Forcing rebuild: %s has changed since last build', 'main.m'));
 			this.forceRebuild = true;
@@ -4788,14 +4806,14 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					unsymlinkable = unsymlinkableFileRegExp.test(path.basename(file)),
 					contents = info.contents || null,
 					hash = null,
-					fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !==
-					(hash = this.hash(contents = contents || fs.readFileSync(info.src)));
+					fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || 
+					((!this.symlinkFilesOnCopy  || unsymlinkable) &&  prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src))));
 
 				if (!fileChanged || !this.copyFileSync(info.src, info.dest, {
 						contents: contents || (contents = fs.readFileSync(info.src)),
 						forceCopy: unsymlinkable
 					})) {
-					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+					// this.logger.trace(__('No change, skipping %s', info.dest.cyan));
 				}
 
 				this.currentBuildManifest.files[file] = {
@@ -5298,6 +5316,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 };
 
 iOSBuilder.prototype.removeFiles = function removeFiles(next) {
+
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', this.tiapp.name + '.build'));
 	this.products.forEach(function(product) {
 		this.unmarkBuildDirFiles(path.join(this.iosBuildDir, product));
@@ -5332,6 +5351,7 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 };
 
 iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
+
 	// if we're doing a simulator build, return now since we don't care about optimizing images
 	if (this.target === 'simulator') {
 		return next();
@@ -5411,10 +5431,6 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 };
 
 iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
-	if (!this.forceRebuild) {
-		this.logger.info(__('Skipping xcodebuild'));
-		return next();
-	}
 
 	this.logger.info(__('Invoking xcodebuild'));
 
