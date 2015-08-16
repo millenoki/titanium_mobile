@@ -284,150 +284,67 @@
     }
 }
 
-- (UIImage*)defaultImageForOrientation:(UIDeviceOrientation) orientation resultingOrientation:(UIDeviceOrientation *)imageOrientation idiom:(UIUserInterfaceIdiom*) imageIdiom
++ (NSString *)splashImageNameForOrientation:(UIDeviceOrientation)orientation
 {
-	UIImage* image;
-	
-	if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
-	{
-		*imageOrientation = orientation;
-		*imageIdiom = UIUserInterfaceIdiomPad;
-		// Specific orientation check
-		switch (orientation) {
-			case UIDeviceOrientationPortrait:
-				image = [UIImage imageNamed:@"Default-Portrait.png"];
-				break;
-			case UIDeviceOrientationPortraitUpsideDown:
-				image = [UIImage imageNamed:@"Default-PortraitUpsideDown.png"];
-				break;
-			case UIDeviceOrientationLandscapeLeft:
-				image = [UIImage imageNamed:@"Default-LandscapeLeft.png"];
-				break;
-			case UIDeviceOrientationLandscapeRight:
-				image = [UIImage imageNamed:@"Default-LandscapeRight.png"];
-				break;
-			default:
-				image = nil;
-		}
-		if (image != nil) {
-			return image;
-		}
-		
-		// Generic orientation check
-		if (UIDeviceOrientationIsPortrait(orientation)) {
-			image = [UIImage imageNamed:@"Default-Portrait.png"];
-		}
-		else if (UIDeviceOrientationIsLandscape(orientation)) {
-			image = [UIImage imageNamed:@"Default-Landscape.png"];
-		}
-		
-		if (image != nil) {
-			return image;
-		}
-	}
-	*imageOrientation = UIDeviceOrientationPortrait;
-	*imageIdiom = UIUserInterfaceIdiomPhone;
-	// Default
-    image = nil;
-    if ([TiUtils isRetinaHDDisplay]) {
-        if (UIDeviceOrientationIsPortrait(orientation)) {
-            image = [UIImage imageNamed:@"Default-Portrait-736h.png"];
-        }
-        else if (UIDeviceOrientationIsLandscape(orientation)) {
-            image = [UIImage imageNamed:@"Default-Landscape-736h.png"];
-        }
-        if (image!=nil) {
-            *imageOrientation = orientation;
-            return image;
-        }
+    CGSize viewSize = [UIScreen mainScreen].bounds.size;
+    
+    NSString *viewOrientation = @"Portrait";
+    
+    if (UIDeviceOrientationIsLandscape(orientation))
+    {
+        viewSize = CGSizeMake(viewSize.height, viewSize.width);
+        viewOrientation = @"Landscape";
     }
-    if ([TiUtils isRetinaiPhone6]) {
-        image = [UIImage imageNamed:@"Default-667h.png"];
-        if (image!=nil) {
-            return image;
-        }
+    
+    NSArray* imagesDict = [[[NSBundle mainBundle] infoDictionary] valueForKey:@"UILaunchImages"];
+    
+    for (NSDictionary *dict in imagesDict)
+    {
+        CGSize imageSize = CGSizeFromString(dict[@"UILaunchImageSize"]);
+        if (CGSizeEqualToSize(imageSize, viewSize) && [viewOrientation isEqualToString:dict[@"UILaunchImageOrientation"]])
+            return dict[@"UILaunchImageName"];
     }
-    if ([TiUtils isRetinaFourInch]) {
-        image = [UIImage imageNamed:@"Default-568h.png"];
-        if (image!=nil) {
-            return image;
-        }
-    }
-	return [UIImage imageNamed:@"Default.png"];
+    return nil;
 }
+
++ (UIImage*)splashImageForOrientation:(UIDeviceOrientation)orientation
+{
+    NSString *imageName = [TiRootViewController splashImageNameForOrientation:orientation];
+    UIImage *image = [UIImage imageNamed:imageName];
+    return image;
+}
+
 
 -(void)rotateDefaultImageViewToOrientation: (UIInterfaceOrientation )newOrientation;
 {
-	if (defaultImageView == nil)
-	{
-		return;
-	}
-	UIDeviceOrientation imageOrientation;
-	UIUserInterfaceIdiom imageIdiom;
-	UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
+    if (defaultImageView == nil)
+    {
+        return;
+    }
     /*
      *	This code could stand for some refinement, but it is rarely called during
      *	an application's lifetime and is meant to recreate the quirks and edge cases
      *	that iOS uses during application startup, including Apple's own
      *	inconsistencies between iPad and iPhone.
      */
-	
-	UIImage * defaultImage = [self defaultImageForOrientation:
-                              (UIDeviceOrientation)newOrientation
-                                         resultingOrientation:&imageOrientation idiom:&imageIdiom];
     
-	CGFloat imageScale = [defaultImage scale];
-	CGRect newFrame = [[self view] bounds];
-	CGSize imageSize = [defaultImage size];
-	UIViewContentMode contentMode = UIViewContentModeScaleToFill;
-	
-	if (imageOrientation == UIDeviceOrientationPortrait) {
-		if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
-			UIImageOrientation imageOrientation;
-			if (deviceIdiom == UIUserInterfaceIdiomPad)
-			{
-				imageOrientation = UIImageOrientationLeft;
-			}
-			else
-			{
-				imageOrientation = UIImageOrientationRight;
-			}
-			defaultImage = [
-							UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:imageOrientation];
-			imageSize = CGSizeMake(imageSize.height, imageSize.width);
-			if (imageScale > 1.5) {
-				contentMode = UIViewContentModeCenter;
-			}
-		}
-		else if(newOrientation == UIInterfaceOrientationLandscapeRight)
-		{
-			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationLeft];
-			imageSize = CGSizeMake(imageSize.height, imageSize.width);
-			if (imageScale > 1.5) {
-				contentMode = UIViewContentModeCenter;
-			}
-		}
-		else if((newOrientation == UIInterfaceOrientationPortraitUpsideDown) && (deviceIdiom == UIUserInterfaceIdiomPhone))
-		{
-			defaultImage = [UIImage imageWithCGImage:[defaultImage CGImage] scale:imageScale orientation:UIImageOrientationDown];
-			if (imageScale > 1.5) {
-				contentMode = UIViewContentModeCenter;
-			}
-		}
-	}
+    UIImage * defaultImage = [TiRootViewController splashImageForOrientation:newOrientation];
     
-	if(imageSize.width == newFrame.size.width)
-	{
-		CGFloat overheight;
-		overheight = imageSize.height - newFrame.size.height;
-		if (overheight > 0.0) {
-			newFrame.origin.y -= overheight;
-			newFrame.size.height += overheight;
-		}
-	}
-	[defaultImageView setContentMode:contentMode];
-	[defaultImageView setImage:defaultImage];
-	[defaultImageView setFrame:newFrame];
+    CGFloat imageScale = [defaultImage scale];
+    CGRect newFrame = [[self view] bounds];
+    CGSize imageSize = [defaultImage size];
+    
+    if(imageSize.width == newFrame.size.width)
+    {
+        CGFloat overheight;
+        overheight = imageSize.height - newFrame.size.height;
+        if (overheight > 0.0) {
+            newFrame.origin.y -= overheight;
+            newFrame.size.height += overheight;
+        }
+    }
+    [defaultImageView setImage:defaultImage];
+    [defaultImageView setFrame:newFrame];
 }
 
 #pragma mark - Keyboard Control

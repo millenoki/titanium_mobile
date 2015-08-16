@@ -323,7 +323,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	iphoneSrc = os.path.join(top_dir,'iphone','iphone')
 	iphoneDst = basepath+'/iphone/iphone'
 	ignore_paths=[]
-	ignore_paths.append(os.path.join(iphoneSrc, xcodeProject))
+	ignore_paths.append(os.path.join(iphoneSrc, xcodeProject, 'xcuserdata'))
 	ignore_paths.append(os.path.join(iphoneSrc,  'Build'))
 	ignore_paths.append(os.path.join(iphoneSrc, 'build'))
 
