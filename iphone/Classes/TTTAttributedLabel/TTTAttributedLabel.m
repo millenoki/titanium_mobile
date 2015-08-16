@@ -1214,6 +1214,7 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
     
     // Redraw to allow any ColorFromContext attributes a chance to update
     if (_attributedText && textColor != oldTextColor) {
+        self.text = self.text; //to update colors
         [self setNeedsFramesetter];
         [self setNeedsDisplay];
     }
