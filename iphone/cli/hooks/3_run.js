@@ -42,7 +42,7 @@ exports.init = function (logger, config, cli) {
 
 			ioslib.simulator.launch(builder.simHandle, {
 				appPath: builder.xcodeAppDir,
-				focus: cli.argv['sim-focus'],
+				focus: config.get('ios.focusSimOnRun', cli.argv['sim-focus']),
 				logFilename: builder.tiapp.guid + '.log',
 				watchHandleOrUDID: builder.watchSimHandle,
 				killIfRunning: restartSimulator,
