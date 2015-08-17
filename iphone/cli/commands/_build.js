@@ -517,7 +517,7 @@ iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order)
 				return callback(true);
 			}
 
-			if ((cli.argv.target === 'device' || cli.argv.target === 'dist-adhoc') && udid === 'all') {
+			if ((this.cli.argv.target === 'device' || this.cli.argv.target === 'dist-adhoc') && udid === 'all') {
 				// we let 'all' slide by
 				return callback(null, udid);
 			}
@@ -1951,7 +1951,7 @@ iOSBuilder.prototype.validate = function(logger, config, cli) {
 			function toSymlinkOrNotToSymlink() {
 				// since things are looking good, determine if files should be symlinked on copy
 				// note that iOS 9 simulator does not support symlinked files :(
-				this.symlinkFilesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv[
+				this.symlinkFilesOnCopy = cli.argv.target === 'simulator' && config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv[
 					'force-copy-all'];
 
 				// iOS 9 Simulator does not like symlinks :(
@@ -2637,6 +2637,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			if (obj.buildSettings.PRODUCT_NAME === 'Titanium') {
 				obj.buildSettings.PRODUCT_NAME = '"' + appName + '"';
 			}
+			if (Array.isArray(obj.buildSettings.FRAMEWORK_SEARCH_PATHS)) {
+				obj.buildSettings.FRAMEWORK_SEARCH_PATHS.forEach(function(item, i, arr) {
+					arr[i] = item.replace(relPathRegExp, '$1');
+				});
+			}
 			if (Array.isArray(obj.buildSettings.LIBRARY_SEARCH_PATHS)) {
 				obj.buildSettings.LIBRARY_SEARCH_PATHS.forEach(function(item, i, arr) {
 					arr[i] = item.replace(relPathRegExp, '$1');
@@ -2699,7 +2704,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		buildSettings = {
 			IPHONEOS_DEPLOYMENT_TARGET: appc.version.format(this.minIosVer, 2),
 			TARGETED_DEVICE_FAMILY: '"' + this.deviceFamilies[this.deviceFamily] + '"',
-			ONLY_ACTIVE_ARCH: 'NO',
+			// ONLY_ACTIVE_ARCH: 'NO',
 			DEAD_CODE_STRIPPING: 'YES',
 			SDKROOT: 'iphoneos',
 			CODE_SIGN_ENTITLEMENTS: appName + '.entitlements'
@@ -2712,6 +2717,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	} else if (this.deployType == 'development') {
 		gccDefs.push('DEBUG=1');
+	} else {
+		buildSettings.ONLY_ACTIVE_ARCH = 'NO';
 	}
 
 	if (/simulator|device|dist\-adhoc/.test(this.target) && this.tiapp.ios.enablecoverage) {
@@ -2816,7 +2823,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(
 				function(buildConf) {
 					var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-					buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
+					buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = ["\"$(inherited)\""]);
 					buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
 				});
 		});
@@ -3772,7 +3779,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 	}, this);
 	libDir = path.join(this.buildDir, 'libexternals');
 	this.copyOrSymlinkDirSync(path.join(this.platformPath, 'libexternals'), libDir);
-	delete this.buildDirFiles[libDir];
+	this.unmarkBuildDirFiles(libDir);
 };
 
 iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
@@ -4966,7 +4973,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					});
 					this.encryptJS && this.jsFilesToEncrypt.push('_error_template_json');
 				}
-				delete this.buildDirFiles[src];
+				delete this.buildDirFiles[dirBase];
 			}
 		}
 	], next);
@@ -5420,8 +5427,10 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 					if (code) {
 						this.logger.error(__('Failed to optimize %s (code %s)', file, code));
 					} else {
-						fs.existsSync(file) && fs.unlinkSync(file);
-						fs.renameSync(output, file);
+						if (fs.existsSync(output) ) {
+							fs.existsSync(file) && fs.unlinkSync(file);
+							fs.renameSync(output, file);
+						}
 					}
 					cb();
 				}.bind(this));
