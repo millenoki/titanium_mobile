@@ -340,34 +340,18 @@ extern NSString * const TI_APPLICATION_GUID;
         if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
             NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
             [event setObject:@"error" forKey:@"type"];
-            [self fireCallback:@"onerror" withArg:event withSource:self];
+            [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result){
+                [self forgetSelf];
+            }];
         } else if(hasOnload) {
             NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:nil];
             [event setObject:@"load" forKey:@"type"];
-            [self fireCallback:@"onload" withArg:event withSource:self];
+            [self fireCallback:@"onload" withArg:event withSource:self withHandler:^(id result){
+                [self forgetSelf];
+            }];
+        } else {
+            [self forgetSelf];
         }
-    }
-    NSInteger responseCode = [response status];
-    /**
-     *    Per customer request, successful communications that resulted in an
-     *    4xx or 5xx response is treated as an error instead of an onload.
-     *    For backwards compatibility, if no error handler is provided, even
-     *    an 4xx or 5xx response will fall back onto an onload.
-     */
-    if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
-        NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
-        [event setObject:@"error" forKey:@"type"];
-        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result){
-            [self forgetSelf];
-        }];
-    } else if(hasOnload) {
-        NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:nil];
-        [event setObject:@"load" forKey:@"type"];
-        [self fireCallback:@"onload" withArg:event withSource:self withHandler:^(id result){
-            [self forgetSelf];
-        }];
-    } else {
-        [self forgetSelf];
     }
 }
 
