@@ -269,12 +269,12 @@
 		D5162EA81A20D1F7008A4048 /* TiUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5162E9C1A20D1F7008A4048 /* TiUICollectionView.m */; };
 		D5162EAB1A20D1F7008A4048 /* TiUICollectionViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5162E9E1A20D1F7008A4048 /* TiUICollectionViewProxy.m */; };
 		D51697F217FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
-		D518BD121B80D1BB0075199D /* libakylas.bluetooth.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5BE1B80C01D00C13E78 /* libakylas.bluetooth.a */; };
-		D518BD131B80D1BB0075199D /* libakylas.camera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C21B80C01D00C13E78 /* libakylas.camera.a */; };
-		D518BD141B80D1BB0075199D /* libakylas.charts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C61B80C01D00C13E78 /* libakylas.charts.a */; };
-		D518BD151B80D1BB0075199D /* libakylas.commonjs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5CA1B80C01D00C13E78 /* libakylas.commonjs.a */; };
-		D518BD161B80D1BB0075199D /* libakylas.shapes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5CE1B80C01D00C13E78 /* libakylas.shapes.a */; };
-		D518BD171B80D1BB0075199D /* libakylas.slidemenu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5D21B80C01D00C13E78 /* libakylas.slidemenu.a */; };
+		D518BD121B80D1BB0075199D /* libakylas.bluetooth.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5BE1B80C01D00C13E78 /* libakylas.bluetooth.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D518BD131B80D1BB0075199D /* libakylas.camera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C21B80C01D00C13E78 /* libakylas.camera.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D518BD141B80D1BB0075199D /* libakylas.charts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C61B80C01D00C13E78 /* libakylas.charts.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D518BD151B80D1BB0075199D /* libakylas.commonjs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5CA1B80C01D00C13E78 /* libakylas.commonjs.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D518BD161B80D1BB0075199D /* libakylas.shapes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5CE1B80C01D00C13E78 /* libakylas.shapes.a */; settings = {ATTRIBUTES = (Weak, ); }; };
+		D518BD171B80D1BB0075199D /* libakylas.slidemenu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5D21B80C01D00C13E78 /* libakylas.slidemenu.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D51D5AC41A4C682E00B0BC5D /* TableView_Categories.m in Sources */ = {isa = PBXBuildFile; fileRef = D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */; };
 		D51DEFC719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB719D9ACDA00CF28B0 /* AbstractActionSheetPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D51DEFCA19D9ACDA00CF28B0 /* ActionSheetCustomPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = D51DEFB919D9ACDA00CF28B0 /* ActionSheetCustomPicker.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -320,7 +320,7 @@
 		D55B29B21ACC27E6008C0279 /* TiMemoryCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D55B29B11ACC27E6008C0279 /* TiMemoryCache.m */; };
 		D55B29B71ACC27F6008C0279 /* TiDatabaseCache.m in Sources */ = {isa = PBXBuildFile; fileRef = D55B29B61ACC27F6008C0279 /* TiDatabaseCache.m */; };
 		D55B29BC1ACC2825008C0279 /* TiCacheObject.m in Sources */ = {isa = PBXBuildFile; fileRef = D55B29BB1ACC2825008C0279 /* TiCacheObject.m */; };
-		D55B2DCD1ACC5EF5008C0279 /* libFMDB-IOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D55B2DCC1ACC5EF5008C0279 /* libFMDB-IOS.a */; };
+		D55B2DCD1ACC5EF5008C0279 /* libFMDB-IOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D55B2DCC1ACC5EF5008C0279 /* libFMDB-IOS.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D56915CF168F2E7400C3F89F /* TiUILabelProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D56915CB168F2E7300C3F89F /* TiUILabelProxy.m */; };
 		D56915D5168F538F00C3F89F /* TTTAttributedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = D56915D4168F538F00C3F89F /* TTTAttributedLabel.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D56D75A11A20DE2E001DEB9D /* TiCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = D56D75A01A20DE2E001DEB9D /* TiCollectionView.m */; };
@@ -1267,6 +1267,8 @@
 		D5162E9E1A20D1F7008A4048 /* TiUICollectionViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUICollectionViewProxy.m; sourceTree = "<group>"; };
 		D51697F017FFF63300B4FDB8 /* ImageModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageModule.h; sourceTree = "<group>"; };
 		D51697F117FFF63300B4FDB8 /* ImageModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageModule.m; sourceTree = "<group>"; };
+		D518BD181B80E3400075199D /* libti_ios_profiler.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libti_ios_profiler.a; path = ../lib/libti_ios_profiler.a; sourceTree = "<group>"; };
+		D518BD1A1B80E3670075199D /* libti_ios_debugger.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libti_ios_debugger.a; path = ../lib/libti_ios_debugger.a; sourceTree = "<group>"; };
 		D51D5AC21A4C682E00B0BC5D /* TableView_Categories.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableView_Categories.h; sourceTree = "<group>"; };
 		D51D5AC31A4C682E00B0BC5D /* TableView_Categories.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableView_Categories.m; sourceTree = "<group>"; };
 		D51DEFB619D9ACDA00CF28B0 /* AbstractActionSheetPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AbstractActionSheetPicker.h; path = ../Classes/ActionSheetPicker/AbstractActionSheetPicker.h; sourceTree = "<group>"; };
@@ -1323,7 +1325,6 @@
 		D52539B8183A87A0006FF1BB /* NSString+HLSExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSString+HLSExtensions.h"; path = "../Classes/CoconutKitAnimation/NSString+HLSExtensions.h"; sourceTree = "<group>"; };
 		D526016A179DB3EA00FE5723 /* TiSelectableBackgroundLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiSelectableBackgroundLayer.h; sourceTree = "<group>"; };
 		D526016B179DB3EA00FE5723 /* TiSelectableBackgroundLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiSelectableBackgroundLayer.m; sourceTree = "<group>"; };
-		D52674461B58E4E700D442E5 /* libAkylas.camera.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAkylas.camera.a; path = "../../../modules/akylas_modules/camera/ios/build/Debug-iphoneos/libAkylas.camera.a"; sourceTree = "<group>"; };
 		D52674531B58E74D00D442E5 /* akylas.camera.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.camera.xcodeproj; path = ../../../modules/akylas_modules/camera/ios/akylas.camera.xcodeproj; sourceTree = "<group>"; };
 		D52956F81B579FE800DEDCA1 /* UIGestureRecognizer+Ti.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIGestureRecognizer+Ti.h"; sourceTree = "<group>"; };
 		D52956F91B579FE800DEDCA1 /* UIGestureRecognizer+Ti.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIGestureRecognizer+Ti.m"; sourceTree = "<group>"; };
@@ -2873,7 +2874,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D52674461B58E4E700D442E5 /* libAkylas.camera.a */,
 				24CA8C8D111167B60084E2DE /* libsqlite3.dylib */,
 				D5EA4AD218EF05EB001F67E8 /* libresolv.dylib */,
 				24CA8C8F111167B60084E2DE /* libz.dylib */,
@@ -2883,6 +2883,8 @@
 				D5937DC11A24DD800098DA47 /* libAPSAnalytics.a */,
 				D525399E183A8787006FF1BB /* libCoconutKitAnimation.a */,
 				D544CEA01949AA8900419D57 /* libtiverify.a */,
+				D518BD181B80E3400075199D /* libti_ios_profiler.a */,
+				D518BD1A1B80E3670075199D /* libti_ios_debugger.a */,
 				D5B6C727181124C200A2612A /* libDTCoreText.a */,
 				D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */,
 				8465E6BB19F8644D008479E6 /* CoreMedia.framework */,
@@ -4645,7 +4647,11 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../libexternals\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../libexternals\"",
+					"\"$(SRCROOT)/libexternals\"",
+				);
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -4701,7 +4707,11 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = "\"$(SRCROOT)/../libexternals\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../libexternals\"",
+					"\"$(SRCROOT)/libexternals\"",
+				);
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
