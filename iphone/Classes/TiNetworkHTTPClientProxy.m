@@ -361,7 +361,7 @@ extern NSString * const TI_APPLICATION_GUID;
             [self forgetSelf];
         }];
     } else if(hasOnload) {
-        NSMutableDictionary * event = [TiUtils dictionaryWithCode:0 message:nil];
+        NSMutableDictionary * event = [TiUtils dictionaryWithCode:responseCode message:nil];
         [event setObject:@"load" forKey:@"type"];
         [self fireCallback:@"onload" withArg:event withSource:self withHandler:^(id result){
             [self forgetSelf];
