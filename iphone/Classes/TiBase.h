@@ -17,6 +17,7 @@ extern "C" {
 
 #define MEMORY_DEBUG 0
 #define VIEW_DEBUG 0
+#define TI_USE_KROLL_THREAD
     
 #define IOS_7 ([[[UIDevice currentDevice] systemVersion] compare:@"7" options:NSNumericSearch] == NSOrderedDescending)
 
