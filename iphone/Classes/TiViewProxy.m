@@ -524,33 +524,35 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(id)rect
 {
-    TiRect *rect = [[TiRect alloc] init];
-	if ([self viewAttached]) {
-        __block CGRect viewRect;
-        __block CGPoint viewPosition;
-        __block CGAffineTransform viewTransform;
-        __block CGPoint viewAnchor;
-        TiThreadPerformOnMainThread(^{
-            TiUIView * ourView = [self view];
-            viewRect = [ourView bounds];
-            viewPosition = [ourView center];
-            viewTransform = [ourView transform];
-            viewAnchor = [[ourView layer] anchorPoint];
-        }, YES);
-        viewRect.origin = CGPointMake(-viewAnchor.x*viewRect.size.width, -viewAnchor.y*viewRect.size.height);
-        viewRect = CGRectApplyAffineTransform(viewRect, viewTransform);
-        viewRect.origin.x += viewPosition.x;
-        viewRect.origin.y += viewPosition.y;
-        [rect setRect:viewRect];
-        
-        id defaultUnit = [TiApp defaultUnit];
-        if ([defaultUnit isKindOfClass:[NSString class]]) {
-            [rect convertToUnit:defaultUnit];
-        }       
-    }
-    else {
-        [rect setRect:CGRectZero];
-    }
+    __block TiRect *rect = [[TiRect alloc] init];
+    TiThreadPerformBlockOnMainThread(^{
+        if ([self viewLayedOut]) {
+            //        CGPoint viewAnchor = [[ourView layer] anchorPoint];
+            CGRect viewRect = self.view.frame;
+            //        __block CGRect viewRect;
+            //        __block CGPoint viewPosition;
+            //        __block CGAffineTransform viewTransform;
+            //        __block CGPoint viewAnchor;
+            //            TiUIView * ourView = [self view];
+            //            viewRect = [ourView bounds];
+            //            viewPosition = [ourView center];
+            //            viewTransform = [ourView transform];
+            //            viewAnchor = [[ourView layer] anchorPoint];
+            //        viewRect.origin = CGPointMake(-viewAnchor.x*viewRect.size.width, -viewAnchor.y*viewRect.size.height);
+            //        viewRect = CGRectApplyAffineTransform(viewRect, viewTransform);
+            //        viewRect.origin.x += viewPosition.x;
+            //        viewRect.origin.y += viewPosition.y;
+            [rect setRect:viewRect];
+            
+            id defaultUnit = [TiApp defaultUnit];
+            if ([defaultUnit isKindOfClass:[NSString class]]) {
+                [rect convertToUnit:defaultUnit];
+            }       
+        }
+        else {
+            [rect setRect:CGRectZero];
+        }
+    }, YES);
     NSDictionary* result = [rect toJSON];
     [rect release];
     return result;
@@ -3896,17 +3898,32 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 -(void)transitionViews:(id)args
 {
     
-	ENSURE_UI_THREAD_1_ARG(args)
     if (_transitioning) {
         _pendingTransition = [args retain];
         return;
     }
+    ENSURE_UI_THREAD_1_ARG(args)
     _transitioning = YES;
     if ([args count] > 1) {
-        TiViewProxy *view1Proxy = nil;
-        TiViewProxy *view2Proxy = nil;
+        __block TiViewProxy *view1Proxy = nil;
+        __block TiViewProxy *view2Proxy = nil;
+        __block KrollCallback* callback = nil;
+        NSDictionary* props = nil;
         ENSURE_ARG_OR_NIL_AT_INDEX(view1Proxy, args, 0, TiViewProxy);
         ENSURE_ARG_OR_NIL_AT_INDEX(view2Proxy, args, 1, TiViewProxy);
+        ENSURE_ARG_OR_NIL_AT_INDEX(props, args, 2, NSDictionary);
+        ENSURE_ARG_OR_NIL_AT_INDEX(callback, args, 3, KrollCallback);
+        [callback retain];
+        void (^onCompletion)() = ^() {
+            if (view1Proxy) [self removeProxy:view1Proxy shouldDetach:YES];
+            if (view2Proxy) [self add:view2Proxy];
+            _transitioning = NO;
+            if (callback) {
+                [self _fireEventToListener:@"done" withObject:nil listener:callback thisObject:nil];
+            }
+            [callback release];
+            [self handlePendingTransition];
+        };
         if ([self viewAttached])
         {
             if (view1Proxy != nil) {
@@ -3920,19 +3937,16 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
                     return;
                 }
             }
-            NSDictionary* props = [args count] > 2 ? [args objectAtIndex:2] : nil;
-            if (props == nil) {
-                DebugLog(@"[WARN] Called transitionViews without transitionStyle");
-            }
+            
             pthread_rwlock_unlock(&childrenLock);
             
             TiUIView* view1 = nil;
             __block TiUIView* view2 = nil;
             if (view2Proxy) {
-//                [view2Proxy performBlockWithoutLayout:^{
-                    [view2Proxy setParent:self];
-                    view2 = [view2Proxy getAndPrepareViewForOpening];
-//                }];
+                //                [view2Proxy performBlockWithoutLayout:^{
+                [view2Proxy setParent:self];
+                view2 = [view2Proxy getAndPrepareViewForOpening];
+                //                }];
                 
                 id<TiEvaluator> context = self.executionContext;
                 if (context == nil) {
@@ -3953,20 +3967,13 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
             
             TiTransition* transition = [TiTransitionHelper transitionFromArg:props containerView:self.view];
             transition.adTransition.type = ADTransitionTypePush;
-            [[self view] transitionfromView:view1 toView:view2 withTransition:transition completionBlock:^{
-                if (view1Proxy) [self removeProxy:view1Proxy shouldDetach:NO];
-                if (view2Proxy) [self add:view2Proxy];
-                _transitioning = NO;
-                [self handlePendingTransition];
-            }];
+            [[self view] transitionfromView:view1 toView:view2 withTransition:transition completionBlock:onCompletion];
         }
         else {
-            if (view1Proxy) [self removeProxy:view1Proxy shouldDetach:NO];
-            if (view2Proxy)[self add:view2Proxy];
-            _transitioning = NO;
-            [self handlePendingTransition];
+            onCompletion();
+            
         }
-	}
+    }
 }
 
 
