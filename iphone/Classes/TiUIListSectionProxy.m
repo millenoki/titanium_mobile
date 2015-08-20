@@ -494,6 +494,43 @@
 	} animated:(animation != UITableViewRowAnimationNone)];
 }
 
+- (void)updateItems:(id)args
+{
+    ENSURE_ARG_COUNT(args, 1);
+    NSArray *items = [args objectAtIndex:0];
+    if ([items count] == 0) {
+        return;
+    }
+    ENSURE_TYPE_OR_NIL(items,NSArray);
+    if ([items count] != [_items count]) {
+        [self throwException:@"Can't update items, count does not match"
+                   subreason:nil
+                    location:CODELOCATION];
+        return;
+    }
+    NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
+    UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    
+    [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+        NSUInteger count = [items count];
+        BOOL forceReload = (animation != UITableViewRowAnimationNone);
+        [items enumerateObjectsUsingBlock:^(id item, NSUInteger itemIndex, BOOL *stop) {
+            TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex]];
+                NSDictionary* currentItem = [[_items objectAtIndex:itemIndex] dictionaryByMergingWith:item force:YES];
+                if (currentItem)[_items replaceObjectAtIndex:itemIndex withObject:currentItem];
+                if (!forceReload) {
+                    if ((cell != nil) && ([cell canApplyDataItem:currentItem])) {
+                        cell.dataItem = currentItem;
+                        [cell setNeedsLayout];
+                    }
+                }
+        }];
+        if (forceReload) {
+            [tableView reloadRowsAtIndexPaths:[tableView indexPathsForVisibleRows] withRowAnimation:animation];
+        }
+    } animated:(animation != UITableViewRowAnimationNone)];
+}
+
 #pragma mark - TiUIListViewDelegate
 
 - (void)dispatchUpdateAction:(void(^)(UITableView *tableView))block
