@@ -97,30 +97,31 @@
 
 -(void)setViews:(id)args
 {
-	ENSURE_ARRAY(args);
+    ENSURE_ARRAY(args);
     NSMutableArray* newViews = [NSMutableArray array];
-	for (id arg in args)
-	{
-        TiProxy *child = [self createChildFromObject:arg];
+    for (id arg in args)
+    {
+        //dont set rootproxy that the view itself becomes the rootproxy
+        TiProxy *child = [self createChildFromObject:arg rootProxy:nil];
         if (child) {
             [self rememberProxy:child];
             [self childAdded:child atIndex:-1 shouldRelayout:NO];
             [newViews addObject:child];
         }
-		
-	}
-	[self lockViewsForWriting];
-	for (id oldViewProxy in viewProxies)
-	{
-		if (![args containsObject:oldViewProxy])
-		{
+        
+    }
+    [self lockViewsForWriting];
+    for (id oldViewProxy in viewProxies)
+    {
+        if (![args containsObject:oldViewProxy])
+        {
             [self childRemoved:oldViewProxy wasChild:NO shouldDetach:YES];
-		}
-	}
-	[viewProxies release];
-	viewProxies = [newViews retain];
-	[self unlockViews];
-	[self replaceValue:args forKey:@"views" notification:YES];
+        }
+    }
+    [viewProxies release];
+    viewProxies = [newViews retain];
+    [self unlockViews];
+    [self replaceValue:args forKey:@"views" notification:YES];
 }
 
 -(void)makeChildrenPerformSelector:(SEL)selector withObject:(id)object
