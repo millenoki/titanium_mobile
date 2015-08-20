@@ -16,6 +16,7 @@
 
 @property (nonatomic, readonly) TiTableView *tableView;
 @property (nonatomic, readonly) BOOL isSearchActive;
+@property (nonatomic, readonly) BOOL editing;
 
 - (void)setContentInsets_:(id)value withObject:(id)props;
 - (void)deselectAll:(BOOL)animated;
@@ -25,7 +26,6 @@
 
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
 -(BOOL)shouldHighlightCurrentListItem;
--(BOOL)editing;
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
 -(NSMutableArray*)visibleCellsProxies;
 

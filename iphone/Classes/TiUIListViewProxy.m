@@ -177,9 +177,9 @@ static NSDictionary* listViewKeysToReplace;
     
     if ([self.listView isSearchActive]) {
         block(nil);
-        TiThreadPerformOnMainThread(^{
+        TiThreadPerformBlockOnMainThread(^{
             [self.listView updateSearchResults:nil];
-        }, [NSThread isMainThread]);
+        }, NO);
         return;
     }
     
@@ -306,7 +306,7 @@ static NSDictionary* listViewKeysToReplace;
 }
 
 
--(BOOL)editing {
+-(BOOL)isEditing {
     return [self.listView editing];
 }
 

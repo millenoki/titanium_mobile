@@ -24,7 +24,7 @@
 - (void) deleteSectionAtIndex:(NSUInteger)index;
 - (void) setMarker:(id)args;
 -(BOOL)shouldHighlightCurrentListItem;
--(BOOL)editing;
+-(BOOL)isEditing;
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
 -(TiTableView*)tableView;
 -(void)didOverrideEvent:(NSString*)type forItem:(TiUIListItemProxy*)item;

@@ -58,7 +58,6 @@
     NSMutableArray * filteredTitles;
     NSMutableArray * filteredIndices;
 
-    BOOL editing;
     BOOL pruneSections;
     
     BOOL allowsSelection;
@@ -547,10 +546,6 @@ static NSDictionary* replaceKeysForRow;
     return [_tableView shouldHighlightCurrentListItem];
 }
 
--(BOOL)editing {
-    return editing;
-}
-
 #pragma mark - Helper Methods
 
 -(CGFloat)computeRowWidth:(UITableView*)tableView
@@ -910,22 +905,31 @@ static NSDictionary* replaceKeysForRow;
 -(void)setAllowsMultipleSelectionDuringEditing_:(id)value
 {
     allowsMultipleSelectionDuringEditing = [TiUtils boolValue:value def:NO];
-    if (editing) {
+    if (_editing) {
         [_tableView setAllowsMultipleSelectionDuringEditing:allowsMultipleSelectionDuringEditing];
+    }
+}
+
+-(void)setEditing:(BOOL)editing
+{
+    if (editing != _editing) {
+        _editing = editing;
+        [self.viewProxy setFakeAnimationOfDuration:0.3 andCurve:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+        [[self tableView] beginUpdates];
+        [_tableView setEditing:_editing animated:YES];
+        [_tableView setAllowsMultipleSelectionDuringEditing:_editing?allowsMultipleSelectionDuringEditing:NO];
+        [_tableView endUpdates];
+        [self.viewProxy removeFakeAnimation];
     }
 }
 
 -(void)setEditing_:(id)args
 {
-    if ([TiUtils boolValue:args def:NO] != editing) {
-        editing = !editing;
-        [self.viewProxy setFakeAnimationOfDuration:0.3 andCurve:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
-        [[self tableView] beginUpdates];
-        [_tableView setEditing:editing animated:YES];
-        [_tableView setAllowsMultipleSelectionDuringEditing:editing?allowsMultipleSelectionDuringEditing:NO];
-        [_tableView endUpdates];
-        [self.viewProxy removeFakeAnimation];
-    }
+    self.editing = [TiUtils boolValue:args def:NO];
+}
+-(id)editing_
+{
+    return @(_editing);
 }
 
 -(void)setScrollSuspendsImageLoading_:(id)value
@@ -1120,7 +1124,7 @@ static NSDictionary* replaceKeysForRow;
         return nil;
     }
     
-    if (editing) {
+    if (_editing) {
         return nil;
     }
     
@@ -1141,7 +1145,7 @@ static NSDictionary* replaceKeysForRow;
         return 0;
     }
     
-    if (editing) {
+    if (_editing) {
         return 0;
     }
     
@@ -1275,7 +1279,7 @@ static NSDictionary* replaceKeysForRow;
     if ([self canEditRowAtIndexPath:indexPath]) {
         return YES;
     }
-    if (editing) {
+    if (_editing) {
         return [self canMoveRowAtIndexPath:indexPath];
     }
     return NO;
@@ -1329,7 +1333,7 @@ static NSDictionary* replaceKeysForRow;
 - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     //No support for insert style yet
-    if ([self canEditRowAtIndexPath:indexPath]) {
+    if (_editing && [self canEditRowAtIndexPath:indexPath]) {
         return UITableViewCellEditingStyleDelete;
     } else {
         return UITableViewCellEditingStyleNone;
@@ -1367,15 +1371,13 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    editing = YES;
-    [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
+    _editing = YES;
 }
 
 - (void)tableView:(UITableView *)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    editing = [_tableView isEditing];
-    [self.proxy replaceValue:NUMBOOL(editing) forKey:@"editing" notification:NO];
-    if (!editing) {
+    _editing = [_tableView isEditing];
+    if (!_editing) {
         [self performSelector:@selector(reloadTableViewData) withObject:nil afterDelay:0.1];
     }
 }
@@ -2035,7 +2037,7 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (!editing && allowsSelection==NO)
+    if (!_editing && allowsSelection==NO)
 	{
 		[tableView deselectRowAtIndexPath:indexPath animated:YES];
 	}
@@ -2044,7 +2046,7 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (editing) {
+    if (_editing) {
         [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] tableView:tableView accessoryButtonTapped:NO];
     }
     
@@ -2052,7 +2054,7 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
-    if (!editing && allowsSelection==NO)
+    if (!_editing && allowsSelection==NO)
 	{
 		[tableView deselectRowAtIndexPath:indexPath animated:YES];
 	}
@@ -2169,7 +2171,7 @@ static NSDictionary* replaceKeysForRow;
 	// iOS idiom seems to indicate that you should never be able to interact with a table
 	// while the 'delete' button is showing for a row, but touchesBegan:withEvent: is still triggered.
 	// Turn it into a no-op while we're editing
-	if (!editing) {
+	if (!_editing) {
 		[super touchesBegan:touches withEvent:event];
 	}
 }
@@ -2357,7 +2359,7 @@ static NSDictionary* replaceKeysForRow;
     NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
 										section, @"section",
                                         self.proxy, @"listView",
-                                        @(editing), @"editing",
+                                        @(_editing), @"editing",
                                         @([self isSearchActive]), @"searchResult",
 										@(indexPath.section), @"sectionIndex",
                                         item, @"item",
