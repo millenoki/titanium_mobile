@@ -2083,7 +2083,7 @@ iOSBuilder.prototype.run = function(logger, config, cli, finished) {
 		//},
 
 		function (next) {
-			if (this.forceRebuild) {
+			if (!this.symlinkFilesOnCopy || this.forceRebuild) {
 			series(this, [
 				// xcode related tasks
 					'createXcodeProject',
@@ -2103,6 +2103,14 @@ iOSBuilder.prototype.run = function(logger, config, cli, finished) {
 					'encryptJSFiles',
 					'writeI18NFiles',
 					'processTiSymbols',
+				], next);
+			} else {
+				next();
+			}
+		},
+		function (next) {
+			if (this.forceRebuild) {
+				series(this, [
 
 					// cleanup and optimization
 					'removeFiles',
@@ -3778,7 +3786,15 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 		}
 	}, this);
 	libDir = path.join(this.buildDir, 'libexternals');
-	this.copyOrSymlinkDirSync(path.join(this.platformPath, 'libexternals'), libDir);
+	// fs.existsSync(libDir) || wrench.mkdirSyncRecursive(libDir);
+	// fs.readdirSync(path.join(this.platformPath, 'libexternals')).forEach(function(name) {
+
+	// });
+	// fs.existsSync(libDir) && fs.unlinkSync(libDir);
+	// fs.symlinkSync(path.join(this.platformPath, 'libexternals'), dest);
+	this.copyDirSync(path.join(this.platformPath, 'libexternals'), libDir, {
+		maintainSymLinks:true
+	});
 	this.unmarkBuildDirFiles(libDir);
 };
 
@@ -4817,7 +4833,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					((!this.symlinkFilesOnCopy  || unsymlinkable) &&  prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src))));
 
 				if (!fileChanged || !this.copyFileSync(info.src, info.dest, {
-						contents: contents || (contents = fs.readFileSync(info.src)),
+						// contents: contents || (contents = fs.readFileSync(info.src)),
+						contents: contents,
 						forceCopy: unsymlinkable
 					})) {
 					// this.logger.trace(__('No change, skipping %s', info.dest.cyan));
@@ -5042,6 +5059,12 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 					}
 
 					if (out.indexOf('initWithObjectsAndKeys') !== -1) {
+						out = out.replace(/static NSDictionary \*map = nil;\s*if \(map == nil\) \{\s*map = /, "+(NSDictionary*) map;{ static NSDictionary *map = nil;if (map == nil) {map = ");
+                        out = out.replace(/nil\];\s*\}/, "nil]; }return map;}");
+                        out = out.replace(/static NSRange ranges\[\] = \{/, "const NSRange ranges[] = {");
+                        out = out.replace(/static UInt8 data\[\] = \{/, "UInt8 data[] = {");
+                                        // success!
+                                        
 						// success!
 						var contents = ejs.render(fs.readFileSync(path.join(this.templatesDir, 'ApplicationRouting.m')).toString(), {
 							bytes: out
