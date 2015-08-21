@@ -1333,6 +1333,16 @@ static NSDictionary* replaceKeysForRow;
     
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
+    TiViewAnimationStep* anim = [cell.proxy runningAnimation];
+    if (anim)
+    {
+        [cell.proxy setRunningAnimationRecursive:anim];
+        [cell.proxy refreshViewIfNeeded:YES];
+        [cell.proxy setRunningAnimationRecursive:nil];
+    }
+    else {
+        [cell.proxy refreshViewIfNeeded:YES];
+    }
     return cell;
 }
 
