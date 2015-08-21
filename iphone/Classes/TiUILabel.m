@@ -485,7 +485,9 @@
                                    nil];
         [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
     }
-    else [[UIApplication sharedApplication] openURL:url];
+    else {
+//        [[UIApplication sharedApplication] openURL:url];
+    }
 }
 
 - (void)attributedLabel:(TTTAttributedLabel *)label
@@ -538,10 +540,11 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
     NSAttributedString* attString = label.attributedText;
     if (attString != nil) {
         CGPoint localPoint = [touch locationInView:label];
+        NSTextCheckingResult* result = [label activeLink];
         NSURL* url = [self checkLinkAttributeForString:attString atPoint:localPoint];
-        if (url){
+        if (result.resultType == NSTextCheckingTypeLink){
             event = [NSMutableDictionary dictionaryWithDictionary:event];
-            [(NSMutableDictionary*)event setObject:url forKey:@"link"];
+            [(NSMutableDictionary*)event setObject:result.URL forKey:@"link"];
         }
     }
     return event;

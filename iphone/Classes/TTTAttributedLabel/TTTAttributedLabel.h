@@ -142,6 +142,8 @@ extern NSString * const kTTTBackgroundCornerRadiusAttributeName;
  */
 @property (nonatomic, strong) NSDictionary *inactiveLinkAttributes;
 
+@property (readonly, nonatomic, strong) NSTextCheckingResult *activeLink;
+
 -(void)initLinksStyle;
 
 ///---------------------------------------

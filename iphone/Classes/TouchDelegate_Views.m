@@ -74,10 +74,12 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [super touchesEnded:touches withEvent:event];
+    //process first so that activeLink is still set
     if ([[event touchesForView:self] count] > 0) {
         [self.touchDelegate processTouchesEnded:touches withEvent:event];
     }
+    [super touchesEnded:touches withEvent:event];
+    
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
