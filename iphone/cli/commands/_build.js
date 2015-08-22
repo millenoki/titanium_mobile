@@ -4817,9 +4817,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			writeAssetContentsFile.call(this, path.join(launchImageDir, 'Contents.json'), launchImageSet);
 		},
 
-		function copyResources() {
+		function copyResources(next) {
 			this.logger.debug(__('Copying resources'));
-			Object.keys(resourcesToCopy).forEach(function(file) {
+			async.eachSeries(Object.keys(resourcesToCopy), function(file, next) {
 				var info = resourcesToCopy[file],
 					srcStat = fs.statSync(info.src),
 					srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
@@ -4831,15 +4831,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					hash = null,
 					fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || 
 					((!this.symlinkFilesOnCopy  || unsymlinkable) &&  prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src))));
-
-				if (!fileChanged || !this.copyFileSync(info.src, info.dest, {
-						// contents: contents || (contents = fs.readFileSync(info.src)),
-						contents: contents,
-						forceCopy: unsymlinkable
-					})) {
-					// this.logger.trace(__('No change, skipping %s', info.dest.cyan));
-				}
-
+				
 				this.currentBuildManifest.files[file] = {
 					hash: contents === null && prev ? prev.hash : hash || this.hash(contents || ''),
 					mtime: contents === null && prev ? prev.mtime : srcMtime,
@@ -4847,7 +4839,52 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				};
 
 				delete this.buildDirFiles[info.dest];
-			}, this);
+				
+				this.cli.createHook('build.ios.copyResource', this, function(from, to, cb) {
+					this.copyFileSync(info.src, info.dest, {
+						// contents: contents || (contents = fs.readFileSync(info.src)),
+						contents: contents,
+						forceCopy: unsymlinkable
+					});
+					cb();
+				})(info.src, info.dest, next);
+
+
+			}.bind(this), next);
+			// Object.keys(resourcesToCopy).forEach(function(file) {
+			// 	var info = resourcesToCopy[file],
+			// 		srcStat = fs.statSync(info.src),
+			// 		srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+			// 		prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
+			// 		destExists = fs.existsSync(info.dest),
+			// 		destStat = destExists && fs.statSync(info.dest),
+			// 		unsymlinkable = unsymlinkableFileRegExp.test(path.basename(file)),
+			// 		contents = info.contents || null,
+			// 		hash = null,
+			// 		fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || 
+			// 		((!this.symlinkFilesOnCopy  || unsymlinkable) &&  prev.hash !== (hash = this.hash(contents = contents || fs.readFileSync(info.src))));
+
+			// 	if (!fileChanged || !this.copyFileSync(info.src, info.dest, {
+			// 			// contents: contents || (contents = fs.readFileSync(info.src)),
+			// 			contents: contents,
+			// 			forceCopy: unsymlinkable
+			// 		})) {
+			// 		// this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+			// 	}
+			// 	if (fileChanged) {
+			// 		this.cli.createHook('build.ios.copyResource', this, function(from, to, cb) {
+			// 		})(info.src, info.dest, next);
+
+			// 	}
+
+			// 	this.currentBuildManifest.files[file] = {
+			// 		hash: contents === null && prev ? prev.hash : hash || this.hash(contents || ''),
+			// 		mtime: contents === null && prev ? prev.mtime : srcMtime,
+			// 		size: contents === null && prev ? prev.size : srcStat.size
+			// 	};
+
+			// 	delete this.buildDirFiles[info.dest];
+			// }, this);
 		},
 
 		function copyCSSFiles() {
