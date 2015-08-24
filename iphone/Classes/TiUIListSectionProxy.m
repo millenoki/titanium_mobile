@@ -502,16 +502,17 @@
         return;
     }
     ENSURE_TYPE_OR_NIL(items,NSArray);
-    if ([items count] != [_items count]) {
-        [self throwException:@"Can't update items, count does not match"
-                   subreason:nil
-                    location:CODELOCATION];
-        return;
-    }
+    
     NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
     UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
     
     [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+        if ([items count] != [_items count]) {
+            [self throwException:@"Can't update items, count does not match"
+                       subreason:nil
+                        location:CODELOCATION];
+            return;
+        }
         NSUInteger count = [items count];
         BOOL forceReload = (animation != UITableViewRowAnimationNone);
         [items enumerateObjectsUsingBlock:^(id item, NSUInteger itemIndex, BOOL *stop) {
