@@ -362,18 +362,12 @@ extern NSString * const TI_APPLICATION_GUID;
             NSError *error = [response error];
             NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
             [event setObject:@"error" forKey:@"type"];
-            [self fireCallback:@"onerror" withArg:event withSource:self];
-        }
-    }
-    if(hasOnerror) {
-        NSError *error = [response error];
-        NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
-        [event setObject:@"error" forKey:@"type"];
-        [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result) {
+            [self fireCallback:@"onerror" withArg:event withSource:self withHandler:^(id result) {
+                [self forgetSelf];
+            }];
+        } else {
             [self forgetSelf];
-        }];
-    } else {
-        [self forgetSelf];
+        }
     }
 }
 
