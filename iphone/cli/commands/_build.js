@@ -338,14 +338,14 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'xcode': {
 							// DEPRECATED
 							// secret flag to perform Xcode pre-compile build step
-							callback: function(value) {
-								if (value) {
-									// we deprecated the --xcode flag which was passed in during the Xcode pre-compile phase
-									logger.error(__('The generated Titanium Xcode project is too old.'));
-									logger.error(__('Please clean and rebuild the project.'));
-									process.exit(1);
-								}
-							},
+							// callback: function(value) {
+							// 	if (value) {
+							// 		// we deprecated the --xcode flag which was passed in during the Xcode pre-compile phase
+							// 		logger.error(__('The generated Titanium Xcode project is too old.'));
+							// 		logger.error(__('Please clean and rebuild the project.'));
+							// 		process.exit(1);
+							// 	}
+							// },
 							hidden: true
 						}
 					},
@@ -2081,9 +2081,8 @@ iOSBuilder.prototype.run = function(logger, config, cli, finished) {
 		//	// that build.pre.compile was fired.
 		//	ti.validateAppJsExists(this.projectDir, this.logger, ['iphone', 'ios']);
 		//},
-
 		function (next) {
-			if (!this.symlinkFilesOnCopy || this.forceRebuild) {
+			if (!cli.argv.xcode) {
 			series(this, [
 				// xcode related tasks
 					'createXcodeProject',
@@ -2095,7 +2094,14 @@ iOSBuilder.prototype.run = function(logger, config, cli, finished) {
 					'copyTitaniumiOSFiles',
 					'copyExtensionFiles',
 					'cleanXcodeDerivedData',
-
+				], next);
+			} else {
+				next();
+			}
+		},
+		function (next) {
+			if (!this.symlinkFilesOnCopy || this.forceRebuild) {
+			series(this, [
 					// titanium related tasks
 					'writeDebugProfilePlists',
 					'copyItunesArtwork',
@@ -2108,8 +2114,12 @@ iOSBuilder.prototype.run = function(logger, config, cli, finished) {
 				next();
 			}
 		},
+
+		// finalize
+		'writeBuildManifest',
+
 		function (next) {
-			if (this.forceRebuild) {
+			if (!cli.argv.xcode && this.forceRebuild) {
 				series(this, [
 
 					// cleanup and optimization
@@ -2124,8 +2134,6 @@ iOSBuilder.prototype.run = function(logger, config, cli, finished) {
 			}
 		},
 
-		// finalize
-		'writeBuildManifest',
 
 		function(next) {
 			if (!this.buildOnly && (this.target === 'simulator' || this.target === 'device')) {
@@ -2671,18 +2679,33 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// delete the pre-compile build phases since we don't need it
 	this.logger.trace(__('Removing pre-compile phase'));
+	var that = this;
 	Object.keys(xobjs.PBXShellScriptBuildPhase).forEach(function(buildPhaseUuid) {
 		if (xobjs.PBXShellScriptBuildPhase[buildPhaseUuid] && typeof xobjs.PBXShellScriptBuildPhase[buildPhaseUuid] ===
 			'object' && /^"?Pre-Compile"?$/i.test(xobjs.PBXShellScriptBuildPhase[buildPhaseUuid].name)) {
-			Object.keys(xobjs.PBXNativeTarget).forEach(function(key) {
-				if (xobjs.PBXNativeTarget[key] && typeof xobjs.PBXNativeTarget[key] === 'object') {
-					xobjs.PBXNativeTarget[key].buildPhases = xobjs.PBXNativeTarget[key].buildPhases.filter(function(phase) {
-						return phase.value !== buildPhaseUuid;
-					});
-				}
-			});
-			delete xobjs.PBXShellScriptBuildPhase[buildPhaseUuid];
-			delete xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'];
+			
+			// Object.keys(xobjs.PBXNativeTarget).forEach(function(key) {
+			// 	if (xobjs.PBXNativeTarget[key] && typeof xobjs.PBXNativeTarget[key] === 'object') {
+			// 		xobjs.PBXNativeTarget[key].buildPhases = xobjs.PBXNativeTarget[key].buildPhases.filter(function(phase) {
+			// 			return phase.value !== buildPhaseUuid;
+			// 		});
+			// 	}
+			// });
+			that.logger.info('test' + JSON.stringify(xobjs.PBXShellScriptBuildPhase[buildPhaseUuid]));
+
+			xobjs.PBXShellScriptBuildPhase[buildPhaseUuid].shellScript = '\"export TITANIUM_PREFIX=\\"_Prefix-*\\"\\n'
+				+ 'echo \\"Xcode Pre-Compile Phase: Removing $SHARED_PRECOMPS_DIR/$PROJECT$TITANIUM_PREFIX\\"\\n'
+				+ 'find \\"$SHARED_PRECOMPS_DIR\\" -name \\"$PROJECT$TITANIUM_PREFIX\\" -print0 | xargs -0 rm -rf\\n'
+				+ 'if [ \\"x$TITANIUM_CLI_XCODEBUILD\\" == \\"x\\" ]; then\\n'
+				+ '    ' + (process.execPath || 'node') + ' \\"' + that.cli.argv.$0.replace(/^(.+\/)*node /, '') + '\\" build --platform ' + that.platformName + ' --sdk \\"' + that.titaniumSdkName + '\\" --no-prompt --no-progress-bars --no-banner --no-colors --build-only --xcode\\n'
+				+ '    exit $?\\n'
+				+ 'else\\n'
+				+ '    echo \\"skipping pre-compile phase\\"\\n'
+				+ 'fi\"';
+			that.logger.info('test2' + JSON.stringify(xobjs.PBXShellScriptBuildPhase[buildPhaseUuid]));
+			
+			// delete xobjs.PBXShellScriptBuildPhase[buildPhaseUuid];
+			// delete xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'];
 		}
 	});
 
