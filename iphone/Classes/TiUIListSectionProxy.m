@@ -529,7 +529,7 @@
         if (forceReload) {
             [tableView reloadRowsAtIndexPaths:[tableView indexPathsForVisibleRows] withRowAnimation:animation];
         }
-    } animated:(animation != UITableViewRowAnimationNone)];
+    } animated:(animation != UITableViewRowAnimationNone) maintainPosition:NO];
 }
 
 #pragma mark - TiUIListViewDelegate
