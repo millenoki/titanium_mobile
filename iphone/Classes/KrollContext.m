@@ -802,7 +802,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 	if(callback != nil)
 	{
-		[callback call:[NSArray arrayWithObject:eventObject] thisObject:thisObject];
+        [callback call:eventObject?[NSArray arrayWithObject:eventObject]:nil thisObject:thisObject];
 	}
     pthread_mutex_unlock(&KrollEntryLock);
 }
