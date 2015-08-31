@@ -204,7 +204,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     return [NSString stringWithString:hexString];
 }
 
--(NSArray*)bytes
+-(NSArray*)byteArray
 {    
     const unsigned char *dataBuffer = (const unsigned char *)[data bytes];
     

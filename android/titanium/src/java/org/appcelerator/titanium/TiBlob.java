@@ -299,7 +299,7 @@ public class TiBlob extends KrollProxy {
             }
         }
     }
-
+    
     /**
      * Returns the content of blob in form of binary data. Exception will be
      * thrown if blob's type is unknown.
@@ -491,6 +491,21 @@ public class TiBlob extends KrollProxy {
         byte[] bytes = getBytes();
         if (bytes != null) {
             return TiUtils.bytesToHex(bytes);
+        }
+        return null;
+    }
+    
+    @Kroll.getProperty
+    @Kroll.method
+    public Number[] getByteArray() {
+        byte[] bytes = getBytes();
+        
+        if (bytes != null) {
+            Number[] outArray = new Number[bytes.length];
+            for (int i = 0; i < bytes.length; i++) {
+                outArray[i] = bytes[i];
+            }
+            return outArray;
         }
         return null;
     }
