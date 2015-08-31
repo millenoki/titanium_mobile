@@ -136,13 +136,18 @@
 }
 
 -(TiSearchDisplayController*)searchController {
-    if (!searchController && [self superview] != nil) {
+    if (!searchController && ((TiUISearchBarProxy*)proxy).canHaveSearchDisplayController && [self superview] != nil) {
         UIViewController* controller = [self getContentController];
         if (controller) {
             searchController = [[TiSearchDisplayController alloc] initWithSearchBar:[self searchBar] contentsController:controller];
             searchController.preventHiddingNavBar = !hideNavBarWithSearch;
-            searchController.searchResultsDataSource = delegate;
-            searchController.searchResultsDelegate = delegate;
+            if ([delegate conformsToProtocol:@protocol(UITableViewDataSource)]) {
+                searchController.searchResultsDataSource = delegate;
+            }
+            if ([delegate conformsToProtocol:@protocol(UITableViewDelegate)]) {
+                searchController.searchResultsDelegate = delegate;
+            }
+            //all is optional so we can do this
             searchController.delegate = delegate;
         }
     }

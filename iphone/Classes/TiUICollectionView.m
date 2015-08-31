@@ -1012,7 +1012,7 @@ static NSDictionary* replaceKeysForRow;
     if (IS_OF_CLASS(vp, TiUISearchBarProxy)) {
         [(TiUISearchBarProxy*)vp setReadyToCreateView:YES];
         [(TiUISearchBarProxy*)vp setDelegate:self];
-        ((TiUISearchBarProxy*)vp).canHaveSearchDisplayController = YES;
+        ((TiUISearchBarProxy*)vp).canHaveSearchDisplayController = NO;
         if (searchHidden)
         {
             [self hideSearchScreen:nil animated:NO];
