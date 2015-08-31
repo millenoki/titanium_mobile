@@ -1205,19 +1205,23 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             data = eventOverrideDelegate.get().overrideEvent(data, event, this);
         }
         HashMap<String, Object> dict = (HashMap) data;
+        Object sourceProxy = this;
         if (dict == null) {
             data = dict = new KrollDict();
-            dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+            dict.put(TiC.EVENT_PROPERTY_SOURCE, sourceProxy);
         } else if (dict instanceof HashMap) {
-            Object sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
+            sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
             if (sourceProxy == null) {
-                dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
+                dict.put(TiC.EVENT_PROPERTY_SOURCE, sourceProxy);
             }
         }
-        Object bindId = getProperty(TiC.PROPERTY_BIND_ID);
-        if (bindId != null) {
-            dict.put(TiC.PROPERTY_BIND_ID, bindId);
+        if (sourceProxy instanceof KrollProxy) {
+            Object bindId = ((KrollProxy) sourceProxy).getProperty(TiC.PROPERTY_BIND_ID);
+            if (bindId != null) {
+                dict.put(TiC.PROPERTY_BIND_ID, bindId);
+            }
         }
+        
         dict.put(TiC.EVENT_PROPERTY_TYPE, event);
         if (evaluators != null && data instanceof HashMap) {
             List<KrollDict> theListeners = null;
