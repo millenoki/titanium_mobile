@@ -546,6 +546,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	        return;
 	    }
 	    int nonRealItemIndex = itemIndex;
+	    if (itemIndex < 0 || itemIndex > itemProperties.size() - 1) {
+	        return;
+	    }
 //	    if (hasHeader()) {
 //	        nonRealItemIndex += 1;
 //	    }
