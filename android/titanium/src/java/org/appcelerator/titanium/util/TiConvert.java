@@ -1170,7 +1170,11 @@ public class TiConvert
             reuse.set(padding, padding, padding, padding);
         } else if (value instanceof Object[] && ((Object[])value).length == 4) {
             float[] array = TiConvert.toFloatArray((Object[]) value);
-            reuse.set(array[0], array[1], array[2], array[3]);
+            //top left bottom right
+            reuse.set(TiUIHelper.getInPixels(array[1]), 
+                    TiUIHelper.getInPixels(array[0]), 
+                    TiUIHelper.getInPixels(array[3]), 
+                    TiUIHelper.getInPixels(array[2]));
         } else {
             reuse.set(0, 0, 0, 0);
         }
