@@ -26,6 +26,7 @@
     NSMutableArray* containedWindows;
     NSMutableArray* modalWindows;
     BOOL forcingRotation;
+//    BOOL forcedOrientation;
     BOOL statusBarInitiallyHidden;
     BOOL viewControllerControlsStatusBar;
     UIStatusBarStyle defaultStatusBarStyle;

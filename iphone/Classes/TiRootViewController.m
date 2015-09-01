@@ -85,9 +85,6 @@
 
 @implementation TiRootViewController
 {
-    BOOL _firstWindowOpening;
-    BOOL _forcedOrientation;
-
     //Keyboard stuff
     BOOL _rotating;
     BOOL _willShowKeyboard;
@@ -126,9 +123,9 @@
     self = [super init];
     if (self != nil) {
         _rotating = NO;
-        _firstWindowOpening = YES;
-        _forcedOrientation = NO;
-        
+        forcingRotation = NO;
+//        forcedOrientation = NO;
+        deviceOrientation = [[UIDevice currentDevice] orientation];
         orientationHistory[0] = UIInterfaceOrientationPortrait;
         orientationHistory[1] = UIInterfaceOrientationLandscapeLeft;
         orientationHistory[2] = UIInterfaceOrientationLandscapeRight;
@@ -677,9 +674,6 @@
 
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    if (_firstWindowOpening) {
-        _firstWindowOpening = NO;
-    }
     [self dismissKeyboardFromWindow:theWindow];
     if ([self presentedViewController] == nil ||
         ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
@@ -905,28 +899,31 @@
 
 -(CGRect)resizeView
 {
+//    CGRect rect = [TiUtils frameForController:self];
+//    if (_forcedOrientation) {
+//        switch ([[UIApplication sharedApplication] statusBarOrientation])
+//        {
+//            case UIInterfaceOrientationLandscapeLeft:
+//            case UIInterfaceOrientationLandscapeRight:
+//            {
+//                CGFloat leftMargin = rect.origin.y;
+//                CGFloat topMargin = rect.origin.x;
+//                CGFloat newHeight = rect.size.width;
+//                CGFloat newWidth = rect.size.height;
+//                rect = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
+//                break;
+//            }
+//            default: {
+//                break;
+//            }
+//        }
+//    }
     CGRect rect = [TiUtils frameForController:self];
-    if (_forcedOrientation) {
-        switch ([[UIApplication sharedApplication] statusBarOrientation])
-        {
-            case UIInterfaceOrientationLandscapeLeft:
-            case UIInterfaceOrientationLandscapeRight:
-            {
-                CGFloat leftMargin = rect.origin.y;
-                CGFloat topMargin = rect.origin.x;
-                CGFloat newHeight = rect.size.width;
-                CGFloat newWidth = rect.size.height;
-                rect = CGRectMake(leftMargin, topMargin, newWidth, newHeight);
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
+    [[self view] setFrame:rect];
+    return [[self view]bounds];
     
-    [[self hostingView] setFrame:rect];
-    return [[self hostingView] bounds];
+//    [[self hostingView] setFrame:rect];
+//    return [[self hostingView] bounds];
 }
 
 -(void)repositionSubviews
@@ -1006,20 +1003,16 @@
 - (void)viewDidLayoutSubviews
 {
     if ([TiUtils isIOS8OrGreater] && curTransformAngle == 0 && forceLayout) {
-        [self resizeView];
+        [[self hostingView] setFrame:self.view.bounds];
     }
-    CGRect bounds = [[self hostingView] bounds];
 #ifdef DEVELOPER
+    CGRect bounds = [[self hostingView] bounds];
     NSLog(@"ROOT DID LAYOUT SUBVIEWS %.1f %.1f",bounds.size.width, bounds.size.height);
 #endif
-    @synchronized(containedWindows) {
-        for (id<TiWindowProtocol> thisWindow in containedWindows) {
-            if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
-                TiViewProxy* proxy = (TiViewProxy*)thisWindow;
-                if (!CGRectEqualToRect([proxy sandboxBounds], bounds)) {
-                    [proxy setSandboxBounds:bounds];
-                }
-                [proxy parentSizeWillChange];
+    for (id<TiWindowProtocol> thisWindow in containedWindows) {
+        if ([thisWindow isKindOfClass:[TiViewProxy class]]) {
+            if (!CGRectEqualToRect([(TiViewProxy*)thisWindow sandboxBounds], [[self hostingView] bounds])) {
+                [(TiViewProxy*)thisWindow parentSizeWillChange];
             }
         }
     }
@@ -1132,14 +1125,18 @@
 {
     UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
 	
-    if (!UIDeviceOrientationIsValidInterfaceOrientation(newOrientation)) {
+    if (forcingRotation || !UIDeviceOrientationIsValidInterfaceOrientation(newOrientation)) {
         return;
     }
     deviceOrientation = (UIInterfaceOrientation) newOrientation;
-    if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
-        [self resetTransformAndForceLayout:YES];
-        [self updateOrientationHistory:deviceOrientation];
-    }
+//    if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
+//        [[UIDevice currentDevice] setValue:@(deviceOrientation) forKey:@"orientation"];
+//        [self resetTransformAndForceLayout:YES];
+//        forcingStatusBarOrientation = YES;
+//        [[UIApplication sharedApplication] setStatusBarOrientation:deviceOrientation animated:NO];
+//        forcingStatusBarOrientation = NO;
+//        [self updateOrientationHistory:deviceOrientation];
+//    }
 }
 
 
@@ -1150,9 +1147,9 @@
         return;
     }
     
-    if (forcingRotation) {
-        return;
-    }
+//    if (forcingRotation ) {
+//        return;
+//    }
     
     UIInterfaceOrientation target = [self lastValidOrientation:[self getFlags:NO]];
     //Device Orientation takes precedence.
@@ -1160,44 +1157,32 @@
         if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
             target = deviceOrientation;
         }
+//    } else if(forcedOrientation) {
+//        return; //dont do it twice
     }
     
-    UIInterfaceOrientation currentOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-    if (currentOrientation != target) {
-//        [[UIDevice currentDevice] setValue:@(target) forKey:@"orientation"];
+    if ([[UIDevice currentDevice] orientation] != target) {
         forcingRotation = YES;
-#if defined(DEBUG) || defined(DEVELOPER)
-        DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",target,currentOrientation);
-#endif
-#ifdef FORCE_WITH_MODAL
-        [self forceRotateToOrientation:target];
-#else
-        @synchronized(containedWindows) {
-            @synchronized(modalWindows) {
-               //if this is the first window opened after application opens then dont animate
-                if (_firstWindowOpening && [orientationController conformsToProtocol:@protocol(TiWindowProtocol)] && [(id<TiWindowProtocol>)orientationController opening]) {
-//                    if ([TiUtils isIOS8OrGreater]) {
-//                        [self rotateHostingViewToOrientation:target fromOrientation:currentOrientation];
-//                    } else {
-                        [self manuallyRotateToOrientation:target duration:0];
-
-//                    }
-                }
-                else {
-//                    if ([TiUtils isIOS8OrGreater]) {
-//                        [self rotateHostingViewToOrientation:target fromOrientation:currentOrientation];
-//                    } else {
-                        [self manuallyRotateToOrientation:target duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-//                    }
-                }
-            }
-        }
-
+//        forcedOrientation = YES;
+        [[UIDevice currentDevice] setValue:@(target) forKey:@"orientation"];
         forcingRotation = NO;
-        _forcedOrientation = YES;
-#endif
-    } else {
-        [self resetTransformAndForceLayout:NO];
+//#if defined(DEBUG) || defined(DEVELOPER)
+//        DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.",target,[[UIApplication sharedApplication] statusBarOrientation]);
+//#endif
+//#ifdef FORCE_WITH_MODAL
+//        [self forceRotateToOrientation:target];
+//#else
+        
+//        if ([TiUtils isIOS8OrGreater]) {
+//            [self rotateHostingViewToOrientation:target fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+//        } else {
+//            [self manuallyRotateToOrientation:target duration:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+//        }
+
+//        forcingRotation = NO;
+//#endif
+//    } else {
+//        [self resetTransformAndForceLayout:NO];
     }
     
 }
@@ -1226,100 +1211,102 @@
 	orientationHistory[0] = newOrientation;
 }
 
-#ifdef FORCE_WITH_MODAL
--(void)forceRotateToOrientation:(UIInterfaceOrientation)newOrientation
-{
-    UIViewController* tempPresenter = [self topPresentedController];
-    ForcingController* dummy = [[ForcingController alloc] init];
-    [dummy setOrientation:newOrientation];
-    forcingStatusBarOrientation = YES;
+//#ifdef FORCE_WITH_MODAL
+//-(void)forceRotateToOrientation:(UIInterfaceOrientation)newOrientation
+//{
+//    UIViewController* tempPresenter = [self topPresentedController];
+//    ForcingController* dummy = [[ForcingController alloc] init];
+//    [dummy setOrientation:newOrientation];
+//    forcingStatusBarOrientation = YES;
+//
+//    [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
+//    
+//    forcingStatusBarOrientation = NO;
+//    
+//    [self updateOrientationHistory:newOrientation];
+//    
+//    [tempPresenter presentViewController:dummy animated:NO completion:^{
+//        [UIViewController attemptRotationToDeviceOrientation];
+//        [tempPresenter dismissViewControllerAnimated:NO completion:nil];
+//        [dummy release];
+//    }];
+//}
+//#endif
 
-    [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
-    
-    forcingStatusBarOrientation = NO;
-    
-    [self updateOrientationHistory:newOrientation];
-    
-    [tempPresenter presentViewController:dummy animated:NO completion:^{
-        [UIViewController attemptRotationToDeviceOrientation];
-        [tempPresenter dismissViewControllerAnimated:NO completion:nil];
-        [dummy release];
-    }];
-}
-#endif
-
--(void)resetTransformAndForceLayout:(BOOL)updateStatusBar
-{
-    if (_forcedOrientation) {
+//-(void)resetTransformAndForceLayout:(BOOL)updateStatusBar
+//{
+//    if (curTransformAngle != 0) {
+//        forcedOrientation = NO;
+//        curTransformAngle = 0;
+//        forceLayout = YES;
+//        [[self hostingView] setTransform:CGAffineTransformIdentity];
 //        [[self view] setNeedsLayout];
 //        if (updateStatusBar) {
 //            [self updateStatusBar:NO];
 //        }
-        return;
-    }
-    if (curTransformAngle != 0) {
-        curTransformAngle = 0;
-        forceLayout = YES;
-        [[self hostingView] setTransform:CGAffineTransformIdentity];
-        [[self view] setNeedsLayout];
-        if (updateStatusBar) {
-            [self updateStatusBar:NO];
-        }
-    }
-}
+//    }
+//}
 
--(void)rotateHostingViewToOrientation:(UIInterfaceOrientation)newOrientation fromOrientation:(UIInterfaceOrientation)oldOrientation
-{
-    if (!forcingRotation || (newOrientation == oldOrientation) ) {
-        return;
-    }
-    
-    NSInteger offset = 0;
-    CGAffineTransform transform;
-    
-    switch (oldOrientation) {
-        case UIInterfaceOrientationPortrait:
-        case UIInterfaceOrientationUnknown:
-            
-            if (newOrientation == UIInterfaceOrientationPortraitUpsideDown) {
-                offset = 180;
-            } else if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
-                offset = -90;
-            } else if (newOrientation == UIInterfaceOrientationLandscapeRight) {
-                offset = 90;
-            }
-            break;
-        
-        case UIInterfaceOrientationLandscapeLeft:
-            if (newOrientation == UIInterfaceOrientationPortraitUpsideDown) {
-                offset = -90;
-            } else if (newOrientation == UIInterfaceOrientationPortrait) {
-                offset = 90;
-            } else if (newOrientation == UIInterfaceOrientationLandscapeRight) {
-                offset = 180;
-            }
-            break;
-            
-        case UIInterfaceOrientationLandscapeRight:
-            if (newOrientation == UIInterfaceOrientationPortraitUpsideDown) {
-                offset = 90;
-            } else if (newOrientation == UIInterfaceOrientationPortrait) {
-                offset = -90;
-            } else if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
-                offset = 180;
-            }
-            break;
-            
-        case UIInterfaceOrientationPortraitUpsideDown:
-            if (newOrientation == UIInterfaceOrientationPortrait) {
-                offset = 180;
-            } else if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
-                offset = 90;
-            } else if (newOrientation == UIInterfaceOrientationLandscapeRight) {
-                offset = -90;
-            }
-            break;
-    }
+//-(void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+//    /// The size is wrong if this view controller is off screen
+//    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+//            forcingStatusBarOrientation = YES;
+//            [[UIApplication sharedApplication] setStatusBarOrientation:deviceOrientation animated:NO];
+//            forcingStatusBarOrientation = NO;
+//}
+
+//-(void)rotateHostingViewToOrientation:(UIInterfaceOrientation)newOrientation fromOrientation:(UIInterfaceOrientation)oldOrientation
+//{
+//    if (!forcingRotation || (newOrientation == oldOrientation) ) {
+//        return;
+//    }
+//    
+//    NSInteger offset = 0;
+//    CGAffineTransform transform;
+//    
+//    switch (oldOrientation) {
+//        case UIInterfaceOrientationPortrait:
+//        case UIInterfaceOrientationUnknown:
+//            
+//            if (newOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+//                offset = 180;
+//            } else if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
+//                offset = -90;
+//            } else if (newOrientation == UIInterfaceOrientationLandscapeRight) {
+//                offset = 90;
+//            }
+//            break;
+//        
+//        case UIInterfaceOrientationLandscapeLeft:
+//            if (newOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+//                offset = -90;
+//            } else if (newOrientation == UIInterfaceOrientationPortrait) {
+//                offset = 90;
+//            } else if (newOrientation == UIInterfaceOrientationLandscapeRight) {
+//                offset = 180;
+//            }
+//            break;
+//            
+//        case UIInterfaceOrientationLandscapeRight:
+//            if (newOrientation == UIInterfaceOrientationPortraitUpsideDown) {
+//                offset = 90;
+//            } else if (newOrientation == UIInterfaceOrientationPortrait) {
+//                offset = -90;
+//            } else if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
+//                offset = 180;
+//            }
+//            break;
+//            
+//        case UIInterfaceOrientationPortraitUpsideDown:
+//            if (newOrientation == UIInterfaceOrientationPortrait) {
+//                offset = 180;
+//            } else if (newOrientation == UIInterfaceOrientationLandscapeLeft) {
+//                offset = 90;
+//            } else if (newOrientation == UIInterfaceOrientationLandscapeRight) {
+//                offset = -90;
+//            }
+//            break;
+//    }
     //Blur out keyboard
 //    [keyboardFocusedProxy blur:nil];
     
@@ -1332,39 +1319,37 @@
     [[UIApplication sharedApplication] setStatusBarOrientation:newOrientation animated:NO];
     forcingStatusBarOrientation = NO;
     */
-    curTransformAngle = offset % 360;
-    
-    switch (curTransformAngle) {
-        case 90:
-        case -270:
-            transform = CGAffineTransformMakeRotation(M_PI_2);
-            break;
-        case -90:
-        case 270:
-            transform = CGAffineTransformMakeRotation(-M_PI_2);
-            break;
-        case 180:
-            transform = CGAffineTransformMakeRotation(M_PI);
-            break;
-        default:
-            transform = CGAffineTransformIdentity;
-            break;
-    }
-    [hostView setTransform:transform];
+//    curTransformAngle = offset % 360;
+//    
+//    switch (curTransformAngle) {
+//        case 90:
+//        case -270:
+//            transform = CGAffineTransformMakeRotation(M_PI_2);
+//            break;
+//        case -90:
+//        case 270:
+//            transform = CGAffineTransformMakeRotation(-M_PI_2);
+//            break;
+//        case 180:
+//            transform = CGAffineTransformMakeRotation(M_PI);
+//            break;
+//        default:
+//            transform = CGAffineTransformIdentity;
+//            break;
+//    }
+//    [hostView setTransform:transform];
 //    [hostView setFrame:self.view.bounds];
-    [self resizeView];
-    
-}
+//}
 
--(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
-{
-    if (!forcingRotation) {
-        return;
-    }
-    UIApplication * ourApp = [UIApplication sharedApplication];
-    UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
+//-(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
+//{
+//    if (!forcingRotation) {
+//        return;
+//    }
+//    UIApplication * ourApp = [UIApplication sharedApplication];
+//    UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
 //    CGAffineTransform transform;
-//
+//    
 //    switch (newOrientation) {
 //        case UIInterfaceOrientationPortraitUpsideDown:
 //            transform = CGAffineTransformMakeRotation(M_PI);
@@ -1379,50 +1364,45 @@
 //            transform = CGAffineTransformIdentity;
 //            break;
 //    }
-    
-    [self willRotateToInterfaceOrientation:newOrientation duration:duration];
-	
-    BOOL animated = duration > 0.0;
-    // Have to batch all of the animations together, so that it doesn't look funky
-    if (animated) {
-        [UIView beginAnimations:@"orientation" context:nil];
-        [UIView setAnimationDuration:duration];
-    }
-    
-    if ((newOrientation != oldOrientation) && isCurrentlyVisible) {
-        
-        UIView* focusedView = nil;
-        if (self.keyboardActiveInput) {
-            focusedView = [self.keyboardActiveInput retain];
-            self.keyboardActiveInput.resignFirstResponder;
-        }
-        forcingStatusBarOrientation = YES;
-        [ourApp setStatusBarOrientation:newOrientation animated:animated];
-        forcingStatusBarOrientation = NO;
-        if (focusedView) {
-            [focusedView becomeFirstResponder];
-            [focusedView release];
-            focusedView = nil;
-        }
-        [self updateStatusBar:animated];
-    }
-
-//    UIView * ourView = [self hostingView];
+//    
+//    [self willRotateToInterfaceOrientation:newOrientation duration:duration];
+//    
+//    // Have to batch all of the animations together, so that it doesn't look funky
+//    if (duration > 0.0) {
+//        [UIView beginAnimations:@"orientation" context:nil];
+//        [UIView setAnimationDuration:duration];
+//    }
+//    
+//    if ((newOrientation != oldOrientation) && isCurrentlyVisible) {
+//        TiViewProxy<TiKeyboardFocusableView> *kfvProxy = [keyboardFocusedProxy retain];
+//        BOOL focusAfterBlur = [kfvProxy focused:nil];
+//        if (focusAfterBlur) {
+//            [kfvProxy blur:nil];
+//        }
+//        forcingStatusBarOrientation = YES;
+//        [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
+//        forcingStatusBarOrientation = NO;
+//        if (focusAfterBlur) {
+//            [kfvProxy focus:nil];
+//        }
+//        [kfvProxy release];
+//    }
+//    
+//    UIView * ourView = [self view];
 //    [ourView setTransform:transform];
 //    [self resizeView];
 //    
-    [self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
-
-    //Propigate this to everyone else. This has to be done INSIDE the animation.
-    [self rotateHostingViewToOrientation:newOrientation fromOrientation:oldOrientation];
+//    [self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+//    
+//    //Propigate this to everyone else. This has to be done INSIDE the animation.
 //    [self repositionSubviews];
-
-    if (duration > 0.0) {
-        [UIView commitAnimations];
-    }
-
-    [self didRotateFromInterfaceOrientation:oldOrientation];
-}
+//    
+//    if (duration > 0.0) {
+//        [UIView commitAnimations];
+//    }
+//    
+//    [self didRotateFromInterfaceOrientation:oldOrientation];
+//}
 
 #pragma mark - TiOrientationController
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController
@@ -1486,11 +1466,11 @@
 
 #pragma mark - Appearance and rotation callbacks
 
-- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection;
-{
-    [self resetTransformAndForceLayout:YES];
-    [super traitCollectionDidChange:previousTraitCollection];
-}
+//- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection;
+//{
+//    [self resetTransformAndForceLayout:YES];
+//    [super traitCollectionDidChange:previousTraitCollection];
+//}
 
 //Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 -(void)viewWillAppear:(BOOL)animated
@@ -1525,12 +1505,12 @@
             for (id<TiWindowProtocol> thisWindow in containedWindows) {
                 [thisWindow viewDidAppear:animated];
             }
-            if (forcingRotation || [TiUtils isIOS8OrGreater]) {
-                forcingRotation = NO;
-                [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-            } else {
+//            if (forcingRotation || [TiUtils isIOS8OrGreater]) {
+//                forcingRotation = NO;
+//                [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+//            } else {
                 [self childOrientationControllerChangedFlags:[containedWindows lastObject]];
-            }
+//            }
             [[containedWindows lastObject] gainFocus];
         }
     }
@@ -1550,11 +1530,10 @@
 -(void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
     _rotating = YES;
-    if (!forcingRotation && _forcedOrientation) {
-        _forcedOrientation = NO;
-        [self resetTransformAndForceLayout:YES];
-        //        [self resizeView];
-    }
+//    if (!forcingRotation) {
+//        [self resetTransformAndForceLayout:YES];
+//        //        [self resizeView];
+//    }
     if (self.keyboardActiveInput) {
         UIView* accessory = self.keyboardActiveInput.inputAccessoryView;
         if ([accessory isKindOfClass:[TiUIView class]]) {
@@ -1563,7 +1542,10 @@
     }
     @synchronized(containedWindows) {
         for (id<TiWindowProtocol> thisWindow in containedWindows) {
-            [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+//            TiOrientationFlags flags = [thisWindow orientationFlags];
+//            if (TI_ORIENTATION_ALLOWED(flags,toInterfaceOrientation)) {
+                [thisWindow willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+//            }
         }
     }
     [self updateOrientationHistory:toInterfaceOrientation];
@@ -1576,7 +1558,10 @@
     
     @synchronized(containedWindows) {
         for (id<TiWindowProtocol> thisWindow in containedWindows) {
-            [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+//            TiOrientationFlags flags = [thisWindow orientationFlags];
+//            if (TI_ORIENTATION_ALLOWED(flags,toInterfaceOrientation)) {
+                [thisWindow willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+//            }
         }
     }
     [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
@@ -1587,7 +1572,10 @@
     _rotating = NO;
     @synchronized(containedWindows) {
         for (id<TiWindowProtocol> thisWindow in containedWindows) {
-            [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+//            TiOrientationFlags flags = [thisWindow orientationFlags];
+//            if (TI_ORIENTATION_ALLOWED(flags,toInterfaceOrientation)) {
+                [thisWindow didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+//            }
         }
     }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
