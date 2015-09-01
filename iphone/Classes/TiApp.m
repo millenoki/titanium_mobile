@@ -300,7 +300,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
     if(splashScreenImage == nil) {
         splashScreenImage = [[UIImageView alloc] init];
-        [splashScreenImage setBackgroundColor:[UIColor yellowColor]];
+        [splashScreenImage setBackgroundColor:[UIColor clearColor]];
         [splashScreenImage setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
         [splashScreenImage setContentMode:UIViewContentModeScaleToFill];
         
