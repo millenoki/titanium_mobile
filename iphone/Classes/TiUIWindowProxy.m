@@ -229,6 +229,42 @@
 	return [NSMutableDictionary dictionaryWithObjectsAndKeys:@"title",@"titleid",@"titlePrompt",@"titlepromptid",nil];
 }
 
+-(void)rotateEvent:(NSNotification*)sender
+{
+    [self fireEvent:@"orientationchange" withObject:@{
+                                                     @"orientation": @([UIDevice currentDevice].orientation) }];
+}
+
+-(void)registerForOrientation
+{
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(rotateEvent:) name:UIDeviceOrientationDidChangeNotification object:nil];
+}
+
+-(void)_listenerAdded:(NSString *)type count:(NSInteger)count
+{
+    if (count == 1 && [type isEqualToString:@"orientationchange"])
+    {
+        TiThreadPerformOnMainThread(^{[self registerForOrientation];}, NO);
+    }
+}
+
+-(void)unregisterForNotificationNamed:(NSString *)oldNotification
+{
+    WARN_IF_BACKGROUND_THREAD_OBJ;	//NSNotificationCenter is not threadsafe!
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:oldNotification object:nil];
+}
+
+-(void)_listenerRemoved:(NSString *)type count:(NSInteger)count
+{
+    if (count == 0 && [type isEqualToString:@"orientationchange"])
+    {
+        TiThreadPerformOnMainThread(^{[self unregisterForNotificationNamed:UIDeviceOrientationDidChangeNotification];}, NO);
+    }
+}
+
 #pragma mark - TiWindowProtocol overrides
 
 -(UIViewController*)hostingController;
