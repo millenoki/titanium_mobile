@@ -435,7 +435,7 @@
 
 -(void)setMaxLines_:(id)value
 {
-    _maxLines = [TiUtils intValue:value];
+    _maxLines = [TiUtils intValue:value def:0];
     if (textWidgetView) {
         TiUITextViewImpl* textView = ((TiUITextViewImpl*)[self textWidgetView]);
         NSUInteger numLines = textView.contentSize.height/textView.font.lineHeight;
