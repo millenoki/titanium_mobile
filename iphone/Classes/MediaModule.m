@@ -308,6 +308,13 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         scale*=2;
         
     }
+    
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    if (UIInterfaceOrientationIsPortrait(orientation)) {
+        imageSize = [UIScreen mainScreen].bounds.size;
+    } else {
+        imageSize = CGSizeMake([UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width);
+    }
     UIGraphicsBeginImageContextWithOptions(imageSize, NO, scale);
     
     CGContextRef context = UIGraphicsGetCurrentContext();
@@ -317,18 +324,30 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     {
         if (IS_OF_CLASS(window, TouchCapturingWindow) && (![window respondsToSelector:@selector(screen)] || [window screen] == [UIScreen mainScreen]))
         {
+            CGSize size = [window bounds].size;
+            CGPoint center = [window center];
+            CGPoint anchorPoint = [[window layer] anchorPoint];
             // -renderInContext: renders in the coordinate space of the layer,
             // so we must first apply the layer's geometry to the graphics context
             CGContextSaveGState(context);
             // Center the context around the window's anchor point
-            CGContextTranslateCTM(context, [window center].x, [window center].y);
+            CGContextTranslateCTM(context, center.x, center.y);
             // Apply the window's transform about the anchor point
             CGContextConcatCTM(context, [window transform]);
             // Offset by the portion of the bounds left of and above the anchor point
             CGContextTranslateCTM(context,
-                                  -[window bounds].size.width * [[window layer] anchorPoint].x,
-                                  -[window bounds].size.height * [[window layer] anchorPoint].y);
-            
+                                  -size.width * anchorPoint.x,
+                                  -size.height * anchorPoint.y);
+            if (orientation == UIInterfaceOrientationLandscapeLeft) {
+                CGContextRotateCTM(context, M_PI_2);
+                CGContextTranslateCTM(context, 0, -imageSize.width);
+            } else if (orientation == UIInterfaceOrientationLandscapeRight) {
+                CGContextRotateCTM(context, -M_PI_2);
+                CGContextTranslateCTM(context, -imageSize.height, 0);
+            } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
+                CGContextRotateCTM(context, M_PI);
+                CGContextTranslateCTM(context, -imageSize.width, -imageSize.height);
+            }
             // Render the layer hierarchy to the current context
             if ([window respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
                 [window drawViewHierarchyInRect:[window bounds] afterScreenUpdates:NO];
@@ -346,20 +365,20 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     
     UIGraphicsEndImageContext();
     
-    UIInterfaceOrientation windowOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-    switch (windowOrientation) {
-        case UIInterfaceOrientationPortraitUpsideDown:
-            image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
-            break;
-        case UIInterfaceOrientationLandscapeLeft:
-            image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationRight];
-            break;
-        case UIInterfaceOrientationLandscapeRight:
-            image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationLeft];
-            break;
-        default:
-            break;
-    }
+//    UIInterfaceOrientation windowOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+//    switch (windowOrientation) {
+//        case UIInterfaceOrientationPortraitUpsideDown:
+//            image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationDown];
+//            break;
+//        case UIInterfaceOrientationLandscapeLeft:
+//            image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationRight];
+//            break;
+//        case UIInterfaceOrientationLandscapeRight:
+//            image = [UIImage imageWithCGImage:[image CGImage] scale:[image scale] orientation:UIImageOrientationLeft];
+//            break;
+//        default:
+//            break;
+//    }
     return image;
 }
 
