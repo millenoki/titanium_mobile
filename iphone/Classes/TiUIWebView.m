@@ -880,6 +880,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
             lastValidLoad = [urlAbs retain];
         }
     }
+    if ([[self viewProxy] _hasListeners:@"afterload" checkParent:NO])
+    {
+        [self.proxy fireEvent:@"afterload" withObject:@{@"url":url} propagate:NO checkForListener:NO];
+    }
     [webView setNeedsDisplay];
     ignoreNextRequest = NO;
     TiUIWebViewProxy * ourProxy = (TiUIWebViewProxy *)[self proxy];
