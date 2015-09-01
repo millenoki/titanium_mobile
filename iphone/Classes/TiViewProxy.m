@@ -1150,6 +1150,9 @@ SEL GetterForKrollProperty(NSString * key)
             result.width = size.width;
             result.width -= offsetx;
         }
+    } else {
+        result.width = size.width;
+        result.width -= offsetx;
     }
     
     if (TiDimensionIsDip(layoutProperties.height) || TiDimensionIsPercent(layoutProperties.height))        {
@@ -1175,6 +1178,9 @@ SEL GetterForKrollProperty(NSString * key)
             result.height = size.height;
             result.height -= offsety;
         }
+    } else {
+        result.height = size.height;
+        result.height -= offsety;
     }
     result = minmaxSize(&layoutProperties, result, size);
     return result;
