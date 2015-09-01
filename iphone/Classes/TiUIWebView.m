@@ -938,7 +938,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     if ([[self viewProxy] _hasListeners:@"loadprogress" checkParent:NO])
     {
         [self.proxy fireEvent:@"loadprogress" withObject:@{
-                                                           @"url":[[webview request] URL],
+//                                                           @"url":[[webview request] URL],
                                                            @"progress":@(progress)
                                                         } propagate:NO checkForListener:NO];
     }
