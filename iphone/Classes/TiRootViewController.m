@@ -1161,7 +1161,7 @@
 //        return; //dont do it twice
     }
     
-    if ([[UIDevice currentDevice] orientation] != target) {
+//    if ([[UIDevice currentDevice] orientation] != target) {
         forcingRotation = YES;
 //        forcedOrientation = YES;
         [[UIDevice currentDevice] setValue:@(target) forKey:@"orientation"];
@@ -1183,7 +1183,7 @@
 //#endif
 //    } else {
 //        [self resetTransformAndForceLayout:NO];
-    }
+//    }
     
 }
 
