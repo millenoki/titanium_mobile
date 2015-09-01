@@ -102,13 +102,13 @@
     if (childrenCount == 0) {
         return [NSMutableArray array];
     }
-    if (![NSThread isMainThread]) {
-        __block NSArray* result = nil;
-        TiThreadPerformOnMainThread(^{
-            result = [[self children] retain];
-        }, YES);
-        return [result autorelease];
-    }
+//    if (![NSThread isMainThread]) {
+//        __block NSArray* result = nil;
+//        TiThreadPerformOnMainThread(^{
+//            result = [[self children] retain];
+//        }, YES);
+//        return [result autorelease];
+//    }
     
 	pthread_rwlock_rdlock(&childrenLock);
     NSArray* copy = [children mutableCopy];
