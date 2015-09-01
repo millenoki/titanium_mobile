@@ -426,10 +426,10 @@
     {
         [[self label] setNumberOfLines:1];
     }
-    else if ([[self proxy] valueForKey:@"maxLines"])
-        [[self label] setNumberOfLines:([[[self proxy] valueForKey:@"maxLines"] integerValue])];
-    else
-    {
+    else if ([[self proxy] valueForKey:@"maxLines"]) {
+        NSInteger maxLines = [TiUtils intValue:[[self proxy] valueForKey:@"maxLines"] def:0];
+        [[self label] setNumberOfLines:maxLines];
+    } else {
         BOOL shouldWordWrap = [TiUtils boolValue:[[self proxy] valueForKey:@"wordWrap"] def:YES];
         if (shouldWordWrap)
         {
