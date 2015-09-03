@@ -56,7 +56,7 @@ public class TiEnhancedServiceProxy extends ReusableProxy {
     
     private OnLifecycleEvent lifecycleListener = null;
     
-    private boolean stopOnDestroy = false;
+    protected boolean stopOnDestroy = false;
     
     protected String logTAG() {
         return TAG;
