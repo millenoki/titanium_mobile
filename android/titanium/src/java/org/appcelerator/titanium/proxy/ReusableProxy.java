@@ -11,7 +11,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.view.KrollProxyReusableListener;
 
 @Kroll.proxy
-public class ReusableProxy extends KrollProxy implements KrollProxyReusableListener {
+public class ReusableProxy extends ParentingProxy implements KrollProxyReusableListener {
     public ReusableProxy() {
         super();
         setModelListener(this);
