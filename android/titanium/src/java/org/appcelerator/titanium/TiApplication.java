@@ -229,10 +229,7 @@ public abstract class TiApplication extends Application implements
     // called when we want to terminate the
     // application (typically when the root activity is destroyed)
     public static void terminateActivityStack() {
-        TiApplication instance = getInstance();
-        for (WeakReference<KrollModule> module : modules.values()) {
-            module.get().onAppTerminate(instance);
-        }
+        
 
         if (activityStack == null || activityStack.size() == 0) {
             return;
@@ -1195,6 +1192,14 @@ public abstract class TiApplication extends Application implements
         }
         if (TiApplication.activityStack != null) {
             TiApplication.activityStack.clear();
+        }
+        if (TiApplication.modules != null) {
+            TiApplication instance = getInstance();
+            for (WeakReference<KrollModule> module : modules.values()) {
+                module.get().onAppTerminate(instance);
+                module.get().release();
+            }
+            TiApplication.modules.clear();
         }
         TiActivityWindows.dispose();
         TiActivitySupportHelpers.dispose();
