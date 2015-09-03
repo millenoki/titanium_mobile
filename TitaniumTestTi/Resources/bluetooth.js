@@ -375,7 +375,7 @@ function create(_context) {
                                             var text = e.data.hexString;
                                             sdebug('received', e.length, text);
                                         }):null;
-        var pairedDevices = [];aaaaaaaaaa
+        var pairedDevices = [];
         var availableDevices = [];
         var availableSection = new ListSection({
             headerView: {

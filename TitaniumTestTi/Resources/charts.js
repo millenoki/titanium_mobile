@@ -394,7 +394,7 @@ function create(_context) {
                 // color: 'blue'
                 // },
                 label: {
-                    color: $themeColor,
+                    color: 'red',
                     // offset: {
                     // y: -16
                     // },
@@ -594,7 +594,7 @@ function create(_context) {
     function chartsEx3() {
         var items = [];
 
-        for (var j = 0; j < 50; j++) {
+        for (var j = 0; j < 6; j++) {
             var length = 24 * 60;
             var step = Math.floor(length / 5) + 1;
             var data = [
@@ -635,7 +635,10 @@ function create(_context) {
                         majorTicks: {
                             labels: {
                                 color: (j % 2 === 0) ? 'red' : undefined,
-                                numberSuffix: (j % 2 === 0) ? " m" : ""
+                                // numberSuffix: (j % 2 === 0) ? " m" : ""
+                                formatCallback: function(e){
+                                            return e+'t';
+                                        }
                             }
                         }
                     }
@@ -677,7 +680,7 @@ function create(_context) {
                                             fontSize: 12
                                         },
                                         textAlign: Charts.ALIGNMENT_LEFT,
-                                        numberFormat: '#'
+                                        // numberFormat: '#'
                                     }
                                 }
                             },
@@ -713,10 +716,13 @@ function create(_context) {
             },
             defaultItemTemplate: 'template',
             rowHeight: 50,
-            sections: [{
-                items: items
-            }]
+            // sections: [{
+            //     items: items
+            // }]
         });
+        listview.sections = [{
+                items: items
+            }];
         win.add(listview);
         openWin(win);
     }

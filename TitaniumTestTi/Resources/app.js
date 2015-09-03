@@ -2018,7 +2018,7 @@ function htmlLabelEx() {
 		height: Ti.UI.SIZE,
 		ellipsize: Ti.UI.TEXT_ELLIPSIZE_TAIL,
 		maxHeight: 100,
-		textIsSelectable:true,
+		textIsSelectable: true,
 		bottom: 20,
 		html: html
 	}));
@@ -2439,10 +2439,10 @@ function cellColor(_index) {
 			break;
 	}
 }
-var transitionsMap = _.map(Ti.UI.TransitionStyle, function(value, key){
+var transitionsMap = _.map(Ti.UI.TransitionStyle, function(value, key) {
 	return {
 		title: _.startCase(key),
-		id:value
+		id: value
 	};
 });
 
@@ -4057,7 +4057,7 @@ function antiAliasTest(_args) {
 	win.add(view);
 	openWin(win);
 }
-var modules = ['shapes', 'bluetooth'];
+var modules = ['shapes', 'bluetooth', 'charts'];
 var moduleItems = [];
 for (var i = 0; i < modules.length; i++) {
 	var module = require(modules[i]).load(this);
@@ -4116,14 +4116,42 @@ var firstWindow = createWin({
 	startBarDeltaY: 0,
 	barOpacity: 0,
 	startToolbarDeltaY: 0,
+	navBarHidden: true,
+	barColor: 'transparent',
 	toolbar: [Ti.UI.createButton({
-			title: 'test'
+			properties:{
+				title: 'test',
+			},
+			events:{
+				click:function(){
+					firstWindow.listView.editing = !firstWindow.listView.editing;
+				}
+			}
 		})]
 		// }
+});
+var headerView2 = new View({
+	properties: {
+							layout: 'vertical',
+							height: 'SIZE'
+						},
+						childTemplates: [{
+							bindId:'label',
+							type: 'Ti.UI.Label',
+							properties: {
+								backgroundColor: 'red',
+								height:20,
+								font: {
+									weight: 'thin'
+								},
+								text: 'HeaderView created from Dict'
+							}
+						}]
 });
 
 firstWindow
 	.add({
+		bindId:'listView',
 		type: 'Ti.UI.ListView',
 		properties: {
 
@@ -4134,6 +4162,8 @@ firstWindow
 			searchHidden: true,
 			// style:1,
 			allowsSelection: false,
+			allowsMultipleSelectionDuringEditing: true,
+			canEdit:true,
 			// searchView: {
 			// type: 'Ti.UI.SearchBar',
 			// properties: {
@@ -4148,17 +4178,7 @@ firstWindow
 			sections: [{
 					// footerTitle: 'This is a footer text',
 					// headerTitle: 'WIRELESSS & NETWORK',
-					// headerView: {
-					// type: 'Ti.UI.Label',
-					// properties: {
-					// backgroundColor: 'red',
-					// bottom: 50,
-					// font: {
-					// weight: 'thin'
-					// },
-					// text: 'HeaderView created from Dict'
-					// }
-					// },
+					headerView: headerView2,
 
 					items: [{
 						properties: {
@@ -4291,7 +4311,8 @@ firstWindow
 					offset: 'contentOffset.y'
 				},
 				expressions: {
-					a: 'max(_offset/2,0)'
+					a: 'max(_offset/2,0)',
+					b: 'max(_offset/200*30,0)',
 				},
 				targets: [{
 						target: headerView,
@@ -4300,6 +4321,12 @@ firstWindow
 							opacity: '1-_offset/200'
 						}
 					},
+					// {
+					// 	target:headerView2.label,
+					// 	properties:{
+					// 		height:'20  + _b'
+					// 	}
+					// },
 					__APPLE__ ? {
 						target: firstWindow,
 						targetVariables: {
@@ -4334,7 +4361,8 @@ firstWindow.addEventListener('open', function() {
 });
 var mainWin = Ti.UI.createNavigationWindow({
 	// backgroundColor: backColor,
-	swipeToClose: false,
+
+	// swipeToClose: false,
 	exitOnClose: true,
 	// theme: "Theme.Titanium.TranslucentActionBar.Overlay",
 	title: 'AKYLAS_MAIN_WINDOW',
@@ -4356,7 +4384,7 @@ mainWin.addEventListener('closeWindow', function(e) {
 // properties: {
 // bottom: 0,
 // backgroundColor: 'green',
-// backgroundSelectedColor: 'yellow',
+// backgroundSelectedColor: 'yellow',barColor
 // height: 50,
 // width: 'FILL'
 // }
@@ -5387,6 +5415,7 @@ function videoOverlayTest(_args) {
 		height: Math.ceil(videoWVWidth * 9 / 16),
 		bottom: videoWVRight,
 		right: videoWVRight,
+		// willHandleTouches:true,
 		backgroundColor: 'black',
 		mediaPlaybackRequiresUserAction: false,
 		allowsInlineMediaPlayback: true,
@@ -6154,7 +6183,8 @@ function randomColor() {
 function scrollableViewTest(_args) {
 	var tabs = [];
 	for (var i = 0; i < 10; i++) {
-		tabs.push(new Label({
+		tabs.push({
+			type: 'Ti.UI.Label',
 			properties: {
 				width: 'FILL',
 				height: 'FILL',
@@ -6162,16 +6192,12 @@ function scrollableViewTest(_args) {
 				color: 'white',
 				textAlign: 'center',
 				text: "not loaded tab " + i,
+				bubbleParent: true,
 				title: i
-			},
-			events: {
-				'first_load': function(e) {
-					sdebug('first_load', e.source);
-					e.source.text = 'loaded!'
-				}
 			}
-		}));
-	};
+
+		});
+	}
 	var win = createWin(_.assign({
 		layout: 'vertical',
 		childTemplates: [{
@@ -6196,7 +6222,13 @@ function scrollableViewTest(_args) {
 				width: 'FILL',
 				views: tabs,
 				transition: {
-					style: Ti.UI.TransitionStyle.FLIP
+					// style: Ti.UI.TransitionStyle.FLIP
+				}
+			},
+			events: {
+				'first_load': function(e) {
+					sdebug('first_load', e.source);
+					e.source.text = 'loaded!'
 				}
 			}
 		}, {
@@ -7207,18 +7239,18 @@ function gradientAnimationTest(_args) {
 
 function windowLevelTest() {
 	var win = Ti.UI.createWindow({
-		lightweight:true,		
-		touchPassThrough:true,
-		backgroundColor:'transparent',
-		childTemplates:[{
-			type:'Ti.UI.View',
-			properties:{
-				backgroundColor:'blue',
-				bottom:0,
-				height:30
+		lightweight: true,
+		touchPassThrough: true,
+		backgroundColor: 'transparent',
+		childTemplates: [{
+			type: 'Ti.UI.View',
+			properties: {
+				backgroundColor: 'blue',
+				bottom: 0,
+				height: 30
 			},
-			events:{
-				click:function(){
+			events: {
+				click: function() {
 					win.close();
 					win = null;
 				}
@@ -7227,4 +7259,7 @@ function windowLevelTest() {
 	});
 	win.open();
 }
-setTimeout(windowLevelTest, 1000);
+// setTimeout(windowLevelTest, 1000);
+// scrollableViewTest();
+
+btEx2();

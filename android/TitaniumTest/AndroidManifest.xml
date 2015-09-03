@@ -32,6 +32,13 @@
     <uses-permission android:name="android.permission.BIND_VPN_SERVICE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-feature android:name="android.hardware.bluetooth_le"  android:required="true" />
+    
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE"/>
     <uses-permission android:name="com.akylas.titanium.ks.permission.C2D_MESSAGE"/>
     <permission android:name="com.akylas.titanium.ks.permission.C2D_MESSAGE" android:protectionLevel="signature"/>
@@ -120,9 +127,9 @@
                 <action android:name="android.net.VpnService" />
             </intent-filter>
         </service> -->
-        <service android:name="org.aps.analytics.APSAnalyticsService" >
-        </service>
-
+        <service android:name="org.aps.analytics.APSAnalyticsService" />
+        <service android:name="akylas.bluetooth.UartService" />
+        
         
 <!--         <receiver android:name="akylas.millenoki.vpn.StartupIntentReceiver"
 			android:permission="android.permission.RECEIVE_BOOT_COMPLETED">

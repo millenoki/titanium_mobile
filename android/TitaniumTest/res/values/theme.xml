@@ -58,6 +58,11 @@
 		<item name="android:background">#00000000</item>
 	</style>
 	
+	<style name="Theme.Titanium.Translucent.NoActionBar" parent="Theme.Titanium.Translucent">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+	
 	 <style name="Theme.Titanium.Translucent.Overlay" parent="Theme.Titanium.Translucent">
         <item name="windowActionBarOverlay">true</item>
     </style>

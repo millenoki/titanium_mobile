@@ -12,5 +12,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-media"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-network"/>
 	<classpathentry kind="lib" path="lib/googleplayservices.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/titanium-image"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

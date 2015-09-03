@@ -34,13 +34,13 @@ var movies = JSON.parse(
 function listViewExs(_args) {
     var win = createWin(_.assign(_args, {
         title: 'listviews',
-        fullscreen:true,
+        fullscreen: true,
         // barColor:'blue',
         layout: 'vertical',
         backgroundImage: Ti.Image.getFilteredScreenshot({
             scale: 0.6,
             filters: [{
-                radius:8,
+                radius: 8,
                 type: Ti.Image.FILTER_IOS_BLUR
             }]
         })
@@ -63,6 +63,16 @@ function listViewExs(_args) {
                 title: 'Long List'
             },
             callback: longListTest
+        }, {
+            properties: {
+                title: 'Animation'
+            },
+            callback: listViewExAnim
+        }, {
+            properties: {
+                title: 'CollectionInsideListView'
+            },
+            callback: collectionInsideListViewEx
         }, {
             properties: {
                 title: 'Click'
@@ -1594,7 +1604,18 @@ function listViewEx5() {
 }
 
 function longListTest() {
-    var win = createWin();
+    var win = createWin({
+        toolbar: [Ti.UI.createButton({
+            properties: {
+                title: 'test',
+            },
+            events: {
+                click: function() {
+                    listView.editing = !listView.editing;
+                }
+            }
+        })]
+    });
     var myTemplate = {
         "properties": {
             "height": 74,
@@ -1841,6 +1862,9 @@ function longListTest() {
 
     var listView = Ti.UI.createListView({
         rowHeight: 50,
+        allowsMultipleSelectionDuringEditing: true,
+        selectedBackgroundColor:'red',
+            canEdit:true,
         // updateInsetWithKeyboard:true,
         templates: {
             'template': myTemplate
@@ -2870,16 +2894,16 @@ function pullToRefresh(_args) {
         top: 0,
         rowHeight: 50,
         sections: sections,
-        pullView: pullToRefresh
+        pullBottomView: pullToRefresh
     });
-    listView.add({
-        type: 'Ti.UI.ActivityIndicator',
-        // properties: {
-        backgroundColor: 'purple',
-        width: 60,
-        height: 60
-            // }
-    });
+    // listView.add({
+    //     type: 'Ti.UI.ActivityIndicator',
+    //     // properties: {
+    //     backgroundColor: 'purple',
+    //     width: 60,
+    //     height: 60
+    //         // }
+    // });
 
     // listView.add({
     // bindId: 'testLabel',
@@ -3093,5 +3117,170 @@ function collectionViewEx(_args) {
     listView.setSections(sections);
     listView.addEventListener('itemclick', sinfo);
     win.add(listView);
+    openWin(win);
+}
+
+function listViewExAnim(_args) {
+    var win = createWin();
+    var listview = Ti.UI.createListView({
+        defaultItemTemplate: 'default',
+        allowsSelection: false,
+        separatorStyle: Ti.UI.ListViewSeparatorStyle.NONE,
+        clipChildren: false,
+        selectedBackgroundColor: 'transparent',
+        useAppearAnimation: true,
+        backgroundGradient: {
+            type: 'linear',
+            colors: ['#3393B8', '#4F7C9C'],
+            startPoint: {
+                x: 0,
+                y: 0,
+            },
+            endPoint: {
+                x: "100%",
+                y: "100%",
+            }
+        },
+
+        templates: {
+            "default": {
+                "properties": {
+                    height: 100
+                },
+                "childTemplates": [{
+                    "type": "Ti.UI.View",
+                    "properties": {
+                        clipChildren: false,
+                        top: 16,
+                        bottom: 16,
+                        right: 16,
+                        left: 16,
+                        borderRadius: 6,
+                        elevation: 2,
+                        translationZ: 2,
+                        backgroundColor: 'white'
+                    }
+                }]
+            }
+        },
+    });
+    var items = [];
+    for (var i = 0; i < 100; i++) {
+        items.push({
+            appearAnimation: {
+                duration: 300,
+                from: {
+
+                    transform: (i % 2 === 0) ? 'ot100%,0' : 'ot-100%,0',
+                    opacity: 0
+                }
+            }
+        });
+    }
+    listview.sections = [{
+        items: items
+    }];
+    win.add(listview);
+    openWin(win);
+}
+
+function collectionInsideListViewEx(_args) {
+    var win = createWin();
+    var listview = Ti.UI.createListView({
+        defaultItemTemplate: 'default',
+        templates: {
+            "default": {
+                "properties": {
+                    height: 200,
+                    backgroundColor: 'red'
+                },
+                "childTemplates": [{
+                    bindId: 'collectionView',
+                    "type": "Ti.UI.CollectionView",
+                    "properties": {
+                        scrollDirection: 'horizontal',
+                        backgroundColor: 'blue',
+                        height: 'FILL',
+                        defaultItemTemplate: 'default',
+                        templates: {
+                            default: {
+                                properties: {
+                                    width: 100,
+                                    height: 'FILL',
+                                    backgroundColor: getRandomColor(),
+                                },
+                                childTemplates: [{
+
+                                    type: 'Ti.UI.ImageView',
+                                    bindId: 'image',
+                                    properties: {
+                                        width: 'FILL',
+                                        height: 'FILL',
+                                        left: 5,
+                                        right: 5,
+                                        top: 5,
+                                        bottom: 5,
+                                        dispatchPressed: true,
+                                        "retina": true,
+                                        "localLoadSync": true,
+                                        "preventDefaultImage": true,
+                                        onlyTransitionIfRemote: true,
+                                        transition: {
+                                            style: Ti.UI.TransitionStyle.FADE
+                                        },
+                                        scaleType: Ti.UI.SCALE_TYPE_ASPECT_FILL
+
+                                    },
+                                    childTemplates: [{
+                                        type: 'Ti.UI.Label',
+                                        bindId: 'title',
+                                        properties: {
+                                            backgroundColor: '#aa000000',
+                                            width: 'FILL',
+                                            textAlign: 'center',
+                                            color: 'white',
+                                            font: {
+                                                fontSize: 20,
+                                                fontWeight: 'bold'
+                                            },
+                                            height: 50,
+                                            maxLines: 2,
+                                            ellipsize: Ti.UI.TEXT_ELLIPSIZE_TAIL,
+                                            bottom: 0
+                                        }
+                                    }]
+                                }]
+                            }
+                        }
+                    }
+                }]
+            }
+        }
+    });
+
+    listview.sections = [{
+        items: [{
+            collectionView: {
+                sections: [{
+                    items: _.times(100, function(i) {
+                        return {
+                            properties: {
+                                backgroundColor: getRandomColor()
+                            },
+                            appearAnimation: {
+                                duration: 2000,
+                                from: {
+
+                                    transform: (i % 2 == 0) ? 'ot100%,0' : 'ot-100%,0',
+                                    opacity: 0
+                                }
+                            }
+                        };
+                    })
+                }]
+            }
+        }]
+    }];
+    win.add(listview);
     openWin(win);
 }
