@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiBaseActivity.DialogWrapper;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiHtml;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -117,16 +118,16 @@ public class TiUIDialog extends TiUIView
         switch (key) {
         case TiC.PROPERTY_TITLE:
             if (dialog != null) {
-                dialog.setTitle(Html.fromHtml((String) newValue));
+                dialog.setTitle(TiHtml.fromHtml((String) newValue));
             } else {
-                getBuilder().setTitle(Html.fromHtml(TiConvert.toString(newValue)));
+                getBuilder().setTitle(TiHtml.fromHtml(TiConvert.toString(newValue)));
             }
             break;
         case TiC.PROPERTY_MESSAGE:
             if (dialog != null) {
-                dialog.setMessage(Html.fromHtml((String) newValue));
+                dialog.setMessage(TiHtml.fromHtml((String) newValue));
             } else {
-                getBuilder().setMessage(Html.fromHtml(TiConvert.toString(newValue)));
+                getBuilder().setMessage(TiHtml.fromHtml(TiConvert.toString(newValue)));
             }
             break;
         case TiC.PROPERTY_BUTTON_NAMES:
