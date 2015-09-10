@@ -624,6 +624,8 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
             }
             if (mp != null) {
                 float scaledVolume = this.volume;
+                 
+                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, (int) (mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) * scaledVolume), 0);
                 mp.setVolume(scaledVolume, scaledVolume);
             }
         } catch (Throwable t) {
