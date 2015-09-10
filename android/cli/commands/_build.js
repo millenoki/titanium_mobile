@@ -2899,7 +2899,7 @@ AndroidBuilder.prototype.processTiSymbols = function processTiSymbols(next) {
     Object.keys(this.tiSymbols).forEach(function (file) {
         this.tiSymbols[file].forEach(function (symbol) {
 
-            var parts = symbol.replace(/^(Ti|Titanium)./, '').replace(/\.create/gi, '').split('.').slice(0, -1);
+            var parts = symbol.replace(/^(Ti|Titanium)./, '').replace(/create/gi, '').split('.').slice(0, -1);
             if (parts.length) {
                 if (parts.indexOf('iPhone') !== -1 || parts.indexOf('iOS') !== -1) return;
                 
