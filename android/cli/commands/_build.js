@@ -1637,7 +1637,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'processTiSymbols',
         'handleGooglePlayServices',
 		'copyModuleResources',
-		'removeOldFiles',
+		// 'removeOldFiles',
 		'generateJavaFiles',
 		'generateAidl',
 
