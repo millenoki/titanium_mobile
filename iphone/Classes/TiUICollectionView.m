@@ -247,6 +247,7 @@ static NSDictionary* replaceKeysForRow;
     //            }
     //        }
     //
+    [_tableView setFrame:bounds];
     if (!searchViewAnimating) {
         
         TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
