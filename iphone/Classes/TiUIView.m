@@ -679,7 +679,17 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 {
 
     //the 0.5f is there to have a clean border where you don't see the background
-    CGPathRef path = self.layer.shadowPath = CGPathCreateRoundiiRect(bounds, radii);
+    CGPathRef path =  CGPathCreateRoundiiRect(bounds, radii);
+    if (runningAnimation) {
+        CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:@"shadowPath"];
+        pathAnimation.fromValue = (id)self.layer.shadowPath;
+        pathAnimation.duration = [runningAnimation duration];
+        pathAnimation.timingFunction = [runningAnimation curve];
+        pathAnimation.fillMode = kCAFillModeBoth;
+        pathAnimation.toValue = (id)path;
+        [self.layer addAnimation:pathAnimation forKey:@"shadowPath"];
+    }
+    self.layer.shadowPath = path;
     if (clipChildren && usePathAsBorder && (!self.layer.mask || [self.layer.mask isKindOfClass:[CAShapeLayer class]]))
     {
         [self applyPathToLayersMask:self.layer path:path];
