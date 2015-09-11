@@ -552,10 +552,10 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    if (scrollView.isDragging || scrollView.isDecelerating)
-    {
+//    if (scrollView.isDragging || scrollView.isDecelerating)
+//    {
         [self fireScrollEvent:scrollView];
-    }
+//    }
     if ([scrollView isTracking]) {
         if ( _hasPullView) {
             BOOL pullChanged = NO;
