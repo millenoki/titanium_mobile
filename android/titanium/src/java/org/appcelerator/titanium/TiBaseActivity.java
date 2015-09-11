@@ -966,10 +966,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			proxy = activityProxy;
 		} else{
 			TiWindowProxy topWindow = topWindowOnStack();
-			if (topWindow != null && topWindow.hierarchyHasListener(TiC.EVENT_ANDROID_BACK)) {
-				proxy = topWindow;
-			}
-			else if(window != null) {
+			if (topWindow != null) {
+				proxy = topWindow.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
+			} else if(window != null) {
 				proxy = window.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
 			}
 		}
@@ -977,7 +976,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// Prevent default Android behavior for "back" press
 		// if the top window has a listener to handle the event.
 		if (proxy != null) {
-			proxy.fireEvent(TiC.EVENT_ANDROID_BACK, null, true, false);
+			proxy.fireEvent(TiC.EVENT_ANDROID_BACK, null, false, false);
 			return true;
 		}
 		return false;
