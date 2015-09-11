@@ -447,7 +447,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     {
         trackingHeading = state;
         if (state) {
-            [locationManager stopUpdatingHeading];
+            [locationManager startUpdatingHeading];
         } else {
             [locationManager stopUpdatingHeading];
         }
