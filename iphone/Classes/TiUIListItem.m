@@ -692,7 +692,13 @@ static NSArray* handledKeys;
 //            return;
 //////        }
 ////        else {
+        if (_proxy.sandboxBounds.size.width == 0 || _proxy.sandboxBounds.size.height == 0) {
+            [UIView performWithoutAnimation:^{
+                [_proxy refreshViewIfNeeded:YES];
+            }];
+        } else {
             [_proxy refreshViewIfNeeded:YES];
+        }
 //        }
     }
     [super layoutSubviews];
