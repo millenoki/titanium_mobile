@@ -16,6 +16,16 @@
 #import "ImageLoader.h"
 #import "TiSVGImage.h"
 
+@interface TiUIView()
+-(void)sanitycheckListeners;
+-(void)setBackgroundGradient:(TiGradient*)gradient forState:(UIControlState)state;
+-(void)setBackgroundImage:(id)image forState:(UIControlState)state;
+-(void)setBackgroundColor:(UIColor*)color forState:(UIControlState)state;
+-(void)setBorderGradient:(TiGradient*)gradient forState:(UIControlState)state;
+-(void)setBorderImage:(id)image forState:(UIControlState)state;
+-(void)setBorderColor:(UIColor*)color forState:(UIControlState)state;
+@end
+
 @interface TiUIListItem()
 -(UIView *)backgroundWrapperView;
 -(void)disableSelectionStyle;
@@ -191,6 +201,7 @@ DEFINE_EXCEPTIONS
 {
 	// can be used to trigger things after all properties are set
     configurationSet = YES;
+    [_viewHolder sanitycheckListeners];
     [_viewHolder configurationSet];
 //    if (_bgSelectedView) {
 //        [_bgSelectedView selectableLayer].readyToCreateDrawables = configurationSet;
