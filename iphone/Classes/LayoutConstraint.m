@@ -113,7 +113,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint * constraint, N
             ignoreHPercent = TiLayoutRuleIsVertical(parentConstraints->layoutStyle) || (ignoreWPercent && TiLayoutFlagsHasHorizontalWrap(parentConstraints));
             UIView *parentView = [parent parentViewForChild:(TiViewProxy*)autoSizer];
             parentSize = (parentView != nil) ? parentView.bounds.size : CGSizeZero;
-            parentCanGrow = TiDimensionIsAutoSize([parent layoutProperties]->height);
+            parentCanGrow = TiDimensionIsAutoSize(parentConstraints->height);
+        } else if (!parent) {
+            parentCanGrow = TiDimensionIsAutoSize(constraint->height);
         }
     }
     
