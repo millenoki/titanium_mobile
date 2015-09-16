@@ -55,6 +55,30 @@ TI_INLINE NSArray* sliceArray(NSArray* array, int startIndex) {
     return [array subarrayWithRange:NSMakeRange(startIndex,[array count] -1)];
 }
 
+TI_INLINE NSTextCheckingType NSTextCheckingTypesFromUIDataDetectorTypes(UIDataDetectorTypes dataDetectorType) {
+    if (dataDetectorType == UIDataDetectorTypeAll) {
+        return NSTextCheckingAllTypes;
+    }
+    NSTextCheckingType textCheckingType = 0;
+    if (dataDetectorType & UIDataDetectorTypeAddress) {
+        textCheckingType |= NSTextCheckingTypeAddress;
+    }
+    
+    if (dataDetectorType & UIDataDetectorTypeCalendarEvent) {
+        textCheckingType |= NSTextCheckingTypeDate;
+    }
+    
+    if (dataDetectorType & UIDataDetectorTypeLink) {
+        textCheckingType |= NSTextCheckingTypeLink;
+    }
+    
+    if (dataDetectorType & UIDataDetectorTypePhoneNumber) {
+        textCheckingType |= NSTextCheckingTypePhoneNumber;
+    }
+    
+    return textCheckingType;
+}
+
 /**
  Titanium orientation flags.
  */

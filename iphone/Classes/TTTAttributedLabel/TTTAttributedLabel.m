@@ -1100,7 +1100,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     }
     
     if ([text isKindOfClass:[NSString class]]) {
-        if (self.dataDetectorTypes != UIDataDetectorTypeNone|| self.disabledColor != nil) {
+        if (self.enabledTextCheckingTypes != UIDataDetectorTypeNone|| self.disabledColor != nil) {
             [self setText:text afterInheritingLabelAttributesAndConfiguringWithBlock:nil];
             return;
         }

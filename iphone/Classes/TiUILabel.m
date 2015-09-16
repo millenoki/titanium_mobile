@@ -121,15 +121,10 @@
 	return label;
 }
 
--(NSURL *)checkLinkAttributeForString:(NSAttributedString*)theString atPoint:(CGPoint)p
+-(NSTextCheckingResult *)checkLinkAttributeForString:(NSAttributedString*)theString atPoint:(CGPoint)p
 {
     if ([label.links count] == 0) return nil;
-    NSTextCheckingResult* result = [label linkAtPoint:p];
-
-    if (result) {
-        return result.URL;
-    }
-    return nil;
+    return [label linkAtPoint:p];
 }
 
 - (NSInteger)characterIndexAtPoint:(CGPoint)p;
@@ -243,7 +238,7 @@
 }
 -(void)setAutoLink_:(id)value
 {
-    [[self label] setDataDetectorTypes:[TiUtils intValue:value]];
+    [[self label] setEnabledTextCheckingTypes:NSTextCheckingTypesFromUIDataDetectorTypes([TiUtils intValue:value])];
     //we need to update the text
     [self setAttributedTextViewContent];
 }
@@ -541,10 +536,24 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
     if (attString != nil) {
         CGPoint localPoint = [touch locationInView:label];
         NSTextCheckingResult* result = [label activeLink];
-        NSURL* url = [self checkLinkAttributeForString:attString atPoint:localPoint];
-        if (result.resultType == NSTextCheckingTypeLink){
+        if (result) {
             event = [NSMutableDictionary dictionaryWithDictionary:event];
-            [(NSMutableDictionary*)event setObject:result.URL forKey:@"link"];
+            switch(result.resultType) {
+                case NSTextCheckingTypeLink:
+                    [(NSMutableDictionary*)event setObject:result.URL forKey:@"link"];
+                    break;
+                case NSTextCheckingTypePhoneNumber:
+                    [(NSMutableDictionary*)event setObject:result.phoneNumber forKey:@"phoneNumber"];
+                    break;
+                case NSTextCheckingTypeAddress:
+                    [(NSMutableDictionary*)event setObject:result.addressComponents forKey:@"address"];
+                    break;
+                case NSTextCheckingTypeDate:
+                    [(NSMutableDictionary*)event setObject:@(result.date.timeIntervalSince1970) forKey:@"date"];
+                    break;
+                default:
+                    break;
+            }
         }
     }
     return event;
@@ -557,14 +566,29 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
     NSAttributedString* attString = label.attributedText;
     if (attString != nil) {
         CGPoint localPoint = [gesture locationInView:label];
-        NSURL* url = [self checkLinkAttributeForString:attString atPoint:localPoint];
-        if (url){
-            [event setObject:url forKey:@"link"];
+        NSTextCheckingResult* result = [self checkLinkAttributeForString:attString atPoint:localPoint];
+        if (result) {
+            event = [NSMutableDictionary dictionaryWithDictionary:event];
+            switch(result.resultType) {
+                case NSTextCheckingTypeLink:
+                    [(NSMutableDictionary*)event setObject:result.URL forKey:@"link"];
+                    break;
+                case NSTextCheckingTypePhoneNumber:
+                    [(NSMutableDictionary*)event setObject:result.phoneNumber forKey:@"phoneNumber"];
+                    break;
+                case NSTextCheckingTypeAddress:
+                    [(NSMutableDictionary*)event setObject:result.addressComponents forKey:@"address"];
+                    break;
+                case NSTextCheckingTypeDate:
+                    [(NSMutableDictionary*)event setObject:@(result.date.timeIntervalSince1970) forKey:@"date"];
+                    break;
+                default:
+                    break;
+            }
         }
     }
     return event;
 }
-
 
 #pragma mark - UIResponder
 
