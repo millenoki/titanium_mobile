@@ -229,6 +229,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 -(void)setVisible_:(id)visible;
 -(void)setSelected_:(id)arg;
+-(void)setTintColor_:(id)color;
 
 -(void)setBackgroundImage_:(id)value;
 
