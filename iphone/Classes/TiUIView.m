@@ -2272,7 +2272,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     [gestureRecognizer setTiGesture:YES];
     [gestureRecognizer setDelaysTouchesBegan:NO];
     [gestureRecognizer setDelaysTouchesEnded:NO];
-//    [gestureRecognizer setCancelsTouchesInView:NO];
+    [gestureRecognizer setCancelsTouchesInView:NO];
     [gestureRecognizer setDelegate:(id<UIGestureRecognizerDelegate>)self];
 }
 
