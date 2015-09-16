@@ -585,10 +585,10 @@ DEFINE_EXCEPTIONS
     {
         UIImage *poster = [[ImageLoader sharedLoader] loadImmediateImage:_defaultImageUrl withSize:[self imageSize]];
         
-        [self imageView].image = [self prepareImage:poster];
+        [self transitionToImage:poster];
     }
     else {
-        [self imageView].image = nil;
+        [self transitionToImage:nil];
     }
 }
 
@@ -697,10 +697,10 @@ DEFINE_EXCEPTIONS
     else {
         BOOL wasShowingCurrentImage = [self imageView].image == _currentImage;
         if (!animatedImage.paused && !wasShowingCurrentImage) {
-            [[self imageView] setImage:image];
+            [[self imageView] setImage:[self prepareImage:image]];
         }
         else {
-            [self transitionToImage:image];
+            [self transitionToImage:[self prepareImage:image]];
         }
     }
 }
@@ -908,7 +908,7 @@ DEFINE_EXCEPTIONS
         
     }
     
-    
+    shouldTransition = !onlyTransitionIfRemote && !_reusing;
     if (arg==nil || [arg isEqual:@""] || [arg isKindOfClass:[NSNull class]])
     {
         [self loadDefaultImage];
@@ -918,12 +918,12 @@ DEFINE_EXCEPTIONS
     if (_reusing) {
         [self loadDefaultImage];
     }
+    shouldTransition = !onlyTransitionIfRemote;
     
     id image = nil;
     NSURL* imageURL = nil;
     RELEASE_TO_NIL(_svg);
     
-    shouldTransition = !onlyTransitionIfRemote;
     if (localLoadSync || ![arg isKindOfClass:[NSString class]]) {
         image = [self convertToUIImage:arg];
     }
