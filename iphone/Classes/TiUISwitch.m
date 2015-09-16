@@ -68,13 +68,12 @@
 
 #pragma mark View controller stuff
 
--(void)setTintColor_:(id)color
-{
-    TiColor *ticolor = [TiUtils colorValue:color];
-    if (ticolor != nil) {
-        [[self switchView] setTintColor:[ticolor color]];
-    }
-}
+//-(void)setTintColor_:(id)color
+//{
+//    [super setTintColor_:color];
+//    TiColor *ticolor = [TiUtils colorValue:color];
+//    [[self switchView] setTintColor:[ticolor color]];
+//}
 
 -(void)setOnTintColor_:(id)color
 {

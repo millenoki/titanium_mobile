@@ -595,8 +595,9 @@ static NSArray* handledKeys;
 
 -(void)setTintColor_:(id)newValue
 {
+//    [_viewHolder setTintColor_:newValue];
     UIColor *color = newValue != nil ? [[TiUtils colorValue:newValue] _color] : [UIColor blackColor];
-    [self.textLabel setTintColor:color];
+    [self setTintColor:color];
 }
 
 -(void)setFont_:(id)fontValue

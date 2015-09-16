@@ -250,13 +250,13 @@
 	[[self searchBar] setAutocapitalizationType:[TiUtils intValue:value]];
 }
 
--(void)setTintColor_:(id)color
-{
-    TiColor *ticolor = [TiUtils colorValue:color];
-    UIColor* theColor = [ticolor _color];
-    [[self searchBar] setTintColor:theColor];
-    [self setTintColor:theColor];
-}
+//-(void)setTintColor_:(id)color
+//{
+//    [super setTintColor_:color];
+//    TiColor *ticolor = [TiUtils colorValue:color];
+//    UIColor* theColor = [ticolor _color];
+//    [[self searchBar] setTintColor:theColor];
+//}
 
 -(void)setBarColor_:(id)value
 {

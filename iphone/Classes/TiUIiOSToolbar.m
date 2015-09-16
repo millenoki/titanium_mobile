@@ -132,13 +132,13 @@
     [toolBar performSelector:@selector(setBarTintColor:) withObject:barColor];
 }
 
--(void)setTintColor_:(id)color
-{
-    TiColor *ticolor = [TiUtils colorValue:color];
-    UIColor* theColor = [ticolor _color];
-    [[self toolBar] performSelector:@selector(setTintColor:) withObject:theColor];
-    [self performSelector:@selector(setTintColor:) withObject:theColor];
-}
+//-(void)setTintColor_:(id)color
+//{
+//    [super setTintColor_:color];
+//    TiColor *ticolor = [TiUtils colorValue:color];
+//    UIColor* theColor = [ticolor _color];
+//    [[self toolBar] performSelector:@selector(setTintColor:) withObject:theColor];
+//}
 
 -(void)setTranslucent_:(id)value
 {

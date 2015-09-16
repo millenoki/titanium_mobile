@@ -1601,6 +1601,11 @@ static NSDictionary* replaceKeysForRow;
         cell.delaysContentTouches = tableView.delaysContentTouches;
         cell.delegate = self;
         
+//        //we actually need this for longpress hanlding in listview
+//        UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedLongPress:)];
+//        [cell addGestureRecognizer:longPress];
+//        [longPress release];
+//        
         if ([TiUtils isIOS8OrGreater] && (tableView == _tableView)) {
             [cell setLayoutMargins:UIEdgeInsetsZero];
         }
