@@ -2092,11 +2092,12 @@ static NSDictionary* replaceKeysForRow;
 {
     NSMutableDictionary* eventArgs = [super eventObjectForScrollView:scrollView];
     NSArray* indexPaths = [_tableView indexPathsForVisibleRows];
+    NSUInteger visibleItemCount = [indexPaths count];
+    TiUIListSectionProxy* section;
     if ([indexPaths count] > 0) {
         NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+        section = [[self listViewProxy] sectionForIndex: [indexPath section]];
         
-        NSUInteger visibleItemCount = [indexPaths count];
-        TiUIListSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
         [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
         [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
         [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];

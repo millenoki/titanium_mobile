@@ -458,12 +458,6 @@
 	[self updateNumberLines];
 }
 
--(void)setEllipsize_:(id)value
-{
-    [[self label] setLineBreakMode:[TiUtils intValue:value]];
-}
-
-
 -(void)setMultiLineEllipsize_:(id)value
 {
     NSInteger multilineBreakMode = [TiUtils intValue:value];

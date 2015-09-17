@@ -196,8 +196,6 @@
 		2BCD59C51429561D00DEC2E8 /* TiUIiOSToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C21429561D00DEC2E8 /* TiUIiOSToolbar.m */; };
 		2BCD59C61429561D00DEC2E8 /* TiUIiOSToolbarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C41429561D00DEC2E8 /* TiUIiOSToolbarProxy.m */; };
 		2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEA4F21448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m */; };
-		312E36C1190B06D9008EAB8D /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 312E36C0190B06D9008EAB8D /* libAPSAnalytics.a */; };
-		3186097F192BDB4E00093482 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 3186097E192BDB4E00093482 /* AnalyticsModule.m */; };
 		4688700715E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4688700615E39A9D008FA326 /* TiUIiPhoneAlertDialogStyleProxy.m */; };
 		4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3033A2136239B30034640F /* TiFilesystemFileStreamProxy.m */; };
 		502A68DA16EEAA7500661EF6 /* TiUIListItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D116EEAA7500661EF6 /* TiUIListItem.m */; };
@@ -207,7 +205,6 @@
 		502A68E616EEAA7500661EF6 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68D916EEAA7500661EF6 /* TiUIListViewProxy.m */; };
 		502A68EB16F0428500661EF6 /* TiProxyTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 502A68EA16F0428500661EF6 /* TiProxyTemplate.m */; };
 		5081CEF815F8100E00C881D8 /* TiExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 5081CEF715F8100E00C881D8 /* TiExceptionHandler.m */; };
-		823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
 		838159E21B7A9632002EE811 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 838159EC1B7C3EFA002EE811 /* Assets.xcassets */; };
 		83924E881B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 83924E871B4C3FA200C3F3E8 /* TiAppiOSUserActivityProxy.m */; };
 		843FA58417BD4DFF0064E061 /* TiUINavigationWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 843FA58317BD4DFF0064E061 /* TiUINavigationWindow.m */; };
@@ -274,7 +271,6 @@
 		D5162EA81A20D1F7008A4048 /* TiUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5162E9C1A20D1F7008A4048 /* TiUICollectionView.m */; };
 		D5162EAB1A20D1F7008A4048 /* TiUICollectionViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5162E9E1A20D1F7008A4048 /* TiUICollectionViewProxy.m */; };
 		D51697F217FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
-		D518BD121B80D1BB0075199D /* libakylas.bluetooth.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5BE1B80C01D00C13E78 /* libakylas.bluetooth.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D518BD131B80D1BB0075199D /* libakylas.camera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C21B80C01D00C13E78 /* libakylas.camera.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D518BD141B80D1BB0075199D /* libakylas.charts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C61B80C01D00C13E78 /* libakylas.charts.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D518BD151B80D1BB0075199D /* libakylas.commonjs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5CA1B80C01D00C13E78 /* libakylas.commonjs.a */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -421,6 +417,7 @@
 		D5C8C9A017EF45C900F54C19 /* ADZoomTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C8C96417EF45C900F54C19 /* ADZoomTransition.m */; };
 		D5C8C9A317EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C8C96617EF45C900F54C19 /* UIViewController+ADTransitionController.m */; };
 		D5C92DA7182AA88F0072D117 /* TouchDelegate_Views.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */; };
+		D5D46C2D1BAAD08100C968F1 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; settings = {ASSET_TAGS = (); }; };
 		D5DC32F8180EED41006CCEBD /* TiTransitionCube.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */; };
 		D5E897B118A3FA0B00E565E1 /* NSDictionary+Merge.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E897B018A3FA0B00E565E1 /* NSDictionary+Merge.m */; };
 		D5E9511C195DC34800DB8B37 /* TiProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E9511B195DC34800DB8B37 /* TiProperties.m */; };
@@ -527,13 +524,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = D2AAC07D0554694100DB518D;
 			remoteInfo = akylas.camera;
-		};
-		D518BD081B80D1A50075199D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D50720381B344E1A005B31E5 /* akylas.bluetooth.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D2AAC07D0554694100DB518D;
-			remoteInfo = akylas.bluetooth;
 		};
 		D518BD0A1B80D1A80075199D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1743,7 +1733,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D518BD121B80D1BB0075199D /* libakylas.bluetooth.a in Frameworks */,
 				D518BD131B80D1BB0075199D /* libakylas.camera.a in Frameworks */,
 				D518BD141B80D1BB0075199D /* libakylas.charts.a in Frameworks */,
 				D518BD151B80D1BB0075199D /* libakylas.commonjs.a in Frameworks */,
@@ -3970,7 +3959,6 @@
 				D518BD0F1B80D1AE0075199D /* PBXTargetDependency */,
 				D518BD0D1B80D1AA0075199D /* PBXTargetDependency */,
 				D518BD0B1B80D1A80075199D /* PBXTargetDependency */,
-				D518BD091B80D1A50075199D /* PBXTargetDependency */,
 				D518BCFC1B80D1A30075199D /* PBXTargetDependency */,
 				D526745C1B58E75600D442E5 /* PBXTargetDependency */,
 				D507203F1B344E29005B31E5 /* PBXTargetDependency */,
@@ -4117,7 +4105,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\" \nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/ui/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\n\"$PROJECT_DIR/../../support/common/localecompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/common/css/csscompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios \"$PROJECT_DIR/../Resources\"";
+			shellScript = "mkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -4186,7 +4174,6 @@
 				24CA8B6C111161FE0084E2DE /* TiViewProxy.m in Sources */,
 				24CA8B70111161FE0084E2DE /* TiUtils.m in Sources */,
 				24CA8B71111161FE0084E2DE /* TiUIWindowProxy.m in Sources */,
-				3A275F3E1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m in Sources */,
 				24CA8B72111161FE0084E2DE /* TiUIWindow.m in Sources */,
 				24CA8B74111161FE0084E2DE /* TiUIWebViewProxy.m in Sources */,
 				24CA8B75111161FE0084E2DE /* TiUIViewProxy.m in Sources */,
@@ -4403,8 +4390,6 @@
 				DA864E3211A2314A00B9CD68 /* TiAudioMusicPlayer.m in Sources */,
 				D50E11301A223AC6008FD092 /* TiUICollectionViewFlowLayout.m in Sources */,
 				DAA905CE11A359F10030B119 /* TiAudioItem.m in Sources */,
-				823CC8AC1B7F0E4D00D220C7 /* TiAppiOSWatchSessionProxy.m in Sources */,
-				823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */,
 				B468B4F111B5816F007D1C1E /* TiLayoutQueue.m in Sources */,
 				D5AADFAB17EC32A6008987EF /* UIControl+TiUIView.m in Sources */,
 				D55B29BC1ACC2825008C0279 /* TiCacheObject.m in Sources */,
@@ -4486,6 +4471,7 @@
 				84D541A81460B3C9005338D1 /* TiDOMEntityProxy.m in Sources */,
 				84D541AD1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */,
 				B6465C2318D1011C003C51A8 /* TiNetworkCookieProxy.m in Sources */,
+				D5D46C2D1BAAD08100C968F1 /* WatchSessionModule.m in Sources */,
 				2BDEA4F31448FFB7004EC750 /* TiUIiOSTabbedBarProxy.m in Sources */,
 				D5809D5019129CEB005A1F02 /* APSHTTPHelper.m in Sources */,
 				844E1F7E14883A3700F5424C /* TiDOMValidator.m in Sources */,
@@ -4563,11 +4549,6 @@
 			isa = PBXTargetDependency;
 			name = akylas.camera;
 			targetProxy = D518BCFB1B80D1A30075199D /* PBXContainerItemProxy */;
-		};
-		D518BD091B80D1A50075199D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = akylas.bluetooth;
-			targetProxy = D518BD081B80D1A50075199D /* PBXContainerItemProxy */;
 		};
 		D518BD0B1B80D1A80075199D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
