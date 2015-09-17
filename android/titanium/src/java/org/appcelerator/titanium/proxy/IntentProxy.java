@@ -296,7 +296,7 @@ public class IntentProxy extends KrollProxy
 	public IntentProxy putExtra(String key, Object value)
 	{
 		if (value == null) {
-			return;
+			return this;
 		}
 		if (value instanceof String) {
 	        intent.putExtra(key, (String) value);

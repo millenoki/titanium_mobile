@@ -73,12 +73,4 @@
         <item name="android:textAlignment">viewStart</item>
     </style>
 
-    <style name="RtlOverlay.Widget.AppCompat.DialogTitle.Icon" parent="android:Widget">
-        <item name="android:layout_marginEnd">8dp</item>
-    </style>
-
-    <style name="RtlOverlay.DialogWindowTitle.AppCompat" parent="Base.DialogWindowTitle.AppCompat">
-        <item name="android:textAlignment">viewStart</item>
-    </style>
-
 </resources>

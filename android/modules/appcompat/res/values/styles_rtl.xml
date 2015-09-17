@@ -71,11 +71,4 @@
     <style name="RtlOverlay.DialogWindowTitle.AppCompat" parent="Base.DialogWindowTitle.AppCompat">
     </style>
 
-    <style name="RtlOverlay.Widget.AppCompat.DialogTitle.Icon" parent="android:Widget">
-        <item name="android:layout_marginRight">8dp</item>
-    </style>
-
-    <style name="RtlOverlay.DialogWindowTitle.AppCompat" parent="Base.DialogWindowTitle.AppCompat">
-    </style>
-
 </resources>
