@@ -1225,7 +1225,7 @@ static NSDictionary* replaceKeysForRow;
         TiColor* theColor = [TiUtils colorValue:@"color" properties:prop];
     
         UITableViewRowAction* theAction = [UITableViewRowAction rowActionWithStyle:actionStyle title:title handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
-            NSString* eventName = @"rowAction";
+            NSString* eventName = @"editaction";
             
             if ([self.listViewProxy _hasListeners:eventName checkParent:NO]) {
                 TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
@@ -2102,7 +2102,15 @@ static NSDictionary* replaceKeysForRow;
         [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
         [eventArgs setValue:section forKey:@"firstVisibleSection"];
         [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
-    }
+    } else {
+            section = [[self listViewProxy] sectionForIndex: 0];
+            
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItemIndex"];
+            [eventArgs setValue:NUMUINTEGER(0) forKey:@"visibleItemCount"];
+            [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
+            [eventArgs setValue:section forKey:@"firstVisibleSection"];
+            [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
+        }
     return eventArgs;
 }
 

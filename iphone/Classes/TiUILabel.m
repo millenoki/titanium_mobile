@@ -306,6 +306,17 @@
     needsSetText = YES;
 }
 
+-(void)setEllipsize_:(id)value
+{
+	ENSURE_SINGLE_ARG(value, NSNumber);
+	//for bool case and parity with android
+	if ([TiUtils intValue:value] == 1) {
+		[[self label] setLineBreakMode:NSLineBreakByTruncatingTail];
+		return;
+	}
+	[[self label] setLineBreakMode:[TiUtils intValue:value]];
+}
+
 -(void)setHighlightedColor_:(id)color
 {
 	UIColor * newColor = [[TiUtils colorValue:color] _color];

@@ -36,6 +36,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.app.ActionBar.TabListener;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 
@@ -121,14 +125,7 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
             actionBar.setDisplayShowTitleEnabled(true);
         }
 
-		if (proxy.hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN) && 
-			TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN))) {
-	        if (actionBar != null) {
-	            actionBar.setDisplayShowTitleEnabled(false);
-	            actionBar.setDisplayShowHomeEnabled(false);
-	            actionBar.setDisplayUseLogoEnabled(false);
-	        }
-		}
+		tabGroupPagerAdapter = new TabGroupFragmentPagerAdapter(((AppCompatActivity) activity).getSupportFragmentManager());
 
 		swipeable = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SWIPEABLE), true);
 

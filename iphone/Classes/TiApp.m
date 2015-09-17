@@ -29,6 +29,9 @@
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
 #endif
+#if IS_XCODE_7
+#import <CoreSpotlight/CoreSpotlight.h>
+#endif
 
 TiApp* sharedApp;
 
@@ -175,7 +178,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)createDefaultDirectories
 {
     NSError* error = nil;
-    NSURL* dir = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
+    [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory
                                                         inDomain:NSUserDomainMask
                                                appropriateForURL:nil
                                                           create:YES
@@ -457,9 +460,16 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiUserNotificationSettingsNotification object:notificationSettings userInfo:nil];
 }
 
-- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void (^)())completionHandler {
+- (void) application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification withResponseInfo:(NSDictionary *)responseInfo completionHandler:(void (^)())completionHandler {
 	RELEASE_TO_NIL(localNotification);
 	localNotification = [[TiApp  dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
+    
+#if IS_XCODE_7
+    if([TiUtils isIOS9OrGreater] == YES) {
+        [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
+    }
+#endif
+    
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
 	completionHandler();
 }
@@ -920,6 +930,47 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	
 	[self endBackgrounding];
 
+}
+
+#pragma mark Handoff Delegates
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
+{
+    
+    NSMutableDictionary *dict = [NSMutableDictionary
+                                 dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
+                                 nil];
+
+#if IS_XCODE_7
+    if( [userActivity.activityType isEqualToString:CSSearchableItemActionType]){
+        if([userActivity userInfo] !=nil){
+            [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
+        }
+    }
+#endif
+    if([userActivity title] !=nil){
+        [dict setObject:[userActivity title] forKey:@"title"];
+    }
+    
+    if([userActivity webpageURL] !=nil){
+        [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
+    }
+    
+    if([userActivity userInfo] !=nil){
+        [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
+    }
+    
+    if (appBooted){
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
+    }
+    else{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
+        });
+    }
+    
+    return YES;
 }
 
 #pragma mark Push Notification Delegates

@@ -1249,6 +1249,68 @@ public class TiUILabel extends TiUINonViewGroupView
 			if (tv != null) {
 				tv.cancelCurrentTransition();
 			}
+		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
+			tv.setHighlightColor(TiConvert.toColor((String) newValue));
+		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
+			TiUIHelper.setAlignment(tv, TiConvert.toString(newValue), null);
+			tv.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_VERTICAL_ALIGN)) {
+			TiUIHelper.setAlignment(tv, null, TiConvert.toString(newValue));
+			tv.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_FONT)) {
+			TiUIHelper.styleText(tv, (HashMap) newValue);
+			tv.requestLayout();
+		} else if (key.equals(TiC.PROPERTY_ELLIPSIZE)) {
+			if (newValue instanceof Boolean){
+				ellipsize = (Boolean) newValue ? TruncateAt.END : null;
+			}
+			if (newValue instanceof Integer){
+				switch((Integer)newValue){
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_START: 
+						ellipsize = TruncateAt.START; break;
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_MIDDLE: 
+						ellipsize = TruncateAt.MIDDLE; break;
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_END: 
+						ellipsize = TruncateAt.END; break;
+					case UIModule.TEXT_ELLIPSIZE_TRUNCATE_MARQUEE: 
+						// marquee effect only works in single line mode
+						tv.setSingleLine(true);
+						tv.setSelected(true);
+						ellipsize = TruncateAt.MARQUEE; break;
+					default:
+						ellipsize = null;
+				}
+			}
+			tv.setEllipsize(ellipsize);
+		} else if (key.equals(TiC.PROPERTY_WORD_WRAP)) {
+			wordWrap = TiConvert.toBoolean(newValue, true);
+			tv.setSingleLine(!wordWrap);
+		} else if (key.equals(TiC.PROPERTY_AUTO_LINK)) {
+			Linkify.addLinks(tv, TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
+			if (newValue instanceof HashMap) {
+				HashMap dict = (HashMap) newValue;
+				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
+				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
+				tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+			}
+		} else if (key.equals(TiC.PROPERTY_SHADOW_RADIUS)) {
+			shadowRadius = TiConvert.toFloat(newValue, DEFAULT_SHADOW_RADIUS);
+			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
+			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
+			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_LINES)) {
+			tv.setLines(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_MAX_LINES)) {
+			tv.setMaxLines(TiConvert.toInt(newValue));	
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
+			Spannable spannableText = AttributedStringProxy.toSpannable(((AttributedStringProxy)newValue), TiApplication.getAppCurrentActivity());
+			if (spannableText != null) {
+				tv.setText(spannableText, TextView.BufferType.NORMAL);
+			}
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 	

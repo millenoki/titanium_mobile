@@ -131,6 +131,7 @@ DEFINE_EXCEPTIONS
 	
     proxy = [proxy_ retain];
     proxy.modelDelegate = self;
+    self.accessibilityLabel = [proxy_ valueForUndefinedKey:@"accessibilityLabel"];
     
     id<NSFastEnumeration> values = [proxy allKeys];
     [self readProxyValuesWithKeys:values];

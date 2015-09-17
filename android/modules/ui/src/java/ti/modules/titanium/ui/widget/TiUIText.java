@@ -803,7 +803,7 @@ public class TiUIText extends TiUINonViewGroupView
 				textTypeAndClass |= InputType.TYPE_TEXT_VARIATION_URI;
 				break;
 			case UIModule.KEYBOARD_DECIMAL_PAD:
-				textTypeAndClass |= (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
+				textTypeAndClass = (InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
 			case UIModule.KEYBOARD_NUMBER_PAD:
 				realtv.setKeyListener(DigitsKeyListener.getInstance(true,true));
 				textTypeAndClass |= InputType.TYPE_CLASS_NUMBER;

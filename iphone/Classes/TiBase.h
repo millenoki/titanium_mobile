@@ -662,7 +662,7 @@ extern NSString * const kTiKeyboardHeightChangedNotification;
 extern NSString * const kTiNetworkChangedNotification;
 
 extern NSString * const kTiWatchKitExtensionRequest;
-extern NSString * const kTiHandOff;
+extern NSString * const kTiContinueActivity;
     
 extern NSString* const kTiBehaviorSize;
 extern NSString* const kTiBehaviorFill;

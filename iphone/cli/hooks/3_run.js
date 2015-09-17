@@ -46,6 +46,7 @@ exports.init = function (logger, config, cli) {
 				logFilename: builder.tiapp.guid + '.log',
 				watchHandleOrUDID: builder.watchSimHandle,
 				killIfRunning: restartSimulator,
+				uninstallApp:config.get('ios.simUninstallApp', cli.argv['uninstall-app'] || false),
 				watchAppName: cli.argv['watch-app-name']
 			}).on('log-file', function (line) {
 				// Titanium app log messages

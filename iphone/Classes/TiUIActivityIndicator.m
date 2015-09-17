@@ -31,6 +31,7 @@
 	RELEASE_TO_NIL(messageLabel);
 	RELEASE_TO_NIL(fontDesc);
 	RELEASE_TO_NIL(textColor);
+	RELEASE_TO_NIL(spinnerColor);
 	[super dealloc];
 }
 
@@ -218,6 +219,9 @@
         default:
             break;
     }
+	if(spinnerColor!=nil){
+    	[indicatorView setColor:spinnerColor];
+    }
 }
 
 -(void)setStyle_:(id)value
@@ -241,8 +245,19 @@
 		if (messageLabel != nil) {
 			[self setNeedsLayout];
 		}
+        if(spinnerColor!=nil){
+            [indicatorView setColor:spinnerColor];
+        }
 	}
     
+}
+
+-(void)setIndicatorColor_:(id)value
+{
+    UIColor * newColor = [[TiUtils colorValue:value] _color];
+    [spinnerColor release];
+     spinnerColor = [newColor retain];
+    [[self indicatorView] setColor:spinnerColor];
 }
 
 - (void)didMoveToWindow

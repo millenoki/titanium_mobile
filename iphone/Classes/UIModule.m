@@ -54,6 +54,9 @@ static NSDictionary* tableViewSeparatorStyle = nil;
 #if defined (USE_TI_UIATTRIBUTEDSTRING)
 #import "TiUIAttributedStringProxy.h"
 #endif
+#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
+#import "TiUIActivityIndicatorStyleProxy.h"
+#endif
 
 #import "TiApp.h"
 #import "ImageLoader.h"
@@ -146,6 +149,9 @@ MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_TOP,UIControlContentVerticalAlignmentTo
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_CENTER,UIControlContentVerticalAlignmentCenter);
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_BOTTOM,UIControlContentVerticalAlignmentBottom);
 
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_START, NSLineBreakByTruncatingHead);
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_MIDDLE, NSLineBreakByTruncatingMiddle);
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_END, NSLineBreakByTruncatingTail);
 MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_LEFT,NSTextAlignmentLeft);
 MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_CENTER,NSTextAlignmentCenter);
 MAKE_SYSTEM_PROP(TEXT_ALIGNMENT_RIGHT,NSTextAlignmentRight);
@@ -710,6 +716,7 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_UNDERLINE_COLOR, AttributeNameUnderlineColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_STRIKETHROUGH_COLOR, AttributeNameStrikethroughColor);
 MAKE_SYSTEM_PROP(ATTRIBUTE_OBLIQUENESS, AttributeNameObliqueness);
 MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
+MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 
 -(NSNumber*)ATTRIBUTE_UNDERLINE_STYLE_NONE
 {
@@ -774,6 +781,30 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_EXPANSION, AttributeNameExpansion);
 -(NSString *)ATTRIBUTE_LETTERPRESS_STYLE
 {
     return NSTextEffectLetterpressStyle;
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
+{
+    return NUMINTEGER(NSLineBreakByWordWrapping);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING
+{
+    return NUMINTEGER(NSLineBreakByCharWrapping);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_CLIPPING
+{
+    return NUMINTEGER(NSLineBreakByClipping);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
+{
+    return NUMINTEGER(NSLineBreakByTruncatingHead);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL
+{
+    return NUMINTEGER(NSLineBreakByTruncatingTail);
+}
+-(NSNumber*)ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
+{
+    return NUMINTEGER(NSLineBreakByTruncatingMiddle);
 }
 
 -(NSNumber*)WINDOW_LEVEL_NORMAL

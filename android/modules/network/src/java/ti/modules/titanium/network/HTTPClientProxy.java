@@ -6,13 +6,14 @@
  */
 package ti.modules.titanium.network;
 
+import java.io.UnsupportedEncodingException;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.http.auth.AuthSchemeFactory;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -59,6 +60,7 @@ public class HTTPClientProxy extends KrollProxy
 	public void handleCreationDict(KrollDict dict)
 	{
 		super.handleCreationDict(dict);
+
 		if (hasProperty(TiC.PROPERTY_TIMEOUT)) {
 			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT),0));
 		}
@@ -70,7 +72,7 @@ public class HTTPClientProxy extends KrollProxy
 		if (hasProperty(TiC.PROPERTY_AUTO_ENCODE_URL)) {
 			client.setAutoEncodeUrl(TiConvert.toBoolean((getProperty(TiC.PROPERTY_AUTO_ENCODE_URL)),true));
 		}
-
+		
 		//Set the securityManager on the client if it is defined as a valid value
 		if (hasProperty(PROPERTY_SECURITY_MANAGER)) {
 			Object prop = getProperty(PROPERTY_SECURITY_MANAGER);
@@ -82,10 +84,12 @@ public class HTTPClientProxy extends KrollProxy
 				}
 			}
 		}
+		
 		client.setTlsVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_TLS_VERSION), NetworkModule.TLS_DEFAULT));
+		
 
 	}
-
+	
 	@Kroll.method
 	public void abort()
 	{
@@ -139,7 +143,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		return client.getStatusText();
 	}
-
+	
 	@Kroll.method
 	public HTTPClientProxy open(String method, String url)
 	{
@@ -149,7 +153,7 @@ public class HTTPClientProxy extends KrollProxy
 
 	@Kroll.method
 	public void send(@Kroll.argument(optional=true) Object data) 
-//		throws MethodNotSupportedException
+		throws UnsupportedEncodingException
 	{
 		client.send(data);
 	}
@@ -279,6 +283,8 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 	
+	// This uses Apache
+	/*
 	@Kroll.method
 	public void addAuthFactory(String scheme, Object factory)
 	{
@@ -289,6 +295,7 @@ public class HTTPClientProxy extends KrollProxy
 		
 		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
 	}
+	*/
 	
 	@Kroll.method
 	public void addTrustManager(Object manager)

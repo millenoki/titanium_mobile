@@ -50,18 +50,18 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)start:(NSDictionary*)params
 {
-    // http://api.appcelerator.net/p/v1/geo
-    NSString *kGeolocationURL = stringWithHexString(@"687474703a2f2f6170692e61707063656c657261746f722e6e65742f702f76312f67656f");
-    
-    NSMutableString *url = [[[NSMutableString alloc] init] autorelease];
-    [url appendString:kGeolocationURL];
-    [url appendString:@"?"];
-    for (id key in params)
-    {
-        NSString *value = [TiUtils stringValue:[params objectForKey:key]];
-        [url appendFormat:@"%@=%@&",key,[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    }
-    
+	// https://api.appcelerator.net/p/v1/geo
+	NSString *kGeolocationURL = stringWithHexString(@"68747470733a2f2f6170692e61707063656c657261746f722e6e65742f702f76312f67656f");
+	
+	NSMutableString *url = [[[NSMutableString alloc] init] autorelease];
+	[url appendString:kGeolocationURL];
+	[url appendString:@"?"];
+	for (id key in params)
+	{
+		NSString *value = [TiUtils stringValue:[params objectForKey:key]];
+		[url appendFormat:@"%@=%@&",key,[value stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+	}
+
     APSHTTPRequest *req = [[APSHTTPRequest alloc] init];
     [req setShowActivity:YES];
     [req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
@@ -534,24 +534,26 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)reverseGeocoder:(id)args
 {
-    ENSURE_ARG_COUNT(args,3);
-    CGFloat lat = [TiUtils floatValue:[args objectAtIndex:0]];
-    CGFloat lon = [TiUtils floatValue:[args objectAtIndex:1]];
-    KrollCallback *callback = [args objectAtIndex:2];
-    ENSURE_TYPE(callback,KrollCallback);
-    ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
-    [self performGeo:@"r" address:[NSString stringWithFormat:@"%f,%f",lat,lon] callback:rcb];
-    [rcb release];
+	ENSURE_ARG_COUNT(args,3);
+	KrollCallback *callback = [args objectAtIndex:2];
+	ENSURE_TYPE(callback,KrollCallback);
+#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
+	CGFloat lat = [TiUtils floatValue:[args objectAtIndex:0]];
+	CGFloat lon = [TiUtils floatValue:[args objectAtIndex:1]];
+	ReverseGeoCallback *rcb = [[ReverseGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
+	[self performGeo:@"r" address:[NSString stringWithFormat:@"%f,%f",lat,lon] callback:rcb];
+#endif
 }
 
 -(void)forwardGeocoder:(id)args
 {
-    ENSURE_ARG_COUNT(args,2);
-    KrollCallback *callback = [args objectAtIndex:1];
-    ENSURE_TYPE(callback,KrollCallback);
-    ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
-    [self performGeo:@"f" address:[TiUtils stringValue:[args objectAtIndex:0]] callback:fcb];
-    [fcb release];
+	ENSURE_ARG_COUNT(args,2);
+	KrollCallback *callback = [args objectAtIndex:1];
+	ENSURE_TYPE(callback,KrollCallback);
+#ifndef __clang_analyzer__ //ignore static analyzer error here, memory will be released
+	ForwardGeoCallback *fcb = [[ForwardGeoCallback alloc] initWithCallback:callback context:[self executionContext]];
+	[self performGeo:@"f" address:[TiUtils stringValue:[args objectAtIndex:0]] callback:fcb];
+#endif
 }
 
 -(void)getCurrentHeading:(id)callback
