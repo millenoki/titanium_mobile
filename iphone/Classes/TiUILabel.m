@@ -105,7 +105,8 @@
         label.lineBreakMode = NSLineBreakByWordWrapping; //default ellipsis to none
         label.layer.shadowRadius = 0; //for backward compatibility
         label.layer.shadowOffset = CGSizeZero;
-		label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        label.contentMode = UIViewContentModeCenter;
         label.touchDelegate = self;
         label.strokeColorAttributeProperty = DTBackgroundStrokeColorAttribute;
         label.strokeWidthAttributeProperty = DTBackgroundStrokeWidthAttribute;
@@ -234,6 +235,19 @@
 -(void)setVerticalAlign_:(id)value
 {
     UIControlContentVerticalAlignment verticalAlign = [TiUtils contentVerticalAlignmentValue:value];
+    UIViewContentMode contentMode = UIViewContentModeCenter;
+    switch (verticalAlign) {
+        case UIControlContentVerticalAlignmentBottom:
+            contentMode = UIViewContentModeBottom;
+            break;
+        case UIControlContentVerticalAlignmentTop:
+            contentMode = UIViewContentModeTop;
+            break;
+        default:
+            break;
+    }
+    [self label].contentMode = contentMode;
+    
     [[self label] setVerticalAlignment:(TTTAttributedLabelVerticalAlignment)verticalAlign];
 }
 -(void)setAutoLink_:(id)value
