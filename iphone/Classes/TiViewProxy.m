@@ -1151,7 +1151,7 @@ SEL GetterForKrollProperty(NSString * key)
         else if (!TiDimensionIsUndefined(layoutProperties.centerX) && !TiDimensionIsUndefined(layoutProperties.right) ) {
             result.width = 2 * ( size.width - TiDimensionCalculateValue(layoutProperties.right, suggestedWidth) - TiDimensionCalculateValue(layoutProperties.centerX, suggestedWidth));
         }
-        else if (followsFillWBehavior) {
+        else {
             result.width = size.width;
             result.width -= offsetx;
         }
@@ -1179,7 +1179,7 @@ SEL GetterForKrollProperty(NSString * key)
         else if (!TiDimensionIsUndefined(layoutProperties.centerY) && !TiDimensionIsUndefined(layoutProperties.bottom) ) {
             result.height = 2 * ( suggestedHeight - TiDimensionCalculateValue(layoutProperties.bottom, suggestedHeight) - TiDimensionCalculateValue(layoutProperties.centerY, suggestedHeight));
         }
-        else if (followsFillHBehavior){
+        else{
             result.height = size.height;
             result.height -= offsety;
         }
