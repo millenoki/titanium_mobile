@@ -29,7 +29,7 @@ var textColor = 'black';
 var navGroup;
 var openWinArgs;
 var html =
-	'  SUCCESS     <font color="red">musique</font> électronique <b><span style="background-color:green;border-color:black;border-radius:20px;border-width:1px">est un type de </span><big><big>musique</big></big> qui a <font color="green">été <a href="test">conçu</a> à</font></b> partir des années<br> 1950 avec des générateurs de signaux<br> et de sons synthétiques. Avant de pouvoir être utilisée en temps réel, elle a été primitivement enregistrée sur bande magnétique, ce qui permettait aux compositeurs de manier aisément les sons, par exemple dans l\'utilisation de boucles répétitives superposées. Ses précurseurs ont pu bénéficier de studios spécialement équipés ou faisaient partie d\'institutions musicales pré-existantes. La musique pour bande de Pierre Schaeffer, également appelée musique concrète, se distingue de ce type de musique dans la mesure où son matériau primitif était constitué des sons de la vie courante. La particularité de la musique électronique de l\'époque est de n\'utiliser que des sons générés par des appareils électroniques.';
+	'  SUCCESS  <big><font face="mapme">' +String.fromCharCode(0xe6b0) + '</font></big>  <font color="red">musique</font> électronique <b><span style="background-color:green;border-color:black;border-radius:20px;border-width:1px">est un type de </span><big><big>musique</big></big> qui a <font color="green">été <a href="test">conçu</a> à</font></b> partir des années<br> 1950 avec des générateurs de signaux<br> et de sons synthétiques. Avant de pouvoir être utilisée en temps réel, elle a été primitivement enregistrée sur bande magnétique, ce qui permettait aux compositeurs de manier aisément les sons, par exemple dans l\'utilisation de boucles répétitives superposées. Ses précurseurs ont pu bénéficier de studios spécialement équipés ou faisaient partie d\'institutions musicales pré-existantes. La musique pour bande de Pierre Schaeffer, également appelée musique concrète, se distingue de ce type de musique dans la mesure où son matériau primitif était constitué des sons de la vie courante. La particularité de la musique électronique de l\'époque est de n\'utiliser que des sons générés par des appareils électroniques.';
 // html = '<span
 // style="border-style:solid;background-color:green;border-color:red;border-radius:20px;border-width:3px;padding-top:3px;padding-bottom:3px;line-height:2em;">
 // SUCCESS </span><br><span
@@ -2046,7 +2046,7 @@ function htmlLabelEx() {
 	scrollView.add(Ti.UI.createLabel({
 		width: 200,
 		height: Ti.UI.SIZE,
-		backgorundColor: 'green',
+		backgroundColor: 'green',
 		bottom: 20,
 		multiLineEllipsize: Ti.UI.TEXT_ELLIPSIZE_TAIL,
 		html: html
@@ -3902,12 +3902,14 @@ function imageViewTransitionTest(_args) {
 }
 
 function imageViewAnimationTest(_args) {
+	_args.tintColor = 'red';
+
 	var win = createWin(_args);
 
 	var image1 = Ti.UI.createImageView({
 		backgroundColor: 'yellow',
-		// tintColor: 'red',
 		// tintColorImage: true,
+		tintColorImage: true,
 		width: 100,
 		transition: {
 			style: Ti.UI.TransitionStyle.FADE,
@@ -7262,4 +7264,3 @@ function windowLevelTest() {
 // setTimeout(windowLevelTest, 1000);
 // scrollableViewTest();
 
-btEx2();

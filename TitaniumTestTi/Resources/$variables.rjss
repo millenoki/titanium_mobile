@@ -7,3 +7,5 @@ $navBarTop=0;
 [app.deviceinfo.isAndroid] {
     $navBarHeight=50;
 }
+
+$backgroundColor = 'white';

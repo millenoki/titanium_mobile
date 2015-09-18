@@ -13,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-network"/>
 	<classpathentry kind="lib" path="lib/googleplayservices.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium-image"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/akylas-charts"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
