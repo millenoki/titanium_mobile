@@ -15,7 +15,7 @@
 #if defined (USE_TI_UIATTRIBUTEDSTRING)
 #import "TiUIAttributedStringProxy.h"
 #endif
-#import "DTCoreText.h"
+#import "DTCoreText/DTCoreText.h"
 #import "TiTransitionHelper.h"
 #import "TiTransition.h"
 
@@ -121,7 +121,7 @@
 	return label;
 }
 
--(NSTextCheckingResult *)checkLinkAttributeForString:(NSAttributedString*)theString atPoint:(CGPoint)p
+-(TTTAttributedLabelLink *)checkLinkAttributeForString:(NSAttributedString*)theString atPoint:(CGPoint)p
 {
     if ([label.links count] == 0) return nil;
     return [label linkAtPoint:p];
@@ -169,7 +169,7 @@
     
     clone.touchDelegate = source.touchDelegate;
     clone.delegate = source.delegate;
-    [clone setLinks:source.links];
+    [clone setLinkModels:source.links];
     return clone;
 }
 
@@ -540,21 +540,21 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
     NSAttributedString* attString = label.attributedText;
     if (attString != nil) {
         CGPoint localPoint = [touch locationInView:label];
-        NSTextCheckingResult* result = [label activeLink];
+        TTTAttributedLabelLink* result = [label activeLink];
         if (result) {
             event = [NSMutableDictionary dictionaryWithDictionary:event];
-            switch(result.resultType) {
+            switch(result.result.resultType) {
                 case NSTextCheckingTypeLink:
-                    [(NSMutableDictionary*)event setObject:result.URL forKey:@"link"];
+                    [(NSMutableDictionary*)event setObject:result.result.URL forKey:@"link"];
                     break;
                 case NSTextCheckingTypePhoneNumber:
-                    [(NSMutableDictionary*)event setObject:result.phoneNumber forKey:@"phoneNumber"];
+                    [(NSMutableDictionary*)event setObject:result.result.phoneNumber forKey:@"phoneNumber"];
                     break;
                 case NSTextCheckingTypeAddress:
-                    [(NSMutableDictionary*)event setObject:result.addressComponents forKey:@"address"];
+                    [(NSMutableDictionary*)event setObject:result.result.addressComponents forKey:@"address"];
                     break;
                 case NSTextCheckingTypeDate:
-                    [(NSMutableDictionary*)event setObject:@(result.date.timeIntervalSince1970) forKey:@"date"];
+                    [(NSMutableDictionary*)event setObject:@(result.result.date.timeIntervalSince1970) forKey:@"date"];
                     break;
                 default:
                     break;
@@ -571,21 +571,21 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
     NSAttributedString* attString = label.attributedText;
     if (attString != nil) {
         CGPoint localPoint = [gesture locationInView:label];
-        NSTextCheckingResult* result = [self checkLinkAttributeForString:attString atPoint:localPoint];
+        TTTAttributedLabelLink* result = [self checkLinkAttributeForString:attString atPoint:localPoint];
         if (result) {
             event = [NSMutableDictionary dictionaryWithDictionary:event];
-            switch(result.resultType) {
+            switch(result.result.resultType) {
                 case NSTextCheckingTypeLink:
-                    [(NSMutableDictionary*)event setObject:result.URL forKey:@"link"];
+                    [(NSMutableDictionary*)event setObject:result.result.URL forKey:@"link"];
                     break;
                 case NSTextCheckingTypePhoneNumber:
-                    [(NSMutableDictionary*)event setObject:result.phoneNumber forKey:@"phoneNumber"];
+                    [(NSMutableDictionary*)event setObject:result.result.phoneNumber forKey:@"phoneNumber"];
                     break;
                 case NSTextCheckingTypeAddress:
-                    [(NSMutableDictionary*)event setObject:result.addressComponents forKey:@"address"];
+                    [(NSMutableDictionary*)event setObject:result.result.addressComponents forKey:@"address"];
                     break;
                 case NSTextCheckingTypeDate:
-                    [(NSMutableDictionary*)event setObject:@(result.date.timeIntervalSince1970) forKey:@"date"];
+                    [(NSMutableDictionary*)event setObject:@(result.result.date.timeIntervalSince1970) forKey:@"date"];
                     break;
                 default:
                     break;

@@ -9,8 +9,7 @@
 #import "TiUILabelProxy.h"
 #import "TiUILabel.h"
 #import "TiUtils.h"
-#import "DTCoreText.h"
-#import "NSString+DTUtilities.h"
+#import "DTCoreText/DTCoreText.h"
 
 #define kDefaultFontSize 12.0
 
@@ -68,8 +67,9 @@ static inline CTLineBreakMode NSLineBreakModeToCTLineBreakMode(NSLineBreakMode l
                     [NSNumber numberWithInt:kCTLeftTextAlignment], DTDefaultTextAlignment,
                     [NSNumber numberWithInt:0], DTDefaultFontStyle,
                     @(NO), DTIgnoreLinkStyleOption,
-                    @"Helvetica", DTDefaultFontFamily,
-                    @"Helvetica", NSFontAttributeName,
+                    @"Helvetica Neue", DTDefaultFontFamily,
+                    @(YES), DTDocumentPreserveTrailingSpaces,
+                    @"Helvetica Neue", NSFontAttributeName,
                     @YES, DTUseiOS6Attributes,
                     [NSNumber numberWithFloat:(17 / kDefaultFontSize)], NSTextSizeMultiplierDocumentOption,
                     [NSNumber numberWithInt:kCTLineBreakByWordWrapping], DTDefaultLineBreakMode, nil] retain];
