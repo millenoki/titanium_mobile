@@ -100,7 +100,7 @@
 	[super layoutChildren:optimize];	
 }
 
--(CGSize)autoSizeForSize:(CGSize)size
+-(CGSize)autoSizeForSize:(CGSize)size ignoreMinMax:(BOOL)ignoreMinMaxComputation
 {
     CGSize contentSize = CGSizeMake(size.width,size.height);
     if ([(TiUIScrollView *)[self view] flexibleContentWidth]) {
@@ -109,7 +109,7 @@
     if ([(TiUIScrollView *)[self view] flexibleContentHeight]) {
         contentSize.height = 0; //let the child be as high as it wants.
     }
-    return [super autoSizeForSize:contentSize];
+        return [super autoSizeForSize:contentSize ignoreMinMax:ignoreMinMaxComputation];
     }
     
 //-(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds

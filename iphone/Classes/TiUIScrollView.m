@@ -251,7 +251,7 @@
     
     if ([self flexibleContentWidth] || [self flexibleContentHeight])
     {
-        autoSize = [(TiViewProxy *)[self proxy] autoSizeForSize:newContentSize];
+        autoSize = [(TiViewProxy *)[self proxy] autoSizeForSize:newContentSize ignoreMinMax:YES];
     }
     
     switch (contentWidth.type)

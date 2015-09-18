@@ -536,6 +536,9 @@ enum
 -(BOOL) heightIsAutoSize;
 -(BOOL) belongsToContext:(id<TiEvaluator>) context;
 
+-(CGSize)autoSizeForSize:(CGSize)size;
+-(CGSize)autoSizeForSize:(CGSize)size ignoreMinMax:(BOOL)ignoreMinMaxComputation;
+
 /**
  Tells the view that its child view size will change.
  @param child The child view

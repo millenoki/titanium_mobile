@@ -980,8 +980,11 @@ SEL GetterForKrollProperty(NSString * key)
 
     return result;
 }
-
 -(CGSize)autoSizeForSize:(CGSize)size
+{
+    return [self autoSizeForSize:size ignoreMinMax:NO];
+}
+-(CGSize)autoSizeForSize:(CGSize)size ignoreMinMax:(BOOL)ignoreMinMaxComputation
 {
     CGSize contentSize = CGSizeMake(-1, -1);
     if ([self respondsToSelector:@selector(contentSizeForSize:)]) {
@@ -1104,7 +1107,9 @@ SEL GetterForKrollProperty(NSString * key)
     if (result.height < contentSize.height) {
         result.height = contentSize.height;
     }
-    result = minmaxSize(&layoutProperties, result, size);
+    if (!ignoreMinMaxComputation) {
+        result = minmaxSize(&layoutProperties, result, size);
+    }
 
 	return [self verifySize:result];
 }
