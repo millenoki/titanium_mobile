@@ -17,7 +17,7 @@
 #import "ApplicationDefaults.h"
 #import <libkern/OSAtomic.h>
 #import "TiExceptionHandler.h"
-#import "DTCoreText.h"
+#import "DTCoreText/DTCoreText.h"
 #import "Mimetypes.h"
 #import "TouchCapturingWindow.h"
 #import "SBJSON.h"

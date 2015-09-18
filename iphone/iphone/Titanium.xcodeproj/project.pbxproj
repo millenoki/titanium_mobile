@@ -352,7 +352,6 @@
 		D5937D9B1A24DCA80098DA47 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D5EA4AD218EF05EB001F67E8 /* libresolv.dylib */; };
 		D5937D9C1A24DCAD0098DA47 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5818EAE18AA8872007EF771 /* AdSupport.framework */; };
 		D5937D9D1A24DCAE0098DA47 /* libCoconutKitAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D525399E183A8787006FF1BB /* libCoconutKitAnimation.a */; };
-		D5937D9F1A24DCB10098DA47 /* libDTCoreText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5B6C727181124C200A2612A /* libDTCoreText.a */; };
 		D5937DA01A24DCBA0098DA47 /* libSVGKit-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */; };
 		D5937DA11A24DCC00098DA47 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D585BC8417E630AB0062275E /* CoreVideo.framework */; };
 		D5937DA21A24DCC40098DA47 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D56FD2D6176EEAB0005BBC3F /* CoreTelephony.framework */; };
@@ -419,6 +418,7 @@
 		D5C92DA7182AA88F0072D117 /* TouchDelegate_Views.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */; };
 		D5D46C2D1BAAD08100C968F1 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; settings = {ASSET_TAGS = (); }; };
 		D5DC32F8180EED41006CCEBD /* TiTransitionCube.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */; };
+		D5E013541BAB04B300149EA0 /* DTCoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E013531BAB04B300149EA0 /* DTCoreText.framework */; settings = {ASSET_TAGS = (); }; };
 		D5E897B118A3FA0B00E565E1 /* NSDictionary+Merge.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E897B018A3FA0B00E565E1 /* NSDictionary+Merge.m */; };
 		D5E9511C195DC34800DB8B37 /* TiProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E9511B195DC34800DB8B37 /* TiProperties.m */; };
 		D5E999121869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
@@ -1484,80 +1484,6 @@
 		D5B04534191D2EC4001CF02F /* TiFileSystemHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiFileSystemHelper.m; sourceTree = "<group>"; };
 		D5B6535419A1E03100F30AAB /* TiModalNavViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiModalNavViewController.h; sourceTree = "<group>"; };
 		D5B6535519A1E03100F30AAB /* TiModalNavViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiModalNavViewController.m; sourceTree = "<group>"; };
-		D5B6C6DE181124AC00A2612A /* DTAccessibilityElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAccessibilityElement.h; path = ../Classes/DTCoreText/DTAccessibilityElement.h; sourceTree = "<group>"; };
-		D5B6C6DF181124AC00A2612A /* DTAccessibilityViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAccessibilityViewProxy.h; path = ../Classes/DTCoreText/DTAccessibilityViewProxy.h; sourceTree = "<group>"; };
-		D5B6C6E0181124AC00A2612A /* DTAnchorHTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAnchorHTMLElement.h; path = ../Classes/DTCoreText/DTAnchorHTMLElement.h; sourceTree = "<group>"; };
-		D5B6C6E1181124AC00A2612A /* DTAttributedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAttributedLabel.h; path = ../Classes/DTCoreText/DTAttributedLabel.h; sourceTree = "<group>"; };
-		D5B6C6E2181124AC00A2612A /* DTAttributedTextCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAttributedTextCell.h; path = ../Classes/DTCoreText/DTAttributedTextCell.h; sourceTree = "<group>"; };
-		D5B6C6E3181124AC00A2612A /* DTAttributedTextContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAttributedTextContentView.h; path = ../Classes/DTCoreText/DTAttributedTextContentView.h; sourceTree = "<group>"; };
-		D5B6C6E4181124AC00A2612A /* DTAttributedTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAttributedTextView.h; path = ../Classes/DTCoreText/DTAttributedTextView.h; sourceTree = "<group>"; };
-		D5B6C6E5181124AC00A2612A /* DTBreakHTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTBreakHTMLElement.h; path = ../Classes/DTCoreText/DTBreakHTMLElement.h; sourceTree = "<group>"; };
-		D5B6C6E6181124AC00A2612A /* DTColor+Compatibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "DTColor+Compatibility.h"; path = "../Classes/DTCoreText/DTColor+Compatibility.h"; sourceTree = "<group>"; };
-		D5B6C6E7181124AC00A2612A /* DTColorFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTColorFunctions.h; path = ../Classes/DTCoreText/DTColorFunctions.h; sourceTree = "<group>"; };
-		D5B6C6E8181124AC00A2612A /* DTCompatibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCompatibility.h; path = ../Classes/DTCoreText/DTCompatibility.h; sourceTree = "<group>"; };
-		D5B6C6EA181124AC00A2612A /* DTCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreText.h; path = ../Classes/DTCoreText/DTCoreText.h; sourceTree = "<group>"; };
-		D5B6C6EB181124AC00A2612A /* DTCoreTextConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextConstants.h; path = ../Classes/DTCoreText/DTCoreTextConstants.h; sourceTree = "<group>"; };
-		D5B6C6EC181124AC00A2612A /* DTCoreTextFontCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextFontCollection.h; path = ../Classes/DTCoreText/DTCoreTextFontCollection.h; sourceTree = "<group>"; };
-		D5B6C6ED181124AC00A2612A /* DTCoreTextFontDescriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextFontDescriptor.h; path = ../Classes/DTCoreText/DTCoreTextFontDescriptor.h; sourceTree = "<group>"; };
-		D5B6C6EE181124AC00A2612A /* DTCoreTextFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextFunctions.h; path = ../Classes/DTCoreText/DTCoreTextFunctions.h; sourceTree = "<group>"; };
-		D5B6C6EF181124AC00A2612A /* DTCoreTextGlyphRun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextGlyphRun.h; path = ../Classes/DTCoreText/DTCoreTextGlyphRun.h; sourceTree = "<group>"; };
-		D5B6C6F0181124AC00A2612A /* DTCoreTextLayouter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextLayouter.h; path = ../Classes/DTCoreText/DTCoreTextLayouter.h; sourceTree = "<group>"; };
-		D5B6C6F1181124AC00A2612A /* DTCoreTextLayoutFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextLayoutFrame.h; path = ../Classes/DTCoreText/DTCoreTextLayoutFrame.h; sourceTree = "<group>"; };
-		D5B6C6F2181124AC00A2612A /* DTCoreTextLayoutFrame+Cursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "DTCoreTextLayoutFrame+Cursor.h"; path = "../Classes/DTCoreText/DTCoreTextLayoutFrame+Cursor.h"; sourceTree = "<group>"; };
-		D5B6C6F3181124AC00A2612A /* DTCoreTextLayoutFrameAccessibilityElementGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextLayoutFrameAccessibilityElementGenerator.h; path = ../Classes/DTCoreText/DTCoreTextLayoutFrameAccessibilityElementGenerator.h; sourceTree = "<group>"; };
-		D5B6C6F4181124AC00A2612A /* DTCoreTextLayoutLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextLayoutLine.h; path = ../Classes/DTCoreText/DTCoreTextLayoutLine.h; sourceTree = "<group>"; };
-		D5B6C6F5181124AC00A2612A /* DTCoreTextParagraphStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCoreTextParagraphStyle.h; path = ../Classes/DTCoreText/DTCoreTextParagraphStyle.h; sourceTree = "<group>"; };
-		D5B6C6F6181124AC00A2612A /* DTCSSListStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCSSListStyle.h; path = ../Classes/DTCoreText/DTCSSListStyle.h; sourceTree = "<group>"; };
-		D5B6C6F7181124AC00A2612A /* DTCSSStylesheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTCSSStylesheet.h; path = ../Classes/DTCoreText/DTCSSStylesheet.h; sourceTree = "<group>"; };
-		D5B6C6F8181124AC00A2612A /* DTDictationPlaceholderTextAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTDictationPlaceholderTextAttachment.h; path = ../Classes/DTCoreText/DTDictationPlaceholderTextAttachment.h; sourceTree = "<group>"; };
-		D5B6C6F9181124AC00A2612A /* DTDictationPlaceholderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTDictationPlaceholderView.h; path = ../Classes/DTCoreText/DTDictationPlaceholderView.h; sourceTree = "<group>"; };
-		D5B6C6FA181124AC00A2612A /* DTHorizontalRuleHTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTHorizontalRuleHTMLElement.h; path = ../Classes/DTCoreText/DTHorizontalRuleHTMLElement.h; sourceTree = "<group>"; };
-		D5B6C6FB181124AC00A2612A /* DTHTMLAttributedStringBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTHTMLAttributedStringBuilder.h; path = ../Classes/DTCoreText/DTHTMLAttributedStringBuilder.h; sourceTree = "<group>"; };
-		D5B6C6FC181124AC00A2612A /* DTHTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTHTMLElement.h; path = ../Classes/DTCoreText/DTHTMLElement.h; sourceTree = "<group>"; };
-		D5B6C6FD181124AC00A2612A /* DTHTMLParserNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTHTMLParserNode.h; path = ../Classes/DTCoreText/DTHTMLParserNode.h; sourceTree = "<group>"; };
-		D5B6C6FE181124AC00A2612A /* DTHTMLParserTextNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTHTMLParserTextNode.h; path = ../Classes/DTCoreText/DTHTMLParserTextNode.h; sourceTree = "<group>"; };
-		D5B6C6FF181124AC00A2612A /* DTHTMLWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTHTMLWriter.h; path = ../Classes/DTCoreText/DTHTMLWriter.h; sourceTree = "<group>"; };
-		D5B6C700181124AC00A2612A /* DTIframeTextAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTIframeTextAttachment.h; path = ../Classes/DTCoreText/DTIframeTextAttachment.h; sourceTree = "<group>"; };
-		D5B6C701181124AC00A2612A /* DTImage+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "DTImage+HTML.h"; path = "../Classes/DTCoreText/DTImage+HTML.h"; sourceTree = "<group>"; };
-		D5B6C702181124AC00A2612A /* DTImageTextAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTImageTextAttachment.h; path = ../Classes/DTCoreText/DTImageTextAttachment.h; sourceTree = "<group>"; };
-		D5B6C703181124AC00A2612A /* DTLazyImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTLazyImageView.h; path = ../Classes/DTCoreText/DTLazyImageView.h; sourceTree = "<group>"; };
-		D5B6C704181124AC00A2612A /* DTLinkButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTLinkButton.h; path = ../Classes/DTCoreText/DTLinkButton.h; sourceTree = "<group>"; };
-		D5B6C705181124AC00A2612A /* DTListItemHTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTListItemHTMLElement.h; path = ../Classes/DTCoreText/DTListItemHTMLElement.h; sourceTree = "<group>"; };
-		D5B6C706181124AC00A2612A /* DTObjectTextAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTObjectTextAttachment.h; path = ../Classes/DTCoreText/DTObjectTextAttachment.h; sourceTree = "<group>"; };
-		D5B6C707181124AC00A2612A /* DTStylesheetHTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTStylesheetHTMLElement.h; path = ../Classes/DTCoreText/DTStylesheetHTMLElement.h; sourceTree = "<group>"; };
-		D5B6C708181124AC00A2612A /* DTTextAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTTextAttachment.h; path = ../Classes/DTCoreText/DTTextAttachment.h; sourceTree = "<group>"; };
-		D5B6C709181124AC00A2612A /* DTTextAttachmentHTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTTextAttachmentHTMLElement.h; path = ../Classes/DTCoreText/DTTextAttachmentHTMLElement.h; sourceTree = "<group>"; };
-		D5B6C70A181124AC00A2612A /* DTTextBlock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTTextBlock.h; path = ../Classes/DTCoreText/DTTextBlock.h; sourceTree = "<group>"; };
-		D5B6C70B181124AC00A2612A /* DTTextHTMLElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTTextHTMLElement.h; path = ../Classes/DTCoreText/DTTextHTMLElement.h; sourceTree = "<group>"; };
-		D5B6C70C181124AC00A2612A /* DTVideoTextAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTVideoTextAttachment.h; path = ../Classes/DTCoreText/DTVideoTextAttachment.h; sourceTree = "<group>"; };
-		D5B6C70D181124AC00A2612A /* DTWebVideoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTWebVideoView.h; path = ../Classes/DTCoreText/DTWebVideoView.h; sourceTree = "<group>"; };
-		D5B6C70E181124AC00A2612A /* NSAttributedString+DTCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSAttributedString+DTCoreText.h"; path = "../Classes/DTCoreText/NSAttributedString+DTCoreText.h"; sourceTree = "<group>"; };
-		D5B6C70F181124AC00A2612A /* NSAttributedString+DTDebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSAttributedString+DTDebug.h"; path = "../Classes/DTCoreText/NSAttributedString+DTDebug.h"; sourceTree = "<group>"; };
-		D5B6C710181124AC00A2612A /* NSAttributedString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSAttributedString+HTML.h"; path = "../Classes/DTCoreText/NSAttributedString+HTML.h"; sourceTree = "<group>"; };
-		D5B6C711181124AC00A2612A /* NSAttributedString+SmallCaps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSAttributedString+SmallCaps.h"; path = "../Classes/DTCoreText/NSAttributedString+SmallCaps.h"; sourceTree = "<group>"; };
-		D5B6C712181124AC00A2612A /* NSAttributedStringRunDelegates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSAttributedStringRunDelegates.h; path = ../Classes/DTCoreText/NSAttributedStringRunDelegates.h; sourceTree = "<group>"; };
-		D5B6C713181124AC00A2612A /* NSCharacterSet+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSCharacterSet+HTML.h"; path = "../Classes/DTCoreText/NSCharacterSet+HTML.h"; sourceTree = "<group>"; };
-		D5B6C714181124AC00A2612A /* NSDictionary+DTCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+DTCoreText.h"; path = "../Classes/DTCoreText/NSDictionary+DTCoreText.h"; sourceTree = "<group>"; };
-		D5B6C715181124AC00A2612A /* NSMutableAttributedString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSMutableAttributedString+HTML.h"; path = "../Classes/DTCoreText/NSMutableAttributedString+HTML.h"; sourceTree = "<group>"; };
-		D5B6C716181124AC00A2612A /* NSMutableString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSMutableString+HTML.h"; path = "../Classes/DTCoreText/NSMutableString+HTML.h"; sourceTree = "<group>"; };
-		D5B6C717181124AC00A2612A /* NSScanner+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSScanner+HTML.h"; path = "../Classes/DTCoreText/NSScanner+HTML.h"; sourceTree = "<group>"; };
-		D5B6C718181124AC00A2612A /* NSString+CSS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+CSS.h"; path = "../Classes/DTCoreText/NSString+CSS.h"; sourceTree = "<group>"; };
-		D5B6C719181124AC00A2612A /* NSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+HTML.h"; path = "../Classes/DTCoreText/NSString+HTML.h"; sourceTree = "<group>"; };
-		D5B6C71A181124AC00A2612A /* NSString+Paragraphs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+Paragraphs.h"; path = "../Classes/DTCoreText/NSString+Paragraphs.h"; sourceTree = "<group>"; };
-		D5B6C71B181124AC00A2612A /* UIFont+DTCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIFont+DTCoreText.h"; path = "../Classes/DTCoreText/UIFont+DTCoreText.h"; sourceTree = "<group>"; };
-		D5B6C71C181124B300A2612A /* DTExtendedFileAttributes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DTExtendedFileAttributes.h; path = ../Classes/DTFoundation/DTExtendedFileAttributes.h; sourceTree = "<group>"; };
-		D5B6C71D181124B300A2612A /* DTFoundation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DTFoundation.h; path = ../Classes/DTFoundation/DTFoundation.h; sourceTree = "<group>"; };
-		D5B6C71E181124B300A2612A /* DTHTMLParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DTHTMLParser.h; path = ../Classes/DTFoundation/DTHTMLParser.h; sourceTree = "<group>"; };
-		D5B6C71F181124B300A2612A /* DTUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DTUtils.h; path = ../Classes/DTFoundation/DTUtils.h; sourceTree = "<group>"; };
-		D5B6C720181124B300A2612A /* DTVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DTVersion.h; path = ../Classes/DTFoundation/DTVersion.h; sourceTree = "<group>"; };
-		D5B6C721181124B300A2612A /* NSArray+DTError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSArray+DTError.h"; path = "../Classes/DTFoundation/NSArray+DTError.h"; sourceTree = "<group>"; };
-		D5B6C722181124B300A2612A /* NSDictionary+DTError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSDictionary+DTError.h"; path = "../Classes/DTFoundation/NSDictionary+DTError.h"; sourceTree = "<group>"; };
-		D5B6C723181124B300A2612A /* NSString+DTFormatNumbers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSString+DTFormatNumbers.h"; path = "../Classes/DTFoundation/NSString+DTFormatNumbers.h"; sourceTree = "<group>"; };
-		D5B6C724181124B300A2612A /* NSString+DTPaths.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSString+DTPaths.h"; path = "../Classes/DTFoundation/NSString+DTPaths.h"; sourceTree = "<group>"; };
-		D5B6C725181124B300A2612A /* NSString+DTURLEncoding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSString+DTURLEncoding.h"; path = "../Classes/DTFoundation/NSString+DTURLEncoding.h"; sourceTree = "<group>"; };
-		D5B6C726181124B300A2612A /* NSString+DTUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSString+DTUtilities.h"; path = "../Classes/DTFoundation/NSString+DTUtilities.h"; sourceTree = "<group>"; };
-		D5B6C727181124C200A2612A /* libDTCoreText.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libDTCoreText.a; path = ../libexternals/libDTCoreText.a; sourceTree = "<group>"; };
-		D5B6C72B181125A100A2612A /* DTWeakSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = DTWeakSupport.h; path = ../Classes/DTFoundation/DTWeakSupport.h; sourceTree = "<group>"; };
 		D5B9289218C1EEC200E26393 /* GPUImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GPUImage.framework; path = ../libexternals/GPUImage.framework; sourceTree = "<group>"; };
 		D5C06C1D17C7D8F700FA0E98 /* TiUIHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIHelper.h; sourceTree = "<group>"; };
 		D5C06C1E17C7D8F700FA0E98 /* TiUIHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIHelper.m; sourceTree = "<group>"; };
@@ -1609,9 +1535,9 @@
 		D5C8C96617EF45C900F54C19 /* UIViewController+ADTransitionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIViewController+ADTransitionController.m"; path = "../Classes/ADTransitionController/UIViewController+ADTransitionController.m"; sourceTree = "<group>"; };
 		D5C92DA5182AA88F0072D117 /* TouchDelegate_Views.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TouchDelegate_Views.h; sourceTree = "<group>"; };
 		D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TouchDelegate_Views.m; sourceTree = "<group>"; };
-		D5D545241845F873009539C9 /* DTAttributedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DTAttributedLabel.h; path = ../Classes/DTCoreText/DTAttributedLabel.h; sourceTree = "<group>"; };
 		D5DC32F6180EED41006CCEBD /* TiTransitionCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionCube.h; sourceTree = "<group>"; };
 		D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionCube.m; sourceTree = "<group>"; };
+		D5E013531BAB04B300149EA0 /* DTCoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DTCoreText.framework; path = ../libexternals/DTCoreText.framework; sourceTree = "<group>"; };
 		D5E75A6E187C58F00016542B /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon.png; path = ../../demos/KitchenSink/icons/icon.png; sourceTree = "<group>"; };
 		D5E75A70187C58F00016542B /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon@2x.png"; path = "../../demos/KitchenSink/icons/icon@2x.png"; sourceTree = "<group>"; };
 		D5E75A7A187C59060016542B /* icon_120@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon_120@2x.png"; path = "../../demos/KitchenSink/icons/icon_120@2x.png"; sourceTree = "<group>"; };
@@ -1747,7 +1673,6 @@
 				D5937DC21A24DD800098DA47 /* libAPSAnalytics.a in Frameworks */,
 				D5937D9D1A24DCAE0098DA47 /* libCoconutKitAnimation.a in Frameworks */,
 				D5937DC01A24DD710098DA47 /* libtiverify.a in Frameworks */,
-				D5937D9F1A24DCB10098DA47 /* libDTCoreText.a in Frameworks */,
 				D5937DA01A24DCBA0098DA47 /* libSVGKit-iOS.a in Frameworks */,
 				D5937DB11A24DCEB0098DA47 /* OpenGLES.framework in Frameworks */,
 				D5A016CA1926109E0005158A /* Accelerate.framework in Frameworks */,
@@ -1768,6 +1693,7 @@
 				D5937DAB1A24DCE50098DA47 /* AddressBook.framework in Frameworks */,
 				D5937DB31A24DCF20098DA47 /* SystemConfiguration.framework in Frameworks */,
 				D5937DBD1A24DCFE0098DA47 /* Security.framework in Frameworks */,
+				D5E013541BAB04B300149EA0 /* DTCoreText.framework in Frameworks */,
 				D5937DAC1A24DCE60098DA47 /* AddressBookUI.framework in Frameworks */,
 				D5937DBB1A24DCFC0098DA47 /* ExternalAccessory.framework in Frameworks */,
 				D5937DBA1A24DCFB0098DA47 /* StoreKit.framework in Frameworks */,
@@ -1887,7 +1813,6 @@
 				D51DEFAF19D9ACBF00CF28B0 /* ActionSheetPicker */,
 				D535CCD919CF2C6A005E114E /* ColorArt */,
 				D55795071837BEF90057DD41 /* CoconutKitAnimation */,
-				D5B6C6DD1811249F00A2612A /* DT */,
 				D5C8C93C17EF45BA00F54C19 /* ADTransitionController */,
 				D5014CD117EB4A740013F37A /* SVGKit */,
 				D522FE0A16D2AC7B008C6CC4 /* JRSwizzle */,
@@ -2894,8 +2819,8 @@
 				D544CEA01949AA8900419D57 /* libtiverify.a */,
 				D518BD181B80E3400075199D /* libti_ios_profiler.a */,
 				D518BD1A1B80E3670075199D /* libti_ios_debugger.a */,
-				D5B6C727181124C200A2612A /* libDTCoreText.a */,
 				D572BF5C1827A71D00AB104A /* libSVGKit-iOS.a */,
+				D5E013531BAB04B300149EA0 /* DTCoreText.framework */,
 				8465E6BB19F8644D008479E6 /* CoreMedia.framework */,
 				D5B9289218C1EEC200E26393 /* GPUImage.framework */,
 				D5A016C91926109E0005158A /* Accelerate.framework */,
@@ -3675,87 +3600,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D5B6C6DD1811249F00A2612A /* DT */ = {
-			isa = PBXGroup;
-			children = (
-				D5D545241845F873009539C9 /* DTAttributedLabel.h */,
-				D5B6C71C181124B300A2612A /* DTExtendedFileAttributes.h */,
-				D5B6C71D181124B300A2612A /* DTFoundation.h */,
-				D5B6C71E181124B300A2612A /* DTHTMLParser.h */,
-				D5B6C72B181125A100A2612A /* DTWeakSupport.h */,
-				D5B6C71F181124B300A2612A /* DTUtils.h */,
-				D5B6C720181124B300A2612A /* DTVersion.h */,
-				D5B6C721181124B300A2612A /* NSArray+DTError.h */,
-				D5B6C722181124B300A2612A /* NSDictionary+DTError.h */,
-				D5B6C723181124B300A2612A /* NSString+DTFormatNumbers.h */,
-				D5B6C724181124B300A2612A /* NSString+DTPaths.h */,
-				D5B6C725181124B300A2612A /* NSString+DTURLEncoding.h */,
-				D5B6C726181124B300A2612A /* NSString+DTUtilities.h */,
-				D5B6C6DE181124AC00A2612A /* DTAccessibilityElement.h */,
-				D5B6C6DF181124AC00A2612A /* DTAccessibilityViewProxy.h */,
-				D5B6C6E0181124AC00A2612A /* DTAnchorHTMLElement.h */,
-				D5B6C6E1181124AC00A2612A /* DTAttributedLabel.h */,
-				D5B6C6E2181124AC00A2612A /* DTAttributedTextCell.h */,
-				D5B6C6E3181124AC00A2612A /* DTAttributedTextContentView.h */,
-				D5B6C6E4181124AC00A2612A /* DTAttributedTextView.h */,
-				D5B6C6E5181124AC00A2612A /* DTBreakHTMLElement.h */,
-				D5B6C6E6181124AC00A2612A /* DTColor+Compatibility.h */,
-				D5B6C6E7181124AC00A2612A /* DTColorFunctions.h */,
-				D5B6C6E8181124AC00A2612A /* DTCompatibility.h */,
-				D5B6C6EA181124AC00A2612A /* DTCoreText.h */,
-				D5B6C6EB181124AC00A2612A /* DTCoreTextConstants.h */,
-				D5B6C6EC181124AC00A2612A /* DTCoreTextFontCollection.h */,
-				D5B6C6ED181124AC00A2612A /* DTCoreTextFontDescriptor.h */,
-				D5B6C6EE181124AC00A2612A /* DTCoreTextFunctions.h */,
-				D5B6C6EF181124AC00A2612A /* DTCoreTextGlyphRun.h */,
-				D5B6C6F0181124AC00A2612A /* DTCoreTextLayouter.h */,
-				D5B6C6F1181124AC00A2612A /* DTCoreTextLayoutFrame.h */,
-				D5B6C6F2181124AC00A2612A /* DTCoreTextLayoutFrame+Cursor.h */,
-				D5B6C6F3181124AC00A2612A /* DTCoreTextLayoutFrameAccessibilityElementGenerator.h */,
-				D5B6C6F4181124AC00A2612A /* DTCoreTextLayoutLine.h */,
-				D5B6C6F5181124AC00A2612A /* DTCoreTextParagraphStyle.h */,
-				D5B6C6F6181124AC00A2612A /* DTCSSListStyle.h */,
-				D5B6C6F7181124AC00A2612A /* DTCSSStylesheet.h */,
-				D5B6C6F8181124AC00A2612A /* DTDictationPlaceholderTextAttachment.h */,
-				D5B6C6F9181124AC00A2612A /* DTDictationPlaceholderView.h */,
-				D5B6C6FA181124AC00A2612A /* DTHorizontalRuleHTMLElement.h */,
-				D5B6C6FB181124AC00A2612A /* DTHTMLAttributedStringBuilder.h */,
-				D5B6C6FC181124AC00A2612A /* DTHTMLElement.h */,
-				D5B6C6FD181124AC00A2612A /* DTHTMLParserNode.h */,
-				D5B6C6FE181124AC00A2612A /* DTHTMLParserTextNode.h */,
-				D5B6C6FF181124AC00A2612A /* DTHTMLWriter.h */,
-				D5B6C700181124AC00A2612A /* DTIframeTextAttachment.h */,
-				D5B6C701181124AC00A2612A /* DTImage+HTML.h */,
-				D5B6C702181124AC00A2612A /* DTImageTextAttachment.h */,
-				D5B6C703181124AC00A2612A /* DTLazyImageView.h */,
-				D5B6C704181124AC00A2612A /* DTLinkButton.h */,
-				D5B6C705181124AC00A2612A /* DTListItemHTMLElement.h */,
-				D5B6C706181124AC00A2612A /* DTObjectTextAttachment.h */,
-				D5B6C707181124AC00A2612A /* DTStylesheetHTMLElement.h */,
-				D5B6C708181124AC00A2612A /* DTTextAttachment.h */,
-				D5B6C709181124AC00A2612A /* DTTextAttachmentHTMLElement.h */,
-				D5B6C70A181124AC00A2612A /* DTTextBlock.h */,
-				D5B6C70B181124AC00A2612A /* DTTextHTMLElement.h */,
-				D5B6C70C181124AC00A2612A /* DTVideoTextAttachment.h */,
-				D5B6C70D181124AC00A2612A /* DTWebVideoView.h */,
-				D5B6C70E181124AC00A2612A /* NSAttributedString+DTCoreText.h */,
-				D5B6C70F181124AC00A2612A /* NSAttributedString+DTDebug.h */,
-				D5B6C710181124AC00A2612A /* NSAttributedString+HTML.h */,
-				D5B6C711181124AC00A2612A /* NSAttributedString+SmallCaps.h */,
-				D5B6C712181124AC00A2612A /* NSAttributedStringRunDelegates.h */,
-				D5B6C713181124AC00A2612A /* NSCharacterSet+HTML.h */,
-				D5B6C714181124AC00A2612A /* NSDictionary+DTCoreText.h */,
-				D5B6C715181124AC00A2612A /* NSMutableAttributedString+HTML.h */,
-				D5B6C716181124AC00A2612A /* NSMutableString+HTML.h */,
-				D5B6C717181124AC00A2612A /* NSScanner+HTML.h */,
-				D5B6C718181124AC00A2612A /* NSString+CSS.h */,
-				D5B6C719181124AC00A2612A /* NSString+HTML.h */,
-				D5B6C71A181124AC00A2612A /* NSString+Paragraphs.h */,
-				D5B6C71B181124AC00A2612A /* UIFont+DTCoreText.h */,
-			);
-			name = DT;
-			sourceTree = "<group>";
-		};
 		D5C8C93C17EF45BA00F54C19 /* ADTransitionController */ = {
 			isa = PBXGroup;
 			children = (
@@ -4105,7 +3949,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"";
+			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\n\"$PROJECT_DIR/../../support/common/localecompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/common/css/csscompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios \"$PROJECT_DIR/../Resources\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 

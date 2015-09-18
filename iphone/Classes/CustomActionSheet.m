@@ -3,7 +3,7 @@
 #import <objc/message.h>
 #import <sys/utsname.h>
 #import "TiLabel.h"
-#import "DTCoreText.h"
+#import "DTCoreText/DTCoreText.h"
 #import "SWActionSheet.h"
 
 CG_INLINE BOOL isIPhone4()
