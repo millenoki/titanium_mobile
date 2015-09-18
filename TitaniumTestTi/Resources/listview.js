@@ -943,7 +943,7 @@ function listViewEx2() {
         }
     });
     update();
-    win.addEventListener('longpress', function(_event) {
+    listView.addEventListener('longpress', function(_event) {
         //    	alert('longpress');
         sinfo('longpress');
         win.add(loadingView);
