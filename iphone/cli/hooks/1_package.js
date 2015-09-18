@@ -14,6 +14,20 @@ var appc = require('node-appc'),
     wrench = require('wrench'),
     exec = require('child_process').exec;
 
+var deleteFolderRecursive = function(path) {
+  if( fs.existsSync(path) ) {
+      fs.readdirSync(path).forEach(function(file,index) {
+        var curPath = path + "/" + file;
+          if(fs.statSync(curPath).isDirectory()) { // recurse
+              deleteFolderRecursive(curPath);
+          } else { // delete file
+              fs.unlinkSync(curPath);
+          }
+      });
+      fs.rmdirSync(path);
+    }
+};
+
 exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
