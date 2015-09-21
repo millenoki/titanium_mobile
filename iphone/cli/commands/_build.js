@@ -1865,7 +1865,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			function toSymlinkOrNotToSymlink() {
 				// since things are looking good, determine if files should be symlinked on copy
 				// note that iOS 9 simulator does not support symlinked files :(
-				this.symlinkFilesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
+				this.symlinkFilesOnCopy = cli.argv.target === 'simulator' &&  config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
 
 				// iOS 9 Simulator does not like symlinks :(
 				if (cli.argv.target === 'simulator' && this.symlinkFilesOnCopy) {
