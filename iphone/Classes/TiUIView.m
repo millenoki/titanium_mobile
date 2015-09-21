@@ -395,25 +395,25 @@ DEFINE_EXCEPTIONS
 
 -(void)ensureGestureListeners
 {
-    if ([[self viewProxy] _hasListeners:@"swipe" checkParent:NO]) {
+    if ([[self viewProxy] _hasListenersIgnoreBubble:@"swipe"]) {
         [[self gestureRecognizerForEvent:@"uswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"dswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"rswipe"] setEnabled:YES];
         [[self gestureRecognizerForEvent:@"lswipe"] setEnabled:YES];
     }
-    if ([[self viewProxy] _hasListeners:@"pinch" checkParent:NO]) {
+    if ([[self viewProxy] _hasListenersIgnoreBubble:@"pinch"]) {
          [[self gestureRecognizerForEvent:@"pinch"] setEnabled:YES];
     }
-    if ([[self viewProxy] _hasListeners:@"longpress" checkParent:NO]) {
+    if ([[self viewProxy] _hasListenersIgnoreBubble:@"longpress"]) {
         [[self gestureRecognizerForEvent:@"longpress"] setEnabled:YES];
     }
-    if ([[self viewProxy] _hasListeners:@"pan" checkParent:NO]) {
+    if ([[self viewProxy] _hasListenersIgnoreBubble:@"pan"]) {
         [[self gestureRecognizerForEvent:@"pan"] setEnabled:YES];
     }
-    if ([[self viewProxy] _hasListeners:@"rotate" checkParent:NO]) {
+    if ([[self viewProxy] _hasListenersIgnoreBubble:@"rotate"]) {
         [[self gestureRecognizerForEvent:@"rotate"] setEnabled:YES];
     }
-    if ([[self viewProxy] _hasListeners:@"shove" checkParent:NO]) {
+    if ([[self viewProxy] _hasListenersIgnoreBubble:@"shove"]) {
         [[self gestureRecognizerForEvent:@"shove"] setEnabled:YES];
     }
 }
@@ -2370,7 +2370,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)sanitycheckListeners	//TODO: This can be optimized and unwound later.
 {
 	for (NSString * eventName in [self gestureListenersArray]) {
-		if ([[self viewProxy] _hasListeners:eventName checkParent:NO]) {
+		if ([[self viewProxy] _hasListenersIgnoreBubble:eventName]) {
 			[self handleListenerAddedWithEvent:eventName];
 		}
 	}

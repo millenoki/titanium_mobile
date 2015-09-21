@@ -27,7 +27,7 @@
 @property(nonatomic, assign) TiParentingProxy *parentForBubbling;
 
 -(BOOL)_hasListeners:(NSString *)type checkParent:(BOOL)check;
-
+-(BOOL)_hasListenersIgnoreBubble:(NSString *)type;
 /**
  Tells the view proxy to add a child proxy.
  @param arg A single proxy to add or NSArray of proxies.

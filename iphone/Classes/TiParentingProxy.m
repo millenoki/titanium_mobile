@@ -92,6 +92,11 @@
 	return returnVal;
 }
 
+-(BOOL)_hasListenersIgnoreBubble:(NSString *)type
+{
+    return [super _hasListeners:type];
+}
+
 -(BOOL)_hasListeners:(NSString *)type
 {
 	return [self _hasListeners:type checkParent:YES];
