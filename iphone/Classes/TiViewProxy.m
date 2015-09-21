@@ -825,12 +825,17 @@ SEL GetterForKrollProperty(NSString * key)
         
         //If layout is non absolute push this into the layout queue
         //else just layout the child with current bounds
-        if (![self absoluteLayout]) {
-            [childViewProxy refreshViewOrParent];
+        if (allowContentChange) {
+            if (![self absoluteLayout]) {
+                [childViewProxy refreshViewOrParent];
+            }
+            else {
+                [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
+            }
+        } else {
+            [self parentContentWillChange];
         }
-        else {
-            [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
-        }
+
     }, NO);
 }
 
@@ -852,12 +857,14 @@ SEL GetterForKrollProperty(NSString * key)
         [childViewProxy setParentVisible:NO];
     }
     if (!wasChild) return;
-    
-    BOOL layoutNeedsRearranging = ![self absoluteLayout];
-    if (layoutNeedsRearranging)
-    {
-        [self willChangeLayout];
-    }
+    [self parentContentWillChange];
+//    BOOL layoutNeedsRearranging = ![self absoluteLayout];
+//    if (layoutNeedsRearranging)
+//    {
+//        [self willChangeLayout];
+//    } else {
+//        
+//    }
 }
 
 -(void)removeAllChildren:(id)arg
@@ -958,7 +965,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(BOOL)isHidden
 {
-    return hidden;
+    return hidden || _hiddenForLayout;
 }
 
 //-(CGSize)contentSizeForSize:(CGSize)size
@@ -1878,6 +1885,7 @@ SEL GetterForKrollProperty(NSString * key)
 		_bubbleParent = YES;
         defaultReadyToCreateView = NO;
         hidden = NO;
+        _hiddenForLayout = NO;
         [self resetDefaultValues];
         _transitioning = NO;
         vzIndex = 0;
@@ -3926,8 +3934,12 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
         ENSURE_ARG_OR_NIL_AT_INDEX(callback, args, 3, KrollCallback);
         [callback retain];
         void (^onCompletion)() = ^() {
-            if (view1Proxy) [self removeProxy:view1Proxy shouldDetach:YES];
+            if (view1Proxy) {
+                [self removeProxy:view1Proxy shouldDetach:YES];
+                view1Proxy.hiddenForLayout = NO;
+            }
             if (view2Proxy) [self add:view2Proxy];
+            [self refreshViewIfNeeded];
             _transitioning = NO;
             if (callback) {
                 [self _fireEventToListener:@"done" withObject:nil listener:callback thisObject:nil];
@@ -3953,10 +3965,13 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
             
             TiUIView* view1 = nil;
             __block TiUIView* view2 = nil;
+            
             if (view2Proxy) {
+                [self determineSandboxBounds];
                 //                [view2Proxy performBlockWithoutLayout:^{
                 [view2Proxy setParent:self];
                 view2 = [view2Proxy getAndPrepareViewForOpening];
+                [view2Proxy refreshViewIfNeeded];
                 //                }];
                 
                 id<TiEvaluator> context = self.executionContext;
@@ -3972,13 +3987,21 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
                 view1 = [view1Proxy getAndPrepareViewForOpening];
                 [view1Proxy refreshViewIfNeeded];
             }
-            [self refreshViewIfNeeded];
-            [view1Proxy refreshViewIfNeeded];
-            [view2Proxy refreshViewIfNeeded];
+            void (^animationBlock)() = ^() {
+                [self performBlockWithoutLayout:^{
+                    if (view2Proxy) [self add:view2Proxy];
+                }];
+                if (view1Proxy) {
+                    view1Proxy.hiddenForLayout = YES;
+                }
+                [self refreshViewOrParent];
+           };
+            [self refreshViewOrParent];
+//            [view1Proxy refreshViewIfNeeded];
             
             TiTransition* transition = [TiTransitionHelper transitionFromArg:props containerView:self.view];
             transition.adTransition.type = ADTransitionTypePush;
-            [[self view] transitionfromView:view1 toView:view2 withTransition:transition completionBlock:onCompletion];
+                 [[self view] transitionFromView:view1 toView:view2 withTransition:transition animationBlock:animationBlock completionBlock:onCompletion];
         }
         else {
             onCompletion();

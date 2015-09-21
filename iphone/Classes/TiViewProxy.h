@@ -119,6 +119,9 @@ enum
 @property(nonatomic,readwrite,assign) BOOL canRepositionItself;
 @property(nonatomic,readwrite,assign) BOOL canResizeItself;
 
+
+@property(nonatomic,readwrite,assign) BOOL hiddenForLayout;
+
 -(void)startLayout:(id)arg;//Deprecated since 3.0.0
 -(void)finishLayout:(id)arg;//Deprecated since 3.0.0
 -(void)updateLayout:(id)arg;//Deprecated since 3.0.0

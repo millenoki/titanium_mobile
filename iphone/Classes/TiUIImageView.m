@@ -429,7 +429,7 @@ DEFINE_EXCEPTIONS
         imageView.image = image;
         [self fireLoadEventWithState:@"image"];
         placeholderLoading = NO;
-        [TiTransitionHelper transitionfromView:oldView toView:imageView insideView:self withTransition:transition prepareBlock:^{
+        [TiTransitionHelper transitionFromView:oldView toView:imageView insideView:self withTransition:transition prepareBlock:^{
         } completionBlock:^{
             [oldView release];
         }];

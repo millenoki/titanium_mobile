@@ -2463,11 +2463,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     [self setAnimatedTransition:NO];
 }
 
-- (void)transitionfromView:(TiUIView *)viewOut toView:(TiUIView *)viewIn withTransition:(TiTransition *)transition completionBlock:(void (^)(void))block{
+- (void)transitionFromView:(TiUIView *)viewOut toView:(TiUIView *)viewIn withTransition:(TiTransition *)transition animationBlock:(void (^)(void))animBlock completionBlock:(void (^)(void))block{
     [(TiAnimatableProxy*)viewOut.proxy addRunningAnimation:transition];
     [(TiAnimatableProxy*)viewIn.proxy addRunningAnimation:transition];
     
-    [TiTransitionHelper transitionfromView:viewOut toView:viewIn insideView:self withTransition:transition completionBlock:^{
+    [TiTransitionHelper transitionFromView:viewOut toView:viewIn insideView:self withTransition:transition prepareBlock:NULL animationBlock:animBlock completionBlock:^{
         [(TiAnimatableProxy*)viewOut.proxy removeRunningAnimation:transition];
         [(TiAnimatableProxy*)viewIn.proxy removeRunningAnimation:transition];
         if (block != nil) {

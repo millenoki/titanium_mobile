@@ -51,6 +51,9 @@
 #import "TiViewAnimation+Friend.h"
 #import "TiViewAnimationStep.h"
 
+#import "TiUIView.h"
+#import "TiViewProxy.h"
+
 @interface UIView (FindUIViewController)
 - (UIViewController *) firstAvailableUIViewController;
 - (id) traverseResponderChainForUIViewController;
@@ -256,11 +259,6 @@ reversed{
     return [self transitionFromArg:arg defaultArg:nil defaultTransition:nil containerView:container];
 }
 
-+ (void)transitionfromView:(UIView *)viewOut toView:(UIView *)viewIn insideView:(UIView*)holder withTransition:(TiTransition *)transition completionBlock:(void (^)(void))block
-{
-    [self transitionfromView:viewOut toView:viewIn insideView:holder withTransition:transition prepareBlock:nil completionBlock:block];
-}
-
 -(void)playAnimation:(TiAnimation*)animation onView:(UIView*)view
 {
     TiViewAnimation * viewAnimation = [TiViewAnimation animation];
@@ -277,7 +275,17 @@ reversed{
     [hlsAnimation playWithRepeatCount:[animation repeatCount] afterDelay:[animation delay]];
 }
 
-+ (void)transitionfromView:(UIView *)viewOut toView:(UIView *)viewIn insideView:(UIView*)holder withTransition:(TiTransition *)transition prepareBlock:(void (^)(void))prepareBlock completionBlock:(void (^)(void))block
++ (void)transitionFromView:(UIView *)viewOut toView:(UIView *)viewIn insideView:(UIView*)holder withTransition:(TiTransition *)transition completionBlock:(void (^)(void))block
+{
+    [self transitionfromView:viewOut toView:viewIn insideView:holder withTransition:transition prepareBlock:nil completionBlock:block];
+}
+
++ (void)transitionFromView:(UIView *)viewOut toView:(UIView *)viewIn insideView:(UIView*)holder withTransition:(TiTransition *)transition prepareBlock:(void (^)(void))prepareBlock completionBlock:(void (^)(void))block
+{
+    [self transitionFromView:viewOut toView:viewIn insideView:holder withTransition:transition prepareBlock:prepareBlock animationBlock:NULL completionBlock:block];
+}
+
++ (void)transitionFromView:(UIView *)viewOut toView:(UIView *)viewIn insideView:(UIView*)holder withTransition:(TiTransition *)transition prepareBlock:(void (^)(void))prepareBlock animationBlock:(void (^)(void))animationBlock completionBlock:(void (^)(void))block
 {
     ADTransition* adTransition = transition.adTransition ;
     
@@ -344,12 +352,19 @@ reversed{
         }
         completionBlock();
     }];
-    
     if (transition.custom) {
     } else {
+        [UIView animateWithDuration:transition.duration
+                              delay:0
+                            options:UIViewAnimationOptionAllowUserInteraction
+                         animations:^{
+                             if (animationBlock) {
+                                 animationBlock();
+                             }
+                         }
+                         completion:nil];
         [adTransition startTransitionFromView:viewOut toView:viewIn inside:workingView];
     }
-    
 }
 
 @end
