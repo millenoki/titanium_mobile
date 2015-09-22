@@ -106,7 +106,6 @@
         label.layer.shadowRadius = 0; //for backward compatibility
         label.layer.shadowOffset = CGSizeZero;
         label.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        label.contentMode = UIViewContentModeCenter;
         label.touchDelegate = self;
         label.strokeColorAttributeProperty = DTBackgroundStrokeColorAttribute;
         label.strokeWidthAttributeProperty = DTBackgroundStrokeWidthAttribute;
@@ -117,6 +116,7 @@
         label.backgroundColorAttributeProperty = NSBackgroundColorAttributeName;
 
         label.delegate = self;
+        [self updateContentMode];
         [self addSubview:label];
 	}
 	return label;
@@ -224,6 +224,52 @@
 	[[self label] setExclusiveTouch:value];
 }
 
+
+-(void)updateContentMode {
+    UIViewContentMode contentMode = UIViewContentModeRedraw;
+    NSTextAlignment hor = [label textAlignment];
+    TTTAttributedLabelVerticalAlignment vert = [label verticalAlignment];
+    if (hor == NSTextAlignmentLeft || hor == NSTextAlignmentNatural) {
+        switch (vert) {
+            case UIControlContentVerticalAlignmentBottom:
+                contentMode = UIViewContentModeBottomLeft;
+                break;
+            case UIControlContentVerticalAlignmentTop:
+                contentMode = UIViewContentModeTopLeft;
+                break;
+            default:
+                contentMode = UIViewContentModeLeft;
+                break;
+        }
+    } else if (hor == NSTextAlignmentRight) {
+        switch (vert) {
+            case UIControlContentVerticalAlignmentBottom:
+                contentMode = UIViewContentModeBottomRight;
+                break;
+            case UIControlContentVerticalAlignmentTop:
+                contentMode = UIViewContentModeTopRight;
+                break;
+            default:
+                contentMode = UIViewContentModeRight;
+                break;
+        }
+    }  else {
+        switch (vert) {
+            case UIControlContentVerticalAlignmentBottom:
+                contentMode = UIViewContentModeBottom;
+                break;
+            case UIControlContentVerticalAlignmentTop:
+                contentMode = UIViewContentModeTop;
+                break;
+            default:
+                contentMode = UIViewContentModeCenter;
+                break;
+        }
+    }
+    label.contentMode = contentMode;
+}
+
+
 #pragma mark Public APIs
 
 -(void)setCustomUserInteractionEnabled:(BOOL)value
@@ -235,20 +281,8 @@
 -(void)setVerticalAlign_:(id)value
 {
     UIControlContentVerticalAlignment verticalAlign = [TiUtils contentVerticalAlignmentValue:value];
-    UIViewContentMode contentMode = UIViewContentModeCenter;
-    switch (verticalAlign) {
-        case UIControlContentVerticalAlignmentBottom:
-            contentMode = UIViewContentModeBottom;
-            break;
-        case UIControlContentVerticalAlignmentTop:
-            contentMode = UIViewContentModeTop;
-            break;
-        default:
-            break;
-    }
-    [self label].contentMode = contentMode;
-    
     [[self label] setVerticalAlignment:(TTTAttributedLabelVerticalAlignment)verticalAlign];
+    [self updateContentMode];
 }
 -(void)setAutoLink_:(id)value
 {
@@ -392,6 +426,7 @@
 -(void)setTextAlign_:(id)alignment
 {
 	[[self label] setTextAlignment:[TiUtils textAlignmentValue:alignment]];
+    [self updateContentMode];
 }
 
 -(void)setShadowColor_:(id)color
