@@ -2261,6 +2261,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
+    //tryout should it be possible?
+    if (IS_OF_CLASS(gestureRecognizer, UISwipeGestureRecognizer) &&
+        IS_OF_CLASS(otherGestureRecognizer, UIPanGestureRecognizer)) {
+        return NO;
+    }
     return YES;
 //    return gestureRecognizer.delegate &&
 //    otherGestureRecognizer.delegate &&
