@@ -5304,7 +5304,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 						this.logger.error(__('Failed to optimize %s (code %s)', file, code));
 					} else {
 						fs.existsSync(file) && fs.unlinkSync(file);
-						fs.renameSync(output, file);
+						fs.existsSync(output) && fs.renameSync(output, file);
 					}
 					cb();
 				}.bind(this));
