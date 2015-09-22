@@ -39,7 +39,7 @@
     if (self) {
         _tableView = [tableView retain];
         self.canBeResizedByFrame = YES;
-//        self.canRepositionItself = NO;
+        self.canRepositionItself = NO;
         LayoutConstraint* viewLayout = [self layoutProperties];
         viewLayout->width = TiDimensionAutoFill;
         viewLayout->height = TiDimensionAutoSize;
@@ -68,9 +68,9 @@
 //    return result;
 //}
 
--(void)willChangePosition
-{
-    //we ignore position change as the tableview handles it
-}
+//-(void)willChangePosition
+//{
+//    //we ignore position change as the tableview handles it
+//}
 
 @end

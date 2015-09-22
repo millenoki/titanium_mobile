@@ -2852,9 +2852,15 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 {
     OSAtomicTestAndSet(TiRefreshViewZIndex, &dirtyflags);
     OSAtomicTestAndSet(TiRefreshViewEnqueued, &dirtyflags);
-    OSAtomicTestAndSet(TiRefreshViewSize, &dirtyflags);
-    OSAtomicTestAndSet(TiRefreshViewPosition, &dirtyflags);
-    if (childrenCount > 0) OSAtomicTestAndSet(TiRefreshViewChildrenPosition, &dirtyflags);
+    if (_canResizeItself){
+        OSAtomicTestAndSet(TiRefreshViewSize, &dirtyflags);
+    }
+    if (_canRepositionItself) {
+        OSAtomicTestAndSet(TiRefreshViewPosition, &dirtyflags);
+    }
+    if (childrenCount > 0) {
+        OSAtomicTestAndSet(TiRefreshViewChildrenPosition, &dirtyflags);
+    }
 }
 
 -(void)clearItAll
@@ -2962,12 +2968,16 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 
 -(void)refreshPosition
 {
-	OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags);
+    if (_canRepositionItself) {
+        OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags);
+    }
 }
 
 -(void)refreshSize
 {
-	OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags);
+    if (_canResizeItself) {
+        OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags);
+    }
 }
 
 
