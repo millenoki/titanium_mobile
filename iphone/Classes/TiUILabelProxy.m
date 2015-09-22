@@ -62,14 +62,15 @@ static inline CTLineBreakMode NSLineBreakModeToCTLineBreakMode(NSLineBreakMode l
     if (self = [super init]) {
         _padding = UIEdgeInsetsZero;
         attributeTextNeedsUpdate = YES;
+        NSString* defaultSystemFontFamily = [UIFont systemFontOfSize:[UIFont systemFontSize]].familyName;
         options = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
 //                    NSHTMLTextDocumentType, NSDocumentTypeDocumentAttribute,
                     [NSNumber numberWithInt:kCTLeftTextAlignment], DTDefaultTextAlignment,
                     [NSNumber numberWithInt:0], DTDefaultFontStyle,
                     @(NO), DTIgnoreLinkStyleOption,
-                    @"Helvetica Neue", DTDefaultFontFamily,
+                    defaultSystemFontFamily, DTDefaultFontFamily,
                     @(YES), DTDocumentPreserveTrailingSpaces,
-                    @"Helvetica Neue", NSFontAttributeName,
+                    defaultSystemFontFamily, NSFontAttributeName,
                     @YES, DTUseiOS6Attributes,
                     [NSNumber numberWithFloat:(17 / kDefaultFontSize)], NSTextSizeMultiplierDocumentOption,
                     [NSNumber numberWithInt:kCTLineBreakByWordWrapping], DTDefaultLineBreakMode, nil] retain];
