@@ -304,6 +304,11 @@
 	[childrenCopy release];
 }
 
+-(void)setViews:(id)args
+{
+    [self removeAllChildren:nil];
+    [self add:args];
+}
 
 -(void)_listenerAdded:(NSString*)type count:(NSInteger)count
 {
