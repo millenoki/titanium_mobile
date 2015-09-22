@@ -1146,12 +1146,10 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         propagate = _bubbleParent;
     }
     
-    if (eventOverrideDelegate != nil) {
-        obj = [eventOverrideDelegate overrideEventObject:obj forEvent:type fromViewProxy:self];
-    }
-    
-    
     NSMutableDictionary* eventObject = (IS_OF_CLASS(obj, NSDictionary))? [NSMutableDictionary dictionaryWithDictionary:obj] : [NSMutableDictionary dictionary];
+    if (eventOverrideDelegate != nil) {
+        [eventOverrideDelegate overrideEventObject:eventObject forEvent:type fromViewProxy:self];
+    }
     
     // common event properties for all events we fire.. IF they're undefined.
     if ([eventObject objectForKey:@"type"] == nil) {

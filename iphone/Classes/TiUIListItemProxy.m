@@ -433,26 +433,20 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 #pragma mark - TiViewEventOverrideDelegate
 
-- (NSDictionary *)overrideEventObject:(NSDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiViewProxy *)viewProxy
+-(void) overrideEventObject:(NSMutableDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiViewProxy *)viewProxy
 {
-	NSMutableDictionary *updatedEventObject = [eventObject mutableCopy];
-    [updatedEventObject setObject:_listItem.dataItem forKey:@"item"];
-	[updatedEventObject setObject:@(_indexPath.section) forKey:@"sectionIndex"];
-    [updatedEventObject setObject:@(_indexPath.row) forKey:@"itemIndex"];
-    [updatedEventObject setObject:@([_listViewProxy isEditing]) forKey:@"editing"];
-	[updatedEventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
+    [eventObject setObject:_listItem.dataItem forKey:@"item"];
+	[eventObject setObject:@(_indexPath.section) forKey:@"sectionIndex"];
+    [eventObject setObject:@(_indexPath.row) forKey:@"itemIndex"];
+    [eventObject setObject:@([_listViewProxy isEditing]) forKey:@"editing"];
+	[eventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
 	id propertiesValue = [_listItem.dataItem objectForKey:@"properties"];
 	NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
 	id itemId = [properties objectForKey:@"itemId"];
 	if (itemId != nil) {
-		[updatedEventObject setObject:itemId forKey:@"itemId"];
-	}
-	id bindId = [viewProxy valueForKey:@"bindId"];
-	if (bindId != nil) {
-		[updatedEventObject setObject:bindId forKey:@"bindId"];
+		[eventObject setObject:itemId forKey:@"itemId"];
 	}
     [_listViewProxy didOverrideEvent:eventType forItem:self];
-	return [updatedEventObject autorelease];
 }
 
 - (void)viewProxy:(TiProxy *)viewProxy updatedValue:(id)value forType:(NSString *)type;
