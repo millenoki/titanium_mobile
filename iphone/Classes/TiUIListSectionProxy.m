@@ -229,6 +229,7 @@
     ENSURE_TYPE_OR_NIL(args,NSArray);
     NSArray *items = args;
     UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    BOOL maintainPosition = [TiUtils boolValue:@"maintainPosition" properties:properties def:NO];
     id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
     
     if (animation == UITableViewRowAnimationNone) {
@@ -246,7 +247,7 @@
         [theDispatcher dispatchUpdateAction:^(UITableView *tableView) {
             [_items setArray:items];
             [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation:animation];
-        }];
+        } maintainPosition:maintainPosition];
     }
 }
 
@@ -260,6 +261,7 @@
     ENSURE_TYPE_OR_NIL(items,NSArray);
     NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
     UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    BOOL maintainPosition = [TiUtils boolValue:@"maintainPosition" properties:properties def:NO];
     id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
     
     if (animation == UITableViewRowAnimationNone) {
@@ -288,7 +290,7 @@
             }
 
             [indexPaths release];
-        }];
+        } maintainPosition:maintainPosition];
     }
 }
 
@@ -303,6 +305,7 @@
     ENSURE_TYPE_OR_NIL(items,NSArray);
     NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
     UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    BOOL maintainPosition = [TiUtils boolValue:@"maintainPosition" properties:properties def:NO];
     id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
 
     if (animation == UITableViewRowAnimationNone) {
@@ -339,7 +342,7 @@
                 
             }
             [indexPaths release];
-        }];
+        } maintainPosition:maintainPosition];
     }
 }
 
@@ -352,6 +355,7 @@
     ENSURE_TYPE_OR_NIL(items,NSArray);
     NSDictionary *properties = [args count] > 3 ? [args objectAtIndex:3] : nil;
     UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    BOOL maintainPosition = [TiUtils boolValue:@"maintainPosition" properties:properties def:NO];
     id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
 	
     if (animation == UITableViewRowAnimationNone) {
@@ -394,7 +398,7 @@
                 [tableView insertRowsAtIndexPaths:indexPaths withRowAnimation:animation];
             }
             [indexPaths release];
-        }];
+        } maintainPosition:maintainPosition];
     }
 }
 
@@ -413,6 +417,7 @@
     }
     NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
     UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
+    BOOL maintainPosition = [TiUtils boolValue:@"maintainPosition" properties:properties def:NO];
     id<TiUIListViewDelegate> theDispatcher = self.dispatcher;
 	
     if (animation == UITableViewRowAnimationNone) {
@@ -451,7 +456,7 @@
             }
             [tableView deleteRowsAtIndexPaths:indexPaths withRowAnimation:animation];
             [indexPaths release];
-        } maintainPosition:NO];
+        } maintainPosition:maintainPosition];
     }
 }
 
@@ -463,7 +468,8 @@
 	ENSURE_TYPE_OR_NIL(item,NSDictionary);
 	NSDictionary *properties = [args count] > 2 ? [args objectAtIndex:2] : nil;
 	UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
-	
+    BOOL maintainPosition = [TiUtils boolValue:@"maintainPosition" properties:properties def:NO];
+
 	[self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
 		if ([_items count] <= itemIndex) {
 			DebugLog(@"[WARN] ListView: Update item index is out of range");
@@ -491,7 +497,7 @@
 			[tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:animation];
 		}
 		[indexPaths release];
-	} animated:(animation != UITableViewRowAnimationNone)];
+	} animated:(animation != UITableViewRowAnimationNone) maintainPosition:maintainPosition];
 }
 
 - (void)updateItems:(id)args
@@ -505,7 +511,7 @@
     
     NSDictionary *properties = [args count] > 1 ? [args objectAtIndex:1] : nil;
     UITableViewRowAnimation animation = [TiUIListView animationStyleForProperties:properties];
-    
+    BOOL maintainPosition = [TiUtils boolValue:@"maintainPosition" properties:properties def:NO];
     [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
         if ([items count] != [_items count]) {
             [self throwException:@"Can't update items, count does not match"
@@ -529,7 +535,7 @@
         if (forceReload) {
             [tableView reloadRowsAtIndexPaths:[tableView indexPathsForVisibleRows] withRowAnimation:animation];
         }
-    } animated:(animation != UITableViewRowAnimationNone) maintainPosition:NO];
+    } animated:(animation != UITableViewRowAnimationNone) maintainPosition:maintainPosition];
 }
 
 #pragma mark - TiUIListViewDelegate
