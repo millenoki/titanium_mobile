@@ -120,19 +120,32 @@ CG_INLINE BOOL isIPhone4()
     }
 }
 
+-(NSString*)defaultSystemFontFamily
+{
+    static NSString *defaultSystemFontFamily = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        defaultSystemFontFamily = [UIFont systemFontOfSize:[UIFont systemFontSize]].familyName;
+    });
+    return defaultSystemFontFamily;
+}
+
+
 static NSDictionary* htmlOptions;
 -(NSDictionary *)htmlOptions
 {
     if (htmlOptions == nil)
     {
         htmlOptions = @{
-                         DTDefaultTextAlignment:@(kCTLeftTextAlignment),
-                         DTDefaultFontStyle:@(0),
-                         DTIgnoreLinkStyleOption:@(NO),
-                         DTDefaultFontFamily:@"Helvetica",
-                         NSFontAttributeName:@"Helvetica",
-                         NSTextSizeMultiplierDocumentOption:@(16 / 12.0),
-                         DTDefaultLineBreakMode:@(kCTLineBreakByWordWrapping)};
+                        DTDefaultTextAlignment:@(kCTLeftTextAlignment),
+                        DTDefaultFontStyle:@(0),
+                        DTIgnoreLinkStyleOption:@(NO),
+                        DTDefaultFontFamily:[self defaultSystemFontFamily],
+                        NSFontAttributeName:[self defaultSystemFontFamily],
+                        NSTextSizeMultiplierDocumentOption:@(16 / 12.0),
+                        DTUseiOS6Attributes:@YES,
+                        DTDocumentPreserveTrailingSpaces:@(YES),
+                        DTDefaultLineBreakMode:@(kCTLineBreakByWordWrapping)};
     }
     return htmlOptions;
 }

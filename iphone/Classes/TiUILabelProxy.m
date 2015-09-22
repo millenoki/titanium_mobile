@@ -57,23 +57,42 @@ static inline CTLineBreakMode NSLineBreakModeToCTLineBreakMode(NSLineBreakMode l
     return @"Ti.UI.Label";
 }
 
+-(NSString*)defaultSystemFontFamily
+{
+    static NSString *defaultSystemFontFamily = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        defaultSystemFontFamily = [UIFont systemFontOfSize:[UIFont systemFontSize]].familyName;
+    });
+    return defaultSystemFontFamily;
+}
+
+
+static NSDictionary* htmlOptions;
+-(NSDictionary *)htmlOptions
+{
+    if (htmlOptions == nil)
+    {
+        htmlOptions = [@{
+                        DTDefaultTextAlignment:@(kCTLeftTextAlignment),
+                        DTDefaultFontStyle:@(0),
+                        DTIgnoreLinkStyleOption:@(NO),
+                        DTDefaultFontFamily:[self defaultSystemFontFamily],
+                        NSFontAttributeName:[self defaultSystemFontFamily],
+                        NSTextSizeMultiplierDocumentOption:@(17 / kDefaultFontSize),
+                        DTUseiOS6Attributes:@YES,
+                        DTDocumentPreserveTrailingSpaces:@(YES),
+                        DTDefaultLineBreakMode:@(kCTLineBreakByWordWrapping)} retain];
+    }
+    return htmlOptions;
+}
+
 -(id)init
 {
     if (self = [super init]) {
         _padding = UIEdgeInsetsZero;
         attributeTextNeedsUpdate = YES;
-        NSString* defaultSystemFontFamily = [UIFont systemFontOfSize:[UIFont systemFontSize]].familyName;
-        options = [[NSMutableDictionary dictionaryWithObjectsAndKeys:
-//                    NSHTMLTextDocumentType, NSDocumentTypeDocumentAttribute,
-                    [NSNumber numberWithInt:kCTLeftTextAlignment], DTDefaultTextAlignment,
-                    [NSNumber numberWithInt:0], DTDefaultFontStyle,
-                    @(NO), DTIgnoreLinkStyleOption,
-                    defaultSystemFontFamily, DTDefaultFontFamily,
-                    @(YES), DTDocumentPreserveTrailingSpaces,
-                    defaultSystemFontFamily, NSFontAttributeName,
-                    @YES, DTUseiOS6Attributes,
-                    [NSNumber numberWithFloat:(17 / kDefaultFontSize)], NSTextSizeMultiplierDocumentOption,
-                    [NSNumber numberWithInt:kCTLineBreakByWordWrapping], DTDefaultLineBreakMode, nil] retain];
+        options = [[self htmlOptions] mutableCopy];
     }
     return self;
 }
@@ -303,8 +322,8 @@ static inline CTLineBreakMode NSLineBreakModeToCTLineBreakMode(NSLineBreakMode l
     if (webFont.family)
         [options setValue:webFont.family forKey:DTDefaultFontFamily];
     else {
-        [options setObject:@"Helvetica" forKey:NSFontAttributeName];
-        [options setValue:@"Helvetica" forKey:DTDefaultFontFamily];
+        [options setObject:[self defaultSystemFontFamily] forKey:NSFontAttributeName];
+        [options setValue:[self defaultSystemFontFamily] forKey:DTDefaultFontFamily];
     }
     [options setValue:[NSNumber numberWithFloat:(webFont.size / kDefaultFontSize)] forKey:NSTextSizeMultiplierDocumentOption];
     
