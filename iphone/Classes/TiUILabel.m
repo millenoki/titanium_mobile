@@ -677,7 +677,10 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
     if (_textIsSelectable)
     {
         UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-        id string = [(TiUILabelProxy*)[self proxy] getLabelContent];
+        id string = [self.proxy valueForUndefinedKey:@"selectableText"];
+        if (!string) {
+            string = [(TiUILabelProxy*)[self proxy] getLabelContent];
+        }
         if (IS_OF_CLASS(string, NSAttributedString)) {
             [pasteboard setString:[string string]];
         } else {
