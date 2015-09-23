@@ -439,10 +439,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     self.activeLinkAttributes = [NSDictionary dictionaryWithDictionary:mutableActiveLinkAttributes];
     self.inactiveLinkAttributes = [NSDictionary dictionaryWithDictionary:mutableInactiveLinkAttributes];
     _extendsLinkTouchArea = NO;
-    _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self
-                                                                                action:@selector(longPressGestureDidFire:)];
-    self.longPressGestureRecognizer.delegate = self;
-    [self addGestureRecognizer:self.longPressGestureRecognizer];
+    
 }
 
 - (void)commonInit {
@@ -549,7 +546,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
 
 - (void)setLinkModels:(NSArray *)linkModels {
     _linkModels = linkModels;
-    
+    [self updateLongGestureState];
     self.accessibilityElements = nil;
 }
 
@@ -673,6 +670,22 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     [self addLinks:@[link]];
 }
 
+-(void)updateLongGestureState {
+    if ([self.linkModels count] > 0) {
+        if (!_longPressGestureRecognizer) {
+            _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self
+                                                                                        action:@selector(longPressGestureDidFire:)];
+            self.longPressGestureRecognizer.delegate = self;
+            [self addGestureRecognizer:self.longPressGestureRecognizer];
+        }
+    } else {
+        if (_longPressGestureRecognizer) {
+            [self removeGestureRecognizer:_longPressGestureRecognizer];
+            _longPressGestureRecognizer = nil;
+        }
+    }
+}
+
 - (void)addLinks:(NSArray *)links {
     NSMutableArray *mutableLinkModels = [NSMutableArray arrayWithArray:self.linkModels];
     
@@ -690,6 +703,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     [mutableLinkModels addObjectsFromArray:links];
     
     self.linkModels = [NSArray arrayWithArray:mutableLinkModels];
+    [self updateLongGestureState];
 }
 
 - (TTTAttributedLabelLink *)addLinkWithTextCheckingResult:(NSTextCheckingResult *)result
@@ -1852,9 +1866,15 @@ NSMutableAttributedString *fullString = [[NSMutableAttributedString alloc] initW
 #pragma mark - UIGestureRecognizerDelegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    return [self containslinkAtPoint:[touch locationInView:self]];
+    if (gestureRecognizer == _longPressGestureRecognizer) {
+        return [self containslinkAtPoint:[touch locationInView:self]];
+    }
+    return YES;
 }
-
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return YES;
+}
 #pragma mark - UILongPressGestureRecognizer
 
 - (void)longPressGestureDidFire:(UILongPressGestureRecognizer *)sender {
@@ -2004,6 +2024,7 @@ NSMutableAttributedString *fullString = [[NSMutableAttributedString alloc] initW
 
     if ([coder containsValueForKey:NSStringFromSelector(@selector(linkModels))]) {
         self.linkModels = [coder decodeObjectForKey:NSStringFromSelector(@selector(linkModels))];
+        [self updateLongGestureState];
     }
 
     if ([coder containsValueForKey:NSStringFromSelector(@selector(shadowRadius))]) {
