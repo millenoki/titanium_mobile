@@ -306,20 +306,19 @@
 }
 
 -(void)setTextIsSelectable_:(id)value {
-     _textIsSelectable = [TiUtils boolValue:value def:NO];
+    _textIsSelectable = [TiUtils boolValue:value def:NO];
     if (_textIsSelectable) {
         if (!_longPressGestureRecognizer) {
             _longPressGestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressGestureRecognized:)];
-            [label addGestureRecognizer:_longPressGestureRecognizer];
+            [self addGestureRecognizer:_longPressGestureRecognizer];
         }
     } else {
         if (_longPressGestureRecognizer){
-            [label removeGestureRecognizer:_longPressGestureRecognizer];
+            [self removeGestureRecognizer:_longPressGestureRecognizer];
             RELEASE_TO_NIL(_longPressGestureRecognizer)
         }
     }
 }
-
 - (void)longPressGestureRecognized:(UILongPressGestureRecognizer *)gestureRecognizer
 {
     if (gestureRecognizer == _longPressGestureRecognizer)
