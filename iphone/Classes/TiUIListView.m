@@ -1320,7 +1320,7 @@ static NSDictionary* replaceKeysForRow;
             [theSection release];
             return;
         }
-        [tableView beginUpdates];
+//        [tableView beginUpdates];
 //        [theSection willRemoveItemAt:indexPath];
 //        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
 //        [tableView endUpdates];
