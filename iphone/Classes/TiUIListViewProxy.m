@@ -250,9 +250,14 @@ static NSDictionary* listViewKeysToReplace;
             if (maintainPosition) {
                 offset = [tableView contentOffset];
             }
-			[tableView beginUpdates];
-			block(tableView);
-			[tableView endUpdates];
+            [CATransaction begin];
+            [CATransaction setCompletionBlock:^{
+                [self.listView scrollViewDidScroll:tableView];
+            }];
+            [tableView beginUpdates];
+            block(tableView);
+            [tableView endUpdates];
+            [CATransaction commit];
             if (maintainPosition) {
                 [tableView setContentOffset:offset animated:NO];
             }
