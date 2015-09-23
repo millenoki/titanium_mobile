@@ -99,8 +99,7 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 - (void)_configure
 {
 	[super _configure];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityVoiceOverStatusChanged:)
-										name:UIAccessibilityVoiceOverStatusChanged object:nil];
+	
 }
 
 -(NSString*)apiName
@@ -137,11 +136,12 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 		[l release];
 	}
 	[l addObject:entry];
+    [self _listenerAdded:type count:[l count]];
 	[entry release];
     return self;
 }
 
--(void)removeEventListener:(NSArray*)args
+-(id)removeEventListener:(NSArray*)args
 {
 	NSString *type = [args objectAtIndex:0];
 	id listener = [args objectAtIndex:1];
@@ -149,7 +149,6 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 	ListenerEntry *entry = nil;
 	
 	NSMutableArray *l = [appListeners objectForKey:type];
-
 	BOOL needsScanning;
 	do
 	{
@@ -171,7 +170,50 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 	}
 	
 	[[self _host] removeListener:listener context:pageContext];
+    [self _listenerRemoved:type count:[l count]];
     return self;
+}
+
+-(void)_listenerAdded:(NSString*)type count:(NSInteger)count
+{
+    if (count == 1) {
+        if ([type isEqualToString:@"significanttimechange"])
+        {
+            TiThreadPerformBlockOnMainThread(^{
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
+            }, NO);
+            
+        } else if ([type isEqualToString:@"accessibilitychanged"]) {
+            TiThreadPerformBlockOnMainThread(^{
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityVoiceOverStatusChanged:) name:UIAccessibilityVoiceOverStatusChanged object:nil];
+            }, NO);
+        } else if ([type isEqualToString:@"keyboardFrameChanged"]) {
+            TiThreadPerformBlockOnMainThread(^{
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(accessibilityVoiceOverStatusChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
+            }, NO);
+        }
+    }
+}
+
+-(void)_listenerRemoved:(NSString*)type count:(NSInteger)count
+{
+    if (count == 0) {
+        if ([type isEqualToString:@"significanttimechange"])
+        {
+            TiThreadPerformBlockOnMainThread(^{
+                [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationSignificantTimeChangeNotification object:nil];
+            }, NO);
+            
+        } else if ([type isEqualToString:@"accessibilitychanged"]) {
+            TiThreadPerformBlockOnMainThread(^{
+                [[NSNotificationCenter defaultCenter] removeObserver:self name:UIAccessibilityVoiceOverStatusChanged object:nil];
+            }, NO);
+        } else if ([type isEqualToString:@"keyboardFrameChanged"]) {
+            TiThreadPerformBlockOnMainThread(^{
+                [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillChangeFrameNotification object:nil];
+            }, NO);
+        }
+    }
 }
 
 -(BOOL)_hasListeners:(NSString *)type
@@ -323,9 +365,7 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 
 - (void)timeChanged:(NSNotification*)notiication
 {
-    if ([self _hasListeners:@"significanttimechange"]) {
-        [self fireEvent:@"significanttimechange" withObject:nil];
-    }
+    [self fireEvent:@"significanttimechange" withObject:nil];
 }
 
 #pragma mark Internal Memory Management
@@ -400,8 +440,6 @@ extern long long const TI_APPLICATION_BUILD_DATE;
     [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
     [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
 
-    [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
-    [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
     
     [super startup];
 }
@@ -511,10 +549,8 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 
 - (void)accessibilityVoiceOverStatusChanged:(NSNotification *)notification
 {
-	if ([self _hasListeners:@"accessibilitychanged"]) {
 		NSDictionary *event = [NSDictionary dictionaryWithObject:[self accessibilityEnabled] forKey:@"enabled"];
 		[self fireEvent:@"accessibilitychanged" withObject:event];
-	}
 }
 
 -(id)arguments:(id)args
