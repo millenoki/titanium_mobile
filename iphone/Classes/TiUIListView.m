@@ -1927,6 +1927,9 @@ static NSDictionary* replaceKeysForRow;
 -(CGFloat)computeRowWidth
 {
     CGFloat rowWidth = _tableView.bounds.size.width;
+    if (rowWidth == 0) {
+        return rowWidth;
+    }
     
     // Apple does not provide a good way to get information about the index sidebar size
     // in the event that it exists - it silently resizes row content which is "flexible width"
@@ -1996,6 +1999,9 @@ static NSDictionary* replaceKeysForRow;
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (_tableView.bounds.size.width == 0) {
+        return 0;
+    }
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
     
     id visibleProp = [self valueWithKey:@"visible" atIndexPath:realIndexPath];
@@ -2079,9 +2085,14 @@ static NSDictionary* replaceKeysForRow;
         _currentSection = section;
         if ([[self viewProxy] _hasListeners:@"headerchange" checkParent:NO])
         {
-            [self fireScrollEvent:@"headerchange" forScrollView:_tableView withAdditionalArgs:@{
-                                                                                               @"headerView":[self currentSectionViewProxy:_currentSection forLocation:@"headerView"]
-                                                                                               }];
+            NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath tableView:_tableView];
+            [event setObject:NUMINTEGER(indexPath.row) forKey:@"firstVisibleItem"];
+            [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
+            TiViewProxy* headerView = [self currentSectionViewProxy:_currentSection forLocation:@"headerView"];
+            if (headerView) {
+                [event setObject:headerView forKey:@"headerView"];
+            }
+            [self.proxy fireEvent:@"headerchange" withObject:event checkForListener:NO];
         }
     }
 }
