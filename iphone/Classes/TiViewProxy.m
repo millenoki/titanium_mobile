@@ -2441,8 +2441,8 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 
 	[self willEnqueueIfVisible];
 
-    if (!allowContentChange || alreadySet) return;
-    [self makeChildrenPerformSelector:@selector(parentWillRelay) withObject:nil];
+//    if (!allowContentChange || alreadySet) return;
+//    [self makeChildrenPerformSelector:@selector(parentWillRelay) withObject:nil];
 }
 
 -(BOOL) widthIsAutoSize
