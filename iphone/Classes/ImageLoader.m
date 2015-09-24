@@ -1043,7 +1043,8 @@ DEFINE_EXCEPTIONS
     }
 	if (image!=nil)
 	{
-		TiThreadPerformOnMainThread(^{[self notifyRequest:request imageCompleted:image];}, NO);
+        //we always to use dispatch_async to make sure the method rerturn first before calling the notify
+        dispatch_async(dispatch_get_main_queue(), ^{[self notifyRequest:request imageCompleted:image];});
 		return;
 	}
 	
