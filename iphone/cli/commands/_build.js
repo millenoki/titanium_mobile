@@ -1865,16 +1865,15 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			function toSymlinkOrNotToSymlink() {
 				// since things are looking good, determine if files should be symlinked on copy
 				// note that iOS 9 simulator does not support symlinked files :(
-				this.symlinkFilesOnCopy = cli.argv.target === 'simulator' &&  config.get('ios.symlinkResources', true) && !cli.argv['force-copy'] && !cli.argv['force-copy-all'];
-
+				this.symlinkFilesOnCopy = cli.argv.target === 'simulator' &&  config.get('ios.symlinkResources', true) && cli.argv['force-copy'] !== true && cli.argv['force-copy-all'] !== true;
 				// iOS 9 Simulator does not like symlinks :(
 				if (cli.argv.target === 'simulator' && this.symlinkFilesOnCopy) {
 					if (cli.argv['build-only'] && this.symlinkFilesOnCopy) {
 						logger.warn(__('Files are being symlinked which is known to not work when running in an iOS 9 Simulators'));
 						logger.warn(__('You may want to specify the --force-copy flag'));
-					} else if (this.simHandle && appc.version.gte(this.simHandle.version, '9.0')) {
-						logger.info(__('Symlinked files not supported with iOS %s simulator, forcing files to be copied', this.simHandle.version));
-						this.symlinkFilesOnCopy = false;
+					// } else if (this.simHandle && appc.version.gte(this.simHandle.version, '9.0')) {
+						// logger.info(__('Symlinked files not supported with iOS %s simulator, forcing files to be copied', this.simHandle.version));
+						// this.symlinkFilesOnCopy = false;
 					}
 				} else if (this.symlinkFilesOnCopy && cli.argv.target === 'device' && (cli.argv['debug-host'] || cli.argv['profiler-host']) && version.gte(this.iosSdkVersion, '9.0')) {
 				    logger.info(__('Symlinked files are not supported with iOS %s device %s builds, forcing files to be copied', version.format(this.iosSdkVersion, 2, 2), cli.argv['debug-host'] ? 'debug' : 'profiler'));
