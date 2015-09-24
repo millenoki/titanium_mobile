@@ -217,7 +217,6 @@
         TiUIView* theView = [self view];
         [rootView addSubview:theView];
         [rootView bringSubviewToFront:theView];
-        [[TiViewProxy class] reorderViewsInParent:rootView]; //make sure views are ordered along zindex
     }
     
 }
@@ -301,7 +300,7 @@
     [self updateOrientationModes];
     
     //GO ahead and call open on the UI thread
-    TiThreadPerformOnMainThread(^{
+    TiThreadPerformBlockOnMainThread(^{
         [self openOnUIThread:args];
     }, YES);
     

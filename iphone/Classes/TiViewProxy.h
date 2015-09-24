@@ -31,7 +31,6 @@ enum
 {
 	TiRefreshViewPosition = 2,
 	TiRefreshViewChildrenPosition,
-	TiRefreshViewZIndex,
 	TiRefreshViewSize,
 
 	TiRefreshViewEnqueued,
@@ -52,7 +51,6 @@ enum
 
 #pragma mark Layout properties
 	LayoutConstraint layoutProperties;
-	NSInteger vzIndex;
 	BOOL hidden;	//This is the boolean version of ![TiUtils boolValue:visible def:yes]
 		//And has nothing to do with whether or not it's onscreen or
     
@@ -106,10 +104,7 @@ enum
 
 @property(nonatomic,readonly) TiRect * size;
 @property(nonatomic,readonly) TiRect * rect;
-/*
- Provides access to z-index value.
- */
-@property(nonatomic,readwrite,assign) NSInteger vzIndex;
+
 /**
  Provides access to visibility of parent view proxy.
  */
@@ -147,8 +142,6 @@ enum
 -(void)setRight:(id)value;
 -(void)setWidth:(id)value;
 -(void)setHeight:(id)value;
--(void)setZIndex:(id)value;
--(id)zIndex;
 
 // See the code for setValue:forUndefinedKey: for why we can't have this
 //-(void)setLayout:(id)value;
@@ -424,11 +417,6 @@ enum
 -(void)willChangePosition;
 
 /**
- Tells the view proxy that the attached view z-index will change.
- */
--(void)willChangeZIndex;
-
-/**
  Tells the view proxy that the attached view layout will change.
  */
 -(void)willChangeLayout;
@@ -635,7 +623,6 @@ Set the animation on its view and all it's children
 -(UIViewController*) controller;
 -(TiUIView*) getAndPrepareViewForOpening:(CGRect)bounds;
 -(TiUIView*) getAndPrepareViewForOpening;
-+(void)reorderViewsInParent:(UIView*)parentView;
 
 @end
 

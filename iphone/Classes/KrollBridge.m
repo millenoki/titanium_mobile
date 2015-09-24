@@ -235,7 +235,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		OSSpinLockLock(&krollBridgeRegistryLock);
 		CFSetAddValue(krollBridgeRegistry, self);
 		OSSpinLockUnlock(&krollBridgeRegistryLock);
-		TiThreadPerformOnMainThread(^{[self registerForMemoryWarning];}, NO);
+		TiThreadPerformBlockOnMainThread(^{[self registerForMemoryWarning];}, NO);
 	}
 	return self;
 }

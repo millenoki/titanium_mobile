@@ -11,7 +11,6 @@
 #include "ThirdpartyNS.h"
 #import <AvailabilityInternal.h>
 
-#define TI_USE_KROLL_THREAD 1
 #ifdef __IPHONE_9_0
 #define IS_XCODE_7 true
 #else

@@ -291,7 +291,7 @@ bool KrollSetProperty(TiContextRef jsContext, TiObjectRef object, TiStringRef pr
 		[o setValue:v forKey:name];
 #else
         
-        TiThreadPerformOnMainThread(^{
+        TiThreadPerformBlockOnMainThread(^{
             [o setValue:v forKey:name];
         }, YES);
 #endif

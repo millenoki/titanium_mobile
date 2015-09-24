@@ -985,9 +985,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #ifdef TI_USE_KROLL_THREAD
     [NSThread detachNewThreadSelector:@selector(main) toTarget:self withObject:nil];
 #else
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self main];
-    });
+    TiThreadPerformOnMainThread(^{[self main];}, NO);
 #endif
 }
 

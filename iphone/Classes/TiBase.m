@@ -400,15 +400,16 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 		[caughtException raise];
 	}
 #else
-    if (waitForFinish) {
-        if (alreadyOnMainThread) {
-            mainBlock();
-        } else {
-            dispatch_sync(dispatch_get_main_queue(), mainBlock);
-        }
+    if (alreadyOnMainThread) {
+        mainBlock();
     } else {
-        dispatch_async(dispatch_get_main_queue(), mainBlock);
+        if (waitForFinish) {
+            dispatch_sync(dispatch_get_main_queue(), mainBlock);
+        } else {
+            dispatch_async(dispatch_get_main_queue(), mainBlock);
+        }
     }
+    
 #endif
 }
 

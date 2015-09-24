@@ -545,7 +545,11 @@
     TiProxy* oldProxy = [_holdedProxies objectForKey:key];
     if (oldProxy) {
         if (oldProxy == proxy) return proxy;
-        [self childRemoved:oldProxy wasChild:setParent shouldDetach:YES];
+        if (IS_OF_CLASS(oldProxy, TiParentingProxy) && ((TiParentingProxy*)oldProxy).parent != self) {
+            [((TiParentingProxy*)oldProxy).parent removeProxy:oldProxy shouldDetach:YES];
+        } else {
+            [self childRemoved:oldProxy wasChild:setParent shouldDetach:YES];
+        }
     }
     if (proxy) {
         [self rememberProxy:proxy];
@@ -582,12 +586,16 @@
         }
         [oldProxies enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             [self forgetProxy:obj];
-            [self childRemoved:obj wasChild:YES shouldDetach:YES];
+            if (IS_OF_CLASS(obj, TiParentingProxy) && ((TiParentingProxy*)obj).parent != self) {
+                [((TiParentingProxy*)obj).parent removeProxy:obj shouldDetach:YES];
+            } else {
+                [self childRemoved:obj wasChild:YES shouldDetach:YES];
+            }
         }];
         [_holdedProxies removeObjectForKey:key];
-   }
+    }
     if (proxies) {
-
+        
         [_holdedProxies setValue:proxies forKey:key];
         [proxies enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             [self rememberProxy:obj];
@@ -609,10 +617,18 @@
     }
     if (IS_OF_CLASS(object, NSArray)) {
         [object enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            [self childRemoved:obj wasChild:YES shouldDetach:YES];
+            if (IS_OF_CLASS(obj, TiParentingProxy) && ((TiParentingProxy*)obj).parent != self) {
+                [((TiParentingProxy*)obj).parent removeProxy:obj shouldDetach:YES];
+            } else {
+                [self childRemoved:obj wasChild:YES shouldDetach:YES];
+            }
         }];
     } else {
-        [self childRemoved:object wasChild:YES shouldDetach:YES];
+        if (IS_OF_CLASS(object, TiParentingProxy) && ((TiParentingProxy*)object).parent != self) {
+            [((TiParentingProxy*)object).parent removeProxy:object shouldDetach:YES];
+        } else {
+            [self childRemoved:object wasChild:YES shouldDetach:YES];
+        }
     }
     [_holdedProxies removeObjectForKey:key];
     pthread_rwlock_unlock(&_holdedProxiesLock);
