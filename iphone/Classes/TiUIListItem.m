@@ -563,7 +563,7 @@ static NSArray* handledKeys;
     if (dataItem == (_dataItem)) return;
     if (_dataItem) {
         RELEASE_TO_NIL(_dataItem)
-        [(TiViewProxy*)self.proxy dirtyItAll];
+//        [(TiViewProxy*)self.proxy dirtyItAll];
     }
 	_dataItem = [dataItem mutableCopy];
     [_proxy setDataItem:dataItem];
