@@ -38,7 +38,8 @@ DEFINE_EXCEPTIONS
 {
     //we are retained by the collectionView
     _proxy = [proxy retain];
-    _viewHolder = [[TiUIView alloc] initWithFrame:self.bounds];
+    self.viewHolder = [[TiUIView alloc] initWithFrame:self.bounds];
+    _proxy.sandboxBounds = self.bounds;
     _viewHolder.shouldHandleSelection = NO;
     [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
     [_viewHolder setClipsToBounds: YES];
@@ -145,7 +146,7 @@ DEFINE_EXCEPTIONS
         if (!CGRectEqualToRect(newBounds, currentbounds))
         {
             [(TiViewProxy*)self.proxy setSandboxBounds:newBounds];
-            [(TiViewProxy*)self.proxy dirtyItAll];
+//            [(TiViewProxy*)self.proxy dirtyItAll];
         }
     }
 }
@@ -154,29 +155,54 @@ DEFINE_EXCEPTIONS
 {
     [self checkBoundsForChange:frame];
     [super setFrame:frame];
-    
+//
 }
-
+//
 -(void)setBounds:(CGRect)bounds
 {
     [self checkBoundsForChange:bounds];
     [super setBounds:bounds];
-    
+//
 }
+
+//- (void)layoutSubviews
+//{
+//    [super layoutSubviews];
+//    TiViewAnimationStep* anim = [_proxy runningAnimation];
+//    if (anim)
+//    {
+//        [_proxy setRunningAnimationRecursive:anim];
+//        [_proxy refreshViewIfNeeded:YES];
+//        [_proxy setRunningAnimationRecursive:nil];
+//    }
+//    else {
+//        [_proxy refreshViewIfNeeded:YES];
+//    }
+//}
 
 - (void)layoutSubviews
 {
+//    if (_templateStyle == TiUICollectionItemTemplateStyleCustom) {
+        //        TiViewAnimationStep* anim = [_proxy runningAnimation];
+        //        if (anim)
+        //        {
+        //            [_proxy setRunningAnimationRecursive:anim];
+        ////            [_proxy refreshViewIfNeeded:YES];
+        //            [super layoutSubviews];
+        //            [_proxy setRunningAnimationRecursive:nil];
+        //            return;
+        //////        }
+        ////        else {
+        if (_proxy.sandboxBounds.size.width == 0 || _proxy.sandboxBounds.size.height == 0) {
+            [UIView performWithoutAnimation:^{
+                [_proxy refreshViewIfNeeded:YES];
+            }];
+        } else {
+            [_proxy refreshViewIfNeeded:YES];
+        }
+        //        }
+//    }
     [super layoutSubviews];
-    TiViewAnimationStep* anim = [_proxy runningAnimation];
-    if (anim)
-    {
-        [_proxy setRunningAnimationRecursive:anim];
-        [_proxy refreshViewIfNeeded:YES];
-        [_proxy setRunningAnimationRecursive:nil];
-    }
-    else {
-        [_proxy refreshViewIfNeeded:YES];
-    }
 }
 
 @end
