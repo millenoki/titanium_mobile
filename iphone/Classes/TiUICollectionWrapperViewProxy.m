@@ -113,9 +113,9 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
         self.view = wrapperView.viewHolder;
         [view initializeState];
         viewInitialized = YES;
-        parentVisible = YES;
+//        parentVisible = YES;
         readyToCreateView = YES;
-        windowOpened = YES;
+//        windowOpened = YES;
     }
     else {
         _wrapperView = nil;

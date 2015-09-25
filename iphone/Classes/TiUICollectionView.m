@@ -1371,6 +1371,11 @@ static NSDictionary* replaceKeysForRow;
             TiUICollectionWrapperViewProxy *viewProxy = [[TiUICollectionWrapperViewProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
             [view initWithProxy:viewProxy];
             [view configurationStart];
+            if (template != nil) {
+                [viewProxy unarchiveFromTemplate:template withEvents:YES];
+                [viewProxy windowWillOpen];
+                [viewProxy windowDidOpen];
+            }
             [view configurationSet];
             
             if ([TiUtils isIOS8OrGreater] && (collectionView == _tableView)) {
