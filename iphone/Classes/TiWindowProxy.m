@@ -712,6 +712,7 @@
 {
     readyToBeLayout = YES;
     [super viewWillAppear:animated];
+    [self refreshViewIfNeeded];
 }
 -(void)viewWillDisappear:(BOOL)animated
 {

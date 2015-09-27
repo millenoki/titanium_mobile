@@ -665,6 +665,9 @@
                 theWindow.parentOrientationController = self;
             }
         }
+        if (isCurrentlyVisible) {
+            [theWindow viewWillAppear:NO];
+        }
         if ([self presentedViewController] == nil ||
             ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
             [self childOrientationControllerChangedFlags:theWindow];
@@ -1485,6 +1488,7 @@
     }
     
     [super viewWillAppear:animated];
+    isCurrentlyVisible = YES;
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
@@ -1498,7 +1502,6 @@
 }
 -(void)viewDidAppear:(BOOL)animated
 {
-    isCurrentlyVisible = YES;
     [self.view becomeFirstResponder];
     @synchronized(containedWindows) {
         if ([containedWindows count] > 0) {

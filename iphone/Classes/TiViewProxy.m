@@ -98,13 +98,19 @@
     if (recursive)
     {
         pthread_rwlock_rdlock(&childrenLock);
-        NSArray* subproxies = onlyVisible?[self visibleChildren]:[self viewChildren];
+        [children enumerateObjectsUsingBlock:^(TiProxy* child, NSUInteger idx, BOOL * _Nonnull stop) {
+            if(IS_OF_CLASS(child, TiViewProxy) && (!onlyVisible || !((TiViewProxy*)child).isHidden)) {
+                block((TiViewProxy*)child);
+                [(TiViewProxy*)child runBlock:block onlyVisible:onlyVisible recursive:recursive];
+            }
+        }];
+//        NSArray* subproxies = onlyVisible?[self visibleChildren]:[self viewChildren];
         pthread_rwlock_unlock(&childrenLock);
-        for (TiViewProxy * thisChildProxy in subproxies)
-        {
-            block(thisChildProxy);
-            [thisChildProxy runBlock:block onlyVisible:onlyVisible recursive:recursive];
-        }
+//        for (TiViewProxy * thisChildProxy in subproxies)
+//        {
+//            block(thisChildProxy);
+//            [thisChildProxy runBlock:block onlyVisible:onlyVisible recursive:recursive];
+//        }
     }
 }
 
@@ -1995,32 +2001,32 @@ SEL GetterForKrollProperty(NSString * key)
 -(void)viewWillAppear:(BOOL)animated
 {
     [self parentWillShowWithoutUpdate];
-    [self refreshViewIfNeeded];
-    [self runBlock:^(TiViewProxy *proxy) {
-        [proxy viewWillAppear:animated];
-    } onlyVisible:YES recursive:YES];
+//    [self refreshViewIfNeeded];
+//    [self runBlock:^(TiViewProxy *proxy) {
+//        [proxy viewWillAppear:animated];
+//    } onlyVisible:NO recursive:YES];
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
-    [self runBlock:^(TiViewProxy *proxy) {
-        [proxy viewDidAppear:animated];
-    } onlyVisible:YES recursive:YES];
+//    [self runBlock:^(TiViewProxy *proxy) {
+//        [proxy viewDidAppear:animated];
+//    } onlyVisible:NO recursive:YES];
 }
 
 -(void)viewWillDisappear:(BOOL)animated
 {
     [self parentWillHide];
-    [self runBlock:^(TiViewProxy *proxy) {
-        [proxy viewWillDisappear:animated];
-    } onlyVisible:YES recursive:YES];
+//    [self runBlock:^(TiViewProxy *proxy) {
+//        [proxy viewWillDisappear:animated];
+//    } onlyVisible:NO recursive:YES];
 }
 
 -(void)viewDidDisappear:(BOOL)animated
 {
-    [self runBlock:^(TiViewProxy *proxy) {
-        [proxy viewDidDisappear:animated];
-    } onlyVisible:YES recursive:YES];
+//    [self runBlock:^(TiViewProxy *proxy) {
+//        [proxy viewDidDisappear:animated];
+//    } onlyVisible:NO recursive:YES];
 }
 
 -(UIViewController*)hostingController;
@@ -2684,10 +2690,10 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 		return;
 	}
 	parentVisible = YES;
-	if(!hidden)
-	{	//We should propagate this new status! Note this does not change the visible property.
-		[self willShow];
-	}
+//	if(!hidden)
+//	{	//We should propagate this new status! Note this does not change the visible property.
+//		[self willShow];
+//	}
 }
 
 -(void)parentWillShowWithoutUpdate
