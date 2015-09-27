@@ -377,7 +377,7 @@ else{\
         [_navigationDelegate setIsInteractive:[TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:_swipeToClose]];
     }
     [self childOrientationControllerChangedFlags:current];
-    if (focussed) {
+    if ([self focussed]) {
         [current gainFocus];
     }
 }
