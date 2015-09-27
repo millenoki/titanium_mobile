@@ -41,7 +41,7 @@
 
 @end
 
-@interface TiUITableView : TiScrollingView<UISearchDisplayDelegate,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling,TiProxyObserver> {
+@interface TiUITableView : TiScrollingView<UISearchDisplayDelegate,UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate,TiScrolling,TiProxyObserver> {
 @protected
 	TDUITableView *tableview;
 @private

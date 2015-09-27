@@ -10,7 +10,7 @@
 #import "TiScrollingView.h"
 #import "TiUICollectionViewProxy.h"
 @class TiCollectionView;
-@interface TiUICollectionView : TiScrollingView <UICollectionViewDelegate, UICollectionViewDataSource, UIScrollViewDelegate, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver>
+@interface TiUICollectionView : TiScrollingView <UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver>
 {
     BOOL allowsSelection;
 }

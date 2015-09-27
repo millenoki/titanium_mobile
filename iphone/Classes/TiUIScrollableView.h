@@ -8,7 +8,7 @@
 
 #import "TiScrollingView.h"
 
-@interface TiUIScrollableView : TiScrollingView<UIScrollViewDelegate, TiScrolling> {
+@interface TiUIScrollableView : TiScrollingView<TiScrolling> {
 @private
 	UIScrollView *scrollview;
 	UIPageControl *pageControl;

@@ -1,6 +1,6 @@
 #import "TiUIView.h"
 
-@interface TiScrollingView : TiUIView
+@interface TiScrollingView : TiUIView<UIScrollViewDelegate>
 {
     BOOL scrollingEnabled;
 }

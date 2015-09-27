@@ -17,7 +17,7 @@
 
 @end
 
-@interface TiUIScrollView : TiScrollingView<TiScrolling,UIScrollViewDelegate> {
+@interface TiUIScrollView : TiScrollingView<TiScrolling> {
 
 @private
 	TiUIScrollViewImpl * scrollview;

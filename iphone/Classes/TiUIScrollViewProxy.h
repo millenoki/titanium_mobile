@@ -8,7 +8,7 @@
 
 #import "TiScrollingViewProxy.h"
 
-@interface TiUIScrollViewProxy : TiScrollingViewProxy<UIScrollViewDelegate>
+@interface TiUIScrollViewProxy : TiScrollingViewProxy
 {
 }
 -(void) setContentOffset:(id)value withObject:(id)animated;

@@ -162,6 +162,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 10, 1)];
 		webview.delegate = self;
 		webview.opaque = NO;
+        [webview scrollView].delegate = self;
 		webview.backgroundColor = [UIColor whiteColor];
 		webview.contentMode = UIViewContentModeRedraw;
 		webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
@@ -514,50 +515,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[[self webview] setMultipleTouchEnabled:value];
 }
 
--(void)setDisableBounce_:(id)value
-{
-	BOOL bounces = ![TiUtils boolValue:value];
-	[[self scrollview] setBounces:bounces];
-}
-
--(void)setScrollsToTop_:(id)value
-{
-	BOOL scrollsToTop = [TiUtils boolValue:value def:YES];
-	[[self scrollview] setScrollsToTop:scrollsToTop];
-}
-
-
--(void)setShowHorizontalScrollIndicator_:(id)value
-{
-	[[self scrollview] setShowsHorizontalScrollIndicator:[TiUtils boolValue:value]];
-}
-
--(void)setShowVerticalScrollIndicator_:(id)value
-{
-	[[self scrollview] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
-}
-
--(void)setScrollIndicatorStyle_:(id)value
-{
-	[[self scrollview] setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
-}
-
--(void)setScrollingEnabled_:(id)enabled
-{
-    BOOL scrollingEnabled = [TiUtils boolValue:enabled def:YES];
-    [[self scrollview] setScrollEnabled:scrollingEnabled];
-}
-
--(void)setHorizontalBounce_:(id)value
-{
-	[[self scrollview] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
-}
-
--(void)setVerticalBounce_:(id)value
-{
-	[[self scrollview] setAlwaysBounceVertical:[TiUtils boolValue:value]];
-}
-
 -(void)setAllowsInlineMediaPlayback_:(id)value
 {
 	BOOL result = [TiUtils boolValue:value def:YES];
@@ -575,7 +532,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	BOOL result = [TiUtils boolValue:value def:YES];
 	[[self webview] setMediaPlaybackRequiresUserAction:result];
 }
-
 
 - (void)setUrl_:(id)args
 {

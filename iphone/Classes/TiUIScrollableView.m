@@ -1011,15 +1011,15 @@
     [super scrollViewDidEndDecelerating:scrollView];
 }
 
-- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
-{
-    return [super scrollViewShouldScrollToTop:scrollView];
-}
-
-- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
-{
-    return [super scrollViewDidScrollToTop:scrollView];
-}
+//- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+//{
+//    return [super scrollViewShouldScrollToTop:scrollView];
+//}
+//
+//- (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
+//{
+//    return [super scrollViewDidScrollToTop:scrollView];
+//}
 
 #pragma mark Keyboard delegate stuff
 

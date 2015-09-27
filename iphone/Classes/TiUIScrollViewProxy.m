@@ -167,13 +167,6 @@
     }, YES);
 }
 
-
-
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(CGFloat)scale
-{
-	
-}
-
 @end
 
 #endif
