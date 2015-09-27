@@ -203,18 +203,19 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-   	if ([_proxy respondsToSelector:@selector(viewWillAppear:)]) {
-        [(id)_proxy viewWillAppear:animated];
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy viewWillAppear:animated];
     }
     else {
         [_proxy parentWillShow];
+        [_proxy refreshViewIfNeeded];
     }
 }
 -(void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    if ([_proxy respondsToSelector:@selector(viewWillDisappear:)]) {
-        [(id)_proxy viewWillDisappear:animated];
+   	if ([_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)_proxy viewWillDisappear:animated];
     }
     else {
         [_proxy parentWillHide];
