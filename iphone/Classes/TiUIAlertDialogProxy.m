@@ -146,9 +146,9 @@ static BOOL alertShowing = NO;
         alertCondition = [[NSCondition alloc] init];
     }
     
+    [self rememberSelf];
     // prevent more than one JS thread from showing an alert box at a time
     if ([NSThread isMainThread]==NO) {
-        [self rememberSelf];
         
         [alertCondition lock];
         if (alertShowing) {
@@ -301,7 +301,7 @@ static BOOL alertShowing = NO;
                 [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:([theField isSecureTextEntry] ? @"password" : @"login")];
             }
         }
-        [self fireEvent:@"click" withObject:event];
+        [self fireEvent:@"click" withObject:event checkForListener:NO];
     }
     [self cleanup];
 }
@@ -333,7 +333,7 @@ static BOOL alertShowing = NO;
             [event setObject:(IS_NULL_OR_NIL(password) ? @"" : password) forKey:@"password"];
         }
         
-        [self fireEvent:@"click" withObject:event];
+        [self fireEvent:@"click" withObject:event checkForListener:NO];
     }
 }
 

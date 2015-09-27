@@ -180,8 +180,8 @@
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
     // prevent more than one JS thread from showing an alert box at a time
+    [self rememberSelf];
     if ([NSThread isMainThread]==NO) {
-        [self rememberSelf];
         TiThreadPerformOnMainThread(^{[self show:args];}, YES);
         return;
     }
@@ -398,7 +398,7 @@
                                    @(buttonIndex),@"index",
                                    @(isCancel),@"cancel",
                                    nil];
-            [self fireEvent:@"click" withObject:event];
+            [self fireEvent:@"click" withObject:event checkForListener:NO];
         }
         if (showDialog && (hideOnClick || ![customActionSheet isVisible])) {
             showDialog = NO;
@@ -417,7 +417,7 @@
                                        NUMBOOL([actionSheet cancelButtonIndex] == buttonIndex),@"cancel",
                                        NUMINTEGER([actionSheet destructiveButtonIndex]),@"destructive",
                                        nil];
-                [self fireEvent:@"click" withObject:event];
+                [self fireEvent:@"click" withObject:event checkForListener:NO];
             }
             [[[TiApp app] controller] decrementActiveAlertControllerCount];
             [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -579,7 +579,7 @@
                                       nil];
         
         
-        [self fireEvent:@"click" withObject:event];
+        [self fireEvent:@"click" withObject:event checkForListener:NO];
     }
     [self cleanup];
 }
