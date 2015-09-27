@@ -161,23 +161,31 @@ MAKE_SYSTEM_PROP(FAILED,MFMailComposeResultFailed);
 
 - (void)mailComposeController:(MFMailComposeViewController *)composer didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error
 {
-	if(error!=nil)
-	{
-		NSLog(@"[ERROR] Unexpected composing error: %@",error);
-	}
-	
-	BOOL animated = YES;
-
-	[[TiApp app] hideModalController:composer animated:animated];
-	[composer autorelease];
-	composer = nil;
-	if ([self _hasListeners:@"complete"])
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(result) forKey:@"result"];
-		[self fireEvent:@"complete" withObject:event errorCode:[error code] message:[TiUtils messageFromError:error]];
-	}
-	[self forgetSelf];
-	[self autorelease];
+    if(error!=nil)
+    {
+        NSLog(@"[ERROR] Unexpected composing error: %@",error);
+    }
+    
+    BOOL animated = YES;
+    
+    [[TiApp app] hideModalController:composer animated:animated];
+    [composer autorelease];
+    composer = nil;
+    if ([self _hasListeners:@"complete"])
+    {
+        if (error) {
+            [self fireEvent:@"complete" withObject:[TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]] checkForListener:NO];
+        } else {
+            [self fireEvent:@"complete" withObject:@{
+                                                     @"result":@(result),
+                                                     @"success":@(result == MFMailComposeResultSent || result == MFMailComposeResultSaved),
+                                                     
+                                                     } checkForListener:NO];
+        }
+        
+    }
+    [self forgetSelf];
+    [self autorelease];
 }
 
 @end
