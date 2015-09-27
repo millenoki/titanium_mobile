@@ -27,6 +27,10 @@
 #import "TiViewController.h"
 #import "TiWindowProxy.h"
 
+BOOL TiCGRectIsEmpty(CGRect rect)
+{
+    return (rect.size.width == 0 && rect.size.height == 0);
+}
 
 @interface TiFakeAnimation : TiViewAnimationStep
 
@@ -937,7 +941,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)setSandboxBounds:(CGRect)rect
 {
-    if (!CGRectEqualToRect(rect, sandboxBounds))
+    if (!TiCGRectIsEmpty(rect) && !CGRectEqualToRect(rect, sandboxBounds))
     {
         sandboxBounds = rect;
 //        [self dirtyItAll];
@@ -1389,7 +1393,7 @@ SEL GetterForKrollProperty(NSString * key)
     if([self viewAttached]) {
         if (!CGRectEqualToRect(bounds, self.sandboxBounds)) {
             [self setSandboxBounds:bounds];
-            if (!CGRectIsEmpty(sandboxBounds))
+            if (!TiCGRectIsEmpty(sandboxBounds))
             {
                 [self refreshView];
                 [self handlePendingAnimation];
@@ -1403,7 +1407,7 @@ SEL GetterForKrollProperty(NSString * key)
     [self windowWillOpen];
     if (view) {
         [self setSandboxBounds:bounds];
-        if (!CGRectIsEmpty(sandboxBounds))
+        if (!TiCGRectIsEmpty(sandboxBounds))
         {
             [self refreshView];
             [self handlePendingAnimation];
@@ -1430,16 +1434,16 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)determineSandboxBoundsForce
 {
-    if(!CGRectIsEmpty(sandboxBounds)) return;
-    if(!CGRectIsEmpty(view.bounds)){
+    if(!TiCGRectIsEmpty(sandboxBounds)) return;
+    if(!TiCGRectIsEmpty(view.bounds)){
         [self setSandboxBounds:view.bounds];
     }
-    else if (!CGRectIsEmpty(sizeCache)) {
+    else if (!TiCGRectIsEmpty(sizeCache)) {
         [self setSandboxBounds:sizeCache];
     }
     else if (parent != nil) {
         CGRect bounds = [[[self viewParent] view] bounds];
-        if (!CGRectIsEmpty(bounds)){
+        if (!TiCGRectIsEmpty(bounds)){
             [self setSandboxBounds:bounds];
         }
         else [self setSandboxBounds:([self viewParent]).sandboxBounds];
@@ -1492,13 +1496,13 @@ SEL GetterForKrollProperty(NSString * key)
 //			[parent contentsWillChange];
 //		}
 //		else {
-			if(CGRectIsEmpty(sandboxBounds) && !CGRectIsEmpty(view.bounds)){
+			if(TiCGRectIsEmpty(sandboxBounds) && !TiCGRectIsEmpty(view.bounds)){
                 [self setSandboxBounds:view.bounds];
 			}
 //            [self dirtyItAll];
 //            [self refreshViewIfNeeded];
 //		}
-        if (!CGRectIsEmpty(sandboxBounds))
+        if (!TiCGRectIsEmpty(sandboxBounds))
         {
             [self refreshView];
             [self handlePendingAnimation];
@@ -2373,7 +2377,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
     [self parentContentWillChange];
 	
     if (!allowContentChange) return;
-    [self makeChildrenPerformSelector:@selector(parentSizeWillChange) withObject:nil];
+//    [self makeChildrenPerformSelector:@selector(parentSizeWillChange) withObject:nil];
     
     if (instantUpdates) {
         TiThreadPerformOnMainThread(^{[self refreshViewOrParent];}, NO);
@@ -2726,9 +2730,10 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 {
     if (controller) return;
     UIView * ourSuperview = [[self view] superview];
-    if(ourSuperview != nil)
+    CGRect bounds = [ourSuperview bounds];
+    if(ourSuperview != nil && !TiCGRectIsEmpty(bounds))
     {
-        sandboxBounds = [ourSuperview bounds];
+        sandboxBounds = bounds;
     }
 }
 
@@ -2782,7 +2787,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
         }
         return;
 	}
-    if (CGRectIsEmpty(sandboxBounds) && (!view || ![view superview])) {
+    if (TiCGRectIsEmpty(sandboxBounds) && (!view || ![view superview])) {
         //we have no way to get our size yet. May be we need to be added to a superview
         //let s keep our flags set
         return;
@@ -3008,13 +3013,17 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
         
         TiViewProxy* parentViewProxy = [self viewParent];
         UIView *parentView = [parentViewProxy parentViewForChild:self];
-        CGSize referenceSize = (parentView != nil) ? parentView.bounds.size : sandboxBounds.size;
+        CGSize referenceSize = sandboxBounds.size;
+        CGRect parentBounds = [parentView bounds];
+        if (parentView && !(TiCGRectIsEmpty(parentBounds))) {
+            referenceSize = parentView.bounds.size;
+        }
         if (CGSizeEqualToSize(referenceSize, CGSizeZero)) {
             repositioning = NO;
             dirtyflags = 0;
             return;
         }
-        BOOL needsAll = CGRectIsEmpty(sizeCache);
+        BOOL needsAll = TiCGRectIsEmpty(sizeCache);
         BOOL needsSize = OSAtomicTestAndClear(TiRefreshViewSize, &dirtyflags) || needsAll;
         BOOL needsPosition = OSAtomicTestAndClear(TiRefreshViewPosition, &dirtyflags) || needsAll;
         BOOL layoutChanged = NO;
