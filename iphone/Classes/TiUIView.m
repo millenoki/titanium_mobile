@@ -353,6 +353,7 @@ DEFINE_EXCEPTIONS
     self.layer.rasterizationScale = [[UIScreen mainScreen] scale];
     backgroundOpacity = 1.0f;
     _customUserInteractionEnabled = YES;
+    _canKeepBackgroundColor = NO;
     _dispatchPressed = NO;
     animateBgdTransition = NO;
     _backgroundPadding = _borderPadding = UIEdgeInsetsZero;
@@ -992,7 +993,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         [_bgLayer setColor:color forState:state];
     }
     else {
-        if (self.backgroundColor)
+        if (!_canKeepBackgroundColor && self.backgroundColor)
         {
             [[self getOrCreateCustomBackgroundLayer] setColor:super.backgroundColor forState:UIControlStateNormal];
             super.backgroundColor = nil;

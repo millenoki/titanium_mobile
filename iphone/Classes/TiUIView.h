@@ -240,6 +240,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property (nonatomic, readonly) TiBorderLayer* borderLayer;
 @property(nonatomic,assign) BOOL shouldHandleSelection;
 @property(nonatomic,assign) BOOL animateBgdTransition;
+@property(nonatomic,assign) BOOL canKeepBackgroundColor;
 
 -(void)checkBounds;
 -(void)updateBounds:(CGRect)newBounds;

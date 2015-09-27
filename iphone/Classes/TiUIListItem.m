@@ -132,11 +132,12 @@ DEFINE_EXCEPTIONS
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
 		_templateStyle = style;
-        self.textLabel.backgroundColor = [UIColor clearColor];
-        self.detailTextLabel.backgroundColor = [UIColor clearColor];
+//        self.textLabel.backgroundColor = [UIColor clearColor];
+//        self.detailTextLabel.backgroundColor = [UIColor clearColor];
         _selectionStyle = UITableViewCellSelectionStyleDefault;
 		_proxy = [proxy retain];
         [self initialize];
+        _viewHolder.canKeepBackgroundColor = YES;
         [self.contentView sendSubviewToBack:_viewHolder];
         [self setGrouped:grouped];
         _positionMask = position;
