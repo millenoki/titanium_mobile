@@ -812,6 +812,7 @@ SEL GetterForKrollProperty(NSString * key)
         //else just layout the child with current bounds
         if (allowContentChange) {
             if (![self absoluteLayout]) {
+                [self contentsWillChange];
                 [childViewProxy refreshViewOrParent];
             }
             else {
@@ -2414,12 +2415,12 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 //    }
 //    pthread_rwlock_unlock(&childrenLock);
     
-    if (parent && ![[self viewParent] absoluteLayout])
-        [self parentContentWillChange];
-    else {
-        [self contentsWillChange];
-    }
-    
+//    if (parent && ![[self viewParent] absoluteLayout])
+//        [self parentContentWillChange];
+//    else {
+//        [self contentsWillChange];
+//    }
+    [self willChange];
 }
 
 -(void)willHide;
