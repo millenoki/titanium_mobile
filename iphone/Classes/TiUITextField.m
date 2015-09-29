@@ -97,7 +97,6 @@
     {
         if (becameResponder) {
             becameResponder = NO;
-            [touchHandler makeRootViewFirstResponder];
         }
         return YES;
     }

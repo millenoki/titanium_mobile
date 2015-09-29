@@ -3813,11 +3813,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 
 -(void)hideKeyboard:(id)arg
 {
-	ENSURE_UI_THREAD_1_ARG(arg);
-	if ([self viewAttached])
-	{
-		[[self view] resignFirstResponder];
-	}
+    [self blur:nil];
 }
 
 -(void)blur:(id)args
@@ -3826,6 +3822,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 	{
         TiThreadPerformBlockOnMainThread(^{
             [[self view] resignFirstResponder];
+            [[self view] makeRootViewFirstResponder];
         }, NO);
 	}
 }

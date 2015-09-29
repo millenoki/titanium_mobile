@@ -1474,8 +1474,7 @@
 	}
     
     if ([[searchField view] isFirstResponder]) {
-        [[searchField view] resignFirstResponder];
-        [self makeRootViewFirstResponder];
+        [searchField blur:nil];
     }
     
     // This logic here is contingent on search controller deactivation 

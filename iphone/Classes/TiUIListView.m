@@ -488,8 +488,7 @@ static NSDictionary* replaceKeysForRow;
     
     TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
     if (searchViewProxy && [[searchViewProxy view] isFirstResponder]) {
-        [[searchViewProxy view] resignFirstResponder];
-        [self makeRootViewFirstResponder];
+        [searchViewProxy blur:nil];
     }
     
     // This logic here is contingent on search controller deactivation
@@ -1502,6 +1501,9 @@ static NSDictionary* replaceKeysForRow;
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
+    if (_tableView.bounds.size.width == 0 || _tableView.bounds.size.height == 0) {
+        return 0;
+    }
     NSUInteger sectionCount = 0;
     
     //TIMOB-15526
