@@ -895,13 +895,13 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 {
     NSMutableArray* result = [[NSMutableArray alloc] initWithCapacity:[newLocations count]];
     for (CLLocation* loc in newLocations) {
-        if ([self locationFarEnough:loc fromLocation:self.lastLocation]) {
+//        if ([self locationFarEnough:loc fromLocation:self.lastLocation]) {
             self.lastLocation = loc;
             NSDictionary* dict = [self locationDictionary:loc];
             if (dict) {
                 [result addObject:dict];
             }
-        }
+//        }
         
     }
     return [result autorelease];
