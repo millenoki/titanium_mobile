@@ -112,7 +112,7 @@
         }
     }];
     
-    return modifiedAttributesArray;
+    return [modifiedAttributesArray autorelease];
 }
 
 - (UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
