@@ -2005,7 +2005,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)viewWillAppear:(BOOL)animated
 {
-    [self parentWillShowWithoutUpdate];
+    [self parentWillShow];
 //    [self refreshViewIfNeeded];
 //    [self runBlock:^(TiViewProxy *proxy) {
 //        [proxy viewWillAppear:animated];
