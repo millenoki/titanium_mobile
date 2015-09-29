@@ -199,7 +199,7 @@ static NSDictionary* replaceKeysForRow;
 
         _tableView = [[TiCollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
         [layout release];
-        _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+//        _tableView.autoresizingMask = UIViewAutoresizingNone;
         _tableView.delegate = self;
         _tableView.dataSource = self;
         _tableView.touchDelegate = self;
@@ -219,8 +219,8 @@ static NSDictionary* replaceKeysForRow;
         }
         
         //prevents crash if no template defined for headers/footers
-        [[self tableView] registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"header"];
-        [[self tableView] registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"footer"];
+        [_tableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"header"];
+        [_tableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"footer"];
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
@@ -272,7 +272,6 @@ static NSDictionary* replaceKeysForRow;
     if (vp) {
         [vp parentSizeWillChange];
     }
-    [super frameSizeChanged:frame bounds:bounds];
 }
 
 - (id)accessibilityElement
