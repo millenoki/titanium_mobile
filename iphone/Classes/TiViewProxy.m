@@ -3904,7 +3904,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
             [callback release];
             [self handlePendingTransition];
         };
-        if ([self viewAttached])
+        if ([self viewAttached] && [self viewLayedOut])
         {
             if (view1Proxy != nil) {
                 pthread_rwlock_wrlock(&childrenLock);
