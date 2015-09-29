@@ -373,8 +373,9 @@ static NSDictionary* replaceKeysForRow;
                 [[self tableView] registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:cellIdentifier];
             }
 	}];
-    
-    [self reloadTableViewData];
+    if (configurationSet) {
+        [self reloadTableViewData];
+    }
 }
 
 -(TiViewProxy*)sectionViewProxy:(NSInteger)section forLocation:(NSString*)location
@@ -489,8 +490,7 @@ static NSDictionary* replaceKeysForRow;
 	}
     TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
     if ([[searchViewProxy view] isFirstResponder]) {
-        [[searchViewProxy view] resignFirstResponder];
-        [self makeRootViewFirstResponder];
+        [searchViewProxy blur:nil];
     }
     
     // This logic here is contingent on search controller deactivation
@@ -756,6 +756,7 @@ static NSDictionary* replaceKeysForRow;
 
     _tableView.alwaysBounceVertical = direction == UICollectionViewScrollDirectionVertical;
     _tableView.alwaysBounceHorizontal = direction == UICollectionViewScrollDirectionHorizontal;
+    [layout invalidateLayout];
 }
 
 
@@ -785,7 +786,9 @@ static NSDictionary* replaceKeysForRow;
 	}
 	[_defaultItemTemplate release];
 	_defaultItemTemplate = [args copy];
-    [self reloadTableViewData];
+    if (configurationSet) {
+        [self reloadTableViewData];
+    }
 }
 
 - (void)setColumnWidth_:(id)height
@@ -1259,12 +1262,15 @@ static NSDictionary* replaceKeysForRow;
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
+    if (CGRectIsEmpty(_tableView.bounds)) {
+        return 0;
+    }
     NSUInteger sectionCount = 0;
     
     //TIMOB-15526
-    if (collectionView != _tableView && collectionView.backgroundColor == [UIColor clearColor]) {
-        collectionView.backgroundColor = [UIColor whiteColor];
-    }
+//    if (collectionView != _tableView && collectionView.backgroundColor == [UIColor clearColor]) {
+//        collectionView.backgroundColor = [UIColor whiteColor];
+//    }
 
     if (_searchResults != nil) {
         sectionCount = [_searchResults count];
@@ -1276,6 +1282,9 @@ static NSDictionary* replaceKeysForRow;
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
+    if (CGRectIsEmpty(_tableView.bounds)) {
+        return 0;
+    }
     if (_searchResults != nil) {
         if ([_searchResults count] <= section) {
             return 0;
