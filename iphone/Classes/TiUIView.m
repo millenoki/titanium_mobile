@@ -56,11 +56,6 @@ static NSString * const kTiViewShapeMaskKey = @"kTiViewShapeMask";
 }
 @end
 
-
-@interface UntouchableView : UIView
-
-@end
-
 @implementation UntouchableView
 
 - (UIView *)hitTest:(CGPoint) point withEvent:(UIEvent *)event

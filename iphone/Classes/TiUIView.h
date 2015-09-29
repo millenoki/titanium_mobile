@@ -15,6 +15,10 @@
 @class TiUIView;
 @class TiSelectableBackgroundLayer;
 @class TiBorderLayer;
+
+@interface UntouchableView : UIView
+
+@end
 /**
  The protocol for scrolling.
  */
