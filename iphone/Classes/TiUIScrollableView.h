@@ -10,7 +10,7 @@
 
 @interface TiUIScrollableView : TiScrollingView<TiScrolling> {
 @private
-	UIScrollView *scrollview;
+	TDUIScrollView *scrollview;
 	UIPageControl *pageControl;
 	NSInteger currentPage; // Duplicate some info, just in case we're not showing the page control
 	BOOL showPageControl;
@@ -35,7 +35,7 @@
 }
 @property(nonatomic,readwrite,assign)CGFloat switchPageAnimationDuration;
 
-#pragma mark - Titanium Internal Use Only
+#pragma mark - MapMe Internal Use Only
 -(void)manageRotation;
 -(UIScrollView*)scrollview;
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;

@@ -8,19 +8,12 @@
 
 #import "TiScrollingView.h"
 
-@interface TiUIScrollViewImpl : UIScrollView {
-@private
-    TiUIView * touchHandler;
-    UIView * touchedContentView;
-}
--(void)setTouchHandler:(TiUIView*)handler;
 
-@end
 
 @interface TiUIScrollView : TiScrollingView<TiScrolling> {
 
 @private
-	TiUIScrollViewImpl * scrollview;
+	TDUIScrollView * scrollview;
 	UIView * wrapperView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
@@ -31,7 +24,7 @@
 	
 }
 
-@property(nonatomic,retain,readonly) TiUIScrollViewImpl * scrollview;
+@property(nonatomic,retain,readonly) TDUIScrollView * scrollview;
 
 //@property(nonatomic,readonly) TiDimension contentWidth;
 

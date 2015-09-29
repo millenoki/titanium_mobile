@@ -12,7 +12,7 @@
 #import "TiViewProxy.h"
 #import "TiTransition.h"
 
-@interface TiSCrollableWrapperView: UIView
+@interface TiSCrollableWrapperView: UntouchableView
 @property(nonatomic,readwrite, assign)	NSInteger index;
 @property(nonatomic,readwrite, assign)	BOOL attached;
 @end
@@ -149,7 +149,7 @@
 {
 	if (scrollview==nil)
 	{
-		scrollview = [[UIScrollView alloc] initWithFrame:[self bounds]];
+		scrollview = [[TDUIScrollView alloc] initWithFrame:[self bounds]];
 		[scrollview setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		[scrollview setPagingEnabled:YES];
 		[scrollview setDelegate:self];
@@ -159,7 +159,8 @@
 		[scrollview setDelaysContentTouches:NO];
 		[scrollview setCanCancelContentTouches:YES];
 		[scrollview setScrollsToTop:NO];
-		[scrollview setClipsToBounds:NO];
+        [scrollview setClipsToBounds:NO];
+        [scrollview setTouchDelegate:self];
         [self setClipsToBounds:YES];
 		[self insertSubview:scrollview atIndex:0];
 	}

@@ -10,119 +10,7 @@
 #import "TiUIScrollViewProxy.h"
 #import "TiUtils.h"
 
-@implementation TiUIScrollViewImpl
 
--(void)setTouchHandler:(TiUIView*)handler
-{
-    //Assign only. No retain
-    touchHandler = handler;
-}
-
-- (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view
-{
-    //If the content view is of type TiUIView touch events will automatically propagate
-    //If it is not of type TiUIView we will fire touch events with ourself as source
-    if ([view isKindOfClass:[TiUIView class]] || [view respondsToSelector:@selector(touchDelegate)]) {
-        touchedContentView= view;
-    }
-    else {
-        touchedContentView = nil;
-    }
-    return [super touchesShouldBegin:touches withEvent:event inContentView:view];
-}
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-    //When userInteractionEnabled is false we do nothing since touch events are automatically
-    //propagated. If it is dragging,tracking or zooming do not do anything.
-    if (!self.dragging && !self.zooming && !self.tracking 
-        && self.userInteractionEnabled && (touchedContentView == nil) ) {
-        [touchHandler processTouchesBegan:touches withEvent:event];
- 	}		
-	[super touchesBegan:touches withEvent:event];
-}
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-    if (!self.dragging && !self.zooming && !self.tracking 
-        && self.userInteractionEnabled && (touchedContentView == nil) ) {
-        [touchHandler processTouchesMoved:touches withEvent:event];
-    }		
-	[super touchesMoved:touches withEvent:event];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-    if (!self.dragging && !self.zooming && !self.tracking 
-        && self.userInteractionEnabled && (touchedContentView == nil)) {
-        [touchHandler processTouchesEnded:touches withEvent:event];
-    }		
-	[super touchesEnded:touches withEvent:event];
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-    if (!self.dragging && !self.zooming && !self.tracking 
-        && self.userInteractionEnabled && (touchedContentView == nil) ) {
-        [touchHandler processTouchesCancelled:touches withEvent:event];
-    }		
-	[super touchesCancelled:touches withEvent:event];
-}
-
-//-(void)setZoomScale:(CGFloat)zoomScale
-//{
-//    [super setZoomScale:zoomScale];
-//    if (self.zoomScale == self.minimumZoomScale) {
-//        self.scrollEnabled = NO;
-//    }else {
-//        self.scrollEnabled = YES;
-//    }
-//    NSLog(@"zoom scale %f", self.zoomScale)
-//}
-//-(void)setZoomScale:(CGFloat)zoomScale animated:(BOOL)animated
-//{
-//    [super setZoomScale:zoomScale animated:animated];
-//    
-//    NSLog(@"zoom scale animated %f", self.zoomScale)
-//}
-//- (void)setContentSize:(CGSize)contentSize
-//{
-////    contentSize = CGSizeMake(ceilf(contentSize.width), ceilf(contentSize.height));
-//    [super setContentSize:contentSize];
-//    NSLog(@"setContentSize animated %@", NSStringFromCGSize(contentSize))
-//}
-//-(void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
-//{
-////    contentOffset = CGPointMake(ceilf(contentOffset.x), ceilf(contentOffset.y));
-//    [super setContentOffset:contentOffset animated:animated];
-//    NSLog(@"setContentOffset animated %@", NSStringFromCGPoint(contentOffset))
-//}
-//- (void)setContentOffset:(CGPoint)contentOffset
-//{
-//////    if (_centerContent) {
-//////        const CGSize contentSize = self.contentSize;
-//////        const CGSize scrollViewSize = self.bounds.size;
-//////        
-//////        if (contentSize.width < scrollViewSize.width)
-//////        {
-//////            contentOffset.x = -(scrollViewSize.width - contentSize.width) / 2.0;
-//////        }
-//////        
-//////        if (contentSize.height < scrollViewSize.height)
-//////        {
-//////            contentOffset.y = -(scrollViewSize.height - contentSize.height) / 2.0;
-//////        }
-//////    }
-////    contentOffset = CGPointMake(ceilf(contentOffset.x), ceilf(contentOffset.y));
-//    NSLog(@"setContentOffset %@, %f, %f", NSStringFromCGPoint(contentOffset), self.zoomScale, self.minimumZoomScale)
-//    [super setContentOffset:contentOffset];
-//}
-
-
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    self.contentSize = CGSizeMake(floorf(self.contentSize.width), floorf(self.contentSize.height));
-}
-@end
 
 @implementation TiUIScrollView
 {
@@ -164,17 +52,17 @@
 	return wrapperView;
 }
 
--(TiUIScrollViewImpl *)scrollview
+-(TDUIScrollView *)scrollview
 {
 	if(scrollview == nil)
 	{
-		scrollview = [[TiUIScrollViewImpl alloc] initWithFrame:[self bounds]];
+		scrollview = [[TDUIScrollView alloc] initWithFrame:[self bounds]];
 		[scrollview setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
 		[scrollview setBackgroundColor:[UIColor clearColor]];
 		[scrollview setShowsHorizontalScrollIndicator:NO];
 		[scrollview setShowsVerticalScrollIndicator:NO];
 		[scrollview setDelegate:self];
-        [scrollview setTouchHandler:self];
+        [scrollview setTouchDelegate:self];
 		[self addSubview:scrollview];
 	}
 	return scrollview;
