@@ -2234,6 +2234,11 @@ referenceSizeForFooterInSection:(NSInteger)section
 	return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
 }
 
+- (void)updateKeyboardInset  {
+    if (((UICollectionViewFlowLayout*)_tableView.collectionViewLayout).scrollDirection == UICollectionViewScrollDirectionVertical) {
+        [super updateKeyboardInset];
+    }
+}
 @end
 
 
