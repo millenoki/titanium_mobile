@@ -430,6 +430,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(void) overrideEventObject:(NSMutableDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiProxy *)viewProxy
 {
+    [eventObject setObject:_listItem.dataItem forKey:@"item"];
     [eventObject setObject:NUMINTEGER(_indexPath.section) forKey:@"sectionIndex"];
 	[eventObject setObject:NUMINTEGER(_indexPath.row) forKey:@"itemIndex"];
 	[eventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
