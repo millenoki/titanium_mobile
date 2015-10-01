@@ -625,46 +625,10 @@ SEL GetterForKrollProperty(NSString * key)
 -(void)setCenter:(id)value
 {
     CHECK_LAYOUT_UPDATE(center, value);
-
-    
-	if ([value isKindOfClass:[NSDictionary class]])
-	{
-        TiDimension result;
-        id obj = [value objectForKey:@"x"];
-        if (obj != nil) {
-            [self replaceValue:obj forKey:@"centerX_" notification:NO];
-            result = TiDimensionFromObject(obj);
-            if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-                layoutProperties.centerX = result;
-            }
-            else {
-                layoutProperties.centerX = TiDimensionUndefined;
-            }
-        }
-        obj = [value objectForKey:@"y"];
-        if (obj != nil) {
-            [self replaceValue:obj forKey:@"centerY_" notification:NO];
-            result = TiDimensionFromObject(obj);
-            if ( TiDimensionIsDip(result) || TiDimensionIsPercent(result) ) {
-                layoutProperties.centerY = result;
-            }
-            else {
-                layoutProperties.centerY = TiDimensionUndefined;
-            }
-        }
-        
-        
-
-	} else if ([value isKindOfClass:[TiPoint class]]) {
-        CGPoint p = [value point];
-		layoutProperties.centerX = TiDimensionDip(p.x);
-		layoutProperties.centerY = TiDimensionDip(p.y);
-    } else {
-		layoutProperties.centerX = TiDimensionUndefined;
-		layoutProperties.centerY = TiDimensionUndefined;
-	}
-
-	[self willChangePosition];
+    TiPoint* p = [TiUtils tiPointValue:value];
+    layoutProperties.centerX = p.xDimension;
+    layoutProperties.centerY = p.yDimension;
+    [self willChangePosition];
 }
 
 -(id)animatedCenter
@@ -774,16 +738,19 @@ SEL GetterForKrollProperty(NSString * key)
     
     __block BOOL validView = NO;
     __block CGPoint p;
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        if ([self viewAttached] && self.view.window && [arg2 viewAttached] && arg2.view.window) {
+    TiThreadPerformBlockOnMainThread(^{
+        if ([self viewLayedOut] && [arg2 viewLayedOut]) {
             validView = YES;
             p = [self.view convertPoint:oldPoint toView:arg2.view];
         }
-    });
+    }, YES);
     if (!validView) {
-        return (TiPoint*)[NSNull null];
+        return nil;
     }
-    return [[[TiPoint alloc] initWithPoint:p] autorelease];
+    return @{
+             @"x":@(p.x),
+             @"y":@(p.y)
+             };
 }
 
 
