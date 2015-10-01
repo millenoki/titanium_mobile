@@ -5458,6 +5458,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name,
+		//define TITANIUM_CLI_XCODEBUILD so that the code knows it s not running through xcode
+		'GCC_PREPROCESSOR_DEFINITIONS=$GCC_PREPROCESSOR_DEFINITIONS TITANIUM_CLI_XCODEBUILD=1',
 		'-derivedDataPath', this.buildDir
 	];
 

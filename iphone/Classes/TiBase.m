@@ -100,25 +100,25 @@ void TiLogMessage(NSString* str, ...) {
 #endif
     }
     else {
-        
-        if (ApplicationBeingDebugged()) {
-            const char* s = [message UTF8String];
-            if (s[0]=='[')
-            {
-                fprintf(stderr,"%s\n", s);
-                fflush(stderr);
-            }
-            else
-            {
-                fprintf(stderr,"[DEBUG] %s\n", s);
-                fflush(stderr);
-            }
+#ifdef TITANIUM_CLI_XCODEBUILD
+        [TiApp TiNSLog:message];
+#else
+        const char* s = [message UTF8String];
+        if (s[0]=='[')
+        {
+            fprintf(stdout,"%s\n", s);
+            fflush(stdout);
         }
-        else{
+        else
+        {
+            fprintf(stdout,"[DEBUG] %s\n", s);
+            fflush(stdout);
+        }
 #endif
-            [TiApp TiNSLog:message];
+#else
+        [TiApp TiNSLog:message];
+#endif
 #if defined(DEBUG) || defined(DEVELOPER)
-        }
     }
 #endif
     [message release];
