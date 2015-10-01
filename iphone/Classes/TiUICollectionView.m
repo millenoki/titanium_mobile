@@ -1262,9 +1262,6 @@ static NSDictionary* replaceKeysForRow;
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
-    if (CGRectIsEmpty(_tableView.bounds)) {
-        return 0;
-    }
     NSUInteger sectionCount = 0;
     
     //TIMOB-15526
@@ -1282,9 +1279,7 @@ static NSDictionary* replaceKeysForRow;
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    if (CGRectIsEmpty(_tableView.bounds)) {
-        return 0;
-    }
+
     if (_searchResults != nil) {
         if ([_searchResults count] <= section) {
             return 0;

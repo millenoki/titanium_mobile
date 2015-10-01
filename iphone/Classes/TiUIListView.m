@@ -1501,9 +1501,6 @@ static NSDictionary* replaceKeysForRow;
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    if (_tableView.bounds.size.width == 0 || _tableView.bounds.size.height == 0) {
-        return 0;
-    }
     NSUInteger sectionCount = 0;
     
     //TIMOB-15526
