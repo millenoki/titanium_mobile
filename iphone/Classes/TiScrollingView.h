@@ -4,7 +4,6 @@
 {
     BOOL scrollingEnabled;
 }
--(void)scrollToBottom;
 - (void)zoomToPoint:(CGPoint)zoomPoint withScale: (CGFloat)scale animated: (BOOL)animated;
 
 - (NSMutableDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView;
@@ -23,5 +22,6 @@
 -(void)setZoomScale_:(id)value withObject:(id)property;
 -(void)proxyDidRelayout:(id)sender;
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
-
+-(void)setContentOffsetToTop:(NSInteger)top animated:(BOOL)animated;
+-(void)setContentOffsetToBottom:(NSInteger)bottom animated:(BOOL)animated;
 @end

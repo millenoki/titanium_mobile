@@ -349,26 +349,6 @@ USE_VIEW_FOR_CONTENT_SIZE
 	[(TiUITableView*)[self view] scrollToIndex:index position:scrollPosition animated:animated];
 }
 
--(void)scrollToTop:(id)args
-{
-	ENSURE_UI_THREAD(scrollToTop,args);
-	NSInteger top = [TiUtils intValue:[args objectAtIndex:0]];
-	NSDictionary *options = [args count] > 1 ? [args objectAtIndex:1] : nil;
-	BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
-	
-	[(TiUITableView*)[self view] scrollToTop:top animated:animated];
-}
-
--(void)scrollToBottom:(id)args
-{
-	ENSURE_UI_THREAD(scrollToTop,args);
-	NSInteger top = [TiUtils intValue:[args objectAtIndex:0]];
-	NSDictionary *options = [args count] > 1 ? [args objectAtIndex:1] : nil;
-	BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
-	
-	[(TiUITableView*)[self view] scrollToBottom:top animated:animated];
-}
-
 -(NSNumber*)getIndexByName:(id)args
 {
 	ENSURE_SINGLE_ARG(args,NSString);

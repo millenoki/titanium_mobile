@@ -380,7 +380,14 @@
     [scrollView zoomToRect:CGRectMake(touchX - xsize/2, touchY - ysize/2, xsize, ysize) animated:animated];
 }
 
--(void)scrollToBottom:(BOOL)animated
+-(void)setContentOffsetToTop:(NSInteger)top animated:(BOOL)animated
+{
+    UIScrollView *currScrollView = [self scrollview];
+   [currScrollView setContentOffset:CGPointMake(0,top - currScrollView.contentInset.top) animated:animated];
+}
+
+
+-(void)setContentOffsetToBottom:(NSInteger)bottom animated:(BOOL)animated
 {
     /*
      * Calculate the bottom height & width and, sets the offset from the
@@ -393,13 +400,14 @@
     CGFloat svBottomInsets = currScrollView.contentInset.bottom;
     
     CGFloat bottomHeight = svContentSize.height - svBoundSize.height + svBottomInsets;
-    CGFloat bottomWidth = svContentSize.width - svBoundSize.width;
     
-    CGPoint newOffset = CGPointMake(bottomWidth,bottomHeight);
-    
-    [currScrollView setContentOffset:newOffset animated:animated];
-    
+    if (bottomHeight > currScrollView.frame.size.height)
+    {
+        CGPoint newOffset = CGPointMake(currScrollView.contentOffset.x,bottomHeight - bottom);
+        [currScrollView setContentOffset:newOffset animated:animated];
+    }
 }
+
 
 
 

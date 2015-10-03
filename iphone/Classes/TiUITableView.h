@@ -91,12 +91,9 @@
 
 -(void)dispatchAction:(TiUITableViewAction*)action;
 -(void)scrollToIndex:(NSInteger)index position:(UITableViewScrollPosition)position animated:(BOOL)animated;
--(void)scrollToTop:(NSInteger)top animated:(BOOL)animated;
--(void)scrollToBottom:(NSInteger)bottom animated:(BOOL)animated;
 -(NSIndexPath*)indexPathFromSearchIndex:(NSInteger)index;
 -(IBAction)hideSearchScreen:(id)sender;
 -(TDUITableView*)tableView;
--(void)setScrollsToTop_:(id)value;
 -(TiUITableViewRowProxy*)rowAtPoint:(CGPoint)point;
 
 #pragma Private

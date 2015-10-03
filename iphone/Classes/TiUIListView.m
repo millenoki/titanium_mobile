@@ -527,21 +527,6 @@ static NSDictionary* replaceKeysForRow;
     [self hideSearchScreen:sender animated:YES];
 }
 
--(void)scrollToTop:(NSInteger)top animated:(BOOL)animated
-{
-	[_tableView setContentOffset:CGPointMake(0,top - _tableView.contentInset.top) animated:animated];
-}
-
-
--(void)scrollToBottom:(NSInteger)bottom animated:(BOOL)animated
-{
-    if (_tableView.contentSize.height > _tableView.frame.size.height)
-    {
-        CGPoint offset = CGPointMake(0, _tableView.contentSize.height - _tableView.frame.size.height - bottom);
-        [_tableView setContentOffset:offset animated:animated];
-    }
-}
-
 -(BOOL)shouldHighlightCurrentListItem {
     return [_tableView shouldHighlightCurrentListItem];
 }

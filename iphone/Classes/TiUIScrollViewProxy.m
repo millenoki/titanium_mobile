@@ -135,38 +135,6 @@
     return YES;
 }
 
--(void)scrollTo:(id)args
-{
-	ENSURE_ARG_COUNT(args,2);
-	TiPoint * offset = [[TiPoint alloc] initWithPoint:CGPointMake(
-			[TiUtils floatValue:[args objectAtIndex:0]],
-			[TiUtils floatValue:[args objectAtIndex:1]])];
-
-	[self setContentOffset:offset withObject:Nil];
-	[offset release];
-}
-
--(void)scrollToBottom:(id)args
-{
-    TiThreadPerformOnMainThread(^{
-        [(TiUIScrollView *)[self view] scrollToBottom];
-    }, YES);
-}
-
--(void) setContentOffset:(id)value withObject:(id)animated
-{
-    TiThreadPerformOnMainThread(^{
-        [(TiUIScrollView *)[self view] setContentOffset_:value withObject:animated];
-    }, YES);
-}
-
--(void) setZoomScale:(id)value withObject:(id)animated
-{
-    TiThreadPerformOnMainThread(^{
-        [(TiUIScrollView *)[self view] setZoomScale_:value withObject:animated];
-    }, YES);
-}
-
 @end
 
 #endif

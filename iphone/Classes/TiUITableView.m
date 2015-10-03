@@ -1531,16 +1531,6 @@
     animateHide = NO;
 }
 
--(void)scrollToTop:(NSInteger)top animated:(BOOL)animated
-{
-	[tableview setContentOffset:CGPointMake(0,top) animated:animated];
-}
-
--(void)scrollToBottom:(NSInteger)bottom animated:(BOOL)animated
-{
-	[tableview setContentOffset:CGPointMake(0,tableview.contentSize.height - bottom) animated:animated];
-}
-
 - (IBAction) showSearchScreen: (id) sender
 {
 	[tableview setContentOffset:CGPointZero animated:YES];
