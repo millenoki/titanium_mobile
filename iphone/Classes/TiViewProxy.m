@@ -2190,20 +2190,7 @@ SEL GetterForKrollProperty(NSString * key)
 	{
 		return;
 	}
-
-	if([NSThread isMainThread])
-	{
-		[[self view] performSelector:selector withObject:object];
-		return;
-	}
-
-	if(isAttached)
-	{
-		TiThreadPerformOnMainThread(^{[[self view] performSelector:selector withObject:object];}, wait);
-		return;
-	}
-
-	TiThreadPerformOnMainThread(^{
+	TiThreadPerformBlockOnMainThread(^{
 		[[self getOrCreateView] performSelector:selector withObject:object];
 	}, wait);
 }
