@@ -765,8 +765,12 @@ SEL GetterForKrollProperty(NSString * key)
     TiThreadPerformBlockOnMainThread(^{
         TiViewProxy* childViewProxy = (TiViewProxy*)child;
         [childViewProxy setReadyToCreateView:YES]; //tableview magic not to create view on proxy creation
-        if (!windowOpened || !shouldRelayout)  return;
-        if (!readyToCreateView || [childViewProxy isHidden]) return;
+        if (!windowOpened || !shouldRelayout || !readyToCreateView)  {
+            return;
+        }
+        if ([childViewProxy isHidden]) {
+            return;
+        }
         [childViewProxy performBlockWithoutLayout:^{
             [childViewProxy windowWillOpen];
             [childViewProxy getOrCreateView];
@@ -781,17 +785,23 @@ SEL GetterForKrollProperty(NSString * key)
         
         //If layout is non absolute push this into the layout queue
         //else just layout the child with current bounds
-        if (allowContentChange) {
+//        if (allowContentChange) {
             if (![self absoluteLayout]) {
                 [self contentsWillChange];
-                [childViewProxy refreshViewOrParent];
+                if (allowContentChange) {
+                    [childViewProxy refreshViewOrParent];
+                }
             }
             else {
-                [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
+                if (allowContentChange) {
+                    [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
+                } else {
+                    [self contentsWillChange];
+                }
             }
-        } else {
-            [self parentContentWillChange];
-        }
+//        } else {
+//            [self parentContentWillChange];
+//        }
 
     }, NO);
 }
@@ -940,6 +950,13 @@ SEL GetterForKrollProperty(NSString * key)
 -(void)setHidden:(BOOL)newHidden withArgs:(id)args
 {
     if (hidden != newHidden) {
+        hidden = newHidden;
+//            if (!hidden && !view && parent) {
+//                [parent childAdded:self atIndex:0 shouldRelayout:YES];
+//            }
+    }
+//	hidden = newHidden;
+
 }
 
 -(BOOL)isHidden
@@ -1431,7 +1448,7 @@ SEL GetterForKrollProperty(NSString * key)
     }
     else if (parent != nil) {
         CGRect bounds = [[[self viewParent] view] bounds];
-        if (!TiCGRectIsEmpty(bounds)){
+        if (!CGRectIsEmpty(bounds)){
             [self setSandboxBounds:bounds];
         }
         else [self setSandboxBounds:([self viewParent]).sandboxBounds];
@@ -2606,9 +2623,8 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 	{
 		[self willChangeSize];
 	}
-	else if (![self absoluteLayout])
-	{//Since changing size already does this, we only need to check
-	//Layout if the changeSize didn't
+	else
+	{
 		[self willChangeLayout];
 	}
 }
