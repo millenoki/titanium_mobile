@@ -123,10 +123,10 @@ BOOL TiCGRectIsEmpty(CGRect rect)
     [[self viewChildren] makeObjectsPerformSelector:selector withObject:object];
 }
 
--(void)makeVisibleChildrenPerformSelector:(SEL)selector withObject:(id)object
-{
-    [[self visibleChildren] makeObjectsPerformSelector:selector withObject:object];
-}
+//-(void)makeVisibleChildrenPerformSelector:(SEL)selector withObject:(id)object
+//{
+//    [[self visibleChildren] makeObjectsPerformSelector:selector withObject:object];
+//}
 
 -(void)setVisible:(NSNumber *)newVisible
 {
@@ -759,7 +759,7 @@ SEL GetterForKrollProperty(NSString * key)
 -(void)childAdded:(TiProxy*)child atIndex:(NSInteger)position shouldRelayout:(BOOL)shouldRelayout
 {
     [super childAdded:child atIndex:position shouldRelayout:shouldRelayout];
-    if (![child isKindOfClass:[TiViewProxy class]]){
+    if (!IS_OF_CLASS(child, TiViewProxy)){
         return;
     }
     TiThreadPerformBlockOnMainThread(^{
@@ -875,6 +875,24 @@ SEL GetterForKrollProperty(NSString * key)
 	pthread_rwlock_unlock(&childrenLock);
 	return [copy autorelease];
 }
+-(void)makeViewChildrenPerformSelector:(SEL)selector withObject:(id)object
+{
+    [self performBlockOnViewChildren:^(TiViewProxy * child) {
+        [child performSelector:selector withObject:object];
+    }];
+}
+
+-(void)performBlockOnViewChildren:(void (^)(TiViewProxy* object))block
+{
+    pthread_rwlock_rdlock(&childrenLock);
+    [children enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (IS_OF_CLASS(obj, TiViewProxy)) {
+            block(obj);
+        }
+    }];
+    pthread_rwlock_unlock(&childrenLock);
+}
+
 
 -(NSArray*)visibleChildren
 {
@@ -888,7 +906,11 @@ SEL GetterForKrollProperty(NSString * key)
 //    }
 	pthread_rwlock_rdlock(&childrenLock);
     NSArray* copy = [[children filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
-        return [object isKindOfClass:[TiViewProxy class]] && ((TiViewProxy*)object).isHidden == FALSE;
+        if (IS_OF_CLASS(object, TiViewProxy)) {
+            TiViewProxy* viewProxy = object;
+            return !viewProxy.isHidden && !viewProxy.hiddenForLayout;
+        }
+        return NO;
     }]] retain];
     pthread_rwlock_unlock(&childrenLock);
 	return [copy autorelease];
@@ -1345,8 +1367,7 @@ SEL GetterForKrollProperty(NSString * key)
 {
     readyToCreateView = ready;
     if (!recursive) return;
-    
-    [self makeChildrenPerformSelector:@selector(setReadyToCreateViewNSNumber:) withObject:@(ready)];
+    [self makeViewChildrenPerformSelector:@selector(setReadyToCreateViewNSNumber:) withObject:@(ready)];
 }
 
 -(TiUIView*)getOrCreateView
@@ -1446,14 +1467,11 @@ SEL GetterForKrollProperty(NSString * key)
 		[self firePropertyChanges];
 
 		[self configurationSet];
-
-		NSArray * childrenArray = [[self viewChildren] retain];
-		for (id child in childrenArray)
-		{
-			TiUIView *childView = [(TiViewProxy*)child getOrCreateView];
-			[self addSubview:childView forProxy:child];
-		}
-		[childrenArray release];
+        
+        [self performBlockOnViewChildren:^(TiViewProxy *child) {
+            TiUIView *childView = [(TiViewProxy*)child getOrCreateView];
+            [self addSubview:childView forProxy:child];
+        }];
 
 		viewInitialized = YES;
 		[self viewDidInitialize];
@@ -1491,6 +1509,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 - (void)prepareForReuse
 {
+    [self makeViewChildrenPerformSelector:@selector(prepareForReuse) withObject:nil];
     [self makeChildrenPerformSelector:@selector(prepareForReuse) withObject:nil];
 }
 
@@ -1503,8 +1522,9 @@ SEL GetterForKrollProperty(NSString * key)
 -(void)clearView:(BOOL)recurse
 {
     [self setView:nil];
-    if (recurse)
-    [self makeChildrenPerformSelector:@selector(clearViewNSNumber:) withObject:@(recurse)];
+    if (recurse) {
+        [self makeViewChildrenPerformSelector:@selector(clearViewNSNumber:) withObject:@(recurse)];
+    }
 }
 
 //CAUTION: TO BE USED ONLY WITH TABLEVIEW MAGIC
@@ -1649,8 +1669,8 @@ SEL GetterForKrollProperty(NSString * key)
 	// If the window was previously opened, it may need to have
 	// its existing children redrawn
 	// Maybe need to call layout children instead for non absolute layout
-    [self makeChildrenPerformSelector:@selector(windowWillOpen) withObject:nil];
-	
+    [self makeViewChildrenPerformSelector:@selector(windowWillOpen) withObject:nil];
+
 
     //TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
 	if (parent != nil) {
@@ -1661,12 +1681,12 @@ SEL GetterForKrollProperty(NSString * key)
 -(void)windowDidOpen
 {
 	windowOpening = NO;
-    [self makeChildrenPerformSelector:@selector(windowDidOpen) withObject:nil];
+    [self makeViewChildrenPerformSelector:@selector(windowDidOpen) withObject:nil];
 }
 
 -(void)windowWillClose
 {
-    [self makeChildrenPerformSelector:@selector(windowWillClose) withObject:nil];
+    [self makeViewChildrenPerformSelector:@selector(windowWillClose) withObject:nil];
 }
 
 -(void)windowDidClose
@@ -1675,7 +1695,7 @@ SEL GetterForKrollProperty(NSString * key)
         [controller removeFromParentViewController];
         RELEASE_TO_NIL_AUTORELEASE(controller);
     }
-    [self makeChildrenPerformSelector:@selector(windowDidClose) withObject:nil];
+    [self makeViewChildrenPerformSelector:@selector(windowDidClose) withObject:nil];
 	[self detachView:NO];
 	windowOpened=NO;
 }
@@ -2060,7 +2080,7 @@ SEL GetterForKrollProperty(NSString * key)
     
     if(recursive)
     {
-        [self makeChildrenPerformSelector:@selector(detachView) withObject:nil];
+        [self makeViewChildrenPerformSelector:@selector(detachView) withObject:nil];
     }
     
     [self removeBarButtonView];
@@ -2303,7 +2323,11 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
         }];
     }
     else {
-        [[self viewParent] contentsWillChange];
+        if ([self viewParent]) {
+            [[self viewParent] contentsWillChange];
+        } else {
+            [self contentsWillChange];
+        }
     }
 }
 
@@ -2737,7 +2761,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
         dirtyflags = 0;
         //even if our sandbox is null and we are not ready (next test) let s still call refresh our our children. They wont refresh but at least they will clear their TiRefreshViewEnqueued flags !
         if (recursive){
-            [self makeChildrenPerformSelector:@selector(refreshViewIfNeededNSNumber:) withObject:@(recursive)];
+            [self makeViewChildrenPerformSelector:@selector(refreshViewIfNeededNSNumber:) withObject:@(recursive)];
         }
         return;
 	}
@@ -3944,7 +3968,9 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 {
     needsContentChange = allowContentChange = NO;
     [view configurationStart];
-    if (recursive)[self makeChildrenPerformSelector:@selector(configurationStartNSNumber:) withObject:@(recursive)];
+    if (recursive) {
+        [self makeViewChildrenPerformSelector:@selector(configurationStartNSNumber:) withObject:@(recursive)];
+    }
 }
 
 -(void)configurationStart
@@ -3960,7 +3986,9 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 -(void)configurationSet:(BOOL)recursive
 {
     [view configurationSet];
-    if (recursive)[self makeChildrenPerformSelector:@selector(configurationSetNSNumber:) withObject:@(recursive)];
+    if (recursive) {
+        [self makeViewChildrenPerformSelector:@selector(configurationSetNSNumber:) withObject:@(recursive)];
+    }
     allowContentChange = YES;
 }
 
