@@ -877,8 +877,8 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 }
 
 - (NSComparisonResult)compare:(TiUIView *)otherView {
-    CGFloat val1 = self.layer.zPosition;
-    CGFloat val2 = otherView.layer.zPosition;
+    NSInteger val1 = ((TiViewProxy*)self.proxy).vzIndex;
+    NSInteger val2 = ((TiViewProxy*)otherView.proxy).vzIndex;
     if (val1 < val2) {
         return NSOrderedAscending;
     } else if(val1 > val2) {
@@ -1229,14 +1229,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
  	ENSURE_UI_THREAD_1_ARG(opacity);
 	self.alpha = [TiUtils floatValue:opacity];
 }
-
--(void)setZIndex_:(id)value
-{
-    ENSURE_UI_THREAD_1_ARG(value);
-    self.layer.zPosition = [TiUtils floatValue:value def:0];
-}
-
-
 
 -(void)setBackgroundRepeat_:(id)repeat
 {

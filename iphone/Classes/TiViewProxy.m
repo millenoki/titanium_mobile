@@ -62,7 +62,18 @@ BOOL TiCGRectIsEmpty(CGRect rect)
 
 #pragma mark public API
 
-@synthesize parentVisible, preventListViewSelection;
+@synthesize vzIndex, parentVisible, preventListViewSelection;
+-(void)setVzIndex:(NSInteger)newZindex
+{
+    if(newZindex == vzIndex)
+    {
+        return;
+    }
+    
+    vzIndex = newZindex;
+    [self replaceValue:@(vzIndex) forKey:@"vzIndex" notification:NO];
+    [self willChangeZIndex];
+}
 
 -(void)setInstantUpdates:(BOOL)value
 {
@@ -600,7 +611,13 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(id)zIndex
 {
-    return [self valueForUndefinedKey:@"zindex_"];
+    return [self valueForUndefinedKey:@"vzIndex"];
+}
+
+-(void)setZIndex:(id)value
+{
+    [self setVzIndex:[TiUtils intValue:value def:0]];
+//    }
 }
 
 
@@ -724,7 +741,7 @@ SEL GetterForKrollProperty(NSString * key)
 	return blob;
 }
 
--(TiPoint*)convertPointToView:(id)args
+-(id)convertPointToView:(id)args
 {
     id arg1 = nil;
     TiViewProxy* arg2 = nil;
@@ -1487,7 +1504,7 @@ SEL GetterForKrollProperty(NSString * key)
         
         [self performBlockOnViewChildren:^(TiViewProxy *child) {
             TiUIView *childView = [(TiViewProxy*)child getOrCreateView];
-            [self addSubview:childView forProxy:child];
+            [self insertSubview:childView forProxy:child];
         }];
 
 		viewInitialized = YES;
@@ -1882,6 +1899,7 @@ SEL GetterForKrollProperty(NSString * key)
         _hiddenForLayout = NO;
         [self resetDefaultValues];
         _transitioning = NO;
+        vzIndex = 0;
         instantUpdates = NO;
         _canBeResizedByFrame = NO;
         _canRepositionItself = YES;
@@ -2401,9 +2419,17 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
     [self willChangePosition];
 }
 
+-(void)willChangeZIndex
+{
+    SET_AND_PERFORM(TiRefreshViewZIndex, return);
+    //Nothing cascades from here.
+    [self willEnqueueIfVisible];
+}
+
+
 -(void)willShow;
 {
-    
+//    [self willChangeZIndex];
 //    pthread_rwlock_rdlock(&childrenLock);
 //    if (allowContentChange)
 //    {
@@ -2719,10 +2745,19 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 
 #pragma mark Layout actions
 
+-(void)updateZIndex {
+    if(OSAtomicTestAndClearBarrier(TiRefreshViewZIndex, &dirtyflags) && vzIndex > 0) {
+        if(parent != nil) {
+            [[self viewParent] reorderZChildren];
+        }
+    }
+}
+
 // Need this so we can overload the sandbox bounds on split view detail/master
 -(void)determineSandboxBounds
 {
     if (controller) return;
+    [self updateZIndex];
     UIView * ourSuperview = [[self view] superview];
     CGRect bounds = [ourSuperview bounds];
     if(ourSuperview != nil && !TiCGRectIsEmpty(bounds))
@@ -2817,6 +2852,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 
 -(void)dirtyItAll
 {
+    OSAtomicTestAndSet(TiRefreshViewZIndex, &dirtyflags);
     OSAtomicTestAndSet(TiRefreshViewEnqueued, &dirtyflags);
     if (_canResizeItself){
         OSAtomicTestAndSet(TiRefreshViewSize, &dirtyflags);
@@ -2927,6 +2963,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 		[view setAutoresizingMask:autoresizeCache];
 	}
     
+    [self updateZIndex];
     [transferView setRunningAnimation:nil];
 }
 
@@ -2944,8 +2981,39 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
     }
 }
 
++(void)reorderViewsInParent:(UIView*)parentView
+{
+    if (parentView == nil) return;
+    NSMutableArray* parentViewToSort = [NSMutableArray array];
+    for (UIView* subview in [parentView subviews])
+    {
+        if ([subview isKindOfClass:[TiUIView class]]) {
+            [parentViewToSort addObject:subview];
+        }
+    }
+    NSArray *sortedArray = [parentViewToSort sortedArrayUsingComparator:^NSComparisonResult(TiUIView* a, TiUIView* b) {
+        NSInteger first = [(TiViewProxy*)(a.proxy) vzIndex];
+        NSInteger second = [(TiViewProxy*)(b.proxy) vzIndex];
+        return (first > second) ? NSOrderedDescending : ( first < second ? NSOrderedAscending : NSOrderedSame );
+    }];
+    for (TiUIView* view in sortedArray) {
+        [parentView bringSubviewToFront:view];
+    }
+}
 
--(void)addSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy
+-(void)reorderZChildren{
+    if (view == nil) return;
+    NSArray *sortedArray = [[self viewChildren] sortedArrayUsingComparator:^NSComparisonResult(TiViewProxy* a, TiViewProxy* b) {
+        NSInteger first = [a vzIndex];
+        NSInteger second = [b vzIndex];
+        return (first > second) ? NSOrderedDescending : ( first < second ? NSOrderedAscending : NSOrderedSame );
+    }];
+    for (TiViewProxy* child in sortedArray) {
+        [view bringSubviewToFront:[child view]];
+    }
+}
+
+-(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy
 {
     UIView * ourView = [self parentViewForChild:childProxy];
     
@@ -2954,19 +3022,6 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
     }
     [ourView addSubview:[childProxy view]];
 }
--(void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy
-{
-    UIView * ourView = [self parentViewForChild:childProxy];
-    
-    if (ourView==nil || childView == nil) {
-        return;
-    }
-    pthread_rwlock_wrlock(&childrenLock);
-    NSUInteger index = MIN([children indexOfObject:childProxy], [children count]);
-    [ourView insertSubview:[childProxy view] atIndex:index];
-    pthread_rwlock_unlock(&childrenLock);
-}
-
 
 -(BOOL)absoluteLayout
 {
@@ -3063,6 +3118,8 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
         if (needsSize) {
             [view setBounds:sizeCache];
         }
+        
+        [self updateZIndex];
         
         if ([observer respondsToSelector:@selector(proxyDidRelayout:)]) {
             [observer proxyDidRelayout:self];
@@ -3682,6 +3739,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 		if (parentView!=ourView)
 		{
             [self insertSubview:childView forProxy:child];
+            [self reorderZChildren];
 		}
 	}
 	[child setSandboxBounds:bounds];
