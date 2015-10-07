@@ -336,6 +336,7 @@ DEFINE_EXCEPTIONS
 
 - (void) initialize
 {
+    configurationSet = NO;
     _alwaysUseBackgroundLayer = NO;
     childViews  =[[NSMutableArray alloc] init];
     transferLock = [[NSRecursiveLock alloc] init];
