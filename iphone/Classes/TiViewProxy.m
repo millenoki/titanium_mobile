@@ -939,12 +939,12 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)setHidden:(BOOL)newHidden withArgs:(id)args
 {
-	hidden = newHidden;
+    if (hidden != newHidden) {
 }
 
 -(BOOL)isHidden
 {
-    return hidden || _hiddenForLayout;
+    return hidden;
 }
 
 //-(CGSize)contentSizeForSize:(CGSize)size
@@ -3902,21 +3902,17 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
             __block TiUIView* view2 = nil;
             
             if (view2Proxy) {
-                [self determineSandboxBounds];
-                //                [view2Proxy performBlockWithoutLayout:^{
-                [view2Proxy setParent:self];
-                view2 = [view2Proxy getAndPrepareViewForOpening];
-                [view2Proxy refreshViewIfNeeded];
-                //                }];
-                
-                id<TiEvaluator> context = self.executionContext;
-                if (context == nil) {
-                    context = self.pageContext;
+                view2Proxy.hiddenForLayout = YES;
+                [self add:view2Proxy];
+                if (view2Proxy.view) {
+                    view2 = view2Proxy.view;
+                    [view2Proxy determineSandboxBoundsForce];
+                    [view2Proxy dirtyItAll];
+                    [view2Proxy refreshViewIfNeeded];
+                } else {
+                    view2 = [view2Proxy getAndPrepareViewForOpening];
                 }
-                [context.krollContext invokeBlockOnThread:^{
-                    [self rememberProxy:view2Proxy];
-                    [view2Proxy forgetSelf];
-                }];
+                
             }
             if (view1Proxy != nil) {
                 view1 = [view1Proxy getAndPrepareViewForOpening];
@@ -3924,15 +3920,18 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
             }
             void (^animationBlock)() = ^() {
                 [self performBlockWithoutLayout:^{
-                    if (view2Proxy) [self add:view2Proxy];
+                    if (view2Proxy) {
+                        view2Proxy.hiddenForLayout = NO;
+                    }
+                    if (view1Proxy) {
+                        view1Proxy.hiddenForLayout = YES;
+                    }
+                    [self contentsWillChange];
                 }];
-                if (view1Proxy) {
-                    view1Proxy.hiddenForLayout = YES;
-                }
+                
                 [self refreshViewOrParent];
-           };
+            };
             [self refreshViewOrParent];
-//            [view1Proxy refreshViewIfNeeded];
             
             TiTransition* transition = [TiTransitionHelper transitionFromArg:props containerView:self.view];
             transition.adTransition.type = ADTransitionTypePush;
