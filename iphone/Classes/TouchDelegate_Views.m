@@ -229,8 +229,12 @@
     [super touchesCancelled:touches withEvent:event];
 }
 
-- (void)layoutSubviews {
-    [super layoutSubviews];
-    self.contentSize = CGSizeMake(floorf(self.contentSize.width), floorf(self.contentSize.height));
+-(void)setContentSize:(CGSize)contentSize
+{
+    [super setContentSize:CGSizeMake(floorf(contentSize.width), floorf(contentSize.height))];
 }
+
+//- (void)layoutSubviews {
+//    [super layoutSubviews];
+//}
 @end

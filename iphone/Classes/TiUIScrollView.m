@@ -112,7 +112,9 @@
 	if (!needsHandleContentSize)
 	{
 		needsHandleContentSize = YES;
-		TiThreadPerformOnMainThread(^{[self handleContentSize];}, NO);
+        if (configurationSet) {
+            [self handleContentSize];
+        }
 	}
 }
 
@@ -185,15 +187,19 @@
     }
     newContentSize.width *= scale;
     newContentSize.height = scale * minimumContentHeight;
+    CGSize oldContentSize = scrollview.contentSize;
+    if (oldContentSize.width != newContentSize.width ||
+        oldContentSize.height != newContentSize.height) {
+        CGRect wrapperBounds;
+        wrapperBounds.origin = CGPointZero;
+        wrapperBounds.size = newContentSize;
+        [wrapperView setFrame:wrapperBounds];
+        [scrollview setContentSize:newContentSize];
+        [self scrollViewDidZoom:scrollview];
+    }
     
-    [scrollview setContentSize:newContentSize];
-    CGRect wrapperBounds;
-    wrapperBounds.origin = CGPointZero;
-    wrapperBounds.size = newContentSize;
-    [wrapperView setFrame:wrapperBounds];
-    [self scrollViewDidZoom:scrollview];
-    needsHandleContentSize = NO;
     [(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
+    needsHandleContentSize = NO;
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
@@ -211,14 +217,14 @@
 {
 	contentWidth = [TiUtils dimensionValue:value];
     _flexibleContentWidth = TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth);
-	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
+    [self setNeedsHandleContentSize];
 }
 
 -(void)setContentHeight_:(id)value
 {
 	contentHeight = [TiUtils dimensionValue:value];
     _flexibleContentHeight = TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight);
-	[self performSelector:@selector(setNeedsHandleContentSize) withObject:nil afterDelay:.1];
+    [self setNeedsHandleContentSize];
 }
 
 - (void)layoutSubviews {

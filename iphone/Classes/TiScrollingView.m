@@ -368,6 +368,10 @@
 - (void)zoomToPoint:(CGPoint)touchPoint withScale: (CGFloat)scale animated: (BOOL)animated
 {
     UIScrollView* scrollView = [self scrollview];
+    scale = MAX(MIN(scrollView.maximumZoomScale, scale), scrollView.minimumZoomScale);
+    if (scrollView.zoomScale == scale) {
+        return;
+    }
     CGFloat touchX = touchPoint.x;
     CGFloat touchY = touchPoint.y;
     touchX *= 1/scrollView.zoomScale;
