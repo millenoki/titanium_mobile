@@ -426,6 +426,11 @@
 	[(TiUITextViewImpl*)[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
 }
 
+-(void)setEllipsize_:(id)value
+{
+    UITextView *view = (UITextView*)[self textWidgetView];
+    [[view textContainer] setLineBreakMode:[TiUtils intValue:value]];
+}
 
 -(void)setHintColor_:(id)value
 {
