@@ -805,12 +805,12 @@ SEL GetterForKrollProperty(NSString * key)
 //        if (allowContentChange) {
             if (![self absoluteLayout]) {
                 [self contentsWillChange];
-                if (allowContentChange) {
+                if (parentVisible && allowContentChange) {
                     [childViewProxy refreshViewOrParent];
                 }
             }
             else {
-                if (allowContentChange) {
+                if (parentVisible && allowContentChange) {
                     [self layoutChild:childViewProxy optimize:NO withMeasuredBounds:[[self view] bounds]];
                 } else {
                     [self contentsWillChange];
@@ -2027,7 +2027,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)viewWillAppear:(BOOL)animated
 {
-    [self parentWillShow];
+    [self willShow];
 //    [self refreshViewIfNeeded];
 //    [self runBlock:^(TiViewProxy *proxy) {
 //        [proxy viewWillAppear:animated];
@@ -2043,7 +2043,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)viewWillDisappear:(BOOL)animated
 {
-    [self parentWillHide];
+    [self willHide];
 //    [self runBlock:^(TiViewProxy *proxy) {
 //        [proxy viewWillDisappear:animated];
 //    } onlyVisible:NO recursive:YES];
@@ -2433,7 +2433,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 //    pthread_rwlock_rdlock(&childrenLock);
 //    if (allowContentChange)
 //    {
-//        [self makeChildrenPerformSelector:@selector(parentWillShow) withObject:nil];
+        [self makeViewChildrenPerformSelector:@selector(parentWillShow) withObject:nil];
 //    }
 //    else {
 //        [self makeChildrenPerformSelector:@selector(parentWillShowWithoutUpdate) withObject:nil];
@@ -2453,7 +2453,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
     //	SET_AND_PERFORM(TiRefreshViewZIndex,);
 //    dirtyflags = 0;
 
-//    [self makeChildrenPerformSelector:@selector(parentWillHide) withObject:nil];
+    [self makeViewChildrenPerformSelector:@selector(parentWillHide) withObject:nil];
     
 //    if (parent && ![[self viewParent] absoluteLayout])
 //        [self parentContentWillChange];
@@ -2715,10 +2715,10 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 		return;
 	}
 	parentVisible = YES;
-//	if(!hidden)
-//	{	//We should propagate this new status! Note this does not change the visible property.
-//		[self willShow];
-//	}
+	if(!hidden)
+	{	//We should propagate this new status! Note this does not change the visible property.
+		[self willShow];
+	}
 }
 
 -(void)parentWillShowWithoutUpdate
@@ -3947,7 +3947,6 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
                 [self removeProxy:view1Proxy shouldDetach:YES];
                 view1Proxy.hiddenForLayout = NO;
             }
-            if (view2Proxy) [self add:view2Proxy];
             [self refreshViewIfNeeded];
             _transitioning = NO;
             if (callback) {
@@ -3956,14 +3955,16 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
             [callback release];
             [self handlePendingTransition];
         };
-        if ([self viewAttached] && [self viewLayedOut])
+        if ([self viewAttached] && parentVisible && [self viewLayedOut])
         {
             if (view1Proxy != nil) {
                 pthread_rwlock_wrlock(&childrenLock);
                 if (![children containsObject:view1Proxy])
                 {
                     pthread_rwlock_unlock(&childrenLock);
-                    if (view2Proxy)[self add:view2Proxy];
+                    if (view2Proxy){
+                        [self add:view2Proxy];
+                    }
                     _transitioning = NO;
                     [self handlePendingTransition];
                     return;
@@ -4012,6 +4013,9 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
                  [[self view] transitionFromView:view1 toView:view2 withTransition:transition animationBlock:animationBlock completionBlock:onCompletion];
         }
         else {
+            if (view2Proxy) {
+                [self add:view2Proxy];
+            }
             onCompletion();
             
         }
