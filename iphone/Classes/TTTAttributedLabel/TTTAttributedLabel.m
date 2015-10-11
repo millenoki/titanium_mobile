@@ -1525,6 +1525,16 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
                     break;
             }
             insetRect.size.height = textRect.size.height;
+        } else if (self.font.capHeight > textRect.size.height) {
+            switch (self.verticalAlignment) {
+                case TTTAttributedLabelVerticalAlignmentBottom:
+                    yOffset = textRect.origin.y;
+                    break;
+                case TTTAttributedLabelVerticalAlignmentTop:
+                    yOffset = -textRect.origin.y;
+                default:
+                    break;
+            }
         }
         insetRect.size.height *= scaleFactor;
         CGContextRef c = UIGraphicsGetCurrentContext();
