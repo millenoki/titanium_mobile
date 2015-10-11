@@ -1487,7 +1487,11 @@ static NSDictionary* replaceKeysForRow;
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     NSUInteger sectionCount = 0;
-    
+    //sometimes while setting props the cells gets loaded and it makes app slow
+    //like settings the separatorstyle
+    if (!configurationSet) {
+        return sectionCount;
+    }
     //TIMOB-15526
     if (tableView != _tableView && tableView.backgroundColor == [UIColor clearColor]) {
         tableView.backgroundColor = [UIColor whiteColor];
