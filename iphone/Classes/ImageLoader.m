@@ -862,7 +862,10 @@ DEFINE_EXCEPTIONS
 			{
 				scaleUp = YES;
 			}
-			UIImage * resultImage = [UIImage imageWithContentsOfFile:path];
+            UIImage * resultImage = [UIImage imageNamed:path];
+            if (!resultImage) {
+                resultImage = [UIImage imageWithContentsOfFile:path];
+            }
 			if (scaleUp && [self imageScale:resultImage]==1.0)
 			{
 				// on the ipad running iphone app in emulation mode, this won't exist when
@@ -1033,50 +1036,57 @@ DEFINE_EXCEPTIONS
 
 -(void)doImageLoader:(ImageLoaderRequest*)request
 {
-	NSURL *url = [request url];
-    id image = nil;
-    if ([TiUtils isSVG:url]) {
-        image = [[self svgEntryForKey:url] svgImage];
+    // we don't have it local or in the cache so we need to fetch it remotely
+    if (queue == nil)
+    {
+        queue = [[NSOperationQueue alloc] init];
+//        [queue setMaxConcurrentOperationCount:4];
     }
-	else {
-        image = [[self entryForKey:url] imageForSize:[request imageSize]];
-    }
-	if (image!=nil)
-	{
-        //we always to use dispatch_async to make sure the method rerturn first before calling the notify
-        dispatch_async(dispatch_get_main_queue(), ^{[self notifyRequest:request imageCompleted:image];});
-		return;
-	}
-	
-	// we don't have it local or in the cache so we need to fetch it remotely
-	if (queue == nil)
-	{
-		queue = [[NSOperationQueue alloc] init];
-		[queue setMaxConcurrentOperationCount:4];
-	}
-    
-    NSMutableDictionary* realOptions = [[NSMutableDictionary alloc] init];
-    if ([request options]) {
-        [realOptions addEntriesFromDictionary:[request options]];
-    }
-    [realOptions setObject:queue forKey:@"queue"];
-    [realOptions setObject:url forKey:@"url"];
-    if (![realOptions objectForKey:@"method"]) {
-        [realOptions setObject:@"GET" forKey:@"method"];
-    }
-    if (![realOptions objectForKey:@"headers"]) {
-        [realOptions setObject:@{@"User-Agent":[[TiApp app] userAgent]} forKey:@"headers"];
-    }
-    else {
-        [[realOptions objectForKey:@"headers"] setObject:[[TiApp app] userAgent] forKey:@"User-Agent"];
-    }
-    [realOptions setObject:@{@"request":request} forKey:@"userInfo"];
-	
-	APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
-    [req setDelegate:self];
-	[request setRequest:req];
-    [req prepareAndSendFromDictionary:realOptions];
-    [realOptions release];
+    [queue addOperationWithBlock:^{
+        
+        // Background work
+        NSURL *url = [request url];
+        id image = nil;
+        if ([TiUtils isSVG:url]) {
+            image = [[self svgEntryForKey:url] svgImage];
+        }
+        else {
+            image = [[self entryForKey:url] imageForSize:[request imageSize]];
+        }
+        if (image!=nil)
+        {
+            //we always to use dispatch_async to make sure the method rerturn first before calling the notify
+//            dispatch_async(dispatch_get_main_queue(), ^{[self notifyRequest:request imageCompleted:image];});
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                // Main thread work (UI usually)
+                [self notifyRequest:request imageCompleted:image];
+            }];
+            return;
+        }
+        
+        NSMutableDictionary* realOptions = [[NSMutableDictionary alloc] init];
+        if ([request options]) {
+            [realOptions addEntriesFromDictionary:[request options]];
+        }
+        [realOptions setObject:queue forKey:@"queue"];
+        [realOptions setObject:url forKey:@"url"];
+        if (![realOptions objectForKey:@"method"]) {
+            [realOptions setObject:@"GET" forKey:@"method"];
+        }
+        if (![realOptions objectForKey:@"headers"]) {
+            [realOptions setObject:@{@"User-Agent":[[TiApp app] userAgent]} forKey:@"headers"];
+        }
+        else {
+            [[realOptions objectForKey:@"headers"] setObject:[[TiApp app] userAgent] forKey:@"User-Agent"];
+        }
+        [realOptions setObject:@{@"request":request} forKey:@"userInfo"];
+        
+        APSHTTPRequest *req = [[[APSHTTPRequest alloc] init] autorelease];
+        [req setDelegate:self];
+        [request setRequest:req];
+        [req prepareAndSendFromDictionary:realOptions];
+        [realOptions release];
+    }];
 }
 
 -(ImageLoaderRequest*)loadImage:(NSURL*)url delegate:(NSObject<ImageLoaderDelegate>*)delegate options:(NSDictionary*)options_ userInfo:(NSDictionary*)userInfo

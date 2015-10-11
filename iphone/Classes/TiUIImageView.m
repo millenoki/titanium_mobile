@@ -607,16 +607,6 @@ DEFINE_EXCEPTIONS
         if (localLoadSync)
         {
             image = [self convertToUIImage:[[ImageLoader sharedLoader] loadImmediateImage:url_]];
-            if (image == nil && [url_ isFileURL]) {
-                //first try with imageNamed:
-                image = [UIImage imageNamed:img];
-                if (!image) {
-                    image = [UIImage imageWithContentsOfFile:[url_ path]];
-                }
-                if (image != nil) {
-                    [[ImageLoader sharedLoader] cache:image forURL:url_];
-                }
-            }
         }
         
         if (image==nil)
