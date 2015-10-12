@@ -533,54 +533,55 @@
                                    nil];
         [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
     }
-    else {
-//        [[UIApplication sharedApplication] openURL:url];
-    }
 }
 
 - (void)attributedLabel:(TTTAttributedLabel *)label
 didSelectLinkWithAddress:(NSDictionary *)addressComponents
 {
-    NSMutableString* address = [NSMutableString string];
-    NSString* temp = nil;
-    if((temp = [addressComponents objectForKey:NSTextCheckingStreetKey]))
-        [address appendString:temp];
-    if((temp = [addressComponents objectForKey:NSTextCheckingCityKey]))
-        [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
-    if((temp = [addressComponents objectForKey:NSTextCheckingStateKey]))
-        [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
-    if((temp = [addressComponents objectForKey:NSTextCheckingZIPKey]))
-        [address appendString:[NSString stringWithFormat:@" %@", temp]];
-    if((temp = [addressComponents objectForKey:NSTextCheckingCountryKey]))
-        [address appendString:[NSString stringWithFormat:@"%@%@", ([address length] > 0) ? @", " : @"", temp]];
-    NSString* urlString = [NSString stringWithFormat:@"http://maps.google.com/maps?q=%@", [address stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                               urlString, @"url",
+                               addressComponents, @"address",
                                nil];
     if ([[self viewProxy] _hasListeners:@"link" checkParent:NO]) {
 
         [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
     }
-    else [[UIApplication sharedApplication] openURL:[NSURL URLWithString:urlString]];
 }
 
 - (void)attributedLabel:(TTTAttributedLabel *)label
 didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
 {
-    NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"tel://%@", phoneNumber]];
     if ([[self viewProxy] _hasListeners:@"link" checkParent:NO]) {
         NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                   url, @"url",
+                                   phoneNumber, @"phomeNumber",
                                    nil];
         [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
     }
-    else [[UIApplication sharedApplication] openURL:url];
 }
 
-//-(void)setReusing:(BOOL)value
-//{
-//    _reusing = value;
-//}
+- (void)attributedLabel:(TTTAttributedLabel *)label
+didSelectLinkWithDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone duration:(NSTimeInterval)duration
+{
+    if ([[self viewProxy] _hasListeners:@"link" checkParent:NO]) {
+        NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   @(date.timeIntervalSince1970), @"date",
+                                   @(duration*1000), @"duration",
+                                   timeZone.name, @"timezone",
+                                   nil];
+        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
+    }
+}
+
+
+- (void)attributedLabel:(TTTAttributedLabel *)label
+  didSelectLinkWithTransitInformation:(NSDictionary *)components
+{
+    if ([[self viewProxy] _hasListeners:@"link" checkParent:NO]) {
+        NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   components, @"transit",
+                                   nil];
+        [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
+    }
+}
 
 -(NSDictionary*)dictionaryFromTouch:(UITouch*)touch
 {
@@ -601,8 +602,13 @@ didSelectLinkWithPhoneNumber:(NSString *)phoneNumber
                 case NSTextCheckingTypeAddress:
                     [(NSMutableDictionary*)event setObject:result.result.addressComponents forKey:@"address"];
                     break;
+                case NSTextCheckingTypeTransitInformation:
+                    [(NSMutableDictionary*)event setObject:result.result.components forKey:@"transit"];
+                    break;
                 case NSTextCheckingTypeDate:
                     [(NSMutableDictionary*)event setObject:@(result.result.date.timeIntervalSince1970) forKey:@"date"];
+                    [(NSMutableDictionary*)event setObject:@(result.result.duration*1000) forKey:@"duration"];
+                    [(NSMutableDictionary*)event setObject:result.result.timeZone.name forKey:@"timezone"];
                     break;
                 default:
                     break;
