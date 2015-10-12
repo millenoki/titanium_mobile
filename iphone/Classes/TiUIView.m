@@ -1948,6 +1948,9 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
                state == UIGestureRecognizerStateCancelled) {
         [recognizer setStartTouchedView:nil];
     }
+    if (theView && theView != self) {
+        return [(TiUIView*)theView dictionaryFromGesture:recognizer];
+    }
     return [TiUtils dictionaryFromGesture:recognizer inView:theView];
 }
 
