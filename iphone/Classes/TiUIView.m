@@ -1617,6 +1617,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setExclusiveTouch_:(id)arg
 {
 	self.exclusiveTouch = [TiUtils boolValue:arg];
+    [self viewForHitTest].exclusiveTouch = self.exclusiveTouch;
 }
 
 
