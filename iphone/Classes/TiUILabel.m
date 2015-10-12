@@ -585,67 +585,51 @@ didSelectLinkWithDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone duration:(N
 
 -(NSDictionary*)dictionaryFromTouch:(UITouch*)touch
 {
-    NSDictionary* event = [super dictionaryFromTouch:touch];
-    NSAttributedString* attString = label.attributedText;
-    if (attString != nil) {
-        CGPoint localPoint = [touch locationInView:label];
-        TTTAttributedLabelLink* result = [label activeLink];
-        if (result) {
-            event = [NSMutableDictionary dictionaryWithDictionary:event];
-            switch(result.result.resultType) {
-                case NSTextCheckingTypeLink:
-                    [(NSMutableDictionary*)event setObject:result.result.URL forKey:@"link"];
-                    break;
-                case NSTextCheckingTypePhoneNumber:
-                    [(NSMutableDictionary*)event setObject:result.result.phoneNumber forKey:@"phoneNumber"];
-                    break;
-                case NSTextCheckingTypeAddress:
-                    [(NSMutableDictionary*)event setObject:result.result.addressComponents forKey:@"address"];
-                    break;
-                case NSTextCheckingTypeTransitInformation:
-                    [(NSMutableDictionary*)event setObject:result.result.components forKey:@"transit"];
-                    break;
-                case NSTextCheckingTypeDate:
-                    [(NSMutableDictionary*)event setObject:@(result.result.date.timeIntervalSince1970) forKey:@"date"];
-                    [(NSMutableDictionary*)event setObject:@(result.result.duration*1000) forKey:@"duration"];
-                    [(NSMutableDictionary*)event setObject:result.result.timeZone.name forKey:@"timezone"];
-                    break;
-                default:
-                    break;
-            }
-        }
+    NSMutableDictionary* event = [super dictionaryFromTouch:touch];
+    if ([label activeLink]) {
+        [self addLinkData:event forLink:[label activeLink]];
     }
     return event;
+}
+
+-(void)addLinkData:(NSMutableDictionary*)dict forLink:(TTTAttributedLabelLink*)link{
+    if (link) {
+        switch(link.result.resultType) {
+            case NSTextCheckingTypeLink:
+                [(NSMutableDictionary*)dict setObject:link.result.URL forKey:@"link"];
+                break;
+            case NSTextCheckingTypePhoneNumber:
+                [(NSMutableDictionary*)dict setObject:link.result.phoneNumber forKey:@"phoneNumber"];
+                break;
+            case NSTextCheckingTypeAddress:
+                [(NSMutableDictionary*)dict setObject:link.result.addressComponents forKey:@"address"];
+                break;
+            case NSTextCheckingTypeTransitInformation:
+                [(NSMutableDictionary*)dict setObject:link.result.components forKey:@"transit"];
+                break;
+            case NSTextCheckingTypeDate:
+                [(NSMutableDictionary*)dict setObject:@(link.result.date.timeIntervalSince1970) forKey:@"date"];
+                [(NSMutableDictionary*)dict setObject:@(link.result.duration*1000) forKey:@"duration"];
+                [(NSMutableDictionary*)dict setObject:link.result.timeZone.name forKey:@"timezone"];
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 -(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture
 {
     NSMutableDictionary* event = [super dictionaryFromGesture:gesture];
-    
     NSAttributedString* attString = label.attributedText;
     if (attString != nil) {
         CGPoint localPoint = [gesture locationInView:label];
         TTTAttributedLabelLink* result = [self checkLinkAttributeForString:attString atPoint:localPoint];
-        if (result) {
-            event = [NSMutableDictionary dictionaryWithDictionary:event];
-            switch(result.result.resultType) {
-                case NSTextCheckingTypeLink:
-                    [(NSMutableDictionary*)event setObject:result.result.URL forKey:@"link"];
-                    break;
-                case NSTextCheckingTypePhoneNumber:
-                    [(NSMutableDictionary*)event setObject:result.result.phoneNumber forKey:@"phoneNumber"];
-                    break;
-                case NSTextCheckingTypeAddress:
-                    [(NSMutableDictionary*)event setObject:result.result.addressComponents forKey:@"address"];
-                    break;
-                case NSTextCheckingTypeDate:
-                    [(NSMutableDictionary*)event setObject:@(result.result.date.timeIntervalSince1970) forKey:@"date"];
-                    break;
-                default:
-                    break;
-            }
-        }
+        [self addLinkData:event forLink:result];
     }
+//    if ([label activeLink]) {
+//        [self addLinkData:event forLink:[label activeLink]];
+//    }
     return event;
 }
 
