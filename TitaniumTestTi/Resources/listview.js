@@ -1863,8 +1863,8 @@ function longListTest() {
     var listView = Ti.UI.createListView({
         rowHeight: 50,
         allowsMultipleSelectionDuringEditing: true,
-        selectedBackgroundColor:'red',
-            canEdit:true,
+        selectedBackgroundColor: 'red',
+        canEdit: true,
         // updateInsetWithKeyboard:true,
         templates: {
             'template': myTemplate
@@ -3052,15 +3052,15 @@ function collectionViewEx(_args) {
         // stickyHeaders: false,
         templates: {
             'template': myTemplate,
-            // 'header' : {
-            // properties : {
-            // backgroundColor : 'red',
-            // height : 20
-            // },
-            // childTemplates : [ {
-            // type : 'Ti.UI.Label',
-            // bindId : 'label'
-            // } ]
+            // 'header': {
+            //     properties: {
+            //         backgroundColor: 'red',
+            //         height: 20
+            //     },
+            //     childTemplates: [{
+            //         type: 'Ti.UI.Label',
+            //         bindId: 'label'
+            //     }]
             // }
         },
         pullView: {

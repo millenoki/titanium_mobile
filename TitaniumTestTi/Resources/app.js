@@ -7261,6 +7261,7 @@ function windowLevelTest() {
 	});
 	win.open();
 }
+Ti.App.on('significanttimechange', sdebug);
 // setTimeout(windowLevelTest, 1000);
 // scrollableViewTest();
 
