@@ -1267,9 +1267,9 @@ SEL GetterForKrollProperty(NSString * key)
         }
         else {
             recheckForFillW = followsFillWidthBehavior;
-            autoComputed = YES;
-            autoSize = [self autoSizeForSize:autoSize];
-            result.width += autoSize.width;
+//            autoComputed = YES;
+//            autoSize = [self autoSizeForSize:autoSize];
+            result.width = suggestedSize.width;
         }
     }
 	else
@@ -1308,11 +1308,12 @@ SEL GetterForKrollProperty(NSString * key)
         }
         else {
             recheckForFillH = followsFillHeightBehavior;
-            if (autoComputed == NO) {
-                autoComputed = YES;
-                autoSize = [self autoSizeForSize:autoSize];
-            }
-            result.height += autoSize.height;
+//            if (autoComputed == NO) {
+//                autoComputed = YES;
+//                autoSize = [self autoSizeForSize:autoSize];
+//            }
+            result.height = suggestedSize.height;
+//            result.height += autoSize.height;
         }
     }
 	else
