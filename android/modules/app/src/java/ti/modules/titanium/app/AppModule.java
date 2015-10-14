@@ -51,7 +51,8 @@ public class AppModule extends KrollModule implements SensorEventListener
 	private static final String APP_UUID_STRING = "com.appcelerator.uuid";
 
 	@Kroll.constant public static final String EVENT_ACCESSIBILITY_ANNOUNCEMENT = "accessibilityannouncement";
-	@Kroll.constant public static final String EVENT_ACCESSIBILITY_CHANGED = "accessibilitychanged";
+    @Kroll.constant public static final String EVENT_ACCESSIBILITY_CHANGED = "accessibilitychanged";
+    @Kroll.constant public static final String EVENT_SIGNIFICANT_TIME_CHANGED = "significanttime";
 
 	private ITiAppInfo appInfo;
 	private AccessibilityStateChangeListenerCompat accessibilityStateChangeListener = null;
