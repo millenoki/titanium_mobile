@@ -137,6 +137,17 @@
     return childrenCount;
 }
 
+-(void)setParent:(TiParentingProxy *)newParent
+{
+    if (parent) {
+        //we need to remove the child from his current parent children's list
+        // or it might get detached when the old parent gets released
+        [parent _removeChild:self];
+        RELEASE_TO_NIL(parent)
+    }
+    parent = [newParent retain];
+}
+
 -(BOOL)containsChild:(TiProxy*)child
 {
     if (child == self)return YES;
@@ -242,6 +253,17 @@
         [child forgetSelf];
     }
 }
+
+
+-(void)_removeChild:(id)child
+{
+    pthread_rwlock_wrlock(&childrenLock);
+    if ([children containsObject:child]) {
+        [children removeObject:child];
+    }
+    pthread_rwlock_unlock(&childrenLock);
+}
+
 
 -(void)removeProxy:(id)child shouldDetach:(BOOL)shouldDetach
 {
