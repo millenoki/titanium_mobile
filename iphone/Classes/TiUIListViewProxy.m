@@ -24,6 +24,7 @@
     pthread_mutex_t _operationQueueMutex;
     pthread_rwlock_t _markerLock;
     NSDictionary* _propertiesForItems;
+    BOOL _needsReload;
 //    NSMutableDictionary* _measureProxies;
 //    NSDictionary *_templates;
 }
@@ -75,6 +76,7 @@ static NSDictionary* listViewKeysToReplace;
         pthread_mutex_init(&_operationQueueMutex,NULL);
         pthread_rwlock_init(&_markerLock,NULL);
         autoResizeOnImageLoad = NO;
+        _needsReload = NO;
     }
     return self;
 }
@@ -361,7 +363,9 @@ static NSDictionary* listViewKeysToReplace;
     [_measureProxies release];
     _measureProxies = [measureProxies copy];
     [measureProxies release];
-    
+    if (![self isConfigurationSet]) {
+        _needsReload = YES;
+    }
     [self replaceValue:args forKey:@"templates" notification:YES];
 }
 
@@ -412,7 +416,22 @@ static NSDictionary* listViewKeysToReplace;
 		[tableView reloadData];
 		[self contentsWillChange];
 	}];
+    if (![self isConfigurationSet]) {
+        _needsReload = YES;
+    }
 	[insertedSections release];
+}
+
+-(void)configurationSet:(BOOL)recursive
+{
+    [super configurationSet:recursive];
+    if (_needsReload) {
+        _needsReload = NO;
+        [self dispatchBlock:^(UITableView *tableView) {
+            [tableView reloadData];
+        }];
+    }
+    
 }
 
 - (void)appendSection:(id)args
