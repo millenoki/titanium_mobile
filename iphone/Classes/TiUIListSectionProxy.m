@@ -93,15 +93,23 @@
 
 -(void)setHeaderView:(id)value
 {
-    [self removeHoldedProxyForKey:@"headerView"];
+    NSString* wrapperKey = [NSString stringWithFormat:@"%@Wrapper", @"headerView"];
+    [self removeHoldedProxyForKey:wrapperKey];
     [self addObjectToHold:value forKey:@"headerView"];
+    [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+        [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation:UITableViewRowAnimationNone];
+    }];
     [self replaceValue:value forKey:@"headerView" notification:NO];
 }
 
 -(void)setFooterView:(id)value
 {
+    NSString* wrapperKey = [NSString stringWithFormat:@"%@Wrapper", @"footerView"];
+    [self removeHoldedProxyForKey:wrapperKey];
     [self addObjectToHold:value forKey:@"footerView"];
-    [self removeHoldedProxyForKey:@"footerView"];
+    [self.dispatcher dispatchUpdateAction:^(UITableView *tableView) {
+        [tableView reloadSections:[NSIndexSet indexSetWithIndex:_sectionIndex] withRowAnimation:UITableViewRowAnimationNone];
+    }];
     [self replaceValue:value forKey:@"footerView" notification:NO];
 }
 
@@ -117,18 +125,9 @@
     if (vp) {
         return (TiViewProxy*)vp;
     }
-    vp = [self addObjectToHold:[self holdedProxyForKey:location] forKey:location];
+    vp = [self holdedProxyForKey:location];
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         ((TiViewProxy*)vp).canBeResizedByFrame = YES;
-//        LayoutConstraint *viewLayout = [(TiViewProxy*)vp layoutProperties];
-//        //If height is not dip, explicitly set it to SIZE
-//        if (viewLayout->height.type != TiDimensionTypeDip) {
-//            viewLayout->height = TiDimensionAutoSize;
-//        }
-//        if (viewLayout->width.type == TiDimensionTypeUndefined) {
-//            viewLayout->width = TiDimensionAutoFill;
-//        }
-//        
         TiViewProxy* wrapperProxy = [listView wrapperProxyWithVerticalLayout:NO];
         [wrapperProxy add:vp];
         [self addProxyToHold:wrapperProxy forKey:wrapperKey];
