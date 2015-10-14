@@ -565,7 +565,7 @@ didSelectLinkWithDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone duration:(N
         NSDictionary *eventDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                    @(date.timeIntervalSince1970), @"date",
                                    @(duration*1000), @"duration",
-                                   timeZone.name, @"timezone",
+//                                   timeZone.name, @"timezone",
                                    nil];
         [[self proxy] fireEvent:@"link" withObject:eventDict propagate:NO checkForListener:NO];
     }
@@ -610,7 +610,7 @@ didSelectLinkWithDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone duration:(N
             case NSTextCheckingTypeDate:
                 [(NSMutableDictionary*)dict setObject:@(link.result.date.timeIntervalSince1970) forKey:@"date"];
                 [(NSMutableDictionary*)dict setObject:@(link.result.duration*1000) forKey:@"duration"];
-                [(NSMutableDictionary*)dict setObject:link.result.timeZone.name forKey:@"timezone"];
+//                [(NSMutableDictionary*)dict setObject:link.result.timeZone.name forKey:@"timezone"];
                 break;
             default:
                 break;
