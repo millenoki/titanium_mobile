@@ -519,12 +519,15 @@
 
 -(CGFloat)keyboardHeight
 {
-    CGFloat keyboardHeight = endFrame.origin.y;
-    TiViewProxy* topWindow = [self topWindow];
-    if ([topWindow valueForKey:@"keyboardOffset"]) {
-        keyboardHeight -= [TiUtils floatValue:[topWindow valueForKey:@"keyboardOffset"] def:0.0f];
+    if ([self keyboardVisible]) {
+        CGFloat keyboardHeight = endFrame.origin.y;
+        TiViewProxy* topWindow = [self topWindow];
+        if ([topWindow valueForKey:@"keyboardOffset"]) {
+            keyboardHeight -= [TiUtils floatValue:[topWindow valueForKey:@"keyboardOffset"] def:0.0f];
+        }
+        return keyboardHeight;
     }
-    return keyboardHeight;
+    return 0;
 }
 
 -(void) handleNewNewKeyboardStatus
