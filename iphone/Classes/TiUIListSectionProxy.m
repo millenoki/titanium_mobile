@@ -203,9 +203,9 @@
 
 - (NSUInteger)itemCount
 {
-	return [[self.dispatcher dispatchBlockWithResult:^() {
-		return _hidden?0:[NSNumber numberWithUnsignedInteger:[_items count]];
-	}] unsignedIntegerValue];
+//	return [[self.dispatcher dispatchBlockWithResult:^() {
+		return _hidden?0:[_items count];
+//	}] unsignedIntegerValue];
 }
 
 
