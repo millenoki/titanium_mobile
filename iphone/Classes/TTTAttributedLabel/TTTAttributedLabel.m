@@ -1267,6 +1267,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     }
     
     self.attributedText = text;
+    [super setText:nil];
     self.activeLink = nil;
 
     self.linkModels = [NSArray array];
@@ -1385,7 +1386,11 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
     
     // Redraw to allow any ColorFromContext attributes a chance to update
     if (_attributedText && textColor != oldTextColor) {
-        self.text = self.text; //to update colors
+        if (self.attributedText) {
+            self.text = self.attributedText; //to update colors
+        } else {
+            self.text = self.text; //to update colors
+        }
         [self setNeedsFramesetter];
         [self setNeedsDisplay];
     }
@@ -1395,8 +1400,12 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
     UIColor *oldTextColor = self.disabledColor;
     _disabledColor = textColor;
     
-    if (textColor && self.text) {
-        self.text = self.text;
+    if (textColor && (self.text || self.attributedText)) {
+        if (self.attributedText) {
+            self.text = self.attributedText; //to update colors
+        } else {
+            self.text = self.text; //to update colors
+        }
     }
     if (!self.enabled) {
         [self setNeedsFramesetter];
