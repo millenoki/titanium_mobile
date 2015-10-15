@@ -5,6 +5,12 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+
+#ifdef TI_USE_AUTOLAYOUT
+#import "TiLayoutDimension.h"
+#import "LayoutConstraint.h"
+#else
+
 #import "TiBase.h"
 #include <math.h>
 
@@ -226,3 +232,5 @@ TI_INLINE UIEdgeInsets TiUIEdgeInsets(TiDimension top, TiDimension left, TiDimen
     
 	return result;
 }
+
+#endif

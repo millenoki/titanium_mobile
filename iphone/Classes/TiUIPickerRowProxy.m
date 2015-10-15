@@ -54,7 +54,11 @@
             CGSize size = myview.bounds.size;
             if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
             {
+#ifndef TI_USE_AUTOLAYOUT
+                CGSize size = [[self view] sizeThatFits:CGSizeMake(1000,1000)];
+#else
                 CGSize size = [self autoSizeForSize:CGSizeMake(1000,1000)];
+#endif
                 if (size.width==0 || size.height == 0)
                 {
                     size = [UIScreen mainScreen].bounds.size;

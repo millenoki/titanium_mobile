@@ -43,13 +43,14 @@
 
 -(void)propagateLoadEvent:(NSString *)stateString
 {
+#ifndef TI_USE_AUTOLAYOUT
     //Send out a content change message if we are auto sizing
     if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAutoSize(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.width) ||
         TiDimensionIsAuto(layoutProperties.height) || TiDimensionIsAutoSize(layoutProperties.height) || TiDimensionIsUndefined(layoutProperties.height)) {
         [self refreshSize];
         [self willChangeSize];
     }
-    
+    #endif
     if ([self _hasListeners:@"load" checkParent:NO]) {
         TiUIImageView *iv = (TiUIImageView*)[self view];
         UIImage* image = [iv getImage];

@@ -120,6 +120,12 @@
     }
     [viewProxies release];
     viewProxies = [newViews retain];
+#ifdef TI_USE_AUTOLAYOUT
+    for (TiViewProxy* proxy in viewProxies)
+    {
+        [[self view] addSubview:[proxy view]];
+    }
+#endif
     [self unlockViews];
     [self replaceValue:args forKey:@"views" notification:YES];
 }
@@ -267,6 +273,7 @@
 	return result;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *)parentViewForChild:(TiViewProxy *)child
 {
 	[self lockViews];
@@ -292,7 +299,7 @@
 	//Adding the view to a scrollable view is invalid.
 	return nil;
 }
-
+#endif
 -(CGSize)autSizeForSize:(CGSize)size
 {
     CGSize result = CGSizeZero;

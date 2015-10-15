@@ -14,10 +14,13 @@
 
 @private
 	TDUIScrollView * scrollview;
+#ifdef TI_USE_AUTOLAYOUT
+    TiLayoutView* contentView;
+#else
 	UIView * wrapperView;
 	TiDimension contentWidth;
 	TiDimension contentHeight;
-	
+#endif
 	CGFloat minimumContentHeight;
 	
 	BOOL needsHandleContentSize;
@@ -32,7 +35,9 @@
 -(void)setNeedsHandleContentSizeIfAutosizing;
 -(BOOL)handleContentSizeIfNeeded;
 -(void)handleContentSize;
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *)wrapperView;
+#endif
 -(BOOL)flexibleContentWidth;
 -(BOOL)flexibleContentHeight;
 @end

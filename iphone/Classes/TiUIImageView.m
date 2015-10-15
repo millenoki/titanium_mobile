@@ -21,6 +21,7 @@
 #import "TiTransitionHelper.h"
 #import "TiTransition.h"
 #import "TiImageHelper.h"
+#import <CommonCrypto/CommonDigest.h>
 
 #define IMAGEVIEW_DEBUG 0
 

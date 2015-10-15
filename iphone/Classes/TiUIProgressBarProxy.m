@@ -34,6 +34,8 @@ USE_VIEW_FOR_CONTENT_SIZE
 {
     return TiDimensionAutoSize;
 }
+
+
 @end
 
 #endif

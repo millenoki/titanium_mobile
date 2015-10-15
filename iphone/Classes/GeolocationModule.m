@@ -195,6 +195,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     NSRecursiveLock* lock;
     BOOL canReportSameLocation;
     BOOL _locationManagerCreated;
+	KrollCallback *authorizationCallback;
 }
 
 @synthesize lastLocation;
@@ -807,14 +808,42 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     return locationPermissionManager;
 }
 
+-(NSNumber*)hasLocationPermissions:(id)args
+{
+    id value = [args objectAtIndex:0];
+    
+    ENSURE_TYPE(value, NSNumber);
+
+    CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
+    CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
+    BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
+    
+    return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
+}
+
 -(void)requestAuthorization:(id)value
+{
+    DEPRECATED_REPLACED(@"Geolocation.requestAuthorization", @"5.1.0", @"Geolocation.requestLocationPermissions");
+    [self requestLocationPermissions:@[value, [NSNull null]]];
+}
+
+-(void)requestLocationPermissions:(id)args
 {
     if (![TiUtils isIOS8OrGreater]) {
         return;
     }
-    ENSURE_SINGLE_ARG(value, NSNumber);
     
-    CLAuthorizationStatus requested = (int)[TiUtils intValue: value];
+    id value = [args objectAtIndex:0];
+    ENSURE_TYPE(value, NSNumber);
+    
+    // Store the authorization callback for later usage
+    if([args count] == 2) {
+        RELEASE_TO_NIL(authorizationCallback);
+        ENSURE_TYPE([args objectAtIndex:1], KrollCallback);
+        authorizationCallback = [[args objectAtIndex:1] retain];
+    }
+    
+    CLAuthorizationStatus requested = [TiUtils intValue: value];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
     
     if(requested == kCLAuthorizationStatusAuthorizedWhenInUse){
@@ -1029,20 +1058,46 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     NSInteger state = [CLLocationManager authorizationStatus];
+	BOOL enabled = state == kCLAuthorizationStatusAuthorizedAlways || state == kCLAuthorizationStatusAuthorized;
+	NSDictionary* event = @{
+                                                      @"enabled":@(enabled),
+                                                      @"authorizationStatus": NUMINTEGER(state)
+                                                      };
     if ([self _hasListeners:@"authorization"])
     {
-        [self fireEvent:@"authorization" withObject:@{
-                                                      @"enabled":@(state == kCLAuthorizationStatusAuthorizedAlways || state == kCLAuthorizationStatusAuthorized),
-                                                      @"authorizationStatus": NUMINTEGER(state)
-                                                      }];
+        [self fireEvent:@"authorization" withObject: event];
     }
     
     if ([self _hasListeners:@"change"])
     {
-        [self fireEvent:@"change" withObject:@{
-                                               @"enabled":@(state == kCLAuthorizationStatusAuthorizedAlways || state == kCLAuthorizationStatusAuthorized),
-                                               @"authorizationStatus": NUMINTEGER(state)
-                                               }];
+        [self fireEvent:@"change" withObject: event];
+    }
+    
+    // The new callback for android parity used inside Ti.Geolocation.requestLocationPermissions()
+    if (authorizationCallback != nil && status != kCLAuthorizationStatusNotDetermined) {
+        
+        int code = 0;
+        NSString* errorStr = @"";
+        
+        switch (status) {
+            case kCLAuthorizationStatusAuthorizedAlways:
+            case kCLAuthorizationStatusAuthorizedWhenInUse:
+                break;
+            default:
+                code = 1;
+                errorStr = @"The user is unable to allow access to location.";
+        }
+        
+        NSMutableDictionary * propertiesDict = [TiUtils dictionaryWithCode:code message:errorStr];
+        [propertiesDict setObject:@(state) forKey:@"authorizationStatus"];
+        [propertiesDict setObject:@(enabled) forKey:@"enabled"];
+        
+        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+        
+        [authorizationCallback call:invocationArray thisObject:self];
+        [invocationArray release];
+        RELEASE_TO_NIL(errorStr);
+        RELEASE_TO_NIL(authorizationCallback);
     }
 }
 

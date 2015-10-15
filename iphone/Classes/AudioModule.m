@@ -356,7 +356,13 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
--(void) requestAuthorization:(id)args
+-(void)requestAuthorization:(id)args
+{
+    DEPRECATED_REPLACED(@"Media.requestAuthorization", @"5.1.0", @"Media.requestAudioPermissions");
+    [self requestAudioPermissions:args];
+}
+
+-(void)requestAudioPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);
     KrollCallback * callback = args;

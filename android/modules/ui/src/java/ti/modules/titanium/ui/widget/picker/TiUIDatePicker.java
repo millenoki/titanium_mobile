@@ -150,6 +150,21 @@ public class TiUIDatePicker extends TiUIView
 			targetCalendar.setTime(maxDate);
 			setValue(maxDate.getTime(), true);
 		}
+		
+		Date newTime = targetCalendar.getTime();
+		Object oTime = proxy.getProperty(TiC.PROPERTY_VALUE);
+		Date oldTime = null;
+		
+		if (oTime instanceof Date) {
+			oldTime = (Date) oTime;
+		}
+		
+		// Due to a native Android bug in 4.x, this callback is called twice, so here 
+		// we check if the dates are identical, we don't fire "change" event or reset value.
+		if (oldTime != null && oldTime.equals(newTime)) {
+			return;
+		}
+
 		if (!suppressChangeEvent) {
 		    if (hasListeners(TiC.EVENT_CHANGE)) {
                 KrollDict data = new KrollDict();

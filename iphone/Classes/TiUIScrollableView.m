@@ -78,6 +78,7 @@
     verticalLayout = self.proxy.verticalLayout;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(CGRect)pageControlRect
 {
 	
@@ -111,13 +112,19 @@
     }
     
 }
+#endif
 
 -(UIPageControl*)pagecontrol 
 {
 	if (pageControl==nil)
 	{
+#ifdef TI_USE_AUTOLAYOUT
+		pageControl = [[UIPageControl alloc] init];
+        [pageControl setTranslatesAutoresizingMaskIntoConstraints:NO];
+#else
 		pageControl = [[UIPageControl alloc] initWithFrame:[self pageControlRect]];
 		[pageControl setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin];
+#endif
 		[pageControl addTarget:self action:@selector(pageControlTouched:) forControlEvents:UIControlEventValueChanged];
 		[pageControl setBackgroundColor:pageControlBackgroundColor];
 		[self addSubview:pageControl];
@@ -173,7 +180,9 @@
 	if (showPageControl)
 	{
 		UIPageControl *pg = [self pagecontrol];
+#ifndef TI_USE_AUTOLAYOUT
 		[pg setFrame:[self pageControlRect]];
+#endif
         [pg setNumberOfPages:[[self proxy] viewCount]];
         [pg setBackgroundColor:pageControlBackgroundColor];
 		pg.currentPage = currentPage;
@@ -350,6 +359,7 @@
 -(void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd
 {
     if (CGSizeEqualToSize(visibleBounds.size, CGSizeZero)) return;
+#ifndef TI_USE_AUTOLAYOUT
 	CGRect viewBounds;
 	viewBounds.size.width = visibleBounds.size.width;
 	viewBounds.size.height = visibleBounds.size.height;
@@ -431,6 +441,7 @@
 	
 	[sv setContentSize:CGSizeMake(floorf(contentBounds.width), floorf(contentBounds.height))];
     [self didScroll];
+#endif
 }
 
 -(void) updateScrollViewFrame:(CGRect)visibleBounds
@@ -453,6 +464,7 @@
 }
 
 
+#ifndef TI_USE_AUTOLAYOUT
 // We have to cache the current page because we need to scroll to the new (logical) position of the view
 // within the scrollable view.  Doing so, if we're resizing to a SMALLER frame, causes a content offset
 // reset internally, which screws with the currentPage number (since -[self scrollViewDidScroll:] is called).
@@ -474,8 +486,6 @@
     enforceCacheRecalculation = YES;
     [super setBounds:bounds_];
 }
-
-
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
     if (CGSizeEqualToSize(visibleBounds.size, CGSizeZero)) return;
@@ -497,6 +507,7 @@
     
     [super frameSizeChanged:frame bounds:visibleBounds];
 }
+#endif
 
 -(void)configurationStart
 {

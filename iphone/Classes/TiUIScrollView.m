@@ -22,7 +22,9 @@
 - (void) dealloc
 {
 	RELEASE_WITH_DELEGATE(scrollview);
+#ifndef TI_USE_AUTOLAYOUT
 	RELEASE_TO_NIL(wrapperView);
+#endif
 	[super dealloc];
 }
 
@@ -38,34 +40,49 @@
 }
 
 
+#ifndef TI_USE_AUTOLAYOUT
 -(UIView *)wrapperView
 {
 	if (wrapperView == nil)
 	{
 		CGRect wrapperFrame;
-		wrapperFrame.size = [[self scrollview] contentSize];
+		wrapperFrame.size = [[self scrollView] contentSize];
 		wrapperFrame.origin = CGPointZero;
 		wrapperView = [[UIView alloc] initWithFrame:wrapperFrame];
 		[wrapperView setUserInteractionEnabled:YES];
-		[scrollview addSubview:wrapperView];
+		[scrollView addSubview:wrapperView];
 	}
 	return wrapperView;
 }
+#endif
 
 -(TDUIScrollView *)scrollview
 {
-	if(scrollview == nil)
+	if(scrollView == nil)
 	{
+#ifdef TI_USE_AUTOLAYOUT
+		scrollview = [[TDUIScrollView alloc] init];
+		contentView = [[TiLayoutView alloc] init];
+        [contentView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [scrollview setTranslatesAutoresizingMaskIntoConstraints:NO];
+		[contentView setViewName:@"TiScrollView.ContentView"];
+        
+        [contentView setDefaultHeight:TiDimensionAutoSize];
+        [contentView setDefaultWidth:TiDimensionAutoSize];
+        
+        [scrollview addSubview:contentView];
+#else
 		scrollview = [[TDUIScrollView alloc] initWithFrame:[self bounds]];
-		[scrollview setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
-		[scrollview setBackgroundColor:[UIColor clearColor]];
-		[scrollview setShowsHorizontalScrollIndicator:NO];
-		[scrollview setShowsVerticalScrollIndicator:NO];
-		[scrollview setDelegate:self];
+		[scrollView setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
+#endif
+		[scrollView setBackgroundColor:[UIColor clearColor]];
+		[scrollView setShowsHorizontalScrollIndicator:NO];
+		[scrollView setShowsVerticalScrollIndicator:NO];
+		[scrollView setDelegate:self];
         [scrollview setTouchDelegate:self];
-		[self addSubview:scrollview];
+		[self addSubview:scrollView];
 	}
-	return scrollview;
+	return scrollView;
 }
 
 -(UIView*)viewForHitTest
@@ -86,7 +103,7 @@
 
 - (id)accessibilityElement
 {
-	return [self scrollview];
+	return [self scrollView];
 }
 
 -(BOOL)flexibleContentWidth
@@ -101,14 +118,17 @@
 
 -(void)setNeedsHandleContentSizeIfAutosizing
 {
+#ifndef TI_USE_AUTOLAYOUT
 	if ([self flexibleContentWidth] || [self flexibleContentHeight])
 	{
 		[self setNeedsHandleContentSize];
 	}
+#endif
 }
 
 -(void)setNeedsHandleContentSize
 {
+#ifndef TI_USE_AUTOLAYOUT
 	if (!needsHandleContentSize)
 	{
 		needsHandleContentSize = YES;
@@ -116,22 +136,26 @@
             [self handleContentSize];
         }
 	}
+#endif
 }
 
 
 -(BOOL)handleContentSizeIfNeeded
 {
+#ifndef TI_USE_AUTOLAYOUT
 	if (needsHandleContentSize)
 	{
 		[self handleContentSize];
 		return YES;
 	}
-	return NO;
+#endif
+    return NO;
 }
 
 -(void)handleContentSize
 {
-    if (!needsHandleContentSize) {
+ #ifndef TI_USE_AUTOLAYOUT
+   if (!needsHandleContentSize) {
         return;
     }
     CGSize newContentSize = [self bounds].size;
@@ -200,6 +224,7 @@
     
     [(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
     needsHandleContentSize = NO;
+#endif
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
@@ -213,6 +238,7 @@
 
 
 
+#ifndef TI_USE_AUTOLAYOUT
 -(void)setContentWidth_:(id)value
 {
 	contentWidth = [TiUtils dimensionValue:value];
@@ -226,6 +252,7 @@
     _flexibleContentHeight = TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight);
     [self setNeedsHandleContentSize];
 }
+#endif
 
 - (void)layoutSubviews {
     [super layoutSubviews];
@@ -319,15 +346,17 @@
 
 -(void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-	InsetScrollViewForKeyboard(scrollview,keyboardTop,minimumContentHeight);
+	InsetScrollViewForKeyboard(scrollView,keyboardTop,minimumContentHeight);
 }
 
 -(void)scrollToShowView:(UIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
-    if ([scrollview isScrollEnabled]) {
+#ifndef TI_USE_AUTOLAYOUT
+    if ([scrollView isScrollEnabled]) {
         CGRect responderRect = [wrapperView convertRect:[firstResponderView bounds] fromView:firstResponderView];
-        OffsetScrollViewForRect(scrollview,keyboardTop,minimumContentHeight,responderRect);
+        OffsetScrollViewForRect(scrollView,keyboardTop,minimumContentHeight,responderRect);
     }
+#endif
 }
 
 @end

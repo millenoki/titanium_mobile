@@ -333,6 +333,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 		return height.value;
 	}
 	CGFloat result = 0;
+#ifndef TI_USE_AUTOLAYOUT
 	if (TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height))
 	{
 		result = [self minimumParentSizeForSize:CGSizeMake(width, INT_MAX)].height;
@@ -340,6 +341,7 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
     if (TiDimensionIsPercent(height) && [self table] != nil) {
         result = TiDimensionCalculateValue(height, [self table].bounds.size.height);
     }
+#endif
 	return (result == 0) ? [table tableRowHeight:0] : result;
 }
 
@@ -597,7 +599,9 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
         return;
     }
     modifyingRow = YES;
+#ifndef TI_USE_AUTOLAYOUT
     [TiLayoutQueue layoutProxy:self];
+#endif
     modifyingRow = NO;
     
 }

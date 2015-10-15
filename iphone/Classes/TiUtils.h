@@ -387,7 +387,6 @@ typedef enum
 +(TiPoint*)tiPointValue:(id)value def:(TiPoint*)def;
 
 +(id)valueFromDimension:(TiDimension)dimension;
-
 /**
  Looks up a value for the key in the provided dictionary and returns it as an int.
  @param name The lookup key.
@@ -458,6 +457,7 @@ typedef enum
  */
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties def:(TiColor*)def exists:(BOOL*) exists;
 
+#ifndef TI_USE_AUTOLAYOUT
 /**
  Looks up a value for the key in the provided dictionary and returns it as a dimension.
  @param name The lookup key.
@@ -467,6 +467,7 @@ typedef enum
  @return The resulting value as a dimension
  */
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties def:(TiDimension)def exists:(BOOL*) exists;
+#endif
 
 +(NSShadow*)shadowValue:(id)value;
 
@@ -484,7 +485,9 @@ typedef enum
 
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties def:(TiColor*)def;
 
+#ifndef TI_USE_AUTOLAYOUT
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties def:(TiDimension)def;
+#endif
 
 +(TiPoint*)tiPointValue:(NSString*)name properties:(NSDictionary*)properties def:(TiPoint*)def;
 +(TiPoint*)tiPointValue:(NSString*)name properties:(NSDictionary*)properties def:(TiPoint*)def exists:(BOOL*) exists;
@@ -508,29 +511,9 @@ typedef enum
 
 +(TiColor*)colorValue:(NSString*)name properties:(NSDictionary*)properties;
 
+#ifndef TI_USE_AUTOLAYOUT
 +(TiDimension)dimensionValue:(NSString*)name properties:(NSDictionary*)properties;
-
-+(TiPoint*)tiPointValue:(NSString*)name properties:(NSDictionary*)properties;
-
-+(Ti2DMatrix*)matrixValue:(id)value;
-+(Ti2DMatrix*)matrixValue:(id)value def:(Ti2DMatrix*)def;
-+(Ti2DMatrix*)matrixValue:(NSString*)name properties:(NSDictionary*)properties;
-+(Ti2DMatrix*)matrixValue:(NSString*)name properties:(NSDictionary*)properties def:(Ti2DMatrix*)def;
-+(Ti2DMatrix*)matrixValue:(NSString*)name properties:(NSDictionary*)properties def:(Ti2DMatrix*)def exists:(BOOL*) exists;
-
-
-+(NSDate *)dateValue:(id)value def:(NSDate *)def;
-+(NSDate *)dateValue:(id)object;
-+(NSDate *)dateValue:(NSString*)name properties:(NSDictionary*)properties;
-+(NSDate *)dateValue:(NSString*)name properties:(NSDictionary*)properties def:(NSDate *)def;
-+(NSDate *)dateValue:(NSString*)name properties:(NSDictionary*)properties def:(NSDate *)def exists:(BOOL*) exists;
-
-+(TiCap)capValue:(id)value def:(TiCap)def;
-+(TiCap)capValue:(id)object;
-+(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties;
-+(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties def:(TiCap)def;
-+(TiCap)capValue:(NSString*)name properties:(NSDictionary*)properties def:(TiCap)def exists:(BOOL*) exists;
-
+#endif
 +(NSDictionary*)pointToDictionary:(CGPoint)point;
 +(NSMutableDictionary*)dictionaryFromTouch:(UITouch*)touch inView:(UIView*)view;
 +(NSMutableDictionary*)dictionaryFromGesture:(UIGestureRecognizer*)gesture inView:(UIView*)view;
@@ -747,10 +730,10 @@ typedef enum
  */
 + (NSMutableDictionary *)dictionaryWithCode:(NSInteger)code message:(NSString *)message;
 
-+(UIView*)UIViewWithFrame:(CGRect)frame;
+/**
+ Checks the force touch capability of the current device.
+ @return _YES_ if the device supported force touch.
+ */
++ (BOOL)forceTouchSupported;
 
-+(NSString*)base64encode:(NSData*)toEncode;
-+(NSData*)base64decode:(NSString*)encoded;
-+(NSString *)colorHexString:(UIColor *)color;
-+(BOOL)applyMathDict:(NSDictionary*)mathDict forEvent:(NSDictionary*)event fromProxy:(TiProxy*)proxy;
 @end

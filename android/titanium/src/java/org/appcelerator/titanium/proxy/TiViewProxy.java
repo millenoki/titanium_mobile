@@ -47,6 +47,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.AsyncTask;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.widget.ViewSwitcher;
 
@@ -743,6 +744,16 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	protected void handleShow(KrollDict options)
 	{
 		if (view != null) {
+			if (TiC.LOLLIPOP_OR_GREATER && TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, false)) {
+				View nativeView = view.getOuterView();
+				int width = nativeView.getWidth();
+				int height = nativeView.getHeight();
+				int radius = Math.max(width, height);
+				android.animation.Animator anim = ViewAnimationUtils.createCircularReveal(nativeView, width/2, height/2, 0, radius);
+				view.show();
+				anim.start();
+				return;
+			}
 			view.show();
 		}
 	}

@@ -1,10 +1,12 @@
 {
-	"min_api_level": "9",
-	"dependencies": {
-        "appcompat": [],
-        "accelerometer": [],
-		"android": [],
+	"min_api_level": "13",
+	"dependencies":
+	{
+		"appcompat":[],
+		"cardview":[],
+		"accelerometer":[],
 		"analytics":[],
+		"android":[],
 		"app": [],
 		"audio": ["filesystem"],
 		"calendar": [],
@@ -19,7 +21,7 @@
 		"media": ["filesystem"],
 		"network": ["xml", "googleplayservices"],
 		"platform": [],
-		"ui": ["filesystem", "media", "appcompat"],
+		"ui": ["filesystem", "media", "appcompat","cardview"],
 		"utils": [],
 		"xml": []
 	},
@@ -43,6 +45,7 @@
 		"googleplayservices": ["google-play-services.jar"],
 		"network": ["thirdparty.jar"],
         "appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
+		"cardview":["cardview-v7-23.0.1.jar"],
         "analytics":["aps-analytics.jar"]
 	},
 	"runtimes": {
@@ -52,6 +55,7 @@
 	"modulepackage": {
         "googleplayservices":"com.google.android.gms",
         "appcompat":"android.support.v7.appcompat",
+		"cardview":"android.support.v7.cardview",
 		"ui": "ti.modules.titanium.ui"
 	},
 	"googleplayservices_features":["com.google.android.gms.gcm.*", "com.google.android.gms.common.GoogleApiAvailability", "com.google.android.gms.common.GooglePlayServicesUtil"]

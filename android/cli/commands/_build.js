@@ -175,15 +175,6 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 						process.exit(1);
 					}
 
-					// on OS X, we need JDK 1.6 for titanium_prep
-					if (process.platform === 'darwin' && !Object.keys(jdkInfo.jdks).some(function (ver) { return appc.version.satisfies(jdkInfo.jdks[ver].version, '1.6.x'); })) {
-						logger.error(__('Titanium requires JDK 1.6 when building on Mac OS X.'));
-						logger.error(__('You can download it from %s', 'http://appcelerator.com/jdk-osx'));
-						logger.error(__('If you still see this message, then you may need to set the JAVA_HOME to help Titanium locate the JDK.'));
-						logger.error(__('To see which JDKs Titanium finds, run "ti info --types jdk --output json".') + '\n');
-						process.exit(1);
-					}
-
 					_t.jdkInfo = jdkInfo;
 					next();
 				});
@@ -893,11 +884,11 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
     }
     cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
-    // get the javac params
-    this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
-    this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
-    this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
-    this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
+	// get the javac params
+	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '1024M');
+	this.javacSource = cli.tiapp.properties['android.javac.source'] && cli.tiapp.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
+	this.javacTarget = cli.tiapp.properties['android.javac.target'] && cli.tiapp.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
+	this.dxMaxMemory = cli.tiapp.properties['android.dx.maxmemory'] && cli.tiapp.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 
     // manually inject the build profile settings into the tiapp.xml
     switch (this.deployType) {
@@ -1028,7 +1019,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
     if (this.targetSDK) {
         logger.log();
-        logger.warn(__('%s has been deprecated, please specify the target SDK using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
+        logger.warn(__('%s has been deprecated, please specify the target SDK API using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
         logger.warn();
         logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
         logger.warn('    <android>'.grey);
@@ -1125,7 +1116,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	// min sdk is too old
 	if (this.minSDK && this.realMinSDK < this.minSupportedApiLevel) {
-		logger.error(__('The minimum supported SDK version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK + (this.minSDK !== this.realMinSDK ? ' (' + this.realMinSDK + ')' : '')) + '\n');
+		logger.error(__('The minimum supported SDK API version must be %s or newer, but is currently set to %s', this.minSupportedApiLevel, this.minSDK + (this.minSDK !== this.realMinSDK ? ' (' + this.realMinSDK + ')' : '')) + '\n');
 		logger.log(
 			appc.string.wrap(
 				__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:minSdkVersion'.cyan, String(this.minSupportedApiLevel).cyan),
@@ -1151,8 +1142,8 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	if (this.targetSDK) {
 		// target sdk is too old
 		if (this.realTargetSDK < this.minTargetApiLevel) {
-			logger.error(__('The target SDK %s is not supported by Titanium SDK %s', this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : ''), ti.manifest.version));
-			logger.error(__('The target SDK version must be %s or newer', this.minTargetApiLevel) + '\n');
+			logger.error(__('The target SDK API %s is not supported by Titanium SDK %s', this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : ''), ti.manifest.version));
+			logger.error(__('The target SDK API version must be %s or newer', this.minTargetApiLevel) + '\n');
 			logger.log(
 				appc.string.wrap(
 					__('Update the %s in the tiapp.xml or custom AndroidManifest to at least %s:', 'android:targetSdkVersion'.cyan, String(this.minTargetApiLevel).cyan),
@@ -1177,7 +1168,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 		// target sdk < min sdk
 		if (this.realTargetSDK < this.realMinSDK) {
-			logger.error(__('The target SDK must be greater than or equal to the minimum SDK %s, but is currently set to %s',
+			logger.error(__('The target SDK API must be greater than or equal to the minimum SDK %s, but is currently set to %s',
 				this.minSDK + (this.minSDK !== this.realMinSDK ? ' (' + this.realMinSDK + ')' : ''),
 				this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : '')
 			) + '\n');
@@ -1204,66 +1195,66 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				}
 			}, this);
 
-		if (!this.targetSDK) {
-			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minSupportedApiLevel, this.maxSupportedApiLevel) + '\n');
+		if (!this.targetSDK || this.realTargetSDK < this.minTargetApiLevel) {
+			if (this.minTargetApiLevel === this.maxSupportedApiLevel) {
+				logger.error(__('Unable to find Android SDK API %s', this.maxSupportedApiLevel));
+				logger.error(__('Android SDK API %s is required to build Android apps', this.maxSupportedApiLevel) + '\n');
+			} else {
+				logger.error(__('Unable to find a suitable installed Android SDK that is API >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
+			}
 			process.exit(1);
 		}
-
-		if (this.realTargetSDK < this.minTargetApiLevel) {
-			logger.error(__('Unable to find a suitable installed Android SDK that is >=%s and <=%s', this.minTargetApiLevel, this.maxSupportedApiLevel) + '\n');
-			process.exit(1);
-		}
-    }
+	}
 
     // check that we have this target sdk installed
     this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
-    if (!this.androidTargetSDK) {
-        logger.error(__('Target Android SDK %s is not installed', this.targetSDK) + '\n');
+	if (!this.androidTargetSDK) {
+		logger.error(__('Target Android SDK API %s is not installed', this.targetSDK) + '\n');
 
         var sdks = Object.keys(targetSDKMap).filter(function (ver) {
             return ~~ver > this.minSupportedApiLevel;
         }.bind(this)).sort().filter(function (s) { return s >= this.minSDK; }, this);
 
-        if (sdks.length) {
-            logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
-            logger.log(
-                appc.string.wrap(
-                    __('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDKs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
-                    config.get('cli.width', 100)
-                )
-            );
-            logger.log();
-            logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-            logger.log('    <android>'.grey);
-            logger.log('        <manifest>'.grey);
-            logger.log(('            <uses-sdk '
-                + (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
-                + 'android:targetSdkVersion="' + sdks[0] + '" '
-                + (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
-                + '/>').magenta);
-            logger.log('        </manifest>'.grey);
-            logger.log('    </android>'.grey);
-            logger.log('</ti:app>'.grey);
-            logger.log();
-        } else {
-            logger.log(__('To target Android SDK %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
-        }
-        process.exit(1);
-    }
+		if (sdks.length) {
+			logger.log(__('To target Android SDK API %s, you first must install it using the Android SDK manager.', String(this.targetSDK).cyan) + '\n');
+			logger.log(
+				appc.string.wrap(
+					__('Alternatively, you can set the %s in the %s section of the tiapp.xml to one of the following installed Android target SDK APIs: %s', '<uses-sdk>'.cyan, '<android> <manifest>'.cyan, sdks.join(', ').cyan),
+					config.get('cli.width', 100)
+				)
+			);
+			logger.log();
+			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+			logger.log('    <android>'.grey);
+			logger.log('        <manifest>'.grey);
+			logger.log(('            <uses-sdk '
+				+ (this.minSDK ? 'android:minSdkVersion="' + this.minSDK + '" ' : '')
+				+ 'android:targetSdkVersion="' + sdks[0] + '" '
+				+ (this.maxSDK ? 'android:maxSdkVersion="' + this.maxSDK + '" ' : '')
+				+ '/>').magenta);
+			logger.log('        </manifest>'.grey);
+			logger.log('    </android>'.grey);
+			logger.log('</ti:app>'.grey);
+			logger.log();
+		} else {
+			logger.log(__('To target Android SDK API %s, you first must install it using the Android SDK manager', String(this.targetSDK).cyan) + '\n');
+		}
+		process.exit(1);
+	}
 
-    if (!this.androidTargetSDK.androidJar) {
-        logger.error(__('Target Android SDK %s is missing "android.jar"', this.targetSDK) + '\n');
-        process.exit(1);
-    }
+	if (!this.androidTargetSDK.androidJar) {
+		logger.error(__('Target Android SDK API %s is missing "android.jar"', this.targetSDK) + '\n');
+		process.exit(1);
+	}
 
 	if (this.realTargetSDK < this.realMinSDK) {
-		logger.error(__('Target Android SDK version must be %s or newer', this.minSDK) + '\n');
+		logger.error(__('Target Android SDK API version must be %s or newer', this.minSDK) + '\n');
 		process.exit(1);
 	}
 
 	if (this.realMaxSDK && this.realMaxSDK < this.realTargetSDK) {
-		logger.error(__('Maximum Android SDK version must be greater than or equal to the target SDK %s, but is currently set to %s',
+		logger.error(__('Maximum Android SDK API version must be greater than or equal to the target SDK API %s, but is currently set to %s',
 			this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : ''),
 			this.maxSDK + (this.maxSDK !== this.realMaxSDK ? ' (' + this.realMaxSDK + ')' : '')
 		) + '\n');
@@ -1272,7 +1263,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	if (this.maxSupportedApiLevel && this.realTargetSDK > this.maxSupportedApiLevel) {
 		// print warning that version this.targetSDK is not tested
-		logger.warn(__('Building with Android SDK %s which hasn\'t been tested against Titanium SDK %s',
+		logger.warn(__('Building with Android SDK API %s which hasn\'t been tested against Titanium SDK %s',
 			String(this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : '')).cyan,
 			this.titaniumSdkVersion
 		));
@@ -1859,7 +1850,7 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
         }
     }
 
-	this.logger.info(__('Targeting Android SDK: %s', String(this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : '')).cyan));
+	this.logger.info(__('Targeting Android SDK API: %s', String(this.targetSDK + (this.targetSDK !== this.realTargetSDK ? ' (' + this.realTargetSDK + ')' : '')).cyan));
 	this.logger.info(__('Building for the following architectures: %s', this.abis.join(', ').cyan));
 	this.logger.info(__('Signing with keystore: %s', (this.keystore + ' (' + this.keystoreAlias.name + ')').cyan));
 
@@ -2727,16 +2718,18 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                 return next();
             }
 
-
-            // figure out which titanium prep to run
-            var titaniumPrep = 'titanium_prep';
-            if (process.platform == 'darwin') {
-                titaniumPrep += '.macos';
-            } else if (process.platform == 'win32') {
-                titaniumPrep += '.win32.exe';
-            } else if (process.platform == 'linux') {
-                titaniumPrep += '.linux' + (process.arch == 'x64' ? '64' : '32');
-            }
+			// figure out which titanium prep to run
+			var titaniumPrep = 'titanium_prep';
+			if (process.platform == 'darwin') {
+				titaniumPrep += '.macos';
+				if (appc.version.lt(this.jdkInfo.version, '1.7.0')) {
+					titaniumPrep += '.jdk16';
+				}
+			} else if (process.platform == 'win32') {
+				titaniumPrep += '.win32.exe';
+			} else if (process.platform == 'linux') {
+				titaniumPrep += '.linux' + (process.arch == 'x64' ? '64' : '32');
+			}
 
             // encrypt the javascript
             var titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {

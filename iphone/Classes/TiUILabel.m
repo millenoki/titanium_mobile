@@ -79,7 +79,9 @@
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
+#ifndef TI_USE_AUTOLAYOUT
     [label setFrame:bounds];
+#endif
     [super frameSizeChanged:frame bounds:bounds];
 }
 

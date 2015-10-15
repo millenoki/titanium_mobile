@@ -20,6 +20,15 @@
 		min = 0;
 		max = 1;
 		[self setHidden:YES];
+        
+#ifdef TI_USE_AUTOLAYOUT
+        [self setDefaultWidth:TiDimensionAutoSize];
+        [self setDefaultHeight:TiDimensionAutoSize];
+        backgroundView = [[UIView alloc] init];
+        [backgroundView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [self addSubview:backgroundView];
+#endif
+        
 	}
 	return self;
 }
@@ -72,8 +81,12 @@
 	if (progress==nil)
 	{
 		progress = [[UIProgressView alloc] initWithProgressViewStyle:style];
-		
-		[self addSubview:progress];
+#ifdef TI_USE_AUTOLAYOUT
+        [progress setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [backgroundView addSubview:progress];
+#else
+        [self addSubview:progress];
+#endif
 	}
 	return progress;
 }
@@ -183,6 +196,26 @@
 //	[self setNeedsLayout];
 //}
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)updateConstraints
+{
+    if (!_constraintsAdded) {
+        _constraintsAdded = YES;
+        messageLabel = [self messageLabel];
+        progress = [self progress];
+        [backgroundView addConstraints:TI_CONSTR(@"V:|[progress]-[messageLabel]|", NSDictionaryOfVariableBindings(progress, messageLabel))];
+        [backgroundView addConstraints:TI_CONSTR(@"H:|[progress]|", NSDictionaryOfVariableBindings(progress, messageLabel))];
+        [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
+                                                                   attribute:NSLayoutAttributeCenterX
+                                                                   relatedBy:NSLayoutRelationEqual
+                                                                      toItem:backgroundView
+                                                                   attribute:NSLayoutAttributeCenterX
+                                                                  multiplier:1
+                                                                    constant:0]];
+    }
+        [super updateConstraints];
+}
+#endif
 
 @end
 

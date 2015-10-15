@@ -742,7 +742,10 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setFrame:(CGRect)frame
 {
     
-    if ([[self viewProxy] canBeResizedByFrame]) {
+#ifdef TI_USE_AUTOLAYOUT
+        [super setFrame:frame];
+#else
+   if ([[self viewProxy] canBeResizedByFrame]) {
         [super setFrame:frame];
         
         [self checkBounds];
@@ -769,6 +772,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 //    } else if (CGRectIsEmpty(frame)) {
 //        childrenInitialized=NO;
 //    }
+#endif
 }
 
 -(void)updateBounds:(CGRect)newBounds
@@ -793,6 +797,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)checkBounds
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGRect newBounds = [self bounds];
     if(!CGSizeEqualToSize(oldSize, newBounds.size)) {
         //make sure to change old first to prevent setBounds in relayout to call us again
@@ -804,6 +809,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         }
         [self updateBounds:newBounds];
     }
+#endif
 }
 
 
@@ -817,6 +823,8 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)layoutSubviews
 {
 //	[self checkBounds];
+#ifndef TI_USE_AUTOLAYOUT
+
     if ([[self viewProxy] canBeResizedByFrame]) {
 //        [[self viewProxy] performBlock:^{
 //            [[self viewProxy] performBlockWithoutLayout:^{
@@ -828,6 +836,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 //        } withinAnimation:runningAnimation];
         [[self viewProxy] refreshViewIfNeeded];
     }
+#endif
     [super layoutSubviews];
 }
 

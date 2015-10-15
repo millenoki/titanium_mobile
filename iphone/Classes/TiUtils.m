@@ -2698,6 +2698,18 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return r;
 }
 
++(BOOL)forceTouchSupported
+{
+#if IS_XCODE_7
+    if ([self isIOS9OrGreater] == NO) {
+        return NO;
+    }
+    return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
+#else
+    return NO;
+#endif
+}
+
 +(NSString*)currentArchitecture
 {
 #ifdef __arm64__

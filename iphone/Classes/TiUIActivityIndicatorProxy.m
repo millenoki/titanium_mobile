@@ -38,8 +38,9 @@
     return TiDimensionAutoSize;
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 USE_VIEW_FOR_CONTENT_SIZE
-
+#endif
 @end
 
 #endif

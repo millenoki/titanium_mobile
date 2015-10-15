@@ -115,7 +115,12 @@ DEFINE_EXCEPTIONS
             //Sanity check. If the view bounds are zero set the bounds to auto dimensions
             CGRect bounds = [[proxy_ view] bounds];
             if (bounds.size.width == 0 || bounds.size.height == 0) {
+#ifdef TI_USE_AUTOLAYOUT
+                bounds.size = [[proxy_ view] sizeThatFits:CGSizeMake(1000, 1000)];
+#else
                 bounds.size = [proxy_ autoSizeForSize:CGSizeMake(1000, 1000)];
+#endif
+                
             }
             [[proxy_ view] setBounds:bounds];
         }

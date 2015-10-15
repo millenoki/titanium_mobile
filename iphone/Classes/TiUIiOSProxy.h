@@ -24,7 +24,11 @@
 @property (nonatomic,readonly) NSNumber* CLIP_MODE_ENABLED;
 @property (nonatomic,readonly) NSNumber* CLIP_MODE_DISABLED;
 
-
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DEFAULT;
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_DESTRUCTIVE;
+@property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_SELECTED;
+#endif
 
 @property(nonatomic,readonly) NSNumber *ACTIVITY_CATEGORY_SHARE;
 @property(nonatomic,readonly) NSNumber *ACTIVITY_CATEGORY_ACTION;
@@ -52,6 +56,12 @@
 @property(nonatomic,readonly) NSString* AD_SIZE_LANDSCAPE;
 
 #endif
+
+/**
+    Checks the force touch capibility of the current device.
+ */
+-(NSNumber*)forceTouchSupported;
+
 #ifdef USE_TI_UIIOS3DMATRIX
 -(id)create3DMatrix:(id)args;
 #endif
@@ -104,6 +114,17 @@
 #endif
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 -(id)createTransitionAnimation:(id)args;
+#endif
+#ifdef USE_TI_UIIOSPREVIEWCONTEXT
+-(id)createPreviewAction:(id)args;
+-(id)createPreviewActionGroup:(id)args;
+-(id)createPreviewContext:(id)args;
+#endif
+#endif
+
+#if IS_XCODE_7
+#ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
+-(id)createApplicationShortcuts:(id)args;
 #endif
 #endif
 @end

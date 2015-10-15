@@ -862,10 +862,30 @@ DEFINE_EXCEPTIONS
 			{
 				scaleUp = YES;
 			}
-            UIImage * resultImage = [UIImage imageNamed:path];
-            if (!resultImage) {
-                resultImage = [UIImage imageWithContentsOfFile:path];
-            }
+			UIImage *resultImage = nil;
+			NSRange range = [path rangeOfString:@".app"];
+			NSString *imageArg = nil;
+			if (range.location != NSNotFound) {
+				imageArg = [path substringFromIndex:range.location+5];
+			}
+			if (imageArg != nil) {
+				unsigned char digest[CC_SHA1_DIGEST_LENGTH];
+				NSData *stringBytes = [imageArg dataUsingEncoding: NSUTF8StringEncoding];
+				if (CC_SHA1([stringBytes bytes], (CC_LONG)[stringBytes length], digest)) {
+					// SHA-1 hash has been calculated and stored in 'digest'.
+					NSMutableString *sha = [[NSMutableString alloc] init];
+					for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+						[sha appendFormat:@"%02x", digest[i]];
+					}
+					[sha appendString:@"."];
+					[sha appendString:[url pathExtension]];
+					resultImage = [UIImage imageNamed:sha];
+					RELEASE_TO_NIL(sha)
+				}
+			}
+			if (resultImage == nil) {
+				resultImage = [UIImage imageWithContentsOfFile:path];
+			}
 			if (scaleUp && [self imageScale:resultImage]==1.0)
 			{
 				// on the ipad running iphone app in emulation mode, this won't exist when

@@ -25,9 +25,6 @@
     BOOL handleLinks;
 }
 
-@property(nonatomic,readwrite,assign) NSArray* leadingBarButtonGroups;
-@property(nonatomic,readwrite,assign) NSArray* trailingBarButtonGroups;
-
 @property(nonatomic,readonly) BOOL becameResponder;
 @property(nonatomic,assign) UIEdgeInsets padding;
 

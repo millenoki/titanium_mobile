@@ -358,6 +358,7 @@ TiUIiPadPopoverProxy * currentPopover;
 
 -(CGSize)contentSize
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
     if (![TiUtils isIOS8OrGreater]) {
         UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
@@ -381,6 +382,9 @@ TiUIiPadPopoverProxy * currentPopover;
     }
     
     return SizeConstraintViewWithSizeAddingResizing([contentViewProxy layoutProperties], contentViewProxy, screenSize , NULL);
+#else
+    return CGSizeZero;
+#endif
 }
 
 -(void)updatePassThroughViews

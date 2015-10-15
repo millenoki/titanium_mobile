@@ -15,7 +15,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLConnection;
 import java.util.HashMap;
 
-import org.apache.commons.codec.binary.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -41,6 +40,7 @@ import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.util.Pair;
+import android.util.Base64;
 
 /**
  * A Titanium Blob object. A Blob can represent any opaque data or input stream.
@@ -551,6 +551,11 @@ public class TiBlob extends KrollProxy {
     public int getType() {
         return type;
     }
+	@Kroll.method
+	public String toBase64()
+	{
+		return Base64.encodeToString(getBytes(), Base64.NO_WRAP);
+	}
 
     @Kroll.getProperty
     @Kroll.method
@@ -630,11 +635,6 @@ public class TiBlob extends KrollProxy {
         } else {
             return new TiFileProxy((TiBaseFile) data);
         }
-    }
-
-    @Kroll.method
-    public String toBase64() {
-        return new String(Base64.encodeBase64(getBytes()));
     }
 
     public Drawable getDrawable() {

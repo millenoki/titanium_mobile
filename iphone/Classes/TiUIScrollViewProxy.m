@@ -102,6 +102,7 @@
 
 -(CGSize)autoSizeForSize:(CGSize)size ignoreMinMax:(BOOL)ignoreMinMaxComputation
 {
+#ifndef TI_USE_AUTOLAYOUT
     CGSize contentSize = CGSizeMake(size.width,size.height);
     if ([(TiUIScrollView *)[self view] flexibleContentWidth]) {
         contentSize.width = 0; //let the child be as wide as it wants.
@@ -110,8 +111,11 @@
         contentSize.height = 0; //let the child be as high as it wants.
     }
         return [super autoSizeForSize:contentSize ignoreMinMax:ignoreMinMaxComputation];
+#else
+    return 0.0;
+#endif
     }
-    
+
 //-(CGRect)computeChildSandbox:(TiViewProxy*)child withBounds:(CGRect)bounds
 //{
 //    CGRect contentSize = CGRectMake(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);

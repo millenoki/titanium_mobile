@@ -219,6 +219,11 @@ public class KrollAPIUpdater
         ArrayList<String> googleplayservicesHack = new ArrayList<String>();
         googleplayservicesHack.add("googleplayservices");
         modulesJSON.put("titanium-googleplayservices.jar", googleplayservicesHack);
+
+		//Hack in the cardview module for now. revisit later.
+		ArrayList<String> cardViewHack = new ArrayList<String>();
+		cardViewHack.add("cardview");
+		modulesJSON.put("titanium-cardview.jar", cardViewHack);
 		
 		File modules = new File(modulesDestDir, "modules.json");
 

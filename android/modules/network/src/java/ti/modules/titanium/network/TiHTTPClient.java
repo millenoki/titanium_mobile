@@ -192,20 +192,22 @@ public class TiHTTPClient
 
             contentType = connection.getContentType();
 
-            String[] values = contentType.split(";"); //The values.length must be equal to 2...
-            String charset = "";
-
-            for (String value : values) {
-                value = value.trim();
-                if (value.toLowerCase().startsWith("charset=")) {
-                    charset = value.substring("charset=".length());
-                }
-            }
-            // If no charset is defined, default to UTF-8
-            if ("".equals(charset)) {
-                charset = "UTF-8";
-            }
-            responseData = null;
+	        String charset = "";
+	        if (contentType != null) {
+	            String[] values = contentType.split(";"); //The values.length must be equal to 2...
+	            for (String value : values) {
+	                value = value.trim();
+	                if (value.toLowerCase().startsWith("charset=")) {
+	                    charset = value.substring("charset=".length());
+	                }
+	            }
+	        }
+	        
+	        // If no charset is defined, default to UTF-8
+	        if ("".equals(charset)) {
+	            charset = "UTF-8";
+	        }
+	        responseData = null;
 
             int status = connection.getResponseCode();
             InputStream in;
@@ -1256,20 +1258,20 @@ public class TiHTTPClient
         private void addFilePart(String name, ContentBody contentBody) throws IOException{
             String fileName = contentBody.getFilename();
 
-            printWriter.append("--" + boundary).append(LINE_FEED);
-            printWriter.append("Content-Disposition: form-data; name=\"" + name);
-            if(fileName != null){
-                printWriter.append("\"; filename=\"" + fileName + "\"");
-            }
-            printWriter.append(LINE_FEED);
-            printWriter.append("Content-Type: " + contentBody.getMimeType());
-            if(contentBody.getCharset() != null) {
-                printWriter.append("; charset="+contentBody.getCharset());
-            }
-            printWriter.append(LINE_FEED);
-            printWriter.append("Content-Transfer-Encoding: "+ contentBody.getTransferEncoding()).append(LINE_FEED);
-            printWriter.append(LINE_FEED);
-            printWriter.flush();
+	    	printWriter.append("--" + boundary).append(LINE_FEED);
+	    	printWriter.append("Content-Disposition: form-data; name=\"" + name + "\"");
+	    	if(fileName != null){
+	    		printWriter.append("\"; filename=\"" + fileName + "\"");
+	    	}
+	    	printWriter.append(LINE_FEED);
+	    	printWriter.append("Content-Type: " + contentBody.getMimeType());
+	    	if(contentBody.getCharset() != null) {
+	    		printWriter.append("; charset="+contentBody.getCharset());
+	    	}
+	    	printWriter.append(LINE_FEED);
+	    	printWriter.append("Content-Transfer-Encoding: "+ contentBody.getTransferEncoding()).append(LINE_FEED);
+	    	printWriter.append(LINE_FEED);
+	    	printWriter.flush();
 
             contentBody.writeTo(outputStream);
 

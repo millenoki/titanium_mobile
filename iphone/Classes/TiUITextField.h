@@ -17,8 +17,6 @@
     TiUIView * touchHandler;
 }
 
-@property(nonatomic,readwrite,assign) NSArray* leadingBarButtonGroups;
-@property(nonatomic,readwrite,assign) NSArray* trailingBarButtonGroups;
 @property(nonatomic,readwrite,assign) UIEdgeInsets padding;
 
 @property(nonatomic,readonly) BOOL becameResponder;

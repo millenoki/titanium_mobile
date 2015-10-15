@@ -244,11 +244,13 @@ static NSDictionary* replaceKeysForRow;
         TiUISearchBarProxy* searchViewProxy = (TiUISearchBarProxy*) [self holdedProxyForKey:@"searchView"];
         if (searchViewProxy) {
             [searchViewProxy ensureSearchBarHeirarchy];
+#ifndef TI_USE_AUTOLAYOUT
             CGFloat rowWidth = [self computeRowWidth:_tableView];
             if (rowWidth > 0) {
                 CGFloat right = _tableView.bounds.size.width - rowWidth;
                 [searchViewProxy layoutProperties]->right = TiDimensionDip(right);
             }
+#endif
         }
     } else {
         [_tableView reloadData];
@@ -1809,7 +1811,7 @@ static NSDictionary* replaceKeysForRow;
     return [self sectionView:realSection forLocation:@"footerView" section:nil];
 }
 
-#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 20.0
+#define DEFAULT_SECTION_HEADERFOOTER_HEIGHT 29.0
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
@@ -2257,7 +2259,9 @@ static NSDictionary* replaceKeysForRow;
 {
     TiViewProxy* vp = [self holdedProxyForKey:@"searchView"];
     if (vp) {
-        [vp layoutProperties]->right = TiDimensionDip(0);
+ #ifndef TI_USE_AUTOLAYOUT
+       [vp layoutProperties]->right = TiDimensionDip(0);
+#endif
         [vp refreshViewIfNeeded];
         [self initSearchController:self];
     }
@@ -2331,7 +2335,9 @@ static NSDictionary* replaceKeysForRow;
         CGFloat rowWidth = floorf([self computeRowWidth:_tableView]);
         if (rowWidth > 0) {
             CGFloat right = _tableView.bounds.size.width - rowWidth;
+#ifndef TI_USE_AUTOLAYOUT
             [searchViewProxy layoutProperties]->right = TiDimensionDip(right);
+#endif
             [searchViewProxy refreshViewIfNeeded];
         }
         [searchViewProxy ensureSearchBarHeirarchy];
