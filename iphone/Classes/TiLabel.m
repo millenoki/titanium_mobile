@@ -32,7 +32,7 @@
         _strokeWidth = 1.0f;
 //        self.backgroundColor = [UIColor clearColor];
         
-        [self redrawLabel];
+//        [self redrawLabel];
     }
     return self;
 }
@@ -43,15 +43,15 @@
     [super dealloc];
 }
 
-- (void)redrawLabel {
-    //draw gradient
-    [self resetGradient];
-}
+//- (void)redrawLabel {
+//    //draw gradient
+//    [self resetGradient];
+//}
 
-- (void)resetGradient {
-    if (!CGRectEqualToRect(self.frame, CGRectZero)) {
-    }
-}
+//- (void)resetGradient {
+//    if (!CGRectEqualToRect(self.frame, CGRectZero)) {
+//    }
+//}
 
 #pragma mark Overriden/custom setters/getters
 
@@ -74,21 +74,21 @@
 
 
 
-- (void)setText:(NSString *)text {
-    [super setText:text];
-    [self redrawLabel];
-}
-
-- (void)setFont:(UIFont *)font {
-    [super setFont:font];
-    [self redrawLabel];
-}
-
-- (void)setFrame:(CGRect)frame {
-    [super setFrame:frame];
-    //draw gradient
-    [self resetGradient];
-}
+//- (void)setText:(NSString *)text {
+//    [super setText:text];
+//    [self redrawLabel];
+//}
+//
+//- (void)setFont:(UIFont *)font {
+//    [super setFont:font];
+//    [self redrawLabel];
+//}
+//
+//- (void)setFrame:(CGRect)frame {
+//    [super setFrame:frame];
+//    //draw gradient
+//    [self resetGradient];
+//}
 
 #pragma mark -
 
