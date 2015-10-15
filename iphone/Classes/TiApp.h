@@ -19,9 +19,11 @@ extern BOOL applicationInMemoryPanic;
 
 TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 {
+#ifdef TI_USE_KROLL_THREAD
     while (applicationInMemoryPanic) {
         [NSThread sleepForTimeInterval:0.01];
     }
+#endif
 }
 
 /**
