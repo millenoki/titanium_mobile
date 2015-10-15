@@ -383,6 +383,8 @@ typedef enum
  */
 +(TiDimension)dimensionValue:(id)value;
 
++(TiCap)capValue:(id)value def:(TiCap)def;
+
 +(TiPoint*)tiPointValue:(id)value;
 +(TiPoint*)tiPointValue:(id)value def:(TiPoint*)def;
 

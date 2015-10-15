@@ -25,6 +25,7 @@
 
 #import "TouchDelegate_Views.h"
 #import "TiUIView.h"
+#import "TiApp.h"
 
 #import "DDMathEvaluator.h"
 
