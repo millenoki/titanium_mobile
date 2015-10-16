@@ -26,6 +26,13 @@
     }
 }
 
+-(TiAppiOSSearchableItemProxy*)searchItemFromArg:(id)arg
+{
+    TiAppiOSSearchableItemProxy *proxy = [self objectOfClass:[TiAppiOSSearchableItemProxy class] fromArg:arg];
+    return proxy;
+}
+
+
 -(void)addToDefaultSearchableIndex:(id)args
 {
     ENSURE_ARG_COUNT(args,2);
@@ -39,8 +46,16 @@
     
     //Convert from Proxy to search item
     NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
-    for (TiAppiOSSearchableItemProxy *item in searchItems) {
-        [items addObject:item.item];
+    for (id item in searchItems) {
+//        if (IS_OF_CLASS(TiAppiOSSearchableItemProxy, searchItems)) {
+//            [items addObject:((TiAppiOSSearchableItemProxy*)item).item];
+//        } else if (IS_OF_CLASS(NSDictionary, searchItems)) {
+            TiAppiOSSearchableItemProxy* proxy = [self searchItemFromArg:item];
+            if (proxy) {
+                [self rememberProxy:proxy];
+                [items addObject:((TiAppiOSSearchableItemProxy*)proxy).item];
+            }
+//        }
     }
     
     [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:items completionHandler: ^(NSError * __nullable error) {
@@ -56,7 +71,9 @@
             [self _fireEventToListener:@"added"
                             withObject:event listener:callback thisObject:nil];
         }
-        
+        for (id item in items) {
+            [self forgetProxy:item];
+        }
     }];
 }
 
