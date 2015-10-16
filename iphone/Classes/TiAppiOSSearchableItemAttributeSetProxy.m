@@ -26,19 +26,19 @@
 static NSArray * dateFieldTypes = nil;
 static NSArray * urlFieldTypes = nil;
 static NSArray * unsupportedFieldTypes = nil;
--(void)initFieldTypeInformation
++(void)initFieldTypeInformation
 {
     if (dateFieldTypes==nil)
     {
-        dateFieldTypes = @[@"metadataModificationDate",@"recordingDate",@"downloadedDate",@"lastUsedDate",@"contentCreationDate",@"contentModificationDate",@"addedDate",@"recordingDate",@"downloadedDate",@"lastUsedDate"];
+        dateFieldTypes = [@[@"metadataModificationDate",@"recordingDate",@"downloadedDate",@"lastUsedDate",@"contentCreationDate",@"contentModificationDate",@"addedDate",@"recordingDate",@"downloadedDate",@"lastUsedDate"] retain];
     }
     if (urlFieldTypes==nil)
     {
-        urlFieldTypes = @[@"contentURL",@"thumbnailURL",@"url"];
+        urlFieldTypes = [@[@"contentURL",@"thumbnailURL",@"url"] retain];
     }
     if (unsupportedFieldTypes==nil)
     {
-        unsupportedFieldTypes = @[@"thumbnailData"];
+        unsupportedFieldTypes = [@[@"thumbnailData"] retain];
     }
 }
 
@@ -52,10 +52,40 @@ static NSArray * unsupportedFieldTypes = nil;
     return keySequence;
 }
 
++(CSSearchableItemAttributeSet*)setFromDict:(NSDictionary*)dict
+{
+    [TiAppiOSSearchableItemAttributeSetProxy initFieldTypeInformation];
+    CSSearchableItemAttributeSet* result = [[CSSearchableItemAttributeSet alloc] initWithItemContentType:[TiUtils stringValue:@"contentType" properties:dict]];
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString*  _Nonnull key, id  _Nonnull value, BOOL * _Nonnull stop) {
+        if ([key isEqualToString:@"contentType"]) {
+            return;
+        } else if ([result respondsToSelector:NSSelectorFromString(key)]){
+                //Check this is a supported type
+                if(![unsupportedFieldTypes containsObject:key]){
+                    if([dateFieldTypes containsObject:key]){
+                        //Use date logic to add
+                        [result setValue:[TiUtils dateForUTCDate:value] forKey:key];
+                    }else if([urlFieldTypes containsObject:key]){
+                        //Use URL logic to add
+                        [result setValue:[TiUtils toURL:value proxy:nil] forKey:key];
+                    }else{
+                        [result setValue:value forKey:key];
+                    }
+                }
+                else {
+                    //Use blob to add
+                    [result setValue:[value data] forKey:key];
+                }
+        }
+    }];
+    return [result autorelease];
+}
+
+
 -(CSSearchableItemAttributeSet*)attributes
 {
     if (!_attributes) {
-        [self initFieldTypeInformation];
+        [TiAppiOSSearchableItemAttributeSetProxy initFieldTypeInformation];
         _attributes = [[CSSearchableItemAttributeSet alloc] initWithItemContentType:[TiUtils stringValue:[self valueForKey:@"contentType"]]];
     }
     return _attributes;
@@ -79,13 +109,7 @@ static NSArray * unsupportedFieldTypes = nil;
                     //Use URL logic to add
                     [_attributes setValue:[self sanitizeURL:value] forKey:key];
                 }else{
-//                    if (IS_OF_CLASS(NSMutableArray, value)) {
-//                    if([value respondsToSelector:@selector(removeObjectAtIndex:)]){
-//                        id result=[NSKeyedUnarchiver unarchiveObjectWithData:[NSKeyedArchiver archivedDataWithRootObject:value]];
-//                        [_attributes setValue:[[NSArray alloc] initWithArray:value copyItems:YES] forKey:key];
-//                    } else {
-                        [_attributes setValue:value forKey:key];
-//                    }
+                    [_attributes setValue:value forKey:key];
                 }
             }
             else {

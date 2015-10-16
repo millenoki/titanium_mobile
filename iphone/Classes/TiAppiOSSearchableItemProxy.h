@@ -17,6 +17,7 @@
 //             withAttributeSet:(CSSearchableItemAttributeSet *)attributeSet;
 
 @property(nonatomic,retain) CSSearchableItem *item;
++(CSSearchableItem*)itemFromDict:(NSDictionary*)dict;
 
 @end
 #endif

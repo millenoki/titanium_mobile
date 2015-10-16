@@ -39,13 +39,24 @@
     return proxy;
 }
 
++(CSSearchableItem*)itemFromDict:(NSDictionary*)dict
+{
+    CSSearchableItemAttributeSet* set = nil;
+    id attSet = [dict objectForKey:@"attributeSet"];
+    if (IS_OF_CLASS(attSet, TiAppiOSSearchableItemAttributeSetProxy)) {
+        set = ((TiAppiOSSearchableItemAttributeSetProxy*)attSet).attributes;
+    } else if (IS_OF_CLASS(attSet, NSDictionary)) {
+        set = [TiAppiOSSearchableItemAttributeSetProxy setFromDict:attSet];
+    }
+    return [[[CSSearchableItem alloc] initWithUniqueIdentifier:[TiUtils stringValue:@"identifier" properties:dict]
+                                            domainIdentifier:[TiUtils stringValue:@"domainIdentifier" properties:dict]
+                                                  attributeSet:set] autorelease];
+}
 
 -(CSSearchableItem*)item {
     if (!_item) {
         
-        _item = [[CSSearchableItem alloc] initWithUniqueIdentifier:[TiUtils stringValue:[self valueForKey:@"identifier"]]
-                                                  domainIdentifier:[TiUtils stringValue:[self valueForKey:@"domainIdentifier"]]
-                                                      attributeSet:[self attributeSetFromArg:[self valueForKey:@"attributeSet"]].attributes];
+        _item = [[TiAppiOSSearchableItemProxy itemFromDict:[self allProperties]] retain];
     }
     return _item;
 }

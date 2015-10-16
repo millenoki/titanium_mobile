@@ -35,27 +35,27 @@
 
 -(void)addToDefaultSearchableIndex:(id)args
 {
-    ENSURE_ARG_COUNT(args,2);
+    ENSURE_ARG_COUNT(args,1);
     NSArray *searchItems = [args objectAtIndex:0];
     ENSURE_TYPE(searchItems,NSArray);
     
-    KrollCallback *callback = [args objectAtIndex:1];
-    ENSURE_TYPE(callback,KrollCallback);
+    KrollCallback *callback = nil;
+    if ([args count] > 1) {
+        callback = [args objectAtIndex:1];
+        ENSURE_TYPE(callback,KrollCallback);
+    }
     
-    ENSURE_UI_THREAD(addToDefaultSearchableIndex,args);
+    ENSURE_UI_THREAD_WAIT(addToDefaultSearchableIndex,args);
     
     //Convert from Proxy to search item
     NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
     for (id item in searchItems) {
-//        if (IS_OF_CLASS(TiAppiOSSearchableItemProxy, searchItems)) {
-//            [items addObject:((TiAppiOSSearchableItemProxy*)item).item];
-//        } else if (IS_OF_CLASS(NSDictionary, searchItems)) {
-            TiAppiOSSearchableItemProxy* proxy = [self searchItemFromArg:item];
-            if (proxy) {
-                [self rememberProxy:proxy];
-                [items addObject:((TiAppiOSSearchableItemProxy*)proxy).item];
-            }
-//        }
+        if (IS_OF_CLASS(item, TiAppiOSSearchableItemProxy)) {
+            [items addObject:((TiAppiOSSearchableItemProxy*)item).item];
+        } else if (IS_OF_CLASS(item, NSDictionary)) {
+            [items addObject:[TiAppiOSSearchableItemProxy itemFromDict:item]];
+        
+        }
     }
     
     [[CSSearchableIndex defaultSearchableIndex] indexSearchableItems:items completionHandler: ^(NSError * __nullable error) {
@@ -70,9 +70,6 @@
         if (callback){
             [self _fireEventToListener:@"added"
                             withObject:event listener:callback thisObject:nil];
-        }
-        for (id item in items) {
-            [self forgetProxy:item];
         }
     }];
 }
@@ -101,16 +98,19 @@
     
 }
 
--(void)deleteAllSearchableItemByDomainIdenifiers:(id)args
+-(void)deleteAllSearchableItemByDomainIdentifiers:(id)args
 {
-    ENSURE_ARG_COUNT(args,2);
+    ENSURE_ARG_COUNT(args,1);
     NSArray * domainIdentifiers = [args objectAtIndex:0];
     ENSURE_TYPE(domainIdentifiers,NSArray);
     
-    KrollCallback *callback = [args objectAtIndex:1];
-    ENSURE_TYPE(callback,KrollCallback);
+    KrollCallback *callback = nil;
+    if ([args count] > 1) {
+        callback = [args objectAtIndex:1];
+        ENSURE_TYPE(callback,KrollCallback);
+    }
     
-    ENSURE_UI_THREAD(deleteAllSearchableItemByDomainIdenifiers,args);
+    ENSURE_UI_THREAD(deleteAllSearchableItemByDomainIdentifiers,args);
     
     [[CSSearchableIndex defaultSearchableIndex] deleteSearchableItemsWithDomainIdentifiers:domainIdentifiers completionHandler:^(NSError * _Nullable error) {
         NSMutableDictionary *event = [[[NSMutableDictionary alloc] init] autorelease];
@@ -130,12 +130,15 @@
 
 -(void)deleteSearchableItemsByIdentifiers:(id)args
 {
-    ENSURE_ARG_COUNT(args,2);
+    ENSURE_ARG_COUNT(args,1);
     NSArray * identifiers = [args objectAtIndex:0];
     ENSURE_TYPE(identifiers,NSArray);
     
-    KrollCallback *callback = [args objectAtIndex:1];
-    ENSURE_TYPE(callback,KrollCallback);
+    KrollCallback *callback = nil;
+    if ([args count] > 1) {
+        callback = [args objectAtIndex:1];
+        ENSURE_TYPE(callback,KrollCallback);
+    }
     
     ENSURE_UI_THREAD(deleteSearchableItemsByIdentifiers,args);
     
