@@ -3778,7 +3778,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 	}, this);
 	libDir = path.join(this.buildDir, 'libexternals');
 	this.copyDirSync(path.join(this.platformPath, 'libexternals'), libDir, {
-		forceSymlink:true
+		forceSymlink:this.symlinkLibrariesOnCopy
 	});
 	this.unmarkBuildDirFiles(libDir);
 };
