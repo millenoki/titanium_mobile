@@ -222,6 +222,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
     BOOL usePathAsBorder;
     BOOL _nonRetina;
     BOOL _selected;
+    BOOL _gesturesCancelsTouches;
 }
 -(void)setBackgroundDisabledImage_:(id)value;
 -(void)setBackgroundSelectedImage_:(id)value;
@@ -361,6 +362,7 @@ DEFINE_EXCEPTIONS
     _nonRetina = NO;
     _tintColorImage = NO;
     _selected = NO;
+    _gesturesCancelsTouches = YES;
 }
 
 
@@ -1691,6 +1693,14 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     [TiUIHelper applyShadow:arg toLayer:[self shadowLayer]];
 }
 
+-(void)setGesturesCancelsTouches_:(id)arg
+{
+    _gesturesCancelsTouches = [TiUtils boolValue:arg];
+    [[self viewForGestures].gestureRecognizers enumerateObjectsUsingBlock:^(__kindof UIGestureRecognizer * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        obj.cancelsTouchesInView = _gesturesCancelsTouches;
+    }];
+}
+
 -(NSArray*) childViews
 {
     return [NSArray arrayWithArray:childViews];
@@ -2274,9 +2284,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 {
-    //tryout should it be possible?
-    if (IS_OF_CLASS(gestureRecognizer, UISwipeGestureRecognizer) &&
-        IS_OF_CLASS(otherGestureRecognizer, UIPanGestureRecognizer)) {
+    //tryout not permitting simultaneous gestures when not same view
+    UIView* touchView1 = gestureRecognizer.view;
+    UIView* touchView2 = otherGestureRecognizer.view;
+    if (touchView1 != touchView2 || (IS_OF_CLASS(gestureRecognizer, UISwipeGestureRecognizer) &&
+        IS_OF_CLASS(otherGestureRecognizer, UIPanGestureRecognizer))) {
         return NO;
     }
     return YES;
@@ -2290,7 +2302,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     [gestureRecognizer setTiGesture:YES];
     [gestureRecognizer setDelaysTouchesBegan:NO];
     [gestureRecognizer setDelaysTouchesEnded:NO];
-    [gestureRecognizer setCancelsTouchesInView:NO];
+    [gestureRecognizer setCancelsTouchesInView:_gesturesCancelsTouches];
     [gestureRecognizer setDelegate:(id<UIGestureRecognizerDelegate>)self];
 }
 
