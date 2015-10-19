@@ -8,6 +8,8 @@
 #import "TiImageHelper.h"
 
 #import "MediaModule.h"
+#import "ImageLoader.h"
+#import "TiSVGImage.h"
 
 
 @implementation ImageModule
@@ -76,30 +78,48 @@ typedef UIImage* (^ProcessImageBlock) ();
     }
 }
 
+-(id)convertToUIImage:(id)arg
+{
+    id image = nil;
+    UIImage* imageToUse = nil;
+    
+    if ([arg isKindOfClass:[NSString class]]) {
+        NSURL *url_ = [TiUtils toURL:arg proxy:self];
+        image = [[ImageLoader sharedLoader] loadImmediateImage:url_];
+    }
+    else if ([arg isKindOfClass:[TiBlob class]]) {
+        TiBlob *blob = (TiBlob*)arg;
+        image = [blob image];
+    }
+    else if ([arg isKindOfClass:[TiFile class]]) {
+        TiFile *file = (TiFile*)arg;
+        NSURL * fileUrl = [NSURL fileURLWithPath:[file path]];
+        image = [[ImageLoader sharedLoader] loadImmediateImage:fileUrl];
+    }
+    else if ([arg isKindOfClass:[UIImage class]]) {
+        // called within this class
+        image = (UIImage*)arg;
+    }
+    else if ([arg isKindOfClass:[TiSVGImage class]]) {
+        // called within this class
+        image = [(TiSVGImage*)arg fullImage];
+    }
+    return image;
+}
+
 -(id)getFilteredImage:(id)args
 {
     ENSURE_TYPE(args, NSArray)
     NSDictionary *options = nil;
     ENSURE_ARG_OR_NIL_AT_INDEX(options, args, 1, NSDictionary);
     id imageArg = [args objectAtIndex:0];
-    UIImage* image = nil;
-    if ([imageArg isKindOfClass:[NSString class]]) {
-        NSString *imagePath = [self getPathToApplicationAsset:imageArg];
-        image = [UIImage imageWithContentsOfFile:imagePath];
-    }
-    else if([imageArg isKindOfClass:[UIImage class]]) {
-        image = imageArg;
-    }
-    else if([imageArg isKindOfClass:[TiBlob class]]) {
-        image = ((TiBlob*)imageArg).image;
-    }
-    
-    if (image == nil) {
-        NSLog(@"[ERROR] getFilteredImage: could not load image from object of type: %@",[imageArg class]);
-		return nil;
-    }
+//    UIImage* image = [self convertToUIImage:imageArg];
+//    if (image == nil) {
+//        NSLog(@"[ERROR] getFilteredImage: could not load image from object of type: %@",[imageArg class]);
+//        return nil;
+//    }
     return [self processImage:^UIImage *{
-        return image;
+        return [self convertToUIImage:imageArg];
     } withOptions:options];
 }
 
