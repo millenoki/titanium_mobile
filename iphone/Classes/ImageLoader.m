@@ -882,7 +882,9 @@ DEFINE_EXCEPTIONS
 					resultImage = [UIImage imageNamed:sha];
 					RELEASE_TO_NIL(sha)
 				}
-			}
+            } else {
+                resultImage = [UIImage imageNamed:path];
+            }
 			if (resultImage == nil) {
 				resultImage = [UIImage imageWithContentsOfFile:path];
 			}
