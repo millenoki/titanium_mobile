@@ -4825,7 +4825,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			this.logger.info(__('Creating assets image set'));
 			var assetCatalog = path.join(this.buildDir, 'Assets.xcassets'),
 				imageSets = {},
-				imageNameRegExp = /^(.*?)(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
+				imageNameRegExp = /^(.*?)(@[2-9]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 			function sha1(value) {
 				var sha = crypto.createHash('sha1');
@@ -4842,7 +4842,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					imageSetNameSHA,
 					imageSetRelPath;
 
-				if (match) {
+				if (imageAssets[file].src.indexOf('.bundle') === -1 && match) {
 					imageSetName = match[1];
 					imageSetNameSHA = sha1(imageSetName + '.' + imageExt);
 					imageSetRelPath = imageSetNameSHA + '.imageset';
