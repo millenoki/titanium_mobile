@@ -376,6 +376,7 @@ typedef enum
  */
 +(TiColor*)colorValue:(id)value;
 
++(NSString *)colorHexString:(UIColor *)color;
 /**
  Converts input value into the dimention type.
  @param value The input value that could be converted to a color.
