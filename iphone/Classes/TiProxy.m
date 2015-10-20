@@ -1433,12 +1433,17 @@ DEFINE_EXCEPTIONS
         if ([keySequence containsObject:key]) return;
         id obj = [_proxyBindings valueForKey:key];
         if ([obj isKindOfClass:[TiProxy class]] && [value isKindOfClass:[NSDictionary class]]) {
-            [obj applyProperties:value];
+            [self applyProperties:value onBindedProxy:obj];
         }
         else {
             [self setValue:value forKey:key];
         }
     }];
+}
+
+-(void)applyProperties:(id)args onBindedProxy:(TiProxy*)proxy
+{
+    [proxy applyProperties:args];
 }
 
 -(NSDictionary*)allProperties

@@ -205,6 +205,18 @@ BOOL TiCGRectIsEmpty(CGRect rect)
     }, wait);
 }
 
+-(void)applyProperties:(id)args onBindedProxy:(TiProxy*)proxy
+{
+    if (IS_OF_CLASS(proxy, TiViewProxy)) {
+        [self performBlock:^{
+            [proxy applyProperties:args];
+        } withinOurAnimationOnProxy:(TiViewProxy*)proxy];
+
+    } else {
+        [proxy applyProperties:args];
+    }
+}
+
 -(void)startLayout:(id)arg
 {
     DebugLog(@"startLayout() method is deprecated since 3.0.0 .");
@@ -2389,7 +2401,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 
 -(void)performBlock:(void (^)(void))block withinAnimation:(TiViewAnimationStep*)animation
 {
-    if (animation) {
+    if (![self runningAnimation] && animation) {
         [self setRunningAnimation:animation];
         block();
         [self setRunningAnimation:nil];
@@ -3313,7 +3325,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
     TiFakeAnimation* anim = [[TiFakeAnimation alloc] init];
     anim.duration = duration;
     anim.curve = curve;
-    [self setRunningAnimationRecursive:anim];
+    [self setRunningAnimation:anim];
     [anim release];
 }
 
@@ -3327,7 +3339,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 //    id anim = [self runningAnimation];
     if ([[self runningAnimation] isKindOfClass:[TiFakeAnimation class]])
     {
-        [self setRunningAnimationRecursive:nil];
+        [self setRunningAnimation:nil];
 //        [anim release];
     }
 }
