@@ -357,7 +357,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)request:(APSHTTPRequest *)request onError:(APSHTTPResponse *)response
 {
-    if(![request cancelled]) {
+//    if(![request cancelled]) {
         if(hasOnerror) {
             NSError *error = [response error];
             NSMutableDictionary * event = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
@@ -368,7 +368,7 @@ extern NSString * const TI_APPLICATION_GUID;
         } else {
             [self forgetSelf];
         }
-    }
+//    }
 }
 
 

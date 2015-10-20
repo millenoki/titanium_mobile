@@ -1117,7 +1117,7 @@ public class TiHTTPClient
                     }
                     
                     if (aborted) {
-                        return;
+                        throw new IOException("Cancelled");
                     }       
                     
                     boolean isPostOrPutOrPatch = method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
@@ -1238,7 +1238,7 @@ public class TiHTTPClient
                 Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
 
                 KrollDict data = new KrollDict();
-                data.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, msg);
+                data.putCodeAndMessage(aborted?TiC.ERROR_CODE_NO_ERROR:getStatus(), msg);
                 dispatchCallback(TiC.PROPERTY_ONERROR, data);
             } finally {
                 deleteTmpFiles();
