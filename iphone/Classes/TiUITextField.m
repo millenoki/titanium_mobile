@@ -139,7 +139,12 @@
     UIView* view = [self leftView];
     if ([view isKindOfClass:[TiUIView class]]){
         TiViewProxy* proxy  = (TiViewProxy*)[((TiUIView*)view) proxy];
-        return [proxy computeBoundsForParentBounds:bounds];
+        if (!CGRectEqualToRect(proxy.sandboxBounds, bounds)) {
+            proxy.sandboxBounds = bounds;
+            [proxy dirtyItAll];
+        }
+        [proxy refreshViewIfNeeded];
+        return [[proxy view] frame];
     }
     return [super leftViewRectForBounds:bounds];
 }
@@ -149,7 +154,12 @@
     UIView* view = [self rightView];
     if ([view isKindOfClass:[TiUIView class]]){
         TiViewProxy* proxy  = (TiViewProxy*)[((TiUIView*)view) proxy];
-        return [proxy computeBoundsForParentBounds:bounds];
+        if (!CGRectEqualToRect(proxy.sandboxBounds, bounds)) {
+            proxy.sandboxBounds = bounds;
+            [proxy dirtyItAll];
+        }
+        [proxy refreshViewIfNeeded];
+        return [[proxy view] frame];
     }
     return [super rightViewRectForBounds:bounds];
 }
