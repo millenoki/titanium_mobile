@@ -797,6 +797,11 @@ else{\
     return [super preferredStatusBarStyle];
 }
 
+-(BOOL)containsChild:(TiProxy*)child
+{
+    return [super containsChild:child] || [current containsChild:child];
+}
+
 -(void)gainFocus
 {
     UIViewController* topVC = [navController topViewController];
