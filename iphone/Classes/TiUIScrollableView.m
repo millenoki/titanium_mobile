@@ -440,7 +440,9 @@
     }
 	
 	[sv setContentSize:CGSizeMake(floorf(contentBounds.width), floorf(contentBounds.height))];
-    [self didScroll];
+    [UIView performWithoutAnimation:^{
+        [self didScroll];
+    }];
 #endif
 }
 
