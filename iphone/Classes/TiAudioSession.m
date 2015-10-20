@@ -31,7 +31,7 @@ NSString * const kTiAudioSessionInputChange = @"TiAudioSessionInputChange";
 {
     NSError* error = nil;
     // TIMOB-19633
-    BOOL shouldActivate = ![self isAudioPlaying];
+    BOOL shouldActivate = ![[AVAudioSession sharedInstance] isOtherAudioPlaying];
     [[AVAudioSession sharedInstance] setActive:shouldActivate error:&error];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(routeChangeCallback:) name:AVAudioSessionRouteChangeNotification object:[AVAudioSession sharedInstance]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(interruptionCallback:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
