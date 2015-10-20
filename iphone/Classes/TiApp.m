@@ -316,9 +316,8 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         UIDeviceOrientation imageOrientation;
         UIUserInterfaceIdiom imageIdiom;
         
-        UIImage * defaultImage = [controller defaultImageForOrientation:
-                                  (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
-                                                   resultingOrientation:&imageOrientation idiom:&imageIdiom];
+        UIImage * defaultImage = [TiRootViewController splashImageForOrientation:
+                                  (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]];
         if([TiUtils isIPad] && ![TiUtils isIOS8OrGreater]) {
             CGAffineTransform transform;
             switch ([[UIApplication sharedApplication] statusBarOrientation]) {

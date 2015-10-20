@@ -353,9 +353,8 @@
     UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
     UIUserInterfaceIdiom imageIdiom;
     UIDeviceOrientation imageOrientation;
-    UIImage * defaultImage = [[[TiApp app] controller] defaultImageForOrientation:
-                              [[UIDevice currentDevice] orientation]
-                                         resultingOrientation:&imageOrientation idiom:&imageIdiom];
+    UIImage * defaultImage = [TiRootViewController splashImageForOrientation:
+                              [[UIDevice currentDevice] orientation]];
     return [[[TiBlob alloc] initWithImage:defaultImage] autorelease];
 }
 
