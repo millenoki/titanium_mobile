@@ -765,92 +765,94 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 			}
 			else
 			{
-                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
-                [invocation setSelector:selector];
-                [invocation invokeWithTarget:target];
-                if ([attributes hasPrefix:@"Td,"])
-                {
-                    double d;
-                    [invocation getReturnValue:&d];
-                    return [NSNumber numberWithDouble:d];
-                }
-                else if ([attributes hasPrefix:@"Tf,"])
-                {
-                    float f;
-                    [invocation getReturnValue:&f];
-                    return [NSNumber numberWithFloat:f];
-                }
-                else if ([attributes hasPrefix:@"Ti,"])
-                {
-                    int i;
-                    [invocation getReturnValue:&i];
-                    return [NSNumber numberWithInt:i];
-                }
-                else if ([attributes hasPrefix:@"TI,"])
-                {
-                    unsigned int ui;
-                    [invocation getReturnValue:&ui];
-                    return [NSNumber numberWithUnsignedInt:ui];
-                }
-                else if ([attributes hasPrefix:@"Tl,"])
-                {
-                    long l;
-                    [invocation getReturnValue:&l];
-                    return [NSNumber numberWithLong:l];
-                }
-                else if ([attributes hasPrefix:@"TL,"])
-                {
-                    unsigned long ul;
-                    [invocation getReturnValue:&ul];
-                    return [NSNumber numberWithUnsignedLong:ul];
-                }
-                else if ([attributes hasPrefix:@"Tc,"])
-                {
-                    char c;
-                    [invocation getReturnValue:&c];
-                    return [NSNumber numberWithChar:c];
-                }
-                else if ([attributes hasPrefix:@"TC,"])
-                {
-                    unsigned char uc;
-                    [invocation getReturnValue:&uc];
-                    return [NSNumber numberWithUnsignedChar:uc];
-                }
-                else if ([attributes hasPrefix:@"Ts,"])
-                {
-                    short s;
-                    [invocation getReturnValue:&s];
-                    return [NSNumber numberWithShort:s];
-                }
-                else if ([attributes hasPrefix:@"TS,"])
-                {
-                    unsigned short us;
-                    [invocation getReturnValue:&us];
-                    return [NSNumber numberWithUnsignedShort:us];
-                }
-                else if ([attributes hasPrefix:@"Tq,"])
-                {
-                    long long ll;
-                    [invocation getReturnValue:&ll];
-                    return [NSNumber numberWithLongLong:ll];
-                }
-                else if ([attributes hasPrefix:@"TQ,"])
-                {
-                    unsigned long long ull;
-                    [invocation getReturnValue:&ull];
-                    return [NSNumber numberWithUnsignedLongLong:ull];
-                }
-                else if ([attributes hasPrefix:@"TB,"] || [attributes hasPrefix:@"Tb,"])
-                {
-                    bool b;
-                    [invocation getReturnValue:&b];
-                    return [NSNumber numberWithBool:b];
-                }
-                else
-                {
-                    // let it fall through and return undefined
-                    DebugLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@",key,target,attributes);
-                }
+                id result = [target valueForKey:key];
+                return result;
+//                NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[target methodSignatureForSelector:selector]];
+//                [invocation setSelector:selector];
+//                [invocation invokeWithTarget:target];
+//                if ([attributes hasPrefix:@"Td,"])
+//                {
+//                    double d;
+//                    [invocation getReturnValue:&d];
+//                    return [NSNumber numberWithDouble:d];
+//                }
+//                else if ([attributes hasPrefix:@"Tf,"])
+//                {
+//                    float f;
+//                    [invocation getReturnValue:&f];
+//                    return [NSNumber numberWithFloat:f];
+//                }
+//                else if ([attributes hasPrefix:@"Ti,"])
+//                {
+//                    int i;
+//                    [invocation getReturnValue:&i];
+//                    return [NSNumber numberWithInt:i];
+//                }
+//                else if ([attributes hasPrefix:@"TI,"])
+//                {
+//                    unsigned int ui;
+//                    [invocation getReturnValue:&ui];
+//                    return [NSNumber numberWithUnsignedInt:ui];
+//                }
+//                else if ([attributes hasPrefix:@"Tl,"])
+//                {
+//                    long l;
+//                    [invocation getReturnValue:&l];
+//                    return [NSNumber numberWithLong:l];
+//                }
+//                else if ([attributes hasPrefix:@"TL,"])
+//                {
+//                    unsigned long ul;
+//                    [invocation getReturnValue:&ul];
+//                    return [NSNumber numberWithUnsignedLong:ul];
+//                }
+//                else if ([attributes hasPrefix:@"Tc,"])
+//                {
+//                    char c;
+//                    [invocation getReturnValue:&c];
+//                    return [NSNumber numberWithChar:c];
+//                }
+//                else if ([attributes hasPrefix:@"TC,"])
+//                {
+//                    unsigned char uc;
+//                    [invocation getReturnValue:&uc];
+//                    return [NSNumber numberWithUnsignedChar:uc];
+//                }
+//                else if ([attributes hasPrefix:@"Ts,"])
+//                {
+//                    short s;
+//                    [invocation getReturnValue:&s];
+//                    return [NSNumber numberWithShort:s];
+//                }
+//                else if ([attributes hasPrefix:@"TS,"])
+//                {
+//                    unsigned short us;
+//                    [invocation getReturnValue:&us];
+//                    return [NSNumber numberWithUnsignedShort:us];
+//                }
+//                else if ([attributes hasPrefix:@"Tq,"])
+//                {
+//                    long long ll;
+//                    [invocation getReturnValue:&ll];
+//                    return [NSNumber numberWithLongLong:ll];
+//                }
+//                else if ([attributes hasPrefix:@"TQ,"])
+//                {
+//                    unsigned long long ull;
+//                    [invocation getReturnValue:&ull];
+//                    return [NSNumber numberWithUnsignedLongLong:ull];
+//                }
+//                else if ([attributes hasPrefix:@"TB,"] || [attributes hasPrefix:@"Tb,"])
+//                {
+//                    bool b;
+//                    [invocation getReturnValue:&b];
+//                    return [NSNumber numberWithBool:b];
+//                }
+//                else
+//                {
+//                    // let it fall through and return undefined
+//                    DebugLog(@"[WARN] Unsupported property: %@ for %@, attributes = %@",key,target,attributes);
+//                }
 			}
 		}
 	}
