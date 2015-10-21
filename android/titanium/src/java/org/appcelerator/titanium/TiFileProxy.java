@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -276,30 +277,27 @@ public class TiFileProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean write(Object[] args)
+	public boolean write(Object arg, @Kroll.argument(optional=true) Boolean append)
 	{
+	    if (append == null) {
+	        append = false;
+        }
 		try {
-			if (args != null && args.length > 0) {
-				boolean append = false;
-				if (args.length > 1 && args[1] instanceof Boolean) {
-					append = ((Boolean)args[1]).booleanValue();
-				}
-
-				if (args[0] instanceof TiBlob) {
-					tbf.write((TiBlob)args[0], append);
-				} else if (args[0] instanceof String) {
-					tbf.write((String)args[0], append);
-				} else if (args[0] instanceof TiFileProxy) {
-					tbf.write(((TiFileProxy)args[0]).read(), append);
+				if (arg instanceof TiBlob) {
+					tbf.write((TiBlob)arg, append);
+				} else if (arg instanceof String) {
+					tbf.write((String)arg, append);
+				} else if (arg instanceof TiFileProxy) {
+					tbf.write(((TiFileProxy)arg).read(), append);
 				} else {
 					Log.i(TAG, "Unable to write to an unrecognized file type");
 					return false;
 				}
 
 				return true;
-			}
+//			}
 
-			return false;
+//			return false;
 		} catch(IOException e) {
 			Log.e(TAG, "IOException encountered", e);
 			return false;

@@ -413,7 +413,12 @@ public class TiBlob extends KrollProxy {
         case TYPE_STREAM_BASE64:
             return (InputStream) data;
         default:
-            return new ByteArrayInputStream(getBytes());
+            byte[] bytes = getBytes();
+            if (bytes != null)  {
+                return new ByteArrayInputStream(bytes);
+            } else {
+                return null;
+            }
         }
     }
 
@@ -521,9 +526,10 @@ public class TiBlob extends KrollProxy {
      * @module.api
      */
     public Object getData() {
-        if (data == null && image != null) {
+        if (data == null && (image != null || drawable != null)) {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             data = new byte[0];
+            getImage(); //to make sure image is set
             if (image.hasAlpha()) {
                 if (image.compress(CompressFormat.PNG, 100, bos)) {
                     data = bos.toByteArray();
