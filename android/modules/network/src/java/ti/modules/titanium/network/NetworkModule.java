@@ -350,7 +350,7 @@ public class NetworkModule extends KrollModule {
 		TiApplication tiApp = TiApplication.getInstance();
 
 		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
-			WifiManager wm = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+			WifiManager wm = getWifiManager();
 			if (wm != null) {
 				result = wm.isWifiEnabled();
 			}
@@ -376,7 +376,7 @@ public class NetworkModule extends KrollModule {
 		if (currentConf != null) {
 			TiApplication tiApp = TiApplication.getInstance();
 			if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
-				WifiManager wm = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+	            WifiManager wm = getWifiManager();
 				if (wm != null) {
 					Method[] wmMethods = wm.getClass().getDeclaredMethods();   //Get all declared methods in WifiManager class
 					Method setWifiApEnabledMethod = null;
@@ -428,7 +428,7 @@ public class NetworkModule extends KrollModule {
 	public void createWifiAccessPoint(String ssid, String pwd) {
 		TiApplication tiApp = TiApplication.getInstance();
 		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
-			WifiManager wm = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+            WifiManager wm = getWifiManager();
 			if (wm != null) {
 				if(wm.isWifiEnabled())
 			    {
@@ -502,7 +502,7 @@ public class NetworkModule extends KrollModule {
 		WifiConfiguration result = null;
 		TiApplication tiApp = TiApplication.getInstance();
 		if(tiApp.getRootActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED) {
-			WifiManager wm = (WifiManager) tiApp.getRootActivity().getSystemService(Context.WIFI_SERVICE);
+            WifiManager wm = getWifiManager();
 			if (wm != null) {
 				Method[] wmMethods = wm.getClass().getDeclaredMethods();   //Get all declared methods in WifiManager class
 				Method getWifiApConfigurationMethod = null;
@@ -547,6 +547,35 @@ public class NetworkModule extends KrollModule {
 		return result;
 	}
 	
+	@Kroll.method
+	public boolean connectToWifiNetwork(String ssid, String pwd) {
+	    WifiConfiguration wifiConfig = new WifiConfiguration();
+	    wifiConfig.SSID = String.format("\"%s\"", ssid);
+	    wifiConfig.preSharedKey = String.format("\"%s\"", pwd);
+
+        WifiManager wm = getWifiManager();
+	    //remember id
+	    int netId = wm.addNetwork(wifiConfig);
+	    wm.disconnect();
+	    boolean result = wm.enableNetwork(netId, true);
+	    wm.reconnect();
+	    return result;
+	}
+	
+	@Kroll.method
+    public boolean disconnectFromWifiNetwork(String ssid) {
+        WifiManager wm = getWifiManager();
+        if (wm != null) { 
+            WifiInfo info = wm.getConnectionInfo();
+            if (info != null) {
+                if (info.getSSID().equalsIgnoreCase(ssid)) {
+                    return wm.disableNetwork(info.getNetworkId());
+                }
+            }
+        }
+        return false;
+    }
+	
 	@Kroll.setProperty @Kroll.method
 	public void setWifiEnabled(Boolean enabled)
 	{
@@ -564,7 +593,7 @@ public class NetworkModule extends KrollModule {
 			Log.w(TAG, "Must have android.permission.ACCESS_WIFI_STATE to get mac address.");
 		}
 	}
-
+	
 	private String networkTypeToTypeName(int type)
 	{
 		switch(type)
