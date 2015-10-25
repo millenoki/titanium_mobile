@@ -181,8 +181,7 @@ public class ImageModule extends KrollModule {
             TiUIView view = viewProxy.getOrCreateView();
             Bitmap bitmap = null;
             try {
-                bitmap = TiUIHelper.viewToBitmap(viewProxy.getProperties(),
-                    view.getOuterView());
+                bitmap = viewProxy.viewToBitmap(options);
                 callback = (KrollFunction) params[3];
             } catch (Exception e) {
                 bitmap = null;
@@ -249,14 +248,7 @@ public class ImageModule extends KrollModule {
         Bitmap bitmap = null;
 
         try {
-            if (TiApplication.isUIThread()) {
-                bitmap = TiUIHelper.viewToBitmap(viewProxy.getProperties(),
-                        view.getOuterView());
-            } else {
-                bitmap = (Bitmap) TiMessenger.sendBlockingMainMessage(
-                        getMainHandler().obtainMessage(MSG_GETVIEWIMAGE),
-                        view.getOuterView());
-            }
+            bitmap = viewProxy.viewToBitmap(options);
         } catch (Exception e) {
             bitmap = null;
         }
@@ -276,8 +268,9 @@ public class ImageModule extends KrollModule {
             }
         }
 
-        View view = TiApplication.getAppCurrentActivity().getWindow()
-                .getDecorView();
+//        View view = TiApplication.getAppCurrentActivity().getWindow()
+//                .getDecorView();
+        View view =  TiApplication.getAppCurrentActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         if (view == null) {
             return null;
         }
@@ -291,11 +284,11 @@ public class ImageModule extends KrollModule {
                         getMainHandler().obtainMessage(MSG_GETVIEWIMAGE),
                         view);
             }
-            Rect statusBar = new Rect();
-            view.getWindowVisibleDisplayFrame(statusBar);
-            bitmap = Bitmap.createBitmap(bitmap, 0, statusBar.top,
-                    bitmap.getWidth(), bitmap.getHeight() - statusBar.top,
-                    null, true);
+//            Rect statusBar = new Rect();
+//            view.getWindowVisibleDisplayFrame(statusBar);
+//            bitmap = Bitmap.createBitmap(bitmap, 0, statusBar.top,
+//                    bitmap.getWidth(), bitmap.getHeight() - statusBar.top,
+//                    null, true);
         } catch (Exception e) {
             bitmap = null;
         }

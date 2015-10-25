@@ -19,12 +19,14 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.TiMessenger.Command;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.animation.TiAnimator;
 import org.appcelerator.titanium.animation.TiAnimatorSet;
 import org.appcelerator.titanium.animation.TiViewAnimator;
@@ -33,7 +35,6 @@ import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
-import org.appcelerator.titanium.TiBlob;
 
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorSet;
@@ -42,6 +43,8 @@ import com.nineoldandroids.animation.Animator.AnimatorListener;
 import android.util.DisplayMetrics;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Message;
@@ -122,7 +125,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	private static final int MSG_SHOW = MSG_FIRST_ID + 106;
 	private static final int MSG_HIDE = MSG_FIRST_ID + 107;
 	private static final int MSG_ANIMATE = MSG_FIRST_ID + 108;
-	private static final int MSG_TOIMAGE = MSG_FIRST_ID + 109;
 	private static final int MSG_GETSIZE = MSG_FIRST_ID + 110;
 	private static final int MSG_GETRECT = MSG_FIRST_ID + 111;
 	private static final int MSG_GETABSRECT = MSG_FIRST_ID + 113;
@@ -203,11 +205,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 				// because the view's height and width
 				// were not yet known (i.e., not yet laid out)
 				handleQueuedAnimate();
-				return true;
-			}
-			case MSG_TOIMAGE: {
-				AsyncResult result = (AsyncResult) msg.obj;
-				result.setResult(handleToImage((Number) result.getArg()));
 				return true;
 			}
 			case MSG_GETSIZE : {
@@ -911,12 +908,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		{
 			callback = (KrollFunction)params[2];
 			proxy = (KrollProxy)params[1];
-			Number scale = (Number)params[0];
-			if (TiApplication.isUIThread()) {
-				return handleToImage(scale);
-			} else {
-				return	(TiBlob) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), scale);
-			}
+			return handleToImage(params[0]);
 		}
 		/**
 		 * Always invoked on UI thread.
@@ -931,32 +923,51 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	}
 
 	@Kroll.method
-	public TiBlob toImage(@Kroll.argument(optional=true) KrollFunction callback, @Kroll.argument(optional=true) Number scale)
+	public TiBlob toImage(@Kroll.argument(optional=true) KrollFunction callback, @Kroll.argument(optional=true) Object options)
 	{
-		if (scale == null) {
-			scale = Float.valueOf(1.0f);
-		}
+	    
 		if (callback == null) {
-			if (TiApplication.isUIThread()) {
-				return handleToImage(scale);
-			} else {
-				return	(TiBlob) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_TOIMAGE), scale);
-			}
+			return handleToImage(options);
 		}
 		else {
-			(new ToImageTask()).execute(scale, this, callback);
+			(new ToImageTask()).execute(options, this, callback);
 		}
 		return null;
 	}
+	
+	protected View viewForScreenshot() {
+        return getOuterView();
+    }
+	
+	public Bitmap viewToBitmap(final Object options) {
+	    return getInUiThread(new Command<Bitmap>() {
+            @Override
+            public Bitmap execute() {
+                TiUIView view = getOrCreateView();
+                if (view == null) {
+                    return null;
+                }
+                float scale = 1.0f;
+                KrollDict props = null;
+                if (options != null) {
+                    if (options instanceof HashMap) {
+                        scale = TiConvert.toFloat((HashMap) options, TiC.PROPERTY_SCALE, scale);
+                        props = TiConvert.toKrollDict((HashMap) options, TiC.PROPERTY_PROPERTIES, props);
+                    } else {
+                        scale = TiConvert.toFloat(options, scale);
+                    }
+                }
+                if (props != null) {
+                    applyPropertiesNoSave(props, false, true);
+                }
+                return TiUIHelper.viewToBitmap(view.getLayoutParams(), viewForScreenshot());
+            }
+        });
+	}
 
-	protected TiBlob handleToImage(Number scale)
+	protected TiBlob handleToImage(Object options)
 	{
-		TiUIView view = getOrCreateView();
-		if (view == null) {
-			return null;
-		}
-
-		return view.toImage(scale);
+        return TiBlob.blobFromObject(viewToBitmap(options));
 	}
 
 	@Override
