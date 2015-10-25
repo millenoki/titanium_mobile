@@ -1187,7 +1187,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	}
 	
 	@SuppressWarnings("null")
-    private void handleTransitionViews(final TiViewProxy viewOut, final TiViewProxy viewIn, Object arg) {
+    private void handleTransitionViews(final TiViewProxy viewOut, final TiViewProxy viewIn, HashMap arg, final KrollFunction callback) {
 		
 	    boolean viewOutIsNotChild = false;
         if (viewOut != null && children != null) {
@@ -1203,7 +1203,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 
 		final ViewGroup viewToAddTo = (ViewGroup) getParentViewForChild();
 		
-		Transition transition = TransitionHelper.transitionFromObject((arg != null)?(HashMap)arg:null, null, null);
+		Transition transition = TransitionHelper.transitionFromObject((arg != null)?arg:null, null, null);
 
 		if (viewToAddTo != null) {
 			if (viewIn!=null) viewIn.setActivity(getActivity());
@@ -1224,6 +1224,9 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                             removeProxy(viewOut, false);
 						}
 						transitioning = false;
+						if (callback != null) {
+				            callback.callAsync(getKrollObject(), new Object[] {new KrollDict()});
+						}
 						handlePendingTransition();
 					}
 
@@ -1275,18 +1278,21 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		}
 		
 		transitionViews((TiViewProxy)pendingTransition.get("viewOut"), 
-				(TiViewProxy)pendingTransition.get("viewIn"), pendingTransition.get("arg"));
+				(TiViewProxy)pendingTransition.get("viewIn"), 
+				(HashMap) pendingTransition.get("arg"), 
+				(KrollFunction) pendingTransition.get("callback"));
 	}
 	
 	@Kroll.method
-	public void transitionViews(final TiViewProxy viewOut, final TiViewProxy viewIn, @Kroll.argument(optional=true) final Object arg)
+	public void transitionViews(final Object viewOut, final Object viewIn, @Kroll.argument(optional=true) final HashMap arg, @Kroll.argument(optional=true) final KrollFunction callback)
 	{
 		if (transitioning) {
 			synchronized (pendingTransitionLock) {
 				HashMap<String, Object> pending = new HashMap<String, Object>();
 				pending.put("viewOut", viewOut);
 				pending.put("viewIn", viewIn);
-				pending.put("arg", arg);
+                pending.put("arg", arg);
+                pending.put("callback", callback);
 				pendingTransitions.add(pending);
 			}
 			return;
@@ -1295,7 +1301,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
-                handleTransitionViews(viewOut, viewIn, arg);                
+                handleTransitionViews((TiViewProxy)viewOut, (TiViewProxy)viewIn, arg, callback);                
             }
         }, false);
 //		if (TiApplication.isUIThread()) {
