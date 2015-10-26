@@ -726,7 +726,8 @@ SEL GetterForKrollProperty(NSString * key)
 -(TiBlob*)toImage:(id)args
 {
     KrollCallback *callback = nil;
-    float scale = 1.0f;
+    NSDictionary* propsToApply = nil;
+    float scale = 0.0f; //0 will mean screen scale
     
     id obj = nil;
     if( [args count] > 0) {
@@ -737,7 +738,13 @@ SEL GetterForKrollProperty(NSString * key)
         }
         
         if( [args count] > 1) {
-            scale = [TiUtils floatValue:[args objectAtIndex:1] def:1.0f];
+            id obj = [args objectAtIndex:1];
+            if (IS_OF_CLASS(obj, NSDictionary)) {
+                scale = [TiUtils floatValue:@"scale" properties:obj def:0.0f];
+                propsToApply = [obj objectForKey:@"properties"];
+            } else {
+                scale = [TiUtils floatValue:obj def:0.0f];
+            }
         }
     }
 	ENSURE_SINGLE_ARG_OR_NIL(obj,KrollCallback);
@@ -747,6 +754,11 @@ SEL GetterForKrollProperty(NSString * key)
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
 	TiThreadPerformOnMainThread(^{
+        if (propsToApply) {
+            [self setFakeApplyProperties:YES];
+            [self applyProperties:propsToApply];
+            [self setFakeApplyProperties:NO];
+        }
 		UIImage *image = [self toImageWithScale:scale];
 		[blob setImage:image];
         [blob setMimeType:@"image/png" type:TiBlobTypeImage];
