@@ -246,29 +246,29 @@ public class TiConvert
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = false;
 
-            } else if (value.equals(TiC.SIZE_AUTO)) {
-                layoutParams.optionWidth = null;
-                layoutParams.sizeOrFillWidthEnabled = true;
-
-            } else if (value.equals(TiC.LAYOUT_FILL)) {
+            }else if (TiC.LAYOUT_FILL.equalsIgnoreCase(TiConvert.toString(value))) {
                 // fill
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = true;
                 layoutParams.autoFillsWidth = true;
                 layoutParams.width = LayoutParams.MATCH_PARENT;
 
-            } else if (value.equals(TiC.LAYOUT_SIZE)) {
+            } else if (TiC.LAYOUT_SIZE.equalsIgnoreCase(TiConvert.toString(value))) {
                 // size
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = true;
                 layoutParams.autoFillsWidth = false;
                 layoutParams.width = LayoutParams.WRAP_CONTENT;
-            } else if (value.equals(TiC.LAYOUT_MATCH)) {
-                // size
+            } else if (TiC.LAYOUT_MATCH.equalsIgnoreCase(TiConvert.toString(value))) {
+                // match
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = false;
                 layoutParams.autoFillsWidth = false;
                 layoutParams.widthMatchHeight = true;
+            } else if (TiC.SIZE_AUTO.equalsIgnoreCase(TiConvert.toString(value))) {
+                layoutParams.optionWidth = null;
+                layoutParams.sizeOrFillWidthEnabled = true;
+
             } else {
                 layoutParams.optionWidth = toTiDimension(value, TiDimension.TYPE_WIDTH);
                 layoutParams.sizeOrFillWidthEnabled = false;
