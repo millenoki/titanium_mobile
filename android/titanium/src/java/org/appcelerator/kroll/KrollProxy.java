@@ -1254,8 +1254,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             data = dict = new KrollDict();
             dict.put(TiC.EVENT_PROPERTY_SOURCE, sourceProxy);
         } else if (dict instanceof HashMap) {
-            sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
-            if (sourceProxy == null) {
+            if (dict.containsKey(TiC.EVENT_PROPERTY_SOURCE)) {
+                sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
+            } else {
                 dict.put(TiC.EVENT_PROPERTY_SOURCE, sourceProxy);
             }
         }
