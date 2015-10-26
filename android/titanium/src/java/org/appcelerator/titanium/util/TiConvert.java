@@ -146,8 +146,9 @@ public class TiConvert
 	}
 	public static int toColor(Object value)
 	{
-		if (value instanceof String)
+		if (value instanceof String) {
 			return TiColorHelper.parseColor((String)value);
+		}
 		return TiColorHelper.parseColor(toString(value));
 	}
     public static int toColor(Object value, int def)
