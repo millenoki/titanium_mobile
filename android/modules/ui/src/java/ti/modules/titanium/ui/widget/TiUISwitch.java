@@ -19,6 +19,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.SwitchCompat;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ToggleButton;
@@ -178,6 +179,11 @@ public class TiUISwitch extends TiUIView
         return style == AndroidModule.SWITCH_STYLE_TOGGLEBUTTON;
     }
 
+	@Override
+	protected void setOnClickListener(View view) {
+	    
+	}
+	
 	@Override
 	public void onCheckedChanged(CompoundButton btn, boolean value) {
 	    
