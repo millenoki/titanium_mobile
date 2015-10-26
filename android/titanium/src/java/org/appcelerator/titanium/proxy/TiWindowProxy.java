@@ -17,23 +17,19 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
-import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiWindowManager;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.animation.TiAnimator;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiOrientationHelper;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiWeakList;
 
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Message;
 import android.view.MotionEvent;
@@ -231,8 +227,15 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (!opened) { return; }
 		closing = false;
 		opened = false;
-
+		// Once the window's activity is destroyed we will fire the close event.
+        // And it will dispose the handler of the window in the JS if the activity
+        // is not forced to destroy.
 		KrollDict data = null;
+        if (!activityIsFinishing) {
+            data = new KrollDict();
+            data.put("_closeFromActivityForcedToDestroy", true);
+        }
+        fireSyncEvent(TiC.EVENT_CLOSE, data, false);
 		if (activityIsFinishing) {
 			releaseViews(true);
 	        setParent(null);
@@ -241,14 +244,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// enabling "Don't keep activities" (TIMOB-12939), we will not release the
 			// top-most view proxy (window and tabgroup).
 			releaseViewsForActivityForcedToDestroy();
-			data = new KrollDict();
-			data.put("_closeFromActivityForcedToDestroy", true);
 		}
-
-		// Once the window's activity is destroyed we will fire the close event.
-		// And it will dispose the handler of the window in the JS if the activity
-		// is not forced to destroy.
-		fireSyncEvent(TiC.EVENT_CLOSE, data, false);
+		activity = null;
+		
 	}
 
 	public void addProxyWaitingForActivity(KrollProxy waitingProxy) {
