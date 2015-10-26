@@ -806,6 +806,15 @@ public class TiUIWebView extends TiUINonViewGroupView
 		getWebView().stopLoading();
 	}
 	
+	public void onProgressChanged(WebView view, int progress)   
+    {
+	    if (proxy.hasListeners("loadprogress", false)) {
+            KrollDict event = new KrollDict();
+            event.put("progress", progress/100);
+            proxy.fireEvent("loadprogress", event, false, false);
+        }
+    }
+	
 	public void clearWebView()
 	{
 		getWebView().loadUrl("about:blank");

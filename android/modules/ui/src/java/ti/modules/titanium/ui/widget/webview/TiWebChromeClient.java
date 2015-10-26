@@ -172,5 +172,10 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 		return false;
 	}
+	
+	public void onProgressChanged(WebView view, int progress)   
+    {
+        tiWebView.onProgressChanged(view, progress);
+    }
 }
 
