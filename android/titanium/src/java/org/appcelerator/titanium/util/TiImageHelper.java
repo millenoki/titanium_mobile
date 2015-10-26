@@ -251,8 +251,6 @@ public class TiImageHelper
 			    composeAlpha(target, bitmap);
 			}
 		}
-		bitmap.recycle();
-		bitmap = null;
 		return target;
 	}
 
@@ -340,7 +338,7 @@ public class TiImageHelper
 			TiRect rect = new TiRect(options.get("crop"));
             Bitmap oldBitmap  = bitmap;
 			bitmap = TiImageHelper.imageCropped(bitmap, rect);
-            bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
+//            bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
             oldBitmap.recycle();
             oldBitmap = null;
 		}
@@ -349,7 +347,7 @@ public class TiImageHelper
             float scale = TiConvert.toFloat(options, "scale", 1.0f);
             Bitmap oldBitmap  = bitmap;
             bitmap = TiImageHelper.imageScaled(bitmap, scale);
-            bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
+//            bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
             oldBitmap.recycle();
             oldBitmap = null;
         }
@@ -371,7 +369,7 @@ public class TiImageHelper
 			        group, 
                     ScaleType.CENTER_CROP, 
                     Rotation.NORMAL);
-            bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
+//            bitmap = bitmap.copy (Bitmap.Config.ARGB_8888,true);
             oldBitmap.recycle();
             oldBitmap = null;
 		}
@@ -379,7 +377,10 @@ public class TiImageHelper
 		if (options.containsKey("tint")) {
 			int tint = TiConvert.toColor(options, "tint", 0);
 			Mode mode = Mode.values()[TiConvert.toInt(options, "blend", Mode.MULTIPLY.ordinal())];
+            Bitmap oldBitmap  = bitmap;
 			bitmap = TiImageHelper.imageTinted(bitmap, tint, mode);
+			oldBitmap.recycle();
+            oldBitmap = null;
 		}
 		
 		if (options.containsKey("colorArt")) {
