@@ -627,16 +627,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 	
 
 	@Override
-	public TiBlob handleToImage(Number scale)
-	{
-		float scaleValue = scale.floatValue();
-		Bitmap bitmap = TiUIHelper.viewToBitmap(null, getActivity().getWindow().getDecorView());
-		if (scaleValue != 1.0f) {
-			bitmap = TiImageHelper.imageScaled(bitmap, scaleValue);
-		}
-		return TiBlob.blobFromObject(bitmap);
-	}
-	
+    protected View viewForScreenshot() {
+        return getActivity().getWindow().getDecorView();
+    }
+
 	
 	public boolean isOpenedOrOpening()
 	{

@@ -39,6 +39,7 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy.PostOpenListener;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiGradientDrawable;
 import org.appcelerator.titanium.view.TiUIView;
@@ -942,82 +943,83 @@ public class TiUIHelper
         v.setPressed(false);
 
         boolean willNotCache = v.willNotCacheDrawing();
-        v.setWillNotCacheDrawing(false);
 
         // Reset the drawing cache background color to fully transparent
         // for the duration of this operation
         int color = v.getDrawingCacheBackgroundColor();
-        v.setDrawingCacheBackgroundColor(0);
-
-        if (color != 0) {
+        
+        if (willNotCache || color != 0) {
+            v.setWillNotCacheDrawing(false);
+            v.setDrawingCacheBackgroundColor(0);
             v.destroyDrawingCache();
         }
-        v.buildDrawingCache();
-        Bitmap cacheBitmap = v.getDrawingCache();
-        if (cacheBitmap == null) {
-            Log.e(TAG, "failed getViewBitmap(" + v + ")");
-            return null;
-        }
+
+        boolean isDrawinCacheEnabled = v.isDrawingCacheEnabled();
+        
         Bitmap bitmap = null;
+             
         try {
-            bitmap = Bitmap.createBitmap(cacheBitmap);
+            v.setDrawingCacheEnabled(true);           
+            v.buildDrawingCache(true);
+            bitmap = Bitmap.createBitmap(v.getDrawingCache(true));
         } catch (Exception e) {
             bitmap = null;
         }
+        v.setDrawingCacheEnabled(isDrawinCacheEnabled);      
 
         // Restore the view
-        v.destroyDrawingCache();
-        v.setWillNotCacheDrawing(willNotCache);
-        v.setDrawingCacheBackgroundColor(color);
+        if (willNotCache || color != 0) {
+            v.destroyDrawingCache();
+            v.setDrawingCacheBackgroundColor(color);
+            v.setWillNotCacheDrawing(willNotCache);
+       }
 
         return bitmap;
     }
 	
-	public static Bitmap viewToBitmap(final KrollDict proxyDict, final View view)
+	public static Bitmap viewToBitmap(final LayoutParams layoutParams, final View view)
 	{
 		Bitmap bitmap = null;
 
 		if (view != null) {
 			int width = view.getWidth();
 			int height = view.getHeight();
+			if (view.getWidth() == 0 || view.getHeight() == 0) {
+                // maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
+                if (view.getWidth() == 0 && layoutParams != null && layoutParams.optionWidth != null) {
+                    width = layoutParams.optionWidth.getAsPixels(view);
+                }
+                if (view.getHeight() == 0 && layoutParams != null && layoutParams.optionHeight != null) {
+                    height = layoutParams.optionHeight.getAsPixels(view);
+                }
+    
+                int wmode = width == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+                int hmode = height == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
+                view.measure(MeasureSpec.makeMeasureSpec(width, wmode), MeasureSpec.makeMeasureSpec(height, hmode));
+    
+                // Will force the view to layout itself, grab dimensions
+                width = view.getMeasuredWidth();
+                height = view.getMeasuredHeight();
+                
+                // set a default BS value if the dimension is still 0 and log a warning
+                if (width == 0) {
+                    width = 100;
+                    Log.e(TAG, "Width property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
+                }
+                if (height == 0) {
+                    height = 100;
+                    Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
+                }
+
+            }
+            
+            if (view.getParent() == null) {
+                Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
+                view.layout(0, 0, width, height);
+            }
 			bitmap = getViewBitmap(view);
 			if (bitmap == null) {
-				if (view.getWidth() == 0 || view.getHeight() == 0) {
-					// maybe move this out to a separate method once other refactor regarding "getWidth", etc is done
-					if (view.getWidth() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_WIDTH)) {
-						TiDimension widthDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_WIDTH), TiDimension.TYPE_WIDTH);
-						width = widthDimension.getAsPixels(view);
-					}
-					if (view.getHeight() == 0 && proxyDict != null && proxyDict.containsKey(TiC.PROPERTY_HEIGHT)) {
-						TiDimension heightDimension = new TiDimension(proxyDict.getString(TiC.PROPERTY_HEIGHT),
-							TiDimension.TYPE_HEIGHT);
-						height = heightDimension.getAsPixels(view);
-					}
-		
-					int wmode = width == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
-					int hmode = height == 0 ? MeasureSpec.UNSPECIFIED : MeasureSpec.EXACTLY;
-					view.measure(MeasureSpec.makeMeasureSpec(width, wmode), MeasureSpec.makeMeasureSpec(height, hmode));
-		
-					// Will force the view to layout itself, grab dimensions
-					width = view.getMeasuredWidth();
-					height = view.getMeasuredHeight();
-					
-					// set a default BS value if the dimension is still 0 and log a warning
-					if (width == 0) {
-						width = 100;
-						Log.e(TAG, "Width property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
-					}
-					if (height == 0) {
-						height = 100;
-						Log.e(TAG, "Height property is 0 for view, display view before calling toImage()", Log.DEBUG_MODE);
-					}
-	
-				}
 				
-				if (view.getParent() == null) {
-					Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
-					view.layout(0, 0, width, height);
-				}
 	//			float viewRatio = height / width;
 	
 	//			int bmpWidth =  (int) (width * scale);
@@ -1043,7 +1045,7 @@ public class TiUIHelper
 	                bitmap = Bitmap.createBitmap(width, height, bitmapConfig);
 	                Canvas canvas = new Canvas(bitmap);
 	                view.draw(canvas);
-	                canvas = null;
+//	                canvas = null;
                 } catch (Exception e) {
                     bitmap = null;
                 }
@@ -1054,14 +1056,14 @@ public class TiUIHelper
 		return bitmap;
 	}
 
-	public static TiBlob viewToImage(final KrollDict proxyDict, final View view)
-	{
-		Bitmap bitmap = viewToBitmap(proxyDict, view);
-		if (bitmap != null) {
-			return TiBlob.blobFromObject(bitmap);
-		}
-		return null;
-	}
+//	public static TiBlob viewToImage(final KrollDict proxyDict, final View view)
+//	{
+//		Bitmap bitmap = viewToBitmap(proxyDict, view);
+//		if (bitmap != null) {
+//			return TiBlob.blobFromObject(bitmap);
+//		}
+//		return null;
+//	}
 
 	/**
 	 * Creates and returns a Bitmap from an InputStream.

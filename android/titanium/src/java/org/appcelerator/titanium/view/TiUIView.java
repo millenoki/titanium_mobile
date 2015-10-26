@@ -2579,9 +2579,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (outerView != null && parentProxy != null) {
             View parentView = parentProxy.getOuterView();
             if (parentView != null) {
-                final Bitmap bitmap = TiUIHelper
-                        .viewToBitmap(parentProxy.getProperties(),
-                                parentProxy.getOuterView());
+                final Bitmap bitmap = TiUIHelper.viewToBitmap(layoutParams, parentProxy.getOuterView());
                 final KrollProxy proxyToUse = this.proxy;
                 boolean viewLaidOut = outerView.getWidth() != 0
                         && outerView.getHeight() != 0;
