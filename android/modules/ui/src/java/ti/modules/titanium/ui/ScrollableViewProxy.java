@@ -300,11 +300,12 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 	
-	public void firePageChange(int currentPage, TiViewProxy currentView)
+	public void firePageChange(int currentPage, TiViewProxy currentView, TiViewProxy oldView)
 	{
 		if (hasListeners(TiC.EVENT_CHANGE)) {
 			KrollDict options = new KrollDict();
             options.put(TiC.PROPERTY_VIEW, currentView);
+            options.put("oldView", oldView);
 			options.put(TiC.PROPERTY_CURRENT_PAGE, currentPage);
 			fireEvent(TiC.EVENT_CHANGE, options, false, false);
 		}
