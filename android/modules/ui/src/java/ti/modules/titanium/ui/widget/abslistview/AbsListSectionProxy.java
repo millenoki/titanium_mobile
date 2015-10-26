@@ -69,15 +69,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                 Object props = properties.get(TiC.PROPERTY_PROPERTIES);
                 if (props instanceof HashMap) {
                     HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
-                    if (propsHash.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
-                        searchableText = TiConvert.toString(propsHash,
-                                TiC.PROPERTY_SEARCHABLE_TEXT);
-                    }
+                    
                     if (propsHash.containsKey(TiC.PROPERTY_VISIBLE)) {
                         visible = TiConvert.toBoolean(propsHash,
                                 TiC.PROPERTY_VISIBLE, true);
                     }
                 }
+            }
+		    if (properties.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
+                searchableText = TiConvert.toString(properties,
+                        TiC.PROPERTY_SEARCHABLE_TEXT);
             }
 		}
 
