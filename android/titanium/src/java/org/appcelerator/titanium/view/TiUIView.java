@@ -2014,16 +2014,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     // if (background != null)
     // background.clearColorFilter();
     // }
-
-    public TiBlob toImage(Number scale) {
-        float scaleValue = scale.floatValue();
-        Bitmap bitmap = TiUIHelper.viewToBitmap(proxy.getProperties(),
-                getNativeView());
-        if (scaleValue != 1.0f) {
-            bitmap = TiImageHelper.imageScaled(bitmap, scaleValue);
-        }
-        return TiBlob.blobFromObject(bitmap);
-    }
+    
+    
 
     protected View getTouchView() {
         if (nativeView != null) {
@@ -2036,7 +2028,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         return null;
     }
 
-    private static boolean viewContainsTouch(final View view,
+    protected static boolean viewContainsTouch(final View view,
             final double rawx, final double rawy, int[] location) {
         if (location == null) {
             location = new int[2];
@@ -2046,8 +2038,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 && location[1] <= rawy && rawy <= (location[1] + view
                 .getHeight()));
     }
+    
+    protected boolean viewShouldPassThrough(final View view, final MotionEvent event) {
+        return true;
+    }
 
-    public boolean touchPassThrough(View view, MotionEvent event) {
+    public boolean touchPassThrough(final View view, final MotionEvent event) {
         if (!isTouchEnabled) {
             return true;
         }
@@ -2070,8 +2066,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                             }
                         }
                     }
-
-                    return true;
+                    return viewShouldPassThrough(view, event);
                 }
             }
         }
