@@ -809,11 +809,9 @@
         
     }
 }
-
-
--(void)setVerticalLayout:(BOOL)value
+-(void)setScrollDirection_:(id)args
 {
-    verticalLayout = value;
+    verticalLayout = ([args isKindOfClass:[NSString class]] && [args caseInsensitiveCompare:@"vertical"]== NSOrderedSame);
     [self refreshScrollView:NO];
 }
 

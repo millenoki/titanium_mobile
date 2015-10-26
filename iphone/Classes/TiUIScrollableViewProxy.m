@@ -37,19 +37,19 @@
 }
 
 // Special handling to try and avoid Apple's detection of private API 'layout'
--(void)setValue:(id)value forUndefinedKey:(NSString *)key
-{
-    if ([key isEqualToString:[@"lay" stringByAppendingString:@"out"]]) {
-        verticalLayout = ([value isKindOfClass:[NSString class]] && [value caseInsensitiveCompare:@"vertical"]==NSOrderedSame);
-        if ([self view] != nil) {
-            TiUIScrollableView * ourView = (TiUIScrollableView *)[self view];
-            [ourView setVerticalLayout:verticalLayout];
-        }
-        [self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
-        return;
-    }
-    [super setValue:value forUndefinedKey:key];
-}
+//-(void)setValue:(id)value forUndefinedKey:(NSString *)key
+//{
+//    if ([key isEqualToString:[@"lay" stringByAppendingString:@"out"]]) {
+//        verticalLayout = ([value isKindOfClass:[NSString class]] && [value caseInsensitiveCompare:@"vertical"]==NSOrderedSame);
+//        if ([self view] != nil) {
+//            TiUIScrollableView * ourView = (TiUIScrollableView *)[self view];
+//            [ourView setVerticalLayout:verticalLayout];
+//        }
+//        [self replaceValue:value forKey:[@"lay" stringByAppendingString:@"out"] notification:YES];
+//        return;
+//    }
+//    [super setValue:value forUndefinedKey:key];
+//}
 
 - (void) dealloc
 {

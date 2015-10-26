@@ -39,7 +39,6 @@ import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -243,10 +242,11 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	private void setCurrentPageIndex(int newPage, boolean animated)
 	{
 		if (mViews == null || mCurIndex >= mViews.size() || newPage == mCurIndex) return;
+		TiViewProxy oldView = (mCurIndex != -1)?mViews.get(mCurIndex):null;
 		mCurIndex = newPage;
 		proxy.setProperty(TiC.PROPERTY_CURRENT_PAGE, mCurIndex);
 		updateCacheSize();
-		((ScrollableViewProxy)proxy).firePageChange(mCurIndex, mViews.get(mCurIndex));
+		((ScrollableViewProxy)proxy).firePageChange(mCurIndex, mViews.get(mCurIndex), oldView);
 	}
 	
 
@@ -376,7 +376,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	}
 	private void buildViewPager(Context context)
 	{
-		if (proxy.hasProperty(TiC.PROPERTY_LAYOUT) && TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LAYOUT)).equals("vertical")) {
+        if (proxy.hasProperty("scrollDirection") && TiConvert.toString(proxy.getProperty("scrollDirection")).equalsIgnoreCase("vertical")) {
 			mPager = new VViewPager(context);
 			((VViewPager)mPager).setOnPageChangeListener(this);
 			mAdapter = new VViewPagerAdapter(mViews);
@@ -533,7 +533,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
             setViews(newValue);
             break;
         case TiC.PROPERTY_SHOW_PAGING_CONTROL:
-            if (TiConvert.toBoolean(newValue)) {
+            if (TiConvert.toBoolean(newValue, true)) {
                 showPager();
             }
             else {
@@ -858,6 +858,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
                     tiProxy.setParent(TiUIScrollableView.this.proxy);
                 }
                 TiCompositeLayout layout = new TiCompositeLayout(activity);
+                layout.setInternalTouchPassThrough(true);
                 TiUIHelper.addView(layout, tiProxy);
                 ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
                 if (position < pager.getChildCount()) {
@@ -975,6 +976,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	                tiProxy.setParent(TiUIScrollableView.this.proxy);
 				}
                 TiCompositeLayout layout = new TiCompositeLayout(activity);
+                layout.setInternalTouchPassThrough(true);
                 TiUIHelper.addView(layout, tiProxy);
 				ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 				if (position < pager.getChildCount()) {
