@@ -40,64 +40,64 @@ public class TiColorHelper
 	public static int parseColor(String value) {
 		int color = Color.TRANSPARENT;
 		if (value != null) {
-			String lowval = value.trim().toLowerCase();
-
-			Matcher m = null;
-			if (lowval.startsWith("#")) {
-			    if (lowval.length() == 4) {
-			        StringBuilder sb = new StringBuilder();
-	                sb.append("#");
-	                for(int i = 1; i < lowval.length(); i++) {
-	                    char s = lowval.charAt(i);
-	                    sb.append(s).append(s);
-	                }
-	                String newColor = sb.toString();
-	                color = Color.parseColor(newColor);
-			    } else {
-                    color = Color.parseColor(lowval);
-			    }
-				
-			} else if (lowval.startsWith("rgb") && (m = rgbPattern.matcher(lowval)).matches()) {
-			    String first = m.group(1);
-			    if (first.equalsIgnoreCase("rgba")) {
-			        color = Color.argb(
-                            (int) (Float.valueOf(m.group(5))*255.0f),
-		                    Integer.valueOf(m.group(2)),
-		                    Integer.valueOf(m.group(3)),
-		                    Integer.valueOf(m.group(4))
-		                    );
-			    } else {
-                    color = Color.rgb(
-                            Integer.valueOf(m.group(2)),
-                            Integer.valueOf(m.group(3)),
-                            Integer.valueOf(m.group(4))
-                            );
+            String lowval = value.trim().toLowerCase();
+		    try {			
+    			Matcher m = null;
+    			if (lowval.startsWith("#")) {
+    			    if (lowval.length() == 4) {
+    			        StringBuilder sb = new StringBuilder();
+    	                sb.append("#");
+    	                for(int i = 1; i < lowval.length(); i++) {
+    	                    char s = lowval.charAt(i);
+    	                    sb.append(s).append(s);
+    	                }
+    	                String newColor = sb.toString();
+    	                color = Color.parseColor(newColor);
+    			    } else {
+                        color = Color.parseColor(lowval);
+    			    }
+    				
+    			} else if (lowval.startsWith("rgb") && (m = rgbPattern.matcher(lowval)).matches()) {
+    			    String first = m.group(1);
+    			    if (first.equalsIgnoreCase("rgba")) {
+    			        color = Color.argb(
+                                (int) (Float.valueOf(m.group(5))*255.0f),
+    		                    Integer.valueOf(m.group(2)),
+    		                    Integer.valueOf(m.group(3)),
+    		                    Integer.valueOf(m.group(4))
+    		                    );
+    			    } else {
+                        color = Color.rgb(
+                                Integer.valueOf(m.group(2)),
+                                Integer.valueOf(m.group(3)),
+                                Integer.valueOf(m.group(4))
+                                );
+                    }
+    				
+    			} else {
+    				// Try the parser, will throw illegalArgument if it can't parse it.
+    					// In 4.3, Google introduced some new string color constants and they forgot to
+    					// add the alpha bits to them! This is a temporary workaround 
+    					// until they fix it. I've created a Google ticket for this:
+    					// https://code.google.com/p/android/issues/detail?id=58352&thanks=58352
+    					if (Build.VERSION.SDK_INT > 17 && alphaMissingColors.contains(lowval)) {
+    						color = Color.parseColor(lowval) | 0xFF000000;
+    					} else {
+    						color = Color.parseColor(lowval);
+    					}
+    				
+    			}
+		    } catch (IllegalArgumentException e) {
+                if (colorTable == null) {
+                    buildColorTable();
                 }
-				
-			} else {
-				// Try the parser, will throw illegalArgument if it can't parse it.
-				try {
-					// In 4.3, Google introduced some new string color constants and they forgot to
-					// add the alpha bits to them! This is a temporary workaround 
-					// until they fix it. I've created a Google ticket for this:
-					// https://code.google.com/p/android/issues/detail?id=58352&thanks=58352
-					if (Build.VERSION.SDK_INT > 17 && alphaMissingColors.contains(lowval)) {
-						color = Color.parseColor(lowval) | 0xFF000000;
-					} else {
-						color = Color.parseColor(lowval);
-					}
-				} catch (IllegalArgumentException e) {
-					if (colorTable == null) {
-						buildColorTable();
-					}
 
-					if (colorTable.containsKey(lowval)) {
-						color = colorTable.get(lowval);
-					} else {
-						Log.w(TAG, "Unknown color: " + value);
-					}
-				}
-			}
+                if (colorTable.containsKey(lowval)) {
+                    color = colorTable.get(lowval);
+                } else {
+                    Log.w(TAG, "Unknown color: " + value);
+                }
+            }
 		}
 		return color;
 	}
