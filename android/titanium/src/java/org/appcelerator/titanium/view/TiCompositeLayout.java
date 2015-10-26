@@ -1506,12 +1506,41 @@ public class TiCompositeLayout extends FreeLayout implements
 	public boolean dispatchTouchEvent(MotionEvent event) {
 	    boolean touchPassThrough = touchPassThrough(event);
 	    if (touchPassThrough) return false;
+	    
 		return super.dispatchTouchEvent(event);
 	}
-	
+	public static boolean viewContainsTouch(final View view,
+            final double rawx, final double rawy, int[] location) {
+        if (location == null) {
+            location = new int[2];
+        }
+        view.getLocationOnScreen(location);
+        return (location[0] <= rawx && rawx <= (location[0] + view.getWidth())
+                && location[1] <= rawy && rawy <= (location[1] + view
+                .getHeight()));
+    }
 	public boolean touchPassThrough(MotionEvent event) {
 	    TiUIView view = (this.view == null ? null : this.view.get());
-	    if (view != null) return view.touchPassThrough(this, event);
+	    if (view != null) {
+	        return view.touchPassThrough(this, event);
+	    } else {
+	        if (mInterTouchPassThrough == true) {
+                int[] location = new int[2];
+                final double x = event.getRawX();
+                final double y = event.getRawY();
+                Object tag;
+                View child;
+                for (int i = 0; i < getChildCount(); i++) {
+                    child = getChildAt(i);
+                    if (viewContainsTouch(child, x, y, location)) {
+                        tag = child.getTag();
+                        if (tag != null && tag instanceof TiUIView && !((TiUIView) tag).touchPassThrough(child, event)) {
+                            return false;
+                        } else return false;
+                    }
+                }
+	        }
+	    }
 	    return mInterTouchPassThrough;
 	}
 
