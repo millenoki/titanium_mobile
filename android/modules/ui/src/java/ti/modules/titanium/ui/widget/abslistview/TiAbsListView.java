@@ -746,12 +746,6 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 //		return tiView;
 //	}
 
-	public void setSeparatorStyle(int separatorHeight) {
-		Drawable drawable = listView.getDivider();
-		listView.setDivider(drawable);
-		listView.setDividerHeight(separatorHeight);
-	}
-
 	@Override
 	public void registerForTouch()
 	{
@@ -806,8 +800,15 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             }
             break;
         case TiC.PROPERTY_SEPARATOR_COLOR:
-            setSeparatorColor(TiConvert.toColor(newValue));
+        {
+            AbsListView internalListView = getInternalListView();
+            if (internalListView instanceof ListView) {
+                int dividerHeight = listView.getDividerHeight();
+                ((ListView) internalListView).setDivider(new ColorDrawable(TiConvert.toColor(newValue)));
+                ((ListView) internalListView).setDividerHeight(dividerHeight);
+            }
             break;
+        }
         case TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED:
         {
             AbsListView internalListView = getInternalListView();
@@ -847,7 +848,9 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             }
             break;
         case TiC.PROPERTY_SEPARATOR_STYLE:
-            setSeparatorStyle(TiConvert.toInt(newValue));
+            Drawable drawable = listView.getDivider();
+            listView.setDivider(drawable);
+            listView.setDividerHeight(TiConvert.toInt(newValue));
             break;
         case TiC.PROPERTY_OVER_SCROLL_MODE:
 //            if (Build.VERSION.SDK_INT >= 9) {
@@ -965,15 +968,6 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		}
 	}
 
-	private void setSeparatorColor(int color) {
-        AbsListView internalListView = getInternalListView();
-        if (internalListView instanceof ListView) {
-            int dividerHeight = listView.getDividerHeight();
-            ((ListView) internalListView).setDivider(new ColorDrawable(color));
-            ((ListView) internalListView).setDividerHeight(dividerHeight);
-        }
-	}
-	
 	public TiAbsListViewTemplate getTemplate(String template)
 	{
 		if (template == null) template = defaultTemplateBinding;
