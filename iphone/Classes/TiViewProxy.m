@@ -702,7 +702,7 @@ SEL GetterForKrollProperty(NSString * key)
     TiUIView *myview = [self getAndPrepareViewForOpening];
     CGSize size = myview.bounds.size;
    
-    if (CGSizeEqualToSize(size, CGSizeZero) || size.width==0 || size.height==0)
+    if (size.width==0 || size.height==0)
     {
         CGSize size = [self autoSizeForSize:CGSizeMake(1000,1000)];
         if (size.width==0 || size.height == 0)
