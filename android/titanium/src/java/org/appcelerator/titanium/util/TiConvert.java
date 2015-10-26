@@ -1356,6 +1356,23 @@ public class TiConvert
 
 		return null;
 	}
+	
+	public static KrollDict toKrollDict(Object value, KrollDict def)
+    {
+	    KrollDict result = toKrollDict(value);
+        if (result == null) {
+            result = def;
+        }
+        return result;
+    }
+	
+	public static KrollDict toKrollDict(HashMap<String, Object> hashMap, String key, KrollDict def)
+    {
+        if (hashMap != null)
+            return toKrollDict(hashMap.get(key), def);
+        return def;
+    }
+
 
     @SuppressWarnings("unchecked")
     public static HashMap toHashMap(Object value)
