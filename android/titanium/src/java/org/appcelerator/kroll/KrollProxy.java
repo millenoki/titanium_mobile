@@ -825,6 +825,50 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             }
         }
     }
+    
+    protected void applyPropertiesNoSave(Object arg, boolean force, boolean wait) {
+        if (!(arg instanceof HashMap)) {
+            Log.w(TAG, "Cannot apply properties: invalid type for properties",
+                    Log.DEBUG_MODE);
+            return;
+        }
+        HashMap<String, Object> props = (HashMap<String, Object>) arg;
+        KrollDict changedProps = new KrollDict();
+        for (Map.Entry<String, Object> entry : props.entrySet()) {
+            String name = entry.getKey();
+            Object value = entry.getValue();
+            Object current = getProperty(name);
+            if (current instanceof KrollProxy && value instanceof HashMap) {
+                // we handle binded objects (same as done with listitems)
+                ((KrollProxy) current).applyPropertiesNoSave(value, force,
+                        wait);
+            } else {
+                if (name.equals(TiC.PROPERTY_BUBBLE_PARENT)) {
+//                    bubbleParent = TiConvert.toBoolean(value, true);
+//                    bubbleParentDefined = true;
+                } else if (name.equals(TiC.PROPERTY_SYNCEVENTS)) {
+//                    setSyncEvents(TiConvert.toStringArray(value));
+                } else if (force || shouldFireChange(current, value)) {
+                    changedProps.put(name, value);
+                }
+            }
+        }
+        if (modelListener != null) {
+            if (!mProcessInUIThread || TiApplication.isUIThread()) {
+                modelListener.get().processApplyProperties(changedProps);
+            } else {
+                if (wait) {
+                    TiMessenger.sendBlockingMainMessage(getMainHandler()
+                            .obtainMessage(MSG_MODEL_APPLY_PROPERTIES),
+                            changedProps);
+                } else {
+                    Message message = getMainHandler().obtainMessage(
+                            MSG_MODEL_APPLY_PROPERTIES, changedProps);
+                    message.sendToTarget();
+                }
+            }
+        }
+    }
 
     public void applyPropertiesInternal(Object arg, boolean force, boolean wait) {
         if (!(arg instanceof HashMap)) {
