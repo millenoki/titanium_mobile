@@ -1275,10 +1275,32 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		instanceStateListeners.add(new WeakReference<OnInstanceStateEvent>(listener));
 	}
 
+    public void removeOnInstanceStateEventListener(OnInstanceStateEvent listener)
+    {
+        for (int i = 0; i < instanceStateListeners.size(); i++) {
+            OnInstanceStateEvent iListener = instanceStateListeners.get(i).get();
+            if (listener == iListener) {
+                instanceStateListeners.remove(i);
+                return;
+            }
+        }
+    }
+
 	public void addOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
 	{
 		windowFocusChangedListeners.add(new WeakReference<OnWindowFocusChangedEvent>(listener));
 	}
+	
+	public void removeOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
+    {
+        for (int i = 0; i < windowFocusChangedListeners.size(); i++) {
+            OnWindowFocusChangedEvent iListener = windowFocusChangedListeners.get(i).get();
+            if (listener == iListener) {
+                windowFocusChangedListeners.remove(i);
+                return;
+            }
+        }
+    }
 
 	public void addInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
 	{
@@ -1688,6 +1710,22 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 	
 	@Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        synchronized (lifecycleListeners.synchronizedList()) {
+            for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
+                try {
+                    TiLifecycle.fireLifecycleEvent(this, listener, TiLifecycle.LIFECYCLE_ON_LOWMEMORY);
+
+                } catch (Throwable t) {
+                    Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
+                }
+            }
+        }
+
+    }
+
+	@Override
 	/**
 	 * When this activity is destroyed, this method removes it from the activity stack, performs
 	 * clean up, and fires javascript 'destroy' event. 
@@ -1755,8 +1793,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			Iterator itr = windowStack.iterator();
 		    while( itr.hasNext() ) {
 		        TiWindowProxy window = (TiWindowProxy)itr.next();
-		        window.closeFromActivity(isFinishing);
+		        if (window != this.window) {
+	                window.closeFromActivity(isFinishing);
+		        }
 		    }
+		    windowStack.clear();
 		}
 
 		if (window != null) {

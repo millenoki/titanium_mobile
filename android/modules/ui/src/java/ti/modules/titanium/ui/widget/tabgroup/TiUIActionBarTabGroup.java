@@ -494,4 +494,10 @@ public class TiUIActionBarTabGroup extends TiUIAbstractTabGroup implements TabLi
 		}
 	}
 
+    @Override
+    public void onLowMemory(Activity activity) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

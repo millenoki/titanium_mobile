@@ -2197,6 +2197,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public void onStop(Activity activity) {
 	}
+	
+
+    @Override
+    public void onLowMemory(Activity activity) {
+        // TODO Auto-generated method stub
+        
+    }
 
     public <T> T getValueInUIThread(final Command<T> command, T defaultValue){
         return TiActivityHelper.getValueInUIThread(getActivity(), this, command, defaultValue);

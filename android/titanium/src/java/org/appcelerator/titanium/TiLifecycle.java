@@ -25,6 +25,7 @@ public class TiLifecycle
 	public static final int LIFECYCLE_ON_CREATE = 5;
 	public static final int ON_SAVE_INSTANCE_STATE = 6;
 	public static final int ON_RESTORE_INSTANCE_STATE = 7;
+    public static final int LIFECYCLE_ON_LOWMEMORY = 8;
 
 	/**
 	 * An interface for receiving Android lifecycle events. 
@@ -66,6 +67,8 @@ public class TiLifecycle
 		 * @param activity the attached activity.
 		 */
 		public void onDestroy(Activity activity);
+
+        public void onLowMemory(Activity activity);
 	}
 
 	public interface OnInstanceStateEvent {
@@ -160,7 +163,8 @@ public class TiLifecycle
 			case LIFECYCLE_ON_RESUME: listener.onResume(activity); break;
 			case LIFECYCLE_ON_PAUSE: listener.onPause(activity); break;
 			case LIFECYCLE_ON_STOP: listener.onStop(activity); break;
-			case LIFECYCLE_ON_DESTROY: listener.onDestroy(activity); break;
+            case LIFECYCLE_ON_DESTROY: listener.onDestroy(activity); break;
+            case LIFECYCLE_ON_LOWMEMORY: listener.onLowMemory(activity); break;
 		}
 	}
 

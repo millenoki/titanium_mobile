@@ -3,7 +3,6 @@ package org.appcelerator.titanium.proxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.IntentProxy;
 
 import android.app.Activity;
@@ -15,7 +14,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 
 @Kroll.proxy
@@ -53,9 +51,7 @@ public class TiEnhancedServiceProxy extends ReusableProxy {
     private final String TAG = "TiEnhancedServiceProxy";
     
     public static final String NEEDS_STARTING = "needsStarting";
-    
-    private OnLifecycleEvent lifecycleListener = null;
-    
+        
     protected boolean stopOnDestroy = false;
     
     protected String logTAG() {
@@ -91,42 +87,15 @@ public class TiEnhancedServiceProxy extends ReusableProxy {
     }
 
     private void initLifeCycle () {
-        if (lifecycleListener != null || TiApplication.getInstance().getRootActivity() == null) return;
-        lifecycleListener = new OnLifecycleEvent()
-        {
-            @Override
-            public void onStop(Activity activity)
-            {
-            }
-
-            @Override
-            public void onStart(Activity activity)
-            {
-            }
-
-            @Override
-            public void onResume(Activity activity)
-            {
-            }
-
-            @Override
-            public void onPause(Activity activity)
-            {
-            }
-
-            @Override
-            public void onDestroy(Activity activity)
-            {
-                Log.d(logTAG(), "onDestroy", Log.DEBUG_MODE);
-                realUnbind();
-            }
-
-            @Override
-            public void onCreate(Activity activity, Bundle savedInstanceState) {
-            }
-        };
-        Log.d(logTAG(), "initLifeCycle", Log.DEBUG_MODE);
-        TiApplication.getInstance().getRootActivity().addOnLifecycleEventListener(lifecycleListener);
+        if (TiApplication.getInstance().getRootActivity() == null) return;
+        TiApplication.getInstance().getRootActivity().addOnLifecycleEventListener(this);
+    }
+    
+    @Override
+    public void onDestroy(Activity activity)
+    {
+        Log.d(logTAG(), "onDestroy", Log.DEBUG_MODE);
+        realUnbind();
     }
     
     private void realUnbind() {
@@ -138,8 +107,7 @@ public class TiEnhancedServiceProxy extends ReusableProxy {
         } else {
             Log.d(logTAG(), "onDestroy: service is null", Log.DEBUG_MODE);
         }
-        TiApplication.getInstance().getRootActivity().removeOnLifecycleEventListener(lifecycleListener);
-        lifecycleListener = null;
+        TiApplication.getInstance().getRootActivity().removeOnLifecycleEventListener(this);
     }
     
     @Kroll.getProperty

@@ -12,7 +12,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiServiceBinder;
 import org.appcelerator.titanium.TiServiceInterface;
-import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -22,7 +21,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
 import android.os.IBinder;
 
 @Kroll.proxy
@@ -44,9 +42,6 @@ public class ServiceProxy extends KrollProxy {
     private final String TAG = "ServiceProxy";
 
     public static final String NEEDS_STARTING = "needsStarting";
-
-    private OnLifecycleEvent lifecycleListener = null;
-
     private boolean stopOnDestroy = false;
 
     protected String logTAG() {
@@ -88,37 +83,14 @@ public class ServiceProxy extends KrollProxy {
     }
 
     private void initLifeCycle() {
-        if (lifecycleListener != null
-                || TiApplication.getInstance().getRootActivity() == null)
-            return;
-        lifecycleListener = new OnLifecycleEvent() {
-            @Override
-            public void onStop(Activity activity) {
-            }
-
-            @Override
-            public void onStart(Activity activity) {
-            }
-
-            @Override
-            public void onResume(Activity activity) {
-            }
-
-            @Override
-            public void onPause(Activity activity) {
-            }
-
-            @Override
-            public void onDestroy(Activity activity) {
-                realUnbind();
-            }
-
-            @Override
-            public void onCreate(Activity activity, Bundle savedInstanceState) {
-            }
-        };
-        TiApplication.getInstance().getRootActivity()
-                .addOnLifecycleEventListener(lifecycleListener);
+        if (TiApplication.getInstance().getRootActivity() == null) return;
+       TiApplication.getInstance().getRootActivity()
+                .addOnLifecycleEventListener(this);
+    }
+    
+    @Override
+    public void onDestroy(Activity activity) {
+        realUnbind();
     }
 
     private void realUnbind() {
@@ -128,8 +100,7 @@ public class ServiceProxy extends KrollProxy {
             unbindService();
         }
         TiApplication.getInstance().getRootActivity()
-                .removeOnLifecycleEventListener(lifecycleListener);
-        lifecycleListener = null;
+                .removeOnLifecycleEventListener(this);
     }
 
     @Kroll.getProperty
