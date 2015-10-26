@@ -307,6 +307,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			super.close(arg);
 		}
 	}
+    private TiAnimator _openingAnim = null;
+    private TiAnimator _closingAnim = null;
 
 	@Override
 	protected void handleOpen(KrollDict options)
@@ -329,7 +331,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
         boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
         if (options.containsKey("_anim")) {
             animated = false;
-            animate(options.get("_anim"), null);
+            _openingAnim = animateInternal(options.get("_anim"), null);
         }
 		if (!animated) {
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -343,11 +345,14 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
         }
 	}
 	
-	private TiAnimator _closingAnim;
     @Override
     public void animationFinished(TiAnimator animation) {
         super.animationFinished(animation);
+        if (_openingAnim == animation) {
+            _openingAnim = null;
+        }
         if (_closingAnim == animation) {
+            _closingAnim = null;
             TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
             if (activity != null && !activity.isFinishing()) {
                 activity.finish();
