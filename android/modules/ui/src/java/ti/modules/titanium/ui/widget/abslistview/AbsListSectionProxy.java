@@ -240,12 +240,11 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
 	
 	private int getInverseRealPosition(int position) {
-		int hElements = getHiddenCountUpTo(position);
+//		int hElements = getHiddenCountUpTo(position);
 		int diff = 0;
-		for (int i = 0; i < hElements; i++) {
-			diff++;
-			if (hiddenItems.get(position + diff)) {
-				i--;
+		for (int i = 0; i < position; i++) {
+			if (hiddenItems.get(i)) {
+	            diff++;
 			}
 		}
 		return (position - diff);
@@ -378,7 +377,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	        }
 	        ((HashMap)itemProp.get(binding)).put(key, value);
         }
-	    AbsListItemData itemD = getItemDataAt(index);
+	    AbsListItemData itemD = listItemData.get(index);
 	    itemD.setProperty(binding, key, value);
     }
 	
@@ -571,12 +570,12 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //        listItemData.set(index, itemD);
         hiddenItems.set(itemIndex, !itemD.isVisible());
         
-        if (content != null) {
+        if (content != null && itemD.isVisible()) {
             TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content.findViewById(TiAbsListView.listContentId);
             if (listItem != null) {
                 if (listItem.getItemIndex() == itemIndex) {
                     TiAbsListViewTemplate template = getListView().getTemplate(itemD.getTemplate());
-                    populateViews(itemD, listItem, template, nonRealItemIndex, this.sectionIndex, content, false);
+                    populateViews(itemD, listItem, template, getUserItemInversedIndexFromSectionPosition(itemIndex), this.sectionIndex, content, false);
                 }
                 else {
                     Log.d(TAG, "wrong item index", Log.DEBUG_MODE);
@@ -686,6 +685,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	    }
 	    return getRealPosition(result);
 	}
+	public int getUserItemInversedIndexFromSectionPosition(final int position) {
+        int result = position;
+//      if (hasHeader()) {
+//          result -= 1;
+//        }
+        if (isFilterOn()) {
+            return getInverseRealPosition(filterIndices.get(result));
+        }
+        return getInverseRealPosition(result);
+    }
 
 	public void populateViews(final AbsListItemData item, TiBaseAbsListViewItem cellContent, TiAbsListViewTemplate template, int itemIndex, int sectionIndex,
 			View item_layout, boolean reusing) {
