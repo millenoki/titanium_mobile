@@ -147,7 +147,12 @@ public class ParentingProxy extends KrollProxy {
         }
         int realIndex = index;
         synchronized (children) {
-            children.remove(child);
+            int currentIndex = children.indexOf(child);
+            if (currentIndex != -1 && currentIndex == index) {
+                return;
+            } else {
+                children.remove(child);
+            }
         }
         if(index < 0 || index > children.size()) {
             realIndex = children.size();
@@ -209,6 +214,9 @@ public class ParentingProxy extends KrollProxy {
                 int i = -1; // default to top
                 if (index instanceof Number) {
                     i = ((Number) index).intValue();
+                }
+                if (i != -1) {
+                    Log.d(TAG, "test");
                 }
                 addProxy(child, i);
                 updatePropertiesNativeSide();
@@ -450,18 +458,24 @@ public class ParentingProxy extends KrollProxy {
             }
         }
         if (holdedProxies != null) {
-            Iterator it = holdedProxies.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pairs = (Map.Entry)it.next();
-                ((KrollProxy) pairs.getValue()).release();
-            }
+            holdedProxies.clear();
+//            Iterator it = holdedProxies.entrySet().iterator();
+//            while (it.hasNext()) {
+//                Map.Entry pairs = (Map.Entry)it.next();
+//                ((KrollProxy) pairs.getValue()).release();
+//            }
         }
     }
     
     
     public void removeHoldedProxy(final String key) {
         if (key != null && holdedProxies != null && holdedProxies.containsKey(key)) {
-            handleChildRemoved(holdedProxies.remove(key), true);
+            KrollProxy proxy = holdedProxies.remove(key);
+            if (proxy instanceof ParentingProxy && ((ParentingProxy)proxy).getParent() != this) {
+                ((ParentingProxy)proxy).getParent().removeProxy(proxy);
+            } else {
+                handleChildRemoved(proxy, true);
+            }
         }
     }
     
@@ -487,8 +501,11 @@ public class ParentingProxy extends KrollProxy {
                 if (oldOne.equals(arg)) {
                     return oldOne;
                 }
-                handleChildRemoved(oldOne, true);
-
+                if (oldOne instanceof ParentingProxy && ((ParentingProxy)oldOne).getParent() != this) {
+                    ((ParentingProxy)oldOne).getParent().removeProxy(oldOne);
+                } else {
+                    handleChildRemoved(oldOne, true);
+                }
             }
             holdedProxies.put(key, newOne);
             if (newOne instanceof ParentingProxy) {
