@@ -1816,6 +1816,21 @@ public class TiUIHelper
         transaction.commit();
         return transaction;
 	}
+
+    public static FragmentTransaction removeFragment(final Fragment fragment, final View container, final FragmentActivity activity) {
+        FragmentManager manager = activity.getSupportFragmentManager();
+        Fragment tabFragment = manager.findFragmentById(android.R.id.tabcontent);
+        // check if is opened inside an actionbar tab, which is
+        // another fragment
+        if (tabFragment != null) {
+            manager = tabFragment.getChildFragmentManager();
+        }
+        FragmentTransaction transaction = null;
+        transaction = manager.beginTransaction();
+        transaction.remove(fragment);
+        transaction.commitAllowingStateLoss();
+        return transaction;
+    }
 	
 	public static int getColorAccent(final Context context) {
 	    TypedArray values = null;
