@@ -34,7 +34,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import ti.modules.titanium.ui.AttributedStringProxy;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint.Join;
+import android.graphics.Paint.Style;
+import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.support.v7.widget.AppCompatTextView;
@@ -56,6 +61,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.text.TextUtils.TruncateAt;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
@@ -94,13 +100,17 @@ public class TiUILabel extends TiUINonViewGroupView
 	private int selectedColor, color, disabledColor;
 	private boolean wordWrap = true;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
-	private float shadowX = 0f;
-	private float shadowY = -1f; // to have the same value as ios
+    private PointF shadowOffset = new PointF(0f, -1f);
 	private boolean shadowEnabled = false;
 	private int shadowColor = Color.TRANSPARENT;
     private boolean disableLinkStyle = false;
     private boolean autoLink = false;
     private CharSequence text = null;
+    
+    private float strokeWidth = 0;
+    private Integer strokeColor = -1;
+    private Join strokeJoin = Join.MITER;
+    private float strokeMiter = 10;
 
 
 	private RectF textPadding = null;
@@ -268,6 +278,27 @@ public class TiUILabel extends TiUINonViewGroupView
 		
 		float lastEllipsizeWidth = -1;
 		float lastEllipsizeHeight = -1;
+        private boolean frozen = false;
+        private int[] lockedCompoundPadding;
+		
+		@Override
+	    public void onDraw(Canvas canvas){
+	        super.onDraw(canvas);
+	        if(strokeColor != -1 && strokeWidth > 0){
+	            freeze();
+	            int restoreColor = this.getCurrentTextColor();
+	            TextPaint paint = this.getPaint();
+	            paint.setStyle(Style.STROKE);
+	            paint.setStrokeJoin(strokeJoin);
+	            paint.setStrokeMiter(strokeMiter);
+	            this.setTextColor(strokeColor);
+	            paint.setStrokeWidth(strokeWidth);
+	            super.onDraw(canvas);
+	            paint.setStyle(Style.FILL);
+	            this.setTextColor(restoreColor);
+	            unfreeze();
+	        }
+		}
 		
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -368,6 +399,72 @@ public class TiUILabel extends TiUINonViewGroupView
 			return super.dispatchTouchEvent(event);
 		}
 		
+		// Keep these things locked while onDraw in processing
+	    public void freeze(){
+	        lockedCompoundPadding = new int[]{
+	                getCompoundPaddingLeft(),
+	                getCompoundPaddingRight(),
+	                getCompoundPaddingTop(),
+	                getCompoundPaddingBottom()
+	        };
+	        frozen = true;
+	    }
+	    
+	    public void unfreeze(){
+	        frozen = false;
+	    }
+	    
+	    
+	    @Override
+	    public void requestLayout(){
+	        if(!frozen) super.requestLayout();
+	    }
+	    
+	    @Override
+	    public void postInvalidate(){
+	        if(!frozen) super.postInvalidate();
+	    }
+	    
+	   @Override
+	    public void postInvalidate(int left, int top, int right, int bottom){
+	        if(!frozen) super.postInvalidate(left, top, right, bottom);
+	    }
+	    
+	    @Override
+	    public void invalidate(){
+	        if(!frozen) super.invalidate();
+	    }
+	    
+	    @Override
+	    public void invalidate(Rect rect){
+	        if(!frozen) super.invalidate(rect);
+	    }
+	    
+	    @Override
+	    public void invalidate(int l, int t, int r, int b){
+	        if(!frozen) super.invalidate(l,t,r,b);
+	    }
+	    
+	    @Override
+	    public int getCompoundPaddingLeft(){
+	        return !frozen ? super.getCompoundPaddingLeft() : lockedCompoundPadding[0];
+	    }
+	    
+	    @Override
+	    public int getCompoundPaddingRight(){
+	        return !frozen ? super.getCompoundPaddingRight() : lockedCompoundPadding[1];
+	    }
+	    
+	    @Override
+	    public int getCompoundPaddingTop(){
+	        return !frozen ? super.getCompoundPaddingTop() : lockedCompoundPadding[2];
+	    }
+	    
+	    @Override
+	    public int getCompoundPaddingBottom(){
+	        return !frozen ? super.getCompoundPaddingBottom() : lockedCompoundPadding[3];
+	    }
+		
 		public EllipsizingTextView(Context context) {
 			super(context);
 			maxTextSize = this.getTextSize();
@@ -397,7 +494,7 @@ public class TiUILabel extends TiUINonViewGroupView
 			newView.setTextColor(getTextColors());
 			newView.setPadding(getPaddingLeft(), getPaddingTop(), getPaddingRight(), getPaddingBottom());
 			if (shadowEnabled) {
-	            newView.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+	            newView.setShadowLayer(shadowRadius, shadowOffset.x, shadowOffset.y, shadowColor);
 			}
 			if (text instanceof Spannable)
 			{
@@ -980,10 +1077,10 @@ public class TiUILabel extends TiUINonViewGroupView
 	private void updatePadding() {
       if (shadowEnabled) {
           getTextView().setPadding(
-                  (int)textPadding.left + (int)Math.max(0, -shadowX), 
-                  (int)textPadding.top + (int)Math.max(0, -shadowY), 
-                  (int)textPadding.right + (int)Math.max(0, shadowX),
-                  (int)textPadding.bottom + (int)Math.max(0, shadowY));
+                  (int)textPadding.left + (int)Math.max(0, -shadowOffset.x), 
+                  (int)textPadding.top + (int)Math.max(0, -shadowOffset.y), 
+                  (int)textPadding.right + (int)Math.max(0, shadowOffset.x),
+                  (int)textPadding.bottom + (int)Math.max(0, shadowOffset.y));
       } else {
           getTextView().setPadding(
                   (int)textPadding.left, 
@@ -1003,7 +1100,7 @@ public class TiUILabel extends TiUINonViewGroupView
         }
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_SHADOW) != 0) {
             shadowEnabled = shadowRadius != 0 && shadowColor != Color.TRANSPARENT;
-            getTextView().setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+            getTextView().setShadowLayer(shadowRadius, shadowOffset.x, shadowOffset.y, shadowColor);
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_SHADOW;
             //reset padding after shadow is necessary
             updatePadding();
@@ -1011,7 +1108,7 @@ public class TiUILabel extends TiUINonViewGroupView
 
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT) != 0) {
             if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_HTML) != 0) {
-                tv.setText(prepareHtml(text));
+                tv.setText((text!= null)?prepareHtml(text):text);
             } else {
                 tv.setText(text);
             }
@@ -1042,6 +1139,14 @@ public class TiUILabel extends TiUINonViewGroupView
         case TiC.PROPERTY_COLOR:
             color = selectedColor = disabledColor = color = TiConvert.toColor(newValue, this.color);
             mProcessUpdateFlags |= TIFLAG_NEEDS_COLORS;
+            break;
+        case "strokeColor":
+            strokeColor = TiConvert.toColor(newValue, this.color);
+            setNeedsLayout();
+            break;
+        case "strokeWidth":
+            strokeWidth = TiConvert.toFloat(newValue, 0.0f);
+            setNeedsLayout();
             break;
         case TiC.PROPERTY_SELECTED_COLOR:
             selectedColor = TiConvert.toColor(newValue, this.selectedColor);
@@ -1117,15 +1222,8 @@ public class TiUILabel extends TiUINonViewGroupView
             getTextView().setPressed(TiConvert.toBoolean(newValue));
             break;
         case TiC.PROPERTY_SHADOW_OFFSET:
-            if (newValue instanceof HashMap) {
-                HashMap dict = (HashMap) newValue;
-                shadowX = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_X));
-                shadowY = TiUIHelper.getInPixels(dict.get(TiC.PROPERTY_Y));
-            }
-            else {
-                shadowX = 0f;
-                shadowY = 0f;
-            }
+            shadowOffset = TiConvert.toPointF(newValue);
+
             mProcessUpdateFlags |= TIFLAG_NEEDS_SHADOW;
             break;
         case TiC.PROPERTY_SHADOW_RADIUS:
