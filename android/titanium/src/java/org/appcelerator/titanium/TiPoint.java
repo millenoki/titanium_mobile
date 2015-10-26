@@ -8,6 +8,7 @@ package org.appcelerator.titanium;
 
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.graphics.Point;
@@ -111,5 +112,12 @@ public class TiPoint {
 	
 	public PointF computeFloat(int width, int height) {
 		return new PointF((float)x.getPixels(width, height), (float)y.getPixels(width, height));
+	}
+	
+	public KrollDict toDict() {
+	    KrollDict dict = new KrollDict();
+	    dict.put(TiC.PROPERTY_X, x.getAsDefault());
+	    dict.put(TiC.PROPERTY_Y, y.getAsDefault());
+	    return dict;
 	}
 }
