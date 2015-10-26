@@ -144,17 +144,17 @@ public class AnimatableProxy extends ParentingProxy {
 	    animateInternal(arg, callback);
 	}
     
-    public void applyPropertiesWithoutSaving(final KrollDict dict) {
-        if (modelListener != null) {
-            if (!mProcessInUIThread || TiApplication.isUIThread()) {
-                modelListener.get().processApplyProperties(dict);
-            } else {
-                    TiMessenger.sendBlockingMainMessage(getMainHandler()
-                            .obtainMessage(MSG_MODEL_APPLY_PROPERTIES),
-                            dict);                  
-            }
-        }
-    }
+//    public void applyPropertiesWithoutSaving(final KrollDict dict) {
+//        if (modelListener != null) {
+//            if (!mProcessInUIThread || TiApplication.isUIThread()) {
+//                modelListener.get().processApplyProperties(dict);
+//            } else {
+//                    TiMessenger.sendBlockingMainMessage(getMainHandler()
+//                            .obtainMessage(MSG_MODEL_APPLY_PROPERTIES),
+//                            dict);                  
+//            }
+//        }
+//    }
 	
 	public void prepareAnimatorSet(TiAnimatorSet tiSet) {
 		tiSet.aboutToBePrepared();
@@ -168,7 +168,7 @@ public class AnimatableProxy extends ParentingProxy {
 		List<Animator> listReverse = tiSet.autoreverse?new ArrayList<Animator>():null;
 		   
 		if (options.containsKey("from")) {
-		    applyPropertiesWithoutSaving(TiConvert.toKrollDict(options.get("from")));
+		    applyPropertiesNoSave(TiConvert.toKrollDict(options.get("from")), false, true);
 		}
 		prepareAnimatorSet(tiSet, list, listReverse, (HashMap) options.clone());
 		
