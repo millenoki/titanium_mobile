@@ -915,7 +915,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	}
 	
 	private void setHeaderOrFooterView (Object viewObj, boolean isHeader) {
-        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, isHeader?"headerView":"footerView");
+        KrollProxy viewProxy = proxy.addProxyToHold(viewObj, isHeader?"headerView":"footerView", false, true);
         if (viewProxy instanceof TiViewProxy) {
             if (isHeader) {
                 getOrCreateHeaderWrapperView().add(viewProxy, 1);
