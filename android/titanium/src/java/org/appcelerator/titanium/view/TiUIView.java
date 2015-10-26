@@ -990,7 +990,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         TiDimension.TYPE_WIDTH);
                 View view = getOuterView();
                 if (view != null) {
-                    view.setElevation(mElevation.getAsPixels(view));
+                    if (mElevation != null) {
+                        view.setElevation(mElevation.getAsPixels(view));
+                    } else {
+                        view.setElevation(0);
+                    }
                 }
                 if (mOutlineProvider == null) {
                     mOutlineProvider = new ViewOutlineProvider() {
