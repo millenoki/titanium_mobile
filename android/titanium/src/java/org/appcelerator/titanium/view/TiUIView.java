@@ -1794,7 +1794,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         pointerDown = value;
     }
 
-    private boolean pointerDown = false;
+    protected boolean pointerDown = false;
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
