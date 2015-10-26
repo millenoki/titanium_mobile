@@ -1256,4 +1256,10 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     @Override
     public void onCreate(Activity activity, Bundle savedInstanceState) {
     }
+
+    @Override
+    public void onLowMemory(Activity activity) {
+        // TODO Auto-generated method stub
+        
+    }
 }

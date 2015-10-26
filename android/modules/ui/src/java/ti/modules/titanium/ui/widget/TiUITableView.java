@@ -363,4 +363,10 @@ public class TiUITableView extends TiUIView implements OnItemClickedListener,
         registerForTouch(tableView.getListView());
     }
 
+    @Override
+    public void onLowMemory(Activity activity) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }
