@@ -100,7 +100,7 @@ import android.widget.AdapterView;
  * Android View instance.
  */
 public abstract class TiUIView implements KrollProxyReusableListener,
-        OnFocusChangeListener, Handler.Callback, OnTouchListener, TiBackgroundDrawableDelegate {
+        OnFocusChangeListener, Handler.Callback, OnTouchListener, TiBackgroundDrawableDelegate, OnClickListener {
 
     private static final String TAG = "TiUIView";
 
@@ -1846,13 +1846,29 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             lastDownEvent = event;
             setPointerDown(true);
         }
-
+        if (parent != null && parent.peekView() != null) {
+            parent.peekView().onChildTouchEvent(this, v, event);
+        }
         if (mGestureHandler != null) {
             mGestureHandler.onTouch(v, event);
         }
 
         handleTouchEvent(event);
         return !isTouchEnabled;
+    }
+    
+    private void onChildTouchEvent(TiUIView view,View v, MotionEvent event) {
+        if (mGestureHandler != null) {
+            int action = event.getAction();
+            
+            mGestureHandler.onTouch(v, event);
+            if (action == MotionEvent.ACTION_DOWN) {
+                mGestureHandler.setTouchedView(view);
+            }
+        }
+        if (parent != null && parent.peekView() != null) {
+            parent.peekView().onChildTouchEvent(view, v, event);
+        }
     }
 
     private TiViewGestureHandler mGestureHandler;
@@ -1866,19 +1882,28 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected void registerTouchEvents(final View touchable) {
         touchView = new WeakReference<View>(touchable);
-
-        getOrCreateGestureHandler().setGlobalEnabled(
-                hasListeners(TiC.EVENT_SWIPE, false)
-                        || hasListeners(TiC.EVENT_LONGPRESS, false)
-                        || hasListeners(TiC.EVENT_SINGLE_TAP, false)
-                        || hasListeners(TiC.EVENT_DOUBLE_TAP, false));
-        mGestureHandler.setPanEnabled(hasListeners(TiC.EVENT_PAN, false));
-        mGestureHandler
-                .setRotationEnabled(hasListeners(TiC.EVENT_ROTATE, false));
-        mGestureHandler.setScaleEnabled(hasListeners(TiC.EVENT_PINCH, false));
-        mGestureHandler.setShoveEnabled(hasListeners(TiC.EVENT_SHOVE, false));
-        mGestureHandler.setTwoFingersTapEnabled(hasListeners(
-                TiC.EVENT_TWOFINGERTAP, false));
+        boolean gestureEnabled = hasListeners(TiC.EVENT_SWIPE, false)
+                || hasListeners(TiC.EVENT_LONGPRESS, false)
+                || hasListeners(TiC.EVENT_SINGLE_TAP, false)
+                || hasListeners(TiC.EVENT_DOUBLE_TAP, false);
+        if (gestureEnabled) {
+            getOrCreateGestureHandler().setGlobalEnabled(gestureEnabled);
+        }
+        if (hasListeners(TiC.EVENT_PAN, false)) {
+            getOrCreateGestureHandler().setPanEnabled(true);
+        }
+        if (hasListeners(TiC.EVENT_ROTATE, false)) {
+            getOrCreateGestureHandler().setRotationEnabled(true);
+        }
+        if (hasListeners(TiC.EVENT_PINCH, false)) {
+            getOrCreateGestureHandler().setScaleEnabled(true);
+        }
+        if (hasListeners(TiC.EVENT_SHOVE, false)) {
+            getOrCreateGestureHandler().setShoveEnabled(true);
+        }
+        if (hasListeners(TiC.EVENT_TWOFINGERTAP, false)) {
+            getOrCreateGestureHandler().setTwoFingersTapEnabled(true);
+        }
         touchable.setOnTouchListener(this);
 
     }
@@ -2137,7 +2162,15 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         doSetClickable(view, view.isClickable());
     }
-
+    
+    public void onClick(View view) {
+        // if singletap is active dont send click
+        if (!hasListeners(TiC.EVENT_SINGLE_TAP)
+                && hierarchyHasListener(TiC.EVENT_CLICK)) {
+            fireEventNoCheck(TiC.EVENT_CLICK, TiViewHelper
+                    .dictFromMotionEvent(getTouchView(), lastUpEvent));
+        }
+    }
     /**
      * Can be overriden by inheriting views for special click handling. For
      * example, the Facebook module's login button view needs special click
@@ -2147,16 +2180,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (view instanceof AdapterView)
             return;
 
-        view.setOnClickListener(new OnClickListener() {
-            public void onClick(View view) {
-                // if singletap is active dont send click
-                if (!hasListeners(TiC.EVENT_SINGLE_TAP)
-                        && hierarchyHasListener(TiC.EVENT_CLICK)) {
-                    fireEventNoCheck(TiC.EVENT_CLICK, TiViewHelper
-                            .dictFromMotionEvent(getTouchView(), lastUpEvent));
-                }
-            }
-        });
+        view.setOnClickListener(this);
     }
 
     protected void removeOnClickListener(View view) {
@@ -2351,7 +2375,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             bgdDrawable.setColorForState(TiUIHelper.BACKGROUND_DEFAULT_STATE_2,
                     color);
             View outerView = getOuterView();
-            outerView.postInvalidate();
+            if (outerView != null) {
+                outerView.postInvalidate();
+            }
         }
     }
 
