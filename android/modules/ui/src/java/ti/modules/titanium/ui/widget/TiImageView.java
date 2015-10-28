@@ -14,9 +14,10 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.view.MaskableView;
 
-import com.nineoldandroids.animation.AnimatorSet;
+//import android.animation.AnimatorSet;
 import com.trevorpage.tpsvg.SVGDrawable;
 
+import android.animation.AnimatorSet;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ColorFilter;
