@@ -637,6 +637,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	public void releaseViews(final boolean activityFinishing)
 	{
 		if (view != null) {
+		    cancelAllAnimations();
 			view.blur();
 			if (children != null) {
 			    synchronized (children) {
