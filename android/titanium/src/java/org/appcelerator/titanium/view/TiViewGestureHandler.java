@@ -5,6 +5,8 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.content.Context;
@@ -49,6 +51,7 @@ public class TiViewGestureHandler {
     private boolean mSimultaneousRotationScale = true;
     private boolean mVelocityComputed = false;
     private MotionEvent mCurrEvent = null;
+    private TiUIView touchedView = null;
 
     private final int ACTION_DOWN = 0;
     private final int ACTION_FLING = 1;
@@ -131,7 +134,7 @@ public class TiViewGestureHandler {
 
                             if (mProxy.hasListeners(TiC.EVENT_SWIPE, false)) {
                                 Log.d(TAG, "SWIPE on " + mProxy, Log.DEBUG_MODE);
-                                KrollDict data = mView.dictFromEvent(e2);
+                                KrollDict data = dictFromEvent(e2);
                                 if (Math.abs(velocityX) > Math.abs(velocityY)) {
                                     data.put(TiC.EVENT_PROPERTY_DIRECTION,
                                             velocityX > 0 ? "right" : "left");
@@ -152,7 +155,7 @@ public class TiViewGestureHandler {
                                 return;
                             }
                             if (mProxy.hasListeners(TiC.EVENT_LONGPRESS, false)) {
-                                mProxy.fireEvent(TiC.EVENT_LONGPRESS, mView.dictFromEvent(e), false, false);
+                                mProxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e), false, false);
                             }
                         }
 
@@ -187,7 +190,7 @@ public class TiViewGestureHandler {
                                     .hasListeners(TiC.EVENT_SINGLE_TAP, false)) {
                                 Log.d(TAG, "TAP, TAP, TAP on " + mView,
                                         Log.DEBUG_MODE);
-                                return mProxy.fireEvent(TiC.EVENT_SINGLE_TAP, mView.dictFromEvent(e), false, false);
+                                return mProxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e), false, false);
                             }
                             return false;
                         }
@@ -204,7 +207,7 @@ public class TiViewGestureHandler {
 
 //                            if (hasDoubleTap || hasDoubleClick) {
                               if (hasDoubleTap) {
-                                KrollDict event = mView.dictFromEvent(e);
+                                KrollDict event = dictFromEvent(e);
 //                                if (hasDoubleTap)
                                     mProxy.fireEvent(TiC.EVENT_DOUBLE_TAP,
                                             event, false, false);
@@ -218,6 +221,17 @@ public class TiViewGestureHandler {
                     });
         }
         return this.mGestureDetector;
+    }
+    
+    private KrollDict dictFromEvent(MotionEvent e) {
+        KrollDict event;
+        if (touchedView != null) {
+            event = TiViewHelper.dictFromMotionEvent(touchedView.getTouchView(), e);
+            event.put(TiC.PROPERTY_SOURCE, touchedView.proxy);
+        } else {
+            event = mView.dictFromEvent(e);
+        }
+        return event;
     }
     
     private final class OnScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
@@ -304,7 +318,7 @@ public class TiViewGestureHandler {
     private boolean fireEventForAction(final int action,
             final Object theDetector,final Object theListener, final int state) {
         String key = null;
-        KrollDict event = TiViewHelper.dictFromMotionEvent(mView.getTouchView(), mCurrEvent);
+        KrollDict event = dictFromEvent(mCurrEvent);
        if (!mVelocityComputed) {
             mVelocityComputed = true;
             this.velocityTracker.computeCurrentVelocity(1000);
@@ -548,6 +562,7 @@ public class TiViewGestureHandler {
         int action = event.getActionMasked();
         switch (action) {
         case MotionEvent.ACTION_DOWN:
+            touchedView = null;
             if (this.velocityTracker != null) {
                 // Reset the velocity tracker back to its initial
                 // state.
@@ -590,7 +605,9 @@ public class TiViewGestureHandler {
         mCurrEvent = null;
         return handled;
     }
-
+    public boolean isEnabled() {
+        return mEnabled;
+    }
     public boolean isScaling() {
         return mIsScaling;
     }
@@ -727,6 +744,10 @@ public class TiViewGestureHandler {
             }
         }
         return false;
+    }
+
+    public void setTouchedView(TiUIView view) {
+        touchedView = view;
     }
 
 }
