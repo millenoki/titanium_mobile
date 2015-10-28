@@ -102,6 +102,16 @@ public class LocationProviderProxy extends KrollProxy
 
 		this.providerListener = providerListener;
 	}
+	
+	public LocationProviderProxy(String name)
+    {
+        super();
+        setProperty(TiC.PROPERTY_NAME, name);
+    }
+	
+	public void setProviderListener(LocationProviderListener providerListener) {
+	    this.providerListener = providerListener;
+	}
 
 	/**
 	 * @see android.location.LocationListener#onLocationChanged(android.location.Location)
