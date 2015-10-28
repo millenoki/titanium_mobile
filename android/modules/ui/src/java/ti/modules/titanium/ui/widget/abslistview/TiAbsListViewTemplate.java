@@ -14,7 +14,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
-import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
+//import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 
 public class TiAbsListViewTemplate {
 	
@@ -162,7 +162,7 @@ public class TiAbsListViewTemplate {
 	}
 	
 	
-	public AbsListItemProxy generateCellProxy(final AbsListItemData item, KrollProxy proxy, final String rootType)
+	public AbsListItemProxy generateCellProxy(final HashMap item, KrollProxy proxy, final String rootType)
 	{
 		AbsListItemProxy result = (AbsListItemProxy) proxy.createTypeViewFromDict(properties, rootType);
 		return result;
@@ -199,9 +199,9 @@ public class TiAbsListViewTemplate {
 		}
 	}
 	
-	public KrollDict prepareDataDict(KrollDict dict)
+	public HashMap prepareDataDict(HashMap dict)
 	{
-		KrollDict result = (KrollDict)dict.clone();
-		return result;
+//		KrollDict result = (KrollDict)dict.clone();
+		return dict;
 	}
 }

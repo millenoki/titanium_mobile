@@ -22,7 +22,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
+//import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import android.app.Activity;
 
 @Kroll.proxy
@@ -33,13 +33,13 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
 	private HashMap<String, ProxyAbsListItem> bindingsMap;
 	private List<KrollProxy> nonBindingProxies;
     private ProxyAbsListItem listItem;
-    private AbsListItemData itemData;
+    private HashMap itemData;
 	
 	public int sectionIndex = -1;
     public int itemIndex = -1;
     protected WeakReference<AbsListSectionProxy> sectionProxy;
 	
-	public void setCurrentItem(final int sectionIndex, final int itemIndex, final AbsListSectionProxy sectionProxy, final AbsListItemData itemData)
+	public void setCurrentItem(final int sectionIndex, final int itemIndex, final AbsListSectionProxy sectionProxy, final HashMap itemData)
     {
         this.sectionIndex = sectionIndex;
         this.itemIndex = itemIndex;
@@ -195,7 +195,7 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
         dict.put(TiC.PROPERTY_SECTION, sectionProxy.get());
         dict.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
         dict.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
-        dict.put(TiC.PROPERTY_ITEM, itemData.getProperties());
+        dict.put(TiC.PROPERTY_ITEM, itemData);
         String bindId = TiConvert.toString(
                 proxy.getProperty(TiC.PROPERTY_BIND_ID), null);
         if (bindId != null) {

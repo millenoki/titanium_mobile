@@ -29,7 +29,7 @@ import ti.modules.titanium.ui.widget.abslistview.AbsListItemProxy;
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListView;
 import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItem;
 import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItemHolder;
-import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
+//import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import android.app.Activity;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
@@ -134,8 +134,8 @@ public class TiListView extends TiAbsListView<CustomListView> {
                         anim.setTarget(view);
                         return anim;
                     } else if (view instanceof TiBaseAbsListViewItemHolder) {
-                        AbsListItemData data  = ((TiBaseAbsListViewItemHolder) view).getItemData();
-                        Object anim = data.getProperties().get("appearAnimation");
+                        HashMap data  = ((TiBaseAbsListViewItemHolder) view).getItemData();
+                        Object anim = data.get("appearAnimation");
                         if (anim == null) {
                             anim = mAppearAnimation;
                         }

@@ -49,7 +49,7 @@ import ti.modules.titanium.ui.ViewProxy;
 import android.annotation.SuppressLint;
 import ti.modules.titanium.ui.android.SearchViewProxy;
 import ti.modules.titanium.ui.widget.CustomListView;
-import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
+//import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
@@ -236,11 +236,11 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             }
 			
 			//Handling templates
-			AbsListItemData item = section.getListItem(sectionItemIndex);
+			HashMap item = section.getListItem(sectionItemIndex);
 			if (item == null) {
 			    return null;
 			}
-			TiAbsListViewTemplate template = getTemplate(item.getTemplate());
+			TiAbsListViewTemplate template = getTemplate(TiConvert.toString(item, TiC.PROPERTY_TEMPLATE));
 			int itemViewType = template.getType();
 			
 			TiBaseAbsListViewItem itemContent = null;

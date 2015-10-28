@@ -1,12 +1,13 @@
 package ti.modules.titanium.ui.widget.abslistview;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListViewAbstract;
-import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
+//import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
@@ -15,7 +16,7 @@ import android.widget.ImageView.ScaleType;
 
 public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
     private WeakReference<StickyListHeadersListViewAbstract> listView = null;
-    private WeakReference<AbsListItemData> itemData = null;
+    private WeakReference<HashMap> itemData = null;
 	private boolean hasHeightRelyingOnPercent = false;
 
 	public TiBaseAbsListViewItemHolder(Context context) {
@@ -54,7 +55,7 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 	
-	public AbsListItemData getItemData() {
+	public HashMap getItemData() {
 	    if (itemData != null) {
 	        return itemData.get();
 	    }
@@ -62,11 +63,11 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 	}
 
     public void setItem(TiBaseAbsListViewItem item, 
-            AbsListItemData itemData,
+            HashMap itemData,
             StickyListHeadersListViewAbstract listView) {
         hasHeightRelyingOnPercent = false;
         if (itemData != null) {
-            this.itemData = new WeakReference<AbsListItemData>(itemData);
+            this.itemData = new WeakReference<HashMap>(itemData);
         } else {
             this.itemData = null;
         }

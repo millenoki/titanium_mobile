@@ -38,7 +38,7 @@ import android.view.View;
 public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private static final String TAG = "ListSectionProxy";
-	private ArrayList<AbsListItemData> listItemData;
+//	private ArrayList<AbsListItemData> listItemData;
 	private int mItemCount;
     private int mCurrentItemCount = 0;
 	private TiBaseAdapter adapter;
@@ -54,67 +54,67 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private static HashMap<String, String> toPassProps;
 
-	public class AbsListItemData {
-		private KrollDict properties;
-		private String searchableText;
-		private String template = null;
-		private boolean visible = true;
-
-		public AbsListItemData(KrollDict properties) {
-			setProperties(properties);
-		}
-		
-		private void updateSearchableAndVisible() {
-		    if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
-                Object props = properties.get(TiC.PROPERTY_PROPERTIES);
-                if (props instanceof HashMap) {
-                    HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
-                    
-                    if (propsHash.containsKey(TiC.PROPERTY_VISIBLE)) {
-                        visible = TiConvert.toBoolean(propsHash,
-                                TiC.PROPERTY_VISIBLE, true);
-                    }
-                }
-            }
-		    if (properties.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
-                searchableText = TiConvert.toString(properties,
-                        TiC.PROPERTY_SEARCHABLE_TEXT);
-            }
-		}
-
-		public KrollDict getProperties() {
-			return properties;
-		}
-
-		public String getSearchableText() {
-			return searchableText;
-		}
-		
-
-		public boolean isVisible() {
-			return visible;
-		}
-
-
-		public String getTemplate() {
-			return template;
-		}
-
-        public void setProperties(KrollDict d) {
-            this.properties = d;
-            if (properties.containsKey(TiC.PROPERTY_TEMPLATE)) {
-                this.template = properties.getString(TiC.PROPERTY_TEMPLATE);
-            }
-            // set searchableText
-            updateSearchableAndVisible();
-        }
-        
-        public void setProperty(String binding, String key, Object value) {
-            if (properties.containsKey(binding)) {
-                ((HashMap)properties.get(binding)).put(key, value);
-            }
-        }
-	}
+//	public class AbsListItemData {
+//		private KrollDict properties;
+//		private String searchableText;
+//		private String template = null;
+//		private boolean visible = true;
+//
+//		public AbsListItemData(KrollDict properties) {
+//			setProperties(properties);
+//		}
+//		
+//		private void updateSearchableAndVisible() {
+//		    if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
+//                Object props = properties.get(TiC.PROPERTY_PROPERTIES);
+//                if (props instanceof HashMap) {
+//                    HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
+//                    
+//                    if (propsHash.containsKey(TiC.PROPERTY_VISIBLE)) {
+//                        visible = TiConvert.toBoolean(propsHash,
+//                                TiC.PROPERTY_VISIBLE, true);
+//                    }
+//                }
+//            }
+//		    if (properties.containsKey(TiC.PROPERTY_SEARCHABLE_TEXT)) {
+//                searchableText = TiConvert.toString(properties,
+//                        TiC.PROPERTY_SEARCHABLE_TEXT);
+//            }
+//		}
+//
+//		public KrollDict getProperties() {
+//			return properties;
+//		}
+//
+//		public String getSearchableText() {
+//			return searchableText;
+//		}
+//		
+//
+//		public boolean isVisible() {
+//			return visible;
+//		}
+//
+//
+//		public String getTemplate() {
+//			return template;
+//		}
+//
+//        public void setProperties(KrollDict d) {
+//            this.properties = d;
+//            if (properties.containsKey(TiC.PROPERTY_TEMPLATE)) {
+//                this.template = properties.getString(TiC.PROPERTY_TEMPLATE);
+//            }
+//            // set searchableText
+//            updateSearchableAndVisible();
+//        }
+//        
+//        public void setProperty(String binding, String key, Object value) {
+//            if (properties.containsKey(binding)) {
+//                ((HashMap)properties.get(binding)).put(key, value);
+//            }
+//        }
+//	}
     
 	public AbsListSectionProxy() {
 	    if (toPassProps == null) {
@@ -131,7 +131,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             toPassProps.put(TiC.PROPERTY_MIN_ROW_HEIGHT, TiC.PROPERTY_MIN_HEIGHT);
             toPassProps.put(TiC.PROPERTY_MAX_ROW_HEIGHT, TiC.PROPERTY_MAX_HEIGHT);
         }
-        listItemData = new ArrayList<AbsListItemData>();
+//        listItemData = new ArrayList<AbsListItemData>();
         filterIndices = new ArrayList<Integer>();
         hiddenItems = new ArrayList<Boolean>();
         mItemCount = 0;
@@ -377,8 +377,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	        }
 	        ((HashMap)itemProp.get(binding)).put(key, value);
         }
-	    AbsListItemData itemD = listItemData.get(index);
-	    itemD.setProperty(binding, key, value);
+//	    AbsListItemData itemD = listItemData.get(index);
+//	    itemD.setProperty(binding, key, value);
     }
 	
 	@Kroll.method
@@ -419,31 +419,37 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			preload = false;
 		}
 	}
+	
+	private boolean isItemVisible(final HashMap item) {
+        boolean visible = false;
+        if (item != null) {
+            visible = true;
+            Object props = item.get(TiC.PROPERTY_PROPERTIES);
+            if (props instanceof HashMap) {
+                HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
+                visible = TiConvert.toBoolean(propsHash,
+                            TiC.PROPERTY_VISIBLE, visible);
+            }
+        }
+        return visible;
+	}
 
 	private void processData(Object items, int offset) {
-		if (listItemData == null) {
-			return;
-		}
+//		if (listItemData == null) {
+//			return;
+//		}
+        boolean visible = true;
+        int i;
 		if (items instanceof Object[]) {
 		    Object[] array = (Object[])items;
 		 // Second pass we would merge properties
-	        for (int i = 0; i < array.length; i++) {
-	            KrollDict d = TiConvert.toKrollDict(array[i]);
-	            if (d!= null) {
-	                AbsListItemData itemD = new AbsListItemData(d);
-	                listItemData.add(i + offset, itemD);
-	                hiddenItems.add(i + offset, !itemD.isVisible());
-	            }
+	        for (i = 0; i < array.length; i++) {
+	            hiddenItems.add(i + offset, !isItemVisible((HashMap) array[i]));
 	        }
 		} else if (items instanceof ArrayList) {
 		    ArrayList<Object> array = (ArrayList<Object>)items;
-		    for (int i = 0; i < array.size(); i++) {
-	            KrollDict d = TiConvert.toKrollDict(array.get(i));
-	            if (d!= null) {
-	                AbsListItemData itemD = new AbsListItemData(d);
-	                listItemData.add(i + offset, itemD);
-	                hiddenItems.add(i + offset, !itemD.isVisible());
-	            }
+		    for (i = 0; i < array.size(); i++) {
+		        hiddenItems.add(i + offset, !isItemVisible((HashMap) array.get(i)));
 	        }
 		}
 		
@@ -459,7 +465,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		if (data instanceof Object[]) {
 			Object[] items = (Object[]) data;
 			itemProperties = new ArrayList<Object>(Arrays.asList(items));
-			listItemData.clear();
+//			listItemData.clear();
 			hiddenItems.clear();
 			filterIndices.clear();
 			// only process items when listview's properties is processed.
@@ -565,17 +571,18 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
         View content = listView.getCellAt(this.sectionIndex, itemIndex);
         KrollDict d = new KrollDict(currentItem);
-        AbsListItemData itemD = listItemData.get(itemIndex);
-        itemD.setProperties(d);
+//        AbsListItemData itemD = listItemData.get(itemIndex);
+//        itemD.setProperties(d);
 //        listItemData.set(index, itemD);
-        hiddenItems.set(itemIndex, !itemD.isVisible());
+        boolean visible = isItemVisible(currentItem);
+        hiddenItems.set(itemIndex, !visible);
         
-        if (content != null && itemD.isVisible()) {
+        if (content != null && visible) {
             TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content.findViewById(TiAbsListView.listContentId);
             if (listItem != null) {
                 if (listItem.getItemIndex() == itemIndex) {
-                    TiAbsListViewTemplate template = getListView().getTemplate(itemD.getTemplate());
-                    populateViews(itemD, listItem, template, getUserItemInversedIndexFromSectionPosition(itemIndex), this.sectionIndex, content, false);
+                    TiAbsListViewTemplate template = getListView().getTemplate(currentItem.getString(TiC.PROPERTY_TEMPLATE));
+                    populateViews(currentItem, listItem, template, getUserItemInversedIndexFromSectionPosition(itemIndex), this.sectionIndex, content, false);
                 }
                 else {
                     Log.d(TAG, "wrong item index", Log.DEBUG_MODE);
@@ -595,9 +602,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 				mItemCount--;
 				delete = true;
 			}
-			if (index < listItemData.size()) {
-				listItemData.remove(index);
-			}
+//			if (index < listItemData.size()) {
+//				listItemData.remove(index);
+//			}
 			if (index < hiddenItems.size()) {
 				hiddenItems.remove(index);
 			}
@@ -610,7 +617,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	public Object deleteItemData(int index) {
         if (0 <= index && index < itemProperties.size()) {
             hiddenItems.remove(index);
-            listItemData.remove(index);
+//            listItemData.remove(index);
             mItemCount --;
             updateCurrentItemCount();
             return itemProperties.remove(index);
@@ -637,11 +644,14 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
 
         mItemCount += 1;
-        if (listItemData != null && data instanceof HashMap) {
-            KrollDict d = new KrollDict((HashMap) data);
-            AbsListItemData itemD = new AbsListItemData(d);
-            listItemData.add(index, itemD);
-            hiddenItems.add(index, !itemD.isVisible());
+//        if (listItemData != null && data instanceof HashMap) {
+//            KrollDict d = new KrollDict((HashMap) data);
+//            AbsListItemData itemD = new AbsListItemData(d);
+//            listItemData.add(index, itemD);
+//            hiddenItems.add(index, !itemD.isVisible());
+//        }
+        if (data instanceof HashMap) {
+            hiddenItems.add(index, !isItemVisible((HashMap) data));
         }
         updateCurrentItemCount();
     }
@@ -660,7 +670,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	 *            Entry's index relative to its section
 	 * @return
 	 */
-	public void generateCellContent(int sectionIndex, final AbsListItemData item, 
+	public void generateCellContent(int sectionIndex, final HashMap item, 
 			AbsListItemProxy itemProxy, TiBaseAbsListViewItem itemContent, TiAbsListViewTemplate template,
 			int itemPosition, View item_layout) {
 		// Create corresponding TiUIView for item proxy
@@ -696,7 +706,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         return getInverseRealPosition(result);
     }
 
-	public void populateViews(final AbsListItemData item, TiBaseAbsListViewItem cellContent, TiAbsListViewTemplate template, int itemIndex, int sectionIndex,
+	public void populateViews(final HashMap item, TiBaseAbsListViewItem cellContent, TiAbsListViewTemplate template, int itemIndex, int sectionIndex,
 			View item_layout, boolean reusing) {
 		TiAbsListItem listItem = (TiAbsListItem)cellContent.getView();
 		// Handling root item, since that is not in the views map.
@@ -707,7 +717,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		int realItemIndex = getUserItemIndexFromSectionPosition(itemIndex);
 		cellContent.setCurrentItem(sectionIndex, realItemIndex, this);
 		
-		KrollDict data = template.prepareDataDict(item.getProperties());
+//		HashMap data = item;
+		HashMap data = template.prepareDataDict(item);
 		AbsListItemProxy itemProxy = (AbsListItemProxy) cellContent.getView().getProxy();
 		itemProxy.setCurrentItem(sectionIndex, realItemIndex, this, item);
 		itemProxy.setActivity(this.getActivity());
@@ -813,9 +824,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //		}
 
 		if (isFilterOn()) {
-			return getItemDataAt(filterIndices.get(index)).getTemplate();
+			return TiConvert.toString(getItemDataAt(filterIndices.get(index)),TiC.PROPERTY_TEMPLATE);
 		} else {
-			return getItemDataAt(index).getTemplate();
+			return TiConvert.toString(getItemDataAt(index),TiC.PROPERTY_TEMPLATE);
 		}
 	}
 
@@ -896,10 +907,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		return null;
 	}
 
-	public AbsListItemData getItemDataAt(int position)
+	public HashMap getItemDataAt(int position)
 	{
-	    if (listItemData.size() > 0) {
-	        return listItemData.get(getRealPosition(position));
+	    if (itemProperties.size() > 0) {
+	        return (HashMap) itemProperties.get(getRealPosition(position));
 	    } else {
 	        return null;
 	    }
@@ -919,7 +930,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //		return null;
 //	}
 
-	public AbsListItemData getListItem(int position) {
+	public HashMap getListItem(int position) {
 //        if (hasHeader()) {
 //			position -= 1;
 //		}
@@ -942,19 +953,23 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		filterIndices.clear();
 		hidden = TiConvert.toBoolean(TiC.PROPERTY_VISIBLE, false);
 		if (isFilterOn()) {
+		    
 		    boolean caseInsensitive = getListView().getCaseInsensitive();
+		    if (caseInsensitive) {
+                searchText = searchText.toLowerCase();
+            }
 	        // Add new results
-	        for (int i = 0; i < listItemData.size(); ++i) {
-	            AbsListItemData data = listItemData.get(i);
-	            String searchableText = data.getSearchableText();
-	            if (searchableText == null) continue;
+	        for (int i = 0; i < itemProperties.size(); ++i) {
+	            HashMap data = (HashMap) itemProperties.get(i);
+	            boolean visible = isItemVisible(data);
+	            String searchableText = TiConvert.toString(data, TiC.PROPERTY_SEARCHABLE_TEXT);
+	            if (searchableText == null || visible) continue;
 	            // Handle case sensitivity
 	            if (caseInsensitive) {
-	                searchText = searchText.toLowerCase();
 	                searchableText = searchableText.toLowerCase();
 	            }
 	            // String comparison
-	            if (data.isVisible() && searchableText != null && searchableText.contains(searchText)) {
+	            if (searchableText.contains(searchText)) {
 	                filterIndices.add(getInverseRealPosition(i));
 	            }
 	        }
@@ -964,10 +979,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
 
 	public void release() {
-		if (listItemData != null) {
-			listItemData.clear();
-//			listItemData = null;
-		}
+//		if (listItemData != null) {
+//			listItemData.clear();
+////			listItemData = null;
+//		}
 		
 		if (hiddenItems != null) {
 			hiddenItems.clear();

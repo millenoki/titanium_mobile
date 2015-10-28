@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.abslistview;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.json.JSONException;
@@ -25,19 +27,22 @@ public class TiDefaultAbsListViewTemplate extends TiAbsListViewTemplate {
 	}
 	
 	@Override
-	public KrollDict prepareDataDict(KrollDict dict)
+    public HashMap prepareDataDict(HashMap dict)
 	{
-		KrollDict result = super.prepareDataDict(dict);
-		KrollDict properties = result.containsKey(TiC.PROPERTY_PROPERTIES)?result.getKrollDict(TiC.PROPERTY_PROPERTIES):dict;
+	    HashMap result = super.prepareDataDict(dict);
+	    if (dict == result) {
+	        dict = (HashMap) result.clone(); //we need to copy it as we modify it
+	    }
+	    HashMap properties = (HashMap) (result.containsKey(TiC.PROPERTY_PROPERTIES)?result.get(TiC.PROPERTY_PROPERTIES):dict);
 		
 		boolean hasSubtitle = properties.containsKey(TiC.PROPERTY_SUBTITLE);
 		
 		if (properties.containsKey(TiC.PROPERTY_TITLE) || properties.containsKey(TiC.PROPERTY_FONT) || properties.containsKey(TiC.PROPERTY_COLOR))
 		{
-			KrollDict labelDict = result.getKrollDict("titleView");
+		    HashMap labelDict = (HashMap) result.get("titleView");
 			if (labelDict == null)
 			{
-				labelDict = new KrollDict();
+				labelDict = new HashMap();
 				result.put("titleView", labelDict);
 			}
 			labelDict.put(TiC.PROPERTY_VERTICAL_ALIGN, hasSubtitle?"bottom":"center");
@@ -51,10 +56,10 @@ public class TiDefaultAbsListViewTemplate extends TiAbsListViewTemplate {
 				labelDict.put(TiC.PROPERTY_COLOR, properties.get(TiC.PROPERTY_COLOR));
 			}
 		}
-		KrollDict subDict = result.getKrollDict("subtitleView");
+		HashMap subDict = (HashMap) result.get("subtitleView");
         if (subDict == null)
         {
-            subDict = new KrollDict();
+            subDict = new HashMap();
             result.put("subtitleView", subDict);
         }
 		if (hasSubtitle)
@@ -66,10 +71,10 @@ public class TiDefaultAbsListViewTemplate extends TiAbsListViewTemplate {
             subDict.put(TiC.PROPERTY_VISIBLE, false);
         }
 		
-		subDict = result.getKrollDict("imageView");
+		subDict = (HashMap) result.get("imageView");
         if (subDict == null)
         {
-            subDict = new KrollDict();
+            subDict = new HashMap();
             result.put("imageView", subDict);
         }
         if (properties.containsKey(TiC.PROPERTY_IMAGE))
