@@ -43,16 +43,16 @@ public class TiRect {
 		x = TiConvert.toTiDimension(object.get(TiC.PROPERTY_X), TiDimension.TYPE_LEFT);
 		y = TiConvert.toTiDimension(object.get(TiC.PROPERTY_Y), TiDimension.TYPE_TOP);
 		if (x == null) {
-			if (y != null)
-				x = y;
-			else
+//			if (y != null)
+//				x = y;
+//			else
 				x = new TiDimension(defaultValueX, TiDimension.TYPE_LEFT);
 		}
 
 		if (y == null) {
-			if (x != null)
-				y = x;
-			else
+//			if (x != null)
+//				y = x;
+//			else
 				y = new TiDimension(defaultValueY, TiDimension.TYPE_TOP);
 		}
 		
