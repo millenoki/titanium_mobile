@@ -148,11 +148,14 @@ public class ParentingProxy extends KrollProxy {
         int realIndex = index;
         synchronized (children) {
             int currentIndex = children.indexOf(child);
-            if (currentIndex != -1 && currentIndex == index) {
-                return;
-            } else {
-                children.remove(child);
+            if (currentIndex != -1) {
+                if (currentIndex == index) {
+                    return;
+                } else {
+                    children.remove(child);
+                }
             }
+            
         }
         if(index < 0 || index > children.size()) {
             realIndex = children.size();
@@ -214,9 +217,6 @@ public class ParentingProxy extends KrollProxy {
                 int i = -1; // default to top
                 if (index instanceof Number) {
                     i = ((Number) index).intValue();
-                }
-                if (i != -1) {
-                    Log.d(TAG, "test");
                 }
                 addProxy(child, i);
                 updatePropertiesNativeSide();
@@ -471,8 +471,11 @@ public class ParentingProxy extends KrollProxy {
     public void removeHoldedProxy(final String key) {
         if (key != null && holdedProxies != null && holdedProxies.containsKey(key)) {
             KrollProxy proxy = holdedProxies.remove(key);
-            if (proxy instanceof ParentingProxy && ((ParentingProxy)proxy).getParent() != this) {
-                ((ParentingProxy)proxy).getParent().removeProxy(proxy);
+            if (proxy instanceof ParentingProxy) {
+                ParentingProxy parent =  ((ParentingProxy)proxy).getParent();
+                if (parent != null && parent != this) {
+                    parent.remove(proxy);
+                }
             } else {
                 handleChildRemoved(proxy, true);
             }
@@ -501,8 +504,11 @@ public class ParentingProxy extends KrollProxy {
                 if (oldOne.equals(arg)) {
                     return oldOne;
                 }
-                if (oldOne instanceof ParentingProxy && ((ParentingProxy)oldOne).getParent() != this) {
-                    ((ParentingProxy)oldOne).getParent().removeProxy(oldOne);
+                if (oldOne instanceof ParentingProxy) {
+                    ParentingProxy parent =  ((ParentingProxy)oldOne).getParent();
+                    if (parent != null && parent != this) {
+                        parent.remove(oldOne);
+                    }
                 } else {
                     handleChildRemoved(oldOne, true);
                 }
