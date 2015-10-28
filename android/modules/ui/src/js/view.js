@@ -13,9 +13,9 @@ exports.bootstrap = function(Titanium) {
 	var TiWindow = Titanium.TiWindow;
 
 	var _add = View.prototype.add;
-	View.prototype.add = function(child) {
+	View.prototype.add = function(child, index) {
 		this._children = this._children || [];
-		_add.call(this, child);
+		_add.call(this, child, index);
 		// The children have to be retained by the view in the Javascript side
 		// in order to let V8 know the relationship between children and the view.
 		// Therefore, as long as its window is open, all its children won't be detached
