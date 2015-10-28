@@ -8,19 +8,20 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.animation.TiAnimator;
 import org.appcelerator.titanium.animation.TiAnimatorListener;
 import org.appcelerator.titanium.animation.TiAnimatorSet;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
 import android.view.animation.Interpolator;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ValueAnimator;
+//import android.animation.Animator;
+//import android.animation.AnimatorSet;
+//import android.animation.ValueAnimator;
 
 @SuppressWarnings({"rawtypes"})
 @Kroll.proxy

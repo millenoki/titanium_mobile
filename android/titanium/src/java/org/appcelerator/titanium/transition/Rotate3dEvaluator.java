@@ -4,7 +4,7 @@ import android.graphics.Camera;
 import android.graphics.Matrix;
 import android.view.View;
 
-import com.nineoldandroids.animation.TypeEvaluator;
+import android.animation.TypeEvaluator;
 
 
 public class Rotate3dEvaluator implements TypeEvaluator<Matrix> {

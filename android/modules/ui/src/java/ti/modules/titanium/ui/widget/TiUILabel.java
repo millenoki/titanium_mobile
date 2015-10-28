@@ -26,10 +26,14 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.FreeLayout;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ArgbEvaluator;
-import com.nineoldandroids.animation.ObjectAnimator;
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+//import android.animation.Animator;
+//import android.animation.AnimatorSet;
+//import android.animation.ArgbEvaluator;
+//import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;

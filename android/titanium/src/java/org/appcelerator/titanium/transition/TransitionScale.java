@@ -10,9 +10,8 @@ import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.view.View;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.PropertyValuesHolder;
-import com.nineoldandroids.view.ViewHelper;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 
 public class TransitionScale extends Transition {
 	private static final float alpha = 0.0f;
@@ -48,7 +47,7 @@ public class TransitionScale extends Transition {
 		super.setTargets(reversed, holder, inTarget, outTarget);
 		if (reversed) {
 			if (inTarget != null) {
-				ViewHelper.setAlpha(inTarget, alpha);
+			    inTarget.setAlpha(alpha);
 				TiViewHelper.setScale(inTarget, scale);
 			}
 			if (outTarget != null) outTarget.bringToFront();

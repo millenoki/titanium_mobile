@@ -3,14 +3,17 @@ package org.appcelerator.titanium.transition;
 import org.appcelerator.titanium.transition.TransitionHelper.SubTypes;
 import org.appcelerator.titanium.util.TiViewHelper;
 
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
+import android.animation.AnimatorSet;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.animation.Interpolator;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.Animator.AnimatorListener;
-import com.nineoldandroids.view.ViewHelper;
+//import android.animation.Animator;
+//import android.animation.AnimatorSet;
+//import android.animation.Animator.AnimatorListener;
+//import android.view.ViewHelper;
 
 public abstract class Transition {
 	public Animator inAnimator;
@@ -66,13 +69,15 @@ public abstract class Transition {
 		prepare(holder, inTarget, inTarget);
 		if (inTarget != null) {
 			TiViewHelper.resetValues(inTarget);
-			ViewHelper.setAlpha(inTarget, 1.0f);
+			inTarget.setAlpha(1.0f);
+//			ViewHelper.setAlpha(inTarget, 1.0f);
 			inAnimator.setTarget(inTarget);
 			inInversedAnimator.setTarget(inTarget);			
 		} else inAnimator = inInversedAnimator = null;
 		if (outTarget != null) {
 			TiViewHelper.resetValues(outTarget);
-			ViewHelper.setAlpha(outTarget, 1.0f);
+			outTarget.setAlpha(1.0f);
+//			ViewHelper.setAlpha(outTarget, 1.0f);
 			outAnimator.setTarget(outTarget);
 			outInversedAnimator.setTarget(outTarget);
 		} else outAnimator = outInversedAnimator = null;

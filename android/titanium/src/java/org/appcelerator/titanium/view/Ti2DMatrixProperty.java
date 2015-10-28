@@ -7,8 +7,7 @@ import android.view.View;
 import android.view.ViewParent;
 import android.view.ViewGroup.LayoutParams;
 
-import com.nineoldandroids.util.Property;
-import com.nineoldandroids.view.ViewHelper;
+import android.util.Property;
 
 public class Ti2DMatrixProperty extends Property<View, Ti2DMatrix> {
 
@@ -30,11 +29,11 @@ public class Ti2DMatrixProperty extends Property<View, Ti2DMatrix> {
 		}
 		else {
 			DecomposedType decompose = value.getAffineTransform(view).decompose();
-			ViewHelper.setTranslationX(view, (float) decompose.translateX);
-			ViewHelper.setTranslationY(view, (float) decompose.translateY);
-			ViewHelper.setRotation(view, (float) (decompose.angle*180/Math.PI));
-			ViewHelper.setScaleX(view, (float) decompose.scaleX);
-			ViewHelper.setScaleY(view, (float) decompose.scaleY);
+			view.setTranslationX((float) decompose.translateX);
+			view.setTranslationY((float) decompose.translateY);
+			view.setRotation((float) (decompose.angle*180/Math.PI));
+			view.setScaleX((float) decompose.scaleX);
+			view.setScaleY((float) decompose.scaleY);
 		}
     }
 
@@ -46,11 +45,11 @@ public class Ti2DMatrixProperty extends Property<View, Ti2DMatrix> {
 		}
 		else {
 			DecomposedType decompose =new DecomposedType();
-			decompose.translateX = ViewHelper.getTranslationX(view);
-			decompose.translateY = ViewHelper.getTranslationY(view);
-			decompose.angle = ViewHelper.getRotation(view)*Math.PI / 180;
-			decompose.scaleX = ViewHelper.getScaleX(view);
-			decompose.scaleY = ViewHelper.getScaleY(view);
+			decompose.translateX = view.getTranslationX();
+			decompose.translateY = view.getTranslationY();
+			decompose.angle = view.getRotation()*Math.PI / 180;
+			decompose.scaleX = view.getScaleX();
+			decompose.scaleY = view.getScaleY();
 			return new Ti2DMatrix(new AffineTransform(decompose));
 		}
 	}

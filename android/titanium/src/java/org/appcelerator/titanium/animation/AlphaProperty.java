@@ -2,22 +2,22 @@ package org.appcelerator.titanium.animation;
 
 import android.view.View;
 
-import com.nineoldandroids.util.FloatProperty;
-import com.nineoldandroids.view.ViewHelper;
+import android.util.Property;
 
-public class AlphaProperty extends FloatProperty<View> {
+
+public class AlphaProperty extends Property<View, Float> {
 
 	public AlphaProperty() {
-		super("alpha");
+		super(Float.class, "alpha");
 	}
 
 	@Override
-	public void setValue(View view, float value) {
-			ViewHelper.setAlpha(view, value);
+	public void set(View view, Float value) {
+	    view.setAlpha(value);
 	}
 
 	@Override
 	public Float get(View view) {
-		return ViewHelper.getAlpha(view);
+		return view.getAlpha();
 	}
 }

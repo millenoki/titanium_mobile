@@ -40,14 +40,19 @@ import org.appcelerator.titanium.view.TiCompositeLayout.AnimationLayoutParams;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 import org.appcelerator.titanium.TiBlob;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.ArgbEvaluator;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.PropertyValuesHolder;
-import com.nineoldandroids.view.ViewHelper;
-import com.nineoldandroids.view.animation.AnimatorProxy;
+import android.animation.Animator;
+
+//import android.animation.Animator;
+//import android.animation.ArgbEvaluator;
+//import android.animation.ObjectAnimator;
+//import android.animation.PropertyValuesHolder;
+//import android.view.ViewHelper;
+//import android.view.animation.AnimatorProxy;
 
 import android.animation.AnimatorSet;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.animation.StateListAnimator;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -778,7 +783,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (background != null)
                     TiUIHelper.setDrawableOpacity(
                             background,
-                            ViewHelper.getAlpha(getNativeView())
+                            getNativeView().getAlpha()
+//                            ViewHelper.getAlpha(getNativeView())
                                     * TiConvert.toFloat(newValue, 1f));
                 break;
             case TiC.PROPERTY_BACKGROUND_PADDING:
@@ -1652,7 +1658,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             }
             float oldAlpha = getOpacity();
             borderView = new TiBorderWrapperView(currentActivity, proxy);
-            ViewHelper.setAlpha(borderView, oldAlpha);
+            borderView.setAlpha(oldAlpha);
+//            ViewHelper.setAlpha(borderView, oldAlpha);
             borderView.setVisibility(this.visibility);
             borderView.setEnabled(isEnabled);
             borderView.setAntiAlias(antiAlias);
@@ -2005,12 +2012,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         opacity = Math.min(1, Math.max(0, opacity));
         View view = getOuterView();
         if (view != null) {
-            ViewHelper.setAlpha(view, opacity);
+            view.setAlpha(opacity);
+//            ViewHelper.setAlpha(view, opacity);
         }
     }
 
     public float getOpacity() {
-        return ViewHelper.getAlpha(getOuterView());
+        return getOuterView().getAlpha();
+//        return ViewHelper.getAlpha(getOuterView());
     }
 
     // public void clearOpacity(View view)
@@ -2437,8 +2446,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     propertiesList.add(PropertyValuesHolder.ofFloat("scaleY",
                             (float) decompose.scaleY));
                     list.add(ObjectAnimator.ofPropertyValuesHolder(
-                            AnimatorProxy.NEEDS_PROXY ? AnimatorProxy.wrap(view)
-                                    : view, propertiesList
+                            view, propertiesList
                                     .toArray(new PropertyValuesHolder[0])));
                     if (needsReverse) {
                         matrix = TiConvert.toMatrix(properties,
@@ -2456,8 +2464,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         propertiesList.add(PropertyValuesHolder.ofFloat("scaleY",
                                 (float) decompose.scaleY));
                         listReverse.add(ObjectAnimator.ofPropertyValuesHolder(
-                                AnimatorProxy.NEEDS_PROXY ? AnimatorProxy
-                                        .wrap(view) : view, propertiesList
+                                view, propertiesList
                                         .toArray(new PropertyValuesHolder[0])));
                     }
                 }

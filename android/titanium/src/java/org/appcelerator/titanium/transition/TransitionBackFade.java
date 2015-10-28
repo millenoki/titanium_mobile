@@ -4,12 +4,16 @@ import org.appcelerator.titanium.animation.AlphaProperty;
 import org.appcelerator.titanium.animation.CubicBezierInterpolator;
 import org.appcelerator.titanium.animation.ScaleProperty;
 
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.view.View;
+import android.widget.ViewAnimator;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
+//import com.nineoldandroids.animation.Animator;
+//import com.nineoldandroids.animation.AnimatorSet;
+//import com.nineoldandroids.animation.ObjectAnimator;
+//import com.nineoldandroids.view.ViewHelper;
 
 public class TransitionBackFade extends Transition {
 	private static final float scale = 0.2f;
@@ -37,7 +41,7 @@ public class TransitionBackFade extends Transition {
 	}
 	public void setTargets(boolean reversed, View holder, View inTarget, View outTarget) {
 		super.setTargets(reversed, holder, inTarget, outTarget);
-		if (inTarget != null) ViewHelper.setAlpha(inTarget, 0.0f);
+		if (inTarget != null) inTarget.setAlpha(0.0f);
 		if (outTarget != null) outTarget.bringToFront();
 	}
 }

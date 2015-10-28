@@ -9,9 +9,8 @@ import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.view.View;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.PropertyValuesHolder;
-import com.nineoldandroids.view.ViewHelper;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 
 public class TransitionFold extends Transition {
 	private static final float angle = 90;
@@ -57,7 +56,7 @@ public class TransitionFold extends Transition {
 			valuex = (reversed && TransitionHelper.isPushSubType(subType))?0:1;
 		}
 		if (inTarget != null) {
-			ViewHelper.setAlpha(inTarget, 0);
+		    inTarget.setAlpha(0);
 			TiViewHelper.setPivotFloat(inTarget, valuex, valuey);			
 		}
 		if (outTarget != null) TiViewHelper.setPivotFloat(outTarget, 1-valuex, 1-valuey);

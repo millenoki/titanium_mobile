@@ -4,16 +4,16 @@ import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.view.View;
 
-import com.nineoldandroids.util.FloatProperty;
+import android.util.Property;
 
-public class PivotProperty extends FloatProperty<View> {
+public class PivotProperty extends Property<View, Float> {
 
 	public PivotProperty(String name) {
-		super(name);
+		super(Float.class, name);
 	}
 
 	@Override
-	public void setValue(View view, float value) {
+	public void set(View view, Float value) {
 		if (getName().equals("y"))
 			TiViewHelper.setPivotFloatY(view, value);
 		else

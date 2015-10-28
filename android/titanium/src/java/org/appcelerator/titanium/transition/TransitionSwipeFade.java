@@ -9,9 +9,8 @@ import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.view.View;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.PropertyValuesHolder;
-import com.nineoldandroids.view.ViewHelper;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 
 public class TransitionSwipeFade extends Transition {
 	private static final float destTrans = 0.3f;
@@ -53,7 +52,7 @@ public class TransitionSwipeFade extends Transition {
 		float destFactor = 1.0f;
 		if (reversed) {
 			destFactor = -destTrans;
-			if (inTarget != null) ViewHelper.setAlpha(inTarget, alpha);
+			if (inTarget != null) inTarget.setAlpha(alpha);
 			if (outTarget != null) outTarget.bringToFront();
 		}
 		if (inTarget == null) return;
@@ -86,7 +85,7 @@ public class TransitionSwipeFade extends Transition {
 			alpha = 1 - Math.abs(position);
 		}
 		translate *= multiplier;
-		ViewHelper.setAlpha(view, alpha);
+		view.setAlpha(alpha);
 		if (TransitionHelper.isVerticalSubType(subType)) {
 			TiViewHelper.setTranslationRelativeY(view, translate);
 		}

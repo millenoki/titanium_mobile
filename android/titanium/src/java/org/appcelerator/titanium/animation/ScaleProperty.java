@@ -4,23 +4,22 @@ import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.view.View;
 
-import com.nineoldandroids.util.FloatProperty;
-import com.nineoldandroids.view.ViewHelper;
+import android.util.Property;
 
-public class ScaleProperty extends FloatProperty<View> {
+public class ScaleProperty extends Property<View, Float> {
 
 	public ScaleProperty() {
-		super("scale");
+		super(Float.class, "scale");
 	}
 
 	@Override
-	public void setValue(View view, float value) {
+	public void set(View view, Float value) {
 		TiViewHelper.setScale(view, value);
 	}
 
 	@Override
 	public Float get(View view) {
-		return ViewHelper.getScaleX(view);
+		return view.getScaleX();
 	}
 	
 }

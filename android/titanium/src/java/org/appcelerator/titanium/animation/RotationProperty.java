@@ -2,29 +2,29 @@ package org.appcelerator.titanium.animation;
 
 import android.view.View;
 
-import com.nineoldandroids.util.FloatProperty;
-import com.nineoldandroids.view.ViewHelper;
+import android.util.Property;
 
-public class RotationProperty extends FloatProperty<View> {
+
+public class RotationProperty extends Property<View, Float> {
 
 	public RotationProperty(String name) {
-		super(name);
+		super(Float.class, name);
 	}
 
 	@Override
-	public void setValue(View view, float value) {
+	public void set(View view, Float value) {
 		if (getName().equals("y"))
-			ViewHelper.setRotationY(view, value);
+		    view.setRotationY(value);
 		else
-			ViewHelper.setRotationX(view, value);
+		    view.setRotationX(value);
 	}
 
 	@Override
 	public Float get(View view) {
 		if (getName().equals("y"))
-			return ViewHelper.getRotationY(view);
+			return view.getRotationY();
 		else
-			return ViewHelper.getRotationX(view);
+			return view.getRotationX();
 	}
 	
 }

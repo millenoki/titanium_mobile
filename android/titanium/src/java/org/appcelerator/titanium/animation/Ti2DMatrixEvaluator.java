@@ -3,7 +3,9 @@ package org.appcelerator.titanium.animation;
 import org.appcelerator.titanium.util.AffineTransform;
 import org.appcelerator.titanium.view.Ti2DMatrix;
 
-import com.nineoldandroids.animation.TypeEvaluator;
+import android.animation.TypeEvaluator;
+
+//import android.animation.TypeEvaluator;
 
 import android.view.View;
 

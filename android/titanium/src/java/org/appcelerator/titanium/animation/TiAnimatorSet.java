@@ -1,6 +1,8 @@
 package org.appcelerator.titanium.animation;
 
-import com.nineoldandroids.animation.AnimatorSet;
+import android.animation.AnimatorSet;
+
+//import android.animation.AnimatorSet;
 
 public class TiAnimatorSet extends TiAnimator {
 	private AnimatorSet set;

@@ -20,8 +20,8 @@ import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecora
 import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuAdapter;
 import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuCallback;
 import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorInflater;
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
 
 import android.annotation.SuppressLint;
 import ti.modules.titanium.ui.widget.CustomListView;

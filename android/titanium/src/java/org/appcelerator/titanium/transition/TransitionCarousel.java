@@ -8,12 +8,14 @@ import org.appcelerator.titanium.animation.ScaleProperty;
 import org.appcelerator.titanium.animation.TranslationProperty;
 import org.appcelerator.titanium.util.TiViewHelper;
 
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.PropertyValuesHolder;
-import com.nineoldandroids.view.ViewHelper;
+//import android.animation.ObjectAnimator;
+//import android.animation.PropertyValuesHolder;
+//import android.view.ViewHelper;
 
 public class TransitionCarousel extends Transition {
 	private static final float translation = 1.0f;
@@ -49,18 +51,20 @@ public class TransitionCarousel extends Transition {
 		
 		
 		List<PropertyValuesHolder> propertiesList = new ArrayList<PropertyValuesHolder>();
-		propertiesList.add(PropertyValuesHolder.ofFloat(new TranslationProperty(translateProp), destTranslation*translation, 0.0f));
-		propertiesList.add(PropertyValuesHolder.ofFloat(new ScaleProperty(), scale, 1));
-		propertiesList.add(PropertyValuesHolder.ofFloat(new RotationProperty(rotateProp), destAngle, 0.0f));
+		propertiesList.add(PropertyValuesHolder.ofFloat(translateProp, destTranslation*translation, 0.0f));
+		propertiesList.add(PropertyValuesHolder.ofFloat("scaleX", scale, 1));
+		propertiesList.add(PropertyValuesHolder.ofFloat("scaleY", scale, 1));
+		propertiesList.add(PropertyValuesHolder.ofFloat(rotateProp, destAngle, 0.0f));
 		inAnimator = ObjectAnimator.ofPropertyValuesHolder(null,
 				propertiesList.toArray(new PropertyValuesHolder[0]));
 		inAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
 		inAnimator.setDuration(duration);
 
 		propertiesList = new ArrayList<PropertyValuesHolder>();
-		propertiesList.add(PropertyValuesHolder.ofFloat(new TranslationProperty(translateProp), 0, -destTranslation*translation));
-		propertiesList.add(PropertyValuesHolder.ofFloat(new ScaleProperty(), 1, scale));
-		propertiesList.add(PropertyValuesHolder.ofFloat(new RotationProperty(rotateProp), 0,
+		propertiesList.add(PropertyValuesHolder.ofFloat(translateProp, 0, -destTranslation*translation));
+		propertiesList.add(PropertyValuesHolder.ofFloat("scaleX", 1, scale));
+		propertiesList.add(PropertyValuesHolder.ofFloat("scaleY", 1, scale));
+		propertiesList.add(PropertyValuesHolder.ofFloat(rotateProp, 0,
 				-destAngle));
 		outAnimator = ObjectAnimator.ofPropertyValuesHolder(null,
 				propertiesList.toArray(new PropertyValuesHolder[0]));
@@ -83,16 +87,18 @@ public class TransitionCarousel extends Transition {
 			if (outTarget != null) TiViewHelper.setPivotFloat(outTarget, 0.5f, reversed?0.f:1.0f);
 			if (inTarget != null) {
 				TiViewHelper.setPivotFloat(inTarget, 0.5f, reversed?1.0f:0.0f);
-				ViewHelper.setTranslationY(inTarget, destTranslation*translation);
-				ViewHelper.setRotationX(inTarget, destAngle);
+				inTarget.setTranslationY(destTranslation*translation);
+				inTarget.setRotationX(destAngle);
 			}
 		}
 		else {
 			if (outTarget != null) TiViewHelper.setPivotFloat(outTarget, reversed?0.f:1.0f, 0.5f);
 			if (inTarget != null) {
 				TiViewHelper.setPivotFloat(inTarget, reversed?1.0f:0.0f, 0.5f);
-				ViewHelper.setTranslationX(inTarget, destTranslation*translation);
-				ViewHelper.setRotationY(inTarget, destAngle);
+//				ViewHelper.setTranslationX(inTarget, destTranslation*translation);
+//				ViewHelper.setRotationY(inTarget, destAngle);
+				inTarget.setTranslationX(destTranslation*translation);
+				inTarget.setRotationY(destAngle);
 			}
 		}
 	}
@@ -101,10 +107,12 @@ public class TransitionCarousel extends Transition {
 	public void transformView(View view, float position) {
 		if (Math.abs(position) >= nbFaces - 1)
 	    {
-			ViewHelper.setAlpha(view, 0);
+//		    ViewHelper.setAlpha(view, 0);
+		    view.setAlpha(0);
 	        return;
 	    }
-		ViewHelper.setAlpha(view, 1);
+//		ViewHelper.setAlpha(view, 1);
+		view.setAlpha(1);
 		boolean out = (position < 0);
 		float multiplier = 1;
 		if (!TransitionHelper.isPushSubType(subType)) {
@@ -114,16 +122,19 @@ public class TransitionCarousel extends Transition {
 		float angle = (360 / nbFaces);
 		float rot = angle * position;
 		float alpha = (Math.abs(rot) <= 90.0f)?1.0f:0.0f;
-		ViewHelper.setAlpha(view, alpha);
+//		ViewHelper.setAlpha(view, alpha);
+		view.setAlpha(alpha);
 		if (TransitionHelper.isVerticalSubType(subType)) {
 			TiViewHelper.setPivotFloat(view, 0.5f, out?1.0f:0.0f);
 			TiViewHelper.setTranslationRelativeY(view, position * multiplier);
-			ViewHelper.setRotationX(view, rot);
+			view.setRotationX(rot);
+//			ViewHelper.setRotationX(view, rot);
 		}
 		else {
 			TiViewHelper.setPivotFloat(view, out?1.0f:0.0f, 0.5f);
 			TiViewHelper.setTranslationRelativeX(view, position * multiplier);
-			ViewHelper.setRotationY(view, rot);
+//			ViewHelper.setRotationY(view, rot);
+			view.setRotationY(rot);
 		}
 	}
 }

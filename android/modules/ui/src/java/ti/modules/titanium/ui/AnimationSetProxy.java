@@ -19,9 +19,9 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.proxy.AnimatableProxy;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.Animator.AnimatorListener;
-import com.nineoldandroids.animation.AnimatorSet;
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
+import android.animation.AnimatorSet;
 
 import android.os.Handler;
 import android.os.Message;

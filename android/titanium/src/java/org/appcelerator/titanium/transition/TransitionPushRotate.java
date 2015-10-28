@@ -11,10 +11,9 @@ import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.view.View;
 
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.PropertyValuesHolder;
-import com.nineoldandroids.view.ViewHelper;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 
 public class TransitionPushRotate extends Transition {
 		private static final float angle = 90;
@@ -70,10 +69,10 @@ public class TransitionPushRotate extends Transition {
 				
 				if (TransitionHelper.isVerticalSubType(subType)) {
 					dest = rect.height();
-					ViewHelper.setTranslationY(inTarget, dest*multiplier);
+					inTarget.setTranslationY(dest*multiplier);
 				}
 				else {
-					ViewHelper.setTranslationX(inTarget, dest*multiplier);
+				    inTarget.setTranslationX(dest*multiplier);
 				}
 			}
 			View target = reversed?inTarget:outTarget;

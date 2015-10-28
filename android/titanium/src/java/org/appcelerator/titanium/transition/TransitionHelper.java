@@ -14,9 +14,13 @@ import org.appcelerator.titanium.util.TiConvert;
 
 import org.appcelerator.titanium.util.TiUIHelper;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.Animator.AnimatorListener;
+import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
+import android.animation.AnimatorSet;
+
+//import android.animation.Animator;
+//import android.animation.AnimatorSet;
+//import android.animation.Animator.AnimatorListener;
 
 import android.annotation.SuppressLint;
 import android.view.View;

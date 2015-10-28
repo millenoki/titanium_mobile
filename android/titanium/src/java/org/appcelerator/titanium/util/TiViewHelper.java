@@ -7,7 +7,6 @@ import org.appcelerator.titanium.TiC;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.nineoldandroids.view.ViewHelper;
 
 public class TiViewHelper {
 
@@ -36,64 +35,64 @@ public class TiViewHelper {
     }
 
     public static void setTranslationRelativeX(View view, float val) {
-        ViewHelper.setTranslationX(view, getWidthForView(view) * val);
+        view.setTranslationX(getWidthForView(view) * val);
 
     }
 
     public static float getTranslationRelativeX(View view) {
-        return (ViewHelper.getTranslationX(view) / getWidthForView(view));
+        return (view.getTranslationX() / getWidthForView(view));
     }
 
     public static void setTranslationRelativeY(View view, float val) {
-        ViewHelper.setTranslationY(view, getHeightForView(view) * val);
+        view.setTranslationY(getHeightForView(view) * val);
     }
 
     public static float getTranslationRelativeY(View view) {
-        return (ViewHelper.getTranslationY(view) / getHeightForView(view));
+        return (view.getTranslationY() / getHeightForView(view));
     }
 
     public static void setPivotFloatX(View view, float val) {
-        ViewHelper.setPivotX(view, getWidthForView(view) * val);
+        view.setPivotX(getWidthForView(view) * val);
     }
 
     public static void setPivotFloat(View view, float valx, float valy) {
-        ViewHelper.setPivotX(view, getWidthForView(view) * valx);
-        ViewHelper.setPivotY(view, getHeightForView(view) * valy);
+        view.setPivotX(getWidthForView(view) * valx);
+        view.setPivotY(getHeightForView(view) * valy);
     }
 
     public static float getPivotFloatX(View view) {
-        return (ViewHelper.getPivotX(view) / getWidthForView(view));
+        return (view.getPivotX() / getWidthForView(view));
     }
 
     public static void setPivotFloatY(View view, float val) {
-        ViewHelper.setPivotX(view, getHeightForView(view) * val);
+        view.setPivotX(getHeightForView(view) * val);
     }
 
     public static float getPivotFloatY(View view) {
-        return (ViewHelper.getPivotY(view) / getHeightForView(view));
+        return (view.getPivotY() / getHeightForView(view));
     }
 
     public static void setScale(View view, float valx, float valy) {
-        ViewHelper.setScaleX(view, valx);
-        ViewHelper.setScaleY(view, valy);
+        view.setScaleX(valx);
+        view.setScaleY(valy);
     }
 
     public static void setScale(View view, float val) {
-        ViewHelper.setScaleX(view, val);
-        ViewHelper.setScaleY(view, val);
+        view.setScaleX(val);
+        view.setScaleY(val);
     }
 
     public static void resetValues(View view) {
 
         setPivotFloat(view, 0.5f, 0.5f);
-        ViewHelper.setTranslationX(view, 0.0f);
-        ViewHelper.setTranslationY(view, 0.0f);
-        ViewHelper.setScaleX(view, 1.0f);
-        ViewHelper.setScaleY(view, 1.0f);
-        ViewHelper.setRotation(view, 0.0f);
-        ViewHelper.setRotationX(view, 0.0f);
-        ViewHelper.setRotationY(view, 0.0f);
-        ViewHelper.setAlpha(view, 1.0f);
+        view.setTranslationX(0.0f);
+        view.setTranslationY(0.0f);
+        view.setScaleX(1.0f);
+        view.setScaleY(1.0f);
+        view.setRotation(0.0f);
+        view.setRotationX(0.0f);
+        view.setRotationY(0.0f);
+        view.setAlpha(1.0f);
     }
 
     public static KrollDict dictFromMotionEvent(final View view, final MotionEvent e) {

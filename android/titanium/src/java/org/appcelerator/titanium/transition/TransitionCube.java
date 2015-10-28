@@ -10,9 +10,8 @@ import org.appcelerator.titanium.util.TiViewHelper;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.PropertyValuesHolder;
-import com.nineoldandroids.view.ViewHelper;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 
 public class TransitionCube extends Transition {
 	private static final float translation = 1.0f;
@@ -80,16 +79,16 @@ public class TransitionCube extends Transition {
 			if (outTarget != null) TiViewHelper.setPivotFloat(outTarget, 0.5f, reversed?0.f:1.0f);
 			if (inTarget != null) {
 				TiViewHelper.setPivotFloat(inTarget, 0.5f, reversed?1.0f:0.0f);
-				ViewHelper.setTranslationY(inTarget, destTranslation*translation);
-				ViewHelper.setRotationX(inTarget, destAngle);
+				inTarget.setTranslationY(destTranslation*translation);
+				inTarget.setRotationX(destAngle);
 			}
 		}
 		else {
 			if (outTarget != null) TiViewHelper.setPivotFloat(outTarget, reversed?0.f:1.0f, 0.5f);
 			if (inTarget != null) {
 				TiViewHelper.setPivotFloat(inTarget, reversed?1.0f:0.0f, 0.5f);
-				ViewHelper.setTranslationX(inTarget, destTranslation*translation);
-				ViewHelper.setRotationY(inTarget, destAngle);
+				inTarget.setTranslationX(destTranslation*translation);
+				inTarget.setRotationY(destAngle);
 			}
 		}
 	}
@@ -98,10 +97,10 @@ public class TransitionCube extends Transition {
 	public void transformView(View view, float position) {
 		if (Math.abs(position) >= nbFaces - 1)
 	    {
-			ViewHelper.setAlpha(view, 0);
+		    view.setAlpha(0);
 	        return;
 	    }
-		ViewHelper.setAlpha(view, 1);
+		view.setAlpha(1);
 		boolean out = (position < 0);
 		float multiplier = 1;
 		if (!TransitionHelper.isPushSubType(subType)) {
@@ -111,16 +110,16 @@ public class TransitionCube extends Transition {
 		float angle = (360 / nbFaces);
 		float rot = angle * position;
 		float alpha = (Math.abs(rot) <= 90.0f)?1.0f:0.0f;
-		ViewHelper.setAlpha(view, alpha);
+		view.setAlpha(alpha);
 		if (TransitionHelper.isVerticalSubType(subType)) {
 			TiViewHelper.setPivotFloat(view, 0.5f, out?1.0f:0.0f);
 			TiViewHelper.setTranslationRelativeY(view, position * multiplier);
-			ViewHelper.setRotationX(view, rot);
+			view.setRotationX(rot);
 		}
 		else {
 			TiViewHelper.setPivotFloat(view, out?1.0f:0.0f, 0.5f);
 			TiViewHelper.setTranslationRelativeX(view, position * multiplier);
-			ViewHelper.setRotationY(view, rot);
+			view.setRotationY(rot);
 		}
 	}
 }

@@ -4,8 +4,7 @@ import org.appcelerator.titanium.animation.AlphaProperty;
 
 import android.view.View;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
+import android.animation.ObjectAnimator;
 
 public class TransitionFade extends Transition {
 	public TransitionFade(int subtype, boolean isOut, int duration) {
@@ -25,7 +24,7 @@ public class TransitionFade extends Transition {
 	}
 	public void setTargets(boolean reversed, View holder, View inTarget, View outTarget) {
 		super.setTargets(reversed, holder, inTarget, outTarget);
-		if (inTarget != null) ViewHelper.setAlpha(inTarget, 0.0f);
+		if (inTarget != null) inTarget.setAlpha(0.0f);
 	}
 	
     @Override
@@ -36,7 +35,7 @@ public class TransitionFade extends Transition {
         }
         float alpha = 1 - Math.abs(position);
 
-        ViewHelper.setAlpha(view, alpha);
+        view.setAlpha(alpha);
         view.setVisibility((alpha == 0)?View.INVISIBLE:View.VISIBLE);
     }
 }

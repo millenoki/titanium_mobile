@@ -2,28 +2,27 @@ package org.appcelerator.titanium.animation;
 
 import android.view.View;
 
-import com.nineoldandroids.util.FloatProperty;
-import com.nineoldandroids.view.ViewHelper;
+import android.util.Property;
 
-public class TranslationProperty extends FloatProperty<View> {
+public class TranslationProperty extends Property<View, Float> {
 
 	public TranslationProperty(String name) {
-		super(name);
+		super(Float.class, name);
 	}
 
 	@Override
-	public void setValue(View view, float value) {
+	public void set(View view, Float value) {
 		if (getName().equals("y"))
-			ViewHelper.setTranslationY(view, value);
+		    view.setTranslationY(value);
 		else
-			ViewHelper.setTranslationX(view, value);
+		    view.setTranslationX(value);
 	}
 
 	@Override
 	public Float get(View view) {
 		if (getName().equals("y"))
-			return ViewHelper.getTranslationY(view);
+			return view.getTranslationY();
 		else
-			return ViewHelper.getTranslationX(view);
+			return view.getTranslationX();
 	}
 }

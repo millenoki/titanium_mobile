@@ -6,16 +6,16 @@ import android.view.View;
 import android.view.ViewParent;
 import android.view.ViewGroup.LayoutParams;
 
-import com.nineoldandroids.util.FloatProperty;
+import android.util.Property;
 
-public class AnimatedRectFractionProperty extends FloatProperty<View> {
+public class AnimatedRectFractionProperty extends Property<View, Float> {
 
 	public AnimatedRectFractionProperty() {
-		super("AnimatedRectFraction");
+		super(Float.class, "AnimatedRectFraction");
 	}
 
 	@Override
-	public void setValue(View view, float value) {
+	public void set(View view, Float value) {
 		LayoutParams params = view.getLayoutParams();
 		if (params instanceof AnimationLayoutParams) {
 			((AnimationLayoutParams)params).animationFraction = value;

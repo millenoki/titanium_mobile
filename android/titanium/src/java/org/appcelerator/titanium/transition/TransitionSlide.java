@@ -9,9 +9,8 @@ import org.appcelerator.titanium.animation.TranslationProperty;
 
 import android.view.View;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.PropertyValuesHolder;
-import com.nineoldandroids.view.ViewHelper;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 
 public class TransitionSlide extends Transition {
 	private static final float scale = 0.7f;
@@ -62,13 +61,13 @@ public class TransitionSlide extends Transition {
 		}
 		
 		if (inTarget == null) return;
-		ViewHelper.setAlpha(inTarget, 0);
+		inTarget.setAlpha(0);
 		if (TransitionHelper.isVerticalSubType(subType)) {
 			dest = rect.height();
-			ViewHelper.setTranslationY(inTarget, dest);
+			inTarget.setTranslationY(dest);
 		}
 		else {
-			ViewHelper.setTranslationX(inTarget, dest);
+		    inTarget.setTranslationX(dest);
 		}
 	}
 }

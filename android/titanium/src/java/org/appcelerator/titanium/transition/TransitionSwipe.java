@@ -4,8 +4,7 @@ import org.appcelerator.titanium.animation.TranslationProperty;
 
 import android.view.View;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
+import android.animation.ObjectAnimator;
 
 public class TransitionSwipe extends Transition {
 	public TransitionSwipe(int subtype, boolean isOut, int duration) {
@@ -48,10 +47,10 @@ public class TransitionSwipe extends Transition {
 		
 		if (TransitionHelper.isVerticalSubType(subType)) {
 			dest = rect.height();
-			ViewHelper.setTranslationY(inTarget, dest*multiplier);
+			inTarget.setTranslationY(dest*multiplier);
 		}
 		else {
-			ViewHelper.setTranslationX(inTarget, dest*multiplier);
+		    inTarget.setTranslationX(dest*multiplier);
 		}
 	}
 }

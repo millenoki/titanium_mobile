@@ -10,10 +10,9 @@ import org.appcelerator.titanium.util.TiViewHelper;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 
 public class TransitionFlip extends Transition {
     private static float CAMERA_DISTANCE = 10000;
@@ -67,7 +66,7 @@ public class TransitionFlip extends Transition {
             View outTarget) {
         super.setTargets(reversed, holder, inTarget, outTarget);
         if (inTarget != null)
-            ViewHelper.setAlpha(inTarget, 0);
+            inTarget.setAlpha(0);
     }
 
     @Override
@@ -78,7 +77,7 @@ public class TransitionFlip extends Transition {
         }
         
         float alpha = (Math.abs(position) > 0.5) ? 0 : 1;
-        ViewHelper.setAlpha(view, alpha);
+        view.setAlpha(alpha);
         float rot = 180 * position;
         view.setVisibility((Math.abs(rot) >= 180)?View.INVISIBLE:View.VISIBLE);
         TiViewHelper.setPivotFloat(view, 0.5f, 0.5f);
@@ -86,9 +85,9 @@ public class TransitionFlip extends Transition {
             view.setCameraDistance(CAMERA_DISTANCE * TiApplication.getAppDensity());
         }
         if (TransitionHelper.isVerticalSubType(subType)) {
-            ViewHelper.setRotationX(view, rot);
+            view.setRotationX(rot);
         } else {
-            ViewHelper.setRotationY(view, rot);
+            view.setRotationY(rot);
         }
     }
 }
