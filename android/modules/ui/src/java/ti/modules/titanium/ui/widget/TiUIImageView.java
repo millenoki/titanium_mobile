@@ -15,6 +15,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -866,6 +867,11 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     private void setImageSource(TiDrawableReference source) {
         imageSources = new ArrayList<TiDrawableReference>();
         imageSources.add(source);
+        if (proxy.hasListeners("startload", false)) {
+            KrollDict data = new KrollDict();
+            data.put(TiC.PROPERTY_IMAGE, source.getUrl());
+            proxy.fireEvent("startload", data, false, false);
+        }
     }
 
     private TiDrawableReference makeImageSource(Object object) {
