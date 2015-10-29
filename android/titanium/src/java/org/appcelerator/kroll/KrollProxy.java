@@ -2125,6 +2125,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     new Object[] { props }, null);
             if (proxy == null)
                 return null;
+            if  (rootProxy == null) {
+                rootProxy = proxy;
+            }
 //            if (creationArgsHandlesTemplate) {
 //                template_.remove(TiC.PROPERTY_EVENTS);
 //                template_.remove(TiC.PROPERTY_CHILD_TEMPLATES);
