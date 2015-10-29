@@ -40,6 +40,13 @@ import android.location.Location;
 })
 public class LocationRuleProxy extends KrollProxy
 {
+    
+    
+    public LocationRuleProxy()
+    {
+        super();
+        defaultValues.put(TiC.PROPERTY_MIN_DISTANCE, GeolocationModule.SIMPLE_LOCATION_NETWORK_MIN_DISTANCE_RULE);
+    }
 	/**
 	 * Constructor.  Used primarily when creating a location rule via 
 	 * Ti.Geolocation.Android.createLocationRule
