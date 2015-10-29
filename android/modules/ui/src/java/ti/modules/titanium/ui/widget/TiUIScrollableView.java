@@ -759,38 +759,42 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	public void setViews(Object viewsObject)
 	{
 		boolean changed = false;
-		clearViewsList();
-
-		if (viewsObject instanceof Object[]) {
-			Object[] views = (Object[])viewsObject;
-//			Activity activity = this.proxy.getActivity();
-			for (int i = 0; i < views.length; i++) {
-			    Object arg = views[i];
-			    KrollProxy child = null;
-                if (arg instanceof HashMap) {
-                    child = proxy.createProxyFromTemplate((HashMap) arg, proxy, true);
-                    if (child != null) {
-                        child.updateKrollObjectProperties();
+        synchronized (mViews) {
+    		clearViewsList();
+    
+    		if (viewsObject instanceof Object[]) {
+    			Object[] views = (Object[])viewsObject;
+    //			Activity activity = this.proxy.getActivity();
+    			for (int i = 0; i < views.length; i++) {
+    			    Object arg = views[i];
+    			    KrollProxy child = null;
+                    if (arg instanceof HashMap) {
+                        child = proxy.createProxyFromTemplate((HashMap) arg, null, true);
+                        if (child != null) {
+                            child.updateKrollObjectProperties();
+                        }
+                    } else {
+                        child = (KrollProxy) arg;
                     }
-                } else {
-                    child = (KrollProxy) arg;
-                }
-                if (child instanceof TiViewProxy) {
-//                  tv.setActivity(activity);
-//                  tv.setParent(this.proxy);
-                    mViews.add((TiViewProxy) child);
-                    changed = true;
-                }
-			}
-		}
-		if (changed) {
-			mAdapter.notifyDataSetChanged();
-		}
+                    if (child instanceof TiViewProxy) {
+    //                  tv.setActivity(activity);
+                        ((TiViewProxy) child).setParent(this.proxy);
+                        mViews.add((TiViewProxy) child);
+                        changed = true;
+                    }
+    			}
+    		}
+        }
+        if (changed) {
+            mAdapter.notifyDataSetChanged();
+        }
 	}
 
 	public ArrayList<TiViewProxy> getViews()
 	{
-		return mViews;
+	    synchronized (mViews) {
+	        return mViews;
+	    }
 	}
 
 	@Override
@@ -802,13 +806,16 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 //				mPager.removeViewAt(i);
 //			}
 		}
-		if (mViews != null) {
-			for (TiViewProxy viewProxy : mViews) {
-				viewProxy.releaseViews(true);
-				viewProxy.setParent(null);
-			}
-			mViews.clear();
+		synchronized  (mViews) {
+		    if (mViews != null) {
+	            for (TiViewProxy viewProxy : mViews) {
+	                viewProxy.releaseViews(true);
+	                viewProxy.setParent(null);
+	            }
+	            mViews.clear();
+	        }
 		}
+		
 		super.release();
 	}
 

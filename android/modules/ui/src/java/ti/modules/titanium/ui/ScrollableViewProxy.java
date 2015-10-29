@@ -94,6 +94,16 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		return (TiUIScrollableView) getOrCreateView();
 	}
+	
+	@Kroll.method
+    public Object getView(int page)
+    {
+	    ArrayList<TiViewProxy> views = getView().getViews();
+	    if (page >= 0 && page < views.size()) {
+	        return views.get(page);
+	    }
+        return null;
+    }
 
 	public boolean handleMessage(Message msg)
 	{
