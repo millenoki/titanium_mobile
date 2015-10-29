@@ -112,7 +112,7 @@ public class TiUILabel extends TiUINonViewGroupView
     private CharSequence text = null;
     
     private float strokeWidth = 0;
-    private Integer strokeColor = -1;
+    private Integer strokeColor = Color.TRANSPARENT;
     private Join strokeJoin = Join.MITER;
     private float strokeMiter = 10;
 
@@ -287,8 +287,7 @@ public class TiUILabel extends TiUINonViewGroupView
 		
 		@Override
 	    public void onDraw(Canvas canvas){
-	        super.onDraw(canvas);
-	        if(strokeColor != -1 && strokeWidth > 0){
+	        if(strokeColor != Color.TRANSPARENT && strokeWidth > 0){
 	            freeze();
 	            int restoreColor = this.getCurrentTextColor();
 	            TextPaint paint = this.getPaint();
@@ -296,14 +295,17 @@ public class TiUILabel extends TiUINonViewGroupView
 	            paint.setStrokeJoin(strokeJoin);
 	            paint.setStrokeMiter(strokeMiter);
 	            this.setTextColor(strokeColor);
-	            paint.setStrokeWidth(strokeWidth);
+	            paint.setStrokeWidth(strokeWidth*2); // because the stroke is centered and not outside
 	            super.onDraw(canvas);
 	            paint.setStyle(Style.FILL);
-	            this.setTextColor(restoreColor);
+                this.setTextColor(restoreColor);
 	            unfreeze();
 	        }
+            super.onDraw(canvas);
 		}
 		
+		int lastMeasuredWidth = -1;
+		int lastMeasuredHeight = -1;
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
@@ -319,11 +321,24 @@ public class TiUILabel extends TiUINonViewGroupView
 				if (needsResizing) {
 					refitText(this.getText().toString(), w);
 				}
-				updateEllipsize(w - getPaddingLeft() - getPaddingRight(), 
-					h - getPaddingTop() - getPaddingBottom());
+				final boolean autoSize = layoutParams.optionWidth == null && !layoutParams.autoFillsWidth;
+				
+				if (w != lastMeasuredWidth || h != lastMeasuredHeight) {
+                    updateEllipsize(w - getPaddingLeft() - getPaddingRight(), 
+                            h - getPaddingTop() - getPaddingBottom());
+                } else {
+                    if (needsEllipsize() && readyToEllipsize == true && needsEllipsing == true)  {
+                        ellipseText(w - getPaddingLeft() - getPaddingRight(), 
+                                h - getPaddingTop() - getPaddingBottom());
+                    }
+                }
+				lastMeasuredWidth = w;
+				lastMeasuredHeight = h;
+				
 		//			 Only allow label to exceed the size of parent when it's size behavior with wordwrap disabled
-				if (!wordWrap && layoutParams.optionWidth == null && !layoutParams.autoFillsWidth) {
-					widthMeasureSpec = MeasureSpec.makeMeasureSpec(w,
+				if (!wordWrap && autoSize) {
+				    
+				    widthMeasureSpec = MeasureSpec.makeMeasureSpec(w,
 						MeasureSpec.UNSPECIFIED);
 					heightMeasureSpec = MeasureSpec.makeMeasureSpec(h,
 						MeasureSpec.UNSPECIFIED);
@@ -557,7 +572,7 @@ public class TiUILabel extends TiUINonViewGroupView
 				}
 			}
 		}
-		
+	
 		public void updateEllipsize(){
 		    if (needsEllipsize())  {
                 needsEllipsing = true;
@@ -1147,11 +1162,11 @@ public class TiUILabel extends TiUINonViewGroupView
             mProcessUpdateFlags |= TIFLAG_NEEDS_COLORS;
             break;
         case "strokeColor":
-            strokeColor = TiConvert.toColor(newValue, this.color);
+            strokeColor = TiConvert.toColor(newValue, Color.TRANSPARENT);
             setNeedsLayout();
             break;
         case "strokeWidth":
-            strokeWidth = TiConvert.toFloat(newValue, 0.0f);
+            strokeWidth = TiUIHelper.getInPixels(newValue);
             setNeedsLayout();
             break;
         case TiC.PROPERTY_SELECTED_COLOR:
