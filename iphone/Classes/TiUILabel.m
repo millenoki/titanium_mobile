@@ -457,7 +457,7 @@
 
 -(void)setStrokeWidth_:(id)arg
 {
-    [[self label] setStrokeWidth:[TiUtils floatValue:arg]];
+    [[self label] setStrokeWidth:TiDimensionCalculateValueFromString([TiUtils stringValue:arg])];
 }
 
 -(void)setShadowRadius_:(id)arg
