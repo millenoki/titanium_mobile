@@ -2103,7 +2103,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public KrollProxy createProxyFromTemplate(HashMap template_,
             KrollProxy rootProxy, boolean updateKrollProperties,
             boolean recursive) {
-        if (template_ == null || template_.isEmpty()) {
+        if (template_ == null) {
             return null;
         }
 //        boolean creationArgsHandlesTemplate = true;
