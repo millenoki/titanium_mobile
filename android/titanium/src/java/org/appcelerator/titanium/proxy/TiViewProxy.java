@@ -273,11 +273,13 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	                        int statusHeight = rect.top;
 	                        
 	                        position[1] -= statusHeight; //we remove statusbar height 
-
-	                        d.put(TiC.PROPERTY_WIDTH, v.getMeasuredWidth());
-	                        d.put(TiC.PROPERTY_HEIGHT, v.getMeasuredHeight());
-	                        d.put(TiC.PROPERTY_X, position[0]);
-	                        d.put(TiC.PROPERTY_Y, position[1]);
+	                        
+	                        TiDimension nativeWidth = new TiDimension(v.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+	                        TiDimension nativeHeight = new TiDimension(v.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+	                        d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault());
+	                        d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault());
+	                        d.put(TiC.PROPERTY_X, new TiDimension(position[0], TiDimension.TYPE_LEFT).getAsDefault());
+	                        d.put(TiC.PROPERTY_Y, new TiDimension(position[1], TiDimension.TYPE_TOP).getAsDefault());
 						}
 					}
 				}
