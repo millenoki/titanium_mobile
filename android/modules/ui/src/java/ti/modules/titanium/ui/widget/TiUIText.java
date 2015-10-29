@@ -142,7 +142,9 @@ public class TiUIText extends TiUINonViewGroupView
 		protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 		{
 			super.onLayout(changed, left, top, right, bottom);
-			TiUIHelper.firePostLayoutEvent(TiUIText.this);
+            if (changed) {
+                TiUIHelper.firePostLayoutEvent(TiUIText.this);
+            }
 		}
 
 		@Override

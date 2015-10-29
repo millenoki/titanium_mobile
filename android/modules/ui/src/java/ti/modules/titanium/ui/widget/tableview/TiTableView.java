@@ -714,7 +714,9 @@ public class TiTableView extends FrameLayout
 		super.onLayout(changed, left, top, right, bottom);
 
 		if (proxy != null) {
-			TiUIHelper.firePostLayoutEvent(proxy.peekView());
+            if (changed) {
+                TiUIHelper.firePostLayoutEvent(proxy.peekView());
+            }
 		}
 
 		// Layout is finished, re-enable focus events.

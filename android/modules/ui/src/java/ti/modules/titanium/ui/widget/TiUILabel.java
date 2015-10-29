@@ -1006,7 +1006,9 @@ public class TiUILabel extends TiUINonViewGroupView
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
 				super.onLayout(changed, left, top, right, bottom);
-				TiUIHelper.firePostLayoutEvent(TiUILabel.this);
+                if (changed) {
+                    TiUIHelper.firePostLayoutEvent(TiUILabel.this);
+                }
 			}
 		};
 		textPadding = new RectF();

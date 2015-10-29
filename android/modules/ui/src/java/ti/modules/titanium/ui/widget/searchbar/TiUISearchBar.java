@@ -78,7 +78,9 @@ public class TiUISearchBar extends TiUIText
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
 				super.onLayout(changed, left, top, right, bottom);
-				TiUIHelper.firePostLayoutEvent(TiUISearchBar.this);
+                if (changed) {
+                    TiUIHelper.firePostLayoutEvent(TiUISearchBar.this);
+                }
 			}
 		};
 

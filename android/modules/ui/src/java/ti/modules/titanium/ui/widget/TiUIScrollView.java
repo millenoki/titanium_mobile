@@ -578,7 +578,7 @@ public class TiUIScrollView extends TiUIView
 				if (nv instanceof ViewGroup) {
 					((ViewGroup) nv).removeView(cv);
 					children.remove(child);
-					child.setParent(null);
+//					child.setParent(null);
 				}
 			}
 		}

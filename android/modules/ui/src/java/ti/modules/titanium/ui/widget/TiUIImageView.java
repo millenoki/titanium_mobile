@@ -150,7 +150,11 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             protected void onLayout(boolean changed, int left, int top,
                     int right, int bottom) {
                 super.onLayout(changed, left, top, right, bottom);
-                TiUIHelper.firePostLayoutEvent(TiUIImageView.this);
+                if (changed) {
+                    if (changed) {
+                        TiUIHelper.firePostLayoutEvent(TiUIImageView.this);
+                    }
+                }
             }
 
             @Override

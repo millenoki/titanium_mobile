@@ -71,7 +71,9 @@ public class TiUISlider extends TiUIView
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
 				super.onLayout(changed, left, top, right, bottom);
-				TiUIHelper.firePostLayoutEvent(TiUISlider.this);
+                if (changed) {
+                    TiUIHelper.firePostLayoutEvent(TiUISlider.this);
+                }
 			}
 			
 			@Override

@@ -66,7 +66,9 @@ public class TiUIButton extends TiUINonViewGroupView
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 			{
 				super.onLayout(changed, left, top, right, bottom);
-				TiUIHelper.firePostLayoutEvent(TiUIButton.this);
+                if (changed) {
+                    TiUIHelper.firePostLayoutEvent(TiUIButton.this);
+                }
 			}
 
 			@Override
