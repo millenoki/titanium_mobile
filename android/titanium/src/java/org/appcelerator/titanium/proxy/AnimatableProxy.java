@@ -255,4 +255,13 @@ public class AnimatableProxy extends ParentingProxy {
 	{
 		
 	}
+	
+   @Kroll.getProperty(name="isAnimating")
+   @Kroll.method
+   public boolean getAnimating() {
+       synchronized (runningAnimationsLock) {
+           return runningAnimations.size() > 0;
+       }
+   }
+
 }

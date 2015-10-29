@@ -1444,7 +1444,7 @@ public class TiUIHelper
 
 	public static void firePostLayoutEvent(final TiUIView view)
 	{
-		if (view != null && view.getProxy() != null) {
+		if (view != null && view.getProxy() != null && !view.getProxy().getAnimating()) {
 			view.getProxy().fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
 		}
 	}
