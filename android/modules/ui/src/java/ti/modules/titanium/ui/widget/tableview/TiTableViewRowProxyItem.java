@@ -225,7 +225,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 			
 			TiViewProxy oldProxy = view.getProxy();
 			proxy.setView(view);
-			view.setParent(rp);
+			proxy.setParent(rp);
+//			view.setParent(rp);
 			view.setProxy(proxy);
 			proxy.setModelListener(view, false); //applying proxy properties
 			view.registerForTouch();

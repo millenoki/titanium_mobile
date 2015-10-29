@@ -27,6 +27,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.animation.Ti2DMatrixEvaluator;
 import org.appcelerator.titanium.animation.TiAnimatorSet;
 import org.appcelerator.titanium.animation.TiViewAnimator;
+import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AffineTransform.DecomposedType;
 import org.appcelerator.titanium.util.TiConvert;
@@ -125,7 +126,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected View nativeView; // Native View object
 
     protected TiViewProxy proxy;
-    protected TiViewProxy parent;
+//    protected TiViewProxy parent;
     protected ArrayList<TiUIView> children = new ArrayList<TiUIView>();
 
     protected LayoutParams layoutParams;
@@ -242,7 +243,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         }
                     }
 
-                    child.parent = proxy;
+//                    child.parent = proxy;
                     
                     if (!child.getClipChildren()) {
                         ((ViewGroup) nv).setClipChildren(false);
@@ -268,7 +269,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     synchronized (children) {
                         children.remove(child);
                     }
-                    child.parent = null;
+//                    child.parent = null;
                 }
             }
         }
@@ -302,13 +303,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         this.proxy = proxy;
     }
 
-    public TiViewProxy getParent() {
-        return parent;
+    public ParentingProxy getParent() {
+        return proxy.getParent();
     }
 
-    public void setParent(TiViewProxy parent) {
-        this.parent = parent;
-    }
+//    public void setParent(TiViewProxy parent) {
+//        this.parent = parent;
+//    }
 
     public void setTouchDelegate(TiTouchDelegate delegate) {
         mTouchDelegate = delegate;
@@ -599,7 +600,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     }
 
     protected void layoutNativeView(boolean informParent) {
-        if (parent != null) {
+//        if (parent != null) {
             View outerView = getOuterView();
             ViewParent nativeParent = null;
             if (outerView != null) {
@@ -616,7 +617,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     ((TiCompositeLayout) nativeParent).resort();
                 }
             }
-        }
+//        }
 
         View childHolder = getParentViewForChild();
         if (childHolder != null) {
@@ -1846,12 +1847,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             lastDownEvent = event;
             setPointerDown(true);
         }
-        if (parent != null && parent.peekView() != null) {
-            parent.peekView().onChildTouchEvent(this, v, event);
-        }
-        if (mGestureHandler != null) {
-            mGestureHandler.onTouch(v, event);
-        }
+        onChildTouchEvent(this, v, event);
 
         handleTouchEvent(event);
         return !isTouchEnabled;
@@ -1866,8 +1862,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 mGestureHandler.setTouchedView(view);
             }
         }
-        if (parent != null && parent.peekView() != null) {
-            parent.peekView().onChildTouchEvent(view, v, event);
+        ParentingProxy parent = getParent();
+        if (parent instanceof TiViewProxy && ((TiViewProxy) parent).peekView() != null) {
+            ((TiViewProxy) parent).peekView().onChildTouchEvent(this, v, event);
         }
     }
 
@@ -2608,11 +2605,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     public void blurBackground(final HashMap args) {
         final View outerView = getOuterView();
-        TiViewProxy parentProxy = getParent();
-        if (outerView != null && parentProxy != null) {
-            View parentView = parentProxy.getOuterView();
+        ParentingProxy parentProxy = getParent();
+        if (outerView != null && parentProxy instanceof TiViewProxy) {
+            View parentView = ((TiViewProxy) parentProxy).getOuterView();
             if (parentView != null) {
-                final Bitmap bitmap = TiUIHelper.viewToBitmap(layoutParams, parentProxy.getOuterView());
+                final Bitmap bitmap = TiUIHelper.viewToBitmap(layoutParams, parentView);
                 final KrollProxy proxyToUse = this.proxy;
                 boolean viewLaidOut = outerView.getWidth() != 0
                         && outerView.getHeight() != 0;
