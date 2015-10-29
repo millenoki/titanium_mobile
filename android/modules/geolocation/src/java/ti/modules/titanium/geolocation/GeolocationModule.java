@@ -831,18 +831,20 @@ public class GeolocationModule extends KrollModule
 	{
 		if (numLocationListeners > 0 || singleLocationCallback != null) {
 			doDisableLocationProviders();
+			
+			if (hasListeners("state", false)) {
+                KrollDict data = new KrollDict();
+                data.put("monitor", TiC.PROPERTY_LOCATION);
+                data.put("state", true);
+                fireEvent("state", data, false, false);
+           }
 
 			Iterator<String> iterator = locationProviders.keySet().iterator();
 			while(iterator.hasNext()) {
 				LocationProviderProxy locationProvider = locationProviders.get(iterator.next());
 				registerLocationProvider(locationProvider);
 			}
-			if (hasListeners("state", false)) {
-	             KrollDict data = new KrollDict();
-	             data.put("monitor", TiC.PROPERTY_LOCATION);
-                 data.put("state", true);
-                 fireEvent("state", data, false, false);
-			}
+			
 		}
 	}
 
