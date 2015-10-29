@@ -381,7 +381,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         @Override
         public void add(int position, Object data) {
             Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
-            info.first.insertItemData(info.second.second, data);
+            info.first.insertItemData(info.second.second, (HashMap) data);
             notifyDataSetChanged();
         }
 

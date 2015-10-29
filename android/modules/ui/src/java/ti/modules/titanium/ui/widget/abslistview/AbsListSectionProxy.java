@@ -18,7 +18,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger.Command;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.AnimatableReusableProxy;
@@ -29,12 +28,15 @@ import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListView.TiBaseAdapter;
-import android.annotation.SuppressLint;
 import android.view.View;
 
-@Kroll.proxy
-@SuppressWarnings({ "unchecked", "rawtypes" })
-@SuppressLint("DefaultLocale")
+@Kroll.proxy(propertyAccessors = {
+        TiC.PROPERTY_HEADER_TITLE,
+        TiC.PROPERTY_FOOTER_TITLE,
+        TiC.PROPERTY_HEADER_VIEW,
+        TiC.PROPERTY_FOOTER_VIEW,
+        TiC.PROPERTY_ITEMS
+    })
 public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private static final String TAG = "ListSectionProxy";
@@ -42,7 +44,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	private int mItemCount;
     private int mCurrentItemCount = 0;
 	private TiBaseAdapter adapter;
-	private ArrayList<Object> itemProperties;
+	private Object[] itemProperties;
 	private ArrayList<Integer> filterIndices;
 	private boolean preload;
 	private ArrayList<Boolean> hiddenItems;
@@ -221,8 +223,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private KrollDict handleGetItemAt(int index) {
 		if (itemProperties != null && index >= 0
-				&& index < itemProperties.size()) {
-			return new KrollDict((HashMap) itemProperties.get(index));
+				&& index < itemProperties.length) {
+			return new KrollDict((HashMap) itemProperties[index]);
 		}
 		return null;
 	}
@@ -264,12 +266,12 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	@Kroll.method
 	@Kroll.setProperty
 	public void setItems(final Object data) {
-		runInUiThread(new CommandNoReturn() {
-            @Override
-            public void execute() {
+//		runInUiThread(new CommandNoReturn() {
+//            @Override
+//            public void execute() {
                 handleSetItems(data);
-            }
-        }, true);
+//            }
+//        }, true);
 	}
 
 	@Kroll.method
@@ -278,7 +280,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		if (itemProperties == null) 
 			return new Object[0];
 //		} else if (TiApplication.isUIThread()) {
-			return itemProperties.toArray();
+			return itemProperties;
 //		} else {
 //			return (Object[]) TiMessenger
 //					.sendBlockingMainMessage(getMainHandler().obtainMessage(
@@ -288,12 +290,12 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	@Kroll.method
 	public void appendItems(final Object data) {
-		runInUiThread(new CommandNoReturn() {
-            @Override
-            public void execute() {
+//		runInUiThread(new CommandNoReturn() {
+//            @Override
+//            public void execute() {
                 handleAppendItems(data);    
-            }
-        }, true);
+//            }
+//        }, true);
 	}
 
 	public boolean isIndexValid(final int index) {
@@ -371,7 +373,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	        return;
 	    }
 	    if (itemProperties != null) {
-	        HashMap itemProp = (HashMap) itemProperties.get(index);
+	        HashMap itemProp = (HashMap) itemProperties[index];
 	        if (!itemProp.containsKey(binding)) {
 	            itemProp.put(binding, new HashMap<String, Object>());
 	        }
@@ -414,7 +416,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	
 	public void processPreloadData() {
 		if (itemProperties != null && preload) {
-            mItemCount = itemProperties.size();
+            mItemCount = itemProperties.length;
             processData(itemProperties, 0);
 			preload = false;
 		}
@@ -438,7 +440,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //		if (listItemData == null) {
 //			return;
 //		}
-        boolean visible = true;
+//        boolean visible = true;
         int i;
 		if (items instanceof Object[]) {
 		    Object[] array = (Object[])items;
@@ -456,15 +458,20 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		updateCurrentItemCount();
 		// Notify adapter that data has changed.
 		if (preload == false) {
-	        adapter.notifyDataSetChanged();
+	      runInUiThread(new CommandNoReturn() {
+              @Override
+              public void execute() {
+                adapter.notifyDataSetChanged();
+              }
+          }, false);
 		}
 	}
 
 	private void handleSetItems(Object data) {
 
 		if (data instanceof Object[]) {
-			Object[] items = (Object[]) data;
-			itemProperties = new ArrayList<Object>(Arrays.asList(items));
+//		    HashMap[] items = (HashMap[]) data;
+			itemProperties = (Object[]) data;
 //			listItemData.clear();
 			hiddenItems.clear();
 			filterIndices.clear();
@@ -473,8 +480,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 				preload = true;
 				return;
 			}
-			mItemCount = items.length;
-			processData(items, 0);
+			mItemCount = itemProperties.length;
+			processData(itemProperties, 0);
 
 		} else {
 			Log.e(TAG, "Invalid argument type to setData", Log.DEBUG_MODE);
@@ -483,25 +490,24 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private void handleAppendItems(Object data) {
 		if (data instanceof Object[]) {
-			Object[] views = (Object[]) data;
+		    Object[] items = (Object[]) data;
 			if (itemProperties == null) {
-				itemProperties = new ArrayList<Object>(Arrays.asList(views));
+				itemProperties = items;
+                setProperty(TiC.PROPERTY_ITEMS, itemProperties);
 			} else {
-				for (Object view : views) {
-					itemProperties.add(view);
-				}
+			    ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
+			    list.addAll(Arrays.asList(items));
+			    itemProperties = list.toArray();
 			}
 			// only process items when listview's properties is processed.
 			if (getListView() == null) {
 				preload = true;
 				return;
 			}
-			// we must update the itemCount before notify data change. If we
-			// don't, it will crash
-			int count = mItemCount;
-			mItemCount += views.length;
+			int offset = mItemCount;
+			mItemCount = itemProperties.length;
 
-			processData(views, count);
+			processData(items, offset);
 
 		} else {
 			Log.e(TAG, "Invalid argument type to setData", Log.DEBUG_MODE);
@@ -521,21 +527,21 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
         else {
             if (data instanceof Object[]) {
-                Object[] views = (Object[]) data;
+                Object[] items = (Object[]) data;
 
                 if (itemProperties == null) {
-                    itemProperties = new ArrayList<Object>(Arrays.asList(views));
-                } else {
-                    if (index < 0 || index > itemProperties.size()) {
+                    itemProperties = items;
+                    setProperty(TiC.PROPERTY_ITEMS, itemProperties);
+               } else {
+                    if (index < 0 || index > itemProperties.length) {
                         Log.e(TAG, "Invalid index to handleInsertItem",
                                 Log.DEBUG_MODE);
                         return;
                     }
-                    int counter = index;
-                    for (Object view : views) {
-                        itemProperties.add(counter, view);
-                        counter++;
-                    }
+                    ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
+                    list.addAll(index, Arrays.asList(items));
+                    itemProperties = (Object[]) list.toArray();
+                    processData(items, index);
                 }
                 // only process items when listview's properties is processed.
                 preload = true;
@@ -551,8 +557,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	    if (itemProperties == null) {
 	        return;
 	    }
-	    int nonRealItemIndex = itemIndex;
-	    if (itemIndex < 0 || itemIndex > itemProperties.size() - 1) {
+//	    int nonRealItemIndex = itemIndex;
+	    if (itemIndex < 0 || itemIndex > itemProperties.length - 1) {
 	        return;
 	    }
 //	    if (hasHeader()) {
@@ -561,16 +567,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	    
 	    TiAbsListView listView = getListView();
         
-	    KrollDict currentItem = KrollDict.merge((HashMap)itemProperties.get(itemIndex), (HashMap)(data));
+	    KrollDict currentItem = KrollDict.merge((HashMap)itemProperties[itemIndex], (HashMap)(data));
 	    if (currentItem == null) return;
-	    itemProperties.set(itemIndex, currentItem);
+	    itemProperties[itemIndex] = currentItem;
 	    // only process items when listview's properties is processed.
         if (listView == null) {
             preload = true;
             return;
         }
         View content = listView.getCellAt(this.sectionIndex, itemIndex);
-        KrollDict d = new KrollDict(currentItem);
+//        KrollDict d = new KrollDict(currentItem);
 //        AbsListItemData itemD = listItemData.get(itemIndex);
 //        itemD.setProperties(d);
 //        listItemData.set(index, itemD);
@@ -596,9 +602,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	private boolean deleteItemsData(int index, int count) {
 		boolean delete = false;
 		
+		ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
 		while (count > 0) {
-			if (index < itemProperties.size()) {
-				itemProperties.remove(index);
+			if (index < itemProperties.length) {
+			    list.remove(index);
 				mItemCount--;
 				delete = true;
 			}
@@ -610,32 +617,38 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			}
 			count--;
 		}
+        itemProperties = list.toArray();
 		updateCurrentItemCount();
 		return delete;
 	}
 	
 	public Object deleteItemData(int index) {
-        if (0 <= index && index < itemProperties.size()) {
+        if (0 <= index && index < itemProperties.length) {
+            ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
+            Object result = list.remove(index);
             hiddenItems.remove(index);
 //            listItemData.remove(index);
             mItemCount --;
             updateCurrentItemCount();
-            return itemProperties.remove(index);
+            itemProperties = list.toArray();
+            return result;
         }
         return null;
     }
 	
 	public void insertItemData(int index, Object data) {
 	    if (itemProperties == null) {
-            itemProperties = new ArrayList<Object>();
-            itemProperties.add(data);
+	        itemProperties = new Object[] {data};
+	        setProperty(TiC.PROPERTY_ITEMS, itemProperties);
         } else {
-            if (index < 0 || index > itemProperties.size()) {
+            if (index < 0 || index > itemProperties.length) {
                 Log.e(TAG, "Invalid index to handleInsertItem",
                         Log.DEBUG_MODE);
                 return;
             }
-            itemProperties.add(data);
+            ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
+            list.add(index, data);
+            itemProperties = list.toArray();
         }
         // only process items when listview's properties is processed.
         if (getListView() == null) {
@@ -909,8 +922,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	public HashMap getItemDataAt(int position)
 	{
-	    if (itemProperties.size() > 0) {
-	        return (HashMap) itemProperties.get(getRealPosition(position));
+	    if (itemProperties != null && itemProperties.length > 0) {
+	        return (HashMap) itemProperties[getRealPosition(position)];
 	    } else {
 	        return null;
 	    }
@@ -952,15 +965,15 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		// Clear previous result
 		filterIndices.clear();
 		hidden = TiConvert.toBoolean(TiC.PROPERTY_VISIBLE, false);
-		if (isFilterOn()) {
+		if (isFilterOn() && itemProperties != null) {
 		    
 		    boolean caseInsensitive = getListView().getCaseInsensitive();
 		    if (caseInsensitive) {
                 searchText = searchText.toLowerCase();
             }
 	        // Add new results
-	        for (int i = 0; i < itemProperties.size(); ++i) {
-	            HashMap data = (HashMap) itemProperties.get(i);
+	        for (int i = 0; i < itemProperties.length; ++i) {
+	            HashMap data = (HashMap) itemProperties[i];
 	            boolean visible = isItemVisible(data);
 	            String searchableText = TiConvert.toString(data, TiC.PROPERTY_SEARCHABLE_TEXT);
 	            if (searchableText == null || visible) continue;
@@ -995,8 +1008,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
 
 		if (itemProperties != null) {
-			itemProperties.clear();
-//			itemProperties = null;
+//			itemProperties.clear();
+			itemProperties = null;
 		}
 		mCurrentItemCount = 0;
 		mItemCount = 0;
