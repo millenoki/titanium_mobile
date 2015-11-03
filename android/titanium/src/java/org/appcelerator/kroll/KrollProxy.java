@@ -1389,7 +1389,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 if (hashValue != this) {
                     source = ((KrollProxy) hashValue).getKrollObject();
                 }
-                krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
+//                krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
             }
             if (krollData.size() == 0) {
                 krollData = null;
