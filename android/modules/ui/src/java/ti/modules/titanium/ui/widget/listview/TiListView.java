@@ -96,8 +96,8 @@ public class TiListView extends TiAbsListView<CustomListView> {
 
             @Override
             public boolean dispatchTouchEvent(MotionEvent event) {
-                if (touchPassThrough == true)
-                    return false;
+//                if (touchPassThrough == true)
+//                    return false;
                 return super.dispatchTouchEvent(event);
             }
 
