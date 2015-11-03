@@ -6,7 +6,7 @@
 		"cardview":[],
 		"accelerometer":[],
 		"analytics":[],
-		"android":[],
+		"android":["ui"],
 		"app": [],
 		"audio": ["filesystem"],
 		"calendar": [],
@@ -25,7 +25,7 @@
 		"utils": [],
 		"xml": []
 	},
-	"required": ["android", "app", "ui", "locale", "analytics"],
+	"required": ["ui", "android", "app", "locale", "analytics"],
 	"libraries": {
 		"android": ["jaxen-1.1.1.jar", 
 			"kroll-common.jar", 

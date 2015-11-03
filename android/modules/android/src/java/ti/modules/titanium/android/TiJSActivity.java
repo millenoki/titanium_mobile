@@ -9,19 +9,16 @@ package ti.modules.titanium.android;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
 //import org.appcelerator.titanium.util.TiBindingHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.view.TiUIActivityWindow;
 
 import android.content.Intent;
-import android.os.Bundle;
+import ti.modules.titanium.ui.WindowProxy;
 
-@SuppressWarnings("deprecation")
 public abstract class TiJSActivity extends TiLaunchActivity
 {
 	protected String url;
-	protected TiUIActivityWindow activityWindow;
+//	protected TiUIActivityWindow activityWindow;
 
 	public TiJSActivity(ActivityProxy proxy)
 	{
@@ -55,30 +52,32 @@ public abstract class TiJSActivity extends TiLaunchActivity
 	protected void contextCreated()
 	{
 		super.contextCreated();
-		TiActivityWindowProxy window = new TiActivityWindowProxy();
+		setWindowProxy(new WindowProxy());
 		window.setActivity(this);
+//		TiActivityWindowProxy window = new TiActivityWindowProxy();
+//		window.setActivity(this);
 //		TiBindingHelper.bindCurrentWindow(window);
-		setWindowProxy(window);
-		setLayoutProxy(window);
+//		setWindowProxy(window);
+//		setLayoutProxy(window);
 	}
 
-	@Override
-	protected void scriptLoaded()
-	{
-		super.scriptLoaded();
-		activityWindow.open();
-	}
-
-	@Override
-	protected void windowCreated(Bundle savedInstanceState)
-	{
-		// Set the layout proxy here since it's not ready when we indirectly call it inside contextCreated()
-		setLayoutProxy(window);
-
-		// The UIWindow needs to be created before we run the script
-		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, getLayout());
-		super.windowCreated(savedInstanceState);
-	}
+//	@Override
+//	protected void scriptLoaded()
+//	{
+//		super.scriptLoaded();
+//		activityWindow.open();
+//	}
+//
+//	@Override
+//	protected void windowCreated(Bundle savedInstanceState)
+//	{
+//		// Set the layout proxy here since it's not ready when we indirectly call it inside contextCreated()
+//		setLayoutProxy(window);
+//
+//		// The UIWindow needs to be created before we run the script
+//		activityWindow = new TiUIActivityWindow((TiActivityWindowProxy)window, this, getLayout());
+//		super.windowCreated(savedInstanceState);
+//	}
 
 	@Override
 	public boolean isJSActivity()

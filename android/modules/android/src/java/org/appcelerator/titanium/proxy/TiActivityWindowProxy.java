@@ -28,7 +28,7 @@ public class TiActivityWindowProxy extends TiWindowProxy
 
 		// force to true since the window is actually opened from TiUIActivityWindow
 		// TODO make this lifecycle less weird
-		opened = true;
+//		opened = true;
 	}
 
 	public TiActivityWindowProxy(TiContext tiContext) 
@@ -52,7 +52,7 @@ public class TiActivityWindowProxy extends TiWindowProxy
 		}
 
 		releaseViews(true);
-		opened = false;
+//		opened = false;
 	}
 
 	@Override
