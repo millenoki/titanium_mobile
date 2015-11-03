@@ -62,7 +62,7 @@
         android:largeHeap="true"
          android:icon="@drawable/appicon"
         android:label="AkSync"
-        android:theme="@style/Theme.Titanium.Overlay" >
+        android:theme="@style/Theme.Titanium" >
          <meta-data
             android:name="com.google.android.gms.version"
             android:value="6587000" />
