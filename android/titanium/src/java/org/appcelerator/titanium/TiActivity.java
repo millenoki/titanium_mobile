@@ -25,8 +25,8 @@ public class TiActivity extends TiBaseActivity
 	@Override
 	protected void onDestroy()
 	{
+        super.onDestroy();
 		fireOnDestroy();
-		super.onDestroy();
 	}
 
 	@Override

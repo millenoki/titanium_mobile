@@ -54,8 +54,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	private static WeakReference<TiWindowProxy> waitingForOpen;
 	private TiWeakList<KrollProxy> proxiesWaitingForActivity = new TiWeakList<KrollProxy>();
-
-	protected boolean opened, opening, closing;
+	
+	public enum State {
+	    CLOSED, OPENING, OPENED, CLOSING
+	} 
+	protected State state = State.CLOSED;
+	
+//	protected boolean opened, opening, closing;
 	protected boolean focused;
 	protected int[] orientationModes = null;
 	protected TiViewProxy tabGroup;
@@ -119,7 +124,7 @@ public abstract class TiWindowProxy extends TiViewProxy
     @Override
     protected void handlePendingAnimation()
     {
-        if (!opened) return;
+        if (state == State.CLOSED) return;
         super.handlePendingAnimation();
     }
 	   
@@ -139,13 +144,22 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @SuppressWarnings("unchecked")
 	public void open(@Kroll.argument(optional = true) Object arg)
 	{
-		if (opened || opening) { return; }
+		if (state == State.OPENED || state == State.OPENING) { 
+		    return; 
+		}
+		if (state == State.CLOSING) {
+		    //the atached activity is going to be destroyed, let's detach ourself from it
+		    sendCloseEvent(true);
+		    if (activity != null) {
+		        ((TiBaseActivity) activity.get()).setWindowProxy(null);
+		    }
+		}
 		if (winManager != null && winManager.handleOpen(this, arg)) {
 			return;
 		}
 
 		waitingForOpen = new WeakReference<TiWindowProxy>(this);
-		opening = true;
+		state = State.OPENING;
 		KrollDict options = null;
 		TiAnimation animation = null;
 
@@ -184,8 +198,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
-	    if (closing ||!opened) return;
-        closing = true;
+	    if (state == State.CLOSED || state == State.CLOSING) { 
+            return; 
+        }
+        state = State.CLOSING;
 		if (winManager != null && winManager.handleClose(this, arg)) {
 			return;
 		}
@@ -221,21 +237,27 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CLOSE), options);
 	}
-
-	public void closeFromActivity(boolean activityIsFinishing)
-	{
-		if (!opened) { return; }
-		closing = false;
-		opened = false;
-		// Once the window's activity is destroyed we will fire the close event.
+	
+	private void sendCloseEvent(boolean activityIsFinishing)  {
+	 // Once the window's activity is destroyed we will fire the close event.
         // And it will dispose the handler of the window in the JS if the activity
         // is not forced to destroy.
-		KrollDict data = null;
+	    KrollDict data = null;
         if (!activityIsFinishing) {
             data = new KrollDict();
             data.put("_closeFromActivityForcedToDestroy", true);
         }
         fireSyncEvent(TiC.EVENT_CLOSE, data, false);
+	}
+
+	public void closeFromActivity(boolean activityIsFinishing)
+	{
+	    if (state == State.CLOSED) { 
+            return; 
+        }
+		state = State.CLOSED;
+		
+		sendCloseEvent(activityIsFinishing);
 		if (activityIsFinishing) {
 			releaseViews(true);
 	        setParent(null);
@@ -491,7 +513,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method(name = "_getWindowActivityProxy")
 	public ActivityProxy getWindowActivityProxy()
 	{
-		if (opened) {
+		if (state == State.OPENED) {
 			return super.getActivityProxy();
 		} else {
 			return null;
@@ -514,8 +536,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	protected void handlePostOpen()
 	{
-		opening = false;
-		opened = true;
+	    if (state == State.OPENED) {
+            return;
+        }
+	    state = State.OPENED;
 		if (postOpenListener != null)
 		{
 			getMainHandler().post(new Runnable() {
@@ -633,7 +657,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public boolean isOpenedOrOpening()
 	{
 		// We know whether a window is lightweight or not only after it opens.
-		return (opened || opening);
+		return (state == State.OPENED || state == State.OPENING);
 	}
 	
 	

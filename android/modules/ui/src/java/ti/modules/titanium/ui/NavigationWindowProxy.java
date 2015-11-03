@@ -126,15 +126,6 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	}
 
 	@Override
-	public void close(@Kroll.argument(optional = true) Object arg)
-	{
-		if (!(opened || opening)) {
-			return;
-		}
-		super.close(arg);
-	}
-	
-	@Override
 	public boolean interceptOnHomePressed() {
 		if (pushing || poping) return true;
 		TiWindowProxy windowProxy = getCurrentWindowInternal();
@@ -224,7 +215,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	
 	
 	private boolean popUpToWindow(final TiWindowProxy winToFocus, Object arg) {
-		if (!opened || opening) {
+		if (isOpenedOrOpening()) {
 			int index = preAddedWindows.indexOf(winToFocus);
 			int size = preAddedWindows.size();
 			if (size > 0 && index != -1) {
@@ -259,7 +250,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	
 	public boolean popWindow(TiWindowProxy proxy, Object arg)
 	{
-		if (!opened || opening) {
+		if (state != State.OPENED) {
 			int index = preAddedWindows.indexOf(proxy);
 			preAddedWindows.remove(index);
 			preAddedArgs.remove(index);
@@ -321,7 +312,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 		}
 		
 		removeWindow(toRemove);
-		if (!opened || opening) {
+        if (state != State.OPENED) {
 			handleWindowClosed(toRemove);
 			return true;
 		}
@@ -441,14 +432,13 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	public void onWindowActivityCreated()
 	{
 		
-		if (opened == true) { 
+		if (state == State.OPENED) { 
 			handlePushFirst();
 			prepareCurrentWindow(getCurrentWindowInternal());
 			super.onWindowActivityCreated();
 		}
 		else {
-			opened = true; //because handlePush needs this
-			opening = false;
+		     state = State.OPENED;
 //            prepareCurrentWindow(getCurrentWindow());
 			super.onWindowActivityCreated();
 			getParentViewForChild().setId(viewId++);
@@ -584,7 +574,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	public void openWindow(final TiWindowProxy proxy, @Kroll.argument(optional = true) Object arg)
 	{
 		if (pushing || poping) return;
-		if (!opened || opening) {
+        if (state != State.OPENED) {
 			preAddedWindows.add(proxy);
 			preAddedArgs.add((arg != null)?(HashMap)arg:new HashMap<String, Object>());
 			return;
@@ -627,7 +617,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	@Kroll.method
 	public Object getWindow(int index)
 	{
-		if (!opened || opening) {
+        if (state != State.OPENED) {
 			if (index >= 0  && index < preAddedWindows.size())
 				return preAddedWindows.get(index);
 		}
@@ -640,7 +630,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	public void closeWindow(final TiWindowProxy proxy, @Kroll.argument(optional = true) Object arg)
 	{
 		if (pushing || poping) return;
-		if (!opened || opening) {
+        if (state != State.OPENED) {
 			int index = preAddedWindows.indexOf(proxy);
 			preAddedWindows.remove(index);
 			preAddedArgs.remove(index);
@@ -659,7 +649,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	public void closeCurrentWindow(@Kroll.argument(optional = true) Object arg)
 	{
 		if (pushing || poping) return;
-		if (!opened || opening) {
+        if (state != State.OPENED) {
 			TiWindowProxy currentWindow = getCurrentWindowInternal();
 			if (currentWindow != this) {
 				preAddedWindows.remove(currentWindow);
@@ -682,7 +672,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	public void closeAllWindows(@Kroll.argument(optional = true) Object arg)
 	{
 		if (pushing || poping) return;
-		if (!opened || opening) {
+        if (state != State.OPENED) {
 			preAddedWindows.clear();
 			return;
 		}
@@ -708,7 +698,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	
 	@Override
 	public boolean shouldExitOnClose() {
-		if (closing || windows.size() == 1) {
+		if (state == State.CLOSING || windows.size() == 1) {
 			return super.shouldExitOnClose();
 		}
 		return false;

@@ -39,7 +39,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Message;
 import android.os.Bundle;
 import android.view.View;
@@ -208,7 +207,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					// Need to handle the url window in the JS side.
 					callPropertySync(PROPERTY_LOAD_URL, null);
 
-					opened = true;
+					state = State.OPENED;
 					// fireEvent(TiC.EVENT_OPEN, null);
 
 					baseActivity.addWindowToStack(this);
@@ -293,10 +292,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void close(@Kroll.argument(optional = true) Object arg)
 	{
-		if (!(opened || opening)) { 
-		    
-			return;
-		}
+	    if (!isOpenedOrOpening()) { 
+            return; 
+        }
 		if (lightweight) {
 			if (TiApplication.isUIThread()) {
 				removeLightweightWindowFromStack();
@@ -448,11 +446,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	@Override
 	public void onWindowActivityCreated()
-	{
-		
-		opened = true;
-		opening = false;
-		
+	{		
 		if (parent == null && winManager == null && windowActivity != null) {
 			TiBaseActivity activity = windowActivity.get();
 			// Fire the open event after setContentView() because getActionBar() need to be called
@@ -631,7 +625,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setWidth(Object width)
 	{
-		if ((opening || opened) && !lightweight) {
+		if (isOpenedOrOpening() && !lightweight) {
 			Object current = getProperty(TiC.PROPERTY_WIDTH);
 			if (shouldFireChange(current, width)) {
 				Object height = getProperty(TiC.PROPERTY_HEIGHT);
@@ -649,7 +643,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty(retain=false) @Kroll.method
 	public void setHeight(Object height)
 	{
-		if ((opening || opened) && !lightweight) {
+		if (isOpenedOrOpening() && !lightweight) {
 			Object current = getProperty(TiC.PROPERTY_HEIGHT);
 			if (shouldFireChange(current, height)) {
 				Object width = getProperty(TiC.PROPERTY_WIDTH);
@@ -726,21 +720,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.method(name = "_getWindowActivityProxy")
-	public ActivityProxy getWindowActivityProxy()
-	{
-		if (opened) {
-			return super.getActivityProxy();
-		} else {
-			return null;
-		}
-	}
 
 	@Kroll.method(name = "_isLightweight")
 	public boolean isLightweight()
 	{
 		// We know whether a window is lightweight or not only after it opens.
-		return (opened && lightweight);
+		return (isOpenedOrOpening() && lightweight);
 	}
 
 	@Override

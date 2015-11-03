@@ -307,7 +307,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void onPropertyChanged(String name, Object value)
 	{
-		if (opening || opened)  {
+		if (isOpenedOrOpening())  {
 			if (TiC.PROPERTY_EXIT_ON_CLOSE.equals(name)) {
 				Activity activity = (tabGroupActivity != null) ? (Activity)(tabGroupActivity.get()) : null;
 				if (activity != null) {
@@ -395,12 +395,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		super.handlePostOpen();
 
-		opened = true;
-		opening = false;
-
-		// First open before we load and focus our first tab.
-		fireEvent(TiC.EVENT_OPEN, null);
-
 		// Load any tabs added before the tab group opened.
 		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
 		for (TabProxy tab : tabs) {
@@ -433,8 +427,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		modelListener = null;
 		releaseViews(true);
 		view = null;
-
-		opened = false;
 
 		TiBaseActivity activity = tabGroupActivity.get();
 		if (activity != null && !activity.isFinishing()) {

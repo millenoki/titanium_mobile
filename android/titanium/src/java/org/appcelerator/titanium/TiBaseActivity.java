@@ -290,6 +290,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 //	    proxy = proxy.getTopWindow();
 	    if(this.window == proxy) return;
 		this.window = proxy;
+		if (this.window == null) {
+		    return;
+		}
 //		updateTitle(this.window);
 		
 		KrollDict props = this.window.getProperties();
