@@ -976,7 +976,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	            HashMap data = (HashMap) itemProperties[i];
 	            boolean visible = isItemVisible(data);
 	            String searchableText = TiConvert.toString(data, TiC.PROPERTY_SEARCHABLE_TEXT);
-	            if (searchableText == null || visible) continue;
+	            if (searchableText == null || !visible) continue;
 	            // Handle case sensitivity
 	            if (caseInsensitive) {
 	                searchableText = searchableText.toLowerCase();
