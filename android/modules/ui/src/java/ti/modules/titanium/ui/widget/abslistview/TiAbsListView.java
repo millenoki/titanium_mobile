@@ -13,6 +13,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -141,6 +142,41 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	protected static String getCellProxyRootType() {
         return "Ti.UI.ListItem";
     }
+	
+    private static HashMap<String, String> TO_PASS_PROPS;
+    private static HashMap<String, Object> toPassProps;
+	private void updateToPassProps(HashMap<String, Object> props) {
+	    if (props == null || props.size() == 0) {
+	        return;
+	    }
+	    if (TO_PASS_PROPS == null) {
+	        TO_PASS_PROPS = new HashMap<String, String>();
+	        TO_PASS_PROPS.put(TiC.PROPERTY_ACCESSORY_TYPE,
+                    TiC.PROPERTY_ACCESSORY_TYPE);
+	        TO_PASS_PROPS.put(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR,
+                    TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
+	        TO_PASS_PROPS.put(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE,
+                    TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE);
+	        TO_PASS_PROPS.put(TiC.PROPERTY_SELECTED_BACKGROUND_GRADIENT,
+                    TiC.PROPERTY_BACKGROUND_SELECTED_GRADIENT);
+	        TO_PASS_PROPS.put(TiC.PROPERTY_ROW_HEIGHT, TiC.PROPERTY_HEIGHT);
+	        TO_PASS_PROPS.put(TiC.PROPERTY_MIN_ROW_HEIGHT, TiC.PROPERTY_MIN_HEIGHT);
+	        TO_PASS_PROPS.put(TiC.PROPERTY_MAX_ROW_HEIGHT, TiC.PROPERTY_MAX_HEIGHT);
+        }
+	    if (toPassProps == null) {
+	        toPassProps = new HashMap<>();
+	    }
+	    for (Map.Entry<String, Object> entry : props.entrySet()) {
+            String inProp = entry.getKey();
+            Object outProp = entry.getValue();
+            if (TO_PASS_PROPS.containsKey(inProp)) {
+                toPassProps.put(TO_PASS_PROPS.get(inProp), outProp);
+            }
+        }
+	}
+	public HashMap<String, Object> getToPassProps() {
+	    return toPassProps;
+	}
 
 //    private HashMap<Integer, Object> mSectionInfoCache = new HashMap<Integer, Object>();
 	public class TiBaseAdapter extends ListViewAnimationsBaseAdapter 
@@ -154,6 +190,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		Activity context;
 		private boolean mCounted = false;
 		private int mCount = 0;
+        private boolean canNotifyDataSetChanged = true;
 		
 		public TiBaseAdapter(Activity activity) {
 		    super();
@@ -891,6 +928,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 //            footerView = inflater.inflate(headerFooterId, null);
 //            footerView.findViewById(titleId).setVisibility(View.GONE);
 //        }
+    protected void aboutToProcessProperties(KrollDict d) {
+        super.aboutToProcessProperties(d);
+        updateToPassProps(d);
+    }
         
 		super.processProperties(d);
 

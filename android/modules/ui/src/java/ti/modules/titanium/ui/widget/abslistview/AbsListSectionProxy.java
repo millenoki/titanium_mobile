@@ -54,7 +54,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private WeakReference<TiAbsListView> listView;
 
-	private static HashMap<String, String> toPassProps;
 
 //	public class AbsListItemData {
 //		private KrollDict properties;
@@ -119,20 +118,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //	}
     
 	public AbsListSectionProxy() {
-	    if (toPassProps == null) {
-            toPassProps = new HashMap<String, String>();
-            toPassProps.put(TiC.PROPERTY_ACCESSORY_TYPE,
-                    TiC.PROPERTY_ACCESSORY_TYPE);
-            toPassProps.put(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR,
-                    TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
-            toPassProps.put(TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE,
-                    TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE);
-            toPassProps.put(TiC.PROPERTY_SELECTED_BACKGROUND_GRADIENT,
-                    TiC.PROPERTY_BACKGROUND_SELECTED_GRADIENT);
-            toPassProps.put(TiC.PROPERTY_ROW_HEIGHT, TiC.PROPERTY_HEIGHT);
-            toPassProps.put(TiC.PROPERTY_MIN_ROW_HEIGHT, TiC.PROPERTY_MIN_HEIGHT);
-            toPassProps.put(TiC.PROPERTY_MAX_ROW_HEIGHT, TiC.PROPERTY_MAX_HEIGHT);
-        }
 //        listItemData = new ArrayList<AbsListItemData>();
         filterIndices = new ArrayList<Integer>();
         hiddenItems = new ArrayList<Boolean>();
@@ -748,12 +733,11 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		ProxyAbsListItem rootItem = itemProxy.getListItem();
 		
 //		if (!reusing) {
-	        KrollDict listViewProperties = getListView().getProxy().getProperties();
-		    for (Map.Entry<String, String> entry : toPassProps.entrySet()) {
+	        HashMap<String, Object> listViewProperties = getListView().getToPassProps();
+		    for (Map.Entry<String, Object> entry : listViewProperties.entrySet()) {
 	            String inProp = entry.getKey();
-	            String outProp = entry.getValue();
-	            if (!listItemProperties.containsKey(outProp) && !rootItem.containsKey(outProp) && listViewProperties.containsKey(inProp)) {
-	                listItemProperties.put(outProp, listViewProperties.get(inProp));
+	            if (!listItemProperties.containsKey(inProp) && !rootItem.containsKey(inProp)) {
+	                listItemProperties.put(inProp, entry.getValue());
 	            }
 	        }
 //		}
