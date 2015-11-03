@@ -2079,7 +2079,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     }
 
     public boolean touchPassThrough(final View view, final MotionEvent event) {
-        if (!isTouchEnabled) {
+        if (!isTouchEnabled || getOpacity() == 0) {
             return true;
         }
         if (touchPassThrough == true && !pointerDown) {
