@@ -1864,7 +1864,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         ParentingProxy parent = getParent();
         if (parent instanceof TiViewProxy && ((TiViewProxy) parent).peekView() != null) {
-            ((TiViewProxy) parent).peekView().onChildTouchEvent(this, v, event);
+            ((TiViewProxy) parent).peekView().onChildTouchEvent(view, v, event);
         }
     }
 
