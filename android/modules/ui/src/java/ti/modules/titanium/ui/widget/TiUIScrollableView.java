@@ -726,7 +726,8 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		synchronized (viewsLock) {
 			mPager.removeAllViews();
 			for (TiViewProxy viewProxy : mViews) {
-				viewProxy.releaseViews(true);
+			    //dont release views will be done by the adapter
+//				viewProxy.releaseViews(true);
 				viewProxy.setParent(null);
 			}
 			mViews.clear();
@@ -786,7 +787,8 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
     		}
         }
         if (changed) {
-            mAdapter.notifyDataSetChanged();
+            mPager.setAdapter(mAdapter);
+//           mAdapter.notifyDataSetChanged();
         }
 	}
 
@@ -836,7 +838,11 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 						((ViewPager) container).removeView(layout);
 					}
 				}
-				tiProxy.releaseViews(false);
+				synchronized (viewsLock) {
+				    if (!mViews.contains(tiProxy)) {
+		                tiProxy.releaseViews(false);
+				    }
+	            }
 			}
 		}
 
