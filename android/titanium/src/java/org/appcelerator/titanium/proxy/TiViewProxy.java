@@ -55,6 +55,8 @@ import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ViewSwitcher;
 
 /**
@@ -268,11 +270,19 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	                        DisplayMetrics dm = new DisplayMetrics();
 	                        TiApplication.getAppCurrentActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
 	                        
-	                        Rect rect = new Rect();
-	                        decorView.getWindowVisibleDisplayFrame(rect);
-	                        int statusHeight = rect.top;
+	                        boolean isTranslucent = false;
+	                        if (TiC.KIT_KAT_OR_GREATER) {
+	                            Window w = activity.getWindow(); // in Activity's onCreate() for instance
+	                            isTranslucent = (w.getAttributes().flags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) != 0;
+	                        }
+	                        if (!isTranslucent) {
+	                            Rect rect = new Rect();
+	                            decorView.getWindowVisibleDisplayFrame(rect);
+	                            int statusHeight = rect.top;
+	                            
+	                            position[1] -= statusHeight; //we remove statusbar height 
+	                        }
 	                        
-	                        position[1] -= statusHeight; //we remove statusbar height 
 	                        
 	                        TiDimension nativeWidth = new TiDimension(v.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
 	                        TiDimension nativeHeight = new TiDimension(v.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
