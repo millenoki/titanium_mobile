@@ -19,9 +19,7 @@ import android.app.Activity;
 public class CollectionViewProxy extends AbsListViewProxy {
 
 	private static final String TAG = "CollectionViewProxy";
-	
-	   private static final int MSG_FIRST_ID = AbsListViewProxy.MSG_LAST_ID + 1;
-	
+		
 	public CollectionViewProxy() {
 		super();
 	}
