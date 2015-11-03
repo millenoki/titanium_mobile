@@ -1275,7 +1275,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             }
             if (theListeners != null) {
                 for (KrollDict hashMap : theListeners) {
-                    TiUIHelper.applyMathDict(hashMap, TiConvert.toKrollDict(data), this);
+                    TiUIHelper.applyMathDict(hashMap, TiConvert.toKrollDict(data), (KrollProxy) sourceProxy);
                 }
             }
         }
