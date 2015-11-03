@@ -121,6 +121,7 @@ public class TiListView extends TiAbsListView<CustomListView> {
 
     @Override
     protected void setListViewAdapter(TiBaseAdapter adapter) {
+        
         SingleAnimationAdapter animationAdapter = null;
         BaseAdapter currentAdapter = adapter;
         if (mUseAppearAnimation) {
@@ -186,11 +187,13 @@ public class TiListView extends TiAbsListView<CustomListView> {
                 }
                 mUseAppearAnimation = mAppearAnimators != null;
             }
-            
+            mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
+           
             break;
         case "useAppearAnimation":
             mUseAppearAnimation = TiConvert.toBoolean(newValue, false);
-            break;
+            mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
+           break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;

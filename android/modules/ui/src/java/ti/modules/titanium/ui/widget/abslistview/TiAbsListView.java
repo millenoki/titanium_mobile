@@ -93,7 +93,9 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	private boolean hideKeyboardOnScroll = true;
 	private boolean canShowMenus = false;
 	
-	
+	protected static final int TIFLAG_NEEDS_DATASET               = 0x00000001;
+    protected static final int TIFLAG_NEEDS_ADAPTER_CHANGE        = 0x00000002;
+
 	private ArrayList<TiViewProxy> handledProxies;
 
 	private int currentScrollOffset = -1;
@@ -112,7 +114,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	 */
 	public static List<String> MUST_SET_PROPERTIES = Arrays.asList(TiC.PROPERTY_VALUE, TiC.PROPERTY_AUTO_LINK, TiC.PROPERTY_TEXT, TiC.PROPERTY_HTML);
 	
-	public static final String MIN_SEARCH_HEIGHT = "50dp";
+//	public static final String MIN_SEARCH_HEIGHT = "50dp";
 	public static final int HEADER_FOOTER_WRAP_ID = 12345;
 	public static final int HEADER_FOOTER_VIEW_TYPE = 0;
 	public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 1;
@@ -313,6 +315,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		}
 		
 		
+		public void setCanNotifyDataSetChanged(final boolean canNotifyDataSetChanged) {
+		    this.canNotifyDataSetChanged = canNotifyDataSetChanged;
+		}
+		
 
 //		private void setBoundsForBaseItem(View content)  {
 //			TiBaseAbsListViewItemHolder holder;
@@ -338,7 +344,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		
 		@Override
 		public void notifyDataSetChanged()
-		{
+		{ 
+		    if (!canNotifyDataSetChanged ) {
+		        return;
+		    }
 		    canShowMenus = false;
 		    mCounted = false;
 //		    mSectionInfoCache.clear();
@@ -699,7 +708,6 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		} catch (ResourceNotFoundException e) {
 			Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
 		}
-		
 		setNativeView(listView);
 	}
 	
@@ -808,15 +816,15 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         switch (key) {
         case TiC.PROPERTY_TEMPLATES:
             processTemplates((HashMap)newValue);
-            if (changedProperty) {
-                notifyDataSetChanged();
-            }
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
+            mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
+//           if (changedProperty) {
+//                notifyDataSetChanged();
+//            }
             break;
         case TiC.PROPERTY_SEARCH_TEXT:
-            this.searchText = TiConvert.toString(newValue);
-            if (changedProperty) {
-                reFilter(this.searchText);
-            }
+            filterBy(TiConvert.toString(newValue));
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
         case TiC.PROPERTY_SEARCH_VIEW:
             setSearchView(newValue, true);
@@ -832,9 +840,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             break;
         case TiC.PROPERTY_CASE_INSENSITIVE_SEARCH:
             this.caseInsensitive = TiConvert.toBoolean(newValue, true);
-            if (changedProperty) {
-                reFilter(this.searchText);
-            }
+            filterBy(TiConvert.toString(this.searchText));
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
         case TiC.PROPERTY_SEPARATOR_COLOR:
         {
@@ -873,7 +880,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             break;
         case TiC.PROPERTY_SECTIONS:
             if (changedProperty) {
-                processSectionsAndNotify((Object[])newValue);
+                mProcessUpdateFlags &= ~TIFLAG_NEEDS_DATASET;
+               processSectionsAndNotify((Object[])newValue);
             } else {
                 //if user didn't append/modify/delete sections before this is called, we process sections
                 //as usual. Otherwise, we process the preloadSections, which should also contain the section(s)
@@ -888,7 +896,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             Drawable drawable = listView.getDivider();
             listView.setDivider(drawable);
             listView.setDividerHeight(TiConvert.toInt(newValue));
-            break;
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
+           break;
         case TiC.PROPERTY_OVER_SCROLL_MODE:
 //            if (Build.VERSION.SDK_INT >= 9) {
                 listView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
@@ -896,12 +905,15 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             break;
         case TiC.PROPERTY_HEADER_VIEW:
             setHeaderOrFooterView(newValue, true);
-            break;
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
+           break;
         case TiC.PROPERTY_HEADER_TITLE:
             setHeaderTitle(TiConvert.toString(newValue));
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
         case TiC.PROPERTY_FOOTER_VIEW:
             setHeaderOrFooterView(newValue, false);
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
         case TiC.PROPERTY_FOOTER_TITLE:
 //            if (footerView == null || footerView.getId() != HEADER_FOOTER_WRAP_ID) {
@@ -910,46 +922,50 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 //                }
                 setFooterTitle(TiConvert.toString(newValue));
 //            }
+                mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
         case TiC.PROPERTY_PULL_VIEW:
             ((RefreshableListView) listView).setHeaderPullView(setPullView(newValue));
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
         }
     }
-	
 	@Override
-	public void processProperties(KrollDict d) {
-	    //Check to see if headerView and footerView are specified. If not, we hide the views
-        
-//        if (footerView == null) {
-//            footerView = inflater.inflate(headerFooterId, null);
-//            footerView.findViewById(titleId).setVisibility(View.GONE);
-//        }
     protected void aboutToProcessProperties(KrollDict d) {
+	    
         super.aboutToProcessProperties(d);
         updateToPassProps(d);
+        if (adapter != null) {
+            adapter.setCanNotifyDataSetChanged(false);
+        }
+        if (listView.getAdapter() == null) {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
+        }
     }
+    
+	@Override
+    protected void didProcessProperties() {
+	    AbsListViewProxy listProxy = (AbsListViewProxy) proxy;
         
-		super.processProperties(d);
-
-        AbsListViewProxy listProxy = (AbsListViewProxy) proxy;
-		
-		if (listProxy.getPreload()) {
-		    processSections(listProxy.getPreloadSections().toArray());
-	        listProxy.setPreload(false);
-	        listProxy.clearPreloadSections();
-		}
-
-		
-
-		//Have to add header and footer before setting adapter
-//		listView.addFooterView(footerView, null, false);
-		
-		setListViewAdapter(adapter);
-	}
+        if (listProxy.getPreload()) {
+            processSections(listProxy.getPreloadSections().toArray());
+            listProxy.setPreload(false);
+            listProxy.clearPreloadSections();
+        }
+        super.didProcessProperties();
+	    if (adapter != null) {
+            adapter.setCanNotifyDataSetChanged(true);
+        }
+        if ((mProcessUpdateFlags & TIFLAG_NEEDS_ADAPTER_CHANGE) != 0) {
+            setListViewAdapter(adapter);
+        }
+	    if ((mProcessUpdateFlags & TIFLAG_NEEDS_DATASET) != 0) {
+	        notifyDataSetChanged();
+        }
+    }
 	
 	protected void setListViewAdapter (TiBaseAdapter adapter) {
         listView.setAdapter(adapter);
@@ -1046,11 +1062,12 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             props.put("width", "FILL");
             props.put("height", "SIZE");
             props.put("layout", "vertical");
+            props.put("touchPassThrough", true);
             vp = (ViewProxy) this.proxy.addProxyToHold(props, "headerWrapper");
-            TiUIView view = ((ViewProxy)vp).getOrCreateView();
-            view.setCustomLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT));
-            listView.addHeaderView(view.getOuterView(), null, false);
-	    }
+        }
+	    TiUIView view = ((ViewProxy)vp).getOrCreateView();
+        view.setCustomLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT));
+        listView.addHeaderView(view.getOuterView(), null, false);
 	    return vp;
 	}
 	private ViewProxy getOrCreateFooterWrapperView() {
@@ -1060,11 +1077,12 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             props.put("width", "FILL");
             props.put("height", "SIZE");
             props.put("layout", "vertical");
+            props.put("touchPassThrough", true);
             vp = (ViewProxy) this.proxy.addProxyToHold(props, "footerWrapper");
-            TiUIView view = ((ViewProxy)vp).getOrCreateView();
-            view.setCustomLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT));
-            listView.addFooterView(view.getOuterView(), null, false);
         }
+        TiUIView view = ((ViewProxy)vp).getOrCreateView();
+        view.setCustomLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT));
+        listView.addFooterView(view.getOuterView(), null, false);
         return vp;
     }
 	
