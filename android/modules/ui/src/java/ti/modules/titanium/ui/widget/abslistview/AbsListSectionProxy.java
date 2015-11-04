@@ -480,7 +480,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 				itemProperties = items;
                 setProperty(TiC.PROPERTY_ITEMS, itemProperties);
 			} else {
-			    ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
+	            ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
 			    list.addAll(Arrays.asList(items));
 			    itemProperties = list.toArray();
 			}
@@ -523,7 +523,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                                 Log.DEBUG_MODE);
                         return;
                     }
-                    ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
+                    ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
                     list.addAll(index, Arrays.asList(items));
                     itemProperties = (Object[]) list.toArray();
                     processData(items, index);
@@ -587,7 +587,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	private boolean deleteItemsData(int index, int count) {
 		boolean delete = false;
 		
-		ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
+        ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
 		while (count > 0) {
 			if (index < itemProperties.length) {
 			    list.remove(index);
@@ -609,7 +609,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	
 	public Object deleteItemData(int index) {
         if (0 <= index && index < itemProperties.length) {
-            ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
+            ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
             Object result = list.remove(index);
             hiddenItems.remove(index);
 //            listItemData.remove(index);
@@ -631,7 +631,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                         Log.DEBUG_MODE);
                 return;
             }
-            ArrayList<Object> list = (ArrayList<Object>) Arrays.asList(itemProperties);
+            ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
             list.add(index, data);
             itemProperties = list.toArray();
         }
