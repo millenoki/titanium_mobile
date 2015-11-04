@@ -294,6 +294,7 @@ Titanium.bindInvocationAPIs = function(wrapperTi, scopeVars) {
 
 Titanium.Proxy = Proxy;
 
+var nonEnumeratableProps = ["activity", "window", "intent", "parent", "hexString", "byteArray"];
 Proxy.defineProperties = function(proxyPrototype, names) {
 	var properties = {};
 	var len = names.length;
@@ -301,9 +302,13 @@ Proxy.defineProperties = function(proxyPrototype, names) {
 	for (var i = 0; i < len; ++i) {
 		var name = names[i];
 		properties[name] = {
-			get: function() { return this.getProperty(name); },
-			set: function(value) { this.setPropertyAndFire(name, value); },
-			enumerable: true
+			get: function() {
+				return this.getProperty(name);
+			},
+			set: function(value) {
+				this.setPropertyAndFire(name, value);
+			},
+			enumerable: nonEnumeratableProps.indexOf(name) === -1
 		};
 	}
 
@@ -319,7 +324,15 @@ Object.defineProperty(Proxy.prototype, "getProperty", {
 
 Object.defineProperty(Proxy.prototype, "setProperty", {
 	value: function(property, value) {
-		return this._properties[property] = value;
+		var oldValue = this._properties[property];
+		if (oldValue != value) {
+			this._properties[property] = value;
+			// this.onPropertiesChanged([
+			// 	[property, oldValue, value]
+			// ]);
+		}
+
+		return value;
 	},
 	enumerable: false
 });
@@ -356,34 +369,16 @@ bootstrap.defineLazyBinding(Titanium, "API");
 
 // Do not serialize the parent view. Doing so will result
 // in a circular reference loop.
-Object.defineProperty(Titanium.TiView.prototype, "toJSON", {
-	value: function () {
+Object.defineProperty(Proxy.prototype, "toJSON", {
+	value: function() {
 		var keys = Object.keys(this);
 		var keyCount = keys.length;
-		var serialized = {};
+		var serialized = {},
+			k;
 
 		for (var i = 0; i < keyCount; i++) {
-			var k = keys[i];
-			if (k === "parent") {
-				continue;
-			}
-			serialized[k] = this[k];
-		}
-
-		return serialized;
-	},
-	enumerable: false
-});
-
-Object.defineProperty(Titanium.Activity.prototype, "toJSON", {
-	value: function () {
-		var keys = Object.keys(this);
-		var keyCount = keys.length;
-		var serialized = {};
-
-		for (var i = 0; i < keyCount; i++) {
-			var k = keys[i];
-			if (k === "activity" || k === "window" || k === "intent") {
+			k = keys[i];
+			if (nonEnumeratableProps.indexOf(k) !== -1) {
 				continue;
 			}
 			serialized[k] = this[k];
