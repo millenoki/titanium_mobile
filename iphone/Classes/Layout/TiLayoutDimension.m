@@ -50,35 +50,18 @@ CGFloat convertInchToPixels(CGFloat value)
 
 CGFloat convertPixelsToDip(CGFloat value)
 {
-    if ([TiUtils isRetinaHDDisplay]) {
-        return value/3.0;
-    }
-    if ([TiUtils isRetinaDisplay]) {
-        return value/2.0;
-    }
-    return value;
+    return value / [TiUtils screenScale];
+
 }
 
 CGFloat convertDipToInch(CGFloat value)
 {
-    if ([TiUtils isRetinaHDDisplay]) {
-        return (value*3.0)/[TiUtils dpi];
-    }
-    if ([TiUtils isRetinaDisplay]) {
-        return (value*2.0)/[TiUtils dpi];
-    }
-    return value/[TiUtils dpi];
+    return (value * [TiUtils screenScale])/[TiUtils dpi];
 }
 
 CGFloat convertDipToPixels(CGFloat value)
 {
-    if ([TiUtils isRetinaHDDisplay]) {
-        return (value * 3.0);
-    }
-    if ([TiUtils isRetinaDisplay]) {
-        return (value * 2.0);
-    }
-    return value;
+    return (value * [TiUtils screenScale]);
 }
 
 TiDimension TiDimensionFromObject(id object)
