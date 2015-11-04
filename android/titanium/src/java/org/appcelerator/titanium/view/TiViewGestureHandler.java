@@ -5,8 +5,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.content.Context;
@@ -63,7 +61,7 @@ public class TiViewGestureHandler {
     private final int ACTION_SCALE = 7;
     private final int ACTION_ROTATE = 8;
     private final int ACTION_SHOVE = 9;
-    private final int ACTION_MOVE = 10;
+    private final int ACTION_PAN = 10;
 
     private boolean shouldIgnoreAction(final int action) {
         return shouldIgnoreAction(action, true);
@@ -94,7 +92,7 @@ public class TiViewGestureHandler {
         case ACTION_SHOVE: {
             return mIsScaling || mIsRotating || mIsPaning;
         }
-        case ACTION_MOVE: {
+        case ACTION_PAN: {
             return mIsScaling || mIsRotating || mIsShoving;
         }
         default:
@@ -335,7 +333,7 @@ public class TiViewGestureHandler {
                     / timeDelta * 1000);
             break;
         }
-        case ACTION_MOVE: {
+        case ACTION_PAN: {
             MoveGestureDetector detector = (MoveGestureDetector) theDetector;
             PointF translation = detector.getTranslationDelta();
             final float timeDelta = detector.getTimeDelta() == 0 ? 1 : detector
@@ -353,7 +351,6 @@ public class TiViewGestureHandler {
             nativeValue.setValue(translation.x);
             point.put(TiC.EVENT_PROPERTY_X, nativeValue.getAsDefault());
             nativeValue.setValue(translation.y);
-            Log.d(TAG, "test " + translation.y + " , " + point.get(TiC.EVENT_PROPERTY_X));
             point.put(TiC.EVENT_PROPERTY_Y, nativeValue.getAsDefault());
             event.put(TiC.EVENT_PROPERTY_TRANSLATION, point);
             key = TiC.EVENT_PAN;
@@ -495,13 +492,13 @@ public class TiViewGestureHandler {
                         public void onMoveEnd(MoveGestureDetector detector) {
                             if (mIsPaning) {
                                 mIsPaning = false;
-                                fireEventForAction(ACTION_MOVE, detector, this, 2);
+                                fireEventForAction(ACTION_PAN, detector, this, 2);
                             }
                         }
                         
                         @Override
                         public boolean onMoveBegin(MoveGestureDetector detector) {
-                            if (shouldIgnoreAction(ACTION_MOVE)) {
+                            if (shouldIgnoreAction(ACTION_PAN)) {
                                 return mIsPaning;
                             }
                             return true;
@@ -509,15 +506,15 @@ public class TiViewGestureHandler {
                         
                         @Override
                         public boolean onMove(MoveGestureDetector detector) {
-                            if (shouldIgnoreAction(ACTION_MOVE, false)) {
+                            if (shouldIgnoreAction(ACTION_PAN, false)) {
                                 return true;
                             }
                             PointF delta = detector.getTranslationDelta();
                             if (!mIsPaning && (Math.abs(delta.x) > threshold || Math.abs(delta.y) > threshold)) {
                                 mIsPaning = true;
-                                fireEventForAction(ACTION_MOVE, detector, this, 0);
+                                fireEventForAction(ACTION_PAN, detector, this, 0);
                             } else if (mIsPaning) {
-                                fireEventForAction(ACTION_MOVE, detector, this, 1);
+                                fireEventForAction(ACTION_PAN, detector, this, 1);
                             }
                             return false;
                         }
