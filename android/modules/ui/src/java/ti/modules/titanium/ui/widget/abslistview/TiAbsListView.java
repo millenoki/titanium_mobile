@@ -960,9 +960,11 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             adapter.setCanNotifyDataSetChanged(true);
         }
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_ADAPTER_CHANGE) != 0) {
+            mProcessUpdateFlags &= ~TIFLAG_NEEDS_ADAPTER_CHANGE;
             setListViewAdapter(adapter);
         }
 	    if ((mProcessUpdateFlags & TIFLAG_NEEDS_DATASET) != 0) {
+            mProcessUpdateFlags &= ~TIFLAG_NEEDS_DATASET;
 	        notifyDataSetChanged();
         }
     }
