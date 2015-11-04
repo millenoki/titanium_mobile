@@ -3650,7 +3650,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
     }
 
     var calendarPermissions = [ 'android.permission.READ_CALENDAR', 'android.permission.WRITE_CALENDAR' ],
-        cameraPermissions = [ 'android.permission.CAMERA' ],
+        cameraPermissions = [ 'android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE' ],
         contactsPermissions = [ 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS' ],
         contactsReadPermissions = [ 'android.permission.READ_CONTACTS' ],
         geoPermissions = [ 'android.permission.ACCESS_COARSE_LOCATION', 'android.permission.ACCESS_FINE_LOCATION' ],
