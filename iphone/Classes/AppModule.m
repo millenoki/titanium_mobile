@@ -686,6 +686,15 @@ extern long long const TI_APPLICATION_BUILD_DATE;
 	return NUMBOOL(state == UIApplicationStateBackground);
 }
 
+- (NSNumber *)defaultNavBarHeight
+{
+    return NUMINTEGER(TiDimensionCalculateValueDefaultUnit(TiDimensionFromObject(@44), 0));
+}
+
+- (NSNumber *)defaultStatusBarHeight
+{
+    return NUMINTEGER(TiDimensionCalculateValueDefaultUnit(TiDimensionFromObject(@20), 0));
+}
 -(void)setForceSplashAsSnapshot:(id)args
 {
     ENSURE_SINGLE_ARG(args, NSNumber)
