@@ -457,12 +457,12 @@
 
 -(void)setStrokeWidth_:(id)arg
 {
-    [[self label] setStrokeWidth:TiDimensionCalculateValueFromString([TiUtils stringValue:arg])];
+    [[self label] setStrokeWidth:TiConvertToPixels(arg)];
 }
 
 -(void)setShadowRadius_:(id)arg
 {
-    [[self label] setShadowRadius:[TiUtils floatValue:arg]];
+    [[self label] setShadowRadius:TiConvertToPixels(arg)];
 }
 -(void)setShadowOffset_:(id)value
 {
