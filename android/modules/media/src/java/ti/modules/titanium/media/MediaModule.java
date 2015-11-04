@@ -319,9 +319,7 @@ public class MediaModule extends KrollModule
 	@Kroll.method
 	public void showCamera(@SuppressWarnings("rawtypes") HashMap options)
 	{
-		if (!hasCameraPermissions()) {
-			return;
-		}
+		
 		KrollDict cameraOptions = null;
 		if ( (options == null) || !(options instanceof HashMap<?, ?>) ) {
 			if (Log.isDebugModeEnabled()) {
@@ -331,6 +329,17 @@ public class MediaModule extends KrollModule
 		} else {
 			cameraOptions = new KrollDict(options);
 		}
+		if (!hasCameraPermissions()) {
+		    if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
+		        KrollFunction errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
+		        KrollDict response = new KrollDict();
+                response.putCodeAndMessage(UNKNOWN_ERROR, "Missing Camera Permission");
+                errorCallback.callAsync(getKrollObject(), response);
+	        }
+
+            return;
+        }
+		
 		
 		Object overlay = cameraOptions.get(PROP_OVERLAY);
 		
