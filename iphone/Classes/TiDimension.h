@@ -51,6 +51,9 @@ extern const TiDimension TiDimensionUndefined;
 
 TiDimension TiDimensionMake(TiDimensionType type, CGFloat value);
 TiDimension TiDimensionFromObject(id object);
+CGFloat TiDimensionCalculateValueDefaultUnit(TiDimension dimension,CGFloat boundingValue);
+CGFloat TiDimensionCalculateValueUnit(TiDimension dimension, id unit, CGFloat boundingValue);
+CGFloat TiConvertToPixels(id object);
 CGFloat convertInchToPixels(CGFloat value);
 CGFloat convertPixelsToDip(CGFloat value);
 CGFloat convertDipToInch(CGFloat value);
@@ -137,6 +140,8 @@ TI_INLINE BOOL TiDimensionDidCalculateValueNoPercent(TiDimension dimension, CGFl
 	}
 	return NO;
 }
+
+
 
 TI_INLINE CGFloat TiDimensionCalculateValue(TiDimension dimension,CGFloat boundingValue)
 {

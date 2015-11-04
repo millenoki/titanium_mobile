@@ -62,13 +62,12 @@ CGFloat convertDipToInch(CGFloat value)
 
 CGFloat convertDipToPixels(CGFloat value)
 {
-    if ([TiUtils isRetinaHDDisplay]) {
-        return (value * 3.0);
-    }
-    if ([TiUtils isRetinaDisplay]) {
-        return (value * 2.0);
-    }
-    return value;
+    return value * [TiUtils screenScale];
+}
+
+CGFloat TiConvertToPixels(id object)
+{
+    return TiDimensionCalculateValueUnit(TiDimensionFromObject(object), kTiUnitPixel, 0);
 }
 
 TiDimension TiDimensionFromObject(id object)
@@ -159,5 +158,28 @@ TiDimension TiDimensionFromObject(id object)
 	return TiDimensionUndefined;
 }
 
+CGFloat TiDimensionCalculateValueUnit(TiDimension dimension, id unit, CGFloat boundingValue)
+{
+    CGFloat value = TiDimensionCalculateValue(dimension, boundingValue);
+    if ([unit isKindOfClass:[NSString class]]) {
+        if ([unit caseInsensitiveCompare:kTiUnitCm] == NSOrderedSame) {
+            value = convertDipToInch(value) * INCH_IN_CM;
+        }
+        else if ([unit caseInsensitiveCompare:kTiUnitInch] == NSOrderedSame) {
+            value = convertDipToInch(value);
+        }
+        else if ([unit caseInsensitiveCompare:kTiUnitMm] == NSOrderedSame) {
+            value = convertDipToInch(value) * INCH_IN_MM;
+        }
+        else if ([unit caseInsensitiveCompare:kTiUnitPixel] == NSOrderedSame) {
+            value = convertDipToPixels(value);
+        }
+    }
+    return value;
+}
 
+CGFloat TiDimensionCalculateValueDefaultUnit(TiDimension dimension,CGFloat boundingValue)
+{
+    return TiDimensionCalculateValueUnit(dimension, [TiApp defaultUnit], boundingValue);
+}
 #endif
