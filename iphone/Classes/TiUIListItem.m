@@ -163,6 +163,7 @@ DEFINE_EXCEPTIONS
 -(void) initialize
 {
     self.selectionStyle = _selectionStyle;
+    self.allowsButtonsWithDifferentWidth = true;
     _viewHolder = [[TiUIListItemContentView alloc] initWithFrame:self.contentView.bounds];
     _viewHolder.proxy = _proxy;
     _viewHolder.listItem = self;

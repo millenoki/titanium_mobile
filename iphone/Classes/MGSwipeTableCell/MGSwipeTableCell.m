@@ -70,13 +70,16 @@
     CGSize maxSize = CGSizeZero;
 
     for (UIView * button in buttonsArray) {
+        if (button.hidden) {
+            continue;
+        }
         containerWidth += button.bounds.size.width;
         maxSize.width = MAX(maxSize.width, button.bounds.size.width);
         maxSize.height = MAX(maxSize.height, button.bounds.size.height);
     }
-    if (!differentWidth) {
-        containerWidth = maxSize.width * buttonsArray.count;
-    }
+//    if (!differentWidth) {
+//        containerWidth = maxSize.width * buttonsArray.count;
+//    }
     
     if (self = [super initWithFrame:CGRectMake(0, 0, containerWidth, maxSize.height)]) {
         _fromLeft = direction == MGSwipeDirectionLeftToRight;
@@ -103,6 +106,9 @@
 -(void) dealloc
 {
     for (UIView * button in _buttons) {
+        if (button.hidden) {
+            continue;
+        }
         if ([button isKindOfClass:[UIButton class]]) {
             [(UIButton *)button removeTarget:self action:@selector(buttonClicked:) forControlEvents:UIControlEventTouchUpInside];
         }
@@ -113,6 +119,9 @@
 {
     CGFloat offsetX = 0;
     for (UIView * button in _buttons) {
+        if (button.hidden) {
+            continue;
+        }
         button.frame = CGRectMake(offsetX, 0, button.bounds.size.width, self.bounds.size.height);
         button.autoresizingMask = UIViewAutoresizingFlexibleHeight;
         offsetX += button.bounds.size.width;
@@ -165,6 +174,9 @@
         [self resetButtons];
         if (!_fromLeft) { //Fix expansion animation for right buttons
             for (UIView * button in _buttons) {
+                if (button.hidden) {
+                    continue;
+                }
                 CGRect frame = button.frame;
                 frame.origin.x += _container.bounds.size.width - previusRect.size.width;
                 button.frame = frame;
@@ -1141,6 +1153,9 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
             if (_leftView && _leftButtons.count > 0) {
                 CGFloat maxWidth = 0;
                 for (UIView * button in _leftButtons) {
+                    if (button.hidden) {
+                        continue;
+                    }
                     maxWidth += button.bounds.size.width;
                 }
                 if (maxWidth != _leftView.frame.size.width) {
@@ -1150,6 +1165,9 @@ static inline CGFloat mgEaseInOutBounce(CGFloat t, CGFloat b, CGFloat c) {
             if (_rightView && _rightButtons.count > 0) {
                 CGFloat maxWidth = 0;
                 for (UIView * button in _rightButtons) {
+                    if (button.hidden) {
+                        continue;
+                    }
                     maxWidth += button.bounds.size.width;
                 }
                 if (maxWidth != _rightView.frame.size.width) {
