@@ -649,10 +649,10 @@
 
 -(void)willOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    [self dismissKeyboardFromWindow:theWindow];
     @synchronized(containedWindows) {
         if ([containedWindows lastObject] != theWindow) {
             [[containedWindows lastObject] resignFocus];
+            [self dismissKeyboardFromWindow:[containedWindows lastObject]];
         }
     }
     if ([theWindow isModal]) {
@@ -680,7 +680,7 @@
 
 -(void)didOpenWindow:(id<TiWindowProtocol>)theWindow
 {
-    [self dismissKeyboardFromWindow:theWindow];
+    //    [self dismissKeyboardFromWindow:theWindow];
     if ([self presentedViewController] == nil ||
         ([TiUtils isIOS8OrGreater] && [[self presentedViewController] isKindOfClass:[UIAlertController class]])) {
         [self childOrientationControllerChangedFlags:theWindow];
