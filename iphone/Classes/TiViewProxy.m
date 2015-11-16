@@ -3899,14 +3899,16 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 #ifndef TI_USE_AUTOLAYOUT
 	IGNORE_IF_NOT_OPENED
 	
-	verticalLayoutBoundary = 0.0;
-	horizontalLayoutBoundary = 0.0;
-	horizontalLayoutRowHeight = 0.0;
+	
 	
 	if (optimize==NO)
 	{
 		OSAtomicTestAndSetBarrier(TiRefreshViewChildrenPosition, &dirtyflags);
 	}
+    
+    verticalLayoutBoundary = 0.0;
+    horizontalLayoutBoundary = 0.0;
+    horizontalLayoutRowHeight = 0.0;
     
     if (CGSizeEqualToSize([[self view] bounds].size, CGSizeZero)) return;
     
