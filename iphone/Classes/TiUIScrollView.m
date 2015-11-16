@@ -33,6 +33,7 @@
     self = [super init];
     if (self != nil)
     {
+        needsHandleContentSize = YES;
         _flexibleContentWidth = NO;
         _flexibleContentHeight = NO;
     }
@@ -103,7 +104,7 @@
 
 - (id)accessibilityElement
 {
-	return [self scrollView];
+	return [self scrollview];
 }
 
 -(BOOL)flexibleContentWidth
