@@ -60,7 +60,11 @@
 
 
 - (NSArray *)dataTypesForActivityType:(NSString *)type {
+    if (![self.delegate respondsToSelector:@selector(activityViewController:dataTypeIdentifiersForActivityType:)]) {
+        return self.dataTypes[type];
+    }
     if (!self.dataTypes[type]) {
+        
         NSArray *dataTypes = [[self.delegate activityViewController:self dataTypeIdentifiersForActivityType:type] copy];
         NSParameterAssert([dataTypes count] == self.numberOfItems);
         self.dataTypes[type] = dataTypes;
