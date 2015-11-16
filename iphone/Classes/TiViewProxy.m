@@ -30,11 +30,6 @@
 #import "TiViewController.h"
 #import "TiWindowProxy.h"
 
-BOOL TiCGRectIsEmpty(CGRect rect)
-{
-    return (rect.size.width == 0 && rect.size.height == 0);
-}
-
 @interface TiFakeAnimation : TiViewAnimationStep
 
 @end

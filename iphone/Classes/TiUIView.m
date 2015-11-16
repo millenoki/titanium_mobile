@@ -716,7 +716,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
-    if (![[self viewProxy] viewLayedOut]) return;
+    if (TiCGRectIsEmpty(frame)) return;
     if (radii != NULL)
     {
         [self updatePathForClipping:bounds];
