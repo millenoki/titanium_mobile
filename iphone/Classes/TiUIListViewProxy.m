@@ -304,7 +304,9 @@ static NSDictionary* listViewKeysToReplace;
 
 - (void)willShow
 {
-	[self.listView deselectAll:YES];
+    if (view) {
+        [self.listView deselectAll:YES];
+    }
 	[super willShow];
 }
 
@@ -427,9 +429,12 @@ static NSDictionary* listViewKeysToReplace;
     [super configurationSet:recursive];
     if (_needsReload) {
         _needsReload = NO;
-        [self dispatchBlock:^(UITableView *tableView) {
-            [tableView reloadData];
-        }];
+        if ([self viewLayedOut]) {
+            [self dispatchBlock:^(UITableView *tableView) {
+                [tableView reloadData];
+            }];
+        }
+        
     }
     
 }
