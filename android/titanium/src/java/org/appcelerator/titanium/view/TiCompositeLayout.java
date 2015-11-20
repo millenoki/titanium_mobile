@@ -1507,7 +1507,10 @@ public class TiCompositeLayout extends FreeLayout implements
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
 	    boolean touchPassThrough = touchPassThrough(event);
-	    if (touchPassThrough) return false;
+	    final int action = event.getAction();
+	    if (touchPassThrough) {
+	        return false;
+	    }
 	    
 		return super.dispatchTouchEvent(event);
 	}
@@ -1521,29 +1524,40 @@ public class TiCompositeLayout extends FreeLayout implements
                 && location[1] <= rawy && rawy <= (location[1] + view
                 .getHeight()));
     }
+	
+	public boolean canScroll() {
+        TiUIView view = (this.view == null ? null : this.view.get());
+	    return !mInterTouchPassThrough ||  (view != null && view.isTouchEnabled && !view.touchPassThrough);
+	}
+	
 	public boolean touchPassThrough(MotionEvent event) {
 	    TiUIView view = (this.view == null ? null : this.view.get());
 	    if (view != null) {
 	        return view.touchPassThrough(this, event);
 	    } else {
-	        if (mInterTouchPassThrough == true) {
-                int[] location = new int[2];
-                final double x = event.getRawX();
-                final double y = event.getRawY();
+	        if (mInterTouchPassThrough == true && event.getAction() == MotionEvent.ACTION_DOWN) {
+	            int[] location = new int[2];
+	            final double x = event.getRawX();
+	            final double y = event.getRawY();
                 Object tag;
                 View child;
                 for (int i = 0; i < getChildCount(); i++) {
                     child = getChildAt(i);
                     if (viewContainsTouch(child, x, y, location)) {
                         tag = child.getTag();
-                        if (tag != null && tag instanceof TiUIView && !((TiUIView) tag).touchPassThrough(child, event)) {
+                        if (tag == null || (tag instanceof TiUIView && !((TiUIView) tag).touchPassThrough(child, event))) {
                             return false;
-                        } else return false;
+                        } else {
+                            return false;
+                        }
                     }
                 }
+                return mInterTouchPassThrough;
+	        } else {
+	            return false;
 	        }
 	    }
-	    return mInterTouchPassThrough;
+//	    return mInterTouchPassThrough;
 	}
 
 	private void setNeedsSort(boolean value) {

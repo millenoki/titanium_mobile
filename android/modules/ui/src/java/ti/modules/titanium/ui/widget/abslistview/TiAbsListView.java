@@ -724,6 +724,28 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         }
     }
 	
+    @Override
+    protected TiUIView associatedTiViewForView(View childView) {
+        if (childView instanceof DynamicWrapperViewList) {
+            return this;
+        }
+        if (childView instanceof WrapperView) {
+            View view = childView.findViewById(listContentId);
+            if (view != null) {
+                return ((TiCompositeLayout) view).getView();
+            }
+        }
+        return super.associatedTiViewForView(childView);
+    }
+    
+    @Override
+    protected boolean viewShouldPassThrough(final View view, final MotionEvent event) {
+        if (view == listView) {
+            return touchPassThrough(getInternalListView(), event);
+        }
+        return super.viewShouldPassThrough(view, event);
+    }
+	
 	public String getSearchText() {
 		return searchText;
 	}

@@ -2077,30 +2077,60 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected boolean viewShouldPassThrough(final View view, final MotionEvent event) {
         return true;
     }
-
+    
+    protected TiUIView associatedTiViewForView(View childView) {
+        TiUIView result = null;
+        if (childView instanceof TiCompositeLayout) {
+            result = ((TiCompositeLayout)childView).getView();
+            if (result != null) {
+                return result;
+            }
+        }
+        Object tag = childView.getTag();
+        
+        if (tag != null && tag instanceof TiUIView) {
+            result = (TiUIView) tag;
+        }
+        return result;
+    }
+    
     public boolean touchPassThrough(final View view, final MotionEvent event) {
         if (!isTouchEnabled || getOpacity() == 0) {
             return true;
         }
-        if (touchPassThrough == true && !pointerDown) {
+        if (touchPassThrough == true && event.getAction() == MotionEvent.ACTION_DOWN) {
             if (view != null) {
                 int[] location = new int[2];
                 final double x = event.getRawX();
                 final double y = event.getRawY();
                 if (viewContainsTouch(view, x, y, location)) {
-                    synchronized (children) {
-                        for (int i = 0; i < children.size(); i++) {
-                            TiUIView child = children.get(i);
-                            View childView = child.getOuterView();
-                            if (childView == null)
-                                continue;
+//                    View parent = getParentViewForChild();
+                    if (view instanceof ViewGroup) {
+                        int childCount = ((ViewGroup) view).getChildCount();
+                        View childView;
+                        for (int i = 0; i < childCount; i++) {
+                            childView = ((ViewGroup) view).getChildAt(i);
                             if (viewContainsTouch(childView, x, y, location)) {
-                                if (!child.touchPassThrough(childView, event)) {
+                                TiUIView child = associatedTiViewForView(childView);
+                                if (child == null || !child.touchPassThrough(childView, event)) {
                                     return false;
                                 }
                             }
                         }
                     }
+//                    synchronized (children) {
+//                        for (int i = 0; i < children.size(); i++) {
+//                            TiUIView child = children.get(i);
+//                            View childView = child.getOuterView();
+//                            if (childView == null)
+//                                continue;
+//                            if (viewContainsTouch(childView, x, y, location)) {
+//                                if (!child.touchPassThrough(childView, event)) {
+//                                    return false;
+//                                }
+//                            }
+//                        }
+//                    }
                     return viewShouldPassThrough(view, event);
                 }
             }
