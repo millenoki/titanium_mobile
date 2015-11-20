@@ -40,6 +40,7 @@ public class TiDimension
 	public static final int COMPLEX_UNIT_UNDEFINED = TypedValue.COMPLEX_UNIT_MASK + 1;
 	public static final int COMPLEX_UNIT_PERCENT = TypedValue.COMPLEX_UNIT_MASK + 2;
 	public static final int COMPLEX_UNIT_AUTO = TypedValue.COMPLEX_UNIT_MASK + 3;
+	public static final int COMPLEX_UNIT_FILL = TypedValue.COMPLEX_UNIT_MASK + 4;
 	public static final int COMPLEX_UNIT_CM = TypedValue.TYPE_DIMENSION + 1;
 
 	public static final int TYPE_UNDEFINED = -1;
@@ -148,9 +149,15 @@ public class TiDimension
 						}
 					}
 				}
-			} else if (svalue.trim().equals(UNIT_AUTO)) {
-				this.value = Integer.MIN_VALUE;
-				this.units = COMPLEX_UNIT_AUTO;
+			} else {
+			    String toCompare = svalue.trim().toLowerCase();
+			    if (toCompare.equals(UNIT_AUTO) || toCompare.equals(TiC.LAYOUT_SIZE.toLowerCase())) {
+			        this.value = Integer.MIN_VALUE;
+	                this.units = COMPLEX_UNIT_AUTO;
+			    } else if (toCompare.equals(TiC.LAYOUT_FILL.toLowerCase())) {
+                    this.value = Integer.MIN_VALUE;
+                    this.units = COMPLEX_UNIT_FILL;
+                }
 			}
 		}
 		else {
@@ -234,6 +241,19 @@ public class TiDimension
 			case TypedValue.COMPLEX_UNIT_PX:
 			case COMPLEX_UNIT_UNDEFINED:
 				return this.value;
+			case COMPLEX_UNIT_FILL:
+			    switch (valueType) {
+	            case TYPE_TOP:
+	            case TYPE_BOTTOM:
+	            case TYPE_CENTER_Y:
+	            case TYPE_HEIGHT:
+	                return height;
+	            case TYPE_LEFT:
+	            case TYPE_RIGHT:
+	            case TYPE_CENTER_X:
+	            case TYPE_WIDTH:
+	                return width;
+	        }
 			case COMPLEX_UNIT_PERCENT:
 				return getPercentPixels(width, height);
 			case TypedValue.COMPLEX_UNIT_DIP:
