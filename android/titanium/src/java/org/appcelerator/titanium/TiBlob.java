@@ -190,6 +190,16 @@ public class TiBlob extends KrollProxy {
         }
         return null;
     }
+    
+    
+    public void onDataComplete(final long contentLength) {
+        switch (type) {
+        case TYPE_DATA:
+        case TYPE_FILE:
+            loadBitmapInfo();
+            break;
+        }
+    }
 
     /**
      * Determines the MIME-type by reading first few characters from the given
@@ -282,7 +292,8 @@ public class TiBlob extends KrollProxy {
 
             switch (type) {
             case TYPE_FILE:
-                BitmapFactory.decodeStream(getInputStream(), null, opts);
+                InputStream stream = getInputStream();
+                BitmapFactory.decodeStream(stream, null, opts);
                 break;
             case TYPE_DATA:
                 byte[] byteArray = (byte[]) data;
