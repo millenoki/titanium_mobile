@@ -146,7 +146,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
     }
 	
     private static HashMap<String, String> TO_PASS_PROPS;
-    private static HashMap<String, Object> toPassProps;
+    private HashMap<String, Object> toPassProps;
 	private void updateToPassProps(HashMap<String, Object> props) {
 	    if (props == null || props.size() == 0) {
 	        return;
