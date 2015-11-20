@@ -144,6 +144,7 @@ public class TiUILabel extends TiUINonViewGroupView
 			super(context);
 			this.setAddStatesFromChildren(true);
 			textView = new EllipsizingTextView(context);
+			TiUIView.setBackgroundDrawable(textView, null);
 			textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
  			textView.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 			textView.setKeyListener(null);
@@ -501,7 +502,8 @@ public class TiUILabel extends TiUINonViewGroupView
 			EllipsizingTextView newView = new EllipsizingTextView(getContext());
 //			newView.setInputType(getInputType());
 			newView.setGravity(getGravity());
-			newView.setKeyListener(null);
+            newView.setKeyListener(null);
+            TiUIView.setBackgroundDrawable(newView, getBackground());
 			TiUIHelper.styleText(newView, getProxy().getProperties().getKrollDict(TiC.PROPERTY_FONT));
 			newView.setEllipsize(ellipsize);
 			newView.singleline = this.singleline;
