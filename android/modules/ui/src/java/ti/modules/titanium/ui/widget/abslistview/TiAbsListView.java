@@ -593,7 +593,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		adapter = new TiBaseAdapter(activity);
 		listView.setOnScrollListener(new OnScrollListener()
 		{
-			private boolean scrollValid = false;
+			private boolean scrollTouch = false;
 			private int lastValidfirstItem = 0;
 			private Timer endTimer = null;
 			
@@ -609,7 +609,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 
 			    TimerTask action = new TimerTask() {
 			        public void run() {
-                        scrollValid = false;
+			            scrollTouch = false;
                         if(fProxy.hasListeners(TiC.EVENT_SCROLLEND, false)) {
                             fProxy.fireEvent(TiC.EVENT_SCROLLEND, dictForScrollEvent(), false, false);
                         }
@@ -626,7 +626,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
                 
 				view.requestDisallowInterceptTouchEvent(scrollState != ViewPager.SCROLL_STATE_IDLE);
 				if (scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
-				    if (scrollValid) {
+				    if (scrollTouch) {
 	                    delayEndCall();
 				    }
 				}
@@ -638,8 +638,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 				    if (hideKeyboardOnScroll && hasFocus()) {
 	                    blur();
 	                }
-					if (scrollValid == false) {
-						scrollValid = true;
+					if (scrollTouch == false) {
+					    scrollTouch = true;
 						if(fProxy.hasListeners(TiC.EVENT_SCROLLSTART, false)) {
                             fProxy.fireEvent(TiC.EVENT_SCROLLSTART, dictForScrollEvent(), false, false);
                         }
@@ -650,15 +650,16 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
 			{
-//				Log.d(TAG, "onScroll : " + firstVisibleItem, Log.DEBUG_MODE);
-				boolean fireScroll = scrollValid;
-				if (!fireScroll && visibleItemCount > 0) {
-					//Items in a list can be selected with a track ball in which case
-					//we must check to see if the first visibleItem has changed.
-					fireScroll = (lastValidfirstItem != firstVisibleItem);
-				}
-				if(fireScroll && fProxy.hasListeners(TiC.EVENT_SCROLL, false)) {
+//				Log.d(TAG, "onScroll : " + scrollValid, Log.DEBUG_MODE);
+//				boolean fireScroll = scrollValid;
+//				if (!fireScroll && visibleItemCount > 0) {
+//					//Items in a list can be selected with a track ball in which case
+//					//we must check to see if the first visibleItem has changed.
+//					fireScroll = (lastValidfirstItem != firstVisibleItem);
+//				}
+				if(fProxy.hasListeners(TiC.EVENT_SCROLL, false)) {
 				    int newScrollOffset = getScroll();
+	                Log.d(TAG, "newScrollOffset : " + newScrollOffset, Log.DEBUG_MODE);
                     lastValidfirstItem = firstVisibleItem;
 				    if (newScrollOffset != currentScrollOffset) {
 				        currentScrollOffset = newScrollOffset;
