@@ -308,32 +308,37 @@ public class TiHTTPClient
         }
     
         responseOut.write(data, 0, size);
-    
-        KrollDict callbackData = new KrollDict();
-        callbackData.put("totalCount", contentLength);
-        callbackData.put("totalSize", totalSize);
-        callbackData.put("size", size);
-    
-        byte[] blobData = new byte[size];
-        System.arraycopy(data, 0, blobData, 0, size);
-    
-        TiBlob blob = TiBlob.blobFromObject(blobData, contentType);
-        callbackData.put("blob", blob);
-        double progress = ((double)totalSize)/((double)contentLength);
-        // return progress as -1 if it is outside the valid range
-        if (progress > 1 || progress < 0) {
-            progress = NetworkModule.PROGRESS_UNKNOWN;
+        
+        if (proxy.getProperty(TiC.PROPERTY_ONDATASTREAM) != null) {
+            KrollDict callbackData = new KrollDict();
+            callbackData.put("totalCount", contentLength);
+            callbackData.put("totalSize", totalSize);
+            callbackData.put("size", size);
+        
+            byte[] blobData = new byte[size];
+            System.arraycopy(data, 0, blobData, 0, size);
+        
+            TiBlob blob = TiBlob.blobFromObject(blobData, contentType);
+            callbackData.put("blob", blob);
+            double progress = ((double)totalSize)/((double)contentLength);
+            // return progress as -1 if it is outside the valid range
+            if (progress > 1 || progress < 0) {
+                progress = NetworkModule.PROGRESS_UNKNOWN;
+            }
+            callbackData.put("progress", progress);
+        
+            dispatchCallback(TiC.PROPERTY_ONDATASTREAM, callbackData);
         }
-        callbackData.put("progress", progress);
-    
-        dispatchCallback(TiC.PROPERTY_ONDATASTREAM, callbackData);
     }
     
-    private void finishedReceivingEntityData(long contentLength) throws IOException
+    private void finishedReceivingEntityData(final long contentLength) throws IOException
     {
         if (responseOut instanceof ByteArrayOutputStream) {
             ByteArrayOutputStream byteStream = (ByteArrayOutputStream) responseOut;
             responseData = TiBlob.blobFromObject(byteStream.toByteArray(), contentType);
+        }
+        if (responseData != null) {
+            responseData.onDataComplete(contentLength);
         }
         responseOut.close();
         responseOut = null;
@@ -610,7 +615,7 @@ public class TiHTTPClient
     public String getAllResponseHeaders()
     {
         String result = "";
-        if(!responseHeaders.isEmpty()){
+        if(responseHeaders != null && !responseHeaders.isEmpty()){
             StringBuilder sb = new StringBuilder(256);
             Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
             
@@ -676,7 +681,7 @@ public class TiHTTPClient
     public String getResponseHeader(String getHeaderName)
     {
         String result = "";
-        if (!responseHeaders.isEmpty()) {
+        if (responseHeaders != null && !responseHeaders.isEmpty()) {
             boolean firstPass = true;
             StringBuilder sb = new StringBuilder(256);
             Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
