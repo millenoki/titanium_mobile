@@ -804,7 +804,10 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	
 	@Override
 	public void onWindowFocusChange(boolean focused) {
-	    getCurrentWindow().onWindowFocusChange(focused);
+	    TiWindowProxy window =  getCurrentWindow();
+	    if (window != null) {
+	        window.onWindowFocusChange(focused);
+	    }
     }
     @Override
     public TiWindowProxy getTopWindow() {
