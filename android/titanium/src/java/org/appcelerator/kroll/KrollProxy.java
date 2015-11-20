@@ -2197,6 +2197,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             this.eventOverrideDelegate = null;
         }
     }
+    
+    public TiViewEventOverrideDelegate getEventOverrideDelegate() {
+        if (eventOverrideDelegate != null) {
+            return eventOverrideDelegate.get();
+        }
+        return null;
+    }
 
 /**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onCreate life cycle events.
