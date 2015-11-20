@@ -11,8 +11,10 @@ import java.util.List;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +22,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -32,7 +35,8 @@ import android.os.Parcelable;
  */
 public class TiWifiScanner {
     private static final String TAG = "TiWifiScanner";
- 
+    private static final int REQUEST_FINE_LOCATION = 0;
+            
     private WifiManager wm;
     private IntentFilter wifiScannerIntentFilter;
     private WifiScannerBroadcastReceiver receiver;
@@ -51,10 +55,13 @@ public class TiWifiScanner {
             if (!action.equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
                  return;
             }
- 
+            if (!hasLocationPermissions()) { 
+                Log.w(TAG, "missing location permission to get scan results");
+                return;
+            }
             if (messageHandler == null) {
             	Log.w(TAG, "Network receiver is active but no handler has been set.");
-            	return;
+                return;
             }
             
             if (wm == null) {
@@ -110,8 +117,30 @@ public class TiWifiScanner {
     	}
     }
     
+    public boolean hasLocationPermissions()
+    {
+        if (Build.VERSION.SDK_INT < 23) {
+            return true;
+        }
+        Activity currentActivity  = TiApplication.getInstance().getRootOrCurrentActivity();
+        if (currentActivity != null && 
+                (currentActivity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED || 
+                currentActivity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            return true;
+        }
+        return false;
+    }
+
+    
     public void scanWifi()
 	{
+        if (!hasLocationPermissions()) {
+            Activity currentActivity  = TiApplication.getInstance().getRootOrCurrentActivity();
+            if (currentActivity != null) {
+                currentActivity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, TiC.PERMISSION_CODE_LOCATION);       
+            }
+            return;
+        }
 		if (wm != null) {
 			wm.startScan();
 		} else {
