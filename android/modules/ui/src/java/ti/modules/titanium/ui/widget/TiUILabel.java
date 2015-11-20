@@ -250,6 +250,8 @@ public class TiUILabel extends TiUINonViewGroupView
 		public void transitionToTextView(EllipsizingTextView newTextView, Transition transition) {
 			oldTextView = textView;
 			textView = newTextView;
+//			oldTextView.setClickable(false);
+			oldTextView.setOnTouchListener(null);//we need to remove it or we will receive a cancel event on remove view
 			registerForTouch();
 			registerForKeyPress();
 			TransitionHelper.CompletionBlock onDone = new TransitionHelper.CompletionBlock() {

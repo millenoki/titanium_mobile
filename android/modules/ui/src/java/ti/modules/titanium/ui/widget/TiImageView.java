@@ -331,7 +331,9 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	public void transitionToImageView(InternalImageView newImageView, HashMap transition) {
 		oldImageView = imageView;
 		imageView = newImageView;
-		
+		oldImageView.setClickable(false);
+        oldImageView.setOnTouchListener(null);//we need to remove it or we will receive a cancel event on remove view
+        
 		TransitionHelper.CompletionBlock onDone = new TransitionHelper.CompletionBlock() {
             
             @Override
