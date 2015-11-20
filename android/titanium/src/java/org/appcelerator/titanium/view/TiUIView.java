@@ -2591,7 +2591,19 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         show();
         for (Map.Entry<String, Object> entry : toProps.entrySet()) {
             final String key = entry.getKey();
-            prepareAnimateProperty(key, entry.getValue(), fromProps, view, parentView, list, needsReverse, listReverse);
+            Object value = entry.getValue();
+            Object proxyvalue = proxy.getProperty(key);
+            if (proxyvalue instanceof AnimatableProxy && value instanceof HashMap) {
+                TiAnimatorSet tiAnimator = proxy.createAnimator(value);
+                tiAnimator.setProxy((AnimatableProxy) proxyvalue);
+                ((AnimatableProxy) proxyvalue).prepareAnimatorSet(tiAnimator);
+                list.add(tiAnimator.set());
+                if (needsReverse) {
+                    listReverse.add(tiAnimator.getOrCreateReverseSet());
+                }
+            } else {
+                prepareAnimateProperty(key, entry.getValue(), fromProps, view, parentView, list, needsReverse, listReverse);
+            }
         }
 
         view.postInvalidate();

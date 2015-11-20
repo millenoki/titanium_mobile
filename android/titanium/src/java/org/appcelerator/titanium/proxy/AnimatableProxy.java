@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -232,6 +231,7 @@ public class AnimatableProxy extends ParentingProxy {
 		synchronized (runningAnimationsLock) {
 			runningAnimations.remove(animation);
 		}
+		handlePendingAnimation();
 	}
 
 	public void clearAnimation(TiAnimator builder)

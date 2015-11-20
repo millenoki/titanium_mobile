@@ -1,10 +1,13 @@
 package org.appcelerator.titanium.animation;
 
+import org.appcelerator.kroll.common.Log;
+
 import android.animation.AnimatorSet;
 
 //import android.animation.AnimatorSet;
 
 public class TiAnimatorSet extends TiAnimator {
+    private final String TAG = "TiAnimatorSet";
 	private AnimatorSet set;
 	private AnimatorSet clonableSet;
 	private AnimatorSet clonableReverseSet;
@@ -54,6 +57,7 @@ public class TiAnimatorSet extends TiAnimator {
 	
 	@Override
 	public void cancelWithoutResetting(){
+        Log.d(TAG, "cancelWithoutResetting " + this, Log.DEBUG_MODE);
 		super.cancelWithoutResetting();
 		set.cancel();
 		if (reverseSet != null) {

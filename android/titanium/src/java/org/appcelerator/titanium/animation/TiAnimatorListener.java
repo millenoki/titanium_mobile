@@ -144,11 +144,11 @@ public class TiAnimatorListener implements AnimatorListener {
     }
 
     public void onAnimationCancel(Animator animation) {
+        Log.d(TAG, "onAnimationCancel " + animation, Log.DEBUG_MODE);
         if (tiSet == null || tiSet.getAnimating() == false || tiSet.cancelled)
             return;// prevent double onEnd!
-        Log.d(TAG, "onAnimationCancel " + animation, Log.DEBUG_MODE);
         tiSet.setAnimating(false);
-        tiSet.handleCancel(); // will fire the EVENT_COMPLETE
+        tiSet.handleCancel(); 
     }
 
     public void onAnimationRepeat(Animator animation) {
