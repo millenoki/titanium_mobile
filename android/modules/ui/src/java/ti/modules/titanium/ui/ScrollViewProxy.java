@@ -6,14 +6,19 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.TiPoint;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIScrollView;
@@ -22,10 +27,12 @@ import android.os.Handler;
 import android.os.Message;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_CONTENT_HEIGHT, TiC.PROPERTY_CONTENT_WIDTH,
+	TiC.PROPERTY_CONTENT_HEIGHT, 
+	TiC.PROPERTY_CONTENT_WIDTH,
 	TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR,
 	TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
 	TiC.PROPERTY_SCROLL_TYPE,
+    TiC.PROPERTY_SCROLLING_ENABLED,
 //	TiC.PROPERTY_CONTENT_OFFSET,
 	TiC.PROPERTY_CAN_CANCEL_EVENTS,
 	TiC.PROPERTY_OVER_SCROLL_MODE
@@ -107,6 +114,35 @@ public class ScrollViewProxy extends ViewProxy
 	    }
 		return getProperty(TiC.PROPERTY_CONTENT_OFFSET);
 	}
+	
+	@Kroll.method
+    public void setZoomScale(final Object scale, final @Kroll.argument(optional = true) Object obj)
+    {
+	    setPropertyJava("zoomScale", scale);
+	    runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                Boolean animated = true;
+                TiPoint point = null;
+                
+                if (obj instanceof HashMap) {
+                    animated = TiConvert.toBoolean((HashMap<String, Object>) obj, "animated", animated);
+                    point = TiConvert.toPoint(((HashMap) obj).get("point"));
+                }
+                getScrollView().setZoomScale(TiConvert.toFloat(scale, 1.0f), point, animated);
+            }
+        }, true);
+       
+    }
+	
+	@Kroll.getProperty @Kroll.method
+    public Object getZoomScale()
+    {
+        if (peekView() != null) {
+            return getScrollView().getZoomScale();
+        }
+        return getProperty("zoomScale");
+    }
 
 	@Kroll.method
 	public void scrollToBottom() {
