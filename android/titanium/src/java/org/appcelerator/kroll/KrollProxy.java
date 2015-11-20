@@ -59,6 +59,9 @@ import org.json.JSONObject;
 public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecycleEvent {
     public static interface SetPropertyChangeListener {
         public void onSetProperty(KrollProxy proxy, String name, Object value);
+
+        public void onApplyProperties(KrollProxy krollProxy, HashMap arg,
+                boolean force, boolean wait);
     }
 
     private static final String TAG = "KrollProxy";
