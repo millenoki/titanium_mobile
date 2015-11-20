@@ -27,6 +27,7 @@ import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.animation.Ti2DMatrixEvaluator;
 import org.appcelerator.titanium.animation.TiAnimatorSet;
 import org.appcelerator.titanium.animation.TiViewAnimator;
+import org.appcelerator.titanium.proxy.AnimatableProxy;
 import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.AffineTransform.DecomposedType;
@@ -439,7 +440,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         applyAccessibilityProperties();
     }
 
-    protected void setLayoutParams(LayoutParams layoutParams) {
+    public void setLayoutParams(LayoutParams layoutParams) {
         this.layoutParams = layoutParams;
     }
 
@@ -676,10 +677,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             case TiC.PROPERTY_BACKGROUND_COLOR:
                 int color = TiConvert.toColor(newValue);
                 bgdDrawable.setDefaultColor(color);
+
                 bgdDrawable.setColorForState(
                         TiUIHelper.BACKGROUND_DEFAULT_STATE_1, newValue);
                 bgdDrawable.setColorForState(
                         TiUIHelper.BACKGROUND_DEFAULT_STATE_2, newValue);
+                
                 break;
             case TiC.PROPERTY_BACKGROUND_SELECTED_COLOR:
                 bgdDrawable.setColorForState(
@@ -1412,9 +1415,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     }
 
     public void release() {
-        if (Log.isDebugModeEnabled()) {
-            Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
-        }
+//        if (Log.isDebugModeEnabled()) {
+//            Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
+//        }
         proxy.cancelAllAnimations();
         View nv = getRootView();
         if (nv != null) {
@@ -1527,8 +1530,6 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         return background;
     }
 
-    @SuppressLint("NewApi")
-    @SuppressWarnings("deprecation")
     public static void setBackgroundDrawable(View view, Drawable drawable) {
         if (TiC.JELLY_BEAN_OR_GREATER) {
             view.setBackground(drawable);

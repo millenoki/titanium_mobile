@@ -813,18 +813,24 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	{
 		if (view == null) return;
 		if (pendingAnimations.size() > 0) {
-			if (forceQueue || !(TiApplication.isUIThread())) {
-				if (!TiC.HONEYCOMB_OR_GREATER) {
-					// Even this very small delay can help eliminate the bug
-					// whereby the animated view's parent suddenly becomes
-					// transparent (pre-honeycomb). cf. TIMOB-9813.
-					getMainHandler().sendEmptyMessageDelayed(MSG_ANIMATE, 10);
-				} else {
-					getMainHandler().sendEmptyMessage(MSG_ANIMATE);
-				}
-			} else {
-				handleAnimate();
-			}
+		    runInUiThread(new CommandNoReturn() {
+	            @Override
+	            public void execute() {
+	                handleAnimate();                
+	            }
+	        }, false);
+//			if (forceQueue || !(TiApplication.isUIThread())) {
+//				if (!TiC.HONEYCOMB_OR_GREATER) {
+//					// Even this very small delay can help eliminate the bug
+//					// whereby the animated view's parent suddenly becomes
+//					// transparent (pre-honeycomb). cf. TIMOB-9813.
+//					getMainHandler().sendEmptyMessageDelayed(MSG_ANIMATE, 10);
+//				} else {
+//					getMainHandler().sendEmptyMessage(MSG_ANIMATE);
+//				}
+//			} else {
+//				handleAnimate();
+//			}
 		}
 	}
 	
@@ -848,6 +854,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			return;
 		}
 		else if (view.getWidth() == 0 && view.getHeight() == 0) {
+		    Log.d(TAG, "delay because view not layed out", Log.DEBUG_MODE);
 			getMainHandler().sendEmptyMessage(MSG_QUEUED_ANIMATE);
 			return;
 		}

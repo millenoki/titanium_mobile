@@ -75,8 +75,9 @@ public class CustomListView extends RefreshableListView {
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
-		if (mScrollingEnabled)
+		if (mScrollingEnabled) {
 			return super.dispatchTouchEvent(ev);
+		}
 		final int actionMasked = ev.getActionMasked() & MotionEvent.ACTION_MASK;
 
 		if (actionMasked == MotionEvent.ACTION_DOWN) {

@@ -1323,20 +1323,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
         KrollDict krollData = null;
 
-        /* TODO: Is eventListeners still used? */
-        if (!eventListeners.isEmpty()) {
-//            HashMap<String, Object> dict = (HashMap) data;
-//            if (dict == null) {
-//                dict = new KrollDict();
-//                dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
-//            } else if (dict instanceof HashMap) {
-//                Object sourceProxy = dict.get(TiC.EVENT_PROPERTY_SOURCE);
-//                if (sourceProxy == null) {
-//                    dict.put(TiC.EVENT_PROPERTY_SOURCE, this);
-//                }
-//            }
-//            dict.put(TiC.EVENT_PROPERTY_TYPE, event);
-            // onEventFired(event, dict);
+        if (eventListeners != null && !eventListeners.isEmpty()) {
             HashMap<Integer, KrollEventCallback> listeners = eventListeners
                     .get(event);
             if (listeners != null) {
