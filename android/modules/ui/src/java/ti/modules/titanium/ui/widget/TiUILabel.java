@@ -25,6 +25,7 @@ import org.appcelerator.titanium.util.TiTypefaceSpan;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.FreeLayout;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -55,6 +56,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.Layout;
 import android.text.Layout.Alignment;
 import android.text.Selection;
@@ -319,8 +321,11 @@ public class TiUILabel extends TiUINonViewGroupView
 			if (hm == 0) h = 100000;
 			
 			
-			
-			if (w > 0) {
+			if ((hm == MeasureSpec.AT_MOST || hm == MeasureSpec.UNSPECIFIED) && (fullText == null || fullText.length() == 0)) {
+                heightMeasureSpec = MeasureSpec.makeMeasureSpec(0,
+                        MeasureSpec.EXACTLY);
+            }
+			else if (w > 0) {
 				if (needsResizing) {
 					refitText(this.getText().toString(), w);
 				}
@@ -347,10 +352,7 @@ public class TiUILabel extends TiUINonViewGroupView
 						MeasureSpec.UNSPECIFIED);
 				}
 			}
-			if (hm == MeasureSpec.AT_MOST && (fullText == null || fullText.length() == 0)) {
-			    heightMeasureSpec = MeasureSpec.makeMeasureSpec(0,
-                        MeasureSpec.EXACTLY);
-			}
+			
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		}
 
