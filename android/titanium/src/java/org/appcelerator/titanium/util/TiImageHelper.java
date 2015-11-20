@@ -330,7 +330,7 @@ public class TiImageHelper {
     }
 
     public static Pair<Drawable, KrollDict> drawableFiltered(Drawable drawable,
-            HashMap options, final boolean shouldCopySource) {
+            HashMap options, final boolean shouldRecycleSource) {
         Bitmap bitmap = null;
         byte[] chunk = null;
         if (drawable instanceof BitmapDrawable) {
@@ -342,7 +342,7 @@ public class TiImageHelper {
             return null;
         }
         Pair<Bitmap, KrollDict> result = imageFiltered(bitmap, options,
-                shouldCopySource);
+                shouldRecycleSource);
         final Resources resources = TiApplication.getInstance().getResources();
         if (drawable instanceof BitmapDrawable) {
             return new Pair<Drawable, KrollDict>(
@@ -358,44 +358,36 @@ public class TiImageHelper {
     }
 
     public static Pair<Bitmap, KrollDict> imageFiltered(Bitmap bitmap,
-            HashMap options, final boolean shouldCopySource) {
+            HashMap options, final boolean shouldRecycleSource) {
         if (bitmap == null) {
             return null;
         }
-        Bitmap toUse = null;
+        Bitmap result = bitmap;
         KrollDict infoData = new KrollDict();
         if (options.containsKey("crop")) {
             TiRect rect = new TiRect(options.get("crop"));
-            if (toUse == null) {
-                if (shouldCopySource) {
-                    toUse = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-                } else {
-                    toUse = bitmap;
+
+            Bitmap newResult = TiImageHelper.imageCropped(result, rect);
+            if (newResult != result) {
+                if (result != bitmap || shouldRecycleSource) {
+                    result.recycle();
                 }
-            }
-            Bitmap oldBitmap = toUse;
-            toUse = TiImageHelper.imageCropped(toUse, rect);
-            if (toUse != oldBitmap) {
-                oldBitmap.recycle();
-                oldBitmap = null;
+                result = newResult;
             }
         }
 
         if (options.containsKey("scale")) {
-            if (toUse == null) {
-                if (shouldCopySource) {
-                    toUse = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-                } else {
-                    toUse = bitmap;
+            float scale = TiConvert.toFloat(options, "scale", 1.0f);
+            if (scale != 1.0f)  {
+                Bitmap newResult = TiImageHelper.imageScaled(result, scale);
+                if (newResult != result) {
+                    if (result != bitmap || shouldRecycleSource) {
+                        result.recycle();
+                    }
+                    result = newResult;
                 }
             }
-            float scale = TiConvert.toFloat(options, "scale", 1.0f);
-            Bitmap oldBitmap = toUse;
-            toUse = TiImageHelper.imageScaled(toUse, scale);
-            if (toUse != oldBitmap) {
-                oldBitmap.recycle();
-                oldBitmap = null;
-            }
+            
         }
 
         if (options.containsKey("filters")) {
@@ -413,19 +405,13 @@ public class TiImageHelper {
                     }
                 }
             }
-            if (toUse == null) {
-                if (shouldCopySource) {
-                    toUse = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-                } else {
-                    toUse = bitmap;
-                }
-            }
-            Bitmap oldBitmap = toUse;
-            toUse = getGPUImage().getBitmapWithFilterApplied(toUse, group,
+            Bitmap newResult = getGPUImage().getBitmapWithFilterApplied(result, group,
                     ScaleType.CENTER_CROP, Rotation.NORMAL);
-            if (toUse != oldBitmap) {
-                oldBitmap.recycle();
-                oldBitmap = null;
+            if (newResult != result) {
+                if (result != bitmap || shouldRecycleSource) {
+                    result.recycle();
+                }
+                result = newResult;
             }
         }
 
@@ -433,18 +419,12 @@ public class TiImageHelper {
             int tint = TiConvert.toColor(options, "tint", 0);
             Mode mode = Mode.values()[TiConvert.toInt(options, "blend",
                     Mode.MULTIPLY.ordinal())];
-            if (toUse == null) {
-                if (shouldCopySource) {
-                    toUse = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-                } else {
-                    toUse = bitmap;
+            Bitmap newResult = TiImageHelper.imageTinted(result, tint, mode);
+            if (newResult != result) {
+                if (result != bitmap || shouldRecycleSource) {
+                    result.recycle();
                 }
-            }
-            Bitmap oldBitmap = toUse;
-            toUse = TiImageHelper.imageTinted(toUse, tint, mode);
-            if (toUse != oldBitmap) {
-                oldBitmap.recycle();
-                oldBitmap = null;
+                result = newResult;
             }
         }
 
@@ -459,14 +439,14 @@ public class TiImageHelper {
                 height = TiConvert.toInt((HashMap) colorArtOptions, "height",
                         height);
             }
-            if (toUse == null) {
-                if (shouldCopySource) {
-                    toUse = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-                } else {
-                    toUse = bitmap;
-                }
-            }
-            ColorArt art = new ColorArt(toUse, width, height);
+//            if (toUse == null) {
+//                if (shouldCopySource) {
+//                    toUse = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+//                } else {
+//                    toUse = bitmap;
+//                }
+//            }
+            ColorArt art = new ColorArt(bitmap, width, height);
             KrollDict colorArtData = new KrollDict();
             colorArtData.put("backgroundColor",
                     TiColorHelper.toHexString(art.getBackgroundColor()));
@@ -479,8 +459,7 @@ public class TiImageHelper {
             infoData.put("colorArt", colorArtData);
         }
 
-        return new Pair<Bitmap, KrollDict>((toUse != null) ? toUse : bitmap,
-                infoData);
+        return new Pair<Bitmap, KrollDict>(result, infoData);
     }
 
     private static final String FILE_PREFIX = "file://";

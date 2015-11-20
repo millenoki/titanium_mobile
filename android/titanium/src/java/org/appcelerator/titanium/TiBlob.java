@@ -983,7 +983,7 @@ public class TiBlob extends KrollProxy {
             return null;
         }
         Pair<Bitmap, KrollDict> result = TiImageHelper.imageFiltered(bitmap,
-                options, true);
+                options, false);
         TiBlob blob = TiBlob.blobFromObject(result.first);
         blob.addInfo(result.second);
         return blob;
