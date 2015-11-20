@@ -158,7 +158,7 @@ public class ImageModule extends KrollModule {
                     return null;
                 }
             }
-            result = TiImageHelper.drawableFiltered(drawable, options, true);
+            result = TiImageHelper.drawableFiltered(drawable, options, false);
         }
 
         if (result != null) {
