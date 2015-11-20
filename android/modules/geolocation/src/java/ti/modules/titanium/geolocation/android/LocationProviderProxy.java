@@ -211,7 +211,7 @@ public class LocationProviderProxy extends KrollProxy
 		try {
 			return TiConvert.toDouble(property);
 		} catch (NumberFormatException e) {
-			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateDistance, returning default");
+//			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateDistance, returning default");
 			return defaultMinUpdateDistance;
 		}
 	}
@@ -241,7 +241,7 @@ public class LocationProviderProxy extends KrollProxy
 		try {
 			return TiConvert.toDouble(property);
 		} catch (NumberFormatException e) {
-			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateTime, returning default");
+//			Log.e(TAG, "Invalid value [" + property + "] found for minUpdateTime, returning default");
 			return defaultMinUpdateTime;
 		}
 	}
