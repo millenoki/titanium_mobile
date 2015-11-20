@@ -131,10 +131,10 @@ public class TiUIPagerTabStrip extends TiUIView {
             }
             break;
         case TiC.PROPERTY_COLOR:
-            strip.setTabIndicatorColor(TiConvert.toColor(newValue));
+            strip.setTextColor(TiConvert.toColor(newValue));
             break;
         case TiC.PROPERTY_INDICATOR_COLOR:
-            strip.setTextColor(TiConvert.toColor(newValue));
+            strip.setTabIndicatorColor(TiConvert.toColor(newValue));
             break;
         case TiC.PROPERTY_TEXT_ALIGN:
             for (int counter = 0; counter < strip.getChildCount(); counter++) {
