@@ -1554,8 +1554,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 alpha *= TiConvert.toFloat(proxy
                         .getProperty(TiC.PROPERTY_BACKGROUND_OPACITY));
 
-            if (alpha < 1.0)
+            if (alpha < 1.0) {
                 TiUIHelper.setDrawableOpacity(background, alpha);
+            }
             if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_REPEAT))
                 background.setImageRepeat(TiConvert.toBoolean(proxy
                         .getProperty(TiC.PROPERTY_BACKGROUND_REPEAT)));
@@ -1566,16 +1567,18 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         View view = getNativeView();
         if (view != null) {
             Drawable currentDrawable = view.getBackground();
-            if (currentDrawable != null) {
+            if (currentDrawable != null && currentDrawable != background) {
                 currentDrawable.setCallback(null);
                 if (currentDrawable instanceof TiBackgroundDrawable) {
                     ((TiBackgroundDrawable) currentDrawable).releaseDelegate();
                 }
-                setBackgroundDrawable(view, null);
+//                setBackgroundDrawable(view, null);
             }
             setBackgroundDrawable(view, background);
             if (background.isStateful()) {
-                background.setState(view.getDrawableState());
+                if (background.setState(view.getDrawableState())) {
+                    background.invalidateSelf();
+                }
             }
         }
     }
@@ -1586,15 +1589,18 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
             View view = getNativeView();
             if (view != null) {
+                TiBackgroundDrawable background = getOrCreateBackground();
                 if (enabled) {
                     RippleDrawable drawable = new RippleDrawable(
                             new ColorStateList(new int[][] {
                                     TiUIHelper.BACKGROUND_SELECTED_STATE,
                                     new int[] {} }, new int[] { pressedColor,
-                                    pressedColor }), getOrCreateBackground(), null);
+                                    pressedColor }), background, null);
                     setBackgroundDrawable(view, drawable);
+                    //we need to reset the callback as setBackgroundDrawable will clear it
+                    background.setCallback(drawable);
                 } else {
-                    setBackgroundDrawable(view, getOrCreateBackground());
+                    setBackgroundDrawable(view, background);
                 }
             }
         } else {

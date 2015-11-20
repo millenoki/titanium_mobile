@@ -98,7 +98,7 @@ public class TiBackgroundDrawable extends Drawable {
 		}
         return result;
     }
-
+	
 	@Override
 	public void draw(Canvas canvas)
 	{
@@ -187,6 +187,11 @@ public class TiBackgroundDrawable extends Drawable {
 	}
 	
 	public final Rect bounds()  {
+        return this.bounds;
+    }
+	
+    @Override
+	public Rect getDirtyBounds() {
         return this.bounds;
     }
 	        
@@ -326,7 +331,7 @@ public class TiBackgroundDrawable extends Drawable {
 	public void setColorForState(int[] stateSet, int color)
 	{
 		getOrCreateDrawableForState(stateSet).setColor(color);
-		invalidateSelf();
+//		invalidateSelf();
 	}
 	
 	public void setColorForState(int[] stateSet, Object color)
@@ -348,7 +353,7 @@ public class TiBackgroundDrawable extends Drawable {
 	    } else {
 	        getOrCreateDrawableForState(stateSet).setColor(TiConvert.toColor(color));
 	    }
-        invalidateSelf();
+//        invalidateSelf();
     }
 
 	
@@ -363,7 +368,7 @@ public class TiBackgroundDrawable extends Drawable {
                 drawables.get(key).setBitmapDrawable(drawable);	            
 	        }
 		}
-		invalidateSelf();
+//		invalidateSelf();
 	}
 	
 	public void setGradientDrawableForState(int[] stateSet, Drawable drawable)
@@ -377,13 +382,13 @@ public class TiBackgroundDrawable extends Drawable {
                 drawables.get(key).setGradientDrawable(drawable);             
             }
 		}
-		invalidateSelf();
+//		invalidateSelf();
 	}
 	
 	public void setInnerShadowsForState(int[] stateSet, Shadow[] shadows)
 	{
 		getOrCreateDrawableForState(stateSet).setInnerShadows(shadows);
-		invalidateSelf();
+//		invalidateSelf();
 	}
 	
 //	protected void setNativeView(View view)

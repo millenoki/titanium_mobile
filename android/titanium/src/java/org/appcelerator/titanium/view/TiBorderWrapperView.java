@@ -149,7 +149,9 @@ public class TiBorderWrapperView extends MaskableView
 	protected void drawableStateChanged() {
         super.drawableStateChanged();
         if (mDrawable != null && mDrawable.isStateful()) {
-        	mDrawable.setState(getDrawableState());
+        	if (mDrawable.setState(getDrawableState())) {
+        	    mDrawable.invalidateSelf();
+        	}
         }
         invalidate();
     }
@@ -158,15 +160,17 @@ public class TiBorderWrapperView extends MaskableView
 	    super.childDrawableStateChanged(child);
 //		if (child != proxy.getFocusView()) return;
 		if (mDrawable != null && mDrawable.isStateful()) {
-        	mDrawable.setState(child.getDrawableState());
-        	invalidate();
+		    if (mDrawable.setState(child.getDrawableState())) {
+                mDrawable.invalidateSelf();
+            }
         }
 	}
 	
 	public void setDrawableState(int[] state) {
 		if (mDrawable != null && mDrawable.isStateful()) {
-        	mDrawable.setState(state);
-        	invalidate();
+		    if (mDrawable.setState(state)) {
+                mDrawable.invalidateSelf();
+            }
         }
 	}
 //	@Override
@@ -179,21 +183,21 @@ public class TiBorderWrapperView extends MaskableView
 	@Override
 	protected void dispatchDraw(Canvas canvas)
 	{
-		if (mBorderPadding != null)
-		{
+//		if (mBorderPadding != null)
+//		{
+//			canvas.save();
+//			clipCanvas(canvas);
+//			super.dispatchDraw(canvas);
+////			drawBorder(canvas);
+//			canvas.restore();
+//		}
+//		else  {
 			canvas.save();
 			clipCanvas(canvas);
 			super.dispatchDraw(canvas);
-			drawBorder(canvas);
 			canvas.restore();
-		}
-		else  {
-			canvas.save();
-			clipCanvas(canvas);
-			super.dispatchDraw(canvas);
-			canvas.restore();
-			drawBorder(canvas);
-		}
+//			drawBorder(canvas);
+//		}
 	}
 	
 	private float[] clipRadiusFromPadding(RectF outerRect)

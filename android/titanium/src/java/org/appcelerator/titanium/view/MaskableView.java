@@ -414,6 +414,8 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
             initMask(dr);
             swapBitmapMask(makeBitmapMask(dr));
             invalidate();
+        } else {
+            super.invalidateDrawable(dr);
         }
     }
 
