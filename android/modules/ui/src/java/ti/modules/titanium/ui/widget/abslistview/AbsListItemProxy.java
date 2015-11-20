@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -175,6 +176,22 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
                 if (sectionProxy != null) {
                     sectionProxy.get().updateItemAt(itemIndex, key, name, value);
                 }
+                return;
+            }
+        }
+    }
+    
+    @Override
+    public void onApplyProperties(final KrollProxy proxy, final HashMap arg, boolean force, boolean wait) {
+        for (Map.Entry<String, ProxyAbsListItem> entry : bindingsMap.entrySet()) {
+            String key = entry.getKey();
+            ProxyAbsListItem item = entry.getValue();
+            if (item.getProxy() == proxy) {
+                KrollDict diffProperties = item.generateDiffProperties((HashMap) arg);
+                if (sectionProxy != null) {
+                    sectionProxy.get().updateItemAt(itemIndex, key, diffProperties);
+                }
+                proxy.internalApplyModelProperties(diffProperties);
                 return;
             }
         }

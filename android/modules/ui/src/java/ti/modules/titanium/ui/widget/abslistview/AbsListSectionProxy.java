@@ -368,6 +368,21 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //	    itemD.setProperty(binding, key, value);
     }
 	
+	public void updateItemAt(final int index, final String binding, final HashMap props) {
+        if (index < 0 || index >= mItemCount) {
+            return;
+        }
+        if (itemProperties != null) {
+            HashMap itemProp = (HashMap) itemProperties[index];
+            if (!itemProp.containsKey(binding)) {
+                itemProp.put(binding, new HashMap<String, Object>());
+            }
+            ((HashMap)itemProp.get(binding)).putAll(props);
+        }
+//      AbsListItemData itemD = listItemData.get(index);
+//      itemD.setProperty(binding, key, value);
+    }
+	
 	@Kroll.method
 	public void hide() {
         setVisible(false);
@@ -769,6 +784,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             }
 			// update extra event data for views
 			proxy.setEventOverrideDelegate(itemProxy);
+            proxy.setSetPropertyListener(itemProxy);
 			// if binding is contain in data given to us, process that data,
 			// otherwise
 			// apply default properties.
@@ -785,7 +801,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	                modelListener.processProperties(diffProperties);
 			    }
             }
-            proxy.setSetPropertyListener(itemProxy);
             
 			if (reusing) {
 			    ((KrollProxyReusableListener) modelListener).setReusing(false);
