@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -785,7 +786,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             if (newProps != null)
                 properties.putAll(newProps);
         }
-
+        internalApplyModelProperties(changedProps);
+    }
+    
+    public void internalApplyModelProperties(final KrollDict changedProps) {
         if (modelListener != null) {
             if (!mProcessInUIThread || TiApplication.isUIThread()) {
                 modelListener.get().processApplyProperties(changedProps);
@@ -856,27 +860,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 }
             }
         }
-        if (modelListener != null) {
-            if (!mProcessInUIThread || TiApplication.isUIThread()) {
-                modelListener.get().processApplyProperties(changedProps);
-            } else {
-                if (wait) {
-                    TiMessenger.sendBlockingMainMessage(getMainHandler()
-                            .obtainMessage(MSG_MODEL_APPLY_PROPERTIES),
-                            changedProps);
-                } else {
-                    Message message = getMainHandler().obtainMessage(
-                            MSG_MODEL_APPLY_PROPERTIES, changedProps);
-                    message.sendToTarget();
-                }
-            }
-        }
+        internalApplyModelProperties(changedProps);
     }
 
     public void applyPropertiesInternal(Object arg, boolean force, boolean wait) {
+        
         if (!(arg instanceof HashMap)) {
             Log.w(TAG, "Cannot apply properties: invalid type for properties",
                     Log.DEBUG_MODE);
+            return;
+        }
+        if (setPropertyListener != null) {
+            setPropertyListener.onApplyProperties(this, (HashMap)arg, force, wait);
             return;
         }
         HashMap<String, Object> props = (HashMap<String, Object>) arg;
@@ -902,21 +897,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 }
             }
         }
-        if (modelListener != null) {
-            if (!mProcessInUIThread || TiApplication.isUIThread()) {
-                modelListener.get().processApplyProperties(changedProps);
-            } else {
-                if (wait) {
-                    TiMessenger.sendBlockingMainMessage(getMainHandler()
-                            .obtainMessage(MSG_MODEL_APPLY_PROPERTIES),
-                            changedProps);
-                } else {
-                    Message message = getMainHandler().obtainMessage(
-                            MSG_MODEL_APPLY_PROPERTIES, changedProps);
-                    message.sendToTarget();
-                }
-            }
-        }
+        internalApplyModelProperties(changedProps);
         updateKrollObjectProperties(props, wait);
     }
 
