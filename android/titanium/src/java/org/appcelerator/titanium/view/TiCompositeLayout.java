@@ -213,10 +213,10 @@ public class TiCompositeLayout extends FreeLayout implements
 
 	public void onChildViewRemoved(View parent, View child) {
 		setNeedsSort(true);
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "Removing: " + viewToString(child) + " from "
-					+ viewToString(parent), Log.DEBUG_MODE);
-		}
+//		if (Log.isDebugModeEnabled()) {
+//			Log.d(TAG, "Removing: " + viewToString(child) + " from "
+//					+ viewToString(parent), Log.DEBUG_MODE);
+//		}
 	}
 
 	@Override
@@ -892,9 +892,9 @@ public class TiCompositeLayout extends FreeLayout implements
 			
 		}
 
-		Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + ","
-				+ vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}",
-				Log.DEBUG_MODE);
+//		Log.d(TAG, child.getClass().getName() + " {" + horizontal[0] + ","
+//				+ vertical[0] + "," + horizontal[1] + "," + vertical[1] + "}",
+//				Log.DEBUG_MODE);
 
 		return currentHeight;
 	}
