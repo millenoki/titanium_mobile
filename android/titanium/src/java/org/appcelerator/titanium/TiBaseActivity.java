@@ -846,7 +846,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_CREATE, null);
-			activityProxy.fireEvent(TiC.EVENT_CREATE, null);
+			activityProxy.fireEvent(TiC.EVENT_CREATE);
 		}
 		
 //		if (toolbar != null) {
@@ -1076,7 +1076,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			case KeyEvent.KEYCODE_CAMERA : {
 				if (window.hasListeners(TiC.EVENT_ANDROID_CAMERA)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent(TiC.EVENT_ANDROID_CAMERA, null);
+						window.fireEvent(TiC.EVENT_ANDROID_CAMERA);
 					}
 					handled = true;
 				}
@@ -1085,7 +1085,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			case KeyEvent.KEYCODE_FOCUS : {
 				if (window.hasListeners(TiC.EVENT_ANDROID_FOCUS)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent(TiC.EVENT_ANDROID_FOCUS, null);
+						window.fireEvent(TiC.EVENT_ANDROID_FOCUS);
 					}
 					handled = true;
 				}
@@ -1095,7 +1095,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			case KeyEvent.KEYCODE_SEARCH : {
 				if (window.hasListeners(TiC.EVENT_ANDROID_SEARCH)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent(TiC.EVENT_ANDROID_SEARCH, null);
+						window.fireEvent(TiC.EVENT_ANDROID_SEARCH);
 					}
 					handled = true;
 				}
@@ -1105,7 +1105,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			case KeyEvent.KEYCODE_VOLUME_UP : {
 				if (window.hasListeners(TiC.EVENT_ANDROID_VOLUP)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent(TiC.EVENT_ANDROID_VOLUP, null);
+						window.fireEvent(TiC.EVENT_ANDROID_VOLUP);
 					}
 					handled = true;
 				}
@@ -1115,7 +1115,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			case KeyEvent.KEYCODE_VOLUME_DOWN : {
 				if (window.hasListeners(TiC.EVENT_ANDROID_VOLDOWN)) {
 					if (event.getAction() == KeyEvent.ACTION_UP) {
-						window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN, null);
+						window.fireEvent(TiC.EVENT_ANDROID_VOLDOWN);
 					}
 					handled = true;
 				}
@@ -1462,7 +1462,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		releaseDialogs(this.isFinishing());
 
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_PAUSE, null);
+			activityProxy.fireEvent(TiC.EVENT_PAUSE);
 		}
 
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -1517,7 +1517,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		TiApplication.updateActivityTransitionState(false);
 		
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_RESUME, null);
+			activityProxy.fireEvent(TiC.EVENT_RESUME);
 		}
 		
 		synchronized (lifecycleListeners.synchronizedList()) {
@@ -1588,7 +1588,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
-			activityProxy.fireEvent(TiC.EVENT_START, null);
+			activityProxy.fireEvent(TiC.EVENT_START);
 
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -1644,7 +1644,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_STOP, null);
+			activityProxy.fireEvent(TiC.EVENT_STOP);
 		}
 
 		
@@ -1682,7 +1682,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
 
-			activityProxy.fireEvent(TiC.EVENT_RESTART, null);
+			activityProxy.fireEvent(TiC.EVENT_RESTART);
 
 			// set the current activity back to what it was originally
 			tiApp.setCurrentActivity(this, tempCurrentActivity);
@@ -1706,7 +1706,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 
 		if (activityProxy != null) {
-			activityProxy.fireEvent(TiC.EVENT_USER_LEAVE_HINT, null);
+			activityProxy.fireEvent(TiC.EVENT_USER_LEAVE_HINT);
 		}
 
 		super.onUserLeaveHint();
@@ -1876,7 +1876,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	{
 		if (!onDestroyFired) {
 			if (activityProxy != null) {
-				activityProxy.fireEvent(TiC.EVENT_DESTROY, null);
+				activityProxy.fireEvent(TiC.EVENT_DESTROY);
 			}
 			onDestroyFired = true;
 		}
