@@ -29,12 +29,14 @@ import org.appcelerator.titanium.view.TiUIView;
 import com.lambergar.verticalviewpager.VerticalViewPager;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
+import ti.modules.titanium.ui.widget.TiUIScrollView.TiScrollView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -58,6 +60,11 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	int cacheSize = 3;
 	private Transition transition;
 	private boolean updateCurrentPageDuringScroll = true;
+	
+	protected static final int TIFLAG_NEEDS_DATASET               = 0x00000001;
+	protected static final int TIFLAG_NEEDS_ADAPTER_CHANGE        = 0x00000002;
+    protected static final int TIFLAG_NEEDS_CURRENT_PAGE          = 0x00000004;
+    
 	private interface IPageAdapter {
 
 		void notifyDataSetChanged();
@@ -150,6 +157,35 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	            TiViewHelper.resetValues(child);
 	        }
 		}
+        @Override
+		protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
+	        if (v instanceof ViewGroup) {
+	            final ViewGroup group = (ViewGroup) v;
+	            
+	            final int scrollX = v.getScrollX();
+	            final int scrollY = v.getScrollY();
+	            final int count = group.getChildCount();
+	            // Count backwards - let topmost views consume scroll distance first.
+	            for (int i = count - 1; i >= 0; i--) {
+	                final View child = group.getChildAt(i);
+	                if (child instanceof TiCompositeLayout && !((TiCompositeLayout) child).canScroll()) {
+	                    continue;
+	                }
+                    if (child instanceof TiScrollView) {
+                        return ((TiScrollView) child).canScroll(-dx, 0);
+                    }
+	                int left = child.getLeft();
+	                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight() &&
+	                        y + scrollY >= child.getTop() && y + scrollY < child.getBottom() &&
+	                        canScroll(child, true, dx, x + scrollX - child.getLeft(),
+	                                y + scrollY - child.getTop())) {
+	                    return true;
+	                }
+	            }
+	        }
+
+	        return checkV && ViewCompat.canScrollHorizontally(v, -dx);
+	    }
 	}
 	private class VViewPager extends VerticalViewPager implements IViewPager{
 
@@ -217,6 +253,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	private final Object viewsLock;
 
 	private int mCurIndex = -1;
+	private int mCurrentPage = 0;
 	private boolean mScrollingEnabled = true;
 	
 	private boolean isValidScroll = false;
@@ -244,14 +281,19 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		if (mViews == null || mCurIndex >= mViews.size() || newPage == mCurIndex) return;
 		TiViewProxy oldView = (mCurIndex != -1)?mViews.get(mCurIndex):null;
 		mCurIndex = newPage;
-		proxy.setProperty(TiC.PROPERTY_CURRENT_PAGE, mCurIndex);
+		mCurrentPage = mCurIndex;
+		proxy.setProperty(TiC.PROPERTY_CURRENT_PAGE, mCurrentPage);
 		updateCacheSize();
 		((ScrollableViewProxy)proxy).firePageChange(mCurIndex, mViews.get(mCurIndex), oldView);
 	}
 	
-
+	private int currentScrollState = ViewPager.SCROLL_STATE_IDLE;
 	@Override
 	public void onPageScrollStateChanged(int scrollState) {
+	    if (currentScrollState == scrollState) {
+	        return;
+	    }
+	    currentScrollState = scrollState;
 		if (hardwaredDisabled) {
 			hardwaredDisabled = false;
 			enableHWAcceleration(nativeView);
@@ -477,14 +519,14 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 //			mPager.setOffscreenPageLimit(cacheSize);
 //			return;
 //		}
-		int realCache = cacheSize/2; //floored
+		int realCache = (int) Math.floor(cacheSize/2); //floored
 		int rangeStart = mCurIndex - realCache;
 		int rangeEnd = mCurIndex + realCache;
 		if (rangeStart < 0)
 			realCache -= rangeStart;
 		if (rangeEnd > (mViews.size() - 1))
 			realCache += rangeEnd - mViews.size() + 1;
-		mPager.setOffscreenPageLimit(realCache + 1);
+		mPager.setOffscreenPageLimit(realCache);
 	}
 	
 	private void setPageWidth(Object value)
@@ -562,7 +604,8 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
             applyPropertiesPageStrip(TiConvert.toKrollDict(newValue));
             break;
         case TiC.PROPERTY_CURRENT_PAGE:
-            setCurrentPage(TiConvert.toInt(newValue, 0));
+            mCurrentPage = TiConvert.toInt(newValue, 0);
+            mProcessUpdateFlags |= TIFLAG_NEEDS_CURRENT_PAGE;
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
@@ -787,10 +830,31 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
     		}
         }
         if (changed) {
-            mPager.setAdapter(mAdapter);
-//           mAdapter.notifyDataSetChanged();
+            mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
+            mProcessUpdateFlags |= TIFLAG_NEEDS_CURRENT_PAGE;
+        } else {
+            mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
         }
 	}
+	
+	@Override
+    protected void didProcessProperties() {        
+        super.didProcessProperties();
+
+        if ((mProcessUpdateFlags & TIFLAG_NEEDS_ADAPTER_CHANGE) != 0) {
+            mProcessUpdateFlags &= ~TIFLAG_NEEDS_ADAPTER_CHANGE;
+            mProcessUpdateFlags &= ~TIFLAG_NEEDS_DATASET;
+            mPager.setAdapter(mAdapter);
+        }
+        else if ((mProcessUpdateFlags & TIFLAG_NEEDS_DATASET) != 0) {
+            mProcessUpdateFlags &= ~TIFLAG_NEEDS_DATASET;
+            mAdapter.notifyDataSetChanged();
+        }
+        if ((mProcessUpdateFlags & TIFLAG_NEEDS_CURRENT_PAGE) != 0) {
+            mProcessUpdateFlags &= ~TIFLAG_NEEDS_CURRENT_PAGE;
+            setCurrentPage(mCurrentPage);
+        }
+    }
 
 	public ArrayList<TiViewProxy> getViews()
 	{
@@ -873,6 +937,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
                 TiCompositeLayout layout = new TiCompositeLayout(activity);
                 layout.setInternalTouchPassThrough(true);
                 TiUIHelper.addView(layout, tiProxy);
+                layout.setTag(((TiViewProxy) tiProxy).peekView());
                 ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
                 if (position < pager.getChildCount()) {
                     pager.addView(layout, position, params);
@@ -1077,6 +1142,11 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 	        mCenter.x = w / 2;
 	        mCenter.y = h / 2;
+	    }
+	    
+	    @Override
+	    public boolean dispatchTouchEvent(MotionEvent event) {
+	        return super.dispatchTouchEvent(event);
 	    }
 
 	    @Override
