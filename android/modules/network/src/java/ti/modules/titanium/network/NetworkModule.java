@@ -165,31 +165,34 @@ public class NetworkModule extends KrollModule {
 					lastNetInfo.failover = failover;
 					lastNetInfo.reason = reason;
 				}
-	
-				KrollDict data = new KrollDict();
-				data.put("online", connected);
-				int titaniumType = networkTypeToTitanium(connected, type);
-				data.put("networkType", titaniumType);
-				data.put("networkTypeName", networkTypeToTypeName(titaniumType));
-				data.put("reason", reason);
-				fireEvent(EVENT_CONNECTIVITY, data);
+				if (hasListeners(EVENT_CONNECTIVITY)) {
+				    KrollDict data = new KrollDict();
+	                data.put("online", connected);
+	                int titaniumType = networkTypeToTitanium(connected, type);
+	                data.put("networkType", titaniumType);
+	                data.put("networkTypeName", networkTypeToTypeName(titaniumType));
+	                data.put("reason", reason);
+	                fireEvent(EVENT_CONNECTIVITY, data, false, false);
+				}
 			}
 			else if(b.containsKey(TiWifiScanner.EXTRA_SCAN_RESULTS)) {
-				ArrayList<ScanResult> scanResults = b.getParcelableArrayList(TiWifiScanner.EXTRA_SCAN_RESULTS);
-				KrollDict data = new KrollDict();
-				KrollDict[] array = new KrollDict[scanResults.size()];
-				for (int i =  0; i < scanResults.size(); i++) {
-					ScanResult result = scanResults.get(i);
-					KrollDict dataresult = new KrollDict();
-					dataresult.put("ssid", result.SSID);
-					dataresult.put("bssid", result.BSSID);
-					dataresult.put("capabilities", result.capabilities);
-					dataresult.put("frequency", result.frequency);
-					dataresult.put("level", result.level);
-					array[i] = dataresult;
-				}
-				data.put("results", array);
-				fireEvent(EVENT_WIFI_SCAN, data);
+                if (hasListeners(EVENT_WIFI_SCAN)) {
+    				ArrayList<ScanResult> scanResults = b.getParcelableArrayList(TiWifiScanner.EXTRA_SCAN_RESULTS);
+    				KrollDict data = new KrollDict();
+    				KrollDict[] array = new KrollDict[scanResults.size()];
+    				for (int i =  0; i < scanResults.size(); i++) {
+    					ScanResult result = scanResults.get(i);
+    					KrollDict dataresult = new KrollDict();
+    					dataresult.put("ssid", result.SSID);
+    					dataresult.put("bssid", result.BSSID);
+    					dataresult.put("capabilities", result.capabilities);
+    					dataresult.put("frequency", result.frequency);
+    					dataresult.put("level", result.level);
+    					array[i] = dataresult;
+    				}
+    				data.put("results", array);
+    				fireEvent(EVENT_WIFI_SCAN, data, false, false);
+                }
 			}
 		}
 	};
