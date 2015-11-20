@@ -238,6 +238,9 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		@Override
 		public int getItemViewType(int position) {
 			Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
+			if (info == null) {
+			    return -1;
+			}
 			AbsListSectionProxy section = info.first;
 			int sectionItemIndex = info.second.second;
 			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex)) {
