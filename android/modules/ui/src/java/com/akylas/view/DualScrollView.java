@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.widget.EdgeEffectCompat;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -26,6 +27,8 @@ import android.widget.FrameLayout;
 import android.widget.OverScroller;
 
 import java.util.List;
+
+import org.appcelerator.titanium.TiC;
 
 /**
  * Layout container for a view hierarchy that can be scrolled by the user,
@@ -134,6 +137,14 @@ public class DualScrollView extends FrameLayout {
      * drags/flings if multiple pointers are used.
      */
     private int mActivePointerId = INVALID_POINTER;
+    
+    /**
+     * Used during scrolling to retrieve the new offset within the window.
+     */
+    private final int[] mScrollOffset = new int[2];
+    private final int[] mScrollConsumed = new int[2];
+    private int mNestedXOffset;
+    private int mNestedYOffset;
 
     /**
      * The StrictMode "critical time span" objects to catch animation
@@ -268,16 +279,30 @@ public class DualScrollView extends FrameLayout {
         return canScrollH || canScrollV;
     }
     
+    /**
+     * @return Returns true this ScrollView can be scrolled
+     */
+    public boolean canScrollHorizontal() {
+        return canScrollH;
+    }
+    
+    /**
+     * @return Returns true this ScrollView can be scrolled
+     */
+    public boolean canScrollVertical() {
+        return canScrollV;
+    }
+    
     private void updateCanScroll() {
         View child = getChildAt(0);
         canScrollH = false;
         canScrollV = false;
         if (child != null) {
-            int childWidth = child.getWidth();
-            canScrollH = (getWidth() < childWidth + getPaddingLeft()
+            int childWidth = (int) (child.getMeasuredWidth()*child.getScaleX());
+            canScrollH = (getMeasuredWidth() < childWidth + getPaddingLeft()
                             + getPaddingRight());
-            int childHeight = child.getHeight();
-            canScrollV = (getHeight() < childHeight + getPaddingTop()
+            int childHeight = (int) (child.getMeasuredHeight()*child.getScaleY());
+            canScrollV = (getMeasuredHeight() < childHeight + getPaddingTop()
                     + getPaddingBottom());
         }
     }
@@ -533,6 +558,8 @@ public class DualScrollView extends FrameLayout {
                     mLastMotionY = y;
                     initVelocityTrackerIfNotExists();
                     mVelocityTracker.addMovement(ev);
+                    mNestedXOffset = 0;
+                    mNestedYOffset = 0;
 //                    if (mScrollStrictSpan == null) {
 //                        mScrollStrictSpan = StrictMode.enterCriticalSpan("ScrollView-scroll");
 //                    }
@@ -614,9 +641,9 @@ public class DualScrollView extends FrameLayout {
             boolean isTouchEvent) {
         final int overScrollMode = getOverScrollMode();
         final boolean canScrollHorizontal =
-                computeHorizontalScrollRange() > computeHorizontalScrollExtent();
+                canScrollH && computeHorizontalScrollRange() > computeHorizontalScrollExtent();
         final boolean canScrollVertical =
-                computeVerticalScrollRange() > computeVerticalScrollExtent();
+                canScrollV && computeVerticalScrollRange() > computeVerticalScrollExtent();
         final boolean overScrollHorizontal = overScrollMode == OVER_SCROLL_ALWAYS ||
                 (overScrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS && canScrollHorizontal);
         final boolean overScrollVertical = overScrollMode == OVER_SCROLL_ALWAYS ||
@@ -658,7 +685,7 @@ public class DualScrollView extends FrameLayout {
 
         onOverScrolled(newScrollX, newScrollY, clampedX, clampedY);
 
-        return clampedX && clampedY;
+        return clampedX || clampedY;
     }
     
     private void springBack() 
@@ -673,12 +700,20 @@ public class DualScrollView extends FrameLayout {
     public boolean onTouchEvent(MotionEvent ev) {
 		shouldClampScroll = true;
         initVelocityTrackerIfNotExists();
-        mVelocityTracker.addMovement(ev);
+        
+        MotionEvent vtev = MotionEvent.obtain(ev);
 
-        final int action = ev.getAction();
+        final int actionMasked = ev.getActionMasked();
+
+        if (actionMasked == MotionEvent.ACTION_DOWN) {
+            mNestedXOffset = 0;
+            mNestedYOffset = 0;
+        }
+        vtev.offsetLocation(mNestedXOffset, mNestedYOffset);
+
         final int rangeX = getScrollRangeX();
         final int rangeY = getScrollRangeY();
-        switch (action & MotionEvent.ACTION_MASK) {
+        switch (actionMasked) {
             case MotionEvent.ACTION_DOWN: {
                 if (getChildCount() == 0) {
                     return false;
@@ -721,6 +756,14 @@ public class DualScrollView extends FrameLayout {
                 int deltaY = mLastMotionY - y;
                 if (rangeX == 0) deltaX = 0;
                 if (rangeY == 0) deltaY = 0;
+
+                if (dispatchNestedPreScroll(deltaX, deltaY, mScrollConsumed, mScrollOffset)) {
+                    deltaX -= mScrollConsumed[0];
+                    deltaY -= mScrollConsumed[1];
+                    vtev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
+                    mNestedXOffset += mScrollOffset[0];
+                    mNestedYOffset += mScrollOffset[1];
+                }
                 if (!mIsBeingDragged && ((canScrollH &&  Math.abs(deltaX) > mTouchSlop) || (canScrollV &&  Math.abs(deltaY) > mTouchSlop))) {
                     final ViewParent parent = getParent();
                     if (parent != null) {
@@ -745,34 +788,54 @@ public class DualScrollView extends FrameLayout {
                 }
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
-                    mLastMotionX = x;
-                    mLastMotionY = y;
+                 // Scroll to follow the motion event
+                    mLastMotionX = x - mScrollOffset[0];
+                    mLastMotionY = y - mScrollOffset[1];
 
                     final int oldX = getScrollX();
                     final int oldY = getScrollY();
                     
-                    final int overscrollMode = getOverScrollMode();
+                    final int width = getWidth();
+                    final int height = getHeight();
                     
+                    final int overscrollMode = getOverScrollMode();
                     final boolean forceOverscroll = overscrollMode == OVER_SCROLL_ALWAYS;
-                    final boolean canOverscroll = ICE_CREAM_OR_GREATER && (forceOverscroll || overscrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS);
+                   boolean canOverscroll =forceOverscroll ||
+                            (overscrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS && (rangeX > 0 || rangeY > 0));
+                    
                     
                     if (overScrollBy(deltaX, deltaY, getScrollX(), getScrollY(),
-                            rangeX, rangeY, mOverscrollDistance, mOverscrollDistance, true)) {
+                            rangeX, rangeY, mOverscrollDistance, mOverscrollDistance, true) 
+                            && !hasNestedScrollingParent()) {
                         // Break our velocity if we hit a scroll barrier.
-//                        mVelocityTracker.clear();
+                        mVelocityTracker.clear();
                     }
-                    onScrollChanged(getScrollX(), getScrollY(), oldX, oldY);
-
-                    if (canOverscroll) {
+                    final int scrollX = getScrollX();
+                    final int scrollY = getScrollY();
+//                    onScrollChanged(scrollX, scrollY, oldX, oldY);
+                    
+                    final int scrolledDeltaX = scrollX - oldX;
+                    final int unconsumedX = deltaX - scrolledDeltaX;
+                    final int scrolledDeltaY = scrollY - oldY;
+                    final int unconsumedY = deltaY - scrolledDeltaY;
+                    if (dispatchNestedScroll(scrolledDeltaX, scrolledDeltaY, unconsumedX, unconsumedY, mScrollOffset)) {
+                        mLastMotionX -= mScrollOffset[0];
+                        mLastMotionY -= mScrollOffset[1];
+                        vtev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
+                        mNestedXOffset += mScrollOffset[0];
+                        mNestedYOffset += mScrollOffset[1];
+                    } else if (canOverscroll) {
                         if (rangeX > 0 || forceOverscroll) {
                             final int pulledToX = oldX + deltaX;
 	                        if (pulledToX < 0) {
-	                            mEdgeGlowLeft.onPull((float) deltaX / getWidth());
+	                            mEdgeGlowLeft.onPull((float) deltaX / width,
+	                                    ev.getY(activePointerIndex) / height);
 	                            if (!mEdgeGlowRight.isFinished()) {
 	                                mEdgeGlowRight.onRelease();
 	                            }
 	                        } else if (pulledToX > rangeX) {
-	                            mEdgeGlowRight.onPull((float) deltaX / getWidth());
+	                            mEdgeGlowRight.onPull((float) deltaX / width,
+	                                    1.f - ev.getY(activePointerIndex) / height);
 	                            if (!mEdgeGlowLeft.isFinished()) {
 	                                mEdgeGlowLeft.onRelease();
 	                            }
@@ -786,12 +849,14 @@ public class DualScrollView extends FrameLayout {
                         if (rangeY > 0 || forceOverscroll) {
                             final int pulledToY = oldY + deltaY;
 	                        if (pulledToY < 0) {
-	                            mEdgeGlowTop.onPull((float) deltaY / getHeight());
+	                            mEdgeGlowTop.onPull((float) deltaY / height,
+	                                    ev.getX(activePointerIndex) / width);
 	                            if (!mEdgeGlowBottom.isFinished()) {
 	                                mEdgeGlowBottom.onRelease();
 	                            }
 	                        } else if (pulledToY > rangeY) {
-	                            mEdgeGlowBottom.onPull((float) deltaY / getHeight());
+	                            mEdgeGlowBottom.onPull((float) deltaY / height,
+	                                    1.f - ev.getX(activePointerIndex) / width);
 	                            if (!mEdgeGlowTop.isFinished()) {
 	                                mEdgeGlowTop.onRelease();
 	                            }
@@ -846,6 +911,10 @@ public class DualScrollView extends FrameLayout {
                 mLastMotionY = (int) ev.getY(index);
                 break;
         }
+        if (mVelocityTracker != null) {
+            mVelocityTracker.addMovement(vtev);
+        }
+        vtev.recycle();
         return true;
     }
 
@@ -932,10 +1001,13 @@ public class DualScrollView extends FrameLayout {
             boolean clampedX, boolean clampedY) {
 //         Treat animating scrolls differently; see #computeScroll() for why.
         if (!mScroller.isFinished()) {
-//        	super.scrollTo(scrollX, scrollX);
+//        	super.scrollTo(scrollX, scrollX); //will call onScrollChanged
+            final int oldX = getScrollX();
+            final int oldY = getScrollY();
             setScrollX(scrollX);
             setScrollY(scrollY);
             invalidateParentIfNeeded();
+            onScrollChanged(getScrollX(), getScrollY(), oldX, oldY);
             if (clampedX && clampedY) {
             	springBack();
             }
@@ -1017,8 +1089,8 @@ public class DualScrollView extends FrameLayout {
         int scrollRange = 0;
         if (getChildCount() > 0) {
             View child = getChildAt(0);
-            scrollRange = Math.max(0,
-                    child.getWidth() - (getWidth() - getPaddingRight() - getPaddingLeft()));
+            scrollRange = (int) Math.max(0,
+                    child.getWidth()*child.getScaleX() - (getWidth() - getPaddingRight() - getPaddingLeft()));
         }
         return scrollRange;
     }
@@ -1027,8 +1099,8 @@ public class DualScrollView extends FrameLayout {
         int scrollRange = 0;
         if (getChildCount() > 0) {
             View child = getChildAt(0);
-            scrollRange = Math.max(0,
-                    child.getHeight() - (getHeight() - getPaddingBottom() - getPaddingTop()));
+            scrollRange = (int) Math.max(0,
+                    child.getHeight()*child.getScaleY() - (getHeight() - getPaddingBottom() - getPaddingTop()));
         }
         return scrollRange;
     }
@@ -1548,8 +1620,9 @@ public class DualScrollView extends FrameLayout {
 				final int rangeX = getScrollRangeX();
                 final int rangeY = getScrollRangeY();
 				final int overscrollMode = getOverScrollMode();
-				final boolean forceOverscroll = overscrollMode == OVER_SCROLL_ALWAYS;
-                final boolean canOverscroll = ICE_CREAM_OR_GREATER && (forceOverscroll || overscrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS);
+                final boolean forceOverscroll = overscrollMode == OVER_SCROLL_ALWAYS;
+				final boolean canOverscroll = forceOverscroll ||
+                        (overscrollMode == OVER_SCROLL_IF_CONTENT_SCROLLS && (rangeX > 0 || rangeY > 0));
                 overScrollBy(x - oldX, y - oldY, oldX, oldY, rangeX, rangeY,
                 		mOverflingDistance, mOverflingDistance, false);
 				onScrollChanged(getScrollX(), getScrollY(), oldX, oldY);
@@ -1571,9 +1644,16 @@ public class DualScrollView extends FrameLayout {
 					}
 				}
 			}
-			// Keep on drawing until the animation has finished.
-			postInvalidate();
-		}
+			if (!awakenScrollBars()) {
+                // Keep on drawing until the animation has finished.
+                postInvalidateOnAnimation();
+            }
+//		} else {
+//            if (mFlingStrictSpan != null) {
+//                mFlingStrictSpan.finish();
+//                mFlingStrictSpan = null;
+//            }
+        }
 	}
 
     /**
@@ -1891,6 +1971,21 @@ public class DualScrollView extends FrameLayout {
             postInvalidateOnAnimation();
         }
     }
+    
+    private void flingWithNestedDispatch(int velocityX, int velocityY) {
+        final int scrollX = getScrollX();
+        final int scrollY = getScrollY();
+        final boolean canFling = ((scrollX > 0 || velocityX > 0) &&
+                (scrollX < getScrollRangeX() || velocityX < 0)) || 
+                ((scrollY > 0 || velocityY > 0) &&
+                        (scrollY < getScrollRangeY() || velocityY < 0));
+        if (!dispatchNestedPreFling(velocityX, velocityY)) {
+            dispatchNestedFling(velocityX, velocityY, canFling);
+            if (canFling) {
+                fling(velocityX, velocityY);
+            }
+        }
+    }
 
     private void endDrag() {
         mIsBeingDragged = false;
@@ -1915,8 +2010,8 @@ public class DualScrollView extends FrameLayout {
 	        // we rely on the fact the View.scrollBy calls scrollTo.
 	        if (getChildCount() > 0) {
 	            View child = getChildAt(0);
-	            x = clamp(x, getWidth() - getPaddingRight() - getPaddingLeft(), child.getWidth());
-	            y = clamp(y, getHeight() - getPaddingBottom() - getPaddingTop(), child.getHeight());
+	            x = clamp(x, getWidth() - getPaddingRight() - getPaddingLeft(), (int) (child.getWidth()*child.getScaleX()));
+	            y = clamp(y, getHeight() - getPaddingBottom() - getPaddingTop(), (int) (child.getHeight()*child.getScaleY()));
 	        }
         }
         if (x != getScrollX() || y != getScrollY()) {
@@ -1962,6 +2057,51 @@ public class DualScrollView extends FrameLayout {
     	}
         super.setOverScrollMode(mode);
     }
+    
+    @Override
+    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+        return (nestedScrollAxes & SCROLL_AXIS_VERTICAL) != 0;
+    }
+
+    @Override
+    public void onNestedScrollAccepted(View child, View target, int axes) {
+        super.onNestedScrollAccepted(child, target, axes);
+        startNestedScroll(SCROLL_AXIS_VERTICAL);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public void onStopNestedScroll(View target) {
+        super.onStopNestedScroll(target);
+    }
+
+    @Override
+    public void onNestedScroll(View target, int dxConsumed, int dyConsumed,
+            int dxUnconsumed, int dyUnconsumed) {
+        final int oldScrollX = getScrollX();
+        final int oldScrollY = getScrollY();
+        scrollBy(dxUnconsumed, dyUnconsumed);
+        final int myConsumedX = getScrollX() - oldScrollX;
+        final int myUnconsumedX = dxUnconsumed - myConsumedX;
+        final int myConsumedY = getScrollY() - oldScrollY;
+        final int myUnconsumedY = dyUnconsumed - myConsumedY;
+        dispatchNestedScroll(myConsumedX, myConsumedY, myUnconsumedX, myUnconsumedY, null);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    @Override
+    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+        if (!consumed) {
+            flingWithNestedDispatch((int) velocityX, (int) velocityY);
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public void draw(Canvas canvas) {
@@ -1969,12 +2109,25 @@ public class DualScrollView extends FrameLayout {
         if (ICE_CREAM_OR_GREATER && mEdgeGlowTop != null) {
             final int scrollX = getScrollX();
             final int scrollY = getScrollY();
-            final int width = getWidth() - getPaddingLeft() - getPaddingRight();
-            final int height = getHeight() - getPaddingTop() - getPaddingBottom();
+            final int width;
+            final int height;
+            final float translateX;
+            final float translateY;
+            if (TiC.LOLLIPOP_OR_GREATER && getClipToPadding()) {
+                width = getWidth() - getPaddingLeft() - getPaddingRight();
+                height = getHeight() - getPaddingTop() - getPaddingBottom();
+                translateX = getPaddingLeft();
+                translateY = getPaddingTop();
+            } else {
+                width = getWidth();
+                height = getHeight();
+                translateX = 0;
+                translateY = 0;
+            }
             if (!mEdgeGlowTop.isFinished()) {
                 final int restoreCount = canvas.save();
 
-                canvas.translate(getPaddingLeft() + scrollX, Math.min(0, scrollY));
+                canvas.translate(translateX + scrollX, Math.min(0, scrollY));
                 mEdgeGlowTop.setSize(width, getHeight());
                 if (mEdgeGlowTop.draw(canvas)) {
                     postInvalidateOnAnimation();
@@ -1983,7 +2136,7 @@ public class DualScrollView extends FrameLayout {
             }
             if (!mEdgeGlowBottom.isFinished()) {
                 final int restoreCount = canvas.save();
-                canvas.translate(getPaddingLeft() + scrollX,
+                canvas.translate(translateX + scrollX,
                         Math.max(getScrollRangeY(), scrollY) + height);
                 canvas.rotate(180, width/2, 0);
                 mEdgeGlowBottom.setSize(width, height);
@@ -1996,7 +2149,7 @@ public class DualScrollView extends FrameLayout {
             if (!mEdgeGlowLeft.isFinished()) {
                 final int restoreCount = canvas.save();
 
-                canvas.translate(Math.min(0, scrollX), getPaddingTop() + scrollY + height);
+                canvas.translate(Math.min(0, scrollX), translateY + scrollY + height);
                 canvas.rotate(-90, 0, 0);
                 mEdgeGlowLeft.setSize(height, width);
                 if (mEdgeGlowLeft.draw(canvas)) {
@@ -2007,7 +2160,7 @@ public class DualScrollView extends FrameLayout {
             if (!mEdgeGlowRight.isFinished()) {
                 final int restoreCount = canvas.save();
 
-                canvas.translate(Math.max(getScrollRangeX(), scrollX) + getWidth(), getPaddingTop() + scrollY);
+                canvas.translate(Math.max(getScrollRangeX(), scrollX) + width, translateY + scrollY);
                 canvas.rotate(90, 0, 0);
                 mEdgeGlowRight.setSize(height, width);
                 if (mEdgeGlowRight.draw(canvas)) {
