@@ -367,28 +367,34 @@ public class ParentingProxy extends KrollProxy {
     }
 
     protected void handleChildAdded(final KrollProxy child, final int index) {
+        final Activity activity = getActivity();
         if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    child.setActivity(getActivity());
-                }
-            });
+            if (activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        child.setActivity(activity);
+                    }
+                });
+            }
             return;
         }
-        child.setActivity(getActivity());
+        child.setActivity(activity);
     }
 
     protected void handleChildRemoved(final KrollProxy child, final int index,
             final boolean shouldDetach) {
         if (child == null) return;
         if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    handleChildRemoved(child, shouldDetach);
-                }
-            });
+            final Activity activity = getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleChildRemoved(child, shouldDetach);
+                    }
+                });
+            }
             return;
         }
         if (shouldDetach && child instanceof TiViewProxy) {
