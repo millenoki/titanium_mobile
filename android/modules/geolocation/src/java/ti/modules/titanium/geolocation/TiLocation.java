@@ -152,9 +152,7 @@ public class TiLocation implements Handler.Callback
 			}
 
 			if ((latestKnownLocation == null) || (lastKnownLocation.getTime() > latestKnownLocation.getTime())) {
-                if (Log.isDebugModeEnabled()) {
-                    Log.i(TAG, "found last know location for [" + provider + "]: " + lastKnownLocation.toString());
-                }
+                Log.i(TAG, "found last know location for [" + provider + "]: " + lastKnownLocation.toString(), Log.DEBUG_MODE);
 				latestKnownLocation = lastKnownLocation;
 			}
 		}
