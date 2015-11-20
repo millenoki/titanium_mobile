@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1626,7 +1627,12 @@ public class TiUIHelper
         HashMap<String, Object> vars = mathDict.getHashMap("variables");
 	    if (vars != null) {
 	        for (Map.Entry<String, Object> entry : vars.entrySet()) {
-	            expressions.put(VAR_PREFIX+entry.getKey(), getValueForKeyPath(TiConvert.toString(entry.getValue()), event));
+	            Object value = entry.getValue();
+	            if (value instanceof String) {
+	                expressions.put(VAR_PREFIX+entry.getKey(), getValueForKeyPath((String) value, event));
+                } else {
+                    expressions.put(VAR_PREFIX+entry.getKey(), value);
+                }
 	        }
 	    }
 	    
@@ -1635,15 +1641,22 @@ public class TiUIHelper
 	        try {
                 Expression expression = new Expression(condition);
                   for (Map.Entry<String, Object> entry2 : expressions.entrySet()) {
-                      String value  = TiConvert.toString(entry2.getValue());
-                      if (value != null) {
-                          expression.with(entry2.getKey(), value);
+                      Object value = entry2.getValue();
+                      if (value instanceof String) {
+                          expression.with(entry2.getKey(), (String) value);
+                      }
+                      else if (value instanceof Boolean) {
+                          expression.with(entry2.getKey(), BigDecimal.valueOf((boolean) value?1:0));
+                      }else if (value instanceof Integer || value instanceof Double) {
+                          expression.with(entry2.getKey(), BigDecimal.valueOf((double) value));
                       }
                   }
-                if (expression.eval().intValue() == 0) {
-                    return;
-                }
+                  BigDecimal result = expression.eval();
+                  if (result.intValue() == 0) {
+                      return;
+                  }
               } catch (Exception e) {
+                  Log.d(TAG, "fuck");
               }
 	    }
 	    
