@@ -1859,7 +1859,17 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         return !isTouchEnabled;
     }
     
-    private void onChildTouchEvent(TiUIView view,View v, MotionEvent event) {
+    protected void cancelParentGestures() {
+        if (mGestureHandler != null) {
+            mGestureHandler.cancelGestures();
+        }
+        ParentingProxy parent = getParent();
+        if (parent instanceof TiViewProxy && ((TiViewProxy) parent).peekView() != null) {
+            ((TiViewProxy) parent).peekView().cancelParentGestures();
+        }
+    }
+    
+    protected void onChildTouchEvent(TiUIView view,View v, MotionEvent event) {
         if (mGestureHandler != null) {
             int action = event.getAction();
             
@@ -1868,7 +1878,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 mGestureHandler.setTouchedView(view);
             }
         }
-        ParentingProxy parent = getParent();
+        KrollProxy parent = proxy.getParentForBubbling();
         if (parent instanceof TiViewProxy && ((TiViewProxy) parent).peekView() != null) {
             ((TiViewProxy) parent).peekView().onChildTouchEvent(view, v, event);
         }

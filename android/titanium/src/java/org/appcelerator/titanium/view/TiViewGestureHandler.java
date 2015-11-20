@@ -5,6 +5,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiViewEventOverrideDelegate;
 import org.appcelerator.titanium.util.TiViewHelper;
 
 import android.content.Context;
@@ -32,6 +33,8 @@ public class TiViewGestureHandler {
     private final TiUIView mView;
     private final KrollProxy mProxy;
     private final Context mContext;
+    
+    private boolean cancelled = false;
 
     private boolean mEnabled = false;
     private boolean mRotationEnabled = false;
@@ -141,8 +144,7 @@ public class TiViewGestureHandler {
                                             velocityY > 0 ? "down" : "up");
                                 }
 
-                                mProxy.fireEvent(TiC.EVENT_SWIPE, data,
-                                        false, false);
+                                fireEvent(TiC.EVENT_SWIPE, data);
                             }
                             return true;
                         }
@@ -153,7 +155,7 @@ public class TiViewGestureHandler {
                                 return;
                             }
                             if (mProxy.hasListeners(TiC.EVENT_LONGPRESS, false)) {
-                                mProxy.fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e), false, false);
+                                fireEvent(TiC.EVENT_LONGPRESS, dictFromEvent(e));
                             }
                         }
 
@@ -188,7 +190,7 @@ public class TiViewGestureHandler {
                                     .hasListeners(TiC.EVENT_SINGLE_TAP, false)) {
                                 Log.d(TAG, "TAP, TAP, TAP on " + mView,
                                         Log.DEBUG_MODE);
-                                return mProxy.fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e), false, false);
+                                return fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
                             }
                             return false;
                         }
@@ -205,10 +207,9 @@ public class TiViewGestureHandler {
 
 //                            if (hasDoubleTap || hasDoubleClick) {
                               if (hasDoubleTap) {
-                                KrollDict event = dictFromEvent(e);
+//                                KrollDict event = dictFromEvent(e);
 //                                if (hasDoubleTap)
-                                    mProxy.fireEvent(TiC.EVENT_DOUBLE_TAP,
-                                            event, false, false);
+                                    fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
 //                                if (hasDoubleClick)
 //                                    mProxy.fireEvent(TiC.EVENT_DOUBLE_CLICK,
 //                                            event, true, false);
@@ -224,8 +225,9 @@ public class TiViewGestureHandler {
     private KrollDict dictFromEvent(MotionEvent e) {
         KrollDict event;
         if (touchedView != null) {
+            KrollProxy proxy = touchedView.proxy;
             event = TiViewHelper.dictFromMotionEvent(touchedView.getTouchView(), e);
-            event.put(TiC.PROPERTY_SOURCE, touchedView.proxy);
+            event.put(TiC.PROPERTY_SOURCE, proxy);
         } else {
             event = mView.dictFromEvent(e);
         }
@@ -255,7 +257,7 @@ public class TiViewGestureHandler {
               ScaleGestureDetector detector) {
           firstSpan = detector.getCurrentSpan() == 0 ? 1 : detector.getCurrentSpan();
           currentScale = 1.0f;
-
+//
           if (shouldIgnoreAction(ACTION_SCALE)) {
               return true;
           }
@@ -269,17 +271,7 @@ public class TiViewGestureHandler {
               return mIsScaling;
           }
           float delta = detector.getCurrentSpan() - firstSpan;
-
-          if (Math.abs(delta) > SCALE_THRESHOLD) {
-              mIsScaling = true;
-          }
-
-          // Suppress scale events (and allow for possible
-          // two-finger tap events)
-          // until we've moved at least a few pixels. Without
-          // this check, two-finger
-          // taps are very hard to register on some older
-          // devices.
+          currentScale *= detector.getScaleFactor();
           if (!mIsScaling && Math.abs(delta) > SCALE_THRESHOLD) {
               mIsScaling = true;
               fireEventForAction(ACTION_SCALE, detector, this, 0);
@@ -371,16 +363,30 @@ public class TiViewGestureHandler {
         default:
             return false;
         }
+        
+        
         if (event != null) {
             event.put(TiC.EVENT_PROPERTY_STATE, (state == 0)?"start":((state == 2)?"end":"move"));
             if (state == 0) {
-                return mProxy.fireEvent(key + "start", event, false, false);
+                return fireEvent(key + "start", event);
             } else if (state == 2) {
-                return mProxy.fireEvent(key + "end", event, false, false);
+                return fireEvent(key + "end", event);
+            } else {
+                return fireEvent(key, event);
             }
-            return mProxy.fireEvent(key, event, false, false);
         }
         return false;
+    }
+    
+    private boolean fireEvent(final String type, KrollDict event) {
+        if (touchedView != null) {
+            KrollProxy proxy = touchedView.proxy;
+            TiViewEventOverrideDelegate eventOverrideDelegate = proxy.getEventOverrideDelegate();
+            if (eventOverrideDelegate != null) {
+                eventOverrideDelegate.overrideEvent(event, type, proxy);
+            }
+        }
+        return mProxy.fireEvent(type, event, false, false);
     }
     
     private final class OnRotateGestureListener implements RotateGestureDetector.OnRotateGestureListener {
@@ -484,7 +490,7 @@ public class TiViewGestureHandler {
     private MoveGestureDetector getOrCreateMoveGestureDetector() {
         if (this.mPanGestureDetector == null) {
             ViewConfiguration vc = ViewConfiguration.get(this.mView.getOuterView().getContext());
-            final int threshold = vc.getScaledPagingTouchSlop();
+            final int threshold = 100;
             this.mPanGestureDetector = new MoveGestureDetector(mContext,
                     new MoveGestureDetector.OnMoveGestureListener() {
                        
@@ -559,6 +565,7 @@ public class TiViewGestureHandler {
         int action = event.getActionMasked();
         switch (action) {
         case MotionEvent.ACTION_DOWN:
+            cancelled = false;
             touchedView = null;
             if (this.velocityTracker != null) {
                 // Reset the velocity tracker back to its initial
@@ -573,6 +580,9 @@ public class TiViewGestureHandler {
             break;
         }
         mVelocityComputed = false;
+        if (cancelled) {
+            return false;
+        }
 
         if (mGestureDetector != null) {
             handled |= mGestureDetector.onTouchEvent(event);
@@ -721,7 +731,7 @@ public class TiViewGestureHandler {
                 if (canTapTwoFingers) {
                     // handle two fingers event
 //                    if (mProxy.hasListeners(TiC.EVENT_TWOFINGERTAP, false)) {
-                        mProxy.fireEvent(TiC.EVENT_TWOFINGERTAP, mView.dictFromEvent(event), false, false);
+                        fireEvent(TiC.EVENT_TWOFINGERTAP, mView.dictFromEvent(event));
 //                    }
                     canTapTwoFingers = false;
                     multiTouchDownCount = 0;
@@ -745,6 +755,10 @@ public class TiViewGestureHandler {
 
     public void setTouchedView(TiUIView view) {
         touchedView = view;
+    }
+
+    public void cancelGestures() {
+        cancelled = true;
     }
 
 }
