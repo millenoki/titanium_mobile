@@ -1075,6 +1075,48 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
     }
     
+    public boolean equals(Object object1, Object object2) {
+        if (object1 == object2) {
+            return true;
+        }
+        if (object1 instanceof Map && object2 instanceof Map) {
+            Map<?, ?> map1 = (Map<?, ?>) object1;
+            Map<?, ?> map2 = (Map<?, ?>) object2;
+            if (map2.size() != map1.size()) {
+                return false;
+            }
+
+            try {
+                for (Entry<?, ?> entry : map2.entrySet()) {
+                    Object key = entry.getKey();
+                    Object mine = entry.getValue();
+                    Object theirs = map1.get(key);
+                    if (mine == null) {
+                        if (theirs != null || !map1.containsKey(key)) {
+                            return false;
+                        }
+                    } else {
+                        if (mine instanceof Object[] && theirs instanceof Object[]) {
+                            if (!Arrays.equals((Object[])mine, (Object[])theirs)) {
+                                return false;
+                            }
+                        } else if (!mine.equals(theirs)) {
+                            return false;
+                        }
+                    }
+                }
+            } catch (NullPointerException ignored) {
+                return false;
+            } catch (ClassCastException ignored) {
+                return false;
+            }
+            return true;
+        } else if (object1 instanceof Object[] && object2 instanceof Object[]) {
+            return Arrays.equals((Object[])object1, (Object[])object2);
+        }
+        return false;
+    }
+    
     @Kroll.method(name = "_removeEvaluator")
     public void removeEvaluator(String eventName, Object data) {
         if (eventName == null || !(data instanceof HashMap) || evaluators == null) {
@@ -1085,7 +1127,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             
             if (theListeners != null) {
                 for (KrollDict hashMap : theListeners) {
-                    if (hashMap.equals(data)) {
+                    if (equals(data, hashMap)) {
                         theListeners.remove(hashMap);
                         break;
                     }
