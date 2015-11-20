@@ -552,22 +552,38 @@ public class NetworkModule extends KrollModule {
 	
 	@Kroll.method
 	public boolean connectToWifiNetwork(String ssid, String pwd) {
-	    WifiConfiguration wifiConfig = new WifiConfiguration();
-	    wifiConfig.SSID = String.format("\"%s\"", ssid);
-	    wifiConfig.preSharedKey = String.format("\"%s\"", pwd);
+	    WifiManager wm = getWifiManager();
+        if (wm != null) { 
+            final String SSID = String.format("\"%s\"", ssid);
+            WifiInfo info = wm.getConnectionInfo();
+            if (info != null) {
+                if (info.getSSID().equals(SSID)) {
+                    return true;
+                }
+            }
+            List<WifiConfiguration> networks = wm.getConfiguredNetworks();
+            for (WifiConfiguration config: networks) {
+                if (config.SSID.equals(SSID)) {
+                    return wm.enableNetwork(config.networkId, true);
+                }
+            }
+            
+            WifiConfiguration wifiConfig = new WifiConfiguration();
+            wifiConfig.SSID = SSID;
+            wifiConfig.preSharedKey = String.format("\"%s\"", pwd);
 
-        WifiManager wm = getWifiManager();
-	    //remember id
-	    int netId = wm.addNetwork(wifiConfig);
-	    wm.disconnect();
-	    boolean result = wm.enableNetwork(netId, true);
-	    wm.reconnect();
-	    return result;
+            int netId = wm.addNetwork(wifiConfig);
+            wm.saveConfiguration();
+//            boolean result = wm.enableNetwork(netId, true);
+            return wm.enableNetwork(netId, true);
+        }
+        return false;
+	    
 	}
 	
 	@Kroll.method
     public boolean disconnectFromWifiNetwork(String ssid) {
-        WifiManager wm = getWifiManager();
+	    WifiManager wm = getWifiManager();
         if (wm != null) { 
             WifiInfo info = wm.getConnectionInfo();
             if (info != null) {
