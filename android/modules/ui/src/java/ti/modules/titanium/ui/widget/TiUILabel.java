@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
@@ -24,6 +25,7 @@ import org.appcelerator.titanium.util.TiHtml.URLSpanNoUnderline;
 import org.appcelerator.titanium.util.TiTypefaceSpan;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.FreeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -54,6 +56,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.TextView;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -183,7 +186,7 @@ public class TiUILabel extends TiUINonViewGroupView
 			
 	        if (textView.getVisibility() != GONE) {
                 measureChildWithMargins(textView, widthMeasureSpec, 0, heightMeasureSpec, 0);
-                final LayoutParams lp = (LayoutParams) textView.getLayoutParams();
+                final FreeLayout.LayoutParams lp = (FreeLayout.LayoutParams) textView.getLayoutParams();
                 maxWidth = Math.max(maxWidth,
                 		textView.getMeasuredWidth() + lp.leftMargin + lp.rightMargin);
                 maxHeight = Math.max(maxHeight,
@@ -264,8 +267,9 @@ public class TiUILabel extends TiUINonViewGroupView
 	                onTransitionEnd();
 	            }
 	        };
-	        
-	        currentTransitionSet = TransitionHelper.transitionViews(this, textView, oldTextView, onDone, transition, getTextLayoutParams());
+	        Animator anim = null;
+	        //            Animator anim = createAnimationLayoutUpdater(this, oldTextView);
+	        currentTransitionSet = TransitionHelper.transitionViews(this, textView, oldTextView, onDone, transition, getTextLayoutParams(), anim);
 		}
 	}
 
