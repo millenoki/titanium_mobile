@@ -14,11 +14,9 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -682,24 +680,7 @@ public class GeolocationModule extends KrollModule
 	        lastLocation = tiLocation.getLastKnownLocation();
 	    }
 	    if (lastLocation != null) {
-	        KrollDict coordinates = new KrollDict();
-	        coordinates.put(TiC.PROPERTY_LATITUDE, lastLocation.getLatitude());
-	        coordinates.put(TiC.PROPERTY_LONGITUDE, lastLocation.getLongitude());
-	        if (lastLocation.hasAccuracy()) {
-	            coordinates.put(TiC.PROPERTY_ACCURACY, lastLocation.getAccuracy());
-            }
-            if (lastLocation.hasAltitude()) {
-                coordinates.put(TiC.PROPERTY_ALTITUDE_ACCURACY, null); // Not provided
-                coordinates.put(TiC.PROPERTY_ALTITUDE, lastLocation.getAltitude());
-            }
-            if (lastLocation.hasBearing()) {
-                coordinates.put(TiC.PROPERTY_HEADING, lastLocation.getBearing());
-            }
-	        if (lastLocation.hasSpeed()) {
-	            coordinates.put(TiC.PROPERTY_SPEED, lastLocation.getSpeed());
-	        }
-	        coordinates.put(TiC.PROPERTY_TIMESTAMP, lastLocation.getTime());
-	        return coordinates;
+	        return buildLocationEvent(lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider()));
 	    }
 	    return null;
 	}
