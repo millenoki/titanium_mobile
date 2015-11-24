@@ -35,6 +35,9 @@ import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.AnimationLayoutParams;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 //import android.animation.Animator;
 //import android.animation.AnimatorSet;
@@ -44,6 +47,7 @@ import android.util.DisplayMetrics;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -797,10 +801,9 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	}
 	
 	@Override
-	protected void prepareAnimatorSet(TiAnimatorSet tiSet, List<Animator> list, List<Animator> listReverse,
-			HashMap options) {
+	protected void prepareAnimatorSet(TiAnimatorSet tiSet, List<Animator> list, List<Animator> listReverse) {
 		if (view != null) {
-			view.prepareAnimatorSet(tiSet, list, listReverse, options);
+			view.prepareAnimatorSet(tiSet, list, listReverse);
 		}
 	}
 	
@@ -1239,6 +1242,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 					public void onAnimationEnd(Animator arg0) {	
 						if (viewIn!=null) add(viewIn);
 						if (viewOut!=null) {
+						    if (viewOut!=null)  {
+				                TiCompositeLayout.LayoutParams params = TiCompositeLayout.getChildParams(viewToHide);
+				                params.ignoreInLayout = false;
+				            }
 							viewToAddTo.removeView(viewToHide);
                             removeProxy(viewOut, false);
 						}
@@ -1252,6 +1259,10 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 					public void onAnimationCancel(Animator arg0) {
 						if (viewIn!=null) add(viewIn);
 						if (viewOut!=null) {
+						    if (viewOut!=null)  {
+                                TiCompositeLayout.LayoutParams params = TiCompositeLayout.getChildParams(viewToHide);
+                                params.ignoreInLayout = false;
+                            }
 							viewToAddTo.removeView(viewToHide);
 							removeProxy(viewOut, false);
 						}
@@ -1265,7 +1276,16 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 					public void onAnimationStart(Animator arg0) {
 					}
 				});
-				set.start();
+				
+				Animator additionalAnimator = view.createAnimationLayoutUpdater(viewToAddTo, viewToHide, true);
+				if (additionalAnimator != null) {
+				    AnimatorSet realSet = new AnimatorSet();
+	                additionalAnimator.setDuration(set.getDuration());
+	                realSet.playTogether(additionalAnimator, set);
+	                realSet.start();
+				} else {
+				    set.start();
+				}
 			}
 			else {
 				if (viewIn!=null) add(viewIn);
@@ -1276,7 +1296,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 					handlePendingTransition();
 				}
 			}
-			if (viewIn!=null) viewToAdd.setVisibility(View.VISIBLE);
+            if (viewIn!=null) viewToAdd.setVisibility(View.VISIBLE);
+            if (viewOut!=null)  {
+                TiCompositeLayout.LayoutParams params = TiCompositeLayout.getChildParams(viewToHide);
+                params.ignoreInLayout = true;
+            }
 		}
 		else {
 			if (viewIn!=null) add(viewIn);

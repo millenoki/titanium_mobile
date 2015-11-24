@@ -160,8 +160,9 @@ public class TransitionHelper {
             final View viewToAdd, 
             final View viewToHide, 
             final CompletionBlock block, 
-            Object args) {
-        return transitionViews(viewHolder, viewToAdd, viewToHide, block, args, (viewToAdd != null)?viewToAdd.getLayoutParams():null);
+            Object args,
+            final Animator additionalAnimator) {
+        return transitionViews(viewHolder, viewToAdd, viewToHide, block, args, (viewToAdd != null)?viewToAdd.getLayoutParams():null, additionalAnimator);
     }
 	
 	public static AnimatorSet transitionViews (final ViewGroup viewHolder, 
@@ -169,7 +170,8 @@ public class TransitionHelper {
 	        final View viewToHide, 
 	        final CompletionBlock block, 
 	        Object args,
-            ViewGroup.LayoutParams layoutParams) {
+            ViewGroup.LayoutParams layoutParams,
+            final Animator additionalAnimator) {
         AnimatorSet set = null;
         if (viewHolder == null) return set;
         Transition transition = TransitionHelper.transitionFromObject(args, null, null);
@@ -205,7 +207,14 @@ public class TransitionHelper {
                 public void onAnimationStart(Animator arg0) {
                 }
             });
-            set.start();
+            if (additionalAnimator != null) {
+                AnimatorSet realSet = new AnimatorSet();
+                additionalAnimator.setDuration(set.getDuration());
+                realSet.playTogether(additionalAnimator, set);
+                realSet.start();
+            } else {
+                set.start();
+            }
         }
         else {
             if (viewToHide!=null) {

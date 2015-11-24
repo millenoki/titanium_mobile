@@ -170,7 +170,7 @@ public class AnimatableProxy extends ParentingProxy {
 		if (options.containsKey("from")) {
 		    applyPropertiesNoSave(TiConvert.toKrollDict(options.get("from")), false, true);
 		}
-		prepareAnimatorSet(tiSet, list, listReverse, (HashMap) options.clone());
+		prepareAnimatorSet(tiSet, list, listReverse);
 		
 		int repeatCount = (tiSet.repeat == ValueAnimator.INFINITE ? tiSet.repeat : tiSet.repeat - 1);
 		tiSet.setRepeatCount(repeatCount);
@@ -222,8 +222,7 @@ public class AnimatableProxy extends ParentingProxy {
 		tiSet.createClonableSets(); //create clonable after adding listener so that it is cloned too
 	}
 
-	protected void prepareAnimatorSet(TiAnimatorSet tiSet, List<Animator> list, List<Animator> listReverse,
-			HashMap options) {
+	protected void prepareAnimatorSet(TiAnimatorSet tiSet, List<Animator> list, List<Animator> listReverse) {
 		Log.d(TAG, "prepareAnimatorSet", Log.DEBUG_MODE);
 	}
 	

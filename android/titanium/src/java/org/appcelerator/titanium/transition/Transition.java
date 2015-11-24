@@ -96,12 +96,16 @@ public abstract class Transition {
 		if (_listener != null) {
 			set.addListener(_listener);
 		}
-		if (inAnimator !=null && outAnimator !=null)
-				set.playTogether(inAnimator, outAnimator);
-		else if (inAnimator !=null)
+		if (inAnimator !=null && outAnimator !=null) {
+			set.playTogether(inAnimator, outAnimator);
+            set.setDuration(Math.max(inAnimator.getDuration(), outAnimator.getDuration()));
+		} else if (inAnimator !=null) {
 			set.playTogether(inAnimator);
-		else if (outAnimator !=null)
+            set.setDuration(inAnimator.getDuration());
+		} else if (outAnimator !=null) {
 			set.playTogether(outAnimator);
+			set.setDuration(outAnimator.getDuration());
+		}
 		return set;
 	}
 	
