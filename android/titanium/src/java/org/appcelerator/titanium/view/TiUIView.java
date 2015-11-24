@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.view;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll.getProperty;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
@@ -1504,9 +1506,6 @@ public abstract class TiUIView implements KrollProxyReusableListener,
      */
     public void show() {
         this.setVisibility(View.VISIBLE);
-        if (getOuterView() == null) {
-            Log.w(TAG, "Attempt to show null native control", Log.DEBUG_MODE);
-        }
     }
 
     /**
@@ -1514,9 +1513,6 @@ public abstract class TiUIView implements KrollProxyReusableListener,
      */
     public void hide() {
         this.setVisibility(View.GONE);
-        if (getOuterView() == null) {
-            Log.w(TAG, "Attempt to hide null native control", Log.DEBUG_MODE);
-        }
     }
 
     // public void propagateChildDrawableState(View child) {
