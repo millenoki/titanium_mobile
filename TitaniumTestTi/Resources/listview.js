@@ -34,13 +34,14 @@ var movies = JSON.parse(
 function listViewExs(_args) {
     var win = createWin(_.assign(_args, {
         title: 'listviews',
-        fullscreen: true,
+        // fullscreen: true,
         // barColor:'blue',
         layout: 'vertical',
         backgroundImage: Ti.Image.getFilteredScreenshot({
             scale: 0.6,
+            crop:{y:Ti.App.defaultBarHeight},
             filters: [{
-                radius: 8,
+                // radius: 18,
                 type: Ti.Image.FILTER_IOS_BLUR
             }]
         })
@@ -130,7 +131,11 @@ function listViewExs(_args) {
         }
     });
     win.add(listview);
-    openWin(win);
+    openWin(win, {
+        transition: {
+            style: Ti.UI.TransitionStyle.FADE
+        },
+    });
 }
 
 function listViewEx1(_args) {

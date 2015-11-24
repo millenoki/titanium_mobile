@@ -243,6 +243,7 @@ function create(_context) {
         var view = Shapes.createView({
             width: Ti.UI.FILL,
             height: Ti.UI.FILL,
+            // backgroundColor:'red',
             bubbleParent: false
         });
         var shape = Shapes.createCircle({

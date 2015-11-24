@@ -4,9 +4,9 @@ app = require('akylas.commonjs').createApp(this, { // not using var seems very
 	modules: {
 		slidemenu: require('akylas.slidemenu')
 	},
-	iconicfonts: {
-		webhostinghub: '/fonts/font_webhostinghub',
-	},
+	// iconicfonts: {
+	// 	webhostinghub: '/fonts/font_webhostinghub',
+	// },
 	commonjsOptions: {
 		underscore: 'lodash',
 		modules: ['ti', 'moment', 'lang'],
@@ -185,12 +185,12 @@ var androidActivitysSettings = {
 	}
 };
 
-function openWin(_win, _withoutActionBar) {
+function openWin(_win, _args) {
 	// if (__ANDROID__) {
 	// if (_withoutActionBar !== true)
 	// _win.activity = androidActivitysSettings;
 	// }
-	mainWin.openWindow(_win);
+	mainWin.openWindow(_win, _args);
 	// _win.open();
 }
 
@@ -833,6 +833,11 @@ function layoutExs(_args) {
 				title: 'Match & Weight'
 			},
 			callback: matchWeightEx
+		}, {
+			properties: {
+				title: 'Animation Bug'
+			},
+			callback: animationBugEx
 		}]
 	}];
 	win.add(listview);
@@ -1294,6 +1299,70 @@ function matchWeightEx(_args) {
 
 	openWin(win);
 	win = null;
+}
+
+function animationBugEx(_args) {
+	var win = createWin(_args);
+
+	win.add({
+		type: 'Ti.UI.View',
+		properties: {
+			layout: 'vertical',
+			width: 'FILL',
+			height: 'SIZE',
+			bottom: 0,
+			backgroundColor: 'yellow'
+
+		},
+		childTemplates: [{
+			type: 'Ti.UI.Label',
+			bindId: 'test',
+			properties: {
+				height: 60,
+				width:'FILL',
+				backgroundColor: 'red',
+				text:'test',
+				color:'white'
+			},
+			// childTemplates: [{
+			// 	type: 'Ti.UI.View',
+			// 	properties: {
+			// 		layout: 'vertical',
+   //  				width: 'FILL',
+   //  				height: 'FILL',
+			// 		backgroundColor: 'blue'
+			// 	},
+			// 	childTemplates: [{
+			// 		type: 'Ti.UI.Label',
+			// 		properties: {
+			// 			color:'white'
+			// 		}
+			// 	}]
+			// }]
+		}, {
+			type: 'Ti.UI.View',
+			bindId: 'test2',
+			properties: {
+				height: 60,
+				backgroundColor: 'green'
+			}
+		}]
+	});
+	win.on('click', function() {
+		sdebug('test');
+		win.animate({
+			test: {
+				right: 56,
+			},
+			test2: {
+				height: 0
+			},
+			duration: 3000,
+			autoreverse: true
+		});
+	});
+
+	openWin(win);
 }
 
 function buttonAndLabelEx() {
@@ -2908,7 +2977,7 @@ function slideMenuEx() {
 		});
 		var verticalScrollView = Ti.UI.createScrollableView({
 			disableBounce: true,
-			layout: 'vertical',
+			scrollDirection: 'vertical',
 			transition: {
 				style: Ti.UI.TransitionStyle.SWIPE_FADE,
 				substyle: Ti.UI.TransitionSubStyle.BOTTOM_TO_TOP
@@ -4119,7 +4188,7 @@ var firstWindow = createWin({
 	startBarDeltaY: 0,
 	barOpacity: 0,
 	startToolbarDeltaY: 0,
-	navBarHidden: true,
+	// navBarHidden: true,
 	barColor: 'transparent',
 	toolbar: [Ti.UI.createButton({
 			properties: {
@@ -4367,6 +4436,7 @@ var mainWin = Ti.UI.createNavigationWindow({
 
 	// swipeToClose: false,
 	exitOnClose: true,
+	// actionBarOverlay:true,
 	// theme: "Theme.Titanium.TranslucentActionBar.Overlay",
 	title: 'AKYLAS_MAIN_WINDOW',
 	window: firstWindow,
@@ -7263,38 +7333,42 @@ function windowLevelTest() {
 	win.open();
 }
 Ti.App.on('significanttimechange', sdebug);
+animationBugEx();
 // setTimeout(windowLevelTest, 1000);
 // scrollableViewTest();
-var indexer = Ti.App.iOS.createSearchableIndex();
-if (indexer.isSupported()) {
-	Ti.App.iOS.on('continueactivity', function(e) {
-		sdebug(e);
-	});
-	indexer.addToDefaultSearchableIndex([{
-		identifier: "4",
-		domainIdentifier: "akylas.sink",
-		attributeSet: {
-			contentType: 'test',
-			title: "Test1",
-			contentDescription: "description1",
-			supportsPhoneCall: true,
-			supportsNavigation: true,
-			keywords: ["akylas"]
-		}
-	}, {
-		identifier: "5",
-		domainIdentifier: "akylas.sink",
-		attributeSet: {
-			contentType: 'test',
-			title: "Test2",
-			contentDescription: "description2",
-			// keywords: ["Test2", "akylas"]
-		}
-	}], function(e) {
-		if (e.success) {
-			alert("Press the home button and now search for your keywords");
-		} else {
-			alert("Errored: " + JSON.stringify(e.error));
-		}
-	});
-}
+// var indexer = Ti.App.iOS.createSearchableIndex();
+// if (indexer.isSupported()) {
+// 	Ti.App.iOS.on('continueactivity', function(e) {
+// 		sdebug(e);
+// 	});
+// 	// indexer.deleteAllSearchableItemByDomainIdentifiers(["akylas.sink"]);
+// 	indexer.addToDefaultSearchableIndex([{
+// 		identifier: "4",
+// 		domainIdentifier: "akylas.sink",
+// 		attributeSet: {
+// 			contentType: Ti.App.iOS.UTTYPE_HTML,
+// 			title: "Test1",
+// 			latitude:5,
+// 			longitude:6,
+// 			contentDescription: "description1",
+// 			supportsPhoneCall: true,
+// 			supportsNavigation: true,
+// 			keywords: ["akylas"]
+// 		}
+// 	}, {
+// 		identifier: "5",
+// 		domainIdentifier: "akylas.sink",
+// 		attributeSet: {
+// 			contentType: Ti.App.iOS.UTTYPE_HTML,
+// 			title: "Test2",
+// 			contentDescription: "description2",
+// 			keywords: ["Test2", "akylas"]
+// 		}
+// 	}], function(e) {
+// 		if (e.success) {
+// 			alert("Press the home button and now search for your keywords");
+// 		} else {
+// 			alert("Errored: " + JSON.stringify(e.error));
+// 		}
+// 	});
+// }
