@@ -152,7 +152,7 @@
     if (!opened){
         opening = YES;
     }
-    if (!_useCustomUIWindow && tab == nil && (self.isManaged == NO) && controller == nil) {
+    if (!_useCustomUIWindow && tab == nil && (self.isManaged == NO)) {
         [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
     }
     [super windowWillOpen];
