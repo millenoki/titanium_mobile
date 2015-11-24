@@ -235,9 +235,6 @@ public class TiConvert
         case TiC.PROPERTY_LAYOUT_FULLSCREEN:
             layoutParams.fullscreen = toBoolean(value, false);
             return DEFAULT_FLAG_RETURN;
-        case TiC.PROPERTY_SQUARED:
-            layoutParams.squared = toBoolean(value, false);
-            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_WEIGHT:
             layoutParams.weight = toFloat(value, 1.0f);
             return DEFAULT_FLAG_RETURN;

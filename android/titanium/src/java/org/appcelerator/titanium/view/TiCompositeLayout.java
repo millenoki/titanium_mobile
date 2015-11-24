@@ -544,14 +544,6 @@ public class TiCompositeLayout extends FreeLayout implements
             wMode = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
             needsRecompute = true;
         }
-        if (p.squared) {
-            int min = Math.min(measuredWidth, measuredHeight);
-            measuredWidth = min;
-            measuredHeight = min;
-            wMode = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
-            hMode = MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY);
-            needsRecompute = true;
-        }
         
         if (p.maxWidth != null || p.minWidth != null) {
             int minMeasuredWidth = measuredWidth;
@@ -1299,7 +1291,6 @@ public class TiCompositeLayout extends FreeLayout implements
 		public TiDimension minHeight = null;
 
         public boolean fullscreen = false;
-        public boolean squared = false;
 		// This are flags to determine whether we are using fill or size
 		// behavior
 		public boolean sizeOrFillHeightEnabled = false;
@@ -1356,7 +1347,6 @@ public class TiCompositeLayout extends FreeLayout implements
 			sizeOrFillHeightEnabled = params.sizeOrFillHeightEnabled;
 			sizeOrFillWidthEnabled = params.sizeOrFillWidthEnabled;
 			fullscreen = params.fullscreen;
-			squared = params.squared;
 			widthMatchHeight = params.widthMatchHeight;
 			heightMatchWidth = params.heightMatchWidth;
 		}
