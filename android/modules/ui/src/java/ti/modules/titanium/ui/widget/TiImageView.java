@@ -13,10 +13,12 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.view.MaskableView;
+import org.appcelerator.titanium.view.TiUIView;
 
 //import android.animation.AnimatorSet;
 import com.trevorpage.tpsvg.SVGDrawable;
 
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -79,7 +81,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 
 	private int orientation;
 	
-	private WeakReference<TiViewProxy> proxy;
+	private WeakReference<TiUIView> tiView;
 
 	private ImageView oldImageView = null;
 	
@@ -243,10 +245,10 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	 * @param context the associated context.
 	 * @param proxy the associated proxy.
 	 */
-	public TiImageView(Context context, TiViewProxy proxy)
+	public TiImageView(Context context, TiUIView tiView)
 	{
 		this(context);
-		this.proxy = new WeakReference<TiViewProxy>(proxy);
+		this.tiView = new WeakReference<TiUIView>(tiView);
 	}
 
 	public void setEnableScale(boolean enableScale)
@@ -342,8 +344,10 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
                 onTransitionEnd();
             }
         };
-		
-        currentTransitionSet = TransitionHelper.transitionViews(this, newImageView, oldImageView, onDone, transition, (oldImageView != null)?oldImageView.getLayoutParams():getImageLayoutParams());
+        Animator anim = null;
+//        Animator anim = tiView.get().createAnimationLayoutUpdater(this, oldImageView);
+
+        currentTransitionSet = TransitionHelper.transitionViews(this, newImageView, oldImageView, onDone, transition, (oldImageView != null)?oldImageView.getLayoutParams():getImageLayoutParams(), anim);
 	}
 	
 	public void cancelCurrentTransition()
