@@ -362,8 +362,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         return nativeView;
     }
 
-    public View getParentViewForChild() {
-        return nativeView;
+    public ViewGroup getParentViewForChild() {
+        if (nativeView instanceof ViewGroup) {
+            return (ViewGroup) nativeView;
+        }
+        return null;
     }
 
     protected boolean isClickable() {

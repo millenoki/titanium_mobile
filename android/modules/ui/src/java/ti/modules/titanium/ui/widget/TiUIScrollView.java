@@ -526,8 +526,8 @@ public class TiUIScrollView extends TiUIView
         }
 	}
 	
-
-	public View getParentViewForChild()
+	@Override
+	public ViewGroup getParentViewForChild()
 	{
 		return getLayout();
 	}

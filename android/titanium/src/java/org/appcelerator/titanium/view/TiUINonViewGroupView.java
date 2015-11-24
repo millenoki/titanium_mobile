@@ -67,8 +67,8 @@ public class TiUINonViewGroupView extends TiUIView {
     }
 
 	@Override
-	public View getParentViewForChild()
+	public ViewGroup getParentViewForChild()
 	{
-		return childrenHolder != null ? childrenHolder: nativeView;
+		return childrenHolder != null ? childrenHolder: super.getParentViewForChild();
 	}
 }
