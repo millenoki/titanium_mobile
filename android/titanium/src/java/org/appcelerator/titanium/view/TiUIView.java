@@ -1667,9 +1667,10 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (currentActivity == null) {
                 currentActivity = TiApplication.getAppCurrentActivity();
             }
-            float oldAlpha = getOpacity();
+            float oldAlpha = getRootView().getAlpha();
             borderView = new TiBorderWrapperView(currentActivity, proxy);
             borderView.setAlpha(oldAlpha);
+            getRootView().setAlpha(1.0f);
 //            ViewHelper.setAlpha(borderView, oldAlpha);
             borderView.setVisibility(this.visibility);
             borderView.setEnabled(isEnabled);
