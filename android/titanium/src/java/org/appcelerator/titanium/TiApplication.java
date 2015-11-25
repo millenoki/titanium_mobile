@@ -483,7 +483,6 @@ public abstract class TiApplication extends Application implements
         super.onLowMemory();
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void onTrimMemory(int level) {
         if (TiC.HONEYCOMB_OR_GREATER
@@ -514,8 +513,6 @@ public abstract class TiApplication extends Application implements
     private static TiBitmapMemoryCache _picassoMermoryCache;
     public static TiBitmapMemoryCache getImageMemoryCache() {
         if (_picassoMermoryCache == null) {
-//            int maxMemory = (int) (Runtime.getRuntime().maxMemory());
-//            int cacheSize = maxMemory / 7;
             _picassoMermoryCache = new TiBitmapMemoryCache(TiActivityHelper.calculateMemoryCacheSize(getAppContext()));
         }
         return _picassoMermoryCache;
