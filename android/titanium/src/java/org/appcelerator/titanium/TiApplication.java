@@ -1206,6 +1206,18 @@ public abstract class TiApplication extends Application implements
             }
             TiApplication.modules.clear();
         }
+        if (_picasso != null) {
+            _picasso.shutdown();
+            _picasso = null;
+            _picassoHttpClient = null;
+        }
+        _picassoHttpClient = null;
+        _currentCache.clear();
+        _currentCacheDir.clear();
+        if (_picassoMermoryCache != null) {
+            _picassoMermoryCache.evictAll();
+            _picassoMermoryCache = null;        
+        }
         TiActivityWindows.dispose();
         TiActivitySupportHelpers.dispose();
         TiFileHelper.getInstance().destroyTempFiles();
