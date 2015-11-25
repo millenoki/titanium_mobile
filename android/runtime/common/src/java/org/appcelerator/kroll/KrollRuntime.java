@@ -352,7 +352,11 @@ public abstract class KrollRuntime implements Handler.Callback
 		synchronized (runtimeState) {
 			if (runtimeState == State.DISPOSED) {
 				instance.initLatch = new CountDownLatch(1);
-				instance.handler.sendEmptyMessage(MSG_INIT);
+				if (instance.thread.runOnMain) {
+				    instance.thread.run();
+				} else {
+	                instance.handler.sendEmptyMessage(MSG_INIT);
+				}
 
 			} else if (runtimeState == State.RELEASED) {
 				runtimeState = State.RELAUNCHED;
