@@ -287,7 +287,7 @@ public class TiConvert
                 layoutParams.autoFillsHeight = true;
                 layoutParams.height = LayoutParams.MATCH_PARENT;
 
-            } else if (TiC.LAYOUT_SIZE.equals(sValue)) {
+            } else if (TiC.LAYOUT_SIZE.equalsIgnoreCase(sValue)) {
                 // size
                 layoutParams.optionHeight = null;
                 layoutParams.sizeOrFillHeightEnabled = true;
