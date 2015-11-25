@@ -381,8 +381,13 @@
         [self rememberProxy:child];
 //        [context.krollContext invokeBlockOnThread:^{
 //        }];
-    }
-    else if(([object isKindOfClass:[TiProxy class]]))
+    } else if ([object isKindOfClass:[UIView class]] || [object respondsToSelector:@selector(nativeObject)]) {
+        Class hyperloopViewProxy = NSClassFromString(@"HyperloopViewProxy");
+        if (hyperloopViewProxy != nil) {
+            child = [(TiProxy*)[[hyperloopViewProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
+            [child performSelector:@selector(setNativeView:) withObject:object];
+        }
+    } else if(([object isKindOfClass:[TiProxy class]]))
     {
         child = (TiProxy *)object;
         bindId = [object valueForUndefinedKey:@"bindId"];

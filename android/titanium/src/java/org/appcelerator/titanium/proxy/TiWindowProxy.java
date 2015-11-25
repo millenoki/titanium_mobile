@@ -7,7 +7,9 @@
 package org.appcelerator.titanium.proxy;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -25,14 +27,20 @@ import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUtils;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiWeakList;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Message;
 import android.view.MotionEvent;
+import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
+import android.util.Pair;
+import android.view.Display;
 import android.view.View;
 
 @Kroll.proxy(propertyAccessors={
@@ -46,6 +54,7 @@ import android.view.View;
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String TAG = "TiWindowProxy";
+	protected static final boolean LOLLIPOP_OR_GREATER = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
 	
 	private static final int MSG_FIRST_ID = KrollProxy.MSG_LAST_ID + 1;
 	private static final int MSG_OPEN = MSG_FIRST_ID + 100;
@@ -68,6 +77,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected boolean inTab;
 	protected PostOpenListener postOpenListener;
 	protected boolean windowActivityCreated = false;
+	protected List< Pair<View, String> > sharedElementPairs;
 	
 	protected TiWindowManager winManager = null;
 	
@@ -91,6 +101,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiWindowProxy()
 	{
 		inTab = false;
+		if (LOLLIPOP_OR_GREATER) {
+		    sharedElementPairs = new ArrayList< Pair<View, String> >();
+		}
 	}
 
 	@Override
@@ -582,7 +595,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		if (activity != null)
 		{
-			return TiOrientationHelper.convertRotationToTiOrientationMode(activity.getWindowManager().getDefaultDisplay().getRotation());
+		    DisplayMetrics dm = new DisplayMetrics();
+		    Display display = activity.getWindowManager().getDefaultDisplay();
+		    display.getMetrics(dm);
+		    int width = dm.widthPixels;
+		    int height = dm.heightPixels;
+		    return TiOrientationHelper.convertRotationToTiOrientationMode(display.getRotation(), width, height);
 		}
 
 		Log.e(TAG, "Unable to get orientation, activity not found for window", Log.DEBUG_MODE);
@@ -693,4 +711,39 @@ public abstract class TiWindowProxy extends TiViewProxy
         }
         return properties;
     }	    
+	
+	@Kroll.method
+	public void addSharedElement(TiViewProxy view, String transitionName) {
+	    if (LOLLIPOP_OR_GREATER) {
+	        TiUIView v = view.peekView();
+	        if (v != null) {
+	            Pair< View,String > p = new Pair<View, String>(v.getNativeView(), transitionName);
+	            sharedElementPairs.add(p);
+	        }
+	    }
+	}
+
+	@Kroll.method
+	public void removeAllSharedElements() {
+	    if (LOLLIPOP_OR_GREATER) {
+	        sharedElementPairs.clear();
+	    }
+	}
+
+	/**
+	 * Helper method to create an activity options bundle. 
+	 * @param activity The activity on which options bundle should be created. 
+	 * @return The Bundle or null.  
+	 */
+	@SuppressWarnings("unchecked")
+	@Nullable
+	protected Bundle createActivityOptionsBundle(Activity activity) {
+	    if (LOLLIPOP_OR_GREATER && !sharedElementPairs.isEmpty()) {
+	        Bundle b = ActivityOptions.makeSceneTransitionAnimation(activity, 
+	                sharedElementPairs.toArray(new Pair[sharedElementPairs.size()])).toBundle();
+	        return b;
+	    } else {
+	        return null;
+	    }
+	}
 }

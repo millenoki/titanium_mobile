@@ -247,6 +247,11 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
     return isIOS9OrGreater;
 }
 
++(BOOL)isIOS9_1OrGreater
+{
+    return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
+}
+
 +(BOOL)isIPad
 {
     static BOOL isIPad;
@@ -1544,6 +1549,21 @@ If the new path starts with / and the base url is app://..., we have to massage 
                        } forKey:@"globalPoint"];
     [result setObject:[NSNumber numberWithDouble:xFactor*localPoint.x] forKey:xProp];
     [result setObject:[NSNumber numberWithDouble:yFactor*localPoint.y] forKey:yProp];
+    if (IS_OF_CLASS(touch, UITouch)) {
+        UITouch* uiTouch = touch;
+#if IS_XCODE_7
+        if ([self forceTouchSupported]) {
+            [result setObject:[NSNumber numberWithFloat:uiTouch.force] forKey:@"force"];
+            [result setObject:[NSNumber numberWithFloat:uiTouch.maximumPossibleForce] forKey:@"maximumPossibleForce"];
+            [result setObject:[NSNumber numberWithDouble:uiTouch.timestamp] forKey:@"timestamp"];
+#endif
+#if IS_XCODE_7_1
+            if ([self isIOS9_1OrGreater]) {
+                [result setObject:[NSNumber numberWithFloat:uiTouch.altitudeAngle] forKey:@"altitudeAngle"];
+            }
+#endif
+        }
+    }
     return result;
 }
 
@@ -1640,6 +1660,30 @@ If the new path starts with / and the base url is app://..., we have to massage 
             [NSNumber numberWithDouble:size.width],@"width",
             [NSNumber numberWithDouble:size.height],@"height",
             nil];
+}
+
++(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
+{
+#if IS_XCODE_7
+    if ([self forceTouchSupported]) {
+         NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+         [NSNumber numberWithDouble:point.x],@"x",
+         [NSNumber numberWithDouble:point.y],@"y",
+         [NSNumber numberWithFloat:touch.force],@"force",
+         [NSNumber numberWithFloat:touch.maximumPossibleForce],@"maximumPossibleForce",
+         [NSNumber numberWithDouble:touch.timestamp],@"timestamp",
+         nil];
+        
+#if IS_XCODE_7_1
+        if ([self isIOS9_1OrGreater]) {
+            [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
+        }
+#endif
+        return dict;
+    }
+#endif
+    
+    return [self pointToDictionary:point];
 }
 
 +(CGRect)contentFrame:(BOOL)window

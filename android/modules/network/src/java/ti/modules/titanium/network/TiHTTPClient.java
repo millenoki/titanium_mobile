@@ -788,14 +788,16 @@ public class TiHTTPClient
         final String password = ((HTTPClientProxy)proxy).getPassword();
         final String domain = ((HTTPClientProxy)proxy).getDomain(); 
 
-        Authenticator.setDefault(new TiAuthenticator(domain, username, password));
-
-        setReadyState(READY_STATE_OPENED);
-        setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
-        // Causes Auth to Fail with twitter and other size apparently block X- as well
-        // Ticket #729, ignore twitter for now
-        if (!hostString.contains("twitter.com")) {
-            setRequestHeader("X-Requested-With","XMLHttpRequest");
+		if ((username != null) && (password != null)) {
+		    Authenticator.setDefault(new TiAuthenticator(domain, username, password));
+		}
+		
+		setReadyState(READY_STATE_OPENED);
+		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
+		// Causes Auth to Fail with twitter and other size apparently block X- as well
+		// Ticket #729, ignore twitter for now
+		if (!hostString.contains("twitter.com")) {
+			setRequestHeader("X-Requested-With","XMLHttpRequest");
 
         } else {
             Log.i(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
@@ -1209,17 +1211,15 @@ public class TiHTTPClient
                 } 
 
 
-                if(result != null) {
-                    Log.d(TAG, "Have result back from request len=" + result.length(), Log.DEBUG_MODE);
-                }
-                connected = false;
-                setResponseText(result);
-
-                
-                if (getStatus() >= 400) {
-                    throw new IOException(getStatus() + " : " + getStatusText());
-                }
-                
+				if(result != null) {
+					Log.d(TAG, "Have result back from request len=" + result.length(), Log.DEBUG_MODE);
+				}
+				connected = false;
+				setResponseText(result);
+				
+				if (getStatus() >= 400) {
+					throw new IOException(getStatus() + " : " + getStatusText());
+				}
 
                 if (!aborted) {
                     setReadyState(READY_STATE_DONE);
@@ -1233,20 +1233,19 @@ public class TiHTTPClient
                     Log.d(TAG, "client is not valid, unable to clear expired and idle connections");
                 }
 
-                String msg = t.getMessage();
-                if (msg == null && t.getCause() != null) {
-                    msg = t.getCause().getMessage();
-                }
-                if (msg == null) {
-                    msg = t.getClass().getName();
-                }
-                Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
-
-                KrollDict data = new KrollDict();
-                data.putCodeAndMessage(aborted?TiC.ERROR_CODE_NO_ERROR:getStatus(), msg);
-                dispatchCallback(TiC.PROPERTY_ONERROR, data);
-            } finally {
-                deleteTmpFiles();
+				String msg = t.getMessage();
+				if (msg == null && t.getCause() != null) {
+					msg = t.getCause().getMessage();
+				}
+				if (msg == null) {
+					msg = t.getClass().getName();
+				}
+				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+				KrollDict data = new KrollDict();
+				data.putCodeAndMessage(aborted?TiC.ERROR_CODE_NO_ERROR:getStatus(), msg);
+				dispatchCallback(TiC.PROPERTY_ONERROR, data);
+			} finally {
+				deleteTmpFiles();
 
                 //Clean up client and clientThread
                 
@@ -1265,15 +1264,18 @@ public class TiHTTPClient
 
 	    	printWriter.append("--" + boundary).append(LINE_FEED);
 	    	printWriter.append("Content-Disposition: form-data; name=\"" + name + "\"");
-	    	if(fileName != null){
-	    		printWriter.append("\"; filename=\"" + fileName + "\"");
+	    	if (fileName != null) {
+	    		printWriter.append("; filename=\"" + fileName + "\"");
 	    	}
 	    	printWriter.append(LINE_FEED);
-	    	printWriter.append("Content-Type: " + contentBody.getMimeType());
-	    	if(contentBody.getCharset() != null) {
-	    		printWriter.append("; charset="+contentBody.getCharset());
+	    	String mimeType = contentBody.getMimeType();
+	    	if (mimeType != null && !mimeType.isEmpty()) {
+	    	    printWriter.append("Content-Type: " + contentBody.getMimeType());
+	    	    if (contentBody.getCharset() != null) {
+	    	        printWriter.append("; charset=" + contentBody.getCharset());
+	    	    }
+	    	    printWriter.append(LINE_FEED);
 	    	}
-	    	printWriter.append(LINE_FEED);
 	    	printWriter.append("Content-Transfer-Encoding: "+ contentBody.getTransferEncoding()).append(LINE_FEED);
 	    	printWriter.append(LINE_FEED);
 	    	printWriter.flush();

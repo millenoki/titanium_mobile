@@ -54,9 +54,6 @@ static NSDictionary* tableViewSeparatorStyle = nil;
 #if defined (USE_TI_UIATTRIBUTEDSTRING)
 #import "TiUIAttributedStringProxy.h"
 #endif
-#ifdef USE_TI_UIACTIVITYINDICATORSTYLE
-#import "TiUIActivityIndicatorStyleProxy.h"
-#endif
 
 #import "TiApp.h"
 #import "ImageLoader.h"
@@ -182,29 +179,32 @@ MAKE_SYSTEM_PROP(RETURNKEY_YAHOO,UIReturnKeyYahoo);
 MAKE_SYSTEM_PROP(RETURNKEY_DONE,UIReturnKeyDone);
 MAKE_SYSTEM_PROP(RETURNKEY_EMERGENCY_CALL,UIReturnKeyEmergencyCall);
 
+-(NSNumber*)RETURNKEY_CONTINUE
+{
+#if IS_XCODE_7
+    if ([TiUtils isIOS9OrGreater] == YES) {
+        return [NSNumber numberWithInt:UIReturnKeyContinue];
+    }
+#endif
+    return UIReturnKeyDefault;
+}
+
 MAKE_SYSTEM_PROP(KEYBOARD_DEFAULT,UIKeyboardTypeDefault);
 MAKE_SYSTEM_PROP(KEYBOARD_ASCII,UIKeyboardTypeASCIICapable);
 MAKE_SYSTEM_PROP(KEYBOARD_NUMBERS_PUNCTUATION,UIKeyboardTypeNumbersAndPunctuation);
 MAKE_SYSTEM_PROP(KEYBOARD_URL,UIKeyboardTypeURL);
 MAKE_SYSTEM_PROP(KEYBOARD_NUMBER_PAD,UIKeyboardTypeNumberPad);
-
-/* Because this is a new feature in 4.1, we have to guard against it in both compiling AND runtime.*/
--(NSNumber*)KEYBOARD_DECIMAL_PAD
-{
-#if __IPHONE_4_1 <= __IPHONE_OS_VERSION_MAX_ALLOWED
-	if([[[UIDevice currentDevice] systemVersion] floatValue] >= 4.1){
-		return [NSNumber numberWithInt:UIKeyboardTypeDecimalPad];
-	}
-#endif
-	return [NSNumber numberWithInt:UIKeyboardTypeNumbersAndPunctuation];
-}
-
+MAKE_SYSTEM_PROP(KEYBOARD_DECIMAL_PAD,UIKeyboardTypeDecimalPad);
 MAKE_SYSTEM_PROP(KEYBOARD_PHONE_PAD,UIKeyboardTypePhonePad);
 MAKE_SYSTEM_PROP(KEYBOARD_NAMEPHONE_PAD,UIKeyboardTypeNamePhonePad);
 MAKE_SYSTEM_PROP(KEYBOARD_EMAIL,UIKeyboardTypeEmailAddress);
+MAKE_SYSTEM_PROP(KEYBOARD_WEBSEARCH, UIKeyboardTypeWebSearch);
+MAKE_SYSTEM_PROP(KEYBOARD_TWITTER, UIKeyboardTypeTwitter);
 
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DEFAULT,UIKeyboardAppearanceDefault);
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_ALERT,UIKeyboardAppearanceAlert);
+MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DARK,UIKeyboardAppearanceDark);
+MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_LIGHT,UIKeyboardAppearanceLight);
 
 MAKE_SYSTEM_PROP(TEXT_AUTOCAPITALIZATION_NONE,UITextAutocapitalizationTypeNone);
 MAKE_SYSTEM_PROP(TEXT_AUTOCAPITALIZATION_WORDS,UITextAutocapitalizationTypeWords);
@@ -265,17 +265,17 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE,UITableViewCellAccessoryDisclosu
     return [NSNumber numberWithDouble:HUGE_VALF];
 }
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_NONE,UIDataDetectorTypeNone, @"UI.AUTODETECT_NONE", @"1.8.0", @"Ti.UI.AUTOLINK_NONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_NONE,UIDataDetectorTypeNone, @"UI.AUTODETECT_NONE", @"1.8.0", @"UI.AUTOLINK_NONE");
 -(NSNumber*)AUTODETECT_ALL
 {
-    DEPRECATED_REPLACED(@"UI.AUTODETECT_ALL", @"1.8.0", @"Ti.UI.AUTOLINK_ALL")
+    DEPRECATED_REPLACED(@"UI.AUTODETECT_ALL", @"1.8.0", @"UI.AUTOLINK_ALL")
     return NUMUINTEGER(UIDataDetectorTypeAll);
 }
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber, @"UI.AUTODETECT_PHONE", @"1.8.0", @"Ti.UI.AUTOLINK_PHONE_NUMBERS");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_LINK,UIDataDetectorTypeLink, @"UI.AUTODETECT_LINK", @"1.8.0", @"Ti.UI.AUTOLINK_URLS");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber, @"UI.AUTODETECT_PHONE", @"1.8.0", @"UI.AUTOLINK_PHONE_NUMBERS");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_LINK,UIDataDetectorTypeLink, @"UI.AUTODETECT_LINK", @"1.8.0", @"UI.AUTOLINK_URLS");
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress, @"UI.AUTODETECT_ADDRESS", @"1.8.0", @"Ti.UI.AUTOLINK_MAP_ADDRESSES");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent, @"UI.AUTODETECT_CALENDAR", @"1.8.0", @"Ti.UI.AUTOLINK_CALENDAR");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress, @"UI.AUTODETECT_ADDRESS", @"1.8.0", @"UI.AUTOLINK_MAP_ADDRESSES");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent, @"UI.AUTODETECT_CALENDAR", @"1.8.0", @"UI.AUTOLINK_CALENDAR");
 
 
 
@@ -460,7 +460,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 #ifdef USE_TI_UICOVERFLOWVIEW
 -(id)createCoverFlowView:(id)args
 {
-	DEPRECATED_REPLACED(@"UI.createCoverFlowView()",@"1.8.0",@"Ti.UI.iOS.createCoverFlowView()");
+	DEPRECATED_REPLACED(@"UI.createCoverFlowView()",@"1.8.0",@"UI.iOS.createCoverFlowView()");
 	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
@@ -468,7 +468,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 #ifdef USE_TI_UITOOLBAR
 -(id)createToolbar:(id)args
 {
-	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"Ti.UI.iOS.createToolbar()");
+	DEPRECATED_REPLACED(@"UI.createToolBar()",@"1.8.0",@"UI.iOS.createToolbar()");
 	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
@@ -476,7 +476,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 #ifdef USE_TI_UITABBEDBAR
 -(id)createTabbedBar:(id)args
 {
-    DEPRECATED_REPLACED(@"UI.createTabbedBar()", @"1.8.0",@"Ti.UI.iOS.createTabbedBar()");
+    DEPRECATED_REPLACED(@"UI.createTabbedBar()", @"1.8.0",@"UI.iOS.createTabbedBar()");
     return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif

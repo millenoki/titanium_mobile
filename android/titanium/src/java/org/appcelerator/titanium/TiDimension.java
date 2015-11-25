@@ -151,10 +151,10 @@ public class TiDimension
 				}
 			} else {
 			    String toCompare = svalue.trim().toLowerCase();
-			    if (toCompare.equals(UNIT_AUTO) || toCompare.equals(TiC.LAYOUT_SIZE.toLowerCase())) {
+			    if (toCompare.equals(UNIT_AUTO) || toCompare.equalsIgnoreCase(TiC.LAYOUT_SIZE)) {
 			        this.value = Integer.MIN_VALUE;
 	                this.units = COMPLEX_UNIT_AUTO;
-			    } else if (toCompare.equals(TiC.LAYOUT_FILL.toLowerCase())) {
+			    } else if (toCompare.equalsIgnoreCase(TiC.LAYOUT_FILL)) {
                     this.value = Integer.MIN_VALUE;
                     this.units = COMPLEX_UNIT_FILL;
                 }
@@ -533,6 +533,11 @@ public class TiDimension
 	{
 		return units == COMPLEX_UNIT_PERCENT;
 	}
+	
+	public boolean isUnitFill()
+    {
+        return units == COMPLEX_UNIT_FILL;
+    }
 
 	public boolean isUnitAuto()
 	{

@@ -62,6 +62,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,6 +72,7 @@ import android.view.Surface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.ViewGroup.LayoutParams;
 
 import com.appcelerator.analytics.APSAnalytics;
 
@@ -101,7 +103,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 	public static KrollObject cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
 	public static KrollFunction cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
-	
+
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected int supportHelperId = -1;
@@ -115,7 +117,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected int msgActivityCreatedId = -1;
 	protected int msgId = -1;
 	protected static int previousOrientation = -1;
-	//Storing the activity's dialogs and their persistence 
+	//Storing the activity's dialogs and their persistence
 	private CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<DialogWrapper>();
 	private Stack<TiWindowProxy> windowStack = new Stack<TiWindowProxy>();
 
@@ -131,18 +133,20 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private int softInputMode = defaultSoftInputMode;
 	private boolean mReadyToQueryActionBar = false;
 
+	private boolean overridenLayout;
+
 	public class DialogWrapper {
 		boolean isPersistent;
 		Dialog dialog;
 
 		WeakReference<TiBaseActivity> dialogActivity;
-		
+
 		public DialogWrapper(Dialog d, boolean persistent, WeakReference<TiBaseActivity> activity) {
 			isPersistent = persistent;
 			dialog = d;
 			dialogActivity = activity;
 		}
-		
+
 		public TiBaseActivity getActivity()
 		{
 			if (dialogActivity == null) {
@@ -160,12 +164,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		public Dialog getDialog() {
 			return dialog;
 		}
-		
+
 		public void setDialog(Dialog d) {
 			dialog = d;
 		}
-		
-		public void release() 
+
+		public void release()
 		{
 			dialog = null;
 			dialogActivity = null;
@@ -176,7 +180,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			return isPersistent;
 		}
 
-		public void setPersistent(boolean p) 
+		public void setPersistent(boolean p)
 		{
 			isPersistent = p;
 		}
@@ -241,10 +245,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
-	// forwarded, create a separate interface in order to limit scope and maintain clarity 
+	// forwarded, create a separate interface in order to limit scope and maintain clarity
 	public static interface OrientationChangedListener
 	{
-		public void onOrientationChanged (int configOrientationMode);
+		public void onOrientationChanged (int configOrientationMode, int width, int height);
 	}
 
 	public static void registerOrientationListener (OrientationChangedListener listener)
@@ -368,7 +372,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 	/**
 	 * Sets the proxy for our layout (used for post layout event)
-	 * 
+	 *
 	 * @param proxy
 	 */
 	public void setLayoutProxy(TiViewProxy proxy)
@@ -395,14 +399,14 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		return activityProxy;
 	}
 
-	public void addDialog(DialogWrapper d) 
+	public void addDialog(DialogWrapper d)
 	{
 		if (!dialogs.contains(d)) {
 			dialogs.add(d);
 		}
 	}
-	
-	public void removeDialog(Dialog d) 
+
+	public void removeDialog(Dialog d)
 	{
 		for (int i = 0; i < dialogs.size(); i++) {
 			DialogWrapper p = dialogs.get(i);
@@ -635,18 +639,25 @@ public abstract class TiBaseActivity extends AppCompatActivity
             }
         };
 	}
-	
+
 	private void permissionCallback(int[] grantResults, KrollFunction callback, KrollObject context, String permission) {
 		if (callback == null) {
 			return;
 		}
-		if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+		boolean granted = true;
+		for (int i = 0; i < grantResults.length; ++i) {
+			if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+				granted = false;
+				break;
+			}
+		}
+		if (granted) {
 			KrollDict response = new KrollDict();
 			response.putCodeAndMessage(0, null);
 			callback.callAsync(context, response);
 		} else {
 			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(-1, permission + " permission denied");
+			response.putCodeAndMessage(-1, "One or more permission(s) were denied");
 			callback.callAsync(context, response);
 		}
 	}
@@ -737,6 +748,25 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 	}
 
+	// Record if user has set a content view manually from hyperloop code during require of app.js!
+	@Override
+	public void setContentView(View view) {
+		overridenLayout = true;
+		super.setContentView(view);
+	}
+
+	@Override
+	public void setContentView(int layoutResID) {
+		overridenLayout = true;
+		super.setContentView(layoutResID);
+	}
+
+	@Override
+	public void setContentView(View view, LayoutParams params) {
+		overridenLayout = true;
+		super.setContentView(view, params);
+	}
+
 	@Override
 	/**
 	 * When the activity is created, this method adds it to the activity stack and
@@ -807,7 +837,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (theme != -1) {
 			this.setTheme(theme);
 		}
-		
+
 		// Set ActionBar into split mode must be done before the decor view has been created
 		// we need to do this before calling super.onCreate()
 		if (intent != null && intent.hasExtra(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
@@ -818,9 +848,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
             supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
         }
 
-		
+
 		// we only want to set the current activity for good in the resume state but we need it right now.
-		// save off the existing current activity, set ourselves to be the new current activity temporarily 
+		// save off the existing current activity, set ourselves to be the new current activity temporarily
 		// so we don't run into problems when we give the proxy the event
 		Activity tempCurrentActivity = tiApp.getCurrentActivity();
 		tiApp.setCurrentActivity(this, this);
@@ -828,13 +858,18 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// we need to set window features before calling onCreate
 		this.requestWindowFeature(Window.FEATURE_PROGRESS);
 		this.requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-
+		if (TiC.LOLLIPOP_OR_GREATER) {
+			this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+		}
 		super.onCreate(savedInstanceState);
 		
 		// set the current activity back to what it was originally
         tiApp.setCurrentActivity(this, tempCurrentActivity);
 
-        setContentView(layout);
+        // If user changed the layout during app.js load, keep that
+		if (!overridenLayout) {
+			setContentView(layout);
+		}
         //sometimes we get a weird right and bottom padding :s
         getWindow().getDecorView().setPadding(0, 0, 0, 0);
         
@@ -864,14 +899,19 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		orientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
 			@Override
 			public void onOrientationChanged(int orientation) {
-				int rotation = getWindowManager().getDefaultDisplay().getRotation();
-				if ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
-						&& rotation != previousOrientation) {
-					callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity());
-				} else if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
-						&& rotation != previousOrientation) {
-					callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity());
-				}
+			    DisplayMetrics dm = new DisplayMetrics();
+			    getWindowManager().getDefaultDisplay().getMetrics(dm);
+			    int width = dm.widthPixels;
+			    int height = dm.heightPixels;
+			    int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
+			    if ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
+			            && rotation != previousOrientation) {
+			        callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
+			    } else if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
+			            && rotation != previousOrientation) {
+			        callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
+			    }
 			}
 		};
 
@@ -977,7 +1017,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	{
 		getSupportHelper().launchActivityForResult(intent, code, resultHandler);
 	}
-	
+
 	/**
 	 * See TiActivitySupport.launchIntentSenderForResult for more details.
 	 */
@@ -1050,24 +1090,24 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 
 	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) 
+	public boolean dispatchKeyEvent(KeyEvent event)
 	{
 		boolean handled = false;
-		
+
 		TiViewProxy window;
 		if (this.window != null) {
 			window = this.window;
 		} else {
 			window = this.view;
 		}
-		
+
 		if (window == null) {
 			return super.dispatchKeyEvent(event);
 		}
 
 		switch(event.getKeyCode()) {
 			case KeyEvent.KEYCODE_BACK : {
-				
+
 				if (event.getAction() == KeyEvent.ACTION_UP) {
 					handled = handleBackKeyPressed();					
 				}
@@ -1123,7 +1163,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				break;
 			}
 		}
-			
+
 		if (!handled) {
 			handled = super.dispatchKeyEvent(event);
 		}
@@ -1141,7 +1181,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		// If targetSdkVersion is set to 11+, Android will invoke this function 
+		// If targetSdkVersion is set to 11+, Android will invoke this function
 		// to initialize the menu (since it's part of the action bar). Due
 		// to the fix for Android bug 2373, activityProxy won't be initialized b/c the
 		// activity is expected to restart, so we will ignore it.
@@ -1230,12 +1270,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		return menuHelper.onPrepareOptionsMenu(super.onPrepareOptionsMenu(menu) || listenerExists, menu);
 	}
 
-	public static void callOrientationChangedListener(Activity activity)
+	public static void callOrientationChangedListener(Activity activity, int width, int height, int rotation)
 	{
 		int currentOrientation = activity.getWindowManager().getDefaultDisplay().getRotation();
 		if (orientationChangedListener != null && previousOrientation != currentOrientation) {
 			previousOrientation = currentOrientation;
-			orientationChangedListener.onOrientationChanged (currentOrientation);
+			orientationChangedListener.onOrientationChanged (currentOrientation, width, height);
 		}
 	}
 
@@ -1252,7 +1292,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 
 	@Override
-	protected void onNewIntent(Intent intent) 
+	protected void onNewIntent(Intent intent)
 	{
 		super.onNewIntent(intent);
 
@@ -1370,7 +1410,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		data.put("source", activityProxy);
 
-		activityProxy.callPropertyAsync(name, new Object[] { data });
+		// TIMOB-19903
+		if (TiApplication.getInstance().runOnMainThread()) {
+			// We must call this synchornously to ensure it happens before we release the Activity reference on the V8/Native side!
+			activityProxy.callPropertySync(name, new Object[] { data });
+		} else {
+			// This hopefully finishes before we release the reference on the native side?! I have seen it crash because it didn't before though...
+			// Not sure it's safe to keep this behavior...
+			activityProxy.callPropertyAsync(name, new Object[] { data });
+		}
 	}
 
 	private void releaseDialogs(boolean finish)
@@ -1428,7 +1476,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	 * When this activity pauses, this method sets the current activity to null, fires a javascript 'pause' event,
 	 * and if the activity is finishing, remove all dialogs associated with it.
 	 */
-	protected void onPause() 
+	protected void onPause()
 	{
 		TiApplication.getInstance().activityPaused(this); //call before setting inForeground
 		inForeground = false;
@@ -1453,7 +1501,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (!windowStack.empty()) {
 			windowStack.peek().onWindowFocusChange(false);
 		}
-	
+
 		TiApplication.updateActivityTransitionState(true);
 		tiApp.setCurrentActivity(this, null);
 		TiUIHelper.hideSoftKeyboard(getWindow().getDecorView());
@@ -1511,11 +1559,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		if (!windowStack.empty()) {
 			windowStack.peek().onWindowFocusChange(true);
-		} 
-		
+		}
+
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
-		
+
 		if (activityProxy != null) {
 			activityProxy.fireEvent(TiC.EVENT_RESUME);
 		}
@@ -1550,7 +1598,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	@Override
 	/**
 	 * When this activity starts, this method updates the current activity to this if necessary and
-	 * fire javascript 'start' and 'focus' events. Focus events will only fire if 
+	 * fire javascript 'start' and 'focus' events. Focus events will only fire if
 	 * the activity is not a tab activity.
 	 */
 	protected void onStart()
@@ -1583,7 +1631,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily 
+			// save off the existing current activity, set ourselves to be the new current activity temporarily
 			// so we don't run into problems when we give the proxy the event
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
@@ -1605,7 +1653,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			}
 		}
 		// store current configuration orientation
-		// This fixed bug with double orientation chnage firing when activity starts in landscape 
+		// This fixed bug with double orientation chnage firing when activity starts in landscape
 		previousOrientation = getWindowManager().getDefaultDisplay().getRotation();
 	}
 
@@ -1665,7 +1713,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		super.onRestart();
 
 		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
-		
+
 		TiApplication tiApp = getTiApp();
 		if (tiApp.isRestartPending()) {
 			if (!isFinishing()) {
@@ -1677,7 +1725,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
-			// save off the existing current activity, set ourselves to be the new current activity temporarily 
+			// save off the existing current activity, set ourselves to be the new current activity temporarily
 			// so we don't run into problems when we give the proxy the event
 			Activity tempCurrentActivity = tiApp.getCurrentActivity();
 			tiApp.setCurrentActivity(this, this);
@@ -1691,7 +1739,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 	@Override
 	/**
-	 * When the activity is about to go into the background as a result of user choice, this method fires the 
+	 * When the activity is about to go into the background as a result of user choice, this method fires the
 	 * javascript 'userleavehint' event.
 	 */
 	protected void onUserLeaveHint()
@@ -1711,7 +1759,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		super.onUserLeaveHint();
 	}
-	
+
 	@Override
     public void onLowMemory() {
         super.onLowMemory();
@@ -1731,7 +1779,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	@Override
 	/**
 	 * When this activity is destroyed, this method removes it from the activity stack, performs
-	 * clean up, and fires javascript 'destroy' event. 
+	 * clean up, and fires javascript 'destroy' event.
 	 */
 	protected void onDestroy()
 	{
@@ -1742,7 +1790,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		inForeground = false;
 		TiApplication tiApp = getTiApp();
-		//Clean up dialogs when activity is destroyed. 
+		//Clean up dialogs when activity is destroyed.
 		releaseDialogs(true);
 
 		if (tiApp.isRestartPending()) {
@@ -1763,6 +1811,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				}
 			}
 		}
+		lifecycleListeners.clear();
+		
 		if (orientationListener != null) {
 	        orientationListener.disable();
 		}
@@ -1986,4 +2036,3 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	    return defaultFullscreen;
 	}
 }
-

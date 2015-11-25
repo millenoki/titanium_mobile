@@ -825,10 +825,12 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     [url release];
     url = [[[webview request] URL] retain];
     NSString* urlAbs = [url absoluteString];
-    [[self proxy] replaceValue:urlAbs forKey:@"url" notification:NO];
-	
-    if ([[self viewProxy] _hasListeners:@"load" checkParent:NO])
-    {
+    NSString* appPath = [[[NSBundle mainBundle] resourceURL] absoluteString];
+    if (![urlAbs isEqualToString: appPath]) {
+        [[self proxy] replaceValue:urlAbs forKey:@"url" notification:NO];
+    }
+    
+    if ([[self viewProxy] _hasListeners:@"load" checkParent:NO]) {
         if (![urlAbs isEqualToString:lastValidLoad]) {
             NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
             [self.proxy fireEvent:@"load" withObject:event propagate:NO checkForListener:NO];
@@ -921,14 +923,17 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_
 {
-	// don't bother firing an app event to the webview if we don't have a webview yet created
-	if (webview!=nil)
-	{
-		NSDictionary *event = (NSDictionary*)obj;
-		NSString *name = [event objectForKey:@"type"];
-		NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[SBJSON stringify:event]];
-		[webview stringByEvaluatingJavaScriptFromString:js];
-	}
+    // don't bother firing an app event to the webview if we don't have a webview yet created
+    if (webview!=nil)
+    {
+        NSDictionary *event = (NSDictionary*)obj;
+        NSString *name = [event objectForKey:@"type"];
+        NSString *js = [NSString stringWithFormat:@"Ti.App._dispatchEvent('%@',%@,%@);",name,listener,[SBJSON stringify:event]];
+        // Not waiting for JS execution since this can cause deadlock on main queue.
+        [webview performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:)
+                                  withObject:js
+                               waitUntilDone:NO];
+    }
 }
 
 

@@ -156,6 +156,12 @@
 
 -(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if ([proxy _hasListeners:@"touchcancel"]) {
+        
+        UITouch *touch = [touches anyObject];
+        NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+        [proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
+    }
     [super touchesCancelled:touches withEvent:event];
 }
 
@@ -451,6 +457,13 @@
         if ([TiUtils isIOS8OrGreater]) {
             [tableview setLayoutMargins:UIEdgeInsetsZero];
         }
+        
+#if IS_XCODE_7
+        if ([TiUtils isIOS9OrGreater]) {
+            tableview.cellLayoutMarginsFollowReadableWidth = NO;
+        }
+#endif
+        
 	}
 	if ([tableview superview] != self)
 	{
@@ -1576,8 +1589,10 @@
 	// called when text starts editing
 	[self showSearchScreen:nil];
     searchActivated = YES;
-    [[searchController searchResultsTableView] reloadData];
+    // Dont reload here since user started editing but not yet started typing.
+    // Also if a previous search string exists this reload results in blank cells.
 }
+
 /*
  * This is no longer required since we do it from the 
  * searchDisplayControllerDidEndSearch method
@@ -2699,6 +2714,9 @@ return result;	\
     [searchField ensureSearchBarHeirarchy];
     animateHide = YES;
     [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
+    // Since we clear the searchbar, the search string and indexes can be cleared as well.
+    [self setSearchString:nil];
+    RELEASE_TO_NIL(searchResultIndexes);
 }
 @end
 

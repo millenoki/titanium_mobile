@@ -117,6 +117,20 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = 1;
     public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = 2;
 
+	
+	public static final int TRANSITION_NONE = 0;
+	public static final int TRANSITION_EXPLODE = 1;
+	public static final int TRANSITION_FADE_IN = 2;
+	public static final int TRANSITION_FADE_OUT = 3;
+	public static final int TRANSITION_SLIDE_TOP = 4;
+	public static final int TRANSITION_SLIDE_RIGHT = 5;
+	public static final int TRANSITION_SLIDE_BOTTOM = 6;
+	public static final int TRANSITION_SLIDE_LEFT = 7;
+	public static final int TRANSITION_CHANGE_BOUNDS = 8;
+	public static final int TRANSITION_CHANGE_CLIP_BOUNDS = 9;
+	public static final int TRANSITION_CHANGE_TRANSFORM = 10;
+	public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM = 11;
+
     private static final int MSG_FIRST_ID = 100;
     private static final int MSG_SET_BACKGROUND = MSG_FIRST_ID + 1;
     private static final int MSG_CLEAR_FOCUS = MSG_FIRST_ID + 2;
@@ -1108,6 +1122,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 getOrCreateBorderView().setMaskView(null);
             }
             break;
+		case TiC.PROPERTY_TRANSITION_NAME: { 
+		    if (TiC.LOLLIPOP_OR_GREATER) { 
+				View view = getOuterView();
+                if (view != null) {
+		        	ViewCompat.setTransitionName(view, TiConvert.toString(newValue));
+                }
+		    }
+		}
         default:
             break;
         }

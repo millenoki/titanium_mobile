@@ -2253,7 +2253,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	}
 }
 
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
 //    [self setBgState:UIControlStateNormal];
     if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {

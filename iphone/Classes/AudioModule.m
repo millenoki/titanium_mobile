@@ -150,27 +150,27 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
 //Constants for AudioSessions
 -(NSNumber*)AUDIO_SESSION_MODE_AMBIENT
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_AMBIENT");
+    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_AMBIENT");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_AmbientSound];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_SOLO_AMBIENT
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
+    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_SoloAmbientSound];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_PLAYBACK
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK");
+    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_PLAYBACK");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_MediaPlayback];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_RECORD
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_RECORD");
+    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_RECORD");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_RecordAudio];
 }
 -(NSNumber*)AUDIO_SESSION_MODE_PLAY_AND_RECORD
 {
-    DEPRECATED_REPLACED(@"Media.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
+    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
     return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_PlayAndRecord];
 }
 
@@ -358,7 +358,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
  **/
 -(void)requestAuthorization:(id)args
 {
-    DEPRECATED_REPLACED(@"Media.requestAuthorization", @"5.1.0", @"Media.requestAudioPermissions");
+    DEPRECATED_REPLACED(@"Audio.requestAuthorization", @"5.1.0", @"Audio.requestAudioPermissions");
     [self requestAudioPermissions:args];
 }
 

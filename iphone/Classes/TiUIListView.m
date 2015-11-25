@@ -210,10 +210,17 @@ static NSDictionary* replaceKeysForRow;
             [_tableView setLayoutMargins:UIEdgeInsetsZero];
         }
         
+#if IS_XCODE_7
+        if ([TiUtils isIOS9OrGreater]) {
+            _tableView.cellLayoutMarginsFollowReadableWidth = NO;
+        }
+#endif
+        
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
     }
+    
     return _tableView;
 }
 
@@ -924,6 +931,11 @@ static NSDictionary* replaceKeysForRow;
     _scrollSuspendImageLoading = [TiUtils boolValue:value def:_scrollSuspendImageLoading];
 }
 
+-(void)setLazyLoadingEnabled_:(id)value
+{
+    [self setScrollSuspendsImageLoading_:value];
+}
+
 -(void)setOnDisplayCell_:(id)callback
 {
     hasOnDisplayCell = [callback isKindOfClass:[KrollCallback class]] || [callback isKindOfClass:[KrollWrapper class]];
@@ -1190,6 +1202,13 @@ static NSDictionary* replaceKeysForRow;
     return [TiUtils boolValue:editValue def:NO];
 }
 
+-(BOOL)canInsertRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    id insertValue = [self valueWithKey:@"canInsert" atIndexPath:indexPath];
+    //canInsert if undefined is false
+    return [TiUtils boolValue:insertValue def:NO];
+}
+
 
 -(BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -1263,9 +1282,10 @@ static NSDictionary* replaceKeysForRow;
         return NO;
     }
     
-    if ([self canEditRowAtIndexPath:indexPath]) {
+    if ([self canEditRowAtIndexPath:indexPath] || [self canInsertRowAtIndexPath:indexPath]) {
         return YES;
     }
+    
     if (_editing) {
         return [self canMoveRowAtIndexPath:indexPath];
     }
@@ -1274,45 +1294,91 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
-        NSDictionary *theItem = [[theSection itemAtIndex:indexPath.row] retain];
+    TiUIListSectionProxy* theSection = [[self.listViewProxy sectionForIndex:indexPath.section] retain];
 
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
         
-        //Fire the delete Event if required
-        NSString *eventName = @"delete";
-        if ([self.proxy _hasListeners:eventName]) {
+        //Delete Data
+        [theSection deleteItemAtIndex:indexPath.row];
         
-            NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                theSection, @"section",
-                                                self.proxy, @"listView",
-                                                NUMINTEGER(indexPath.section), @"sectionIndex",
-                                                theItem, @"item",
-                                                NUMINTEGER(indexPath.row), @"itemIndex",
-                                                nil];
-            id propertiesValue = [theItem objectForKey:@"properties"];
-            NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-            id itemId = [properties objectForKey:@"itemId"];
-            if (itemId != nil) {
-                [eventObject setObject:itemId forKey:@"itemId"];
+        [self fireEditEventWithName:@"delete" andSection:theSection atIndexPath:(NSIndexPath*)indexPath];
+        
+        BOOL emptySection = NO;
+        
+        if ([theSection itemCount] == 0) {
+            emptySection = YES;
+            if (pruneSections) {
+                [self.listViewProxy deleteSectionAtIndex:indexPath.section];
             }
-            [self.proxy fireEvent:eventName withObject:eventObject propagate:NO checkForListener:NO];
-            [eventObject release];
         }
-        [theItem release];
         
-        BOOL asyncDelete = [TiUtils boolValue:[self.proxy valueForKey:@"asyncDelete"] def:NO];
-        if (asyncDelete) {
-            [theSection release];
-            return;
+        BOOL emptyTable = NO;
+        NSUInteger sectionCount = [[self.listViewProxy sectionCount] unsignedIntValue];
+        if ( sectionCount == 0) {
+            emptyTable = YES;
         }
-//        [tableView beginUpdates];
-//        [theSection willRemoveItemAt:indexPath];
-//        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-//        [tableView endUpdates];
-        [theSection deleteItemsAt:@[@(indexPath.row), @(1), @{@"animated":@(YES)}]];
-        [theSection release];
+        
+        //Reload the data now.
+        [tableView beginUpdates];
+        if (emptyTable) {
+            //Table is empty. Just reload fake section with FADE animation to clear out header and footers
+            NSIndexSet *theSet = [NSIndexSet indexSetWithIndex:0];
+            [tableView reloadSections:theSet withRowAnimation:UITableViewRowAnimationFade];
+        } else if (emptySection) {
+            //Section is empty.
+            if (pruneSections) {
+                //Delete the section
+                
+                BOOL needsReload = (indexPath.section < sectionCount);
+                //If this is not the last section we need to set indices for all the sections coming in after this that are visible.
+                //Otherwise the events will not work properly since the indexPath stored in the cell will be incorrect.
+                
+                if (needsReload) {
+                    NSArray* visibleRows = [tableView indexPathsForVisibleRows];
+                    [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
+                        if (vIndexPath.section > indexPath.section) {
+                            //This belongs to the next section. So set the right indexPath otherwise events wont work properly.
+                            NSIndexPath *newIndex = [NSIndexPath indexPathForRow:vIndexPath.row inSection:(vIndexPath.section -1)];
+                            UITableViewCell* theCell = [tableView cellForRowAtIndexPath:vIndexPath];
+                            if ([theCell isKindOfClass:[TiUIListItem class]]) {
+                                ((TiUIListItem*)theCell).proxy.indexPath = newIndex;
+                            }
+                        }
+                    }];
+                }
+                NSIndexSet *deleteSet = [NSIndexSet indexSetWithIndex:indexPath.section];
+                [tableView deleteSections:deleteSet withRowAnimation:UITableViewRowAnimationFade];
+            } else {
+                //Just delete the row. Section stays
+                [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            }
+        } else {
+            //Just delete the row.
+            BOOL needsReload = (indexPath.row < [theSection itemCount]);
+            //If this is not the last row need to set indices for all rows in the section following this row.
+            //Otherwise the events will not work properly since the indexPath stored in the cell will be incorrect.
+            
+            if (needsReload) {
+                NSArray* visibleRows = [tableView indexPathsForVisibleRows];
+                [visibleRows enumerateObjectsUsingBlock:^(NSIndexPath *vIndexPath, NSUInteger idx, BOOL *stop) {
+                    if ( (vIndexPath.section == indexPath.section) && (vIndexPath.row > indexPath.row) ) {
+                        //This belongs to the same section. So set the right indexPath otherwise events wont work properly.
+                        NSIndexPath *newIndex = [NSIndexPath indexPathForRow:(vIndexPath.row - 1) inSection:(vIndexPath.section)];
+                        UITableViewCell* theCell = [tableView cellForRowAtIndexPath:vIndexPath];
+                        if ([theCell isKindOfClass:[TiUIListItem class]]) {
+                            ((TiUIListItem*)theCell).proxy.indexPath = newIndex;
+                        }
+                    }
+                }];
+            }
+            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        
+        }
+        [tableView endUpdates];
+    } else if(editingStyle == UITableViewCellEditingStyleInsert) {
+        [self fireEditEventWithName:@"insert" andSection:theSection atIndexPath:(NSIndexPath*)indexPath];
     }
+    [theSection release];
 }
 
 #pragma mark - Editing Support Delegate Methods.
@@ -1322,9 +1388,11 @@ static NSDictionary* replaceKeysForRow;
     //No support for insert style yet
     if (_editing && [self canEditRowAtIndexPath:indexPath]) {
         return UITableViewCellEditingStyleDelete;
-    } else {
-        return UITableViewCellEditingStyleNone;
+    } else if(_editing && [self canInsertRowAtIndexPath:indexPath] == YES) {
+        return UITableViewCellEditingStyleInsert;
     }
+    
+    return UITableViewCellEditingStyleNone;
 }
 
 - (NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2125,8 +2193,9 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-	// suspend image loader while we're scrolling to improve performance
-	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
+	if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
     [super scrollViewWillBeginDragging:scrollView];
 }
 
@@ -2134,8 +2203,7 @@ static NSDictionary* replaceKeysForRow;
 {
 	if(!decelerate) {
         [self detectSectionChange];
-		if (_scrollSuspendImageLoading) {
-            // resume image loader when we're done scrolling
+		if ([self isLazyLoadingEnabled]) {
             [[ImageLoader sharedLoader] resume];
         }
     }
@@ -2145,22 +2213,26 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-	// resume image loader when we're done scrolling
-	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
+	if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] resume];
+    }
     [self detectSectionChange];
     [super scrollViewDidEndDecelerating:scrollView];
 }
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
-	// suspend image loader while we're scrolling to improve performance
-	if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] suspend];
+	if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] suspend];
+    }
 	return [super scrollViewShouldScrollToTop:scrollView];
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
-    if (_scrollSuspendImageLoading) [[ImageLoader sharedLoader] resume];
+    if ([self isLazyLoadingEnabled]) {
+        [[ImageLoader sharedLoader] resume];
+    }
     return [super scrollViewDidScrollToTop:scrollView];
     //Events none (maybe scroll later)
 }
@@ -2372,6 +2444,12 @@ static NSDictionary* replaceKeysForRow;
 
 #pragma mark - Internal Methods
 
+-(BOOL)isLazyLoadingEnabled
+{
+    return _scrollSuspendImageLoading;
+//    return [TiUtils boolValue: [[self proxy] valueForKey:@"lazyLoadingEnabled"] def:YES];
+}
+
 - (NSMutableDictionary*)EventObjectForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView  atPoint:(CGPoint)point accessoryButtonTapped:(BOOL)accessoryButtonTapped
 {
     TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
@@ -2467,6 +2545,30 @@ static NSDictionary* replaceKeysForRow;
             searchController.delegate = self;
         }
     }
+}
+
+-(void)fireEditEventWithName:(NSString*)name andSection:(TiUIListSectionProxy*)section atIndexPath:(NSIndexPath*)indexPath
+{
+    NSDictionary *theItem = [[section itemAtIndex:indexPath.row] retain];
+
+    //Fire the delete Event if required
+    if ([self.proxy _hasListeners:name]) {
+        
+        NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                            section, @"section",
+                                            NUMINTEGER(indexPath.section), @"sectionIndex",
+                                            NUMINTEGER(indexPath.row), @"itemIndex",
+                                            nil];
+        id propertiesValue = [theItem objectForKey:@"properties"];
+        NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+        id itemId = [properties objectForKey:@"itemId"];
+        if (itemId != nil) {
+            [eventObject setObject:itemId forKey:@"itemId"];
+        }
+        [self.proxy fireEvent:name withObject:eventObject withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+        [eventObject release];
+    }
+    [theItem release];
 }
 
 #pragma mark - UITapGestureRecognizer

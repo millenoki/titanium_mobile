@@ -13,6 +13,7 @@
 
 @implementation TiUISwitch {
     SevenSwitch *switchView;
+	BOOL animated;
 }
 
 -(void)dealloc
@@ -64,6 +65,7 @@
     [super initialize];
     //by default do not mask to bounds to show the thumb shadow
     self.layer.masksToBounds = NO;
+	animated = YES;
 }
 
 #pragma mark View controller stuff
@@ -149,6 +151,12 @@
     [[self switchView] setEnabled:[self interactionEnabled]];
 }
 
+-(void)setAnimated_:(id)value
+{
+	ENSURE_SINGLE_ARG(value, NSNumber)
+	animated = [TiUtils boolValue:value];
+}
+
 -(void)setValue_:(id)value
 {
     // need to check if we're in a reproxy when this is set
@@ -156,7 +164,7 @@
     // animate the change -- this happens on the tableview
     // reproxy as we scroll
     BOOL reproxying = [self.proxy inReproxy];
-    BOOL animated = !reproxying && [[self viewProxy] viewInitialized];
+    BOOL animated = !reproxying && animated && [[self viewProxy] viewInitialized];
     
     
     BOOL newValue = [TiUtils boolValue:value];

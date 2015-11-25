@@ -67,20 +67,21 @@ public class TiUIPagerTabStrip extends TiUIView {
     
     protected int fillLayout(String key, Object value, boolean withMatrix) {
         ViewPager.LayoutParams layoutParams = (ViewPager.LayoutParams) strip.getLayoutParams();
+        String sValue = TiConvert.toString(value);
         switch (key) {
         case TiC.PROPERTY_WIDTH:
-            if (value == null || value.equals(TiC.LAYOUT_FILL)) {
+            if (value == null || TiC.LAYOUT_FILL.equalsIgnoreCase(sValue)) {
                 layoutParams.width = ViewPager.LayoutParams.MATCH_PARENT;
-            } else if (value.equals(TiC.SIZE_AUTO) || value.equals(TiC.LAYOUT_SIZE)) {
+            } else if (TiC.SIZE_AUTO.equalsIgnoreCase(sValue) || TiC.LAYOUT_SIZE.equalsIgnoreCase(sValue)) {
                 layoutParams.width = ViewPager.LayoutParams.WRAP_CONTENT;
             } else  {
                 layoutParams.width = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH).getAsPixels((View) strip.getParent());
             }
             return TiUIView.TIFLAG_NEEDS_LAYOUT;
         case TiC.PROPERTY_HEIGHT:
-            if (value == null || value.equals(TiC.LAYOUT_FILL)) {
+            if (value == null || TiC.LAYOUT_FILL.equalsIgnoreCase(sValue)) {
                 layoutParams.height = ViewPager.LayoutParams.MATCH_PARENT;
-            } else if (value.equals(TiC.SIZE_AUTO) || value.equals(TiC.LAYOUT_SIZE)) {
+            } else if (TiC.SIZE_AUTO.equalsIgnoreCase(sValue) || TiC.LAYOUT_SIZE.equalsIgnoreCase(sValue)) {
                 layoutParams.height = ViewPager.LayoutParams.WRAP_CONTENT;
             } else {
                 layoutParams.height = TiConvert.toTiDimension(value, TiDimension.TYPE_HEIGHT).getAsPixels((View) strip.getParent());

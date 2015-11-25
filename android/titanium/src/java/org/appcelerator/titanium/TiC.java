@@ -631,6 +631,14 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String PROPERTY_ENTER_TRANSITION = "activityEnterTransition";
+	public static final String PROPERTY_EXIT_TRANSITION = "activityExitTransition";
+	public static final String PROPERTY_RETURN_TRANSITION = "activityReturnTransition";
+	public static final String PROPERTY_REENTER_TRANSITION = "activityReenterTransition";
+	public static final String PROPERTY_SHARED_ELEMENT_ENTER_TRANSITION = "activitySharedElementEnterTransition";
+	public static final String PROPERTY_SHARED_ELEMENT_EXIT_TRANSITION = "activitySharedElementExitTransition";
+	public static final String PROPERTY_SHARED_ELEMENT_REENTER_TRANSITION = "activitySharedElementReenterTransition";
+	public static final String PROPERTY_SHARED_ELEMENT_RETURN_TRANSITION = "activitySharedElementReturnTransition";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
@@ -641,10 +649,10 @@ public class TiC
 	public static final String INTENT_PROPERTY_ON_BOOT = "onBoot";
 	public static final String INTENT_PROPERTY_USE_ACTIVITY_WINDOW = "useActivityWindow";
 	public static final String INTENT_PROPERTY_WINDOW_ID = "windowId";
-	public static final String LAYOUT_FILL = "FILL";
+	public static final String LAYOUT_FILL = "fill";
 	public static final String LAYOUT_HORIZONTAL = "horizontal";
-    public static final String LAYOUT_SIZE = "SIZE";
-    public static final String LAYOUT_MATCH = "MATCH";
+    public static final String LAYOUT_SIZE = "size";
+    public static final String LAYOUT_MATCH = "match";
 	public static final String LAYOUT_VERTICAL = "vertical";
 	public static final String MSG_PROPERTY_EVENT_NAME = "eventName";
 	public static final String MSG_PROPERTY_FILENAME = "filename";
@@ -1000,6 +1008,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BACKGROUND_SELECTED_INNERSHADOWS = "backgroundSelectedInnerShadows";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_TRANSITION_NAME = "transitionName";
 	
 	/**
 	 * @module.api

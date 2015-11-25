@@ -951,6 +951,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 
 #pragma mark Handoff Delegates
 
+#if defined(USE_TI_APPIOSUSERACTIVITY) || defined (USE_TI_APPIOSSEARCHABLEINDEX)
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity
  restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
 {
@@ -989,6 +990,7 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     
     return YES;
 }
+#endif
 
 #pragma mark Push Notification Delegates
 

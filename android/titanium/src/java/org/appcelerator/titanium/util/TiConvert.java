@@ -239,30 +239,32 @@ public class TiConvert
             layoutParams.weight = toFloat(value, 1.0f);
             return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_WIDTH:
+        {
+            String sValue = TiConvert.toString(value);
             if (value == null) {
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = false;
 
-            }else if (TiC.LAYOUT_FILL.equalsIgnoreCase(TiConvert.toString(value))) {
+            }else if (TiC.LAYOUT_FILL.equalsIgnoreCase(sValue)) {
                 // fill
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = true;
                 layoutParams.autoFillsWidth = true;
                 layoutParams.width = LayoutParams.MATCH_PARENT;
 
-            } else if (TiC.LAYOUT_SIZE.equalsIgnoreCase(TiConvert.toString(value))) {
+            } else if (TiC.LAYOUT_SIZE.equalsIgnoreCase(sValue)) {
                 // size
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = true;
                 layoutParams.autoFillsWidth = false;
                 layoutParams.width = LayoutParams.WRAP_CONTENT;
-            } else if (TiC.LAYOUT_MATCH.equalsIgnoreCase(TiConvert.toString(value))) {
+            } else if (TiC.LAYOUT_MATCH.equalsIgnoreCase(sValue)) {
                 // match
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = false;
                 layoutParams.autoFillsWidth = false;
                 layoutParams.widthMatchHeight = true;
-            } else if (TiC.SIZE_AUTO.equalsIgnoreCase(TiConvert.toString(value))) {
+            } else if (TiC.SIZE_AUTO.equalsIgnoreCase(sValue)) {
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = true;
 
@@ -271,39 +273,42 @@ public class TiConvert
                 layoutParams.sizeOrFillWidthEnabled = false;
             }
             return DEFAULT_FLAG_RETURN;
-        case TiC.PROPERTY_HEIGHT:
+        }
+        case TiC.PROPERTY_HEIGHT: {
+            String sValue = TiConvert.toString(value);
             if (value == null) {
                 layoutParams.optionHeight = null;
                 layoutParams.sizeOrFillHeightEnabled = false;
 
-            } else if (value.equals(TiC.SIZE_AUTO)) {
-                layoutParams.optionHeight = null;
-                layoutParams.sizeOrFillHeightEnabled = true;
-
-            } else if (value.equals(TiC.LAYOUT_FILL)) {
+            }else if (TiC.LAYOUT_FILL.equalsIgnoreCase(sValue)) {
                 // fill
                 layoutParams.optionHeight = null;
                 layoutParams.sizeOrFillHeightEnabled = true;
                 layoutParams.autoFillsHeight = true;
                 layoutParams.height = LayoutParams.MATCH_PARENT;
 
-            } else if (value.equals(TiC.LAYOUT_SIZE)) {
+            } else if (TiC.LAYOUT_SIZE.equals(sValue)) {
                 // size
                 layoutParams.optionHeight = null;
                 layoutParams.sizeOrFillHeightEnabled = true;
                 layoutParams.autoFillsHeight = false;
                 layoutParams.height = LayoutParams.WRAP_CONTENT;
-            } else if (value.equals(TiC.LAYOUT_MATCH)) {
+            } else if (TiC.LAYOUT_MATCH.equalsIgnoreCase(sValue)) {
                 // size
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = false;
                 layoutParams.autoFillsWidth = false;
                 layoutParams.heightMatchWidth = true;
+            } else if (TiC.SIZE_AUTO.equalsIgnoreCase(sValue)) {
+                layoutParams.optionHeight = null;
+                layoutParams.sizeOrFillHeightEnabled = true;
+
             } else {
                 layoutParams.optionHeight = toTiDimension(value, TiDimension.TYPE_HEIGHT);
                 layoutParams.sizeOrFillHeightEnabled = false;
             }
             return DEFAULT_FLAG_RETURN;
+        }
         case TiC.PROPERTY_ZINDEX:
             layoutParams.optionZIndex = toInt(value, 0);
             return DEFAULT_FLAG_RETURN | TiUIView.TIFLAG_NEEDS_LAYOUT_INFORMPARENT;

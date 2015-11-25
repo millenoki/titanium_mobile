@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -116,29 +116,34 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static TiMessenger getRuntimeMessenger()
 	{
+		if (KrollRuntime.getInstance().getKrollApplication().runOnMainThread()) {
+			return getMainMessenger();
+		}
 		return runtimeMessenger;
 	}
 
 	public static void postOnMain(Runnable runnable)
 	{
-		if (mainMessenger == null) {
+		TiMessenger messenger = getMainMessenger();
+		if (messenger == null) {
 			Log.w(TAG, "Unable to post runnable on main thread, main messenger is null");
 
 			return;
 		}
 
-		mainMessenger.handler.post(runnable);
+		messenger.handler.post(runnable);
 	}
 
 	public static void postOnRuntime(Runnable runnable)
 	{
-		if (runtimeMessenger == null) {
+		TiMessenger messenger = getRuntimeMessenger();
+		if (messenger == null) {
 			Log.w(TAG, "Unable to post runnable on runtime thread, runtime messenger is null");
 
 			return;
 		}
 
-		runtimeMessenger.handler.post(runnable);
+		messenger.handler.post(runnable);
 	}
 
 	/**
@@ -151,7 +156,7 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingMainMessage(Message message)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, mainMessenger, null, -1);
+		return threadLocalMessenger.get().sendBlockingMessage(message, getMainMessenger(), null, -1);
 	}
 
 	/**
@@ -165,7 +170,7 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingMainMessage(Message message, Object asyncArg)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, mainMessenger, asyncArg, -1);
+		return threadLocalMessenger.get().sendBlockingMessage(message, getMainMessenger(), asyncArg, -1);
 	}
 	
 	public static Object sendBlockingMainCommand(Command command)
@@ -197,7 +202,7 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, runtimeMessenger, null, -1);
+		return threadLocalMessenger.get().sendBlockingMessage(message, getRuntimeMessenger(), null, -1);
 	}
 
 	/**
@@ -211,7 +216,7 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, runtimeMessenger, asyncArg, -1);
+		return threadLocalMessenger.get().sendBlockingMessage(message, getRuntimeMessenger(), asyncArg, -1);
 	}
 
 	/**
@@ -227,7 +232,7 @@ public class TiMessenger implements Handler.Callback
 	 */
 	public static Object sendBlockingRuntimeMessage(Message message, Object asyncArg, long maxTimeout)
 	{
-		return threadLocalMessenger.get().sendBlockingMessage(message, runtimeMessenger, asyncArg, maxTimeout);
+		return threadLocalMessenger.get().sendBlockingMessage(message, getRuntimeMessenger(), asyncArg, maxTimeout);
 	}
 
 
@@ -472,4 +477,3 @@ public class TiMessenger implements Handler.Callback
 		return false;
 	}
 }
-

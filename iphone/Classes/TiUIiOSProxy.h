@@ -30,8 +30,17 @@
 @property (nonatomic,readonly) NSNumber* PREVIEW_ACTION_STYLE_SELECTED;
 #endif
 
+#ifdef USE_TI_UIIOSMENUPOPUP
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_UP;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DOWN;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_LEFT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_RIGHT;
+@property (nonatomic,readonly) NSNumber* MENU_POPUP_ARROW_DIRECTION_DEFAULT;
+#endif
+
 @property(nonatomic,readonly) NSNumber *ACTIVITY_CATEGORY_SHARE;
 @property(nonatomic,readonly) NSNumber *ACTIVITY_CATEGORY_ACTION;
+
 
 @property(nonatomic,readonly) NSString *ACTIVITY_TYPE_FACEBOOK;
 @property(nonatomic,readonly) NSString *ACTIVITY_TYPE_TWITTER;
@@ -119,6 +128,9 @@
 -(id)createPreviewAction:(id)args;
 -(id)createPreviewActionGroup:(id)args;
 -(id)createPreviewContext:(id)args;
+#endif
+#ifdef USE_TI_UIIOSMENUPOPUP
+-(id)createMenuPopup:(id)args;
 #endif
 #endif
 
