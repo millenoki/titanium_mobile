@@ -7333,7 +7333,7 @@ function windowLevelTest() {
 	win.open();
 }
 Ti.App.on('significanttimechange', sdebug);
-animationBugEx();
+// animationBugEx();
 // setTimeout(windowLevelTest, 1000);
 // scrollableViewTest();
 // var indexer = Ti.App.iOS.createSearchableIndex();
