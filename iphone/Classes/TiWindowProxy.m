@@ -168,7 +168,7 @@
     }
     [super windowDidOpen];
     FORGET_AND_RELEASE_WITH_DELEGATE(openAnimation);
-    if (!_useCustomUIWindow && tab == nil && (self.isManaged == NO) && controller == nil) {
+    if (!_useCustomUIWindow && tab == nil && (self.isManaged == NO)) {
         [[[[TiApp app] controller] topContainerController] didOpenWindow:self];
     }
 }
@@ -176,7 +176,7 @@
 -(void) windowWillClose
 {
 //    [self viewWillDisappear:false];
-    if (!_useCustomUIWindow && tab == nil && (self.isManaged == NO) && controller == nil) {
+    if (!_useCustomUIWindow && tab == nil && (self.isManaged == NO)) {
         [[[[TiApp app] controller] topContainerController] willCloseWindow:self];
     }
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -199,7 +199,7 @@
     [self fireEvent:@"close" propagate:NO];
     [[NSNotificationCenter defaultCenter] removeObserver:self]; //just to be sure
     FORGET_AND_RELEASE_WITH_DELEGATE(closeAnimation);
-    if (tab == nil && (self.isManaged == NO) && controller == nil) {
+    if (tab == nil && (self.isManaged == NO)) {
         [[[[TiApp app] controller] topContainerController] didCloseWindow:self];
     }
     tab = nil;
