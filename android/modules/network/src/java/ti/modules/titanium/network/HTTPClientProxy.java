@@ -73,6 +73,11 @@ public class HTTPClientProxy extends KrollProxy
 			client.setAutoEncodeUrl(TiConvert.toBoolean((getProperty(TiC.PROPERTY_AUTO_ENCODE_URL)),true));
 		}
 		
+		
+		if (hasProperty("headers")) {
+            setHeaders((HashMap<String, Object>) getProperty("headers"));
+        }
+		
 		//Set the securityManager on the client if it is defined as a valid value
 		if (hasProperty(PROPERTY_SECURITY_MANAGER)) {
 			Object prop = getProperty(PROPERTY_SECURITY_MANAGER);
