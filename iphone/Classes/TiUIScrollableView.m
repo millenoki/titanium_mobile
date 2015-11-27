@@ -536,9 +536,9 @@
 {
     ENSURE_SINGLE_ARG(args, NSNumber);
     int newCacheSize = [args intValue];
-    if (newCacheSize < 3) {
+    if (newCacheSize < 1) {
         // WHAT.  Let's make it something sensible.
-        newCacheSize = 3;
+        newCacheSize = 1;
     }
     if (newCacheSize % 2 == 0) {
         DebugLog(@"[WARN] Even scrollable cache size %d; setting to %d", newCacheSize, newCacheSize-1);

@@ -590,9 +590,9 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
             break;
         case TiC.PROPERTY_CACHE_SIZE:
             cacheSize = TiConvert.toInt(newValue);
-            if (cacheSize < 3) {
+            if (cacheSize < 1) {
                 // WHAT.  Let's make it something sensible.
-                cacheSize = 3;
+                cacheSize = 1;
             }
             updateCacheSize();
             break;
