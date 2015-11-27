@@ -360,7 +360,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
         }
 
         return d;
-//		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETRECT), getActivity());
 	}
 	
 	@Kroll.getProperty(enumerable=false) @Kroll.method
@@ -456,7 +455,6 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
             d.put(TiC.PROPERTY_HEIGHT, 0);
         }
         return d;
-//		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETSIZE), getActivity());
 	}
 
 //	@Kroll.getProperty @Kroll.method
