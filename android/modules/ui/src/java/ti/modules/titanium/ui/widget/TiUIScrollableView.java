@@ -515,13 +515,13 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	}
 
 	private void updateCacheSize() {
-//		if (cacheSize >= mViews.size()) {
-//			mPager.setOffscreenPageLimit(cacheSize);
-//			return;
-//		}
+		if (mViews.size() == 0) {
+			return;
+		}
+	    final int currentIndex = Math.max(mCurIndex, 0);
 		int realCache = (int) Math.floor(cacheSize/2); //floored
-		int rangeStart = mCurIndex - realCache;
-		int rangeEnd = mCurIndex + realCache;
+		int rangeStart = currentIndex - realCache;
+		int rangeEnd = currentIndex + realCache;
 		if (rangeStart < 0)
 			realCache -= rangeStart;
 		if (rangeEnd > (mViews.size() - 1))
