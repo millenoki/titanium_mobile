@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
@@ -116,7 +118,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     private boolean bubbleParentDefined = false;
     private WeakReference<TiViewEventOverrideDelegate> eventOverrideDelegate = null;
 
-    private List<String> mSyncEvents;
+    private Set<String> mSyncEvents;
 
     private HashMap<String, Object> propertiesToUpdateNativeSide = null;
     private boolean readyToUpdateNativeSideProperties = false;
@@ -2204,15 +2206,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public void addSyncEvent(final String event) {
         if (mSyncEvents == null) {
-            mSyncEvents = new ArrayList<String>();
+            mSyncEvents = new HashSet<String>();
         }
-        if (!mSyncEvents.contains(event)) {
-            mSyncEvents.add(event);
-        }
+        mSyncEvents.add(event);
     }
 
     public void setSyncEvents(final String[] events) {
-        mSyncEvents = Arrays.asList(events);
+        mSyncEvents = new HashSet<String>(Arrays.asList(events));
     }
 
     public void removeSyncEvent(final String event) {
