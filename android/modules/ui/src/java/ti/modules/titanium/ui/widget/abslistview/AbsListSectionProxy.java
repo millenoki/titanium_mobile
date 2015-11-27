@@ -19,6 +19,7 @@ import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.AnimatableReusableProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -338,20 +339,125 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             }
         }, true);
 	}
-
+	
 	@Kroll.method
-	public void updateItemAt(final int index, final Object data, @Kroll.argument(optional=true) final Object options) {
-		if (!isIndexValid(index) || !(data instanceof HashMap)) {
-			return;
-		}
-		runInUiThread(new CommandNoReturn() {
-            
-            @Override
-            public void execute() {
-                handleUpdateItemAt(index, data, options);                
+    public void updateItems(final Object data,
+            @Kroll.argument(optional = true) final Object options) {
+        if (!(data instanceof Object[])) {
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            runInUiThread(new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    updateItems(data, options);
+                }
+            }, true);
+            return;
+        }
+        Object[] updates = (Object[]) data;
+        if (itemProperties == null || updates.length != itemProperties.length) {
+            return;
+        }
+        TiAbsListView listView = getListView();
+        int i;
+        HashMap item;
+        HashMap update;
+        View content;
+        boolean visible;
+        for (i = 0; i < itemProperties.length; i++) {
+            item = (HashMap) itemProperties[i];
+            update = (HashMap) updates[i];
+            KrollDict.merge(item, update, false);
+            content = listView.getCellAt(this.sectionIndex, i);
+            visible = isItemVisible(item);
+            hiddenItems.set(i, !visible);
+
+            if (content != null && visible) {
+                TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content
+                        .findViewById(TiAbsListView.listContentId);
+                if (listItem != null) {
+                    if (listItem.getItemIndex() == i) {
+                        TiAbsListViewTemplate template = getListView()
+                                .getTemplate(TiConvert.toString(item,
+                                        TiC.PROPERTY_TEMPLATE));
+                        populateViews(item, listItem, template,
+                                getUserItemInversedIndexFromSectionPosition(i),
+                                this.sectionIndex, content, false);
+                    }
+                }
             }
-        }, true);
-	}
+        }
+        notifyDataChange();
+    }
+	
+	@Kroll.method
+    public void updateItemAt(final int index, final Object data,
+            @Kroll.argument(optional = true) final Object options) {
+        if (!isIndexValid(index) || !(data instanceof HashMap)) {
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+            runInUiThread(new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    updateItemAt(index, data, options);
+                }
+            }, true);
+            return;
+        }
+        if (itemProperties == null) {
+            return;
+        }
+        // int nonRealItemIndex = itemIndex;
+        if (index < 0 || index > itemProperties.length - 1) {
+            return;
+        }
+        // if (hasHeader()) {
+        // nonRealItemIndex += 1;
+        // }
+
+        TiAbsListView listView = getListView();
+
+        HashMap currentItem = KrollDict.merge((HashMap) itemProperties[index],
+                (HashMap) (data));
+        if (currentItem == null)
+            return;
+        itemProperties[index] = currentItem;
+        // only process items when listview's properties is processed.
+        if (listView == null) {
+            preload = true;
+            return;
+        }
+        View content = listView.getCellAt(this.sectionIndex, index);
+        // KrollDict d = new KrollDict(currentItem);
+        // AbsListItemData itemD = listItemData.get(itemIndex);
+        // itemD.setProperties(d);
+        // listItemData.set(index, itemD);
+        boolean visible = isItemVisible(currentItem);
+        hiddenItems.set(index, !visible);
+
+        if (content != null && visible) {
+            TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content
+                    .findViewById(TiAbsListView.listContentId);
+            if (listItem != null) {
+                if (listItem.getItemIndex() == index) {
+                    TiAbsListViewTemplate template = getListView()
+                            .getTemplate(TiConvert.toString(currentItem,
+                                    TiC.PROPERTY_TEMPLATE));
+                    populateViews(currentItem, listItem, template,
+                            getUserItemInversedIndexFromSectionPosition(index),
+                            this.sectionIndex, content, false);
+                } else {
+                    Log.d(TAG, "wrong item index", Log.DEBUG_MODE);
+                }
+                return;
+            }
+        }
+        notifyDataChange();
+    }
+	
+	
 	
 	public void updateItemAt(final int index, final String binding, final String key, final Object value) {
 	    if (index < 0 || index >= mItemCount) {
@@ -553,52 +659,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
 	}
 	
-	private void handleUpdateItemAt(int itemIndex, Object data, Object options) {
-	    if (itemProperties == null) {
-	        return;
-	    }
-//	    int nonRealItemIndex = itemIndex;
-	    if (itemIndex < 0 || itemIndex > itemProperties.length - 1) {
-	        return;
-	    }
-//	    if (hasHeader()) {
-//	        nonRealItemIndex += 1;
-//	    }
-	    
-	    TiAbsListView listView = getListView();
-        
-	    KrollDict currentItem = KrollDict.merge((HashMap)itemProperties[itemIndex], (HashMap)(data));
-	    if (currentItem == null) return;
-	    itemProperties[itemIndex] = currentItem;
-	    // only process items when listview's properties is processed.
-        if (listView == null) {
-            preload = true;
-            return;
-        }
-        View content = listView.getCellAt(this.sectionIndex, itemIndex);
-//        KrollDict d = new KrollDict(currentItem);
-//        AbsListItemData itemD = listItemData.get(itemIndex);
-//        itemD.setProperties(d);
-//        listItemData.set(index, itemD);
-        boolean visible = isItemVisible(currentItem);
-        hiddenItems.set(itemIndex, !visible);
-        
-        if (content != null && visible) {
-            TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content.findViewById(TiAbsListView.listContentId);
-            if (listItem != null) {
-                if (listItem.getItemIndex() == itemIndex) {
-                    TiAbsListViewTemplate template = getListView().getTemplate(currentItem.getString(TiC.PROPERTY_TEMPLATE));
-                    populateViews(currentItem, listItem, template, getUserItemInversedIndexFromSectionPosition(itemIndex), this.sectionIndex, content, false);
-                }
-                else {
-                    Log.d(TAG, "wrong item index", Log.DEBUG_MODE);
-                }
-                return;
-            }
-        }
-        notifyDataChange();
-    }
-
 	private boolean deleteItemsData(int index, int count) {
 		boolean delete = false;
 		
