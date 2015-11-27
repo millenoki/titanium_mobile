@@ -32,9 +32,9 @@ fi
 
 THIS_DIR=$(cd "$(dirname "$0")"; pwd)
 
-ARGS=
+ARGS="$@"
 if [ "$NUM_CPUS" != "" ]; then
-	ARGS="-j $NUM_CPUS"
+	ARGS="-j $NUM_CPUS $ARGS"
 fi
 
 "$ANDROID_NDK/ndk-build" \
