@@ -69,8 +69,9 @@ Object.defineProperty(EventEmitter.prototype, "callHandler", {
 	enumerable: false
 });
 
-Object.defineProperty(EventEmitter.prototype, "emit", {
+Object.defineProperty(EventEmitter.prototype, "_emit", {
 	value: function(type) {
+//		kroll.log(TAG, "_emit event: type:" + type);
 		var handled = false,
 			data = arguments[1],
 			handler,
@@ -119,13 +120,19 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 
 // Titanium compatibility
 Object.defineProperty(EventEmitter.prototype, "fireEvent", {
-	value: EventEmitter.prototype.emit,
+	value: EventEmitter.prototype._emit,
+	enumerable: false,
+	writable: true
+});
+
+Object.defineProperty(EventEmitter.prototype, "emit", {
+	value: EventEmitter.prototype._emit,
 	enumerable: false,
 	writable: true
 });
 
 Object.defineProperty(EventEmitter.prototype, "fireSyncEvent", {
-	value: EventEmitter.prototype.emit,
+	value: EventEmitter.prototype._emit,
 	enumerable: false
 });
 

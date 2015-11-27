@@ -45,7 +45,7 @@ void EventEmitter::initTemplate()
 	constructorTemplate->SetClassName(String::NewSymbol("EventEmitter"));
 
 	eventsSymbol = SYMBOL_LITERAL("_events");
-	emitSymbol = SYMBOL_LITERAL("emit");
+	emitSymbol = SYMBOL_LITERAL("_emit");
 }
 
 void EventEmitter::dispose()

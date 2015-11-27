@@ -1022,6 +1022,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             @Kroll.argument(optional = true) Object data) {
         return fireEvent(event, data, false, true);
     }
+    
+    //alias
+    @Kroll.method
+    public boolean emit(String event,
+            @Kroll.argument(optional = true) Object data) {
+        return fireEvent(event, data);
+    }
 
     /**
      * Send an event to the view who is next to receive the event.
