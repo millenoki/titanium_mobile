@@ -355,7 +355,7 @@ public class MenuProxy extends KrollProxy
 		return menu.size();
 	}
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public MenuItemProxy[] getItems() {
 		int len = menu.size();
 		MenuItemProxy[] proxies = new MenuItemProxy[len];

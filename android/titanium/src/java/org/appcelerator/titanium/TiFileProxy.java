@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -124,13 +123,13 @@ public class TiFileProxy extends KrollProxy
 		return tbf.isDirectory();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getReadonly()
 	{
 		return tbf.isReadonly();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getWritable()
 	{
 		return tbf.isWriteable();
@@ -183,25 +182,25 @@ public class TiFileProxy extends KrollProxy
 		return tbf.extension();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getSymbolicLink()
 	{
 		return tbf.isSymbolicLink();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getExecutable()
 	{
 		return tbf.isExecutable();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getHidden()
 	{
 		return tbf.isHidden();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public String[] getDirectoryListing()
 	{
 		List<String> dl = tbf.getDirectoryListing();
@@ -212,7 +211,7 @@ public class TiFileProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public TiFileProxy getParent()
 	{
 		TiBaseFile bf = tbf.getParent();
@@ -264,7 +263,7 @@ public class TiFileProxy extends KrollProxy
 		return getNativePath();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public double getSize()
 	{
 		return tbf.size();

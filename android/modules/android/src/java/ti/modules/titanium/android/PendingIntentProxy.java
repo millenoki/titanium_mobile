@@ -22,9 +22,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 
 @Kroll.proxy(creatableInModule=AndroidModule.class, propertyAccessors = {
-	TiC.PROPERTY_FLAGS,
-	TiC.PROPERTY_INTENT,
-	TiC.PROPERTY_UPDATE_CURRENT_INTENT
+        TiC.PROPERTY_FLAGS,
+        TiC.PROPERTY_UPDATE_CURRENT_INTENT
+    }, propertyDontEnumAccessors = {
+        TiC.PROPERTY_INTENT
 })
 public class PendingIntentProxy extends KrollProxy 
 {

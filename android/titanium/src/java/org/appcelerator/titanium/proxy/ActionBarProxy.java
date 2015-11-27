@@ -294,7 +294,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
     }
 
     @Kroll.method
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     public double getHeight() {
         return getInUiThread(new Command<Double>() {
             public Double execute() {
@@ -306,7 +306,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
     }
 
     @Kroll.method
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     public int getNavigationMode() {
         return getInUiThread(new Command<Integer>() {
             public Integer execute() {

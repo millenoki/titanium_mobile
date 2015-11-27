@@ -302,7 +302,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	@Kroll.method(name="getTab")
-	@Kroll.getProperty(name="tab")
+	@Kroll.getProperty(name="tab",enumerable=false)
 	public TiViewProxy getTabProxy()
 	{
 		return this.tab;
@@ -316,7 +316,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	@Kroll.method(name="getTabGroup")
-	@Kroll.getProperty(name="tabGroup")
+	@Kroll.getProperty(name="tabGroup",enumerable=false)
 	public TiViewProxy getTabGroupProxy()
 	{
 		return this.tabGroup;
@@ -517,7 +517,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	// Expose the method and property here, instead of in KrollProxy
-	@Kroll.method(name = "getActivity") @Kroll.getProperty(name = "_internalActivity")
+	@Kroll.method(name = "getActivity") @Kroll.getProperty(name = "_internalActivity", enumerable=false)
 	public ActivityProxy getActivityProxy()
 	{
 		return super.getActivityProxy();
@@ -534,7 +534,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 	
     @Kroll.method
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     public double getBarHeight() {
         return TiActivityHelper.getActionBarHeight(getActivity());
     }
@@ -588,7 +588,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		fireEvent(TiC.EVENT_OPEN, null, false);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public int getOrientation()
 	{
 		Activity activity = getActivity();
@@ -607,7 +607,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return TiOrientationHelper.ORIENTATION_UNKNOWN;
 	}
 	
-	   @Kroll.method @Kroll.getProperty
+	   @Kroll.method @Kroll.getProperty(enumerable=false)
 	    public ActionBarProxy getActionBar()
 	    {
 	       ActivityProxy activityProxy = super.getActivityProxy();

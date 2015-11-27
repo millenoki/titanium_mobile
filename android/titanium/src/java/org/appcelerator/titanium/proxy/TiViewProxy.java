@@ -331,7 +331,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	}
 	*/
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public KrollDict getRect()
 	{
 	    if (!TiApplication.isUIThread()) {
@@ -363,7 +363,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 //		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETRECT), getActivity());
 	}
 	
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public KrollDict getAbsoluteRect()
 	{
 	    if (!TiApplication.isUIThread()) {
@@ -424,7 +424,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
         return d;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public KrollDict getSize()
 	{
 	    if (!TiApplication.isUIThread()) {
@@ -1155,16 +1155,16 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 //		extend(options);
 //	}
 
-	@Kroll.method @Kroll.getProperty
-	public boolean getKeepScreenOn()
-	{
-        View nv = getNativeView();
-        if (nv != null) {
-            return nv.getKeepScreenOn();
-        }
-
-        return false;// Android default
-	}
+//	@Kroll.method @Kroll.getProperty
+//	public boolean getKeepScreenOn()
+//	{
+//        View nv = getNativeView();
+//        if (nv != null) {
+//            return nv.getKeepScreenOn();
+//        }
+//
+//        return false;// Android default
+//	}
 
 //	@Kroll.method @Kroll.setProperty(retain=false)
 //	public void setKeepScreenOn(boolean keepScreenOn)

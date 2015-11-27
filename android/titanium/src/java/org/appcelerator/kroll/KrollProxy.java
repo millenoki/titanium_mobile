@@ -55,7 +55,9 @@ import org.json.JSONObject;
  * "http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html"
  * >Titanium.UI.createView </a>, the view object is a proxy itself.
  */
-@Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
+@Kroll.proxy(name = "KrollProxy", propertyAccessors = {
+        TiC.PROPERTY_BUBBLE_PARENT }, propertyDontEnumAccessors = {
+                KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecycleEvent {
     public static interface SetPropertyChangeListener {
@@ -979,17 +981,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         getKrollObject().updateNativeProperties(props);
     }
 
-    @Kroll.getProperty
-    @Kroll.method
-    public boolean getBubbleParent() {
-        return bubbleParent;
-    }
-
-    @Kroll.setProperty
-    @Kroll.method
-    public void setBubbleParent(Object value) {
-        bubbleParent = TiConvert.toBoolean(value);
-    }
+//    @Kroll.getProperty
+//    @Kroll.method
+//    public boolean getBubbleParent() {
+//        return bubbleParent;
+//    }
+//
+//    @Kroll.setProperty
+//    @Kroll.method
+//    public void setBubbleParent(Object value) {
+//        bubbleParent = TiConvert.toBoolean(value);
+//    }
 
     /**
      * Fires an event asynchronously via KrollRuntime thread, which can be
@@ -2023,7 +2025,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     // For subclasses to override
     @Kroll.method
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     public String getApiName() {
         return "Ti.Proxy";
     }

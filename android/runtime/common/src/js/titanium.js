@@ -294,7 +294,6 @@ Titanium.bindInvocationAPIs = function(wrapperTi, scopeVars) {
 
 Titanium.Proxy = Proxy;
 
-var nonEnumeratableProps = ["activity", "window", "intent", "parent", "hexString", "byteArray"];
 Proxy.defineProperties = function(proxyPrototype, names) {
 	var properties = {};
 	var len = names.length;
@@ -308,7 +307,7 @@ Proxy.defineProperties = function(proxyPrototype, names) {
 			set: function(value) {
 				this.setPropertyAndFire(name, value);
 			},
-			enumerable: nonEnumeratableProps.indexOf(name) === -1
+			enumerable: true
 		};
 	}
 
@@ -340,6 +339,7 @@ Object.defineProperty(Proxy.prototype, "setProperty", {
 Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 	value: function(properties) {
 		var ownNames = Object.getOwnPropertyNames(properties);
+		kroll.log(TAG, "setPropertiesAndFire: "+ ownNames);
 		var len = ownNames.length;
 		var changes = [];
 
@@ -367,6 +367,16 @@ Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 // Custom native modules
 bootstrap.defineLazyBinding(Titanium, "API");
 
+function diffArray(a, b) {
+	  var seen = [], diff = [];
+	  for ( var i = 0; i < b.length; i++)
+	      seen[b[i]] = true;
+	  for ( var i = 0; i < a.length; i++)
+	      if (!seen[a[i]])
+	          diff.push(a[i]);
+	  return diff;
+	}
+
 // Do not serialize the parent view. Doing so will result
 // in a circular reference loop.
 Object.defineProperty(Proxy.prototype, "toJSON", {
@@ -378,9 +388,6 @@ Object.defineProperty(Proxy.prototype, "toJSON", {
 
 		for (var i = 0; i < keyCount; i++) {
 			k = keys[i];
-			if (nonEnumeratableProps.indexOf(k) !== -1) {
-				continue;
-			}
 			serialized[k] = this[k];
 		}
 

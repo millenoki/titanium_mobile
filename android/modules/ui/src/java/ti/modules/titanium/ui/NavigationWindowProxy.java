@@ -51,11 +51,12 @@ import android.view.ViewGroup;
 @SuppressLint({ "ValidFragment"})
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
 	TiC.PROPERTY_MODAL,
-	TiC.PROPERTY_WINDOW,
-	TiC.PROPERTY_ACTIVITY,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT
-})
+}, propertyDontEnumAccessors={
+        TiC.PROPERTY_WINDOW,
+        TiC.PROPERTY_ACTIVITY,
+    })
 public class NavigationWindowProxy extends WindowProxy implements interceptOnBackPressedEvent, TiWindowManager, interceptOnHomePressedEvent
 {
 	private static final String TAG = "NavigationWindowProxy";

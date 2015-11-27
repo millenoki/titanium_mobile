@@ -379,7 +379,7 @@ public class TiBlob extends KrollProxy {
         }
     }
 
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public int getLength() {
         switch (type) {
@@ -466,7 +466,7 @@ public class TiBlob extends KrollProxy {
         }
     }
 
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public String getText() {
         String result = null;
@@ -501,7 +501,7 @@ public class TiBlob extends KrollProxy {
         return result;
     }
 
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public String getHexString() {
         byte[] bytes = getBytes();
@@ -511,7 +511,7 @@ public class TiBlob extends KrollProxy {
         return null;
     }
     
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public Number[] getByteArray() {
         byte[] bytes = getBytes();

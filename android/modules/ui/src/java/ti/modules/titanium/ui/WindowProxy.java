@@ -57,13 +57,14 @@ import android.view.Window;
 import android.view.WindowManager;
 
 @Kroll.proxy(creatableInModule=UIModule.class, propertyAccessors={
-	TiC.PROPERTY_MODAL,
-    TiC.PROPERTY_ACTIVITY,
     TiC.PROPERTY_DISPLAY_HOME_AS_UP,
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
 	TiC.PROPERTY_FLAG_SECURE
-})
+}, propertyDontEnumAccessors={
+        TiC.PROPERTY_WINDOW,
+        TiC.PROPERTY_ACTIVITY,
+    })
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "WindowProxy";
