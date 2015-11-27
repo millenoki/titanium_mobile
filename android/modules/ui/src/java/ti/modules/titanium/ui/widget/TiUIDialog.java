@@ -26,14 +26,10 @@ import android.support.v7.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AlertDialog.Builder;
 import android.widget.ListView;
 import android.widget.Button;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewParent;
-import android.text.Html;
 
 public class TiUIDialog extends TiUIView
 {
