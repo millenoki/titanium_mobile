@@ -224,7 +224,16 @@ public @interface Kroll
 		 * @module.api
 		 */
 		String[] propertyAccessors() default {};
-		
+		/**
+         * Declares a list of dynamic non enumerable property accessors for this module.<br>
+         * <b>Example</b>:<br>
+         * <pre>
+         * &#064;Kroll.module(propertyAccessors={"property1", "property2", "property3"})
+         * </pre>
+         * @default No dynamic property accessors are generated
+         * @module.api
+         */
+        String[] propertyDontEnumAccessors() default {};
 		/**
          * <p>When set to false, the module won't be seen as an instantiable module. Useful for inheritance</p>
          * @module.api
@@ -275,7 +284,8 @@ public @interface Kroll
 	 * and {@link argument#optional() optional arguments} when they are also exposed as {@link method methods}</p>
 	 * 
 	 * @see getProperty#name()
-	 * @see getProperty#runOnUiThread()
+     * @see getProperty#runOnUiThread()
+     * @see getProperty#enumerable()
 	 * @see org.appcelerator.kroll.KrollInvocation
 	 * @see method @Kroll.method
 	 * @see argument#optional()
@@ -295,6 +305,7 @@ public @interface Kroll
 		 * When set to true, this property getter will only be executed on the UI thread.<br>
 		 */
 		boolean runOnUiThread() default false;
+        boolean enumerable() default true;
 	}
 
 	/**
@@ -346,6 +357,7 @@ public @interface Kroll
 	 * @see proxy#name()
 	 * @see proxy#creatableInModule()
 	 * @see proxy#propertyAccessors()
+	 * @see proxy#propertyDontEnumAccessors()
 	 * @see org.appcelerator.kroll.KrollProxy
 	 * @see module @Kroll.module
 	 * </p>
@@ -384,6 +396,17 @@ public @interface Kroll
 		 * @module.api
 		 */
 		String[] propertyAccessors() default {};
+		/**
+         * Declares a list of dynamic property accessors  non enumerable for this proxy.<br>
+         * <b>Example</b>:<br>
+         * <pre>
+         * &#064;Kroll.proxy(propertyAccessors={"property1", "property2", "property3"})
+         * </pre>
+         * @default No dynamic property accessors are generated
+         * @module.api
+         */
+        String[] propertyDontEnumAccessors() default {};
+        
 		/**
 		 * Specify the parent module / namespace for this proxy (if you want this proxy to be expose via "create",
 		 * use {@link proxy#creatableInModule()} instead)

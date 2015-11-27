@@ -511,6 +511,10 @@ public class KrollJSONGenerator extends AbstractProcessor {
 				dynamicProperty.put("name", defaultName);
 				name = defaultName;
 			}
+			boolean enumerable = true;
+			if (dynamicProperty.containsKey("enumerable")) {
+				enumerable = (Boolean)dynamicProperty.get("enumerable");
+			}
 
 			if (dynamicProperties.containsKey(name)) {
 				dynamicProperty = (Map<Object,Object>) dynamicProperties.get(name);
@@ -526,6 +530,7 @@ public class KrollJSONGenerator extends AbstractProcessor {
 				dynamicProperty.put("converter", KrollConverter);
 				dynamicProperty.put("defaultValueProvider", KrollConverter);
 			}
+			dynamicProperty.put("enumerable", enumerable);
 
 			ArrayList<Map<Object,Object>> args = new ArrayList<Map<Object,Object>>();
 			for (VariableElement var: element.getParameters()) {

@@ -191,7 +191,13 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 			, ${className}::setter_${name}
 		<#else>
 			, titanium::Proxy::onPropertyChanged
-		</#if>, Handle<Value>(), DEFAULT);
+		</#if>, Handle<Value>(), DEFAULT
+		<#if property.enumerable>
+			, None
+		<#else>
+			, DontEnum
+		</#if>
+		);
 	</@Proxy.listDynamicProperties>
 
 	// Accessors --------------------------------------------------------------
@@ -204,6 +210,17 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${getter}", titanium::Proxy::getProperty, String::NewSymbol("${name}"));
 	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${setter}", titanium::Proxy::onPropertyChanged, String::NewSymbol("${name}"));
 	</@Proxy.listPropertyAccessors>
+
+	<@Proxy.listPropertyDontEnumAccessors ; isFirst, name, getter, setter>
+	instanceTemplate->SetAccessor(
+		String::NewSymbol("${name}"),
+		titanium::Proxy::getProperty,
+		titanium::Proxy::onPropertyChanged,
+		Handle<Value>(), DEFAULT, DontEnum);
+	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${getter}", titanium::Proxy::getProperty, String::NewSymbol("${name}"));
+	DEFINE_PROTOTYPE_METHOD_DATA(proxyTemplate, "${setter}", titanium::Proxy::onPropertyChanged, String::NewSymbol("${name}"));
+	</@Proxy.listPropertyDontEnumAccessors>
+
 
 	<#if interceptor??>
 	instanceTemplate->SetNamedPropertyHandler(${className}::interceptor);
