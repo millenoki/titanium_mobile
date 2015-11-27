@@ -33,14 +33,12 @@ import org.appcelerator.titanium.util.TiUtils;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiUIView;
-import ti.modules.titanium.ui.widget.TiView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -75,7 +73,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
-	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
+//	private static final int MSG_SET_WIDTH_HEIGHT = MSG_FIRST_ID + 102;
 	private static final int MSG_REMOVE_LIGHTWEIGHT = MSG_FIRST_ID + 103;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
@@ -108,7 +106,16 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			TiCompositeLayout layout = new TiCompositeLayout(proxy.getActivity(), this);
 			setNativeView(layout);
 		}
-		
+        @Override
+	    protected int fillLayout(String key, Object value, boolean withMatrix) {
+            if (!lightweight && (key.equals(TiC.PROPERTY_WIDTH) || key.equals(TiC.PROPERTY_HEIGHT))) {
+                Object width = getProperty(TiC.PROPERTY_WIDTH);
+                Object height = getProperty(TiC.PROPERTY_HEIGHT);
+                setWindowWidthHeight(width, height);
+                return 0;
+            }
+	        return TiConvert.fillLayout(key, value, layoutParams, true);
+	    }
         @Override
         public void propertySet(String key, Object newValue, Object oldValue,
                 boolean changedProperty) {
@@ -172,10 +179,13 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
             case TiC.PROPERTY_BOTTOM:
             case TiC.PROPERTY_LEFT:
             case TiC.PROPERTY_RIGHT:
+            
                 if (!lightweight) {
                     break;
                 }
                 break;
+            case TiC.PROPERTY_WIDTH:
+            case TiC.PROPERTY_HEIGHT:
             default:
                 if (ActionBarProxy.windowProps().contains(key)) {
                     String realKey = TiUtils.mapGetOrDefault(ActionBarProxy.propsToReplace(), key, key);
@@ -433,7 +443,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		// the width / height of the decor view is not measured yet at this point. So we can not use the 
 		// getAsPixels() method. Maybe we can use WindowManager.getDefaultDisplay.getRectSize(rect) to
 		// get the application display dimension.
-		if (hasProperty(TiC.PROPERTY_WIDTH) || hasProperty(TiC.PROPERTY_HEIGHT)) {
+		if (!lightweight && (hasProperty(TiC.PROPERTY_WIDTH) || hasProperty(TiC.PROPERTY_HEIGHT))) {
 			Object width = getProperty(TiC.PROPERTY_WIDTH);
 			Object height = getProperty(TiC.PROPERTY_HEIGHT);
 			View decorView = win.getDecorView();
@@ -639,41 +649,41 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
         }
 	}
 
-	@Override
-	@Kroll.setProperty(retain=false) @Kroll.method
-	public void setWidth(Object width)
-	{
-		if (isOpenedOrOpening() && !lightweight) {
-			Object current = getProperty(TiC.PROPERTY_WIDTH);
-			if (shouldFireChange(current, width)) {
-				Object height = getProperty(TiC.PROPERTY_HEIGHT);
-				if (TiApplication.isUIThread()) {
-					setWindowWidthHeight(width, height);
-				} else {
-					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[]{width, height}).sendToTarget();
-				}
-			}
-		}
-		super.setWidth(width);
-	}
-
-	@Override
-	@Kroll.setProperty(retain=false) @Kroll.method
-	public void setHeight(Object height)
-	{
-		if (isOpenedOrOpening() && !lightweight) {
-			Object current = getProperty(TiC.PROPERTY_HEIGHT);
-			if (shouldFireChange(current, height)) {
-				Object width = getProperty(TiC.PROPERTY_WIDTH);
-				if (TiApplication.isUIThread()) {
-					setWindowWidthHeight(width, height);
-				} else {
-					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[]{width, height}).sendToTarget();
-				}
-			}
-		}
-		super.setHeight(height);
-	}
+//	@Override
+//	@Kroll.setProperty(retain=false) @Kroll.method
+//	public void setWidth(Object width)
+//	{
+//		if (isOpenedOrOpening() && !lightweight) {
+//			Object current = getProperty(TiC.PROPERTY_WIDTH);
+//			if (shouldFireChange(current, width)) {
+//				Object height = getProperty(TiC.PROPERTY_HEIGHT);
+//				if (TiApplication.isUIThread()) {
+//					setWindowWidthHeight(width, height);
+//				} else {
+//					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[]{width, height}).sendToTarget();
+//				}
+//			}
+//		}
+//		super.setWidth(width);
+//	}
+//
+//	@Override
+//	@Kroll.setProperty(retain=false) @Kroll.method
+//	public void setHeight(Object height)
+//	{
+//		if (isOpenedOrOpening() && !lightweight) {
+//			Object current = getProperty(TiC.PROPERTY_HEIGHT);
+//			if (shouldFireChange(current, height)) {
+//				Object width = getProperty(TiC.PROPERTY_WIDTH);
+//				if (TiApplication.isUIThread()) {
+//					setWindowWidthHeight(width, height);
+//				} else {
+//					getMainHandler().obtainMessage(MSG_SET_WIDTH_HEIGHT, new Object[]{width, height}).sendToTarget();
+//				}
+//			}
+//		}
+//		super.setHeight(height);
+//	}
 
 	@Override
 	public boolean handleMessage(Message msg)
@@ -697,11 +707,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				}
 				return true;
 			}
-			case MSG_SET_WIDTH_HEIGHT: {
-				Object[] obj = (Object[]) msg.obj;
-				setWindowWidthHeight(obj[0], obj[1]);
-				return true;
-			}
+//			case MSG_SET_WIDTH_HEIGHT: {
+//				Object[] obj = (Object[]) msg.obj;
+//				setWindowWidthHeight(obj[0], obj[1]);
+//				return true;
+//			}
 			case MSG_REMOVE_LIGHTWEIGHT: {
 				removeLightweightWindowFromStack();
 				return true;

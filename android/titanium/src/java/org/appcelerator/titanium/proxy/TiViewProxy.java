@@ -14,7 +14,6 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -36,8 +35,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiCompositeLayout.AnimationLayoutParams;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 //import android.animation.Animator;
 //import android.animation.AnimatorSet;
@@ -47,7 +44,6 @@ import android.util.DisplayMetrics;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -88,6 +84,9 @@ import android.widget.ViewSwitcher;
 	TiC.PROPERTY_BORDER_WIDTH,
 
 	// layout / dimension (size/width/height have custom accessors)
+	TiC.PROPERTY_WIDTH,
+	TiC.PROPERTY_HEIGHT,
+	TiC.PROPERTY_CENTER,
 	TiC.PROPERTY_LEFT,
 	TiC.PROPERTY_TOP,
 	TiC.PROPERTY_RIGHT,
@@ -120,6 +119,7 @@ import android.widget.ViewSwitcher;
 	TiC.PROPERTY_CLIP_CHILDREN,
 	TiC.PROPERTY_VIEW_MASK,
 	TiC.PROPERTY_TRANSLATION_Z,
+	TiC.PROPERTY_KEEP_SCREEN_ON,
 	"touchTestId",	
 	TiC.PROPERTY_TRANSITION_NAME
 })
@@ -322,7 +322,8 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		}
 		return super.handleMessage(msg);
 	}
-
+	
+	
 	/*
 	public Context getContext()
 	{
@@ -333,63 +334,173 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	@Kroll.getProperty @Kroll.method
 	public KrollDict getRect()
 	{
-		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETRECT), getActivity());
-	}
+	    if (!TiApplication.isUIThread()) {
+            return getInUiThread(new Command<KrollDict>() {
 
+                @Override
+                public KrollDict execute() {
+                    // TODO Auto-generated method stub
+                    return getRect();
+                }
+                
+            });
+        }
+	    KrollDict d = new KrollDict();
+        if (view != null) {
+            View v = view.getOuterView();
+            if (v != null) {
+                d = TiUIHelper.getViewRectDict(v);
+            }
+        }
+        if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+            d.put(TiC.PROPERTY_WIDTH, 0);
+            d.put(TiC.PROPERTY_HEIGHT, 0);
+            d.put(TiC.PROPERTY_X, 0);
+            d.put(TiC.PROPERTY_Y, 0);
+        }
+
+        return d;
+//		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETRECT), getActivity());
+	}
+	
 	@Kroll.getProperty @Kroll.method
 	public KrollDict getAbsoluteRect()
 	{
-		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETABSRECT), getActivity());
+	    if (!TiApplication.isUIThread()) {
+	        return getInUiThread(new Command<KrollDict>() {
+
+                @Override
+                public KrollDict execute() {
+                    // TODO Auto-generated method stub
+                    return getAbsoluteRect();
+                }
+	            
+            });
+        }
+
+	    KrollDict d = null;
+        d = new KrollDict();
+        if (view != null) {
+            View v = view.getOuterView();
+            if (v != null) {
+                int position[] = new int[2];
+                v.getLocationOnScreen(position);
+                Activity activity  = TiApplication.getAppCurrentActivity();
+                if (activity != null) {
+                    View decorView = activity.getWindow().getDecorView();
+
+                    DisplayMetrics dm = new DisplayMetrics();
+                    TiApplication.getAppCurrentActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+                    
+                    boolean isTranslucent = false;
+                    if (TiC.KIT_KAT_OR_GREATER) {
+                        Window w = activity.getWindow(); // in Activity's onCreate() for instance
+                        isTranslucent = (w.getAttributes().flags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) != 0;
+                    }
+                    if (!isTranslucent) {
+                        Rect rect = new Rect();
+                        decorView.getWindowVisibleDisplayFrame(rect);
+                        int statusHeight = rect.top;
+                        
+                        position[1] -= statusHeight; //we remove statusbar height 
+                    }
+                    
+                    
+                    TiDimension nativeWidth = new TiDimension(v.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
+                    TiDimension nativeHeight = new TiDimension(v.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
+                    d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault());
+                    d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault());
+                    d.put(TiC.PROPERTY_X, new TiDimension(position[0], TiDimension.TYPE_LEFT).getAsDefault());
+                    d.put(TiC.PROPERTY_Y, new TiDimension(position[1], TiDimension.TYPE_TOP).getAsDefault());
+                }
+            }
+        }
+        if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+            d.put(TiC.PROPERTY_WIDTH, 0);
+            d.put(TiC.PROPERTY_HEIGHT, 0);
+            d.put(TiC.PROPERTY_X, 0);
+            d.put(TiC.PROPERTY_Y, 0);
+        }
+        return d;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public KrollDict getSize()
 	{
-		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETSIZE), getActivity());
+	    if (!TiApplication.isUIThread()) {
+            return getInUiThread(new Command<KrollDict>() {
+
+                @Override
+                public KrollDict execute() {
+                    // TODO Auto-generated method stub
+                    return getSize();
+                }
+                
+            });
+        }
+	    KrollDict d = null;
+        d = new KrollDict();
+        d.put(TiC.PROPERTY_X, 0);
+        d.put(TiC.PROPERTY_Y, 0);
+        if (view != null) {
+            View v = view.getNativeView();
+            if (v != null) {
+                TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
+                TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
+                d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault());
+                d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault());
+            }
+        }
+        if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+            d.put(TiC.PROPERTY_WIDTH, 0);
+            d.put(TiC.PROPERTY_HEIGHT, 0);
+        }
+        return d;
+//		return (KrollDict) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GETSIZE), getActivity());
 	}
 
-	@Kroll.getProperty @Kroll.method
-	public Object getWidth()
-	{
-		if (hasProperty(TiC.PROPERTY_WIDTH)) {
-			return getProperty(TiC.PROPERTY_WIDTH);
-		}
-
-		return KrollRuntime.UNDEFINED;
-	}
-
-	@Kroll.setProperty(retain=false) @Kroll.method
-	public void setWidth(Object width)
-	{
-		setPropertyAndFire(TiC.PROPERTY_WIDTH, width);
-	}
-
-	@Kroll.getProperty @Kroll.method
-	public Object getHeight()
-	{
-		if (hasProperty(TiC.PROPERTY_HEIGHT)) {
-			return getProperty(TiC.PROPERTY_HEIGHT);
-		}
-
-		return KrollRuntime.UNDEFINED;
-	}
-
-	@Kroll.setProperty(retain=false) @Kroll.method
-	public void setHeight(Object height)
-	{
-		setPropertyAndFire(TiC.PROPERTY_HEIGHT, height);
-	}
-
-	@Kroll.getProperty @Kroll.method
-	public Object getCenter()
-	{
-		Object dict = KrollRuntime.UNDEFINED;
-		if (hasProperty(TiC.PROPERTY_CENTER)) {
-			dict = getProperty(TiC.PROPERTY_CENTER);
-		}
-
-		return dict;
-	}
+//	@Kroll.getProperty @Kroll.method
+//	public Object getWidth()
+//	{
+//		if (hasProperty(TiC.PROPERTY_WIDTH)) {
+//			return getProperty(TiC.PROPERTY_WIDTH);
+//		}
+//
+//		return KrollRuntime.UNDEFINED;
+//	}
+//
+//	@Kroll.setProperty(retain=false) @Kroll.method
+//	public void setWidth(Object width)
+//	{
+//		setPropertyAndFire(TiC.PROPERTY_WIDTH, width);
+//	}
+//
+//	@Kroll.getProperty @Kroll.method
+//	public Object getHeight()
+//	{
+//		if (hasProperty(TiC.PROPERTY_HEIGHT)) {
+//			return getProperty(TiC.PROPERTY_HEIGHT);
+//		}
+//
+//		return KrollRuntime.UNDEFINED;
+//	}
+//
+//	@Kroll.setProperty(retain=false) @Kroll.method
+//	public void setHeight(Object height)
+//	{
+//		setPropertyAndFire(TiC.PROPERTY_HEIGHT, height);
+//	}
+//
+//	@Kroll.getProperty @Kroll.method
+//	public Object getCenter()
+//	{
+//		Object dict = KrollRuntime.UNDEFINED;
+//		if (hasProperty(TiC.PROPERTY_CENTER)) {
+//			dict = getProperty(TiC.PROPERTY_CENTER);
+//		}
+//
+//		return dict;
+//	}
 	
     @Kroll.getProperty
     @Kroll.method
@@ -1055,11 +1166,11 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
         return false;// Android default
 	}
 
-	@Kroll.method @Kroll.setProperty(retain=false)
-	public void setKeepScreenOn(boolean keepScreenOn)
-	{
-		setPropertyAndFire(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
-	}
+//	@Kroll.method @Kroll.setProperty(retain=false)
+//	public void setKeepScreenOn(boolean keepScreenOn)
+//	{
+//		setPropertyAndFire(TiC.PROPERTY_KEEP_SCREEN_ON, keepScreenOn);
+//	}
 
 	@Kroll.method
 	public KrollDict convertPointToView(Object value, TiViewProxy dest)

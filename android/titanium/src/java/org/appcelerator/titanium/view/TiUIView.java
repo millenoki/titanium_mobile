@@ -19,7 +19,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.annotations.Kroll.getProperty;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
