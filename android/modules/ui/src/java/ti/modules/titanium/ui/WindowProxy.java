@@ -484,9 +484,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			activity.addWindowToStack(this);
 		}
 		
-		
 		handlePostOpen();
-		
 
 		super.onWindowActivityCreated();
 	}
