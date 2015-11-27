@@ -88,22 +88,6 @@ exports.bootstrap = function(Titanium) {
 		}
 	};
 
-	var TiView = Titanium.TiView;
-	TiView.prototype.toJSON = function() {
-		var json = {};
-		var keys = Object.keys(this);
-		var len = keys.length;
-
-		for (var i = 0; i < len; i++) {
-			var key = keys[i];
-			if (key == "parent") {
-				continue;
-			}
-			json[key] = this[key];
-		}
-		return json;
-	}
-
 	// Define constants for ActivityIndicator here for now.
 	Titanium.UI.ActivityIndicator.STATUS_BAR = 0;
 	Titanium.UI.ActivityIndicator.DIALOG = 1;
