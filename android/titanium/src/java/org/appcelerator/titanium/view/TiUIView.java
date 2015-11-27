@@ -2177,7 +2177,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                             childView = ((ViewGroup) view).getChildAt(i);
                             if (viewContainsTouch(childView, x, y, location)) {
                                 TiUIView child = associatedTiViewForView(childView);
-                                if (child == null || !child.touchPassThrough(childView, event)) {
+                                if (child != null && !child.touchPassThrough(childView, event)) {
                                     return false;
                                 }
                             }
