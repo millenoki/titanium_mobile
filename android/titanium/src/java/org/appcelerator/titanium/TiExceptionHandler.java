@@ -26,7 +26,6 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.Message;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -198,12 +197,10 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			.setPositiveButton("Kill", clickListener)
 			.setNeutralButton("Continue", clickListener)
 			.setCancelable(false);
-
-		// TODO: Enable when we have fastdev working
-		// if (TiFastDev.isFastDevEnabled()) {
-		// builder.setNegativeButton("Reload", clickListener);
-		// }
-		builder.create().show();
+		
+		AlertDialog dialog = builder.create();
+		dialog.setCanceledOnTouchOutside(false);
+		dialog.show();
 	}
 
 	protected static void reload(String sourceName)
