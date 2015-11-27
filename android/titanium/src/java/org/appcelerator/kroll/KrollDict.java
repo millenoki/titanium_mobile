@@ -342,22 +342,26 @@ public class KrollDict
 		return keys;
     }
 	
+	public static HashMap merge( HashMap map1, HashMap map2)
+    {
+	    return merge(map1, map2, true);
+    }
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-    public static KrollDict merge ( HashMap map1, HashMap map2 )
+    public static HashMap merge ( HashMap map1, HashMap map2 ,final boolean clone)
 	{
 	    if ( map1 == null || map2 == null )
 	    {
 	        if ( map1 != null )
 	        {
-	           return new KrollDict( map1 );
+	           return clone?new HashMap( map1 ):map1;
 	        }
 	        if ( map2 != null )
 	        {
-	           return new KrollDict( map2 );
+	           return  clone?new HashMap( map2 ):map2;
 	        }
 	        return null;
 	    }
-	    KrollDict merged = new KrollDict(map1);
+	    HashMap merged = clone?new HashMap(map1):map1;
 
 	    Set<String> allKeys = new HashSet<String>();
 	    allKeys.addAll( map2.keySet() );
@@ -370,7 +374,7 @@ public class KrollDict
 	        {
 	            HashMap m1 = v1 instanceof HashMap ? (HashMap) v1 : null;
 	            HashMap m2 = v2 instanceof HashMap ? (HashMap) v2 : null;
-	            merged.put( key, merge( m1, m2 ) );
+	            merged.put( key, merge( m1, m2 , clone) );
 	        }
 	        else {
 	            merged.put(key, v2);

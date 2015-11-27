@@ -567,7 +567,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
             }
             data.put(TiC.EVENT_PROPERTY_STATE, state);
             if (bitmapInfo != null) {
-                data = KrollDict.merge(data, bitmapInfo);
+                KrollDict.merge(data, bitmapInfo, false);
             }
             fireImageEvent(TiC.EVENT_LOAD, data);
         }
