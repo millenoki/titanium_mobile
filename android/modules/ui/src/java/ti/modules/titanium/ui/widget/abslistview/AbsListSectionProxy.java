@@ -964,7 +964,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
 
 	public boolean isFooterView(int pos) {
-		return (hasFooter() && pos == getItemCount() - 1);
+		return (hasFooter() && pos == mCurrentItemCount - 1);
 	}
 
 	public void setListView(TiAbsListView l) {
