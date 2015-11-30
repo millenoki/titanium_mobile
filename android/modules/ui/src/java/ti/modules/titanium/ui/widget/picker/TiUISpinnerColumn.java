@@ -7,6 +7,8 @@
 
 package ti.modules.titanium.ui.widget.picker;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -91,7 +93,7 @@ public class TiUISpinnerColumn extends TiUIView implements OnWheelChangedListene
     }
 
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(HashMap d) {
 		super.processProperties(d);
 		if (!d.containsKey(TiC.PROPERTY_VISIBLE_ITEMS)) {
 		    getWheelView().setVisibleItems(PickerProxy.DEFAULT_VISIBLE_ITEMS_COUNT);

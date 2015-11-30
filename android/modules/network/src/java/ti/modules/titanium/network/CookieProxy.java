@@ -9,6 +9,7 @@ package ti.modules.titanium.network;
 
 import java.net.HttpCookie;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.TimeZone;
 
 import org.appcelerator.kroll.KrollDict;
@@ -85,7 +86,7 @@ public class CookieProxy extends KrollProxy
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict dict)
+	public void handleCreationDict(HashMap dict)
 	{
 		super.handleCreationDict(dict);
 

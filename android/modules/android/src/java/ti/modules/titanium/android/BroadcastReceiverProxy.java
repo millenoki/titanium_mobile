@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.android;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
@@ -33,7 +35,7 @@ public class BroadcastReceiverProxy extends KrollProxy
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict dict)
+	public void handleCreationDict(HashMap dict)
 	{
 		if (dict != null) {
 			if (dict.containsKey(TiC.PROPERTY_URL)) {

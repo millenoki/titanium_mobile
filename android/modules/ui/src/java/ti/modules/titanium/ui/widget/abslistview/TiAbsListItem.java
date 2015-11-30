@@ -8,6 +8,7 @@
 package ti.modules.titanium.ui.widget.abslistview;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -80,7 +81,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 	}
 	
     @Override
-    protected int fillLayout(KrollDict d) {
+    protected int fillLayout(HashMap d) {
         //ignore width property
         d.remove(TiC.PROPERTY_WIDTH);
         return TiConvert.fillLayout(d, layoutParams, true);

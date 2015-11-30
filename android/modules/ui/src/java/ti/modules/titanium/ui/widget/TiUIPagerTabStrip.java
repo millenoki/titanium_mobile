@@ -95,7 +95,7 @@ public class TiUIPagerTabStrip extends TiUIView {
     }
 
     @Override
-    protected int fillLayout(KrollDict d)
+    protected int fillLayout(HashMap d)
     {
         int updateFlags = 0;
         Iterator it = d.entrySet().iterator();

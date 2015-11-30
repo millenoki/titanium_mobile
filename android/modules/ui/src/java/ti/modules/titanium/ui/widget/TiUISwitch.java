@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -143,7 +145,7 @@ public class TiUISwitch extends TiUIView
     
 	
     @Override
-	protected void aboutToProcessProperties(KrollDict d) {
+	protected void aboutToProcessProperties(HashMap d) {
       //make sure style is handled first to create the button
         if (d.containsKey(TiC.PROPERTY_STYLE)) {
             propertySet(TiC.PROPERTY_STYLE, d.get(TiC.PROPERTY_STYLE), style, false);

@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -38,7 +40,6 @@ public class TiUIActivityIndicator extends TiUIView
 	public TiUIActivityIndicator(TiViewProxy proxy)
 	{
 		super(proxy);
-		Log.d(TAG, "Creating an activity indicator", Log.DEBUG_MODE);
 
 		/*
 		 * use getAppCurrentActivity over getActivity since technically the activity indicator
@@ -107,7 +108,7 @@ public class TiUIActivityIndicator extends TiUIView
     }
 
 	@Override
-	public void processProperties(KrollDict d)
+	public void processProperties(HashMap d)
 	{
 		super.processProperties(d);
         if (view != null) {

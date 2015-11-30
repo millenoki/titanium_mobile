@@ -28,14 +28,14 @@ public class ParentingProxy extends KrollProxy {
     protected boolean shouldAskForGC = true; 
 
     @Override
-    public void handleCreationDict(KrollDict options) {
+    public void handleCreationDict(HashMap options) {
         boolean needsToUpdateProps = false;
         if (options == null) {
             return;
         }
         if (options.containsKey(TiC.PROPERTY_PROPERTIES)) {
-            super.handleCreationDict(options
-                    .getKrollDict(TiC.PROPERTY_PROPERTIES));
+            
+            super.handleCreationDict((HashMap) options.get(TiC.PROPERTY_PROPERTIES));
             needsToUpdateProps = true;
         } else {
             super.handleCreationDict(options);
@@ -70,24 +70,25 @@ public class ParentingProxy extends KrollProxy {
                 Object[] propertiesArray = (Object[]) childProperties;
                 for (int i = 0; i < propertiesArray.length; i++) {
                     Object childDict = propertiesArray[i];
+                    KrollProxy childProxy;
                     if (childDict instanceof TiViewProxy) {
-                        TiViewProxy child = (TiViewProxy) childDict;
+                        childProxy = (TiViewProxy) childDict;
                         String bindId = TiConvert.toString(
-                                child.getProperty(TiC.PROPERTY_BIND_ID), null);
+                                childProxy.getProperty(TiC.PROPERTY_BIND_ID), null);
                         if (bindId != null) {
-                            rootProxy.addBinding(bindId, child);
+                            rootProxy.addBinding(bindId, childProxy);
                         }
-                        addProxy(child, -1);
                     } else {
-                        KrollProxy childProxy = createProxyFromTemplate(
+                        childProxy = createProxyFromTemplate(
                                 (HashMap) childDict, rootProxy,
                                 updateKrollProperties);
                         if (childProxy != null) {
-                            if (updateKrollProperties)
+                            if (updateKrollProperties) {
                                 childProxy.updateKrollObjectProperties();
-                            addProxy(childProxy, -1);
+                            }
                         }
                     }
+                    addProxy(childProxy, -1);
                 }
             }
         }

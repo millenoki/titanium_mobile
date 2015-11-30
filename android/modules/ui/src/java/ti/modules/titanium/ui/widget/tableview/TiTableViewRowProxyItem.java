@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -298,7 +299,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	}
 	
 	@Override
-	public void processProperties(KrollDict p)
+	public void processProperties(HashMap p)
 	{
 		Object newSelectorSource = null;
 		if (p.containsKey(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)) {

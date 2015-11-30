@@ -457,7 +457,7 @@ public @interface Kroll
 	 * <b>Examples</b>:<br>
 	 * <pre>
 	 * &#064;Kroll.dynamicApis(properties = { "title" })
-	 * public void processProperties(KrollDict d) {
+	 * public void processProperties(HashMap d) {
 	 *     if (d.containsKey("title")) { ... }
 	 * }
 	 * &#064;Kroll.dynamicApis(methods = { "yql" })

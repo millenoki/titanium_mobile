@@ -614,7 +614,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
     }
 
 	@Override
-	public void processProperties(KrollDict d)
+	public void processProperties(HashMap d)
 	{
         super.processProperties(d);
 		//simulate the first page change so that the user can interact with the events

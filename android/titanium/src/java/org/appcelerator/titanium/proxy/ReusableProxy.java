@@ -1,6 +1,7 @@
 package org.appcelerator.titanium.proxy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,14 +34,14 @@ public class ReusableProxy extends ParentingProxy implements KrollProxyReusableL
             boolean changedProperty) {
     }
     @Override
-    public void processApplyProperties(KrollDict d) {
+    public void processApplyProperties(HashMap d) {
         aboutToProcessProperties(d);
         handleProperties(d, true);
         didProcessProperties();
     }
     
     @Override
-    public void processProperties(KrollDict d)
+    public void processProperties(HashMap d)
     {
         aboutToProcessProperties(d);
         handleProperties(d, false);
@@ -48,7 +49,7 @@ public class ReusableProxy extends ParentingProxy implements KrollProxyReusableL
 
     }
     
-    protected void aboutToProcessProperties(KrollDict d) {
+    protected void aboutToProcessProperties(HashMap d) {
     }
     protected void didProcessProperties() {
     }
@@ -71,7 +72,7 @@ public class ReusableProxy extends ParentingProxy implements KrollProxyReusableL
         return null;
     }
     
-    protected void handleProperties(KrollDict d, final boolean changed) {
+    protected void handleProperties(HashMap<String, Object> d, final boolean changed) {
         if (keySequence() != null) {
             for (final String key : keySequence()) {
                 if (d.containsKey(key)) {

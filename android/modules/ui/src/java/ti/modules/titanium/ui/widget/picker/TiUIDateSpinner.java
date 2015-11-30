@@ -13,6 +13,7 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import org.appcelerator.kroll.KrollDict;
@@ -175,7 +176,7 @@ public class TiUIDateSpinner extends TiUIView implements
     }
 
     @Override
-    public void processProperties(KrollDict d) {
+    public void processProperties(HashMap d) {
         super.processProperties(d);
         if (maxDate.before(minDate)) {
             maxDate.setTime(minDate.getTime());

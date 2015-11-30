@@ -914,15 +914,15 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
     }
 
     @Override
-    public void processProperties(KrollDict d) {
-        for (Map.Entry<String, Object> entry : d.entrySet()) {
+    public void processProperties(HashMap d) {
+        for (Map.Entry<String, Object> entry :((HashMap<String, Object>)d).entrySet()) {
             propertySet(entry.getKey(), entry.getValue(), null, false);
         }
     }
 
     @Override
-    public void processApplyProperties(KrollDict d) {
-        for (Map.Entry<String, Object> entry : d.entrySet()) {
+    public void processApplyProperties(HashMap d) {
+        for (Map.Entry<String, Object> entry : ((HashMap<String, Object>)d).entrySet()) {
             propertySet(entry.getKey(), entry.getValue(), null, true);
         }
     }

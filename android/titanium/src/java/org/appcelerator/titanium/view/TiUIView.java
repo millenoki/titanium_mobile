@@ -702,7 +702,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         return TiConvert.fillLayout(key, value, layoutParams, true);
     }
 
-    protected int fillLayout(KrollDict d) {
+    protected int fillLayout(HashMap d) {
         return TiConvert.fillLayout(d, layoutParams, true);
     }
 
@@ -1257,7 +1257,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         return null;
     }
 
-    protected void handleProperties(KrollDict d, final boolean changed) {
+    protected void handleProperties(HashMap<String, Object> d, final boolean changed) {
         final KrollProxy proxy = this.proxy;
         if (keySequence() != null) {
             for (final String key : keySequence()) {
@@ -1275,14 +1275,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     }
 
     @Override
-    public void processApplyProperties(KrollDict d) {
+    public void processApplyProperties(HashMap d) {
         aboutToProcessProperties(d);
         handleProperties(d, true);
         didProcessProperties();
     }
 
     @Override
-    public void processProperties(KrollDict d) {
+    public void processProperties(HashMap d) {
         aboutToProcessProperties(d);
         handleProperties(d, false);
         didProcessProperties();
@@ -1298,7 +1298,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
     }
 
-    protected void aboutToProcessProperties(KrollDict d) {
+    protected void aboutToProcessProperties(HashMap d) {
         mProcessUpdateFlags = 0; // just to make sure we start from scratch
 
         // we fill the layout props here not to have to do it in the

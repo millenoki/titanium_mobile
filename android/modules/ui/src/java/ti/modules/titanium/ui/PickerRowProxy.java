@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -78,7 +80,7 @@ public class PickerRowProxy extends ViewProxy
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict options)
+	public void handleCreationDict(HashMap options)
 	{
 		super.handleCreationDict(options);
 		if (options.containsKey("title")) {

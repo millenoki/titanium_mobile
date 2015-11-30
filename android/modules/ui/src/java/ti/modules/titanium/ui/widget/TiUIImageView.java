@@ -971,7 +971,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     
 
     @Override
-    public void processProperties(KrollDict d) {
+    public void processProperties(HashMap d) {
         
         super.processProperties(d);
         TiImageView view = getView();

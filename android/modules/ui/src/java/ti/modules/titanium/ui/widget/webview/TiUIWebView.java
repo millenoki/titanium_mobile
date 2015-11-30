@@ -409,7 +409,7 @@ public class TiUIWebView extends TiUINonViewGroupView
     }
 
 	@Override
-	public void processProperties(KrollDict d)
+	public void processProperties(HashMap d)
 	{
 		super.processProperties(d);
 		// If TiUIView's processProperties ended up making a TiBackgroundDrawable

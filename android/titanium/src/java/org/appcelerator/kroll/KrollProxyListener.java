@@ -6,6 +6,7 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -29,8 +30,8 @@ public interface KrollProxyListener
 	 * @param properties  a set of properties to process.
 	 * @module.api
 	 */
-    public void processProperties(KrollDict properties);
-    public void processApplyProperties(KrollDict properties);
+    public void processProperties(HashMap properties);
+    public void processApplyProperties(HashMap properties);
 	public void propertiesChanged(List<KrollPropertyChange> changes, KrollProxy proxy);
 	
 	/**

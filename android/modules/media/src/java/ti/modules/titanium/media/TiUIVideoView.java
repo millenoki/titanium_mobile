@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.media;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
@@ -103,7 +105,7 @@ public class TiUIVideoView extends TiUIView
 	}
 
 	@Override
-	public void processProperties(KrollDict d)
+	public void processProperties(HashMap d)
 	{
 		if (videoView == null) {
 			videoView = new TiVideoView8(proxy.getActivity());

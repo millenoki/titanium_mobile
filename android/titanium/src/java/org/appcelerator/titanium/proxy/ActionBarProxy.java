@@ -402,7 +402,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
     }
 
     @Override
-    protected void handleProperties(final KrollDict d, final boolean changed) {
+    protected void handleProperties(final HashMap d, final boolean changed) {
         if (!TiApplication.isUIThread()) {
             runInUiThread(new CommandNoReturn() {
                 @Override

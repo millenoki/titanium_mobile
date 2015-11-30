@@ -73,7 +73,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
     }
 
     @Override
-    public void handleCreationDict(KrollDict dict) {
+    public void handleCreationDict(HashMap dict) {
         if (dict.containsKey("useSpinner")) {
             useSpinner = TiConvert.toBoolean(dict, "useSpinner");
         }

@@ -109,7 +109,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 //    }
 
 	@Override
-	public void handleCreationDict(KrollDict options) {
+	public void handleCreationDict(HashMap options) {
 		super.handleCreationDict(options);
 		//Adding sections to preload sections, so we can handle appendSections/insertSection
 		//accordingly if user call these before TiListView is instantiated.

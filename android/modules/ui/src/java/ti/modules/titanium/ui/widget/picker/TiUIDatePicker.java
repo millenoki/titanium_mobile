@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget.picker;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -113,7 +114,7 @@ public class TiUIDatePicker extends TiUIView
     }
 	
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(HashMap d) {
 		super.processProperties(d);
 		
 

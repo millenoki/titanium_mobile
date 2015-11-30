@@ -78,7 +78,7 @@ public class TableViewRowProxy extends ViewProxy
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict options)
+	public void handleCreationDict(HashMap options)
 	{
 		super.handleCreationDict(options);
 		if (options.containsKey(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {

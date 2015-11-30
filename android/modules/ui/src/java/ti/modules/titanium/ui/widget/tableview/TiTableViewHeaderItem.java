@@ -8,7 +8,6 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
@@ -21,7 +20,6 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 

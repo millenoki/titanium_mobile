@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -210,11 +211,11 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	}
 
 	@Override
-	public void processProperties(KrollDict properties) {
+	public void processProperties(HashMap properties) {
 	}
 	
 	@Override
-    public void processApplyProperties(KrollDict d) {
+    public void processApplyProperties(HashMap d) {
     }
 
 	@Override

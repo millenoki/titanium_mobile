@@ -11,10 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
@@ -25,7 +23,6 @@ import org.appcelerator.titanium.util.TiHtml.URLSpanNoUnderline;
 import org.appcelerator.titanium.util.TiTypefaceSpan;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.FreeLayout;
-import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -33,10 +30,6 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
-//import android.animation.Animator;
-//import android.animation.AnimatorSet;
-//import android.animation.ArgbEvaluator;
-//import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -56,10 +49,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.TextView;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.text.Layout;
 import android.text.Layout.Alignment;
 import android.text.Selection;
@@ -1025,7 +1016,6 @@ public class TiUILabel extends TiUINonViewGroupView
 	public TiUILabel(final TiViewProxy proxy)
 	{
 		super(proxy);
-		Log.d(TAG, "Creating a text label", Log.DEBUG_MODE);
 		tv = new TiLabelView(getProxy().getActivity()) {
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
@@ -1100,7 +1090,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	}
 
 	@Override
-    protected void aboutToProcessProperties(KrollDict d) {
+    protected void aboutToProcessProperties(HashMap d) {
         super.aboutToProcessProperties(d);
         getTextView().SetReadyToEllipsize(false);
     }

@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
@@ -438,7 +440,7 @@ public class ActivityProxy extends KrollProxy
     }
 	
     @Override
-    public void handleCreationDict(final KrollDict options)
+    public void handleCreationDict(final HashMap options)
     {
         super.handleCreationDict(options);
         if (!options.containsKey(TiC.PROPERTY_ACTION_BAR)) {

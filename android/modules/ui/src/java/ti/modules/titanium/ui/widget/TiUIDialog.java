@@ -189,7 +189,7 @@ public class TiUIDialog extends TiUIView
     }
 	
 	@Override
-	public void processProperties(KrollDict d)
+	public void processProperties(HashMap d)
 	{
         if (d.get(TiC.PROPERTY_BUTTON_NAMES) != null && d.containsKey(TiC.PROPERTY_OK) ) {
             d.remove(TiC.PROPERTY_OK);

@@ -8,8 +8,8 @@ package ti.modules.titanium;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
+import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -61,7 +61,7 @@ public class BufferProxy extends KrollProxy
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict dict)
+	public void handleCreationDict(HashMap dict)
 	{
 		super.handleCreationDict(dict);
 
@@ -86,7 +86,7 @@ public class BufferProxy extends KrollProxy
 		}
 	}
 
-	protected void encodeNumber(Number value, KrollDict dict)
+	protected void encodeNumber(Number value, HashMap dict)
 	{
 		String type = TiConvert.toString(dict, TiC.PROPERTY_TYPE);
 		if (type == null) {
@@ -101,7 +101,7 @@ public class BufferProxy extends KrollProxy
 		CodecModule.encodeNumber(value, type, buffer, 0, byteOrder);
 	}
 
-	protected void encodeString(String value, KrollDict dict)
+	protected void encodeString(String value, HashMap dict)
 	{
 		String type = TiConvert.toString(dict, TiC.PROPERTY_TYPE);
 		if (type == null) {

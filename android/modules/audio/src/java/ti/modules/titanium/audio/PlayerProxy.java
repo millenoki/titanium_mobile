@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.audio;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -79,7 +81,7 @@ public class PlayerProxy extends KrollProxy implements OnLifecycleEvent,
     }
 
     @Override
-    public void handleCreationDict(KrollDict options) {
+    public void handleCreationDict(HashMap options) {
         super.handleCreationDict(options);
         if (options.containsKey(TiC.PROPERTY_URL)) {
             setProperty(
@@ -94,7 +96,7 @@ public class PlayerProxy extends KrollProxy implements OnLifecycleEvent,
             }
         }
         if (options.containsKey(TiC.PROPERTY_ALLOW_BACKGROUND)) {
-            allowBackground = options.optBoolean(TiC.PROPERTY_ALLOW_BACKGROUND,
+            allowBackground = TiConvert.toBoolean(options, TiC.PROPERTY_ALLOW_BACKGROUND,
                     allowBackground);
         }
         Log.i(TAG,

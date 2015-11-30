@@ -255,7 +255,7 @@ public class Ti2DMatrix extends KrollProxy {
 
 
 	@Override
-	public void handleCreationDict(KrollDict dict) {
+	public void handleCreationDict(HashMap dict) {
 		super.handleCreationDict(dict);
 		handleAnchorPoint(dict);
 		if (dict.containsKey(TiC.PROPERTY_ROTATE)) {
@@ -284,18 +284,12 @@ public class Ti2DMatrix extends KrollProxy {
 					TiC.PROPERTY_SCALE);
 			operations.add(op);
 		}
-		
-		if (dict.containsKey(TiC.PROPERTY_OWN_FRAME_COORD)) {
-			ownFrameCoord = dict.optBoolean(TiC.PROPERTY_OWN_FRAME_COORD, ownFrameCoord);
-		}
+		ownFrameCoord = TiConvert.toBoolean(dict, TiC.PROPERTY_OWN_FRAME_COORD, ownFrameCoord);
 	}
 
-	protected void handleAnchorPoint(KrollDict dict) {
+	protected void handleAnchorPoint(HashMap dict) {
 		if (dict.containsKey(TiC.PROPERTY_ANCHOR_POINT)) {
-			KrollDict anchorPoint = dict
-					.getKrollDict(TiC.PROPERTY_ANCHOR_POINT);
-			setProperty(TiC.PROPERTY_ANCHOR_POINT, anchorPoint);
-			anchor = TiConvert.toPoint(anchorPoint);
+			anchor = TiConvert.toPoint(dict.get(TiC.PROPERTY_ANCHOR_POINT));
 		}
 	}
 

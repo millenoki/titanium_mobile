@@ -59,7 +59,6 @@ public class TiUIButton extends TiUINonViewGroupView
 		titlePadding = new RectF();
 		titlePadding.left = 8;
 		titlePadding.right = 8;
-		Log.d(TAG, "Creating a button", Log.DEBUG_MODE);
 		AppCompatButton btn = new AppCompatButton(proxy.getActivity())
 		{
 			@Override

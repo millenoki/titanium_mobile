@@ -95,7 +95,7 @@ public class TableViewProxy extends ViewProxy
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict dict)
+	public void handleCreationDict(HashMap dict)
 	{
 		Object data[] = null;
 		if (dict.containsKey(TiC.PROPERTY_DATA)) {

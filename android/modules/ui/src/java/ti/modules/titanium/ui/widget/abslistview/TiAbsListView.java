@@ -962,7 +962,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         }
     }
 	@Override
-    protected void aboutToProcessProperties(KrollDict d) {
+    protected void aboutToProcessProperties(HashMap d) {
 	    
         super.aboutToProcessProperties(d);
         updateToPassProps(d);

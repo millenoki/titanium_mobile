@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -288,7 +289,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict options) {
+	public void handleCreationDict(HashMap options) {
 		super.handleCreationDict(options);
 
 		// Support setting orientation modes at creation.

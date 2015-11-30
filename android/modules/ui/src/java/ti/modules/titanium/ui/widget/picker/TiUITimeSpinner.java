@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -182,7 +183,7 @@ public class TiUITimeSpinner extends TiUIView
     }
 
 	@Override
-	public void processProperties(KrollDict d) {
+	public void processProperties(HashMap d) {
 		super.processProperties(d);
 		if (!d.containsKey(TiC.PROPERTY_VALUE)) {
             Calendar calendar = Calendar.getInstance();

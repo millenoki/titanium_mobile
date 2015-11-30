@@ -147,14 +147,15 @@ public class RemoteViewsProxy extends AnimatableReusableProxy implements TiDrawa
     }
 
     @Override
-    public void handleCreationDict(KrollDict d) {
+    public void handleCreationDict(HashMap d) {
         super.handleCreationDict(d);
         if (d == null) {
             return;
         }
-        for (String key : d.keySet()) {
+        for (String key : ((HashMap<String, Object>)d).keySet()) {
             propertySet(key, d.get(key), null, false);
         }
+
         
         remoteViews = new RemoteViews(packageName, layoutId);
         if (d.containsKey("clicks")) {

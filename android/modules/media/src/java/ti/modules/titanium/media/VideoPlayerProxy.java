@@ -7,6 +7,7 @@
 package ti.modules.titanium.media;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -129,7 +130,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	}
 
 	@Override
-	public void handleCreationDict(KrollDict options)
+	public void handleCreationDict(HashMap options)
 	{
 		super.handleCreationDict(options);
 
@@ -159,7 +160,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		
 	}
 
-	private void launchVideoActivity(KrollDict options)
+	private void launchVideoActivity(HashMap options)
 	{
 		final Intent intent = new Intent(getActivity(), TiVideoActivity.class);
 

@@ -466,7 +466,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * @param dict
      * @module.api
      */
-    public void handleCreationDict(KrollDict dict) {
+    public void handleCreationDict(HashMap dict) {
         synchronized (properties) {
             properties.clear();
         }
