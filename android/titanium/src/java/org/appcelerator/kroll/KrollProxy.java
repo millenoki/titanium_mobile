@@ -1338,17 +1338,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             }
             return true;
         }
-        final boolean isRuntimeThread = KrollRuntime.getInstance().isRuntimeThread();
-        
-        if (isRuntimeThread) {
-            doFireEvent(event, data, bubbles);
-        } else {
+//        final boolean isRuntimeThread = KrollRuntime.getInstance().isRuntimeThread();
+//        
+//        if (isRuntimeThread) {
+//            doFireEvent(event, data, bubbles);
+//        } else {
             Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT,
                     data);
             message.getData().putString(PROPERTY_NAME, event);
             message.getData().putBoolean(PROPERTY_BUBBLES, bubbles);
             message.sendToTarget();
-        }
+//        }
         
         return true;
     }
