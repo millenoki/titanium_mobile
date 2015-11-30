@@ -797,7 +797,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	
 	protected void handleChildAdded(final KrollProxy child, final int index) {
 	    super.handleChildAdded(child, index);
-	    if (peekView() != null) {
+	    if (view != null) {
 	        if (!TiApplication.isUIThread()) {
 	            getActivity().runOnUiThread(new Runnable() {
 	                @Override
