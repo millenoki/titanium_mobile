@@ -1601,7 +1601,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             setSyncEvents(TiConvert.toStringArray(value));
             return;
         } else if (isLocaleProperty(name)) {
-            Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
             Pair<String, String> update = updateLocaleProperty(name,
                     TiConvert.toString(value));
             if (update != null) {
@@ -1948,11 +1947,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             HashMap<Integer, KrollEventCallback> listeners = eventListeners
                     .get(eventName);
             if (listeners != null) {
-                if (listeners.remove(listenerId) == null) {
-                    Log.d(TAG, "listenerId " + listenerId
-                            + " not for eventName '" + eventName + "'",
-                            Log.DEBUG_MODE);
-                }
+                listeners.remove(listenerId);
                 if (listeners.isEmpty()) {
                     eventListeners.remove(eventName);
                 }
