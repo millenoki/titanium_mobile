@@ -196,6 +196,21 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
         return null;
     }
+    
+    public static KrollProxy createProxy(Class<? extends KrollProxy> proxyClass, Object props) {
+        try {
+            KrollProxy proxyInstance = proxyClass.newInstance();
+            if (props instanceof HashMap) {
+                proxyInstance.handleCreationDict((HashMap) props);
+            }
+            return proxyInstance;
+
+        } catch (Exception e) {
+            Log.e(TAG, ERROR_CREATING_PROXY, e);
+        }
+
+        return null;
+    }
 
     /*
      * This method exists so that it can be used in the situations (mainly
@@ -2167,8 +2182,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         try {
             Class<? extends KrollProxy> cls = (Class<? extends KrollProxy>) Class
                     .forName(APIMap.getProxyClass(type));
-            KrollProxy proxy = KrollProxy.createProxy(cls, null,
-                    new Object[] { props }, null);
+            KrollProxy proxy = KrollProxy.createProxy(cls, props);
             if (proxy == null)
                 return null;
             if  (rootProxy == null) {
@@ -2196,8 +2210,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         try {
             Class<? extends KrollProxy> cls = (Class<? extends KrollProxy>) Class
                     .forName(APIMap.getProxyClass(type));
-            KrollProxy proxy = createProxy(cls, null, new Object[] { props },
-                    null);
+            KrollProxy proxy = createProxy(cls, props);
             if (proxy == null)
                 return null;
             proxy.initFromTemplate(template_, proxy, true, true);
