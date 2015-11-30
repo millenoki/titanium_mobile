@@ -103,24 +103,28 @@ public class TiUrl
 	}
 
 	private static HashMap<String,TiUrl> proxyUrlCache = new HashMap<String,TiUrl>(5);
+	private static TiUrl nullURL = null;
 	public static TiUrl createProxyUrl(String url)
 	{
+	    if (url == null) {
+	        if (nullURL == null) {
+	            nullURL = new TiUrl(null);
+	        }
+	        return nullURL;
+	    }
 		if (proxyUrlCache.containsKey(url)) {
 			return proxyUrlCache.get(url);
 		}
-	
-		if (url == null) {
-			return new TiUrl(null);
-		}
 
-		int lastSlash = url.lastIndexOf(PATH_SEPARATOR);
-		String baseUrl = url.substring(0, lastSlash + 1);
-		if (baseUrl.length() == 0) {
-			baseUrl = TiC.URL_APP_PREFIX;
-		}
+        int lastSlash = url.lastIndexOf(PATH_SEPARATOR);
+        String baseUrl = url.substring(0, lastSlash + 1);
+        if (baseUrl.length() == 0) {
+            baseUrl = TiC.URL_APP_PREFIX;
+        }
 
-		String path = url.substring(lastSlash + 1);
-		TiUrl result = new TiUrl(baseUrl, path);
+        String path = url.substring(lastSlash + 1);
+        TiUrl result = new TiUrl(baseUrl, path);
+		
 		proxyUrlCache.put(url,result);
 		return result;
 	}
