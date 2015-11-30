@@ -57,7 +57,7 @@ public class TiAnimatorSet extends TiAnimator {
 	
 	@Override
 	public void cancelWithoutResetting(){
-        Log.d(TAG, "cancelWithoutResetting " + this, Log.DEBUG_MODE);
+//        Log.d(TAG, "cancelWithoutResetting " + this, Log.DEBUG_MODE);
 		super.cancelWithoutResetting();
 		set.cancel();
 		if (reverseSet != null) {

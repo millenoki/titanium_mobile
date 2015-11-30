@@ -98,9 +98,7 @@ public class TiProperties
 	 */
 	public void setString(String key, String value)
 	{
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG,"setString called with key:"+key+", value:"+value);
-		}
+	    Log.d(TAG,"setString called with key:"+key+", value:"+value);
 
 		if (systemProperties != null && systemProperties.has(key)) {
 			if (Log.isDebugModeEnabled()) {
@@ -129,9 +127,7 @@ public class TiProperties
 	{
 		Object value = getPreference(key);
         
-        if (Log.isDebugModeEnabled()) {
-            Log.d(TAG, "getInt called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
-        }
+        Log.d(TAG, "getInt called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
         return TiConvert.toInt(value, def);
 	}
 	
@@ -212,9 +208,7 @@ public class TiProperties
 	{
 		Object value = getPreference(key);
         
-        if (Log.isDebugModeEnabled()) {
-            Log.d(TAG, "getBool called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
-        }
+        Log.d(TAG, "getBool called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
         return TiConvert.toBoolean(value, def);
 	}
 

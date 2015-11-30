@@ -1468,18 +1468,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     }
 
     public void release() {
-//        if (Log.isDebugModeEnabled()) {
-//            Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
-//        }
+//      Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
         proxy.cancelAllAnimations();
         View nv = getRootView();
         if (nv != null) {
             if (nv instanceof ViewGroup) {
                 ViewGroup vg = (ViewGroup) nv;
-                if (Log.isDebugModeEnabled()) {
-                    Log.d(TAG, "Group has: " + vg.getChildCount(),
-                            Log.DEBUG_MODE);
-                }
                 if (!(vg instanceof AdapterView<?>)) {
                     vg.removeAllViews();
                 }

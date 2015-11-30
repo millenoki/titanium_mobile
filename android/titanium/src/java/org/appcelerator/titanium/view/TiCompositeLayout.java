@@ -201,10 +201,10 @@ public class TiCompositeLayout extends FreeLayout implements
 
 	public void onChildViewAdded(View parent, View child) {
 		setNeedsSort(true);
-		if (Log.isDebugModeEnabled() && parent != null && child != null) {
-			Log.d(TAG, "Attaching: " + viewToString(child) + " to "
-					+ viewToString(parent), Log.DEBUG_MODE);
-		}
+//		if (parent != null && child != null) {
+//			Log.d(TAG, "Attaching: " + viewToString(child) + " to "
+//					+ viewToString(parent), Log.DEBUG_MODE);
+//		}
 	}
 	
 	public void setInternalTouchPassThrough(boolean value) {

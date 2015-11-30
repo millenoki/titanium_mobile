@@ -149,16 +149,16 @@ public class TitaniumModule extends KrollModule
 				return;
 			}
 
-			if (Log.isDebugModeEnabled()) {
-				StringBuilder message = new StringBuilder("calling ")
-					.append(interval ? "interval" : "timeout")
-					.append(" timer ")
-					.append(id)
-					.append(" @")
-					.append(new Date().getTime());
-
-				Log.d(TAG, message.toString());
-			}
+//			if (Log.isDebugModeEnabled()) {
+//				StringBuilder message = new StringBuilder("calling ")
+//					.append(interval ? "interval" : "timeout")
+//					.append(" timer ")
+//					.append(id)
+//					.append(" @")
+//					.append(new Date().getTime());
+//
+//				Log.d(TAG, message.toString());
+//			}
 
 			long start = System.currentTimeMillis();
 			callback.call(getKrollObject(), args);
@@ -242,7 +242,6 @@ public class TitaniumModule extends KrollModule
 	public void alert(Object message)
 	{
 		String msg = (message == null? null : message.toString());
-		Log.i("ALERT", msg);
 
 		/* TODO - look at this along with the other service stuff
 		if (invocation.getTiContext().isServiceContext()) {

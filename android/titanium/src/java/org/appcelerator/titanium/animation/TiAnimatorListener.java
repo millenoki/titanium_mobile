@@ -83,7 +83,7 @@ public class TiAnimatorListener implements AnimatorListener {
         } else if (tiSet.getAnimating() == false) {
             return;
         }
-        Log.d(TAG, "onAnimationEnd " + animation, Log.DEBUG_MODE);
+//        Log.d(TAG, "onAnimationEnd " + animation, Log.DEBUG_MODE);
 
         AnimatorSet set = tiSet.set();
         AnimatorSet reverseSet = tiSet.reverseSet();
@@ -135,7 +135,7 @@ public class TiAnimatorListener implements AnimatorListener {
         if (tiSet != null
                 && (animation == tiSet.reverseSet() || tiSet.getAnimating() == true))
             return;
-        Log.d(TAG, "onAnimationStart " + animation, Log.DEBUG_MODE);
+//        Log.d(TAG, "onAnimationStart " + animation, Log.DEBUG_MODE);
         if (tiSet != null)
             tiSet.setAnimating(true);
         if (this.animationProxy != null) {
@@ -144,7 +144,7 @@ public class TiAnimatorListener implements AnimatorListener {
     }
 
     public void onAnimationCancel(Animator animation) {
-        Log.d(TAG, "onAnimationCancel " + animation, Log.DEBUG_MODE);
+//        Log.d(TAG, "onAnimationCancel " + animation, Log.DEBUG_MODE);
         if (tiSet == null || tiSet.getAnimating() == false || tiSet.cancelled)
             return;// prevent double onEnd!
         tiSet.setAnimating(false);
@@ -154,7 +154,7 @@ public class TiAnimatorListener implements AnimatorListener {
     public void onAnimationRepeat(Animator animation) {
         if (animation == tiSet.reverseSet())
             return;
-        Log.d(TAG, "onAnimationRepeat " + animation, Log.DEBUG_MODE);
+//        Log.d(TAG, "onAnimationRepeat " + animation, Log.DEBUG_MODE);
         if (this.animationProxy != null) {
             this.animationProxy.fireEvent(TiC.EVENT_REPEAT, null);
         }

@@ -360,7 +360,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		
 		if (hasSoftInputMode && softInputMode != this.softInputMode) {
-			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);  
 		}
 		KrollDict activityDict = this.window.getActivityProperties(props.getKrollDict(TiC.PROPERTY_ACTIVITY));
@@ -1487,7 +1486,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		isResumed = false;
 		isPaused = true;
 
-		Log.d(TAG, "Activity " + this + " onPause", Log.DEBUG_MODE);
+//		Log.d(TAG, "Activity " + this + " onPause", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 		if (tiApp.isRestartPending()) {
@@ -1547,7 +1546,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			return;
 		}
 
-		Log.d(TAG, "Activity " + this + " onResume", Log.DEBUG_MODE);
+//		Log.d(TAG, "Activity " + this + " onResume", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 		if (tiApp.isRestartPending()) {
@@ -1712,7 +1711,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 		super.onRestart();
 
-		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
+//		Log.d(TAG, "Activity " + this + " onRestart", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 		if (tiApp.isRestartPending()) {
@@ -1783,7 +1782,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	 */
 	protected void onDestroy()
 	{
-		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
+//		Log.d(TAG, "Activity " + this + " onDestroy", Log.DEBUG_MODE);
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_DESTROY, null);
 		}

@@ -679,9 +679,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	{
 		Activity activity = getActivity();
 		if (view == null && activity != null) {
-			if (Log.isDebugModeEnabled()) {
-				Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
-			}
+//			Log.d(TAG, "getView: " + getClass().getSimpleName(), Log.DEBUG_MODE);
 
 			view = createView(activity);
 			if (isDecorView) {
@@ -968,7 +966,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			return;
 		}
 		else if (view.getWidth() == 0 && view.getHeight() == 0) {
-		    Log.d(TAG, "delay because view not layed out", Log.DEBUG_MODE);
+//		    Log.d(TAG, "delay because view not layed out", Log.DEBUG_MODE);
 			getMainHandler().sendEmptyMessage(MSG_QUEUED_ANIMATE);
 			return;
 		}
