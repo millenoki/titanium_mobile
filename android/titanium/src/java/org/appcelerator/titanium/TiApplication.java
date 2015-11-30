@@ -89,6 +89,7 @@ public abstract class TiApplication extends Application implements
     private  static String TITANIUM_USER_AGENT;
     
     private static long sMainThreadId = 0;
+    private boolean runOnMainThread = DEFAULT_RUN_ON_MAIN_THREAD;
 
     private static int sAppDensityDpi = -1;
     private static float sAppDensity = -1;
@@ -183,9 +184,11 @@ public abstract class TiApplication extends Application implements
         Log.checkpoint(TAG, "checkpoint, app created.");
 
         loadBuildProperties();
+        
 
         sMainThreadId = Looper.getMainLooper().getThread().getId();
         sTiApp = new WeakReference<TiApplication>(this);
+        
 
         modules = new HashMap<String, WeakReference<KrollModule>>();
         TiMessenger.getMessenger(); // initialize message queue for main thread
@@ -416,6 +419,7 @@ public abstract class TiApplication extends Application implements
         if (loadingProps || TiProperties.systemPropertiesLoaded()) {
             return;
         }
+
         loadingProps = true;
         String appPropertiesString = KrollAssetHelper
                 .readAsset("Resources/_app_props_.json");
@@ -749,6 +753,7 @@ public abstract class TiApplication extends Application implements
                 "ti.android.debug", false);
         USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW,
                 false);
+        runOnMainThread = appProperties.getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
 
         startExternalStorageMonitor();
 
@@ -985,7 +990,7 @@ public abstract class TiApplication extends Application implements
 	
 	public boolean runOnMainThread()
 	{
-		return getAppProperties().getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
+		return runOnMainThread;
 	}
 	
 	public void setFilterAnalyticsEvents(String[] events)
@@ -1065,6 +1070,7 @@ public abstract class TiApplication extends Application implements
         return deployData;
     }
 
+    
     public boolean isFastDevMode() {
         /*
          * Fast dev is enabled by default in development mode, and disabled
