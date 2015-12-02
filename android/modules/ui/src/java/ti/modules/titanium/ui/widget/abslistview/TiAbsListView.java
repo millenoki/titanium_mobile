@@ -304,7 +304,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 				itemContent = (TiBaseAbsListViewItem) content.findViewById(listContentId);
 
 				AbsListItemProxy itemProxy = template.generateCellProxy(item, proxy, getCellProxyRootType());
-				itemProxy.setListProxy(getProxy());
+				itemProxy.setListProxy(proxy);
 				addHandledProxy(itemProxy);
 				section.generateCellContent(sectionIndex, item, itemProxy, itemContent, template, sectionItemIndex, content);
 			}
