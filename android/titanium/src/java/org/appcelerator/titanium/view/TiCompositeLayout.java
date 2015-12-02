@@ -554,8 +554,12 @@ public class TiCompositeLayout extends FreeLayout implements
         
         if (p.maxWidth != null || p.minWidth != null) {
             int minMeasuredWidth = measuredWidth;
-            if (p.minWidth != null) minMeasuredWidth = Math.max(minMeasuredWidth, p.minWidth.getAsPixels(parentWidth, parentHeight));
-            if (p.maxWidth != null) minMeasuredWidth = Math.min(minMeasuredWidth, p.maxWidth.getAsPixels(parentWidth, parentHeight));
+            if (p.minWidth != null) {
+                minMeasuredWidth = Math.max(minMeasuredWidth, p.minWidth.getAsPixels(parentWidth, parentHeight));
+            }
+            if (p.maxWidth != null) {
+                minMeasuredWidth = Math.min(minMeasuredWidth, p.maxWidth.getAsPixels(parentWidth, parentHeight));
+            }
             if (minMeasuredWidth != measuredWidth) {
                 wMode = MeasureSpec.makeMeasureSpec(minMeasuredWidth, MeasureSpec.EXACTLY);
                 measuredWidth = getMeasuredWidth(minMeasuredWidth, wMode);
