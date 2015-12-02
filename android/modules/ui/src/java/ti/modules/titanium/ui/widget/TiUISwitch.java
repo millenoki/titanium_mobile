@@ -117,7 +117,7 @@ public class TiUISwitch extends TiUIView
             getButton().setTextColor(TiConvert.toColor(newValue));
             break;
         case TiC.PROPERTY_FONT:
-            TiUIHelper.styleText(getButton(), TiConvert.toKrollDict(TiC.PROPERTY_FONT));
+            TiUIHelper.styleText(getButton(), TiConvert.toHashMap(TiC.PROPERTY_FONT));
             break;
         case TiC.PROPERTY_TEXT_ALIGN:
             TiUIHelper.setAlignment(getButton(), TiConvert.toString(newValue), null);
