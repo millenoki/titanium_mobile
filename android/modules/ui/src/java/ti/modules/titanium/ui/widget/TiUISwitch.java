@@ -134,10 +134,10 @@ public class TiUISwitch extends TiUIView
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
-	    if (isToggle()) {
-	        propertySetToggle(key, newValue, oldValue, changedProperty);
-        } else if (isSwitch()) {
+	    if (isSwitch()) {
             propertySetSwitch(key, newValue, oldValue, changedProperty);
+        } else if (isToggle()) {
+	        propertySetToggle(key, newValue, oldValue, changedProperty);
         } else {
             propertySetCompound(key, newValue, oldValue, changedProperty);
         }
