@@ -143,7 +143,6 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     public TiUIImageView(final TiViewProxy proxy) {
         super(proxy);
         imageViewProxy = (ImageViewProxy) proxy;
-        Log.d(TAG, "Creating an ImageView", Log.DEBUG_MODE);
 
         TiImageView view = new TiImageView(proxy.getActivity(), this) {
             @Override
