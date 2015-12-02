@@ -161,6 +161,9 @@ public abstract class AbsListViewProxy extends TiViewProxy {
             section =  KrollProxy.createProxy(AbsListSectionProxy.class, null, new Object[]{section}, null);
         }
 		if (section instanceof AbsListSectionProxy) {
+		    if (preloadSections == null) {
+		        preloadSections = new ArrayList<AbsListSectionProxy>();
+		    }
 			if (index == -1) {
 				preloadSections.add((AbsListSectionProxy) section);
 			} else {
