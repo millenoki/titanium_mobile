@@ -11,9 +11,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -98,7 +100,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	protected static final int TIFLAG_NEEDS_DATASET               = 0x00000001;
     protected static final int TIFLAG_NEEDS_ADAPTER_CHANGE        = 0x00000002;
 
-	private ArrayList<TiViewProxy> handledProxies;
+	private Set<TiViewProxy> handledProxies;
 
 	private int currentScrollOffset = -1;
 	
@@ -125,11 +127,9 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	
 	private void addHandledProxy(final TiViewProxy proxy) {
 	    if (handledProxies == null) {
-	        handledProxies = new ArrayList<TiViewProxy>();
+	        handledProxies = new HashSet<TiViewProxy>();
 	    }
-	    if (!handledProxies.contains(proxy)) {
-	        handledProxies.add(proxy);
-	    }
+	       handledProxies.add(proxy);
 	}
 	
 //	private void removeHandledProxy(final TiViewProxy proxy) {
