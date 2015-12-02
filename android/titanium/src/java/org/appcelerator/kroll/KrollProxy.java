@@ -808,7 +808,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         internalApplyModelProperties(changedProps);
     }
     
-    public void internalApplyModelProperties(final KrollDict changedProps) {
+    public void internalApplyModelProperties(final HashMap changedProps) {
         if (modelListener != null) {
             if (!mProcessInUIThread || TiApplication.isUIThread()) {
                 modelListener.get().processApplyProperties(changedProps);
