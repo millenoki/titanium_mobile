@@ -519,7 +519,7 @@ public class TiFileHelper implements Handler.Callback
 								path = apath;
 							}
 						} catch (IOException e) {
-								Log.d(TAG, "path not found: " + apath);
+//								Log.d(TAG, "path not found: " + apath);
 						}
 					}
 				}
