@@ -775,7 +775,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		TiApplication.getInstance().activityStarted(this);
-		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
+//		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
 
 		inForeground = true;
 		TiApplication tiApp = getTiApp();
@@ -1615,7 +1615,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// Turn if off until an activity indicator is shown.
 		setProgressBarIndeterminateVisibility(false);
 
-		Log.d(TAG, "Activity " + this + " onStart", Log.DEBUG_MODE);
+//		Log.d(TAG, "Activity " + this + " onStart", Log.DEBUG_MODE);
 
 		TiApplication tiApp = getTiApp();
 
@@ -1681,7 +1681,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		
 		super.onStop();
 
-		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
+//		Log.d(TAG, "Activity " + this + " onStop", Log.DEBUG_MODE);
 
 		if (getTiApp().isRestartPending()) {
 			if (!isFinishing()) {
