@@ -8,13 +8,12 @@
 package ti.modules.titanium.ui.widget.abslistview;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -32,7 +31,7 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
     protected WeakReference<TiViewProxy> listProxy;
 	
 	private HashMap<String, ProxyAbsListItem> bindingsMap;
-	private List<KrollProxy> nonBindingProxies;
+	private Set<KrollProxy> nonBindingProxies;
     private ProxyAbsListItem listItem;
     private HashMap itemData;
 	
@@ -56,7 +55,7 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
 	{
 	    shouldAskForGC = false;
 		bindingsMap = new HashMap<String, ProxyAbsListItem>();
-		nonBindingProxies = new ArrayList();
+		nonBindingProxies = new HashSet();
 	}
 
 	public TiUIView createView(final Activity activity)
@@ -132,17 +131,14 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
 	}
 	
 	@Override
-    public void addBinding(final String bindId, final KrollProxy arg)
+    public void addBinding(final String bindId, final KrollProxy bindingProxy)
 	{
-		super.addBinding(bindId, arg);
-		KrollProxy bindingProxy = null;
-        if (arg instanceof KrollProxy)
-            bindingProxy = (KrollProxy) arg;
-        if (bindingProxy == null) {
+	    if (bindingProxy == null) {
             return;
         }
+		super.addBinding(bindId, bindingProxy);
 		if (bindId != null) {
-			ProxyAbsListItem viewItem = new ProxyAbsListItem(bindingProxy, bindingProxy.getProperties());
+			ProxyAbsListItem viewItem = new ProxyAbsListItem(bindingProxy, bindingProxy.getClonedProperties());
 			bindingsMap.put(bindId, viewItem);
 		}
 		else {
@@ -155,7 +151,7 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
 		return bindingsMap;
 	}
 	
-	public List<KrollProxy> getNonBindedProxies() {
+	public Set<KrollProxy> getNonBindedProxies() {
 		return nonBindingProxies;
 	}
 	
