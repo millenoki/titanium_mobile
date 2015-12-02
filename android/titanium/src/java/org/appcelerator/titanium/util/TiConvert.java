@@ -840,6 +840,24 @@ public class TiConvert
 		}
 		return outArray;
 	}
+	
+	public static int[] toIntArray(HashMap<String, Object> hashMap, String key, int[] defaultValue) {
+        int[] result = defaultValue;
+
+        if (hashMap.containsKey(key)) {
+            result = toIntArray((Object[])hashMap.get(key));
+        }
+        return result;
+    }
+    
+    public static float[] toFloatArray(HashMap<String, Object> hashMap, String key, float[] defaultValue) {
+        float[] result = defaultValue;
+
+        if (hashMap.containsKey(key)) {
+            result = toFloatArray((Object[])hashMap.get(key));
+        }
+        return result;
+    }
 
 	/**
 	 * Converts an array of boxed objects into a primitive double array.
