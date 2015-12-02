@@ -151,7 +151,7 @@ public @interface Kroll
 		 * If the current thread is the UI thread, then this simply calls the method directly.
 		 * This is functionally equivalent to:</p>
 		 * <pre>
-		 * if (TiApplication.getInstance().isUIThread()) {
+		 * if (TiApplication.isUIThread()) {
 		 *     return callMethod();
 		 * } else {
 		 *     final AsyncResult result = new AsyncResult();
