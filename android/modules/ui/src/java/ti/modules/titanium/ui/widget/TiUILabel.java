@@ -1150,7 +1150,7 @@ public class TiUILabel extends TiUINonViewGroupView
     }
  
     private EllipsizingTextView getTextView() {
-        return (EllipsizingTextView) tv.textView;
+        return tv.textView;
     }
     
     @Override
