@@ -52,7 +52,7 @@ public class TiFileFactory
 		TiBaseFile file = null;
 
 		String initial = parts[0];
-		Log.d(TAG, "getting initial from parts: " + initial, Log.DEBUG_MODE);
+//		Log.d(TAG, "getting initial from parts: " + initial, Log.DEBUG_MODE);
 
 		if (initial.startsWith("app://") || !initial.contains(TiUrl.PATH_SEPARATOR)) {
 			String path = initial.substring(6);
