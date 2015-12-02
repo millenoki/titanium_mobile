@@ -389,7 +389,6 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	{
 		TiBaseActivity oldActivity = (TiBaseActivity) getActivity();
 		TiBaseActivity newActivity = (TiBaseActivity) activity;
-		Log.d(TAG, "setActivity :" + newActivity);
 		if (newActivity == oldActivity) return;
 		super.setActivity(activity);
 		
