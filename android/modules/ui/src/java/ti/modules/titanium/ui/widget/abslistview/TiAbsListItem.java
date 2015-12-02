@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -36,7 +35,10 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
     private boolean canShowLeftMenuDefined = false;
     private boolean canShowRightMenu = false;
     private boolean canShowRightMenuDefined = false;
+    private boolean hasLeftButtons = false;
+    private boolean hasRightButtons = false;
     private List<TiViewProxy> leftButtons = null;
+    
     private List<TiViewProxy> rightButtons = null;
 	public TiAbsListItem(TiViewProxy proxy) {
 		super(proxy);
@@ -95,12 +97,12 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 			int accessory = TiConvert.toInt(newValue, -1);
 			handleAccessory(accessory);
 		break;
-        case TiC.PROPERTY_SELECTED_BACKGROUND_COLOR:
-		    super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, newValue, oldValue, changedProperty);
-	        break;
-        case TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE:
-            super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, newValue, oldValue, changedProperty);
-            break;
+//        case TiC.PROPERTY_SELECTED_BACKGROUND_COLOR:
+//		    super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, newValue, oldValue, changedProperty);
+//	        break;
+//        case TiC.PROPERTY_SELECTED_BACKGROUND_IMAGE:
+//            super.propertySet(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE, newValue, oldValue, changedProperty);
+//            break;
         case TiC.PROPERTY_CAN_SWIPE_LEFT:
             canShowLeftMenu = TiConvert.toBoolean(newValue, true);
             canShowLeftMenuDefined = true;
@@ -111,24 +113,25 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
             break;
 		
         case TiC.PROPERTY_LEFT_SWIPE_BUTTONS:
+            hasLeftButtons = newValue != null;
 		    if (leftButtons != null) {
 		        for (TiViewProxy viewProxy : leftButtons) {
 		            proxy.removeHoldedProxy(TiConvert.toString(
 		                    viewProxy.getProperty(TiC.PROPERTY_BIND_ID), null));
 		            proxy.removeProxy(viewProxy);
 		        }
+		        leftButtons = null;
 		    }
-            leftButtons = proxiesArrayFromValue(newValue);
             break;
         case TiC.PROPERTY_RIGHT_SWIPE_BUTTONS:
+            hasRightButtons = newValue != null;
             if (rightButtons != null) {
-                for (TiViewProxy viewProxy : leftButtons) {
+                for (TiViewProxy viewProxy : rightButtons) {
                     proxy.removeHoldedProxy(TiConvert.toString(
                             viewProxy.getProperty(TiC.PROPERTY_BIND_ID), null));
                     proxy.removeProxy(viewProxy);
                 }
             }
-            rightButtons = proxiesArrayFromValue(newValue);
             break;
 		default:
 		    super.propertySet(key, newValue, oldValue, changedProperty);
@@ -279,11 +282,11 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
     }
 
     public boolean canShowLeftMenu() {
-        return (canShowLeftMenuDefined && canShowLeftMenu) || leftButtons != null;
+        return (canShowLeftMenuDefined && canShowLeftMenu) || hasLeftButtons;
     }
     
     public boolean canShowRightMenu() {
-        return (canShowRightMenuDefined && canShowRightMenu) || rightButtons != null;
+        return (canShowRightMenuDefined && canShowRightMenu) || hasRightButtons;
     }
     
     private View[] viewsForProxyArray(List<TiViewProxy> proxies) {
@@ -310,14 +313,26 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
     }
     
     public View[] getLeftButtons() {
-        return viewsForProxyArray(leftButtons);
+        if (hasLeftButtons) {
+            if (leftButtons == null) {
+                leftButtons = proxiesArrayFromValue(getProxy().getProperty(TiC.PROPERTY_LEFT_SWIPE_BUTTONS));
+            }
+            return viewsForProxyArray(leftButtons);
+        }
+        return null;
     }
     
     public View[] getRightButtons() {
-        return viewsForProxyArray(rightButtons);
+        if (hasRightButtons) {
+            if (rightButtons == null) {
+                rightButtons = proxiesArrayFromValue(getProxy().getProperty(TiC.PROPERTY_RIGHT_SWIPE_BUTTONS));
+            }
+            return viewsForProxyArray(rightButtons);
+        }
+        return null;
     }
 
     public boolean canShowMenus() {
-        return leftButtons != null || rightButtons != null;
+        return hasLeftButtons || hasRightButtons;
     }
 }
