@@ -183,7 +183,7 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
             String key = entry.getKey();
             ProxyAbsListItem item = entry.getValue();
             if (item.getProxy() == proxy) {
-                KrollDict diffProperties = item.generateDiffProperties((HashMap) arg);
+                HashMap diffProperties = item.generateDiffProperties((HashMap) arg);
                 if (sectionProxy != null) {
                     sectionProxy.get().updateItemAt(itemIndex, key, diffProperties);
                 }

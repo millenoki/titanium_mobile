@@ -15,15 +15,15 @@ import org.appcelerator.kroll.KrollProxy;
 
 public class ProxyAbsListItem {
 	KrollProxy proxy;
-	KrollDict initialProperties;
-	KrollDict currentProperties;
-	KrollDict diffProperties;
+	HashMap initialProperties;
+	HashMap currentProperties;
+	HashMap diffProperties;
 	
 	public ProxyAbsListItem(KrollProxy proxy, KrollDict props) {
-		initialProperties = (KrollDict)props.clone();
+		initialProperties = (HashMap)props.clone();
 		this.proxy = proxy;
-		diffProperties = new KrollDict();
-		currentProperties = new KrollDict();
+		diffProperties = new HashMap();
+		currentProperties = new HashMap();
 	}
 	
 	public KrollProxy getProxy() {
@@ -36,7 +36,7 @@ public class ProxyAbsListItem {
 	 * @param properties The properties from our data model
 	 * @return The difference set of properties to set
 	 */
-	public KrollDict generateDiffProperties(HashMap properties) {
+	public HashMap generateDiffProperties(HashMap properties) {
 		diffProperties.clear();
 		Iterator<String> it = currentProperties.keySet().iterator();
 		while (it.hasNext())

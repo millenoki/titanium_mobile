@@ -748,14 +748,21 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			int itemPosition, View item_layout) {
 		// Create corresponding TiUIView for item proxy
 		TiAbsListItem listItem = new TiAbsListItem(itemProxy, itemContent, item_layout);
+        itemProxy.setActivity(this.getActivity());
 		itemProxy.setView(listItem);
 		itemContent.setView(listItem);
+//        long startTime = System.currentTimeMillis();
 		itemProxy.realizeViews();
-
+//		long endTime = System.currentTimeMillis();
+//        long diff = endTime - startTime;
+//        if (diff > 20) {
+//            Log.d(TAG, this.getClass().toString() + " generateCellContent " + diff + "ms");
+//        }
 		if (template != null) {
 			populateViews(item, itemContent, template, itemPosition,
 					sectionIndex, item_layout, false);
 		}
+		
 	}
 	
 	public int getUserItemIndexFromSectionPosition(final int position) {
@@ -794,16 +801,14 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		HashMap data = template.prepareDataDict(item);
 		AbsListItemProxy itemProxy = (AbsListItemProxy) cellContent.getView().getProxy();
 		itemProxy.setCurrentItem(sectionIndex, realItemIndex, this, item);
-		itemProxy.setActivity(this.getActivity());
 
-		KrollDict listItemProperties;
+		HashMap listItemProperties;
 //		String itemId = null;
 
 		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
-			listItemProperties = new KrollDict(
-					(HashMap) data.get(TiC.PROPERTY_PROPERTIES));
+			listItemProperties = (HashMap) data.get(TiC.PROPERTY_PROPERTIES);
 		} else {
-			listItemProperties = new KrollDict();
+			listItemProperties = new HashMap();
 		}
 		ProxyAbsListItem rootItem = itemProxy.getListItem();
 		
@@ -851,7 +856,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			if (reusing) {
 			    ((KrollProxyReusableListener) modelListener).setReusing(true);
 			}
-			KrollDict diffProperties = viewItem
+			HashMap diffProperties = viewItem
                     .generateDiffProperties((HashMap) data.get(binding));
 			
 			if (diffProperties != null && !diffProperties.isEmpty()) {
