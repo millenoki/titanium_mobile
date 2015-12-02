@@ -595,7 +595,10 @@ public class DualScrollView extends FrameLayout {
                 * otherwise don't.  mScroller.isFinished should be false when
                 * being flinged.
                 */
-                mIsBeingDragged = !mScroller.isFinished();
+                if (!mScroller.isFinished()) {
+                    mScroller.forceFinished(true);
+                }
+                mIsBeingDragged = false;
 //                if (mIsBeingDragged && mScrollStrictSpan == null) {
 //                    mScrollStrictSpan = StrictMode.enterCriticalSpan("ScrollView-scroll");
 //                }
