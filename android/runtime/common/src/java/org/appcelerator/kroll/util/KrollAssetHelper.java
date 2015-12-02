@@ -14,9 +14,10 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+import org.appcelerator.kroll.common.Log;
+
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.util.Log;
 
 public class KrollAssetHelper
 {
@@ -55,7 +56,9 @@ public class KrollAssetHelper
 		if (assetCrypt != null) {
 			String asset = assetCrypt.readAsset(resourcePath);
 			if (asset != null) {
-				Log.d(TAG, "Fetching \"" + resourcePath + "\" with assetCrypt...");
+			    if (Log.isDebugModeEnabled()) {
+	                Log.d(TAG, "Fetching \"" + resourcePath + "\" with assetCrypt...");
+			    }
 				return asset;
 			}
 		}
@@ -78,7 +81,9 @@ public class KrollAssetHelper
 				}
 			}
 
-			Log.d(TAG, "Fetching \"" + resourcePath + "\" with assetManager...");
+            if (Log.isDebugModeEnabled()) {
+                Log.d(TAG, "Fetching \"" + resourcePath + "\" with assetManager...");
+            }
 			return out.toString();
 
 		} catch (IOException e) {
