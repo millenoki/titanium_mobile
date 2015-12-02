@@ -369,17 +369,17 @@ public class ParentingProxy extends KrollProxy {
 
     protected void handleChildAdded(final KrollProxy child, final int index) {
         final Activity activity = getActivity();
-        if (!TiApplication.isUIThread()) {
-            if (activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        child.setActivity(activity);
-                    }
-                });
-            }
-            return;
-        }
+//        if (!TiApplication.isUIThread()) {
+//            if (activity != null) {
+//                activity.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        child.setActivity(activity);
+//                    }
+//                });
+//            }
+//            return;
+//        }
         child.setActivity(activity);
     }
 
