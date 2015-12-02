@@ -46,15 +46,15 @@ class TiHtmlToSpannedConverter implements ContentHandler {
             Html.TagHandler tagHandler, final boolean disableLinkStyle) {
         mSpannableStringBuilder = new SpannableStringBuilder();
         mImageGetter = imageGetter;
-        if (mImageGetter == null) {
-            mImageGetter = new Html.ImageGetter() {
-
-                @Override
-                public Drawable getDrawable(String source) {
-                    return null;
-                }
-            };
-        }
+//        if (mImageGetter == null) {
+//            mImageGetter = new Html.ImageGetter() {
+//
+//                @Override
+//                public Drawable getDrawable(String source) {
+//                    return null;
+//                }
+//            };
+//        }
     }
 
     private final float[] HEADER_SIZES = { 1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1f, };
