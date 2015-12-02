@@ -1184,7 +1184,7 @@ public class TiUILabel extends TiUINonViewGroupView
             getTextView().setIncludeFontPadding(TiConvert.toBoolean(newValue, true));
             break;
         case TiC.PROPERTY_FONT:
-            TiUIHelper.styleText(getTextView(), TiConvert.toKrollDict(newValue));
+            TiUIHelper.styleText(getTextView(), TiConvert.toHashMap(newValue));
             setNeedsLayout();
             break;
         case TiC.PROPERTY_TEXT_ALIGN:
