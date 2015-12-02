@@ -73,6 +73,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	protected boolean focused;
 	protected int[] orientationModes = null;
 	protected TiViewProxy tabGroup;
+	protected boolean needsOpenEvent = false;
 	protected TiViewProxy tab;
 	protected boolean inTab;
 	protected PostOpenListener postOpenListener;
@@ -382,6 +383,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 * @param focused true if focus was gained
 	 */
 	public void onWindowFocusChange(boolean focused) {
+	    if (focused && !customHandleOpenEvent) {
+	        sendOpenEvent();
+	    }
 		fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, null, false);
 	}
 
@@ -553,6 +557,7 @@ public abstract class TiWindowProxy extends TiViewProxy
             return;
         }
 	    state = State.OPENED;
+	    needsOpenEvent = true;
 		if (postOpenListener != null)
 		{
 			getMainHandler().post(new Runnable() {
@@ -574,9 +579,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (nativeView != null) {
 			nativeView.postInvalidate();
 		}
-		if (!customHandleOpenEvent) {
-			sendOpenEvent();
-		}
 	}
 	
 	public void customHandleOpenEvent(boolean value){
@@ -585,7 +587,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	
 	public void sendOpenEvent(){
-		fireEvent(TiC.EVENT_OPEN, null, false);
+	    if (needsOpenEvent) {
+	        needsOpenEvent = false;
+	        fireEvent(TiC.EVENT_OPEN, null, false);
+	    }
 	}
 
 	@Kroll.method @Kroll.getProperty(enumerable=false)
