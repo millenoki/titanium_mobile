@@ -930,10 +930,10 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
                 TiViewProxy tiProxy = mViews.get(position);
                 Activity activity = proxy.getActivity();
                 if (tiProxy.getParent() != TiUIScrollableView.this.proxy) {
-                    tiProxy.setActivity(activity);
                     TiUIHelper.removeViewFromSuperView(tiProxy);
                     tiProxy.setParent(TiUIScrollableView.this.proxy);
                 }
+                tiProxy.setActivity(activity);
                 TiCompositeLayout layout = new TiCompositeLayout(activity);
                 layout.setInternalTouchPassThrough(true);
                 TiUIHelper.addView(layout, tiProxy);

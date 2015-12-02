@@ -1035,11 +1035,12 @@ public class TiUILabel extends TiUINonViewGroupView
 
 	}
 
-	private Spanned fromHtml(CharSequence str)
-	{
-		SpannableStringBuilder htmlText = new SpannableStringBuilder(TiHtml.fromHtml(str, disableLinkStyle));
-		return htmlText;
-	}
+//	private CharSequence fromHtml(CharSequence str)
+//	{
+//	    return TiHtml.fromHtml(str, disableLinkStyle);
+////		SpannableStringBuilder htmlText = new SpannableStringBuilder(TiHtml.fromHtml(str, disableLinkStyle));
+////		return htmlText;
+//	}
 	
 	private void updateTextColors() {
 		int[][] states = new int[][] {
@@ -1078,7 +1079,7 @@ public class TiUILabel extends TiUINonViewGroupView
 //	    strBuilder.removeSpan(span);
 //	}
 	
-	protected Spanned prepareHtml(CharSequence html)
+	protected CharSequence prepareHtml(CharSequence str)
 	{
 //	    CharSequence sequence = fromHtml(html);
 //	        SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
@@ -1086,7 +1087,7 @@ public class TiUILabel extends TiUINonViewGroupView
 //	        for(URLSpan span : urls) {
 //	            makeLinkClickable(strBuilder, span);
 //	        }
-	    return fromHtml(html);
+	    return TiHtml.fromHtml(str, disableLinkStyle);
 	}
 
 	@Override

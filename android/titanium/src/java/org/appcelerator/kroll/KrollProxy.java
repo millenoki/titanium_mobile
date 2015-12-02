@@ -200,6 +200,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public static KrollProxy createProxy(Class<? extends KrollProxy> proxyClass, Object props) {
         try {
             KrollProxy proxyInstance = proxyClass.newInstance();
+            // Associate the activity with the proxy. if the proxy needs activity
+            // association delayed until a
+            // later point then initActivity should be overridden to be a no-op and
+            // then call setActivity directly
+            // at the appropriate time
+//            proxyInstance.initActivity(TiApplication.getInstance().getCurrentActivity());
+            
             if (props instanceof HashMap) {
                 proxyInstance.handleCreationDict((HashMap) props);
             }
@@ -2192,6 +2199,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 return null;
             if  (rootProxy == null) {
                 rootProxy = proxy;
+            } else {
+                proxy.setActivity(rootProxy.getActivity());
             }
 //            if (creationArgsHandlesTemplate) {
 //                template_.remove(TiC.PROPERTY_EVENTS);
