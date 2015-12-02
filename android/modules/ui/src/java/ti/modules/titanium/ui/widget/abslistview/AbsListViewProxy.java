@@ -77,15 +77,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		super();
 	}
 	
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
-		preloadSections = new ArrayList<AbsListSectionProxy>();
-		defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
-        defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
-        defaultValues.put(TiC.PROPERTY_ROW_HEIGHT, 50);
-        defaultValues.put(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR, "#474747");
-		super.handleCreationArgs(createdInModule, args);
-		
-	}
+
 	
     @Override
     public void setActivity(Activity activity) {
@@ -110,6 +102,10 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 
 	@Override
 	public void handleCreationDict(HashMap options) {
+	    defaultValues.put(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE, UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
+        defaultValues.put(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
+        defaultValues.put(TiC.PROPERTY_ROW_HEIGHT, 50);
+        defaultValues.put(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR, "#474747");
 		super.handleCreationDict(options);
 		//Adding sections to preload sections, so we can handle appendSections/insertSection
 		//accordingly if user call these before TiListView is instantiated.
