@@ -1355,12 +1355,17 @@ public class TiCompositeLayout extends FreeLayout implements
             optionBottom = params.optionBottom;
             optionWidth = params.optionWidth;
             optionHeight = params.optionHeight;
+            maxWidth = params.maxWidth;
+            maxHeight = params.maxHeight;
+            minWidth = params.minWidth;
+            minHeight = params.minHeight;
             sizeOrFillHeightEnabled = params.sizeOrFillHeightEnabled;
             sizeOrFillWidthEnabled = params.sizeOrFillWidthEnabled;
             fullscreen = params.fullscreen;
             widthMatchHeight = params.widthMatchHeight;
             heightMatchWidth = params.heightMatchWidth;
             notTiLayout = params.notTiLayout;
+            ignoreInLayout = params.ignoreInLayout;
 		}
 		public LayoutParams(TiCompositeLayout.LayoutParams params) {
 			super(params);
