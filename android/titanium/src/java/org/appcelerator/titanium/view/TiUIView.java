@@ -60,7 +60,6 @@ import android.animation.PropertyValuesHolder;
 import android.animation.StateListAnimator;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -1259,18 +1258,21 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected void handleProperties(HashMap<String, Object> d, final boolean changed) {
         final KrollProxy proxy = this.proxy;
-        if (keySequence() != null) {
-            for (final String key : keySequence()) {
-                if (d.containsKey(key)) {
-                    propertySet(key, d.get(key), proxy.getProperty(key),
-                            changed);
-                    d.remove(key);
+        final HashMap currents = proxy.getProperties();
+        synchronized (currents) {
+            if (keySequence() != null) {
+                for (final String key : keySequence()) {
+                    if (d.containsKey(key)) {
+                        propertySet(key, d.get(key), currents.get(key),
+                                changed);
+                        d.remove(key);
+                    }
                 }
             }
-        }
-        for (Map.Entry<String, Object> entry : d.entrySet()) {
-            final String key = entry.getKey();
-            propertySet(key, entry.getValue(), proxy.getProperty(key), changed);
+            for (Map.Entry<String, Object> entry : d.entrySet()) {
+                final String key = entry.getKey();
+                propertySet(key, entry.getValue(), currents.get(key), changed);
+            }
         }
     }
 
@@ -1283,10 +1285,15 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     @Override
     public void processProperties(HashMap d) {
+//        long startTime = System.currentTimeMillis();
         aboutToProcessProperties(d);
         handleProperties(d, false);
         didProcessProperties();
-
+//        long endTime = System.currentTimeMillis();
+//        long diff = endTime - startTime;
+//        if (diff > 20) {
+//            Log.w(TAG, "processProperties " + diff + "ms, " + this.getClass().toString());
+//        }
         if (!(layoutParams instanceof AnimationLayoutParams)
                 && getOuterView() != null && !useCustomLayoutParams) {
             getOuterView().setLayoutParams(layoutParams);
