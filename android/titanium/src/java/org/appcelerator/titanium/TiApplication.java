@@ -357,9 +357,6 @@ public abstract class TiApplication extends Application implements
 
             return activity;
         }
-
-        Log.d(TAG, "activity stack is empty, unable to get current activity",
-                Log.DEBUG_MODE);
         return null;
     }
 
