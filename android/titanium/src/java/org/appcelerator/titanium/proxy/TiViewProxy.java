@@ -657,6 +657,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	public TiUIView getOrCreateView(final boolean enableModelListener, final boolean processProperties)
 	{
 	    if (activity == null) {
+	        Log.e(TAG, "calling getOrCreateView with a null activity");
 	        return null;
 	    }
 		if (view != null) {
