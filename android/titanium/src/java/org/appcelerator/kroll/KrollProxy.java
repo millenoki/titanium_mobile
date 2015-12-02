@@ -1691,6 +1691,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
         return props;
     }
+    public HashMap getShallowProperties() {
+        HashMap props = null;
+        synchronized (properties) {
+            props = new HashMap(properties);
+        }
+        return props;
+    }
 
     /**
      * @return the KrollModule that this proxy was created in.
@@ -1727,7 +1734,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
         case MSG_MODEL_PROCESS_PROPERTIES: {
             if (modelListener != null) {
-                modelListener.get().processProperties(getClonedProperties());
+                modelListener.get().processProperties(getShallowProperties());
             }
             return true;
         }
@@ -1876,6 +1883,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     public KrollProxyListener getModelListener() {
+        if (modelListener == null) {
+            return null;
+        }
         return modelListener.get();
     }
 
@@ -1886,13 +1896,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void setModelListener(KrollProxyListener modelListener,
             boolean applyProps) {
         if (modelListener != null) {
-            if (modelListener.equals(this.modelListener)) {
+            if (this.modelListener != null && modelListener.equals(this.modelListener.get())) {
                 return;
             }
             this.modelListener = new WeakReference<KrollProxyListener>(modelListener);
             if (applyProps) {
                 if (!mProcessInUIThread || TiApplication.isUIThread()) {
-                    modelListener.processProperties(getClonedProperties());
+                    modelListener.processProperties(getShallowProperties());
                 } else {
                     getMainHandler().sendEmptyMessage(MSG_MODEL_PROCESS_PROPERTIES);
                 }
@@ -2219,7 +2229,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void reloadProperties() {
         if (modelListener != null) {
             synchronized (properties) {
-                modelListener.get().processProperties(getClonedProperties());
+                modelListener.get().processProperties(getShallowProperties());
             }
         }
     }
