@@ -255,6 +255,9 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		public View getView(int position, View convertView, ViewGroup parent) {
 			//Get section info from index
 			Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
+			if (info == null) {
+                return null; // possible because of WrapperView
+            }
 			AbsListSectionProxy section = info.first;
 			if (section.hidden) {
 			    return null; // possible because of WrapperView
