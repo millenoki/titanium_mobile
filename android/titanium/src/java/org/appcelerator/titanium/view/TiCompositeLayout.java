@@ -471,6 +471,7 @@ public class TiCompositeLayout extends FreeLayout implements
 		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
 
 		setMeasuredDimension(measuredWidth, measuredHeight);
+//        applyAnimationSize(this, p, false);
 	}
 	
 	
@@ -483,6 +484,43 @@ public class TiCompositeLayout extends FreeLayout implements
         return super.getLayoutParams();
     }
 	
+	
+	protected void applyAnimationSize(final View child, final LayoutParams p, final boolean shouldMeasure) {
+	    
+	    if (p instanceof AnimationLayoutParams) {
+	        int measuredWidth = child.getMeasuredWidth();
+	        int measuredHeight = child.getMeasuredHeight();
+            AnimationLayoutParams animP = (AnimationLayoutParams) p;
+            float fraction = animP.animationFraction;
+            if (fraction < 1.0f) {
+                if (fraction >= 0.4 && fraction <= 0.6) {
+                    Log.d(TAG, "test");
+                }
+                Rect startRect = animP.startRect;
+                if (startRect != null) {
+                    if (fraction == 0.0f) {
+                        animP.finalWidth = measuredWidth;
+                        animP.finalHeight = measuredHeight;
+                    }
+
+                    measuredWidth = (int) Math.ceil(measuredWidth * fraction + (1 - fraction)
+                            * startRect.width());
+                    int wMode = MeasureSpec.makeMeasureSpec(measuredWidth,
+                            MeasureSpec.EXACTLY);
+                
+                    measuredHeight = (int) Math.ceil(measuredHeight * fraction + (1 - fraction)
+                        * startRect.height());
+                    int hMode = MeasureSpec.makeMeasureSpec(measuredHeight,
+                            MeasureSpec.EXACTLY);
+                    if (!shouldMeasure && child instanceof TiCompositeLayout) {
+                        ((TiCompositeLayout)child).setMeasuredDimension(measuredWidth, measuredHeight);
+                    } else {
+                        child.measure(wMode, hMode);
+                    }
+               }
+            }
+        }
+	}
 	
 	protected void measureChild(final View child, final LayoutParams p, int wMode,
             int hMode, int widthPadding, int heightPadding, final int parentWidth, final int parentHeight) {
@@ -533,32 +571,16 @@ public class TiCompositeLayout extends FreeLayout implements
                 needsRecompute = true;
             }
         }
-        if (p instanceof AnimationLayoutParams) {
-            AnimationLayoutParams animP = (AnimationLayoutParams) p;
-            float fraction = animP.animationFraction;
-            if (fraction < 1.0f) {
-                Rect startRect = animP.startRect;
-                if (startRect != null) {
-                    if (fraction == 0.0f) {
-                        animP.finalWidth = measuredWidth;
-                        animP.finalHeight = measuredHeight;
-                    }
-                    measuredWidth = (int) Math.ceil(measuredWidth * fraction + (1 - fraction)
-                            * startRect.width());
-                    wMode = MeasureSpec.makeMeasureSpec(measuredWidth,
-                            MeasureSpec.EXACTLY);
-                
-                    measuredHeight = (int) Math.ceil(measuredHeight * fraction + (1 - fraction)
-                        * startRect.height());
-                    hMode = MeasureSpec.makeMeasureSpec(measuredHeight,
-                            MeasureSpec.EXACTLY);
-                    needsRecompute = true;
-                }
-            }
-        }
         if (needsRecompute) {
+            needsRecompute = false;
             child.measure(wMode, hMode);
+            measuredWidth = child.getMeasuredWidth();
+            measuredHeight = child.getMeasuredHeight();
         }
+//        if (!(child instanceof TiCompositeLayout)) {
+            applyAnimationSize(child, p, true);
+//        }
+        
 	}
 	
     public static int getChildMeasureSpec(int size, int mode, int padding, int childDimension) {
@@ -755,26 +777,19 @@ public class TiCompositeLayout extends FreeLayout implements
 		return getMeasuredWidthStatic(maxHeight, heightSpec);
 	}
 
-	public int getChildSize(final View child,final  TiCompositeLayout.LayoutParams params,
+	public int getChildSize(final View child, final int index, final  TiCompositeLayout.LayoutParams params,
 	        final int left, final int top, final int bottom, final int right, int currentHeight,
 	        final int[] horizontal, final int[] vertical, final boolean firstVisibleChild) {
 
 		if (child.getVisibility() == View.GONE)
 			return currentHeight;
 
-		int i = indexOfChild(child);
-		// Dimension is required from Measure. Positioning is determined here.
 
 		final int childMeasuredHeight = child.getMeasuredHeight();
 		final int childMeasuredWidth = child.getMeasuredWidth();
-		int toUseWidth = childMeasuredWidth;
-		int toUseHeight = childMeasuredHeight;
-        
         
         final boolean horizontalArr = isHorizontalArrangement();
         final boolean verticalArr = isVerticalArrangement();
-       
-		
 
 		if (horizontalArr) {
 			if (firstVisibleChild) {
@@ -783,36 +798,23 @@ public class TiCompositeLayout extends FreeLayout implements
 				horizontalLayoutTopBuffer = 0;
 				horizontalLayoutLastIndexBeforeWrap = 0;
 				horiztonalLayoutPreviousRight = 0;
-				updateRowForHorizontalWrap(right, i);
+				updateRowForHorizontalWrap(right, index);
 			}
-			computeHorizontalLayoutPosition(params, toUseWidth,
-			        toUseHeight, right, top, bottom, horizontal,
-					vertical, i);
-
+			computeHorizontalLayoutPosition(params, childMeasuredWidth,
+			        childMeasuredHeight, right, top, bottom, horizontal,
+					vertical, index);
 		} else {
-			// Try to calculate width/height from pins, and default to measured
-			// width/height. We have to do this in
-			// onLayout since we can't get the correct top, bottom, left, and
-			// right values inside constrainChild().
-//			childMeasuredHeight = calculateHeightFromPins(params, top, bottom,
-//					getHeight(), childMeasuredHeight, !verticalArr);
-//			childMeasuredWidth = calculateWidthFromPins(params, left, right,
-//					getWidth(), childMeasuredWidth, true);
-			
 			computePosition(this, params, params.optionLeft, params.optionCenterX, params.optionWidth,
-						params.optionRight, toUseWidth, left, right,
-						horizontal);
+						params.optionRight, childMeasuredWidth, left, right,
+						horizontal, false);
 			
 			if (verticalArr) {
 				computeVerticalLayoutPosition(currentHeight, params.optionTop,
 					childMeasuredHeight, top, vertical, bottom, params);
-				// Include bottom in height calculation for vertical layout
-				// (used as padding)
-//				currentHeight +=  getLayoutOptionAsPixels(params.optionBottom, TiDimension.TYPE_BOTTOM, params, this);
 			} else {
 				computePosition(this, params, params.optionTop, params.optionCenterY, params.optionHeight,
-						params.optionBottom, toUseHeight, top, bottom,
-						vertical);
+						params.optionBottom, childMeasuredHeight, top, bottom,
+						vertical, true);
 				
 
 			}
@@ -866,8 +868,8 @@ public class TiCompositeLayout extends FreeLayout implements
 			if (child == null || child.getVisibility() == View.GONE)
 				continue;
 
-            TiCompositeLayout.LayoutParams params = getChildParams(child);
-			currentHeight = getChildSize(child, params, left, top, bottom,
+            final TiCompositeLayout.LayoutParams params = getChildParams(child);
+			currentHeight = getChildSize(child, i, params, left, top, bottom,
 					right, currentHeight, horizontal, vertical, firstVisibleChild);
 			
 			firstVisibleChild = false;
@@ -915,10 +917,10 @@ public class TiCompositeLayout extends FreeLayout implements
 
 	// option0 is left/top, option1 is right/bottom
 	@SuppressWarnings("null")
-    public static void computePosition(View parent, LayoutParams params, TiDimension leftOrTop,
-			TiDimension optionCenter, TiDimension optionWidthOrHeight, TiDimension rightOrBottom,
-			int measuredSize, int layoutPosition0, int layoutPosition1,
-			int[] pos) {
+    public static void computePosition(final View parent, final LayoutParams params, final TiDimension leftOrTop,
+            final TiDimension optionCenter, final TiDimension optionWidthOrHeight, final TiDimension rightOrBottom,
+			final int measuredSize, final int layoutPosition0, final int layoutPosition1,
+			int[] pos, final boolean vertical) {
 		int dist = layoutPosition1 - layoutPosition0;
         final boolean leftTopDef = (leftOrTop != null && !leftOrTop.isUnitUndefined());
         final boolean rightBotDef = (rightOrBottom != null && !rightOrBottom.isUnitUndefined());
@@ -945,7 +947,7 @@ public class TiCompositeLayout extends FreeLayout implements
                     final Rect startRect = animP.startRect;
                     if (startRect != null) {
                         pos[0] = (int) Math.floor(pos[0] * animFraction + (1 - animFraction)
-                                * startRect.left);
+                                * (vertical?startRect.top:startRect.left));
                     }
 //                    if (startRect != null ) {
 //                        if (animP.optionWidth != null) {
@@ -1109,7 +1111,7 @@ public class TiCompositeLayout extends FreeLayout implements
 		// Get vertical position into vpos
 		computePosition(this, params, params.optionTop, params.optionCenterY, params.optionHeight,
 				params.optionBottom, measuredHeight, layoutTop, layoutBottom,
-				vpos);
+				vpos, true);
 		if (! params.autoFillHeight() && (params.optionTop != null && !params.optionTop.isUnitUndefined() &&
 				params.optionBottom != null && !params.optionBottom.isUnitUndefined()))
 		{
