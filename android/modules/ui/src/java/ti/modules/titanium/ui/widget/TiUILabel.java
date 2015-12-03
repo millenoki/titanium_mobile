@@ -50,6 +50,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import in.uncod.android.bypass.Bypass;
 import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.Layout.Alignment;
@@ -96,6 +97,7 @@ public class TiUILabel extends TiUINonViewGroupView
     protected static final int TIFLAG_NEEDS_TEXT_HTML            = 0x00000004;
     protected static final int TIFLAG_NEEDS_SHADOW               = 0x00000008;
     protected static final int TIFLAG_NEEDS_LINKIFY              = 0x00000010;
+    protected static final int TIFLAG_NEEDS_TEXT_MARKDOWN        = 0x00000020;
 
 	private int selectedColor, color, disabledColor;
 	private boolean wordWrap = true;
@@ -1078,15 +1080,13 @@ public class TiUILabel extends TiUINonViewGroupView
 //	    strBuilder.setSpan(clickable, start, end, flags);
 //	    strBuilder.removeSpan(span);
 //	}
-	
+	protected CharSequence prepareMarkdown(String str)
+    {
+	    Bypass bypass = new Bypass(getContext());
+	    return bypass.markdownToSpannable(str);
+    }
 	protected CharSequence prepareHtml(CharSequence str)
 	{
-//	    CharSequence sequence = fromHtml(html);
-//	        SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
-//	        URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);   
-//	        for(URLSpan span : urls) {
-//	            makeLinkClickable(strBuilder, span);
-//	        }
 	    return TiHtml.fromHtml(str, disableLinkStyle);
 	}
 
@@ -1129,13 +1129,20 @@ public class TiUILabel extends TiUINonViewGroupView
         }
 
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT) != 0) {
-            if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_HTML) != 0) {
+            if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_MARKDOWN) != 0) {
+                if (text instanceof String) {
+                    tv.setText(prepareMarkdown((String) text));
+                } else {
+                    tv.setText(text);
+                }
+                mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_MARKDOWN;
+           } else if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_HTML) != 0) {
                 tv.setText((text!= null)?prepareHtml(text):text);
+                mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_HTML;
             } else {
                 tv.setText(text);
             }
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT;
-            mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_HTML;
             needsLayout = true;
         }
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_LINKIFY) != 0) {
@@ -1259,6 +1266,11 @@ public class TiUILabel extends TiUINonViewGroupView
         case TiC.PROPERTY_AUTO_LINK:
             autoLink = TiConvert.toBoolean(newValue);
             mProcessUpdateFlags |= TIFLAG_NEEDS_LINKIFY;
+            break;
+        case TiC.PROPERTY_MARKDOWN:
+            text = TiConvert.toString(newValue);
+            mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
+            mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT_MARKDOWN;
             break;
         case TiC.PROPERTY_HTML:
             text = TiConvert.toString(newValue);
