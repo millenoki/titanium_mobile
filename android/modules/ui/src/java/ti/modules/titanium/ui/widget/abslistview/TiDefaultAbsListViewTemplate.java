@@ -16,7 +16,7 @@ public class TiDefaultAbsListViewTemplate extends TiAbsListViewTemplate {
 	private static final KrollDict TEMPLATE_DICT = createTemplateDict();
     private static KrollDict createTemplateDict() {
         try {
-            return new KrollDict("{properties:{layout:'horizontal'},childTemplates:[{type:'Ti.UI.ImageView',bindId:'imageView',touchEnabled:false,left:15,width:35',height:35},{properties:{layout:'vertical',touchEnabled:false,left:15,right:15},childTemplates:[{type:'Ti.UI.Label',bindId:'titleView',color:'white',font:{size:16},ellipsize:true,maxLines:1,height:'FILL',width:'FILL'},{type:'Ti.UI.Label',bindId:'subtitleView',color:'#7B7B7B',font:{size:15},ellipsize:true,maxLines:1,height:'FILL',width:'FILL', verticalAlign:'top'}]}]}");
+            return new KrollDict("{properties:{layout:'horizontal', selector:true},childTemplates:[{type:'Ti.UI.ImageView',bindId:'imageView',touchEnabled:false,left:15,width:35',height:35},{properties:{layout:'vertical',touchEnabled:false,left:15,right:15},childTemplates:[{type:'Ti.UI.Label',bindId:'titleView',color:'white',font:{size:16},ellipsize:true,maxLines:1,height:'FILL',width:'FILL'},{type:'Ti.UI.Label',bindId:'subtitleView',color:'#7B7B7B',font:{size:15},ellipsize:true,maxLines:1,height:'FILL',width:'FILL', verticalAlign:'top'}]}]}");
         } catch (JSONException e) {
             return null;
         }
