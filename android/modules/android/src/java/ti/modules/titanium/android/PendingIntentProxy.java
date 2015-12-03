@@ -97,8 +97,9 @@ public class PendingIntentProxy extends KrollProxy
 		}
 	}
 
-	public void handleCreationDict(KrollDict dict)
-	{
+	@Override
+    public void handleCreationDict(HashMap dict)
+    {
 		if (dict.containsKey(TiC.PROPERTY_INTENT)) {
 			intent = IntentProxy.fromObject(dict.get(TiC.PROPERTY_INTENT));
 		}
@@ -106,7 +107,7 @@ public class PendingIntentProxy extends KrollProxy
 			updateCurrentIntent = TiConvert.toBoolean(dict.get(TiC.PROPERTY_UPDATE_CURRENT_INTENT));
 		}
 		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {
-			flags = dict.getInt(TiC.PROPERTY_FLAGS);
+			flags = TiConvert.toInt(dict, TiC.PROPERTY_FLAGS);
 		}
 		
 		//add FLAG_UPDATE_CURRENT if updateCurrentIntent is true

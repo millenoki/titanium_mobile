@@ -140,19 +140,20 @@ public class IntentProxy extends KrollProxy
 		
 		return className+appendage;
 	}
-
-	public void handleCreationDict(KrollDict dict)
+	
+	@Override
+	public void handleCreationDict(HashMap dict)
 	{
 		super.handleCreationDict(dict);
 		intent = new Intent();
 		
 		// See which set of options we have to work with.
-		String action = dict.getString(TiC.PROPERTY_ACTION);
-		String url = dict.getString(TiC.PROPERTY_URL);
-		String data = dict.getString(TiC.PROPERTY_DATA);
-		String className = dict.getString(TiC.PROPERTY_CLASS_NAME);
-        String packageName = dict.getString(TiC.PROPERTY_PACKAGE_NAME);
-		String type = dict.getString(TiC.PROPERTY_TYPE);
+		String action = TiConvert.toString(dict, TiC.PROPERTY_ACTION);
+		String url = TiConvert.toString(dict, TiC.PROPERTY_URL);
+		String data = TiConvert.toString(dict, TiC.PROPERTY_DATA);
+		String className = TiConvert.toString(dict, TiC.PROPERTY_CLASS_NAME);
+        String packageName = TiConvert.toString(dict, TiC.PROPERTY_PACKAGE_NAME);
+		String type = TiConvert.toString(dict, TiC.PROPERTY_TYPE);
 		int flags = 0;
 
 		if (dict.containsKey(TiC.PROPERTY_FLAGS)) {

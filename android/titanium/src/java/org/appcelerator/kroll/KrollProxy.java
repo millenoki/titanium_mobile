@@ -281,8 +281,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     /**
      * Handles the arguments passed into the "create" method for this proxy. If
-     * your proxy simply needs to handle a KrollDict, see
-     * {@link KrollProxy#handleCreationDict(KrollDict)}
+     * your proxy simply needs to handle a HashMap, see
+     * {@link KrollProxy#handleCreationDict(HashMap)}
      * 
      * @param args
      * @module.api
@@ -295,11 +295,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             return;
         }
 
-        KrollDict dict;
-        if (args[0] instanceof KrollDict) {
-            dict = (KrollDict) args[0];
-        } else {
-            dict = new KrollDict((HashMap) args[0]);
+        HashMap dict = null;
+        if (args[0] instanceof HashMap) {
+            dict = (HashMap) args[0];
         }
         handleCreationDict(dict);
     }

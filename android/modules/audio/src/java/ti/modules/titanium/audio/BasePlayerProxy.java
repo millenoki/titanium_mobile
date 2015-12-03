@@ -127,30 +127,7 @@ public class BasePlayerProxy extends TiEnhancedServiceProxy {
 
         return null;
     }
-//
-//    @Override
-//    public void handleCreationDict(KrollDict options) {
-//        super.handleCreationDict(options);
-//        if (options.containsKey(TiC.PROPERTY_PLAYLIST)) {
-//            addItemToPlaylist(options.get(TiC.PROPERTY_PLAYLIST));
-//        }
-//        // } else if (options.containsKey(TiC.PROPERTY_SOUND)) {
-//        // FileProxy fp = (FileProxy) options.get(TiC.PROPERTY_SOUND);
-//        // if (fp != null) {
-//        // String url = fp.getNativePath();
-//        // setProperty(TiC.PROPERTY_URL, url);
-//        // }
-//        // }
-//        // if (options.containsKey(TiC.PROPERTY_ALLOW_BACKGROUND)) {
-//        // allowBackground = options.optBoolean(TiC.PROPERTY_ALLOW_BACKGROUND,
-//        // allowBackground);
-//        // }
-//        // Log.i(TAG,
-//        // "Creating audio player proxy for url: "
-//        // + TiConvert.toString(getProperty(TiC.PROPERTY_URL)),
-//        // Log.DEBUG_MODE);
-//    }
-    
+
     @Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {

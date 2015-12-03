@@ -57,30 +57,31 @@ public class HTTPClientProxy extends KrollProxy
 		this();
 	}
 	
-	public void handleCreationDict(KrollDict dict)
-	{
+	@Override
+    public void handleCreationDict(HashMap dict)
+    {
 		super.handleCreationDict(dict);
 
-		if (hasProperty(TiC.PROPERTY_TIMEOUT)) {
-			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT),0));
+		if (dict.containsKey(TiC.PROPERTY_TIMEOUT)) {
+			client.setTimeout(TiConvert.toInt(dict, TiC.PROPERTY_TIMEOUT,0));
 		}
 
-		if (hasProperty(TiC.PROPERTY_AUTO_REDIRECT)) {
-			client.setAutoRedirect(TiConvert.toBoolean((getProperty(TiC.PROPERTY_AUTO_REDIRECT)),true));
+		if (dict.containsKey(TiC.PROPERTY_AUTO_REDIRECT)) {
+			client.setAutoRedirect(TiConvert.toBoolean(dict, TiC.PROPERTY_AUTO_REDIRECT, true));
 		}
 
-		if (hasProperty(TiC.PROPERTY_AUTO_ENCODE_URL)) {
-			client.setAutoEncodeUrl(TiConvert.toBoolean((getProperty(TiC.PROPERTY_AUTO_ENCODE_URL)),true));
+		if (dict.containsKey(TiC.PROPERTY_AUTO_ENCODE_URL)) {
+			client.setAutoEncodeUrl(TiConvert.toBoolean(dict, TiC.PROPERTY_AUTO_ENCODE_URL, true));
 		}
 		
 		
-		if (hasProperty("headers")) {
-            setHeaders((HashMap<String, Object>) getProperty("headers"));
+		if (dict.containsKey("headers")) {
+            setHeaders((HashMap<String, Object>) dict.get("headers"));
         }
 		
 		//Set the securityManager on the client if it is defined as a valid value
-		if (hasProperty(PROPERTY_SECURITY_MANAGER)) {
-			Object prop = getProperty(PROPERTY_SECURITY_MANAGER);
+		if (dict.containsKey(PROPERTY_SECURITY_MANAGER)) {
+			Object prop = dict.get(PROPERTY_SECURITY_MANAGER);
 			if (prop != null) {
 				if (prop instanceof SecurityManagerProtocol) {
 					this.client.securityManager = (SecurityManagerProtocol)prop;
@@ -90,7 +91,7 @@ public class HTTPClientProxy extends KrollProxy
 			}
 		}
 		
-		client.setTlsVersion(TiConvert.toInt(getProperty(TiC.PROPERTY_TLS_VERSION), NetworkModule.TLS_DEFAULT));
+		client.setTlsVersion(TiConvert.toInt(dict, TiC.PROPERTY_TLS_VERSION, NetworkModule.TLS_DEFAULT));
 		
 
 	}
