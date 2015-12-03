@@ -276,7 +276,6 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 	
 	@Kroll.method
-    @UiThread
 	public void scrollToTop(int y, @Kroll.argument(optional = true) KrollDict options)
 	{
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
@@ -287,7 +286,6 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 
 	@Kroll.method
-    @UiThread
 	public void scrollToBottom(int y, @Kroll.argument(optional = true) KrollDict options)
 	{
 		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
