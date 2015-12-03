@@ -506,16 +506,15 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             bubbleParent = TiConvert.toBoolean(dict,
                     TiC.PROPERTY_BUBBLE_PARENT, true);
             bubbleParentDefined = true;
-            dict.remove(TiC.PROPERTY_BUBBLE_PARENT);
+//            dict.remove(TiC.PROPERTY_BUBBLE_PARENT);
         }
         if (dict.containsKey(TiC.PROPERTY_BIND_ID)) {
             mBindId = TiConvert.toString(dict, TiC.PROPERTY_BIND_ID);
-            dict.remove(TiC.PROPERTY_BIND_ID);
+//            dict.remove(TiC.PROPERTY_BIND_ID);
         }
 
         if (dict.containsKey(TiC.PROPERTY_SYNCEVENTS)) {
-            setSyncEvents(TiConvert.toStringArray(dict
-                    .remove(TiC.PROPERTY_SYNCEVENTS)));
+            setSyncEvents(TiConvert.toStringArray(dict .get(TiC.PROPERTY_SYNCEVENTS)));
         }
 
 		if (dict.containsKey(TiC.PROPERTY_LIFECYCLE_CONTAINER)) {
