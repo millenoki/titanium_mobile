@@ -58,7 +58,8 @@ import org.json.JSONObject;
  * >Titanium.UI.createView </a>, the view object is a proxy itself.
  */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = {
-        TiC.PROPERTY_BUBBLE_PARENT }, propertyDontEnumAccessors = {
+        TiC.PROPERTY_BUBBLE_PARENT,
+        TiC.PROPERTY_BIND_ID}, propertyDontEnumAccessors = {
                 KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecycleEvent {
@@ -115,6 +116,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     private KrollDict langConversionTable = null;
     private boolean bubbleParent = true;
+    private String mBindId = null;
     private boolean bubbleParentDefined = false;
     private WeakReference<TiViewEventOverrideDelegate> eventOverrideDelegate = null;
 
@@ -508,6 +510,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             bubbleParentDefined = true;
             dict.remove(TiC.PROPERTY_BUBBLE_PARENT);
         }
+        if (dict.containsKey(TiC.PROPERTY_BIND_ID)) {
+            mBindId = TiConvert.toString(dict, TiC.PROPERTY_BIND_ID);
+            dict.remove(TiC.PROPERTY_BIND_ID);
+        }
 
         if (dict.containsKey(TiC.PROPERTY_SYNCEVENTS)) {
             setSyncEvents(TiConvert.toStringArray(dict
@@ -877,10 +883,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                         wait);
             } else {
                 if (name.equals(TiC.PROPERTY_BUBBLE_PARENT)) {
-//                    bubbleParent = TiConvert.toBoolean(value, true);
-//                    bubbleParentDefined = true;
+                } else if (name.equals(TiC.PROPERTY_BIND_ID)) {
                 } else if (name.equals(TiC.PROPERTY_SYNCEVENTS)) {
-//                    setSyncEvents(TiConvert.toStringArray(value));
                 } else if (force || shouldFireChange(current, value)) {
                     changedProps.put(name, value);
                 }
@@ -914,6 +918,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 if (name.equals(TiC.PROPERTY_BUBBLE_PARENT)) {
                     bubbleParent = TiConvert.toBoolean(value, true);
                     bubbleParentDefined = true;
+                } else if (name.equals(TiC.PROPERTY_BIND_ID)) {
+                    mBindId = TiConvert.toString(value);
                 } else if (name.equals(TiC.PROPERTY_SYNCEVENTS)) {
                     setSyncEvents(TiConvert.toStringArray(value));
                 } else if (force || shouldFireChange(current, value)) {
@@ -1320,7 +1326,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             }
         }
         if (sourceProxy instanceof KrollProxy) {
-            Object bindId = ((KrollProxy) sourceProxy).getProperty(TiC.PROPERTY_BIND_ID);
+            Object bindId = ((KrollProxy) sourceProxy).getBindId();
             if (bindId != null) {
                 dict.put(TiC.PROPERTY_BIND_ID, bindId);
             }
@@ -1358,6 +1364,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 //        }
         
         return true;
+    }
+    
+    public String getBindId() {
+        return mBindId;
     }
 
     public boolean doFireEvent(String event, Object data, boolean bubbles) {
@@ -1603,6 +1613,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (name.equals(TiC.PROPERTY_BUBBLE_PARENT)) {
             bubbleParent = TiConvert.toBoolean(value, true);
             bubbleParentDefined = true;
+            return;
+        } else if (name.equals(TiC.PROPERTY_BIND_ID)) {
+            mBindId = TiConvert.toString(newValue);
             return;
         } else if (name.equals(TiC.PROPERTY_SYNCEVENTS)) {
             setSyncEvents(TiConvert.toStringArray(value));
@@ -2111,15 +2124,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     protected void initFromTemplate(HashMap template_, KrollProxy rootProxy,
             boolean updateKrollProperties, boolean recursive) {
         if (rootProxy != null) {
-            String bindId = TiConvert.toString(template_, TiC.PROPERTY_BIND_ID,
-                    null);
-            if (bindId != null) {
-                setPropertyJava(TiC.PROPERTY_BIND_ID, bindId);
-            }
+            mBindId = TiConvert.toString(template_, TiC.PROPERTY_BIND_ID, mBindId);
+//            if (mBindId != null) {
+//                setPropertyJava(TiC.PROPERTY_BIND_ID, mBindId);
+//            }
             // always call addBinding even with bindId=null, subclasses might
             // need it
             if (rootProxy != this) {
-                rootProxy.addBinding(bindId, this);
+                rootProxy.addBinding(getBindId(), this);
             }
         }
         if (template_.containsKey(TiC.PROPERTY_EVENTS)) {
@@ -2181,6 +2193,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
 //        boolean creationArgsHandlesTemplate = true;
         String type = TiConvert.toString(template_, TiC.PROPERTY_TYPE, defaultProxyTypeFromTemplate());
+//        String bindId = TiConvert.toString(template_, TiC.PROPERTY_BIND_ID);
         Object props = template_;
         if (template_.containsKey(TiC.PROPERTY_PROPERTIES)) {
             props =  template_.get(TiC.PROPERTY_PROPERTIES);

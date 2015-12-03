@@ -209,8 +209,7 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
         dict.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
         dict.put(TiC.PROPERTY_ITEM_INDEX, itemIndex);
         dict.put(TiC.PROPERTY_ITEM, itemData);
-        String bindId = TiConvert.toString(
-                proxy.getProperty(TiC.PROPERTY_BIND_ID), null);
+        String bindId =proxy.getBindId();
         if (bindId != null) {
             dict.put(TiC.PROPERTY_BIND_ID, bindId);
         }

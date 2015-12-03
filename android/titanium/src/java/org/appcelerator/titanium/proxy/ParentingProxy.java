@@ -73,11 +73,7 @@ public class ParentingProxy extends KrollProxy {
                     KrollProxy childProxy;
                     if (childDict instanceof TiViewProxy) {
                         childProxy = (TiViewProxy) childDict;
-                        String bindId = TiConvert.toString(
-                                childProxy.getProperty(TiC.PROPERTY_BIND_ID), null);
-                        if (bindId != null) {
-                            rootProxy.addBinding(bindId, childProxy);
-                        }
+                        rootProxy.addBinding(childProxy.getBindId(), childProxy);
                     } else {
                         childProxy = createProxyFromTemplate(
                                 (HashMap) childDict, rootProxy,

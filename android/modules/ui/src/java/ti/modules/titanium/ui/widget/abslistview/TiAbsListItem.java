@@ -29,7 +29,7 @@ import android.view.ViewParent;
 import android.widget.ImageView;
 
 public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
-    private static final String TAG = "TiListItem";
+    private static final String TAG = "TiAbsListItem";
 	View listItemLayout;
     private boolean canShowLeftMenu = false;
     private boolean canShowLeftMenuDefined = false;
@@ -116,8 +116,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
             hasLeftButtons = newValue != null;
 		    if (leftButtons != null) {
 		        for (TiViewProxy viewProxy : leftButtons) {
-		            proxy.removeHoldedProxy(TiConvert.toString(
-		                    viewProxy.getProperty(TiC.PROPERTY_BIND_ID), null));
+		            proxy.removeHoldedProxy(viewProxy.getBindId());
 		            proxy.removeProxy(viewProxy);
 		        }
 		        leftButtons = null;
@@ -127,8 +126,8 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
             hasRightButtons = newValue != null;
             if (rightButtons != null) {
                 for (TiViewProxy viewProxy : rightButtons) {
-                    proxy.removeHoldedProxy(TiConvert.toString(
-                            viewProxy.getProperty(TiC.PROPERTY_BIND_ID), null));
+                    proxy.removeHoldedProxy(viewProxy.getBindId());
+
                     proxy.removeProxy(viewProxy);
                 }
             }
