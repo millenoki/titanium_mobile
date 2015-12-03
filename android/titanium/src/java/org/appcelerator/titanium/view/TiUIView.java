@@ -2624,24 +2624,25 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             // fillLayout will try to reset animationFraction, here we dont want
             // that
             oldAnimationFraction = animParams.animationFraction;
-            TiConvert.fillLayout(toProps,
-                    animParams, false);
-            animParams.startRect = new Rect(view.getLeft(), view.getTop(),
-                    view.getRight(), view.getBottom());
-            animParams.animationFraction = oldAnimationFraction;
+            if (TiConvert.fillLayout(toProps,
+                    animParams, false) != 0) {
+                animParams.startRect = new Rect(view.getLeft(), view.getTop(),
+                        view.getRight(), view.getBottom());
+                animParams.animationFraction = oldAnimationFraction;
 
-            setLayoutParams(animParams); // we need this because otherwise
-                                         // applying the matrix will
-                                         // override it :s
-            view.setLayoutParams(animParams);
-            Animator anim = createLayoutAnimator(view, animParams, oldAnimationFraction);
-//            ObjectAnimator anim = ObjectAnimator.ofFloat(this,
-//                    "animatedRectFraction", 1.0f);
-            list.add(anim);
-            if (needsReverse) {
-                listReverse.add(ObjectAnimator.ofFloat(this,
-                        "animatedRectFraction", 0.0f));
+                setLayoutParams(animParams); // we need this because otherwise
+                                             // applying the matrix will
+                                             // override it :s
+                view.setLayoutParams(animParams);
+                Animator anim = createLayoutAnimator(view, oldAnimationFraction, 1.0f);
+//                ObjectAnimator anim = ObjectAnimator.ofFloat(this,
+//                        "animatedRectFraction", 1.0f);
+                list.add(anim);
+                if (needsReverse) {
+                    listReverse.add(createLayoutAnimator(view, 1.0f, 0.0f));
+                }
             }
+           
         }
         
         show();
@@ -2668,15 +2669,17 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         view.postInvalidate();
     }
     
-    private Animator createLayoutAnimator(final View viewToAddTo, final AnimationLayoutParams animParams, final float oldAnimationFraction) {
-        ValueAnimator anim = ValueAnimator.ofFloat(oldAnimationFraction, 1.0f);
+    private Animator createLayoutAnimator(final View viewToAddTo, final float oldAnimationFraction, final float dest) {
+        ValueAnimator anim = ValueAnimator.ofFloat(oldAnimationFraction, dest);
         anim.addUpdateListener(new AnimatorUpdateListener() {
-            
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                float fraction = animation.getAnimatedFraction();
-               animParams.animationFraction = fraction;
-               viewToAddTo.setLayoutParams(animParams);
+                Float fraction = (Float) animation.getAnimatedValue();
+                ViewGroup.LayoutParams params = viewToAddTo.getLayoutParams();
+                if (params instanceof AnimationLayoutParams) {
+                    ((AnimationLayoutParams)params).animationFraction = fraction;
+                    viewToAddTo.requestLayout();
+                }
             }
         });
         return anim;
@@ -2709,7 +2712,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 //            animParams.notTiLayout = true;
         }
         
-        Animator anim = createLayoutAnimator(viewToAddTo, animParams, oldAnimationFraction);
+        Animator anim = createLayoutAnimator(viewToAddTo, oldAnimationFraction, 1.0f);
 
         anim.addListener(new AnimatorListener() {
             public void onAnimationEnd(Animator arg0) { 
