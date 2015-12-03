@@ -186,10 +186,10 @@ public class TiCompositeLayout extends FreeLayout implements
 		setView(view);
 	}
 
-	private String viewToString(View view) {
-		return view.getClass().getSimpleName() + "@"
-				+ Integer.toHexString(view.hashCode());
-	}
+//	private String viewToString(View view) {
+//		return view.getClass().getSimpleName() + "@"
+//				+ Integer.toHexString(view.hashCode());
+//	}
 
 	public void resort() {
 		if (getVisibility() == View.GONE)
@@ -227,10 +227,6 @@ public class TiCompositeLayout extends FreeLayout implements
 	@Override
 	protected LayoutParams generateDefaultLayoutParams() {
 		return new LayoutParams();
-	}
-
-	private static int getAsPercentageValue(double percentage, int value) {
-		return (int) Math.round((percentage / 100.0) * value);
 	}
 
 	protected static int getViewWidthPadding(View child, LayoutParams params, View parent) {
@@ -300,7 +296,6 @@ public class TiCompositeLayout extends FreeLayout implements
         return params;
 	}
 
-    private final ArrayList<View> mMatchParentChildren = new ArrayList<View>(1);
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 	    final int childCount = getChildCount();
@@ -474,45 +469,6 @@ public class TiCompositeLayout extends FreeLayout implements
 		
 		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
 		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
-		
-//		if (p != null) {
-//		 // check MATCH
-//            if (p.heightMatchWidth) {
-//                measuredHeight = measuredWidth;
-//                heightMeasureSpec = MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY);
-//            } else if(p.widthMatchHeight) {
-//                measuredWidth = measuredHeight;
-//                widthMeasureSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
-//            }
-//            if (p.squared) {
-//                int min = Math.min(measuredWidth, measuredHeight);
-//                measuredWidth = min;
-//                measuredHeight = min;
-//                widthMeasureSpec = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
-//                heightMeasureSpec = MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY);
-//            }
-//            
-//			if (p.maxWidth != null || p.minWidth != null) {
-//				int minMeasuredWidth = measuredWidth;
-//				if (p.minWidth != null) minMeasuredWidth = Math.max(minMeasuredWidth, p.minWidth.getAsPixels(w, h));
-//				if (p.maxWidth != null) minMeasuredWidth = Math.min(minMeasuredWidth, p.maxWidth.getAsPixels(w, h));
-//				if (minMeasuredWidth != measuredWidth) {
-//					widthMeasureSpec = MeasureSpec.makeMeasureSpec(minMeasuredWidth, MeasureSpec.EXACTLY);
-//					measuredWidth = getMeasuredHeightStatic(minMeasuredWidth, widthMeasureSpec);
-//				}
-//			}
-//	
-//			if (p.maxHeight != null || p.minHeight != null) {
-//				int minMeasuredHeight = measuredHeight;
-//				if (p.minHeight != null) minMeasuredHeight = Math.max(minMeasuredHeight, p.minHeight.getAsPixels(w, h));
-//				if (p.maxHeight != null) minMeasuredHeight = Math.min(minMeasuredHeight, p.maxHeight.getAsPixels(w, h));
-//				if (minMeasuredHeight != measuredHeight) {
-//					heightMeasureSpec = MeasureSpec.makeMeasureSpec(minMeasuredHeight, MeasureSpec.EXACTLY);
-//					measuredHeight = getMeasuredHeightStatic(minMeasuredHeight, heightMeasureSpec);
-//				}
-//			}
-//		}
-
 
 		setMeasuredDimension(measuredWidth, measuredHeight);
 	}
@@ -1030,13 +986,8 @@ public class TiCompositeLayout extends FreeLayout implements
 			int[] pos, final int maxBottom, final LayoutParams params) {
 		int top = layoutTop + currentHeight;
 		top += (optionTop != null)?getLayoutOptionAsPixels(optionTop, TiDimension.TYPE_TOP, params, this):0;
-		// cap the bottom to make sure views don't go off-screen when user
-		// supplies a height value that is >= screen
-		// height and this view is below another view in vertical layout.
-//		int bottom = Math.min(top + measuredHeight, maxBottom);
-		int bottom = top + measuredHeight;
 		pos[0] = top;
-		pos[1] = bottom;
+		pos[1] = top + measuredHeight;
 	}
 	private static int getLayoutOptionAsPixelsNoAnim(final TiDimension option, final int type, final LayoutParams params, View parent) {
 	    return (!params.fullscreen && option != null)?option.getAsPixels(parent):0;
@@ -1527,9 +1478,7 @@ public class TiCompositeLayout extends FreeLayout implements
 	
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent event) {
-	    boolean touchPassThrough = touchPassThrough(event);
-	    final int action = event.getAction();
-	    if (touchPassThrough) {
+	    if (touchPassThrough(event)) {
 	        return false;
 	    }
 	    
