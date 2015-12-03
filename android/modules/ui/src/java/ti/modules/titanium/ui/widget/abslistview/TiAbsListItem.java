@@ -55,26 +55,39 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 //		applyCustomForeground();
 	}
 	
+    private TiViewProxy handleCreateProxy(Object value) {
+        TiViewProxy viewProxy = (TiViewProxy) proxy.createProxyFromObject(value,
+                proxy, false);
+        if (viewProxy != null) {
+            AbsListItemProxy itemProxy = (AbsListItemProxy) proxy;
+            viewProxy.setParent(proxy);
+            viewProxy.setEventOverrideDelegate(itemProxy);
+            String bindId = viewProxy.getBindId();
+            if (bindId != null) {
+                HashMap data = itemProxy.getItemDataForBindId(bindId);
+                if (data != null) {
+                    viewProxy.applyPropertiesInternal(data, false, true);
+                }
+            }
+        }
+        return viewProxy;
+    }
+	
 	private List<TiViewProxy> proxiesArrayFromValue(Object value) {
 	    List<TiViewProxy> result = null;
-	    final AbsListItemProxy itemProxy = (AbsListItemProxy) proxy;
 	    if (value instanceof Object[]) {
 	        result = new ArrayList<TiViewProxy>();
 	        Object[] array  = (Object[]) value;
             for (int i = 0; i < array.length; i++) {
-                TiViewProxy viewProxy  = (TiViewProxy)proxy.createProxyFromObject(array[i], proxy, false);
+                TiViewProxy viewProxy  = handleCreateProxy(array[i]);
                 if (viewProxy != null) {
-                    viewProxy.setParent(proxy);
-                    viewProxy.setEventOverrideDelegate(itemProxy);
                     result.add(viewProxy);
                 }
             }
 	    }
 	    else {
-	        TiViewProxy viewProxy  = (TiViewProxy)proxy.createProxyFromObject(value, proxy, false);
+	        TiViewProxy viewProxy  = handleCreateProxy(value);
             if (viewProxy != null) {
-                viewProxy.setParent(proxy);
-                viewProxy.setEventOverrideDelegate(itemProxy);
                 result = new ArrayList<TiViewProxy>();
                 result.add(viewProxy);
             }

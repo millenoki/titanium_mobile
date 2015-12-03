@@ -51,6 +51,14 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
         this.itemIndex = index;
 	}
 	
+	public HashMap getItemDataForBindId(final String bindId) {
+	    Object data = this.itemData != null ? this.itemData.get(bindId) : null;
+	    if (data instanceof HashMap) {
+	        return (HashMap) data;
+	    }
+	    return null;
+	}
+	
 	public AbsListItemProxy()
 	{
 	    shouldAskForGC = false;
