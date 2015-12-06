@@ -438,7 +438,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 			super.onWindowActivityCreated();
 		}
 		else {
-		     state = State.OPENED;
+//		     state = State.OPENED;
 //            prepareCurrentWindow(getCurrentWindow());
 			super.onWindowActivityCreated();
 			getParentViewForChild().setId(viewId++);
