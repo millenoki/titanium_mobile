@@ -76,6 +76,7 @@ public class TiWifiScanner {
         	Bundle b = message.getData();
         	b.putParcelableArrayList(EXTRA_SCAN_RESULTS, (ArrayList<? extends Parcelable>) results);
         	message.sendToTarget();
+        	detach();
         }
     };
  
@@ -142,6 +143,7 @@ public class TiWifiScanner {
             return;
         }
 		if (wm != null) {
+	        attach(TiApplication.getInstance().getApplicationContext());
 			wm.startScan();
 		} else {
         	Log.w(TAG, "Can't access WifiManager. Yet we got WifiScannerBroadcastReceiver ...");

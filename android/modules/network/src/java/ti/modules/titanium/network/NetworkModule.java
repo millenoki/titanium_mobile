@@ -257,11 +257,11 @@ public class NetworkModule extends KrollModule {
 				manageConnectivityListener(true);
 			}
 		}
-		else if (EVENT_WIFI_SCAN.equals(event)) {
-			if (!isListeningForWifiScan) {
-				manageWifiScanListener(true);
-			}
-		}
+//		else if (EVENT_WIFI_SCAN.equals(event)) {
+//			if (!isListeningForWifiScan) {
+//				manageWifiScanListener(true);
+//			}
+//		}
 	}
 
 	@Override
@@ -367,6 +367,9 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public void scanWifi()
 	{
+	    if (wifiScannerListener == null) {
+          wifiScannerListener = new TiWifiScanner(messageHandler);
+	    }
 		if (wifiScannerListener != null) {
 			wifiScannerListener.scanWifi();
 		} else {
@@ -657,26 +660,26 @@ public class NetworkModule extends KrollModule {
 		}
 	}
 	
-	protected void manageWifiScanListener(boolean attach) {
-		if (attach) {
-			if (!isListeningForWifiScan) {
-				if (hasListeners(EVENT_WIFI_SCAN)) {
-					if (wifiScannerListener == null) {
-						wifiScannerListener = new TiWifiScanner(messageHandler);
-					}
-					wifiScannerListener.attach(TiApplication.getInstance().getApplicationContext());
-					isListeningForWifiScan = true;
-					Log.d(TAG, "Adding wifiScanner listener", Log.DEBUG_MODE);
-				}
-			}
-		} else {
-			if (isListeningForWifiScan) {
-				wifiScannerListener.detach();
-				isListeningForWifiScan = false;
-				Log.d(TAG, "Removing wifiScanner listener.", Log.DEBUG_MODE);
-			}
-		}
-	}
+//	protected void manageWifiScanListener(boolean attach) {
+//		if (attach) {
+//			if (!isListeningForWifiScan) {
+//				if (hasListeners(EVENT_WIFI_SCAN)) {
+//					if (wifiScannerListener == null) {
+//						wifiScannerListener = new TiWifiScanner(messageHandler);
+//					}
+//					wifiScannerListener.attach(TiApplication.getInstance().getApplicationContext());
+//					isListeningForWifiScan = true;
+//					Log.d(TAG, "Adding wifiScanner listener", Log.DEBUG_MODE);
+//				}
+//			}
+//		} else {
+//			if (isListeningForWifiScan) {
+//				wifiScannerListener.detach();
+//				isListeningForWifiScan = false;
+//				Log.d(TAG, "Removing wifiScanner listener.", Log.DEBUG_MODE);
+//			}
+//		}
+//	}
 
 	private ConnectivityManager getConnectivityManager()
 	{
