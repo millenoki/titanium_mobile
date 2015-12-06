@@ -35,7 +35,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.NinePatchDrawable;
 import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.os.Build;
@@ -94,6 +93,7 @@ public class TiBlob extends KrollProxy {
     private Drawable drawable;
     private int width, height;
     private KrollDict extraInfo;
+    private String cacheKey = null;
 
     private TiBlob(int type, Object data, String mimetype) {
         super();
@@ -110,7 +110,7 @@ public class TiBlob extends KrollProxy {
     public void release() {
         super.release();
         if (this.image != null) {
-            this.image.recycle();
+            TiBitmapRecycleHandler.removeBitmapUser(image);
             this.image = null;
         }
     }
@@ -138,7 +138,11 @@ public class TiBlob extends KrollProxy {
     public static TiBlob blobFromObject(Object object) {
         return blobFromObject(object, null);
     }
-
+    public static TiBlob blobFromObject(Object object, final String mimetype, final String cacheKey) {
+        TiBlob result = blobFromObject(object, mimetype);
+        result.cacheKey = cacheKey;
+        return result;
+    }
     public static TiBlob blobFromObject(Object object, String mimetype) {
         if (object instanceof byte[]) {
             byte[] data = (byte[]) object;
@@ -156,6 +160,11 @@ public class TiBlob extends KrollProxy {
             }
             TiBlob blob = new TiBlob(TYPE_DRAWABLE, null, mimetype);
             blob.drawable = drawable;
+            if (drawable instanceof BitmapDrawable) {
+                TiBitmapRecycleHandler.addBitmapUser(((BitmapDrawable) drawable).getBitmap());
+            } else if (drawable instanceof TiNinePatchDrawable) {
+                TiBitmapRecycleHandler.addBitmapUser(((TiNinePatchDrawable) drawable).getBitmap());
+            }
             blob.width = drawable.getIntrinsicWidth();
             blob.height = drawable.getIntrinsicHeight();
             return blob;
@@ -166,6 +175,7 @@ public class TiBlob extends KrollProxy {
             }
             TiBlob blob = new TiBlob(TYPE_IMAGE, null, mimetype);
             blob.image = image;
+            TiBitmapRecycleHandler.addBitmapUser(image);
             blob.width = image.getWidth();
             blob.height = image.getHeight();
             return blob;
@@ -664,13 +674,20 @@ public class TiBlob extends KrollProxy {
         // be created by decoding the data.
         return getImage(null);
     }
-
+    
+    public String getCacheKey() {
+        if (cacheKey != null) {
+            return cacheKey;
+        }
+        return getNativePath();
+    }
     private Bitmap getImage(BitmapFactory.Options opts) {
         if (image == null && (width > 0 && height > 0)) {
             if (opts == null) {
                 opts = new BitmapFactory.Options();
                 opts.inPreferredConfig = Bitmap.Config.RGB_565;
             }
+            TiBitmapRecycleHandler.addInBitmapOptions(opts);
             try {
                 switch (type) {
                 case TYPE_DRAWABLE:
@@ -686,8 +703,12 @@ public class TiBlob extends KrollProxy {
                     int rotation = TiImageHelper
                             .getOrientation(getNativePath());
                     if (rotation % 360 != 0) {
+                        Bitmap oldBitmap = image;
                         image =  TiImageHelper.rotateImage(image, rotation);
-                    }
+                        if (oldBitmap != image) {
+                            oldBitmap.recycle();;
+                        }
+                   }
                     break;
                 case TYPE_DATA:
                     byte[] byteArray = (byte[]) data;
@@ -701,6 +722,9 @@ public class TiBlob extends KrollProxy {
                                 + e.getMessage(), e);
                 image = null;
             } finally {
+                if (image != null) {
+                    TiBitmapRecycleHandler.addBitmapUser(image);
+                }
             }
         }
         return image;
@@ -994,7 +1018,7 @@ public class TiBlob extends KrollProxy {
             return null;
         }
         Pair<Bitmap, KrollDict> result = TiImageHelper.imageFiltered(bitmap,
-                options, false);
+                options, getCacheKey(), false);
         TiBlob blob = TiBlob.blobFromObject(result.first);
         blob.addInfo(result.second);
         return blob;

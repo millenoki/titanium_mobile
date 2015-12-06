@@ -2,6 +2,8 @@ package org.appcelerator.titanium.view;
 
 import java.util.WeakHashMap;
 
+import org.appcelerator.titanium.TiBitmapRecycleHandler;
+import org.appcelerator.titanium.util.TiNinePatchDrawable;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUIHelper.Shadow;
 
@@ -21,6 +23,7 @@ import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
 import android.util.Pair;
 
 public class OneStateDrawable extends Drawable {
@@ -230,6 +233,11 @@ public class OneStateDrawable extends Drawable {
 	
 	public void releaseDelegate() {
 		clearBitmap();
+		if (imageDrawable instanceof BitmapDrawable) {
+            TiBitmapRecycleHandler.removeBitmapUser(((BitmapDrawable) imageDrawable).getBitmap());
+        } else if (imageDrawable instanceof TiNinePatchDrawable) {
+            TiBitmapRecycleHandler.removeBitmapUser(((TiNinePatchDrawable) imageDrawable).getBitmap());
+        }
 		imageDrawable = null;
 		gradientDrawable = null;
 		colorDrawable = null;
@@ -257,9 +265,19 @@ public class OneStateDrawable extends Drawable {
 	
 	public void setBitmapDrawable(Drawable drawable)
 	{
+	    if (imageDrawable instanceof BitmapDrawable) {
+            TiBitmapRecycleHandler.removeBitmapUser(((BitmapDrawable) imageDrawable).getBitmap());
+	    } else if (imageDrawable instanceof TiNinePatchDrawable) {
+            TiBitmapRecycleHandler.removeBitmapUser(((TiNinePatchDrawable) imageDrawable).getBitmap());
+        }
 		clearBitmap();
 		applyAlphaToDrawable(drawable);
 		imageDrawable = drawable;
+		if (imageDrawable instanceof BitmapDrawable) {
+            TiBitmapRecycleHandler.addBitmapUser(((BitmapDrawable) imageDrawable).getBitmap());
+        } else if (imageDrawable instanceof TiNinePatchDrawable) {
+            TiBitmapRecycleHandler.addBitmapUser(((TiNinePatchDrawable) imageDrawable).getBitmap());
+        }
 		updateNeedsDrawing();
 	}
 	

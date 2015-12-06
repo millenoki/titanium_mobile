@@ -330,7 +330,7 @@ public class TiImageHelper {
     }
 
     public static Pair<Drawable, KrollDict> drawableFiltered(Drawable drawable,
-            HashMap options, final boolean shouldRecycleSource) {
+            HashMap options, final String key, final boolean shouldRecycleSource) {
         Bitmap bitmap = null;
         byte[] chunk = null;
         if (drawable instanceof BitmapDrawable) {
@@ -341,7 +341,7 @@ public class TiImageHelper {
         if (bitmap == null) {
             return null;
         }
-        Pair<Bitmap, KrollDict> result = imageFiltered(bitmap, options,
+        Pair<Bitmap, KrollDict> result = imageFiltered(bitmap, options, key,
                 shouldRecycleSource);
         final Resources resources = TiApplication.getInstance().getResources();
         if (drawable instanceof BitmapDrawable) {
@@ -358,28 +358,20 @@ public class TiImageHelper {
     }
 
     public static Pair<Bitmap, KrollDict> imageFiltered(Bitmap bitmap,
-            HashMap options, final boolean shouldRecycleSource) {
+            HashMap options, final String key, final boolean shouldRecycleSource) {
         if (bitmap == null) {
             return null;
         }
-        Bitmap result = bitmap;
         KrollDict infoData = new KrollDict();
-        if (options.containsKey("crop")) {
-            TiRect rect = new TiRect(options.get("crop"));
+        String cacheKey = (key != null) ? (key + options.toString()):null;
+        Cache cache = TiApplication.getImageMemoryCache();
+        Bitmap result = (cacheKey != null) ? cache.get(cacheKey) : null;
+        if (result == null) {
+            result = bitmap;
+            if (options.containsKey("crop")) {
+                TiRect rect = new TiRect(options.get("crop"));
 
-            Bitmap newResult = TiImageHelper.imageCropped(result, rect);
-            if (newResult != result) {
-                if (result != bitmap || shouldRecycleSource) {
-                    result.recycle();
-                }
-                result = newResult;
-            }
-        }
-
-        if (options.containsKey("scale")) {
-            float scale = TiConvert.toFloat(options, "scale", 1.0f);
-            if (scale != 1.0f)  {
-                Bitmap newResult = TiImageHelper.imageScaled(result, scale);
+                Bitmap newResult = TiImageHelper.imageCropped(result, rect);
                 if (newResult != result) {
                     if (result != bitmap || shouldRecycleSource) {
                         result.recycle();
@@ -387,47 +379,65 @@ public class TiImageHelper {
                     result = newResult;
                 }
             }
-            
-        }
 
-        if (options.containsKey("filters")) {
+            if (options.containsKey("scale")) {
+                float scale = TiConvert.toFloat(options, "scale", 1.0f);
+                if (scale != 1.0f)  {
+                    Bitmap newResult = TiImageHelper.imageScaled(result, scale);
+                    if (newResult != result) {
+                        if (result != bitmap || shouldRecycleSource) {
+                            result.recycle();
+                        }
+                        result = newResult;
+                   }
+                }
+                
+            }
 
-            GPUImageFilterGroup group = new GPUImageFilterGroup();
-            Object[] filters = (Object[]) options.get("filters");
-            for (int i = 0; i < filters.length; i++) {
-                if (filters[i] instanceof HashMap) {
-                    HashMap<String, Object> filterOptions = (HashMap<String, Object>) filters[i];
-                    GPUImageFilter filter = getFilter(FilterType
-                            .values()[TiConvert.toInt(filterOptions, "type")],
-                            filterOptions);
-                    if (filter != null) {
-                        group.addFilter(filter);
+            if (options.containsKey("filters")) {
+
+                GPUImageFilterGroup group = new GPUImageFilterGroup();
+                Object[] filters = (Object[]) options.get("filters");
+                for (int i = 0; i < filters.length; i++) {
+                    if (filters[i] instanceof HashMap) {
+                        HashMap<String, Object> filterOptions = (HashMap<String, Object>) filters[i];
+                        GPUImageFilter filter = getFilter(FilterType
+                                .values()[TiConvert.toInt(filterOptions, "type")],
+                                filterOptions);
+                        if (filter != null) {
+                            group.addFilter(filter);
+                        }
                     }
                 }
-            }
-            Bitmap newResult = getGPUImage().getBitmapWithFilterApplied(result, group,
-                    ScaleType.CENTER_CROP, Rotation.NORMAL);
-            if (newResult != result) {
-                if (result != bitmap || shouldRecycleSource) {
-                    result.recycle();
+                Bitmap newResult = getGPUImage().getBitmapWithFilterApplied(result, group,
+                        ScaleType.CENTER_CROP, Rotation.NORMAL);
+                if (newResult != result) {
+                    if (result != bitmap || shouldRecycleSource) {
+                        result.recycle();
+                    }
+                    result = newResult;
                 }
-                result = newResult;
+            }
+
+            if (options.containsKey("tint")) {
+                int tint = TiConvert.toColor(options, "tint", 0);
+                Mode mode = Mode.values()[TiConvert.toInt(options, "blend",
+                        Mode.MULTIPLY.ordinal())];
+                Bitmap newResult = TiImageHelper.imageTinted(result, tint, mode);
+                if (newResult != result) {
+                    if (result != bitmap || shouldRecycleSource) {
+                        result.recycle();
+                    }
+                    result = newResult;
+                }
+            }
+            if (result != bitmap && cacheKey != null) {
+                if (cacheKey != null) {
+                    cache.set(cacheKey, result);
+                }
             }
         }
-
-        if (options.containsKey("tint")) {
-            int tint = TiConvert.toColor(options, "tint", 0);
-            Mode mode = Mode.values()[TiConvert.toInt(options, "blend",
-                    Mode.MULTIPLY.ordinal())];
-            Bitmap newResult = TiImageHelper.imageTinted(result, tint, mode);
-            if (newResult != result) {
-                if (result != bitmap || shouldRecycleSource) {
-                    result.recycle();
-                }
-                result = newResult;
-            }
-        }
-
+        
         Object colorArtOptions = options.get("colorArt");
         if (colorArtOptions instanceof HashMap
                 || TiConvert.toBoolean(colorArtOptions, false)) {
@@ -439,14 +449,7 @@ public class TiImageHelper {
                 height = TiConvert.toInt((HashMap) colorArtOptions, "height",
                         height);
             }
-//            if (toUse == null) {
-//                if (shouldCopySource) {
-//                    toUse = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-//                } else {
-//                    toUse = bitmap;
-//                }
-//            }
-            ColorArt art = new ColorArt(bitmap, width, height);
+            ColorArt art = new ColorArt(result, width, height);
             KrollDict colorArtData = new KrollDict();
             colorArtData.put("backgroundColor",
                     TiColorHelper.toHexString(art.getBackgroundColor()));
@@ -458,7 +461,9 @@ public class TiImageHelper {
                     TiColorHelper.toHexString(art.getDetailColor()));
             infoData.put("colorArt", colorArtData);
         }
-
+        
+        if (result != bitmap) {
+        }
         return new Pair<Bitmap, KrollDict>(result, infoData);
     }
 

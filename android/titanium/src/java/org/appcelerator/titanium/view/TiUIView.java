@@ -2773,8 +2773,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         .get("properties"));
             }
 
-            bitmap = TiImageHelper.imageFiltered(bitmap, options, false).first;
-            return bitmap;
+            Bitmap result = TiImageHelper.imageFiltered(bitmap, options, java.lang.System.identityHashCode(bitmap) + "", false).first;
+            if (result != bitmap) {
+                bitmap.recycle();
+            }
+            return result;
         }
 
         /**

@@ -10,8 +10,9 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.TiBitmapRecycleHandler;
 import org.appcelerator.titanium.transition.TransitionHelper;
+import org.appcelerator.titanium.util.TiNinePatchDrawable;
 import org.appcelerator.titanium.view.MaskableView;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -31,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -83,7 +85,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	
 	private WeakReference<TiUIView> tiView;
 
-	private ImageView oldImageView = null;
+	private InternalImageView oldImageView = null;
 	
 	private class InternalImageView extends ImageView {
 	    public InternalImageView(Context context) {
@@ -123,6 +125,12 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
         @Override
         public void setImageDrawable(Drawable drawable) {
             if (!(drawable instanceof SVGDrawable)) {
+                Drawable current = getDrawable();
+                if (current instanceof BitmapDrawable) {
+                    TiBitmapRecycleHandler.removeBitmapUser(((BitmapDrawable) current).getBitmap());
+                } else if (getImageDrawable() instanceof TiNinePatchDrawable) {
+                    TiBitmapRecycleHandler.removeBitmapUser(((TiNinePatchDrawable) current).getBitmap());
+                }
                 super.setImageDrawable(drawable);
                 return;
             }
@@ -245,7 +253,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	 * @param context the associated context.
 	 * @param proxy the associated proxy.
 	 */
-	public TiImageView(Context context, TiUIView tiView)
+	public TiImageView(@NonNull Context context, TiUIView tiView)
 	{
 		this(context);
 		this.tiView = new WeakReference<TiUIView>(tiView);
@@ -340,6 +348,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
             
             @Override
             public void transitionDidFinish(boolean success) {
+                oldImageView.setImageDrawable(null);
                 oldImageView = null;
                 onTransitionEnd();
             }
@@ -366,6 +375,11 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	 * @param bitmap The bitmap to set. If it is null, it will clear the previous image.
 	 */
 	public void setImageDrawableWithTransition(Drawable drawable, HashMap transition) {
+	    if (drawable instanceof BitmapDrawable) {
+            TiBitmapRecycleHandler.addBitmapUser(((BitmapDrawable) drawable).getBitmap());
+        } else if (drawable instanceof TiNinePatchDrawable) {
+            TiBitmapRecycleHandler.addBitmapUser(((TiNinePatchDrawable) drawable).getBitmap());
+        }
 		if (transition == null) {
 			setImageDrawable(drawable);
 		}

@@ -25,6 +25,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBitmapRecycleHandler;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFileProxy;
@@ -374,7 +375,15 @@ public class TiDrawableReference
 	 */
 	public Bitmap getBitmap(boolean needRetry)
 	{
-		return getBitmap(needRetry, false);
+	    final String cacheKey = getCacheKey();
+	    Bitmap b = TiApplication.getImageMemoryCache().get(cacheKey);
+	    if (b == null) {
+	        b = getBitmap(needRetry, false);
+	        if (b != null) {
+	            TiApplication.getImageMemoryCache().set(cacheKey, b);
+	        }
+	    }
+		return b;
 	}
 	
 	/**
@@ -410,6 +419,7 @@ public class TiDrawableReference
 				opts.inTargetDensity = dm.densityDpi;
 				opts.inScaled = true;
 			}
+            TiBitmapRecycleHandler.addInBitmapOptions(opts);
 
 			is = getInputStream();
 			if (needRetry) {

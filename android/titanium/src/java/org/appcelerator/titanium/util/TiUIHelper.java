@@ -1106,7 +1106,7 @@ public class TiUIHelper
 	
     
     private static BitmapFactory.Options bmpOptions = null;
-    private static BitmapFactory.Options getBitmapOptions() {
+    private static BitmapFactory.Options getScaledBitmapOptions() {
         if (bmpOptions == null) {
             bmpOptions = new BitmapFactory.Options();
             bmpOptions.inPurgeable = true;
@@ -1126,7 +1126,7 @@ public class TiUIHelper
 	{
 		Bitmap b = null;
 		try {
-			b = BitmapFactory.decodeResourceStream(null, null, stream, null, getBitmapOptions());
+			b = BitmapFactory.decodeResourceStream(null, null, stream, null, getScaledBitmapOptions());
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage());
 		}

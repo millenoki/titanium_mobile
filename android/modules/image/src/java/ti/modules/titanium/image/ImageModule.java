@@ -140,11 +140,18 @@ public class ImageModule extends KrollModule {
     @Kroll.method
     public TiBlob getFilteredImage(Object image,
             @Kroll.argument(optional = true) HashMap options) {
+        String cacheKey = null;
+        if (image instanceof String) {
+            cacheKey = (String) image;
+        } else if (image instanceof TiBlob) {
+            cacheKey = ((TiBlob) image).getCacheKey();
+        } else {
+            cacheKey =  java.lang.System.identityHashCode(image) + "";
+        }
         Drawable drawable = TiUIHelper.buildImageDrawable(getActivity(), image, false, this);
         if (drawable == null) {
             return null;
         }
-//        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
         
         Pair<Drawable, KrollDict> result = null;
         if (options != null) {
@@ -158,7 +165,7 @@ public class ImageModule extends KrollModule {
                     return null;
                 }
             }
-            result = TiImageHelper.drawableFiltered(drawable, options, false);
+            result = TiImageHelper.drawableFiltered(drawable, options, cacheKey, false);
         }
 
         if (result != null) {

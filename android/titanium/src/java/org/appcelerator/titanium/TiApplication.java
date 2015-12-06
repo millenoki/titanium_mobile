@@ -50,7 +50,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ti.modules.titanium.TitaniumModule;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.BroadcastReceiver;
@@ -58,6 +57,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -70,9 +70,9 @@ import com.appcelerator.analytics.APSAnalytics;
 import com.appcelerator.analytics.APSAnalytics.DeployType;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.picasso.LruCache;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.TiBitmapMemoryCache;
 
 /**
  * The main application entry point for all Titanium applications and services.
@@ -502,19 +502,22 @@ public abstract class TiApplication extends Application implements
         TiPlatformHelper.getInstance().initialize();
     }
     
-    public static class TiBitmapMemoryCache extends LruCache
-    {
-        public TiBitmapMemoryCache(int maxSize) {
-            super(maxSize);
-        }
-    }
-    
-    
-    
     private static TiBitmapMemoryCache _picassoMermoryCache;
     public static TiBitmapMemoryCache getImageMemoryCache() {
         if (_picassoMermoryCache == null) {
-            _picassoMermoryCache = new TiBitmapMemoryCache(TiActivityHelper.calculateMemoryCacheSize(getAppContext()));
+            _picassoMermoryCache = new TiBitmapMemoryCache(TiActivityHelper.calculateMemoryCacheSize(getAppContext())) {
+                @Override
+                protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+                    super.entryRemoved(evicted, key, oldValue, newValue);
+                    TiBitmapRecycleHandler.removeBitmapUser(oldValue);
+                }
+                
+                @Override 
+                public void set(String key, Bitmap bitmap) {
+                     super.set(key, bitmap);
+                     TiBitmapRecycleHandler.addBitmapUser(bitmap);
+                }
+            };
         }
         return _picassoMermoryCache;
     }

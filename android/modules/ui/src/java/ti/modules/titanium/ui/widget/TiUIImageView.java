@@ -19,12 +19,14 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiBitmapRecycleHandler;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiImageHelper;
+import org.appcelerator.titanium.util.TiNinePatchDrawable;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiImageHelper.TiDrawableTarget;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -110,7 +112,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         @Override
         protected Bitmap doInBackground(Bitmap... params) {
             Bitmap bitmap = params[0];
-            Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(bitmap, filterOptions, false);
+            Pair<Bitmap, KrollDict> result  = TiImageHelper.imageFiltered(bitmap, filterOptions, imageRef.getCacheKey(), false);
             if (result != null) {
                 bitmapInfo = result.second;
                 return result.first;
@@ -288,11 +290,13 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     private void handleSetDrawable(final Drawable drawable, boolean shouldTransition) {
         if (drawable != animDrawable) {
+            
             currentImage = drawable;
             if (animDrawable != null) {
                 animDrawable.stop();
             }
         }
+        
         TiImageView view = getView();
         if (view != null) {
             view.setImageDrawableWithTransition(drawable, shouldTransition?transitionDict:null);
@@ -1146,7 +1150,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
                 } else if (drawable instanceof SVGDrawable) {
                     bitmap = ((SVGDrawable) drawable).getBitmap();
                 }
-                return bitmap == null ? null : TiBlob.blobFromObject(bitmap);
+                return bitmap == null ? null : TiBlob.blobFromObject(bitmap, null, currentRef.getCacheKey());
             }
         }
 
@@ -1155,6 +1159,12 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     @Override
     public void release() {
+        Drawable currentDrawable = getDrawable();
+        if (currentDrawable instanceof BitmapDrawable) {
+            TiBitmapRecycleHandler.removeBitmapUser(((BitmapDrawable) currentDrawable).getBitmap());
+        } else if (currentDrawable instanceof TiNinePatchDrawable) {
+            TiBitmapRecycleHandler.removeBitmapUser(((TiNinePatchDrawable) currentDrawable).getBitmap());
+        }
         super.release();
         if (loader != null) {
             synchronized (loader) {
