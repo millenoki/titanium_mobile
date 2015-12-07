@@ -25,7 +25,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBitmapRecycleHandler;
+import org.appcelerator.titanium.TiBitmapPool;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiFileProxy;
@@ -407,10 +407,7 @@ public class TiDrawableReference
 		InputStream is = null;
 		Bitmap b = null;
 		try {
-			BitmapFactory.Options opts = new BitmapFactory.Options();
-			opts.inInputShareable = true;
-			opts.inPurgeable = true;
-			opts.inPreferredConfig = Bitmap.Config.RGB_565;
+			BitmapFactory.Options opts = TiBitmapPool.defaultBitmapOptions();
 			if (densityScaled) {
 				DisplayMetrics dm = new DisplayMetrics();
 				dm.setToDefaults();
@@ -419,9 +416,8 @@ public class TiDrawableReference
 				opts.inTargetDensity = dm.densityDpi;
 				opts.inScaled = true;
 			}
-            TiBitmapRecycleHandler.addInBitmapOptions(opts);
-
 			is = getInputStream();
+	        TiApplication.getBitmapOptionsTransformer().transformOptions(is, opts);
 			if (needRetry) {
 				for (int i = 0; i < decodeRetries; i++) {
 					// getInputStream() fails sometimes but after retry it will get

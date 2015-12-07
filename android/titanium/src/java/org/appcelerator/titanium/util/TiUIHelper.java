@@ -29,6 +29,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBitmapPool;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -1077,10 +1078,9 @@ public class TiUIHelper
 	{
 		Rect pad = new Rect();
 		if (opts == null) {
-			opts = new BitmapFactory.Options();
-			opts.inPurgeable = true;
-			opts.inInputShareable = true;
+		    opts = TiBitmapPool.defaultBitmapOptions();
 		}
+		TiApplication.getBitmapOptionsTransformer().transformOptions(stream, opts);
 
 		Bitmap b = null;
 		try {

@@ -35,7 +35,8 @@ public class TiBitmapMemoryCache implements com.squareup.picasso.Cache
 
     @Override public Bitmap get(String key) {
       if (key == null) {
-        throw new NullPointerException("key == null");
+          return null;
+//        throw new NullPointerException("key == null");
       }
 
       Bitmap mapValue;

@@ -2,7 +2,7 @@ package org.appcelerator.titanium.view;
 
 import java.util.WeakHashMap;
 
-import org.appcelerator.titanium.TiBitmapRecycleHandler;
+import org.appcelerator.titanium.TiBitmapPool;
 import org.appcelerator.titanium.util.TiNinePatchDrawable;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUIHelper.Shadow;
@@ -234,9 +234,9 @@ public class OneStateDrawable extends Drawable {
 	public void releaseDelegate() {
 		clearBitmap();
 		if (imageDrawable instanceof BitmapDrawable) {
-            TiBitmapRecycleHandler.removeBitmapUser(((BitmapDrawable) imageDrawable).getBitmap());
+            TiBitmapPool.decrementRefCount(((BitmapDrawable) imageDrawable).getBitmap());
         } else if (imageDrawable instanceof TiNinePatchDrawable) {
-            TiBitmapRecycleHandler.removeBitmapUser(((TiNinePatchDrawable) imageDrawable).getBitmap());
+            TiBitmapPool.decrementRefCount(((TiNinePatchDrawable) imageDrawable).getBitmap());
         }
 		imageDrawable = null;
 		gradientDrawable = null;
@@ -266,17 +266,17 @@ public class OneStateDrawable extends Drawable {
 	public void setBitmapDrawable(Drawable drawable)
 	{
 	    if (imageDrawable instanceof BitmapDrawable) {
-            TiBitmapRecycleHandler.removeBitmapUser(((BitmapDrawable) imageDrawable).getBitmap());
+            TiBitmapPool.decrementRefCount(((BitmapDrawable) imageDrawable).getBitmap());
 	    } else if (imageDrawable instanceof TiNinePatchDrawable) {
-            TiBitmapRecycleHandler.removeBitmapUser(((TiNinePatchDrawable) imageDrawable).getBitmap());
+            TiBitmapPool.decrementRefCount(((TiNinePatchDrawable) imageDrawable).getBitmap());
         }
 		clearBitmap();
 		applyAlphaToDrawable(drawable);
 		imageDrawable = drawable;
 		if (imageDrawable instanceof BitmapDrawable) {
-            TiBitmapRecycleHandler.addBitmapUser(((BitmapDrawable) imageDrawable).getBitmap());
+            TiBitmapPool.incrementRefCount(((BitmapDrawable) imageDrawable).getBitmap());
         } else if (imageDrawable instanceof TiNinePatchDrawable) {
-            TiBitmapRecycleHandler.addBitmapUser(((TiNinePatchDrawable) imageDrawable).getBitmap());
+            TiBitmapPool.incrementRefCount(((TiNinePatchDrawable) imageDrawable).getBitmap());
         }
 		updateNeedsDrawing();
 	}

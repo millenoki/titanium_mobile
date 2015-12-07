@@ -19,7 +19,7 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBitmapRecycleHandler;
+import org.appcelerator.titanium.TiBitmapPool;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
@@ -1161,9 +1161,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     public void release() {
         Drawable currentDrawable = getDrawable();
         if (currentDrawable instanceof BitmapDrawable) {
-            TiBitmapRecycleHandler.removeBitmapUser(((BitmapDrawable) currentDrawable).getBitmap());
+            TiBitmapPool.decrementRefCount(((BitmapDrawable) currentDrawable).getBitmap());
         } else if (currentDrawable instanceof TiNinePatchDrawable) {
-            TiBitmapRecycleHandler.removeBitmapUser(((TiNinePatchDrawable) currentDrawable).getBitmap());
+            TiBitmapPool.decrementRefCount(((TiNinePatchDrawable) currentDrawable).getBitmap());
         }
         super.release();
         if (loader != null) {

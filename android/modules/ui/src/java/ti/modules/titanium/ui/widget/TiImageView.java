@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiBitmapRecycleHandler;
+import org.appcelerator.titanium.TiBitmapPool;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiNinePatchDrawable;
 import org.appcelerator.titanium.view.MaskableView;
@@ -127,9 +127,9 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
             if (!(drawable instanceof SVGDrawable)) {
                 Drawable current = getDrawable();
                 if (current instanceof BitmapDrawable) {
-                    TiBitmapRecycleHandler.removeBitmapUser(((BitmapDrawable) current).getBitmap());
+                    TiBitmapPool.decrementRefCount(((BitmapDrawable) current).getBitmap());
                 } else if (getImageDrawable() instanceof TiNinePatchDrawable) {
-                    TiBitmapRecycleHandler.removeBitmapUser(((TiNinePatchDrawable) current).getBitmap());
+                    TiBitmapPool.decrementRefCount(((TiNinePatchDrawable) current).getBitmap());
                 }
                 super.setImageDrawable(drawable);
                 return;
@@ -376,9 +376,9 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	 */
 	public void setImageDrawableWithTransition(Drawable drawable, HashMap transition) {
 	    if (drawable instanceof BitmapDrawable) {
-            TiBitmapRecycleHandler.addBitmapUser(((BitmapDrawable) drawable).getBitmap());
+            TiBitmapPool.incrementRefCount(((BitmapDrawable) drawable).getBitmap());
         } else if (drawable instanceof TiNinePatchDrawable) {
-            TiBitmapRecycleHandler.addBitmapUser(((TiNinePatchDrawable) drawable).getBitmap());
+            TiBitmapPool.incrementRefCount(((TiNinePatchDrawable) drawable).getBitmap());
         }
 		if (transition == null) {
 			setImageDrawable(drawable);

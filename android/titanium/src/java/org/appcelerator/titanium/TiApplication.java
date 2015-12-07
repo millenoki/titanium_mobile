@@ -58,6 +58,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -72,6 +74,9 @@ import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Picasso.RequestTransformer;
+import com.squareup.picasso.Request.BitmapOptionsTransformer;
+import com.squareup.picasso.Request;
 import com.squareup.picasso.TiBitmapMemoryCache;
 
 /**
@@ -509,28 +514,106 @@ public abstract class TiApplication extends Application implements
                 @Override
                 protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
                     super.entryRemoved(evicted, key, oldValue, newValue);
-                    TiBitmapRecycleHandler.removeBitmapUser(oldValue);
+                    TiBitmapPool.decrementRefCount(oldValue);
                 }
                 
                 @Override 
                 public void set(String key, Bitmap bitmap) {
                      super.set(key, bitmap);
-                     TiBitmapRecycleHandler.addBitmapUser(bitmap);
+                     TiBitmapPool.incrementRefCount(bitmap);
                 }
             };
         }
         return _picassoMermoryCache;
     }
     
+    
     private static Picasso _picasso;
+    private static BitmapOptionsTransformer _optionsTransformer = new BitmapOptionsTransformer() {
+        public int calculateInSampleSize(BitmapFactory.Options options,
+                int reqWidth, int reqHeight) {
+            // Raw height and width of image
+            final int height = options.outHeight;
+            final int width = options.outWidth;
+            int inSampleSize = 1;
+
+            if ((reqHeight > 0 && height > reqHeight) || (reqWidth > 0 && width > reqWidth)) {
+
+                final int halfHeight = height / 2;
+                final int halfWidth = width / 2;
+
+                // Calculate the largest inSampleSize value that is a power of 2
+                // and keeps both
+                // height and width larger than the requested height and width.
+                while ((halfHeight / inSampleSize) > reqHeight
+                        && (halfWidth / inSampleSize) > reqWidth) {
+                    inSampleSize *= 2;
+                }
+            }
+
+            return inSampleSize;
+        }
+
+        @Override
+        public Options transformOptions(InputStream stream, Options options) {
+            if (options.outWidth == 0 || options.outHeight == 0) {
+                options.inJustDecodeBounds = true;
+                stream.mark(Integer.MAX_VALUE);
+                BitmapFactory.decodeStream(stream, null, options);
+                if (stream.markSupported()) {
+                    try {
+                        stream.reset();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+                
+                options.inJustDecodeBounds = false;
+                if (options.inSampleSize == 0) {
+                    options.inSampleSize = 1;
+                }
+//                options.inSampleSize = calculateInSampleSize(options, 0, 0);
+                options.inBitmap = TiBitmapPool.tryFindBitmap(options);
+            }
+            return options;
+        }
+        
+        @Override
+        public Options transformOptions(byte[] bytes, Options options) {
+            if (options.outWidth == 0 || options.outHeight == 0) {
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+                options.inJustDecodeBounds = false;
+                if (options.inSampleSize == 0) {
+                    options.inSampleSize = 1;
+                }
+//                options.inSampleSize = calculateInSampleSize(options, 0, 0);
+                options.inBitmap = TiBitmapPool.tryFindBitmap(options);
+            }
+            return options;
+        }
+    };
     public static Picasso getPicassoInstance() {
         if (_picasso == null) {
             _picasso = new Picasso.Builder(getAppContext())
             .memoryCache(getImageMemoryCache())
             .downloader(new OkHttpDownloader(getPicassoHttpClientInstance()))
+            .requestTransformer(new RequestTransformer() {
+                
+                @Override
+                public Request transformRequest(Request request) {
+                    request.optionsTransformer = _optionsTransformer;
+                    return request;
+                }
+            })
             .build();
         }
         return _picasso;
+    }
+    
+    public static BitmapOptionsTransformer getBitmapOptionsTransformer() {
+        return _optionsTransformer;
     }
     
     static File createDefaultCacheDir(Context context, String path) {
