@@ -41,7 +41,7 @@
 			"okhttp-2.3.0.jar",
 			"okhttp-urlconnection-2.3.0.jar",
 			"okio-1.3.0.jar",
-			"picasso.jar" //2.5.3-SNAPSHOT
+			"picasso.jar"
 		],
 		"googleplayservices": ["google-play-services.jar"],
 		"network": ["thirdparty.jar"],
