@@ -383,11 +383,13 @@ public class TiCompositeLayout extends FreeLayout implements
 	                        .max(horizontalRowHeight, childHeight);
 
 	            } else {
-	                maxWidth = Math.max(maxWidth, childWidth);
+	                if (!params.widthMatchParent) {
+	                    maxWidth = Math.max(maxWidth, childWidth);
+	                }
 
 	                if (vertical) {
 	                    maxHeight += childHeight;
-	                } else {
+	                } else if (!params.heightMatchParent){
 	                    maxHeight = Math.max(maxHeight, childHeight);
 	                }
 	            }
@@ -1288,6 +1290,10 @@ public class TiCompositeLayout extends FreeLayout implements
 
         public boolean widthMatchHeight = false;
         public boolean heightMatchWidth = false;
+        
+        public boolean widthMatchParent = false;
+        public boolean heightMatchParent = false;
+        
         public float weight = 1.0f;
 
 		public LayoutParams() {
@@ -1317,6 +1323,8 @@ public class TiCompositeLayout extends FreeLayout implements
             fullscreen = params.fullscreen;
             widthMatchHeight = params.widthMatchHeight;
             heightMatchWidth = params.heightMatchWidth;
+            heightMatchParent = params.heightMatchParent;
+            widthMatchParent = params.widthMatchParent;
             notTiLayout = params.notTiLayout;
             ignoreInLayout = params.ignoreInLayout;
 		}
