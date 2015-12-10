@@ -433,6 +433,7 @@ public abstract class TiApplication extends Application implements
                 Log.e(TAG, "Unable to load app properties.");
             }
         }
+        runOnMainThread = appProperties.getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
         loadingProps = false;
     }
 
@@ -836,7 +837,6 @@ public abstract class TiApplication extends Application implements
                 "ti.android.debug", false);
         USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW,
                 false);
-        runOnMainThread = appProperties.getBool("run-on-main-thread", DEFAULT_RUN_ON_MAIN_THREAD);
 
         startExternalStorageMonitor();
 
