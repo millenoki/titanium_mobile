@@ -230,10 +230,14 @@ public abstract class AbsListViewProxy extends TiViewProxy {
         }
 	}
 	
-	@Kroll.method
+    @Kroll.method
     public void selectItem(int sectionIndex, int itemIndex, @Kroll.argument(optional = true) KrollDict options) {
         //on android no selection so same as scrollToItem
-	    scrollToItem(sectionIndex, itemIndex, options);
+        scrollToItem(sectionIndex, itemIndex, options);
+    }
+    @Kroll.method
+    public void deselectAll() {
+        //on android no selection
     }
     
 	
