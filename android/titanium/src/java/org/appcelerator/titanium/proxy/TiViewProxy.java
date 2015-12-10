@@ -1094,7 +1094,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                     }
                 }
                 if (props != null) {
-                    applyPropertiesNoSave(props, false, true);
+                    applyPropertiesNoSave(props, true, true);
                 }
                 return TiUIHelper.viewToBitmap(view.getLayoutParams(), viewForScreenshot());
             }
