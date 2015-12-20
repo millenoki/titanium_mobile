@@ -348,8 +348,10 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
             
             @Override
             public void transitionDidFinish(boolean success) {
-                oldImageView.setImageDrawable(null);
-                oldImageView = null;
+                if (oldImageView != null) {
+                    oldImageView.setImageDrawable(null);
+                    oldImageView = null;
+                }
                 onTransitionEnd();
             }
         };
