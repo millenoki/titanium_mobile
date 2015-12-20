@@ -19,6 +19,7 @@ public class AsyncResult extends Semaphore
 	protected Object result;
 	protected Object arg;
 	protected Throwable exception;
+	private boolean resultSet = false;
 	
 	/**
 	 * Constructs an AsyncResult with no argument.
@@ -52,6 +53,7 @@ public class AsyncResult extends Semaphore
 	 * @module.api
 	 */
 	public void setResult(Object result) {
+        resultSet = true;
 		this.result = result;
 		this.release();
 	}
@@ -62,9 +64,16 @@ public class AsyncResult extends Semaphore
 	 * @module.api
 	 */
 	public void setException(Throwable exception) {
+	    resultSet = true;
 		this.result = null;
 		this.exception = exception;
 		this.release();
+	}
+	
+	public void checkResult() {
+        if (!resultSet) {
+            this.release();            
+        }
 	}
 
 	/**
