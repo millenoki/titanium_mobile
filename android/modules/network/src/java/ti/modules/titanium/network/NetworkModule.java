@@ -558,6 +558,7 @@ public class NetworkModule extends KrollModule {
 	public boolean connectToWifiNetwork(String ssid, String pwd) {
 	    WifiManager wm = getWifiManager();
         if (wm != null) { 
+            try {
             final String SSID = String.format("\"%s\"", ssid);
             WifiInfo info = wm.getConnectionInfo();
             if (info != null) {
@@ -580,6 +581,9 @@ public class NetworkModule extends KrollModule {
             wm.saveConfiguration();
 //            boolean result = wm.enableNetwork(netId, true);
             return wm.enableNetwork(netId, true);
+            } catch (Throwable t) {
+                Log.e(TAG, "connectToWifiNetwork error: " + t.getLocalizedMessage());
+            }
         }
         return false;
 	    
