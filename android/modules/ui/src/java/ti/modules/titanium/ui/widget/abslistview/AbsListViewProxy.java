@@ -533,7 +533,10 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 			return ((TiAbsListView) listView).getSections();
 		}
 		ArrayList<AbsListSectionProxy> preloadedSections = getPreloadSections();
-		return preloadedSections.toArray(new AbsListSectionProxy[preloadedSections.size()]);
+		if (preloadedSections != null) {
+	        return preloadedSections.toArray(new AbsListSectionProxy[preloadedSections.size()]);
+		}
+		return null;
 	}
 	   
 
