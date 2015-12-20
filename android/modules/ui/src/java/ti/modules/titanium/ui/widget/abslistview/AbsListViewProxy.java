@@ -31,7 +31,6 @@ import android.os.Message;
 @Kroll.proxy(propertyAccessors = {
 	TiC.PROPERTY_HEADER_TITLE,
 	TiC.PROPERTY_FOOTER_TITLE,
-    TiC.PROPERTY_TEMPLATES,
 //    TiC.PROPERTY_SECTIONS,
 	TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
 	TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
@@ -45,6 +44,8 @@ import android.os.Message;
 	TiC.PROPERTY_HEADER_DIVIDERS_ENABLED,
 	TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED,
 	TiC.PROPERTY_SCROLL_HIDES_KEYBOARD
+}, propertyDontEnumAccessors = {
+    TiC.PROPERTY_TEMPLATES
 })
 public abstract class AbsListViewProxy extends TiViewProxy {
 
