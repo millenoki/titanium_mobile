@@ -398,7 +398,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (!activity.isFinishing()) {
 		    if (options.containsKey("_anim")) {
 		        _closingAnim = animateInternal(options.get("_anim"), null);
-		        return;
+		        if (_closingAnim != null) {
+	                return;
+		        }
             }
 			activity.finish();
 	        
