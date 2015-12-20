@@ -493,7 +493,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 		}
 	}
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public AbsListSectionProxy[] getSections()
 	{
 		if (TiApplication.isUIThread()) {
