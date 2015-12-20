@@ -332,7 +332,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
     private TiAnimator _closingAnim = null;
 
 	@Override
-	protected void handleOpen(KrollDict options)
+	protected void handleOpen(HashMap options)
 	{
 		Activity topActivity = TiApplication.getAppCurrentActivity();
 		// Don't open if app is closing or closed
@@ -387,7 +387,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
     }
 
 	@Override
-	protected void handleClose(KrollDict options)
+	protected void handleClose(HashMap options)
 	{
         TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
 		if (activity == null) {

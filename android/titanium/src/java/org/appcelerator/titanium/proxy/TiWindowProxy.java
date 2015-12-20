@@ -119,13 +119,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 		switch (msg.what) {
 			case MSG_OPEN: {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleOpen((KrollDict) result.getArg());
+				handleOpen((HashMap) result.getArg());
 				result.setResult(null); // signal opened
 				return true;
 			}
 			case MSG_CLOSE: {
 				AsyncResult result = (AsyncResult) msg.obj;
-				handleClose((KrollDict) result.getArg());
+				handleClose((HashMap) result.getArg());
 				result.setResult(null); // signal closed
 				return true;
 			}
@@ -174,15 +174,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		waitingForOpen = new WeakReference<TiWindowProxy>(this);
 		state = State.OPENING;
-		KrollDict options = null;
+		HashMap options = null;
 		TiAnimation animation = null;
 
 		if (arg != null) {
-			if (arg instanceof KrollDict) {
-				options = (KrollDict) arg;
+			if (arg instanceof HashMap) {
+				options = (HashMap) arg;
 
-			} else if (arg instanceof HashMap<?, ?>) {
-				options = new KrollDict((HashMap<String, Object>) arg);
 			}
 			
 			if (arg instanceof TiAnimation) {
@@ -190,13 +188,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 				options.put("_anim", animation);
 			}
 			else if (options != null){
-			    TiAnimator animator = animatorFromArgs(new KrollDict(options));
+			    TiAnimator animator = animatorFromArgs(options);
 			    if (animator != null) {
 	                options.put("_anim", animator);
 			    }
 			}
 		} else {
-			options = new KrollDict();
+			options = new HashMap();
 		}
 
 		if (TiApplication.isUIThread()) {
@@ -219,29 +217,27 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (winManager != null && winManager.handleClose(this, arg)) {
 			return;
 		}
-		KrollDict options = null;
+		HashMap options = null;
 		TiAnimation animation = null;
 
 		if (arg != null) {
-		    if (arg instanceof KrollDict) {
-                options = (KrollDict) arg;
+		    if (arg instanceof HashMap) {
+                options = (HashMap) arg;
 
-            } else if (arg instanceof HashMap<?, ?>) {
-                options = new KrollDict((HashMap<String, Object>) arg);
             }
             
             if (arg instanceof TiAnimation) {
-                options = new KrollDict();
+                options = new HashMap();
                 options.put("_anim", animation);
             }
             else if (options != null){
-                TiAnimator animator = animatorFromArgs(new KrollDict(options));
+                TiAnimator animator = animatorFromArgs(options);
                 if (animator != null) {
                     options.put("_anim", animator);
                 }
             }
 		} else {
-			options = new KrollDict();
+			options = new HashMap();
 		}
 
 		if (TiApplication.isUIThread()) {
@@ -543,8 +539,8 @@ public abstract class TiWindowProxy extends TiViewProxy
         return TiActivityHelper.getActionBarHeight(getActivity());
     }
 
-	protected abstract void handleOpen(KrollDict options);
-	protected abstract void handleClose(KrollDict options);
+	protected abstract void handleOpen(HashMap options);
+	protected abstract void handleClose(HashMap options);
 	protected abstract Activity getWindowActivity();
 	
 	/**

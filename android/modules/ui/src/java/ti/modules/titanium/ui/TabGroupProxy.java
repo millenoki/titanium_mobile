@@ -343,7 +343,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected void handleOpen(KrollDict options)
+	protected void handleOpen(HashMap options)
 	{
 		TiBaseActivity topActivity = (TiBaseActivity)TiApplication.getAppCurrentActivity();
 		// Don't open if app is closing or closed
@@ -421,7 +421,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Override
-	protected void handleClose(KrollDict options)
+	protected void handleClose(HashMap options)
 	{
 		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
 		

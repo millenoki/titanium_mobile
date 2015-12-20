@@ -6,6 +6,8 @@
  */
 package org.appcelerator.titanium.proxy;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -42,7 +44,7 @@ public class TiActivityWindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleClose(KrollDict options)
+	protected void handleClose(HashMap options)
 	{
 		Log.w(TAG, "handleClose", Log.DEBUG_MODE);
 		fireEvent(TiC.EVENT_CLOSE, null);
@@ -56,7 +58,7 @@ public class TiActivityWindowProxy extends TiWindowProxy
 	}
 
 	@Override
-	protected void handleOpen(KrollDict options)
+	protected void handleOpen(HashMap options)
 	{
 	}
 
