@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1260,20 +1261,20 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected void handleProperties(HashMap<String, Object> d, final boolean changed) {
         final KrollProxy proxy = this.proxy;
-        final HashMap currents = proxy.getProperties();
-        synchronized (currents) {
-            if (keySequence() != null) {
-                for (final String key : keySequence()) {
-                    if (d.containsKey(key)) {
-                        propertySet(key, d.get(key), currents.get(key),
-                                changed);
-                        d.remove(key);
-                    }
+        final HashMap currents = changed?proxy.getShallowProperties():null;
+        if (keySequence() != null) {
+            for (final String key : keySequence()) {
+                if (d.containsKey(key)) {
+                    propertySet(key, d.get(key), changed?currents.get(key):null,
+                            changed);
+                    d.remove(key);
                 }
             }
-            for (Map.Entry<String, Object> entry : d.entrySet()) {
-                final String key = entry.getKey();
-                propertySet(key, entry.getValue(), currents.get(key), changed);
+        }
+        for (Map.Entry entry : d.entrySet()) {
+            final Object key = entry.getKey();
+            if (key instanceof String) {
+                propertySet((String) key, entry.getValue(), changed?currents.get(key):null, changed);
             }
         }
     }
@@ -1287,15 +1288,15 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     @Override
     public void processProperties(HashMap d) {
-//        long startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
         aboutToProcessProperties(d);
         handleProperties(d, false);
         didProcessProperties();
-//        long endTime = System.currentTimeMillis();
-//        long diff = endTime - startTime;
-//        if (diff > 20) {
-//            Log.w(TAG, "processProperties " + diff + "ms, " + this.getClass().toString());
-//        }
+        long endTime = System.currentTimeMillis();
+        long diff = endTime - startTime;
+        if (diff > 20) {
+            Log.w(TAG, "processProperties " + diff + "ms, " + this.getClass().toString());
+        }
         if (!(layoutParams instanceof AnimationLayoutParams)
                 && getOuterView() != null && !useCustomLayoutParams) {
             getOuterView().setLayoutParams(layoutParams);
