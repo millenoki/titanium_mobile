@@ -187,11 +187,10 @@ public class ScrollableViewProxy extends TiViewProxy
 		return handled;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public Object getViews()
 	{
-		List<TiViewProxy> list = new ArrayList<TiViewProxy>();
-		return getView().getViews().toArray(new TiViewProxy[list.size()]);
+		return getView().getViews().toArray();
 	}
 
 	@Kroll.setProperty @Kroll.method
