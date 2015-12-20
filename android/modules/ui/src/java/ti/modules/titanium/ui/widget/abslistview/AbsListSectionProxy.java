@@ -261,7 +261,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
 
 	@Kroll.method
-	@Kroll.getProperty
+	@Kroll.getProperty(enumerable=false)
 	public Object[] getItems() {
 		if (itemProperties == null) 
 			return new Object[0];
