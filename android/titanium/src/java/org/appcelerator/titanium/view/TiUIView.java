@@ -243,7 +243,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 if (nv instanceof ViewGroup) {
                     if (cv.getParent() == null) {
                         if (childIndex != -1) {
-                            ((ViewGroup) nv).addView(cv, childIndex,
+                            final int childCount = ((ViewGroup) nv).getChildCount();
+                            ((ViewGroup) nv).addView(cv, Math.min(childCount, childIndex),
                                     child.getLayoutParams());
                         } else {
                             ((ViewGroup) nv).addView(cv,
@@ -257,7 +258,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                         if (childIndex == -1) {
                             children.add(child);
                         } else {
-                            children.add(childIndex, child);
+                            final int childCount = children.size();
+                            children.add(Math.min(childCount, childIndex), child);
                         }
                     }
 
