@@ -10,8 +10,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.appcelerator.kroll.KrollDict;
@@ -337,20 +339,59 @@ public class TiConvert
         }
         return 0;
     }
+	
+	
+	private static Set<String> sLayoutKeys;
 	// Layout
     public static int fillLayout(HashMap hashMap, LayoutParams layoutParams,
             boolean withMatrix) {
+        if (sLayoutKeys == null) {
+            sLayoutKeys = new HashSet<String>();
+            sLayoutKeys.add(TiC.PROPERTY_WIDTH);
+            sLayoutKeys.add(TiC.PROPERTY_HEIGHT);
+            sLayoutKeys.add(TiC.PROPERTY_LEFT);
+            sLayoutKeys.add(TiC.PROPERTY_RIGHT);
+            sLayoutKeys.add(TiC.PROPERTY_BOTTOM);
+            sLayoutKeys.add(TiC.PROPERTY_TOP);
+            sLayoutKeys.add(TiC.PROPERTY_MIN_WIDTH);
+            sLayoutKeys.add(TiC.PROPERTY_MAX_WIDTH);
+            sLayoutKeys.add(TiC.PROPERTY_MIN_HEIGHT);
+            sLayoutKeys.add(TiC.PROPERTY_MAX_HEIGHT);
+            sLayoutKeys.add(TiC.PROPERTY_LAYOUT_FULLSCREEN);
+            sLayoutKeys.add(TiC.PROPERTY_WEIGHT);
+            sLayoutKeys.add(TiC.PROPERTY_ZINDEX);
+            sLayoutKeys.add(TiC.PROPERTY_ANCHOR_POINT);
+            sLayoutKeys.add(TiC.PROPERTY_CENTER);
+            sLayoutKeys.add(TiC.PROPERTY_TRANSFORM);
+        }
+//        Set<String> intersection = new HashSet(hashMap.keySet());
+//        intersection.retainAll(sLayoutKeys);
         int updateFlags = 0;
-        Iterator it = hashMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            int result = fillLayout((String) entry.getKey(), entry.getValue(),
-                    layoutParams, withMatrix);
-            if (result != 0) {
-                updateFlags |= result;
-                it.remove();
+        for (String key : sLayoutKeys) {
+            if (hashMap.containsKey(key) && (key != TiC.PROPERTY_TRANSFORM || withMatrix) ) {
+                
+                int result = fillLayout(key, hashMap.get(key), layoutParams, withMatrix);
+                if (result != 0) {
+                    updateFlags |= result;
+                }
+                hashMap.remove(key);
             }
         }
+//        Iterator it = intersection.iterator();
+//        while (it.hasNext()) {
+//            Map.Entry entry = (Map.Entry) it.next();
+//            Object key = entry.getKey();
+//            if (key instanceof String) {
+//                int result = fillLayout((String) key, entry.getValue(), layoutParams, withMatrix);
+//                if (result != 0) {
+//                    updateFlags |= result;
+//                    it.remove();
+//                }
+//            } else {
+//                Log.e(TAG, "can't parse object key \"" + key + "\", should be a string");
+//            }
+//            
+//        }
         return updateFlags;
     }
 	public static int fillLayout(KrollDict hashMap, LayoutParams layoutParams)
