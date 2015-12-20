@@ -1707,18 +1707,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
     
     public KrollDict getClonedProperties() {
-        KrollDict props = null;
+//        KrollDict props = null;
         synchronized (properties) {
-            props = (KrollDict) properties.clone();
+            return (KrollDict) properties.clone();
         }
-        return props;
+//        return props;
     }
     public HashMap getShallowProperties() {
-        HashMap props = null;
+//        HashMap props = null;
         synchronized (properties) {
-            props = new HashMap(properties);
+            return new HashMap(properties);
         }
-        return props;
+//        return props;
     }
 
     /**
