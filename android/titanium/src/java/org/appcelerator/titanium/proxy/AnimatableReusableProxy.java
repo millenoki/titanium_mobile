@@ -74,17 +74,21 @@ public class AnimatableReusableProxy extends AnimatableProxy implements KrollPro
     }
     
     protected void handleProperties(HashMap<String, Object> d, final boolean changed) {
+        final HashMap currents = changed?getShallowProperties():null;
         if (keySequence() != null) {
             for (final String key : keySequence()) {
                 if (d.containsKey(key)) {
-                    propertySet(key, d.get(key), getProperty(key), changed);
+                    propertySet(key, d.get(key), changed?currents.get(key):null,
+                            changed);
                     d.remove(key);
                 }
             }
         }
-        for (Map.Entry<String, Object> entry : d.entrySet()) {
-            final String key = entry.getKey();
-            propertySet(key, entry.getValue(), getProperty(key), changed);
+        for (Map.Entry entry : d.entrySet()) {
+            final Object key = entry.getKey();
+            if (key instanceof String) {
+                propertySet((String) key, entry.getValue(), changed?currents.get(key):null, changed);
+            }
         }
     }
     
