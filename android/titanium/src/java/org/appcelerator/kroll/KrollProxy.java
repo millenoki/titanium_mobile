@@ -1765,12 +1765,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 if (msg.obj instanceof AsyncResult) {
                     AsyncResult result = (AsyncResult) msg.obj;
                     modelListener
-                            .get().processApplyProperties((KrollDict) result.getArg());
+                            .get().processApplyProperties((HashMap) result.getArg());
                     result.setResult(null);
                     return true;
 
                 } else {
-                    modelListener.get().processApplyProperties((KrollDict) msg.obj);
+                    modelListener.get().processApplyProperties((HashMap) msg.obj);
                 }
             }
             return true;
