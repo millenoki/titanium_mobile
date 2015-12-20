@@ -760,7 +760,7 @@ public class DualScrollView extends FrameLayout {
                 if (rangeX == 0) deltaX = 0;
                 if (rangeY == 0) deltaY = 0;
 
-                if (dispatchNestedPreScroll(deltaX, deltaY, mScrollConsumed, mScrollOffset)) {
+                if (TiC.LOLLIPOP_OR_GREATER && dispatchNestedPreScroll(deltaX, deltaY, mScrollConsumed, mScrollOffset)) {
                     deltaX -= mScrollConsumed[0];
                     deltaY -= mScrollConsumed[1];
                     vtev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
@@ -809,7 +809,7 @@ public class DualScrollView extends FrameLayout {
                     
                     if (overScrollBy(deltaX, deltaY, getScrollX(), getScrollY(),
                             rangeX, rangeY, mOverscrollDistance, mOverscrollDistance, true) 
-                            && !hasNestedScrollingParent()) {
+                            && (!TiC.LOLLIPOP_OR_GREATER || !hasNestedScrollingParent())) {
                         // Break our velocity if we hit a scroll barrier.
                         mVelocityTracker.clear();
                     }
@@ -821,7 +821,7 @@ public class DualScrollView extends FrameLayout {
                     final int unconsumedX = deltaX - scrolledDeltaX;
                     final int scrolledDeltaY = scrollY - oldY;
                     final int unconsumedY = deltaY - scrolledDeltaY;
-                    if (dispatchNestedScroll(scrolledDeltaX, scrolledDeltaY, unconsumedX, unconsumedY, mScrollOffset)) {
+                    if (TiC.LOLLIPOP_OR_GREATER && dispatchNestedScroll(scrolledDeltaX, scrolledDeltaY, unconsumedX, unconsumedY, mScrollOffset)) {
                         mLastMotionX -= mScrollOffset[0];
                         mLastMotionY -= mScrollOffset[1];
                         vtev.offsetLocation(mScrollOffset[0], mScrollOffset[1]);
