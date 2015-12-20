@@ -761,7 +761,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
     
     public void updateKrollObjectProperties() {
-        updateKrollObjectProperties(getProperties());
+        
+        //use a shallow copy because properties is synchronized
+        updateKrollObjectProperties(getShallowProperties());
         propertiesToUpdateNativeSide = null;
     }
 
