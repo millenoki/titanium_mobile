@@ -308,13 +308,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * @module.api
      */
     protected void handleDefaultValues() {
-        synchronized (properties) {
+//        synchronized (properties) {
             for (String key : defaultValues.keySet()) {
-                if (!properties.containsKey(key)) {
+                if (!hasProperty(key)) {
                     setProperty(key, defaultValues.get(key));
                 }
             }
-        }
+//        }
 
     }
 
@@ -376,12 +376,15 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
          * used to query the locale strings file to get the localized value.
          * This localized value will be set to the targeted property (title).
          */
-        synchronized (properties) {
+//        synchronized (properties) {
             for (Map.Entry<String, Object> entry : langConversionTable
                     .entrySet()) {
                 // Get the lookup identifier stored in the locale property.
                 String localeProperty = entry.getValue().toString();
-                String lookupId = properties.getString(localeProperty);
+                String lookupId;
+                synchronized (properties) {
+                    lookupId = properties.getString(localeProperty);
+                }
                 if (lookupId == null) {
                     // If no locale lookup identifier is provided, skip this
                     // entry.
@@ -402,7 +405,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 String targetProperty = entry.getKey();
                 setProperty(targetProperty, localizedValue);
             }
-        }
+//        }
 
     }
 
@@ -2247,9 +2250,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public void reloadProperties() {
         if (modelListener != null) {
-            synchronized (properties) {
+//            synchronized (properties) {
                 modelListener.get().processProperties(getShallowProperties());
-            }
+//            }
         }
     }
 
