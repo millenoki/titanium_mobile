@@ -926,12 +926,16 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	{
 		if (view == null) return;
 		if (pendingAnimations.size() > 0) {
-		    runInUiThread(new CommandNoReturn() {
-	            @Override
-	            public void execute() {
-	                handleAnimate();                
-	            }
-	        }, false);
+		    if (!(TiApplication.isUIThread())) {
+		        runInUiThread(new CommandNoReturn() {
+	                @Override
+	                public void execute() {
+	                    handleAnimate();                
+	                }
+	            }, false);
+		    } else {
+		        handleAnimate();
+		    }
 //			if (forceQueue || !(TiApplication.isUIThread())) {
 //				if (!TiC.HONEYCOMB_OR_GREATER) {
 //					// Even this very small delay can help eliminate the bug
