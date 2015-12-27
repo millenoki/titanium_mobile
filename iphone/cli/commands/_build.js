@@ -5355,8 +5355,8 @@ iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 
 iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 	this.logger.info(__('Processing Titanium symbols'));
-
-	var namespaces = {
+    var depMap = JSON.parse(fs.readFileSync(path.join(this.platformPath, 'dependency.json'))),
+		namespaces = {
 			'api': 1,
 			'network': 1,
 			'platform': 1,
@@ -5402,22 +5402,13 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		}
 	});
 
-	var dependencies = {
-		'ui.listview': ['ui.label', 'ui.imageview'],
-		'ui.textarea': ['ui.textwidget'],
-		'ui.textfield': ['ui.textwidget'],
-		'ui.listviewseparatorstyle': ['ui.tableviewseparatorstyle'],
-		'image': ['media'],
-		'media': ['filesystem'],
-		'audio': ['filesystem'],
-		'database': ['filesystem'],
-	};
-	for (var key in dependencies) {
-		if (dependencies.hasOwnProperty(key)) {
+	var defineDependencies = depMap.defineDependencies;
+	for (var key in defineDependencies) {
+		if (defineDependencies.hasOwnProperty(key)) {
 			var depend = key.replace(/^(Ti|Titanium)./, '').split('.').join('.').replace(/\.create/gi, '').replace(/\./g, '').replace(
 				/\-/g, '_').toUpperCase();
 			if (symbols[depend] === 1) {
-				dependencies[key].forEach(addSymbol);
+				defineDependencies[key].forEach(addSymbol);
 			}
 		}
 	}

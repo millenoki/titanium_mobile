@@ -1,0 +1,14 @@
+{
+	"defineDependencies":
+	{
+		"ui.listview": ["ui.label", "ui.imageview"],
+		"ui.textarea": ["ui.textwidget"],
+		"ui.textfield": ["ui.textwidget"],
+		"ui.listviewseparatorstyle": ["ui.tableviewseparatorstyle"],
+		"image": ["media"],
+		"media": ["filesystem"],
+		"audio": ["filesystem"],
+		"database": ["filesystem"],
+		"app.ios.searchableindex": ["app.ios.searchableitem", "app.ios.searchableitemattributeset"]
+	}
+}
