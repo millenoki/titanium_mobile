@@ -280,7 +280,6 @@
 		D5162EA81A20D1F7008A4048 /* TiUICollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5162E9C1A20D1F7008A4048 /* TiUICollectionView.m */; };
 		D5162EAB1A20D1F7008A4048 /* TiUICollectionViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5162E9E1A20D1F7008A4048 /* TiUICollectionViewProxy.m */; };
 		D51697F217FFF63300B4FDB8 /* ImageModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D51697F117FFF63300B4FDB8 /* ImageModule.m */; };
-		D518BD131B80D1BB0075199D /* libakylas.camera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C21B80C01D00C13E78 /* libakylas.camera.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D518BD141B80D1BB0075199D /* libakylas.charts.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5C61B80C01D00C13E78 /* libakylas.charts.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D518BD151B80D1BB0075199D /* libakylas.commonjs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5CA1B80C01D00C13E78 /* libakylas.commonjs.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D518BD161B80D1BB0075199D /* libakylas.shapes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D514F5CE1B80C01D00C13E78 /* libakylas.shapes.a */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -425,9 +424,9 @@
 		D5C8C9A017EF45C900F54C19 /* ADZoomTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C8C96417EF45C900F54C19 /* ADZoomTransition.m */; };
 		D5C8C9A317EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C8C96617EF45C900F54C19 /* UIViewController+ADTransitionController.m */; };
 		D5C92DA7182AA88F0072D117 /* TouchDelegate_Views.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */; };
-		D5D46C2D1BAAD08100C968F1 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; settings = {ASSET_TAGS = (); }; };
+		D5D46C2D1BAAD08100C968F1 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
 		D5DC32F8180EED41006CCEBD /* TiTransitionCube.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */; };
-		D5E013541BAB04B300149EA0 /* DTCoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E013531BAB04B300149EA0 /* DTCoreText.framework */; settings = {ASSET_TAGS = (); }; };
+		D5E013541BAB04B300149EA0 /* DTCoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E013531BAB04B300149EA0 /* DTCoreText.framework */; };
 		D5E897B118A3FA0B00E565E1 /* NSDictionary+Merge.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E897B018A3FA0B00E565E1 /* NSDictionary+Merge.m */; };
 		D5E9511C195DC34800DB8B37 /* TiProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E9511B195DC34800DB8B37 /* TiProperties.m */; };
 		D5E999121869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
@@ -1686,7 +1685,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D518BD131B80D1BB0075199D /* libakylas.camera.a in Frameworks */,
 				D518BD141B80D1BB0075199D /* libakylas.charts.a in Frameworks */,
 				D518BD151B80D1BB0075199D /* libakylas.commonjs.a in Frameworks */,
 				D518BD161B80D1BB0075199D /* libakylas.shapes.a in Frameworks */,
