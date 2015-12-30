@@ -367,6 +367,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	#externals libraries used by Titanium
 	zip_dir(zf, os.path.join(top_dir, 'iphone', 'libexternals'), basepath+'/iphone/libexternals')
 
+	zf.write(os.path.join(top_dir, 'iphone', 'dependency.json'),'%s/%s/dependency.json'%(basepath,platform))
 	zf.writestr('%s/%s/package.json' % (basepath, platform), codecs.open(os.path.join(top_dir, 'iphone', 'package.json'), 'r', 'utf-8').read().replace('__VERSION__', version))
 
 	zip_dir(zf,osx_dir,basepath)
