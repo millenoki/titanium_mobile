@@ -298,18 +298,18 @@ static NSDictionary* htmlOptions;
 -(void)setText:(id)value
 {
     //the test is for listview measurement when a same template is used for text and html
-    if (value || _contentType == kContentTypeText) {
+//    if (value || _contentType == kContentTypeText) {
         [self setAttributedTextViewContent:[TiUtils stringValue:value] ofType:kContentTypeText];
-    }
+//    }
 	[self replaceValue:value forKey:@"text" notification:NO];
 }
 
 -(void)setHtml:(id)value
 {
     //the test is for listview measurement when a same template is used for text and html
-    if (value || _contentType == kContentTypeHTML) {
+//    if (value || _contentType == kContentTypeHTML) {
         [self setAttributedTextViewContent:[TiUtils stringValue:value] ofType:kContentTypeHTML];
-    }
+//    }
 	[self replaceValue:value forKey:@"html" notification:NO];
 }
 
@@ -374,7 +374,7 @@ static NSDictionary* htmlOptions;
     RELEASE_TO_NIL(contentString);
     contentString = [newContentString retain];
     _contentType = contentType;
-    if (_contentType == kContentTypeHTML) {
+    if (_contentType == kContentTypeHTML && contentString) {
         //if not using html tags, no need to set html will be so much faster
         NSError *error = NULL;
         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:HTML_REGEX
