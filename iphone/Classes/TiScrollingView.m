@@ -552,11 +552,12 @@
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView_ withView:(UIView *)view atScale:(CGFloat)scale
 {
-    if (scrollView_.zoomScale == scrollView_.minimumZoomScale) {
-        scrollView_.scrollEnabled = NO;
-    }else {
-        scrollView_.scrollEnabled = scrollingEnabled;
-    }
+    //disable this as it makes webview not scrollable
+//    if (scrollView_.zoomScale == scrollView_.minimumZoomScale) {
+//        scrollView_.scrollEnabled = NO;
+//    }else {
+//        scrollView_.scrollEnabled = scrollingEnabled;
+//    }
     [self.proxy replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
     
     [self fireScrollEvent:@"scale" forScrollView:scrollView_ withAdditionalArgs:nil];
