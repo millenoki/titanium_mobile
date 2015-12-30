@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
@@ -99,6 +100,8 @@ public class TiUILabel extends TiUINonViewGroupView
     protected static final int TIFLAG_NEEDS_LINKIFY              = 0x00000010;
     protected static final int TIFLAG_NEEDS_TEXT_MARKDOWN        = 0x00000020;
 
+    private static final Pattern sHTMLPattern = Pattern.compile("<\\/?[A-Za-z][^>]*>|&[a-z]+;");
+    
 	private int selectedColor, color, disabledColor;
 	private boolean wordWrap = true;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
@@ -1275,7 +1278,7 @@ public class TiUILabel extends TiUINonViewGroupView
         case TiC.PROPERTY_HTML:
             text = TiConvert.toString(newValue);
             mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
-            if (text != null && ((String)text).contains("<")) {
+            if (text != null && sHTMLPattern.matcher(text).matches()) {
                 mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT_HTML;
             }
             break;
@@ -1304,6 +1307,11 @@ public class TiUILabel extends TiUINonViewGroupView
         case TiC.PROPERTY_DISABLE_LINK_STYLE:
             disableLinkStyle = TiConvert.toBoolean(newValue);
             mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
+            break;
+        case TiC.PROPERTY_AUTOCAPITALIZATION:
+            if (TiC.ICS_OR_GREATER) {
+                getTextView().setAllCaps(TiConvert.toBoolean(newValue));
+            }
             break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);

@@ -19,10 +19,12 @@
 #import "TiTransitionHelper.h"
 #import "TiTransition.h"
 
+
 @interface TiUILabel()
 {
 //    BOOL _reusing;
     BOOL _textIsSelectable;
+    BOOL _autocapitalization;
     UILongPressGestureRecognizer* _longPressGestureRecognizer;
 }
 @property(nonatomic,retain) NSDictionary *transition;
@@ -38,6 +40,7 @@
     if (self = [super init]) {
 //        _reusing = NO;
         _textIsSelectable = NO;
+        _autocapitalization = NO;
         self.transition = nil;
     }
     return self;
@@ -152,10 +155,26 @@
         }, YES);
         return;
     }
-    id content = [(TiUILabelProxy*)[self proxy] getLabelContent];
-    if ([content isKindOfClass:[NSAttributedString class]]){
-        
+    __block id content = [(TiUILabelProxy*)[self proxy] getLabelContent];
+    if (_autocapitalization) {
+        if (IS_OF_CLASS(content, NSAttributedString)){
+            NSMutableAttributedString* uppered = [[NSMutableAttributedString alloc] initWithAttributedString:content];
+            [uppered enumerateAttributesInRange:NSMakeRange(0, uppered.length) options:0 usingBlock:^(__unused NSDictionary *attrs, NSRange range, __unused BOOL *stop) {
+                NSString *substring = [uppered.string substringWithRange:range];
+                
+                NSAssert(substring != nil, @"The result of the mutator block cannot be nil.");
+                
+                // replaceCharactersInRange: inherits the attributes of the first replaced character,
+                // and we're enumerating such that we get called at the beginning of each attribute run,
+                // so this does the right thing.
+                [uppered replaceCharactersInRange:range withString:substring];
+                content = [uppered autorelease];
+            }];
+        } else if (IS_OF_CLASS(content, NSString)){
+            content = [content uppercaseString];
+        }
     }
+    
     [self transitionToText:content];
 }
 
@@ -521,6 +540,11 @@
 {
     ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary)
     self.transition = arg;
+}
+
+-(void)setAutocapitalization_:(id)value {
+    _autocapitalization = [TiUtils boolValue:value def:NO];
+    needsSetText = YES;
 }
 
 #pragma mark -
