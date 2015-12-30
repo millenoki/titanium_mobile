@@ -62,39 +62,43 @@ if (![self propertyExists:key]) return defaultValue; \
 -(id)getBool:(NSString*)key defaultValue:(id)defaultValue
 {
 	GETPROP
-	return [NSNumber numberWithBool:[[self userDefaults] boolForKey:key]];
+    //    return [[self userDefaults] boolForKey:key];
+    id theObject = [self getObject:key defaultValue:defaultValue];
+	return @([TiUtils boolValue:theObject]);
 }
 
 -(id)getDouble:(NSString*)key defaultValue:(id)defaultValue
 {
 	GETPROP
-	return [NSNumber numberWithDouble:[[self userDefaults] doubleForKey:key]];
+//	return [NSNumber numberWithDouble:[[self userDefaults] doubleForKey:key]];
+    id theObject = [self getObject:key defaultValue:defaultValue];
+    return @([TiUtils doubleValue:theObject]);
 }
 
 -(id)getInt:(NSString*)key defaultValue:(id)defaultValue
 {
 	GETPROP
-	return [NSNumber numberWithInteger:[[self userDefaults] integerForKey:key]];
+//	return [NSNumber numberWithInteger:[[self userDefaults] integerForKey:key]];
+    id theObject = [self getObject:key defaultValue:defaultValue];
+    return @([TiUtils intValue:theObject]);
 }
 
 -(id)getString:(NSString*)key defaultValue:(id)defaultValue
 {
 	GETPROP
-	return [[self userDefaults] stringForKey:key];
+//	return [[self userDefaults] stringForKey:key];
+    id theObject = [self getObject:key defaultValue:defaultValue];
+    return [TiUtils stringValue:theObject];
 }
 
 -(id)getList:(NSString*)key defaultValue:(id)defaultValue
 {
 	GETPROP
-	NSArray *value = [[self userDefaults] arrayForKey:key];
-	NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
-	[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-		if ([obj isKindOfClass:[NSData class]] && [_defaultsNull isEqualToData:obj]) {
-			obj = [NSNull null];
-		}
-		[array addObject:obj];
-	}];
-	return array;
+    id theObject = [self getObject:key defaultValue:defaultValue];
+    if (IS_OF_CLASS(theObject, NSArray)) {
+        return theObject;
+    }
+    return defaultValue;
 }
 
 -(id)getObject:(NSString*)key defaultValue:(id)defaultValue
@@ -128,51 +132,56 @@ return;\
 -(void)setBool:(id)value forKey:(NSString*)key
 {
 	SETPROP
-    self.changedProperty = key;
-	[[self userDefaults] setBool:[TiUtils boolValue:value] forKey:key];
-	[[self userDefaults] synchronize];
+//    self.changedProperty = key;
+//	[[self userDefaults] setBool:[TiUtils boolValue:value] forKey:key];
+//	[[self userDefaults] synchronize];
+    [self setObject:@([TiUtils boolValue:value]) forKey:key];
 }
 
 -(void)setDouble:(id)value forKey:(NSString*)key
 {
 	SETPROP
-    self.changedProperty = key;
-	[[self userDefaults] setDouble:[TiUtils doubleValue:value] forKey:key];
-	[[self userDefaults] synchronize];
+//    self.changedProperty = key;
+//	[[self userDefaults] setDouble:[TiUtils doubleValue:value] forKey:key];
+//	[[self userDefaults] synchronize];
+    [self setObject:@([TiUtils doubleValue:value]) forKey:key];
 }
 
 -(void)setInt:(id)value forKey:(NSString*)key
 {
 	SETPROP
-    self.changedProperty = key;
-	[[self userDefaults] setInteger:[TiUtils intValue:value] forKey:key];
-	[[self userDefaults] synchronize];
+//    self.changedProperty = key;
+//	[[self userDefaults] setInteger:[TiUtils intValue:value] forKey:key];
+//	[[self userDefaults] synchronize];
+    [self setObject:@([TiUtils intValue:value]) forKey:key];
 }
 
 -(void)setString:(id)value forKey:(NSString*)key
 {
 	SETPROP
-    self.changedProperty = key;
-	[[self userDefaults] setObject:[TiUtils stringValue:value] forKey:key];
-	[[self userDefaults] synchronize];
+//    self.changedProperty = key;
+//	[[self userDefaults] setObject:[TiUtils stringValue:value] forKey:key];
+//	[[self userDefaults] synchronize];
+    [self setObject:[TiUtils stringValue:value] forKey:key];
 }
 
 -(void)setList:(id)value forKey:(NSString*)key
 {
 	SETPROP
-	if ([value isKindOfClass:[NSArray class]]) {
-		NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
-		[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-			if ([obj isKindOfClass:[NSNull class]]) {
-				obj = _defaultsNull;
-			}
-			[array addObject:obj];
-		}];
-		value = array;
-	}
-    self.changedProperty = key;
-	[[self userDefaults] setObject:value forKey:key];
-	[[self userDefaults] synchronize];
+//	if ([value isKindOfClass:[NSArray class]]) {
+//		NSMutableArray *array = [[[NSMutableArray alloc] initWithCapacity:[value count]] autorelease];
+//		[(NSArray *)value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+//			if ([obj isKindOfClass:[NSNull class]]) {
+//				obj = _defaultsNull;
+//			}
+//			[array addObject:obj];
+//		}];
+//		value = array;
+//	}
+//    self.changedProperty = key;
+//	[[self userDefaults] setObject:value forKey:key];
+//	[[self userDefaults] synchronize];
+    [self setObject:value forKey:key];
 }
 
 -(void)setObject:(id)value forKey:(NSString*)key
