@@ -309,11 +309,14 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     }
     
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
-    if (UIInterfaceOrientationIsPortrait(orientation)) {
-        imageSize = [UIScreen mainScreen].bounds.size;
-    } else {
-        imageSize = CGSizeMake([UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width);
+    if (![TiUtils isIOS8OrGreater]) {
+        if (UIInterfaceOrientationIsPortrait(orientation)) {
+            imageSize = [UIScreen mainScreen].bounds.size;
+        } else {
+            imageSize = CGSizeMake([UIScreen mainScreen].bounds.size.height, [UIScreen mainScreen].bounds.size.width);
+        }
     }
+    
     UIGraphicsBeginImageContextWithOptions(imageSize, NO, scale);
     
     CGContextRef context = UIGraphicsGetCurrentContext();
@@ -337,15 +340,17 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             CGContextTranslateCTM(context,
                                   -size.width * anchorPoint.x,
                                   -size.height * anchorPoint.y);
-            if (orientation == UIInterfaceOrientationLandscapeLeft) {
-                CGContextRotateCTM(context, M_PI_2);
-                CGContextTranslateCTM(context, 0, -imageSize.width);
-            } else if (orientation == UIInterfaceOrientationLandscapeRight) {
-                CGContextRotateCTM(context, -M_PI_2);
-                CGContextTranslateCTM(context, -imageSize.height, 0);
-            } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
-                CGContextRotateCTM(context, M_PI);
-                CGContextTranslateCTM(context, -imageSize.width, -imageSize.height);
+            if (![TiUtils isIOS8OrGreater]) {
+                if (orientation == UIInterfaceOrientationLandscapeLeft) {
+                    CGContextRotateCTM(context, M_PI_2);
+                    CGContextTranslateCTM(context, 0, -imageSize.width);
+                } else if (orientation == UIInterfaceOrientationLandscapeRight) {
+                    CGContextRotateCTM(context, -M_PI_2);
+                    CGContextTranslateCTM(context, -imageSize.height, 0);
+                } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
+                    CGContextRotateCTM(context, M_PI);
+                    CGContextTranslateCTM(context, -imageSize.width, -imageSize.height);
+                }
             }
             // Render the layer hierarchy to the current context
             if ([window respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
