@@ -49,6 +49,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	private ArrayList<Integer> filterIndices;
 	private boolean preload;
 	private ArrayList<Boolean> hiddenItems;
+	boolean showHeaderWhenHidden = false;
+	boolean hideWhenEmpty = false;
 	boolean hidden = false;
 	
 	private int sectionIndex;
@@ -512,9 +514,37 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	public boolean getVisible() {
 		return !hidden;
 	}
-
+	
+	@Kroll.method
+    @Kroll.setProperty
+    public void setShowHeaderWhenHidden(boolean value) {
+        if (showHeaderWhenHidden == value) return;
+        showHeaderWhenHidden = value;
+        notifyDataChange();
+    }
+    
     @Kroll.method
     @Kroll.getProperty
+    public boolean getShowHeaderWhenHidden() {
+        return showHeaderWhenHidden;
+    }
+    
+    @Kroll.method
+    @Kroll.setProperty
+    public void setHideWhenEmpty(boolean value) {
+        if (hideWhenEmpty == value) return;
+        hideWhenEmpty = value;
+        notifyDataChange();
+    }
+    
+    @Kroll.method
+    @Kroll.getProperty
+    public boolean getHideWhenEmpty() {
+        return hideWhenEmpty;
+    }
+
+    @Kroll.method
+    @Kroll.getProperty(enumerable=false)
     public int getLength() {
         return getItemCount();
     }
@@ -918,31 +948,34 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		return totalCount - getHiddenCount();
 	}
 	
-	private void updateCurrentItemCount() {
-	    int totalCount = 0;
-        if (!hidden) {
-            if (isFilterOn()) {
-                totalCount = filterIndices.size();
-            } else {
-                totalCount = mItemCount;
-            }
+    private void updateCurrentItemCount() {
+        if (hidden && !showHeaderWhenHidden) {
+            mCurrentItemCount = 0;
+            return;
         }
-//        else if (!hideHeaderOrFooter() && hasHeader()) {
-//            totalCount += 1;
-//        }
-//
-        if (!hideHeaderOrFooter()) {
-          if (hasHeader() && totalCount == 0) {
-              totalCount += 1;
-          }
-            //footer must be counted in!
+        int totalCount = 0;
+        if (isFilterOn()) {
+            totalCount = filterIndices.size();
+        } else {
+            totalCount = mItemCount;
+        }
+        // else if (!hideHeaderOrFooter() && hasHeader()) {
+        // totalCount += 1;
+        // }
+        //
+        totalCount -= getHiddenCount();
+
+        if (!hideHeaderOrFooter() && (totalCount > 0 || !hideWhenEmpty)) {
+            if (hasHeader() && totalCount == 0) {
+                totalCount += 1;
+            }
+            // footer must be counted in!
             if (hasFooter()) {
                 totalCount += 1;
             }
         }
-        totalCount -= getHiddenCount();
         mCurrentItemCount = totalCount;
-	}
+    }
 	/**
 	 * @return number of entries within section
 	 */
