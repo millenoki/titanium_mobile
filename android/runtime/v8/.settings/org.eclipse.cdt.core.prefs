@@ -1,4 +1,7 @@
 eclipse.preferences.version=1
+environment/project/0.1355394577/ANDROID_NDK/delimiter=\:
+environment/project/0.1355394577/ANDROID_NDK/operation=replace
+environment/project/0.1355394577/ANDROID_NDK/value=/Volumes/data/dev/androidNDK/r10e
 environment/project/0.1355394577/BUILD_X86/delimiter=\:
 environment/project/0.1355394577/BUILD_X86/operation=append
 environment/project/0.1355394577/BUILD_X86/value=1
