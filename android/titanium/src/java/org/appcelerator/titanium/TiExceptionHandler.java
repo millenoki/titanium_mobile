@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.appcelerator.kroll.KrollApplication;
@@ -16,6 +17,7 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 
@@ -25,6 +27,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -40,10 +43,14 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static Handler mainHandler;
 	private static int layoutId = -1;
     private static int styleId;
-	private static int layoutLocationId;
+    private static int layoutLocationId;
+	private static int layoutLocationTitleId;
 	private static int layoutMessageId;
+	private static int layoutMessageTitleId;
 	private static int layoutSourceId;
+	private static int layoutSourceTitleId;
 	private static int layoutCallstackId;
+	private static int layoutCallstackTitleId;
 
 	public void printError(String title, String message, String sourceName, int line, String lineSource,
 		int lineOffset, final String callstack)
@@ -110,7 +117,9 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 		TiApplication tiApplication = TiApplication.getInstance();
 		if (tiApplication.getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION)) {
-			return;
+		    TiApplication.getAppRootOrCurrentActivity().finish();
+		    System.exit(0);
+		    return;
 		}
 
 		if (!dialogShowing) {
@@ -137,9 +146,13 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
                 layoutId = TiRHelper.getApplicationResource("layout.ti_exception_dialog");
                 styleId = TiRHelper.getApplicationResource("style.TiExceptionDialogStyle");
                 layoutLocationId = TiRHelper.getApplicationResource("id.tiexd_location");
+                layoutLocationTitleId = TiRHelper.getApplicationResource("id.tiexd_location_title");
                 layoutSourceId = TiRHelper.getApplicationResource("id.tiexd_source");
+                layoutSourceTitleId = TiRHelper.getApplicationResource("id.tiexd_source_title");
                 layoutMessageId = TiRHelper.getApplicationResource("id.tiexd_message");
+                layoutMessageTitleId = TiRHelper.getApplicationResource("id.tiexd_message_title");
                 layoutCallstackId = TiRHelper.getApplicationResource("id.tiexd_callstack");
+                layoutCallstackTitleId = TiRHelper.getApplicationResource("id.tiexd_callstack_title");
             } catch (ResourceNotFoundException e) {
                 e.printStackTrace();
                 return;
@@ -157,14 +170,37 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		    return;
             
 		}
-		
-		((TextView) layout.findViewById(layoutLocationId)).setText("[" + error.line + "," + error.lineOffset + "] " + error.sourceName);
-        ((TextView) layout.findViewById(layoutMessageId)).setText(error.message);
+		String location = error.sourceName;
+		if (error.line != -1) {
+		    if (error.lineOffset != -1) {
+		        location = "[" + error.line + "," + error.lineOffset + "] " + location;
+		    } else {
+		        location = "[" + error.line + "] " + location;
+		    }
+		}
+		if (location != null) {
+		      ((TextView) layout.findViewById(layoutLocationId)).setText("[" + error.line + "," + error.lineOffset + "] " + error.sourceName);
+		} else {
+		    layout.findViewById(layoutLocationId).setVisibility(View.GONE);
+		    layout.findViewById(layoutLocationTitleId).setVisibility(View.GONE);
+		}
+        if (error.message != null) {
+            ((TextView) layout.findViewById(layoutMessageId)).setText(error.message);
+        } else {
+            layout.findViewById(layoutMessageId).setVisibility(View.GONE);
+            layout.findViewById(layoutMessageTitleId).setVisibility(View.GONE);
+        }
         if (error.lineSource != null) {
             ((TextView) layout.findViewById(layoutSourceId)).setText(error.lineSource.trim());
+        } else {
+            layout.findViewById(layoutSourceId).setVisibility(View.GONE);
+            layout.findViewById(layoutSourceTitleId).setVisibility(View.GONE);
         }
         if (error.callstack != null) {
             ((TextView) layout.findViewById(layoutCallstackId)).setText(error.callstack);
+        } else {
+            layout.findViewById(layoutCallstackId).setVisibility(View.GONE);
+            layout.findViewById(layoutCallstackTitleId).setVisibility(View.GONE);
         }
 		OnClickListener clickListener = new OnClickListener()
 		{
@@ -195,9 +231,10 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity, styleId)
 			.setTitle(error.title).setView(layout)
 			.setPositiveButton("Kill", clickListener)
-			.setNeutralButton("Continue", clickListener)
 			.setCancelable(false);
-		
+		if (error.canContinue) {
+		    builder.setNeutralButton("Continue", clickListener);
+		}
 		AlertDialog dialog = builder.create();
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.show();
@@ -239,5 +276,22 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	public void handleException(ExceptionMessage error)
 	{
 		openErrorDialog(error);
+	}
+	public void handleException(HashMap map)
+    {
+	    ExceptionMessage message = new ExceptionMessage(
+                TiConvert.toString(map, "title"),
+                TiConvert.toString(map, "message"),
+                TiConvert.toString(map, "source"),
+                TiConvert.toInt(map, "line", -1),
+                TiConvert.toString(map, "lineSource"),
+                TiConvert.toInt(map, "lineOffset", -1),
+                TiConvert.toString(map, "callstack"));
+	    message.canContinue = TiConvert.toBoolean(map, "canContinue", true);
+	    handleException(message);
+    }
+    
+	public boolean isShowing() {
+	    return dialogShowing;
 	}
 }

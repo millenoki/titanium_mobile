@@ -6,6 +6,10 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.HashMap;
+
+import org.appcelerator.kroll.common.TiConfig;
+
 /**
  * <p> An interface for handling exceptions from the runtime. </p>
  * 
@@ -36,7 +40,8 @@ public interface KrollExceptionHandler
 	public class ExceptionMessage
 	{
 		public String title, message, sourceName, lineSource, callstack;
-		public int line, lineOffset;
+		public int line = -1, lineOffset = -1;
+		public boolean canContinue = true;
 
 		public ExceptionMessage(final String title, final String message, final String sourceName, final int line,
 			final String lineSource, final int lineOffset, final String callstack)
@@ -49,6 +54,7 @@ public interface KrollExceptionHandler
 			this.lineOffset = lineOffset;
 			this.callstack = callstack;
 		}
+
 	}
 
 	/**

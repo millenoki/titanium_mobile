@@ -158,7 +158,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @SuppressWarnings("unchecked")
 	public void open(@Kroll.argument(optional = true) Object arg)
 	{
-		if (state == State.OPENED || state == State.OPENING) { 
+		if (state == State.OPENED || state == State.OPENING || TiApplication.isErrorDialogShowing()) { 
 		    return; 
 		}
 		if (state == State.CLOSING) {

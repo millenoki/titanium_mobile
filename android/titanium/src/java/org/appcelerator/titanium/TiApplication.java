@@ -100,6 +100,8 @@ public abstract class TiApplication extends Application implements
     private static float sAppDensity = -1;
     private static float sAppScaledDensity = -1;
     private static String sAppDensityString = null;
+    
+    private static TiExceptionHandler sExceptionHandler;
 
     protected static WeakReference<TiApplication> sTiApp = null;
 
@@ -340,6 +342,16 @@ public abstract class TiApplication extends Application implements
 
         return tiApp.getRootOrCurrentActivity();
     }
+    
+    /**
+     * Method to know if a exception dialog is currently showing
+     * 
+     * @return true is an error dialog is visible.
+     * @module.api
+     */
+    public static boolean isErrorDialogShowing() {
+        return sExceptionHandler.isShowing();
+    } 
 
     /**
      * @return the current activity if exists. Otherwise, the thread will wait
@@ -820,6 +832,10 @@ public abstract class TiApplication extends Application implements
         client.setReadTimeout(timeout, TimeUnit.MILLISECONDS);
         return client;
     }
+    
+    public static TiExceptionHandler getExceptionHandler() {
+        return sExceptionHandler;
+    }
 
     public void postOnCreate() {
         loadAppProperties();
@@ -841,9 +857,12 @@ public abstract class TiApplication extends Application implements
         startExternalStorageMonitor();
 
         // Register the default cache handler
-        KrollRuntime.setPrimaryExceptionHandler(new TiExceptionHandler());
+        if (sExceptionHandler == null) {
+            sExceptionHandler = new TiExceptionHandler();
+        }
+        KrollRuntime.setPrimaryExceptionHandler(sExceptionHandler);
     }
-
+    
 //    private File getRemoteCacheDir() {
 //        File cacheDir = new File(tempFileHelper.getTempDirectory(),
 //                "remote-cache");

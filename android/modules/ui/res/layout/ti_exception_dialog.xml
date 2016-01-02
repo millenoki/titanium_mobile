@@ -16,7 +16,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Location:" 
-            android:textScaleX="1.5"/>
+            android:textScaleX="1.5"
+            android:id="@+id/tiexd_location_title"/>
         <TextView android:textColor="#000000" 
             android:background="#ffffff"
             android:layout_width="fill_parent"
@@ -28,7 +29,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Message:" 
-            android:textScaleX="1.5"/>
+            android:textScaleX="1.5"
+            android:id="@+id/tiexd_message_title"/>
         <TextView android:textColor="#000000" 
             android:background="#ffffff"
             android:layout_width="fill_parent"
@@ -40,7 +42,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Source:" 
-            android:textScaleX="1.5"/>
+            android:textScaleX="1.5"
+            android:id="@+id/tiexd_source_title"/>
         <TextView android:textColor="#000000" 
             android:background="#ffffff"
             android:layout_width="fill_parent"
@@ -52,7 +55,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="Callstack:" 
-            android:textScaleX="1.5"/>
+            android:textScaleX="1.5"
+            android:id="@+id/tiexd_callstack_title"/>
         <TextView android:textColor="#000000" 
             android:background="#ffffff"
             android:layout_width="fill_parent"
