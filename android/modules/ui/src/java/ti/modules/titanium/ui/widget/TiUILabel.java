@@ -1278,7 +1278,7 @@ public class TiUILabel extends TiUINonViewGroupView
         case TiC.PROPERTY_HTML:
             text = TiConvert.toString(newValue);
             mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
-            if (text != null && sHTMLPattern.matcher(text).matches()) {
+            if (text != null && sHTMLPattern.matcher(text).find()) {
                 mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT_HTML;
             }
             break;
