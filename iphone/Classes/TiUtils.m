@@ -1017,20 +1017,21 @@ If the new path starts with / and the base url is app://..., we have to massage 
     //TODO: What is this mess? -BTH
     if ([relativeString hasPrefix:@"http://"] || [relativeString hasPrefix:@"https://"])
     {
-        NSRange range = [relativeString rangeOfString:@"/" options:0 range:NSMakeRange(7, [relativeString length]-7)];
-        if (range.location!=NSNotFound)
-        {
-            NSString *firstPortion = [relativeString substringToIndex:range.location];
-            NSString *pathPortion = [relativeString substringFromIndex:range.location];
-            CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                              (CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
-                                                                              kCFStringEncodingUTF8);
-            relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
-            if(escapedPath != NULL)
-            {
-                CFRelease(escapedPath);
-            }
-        }
+        //removed the escaping thing as NSURL handles it
+//        NSRange range = [relativeString rangeOfString:@"/" options:0 range:NSMakeRange(7, [relativeString length]-7)];
+//        if (range.location!=NSNotFound)
+//        {
+//            NSString *firstPortion = [relativeString substringToIndex:range.location];
+//            NSString *pathPortion = [relativeString substringFromIndex:range.location];
+//            CFStringRef escapedPath = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+//                                                                              (CFStringRef)pathPortion, charactersToNotEscape,charactersThatNeedEscaping,
+//                                                                              kCFStringEncodingUTF8);
+//            relativeString = [firstPortion stringByAppendingString:(NSString *)escapedPath];
+//            if(escapedPath != NULL)
+//            {
+//                CFRelease(escapedPath);
+//            }
+//        }
         result = [NSURL URLWithString:relativeString relativeToURL:rootPath];
     } else {
         //only add percentescape if there are spaces in relativestring
