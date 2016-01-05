@@ -187,13 +187,15 @@ public class FreeLayout extends FrameLayout {
 
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent ev) {
-
+	    boolean handled = false;
+	    float deltaX = 0;
+	    float deltaY = 0;
 		for (int i = getChildCount() - 1; i >= 0; i--) {
 			View v = getChildAt(i);
 			if (v.getVisibility() != View.VISIBLE)
 				continue;
 			Matrix m = getViewMatrix(v);
-			if (m != null) {
+			if (m != null && !m.isIdentity()) {
 				float[] points = new float[] { ev.getX(), ev.getY() };
 				RectF rect = new RectF(v.getLeft(), v.getTop(), v.getRight(),
 						v.getBottom());
@@ -207,9 +209,16 @@ public class FreeLayout extends FrameLayout {
 					realM.invert(mi);
 					if (mi != null) {
 						mi.mapPoints(points);
-						ev.setEdgeFlags(ev.getEdgeFlags() | FLAG_TRANSFORMED); //a trick to mark the event as transformed
-						ev.setLocation(points[0], points[1]); //without the transform point the view wont receive it
-						return super.dispatchTouchEvent(ev);
+						deltaX = points[0] - ev.getX() + v.getScrollX() - v.getLeft();
+						deltaY = points[1] - ev.getY() + v.getScrollY() - v.getTop();
+	                    ev.offsetLocation(deltaX, deltaY);
+                        ev.setEdgeFlags(ev.getEdgeFlags() | FLAG_TRANSFORMED); //a trick to mark the event as transformed
+                        handled = v.dispatchTouchEvent(ev);
+                        ev.setEdgeFlags(ev.getEdgeFlags() & ~FLAG_TRANSFORMED);
+                        ev.offsetLocation(- deltaX, - deltaY);
+						if (handled) {
+						    return true;
+						}
 					}
 				}
 			}
