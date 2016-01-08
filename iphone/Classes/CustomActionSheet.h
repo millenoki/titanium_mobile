@@ -15,7 +15,7 @@
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *htmlTitle;
 @property (nonatomic, strong) UIColor *tintColor;
-@property (nonatomic, assign) int cancelIndex;
+@property (nonatomic, assign) NSInteger cancelIndex;
 @property (nonatomic, assign) BOOL dismissOnAction;
 @property (nonatomic, assign) BOOL tapOutDismiss;
 @property (nonatomic, assign) UIActionSheetStyle style;
