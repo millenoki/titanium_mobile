@@ -495,9 +495,6 @@ public class TiCompositeLayout extends FreeLayout implements
             AnimationLayoutParams animP = (AnimationLayoutParams) p;
             float fraction = animP.animationFraction;
             if (fraction < 1.0f) {
-                if (fraction >= 0.4 && fraction <= 0.6) {
-                    Log.d(TAG, "test");
-                }
                 Rect startRect = animP.startRect;
                 if (startRect != null) {
                     if (fraction == 0.0f) {
