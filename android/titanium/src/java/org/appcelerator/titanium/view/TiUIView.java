@@ -2202,6 +2202,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 //                    }
                     return viewShouldPassThrough(view, event);
                 }
+            } else {
+                return true;
             }
         }
         return false;
