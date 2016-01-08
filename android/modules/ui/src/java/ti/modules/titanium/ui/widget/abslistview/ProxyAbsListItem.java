@@ -54,7 +54,7 @@ public class ProxyAbsListItem {
 				Object value = properties.get(property);
 				Object existingVal = currentProperties.get(property);			
 				if (existingVal != value && (existingVal == null || value == null || !existingVal.equals(value))) {
-					applyProperty(property, value, it);
+					applyProperty(property, value, null);
 				}
 			}
 		}
@@ -64,10 +64,15 @@ public class ProxyAbsListItem {
 	
 	private void applyProperty(String key, Object value, Iterator<String> it) {
 		diffProperties.put(key, value);
-		if (value == null)
-			it.remove();
-		else
+		if (value == null) {
+		    if (it != null) {
+	            it.remove();
+		    } else {
+		          currentProperties.remove(key);
+		    }
+		} else {
 			currentProperties.put(key, value);
+		}
 	}
 	
 	public void setCurrentProperty(String key, Object value) {
