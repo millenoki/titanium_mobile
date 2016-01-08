@@ -203,12 +203,23 @@ public class TiUIDialog extends TiUIView
 
 	private void processOptions(String[] optionText,int selectedIndex)
 	{
-		getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				handleEvent(which, true);
-				if (hideOnClick == true) hide(null);
-			}
-		});
+	    if (selectedIndex == -1) {
+	        getBuilder().setItems(optionText , new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    handleEvent(which, true);
+                    if (hideOnClick == true) hide(null);
+                }
+            });
+	    }
+	    else {
+	        getBuilder().setSingleChoiceItems(optionText, selectedIndex , new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    handleEvent(which, true);
+                    if (hideOnClick == true) hide(null);
+                }
+            });
+	    }
+		
 		optionsCount = (optionText != null) ? optionText.length : 0;
 	}
 
