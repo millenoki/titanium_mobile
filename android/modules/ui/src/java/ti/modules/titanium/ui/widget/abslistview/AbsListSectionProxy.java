@@ -399,15 +399,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         if (!isIndexValid(index) || !(data instanceof HashMap)) {
             return;
         }
-        if (!TiApplication.isUIThread()) {
-            runInUiThread(new CommandNoReturn() {
-                @Override
-                public void execute() {
-                    updateItemAt(index, data, options);
-                }
-            }, true);
-            return;
-        }
+        
         if (itemProperties == null) {
             return;
         }
@@ -419,44 +411,47 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         // nonRealItemIndex += 1;
         // }
 
-        TiAbsListView listView = getListView();
-
-        HashMap currentItem = KrollDict.merge((HashMap) itemProperties[index],
+        final TiAbsListView listView = getListView();
+        final int sectionIndex = this.sectionIndex;
+        final HashMap currentItem = KrollDict.merge((HashMap) itemProperties[index],
                 (HashMap) (data));
         if (currentItem == null)
             return;
         itemProperties[index] = currentItem;
+        
+        final boolean visible = isItemVisible(currentItem);
+        hiddenItems.set(index, !visible);
+        
         // only process items when listview's properties is processed.
         if (listView == null) {
             preload = true;
             return;
         }
-        View content = listView.getCellAt(this.sectionIndex, index);
-        // KrollDict d = new KrollDict(currentItem);
-        // AbsListItemData itemD = listItemData.get(itemIndex);
-        // itemD.setProperties(d);
-        // listItemData.set(index, itemD);
-        boolean visible = isItemVisible(currentItem);
-        hiddenItems.set(index, !visible);
-
-        if (content != null && visible) {
-            TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content
-                    .findViewById(TiAbsListView.listContentId);
-            if (listItem != null) {
-                if (listItem.getItemIndex() == index) {
-                    TiAbsListViewTemplate template = getListView()
-                            .getTemplate(TiConvert.toString(currentItem,
-                                    TiC.PROPERTY_TEMPLATE));
-                    populateViews(currentItem, listItem, template,
-                            getUserItemInversedIndexFromSectionPosition(index),
-                            this.sectionIndex, content, false);
-                } else {
-                    Log.d(TAG, "wrong item index", Log.DEBUG_MODE);
-                }
-                return;
-            }
-        }
         notifyDataChange();
+        runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                View content = listView.getCellAt(sectionIndex, index);
+                if (content != null && visible) {
+                    TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content
+                            .findViewById(TiAbsListView.listContentId);
+                    if (listItem != null) {
+                        if (listItem.getItemIndex() == index) {
+                            TiAbsListViewTemplate template = getListView()
+                                    .getTemplate(TiConvert.toString(currentItem,
+                                            TiC.PROPERTY_TEMPLATE));
+                            populateViews(currentItem, listItem, template,
+                                    getUserItemInversedIndexFromSectionPosition(index),
+                                    sectionIndex, content, false);
+                        } else {
+                            Log.d(TAG, "wrong item index", Log.DEBUG_MODE);
+                        }
+                        return;
+                    }
+                }
+            }
+        }, false);
+        
     }
 	
 	
