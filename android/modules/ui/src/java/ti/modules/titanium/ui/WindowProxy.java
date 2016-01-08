@@ -185,6 +185,17 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                     break;
                 }
                 break;
+
+            case "statusBarColor": {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                getWindow().setStatusBarColor(TiConvert.toColor(newValue));
+                break;
+            }
+            case "navigationBarColor": {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                getWindow().setNavigationBarColor(TiConvert.toColor(newValue));
+                break;
+            }
             case TiC.PROPERTY_WIDTH:
             case TiC.PROPERTY_HEIGHT:
             default:
@@ -202,6 +213,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                 }
                 break;
             }
+            
         }
 	}
 	 
@@ -418,6 +430,13 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			TiApplication.removeFromActivityStack(activity);
 			windowActivity = null;
 		}
+	}
+	
+	private Window getWindow() {
+	    if (windowActivity != null) {
+	        return windowActivity.get().getWindow();
+	    }
+	    return null;
 	}
 
 	@SuppressWarnings("unchecked")
