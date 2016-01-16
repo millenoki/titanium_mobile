@@ -1054,7 +1054,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     @Kroll.method
     public boolean fireEvent(String event,
             @Kroll.argument(optional = true) Object data) {
-        return fireEvent(event, data, false, true);
+        boolean bubbles = false;
+        if (data instanceof HashMap) {
+            bubbles = TiConvert.toBoolean((HashMap<String, Object>) data, TiC.PROPERTY_BUBBLES, bubbles);
+        }
+        return fireEvent(event, data, bubbles, true);
     }
     
     //alias
