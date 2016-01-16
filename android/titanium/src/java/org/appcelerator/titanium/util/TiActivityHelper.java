@@ -112,21 +112,23 @@ public class TiActivityHelper {
         // ActionBar actionBar = getActionBar(activity);
         // if (actionBar != null) {
         // Calculate ActionBar height
-        int actionBarHeight = ActionBarProxy.getActionBarSize(activity);
-        return new TiDimension(actionBarHeight, TiDimension.TYPE_HEIGHT)
+        double actionBarHeight = ActionBarProxy.getActionBarSize(activity);
+        actionBarHeight = new TiDimension(actionBarHeight, TiDimension.TYPE_HEIGHT)
                 .getAsDefault();
+        return actionBarHeight;
         // }
         // return 0;
     }
     
     public static double getStatusBarHeight(final Activity activity) {
-        int result = 0;
+        double result = 0;
         int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0) {
             result = activity.getResources().getDimensionPixelSize(resourceId);
         }
-        return new TiDimension(result, TiDimension.TYPE_HEIGHT)
+        result = new TiDimension(result, TiDimension.TYPE_HEIGHT)
                 .getAsDefault();
+        return result;
     }
 
     public static void setActionBarHidden(final Activity activity,
