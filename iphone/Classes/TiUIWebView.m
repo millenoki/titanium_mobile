@@ -146,6 +146,26 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	return view;
 }
 
+
+-(void)onInterceptTouchEvent:(UIEvent *)event
+{
+    UITouch *touch = [[event allTouches] anyObject];
+    if ([self interactionEnabled]) {
+        if (touch.phase == UITouchPhaseBegan) {
+            [self processTouchesBegan:[event allTouches] withEvent:event];
+        }
+        else if (touch.phase == UITouchPhaseMoved) {
+            [self processTouchesMoved:[event allTouches] withEvent:event];
+        }
+        else if (touch.phase == UITouchPhaseEnded) {
+            [self processTouchesEnded:[event allTouches] withEvent:event];
+        }
+        else if (touch.phase == UITouchPhaseCancelled) {
+            [self processTouchesCancelled:[event allTouches] withEvent:event];
+        }
+    }
+}
+
 -(void)setWillHandleTouches_:(id)args
 {
     willHandleTouches = [TiUtils boolValue:args def:YES];

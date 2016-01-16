@@ -2167,6 +2167,11 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	}
 }
 
+-(void)onInterceptTouchEvent:(UIEvent *)event
+{
+    //to be overriden
+}
+
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {

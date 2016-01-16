@@ -270,6 +270,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
  @return _YES_ if the view contains specialized content (such as a system view) which should register as a touch for this view, _NO_ otherwise.
  */
 -(BOOL)touchedContentViewWithEvent:(UIEvent*)event;
+-(void)onInterceptTouchEvent:(UIEvent *)event;
 
 - (void)processTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
 - (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
