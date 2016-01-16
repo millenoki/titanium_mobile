@@ -178,13 +178,13 @@ public class GestureModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public boolean isPortrait()
 	{
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+		return TiApplication.getAppConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
 	}
 
 	@Kroll.getProperty @Kroll.method
 	public boolean isLandscape()
 	{
-		return TiApplication.getInstance().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		return TiApplication.getAppConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 	}
 
 	@Kroll.getProperty @Kroll.method
