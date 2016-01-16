@@ -1319,11 +1319,10 @@ public class TiUILabel extends TiUINonViewGroupView
         }
     }
 
-	@SuppressLint("NewApi")
 	@Override
-	protected KrollDict dictFromEvent(MotionEvent e)
+	protected KrollDict dictFromMotionEvent(MotionEvent e)
 	{
-		KrollDict data = super.dictFromEvent(e);
+		KrollDict data = super.dictFromMotionEvent(e);
 		CharSequence text = tv.textView.getText();
 		if (text instanceof Spanned)
 		{

@@ -143,7 +143,7 @@ public class TiUIWebView extends TiUINonViewGroupView
                     if (hierarchyHasListener(TiC.EVENT_CLICK)) {
                         Rect r = new Rect(0, 0, getWidth(), getHeight());
                         if (r.contains((int) event.getX(), (int) event.getY())) {
-                            proxy.fireEvent(TiC.EVENT_CLICK, dictFromEvent(event), true, false);
+                            proxy.fireEvent(TiC.EVENT_CLICK, dictFromMotionEvent(event), true, false);
                         }
                     }
                     break;

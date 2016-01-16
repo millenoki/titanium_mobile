@@ -1978,13 +1978,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         String motionEvent = motionEvents.get(event.getAction());
         if (motionEvent != null) {
             if (hierarchyHasListener(motionEvent)) {
-                fireEventNoCheck(motionEvent,
-                        TiViewHelper.dictFromMotionEvent(getTouchView(), event));
+                fireEventNoCheck(motionEvent, dictFromMotionEvent(event));
             }
         }
     }
 
-    protected KrollDict dictFromEvent(MotionEvent e) {
+    protected KrollDict dictFromMotionEvent(MotionEvent e) {
         return TiViewHelper.dictFromMotionEvent(getTouchView(), e);
     }
 
@@ -2265,8 +2264,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         // if singletap is active dont send click
         if (!hasListeners(TiC.EVENT_SINGLE_TAP)
                 && hierarchyHasListener(TiC.EVENT_CLICK)) {
-            fireEventNoCheck(TiC.EVENT_CLICK, TiViewHelper
-                    .dictFromMotionEvent(getTouchView(), lastUpEvent));
+            fireEventNoCheck(TiC.EVENT_CLICK, dictFromMotionEvent(lastUpEvent));
         }
     }
     /**

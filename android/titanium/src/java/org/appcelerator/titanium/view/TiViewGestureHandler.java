@@ -229,7 +229,7 @@ public class TiViewGestureHandler {
             event = TiViewHelper.dictFromMotionEvent(touchedView.getTouchView(), e);
             event.put(TiC.PROPERTY_SOURCE, proxy);
         } else {
-            event = mView.dictFromEvent(e);
+            event = mView.dictFromMotionEvent(e);
         }
         return event;
     }
@@ -731,7 +731,7 @@ public class TiViewGestureHandler {
                 if (canTapTwoFingers) {
                     // handle two fingers event
 //                    if (mProxy.hasListeners(TiC.EVENT_TWOFINGERTAP, false)) {
-                        fireEvent(TiC.EVENT_TWOFINGERTAP, mView.dictFromEvent(event));
+                        fireEvent(TiC.EVENT_TWOFINGERTAP, mView.dictFromMotionEvent(event));
 //                    }
                     canTapTwoFingers = false;
                     multiTouchDownCount = 0;
