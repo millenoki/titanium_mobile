@@ -106,11 +106,11 @@ public class DecorViewProxy extends TiViewProxy
 			// determine if we have a valid activity orientation mode based on provided modes list
 			if (orientationModes.length == 0)
 			{
-				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 			}
 			else if ((hasPortrait || hasPortraitReverse) && (hasLandscape || hasLandscapeReverse))
 			{
-				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 			}
 			else if (hasPortrait && hasPortraitReverse)
 			{
