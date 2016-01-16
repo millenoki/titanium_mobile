@@ -2942,5 +2942,14 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return YES;
 }
 
++ (BOOL)string:(NSString *)string matchPattern:(NSString *)pattern {
+    NSError *error = nil;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+    if (error) {
+        return NO;
+    }
+    NSTextCheckingResult *res = [regex firstMatchInString:string options:0 range:NSMakeRange(0, string.length)];
+    return res != nil;
+}
 
 @end

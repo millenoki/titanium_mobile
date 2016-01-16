@@ -758,4 +758,6 @@ typedef enum
  */
 + (BOOL)forceTouchSupported;
 
++ (BOOL)string:(NSString *)string matchPattern:(NSString *)pattern;
+
 @end
