@@ -1898,12 +1898,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (action == MotionEvent.ACTION_UP
                 || action == MotionEvent.ACTION_CANCEL
                 || action == MotionEvent.ACTION_OUTSIDE) {
-            lastUpEvent = event;
+            lastUpEvent =  MotionEvent.obtain(event);
             setPointerDown(false);
         }
 
         if (action == MotionEvent.ACTION_DOWN) {
-            lastDownEvent = event;
+            lastDownEvent = MotionEvent.obtain(event);
             setPointerDown(true);
         }
         onChildTouchEvent(this, v, event);
