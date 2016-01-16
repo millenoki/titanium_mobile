@@ -2258,6 +2258,12 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 	} else {
 		this.logger.info(__('Set to copy files instead of symlinking'));
 	}
+
+	if (this.useAppThinning) {
+		this.logger.info(__('App Thining is enabled'));
+	} else {
+		this.logger.info(__('App Thining is disabled'));
+	}
 };
 
 iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
@@ -2663,7 +2669,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			// 		});
 			// 	}
 			// });
-			that.logger.info('test' + JSON.stringify(xobjs.PBXShellScriptBuildPhase[buildPhaseUuid]));
 
 			xobjs.PBXShellScriptBuildPhase[buildPhaseUuid].shellScript = '\"export TITANIUM_PREFIX=\\"_Prefix-*\\"\\n'
 				+ 'echo \\"Xcode Pre-Compile Phase: Removing $SHARED_PRECOMPS_DIR/$PROJECT$TITANIUM_PREFIX\\"\\n'
