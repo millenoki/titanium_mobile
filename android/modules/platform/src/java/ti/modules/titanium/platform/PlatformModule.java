@@ -331,6 +331,8 @@ public class PlatformModule extends KrollModule
     public KrollDict getFullInfo() {
         KrollDict result = new KrollDict();
         result.put("dpi", getDisplayCaps().getDpi());
+        result.put("xdpi", getDisplayCaps().getXdpi());
+        result.put("ydpi", getDisplayCaps().getYdpi());
         result.put("density", getDisplayCaps().getDensity());
         result.put("version", getVersion());
         result.put("SDKVersion", getSDKVersion());
