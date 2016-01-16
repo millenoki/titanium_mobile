@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -48,7 +50,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	private Object[] itemProperties;
 	private ArrayList<Integer> filterIndices;
 	private boolean preload;
-	private ArrayList<Boolean> hiddenItems;
+	private SortedSet<Integer> mHiddenItems;
 	boolean showHeaderWhenHidden = false;
 	boolean hideWhenEmpty = false;
 	boolean hidden = false;
@@ -123,7 +125,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	public AbsListSectionProxy() {
 //        listItemData = new ArrayList<AbsListItemData>();
         filterIndices = new ArrayList<Integer>();
-        hiddenItems = new ArrayList<Boolean>();
+        mHiddenItems = new TreeSet<>();
         mItemCount = 0;
 	}
 
@@ -166,10 +168,13 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
        case TiC.PROPERTY_FOOTER_TITLE:
             addProxyToHold(TiAbsListView.footerViewDict(TiConvert.toString(newValue)), TiC.PROPERTY_FOOTER_VIEW);
             break;
-        case TiC.PROPERTY_ITEMS:
-            handleSetItems(newValue);
-            break;
-        case TiC.PROPERTY_VISIBLE:
+       case TiC.PROPERTY_ITEMS:
+           handleSetItems(newValue);
+           break;
+       case "hideWhenEmpty":
+           setHideWhenEmpty(TiConvert.toBoolean(newValue, hideWhenEmpty));
+           break;
+       case TiC.PROPERTY_VISIBLE:
             setVisible(TiConvert.toBoolean(newValue, true));
             break;
         default:
@@ -216,40 +221,63 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		}
 		return null;
 	}
-
-	private int getRealPosition(int position) {
-		int hElements = getHiddenCountUpTo(position);
-		int diff = 0;
-		for (int i = 0; i < hElements; i++) {
-			diff++;
-			if (hiddenItems.get(position + diff)) {
-				i--;
-			}
-		}
-		return (position + diff);
+	/**
+	 * 
+     * The external count provided by getCount is of an imaginary array of the hidden items.
+     * We need to map indices of this array to indices in the real array of items. For example
+     * if we have an array
+     * [ "a", "b", "c", "d"]
+     * and the second item, "b" is hidden, we return the count of this array as 3, to an imaginary
+     * array of
+     * [ "a", "c", "d"]
+     * When the items at position 1 and 2 are requested however we need to map them to our real array
+     * ie. 1 --> 2 and 2 --> 3 to give us "c" and "d"
+     */
+	private int getItemIndexFromPosition(final int position) {
+		int realposition = position;
+		 
+        for(Integer i : mHiddenItems) {
+            if(i <= realposition) {
+                realposition++;
+            }
+            else {
+                //mHiddenItems is Ordered so anything higher won't affect us
+                break;
+            }
+        }
+        return realposition;
 	}
 	
-	private int getInverseRealPosition(int position) {
-//		int hElements = getHiddenCountUpTo(position);
-		int diff = 0;
-		for (int i = 0; i < position; i++) {
-			if (hiddenItems.get(i)) {
-	            diff++;
-			}
-		}
-		return (position - diff);
+	private int getListViewRealPosition(int itemIndex) {
+	    int realposition = itemIndex;
+	    
+        for(Integer i : mHiddenItems) {
+            if(i <= itemIndex) {
+                realposition--;
+            }
+            else {
+                //mHiddenItems is Ordered so anything higher won't affect us
+                break;
+            }
+        }
+ 
+        return realposition;
 	}
 
 
-	private int getHiddenCountUpTo(int location) {
-		int count = 0;
-		for (int i = 0; i <= location; i++) {
-			if (hiddenItems.get(i)) {
-				count++;
-			}
-		}
-		return count;
-	}
+//	private int getHiddenCountUpTo(int location) {
+//		int count = 0;
+//		for(Integer i : mHiddenItems) {
+//            if(i <= location) {
+//                count++;
+//            }
+//            else {
+//                //mHiddenItems is Ordered so anything higher won't affect us
+//                break;
+//            }
+//        }
+//		return count;
+//	}
 
 	@Kroll.method
 	@Kroll.setProperty
@@ -342,6 +370,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }, true);
 	}
 	
+	
 	@Kroll.method
     public void updateItems(final Object data,
             @Kroll.argument(optional = true) final Object options) {
@@ -372,8 +401,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             update = (HashMap) updates[i];
             KrollDict.merge(item, update, false);
             content = listView.getCellAt(this.sectionIndex, i);
-            visible = isItemVisible(item);
-            hiddenItems.set(i, !visible);
+            visible = updateVisibleState(item, i);
 
             if (content != null && visible) {
                 TiBaseAbsListViewItem listItem = (TiBaseAbsListViewItem) content
@@ -392,6 +420,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
         notifyDataChange();
     }
+	
+	private boolean updateVisibleState(final HashMap item, final int index) {
+	    final boolean visible = isItemVisible(item);
+        if (visible) {
+            mHiddenItems.remove(index);
+        } else {
+            mHiddenItems.add(index);
+        }
+        return visible;
+	}
 	
 	@Kroll.method
     public void updateItemAt(final int index, final Object data,
@@ -419,8 +457,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             return;
         itemProperties[index] = currentItem;
         
-        final boolean visible = isItemVisible(currentItem);
-        hiddenItems.set(index, !visible);
+        final boolean visible = updateVisibleState(currentItem, index);
         
         // only process items when listview's properties is processed.
         if (listView == null) {
@@ -575,14 +612,15 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         int i;
 		if (items instanceof Object[]) {
 		    Object[] array = (Object[])items;
-		 // Second pass we would merge properties
 	        for (i = 0; i < array.length; i++) {
-	            hiddenItems.add(i + offset, !isItemVisible((HashMap) array[i]));
+	            updateVisibleState((HashMap) array[i], i + offset);          
+//	            hiddenItems.add(i + offset, !isItemVisible((HashMap) array[i]));
 	        }
 		} else if (items instanceof ArrayList) {
 		    ArrayList<Object> array = (ArrayList<Object>)items;
 		    for (i = 0; i < array.size(); i++) {
-		        hiddenItems.add(i + offset, !isItemVisible((HashMap) array.get(i)));
+                updateVisibleState((HashMap) array.get(i), i + offset);          
+//		        hiddenItems.add(i + offset, !isItemVisible((HashMap) array.get(i)));
 	        }
 		}
 		
@@ -604,7 +642,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //		    HashMap[] items = (HashMap[]) data;
 			itemProperties = (Object[]) data;
 //			listItemData.clear();
-			hiddenItems.clear();
+			mHiddenItems.clear();
 			filterIndices.clear();
 			// only process items when listview's properties is processed.
 			if (getListView() == null) {
@@ -697,9 +735,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //			if (index < listItemData.size()) {
 //				listItemData.remove(index);
 //			}
-			if (index < hiddenItems.size()) {
-				hiddenItems.remove(index);
-			}
+//			if (index < hiddenItems.size()) {
+			mHiddenItems.remove(index);
+//			}
 			count--;
 		}
         itemProperties = list.toArray();
@@ -711,7 +749,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         if (0 <= index && index < itemProperties.length) {
             ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
             Object result = list.remove(index);
-            hiddenItems.remove(index);
+            mHiddenItems.remove(index);
 //            listItemData.remove(index);
             mItemCount --;
             updateCurrentItemCount();
@@ -747,10 +785,11 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //            AbsListItemData itemD = new AbsListItemData(d);
 //            listItemData.add(index, itemD);
 //            hiddenItems.add(index, !itemD.isVisible());
-//        }
+//        
         if (data instanceof HashMap) {
-            hiddenItems.add(index, !isItemVisible((HashMap) data));
-        }
+//            hiddenItems.add(index, !isItemVisible((HashMap) data));
+            updateVisibleState((HashMap) data, index);
+       }
         updateCurrentItemCount();
     }
 
@@ -796,9 +835,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //	        result -= 1;
 //        }
 	    if (isFilterOn()) {
-	        return getRealPosition(filterIndices.get(result));
+	        return getItemIndexFromPosition(filterIndices.get(result));
 	    }
-	    return getRealPosition(result);
+	    return getItemIndexFromPosition(result);
 	}
 	public int getUserItemInversedIndexFromSectionPosition(final int position) {
         int result = position;
@@ -806,9 +845,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //          result -= 1;
 //        }
         if (isFilterOn()) {
-            return getInverseRealPosition(filterIndices.get(result));
+            return getListViewRealPosition(filterIndices.get(result));
         }
-        return getInverseRealPosition(result);
+        return getListViewRealPosition(result);
     }
 
 	public void populateViews(final HashMap item, TiBaseAbsListViewItem cellContent, TiAbsListViewTemplate template, int itemIndex, int sectionIndex,
@@ -980,12 +1019,12 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private int getHiddenCount() {
 		int count = 0;
-		if (hidden || hiddenItems == null) return count;
-		for (int i = 0; i < hiddenItems.size(); i++)
-			if (hiddenItems.get(i) == true) {
-                count++;
-			}
-		return count;
+		if (hidden || mHiddenItems == null) return count;
+//		for (int i = 0; i < hiddenItems.size(); i++)
+//			if (hiddenItems.get(i) == true) {
+//                count++;
+//			}
+		return mHiddenItems.size();
 	}
 
 	private boolean hideHeaderOrFooter() {
@@ -1015,10 +1054,12 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	public HashMap getItemDataAt(int position)
 	{
 	    if (itemProperties != null && itemProperties.length > 0) {
-	        return (HashMap) itemProperties[getRealPosition(position)];
-	    } else {
-	        return null;
+	        final int index = getItemIndexFromPosition(position);
+	        if (index < itemProperties.length) {
+	            return (HashMap) itemProperties[index];
+	        }
 	    }
+	    return null;
 	}
 
 //	public KrollDict getListItemData(int position) {
@@ -1075,7 +1116,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	            }
 	            // String comparison
 	            if (searchableText.contains(searchText)) {
-	                filterIndices.add(getInverseRealPosition(i));
+	                filterIndices.add(getListViewRealPosition(i));
 	            }
 	        }
 	        hidden = hidden || filterIndices.size() == 0;
@@ -1089,8 +1130,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 ////			listItemData = null;
 //		}
 		
-		if (hiddenItems != null) {
-			hiddenItems.clear();
+		if (mHiddenItems != null) {
+		    mHiddenItems.clear();
 //			hiddenItems = null;
 		}
 		
