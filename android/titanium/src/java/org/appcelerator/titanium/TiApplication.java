@@ -57,6 +57,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
@@ -233,6 +234,10 @@ public abstract class TiApplication extends Application implements
     
     public static Object getAppSystemService(final String name) {
         return getInstance().getSystemService(name);
+    }
+    
+    public static Configuration getAppConfiguration() {
+        return getInstance().getResources().getConfiguration();
     }
 
     // Calls finish on the list of activities in the stack. This should only be
