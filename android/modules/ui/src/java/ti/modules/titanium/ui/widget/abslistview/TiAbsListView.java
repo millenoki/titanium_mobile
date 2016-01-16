@@ -428,7 +428,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         @Override
         public Object remove(int position) {
             Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
-            Object result = info.first.deleteItemData(info.second.second);
+            Object result = null;
+            if (info != null) {
+                result = info.first.deleteItemData(info.second.second);
+            }
             notifyDataSetChanged();
             return result;
         }
