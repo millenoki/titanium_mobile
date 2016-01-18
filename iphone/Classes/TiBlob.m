@@ -204,6 +204,13 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     return [NSString stringWithString:hexString];
 }
 
+- (NSString *)toBase64:(id)unused
+{
+    NSData* theData = [self data];
+        
+    return [TiUtils base64encode:data];
+}
+
 -(NSArray*)byteArray
 {    
     const unsigned char *dataBuffer = (const unsigned char *)[data bytes];
