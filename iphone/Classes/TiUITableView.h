@@ -78,6 +78,7 @@
     TiUIRefreshControlProxy* _refreshControlProxy;
 #endif
     UIEdgeInsets defaultSeparatorInsets;
+    UIEdgeInsets rowSeparatorInsets;
 }
 
 @property (nonatomic, assign) BOOL viewWillDetach;

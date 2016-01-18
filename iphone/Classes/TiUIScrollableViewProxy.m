@@ -97,6 +97,9 @@
 
 -(void)setViews:(id)args
 {
+#ifdef TI_USE_AUTOLAYOUT
+    ENSURE_UI_THREAD(setViews, args)
+#endif
     ENSURE_ARRAY(args);
     NSMutableArray* newViews = [NSMutableArray array];
     for (id arg in args)

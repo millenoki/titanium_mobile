@@ -18,6 +18,7 @@ var appc = require('node-appc'),
 	CleanCSS = require('clean-css'),
 	crypto = require('crypto'),
 	cyan = require('colors').cyan,
+	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
 	fields = require('fields'),
 	fs = require('fs'),
@@ -33,7 +34,8 @@ var appc = require('node-appc'),
 	uuid = require('node-uuid'),
 	wrench = require('wrench'),
 	xcode = require('xcode'),
-	xcodeParser = require('xcode/lib/parser/pbxproj')
+	xcodeParser = require('xcode/lib/parser/pbxproj'),
+	xml = appc.xml,
 	i18n = appc.i18n(__dirname),
 	__ = i18n.__,
 	__n = i18n.__n,
@@ -106,7 +108,6 @@ function iOSBuilder() {
 
 	// when true and building an app with a watch extension for the simulator and the --launch-watch-app
 	// flag is passed in, then show the external display and launch the watch app
-	this.hasWatchAppV1 = false;
 	this.hasWatchAppV2orNewer = false;
 
 	// if this app has any watch apps, then we need to know the min watchOS version for one of them
@@ -143,6 +144,11 @@ function iOSBuilder() {
 	// we default to true, but if "ios.whitelist.appcelerator.com" tiapp.xml property is
 	// set to false, then we'll force appcelerator.com to NOT be whitelisted
 	this.whitelistAppceleratorDotCom = true;
+
+	// launch screen storyboard settings
+	this.enableLaunchScreenStoryboard = true;
+	this.defaultLaunchScreenStoryboard = true;
+	this.defaultBackgroundColor = null;
 }
 
 util.inherits(iOSBuilder, Builder);
@@ -1552,26 +1558,20 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 								infoPlist:             null
 							};
 
+						if (targetInfo.isWatchAppV1Extension) {
+							logger.error(__('watchOS 1 app detected'));
+							logger.error(__('Titanium %s does not support watchOS 1 apps', this.titaniumSdkVersion) + '\n');
+							process.exit(1);
+						}
+
 						// we need to get a min watch os version so that we can intelligently pick an appropriate watch simulator
-						if ((targetInfo.isWatchAppV1 || targetInfo.isWatchAppV2orNewer)
+						if (targetInfo.isWatchAppV2orNewer
 								&& (!cli.argv['watch-app-name'] || targetName === cli.argv['watch-app-name'])
 								&& (!this.watchMinOSVersion || appc.version.lt(targetInfo.watchOS, this.watchMinOSVersion))) {
 							this.watchMinOSVersion = targetInfo.watchOS;
 						}
 
-						// check if this target contains any swift code
-						if (sourcesBuildPhase.length && (!buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT || /^NO$/i.test(buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT))) {
-							var files = ext.objs.PBXSourcesBuildPhase[sourcesBuildPhase[0].value].files;
-							if (files.some(function (f) { return swiftRegExp.test(ext.objs.PBXBuildFile[f.value].fileRef_comment); })) {
-								// oh no, error
-								logger.error(__('iOS extension "%s" target "%s" contains Swift code, but "Embedded Content Contains Swift Code" is not enabled.', projectName, targetName) + '\n');
-								process.exit(1);
-							}
-						}
-
-						if (targetInfo.isWatchAppV1) {
-							this.hasWatchAppV1 = true;
-						} else if (targetInfo.isWatchAppV2orNewer) {
+						if (targetInfo.isWatchAppV2orNewer) {
 							this.hasWatchAppV2orNewer = true;
 						}
 
@@ -1603,16 +1603,17 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 										}
 
 										if (plist.WKWatchKitApp) {
-											if (plist.CFBundleIdentifier.indexOf(appId) !== 0) {
+											var CFBundleIdentifier = plist.CFBundleIdentifier.replace('$(PRODUCT_BUNDLE_IDENTIFIER)', buildSettings.PRODUCT_BUNDLE_IDENTIFIER);
+											if (CFBundleIdentifier.indexOf(appId) !== 0) {
 												logger.error(__('iOS extension "%s" WatchKit App bundle identifier is "%s", but must be prefixed with "%s".', ext.projectName, plist.CFBundleIdentifier, appId) + '\n');
 												process.exit(1);
 											}
 
-											if (plist.CFBundleIdentifier.toLowerCase() === appId.toLowerCase()) {
+											if (CFBundleIdentifier.toLowerCase() === appId.toLowerCase()) {
 												logger.error(__('iOS extension "%s" WatchKit App bundle identifier must be different from the Titanium app\'s id "%s".', ext.projectName, appId) + '\n');
 												process.exit(1);
 											}
-										} else if (targetInfo.isWatchAppV1 || targetInfo.isWatchAppV2orNewer) {
+										} else if (targetInfo.isWatchAppV2orNewer) {
 											logger.error(__('The "%s" iOS extension "%s" target\'s Info.plist is missing the WKWatchKitApp property, yet the product type is of a watch: %s', ext.projectName, targetName, productType) + '\n');
 											process.exit(1);
 										}
@@ -1630,23 +1631,32 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						if (cli.argv.target !== 'simulator') {
 							// check that all target provisioning profile uuids are valid
 							if (!tiappTargets[targetName].ppUUIDs || !tiappTargets[targetName].ppUUIDs[cli.argv.target]) {
-								logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
-								logger.log();
-								logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
-								logger.log('    <ios>'.grey);
-								logger.log('        <extensions>'.grey);
-								logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
-								logger.log(('                <target name="' + targetName + '">').grey);
-								logger.log('                    <provisioning-profiles>'.grey);
-								logger.log(('                        <' + cli.argv.target + '>PROVISIONING PROFILE UUID</' + cli.argv.target + '>').magenta);
-								logger.log('                    </provisioning-profiles>'.grey);
-								logger.log('                </target>'.grey);
-								logger.log('            </extension>'.grey);
-								logger.log('        </extensions>'.grey);
-								logger.log('    </ios>'.grey);
-								logger.log('</ti:app>'.grey);
-								logger.log();
-								process.exit(1);
+								if (cli.argv['pp-uuid']) {
+									if (!tiappTargets[targetName].ppUUIDs) {
+										tiappTargets[targetName].ppUUIDs = {};
+									}
+									tiappTargets[targetName].ppUUIDs[cli.argv.target] = cli.argv['pp-uuid'];
+									logger.warn(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
+									logger.warn(__('Using the iOS app provisioning profile UUID "%s"', cli.argv['pp-uuid']));
+								} else {
+									logger.error(__('iOS extension "%s" target "%s" is missing the %s provisioning profile UUID in tiapp.xml.', projectName, '<' + cli.argv.target + '>', targetName));
+									logger.log();
+									logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+									logger.log('    <ios>'.grey);
+									logger.log('        <extensions>'.grey);
+									logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
+									logger.log(('                <target name="' + targetName + '">').grey);
+									logger.log('                    <provisioning-profiles>'.grey);
+									logger.log(('                        <' + cli.argv.target + '>PROVISIONING PROFILE UUID</' + cli.argv.target + '>').magenta);
+									logger.log('                    </provisioning-profiles>'.grey);
+									logger.log('                </target>'.grey);
+									logger.log('            </extension>'.grey);
+									logger.log('        </extensions>'.grey);
+									logger.log('    </ios>'.grey);
+									logger.log('</ti:app>'.grey);
+									logger.log();
+									process.exit(1);
+								}
 							}
 
 							// check that the PP UUID is correct
@@ -1751,8 +1761,6 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					var minVer = this.tiapp.ios['min-ios-ver'] && appc.version.gt(this.tiapp.ios['min-ios-ver'], this.minSupportedIosSdk) ? this.tiapp.ios['min-ios-ver'] : this.minSupportedIosSdk;
 					if (this.hasWatchAppV2orNewer && appc.version.lt(minVer, '9.0')) {
 						minVer = '9.0';
-					} else if (this.hasWatchAppV1 && appc.version.lt(minVer, '8.4')) {
-						minVer = '8.4';
 					}
 
 					var xcodeInfo = this.iosInfo.xcode;
@@ -1792,13 +1800,13 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				}
 
 				// if we found a watch app and --watch-device-id was set, but --launch-watch-app was not, then set it
-				if ((this.hasWatchAppV1 || this.hasWatchAppV2orNewer) && cli.argv['watch-device-id'] && !cli.argv['launch-watch-app-only']) {
+				if (this.hasWatchAppV2orNewer && cli.argv['watch-device-id'] && !cli.argv['launch-watch-app-only']) {
 					cli.argv['launch-watch-app'] = true;
 				}
 
 				if (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']) {
 					// make sure we have a watch app
-					if (!this.hasWatchAppV1 && !this.hasWatchAppV2orNewer) {
+					if (!this.hasWatchAppV2orNewer) {
 						logger.warn(__('%s flag was set, however there are no iOS extensions containing a watch app.', cli.argv['launch-watch-app'] ? '--launch-watch-app' : '--launch-watch-app-only'));
 						logger.warn(__('Disabling launch watch app flag'));
 						cli.argv['launch-watch-app'] = cli.argv['launch-watch-app-only'] = false;
@@ -1822,7 +1830,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 					iosVersion:             this.iosSdkVersion,
 					simType:                deviceFamily === 'ipad' ? 'ipad' : 'iphone',
 					simVersion:             this.iosSdkVersion,
-					watchAppBeingInstalled: (this.hasWatchAppV1 || this.hasWatchAppV2orNewer) && (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']),
+					watchAppBeingInstalled: this.hasWatchAppV2orNewer && (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']),
 					watchHandleOrUDID:      cli.argv['watch-device-id'],
 					watchMinOSVersion:      this.watchMinOSVersion,
 					logger: function (msg) {
@@ -2156,6 +2164,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.description        = this.tiapp.description,
 	this.currentBuildManifest.copyright          = this.tiapp.copyright,
 	this.currentBuildManifest.guid               = this.tiapp.guid,
+	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'],
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS,
 
@@ -2196,7 +2205,36 @@ iOSBuilder.prototype.initialize = function initialize() {
 		this.whitelistAppceleratorDotCom = false;
 	}
 
-	this.useAppThinning = this.tiapp.ios && (this.tiapp.ios['use-app-thinning'] === true);
+	if (!this.tiapp.ios['enable-launch-screen-storyboard'] || appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
+		this.enableLaunchScreenStoryboard = false;
+		this.defaultLaunchScreenStoryboard = false;
+	}
+
+	if (this.enableLaunchScreenStoryboard && (fs.existsSync(path.join(this.projectDir, 'platform', 'ios', 'LaunchScreen.storyboard')) || fs.existsSync(path.join(this.projectDir, 'platform', 'iphone', 'LaunchScreen.storyboard')))) {
+		this.defaultLaunchScreenStoryboard = false;
+	}
+
+	var defaultColor = this.defaultLaunchScreenStoryboard ? 'ffffff' : null,
+		color = this.tiapp.ios['default-background-color'] || defaultColor;
+	if (color) {
+		var m = color.match(/^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/),
+			c = m && m[1];
+		if (c && (c.length === 3 || c.length === 6)) {
+			if (c.length === 3) {
+				c = c.split('').map(function (b) { return String(b) + String(b); }).join('');
+			}
+			this.defaultBackgroundColor = {
+				red: parseInt(c.substr(0, 2), 16) / 255,
+				green: parseInt(c.substr(2, 2), 16) / 255,
+				blue: parseInt(c.substr(4, 2), 16) / 255
+			};
+		} else {
+			this.logger.warn(__('Invalid default background color "%s" in the <ios> section of the tiapp.xml', color));
+			if (defaultColor) {
+				this.logger.warn(__('Using default background color "%s"', '#' + defaultColor));
+			}
+		}
+	}
 };
 
 iOSBuilder.prototype.loginfo = function loginfo() {
@@ -2279,7 +2317,7 @@ iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
 	// becomes incomplete, the next build will be a full rebuild
 	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 
-	delete this.buildDirFiles[this.buildManifestFile];
+	this.unmarkBuildDirFile(this.buildManifestFile);
 };
 
 iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() {
@@ -2476,6 +2514,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			return true;
 		}
 
+		// check if the use use-app-thinning flag has changed
+		if (this.useAppThinning !== manifest.useAppThinning) {
+			this.logger.info(__('Forcing rebuild: use use-app-thinning flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.useAppThinning));
+			this.logger.info('  ' + __('Now: %s', this.useAppThinning));
+			return true;
+		}
+
 		// next we check if any tiapp.xml values changed so we know if we need to reconstruct the main.m
 		// note: as soon as these tiapp.xml settings are written to an encrypted file instead of the binary, we can remove this whole section
 		var tiappSettings = {
@@ -2527,6 +2573,20 @@ iOSBuilder.prototype.initBuildDir = function initBuildDir() {
 	fs.existsSync(this.xcodeAppDir) || wrench.mkdirSyncRecursive(this.xcodeAppDir);
 };
 
+iOSBuilder.prototype.generateXcodeUuid = function generateXcodeUuid(xcodeProject) {
+	// normally we would want truly unique ids, but we want predictability so that we
+	// can detect when the project has changed and if we need to rebuild the app
+	if (!this.xcodeUuidIndex) {
+		this.xcodeUuidIndex = 1;
+	}
+	var id = appc.string.lpad(this.xcodeUuidIndex++, 24, '0');
+	if (xcodeProject && xcodeProject.allUuids().indexOf(id) >= 0) {
+		return this.generateXcodeUuid(xcodeProject);
+	} else {
+		return id;
+	}
+};
+
 iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	if (!this.forceRebuild || this.cli.argv.xcode) {
 		delete this.buildDirFiles[path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')];
@@ -2541,22 +2601,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		contents = fs.readFileSync(srcFile).toString(),
 		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
 		xobjs,
-		uuidIndex = 1,
 		relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
-
-	// normally we would want truly unique ids, but we want predictability so that we
-	// can detect when the project has changed and if we need to rebuild the app
-	function generateUuid() {
-		var id = appc.string.lpad(uuidIndex++, 24, '0');
-		if (xcodeProject.allUuids().indexOf(id) >= 0) {
-			return generateUuid();
-		} else {
-			return id;
-		}
-	}
 
 	xcodeProject.hash = xcodeParser.parse(fs.readFileSync(srcFile).toString());
 	xobjs = xcodeProject.hash.project.objects;
+
+	if (appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
+		this.logger.info(__('LaunchScreen.storyboard is not supported with Xcode %s, removing from Xcode project', this.xcodeEnv.version));
+	}
 
 	// we need to replace all instances of "Titanium" with the app name
 	Object.keys(xobjs.PBXFileReference).forEach(function (id) {
@@ -2572,15 +2624,41 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				obj.path = xobjs.PBXFileReference[id + '_comment'] = '"' + appName + '.app"';
 			} else if (relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
+			} else if (obj.path === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
+				delete xobjs.PBXFileReference[id];
+
+				// remove the LaunchScreen.storyboard BuildFile and BuildPhase records
+				Object.keys(xobjs.PBXBuildFile).some(function (bfid) {
+					if (typeof xobjs.PBXBuildFile[bfid] === 'object' && xobjs.PBXBuildFile[bfid].fileRef === id) {
+						delete xobjs.PBXBuildFile[bfid];
+						delete xobjs.PBXBuildFile[bfid + '_comment'];
+
+						if (xobjs.PBXResourcesBuildPhase) {
+							Object.keys(xobjs.PBXResourcesBuildPhase).some(function (bpid) {
+								var files = xobjs.PBXResourcesBuildPhase[bpid].files;
+								if (Array.isArray(files)) {
+									for (var i = 0; i < files.length; i++) {
+										if (files[i].value === bfid) {
+											files.splice(i, 1);
+											return true;
+										}
+									}
+								}
+							});
+						}
+						return true;
+					}
+				});
 			}
 		}
-	});
+	}, this);
 
 	Object.keys(xobjs.PBXGroup).forEach(function (id) {
 		var obj = xobjs.PBXGroup[id];
 		if (obj && typeof obj === 'object') {
 			if (obj.children) {
-				obj.children.forEach(function (child) {
+				for (var i = 0; i < obj.children.length; i++) {
+					var child = obj.children[i];
 					if (child.comment === 'Titanium_Prefix.pch') {
 						child.comment = scrubbedAppName + '_Prefix.pch';
 					} else if (child.comment === 'Titanium.plist') {
@@ -2589,14 +2667,16 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						child.comment = '"' + appName + '.app"';
 					} else if (child.comment === 'Titanium.entitlements') {
 						child.comment = '"' + appName + '.entitlements"';
+					} else if (child.comment === 'LaunchScreen.storyboard' && appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
+						obj.children.splice(i--, 1);
 					}
-				});
+				}
 			}
 			if (obj.path && relPathRegExp.test(obj.path)) {
 				obj.path = obj.path.replace(relPathRegExp, '$1');
 			}
 		}
-	});
+	}, this);
 
 	Object.keys(xobjs.PBXNativeTarget).forEach(function (id) {
 		var obj = xobjs.PBXNativeTarget[id];
@@ -2692,8 +2772,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		mainGroupChildren = xobjs.PBXGroup[pbxProject.mainGroup].children,
 		extensionsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Extensions'; })[0].value],
 		frameworksGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Frameworks'; })[0].value],
+		resourcesGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Resources'; })[0].value],
 		productsGroup = xobjs.PBXGroup[mainGroupChildren.filter(function (child) { return child.comment === 'Products'; })[0].value],
 		frameworksBuildPhase = xobjs.PBXFrameworksBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXFrameworksBuildPhase[phase.value]; })[0].value],
+		resourcesBuildPhase = xobjs.PBXResourcesBuildPhase[xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return xobjs.PBXResourcesBuildPhase[phase.value]; })[0].value],
 		keychains = this.iosInfo.certs.keychains,
 		teamId = this.tiapp.ios['team-id'],
 		caps = this.tiapp.ios.capabilities,
@@ -2720,6 +2802,14 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	if (/simulator|device|dist\-adhoc/.test(this.target) && this.tiapp.ios.enablecoverage) {
 		gccDefs.push('KROLL_COVERAGE=1');
+	}
+
+	if (this.defaultBackgroundColor) {
+		gccDefs.push(
+			'DEFAULT_BGCOLOR_RED=' + this.defaultBackgroundColor.red,
+			'DEFAULT_BGCOLOR_GREEN=' + this.defaultBackgroundColor.green,
+			'DEFAULT_BGCOLOR_BLUE=' + this.defaultBackgroundColor.blue
+		);
 	}
 
 	buildSettings.GCC_PREPROCESSOR_DEFINITIONS = '"' + gccDefs.join(' ') + '"';
@@ -2782,12 +2872,64 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 	});
 
+	// if the storyboard launch screen is disabled, remove it from the resources build phase
+	if (!this.enableLaunchScreenStoryboard) {
+		for (var i = 0; i < resourcesBuildPhase.files.length; i++) {
+			if (xobjs.PBXBuildFile[resourcesBuildPhase.files[i].value].fileRef_comment === 'LaunchScreen.storyboard') {
+				resourcesBuildPhase.files.splice(i, 1);
+				break;
+			}
+		}
+	}
+
+	// if we have a Settings.bundle, add it to the project
+	['ios', 'iphone'].some(function (name) {
+		var settingsBundleDir = path.join(this.projectDir, 'platform', name, 'Settings.bundle');
+		if (!fs.existsSync(settingsBundleDir) || !fs.statSync(settingsBundleDir).isDirectory()) {
+			return;
+		}
+
+		var fileRefUuid = this.generateXcodeUuid(xcodeProject),
+			buildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+		// add the file reference
+		xobjs.PBXFileReference[fileRefUuid] = {
+			isa: 'PBXFileReference',
+			lastKnownFileType: 'wrapper.plug-in',
+			path: 'Settings.bundle',
+			sourceTree: '"<group>"'
+		};
+		xobjs.PBXFileReference[fileRefUuid + '_comment'] = 'Settings.bundle';
+
+		// add the build file
+		xobjs.PBXBuildFile[buildFileUuid] = {
+			isa: 'PBXBuildFile',
+			fileRef: fileRefUuid,
+			fileRef_comment: 'Settings.bundle'
+		};
+		xobjs.PBXBuildFile[buildFileUuid + '_comment'] = 'Settings.bundle in Resources';
+
+		// add the resources build phase
+		resourcesBuildPhase.files.push({
+			value: buildFileUuid,
+			comment: 'Settings.bundle in Resources'
+		});
+
+		// add to resouces group
+		resourcesGroup.children.push({
+			value: fileRefUuid,
+			comment: 'Settings.bundle'
+		});
+
+		return true;
+	}, this);
+
 	// add the native libraries to the project
 	if (this.nativeLibModules.length) {
 		this.logger.trace(__n('Adding %%d native module library', 'Adding %%d native module libraries', this.nativeLibModules.length === 1 ? 1 : 2, this.nativeLibModules.length));
 		this.nativeLibModules.forEach(function (lib) {
-			var fileRefUuid = generateUuid(),
-				buildFileUuid = generateUuid();
+			var fileRefUuid = this.generateXcodeUuid(xcodeProject),
+				buildFileUuid = this.generateXcodeUuid(xcodeProject);
 
 			// add the file reference
 			xobjs.PBXFileReference[fileRefUuid] = {
@@ -2820,13 +2962,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			});
 
 			// add the library to the search paths
-			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(
-				function(buildConf) {
-					var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-					buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = ["\"$(inherited)\""]);
-					buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
-				});
-		});
+			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+				var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
+				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
+			});
+		}, this);
 	} else {
 		this.logger.trace(__('No native module libraries to add'));
 	}
@@ -2840,7 +2981,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				extPBXProject = ext.project;
 
 			// create a group in the Extensions group for all the extension's groups
-			var groupUuid = generateUuid();
+			var groupUuid = this.generateXcodeUuid(xcodeProject);
 			extensionsGroup.children.push({
 				value: groupUuid,
 				comment: ext.projectName
@@ -3038,7 +3179,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						targetInfo.entitlementsFile = path.join(this.buildDir, ext.relPath, targetName, entFile);
 
 						// create the file reference
-						var entFileRefUuid = generateUuid();
+						var entFileRefUuid = this.generateXcodeUuid(xcodeProject);
 						xobjs.PBXFileReference[entFileRefUuid] = {
 							isa: 'PBXFileReference',
 							lastKnownFileType: 'text.xml',
@@ -3055,15 +3196,13 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					}
 				}, this);
 
-				if (targetInfo.isWatchAppV1Extension) {
-					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'PlugIns', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
-				} else if (targetInfo.isWatchAppV2orNewer) {
+				if (targetInfo.isWatchAppV2orNewer) {
 					this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'Watch', xobjs.PBXFileReference[productUuid].path.replace(/^"/, '').replace(/"$/, '')));
 				}
 
 				if (targetInfo.isExtension || targetInfo.isWatchAppV2orNewer) {
 					// add this target as a dependency of the titanium app's project
-					var proxyUuid = generateUuid();
+					var proxyUuid = this.generateXcodeUuid(xcodeProject);
 					xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
 					xobjs.PBXContainerItemProxy[proxyUuid] = {
 						isa: 'PBXContainerItemProxy',
@@ -3075,7 +3214,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					};
 					xobjs.PBXContainerItemProxy[proxyUuid + '_comment'] = 'PBXContainerItemProxy';
 
-					var depUuid = generateUuid();
+					var depUuid = this.generateXcodeUuid(xcodeProject);
 					xobjs.PBXTargetDependency || (xobjs.PBXTargetDependency = {});
 					xobjs.PBXTargetDependency[depUuid] = {
 						isa: 'PBXTargetDependency',
@@ -3096,7 +3235,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						embedUuid = embedExtPhase && embedExtPhase.value;
 
 						if (!embedUuid) {
-							embedUuid = generateUuid();
+							embedUuid = this.generateXcodeUuid(xcodeProject);
 							xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
 								value: embedUuid,
 								comment: name
@@ -3117,7 +3256,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						var productName = xobjs.PBXNativeTarget[targetUuid].productReference_comment;
 
 						// add the copy files build phase
-						var copyFilesUuid = generateUuid();
+						var copyFilesUuid = this.generateXcodeUuid(xcodeProject);
 
 						xobjs.PBXCopyFilesBuildPhase[embedUuid].files.push({
 							value: copyFilesUuid,
@@ -3133,10 +3272,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in ' + name;
 					}
 
-					if (targetInfo.isWatchAppV1Extension) {
-						addEmbedBuildPhase('Embed App Extensions', null, 13 /* type "plugin" */);
-					} else if (targetInfo.isWatchAppV2orNewer) {
-						addEmbedBuildPhase('Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
+					if (targetInfo.isWatchAppV2orNewer) {
+						addEmbedBuildPhase.call(this, 'Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
 					}
 				}
 			}, this);
@@ -3145,12 +3282,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.logger.trace(__('No extensions to add'));
 	}
 
-	// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
-	if (this.hasWatchAppV1 || this.hasWatchAppV2orNewer) {
+	// if any extensions contain a watch app, we must force the min iOS deployment target to 9.0
+	if (this.hasWatchAppV2orNewer) {
 		// TODO: Make sure the version of Xcode can support this version of watch app
 
 		var once = 0,
-			iosDeploymentTarget = this.hasWatchAppV2orNewer ? '9.0' : '8.2';
+			iosDeploymentTarget = '9.0';
 
 		xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 			var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
@@ -3185,7 +3322,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 
 		done();
 	});
@@ -3209,7 +3346,7 @@ iOSBuilder.prototype._embedCapabilitiesAndWriteEntitlementsPlist = function _emb
 		}
 	});
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 
 	// write the entitlements.plist
 	var contents = plist.toString('xml');
@@ -3419,6 +3556,12 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 			}
 		});
 	});
+
+	if (this.enableLaunchScreenStoryboard) {
+		plist.UILaunchStoryboardName = 'LaunchScreen';
+	} else {
+		delete plist.UILaunchStoryboardName;
+	}
 
 	function merge(src, dest) {
 		Object.keys(src).forEach(function (prop) {
@@ -3653,7 +3796,7 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 };
 
 iOSBuilder.prototype.writeMain = function writeMain() {
@@ -3694,7 +3837,7 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 };
 
 iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
@@ -3728,7 +3871,7 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	} else {
 		this.logger.trace(__('No change, skipping %s', this.xcodeProjectConfigFile.cyan));
 	}
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 
 	// write the module.xcconfig
 	var variables = {};
@@ -3774,7 +3917,7 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	} else {
 		this.logger.trace(__('No change, skipping %s', dest.cyan));
 	}
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 };
 
 iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
@@ -3808,7 +3951,7 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 			size:  srcStat.size
 		};
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 	}, this);
 	libDir = path.join(this.buildDir, 'libexternals');
 	this.copyDirSync(path.join(this.platformPath, 'libexternals'), libDir, {
@@ -3883,7 +4026,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 					srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
 					changed = false;
 
-				delete this.buildDirFiles[destFile];
+				this.unmarkBuildDirFile(destFile);
 
 				this.currentBuildManifest.files[rel] = {
 					hash: srcHash,
@@ -3940,7 +4083,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		});
 	}, this);
 
-	function copyAndReplaceFile(src, dest) {
+	function copyAndReplaceFile(src, dest, processContent) {
 		var srcStat = fs.statSync(src),
 			srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
 			rel = src.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
@@ -3949,17 +4092,14 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			destDir = path.dirname(dest),
 			destExists = fs.existsSync(dest),
 			destStat = destExists && fs.statSync(dest),
-			contents = null,
-			hash = null,
-			fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !== (hash = this.hash(contents = fs.readFileSync(src)));
+			contents = (typeof processContent === 'function' ? processContent(fs.readFileSync(src).toString()) : fs.readFileSync(src).toString()).replace(/Titanium/g, this.tiapp.name),
+			hash = this.hash(contents),
+			fileChanged = !destExists || !prev || prev.size !== srcStat.size || prev.mtime !== srcMtime || prev.hash !== hash;
 
 		if (fileChanged) {
-			if (contents === null) {
-				contents = fs.readFileSync(src);
-			}
 			this.logger.debug(__('Writing %s', dest.cyan));
 			fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
-			fs.writeFileSync(dest, contents.toString().replace(/Titanium/g, this.tiapp.name));
+			fs.writeFileSync(dest, contents);
 		} else {
 			this.logger.trace(__('No change, skipping %s', dest.cyan));
 		}
@@ -3970,7 +4110,7 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 			size:  contents === null && prev ? prev.size  : srcStat.size
 		};
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 	}
 
 	copyAndReplaceFile.call(
@@ -3983,6 +4123,44 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 	);
+
+	if (this.enableLaunchScreenStoryboard && this.defaultLaunchScreenStoryboard) {
+		this.logger.info(__('Installing default %s', 'LaunchScreen.storyboard'.cyan));
+		copyAndReplaceFile.call(
+			this,
+			path.join(this.platformPath, 'iphone', 'LaunchScreen.storyboard'),
+			path.join(this.buildDir, 'LaunchScreen.storyboard'),
+			function (contents) {
+				var bgColor = this.defaultBackgroundColor;
+				if (!bgColor) {
+					return contents;
+				}
+
+				function findNode(node, tags) {
+					var child = node.firstChild;
+					while (child) {
+						if (child.nodeType === 1 && child.tagName === tags[0]) {
+							return tags.length === 1 ? child : findNode(child, tags.slice(1));
+						}
+						child = child.nextSibling;
+					}
+					return null;
+				}
+
+				var dom = new DOMParser({ errorHandler: function(){} }).parseFromString(contents, 'text/xml'),
+					colorNode = findNode(dom.documentElement, ['scenes', 'scene', 'objects', 'viewController', 'view', 'color']);
+
+				if (colorNode) {
+					colorNode.setAttribute('red', bgColor.red);
+					colorNode.setAttribute('green', bgColor.green);
+					colorNode.setAttribute('blue', bgColor.blue);
+					colorNode.setAttribute('alpha', 1);
+				}
+
+				return '<?xml version="1.0" encoding="UTF-8"?>\n' + dom.documentElement.toString();
+			}.bind(this)
+		);
+	}
 };
 
 iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
@@ -4005,7 +4183,7 @@ iOSBuilder.prototype.copyExtensionFiles = function copyExtensionFiles() {
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: this.ignoreFiles,
 			beforeCopy: function (srcFile, destFile, srcStat) {
-				delete this.buildDirFiles[destFile];
+				this.unmarkBuildDirFile(destFile);
 
 				if (path.basename(srcFile) === 'Info.plist') {
 					// validate the info.plist
@@ -4170,7 +4348,7 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 			this.logger.debug(__('Skipping %s', dest.cyan));
 		}
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 	}
 
 	processPlist.call(this, 'debugger.plist', this.debugHost);
@@ -4191,6 +4369,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		unsymlinkableFileRegExp = /^Default.*\.png|.+\.(otf|ttf)$/,
 		appIconRegExp = appIcon && new RegExp('^' + appIcon[1].replace(/\./g, '\\.') + '(.*)\\.png$'),
 		launchImageRegExp = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/,
+		launchLogoRegExp = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/,
 
 		resourcesToCopy = {},
 		jsFiles = {},
@@ -4198,6 +4377,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		htmlJsFiles = {},
 		appIcons = {},
 		launchImages = {},
+		launchLogos = {},
 		imageAssets = {};
 
 	function walk(src, dest, ignore, origSrc) {
@@ -4251,8 +4431,19 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					case 'png':
 					case 'jpg':
-						if (useAppThinning) {
+						// if the image is the LaunchLogo.png, then let that pass so we can use it
+						// in the LaunchScreen.storyboard
+						var m = name.match(launchLogoRegExp);
+						if (m) {
+							info.scale = m[1];
+							info.device = m[2];
+							launchLogos[relPath] = info;
+
+						// if we are using app thinning, then don't copy the image, instead mark the
+						// image to be injected into the asset catalog
+						} else if (useAppThinning) {
 							imageAssets[relPath] = info;
+
 						} else {
 							resourcesToCopy[relPath] = info;
 						}
@@ -4310,7 +4501,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	this.cli.createHook('build.ios.platformsPaths', this, function(platformPaths) {
 		platformPaths.forEach(function(dir) {
 			if (fs.existsSync(dir)) {
-				walk(dir, this.xcodeAppDir);
+				walk(dir, this. this.buildDir);
 			}
 		}, this);
 	})(platformPaths, function() {});
@@ -4359,7 +4550,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		var parent = path.dirname(dest),
 			contents = JSON.stringify(json, null, '  ');
 
-		delete this.buildDirFiles[dest];
+		this.unmarkBuildDirFile(dest);
 
 		if (!fs.existsSync(dest) || contents !== fs.readFileSync(dest).toString()) {
 			if (!this.forceRebuild) {
@@ -4407,7 +4598,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					'-60@3x':       { height: 60,   width: 60,   scale: 3, idioms: [ 'iphone' ], required: true },
 					'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
 					'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
-					'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ] }
+					'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' }
 				},
 				deviceFamily = this.deviceFamily,
 				flattenIcons = [],
@@ -4446,18 +4637,19 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				};
 			}
 
-			if (deviceFamily !== 'universal') {
-				// remove all unnecessary icons from the lookup
-				Object.keys(lookup).forEach(function (key) {
-					if (deviceFamily === 'iphone' && lookup[key].idioms.indexOf('iphone') === -1) {
-						// remove ipad only
-						delete lookup[key];
-					} else if (deviceFamily === 'ipad' && lookup[key].idioms.indexOf('ipad') === -1) {
-						// remove iphone only
-						delete lookup[key];
-					}
-				});
-			}
+			// remove all unnecessary icons from the lookup
+			Object.keys(lookup).forEach(function (key) {
+				if (deviceFamily === 'iphone' && lookup[key].idioms.indexOf('iphone') === -1) {
+					// remove ipad only
+					delete lookup[key];
+				} else if (deviceFamily === 'ipad' && lookup[key].idioms.indexOf('ipad') === -1) {
+					// remove iphone only
+					delete lookup[key];
+				} else if (lookup[key].minXcodeVer && appc.version.lt(this.xcodeEnv.version, lookup[key].minXcodeVer)) {
+					// remove unsupported
+					delete lookup[key];
+				}
+			}, this);
 
 			fs.existsSync(appIconSetDir) || wrench.mkdirSyncRecursive(appIconSetDir);
 
@@ -4531,14 +4723,14 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				var artworkFiles = [
 					{ filename: 'iTunesArtwork', size: 512 },
-					{ filename: 'iTunesArtwork@2x', size: 1024 },
+					{ filename: 'iTunesArtwork@2x', size: 1024 }
 				];
 
 				artworkFiles.forEach(function (artwork) {
 					var src = path.join(this.projectDir, artwork.filename),
 						dest = path.join(this.xcodeAppDir, artwork.filename);
 
-					delete this.buildDirFiles[dest];
+					this.unmarkBuildDirFile(dest);
 
 					try {
 						if (!fs.existsSync(src)) {
@@ -4573,146 +4765,347 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				}, this);
 			}
 
-			if (!Object.keys(lookup).length) {
-				// wow, we had all of the icons! amazing!
-				if (this.target === 'dist-adhoc') {
-					this.logger.debug(__('All app icons and iTunes artwork are present and are correct'));
-				} else {
-					this.logger.debug(__('All app icons are present and are correct'));
-				}
-				writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
-				return next();
-			}
+			series(this, [
+				function (next) {
+					if (!Object.keys(lookup).length) {
+						// wow, we had all of the icons! amazing!
+						if (this.target === 'dist-adhoc') {
+							this.logger.debug(__('All app icons and iTunes artwork are present and are correct'));
+						} else {
+							this.logger.debug(__('All app icons are present and are correct'));
+						}
+						writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
+						return next();
+					}
 
-			Object.keys(lookup).forEach(function (key) {
-				var meta = lookup[key],
-					width = meta.width * meta.scale,
-					height = meta.height * meta.scale,
-					filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
-					dest = path.join(appIconSetDir, filename);
+					Object.keys(lookup).forEach(function (key) {
+						var meta = lookup[key],
+							width = meta.width * meta.scale,
+							height = meta.height * meta.scale,
+							filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png',
+							dest = path.join(appIconSetDir, filename);
 
-				delete this.buildDirFiles[dest];
+						this.unmarkBuildDirFile(dest);
 
-				// inject images into the app icon set
-				meta.idioms.forEach(function (idiom) {
-					appIconSet.images.push({
-						size:     meta.width + 'x' + meta.height,
-						idiom:    idiom,
-						filename: filename,
-						scale:    meta.scale + 'x'
+						// inject images into the app icon set
+						meta.idioms.forEach(function (idiom) {
+							appIconSet.images.push({
+								size:     meta.width + 'x' + meta.height,
+								idiom:    idiom,
+								filename: filename,
+								scale:    meta.scale + 'x'
+							});
+						});
+
+						// check if the icon was previously resized
+						if (!defaultIconChanged && fs.existsSync(dest)) {
+							var contents = fs.readFileSync(dest),
+								pngInfo = appc.image.pngInfo(contents);
+
+							if (pngInfo.width === width && pngInfo.height === height) {
+								this.logger.trace(__('Found generated %sx%s app icon: %s', width, height, dest.cyan));
+								// icon looks good, no need to generate it!
+								return;
+							}
+						}
+
+						missingIcons.push({
+							description: __('%s - Used for %s',
+								filename,
+								meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', ')
+							),
+							file: dest,
+							width: width,
+							height: height,
+							required: !!meta.required
+						});
+					}, this);
+
+					writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
+
+					next();
+				},
+
+				function processLaunchLogos(next) {
+					if (!this.enableLaunchScreenStoryboard || !this.defaultLaunchScreenStoryboard) {
+						return next();
+					}
+
+					this.logger.info(__('Creating launch logo image set'));
+
+					var assetCatalogDir = path.join(this.buildDir, 'Assets.xcassets', 'LaunchLogo.imageset'),
+						images = [],
+						lookup = {
+							'LaunchLogo~iphone':    { idiom: 'iphone', scale: 1, size: 320 },
+							'LaunchLogo@2x~iphone': { idiom: 'iphone', scale: 2, size: 374 },
+							'LaunchLogo@3x~iphone': { idiom: 'iphone', scale: 3, size: 621 },
+							'LaunchLogo~ipad':      { idiom: 'ipad', scale: 1, size: 384 },
+							'LaunchLogo@2x~ipad':   { idiom: 'ipad', scale: 2, size: 1024 }
+						},
+						launchLogo = null;
+
+					fs.existsSync(assetCatalogDir) || wrench.mkdirSyncRecursive(assetCatalogDir);
+
+					// loop over each of the launch logos that we found, then for each remove it from the lookup
+					// anything left in the lookup will be considered missing
+					if (Object.keys(launchLogos).length) {
+						Object.keys(launchLogos).forEach(function (file) {
+							var img = launchLogos[file];
+
+							if (img.name === 'LaunchLogo') {
+								launchLogo = img;
+								return;
+							}
+
+							if (!lookup[img.name]) {
+								return;
+							}
+							delete lookup[img.name];
+
+							images.push({
+								// size?
+								idiom: img.device || 'universal',
+								filename: img.name + '.' + img.ext,
+								scale: (img.scale || 1) + 'x'
+							});
+
+							dest = path.join(assetCatalogDir, img.name + '.' + img.ext);
+							img.dest = dest;
+							resourcesToCopy[file] = img;
+						}, this);
+					}
+
+					var missingCount = Object.keys(lookup).length,
+						missingLaunchLogos = [];
+
+					// if there's anything left in the `lookup`, then they are missing
+					if (missingCount) {
+						if (!launchLogo && !defaultIcon) {
+							this.logger.warn(__('No DefaultIcon.png found, copying default Titanium LaunchLogo images'));
+
+							// copy the default launch logos
+							var defaultLaunchLogosDir = path.join(this.platformPath, 'iphone', 'Assets.xcassets', 'LaunchLogo.imageset'),
+								defaultFilesRegExp = /\.(json|png)$/;
+							fs.readdirSync(defaultLaunchLogosDir).forEach(function (filename) {
+								var file = path.join(defaultLaunchLogosDir, filename);
+								if (fs.statSync(file).isFile() && defaultFilesRegExp.test(filename)) {
+									resourcesToCopy[filename] = {
+										src: path.join(defaultLaunchLogosDir, filename),
+										dest: path.join(assetCatalogDir, filename)
+									};
+								}
+							});
+							return next();
+						}
+
+						var changed = false,
+							prev = this.previousBuildManifest.files && this.previousBuildManifest.files['LaunchLogo.png'];
+
+						if (launchLogo) {
+							// sanity check that LaunchLogo is usable
+							var stat = fs.statSync(launchLogo.src),
+								mtime = JSON.parse(JSON.stringify(stat.mtime)),
+								launchLogoContents = fs.readFileSync(launchLogo.src),
+								hash = this.hash(launchLogoContents);
+
+							changed = !prev || prev.size !== stat.size || prev.mtime !== mtime || prev.hash !== hash;
+
+							this.currentBuildManifest.files['LaunchLogo.png'] = {
+								hash: hash,
+								mtime: mtime,
+								size: stat.size
+							};
+
+							if (changed) {
+								var launchLogoInfo = appc.image.pngInfo(launchLogoContents);
+								if (launchLogoInfo.width !== 1024 || launchLogoInfo.height !== 1024) {
+									this.logger.warn(__('Found LaunchLogo.png that is %sx%s, however the size must be 1024x1024', launchLogoInfo.width, launchLogoInfo.height));
+									launchLogo = null;
+								}
+							}
+						} else {
+							// using the DefaultIcon.png
+							var cur = this.currentBuildManifest.files['LaunchLogo.png'] = this.currentBuildManifest.files['DefaultIcon.png'];
+							if (defaultIconChanged || !prev || prev.size !== cur.size || prev.mtime !== cur.mtime || prev.hash !== cur.hash) {
+								changed = true;
+							}
+						}
+
+						var logged = false;
+
+						// build the list of images to be generated
+						Object.keys(lookup).forEach(function (name) {
+							var spec = lookup[name],
+								filename = name + '.png',
+								dest = path.join(assetCatalogDir, filename),
+								desc = __('%s - Used for %s - size: %sx%s',
+									name,
+									spec.idiom,
+									spec.size,
+									spec.size
+								);
+
+							images.push({
+								idiom: spec.idiom,
+								filename: filename,
+								scale: spec.scale + 'x'
+							});
+
+							this.unmarkBuildDirFile(dest);
+
+							// if the source image hasn't changed, then don't need to regenerate the missing launch logos
+							if (!changed && fs.existsSync(dest)) {
+								this.logger.trace(__('Found generated %sx%s launch logo: %s', spec.size, spec.size, dest.cyan));
+								return;
+							}
+
+							missingLaunchLogos.push({
+								description: desc,
+								file: dest,
+								width: spec.size,
+								height: spec.size,
+								required: false
+							});
+
+							if (!logged) {
+								logged = true;
+								this.logger.info(__n(
+									'Missing %s launch logo, generating missing launch logo from %%s',
+									'Missing %s launch logos, generating missing launch logos from %%s',
+									missingCount,
+									launchLogo ? 'LaunchLogo.png' : 'DefaultIcon.png'
+								));
+							}
+
+							if (launchLogo) {
+								this.logger.info('  ' + desc);
+							}
+						}, this);
+					}
+
+					writeAssetContentsFile.call(this, path.join(assetCatalogDir, 'Contents.json'), {
+						images: images,
+						info: {
+							version: 1,
+							author: 'xcode'
+						}
 					});
-				});
 
-				// check if the icon was previously resized
-				if (!defaultIconChanged && fs.existsSync(dest)) {
-					var contents = fs.readFileSync(dest),
-						pngInfo = appc.image.pngInfo(contents);
+					if (!missingLaunchLogos.length) {
+						return next();
+					}
 
-					if (pngInfo.width === width && pngInfo.height === height) {
-						this.logger.trace(__('Found generated %sx%s app icon: %s', width, height, dest.cyan));
-						// icon looks good, no need to generate it!
+					if (!this.forceRebuild) {
+						this.logger.info(__('Forcing rebuild: launch logos changed since last build'));
+						this.forceRebuild = true;
+					}
+
+					if (!this.buildOnly && (this.target === 'device' || this.target === 'simulator')) {
+						this.logger.warn(__('If this app has been previously installed on this %s, you may need restart it to see the latest launch logo', this.target));
+						this.logger.warn(__('iOS renders and caches the launch screen to a PNG image that seems to only be invalidated by restarting iOS'));
+					}
+
+					if (!launchLogo) {
+						// just use the DefaultIcon.png to generate the missing LaunchLogos
+						Array.prototype.push.apply(missingIcons, missingLaunchLogos);
+						return next();
+					}
+
+					appc.image.resize(launchLogo.src, missingLaunchLogos, function (error, stdout, stderr) {
+						if (error) {
+							this.logger.error(error);
+							this.logger.log();
+							process.exit(1);
+						}
+						next();
+					}.bind(this), this.logger);
+				}
+			], function () {
+				if (missingIcons.length && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
+					this.defaultIcons = [ flattenedDefaultIconDest ];
+					flattenIcons.push({
+						name: path.basename(defaultIcon),
+						src: defaultIcon,
+						dest: flattenedDefaultIconDest
+					});
+					this.logger.warn(__('The default icon "%s" contains an alpha channel and will be flattened against a white background', defaultIcon.replace(this.projectDir + '/', '')));
+					this.logger.warn(__('You may create an image named "DefaultIcon-ios.png" that does not have an alpha channel in the root of your project'));
+					this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
+				}
+
+				async.eachLimit(flattenIcons, 5, function (icon, next) {
+					this.logger.debug(__('Stripping alpha channel: %s => %s', icon.src.cyan, icon.dest.cyan));
+					var _t = this;
+					fs.createReadStream(icon.src)
+						.pipe(new PNG({
+							colorType: 2,
+							bgColor: {
+								red: 255,
+								green: 255,
+								blue: 255
+							}
+						}))
+						.on('parsed', function() {
+							if (icon.dest === flattenedDefaultIconDest) {
+								// if the icon we just flattened is the DefaultIcon, then we need to
+								// update the currentBuildManifest which means we can't just pipe the
+								// the flattened icon to disk, we need to compute the hash and stat it
+								var buf = [];
+								this.pack()
+									.on('data', function (bytes) {
+										buf.push(new Buffer(bytes));
+									})
+									.on('end', function (err) {
+										if (err) {
+											return next(err);
+										}
+
+										var contents = Buffer.concat(buf);
+										fs.writeFileSync(icon.dest, contents);
+
+										var stat = fs.statSync(icon.dest);
+										_t.currentBuildManifest.files['DefaultIcon.png'] = {
+											hash: _t.hash(contents),
+											mtime: JSON.parse(JSON.stringify(stat.mtime)),
+											size: stat.size
+										};
+
+										next();
+									});
+								return;
+							}
+
+							this.pack()
+								.on('end', next)
+								.pipe(fs.createWriteStream(icon.dest));
+						});
+				}.bind(this), function (err) {
+					if (!missingIcons.length) {
+						return next();
+					}
+
+					if (!defaultIcon) {
+						// we're going to fail, but we let generateAppIcons() do the dirty work
+						this.generateAppIcons(missingIcons, next);
 						return;
 					}
-				}
 
-				missingIcons.push({
-					description: __('%s - Used for %s',
-						'Resources/' + (fs.existsSync(path.join(this.projectDir, 'Resources', 'ios')) ? 'ios' : 'iphone') + '/' + filename,
-						meta.idioms.map(function (i) { return i === 'ipad' ? 'iPad' : 'iPhone'; }).join(', ')
-					),
-					file: dest,
-					width: width,
-					height: height,
-					required: !!meta.required
-				});
-			}, this);
+					if (!defaultIconChanged) {
+						// we have missing icons, but the default icon hasn't changed
+						// call generateAppIcons() and have it deal with determining if the icons need
+						// to be generated or if it needs to error out
+						this.generateAppIcons(missingIcons, next);
+						return;
+					}
 
-			writeAssetContentsFile.call(this, path.join(appIconSetDir, 'Contents.json'), appIconSet);
+					if (!this.forceRebuild) {
+						this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon.replace(this.projectDir + '/', '')));
+						this.forceRebuild = true;
+					}
 
-			if (missingIcons.length && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
-				this.defaultIcons = [ flattenedDefaultIconDest ];
-				flattenIcons.push({
-					name: path.basename(defaultIcon),
-					src: defaultIcon,
-					dest: flattenedDefaultIconDest
-				});
-				this.logger.warn(__('The default icon "%s" contains an alpha channel and will be flattened against a white background', defaultIcon.replace(this.projectDir + '/', '')));
-				this.logger.warn(__('You may create an image named "DefaultIcon-ios.png" that does not have an alpha channel in the root of your project'));
-				this.logger.warn(__('It is highly recommended that the DefaultIcon.png be 1024x1024'));
-			}
-
-			async.eachLimit(flattenIcons, 5, function (icon, next) {
-				this.logger.debug(__('Stripping alpha channel: %s => %s', icon.src.cyan, icon.dest.cyan));
-				var _t = this;
-				fs.createReadStream(icon.src)
-					.pipe(new PNG({
-						colorType: 2,
-						bgColor: {
-							red: 255,
-							green: 255,
-							blue: 255
-						}
-					}))
-					.on('parsed', function() {
-						if (icon.dest === flattenedDefaultIconDest) {
-							// if the icon we just flattened is the DefaultIcon, then we need to
-							// update the currentBuildManifest which means we can't just pipe the
-							// the flattened icon to disk, we need to compute the hash and stat it
-							var buf = [];
-							this.pack()
-								.on('data', function (bytes) {
-									buf.push(new Buffer(bytes));
-								})
-								.on('end', function (err) {
-									if (err) {
-										return next(err);
-									}
-
-									var contents = Buffer.concat(buf);
-									fs.writeFileSync(icon.dest, contents);
-
-									var stat = fs.statSync(icon.dest);
-									_t.currentBuildManifest.files['DefaultIcon.png'] = {
-										hash: _t.hash(contents),
-										mtime: JSON.parse(JSON.stringify(stat.mtime)),
-										size: stat.size
-									};
-
-									next();
-								});
-							return;
-						}
-
-						this.pack()
-							.on('end', next)
-							.pipe(fs.createWriteStream(icon.dest));
-					});
-			}.bind(this), function (err) {
-				if (!missingIcons.length) {
-					return next();
-				}
-
-				if (!defaultIcon) {
-					// we're going to fail, but we let generateAppIcons() do the dirty work
 					this.generateAppIcons(missingIcons, next);
-					return;
-				}
-
-				if (!defaultIconChanged) {
-					// we have missing icons, but the default icon hasn't changed
-					// call generateAppIcons() and have it deal with determining if the icons need
-					// to be generated or if it needs to error out
-					this.generateAppIcons(missingIcons, next);
-					return;
-				}
-
-				if (!this.forceRebuild) {
-					this.logger.info(__('Forcing rebuild: %s changed since last build', defaultIcon.replace(this.projectDir + '/', '')));
-					this.forceRebuild = true;
-				}
-
-				this.generateAppIcons(missingIcons, next);
-			}.bind(this));
+				}.bind(this));
+			});
 		},
 
 		function createLaunchImageSet() {
@@ -4828,6 +5221,13 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			fs.existsSync(launchImageDir) || wrench.mkdirSyncRecursive(launchImageDir);
 
+			Object.keys(lookup).forEach(function (key) {
+				if (appc.version.lt(this.minIosVer, lookup[key].minSysVer)) {
+					// remove unsupported
+					delete lookup[key];
+				}
+			}, this);
+
 			Object.keys(launchImages).forEach(function (filename) {
 				var info = launchImages[filename],
 					meta = lookup[filename];
@@ -4838,18 +5238,18 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				if (!meta) {
 					// we don't care about this image
-					this.logger.debug(__('Unsupported launch image %s, skipping', info.src.replace(this.projectDir + '/', '').cyan));
+					this.logger.debug(__('Unsupported launch image %s, skipping', path.relative(this.projectDir, info.src).cyan));
 					return;
 				}
 
 				// skip device specific launch images
 				if (this.deviceFamily === 'iphone' && meta.idiom !== 'iphone') {
-					this.logger.debug(__('Skipping iPad launch image: %s', info.src.replace(this.projectDir + '/', '').cyan));
+					this.logger.debug(__('Skipping iPad launch image: %s', path.relative(this.projectDir, info.src).cyan));
 					return;
 				}
 
 				if (this.deviceFamily === 'ipad' && meta.idiom !== 'ipad') {
-					this.logger.debug(__('Skipping iPhone launch image: %s', info.src.replace(this.projectDir + '/', '').cyan));
+					this.logger.debug(__('Skipping iPhone launch image: %s', path.relative(this.projectDir, info.src).cyan));
 					return;
 				}
 
@@ -4946,7 +5346,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					dest = path.join(assetCatalog, imageSetRelPath, imageName + '.' + imageExt);
 					imageAssets[file].dest = dest;
 
-					delete this.buildDirFiles[dest];
+					this.unmarkBuildDirFile(dest);
 
 					if (!imageSets[imageSetRelPath]) {
 						imageSets[imageSetRelPath] = {
@@ -4963,6 +5363,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				}
 
 				resourcesToCopy[file] = imageAssets[file];
+				resourcesToCopy[file].isImage = true;
 			}, this);
 
 			// finally create all the Content.json files
@@ -5001,11 +5402,17 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				delete this.buildDirFiles[info.dest];
 				
 				this.cli.createHook('build.ios.copyResource', this, function(from, to, cb) {
-					this.copyFileSync(info.src, info.dest, {
-						// contents: contents || (contents = fs.readFileSync(info.src)),
-						contents: contents,
-						forceCopy: unsymlinkable
-					});
+					if (this.copyFileSync(info.src, info.dest, { 
+							//contents: contents || (contents = fs.readFileSync(info.src)), 
+							forceCopy: unsymlinkable })) {
+					if (this.useAppThinning && info.isImage && !this.forceRebuild) {
+						this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
+						this.forceRebuild = true;
+					}
+					} else {
+						this.logger.trace(__('No change, skipping %s', info.dest.cyan));
+					}
+					this.unmarkBuildDirFile(info.dest);
 					cb();
 				})(info.src, info.dest, next);
 
@@ -5025,7 +5432,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				} else if (!this.copyFileSync(info.src, info.dest, { forceCopy: unsymlinkableFileRegExp.test(path.basename(file)) })) {
 					this.logger.trace(__('No change, skipping %s', info.dest.cyan));
 				}
-				delete this.buildDirFiles[info.dest];
+				this.unmarkBuildDirFile(info.dest);
 			}, this);
 		},
 
@@ -5055,12 +5462,12 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						}
 
 						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[info.dest] = r.symbols;
+						this.tiSymbols[to] = r.symbols;
 
 						var dir = path.dirname(to);
 						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-						delete this.buildDirFiles[to];
+						this.unmarkBuildDirFile(to);
 
 						if (this.minifyJS) {
 							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
@@ -5108,7 +5515,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				this.logger.trace(__('No change, skipping %s', appPropsFile.cyan));
 			}
 
-			delete this.buildDirFiles[appPropsFile];
+			this.unmarkBuildDirFile(appPropsFile);
 		},
 
 		function writeJSONFiles() {
@@ -5144,7 +5551,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
             this.encryptJS && this.jsFilesToEncrypt.push('_license__json');
 
 
-			delete this.buildDirFiles[licenseFile];
+			this.unmarkBuildDirFile(licenseFile);
 
 			if (!/dist\-appstore/.test(this.target)) {
 				this.logger.info(__('Copying Error Template'));
@@ -5157,7 +5564,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					});
 					this.encryptJS && this.jsFilesToEncrypt.push('_error_template_json');
 				}
-				delete this.buildDirFiles[dirBase];
+				this.unmarkBuildDirFile(dirBase);
 			}
 		}
 	], next);
@@ -5171,7 +5578,7 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 		existingContent = destExists && fs.readFileSync(dest).toString(),
 		prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 
 	if (!this.encryptJS || !this.jsFilesToEncrypt.length) {
 		var srcFile = path.join(this.platformPath, 'Classes', 'ApplicationRouting.m'),
@@ -5283,7 +5690,7 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 							this.logger.trace(__('No change, skipping %s', dest.cyan));
 						}
 
-						delete this.buildDirFiles[dest];
+						this.unmarkBuildDirFile(dest);
 						completed = true;
 					} else {
 						// failure, maybe it was a fluke, try again
@@ -5340,7 +5747,7 @@ iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 				this.logger.trace(__('No change, skipping %s', dest.cyan));
 			}
 
-			delete this.buildDirFiles[dest];
+			this.unmarkBuildDirFile(dest);
 		}
 	}
 
@@ -5446,7 +5853,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 				size:  contents === null && prev ? prev.size  : srcStat.size
 			};
 
-			delete this.buildDirFiles[dest];
+			this.unmarkBuildDirFile(dest);
 		}, this);
 	}, this);
 
@@ -5457,7 +5864,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 		infoPlist = this.infoPlist,
 		contents;
 
-	delete this.buildDirFiles[dest];
+	this.unmarkBuildDirFile(dest);
 
 	if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('remote-notification') !== -1) {
 		hasRemoteNotification = true;
@@ -5563,10 +5970,10 @@ iOSBuilder.prototype.removeFiles = function removeFiles(next) {
 	this.unmarkBuildDirFiles(path.join(this.xcodeAppDir, 'LaunchImage-*'));
 
 	// mark a few files that would be generated by xcodebuild
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, this.tiapp.name)];
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'Info.plist')];
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'PkgInfo')];
-	delete this.buildDirFiles[path.join(this.xcodeAppDir, 'embedded.mobileprovision')];
+	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, this.tiapp.name));
+	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'Info.plist'));
+	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'PkgInfo'));
+	this.unmarkBuildDirFile(path.join(this.xcodeAppDir, 'embedded.mobileprovision'));
 
 	this.logger.info(__('Removing files'));
 

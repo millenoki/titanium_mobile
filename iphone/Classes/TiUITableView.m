@@ -324,6 +324,7 @@
 		filterAnchored = NO; // defaults to false on search
 		searchString = @"";
 		defaultSeparatorInsets = UIEdgeInsetsZero;
+		rowSeparatorInsets = UIEdgeInsetsZero;
 	}
 	return self;
 }
@@ -1663,6 +1664,13 @@
 -(void)setSeparatorInsets_:(id)arg
 {
     [self tableView];
+    DEPRECATED_REPLACED(@"UI.TableView.separatorInsets", @"6.0.0", @"UI.TableView.tableSeparatorInsets")
+    [self setTableSeparatorInsets_:arg];
+}
+
+-(void)setTableSeparatorInsets_:(id)arg
+{
+    [self tableView];
     
     if ([arg isKindOfClass:[NSDictionary class]]) {
         CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
@@ -1675,6 +1683,22 @@
         [tableview setNeedsDisplay];
     }
 }
+
+-(void)setRowSeparatorInsets_:(id)arg
+{
+    [self tableView];
+    
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        
+        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:defaultSeparatorInsets.left];
+        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:defaultSeparatorInsets.right];
+        rowSeparatorInsets = UIEdgeInsetsMake(0, left, 0, right);
+    }
+    if (!searchActivated) {
+        [tableview setNeedsDisplay];
+    }
+}
+
 
 -(void)setBackgroundColor_:(id)arg
 {
@@ -2129,7 +2153,11 @@ return result;	\
     if ([TiUtils isIOS8OrGreater] && (tableview == ourTableView)) {
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
-	[row initializeTableViewCell:cell];
+    
+    if (rowSeparatorInsets.left != 0 || rowSeparatorInsets.right != 0) {
+        [cell setSeparatorInset:rowSeparatorInsets];
+    }
+    
     [row triggerAttach];
 	
 	return cell;

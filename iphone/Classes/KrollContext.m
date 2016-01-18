@@ -985,7 +985,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #ifdef TI_USE_KROLL_THREAD
     [NSThread detachNewThreadSelector:@selector(main) toTarget:self withObject:nil];
 #else
-    TiThreadPerformOnMainThread(^{[self main];}, NO);
+    TiThreadPerformOnMainThread( ^{
+        [self main];
+    }, NO);
 #endif
 }
 
@@ -1058,7 +1060,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #ifdef TI_USE_KROLL_THREAD
 	return (cachedThreadId == [NSThread currentThread] ? YES : NO);
 #else
-    return [[NSThread currentThread] isEqual:[NSThread mainThread]];
+    return [NSThread isMainThread];
 #endif
 }
 
@@ -1098,9 +1100,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
 	[condition unlock];
 #else
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self invoke:obj];
-    });
+    [self invoke:obj];
 #endif
 }
 

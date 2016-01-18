@@ -908,13 +908,13 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
         // Synchronize the cleanup call on the main thread in case
         // the task actually finishes at around the same time.
-        dispatch_async(dispatch_get_main_queue(), ^{
+        TiThreadPerformOnMainThread( ^{
             if (bgTask != UIBackgroundTaskInvalid)
             {
                 [app endBackgroundTask:bgTask];
                 bgTask = UIBackgroundTaskInvalid;
             }
-        });
+        }, NO);
     }];
 	// Start the long-running task and return immediately.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -978,7 +978,12 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     if([userActivity userInfo] !=nil){
         [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
     }
-    
+	
+	// Update launchOptions so that we send only expected values rather than NSUserActivity
+	NSMutableDictionary* userActivityDict = [NSMutableDictionary dictionaryWithDictionary:launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey]];
+	[userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
+	[launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+	
     if (appBooted){
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
     }
@@ -1251,13 +1256,13 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 	{		
 		// Synchronize the cleanup call on the main thread in case
 		// the expiration handler is fired at the same time.
-		dispatch_async(dispatch_get_main_queue(), ^{
+		TiThreadPerformOnMainThread( ^{
 			if (bgTask != UIBackgroundTaskInvalid)
 			{
 				[[UIApplication sharedApplication] endBackgroundTask:bgTask];
 				bgTask = UIBackgroundTaskInvalid;
 			}
-		});
+        }, NO);
 	}
 }
 

@@ -268,6 +268,9 @@
 @property (nonatomic,readonly) NSNumber* WINDOW_LEVEL_STATUS_BAR;
 #endif
 
+@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_NONE;
+@property (nonatomic,readonly) NSNumber* TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE;
+
 #ifdef USE_TI_UIACTIVITYINDICATORSTYLE
 @property (nonatomic,readonly) TiUIActivityIndicatorStyleProxy* ActivityIndicatorStyle;
 #endif

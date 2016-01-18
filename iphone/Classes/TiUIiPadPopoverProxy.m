@@ -428,6 +428,7 @@ TiUIiPadPopoverProxy * currentPopover;
         UIPopoverPresentationController* thePresentationController = [theController popoverPresentationController];
         thePresentationController.permittedArrowDirections = directions;
         thePresentationController.delegate = self;
+        [thePresentationController setBackgroundColor:[[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color]];
         
         [[TiApp app] showModalController:theController animated:animated];
         return;
@@ -482,6 +483,7 @@ TiUIiPadPopoverProxy * currentPopover;
         if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
             [(TiWindowProxy*)contentViewProxy setIsManaged:YES];
             viewController =  [[(TiWindowProxy*)contentViewProxy hostingController] retain];
+
         } else {
             viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
         }
@@ -494,6 +496,7 @@ TiUIiPadPopoverProxy * currentPopover;
     if (popoverController == nil) {
         popoverController = [[UIPopoverController alloc] initWithContentViewController:[self viewController]];
         [popoverController setDelegate:self];
+
         [self updateContentSize];
     }
     return popoverController;

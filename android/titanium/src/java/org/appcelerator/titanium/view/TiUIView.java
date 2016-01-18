@@ -1747,10 +1747,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         } else if (value instanceof Number) {
             result = getBorderRadius(TiConvert.toFloat(value, 0f));
         }
+        setBorderRadius(result);
+    }
+    
+    protected void setBorderRadius(float[] radius) {
         if (background != null) {
-            background.setRadius(result);
+            background.setRadius(radius);
         }
-        getOrCreateBorderView().setRadius(result);
+        getOrCreateBorderView().setRadius(radius);
     }
 
     private float[] getBorderRadius(float radius) {

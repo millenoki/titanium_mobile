@@ -8,156 +8,162 @@ package ti.modules.titanium.ui.widget;
 
 import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.content.Context;
+import android.graphics.RectF;
 import android.support.v7.widget.CardView;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 public class TiUICardView extends TiUIView
 {
-	private static final String TAG = "TiUICardView";
-	private int contentPaddingBottom = 0;
-	private int contentPaddingLeft = 0;
-	private int contentPaddingRight = 0;
-	private int contentPaddingTop = 0;
+    public int paddingLeft, paddingTop, paddingRight, paddingBottom;
 
-	public TiUICardView(final TiViewProxy proxy)
-	{
-		super(proxy);
-		Log.d(TAG, "Creating a cardview", Log.DEBUG_MODE);
+    private static final String TAG = "TiUICardView";
 
-		CardView cardview = new CardView(getProxy().getActivity())
-		{
-			@Override
-			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-			{
-				super.onLayout(changed, left, top, right, bottom);
+    public class TiUICardViewLayout extends TiCompositeLayout {
 
-				if (proxy != null && proxy.hasListeners(TiC.EVENT_POST_LAYOUT)) {
-					proxy.fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
-				}
-			}
-		};
-		cardview.setPadding(0, 0, 0, 0);
-		cardview.setFocusable(false);
-		setNativeView(cardview);
+        public TiUICardViewLayout(Context context)
+        {
+            super(context, TiUICardView.this);
+        } 
 
-	}
+    }
 
-	@Override
-	public void processProperties(HashMap d)
-	{
-		super.processProperties(d);
+    public class TiCardView extends CardView {
 
-		CardView cardview = (CardView) getNativeView();
+        private TiUICardViewLayout layout;
 
-		if (d.containsKey(TiC.PROPERTY_CARD_BACKGROUND_COLOR)) {
-			cardview.setCardBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_CARD_BACKGROUND_COLOR));
-		}
+        public TiCardView(Context context)
+        {
+            super(context);
 
-		if (d.containsKey(TiC.PROPERTY_CARD_CORNER_RADIUS)) {
-			cardview.setRadius(TiConvert.toFloat(d.get(TiC.PROPERTY_CARD_CORNER_RADIUS)));
-		}
+            layout = new TiUICardViewLayout(context);
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 
+                    ViewGroup.LayoutParams.MATCH_PARENT);
+            layout.setLayoutParams(params); 
+            super.addView(layout, params);
+        }
 
-		if (d.containsKey(TiC.PROPERTY_CARD_USE_COMPAT_PADDING)) {
-			cardview.setUseCompatPadding(TiConvert.toBoolean(d, TiC.PROPERTY_CARD_USE_COMPAT_PADDING, false));
-		}
+        public TiUICardViewLayout getLayout()
+        {
+            return layout;
+        }
 
-		if (d.containsKey(TiC.PROPERTY_CARD_ELEVATION)) {
-			cardview.setCardElevation(TiConvert.toFloat(d.get(TiC.PROPERTY_CARD_ELEVATION)));
-		}
+        @Override
+        public void addView(View child, android.view.ViewGroup.LayoutParams params)
+        {
+            layout.addView(child, params);
+        }
 
-		if (d.containsKey(TiC.PROPERTY_CARD_MAX_ELEVATION)) {
-			cardview.setMaxCardElevation(TiConvert.toFloat(d.get(TiC.PROPERTY_CARD_MAX_ELEVATION)));
-		}
+        @Override
+        protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+            super.onLayout(changed, left, top, right, bottom);
+            if (changed) {
+                TiUIHelper.firePostLayoutEvent(TiUICardView.this);
+            }
+        }
 
-		if (d.containsKey(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP)) {
-			cardview.setPreventCornerOverlap(TiConvert.toBoolean(d, TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP, false));
-		}
 
-		if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING)) {
-			contentPaddingBottom = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING);
-			contentPaddingLeft = contentPaddingBottom;
-			contentPaddingRight = contentPaddingBottom;
-			contentPaddingTop = contentPaddingBottom;
-		}
+    }
 
-		if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING_BOTTOM)) {
-			contentPaddingBottom = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_BOTTOM);
-		}
+    public TiUICardView(final TiViewProxy proxy)
+    {
+        // we create the view after the properties are processed
+        super(proxy);
+    }
 
-		if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING_LEFT)) {
-			contentPaddingLeft = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_LEFT);
-		}
+    public TiUICardViewLayout getLayout()
+    {
+        View nativeView = getNativeView();
+        return ((TiCardView) nativeView).layout;
 
-		if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING_RIGHT)) {
-			contentPaddingRight = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_RIGHT);
-		}
+    }
+    
+    private TiCardView getCardView() {
+        return ((TiCardView) getNativeView());
+    }
+    
+    @Override
+    public ViewGroup getParentViewForChild()
+    {
+        return getLayout();
+    }
+    
+    @Override
+    protected void add(TiUIView child, int childIndex) {
+        super.add(child, childIndex);
 
-		if (d.containsKey(TiC.PROPERTY_CONTENT_PADDING_TOP)) {
-			contentPaddingTop = TiConvert.toInt(d, TiC.PROPERTY_CONTENT_PADDING_TOP);
-		}
+        if (getNativeView() != null) {
+            getLayout().requestLayout();
+            if (child.getNativeView() != null) {
+                child.getNativeView().requestLayout();
+            }
+        }
+    }
 
-		cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
 
-		cardview.invalidate();
-	}
-	
-	@Override
-	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
-	{
-		CardView cardview = (CardView) getNativeView();
-		if (key.equals(TiC.PROPERTY_CARD_BACKGROUND_COLOR)) {
-			cardview.setCardBackgroundColor(TiConvert.toColor(TiConvert.toString(newValue)));
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_CORNER_RADIUS)) {
-			cardview.setRadius(TiConvert.toFloat(newValue));
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_ELEVATION)) {
-			cardview.setCardElevation(TiConvert.toFloat(newValue));
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_MAX_ELEVATION)) {
-			cardview.setMaxCardElevation(TiConvert.toFloat(newValue));
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_PREVENT_CORNER_OVERLAP)) {
-			cardview.setPreventCornerOverlap(TiConvert.toBoolean(newValue, false));
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CARD_USE_COMPAT_PADDING)) {
-			cardview.setUseCompatPadding(TiConvert.toBoolean(newValue, false));
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING)) {
-			contentPaddingBottom = TiConvert.toInt(newValue);
-			contentPaddingLeft = contentPaddingBottom;
-			contentPaddingRight = contentPaddingBottom;
-			contentPaddingTop = contentPaddingBottom;
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_BOTTOM)) {
-			contentPaddingBottom = TiConvert.toInt(newValue);
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_LEFT)) {
-			contentPaddingLeft = TiConvert.toInt(newValue);
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_RIGHT)) {
-			contentPaddingRight = TiConvert.toInt(newValue);
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
-		} else if (key.equals(TiC.PROPERTY_CONTENT_PADDING_TOP)) {
-			contentPaddingTop = TiConvert.toInt(newValue);
-			cardview.setContentPadding(contentPaddingLeft, contentPaddingTop, contentPaddingRight, contentPaddingBottom);
-			cardview.requestLayout();
-		} else {
-			super.propertyChanged(key, oldValue, newValue, proxy);
-		}
-		
+    @Override
+    public void resort()
+    {
+        View v = getLayout();
+        if ( v instanceof TiCompositeLayout) {
+            ((TiCompositeLayout) v).resort();
+        }
+    }
+    @Override
+    protected void setBorderRadius(float[] radius) {
+        super.setBorderRadius(radius);
+        getCardView().setRadius(radius[0]);
+    }
+    @Override
+    public void processProperties(HashMap d)
+    {
+        super.processProperties(d);
 
-	}
+        // we create the view here
+        View view = new TiCardView(getProxy().getActivity());
+        view.setPadding(0, 0, 0, 0);
+        view.setFocusable(false);
+        setNativeView(view);
+    }
+    
+    @Override
+    public void propertySet(String key, Object newValue, Object oldValue,
+            boolean changedProperty) {
+        switch (key) {
+        case TiC.PROPERTY_PADDING:
+            RectF padding = TiConvert.toPaddingRect(newValue, null);
+            getCardView().setContentPadding((int) padding.left,
+                    (int) padding.top, (int) padding.right,
+                    (int) padding.bottom);
+            break;
+        case TiC.PROPERTY_PREVENT_CORNER_OVERLAP:
+            getCardView().setPreventCornerOverlap(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_MAX_ELEVATION:
+            getCardView().setMaxCardElevation(TiConvert.toFloat(newValue));
+            break;
+        case TiC.PROPERTY_ELEVATION:
+            getCardView().setCardElevation(TiConvert.toFloat(newValue));
+            break;
+        case TiC.PROPERTY_USE_COMPAT_PADDING:
+            getCardView().setUseCompatPadding(TiConvert.toBoolean(newValue, false));
+            break;
+        case TiC.PROPERTY_BACKGROUND_COLOR:
+            getCardView().setCardBackgroundColor(TiConvert.toColor(newValue));
+            break;
+        default:
+            super.propertySet(key, newValue, oldValue, changedProperty);
+            break;
+        }
+    }
 
 }

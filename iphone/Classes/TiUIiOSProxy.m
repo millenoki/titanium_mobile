@@ -20,6 +20,12 @@
 #import "TiUIiOSMenuPopupProxy.h"
 #endif
 
+#if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
+#import "TiUIiOSLivePhotoViewProxy.h"
+#endif
+#endif
+
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
 #import "TiUIiOSTransitionAnimationProxy.h"
 #endif
@@ -80,9 +86,13 @@
 #import "TiDynamicItemBehavior.h"
 #endif
 #endif
-
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS
 #import "TiUIiOSApplicationShortcutsProxy.h"
+#endif
+#if IS_XCODE_7_1
+#if defined(USE_TI_UIIOSLIVEPHOTOBADGE) || defined(USE_TI_UIIOSLIVEPHOTOVIEW)
+#import <PhotosUI/PhotosUI.h>
+#endif
 #endif
 
 @implementation TiUIiOSProxy
@@ -204,7 +214,7 @@ MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefaul
 #ifdef USE_TI_UIIOS3DMATRIX
 -(id)create3DMatrix:(id)args
 {
-	DEPRECATED_REPLACED(@"UI.iOS.create3DMatrix()", @"2.1.0", @"UI.create3DMatrix()");
+	DEPRECATED_REPLACED_REMOVED(@"UI.iOS.create3DMatrix()", @"2.1.0", @"6.0.0", @"UI.create3DMatrix()");
     if (args==nil || [args count] == 0)
 	{
 		return [[[Ti3DMatrix alloc] init] autorelease];
@@ -230,7 +240,7 @@ MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefaul
 #ifdef USE_TI_UIIOSATTRIBUTEDSTRING
 -(id)createAttributedString:(id)args
 {
-	DEPRECATED_REPLACED(@"UI.iOS.createAttributedString()", @"3.6.0", @"UI.createAttributedString()");
+	DEPRECATED_REPLACED_REMOVED(@"UI.iOS.createAttributedString()", @"3.6.0", @"6.0.0", @"UI.createAttributedString()");
     return [[[TiUIAttributedStringProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
@@ -300,6 +310,77 @@ MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefaul
 }
 #endif
 
+#if IS_XCODE_7_1
+#ifdef USE_TI_UIIOSLIVEPHOTOVIEW
+-(id)createLivePhotoView:(id)args
+{
+    return [[[TiUIiOSLivePhotoViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+-(NSNumber*) LIVEPHOTO_PLAYBACK_STYLE_FULL
+{
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
+    }
+    return nil;
+}
+
+-(NSNumber*) LIVEPHOTO_PLAYBACK_STYLE_HINT
+{
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
+    }
+    
+    return nil;
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTOBADGE
+-(TiBlob*)createLivePhotoBadge:(id)value
+{
+    if ([TiUtils isIOS9_1OrGreater] == NO) {
+        return nil;
+    }
+    
+    ENSURE_ARG_COUNT(value, 1);
+    ENSURE_ARRAY(value);
+    id option = [value objectAtIndex:0];
+    
+    UIImage *badge = [PHLivePhotoView livePhotoBadgeImageWithOptions:[TiUtils intValue:option def:PHLivePhotoBadgeOptionsOverContent]];
+    
+    // Badges only work on devices.
+    if (badge == nil) {
+        return nil;
+    }
+    
+    TiBlob *image = [[TiBlob alloc] initWithImage:badge];
+    
+    return image;
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
+-(NSNumber*)LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
+{
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoBadgeOptionsOverContent);
+    }
+    return NUMINT(0);
+}
+#endif
+
+#ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
+-(NSNumber*)LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
+{
+    if ([TiUtils isIOS9_1OrGreater]) {
+        return NUMINTEGER(PHLivePhotoBadgeOptionsLiveOff);
+    }
+    return NUMINT(0);
+}
+#endif
+
+#endif
+
 #ifdef USE_TI_UIIOSANIMATOR
 -(id)createAnimator:(id)args
 {
@@ -364,21 +445,21 @@ MAKE_SYSTEM_PROP(COLLISION_MODE_ALL, 2);
 
 
 #ifdef USE_TI_UIIOS
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_IN_OUT, UIViewAnimationOptionCurveEaseInOut, @"UI.iOS.ANIMATION_CURVE_EASE_IN_OUT", @"2.1.0", @"UI.ANIMATION_CURVE_EASE_IN_OUT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_IN, UIViewAnimationOptionCurveEaseIn, @"UI.iOS.ANIMATION_CURVE_EASE_IN", @"2.1.0", @"UI.ANIMATION_CURVE_EASE_IN");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_EASE_OUT,UIViewAnimationOptionCurveEaseOut,  @"UI.iOS.ANIMATION_CURVE_EASE_OUT", @"2.1.0", @"UI.ANIMATION_CURVE_EASE_OUT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(ANIMATION_CURVE_LINEAR,UIViewAnimationOptionCurveLinear, @"UI.iOS.ANIMATION_CURVE_LINEAR", @"2.1.0", @"UI.ANIMATION_CURVE_LINEAR");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_EASE_IN_OUT, UIViewAnimationOptionCurveEaseInOut, @"UI.iOS.ANIMATION_CURVE_EASE_IN_OUT", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_EASE_IN_OUT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_EASE_IN, UIViewAnimationOptionCurveEaseIn, @"UI.iOS.ANIMATION_CURVE_EASE_IN", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_EASE_IN");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_EASE_OUT,UIViewAnimationOptionCurveEaseOut,  @"UI.iOS.ANIMATION_CURVE_EASE_OUT", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_EASE_OUT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_LINEAR,UIViewAnimationOptionCurveLinear, @"UI.iOS.ANIMATION_CURVE_LINEAR", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_LINEAR");
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_NONE,UIDataDetectorTypeNone, @"UI.iOS.AUTODETECT_NONE", @"3.0.0", @"UI.AUTOLINK_NONE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_NONE,UIDataDetectorTypeNone, @"UI.iOS.AUTODETECT_NONE", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_NONE");
 -(NSNumber*)AUTODETECT_ALL
 {
-    DEPRECATED_REPLACED(@"UI.iOS.AUTODETECT_ALL", @"3.0.0", @"UI.AUTOLINK_ALL")
+    DEPRECATED_REPLACED_REMOVED(@"UI.iOS.AUTODETECT_ALL", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_ALL")
     return NUMUINTEGER(UIDataDetectorTypeAll);
 }
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber, @"UI.iOS.AUTODETECT_PHONE", @"3.0.0", @"UI.AUTOLINK_PHONE_NUMBERS");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_LINK,UIDataDetectorTypeLink, @"UI.iOS.AUTODETECT_LINK", @"3.0.0", @"UI.AUTOLINK_URLS");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress, @"UI.iOS.AUTODETECT_ADDRESS", @"3.0.0", @"UI.AUTOLINK_MAP_ADDRESSES");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent, @"UI.iOS.AUTODETECT_CALENDAR", @"3.0.0", @"UI.AUTOLINK_CALENDAR");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber, @"UI.iOS.AUTODETECT_PHONE", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_PHONE_NUMBERS");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_LINK,UIDataDetectorTypeLink, @"UI.iOS.AUTODETECT_LINK", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_URLS");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress, @"UI.iOS.AUTODETECT_ADDRESS", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_MAP_ADDRESSES");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent, @"UI.iOS.AUTODETECT_CALENDAR", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_CALENDAR");
 
 
 MAKE_SYSTEM_STR(COLOR_GROUP_TABLEVIEW_BACKGROUND, IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND);

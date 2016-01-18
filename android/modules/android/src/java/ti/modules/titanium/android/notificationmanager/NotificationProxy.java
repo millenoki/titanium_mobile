@@ -333,6 +333,12 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
 		.setContentTitle(contentTitle);
 	}
 
+	@Kroll.method @Kroll.setProperty
+	public void setStyle(StyleProxy style) {
+		notificationBuilder.setStyle(style.getStyle());
+		setProperty(TiC.PROPERTY_STYLE, style);
+	}
+
 	public Notification getNotification()
 	{ 
 	    Notification notification = notificationBuilder.build();

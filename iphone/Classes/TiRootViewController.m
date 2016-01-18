@@ -147,9 +147,11 @@
          *	the view will be unloaded (by, perhaps a Memory warning while a modal view
          *	controller and loaded at a later time.
          */
-        defaultImageView = [[UIImageView alloc] init];
-        [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-        [defaultImageView setContentMode:UIViewContentModeScaleToFill];
+		 if (![TiUtils isIOS8OrGreater]) {
+			defaultImageView = [[UIImageView alloc] init];
+			[defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+			[defaultImageView setContentMode:UIViewContentModeScaleToFill];
+		}
 		
         [self processInfoPlist];
         
@@ -239,7 +241,19 @@
 -(void)updateBackground
 {
 	UIView * ourView = [self view];
-	UIColor * chosenColor = (bgColor==nil)?[UIColor blackColor]:bgColor;
+	UIColor * chosenColor = bgColor;
+
+	if (chosenColor == nil) {
+#if defined(DEFAULT_BGCOLOR_RED) && defined(DEFAULT_BGCOLOR_GREEN) && defined(DEFAULT_BGCOLOR_BLUE)
+		chosenColor = [UIColor colorWithRed: DEFAULT_BGCOLOR_RED
+									  green: DEFAULT_BGCOLOR_GREEN
+									   blue: DEFAULT_BGCOLOR_BLUE
+									  alpha: 1.0f];
+#else
+		chosenColor = [UIColor blackColor];
+#endif
+	}
+
 	[ourView setBackgroundColor:chosenColor];
 	[[ourView superview] setBackgroundColor:chosenColor];
 	if (bgImage!=nil)

@@ -85,7 +85,7 @@ DEFINE_EXCEPTIONS
 - (void)handleDidShowTab:(TiUITabProxy *)newFocus
 {
     // Do nothing if no tabs are being focused or blurred (or the window is opening)
-    if ((focusedTabProxy == nil && newFocus == nil) || (focusedTabProxy == newFocus)) {
+    if (focusedTabProxy == nil && newFocus == nil) {
         //TIMOB-10796. Ensure activeTab is set to focused on early return
         if (focusedTabProxy != nil) {
             [self.proxy replaceValue:focusedTabProxy forKey:@"activeTab" notification:NO];
@@ -118,26 +118,15 @@ DEFINE_EXCEPTIONS
         index = [tabArray indexOfObject:[(TiUITabProxy *)newFocus controller]];
     }
 
-	if (focusedTabProxy != nil)
-	{
-		[event setObject:focusedTabProxy forKey:@"previousTab"];
-		previousIndex = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
-	}
-	
-	if (newFocus != nil)
-	{
-		[event setObject:newFocus forKey:@"tab"];
-		index = [tabArray indexOfObject:[(TiUITabProxy *)newFocus controller]];
-	}
-
-	[event setObject:NUMINTEGER(previousIndex) forKey:@"previousIndex"];
-	[event setObject:NUMINTEGER(index) forKey:@"index"];
-	
-	if ([self.proxy _hasListeners:@"unselected"]) {
+    [event setObject:NUMINTEGER(previousIndex) forKey:@"previousIndex"];
+    [event setObject:NUMINTEGER(index) forKey:@"index"];
+    
+    if ([self.proxy _hasListeners:@"unselected"]) {
+        DEPRECATED_REPLACED(@"UI.TabGroup.Event.unselected" ,@"5.2.0",@"UI.TabGroup.Event.blur")
         [self.proxy fireEvent:@"unselected" withObject:event];
     }
-	if ([self.proxy _hasListeners:@"blur"]) {
-        DEPRECATED_REPLACED(@"UI.TabGroup.Event.blur" ,@"5.1.0",@"UI.TabGroup.Event.unselected")
+    
+    if ([self.proxy _hasListeners:@"blur"]) {
         [self.proxy fireEvent:@"blur" withObject:event];
     }
 	[focusedTabProxy handleDidBlur:event];
@@ -151,11 +140,11 @@ DEFINE_EXCEPTIONS
 	// If we're in the middle of opening, the focus happens once the tabgroup is opened
      if (![(TiWindowProxy*)[self proxy] opening]){
         if ([self.proxy _hasListeners:@"selected"]){
+            DEPRECATED_REPLACED(@"UI.TabGroup.Event.selected" ,@"5.2.0",@"UI.TabGroup.Event.focus")
             [self.proxy fireEvent:@"selected" withObject:event];
         }
         
         if ([self.proxy _hasListeners:@"focus"]){
-            DEPRECATED_REPLACED(@"UI.TabGroup.Event.focus" ,@"5.1.0",@"UI.TabGroup.Event.selected")
             [self.proxy fireEvent:@"focus" withObject:event];
         }
 	}
@@ -632,11 +621,11 @@ DEFINE_EXCEPTIONS
 	}
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:focusedTabProxy,@"tab",NUMINTEGER(index),@"index",NUMINT(-1),@"previousIndex",[NSNull null],@"previousTab",nil];
     if ([self.proxy _hasListeners:@"selected"]){
+        DEPRECATED_REPLACED(@"UI.TabGroup.Event.selected" ,@"5.2.0",@"UI.TabGroup.Event.focus")
         [self.proxy fireEvent:@"selected" withObject:event];
     }
 
     if ([self.proxy _hasListeners:@"focus"]){
-        DEPRECATED_REPLACED(@"UI.TabGroup.Event.focus" ,@"5.1.0",@"UI.TabGroup.Event.selected")
         [self.proxy fireEvent:@"focus" withObject:event];
     }
     

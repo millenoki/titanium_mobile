@@ -2359,6 +2359,10 @@ static NSDictionary* replaceKeysForRow;
 {
     self.searchString = (searchText == nil) ? @"" : searchText;
     [self buildResultsForSearchText];
+    if (!searchActive) {
+       // Reload since some cells could be reused as part of previous search.
+       [_tableView reloadData];
+    }
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar

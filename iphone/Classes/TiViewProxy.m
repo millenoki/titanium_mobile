@@ -1929,6 +1929,8 @@ SEL GetterForKrollProperty(NSString * key)
     
     [context setSourceView:self];
     [context connectToDelegate];
+    
+    [self replaceValue:context forKey:@"previewContext" notification:NO];
 
 #endif
 #endif

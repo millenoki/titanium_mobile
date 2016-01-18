@@ -31,6 +31,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -231,17 +232,18 @@ public class TiHTTPClient
                 byte[] buf = new byte[4096];
                 Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
 
-                while((count = is.read(buf)) != -1) {
-                    if (aborted) {
-                        break;
-                    }
-                    totalSize += count;
-                    try {
-                        handleEntityData(buf, count, totalSize, contentLength);
-                    } catch (IOException e) {
-                        Log.e(TAG, "Error handling entity data", e);
-                    }
-                }
+	            while((count = is.read(buf)) != -1) {
+	                if (aborted) {
+	                    break;
+	                }
+	                totalSize += count;
+	                try {
+	                    responseText = new String(Arrays.copyOfRange(buf, 0, count));
+	                    handleEntityData(buf, count, totalSize, contentLength);
+	                } catch (IOException e) {
+	                    Log.e(TAG, "Error handling entity data", e);
+	                }
+	            }
 
                 if (totalSize > 0) {
                     finishedReceivingEntityData(totalSize);
@@ -902,64 +904,71 @@ public class TiHTTPClient
                 TrustManager[] trustManagerArray = this.securityManager.getTrustManagers((HTTPClientProxy)this.proxy);
                 KeyManager[] keyManagerArray = this.securityManager.getKeyManagers((HTTPClientProxy)this.proxy);
 
-                try {
-                    sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
-                } catch(Exception e) {
-                    Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-                    sslSocketFactory = null;
-                }
-            }
-        }
-        if (sslSocketFactory == null) {
-            if (trustManagers.size() > 0 || keyManagers.size() > 0) {
-                TrustManager[] trustManagerArray = null;
-                KeyManager[] keyManagerArray = null;
+				try {
+					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
+				} catch(Exception e) {
+					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+					sslSocketFactory = null;
+				}
+			}
+		}
+		if (sslSocketFactory == null) {
+		    if (trustManagers.size() > 0 || keyManagers.size() > 0) {
+		        TrustManager[] trustManagerArray = null;
+		        KeyManager[] keyManagerArray = null;
 
-                if (trustManagers.size() > 0) {
-                    trustManagerArray = new X509TrustManager[trustManagers.size()];
-                    trustManagerArray = trustManagers.toArray(trustManagerArray);
-                }
+		        if (trustManagers.size() > 0) {
+		            trustManagerArray = new X509TrustManager[trustManagers.size()];
+		            trustManagerArray = trustManagers.toArray(trustManagerArray);
+		        }
 
-                if (keyManagers.size() > 0) {
-                    keyManagerArray = new X509KeyManager[keyManagers.size()];
-                    keyManagerArray = keyManagers.toArray(keyManagerArray);
-                }
+		        if (keyManagers.size() > 0) {
+		            keyManagerArray = new X509KeyManager[keyManagers.size()];
+		            keyManagerArray = keyManagers.toArray(keyManagerArray);
+		        }
 
-                try {
-                    sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
-                } catch(Exception e) {
-                    Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-                    sslSocketFactory = null;
-                }
-            } else if (!validating) {
-                TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
-                try {
-                    sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
-                } catch(Exception e) {
-                    Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-                    sslSocketFactory = null;
-                }
-            }
-        }
-        
-        if (sslSocketFactory != null) {
-            securedConnection.setSSLSocketFactory(sslSocketFactory);
-        } else if (!validating) {
-            securedConnection.setSSLSocketFactory(new NonValidatingSSLSocketFactory());
-        } 
-        
-        if (!validating) {
-            securedConnection.setHostnameVerifier(new NullHostNameVerifier());
-        }
-        // Fortunately, HttpsURLConnection supports SNI since Android 2.3.
-        // We don't have to handle SNI explicitly 
-        // https://developer.android.com/training/articles/security-ssl.html
-    }
-    
-    protected void setUpClient(HttpURLConnection connection)
-    {
-        connection.setInstanceFollowRedirects(autoRedirect);        
-    }
+		        try {
+		            sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
+		        } catch(Exception e) {
+		            Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+		            sslSocketFactory = null;
+		        }
+		    } else if (!validating) {
+		        TrustManager trustManagerArray[] = new TrustManager[] { new NonValidatingTrustManager() };
+		        try {
+		            sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
+		        } catch(Exception e) {
+		            Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+		            sslSocketFactory = null;
+		        }
+		    } else {
+		        try {
+		            sslSocketFactory = new TiSocketFactory(null, null, tlsVersion);
+		        } catch(Exception e) {
+		            Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
+		            sslSocketFactory = null;
+		        }
+		    }
+		}
+		
+		if (sslSocketFactory != null) {
+			securedConnection.setSSLSocketFactory(sslSocketFactory);
+		} else if (!validating) {
+			securedConnection.setSSLSocketFactory(new NonValidatingSSLSocketFactory());
+		} 
+		
+		if (!validating) {
+			securedConnection.setHostnameVerifier(new NullHostNameVerifier());
+		}
+		// Fortunately, HttpsURLConnection supports SNI since Android 2.3.
+		// We don't have to handle SNI explicitly 
+		// https://developer.android.com/training/articles/security-ssl.html
+	}
+	
+	protected void setUpClient(HttpURLConnection connection)
+	{
+		connection.setInstanceFollowRedirects(autoRedirect);		
+	}
 
     private Object titaniumFileAsPutData(Object value)
     {
@@ -1202,13 +1211,15 @@ public class TiHTTPClient
                     }
                     handleResponse(client);
 
-                }catch (IOException e) {
-                    if (!aborted) {
-                        throw e;
-                    }
-                }  finally {
-                    client.disconnect();
-                } 
+				}catch (IOException e) {
+					if (!aborted) {
+						throw e;
+					}
+				}  finally {
+				    if (client != null) {
+				        client.disconnect();
+				    }
+				} 
 
 
 				if(result != null) {

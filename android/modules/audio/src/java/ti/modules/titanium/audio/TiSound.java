@@ -666,7 +666,9 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
             }
 
             try {
-                mp.seekTo(position);
+                if (mp.getDuration() >= 0) {
+                     mp.seekTo(position);
+                }
             } catch (IllegalStateException e) {
                 Log.w(TAG,
                         "Error calling seekTo() in an incorrect state. Ignoring.");

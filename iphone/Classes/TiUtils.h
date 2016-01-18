@@ -760,4 +760,10 @@ typedef enum
 
 + (BOOL)string:(NSString *)string matchPattern:(NSString *)pattern;
 
+/**
+ Checks the live photo capability of the current device.
+ @return _YES_ if the device supported force touch.
+ */
++ (BOOL)livePhotoSupported;
+
 @end

@@ -40,6 +40,8 @@
 
 @property(nonatomic,readonly) NSNumber *ACTIVITY_CATEGORY_SHARE;
 @property(nonatomic,readonly) NSNumber *ACTIVITY_CATEGORY_ACTION;
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_HINT;
+@property (nonatomic,readonly) NSNumber* LIVEPHOTO_PLAYBACK_STYLE_FULL;
 
 
 @property(nonatomic,readonly) NSString *ACTIVITY_TYPE_FACEBOOK;

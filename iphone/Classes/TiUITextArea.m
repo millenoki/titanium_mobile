@@ -355,15 +355,20 @@
     if(![TiUtils isIOS9OrGreater]){
         return;
     }
+    
 #if IS_XCODE_7
-    UITextView *tv = (UITextView *)[self textWidgetView];
-    if([TiUtils boolValue:value] == YES) {
-        tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
-        tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
-    } else {
-        tv.inputAssistantItem.leadingBarButtonGroups = @[];
-        tv.inputAssistantItem.trailingBarButtonGroups = @[];
-    }
+    
+        UITextView *tv = (UITextView *)[self textWidgetView];
+        if([TiUtils boolValue:value] == YES) {
+            
+            tv.inputAssistantItem.leadingBarButtonGroups = self.inputAssistantItem.leadingBarButtonGroups;
+            tv.inputAssistantItem.trailingBarButtonGroups = self.inputAssistantItem.trailingBarButtonGroups;
+            
+        } else {
+            
+            tv.inputAssistantItem.leadingBarButtonGroups = @[];
+            tv.inputAssistantItem.trailingBarButtonGroups = @[];
+        }
 #endif
 }
 

@@ -660,7 +660,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             return properties.containsKey(name);
         }
     }
-
+    
+    /**
+     * @param name  the lookup key.
+     * @return  true if the proxy contains this property and it is not null, false otherwise.
+     * @module.api
+     */
+    public boolean hasPropertyAndNotNull(String name)
+    {
+        synchronized (properties) {
+            return properties.containsKeyAndNotNull(name);
+        }
+    }
+    
     /**
      * Returns the property value given its key. Properties are cached on the
      * Proxy and updated from JS for relevant annotated APIs

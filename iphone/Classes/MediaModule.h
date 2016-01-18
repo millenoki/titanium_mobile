@@ -83,6 +83,9 @@
 
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_VIDEO;
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_PHOTO;
+#if IS_XCODE_7_1
+@property(nonatomic,readonly) NSString* MEDIA_TYPE_LIVEPHOTO;
+#endif
 
 // NOTE: these are introduced in 3.2
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_NONE;			// No controls
