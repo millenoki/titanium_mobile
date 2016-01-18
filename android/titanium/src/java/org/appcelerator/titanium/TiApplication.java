@@ -551,21 +551,24 @@ public abstract class TiApplication extends Application implements
         public int calculateInSampleSize(BitmapFactory.Options options,
                 int reqWidth, int reqHeight) {
             // Raw height and width of image
-            final int height = options.outHeight;
-            final int width = options.outWidth;
+            
             int inSampleSize = 1;
+            if (options != null) {
+                final int height = options.outHeight;
+                final int width = options.outWidth;
 
-            if ((reqHeight > 0 && height > reqHeight) || (reqWidth > 0 && width > reqWidth)) {
+                if ((reqHeight > 0 && height > reqHeight) || (reqWidth > 0 && width > reqWidth)) {
 
-                final int halfHeight = height / 2;
-                final int halfWidth = width / 2;
+                    final int halfHeight = height / 2;
+                    final int halfWidth = width / 2;
 
-                // Calculate the largest inSampleSize value that is a power of 2
-                // and keeps both
-                // height and width larger than the requested height and width.
-                while ((halfHeight / inSampleSize) > reqHeight
-                        && (halfWidth / inSampleSize) > reqWidth) {
-                    inSampleSize *= 2;
+                    // Calculate the largest inSampleSize value that is a power of 2
+                    // and keeps both
+                    // height and width larger than the requested height and width.
+                    while ((halfHeight / inSampleSize) > reqHeight
+                            && (halfWidth / inSampleSize) > reqWidth) {
+                        inSampleSize *= 2;
+                    }
                 }
             }
 
@@ -574,19 +577,23 @@ public abstract class TiApplication extends Application implements
 
         @Override
         public Options transformOptions(InputStream stream, Options options) {
+            if (options == null) {
+                options = TiBitmapPool.defaultBitmapOptions();
+            }
             if (options.outWidth == 0 || options.outHeight == 0) {
                 options.inJustDecodeBounds = true;
-                stream.mark(Integer.MAX_VALUE);
+//                long mark = stream.savePosition(Integer.MAX_VALUE); // TODO fix this crap.
+//                stream.reset(mark);
                 BitmapFactory.decodeStream(stream, null, options);
-                if (stream.markSupported()) {
-                    try {
-                        stream.reset();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-                
+//                if (stream.markSupported()) {
+//                    try {
+//                        stream.reset(mark);
+//                    } catch (IOException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    }
+//                }
+                //stream will be reset by picasso
                 options.inJustDecodeBounds = false;
                 if (options.inSampleSize == 0) {
                     options.inSampleSize = 1;
