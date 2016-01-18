@@ -11,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -191,6 +190,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected TiTouchDelegate mTouchDelegate;
     private RectF mBorderPadding = null;
     protected boolean useCustomLayoutParams = false;
+    
+    private RectF mHitRect = null;
 
     protected int focusKeyboardState = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
 
@@ -1131,6 +1132,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 }
 		    }
 		}
+		case "hitRect": { 
+            mHitRect = TiConvert.toRect(newValue);
+        }
         default:
             break;
         }
@@ -2166,11 +2170,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (!isTouchEnabled || getOpacity() == 0) {
             return true;
         }
+        final float x = event.getRawX();
+        final float y = event.getRawY();
+        if(mHitRect != null && !mHitRect.contains(x, y)) { 
+            return true;
+        }
         if (touchPassThrough == true && event.getAction() == MotionEvent.ACTION_DOWN) {
             if (view != null) {
                 int[] location = new int[2];
-                final double x = event.getRawX();
-                final double y = event.getRawY();
                 if (viewContainsTouch(view, x, y, location)) {
 //                    View parent = getParentViewForChild();
                     if (view instanceof ViewGroup) {

@@ -223,6 +223,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
     BOOL _nonRetina;
     BOOL _selected;
     BOOL _gesturesCancelsTouches;
+    CGRect _hitRect;
+    BOOL _hasHitRect;
 }
 -(void)setBackgroundDisabledImage_:(id)value;
 -(void)setBackgroundSelectedImage_:(id)value;
@@ -363,6 +365,7 @@ DEFINE_EXCEPTIONS
     _tintColorImage = NO;
     _selected = NO;
     _gesturesCancelsTouches = YES;
+    _hasHitRect = NO;
 }
 
 
@@ -1701,6 +1704,12 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     }];
 }
 
+-(void)setHitRect_:(id)args
+{
+    _hasHitRect = args != nil;
+    _hitRect = [TiUtils rectValue:args];
+}
+
 -(NSArray*) childViews
 {
     return [NSArray arrayWithArray:childViews];
@@ -2082,6 +2091,12 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         }
 		return nil;
 	}
+    id value = [self.proxy valueForKey:@"hitRect"];
+    
+    if (_hasHitRect && !CGRectContainsPoint(_hitRect, point))
+    {
+        return nil;
+    }
 	
     // OK, this is problematic because of the situation where:
     // touchDelegate --> view --> button
