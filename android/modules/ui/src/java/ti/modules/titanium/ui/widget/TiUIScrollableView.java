@@ -1144,10 +1144,10 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	        mCenter.y = h / 2;
 	    }
 	    
-	    @Override
-	    public boolean dispatchTouchEvent(MotionEvent event) {
-	        return super.dispatchTouchEvent(event);
-	    }
+//	    @Override
+//	    public boolean dispatchTouchEvent(MotionEvent event) {
+//	        return super.dispatchTouchEvent(event);
+//	    }
 
 	    @Override
 	    public boolean onTouchEvent(MotionEvent ev) {
