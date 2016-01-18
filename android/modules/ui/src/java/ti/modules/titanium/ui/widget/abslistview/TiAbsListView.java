@@ -1128,13 +1128,13 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	public static KrollDict headerViewDict(final String text) {
 	    try {
 	        if (DEFAULT_HEADER_DICT == null) {
-	            if (TiC.LOLLIPOP_OR_GREATER) {
+//	            if (TiC.LOLLIPOP_OR_GREATER) {
 	                int colorAccent = TiUIHelper.getColorAccent(TiApplication.getAppCurrentActivity());
                     String color = TiColorHelper.toHexString(colorAccent);
 	                DEFAULT_HEADER_DICT = new KrollDict("{type:'Ti.UI.Label',font:{size:14, weight:'bold'},padding:{top:12, bottom:1},color:'" + color + "',width:'FILL',left:15,right:15}");
-	            } else {
-	                DEFAULT_HEADER_DICT = new KrollDict("{type:'Ti.UI.Label',font:{size:14, weight:'bold'},padding:{left:8, right:8,top:7, bottom:7},borderPadding:{left:-2.5, right:-2.5, top:-2.5},borderColor:'#666',borderWidth:2.5,color:'#ccc',width:'FILL',left:15,right:15,autocapitalization:true}");
-	            }
+//	            } else {
+//	                DEFAULT_HEADER_DICT = new KrollDict("{type:'Ti.UI.Label',font:{size:14, weight:'bold'},padding:{left:8, right:8,top:7, bottom:7},borderPadding:{left:-2.5, right:-2.5, top:-2.5},borderColor:'#666',borderWidth:2.5,color:'#ccc',width:'FILL',left:15,right:15,autocapitalization:true}");
+//	            }
 	        }
         } catch (JSONException e) {
         }
