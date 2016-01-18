@@ -551,13 +551,14 @@ class Compiler(object):
 	def compile_commonjs_file(self,path,from_):
 		js_files = []
 		self.compile_js_file(path, from_, js_files)
+		module_properties = read_module_properties(self.project_dir)
 
 		template_dir = os.path.abspath(os.path.dirname(sys._getframe(0).f_code.co_filename))
 		titanium_prep = os.path.abspath(os.path.join(template_dir,'titanium_prep'))
 		cmdinputfile = tempfile.TemporaryFile()
 		cmdinputfile.write('\n'.join(js_files))
 		cmdinputfile.seek(0)
-		so = subprocess.Popen([titanium_prep, self.appid, self.assets_dir], stdin=cmdinputfile,stderr=subprocess.STDOUT,stdout=subprocess.PIPE).communicate()[0]
+		so = subprocess.Popen([titanium_prep, self.appid, self.assets_dir, module_properties['guid']], stdin=cmdinputfile,stderr=subprocess.STDOUT,stdout=subprocess.PIPE).communicate()[0]
 		cmdinputfile.close()
 		return so
 
