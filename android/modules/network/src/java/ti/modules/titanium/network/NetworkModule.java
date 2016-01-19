@@ -562,25 +562,50 @@ public class NetworkModule extends KrollModule {
             final String SSID = String.format("\"%s\"", ssid);
             WifiInfo info = wm.getConnectionInfo();
             if (info != null) {
-                if (info.getSSID().equals(SSID)) {
+                if (info.getSSID().equals(SSID) && info.getNetworkId() != -1) {
                     return true;
                 }
             }
+            int netId = -1;
             List<WifiConfiguration> networks = wm.getConfiguredNetworks();
+            WifiConfiguration wifiConfig = null;
             for (WifiConfiguration config: networks) {
                 if (config.SSID.equals(SSID)) {
-                    return wm.enableNetwork(config.networkId, true);
+                    wifiConfig = config;
+                    netId = wifiConfig.networkId;
+                    break;
                 }
             }
-            
-            WifiConfiguration wifiConfig = new WifiConfiguration();
-            wifiConfig.SSID = SSID;
-            wifiConfig.preSharedKey = String.format("\"%s\"", pwd);
+            if (wifiConfig == null) {
+                wifiConfig = new WifiConfiguration();
+                wifiConfig.SSID = SSID;
+                if (pwd == null) {
+                    wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                    wifiConfig.preSharedKey = null;
+                } else {
+//                    wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                    wifiConfig.preSharedKey = String.format("\"%s\"", pwd);
+                }
+                wifiConfig.status = WifiConfiguration.Status.ENABLED;
 
-            int netId = wm.addNetwork(wifiConfig);
-            wm.saveConfiguration();
-//            boolean result = wm.enableNetwork(netId, true);
-            return wm.enableNetwork(netId, true);
+                netId = wm.addNetwork(wifiConfig);
+                wm.saveConfiguration();
+            }
+            
+            if(netId != -1){
+                if (wm.isWifiEnabled()) { //---wifi is turned on---
+                    //---disconnect it first---
+                    wm.disconnect();
+                } else { //---wifi is turned off---
+                    //---turn on wifi---
+                    wm.setWifiEnabled(true);
+                }
+                boolean result = wm.enableNetwork(netId, true);
+                if (result) {
+                    wm.reconnect();
+                }
+                return result;
+            }
             } catch (Throwable t) {
                 Log.e(TAG, "connectToWifiNetwork error: " + t.getLocalizedMessage());
             }
