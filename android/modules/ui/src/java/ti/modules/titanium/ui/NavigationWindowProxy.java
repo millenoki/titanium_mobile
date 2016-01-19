@@ -16,7 +16,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -216,7 +215,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	
 	
 	private boolean popUpToWindow(final TiWindowProxy winToFocus, Object arg) {
-		if (isOpenedOrOpening()) {
+	    if (state != State.OPENED) {
 			int index = preAddedWindows.indexOf(winToFocus);
 			int size = preAddedWindows.size();
 			if (size > 0 && index != -1) {
