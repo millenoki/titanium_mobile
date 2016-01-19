@@ -1912,10 +1912,15 @@ public class TiC
 	 */
 	public static final String PROPERTY_HINT_TEXT = "hintText";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_HINT_TEXT_COLOR = "hintTextColor";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_HINT_TEXT_COLOR = "hintTextColor";
+
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_HIT_RECT = "hitRect";
 
 	/**
 	 * @module.api

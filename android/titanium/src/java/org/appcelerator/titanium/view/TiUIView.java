@@ -1132,7 +1132,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 }
 		    }
 		}
-		case "hitRect": { 
+		case TiC.PROPERTY_HIT_RECT: { 
             mHitRect = TiConvert.toRect(newValue);
         }
         default:
@@ -2176,10 +2176,11 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         final float x = event.getRawX();
         final float y = event.getRawY();
-        if(mHitRect != null && !mHitRect.contains(x, y)) { 
+        final int action = event.getAction();
+        if(mHitRect != null && action == MotionEvent.ACTION_DOWN && !mHitRect.contains(x, y)) { 
             return true;
         }
-        if (touchPassThrough == true && event.getAction() == MotionEvent.ACTION_DOWN) {
+        if (touchPassThrough == true && action == MotionEvent.ACTION_DOWN) {
             if (view != null) {
                 int[] location = new int[2];
                 if (viewContainsTouch(view, x, y, location)) {

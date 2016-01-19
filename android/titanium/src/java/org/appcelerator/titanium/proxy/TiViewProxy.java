@@ -123,7 +123,8 @@ import android.widget.ViewSwitcher;
 	TiC.PROPERTY_TRANSLATION_Z,
 	TiC.PROPERTY_KEEP_SCREEN_ON,
 	"touchTestId",	
-	TiC.PROPERTY_TRANSITION_NAME
+	TiC.PROPERTY_TRANSITION_NAME,
+	TiC.PROPERTY_HIT_RECT
 })
 public abstract class TiViewProxy extends AnimatableProxy implements Handler.Callback
 {
