@@ -549,12 +549,12 @@ public class TiCompositeLayout extends FreeLayout implements
         }
         
         if (p.sizeRatio > 0) {
-            if (p.optionWidth == null) {
+            if (!p.widthDefined) {
                 measuredWidth = (int) (measuredHeight*p.sizeRatio);
                 wMode = MeasureSpec.makeMeasureSpec(measuredWidth,
                         MeasureSpec.EXACTLY);
                 needsRecompute = true;
-            } else if (p.optionHeight == null) {
+            } else if(!p.heightDefined) {
                 measuredHeight = (int) (measuredWidth*p.sizeRatio);
                 hMode = MeasureSpec.makeMeasureSpec(measuredHeight,
                         MeasureSpec.EXACTLY);
@@ -1319,6 +1319,9 @@ public class TiCompositeLayout extends FreeLayout implements
         
         public float weight = 1.0f;
         public float sizeRatio = -1.0f;
+        
+        public boolean widthDefined = false;
+        public boolean heightDefined = false;
 
 		public LayoutParams() {
 			super(WRAP_CONTENT, WRAP_CONTENT);
@@ -1353,6 +1356,8 @@ public class TiCompositeLayout extends FreeLayout implements
             ignoreInLayout = params.ignoreInLayout;
             weight = params.weight;
             sizeRatio = params.sizeRatio;
+            widthDefined = params.widthDefined;
+            heightDefined = params.heightDefined;
 		}
 		public LayoutParams(TiCompositeLayout.LayoutParams params) {
 			super(params);
