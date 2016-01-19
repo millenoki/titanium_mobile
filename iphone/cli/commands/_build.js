@@ -2964,7 +2964,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			// add the library to the search paths
 			xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 				var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = []);
+				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = ["\"$(inherited)\""]);
 				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
 			});
 		}, this);
