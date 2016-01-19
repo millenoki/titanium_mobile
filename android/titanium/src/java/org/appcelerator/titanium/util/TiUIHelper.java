@@ -47,6 +47,7 @@ import org.appcelerator.titanium.view.TiGradientDrawable;
 import org.appcelerator.titanium.view.TiUIView;
 
 import com.squareup.picasso.Cache;
+import com.squareup.picasso.MarkableInputStream;
 import com.trevorpage.tpsvg.SVGDrawable;
 import com.trevorpage.tpsvg.SVGFlyweightFactory;
 import com.udojava.evalex.Expression;
@@ -1074,20 +1075,27 @@ public class TiUIHelper
 	 * @return a new bitmap instance.
 	 * @module.api
 	 */
-	public static Bitmap createBitmap(final InputStream stream, BitmapFactory.Options opts)
+	public static Bitmap createBitmap(InputStream stream, BitmapFactory.Options opts)
 	{
 		Rect pad = new Rect();
 		if (opts == null) {
 		    opts = TiBitmapPool.defaultBitmapOptions();
 		}
-		TiApplication.getBitmapOptionsTransformer().transformOptions(stream, opts);
+        Bitmap b = null;
+        try {
+            MarkableInputStream markStream = new MarkableInputStream(stream);
+            stream = markStream;
 
-		Bitmap b = null;
-		try {
+    	    long mark = markStream.savePosition(65536); // TODO fix this crap.
+    	    markStream.reset(mark);
+    		TiApplication.getBitmapOptionsTransformer().transformOptions(stream, opts);
+    	    markStream.reset(mark);
 			b = BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage());
-		}
+		} catch (IOException e) {
+            e.printStackTrace();
+        }
 		return b;
 	}
 	/**
