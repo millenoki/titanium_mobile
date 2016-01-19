@@ -95,7 +95,10 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeUpdateProperties
 		jsProxy = TypeConverter::javaObjectToJsValue(env, object)->ToObject();
 	}
 
+
+	Handle<Object> proxyProperties = jsProxy->Get(Proxy::propertiesSymbol)->ToObject();
 	Handle<Object> properties = TypeConverter::javaHashMapToJsValue(env, jprops);
+	
 	Handle<Array> names = properties->GetOwnPropertyNames();
 	int length = names->Length();
 
@@ -112,7 +115,7 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeUpdateProperties
 			}
 		}
 		if (isProperty) {
-			properties->Set(name, value);
+			proxyProperties->Set(name, value);
 		}
 	}
 }
