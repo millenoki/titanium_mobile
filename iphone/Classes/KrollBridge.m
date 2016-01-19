@@ -982,7 +982,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
         // of module JS. Currently neither iOS nor Android support package information.
         if (separatorLocation.location == NSNotFound) { // Indicates toplevel module
 loadNativeJS:
-            if ([module isJSModule]) {
+            if ([module moduleId]) {
                 data = [module moduleJS];
             }
             [self setCurrentURL:[NSURL URLWithString:fullPath relativeToURL:[[self host] baseURL]]];
