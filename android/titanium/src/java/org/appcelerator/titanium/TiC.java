@@ -3064,10 +3064,15 @@ public class TiC
      */
     public static final String PROPERTY_SHUFFLE_MODE = "shuffleMode";
 
-	/**
-	 * @module.api
-	 */
-	public static final String PROPERTY_SISTER = "sister";
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SIZE_RATIO = "sizeRatio";  
+    
+    /**
+     * @module.api
+     */
+    public static final String PROPERTY_SISTER = "sister";
     
     /**
      * @module.api

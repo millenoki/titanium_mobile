@@ -237,8 +237,11 @@ public class TiConvert
         case TiC.PROPERTY_LAYOUT_FULLSCREEN:
             layoutParams.fullscreen = toBoolean(value, false);
             return DEFAULT_FLAG_RETURN;
+        case TiC.PROPERTY_SIZE_RATIO:
+            layoutParams.sizeRatio = toFloat(value, 1.0f);
+            return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_WEIGHT:
-            layoutParams.weight = toFloat(value, 1.0f);
+            layoutParams.weight = toFloat(value, -1.0f);
             return DEFAULT_FLAG_RETURN;
         case TiC.PROPERTY_WIDTH:
         {
@@ -359,6 +362,7 @@ public class TiConvert
             sLayoutKeys.add(TiC.PROPERTY_MAX_HEIGHT);
             sLayoutKeys.add(TiC.PROPERTY_LAYOUT_FULLSCREEN);
             sLayoutKeys.add(TiC.PROPERTY_WEIGHT);
+            sLayoutKeys.add(TiC.PROPERTY_SIZE_RATIO);
             sLayoutKeys.add(TiC.PROPERTY_ZINDEX);
             sLayoutKeys.add(TiC.PROPERTY_ANCHOR_POINT);
             sLayoutKeys.add(TiC.PROPERTY_CENTER);

@@ -522,39 +522,60 @@ public class TiCompositeLayout extends FreeLayout implements
 	}
 	
 	protected void measureChild(final View child, final LayoutParams p, int wMode,
-            int hMode, int widthPadding, int heightPadding, final int parentWidth, final int parentHeight) {
+ int hMode, int widthPadding, int heightPadding,
+            final int parentWidth, final int parentHeight) {
 
         if (p.fullscreen) {
             wMode = MeasureSpec.makeMeasureSpec(parentWidth,
                     MeasureSpec.EXACTLY);
             hMode = MeasureSpec.makeMeasureSpec(parentHeight,
-                        MeasureSpec.EXACTLY);
+                    MeasureSpec.EXACTLY);
         }
-       child.measure(wMode, hMode);
-       int measuredWidth = child.getMeasuredWidth();
-       int measuredHeight = child.getMeasuredHeight();
-       
-       boolean needsRecompute = false;
+        child.measure(wMode, hMode);
+        int measuredWidth = child.getMeasuredWidth();
+        int measuredHeight = child.getMeasuredHeight();
+
+        boolean needsRecompute = false;
         if (p.heightMatchWidth) {
             measuredHeight = measuredWidth;
-            hMode = MeasureSpec.makeMeasureSpec(measuredHeight, MeasureSpec.EXACTLY);
+            hMode = MeasureSpec.makeMeasureSpec(measuredHeight,
+                    MeasureSpec.EXACTLY);
             needsRecompute = true;
-        } else if(p.widthMatchHeight) {
+        } else if (p.widthMatchHeight) {
             measuredWidth = measuredHeight;
-            wMode = MeasureSpec.makeMeasureSpec(measuredWidth, MeasureSpec.EXACTLY);
+            wMode = MeasureSpec.makeMeasureSpec(measuredWidth,
+                    MeasureSpec.EXACTLY);
             needsRecompute = true;
         }
         
+        if (p.sizeRatio > 0) {
+            if (p.optionWidth == null) {
+                measuredWidth = (int) (measuredHeight*p.sizeRatio);
+                wMode = MeasureSpec.makeMeasureSpec(measuredWidth,
+                        MeasureSpec.EXACTLY);
+                needsRecompute = true;
+            } else if (p.optionHeight == null) {
+                measuredHeight = (int) (measuredWidth*p.sizeRatio);
+                hMode = MeasureSpec.makeMeasureSpec(measuredHeight,
+                        MeasureSpec.EXACTLY);
+                needsRecompute = true;
+            }
+        }
+
+
         if (p.maxWidth != null || p.minWidth != null) {
             int minMeasuredWidth = measuredWidth;
             if (p.minWidth != null) {
-                minMeasuredWidth = Math.max(minMeasuredWidth, p.minWidth.getAsPixels(parentWidth, parentHeight));
+                minMeasuredWidth = Math.max(minMeasuredWidth,
+                        p.minWidth.getAsPixels(parentWidth, parentHeight));
             }
             if (p.maxWidth != null) {
-                minMeasuredWidth = Math.min(minMeasuredWidth, p.maxWidth.getAsPixels(parentWidth, parentHeight));
+                minMeasuredWidth = Math.min(minMeasuredWidth,
+                        p.maxWidth.getAsPixels(parentWidth, parentHeight));
             }
             if (minMeasuredWidth != measuredWidth) {
-                wMode = MeasureSpec.makeMeasureSpec(minMeasuredWidth, MeasureSpec.EXACTLY);
+                wMode = MeasureSpec.makeMeasureSpec(minMeasuredWidth,
+                        MeasureSpec.EXACTLY);
                 measuredWidth = getMeasuredWidth(minMeasuredWidth, wMode);
                 needsRecompute = true;
             }
@@ -562,10 +583,15 @@ public class TiCompositeLayout extends FreeLayout implements
 
         if (p.maxHeight != null || p.minHeight != null) {
             int minMeasuredHeight = measuredHeight;
-            if (p.minHeight != null) minMeasuredHeight = Math.max(minMeasuredHeight, p.minHeight.getAsPixels(parentWidth, parentHeight));
-            if (p.maxHeight != null) minMeasuredHeight = Math.min(minMeasuredHeight, p.maxHeight.getAsPixels(parentWidth, parentHeight));
+            if (p.minHeight != null)
+                minMeasuredHeight = Math.max(minMeasuredHeight,
+                        p.minHeight.getAsPixels(parentWidth, parentHeight));
+            if (p.maxHeight != null)
+                minMeasuredHeight = Math.min(minMeasuredHeight,
+                        p.maxHeight.getAsPixels(parentWidth, parentHeight));
             if (minMeasuredHeight != measuredHeight) {
-                hMode = MeasureSpec.makeMeasureSpec(minMeasuredHeight, MeasureSpec.EXACTLY);
+                hMode = MeasureSpec.makeMeasureSpec(minMeasuredHeight,
+                        MeasureSpec.EXACTLY);
                 measuredHeight = getMeasuredHeight(minMeasuredHeight, hMode);
                 needsRecompute = true;
             }
@@ -576,11 +602,11 @@ public class TiCompositeLayout extends FreeLayout implements
             measuredWidth = child.getMeasuredWidth();
             measuredHeight = child.getMeasuredHeight();
         }
-//        if (!(child instanceof TiCompositeLayout)) {
-            applyAnimationSize(child, p, true);
-//        }
-        
-	}
+        // if (!(child instanceof TiCompositeLayout)) {
+        applyAnimationSize(child, p, true);
+        // }
+
+    }
 	
     public static int getChildMeasureSpec(int size, int mode, int padding, int childDimension) {
         return ViewGroup.getChildMeasureSpec(
@@ -1292,6 +1318,7 @@ public class TiCompositeLayout extends FreeLayout implements
         public boolean heightMatchParent = false;
         
         public float weight = 1.0f;
+        public float sizeRatio = -1.0f;
 
 		public LayoutParams() {
 			super(WRAP_CONTENT, WRAP_CONTENT);
@@ -1324,6 +1351,8 @@ public class TiCompositeLayout extends FreeLayout implements
             widthMatchParent = params.widthMatchParent;
             notTiLayout = params.notTiLayout;
             ignoreInLayout = params.ignoreInLayout;
+            weight = params.weight;
+            sizeRatio = params.sizeRatio;
 		}
 		public LayoutParams(TiCompositeLayout.LayoutParams params) {
 			super(params);
