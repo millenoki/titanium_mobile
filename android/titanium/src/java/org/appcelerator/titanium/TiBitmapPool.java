@@ -39,7 +39,7 @@ public class TiBitmapPool {
             Bitmap bestCandidate = null;
             SoftReference<Bitmap> bestBitmapSoftReference = null;
             int bestCandidateScore = 0;
-            Log.d(TAG, "tryFindBitmap " + options.outWidth + "x" + options.outHeight);
+//            Log.d(TAG, "tryFindBitmap " + options.outWidth + "x" + options.outHeight);
             for (Iterator<SoftReference<Bitmap>> it = bitmapCandidates.iterator(); it.hasNext();) {
                 final SoftReference<Bitmap> bitmapSoftReference = it.next();
                 Bitmap candidate = bitmapSoftReference.get();
@@ -47,7 +47,7 @@ public class TiBitmapPool {
                     // candidate was garbage collected
                     it.remove();
                 } else if (canUseForInBitmap(candidate, options)) {
-                    Log.d(TAG, getBitmapString(candidate) + " candidate in pool");
+//                    Log.d(TAG, getBitmapString(candidate) + " candidate in pool");
                     int candidateScore = candidate.getWidth() * candidate.getHeight();
                     if (bestCandidateScore == 0 || bestCandidateScore > candidateScore) {
                         bestCandidateScore = candidateScore;
@@ -57,7 +57,7 @@ public class TiBitmapPool {
                 }
             }
             if (bestCandidate != null) {
-                Log.d(TAG, getBitmapString(bestCandidate) + " returned from pool");
+//                Log.d(TAG, getBitmapString(bestCandidate) + " returned from pool");
                 if (!bitmapCandidates.remove(bestBitmapSoftReference)) {
                     Log.e(TAG, getBitmapString(bestCandidate) + " was not in the bitmappool!!!");
                 }
@@ -71,7 +71,7 @@ public class TiBitmapPool {
         // increment the refcount
         AtomicInteger refCount = getRefCount(bitmap);
         int count = refCount.incrementAndGet();
-        Log.d(TAG, getBitmapString(bitmap) + " + 1 = " + count);
+//        Log.d(TAG, getBitmapString(bitmap) + " + 1 = " + count);
     }
 
     public static void decrementRefCount(final Bitmap bitmap) {
@@ -87,7 +87,7 @@ public class TiBitmapPool {
                 bitmapCandidates.add(new SoftReference<>(bitmap));
             }
         }
-        Log.d(TAG, getBitmapString(bitmap) + " - 1 = " + count);
+//        Log.d(TAG, getBitmapString(bitmap) + " - 1 = " + count);
     }
 
     private static AtomicInteger getRefCount(final Bitmap bitmap) {
