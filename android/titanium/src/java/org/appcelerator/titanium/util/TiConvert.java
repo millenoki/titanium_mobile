@@ -246,9 +246,11 @@ public class TiConvert
         case TiC.PROPERTY_WIDTH:
         {
             String sValue = TiConvert.toString(value);
+            layoutParams.widthDefined = true;
             if (value == null) {
                 layoutParams.optionWidth = null;
                 layoutParams.sizeOrFillWidthEnabled = false;
+                layoutParams.widthDefined = false;
 
             }else if (TiC.LAYOUT_FILL.equalsIgnoreCase(sValue)) {
                 // fill
@@ -287,10 +289,11 @@ public class TiConvert
         }
         case TiC.PROPERTY_HEIGHT: {
             String sValue = TiConvert.toString(value);
+            layoutParams.heightDefined = true;
             if (value == null) {
                 layoutParams.optionHeight = null;
                 layoutParams.sizeOrFillHeightEnabled = false;
-
+                layoutParams.heightDefined = false;
             }else if (TiC.LAYOUT_FILL.equalsIgnoreCase(sValue)) {
                 // fill
                 layoutParams.optionHeight = null;
