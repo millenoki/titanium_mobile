@@ -692,7 +692,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	protected void setFullscreen(boolean fullscreen)
 	{
 		if (fullscreen) {
-			//getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			View decorView = getWindow().getDecorView();
 			// Hide both the navigation bar and the status bar.
 			// SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
