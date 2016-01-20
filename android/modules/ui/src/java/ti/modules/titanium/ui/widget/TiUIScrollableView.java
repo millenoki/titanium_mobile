@@ -1157,7 +1157,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	            case MotionEvent.ACTION_DOWN:
 	                mInitialTouch.x = (int)ev.getX();
 	                mInitialTouch.y = (int)ev.getY();
-	            case MotionEvent.ACTION_UP:
+//	            case MotionEvent.ACTION_UP:
 	            default:
 	                ev.offsetLocation(mCenter.x - mInitialTouch.x, mCenter.y - mInitialTouch.y);
 	                break;
