@@ -2759,7 +2759,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				+ 'else\\n'
 				+ '    echo \\"skipping pre-compile phase\\"\\n'
 				+ 'fi\"';
-			that.logger.info('test2' + JSON.stringify(xobjs.PBXShellScriptBuildPhase[buildPhaseUuid]));
 			
 			// delete xobjs.PBXShellScriptBuildPhase[buildPhaseUuid];
 			// delete xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'];
