@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Set;
 
 import org.appcelerator.kroll.common.Log;
 
@@ -30,7 +31,7 @@ public class KrollAssetHelper
 	{
 		String readAsset(String path);
 		boolean assetExists(String path);
-		List<String> list(String path);
+		Set<String> list(String path);
 	}
 
 	public static void setAssetCrypt(AssetCrypt assetCrypt)

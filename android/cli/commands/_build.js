@@ -1690,6 +1690,7 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
 		'createBuildDirs',
 		'copyResources',
 		'generateRequireIndex',
+        'generateResourcesAssetsIndex',
 		'processTiSymbols',
         'handleGooglePlayServices',
 		'copyModuleResources',
@@ -2708,6 +2709,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
             this.encryptJS && jsFilesToEncrypt.push('_license_.json');
 
             this.generateRequireIndex(function(){});
+            this.generateResourcesAssetsIndex(function(){});
             this.cli.createHook('build.android.processTiSymbols', this, function(tiSymbols, done) {
                 this.processTiSymbols(done);
             })(this.tiSymbols, function() {});
@@ -2829,6 +2831,34 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
 
     fs.existsSync(destFile) && fs.unlinkSync(destFile);
     fs.writeFile(destFile, JSON.stringify(index), callback);
+};
+
+AndroidBuilder.prototype.generateResourcesAssetsIndex = function generateResourcesAssetsIndex(callback) {
+    var result = '',
+        assetsDir = path.join(this.buildAssetsDir, 'Resources').replace(/\\/g, '/'),
+        destFile = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildAssetsDir, '__assets_list__.index');
+    
+
+    (function walk(dir) {
+        fs.readdirSync(dir).forEach(function (filename) {
+            var file = path.join(dir, filename);
+            if (fs.existsSync(file)) {
+                if (fs.statSync(file).isDirectory()) {
+                    walk(file);
+                } else {
+                    result += file.replace(/\\/g, '/').replace(assetsDir + '/', '') + '\n';
+                }
+            }
+        });
+    }(assetsDir));
+
+    // this.jsFilesToEncrypt.forEach(function (file) {
+    //     index['Resources/' + file.replace(/\\/g, '/')] = 1;
+    // });
+    this.encryptJS && this.jsFilesToEncrypt.push('__assets_list__.index');
+
+    fs.existsSync(destFile) && fs.unlinkSync(destFile);
+    fs.writeFile(destFile, result, callback);
 };
 
 AndroidBuilder.prototype.getNativeModuleBindings = function getNativeModuleBindings(jarFile) {
@@ -3315,6 +3345,7 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
     afs.copyFileSync(path.join(this.templatesDir, 'gitignore'), path.join(this.buildDir, '.gitignore'), { logger: this.logger.debug });
 
     afs.copyFileSync(path.join(this.templatesDir, 'classpath'), path.join(this.buildDir, '.classpath'), { logger: this.logger.debug });
+    afs.copyDirSyncRecursive(path.join(this.templatesDir, '.externalToolBuilders'), path.join(this.buildDir, '.externalToolBuilders'), { logger: this.logger.debug });
 
     // generate the JavaScript-based activities
     if (android && android.activities) {

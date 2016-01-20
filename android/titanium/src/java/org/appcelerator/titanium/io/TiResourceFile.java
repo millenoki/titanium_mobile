@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
@@ -150,26 +151,27 @@ public class TiResourceFile extends TiBaseFile
 	{
 		boolean result = KrollAssetHelper.fileExists(path);
 		if (result == false) {
-			InputStream is = null;
-			try {
-				is = getInputStream();
-				result = (is != null);
-			} catch (IOException e) {
-				// getInputStream() will throw a FileNotFoundException if it is a
-				// directory. We check if there are directory listings. If there is,
-				// we can assume it is a directory and it exists.
-				if (!getDirectoryListing().isEmpty()) {
-					result = true;
-				}
-			} finally {
-				if (is != null) {
-					try {
-						is.close();
-					} catch (IOException e) {
-						// Ignore
-					}
-				}
-			}
+		    result = TiApplication.getTiAssets().exists(path);
+//			InputStream is = null;
+//			try {
+//				is = getInputStream();
+//				result = (is != null);
+//			} catch (IOException e) {
+//				// getInputStream() will throw a FileNotFoundException if it is a
+//				// directory. We check if there are directory listings. If there is,
+//				// we can assume it is a directory and it exists.
+//				if (!getDirectoryListing().isEmpty()) {
+//					result = true;
+//				}
+//			} finally {
+//				if (is != null) {
+//					try {
+//						is.close();
+//					} catch (IOException e) {
+//						// Ignore
+//					}
+//				}
+//			}
 		}
 
 		return result;
@@ -239,21 +241,19 @@ public class TiResourceFile extends TiBaseFile
 	{
 		List<String> listing = new ArrayList<String>();
 		KrollAssetHelper.getDirectoryListing(path, listing);
-		try {
-			String lpath = TiFileHelper2.joinSegments("Resources", path);
-			if (lpath.endsWith("/")) {
-				lpath = lpath.substring(0, lpath.lastIndexOf("/"));
-			}
-			String[] names = TiApplication.getInstance().getAssets().list(lpath);
-			if (names != null) {
-				int len = names.length;
-				for(int i = 0; i < len; i++) {
-					listing.add(names[i]);
-				}
-			}
-		} catch (IOException e) {
-			Log.e(TAG, "Error while getting a directory listing: " + e.getMessage(), e);
-		}
+//		try {
+			String lpath =path;
+			Set<String> names = TiApplication.getTiAssets().list(lpath);
+			listing.addAll(names);
+//			if (names != null) {
+//				int len = names.length;
+//				for(int i = 0; i < len; i++) {
+//					listing.add(names[i]);
+//				}
+//			}
+//		} catch (IOException e) {
+//			Log.e(TAG, "Error while getting a directory listing: " + e.getMessage(), e);
+//		}
 		return listing;
 	}
 

@@ -57,8 +57,8 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 		return assets.containsKey(path);
 	}
 
-	public List<String> list(String path) {
-		List<String> result = new ArrayList<String>();
+	public Set<String> list(String path) {
+        Set<String> result = new HashSet<String>();
 		String  realPath = path;
 		if (realPath.length() > 0 && !realPath.endsWith("/")) {
 			realPath = realPath + "/";

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Iterator;
 import java.nio.CharBuffer;
@@ -82,8 +83,8 @@ ${init_assets}
     return assets.containsKey(path);
   }
 
-  public List<String> list(String path) {
-    List<String> result = new ArrayList<String>();
+  public Set<String> list(String path) {
+    Set<String> result = new HashSet<String>();
     String  realPath = path;
     if (!realPath.endsWith("/")) {
       realPath = realPath + "/";

@@ -103,6 +103,7 @@ public abstract class TiApplication extends Application implements
     private static String sAppDensityString = null;
     
     private static TiExceptionHandler sExceptionHandler;
+    private static TiAssetIndex sTiAssets;
 
     protected static WeakReference<TiApplication> sTiApp = null;
 
@@ -849,6 +850,13 @@ public abstract class TiApplication extends Application implements
         return sExceptionHandler;
     }
 
+    public static TiAssetIndex getTiAssets() {
+        if (sTiAssets == null) {
+            sTiAssets = new TiAssetIndex();
+        }
+        return sTiAssets;
+    }
+    
     public void postOnCreate() {
         loadAppProperties();
 
