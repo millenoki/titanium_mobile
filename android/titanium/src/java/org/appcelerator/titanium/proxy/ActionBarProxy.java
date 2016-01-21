@@ -417,6 +417,9 @@ public class ActionBarProxy extends AnimatableReusableProxy {
     @Override
     public void propertySet(String key, final Object newValue, Object oldValue,
             boolean changedProperty) {
+        if (actionBar == null) {
+            return;
+        }
         switch (key) {
         case TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED:
             actionBar.setHomeButtonEnabled((newValue instanceof KrollFunction));
