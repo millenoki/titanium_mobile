@@ -348,14 +348,15 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                 
             });
         }
-	    KrollDict d = new KrollDict();
+	    KrollDict d = null;
         if (view != null) {
             View v = view.getOuterView();
             if (v != null) {
                 d = TiUIHelper.getViewRectDict(v);
             }
         }
-        if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+        if (d == null) {
+            d = new KrollDict();
             d.put(TiC.PROPERTY_WIDTH, 0);
             d.put(TiC.PROPERTY_HEIGHT, 0);
             d.put(TiC.PROPERTY_X, 0);
@@ -381,7 +382,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
         }
 
 	    KrollDict d = null;
-        d = new KrollDict();
+        d = null;
         if (view != null) {
             View v = view.getOuterView();
             if (v != null) {
@@ -407,17 +408,12 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
                         position[1] -= statusHeight; //we remove statusbar height 
                     }
                     
-                    
-                    TiDimension nativeWidth = new TiDimension(v.getMeasuredWidth(), TiDimension.TYPE_WIDTH);
-                    TiDimension nativeHeight = new TiDimension(v.getMeasuredHeight(), TiDimension.TYPE_HEIGHT);
-                    d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault());
-                    d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault());
-                    d.put(TiC.PROPERTY_X, new TiDimension(position[0], TiDimension.TYPE_LEFT).getAsDefault());
-                    d.put(TiC.PROPERTY_Y, new TiDimension(position[1], TiDimension.TYPE_TOP).getAsDefault());
+                    d = TiConvert.toRectDict(position[0], position[1], v.getMeasuredWidth(), v.getMeasuredHeight());
                 }
             }
         }
-        if (!d.containsKey(TiC.PROPERTY_WIDTH)) {
+        if (d == null) {
+            d = new KrollDict();
             d.put(TiC.PROPERTY_WIDTH, 0);
             d.put(TiC.PROPERTY_HEIGHT, 0);
             d.put(TiC.PROPERTY_X, 0);

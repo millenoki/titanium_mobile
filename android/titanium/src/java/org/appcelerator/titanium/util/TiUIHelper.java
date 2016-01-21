@@ -1530,21 +1530,22 @@ public class TiUIHelper
 	}
 	
 	public static KrollDict getViewRectDict(final View view) {
-		TiDimension nativeWidth = new TiDimension(view.getWidth(), TiDimension.TYPE_WIDTH);
-		TiDimension nativeHeight = new TiDimension(view.getHeight(), TiDimension.TYPE_HEIGHT);
-		TiDimension nativeLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
-		TiDimension nativeTop = new TiDimension(view.getTop(), TiDimension.TYPE_TOP);
-
-        KrollDict d = new KrollDict();
-		Activity activity  = TiApplication.getAppCurrentActivity();
-        if (activity != null) {
-            View decorView = activity.getWindow().getDecorView();
-            d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
-            d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
-            d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
-            d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
-        }
-		return d;
+	    return TiConvert.toRectDict(view.getLeft(), view.getTop(), view.getWidth(), view.getHeight());
+//		TiDimension nativeWidth = new TiDimension(view.getWidth(), TiDimension.TYPE_WIDTH);
+//		TiDimension nativeHeight = new TiDimension(view.getHeight(), TiDimension.TYPE_HEIGHT);
+//		TiDimension nativeLeft = new TiDimension(view.getLeft(), TiDimension.TYPE_LEFT);
+//		TiDimension nativeTop = new TiDimension(view.getTop(), TiDimension.TYPE_TOP);
+//
+//        KrollDict d = new KrollDict();
+//		Activity activity  = TiApplication.getAppCurrentActivity();
+//        if (activity != null) {
+//            View decorView = activity.getWindow().getDecorView();
+//            d.put(TiC.PROPERTY_WIDTH, nativeWidth.getAsDefault(decorView));
+//            d.put(TiC.PROPERTY_HEIGHT, nativeHeight.getAsDefault(decorView));
+//            d.put(TiC.PROPERTY_X, nativeLeft.getAsDefault(decorView));
+//            d.put(TiC.PROPERTY_Y, nativeTop.getAsDefault(decorView));
+//        }
+//		return d;
 	}
 	
 	public static RectF insetRect(final RectF source, final RectF inset) {

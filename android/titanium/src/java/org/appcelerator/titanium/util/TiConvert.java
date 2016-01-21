@@ -1183,6 +1183,24 @@ public class TiConvert
 		return toDate(hashMap.get(key));
 	}
 	
+	
+	public static KrollDict toRectDict(int x, int y, int width, int height)
+    {
+        KrollDict dict = new KrollDict();
+        TiDimension dim = new TiDimension(width, TiDimension.TYPE_WIDTH);
+        dict.put(TiC.PROPERTY_WIDTH, (int)Math.round(dim.getAsDefault()));
+        dim.setValue(height);
+        dim.setValueType(TiDimension.TYPE_HEIGHT);
+        dict.put(TiC.PROPERTY_HEIGHT, (int)Math.round(dim.getAsDefault()));
+        dim.setValue(x);
+        dim.setValueType(TiDimension.TYPE_LEFT);
+        dict.put(TiC.PROPERTY_X, (int)Math.round(dim.getAsDefault()));
+        dim.setValue(y);
+        dim.setValueType(TiDimension.TYPE_TOP);
+        dict.put(TiC.PROPERTY_Y, (int)Math.round(dim.getAsDefault()));
+        return dict;
+    }
+	
 	/**
 	 * Converts HashMap into Rect object and returns it.
 	 * @param value the HashMap to convert.
@@ -1191,11 +1209,10 @@ public class TiConvert
 	 */
 	public static RectF toRect(HashMap<String, Object>  map)
 	{
-		KrollDict dict = new KrollDict((HashMap<String, Object>)map);
-		float left = TiUIHelper.getInPixels(dict, TiC.PROPERTY_X);
-		float top = TiUIHelper.getInPixels(dict, TiC.PROPERTY_Y);
-		float width = TiUIHelper.getInPixels(dict, TiC.PROPERTY_WIDTH);
-		float height = TiUIHelper.getInPixels(dict, TiC.PROPERTY_HEIGHT);
+		float left = TiUIHelper.getInPixels(map, TiC.PROPERTY_X);
+		float top = TiUIHelper.getInPixels(map, TiC.PROPERTY_Y);
+		float width = TiUIHelper.getInPixels(map, TiC.PROPERTY_WIDTH);
+		float height = TiUIHelper.getInPixels(map, TiC.PROPERTY_HEIGHT);
 		return new RectF(left, top, left + width, top + height);
 	}
 	/**
