@@ -811,9 +811,9 @@ SEL GetterForKrollProperty(NSString * key)
         if (!windowOpened || !shouldRelayout || !readyToCreateView)  {
             return;
         }
-        if ([childViewProxy isHidden]) {
-            return;
-        }
+//        if ([childViewProxy isHidden]) {
+//            return;
+//        }
         [childViewProxy performBlockWithoutLayout:^{
             [childViewProxy windowWillOpen];
             [childViewProxy getOrCreateView];
