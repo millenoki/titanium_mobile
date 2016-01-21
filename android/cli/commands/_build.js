@@ -3345,6 +3345,8 @@ AndroidBuilder.prototype.generateJavaFiles = function generateJavaFiles(next) {
     afs.copyFileSync(path.join(this.templatesDir, 'gitignore'), path.join(this.buildDir, '.gitignore'), { logger: this.logger.debug });
 
     afs.copyFileSync(path.join(this.templatesDir, 'classpath'), path.join(this.buildDir, '.classpath'), { logger: this.logger.debug });
+    
+    afs.copyFileSync(path.join(this.templatesDir, 'assetsBuilder.xml'), path.join(this.buildDir, 'assetsBuilder.xml'), { logger: this.logger.debug });
     afs.copyDirSyncRecursive(path.join(this.templatesDir, '.externalToolBuilders'), path.join(this.buildDir, '.externalToolBuilders'), { logger: this.logger.debug });
 
     // generate the JavaScript-based activities
