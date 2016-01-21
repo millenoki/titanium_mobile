@@ -141,19 +141,20 @@
         defaultOrientations = TiOrientationNone;
         containedWindows = [[NSMutableArray alloc] init];
         modalWindows = [[NSMutableArray alloc] init];
+        
+        [self processInfoPlist];
+        
         /*
          *	Default image view -- Since this goes away after startup, it's made here and
          *	nowhere else. We don't do this during loadView because it's possible that
          *	the view will be unloaded (by, perhaps a Memory warning while a modal view
          *	controller and loaded at a later time.
          */
-		 if (![TiUtils isIOS8OrGreater]) {
+		 if (![TiUtils isIOS8OrGreater] || useDefaultImageView) {
 			defaultImageView = [[UIImageView alloc] init];
 			[defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
 			[defaultImageView setContentMode:UIViewContentModeScaleToFill];
 		}
-		
-        [self processInfoPlist];
         
         //Notifications
         WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!
@@ -195,6 +196,7 @@
     //read the default orientations
     [self getDefaultOrientations];
     
+    useDefaultImageView = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UILaunchStoryboardName"] == nil;
     //read the default value of UIStatusBarHidden
     id statHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarHidden"];
     statusBarInitiallyHidden = [TiUtils boolValue:statHidden];

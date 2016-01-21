@@ -30,6 +30,7 @@
     BOOL statusBarInitiallyHidden;
     BOOL viewControllerControlsStatusBar;
     UIStatusBarStyle defaultStatusBarStyle;
+    BOOL useDefaultImageView;
     
     UIInterfaceOrientation deviceOrientation;
     
