@@ -507,9 +507,11 @@ public class TiDrawableReference
 					oomOccurred = false;
 					b = BitmapFactory.decodeStream(is, null, opts);
 				} catch (OutOfMemoryError e) {
-					oomOccurred = true;
-					Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
-				}
+                    oomOccurred = true;
+                    Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage(), e);
+                } catch (IllegalArgumentException e) {
+                    Log.e(TAG, "Unable to load bitmap: " + e.getMessage(), e);
+                }
 			}
 		} catch (IOException e) {
 			Log.e(TAG, "Could not get Bitmap: " + e.getMessage(), e);
