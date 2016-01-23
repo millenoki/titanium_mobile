@@ -669,7 +669,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 //				}
 				if(fProxy.hasListeners(TiC.EVENT_SCROLL, false)) {
 				    int newScrollOffset = getScroll();
-	                Log.d(TAG, "newScrollOffset : " + newScrollOffset, Log.DEBUG_MODE);
+//	                Log.d(TAG, "newScrollOffset : " + newScrollOffset, Log.DEBUG_MODE);
                     lastValidfirstItem = firstVisibleItem;
 				    if (newScrollOffset != currentScrollOffset) {
 				        currentScrollOffset = newScrollOffset;
