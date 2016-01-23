@@ -578,7 +578,7 @@ public abstract class TiApplication extends Application implements
         }
 
         @Override
-        public Options transformOptions(InputStream stream, Options options) {
+        public Options transformOptions(MarkableInputStream stream, Options options, long mark) throws IOException {
             if (options == null) {
                 options = TiBitmapPool.defaultBitmapOptions();
             }
@@ -587,6 +587,7 @@ public abstract class TiApplication extends Application implements
 //                long mark = stream.savePosition(Integer.MAX_VALUE); // TODO fix this crap.
 //                stream.reset(mark);
                 BitmapFactory.decodeStream(stream, null, options);
+                stream.reset(mark);
 //                if (stream.markSupported()) {
 //                    try {
 //                        stream.reset(mark);

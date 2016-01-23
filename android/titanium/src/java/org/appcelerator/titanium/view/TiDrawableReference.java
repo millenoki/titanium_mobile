@@ -36,6 +36,7 @@ import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import com.squareup.picasso.MarkableInputStream;
 import com.trevorpage.tpsvg.SVGDrawable;
 import com.trevorpage.tpsvg.SVGFlyweightFactory;
 
@@ -417,7 +418,13 @@ public class TiDrawableReference
 				opts.inScaled = true;
 			}
 			is = getInputStream();
-	        TiApplication.getBitmapOptionsTransformer().transformOptions(is, opts);
+			if (is != null) {
+			    MarkableInputStream markStream = new MarkableInputStream(is);
+			    is = markStream;
+			    long mark = markStream.savePosition(65536); // TODO fix this crap.
+	            markStream.reset(mark);
+	            TiApplication.getBitmapOptionsTransformer().transformOptions(markStream, opts, mark);
+			}
 			if (needRetry) {
 				for (int i = 0; i < decodeRetries; i++) {
 					// getInputStream() fails sometimes but after retry it will get

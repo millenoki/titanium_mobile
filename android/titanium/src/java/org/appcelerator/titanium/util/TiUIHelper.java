@@ -1088,8 +1088,7 @@ public class TiUIHelper
 
     	    long mark = markStream.savePosition(65536); // TODO fix this crap.
     	    markStream.reset(mark);
-    		TiApplication.getBitmapOptionsTransformer().transformOptions(stream, opts);
-    	    markStream.reset(mark);
+    		TiApplication.getBitmapOptionsTransformer().transformOptions(markStream, opts, mark);
 			b = BitmapFactory.decodeResourceStream(null, null, stream, pad, opts);
 		} catch (OutOfMemoryError e) {
 			Log.e(TAG, "Unable to load bitmap. Not enough memory: " + e.getMessage());

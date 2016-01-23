@@ -30,6 +30,8 @@ import org.appcelerator.titanium.util.TiNinePatchDrawable;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUtils;
 
+import com.squareup.picasso.MarkableInputStream;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -702,7 +704,17 @@ public class TiBlob extends KrollProxy {
                     break;
                 case TYPE_FILE:
                     InputStream is = getInputStream();
-                    TiApplication.getBitmapOptionsTransformer().transformOptions(is, opts);
+                    if (is != null) {
+                        MarkableInputStream markStream = new MarkableInputStream(is);
+                        is = markStream;
+                        long mark = markStream.savePosition(65536); // TODO fix this crap.
+                        try {
+                            markStream.reset(mark);
+                            TiApplication.getBitmapOptionsTransformer().transformOptions(markStream, opts, mark);
+                       } catch (IOException e) {
+                            is = null;
+                        }
+                    }
                     image = BitmapFactory.decodeStream(is, null, opts);
                     int rotation = TiImageHelper
                             .getOrientation(getNativePath());
