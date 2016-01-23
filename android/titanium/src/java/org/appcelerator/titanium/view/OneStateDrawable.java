@@ -2,7 +2,7 @@ package org.appcelerator.titanium.view;
 
 import java.util.WeakHashMap;
 
-import org.appcelerator.titanium.TiBitmapPool;
+import org.appcelerator.titanium.bitmappool.TiBitmapPool;
 import org.appcelerator.titanium.util.TiNinePatchDrawable;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiUIHelper.Shadow;

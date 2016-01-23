@@ -10,7 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiBitmapPool;
+import org.appcelerator.titanium.bitmappool.TiBitmapPool;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiNinePatchDrawable;
 import org.appcelerator.titanium.view.MaskableView;

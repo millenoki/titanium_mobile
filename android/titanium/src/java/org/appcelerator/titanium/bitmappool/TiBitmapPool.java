@@ -1,4 +1,4 @@
-package org.appcelerator.titanium;
+package org.appcelerator.titanium.bitmappool;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
@@ -83,9 +83,14 @@ public class TiBitmapPool {
             synchronized (bitmapRefCounts) {
                 bitmapRefCounts.remove(bitmap);
             }
-            synchronized (bitmapCandidates) {
-                bitmapCandidates.add(new SoftReference<>(bitmap));
+            if (bitmap.getConfig() != null) {
+                synchronized (bitmapCandidates) {
+                    bitmapCandidates.add(new SoftReference<>(bitmap));
+                }
+            } else {
+              Log.e(TAG, "can't add bitmap with null config");
             }
+            
         }
 //        Log.d(TAG, getBitmapString(bitmap) + " - 1 = " + count);
     }
@@ -112,14 +117,14 @@ public class TiBitmapPool {
         if (candidate.isRecycled() || !candidate.isMutable()) {
             return false;
         }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             // On earlier versions, the dimensions must match exactly and the inSampleSize must be 1
             return candidate.getWidth() == targetOptions.outWidth
                    && candidate.getHeight() == targetOptions.outHeight
                    && candidate.getConfig() == targetOptions.inPreferredConfig
                    && targetOptions.inSampleSize == 1;
-        }
-        return canUseForInBitmapKitkatPlus(candidate, targetOptions);
+//        }
+//        return canUseForInBitmapKitkatPlus(candidate, targetOptions);
 
     }
 
@@ -160,5 +165,11 @@ public class TiBitmapPool {
         String name = bitmap.toString();
         name = name.substring(name.length() - 5, name.length());
         return String.format("%s %4dx%4d", name, bitmap.getWidth(), bitmap.getHeight());
+    }
+
+    public static void onLowMemory() {
+        synchronized (bitmapCandidates) {
+            bitmapCandidates.clear();
+        }
     }
 }
