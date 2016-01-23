@@ -51,7 +51,11 @@ public class ProxyAbsListItem {
 			while (it.hasNext())
 			{
 				String property = it.next();
-				Object value = properties.get(property);
+                Object value = properties.get(property);
+                Object initialValue = initialProperties.get(property);
+                if (value instanceof HashMap && initialValue instanceof HashMap) {
+                    value = KrollDict.merge((HashMap) initialValue, (HashMap) value);
+                }
 				Object existingVal = currentProperties.get(property);			
 				if (existingVal != value && (existingVal == null || value == null || !existingVal.equals(value))) {
 					applyProperty(property, value, null);
