@@ -145,25 +145,49 @@ public class PlatformModule extends KrollModule
 		return TiPlatformHelper.getInstance().createUUID();
 	}
 
+	
 	@Kroll.method
-	public boolean openURL(String url) {
-		Log.d(TAG, "Launching viewer for: " + url, Log.DEBUG_MODE);
-		Uri uri = Uri.parse(url);
-		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-		try {
-			Activity activity = TiApplication.getAppRootOrCurrentActivity();
-			
-			if(activity != null) {
-				activity.startActivity(intent);
-			} else {
-				throw new ActivityNotFoundException("No valid root or current activity found for application instance");
-			}
-			return true;
-		} catch (ActivityNotFoundException e) {
-			Log.e(TAG,"Activity not found: " + url, e);
-		}
-		return false;
-	}
+    public boolean openURL(String url) {
+        Activity activity = TiApplication.getAppRootOrCurrentActivity();
+        if (activity == null) {
+            Log.e(TAG, "Activity not found: " + url);
+            return false;
+        }
+        if (url.startsWith("mailto:")) {
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType("message/rfc822");
+            i.putExtra(Intent.EXTRA_EMAIL, new String[] { url.substring(7) });
+            try {
+                activity.startActivity(Intent.createChooser(i, url.substring(7)));
+                return true;
+           } catch (android.content.ActivityNotFoundException ex) {
+               Log.e(TAG, "There are no email clients installed");
+            }
+            return false;
+        } else if (url.startsWith("tel:")) {
+            Intent i = new Intent(Intent.ACTION_DIAL);
+            i.setData(Uri.parse(url));
+            try {
+                activity.startActivity(Intent.createChooser(i, url.substring(4)));
+                return true;
+           } catch (android.content.ActivityNotFoundException ex) {
+               Log.e(TAG, "can't make call,  permission were refused?");
+            }
+            return false;
+            
+        }
+        Uri uri = Uri.parse(url);
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        try {
+            if (activity != null) {
+                activity.startActivity(intent);
+            }
+            return true;
+        } catch (ActivityNotFoundException e) {
+            Log.e(TAG, "Activity not found: " + url, e);
+        }
+        return false;
+    }
 
 	@Kroll.getProperty @Kroll.method
 	public String getMacaddress() {
