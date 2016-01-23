@@ -780,7 +780,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     public void updateKrollObjectProperties(HashMap<String, Object> props) {
-        updateKrollObjectProperties(props, true);
+        updateKrollObjectProperties(props, false);
     }
     
     public void updateKrollObjectProperties(HashMap<String, Object> props, final boolean wait) {
