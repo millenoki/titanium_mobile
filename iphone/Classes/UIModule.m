@@ -838,6 +838,10 @@ MAKE_SYSTEM_PROP(ATTRIBUTE_LINE_BREAK, AttributeNameLineBreak);
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_NONE,UITableViewCellSeparatorStyleNone);
 MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE,UITableViewCellSeparatorStyleSingleLine);
 
+-(id)topWindow
+{
+    return [[[TiApp app] controller] topWindow];
+}
 @end
 
 #endif

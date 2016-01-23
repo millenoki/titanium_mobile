@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
+import org.appcelerator.titanium.TiWindowManager;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -418,4 +419,18 @@ public class UIModule extends KrollModule implements Handler.Callback
 	{
 		return "Ti.UI";
 	}
+	
+    @Kroll.method
+    @Kroll.getProperty(enumerable = false)
+    public TiWindowProxy getTopWindow() {
+        TiWindowProxy result = null;
+        Activity activity = TiApplication.getAppCurrentActivity();
+        if (activity instanceof TiBaseActivity) {
+            result = ((TiBaseActivity)activity).getWindowProxy();
+            if (result instanceof TiWindowManager) {
+                result = ((TiWindowManager)result).getTopWindow();
+            }
+        }
+        return result;
+    }
 }
