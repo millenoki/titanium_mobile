@@ -42,6 +42,7 @@
 //Titanium Support
 -(CGRect)resizeView;
 -(void)repositionSubviews;
+-(TiViewProxy *)topWindow;
 -(UIView *)topWindowProxyView;
 -(NSUInteger)supportedOrientationsForAppDelegate;
 -(void)incrementActiveAlertControllerCount;
