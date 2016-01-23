@@ -1,9 +1,6 @@
 package org.appcelerator.titanium;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Set;
 
 import org.appcelerator.kroll.util.KrollAssetHelper;
@@ -13,74 +10,79 @@ public final class TiAssetIndex {
     // ~ Instance fields
     // ------------------------------------------------------------------------------------------------
 
-    private List<String> files;
+    private HashMap files;
 
     // ~ Constructors
     // ---------------------------------------------------------------------------------------------------
 
     public TiAssetIndex() {
-        String string = KrollAssetHelper
-                .readAsset("__assets_list__.index");
+        String string = KrollAssetHelper.readAsset("__assets_list__.index");
+        
         if (string != null) {
-            this.files = Arrays.asList(string.split("\\r?\\n"));
+            String[] array, parts;
+            HashMap current, newValue;
+            int i, j, length;
+            String part;
+            Object value;
+            this.files = new HashMap();
+            array = string.split("\\r?\\n");
+            for (i = 0; i < array.length; i++) {
+                current = this.files;
+                parts = array[i].split("/");
+                length = parts.length;
+                for (j = 0; j < length - 1; j++) {
+                    part = parts[j];
+                    value = current.get(part);
+                    if (value instanceof HashMap) {
+                        current = (HashMap) value;
+                    } else {
+                        newValue = new HashMap<>();
+                        current.put(part, newValue);
+                        current = newValue;
+                    }
+                }
+                current.put(parts[length - 1], null);
+            }
         }
     }
 
     // ~ Methods
     // --------------------------------------------------------------------------------------------------------
-    
+
     public boolean exists(final String path) {
         if (this.files == null) {
             return false;
         }
-        for (final String file : this.files) {
-            if (file.startsWith(path)) {
-                return true;
+        String[] parts = path.split("/");
+        HashMap current = this.files;
+        for (int j = 0; j < parts.length; j++) {
+            String part = parts[j];
+            if (!current.containsKey(part)) {
+                return false;
             }
+            current = (HashMap) current.get(part);
+            
         }
-        return false;
+        return true;
     }
-    
-    /* returns the number of files in a directory */
-    public int numFiles(final String dir) {
-        if (this.files == null) {
-            return 0;
-        }
-        String directory = dir;
-        if (directory.endsWith(File.separator)) {
-            directory = directory.substring(0, directory.length() - 1);
-        }
 
-        int num = 0;
-        for (final String file : this.files) {
-            if (file.startsWith(directory)) {
-
-                String rest = file.substring(directory.length());
-                if (rest.charAt(0) == File.separatorChar) {
-                    if (rest.indexOf(File.separator, 1) == -1) {
-                        num = num + 1;
-                    }
-                }
-            }
-        }
-
-        return num;
-    }
 
     public Set<String> list(String path) {
         if (this.files == null) {
             return null;
         }
-        String  realPath = path;
-        if (realPath.length() > 0 && !realPath.endsWith("/")) {
-          realPath = realPath + "/";
-        }
-        Set<String> result = new HashSet<String>();
-        for (final String file : this.files) {
-            if (file.startsWith(realPath)) {
-                result.add(file.replace(realPath, "").split("/")[0]);
+        HashMap current = this.files;
+        if (!path.isEmpty()) {
+            String[] parts = path.split("/");
+            for (int j = 0; j < parts.length; j++) {
+                String part = parts[j];
+                if (!current.containsKey(part)) {
+                    return null;
+                }
+                current = (HashMap) current.get(part);
             }
         }
-        return result;
+            
+        return  current.keySet();
     }
 }

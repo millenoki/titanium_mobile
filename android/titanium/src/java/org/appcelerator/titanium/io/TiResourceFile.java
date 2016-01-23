@@ -241,19 +241,11 @@ public class TiResourceFile extends TiBaseFile
 	{
 		List<String> listing = new ArrayList<String>();
 		KrollAssetHelper.getDirectoryListing(path, listing);
-//		try {
-			String lpath =path;
-			Set<String> names = TiApplication.getTiAssets().list(lpath);
-			listing.addAll(names);
-//			if (names != null) {
-//				int len = names.length;
-//				for(int i = 0; i < len; i++) {
-//					listing.add(names[i]);
-//				}
-//			}
-//		} catch (IOException e) {
-//			Log.e(TAG, "Error while getting a directory listing: " + e.getMessage(), e);
-//		}
+		Set<String> names = TiApplication.getTiAssets().list(path);
+		if (names != null) {
+            listing.addAll(names);
+		}
+
 		return listing;
 	}
 
