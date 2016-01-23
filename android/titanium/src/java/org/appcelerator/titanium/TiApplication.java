@@ -74,6 +74,7 @@ import com.appcelerator.analytics.APSAnalytics;
 import com.appcelerator.analytics.APSAnalytics.DeployType;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.picasso.MarkableInputStream;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Picasso.RequestTransformer;
@@ -506,6 +507,7 @@ public abstract class TiApplication extends Application implements
         if (_picassoMermoryCache != null) {
             _picassoMermoryCache.clear();
         }
+        TiBitmapPool.onLowMemory();
         super.onLowMemory();
     }
 
@@ -517,6 +519,7 @@ public abstract class TiApplication extends Application implements
             if (_picassoMermoryCache != null) {
                 _picassoMermoryCache.clear();
             }
+            TiBitmapPool.onLowMemory();
         }
         super.onTrimMemory(level);
     }
