@@ -387,7 +387,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
         }
         if (_closingAnim == animation) {
             _closingAnim = null;
-            TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
+            TiBaseActivity activity = getWindowActivity();
             if (activity != null && !activity.isFinishing()) {
                 activity.finish();
                 activity.overridePendingTransition(0, 0);
@@ -401,7 +401,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleClose(HashMap options)
 	{
-        TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
+        TiBaseActivity activity = getWindowActivity();
 		if (activity == null) {
 			//we must have been opened without creating the activity.
 			closeFromActivity(true);
@@ -497,8 +497,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public void onWindowActivityCreated()
 	{		
-		if (parent == null && winManager == null && windowActivity != null) {
-			TiBaseActivity activity = windowActivity.get();
+        TiBaseActivity activity = getWindowActivity();
+		if (parent == null && winManager == null && activity != null) {
 			// Fire the open event after setContentView() because getActionBar() need to be called
 			// after setContentView(). (TIMOB-14914)
 			activity.getActivityProxy().getDecorView().add(this);
@@ -514,8 +514,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	public void closeFromActivity(boolean activityIsFinishing)
 	{
 		super.closeFromActivity(activityIsFinishing);
-        if (parent == null && winManager == null && windowActivity != null) {
-            TiBaseActivity activity = windowActivity.get();
+        TiBaseActivity activity = getWindowActivity();
+        if (parent == null && winManager == null && activity != null) {
             // Fire the open event after setContentView() because getActionBar() need to be called
             // after setContentView(). (TIMOB-14914)
             ActivityProxy proxy = activity.getActivityProxy();
