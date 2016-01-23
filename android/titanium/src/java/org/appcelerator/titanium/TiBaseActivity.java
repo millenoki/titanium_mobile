@@ -7,6 +7,8 @@
 package org.appcelerator.titanium;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -83,6 +85,42 @@ import com.appcelerator.analytics.APSAnalytics;
 public abstract class TiBaseActivity extends AppCompatActivity
 	implements TiActivitySupport/*, ITiWindowHandler*/
 {
+    
+    public static interface PermissionCallback {
+        public void onRequestPermissionsResult(String permissions[], int[] grantResults);
+    }
+    
+    public static  class KrollPermissionCallback {
+        public final KrollObject krollContext;
+        public final KrollFunction krollCallback;
+        public KrollPermissionCallback(KrollObject krollContext, KrollFunction krollCallback) {
+            this.krollContext = krollContext;
+            this.krollCallback = krollCallback;
+        }
+        public void onRequestPermissionsResult(String permissions[], int[] grantResults) {
+            if (krollCallback == null) {
+                return;
+            }
+            boolean granted = true;
+            for (int i = 0; i < grantResults.length; ++i) {
+                if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                    granted = false;
+                    break;
+                }
+            }
+            if (granted) {
+                KrollDict response = new KrollDict();
+                response.putCodeAndMessage(0, null);
+                krollCallback.callAsync(krollContext, response);
+            } else {
+                KrollDict response = new KrollDict();
+                response.putCodeAndMessage(-1, "One or more permission(s) were denied");
+                krollCallback.callAsync(krollContext, response);
+            }
+        }
+    }
+    
+    
 	private static final String TAG = "TiBaseActivity";
 
 	private static OrientationChangedListener orientationChangedListener = null;
@@ -101,9 +139,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
 //	private APSAnalytics analytics = APSAnalytics.getInstance();
 
-	public static KrollObject cameraCallbackContext, contactsCallbackContext, oldCalendarCallbackContext, calendarCallbackContext, locationCallbackContext;
-	public static KrollFunction cameraPermissionCallback, contactsPermissionCallback, oldCalendarPermissionCallback, calendarPermissionCallback, locationPermissionCallback;
-
+	private static HashMap<Integer, ArrayList<Object>> sPermissionCallback = new HashMap();
 	protected View layout;
 	protected TiActivitySupportHelper supportHelper;
 	protected int supportHelperId = -1;
@@ -305,6 +341,46 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	{
 		public void onConfigurationChanged(TiBaseActivity activity, Configuration newConfig);
 	}
+		
+	public static void addPermissionListener(int code, KrollObject krollContext, KrollFunction krollCallback) {
+	    ArrayList<Object> currents = sPermissionCallback.get(code);
+	    if (currents == null) {
+	        currents = new ArrayList();
+            sPermissionCallback.put(code, currents);
+	    }
+	    currents.add(new KrollPermissionCallback(krollContext, krollCallback));
+	}
+	
+	public static void addPermissionListener(int code, PermissionCallback command) {
+        ArrayList<Object> currents = sPermissionCallback.get(code);
+        if (currents == null) {
+            currents = new ArrayList();
+            sPermissionCallback.put(code, currents);
+        }
+        currents.add(command);
+    }
+	
+	public static void removePermissionListener(int code, PermissionCallback command) {
+        ArrayList<Object> currents = sPermissionCallback.get(code);
+        if (currents == null) {
+            return;
+        }
+        currents.remove(command);
+    }
+	public static void removePermissionListener(int code, KrollObject krollContext, KrollFunction krollCallback) {
+        ArrayList<Object> currents = sPermissionCallback.get(code);
+        if (currents == null) {
+            return;
+        }
+        for(Object callback:currents) {
+            if (callback instanceof KrollPermissionCallback &&
+                    ((KrollPermissionCallback) callback).krollCallback == krollCallback) {
+                currents.remove(callback);
+                break;
+            }
+        }
+    }
+
 
 	/**
 	 * @return the instance of TiApplication.
@@ -704,29 +780,17 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	@Override
 	public void onRequestPermissionsResult(int requestCode,
 		String permissions[], int[] grantResults) {
-		switch (requestCode) {
-			case TiC.PERMISSION_CODE_CAMERA: {
-				permissionCallback(grantResults, cameraPermissionCallback, cameraCallbackContext, "Camera");
-				return;
-			}
-			case TiC.PERMISSION_CODE_OLD_CALENDAR: {
-				permissionCallback(grantResults, oldCalendarPermissionCallback, oldCalendarCallbackContext, "Calendar");
-				return;
-			}
-			case TiC.PERMISSION_CODE_CALENDAR: {
-				permissionCallback(grantResults, calendarPermissionCallback, calendarCallbackContext, "Calendar");
-				return;
-			}
-			case TiC.PERMISSION_CODE_LOCATION: {
-				permissionCallback(grantResults, locationPermissionCallback, locationCallbackContext, "Location");
-				return;
-			}
-			case TiC.PERMISSION_CODE_CONTACTS: {
-				permissionCallback(grantResults, contactsPermissionCallback, contactsCallbackContext, "Contacts");
-				return;
-			}
-
-		}
+	    if (sPermissionCallback.containsKey(requestCode)) {
+	        ArrayList<Object> callbacks = sPermissionCallback.get(requestCode);
+	        for (Object command : callbacks) {
+	            if (command instanceof PermissionCallback) {
+	                ((PermissionCallback) command).onRequestPermissionsResult(permissions, grantResults);
+	            } else if (command instanceof  KrollPermissionCallback) {
+                    ((KrollPermissionCallback) command).onRequestPermissionsResult(permissions, grantResults);
+	            }
+	        }
+	        sPermissionCallback.remove(requestCode);
+	    }
 	}
 
 	protected void setFullscreen(boolean fullscreen)

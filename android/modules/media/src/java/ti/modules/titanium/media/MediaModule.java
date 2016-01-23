@@ -378,23 +378,24 @@ public class MediaModule extends KrollModule
 			return;
 		}
 
-		if (TiBaseActivity.cameraCallbackContext == null) {
-			TiBaseActivity.cameraCallbackContext = getKrollObject();
-		}
-		TiBaseActivity.cameraPermissionCallback = permissionCallback;
-		String[] permissions = null;
-		if (!hasCameraPermission() && !hasStoragePermission()) {
-		    permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
-		} else if (!hasCameraPermission()) {
-		    permissions = new String[] {Manifest.permission.CAMERA};
-		} else {
-	        permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-		}
-		
+//		if (TiBaseActivity.cameraCallbackContext == null) {
+//			TiBaseActivity.cameraCallbackContext = getKrollObject();
+//		}
+//		TiBaseActivity.cameraPermissionCallback = permissionCallback;
 
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();		
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
-		
+		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_CAMERA, getKrollObject(), permissionCallback);
+        Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+        if (currentActivity != null) {
+            String[] permissions = null;
+            if (!hasCameraPermission() && !hasStoragePermission()) {
+                permissions = new String[] {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE};
+            } else if (!hasCameraPermission()) {
+                permissions = new String[] {Manifest.permission.CAMERA};
+            } else {
+                permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+            }
+            currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_CAMERA);
+        }
 	}
 
 	/*

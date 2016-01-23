@@ -79,15 +79,17 @@ public class ContactsModule extends KrollModule
 		if (hasContactsPermissions()) {
 			return;
 		}
-		if (TiBaseActivity.contactsCallbackContext == null) {
-			TiBaseActivity.contactsCallbackContext = getKrollObject();
-		}
-		TiBaseActivity.contactsPermissionCallback = permissionCallback;
+//		if (TiBaseActivity.contactsCallbackContext == null) {
+//			TiBaseActivity.contactsCallbackContext = getKrollObject();
+//		}
+//		TiBaseActivity.contactsPermissionCallback = permissionCallback;
 
-		Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
 		// Requesting for READ_CONTACTS will also enable WRITE_CONTACTS if the permission is set in the manifest.
-		currentActivity.requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, TiC.PERMISSION_CODE_CONTACTS);
-		
+		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_CONTACTS, getKrollObject(), permissionCallback);
+        Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+        if (currentActivity != null) {
+            currentActivity.requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, TiC.PERMISSION_CODE_CONTACTS);
+        }
 	}
 
 	@Kroll.method
