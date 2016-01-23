@@ -235,6 +235,26 @@ public abstract class TiApplication extends Application implements
         activityStack.remove(activity);
     }
     
+    public static void closeActivitiesInFrontOf(Activity activity) {
+        int index = activityStack.refIndex(activity);
+        if (index != -1) {
+            List<WeakReference<Activity>> toRemove = activityStack.subList(index + 1, activityStack.size());
+            WeakReference<Activity> activityRef;
+            Activity currentActivity;
+            for (int i = toRemove.size() - 1; i >= 0; i--) {
+                activityRef = toRemove.get(i);
+                if (activityRef != null) {
+                    currentActivity = activityRef.get();
+                    if (currentActivity != null
+                            && !currentActivity.isFinishing()) {
+                        currentActivity.finish();
+                    }
+                }
+            }
+            toRemove.clear();
+        }
+    }
+    
     public static Object getAppSystemService(final String name) {
         return getInstance().getSystemService(name);
     }

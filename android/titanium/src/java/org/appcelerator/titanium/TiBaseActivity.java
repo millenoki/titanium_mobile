@@ -243,6 +243,46 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	{
 		return (windowStack.isEmpty()) ? null : windowStack.peek();
 	}
+	
+	private void clearWindowStack(final boolean isFinishing) {
+	    if (!windowStack.isEmpty()) {
+            Iterator itr = windowStack.iterator();
+            while( itr.hasNext() ) {
+                TiWindowProxy window = (TiWindowProxy)itr.next();
+                if (window != this.window) {
+                    window.closeFromActivity(isFinishing);
+                }
+            }
+            windowStack.clear();
+        }
+	}
+	
+    public void closeStackWindowsInFrontOf(TiWindowProxy proxy) {
+//        int index = windowStack.indexOf(proxy);
+//        if (index != -1) {
+//            List<TiWindowProxy> toRemove = windowStack.subList(0, index);
+//            for (int i = toRemove.size() - 1; i >= 0; i--) {
+//                window = toRemove.get(i);
+//                if (window != this.window) {
+//                    window.closeFromActivity(true);
+//                }
+//            }
+//            toRemove.clear();
+//        } else if(isCurrentWindow(proxy)) {
+//            clearWindowStack(true);
+//        }
+        TiWindowProxy window;
+        for (int i = windowStack.size() - 1; i >= 0; i--) {
+            window = windowStack.get(i);
+            if (window == proxy || (
+                    window instanceof TiWindowManager && 
+                    ((TiWindowManager)window).getTopWindow() == proxy)) {
+                return;
+            }
+            window.closeFromActivity(true);
+            windowStack.remove(i);
+        }
+    }
 
 	// could use a normal ConfigurationChangedListener but since only orientation changes are
 	// forwarded, create a separate interface in order to limit scope and maintain clarity
@@ -1852,16 +1892,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			view = null;
 		}
 		
-		if (!windowStack.isEmpty()) {
-			Iterator itr = windowStack.iterator();
-		    while( itr.hasNext() ) {
-		        TiWindowProxy window = (TiWindowProxy)itr.next();
-		        if (window != this.window) {
-	                window.closeFromActivity(isFinishing);
-		        }
-		    }
-		    windowStack.clear();
-		}
+		clearWindowStack(true);
 
 		if (window != null) {
 			window.closeFromActivity(isFinishing);
@@ -2044,4 +2075,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	public boolean getDefaultFullscreen() {
 	    return defaultFullscreen;
 	}
+
+    public void closeFrontActivities() {
+        TiApplication.closeActivitiesInFrontOf(this);
+    }
 }

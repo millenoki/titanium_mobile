@@ -890,4 +890,14 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		return "Ti.UI.Window";
 	}
+
+    @Kroll.method()
+    public void closeWindowsInFront()
+    {
+        TiBaseActivity activity = getWindowActivity();
+        if (activity != null) {
+            activity.closeFrontActivities();
+//            activity.closeStackWindowsInFrontOf(this);
+        }
+    }
 }
