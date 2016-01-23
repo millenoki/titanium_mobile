@@ -755,28 +755,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
         };
 	}
 
-	private void permissionCallback(int[] grantResults, KrollFunction callback, KrollObject context, String permission) {
-		if (callback == null) {
-			return;
-		}
-		boolean granted = true;
-		for (int i = 0; i < grantResults.length; ++i) {
-			if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-				granted = false;
-				break;
-			}
-		}
-		if (granted) {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(0, null);
-			callback.callAsync(context, response);
-		} else {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(-1, "One or more permission(s) were denied");
-			callback.callAsync(context, response);
-		}
-	}
-
 	@Override
 	public void onRequestPermissionsResult(int requestCode,
 		String permissions[], int[] grantResults) {
