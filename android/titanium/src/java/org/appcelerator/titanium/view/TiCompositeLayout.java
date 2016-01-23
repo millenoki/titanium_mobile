@@ -934,7 +934,7 @@ public class TiCompositeLayout extends FreeLayout implements
 		}
 
 		TiUIView view = getView();
-		if (changed) {
+		if (view != null && changed) {
 	        TiUIHelper.firePostLayoutEvent(view);
 		}
 
