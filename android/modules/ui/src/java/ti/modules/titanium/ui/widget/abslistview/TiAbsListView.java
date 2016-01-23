@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.abslistview;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,7 +83,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 
 	protected C listView;
 	private TiBaseAdapter adapter;
-	private ArrayList<AbsListSectionProxy> sections;
+	private List<AbsListSectionProxy> sections;
 	private AtomicInteger itemTypeCount;
 	private String defaultTemplateBinding;
 	private HashMap<String, TiAbsListViewTemplate> templatesByBinding;
@@ -541,7 +542,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		super(proxy);
 		
 		//initializing variables
-		sections = new ArrayList<AbsListSectionProxy>();
+        sections = Collections.synchronizedList(new ArrayList<AbsListSectionProxy>());
 		itemTypeCount = new AtomicInteger(CUSTOM_TEMPLATE_ITEM_TYPE);
 		templatesByBinding = new HashMap<String, TiAbsListViewTemplate>();
 		defaultTemplateBinding = defaultTemplateKey;
