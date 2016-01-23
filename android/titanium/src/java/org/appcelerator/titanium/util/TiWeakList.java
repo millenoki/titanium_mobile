@@ -56,6 +56,16 @@ public class TiWeakList<T> extends ArrayList<WeakReference<T>> {
 		return false;
 	}
 	
+	public int refIndex(Object o)
+    {
+	    for(int i = 0; i < this.size(); i++) {
+	        if (refEquals(this.get(i), o)) {
+                return i;
+            }
+	    }
+        return -1;
+    }
+	
 	@Override
 	public boolean add(WeakReference<T> o) 
 	{
