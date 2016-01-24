@@ -154,7 +154,7 @@ public class WebViewProxy extends ViewProxy
 		return view.getJSValue(code);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public String getHtml()
 	{
 		if (!hasProperty(TiC.PROPERTY_HTML) && peekView() != null) {
@@ -291,7 +291,7 @@ public class WebViewProxy extends ViewProxy
 		}
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public String getUserAgent()
 	{
 		TiUIWebView currWebView = getWebView();
@@ -405,22 +405,22 @@ public class WebViewProxy extends ViewProxy
 		}
 	}
 
-	@Kroll.method(runOnUiThread=true) @Kroll.setProperty(runOnUiThread=true)
-	public void setEnableZoomControls(boolean enabled)
-	{
-		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
-	}
-
-	@Kroll.method @Kroll.getProperty
-	public boolean getEnableZoomControls()
-	{
-		boolean enabled = true;
-
-		if (hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
-		}
-		return enabled;
-	}
+//	@Kroll.method(runOnUiThread=true) @Kroll.setProperty(runOnUiThread=true)
+//	public void setEnableZoomControls(boolean enabled)
+//	{
+//		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
+//	}
+//
+//	@Kroll.method @Kroll.getProperty
+//	public boolean getEnableZoomControls()
+//	{
+//		boolean enabled = true;
+//
+//		if (hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+//			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
+//		}
+//		return enabled;
+//	}
 
 	public void clearBasicAuthentication()
 	{
