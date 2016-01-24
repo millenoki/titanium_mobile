@@ -18,6 +18,8 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.TiMessenger.Command;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
