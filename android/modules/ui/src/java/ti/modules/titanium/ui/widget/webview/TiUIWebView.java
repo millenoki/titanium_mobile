@@ -287,6 +287,8 @@ public class TiUIWebView extends TiUINonViewGroupView
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
+		params.sizeOrFillWidthEnabled = true;
+        params.sizeOrFillHeightEnabled = true;
 
 		setNativeView(webView);
 	}
