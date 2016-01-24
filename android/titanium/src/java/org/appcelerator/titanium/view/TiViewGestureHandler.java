@@ -226,7 +226,7 @@ public class TiViewGestureHandler {
         KrollDict event;
         if (touchedView != null) {
             KrollProxy proxy = touchedView.proxy;
-            event = TiViewHelper.dictFromMotionEvent(touchedView.getTouchView(), e);
+            event = touchedView.dictFromMotionEvent(e);
             event.put(TiC.PROPERTY_SOURCE, proxy);
         } else {
             event = mView.dictFromMotionEvent(e);
