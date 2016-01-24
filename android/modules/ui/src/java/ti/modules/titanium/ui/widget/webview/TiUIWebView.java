@@ -244,13 +244,13 @@ public class TiUIWebView extends TiUINonViewGroupView
 			settings.setAppCachePath(cacheDir.getAbsolutePath());
 		}
 
-		// enable zoom controls by default
+//		 enable zoom controls by default
 		boolean enableZoom = true;
-
-		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
-			enableZoom = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
-		}
-
+//
+//		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
+//			enableZoom = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
+//		}
+//
 		settings.setBuiltInZoomControls(enableZoom);
 		settings.setSupportZoom(enableZoom);
 
@@ -393,6 +393,12 @@ public class TiUIWebView extends TiUINonViewGroupView
             break;
         case TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR:
             nativeView.setVerticalScrollBarEnabled(TiConvert.toBoolean(newValue));
+            break;
+        case TiC.PROPERTY_ENABLE_ZOOM_CONTROLS:
+            getWebView().getSettings().setDisplayZoomControls(TiConvert.toBoolean(newValue));
+            break;
+        case TiC.PROPERTY_ZOOM_ENABLED:
+            getWebView().getSettings().setSupportZoom(TiConvert.toBoolean(newValue));
             break;
         case TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE:
             boolean enableJavascriptInterface = TiConvert.toBoolean(newValue, true);
@@ -736,12 +742,6 @@ public class TiUIWebView extends TiUINonViewGroupView
 				}
 			}
 		}
-	}
-
-	public void setEnableZoomControls(boolean enabled)
-	{
-		getWebView().getSettings().setSupportZoom(enabled);
-		getWebView().getSettings().setBuiltInZoomControls(enabled);
 	}
 
 	public void setUserAgentString(String userAgentString)
