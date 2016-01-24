@@ -34,6 +34,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import ti.modules.titanium.ui.AttributedStringProxy;
+import ti.modules.titanium.ui.UIModule;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint.Join;
@@ -57,10 +58,8 @@ import android.text.Layout.Alignment;
 import android.text.Selection;
 import android.text.Spannable;
 import android.text.Spannable.Factory;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.SpannedString;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils.TruncateAt;
@@ -108,7 +107,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	private boolean shadowEnabled = false;
 	private int shadowColor = Color.TRANSPARENT;
     private boolean disableLinkStyle = false;
-    private boolean autoLink = false;
+    private int autoLink = 16; // NONE
     private CharSequence text = null;
     
     private float strokeWidth = 0;
@@ -122,6 +121,18 @@ public class TiUILabel extends TiUINonViewGroupView
 
 	private TiLabelView tv;
 	private HashMap transitionDict = null;
+	
+	private static class TiLinkSpan extends ClickableSpan {
+	    public final String link;
+	    public TiLinkSpan(String link) {
+	        this.link = link;
+	    }
+
+        @Override
+        public void onClick(View widget) {            
+        }
+	    
+	}
 	
 	public class TiLabelView extends FreeLayout {
 
@@ -153,6 +164,7 @@ public class TiUILabel extends TiUINonViewGroupView
 	            textView.setTextIsSelectable(false);
 			}
             textView.setSelectAllOnFocus(false);
+            textView.setLinksClickable(false);
 			TiUIHelper.styleText(textView, (HashMap)null);
 			addView(textView, getTextLayoutParams());
 		}
@@ -367,8 +379,7 @@ public class TiUILabel extends TiUINonViewGroupView
             TextView textView = (TextView) this;
             Object text = textView.getText();
             // For html texts, we will manually detect url clicks.
-            if (text instanceof SpannedString || 
-                    text instanceof SpannableString) {
+            if (text instanceof CharSequence) {
                 CharSequence spanned = (CharSequence) text;
                 Spannable buffer = Factory.getInstance().newSpannable(
                         spanned.subSequence(0, spanned.length()));
@@ -396,10 +407,10 @@ public class TiUILabel extends TiUINonViewGroupView
                     if (link.length != 0) {
                         ClickableSpan cSpan = link[0];
                         if (action == MotionEvent.ACTION_UP) {
-							if(proxy.hasListeners("link") && (cSpan instanceof URLSpan)) {
+							if(cSpan instanceof TiLinkSpan && proxy.hasListeners(TiC.PROPERTY_LINK)) {
 								KrollDict evnt = new KrollDict();
-								evnt.put("url", ((URLSpan)cSpan).getURL());
-								proxy.fireEvent("link", evnt, false);
+								evnt.put("url", ((TiLinkSpan)cSpan).link);
+								proxy.fireEvent(TiC.PROPERTY_LINK, evnt, false);
 							//} else {
 //								cSpan.onClick(textView);
 							}
@@ -612,13 +623,46 @@ public class TiUILabel extends TiUINonViewGroupView
 			super.setTextSize(unit, size);
 			updateEllipsize();
 		}
+		
+		protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
+		{
+            int start = strBuilder.getSpanStart(span);
+            int end = strBuilder.getSpanEnd(span);
+            int flags = strBuilder.getSpanFlags(span);
+            TiLinkSpan clickable = new TiLinkSpan(span.getURL());
+            strBuilder.setSpan(clickable, start, end, flags);
+            strBuilder.removeSpan(span);
+        }
+
 
 		@Override
 		public void setText(CharSequence text, BufferType type) {
+		    //first set the super text so that linkifyIfEnabled
+		    //can read the value
+            super.setText(text, type);
+		    if (text instanceof Spannable) {
+		        if (autoLink != 16) {
+	                TiUIHelper.linkifyIfEnabled(this, autoLink);
+	                text = super.getText();
+	            }
+		        SpannableStringBuilder strBuilder = (SpannableStringBuilder) ((text instanceof SpannableStringBuilder)?text:new SpannableStringBuilder(text));
+                URLSpan[] span = strBuilder.getSpans(0, text.length(), URLSpan.class);
+                for (int i = span.length - 1; i >= 0; i--) {
+                    makeLinkClickable(strBuilder, span[i]);
+                }
+                text = strBuilder;
+                super.setText(text, type);
+            }
 			fullText = text;
-			super.setText(text, type);
+			
+			
 			updateEllipsize();
 		}
+		
+//		@Override
+//        public CharSequence getText() {
+//            return fullText != null;
+//        }
 		
 		@Override
 		public void setSingleLine (boolean singleLine) {
@@ -747,8 +791,11 @@ public class TiUILabel extends TiUINonViewGroupView
                 return new URLSpanNoUnderline(((URLSpanNoUnderline)span).getURL());
             }
 			else if (span instanceof URLSpan){
-				return new URLSpan(((URLSpan)span).getURL());
-			}
+                return new URLSpan(((URLSpan)span).getURL());
+            }
+			else if (span instanceof TiLinkSpan){
+                return new TiLinkSpan(((TiLinkSpan)span).link);
+            }
 			else if (span instanceof UnderlineSpan){
 				return new UnderlineSpan();
 			}
@@ -1065,23 +1112,6 @@ public class TiUILabel extends TiUINonViewGroupView
 		tv.textView.setTextColor(colorStateList);
 	}
 	
-//	protected void makeLinkClickable(SpannableStringBuilder strBuilder, URLSpan span)
-//	{
-//	    int start = strBuilder.getSpanStart(span);
-//	    int end = strBuilder.getSpanEnd(span);
-//	    int flags = strBuilder.getSpanFlags(span);
-//	    URLSpan clickable = new URLSpan(span.getURL()) {
-//	          public void onClick(View view) {
-//	             if (hasListeners(TiC.EVENT_LINK)) {
-//	     			KrollDict data = new KrollDict();
-//	     			data.put(TiC.EVENT_PROPERTY_URL,  getURL());
-//	     			fireEvent(TiC.EVENT_LINK, data);
-//	     		}
-//	          }
-//	    };
-//	    strBuilder.setSpan(clickable, start, end, flags);
-//	    strBuilder.removeSpan(span);
-//	}
 	protected CharSequence prepareMarkdown(String str)
     {
 	    Bypass bypass = new Bypass(getContext());
@@ -1118,13 +1148,14 @@ public class TiUILabel extends TiUINonViewGroupView
     @Override
     protected void didProcessProperties() {
         boolean needsLayout = false;
+        final EllipsizingTextView textview = getTextView();
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_COLORS) != 0) {
             updateTextColors();
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_COLORS;
         }
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_SHADOW) != 0) {
             shadowEnabled = shadowRadius != 0 && shadowColor != Color.TRANSPARENT;
-            getTextView().setShadowLayer(shadowRadius, shadowOffset.x, shadowOffset.y, shadowColor);
+            textview.setShadowLayer(shadowRadius, shadowOffset.x, shadowOffset.y, shadowColor);
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_SHADOW;
             //reset padding after shadow is necessary
             updatePadding();
@@ -1145,16 +1176,23 @@ public class TiUILabel extends TiUINonViewGroupView
                 tv.setText(text);
             }
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT;
+            mProcessUpdateFlags &= ~TIFLAG_NEEDS_LINKIFY;
+//            if (autoLink != 16) {
+//                mProcessUpdateFlags |= TIFLAG_NEEDS_LINKIFY;
+//            }
             needsLayout = true;
         }
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_LINKIFY) != 0) {
-            TiUIHelper.linkifyIfEnabled(getTextView(), autoLink);
+            textview.setText(textview.fullText);
+//            if (text != null) {
+//                TiUIHelper.linkifyIfEnabled(textview, autoLink);
+//            }
             mProcessUpdateFlags &= ~TIFLAG_NEEDS_LINKIFY;
         }
         //call after so that a layout computes ellipsize
-        getTextView().SetReadyToEllipsize(true);
+        textview.SetReadyToEllipsize(true);
         if (needsLayout) {
-            getTextView().requestLayout();
+            textview.requestLayout();
         }
         super.didProcessProperties();
     }
@@ -1266,7 +1304,7 @@ public class TiUILabel extends TiUINonViewGroupView
             mProcessUpdateFlags |= TIFLAG_NEEDS_SHADOW;
             break;
         case TiC.PROPERTY_AUTO_LINK:
-            autoLink = TiConvert.toBoolean(newValue);
+            autoLink = TiConvert.toInt(newValue, UIModule.AUTOLINK_NONE);
             mProcessUpdateFlags |= TIFLAG_NEEDS_LINKIFY;
             break;
         case TiC.PROPERTY_MARKDOWN:
@@ -1333,10 +1371,15 @@ public class TiUILabel extends TiUINonViewGroupView
 			final double x = (double) rawx - coords[0];
 			final double y = (double) rawy - coords[1];
 			int offset = tv.textView.getOffsetForPosition((float)x, (float)y);
-	        URLSpan[] urls =((Spanned)text).getSpans(offset, offset + 1, URLSpan.class); 
+			TiLinkSpan[] urls =((Spanned)text).getSpans(offset, offset + 1, TiLinkSpan.class); 
 	        if (urls != null && urls.length > 0)
 	        {
-	        	data.put(TiC.PROPERTY_LINK, urls[0].getURL());
+	            final String link = urls[0].link;
+	            if (link.startsWith("tel:")) {
+	                data.put("phoneNumber", link.substring(4));
+	            } else {
+                    data.put(TiC.PROPERTY_LINK, link);
+	            }
 	        }
 		}
 		 
