@@ -199,7 +199,7 @@ public class GeolocationModule extends KrollModule
                 if (newEnabled == currentlyEnabled) {
                     return;
                 }
-                newEnabled = currentlyEnabled;
+                currentlyEnabled = newEnabled;
                 Log.i(TAG, "Location Providers changed");
                 KrollDict data = new KrollDict();
                 data.put(TiC.PROPERTY_ENABLED, currentlyEnabled);
