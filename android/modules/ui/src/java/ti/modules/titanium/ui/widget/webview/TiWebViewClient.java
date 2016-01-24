@@ -47,9 +47,12 @@ public class TiWebViewClient extends WebViewClient
 		super.onPageFinished(view, url);
 		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
 		webView.changeProxyUrl(url);
-		KrollDict data = new KrollDict();
-		data.put("url", url);
-		proxy.fireEvent(TiC.EVENT_LOAD, data);
+        webView.onProgressChanged(view, 1);
+        if (webView.getProxy().hasListeners(TiC.EVENT_LOAD, false)) {
+            KrollDict data = new KrollDict();
+            data.put(TiC.PROPERTY_URL, url);
+            webView.getProxy().fireEvent(TiC.EVENT_LOAD, data, false, false);
+        }
 		boolean enableJavascriptInjection = true;
 		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
 			enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
@@ -76,10 +79,13 @@ public class TiWebViewClient extends WebViewClient
 	public void onPageStarted(WebView view, String url, Bitmap favicon)
 	{
 		super.onPageStarted(view, url, favicon);
-
-		KrollDict data = new KrollDict();
-		data.put("url", url);
-		webView.getProxy().fireEvent("beforeload", data);
+		Log.d(TAG, "onPageStarted " + url);
+		webView.onProgressChanged(view, 0);
+        if (webView.getProxy().hasListeners("beforeload", false)) {
+            KrollDict data = new KrollDict();
+            data.put(TiC.PROPERTY_URL, url);
+            webView.getProxy().fireEvent("beforeload", data, false, false);
+        }
 	}
 
 	@Override
@@ -203,9 +209,12 @@ public class TiWebViewClient extends WebViewClient
 	public void onLoadResource(WebView view, String url)
 	{
 		super.onLoadResource(view, url);
-		KrollDict data = new KrollDict();
-		data.put(TiC.PROPERTY_URL, url);
-		webView.getProxy().fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data);
+		if (webView.getProxy().hasListeners(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, false)) {
+		    KrollDict data = new KrollDict();
+	        data.put(TiC.PROPERTY_URL, url);
+	        webView.getProxy().fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data, false, false);
+		}
+		
 	}
 
 }
