@@ -2274,7 +2274,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     
     public void onClick(View view) {
         // if singletap is active dont send click
-        if (!hasListeners(TiC.EVENT_SINGLE_TAP)
+        if (lastUpEvent != null && !hasListeners(TiC.EVENT_SINGLE_TAP)
                 && hierarchyHasListener(TiC.EVENT_CLICK)) {
             fireEventNoCheck(TiC.EVENT_CLICK, dictFromMotionEvent(lastUpEvent));
         }
