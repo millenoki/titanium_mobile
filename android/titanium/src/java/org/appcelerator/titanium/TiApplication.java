@@ -239,7 +239,7 @@ public abstract class TiApplication extends Application implements
     public static void closeActivitiesInFrontOf(Activity activity) {
         int index = activityStack.refIndex(activity);
         if (index != -1) {
-            List<WeakReference<Activity>> toRemove = activityStack.subList(index + 1, activityStack.size());
+            List<WeakReference<Activity>> toRemove = new ArrayList(activityStack.subList(index + 1, activityStack.size()));
             WeakReference<Activity> activityRef;
             Activity currentActivity;
             for (int i = toRemove.size() - 1; i >= 0; i--) {
@@ -252,7 +252,7 @@ public abstract class TiApplication extends Application implements
                     }
                 }
             }
-            toRemove.clear();
+//            toRemove.clear();
         }
     }
     
