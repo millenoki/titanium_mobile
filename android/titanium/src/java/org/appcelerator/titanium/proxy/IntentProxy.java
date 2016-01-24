@@ -215,7 +215,7 @@ public class IntentProxy extends KrollProxy
 		} else if (data != null) {
 			intent.setData(Uri.parse(data));
 		}
-		if (dict.containsKey("categories")) {
+		if (dict.get("categories") != null) {
 		    Object obj = dict.get("categories");
 		    if (obj instanceof Object[]) {
 		        Object[] array = (Object[])obj;
@@ -224,19 +224,19 @@ public class IntentProxy extends KrollProxy
                 }
 		    }
         }
-		if (dict.containsKey("html")) {
-		    putExtraHTML(Intent.EXTRA_TEXT, dict.get("html"));
+		if (dict.get(TiC.PROPERTY_HTML) != null) {
+		    putExtraHTML(Intent.EXTRA_TEXT, dict.get(TiC.PROPERTY_HTML));
 		}
-		else if (dict.containsKey("text")) {
-            putExtra(Intent.EXTRA_TEXT, dict.get("text"));
+		else if (dict.get(TiC.PROPERTY_TEXT) != null) {
+            putExtra(Intent.EXTRA_TEXT, dict.get(TiC.PROPERTY_TEXT));
         }
-		if (dict.containsKey("stream")) {
+		if (dict.get("stream") != null) {
             putExtraStreamUri(dict.get("stream"));
         }
-		if (dict.containsKey("subject")) {
+		if (dict.get("subject") != null) {
             putExtra(Intent.EXTRA_SUBJECT, dict.get("subject"));
 		}
-		if (dict.containsKey("initialIntents")) {
+		if (dict.get("initialIntents") != null) {
             putExtraInitialIntents(dict.get("initialIntents"));
         }
 	}
