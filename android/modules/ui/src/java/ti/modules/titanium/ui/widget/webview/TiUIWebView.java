@@ -74,6 +74,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	
 	private reloadTypes reloadMethod = reloadTypes.DEFAULT;
 	private Object reloadData = null;
+    private float currentProgress = -1;
 	
 	private class TiWebView extends WebView
 	{
@@ -522,6 +523,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 			getWebView().getSettings().setLoadWithOverviewMode(true);
 		}
 		isLocalHTML = false;
+		currentProgress = -1;
 		getWebView().loadUrl(finalUrl);
 	}
 
@@ -629,7 +631,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 				return;
 			}
 		}
-
+        currentProgress = -1;
 		webView.loadDataWithBaseURL(baseUrl, html, mimeType, "utf-8", baseUrl);
 	}
 
@@ -654,6 +656,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 			}
 		}
 		
+        currentProgress = -1;
 		if (blob.getMimeType() != null) {
 			mimeType = blob.getMimeType();
 		}
@@ -668,9 +671,19 @@ public class TiUIWebView extends TiUINonViewGroupView
         getWebView().loadUrl("javascript:" + code);
 	}
 
-	public String getJSValue(String expression)
+	public String getJSValue(final String expression)
 	{
-		return client.getBinding().getJSValue(expression);
+	    if (TiApplication.isUIThread()) {
+	        return (String) TiMessenger.sendBlockingMainCommand(new Command<String>() {
+
+	            @Override
+	            public String execute() {
+	                return client.getBinding().getJSValue(expression);
+	            }
+	        });
+        } else {
+            return client.getBinding().getJSValue(expression);
+        }
 	}
 
 	public void setBasicAuthentication(String username, String password)
@@ -820,9 +833,18 @@ public class TiUIWebView extends TiUINonViewGroupView
 	
 	public void onProgressChanged(WebView view, int progress)   
     {
+	    float newProgress = (float)progress/100;
+	    if (newProgress == currentProgress ) {
+	        return;
+	    }
+	    if (currentProgress == -1 && newProgress != 0) {
+	        onProgressChanged(view, 0);
+	    }
+	    currentProgress = newProgress;
+	    
 	    if (proxy.hasListeners("loadprogress", false)) {
             KrollDict event = new KrollDict();
-            event.put("progress", progress/100);
+            event.put("progress", (float)progress/100);
             proxy.fireEvent("loadprogress", event, false, false);
         }
     }
