@@ -161,6 +161,16 @@ public class TiUIWebView extends TiUINonViewGroupView
                 TiUIHelper.firePostLayoutEvent(TiUIWebView.this);
             }
 		}
+		
+		@Override
+	    protected void onScrollChanged(final int l, final int t, final int oldl, final int oldt)
+	    {
+	        super.onScrollChanged(l, t, oldl, oldt);
+	        if (hasListeners(TiC.EVENT_SCROLL)) {
+                getProxy().fireEvent(TiC.EVENT_SCROLL, TiConvert.toPointDict(l, t), false, false);
+            }
+	    }
+
 	}
 	
 	//TIMOB-16952. Overriding onCheckIsTextEditor crashes HTC Sense devices
