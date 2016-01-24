@@ -1201,6 +1201,17 @@ public class TiConvert
         return dict;
     }
 	
+	public static KrollDict toPointDict(int x, int y)
+    {
+        KrollDict dict = new KrollDict();
+        TiDimension dim = new TiDimension(x, TiDimension.TYPE_LEFT);
+        dict.put(TiC.PROPERTY_X, (int)Math.round(dim.getAsDefault()));
+        dim.setValue(y);
+        dim.setValueType(TiDimension.TYPE_TOP);
+        dict.put(TiC.PROPERTY_Y, (int)Math.round(dim.getAsDefault()));
+        return dict;
+    }
+	
 	/**
 	 * Converts HashMap into Rect object and returns it.
 	 * @param value the HashMap to convert.
