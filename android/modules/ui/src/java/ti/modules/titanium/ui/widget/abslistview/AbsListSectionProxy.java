@@ -815,18 +815,12 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         itemProxy.setActivity(this.getActivity());
 		itemProxy.setView(listItem);
 		itemContent.setView(listItem);
-//        long startTime = System.currentTimeMillis();
 		itemProxy.realizeViews();
-//		long endTime = System.currentTimeMillis();
-//        long diff = endTime - startTime;
-//        if (diff > 20) {
-//            Log.d(TAG, this.getClass().toString() + " generateCellContent " + diff + "ms");
-//        }
+
 		if (template != null) {
 			populateViews(item, itemContent, template, itemPosition,
 					sectionIndex, item_layout, false);
-		}
-		
+		}		
 	}
 	
 	public int getUserItemIndexFromSectionPosition(final int position) {
