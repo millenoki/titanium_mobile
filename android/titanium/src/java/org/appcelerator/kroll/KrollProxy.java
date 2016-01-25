@@ -788,7 +788,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             doUpdateKrollObjectProperties(props);
 
         } else {
-            if (wait) {
+            if (wait && !TiApplication.appRunOnMainThread()) {
                 Message msg = getRuntimeHandler().obtainMessage(
                         MSG_UPDATE_KROLL_PROPERTIES);
                 TiMessenger.sendBlockingRuntimeMessage(msg, props);
