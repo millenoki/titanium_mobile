@@ -2178,10 +2178,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             boolean updateKrollProperties) {
         if (data instanceof HashMap) {
             KrollProxy result = createProxyFromTemplate((HashMap) data,
-                    rootProxy, updateKrollProperties);
+                    rootProxy, false);
             if (result != null) {
                 result.setActivity(rootProxy.getActivity());
-                result.updateKrollObjectProperties();
+                if (updateKrollProperties) {
+                    result.updateKrollObjectProperties();
+                    rootProxy.updatePropertiesNativeSide();
+                }
             }
             return result;
         } else if (data instanceof KrollProxy) {
