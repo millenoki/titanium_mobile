@@ -1537,7 +1537,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public boolean _hasListeners(String event) {
         return hasNonJSEventListener(event)
                 || hasEvaluatorListener(event)
-                || getKrollObject().hasListeners(event);
+                || (krollObject !=null) && krollObject.hasListeners(event);
     }
 
     /**
