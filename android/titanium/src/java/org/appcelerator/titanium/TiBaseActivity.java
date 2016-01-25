@@ -64,6 +64,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -934,7 +935,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 		
         if (intent != null && intent.hasExtra(TiC.PROPERTY_ACTIONBAR_OVERLAY)) {
-            supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
+            supportRequestWindowFeature(AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR_OVERLAY);
         }
 
 
