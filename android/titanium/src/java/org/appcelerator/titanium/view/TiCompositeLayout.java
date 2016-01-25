@@ -1036,26 +1036,26 @@ public class TiCompositeLayout extends FreeLayout implements
 				switch (type) {
 				case TiDimension.TYPE_LEFT:
 					oldParam = oldTiParams.optionLeft;
-					if (oldParam == null && oldTiParams.optionRight == null) {
-                        oldValue = (int) Math.floor(result * fraction + (1 - fraction)* animP.startRect.left);
+					if (option != null && oldParam == null && oldTiParams.optionRight == null) {
+                        oldValue = animP.startRect.left;
                     }
 					break;
 				case TiDimension.TYPE_RIGHT:
 					oldParam = oldTiParams.optionRight;
-					if (oldParam == null && oldTiParams.optionLeft == null) {
-					    oldValue = (int) Math.floor(result * fraction + (1 - fraction)* animP.startRect.right);
+					if (option != null && oldParam == null && oldTiParams.optionLeft == null) {
+					    oldValue = animP.startRect.right;
 					}
 					break;
 				case TiDimension.TYPE_TOP:
 					oldParam = oldTiParams.optionTop;
-					if (oldParam == null && oldTiParams.optionBottom == null) {
-                        oldValue = (int) Math.floor(result * fraction + (1 - fraction)* animP.startRect.top);
+					if (option != null && oldParam == null && oldTiParams.optionBottom == null) {
+                        oldValue = animP.startRect.top;
                     }
 					break;
 				case TiDimension.TYPE_BOTTOM:
 					oldParam = oldTiParams.optionBottom;
-					if (oldParam == null && oldTiParams.optionTop == null) {
-                        oldValue = (int) Math.floor(result * fraction + (1 - fraction)* animP.startRect.bottom);
+					if (option != null && oldParam == null && oldTiParams.optionTop == null) {
+                        oldValue = animP.startRect.bottom;
                     }
 					break;
 				case TiDimension.TYPE_WIDTH:
