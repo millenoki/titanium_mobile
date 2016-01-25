@@ -720,7 +720,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			// Just call processProperties() to set them on this view.
 			// Note that this is done in setModelListener() when it is
 			// called.
-			view.processProperties(getProperties());
+			view.processProperties(getShallowProperties());
 		}
 
 
