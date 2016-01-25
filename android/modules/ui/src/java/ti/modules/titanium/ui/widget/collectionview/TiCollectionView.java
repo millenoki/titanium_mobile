@@ -12,6 +12,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
 import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
@@ -43,8 +44,8 @@ public class TiCollectionView extends TiAbsListView<CustomListView> {
             protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
                 
                 super.onLayout(changed, left, top, right, bottom);
-                if (changed && fProxy != null && fProxy.hasListeners(TiC.EVENT_POST_LAYOUT, false)) {
-                    fProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
+                if (changed) {
+                    TiUIHelper.firePostLayoutEvent(TiCollectionView.this);
                 }
                 
             }

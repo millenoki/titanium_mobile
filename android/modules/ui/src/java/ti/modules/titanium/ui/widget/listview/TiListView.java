@@ -14,6 +14,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 import com.nhaarman.listviewanimations.appearance.SingleAnimationAdapter;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
@@ -88,9 +89,8 @@ public class TiListView extends TiAbsListView<CustomListView> {
                     int right, int bottom) {
 
                 super.onLayout(changed, left, top, right, bottom);
-                if (changed && fProxy != null
-                        && fProxy.hasListeners(TiC.EVENT_POST_LAYOUT, false)) {
-                    fProxy.fireEvent(TiC.EVENT_POST_LAYOUT, null);
+                if (changed) {
+                    TiUIHelper.firePostLayoutEvent(TiListView.this);
                 }
             }
 
