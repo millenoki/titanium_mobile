@@ -98,7 +98,7 @@ public abstract class TiApplication extends Application implements
     private  static String TITANIUM_USER_AGENT;
     
     private static long sMainThreadId = 0;
-    private boolean runOnMainThread = DEFAULT_RUN_ON_MAIN_THREAD;
+    private static boolean runOnMainThread = DEFAULT_RUN_ON_MAIN_THREAD;
 
     private static int sAppDensityDpi = -1;
     private static float sAppDensity = -1;
@@ -1140,6 +1140,11 @@ public abstract class TiApplication extends Application implements
 	{
 		return runOnMainThread;
 	}
+	
+	public static boolean appRunOnMainThread()
+    {
+        return runOnMainThread;
+    }
 	
 	public void setFilterAnalyticsEvents(String[] events)
 	{
