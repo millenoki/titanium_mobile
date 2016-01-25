@@ -6,19 +6,25 @@
  */
 package ti.modules.titanium.ui.clipboard;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.ui.UIModule;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
+import android.content.ClipboardManager.OnPrimaryClipChangedListener;
 import android.content.Context;
-import android.text.ClipboardManager;
 
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule=UIModule.class)
-public class ClipboardModule extends KrollModule
+public class ClipboardModule extends KrollModule implements OnPrimaryClipChangedListener
 {
 	private String TAG = "Clipboard";
 	
@@ -31,6 +37,33 @@ public class ClipboardModule extends KrollModule
 	{
 		this();
 	}
+	
+	@Override
+    protected void eventListenerAdded(String event, int count, KrollProxy proxy)
+    {
+        if (TiC.EVENT_CHANGE.equals(event)) {
+            if (count == 1) {
+                board().addPrimaryClipChangedListener(this);
+            }
+        }
+
+        super.eventListenerAdded(event, count, proxy);
+    }
+
+    /**
+     * @see org.appcelerator.kroll.KrollProxy#eventListenerRemoved(java.lang.String, int, org.appcelerator.kroll.KrollProxy)
+     */
+    @Override
+    protected void eventListenerRemoved(String event, int count, KrollProxy proxy)
+    {
+        if (TiC.EVENT_CHANGE.equals(event)) {
+            if (count == 0) {
+                board().removePrimaryClipChangedListener(this);
+            }
+        }
+
+        super.eventListenerRemoved(event, count, proxy);
+    }
 
 	/**
 	 * Get the native clipboard instance.
@@ -122,4 +155,27 @@ public class ClipboardModule extends KrollModule
 	{
 		return "Ti.UI.Clipboard";
 	}
+
+    @Override
+    public void onPrimaryClipChanged() {
+        if (hasListeners(TiC.EVENT_CHANGE)) {
+            ClipboardManager cb = board();
+            if (cb.hasPrimaryClip()) {
+                KrollDict data = new KrollDict();
+                ClipData cd = cb.getPrimaryClip();
+                if (cd.getDescription()
+                        .hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+                    data.put(TiC.PROPERTY_TEXT, cd.getItemAt(0).getText());
+                } else if (cd.getDescription()
+                        .hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)) {
+                    data.put(TiC.PROPERTY_TEXT, cd.getItemAt(0).getText());
+                } else if (cd.getDescription()
+                        .hasMimeType(ClipDescription.MIMETYPE_TEXT_URILIST)) {
+                    data.put(TiC.PROPERTY_TEXT, cd.getItemAt(0).getUri().toString());
+                }
+                fireEvent(TiC.EVENT_CHANGE, data, false, false);
+            }
+        }
+
+    }
 }
