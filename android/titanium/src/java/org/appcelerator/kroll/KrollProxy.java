@@ -2256,9 +2256,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             Class<? extends KrollProxy> cls = (Class<? extends KrollProxy>) Class
                     .forName(APIMap.getProxyClass(type));
             KrollProxy proxy = createProxy(cls, props);
-            if (proxy == null)
+           if (proxy == null)
                 return null;
-            proxy.initFromTemplate(template_, proxy, true, true);
+            proxy.initFromTemplate(template_, proxy, TiApplication.appRunOnMainThread(), true);
             return proxy;
         } catch (Exception e) {
             Log.e(TAG, "Error creating view from dict: " + e.toString());
