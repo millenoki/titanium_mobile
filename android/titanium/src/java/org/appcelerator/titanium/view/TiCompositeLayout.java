@@ -1026,23 +1026,37 @@ public class TiCompositeLayout extends FreeLayout implements
 		//never called with width or height so we can set 0 in fullscreen
 		int result =  (!params.fullscreen && option != null)?option.getAsPixels(parentWidth, parentHeight):0;
 		if (params instanceof AnimationLayoutParams) {
-			float fraction = ((AnimationLayoutParams) params).animationFraction;
-			ViewGroup.LayoutParams oldParams = ((AnimationLayoutParams) params).oldParams;
+		    AnimationLayoutParams animP = (AnimationLayoutParams) params;
+			float fraction = animP.animationFraction;
+			ViewGroup.LayoutParams oldParams = animP.oldParams;
 			if (fraction < 1.0f) {
 	            LayoutParams oldTiParams = (LayoutParams) oldParams;
 				TiDimension oldParam = null;
+                int oldValue = 0;
 				switch (type) {
 				case TiDimension.TYPE_LEFT:
 					oldParam = oldTiParams.optionLeft;
+					if (oldParam == null && oldTiParams.optionRight == null) {
+                        oldValue = (int) Math.floor(result * fraction + (1 - fraction)* animP.startRect.left);
+                    }
 					break;
 				case TiDimension.TYPE_RIGHT:
 					oldParam = oldTiParams.optionRight;
+					if (oldParam == null && oldTiParams.optionLeft == null) {
+					    oldValue = (int) Math.floor(result * fraction + (1 - fraction)* animP.startRect.right);
+					}
 					break;
 				case TiDimension.TYPE_TOP:
 					oldParam = oldTiParams.optionTop;
+					if (oldParam == null && oldTiParams.optionBottom == null) {
+                        oldValue = (int) Math.floor(result * fraction + (1 - fraction)* animP.startRect.top);
+                    }
 					break;
 				case TiDimension.TYPE_BOTTOM:
 					oldParam = oldTiParams.optionBottom;
+					if (oldParam == null && oldTiParams.optionTop == null) {
+                        oldValue = (int) Math.floor(result * fraction + (1 - fraction)* animP.startRect.bottom);
+                    }
 					break;
 				case TiDimension.TYPE_WIDTH:
 					oldParam = oldTiParams.optionWidth;
@@ -1059,7 +1073,9 @@ public class TiCompositeLayout extends FreeLayout implements
 				default:
 					break;
 				}
-				int oldValue = (oldParam != null)?oldParam.getAsPixels(parentWidth, parentHeight):0;
+				if (oldParam != null) {
+				    oldValue = oldParam.getAsPixels(parentWidth, parentHeight);
+				}
 				result = (int) Math.floor(result * fraction + (1 - fraction)* oldValue);
 			}
 		}
