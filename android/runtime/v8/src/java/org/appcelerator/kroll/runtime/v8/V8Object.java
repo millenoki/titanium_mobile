@@ -6,6 +6,8 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.Log;
@@ -113,7 +115,7 @@ public class V8Object extends KrollObject
 	}
 	
 	@Override
-	public void updateNativeProperties(Object properties)
+	public void updateNativeProperties(HashMap<String, Object> properties)
 	{
 		if (!KrollRuntime.isInitialized()) {
 			Log.w(TAG, "Runtime disposed, cannot updateNativeProperties");

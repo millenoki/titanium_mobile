@@ -100,7 +100,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     protected AtomicInteger listenerIdGenerator;
 
     protected Map<String, List<KrollDict>> evaluators;
-    protected Map<String, HashMap<Integer, KrollEventCallback>> eventListeners;
+    protected Map<String, HashMap<Integer, Object>> eventListeners;
     protected KrollObject krollObject;
     protected WeakReference<Activity> activity;
     protected String proxyId;
@@ -127,7 +127,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
     public static final String PROXY_ID_PREFIX = "proxy$";
     
-    protected boolean mProcessInUIThread = false; 
+    protected boolean mProcessInUIThread = false;
+    private boolean needsToUpdateNativeSideProps = false; 
 
     public KrollProxy(TiContext tiContext) {
         this();
@@ -155,7 +156,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         creationUrl = new TiUrl(baseCreationUrl);
         this.listenerIdGenerator = new AtomicInteger(0);
         this.eventListeners = Collections
-                .synchronizedMap(new HashMap<String, HashMap<Integer, KrollEventCallback>>());
+                .synchronizedMap(new HashMap<String, HashMap<Integer, Object>>());
         this.langConversionTable = getLangConversionTable();
     }
 
@@ -560,6 +561,19 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void setKrollObject(KrollObject object) {
         this.krollObject = object;
     }
+    
+    protected void updateNativePropsIfNecessary() {
+        if (krollObject == null) {
+            return;
+        }
+        if (needsToUpdateNativeSideProps) {
+            needsToUpdateNativeSideProps = false;
+            doUpdateKrollObjectProperties();
+        } else if (propertiesToUpdateNativeSide != null) {
+            doUpdateKrollObjectProperties(propertiesToUpdateNativeSide);
+            propertiesToUpdateNativeSide = null;
+        }
+    }
 
     /**
      * @return the KrollObject associated with this proxy if it exists.
@@ -567,8 +581,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * @module.api
      */
     public KrollObject getKrollObject() {
+        final boolean runtimeThread = KrollRuntime.getInstance().isRuntimeThread();
         if (krollObject == null) {
-            if (KrollRuntime.getInstance().isRuntimeThread()) {
+            if (runtimeThread) {
                 initKrollObject();
 
             } else {
@@ -576,7 +591,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                         .obtainMessage(MSG_INIT_KROLL_OBJECT));
             }
         }
-
+        if (runtimeThread) {
+            updateNativePropsIfNecessary();
+        }
         return krollObject;
     }
 
@@ -775,12 +792,20 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void updateKrollObjectProperties() {
         
         //use a shallow copy because properties is synchronized
-        updateKrollObjectProperties(getShallowProperties());
+        if (krollObject != null) {
+            updateKrollObjectProperties(properties, true);
+        } else {
+            needsToUpdateNativeSideProps  = true;
+        }
         propertiesToUpdateNativeSide = null;
     }
 
     public void updateKrollObjectProperties(HashMap<String, Object> props) {
-        updateKrollObjectProperties(props, true);
+        if (krollObject != null) {
+            updateKrollObjectProperties(props, true);
+        } else {
+            propertiesToUpdateNativeSide  = props;
+        }
     }
     
     public void updateKrollObjectProperties(HashMap<String, Object> props, final boolean wait) {
@@ -794,7 +819,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 TiMessenger.sendBlockingRuntimeMessage(msg, props);
             } else {
                 Message message = getRuntimeHandler().obtainMessage(
-                        MSG_UPDATE_KROLL_PROPERTIES, props);
+                        MSG_UPDATE_KROLL_PROPERTIES, new HashMap(props));
                 message.sendToTarget();
             }
         }
@@ -1018,11 +1043,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     protected void doUpdateKrollObjectProperties() {
-        getKrollObject().updateNativeProperties(getProperties());
+        krollObject.updateNativeProperties(properties);
     }
 
     protected void doUpdateKrollObjectProperties(HashMap<String, Object> props) {
-        getKrollObject().updateNativeProperties(props);
+        for (Map.Entry<String, Object> entry : props.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof KrollProxy) {
+                ((KrollProxy) value).updateNativePropsIfNecessary();
+            }
+        }
+        krollObject.updateNativeProperties(props);
     }
 
 //    @Kroll.getProperty
@@ -1394,93 +1425,140 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         KrollObject source = null;
         String message = null;
 
-        KrollDict krollData = null;
-
-        if (eventListeners != null && !eventListeners.isEmpty()) {
-            HashMap<Integer, KrollEventCallback> listeners = eventListeners
-                    .get(event);
-            if (listeners != null) {
-                for (Integer listenerId : listeners.keySet()) {
-                    KrollEventCallback callback = listeners.get(listenerId);
-                    if (callback != null) {
-                        callback.call(data);
-                    }
-                }
-            }
-        }
-
+        HashMap<String, Object> krollData = null;
         if (data != null) {
-            if (data instanceof KrollDict) {
-                krollData = (KrollDict) data;
-            } else if (data instanceof HashMap) {
-                try {
-                    krollData = new KrollDict((HashMap) data);
-                } catch (Exception e) {
-                }
+            if (data instanceof HashMap) {
+                krollData = (HashMap) data;
             } else if (data instanceof JSONObject) {
                 try {
                     krollData = new KrollDict((JSONObject) data);
                 } catch (Exception e) {
                 }
             }
+            
+            if (krollData != null) {
+                Object hashValue;
+                for(Iterator<Map.Entry<String, Object>> it = krollData.entrySet().iterator(); it.hasNext(); ) {
+                    Map.Entry<String, Object> entry = it.next();
+                    switch ((String) entry.getKey()) {
+                    case TiC.PROPERTY_BUBBLES:
+                        bubbles &= TiConvert.toBoolean(entry.getValue());
+                        it.remove();
+                        break;
+                    case TiC.PROPERTY_SUCCESS:
+                        hashValue = entry.getValue();
+                        if (hashValue != null && reportSuccess == false) {
+                            reportSuccess = true;
+                            code = ((Boolean) hashValue).booleanValue()?0:-1;
+                        }
+                        it.remove();
+                        break;
+                    case TiC.PROPERTY_CODE:
+                        hashValue = entry.getValue();
+                        if (hashValue instanceof Integer) {
+                            code = ((Integer) hashValue).intValue();
+                            reportSuccess = true;
+                        } 
+                        it.remove();
+                        break;
+                    case TiC.EVENT_PROPERTY_ERROR:
+                        hashValue = entry.getValue();
+                        if (hashValue instanceof String) {
+                            message = (String) hashValue;
+                            it.remove();
+                        }
+                    case TiC.PROPERTY_SOURCE:
+                        hashValue = entry.getValue();
+                        if (hashValue != this) {
+                            source = ((KrollProxy) hashValue).getKrollObject();
+                        }
+                        break;
+                    default:
+                        hashValue = entry.getValue();
+                        if (hashValue instanceof KrollProxy) {
+                            //make sure the kroll object exists
+                            ((KrollProxy) hashValue).getKrollObject();
+                        }
+                        break;
+                    }
+                }
+
+//                Object hashValue = krollData.get(TiC.PROPERTY_BUBBLES);
+//                if (hashValue != null) {
+//                    bubbles &= TiConvert.toBoolean(hashValue);
+//                    krollData.remove(TiC.PROPERTY_BUBBLES);
+//                }
+//                hashValue = krollData.get(TiC.PROPERTY_SUCCESS);
+//                if (hashValue instanceof Boolean) {
+//                    boolean successValue = ((Boolean) hashValue).booleanValue();
+//                    hashValue = krollData.get(TiC.PROPERTY_CODE);
+//                    if (hashValue instanceof Integer) {
+//                        int codeValue = ((Integer) hashValue).intValue();
+//                        if (successValue == (codeValue == 0)) {
+//                            reportSuccess = true;
+//                            code = codeValue;
+//                            krollData.remove(TiC.PROPERTY_SUCCESS);
+//                            krollData.remove(TiC.PROPERTY_CODE);
+//                        } else {
+//                            Log.w(TAG,
+//                                    "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+//                                    Log.DEBUG_MODE);
+//                        }
+//                    } else if (successValue) {
+//                        Log.w(TAG,
+//                                "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+//                                Log.DEBUG_MODE);
+//                    } else {
+//                        Log.w(TAG,
+//                                "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+//                                Log.DEBUG_MODE);
+//                    }
+//                } else if (hashValue != null) {
+//                    Log.w(TAG,
+//                            "DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+//                            Log.DEBUG_MODE);
+//                }
+//                hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
+//                if (hashValue instanceof String) {
+//                    message = (String) hashValue;
+//                    krollData.remove(TiC.EVENT_PROPERTY_ERROR);
+//                } else if (hashValue != null) {
+//                    Log.w(TAG,
+//                            "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
+//                            Log.DEBUG_MODE);
+//                }
+//                hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
+//                if (hashValue instanceof KrollProxy) {
+//                    if (hashValue != this) {
+//                        source = ((KrollProxy) hashValue).getKrollObject();
+//                    }
+////                    krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
+//                }
+                if (krollData.size() == 0) {
+                    krollData = null;
+                }
+            }
         }
 
-        if (krollData != null) {
-            Object hashValue = krollData.get(TiC.PROPERTY_BUBBLES);
-            if (hashValue != null) {
-                bubbles &= TiConvert.toBoolean(hashValue);
-                krollData.remove(TiC.PROPERTY_BUBBLES);
-            }
-            hashValue = krollData.get(TiC.PROPERTY_SUCCESS);
-            if (hashValue instanceof Boolean) {
-                boolean successValue = ((Boolean) hashValue).booleanValue();
-                hashValue = krollData.get(TiC.PROPERTY_CODE);
-                if (hashValue instanceof Integer) {
-                    int codeValue = ((Integer) hashValue).intValue();
-                    if (successValue == (codeValue == 0)) {
-                        reportSuccess = true;
-                        code = codeValue;
-                        krollData.remove(TiC.PROPERTY_SUCCESS);
-                        krollData.remove(TiC.PROPERTY_CODE);
-                    } else {
-                        Log.w(TAG,
-                                "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true if and only if code is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-                                Log.DEBUG_MODE);
+        if (eventListeners != null && !eventListeners.isEmpty()) {
+            HashMap<Integer, Object> listeners = eventListeners
+                    .get(event);
+            if (listeners != null) {
+                for (Integer listenerId : listeners.keySet()) {
+                    Object callback = listeners.get(listenerId);
+                    if (callback instanceof KrollEventCallback) {
+                        ((KrollEventCallback) callback).call(data);
+                    } else if (callback instanceof KrollFunction) {
+                        ((KrollFunction) callback).call(krollObject, (HashMap) data);
+//                        ((KrollEventCallback) callback).call(data);
                     }
-                } else if (successValue) {
-                    Log.w(TAG,
-                            "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property that is 0. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-                            Log.DEBUG_MODE);
-                } else {
-                    Log.w(TAG,
-                            "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-                            Log.DEBUG_MODE);
                 }
-            } else if (hashValue != null) {
-                Log.w(TAG,
-                        "DEPRECATION WARNING: The 'success' event property is reserved to be a boolean. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-                        Log.DEBUG_MODE);
-            }
-            hashValue = krollData.get(TiC.EVENT_PROPERTY_ERROR);
-            if (hashValue instanceof String) {
-                message = (String) hashValue;
-                krollData.remove(TiC.EVENT_PROPERTY_ERROR);
-            } else if (hashValue != null) {
-                Log.w(TAG,
-                        "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules, consider the putCodeAndMessage() method to do this for you. The capability to use other types will be removed in a future version.",
-                        Log.DEBUG_MODE);
-            }
-            hashValue = krollData.get(TiC.EVENT_PROPERTY_SOURCE);
-            if (hashValue instanceof KrollProxy) {
-                if (hashValue != this) {
-                    source = ((KrollProxy) hashValue).getKrollObject();
-                }
-//                krollData.remove(TiC.EVENT_PROPERTY_SOURCE);
-            }
-            if (krollData.size() == 0) {
-                krollData = null;
             }
         }
+
+        
+
+        
 
         return getKrollObject().fireEvent(source, event, krollData, bubbles,
                 reportSuccess, code, message);
@@ -1950,7 +2028,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
     }
 
-    public int addEventListener(String eventName, KrollEventCallback callback) {
+    public int addEventListener(String eventName, Object callback) {
         int listenerId = -1;
 
         if (eventName == null) {
@@ -1967,10 +2045,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 setProperty(PROPERTY_HAS_JAVA_LISTENER, true);
             }
 
-            HashMap<Integer, KrollEventCallback> listeners = eventListeners
+            HashMap<Integer, Object> listeners = eventListeners
                     .get(eventName);
             if (listeners == null) {
-                listeners = new HashMap<Integer, KrollEventCallback>();
+                listeners = new HashMap<Integer, Object>();
                 eventListeners.put(eventName, listeners);
             }
 
@@ -1992,7 +2070,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
 
         synchronized (eventListeners) {
-            HashMap<Integer, KrollEventCallback> listeners = eventListeners
+            HashMap<Integer, Object> listeners = eventListeners
                     .get(eventName);
             if (listeners != null) {
                 listeners.remove(listenerId);
@@ -2113,7 +2191,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         if (readyToUpdateNativeSideProperties
                 && propertiesToUpdateNativeSide != null) {
             updateKrollObjectProperties(propertiesToUpdateNativeSide);
-            propertiesToUpdateNativeSide = null;
+//            propertiesToUpdateNativeSide = null;
         }
     }
     
@@ -2163,8 +2241,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     Object value = entry.getValue();
                     int count = -1;
                     if (value instanceof KrollFunction) {
-                        count = addEventListener(key, new KrollEventFunction(
-                                getKrollObject(), (KrollFunction) value));
+                        count = addEventListener(key, value);
                     } else {
                         count = addEvaluator(key, value);
                     }
