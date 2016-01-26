@@ -226,7 +226,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		return new TiWindowView(this);
 	}
 
-	public void addLightweightWindowToStack() 
+	public boolean addLightweightWindowToStack() 
 	{
 		// Add LW window to the decor view and add it to stack.
 		Activity topActivity = TiApplication.getAppCurrentActivity();
@@ -243,14 +243,16 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					callPropertySync(PROPERTY_LOAD_URL, null);
 
 					state = State.OPENED;
+			        needsOpenEvent = true;
 					// fireEvent(TiC.EVENT_OPEN, null);
 
 					baseActivity.addWindowToStack(this);
-					return;
+					return true;
 				}
 			}
 		}
 		Log.e(TAG, "Unable to open the lightweight window because the current activity is not available.");
+		return false;
 	}
 
 	public void removeLightweightWindowFromStack()
@@ -312,16 +314,16 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			Log.d(TAG, "open the window: lightweight = " + lightweight, Log.DEBUG_MODE);
 		}
 
-		if (lightweight) {
-			addLightweightWindowToStack();
-		} else {
+//		if (lightweight) {
+//			addLightweightWindowToStack();
+//		} else {
 			// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
 //			properties.remove(TiC.PROPERTY_TOP);
 //			properties.remove(TiC.PROPERTY_BOTTOM);
 //			properties.remove(TiC.PROPERTY_LEFT);
 //			properties.remove(TiC.PROPERTY_RIGHT);
 			super.open(arg);
-		}
+//		}
 	}
 	
 	@Override
@@ -351,6 +353,16 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (topActivity == null || topActivity.isFinishing()) {
 			return;
 		}
+		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
+        if (options.containsKey("_anim")) {
+            animated = false;
+            _openingAnim = animateInternal(options.get("_anim"), null);
+        }
+		if (lightweight) {
+		    addLightweightWindowToStack();
+		    return;
+		}
+		
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
 
@@ -361,11 +373,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
         int enterAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION, -1);
         int exitAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION, -1);
         
-        boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-        if (options.containsKey("_anim")) {
-            animated = false;
-            _openingAnim = animateInternal(options.get("_anim"), null);
-        }
+        
         if (!animated) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
             enterAnimation = 0;
