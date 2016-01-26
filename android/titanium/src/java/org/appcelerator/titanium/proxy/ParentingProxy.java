@@ -204,8 +204,7 @@ public class ParentingProxy extends KrollProxy {
                 }
             } else {
                 child = (KrollProxy) args;
-                String bindId = TiConvert.toString(
-                        child.getProperty(TiC.PROPERTY_BIND_ID), null);
+                String bindId = child.getBindId();
                 if (bindId != null) {
                     addBinding(bindId, child);
                 }
