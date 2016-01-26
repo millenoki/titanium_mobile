@@ -751,6 +751,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
         }
         viewRealised  = true;
 	    view.didRealize();
+        applyFirstPendingFromOptions();
         handlePendingAnimation();
 	}
 	

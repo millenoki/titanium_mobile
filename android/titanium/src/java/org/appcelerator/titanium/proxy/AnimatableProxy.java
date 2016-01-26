@@ -38,6 +38,15 @@ public class AnimatableProxy extends ParentingProxy {
 		pendingAnimationLock = new Object();
 		runningAnimationsLock = new Object();
 	}
+	
+	protected void applyFirstPendingFromOptions() {
+	    synchronized (pendingAnimationLock) {
+            if (pendingAnimations.size() == 0) {
+                return;
+            }
+            pendingAnimations.get(0).applyFromOptions(this);
+        }
+	}
 
 	protected void handlePendingAnimation() {
 	    TiAnimatorSet tiSet;
@@ -167,9 +176,9 @@ public class AnimatableProxy extends ParentingProxy {
 		List<Animator> list = new ArrayList<Animator>();
 		List<Animator> listReverse = tiSet.autoreverse?new ArrayList<Animator>():null;
 		   
-		if (options.containsKey("from")) {
-		    applyPropertiesNoSave(TiConvert.toKrollDict(options.get("from")), false, true);
-		}
+		if (tiSet.options.containsKey("from")) {
+            this.applyPropertiesNoSave(TiConvert.toHashMap(tiSet.options.get("from")), false, true);
+        }
 		prepareAnimatorSet(tiSet, list, listReverse);
 		
 		int repeatCount = (tiSet.repeat == ValueAnimator.INFINITE ? tiSet.repeat : tiSet.repeat - 1);

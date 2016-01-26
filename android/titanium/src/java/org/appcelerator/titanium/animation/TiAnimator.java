@@ -40,7 +40,7 @@ public class TiAnimator
 
 	public TiAnimation animationProxy;
 	protected KrollFunction callback;
-	public HashMap options;
+	public HashMap<String, Object> options;
 	protected AnimatableProxy proxy;
 
 	public TiAnimator()
@@ -214,6 +214,24 @@ public class TiAnimator
         }
         return proxy.getProperties();
     }
+	
+	private void interlaApplyFromOptions(AnimatableProxy theProxy, HashMap<String, Object> options) {
+        if (options.containsKey("from")) {
+            theProxy.applyPropertiesNoSave(TiConvert.toHashMap(options.get("from")), false, true);
+        }
+        for (Map.Entry<String, Object> entry : options.entrySet()) {
+            final String key = entry.getKey();
+            Object value = entry.getValue();
+            Object proxyvalue = theProxy.getProperty(key);
+            if (proxyvalue instanceof AnimatableProxy && value instanceof HashMap) {
+                interlaApplyFromOptions((AnimatableProxy)proxyvalue, (HashMap<String, Object>)value);
+            }
+        }
+    }
+	
+	public void applyFromOptions(AnimatableProxy theProxy) {
+	    interlaApplyFromOptions(theProxy, this.options);
+	}
 
 	public void resetAnimationProperties()
 	{

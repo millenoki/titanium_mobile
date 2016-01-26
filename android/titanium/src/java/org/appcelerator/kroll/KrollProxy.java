@@ -879,7 +879,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
     }
     
-    protected void applyPropertiesNoSave(Object arg, boolean force, boolean wait) {
+    public void applyPropertiesNoSave(Object arg, boolean force, boolean wait) {
         if (!(arg instanceof HashMap)) {
             Log.w(TAG, "Cannot apply properties: invalid type for properties",
                     Log.DEBUG_MODE);
