@@ -187,13 +187,17 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                 break;
 
             case "statusBarColor": {
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                getWindow().setStatusBarColor(TiConvert.toColor(newValue));
+                if (TiC.LOLLIPOP_OR_GREATER) {
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                    getWindow().setStatusBarColor(TiConvert.toColor(newValue));
+                }
                 break;
             }
             case "navigationBarColor": {
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                getWindow().setNavigationBarColor(TiConvert.toColor(newValue));
+                if (TiC.LOLLIPOP_OR_GREATER) {
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                    getWindow().setNavigationBarColor(TiConvert.toColor(newValue));
+                }
                 break;
             }
             case TiC.PROPERTY_WIDTH:
