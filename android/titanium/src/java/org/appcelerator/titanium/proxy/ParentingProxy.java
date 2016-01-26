@@ -89,19 +89,29 @@ public class ParentingProxy extends KrollProxy {
             }
         }
     }
-
-    /**
-     * @return The parent view proxy of this view proxy.
-     * @module.api
-     */
-    @Kroll.getProperty(enumerable=false)
-    @Kroll.method
     public ParentingProxy getParent() {
         if (this.parent == null) {
             return null;
         }
-
         return this.parent.get();
+       
+    }
+    /**
+     * @return The parent view proxy of this view proxy.
+     * @module.api
+     */
+    @Kroll.getProperty(enumerable=false, name="parent")
+    @Kroll.method(name="getParent")
+    public ParentingProxy getJSParent() {
+        if (this.parent == null) {
+            return null;
+        }
+        ParentingProxy parent = getParent();
+       if (parent != null) {
+           //make sure it exists
+            parent.getKrollObject();
+        }
+        return parent;
     }
 
     public void setParent(ParentingProxy parent) {
