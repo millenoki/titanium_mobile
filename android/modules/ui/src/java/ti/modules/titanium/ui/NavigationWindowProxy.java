@@ -164,7 +164,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 		        sActionBarDict.put(TiC.PROPERTY_DISPLAY_HOME_AS_UP, canGoBack);
 	            sActionBarDict.put(TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED, canGoBack);
 	            sActionBarDict.put(TiC.PROPERTY_HOME_AS_UP_INDICATOR, null);
-	            actionBar.applyProperties(sActionBarDict);
+	            actionBar.applyPropertiesInternal(sActionBarDict, false, false);
 		    }
 		}
 	}
