@@ -499,7 +499,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		
 
 		// Need to handle the cached activity proxy properties and url window in the JS side.
-		callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
+		callPropertyAsync(PROPERTY_POST_WINDOW_CREATED, null);
 	}
 
 	@Override
