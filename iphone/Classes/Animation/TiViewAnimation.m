@@ -265,9 +265,10 @@
     //applyProperties will set the actual object props which we dont want
     
     [m_tiViewProxy setRunningAnimationRecursive:step];
-    [m_tiViewProxy setFakeApplyProperties:YES];
-    [m_tiViewProxy applyProperties:[self toProperties]];
-    [m_tiViewProxy setFakeApplyProperties:NO];
+    [m_animationProxy applyToOptionsForAnimation:self];
+//    [m_tiViewProxy setFakeApplyProperties:YES];
+//    [m_tiViewProxy applyProperties:[self toProperties]];
+//    [m_tiViewProxy setFakeApplyProperties:NO];
     [m_tiViewProxy setRunningAnimationRecursive:nil];
     //    if ([_view isKindOfClass:[TiUIView class]])
     //    {

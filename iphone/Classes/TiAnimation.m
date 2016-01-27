@@ -133,24 +133,24 @@ static NSArray *animProps;
 	return nil;
 }
 
--(NSDictionary*)propertiesForAnimation:(TiHLSAnimation*)anim
-{
-    NSDictionary *properties = [self allProperties];
-    if (anim.isReversed) {
-        id<NSFastEnumeration> keys = [self allKeys];
-        NSMutableDictionary* reverseProps = [[NSMutableDictionary alloc]initWithCapacity:[(NSArray*)keys count]];
-        for (NSString* key in keys) {
-            id value = [anim.animatedProxy valueForUndefinedKey:key];
-            if (value) [reverseProps setObject:value forKey:key];
-            else {
-                [reverseProps setObject:[NSNull null] forKey:key];
-            }
-        }
-        properties = [NSDictionary dictionaryWithDictionary:reverseProps];
-        [reverseProps release];
-    }
-    return properties;
-}
+//-(NSDictionary*)propertiesForAnimation:(TiHLSAnimation*)anim
+//{
+//    NSDictionary *properties = [self allProperties];
+//    if (anim.isReversed) {
+//        id<NSFastEnumeration> keys = [self allKeys];
+//        NSMutableDictionary* reverseProps = [[NSMutableDictionary alloc]initWithCapacity:[(NSArray*)keys count]];
+//        for (NSString* key in keys) {
+//            id value = [anim.animatedProxy valueForUndefinedKey:key];
+//            if (value) [reverseProps setObject:value forKey:key];
+//            else {
+//                [reverseProps setObject:[NSNull null] forKey:key];
+//            }
+//        }
+//        properties = [NSDictionary dictionaryWithDictionary:reverseProps];
+//        [reverseProps release];
+//    }
+//    return properties;
+//}
 
 -(NSDictionary*)propertiesForAnimation:(TiAnimatableProxy*)animProxy destination:(BOOL)destination reverse:(BOOL)reversed
 {
@@ -210,21 +210,65 @@ static NSArray *animProps;
 {
     return [self propertiesForAnimation:anim destination:!anim.isReversed];
 }
+//
+//-(NSDictionary*)fromPropertiesForAnimatableProxy:(TiAnimatableProxy*)animProxy
+//{
+//    return [self propertiesForAnimation:animProxy destination:false reverse:true];
+//}
+//
+//-(NSDictionary*)toPropertiesForAnimatableProxy:(TiAnimatableProxy*)animProxy
+//{
+//    return [self propertiesForAnimation:animProxy destination:true reverse:false];
+//}
 
--(NSDictionary*)fromPropertiesForAnimatableProxy:(TiAnimatableProxy*)animProxy
-{
-    return [self propertiesForAnimation:animProxy destination:false reverse:true];
+
+-(void)interlaApplyOptions:(NSDictionary*)options onProxy:(TiProxy*)theProxy fromProps:(BOOL)fromProps isFake:(BOOL)fake {
+    NSString* prop = fromProps?@"from":@"to";
+    NSMutableDictionary* realOptions = [NSMutableDictionary dictionaryWithDictionary:options];
+    if (fake) {
+        [theProxy setFakeApplyProperties:YES];
+    }
+    if ([realOptions objectForKey:prop]) {
+        [theProxy applyProperties:[realOptions objectForKey:prop]];
+    }
+    [realOptions enumerateKeysAndObjectsUsingBlock:^(NSString*  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if (IS_OF_CLASS(obj, NSDictionary) && [theProxy bindingForKey:key]) {
+            [self interlaApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake];
+            [realOptions removeObjectForKey:key];
+        }
+    }];
+    [realOptions removeObjectForKey:@"from"];
+    [realOptions removeObjectForKey:@"to"];
+    if (!fromProps && [realOptions count] > 0) {
+        [theProxy applyProperties:realOptions];
+    }
+    if (fake) {
+        [theProxy setFakeApplyProperties:NO];
+    }
 }
 
--(NSDictionary*)toPropertiesForAnimatableProxy:(TiAnimatableProxy*)animProxy
+-(void)applyFromOptions:(TiProxy*)theProxy {
+    [self interlaApplyOptions:[self allProperties] onProxy:theProxy fromProps:YES isFake:YES];
+}
+
+-(void)applyToOptions:(TiProxy*)theProxy {
+    [self interlaApplyOptions:[self allProperties] onProxy:theProxy fromProps:NO isFake:YES];
+}
+
+
+-(void)applyFromOptionsForAnimation:(TiHLSAnimation*)anim
 {
-    return [self propertiesForAnimation:animProxy destination:true reverse:false];
+    [self interlaApplyOptions:[self allProperties] onProxy:self.animatedProxy fromProps:!anim.isReversed isFake:YES];
+}
+
+-(void)applyToOptionsForAnimation:(TiHLSAnimation*)anim
+{
+    [self interlaApplyOptions:[self allProperties] onProxy:self.animatedProxy fromProps:anim.isReversed isFake:YES];
 }
 
 -(void)updateProxyProperties
 {
-    NSDictionary* props = [self toPropertiesForAnimatableProxy:animatedProxy];
-    if (props) [animatedProxy applyProperties:props];
+    [self interlaApplyOptions:[self allProperties] onProxy:animatedProxy fromProps:NO isFake:NO];
 }
 
 

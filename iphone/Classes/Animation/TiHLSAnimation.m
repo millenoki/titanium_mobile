@@ -81,6 +81,14 @@
     return nil;
 }
 
+-(void)applyToOptions {
+    [m_animationProxy applyToOptionsForAnimation:self];
+}
+
+-(void)applyFromOptions {
+    [m_animationProxy applyFromOptionsForAnimation:self];
+}
+
 #pragma mark Reverse animation
 
 - (id)reverseObjectAnimation

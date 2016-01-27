@@ -8,4 +8,7 @@
     TiAnimatableProxy* m_animatedProxy;
     BOOL m_isReversed;
 }
+
+-(void)applyToOptions;
+-(void)applyFromOptions;
 @end
