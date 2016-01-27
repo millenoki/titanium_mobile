@@ -248,7 +248,7 @@ TiValueRef KrollCallAsNamedFunction(TiContextRef jsContext, TiObjectRef func, Ti
 	// special property setter delegator against the target
 	if (type == KrollMethodPropertySetter)
 	{
-        int argsCount = [args count];
+        NSUInteger argsCount = [args count];
         id newValue = nil;
         if (argsCount > 1 && IS_OF_CLASS([args objectAtIndex:1], NSDictionary)) {
             newValue = [KrollObject nonNull:[[[TiComplexValue alloc] initWithValue:[args objectAtIndex:0] properties:[args objectAtIndex:1]] autorelease]];
