@@ -2478,8 +2478,8 @@ static NSDictionary* replaceKeysForRow;
 	if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
 		UIView *contentView = cell.contentView;
         TiViewProxy *tapViewProxy =[TiUIHelper findViewProxyWithBindIdUnder:contentView containingPoint:[tableView convertPoint:point toView:contentView]];
-		if (tapViewProxy != nil) {
-			[eventObject setObject:[tapViewProxy valueForKey:@"bindId"] forKey:@"bindId"];
+		if (tapViewProxy != nil && tapViewProxy.bindId) {
+			[eventObject setObject:tapViewProxy.bindId forKey:@"bindId"];
 		}
 	}
     return [eventObject autorelease];

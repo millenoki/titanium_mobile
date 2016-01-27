@@ -370,9 +370,7 @@
 - (TiProxy *)createChildFromObject:(id)object rootProxy:(TiParentingProxy*)rootProxy
 {
     TiProxy *child = nil;
-    NSString* bindId = nil;
     if ([object isKindOfClass:[NSDictionary class]]) {
-        bindId = [object valueForKey:@"bindId"];
         id<TiEvaluator> context = self.executionContext;
         if (context == nil) {
             context = self.pageContext;
@@ -392,11 +390,9 @@
     } else if(([object isKindOfClass:[TiProxy class]]))
     {
         child = (TiProxy *)object;
-        bindId = [object valueForUndefinedKey:@"bindId"];
     }
-    if (child && bindId) {
-        [child setValue:bindId forUndefinedKey:@"bindId"];
-        [rootProxy addBinding:child forKey:bindId];
+    if (child && child.bindId) {
+        [rootProxy addBinding:child forKey:child.bindId];
     }
     return child;
 }
@@ -491,9 +487,8 @@
                     [child forgetSelf];
                 }];
                 [self addProxy:child atIndex:-1 shouldRelayout:NO];
-                id bindId = [child valueForUndefinedKey:@"bindId"];
-                if (bindId) {
-                    [rootProxy addBinding:child forKey:bindId];
+                if (child.bindId) {
+                    [rootProxy addBinding:child forKey:child.bindId];
                 }
             }
 //            return proxy;

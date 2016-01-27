@@ -76,16 +76,14 @@
 	for (UIView *subview in [view subviews]) {
 		TiViewProxy *viewProxy = [self findViewProxyWithBindIdUnder:subview containingPoint:[view convertPoint:point toView:subview]];
 		if (viewProxy != nil) {
-			id bindId = [viewProxy valueForKey:@"bindId"];
-			if (bindId != nil) {
+			if (viewProxy.bindId) {
 				return viewProxy;
 			}
 		}
 	}
 	if ([view isKindOfClass:[TiUIView class]]) {
 		TiViewProxy *viewProxy = (TiViewProxy *)[(TiUIView *)view proxy];
-		id bindId = [viewProxy valueForKey:@"bindId"];
-		if (bindId != nil) {
+		if (viewProxy.bindId) {
 			return viewProxy;
 		}
 	}

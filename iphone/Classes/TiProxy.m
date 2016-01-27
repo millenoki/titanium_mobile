@@ -217,6 +217,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 
 @synthesize pageContext, executionContext;
 @synthesize modelDelegate;
+@synthesize bindId;
 @synthesize eventOverrideDelegate = eventOverrideDelegate;
 @synthesize createdFromDictionary = _createdFromDictionary;
 @synthesize fakeApplyProperties = _fakeApplyProperties;
@@ -1589,9 +1590,8 @@ DEFINE_EXCEPTIONS
 -(id)objectOfClass:(Class)theClass fromArg:(id)arg {
     id result = [TiProxy objectOfClass:theClass fromArg:arg inContext:[self getContext]];
     if (IS_OF_CLASS(result, TiProxy)) {
-        id bindId = [result valueForUndefinedKey:@"bindId"];
-        if (bindId) {
-            [self addBinding:result forKey:bindId];
+        if (((TiProxy*)result).bindId) {
+            [self addBinding:result forKey:((TiProxy*)result).bindId];
         }
     }
     return result;
@@ -1684,6 +1684,7 @@ DEFINE_EXCEPTIONS
     if (context == nil) {
         context = self.pageContext;
     }
+    self.bindId = [dictionary objectForKey:@"bindId"];
     NSDictionary* properties = (NSDictionary*)[dictionary objectForKey:@"properties"];
     if (properties == nil) properties = dictionary;
     [self _initWithProperties:properties];
