@@ -1811,7 +1811,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)viewDidInitialize
 {
-	// for subclasses
+    [self applyPendingFromProps];
 }
 
 -(void)viewDidAttach

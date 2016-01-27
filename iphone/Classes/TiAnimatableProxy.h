@@ -27,5 +27,6 @@
 -(void)resetProxyPropertiesForAnimation:(TiAnimation*)animation;
 -(void)clearAnimations;
 -(void)removePendingAnimation:(TiAnimation *)animation;
+-(void)applyPendingFromProps;
 
 @end

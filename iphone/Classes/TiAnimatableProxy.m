@@ -213,6 +213,21 @@
     [self handleAnimation:animation witDelegate:self];
 }
 
+
+-(void)applyPendingFromProps
+{
+    pthread_rwlock_rdlock(&pendingLock);
+    if ([_pendingAnimations count] == 0) {
+        pthread_rwlock_unlock(&pendingLock);
+        return;
+    }
+    pthread_rwlock_unlock(&pendingLock);
+    for (TiAnimation* anim in _pendingAnimations) {
+        [anim applyFromOptions:self];
+    }
+    pthread_rwlock_unlock(&pendingLock);
+}
+
 -(void)handleAnimation:(TiAnimation*)animation witDelegate:(id)delegate
 {
     animation.animatedProxy = self;
@@ -226,12 +241,14 @@
     hlsAnimation.lockingUI = NO;
     animation.animation = hlsAnimation;
     
-    NSDictionary* fromProps = [animation fromPropertiesForAnimatableProxy:self];
-    if ([fromProps count] > 0) {
-        [self setFakeApplyProperties:YES];
-        [self applyProperties:fromProps];
-        [self setFakeApplyProperties:NO];
-    }
+    
+    [animation applyFromOptions:self];
+//    NSDictionary* fromProps = [animation fromPropertiesForAnimatableProxy:self];
+//    if ([fromProps count] > 0) {
+//        [self setFakeApplyProperties:YES];
+//        [self applyProperties:fromProps];
+//        [self setFakeApplyProperties:NO];
+//    }
     
     [self playAnimation:hlsAnimation withRepeatCount:[animation repeatCount] afterDelay:[animation delay]];
 }
