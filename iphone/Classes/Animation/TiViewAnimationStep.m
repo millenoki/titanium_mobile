@@ -51,7 +51,6 @@
         }
         NSTimeInterval animationDuration = self.duration;
         NSAssert(viewAnimation != nil, @"Missing view animation; data consistency failure");
-//        [viewAnimation checkParameters];
         void (^animation)() = ^{
             if (self.curve) {
                 [CATransaction begin];
@@ -69,15 +68,6 @@
         void (^complete)(BOOL) = ^(BOOL finished) {
             [self notifyAsynchronousAnimationStepDidStopFinished:finished];
         };
-        
-        
-//        [UIView animateWithDuration:animationDuration
-//                              delay:0
-//             usingSpringWithDamping:0.0f
-//              initialSpringVelocity:0.0f
-//                            options:options
-//                         animations:animation
-//                         completion:complete];
         [UIView animateWithDuration:animationDuration
                               delay:0
                             options:options

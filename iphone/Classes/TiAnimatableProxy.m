@@ -243,12 +243,6 @@
     
     
     [animation applyFromOptions:self];
-//    NSDictionary* fromProps = [animation fromPropertiesForAnimatableProxy:self];
-//    if ([fromProps count] > 0) {
-//        [self setFakeApplyProperties:YES];
-//        [self applyProperties:fromProps];
-//        [self setFakeApplyProperties:NO];
-//    }
     
     [self playAnimation:hlsAnimation withRepeatCount:[animation repeatCount] afterDelay:[animation delay]];
 }
