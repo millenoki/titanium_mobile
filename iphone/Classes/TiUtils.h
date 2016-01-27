@@ -293,6 +293,9 @@ typedef enum
 
 +(CGRect)rectValue:(id)value;
 
++(Ti2DMatrix*)matrixValue:(id)value;
++(Ti2DMatrix*)matrixValue:(id)value def:(Ti2DMatrix*)def;
+
 /**
  Converts input value into a float.
  @param value The input value.
