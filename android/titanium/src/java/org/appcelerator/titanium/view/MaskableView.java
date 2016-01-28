@@ -173,6 +173,9 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
     public MaskableView(Context context) {
         super(context);
     }
+    public MaskableView(Context context, TiUIView view) {
+        super(context, view);
+    }
 
     public MaskableView(Context context, AttributeSet attrs) {
         this(context);
