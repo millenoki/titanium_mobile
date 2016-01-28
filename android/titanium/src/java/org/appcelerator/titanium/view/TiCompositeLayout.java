@@ -695,7 +695,10 @@ public class TiCompositeLayout extends FreeLayout implements
                     
                 }
             }
-
+            if (childDimension == LayoutParams.MATCH_PARENT && wMode == MeasureSpec.UNSPECIFIED) {
+                //this is a fix for children inside a notTiLayout view
+                wMode = MeasureSpec.AT_MOST;
+            }
             wMode = getChildMeasureSpec(width, wMode, widthPadding, childDimension);
             
             // If autoFillsHeight is false, and optionHeight is null, then we use
@@ -709,6 +712,7 @@ public class TiCompositeLayout extends FreeLayout implements
                 if (p.autoFillsHeight
                         || (checkedForConflict && sizeFillConflicts[1] == HAS_SIZE_FILL_CONFLICT)) {
                     childDimension = LayoutParams.MATCH_PARENT;
+                   
                 } else if (!p.sizeOrFillHeightEnabled) {
                     TiDimension top = p.optionTop;
                     TiDimension centerY = p.optionCenterY;
@@ -729,6 +733,10 @@ public class TiCompositeLayout extends FreeLayout implements
                         }
                     }
                 }
+            }
+            if (childDimension == LayoutParams.MATCH_PARENT && hMode == MeasureSpec.UNSPECIFIED) {
+                //this is a fix for children inside a notTiLayout view
+                hMode = MeasureSpec.AT_MOST;
             }
             hMode = getChildMeasureSpec(height, hMode, heightPadding, childDimension);
         }
