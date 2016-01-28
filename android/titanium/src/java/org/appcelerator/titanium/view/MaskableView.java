@@ -173,6 +173,14 @@ public class MaskableView extends TiCompositeLayout implements OnGlobalLayoutLis
     public MaskableView(Context context) {
         super(context);
     }
+    
+    
+    //important to get transparency when HW disabled
+    @Override
+    public boolean isOpaque() {
+        return false;
+    }
+    
     public MaskableView(Context context, TiUIView view) {
         super(context, view);
     }
