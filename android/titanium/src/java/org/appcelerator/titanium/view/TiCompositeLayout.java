@@ -340,10 +340,21 @@ public class TiCompositeLayout extends FreeLayout implements
 	            if (params.ignoreInLayout) {
 	                continue;
 	            }
-	            if (params.onLayoutAlwaysFill) {
+	            if (params.notTiLayout) {
                     mAlwaysFillViews.add(child);
                     continue;
-                }
+	            }
+//	            if (params.notTiLayout) {
+////	                int widthPadding = getViewWidthPadding(child, params, this);
+////	                int heightPadding = getViewHeightPadding(child, params, this);
+//	                measureChildWithMargins(child, widthMeasureSpec, 0, heightMeasureSpec, 0);
+//	                maxWidth = Math.max(maxWidth,
+//	                        child.getMeasuredWidth() + child.getPaddingLeft() + child.getPaddingRight());
+//	                maxHeight = Math.max(maxHeight,
+//	                        child.getMeasuredHeight() + child.getPaddingTop() + child.getPaddingBottom());
+//                    
+//	                continue;
+//                }
 	            Boolean needsProcessing = true;
 	            if (horizontalNoWrap && viewShouldFillHorizontalLayout(child, params)) {
 	                mAutoFillWidthViews.add(child);
@@ -451,6 +462,28 @@ public class TiCompositeLayout extends FreeLayout implements
 	        if (horizontal) {
 	            maxHeight += horizontalRowHeight;
 	        }
+	        
+	        count = mAlwaysFillViews.size() ;
+	        if (count > 0) {
+	            
+	            for (int i = 0; i < count; i++) {
+	                View child = mAlwaysFillViews.get(i);
+	                TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
+	                        .getLayoutParams();
+	                int widthPadding = getViewWidthPadding(child, params, this);
+	                int heightPadding = getViewHeightPadding(child, params, this);
+	                int childwMode = getChildMeasureSpec(maxWidth, MeasureSpec.UNSPECIFIED, widthPadding, params.width);
+	                int childhMode = getChildMeasureSpec(maxHeight, MeasureSpec.UNSPECIFIED, heightPadding, params.height);
+	                child.setMinimumWidth(maxWidth);
+	                child.setMinimumHeight(maxHeight);
+	                child.measure(childwMode, childhMode);
+	                maxWidth = Math.max(maxWidth,
+	                        child.getMeasuredWidth());
+	                maxHeight = Math.max(maxHeight,
+	                        child.getMeasuredHeight());
+	            }
+	            mAlwaysFillViews.clear();
+	        }
 		}
 
 		
@@ -460,8 +493,8 @@ public class TiCompositeLayout extends FreeLayout implements
 		maxHeight += getPaddingTop() + getPaddingBottom();
 		
 		//if we are in a borderView our layoutParams are not the ones we wnat to look at
-		ViewGroup.LayoutParams params = getTiLayoutParams();
-		LayoutParams p = (params instanceof LayoutParams)?(LayoutParams)params:null;
+		ViewGroup.LayoutParams viewParams = getTiLayoutParams();
+		LayoutParams p = (viewParams instanceof LayoutParams)?(LayoutParams)viewParams:null;
 		if (p != null) {
 			//if we are fill we need to fill ….
 			if (p.fullscreen || p.optionWidth == null && p.autoFillsWidth) {
@@ -473,27 +506,17 @@ public class TiCompositeLayout extends FreeLayout implements
 		}
 		
 		
+		
 		// check minimums
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
 		
-		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
-		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
+		int measuredWidth = resolveSize(maxWidth, widthMeasureSpec);
+		int measuredHeight = resolveSize(maxHeight, heightMeasureSpec);
 
 		setMeasuredDimension(measuredWidth, measuredHeight);
 		
-		int count = mAlwaysFillViews.size() ;
-        if (count > 0) {
-            int wMode = MeasureSpec.makeMeasureSpec(measuredWidth,
-                    MeasureSpec.EXACTLY);
-            int hMode = MeasureSpec.makeMeasureSpec(measuredHeight,
-                    MeasureSpec.EXACTLY);
-            for (int i = 0; i < count; i++) {
-                View child = mAlwaysFillViews.get(i);
-                child.measure(wMode, hMode);
-                mAlwaysFillViews.clear();
-            }
-        }
+		
 	}
 	
 	
@@ -912,8 +935,17 @@ public class TiCompositeLayout extends FreeLayout implements
 			View child = getChildAt(i);
 			if (child == null || child.getVisibility() == View.GONE)
 				continue;
-
+			
             final TiCompositeLayout.LayoutParams params = getChildParams(child);
+            if (params.onLayoutAlwaysFill) {
+                child.layout(0, 0, right, bottom);
+                continue;
+            }
+            if (params.notTiLayout) {
+                child.layout(0, 0, child.getMeasuredWidth(), child.getMeasuredHeight());
+                continue;
+            }
+            
 			currentHeight = getChildSize(child, i, params, left, top, bottom,
 					right, currentHeight, horizontal, vertical, firstVisibleChild);
 			
@@ -1549,15 +1581,21 @@ public class TiCompositeLayout extends FreeLayout implements
     }
 	@Override
 	public void dispatchSetPressed(boolean pressed) {
-		TiUIView view = getView();
-		if (view != null && (view.getDispatchPressed() == true))
-		{
-			int count = getChildCount();
-			for (int i = 0; i < count; i++) {
-	            final View child = getChildAt(i);
-	            child.setPressed(pressed);
-	        }
-		}
+	    TiUIView view = getView();
+		View nativeView = view != null ? view.getNativeView() : null;
+		boolean dispatchPressed = view != null && (view.getDispatchPressed() == true);
+//		if (view != null && (view.getDispatchPressed() == true))
+//		{
+		int count = getChildCount();
+		for (int i = 0; i < count; i++) {
+            final View child = getChildAt(i);
+            //always setpressed for the nativeview if it it ours nativeview
+            //only happens for TiUINonViewGroup
+            if (dispatchPressed || child == nativeView) {
+                child.setPressed(pressed);
+            }
+        }
+//		}
 	};
 	
 	@Override
