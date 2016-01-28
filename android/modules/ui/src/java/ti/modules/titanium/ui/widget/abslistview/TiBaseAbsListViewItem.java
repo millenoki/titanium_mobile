@@ -8,13 +8,14 @@
 package ti.modules.titanium.ui.widget.abslistview;
 
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.util.AttributeSet;
 
-public class TiBaseAbsListViewItem extends TiCompositeLayout{
+public class TiBaseAbsListViewItem extends TiBorderWrapperView{
 
 	
 	public int sectionIndex = -1;
@@ -24,7 +25,7 @@ public class TiBaseAbsListViewItem extends TiCompositeLayout{
 	}
 	
 	public TiBaseAbsListViewItem(Context context, AttributeSet set) {
-		super(context, set);
+		super(context, null);
         setId(TiAbsListView.listContentId);
 	}
 	
