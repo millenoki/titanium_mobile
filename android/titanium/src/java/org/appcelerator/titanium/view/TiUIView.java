@@ -2742,8 +2742,6 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         viewToAddTo.setLayoutParams(animParams);
         if (setOurLayoutParams) {
             setLayoutParams(animParams);
-//        } else {
-//            animParams.notTiLayout = true;
         }
         
         Animator anim = createLayoutAnimator(viewToAddTo, oldAnimationFraction, 1.0f);
