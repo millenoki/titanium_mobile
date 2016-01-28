@@ -13,6 +13,10 @@ public class TiUINonViewGroupView extends TiUIView {
 	public TiUINonViewGroupView(TiViewProxy proxy) {
 		super(proxy);
 	}
+	
+	public TiUINonViewGroupView(TiViewProxy proxy, TiCompositeLayout.LayoutParams params) {
+        super(proxy, params);
+	}
 
 	protected TiCompositeLayout childrenHolder = null;
 	@Override
@@ -49,10 +53,12 @@ public class TiUINonViewGroupView extends TiUIView {
 			boolean value = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_CHILDREN));
 			childrenHolder.setClipChildren(value);	
 		}
-        if (TiC.LOLLIPOP_OR_GREATER) {
-            childrenHolder.setElevation(1000);
-        }
-		getOrCreateBorderView().addView(childrenHolder, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//        if (TiC.LOLLIPOP_OR_GREATER) {
+//            childrenHolder.setElevation(1000);
+//        }
+		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+		params.onLayoutAlwaysFill = true;
+		getOrCreateBorderView().addView(childrenHolder, params);
 		updateLayoutForChildren(proxy.getProperties());	
 	}
 	

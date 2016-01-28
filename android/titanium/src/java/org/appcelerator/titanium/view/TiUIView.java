@@ -391,6 +391,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (nativeView instanceof ViewGroup) {
             return (ViewGroup) nativeView;
         }
+        if (borderView != null) {
+            return borderView;
+        }
         return null;
     }
 
@@ -915,9 +918,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             case TiC.PROPERTY_BORDER_PADDING:
                 mBorderPadding = TiConvert.toPaddingRect(newValue,
                         mBorderPadding);
-                if (borderView != null) {
-                    borderView.setBorderPadding(mBorderPadding);
-                }
+                getOrCreateBorderView().setBorderPadding(mBorderPadding);
                 break;
             }
             if (changedProperty)
@@ -1112,8 +1113,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             break;
         case TiC.PROPERTY_ANTI_ALIAS:
             antiAlias = TiConvert.toBoolean(newValue);
-            if (borderView != null)
-                borderView.setAntiAlias(antiAlias);
+            if (getBorderView() != null) {
+                getBorderView().setAntiAlias(antiAlias);
+            }
             break;
         case TiC.PROPERTY_MASK_FROM_VIEW:
             KrollProxy maskProxy = proxy.addProxyToHold(newValue, "maskView");
@@ -1125,8 +1127,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     add(tiView);
                 }
                 getOrCreateBorderView().setMaskView(view);
-            } else if (borderView != null) {
-                getOrCreateBorderView().setMaskView(null);
+            } else if (getBorderView() != null) {
+                getBorderView().setMaskView(null);
             }
             break;
 		case TiC.PROPERTY_TRANSITION_NAME: { 
@@ -1717,15 +1719,25 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             savedParent.addView(borderView, savedIndex);
         }
     }
+    
+    protected TiBorderWrapperView getBorderView() {
+        if (nativeView instanceof TiBorderWrapperView) {
+            return (TiBorderWrapperView) nativeView;
+        }
+        return borderView;
+    }
 
     protected TiBorderWrapperView getOrCreateBorderView() {
+        if (nativeView instanceof TiBorderWrapperView) {
+            return (TiBorderWrapperView) nativeView;
+        }
         if (borderView == null) {
             Activity currentActivity = proxy.getActivity();
             if (currentActivity == null) {
                 currentActivity = TiApplication.getAppCurrentActivity();
             }
             float oldAlpha = getRootView().getAlpha();
-            borderView = new TiBorderWrapperView(currentActivity, proxy);
+            borderView = new TiBorderWrapperView(currentActivity, this);
             borderView.setAlpha(oldAlpha);
             getRootView().setAlpha(1.0f);
 //            ViewHelper.setAlpha(borderView, oldAlpha);
@@ -2352,6 +2364,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void disableHWAcceleration(View view) {
         if (TiC.HONEYCOMB_OR_GREATER) {
+            view.setWillNotCacheDrawing(false);
+//            view.setDrawingCacheBackgroundColor(0);
             view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
     }

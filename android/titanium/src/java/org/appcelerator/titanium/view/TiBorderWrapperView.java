@@ -14,16 +14,14 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.Path.FillType;
 import android.graphics.drawable.Drawable;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 /**
  * This class is a wrapper for Titanium Views with borders. Any view that specifies a border
@@ -34,72 +32,69 @@ public class TiBorderWrapperView extends MaskableView
 	public static final int SOLID = 0;
 	private static final String TAG = "TiBorderWrapperView";
 
-//	private int color = Color.TRANSPARENT;
 	private float[] radius = null;
 	private float borderWidth = -1;
 	private int borderAlpha = -1;
-	private RectF clipRect;
+	private Rect clipRect;
 	private Path clipPath;
 	private boolean clipChildren = true;
 	private boolean antiAlias = false;
 	private RectF mBorderPadding = null;
-	private TiViewProxy proxy;
-//	private boolean mDrawableSizeChanged = false;
+	private boolean mDrawableSizeChanged = false;
+	private boolean needsPathOrClip = false;
 	
-	private View borderDrawableHoldingView = null;
+//	private View borderDrawableHoldingView = null;
 	
 	protected TiBackgroundDrawable mDrawable;
 
-	public TiBorderWrapperView(Context context, TiViewProxy proxy)
+	public TiBorderWrapperView(Context context, TiUIView view)
 	{
-		super(context);
-		this.proxy = proxy;
-		this.setAddStatesFromChildren(true);
-		clipRect = new RectF();
-		
-		//we dont need it but this is a trick to get the mask to also mask the border
-		setWillNotDraw(false);
+		super(context, view);
+//		this.setAddStatesFromChildren(true);
 	}
 	
 	protected TiBackgroundDrawable getOrCreateDrawable()
 	{
 		if (mDrawable == null)
 		{
-			borderDrawableHoldingView = new FrameLayout(getContext()){
-				@Override
-				public boolean dispatchTouchEvent(MotionEvent event) {
-					return false;
-				}
-			};
+//			borderDrawableHoldingView = new FrameLayout(getContext()){
+//				@Override
+//				public boolean dispatchTouchEvent(MotionEvent event) {
+//					return false;
+//				}
+//			};
 //			if (this.borderWidth == -1) {
 //				this.borderWidth = TiUIHelper.getRawSize(1, null);
 //			}
 			mDrawable = new TiBackgroundDrawable(true);
-			if (borderAlpha < 1.0)
+			if (borderAlpha < 1.0) {
 				mDrawable.setAlpha(Math.round(borderAlpha * 255));
-			if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_REPEAT))
-				mDrawable.setImageRepeat(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_BACKGROUND_REPEAT)));
+			}
+			final TiViewProxy proxy = getViewProxy();
+			if (proxy != null) {
+                mDrawable.setImageRepeat(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_BACKGROUND_REPEAT), false));
+			}
 			mDrawable.setRadius(radius);
 			mDrawable.setPadding(mBorderPadding);
 			
-//			mDrawableSizeChanged = true;
+			mDrawableSizeChanged = true;
 			
 //			mDrawable.setVisible(getVisibility() == VISIBLE, false);
-			TiUIView.setBackgroundDrawable(borderDrawableHoldingView, mDrawable);
-			
-			borderDrawableHoldingView.setEnabled(isEnabled());
+//			TiUIView.setBackgroundDrawable(borderDrawableHoldingView, mDrawable);
+//			
+//			borderDrawableHoldingView.setEnabled(isEnabled());
             if (mDrawable.isStateful()) {
                 mDrawable.setState(getDrawableState());
             }
-			addView(borderDrawableHoldingView, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-			invalidate();
+//			addView(borderDrawableHoldingView, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//			invalidate();
 			
 		}
 		return mDrawable;
 	}
 	
 	protected void clipCanvas(Canvas canvas) {
-		if (!this.clipChildren || this.antiAlias) return;
+		if (!needsPathOrClip) return;
 		if (radius != null) {
 			// This still happens sometimes when hw accelerated so, catch and warn
 			try {
@@ -112,37 +107,34 @@ public class TiBorderWrapperView extends MaskableView
 		}
 	}
 	
+	private void updateNeedsPathOrClip() {
+	    needsPathOrClip = !this.antiAlias && (this.clipChildren || radius !=null);
+	}
+	
 	@Override
     public void setClipChildren(boolean clipChildren) {
 		this.clipChildren = clipChildren;
 		super.setClipChildren(clipChildren);
+		updateNeedsPathOrClip();
     }
 	
 	public void setAntiAlias(boolean antialias) {
         this.antiAlias = antialias;
+        updateNeedsPathOrClip();
     }
     
     
 
 	@Override
 	protected void onSizeChanged (int w, int h, int oldw, int oldh) {
-//		mDrawableSizeChanged = true;
+		mDrawableSizeChanged = true;
 		updateBorderPath();
 	}
 	
 	@Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-	    //we must call super onlayout not to break anything
 	    super.onLayout(changed, l, t, r, b);
 		if (changed) updateBorderPath();
-        int parentLeft = 0;
-		int parentRight = r - l;
-		int parentTop = 0;
-		int parentBottom = b - t;
-        for (int i = 0; i < getChildCount(); i++) {
-            final View child = getChildAt(i);
-            child.layout(parentLeft, parentTop, parentRight, parentBottom);
-        }
     }
 	
 	@Override
@@ -194,13 +186,19 @@ public class TiBorderWrapperView extends MaskableView
 //		else  {
 			canvas.save();
 			clipCanvas(canvas);
+			shoulDrawMask = false;
 			super.dispatchDraw(canvas);
+			drawBorder(canvas);
+            shoulDrawMask = true;
+	        if (isMaskingEnabled()) {
+	            drawMask(canvas);
+	        }
 			canvas.restore();
 //			drawBorder(canvas);
 //		}
 	}
 	
-	private float[] clipRadiusFromPadding(RectF outerRect)
+	private float[] clipRadiusFromPadding(Rect outerRect)
 	{
 		float[] result = new float[8];
 		for (int i = 0; i < result.length; i++) {
@@ -211,22 +209,27 @@ public class TiBorderWrapperView extends MaskableView
 
 	private void updateBorderPath()
 	{
-		Rect bounds = new Rect();
-		getDrawingRect(bounds);
-		if (bounds.isEmpty()) return;
+	    if (!needsPathOrClip) return;
+	    if (clipRect == null) {
+	        clipRect = new Rect();
+	    }
+//		Rect rect = new Rect();
+		getDrawingRect(clipRect);
+		if (clipRect.isEmpty()) return;
 		
-		RectF outerRect = new RectF();
-		outerRect.set(bounds);
+//		RectF outerRect = new RectF();
+//		outerRect.set(bounds);
 
 		// cap padding to current bounds
 		if (radius !=null) {
-			clipPath = new Path();
+		    if (clipPath == null) {
+	            clipPath = new Path();
+		    } else {
+		        clipPath.reset();
+		    }
 			clipPath.setFillType(FillType.EVEN_ODD);
-			clipPath.addRoundRect(outerRect, (borderWidth> 1)?clipRadiusFromPadding(outerRect):radius, Direction.CW);
+			clipPath.addRoundRect(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom, (borderWidth> 1)?clipRadiusFromPadding(clipRect):radius, Direction.CW);
 			
-		} else {
-			clipPath = null;
-			clipRect.set(outerRect);
 		}
 		invalidate();
 
@@ -237,13 +240,13 @@ public class TiBorderWrapperView extends MaskableView
 
 	private void drawBorder(Canvas canvas)
 	{
-//		if (mDrawable != null) {
-//			if (mDrawableSizeChanged) {
-//				mDrawable.setBounds(0, 0,  getWidth(), getHeight());
-//                mDrawableSizeChanged = false; 
-//            }
-//			mDrawable.draw(canvas);
-//		}
+		if (mDrawable != null) {
+			if (mDrawableSizeChanged) {
+				mDrawable.setBounds(0, 0,  getWidth(), getHeight());
+                mDrawableSizeChanged = false; 
+            }
+			mDrawable.draw(canvas);
+		}
 	}
 	
 	public TiBackgroundDrawable getBorderDrawable()
@@ -251,13 +254,13 @@ public class TiBorderWrapperView extends MaskableView
 		return getOrCreateDrawable();
 	}
 	
-	@Override
-    public void addView(View child, int index, ViewGroup.LayoutParams params) {
-        super.addView(child, index, params);
-        if (borderDrawableHoldingView != null) {
-        	borderDrawableHoldingView.bringToFront();
-        }
-    }
+//	@Override
+//    public void addView(View child, int index, ViewGroup.LayoutParams params) {
+//        super.addView(child, index, params);
+//        if (borderDrawableHoldingView != null) {
+//        	borderDrawableHoldingView.bringToFront();
+//        }
+//    }
 	
 	private void onColorSet() {
 	    if (this.borderWidth == -1) {
@@ -303,10 +306,16 @@ public class TiBorderWrapperView extends MaskableView
 	public void setRadius(float[] radius)
 	{
 		this.radius = radius;
+		if (radius != null) {
+            clipPath = new Path();
+		} else {
+		    clipPath = null;
+		}
 		if (mDrawable != null) 
 		{
 			mDrawable.setRadius(radius);
 		}
+        updateNeedsPathOrClip();
 		updateBorderPath();
 		postInvalidate();
 	}
@@ -332,14 +341,14 @@ public class TiBorderWrapperView extends MaskableView
 		postInvalidate();
 	}
 	
-	@Override
-	public void dispatchSetPressed(boolean pressed) {
-		int count = getChildCount();
-		for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            child.setPressed(pressed);
-        }
-	}
+//	@Override
+//	public void dispatchSetPressed(boolean pressed) {
+//		int count = getChildCount();
+//		for (int i = 0; i < count; i++) {
+//            final View child = getChildAt(i);
+//            child.setPressed(pressed);
+//        }
+//	}
 	
 	public void setBorderPadding(RectF mBorderPadding) {
 		this.mBorderPadding  = mBorderPadding;
