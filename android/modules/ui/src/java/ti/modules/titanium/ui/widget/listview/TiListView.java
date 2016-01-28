@@ -30,7 +30,6 @@ import ti.modules.titanium.ui.widget.abslistview.AbsListItemProxy;
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListView;
 import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItem;
 import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItemHolder;
-//import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import android.app.Activity;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
@@ -81,7 +80,6 @@ public class TiListView extends TiAbsListView<CustomListView> {
 
     @Override
     protected CustomListView createListView(final Activity activity) {
-        final KrollProxy fProxy = this.proxy;
         CustomListView result = new CustomListView(activity) {
 
             @Override
