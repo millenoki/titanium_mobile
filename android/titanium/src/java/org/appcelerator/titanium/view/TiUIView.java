@@ -202,13 +202,17 @@ public abstract class TiUIView implements KrollProxyReusableListener,
      *            the associated proxy.
      * @module.api
      */
-    public TiUIView(TiViewProxy proxy) {
+    public TiUIView(TiViewProxy proxy, TiCompositeLayout.LayoutParams params) {
         if (idGenerator == null) {
             idGenerator = new AtomicInteger(0);
         }
         this.proxy = proxy;
-        this.layoutParams = new TiCompositeLayout.LayoutParams();
+        this.layoutParams = params;
         handler = new Handler(Looper.getMainLooper(), this);
+    }
+    
+    public TiUIView(TiViewProxy proxy) {
+        this(proxy, new TiCompositeLayout.LayoutParams());
     }
 
     /**

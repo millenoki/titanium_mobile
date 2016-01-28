@@ -45,6 +45,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -223,7 +224,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 
 	public TiUIWebView(TiViewProxy proxy)
 	{
-		super(proxy);
+		super(proxy, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 		this.isFocusable = true;
 		TiWebView webView = isHTCSenseDevice() ? new TiWebView(proxy.getActivity()) : new NonHTCWebView(proxy.getActivity());
 		webView.setVerticalScrollbarOverlay(true);
@@ -285,12 +286,6 @@ public class TiUIWebView extends TiUINonViewGroupView
 			}
 			webProxy.clearBasicAuthentication();
 		}
-
-		TiCompositeLayout.LayoutParams params = getLayoutParams();
-		params.autoFillsHeight = true;
-		params.autoFillsWidth = true;
-		params.sizeOrFillWidthEnabled = true;
-        params.sizeOrFillHeightEnabled = true;
 
 		setNativeView(webView);
 	}

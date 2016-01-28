@@ -7,14 +7,16 @@
 package ti.modules.titanium.ui.widget;
 
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.view.ViewGroup;
+
 public class TiView extends TiUIView
 {
-
 	public TiView(TiViewProxy proxy) {
-		super(proxy);
-		setNativeView(new TiCompositeLayout(proxy.getActivity(), this));
+		super(proxy, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		setNativeView(new TiBorderWrapperView(proxy.getActivity(), this));
 	}
 }
