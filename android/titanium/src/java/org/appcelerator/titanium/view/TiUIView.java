@@ -844,6 +844,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                                     * TiConvert.toFloat(newValue, 1f));
                 break;
             case TiC.PROPERTY_BACKGROUND_PADDING:
+                background.setPadding(TiConvert.toPaddingRect(newValue, null));
                 Log.i(TAG, key + " not yet implemented.");
                 break;
             default:

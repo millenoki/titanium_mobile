@@ -163,12 +163,14 @@ public class TiBackgroundDrawable extends Drawable {
 			}
 		}
 		else {
-		    if (isBorder || pathWidth > 0) {
+		    if (isBorder || pathWidth > 0 || mPadding != null) {
 		        path = new Path();
                 path.setFillType(FillType.EVEN_ODD);
 		    }
-			if (pathWidth > 0) {
+			if (pathWidth > 0 || mPadding != null) {
 				path.addRect(outerRect, Direction.CW);
+			}
+			if (pathWidth > 0) {
 				int padding = 0;
 				int maxPadding = 0;
 				RectF innerRect = new RectF();
