@@ -48,17 +48,24 @@ public class TiUINonViewGroupView extends TiUIView {
     }
 
 	protected void createChildrenHolder(){
-		childrenHolder = new TiCompositeLayout(proxy.getActivity(), this);
+		childrenHolder = new TiCompositeLayout(proxy.getActivity(), this) {
+		    @Override
+		    public void dispatchSetPressed(boolean pressed) {
+		            int count = getChildCount();
+		            for (int i = 0; i < count; i++) {
+		                final View child = getChildAt(i);
+		                child.setPressed(pressed);
+		            }
+		    };
+		};
 		if (proxy.hasProperty(TiC.PROPERTY_CLIP_CHILDREN)) {
 			boolean value = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_CHILDREN));
 			childrenHolder.setClipChildren(value);	
 		}
-//        if (TiC.LOLLIPOP_OR_GREATER) {
-//            childrenHolder.setElevation(1000);
-//        }
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-		params.onLayoutAlwaysFill = true;
+		params.notTiLayout = true;
 		getOrCreateBorderView().addView(childrenHolder, params);
+        
 		updateLayoutForChildren(proxy.getProperties());	
 	}
 	
