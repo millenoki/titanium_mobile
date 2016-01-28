@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiLaunchActivity;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -295,7 +296,11 @@ public class TiCompositeLayout extends FreeLayout implements
         }
         return params;
 	}
-
+	
+	private final List<View> mAutoFillWidthViews = new ArrayList<View>();
+	private final List<View> mAutoFillHeightViews = new ArrayList<View>();
+	private final List<View> mAlwaysFillViews = new ArrayList<View>();
+    
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 	    final int childCount = getChildCount();
@@ -321,10 +326,7 @@ public class TiCompositeLayout extends FreeLayout implements
 	        int horizontalRowHeight = 0;
 
 	        // we need to first get the list/number of autoFillsWidth views
-	        List<View> autoFillWidthViews = new ArrayList<View>();
-	        List<View> autoFillHeightViews = new ArrayList<View>();
 
-	        
 	        boolean horizontalNoWrap = horizontal && !enableHorizontalWrap;
 	        boolean horizontalWrap = horizontal && enableHorizontalWrap;
 	        float autoFillWidthTotalWeight = 0;
@@ -338,14 +340,18 @@ public class TiCompositeLayout extends FreeLayout implements
 	            if (params.ignoreInLayout) {
 	                continue;
 	            }
+	            if (params.onLayoutAlwaysFill) {
+                    mAlwaysFillViews.add(child);
+                    continue;
+                }
 	            Boolean needsProcessing = true;
 	            if (horizontalNoWrap && viewShouldFillHorizontalLayout(child, params)) {
-	                autoFillWidthViews.add(child);
+	                mAutoFillWidthViews.add(child);
 	                autoFillWidthTotalWeight += params.weight;
 	                needsProcessing = false;
 	            }
 	            if ((vertical || horizontalWrap) && viewShouldFillVerticalLayout(child, params)) {
-	                autoFillHeightViews.add(child);
+	                mAutoFillHeightViews.add(child);
 	                autoFillHeightTotalWeight += params.weight;
 	                needsProcessing = false;
 	            }
@@ -394,11 +400,11 @@ public class TiCompositeLayout extends FreeLayout implements
 	                }
 	            }
 	        }
-	        int countFillWidth = autoFillWidthViews.size() ;
-	        if (countFillWidth > 0) {
+	        int count = mAutoFillWidthViews.size() ;
+	        if (count > 0) {
 	            float counter = 0;
-	            for (int i = 0; i < countFillWidth; i++) {
-	                View child = autoFillWidthViews.get(i);
+	            for (int i = 0; i < count; i++) {
+	                View child = mAutoFillWidthViews.get(i);
 	                TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
 	                        .getLayoutParams();
 	                final float weight = params.weight;
@@ -415,13 +421,14 @@ public class TiCompositeLayout extends FreeLayout implements
 	                horizontalRowHeight = Math
 	                        .max(horizontalRowHeight, childHeight);
 	            }
+	            mAutoFillWidthViews.clear();
 	        }
 
-	        int countFillHeight = autoFillHeightViews.size() ;
-	        if (countFillHeight > 0) {
+	        count = mAutoFillHeightViews.size() ;
+	        if (count > 0) {
 	            float counter = 0;
-	            for (int i = 0; i < countFillHeight; i++) {
-	                View child = autoFillHeightViews.get(i);
+	            for (int i = 0; i < count; i++) {
+	                View child = mAutoFillHeightViews.get(i);
 	                TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child
 	                        .getLayoutParams();
 	                final float weight = params.weight;
@@ -437,6 +444,7 @@ public class TiCompositeLayout extends FreeLayout implements
 	                maxHeight += childHeight;
 	                maxWidth = Math.max(maxWidth, childWidth);
 	            }
+                mAutoFillHeightViews.clear();
 	        }
 
 	        // Add height for last row in horizontal layout
@@ -473,7 +481,19 @@ public class TiCompositeLayout extends FreeLayout implements
 		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
 
 		setMeasuredDimension(measuredWidth, measuredHeight);
-//        applyAnimationSize(this, p, false);
+		
+		int count = mAlwaysFillViews.size() ;
+        if (count > 0) {
+            int wMode = MeasureSpec.makeMeasureSpec(measuredWidth,
+                    MeasureSpec.EXACTLY);
+            int hMode = MeasureSpec.makeMeasureSpec(measuredHeight,
+                    MeasureSpec.EXACTLY);
+            for (int i = 0; i < count; i++) {
+                View child = mAlwaysFillViews.get(i);
+                child.measure(wMode, hMode);
+                mAlwaysFillViews.clear();
+            }
+        }
 	}
 	
 	
@@ -1298,6 +1318,7 @@ public class TiCompositeLayout extends FreeLayout implements
 
         public boolean fullscreen = false;
         public boolean ignoreInLayout = false;
+        public boolean onLayoutAlwaysFill = false;
 		// This are flags to determine whether we are using fill or size
 		// behavior
 		public boolean sizeOrFillHeightEnabled = false;
@@ -1374,6 +1395,7 @@ public class TiCompositeLayout extends FreeLayout implements
             sizeRatio = params.sizeRatio;
             widthDefined = params.widthDefined;
             heightDefined = params.heightDefined;
+            onLayoutAlwaysFill = params.onLayoutAlwaysFill;
 		}
 		public LayoutParams(TiCompositeLayout.LayoutParams params) {
 			super(params);
@@ -1520,6 +1542,11 @@ public class TiCompositeLayout extends FreeLayout implements
 		if (view != null) return view.get();
 		return null;
 	}
+	
+	public TiViewProxy getViewProxy() {
+        if (view != null) return view.get().getProxy();
+        return null;
+    }
 	@Override
 	public void dispatchSetPressed(boolean pressed) {
 		TiUIView view = getView();
