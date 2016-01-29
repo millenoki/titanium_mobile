@@ -2062,9 +2062,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             // }
             listenerId = listenerIdGenerator.incrementAndGet();
             listeners.put(listenerId, callback);
+            eventListenerAdded(eventName, listeners.size(), this);
         }
 
-        eventListenerAdded(eventName, listenerId, this);
         return listenerId;
     }
 
