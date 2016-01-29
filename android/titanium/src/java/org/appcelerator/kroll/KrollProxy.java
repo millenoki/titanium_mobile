@@ -793,7 +793,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         
         //use a shallow copy because properties is synchronized
         if (krollObject != null) {
-            updateKrollObjectProperties(properties, true);
+            internalUpdateKrollObjectProperties(properties, true);
         } else {
             needsToUpdateNativeSideProps  = true;
         }
@@ -801,14 +801,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     public void updateKrollObjectProperties(HashMap<String, Object> props) {
+        updateKrollObjectProperties(props, true);
+    }
+    public void updateKrollObjectProperties(HashMap<String, Object> props, final boolean wait) {
         if (krollObject != null) {
-            updateKrollObjectProperties(props, true);
+            internalUpdateKrollObjectProperties(props, wait);
         } else {
             propertiesToUpdateNativeSide  = props;
         }
-    }
-    
-    public void updateKrollObjectProperties(HashMap<String, Object> props, final boolean wait) {
+    }   
+    public void internalUpdateKrollObjectProperties(HashMap<String, Object> props, final boolean wait) {
         if (KrollRuntime.getInstance().isRuntimeThread()) {
             doUpdateKrollObjectProperties(props);
 
