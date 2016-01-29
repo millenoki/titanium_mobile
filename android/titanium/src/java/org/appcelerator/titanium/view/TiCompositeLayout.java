@@ -511,8 +511,8 @@ public class TiCompositeLayout extends FreeLayout implements
 		maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
 		maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
 		
-		int measuredWidth = resolveSize(maxWidth, widthMeasureSpec);
-		int measuredHeight = resolveSize(maxHeight, heightMeasureSpec);
+		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
+		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
 
 		setMeasuredDimension(measuredWidth, measuredHeight);
 		
