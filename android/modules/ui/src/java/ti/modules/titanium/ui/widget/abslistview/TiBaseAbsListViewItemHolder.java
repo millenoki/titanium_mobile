@@ -50,7 +50,7 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 	    if (hasHeightRelyingOnPercent) {
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(listView.get().getMeasuredHeight(), MeasureSpec.AT_MOST);
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(listView.get().getMeasuredHeight(), MeasureSpec.UNSPECIFIED);
 	    }
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
