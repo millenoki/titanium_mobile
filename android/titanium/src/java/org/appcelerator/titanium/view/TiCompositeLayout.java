@@ -250,12 +250,13 @@ public class TiCompositeLayout extends FreeLayout implements
         if (params.fullscreen == true) return true;
 		if (params.sizeOrFillWidthEnabled == false) return false;
 		if (params.autoFillsWidth) return true;
-		boolean borderView = (view instanceof TiBorderWrapperView);
+//		boolean borderView = (view instanceof TiBorderWrapperView);
 		if (view instanceof ViewGroup) {
 			ViewGroup viewGroup = (ViewGroup)view;
 	        for (int i=0; i<viewGroup.getChildCount(); i++) {
 	            View child = viewGroup.getChildAt(i);
-	        	ViewGroup.LayoutParams childParams = borderView?params:child.getLayoutParams();
+//	        	ViewGroup.LayoutParams childParams = borderView?params:child.getLayoutParams();
+                ViewGroup.LayoutParams childParams = child.getLayoutParams();
 	        	if (childParams instanceof LayoutParams && viewShouldFillHorizontalLayout(child, (LayoutParams) childParams)) {
 	        		return true;
 	        	}
@@ -270,12 +271,13 @@ public class TiCompositeLayout extends FreeLayout implements
 		if (params.fullscreen == true) return true;
 		if (params.sizeOrFillHeightEnabled == false) return false;
 		if (params.autoFillsHeight) return true;
-        boolean borderView = (view instanceof TiBorderWrapperView);
+//        boolean borderView = (view instanceof TiBorderWrapperView);
 		if (view instanceof ViewGroup) {
 			ViewGroup viewGroup = (ViewGroup)view;
 	        for (int i=0; i<viewGroup.getChildCount(); i++) {
 	            View child = viewGroup.getChildAt(i);
-	        	ViewGroup.LayoutParams childParams = borderView?params:child.getLayoutParams();
+//                ViewGroup.LayoutParams childParams = borderView?params:child.getLayoutParams();
+	        	ViewGroup.LayoutParams childParams = child.getLayoutParams();
 	        	if (childParams instanceof LayoutParams && viewShouldFillVerticalLayout(child, (LayoutParams) childParams)) {
 	        		return true;
 	        	}
