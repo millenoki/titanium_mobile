@@ -13,6 +13,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.TiMessenger.Command;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -312,7 +313,14 @@ public class WebViewProxy extends ViewProxy
 			if (TiApplication.isUIThread()) {
 				return getWebView().canGoBack();
 			} else {
-				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_BACK));
+			    return getInUiThread(new Command<Boolean>() {
+
+                    @Override
+                    public Boolean execute() {
+                        return getWebView().canGoBack();
+                    }
+                });
+//				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_BACK));
 			}
 		}
 		return false;
@@ -325,7 +333,14 @@ public class WebViewProxy extends ViewProxy
 			if (TiApplication.isUIThread()) {
 				return getWebView().canGoForward();
 			} else {
-				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_FORWARD));
+			    return getInUiThread(new Command<Boolean>() {
+
+                    @Override
+                    public Boolean execute() {
+                        return getWebView().canGoForward();
+                    }
+                });
+//				return (Boolean) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_CAN_GO_FORWARD));
 			}
 		}
 		return false;
