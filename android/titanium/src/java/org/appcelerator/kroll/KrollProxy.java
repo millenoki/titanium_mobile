@@ -1145,6 +1145,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 evaluators.put(eventName, theListeners);
             }
             theListeners.add(TiConvert.toKrollDict(data));
+            eventListenerAdded(eventName, theListeners.size(), this);
             return theListeners.size();
         }
     }
@@ -1206,6 +1207,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                         break;
                     }
                 }
+                eventListenerRemoved(eventName, theListeners.size(), this);
                 if (theListeners.isEmpty()) {
                     evaluators.remove(eventName);
                 }
@@ -2062,6 +2064,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             listeners.put(listenerId, callback);
         }
 
+        eventListenerAdded(eventName, listenerId, this);
         return listenerId;
     }
 
@@ -2076,6 +2079,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     .get(eventName);
             if (listeners != null) {
                 listeners.remove(listenerId);
+                eventListenerRemoved(eventName, listeners.size(), this);
                 if (listeners.isEmpty()) {
                     eventListeners.remove(eventName);
                 }
@@ -2247,7 +2251,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     } else {
                         count = addEvaluator(key, value);
                     }
-                    eventListenerAdded(key, count, this);
                 }
             }
         }
