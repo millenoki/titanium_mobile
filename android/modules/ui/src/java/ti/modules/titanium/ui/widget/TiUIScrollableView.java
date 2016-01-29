@@ -306,11 +306,11 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 		}
 		else if ((scrollState == ViewPager.SCROLL_STATE_IDLE) && isValidScroll) {
 			int oldIndex = mCurIndex;
-			{
+//			{
 				updateCurrentPageDuringScroll = false;
-				((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
-			}
+//			}
 			if (mCurIndex >= 0) {
+                ((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
 //				if (oldIndex >=0 && oldIndex != mCurIndex && oldIndex < mViews.size()) {
 //					// Don't know what these focused and unfocused
 //					// events are good for, but they were in our previous
@@ -320,13 +320,13 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 //				}
 //
 //				TiEventHelper.fireUnfocused(mViews.get(mCurIndex));
-				if (oldIndex >= 0) {
-					// oldIndex will be -1 if the view has just
-					// been created and is setting currentPage
-					// to something other than 0. In that case we
-					// don't want a `scrollend` to fire.
-					((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
-				}
+//				if (oldIndex >= 0) {
+//					// oldIndex will be -1 if the view has just
+//					// been created and is setting currentPage
+//					// to something other than 0. In that case we
+//					// don't want a `scrollend` to fire.
+//					((ScrollableViewProxy)proxy).fireScrollEnd(mCurIndex, mViews.get(mCurIndex));
+//				}
 
 				if (shouldShowPager()) {
 					showPager();
