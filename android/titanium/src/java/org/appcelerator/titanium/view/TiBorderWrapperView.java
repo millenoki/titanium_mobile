@@ -102,7 +102,7 @@ public class TiBorderWrapperView extends MaskableView
 			} catch (Exception e) {
 				Log.w(TAG, "clipPath failed on canvas: " + e.getMessage(), Log.DEBUG_MODE);
 			}
-		} else {
+		} else if (clipRect != null){
 			canvas.clipRect(clipRect);
 		}
 	}
