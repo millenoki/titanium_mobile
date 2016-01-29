@@ -818,7 +818,7 @@ public abstract class TiApplication extends Application implements
         }
     }
     
-    public static OkHttpClient getPicassoHttpClient(final KrollDict options) {
+    public static OkHttpClient getPicassoHttpClient(final HashMap options) {
         OkHttpClient client = getPicassoHttpClientInstance();
         if (options == null) {
             return client;

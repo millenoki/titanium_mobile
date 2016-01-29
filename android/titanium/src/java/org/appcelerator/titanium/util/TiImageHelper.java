@@ -7,6 +7,7 @@
 
 package org.appcelerator.titanium.util;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -562,40 +563,62 @@ public class TiImageHelper {
     }
 
     public static void downloadDrawableReference(
-            final TiDrawableReference imageref, final KrollDict options,
-            final Target target) {
+            final TiDrawableReference imageref, final Target target) {
 
         Picasso picasso = TiApplication.getPicassoInstance();
 
-        if (options != null) {
+        if (imageref.httpOptions != null) {
             final Context context = TiApplication.getAppContext();
             picasso = new Picasso.Builder(context)
                     .downloader(new OkHttpDownloader(
-                            TiApplication.getPicassoHttpClient(options)))
+                            TiApplication.getPicassoHttpClient(imageref.httpOptions)))
                     .build();
         }
         // picasso will cancel running request if reusing
         picasso.cancelRequest(target);
         picasso.load(imageref.getUrl()).into(target);
     }
+    
+    public static Bitmap downloadDrawableReferenceBitmap(final TiDrawableReference imageref) {
+
+        Picasso picasso = TiApplication.getPicassoInstance();
+
+        if (imageref.httpOptions != null) {
+            final Context context = TiApplication.getAppContext();
+            picasso = new Picasso.Builder(context)
+                    .downloader(new OkHttpDownloader(
+                            TiApplication.getPicassoHttpClient(imageref.httpOptions)))
+                    .build();
+        }
+        // picasso will cancel running request if reusing
+        picasso.cancelTag(imageref.getCacheKey());
+        try {
+            return picasso.load(imageref.getUrl()).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
 
     public static void downloadDrawable(final KrollProxy proxy,
-            final TiDrawableReference imageref, final boolean localLoadSync,
+            TiDrawableReference imageref, boolean localLoadSync,
+            final TiDrawableTarget target) {
+        imageref.httpOptions = TiConvert.toHashMap(proxy.getProperty(TiC.PROPERTY_HTTP_OPTIONS));
+        downloadDrawable(imageref, localLoadSync, target);
+    }
+
+    public static void downloadDrawable(final TiDrawableReference imageref, final boolean localLoadSync,
             final TiDrawableTarget target) {
         Picasso picasso = TiApplication.getPicassoInstance();
         picasso.cancelRequest(target);
         if (imageref.isNetworkUrl()) {
-            final KrollDict properties = (KrollDict) ((proxy != null)
-                    ? TiConvert.toKrollDict(
-                            proxy.getProperty(TiC.PROPERTY_HTTP_OPTIONS))
-                    : null);
             TiActivityHelper.runInUiThread(
                     TiApplication.getAppCurrentActivity(),
                     new CommandNoReturn() {
                         @Override
                         public void execute() {
-                            downloadDrawableReference(imageref, properties,
-                                    target);
+                            downloadDrawableReference(imageref, target);
                         }
                     });
         } else {
