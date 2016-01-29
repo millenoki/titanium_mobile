@@ -44,9 +44,9 @@ public final class TitaniumtestApplication extends TiApplication {
                 put("akylas.charts", new Class[] {
                         akylas.charts.AkylasChartsBootstrap.class,
                         akylas.charts.AkylasChartsModule.class });
-                put("akylas.bluetooth", new Class[] {
-                        akylas.bluetooth.AkylasBluetoothBootstrap.class,
-                        akylas.bluetooth.AkylasBluetoothModule.class });
+//                put("akylas.bluetooth", new Class[] {
+//                        akylas.bluetooth.AkylasBluetoothBootstrap.class,
+//                        akylas.bluetooth.AkylasBluetoothModule.class });
             }
         };
         V8Runtime runtime = new V8Runtime();
