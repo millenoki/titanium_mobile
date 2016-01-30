@@ -1623,8 +1623,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (proxy.hasProperty(TiC.PROPERTY_BACKGROUND_REPEAT))
                 background.setImageRepeat(TiConvert.toBoolean(proxy
                         .getProperty(TiC.PROPERTY_BACKGROUND_REPEAT)));
-            if (borderView != null) {
-                background.setRadius(borderView.getRadius());
+            if (getBorderView() != null) {
+                background.setRadius(getBorderView().getRadius());
             }
         }
         View view = getNativeView();
