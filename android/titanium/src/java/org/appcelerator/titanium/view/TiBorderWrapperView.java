@@ -36,6 +36,7 @@ public class TiBorderWrapperView extends MaskableView
 	private float borderWidth = -1;
 	private int borderAlpha = -1;
 	private Rect clipRect;
+	private RectF clipRectF;
 	private Path clipPath;
 	private boolean clipChildren = true;
 	private boolean antiAlias = false;
@@ -228,8 +229,12 @@ public class TiBorderWrapperView extends MaskableView
 		    } else {
 		        clipPath.reset();
 		    }
+		    if (clipRectF == null) {
+		        clipRectF = new RectF();
+		    }
+		    clipRectF.set(clipRect);
 			clipPath.setFillType(FillType.EVEN_ODD);
-			clipPath.addRoundRect(clipRect.left, clipRect.top, clipRect.right, clipRect.bottom, (borderWidth> 1)?clipRadiusFromPadding(clipRect):radius, Direction.CW);
+			clipPath.addRoundRect(clipRectF, (borderWidth> 1)?clipRadiusFromPadding(clipRect):radius, Direction.CW);
 			
 		}
 		invalidate();
