@@ -42,7 +42,7 @@
     [self updateKeyboardInset];
 }
 
--(UIScrollView*)scrollview {
+-(UIScrollView*)scrollView {
     return nil;
 }
 
@@ -50,7 +50,7 @@
 {
     RELEASE_TO_NIL(_pullViewWrapper)
     RELEASE_TO_NIL(_pullBottomViewWrapper)
-//    UIScrollView* scrollView = [self scrollview];
+//    UIScrollView* scrollView = [self scrollView];
 //    [scrollView ins_removeInfinityScroll];
 //    [scrollView ins_removePullToRefresh];
     [super dealloc];
@@ -129,7 +129,7 @@
 
 -(void)setPullView_:(id)args
 {
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     if (scrollView.bounds.size.width==0)
     {
         [self performSelector:@selector(setPullView_:) withObject:args afterDelay:0.1];
@@ -175,7 +175,7 @@
 
 -(void)setPullBottomView_:(id)args
 {
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     if (scrollView.bounds.size.width==0)
     {
         [self performSelector:@selector(setPullBottomView_:) withObject:args afterDelay:0.1];
@@ -226,14 +226,14 @@
         _pullViewWrapper.frame = CGRectMake(0.0f, 0.0f - bounds.size.height, bounds.size.width, bounds.size.height);
     }
     if (_pullBottomViewWrapper != nil && _hasPullBottomView) {
-        _pullBottomViewWrapper.frame = CGRectMake(0.0f, [self scrollview].contentSize.height, bounds.size.width, bounds.size.height);
+        _pullBottomViewWrapper.frame = CGRectMake(0.0f, [self scrollView].contentSize.height, bounds.size.width, bounds.size.height);
     }
 //    if (_hasPullView) {
 //        TiViewProxy* vp = [[self viewProxy] holdedProxyForKey:@"pullView"];
 //        if (vp) {
 //            [vp setSandboxBounds:bounds];
 //            [vp refreshView];
-//            UIScrollView* scrollView = [self scrollview];
+//            UIScrollView* scrollView = [self scrollView];
 //            scrollView.ins_pullToRefreshBackgroundView.frame = [[vp view] bounds];
 //        }
 //    }
@@ -247,10 +247,10 @@
         NSString* key = [keys objectAtIndex:0];
         if ([key isEqualToString:@"pullView"]) {
             CGRect frame = [(TiViewProxy*)sender view].frame;
-            pullThreshhold = -[self scrollview].contentInset.top + ([(TiViewProxy*)sender view].frame.origin.y - _pullViewWrapper.bounds.size.height);
+            pullThreshhold = -[self scrollView].contentInset.top + ([(TiViewProxy*)sender view].frame.origin.y - _pullViewWrapper.bounds.size.height);
         } else if ([key isEqualToString:@"pullBottomView"]) {
             CGRect frame = [(TiViewProxy*)sender view].frame;
-            UIScrollView* scrollView = [self scrollview];
+            UIScrollView* scrollView = [self scrollView];
             pullBottomThreshhold = scrollView.contentSize.height + scrollView.contentInset.bottom + ([(TiViewProxy*)sender view].frame.size.height);
         }
     }
@@ -264,7 +264,7 @@
     if (anim != nil)
         animated = [anim boolValue];
     
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     CGFloat offset = -scrollView.contentInset.top;
     if (IOS_7) {
         //we have to delay it on ios7 :s
@@ -287,7 +287,7 @@
     }
     _pullBottomViewVisible = YES;
     BOOL animated = YES;
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     if (anim != nil)
         animated = [anim boolValue];
     CGFloat offset = pullThreshhold;
@@ -302,7 +302,7 @@
     if (anim != nil)
         animated = [anim boolValue];
     
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     
     CGFloat offset = scrollView.contentSize.height - scrollView.bounds.size.height + scrollView.contentInset.bottom;
     if (IOS_7) {
@@ -326,7 +326,7 @@
     }
     _pullViewVisible = YES;
     BOOL animated = YES;
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     if (anim != nil)
         animated = [anim boolValue];
     CGFloat offset = pullThreshhold;
@@ -336,38 +336,38 @@
 
 -(void)setDisableBounce_:(id)value
 {
-    [[self scrollview] setBounces:![TiUtils boolValue:value]];
+    [[self scrollView] setBounces:![TiUtils boolValue:value]];
 }
 
 -(void)setBouncesZoom_:(id)value
 {
-    [[self scrollview] setBouncesZoom:[TiUtils boolValue:value]];
+    [[self scrollView] setBouncesZoom:[TiUtils boolValue:value]];
 }
 
 -(void)setCanCancelEvents_:(id)args
 {
-    [[self scrollview] setCanCancelContentTouches:[TiUtils boolValue:args def:YES]];
+    [[self scrollView] setCanCancelContentTouches:[TiUtils boolValue:args def:YES]];
 }
 
 -(void)setDelaysContentTouches_:(id)value
 {
-    [[self scrollview] setDelaysContentTouches:[TiUtils boolValue:value def:YES]];
+    [[self scrollView] setDelaysContentTouches:[TiUtils boolValue:value def:YES]];
 }
 
 -(void)setScrollingEnabled_:(id)enabled
 {
     scrollingEnabled = [TiUtils boolValue:enabled];
-    [[self scrollview] setScrollEnabled:scrollingEnabled];
+    [[self scrollView] setScrollEnabled:scrollingEnabled];
 }
 - (void)setWillScrollOnStatusTap_:(id)value
 {
-    [[self scrollview] setScrollsToTop:[TiUtils boolValue:value def:YES]];
+    [[self scrollView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
 
 - (void)zoomToPoint:(CGPoint)touchPoint withScale: (CGFloat)scale animated: (BOOL)animated
 {
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     scale = MAX(MIN(scrollView.maximumZoomScale, scale), scrollView.minimumZoomScale);
     if (scrollView.zoomScale == scale) {
         return;
@@ -386,7 +386,7 @@
 
 -(void)setContentOffsetToTop:(NSInteger)top animated:(BOOL)animated
 {
-    UIScrollView *currScrollView = [self scrollview];
+    UIScrollView *currScrollView = [self scrollView];
    [currScrollView setContentOffset:CGPointMake(0,top - currScrollView.contentInset.top) animated:animated];
 }
 
@@ -397,7 +397,7 @@
      * Calculate the bottom height & width and, sets the offset from the
      * content view’s origin that corresponds to the receiver’s origin.
      */
-    UIScrollView *currScrollView = [self scrollview];
+    UIScrollView *currScrollView = [self scrollView];
     
     CGSize svContentSize = currScrollView.contentSize;
     CGSize svBoundSize = currScrollView.bounds.size;
@@ -417,9 +417,9 @@
 
 -(void)setMaxZoomScale_:(id)args
 {
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     CGFloat val = [TiUtils floatValue:args def:1.0];
-    [[self scrollview] setMaximumZoomScale:val];
+    [[self scrollView] setMaximumZoomScale:val];
     if ([scrollView zoomScale] > val) {
         [self setZoomScale_:args withObject:nil];
     }
@@ -430,7 +430,7 @@
 
 -(void)setMinZoomScale_:(id)args
 {
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     CGFloat val = [TiUtils floatValue:args def:1.0];
     [scrollView setMinimumZoomScale:val];
     if ([scrollView zoomScale] < val) {
@@ -440,7 +440,7 @@
 
 -(void)setZoomScale_:(id)value withObject:(id)property
 {
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     CGFloat scale = [TiUtils floatValue:value def:1.0];
     BOOL animated = [TiUtils boolValue:@"animated" properties:property def:NO];
     if ([property valueForKey:@"point"]) {
@@ -459,7 +459,7 @@
 
 -(void)setContentOffset_:(id)value withObject:(id)property
 {
-    UIScrollView* scrollView = [self scrollview];
+    UIScrollView* scrollView = [self scrollView];
     CGPoint newOffset = [TiUtils pointValue:value];
     BOOL animated = [TiUtils boolValue:@"animated" properties:property def:(scrollView !=nil)];
     [scrollView setContentOffset:newOffset animated:animated];
@@ -468,41 +468,41 @@
 
 -(void)setScrollsToTop_:(id)value
 {
-    [[self scrollview] setScrollsToTop:[TiUtils boolValue:value def:YES]];
+    [[self scrollView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
 -(void)setHorizontalBounce_:(id)value
 {
-    [[self scrollview] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
+    [[self scrollView] setAlwaysBounceHorizontal:[TiUtils boolValue:value]];
 }
 
 -(void)setVerticalBounce_:(id)value
 {
-    [[self scrollview] setAlwaysBounceVertical:[TiUtils boolValue:value]];
+    [[self scrollView] setAlwaysBounceVertical:[TiUtils boolValue:value]];
 }
 
 
 -(void)setDecelerationRate_:(id)value
 {
-    [[self scrollview] setDecelerationRate:[TiUtils floatValue:value def:UIScrollViewDecelerationRateNormal]];
+    [[self scrollView] setDecelerationRate:[TiUtils floatValue:value def:UIScrollViewDecelerationRateNormal]];
 }
 -(void)setShowHorizontalScrollIndicator_:(id)value
 {
-    [[self scrollview] setShowsHorizontalScrollIndicator:[TiUtils boolValue:value]];
+    [[self scrollView] setShowsHorizontalScrollIndicator:[TiUtils boolValue:value]];
 }
 
 -(void)setShowVerticalScrollIndicator_:(id)value
 {
-    [[self scrollview] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
+    [[self scrollView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
 }
 
 -(void)setScrollIndicatorStyle_:(id)value
 {
-    [[self scrollview] setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
+    [[self scrollView] setIndicatorStyle:[TiUtils intValue:value def:UIScrollViewIndicatorStyleDefault]];
 }
 -(void)setDirectionalLockEnabled_:(id)value
 {
-    [[self scrollview] setDirectionalLockEnabled:[TiUtils boolValue:value]];
+    [[self scrollView] setDirectionalLockEnabled:[TiUtils boolValue:value]];
 }
 
 

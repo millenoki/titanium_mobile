@@ -225,7 +225,7 @@ static NSDictionary* replaceKeysForRow;
 }
 
 
--(UIScrollView*)scrollview {
+-(UIScrollView*)scrollView {
     return [self tableView];
 }
 

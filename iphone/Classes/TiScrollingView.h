@@ -4,6 +4,7 @@
 {
     BOOL scrollingEnabled;
 }
+-(UIScrollView*)scrollView;
 - (void)zoomToPoint:(CGPoint)zoomPoint withScale: (CGFloat)scale animated: (BOOL)animated;
 
 - (NSMutableDictionary *) eventObjectForScrollView: (UIScrollView *) scrollView;

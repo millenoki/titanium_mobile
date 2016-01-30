@@ -137,7 +137,7 @@
 //{
 //    UIView* child = nil;
 //    if ((child = [super hitTest:point withEvent:event]) == self)
-//    	return [self scrollview];
+//    	return [self scrollView];
 //    return child;
 //}
 
@@ -152,7 +152,7 @@
     return [NSArray arrayWithArray:_wrappers];
 }
 
--(UIScrollView*)scrollview 
+-(UIScrollView*)scrollView 
 {
 	if (scrollview==nil)
 	{
@@ -335,7 +335,7 @@
 
 - (void)depthSortViews
 {
-	UIScrollView *sv = [self scrollview];
+	UIScrollView *sv = [self scrollView];
     for (TiSCrollableWrapperView *view in _wrappers)
     {
         if (_reverseDrawOrder)
@@ -347,7 +347,7 @@
 
 -(void)refreshScrollView:(BOOL)readd
 {
-    [self refreshScrollView:[self scrollview].bounds readd:readd];
+    [self refreshScrollView:[self scrollView].bounds readd:readd];
 }
 
 -(void)resetWrapperView:(TiSCrollableWrapperView*)wrapper
@@ -377,7 +377,7 @@
             viewBounds.size.height -= (showPageControl ? pageControlHeight : 0);
         }
     }
-	UIScrollView *sv = [self scrollview];
+	UIScrollView *sv = [self scrollView];
 	
     NSInteger page = [self currentPage];
     
@@ -456,14 +456,14 @@
         bounds.size.height = pageWidth;
         CGFloat offset = TiDimensionCalculateValue(pageOffset, visibleBounds.size.height - bounds.size.height);
         bounds.origin.y = offset;
-        [[self scrollview] setFrame:bounds];
+        [[self scrollView] setFrame:bounds];
     } else {
         CGFloat pageWidth = TiDimensionCalculateValue(pageDimension, visibleBounds.size.width);
         CGRect bounds = visibleBounds;
         bounds.size.width = pageWidth;
         CGFloat offset = TiDimensionCalculateValue(pageOffset, visibleBounds.size.width - bounds.size.width);
         bounds.origin.x = offset;
-        [[self scrollview] setFrame:bounds];
+        [[self scrollView] setFrame:bounds];
     }
 }
 
@@ -502,7 +502,7 @@
     [self manageCache:[self currentPage]];
 	
     //To make sure all subviews are properly resized.
-//    UIScrollView *sv = [self scrollview];
+//    UIScrollView *sv = [self scrollView];
 //    for(UIView *view in _wrappers){
 //        for (TiUIView *sView in [view subviews]) {
 //                [sView checkBounds];
@@ -721,7 +721,7 @@
                          }
                          completion:^(BOOL finished){
                              animating = NO;
-                             [self scrollViewDidEndDecelerating:[self scrollview]];
+                             [self scrollViewDidEndDecelerating:[self scrollView]];
                             } ];
         [CATransaction commit];
     }
@@ -820,7 +820,7 @@
 -(void)setTransition_:(id)value
 {
     
-    UIScrollView* sv = [self scrollview];
+    UIScrollView* sv = [self scrollView];
     ENSURE_SINGLE_ARG_OR_NIL(value, NSDictionary)
     RELEASE_TO_NIL(_transition);
     _transition = [[TiTransitionHelper transitionFromArg:value containerView:sv] retain];

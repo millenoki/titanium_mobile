@@ -3,6 +3,19 @@
 
 @implementation TiScrollingViewProxy
 
+-(NSArray *)keySequence
+{
+    static NSArray *keySequence = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"minZoomScale",@"maxZoomScale",@"zoomScale"]] retain];;
+    });
+    return keySequence;
+}
+
+-(TiScrollingView*)scrollingView {
+    return (TiScrollingView*)[self view];
+}
 
 - (void)viewDidInitialize
 {
@@ -36,14 +49,14 @@
 -(void) setContentOffset:(id)value withObject:(id)animated
 {
     TiThreadPerformOnMainThread(^{
-        [(TiScrollingView *)[self view] setContentOffset_:value withObject:animated];
+        [[self scrollingView] setContentOffset_:value withObject:animated];
     }, YES);
 }
 
 -(void) setZoomScale:(id)value withObject:(id)animated
 {
     TiThreadPerformOnMainThread(^{
-        [(TiScrollingView *)[self view] setZoomScale_:value withObject:animated];
+        [[self scrollingView] setZoomScale_:value withObject:animated];
     }, YES);
 }
 
@@ -67,7 +80,7 @@
     NSDictionary *options = [args count] > 1 ? [args objectAtIndex:1] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
     TiThreadPerformBlockOnMainThread(^{
-        [(TiScrollingView*)[self view] setContentOffsetToTop:top animated:animated];
+        [[self scrollingView] setContentOffsetToTop:top animated:animated];
     }, NO);
 }
 
@@ -77,7 +90,24 @@
     NSDictionary *options = [args count] > 1 ? [args objectAtIndex:1] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:options def:YES];
     TiThreadPerformBlockOnMainThread(^{
-        [(TiScrollingView*)[self view] setContentOffsetToBottom:top animated:animated];
+        [[self scrollingView] setContentOffsetToBottom:top animated:animated];
     }, NO);
 }
+
+-(TiPoint *) contentOffset{
+    __block TiPoint * contentOffset;
+    if([self viewAttached]){
+        TiThreadPerformOnMainThread(^{
+            CGPoint offset = [[self scrollingView] scrollView].contentOffset;
+            contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(
+                                                                       offset.x,
+                                                                       offset.y)] ;
+        }, YES);
+    }
+    else{
+        contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(0,0)];
+    }
+    return [contentOffset autorelease];
+}
+
 @end

@@ -13,17 +13,6 @@
 
 @implementation TiUIScrollViewProxy
 
--(NSArray *)keySequence
-{
-    static NSArray *keySequence = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        keySequence = [[[super keySequence] arrayByAddingObjectsFromArray:@[@"minZoomScale",@"maxZoomScale",@"zoomScale"]] retain];;
-    });
-    return keySequence;
-}
-
-
 -(void)_initWithProperties:(NSDictionary *)properties
 {
     [self initializeProperty:@"minZoomScale" defaultValue:NUMFLOAT(1.0)];
@@ -39,20 +28,6 @@
     return @"Ti.UI.ScrollView";
 }
 
--(TiPoint *) contentOffset{
-    __block TiPoint * contentOffset;
-    if([self viewAttached]){
-        TiThreadPerformOnMainThread(^{
-                   contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(
-                                        [(TiUIScrollView *)[self view] scrollView].contentOffset.x,
-                                        [(TiUIScrollView *)[self view] scrollView].contentOffset.y)] ; 
-          }, YES);
-    }
-    else{
-        contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(0,0)];
-    }
-    return [contentOffset autorelease];
-}
 
 //-(void)windowWillOpen
 //{

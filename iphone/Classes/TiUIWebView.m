@@ -171,7 +171,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     willHandleTouches = [TiUtils boolValue:args def:YES];
 }
 
-
 -(UIWebView*)webview 
 {
 	if (webview==nil)
@@ -182,7 +181,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		webview = [[UIWebView alloc] initWithFrame:CGRectMake(0, 0, 10, 1)];
 		webview.delegate = self;
 		webview.opaque = NO;
-        [webview scrollView].delegate = self;
+        [self scrollView].delegate = self;
 		webview.backgroundColor = [UIColor whiteColor];
 		webview.contentMode = UIViewContentModeRedraw;
 		webview.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
@@ -364,7 +363,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 }
 
--(UIScrollView*)scrollview
+-(UIScrollView*)scrollView
 {
 	UIWebView* webView = [self webview];
 	if ([webView respondsToSelector:@selector(scrollView)]) {
