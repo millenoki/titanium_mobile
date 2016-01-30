@@ -1223,7 +1223,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
 
     @Override
     public void onBitmapLoaded(Bitmap bitmap, LoadedFrom from) {
-        Log.d(TAG, "loadedFrom "+ from + ", " + bitmap.getWidth(), Log.DEBUG_MODE);
+//        Log.d(TAG, "loadedFrom "+ from + ", " + bitmap.getWidth(), Log.DEBUG_MODE);
         if (loadingRef != currentRef) {
             return;
         }
@@ -1240,7 +1240,7 @@ public class TiUIImageView extends TiUINonViewGroupView implements
     
     @Override
     public void onDrawableLoaded(Drawable drawable, LoadedFrom from) {
-        Log.d(TAG, "loadedFrom "+ from, Log.DEBUG_MODE);
+//        Log.d(TAG, "loadedFrom "+ from, Log.DEBUG_MODE);
         if (loadingRef != currentRef) {
             return;
         }
