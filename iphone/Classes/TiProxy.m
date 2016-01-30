@@ -287,7 +287,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         executionContext = context; //To ensure there is an execution context during _configure.
         if([[self class] shouldRegisterOnInit]) // && ![NSThread isMainThread])
         {
-            [context.krollContext invokeBlockOnThread:^{
+            [self invokeBlockOnJSThread:^{
                 [pageContext registerProxy:self];
             }];
             // allow subclasses to configure themselves
@@ -1662,8 +1662,11 @@ DEFINE_EXCEPTIONS
     if (defaultType == nil) defaultType = @"Ti.UI.View";
     if (type == nil) type = defaultType;
     TiProxy *proxy = proxy = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
+    [context.krollContext invokeBlockOnThread:^{
+        [context registerProxy:proxy];
+        [proxy rememberSelf];
+    }];
     [proxy internalSetCreatedFromDictionary]; //private access
-    [proxy rememberSelf];
     if (proxy) {
         if (!rootProxy && IS_OF_CLASS(proxy, TiParentingProxy)) {
             rootProxy = (TiParentingProxy*)proxy;
