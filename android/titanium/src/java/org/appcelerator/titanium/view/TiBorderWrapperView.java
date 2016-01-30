@@ -134,7 +134,8 @@ public class TiBorderWrapperView extends MaskableView
 	@Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 	    super.onLayout(changed, l, t, r, b);
-		if (changed) updateBorderPath();
+	    //if mDrawableSizeChanged already called in onSizeChanged
+		if (changed && !mDrawableSizeChanged) updateBorderPath();
     }
 	
 	@Override
