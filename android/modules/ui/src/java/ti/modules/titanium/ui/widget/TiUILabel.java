@@ -640,11 +640,11 @@ public class TiUILabel extends TiUINonViewGroupView
 		    //first set the super text so that linkifyIfEnabled
 		    //can read the value
             super.setText(text, type);
+            if (autoLink != 16) {
+                TiUIHelper.linkifyIfEnabled(this, autoLink);
+                text = super.getText();
+            }
 		    if (text instanceof Spannable) {
-		        if (autoLink != 16) {
-	                TiUIHelper.linkifyIfEnabled(this, autoLink);
-	                text = super.getText();
-	            }
 		        SpannableStringBuilder strBuilder = (SpannableStringBuilder) ((text instanceof SpannableStringBuilder)?text:new SpannableStringBuilder(text));
                 URLSpan[] span = strBuilder.getSpans(0, text.length(), URLSpan.class);
                 for (int i = span.length - 1; i >= 0; i--) {
