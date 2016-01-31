@@ -89,7 +89,15 @@ public class MoveGestureDetector extends BaseGestureDetector {
                 break;
             
             case MotionEvent.ACTION_MOVE:
+                
+                //make sure mPrevEvent is set
+                if (mPrevEvent == null) {
+                    mPrevEvent = MotionEvent.obtain(event);
+                    mTimeDelta = 0;
+                    updateStateByEvent(event);
+                }
                 mGestureInProgress = mListener.onMoveBegin(this);
+                
                 break;
         }
     }
