@@ -566,7 +566,6 @@ public class TiViewGestureHandler {
         switch (action) {
         case MotionEvent.ACTION_DOWN:
             cancelled = false;
-            touchedView = null;
             if (this.velocityTracker != null) {
                 // Reset the velocity tracker back to its initial
                 // state.
@@ -610,6 +609,11 @@ public class TiViewGestureHandler {
             handled |= handleTwoFingersTap(event);
         }
         mCurrEvent = null;
+        if (action == MotionEvent.ACTION_DOWN) {
+            //we need to reset it after the different gestures' pass
+            //because double tap is called on the second down event
+            touchedView = null;
+        }
         return handled;
     }
     public boolean isEnabled() {
