@@ -43,4 +43,9 @@ public class TiActivityWindows
 	{
 		windows.clear();
 	}
+	
+	public static SparseArray<TiActivityWindow> getWindows()
+    {
+        return windows;
+    }
 }

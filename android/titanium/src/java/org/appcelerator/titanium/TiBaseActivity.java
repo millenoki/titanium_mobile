@@ -66,6 +66,7 @@ import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.DisplayMetrics;
+import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -138,6 +139,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<OnActivityResultEvent>();
 	private TiWeakList<OnCreateOptionsMenuEvent>  onCreateOptionsMenuListeners = new TiWeakList<OnCreateOptionsMenuEvent>();
 	private TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<OnPrepareOptionsMenuEvent>();
+    protected TiWeakList<OrientationChangedListener> orientationChangedListeners = null;
 //	private APSAnalytics analytics = APSAnalytics.getInstance();
 
 	private static HashMap<Integer, ArrayList<Object>> sPermissionCallback = new HashMap();
@@ -328,15 +330,76 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	{
 		public void onOrientationChanged (int configOrientationMode, int width, int height);
 	}
+	
+	private void setupOrientationListener() {
+	    if (orientationListener == null) {
+	        orientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+	            @Override
+	            public void onOrientationChanged(int orientation) {
+	                DisplayMetrics dm = new DisplayMetrics();
+	                getWindowManager().getDefaultDisplay().getMetrics(dm);
+	                int width = dm.widthPixels;
+	                int height = dm.heightPixels;
+	                int rotation = getWindowManager().getDefaultDisplay().getRotation();
+
+	                if (((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
+	                        && rotation != previousOrientation) ||
+	                        ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
+	                        && rotation != previousOrientation)) {
+	                    callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
+	                    if (orientationChangedListeners != null) {
+	                        synchronized (orientationChangedListeners.synchronizedList()) {
+	                            int currentOrientation = getWindowManager().getDefaultDisplay().getRotation();
+	                            for (OrientationChangedListener listener : orientationChangedListeners.nonNull()) {
+	                                listener.onOrientationChanged(currentOrientation, width, height);;
+	                            }
+	                        }
+	                    }
+	                    
+	                }
+	            }
+	        };
+	        if (orientationListener.canDetectOrientation() == true) {
+	            orientationListener.enable();
+	        } else {
+	            Log.w(TAG, "Cannot detect orientation");
+	            orientationListener.disable();
+	        }
+	    }
+	}
+	
+   private void unsetupOrientationListener() {
+       if (orientationListener != null) {
+           orientationListener.disable();
+           orientationListener = null;
+       }
+   }
+
 
 	public static void registerOrientationListener (OrientationChangedListener listener)
 	{
 		orientationChangedListener = listener;
+		SparseArray<TiActivityWindow> windows = TiActivityWindows.getWindows();
+		for(int i = 0, arraySize= windows.size(); i < arraySize; i++) {
+		    TiActivityWindow window = windows.get(windows.keyAt(i));
+		    Activity activity = window.getActivity();
+		    if (activity instanceof TiBaseActivity) {
+		        ((TiBaseActivity) activity).setupOrientationListener();
+		    }
+		 }
 	}
 
 	public static void deregisterOrientationListener()
 	{
 		orientationChangedListener = null;
+		SparseArray<TiActivityWindow> windows = TiActivityWindows.getWindows();
+        for(int i = 0, arraySize= windows.size(); i < arraySize; i++) {
+            TiActivityWindow window = windows.get(windows.keyAt(i));
+            Activity activity = window.getActivity();
+            if (activity instanceof TiBaseActivity) {
+                ((TiBaseActivity) activity).unsetupOrientationListener();
+            }
+         }
 	}
 
 	public static interface ConfigurationChangedListener
@@ -1003,31 +1066,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// for later use
 		originalOrientationMode = getRequestedOrientation();
 
-		orientationListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
-			@Override
-			public void onOrientationChanged(int orientation) {
-			    DisplayMetrics dm = new DisplayMetrics();
-			    getWindowManager().getDefaultDisplay().getMetrics(dm);
-			    int width = dm.widthPixels;
-			    int height = dm.heightPixels;
-			    int rotation = getWindowManager().getDefaultDisplay().getRotation();
-
-			    if ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270)
-			            && rotation != previousOrientation) {
-			        callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
-			    } else if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180)
-			            && rotation != previousOrientation) {
-			        callOrientationChangedListener(TiApplication.getAppRootOrCurrentActivity(), width, height, rotation);
-			    }
-			}
-		};
-
-		if (orientationListener.canDetectOrientation() == true) {
-			orientationListener.enable();
-		} else {
-			Log.w(TAG, "Cannot detect orientation");
-			orientationListener.disable();
-		}
+		
 		synchronized (lifecycleListeners.synchronizedList()) {
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
 				try {
@@ -1511,6 +1550,29 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			}
 		}
 	}
+	
+	public void addOrientationChangedListener (OrientationChangedListener listener)
+    {
+	    if (orientationChangedListeners == null) {
+	        orientationChangedListeners = new TiWeakList<OrientationChangedListener>();
+	    }
+        orientationChangedListeners.add(new WeakReference<OrientationChangedListener>(listener));
+    }
+
+    public void removeOrientationChangedListener(OrientationChangedListener listener)
+    {
+        if (orientationChangedListeners == null) {
+            return;
+        }
+        for (int i = 0; i < orientationChangedListeners.size(); i++) {
+            OrientationChangedListener iListener = orientationChangedListeners.get(i).get();
+            if (listener == iListener) {
+                orientationChangedListeners.remove(i);
+                return;
+            }
+        }
+    }
+    
 
 	private void dispatchCallback(String name, KrollDict data) {
 		if (data == null) {
@@ -1922,9 +1984,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 		lifecycleListeners.clear();
 		
-		if (orientationListener != null) {
-	        orientationListener.disable();
-		}
+		unsetupOrientationListener();
 
 		super.onDestroy();
 

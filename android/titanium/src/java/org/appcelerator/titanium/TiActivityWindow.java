@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import android.app.Activity;
 import android.os.Bundle;
 
 /**
@@ -21,5 +22,6 @@ import android.os.Bundle;
  */
 public interface TiActivityWindow
 {
-	public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState);
+    public void windowCreated(TiBaseActivity activity, Bundle savedInstanceState);
+    public Activity getActivity();
 }
