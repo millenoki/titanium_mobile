@@ -7,6 +7,7 @@
 	pthread_rwlock_t runningLock;
 	pthread_rwlock_t pendingLock;
     BOOL _animating;
+    BOOL _goingThroughPending;
 }
 
 @end
@@ -23,6 +24,7 @@
         _pendingAnimations = [[NSMutableArray alloc] init];
         _runningAnimations = [[NSMutableArray alloc] init];
         _animating = NO;
+        _goingThroughPending = NO;
     }
     return self;
 }
@@ -160,7 +162,7 @@
 
 -(void)handlePendingAnimation
 {
-    if (![self readyToAnimate]) {
+    if (_goingThroughPending || ![self readyToAnimate]) {
         return;
     }
     pthread_rwlock_rdlock(&pendingLock);
@@ -221,10 +223,11 @@
         pthread_rwlock_unlock(&pendingLock);
         return;
     }
-    pthread_rwlock_unlock(&pendingLock);
+    _goingThroughPending = YES;
     for (TiAnimation* anim in _pendingAnimations) {
         [anim applyFromOptions:self];
     }
+    _goingThroughPending = NO;
     pthread_rwlock_unlock(&pendingLock);
 }
 
