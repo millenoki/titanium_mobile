@@ -634,15 +634,17 @@ public class TiUILabel extends TiUINonViewGroupView
             strBuilder.removeSpan(span);
         }
 
-
+		private boolean linkifying = false;
 		@Override
 		public void setText(CharSequence text, BufferType type) {
 		    //first set the super text so that linkifyIfEnabled
 		    //can read the value
             super.setText(text, type);
-            if (autoLink != 16) {
+            if (!linkifying && autoLink != 16) {
+                linkifying = true;
                 TiUIHelper.linkifyIfEnabled(this, autoLink);
                 text = super.getText();
+                linkifying = false;
             }
 		    if (text instanceof Spannable) {
 		        SpannableStringBuilder strBuilder = (SpannableStringBuilder) ((text instanceof SpannableStringBuilder)?text:new SpannableStringBuilder(text));
