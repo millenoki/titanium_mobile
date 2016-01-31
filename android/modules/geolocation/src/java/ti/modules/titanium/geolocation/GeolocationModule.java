@@ -1154,6 +1154,20 @@ public class GeolocationModule extends KrollModule
 		super.onDestroy(activity);
 
 	}
+	
+    @Kroll.method
+    @Kroll.setProperty
+    public void setHeadingFilter(float filter)
+    {
+        tiCompass.setHeadingFilter(filter);
+    }
+    
+    @Kroll.method
+    @Kroll.getProperty
+    public float getHeadingFilter()
+    {
+        return tiCompass.getHeadingFilter();
+    }
 }
 
 

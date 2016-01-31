@@ -42,6 +42,7 @@ public class TiCompass
 	private Criteria locationCriteria = new Criteria();
 	private Location geomagneticFieldLocation;
 	private long lastDeclinationCheck;
+	private float headingFilter = 0;
 
 
 	public TiCompass(GeolocationModule geolocationModule, TiLocation tiLocation)
@@ -54,11 +55,23 @@ public class TiCompass
 	{
 		updateDeclination();
 		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_UI);
+		if (geolocationModule.hasListeners("state", false)) {
+            KrollDict data = new KrollDict();
+            data.put("monitor", TiC.EVENT_HEADING);
+            data.put("state", true);
+            geolocationModule.fireEvent("state", data, false, false);
+        }
 	}
 
 	public void unregisterListener()
 	{
 		TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
+		if (geolocationModule.hasListeners("state", false)) {
+            KrollDict data = new KrollDict();
+            data.put("monitor", TiC.EVENT_HEADING);
+            data.put("state", false);
+            geolocationModule.fireEvent("state", data, false, false);
+        }
 	}
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
@@ -75,16 +88,11 @@ public class TiCompass
 				
 				lastEventInUpdate = eventTimestamp;
 
-				Object filter = geolocationModule.getProperty(TiC.PROPERTY_HEADING_FILTER);
-				if (filter != null) {
-					float headingFilter = TiConvert.toFloat(filter);
-
-					if (Math.abs(event.values[0] - lastHeading) < headingFilter) {
-						return;
-					}
-
-					lastHeading = event.values[0];
+				if (Math.abs(event.values[0] - lastHeading) < headingFilter) {
+					return;
 				}
+
+				lastHeading = event.values[0];
 
 				geolocationModule.fireEvent(TiC.EVENT_HEADING, eventToHashMap(event, actualTimestamp));
 			}
@@ -106,24 +114,24 @@ public class TiCompass
 		heading.put(TiC.PROPERTY_MAGNETIC_HEADING, x);
 		heading.put(TiC.PROPERTY_ACCURACY, event.accuracy);
 
-		if (Log.isDebugModeEnabled()) {
-			switch(event.accuracy) {
-			case SensorManager.SENSOR_STATUS_UNRELIABLE :
-				Log.i(TAG, "Compass accuracy unreliable");
-				break;
-			case SensorManager.SENSOR_STATUS_ACCURACY_LOW :
-				Log.i(TAG, "Compass accuracy low");
-				break;
-			case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM :
-				Log.i(TAG, "Compass accuracy medium");
-				break;
-			case SensorManager.SENSOR_STATUS_ACCURACY_HIGH :
-				Log.i(TAG, "Compass accuracy high");
-				break;
-			default :
-				Log.w(TAG, "Unknown compass accuracy value: " + event.accuracy);
-			}
-		}
+//		if (Log.isDebugModeEnabled()) {
+//			switch(event.accuracy) {
+//			case SensorManager.SENSOR_STATUS_UNRELIABLE :
+//				Log.i(TAG, "Compass accuracy unreliable");
+//				break;
+//			case SensorManager.SENSOR_STATUS_ACCURACY_LOW :
+//				Log.i(TAG, "Compass accuracy low");
+//				break;
+//			case SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM :
+//				Log.i(TAG, "Compass accuracy medium");
+//				break;
+//			case SensorManager.SENSOR_STATUS_ACCURACY_HIGH :
+//				Log.i(TAG, "Compass accuracy high");
+//				break;
+//			default :
+//				Log.w(TAG, "Unknown compass accuracy value: " + event.accuracy);
+//			}
+//		}
 
 		updateDeclination();
 		if (geomagneticField != null) {
@@ -205,5 +213,14 @@ public class TiCompass
 			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
 		}
 	}
+
+    public void setHeadingFilter(float filter) {
+        headingFilter = filter;
+    }
+
+    public float getHeadingFilter() {
+        // TODO Auto-generated method stub
+        return headingFilter;
+    }
 }
 
