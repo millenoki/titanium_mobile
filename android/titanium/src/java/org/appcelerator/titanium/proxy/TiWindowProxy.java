@@ -395,7 +395,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@Kroll.method @Kroll.setProperty
 	public void setOrientationModes (int[] modes)
 	{
-		int activityOrientationMode = -1;
+		int activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 		boolean hasPortrait = false;
 		boolean hasPortraitReverse = false;
 		boolean hasLandscape = false;
@@ -430,11 +430,11 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// determine if we have a valid activity orientation mode based on provided modes list
 			if (orientationModes.length == 0)
 			{
-				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_USER;
 			}
 			else if ((hasPortrait || hasPortraitReverse) && (hasLandscape || hasLandscapeReverse))
 			{
-				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+				activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_USER;
 			}
 			else if (hasPortrait && hasPortraitReverse)
 			{
