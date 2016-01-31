@@ -811,7 +811,7 @@ public class GeolocationModule extends KrollModule
             data.put("state", false);
             fireEvent("state", data, false, false);
        }
-		Log.d(TAG, "doDisableLocationProviders done");
+//		Log.d(TAG, "doDisableLocationProviders done");
 	}
 	
 	/**
