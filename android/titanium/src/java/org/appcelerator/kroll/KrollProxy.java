@@ -1471,6 +1471,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                             message = (String) hashValue;
                             it.remove();
                         }
+                        break;
                     case TiC.PROPERTY_SOURCE:
                         hashValue = entry.getValue();
                         if (hashValue != this) {
