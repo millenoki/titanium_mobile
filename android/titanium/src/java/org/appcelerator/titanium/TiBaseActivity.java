@@ -33,6 +33,7 @@ import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.AndroidBug5497Workaround;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
@@ -62,7 +63,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.DisplayMetrics;
@@ -171,6 +171,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private boolean mReadyToQueryActionBar = false;
 
 	private boolean overridenLayout;
+	
 
 	public class DialogWrapper {
 		boolean isPersistent;
@@ -477,13 +478,29 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		
 		if (hasSoftInputMode && softInputMode != this.softInputMode) {
-			getWindow().setSoftInputMode(softInputMode);  
+			setSoftInputMode(softInputMode);  
 		}
 		KrollDict activityDict = this.window.getActivityProperties(props.getKrollDict(TiC.PROPERTY_ACTIVITY));
 		if (this.window.getWindowManager() instanceof TiWindowProxy) {
             activityDict = ((TiWindowProxy) this.window.getWindowManager()).getActivityProperties(activityDict);
         }
 		getActivityProxy().setProperties(activityDict);
+	}
+	
+	private void setSoftInputMode(int softInputMode) {
+	    getWindow().setSoftInputMode(softInputMode);  
+        if(!TiC.KIT_KAT_OR_GREATER) {
+            return;
+        }
+        //on > 19 if a window has a transculent flag, the adjustResize wont work correctly
+        //anymore. This fixes it by changing the height of the layout
+        int flags = getWindow().getAttributes().flags;
+        if ((softInputMode & WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE) != 0
+             && (flags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) != 0) {
+            AndroidBug5497Workaround.assistActivity(this);
+        } else {
+            AndroidBug5497Workaround.unassistActivity(this);
+        }
 	}
 
 	/**
@@ -828,7 +845,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
 		if (hasSoftInputMode) {
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
-			window.setSoftInputMode(softInputMode);
+			setSoftInputMode(softInputMode);
 		}
 
 		boolean useActivityWindow = getIntentBoolean(TiC.INTENT_PROPERTY_USE_ACTIVITY_WINDOW, false);
