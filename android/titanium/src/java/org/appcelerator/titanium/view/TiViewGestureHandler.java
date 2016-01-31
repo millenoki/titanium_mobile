@@ -42,6 +42,8 @@ public class TiViewGestureHandler {
     private boolean mShoveEnabled = false;
     private boolean mPanEnabled = false;
     private boolean m2FingersEnabled = false;
+    
+    private int panDirection = -1;
 
     protected boolean mIsFlinging = false;
     private boolean mIsScaling = false;
@@ -490,7 +492,7 @@ public class TiViewGestureHandler {
     private MoveGestureDetector getOrCreateMoveGestureDetector() {
         if (this.mPanGestureDetector == null) {
             ViewConfiguration vc = ViewConfiguration.get(this.mView.getOuterView().getContext());
-            final int threshold = 100;
+            final int threshold = vc.getScaledTouchSlop();
             this.mPanGestureDetector = new MoveGestureDetector(mContext,
                     new MoveGestureDetector.OnMoveGestureListener() {
                        
@@ -516,7 +518,9 @@ public class TiViewGestureHandler {
                                 return true;
                             }
                             PointF delta = detector.getTranslationDelta();
-                            if (!mIsPaning && (Math.abs(delta.x) > threshold || Math.abs(delta.y) > threshold)) {
+                            if (!mIsPaning && 
+                                    ((panDirection != 2 && Math.abs(delta.x) > threshold) ||
+                                            (panDirection != 1 && Math.abs(delta.y) > threshold))) {
                                 mIsPaning = true;
                                 fireEventForAction(ACTION_PAN, detector, this, 0);
                             } else if (mIsPaning) {
@@ -696,6 +700,10 @@ public class TiViewGestureHandler {
             mPanGestureDetector = null;
         }
         updateEnabled();
+    }
+    
+    public void setPanDirection(final int direction) {
+        panDirection = direction;
     }
     
     public void setGlobalEnabled(final boolean enabled) {
