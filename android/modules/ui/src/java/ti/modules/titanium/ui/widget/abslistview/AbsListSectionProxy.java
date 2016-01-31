@@ -37,8 +37,7 @@ import android.view.View;
         TiC.PROPERTY_HEADER_TITLE,
         TiC.PROPERTY_FOOTER_TITLE,
         TiC.PROPERTY_HEADER_VIEW,
-        TiC.PROPERTY_FOOTER_VIEW,
-        TiC.PROPERTY_ITEMS
+        TiC.PROPERTY_FOOTER_VIEW
     })
 public class AbsListSectionProxy extends AnimatableReusableProxy {
 
@@ -662,7 +661,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		    Object[] items = (Object[]) data;
 			if (itemProperties == null) {
 				itemProperties = items;
-                setProperty(TiC.PROPERTY_ITEMS, itemProperties);
 			} else {
 	            ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
 			    list.addAll(Arrays.asList(items));
@@ -700,7 +698,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
                 if (itemProperties == null) {
                     itemProperties = items;
-                    setProperty(TiC.PROPERTY_ITEMS, itemProperties);
                } else {
                     if (index < 0 || index > itemProperties.length) {
                         Log.e(TAG, "Invalid index to handleInsertItem",
@@ -762,7 +759,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	public void insertItemData(int index, Object data) {
 	    if (itemProperties == null) {
 	        itemProperties = new Object[] {data};
-	        setProperty(TiC.PROPERTY_ITEMS, itemProperties);
         } else {
             if (index < 0 || index > itemProperties.length) {
                 Log.e(TAG, "Invalid index to handleInsertItem",
