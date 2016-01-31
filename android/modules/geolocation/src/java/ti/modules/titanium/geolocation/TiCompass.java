@@ -43,6 +43,7 @@ public class TiCompass
 	private Location geomagneticFieldLocation;
 	private long lastDeclinationCheck;
 	private float headingFilter = 0;
+	private boolean listening = false;
 
 
 	public TiCompass(GeolocationModule geolocationModule, TiLocation tiLocation)
@@ -54,6 +55,10 @@ public class TiCompass
 	public void registerListener()
 	{
 		updateDeclination();
+		if (listening) {
+		    return;
+		}
+		listening = true;
 		TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, this, SensorManager.SENSOR_DELAY_UI);
 		if (geolocationModule.hasListeners("state", false)) {
             KrollDict data = new KrollDict();
@@ -65,6 +70,10 @@ public class TiCompass
 
 	public void unregisterListener()
 	{
+	    if (!listening) {
+            return;
+        }
+        listening = false;
 		TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
 		if (geolocationModule.hasListeners("state", false)) {
             KrollDict data = new KrollDict();
@@ -204,13 +213,17 @@ public class TiCompass
 						long actualTimestamp = baseTime.getTimeInMillis() + (eventTimestamp - sensorTimerStart);
 
 						listener.callAsync(geolocationModule.getKrollObject(), new Object[] { eventToHashMap(event, actualTimestamp) });
-						TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
+						if (!listening) {
+						    TiSensorHelper.unregisterListener(Sensor.TYPE_ORIENTATION, this);
+						}
 					}
 				}
 			};
 
-			updateDeclination();
-			TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
+			if (!listening) {
+	            updateDeclination();
+	            TiSensorHelper.registerListener(Sensor.TYPE_ORIENTATION, oneShotHeadingListener, SensorManager.SENSOR_DELAY_UI);
+			}
 		}
 	}
 
