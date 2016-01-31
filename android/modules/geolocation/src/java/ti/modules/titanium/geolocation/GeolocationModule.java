@@ -36,12 +36,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
@@ -187,7 +185,7 @@ public class GeolocationModule extends KrollModule
 	@Deprecated private String legacyLocationPreferredProvider = PROVIDER_NETWORK;
 
     private boolean currentlyEnabled = false;
-    private boolean locationProvidersEnabled = false;
+    private boolean listeningForChanges = false;
     public class LocationProviderChangedReceiver extends BroadcastReceiver {
         private final static String TAG = "LocationProviderChangedReceiver";
 
@@ -195,11 +193,10 @@ public class GeolocationModule extends KrollModule
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction()
                     .matches("android.location.PROVIDERS_CHANGED")) {
-                boolean newEnabled = getLocationServicesEnabled();
-                if (newEnabled == currentlyEnabled) {
+                boolean oldState = getAndUpdateServicesEnabled();
+                if (oldState == currentlyEnabled) {
                     return;
                 }
-                currentlyEnabled = newEnabled;
                 Log.i(TAG, "Location Providers changed");
                 KrollDict data = new KrollDict();
                 data.put(TiC.PROPERTY_ENABLED, currentlyEnabled);
@@ -554,7 +551,7 @@ public class GeolocationModule extends KrollModule
 		}
 	}
 	
-	private GpsStatus.Listener mStatusListener = null;
+//	private GpsStatus.Listener mStatusListener = null;
 	private LocationProviderChangedReceiver mStatusReceiver = null;
     private boolean shouldFireStateChange = true;
 	/**
@@ -565,7 +562,10 @@ public class GeolocationModule extends KrollModule
 	{
 		if (TiC.EVENT_CHANGE.equals(event)) {
 		    if (mStatusReceiver == null) {
-		        currentlyEnabled = getLocationServicesEnabled();
+		        //make sure we set listeningForChanges after currentlyEnabled!
+		        //or it wont check its state
+		        currentlyEnabled = getAndUpdateServicesEnabled();
+                listeningForChanges = true;
 		        mStatusReceiver = new LocationProviderChangedReceiver();
 	            getActivity().registerReceiver(mStatusReceiver, new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION));
 		    }
@@ -622,6 +622,7 @@ public class GeolocationModule extends KrollModule
 	{
 	    if (TiC.EVENT_CHANGE.equals(event)) {
 	        if (mStatusReceiver != null) {
+	            listeningForChanges = false;
                 getActivity().unregisterReceiver(mStatusReceiver);
                 mStatusReceiver = null;
             }
@@ -859,7 +860,7 @@ public class GeolocationModule extends KrollModule
 //	    if (!locationProvidersEnabled) {
 //            return;
 //        }
-        locationProvidersEnabled = false;
+//        locationProvidersEnabled = false;
 	    if (!TiApplication.isUIThread()) {
             runInUiThread(new CommandNoReturn() {
                 @Override
@@ -882,7 +883,7 @@ public class GeolocationModule extends KrollModule
             Log.e(TAG, "Location permissions missing");
             return false;
         }
-        locationProvidersEnabled = true;
+//        locationProvidersEnabled = true;
         if (!TiApplication.isUIThread()) {
 //            final Activity activity = getActivity();
 //            if (activity != null) {
@@ -916,6 +917,17 @@ public class GeolocationModule extends KrollModule
         lastRulesCheckedLocation = null;
         return true;
     }
+    
+    
+    public boolean getAndUpdateServicesEnabled() {
+        if (!listeningForChanges) {
+            boolean state = tiLocation.getLocationServicesEnabled();
+            if (state != currentlyEnabled) {
+                currentlyEnabled = state;
+            }
+        }
+        return currentlyEnabled;
+    }
 
 	/**
 	 * Checks if the device has a valid location service present.  The passive location service 
@@ -927,7 +939,7 @@ public class GeolocationModule extends KrollModule
 	@Kroll.getProperty @Kroll.method
 	public boolean getLocationServicesEnabled()
 	{
-		return tiLocation.getLocationServicesEnabled();
+		return getAndUpdateServicesEnabled();
 	}
 
 	/**
@@ -955,7 +967,7 @@ public class GeolocationModule extends KrollModule
 //			    singleLocationCallback = callback;
 //			    enableLocationProviders();
 //			}
-			if (currentlyEnabled) {
+			if (getAndUpdateServicesEnabled()) {
                 singleLocationCallback = callback;
                 enableLocationProviders();
             }
