@@ -488,14 +488,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// Wait until the window activity is created before setting orientation modes.
 			if (activity != null && windowActivityCreated)
 			{
-				if (activityOrientationMode != -1)
-				{
-					activity.setRequestedOrientation(activityOrientationMode);
-				}
-				else
-				{
-					activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-				}
+			    activity.setRequestedOrientation(activityOrientationMode);
 			}
 		}
 		else
