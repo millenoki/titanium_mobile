@@ -93,8 +93,6 @@ public class ParentingProxy extends KrollProxy {
      * @return An array of the children proxies of this view.
      * @module.api
      */
-    @Kroll.getProperty(enumerable=false)
-    @Kroll.method
     public KrollProxy[] getChildren() {
         if (children == null)
             return new KrollProxy[0];
