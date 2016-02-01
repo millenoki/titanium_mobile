@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="/titanium-dist/lib/titanium-filesystem.jar"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/titanium-media.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ListViewAnimations"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SubImageView"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
