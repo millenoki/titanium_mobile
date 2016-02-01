@@ -1,29 +1,8 @@
-app = require('akylas.commonjs').createApp(this, { // not using var seems very
-	// important, cant really
-	// see why!
-	modules: {
-		slidemenu: require('akylas.slidemenu')
-	},
-	// iconicfonts: {
-	// 	webhostinghub: '/fonts/font_webhostinghub',
-	// },
-	commonjsOptions: {
-		underscore: 'lodash',
-		modules: ['ti', 'moment', 'lang'],
-		additions: ['string']
-	},
-	mappings: [
-		['slidemenu', 'SlideMenu', 'SlideMenu']
-	],
-	windowManager: true
-});
-app.main();
-sdebug('deviceinfo', app.deviceinfo);
-sdebug('info', app.info);
+var osname = Ti.Platform.osname;
+__APPLE__ = osname === 'ipad' || osname === 'iphone';
+__ANDROID__ = osname === 'android';
+__PRODUCTION__ = Ti.App.deployType === 'production';
 
-var isiOS7 = app.deviceinfo.isIOS7;
-__ANDROID__ = app.deviceinfo.isAndroid;
-__APPLE__ = app.deviceinfo.isApple;
 var backColor = 'white';
 var textColor = 'black';
 var navGroup;
@@ -42,7 +21,6 @@ if (__ANDROID__) {
 }
 sdebug('__APPLE__', __APPLE__);
 sdebug('__ANDROID__', __ANDROID__);
-sdebug('isiOS7', isiOS7);
 
 function merge_options(obj1, obj2, _new) {
 	if (_new === true) {
@@ -56,13 +34,7 @@ var initWindowArgs = {
 		Ti.UI.LANDSCAPE_RIGHT, Ti.UI.LANDSCAPE_LEFT
 	]
 };
-if (isiOS7) {
-	// initWindowArgs = merge_options(initWindowArgs, {
-	// autoAdjustScrollViewInsets: true,
-	// extendEdges: [Ti.UI.EXTEND_EDGE_ALL],
-	// translucent: true
-	// });
-} else if (__ANDROID__) {
+if (__ANDROID__) {
 	initWindowArgs = merge_options(initWindowArgs, {
 		top: Ti.App.defaultBarHeight
 	});
@@ -1319,17 +1291,17 @@ function animationBugEx(_args) {
 			bindId: 'test',
 			properties: {
 				height: 60,
-				width:'FILL',
+				width: 'FILL',
 				backgroundColor: 'red',
-				text:'test',
-				color:'white'
+				text: 'test',
+				color: 'white'
 			},
 			// childTemplates: [{
 			// 	type: 'Ti.UI.View',
 			// 	properties: {
 			// 		layout: 'vertical',
-   //  				width: 'FILL',
-   //  				height: 'FILL',
+			//  				width: 'FILL',
+			//  				height: 'FILL',
 			// 		backgroundColor: 'blue'
 			// 	},
 			// 	childTemplates: [{
@@ -1378,7 +1350,8 @@ function buttonAndLabelEx() {
 			bottom: 30,
 			right: 30
 		},
-		height: 130,
+		height: 'SIZE',
+		verticalAlign: 'middle',
 		// disableHW : true,
 		bubbleParent: false,
 		borderRadius: 10,
@@ -1422,10 +1395,11 @@ function buttonAndLabelEx() {
 	button.add(Ti.UI.createView({
 		touchPassThrough: true,
 		backgroundColor: 'orange',
+		height: 130,
 		borderRadius: 1,
 		right: 0,
-		width: 35,
-		height: Ti.UI.FILL
+		// height: 'FILL',
+		width: '15%'
 	}));
 	var t1 = Ti.UI.create2DMatrix();
 	var t2 = Ti.UI.create2DMatrix().scale(2.0, 2.0).translate(0, 40).rotate(90);
@@ -1515,12 +1489,13 @@ function buttonAndLabelEx() {
 		type: 'Ti.UI.Button',
 		properties: {
 			padding: {
-				left: 80
+				left: 20
 			},
 			bubbleParent: false,
 			backgroundColor: 'gray',
 			dispatchPressed: true,
 			selectedColor: 'red',
+			layout: 'horizontal',
 			backgroundSelectedGradient: {
 				type: 'linear',
 				colors: ['#333', 'transparent'],
@@ -1538,7 +1513,6 @@ function buttonAndLabelEx() {
 		childTemplates: [{
 			type: 'Ti.UI.Button',
 			properties: {
-				left: 0,
 				backgroundColor: 'green',
 				selectedColor: 'red',
 				backgroundSelectedGradient: {
@@ -1557,6 +1531,56 @@ function buttonAndLabelEx() {
 			}
 		}]
 
+	});
+
+	win.add({
+		properties: {
+			bottom: 100,
+			layout: 'horizontal',
+			height: 54
+		},
+		childTemplates: [{
+			properties: {
+				width: 'FILL',
+				backgroundColor: 'red'
+			}
+		}, {
+			type: 'Ti.UI.Button',
+			properties: {
+				height: 'FILL',
+				minWidth: 56,
+				width: 'FILL',
+				title: 'A',
+				touchEnabled: true,
+				dispatchPressed: false,
+				verticalAlign: 'middle',
+				padding: {
+					bottom: 10
+				}
+			},
+			childTemplates: [{
+				type: 'Ti.UI.Button',
+				properties: {
+					touchEnabled: false,
+					width: 'FILL',
+					title: 'test',
+					height: 'FILL',
+					font: {
+						size: 9,
+						weight: 'bold'
+					},
+					maxLines: 1,
+					textAlign: 'center',
+					verticalAlign: 'bottom',
+					padding: {
+						bottom: 3,
+						left: 1,
+						right: 1
+					},
+					ellipsize: Ti.UI.TEXT_ELLIPSIZE_WORD
+				}
+			}]
+		}]
 	});
 
 	openWin(win);
@@ -1578,26 +1602,30 @@ function maskEx() {
 	};
 	var view = Ti.UI.createView({
 		top: 20,
-		borderRadius: 10,
-		borderColor: 'red',
-		borderWidth: 5,
+		// borderRadius: 10,
+		// borderColor: 'red',
+		// borderWidth: 5,
 		bubbleParent: false,
 		width: 300,
 		height: 100,
-		backgroundColor: 'green',
-		viewMask: '/images/body-mask.png',
-		backgroundGradient: {
-			type: 'linear',
-			colors: ['red', 'green', 'orange'],
-			startPoint: {
-				x: 0,
-				y: 0
-			},
-			endPoint: {
-				x: 0,
-				y: "100%"
-			}
-		}
+		backgroundColor: '#4400ff00',
+		disableHW: true,
+		backgroundPadding: {
+			left: 30
+		},
+		// viewMask: '/images/body-mask.png',
+		// backgroundGradient: {
+		// 	type: 'linear',
+		// 	colors: ['red', 'green', 'orange'],
+		// 	startPoint: {
+		// 		x: 0,
+		// 		y: 0
+		// 	},
+		// 	endPoint: {
+		// 		x: 0,
+		// 		y: "100%"
+		// 	}
+		// }
 	});
 	var imageView = Ti.UI.createImageView({
 		bottom: 20,
@@ -1631,7 +1659,7 @@ function maskEx() {
 		},
 		bubbleParent: false,
 		title: 'test buutton',
-		viewMask: '/images/body-mask.png'
+		// viewMask: '/images/body-mask.png'
 	}));
 	openWin(win);
 }
@@ -4129,7 +4157,7 @@ function antiAliasTest(_args) {
 	win.add(view);
 	openWin(win);
 }
-var modules = ['shapes', 'bluetooth', 'charts'];
+var modules = ['shapes', 'charts'];
 var moduleItems = [];
 for (var i = 0; i < modules.length; i++) {
 	var module = require(modules[i]).load(this);
