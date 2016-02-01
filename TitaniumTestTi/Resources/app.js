@@ -1,6 +1,7 @@
 require('lib/lodash');
 
 var osname = Ti.Platform.osname;
+__AKYLAS_DEV__ = true;
 __APPLE__ = osname === 'ipad' || osname === 'iphone';
 __ANDROID__ = osname === 'android';
 __PRODUCTION__ = Ti.App.deployType === 'production';
@@ -4159,7 +4160,7 @@ function antiAliasTest(_args) {
 	win.add(view);
 	openWin(win);
 }
-var modules = ['shapes', 'charts'];
+var modules = __AKYLAS_DEV__?['shapes', 'charts']:[];
 var moduleItems = [];
 for (var i = 0; i < modules.length; i++) {
 	var module = require(modules[i]).load(this);
