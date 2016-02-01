@@ -10,6 +10,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/titanium-xml.jar"/>
-	<classpathentry kind="lib" path="/TitaniumTest/lib/googleplayservices.jar"/>
+	<classpathentry kind="lib" path="/titanium-googleplayservices/lib/google-play-services.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
