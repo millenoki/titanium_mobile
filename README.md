@@ -43,6 +43,10 @@ To build and work with that fork you need to know a few things
 * The XCode project references some of my modules projects. This is not a problem when building the framework as those references will be removed. However if you want do work on the framework using XCode (the kitchensink project) you will need to remove those references
 * i use a custom version of the Ti CLI. You can get it [here](https://github.com/Akylas/titanium)
 * i use a custom version of the Ti appc node module. The reason was to remove any statistic sent to Appcelerator. You can find it [here](https://github.com/Akylas/node-appc). This fork uses it automatically.
+* the android modules projects reference some external projects (SubImageView, ListViewAnimations ...). This is only for when developing the framework itself. You need to clone those projects and add them to your eclipse workspace:
+	* [ListViewAnimations](https://github.com/Akylas/ListViewAnimations)
+	* [StickyListHeaders](https://github.com/Akylas/StickyListHeaders)
+	* [gpuimage](https://github.com/Akylas/android-gpuimage)
 
 ## Sample App
 
