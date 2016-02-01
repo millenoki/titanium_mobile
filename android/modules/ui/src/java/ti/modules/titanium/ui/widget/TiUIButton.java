@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.appcelerator.titanium.TiC;
@@ -50,7 +51,17 @@ public class TiUIButton extends TiUINonViewGroupView
 	private Drawable imageDrawable;
 	private int imageGravity;
     protected RectF padding = null;
-
+    
+    protected static final ArrayList<String> KEY_SEQUENCE;
+    static{
+      ArrayList<String> tmp = new ArrayList<String>();
+      tmp.add(TiC.PROPERTY_COLOR);
+      KEY_SEQUENCE = tmp;
+    }
+    @Override
+    protected ArrayList<String> keySequence() {
+        return KEY_SEQUENCE;
+    }
 	public TiUIButton(final TiViewProxy proxy)
 	{
 		super(proxy);
