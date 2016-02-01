@@ -87,6 +87,39 @@ public class ParentingProxy extends KrollProxy {
             }
         }
     }
+    
+
+    /**
+     * @return An array of the children proxies of this view.
+     * @module.api
+     */
+    @Kroll.getProperty(enumerable=false)
+    @Kroll.method
+    public KrollProxy[] getChildren() {
+        if (children == null)
+            return new KrollProxy[0];
+        synchronized (children) {
+            return children.toArray(new KrollProxy[children.size()]);
+        }
+    }
+    
+    /**
+     * @return An array of the children proxies of this view.
+     * @module.api
+     */
+    @Kroll.getProperty(enumerable=false, name="children")
+    @Kroll.method(name="getChildren")
+    public Object[] getJSChildren() {
+        KrollProxy[] result = getChildren();
+        if (result != null) {
+            for(int i = 0; i < result.length; i++) {
+              //make sure it exists
+                result[i].getKrollObject();
+            }
+        }
+        return result;
+    }
+    
     public ParentingProxy getParent() {
         if (this.parent == null) {
             return null;
@@ -101,11 +134,8 @@ public class ParentingProxy extends KrollProxy {
     @Kroll.getProperty(enumerable=false, name="parent")
     @Kroll.method(name="getParent")
     public ParentingProxy getJSParent() {
-        if (this.parent == null) {
-            return null;
-        }
         ParentingProxy parent = getParent();
-       if (parent != null) {
+        if (parent != null) {
            //make sure it exists
             parent.getKrollObject();
         }
@@ -434,19 +464,6 @@ public class ParentingProxy extends KrollProxy {
         }
     }
 
-    /**
-     * @return An array of the children proxies of this view.
-     * @module.api
-     */
-    @Kroll.getProperty(enumerable=false)
-    @Kroll.method
-    public KrollProxy[] getChildren() {
-        if (children == null)
-            return new KrollProxy[0];
-        synchronized (children) {
-            return children.toArray(new KrollProxy[children.size()]);
-        }
-    }
     
     public int getChildrenCount() {
         if (children == null)
