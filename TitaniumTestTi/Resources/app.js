@@ -1,3 +1,5 @@
+require('lib/lodash');
+
 var osname = Ti.Platform.osname;
 __APPLE__ = osname === 'ipad' || osname === 'iphone';
 __ANDROID__ = osname === 'android';

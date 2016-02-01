@@ -163,7 +163,7 @@ function create(_context) {
         var anim = Ti.UI.createAnimation({
             duration: 400,
             lineWidth: 20,
-            // autoreverse: true,
+            autoreverse: true,
             // restartFromBeginning:true,
             // repeat: 2,
             lineColor: 'yellow',
