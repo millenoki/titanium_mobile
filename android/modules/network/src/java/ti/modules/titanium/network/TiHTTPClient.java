@@ -607,6 +607,9 @@ public class TiHTTPClient
             if (client != null) {
                 client.disconnect();
                 client = null;
+                KrollDict data = new KrollDict();
+                data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, "The request was cancelled");
+                dispatchCallback(TiC.PROPERTY_ONERROR, data);
             }
             // Fire the disposehandle event if the request is aborted.
             // And it will dispose the handle of the httpclient in the JS.
