@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -24,6 +26,7 @@ import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
+import ti.modules.titanium.ui.widget.TiUINotification;
 import ti.modules.titanium.ui.widget.TiUITableView;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -432,5 +435,14 @@ public class UIModule extends KrollModule implements Handler.Callback
             }
         }
         return result;
+    }
+    
+    @Kroll.method
+    public void showNotification(Object args) {
+        if (args instanceof HashMap) {
+            NotificationProxy proxy = (NotificationProxy) createProxy(NotificationProxy.class, null, new Object[] { args }, null);
+            proxy.show(null);
+        }
+
     }
 }
