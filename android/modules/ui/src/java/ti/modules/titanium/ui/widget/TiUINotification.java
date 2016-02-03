@@ -37,6 +37,7 @@ public class TiUINotification extends TiUIView
 	    offsetX = toast.getXOffset();
 	    offsetY = toast.getYOffset();       
 	    gravity = toast.getGravity();
+	    setNativeView(toast.getView());
 	}
 
     @Override
@@ -44,6 +45,7 @@ public class TiUINotification extends TiUIView
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_MESSAGE:
+        case TiC.PROPERTY_TEXT:
             message = TiConvert.toString(newValue);
             break;
 
