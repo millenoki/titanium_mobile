@@ -45,8 +45,10 @@
     BOOL instantUpdates;
 	unsigned int animationDelayGuard;
     BOOL _transitioning;
-    id _pendingTransition;
     BOOL needsFocusOnAttach;
+    
+    NSMutableArray* _pendingTransitions;
+    pthread_rwlock_t pendingTransitionsLock;
 }
 @end
 
@@ -2088,6 +2090,12 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)dealloc
 {
+    if (_pendingTransitions) {
+        pthread_rwlock_rdlock(&pendingTransitionsLock);
+        RELEASE_TO_NIL(_pendingTransitions);
+        pthread_rwlock_unlock(&pendingTransitionsLock);
+        pthread_rwlock_destroy(&pendingTransitionsLock);
+    }
     if (controller != nil) {
         [controller detachProxy]; //make the controller knows we are done
 #ifdef TI_USE_KROLL_THREAD
@@ -4056,11 +4064,21 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 
 -(void)handlePendingTransition
 {
-    if (_pendingTransition) {
-        id args = _pendingTransition;
-        _pendingTransition = nil;
-        [self transitionViews:args];
-        RELEASE_TO_NIL(args);
+    if (_pendingTransitions) {
+        id args = nil;
+        pthread_rwlock_rdlock(&pendingTransitionsLock);
+        if ([_pendingTransitions count] > 0) {
+            args = [_pendingTransitions objectAtIndex:0];
+            if (args != nil) {
+                [args retain]; // so it isn't dealloc'ed on remove
+                [_pendingTransitions removeObjectAtIndex:0];
+            }
+        }
+        pthread_rwlock_unlock(&pendingTransitionsLock);
+        if (args) {
+            [self transitionViews:args];
+            [args release];
+        }
     }
 }
 
@@ -4068,7 +4086,13 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 {
     
     if (_transitioning) {
-        _pendingTransition = [args retain];
+        if (!_pendingTransitions) {
+            pthread_rwlock_init(&pendingTransitionsLock, NULL);
+            _pendingTransitions = [NSMutableArray new];
+        }
+        pthread_rwlock_rdlock(&pendingTransitionsLock);
+        [_pendingTransitions addObject:args];
+        pthread_rwlock_unlock(&pendingTransitionsLock);
         return;
     }
     ENSURE_UI_THREAD_1_ARG(args)
