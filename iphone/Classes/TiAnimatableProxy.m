@@ -33,7 +33,7 @@
 {
 	pthread_rwlock_rdlock(&pendingLock);
 	RELEASE_TO_NIL(_pendingAnimations);
-	pthread_rwlock_unlock(&runningLock);
+	pthread_rwlock_unlock(&pendingLock);
 	pthread_rwlock_destroy(&pendingLock);
 	pthread_rwlock_rdlock(&runningLock);
 	RELEASE_TO_NIL(_runningAnimations);
