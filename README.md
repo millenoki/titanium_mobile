@@ -57,7 +57,7 @@ The sample app is also used to develop Akylas owns modules. So you need to disab
 
 ## Download
 
-You can get a prebuild version of [6.0.0.AKYLAS] (https://drive.google.com/open?id=0B6sfR-aIHi1oRUVZOFFzNFI2OEE)
+You can get a prebuild version of [6.0.0.AKYLAS] (https://drive.google.com/open?id=0B6sfR-aIHi1oajFRcG0zNExGVFk)
 
 ## Legal Stuff
 
