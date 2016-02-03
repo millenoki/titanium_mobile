@@ -1204,7 +1204,14 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		} else{
 			TiWindowProxy topWindow = topWindowOnStack();
 			if (topWindow != null) {
-				proxy = topWindow.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
+			    if (topWindow instanceof TiWindowManager) {
+			        TiWindowProxy newWindow = ((TiWindowManager) topWindow).getTopWindow();
+	                while(newWindow != topWindow && newWindow instanceof TiWindowManager) {
+	                    newWindow = ((TiWindowManager) newWindow).getTopWindow();
+	                }
+	                topWindow = newWindow;
+			    }
+			    				proxy = topWindow.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
 			} else if(window != null) {
 				proxy = window.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
 			}
@@ -1220,6 +1227,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 	
 	private boolean handleBackKeyPressed(){
+//	    boolean hasLightWeightWindow = windowStack.size() > 1;
+	    if (handleAndroidBackEvent()) {
+	        return true;
+	    }
 		synchronized (interceptOnBackPressedListeners.synchronizedList()) {
 			for (interceptOnBackPressedEvent listener : interceptOnBackPressedListeners.nonNull()) {
 				try {
@@ -1232,7 +1243,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				}
 			}
 		}
-		return handleAndroidBackEvent();
+//		if (hasLightWeightWindow) {
+	        return false;
+//		} else {
+//		    return handleAndroidBackEvent();
+//		}
 	}
 
 	@Override
