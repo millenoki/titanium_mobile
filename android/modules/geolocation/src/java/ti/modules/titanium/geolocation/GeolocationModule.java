@@ -193,7 +193,8 @@ public class GeolocationModule extends KrollModule
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction()
                     .matches("android.location.PROVIDERS_CHANGED")) {
-                boolean oldState = getAndUpdateServicesEnabled();
+                boolean oldState = currentlyEnabled;
+                getAndUpdateServicesEnabled();
                 if (oldState == currentlyEnabled) {
                     return;
                 }
@@ -920,12 +921,12 @@ public class GeolocationModule extends KrollModule
     
     
     public boolean getAndUpdateServicesEnabled() {
-        if (!listeningForChanges) {
+//        if (!listeningForChanges) {
             boolean state = tiLocation.getLocationServicesEnabled();
             if (state != currentlyEnabled) {
                 currentlyEnabled = state;
             }
-        }
+//        }
         return currentlyEnabled;
     }
 
