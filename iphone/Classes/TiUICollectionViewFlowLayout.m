@@ -97,6 +97,10 @@
         if ([attributes.representedElementKind isEqualToString:UICollectionElementKindSectionHeader]) {
             // remember indexes of header layout attributes, so that we can remove them and add them later
             [attributesToRemoveIdxs addIndex:idx];
+            
+            //add it to the missing sections in case the section is empty
+            //this allow to show header even if section is empty
+//            [missingSections addIndex:attributes.indexPath.section];
         }
     }
     
