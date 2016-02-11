@@ -71,12 +71,13 @@ DEFINE_EXCEPTIONS
 -(void) initialize
 {
     self.backgroundColor = [UIColor clearColor];
-    self.backgroundColor = [UIColor clearColor];
     self.opaque = NO;
     
     _proxy.wrapperView = self;
     configurationSet = NO;
     [_proxy dirtyItAll];
+    [_proxy windowWillOpen];
+    [_proxy windowDidOpen];
 }
 
 -(void)configurationStart
