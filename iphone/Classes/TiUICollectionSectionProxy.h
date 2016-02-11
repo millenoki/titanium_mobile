@@ -28,6 +28,8 @@
 
 @property (nonatomic, readwrite, assign) id<TiUICollectionViewDelegate> delegate;
 @property (nonatomic, readwrite, assign) NSUInteger sectionIndex;
+@property (nonatomic, readwrite, assign) BOOL hideWhenEmpty;
+@property (nonatomic, readwrite, assign) BOOL showHeaderWhenHidden;
 
 // Private API. Used by CollectionView directly. Not for public comsumption
 - (NSDictionary *)itemAtIndex:(NSUInteger)index;

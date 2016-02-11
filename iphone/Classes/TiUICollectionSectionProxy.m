@@ -39,6 +39,8 @@
 		_items = [[NSMutableArray alloc] initWithCapacity:20];
         _storedSectionViews = [[NSMutableDictionary alloc] init];
         _hidden = false;
+        _hideWhenEmpty = NO;
+        _showHeaderWhenHidden = NO;
     }
     return self;
 }
@@ -170,6 +172,7 @@
 
 - (BOOL)isHidden
 {
+//    return (_hidden && !_showHeaderWhenHidden) || ([_items count] == 0 && _hideWhenEmpty);
     return _hidden;
 }
 
@@ -197,6 +200,7 @@
 
 - (NSUInteger)itemCountInternal
 {
+//    return (_hidden && _showHeaderWhenHidden)?MIN(1,[_items count]):(_hidden?0:[_items count]);
     return _hidden?0:[_items count];
 }
 
