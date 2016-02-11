@@ -1289,7 +1289,6 @@ static NSDictionary* replaceKeysForRow;
 {
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
-
     NSDictionary *item = [theSection itemAtIndex:realIndexPath.row];
     id templateId = [item objectForKey:@"template"];
     if (templateId == nil) {
@@ -1341,8 +1340,11 @@ static NSDictionary* replaceKeysForRow;
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
     
-    NSDictionary *item = [theSection valueForKey:(kind == UICollectionElementKindSectionHeader)?@"headerView":@"footerView"];
-    id templateId = [item objectForKey:@"template"];
+    id item = [theSection valueForKey:(kind == UICollectionElementKindSectionHeader)?@"headerView":@"footerView"];
+//    if (!item) {
+//        return nil;
+//    }
+    id templateId = [item valueForKey:@"template"];
     if (templateId == nil) {
         templateId = (kind == UICollectionElementKindSectionHeader)?@"header":@"footer";
     }
@@ -1376,6 +1378,8 @@ static NSDictionary* replaceKeysForRow;
         view.proxy.indexPath = realIndexPath;
         return view;
     } else {
+        TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
+
         TiViewProxy* child = [theSection sectionViewForLocation:@"headerView" inCollectionView:self];
         if (child && !child.parent) {
             //view is retained by the collectionView
@@ -1396,13 +1400,12 @@ static NSDictionary* replaceKeysForRow;
             }
             [viewProxy release];
             view.proxy.indexPath = realIndexPath;
-            return view;
+//            return view;
         } else if (child) {
             //view is retained by the collectionView
-            TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
             [view updateProxy:(TiUICollectionWrapperViewProxy*)child.parent forIndexPath:realIndexPath];
-            return view;
         }
+        return view;
     }
     return nil;
 }
@@ -1608,11 +1611,11 @@ referenceSizeForHeaderInSection:(NSInteger)section
     }
     NSString* location = @"headerView";
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
-    NSDictionary *item = [theSection valueForKey:location];
+    id item = [theSection valueForKey:location];
     if (!item) {
         return CGSizeZero;
     }
-    id templateId = [item objectForKey:@"template"];
+    id templateId = [item valueForKey:@"template"];
     if (templateId == nil) {
         templateId = @"header";
     }
