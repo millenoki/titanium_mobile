@@ -347,12 +347,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 }
 
--(void)loadFile:(NSString*)absolutePath
+-(void)loadFile:(NSURL*)requestURL
 	   encoding:(NSStringEncoding)encoding
 		textEncodingName:(NSString*)textEncodingName
 	   mimeType:(NSString*)mimeType
 {
-	NSURL *requestURL = [NSURL fileURLWithPath:absolutePath];
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
 	[NSURLProtocol setProperty:textEncodingName forKey:kContentTextEncoding inRequest:request];
 	[NSURLProtocol setProperty:mimeType forKey:kContentMimeType inRequest:request];
@@ -576,6 +575,14 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	RELEASE_TO_NIL(lastValidLoad);
 	
 	url = [[TiUtils toURL:args proxy:(TiProxy*)self.proxy] retain];
+    NSArray<NSURLQueryItem *> *queryItems = [[NSURLComponents componentsWithURL:[NSURL URLWithString:args] resolvingAgainstBaseURL:NO] queryItems];
+    if (queryItems) {
+        
+        NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+        [components setQueryItems:queryItems];
+        [url release];
+        url = [[components URL] retain];
+    }
 
 	[self stopLoading];
 	
@@ -680,7 +687,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			RELEASE_TO_NIL(url);
 			return;
 		}
-		[self loadFile:path encoding:encoding textEncodingName:textEncodingName mimeType:mimeType];
+		[self loadFile:baseURL encoding:encoding textEncodingName:textEncodingName mimeType:mimeType];
 	} else {
 		// convert it into a app:// relative path to load the resource
 		// from our application
