@@ -865,10 +865,6 @@ DEFINE_EXCEPTIONS
 -(void)setReusing:(BOOL)value
 {
     _reusing = value;
-    if (value) {
-        shouldTransition = NO;
-        [self loadDefaultImage];
-    }
 }
 
 -(void)setImage_:(id)arg
@@ -911,6 +907,7 @@ DEFINE_EXCEPTIONS
     }
     
     if (_reusing) {
+        shouldTransition = NO;
         [self loadDefaultImage];
     }
     shouldTransition = !onlyTransitionIfRemote;
