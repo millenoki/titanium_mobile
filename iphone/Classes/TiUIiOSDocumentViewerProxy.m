@@ -26,6 +26,9 @@
 	{
 		NSURL *url = [TiUtils toURL:[self valueForUndefinedKey:@"url"] proxy:self];
 		controller = [[UIDocumentInteractionController interactionControllerWithURL:url] retain];
+        if ([self valueForUndefinedKey:@"title"]) {
+            controller.name = [TiUtils stringValue:[self valueForUndefinedKey:@"title"]];
+        }
 		controller.delegate = self;
 	}
 	return controller;
