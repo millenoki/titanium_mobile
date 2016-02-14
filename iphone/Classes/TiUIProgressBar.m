@@ -11,11 +11,15 @@
 #import "WebFont.h"
 
 @implementation TiUIProgressBar
+{
+    float currentValue;
+}
 
 -(id)initWithStyle:(UIProgressViewStyle)style_
 {
 	if (self = [super initWithFrame:CGRectZero])
 	{
+        currentValue = 0;
 		style = style_;
 		min = 0;
 		max = 1;
@@ -150,17 +154,23 @@
 -(void)setMin_:(id)value
 {
 	min = [TiUtils floatValue:value];
+    [self updateValue];
 }
 
 -(void)setMax_:(id)value
 {
 	max = [TiUtils floatValue:value];
+    [self updateValue];
 }
 
 -(void)setValue_:(id)value
 {
-	CGFloat newValue = ([TiUtils floatValue:value] - min) / (max-min);
-    [[self progress] setProgress:newValue];
+	currentValue = [TiUtils floatValue:value];
+    [self updateValue];
+}
+
+-(void)updateValue {
+    [[self progress] setProgress:(currentValue - min) / (max-min)];
 }
 
 
