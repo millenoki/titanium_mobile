@@ -586,15 +586,16 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 -(BOOL)_hasAnyListeners:(NSArray*)types
 {
     pthread_rwlock_rdlock(&listenerLock);
+    BOOL result = false;
     //If listeners is nil at this point, result is still false.
     for (NSString* key in types) {
         if ([[listeners objectForKey:key] intValue]>0) {
-            pthread_rwlock_unlock(&listenerLock);
-            return true;
+            result = true;
+            break;
         }
     }
     pthread_rwlock_unlock(&listenerLock);
-    return false;
+    return result;
 }
 
 -(void)_fireEventToListener:(NSString*)type withObject:(id)obj listener:(KrollCallback*)listener thisObject:(TiProxy*)thisObject_
@@ -942,12 +943,13 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
 
 -(void)checkForListenerOnce:(NSString *)type withListener:(TiObjectRef)callbackFunction
 {
-    pthread_rwlock_wrlock(&listenerLock);
     if(listenersOnce == nil) {
         return;
     }
+    pthread_rwlock_wrlock(&listenerLock);
     NSMutableArray* theListenersOnce = [listenersOnce objectForKey:type];
     if (theListenersOnce == nil) {
+        pthread_rwlock_unlock(&listenerLock);
         return;
     }
     __block BOOL unlocked = NO;
