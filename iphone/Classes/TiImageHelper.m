@@ -88,11 +88,14 @@
 
 +(id)imageFiltered:(UIImage*)image withOptions:(NSDictionary*)options
 {
+    if (!image) {
+        return nil;
+    }
     int width = image.size.width;
     int height = image.size.height;
     NSDictionary* info = nil;
-    if ([options objectForKey:@"crop"]) {
-        NSDictionary* rectObj = [options objectForKey:@"crop"];
+    NSDictionary* rectObj = [options objectForKey:@"crop"];
+    if (rectObj && [rectObj count] > 0) {
         CGRect bounds = CGRectMake(TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"x"], width)
                                  , TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"y"], height), TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"width"], width), TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"height"], height));
         image = [UIImageResize croppedImage:bounds image:image];
