@@ -172,12 +172,12 @@ public class TiDatabaseProxy extends KrollProxy
 		return name;
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public int getLastInsertRowId() {
 		return (int) DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public int getRowsAffected() {
 		return (int) DatabaseUtils.longForQuery(db, "select changes()", null);
 	}
@@ -211,7 +211,9 @@ public class TiDatabaseProxy extends KrollProxy
 	    return db;
 	}
 	
+    @Kroll.getProperty(enumerable=false) @Kroll.method
 	public String getNativePath() {
+        String result = db.getPath();
         return "file://" + result;
     }
 }

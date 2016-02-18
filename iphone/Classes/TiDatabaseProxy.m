@@ -289,6 +289,11 @@
 {
     return [self dbPath:name];
 }
+
+-(id)nativePath {
+    return [[NSURL fileURLWithPath:[self path]] absoluteString];
+}
+
 #if defined(USE_TI_FILESYSTEM)
 -(TiFilesystemFileProxy*)file
 {
