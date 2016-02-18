@@ -31,6 +31,7 @@ import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListView.TiBaseAdapter;
+import ti.modules.titanium.ui.widget.listview.TiListView;
 import android.view.View;
 
 @Kroll.proxy(propertyAccessors = {
@@ -339,7 +340,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             @Override
             public void execute() {
                 TiAbsListView listView = getListView();
-                if (listView != null) {
+                if (listView instanceof TiListView) {
                     int position = listView.findItemPosition(sectionIndex, index);
                     listView.remove(position, count);
                 }
@@ -683,7 +684,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private void handleInsertItemsAt(int index, Object data) {
         TiAbsListView listView = getListView();
-        if (listView != null) {
+        if (listView instanceof TiListView) {
             int position = listView.findItemPosition(sectionIndex, index) - listView.getHeaderViewCount();
             if (data instanceof Object[]) {
                 listView.insert(position, (Object[])data);
