@@ -1657,7 +1657,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * Returns true if any view in the hierarchy has the event listener.
      */
     public KrollProxy firstHierarchyListener(String event) {
-        boolean hasListener = hasListeners(event);
+        boolean hasListener = hasListeners(event, false);
 
         // Checks whether the parent has the listener or not
         if (!hasListener) {
