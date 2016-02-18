@@ -1,7 +1,7 @@
 function create(_context) {
     var module = {};
 
-    var Shapes = app.modules.shapes = require('akylas.shapes');
+    var Shapes = require('akylas.shapes');
 
     module.exs = function(_args) {
         var win = createWin(_.assign(_args, {barColor:'red'}));

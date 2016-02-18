@@ -950,7 +950,7 @@ function listViewEx2() {
     update();
     listView.addEventListener('longpress', function(_event) {
         //    	alert('longpress');
-        sinfo('longpress');
+        Ti.API.info('longpress');
         win.add(loadingView);
         update();
     });
@@ -1409,7 +1409,7 @@ function listViewEx4() {
                 animated: true
             });
         }
-        sdebug(_event);
+        Ti.API.debug(_event);
     });
     listView.addEventListener('singletap', function(_event) {
         if (!_event.hasOwnProperty('itemIndex')) return;
@@ -1529,7 +1529,7 @@ function listViewEx5() {
         change: function(_event) {
             if (_event.hasOwnProperty('section') && _event.hasOwnProperty('itemIndex')) {
                 var item = _event.section.getItemAt(_event.itemIndex);
-                sdebug('change', item.textfield.value);
+                Ti.API.debug('change', item.textfield.value);
                 item.textfield.color = _.isEmpty(item.textfield.value) ? 'red' : 'green';
                 _event.section.updateItemAt(_event.itemIndex, item);
             }
@@ -3120,7 +3120,7 @@ function collectionViewEx(_args) {
         });
     };
     listView.setSections(sections);
-    listView.addEventListener('itemclick', sinfo);
+    // listView.addEventListener('itemclick', Ti.API.info);
     win.add(listView);
     openWin(win);
 }

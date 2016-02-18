@@ -28,7 +28,7 @@ function create(_context) {
             return memo;
         }, []);
     }
-    var Bluetooth = app.modules.bluetooth = require('akylas.bluetooth');
+    var Bluetooth = require('akylas.bluetooth');
 
     module.exs = function(_args) {
         var win = createWin(_args);

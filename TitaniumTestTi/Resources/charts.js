@@ -1,6 +1,6 @@
 function create(_context) {
     var module = {};
-    var Charts = app.modules.charts = require('akylas.charts');
+    var Charts = require('akylas.charts');
 
     module.exs = function(_args) {
         var win = createWin(_args);

@@ -1,5 +1,6 @@
 require('lib/lodash');
-
+Ti.API.debug =Ti.API.debug;
+_ = require('lib/lodash');
 var osname = Ti.Platform.osname;
 __AKYLAS_DEV__ = true;
 __APPLE__ = osname === 'ipad' || osname === 'iphone';
@@ -22,8 +23,8 @@ if (__ANDROID__) {
 	backColor = 'black';
 	textColor = 'gray';
 }
-sdebug('__APPLE__', __APPLE__);
-sdebug('__ANDROID__', __ANDROID__);
+Ti.API.debug('__APPLE__', __APPLE__);
+Ti.API.debug('__ANDROID__', __ANDROID__);
 
 function merge_options(obj1, obj2, _new) {
 	if (_new === true) {
@@ -96,7 +97,7 @@ function createWin(_args, _customTitleView) {
 function listViewClickHandle(_event) {
 	if (_event.hasOwnProperty('item')) {
 		var item = _event.item;
-		sinfo('itemclick ', _event.itemIndex, item);
+		Ti.API.info('itemclick ', _event.itemIndex, item);
 		if (item.callback) {
 			item.callback(_.omit(item.properties, 'height', 'backgroundColor'));
 		}
@@ -1324,7 +1325,7 @@ function animationBugEx(_args) {
 		}]
 	});
 	win.on('click', function() {
-		sdebug('test');
+		Ti.API.debug('test');
 		win.animate({
 			test: {
 				right: 56,
@@ -2177,7 +2178,7 @@ function htmlLabelEx() {
 	});
 	win.add(scrollView);
 	scrollView.addEventListener('click', function(e) {
-		sinfo(e.link);
+		Ti.API.info(e.link);
 		// var index = e.source.characterIndexAtPoint({x:e.x,y:e.y});
 		// Ti.API.info(index);
 	})
@@ -2574,7 +2575,7 @@ function navWindowEx() {
 						showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM
 					});
 					closeMenuItem.addEventListener("click", function(e) {
-						sdebug('closeMenuItem');
+						Ti.API.debug('closeMenuItem');
 						newWin.close();
 					});
 				}
@@ -3516,7 +3517,7 @@ function slideMenuEx() {
 	});
 	otherWindows.push(slidingMenu);
 
-	var smDebug = _.wrap(sdebug, function(func, e) {
+	var smDebug = _.wrap(Ti.API.debug, function(func, e) {
 		return func(_.pick(e, 'type', 'side', 'offset', 'percent'));
 	});
 	slidingMenu.addEventListener('scrollstart', smDebug);
@@ -4082,8 +4083,8 @@ function imageViewAnimationTest(_args) {
 		switch (e.source.bid) {
 			case 0:
 				// image1.start();
-				sdebug(image1.progress);
-				sdebug(image1.touchPassThrough);
+				Ti.API.debug(image1.progress);
+				Ti.API.debug(image1.touchPassThrough);
 				// image1.touchPassThrough = 1;
 				image1.progress = 0.8;
 				break;
@@ -4178,7 +4179,7 @@ function modulesExs(_args) {
 	});
 	button.addEventListener('click', function() {
 		var current = win.fullscreen;
-		sdebug(current);
+		Ti.API.debug(current);
 		// win.fullscreen = [1-current, {
 		// animationStyle:Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE
 		// }];
@@ -4201,7 +4202,7 @@ function modulesExs(_args) {
 
 Ti.include('listview.js');
 var color = cellColor(0);
-var headerView = new ImageView({
+var headerView = Ti.UI.createImageView({
 	scaleType: Ti.UI.SCALE_TYPE_ASPECT_FILL,
 	image: 'http://phandroid.s3.amazonaws.com/wp-content/uploads/2012/02/Android-At-Home-banner.jpg',
 	height: 200
@@ -4233,7 +4234,7 @@ var firstWindow = createWin({
 		})]
 		// }
 });
-var headerView2 = new View({
+var headerView2 = Ti.UI.createView({
 	properties: {
 		layout: 'vertical',
 		height: 'SIZE'
@@ -4454,7 +4455,7 @@ firstWindow
 		}
 	});
 firstWindow.addEventListener('open', function() {
-	info('open');
+	Ti.API.info('open');
 	// listview.appendSection({
 	// headerTitle: 'test2',
 	// items: [{
@@ -4476,7 +4477,7 @@ var mainWin = Ti.UI.createNavigationWindow({
 	// curve: [0.68, -0.55, 0.265, 1.55]
 	// }
 });
-sdebug('test', mainWin.currentWindow.title)
+Ti.API.debug('test', mainWin.currentWindow.title)
 mainWin.addEventListener('openWindow', function(e) {
 	Ti.API.info(e);
 });
@@ -5200,12 +5201,12 @@ function testMCTS(_args) {
 
 function test3(_args) {
 	var win = createWin(_args);
-	var viewHolder = new View({
+	var viewHolder = Ti.UI.createView({
 		width: '50%',
 		height: '60',
 		backgroundColor: 'yellow'
 	});
-	var test = new ScrollView({
+	var test = Ti.UI.createScrollView({
 		properties: {
 			width: 'FILL',
 			height: 'SIZE',
@@ -5352,7 +5353,7 @@ function testLabel(_args) {
 		}]
 	});
 	// slidingMenu
-	var slidingMenu = new SlideMenu({
+	var slidingMenu = Ti.UI.createSlideMenu({
 		orientationModes: [Ti.UI.UPSIDE_PORTRAIT, Ti.UI.PORTRAIT,
 			Ti.UI.LANDSCAPE_RIGHT, Ti.UI.LANDSCAPE_LEFT
 		],
@@ -5377,112 +5378,6 @@ function testLabel(_args) {
 	slidingMenu.open();
 }
 
-app.utils.createNZBButton = function(_id, _rclass, _addSuffix) {
-	var props = redux.fn.style('Label', {
-		rclass: _rclass || 'NZBGetButton',
-		rid: (_addSuffix !== false) ? (_id + 'Btn') : _id,
-		bindId: _id
-	});
-	props.backgroundGradient = app.utils.createNZBGradient(props.colors);
-	props.backgroundSelectedGradient = app.utils
-		.createNZBGradient(props.selectedColors);
-	delete props.rclass;
-	delete props.rid;
-	return {
-		type: 'Ti.UI.Label',
-		bindId: _id,
-		properties: props
-	};
-};
-app.utils.createNZBGradient = function(_colors) {
-	return {
-		type: 'linear',
-		colors: _colors,
-		startPoint: {
-			x: 0,
-			y: 0
-		},
-		endPoint: {
-			x: 0,
-			y: "100%"
-		}
-	};
-};
-
-function showSpeedLimit() {
-	var viewArgs = {
-		properties: {
-			rclass: 'Fill SizeHeight VHolder'
-		},
-		childTemplates: [{
-			properties: {
-				rclass: 'Fill SizeHeight HHolder'
-			},
-			childTemplates: [{
-				// type: 'Ti.UI.Label',
-				// properties: {
-				// rclass: 'FillWidth',
-				// rid: 'nzbGetSpeedLimitDesc'
-				// }
-				// }, {
-				properties: {
-					rid: 'nzbGetSpeedLimitTFHolder'
-				},
-				childTemplates: [{
-					type: 'Ti.UI.TextField',
-					bindId: 'textfield',
-					properties: {
-						rid: 'nzbGetSpeedLimitTF'
-					}
-				}, {
-					type: 'Ti.UI.Label',
-					properties: {
-						// rclass: 'NZBGetBorderView',
-						rid: 'nzbGetSpeedLimitUnit'
-					}
-				}]
-			}]
-		}]
-	};
-	var speedLimit = 0;
-	if (speedLimit > 0) {
-		viewArgs.childTemplates.push({
-			type: 'Ti.UI.Label',
-			properties: {
-				rid: 'nzbGetCurrentSpeedLimit',
-				text: 0
-			}
-		});
-	}
-
-	var args = {
-		cancel: 0,
-		// title: tr('speed_limit'),
-		customView: new ScrollView(viewArgs),
-		// buttonNames: ['close', 'setlimit']
-	}
-	var alert = new NZBGetAlert(args);
-	alert.addEventListener('click', function(e) {
-		if (e.cancel === false) {
-			var rate = parseInt(alert.customView.textfield.value);
-			Status.setSpeedLimitClick(rate, function() {
-				Ti.App.fireEvent('nzbget', {
-					subtype: 'cmd',
-					command: 'rate',
-					value: rate
-				});
-			});
-
-		}
-	});
-	app.onDebounce(alert, 'touchstart', function(e) {
-		if (e.source !== alert.customView.textfield) {
-			alert.customView.textfield.blur();
-		}
-	});
-
-	alert.showMe();
-}
 
 function videoOverlayTest(_args) {
 	var win = createWin(_.assign({
@@ -5511,7 +5406,7 @@ function videoOverlayTest(_args) {
 			opacity: 0
 		};
 
-	var webView = new WebView(_.assign({
+	var webView = Ti.UI.createWebView(_.assign({
 		scrollingEnabled: false,
 		borderColor: 'gray',
 		borderWidth: 2,
@@ -6096,10 +5991,10 @@ function textAreaTest(_args) {
 }
 
 // app.modules.location.callback = function(e){
-// sinfo(e);
+// Ti.API.info(e);
 // }
 // app.modules.location.start();
-// sinfo(Ti.App.Properties.listProperties());
+// Ti.API.info(Ti.App.Properties.listProperties());
 
 // mapboxPinEx();
 
@@ -6137,7 +6032,7 @@ function shareTest(_data, _callbackSuccess, _callbackError) {
 	var chars = (_data.text && _data.text != null) ? _data.text.length : 0;
 
 	var classId = _.capitalize(this.moduleId);
-	var win = new Window({
+	var win = Ti.UI.createWindow({
 		properties: {
 			rclass: 'SocialShareWindow ' + classId + 'SocialShareWindow'
 		},
@@ -6223,7 +6118,7 @@ function shareTest(_data, _callbackSuccess, _callbackError) {
 					_callbackError(_result);
 			});
 		} else {
-			sdebug('focusing text view');
+			Ti.API.debug('focusing text view');
 			win.textField.focus();
 		}
 
@@ -6264,13 +6159,13 @@ function shareExample(_data) {
 Ti.Network.registerForPushNotifications({
 	senderId: '724423202625',
 	success: function(e) {
-		sdebug('registerForPushNotifications', 'success', e);
+		Ti.API.debug('registerForPushNotifications', 'success', e);
 	},
 	error: function(e) {
-		sdebug('registerForPushNotifications', 'error', e);
+		Ti.API.debug('registerForPushNotifications', 'error', e);
 	},
 	callback: function(e) {
-		sdebug('registerForPushNotifications', 'callback', e);
+		Ti.API.debug('registerForPushNotifications', 'callback', e);
 
 	}
 });
@@ -6331,7 +6226,7 @@ function scrollableViewTest(_args) {
 			},
 			events: {
 				'first_load': function(e) {
-					sdebug('first_load', e.source);
+					Ti.API.debug('first_load', e.source);
 					e.source.text = 'loaded!'
 				}
 			}
@@ -6372,11 +6267,11 @@ function scrollableViewTest(_args) {
 // location.start();
 
 // Ti.Geolocation.reverseGeocoder(45.1930902, 5.7166627, function(_result) {
-// sdebug('reverseGeocoder', _result);
+// Ti.API.debug('reverseGeocoder', _result);
 // });
 
 function imageFilterTest(_args) {
-	sdebug(Ti.Image.FILTER_IOS_BLUR);
+	Ti.API.debug(Ti.Image.FILTER_IOS_BLUR);
 	// Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory,
 	// 'colorArt.jpg').read().imageAsFiltered({
 	// colorArt: {
@@ -6444,10 +6339,10 @@ function imageFilterTest(_args) {
 				},
 				events: {
 					'load': function(e) {
-						sdebug(e);
+						Ti.API.debug(e);
 						if (__ANDROID__) {
 							var actionBar = win._internalActivity.actionBar;
-							sdebug(actionBar);
+							Ti.API.debug(actionBar);
 							actionBar.displayHomeAsUp = false;
 							actionBar.backgroundColor = e.colorArt.backgroundColor;
 						} else {
@@ -6555,7 +6450,7 @@ function scrollBlurTest(_args) {
 					},
 					events: {
 						'load': function(e) {
-							sdebug(e);
+							Ti.API.debug(e);
 							// e.source.height =
 							// win.mainImage.rect.height;
 							if (__ANDROID__) {
@@ -6647,7 +6542,7 @@ function scrollBlurTest(_args) {
 					var newHeight = win.mainImage.rect.height;
 					if (newHeight !== fullHeight) {
 						fullHeight = newHeight;
-						sdebug('fullHeight', fullHeight);
+						Ti.API.debug('fullHeight', fullHeight);
 						win.blurImage.height = fullHeight;
 						win.topview.height = fullHeight - 54;
 						win.descriptionLabel.height = fullHeight - 54;
@@ -6920,7 +6815,7 @@ function pickerColumnsTest(_args) {
 	// picker.selectionIndicator = true;
 	// picker.add(pickerCol);
 
-	var billingPicker = new View({
+	var billingPicker = Ti.UI.createView({
 		properties: {
 			bottom: 0,
 			layout: 'vertical',
@@ -6984,7 +6879,7 @@ function pickerColumnsTest(_args) {
 			// }],
 			events: {
 				'change': function(e) {
-					sdebug(e.selectedValue[0]);
+					Ti.API.debug(e.selectedValue[0]);
 					// setBillinDayText(e.selectedValue[0]);
 				}
 			}
@@ -7015,7 +6910,7 @@ function evaluatorsEx(_args) {
 		thumbWidth = 0,
 		sliderOn = false,
 		firstLayout = true,
-		slider = new Label({
+		slider = Ti.UI.createLabel({
 			properties: {
 				right: 20,
 				left: 10,
@@ -7083,7 +6978,7 @@ function evaluatorsEx(_args) {
 
 						var current = sliderOn;
 						sliderOn = e.source.left > e.source.maxX - 10;
-						sdebug('postlayout');
+						Ti.API.debug('postlayout');
 						if (current != sliderOn) {
 							e.source.applyProperties({
 								color: sliderOn ? 'green' : 'red',
@@ -7091,7 +6986,7 @@ function evaluatorsEx(_args) {
 						}
 					},
 					'panend': function(e) {
-						sdebug('panend', e.source);
+						Ti.API.debug('panend', e.source);
 						// if (sliderWidth === 0) {
 						if (sliderOn) {
 							e.source.left = 0;
@@ -7109,7 +7004,7 @@ function evaluatorsEx(_args) {
 			}]
 		})
 
-	var gdebug = _.flow(_.partialRight(_.pick, 'type'), sdebug);
+	var gdebug = _.flow(_.partialRight(_.pick, 'type'), Ti.API.debug);
 	win.addEventListener('pinch', gdebug)
 	win.addEventListener('pan', gdebug)
 	win.addEventListener('rotate', gdebug)
@@ -7219,14 +7114,14 @@ function animationtest(_args) {
 	var win = createWin({
 		backgroundColor: 'white',
 	}, _args);
-	var testview = new View({
+	var testview = Ti.UI.createView({
 		width: 100,
 		height: 100,
 		backgroundColor: 'red',
 		left: 10
 	});
 	//	win.add(testview);
-	var testview2 = new View({
+	var testview2 = Ti.UI.createView({
 		width: 100,
 		height: 100,
 		backgroundColor: 'green',
@@ -7317,7 +7212,7 @@ function gradientAnimationTest(_args) {
 // 	var childTemplates = [];
 // 	_.each(Ti.UI.BlendMode, function(value, key, list){
 
-// 		sdebug(key, value);
+// 		Ti.API.debug(key, value);
 // 		childTemplates.push({
 // 			type: 'Ti.UI.ImageView',
 // 			properties: {
@@ -7363,14 +7258,14 @@ function windowLevelTest() {
 	});
 	win.open();
 }
-Ti.App.on('significanttimechange', sdebug);
+Ti.App.on('significanttimechange', Ti.API.debug);
 // animationBugEx();
 // setTimeout(windowLevelTest, 1000);
 // scrollableViewTest();
 // var indexer = Ti.App.iOS.createSearchableIndex();
 // if (indexer.isSupported()) {
 // 	Ti.App.iOS.on('continueactivity', function(e) {
-// 		sdebug(e);
+// 		Ti.API.debug(e);
 // 	});
 // 	// indexer.deleteAllSearchableItemByDomainIdentifiers(["akylas.sink"]);
 // 	indexer.addToDefaultSearchableIndex([{
