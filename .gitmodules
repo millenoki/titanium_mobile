@@ -1,0 +1,3 @@
+[submodule "iphone/thirdparties/APSHTTPClient"]
+	path = iphone/thirdparties/APSHTTPClient
+	url = git@github.com:Akylas/APSHTTPClient.git
