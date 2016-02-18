@@ -1211,7 +1211,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	                }
 	                topWindow = newWindow;
 			    }
-			    				proxy = topWindow.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
+			    proxy = topWindow.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
 			} else if(window != null) {
 				proxy = window.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
 			}
