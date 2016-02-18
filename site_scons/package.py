@@ -86,8 +86,8 @@ def prepare_xcode():
 		 print >> sys.stderr, err_output
 	return process_return_code
 
-def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None, ignore_files=None):
-	for root, dirs, files in os.walk(dir, topdown=True):
+def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None, ignore_files=None, followlinks=False):
+	for root, dirs, files in os.walk(dir, topdown=True, followlinks=followlinks):
 		dirs[:] = [d for d in dirs if d not in ignoreDirs]
 		files[:] = [f for f in files if not f.startswith('.')]
 		
@@ -102,7 +102,7 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None, ignore_files=N
 
 		for  dd  in  dirs:
 			from_ = os.path.join(root, dd)
-			if os.path.islink(from_):
+			if followlinks is False and os.path.islink(from_):
 				to_ = from_.replace(dir, basepath, 1)
 				a  =  zipfile.ZipInfo()
 				a.filename  = to_
@@ -117,7 +117,7 @@ def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None, ignore_files=N
 			e = os.path.splitext(file)
 			if len(e)==2 and e[1] in ignoreExtensions: continue
 			to_ = from_.replace(dir, basepath, 1)
-			if os.path.islink(from_):
+			if followlinks is False and os.path.islink(from_):
 				a  =  zipfile.ZipInfo()
 				a.filename  =  to_
 				a.create_system  =  3
@@ -292,13 +292,13 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 	headers_dir=os.path.join(top_dir,'iphone','Classes')
 	for f in os.listdir(headers_dir):
 		path = os.path.join(headers_dir,f)
-		if os.path.isfile(path) and os.path.splitext(f)[1]=='.h':
-			 zf.write(path,'%s/iphone/include/%s' % (basepath,f))
-		elif os.path.isdir(path):
+		if os.path.isdir(path):
 			for df in os.listdir(path):
-				dfpath = os.path.join(headers_dir,f,df)
+				dfpath = os.path.realpath(os.path.join(headers_dir,f,df))
 				if os.path.isfile(dfpath) and os.path.splitext(df)[1]=='.h':
 					 zf.write(dfpath,'%s/iphone/include/%s/%s' % (basepath,f,df))
+		elif os.path.isfile(path) and os.path.splitext(f)[1]=='.h':
+			 zf.write(path,'%s/iphone/include/%s' % (basepath,f))
 
 	tp_headers_dir=os.path.join(top_dir,'iphone','headers','JavaScriptCore')
 	for f in os.listdir(tp_headers_dir):
@@ -316,7 +316,7 @@ def zip_iphone_ipad(zf,basepath,platform,version,version_tag):
 
 	# iphone_lib = os.path.join(top_dir,'iphone',platform,'build')
 
-	zip_dir(zf,os.path.join(top_dir,'iphone','Classes'),basepath+'/iphone/Classes',subs)
+	zip_dir(zf,os.path.join(top_dir,'iphone','Classes'),basepath+'/iphone/Classes',subs, followlinks=True)
 	zip_dir(zf,os.path.join(top_dir,'iphone','headers'),basepath+'/iphone/headers',subs)
 
 	xcodeProject =  'Titanium.xcodeproj'
