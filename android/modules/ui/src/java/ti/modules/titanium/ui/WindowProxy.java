@@ -246,7 +246,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					// Need to handle the url window in the JS side.
 					callPropertySync(PROPERTY_LOAD_URL, null);
 
-					state = State.OPENED;
+//					state = State.OPENED;
 			        needsOpenEvent = true;
 					// fireEvent(TiC.EVENT_OPEN, null);
 
@@ -364,6 +364,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
         }
 		if (lightweight) {
 		    addLightweightWindowToStack();
+		    handlePostOpen();
 		    return;
 		}
 		
