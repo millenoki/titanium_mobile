@@ -33,9 +33,9 @@ public class TransitionFade extends Transition {
         if (!TransitionHelper.isPushSubType(subType)) {
             out = !out;
         }
-        float alpha = 1 - Math.abs(position);
+        float alpha = Math.max(0, 1 - Math.abs(position));
 
         view.setAlpha(alpha);
-        view.setVisibility((alpha == 0)?View.INVISIBLE:View.VISIBLE);
+        view.setVisibility((alpha <= 0)?View.INVISIBLE:View.VISIBLE);
     }
 }
