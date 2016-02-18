@@ -212,6 +212,6 @@ public class TiDatabaseProxy extends KrollProxy
 	}
 	
 	public String getNativePath() {
-        return db.getPath();
+        return "file://" + result;
     }
 }
