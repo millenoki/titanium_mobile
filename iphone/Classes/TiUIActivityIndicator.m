@@ -325,13 +325,21 @@
     indicatorView = [self indicatorView];
 #endif
     //TIMOB-15293
-    if ( ([self window] != nil) && (indicatorView != nil) && (![indicatorView isAnimating]) ) {
-        BOOL visible = [TiUtils boolValue:[[self proxy] valueForKey:@"visible"] def:NO];
-        if (visible) {
-            [indicatorView startAnimating];
-        }
-    }
+//    if ( ([self window] != nil) && (indicatorView != nil) && (![indicatorView isAnimating]) ) {
+//        BOOL visible = [TiUtils boolValue:[[self proxy] valueForKey:@"visible"] def:NO];
+//        if (visible) {
+//            [indicatorView startAnimating];
+//        }
+//    }
     [super didMoveToWindow];
+}
+
+-(void)configurationSet
+{
+    [super configurationSet];
+    if (indicatorView && !self.hidden && (![indicatorView isAnimating])) {
+        [indicatorView startAnimating];
+    }
 }
 
 #ifndef TI_USE_AUTOLAYOUT
