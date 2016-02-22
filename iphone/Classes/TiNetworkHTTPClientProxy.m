@@ -30,6 +30,7 @@ extern NSString * const TI_APPLICATION_GUID;
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
+    _useTiUserAgent = true;
     id arg = [properties valueForKey:@"securityManager"];
     
     if (IS_NULL_OR_NIL(arg) || [arg conformsToProtocol:@protocol(SecurityManagerProtocol)]) {
@@ -47,7 +48,9 @@ extern NSString * const TI_APPLICATION_GUID;
     if(httpRequest == nil) {
         httpRequest = [[APSHTTPRequest alloc] init];
         [httpRequest setDelegate:self];
-        [httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];        
+        if (_useTiUserAgent) {
+            [httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
+        }
     }
 }
 

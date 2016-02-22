@@ -56,6 +56,8 @@
 @property(nonatomic,readonly) NSNumber* LOADING;
 @property(nonatomic,readonly) NSNumber* DONE;
 
+@property(nonatomic,assign) BOOL useTiUserAgent;
+
 -(void)setOnload:(id)callback;
 -(void)setOnerror:(id)callback;
 -(void)setOnreadystatechange:(id)callback;

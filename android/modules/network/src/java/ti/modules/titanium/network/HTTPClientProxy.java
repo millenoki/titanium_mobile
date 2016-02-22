@@ -14,7 +14,6 @@ import java.util.Map;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
@@ -102,19 +101,19 @@ public class HTTPClientProxy extends KrollProxy
 		client.abort();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public String getAllResponseHeaders()
 	{
 		return client.getAllResponseHeaders();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public int getReadyState()
 	{
 		return client.getReadyState();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public TiBlob getResponseData()
 	{
 		return client.getResponseData();
@@ -126,25 +125,25 @@ public class HTTPClientProxy extends KrollProxy
 		return client.getResponseHeader(header);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public String getResponseText()
 	{
 		return client.getResponseText();
 	}
 	
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public DocumentProxy getResponseXML()
 	{
 		return client.getResponseXML();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public int getStatus()
 	{
 		return client.getStatus();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public String getStatusText()
 	{
 		return client.getStatusText();
@@ -193,25 +192,25 @@ public class HTTPClientProxy extends KrollProxy
 		client.setTimeout(millis);
 	}
 	
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public String getLocation()
 	{
 		return client.getLocation();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public String getConnectionType()
 	{
 		return client.getConnectionType();
 	}
 	
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getConnected()
 	{
 		return client.isConnected();
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getAutoEncodeUrl()
 	{
 		return client.getAutoEncodeUrl();
@@ -223,7 +222,7 @@ public class HTTPClientProxy extends KrollProxy
 		client.setAutoEncodeUrl(value);
 	}
 
-	@Kroll.getProperty @Kroll.method
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getAutoRedirect()
 	{
 		return client.getAutoRedirect();
@@ -235,7 +234,14 @@ public class HTTPClientProxy extends KrollProxy
 		client.setAutoRedirect(value);
 	}
 
-	@Kroll.getProperty @Kroll.method
+    @Kroll.setProperty @Kroll.method
+    public void setUseTiUserAgent(boolean value)
+    {
+        client.setTiUserAgent = value;
+    }
+
+
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public boolean getValidatesSecureCertificate()
 	{
 		return client.validatesSecureCertificate();
