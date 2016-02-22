@@ -86,24 +86,25 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
     static int dpi;
     static dispatch_once_t predicate;
     dispatch_once(&predicate, ^{
-        if ([TiUtils isIPad]) {
-            if ([TiUtils isRetinaDisplay]) {
-                dpi = 260;
-            }
-            else {
-                dpi = 130;
-            }
-        }
-        else {
-          	if ([TiUtils isRetinaHDDisplay]) {
-         	   dpi = 480;
-        	} else if ([TiUtils isRetinaDisplay]) {
-        	    dpi = 320;
-        	}
-            else {
-                dpi = 160;
-            }
-        }
+        dpi = [self screenScale] * ([TiUtils isIPad] ? 132 : 163);
+//        if ([TiUtils isIPad]) {
+//            if ([TiUtils isRetinaDisplay]) {
+//                dpi = 260;
+//            }
+//            else {
+//                dpi = 130;
+//            }
+//        }
+//        else {
+//          	if ([TiUtils isRetinaHDDisplay]) {
+//         	   dpi = 480;
+//        	} else if ([TiUtils isRetinaDisplay]) {
+//        	    dpi = 320;
+//        	}
+//            else {
+//                dpi = 160;
+//            }
+//        }
     });
     
     return dpi;
