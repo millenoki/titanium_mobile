@@ -38,7 +38,9 @@ public class NotificationProxy extends ViewProxy
 		super.handleShow(options);
 
 		TiUINotification n = (TiUINotification) getOrCreateView();
-		n.show(options);
+		if (n != null) {
+		  n.show(options);
+		}
 	}
 
 	@Override
