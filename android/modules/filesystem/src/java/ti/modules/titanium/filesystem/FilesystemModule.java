@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -107,14 +108,19 @@ public class FilesystemModule extends KrollModule
 			return;
 		}
 
-		if (TiBaseActivity.storageCallbackContext == null) {
-			TiBaseActivity.storageCallbackContext = getKrollObject();
-		}
-		TiBaseActivity.storagePermissionCallback = permissionCallback;
-		String[] permissions = new String[] {android.Manifest.permission.READ_EXTERNAL_STORAGE};
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
-
+//		if (TiBaseActivity.storageCallbackContext == null) {
+//			TiBaseActivity.storageCallbackContext = getKrollObject();
+//		}
+//		TiBaseActivity.storagePermissionCallback = permissionCallback;
+//		String[] permissions = new String[] {android.Manifest.permission.READ_EXTERNAL_STORAGE};
+//		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+//		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+//		
+		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_CALENDAR, getKrollObject(), permissionCallback);
+        Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
+        if (currentActivity != null) {
+            currentActivity.requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_CALENDAR}, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+        }
 	}
 
 	@Kroll.getProperty @Kroll.method
