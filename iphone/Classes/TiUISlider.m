@@ -233,6 +233,28 @@
 	[[self sliderView] setMaximumValue:[TiUtils floatValue:value]];
 }
 
+-(void)setMinTintColor_:(id)color
+{
+    TiColor *ticolor = [TiUtils colorValue:color];
+    UIColor* theColor = [ticolor _color];
+    [[self sliderView] setMinimumTrackTintColor:theColor];
+}
+
+-(void)setMaxTintColor_:(id)color
+{
+    TiColor *ticolor = [TiUtils colorValue:color];
+    UIColor* theColor = [ticolor _color];
+    [[self sliderView] setMaximumTrackTintColor:theColor];
+}
+
+
+-(void)setThumbTintColor_:(id)color
+{
+    TiColor *ticolor = [TiUtils colorValue:color];
+    UIColor* theColor = [ticolor _color];
+    [[self sliderView] setThumbTintColor:theColor];
+}
+
 -(void)setValue_:(id)value withObject:(id)properties
 {
 	CGFloat newValue = [TiUtils floatValue:value];
