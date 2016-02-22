@@ -282,10 +282,10 @@ public class TiFileProxy extends KrollProxy
 	        append = false;
         }
 		try {
-				if (!TiFileHelper2.hasStoragePermission()) {
-					Log.e(TAG, "External storage permissions missing");
-					return false;
-				}
+//				if (!TiFileHelper2.hasStoragePermission()) {
+//					Log.e(TAG, "External storage permissions missing");
+//					return false;
+//				}
 				if (arg instanceof TiBlob) {
 					tbf.write((TiBlob)arg, append);
 				} else if (arg instanceof String) {
