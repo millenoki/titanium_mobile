@@ -24,6 +24,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger.Command;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -35,6 +36,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.SparseArray;
+import android.webkit.WebView;
 
 @Kroll.module @Kroll.topLevel({"Ti", "Titanium"})
 public class TitaniumModule extends KrollModule
@@ -42,7 +44,7 @@ public class TitaniumModule extends KrollModule
 	private static final String TAG = "TitaniumModule";
 
 	private static final int MSG_ALERT = KrollProxy.MSG_LAST_ID + 100;
-
+	private String mDefaultUserAgent;
 	private Stack<String> basePath;
 	private Map<String, NumberFormat> numberFormats = java.util.Collections.synchronizedMap(
 		new HashMap<String, NumberFormat>());
@@ -79,6 +81,21 @@ public class TitaniumModule extends KrollModule
 			.append(getVersion());
 		return builder.toString();
 	}
+	
+	@Kroll.getProperty @Kroll.method
+    public String getDefaultUserAgent()
+    {
+	    if (mDefaultUserAgent == null) {
+	        mDefaultUserAgent = getInUiThread(new Command<String>() {
+
+                @Override
+                public String execute() {
+                    return new WebView(TiApplication.getAppContext()).getSettings().getUserAgentString();
+                }
+            });
+	    }
+	    return mDefaultUserAgent;
+    }
 
 	@Kroll.getProperty @Kroll.method
 	public String getVersion()

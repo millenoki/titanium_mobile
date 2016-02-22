@@ -16,6 +16,9 @@
 #endif
 
 @implementation TopTiModule
+{
+    NSString* _defaultUserAgent;
+}
 
 -(id)version
 {
@@ -40,6 +43,19 @@
 -(id)userAgent
 {
 	return [[TiApp app] userAgent];
+}
+
+
+-(id)defaultUserAgent
+{
+    if (!_defaultUserAgent) {
+        TiThreadPerformOnMainThread(^{
+            UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+            _defaultUserAgent =  [[webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"] retain];
+            
+        }, YES);
+    }
+    return _defaultUserAgent;
 }
 
 -(id)tiSDKInfo
