@@ -603,15 +603,18 @@ public class TiHTTPClient
 
     public void abort()
     {
+        Log.d(TAG, "abort " +readyState );
         if (readyState > READY_STATE_UNSENT && readyState < READY_STATE_DONE) {
             aborted = true;
             if (client != null) {
                 client.disconnect();
                 client = null;
-                KrollDict data = new KrollDict();
-                data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, "The request was cancelled");
-                dispatchCallback(TiC.PROPERTY_ONERROR, data);
             }
+            
+            KrollDict data = new KrollDict();
+            data.putCodeAndMessage(TiC.ERROR_CODE_NO_ERROR, "The request was cancelled");
+            dispatchCallback(TiC.PROPERTY_ONERROR, data);
+            
             // Fire the disposehandle event if the request is aborted.
             // And it will dispose the handle of the httpclient in the JS.
             proxy.fireEvent(TiC.EVENT_DISPOSE_HANDLE, null);
