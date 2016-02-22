@@ -87,7 +87,7 @@
         return;
     }
     NSArray* pending = _pendingAnimations;
-    _pendingAnimations = [NSMutableArray new];
+    _pendingAnimations = [[NSMutableArray alloc] init];
     pthread_rwlock_unlock(&pendingLock);
     for (TiAnimation* animation in pending) {
         [self removePendingAnimation:animation];
@@ -172,7 +172,7 @@
     }
     
     NSArray* pending = _pendingAnimations;
-    _pendingAnimations = [NSMutableArray new];
+    _pendingAnimations = [[NSMutableArray alloc] init];
 	pthread_rwlock_unlock(&pendingLock);
     for (TiAnimation* anim in pending) {
         [self handlePendingAnimation:anim];
