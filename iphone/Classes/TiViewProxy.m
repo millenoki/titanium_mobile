@@ -752,6 +752,7 @@ SEL GetterForKrollProperty(NSString * key)
 	// don't, we'll do it synchronously
 	TiThreadPerformOnMainThread(^{
         if (propsToApply) {
+            [self getAndPrepareViewForOpening]; //we need the view to exist
             [self setFakeApplyProperties:YES];
             [self applyProperties:propsToApply];
             [self setFakeApplyProperties:NO];
