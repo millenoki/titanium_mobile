@@ -18,6 +18,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.Rect;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -44,7 +45,7 @@ public class TiUISlider extends TiUIView
 	private ClipDrawable rightClipDrawable;
 	private String leftTrackImage = null;
 	private String rightTrackImage = null;
-	private boolean suppressEvent = false;
+    private boolean suppressEvent = false;
 
     protected static final int TIFLAG_NEEDS_RANGE               = 0x00000001;
     protected static final int TIFLAG_NEEDS_CONTROLS            = 0x00000002;
@@ -52,7 +53,8 @@ public class TiUISlider extends TiUIView
     protected static final int TIFLAG_NEEDS_POS                 = 0x00000008;
 	
 	private SoftReference<Drawable> thumbDrawable;
-
+	private SeekBar seekBar;
+	
 	public TiUISlider(final TiViewProxy proxy)
 	{
 		super(proxy);
@@ -65,7 +67,7 @@ public class TiUISlider extends TiUIView
 		this.max = 1;
 		this.pos = 0;
 		
-		SeekBar seekBar = new SeekBar(proxy.getActivity())
+		seekBar = new SeekBar(proxy.getActivity())
 		{
 			@Override
 			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
@@ -78,7 +80,7 @@ public class TiUISlider extends TiUIView
 			
 			@Override
 			public boolean dispatchTouchEvent(MotionEvent event) {
-				if (touchPassThrough == true)
+				if (touchPassThrough)
 					return false;
 				return super.dispatchTouchEvent(event);
 			}
@@ -131,6 +133,23 @@ public class TiUISlider extends TiUIView
             rightTrackImage = TiConvert.toString(newValue);
             mProcessUpdateFlags |= TIFLAG_NEEDS_THUMBS;
             break;
+        case TiC.PROPERTY_INDETERMINATE:
+            seekBar.setIndeterminate(TiConvert.toBoolean(newValue));
+            break;
+        case TiC.PROPERTY_TINT_COLOR:
+            if (newValue != null) {
+                if (thumbDrawable == null) {
+                    seekBar.getThumb().setColorFilter(TiConvert.toColor(newValue), Mode.SRC_IN);
+                }
+                seekBar.getProgressDrawable().setColorFilter(TiConvert.toColor(newValue), Mode.SRC_IN);
+            } else {
+                if (thumbDrawable == null) {
+                    seekBar.getThumb().setColorFilter(null);
+                }
+                seekBar.getProgressDrawable().setColorFilter(null);
+            }
+            mProcessUpdateFlags |= TIFLAG_NEEDS_CONTROLS;
+            break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
@@ -162,7 +181,6 @@ public class TiUISlider extends TiUIView
 	private void updateRightDrawable()
 	{
 		if(rightClipDrawable != null) {
-			SeekBar seekBar = (SeekBar) getNativeView();
 			double percent = (double) seekBar.getProgress()/ (double)seekBar.getMax();
 			int level = 10000 - (int)Math.floor(percent*10000);
 			rightClipDrawable.setLevel(level);
@@ -188,6 +206,7 @@ public class TiUISlider extends TiUIView
 			scaleFactor = (scaleFactor == 0) ? 1 : scaleFactor;
 		}
 		length *= scaleFactor;
+		
         SeekBar seekBar = getSeekBar();
         if (pos < minRange) {
             pos = minRange;
@@ -196,6 +215,7 @@ public class TiUISlider extends TiUIView
             pos = maxRange;
         }
 		int curPos = (int)Math.floor(scaleFactor* (pos + offset));
+
 		suppressEvent = true;
 		seekBar.setMax(length);
         suppressEvent = false;
@@ -263,17 +283,18 @@ public class TiUISlider extends TiUIView
 	    if (suppressEvent) {
 	        return;
 	    }
-		pos = progress*1.0f/scaleFactor;
+//	    int curPos = (int)Math.floor(scaleFactor* (pos + offset));
+		pos = progress*1.0f/scaleFactor - offset;
 		
 		// Range check
-		int actualMinRange = minRange + offset;
-		int actualMaxRange = maxRange + offset;
+//		int actualMinRange = minRange + offset;
+//		int actualMaxRange = maxRange + offset;
 		
-		if (pos < actualMinRange) {
-			seekBar.setProgress(actualMinRange*scaleFactor);
+		if (pos < minRange) {
+			seekBar.setProgress((minRange + offset)*scaleFactor);
 			pos = minRange;
-		} else if (pos > actualMaxRange) {
-			seekBar.setProgress(actualMaxRange*scaleFactor);
+		} else if (pos > maxRange) {
+			seekBar.setProgress((maxRange + offset)*scaleFactor);
 			pos = maxRange;
 		}
 
@@ -329,7 +350,7 @@ public class TiUISlider extends TiUIView
 	}
 
 	private float scaledValue() {
-		return pos - offset;
+		return pos;
 	}
 
 }
