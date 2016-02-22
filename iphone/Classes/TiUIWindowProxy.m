@@ -1288,7 +1288,7 @@ else{\
 			}
             UIToolbar * ouTB = [navController toolbar];
             CGRect barFrame = [ouTB bounds];
-			NSMutableArray * array = [[NSMutableArray alloc] initWithObjects:nil];
+			NSMutableArray * array = [[NSMutableArray alloc] init];
 			for (TiViewProxy *proxy in theProxies)
 			{
 				if([proxy supportsNavBarPositioning])

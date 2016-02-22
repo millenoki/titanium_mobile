@@ -25,6 +25,16 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 	[super dealloc];
 }
 
+// internal
+-(id)resolveFile:(id)arg
+{
+	if ([arg isKindOfClass:[TiFilesystemFileProxy class]])
+	{
+		return [(TiFilesystemFileProxy*)arg path];
+	}
+	return [TiUtils stringValue:arg];
+}
+
 -(NSString*)apiName
 {
     return @"Ti.Filesystem";

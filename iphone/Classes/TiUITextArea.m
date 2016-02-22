@@ -311,6 +311,10 @@
         textViewImpl.textContainer.lineFragmentPadding = 0;
         textViewImpl.textContainerInset = UIEdgeInsetsZero;
         textViewImpl.contentMode = UIViewContentModeRedraw;
+        if ([proxy valueForKey:@"showUndoRedoActions"])
+        {
+            [textViewImpl setShowUndoRedoActions: [TiUtils boolValue:[proxy valueForKey:@"showUndoRedoActions"]]];
+        }
         [self addSubview:textViewImpl];
         [textViewImpl setContentInset:UIEdgeInsetsZero];
         self.clipsToBounds = YES;

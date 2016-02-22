@@ -1667,7 +1667,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 +(NSDictionary*)touchPropertiesToDictionary:(UITouch*)touch andPoint:(CGPoint)point
 {
 #if IS_XCODE_7
-    if ([self forceTouchSupported]) {
+    if ([self forceTouchSupported] || [self validatePencilWithTouch:touch]) {
          NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSNumber numberWithDouble:point.x],@"x",
          [NSNumber numberWithDouble:point.y],@"y",
@@ -1684,7 +1684,6 @@ If the new path starts with / and the base url is app://..., we have to massage 
         return dict;
     }
 #endif
-    
     return [self pointToDictionary:point];
 }
 
@@ -2579,6 +2578,10 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
             // special case where we're asking for Default.png and it's in Bundle not path
             return [UIImage imageNamed:image];
         }
+		if (resultImage==nil)
+        {
+            resultImage = [[ImageLoader sharedLoader] loadRemote:bgURL];
+        }
         if((resultImage != nil) && ([resultImage isKindOfClass:[UIImage class]]) && ([resultImage imageOrientation] != UIImageOrientationUp))
         {
             return [UIImageResize resizedImage:[(UIImage*)resultImage size]
@@ -2662,7 +2665,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         }
         return resultImage;    }
     else if ([image isKindOfClass:[TiBlob class]]) {
-        resultImage = [image image];
+        resultImage = [(TiBlob*)image image];
     }
     return resultImage;
 }
@@ -2960,6 +2963,19 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
     NSTextCheckingResult *res = [regex firstMatchInString:string options:0 range:NSMakeRange(0, string.length)];
     return res != nil;
+}
+
++(BOOL)validatePencilWithTouch:(UITouch*)touch
+{
+#if IS_XCODE_7_1
+    if ([self isIOS9_1OrGreater]) {
+        return [touch type] == UITouchTypeStylus;
+    } else {
+        return NO;
+    }
+#else
+    return NO;
+#endif
 }
 
 @end

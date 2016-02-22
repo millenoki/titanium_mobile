@@ -404,6 +404,7 @@ public class AndroidModule extends KrollModule
 		}
 	}
 
+
 	@Kroll.method
 	public boolean isServiceRunning(Object intentValue)
     {

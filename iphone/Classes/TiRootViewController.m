@@ -1135,7 +1135,7 @@
             return retVal;
         // }
     }
-    return [self orientationFlags];
+    return (UIInterfaceOrientationMask)[self orientationFlags];
 }
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation

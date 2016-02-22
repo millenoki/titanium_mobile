@@ -1,6 +1,7 @@
 
 Akylas Fork Titanium Mobile
 ============================
+Travis CI Build [![Build Status](https://travis-ci.org/appcelerator/titanium_mobile.svg?branch=master)](https://travis-ci.org/appcelerator/titanium_mobile)
 
 Welcome to the Akylas for of the Titanium open source project.  Titanium provides
 a platform for web developers to build cross-platform, native mobile applications
