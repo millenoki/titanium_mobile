@@ -24,6 +24,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper2;
 
 import ti.modules.titanium.stream.FileStreamProxy;
 
@@ -91,14 +92,14 @@ public class FilesystemModule extends KrollModule
 
 	@Kroll.method
 	private boolean hasStoragePermissions() {
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-			return true;
-		}
-		return false;
+//		if (Build.VERSION.SDK_INT < 23) {
+//			return true;
+//		}
+//		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+//		if (currentActivity.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+//			return true;
+//		}
+		return TiFileHelper2.hasStoragePermission();
 	}
 
 	@Kroll.method
