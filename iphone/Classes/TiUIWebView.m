@@ -619,11 +619,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     _asyncLoad = [TiUtils boolValue:arg def:NO];
 }
 
--(id)userAgent_
-{
-    return [[self webview] stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-}
-
 
 - (void)ensureLocalProtocolHandler
 {

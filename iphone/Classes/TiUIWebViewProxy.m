@@ -282,6 +282,12 @@ USE_VIEW_FOR_CONTENT_SIZE
 
 }
 
+
+-(id)userAgent
+{
+    return [self evalJSAndWait:@"navigator.userAgent"];
+}
+
 DEFINE_DEF_PROP(scrollsToTop,@YES);
 
 #pragma mark - Internal Use Only
