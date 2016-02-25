@@ -152,17 +152,17 @@
 
 -(void)livePhotoView:(PHLivePhotoView *)livePhotoView willBeginPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle
 {
-    if([[self livePhotoViewProxy] _hasListeners:@"start"]) {
+    if([[self livePhotoViewProxy] _hasListeners:@"start" checkParent:NO]) {
         NSDictionary *event = @{@"playbackStyle": NUMINT(playbackStyle)};
-        [[self livePhotoViewProxy] fireEvent:@"start" withObject:event];
+        [[self livePhotoViewProxy] fireEvent:@"start" withObject:event propagate:NO checkForListener:NO];
     }
 }
 
 -(void)livePhotoView:(PHLivePhotoView *)livePhotoView didEndPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle
 {
-    if([[self livePhotoViewProxy] _hasListeners:@"stop"]) {
+    if([[self livePhotoViewProxy] _hasListeners:@"stop" checkParent:NO]) {
         NSDictionary *event = @{@"playbackStyle": NUMINT(playbackStyle)};
-        [[self livePhotoViewProxy] fireEvent:@"stop" withObject:event];
+        [[self livePhotoViewProxy] fireEvent:@"stop" withObject:event propagate:NO checkForListener:NO];
     }
 }
 
