@@ -3057,23 +3057,29 @@ function collectionViewEx(_args) {
         // stickyHeaders: false,
         templates: {
             'template': myTemplate,
-            // 'header': {
-            //     properties: {
-            //         backgroundColor: 'red',
-            //         height: 20
-            //     },
-            //     childTemplates: [{
-            //         type: 'Ti.UI.Label',
-            //         bindId: 'label'
-            //     }]
-            // }
+            'header': {
+                properties: {
+                    backgroundColor: '#31B7ED',
+                    width:'FILL',
+                    height: 20
+                },
+                childTemplates: [{
+                    type: 'Ti.UI.Label',
+                    bindId: 'label'
+                }]
+            }
         },
         pullView: {
             type: 'Ti.UI.View',
             backgroundColor: 'blue',
             height: 60
         },
-        defaultItemTemplate: 'template'
+        defaultItemTemplate: 'template',
+        events:{
+            itemclick:function(e) {
+                console.log(e);
+            }
+        }
     });
 
     var sections = [];
@@ -3081,7 +3087,7 @@ function collectionViewEx(_args) {
     var items, color, movie, nbMovies = movies.length;
     for (var i = 0; i < 10; i++) {
         items = [];
-        for (var j = 0; j < 10; j++) {
+        for (var j = 0; j < 9; j++) {
             color = getRandomColor();
             movie = movies[Math.floor(Math.random() * nbMovies)];
             items.push({
@@ -3107,14 +3113,17 @@ function collectionViewEx(_args) {
         }
         sections.push({
             headerView: {
-                properties: {
-                    backgroundColor: '#31B7ED',
-                    height: 20
-                },
-                childTemplates: [{
-                    type: 'Ti.UI.Label',
+                label:{
                     text: 'Section ' + i
-                }]
+                }
+                // properties: {
+                //     backgroundColor: '#31B7ED',
+                //     height: 20
+                // },
+                // childTemplates: [{
+                //     type: 'Ti.UI.Label',
+                //     text: 'Section ' + i
+                // }]
             },
             items: items
         });
