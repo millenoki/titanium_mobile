@@ -76,8 +76,8 @@ DEFINE_EXCEPTIONS
     _proxy.wrapperView = self;
     configurationSet = NO;
     [_proxy dirtyItAll];
-    [_proxy windowWillOpen];
-    [_proxy windowDidOpen];
+//    [_proxy windowWillOpen];
+//    [_proxy windowDidOpen];
 }
 
 -(void)configurationStart
