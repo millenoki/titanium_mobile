@@ -5722,7 +5722,7 @@ function showDummyNotification() {
 }
 
 Ti.App.addEventListener('pause', function() {
-	info('pause');
+	Ti.API.info('pause');
 	setTimeout(showDummyNotification, 10);
 });
 
