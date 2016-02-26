@@ -153,21 +153,23 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	
 	static KrollDict sActionBarDict = null;
 	
-	private void updateHomeButton(TiWindowProxy proxy){
-		boolean canGoBack = (windows.size() > 1);
-		ActionBarProxy actionBar = getActionBar();
-		if (actionBar != null) {
-		    if (sActionBarDict == null) {
-		        sActionBarDict = new KrollDict();
-		    }
-		    synchronized(sActionBarDict) {
-		        sActionBarDict.put(TiC.PROPERTY_DISPLAY_HOME_AS_UP, canGoBack);
-	            sActionBarDict.put(TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED, canGoBack);
-	            sActionBarDict.put(TiC.PROPERTY_HOME_AS_UP_INDICATOR, null);
-	            actionBar.applyPropertiesInternal(sActionBarDict, false, false);
-		    }
-		}
-	}
+    private void updateHomeButton(TiWindowProxy proxy) {
+        boolean canGoBack = (windows.size() > 1);
+        ActionBarProxy actionBar = getActionBar();
+        if (actionBar != null) {
+            HashMap actionBarDict = new HashMap();
+
+            actionBarDict.put(TiC.PROPERTY_DISPLAY_HOME_AS_UP, canGoBack);
+            actionBarDict.put(TiC.PROPERTY_DISPLAY_SHOW_HOME_ENABLED,
+                    canGoBack);
+            actionBarDict.put(TiC.PROPERTY_HOME_AS_UP_INDICATOR, null);
+            TiBaseActivity activity = ((TiBaseActivity) getActivity());
+
+            activity.updateActivityProxy(proxy, actionBarDict);
+
+            // actionBar.applyPropertiesInternal(sActionBarDict, false, false);
+        }
+    }
 	
 	private void removeWindow(final TiWindowProxy proxy) {
 		proxy.setWindowManager(null);

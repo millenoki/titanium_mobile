@@ -27,6 +27,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -94,6 +95,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             mActionBarBackgroundDrawable.setAlpha(backgroundAlpha);
         }
         actionBar.setBackgroundDrawable(mActionBarBackgroundDrawable);
+        actionBar.setStackedBackgroundDrawable(mActionBarBackgroundDrawable);
     }
 
     public ActionBarProxy(TiBaseActivity activity) {
@@ -223,7 +225,11 @@ public class ActionBarProxy extends AnimatableReusableProxy {
 
     public void setBackgroundColor(final int color) {
         resetTitleEnabled();
-        setActionBarDrawable(new ColorDrawable(color));
+        if (color == Color.TRANSPARENT) {
+            setActionBarDrawable(null);
+        } else {
+            setActionBarDrawable(new ColorDrawable(color));
+        }
         customBackgroundSet = (mActionBarBackgroundDrawable != null)
                 && color != defaultColor;
     }

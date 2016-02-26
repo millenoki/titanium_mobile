@@ -479,76 +479,85 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (this.window == null) {
 		    return;
 		}
-//		updateTitle(this.window);
 		
-		KrollDict props = this.window.getProperties();
-		boolean fullscreen = props.optBoolean(TiC.PROPERTY_FULLSCREEN, this.defaultFullscreen);
-		boolean newNavBarHidden = props.optBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, this.defaultFullscreen);
-		int softInputMode = props.optInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, this.defaultSoftInputMode);
-		boolean hasSoftInputMode = softInputMode != -1;
-		
-		if (fullscreen != this.fullscreen) {
-			this.fullscreen = fullscreen;
-			setFullscreen(fullscreen);
-		}
-		if (newNavBarHidden != this.navBarHidden) {
-			this.navBarHidden = newNavBarHidden;
-	        TiActivityHelper.setActionBarHidden(this, this.navBarHidden);
-		}
-		
-		if (TiC.HONEYCOMB_OR_GREATER) {
-            int uiVisibility = View.SYSTEM_UI_FLAG_VISIBLE;
-            if(props.containsKey("uiVisibilityFlags")) {
-                uiVisibility |= TiConvert.toInt(props, "uiVisibilityFlags", uiVisibility);
-            }
-            if (TiC.LOLLIPOP_OR_GREATER) {
-                if(props.containsKey("statusBarColor")) {
-                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                    getWindow().setStatusBarColor(TiConvert.toColor(props, "statusBarColor"));
-                }
-                if(props.containsKey("navigationBarColor")) {
-                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                    getWindow().setNavigationBarColor(TiConvert.toColor(props, "navigationBarColor"));
-                }
-                
-                if(props.containsKey("immersive")) {
-                    int immersive = TiConvert.toInt(props, "immersive");
-                    switch (immersive) {
-                    case 1:
-                        uiVisibility |= View.SYSTEM_UI_FLAG_IMMERSIVE;
-                        break;
-                    case 2:
-                        uiVisibility |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-                        break;
-                    case 0:
-                    default:
-                        break;
-                    }
-                }
-                if (fullscreen) {
-                    uiVisibility |= View.SYSTEM_UI_FLAG_FULLSCREEN;
-                }
-                if(props.containsKey("navigationHidden")) {
-                    boolean value =  TiConvert.toBoolean(props, "navigationHidden");
-                    if (value) {
-                        uiVisibility |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                    }
-                }
-            }
-            getWindow().getDecorView().setSystemUiVisibility(uiVisibility);
-		}
-		
-		
+		updateForWindow(this.window);
+	}
+	
+	public void updateForWindow(TiWindowProxy window) {
+	       KrollDict props = window.getProperties();
+	        boolean fullscreen = props.optBoolean(TiC.PROPERTY_FULLSCREEN, this.defaultFullscreen);
+	        boolean newNavBarHidden = props.optBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, this.defaultFullscreen);
+	        int softInputMode = props.optInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, this.defaultSoftInputMode);
+	        boolean hasSoftInputMode = softInputMode != -1;
+	        
+	        if (fullscreen != this.fullscreen) {
+	            this.fullscreen = fullscreen;
+	            setFullscreen(fullscreen);
+	        }
+	        if (newNavBarHidden != this.navBarHidden) {
+	            this.navBarHidden = newNavBarHidden;
+	            TiActivityHelper.setActionBarHidden(this, this.navBarHidden);
+	        }
+	        
+	        if (TiC.HONEYCOMB_OR_GREATER) {
+	            int uiVisibility = View.SYSTEM_UI_FLAG_VISIBLE;
+	            if(props.containsKey("uiVisibilityFlags")) {
+	                uiVisibility |= TiConvert.toInt(props, "uiVisibilityFlags", uiVisibility);
+	            }
+	            if (TiC.LOLLIPOP_OR_GREATER) {
+	                if(props.containsKey("statusBarColor")) {
+	                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+	                    getWindow().setStatusBarColor(TiConvert.toColor(props, "statusBarColor"));
+	                }
+	                if(props.containsKey("navigationBarColor")) {
+	                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+	                    getWindow().setNavigationBarColor(TiConvert.toColor(props, "navigationBarColor"));
+	                }
+	                
+	                if(props.containsKey("immersive")) {
+	                    int immersive = TiConvert.toInt(props, "immersive");
+	                    switch (immersive) {
+	                    case 1:
+	                        uiVisibility |= View.SYSTEM_UI_FLAG_IMMERSIVE;
+	                        break;
+	                    case 2:
+	                        uiVisibility |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+	                        break;
+	                    case 0:
+	                    default:
+	                        break;
+	                    }
+	                }
+	                if (fullscreen) {
+	                    uiVisibility |= View.SYSTEM_UI_FLAG_FULLSCREEN;
+	                }
+	                if(props.containsKey("navigationHidden")) {
+	                    boolean value =  TiConvert.toBoolean(props, "navigationHidden");
+	                    if (value) {
+	                        uiVisibility |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+	                    }
+	                }
+	            }
+	            getWindow().getDecorView().setSystemUiVisibility(uiVisibility);
+	        }
+	        
+	        
 
-		
-		if (hasSoftInputMode && softInputMode != this.softInputMode) {
-			setSoftInputMode(softInputMode);  
-		}
-		KrollDict activityDict = this.window.getActivityProperties(props.getKrollDict(TiC.PROPERTY_ACTIVITY));
-		if (this.window.getWindowManager() instanceof TiWindowProxy) {
-            activityDict = ((TiWindowProxy) this.window.getWindowManager()).getActivityProperties(activityDict);
+	        
+	        if (hasSoftInputMode && softInputMode != this.softInputMode) {
+	            setSoftInputMode(softInputMode);  
+	        }
+	        
+	        updateActivityProxy(window, null);
+	}
+	
+	public void updateActivityProxy(TiWindowProxy window, HashMap supplActionBar) {
+        KrollDict props = window.getProperties();
+	    HashMap activityDict = window.getActivityProperties(TiConvert.toHashMap(props.get(TiC.PROPERTY_ACTIVITY)), supplActionBar);
+        if (window.getWindowManager() instanceof TiWindowProxy) {
+            activityDict = ((TiWindowProxy) window.getWindowManager()).getActivityProperties(activityDict, supplActionBar);
         }
-		getActivityProxy().setProperties(activityDict);
+        getActivityProxy().setProperties(activityDict);
 	}
 	
 	private void setSoftInputMode(int softInputMode) {

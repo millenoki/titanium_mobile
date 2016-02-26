@@ -680,11 +680,19 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 	
-	public KrollDict getActivityProperties(KrollDict properties) {
+	public HashMap getActivityProperties(HashMap properties, HashMap actionBarDictSuppl) {
 	    
-        KrollDict actionBarDict = null;
+	    HashMap actionBarDict = actionBarDictSuppl;
         if (properties != null) {
-            actionBarDict = properties.getKrollDict(TiC.PROPERTY_ACTION_BAR);
+            HashMap propsActionBarDict = TiConvert.toHashMap(properties.get(TiC.PROPERTY_ACTION_BAR));
+            if (propsActionBarDict != null) {
+                if (actionBarDict != null) {
+                    actionBarDict = KrollDict.merge(actionBarDict, propsActionBarDict);
+                } else {
+                    actionBarDict = propsActionBarDict;
+                }
+            }
+            
         }
         KrollDict windowProperties = getProperties();
         for (String key : ActionBarProxy.windowProps()) {
@@ -692,7 +700,7 @@ public abstract class TiWindowProxy extends TiViewProxy
                 String realKey = TiUtils.mapGetOrDefault(ActionBarProxy.propsToReplace(), key, key);
                 if (actionBarDict == null || !actionBarDict.containsKey(realKey)) {
                     if (actionBarDict == null) {
-                        actionBarDict = new KrollDict(); 
+                        actionBarDict = new HashMap(); 
                     }
                     actionBarDict.put(realKey, windowProperties.get(key));
                 }
@@ -700,7 +708,7 @@ public abstract class TiWindowProxy extends TiViewProxy
         }
         if (actionBarDict != null) {
             if (properties == null) {
-                properties = new KrollDict();
+                properties = new HashMap();
             }
             properties.put(TiC.PROPERTY_ACTION_BAR, actionBarDict);
         }
