@@ -2239,11 +2239,4 @@ public abstract class TiBaseActivity extends AppCompatActivity
     public void closeFrontActivities() {
         TiApplication.closeActivitiesInFrontOf(this);
     }
-    
-    public void showSnackBar(HashMap args) {
-        Snackbar snackbar = Snackbar
-                .make(layout, TiConvert.toString(args, "title"), TiConvert.toInt(args, "duration", Snackbar.LENGTH_SHORT));
-         
-        snackbar.show();
-    }
 }

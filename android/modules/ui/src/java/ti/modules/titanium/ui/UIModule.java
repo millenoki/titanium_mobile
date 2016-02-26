@@ -445,4 +445,13 @@ public class UIModule extends KrollModule implements Handler.Callback
         }
 
     }
+
+    @Kroll.method
+    public void showSnackbar(Object args) {
+        if (args instanceof HashMap) {
+            SnackbarProxy proxy = (SnackbarProxy) createProxy(SnackbarProxy.class, null, new Object[] { args }, null);
+            proxy.show(null);
+        }
+
+    }
 }
