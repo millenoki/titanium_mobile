@@ -51,7 +51,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import in.uncod.android.bypass.Bypass;
+//import in.uncod.android.bypass.Bypass;
 import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.Layout.Alignment;
@@ -1114,11 +1114,11 @@ public class TiUILabel extends TiUINonViewGroupView
 		tv.textView.setTextColor(colorStateList);
 	}
 	
-	protected CharSequence prepareMarkdown(String str)
-    {
-	    Bypass bypass = new Bypass(getContext());
-	    return bypass.markdownToSpannable(str);
-    }
+//	protected CharSequence prepareMarkdown(String str)
+//    {
+//	    Bypass bypass = new Bypass(getContext());
+//	    return bypass.markdownToSpannable(str);
+//    }
 	protected CharSequence prepareHtml(CharSequence str)
 	{
 	    return TiHtml.fromHtml(str, disableLinkStyle);
@@ -1164,14 +1164,15 @@ public class TiUILabel extends TiUINonViewGroupView
         }
 
         if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT) != 0) {
-            if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_MARKDOWN) != 0) {
-                if (text instanceof String) {
-                    tv.setText(prepareMarkdown((String) text));
-                } else {
-                    tv.setText(text);
-                }
-                mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_MARKDOWN;
-           } else if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_HTML) != 0) {
+//            if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_MARKDOWN) != 0) {
+//                if (text instanceof String) {
+//                    tv.setText(prepareMarkdown((String) text));
+//                } else {
+//                    tv.setText(text);
+//                }
+//                mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_MARKDOWN;
+//           } else 
+               if ((mProcessUpdateFlags & TIFLAG_NEEDS_TEXT_HTML) != 0) {
                 tv.setText((text!= null)?prepareHtml(text):text);
                 mProcessUpdateFlags &= ~TIFLAG_NEEDS_TEXT_HTML;
             } else {
