@@ -562,8 +562,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		//initializing listView
 		listView = createListView(activity);
 		listView.setSelector(android.R.color.transparent);
+		listView.setNestedScrollingEnabled(true);
 //		listView.setDuplicateParentStateEnabled(true);
 		AbsListView internalListView = getInternalListView();
+		internalListView.setNestedScrollingEnabled(true);
         if (internalListView instanceof ListView) {
             ((ListView) internalListView).setHeaderDividersEnabled(false);
             ((ListView) internalListView).setFooterDividersEnabled(false);
