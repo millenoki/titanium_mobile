@@ -4,6 +4,7 @@
 	{
 		"appcompat":[],
 		"cardview":[],
+		"design":[],
 		"accelerometer":[],
 		"analytics":[],
 		"android":["ui", "filesystem"],
@@ -25,7 +26,7 @@
 		"utils": [],
 		"xml": []
 	},
-	"required": ["ui", "android", "app", "locale", "analytics"],
+	"required": ["ui", "design", "android", "app", "locale", "analytics"],
 	"libraries": {
 		"android": ["jaxen-1.1.1.jar", 
 			"kroll-common.jar", 
@@ -45,6 +46,7 @@
 		"network": ["thirdparty.jar"],
         "appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
 		"cardview":["cardview-v7-23.0.1.jar"],
+		"design":["android-support-design.jar"],
         "analytics":["aps-analytics.jar"]
 	},
 	"runtimes": {
@@ -55,6 +57,7 @@
         "googleplayservices":"com.google.android.gms",
         "appcompat":"android.support.v7.appcompat",
 		"cardview":"android.support.v7.cardview",
+		"design":"android.support.design",
 		"ui": "ti.modules.titanium.ui"
 	},
 	"googleplayservices_features":["com.google.android.gms.gcm.*", "com.google.android.gms.common.GoogleApiAvailability", "com.google.android.gms.common.GooglePlayServicesUtil"]
