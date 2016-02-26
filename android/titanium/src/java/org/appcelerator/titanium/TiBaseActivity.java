@@ -554,7 +554,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 	
 	public void updateActivityProxy(TiWindowProxy window, HashMap supplActionBar) {
-        KrollDict props = window.getProperties();
+        HashMap props = window.getProperties();
 	    HashMap activityDict = window.getActivityProperties(TiConvert.toHashMap(props.get(TiC.PROPERTY_ACTIVITY)), supplActionBar);
         if (window.getWindowManager() instanceof TiWindowProxy) {
             activityDict = ((TiWindowProxy) window.getWindowManager()).getActivityProperties(activityDict, supplActionBar);
