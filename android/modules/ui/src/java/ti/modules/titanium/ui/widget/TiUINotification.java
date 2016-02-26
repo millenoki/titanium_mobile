@@ -18,7 +18,7 @@ import android.widget.Toast;
 
 public class TiUINotification extends TiUIView
 {
-	private static final String TAG = "TiUINotifier";
+	private static final String TAG = "TiUINotification";
 
     private Toast toast;
     private String message = null;
@@ -37,6 +37,7 @@ public class TiUINotification extends TiUIView
 	    offsetX = toast.getXOffset();
 	    offsetY = toast.getYOffset();       
 	    gravity = toast.getGravity();
+        useCustomLayoutParams = true;
 	    setNativeView(toast.getView());
 	}
 
