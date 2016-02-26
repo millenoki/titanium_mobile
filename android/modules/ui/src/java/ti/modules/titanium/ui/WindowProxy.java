@@ -206,12 +206,18 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                 if (ActionBarProxy.windowProps().contains(key)) {
                     String realKey = TiUtils.mapGetOrDefault(ActionBarProxy.propsToReplace(), key, key);
                     if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
-                        ActionBarProxy aBarProxy = activity.getActivityProxy()
-                                .getOrCreateActionBarProxy();
+                        ActivityProxy activityProxy = activity.getActivityProxy();
+                        ActionBarProxy aBarProxy = activityProxy.getOrCreateActionBarProxy();
                         if (aBarProxy != null) {
                             aBarProxy.setPropertyAndFire(realKey, newValue);
                         }
+                        //we also need to update actionBar property if it exists
+                        HashMap actionbarProps = TiConvert.toHashMap(activityProxy.getProperty(TiC.PROPERTY_ACTION_BAR));
+                        if (actionbarProps != null) {
+                            actionbarProps.put(realKey, newValue);
+                        }
                     }
+                    
                 }else {
                     super.propertySet(key, newValue, oldValue, changedProperty);
                 }
@@ -220,6 +226,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
             
         }
 	}
+	
+	
 	 
 	
 	@Override
