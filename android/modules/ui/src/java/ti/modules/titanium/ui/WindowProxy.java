@@ -665,6 +665,19 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 		
+		// Set the layoutId property
+        if (hasProperty(TiC.PROPERTY_LAYOUT_ID)) {
+            String layoutId = TiConvert.toString(getProperty(TiC.PROPERTY_LAYOUT_ID));
+            if (layoutId != null) {
+                try {
+                    intent.putExtra(TiC.PROPERTY_LAYOUT_ID,
+                        TiRHelper.getResource("layout." + layoutId.replaceAll("[^A-Za-z0-9_]", "_")));
+                } catch (Exception e) {
+                    Log.w(TAG, "Cannot find the layoutId: " + layoutId);
+                }
+            }
+        }
+		
 		// Set the actionBarOverlay property
 		if (hasProperty(TiC.PROPERTY_ACTIONBAR_OVERLAY)) {
 			boolean overlay = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ACTIONBAR_OVERLAY), false);

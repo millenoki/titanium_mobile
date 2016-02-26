@@ -41,6 +41,8 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiPlatformHelper;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -55,6 +57,7 @@ import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.SensorManager;
@@ -63,9 +66,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -75,6 +83,7 @@ import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
@@ -144,7 +153,8 @@ public abstract class TiBaseActivity extends AppCompatActivity
 //	private APSAnalytics analytics = APSAnalytics.getInstance();
 
 	private static HashMap<Integer, ArrayList<Object>> sPermissionCallback = new HashMap();
-	protected View layout;
+    protected ViewGroup layout;
+    protected TiCompositeLayout contentView;
 	protected TiActivitySupportHelper supportHelper;
 	protected int supportHelperId = -1;
 	protected TiWindowProxy window;
@@ -173,8 +183,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	private int softInputMode = defaultSoftInputMode;
 	private boolean mReadyToQueryActionBar = false;
 
-	private boolean overridenLayout;
-	
+	private boolean overridenLayout;	
 
 	public class DialogWrapper {
 		boolean isPersistent;
@@ -621,8 +630,16 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	{
 		return layout;
 	}
+	
 
-	public void setLayout(View layout)
+    public View getTiLayout() {
+        if (contentView != null) {
+            return contentView;
+        }
+        return getLayout();
+    }
+
+	public void setLayout(ViewGroup layout)
 	{
 		this.layout = layout;
 	}
@@ -779,6 +796,73 @@ public abstract class TiBaseActivity extends AppCompatActivity
                 return super.onInterceptTouchEvent(event);
             }
         };
+	    if (layoutId == -1) {
+            return contentView;
+	        
+	    }
+	    setContentView(layoutId);
+        layout = (ViewGroup) findViewById(android.R.id.content);
+	     
+        ViewGroup contentHolder;
+        try {
+            contentHolder = (ViewGroup) findViewById(TiRHelper.getApplicationResource("id.content_holder"));
+            contentHolder.addView(contentView, new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+          Toolbar toolbar = (Toolbar) findViewById(TiRHelper.getApplicationResource("id.toolbar"));
+//            Toolbar toolbar = new Toolbar(this);
+//            toolbar.setVisibility(View.VISIBLE);
+//            ViewGroup toolbarHolder = (ViewGroup) findViewById(TiRHelper.getApplicationResource("id.toolbar_holder"));
+//          toolbar.setVisibility(View.VISIBLE);
+//            ViewGroup.LayoutParams toolbarParams = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+//          toolbarParams.setCollapseMode(CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PIN);
+//            toolbarHolder.addView(toolbar, toolbarParams);
+//          setSupportActionBar(mToolbar);
+            if (toolbar != null) {
+                setSupportActionBar(toolbar);
+                getSupportActionBar().setDisplayShowTitleEnabled(true);
+
+                getSupportActionBar().setTitle("My custom toolbar!");
+                getSupportActionBar().setHomeButtonEnabled(true);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+        } catch (ResourceNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        
+
+//        
+//	    layout = new CoordinatorLayout(this);
+//	    
+//	    AppBarLayout barLayout = new AppBarLayout(this);
+//	    CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+//        params.setBehavior(new AppBarLayout.ScrollingViewBehavior());
+//	    layout.addView(barLayout, params);
+//	    
+//        CollapsingToolbarLayout collLayout = new CollapsingToolbarLayout(this);
+//        AppBarLayout.LayoutParams barParams = new AppBarLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+//        barParams.setScrollFlags(AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
+//                | AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED);
+//	    barLayout.addView(collLayout, params);
+//	    
+//	    TiCompositeLayout testView = new TiCompositeLayout(this);
+//	    testView.setBackgroundColor(Color.RED);
+//	    CollapsingToolbarLayout.LayoutParams toolbarParams = new CollapsingToolbarLayout.LayoutParams(LayoutParams.MATCH_PARENT, android.R.attr.actionBarSize);
+//        toolbarParams.setCollapseMode(CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PARALLAX);
+//        collLayout.addView(testView, toolbarParams);
+//	    
+//	    mToolbar = new Toolbar(this);
+//        mToolbar.setVisibility(View.VISIBLE);
+//        toolbarParams = new CollapsingToolbarLayout.LayoutParams(LayoutParams.MATCH_PARENT, android.R.attr.actionBarSize);
+//        toolbarParams.setCollapseMode(CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PIN);
+//        collLayout.addView(mToolbar, toolbarParams);
+//        setSupportActionBar(mToolbar);
+//        
+//        params = new CoordinatorLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+//        params.setBehavior(new AppBarLayout.ScrollingViewBehavior());
+//        layout.addView(contentView, params);
+	    return layout;
+		
 	}
 
 	@Override
@@ -882,6 +966,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		super.setContentView(view, params);
 	}
 
+
 	@Override
 	/**
 	 * When the activity is created, this method adds it to the activity stack and
@@ -939,13 +1024,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		// Doing this on every create in case the activity is externally created.
 		TiPlatformHelper.getInstance().intializeDisplayMetrics(this);
 
-		if (layout == null) {
-			layout = createLayout();
-		}
-		if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
-			layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
-		}
-
 		// Set the theme of the activity before calling super.onCreate().
 		// On 2.3 devices, it does not work if the theme is set after super.onCreate.
 		int theme = getIntentInt(TiC.PROPERTY_THEME, -1);
@@ -963,7 +1041,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
             supportRequestWindowFeature(AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR_OVERLAY);
         }
 
-
 		// we only want to set the current activity for good in the resume state but we need it right now.
 		// save off the existing current activity, set ourselves to be the new current activity temporarily
 		// so we don't run into problems when we give the proxy the event
@@ -976,6 +1053,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (TiC.LOLLIPOP_OR_GREATER) {
 			this.requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 		}
+		
+
+		if (layout == null) {
+		    layout = createLayout(getIntentInt(TiC.PROPERTY_LAYOUT_ID, -1));
+        }
+        if (intent != null && intent.hasExtra(TiC.PROPERTY_KEEP_SCREEN_ON)) {
+            layout.setKeepScreenOn(intent.getBooleanExtra(TiC.PROPERTY_KEEP_SCREEN_ON, layout.getKeepScreenOn()));
+        }
+        
 		super.onCreate(savedInstanceState);
 		
 		// set the current activity back to what it was originally
@@ -2161,7 +2247,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
     
     public void showSnackBar(HashMap args) {
         Snackbar snackbar = Snackbar
-                .make(layout, TiConvert.toString(args, "title"), TiConvert.toInt(args, "duration"));
+                .make(layout, TiConvert.toString(args, "title"), TiConvert.toInt(args, "duration", Snackbar.LENGTH_SHORT));
          
         snackbar.show();
     }
