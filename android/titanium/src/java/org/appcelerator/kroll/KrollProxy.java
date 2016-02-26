@@ -853,13 +853,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 onPropertyChanged(name, value, current);
             }
         }
+        internalApplyModelProperties(changedProps);
 
         synchronized (properties) {
             properties.clear();
             if (newProps != null)
                 properties.putAll(newProps);
         }
-        internalApplyModelProperties(changedProps);
     }
     
     public void internalApplyModelProperties(final HashMap changedProps) {
