@@ -63,6 +63,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.util.DisplayMetrics;
@@ -2213,5 +2214,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 
     public void closeFrontActivities() {
         TiApplication.closeActivitiesInFrontOf(this);
+    }
+    
+    public void showSnackBar(HashMap args) {
+        Snackbar snackbar = Snackbar
+                .make(layout, TiConvert.toString(args, "title"), TiConvert.toInt(args, "duration"));
+         
+        snackbar.show();
     }
 }

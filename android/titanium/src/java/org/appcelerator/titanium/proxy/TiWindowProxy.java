@@ -741,4 +741,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 	        return null;
 	    }
 	}
+	
+    @Kroll.method
+	public void showSnackBar(HashMap args) {
+	    Activity activity = getActivity();
+	    if (activity instanceof TiBaseActivity) {
+	        ((TiBaseActivity) activity).showSnackBar(args);
+	    }
+	}
 }
