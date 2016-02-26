@@ -39,11 +39,11 @@
     </style>
     <style name="Theme.Titanium.TranslucentActionBar.Overlay" parent="Theme.Titanium.Overlay">
         <item name="android:actionBarStyle">@style/TransparentActionBar</item>
-    </style>
-	<style name="Theme.Titanium.NoActionBar" parent="Theme.Titanium">
+    </style>	<style name="Theme.Titanium.NoActionBar" parent="Theme.Titanium">
 		<item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
 	</style>
+
 	<style name="Theme.Titanium.NoActionBar.Fullscreen" parent="Theme.Titanium.NoActionBar">
 		<item name="android:windowFullscreen">true</item>
 		<item name="android:windowContentOverlay">@null</item>

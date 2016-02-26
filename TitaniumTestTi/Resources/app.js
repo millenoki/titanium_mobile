@@ -1,5 +1,5 @@
 require('lib/lodash');
-Ti.API.debug =Ti.API.debug;
+Ti.API.debug = Ti.API.debug;
 _ = require('lib/lodash');
 var osname = Ti.Platform.osname;
 __AKYLAS_DEV__ = true;
@@ -4161,7 +4161,7 @@ function antiAliasTest(_args) {
 	win.add(view);
 	openWin(win);
 }
-var modules = __AKYLAS_DEV__?['shapes', 'charts']:[];
+var modules = __AKYLAS_DEV__ ? ['shapes', 'charts'] : [];
 var moduleItems = [];
 for (var i = 0; i < modules.length; i++) {
 	var module = require(modules[i]).load(this);
@@ -4221,6 +4221,18 @@ var firstWindow = createWin({
 	barOpacity: 0,
 	startToolbarDeltaY: 0,
 	// navBarHidden: true,
+	rightNavButton: Titanium.UI.createButton({
+		properties: {
+			title: 'snackBar',
+		},
+		events: {
+			click: function() {
+				firstWindow.showSnackBar({
+					title: 'test'
+				});
+			}
+		}
+	}),
 	barColor: 'transparent',
 	toolbar: [Ti.UI.createButton({
 			properties: {
@@ -4463,10 +4475,12 @@ firstWindow.addEventListener('open', function() {
 	// }]
 	// });
 });
+
 var mainWin = Ti.UI.createNavigationWindow({
 	// backgroundColor: backColor,
 
 	// swipeToClose: false,
+	// layoutId:'base_layout',
 	exitOnClose: true,
 	// actionBarOverlay:true,
 	// theme: "Theme.Titanium.TranslucentActionBar.Overlay",
@@ -5377,7 +5391,6 @@ function testLabel(_args) {
 	});
 	slidingMenu.open();
 }
-
 
 function videoOverlayTest(_args) {
 	var win = createWin(_.assign({
@@ -6343,7 +6356,7 @@ function imageFilterTest(_args) {
 						if (__ANDROID__) {
 							var actionBar = win._internalActivity.actionBar;
 							Ti.API.debug(actionBar);
-							actionBar.displayHomeAsUp = false;
+							// actionBar.displayHomeAsUp = false;
 							actionBar.backgroundColor = e.colorArt.backgroundColor;
 						} else {
 							win.barColor = e.colorArt.backgroundColor;
