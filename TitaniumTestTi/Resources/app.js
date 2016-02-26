@@ -5650,7 +5650,7 @@ function horizontalLayout(_args) {
 					width: '90%',
 					bottom: 20,
 					returnKeyType: Ti.UI.RETURNKEY_NEXT,
-					hintText: tr('username'),
+					hintText: 'username',
 				},
 				childTemplates: [{
 					type: 'Ti.UI.Label',
@@ -5684,7 +5684,7 @@ function horizontalLayout(_args) {
 					bottom: 20,
 					passwordMask: true,
 					returnKeyType: Ti.UI.RETURNKEY_DONE,
-					hintText: tr('password'),
+					hintText: 'password',
 				},
 				childTemplates: [{
 					type: 'Ti.UI.Label',
@@ -5723,9 +5723,9 @@ function showDummyNotification() {
 		// Create the notification
 		var notification = Ti.Android.createNotification({
 			flags: Ti.Android.FLAG_SHOW_LIGHTS | Ti.Android.FLAG_AUTO_CANCEL,
-			contentTitle: tr('notif_title'),
-			tickerText: tr('notif_title'),
-			contentText: tr('notif_desc'),
+			contentTitle: 'notif_title',
+			tickerText: 'notif_title',
+			contentText: 'notif_desc',
 			contentIntent: pending,
 			ledOnMS: 3000,
 			ledARGB: 0xFFff0000
