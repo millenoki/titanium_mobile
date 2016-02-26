@@ -225,11 +225,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
 
     public void setBackgroundColor(final int color) {
         resetTitleEnabled();
-        if (color == Color.TRANSPARENT) {
-            setActionBarDrawable(null);
-        } else {
-            setActionBarDrawable(new ColorDrawable(color));
-        }
+        setActionBarDrawable(new ColorDrawable(color));
         customBackgroundSet = (mActionBarBackgroundDrawable != null)
                 && color != defaultColor;
     }
