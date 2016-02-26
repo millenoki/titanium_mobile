@@ -241,8 +241,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (!isEmpty) {
 			proxy.onWindowFocusChange(true);
 		}
-		
-		updateTitle(proxy);
+	    updateForWindow(proxy);
 	}
 	
 	public boolean isCurrentWindow(final TiWindowProxy proxy) {
@@ -262,16 +261,15 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		
 		if (!windowStack.empty()) {
 			TiWindowProxy nextWindow = windowStack.peek();
-			updateTitle(nextWindow);
+            updateForWindow(nextWindow);
 			//Fire focus only if activity is not paused and the removed window was topWindow
 			if (isResumed && isTopWindow) {
 				nextWindow.onWindowFocusChange(true);
-//				updateTitle(proxy);
 			}
 		}
 		else
 		{
-			updateTitle(this.window);
+	        updateForWindow(this.window);
 		}
 		
 	}
@@ -696,101 +694,50 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 
 
-	protected void updateTitle(TiWindowProxy proxy)
-	{
-		if (proxy == null) return;
-
-		if (proxy.hasProperty(TiC.PROPERTY_TITLE)) {
-			String oldTitle = (String) getTitle();
-			String newTitle = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_TITLE));
-
-			if (oldTitle == null) {
-				oldTitle = "";
-			}
-
-			if (newTitle == null) {
-				newTitle = "";
-			}
-
-			if (!newTitle.equals(oldTitle)) {
-				final String fnewTitle = newTitle;
-				
-				    runOnUiThread(new Runnable(){
-                        public void run() {
-                            if (!TiActivityHelper.setActionBarTitle(TiBaseActivity.this, fnewTitle)) {
-                                setTitle(fnewTitle);
-                            }
-                        }
-                    });
-			}
-		}
-	}
+//	protected void updateTitle(TiWindowProxy proxy)
+//	{
+//		if (proxy == null) return;
+//
+//		if (proxy.hasProperty(TiC.PROPERTY_TITLE)) {
+//			String oldTitle = (String) getTitle();
+//			String newTitle = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_TITLE));
+//
+//			if (oldTitle == null) {
+//				oldTitle = "";
+//			}
+//
+//			if (newTitle == null) {
+//				newTitle = "";
+//			}
+//
+//			if (!newTitle.equals(oldTitle)) {
+//				final String fnewTitle = newTitle;
+//				
+//				    runOnUiThread(new Runnable(){
+//                        public void run() {
+//                            if (!TiActivityHelper.setActionBarTitle(TiBaseActivity.this, fnewTitle)) {
+//                                setTitle(fnewTitle);
+//                            }
+//                        }
+//                    });
+//			}
+//		}
+//	}
 
 //	private Toolbar toolbar = null;
 	// Subclasses can override to provide a custom layout
-	protected View createLayout()
+	protected ViewGroup createLayout(int layoutId)
 	{
-		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
+       LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 
-		String layoutFromIntent = getIntentString(TiC.INTENT_PROPERTY_LAYOUT, "");
-		if (layoutFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
-			arrangement = LayoutArrangement.HORIZONTAL;
+        String layoutFromIntent = getIntentString(TiC.INTENT_PROPERTY_LAYOUT, "");
+        if (layoutFromIntent.equals(TiC.LAYOUT_HORIZONTAL)) {
+            arrangement = LayoutArrangement.HORIZONTAL;
 
-		} else if (layoutFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
-			arrangement = LayoutArrangement.VERTICAL;
-		}
-		
-        
-        
-//		LinearLayout layout = new LinearLayout(this);
-//        layout.setFocusable(false);
-//        layout.setFocusableInTouchMode(false);
-//        layout.setOrientation(LinearLayout.VERTICAL);
-//        
-//        try {
-//            toolbar = (Toolbar) getLayoutInflater().inflate(TiRHelper.getResource("layout.toolbar"), null).findViewById(TiRHelper.getResource("id.toolbar"));
-//        } catch (ResourceNotFoundException e) {
-//        }
-//        if (toolbar != null) {
-//            layout.addView(toolbar, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-//        }
-//        
-//        
-//        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1);
-//        
-//        layout.addView(new TiCompositeLayout(this, arrangement, null) {
-//            private boolean firstFocusRequest = true;
-//            
-//            @Override
-//            public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
-//                if (firstFocusRequest) {
-//                    firstFocusRequest = false;
-//                    return false;
-//                }
-//                return super.requestFocus(direction, previouslyFocusedRect);
-//            }
-//            
-//            @Override
-//            public boolean onInterceptTouchEvent(MotionEvent event) {
-//                if (event.getAction() == MotionEvent.ACTION_UP) {
-//                    final MotionEvent copy = MotionEvent.obtain(event);
-//                    final Handler handler = new Handler();
-//                    handler.postDelayed(new Runnable() {
-//                      @Override
-//                      public void run() {
-//                          checkUpEventSent(copy);
-//                      }
-//                    }, 10);
-//                }
-//                return super.onInterceptTouchEvent(event);
-//            }
-//        }, params);
-
-
-		// set to null for now, this will get set correctly in setWindowProxy()
-//		return layout;
-		
-		return new TiCompositeLayout(this, arrangement, null) {
+        } else if (layoutFromIntent.equals(TiC.LAYOUT_VERTICAL)) {
+            arrangement = LayoutArrangement.VERTICAL;
+        }
+        contentView = new TiCompositeLayout(this, arrangement, null) {
             private boolean firstFocusRequest = true;
             
             @Override
@@ -1811,7 +1758,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			return;
 		}
 
-//		updateTitle(this.window);
 
 		if (activityProxy != null) {
 			// we only want to set the current activity for good in the resume state but we need it right now.
