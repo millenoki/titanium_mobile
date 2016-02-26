@@ -832,7 +832,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * 
      * @module.api
      */
-    public void setProperties(KrollDict newProps) {
+    public void setProperties(HashMap newProps) {
         KrollDict realProperties = (newProps != null) ? new KrollDict(newProps)
                 : new KrollDict();
         synchronized (properties) {
