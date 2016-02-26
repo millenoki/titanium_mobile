@@ -4227,7 +4227,8 @@ var firstWindow = createWin({
 		},
 		events: {
 			click: function() {
-				firstWindow.showSnackBar({
+				Ti.UI.showSnackbar({
+					backgroundColor:'yellow',
 					title: 'test'
 				});
 			}
