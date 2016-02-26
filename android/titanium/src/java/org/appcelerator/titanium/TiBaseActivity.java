@@ -568,18 +568,6 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	}
 
 	/**
-	 * Sets the proxy for our layout (used for post layout event)
-	 *
-	 * @param proxy
-	 */
-	public void setLayoutProxy(TiViewProxy proxy)
-	{
-		if (layout instanceof TiCompositeLayout) {
-//			((TiCompositeLayout) layout).setView(proxy.peekView());
-		}
-	}
-
-	/**
 	 * Sets the view proxy.
 	 * @param proxy
 	 */
