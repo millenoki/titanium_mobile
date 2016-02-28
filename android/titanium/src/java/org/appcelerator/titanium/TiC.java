@@ -2891,6 +2891,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_SHOW_SCROLLBARS = "showScrollbars";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_SCROLL_DIRECTION = "scrollDirection";
 
 	/**
 	 * @module.api
