@@ -278,7 +278,7 @@ public class ActivityProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public TiWindowProxy getWindow()
 	{
 		Activity activity = getWrappedActivity();
@@ -290,7 +290,7 @@ public class ActivityProxy extends KrollProxy
 		return tiActivity.getWindowProxy();
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public ActionBarProxy getActionBar()
 	{
 		return getOrCreateActionBarProxy();
@@ -310,7 +310,7 @@ public class ActivityProxy extends KrollProxy
     }
 
     @Kroll.method
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     public double getActionBarHeight() {
         return TiActivityHelper.getActionBarHeight(getWrappedActivity());
     }

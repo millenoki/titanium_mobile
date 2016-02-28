@@ -264,7 +264,7 @@ public class AnimatableProxy extends ParentingProxy {
 		
 	}
 	
-   @Kroll.getProperty(name="isAnimating")
+   @Kroll.getProperty(name="isAnimating", enumerable=false)
    @Kroll.method
    public boolean getAnimating() {
        synchronized (runningAnimationsLock) {

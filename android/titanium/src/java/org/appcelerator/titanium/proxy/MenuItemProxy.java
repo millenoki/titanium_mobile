@@ -53,7 +53,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public int getGroupId() {
 	    return getValueInUIThread(new Command<Integer>() {
             public Integer execute() {
@@ -62,7 +62,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
         }, 0);
 	}
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public int getItemId() {
 	    return getValueInUIThread(new Command<Integer>() {
             public Integer execute() {
@@ -71,7 +71,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
         }, 0);
 	}
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public int getOrder() {
 	    return getValueInUIThread(new Command<Integer>() {
             public Integer execute() {
@@ -80,7 +80,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
         }, TiConvert.toInt(getProperty(TiC.PROPERTY_ORDER)));
 	}
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public String getTitle() {
 	    return getValueInUIThread(new Command<String>() {
             public String execute() {
@@ -90,7 +90,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
 	}
 
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public String getTitleCondensed() {
 	    return getValueInUIThread(new Command<String>() {
 	        public String execute() {
@@ -109,7 +109,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
         }, false);
 }
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public boolean isChecked() {
 	    return getValueInUIThread(new Command<Boolean>() {
             public Boolean execute() {
@@ -118,7 +118,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
         }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_CHECKED)));
 	}
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public boolean isCheckable() {
 	    return getValueInUIThread(new Command<Boolean>() {
             public Boolean execute() {
@@ -127,7 +127,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
         }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_CHECKABLE)));
 	}
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public boolean isEnabled() {
 	    return getValueInUIThread(new Command<Boolean>() {
             public Boolean execute() {
@@ -136,7 +136,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
         }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLED)));
 	}
 	
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public boolean isVisible() {
 	    return getValueInUIThread(new Command<Boolean>() {
             public Boolean execute() {
@@ -195,7 +195,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
         }, false);
 	}
 
-	@Kroll.method @Kroll.getProperty
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public boolean isActionViewExpanded() {
 	    return getValueInUIThread(new Command<Boolean>() {
             public Boolean execute() {
