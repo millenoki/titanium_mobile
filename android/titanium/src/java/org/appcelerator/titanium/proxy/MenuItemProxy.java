@@ -48,6 +48,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
     protected MenuItemProxy(MenuItem item, Activity activity)
 	{
         super();
+        mProcessInUIThread = true;
         setActivity(activity);
 		this.item = item;
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
@@ -221,88 +222,49 @@ public class MenuItemProxy extends AnimatableReusableProxy
         case TiC.PROPERTY_ACTION_VIEW:
             setActionView(newValue);
             break;
-        case TiC.PROPERTY_CHECKABLE: 
-        {
+        case TiC.PROPERTY_CHECKABLE: {
             final Boolean toApply = TiConvert.toBoolean(newValue);
-            runInUiThread(new CommandNoReturn() {
-                public void execute() {
-                    item.setCheckable(toApply);
-                }
-            }, false);
+            item.setCheckable(toApply);
             break;
         }
-        case TiC.PROPERTY_CHECKED:
-        {
+        case TiC.PROPERTY_CHECKED: {
             final Boolean toApply = TiConvert.toBoolean(newValue);
-            runInUiThread(new CommandNoReturn() {
-                public void execute() {
-                    item.setChecked(toApply);
-                }
-            }, false);
+            item.setChecked(toApply);
             break;
         }
-        case TiC.PROPERTY_ENABLED:
-        {
+        case TiC.PROPERTY_ENABLED: {
             final Boolean toApply = TiConvert.toBoolean(newValue);
-            runInUiThread(new CommandNoReturn() {
-                public void execute() {
-                    item.setEnabled(toApply);
-                }
-            }, false);
+            item.setEnabled(toApply);
             break;
         }
-        case TiC.PROPERTY_ICON:
-        {
+        case TiC.PROPERTY_ICON: {
             final Object toApply = newValue;
-            runInUiThread(new CommandNoReturn() {
-                public void execute() {
-                    item.setIcon(TiUIHelper.getResourceDrawable(toApply));
-                }
-            }, false);
+            item.setIcon(TiUIHelper.getResourceDrawable(toApply));
             break;
         }
-        case TiC.PROPERTY_SHOW_AS_ACTION:
-        {
+        case TiC.PROPERTY_SHOW_AS_ACTION: {
             final int toApply = TiConvert.toInt(newValue);
-            runInUiThread(new CommandNoReturn() {
-                public void execute() {
-                    if (TiC.ICS_OR_GREATER) {
-                        item.setShowAsAction(toApply);
-                    } else {
-                        MenuItemCompat.setShowAsAction(item, toApply);
-                    }
-                }
-            }, false);
+
+            if (TiC.ICS_OR_GREATER) {
+                item.setShowAsAction(toApply);
+            } else {
+                MenuItemCompat.setShowAsAction(item, toApply);
+            }
             break;
         }
-        case TiC.PROPERTY_TITLE_CONDENSED:
-        {
+        case TiC.PROPERTY_TITLE_CONDENSED: {
             final String toApply = TiConvert.toString(newValue);
-            runInUiThread(new CommandNoReturn() {
-                public void execute() {
-                    item.setTitleCondensed(toApply);
-                }
-            }, false);
+            item.setTitleCondensed(toApply);
             break;
         }
-        case TiC.PROPERTY_TITLE:
-        {
+        case TiC.PROPERTY_TITLE: {
             final String toApply = TiConvert.toString(newValue);
-            runInUiThread(new CommandNoReturn() {
-                public void execute() {
-                    item.setTitle(toApply);
-                }
-            }, false);
+            item.setTitle(toApply);
             break;
         }
-        case TiC.PROPERTY_VISIBLE:
-        {
+        case TiC.PROPERTY_VISIBLE: {
             final Boolean toApply = TiConvert.toBoolean(newValue);
-            runInUiThread(new CommandNoReturn() {
-                public void execute() {
-                    item.setVisible(toApply);
-                }
-            }, false);
+            item.setVisible(toApply);
             break;
         }
         default:
