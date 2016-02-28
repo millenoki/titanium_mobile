@@ -54,96 +54,55 @@ public class MenuItemProxy extends AnimatableReusableProxy
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 	}
 
-	@Kroll.method @Kroll.getProperty(enumerable=false)
+    @Kroll.method(runOnUiThread=true) @Kroll.getProperty(enumerable=false, runOnUiThread=true)
 	public int getGroupId() {
-	    return getValueInUIThread(new Command<Integer>() {
-            public Integer execute() {
-                return (Integer) item.getGroupId();
-            };
-        }, 0);
+        return (Integer) item.getGroupId();
 	}
 	
-	@Kroll.method @Kroll.getProperty(enumerable=false)
+	@Kroll.method(runOnUiThread=true) @Kroll.getProperty(enumerable=false, runOnUiThread=true)
 	public int getItemId() {
-	    return getValueInUIThread(new Command<Integer>() {
-            public Integer execute() {
-                return (Integer) item.getItemId();
-            };
-        }, 0);
+	    return (Integer) item.getItemId();
 	}
 	
-	@Kroll.method @Kroll.getProperty(enumerable=false)
+    @Kroll.method(runOnUiThread=true) @Kroll.getProperty(enumerable=false, runOnUiThread=true)
 	public int getOrder() {
-	    return getValueInUIThread(new Command<Integer>() {
-            public Integer execute() {
-                return (Integer) item.getOrder();
-            };
-        }, TiConvert.toInt(getProperty(TiC.PROPERTY_ORDER), -1));
+        return (Integer) item.getOrder();
 	}
 	
-	@Kroll.method @Kroll.getProperty(enumerable=false)
+    @Kroll.method(runOnUiThread=true) @Kroll.getProperty(enumerable=false, runOnUiThread=true)
 	public String getTitle() {
-	    return getValueInUIThread(new Command<String>() {
-            public String execute() {
-                return (String) item.getTitle();
-            };
-        },  TiConvert.toString(getProperty(TiC.PROPERTY_TITLE)));
+        return (String) item.getTitle();
 	}
 
 	
-	@Kroll.method @Kroll.getProperty(enumerable=false)
+    @Kroll.method(runOnUiThread=true) @Kroll.getProperty(enumerable=false, runOnUiThread=true)
 	public String getTitleCondensed() {
-	    return getValueInUIThread(new Command<String>() {
-	        public String execute() {
-	            return (String) item.getTitleCondensed();
-	        };
-        }, TiConvert.toString(getProperty(TiC.PROPERTY_TITLE_CONDENSED)));
-	  
+        return (String) item.getTitleCondensed();
 	}
 	
-	@Kroll.method
+    @Kroll.method(runOnUiThread=true)
 	public boolean hasSubMenu() {
-	    return getValueInUIThread(new Command<Boolean>() {
-            public Boolean execute() {
-                return (Boolean) item.hasSubMenu();
-            };
-        }, false);
-}
+        return (Boolean) item.hasSubMenu();
+    }
 	
-	@Kroll.method @Kroll.getProperty(enumerable=false)
+    @Kroll.method(runOnUiThread=true) @Kroll.getProperty(enumerable=false, runOnUiThread=true)
 	public boolean isChecked() {
-	    return getValueInUIThread(new Command<Boolean>() {
-            public Boolean execute() {
-                return (Boolean) item.isChecked();
-            };
-        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_CHECKED), false));
+        return (Boolean) item.isChecked();
 	}
 	
-	@Kroll.method @Kroll.getProperty(enumerable=false)
+    @Kroll.method(runOnUiThread=true) @Kroll.getProperty(enumerable=false, runOnUiThread=true)
 	public boolean isCheckable() {
-	    return getValueInUIThread(new Command<Boolean>() {
-            public Boolean execute() {
-                return (Boolean) item.isChecked();
-            };
-        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_CHECKABLE), true));
+        return (Boolean) item.isChecked();
 	}
 	
-	@Kroll.method @Kroll.getProperty(enumerable=false)
+    @Kroll.method(runOnUiThread=true) @Kroll.getProperty(enumerable=false, runOnUiThread=true)
 	public boolean isEnabled() {
-	    return getValueInUIThread(new Command<Boolean>() {
-            public Boolean execute() {
-                return (Boolean) item.isEnabled();
-            };
-        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLED), true));
+        return (Boolean) item.isEnabled();
 	}
 	
-	@Kroll.method @Kroll.getProperty(enumerable=false)
+    @Kroll.method(runOnUiThread=true) @Kroll.getProperty(enumerable=false, runOnUiThread=true)
 	public boolean isVisible() {
-	    return getValueInUIThread(new Command<Boolean>() {
-            public Boolean execute() {
-                return (Boolean) item.isVisible();
-            };
-        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_VISIBLE), true));
+        return (Boolean) item.isVisible();
 	}
 
 	public void setActionView(Object value)
