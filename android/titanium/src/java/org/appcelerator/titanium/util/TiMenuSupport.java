@@ -45,6 +45,7 @@ public class TiMenuSupport
 			} else {
 				menuProxy = new MenuProxy(menu, this.proxy.getActivity());
 			}
+			menuProxy.setParentForBubbling(this.proxy.getWindow());
 			event.put(TiC.EVENT_PROPERTY_MENU, menuProxy);
 			onCreate.call(proxy.getKrollObject(), new Object[] { event });
 		}
@@ -69,7 +70,10 @@ public class TiMenuSupport
 
 		MenuItemProxy mip = menuProxy.findItem(item);
 		if (mip != null) {
-			mip.fireEvent(TiC.EVENT_CLICK, null);
+		    HashMap data  = new HashMap();
+            data.put("itemId", item.getItemId());
+            data.put("groupId", item.getGroupId());
+			mip.fireEvent(TiC.EVENT_CLICK, null, true, true);
 			return true;
 		}
 		return false;
@@ -108,5 +112,12 @@ public class TiMenuSupport
             return menuProxy.getMenu();
         }
         return null;
+    }
+
+    public void onWindowChanged(TiWindowProxy window) {
+        if (menuProxy != null) {
+           menuProxy.setParentForBubbling(window);
+        }
+        
     }
 }
