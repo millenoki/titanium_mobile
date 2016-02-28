@@ -106,10 +106,6 @@ public class MenuProxy extends KrollProxy
 			mip = handleAdd(d);
 			return mip;
 		}
-		
-		if (!(d instanceof KrollDict) && (d instanceof HashMap)) {
-			d = new KrollDict(d);
-		}
 
 		return (MenuItemProxy) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_ADD), (KrollDict) d);
 	}
