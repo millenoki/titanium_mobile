@@ -61,10 +61,7 @@ import android.view.WindowManager;
 	TiC.PROPERTY_URL,
 	TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
 	TiC.PROPERTY_FLAG_SECURE
-}, propertyDontEnumAccessors={
-        TiC.PROPERTY_WINDOW,
-        TiC.PROPERTY_ACTIVITY,
-    })
+})
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "WindowProxy";

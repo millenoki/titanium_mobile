@@ -46,12 +46,13 @@ import android.view.View;
 @Kroll.proxy(propertyAccessors={
 	TiC.PROPERTY_EXIT_ON_CLOSE,
 	TiC.PROPERTY_FULLSCREEN,
-    TiC.PROPERTY_ACTIVITY,
 	TiC.PROPERTY_ON_BACK,
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
-})
+}, propertyDontEnumAccessors={
+        TiC.PROPERTY_ACTIVITY,
+    })
 public abstract class TiWindowProxy extends TiViewProxy
 {
 	private static final String TAG = "TiWindowProxy";
