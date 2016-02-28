@@ -78,7 +78,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
             public Integer execute() {
                 return (Integer) item.getOrder();
             };
-        }, TiConvert.toInt(getProperty(TiC.PROPERTY_ORDER)));
+        }, TiConvert.toInt(getProperty(TiC.PROPERTY_ORDER), -1));
 	}
 	
 	@Kroll.method @Kroll.getProperty(enumerable=false)
@@ -116,7 +116,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
             public Boolean execute() {
                 return (Boolean) item.isChecked();
             };
-        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_CHECKED)));
+        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_CHECKED), false));
 	}
 	
 	@Kroll.method @Kroll.getProperty(enumerable=false)
@@ -125,7 +125,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
             public Boolean execute() {
                 return (Boolean) item.isChecked();
             };
-        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_CHECKABLE)));
+        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_CHECKABLE), true));
 	}
 	
 	@Kroll.method @Kroll.getProperty(enumerable=false)
@@ -134,7 +134,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
             public Boolean execute() {
                 return (Boolean) item.isEnabled();
             };
-        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLED)));
+        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLED), true));
 	}
 	
 	@Kroll.method @Kroll.getProperty(enumerable=false)
@@ -143,7 +143,7 @@ public class MenuItemProxy extends AnimatableReusableProxy
             public Boolean execute() {
                 return (Boolean) item.isVisible();
             };
-        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_VISIBLE)));
+        }, TiConvert.toBoolean(getProperty(TiC.PROPERTY_VISIBLE), true));
 	}
 
 	public void setActionView(Object value)
