@@ -162,7 +162,7 @@ public class TiAbsListViewTemplate {
 	}
 	
 	
-	public AbsListItemProxy generateCellProxy(final HashMap item, KrollProxy proxy, final String rootType)
+	public AbsListItemProxy generateCellProxy(KrollProxy proxy, final String rootType)
 	{
 		AbsListItemProxy result = (AbsListItemProxy) proxy.createTypeViewFromDict(properties, rootType);
 		return result;

@@ -79,7 +79,8 @@ import android.widget.SectionIndexer;
 import android.widget.AbsListView.OnScrollListener;
 
 @SuppressLint("NewApi")
-public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract & DynamicStickyListHeadersAbsListViewInterface> extends TiUINonViewGroupView implements OnSearchChangeListener {
+public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract & DynamicStickyListHeadersAbsListViewInterface> extends TiUINonViewGroupView 
+    implements OnSearchChangeListener, TiCollectionViewInterface {
 
 	protected C listView;
 	private TiBaseAdapter adapter;
@@ -190,7 +191,8 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	                SectionIndexer, 
 	                MenuAdapter ,
 	                Insertable<Object> , 
-	                Removable<Object>
+	                Removable<Object>, 
+	                TiCollectionViewAdapter
 	{
 
 		Activity context;
@@ -250,7 +252,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			if (section.isHeaderView(sectionItemIndex) || section.isFooterView(sectionItemIndex)) {
 				return HEADER_FOOTER_VIEW_TYPE;
 			}
-			return getTemplate(section.getTemplateByIndex(sectionItemIndex)).getType();
+			return getTemplate(section.getTemplateByIndex(sectionItemIndex), true).getType();
 		}
 
 		@Override
@@ -289,7 +291,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			if (item == null) {
 			    return null;
 			}
-			TiAbsListViewTemplate template = getTemplate(TiConvert.toString(item, TiC.PROPERTY_TEMPLATE));
+			TiAbsListViewTemplate template = getTemplate(TiConvert.toString(item, TiC.PROPERTY_TEMPLATE), true);
 			int itemViewType = template.getType();
 			
 			TiBaseAbsListViewItem itemContent = null;
@@ -308,7 +310,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 				content.setTag(itemViewType);
 				itemContent = (TiBaseAbsListViewItem) content.findViewById(listContentId);
 
-				AbsListItemProxy itemProxy = template.generateCellProxy(item, proxy, getCellProxyRootType());
+				AbsListItemProxy itemProxy = template.generateCellProxy(proxy, getCellProxyRootType());
 				itemProxy.setListProxy(proxy);
 				addHandledProxy(itemProxy);
 				section.generateCellContent(sectionIndex, item, itemProxy, itemContent, template, sectionItemIndex, content);
@@ -765,10 +767,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	public String getSearchText() {
 		return searchText;
 	}
-	
-	public boolean getCaseInsensitive() {
-		return caseInsensitive;
-	}
+
 
 	private void resetMarker() 
 	{
@@ -1042,7 +1041,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         synchronized (sections) {
 			for (int i = 0; i < sections.size(); ++i) {
 				AbsListSectionProxy section = sections.get(i);
-				section.applyFilter(searchText);
+				section.applyFilter(searchText, caseInsensitive);
 			}
 		}
 		notifyDataSetChanged();
@@ -1065,14 +1064,17 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		}
 	}
 
-	public TiAbsListViewTemplate getTemplate(String template)
+	public TiAbsListViewTemplate getTemplate(String template, final boolean canReturnDefault)
 	{
 		if (template == null) template = defaultTemplateBinding;
 		if (templatesByBinding.containsKey(template))
 		{
 			return templatesByBinding.get(template);
 		}
-		return templatesByBinding.get(UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
+		if (canReturnDefault) {
+	        return templatesByBinding.get(UIModule.LIST_ITEM_TEMPLATE_DEFAULT);
+		}
+		return null;
 	}
 
 	protected void processTemplates(HashMap<String,Object> templates) {
@@ -1204,7 +1206,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         }
 	}
 	
-	protected void processSectionsAndNotify(Object[] sections) {
+	public void processSectionsAndNotify(Object[] sections) {
 	    (new ProcessSectionsTask()).execute(sections);
 //		processSections(sections);
 //		if (adapter != null) {
@@ -1255,11 +1257,12 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 			section.processPreloadData();
 			//Apply filter if necessary
 			if (searchText != null) {
-				section.applyFilter(searchText);
+				section.applyFilter(searchText, caseInsensitive);
 			}
 		}
 		else if(sec instanceof HashMap) {
 			AbsListSectionProxy section = (AbsListSectionProxy) KrollProxy.createProxy(AbsListSectionProxy.class, null, new Object[]{sec}, null);
+            section.updateKrollObjectProperties();
 			processSection(section, index);
 		}
 	}
@@ -1449,7 +1452,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 	    }
 	}
 	
-	protected void scrollToItem(int sectionIndex, int sectionItemIndex, boolean animated) {
+	public void scrollToItem(int sectionIndex, int sectionItemIndex, boolean animated) {
 		final int position = findItemPosition(sectionIndex, sectionItemIndex);
 		if (position > -1) {
 			if (animated)
@@ -1570,11 +1573,11 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
         listView.insert(position, items);
     }
 
-    public <T> void remove( final int position) {
+    public void remove( final int position) {
         listView.remove(position - listView.getHeaderViewsCount());
     }
 
-    public <T> void remove( final int position, final int count) {
+    public void remove( final int position, final int count) {
         listView.remove(position - listView.getHeaderViewsCount(), count);
     }
     

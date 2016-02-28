@@ -30,34 +30,35 @@ import org.appcelerator.titanium.view.KrollProxyReusableListener;
 import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.abslistview.TiAbsListView.TiBaseAdapter;
-import ti.modules.titanium.ui.widget.listview.TiListView;
+ import ti.modules.titanium.ui.widget.listview.TiListView;
 import android.view.View;
 
 @Kroll.proxy(propertyAccessors = {
         TiC.PROPERTY_HEADER_TITLE,
         TiC.PROPERTY_FOOTER_TITLE,
         TiC.PROPERTY_HEADER_VIEW,
-        TiC.PROPERTY_FOOTER_VIEW
+        TiC.PROPERTY_FOOTER_VIEW,
+        "showHeaderWhenHidden",
+        "hideWhenEmpty"
     })
 public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	private static final String TAG = "ListSectionProxy";
 //	private ArrayList<AbsListItemData> listItemData;
-	private int mItemCount;
-    private int mCurrentItemCount = 0;
-	private TiBaseAdapter adapter;
-	private Object[] itemProperties;
-	private ArrayList<Integer> filterIndices;
-	private boolean preload;
-	private SortedSet<Integer> mHiddenItems;
-	boolean showHeaderWhenHidden = false;
-	boolean hideWhenEmpty = false;
-	boolean hidden = false;
+	protected int mItemCount;
+	protected int mCurrentItemCount = 0;
+    protected TiCollectionViewAdapter adapter;
+	protected Object[] itemProperties;
+	protected ArrayList<Integer> filterIndices;
+	protected boolean preload;
+	protected SortedSet<Integer> mHiddenItems;
+	public boolean showHeaderWhenHidden = false;
+	public boolean hideWhenEmpty = false;
+	public boolean hidden = false;
 	
-	private int sectionIndex;
+	protected int sectionIndex;
 
-	private WeakReference<TiAbsListView> listView;
+	protected WeakReference<TiCollectionViewInterface> listView;
 
 
 //	public class AbsListItemData {
@@ -129,7 +130,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         mItemCount = 0;
 	}
 
-	public void setAdapter(TiBaseAdapter a) {
+	public void setAdapter(TiCollectionViewAdapter a) {
 		adapter = a;
 	}
 	
@@ -172,7 +173,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
            handleSetItems(newValue);
            break;
        case "hideWhenEmpty":
-           setHideWhenEmpty(TiConvert.toBoolean(newValue, hideWhenEmpty));
+           hideWhenEmpty = TiConvert.toBoolean(newValue, hideWhenEmpty);
+           if (changedProperty) {
+               notifyDataChange();
+           }
+           break;
+       case "showHeaderWhenHidden":
+           showHeaderWhenHidden = TiConvert.toBoolean(newValue, showHeaderWhenHidden);
+           if (changedProperty) {
+               notifyDataChange();
+           }
            break;
        case TiC.PROPERTY_VISIBLE:
             setVisible(TiConvert.toBoolean(newValue, true));
@@ -185,7 +195,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
 	public void notifyDataChange() {
 		if (adapter == null) return;
-        updateCurrentItemCount();
+//        updateCurrentItemCount();
 		getMainHandler().post(new Runnable() {
 			@Override
 			public void run() {
@@ -330,6 +340,18 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             }
         }, true);
 	}
+	
+	protected void notifyItemRangeRemoved(int positionStart, int itemCount) {
+	    notifyDataChange();
+	}
+	
+	protected void notifyItemRangeChanged(int positionStart, int itemCount) {
+        notifyDataChange();
+    }
+	protected void notifyItemRangeInserted(int positionStart, int itemCount) {
+        notifyDataChange();
+    }
+    
 
 	@Kroll.method
 	public void deleteItemsAt(final int index, final int count) {
@@ -339,14 +361,14 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
-                TiAbsListView listView = getListView();
+                TiCollectionViewInterface listView = getListView();
                 if (listView instanceof TiListView) {
                     int position = listView.findItemPosition(sectionIndex, index);
                     listView.remove(position, count);
                 }
                 else {
-                    deleteItemsData(index, count);
-                    notifyDataChange();
+                    int deletedCount = deleteItemsData(index, count);
+                    notifyItemRangeRemoved(index, deletedCount);
                 }      
             }
         }, true);
@@ -362,9 +384,14 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             @Override
             public void execute() {
                 if (count == 0) {
-                    handleInsertItemsAt(index, data);
-                } else if (deleteItemsData(index, count)) {
-                    handleInsertItemsAt(index, data);
+                    ;
+                    notifyItemRangeInserted(index, handleInsertItemsAt(index, data));
+                } else {
+                    int deletedCount = deleteItemsData(index, count);
+                    if (deletedCount > 0) {
+                        notifyItemRangeRemoved(index, deletedCount);
+                        notifyItemRangeInserted(index, handleInsertItemsAt(index, data));
+                    }
                 }         
             }
         }, true);
@@ -390,7 +417,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         if (itemProperties == null || updates.length != itemProperties.length) {
             return;
         }
-        TiAbsListView listView = getListView();
+        TiCollectionViewInterface listView = getListView();
         int i;
         HashMap item;
         HashMap update;
@@ -410,7 +437,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                     if (listItem.getItemIndex() == i) {
                         TiAbsListViewTemplate template = getListView()
                                 .getTemplate(TiConvert.toString(item,
-                                        TiC.PROPERTY_TEMPLATE));
+                                        TiC.PROPERTY_TEMPLATE), true);
                         populateViews(item, listItem, template,
                                 getUserItemInversedIndexFromSectionPosition(i),
                                 this.sectionIndex, content, false);
@@ -418,7 +445,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                 }
             }
         }
-        notifyDataChange();
+        notifyItemRangeChanged(0, updates.length);
     }
 	
 	private boolean updateVisibleState(final HashMap item, final int index) {
@@ -430,6 +457,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
         return visible;
 	}
+
 	
 	@Kroll.method
     public void updateItemAt(final int index, final Object data,
@@ -448,8 +476,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         // if (hasHeader()) {
         // nonRealItemIndex += 1;
         // }
+        
 
-        final TiAbsListView listView = getListView();
+        final TiCollectionViewInterface listView = getListView();
         final int sectionIndex = this.sectionIndex;
         final HashMap currentItem = KrollDict.merge((HashMap) itemProperties[index],
                 (HashMap) (data));
@@ -464,7 +493,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             preload = true;
             return;
         }
-        notifyDataChange();
+        notifyItemRangeChanged(0, 1);
         runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
@@ -476,7 +505,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                         if (listItem.getItemIndex() == index) {
                             TiAbsListViewTemplate template = getListView()
                                     .getTemplate(TiConvert.toString(currentItem,
-                                            TiC.PROPERTY_TEMPLATE));
+                                            TiC.PROPERTY_TEMPLATE), true);
                             populateViews(currentItem, listItem, template,
                                     getUserItemInversedIndexFromSectionPosition(index),
                                     sectionIndex, content, false);
@@ -546,34 +575,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	public boolean getVisible() {
 		return !hidden;
 	}
-	
-	@Kroll.method
-    @Kroll.setProperty
-    public void setShowHeaderWhenHidden(boolean value) {
-        if (showHeaderWhenHidden == value) return;
-        showHeaderWhenHidden = value;
-        notifyDataChange();
-    }
-    
-    @Kroll.method
-    @Kroll.getProperty
-    public boolean getShowHeaderWhenHidden() {
-        return showHeaderWhenHidden;
-    }
-    
-    @Kroll.method
-    @Kroll.setProperty
-    public void setHideWhenEmpty(boolean value) {
-        if (hideWhenEmpty == value) return;
-        hideWhenEmpty = value;
-        notifyDataChange();
-    }
-    
-    @Kroll.method
-    @Kroll.getProperty
-    public boolean getHideWhenEmpty() {
-        return hideWhenEmpty;
-    }
 
     @Kroll.method
     @Kroll.getProperty(enumerable=false)
@@ -682,15 +683,13 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		}
 	}
 
-	private void handleInsertItemsAt(int index, Object data) {
-        TiAbsListView listView = getListView();
+	private int handleInsertItemsAt(int index, Object data) {
+	    TiCollectionViewInterface listView = getListView();
         if (listView instanceof TiListView) {
             int position = listView.findItemPosition(sectionIndex, index) - listView.getHeaderViewCount();
             if (data instanceof Object[]) {
                 listView.insert(position, (Object[])data);
-            }
-            else {
-                listView.insert(position, data);
+                return ((Object[])data).length;
             }
         }
         else {
@@ -703,7 +702,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                     if (index < 0 || index > itemProperties.length) {
                         Log.e(TAG, "Invalid index to handleInsertItem",
                                 Log.DEBUG_MODE);
-                        return;
+                        return 0 ;
                     }
                     ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
                     list.addAll(index, Arrays.asList(items));
@@ -711,24 +710,26 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                     processData(items, index);
                 }
                 // only process items when listview's properties is processed.
-                preload = true;
-                
+                if (listView == null) {
+                    preload = true;
+                }
+                return items.length;
             } else {
                 Log.e(TAG, "Invalid argument type to insertItemsAt",
                         Log.DEBUG_MODE);
             }
         }
+        return 0;
 	}
 	
-	private boolean deleteItemsData(int index, int count) {
-		boolean delete = false;
+	private int deleteItemsData(int index, int count) {
+		int removedCount = 0;
 		
         ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
 		while (count > 0) {
 			if (index < itemProperties.length) {
 			    list.remove(index);
-				mItemCount--;
-				delete = true;
+				removedCount ++;
 			}
 //			if (index < listItemData.size()) {
 //				listItemData.remove(index);
@@ -739,8 +740,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			count--;
 		}
         itemProperties = list.toArray();
+        mItemCount = itemProperties.length;
 		updateCurrentItemCount();
-		return delete;
+		return removedCount;
 	}
 	
 	public Object deleteItemData(int index) {
@@ -973,7 +975,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		return totalCount - getHiddenCount();
 	}
 	
-    private void updateCurrentItemCount() {
+    protected void updateCurrentItemCount() {
         if (hidden && !showHeaderWhenHidden) {
             mCurrentItemCount = 0;
             return;
@@ -1004,11 +1006,11 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	/**
 	 * @return number of entries within section
 	 */
-	public int getItemCount() {
+    public int getItemCount() {
 		return mCurrentItemCount;
 	}
 
-	private int getHiddenCount() {
+	protected int getHiddenCount() {
 		int count = 0;
 		if (hidden || mHiddenItems == null) return count;
 //		for (int i = 0; i < hiddenItems.size(); i++)
@@ -1018,7 +1020,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		return mHiddenItems.size();
 	}
 
-	private boolean hideHeaderOrFooter() {
+	protected boolean hideHeaderOrFooter() {
 		return (isFilterOn() && filterIndices.isEmpty());
 	}
 
@@ -1026,16 +1028,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		return (hasHeader() && pos == 0);
 	}
 
-	public boolean isFooterView(int pos) {
+	protected boolean isFooterView(int pos) {
 		return (hasFooter() && pos == mCurrentItemCount - 1);
 	}
 
-	public void setListView(TiAbsListView l) {
-		listView = new WeakReference<TiAbsListView>(l);
+	public void setListView(TiCollectionViewInterface l) {
+		listView = new WeakReference<TiCollectionViewInterface>(l);
         updateCurrentItemCount(); //needs to be updated if no item but with a header or footer
 	}
 
-	public TiAbsListView getListView() {
+	public TiCollectionViewInterface getListView() {
 		if (listView != null) {
 			return listView.get();
 		}
@@ -1071,7 +1073,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //        if (hasHeader()) {
 //			position -= 1;
 //		}
-
+	    if (hasFooter() && position == getItemCount()) {
+            return null;
+        }
 		if (isFilterOn()) {
 			return getItemDataAt(filterIndices.get(position));
 		} else if (position >= 0 && position < getItemCount()) {
@@ -1085,13 +1089,12 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	    return (searchText != null && searchText.length() > 0);
 	}
 
-	public void applyFilter(String searchText) {
+	public void applyFilter(String searchText, final boolean caseInsensitive) {
 		// Clear previous result
 		filterIndices.clear();
 		hidden = TiConvert.toBoolean(TiC.PROPERTY_VISIBLE, false);
 		if (isFilterOn() && itemProperties != null) {
 		    
-		    boolean caseInsensitive = getListView().getCaseInsensitive();
 		    if (caseInsensitive) {
                 searchText = searchText.toLowerCase();
             }

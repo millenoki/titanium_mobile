@@ -3,37 +3,41 @@ package ti.modules.titanium.ui.widget.abslistview;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
-import se.emilsjolander.stickylistheaders.StickyListHeadersListViewAbstract;
-//import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
 public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
-    private WeakReference<StickyListHeadersListViewAbstract> listView = null;
+    protected WeakReference<View> parentView = null;
     private WeakReference<HashMap> itemData = null;
 	private boolean hasHeightRelyingOnPercent = false;
 
 	public TiBaseAbsListViewItemHolder(Context context) {
-		super(context, LayoutArrangement.HORIZONTAL, null);
+		super(context);
 		setClipChildren(false);
-		addView(new TiBaseAbsListViewItem(context));
-		
-	    final float scale = getResources().getDisplayMetrics().density;
-		TiCompositeLayout.LayoutParams p = new TiCompositeLayout.LayoutParams();
+        addView(new TiBaseAbsListViewItem(context));
+        initialize(context);
+	}
+	protected void initialize(Context context) {
+	    setLayoutArrangement(TiC.LAYOUT_HORIZONTAL);
+        
+        final float scale = getResources().getDisplayMetrics().density;
+        TiCompositeLayout.LayoutParams p = new TiCompositeLayout.LayoutParams();
         p.autoFillsHeight = true;
         p.sizeOrFillHeightEnabled = true;
         p.sizeOrFillWidthEnabled = true;
         p.autoFillsWidth = false;
         p.optionLeft = new TiDimension(5, TiDimension.TYPE_LEFT);
         p.optionRight = new TiDimension(5, TiDimension.TYPE_RIGHT);
-		ImageView imageView = new ImageView(context);
-		imageView.setId(TiAbsListView.accessory);
+        ImageView imageView = new ImageView(context);
+        imageView.setId(TiAbsListView.accessory);
         imageView.setFocusable(false);
         imageView.setAdjustViewBounds(true);
         imageView.setMaxWidth((int) (25 * scale));
@@ -50,7 +54,7 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 	    if (hasHeightRelyingOnPercent) {
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(listView.get().getMeasuredHeight(), MeasureSpec.UNSPECIFIED);
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(parentView.get().getMeasuredHeight(), MeasureSpec.UNSPECIFIED);
 	    }
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
@@ -64,15 +68,15 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 
     public void setItem(TiBaseAbsListViewItem item, 
             HashMap itemData,
-            StickyListHeadersListViewAbstract listView) {
+            View parentView) {
         hasHeightRelyingOnPercent = false;
         if (itemData != null) {
             this.itemData = new WeakReference<HashMap>(itemData);
         } else {
             this.itemData = null;
         }
-        if (listView != null) {
-            this.listView = new WeakReference<StickyListHeadersListViewAbstract>(listView);
+        if (parentView != null) {
+            this.parentView = new WeakReference<View>(parentView);
             if (item != null) {
               ViewGroup.LayoutParams params = item.getTiLayoutParams();
               if (params instanceof TiCompositeLayout.LayoutParams && !((TiCompositeLayout.LayoutParams) params).fixedSizeHeight()) {
@@ -80,7 +84,7 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
               }
           }
         } else {
-            this.listView = null;
+            this.parentView = null;
         }
     }
 }

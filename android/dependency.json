@@ -35,8 +35,9 @@
 			"titanium.jar"],
 		"xml": ["jaxen-1.1.1.jar"],
 		"ui": [
-			"bypass.jar", 
+			"android-support-v7-recyclerview.jar",
 			"stickylistheadersview.jar", 
+			"flexibleadapter.jar", 
 			"listviewanimations.jar", 
 			"okhttp-2.7.2.jar",
 			"okio-1.6.0.jar",

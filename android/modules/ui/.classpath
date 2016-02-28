@@ -12,5 +12,7 @@
 	<classpathentry kind="lib" path="/titanium-dist/lib/titanium-media.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ListViewAnimations"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/SubImageView"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-support-v7-recyclerview.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/FlexibleAdapter"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
