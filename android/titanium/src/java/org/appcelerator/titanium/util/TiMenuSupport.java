@@ -7,11 +7,16 @@
 package org.appcelerator.titanium.util;
 
 import org.appcelerator.kroll.KrollProxy;
+
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.MenuItemProxy;
 import org.appcelerator.titanium.proxy.MenuProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,9 +25,9 @@ import android.view.MenuItem;
 public class TiMenuSupport
 {
 	protected MenuProxy menuProxy;
-	protected KrollProxy proxy;
+	protected ActivityProxy proxy;
 
-	public TiMenuSupport(KrollProxy proxy)
+	public TiMenuSupport(ActivityProxy proxy)
 	{
 		this.proxy = proxy;
 	}

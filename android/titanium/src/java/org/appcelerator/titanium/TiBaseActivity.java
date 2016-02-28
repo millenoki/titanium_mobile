@@ -483,6 +483,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		}
 		
 		updateForWindow(this.window);
+		if (menuHelper != null) {
+		    menuHelper.onWindowChanged(this.window);
+        }
 	}
 	
 	public void updateForWindow(TiWindowProxy window) {

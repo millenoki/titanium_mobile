@@ -25,7 +25,7 @@ import android.view.MenuItem;
 
 @Kroll.proxy
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class MenuProxy extends KrollProxy
+public class MenuProxy extends ParentingProxy
 {
 	private static final String TAG = "MenuProxy";
 
@@ -134,7 +134,9 @@ public class MenuProxy extends KrollProxy
 		
 		MenuItem item = menu.add(groupId, itemId, order, title);
 		mip = new MenuItemProxy(item, getActivity());
+        mip.setParentForBubbling(this);
 		mip.setProperties(d); //apply to actually update properties
+		mip.updateKrollObjectProperties();
 		synchronized(menuMap) {
 			menuMap.put(item, mip);
 		}
