@@ -93,6 +93,7 @@ static NSDictionary* htmlOptions;
     if (self = [super init]) {
         _padding = UIEdgeInsetsZero;
         attributeTextNeedsUpdate = YES;
+        configSet = YES;
         options = [[self htmlOptions] mutableCopy];
     }
     return self;
