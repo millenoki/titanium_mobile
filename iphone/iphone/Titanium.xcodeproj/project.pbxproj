@@ -447,6 +447,7 @@
 		D5D46C2D1BAAD08100C968F1 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
 		D5DC32F8180EED41006CCEBD /* TiTransitionCube.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */; };
 		D5E013541BAB04B300149EA0 /* DTCoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E013531BAB04B300149EA0 /* DTCoreText.framework */; };
+		D5E708DB1C84409300994079 /* MGSwipeCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E708DA1C84409300994079 /* MGSwipeCollectionViewCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5E897B118A3FA0B00E565E1 /* NSDictionary+Merge.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E897B018A3FA0B00E565E1 /* NSDictionary+Merge.m */; };
 		D5E9511C195DC34800DB8B37 /* TiProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E9511B195DC34800DB8B37 /* TiProperties.m */; };
 		D5E999121869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
@@ -1624,6 +1625,8 @@
 		D5DC32F6180EED41006CCEBD /* TiTransitionCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionCube.h; sourceTree = "<group>"; };
 		D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionCube.m; sourceTree = "<group>"; };
 		D5E013531BAB04B300149EA0 /* DTCoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DTCoreText.framework; path = ../libexternals/DTCoreText.framework; sourceTree = "<group>"; };
+		D5E708D91C84409300994079 /* MGSwipeCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MGSwipeCollectionViewCell.h; path = ../Classes/MGSwipeTableCell/MGSwipeCollectionViewCell.h; sourceTree = "<group>"; };
+		D5E708DA1C84409300994079 /* MGSwipeCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MGSwipeCollectionViewCell.m; path = ../Classes/MGSwipeTableCell/MGSwipeCollectionViewCell.m; sourceTree = "<group>"; };
 		D5E75A6E187C58F00016542B /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon.png; path = ../../demos/KitchenSink/icons/icon.png; sourceTree = "<group>"; };
 		D5E75A70187C58F00016542B /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon@2x.png"; path = "../../demos/KitchenSink/icons/icon@2x.png"; sourceTree = "<group>"; };
 		D5E75A7A187C59060016542B /* icon_120@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "icon_120@2x.png"; path = "../../demos/KitchenSink/icons/icon_120@2x.png"; sourceTree = "<group>"; };
@@ -3922,6 +3925,8 @@
 		D5F980EA19ECFC180071A3C6 /* MGSwipeTableCell */ = {
 			isa = PBXGroup;
 			children = (
+				D5E708D91C84409300994079 /* MGSwipeCollectionViewCell.h */,
+				D5E708DA1C84409300994079 /* MGSwipeCollectionViewCell.m */,
 				D5F980F319ECFC240071A3C6 /* MGSwipeTableCell.h */,
 				D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */,
 			);
@@ -4224,6 +4229,7 @@
 				84A0100417FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */,
 				24CA8B76111161FE0084E2DE /* TiUIView.m in Sources */,
 				24CA8B79111161FE0084E2DE /* TiUITextFieldProxy.m in Sources */,
+				D5E708DB1C84409300994079 /* MGSwipeCollectionViewCell.m in Sources */,
 				24CA8B7A111161FE0084E2DE /* TiUITextField.m in Sources */,
 				D54C7D0218115BD100F592A9 /* TitransitionBackFade.m in Sources */,
 				15CB44151C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m in Sources */,
@@ -4403,7 +4409,6 @@
 				24A1EAF6112F4C02003DA834 /* UIImage+Alpha.m in Sources */,
 				24A1EAF7112F4C02003DA834 /* UIImage+Resize.m in Sources */,
 				D521693F183A598500FBB24B /* TiTransitionAnimationStep.m in Sources */,
-				BB26FC8319AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m in Sources */,
 				15CB440E1C4EBE4000D81480 /* TiUIiOSStatusBarProxy.m in Sources */,
 				24A1EAF8112F4C02003DA834 /* UIImage+RoundedCorner.m in Sources */,
 				D5C5EC291863584100357DE4 /* TiUILabel.m in Sources */,
