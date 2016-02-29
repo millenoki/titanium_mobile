@@ -522,53 +522,53 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     return result;
 }
 
-//-(NSArray*)proxiesArrayFromValue:(id)value
-//{
-//    NSArray* buttons = nil;
-//    if (IS_OF_CLASS(value, NSArray)) {
-//        NSMutableArray* buttonProxies = [NSMutableArray arrayWithCapacity:[value count]];
-//        [value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-//            TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:obj];
-//            if (viewproxy) {
-//                [viewproxy setParent:self];
-//                [buttonProxies addObject:viewproxy];
-//            }
-//        }];
-//        buttons = [NSArray arrayWithArray:buttonProxies];
-//    } else {
-//        TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:value];
-//        if (viewproxy) {
-//            [viewproxy setParent:self];
-//            buttons = [NSArray arrayWithObject:viewproxy];
-//        }
-//    }
-//    SetEventOverrideDelegateRecursive(buttons, self);
-//    return buttons;
-//}
+-(NSArray*)proxiesArrayFromValue:(id)value
+{
+    NSArray* buttons = nil;
+    if (IS_OF_CLASS(value, NSArray)) {
+        NSMutableArray* buttonProxies = [NSMutableArray arrayWithCapacity:[value count]];
+        [value enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:obj];
+            if (viewproxy) {
+                [viewproxy setParentForBubbling:self];
+                [buttonProxies addObject:viewproxy];
+            }
+        }];
+        buttons = [NSArray arrayWithArray:buttonProxies];
+    } else {
+        TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:value];
+        if (viewproxy) {
+            [viewproxy setParentForBubbling:self];
+            buttons = [NSArray arrayWithObject:viewproxy];
+        }
+    }
+    SetEventOverrideDelegateRecursive(buttons, self);
+    return buttons;
+}
 
-//-(void)setLeftSwipeButtons:(id)value
-//{
-//    id oldValue = [self valueForKey:@"leftSwipeButtons"];
-//    if (oldValue) {
-//        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
-//            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
-//            [self removeProxy:obj];
-//        }];
-//    }
-//    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"leftSwipeButtons" notification:NO];
-//}
-//
-//-(void)setRightSwipeButtons:(id)value
-//{
-//    id oldValue = [self valueForKey:@"rightSwipeButtons"];
-//    if (oldValue) {
-//        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
-//            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
-//            [self removeProxy:obj];
-//        }];
-//    }
-//    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"rightSwipeButtons" notification:NO];
-//}
+-(void)setLeftSwipeButtons:(id)value
+{
+    id oldValue = [self valueForKey:@"leftSwipeButtons"];
+    if (oldValue) {
+        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
+            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
+            [self removeProxy:obj];
+        }];
+    }
+    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"leftSwipeButtons" notification:NO];
+}
+
+-(void)setRightSwipeButtons:(id)value
+{
+    id oldValue = [self valueForKey:@"rightSwipeButtons"];
+    if (oldValue) {
+        [oldValue enumerateObjectsUsingBlock:^(TiViewProxy* obj, NSUInteger idx, BOOL *stop) {
+            [self removeHoldedProxyForKey:[obj valueForKey:@"bindId"]];
+            [self removeProxy:obj];
+        }];
+    }
+    [self replaceValue:[self proxiesArrayFromValue:value] forKey:@"rightSwipeButtons" notification:NO];
+}
 
 @end
 

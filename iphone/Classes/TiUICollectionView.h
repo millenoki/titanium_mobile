@@ -9,8 +9,10 @@
 
 #import "TiScrollingView.h"
 #import "TiUICollectionViewProxy.h"
+#import "TiUICollectionViewFlowLayout.h"
+#import "MGSwipeCollectionViewCell.h"
 @class TiCollectionView;
-@interface TiUICollectionView : TiScrollingView <UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver>
+@interface TiUICollectionView : TiScrollingView <MGSwipeTableCellDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUICollectionViewFlowLayoutDelegate>
 {
     BOOL allowsSelection;
 }

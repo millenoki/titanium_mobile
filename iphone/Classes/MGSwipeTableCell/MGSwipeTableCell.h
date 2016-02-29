@@ -187,13 +187,21 @@ typedef NS_ENUM(NSInteger, MGSwipeEasingFunction) {
 
 @end
 
+@protocol MGSwipeCell <NSObject>
+
+-(void) hideSwipeAnimated: (BOOL) animated;
+@property (nonatomic, weak) id delegate;
+@property (nonatomic, strong) MGSwipeExpansionSettings * leftExpansion;
+@property (nonatomic, strong) MGSwipeExpansionSettings * rightExpansion;
+@property (nonatomic, assign) CGFloat swipeOffset;
+@end
 
 /**
  * Swipe Cell class
  * To implement swipe cells you have to override from this class
  * You can create the cells programmatically, using xibs or storyboards
  */
-@interface MGSwipeTableCell : UITableViewCell
+@interface MGSwipeTableCell : UITableViewCell<MGSwipeCell>
 
 /** optional delegate (not retained) */
 @property (nonatomic, weak) id<MGSwipeTableCellDelegate> delegate;
@@ -252,3 +260,29 @@ typedef NS_ENUM(NSInteger, MGSwipeEasingFunction) {
 
 @end
 
+@interface MGSwipeButtonsView : UIView
+@property (nonatomic, weak) id<MGSwipeCell> cell;
+@property (nonatomic, strong) UIColor * backgroundColorCopy;
+-(instancetype) initWithButtons:(NSArray*) buttonsArray direction:(MGSwipeDirection) direction differentWidth:(BOOL) differentWidth;
+-(void) endExpansioAnimated:(BOOL) animated;
+-(void) expandToOffset:(CGFloat) offset settings:(MGSwipeExpansionSettings*) settings;
+-(void) transition:(MGSwipeTransition) mode percent:(CGFloat) t;
+-(UIView*) getExpandedButton;
+-(BOOL) handleClick: (id) sender fromExpansion:(BOOL) fromExpansion;
+@end
+
+#pragma mark Input Overlay Helper Class
+/** Used to capture table input while swipe buttons are visible*/
+@interface MGSwipeTableInputOverlay : UIView
+@property (nonatomic, weak) UIView<MGSwipeCell>* currentCell;
+@end
+
+
+@interface MGSwipeAnimationData : NSObject
+@property (nonatomic, assign) CGFloat from;
+@property (nonatomic, assign) CGFloat to;
+@property (nonatomic, assign) CFTimeInterval duration;
+@property (nonatomic, assign) CFTimeInterval start;
+@property (nonatomic, strong) MGSwipeAnimation * animation;
+
+@end

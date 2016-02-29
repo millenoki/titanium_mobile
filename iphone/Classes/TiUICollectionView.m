@@ -87,9 +87,9 @@
     
     NSInteger _currentSection;
     
-//    BOOL _canSwipeCells;
+    BOOL _canSwipeCells;
     BOOL _stickyHeaders;
-//    MGSwipeTableCell * _currentSwipeCell;
+    MGSwipeCollectionViewCell * _currentSwipeCell;
     
     id _appearAnimation;
     BOOL _useAppearAnimation;
@@ -124,8 +124,8 @@ static NSDictionary* replaceKeysForRow;
         searchViewAnimating = NO;
         _updateInsetWithKeyboard = NO;
         _currentSection = -1;
-//        _canSwipeCells = NO;
-        _stickyHeaders = NO;
+        _canSwipeCells = YES;
+        _stickyHeaders = YES;
         _appearAnimation = nil;
         _useAppearAnimation = NO;
     }
@@ -206,7 +206,7 @@ static NSDictionary* replaceKeysForRow;
         _tableView.alwaysBounceVertical = YES;
         
         id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
-        BOOL doSetBackground = (backgroundColor != nil);
+        BOOL doSetBackground = YES;
         if (doSetBackground) {
             [[self class] setBackgroundColor:[UIColor clearColor] onTable:_tableView];
         }
@@ -235,6 +235,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)reloadTableViewData {
 //    _canSwipeCells = NO;
     [_tableView reloadData];
+    [_shownIndexes removeAllObjects];
 }
 
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -702,7 +703,7 @@ static NSDictionary* replaceKeysForRow;
     if (searchActive) {
         [self buildResultsForSearchText];
     }
-    [self reloadTableViewData];
+    [_tableView reloadData];
 }
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
@@ -748,7 +749,7 @@ static NSDictionary* replaceKeysForRow;
 -(void)setStickyHeaders_:(id)args
 {
     TiUICollectionViewFlowLayout* layout = (TiUICollectionViewFlowLayout*)[self tableView].collectionViewLayout;
-    _stickyHeaders = [TiUtils boolValue:args def:YES];
+    _stickyHeaders = [TiUtils boolValue:args def:NO];
     [layout invalidateLayout];
 }
 
@@ -903,7 +904,7 @@ static NSDictionary* replaceKeysForRow;
         keepSectionsInSearch = [TiUtils boolValue:args def:NO];
         if (searchActive) {
             [self buildResultsForSearchText];
-            [self reloadTableViewData];
+            [_tableView reloadData];
         }
     } else {
         keepSectionsInSearch = NO;
@@ -976,7 +977,7 @@ static NSDictionary* replaceKeysForRow;
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
     if (searchActive) {
         [self buildResultsForSearchText];
-        [self reloadTableViewData];
+        [_tableView reloadData];
     }
 }
 
@@ -989,7 +990,7 @@ static NSDictionary* replaceKeysForRow;
     }
     self.searchString = [TiUtils stringValue:args];
     [self buildResultsForSearchText];
-    [self reloadTableViewData];
+    [_tableView reloadData];
 }
 
 -(void)setSearchViewExternal_:(id)args {
@@ -1312,6 +1313,7 @@ static NSDictionary* replaceKeysForRow;
             [cellProxy windowDidOpen];
         }
         [cell configurationSet];
+        cell.delegate = self;
         
         if ([TiUtils isIOS8OrGreater] && (collectionView == _tableView)) {
             [cell setLayoutMargins:UIEdgeInsetsZero];
@@ -1341,9 +1343,6 @@ static NSDictionary* replaceKeysForRow;
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
     
     id item = [theSection valueForKey:(kind == UICollectionElementKindSectionHeader)?@"headerView":@"footerView"];
-//    if (!item) {
-//        return nil;
-//    }
     id templateId = [item valueForKey:@"template"];
     if (templateId == nil) {
         templateId = (kind == UICollectionElementKindSectionHeader)?@"header":@"footer";
@@ -1351,8 +1350,8 @@ static NSDictionary* replaceKeysForRow;
    
     
     id template = [self.listViewProxy.templates objectForKey:templateId];
+    TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
     if (template != nil) {
-        TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
         if (view.proxy == nil) {
             id<TiEvaluator> context = self.listViewProxy.executionContext;
             if (context == nil) {
@@ -1374,16 +1373,18 @@ static NSDictionary* replaceKeysForRow;
             
             [viewProxy release];
         }
-        view.dataItem = item;
+        if (!item) {
+            view.hidden = true;
+        } else {
+            view.hidden = false;
+            view.dataItem = item;
+        }
         view.proxy.indexPath = realIndexPath;
         return view;
     } else {
-        TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
-
         TiViewProxy* child = [theSection sectionViewForLocation:@"headerView" inCollectionView:self];
         if (child && !child.parent) {
             //view is retained by the collectionView
-            TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
             id<TiEvaluator> context = self.listViewProxy.executionContext;
             if (context == nil) {
                 context = self.listViewProxy.pageContext;
@@ -1391,16 +1392,16 @@ static NSDictionary* replaceKeysForRow;
             TiUICollectionWrapperViewProxy *viewProxy = [[TiUICollectionWrapperViewProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
             [view initWithProxy:viewProxy];
             [view configurationStart];
-
+            [viewProxy windowWillOpen];
+            [viewProxy windowDidOpen];
             [viewProxy addProxy:child atIndex:0 shouldRelayout:YES];
             [view configurationSet];
-            
             if ([TiUtils isIOS8OrGreater] && (collectionView == _tableView)) {
                 [view setLayoutMargins:UIEdgeInsetsZero];
             }
             [viewProxy release];
+            view.hidden = false;
             view.proxy.indexPath = realIndexPath;
-//            return view;
         } else if (child) {
             //view is retained by the collectionView
             [view updateProxy:(TiUICollectionWrapperViewProxy*)child.parent forIndexPath:realIndexPath];
@@ -1408,6 +1409,76 @@ static NSDictionary* replaceKeysForRow;
         return view;
     }
     return nil;
+}
+#pragma mark - MGSwipeTableCell Delegate
+-(BOOL) swipeTableCell:(MGSwipeTableCell*) cell canSwipe:(MGSwipeDirection) direction fromPoint:(CGPoint) point {
+    if (!_canSwipeCells || (direction == MGSwipeDirectionLeftToRight && point.x < 30)) {
+        return NO;
+    }
+    if (IS_OF_CLASS(cell, TiUICollectionItem)) {
+        TiUICollectionItem* listItem = (TiUICollectionItem*)cell;
+        NSIndexPath* indexPath = listItem.proxy.indexPath;
+        BOOL isRight = (direction == MGSwipeDirectionRightToLeft);
+        
+        id theValue = [self valueWithKey:(isRight?@"canSwipeRight":@"canSwipeLeft") atIndexPath:indexPath];
+        if (theValue) {
+            return [theValue boolValue];
+        }
+        else {
+            return isRight?[listItem canSwipeRight]:[listItem canSwipeLeft];
+        }
+    }
+    return NO;
+}
+-(NSArray*) swipeTableCell:(MGSwipeTableCell*) cell swipeButtonsForDirection:(MGSwipeDirection)direction
+             swipeSettings:(MGSwipeSettings*) swipeSettings expansionSettings:(MGSwipeExpansionSettings*) expansionSettings
+{
+    if (!_canSwipeCells) {
+        return nil;
+    }
+    if (IS_OF_CLASS(cell, TiUICollectionItem)) {
+        TiUICollectionItem* listItem = (TiUICollectionItem*)cell;
+        //        NSIndexPath* indexPath = listItem.proxy.indexPath;
+        BOOL isRight = (direction == MGSwipeDirectionRightToLeft);
+        id theValue = [listItem.proxy valueForKey:(isRight?@"rightSwipeButtons":@"leftSwipeButtons")];
+        if (IS_OF_CLASS(theValue, NSArray)) {
+            NSMutableArray* buttonViews = [NSMutableArray arrayWithCapacity:[theValue count]];
+            [theValue enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                if (IS_OF_CLASS(obj, TiViewProxy)) {
+                    [(TiViewProxy*)obj setCanBeResizedByFrame:YES];
+                    [(TiViewProxy*)obj setCanRepositionItself:NO];
+                    //                        if ([(TiViewProxy*)obj viewAttached]) {
+                    //                            [(TiViewProxy*)obj refreshView];
+                    //                            [buttonViews addObject:[(TiViewProxy*)obj view]];
+                    //                        }
+                    //                        else {
+                    [buttonViews addObject:[(TiViewProxy*)obj getAndPrepareViewForOpening:listItem.bounds]];
+                    //                        }
+                }
+            }];
+            theValue = [NSArray arrayWithArray:buttonViews];
+        }
+        return theValue;
+    }
+    return nil;
+}
+
+-(void) swipeTableCell:(MGSwipeTableCell*) cell didChangeSwipeState:(MGSwipeState) state gestureIsActive:(BOOL) gestureIsActive {
+    if (state != MGSwipeStateNone) {
+        _currentSwipeCell = cell;
+    } else {
+        _currentSwipeCell = nil;
+    }
+}
+
+-(void)closeSwipeMenu:(NSNumber*)anim {
+    if (!_currentSwipeCell) return;
+    BOOL animated = YES;
+    if (anim != nil)
+        animated = [anim boolValue];
+    if (_currentSwipeCell) {
+        [_currentSwipeCell hideSwipeAnimated:animated];
+    }
 }
 
 
@@ -1653,8 +1724,8 @@ referenceSizeForHeaderInSection:(NSInteger)section
             if (cellProxy != nil) {
                 [cellProxy setDataItem:item];
                 CGSize autoSize = [cellProxy minimumParentSizeForSize:result];
-                result.width = [self collectionView:collectionView itemWidth:result.width];
-                result.height = [self collectionView:collectionView itemHeight:result.height];
+                result.width = [self collectionView:collectionView itemWidth:autoSize.width];
+                result.height = [self collectionView:collectionView itemHeight:autoSize.height];
             }
         }
     } else {
@@ -1694,8 +1765,8 @@ referenceSizeForHeaderInSection:(NSInteger)section
                 TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height))
             {
                 CGSize autoSize = [child minimumParentSizeForSize:result];
-                result.width = [self collectionView:collectionView itemWidth:result.width];
-                result.height = [self collectionView:collectionView itemHeight:result.height];
+                result.width = [self collectionView:collectionView itemWidth:autoSize.width];
+                result.height = [self collectionView:collectionView itemHeight:autoSize.height];
             }
         }
     }
@@ -1803,7 +1874,7 @@ referenceSizeForFooterInSection:(NSInteger)section
             NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath collectionView:_tableView];
             [event setObject:NUMINTEGER(indexPath.row) forKey:@"firstVisibleItem"];
             [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
-            TiViewProxy* headerView = [self currentSectionViewProxy:_currentSection forLocation:@"headerView"];
+            id headerView = [[self.listViewProxy sectionForIndex:_currentSection] valueForKey:@"headerView"];
             if (headerView) {
                 [event setObject:headerView forKey:@"headerView"];
             }
@@ -1982,7 +2053,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
     [self buildResultsForSearchText];
-    [self reloadTableViewData];
+    [_tableView reloadData];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
@@ -1990,7 +2061,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     if ([searchBar.text length] == 0) {
         self.searchString = @"";
         [self buildResultsForSearchText];
-        [self reloadTableViewData];
+        [_tableView reloadData];
     }
 }
 
@@ -1998,7 +2069,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     self.searchString = (searchText == nil) ? @"" : searchText;
     [self buildResultsForSearchText];
-    [self reloadTableViewData];
+    [_tableView reloadData];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
@@ -2048,7 +2119,7 @@ referenceSizeForFooterInSection:(NSInteger)section
         }
     }
     [searchViewProxy ensureSearchBarHeirarchy];
-    [self reloadTableViewData];
+    [_tableView reloadData];
     [self hideSearchScreen:nil];
 //    [self performSelector:@selector(hideSearchScreen:) withObject:nil afterDelay:0.2];
 }
@@ -2213,7 +2284,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 	if (found) {
 		return animationStyle;
 	}
-	BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:NO];
+	BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:YES];
 	return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
 }
 

@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import "TiUICollectionView.h"
 #import "TiUICollectionItemProxy.h"
+#import "MGSwipeCollectionViewCell.h"
 
 enum {
 	TiUICollectionItemTemplateStyleCustom = -1
@@ -24,7 +25,7 @@ typedef enum
 } TiGroupedCollectionItemPosition;
 
 
-@interface TiUICollectionItem : UICollectionViewCell<TiProxyDelegate>
+@interface TiUICollectionItem : MGSwipeCollectionViewCell<TiProxyDelegate>
 {
 }
 
@@ -38,7 +39,8 @@ typedef enum
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
 -(void)configurationStart;
 -(void)configurationSet;
-//- (BOOL) hasSwipeButtons;
+-(BOOL)canSwipeLeft;
+-(BOOL)canSwipeRight;
 @end
 
 #endif

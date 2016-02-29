@@ -380,16 +380,19 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 
 -(void) overrideEventObject:(NSMutableDictionary *)eventObject forEvent:(NSString *)eventType fromViewProxy:(TiProxy *)viewProxy
 {
-    [eventObject setObject:_wrapperView.dataItem forKey:@"item"];
-    [eventObject setObject:NUMINTEGER(_indexPath.section) forKey:@"sectionIndex"];
-    [eventObject setObject:NUMINTEGER(_indexPath.row) forKey:@"itemIndex"];
-    [eventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
-    id propertiesValue = [_wrapperView.dataItem objectForKey:@"properties"];
-    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
-    id itemId = [properties objectForKey:@"itemId"];
-    if (itemId != nil) {
-        [eventObject setObject:itemId forKey:@"itemId"];
+    if (_wrapperView.dataItem) {
+        [eventObject setObject:_wrapperView.dataItem forKey:@"item"];
+        id propertiesValue = [_wrapperView.dataItem objectForKey:@"properties"];
+        NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+        id itemId = [properties objectForKey:@"itemId"];
+        if (itemId != nil) {
+            [eventObject setObject:itemId forKey:@"itemId"];
+        }
     }
+    [eventObject setObject:NUMINTEGER(_indexPath.section) forKey:@"sectionIndex"];
+//    [eventObject setObject:NUMINTEGER(_indexPath.row) forKey:@"itemIndex"];
+    [eventObject setObject:[_listViewProxy sectionForIndex:_indexPath.section] forKey:@"section"];
+    
 }
 
 - (void)viewProxy:(TiProxy *)viewProxy updatedValue:(id)value forType:(NSString *)type;

@@ -267,6 +267,38 @@ static NSArray* handledKeys;
     [super layoutSubviews];
 }
 
+//override to get the correct backgroundColor
+-(UIColor *) backgroundColorForSwipe
+{
+    if (self.swipeBackgroundColor) {
+        return self.swipeBackgroundColor; //user defined color
+    }
+    return [[_viewHolder backgroundLayer] getColorForState:UIControlStateNormal];
+}
+
+-(BOOL)canSwipeLeft {
+    __block BOOL canSwipe = NO;
+    NSArray* buttons = [self.proxy valueForKey:@"leftSwipeButtons"];
+    [buttons enumerateObjectsUsingBlock:^(TiViewProxy* button, NSUInteger idx, BOOL *stop) {
+        if (!button.isHidden) {
+            canSwipe = YES;
+            *stop = YES;
+        }
+    }];
+    return canSwipe;
+}
+
+-(BOOL)canSwipeRight {
+    __block BOOL canSwipe = NO;
+    NSArray* buttons = [self.proxy valueForKey:@"rightSwipeButtons"];
+    [buttons enumerateObjectsUsingBlock:^(TiViewProxy* button, NSUInteger idx, BOOL *stop) {
+        if (!button.isHidden) {
+            canSwipe = YES;
+            *stop = YES;
+        }
+    }];
+    return canSwipe;
+}
 @end
 
 #endif
