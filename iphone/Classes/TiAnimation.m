@@ -214,7 +214,7 @@ static NSArray *animProps;
     return reverseProps;
 }
 
--(void)interlaApplyOptions:(NSDictionary*)options onProxy:(TiProxy*)theProxy fromProps:(BOOL)fromProps isFake:(BOOL)fake reverse:(BOOL)reverse {
+-(void)internalApplyOptions:(NSDictionary*)options onProxy:(TiProxy*)theProxy fromProps:(BOOL)fromProps isFake:(BOOL)fake reverse:(BOOL)reverse {
     NSString* prop = fromProps?@"from":@"to";
     NSMutableDictionary* realOptions = [NSMutableDictionary dictionaryWithDictionary:options];
     if (fake) {
@@ -235,10 +235,26 @@ static NSArray *animProps;
             }
         }
         [theProxy applyProperties:reverseProps];
+    } else if (!fromProps && !reverse) {
+        NSDictionary* from = [realOptions objectForKey:@"from"];
+        if (from) {
+            NSMutableDictionary* toProps = [[[NSMutableDictionary alloc]initWithCapacity:[from count]] autorelease];
+            id<NSFastEnumeration> keys = [from allKeys];
+            for (NSString* key in keys) {
+                id value = [theProxy valueForUndefinedKey:key];
+                if (value) {
+                    [toProps setObject:value forKey:key];
+                }
+                else {
+                    [toProps setObject:[NSNull null] forKey:key];
+                }
+            }
+            [theProxy applyProperties:toProps];
+        }
     }
     [realOptions enumerateKeysAndObjectsUsingBlock:^(NSString*  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         if (IS_OF_CLASS(obj, NSDictionary) && [theProxy bindingForKey:key]) {
-            [self interlaApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
+            [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
             [realOptions removeObjectForKey:key];
         }
     }];
@@ -253,27 +269,27 @@ static NSArray *animProps;
 }
 
 -(void)applyFromOptions:(TiProxy*)theProxy {
-    [self interlaApplyOptions:[self allProperties] onProxy:theProxy fromProps:YES isFake:YES reverse:NO];
+    [self internalApplyOptions:[self allProperties] onProxy:theProxy fromProps:YES isFake:YES reverse:NO];
 }
 
 -(void)applyToOptions:(TiProxy*)theProxy {
-    [self interlaApplyOptions:[self allProperties] onProxy:theProxy fromProps:NO isFake:YES reverse:NO];
+    [self internalApplyOptions:[self allProperties] onProxy:theProxy fromProps:NO isFake:YES reverse:NO];
 }
 
 
 -(void)applyFromOptionsForAnimation:(TiHLSAnimation*)anim
 {
-    [self interlaApplyOptions:[self allProperties] onProxy:self.animatedProxy fromProps:!anim.isReversed isFake:YES reverse:anim.isReversed];
+    [self internalApplyOptions:[self allProperties] onProxy:self.animatedProxy fromProps:!anim.isReversed isFake:YES reverse:anim.isReversed];
 }
 
 -(void)applyToOptionsForAnimation:(TiHLSAnimation*)anim
 {
-    [self interlaApplyOptions:[self allProperties] onProxy:self.animatedProxy fromProps:anim.isReversed isFake:YES reverse:anim.isReversed];
+    [self internalApplyOptions:[self allProperties] onProxy:self.animatedProxy fromProps:anim.isReversed isFake:YES reverse:anim.isReversed];
 }
 
 -(void)updateProxyProperties
 {
-    [self interlaApplyOptions:[self allProperties] onProxy:animatedProxy fromProps:NO isFake:NO reverse:NO];
+    [self internalApplyOptions:[self allProperties] onProxy:animatedProxy fromProps:NO isFake:NO reverse:NO];
 }
 
 
