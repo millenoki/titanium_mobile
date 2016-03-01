@@ -341,14 +341,14 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }, true);
 	}
 	
-	protected void notifyItemRangeRemoved(int positionStart, int itemCount) {
+	protected void notifyItemRangeRemoved(int childPositionStart, int itemCount) {
 	    notifyDataChange();
 	}
 	
-	protected void notifyItemRangeChanged(int positionStart, int itemCount) {
+	protected void notifyItemRangeChanged(int childPositionStart, int itemCount) {
         notifyDataChange();
     }
-	protected void notifyItemRangeInserted(int positionStart, int itemCount) {
+	protected void notifyItemRangeInserted(int childPositionStart, int itemCount) {
         notifyDataChange();
     }
     
@@ -869,7 +869,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		}
 		ProxyAbsListItem rootItem = itemProxy.getListItem();
 		
-//		if (!reusing) {
+		if (itemIndex >= 0) { //important in collectionView to ignore headers
 	        HashMap<String, Object> listViewProperties = getListView().getToPassProps();
 		    for (Map.Entry<String, Object> entry : listViewProperties.entrySet()) {
 	            String inProp = entry.getKey();
@@ -877,7 +877,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	                listItemProperties.put(inProp, entry.getValue());
 	            }
 	        }
-//		}
+		}
 		
 
 //		// find out if we need to update itemId

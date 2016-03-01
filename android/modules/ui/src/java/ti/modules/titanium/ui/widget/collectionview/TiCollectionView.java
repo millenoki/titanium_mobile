@@ -78,14 +78,14 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
+import eu.davidea.flexibleadapter.section.SectionAdapter;
 
 public class TiCollectionView extends TiUINonViewGroupView
-        implements OnSearchChangeListener, 
-        TiCollectionViewInterface, 
-        OnInstanceStateEvent ,
-        FlexibleAdapter.OnItemClickListener, FlexibleAdapter.OnItemLongClickListener,
-        FlexibleAdapter.OnItemMoveListener, FlexibleAdapter.OnItemSwipeListener
-        , FlexibleAdapter.OnStickyHeaderChangeListener{
+        implements OnSearchChangeListener, TiCollectionViewInterface,
+        OnInstanceStateEvent, FlexibleAdapter.OnItemClickListener,
+        FlexibleAdapter.OnItemLongClickListener,
+        FlexibleAdapter.OnItemMoveListener, FlexibleAdapter.OnItemSwipeListener,
+        FlexibleAdapter.OnStickyHeaderChangeListener {
     RecyclerView mRecyclerView;
     TiGridLayoutManager layoutManager;
     private TiBaseAdapter mAdapter;
@@ -123,8 +123,6 @@ public class TiCollectionView extends TiUINonViewGroupView
     private static final String defaultTemplateKey = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
     private static final TiAbsListViewTemplate defaultTemplate = new TiDefaultAbsListViewTemplate(
             defaultTemplateKey);
-    public static final String BLANK_HEADER_TEMPLATE_KEY = "__empty_header__";
-    private static TiAbsListViewTemplate blankHeaderTemplate = null;
 
     /*
      * We cache properties that already applied to the recycled list tiem in
@@ -147,7 +145,6 @@ public class TiCollectionView extends TiUINonViewGroupView
     public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
     public static final int BLANK_HEADER_ITEM_TYPE = 3;
     public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 4;
-    
 
     protected Pair<AbsListSectionProxy, Pair<Integer, Integer>> getSectionInfoByEntryIndex(
             int index) {
@@ -351,34 +348,18 @@ public class TiCollectionView extends TiUINonViewGroupView
     }
 
     public class TiBaseAdapter extends FlexibleAdapter
-            implements TiCollectionViewAdapter {
+            implements TiCollectionViewAdapter, SectionAdapter {
 
-        Activity context;
         private boolean canNotifyDataSetChanged = true;
         private Set mShownIndexes;
-        private boolean mCounted = false;
-        private int mCount = 0;
 
-        public TiBaseAdapter(Activity activity) {
-            super(TiCollectionView.this);
-            context = activity;
+        public TiBaseAdapter(final Context context, int[] expandedItemsSavedState) {
+            super(context, TiCollectionView.this);
         }
 
         public void setCanNotifyDataSetChanged(
                 final boolean canNotifyDataSetChanged) {
             this.canNotifyDataSetChanged = canNotifyDataSetChanged;
-        }
-
-        public void notifyDataChanged() {
-            if (!canNotifyDataSetChanged) {
-                return;
-            }
-            if (mShownIndexes != null) {
-                mShownIndexes.clear();
-            }
-            // canShowMenus = false;
-            mCounted = false;
-            super.notifyDataSetChanged();
         }
 
         @Override
@@ -439,52 +420,70 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
 
         @Override
-        public RecyclerView.ViewHolder onCreateNormalViewHolder(
-                ViewGroup parent, int viewType) {
-            return createViewHolder(parent, templatesByType.get(viewType));
+        public int getSectionCount() {
+            synchronized (sections) {
+                return sections.size();
+            }
         }
 
         @Override
-        public ViewHolder onCreateHeaderViewHolder(ViewGroup parent,
+        public int getChildCount(int groupPosition) {
+            synchronized (sections) {
+                if (groupPosition < sections.size()) {
+                    return sections.get(groupPosition).getItemCount();
+                }
+            }
+            return 0;
+        }
+
+        @Override
+        public long getChildId(int groupPosition, int childPosition) {
+            return RecyclerView.NO_ID;
+        }
+
+        private AbsListSectionProxy getSection(int groupPosition) {
+            synchronized (sections) {
+                if (groupPosition < sections.size()) {
+                    return sections.get(groupPosition);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public long getSectionId(int groupPosition) {
+            AbsListSectionProxy section = getSection(groupPosition);
+            if (section != null) {
+                return section.getIndex();
+            }
+            return RecyclerView.NO_ID;
+        }
+        
+
+        @Override
+        public RecyclerView.ViewHolder onCreateSectionHeaderViewHolder(
+                ViewGroup parent, int viewType) {
+            if (templatesByType.containsKey(viewType)) {
+                return createViewHolder(parent, templatesByType.get(viewType));
+            }
+            return null;
+        }
+
+        @Override
+        public ViewHolder onCreateSectionChildViewHolder(ViewGroup parent,
                 int viewType) {
             return createViewHolder(parent, templatesByType.get(viewType));
 
         }
 
-        // @Override
-        // public void onBindViewHolder(RecyclerView.ViewHolder holder,
-        // int position) {
-        //
-        // }
-
         @Override
-        public int getItemCount() {
-            if (mCounted) {
-                return mCount;
-            }
-            mCount = 0;
-            synchronized (sections) {
-                for (int i = 0; i < sections.size(); i++) {
-                    AbsListSectionProxy section = sections.get(i);
-                    mCount += section.getItemCount();
-                }
-            }
-            mCounted = true;
-            return mCount;
-        }
-
-        @Override
-        public void onBindNormalViewHolder(ViewHolder holder, int position,
-                boolean selected) {
-            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(
-                    position);
-            if (info == null) {
+        public void onBindSectionViewHolder(ViewHolder holder, int position, int sectionIndex,
+                int sectionItemIndex, boolean selected) {
+            AbsListSectionProxy section = getSection(sectionIndex);
+            if (section == null) {
                 return;
             }
-            AbsListSectionProxy section = info.first;
 
-            int sectionItemIndex = info.second.second;
-            int sectionIndex = info.second.first;
             // check marker
             if (sectionIndex > marker[0] || (sectionIndex == marker[0]
                     && sectionItemIndex >= marker[1])) {
@@ -537,20 +536,7 @@ public class TiCollectionView extends TiUINonViewGroupView
                         }
                     }
                 }
-
             }
-        }
-
-        @Override
-        public Integer getHeaderId(int position) {
-            // Get section info from index
-            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(
-                    position);
-            if (info != null) {
-                AbsListSectionProxy section = info.first;
-                return section.getIndex(); // return even for fake headers
-            }
-            return null;
         }
 
         @Override
@@ -559,122 +545,64 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
 
         @Override
-        public void onBindHeaderViewHolder(ViewHolder holder, int position) {
-            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(
-                    position);
-            if (info == null) {
-                // onBindNormalViewHolder(holder, position, false);
-                return;
-            }
-            int sectionItemIndex = info.second.second;
-            onBindNormalViewHolder(holder, position - sectionItemIndex, false);
-        }
-
-        @Override
-        public int getNormalViewType(int position) {
-            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(
-                    position);
-            if (info == null) {
+        public int getSectionViewType(int position, int groupPosition, int childPosition) {
+            AbsListSectionProxy section = getSection(groupPosition);
+            if (section == null) {
                 return -1; // should never happen!
             }
-            AbsListSectionProxy section = info.first;
-            int sectionItemIndex = info.second.second;
-            if (!section.hasHeader() && sectionItemIndex == 0) {
-                if (blankHeaderTemplate == null) {
-                    KrollDict template;
-                    try {
-                        template = new KrollDict("{properties:{height:0}}");
-                        blankHeaderTemplate = new TiAbsListViewTemplate(
-                                BLANK_HEADER_TEMPLATE_KEY, template);
-                        blankHeaderTemplate.setType(BLANK_HEADER_ITEM_TYPE);
-                        templatesByBinding.put(BLANK_HEADER_TEMPLATE_KEY,
-                                blankHeaderTemplate);
-                        templatesByType.put(blankHeaderTemplate.getType(),
-                                blankHeaderTemplate);
-                    } catch (JSONException e) {
-                    }
-                }
-                return getTemplate(BLANK_HEADER_TEMPLATE_KEY, true).getType();
+            if (!section.hasHeader()
+                    && childPosition == RecyclerView.NO_POSITION) {
+                return SECTION_NO_HEADER_VIEW_TYPE;
             }
             final String templateText = section
-                    .getTemplateByIndex(sectionItemIndex);
+                    .getTemplateByIndex(childPosition);
             return getTemplate(templateText, true).getType();
         }
 
         @Override
-        public int getHeaderViewType(int position) {
-            return getNormalViewType(position);
-        }
-
-        public void customNotifyItemRangeRemoved(final int sectionIndex,
-                int positionStart, int itemCount) {
-            for (AbsListItemProxy itemProxy : handledProxies) {
-                if (itemProxy.sectionIndex == sectionIndex
-                        && itemProxy.itemIndex >= positionStart + itemCount) {
-                    itemProxy.updateItemIndex(itemProxy.itemIndex - itemCount);
-                }
+        public void notifySectionDataSetChanged() {
+            if (!canNotifyDataSetChanged) {
+                return;
             }
-            final int realPosition = findItemPosition(sectionIndex,
-                    positionStart, true);
-            mCounted = false;
-            super.notifyItemRangeRemoved(realPosition, itemCount);
+            if (mShownIndexes != null) {
+                mShownIndexes.clear();
+            }
+            super.notifySectionDataSetChanged();
         }
 
-        public void customNotifyItemRangeInserted(final int sectionIndex,
-                int positionStart, int itemCount) {
-            final int realPosition = findItemPosition(sectionIndex,
-                    positionStart, true);
+        @Override
+        public void notifySectionItemRangeInserted(int groupPosition,
+                int childPosition, int itemCount) {
             for (AbsListItemProxy itemProxy : handledProxies) {
-                if (itemProxy.sectionIndex == sectionIndex
-                        && itemProxy.itemIndex >= positionStart + itemCount) {
+                if (itemProxy.sectionIndex == groupPosition
+                        && itemProxy.itemIndex >= childPosition + itemCount) {
                     itemProxy.updateItemIndex(itemProxy.itemIndex + itemCount);
                 }
             }
-            mCounted = false;
-            super.notifyItemRangeInserted(realPosition, itemCount);
-            mRecyclerView.scrollToPosition(realPosition);
+            super.notifySectionItemRangeInserted(groupPosition, childPosition, itemCount);
         }
 
-        public void customNotifyItemRangeChanged(final int sectionIndex,
-                int positionStart, int itemCount) {
-            final int realPosition = findItemPosition(sectionIndex,
-                    positionStart);
-            super.notifyItemRangeChanged(realPosition, itemCount);
-        }
 
-        public int findSectionStartPosition(int sectionIndex) {
-            int position = 0;
-            synchronized (sections) {
-                for (int i = 0; i < sections.size(); i++) {
-                    AbsListSectionProxy section = sections.get(i);
-                    if (i == sectionIndex) {
-                        break;
-                    } else {
-                        position += section.getItemCount();
-                    }
+        @Override
+        public void notifySectionItemRangeRemoved(int groupPosition,
+                int childPosition, int itemCount) {
+            for (AbsListItemProxy itemProxy : handledProxies) {
+                if (itemProxy.sectionIndex == groupPosition
+                        && itemProxy.itemIndex >= childPosition + itemCount) {
+                    itemProxy.updateItemIndex(itemProxy.itemIndex - itemCount);
                 }
             }
-            return position;
+            super.notifySectionItemRangeRemoved(groupPosition, childPosition, itemCount);
+
         }
 
         @Override
-        public int getHeaderPosition(int position) {
-            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(
-                    position);
-            if (info == null) {
-                // if (info == null || !info.first.hasHeader()) {
-                return -1;
-            }
-            return findSectionStartPosition(info.second.first);
-        }
-
-        @Override
-        public FrameLayout getStickyHeadersHolder() {
+        public FrameLayout getStickySectionHeadersHolder() {
             return getOrCreateBorderView();
         }
 
         @Override
-        public LayoutParams getStickyHeadersLayoutParams() {
+        public LayoutParams getStickySectionHeadersLayoutParams() {
             TiCompositeLayout.LayoutParams newParams = new TiCompositeLayout.LayoutParams(
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -701,10 +629,10 @@ public class TiCollectionView extends TiUINonViewGroupView
         sections = Collections
                 .synchronizedList(new ArrayList<AbsListSectionProxy>());
         itemTypeCount = new AtomicInteger(CUSTOM_TEMPLATE_ITEM_TYPE);
-        templatesByBinding = new HashMap<String, TiAbsListViewTemplate>();
         defaultTemplateBinding = defaultTemplateKey;
-        templatesByBinding.put(defaultTemplateKey, defaultTemplate);
         defaultTemplate.setType(BUILT_IN_TEMPLATE_ITEM_TYPE);
+        processTemplates(null);
+
         caseInsensitive = true;
 
         // handling marker
@@ -762,13 +690,13 @@ public class TiCollectionView extends TiUINonViewGroupView
             }
         };
 
-        mAdapter = new TiBaseAdapter(activity);
+        mAdapter = new TiBaseAdapter(mRecyclerView.getContext(), null);
         mAdapter.setDisplayHeaders(true);
         // mAdapter.enableStickyHeaders(100);
 
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             private boolean scrollTouch = false;
-            private int lastValidfirstItem = 0;
+//            private int lastValidfirstItem = 0;
             private Timer endTimer = null;
 
             public void cancelEndCall() {
@@ -909,7 +837,6 @@ public class TiCollectionView extends TiUINonViewGroupView
         mAdapter.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(mAdapter);
     }
-   
 
     public void setMarker(HashMap<String, Integer> markerItem) {
         marker[0] = markerItem.get(TiC.PROPERTY_SECTION_INDEX);
@@ -1040,10 +967,9 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
     }
 
-
     protected void notifyDataSetChanged() {
         if (mAdapter != null) {
-            mAdapter.notifyDataChanged();
+            mAdapter.notifySectionDataSetChanged();
         }
     }
 
@@ -1119,7 +1045,7 @@ public class TiCollectionView extends TiUINonViewGroupView
             break;
         case TiC.PROPERTY_STICKY_HEADERS:
             boolean enabled = TiConvert.toBoolean(newValue, true);
-            mAdapter.setStickyHeaders(enabled);
+            mAdapter.setStickySectionHeaders(enabled);
             break;
         case TiC.PROPERTY_CASE_INSENSITIVE_SEARCH:
             this.caseInsensitive = TiConvert.toBoolean(newValue, true);
@@ -1178,7 +1104,7 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
         case TiC.PROPERTY_SECTIONS:
             if (changedProperty) {
-                mProcessUpdateFlags &= ~TIFLAG_NEEDS_DATASET;
+                // mProcessUpdateFlags &= ~TIFLAG_NEEDS_DATASET;
                 processSectionsAndNotify((Object[]) newValue);
             } else {
                 // if user didn't append/modify/delete sections before this is
@@ -1189,7 +1115,8 @@ public class TiCollectionView extends TiUINonViewGroupView
                 // append/insert/deleted prior to this.
                 AbsListViewProxy listProxy = (AbsListViewProxy) proxy;
                 if (!listProxy.getPreload()) {
-                    processSections((Object[]) newValue);
+                    // mProcessUpdateFlags &= ~TIFLAG_NEEDS_DATASET;
+                    processSectionsAndNotify((Object[]) newValue);
                 }
             }
             break;
@@ -1424,7 +1351,9 @@ public class TiCollectionView extends TiUINonViewGroupView
     protected void processTemplates(HashMap<String, Object> templates) {
         templatesByBinding = new HashMap<String, TiAbsListViewTemplate>();
         templatesByType = new HashMap<Integer, TiAbsListViewTemplate>();
+        
         templatesByBinding.put(defaultTemplateKey, defaultTemplate);
+        templatesByType.put(defaultTemplate.getType(), defaultTemplate);
         if (templates != null) {
             for (String key : templates.keySet()) {
                 HashMap templateDict = (HashMap) templates.get(key);
@@ -1705,19 +1634,15 @@ public class TiCollectionView extends TiUINonViewGroupView
     }
 
     public void insert(final int position, final Object item) {
-        // listView.insert(position, item);
     }
 
     public void insert(final int position, final Object... items) {
-        // listView.insert(position, items);
     }
 
     public void remove(final int position) {
-        // listView.remove(position - listView.getHeaderViewsCount());
     }
 
     public void remove(final int position, final int count) {
-        // listView.remove(position - listView.getHeaderViewsCount(), count);
     }
 
     private static HashMap<String, String> TO_PASS_PROPS;

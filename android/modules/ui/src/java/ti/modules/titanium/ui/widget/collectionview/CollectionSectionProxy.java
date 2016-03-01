@@ -13,6 +13,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.support.v7.widget.RecyclerView;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy;
 import ti.modules.titanium.ui.widget.collectionview.TiCollectionView.TiBaseAdapter;
@@ -41,16 +42,14 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
         case TiC.PROPERTY_FOOTER_VIEW:
             hasHeader = newValue != null;
             if (hasHeader && adapter instanceof TiBaseAdapter) {
-                int startPosition = ((TiBaseAdapter) adapter).findSectionStartPosition(sectionIndex);
-                ((TiBaseAdapter)adapter).notifyItemChanged(startPosition);
+                notifyItemRangeChanged(RecyclerView.NO_POSITION, 1);
             }
             break;
         case TiC.PROPERTY_HEADER_TITLE:
         case TiC.PROPERTY_FOOTER_TITLE:
             hasFooter = newValue != null;
             if (hasFooter && adapter instanceof TiBaseAdapter) {
-                int startPosition = ((TiBaseAdapter) adapter).findSectionStartPosition(sectionIndex);
-                ((TiBaseAdapter)adapter).notifyItemChanged(startPosition + mCurrentItemCount);
+                notifyItemRangeChanged(getItemCount() - 1, 1);
             }
             break;
         default:
@@ -78,9 +77,9 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
         totalCount -= getHiddenCount();
 
         if (!hideHeaderOrFooter() && (totalCount > 0 || !hideWhenEmpty)) {
-            if (hasHeader()) {
-                totalCount += 1;
-            }
+//            if (hasHeader()) {
+//                totalCount += 1;
+//            }
             // footer must be counted in!
             if (hasFooter()) {
                 totalCount += 1;
@@ -99,26 +98,26 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
         return !hideHeaderOrFooter() && hasFooter;
     }
 
-    public int getUserItemIndexFromSectionPosition(final int position) {
-        int result = position;
-        if (hasHeader()) {
-            result -= 1;
-        }
-        return super.getUserItemIndexFromSectionPosition(result);
-    }
+//    public int getUserItemIndexFromSectionPosition(final int position) {
+//        int result = position;
+//        if (hasHeader()) {
+//            result -= 1;
+//        }
+//        return super.getUserItemIndexFromSectionPosition(result);
+//    }
 
-    public int getUserItemInversedIndexFromSectionPosition(final int position) {
-        int result = position;
-        if (hasHeader()) {
-            result -= 1;
-        }
-        return super.getUserItemInversedIndexFromSectionPosition(result);
-    }
+//    public int getUserItemInversedIndexFromSectionPosition(final int position) {
+//        int result = position;
+//        if (hasHeader()) {
+//            result -= 1;
+//        }
+//        return super.getUserItemInversedIndexFromSectionPosition(result);
+//    }
 
     @Override
-    public HashMap getListItem(int position) {
+    public HashMap getListItem(int itemPosition) {
         boolean hasHeader = hasHeader();
-        if (hasHeader && position == 0) {
+        if (hasHeader && itemPosition == RecyclerView.NO_POSITION) {
             Object item = getProperty(TiC.PROPERTY_HEADER_VIEW);
             if (item instanceof HashMap) {
                 return (HashMap) item;
@@ -126,24 +125,24 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
             return null;
         }
 
-        if (hasFooter() && position == getItemCount()) {
+        if (hasFooter() && itemPosition == getItemCount()) {
             Object item = getProperty(TiC.PROPERTY_FOOTER_VIEW);
             if (item instanceof HashMap) {
                 return (HashMap) item;
             }
             return null;
         }
-        if (hasHeader) {
-            position -= 1;
-        }
+//        if (hasHeader) {
+//            position -= 1;
+//        }
 
-        return super.getListItem(position);
+        return super.getListItem(itemPosition);
     }
 
     @Override
-    public String getTemplateByIndex(int position) {
+    public String getTemplateByIndex(int itemPosition) {
         boolean hasHeader = hasHeader();
-        if (hasHeader && position == 0) {
+        if (hasHeader && itemPosition == RecyclerView.NO_POSITION) {
             Object item = getProperty(TiC.PROPERTY_HEADER_VIEW);
             if (item instanceof HashMap) {
                 return TiConvert.toString((HashMap) item, TiC.PROPERTY_TEMPLATE,
@@ -153,7 +152,7 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
                 // we need to return a unique
             }
         }
-        if (hasFooter() && position == getItemCount()) {
+        if (hasFooter() && itemPosition == getItemCount()) {
             Object item = getProperty(TiC.PROPERTY_FOOTER_VIEW);
             if (item instanceof HashMap) {
                 return TiConvert.toString((HashMap) item, TiC.PROPERTY_TEMPLATE,
@@ -161,42 +160,68 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
             }
             return "__customFooter__";
         }
-        if (hasHeader) {
-            position -= 1;
-        }
         if (isFilterOn()) {
             return TiConvert.toString(
-                    getItemDataAt(filterIndices.get(position)),
+                    getItemDataAt(filterIndices.get(itemPosition)),
                     TiC.PROPERTY_TEMPLATE);
         } else {
-            return TiConvert.toString(getItemDataAt(position),
+            return TiConvert.toString(getItemDataAt(itemPosition),
                     TiC.PROPERTY_TEMPLATE);
         }
     }
-
+    
     @Override
-    protected void notifyItemRangeRemoved(int positionStart, int itemCount) {
+    public void notifyDataChange() {
         if (adapter instanceof TiBaseAdapter) {
-            ((TiBaseAdapter) adapter)
-                    .customNotifyItemRangeRemoved(this.sectionIndex, positionStart, itemCount);
+            getMainHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    ((TiBaseAdapter) adapter).notifySectionDataSetChanged();
+                }
+            });
+        } else {
+            super.notifyDataChange();
         }
     }
 
     @Override
-    protected void notifyItemRangeChanged(int positionStart, int itemCount) {
+    protected void notifyItemRangeRemoved(int childPositionStart, int itemCount) {
         if (adapter instanceof TiBaseAdapter) {
             ((TiBaseAdapter) adapter)
-                    .customNotifyItemRangeChanged(this.sectionIndex, positionStart, itemCount);
+                    .notifySectionItemRangeRemoved(this.sectionIndex, childPositionStart, itemCount);
         }
     }
 
     @Override
-    protected void notifyItemRangeInserted(int positionStart, int itemCount) {
+    protected void notifyItemRangeChanged(int childPositionStart, int itemCount) {
         if (adapter instanceof TiBaseAdapter) {
             ((TiBaseAdapter) adapter)
-                    .customNotifyItemRangeInserted(this.sectionIndex, positionStart, itemCount);
+                    .notifySectionItemRangeChanged(this.sectionIndex, childPositionStart, itemCount);
+        }
+    }
+
+    @Override
+    protected void notifyItemRangeInserted(int childPositionStart, int itemCount) {
+        if (adapter instanceof TiBaseAdapter) {
+            ((TiBaseAdapter) adapter)
+                    .notifySectionItemRangeInserted(this.sectionIndex, childPositionStart, itemCount);
         }
 
     }
-
+    
+    @Override
+    public void setVisible(boolean value) {
+        if (hidden == !value) return;
+        hidden = !value;
+        if (adapter instanceof TiBaseAdapter) {
+            if (hidden) {
+                ((TiBaseAdapter) adapter).collapseSection(this.sectionIndex, true);
+            } else {
+                ((TiBaseAdapter) adapter).expandSection(this.sectionIndex, true);
+            }
+        } else {
+            notifyDataChange();
+        }
+        
+    }
 }
