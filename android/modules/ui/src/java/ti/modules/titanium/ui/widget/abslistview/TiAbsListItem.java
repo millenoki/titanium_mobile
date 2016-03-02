@@ -23,7 +23,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
+//import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
@@ -39,13 +39,14 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
     private boolean hasRightButtons = false;
     private List<TiViewProxy> leftButtons = null;
     
+//    private final static int sPressedStateDuration = ViewConfiguration.getPressedStateDuration();
+//    private final float mSlop;
     private List<TiViewProxy> rightButtons = null;
-	public TiAbsListItem(TiViewProxy proxy) {
-		super(proxy);
-	}
 
 	public TiAbsListItem(TiViewProxy proxy, View v, View item_layout) {
 		super(proxy);
+//		mSlop = ViewConfiguration.get(item_layout.getContext()).getScaledTouchSlop();
+
         layoutParams.sizeOrFillWidthEnabled = true;
         layoutParams.autoFillsWidth = true;
 		listItemLayout = item_layout;
@@ -57,7 +58,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 	
     private TiViewProxy handleCreateProxy(Object value) {
         TiViewProxy viewProxy = (TiViewProxy) proxy.createProxyFromObject(value,
-                proxy, false);
+                proxy, true);
         if (viewProxy != null) {
             AbsListItemProxy itemProxy = (AbsListItemProxy) proxy;
             viewProxy.setParent(proxy);
@@ -181,32 +182,50 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 		if (listItemLayout != null) {
 			listItemLayout = null;
 		}
-		removeUnsetPressCallback();
+//		removeUnsetPressCallback();
 		super.release();
 	}
 
-	private boolean prepressed = false;
-	private final class UnsetPressedState implements Runnable {
-        public void run() {
-            if (nativeView != null) {
-                nativeView.setPressed(false);
-            }
-        }
-    }
-    private UnsetPressedState mUnsetPressedState;
+//	private boolean prepressed = false;
+//	private final class UnsetPressedState implements Runnable {
+//        public void run() {
+//            if (nativeView != null) {
+//                nativeView.setPressed(false);
+//            }
+//        }
+//    }
+//	private final class SetPressedState implements Runnable {
+//        public void run() {
+//            if (nativeView != null) {
+//                prepressed = false;
+//                nativeView.setPressed(true);
+//            }
+//        }
+//    }
+//	private UnsetPressedState mUnsetPressedState;
+//    private SetPressedState mSetPressedState;
     /**
      * Remove the prepress detection timer.
      */
-    private void removeUnsetPressCallback() {
-        if (nativeView != null && nativeView.isPressed() && mUnsetPressedState != null) {
-            nativeView.setPressed(false);
-            nativeView.removeCallbacks(mUnsetPressedState);
-        }
-    }
+//    private void removeUnsetPressCallback() {
+//        if (nativeView != null) {
+//            if (nativeView.isPressed()) {
+//                nativeView.setPressed(false);
+//            }
+//            if (mUnsetPressedState != null) {
+//                nativeView.removeCallbacks(mUnsetPressedState);
+//                mUnsetPressedState = null;
+//            }
+//            if (mSetPressedState != null) {
+//                nativeView.removeCallbacks(mSetPressedState);
+//                mSetPressedState = null;
+//            }
+//        }
+//    }
     
     public boolean pointInView(final View view, float localX, float localY, float slop) {
-        return localX >= -slop && localY >= -slop && localX < ((view.getRight() - view.getLeft()) + slop) &&
-                localY < ((view.getBottom() - view.getTop()) + slop);
+        return localX >= -slop && localY >= -slop && localX < ((view.getRight() - view.getX()) + slop) &&
+                localY < ((view.getBottom() - view.getY()) + slop);
     }
     
     @SuppressLint("NewApi")
@@ -221,75 +240,95 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
         return false;
     }
     
+    
+    
     @Override
     public void onTouchEvent(MotionEvent event, TiUIView fromView) {
         if (fromView == this)
             return;
 
         if (nativeView != null && !fromView.getPreventListViewSelection()) {
-            final boolean pressed = nativeView.isPressed();
-
-            if (nativeView.isEnabled() == false) {
-                if (event.getAction() == MotionEvent.ACTION_UP && pressed) {
-                    nativeView.setPressed(false);
-                }
-                return;
+            final int action = event.getAction();
+            int[] location = new int[2];
+            if (action != MotionEvent.ACTION_DOWN || viewContainsTouch(nativeView,event.getRawX(), event.getRawY(), location)) {
+                nativeView.onTouchEvent(event);
             }
-
-            if (nativeView.isClickable() || nativeView.isLongClickable()) {
-                switch (event.getAction()) {
-                case MotionEvent.ACTION_UP:
-                    if (pressed || prepressed) {
-
-                        if (prepressed) {
-                            // The button is being released before we actually
-                            // showed it as pressed. Make it show the pressed
-                            // state now (before scheduling the click) to ensure
-                            // the user sees it.
-                            nativeView.setPressed(true);
-                        }
-                        if (mUnsetPressedState == null) {
-                            mUnsetPressedState = new UnsetPressedState();
-                        }
-                        if (prepressed) {
-                            nativeView
-                                    .postDelayed(mUnsetPressedState,
-                                            ViewConfiguration
-                                                    .getPressedStateDuration());
-                        } else if (!nativeView.post(mUnsetPressedState)) {
-                            // If the post failed, unpress right now
-                            mUnsetPressedState.run();
-                        }
-                    }
-                    break;
-
-                case MotionEvent.ACTION_DOWN:
-                        prepressed = true;
-                    break;
-
-                case MotionEvent.ACTION_CANCEL:
-                    nativeView.setPressed(false);
-                    break;
-
-                case MotionEvent.ACTION_MOVE:
-                    final int x = (int) event.getX();
-                    final int y = (int) event.getY();
-
-                    // Be lenient about moving outside of buttons
-                    if (!pointInView(nativeView, x, y,
-                            ViewConfiguration.get(getContext())
-                                    .getScaledTouchSlop())) {
-                        if (pressed) {
-                            nativeView.setPressed(false);
-                        }
-                    }
-                    else if (!pressed) {
-                        prepressed = false;
-                        nativeView.setPressed(true);
-                    }
-                    break;
-                }
-            }
+//            final boolean pressed = nativeView.isPressed();
+//
+//            if (nativeView.isEnabled() == false) {
+//                if (event.getAction() == MotionEvent.ACTION_UP && pressed) {
+//                    nativeView.setPressed(false);
+//                }
+//                return;
+//            }
+//
+//            if (nativeView.isClickable() || nativeView.isLongClickable()) {
+//                switch (event.getAction()) {
+//                case MotionEvent.ACTION_UP:
+//                    if (mSetPressedState != null) {
+//                        nativeView.removeCallbacks(mSetPressedState);
+//                        mSetPressedState = null;
+//                    }
+//                    if (pressed || prepressed) {
+//                        
+//                        if (prepressed) {
+//                            final int x = (int) event.getX();
+//                            final int y = (int) event.getY();
+//                            if (pointInView(nativeView, x, y, mSlop)) {
+//                                nativeView.drawableHotspotChanged(x, y);
+//                                // The button is being released before we actually
+//                                // showed it as pressed. Make it show the pressed
+//                                // state now (before scheduling the click) to ensure
+//                                // the user sees it.
+//                                nativeView.setPressed(true);
+//                            } else {
+//                                prepressed = false;
+//                            }
+//                        }
+//                        if (mUnsetPressedState == null) {
+//                            mUnsetPressedState = new UnsetPressedState();
+//                        }
+//                        if (prepressed) {
+//                            nativeView.postDelayed(mUnsetPressedState, sPressedStateDuration);
+//                        } else if (!nativeView.post(mUnsetPressedState)) {
+//                            // If the post failed, unpress right now
+//                            mUnsetPressedState.run();
+//                        }
+//                    }
+//                    break;
+//
+//                case MotionEvent.ACTION_DOWN:
+//                        prepressed = true;
+//                    break;
+//
+//                case MotionEvent.ACTION_CANCEL:
+//                    if (mSetPressedState != null) {
+//                        nativeView.removeCallbacks(mSetPressedState);
+//                        mSetPressedState = null;
+//                    }
+//                    prepressed = false;
+//                    nativeView.setPressed(false);
+//                    break;
+//
+//                case MotionEvent.ACTION_MOVE:
+//                    final int x = (int) event.getX();
+//                    final int y = (int) event.getY();
+//                    // Be lenient about moving outside of buttons
+//                    if (!pointInView(nativeView, x, y,mSlop)) {
+//                        if (pressed) {
+//                            nativeView.setPressed(false);
+//                        }
+//                    }
+//                    else if (!pressed) {
+//                        if (mSetPressedState == null) {
+//                            mSetPressedState = new SetPressedState();
+//                            nativeView.postDelayed(mSetPressedState, sPressedStateDuration);
+//                        }
+//
+//                    }
+//                    break;
+//                }
+//            }
         }
     }
 

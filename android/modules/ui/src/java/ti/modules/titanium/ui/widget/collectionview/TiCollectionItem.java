@@ -9,10 +9,6 @@ import android.view.View;
 import ti.modules.titanium.ui.widget.abslistview.TiAbsListItem;
 
 public class TiCollectionItem extends TiAbsListItem {
-
-    public TiCollectionItem(TiViewProxy proxy) {
-        super(proxy);
-    }
     
     public TiCollectionItem(TiViewProxy proxy, View v, View item_layout) {
         super(proxy, v, item_layout);

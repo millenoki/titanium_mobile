@@ -68,7 +68,7 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
 
 	public TiUIView createView(final Activity activity)
 	{
-		return new TiAbsListItem(this);
+		return null;
 	}
 
 	public void setListProxy(final TiViewProxy list)

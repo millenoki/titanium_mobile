@@ -8,12 +8,15 @@
 package ti.modules.titanium.ui.widget.collectionview;
 
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.abslistview.AbsListViewProxy;
+import ti.modules.titanium.ui.widget.listview.TiListView;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,propertyAccessors = {
@@ -67,5 +70,26 @@ public class CollectionViewProxy extends AbsListViewProxy {
     @Override
     public Class sectionClass() {
         return CollectionSectionProxy.class;
+    }
+    
+    public void handleCloseSwipeMenu(Object obj) {
+        Boolean animated = true;
+        if (obj != null) {
+            animated = TiConvert.toBoolean(obj);
+        }
+        TiUIView listView = peekView();
+        if (listView != null) {
+            ((TiCollectionView) listView).closeSwipeMenu(animated);
+        }
+    }
+
+    @Kroll.method()
+    public void closeSwipeMenu(final @Kroll.argument(optional = true) Object obj) {
+        runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                handleCloseSwipeMenu(obj);                
+            }
+        }, false);
     }
 }

@@ -26,6 +26,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiLifecycle.OnInstanceStateEvent;
 import org.appcelerator.titanium.animation.TiAnimation;
+import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
@@ -36,6 +37,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUINonViewGroupView;
 import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONException;
+
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import ti.modules.titanium.ui.SearchBarProxy;
 import ti.modules.titanium.ui.UIModule;
@@ -51,33 +54,44 @@ import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItemHolder;
 import ti.modules.titanium.ui.widget.abslistview.TiCollectionViewAdapter;
 import ti.modules.titanium.ui.widget.abslistview.TiCollectionViewInterface;
 import ti.modules.titanium.ui.widget.abslistview.TiDefaultAbsListViewTemplate;
+import ti.modules.titanium.ui.widget.collectionview.SwipeMenuTouchListener.SwipeMenuCallback;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
 import android.animation.Animator;
+import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorInflater;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Rect;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.view.Gravity;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
-import eu.davidea.flexibleadapter.items.AbstractFlexibleItem;
+import eu.davidea.flexibleadapter.common.DividerItemDecoration;
+import eu.davidea.flexibleadapter.common.PendingItemAnimator;
 import eu.davidea.flexibleadapter.section.SectionAdapter;
 
 public class TiCollectionView extends TiUINonViewGroupView
@@ -85,11 +99,10 @@ public class TiCollectionView extends TiUINonViewGroupView
         OnInstanceStateEvent, FlexibleAdapter.OnItemClickListener,
         FlexibleAdapter.OnItemLongClickListener,
         FlexibleAdapter.OnItemMoveListener, FlexibleAdapter.OnItemSwipeListener,
-        FlexibleAdapter.OnStickyHeaderChangeListener {
-    RecyclerView mRecyclerView;
+        FlexibleAdapter.OnStickyHeaderChangeListener, SwipeMenuCallback {
+    FastScrollRecyclerView mRecyclerView;
     TiGridLayoutManager layoutManager;
     private TiBaseAdapter mAdapter;
-    private HeaderDecoration headerDecoration;
     private List<AbsListSectionProxy> sections;
     private AtomicInteger itemTypeCount;
     private String defaultTemplateBinding;
@@ -117,8 +130,10 @@ public class TiCollectionView extends TiUINonViewGroupView
 
     private Set<AbsListItemProxy> handledProxies;
 
-    private int overallXScroll = 0;
-    private int overallYScroll = 0;
+//    private int overallXScroll = 0;
+//    private int overallYScroll = 0;
+
+    private SwipeMenuTouchListener mSwipeMenuTouchListener;
 
     private static final String defaultTemplateKey = UIModule.LIST_ITEM_TEMPLATE_DEFAULT;
     private static final TiAbsListViewTemplate defaultTemplate = new TiDefaultAbsListViewTemplate(
@@ -144,7 +159,8 @@ public class TiCollectionView extends TiUINonViewGroupView
     public static final int FOOTER_VIEW_TYPE = 1;
     public static final int BUILT_IN_TEMPLATE_ITEM_TYPE = 2;
     public static final int BLANK_HEADER_ITEM_TYPE = 3;
-    public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 4;
+    public static final int CUSTOM_PROXY_ITEM_TYPE = 4;
+    public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 5;
 
     protected Pair<AbsListSectionProxy, Pair<Integer, Integer>> getSectionInfoByEntryIndex(
             int index) {
@@ -261,83 +277,10 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
     }
 
-    public class HeaderDecoration extends RecyclerView.ItemDecoration {
-
-        private final View mView;
-        private final GridLayoutManager layoutManager;
-
-        public HeaderDecoration(View view, GridLayoutManager layoutManager) {
-            mView = view;
-            this.layoutManager = layoutManager;
-        }
-
-        @Override
-        public void onDraw(Canvas c, RecyclerView parent,
-                RecyclerView.State state) {
-            super.onDraw(c, parent, state);
-            // layout basically just gets drawn on the reserved space on top of
-            // the first view
-            mView.layout(parent.getLeft(), 0, parent.getRight(),
-                    mView.getMeasuredHeight());
-
-            for (int i = 0; i < parent.getChildCount(); i++) {
-                View view = parent.getChildAt(i);
-                if (parent.getChildAdapterPosition(view) == 0) {
-                    c.save();
-                    if (this.layoutManager
-                            .getLayoutDirection() == GridLayoutManager.HORIZONTAL) {
-                        c.clipRect(parent.getLeft(), parent.getTop(),
-                                view.getLeft(), parent.getBottom());
-                        mView.draw(c);
-
-                    } else {
-                        c.clipRect(parent.getLeft(), parent.getTop(),
-                                parent.getRight(), view.getTop());
-                        mView.draw(c);
-                    }
-                    c.restore();
-                    break;
-                }
-            }
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                RecyclerView.State state) {
-            if (parent.getChildAdapterPosition(view) < layoutManager
-                    .getSpanCount()) {
-                if (this.layoutManager
-                        .getLayoutDirection() == GridLayoutManager.HORIZONTAL) {
-                    if (mView.getMeasuredWidth() <= 0) {
-                        mView.measure(
-                                View.MeasureSpec.makeMeasureSpec(
-                                        parent.getMeasuredWidth(),
-                                        View.MeasureSpec.AT_MOST),
-                                View.MeasureSpec.makeMeasureSpec(
-                                        parent.getMeasuredHeight(),
-                                        View.MeasureSpec.AT_MOST));
-                    }
-                    outRect.set(mView.getMeasuredWidth(), 0, 0, 0);
-                } else {
-                    if (mView.getMeasuredHeight() <= 0) {
-                        mView.measure(
-                                View.MeasureSpec.makeMeasureSpec(
-                                        parent.getMeasuredWidth(),
-                                        View.MeasureSpec.AT_MOST),
-                                View.MeasureSpec.makeMeasureSpec(
-                                        parent.getMeasuredHeight(),
-                                        View.MeasureSpec.AT_MOST));
-                    }
-                    outRect.set(0, mView.getMeasuredHeight(), 0, 0);
-                }
-            } else {
-                outRect.setEmpty();
-            }
-        }
-    }
-
-    class CollectionViewHolder extends RecyclerView.ViewHolder {
+    class CollectionViewHolder extends SwipeMenuViewHolder
+            implements AnimatorListener {
         TiBaseAbsListViewItem itemContent;
+        Animator mCurrentAnimator = null;
 
         public CollectionViewHolder(final TiBaseAbsListViewItemHolder content) {
             super(content);
@@ -345,15 +288,68 @@ public class TiCollectionView extends TiUINonViewGroupView
                     .findViewById(listContentId);
 
         }
+
+        public void prepareForReuse() {
+            if (mCurrentAnimator != null) {
+                mCurrentAnimator.cancel();
+                mCurrentAnimator = null;
+            }
+        }
+
+        public void setCurrentAnimator(Animator animator) {
+            mCurrentAnimator = animator;
+            mCurrentAnimator.addListener(this);
+        }
+
+        @Override
+        public boolean canShowLeftMenu() {
+            return itemContent.getListItem().canShowRightMenu();
+        }
+
+        @Override
+        public boolean canShowRightMenu() {
+            return itemContent.getListItem().canShowLeftMenu();
+        }
+
+        @Override
+        public View[] getLeftButtons() {
+            return itemContent.getListItem().getLeftButtons();
+        }
+
+        @Override
+        public View[] getRightButtons() {
+            return itemContent.getListItem().getRightButtons();
+        }
+
+        @Override
+        public void onAnimationStart(Animator animation) {
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            mCurrentAnimator = null;
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+            mCurrentAnimator = null;
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+        }
+
     }
 
     public class TiBaseAdapter extends FlexibleAdapter
-            implements TiCollectionViewAdapter, SectionAdapter {
+            implements TiCollectionViewAdapter, SectionAdapter,
+            FastScrollRecyclerView.SectionedAdapter {
 
         private boolean canNotifyDataSetChanged = true;
         private Set mShownIndexes;
 
-        public TiBaseAdapter(final Context context, int[] expandedItemsSavedState) {
+        public TiBaseAdapter(final Context context,
+                int[] expandedItemsSavedState) {
             super(context, TiCollectionView.this);
         }
 
@@ -395,19 +391,24 @@ public class TiCollectionView extends TiUINonViewGroupView
 
         public RecyclerView.ViewHolder createViewHolder(ViewGroup parent,
                 TiAbsListViewTemplate template) {
-            if (template == null) {
-                return null; // should never happen!
-            }
+
             TiBaseAbsListViewItem itemContent = null;
             TICollectionViewItemHolder content = new TICollectionViewItemHolder(
                     getContext());
-            content.setTag(template.getType());
             itemContent = (TiBaseAbsListViewItem) content
                     .findViewById(listContentId);
 
-            AbsListItemProxy itemProxy = template.generateCellProxy(proxy,
-                    getCellProxyRootType());
+            AbsListItemProxy itemProxy = null;
+            if (template != null) {
+                content.setTag(template.getType());
+                itemProxy = template.generateCellProxy(proxy,
+                        getCellProxyRootType());
+            } else {
+                itemProxy = new CollectionItemProxy();
+            }
             itemProxy.setListProxy(proxy);
+            
+
             addHandledProxy(itemProxy);
             TiCollectionItem listItem = new TiCollectionItem(itemProxy,
                     itemContent, content);
@@ -415,6 +416,7 @@ public class TiCollectionView extends TiUINonViewGroupView
             itemProxy.setView(listItem);
             itemContent.setView(listItem);
             itemProxy.realizeViews();
+            
 
             return new CollectionViewHolder(content);
         }
@@ -458,11 +460,14 @@ public class TiCollectionView extends TiUINonViewGroupView
             }
             return RecyclerView.NO_ID;
         }
-        
 
         @Override
         public RecyclerView.ViewHolder onCreateSectionHeaderViewHolder(
                 ViewGroup parent, int viewType) {
+            if (viewType == CUSTOM_PROXY_ITEM_TYPE) {
+                return createViewHolder(parent, null);
+
+            }
             if (templatesByType.containsKey(viewType)) {
                 return createViewHolder(parent, templatesByType.get(viewType));
             }
@@ -477,8 +482,8 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
 
         @Override
-        public void onBindSectionViewHolder(ViewHolder holder, int position, int sectionIndex,
-                int sectionItemIndex, boolean selected) {
+        public void onBindSectionViewHolder(ViewHolder holder, int position,
+                int sectionIndex, int sectionItemIndex, boolean selected) {
             AbsListSectionProxy section = getSection(sectionIndex);
             if (section == null) {
                 return;
@@ -492,37 +497,73 @@ public class TiCollectionView extends TiUINonViewGroupView
                 }
                 resetMarker();
             }
-            // Handling templates
-            HashMap item = section.getListItem(sectionItemIndex);
-            if (item == null || !(holder instanceof CollectionViewHolder)) {
+            
+            if (!(holder instanceof CollectionViewHolder)) {
                 return;
             }
+            
+            // Handling templates
+            HashMap item = section.getListItem(sectionItemIndex);
             TiBaseAbsListViewItem itemContent = ((CollectionViewHolder) holder).itemContent;
             if (itemContent == null) {
                 return;
             }
-            TiAbsListViewTemplate template = getTemplate(
-                    TiConvert.toString(item, TiC.PROPERTY_TEMPLATE), true);
+
+            TiAbsListViewTemplate template = null;
+            if (item != null) {
+                template = getTemplate(TiConvert.toString(item, TiC.PROPERTY_TEMPLATE), true);
+            }
             boolean reusing = sectionIndex != itemContent.sectionIndex
                     || itemContent.itemIndex >= section.getItemCount()
-                    || item != section.getListItem(itemContent.itemIndex);
-            section.populateViews(item, itemContent, template, sectionItemIndex,
-                    sectionIndex, holder.itemView, reusing);
+                    || (item != null && item != section.getListItem(itemContent.itemIndex));
+            if (reusing) {
+                ((CollectionViewHolder) holder).prepareForReuse();
+            }
+            if (template != null) {
+                section.populateViews(item, itemContent, template, sectionItemIndex,
+                        sectionIndex, holder.itemView, reusing);
+            } else {
+                AbsListItemProxy itemProxy = (AbsListItemProxy) itemContent.getProxy();
+                int realItemIndex = section.getUserItemIndexFromSectionPosition(sectionItemIndex);
+                itemContent.setCurrentItem(sectionIndex, realItemIndex, section);
+                itemProxy.setCurrentItem(sectionIndex, realItemIndex, section, item);
+                if (section.hasHeader() && sectionItemIndex == RecyclerView.NO_POSITION) {
+                    KrollProxy childProxy = section.getHoldedProxy(TiC.PROPERTY_HEADER_VIEW);
+                    if (childProxy instanceof ParentingProxy && ((ParentingProxy) childProxy).getParent() != itemContent.getProxy()) {
+                        itemContent.getProxy().removeAllChildren();
+                        itemContent.getProxy().add(childProxy);
+                    }
+                }
+            }
+            ((TiBaseAbsListViewItemHolder) itemContent.getParent()).setItem(itemContent, item, mRecyclerView);
+
             if (holder.itemView instanceof TiBaseAbsListViewItemHolder) {
                 ((TiBaseAbsListViewItemHolder) holder.itemView)
                         .setItem(itemContent, item, mRecyclerView);
 
             }
+
+            if (holder instanceof SwipeMenuViewHolder) {
+                boolean isOpenedMenu = position == mSwipeMenuTouchListener
+                        .getCurrentMenuPosition();
+                if (isOpenedMenu) {
+                    ((SwipeMenuViewHolder) holder).swipeMenu.openMenu(
+                            mSwipeMenuTouchListener.getCurrentMenuDirection());
+                } else if (reusing) {
+                    ((SwipeMenuViewHolder) holder).swipeMenu.closeMenu();
+                }
+            }
+
             if (mUseAppearAnimation) {
                 if (mShownIndexes == null) {
                     mShownIndexes = new HashSet<Integer>();
                 }
                 if (!mShownIndexes.contains(position)) {
                     mShownIndexes.add(position);
+                    Animator animator = null;
                     if (mAppearAnimators != null) {
-                        Animator anim = mAppearAnimators.clone();
-                        anim.setTarget(holder.itemView);
-                        anim.start();
+                        animator = mAppearAnimators.clone();
+                        animator.setTarget(holder.itemView);
                     } else {
                         Object anim = item.get("appearAnimation");
                         if (anim == null) {
@@ -530,10 +571,13 @@ public class TiCollectionView extends TiUINonViewGroupView
                         }
                         if (anim != null) {
                             AbsListItemProxy proxy = itemContent.getProxy();
-                            Animator animator = proxy
-                                    .getAnimatorSetForAnimation(anim);
-                            animator.start();
+                            animator = proxy.getAnimatorSetForAnimation(anim);
                         }
+                    }
+                    if (animator != null) {
+                        ((CollectionViewHolder) holder)
+                                .setCurrentAnimator(animator);
+                        animator.start();
                     }
                 }
             }
@@ -545,7 +589,8 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
 
         @Override
-        public int getSectionViewType(int position, int groupPosition, int childPosition) {
+        public int getSectionViewType(int position, int groupPosition,
+                int childPosition) {
             AbsListSectionProxy section = getSection(groupPosition);
             if (section == null) {
                 return -1; // should never happen!
@@ -556,6 +601,9 @@ public class TiCollectionView extends TiUINonViewGroupView
             }
             final String templateText = section
                     .getTemplateByIndex(childPosition);
+            if (templateText == "__custom__") {
+                return CUSTOM_PROXY_ITEM_TYPE;
+            }
             return getTemplate(templateText, true).getType();
         }
 
@@ -568,6 +616,7 @@ public class TiCollectionView extends TiUINonViewGroupView
                 mShownIndexes.clear();
             }
             super.notifySectionDataSetChanged();
+            mSwipeMenuTouchListener.closeMenusAnimated();
         }
 
         @Override
@@ -579,9 +628,9 @@ public class TiCollectionView extends TiUINonViewGroupView
                     itemProxy.updateItemIndex(itemProxy.itemIndex + itemCount);
                 }
             }
-            super.notifySectionItemRangeInserted(groupPosition, childPosition, itemCount);
+            super.notifySectionItemRangeInserted(groupPosition, childPosition,
+                    itemCount);
         }
-
 
         @Override
         public void notifySectionItemRangeRemoved(int groupPosition,
@@ -592,8 +641,9 @@ public class TiCollectionView extends TiUINonViewGroupView
                     itemProxy.updateItemIndex(itemProxy.itemIndex - itemCount);
                 }
             }
-            super.notifySectionItemRangeRemoved(groupPosition, childPosition, itemCount);
-
+            super.notifySectionItemRangeRemoved(groupPosition, childPosition,
+                    itemCount);
+            mSwipeMenuTouchListener.closeMenusAnimated();
         }
 
         @Override
@@ -613,6 +663,28 @@ public class TiCollectionView extends TiUINonViewGroupView
             return newParams;
         }
 
+        @Override
+        public String getSectionName(int position) {
+            return String.valueOf(position);
+            // int sectionIndex = getSectionIndex(position);
+            // int sectionItemIndex = getSectionItemIndex(position);
+            // AbsListSectionProxy section = getSection(sectionIndex);
+            // if (section == null) {
+            // return null;
+            // }
+            // HashMap item = section.getListItem(sectionItemIndex);
+            // if (item == null) {
+            // return null;
+            // }
+            // return TiConvert.toString(item, TiC.PROPERTY_SEARCHABLE_TEXT);
+        }
+
+        @Override
+        public boolean shoudlIgnoreSectionName(int position) {
+            int childPosition = getSectionItemIndex(position);
+            return childPosition == RecyclerView.NO_POSITION;
+        }
+
     }
 
     private void addHandledProxy(final AbsListItemProxy proxy) {
@@ -620,6 +692,79 @@ public class TiCollectionView extends TiUINonViewGroupView
             handledProxies = new HashSet<AbsListItemProxy>();
         }
         handledProxies.add(proxy);
+    }
+
+    public static Point getScreenDimensions(Context context) {
+        WindowManager wm = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+        DisplayMetrics dm = new DisplayMetrics();
+        display.getMetrics(dm);
+
+        Point point = new Point();
+        point.set(dm.widthPixels, dm.heightPixels);
+        return point;
+    }
+
+    public class TiItemAnimator
+            extends PendingItemAnimator<CollectionViewHolder> {
+        public TiItemAnimator() {
+            setSupportsChangeAnimations(false);
+            setMoveDuration(200);
+            setRemoveDuration(200);
+            setAddDuration(300);
+            setChangeDuration(0);
+        }
+
+        @Override
+        protected boolean prepHolderForAnimateRemove(
+                CollectionViewHolder holder) {
+            return true;
+        }
+
+        @Override
+        protected ViewPropertyAnimatorCompat animateRemoveImpl(
+                CollectionViewHolder holder) {
+            Point screen = getScreenDimensions(holder.itemView.getContext());
+            int top = holder.itemView.getTop();
+            return ViewCompat.animate(holder.itemView).rotation(80)
+                    .translationY(screen.y - top)
+                    .setInterpolator(new AccelerateInterpolator());
+        }
+
+        @Override
+        protected void onRemoveCanceled(CollectionViewHolder holder) {
+            ViewCompat.setTranslationY(holder.itemView, 0);
+            ViewCompat.setRotation(holder.itemView, 0);
+        }
+
+        @Override
+        protected void animateRemoveEnded(CollectionViewHolder holder) {
+            super.animateRemoveEnded(holder);
+            ViewCompat.setTranslationY(holder.itemView, 0);
+            ViewCompat.setRotation(holder.itemView, 0);
+        }
+
+        @Override
+        protected boolean prepHolderForAnimateAdd(CollectionViewHolder holder) {
+            int bottom = holder.itemView.getBottom();
+            ViewCompat.setTranslationY(holder.itemView, -bottom);
+            return true;
+        }
+
+        @Override
+        protected ViewPropertyAnimatorCompat animateAddImpl(
+                CollectionViewHolder holder) {
+            return ViewCompat.animate(holder.itemView).translationY(0)
+                    .setInterpolator(new OvershootInterpolator());
+        }
+
+        @Override
+        protected void onAddCanceled(CollectionViewHolder holder) {
+            ViewCompat.setTranslationY(holder.itemView, 0);
+            ViewCompat.setRotation(holder.itemView, 0);
+        }
     }
 
     public TiCollectionView(TiViewProxy proxy, Activity activity) {
@@ -646,7 +791,11 @@ public class TiCollectionView extends TiUINonViewGroupView
 
         final KrollProxy fProxy = proxy;
         layoutManager = new TiGridLayoutManager(activity);
-        mRecyclerView = new RecyclerView(activity) {
+
+        // trick to get scrollbar to be initialized!
+        mRecyclerView = new FastScrollRecyclerView(activity, null,
+                Resources.getSystem().getIdentifier("listViewStyle", "attr",
+                        "android")) {
 
             @Override
             protected void onLayout(boolean changed, int left, int top,
@@ -692,11 +841,17 @@ public class TiCollectionView extends TiUINonViewGroupView
 
         mAdapter = new TiBaseAdapter(mRecyclerView.getContext(), null);
         mAdapter.setDisplayHeaders(true);
-        // mAdapter.enableStickyHeaders(100);
+        mSwipeMenuTouchListener = new SwipeMenuTouchListener(this);
+        mRecyclerView.addOnItemTouchListener(mSwipeMenuTouchListener);
+        // mRecyclerView.setItemAnimator(new TiItemAnimator());
+        mRecyclerView.setId(0x08);
+        mRecyclerView.setHorizontalScrollBarEnabled(false);
+        mRecyclerView.setVerticalScrollBarEnabled(true);
+        mRecyclerView.setHasFixedSize(true);
 
+        layoutManager.setSmoothScrollbarEnabled(true);
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             private boolean scrollTouch = false;
-//            private int lastValidfirstItem = 0;
             private Timer endTimer = null;
 
             public void cancelEndCall() {
@@ -753,8 +908,8 @@ public class TiCollectionView extends TiUINonViewGroupView
 
             @Override
             public void onScrolled(RecyclerView view, int dx, int dy) {
-                overallXScroll = overallXScroll + dx;
-                overallYScroll = overallYScroll + dy;
+//                overallXScroll = overallXScroll + dx;
+//                overallYScroll = overallYScroll + dy;
                 if (dx == 0 && dy == 0) {
                     return;
                 }
@@ -770,7 +925,7 @@ public class TiCollectionView extends TiUINonViewGroupView
                     // Log.d(TAG, "newScrollOffset : " + newScrollOffset,
                     // Log.DEBUG_MODE);
                     fProxy.fireEvent(TiC.EVENT_SCROLL,
-                            dictForScrollEvent(overallXScroll, overallYScroll),
+                            dictForScrollEvent(),
                             false, false);
                 }
             }
@@ -829,7 +984,34 @@ public class TiCollectionView extends TiUINonViewGroupView
         } catch (ResourceNotFoundException e) {
             Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
         }
-        setNativeView(mRecyclerView);
+
+        RelativeLayout layout = new RelativeLayout(proxy.getActivity()) {
+            @Override
+            protected void onLayout(boolean changed, int left, int top,
+                    int right, int bottom) {
+                super.onLayout(changed, left, top, right, bottom);
+                if (changed) {
+                    TiUIHelper.firePostLayoutEvent(TiCollectionView.this);
+                }
+            }
+
+            @Override
+            public void dispatchSetPressed(boolean pressed) {
+                if (propagateSetPressed(this, pressed)) {
+                    super.dispatchSetPressed(pressed);
+                }
+            }
+
+            @Override
+            public boolean dispatchTouchEvent(MotionEvent event) {
+                if (touchPassThrough(getParentViewForChild(), event))
+                    return false;
+                return super.dispatchTouchEvent(event);
+            }
+
+        };
+        layout.addView(mRecyclerView);
+        setNativeView(layout);
 
         // needs to be fired after because
         // getStickyHeadersHolder will be called and need nativeView
@@ -864,14 +1046,16 @@ public class TiCollectionView extends TiUINonViewGroupView
         eventArgs.put("visibleItemCount",
                 lastVisiblePosition - firstVisibleItem);
         KrollDict point = new KrollDict();
-        point.put(TiC.PROPERTY_X, xScroll);
-        point.put(TiC.PROPERTY_Y, yScroll);
+        point.put(TiC.PROPERTY_X, new TiDimension(xScroll, TiDimension.TYPE_WIDTH).getAsDefault());
+        point.put(TiC.PROPERTY_Y, new TiDimension(yScroll, TiDimension.TYPE_HEIGHT).getAsDefault());
         eventArgs.put("contentOffset", point);
         return eventArgs;
     }
 
     protected KrollDict dictForScrollEvent() {
-        return dictForScrollEvent(overallXScroll, overallYScroll);
+        return dictForScrollEvent(
+                mRecyclerView.computeHorizontalScrollOffset(), 
+                mRecyclerView.computeVerticalScrollOffset());
     }
 
     protected void processSections(Object[] sections) {
@@ -977,10 +1161,50 @@ public class TiCollectionView extends TiUINonViewGroupView
         return "Ti.UI.CollectionItem";
     }
 
+    // private DragScrollBar mFastScroller;
+    private DividerItemDecoration mDividerDecoration;
     @Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
         switch (key) {
+        case "fastScroller":
+            HashMap args = TiConvert.toHashMap(newValue);
+            if (args != null) {
+                mRecyclerView.setFastScrollEnabled(true);
+                mRecyclerView.setVerticalScrollBarEnabled(false);
+                // if (mFastScroller == null) {
+                // mFastScroller = new DragScrollBar(getContext(),
+                // mRecyclerView, false);
+                // mFastScroller.addIndicator(new CustomIndicator(getContext()),
+                // true);
+                // mFastScroller.setZ(100);
+                // mFastScroller.setBackgroundColor(Color.RED);;
+                // }
+                // mFastScroller.setVisibility(View.VISIBLE);
+                if (args.containsKey("color")) {
+                    int color = TiConvert.toColor(args, "color");
+                    mRecyclerView.setThumbColor(color);
+                    mRecyclerView.setPopupBgColor(color);
+                }
+                // if (args.containsKey("barColor")) {
+                // mFastScroller.setBarColour(TiConvert.toColor(args,
+                // "barColor"));
+                // }
+                // if (args.containsKey("textColour")) {
+                // mFastScroller.setTextColour(TiConvert.toColor(args,
+                // "textColour"));
+                // }
+            } else {
+                mRecyclerView.setFastScrollEnabled(false);
+                mRecyclerView.setVerticalScrollBarEnabled(TiConvert.toBoolean(
+                        proxy.getProperty(
+                                TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR),
+                        true));
+                // if (mFastScroller != null) {
+                // mFastScroller.setVisibility(View.GONE);
+                // }
+            }
+            break;
         case TiC.PROPERTY_SCROLLING_ENABLED:
             layoutManager.setScrollEnabled(TiConvert.toBoolean(newValue));
             break;
@@ -1063,26 +1287,26 @@ public class TiCollectionView extends TiUINonViewGroupView
         // }
         // break;
         // }
-        case TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED:
-            // {
-            // AbsListView internalListView = getInternalListView();
-            // if (internalListView instanceof ListView) {
-            // ((ListView)
-            // internalListView).setFooterDividersEnabled(TiConvert.toBoolean(newValue,
-            // false));
-            // }
-            // break;
-            // }
-            // case TiC.PROPERTY_HEADER_DIVIDERS_ENABLED:
-            // {
-            // AbsListView internalListView = getInternalListView();
-            // if (internalListView instanceof ListView) {
-            // ((ListView)
-            // internalListView).setHeaderDividersEnabled(TiConvert.toBoolean(newValue,
-            // false));
-            // }
-            // break;
-            // }
+        // case TiC.PROPERTY_FOOTER_DIVIDERS_ENABLED:
+        // {
+        // AbsListView internalListView = getInternalListView();
+        // if (internalListView instanceof ListView) {
+        // ((ListView)
+        // internalListView).setFooterDividersEnabled(TiConvert.toBoolean(newValue,
+        // false));
+        // }
+        // break;
+        // }
+        // case TiC.PROPERTY_HEADER_DIVIDERS_ENABLED:
+        // {
+        // AbsListView internalListView = getInternalListView();
+        // if (internalListView instanceof ListView) {
+        // ((ListView)
+        // internalListView).setHeaderDividersEnabled(TiConvert.toBoolean(newValue,
+        // false));
+        // }
+        // break;
+        // }
         case TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR:
             mRecyclerView.setVerticalScrollBarEnabled(
                     TiConvert.toBoolean(newValue, true));
@@ -1120,12 +1344,25 @@ public class TiCollectionView extends TiUINonViewGroupView
                 }
             }
             break;
-        // case TiC.PROPERTY_SEPARATOR_STYLE:
-        // Drawable drawable = listView.getDivider();
-        // listView.setDivider(drawable);
-        // listView.setDividerHeight(TiConvert.toInt(newValue));
-        // mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
-        // break;
+         case TiC.PROPERTY_SEPARATOR_STYLE:
+             int height = (int) TiUIHelper.getInPixels(newValue);
+             if (height == 0) {
+//                 if (mDividerDecoration != null) {
+//                     mRecyclerView.removeItemDecoration(mDividerDecoration);
+//                 }
+                 if (mDividerDecoration != null) {
+                     mDividerDecoration.setDividerHeight(height);
+                     mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
+                 }
+             } else {
+                 if (mDividerDecoration == null) {
+                     mDividerDecoration = new DividerItemDecoration(getContext());
+                     mRecyclerView.addItemDecoration(mDividerDecoration);
+                 }
+                 mDividerDecoration.setDividerHeight(height);
+                 mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
+             }
+         break;
         case TiC.PROPERTY_OVER_SCROLL_MODE:
             // if (Build.VERSION.SDK_INT >= 9) {
             mRecyclerView.setOverScrollMode(
@@ -1140,25 +1377,14 @@ public class TiCollectionView extends TiUINonViewGroupView
             setHeaderTitle(TiConvert.toString(newValue));
             mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
             break;
-        // case TiC.PROPERTY_FOOTER_VIEW:
-        // setHeaderOrFooterView(newValue, false);
-        // mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
-        // break;
-        // case TiC.PROPERTY_FOOTER_TITLE:
-        // // if (footerView == null || footerView.getId() !=
-        // // HEADER_FOOTER_WRAP_ID) {
-        // // if (footerView == null) {
-        // // footerView = inflater.inflate(headerFooterId, null);
-        // // }
-        // setFooterTitle(TiConvert.toString(newValue));
-        // // }
-        // mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
-        // break;
-        // case TiC.PROPERTY_PULL_VIEW:
-        // ((RefreshableListView) listView)
-        // .setHeaderPullView(setPullView(newValue));
-        // mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
-        // break;
+         case TiC.PROPERTY_FOOTER_VIEW:
+         setHeaderOrFooterView(newValue, false);
+         mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
+         break;
+         case TiC.PROPERTY_FOOTER_TITLE:
+         setFooterTitle(TiConvert.toString(newValue));
+         mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
+         break;
         case "reverseDrawingOrder":
             boolean reversed = TiConvert.toBoolean(newValue, false);
             if (reversed) {
@@ -1235,11 +1461,23 @@ public class TiCollectionView extends TiUINonViewGroupView
         view.setCustomLayoutParams(
                 new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT,
                         ListView.LayoutParams.WRAP_CONTENT));
-        if (headerDecoration == null) {
-            headerDecoration = new HeaderDecoration(view.getOuterView(),
-                    layoutManager);
+        mAdapter.addHeaderView(view.getOuterView(), null, false);
+        return vp;
+    }
+    
+    private ViewProxy getOrCreateFooterWrapperView() {
+        ViewProxy vp = (ViewProxy) this.proxy.getHoldedProxy("footerWrapper");
+        if (vp == null) {
+            KrollDict props = new KrollDict();
+            props.put("width", "FILL");
+            props.put("height", "SIZE");
+            props.put("layout", "vertical");
+            props.put("touchPassThrough", true);
+            vp = (ViewProxy) this.proxy.addProxyToHold(props, "footerWrapper");
         }
-        mRecyclerView.addItemDecoration(headerDecoration);
+        TiUIView view = ((ViewProxy)vp).getOrCreateView();
+        view.setCustomLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT));
+        mAdapter.addFooterView(view.getOuterView(), null, false);
         return vp;
     }
 
@@ -1269,6 +1507,18 @@ public class TiCollectionView extends TiUINonViewGroupView
         result.put(TiC.PROPERTY_TEXT, text);
         return result;
     }
+    private static KrollDict DEFAULT_FOOTER_DICT = null;
+    public static KrollDict footerViewDict(final String text) {
+        try {
+            if (DEFAULT_FOOTER_DICT == null) {
+                DEFAULT_FOOTER_DICT = new KrollDict("{type:'Ti.UI.Label',font:{size:14},padding:{left:8, right:8,top:8, bottom:8},color:'#ccc',width:'FILL',left:15,right:15}");
+            }
+        } catch (JSONException e) {
+        }
+        KrollDict result = new KrollDict(DEFAULT_FOOTER_DICT);
+        result.put(TiC.PROPERTY_TEXT, text);
+        return result;
+    }
 
     private void setHeaderOrFooterView(Object viewObj, boolean isHeader) {
         KrollProxy viewProxy = proxy.addProxyToHold(viewObj,
@@ -1277,18 +1527,26 @@ public class TiCollectionView extends TiUINonViewGroupView
             if (isHeader) {
                 getOrCreateHeaderWrapperView().add(viewProxy, 1);
             } else {
-                // getOrCreateFooterWrapperView().add(viewProxy, 1);
+                 getOrCreateFooterWrapperView().add(viewProxy, 1);
             }
         }
     }
 
     public void setHeaderTitle(String title) {
         if (title != null) {
-            ViewProxy vp = (ViewProxy) this.proxy
-                    .addProxyToHold(headerViewDict(title), "headerView");
+            ViewProxy vp = (ViewProxy) this.proxy.addProxyToHold(headerViewDict(title), "headerView");
             getOrCreateHeaderWrapperView().add(vp, 1);
         } else {
             this.proxy.removeHoldedProxy("headerView");
+        }
+    }
+    
+    public void setFooterTitle(String title) {
+        if (title != null) {
+            ViewProxy vp = (ViewProxy) this.proxy.addProxyToHold(footerViewDict(title), "footerView");
+            getOrCreateFooterWrapperView().add(vp, 1);
+        } else {
+            this.proxy.removeHoldedProxy("footerView");
         }
     }
 
@@ -1351,7 +1609,7 @@ public class TiCollectionView extends TiUINonViewGroupView
     protected void processTemplates(HashMap<String, Object> templates) {
         templatesByBinding = new HashMap<String, TiAbsListViewTemplate>();
         templatesByType = new HashMap<Integer, TiAbsListViewTemplate>();
-        
+
         templatesByBinding.put(defaultTemplateKey, defaultTemplate);
         templatesByType.put(defaultTemplate.getType(), defaultTemplate);
         if (templates != null) {
@@ -1569,8 +1827,9 @@ public class TiCollectionView extends TiUINonViewGroupView
 
         if (mRecyclerView != null) {
             mRecyclerView.setAdapter(null);
-            if (headerDecoration != null) {
-                mRecyclerView.removeItemDecoration(headerDecoration);
+            if (mDividerDecoration != null) {
+                mRecyclerView.removeItemDecoration(mDividerDecoration);
+                mDividerDecoration = null;
             }
             mRecyclerView = null;
         }
@@ -1781,6 +2040,34 @@ public class TiCollectionView extends TiUINonViewGroupView
             data.put(TiC.PROPERTY_SECTION, section);
             data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
             proxy.fireEvent(TiC.EVENT_HEADER_CHANGE, data, false, false);
+        }
+    }
+
+    @Override
+    public void onStartSwipe(SwipeMenuViewHolder holder, int direction) {
+    }
+
+    @Override
+    public void onMenuShown(SwipeMenuViewHolder holder, int direction) {
+    }
+
+    @Override
+    public void onMenuClosed(SwipeMenuViewHolder holder, int direction) {
+    }
+
+    @Override
+    public void beforeMenuShow(SwipeMenuViewHolder holder, int direction) {
+    }
+
+    @Override
+    public void beforeMenuClose(SwipeMenuViewHolder holder, int direction) {
+    }
+
+    public void closeSwipeMenu(Boolean animated) {
+        if (animated) {
+            mSwipeMenuTouchListener.closeMenusAnimated();
+        } else {
+            mSwipeMenuTouchListener.closeMenus();
         }
     }
 

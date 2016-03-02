@@ -445,7 +445,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                 }
             }
         }
-        notifyItemRangeChanged(0, updates.length);
+//        notifyItemRangeChanged(0, updates.length);
     }
 	
 	private boolean updateVisibleState(final HashMap item, final int index) {
@@ -493,7 +493,6 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             preload = true;
             return;
         }
-        notifyItemRangeChanged(0, 1);
         runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
@@ -517,7 +516,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                 }
             }
         }, false);
-        
+//        notifyItemRangeChanged(index, 1);
     }
 	
 	

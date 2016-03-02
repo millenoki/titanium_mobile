@@ -613,10 +613,13 @@ static NSDictionary* replaceKeysForRow;
 -(id)firstItemValueForKeys:(NSArray*)keys atIndexPath:(NSIndexPath*)indexPath
 {
     NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
-    NSDictionary* properties = [item objectForKey:@"properties"]?[item objectForKey:@"properties"]:item;
+    NSDictionary* properties = [item objectForKey:@"properties"];
     __block id theResult = nil;
     [keys enumerateObjectsUsingBlock:^(NSString* key, NSUInteger idx, BOOL *stop) {
-        theResult = [properties objectForKey:key];
+        theResult = [item objectForKey:key];
+        if (!theResult && properties) {
+            theResult = [item objectForKey:key];
+        }
         if (theResult) {
             *stop = YES;
         }

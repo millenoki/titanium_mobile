@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.collectionview;
 
 import java.util.HashMap;
 
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
@@ -16,6 +17,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.support.v7.widget.RecyclerView;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy;
+import ti.modules.titanium.ui.widget.abslistview.TiAbsListView;
 import ti.modules.titanium.ui.widget.collectionview.TiCollectionView.TiBaseAdapter;
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class CollectionSectionProxy extends AbsListSectionProxy {
@@ -39,19 +41,57 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
             boolean changedProperty) {
         switch (key) {
         case TiC.PROPERTY_HEADER_VIEW:
-        case TiC.PROPERTY_FOOTER_VIEW:
-            hasHeader = newValue != null;
-            if (hasHeader && adapter instanceof TiBaseAdapter) {
-                notifyItemRangeChanged(RecyclerView.NO_POSITION, 1);
-            }
-            break;
         case TiC.PROPERTY_HEADER_TITLE:
-        case TiC.PROPERTY_FOOTER_TITLE:
-            hasFooter = newValue != null;
-            if (hasFooter && adapter instanceof TiBaseAdapter) {
+        {
+            boolean newBool = true;
+            if (newValue instanceof String) {
+                 addProxyToHold(TiAbsListView.headerViewDict(TiConvert.toString(newValue)), TiC.PROPERTY_HEADER_VIEW);
+             } else if (newValue instanceof HashMap) {
+                 
+             } else if (newValue instanceof KrollProxy) {
+                 addProxyToHold(newValue, TiC.PROPERTY_HEADER_VIEW);
+             } else {
+                 removeHoldedProxy(TiC.PROPERTY_HEADER_VIEW);
+                 newBool = false;
+             }
+            if (newBool != hasHeader) {
+                hasHeader = newBool;
+                if (newBool) {
+                    notifyItemRangeInserted(getItemCount() - 1, 1);
+                } else {
+                    notifyItemRangeRemoved(getItemCount() - 1, 1);
+                }
+            } else {
                 notifyItemRangeChanged(getItemCount() - 1, 1);
             }
             break;
+        }
+        case TiC.PROPERTY_FOOTER_VIEW:
+        case TiC.PROPERTY_FOOTER_TITLE:
+        {
+           boolean newBool = true;
+           if (newValue instanceof String) {
+                addProxyToHold(TiAbsListView.footerViewDict(TiConvert.toString(newValue)), TiC.PROPERTY_FOOTER_VIEW);
+            } else if (newValue instanceof HashMap) {
+                
+            } else if (newValue instanceof KrollProxy) {
+                addProxyToHold(newValue, TiC.PROPERTY_FOOTER_VIEW);
+            } else {
+                removeHoldedProxy(TiC.PROPERTY_FOOTER_VIEW);
+                newBool = false;
+            }
+           if (newBool != hasFooter) {
+               hasFooter = newBool;
+               if (newBool) {
+                   notifyItemRangeInserted(getItemCount() - 1, 1);
+               } else {
+                   notifyItemRangeRemoved(getItemCount() - 1, 1);
+               }
+           } else {
+               notifyItemRangeChanged(getItemCount() - 1, 1);
+           }
+           break;
+        }
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
@@ -143,22 +183,23 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
     public String getTemplateByIndex(int itemPosition) {
         boolean hasHeader = hasHeader();
         if (hasHeader && itemPosition == RecyclerView.NO_POSITION) {
-            Object item = getProperty(TiC.PROPERTY_HEADER_VIEW);
-            if (item instanceof HashMap) {
-                return TiConvert.toString((HashMap) item, TiC.PROPERTY_TEMPLATE,
-                        "header");
+            
+            KrollProxy proxy = getHoldedProxy(TiC.PROPERTY_HEADER_VIEW);
+            if (proxy != null) {
+                return "__custom__";
             } else {
-                return "__customHeader__";
-                // we need to return a unique
+                HashMap item = (HashMap) getProperty(TiC.PROPERTY_HEADER_VIEW);
+                return TiConvert.toString(item, TiC.PROPERTY_TEMPLATE, "header");
             }
         }
         if (hasFooter() && itemPosition == getItemCount()) {
-            Object item = getProperty(TiC.PROPERTY_FOOTER_VIEW);
-            if (item instanceof HashMap) {
-                return TiConvert.toString((HashMap) item, TiC.PROPERTY_TEMPLATE,
-                        "footer");
+            KrollProxy proxy = getHoldedProxy(TiC.PROPERTY_FOOTER_VIEW);
+            if (proxy != null) {
+                return "__custom__";
+            } else {
+                HashMap item = (HashMap) getProperty(TiC.PROPERTY_FOOTER_VIEW);
+                return TiConvert.toString(item, TiC.PROPERTY_TEMPLATE, "footer");
             }
-            return "__customFooter__";
         }
         if (isFilterOn()) {
             return TiConvert.toString(
