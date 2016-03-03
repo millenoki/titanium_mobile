@@ -3203,8 +3203,8 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
             return;
         }
         BOOL needsAll = TiCGRectIsEmpty(sizeCache);
-        BOOL needsSize = OSAtomicTestAndClear(TiRefreshViewSize, &dirtyflags) || needsAll;
-        BOOL needsPosition = OSAtomicTestAndClear(TiRefreshViewPosition, &dirtyflags) || needsAll;
+        BOOL needsSize = OSAtomicTestAndClear(TiRefreshViewSize, &dirtyflags) || (needsAll && _canRepositionItself);
+        BOOL needsPosition = OSAtomicTestAndClear(TiRefreshViewPosition, &dirtyflags) || (needsAll && _canResizeItself);
         BOOL layoutChanged = NO;
         if (needsSize) {
             CGSize size;
