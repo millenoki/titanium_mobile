@@ -99,11 +99,6 @@
             "copyright":"Copyright (c) 2013 Martin Sonc",
             "licenseId":"mit"
         },
-        "NineOldAndroids":{
-            "title":"NineOldAndroids",
-            "copyright":"Copyright 2012 Jake Wharton",
-            "licenseId":"apache_2"
-        },
          "okhttp":{
             "title":"OkHttp",
             "copyright":"Copyright (C) 2013 Square, Inc.",
@@ -139,15 +134,10 @@
             "copyright":"Copyright 2012 Udo Klimaschewski",
             "licenseId":"mit"
         },
-        "ExoPlayer":{
-            "title":"ExoPlayer",
-            "copyright":"Copyright (C) 2014 The Android Open Source Project",
+        "FlexibleAdapter":{
+            "title":"FlexibleAdapter",
+            "copyright":"Copyright 2016 Davide Steduto",
             "licenseId":"apache_2"
         },
-        "SpinnerWheel":{
-            "title":"SpinnerWheel",
-            "copyright":"Copyright 2011 Yuri Kanivets",
-            "licenseId":"apache_2"
-        }
    }
 }
