@@ -17,5 +17,5 @@
 - (BOOL)isEmpty;
 
 + (TiProxyTemplate *)templateFromViewTemplate:(id)viewTemplate;
-
+-(NSDictionary*)prepareDataItem:(NSDictionary*)dataItem;
 @end

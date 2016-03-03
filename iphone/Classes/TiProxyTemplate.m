@@ -114,6 +114,9 @@
 	return nil;
 }
 
+-(NSDictionary*)prepareDataItem:(NSDictionary*)dataItem {
+    return dataItem;
+}
 
 
 @end
