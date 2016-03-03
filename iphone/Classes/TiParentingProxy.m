@@ -474,8 +474,12 @@
 	[super unarchiveFromTemplate:viewTemplate withEvents:withEvents rootProxy:rootProxy];
     id<TiEvaluator> context = [rootProxy getContext];
 	[viewTemplate.childTemplates enumerateObjectsUsingBlock:^(TiProxyTemplate *childTemplate, NSUInteger idx, BOOL *stop) {
-        if (childTemplate.type != nil) {
-            TiProxy *child = [[self class] createProxy:[[self class] proxyClassFromString:childTemplate.type] withProperties:nil inContext:context];
+        NSString* type = childTemplate.type;
+        if (!type) {
+            type = @"Ti.UI.View";
+        }
+        if (type != nil) {
+            TiProxy *child = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
             if (child) {
                 [context.krollContext invokeBlockOnThread:^{
                     [context registerProxy:child];
