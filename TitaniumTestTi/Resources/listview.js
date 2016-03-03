@@ -39,7 +39,9 @@ function listViewExs(_args) {
         layout: 'vertical',
         backgroundImage: Ti.Image.getFilteredScreenshot({
             scale: 0.6,
-            crop:{y:Ti.App.defaultBarHeight},
+            crop: {
+                y: Ti.App.defaultBarHeight
+            },
             filters: [{
                 // radius: 18,
                 type: Ti.Image.FILTER_IOS_BLUR
@@ -142,7 +144,7 @@ function listViewEx1(_args) {
     var titleTest = ' Article title';
     var descriptionTest = ' This is a description text hopping it s going to hold on at least 2 lines';
     var win = createWin();
-    var listview = Ti.UI.createListView({
+    var listview = Ti.UI.createCollectionView({
         selectedBackgroundColor: 'gray',
         defaultItemTemplate: 'default',
         allowsSelection: false,
@@ -318,10 +320,10 @@ function listViewEx1(_args) {
         items: items
     }];
     listview.addEventListener('itemclick', function(_event) {
-        info('click ');
+        Ti.API.info('click ');
         if (_event.hasOwnProperty('section') && _event.hasOwnProperty('itemIndex')) {
             var item = _event.section.getItemAt(_event.itemIndex);
-            info('click ' + _event.itemIndex + ":" + _event.bindId);
+            Ti.API.info('click ' + _event.itemIndex + ":" + _event.bindId);
         }
     });
     win.add(listview);
@@ -875,10 +877,10 @@ function listViewEx2() {
             var priority = priorities[Math.floor(Math.random() * priorities.length)];
             var name = names[Math.floor(Math.random() * names.length)];
             items.push({
-                properties: {
-                    searchableText: name
+                // properties: {
+                    searchableText: name,
                         //  // height: 60
-                },
+                // },
                 button: {
                     callbackId: i,
                     visible: true,
@@ -942,7 +944,7 @@ function listViewEx2() {
                 item.properties.backgroundColor = 'blue';
                 item.priority.text = 'my test';
                 item.priority.backgroundColor = 'green';
-                info(item);
+                Ti.API.info(item);
                 _event.section.updateItemAt(_event.itemIndex, item);
             }
         }
@@ -959,7 +961,7 @@ function listViewEx2() {
 
 function listViewEx3() {
     var win = createWin();
-    var listview = Ti.UI.createListView({
+    var listview = Ti.UI.createCollectionView({
         allowsSelection: false,
         rowHeight: 50,
         selectedBackgroundGradient: sweepGradient,
@@ -1321,13 +1323,14 @@ function listViewEx4() {
             }
         }]
     };
-    var listView = Ti.UI.createListView({
+    var listView = Ti.UI.createCollectionView({
         delaysContentTouches: false,
         // Maps myTemplate dictionary to 'template' string
         templates: {
             'template': myTemplate
         },
         canEdit: true,
+        stickyHeaders:true,
         // Use 'template', that is, the myTemplate dict created earlier
         // for all items as long as the template property is not defined for an item.
         defaultItemTemplate: 'template',
@@ -1395,11 +1398,11 @@ function listViewEx4() {
     };
     listView.setSections(sections);
     var currentHeader;
-    listView.addEventListener('headerchange', function(_event) {
+    listView.addEventListener('headerchange', function(e) {
         if (currentHeader) {
             currentHeader.backgroundColor = 'red';
         }
-        currentHeader = _event.headerView;
+        currentHeader = e.headerView;
         currentHeader.backgroundColor = 'blue';
     });
 
@@ -1412,6 +1415,9 @@ function listViewEx4() {
         Ti.API.debug(_event);
     });
     listView.addEventListener('singletap', function(_event) {
+        if (_event.bindId === 'delete') {
+            return;
+        };
         if (!_event.hasOwnProperty('itemIndex')) return;
         _event.section.deleteItemsAt(_event.itemIndex, 1, {
             animated: true
@@ -1535,7 +1541,7 @@ function listViewEx5() {
             }
         }
     };
-    var listView = Ti.UI.createListView({
+    var listView = Ti.UI.createCollectionView({
         rowHeight: 50,
         // updateInsetWithKeyboard:true,
         templates: {
@@ -1579,7 +1585,7 @@ function listViewEx5() {
             listView.blur();
         } else if (_event.hasOwnProperty('section') && _event.hasOwnProperty('itemIndex')) {
             var item = _event.section.getItemAt(_event.itemIndex);
-            info('click ' + JSON.stringify(item));
+            Ti.API.info('click ' + JSON.stringify(item));
         }
     });
 
@@ -1624,6 +1630,7 @@ function longListTest() {
     var myTemplate = {
         "properties": {
             "height": 74,
+            backgroundColor: 'white',
             "borderColor": "#667383",
             "borderPadding": {
                 "left": -1,
@@ -1634,7 +1641,6 @@ function longListTest() {
                 type: 'Ti.UI.Label',
                 bindId: 'mark',
                 properties: {
-                    callbackId: 'mark',
                     backgroundColor: 'blue',
                     height: 'FILL',
                     text: 'mark as watched'
@@ -1865,14 +1871,37 @@ function longListTest() {
         }]
     };
 
-    var listView = Ti.UI.createListView({
+    var listView = Ti.UI.createCollectionView({
         rowHeight: 50,
         allowsMultipleSelectionDuringEditing: true,
+        allowsSelection: false,
         selectedBackgroundColor: 'red',
         canEdit: true,
+        stickyHeaders:true,
+        fastScroller:{
+            color:'blue'
+        },
         // updateInsetWithKeyboard:true,
         templates: {
-            'template': myTemplate
+            'template': myTemplate,
+            // header: {
+            //     properties: {
+            //             height:'SIZE',
+            //         // layout:'vertical',
+            //         backgroundColor: 'blue'
+            //     },
+            //     childTemplates: [{
+            //         type: 'Ti.UI.Label',
+            //         properties: {
+            //             backgroundColor: 'red',
+            //             height:'SIZE',
+            //             width:'FILL',
+            //             bottom: 20,
+            //             text: 'HeaderView created from Dict'
+            //         }
+            //     }]
+
+            // }
         },
         defaultItemTemplate: 'template',
     });
@@ -1885,8 +1914,8 @@ function longListTest() {
 
         items.push({
             template: 'template',
+            searchableText: movie.title,
             properties: {
-                searchableText: movie.title
             },
             image: {
                 backgroundColor: color,
@@ -1907,19 +1936,25 @@ function longListTest() {
 
     }
 
-    listView.addEventListener('click', function(_event) {
-        if (_event.source.callbackId === 'done') {
+    listView.addEventListener('click', function(e) {
+        var callbackId =  e.bindId;
+        console.info('click', e.sectionIndex, e.itemIndex, callbackId, e.bindId, e.item);
+        if (callbackId === 'done') {
             listView.blur();
-        } else if (_event.source.callbackId === 'mark') {
-            listView.closeSwipeMenu();
-            _event.section.updateItemAt(_event.itemIndex, {
+        } else if (callbackId === 'mark') {
+            e.section.updateItemAt(e.itemIndex, {
                 mark: {
                     text: 'mark as unwatched'
                 }
             });
-        } else if (_event.hasOwnProperty('section') && _event.hasOwnProperty('itemIndex')) {
-            var item = _event.section.getItemAt(_event.itemIndex);
-            info('click ' + JSON.stringify(item));
+            listView.closeSwipeMenu();
+        } else if (callbackId === 'delete') {
+            e.section.deleteItemsAt(e.itemIndex, 1);
+        } else {
+            console.info('click', e.sectionIndex, e.itemIndex, e.item);
+            if (e.itemIndex == -1) { //header
+                e.section.visible = !e.section.visible;
+            }
         }
     });
 
@@ -1928,6 +1963,7 @@ function longListTest() {
             type: 'Ti.UI.Label',
             properties: {
                 backgroundColor: 'red',
+                width: 'FILL',
                 bottom: 20,
                 text: 'HeaderView created from Dict'
             }
@@ -1944,12 +1980,12 @@ function deepLayoutTest() {
         dispatchPressed: true,
         layout: 'vertical'
     });
-    var viewHolder = new View({
+    var viewHolder = Ti.UI.createView({
         width: 'FILL',
         height: 60,
         backgroundColor: 'yellow'
     });
-    var test = new View({
+    var test = Ti.UI.createView({
         properties: {
             backgroundColor: 'green',
             right: 0,
@@ -2034,7 +2070,7 @@ function deepLayoutTest() {
     });
 
     test.addEventListener('click', function(e) {
-        info('test click ' + JSON.stringify(e.source));
+        Ti.API.info('test click ' + JSON.stringify(e.source));
         if (e.source.callbackId === 'search') {
             if (test.searchField.visible) {
                 var searchField = test.searchField;
@@ -2051,7 +2087,7 @@ function deepLayoutTest() {
                 test.search.text = test.search.icon;
             } else {
                 var searchField = test.searchField;
-                info('showSearchField ' + searchField.callbackId);
+                Ti.API.info('showSearchField ' + searchField.callbackId);
                 searchField.applyProperties({
                     value: null,
                     opacity: 0,
@@ -2072,7 +2108,7 @@ function deepLayoutTest() {
     });
 
     viewHolder.add(test);
-    var headerView = new Label({
+    var headerView = Ti.UI.createLabel({
         properties: {
             color: 'gray',
             font: {
@@ -2117,7 +2153,7 @@ function deepLayoutTest() {
             },
             events: {
                 'change': function(e) {
-                    info(stringify(e));
+                    Ti.API.info(stringify(e));
                     listView.sections[1].visible = e.value;
                 }
             }
@@ -2142,7 +2178,7 @@ function deepLayoutTest() {
             }
         });
         var childTemplates = [];
-        var defProps = ak.ti.style({
+        var defProps = {
             type: 'Ti.UI.Label',
             properties: {
                 font: {
@@ -2195,7 +2231,7 @@ function deepLayoutTest() {
                     }
                 }]
             }]
-        });
+        };
         for (var i = 0; i < _number; i++) {
             var props = redux.fn.clone(defProps);
             props.properties.imageId = i;
@@ -2745,7 +2781,7 @@ function deepLayoutTest() {
         ]
     });
 
-    var label = new Label({
+    var label = Ti.UI.createLabel({
         color: '#F2F3F3',
         disabledColor: '#F2F3F3',
         width: 'FILL',
@@ -2812,7 +2848,7 @@ function pullToRefresh(_args) {
     fruitSection.setItems(fruitDataSet);
     sections.push(fruitSection);
 
-    var header = new Label({
+    var header = Ti.UI.createLabel({
         properties: {
             width: 'FILL',
             textAlign: 'left',
@@ -2891,15 +2927,15 @@ function pullToRefresh(_args) {
         refreshCount++;
         listView.closePullView();
     }
-    var pullToRefresh = ak.ti.createFromConstructor('PullToRefresh', {
-        rclass: 'NZBPTR'
-    });
-    var listView = Ti.UI.createListView({
+    // var pullToRefresh = ak.ti.createFromConstructor('PullToRefresh', {
+    //     rclass: 'NZBPTR'
+    // });
+    var listView = Ti.UI.createCollectionView({
         height: '90%',
         top: 0,
         rowHeight: 50,
         sections: sections,
-        pullBottomView: pullToRefresh
+        // pullBottomView: pullToRefresh
     });
     // listView.add({
     //     type: 'Ti.UI.ActivityIndicator',
@@ -2979,7 +3015,7 @@ function pullToRefresh(_args) {
 
 function autoSizeEx() {
     var win = createWin();
-    var listView = Ti.UI.createListView({
+    var listView = Ti.UI.createCollectionView({
         templates: JSON.parse(
             '{"default":{"properties":{"rclass":"PushRow","backgroundImage":"/images/cell_background.png","backgroundSelectedImage":"/images/cell_background_on.png","imageCap":{"left":10,"right":9,"top":37,"bottom":9},"left":6,"right":6,"top":3,"bottom":3,"height":"SIZE"},"childTemplates":[{"type":"Ti.UI.View","properties":{"rclass":"PushRowHolder","left":15,"right":10,"bottom":5,"top":16,"layout":"vertical","height":"SIZE"},"childTemplates":[{"type":"Ti.UI.View","properties":{"rclass":"PushRowTopHolder","top":0,"height":95},"childTemplates":[{"type":"Ti.UI.View","properties":{"rclass":"PushRowTitleHolder","height":24,"top":0,"width":"FILL","layout":"horizontal"},"childTemplates":[{"type":"Ti.UI.Label","bindId":"title","properties":{"rclass":"PushRowTitle","borderRadius":4,"backgroundColor":"#e6eaec","height":"FILL","width":"SIZE","maxWidth":"FILL","color":"#686868","padding":{"left":17,"right":5,"bottom":-1},"maxLines":1,"font":{"family":"Roboto Condensed","size":15,"weight":"bold"}},"childTemplates":[{"type":"Ti.UI.Label","properties":{"rclass":"PushRowTitleIcon","font":{"family":"push","size":12,"weight":"normal"},"touchEnabled":false,"left":4,"color":"#00acb4","text":"c"}}]},{"type":"Ti.UI.Label","properties":{"rclass":"PushRowTitleSentIcon","font":{"size":26,"family":"push","weight":"normal"},"left":5,"text":"","touchEnabled":false,"color":"#00acb4"}}]},{"type":"Ti.UI.ImageView","bindId":"avatar","properties":{"rclass":"PushRowAvatar","top":34,"left":0,"width":50,"height":50,"borderRadius":2,"scaleType":2,"retina":true,"localLoadSync":true,"preventDefaultImage":true}},{"type":"Ti.UI.Label","bindId":"description","properties":{"rclass":"PushRowDescription","left":55,"top":34,"height":"FILL","verticalAlign":"top","maxLines":3,"font":{"size":15,"family":"Roboto","weight":"normal"},"padding":{"left":5,"right":5},"color":"#2d2d2d","width":"FILL"}}]},{"type":"Ti.UI.ImageView","bindId":"image","properties":{"callbackId":"image","rclass":"PushRowImage","left":60,"width":"FILL","height":"SIZE","bottom":5,"bubbleParent":true,"borderRadius":2,"preventListViewSelection":true,"scaleType":2,"visible":false,"retina":true,"localLoadSync":true,"preventDefaultImage":true}},{"type":"Ti.UI.View","properties":{"rclass":"PushRowBottomHolder","borderColor":"#EBEEEF","borderWidth":1,"borderPadding":{"left":-1,"bottom":-1,"right":-1},"height":20},"childTemplates":[{"type":"Ti.UI.View","properties":{"rclass":"PushRowTitleHolder","height":24,"top":0,"width":"FILL","layout":"horizontal"}},{"type":"Ti.UI.Label","bindId":"date","properties":{"rclass":"PushRowDate","left":0,"font":{"size":14,"family":"Roboto","weight":"normal"},"height":"FILL","padding":{"top":4},"color":"#acafaf"}},{"type":"Ti.UI.Label","bindId":"from","properties":{"rclass":"PushRowFrom","right":0,"height":"FILL","padding":{"top":4},"font":{"size":14,"family":"Roboto","weight":"normal"},"color":"#acafaf"}}]}]}]}}'
         ),
@@ -2995,7 +3031,35 @@ function autoSizeEx() {
 
 function collectionViewEx(_args) {
     var win = createWin(_.assign({
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        rightNavButtons: [{
+            title: 'search',
+            callbackId: 'search',
+            icon: 'images/icons/ic_action_search.png',
+            showAsAction: 2 // always
+
+        }, {
+            title: 'list layout',
+            callbackId: 'layout',
+            icon: 'images/icons/ic_view_grid_white_24dp.png',
+            showAsAction: 2 // always
+
+        }, {
+            title: 'horizontal',
+            callbackId: 'orientation',
+            showAsAction: 0 // never
+
+        }, {
+            title: 'show hide headers',
+            callbackId: 'header_view',
+            showAsAction: 0 // never
+
+        }, {
+            title: 'sticky headers',
+            callbackId: 'stickyheaders',
+            showAsAction: 0 // never
+
+        }]
     }, _args));
 
     var myTemplate = {
@@ -3049,25 +3113,72 @@ function collectionViewEx(_args) {
         }]
     };
 
+    var currentStickySection = null;
     var listView = Ti.UI.createCollectionView({
         backgroundColor: "white",
         columnWidth: 130,
         allowsSelection: false,
+        clipChildren: false, // needed for header views
+        reverseDrawingOrder: true,
+        // scrollDirection:'horizontal',
         selectedBackgroundColor: 'transparent',
-        // stickyHeaders: false,
+        // stickyHeaders: true,
         templates: {
             'template': myTemplate,
             'header': {
                 properties: {
-                    backgroundColor: '#31B7ED',
-                    width:'FILL',
-                    height: 20
+                    width: 'SIZE',
+                    left: 0,
+                    top: 0,
+                    height: 40,
+                    // clipChildren: false
                 },
                 childTemplates: [{
-                    type: 'Ti.UI.Label',
-                    bindId: 'label'
+                    type: 'Ti.UI.View',
+                    properties: {
+                        top: 0,
+                        left: 0,
+                        height: 40,
+                        backgroundColor: '#31B7ED',
+                        // clipChildren:false,
+                        layout: 'horizontal',
+                        width: 100,
+                    },
+                    childTemplates: [{
+                        bindId: 'label',
+                        type: 'Ti.UI.Label',
+                        properties: {
+                            color: 'white',
+                            font: {
+                                size: 13
+                            },
+                            padding: {
+                                left: 3,
+                                right: 3
+                            },
+                            left: -2,
+                            width: 'SIZE',
+                            height: 'FILL',
+                        }
+
+                    }, {
+                        type: 'Ti.UI.Switch',
+                        bindId: 'switch',
+                    }]
                 }]
+
             }
+            // {
+            // properties: {
+            //     backgroundColor: '#31B7ED',
+            //     width: 100,
+            //     height: 20
+            // },
+            // childTemplates: [{
+            //     type: 'Ti.UI.Label',
+            //     bindId: 'label'
+            // }]
+            // }
         },
         pullView: {
             type: 'Ti.UI.View',
@@ -3075,9 +3186,31 @@ function collectionViewEx(_args) {
             height: 60
         },
         defaultItemTemplate: 'template',
-        events:{
-            itemclick:function(e) {
-                console.log(e);
+        events: {
+            itemclick: function(e) {
+                console.log(e.sectionIndex, e.itemIndex);
+            },
+            longpress: function(e) {
+                console.log(e.sectionIndex, e.itemIndex);
+                e.section.deleteItemsAt(e.itemIndex, 1);
+            },
+            headerchange: function(e) {
+                // if (currentStickySection) {
+                // currentStickySection.headerView = _.assign(currentStickySection.headerView, {
+                //     properties: {
+                //         backgroundColor: null
+                //     }
+                // })
+                // }
+                // currentStickySection = e.section;
+                console.log('test', e.sectionIndex, e.headerView);
+                // currentStickySection.headerView = _.assign(currentStickySection.headerView, {
+                //         properties: {
+                //             backgroundColor: 'red'
+                //         }
+                //     })
+                // console.log(e.sectionIndex, e.itemIndex);
+                // e.section.deleteItemsAt(e.itemIndex, 1);
             }
         }
     });
@@ -3112,8 +3245,9 @@ function collectionViewEx(_args) {
             });
         }
         sections.push({
-            headerView: {
-                label:{
+            hideWhenEmpty: true,
+            headerView: (i % 3 !== 0) ? {
+                label: {
                     text: 'Section ' + i
                 }
                 // properties: {
@@ -3124,25 +3258,43 @@ function collectionViewEx(_args) {
                 //     type: 'Ti.UI.Label',
                 //     text: 'Section ' + i
                 // }]
-            },
+            } : undefined,
             items: items
         });
     };
     listView.setSections(sections);
-    // listView.addEventListener('itemclick', Ti.API.info);
+    win.addEventListener('click', function(e) {
+        var callbackId = e.source.callbackId;
+        console.debug('click', callbackId, e.source.title);
+        switch (callbackId) {
+            case 'orientation':
+                var current = listView.scrollDirection;
+                var newValue = (current == 'horizontal') ? 'vertical' : 'horizontal';
+                console.debug('scrollDirection', current);
+                console.debug('newValue', newValue);
+                listView.scrollDirection = newValue;
+                break;
+            case 'stickyheaders':
+                listView.stickyHeaders = (listView.stickyHeaders === false);
+                break;
+        }
+    });
     win.add(listView);
     openWin(win);
 }
 
 function listViewExAnim(_args) {
     var win = createWin();
-    var listview = Ti.UI.createListView({
+    var listview = Ti.UI.createCollectionView({
         defaultItemTemplate: 'default',
         allowsSelection: false,
         separatorStyle: Ti.UI.ListViewSeparatorStyle.NONE,
         clipChildren: false,
         selectedBackgroundColor: 'transparent',
         useAppearAnimation: true,
+        fastScroller:{
+            color:'blue'
+        },
         backgroundGradient: {
             type: 'linear',
             colors: ['#3393B8', '#4F7C9C'],
@@ -3184,7 +3336,6 @@ function listViewExAnim(_args) {
             appearAnimation: {
                 duration: 300,
                 from: {
-
                     transform: (i % 2 === 0) ? 'ot100%,0' : 'ot-100%,0',
                     opacity: 0
                 }
@@ -3200,7 +3351,7 @@ function listViewExAnim(_args) {
 
 function collectionInsideListViewEx(_args) {
     var win = createWin();
-    var listview = Ti.UI.createListView({
+    var listview = Ti.UI.createCollectionView({
         defaultItemTemplate: 'default',
         templates: {
             "default": {

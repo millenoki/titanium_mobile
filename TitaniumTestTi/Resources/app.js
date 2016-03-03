@@ -60,11 +60,16 @@ function createWin(_args, _customTitleView) {
 			_args.activity.onCreateOptionsMenu = function(e) {
 				var menu = e.menu;
 				_.each(buttons, function(view, index, list) {
-					var args = {
-						actionView: view,
-						showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM
-					};
-					menu.add(args);
+					if (view.addEventListener) {
+						var args = {
+							actionView: view,
+							showAsAction: Ti.Android.SHOW_AS_ACTION_IF_ROOM
+						};
+						menu.add(args);
+					} else {
+						menu.add(view);
+					}
+
 				});
 			};
 		}
@@ -91,7 +96,9 @@ function createWin(_args, _customTitleView) {
 		}
 	}
 
-	return Ti.UI.createWindow(merge_options(initWindowArgs, _args, true));
+	return Ti.UI.createWindow(merge_options(initWindowArgs, _args, true)).once('open', function(e) {
+		console.debug(e.source);
+	});
 }
 
 function listViewClickHandle(_event) {
@@ -141,7 +148,7 @@ function createListView(_args, _addEvents) {
 			}
 		}
 	}, _args);
-	var listview = Ti.UI.createListView(realArgs);
+	var listview = Ti.UI.createCollectionView(realArgs);
 	if (_addEvents !== false) {
 		listview.addEventListener('itemclick', listViewClickHandle);
 	}
@@ -4221,19 +4228,20 @@ var firstWindow = createWin({
 	barOpacity: 0,
 	startToolbarDeltaY: 0,
 	// navBarHidden: true,
-	rightNavButton: Titanium.UI.createButton({
-		properties: {
-			title: 'snackBar',
-		},
+	rightNavButtons: [{
+		// properties: {
+		title: 'snackBar',
+		showAsAction: 2, // always
+		// },
 		events: {
 			click: function() {
 				Ti.UI.showSnackbar({
-					backgroundColor:'yellow',
+					backgroundColor: 'yellow',
 					title: 'test'
 				});
 			}
 		}
-	}),
+	}],
 	barColor: 'transparent',
 	toolbar: [Ti.UI.createButton({
 			properties: {
@@ -4269,10 +4277,11 @@ var headerView2 = Ti.UI.createView({
 firstWindow
 	.add({
 		bindId: 'listView',
-		type: 'Ti.UI.ListView',
+		type: 'Ti.UI.CollectionView',
 		properties: {
-
+			stickyHeaders:true,
 			// headerTitle: 'DEVICE',
+			separatorStyle: Ti.UI.ListViewSeparatorStyle.SINGLE_LINE,
 			headerView: headerView,
 			footerTitle: 'This is a footer textfor the list view',
 			overScrollMode: 2,
@@ -4281,17 +4290,17 @@ firstWindow
 			allowsSelection: false,
 			allowsMultipleSelectionDuringEditing: true,
 			canEdit: true,
-			// searchView: {
-			// type: 'Ti.UI.SearchBar',
-			// properties: {
-			// // hideNavBarWithSearch:false,
-			// // barColor: '#000',
-			// showCancel: true,
-			// height: 84,
-			// value: 'test',
-			// top: 0,
-			// }
-			// },
+			searchView: {
+				type: 'Ti.UI.SearchBar',
+				properties: {
+					// hideNavBarWithSearch:false,
+					// barColor: '#000',
+					showCancel: true,
+					height: 84,
+					// value: 'test',
+					top: 0,
+				}
+			},
 			sections: [{
 					// footerTitle: 'This is a footer text',
 					// headerTitle: 'WIRELESSS & NETWORK',
@@ -4648,7 +4657,7 @@ function borderPaddingEx(_args) {
 	var win = createWin(_.assign({
 		backgroundColor: 'white'
 	}, _args));
-	// var view = new View({
+	// var view = Ti.UI.createView({
 	// "type": "Ti.UI.Label",
 	// "bindId": "title",
 	// "properties": {
@@ -4666,7 +4675,7 @@ function borderPaddingEx(_args) {
 	// "color": "black"
 	// }
 	// });
-	win.add(new Label({
+	win.add(Ti.UI.createLabel({
 		properties: {
 			text: 'test',
 			backgroundColor: 'red',
@@ -5741,7 +5750,7 @@ Ti.App.addEventListener('pause', function() {
 });
 
 Ti.App.addEventListener('resume', function() {
-	info('resume');
+	Ti.API.info('resume');
 });
 
 function tabGroupExample() {
