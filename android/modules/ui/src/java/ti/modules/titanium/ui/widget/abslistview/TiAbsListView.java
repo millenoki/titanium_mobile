@@ -433,7 +433,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
             Object result = null;
             if (info != null) {
-                result = info.first.deleteItemData(info.second.second);
+                result = info.first.deleteItemsData(info.second.second, 1);
             }
             notifyDataSetChanged();
             return result;
@@ -442,7 +442,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         @Override
         public void add(int position, Object data) {
             Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(Math.max(0, position - 1));
-            info.first.insertItemData(info.second.second, (HashMap) data);
+            info.first.insertItemsData(info.second.second, data);
             notifyDataSetChanged();
         }
 
@@ -764,6 +764,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         return super.viewShouldPassThrough(view, event);
     }
 	
+    @Override
 	public String getSearchText() {
 		return searchText;
 	}
@@ -1023,9 +1024,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	
 	private void setSearchView (Object viewObj, boolean addInHeader) {
         KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "search");
-        if (isSearchViewValid(viewProxy)) {
-//            TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
-            
+        if (isSearchViewValid(viewProxy)) {            
             TiUIView search = ((TiViewProxy) viewProxy).getOrCreateView();
             setSearchListener((TiViewProxy) viewProxy, search);
             if (addInHeader) {
@@ -1565,21 +1564,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
         return null;
     }
 	
-    public void insert(final int position, final Object item) {
-        listView.insert(position, item);
-    }
 
-    public void insert(final int position, final Object... items) {
-        listView.insert(position, items);
-    }
-
-    public void remove( final int position) {
-        listView.remove(position - listView.getHeaderViewsCount());
-    }
-
-    public void remove( final int position, final int count) {
-        listView.remove(position - listView.getHeaderViewsCount(), count);
-    }
     
     private View setPullView (Object viewObj) {
         KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "pull");

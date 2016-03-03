@@ -54,7 +54,6 @@ import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItemHolder;
 import ti.modules.titanium.ui.widget.abslistview.TiCollectionViewAdapter;
 import ti.modules.titanium.ui.widget.abslistview.TiCollectionViewInterface;
 import ti.modules.titanium.ui.widget.abslistview.TiDefaultAbsListViewTemplate;
-import ti.modules.titanium.ui.widget.collectionview.SwipeMenuTouchListener.SwipeMenuCallback;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
@@ -67,6 +66,7 @@ import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
@@ -86,6 +86,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -96,10 +97,8 @@ import eu.davidea.flexibleadapter.section.SectionAdapter;
 
 public class TiCollectionView extends TiUINonViewGroupView
         implements OnSearchChangeListener, TiCollectionViewInterface,
-        OnInstanceStateEvent, FlexibleAdapter.OnItemClickListener,
-        FlexibleAdapter.OnItemLongClickListener,
-        FlexibleAdapter.OnItemMoveListener, FlexibleAdapter.OnItemSwipeListener,
-        FlexibleAdapter.OnStickyHeaderChangeListener, SwipeMenuCallback {
+        OnInstanceStateEvent,
+        FlexibleAdapter.OnStickyHeaderChangeListener {
     FastScrollRecyclerView mRecyclerView;
     TiGridLayoutManager layoutManager;
     private TiBaseAdapter mAdapter;
@@ -162,27 +161,27 @@ public class TiCollectionView extends TiUINonViewGroupView
     public static final int CUSTOM_PROXY_ITEM_TYPE = 4;
     public static final int CUSTOM_TEMPLATE_ITEM_TYPE = 5;
 
-    protected Pair<AbsListSectionProxy, Pair<Integer, Integer>> getSectionInfoByEntryIndex(
-            int index) {
-        if (index < 0) {
-            return null;
-        }
-        synchronized (sections) {
-            for (int i = 0; i < sections.size(); i++) {
-                AbsListSectionProxy section = sections.get(i);
-                int sectionItemCount = section.getItemCount();
-                if (index <= sectionItemCount - 1) {
-                    Pair<AbsListSectionProxy, Pair<Integer, Integer>> result = new Pair<AbsListSectionProxy, Pair<Integer, Integer>>(
-                            section, new Pair<Integer, Integer>(i, index));
-                    return result;
-                } else {
-                    index -= sectionItemCount;
-                }
-            }
-        }
-
-        return null;
-    }
+//    protected Pair<AbsListSectionProxy, Pair<Integer, Integer>> getSectionInfoByEntryIndex(
+//            int index) {
+//        if (index < 0) {
+//            return null;
+//        }
+//        synchronized (sections) {
+//            for (int i = 0; i < sections.size(); i++) {
+//                AbsListSectionProxy section = sections.get(i);
+//                int sectionItemCount = section.getItemCount();
+//                if (index <= sectionItemCount - 1) {
+//                    Pair<AbsListSectionProxy, Pair<Integer, Integer>> result = new Pair<AbsListSectionProxy, Pair<Integer, Integer>>(
+//                            section, new Pair<Integer, Integer>(i, index));
+//                    return result;
+//                } else {
+//                    index -= sectionItemCount;
+//                }
+//            }
+//        }
+//
+//        return null;
+//    }
 
     public class TiGridLayoutManager extends GridLayoutManager {
         private boolean isScrollEnabled = true;
@@ -303,12 +302,12 @@ public class TiCollectionView extends TiUINonViewGroupView
 
         @Override
         public boolean canShowLeftMenu() {
-            return itemContent.getListItem().canShowRightMenu();
+            return itemContent.getListItem().canShowLeftMenu();
         }
 
         @Override
         public boolean canShowRightMenu() {
-            return itemContent.getListItem().canShowLeftMenu();
+            return itemContent.getListItem().canShowRightMenu();
         }
 
         @Override
@@ -464,6 +463,7 @@ public class TiCollectionView extends TiUINonViewGroupView
         @Override
         public RecyclerView.ViewHolder onCreateSectionHeaderViewHolder(
                 ViewGroup parent, int viewType) {
+            
             if (viewType == CUSTOM_PROXY_ITEM_TYPE) {
                 return createViewHolder(parent, null);
 
@@ -530,8 +530,8 @@ public class TiCollectionView extends TiUINonViewGroupView
                 if (section.hasHeader() && sectionItemIndex == RecyclerView.NO_POSITION) {
                     KrollProxy childProxy = section.getHoldedProxy(TiC.PROPERTY_HEADER_VIEW);
                     if (childProxy instanceof ParentingProxy && ((ParentingProxy) childProxy).getParent() != itemContent.getProxy()) {
-                        itemContent.getProxy().removeAllChildren();
-                        itemContent.getProxy().add(childProxy);
+                        itemProxy.removeAllChildren();
+                        itemProxy.add(childProxy);
                     }
                 }
             }
@@ -554,7 +554,7 @@ public class TiCollectionView extends TiUINonViewGroupView
                 }
             }
 
-            if (mUseAppearAnimation) {
+            if (mUseAppearAnimation && item != null) {
                 if (mShownIndexes == null) {
                     mShownIndexes = new HashSet<Integer>();
                 }
@@ -624,7 +624,7 @@ public class TiCollectionView extends TiUINonViewGroupView
                 int childPosition, int itemCount) {
             for (AbsListItemProxy itemProxy : handledProxies) {
                 if (itemProxy.sectionIndex == groupPosition
-                        && itemProxy.itemIndex >= childPosition + itemCount) {
+                        && itemProxy.itemIndex >= childPosition) {
                     itemProxy.updateItemIndex(itemProxy.itemIndex + itemCount);
                 }
             }
@@ -711,9 +711,9 @@ public class TiCollectionView extends TiUINonViewGroupView
             extends PendingItemAnimator<CollectionViewHolder> {
         public TiItemAnimator() {
             setSupportsChangeAnimations(false);
-            setMoveDuration(200);
-            setRemoveDuration(200);
-            setAddDuration(300);
+//            setMoveDuration(200);
+//            setRemoveDuration(200);
+//            setAddDuration(300);
             setChangeDuration(0);
         }
 
@@ -726,44 +726,37 @@ public class TiCollectionView extends TiUINonViewGroupView
         @Override
         protected ViewPropertyAnimatorCompat animateRemoveImpl(
                 CollectionViewHolder holder) {
-            Point screen = getScreenDimensions(holder.itemView.getContext());
-            int top = holder.itemView.getTop();
-            return ViewCompat.animate(holder.itemView).rotation(80)
-                    .translationY(screen.y - top)
-                    .setInterpolator(new AccelerateInterpolator());
+            return ViewCompat.animate(holder.itemView).alpha(0);
+
         }
 
         @Override
         protected void onRemoveCanceled(CollectionViewHolder holder) {
-            ViewCompat.setTranslationY(holder.itemView, 0);
-            ViewCompat.setRotation(holder.itemView, 0);
+            ViewCompat.setAlpha(holder.itemView, 1);
         }
 
         @Override
         protected void animateRemoveEnded(CollectionViewHolder holder) {
             super.animateRemoveEnded(holder);
-            ViewCompat.setTranslationY(holder.itemView, 0);
-            ViewCompat.setRotation(holder.itemView, 0);
+            ViewCompat.setAlpha(holder.itemView, 1);
+
         }
 
         @Override
         protected boolean prepHolderForAnimateAdd(CollectionViewHolder holder) {
-            int bottom = holder.itemView.getBottom();
-            ViewCompat.setTranslationY(holder.itemView, -bottom);
+            ViewCompat.setAlpha(holder.itemView, 0);
             return true;
         }
 
         @Override
         protected ViewPropertyAnimatorCompat animateAddImpl(
                 CollectionViewHolder holder) {
-            return ViewCompat.animate(holder.itemView).translationY(0)
-                    .setInterpolator(new OvershootInterpolator());
+            return ViewCompat.animate(holder.itemView).alpha(1);
         }
 
         @Override
         protected void onAddCanceled(CollectionViewHolder holder) {
-            ViewCompat.setTranslationY(holder.itemView, 0);
-            ViewCompat.setRotation(holder.itemView, 0);
+            ViewCompat.setAlpha(holder.itemView, 0);
         }
     }
 
@@ -796,17 +789,84 @@ public class TiCollectionView extends TiUINonViewGroupView
         mRecyclerView = new FastScrollRecyclerView(activity, null,
                 Resources.getSystem().getIdentifier("listViewStyle", "attr",
                         "android")) {
-
+//            private boolean viewFocused = false;
+            private boolean selectionSet = false;
             @Override
             protected void onLayout(boolean changed, int left, int top,
                     int right, int bottom) {
-
+//                if ((Build.VERSION.SDK_INT >= 18 && !changed && viewFocused)) {
+//                    viewFocused = false;
+//                    super.onLayout(changed, left, top, right, bottom);
+//                    return;
+//                }
+                // Starting with API 21, setSelection() triggers another layout
+                // pass, so we need to end it here to prevent
+                // an infinite loop
+                if (Build.VERSION.SDK_INT >= 21 && selectionSet) {
+                    selectionSet = false;
+                    return;
+                }
+                OnFocusChangeListener focusListener = null;
+                View focusedView = findFocus();
+                int cursorPosition = -1;
+                if (focusedView != null) {
+                    if (focusedView instanceof EditText) {
+                        cursorPosition = ((EditText) focusedView)
+                                .getSelectionStart();
+                    }
+                    OnFocusChangeListener listener = focusedView
+                            .getOnFocusChangeListener();
+                    if (listener != null && listener instanceof TiUIView) {
+                        focusedView.setOnFocusChangeListener(null);
+                        focusListener = listener;
+                    }
+                }
+                if (focusedView != null) {
+                    setDescendantFocusability(
+                            ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+                }
                 super.onLayout(changed, left, top, right, bottom);
+                setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+
                 if (changed) {
                     TiUIHelper.firePostLayoutEvent(TiCollectionView.this);
                 }
 
+                // Layout is finished, re-enable focus events.
+                if (focusedView != null) {
+                    // If the configuration changed, we manually fire the blur
+                    // event
+                    if (changed) {
+                        focusedView.setOnFocusChangeListener(focusListener);
+                        if (focusListener != null) {
+                            focusListener.onFocusChange(focusedView, false);
+                        }
+                    } else {
+                        // Ok right now focus is with listView. So set it back
+                        // to the focusedView
+//                        viewFocused = true;
+                        focusedView.requestFocus();
+                        focusedView.setOnFocusChangeListener(focusListener);
+                        // Restore cursor position
+                        if (cursorPosition != -1) {
+                            ((EditText) focusedView)
+                                    .setSelection(cursorPosition);
+                            selectionSet = true;
+                        }
+
+                    }
+                }
             }
+//            @Override
+//            protected void onLayout(boolean changed, int left, int top,
+//                    int right, int bottom) {
+//
+//                super.onLayout(changed, left, top, right, bottom);
+//                if (changed) {
+//                    TiUIHelper.firePostLayoutEvent(TiCollectionView.this);
+//                }
+//
+//            }
 
             @Override
             protected void onMeasure(int widthMeasureSpec,
@@ -841,14 +901,12 @@ public class TiCollectionView extends TiUINonViewGroupView
 
         mAdapter = new TiBaseAdapter(mRecyclerView.getContext(), null);
         mAdapter.setDisplayHeaders(true);
-        mSwipeMenuTouchListener = new SwipeMenuTouchListener(this);
+        mSwipeMenuTouchListener = new SwipeMenuTouchListener(null);
         mRecyclerView.addOnItemTouchListener(mSwipeMenuTouchListener);
-        // mRecyclerView.setItemAnimator(new TiItemAnimator());
-        mRecyclerView.setId(0x08);
+         mRecyclerView.setItemAnimator(new TiItemAnimator());
         mRecyclerView.setHorizontalScrollBarEnabled(false);
         mRecyclerView.setVerticalScrollBarEnabled(true);
         mRecyclerView.setHasFixedSize(true);
-
         layoutManager.setSmoothScrollbarEnabled(true);
         mRecyclerView.addOnScrollListener(new OnScrollListener() {
             private boolean scrollTouch = false;
@@ -908,22 +966,11 @@ public class TiCollectionView extends TiUINonViewGroupView
 
             @Override
             public void onScrolled(RecyclerView view, int dx, int dy) {
-//                overallXScroll = overallXScroll + dx;
-//                overallYScroll = overallYScroll + dy;
                 if (dx == 0 && dy == 0) {
                     return;
                 }
-                // Log.d(TAG, "onScroll : " + scrollValid, Log.DEBUG_MODE);
-                // boolean fireScroll = scrollValid;
-                // if (!fireScroll && visibleItemCount > 0) {
-                // //Items in a list can be selected with a track ball in which
-                // case
-                // //we must check to see if the first visibleItem has changed.
-                // fireScroll = (lastValidfirstItem != firstVisibleItem);
-                // }
+
                 if (fProxy.hasListeners(TiC.EVENT_SCROLL, false)) {
-                    // Log.d(TAG, "newScrollOffset : " + newScrollOffset,
-                    // Log.DEBUG_MODE);
                     fProxy.fireEvent(TiC.EVENT_SCROLL,
                             dictForScrollEvent(),
                             false, false);
@@ -962,20 +1009,13 @@ public class TiCollectionView extends TiUINonViewGroupView
         // }
         // });
 
-        // mRecyclerView.setCacheColorHint(Color.TRANSPARENT);
         mRecyclerView.setEnabled(true);
         getLayoutParams().autoFillsHeight = true;
         getLayoutParams().autoFillsWidth = true;
-        // listView.setFocusable(false);
         mRecyclerView.setFocusable(true);
-        mRecyclerView
-                .setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
+        mRecyclerView.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
 
         try {
-            // headerFooterId =
-            // TiRHelper.getApplicationResource("layout.titanium_ui_list_header_or_footer");
-            // titleId =
-            // TiRHelper.getApplicationResource("id.titanium_ui_list_header_or_footer_title");
             isCheck = TiRHelper.getApplicationResource(
                     "drawable.btn_check_buttonless_on_64");
             hasChild = TiRHelper.getApplicationResource("drawable.btn_more_64");
@@ -1456,12 +1496,13 @@ public class TiCollectionView extends TiUINonViewGroupView
             props.put("layout", "vertical");
             props.put("touchPassThrough", true);
             vp = (ViewProxy) this.proxy.addProxyToHold(props, "headerWrapper");
+            TiUIView view = ((ViewProxy) vp).getOrCreateView();
+            view.setCustomLayoutParams(
+                    new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT,
+                            ListView.LayoutParams.WRAP_CONTENT));
+            mAdapter.addHeaderView(view.getOuterView());
         }
-        TiUIView view = ((ViewProxy) vp).getOrCreateView();
-        view.setCustomLayoutParams(
-                new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT,
-                        ListView.LayoutParams.WRAP_CONTENT));
-        mAdapter.addHeaderView(view.getOuterView(), null, false);
+        
         return vp;
     }
     
@@ -1474,10 +1515,10 @@ public class TiCollectionView extends TiUINonViewGroupView
             props.put("layout", "vertical");
             props.put("touchPassThrough", true);
             vp = (ViewProxy) this.proxy.addProxyToHold(props, "footerWrapper");
+            TiUIView view = ((ViewProxy)vp).getOrCreateView();
+            view.setCustomLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT));
+            mAdapter.addFooterView(view.getOuterView());
         }
-        TiUIView view = ((ViewProxy)vp).getOrCreateView();
-        view.setCustomLayoutParams(new ListView.LayoutParams(ListView.LayoutParams.MATCH_PARENT, ListView.LayoutParams.WRAP_CONTENT));
-        mAdapter.addFooterView(view.getOuterView(), null, false);
         return vp;
     }
 
@@ -1553,8 +1594,6 @@ public class TiCollectionView extends TiUINonViewGroupView
     private void setSearchView(Object viewObj, boolean addInHeader) {
         KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "search");
         if (isSearchViewValid(viewProxy)) {
-            // TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
-
             TiUIView search = ((TiViewProxy) viewProxy).getOrCreateView();
             setSearchListener((TiViewProxy) viewProxy, search);
             if (addInHeader) {
@@ -1892,17 +1931,6 @@ public class TiCollectionView extends TiUINonViewGroupView
         return null;
     }
 
-    public void insert(final int position, final Object item) {
-    }
-
-    public void insert(final int position, final Object... items) {
-    }
-
-    public void remove(final int position) {
-    }
-
-    public void remove(final int position, final int count) {
-    }
 
     private static HashMap<String, String> TO_PASS_PROPS;
     private HashMap<String, Object> toPassProps;
@@ -1945,122 +1973,32 @@ public class TiCollectionView extends TiUINonViewGroupView
     }
 
     @Override
-    public String getSearchText() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public void onSaveInstanceState(Bundle outState) {
-        Log.v(TAG, "onSaveInstanceState start!");
-
         mAdapter.onSaveInstanceState(outState);
-
-        // if (mActivatedPosition != AdapterView.INVALID_POSITION) {
-        // //Serialize and persist the activated item position.
-        // outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
-        // Log.d(TAG, STATE_ACTIVATED_POSITION + "=" + mActivatedPosition);
-        // }
-        // super.onSaveInstanceState(outState);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         mAdapter.onRestoreInstanceState(savedInstanceState);
-        // Previously serialized activated item position
-        // if (savedInstanceState.containsKey(STATE_ACTIVATED_POSITION))
-        // setSelection(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
     }
 
-    @Override
-    public void onItemSwipe(int position, int direction) {
-        // AbstractFlexibleItem abstractItem = mAdapter.getItem(position);
-        // assert abstractItem != null;
-        // //Experimenting NEW feature
-        // if (abstractItem.isSelectable())
-        // mAdapter.setRestoreSelectionOnUndo(false);
-        //
-        // //TODO: Create Undo Helper with SnackBar?
-        // StringBuilder message = new StringBuilder();
-        // message.append(extractTitleFrom(abstractItem))
-        // .append(" ").append(getString(R.string.action_deleted));
-        // //noinspection ResourceType
-        // mSnackBar = Snackbar.make(findViewById(R.id.main_view), message,
-        // 7000)
-        // .setAction(R.string.undo, new View.OnClickListener() {
-        // @Override
-        // public void onClick(View v) {
-        // mAdapter.restoreDeletedItems();
-        // }
-        // });
-        // mSnackBar.show();
-        // mAdapter.removeItem(position, true);
-        // logOrphanHeaders();
-        // mAdapter.startUndoTimer(5000L + 200L, this);
-        // //Handle ActionMode title
-        // if (mAdapter.getSelectedItemCount() == 0)
-        // destroyActionModeIfCan();
-        // else
-        // setContextTitle(mAdapter.getSelectedItemCount());
-
-    }
 
     @Override
-    public void onItemMove(int fromPosition, int toPosition) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onItemLongClick(int position) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public boolean onItemClick(int position) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void onStickyHeaderChange(int position) {
+    public void onStickyHeaderChange(int sectionIndex) {
 
         if (proxy.hasListeners(TiC.EVENT_HEADER_CHANGE, false)) {
-            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(
-                    position);
-            if (info == null) {
-                return;
-            }
-            AbsListSectionProxy section = info.first;
-            final int sectionIndex = section.getIndex();
+            
+            AbsListSectionProxy section = getSectionAt(sectionIndex);
             KrollDict data = new KrollDict();
-            data.put(TiC.PROPERTY_HEADER_VIEW,
-                    section.getProperty(TiC.PROPERTY_HEADER_VIEW));
+            Object headerView = section.getHoldedProxy(TiC.PROPERTY_HEADER_VIEW);
+            if (headerView == null) {
+                headerView = section.getProperty(TiC.PROPERTY_HEADER_VIEW);
+            }
+            data.put(TiC.PROPERTY_HEADER_VIEW, headerView);
             data.put(TiC.PROPERTY_SECTION, section);
             data.put(TiC.PROPERTY_SECTION_INDEX, sectionIndex);
             proxy.fireEvent(TiC.EVENT_HEADER_CHANGE, data, false, false);
         }
-    }
-
-    @Override
-    public void onStartSwipe(SwipeMenuViewHolder holder, int direction) {
-    }
-
-    @Override
-    public void onMenuShown(SwipeMenuViewHolder holder, int direction) {
-    }
-
-    @Override
-    public void onMenuClosed(SwipeMenuViewHolder holder, int direction) {
-    }
-
-    @Override
-    public void beforeMenuShow(SwipeMenuViewHolder holder, int direction) {
-    }
-
-    @Override
-    public void beforeMenuClose(SwipeMenuViewHolder holder, int direction) {
     }
 
     public void closeSwipeMenu(Boolean animated) {
@@ -2069,6 +2007,11 @@ public class TiCollectionView extends TiUINonViewGroupView
         } else {
             mSwipeMenuTouchListener.closeMenus();
         }
+    }
+
+    @Override
+    public String getSearchText() {
+        return searchText;
     }
 
 }

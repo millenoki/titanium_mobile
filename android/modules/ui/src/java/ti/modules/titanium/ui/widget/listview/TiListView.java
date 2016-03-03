@@ -46,33 +46,33 @@ public class TiListView extends TiAbsListView<CustomListView> {
     
     private SwipeMenuAdapter mSwipeMenuAdapater;
     private boolean mNeedsSwipeMenu = true;
-    private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
-        @Override
-        public void onStartSwipe(View view, int position, int direction) {
-
-        }
-
-        @Override
-        public void onMenuShown(View view, int position, int direction) {
-
-        }
-
-        @Override
-        public void onMenuClosed(View view, int position, int direction) {
-
-        }
-
-        @Override
-        public void beforeMenuShow(View view, int position, int direction) {
-
-        }
-
-        @Override
-        public void beforeMenuClose(View view, int position, int direction) {
-
-        }
-
-    };
+//    private SwipeMenuCallback mMenuCallback = new SwipeMenuCallback() {
+//        @Override
+//        public void onStartSwipe(View view, int position, int direction) {
+//
+//        }
+//
+//        @Override
+//        public void onMenuShown(View view, int position, int direction) {
+//
+//        }
+//
+//        @Override
+//        public void onMenuClosed(View view, int position, int direction) {
+//
+//        }
+//
+//        @Override
+//        public void beforeMenuShow(View view, int position, int direction) {
+//
+//        }
+//
+//        @Override
+//        public void beforeMenuClose(View view, int position, int direction) {
+//
+//        }
+//
+//    };
 
     public TiListView(TiViewProxy proxy, Activity activity) {
         super(proxy, activity);
@@ -152,7 +152,7 @@ public class TiListView extends TiAbsListView<CustomListView> {
         }
         if (mNeedsSwipeMenu) {
             currentAdapter = mSwipeMenuAdapater = new SwipeMenuAdapter(currentAdapter, getProxy()
-                    .getActivity(), mMenuCallback);
+                    .getActivity(), null);
         }
 
         StickyListHeadersAdapterDecorator stickyListHeadersAdapterDecorator = new StickyListHeadersAdapterDecorator(
@@ -207,5 +207,21 @@ public class TiListView extends TiAbsListView<CustomListView> {
                 mSwipeMenuAdapater.closeMenus();
             }
         }
+    }
+    
+    public void insert(final int position, final Object item) {
+        listView.insert(position, item);
+    }
+
+    public void insert(final int position, final Object... items) {
+        listView.insert(position, items);
+    }
+
+    public void remove( final int position) {
+        listView.remove(position - listView.getHeaderViewsCount());
+    }
+
+    public void remove( final int position, final int count) {
+        listView.remove(position - listView.getHeaderViewsCount(), count);
     }
 }

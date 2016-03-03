@@ -296,6 +296,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //            @Override
 //            public void execute() {
                 handleSetItems(data);
+                notifyDataChange();
 //            }
 //        }, true);
 	}
@@ -319,7 +320,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //		runInUiThread(new CommandNoReturn() {
 //            @Override
 //            public void execute() {
-                handleAppendItems(data);    
+                insertItemsAt(mItemCount, data);
 //            }
 //        }, true);
 	}
@@ -336,7 +337,17 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
-                handleInsertItemsAt(index, data);    
+                TiCollectionViewInterface listView = getListView();
+                if (listView instanceof TiListView) {
+                    int position = listView.findItemPosition(sectionIndex, index);
+                    ((TiListView) listView).insert(index, data);
+                }
+                else {
+                    int itemCount = insertItemsData(index, data);
+                    if (itemCount > 0) {
+                        notifyItemRangeInserted(index, itemCount);
+                    }
+                }      
             }
         }, true);
 	}
@@ -364,7 +375,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                 TiCollectionViewInterface listView = getListView();
                 if (listView instanceof TiListView) {
                     int position = listView.findItemPosition(sectionIndex, index);
-                    listView.remove(position, count);
+                    ((TiListView) listView).remove(position, count);
                 }
                 else {
                     int deletedCount = deleteItemsData(index, count);
@@ -383,16 +394,11 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             
             @Override
             public void execute() {
-                if (count == 0) {
-                    ;
-                    notifyItemRangeInserted(index, handleInsertItemsAt(index, data));
-                } else {
-                    int deletedCount = deleteItemsData(index, count);
-                    if (deletedCount > 0) {
-                        notifyItemRangeRemoved(index, deletedCount);
-                        notifyItemRangeInserted(index, handleInsertItemsAt(index, data));
-                    }
-                }         
+                int deletedCount = deleteItemsData(index, count);
+                if (deletedCount > 0) {
+                    notifyItemRangeRemoved(index, deletedCount);
+                    notifyItemRangeInserted(index, insertItemsData(index, data));
+                }
             }
         }, true);
 	}
@@ -626,14 +632,14 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		
 		updateCurrentItemCount();
 		// Notify adapter that data has changed.
-		if (preload == false) {
-	      runInUiThread(new CommandNoReturn() {
-              @Override
-              public void execute() {
-                adapter.notifyDataSetChanged();
-              }
-          }, false);
-		}
+//		if (preload == false) {
+//	      runInUiThread(new CommandNoReturn() {
+//              @Override
+//              public void execute() {
+//                adapter.notifyDataSetChanged();
+//              }
+//          }, false);
+//		}
 	}
 
 	private void handleSetItems(Object data) {
@@ -657,7 +663,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		}
 	}
 
-	private void handleAppendItems(Object data) {
+	private int handleAppendItems(Object data) {
 		if (data instanceof Object[]) {
 		    Object[] items = (Object[]) data;
 			if (itemProperties == null) {
@@ -670,58 +676,21 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			// only process items when listview's properties is processed.
 			if (getListView() == null) {
 				preload = true;
-				return;
+				return 0;
 			}
 			int offset = mItemCount;
 			mItemCount = itemProperties.length;
 
 			processData(items, offset);
-
+			return items.length;
 		} else {
 			Log.e(TAG, "Invalid argument type to setData", Log.DEBUG_MODE);
 		}
+		return 0;
 	}
 
-	private int handleInsertItemsAt(int index, Object data) {
-	    TiCollectionViewInterface listView = getListView();
-        if (listView instanceof TiListView) {
-            int position = listView.findItemPosition(sectionIndex, index) - listView.getHeaderViewCount();
-            if (data instanceof Object[]) {
-                listView.insert(position, (Object[])data);
-                return ((Object[])data).length;
-            }
-        }
-        else {
-            if (data instanceof Object[]) {
-                Object[] items = (Object[]) data;
-
-                if (itemProperties == null) {
-                    itemProperties = items;
-               } else {
-                    if (index < 0 || index > itemProperties.length) {
-                        Log.e(TAG, "Invalid index to handleInsertItem",
-                                Log.DEBUG_MODE);
-                        return 0 ;
-                    }
-                    ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
-                    list.addAll(index, Arrays.asList(items));
-                    itemProperties = (Object[]) list.toArray();
-                    processData(items, index);
-                }
-                // only process items when listview's properties is processed.
-                if (listView == null) {
-                    preload = true;
-                }
-                return items.length;
-            } else {
-                Log.e(TAG, "Invalid argument type to insertItemsAt",
-                        Log.DEBUG_MODE);
-            }
-        }
-        return 0;
-	}
 	
-	private int deleteItemsData(int index, int count) {
+	public int deleteItemsData(int index, int count) {
 		int removedCount = 0;
 		
         ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
@@ -744,51 +713,35 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		return removedCount;
 	}
 	
-	public Object deleteItemData(int index) {
-        if (0 <= index && index < itemProperties.length) {
-            ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
-            Object result = list.remove(index);
-            mHiddenItems.remove(index);
-//            listItemData.remove(index);
-            mItemCount --;
-            updateCurrentItemCount();
-            itemProperties = list.toArray();
-            return result;
-        }
-        return null;
-    }
-	
-	public void insertItemData(int index, Object data) {
-	    if (itemProperties == null) {
-	        itemProperties = new Object[] {data};
-        } else {
-            if (index < 0 || index > itemProperties.length) {
-                Log.e(TAG, "Invalid index to handleInsertItem",
-                        Log.DEBUG_MODE);
-                return;
+	public int insertItemsData(int index, Object data) {
+	    if (data instanceof Object[]) {
+            Object[] items = (Object[]) data;
+            if (items.length == 0) {
+                return 0;
             }
-            ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
-            list.add(index, data);
-            itemProperties = list.toArray();
+            if (itemProperties == null) {
+                itemProperties = items;
+           } else {
+                if (index < 0 || index > itemProperties.length) {
+                    Log.e(TAG, "Invalid index to handleInsertItem",
+                            Log.DEBUG_MODE);
+                    return 0 ;
+                }
+                ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
+                list.addAll(index, Arrays.asList(items));
+                itemProperties = (Object[]) list.toArray();
+                mItemCount = itemProperties.length;
+                processData(items, index);
+            }
+            // only process items when listview's properties is processed.
+            if (listView == null) {
+                preload = true;
+            }
+            return items.length;
+        } else if (data != null) {
+            insertItemsData(index, new Object[] {data});
         }
-        // only process items when listview's properties is processed.
-        if (getListView() == null) {
-            preload = true;
-            return;
-        }
-
-        mItemCount += 1;
-//        if (listItemData != null && data instanceof HashMap) {
-//            KrollDict d = new KrollDict((HashMap) data);
-//            AbsListItemData itemD = new AbsListItemData(d);
-//            listItemData.add(index, itemD);
-//            hiddenItems.add(index, !itemD.isVisible());
-//        
-        if (data instanceof HashMap) {
-//            hiddenItems.add(index, !isItemVisible((HashMap) data));
-            updateVisibleState((HashMap) data, index);
-       }
-        updateCurrentItemCount();
+	    return 0;
     }
 
 
@@ -826,7 +779,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //	    if (hasHeader()) {
 //	        result -= 1;
 //        }
-	    if (isFilterOn()) {
+	    if (isFilterOn() && result >= 0&& result < filterIndices.size()) {
 	        return getItemIndexFromPosition(filterIndices.get(result));
 	    }
 	    return getItemIndexFromPosition(result);
@@ -1101,8 +1054,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	        for (int i = 0; i < itemProperties.length; ++i) {
 	            HashMap data = (HashMap) itemProperties[i];
 	            boolean visible = isItemVisible(data);
+	            if (!visible) {
+	                continue;
+	            }
 	            String searchableText = TiConvert.toString(data, TiC.PROPERTY_SEARCHABLE_TEXT);
-	            if (searchableText == null || !visible) continue;
+	            if (searchableText == null && data.containsKey(TiC.PROPERTY_PROPERTIES)) {
+	                searchableText = TiConvert.toString(data.get(TiC.PROPERTY_PROPERTIES), TiC.PROPERTY_TITLE);
+                }
+	            if (searchableText == null) {
+	                continue;
+	            }
 	            // Handle case sensitivity
 	            if (caseInsensitive) {
 	                searchableText = searchableText.toLowerCase();

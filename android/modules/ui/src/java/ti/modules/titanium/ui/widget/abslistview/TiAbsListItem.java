@@ -151,7 +151,7 @@ public class TiAbsListItem extends TiUIView implements TiTouchDelegate {
 		}
 	}
 
-	private void handleAccessory(int accessory) {
+	protected void handleAccessory(int accessory) {
 		
 		ImageView accessoryImage = (ImageView) listItemLayout.findViewById(TiAbsListView.accessory);
 

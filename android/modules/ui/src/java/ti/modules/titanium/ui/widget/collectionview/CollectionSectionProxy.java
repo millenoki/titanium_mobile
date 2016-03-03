@@ -47,7 +47,10 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
             if (newValue instanceof String) {
                  addProxyToHold(TiAbsListView.headerViewDict(TiConvert.toString(newValue)), TiC.PROPERTY_HEADER_VIEW);
              } else if (newValue instanceof HashMap) {
-                 
+                 if (((HashMap) newValue).containsKey(TiC.PROPERTY_TYPE)) {
+                     //type means a view created from dict
+                     addProxyToHold(newValue, TiC.PROPERTY_HEADER_VIEW);
+                 }
              } else if (newValue instanceof KrollProxy) {
                  addProxyToHold(newValue, TiC.PROPERTY_HEADER_VIEW);
              } else {
@@ -159,7 +162,7 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
         boolean hasHeader = hasHeader();
         if (hasHeader && itemPosition == RecyclerView.NO_POSITION) {
             Object item = getProperty(TiC.PROPERTY_HEADER_VIEW);
-            if (item instanceof HashMap) {
+            if (item instanceof HashMap && getHoldedProxy(TiC.PROPERTY_HEADER_VIEW) == null) {
                 return (HashMap) item;
             }
             return null;
@@ -167,7 +170,7 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
 
         if (hasFooter() && itemPosition == getItemCount()) {
             Object item = getProperty(TiC.PROPERTY_FOOTER_VIEW);
-            if (item instanceof HashMap) {
+            if (item instanceof HashMap && getHoldedProxy(TiC.PROPERTY_FOOTER_VIEW) == null) {
                 return (HashMap) item;
             }
             return null;

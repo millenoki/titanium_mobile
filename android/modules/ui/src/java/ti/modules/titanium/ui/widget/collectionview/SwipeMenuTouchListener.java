@@ -182,7 +182,7 @@ public class SwipeMenuTouchListener implements OnItemTouchListener {
      * Constructs a new {@code SwipeTouchListener} for the given
      * {@link android.widget.AbsListView}.
      */
-    protected SwipeMenuTouchListener(@NonNull final SwipeMenuCallback callback) {
+    protected SwipeMenuTouchListener(final SwipeMenuCallback callback) {
         mCallback = callback;
     }
 

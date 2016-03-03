@@ -10,11 +10,10 @@ import android.view.View;
 public interface TiCollectionViewInterface {
     public KrollProxy getChildByBindId(int sectionIndex, int itemIndex, String bindId);
     public int findItemPosition(int sectionIndex, int sectionItemIndex);
-    public void remove( final int position, final int count);
+
     public View getCellAt(int sectionIndex, int itemIndex);
     public TiAbsListViewTemplate getTemplate(String template, final boolean canReturnDefault);
-    public void insert(final int position, final Object item);
-    public void insert(final int position, final Object... items);
+
     public int getHeaderViewCount();
     public HashMap<String, Object> getToPassProps();
     public String getSearchText();
