@@ -445,7 +445,11 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             setBackgroundImage(newValue);
             break;
         case TiC.PROPERTY_BACKGROUND_COLOR:
-            setBackgroundColor(TiConvert.toColor(newValue));
+            if(newValue == null) {
+                setBackgroundColor(defaultColor);
+            } else {
+                setBackgroundColor(TiConvert.toColor(newValue));
+            }
             break;
         case TiC.PROPERTY_BACKGROUND_GRADIENT:
             resetTitleEnabled();

@@ -128,7 +128,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                 getMainHandler().obtainMessage(MSG_SET_TITLE, newValue)
                         .sendToTarget();
                 break;
-
             case TiC.PROPERTY_TOUCH_ENABLED:
                 if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
                     if (TiConvert.toBoolean(newValue, true)) {
@@ -146,13 +145,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
                 break;
             case TiC.PROPERTY_FULLSCREEN:
                 if (changedProperty && activity != null && activity.isCurrentWindow(WindowProxy.this)) {
-                    if (TiConvert.toBoolean(newValue, true)) {
-                        activity.getWindow()
-                                .addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                    } else {
-                        activity.getWindow()
-                                .clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-                    }
+                    activity.setFullscreen(TiConvert.toBoolean(newValue, false));
                 }
                 break;
             case TiC.PROPERTY_FOCUSABLE:

@@ -495,10 +495,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	        int softInputMode = props.optInt(TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE, this.defaultSoftInputMode);
 	        boolean hasSoftInputMode = softInputMode != -1;
 	        
-	        if (fullscreen != this.fullscreen) {
-	            this.fullscreen = fullscreen;
-	            setFullscreen(fullscreen);
-	        }
+	        setFullscreen(props.optBoolean(TiC.PROPERTY_FULLSCREEN, this.defaultFullscreen));
 	        if (newNavBarHidden != this.navBarHidden) {
 	            this.navBarHidden = newNavBarHidden;
 	            TiActivityHelper.setActionBarHidden(this, this.navBarHidden);
@@ -879,8 +876,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	    }
 	}
 
-	protected void setFullscreen(boolean fullscreen)
+	public void setFullscreen(boolean fullscreen)
 	{
+	    if (this.fullscreen == fullscreen) {
+	        return;
+	    }
+	    this.fullscreen = fullscreen;
 		if (fullscreen) {
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 			View decorView = getWindow().getDecorView();
@@ -905,7 +906,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	@SuppressWarnings("deprecation")
 	protected void windowCreated(Bundle savedInstanceState)
 	{
-		defaultFullscreen = fullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
+		defaultFullscreen = getIntentBoolean(TiC.PROPERTY_FULLSCREEN, false);
 //		defaultNavBarHidden = navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
 		navBarHidden = getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false);
 		boolean modal = getIntentBoolean(TiC.PROPERTY_MODAL, false);
@@ -914,7 +915,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		int windowFlags = getIntentInt(TiC.PROPERTY_WINDOW_FLAGS, 0);
 		final Window window = getWindow();
 		
-		setFullscreen(fullscreen);
+		setFullscreen(defaultFullscreen);
 		TiActivityHelper.setActionBarHidden(this, navBarHidden);
 		
 		if (intentHasProperty(TiC.PROPERTY_WINDOW_TYPE)) {

@@ -108,6 +108,15 @@ public abstract class TiWindowProxy extends TiViewProxy
 		    sharedElementPairs = new ArrayList< Pair<View, String> >();
 		}
 	}
+	
+	@Override
+    public void handleCreationDict(HashMap options) {
+        super.handleCreationDict(options);
+        if (options.containsKey(TiC.PROPERTY_TITLE_VIEW)) {
+            setTitleView(options.get(TiC.PROPERTY_TITLE_VIEW));
+        }
+        
+    }
 
 	@Override
 	public TiUIView createView(Activity activity)
@@ -389,11 +398,26 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	@Kroll.setProperty @Kroll.method
 	public void setLeftNavButton(Object button)
-	{
-		Log.w(TAG, "setLeftNavButton not supported in Android");
-	}
+    {
+        Log.w(TAG, "setLeftNavButton not supported in Android");
+    }
 
-	@Kroll.method @Kroll.setProperty
+    @Kroll.setProperty @Kroll.method
+	public void setTitleView(Object data)
+    {
+        addProxyToHold(data, TiC.PROPERTY_TITLE_VIEW);
+        if (isOpenedOrOpening()) {
+            getActionBar().onPropertyChanged(TiC.PROPERTY_TITLE_VIEW, getHoldedProxy(TiC.PROPERTY_TITLE_VIEW));
+        }
+    }
+
+    @Kroll.setProperty @Kroll.method
+    public void setRightNavButton(Object button)
+    {
+        Log.w(TAG, "setLeftNavButton not supported in Android");
+    }
+
+    @Kroll.method @Kroll.setProperty
 	public void setOrientationModes (int[] modes)
 	{
 		int activityOrientationMode = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
@@ -703,7 +727,14 @@ public abstract class TiWindowProxy extends TiViewProxy
                     if (actionBarDict == null) {
                         actionBarDict = new HashMap(); 
                     }
-                    actionBarDict.put(realKey, windowProperties.get(key));
+                    switch (key) {
+                    case TiC.PROPERTY_TITLE_VIEW:
+                        actionBarDict.put(realKey, getHoldedProxy(key));
+                        break;
+                    default:
+                        actionBarDict.put(realKey, windowProperties.get(key));
+                        break;
+                    }
                 }
             }
         }

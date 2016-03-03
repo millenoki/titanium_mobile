@@ -416,7 +416,7 @@ public class ActivityProxy extends KrollProxy
 	    case TiC.PROPERTY_ACTION_BAR:
             ActionBarProxy actionBarProxy = getActionBar();
             if (actionBarProxy != null) {
-                actionBarProxy.setProperties(TiConvert.toKrollDict(newValue));
+                actionBarProxy.setProperties(TiConvert.toHashMap(newValue));
                 invalidateOptionsMenu();
             }
             break;

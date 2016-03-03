@@ -135,7 +135,7 @@ public class MenuProxy extends ParentingProxy
 		MenuItem item = menu.add(groupId, itemId, order, title);
 		mip = new MenuItemProxy(item, getActivity());
         mip.setParentForBubbling(this);
-		mip.setProperties(d); //apply to actually update properties
+		mip.handleCreationDict(d);
 		mip.updateKrollObjectProperties();
 		synchronized(menuMap) {
 			menuMap.put(item, mip);
