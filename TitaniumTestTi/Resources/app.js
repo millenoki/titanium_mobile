@@ -230,9 +230,9 @@ function transform1Ex(_args) {
 		title: 'test buutton'
 	});
 	var t1 = '';
-	info(t1.toString());
+	Ti.API.info(t1.toString());
 	var t2 = 'os2t40,100%r90';
-	info(t2.toString());
+	Ti.API.info(t2.toString());
 	button.addEventListener('longpress', function(e) {
 		button.animate({
 			duration: 500,
@@ -762,7 +762,7 @@ function transform6Ex(_args) {
 	});
 	win.addEventListener('click', function(e) {
 		if (e.source.bid !== undefined) {
-			info(e.source.bid);
+			Ti.API.info(e.source.bid);
 			var anchorPoint = {
 				x: 0,
 				y: 0
@@ -2786,7 +2786,7 @@ function navWindowEx() {
 		listView.addEventListener('itemclick', function(_event) {
 			if (_event.hasOwnProperty('section') && _event.hasOwnProperty('itemIndex')) {
 				var item = _event.section.getItemAt(_event.itemIndex);
-				Ti.API.info('item ' + JSON.stringify(item));
+				console.log('item', item);
 				openMe({
 					transition: item.transition
 				});
@@ -3350,7 +3350,7 @@ function slideMenuEx() {
 			]
 		});
 	scrollView.addEventListener('change', function(e) {
-		info('pagechange' + e.currentPage);
+		Ti.API.info('pagechange' + e.currentPage);
 	})
 	rootWindow1.add(scrollView);
 
@@ -3616,7 +3616,7 @@ function test2() {
 	win.add(view);
 
 	win.addEventListener('click', function() {
-		info('click');
+		Ti.API.info('click');
 		// notificationView.showMessage({
 		// 	message: 'test',
 		// 	level: 'error'
@@ -4086,7 +4086,7 @@ function imageViewAnimationTest(_args) {
 		title: 'transition'
 	}]);
 	btnHolder.addEventListener('singletap', function(e) {
-		info(stringify(e));
+		console.log(e);
 		switch (e.source.bid) {
 			case 0:
 				// image1.start();
@@ -4279,7 +4279,7 @@ firstWindow
 		bindId: 'listView',
 		type: 'Ti.UI.CollectionView',
 		properties: {
-			stickyHeaders:true,
+			stickyHeaders: true,
 			// headerTitle: 'DEVICE',
 			separatorStyle: Ti.UI.ListViewSeparatorStyle.SINGLE_LINE,
 			headerView: headerView,
@@ -4818,7 +4818,7 @@ function borderPaddingEx(_args) {
 		}],
 		events: {
 			'longpress': function(e) {
-				info('test' + JSON.stringify(e));
+				console.log(e);
 				// if (e.bindId === 'test') {
 				e.source.text = (e.source.text === 'test') ? 'this is a test' : 'test';
 				// }
@@ -4891,13 +4891,13 @@ function borderPaddingEx(_args) {
 			}]
 		});
 
-	info(win.value.text);
+	Ti.API.info(win.value.text);
 	var first = true;
 	win.value.addEventListener('click', function(e) {
-		info(stringify(e));
+		console.log(e);
 	});
 	win.value.addEventListener('longpress', function(e) {
-		info(stringify(e));
+		console.log(e);
 	});
 
 	win.add({
@@ -4908,7 +4908,7 @@ function borderPaddingEx(_args) {
 		},
 		events: {
 			'click': function(e) {
-				info(stringify(e));
+				console.log(e);
 			}
 		},
 		childTemplates: [{
@@ -5214,7 +5214,7 @@ function testMCTS(_args) {
 		}
 	});
 	win.addEventListener('click', function(_event) {
-		info('click' + _event.bindId);
+		Ti.API.info('click' + _event.bindId);
 		if (_event.bindId !== 'textfield') {
 			win.blur();
 		}
@@ -5473,7 +5473,7 @@ function videoOverlayTest(_args) {
 		var delta = newDelta - currentDelta;
 		totalDelta += delta;
 		currentDelta += delta;
-		info(previousVelocity);
+		Ti.API.info(previousVelocity);
 		if (totalDelta >= closeDelta || previousVelocity >= 7) {
 			webView.animate(_.assign({
 				duration: totalDelta
@@ -5496,10 +5496,8 @@ function videoOverlayTest(_args) {
 	win.setVideoId = function(_videoId) {
 		if (!_videoId)
 			return;
-		webView.html = htmlFormat.text.assign({
-			videoId: _videoId
-		});
-		info(webView.html);
+		webView.html = htmlFormat.text.replace(/{videoId}/g, _videoId);
+		Ti.API.info(webView.html);
 	};
 
 	win.setVideoId('23m3EfXT0FM');
