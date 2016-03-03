@@ -376,6 +376,7 @@
 		D58DCBD217FF193D0011FE0E /* TiTransitionHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D58DCBD117FF193D0011FE0E /* TiTransitionHelper.m */; };
 		D590815C168B593B00362307 /* TiUIHorizontalTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5908158168B593B00362307 /* TiUIHorizontalTableView.m */; };
 		D590815F168B593B00362307 /* TiUIHorizontalTableViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5908159168B593B00362307 /* TiUIHorizontalTableViewProxy.m */; };
+		D59125F41C888C8200B0A8B1 /* TiUICollectionViewDefaultTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = D59125F31C888C8200B0A8B1 /* TiUICollectionViewDefaultTemplate.m */; };
 		D59355641A2342ED00522BC3 /* SevenSwitch.m in Sources */ = {isa = PBXBuildFile; fileRef = D59355631A2342ED00522BC3 /* SevenSwitch.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5937D9A1A24DCA00098DA47 /* GPUImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5B9289218C1EEC200E26393 /* GPUImage.framework */; };
 		D5937D9B1A24DCA80098DA47 /* libresolv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D5EA4AD218EF05EB001F67E8 /* libresolv.dylib */; };
@@ -1554,6 +1555,8 @@
 		D5908159168B593B00362307 /* TiUIHorizontalTableViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIHorizontalTableViewProxy.m; sourceTree = "<group>"; };
 		D590815A168B593B00362307 /* TiUIHorizontalTableViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIHorizontalTableViewProxy.h; sourceTree = "<group>"; };
 		D590815B168B593B00362307 /* TiUIHorizontalTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIHorizontalTableView.h; sourceTree = "<group>"; };
+		D59125F21C888C8200B0A8B1 /* TiUICollectionViewDefaultTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUICollectionViewDefaultTemplate.h; sourceTree = "<group>"; };
+		D59125F31C888C8200B0A8B1 /* TiUICollectionViewDefaultTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUICollectionViewDefaultTemplate.m; sourceTree = "<group>"; };
 		D59355621A2342ED00522BC3 /* SevenSwitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SevenSwitch.h; path = ../Classes/SevenSwitch/SevenSwitch.h; sourceTree = "<group>"; };
 		D59355631A2342ED00522BC3 /* SevenSwitch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SevenSwitch.m; path = ../Classes/SevenSwitch/SevenSwitch.m; sourceTree = "<group>"; };
 		D5937DC11A24DD800098DA47 /* libAPSAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSAnalytics.a; path = ../Classes/APSAnalytics/libAPSAnalytics.a; sourceTree = "<group>"; };
@@ -3489,6 +3492,8 @@
 				D50E112A1A2231B4008FD092 /* TiUICollectionWrapperViewProxy.m */,
 				D50E112E1A223AC5008FD092 /* TiUICollectionViewFlowLayout.h */,
 				D50E112F1A223AC5008FD092 /* TiUICollectionViewFlowLayout.m */,
+				D59125F21C888C8200B0A8B1 /* TiUICollectionViewDefaultTemplate.h */,
+				D59125F31C888C8200B0A8B1 /* TiUICollectionViewDefaultTemplate.m */,
 			);
 			name = CollectionView;
 			sourceTree = "<group>";
@@ -4447,6 +4452,7 @@
 				D5EEA1641A37486100E8BB3F /* _DDParserTerm.m in Sources */,
 				D57007F418255BBD0063F7FE /* ADSwipeDualFadeTransition.m in Sources */,
 				24E50E30116066B400AF54AF /* TiUIDashboardView.m in Sources */,
+				D59125F41C888C8200B0A8B1 /* TiUICollectionViewDefaultTemplate.m in Sources */,
 				3A811CD31C2C21FE0023468C /* TiUIiOSBlurView.m in Sources */,
 				24E50F911160792D00AF54AF /* TiUIDashboardItemProxy.m in Sources */,
 				B4DE7E4E11823E990006DDE1 /* TiGradient.m in Sources */,
