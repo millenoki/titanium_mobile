@@ -377,12 +377,12 @@
 -(void)setEllipsize_:(id)value
 {
 	ENSURE_SINGLE_ARG(value, NSNumber);
-	//for bool case and parity with android
-	if ([TiUtils intValue:value] == 1) {
-		[[self label] setLineBreakMode:NSLineBreakByTruncatingTail];
-		return;
-	}
-	[[self label] setLineBreakMode:[TiUtils intValue:value]];
+    NSInteger type = [TiUtils intValue:value];
+    if (type == 1) {
+        type = NSLineBreakByTruncatingTail;
+        return;
+    }
+	[[self label] setLineBreakMode:type];
 }
 
 -(void)setHighlightedColor_:(id)color
