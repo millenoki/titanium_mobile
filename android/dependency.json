@@ -38,6 +38,7 @@
 			"android-support-v7-recyclerview.jar",
 			"stickylistheadersview.jar", 
 			"flexibleadapter.jar", 
+			"recyclerviewfastscroller.jar", 
 			"listviewanimations.jar", 
 			"okhttp-2.7.2.jar",
 			"okio-1.6.0.jar",

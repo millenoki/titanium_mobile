@@ -14,5 +14,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/SubImageView"/>
 	<classpathentry exported="true" kind="lib" path="lib/android-support-v7-recyclerview.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/FlexibleAdapter"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/RecyclerViewFastScroller"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
