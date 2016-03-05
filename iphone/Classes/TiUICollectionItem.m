@@ -19,11 +19,25 @@
 
 #define GROUP_ROUND_RADIUS 6
 
+@interface TiUICollectionItemViewHolder: TiUIView
+@end
+@implementation TiUICollectionItemViewHolder
+
+//-(void)setFrame:(CGRect)frame
+//{
+//    //sometimes the y is not 0. This should not happen because
+//    //of the authorizing mask.
+//    //This is a temporary fix until the real source is found
+//    frame.origin.y = 0;
+//    [super setFrame:frame];
+//}
+@end
+
 @implementation TiUICollectionItem {
 	TiUICollectionItemProxy *_proxy;
 	NSInteger _templateStyle;
 	NSDictionary *_dataItem;
-    TiUIView* _viewHolder;
+    TiUICollectionItemViewHolder* _viewHolder;
     BOOL _needsLayout;
     BOOL configurationSet;
     BOOL _unHighlightOnSelect;
@@ -41,11 +55,9 @@ DEFINE_EXCEPTIONS
 {
 		_templateStyle = style;
 		_proxy = [proxy retain];
-    
-        _viewHolder = [[TiUIView alloc] initWithFrame:self.contentView.bounds];
+        _viewHolder = [[TiUICollectionItemViewHolder alloc] initWithFrame:self.contentView.bounds];
         _viewHolder.proxy = _proxy;
         _viewHolder.shouldHandleSelection = NO;
-    [_viewHolder setBackgroundColor_:[UIColor redColor]];
         [_viewHolder setAutoresizingMask:UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight];
         [_viewHolder setClipsToBounds: YES];
         [_viewHolder.layer setMasksToBounds: YES];
@@ -260,16 +272,6 @@ static NSArray* handledKeys;
 - (void)layoutSubviews
 {
     if (_templateStyle == TiUICollectionItemTemplateStyleCustom) {
-        //        TiViewAnimationStep* anim = [_proxy runningAnimation];
-        //        if (anim)
-        //        {
-        //            [_proxy setRunningAnimationRecursive:anim];
-        ////            [_proxy refreshViewIfNeeded:YES];
-        //            [super layoutSubviews];
-        //            [_proxy setRunningAnimationRecursive:nil];
-        //            return;
-        //////        }
-        ////        else {
         if (_proxy.sandboxBounds.size.width == 0 || _proxy.sandboxBounds.size.height == 0) {
             [UIView performWithoutAnimation:^{
                 [_proxy refreshViewIfNeeded:YES];
@@ -277,7 +279,6 @@ static NSArray* handledKeys;
         } else {
             [_proxy refreshViewIfNeeded:YES];
         }
-        //        }
     }
     [super layoutSubviews];
 }

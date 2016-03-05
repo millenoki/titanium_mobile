@@ -327,9 +327,9 @@ static NSDictionary* listViewKeysToReplace;
 
 - (NSNumber *)sectionCount
 {
-	return [self dispatchBlockWithResult:^() {
+//	return [self dispatchBlockWithResult:^() {
 		return [NSNumber numberWithUnsignedInteger:[_sections count]];
-	}];
+//	}];
 }
 
 - (void)setSections:(id)args

@@ -93,6 +93,8 @@
     
     id _appearAnimation;
     BOOL _useAppearAnimation;
+    
+    BOOL _hasHeaderView;
 }
 
 static NSDictionary* replaceKeysForRow;
@@ -181,6 +183,9 @@ static TiProxyTemplate* sDefaultItemTemplate;
 //    [theProxy setProxyObserver:self];
 //    if (header) {
 //        [self.tableView setTableHeaderView:[theProxy getAndPrepareViewForOpening:CGRectZero]];
+//        self.tableView.contentInset = UIEdgeInsetsMake(50, 0, 0, 0);
+//        UIImageView *imagev = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"015.png"]];
+//        [self.tableView addSubview: [theProxy getAndPrepareViewForOpening:CGRectZero]];
 //    } else {
 //        [self.tableView setTableFooterView:[theProxy getAndPrepareViewForOpening:CGRectZero]];
 //    }
@@ -198,7 +203,9 @@ static TiProxyTemplate* sDefaultItemTemplate;
                                                                @"height":@"SIZE"
                                                                } forKey:@"headerWrapper"];
         vp.canBeResizedByFrame = YES;
+        [[self tableView] registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:HEADER_VIEW_STYLE];
         [self setHeaderFooter:vp isHeader:YES];
+        _hasHeaderView = YES;
     }
     return vp;
 }
@@ -336,25 +343,29 @@ static TiProxyTemplate* sDefaultItemTemplate;
     }];
 }
 
-//-(void)proxyDidRelayout:(id)sender
-//{
-//    NSArray* keys = [[self viewProxy] allKeysForHoldedProxy:sender];
-//    if ([keys count] > 0) {
-//        NSString* key = [keys objectAtIndex:0];
-//
-////        if ([key isEqualToString:@"headerWrapper"]) {
-////            UIView* headerView = [[self tableView] tableHeaderView];
-////            [headerView setFrame:[headerView bounds]];
-////            [[self tableView] setTableHeaderView:headerView];
-////            [((TiUICollectionViewProxy*)[self proxy]) contentsWillChange];
-////        } else if ([key isEqualToString:@"footerView"]) {
-////            UIView* footerView = [[self tableView] tableFooterView];
-////            [footerView setFrame:[footerView bounds]];
-////            [[self tableView] setTableFooterView:footerView];
-////            [((TiUICollectionViewProxy*)[self proxy]) contentsWillChange];
-//        }
-//    }
-//}
+
+-(void)proxyDidRelayout:(id)sender
+{
+    NSArray* keys = [[self viewProxy] allKeysForHoldedProxy:sender];
+    if ([keys count] > 0) {
+        NSString* key = [keys objectAtIndex:0];
+
+        if ([key isEqualToString:@"headerWrapper"]) {
+            UIView* headerView = [[self holdedProxyForKey:@"headerWrapper"] view];
+            [headerView setFrame:[headerView bounds]];
+            CGRect bounds = [headerView bounds];
+            headerView.frame = CGRectMake(0, -bounds.size.height, bounds.size.width, bounds.size.height);
+//            self.tableView.contentOffset = CGPointMake(0, -bounds.size.height);
+            self.tableView.contentInset = UIEdgeInsetsMake(bounds.size.height, 0, 0, 0);
+            [((TiUICollectionViewProxy*)[self proxy]) contentsWillChange];
+        } else if ([key isEqualToString:@"footerView"]) {
+//            UIView* footerView = [[self tableView] tableFooterView];
+//            [footerView setFrame:[footerView bounds]];
+//            [[self tableView] setTableFooterView:footerView];
+//            [((TiUICollectionViewProxy*)[self proxy]) contentsWillChange];
+        }
+    }
+}
 
 -(void)setContentInsets_:(id)value withObject:(id)props
 {
@@ -629,15 +640,15 @@ static TiProxyTemplate* sDefaultItemTemplate;
     return [self.listViewProxy.templates objectForKey:templateId];
 }
 
--(id)firstItemValueForKeys:(NSArray*)keys atIndexPath:(NSIndexPath*)indexPath
+-(id)firstItemValueForKeys:(NSArray*)keys inSection:(TiUICollectionSectionProxy*)section atIndex:(NSInteger)index
 {
-    NSDictionary *item = [[self.listViewProxy sectionForIndex:indexPath.section] itemAtIndex:indexPath.row];
+    NSDictionary *item = [section itemAtIndex:index];
     NSDictionary* properties = [item objectForKey:@"properties"];
     __block id theResult = nil;
     [keys enumerateObjectsUsingBlock:^(NSString* key, NSUInteger idx, BOOL *stop) {
         theResult = [item objectForKey:key];
         if (!theResult && properties) {
-            theResult = [item objectForKey:key];
+            theResult = [properties objectForKey:key];
         }
         if (theResult) {
             *stop = YES;
@@ -665,12 +676,20 @@ static TiProxyTemplate* sDefaultItemTemplate;
         
         NSUInteger maxSection = [[self.listViewProxy sectionCount] unsignedIntegerValue];
         NSMutableArray* singleSection = keepSectionsInSearch ? nil : [[NSMutableArray alloc] init];
-        for (int i = 0; i < maxSection; i++) {
+        if (_hasHeaderView) {
+            maxSection += 1;
+        }
+        for (int i = _hasHeaderView?1:0; i < maxSection; i++) {
+            int sectionIndex= i;
+            if (_hasHeaderView) {
+                sectionIndex -= 1;
+            }
             NSMutableArray* thisSection = keepSectionsInSearch ? [[NSMutableArray alloc] init] : nil;
-            NSUInteger maxItems = [[self.listViewProxy sectionForIndex:i] itemCount];
+            TiUICollectionSectionProxy *section = [self.listViewProxy sectionForIndex:sectionIndex];
+            NSUInteger maxItems = [section itemCount];
             for (int j = 0; j < maxItems; j++) {
-                NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:i];
-                id theValue = [self firstItemValueForKeys:@[@"searchableText", @"title"] atIndexPath:thePath];
+                NSIndexPath* thePath = [NSIndexPath indexPathForRow:j inSection:sectionIndex];
+                id theValue = [self firstItemValueForKeys:@[@"searchableText", @"title"] inSection:section atIndex:j];
                 if (theValue!=nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
                     (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
                     hasResults = YES;
@@ -722,10 +741,19 @@ static TiProxyTemplate* sDefaultItemTemplate;
 
 - (void)updateSearchResults:(id)unused
 {
-    if (searchActive) {
-        [self buildResultsForSearchText];
+    [self buildResultsForSearchText];
+    if (_hasHeaderView) {
+        NSInteger sectionCount  = [_searchResults count];
+        if (sectionCount > 0) {
+            NSIndexSet* set = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(1, sectionCount)];
+            [_tableView reloadSections:set];
+        } else {
+            [_tableView reloadSections:[NSIndexSet indexSetWithIndex:1]];
+        }
+        
+    } else {
+        [_tableView reloadData];
     }
-    [_tableView reloadData];
 }
 
 -(NSIndexPath*)pathForSearchPath:(NSIndexPath*)indexPath
@@ -857,6 +885,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
     } else {
         [[self viewProxy] removeHoldedProxyForKey:@"headerView"];
     }
+    [self proxyDidRelayout:@"headerWrapper"];
 }
 
 - (void)setFooterTitle_:(id)args
@@ -892,7 +921,10 @@ static TiProxyTemplate* sDefaultItemTemplate;
     if (IS_OF_CLASS(vp, TiViewProxy)) {
         [(TiViewProxy*)vp setProxyObserver:self];
         [[self getOrCreateHeaderHolder] addProxy:vp atIndex:1 shouldRelayout:YES];
+        [_tableView reloadData];
     }
+    [self proxyDidRelayout:@"headerWrapper"];
+    
 }
 
 -(void)setFooterView_:(id)args
@@ -925,8 +957,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
     if (searchViewProxy) {
         keepSectionsInSearch = [TiUtils boolValue:args def:NO];
         if (searchActive) {
-            [self buildResultsForSearchText];
-            [_tableView reloadData];
+            [self updateSearchResults:nil];
         }
     } else {
         keepSectionsInSearch = NO;
@@ -998,8 +1029,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
 {
     caseInsensitiveSearch = [TiUtils boolValue:args def:YES];
     if (searchActive) {
-        [self buildResultsForSearchText];
-        [_tableView reloadData];
+        [self updateSearchResults:nil];
     }
 }
 
@@ -1011,8 +1041,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
         return;
     }
     self.searchString = [TiUtils stringValue:args];
-    [self buildResultsForSearchText];
-    [_tableView reloadData];
+    [self updateSearchResults:nil];
 }
 
 -(void)setSearchViewExternal_:(id)args {
@@ -1272,22 +1301,33 @@ static TiProxyTemplate* sDefaultItemTemplate;
 {
     NSUInteger sectionCount = 0;
     
+    
     //TIMOB-15526
 //    if (collectionView != _tableView && collectionView.backgroundColor == [UIColor clearColor]) {
 //        collectionView.backgroundColor = [UIColor whiteColor];
 //    }
 
     if (_searchResults != nil) {
-        sectionCount = [_searchResults count];
+        sectionCount = MAX([_searchResults count], 1);
     } else {
         sectionCount = [self.listViewProxy.sectionCount unsignedIntegerValue];
+    }
+    
+    if (_hasHeaderView) {
+        sectionCount += 1;
     }
     return MAX(0,sectionCount);
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-
+    if (_hasHeaderView) {
+        if (section == 0) {
+            return 1;
+        } else {
+            section -= 1;
+        }
+    }
     if (_searchResults != nil) {
         if ([_searchResults count] <= section) {
             return 0;
@@ -1296,6 +1336,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
         return [theSection count];
         
     } else {
+        
         TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
         if (theSection != nil) {
             return theSection.itemCount;
@@ -1310,7 +1351,35 @@ static TiProxyTemplate* sDefaultItemTemplate;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
+    NSIndexPath* realIndexPath = indexPath;
+    if (_hasHeaderView) {
+        if (realIndexPath.section == 0) {
+             TiUICollectionItem *cell = [collectionView dequeueReusableCellWithReuseIdentifier:HEADER_VIEW_STYLE forIndexPath:indexPath];
+            if (cell.proxy == nil) {
+                id<TiEvaluator> context = self.listViewProxy.executionContext;
+                if (context == nil) {
+                    context = self.listViewProxy.pageContext;
+                }
+                TiUICollectionItemProxy *cellProxy = [[TiUICollectionItemProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
+                [cell initWithStyle:TiUICollectionItemTemplateStyleCustom proxy:cellProxy];
+                [cell configurationStart];
+                [cellProxy add:[self holdedProxyForKey:@"headerWrapper"]];
+                [cellProxy windowWillOpen];
+                [cellProxy windowDidOpen];
+                [cellProxy parentWillShow];
+                [cell configurationSet];
+                
+                if ([TiUtils isIOS8OrGreater] && (collectionView == _tableView)) {
+                    [cell setLayoutMargins:UIEdgeInsetsZero];
+                }
+                [cellProxy release];
+            }
+            return cell;
+        } else {
+            realIndexPath = [NSIndexPath indexPathForRow:realIndexPath.row inSection:realIndexPath.section-1];
+        }
+    }
+    realIndexPath = [self pathForSearchPath:realIndexPath];
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
     NSDictionary *item = [theSection itemAtIndex:realIndexPath.row];
     id templateId = [item objectForKey:@"template"];
@@ -1350,23 +1419,23 @@ static TiProxyTemplate* sDefaultItemTemplate;
     
     cell.dataItem = [template prepareDataItem:item];
     cell.proxy.indexPath = realIndexPath;
-//    TiViewAnimationStep* anim = [cell.proxy runningAnimation];
-//    if (anim)
-//    {
-//        [cell.proxy setRunningAnimation:anim];
-//        [cell.proxy refreshViewIfNeeded:YES];
-//        [cell.proxy setRunningAnimation:nil];
-//    }
-//    else {
-        [cell.proxy refreshViewIfNeeded:YES];
-//    }
+
+    [cell.proxy refreshViewIfNeeded:YES];
     return cell;
 }
 
+
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {
-    
-    NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
+    NSIndexPath* realIndexPath = indexPath;
+    if (_hasHeaderView) {
+        if (realIndexPath.section == 0) {
+            return nil;
+        } else {
+            realIndexPath = [NSIndexPath indexPathForRow:realIndexPath.row inSection:(realIndexPath.section - 1)];
+        }
+    }
+    realIndexPath = [self pathForSearchPath:realIndexPath];
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
     
     id item = [theSection valueForKey:(kind == UICollectionElementKindSectionHeader)?@"headerView":@"footerView"];
@@ -1379,7 +1448,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
     TiViewProxy* child = [theSection sectionViewForLocation:@"headerView" inCollectionView:self];
     id template = [self getTemplateForKey:templateId];
     
-    TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:realIndexPath];
+    TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:indexPath];
     if (child == nil && template != nil) {
         if (view.proxy == nil) {
             id<TiEvaluator> context = self.listViewProxy.executionContext;
@@ -1525,6 +1594,13 @@ static TiProxyTemplate* sDefaultItemTemplate;
     if (searchActive || (collectionView != _tableView)) {
         return;
     }
+    if (_hasHeaderView) {
+        if (indexPath.section == 0) {
+            return;
+        } else {
+            indexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section-1];
+        }
+    }
     TiUICollectionItem* item = (TiUICollectionItem*)cell;
     NSDictionary *data = item.dataItem;
     
@@ -1588,8 +1664,58 @@ static TiProxyTemplate* sDefaultItemTemplate;
     return height;
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+#pragma mark UICollectionViewDelegateFlowLayout
+
+- (BOOL)stickHeaderEnabled
 {
+    return _stickyHeaders;
+}
+- (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section
+{
+    return _stickyHeaders;
+}
+
+- (void)onStickyHeaderChange:(NSInteger)sectionIndex {
+    if (_hasHeaderView) {
+        if (sectionIndex == 0) {
+            return;
+        } else {
+            sectionIndex -= 1;
+        }
+    }
+    if ([[self viewProxy] _hasListeners:@"headerchange" checkParent:NO])
+    {
+//        NSIndexPath* indexPath = [NSIndexPath indexPathForItem:0 inSection:sectionIndex];
+        NSMutableDictionary* event = [self eventObjectForScrollView:_tableView];
+//        NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath collectionView:_tableView];
+//        [event setObject:NUMINTEGER(indexPath.row) forKey:@"firstVisibleItem"];
+//        [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
+        TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:sectionIndex];
+        [event setObject:theSection forKey:@"section"];
+        id headerView = [theSection sectionViewForLocation:@"headerView" inCollectionView:self];
+        if (!headerView) {
+            headerView = [theSection valueForKey:@"headerView"];
+        }
+        if (headerView) {
+            [event setObject:headerView forKey:@"headerView"];
+        }
+        [self.proxy fireEvent:@"headerchange" withObject:event checkForListener:NO];
+    }
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
+{
+    if (_hasHeaderView) {
+        if (indexPath.section == 0) {
+            TiViewProxy* vp = [self holdedProxyForKey:@"headerWrapper"];
+            CGSize result = [vp minimumParentSizeForSize:self.bounds.size];
+            result.width = [self collectionView:collectionView itemWidth:result.width];
+            result.height = [self collectionView:collectionView itemHeight:result.height];
+            return result;
+        } else {
+            indexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section-1];
+        }
+    }
     NSIndexPath* realIndexPath = [self pathForSearchPath:indexPath];
     
     id visibleProp = [self valueWithKey:@"visible" atIndexPath:realIndexPath];
@@ -1650,59 +1776,41 @@ static TiProxyTemplate* sDefaultItemTemplate;
     return result;
 }
 
-#pragma mark UICollectionViewDelegateFlowLayout
-
-- (BOOL)stickHeaderEnabled
-{
-    return _stickyHeaders;
-}
-- (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section
-{
-    return _stickyHeaders;
-}
-
-- (void)onStickyHeaderChange:(NSInteger)sectionIndex {
-    if ([[self viewProxy] _hasListeners:@"headerchange" checkParent:NO])
-    {
-//        NSIndexPath* indexPath = [NSIndexPath indexPathForItem:0 inSection:sectionIndex];
-        NSMutableDictionary* event = [self eventObjectForScrollView:_tableView];
-//        NSMutableDictionary *event = [self EventObjectForItemAtIndexPath:indexPath collectionView:_tableView];
-//        [event setObject:NUMINTEGER(indexPath.row) forKey:@"firstVisibleItem"];
-//        [event setObject:NUMINTEGER([visibles count]) forKey:@"visibleItemCount"];
-        TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:sectionIndex];
-        [event setObject:theSection forKey:@"section"];
-        id headerView = [theSection sectionViewForLocation:@"headerView" inCollectionView:self];
-        if (!headerView) {
-            headerView = [theSection valueForKey:@"headerView"];
-        }
-        if (headerView) {
-            [event setObject:headerView forKey:@"headerView"];
-        }
-        [self.proxy fireEvent:@"headerchange" withObject:event checkForListener:NO];
-    }
-}
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
-{
-    NSIndexPath* realPath = [self pathForSearchPath:indexPath];
-    
-    return [self collectionView:collectionView sizeForItemAtIndexPath:realPath];
-}
-
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    if (_hasHeaderView) {
+        if (section == 0) {
+            return 0;
+        } else {
+            section -= 1;
+        }
+    }
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
     return [TiUtils floatValue:[theSection valueForKey:@"itemSpacing"] def:0];
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    if (_hasHeaderView) {
+        if (section == 0) {
+            return 0;
+        } else {
+            section -= 1;
+        }
+    }
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
     return [TiUtils floatValue:[theSection valueForKey:@"lineSpacing"] def:0];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self fireClickForItemAtIndexPath:[self pathForSearchPath:indexPath] collectionView:collectionView accessoryButtonTapped:NO];
+//    if (_hasHeaderView) {
+//        if (indexPath.section == 0) {
+//            return;
+//        } else {
+//            indexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section-1];
+//        }
+//    }
+    [self fireClickForItemAtIndexPath:indexPath collectionView:collectionView accessoryButtonTapped:NO];
     if (allowsSelection == NO)
     {
         [collectionView deselectItemAtIndexPath:indexPath animated:YES];
@@ -1713,6 +1821,13 @@ static TiProxyTemplate* sDefaultItemTemplate;
                         layout:(UICollectionViewLayout *)collectionViewLayout
         insetForSectionAtIndex:(NSInteger)section
 {
+    if (_hasHeaderView) {
+        if (section == 0) {
+            return UIEdgeInsetsZero;
+        } else {
+            section -= 1;
+        }
+    }
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
     if ([theSection valueForKey:@"inset"]) {
         return [TiUtils insetValue:[theSection valueForKey:@"inset"]];
@@ -1741,6 +1856,14 @@ referenceSizeForHeaderInSection:(NSInteger)section
     if (collectionView != _tableView) {
         return CGSizeZero;
     }
+    if (_hasHeaderView) {
+        if (section == 0) {
+            return CGSizeZero;
+        } else {
+            section -= 1;
+        }
+    }
+
     NSString* location = @"headerView";
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
     id item = [theSection valueForKey:location];
@@ -1826,6 +1949,13 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     if (collectionView != _tableView) {
         return CGSizeZero;
+    }
+    if (_hasHeaderView) {
+        if (section == 0) {
+            return CGSizeZero;
+        } else {
+            section -= 1;
+        }
     }
     NSString* location = @"footerView";
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:section];
@@ -1922,7 +2052,16 @@ referenceSizeForFooterInSection:(NSInteger)section
     NSMutableDictionary* eventArgs = [super eventObjectForScrollView:scrollView];
     NSArray* indexPaths = [_tableView indexPathsForVisibleItems];
     if ([indexPaths count] > 0) {
-        NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+        
+        NSIndexPath *indexPath = [indexPaths objectAtIndex:0];
+        if (_hasHeaderView) {
+            int i = 1;
+            while (indexPath.section == 0 && i < [indexPaths count]) {
+                indexPath = [indexPaths objectAtIndex:i];
+                i++;
+            }
+        }
+        indexPath = [self pathForSearchPath:indexPath];
         
         NSUInteger visibleItemCount = [indexPaths count];
         TiUICollectionSectionProxy* section = [[self listViewProxy] sectionForIndex: [indexPath section]];
@@ -2086,29 +2225,26 @@ referenceSizeForFooterInSection:(NSInteger)section
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
     self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
-    [self buildResultsForSearchText];
-    [_tableView reloadData];
+    [self updateSearchResults:nil];
 }
 
 - (void)searchBarTextDidEndEditing:(UISearchBar *)searchBar
 {
     if ([searchBar.text length] == 0) {
         self.searchString = @"";
-        [self buildResultsForSearchText];
-        [_tableView reloadData];
+        [self updateSearchResults:nil];
     }
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
     self.searchString = (searchText == nil) ? @"" : searchText;
-    [self buildResultsForSearchText];
-    [_tableView reloadData];
+    [self updateSearchResults:nil];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
 {
-    [searchBar resignFirstResponder];
+    [searchBar endEditing:YES];
     [self makeRootViewFirstResponder];
 }
 
@@ -2117,6 +2253,7 @@ referenceSizeForFooterInSection:(NSInteger)section
     self.searchString = @"";
     [searchBar setText:self.searchString];
     [self buildResultsForSearchText];
+    [searchBar endEditing:YES];
 }
 
 #pragma mark - UISearchDisplayDelegate Methods
@@ -2184,6 +2321,14 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 - (NSMutableDictionary*)EventObjectForItemAtIndexPath:(NSIndexPath *)indexPath collectionView:(UICollectionView *)collectionView  atPoint:(CGPoint)point accessoryButtonTapped:(BOOL)accessoryButtonTapped
 {
+    if (_hasHeaderView) {
+        if (indexPath.section == 0) {
+            return nil;
+        } else {
+            indexPath = [NSIndexPath indexPathForRow:indexPath.row inSection:indexPath.section-1];
+        }
+    }
+    indexPath = [self pathForSearchPath:indexPath];
     TiUICollectionSectionProxy *section = [self.listViewProxy sectionForIndex:indexPath.section];
 	NSDictionary *item = [section itemAtIndex:indexPath.row];
     NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
@@ -2318,7 +2463,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 	if (found) {
 		return animationStyle;
 	}
-	BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:YES];
+	BOOL animate = [TiUtils boolValue:@"animated" properties:properties def:NO];
 	return animate ? UITableViewRowAnimationFade : UITableViewRowAnimationNone;
 }
 

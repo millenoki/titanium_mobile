@@ -35,6 +35,15 @@
     return self;
 }
 
+//-(void)setContentInset:(UIEdgeInsets)contentInset
+//{
+//    [super setContentInset:contentInset];
+//}
+//
+//-(void)setContentOffset:(CGPoint)contentOffset animated:(BOOL)animated
+//{
+//    [super setContentOffset:contentOffset animated:animated];
+//}
 
 -(BOOL)shouldHighlightCurrentCollectionItem {
     return _shouldHighlightCurrentItem;

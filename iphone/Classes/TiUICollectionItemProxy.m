@@ -54,7 +54,7 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
 		_resetKeys = [[NSMutableSet alloc] initWithCapacity:10];
 		_listViewProxy = listViewProxy;
         self.canBeResizedByFrame = YES;
-        self.canRepositionItself = NO;
+//        self.canRepositionItself = NO;
         eventOverrideDelegate = self; // to make sure we also override events
 		[context.krollContext invokeBlockOnThread:^{
 			[context registerProxy:self];
@@ -287,17 +287,6 @@ static void SetEventOverrideDelegateRecursive(NSArray *children, id<TiViewEventO
     _inSetDataItem = YES;
     [self configurationStart:YES];
 	[_resetKeys addObjectsFromArray:[_currentValues allKeys]];
-    NSInteger templateStyle = (_listItem != nil)?_listItem.templateStyle:TiUICollectionItemTemplateStyleCustom;
-	switch (templateStyle) {
-		case UITableViewCellStyleSubtitle:
-		case UITableViewCellStyleValue1:
-		case UITableViewCellStyleValue2:
-		case UITableViewCellStyleDefault:
-            unarchived = YES;
-			break;
-		default:
-			break;
-	}
     
     NSMutableDictionary* listProps = [NSMutableDictionary dictionaryWithDictionary:[_listViewProxy propertiesForItems]];
     if (_templateProperties) {

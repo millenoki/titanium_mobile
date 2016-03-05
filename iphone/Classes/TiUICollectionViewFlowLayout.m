@@ -169,7 +169,8 @@
         [self shouldStickHeaderToTopInSection:attributes.indexPath.section]) {
         UICollectionView * const cv = self.collectionView;
         UIEdgeInsets const contentEdgeInsets = cv.contentInset;
-        CGPoint const contentOffset = CGPointMake(cv.contentOffset.x, cv.contentOffset.y + contentEdgeInsets.top);
+//        CGPoint const contentOffset = CGPointMake(cv.contentOffset.x, cv.contentOffset.y + contentEdgeInsets.top);
+        CGPoint const contentOffset = cv.contentOffset;
         CGPoint nextHeaderOrigin = CGPointMake(INFINITY, INFINITY);
         
         if (indexPath.section+1 < [cv numberOfSections]) {
@@ -204,6 +205,8 @@
     UICollectionViewLayoutAttributes *attributes = [self layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
     return attributes;
 }
+
+
 
 - (BOOL) shouldInvalidateLayoutForBoundsChange:(CGRect)newBound {
     return YES;

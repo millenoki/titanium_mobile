@@ -8,6 +8,7 @@
 #ifdef USE_TI_UICOLLECTIONVIEW
 
 #define DEFAULT_TEMPLATE_STYLE @"TiUICollectionView__internal_template"
+#define HEADER_VIEW_STYLE @"TiUICollectionView__internal_headerView"
 #import "TiScrollingView.h"
 #import "TiUICollectionViewProxy.h"
 #import "TiUICollectionViewFlowLayout.h"
