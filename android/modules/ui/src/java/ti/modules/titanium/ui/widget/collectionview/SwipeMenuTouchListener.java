@@ -145,6 +145,7 @@ public class SwipeMenuTouchListener implements OnItemTouchListener {
     @Nullable
     private SwipeMenuViewHolder mPreviousHolder = null;
 
+    private int mPreviousPosition = AdapterView.INVALID_POSITION;
     //
     // /**
     // * The number of items in the {@code AbsListView}, minus the pending
@@ -536,13 +537,19 @@ public class SwipeMenuTouchListener implements OnItemTouchListener {
      * @param animationTime
      *            the animation duration
      */
-    public void closeMenus(long animationTime) {
+    public boolean closeMenus(long animationTime) {
         if (mOpenedHolder != null) {
             beforeCloseMenu(mOpenedHolder);
             mOpenedHolder.swipeMenu.closeMenu(animationTime, mCloseAnimationListener);
+            return true;
         } else if (mCurrentHolder != null) {
             beforeCloseMenu(mCurrentHolder);
             getSwipeMenu().closeMenu(animationTime, mCloseAnimationListener);
+            return true;
+        } else {
+            //still make sure the callback is called
+            afterCloseMenu(null, -1, SwipeMenuLayout.DIRECTION_NONE);
+            return false;
         }
     }
 
@@ -557,8 +564,9 @@ public class SwipeMenuTouchListener implements OnItemTouchListener {
      * Close the current menu without animation
      */
     public void closeMenus() {
-        closeMenus(0);
-        handleMenuClosed();
+        if (closeMenus(0)) {
+            handleMenuClosed();            
+        }
     }
 
     /**
@@ -621,7 +629,7 @@ public class SwipeMenuTouchListener implements OnItemTouchListener {
      *            {@link android.widget.ListAdapter} corresponding to the
      *            {@code View}.
      */
-    protected void afterCloseMenu(@NonNull final SwipeMenuViewHolder holder, final int direction) {
+    protected void afterCloseMenu(@NonNull final SwipeMenuViewHolder holder, final int position, final int direction) {
         if (mCallback != null) {
             mCallback.onMenuClosed(holder, direction);
         }
@@ -710,7 +718,7 @@ public class SwipeMenuTouchListener implements OnItemTouchListener {
         mPreviousHolder = mOpenedHolder;
         mOpenedPosition = RecyclerView.NO_POSITION;
         mOpenedHolder = null;
-        afterCloseMenu(mPreviousHolder, direction);
+        afterCloseMenu(mPreviousHolder, mPreviousPosition, direction);
     }
 
     /**

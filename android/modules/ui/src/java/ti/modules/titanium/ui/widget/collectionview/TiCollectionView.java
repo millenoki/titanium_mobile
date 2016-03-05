@@ -19,6 +19,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -54,6 +55,7 @@ import ti.modules.titanium.ui.widget.abslistview.TiBaseAbsListViewItemHolder;
 import ti.modules.titanium.ui.widget.abslistview.TiCollectionViewAdapter;
 import ti.modules.titanium.ui.widget.abslistview.TiCollectionViewInterface;
 import ti.modules.titanium.ui.widget.abslistview.TiDefaultAbsListViewTemplate;
+import ti.modules.titanium.ui.widget.collectionview.SwipeMenuTouchListener.SwipeMenuCallback;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
@@ -98,7 +100,7 @@ import eu.davidea.flexibleadapter.section.SectionAdapter;
 public class TiCollectionView extends TiUINonViewGroupView
         implements OnSearchChangeListener, TiCollectionViewInterface,
         OnInstanceStateEvent,
-        FlexibleAdapter.OnStickyHeaderChangeListener {
+        FlexibleAdapter.OnStickyHeaderChangeListener, SwipeMenuCallback {
     FastScrollRecyclerView mRecyclerView;
     TiGridLayoutManager layoutManager;
     private TiBaseAdapter mAdapter;
@@ -901,7 +903,7 @@ public class TiCollectionView extends TiUINonViewGroupView
 
         mAdapter = new TiBaseAdapter(mRecyclerView.getContext(), null);
         mAdapter.setDisplayHeaders(true);
-        mSwipeMenuTouchListener = new SwipeMenuTouchListener(null);
+        mSwipeMenuTouchListener = new SwipeMenuTouchListener(this);
         mRecyclerView.addOnItemTouchListener(mSwipeMenuTouchListener);
          mRecyclerView.setItemAnimator(new TiItemAnimator());
         mRecyclerView.setHorizontalScrollBarEnabled(false);
@@ -2001,7 +2003,8 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
     }
 
-    public void closeSwipeMenu(Boolean animated) {
+    public void closeSwipeMenu(Boolean animated, KrollFunction callback) {
+        mOnMenuClosedCallback = callback;
         if (animated) {
             mSwipeMenuTouchListener.closeMenusAnimated();
         } else {
@@ -2012,6 +2015,39 @@ public class TiCollectionView extends TiUINonViewGroupView
     @Override
     public String getSearchText() {
         return searchText;
+    }
+
+    @Override
+    public void onStartSwipe(SwipeMenuViewHolder holder, int direction) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void onMenuShown(SwipeMenuViewHolder holder, int direction) {
+        // TODO Auto-generated method stub
+        
+    }
+    
+    private  KrollFunction mOnMenuClosedCallback;
+    @Override
+    public void onMenuClosed(SwipeMenuViewHolder holder, int direction) {
+        if (mOnMenuClosedCallback != null) {
+            mOnMenuClosedCallback.callAsync(proxy.getKrollObject(), (HashMap)null);
+        }
+        
+    }
+
+    @Override
+    public void beforeMenuShow(SwipeMenuViewHolder holder, int direction) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void beforeMenuClose(SwipeMenuViewHolder holder, int direction) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

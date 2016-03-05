@@ -7,6 +7,7 @@
 
 package ti.modules.titanium.ui.widget.collectionview;
 
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.view.TiUIView;
@@ -72,23 +73,23 @@ public class CollectionViewProxy extends AbsListViewProxy {
         return CollectionSectionProxy.class;
     }
     
-    public void handleCloseSwipeMenu(Object obj) {
+    public void handleCloseSwipeMenu(Object obj, KrollFunction callback) {
         Boolean animated = true;
         if (obj != null) {
             animated = TiConvert.toBoolean(obj);
         }
         TiUIView listView = peekView();
         if (listView != null) {
-            ((TiCollectionView) listView).closeSwipeMenu(animated);
+            ((TiCollectionView) listView).closeSwipeMenu(animated, callback);
         }
     }
 
     @Kroll.method()
-    public void closeSwipeMenu(final @Kroll.argument(optional = true) Object obj) {
+    public void closeSwipeMenu(final @Kroll.argument(optional = true) Object obj, final @Kroll.argument(optional = true) KrollFunction callback) {
         runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
-                handleCloseSwipeMenu(obj);                
+                handleCloseSwipeMenu(obj, callback);                
             }
         }, false);
     }
