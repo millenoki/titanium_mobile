@@ -253,6 +253,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property(nonatomic,assign) BOOL animateBgdTransition;
 @property(nonatomic,assign) BOOL canKeepBackgroundColor;
 
+-(UIColor*)getBackgroundColor;
+
 -(void)checkBounds;
 -(void)updateBounds:(CGRect)newBounds;
 

@@ -1012,6 +1012,13 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     }
 }
 
+-(UIColor*)getBackgroundColor {
+    if (self.backgroundColor) {
+        return super.backgroundColor;
+    }
+    return [_bgLayer getColorForState:UIControlStateNormal];
+}
+
 -(void)setBackgroundInnerShadows:(NSArray*)shadow forState:(UIControlState)state
 {
     if (!shadow) {
