@@ -606,7 +606,7 @@ static NSDictionary* replaceKeysForRow;
     [keys enumerateObjectsUsingBlock:^(NSString* key, NSUInteger idx, BOOL *stop) {
         theResult = [item objectForKey:key];
         if (!theResult && properties) {
-            theResult = [item objectForKey:key];
+            theResult = [properties objectForKey:key];
         }
         if (theResult) {
             *stop = YES;
