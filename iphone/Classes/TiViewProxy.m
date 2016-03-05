@@ -2537,11 +2537,11 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 //    }
 //    pthread_rwlock_unlock(&childrenLock);
     
-//    if (parent && ![[self viewParent] absoluteLayout])
-//        [self parentContentWillChange];
-//    else {
-//        [self contentsWillChange];
-//    }
+    if (parent && ![[self viewParent] absoluteLayout])
+        [self parentContentWillChange];
+    else {
+        [self contentsWillChange];
+    }
     [self willChange];
 }
 
@@ -2552,8 +2552,9 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 
     [self makeViewChildrenPerformSelector:@selector(parentWillHide) withObject:nil];
     
-//    if (parent && ![[self viewParent] absoluteLayout])
-//        [self parentContentWillChange];
+    if (parent && ![[self viewParent] absoluteLayout]) {
+        [self parentContentWillChange];
+    }
 }
 
 -(void)willResizeChildren
