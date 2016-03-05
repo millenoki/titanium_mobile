@@ -10,6 +10,8 @@
 @protocol TiUICollectionViewFlowLayoutDelegate<UICollectionViewDelegateFlowLayout>
 @optional
 - (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section;
+- (void)onStickyHeaderChange:(NSInteger)sectionIndex;
+- (BOOL)stickHeaderEnabled;
 @end
 
 @interface TiUICollectionViewFlowLayout : UICollectionViewFlowLayout

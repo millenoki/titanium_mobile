@@ -11,6 +11,20 @@
 
 
 @implementation TiUICollectionViewFlowLayout
+{
+    NSInteger _currentStickySection;
+    NSInteger _passLowerSection;
+    CGFloat _passLowerSectionY;
+}
+
+- (id)init
+{
+    if (self = [super init]) {
+        _currentStickySection = -1;
+    }
+    return self;
+}
+
 
 //- (BOOL) shouldInvalidateLayoutForBoundsChange:(CGRect)newBounds {
 //    return YES;
@@ -67,6 +81,17 @@
 //    }
 //    return [attributes autorelease];
 //}
+
+- (BOOL)stickHeaderEnabled {
+    BOOL shouldStickToTop = NO;
+    if ([self.collectionView.delegate conformsToProtocol:@protocol(TiUICollectionViewFlowLayoutDelegate)]) {
+        id<TiUICollectionViewFlowLayoutDelegate> stickyHeadersDelegate=(id<TiUICollectionViewFlowLayoutDelegate>)self.collectionView.delegate;
+        if ([stickyHeadersDelegate respondsToSelector:@selector(stickHeaderEnabled)]) {
+            shouldStickToTop=[stickyHeadersDelegate stickHeaderEnabled];
+        }
+    }
+    return shouldStickToTop;
+}
 - (BOOL)shouldStickHeaderToTopInSection:(NSUInteger)section{
     BOOL shouldStickToTop=YES;
     if ([self.collectionView.delegate conformsToProtocol:@protocol(TiUICollectionViewFlowLayoutDelegate)]) {
@@ -81,6 +106,9 @@
 - (NSArray *) layoutAttributesForElementsInRect:(CGRect)rect {
     
     NSArray *attributesArray = [super layoutAttributesForElementsInRect:rect];
+    if (![self stickHeaderEnabled]) {
+        return attributesArray;
+    }
     NSMutableArray *modifiedAttributesArray = [attributesArray mutableCopy];
     NSMutableIndexSet *attributesToRemoveIdxs = [NSMutableIndexSet indexSet];
     
@@ -108,6 +136,8 @@
     [modifiedAttributesArray removeObjectsAtIndexes:attributesToRemoveIdxs];
     
     // layout all headers needed for the rect using self code
+    _passLowerSectionY = -FLT_MAX;
+    _passLowerSection = -1;
     [missingSections enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:0 inSection:idx];
         UICollectionViewLayoutAttributes *layoutAttributes = [self layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:indexPath];
@@ -116,17 +146,30 @@
         }
     }];
     
+    if (_passLowerSection != -1 && _passLowerSection != _currentStickySection) {
+        _currentStickySection = _passLowerSection;
+        if ([self.collectionView.delegate conformsToProtocol:@protocol(TiUICollectionViewFlowLayoutDelegate)]) {
+            id<TiUICollectionViewFlowLayoutDelegate> stickyHeadersDelegate=(id<TiUICollectionViewFlowLayoutDelegate>)self.collectionView.delegate;
+            if ([stickyHeadersDelegate respondsToSelector:@selector(onStickyHeaderChange:)]) {
+                [stickyHeadersDelegate onStickyHeaderChange:_currentStickySection];
+            }
+        }
+        
+    }
+    
     return [modifiedAttributesArray autorelease];
 }
 
 - (UICollectionViewLayoutAttributes *)layoutAttributesForSupplementaryViewOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     UICollectionViewLayoutAttributes *attributes = [super layoutAttributesForSupplementaryViewOfKind:kind atIndexPath:indexPath];
+    if (![self stickHeaderEnabled]) {
+        return attributes;
+    }
     if ([kind isEqualToString:UICollectionElementKindSectionHeader]&&
         [self shouldStickHeaderToTopInSection:attributes.indexPath.section]) {
         UICollectionView * const cv = self.collectionView;
         UIEdgeInsets const contentEdgeInsets = cv.contentInset;
         CGPoint const contentOffset = CGPointMake(cv.contentOffset.x, cv.contentOffset.y + contentEdgeInsets.top);
-        //        CGPoint const contentOffset = cv.contentOffset;
         CGPoint nextHeaderOrigin = CGPointMake(INFINITY, INFINITY);
         
         if (indexPath.section+1 < [cv numberOfSections]) {
@@ -136,9 +179,15 @@
         
         CGRect frame = attributes.frame;
         if (self.scrollDirection == UICollectionViewScrollDirectionVertical) {
+            if (frame.origin.y <= contentOffset.y && frame.origin.y > _passLowerSectionY) {
+                _passLowerSection = indexPath.section;
+            }
             frame.origin.y = MIN(MAX(contentOffset.y, frame.origin.y), nextHeaderOrigin.y - CGRectGetHeight(frame));
         }
         else { // UICollectionViewScrollDirectionHorizontal
+            if (frame.origin.x <= contentOffset.x && frame.origin.x > _passLowerSectionY) {
+                _passLowerSection = indexPath.section;
+            }
             frame.origin.x = MIN(MAX(contentOffset.x, frame.origin.x), nextHeaderOrigin.x - CGRectGetWidth(frame));
         }
         attributes.zIndex = 1024;

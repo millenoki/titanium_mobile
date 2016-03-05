@@ -12,9 +12,10 @@
 #import "TiUICollectionItemProxy.h"
 #import "MGSwipeCollectionViewCell.h"
 
-enum {
-	TiUICollectionItemTemplateStyleCustom = -1
-};
+typedef enum {
+    TiUICollectionItemTemplateStyleCustom = -1,
+    TiUICollectionItemTemplateStyleListView = 0
+} TiUICollectionItemTemplateStyle;
 
 typedef enum
 {
@@ -34,7 +35,7 @@ typedef enum
 @property (nonatomic, readonly) TiUIView *viewHolder;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
 
-- (id)initWithProxy:(TiUICollectionItemProxy *)proxy;
+- (id)initWithStyle:(TiUICollectionItemTemplateStyle)style proxy:(TiUICollectionItemProxy *)proxy;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
 -(void)configurationStart;

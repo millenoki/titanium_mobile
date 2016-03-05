@@ -2737,6 +2737,9 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 
 -(CGFloat)layoutWeight
 {
+    if (layoutProperties.weight == 0) {
+        return 1;
+    }
     return layoutProperties.weight;
 }
 

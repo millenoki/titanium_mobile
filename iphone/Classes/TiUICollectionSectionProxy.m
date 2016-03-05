@@ -121,6 +121,10 @@
         return [_storedSectionViews objectForKey:location];
     }
     id value = [self valueForKey:location];
+    if (IS_OF_CLASS(value, NSDictionary) && ![value objectForKey:@"type"]) {
+        //we assume that with no type this is a template header!
+        return nil;
+    }
     TiViewProxy* viewproxy = (TiViewProxy*)[self createChildFromObject:value];
     if (viewproxy) {
         LayoutConstraint *viewLayout = [viewproxy layoutProperties];

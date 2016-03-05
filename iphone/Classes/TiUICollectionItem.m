@@ -27,6 +27,7 @@
     BOOL _needsLayout;
     BOOL configurationSet;
     BOOL _unHighlightOnSelect;
+    BOOL _customBackground;
 }
 
 @synthesize templateStyle = _templateStyle;
@@ -36,9 +37,9 @@
 
 DEFINE_EXCEPTIONS
 
-- (id)initWithProxy:(TiUICollectionItemProxy *)proxy
+- (id)initWithStyle:(TiUICollectionItemTemplateStyle)style proxy:(TiUICollectionItemProxy *)proxy
 {
-		_templateStyle = TiUICollectionItemTemplateStyleCustom;
+		_templateStyle = style;
 		_proxy = [proxy retain];
     
         _viewHolder = [[TiUIView alloc] initWithFrame:self.contentView.bounds];
@@ -56,6 +57,7 @@ DEFINE_EXCEPTIONS
 {
     _unHighlightOnSelect = YES;
     
+    _customBackground = YES; //by default we are transparent so custom
     _proxy.listItem = self;
     _proxy.modelDelegate = self;
     configurationSet = NO;
@@ -71,6 +73,19 @@ DEFINE_EXCEPTIONS
 {
     configurationSet = YES;
     [_viewHolder configurationSet];
+    BOOL newValue = (_templateStyle == TiUICollectionItemTemplateStyleCustom) || [[_viewHolder backgroundLayer] willDrawForState:UIControlStateNormal];
+    if (_customBackground != newValue) {
+        _customBackground = newValue;
+        if (_customBackground) {
+            self.contentView.backgroundColor = [UIColor clearColor];
+            self.backgroundColor = [UIColor clearColor];
+            self.contentView.opaque = NO;
+        } else {
+            self.contentView.backgroundColor = [UIColor whiteColor];
+            self.backgroundColor = [UIColor whiteColor];
+            self.contentView.opaque = YES;
+        }
+    }
 }
 
 - (void)dealloc
@@ -273,7 +288,11 @@ static NSArray* handledKeys;
     if (self.swipeBackgroundColor) {
         return self.swipeBackgroundColor; //user defined color
     }
-    return [[_viewHolder backgroundLayer] getColorForState:UIControlStateNormal];
+    UIColor* color = [_viewHolder getBackgroundColor];
+    if (!color) {
+        color = self.contentView.backgroundColor;
+    }
+    return color;
 }
 
 -(BOOL)canSwipeLeft {

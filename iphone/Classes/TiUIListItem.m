@@ -725,7 +725,7 @@ static NSArray* handledKeys;
     if (self.swipeBackgroundColor) {
         return self.swipeBackgroundColor; //user defined color
     }
-    return [[_viewHolder backgroundLayer] getColorForState:UIControlStateNormal];
+    return [_viewHolder getBackgroundColor];
 }
 
 -(void)setDelaysContentTouches:(BOOL)value

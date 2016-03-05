@@ -1785,13 +1785,21 @@ static NSDictionary* replaceKeysForRow;
     }
 }
 
--(void)closeSwipeMenu:(NSNumber*)anim {
+-(void)closeSwipeMenu:(id)args {
     if (!_currentSwipeCell) return;
     BOOL animated = YES;
-    if (anim != nil)
-        animated = [anim boolValue];
+    id value = nil;
+    NSNumber* anim = nil;
+    KrollCallback* callback = nil;
+    ENSURE_ARG_OR_NIL_AT_INDEX(anim, args, 0, NSNumber);
+    ENSURE_ARG_AT_INDEX(callback, args, 1, KrollCallback);
     if (_currentSwipeCell) {
-        [_currentSwipeCell hideSwipeAnimated:animated];
+        [_currentSwipeCell hideSwipeAnimated:animated completion:^{
+            if (callback){
+                [self.proxy _fireEventToListener:@"menuClosed"
+                                      withObject:nil listener:callback thisObject:nil];
+            }
+        }];
     }
 }
 
@@ -1918,8 +1926,9 @@ static NSDictionary* replaceKeysForRow;
 	
     CGFloat size = 0.0;
     if (viewProxy!=nil) {
-        [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
-        size += [[viewProxy view] bounds].size.height;
+        size += [viewProxy minimumParentSizeForSize:[self.tableView bounds].size].height;
+//        [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
+//        size += [[viewProxy view] bounds].size.height;
 //        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 //        TiDimension constraint =  TiDimensionIsUndefined(viewLayout->height)?[viewProxy defaultAutoHeightBehavior:nil]:viewLayout->height;
 //        switch (constraint.type)
@@ -1968,8 +1977,9 @@ static NSDictionary* replaceKeysForRow;
 	
     CGFloat size = 0.0;
     if (viewProxy!=nil) {
-        [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
-        size += [[viewProxy view] bounds].size.height;
+        size += [viewProxy minimumParentSizeForSize:[self.tableView bounds].size].height;
+//        [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
+//        size += [[viewProxy view] bounds].size.height;
 //        [viewProxy getAndPrepareViewForOpening:[self.tableView bounds]]; //to make sure it is setup
 //        LayoutConstraint *viewLayout = [viewProxy layoutProperties];
 //        TiDimension constraint =  TiDimensionIsUndefined(viewLayout->height)?[viewProxy defaultAutoHeightBehavior:nil]:viewLayout->height;

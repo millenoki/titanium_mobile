@@ -13,7 +13,7 @@
 
 - (id)init
 {
-    self = [super initWithViewTemplate:[TiUtils jsonParse:@"{\"properties\":{\"layout\":\"horizontal\", \"height\":44, \"selector\":true},\"childTemplates\":[{\"type\":\"Ti.UI.ImageView\",\"bindId\":\"imageView\",\"touchEnabled\":false,\"left\":15,\"width\":35,\"height\":35},{\"properties\":{\"layout\":\"vertical\",\"touchEnabled\":false,\"left\":15,\"right\":15},\"childTemplates\":[{\"type\":\"Ti.UI.Label\",\"bindId\":\"titleView\",\"properties\":{\"color\":\"black\",\"backgroundColor\":\"red\",\"font\":{\"size\":17},\"ellipsize\":true,\"maxLines\":1,\"height\":\"FILL\",\"width\":\"FILL\"}},{\"type\":\"Ti.UI.Label\",\"bindId\":\"subtitleView\",\"properties\":{\"color\":\"#7B7B7B\",\"font\":{\"size\":15},\"ellipsize\":true,\"maxLines\":1,\"height\":\"FILL\",\"width\":\"FILL\", \"verticalAlign\":\"top\"}}]}]}" error:nil]];
+    self = [super initWithViewTemplate:[TiUtils jsonParse:@"{\"properties\":{\"layout\":\"horizontal\", \"height\":44, \"selector\":true},\"childTemplates\":[{\"type\":\"Ti.UI.ImageView\",\"bindId\":\"imageView\",\"touchEnabled\":false,\"left\":15,\"width\":35,\"height\":35},{\"properties\":{\"layout\":\"vertical\",\"touchEnabled\":false,\"left\":15,\"right\":15},\"childTemplates\":[{\"type\":\"Ti.UI.Label\",\"bindId\":\"titleView\",\"properties\":{\"color\":\"black\",\"font\":{\"weight\":\"normal\",\"size\":18},\"ellipsize\":true,\"maxLines\":1,\"height\":\"FILL\",\"width\":\"FILL\"}},{\"type\":\"Ti.UI.Label\",\"bindId\":\"subtitleView\",\"properties\":{\"color\":\"black\",\"font\":{\"size\":155},\"ellipsize\":true,\"maxLines\":1,\"height\":\"FILL\",\"width\":\"FILL\", \"verticalAlign\":\"top\"}}]}]}" error:nil]];
     return self;
 }
 

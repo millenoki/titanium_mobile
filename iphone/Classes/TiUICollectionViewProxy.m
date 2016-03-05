@@ -68,6 +68,7 @@ static NSDictionary* listViewKeysToReplace;
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
+    [self initializeProperty:@"rowHeight" defaultValue:@(44)];
     [self initializeProperty:@"canScroll" defaultValue:NUMBOOL(YES)];
     [self initializeProperty:@"caseInsensitiveSearch" defaultValue:NUMBOOL(YES)];
     [super _initWithProperties:properties];
@@ -750,7 +751,6 @@ static NSDictionary* listViewKeysToReplace;
 //}
 
 -(void)closeSwipeMenu:(id)args {
-    ENSURE_SINGLE_ARG_OR_NIL(args,NSNumber);
     [self makeViewPerformSelector:@selector(closeSwipeMenu:) withObject:args createIfNeeded:NO waitUntilDone:NO];
 }
 
