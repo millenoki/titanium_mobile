@@ -171,13 +171,13 @@ CGPathRef CGPathCreateRoundiiRectWithDecale( const CGRect rect, const CGFloat* r
         return;
     }
     if (!readyToCreateDrawables && !_needsToSetAllDrawablesOnNextSize) return;
-    if (self.mask == nil) {
+//    if (self.mask == nil) {
         CAShapeLayer* maskLayer = [CAShapeLayer layer];
         maskLayer.fillColor = [[UIColor clearColor] CGColor];
         maskLayer.strokeColor = [[UIColor blackColor] CGColor];
         maskLayer.frame = self.bounds;
         self.mask = maskLayer;
-    }
+//    }
     ((CAShapeLayer*)self.mask).lineWidth = _clipWidth;
     CGPathRef path = [self newBorderPath:radii forBounds:bounds];
     if (runningAnimation) {
@@ -189,7 +189,8 @@ CGPathRef CGPathCreateRoundiiRectWithDecale( const CGRect rect, const CGFloat* r
         pathAnimation.toValue = (id)path;
         [self.mask addAnimation:pathAnimation forKey:@"clippingPath"];
     }
-    ((CAShapeLayer*)self.mask).path = path;
+    maskLayer.path = path;
+    self.mask = maskLayer;
     CGPathRelease(path);
 }
 
