@@ -279,7 +279,8 @@ public class SwipeMenuLayout extends FrameLayout {
             if (mCurrentMenu.getVisibility() != VISIBLE) {
                 mCurrentMenu.setVisibility(VISIBLE);
             }
-            mCurrentMenu.setX(isRight?(mWidth + menuPercent * mCurrentMenuWidth):((menuPercent - 1) * mCurrentMenuWidth));
+//            mCurrentMenu.setX(isRight?(mWidth + menuPercent * mCurrentMenuWidth):((menuPercent - 1) * mCurrentMenuWidth));
+            mCurrentMenu.setX(isRight?(mWidth - mCurrentMenuWidth):0);
         }
     }
 
