@@ -30,7 +30,6 @@ import org.appcelerator.titanium.view.KrollProxyReusableListener;
 import org.appcelerator.titanium.view.TiTouchDelegate;
 import org.appcelerator.titanium.view.TiUIView;
 
- import ti.modules.titanium.ui.widget.listview.TiListView;
 import android.view.View;
 
 @Kroll.proxy(propertyAccessors = {
@@ -337,17 +336,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
-                TiCollectionViewInterface listView = getListView();
-                if (listView instanceof TiListView) {
-                    int position = listView.findItemPosition(sectionIndex, index);
-                    ((TiListView) listView).insert(index, data);
+                int itemCount = insertItemsData(index, data);
+                if (itemCount > 0) {
+                    notifyItemRangeInserted(index, itemCount);
                 }
-                else {
-                    int itemCount = insertItemsData(index, data);
-                    if (itemCount > 0) {
-                        notifyItemRangeInserted(index, itemCount);
-                    }
-                }      
             }
         }, true);
 	}
@@ -372,15 +364,8 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
-                TiCollectionViewInterface listView = getListView();
-                if (listView instanceof TiListView) {
-                    int position = listView.findItemPosition(sectionIndex, index);
-                    ((TiListView) listView).remove(position, count);
-                }
-                else {
-                    int deletedCount = deleteItemsData(index, count);
-                    notifyItemRangeRemoved(index, deletedCount);
-                }      
+                int deletedCount = deleteItemsData(index, count);
+                notifyItemRangeRemoved(index, deletedCount);
             }
         }, true);
 	}

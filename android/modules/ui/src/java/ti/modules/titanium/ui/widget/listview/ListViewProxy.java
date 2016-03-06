@@ -33,6 +33,11 @@ public class ListViewProxy extends AbsListViewProxy {
     public ListViewProxy() {
         super();
     }
+    
+    @Override
+    public Class sectionClass() {
+        return ListSectionProxy.class;
+    }
 
     @Override
     public TiUIView createView(Activity activity) {

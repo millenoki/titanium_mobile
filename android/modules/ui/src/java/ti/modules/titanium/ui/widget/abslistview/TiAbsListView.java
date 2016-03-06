@@ -430,19 +430,22 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         
         @Override
         public Object remove(int position) {
-            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
-            Object result = null;
-            if (info != null) {
-                result = info.first.deleteItemsData(info.second.second, 1);
-            }
+//            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
+//            Object result = null;
+//            if (info != null) {
+//                result = info.first.deleteItemsData(info.second.second, 1);
+//            }
             notifyDataSetChanged();
-            return result;
+//            return result;
+            return null;
         }
 
         @Override
         public void add(int position, Object data) {
-            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(Math.max(0, position - 1));
-            info.first.insertItemsData(info.second.second, data);
+//            Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(Math.max(0, position - 1));
+//            if (info != null) {
+//                info.first.insertItemsData(info.second.second + 1, data);
+//            }
             notifyDataSetChanged();
         }
 

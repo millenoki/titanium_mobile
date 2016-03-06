@@ -10,6 +10,7 @@ package ti.modules.titanium.ui.widget.listview;
 import org.appcelerator.kroll.annotations.Kroll;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy;
+import ti.modules.titanium.ui.widget.abslistview.TiCollectionViewInterface;
 import android.annotation.SuppressLint;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {})
@@ -28,5 +29,24 @@ public class ListSectionProxy extends AbsListSectionProxy {
     public String getApiName()
     {
         return "Ti.UI.ListSection";
+    }
+    
+    protected void notifyItemRangeRemoved(int childPositionStart,
+            int itemCount) {
+        TiCollectionViewInterface listView = getListView();
+        if (listView instanceof TiListView) {
+            ((TiListView) listView).remove(childPositionStart, itemCount);
+        }
+    }
+    
+    protected void notifyItemRangeChanged(int childPositionStart, int itemCount) {
+        notifyDataChange();
+    }
+    protected void notifyItemRangeInserted(int childPositionStart, int itemCount) {
+        TiCollectionViewInterface listView = getListView();
+        if (listView instanceof TiListView) {
+            ((TiListView) listView).insert(childPositionStart,
+                    new Object[itemCount]);
+        }
     }
 }
