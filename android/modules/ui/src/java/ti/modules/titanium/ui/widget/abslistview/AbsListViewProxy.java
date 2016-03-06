@@ -16,6 +16,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -230,11 +231,16 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	// }
 
 	@Kroll.method
-	public void scrollToItem(int sectionIndex, int itemIndex, @Kroll.argument(optional = true) KrollDict options) {
-		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-		TiUIView listView = peekView();
+	public void scrollToItem(final int sectionIndex, final int itemIndex, @Kroll.argument(optional = true) KrollDict options) {
+	    final boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
+		final TiUIView listView = peekView();
         if (listView instanceof TiCollectionViewInterface) {
-            ((TiCollectionViewInterface) listView).scrollToItem(sectionIndex, itemIndex, animated);
+            runInUiThread(new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    ((TiCollectionViewInterface) listView).scrollToItem(sectionIndex, itemIndex, animated);
+                }
+            }, false);
         }
 	}
 	
@@ -288,24 +294,36 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 	
 	@Kroll.method
-	public void scrollToTop(int y, @Kroll.argument(optional = true) KrollDict options)
+	public void scrollToTop(final int y, @Kroll.argument(optional = true) KrollDict options)
 	{
-		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-		TiUIView listView = peekView();
+	    final boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
+	    final TiUIView listView = peekView();
         if (listView instanceof TiCollectionViewInterface) {
-            ((TiCollectionViewInterface) listView).scrollToTop(y, animated);
+            runInUiThread(new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    ((TiCollectionViewInterface) listView).scrollToTop(y, animated);
+                }
+            }, false);
         }
 	}
 
 	@Kroll.method
-	public void scrollToBottom(int y, @Kroll.argument(optional = true) KrollDict options)
-	{
-		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-		TiUIView listView = peekView();
+	public void scrollToBottom(final int y, @Kroll.argument(optional = true) KrollDict options)
+ {
+        final boolean animated = TiConvert.toBoolean(options,
+                TiC.PROPERTY_ANIMATED, true);
+        final TiUIView listView = peekView();
         if (listView instanceof TiCollectionViewInterface) {
-            ((TiCollectionViewInterface) listView).scrollToBottom(y, animated);
+            runInUiThread(new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    ((TiCollectionViewInterface) listView).scrollToBottom(y,
+                            animated);
+                }
+            }, false);
         }
-	}
+    }
 
 	@Override
 	public boolean handleMessage(final Message msg) 	{
