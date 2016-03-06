@@ -1801,7 +1801,7 @@ public class TiCollectionView extends TiUINonViewGroupView
 
     @Override
     public int findItemPosition(int sectionIndex, int sectionItemIndex) {
-        return findItemPosition(sectionIndex, sectionItemIndex, false);
+        return mAdapter.getFlatPosition(sectionIndex, sectionItemIndex);
     }
 
     public int getHeaderViewCount() {
