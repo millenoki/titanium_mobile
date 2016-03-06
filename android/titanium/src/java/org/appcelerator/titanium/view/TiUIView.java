@@ -81,10 +81,8 @@ import android.os.Message;
 import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
 import android.util.SparseArray;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.view.View.OnClickListener;
@@ -177,9 +175,6 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     // to maintain sync visibility between borderview and view. Default is
     // visible
     private int visibility = View.VISIBLE;
-
-    protected GestureDetector detector = null;
-    protected ScaleGestureDetector scaleDetector = null;
 
     protected Handler handler;
 
