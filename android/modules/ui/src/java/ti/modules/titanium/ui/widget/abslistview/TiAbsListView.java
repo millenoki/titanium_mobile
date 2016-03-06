@@ -424,8 +424,11 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         @Override
         public int getSectionForPosition(int position) {
             Pair<AbsListSectionProxy, Pair<Integer, Integer>> info = getSectionInfoByEntryIndex(position);
-            AbsListSectionProxy section = info.first;
-            return section.getIndex();
+            if (info != null) {
+                AbsListSectionProxy section = info.first;
+                return section.getIndex();
+            } 
+            return -1;
         }
         
         @Override
