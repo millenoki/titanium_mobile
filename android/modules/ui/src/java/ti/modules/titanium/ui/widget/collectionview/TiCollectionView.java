@@ -510,7 +510,9 @@ public class TiCollectionView extends TiUINonViewGroupView
             if (itemContent == null) {
                 return;
             }
-
+            if (holder.itemView.getParent() != null) {
+                ((ViewGroup) holder.itemView.getParent()).setClipChildren(false);
+            }
             TiAbsListViewTemplate template = null;
             if (item != null) {
                 template = getTemplate(TiConvert.toString(item, TiC.PROPERTY_TEMPLATE), true);
@@ -883,13 +885,27 @@ public class TiCollectionView extends TiUINonViewGroupView
                 }
                 layoutManager.requestColumnUpdate();
             }
-
+            
             @Override
-            public boolean dispatchTouchEvent(MotionEvent event) {
-                if (touchPassThrough == true)
-                    return false;
-                return super.dispatchTouchEvent(event);
-            }
+          public void dispatchSetPressed(boolean pressed) {
+              if (propagateSetPressed(this, pressed)) {
+                  super.dispatchSetPressed(pressed);
+              }
+          }
+
+          @Override
+          public boolean dispatchTouchEvent(MotionEvent event) {
+              if (touchPassThrough(getParentViewForChild(), event))
+                  return false;
+              return super.dispatchTouchEvent(event);
+          }
+
+//            @Override
+//            public boolean dispatchTouchEvent(MotionEvent event) {
+//                if (touchPassThrough == true)
+//                    return false;
+//                return super.dispatchTouchEvent(event);
+//            }
 
             @Override
             protected void dispatchDraw(Canvas canvas) {
@@ -900,6 +916,7 @@ public class TiCollectionView extends TiUINonViewGroupView
                 }
             }
         };
+//        mRecyclerView.setClipChildren(false);
 
         mAdapter = new TiBaseAdapter(mRecyclerView.getContext(), null);
         mAdapter.setDisplayHeaders(true);
@@ -1027,33 +1044,33 @@ public class TiCollectionView extends TiUINonViewGroupView
             Log.e(TAG, "XML resources could not be found!!!", Log.DEBUG_MODE);
         }
 
-        RelativeLayout layout = new RelativeLayout(proxy.getActivity()) {
-            @Override
-            protected void onLayout(boolean changed, int left, int top,
-                    int right, int bottom) {
-                super.onLayout(changed, left, top, right, bottom);
-                if (changed) {
-                    TiUIHelper.firePostLayoutEvent(TiCollectionView.this);
-                }
-            }
-
-            @Override
-            public void dispatchSetPressed(boolean pressed) {
-                if (propagateSetPressed(this, pressed)) {
-                    super.dispatchSetPressed(pressed);
-                }
-            }
-
-            @Override
-            public boolean dispatchTouchEvent(MotionEvent event) {
-                if (touchPassThrough(getParentViewForChild(), event))
-                    return false;
-                return super.dispatchTouchEvent(event);
-            }
-
-        };
-        layout.addView(mRecyclerView);
-        setNativeView(layout);
+//        RelativeLayout layout = new RelativeLayout(proxy.getActivity()) {
+//            @Override
+//            protected void onLayout(boolean changed, int left, int top,
+//                    int right, int bottom) {
+//                super.onLayout(changed, left, top, right, bottom);
+//                if (changed) {
+//                    TiUIHelper.firePostLayoutEvent(TiCollectionView.this);
+//                }
+//            }
+//
+//            @Override
+//            public void dispatchSetPressed(boolean pressed) {
+//                if (propagateSetPressed(this, pressed)) {
+//                    super.dispatchSetPressed(pressed);
+//                }
+//            }
+//
+//            @Override
+//            public boolean dispatchTouchEvent(MotionEvent event) {
+//                if (touchPassThrough(getParentViewForChild(), event))
+//                    return false;
+//                return super.dispatchTouchEvent(event);
+//            }
+//
+//        };
+//        layout.addView(mRecyclerView);
+        setNativeView(mRecyclerView);
 
         // needs to be fired after because
         // getStickyHeadersHolder will be called and need nativeView
