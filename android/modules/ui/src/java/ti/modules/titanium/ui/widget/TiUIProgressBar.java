@@ -14,6 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.graphics.PorterDuff.Mode;
 import android.view.MotionEvent;
+import android.view.View.MeasureSpec;
 import android.widget.ProgressBar;
 
 public class TiUIProgressBar extends TiUIView {
@@ -83,6 +84,12 @@ public class TiUIProgressBar extends TiUIView {
 		    
 		    @Override
 		    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		        int w = MeasureSpec.getSize(widthMeasureSpec);
+		        int wm = MeasureSpec.getMode(widthMeasureSpec);
+		        if ((wm == MeasureSpec.AT_MOST || wm == MeasureSpec.UNSPECIFIED)) {
+		            widthMeasureSpec = MeasureSpec.makeMeasureSpec(w,
+	                        MeasureSpec.EXACTLY);
+	            }
 		        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 //		        setMeasuredDimension(getDefaultSize(getSuggestedMinimumWidth(), widthMeasureSpec),
 //		                getDefaultSize(getSuggestedMinimumHeight(), heightMeasureSpec));
