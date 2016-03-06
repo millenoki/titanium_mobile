@@ -626,10 +626,12 @@ public class TiCollectionView extends TiUINonViewGroupView
         @Override
         public void notifySectionItemRangeInserted(int groupPosition,
                 int childPosition, int itemCount) {
-            for (AbsListItemProxy itemProxy : handledProxies) {
-                if (itemProxy.sectionIndex == groupPosition
-                        && itemProxy.itemIndex >= childPosition) {
-                    itemProxy.updateItemIndex(itemProxy.itemIndex + itemCount);
+            if (handledProxies != null) {
+                for (AbsListItemProxy itemProxy : handledProxies) {
+                    if (itemProxy.sectionIndex == groupPosition
+                            && itemProxy.itemIndex >= childPosition) {
+                        itemProxy.updateItemIndex(itemProxy.itemIndex + itemCount);
+                    }
                 }
             }
             super.notifySectionItemRangeInserted(groupPosition, childPosition,
@@ -639,10 +641,14 @@ public class TiCollectionView extends TiUINonViewGroupView
         @Override
         public void notifySectionItemRangeRemoved(int groupPosition,
                 int childPosition, int itemCount) {
-            for (AbsListItemProxy itemProxy : handledProxies) {
-                if (itemProxy.sectionIndex == groupPosition
-                        && itemProxy.itemIndex >= childPosition + itemCount) {
-                    itemProxy.updateItemIndex(itemProxy.itemIndex - itemCount);
+            if (handledProxies != null) {
+                for (AbsListItemProxy itemProxy : handledProxies) {
+                    if (itemProxy.sectionIndex == groupPosition
+                            && itemProxy.itemIndex >= childPosition
+                                    + itemCount) {
+                        itemProxy.updateItemIndex(
+                                itemProxy.itemIndex - itemCount);
+                    }
                 }
             }
             super.notifySectionItemRangeRemoved(groupPosition, childPosition,
@@ -723,43 +729,43 @@ public class TiCollectionView extends TiUINonViewGroupView
 
         @Override
         protected boolean prepHolderForAnimateRemove(
-                CollectionViewHolder holder) {
+                ViewHolder holder) {
             return true;
         }
 
         @Override
         protected ViewPropertyAnimatorCompat animateRemoveImpl(
-                CollectionViewHolder holder) {
+                ViewHolder holder) {
             return ViewCompat.animate(holder.itemView).alpha(0);
 
         }
 
         @Override
-        protected void onRemoveCanceled(CollectionViewHolder holder) {
+        protected void onRemoveCanceled(ViewHolder holder) {
             ViewCompat.setAlpha(holder.itemView, 1);
         }
 
         @Override
-        protected void animateRemoveEnded(CollectionViewHolder holder) {
+        protected void animateRemoveEnded(ViewHolder holder) {
             super.animateRemoveEnded(holder);
             ViewCompat.setAlpha(holder.itemView, 1);
 
         }
 
         @Override
-        protected boolean prepHolderForAnimateAdd(CollectionViewHolder holder) {
+        protected boolean prepHolderForAnimateAdd(ViewHolder holder) {
             ViewCompat.setAlpha(holder.itemView, 0);
             return true;
         }
 
         @Override
         protected ViewPropertyAnimatorCompat animateAddImpl(
-                CollectionViewHolder holder) {
+                ViewHolder holder) {
             return ViewCompat.animate(holder.itemView).alpha(1);
         }
 
         @Override
-        protected void onAddCanceled(CollectionViewHolder holder) {
+        protected void onAddCanceled(ViewHolder holder) {
             ViewCompat.setAlpha(holder.itemView, 0);
         }
     }
