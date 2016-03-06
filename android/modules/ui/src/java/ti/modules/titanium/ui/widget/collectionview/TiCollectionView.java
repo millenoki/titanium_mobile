@@ -67,6 +67,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -75,6 +76,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -275,6 +277,51 @@ public class TiCollectionView extends TiUINonViewGroupView
         @Override
         public boolean canScrollVertically() {
             return isScrollEnabled && super.canScrollVertically();
+        }
+        
+        public abstract class SnapTopLinearSmoothScroller extends LinearSmoothScroller {
+
+            public SnapTopLinearSmoothScroller(Context context) {
+                super(context);
+            }
+
+            @Override
+            protected int getVerticalSnapPreference() {
+                return SNAP_TO_START;
+            }
+            @Override
+            protected int getHorizontalSnapPreference() {
+                return SNAP_TO_START;
+            }
+        }
+        
+        @Override
+        public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,
+                int position) {
+            SnapTopLinearSmoothScroller linearSmoothScroller =
+                    new SnapTopLinearSmoothScroller(recyclerView.getContext()) {
+                        @Override
+                        public PointF computeScrollVectorForPosition(int targetPosition) {
+                            return TiGridLayoutManager.this
+                                    .computeScrollVectorForPosition(targetPosition);
+                        }
+                    };
+            linearSmoothScroller.setTargetPosition(position);
+            startSmoothScroll(linearSmoothScroller);
+        }
+        
+        @Override
+        public PointF computeScrollVectorForPosition(int targetPosition) {
+            if (getChildCount() == 0) {
+                return null;
+            }
+            final int firstChildPos = getPosition(getChildAt(0));
+            final int direction = targetPosition < firstChildPos != getReverseLayout() ? 1 : -1;
+            if (getOrientation() == HORIZONTAL) {
+                return new PointF(direction, 0);
+            } else {
+                return new PointF(0, direction);
+            }
         }
     }
 
