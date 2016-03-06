@@ -517,8 +517,9 @@ public class TiCollectionView extends TiUINonViewGroupView
             if (item != null) {
                 template = getTemplate(TiConvert.toString(item, TiC.PROPERTY_TEMPLATE), true);
             }
+            final int sectionCount = section.getItemCount();
             boolean reusing = sectionIndex != itemContent.sectionIndex
-                    || itemContent.itemIndex >= section.getItemCount()
+                    || itemContent.itemIndex >= sectionCount
                     || (item != null && item != section.getListItem(itemContent.itemIndex));
             if (reusing) {
                 ((CollectionViewHolder) holder).prepareForReuse();
@@ -533,6 +534,12 @@ public class TiCollectionView extends TiUINonViewGroupView
                 itemProxy.setCurrentItem(sectionIndex, realItemIndex, section, item);
                 if (section.hasHeader() && sectionItemIndex == RecyclerView.NO_POSITION) {
                     KrollProxy childProxy = section.getHoldedProxy(TiC.PROPERTY_HEADER_VIEW);
+                    if (childProxy instanceof ParentingProxy && ((ParentingProxy) childProxy).getParent() != itemContent.getProxy()) {
+                        itemProxy.removeAllChildren();
+                        itemProxy.add(childProxy);
+                    }
+                } else if (section.hasFooter() && sectionItemIndex == sectionCount - 1) {
+                    KrollProxy childProxy = section.getHoldedProxy(TiC.PROPERTY_FOOTER_VIEW);
                     if (childProxy instanceof ParentingProxy && ((ParentingProxy) childProxy).getParent() != itemContent.getProxy()) {
                         itemProxy.removeAllChildren();
                         itemProxy.add(childProxy);
