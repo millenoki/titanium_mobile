@@ -1011,21 +1011,19 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             break;
         case TiC.PROPERTY_CLIP_CHILDREN: {
             clipChildren = TiConvert.toBoolean(newValue, true);
-            if (TiC.LOLLIPOP_OR_GREATER) {
-                View parentViewForChild = getParentViewForChild();
-                if (parentViewForChild instanceof ViewGroup) {
+            View parentViewForChild = getParentViewForChild();
+
+            if (parentViewForChild instanceof ViewGroup) {
+                if (TiC.LOLLIPOP_OR_GREATER) {
                     ((ViewGroup) parentViewForChild).setClipToOutline(clipChildren);
                 }
-                if (borderView != null) {
-                    borderView.setClipToOutline(clipChildren);
-                }
-            }
-            View parentViewForChild = getParentViewForChild();
-            if (parentViewForChild instanceof ViewGroup) {
                 ((ViewGroup) parentViewForChild).setClipChildren(clipChildren);
             }
             if (borderView != null) {
-                borderView.setClipChildren(clipChildren);
+                if (TiC.LOLLIPOP_OR_GREATER) {
+                    borderView.setClipToOutline(clipChildren);
+                }
+               borderView.setClipChildren(clipChildren);
             }
             if (!clipChildren) {
                 ViewGroup parent = (ViewGroup) getOuterView().getParent();
