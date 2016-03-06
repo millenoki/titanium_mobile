@@ -204,19 +204,22 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 	
 	@Kroll.method
-	public AbsListSectionProxy getSectionAt(int sectionIndex) {
-	      TiUIView listView = peekView();
-      if (listView instanceof TiCollectionViewInterface) {
-			return ((TiCollectionViewInterface) listView).getSectionAt(sectionIndex);
-		} else {
-			if (sectionIndex < 0 || sectionIndex >= preloadSections.size()) {
-				Log.e(TAG, "getItem Invalid section index");
-				return null;
-			}
-			
-			return preloadSections.get(sectionIndex);
-		}
-	}
+    public AbsListSectionProxy getSectionAt(int sectionIndex) {
+        if (preload) {
+            if (sectionIndex < 0 || sectionIndex >= preloadSections.size()) {
+                Log.e(TAG, "getItem Invalid section index");
+                return null;
+            }
+
+            return preloadSections.get(sectionIndex);
+        }
+        TiUIView listView = getOrCreateView();
+        if (listView instanceof TiCollectionViewInterface) {
+            return ((TiCollectionViewInterface) listView)
+                    .getSectionAt(sectionIndex);
+        }
+        return null;
+    }
 	
 	// public int handleSectionCount () {
 	// 	TiUIView listView = peekView();
@@ -353,11 +356,11 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 				return true;
 			}
 			
-			case MSG_GET_SECTIONS: {
-				AsyncResult result = (AsyncResult)msg.obj;
-				result.setResult(handleSections());
-				return true;
-			}
+//			case MSG_GET_SECTIONS: {
+//				AsyncResult result = (AsyncResult)msg.obj;
+//				result.setResult(handleSections());
+//				return true;
+//			}
 	        case MSG_SHOW_PULL_VIEW: {
 	            handleShowPullView(msg.obj);
 	            return true;
@@ -365,39 +368,12 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	        case MSG_CLOSE_PULL_VIEW: {
 	            handleClosePullView(msg.obj);
 	            return true;
-	        }
-//			case MSG_SET_SECTIONS: {
-//				AsyncResult result = (AsyncResult)msg.obj;
-//				TiUIView listView = peekView();
-//				if (listView != null) {
-//					((TiAbsListView)listView).processSectionsAndNotify((Object[])result.getArg());
-//				} else {
-//					Log.e(TAG, "Unable to set sections, listView is null", Log.DEBUG_MODE);
-//				}
-//				result.setResult(null);
-//				return true;
-//			}
-//			
+	        }		
 			default:
 				return super.handleMessage(msg);
 		}
 	}
-
-
-//	private void handleScrollToTop(int y, boolean animated) {
-//		TiUIView listView = peekView();
-//		if (listView != null) {
-//			((TiAbsListView) listView).scrollToTop(y, animated);
-//		}
-//	}
-//
-//	private void handleScrollToBottom(int y, boolean animated) {
-//		TiUIView listView = peekView();
-//		if (listView != null) {
-//			((TiAbsListView) listView).scrollToBottom(y, animated);
-//		}
-//	}
-
+	
 	@Kroll.method
 	public void appendSection(Object section) {
 		if (TiApplication.isUIThread()) {
@@ -500,11 +476,18 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public AbsListSectionProxy[] getSections()
 	{
-		if (TiApplication.isUIThread()) {
-			return handleSections();
-		} else {
-			return (AbsListSectionProxy[]) TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_GET_SECTIONS));
-		}
+	    if (preload) {
+	        ArrayList<AbsListSectionProxy> preloadedSections = getPreloadSections();
+	        if (preloadedSections != null) {
+	            return preloadedSections.toArray(new AbsListSectionProxy[preloadedSections.size()]);
+	        }
+            return null;
+	    }
+		TiUIView listView = getOrCreateView();
+        if (listView instanceof TiCollectionViewInterface) {
+            return ((TiCollectionViewInterface) listView).getSections();
+        }
+        return null;
 	}
 	
 	@Kroll.setProperty @Kroll.method
@@ -514,8 +497,6 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 			Log.e(TAG, "Invalid argument type to setSection(), needs to be an array", Log.DEBUG_MODE);
 			return;
 		}
-//		setPropertyJava(TiC.PROPERTY_SECTIONS, sections);
-
 		Object[] sectionsArray = (Object[]) sections;
 		TiUIView listView = peekView();
 		//Preload sections if listView is not opened.
@@ -528,21 +509,6 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 			((TiCollectionViewInterface)listView).processSectionsAndNotify(sectionsArray);
 		}
 	}
-	
-	private AbsListSectionProxy[] handleSections()
-	{
-	    TiUIView listView = peekView();
-        if (listView instanceof TiCollectionViewInterface) {
-            ((TiCollectionViewInterface) listView).getSections();
-		}
-		ArrayList<AbsListSectionProxy> preloadedSections = getPreloadSections();
-		if (preloadedSections != null) {
-	        return preloadedSections.toArray(new AbsListSectionProxy[preloadedSections.size()]);
-		}
-		return null;
-	}
-	   
-
 	
 	@Kroll.method
 	public void appendItems(int sectionIndex, Object data) {

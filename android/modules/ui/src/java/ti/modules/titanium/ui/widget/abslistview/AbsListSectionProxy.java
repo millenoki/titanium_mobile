@@ -636,10 +636,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			mHiddenItems.clear();
 			filterIndices.clear();
 			// only process items when listview's properties is processed.
-			if (getListView() == null) {
-				preload = true;
-				return;
-			}
+//			if (getListView() == null) {
+//				preload = true;
+//				return;
+//			}
 			mItemCount = itemProperties.length;
 			processData(itemProperties, 0);
 
@@ -648,31 +648,31 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		}
 	}
 
-	private int handleAppendItems(Object data) {
-		if (data instanceof Object[]) {
-		    Object[] items = (Object[]) data;
-			if (itemProperties == null) {
-				itemProperties = items;
-			} else {
-	            ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
-			    list.addAll(Arrays.asList(items));
-			    itemProperties = list.toArray();
-			}
-			// only process items when listview's properties is processed.
-			if (getListView() == null) {
-				preload = true;
-				return 0;
-			}
-			int offset = mItemCount;
-			mItemCount = itemProperties.length;
-
-			processData(items, offset);
-			return items.length;
-		} else {
-			Log.e(TAG, "Invalid argument type to setData", Log.DEBUG_MODE);
-		}
-		return 0;
-	}
+//	private int handleAppendItems(Object data) {
+//		if (data instanceof Object[]) {
+//		    Object[] items = (Object[]) data;
+//			if (itemProperties == null) {
+//				itemProperties = items;
+//			} else {
+//	            ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
+//			    list.addAll(Arrays.asList(items));
+//			    itemProperties = list.toArray();
+//			}
+//			// only process items when listview's properties is processed.
+//			if (getListView() == null) {
+//				preload = true;
+//				return 0;
+//			}
+//			int offset = mItemCount;
+//			mItemCount = itemProperties.length;
+//
+//			processData(items, offset);
+//			return items.length;
+//		} else {
+//			Log.e(TAG, "Invalid argument type to setData", Log.DEBUG_MODE);
+//		}
+//		return 0;
+//	}
 
 	
 	public int deleteItemsData(int index, int count) {
@@ -698,35 +698,33 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		return removedCount;
 	}
 	
-	public int insertItemsData(int index, Object data) {
-	    if (data instanceof Object[]) {
+    public int insertItemsData(int index, Object data) {
+        if (data instanceof Object[]) {
             Object[] items = (Object[]) data;
             if (items.length == 0) {
                 return 0;
             }
             if (itemProperties == null) {
                 itemProperties = items;
-           } else {
+            } else {
                 if (index < 0 || index > itemProperties.length) {
                     Log.e(TAG, "Invalid index to handleInsertItem",
                             Log.DEBUG_MODE);
-                    return 0 ;
+                    return 0;
                 }
-                ArrayList<Object> list = new ArrayList(Arrays.asList(itemProperties));
+                ArrayList<Object> list = new ArrayList(
+                        Arrays.asList(itemProperties));
                 list.addAll(index, Arrays.asList(items));
                 itemProperties = (Object[]) list.toArray();
-                mItemCount = itemProperties.length;
-                processData(items, index);
+
             }
-            // only process items when listview's properties is processed.
-            if (listView == null) {
-                preload = true;
-            }
+            mItemCount = itemProperties.length;
+            processData(items, index);
             return items.length;
         } else if (data != null) {
-            insertItemsData(index, new Object[] {data});
+            insertItemsData(index, new Object[] { data });
         }
-	    return 0;
+        return 0;
     }
 
 
@@ -1022,6 +1020,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	}
 
 	public boolean isFilterOn() {
+	    if (listView == null) {
+	        return false;
+	    }
 	    String searchText = getListView().getSearchText();
 	    return (searchText != null && searchText.length() > 0);
 	}

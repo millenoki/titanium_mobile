@@ -1266,7 +1266,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 			}
 		}
 		else if(sec instanceof HashMap) {
-			AbsListSectionProxy section = (AbsListSectionProxy) KrollProxy.createProxy(AbsListSectionProxy.class, null, new Object[]{sec}, null);
+			AbsListSectionProxy section = (AbsListSectionProxy) KrollProxy.createProxy(((AbsListViewProxy) proxy).sectionClass(), null, new Object[]{sec}, null);
             section.updateKrollObjectProperties();
 			processSection(section, index);
 		}
