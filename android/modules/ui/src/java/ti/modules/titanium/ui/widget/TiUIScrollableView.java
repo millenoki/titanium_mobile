@@ -937,7 +937,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
                 TiCompositeLayout layout = new TiCompositeLayout(activity);
                 layout.setInternalTouchPassThrough(true);
                 TiUIHelper.addView(layout, tiProxy);
-                layout.setTag(((TiViewProxy) tiProxy).peekView());
+                layout.setTag(position);
                 ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
                 if (position < pager.getChildCount()) {
                     pager.addView(layout, position, params);
