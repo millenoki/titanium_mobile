@@ -197,7 +197,7 @@ RELEASE_TO_NIL(x); \
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIOSANIMATIONSTYLE
+#ifdef USE_TI_UIIOSANIMATIONSTYLEt
     RELEASE_TO_NIL(_animationStyleProxy);
 #endif
 #ifdef USE_TI_UIIOSROWANIMATIONSTYLE
@@ -459,6 +459,13 @@ result = [NSNumber numberWithBool:[[UIApplication sharedApplication] application
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 #ifdef USE_TI_UIIOSBLURVIEW
+- (NSNumber*) BLUR_EFFECT_STYLE_NONE
+{
+    if ([TiUtils isIOS8OrGreater]) {
+        return NUMINTEGER(-1);
+    }
+    return nil;
+}
 - (NSNumber*) BLUR_EFFECT_STYLE_EXTRA_LIGHT
 {
     if ([TiUtils isIOS8OrGreater]) {

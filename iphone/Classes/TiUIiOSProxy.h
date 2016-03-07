@@ -180,6 +180,7 @@
 #endif
 
 #ifdef USE_TI_UIIOSBLURVIEW
+@property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_NONE;
 @property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_EXTRA_LIGHT;
 @property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_LIGHT;
 @property(nonatomic,readonly) NSNumber* BLUR_EFFECT_STYLE_DARK;
