@@ -39,49 +39,54 @@ public class AnimatableProxy extends ParentingProxy {
 		runningAnimationsLock = new Object();
 	}
 	
-	protected void applyFirstPendingFromOptions() {
+	protected void applyPendingAnimationsFromOptions() {
 	    synchronized (pendingAnimationLock) {
             if (pendingAnimations.size() == 0) {
                 return;
             }
-            pendingAnimations.get(0).applyFromOptions(this);
+            for(TiAnimatorSet set : pendingAnimations) {
+                set.applyFromOptions(this);
+            }
         }
 	}
 
 	protected void handlePendingAnimation() {
-	    TiAnimatorSet tiSet;
+	    ArrayList<TiAnimatorSet> toHandle = null;
 		synchronized (pendingAnimationLock) {
 			if (pendingAnimations.size() == 0) {
 				return;
 			}
-			tiSet = pendingAnimations.remove(0);
+			toHandle = (ArrayList<TiAnimatorSet>) pendingAnimations.clone();
+			pendingAnimations.clear();
 		}
-		tiSet.setProxy(this);
+		
 		
 		synchronized (runningAnimationsLock) {
-			tiSet.needsToRestartFromBeginning = (runningAnimations.size() > 0);
-			if (tiSet.cancelRunningAnimations) {
-				for (int i = 0; i < runningAnimations.size(); i++) {
-					runningAnimations.get(i).cancelWithoutResetting();
-				}
-				runningAnimations.clear();
-			}
-			else if (tiSet.animationProxy != null){
-				for (int i = 0; i < runningAnimations.size(); i++) {
-					TiAnimator anim = runningAnimations.get(i);
-					if (anim.animationProxy == tiSet.animationProxy) {
-						anim.cancelWithoutResetting();
-						runningAnimations.remove(anim);
-						break;
-					}
-				}
-				runningAnimations.clear();
-			}
-			runningAnimations.add(tiSet);
+		    for (TiAnimatorSet tiSet: toHandle) {
+	            tiSet.setProxy(this);
+	            tiSet.needsToRestartFromBeginning = (runningAnimations.size() > 0);
+	            if (tiSet.cancelRunningAnimations) {
+	                for (int i = 0; i < runningAnimations.size(); i++) {
+	                    runningAnimations.get(i).cancelWithoutResetting();
+	                }
+	                runningAnimations.clear();
+	            }
+	            else if (tiSet.animationProxy != null){
+	                for (int i = 0; i < runningAnimations.size(); i++) {
+	                    TiAnimator anim = runningAnimations.get(i);
+	                    if (anim.animationProxy == tiSet.animationProxy) {
+	                        anim.cancelWithoutResetting();
+	                        runningAnimations.remove(anim);
+	                        break;
+	                    }
+	                }
+	                runningAnimations.clear();
+	            }
+	            runningAnimations.add(tiSet);
+	            prepareAnimatorSet(tiSet);
+	            tiSet.set().start();
+	        }
 		}
-
-		prepareAnimatorSet(tiSet);
-		tiSet.set().start();
 	}
 	
 	public TiAnimatorSet createAnimator(Object arg) {
