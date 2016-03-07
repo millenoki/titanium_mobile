@@ -213,6 +213,10 @@ public class TiBackgroundDrawable extends Drawable {
 		
 	}
 	
+	public float[] getRadius() {
+	    return this.radius;
+	}
+	
 	public void setRadius(float[] radius)
 	{
 		this.radius = radius;

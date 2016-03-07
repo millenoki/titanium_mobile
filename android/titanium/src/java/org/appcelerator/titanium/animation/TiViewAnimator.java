@@ -87,7 +87,7 @@ public class TiViewAnimator extends TiAnimatorSet
 	
 	
 	@Override
-	protected void handleFinish() {
+	public void handleFinish() {
 		cleanupView();
 		super.handleFinish();
 		

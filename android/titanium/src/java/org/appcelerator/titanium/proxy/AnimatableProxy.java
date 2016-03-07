@@ -2,11 +2,14 @@ package org.appcelerator.titanium.proxy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.animation.TiAnimator;
 import org.appcelerator.titanium.animation.TiAnimatorListener;
@@ -49,6 +52,37 @@ public class AnimatableProxy extends ParentingProxy {
             }
         }
 	}
+	
+	protected void handlePendingAnimation(TiAnimatorSet tiSet) {
+	    if (tiSet.getDuration() == 0) {
+	       tiSet.handleFinish();
+	       return;
+	    }
+	    synchronized (runningAnimationsLock) {
+            tiSet.setProxy(this);
+            tiSet.needsToRestartFromBeginning = (runningAnimations.size() > 0);
+            if (tiSet.cancelRunningAnimations) {
+                for (int i = 0; i < runningAnimations.size(); i++) {
+                    runningAnimations.get(i).cancelWithoutResetting();
+                }
+                runningAnimations.clear();
+            }
+            else if (tiSet.animationProxy != null){
+                for (int i = 0; i < runningAnimations.size(); i++) {
+                    TiAnimator anim = runningAnimations.get(i);
+                    if (anim.animationProxy == tiSet.animationProxy) {
+                        anim.cancelWithoutResetting();
+                        runningAnimations.remove(anim);
+                        break;
+                    }
+                }
+                runningAnimations.clear();
+            }
+            runningAnimations.add(tiSet);
+            prepareAnimatorSet(tiSet);
+            tiSet.set().start();
+        }
+	}
 
 	protected void handlePendingAnimation() {
 	    ArrayList<TiAnimatorSet> toHandle = null;
@@ -60,33 +94,9 @@ public class AnimatableProxy extends ParentingProxy {
 			pendingAnimations.clear();
 		}
 		
-		
-		synchronized (runningAnimationsLock) {
-		    for (TiAnimatorSet tiSet: toHandle) {
-	            tiSet.setProxy(this);
-	            tiSet.needsToRestartFromBeginning = (runningAnimations.size() > 0);
-	            if (tiSet.cancelRunningAnimations) {
-	                for (int i = 0; i < runningAnimations.size(); i++) {
-	                    runningAnimations.get(i).cancelWithoutResetting();
-	                }
-	                runningAnimations.clear();
-	            }
-	            else if (tiSet.animationProxy != null){
-	                for (int i = 0; i < runningAnimations.size(); i++) {
-	                    TiAnimator anim = runningAnimations.get(i);
-	                    if (anim.animationProxy == tiSet.animationProxy) {
-	                        anim.cancelWithoutResetting();
-	                        runningAnimations.remove(anim);
-	                        break;
-	                    }
-	                }
-	                runningAnimations.clear();
-	            }
-	            runningAnimations.add(tiSet);
-	            prepareAnimatorSet(tiSet);
-	            tiSet.set().start();
-	        }
-		}
+	    for (TiAnimatorSet tiSet: toHandle) {
+	        handlePendingAnimation(tiSet);
+        }
 	}
 	
 	public TiAnimatorSet createAnimator(Object arg) {
@@ -276,5 +286,34 @@ public class AnimatableProxy extends ParentingProxy {
            return runningAnimations.size() > 0;
        }
    }
+   
+   @Override
+   protected void handleStateDiffPropertyForKey(String key, Object obj, Iterator<Map.Entry<String, Object>> it, HashMap newValues)
+   {
+       if (key.equals(TiC.PROPERTY_DURATION)) {
+           newValues.put(key, obj);
+           it.remove();
+       } else {
+          super.handleStateDiffPropertyForKey(key, obj, it, newValues);
+       }
+//       it.remove();
+//       if (hasProperty(key)) {
+//           newValues.put(key, getProperty(key));
+//       } else {
+//           newValues.put(key, null);
+//       }
+   }
 
+   @Override
+   protected void applyStateProperties(HashMap props)
+   {
+       if (props.containsKey(TiC.PROPERTY_DURATION)) {
+           TiAnimatorSet animation = createAnimator();
+           animation.setOptions(props);
+           animation.dontApplyOnFinish = true;
+           handlePendingAnimation(animation);
+       } else {
+           super.applyStateProperties(props);
+       }
+   }
 }

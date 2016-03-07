@@ -37,6 +37,7 @@ public class TiAnimator
     private Interpolator reverseCurve = null;
 	protected boolean animating;
 	protected boolean cancelled = false;
+    public boolean dontApplyOnFinish = false;
 
 	public TiAnimation animationProxy;
 	protected KrollFunction callback;
@@ -106,7 +107,7 @@ public class TiAnimator
 		}
 
 		if (options.containsKey(TiC.PROPERTY_DURATION)) {
-			duration = TiConvert.toDouble(options, TiC.PROPERTY_DURATION);
+			duration = TiConvert.toDouble(options, TiC.PROPERTY_DURATION, 0);
             options.remove(TiC.PROPERTY_DURATION);
 		}
 		if (options.containsKey(TiC.PROPERTY_REVERSE_DURATION)) {
@@ -215,7 +216,7 @@ public class TiAnimator
         return proxy.getProperties();
     }
 	
-	private void interlaApplyFromOptions(AnimatableProxy theProxy, HashMap<String, Object> options) {
+	private void internalApplyFromOptions(AnimatableProxy theProxy, HashMap<String, Object> options) {
         if (options.containsKey("from")) {
             theProxy.applyPropertiesNoSave(TiConvert.toHashMap(options.get("from")), false, true);
         }
@@ -224,13 +225,13 @@ public class TiAnimator
             Object value = entry.getValue();
             Object proxyvalue = theProxy.getProperty(key);
             if (proxyvalue instanceof AnimatableProxy && value instanceof HashMap) {
-                interlaApplyFromOptions((AnimatableProxy)proxyvalue, (HashMap<String, Object>)value);
+                internalApplyFromOptions((AnimatableProxy)proxyvalue, (HashMap<String, Object>)value);
             }
         }
     }
 	
 	public void applyFromOptions(AnimatableProxy theProxy) {
-	    interlaApplyFromOptions(theProxy, this.options);
+	    internalApplyFromOptions(theProxy, this.options);
 	}
 
 	public void resetAnimationProperties()
@@ -239,37 +240,40 @@ public class TiAnimator
         proxy.afterAnimationReset();
 	}
 	
-	protected void handleFinish()
+	public void handleFinish()
 	{		
-		if (autoreverse == true) {
-			resetAnimationProperties();
-		}
-		else {
-			applyCompletionProperties();
-		}
-		if (callback != null && proxy != null) {
-			callback.callAsync(proxy.getKrollObject(), new Object[] { new KrollDict() });
-		}
+	    if (!dontApplyOnFinish) {
+	        if (autoreverse == true) {
+	            resetAnimationProperties();
+	        }
+	        else {
+	            applyCompletionProperties();
+	        }
+	        if (callback != null && proxy != null) {
+	            callback.callAsync(proxy.getKrollObject(), new Object[] { new KrollDict() });
+	        }
 
-		if (this.animationProxy != null) {
-			this.animationProxy.setAnimator(null);
-			// In versions prior to Honeycomb, don't fire the event
-			// until the message queue is empty. There appears to be
-			// a bug in versions before Honeycomb where this
-			// onAnimationEnd listener can be called even before the
-			// animation is really complete.
-			if (TiC.HONEYCOMB_OR_GREATER) {
-				this.animationProxy.fireEvent(TiC.EVENT_COMPLETE);
-			} else {
-				Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
-					public boolean queueIdle()
-					{
-						animationProxy.fireEvent(TiC.EVENT_COMPLETE);
-						return false;
-					}
-				});
-			}
-		}
+	        if (this.animationProxy != null) {
+	            this.animationProxy.setAnimator(null);
+	            // In versions prior to Honeycomb, don't fire the event
+	            // until the message queue is empty. There appears to be
+	            // a bug in versions before Honeycomb where this
+	            // onAnimationEnd listener can be called even before the
+	            // animation is really complete.
+	            if (TiC.HONEYCOMB_OR_GREATER) {
+	                this.animationProxy.fireEvent(TiC.EVENT_COMPLETE);
+	            } else {
+	                Looper.myQueue().addIdleHandler(new MessageQueue.IdleHandler() {
+	                    public boolean queueIdle()
+	                    {
+	                        animationProxy.fireEvent(TiC.EVENT_COMPLETE);
+	                        return false;
+	                    }
+	                });
+	            }
+	        }
+	    }
+		
 		if (proxy != null) {
 			proxy.animationFinished(this);
 		}

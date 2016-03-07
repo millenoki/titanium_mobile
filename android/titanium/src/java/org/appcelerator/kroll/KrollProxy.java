@@ -45,6 +45,7 @@ import org.appcelerator.titanium.util.TiUrl;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.CalendarContract.Instances;
 import android.os.Bundle;
 import android.util.Pair;
 
@@ -129,6 +130,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     
     protected boolean mProcessInUIThread = false;
     private boolean needsToUpdateNativeSideProps = false; 
+    
+    
+    private String mCustomState;
+    private String mCurrentState;
+    private HashMap mStates;
+    private HashMap mCurrentStateValues;
 
     public KrollProxy(TiContext tiContext) {
         this();
@@ -505,7 +512,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
         handleDefaultValues();
         handleLocaleProperties();
-
+        
+        if (dict.get("states") instanceof HashMap) {
+            setStates((HashMap) dict.get("states"));
+//            dict.remove(TiC.PROPERTY_BUBBLE_PARENT);
+        }
         if (dict.containsKey(TiC.PROPERTY_BUBBLE_PARENT)) {
             bubbleParent = TiConvert.toBoolean(dict,
                     TiC.PROPERTY_BUBBLE_PARENT, true);
@@ -2471,5 +2482,125 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             return (T) TiMessenger.sendBlockingMainCommand(command);
 
         }
+    }
+    
+    protected void handleStateDiffPropertyForKey(String key, Object obj, Iterator<Map.Entry<String, Object>> it, HashMap newValues)
+    {
+        it.remove();
+        if (hasProperty(key)) {
+            newValues.put(key, getProperty(key));
+        } else {
+            newValues.put(key, null);
+        }
+    }
+    
+    private void mergeHasMaps(HashMap map1 , HashMap map2) {
+        if (map2 == null) {
+            return;
+        }
+        for (Iterator<Map.Entry<String, Object>> it = map2.entrySet()
+                .iterator(); it.hasNext();) {
+            Map.Entry<String, Object> entry = it.next();
+            final String key = entry.getKey();
+            Object current = map1.get(key);
+            Object value = entry.getValue();
+            if (current instanceof HashMap && value instanceof HashMap) {
+                HashMap toReplace = new HashMap((HashMap)current);
+                mergeHasMaps(toReplace, new HashMap((HashMap)value));
+                entry.setValue(toReplace);
+            } else if (value == null){
+                map1.remove(key);
+            } else if (value instanceof HashMap) {
+                map1.put(key, new HashMap((HashMap)value));
+            } else {
+                map1.put(key, value);
+            }
+        }
+    }
+
+    protected HashMap generateDiffDictionary(HashMap currentValues,
+            HashMap newValues) {
+        HashMap result = (HashMap) ((newValues != null) ? newValues.clone()
+                : new HashMap());
+        for (Iterator<Map.Entry<String, Object>> it = currentValues.entrySet()
+                .iterator(); it.hasNext();) {
+            Map.Entry<String, Object> entry = it.next();
+            final String key = entry.getKey();
+            Object value = entry.getValue();
+            if (value instanceof HashMap
+                    && getProperty(key) instanceof KrollProxy) {
+                KrollProxy target = (KrollProxy) getProperty(key);
+                HashMap dict = target.generateDiffDictionary((HashMap) value,
+                        (HashMap) ((newValues != null)?newValues.get(key):null));
+                result.put(key, dict);
+                if (((HashMap) value).size() == 0) {
+                    it.remove();
+                }
+            } else {
+                handleStateDiffPropertyForKey(key, value, it, result);
+            }
+        }
+        // NSMutableDictionary* result = [NSMutableDictionary
+        // dictionaryWithDictionary:newValues];
+        // [currentValues enumerateKeysAndObjectsUsingBlock:^(id _Nonnull key,
+        // id _Nonnull obj, BOOL * _Nonnull stop) {
+        // if (IS_OF_CLASS(obj, NSDictionary) && [self bindingForKey:key]) {
+        // TiProxy* target = [self bindingForKey:key];
+        // NSDictionary* dict = [target generateDiffDictionary:obj
+        // newValues:[newValues objectForKey:key]];
+        // [result setObject:dict forKey:key];
+        // if ([obj count] == 0) {
+        // [currentValues removeObjectForKey:key];
+        // }
+        // } else {
+        // [self handleStateDiffPropertyForKey:key value:obj
+        // currentValues:currentValues newValues:result];
+        // }
+        // }];
+        // [currentValues mergeWithDictionary:newValues];
+        mergeHasMaps(currentValues, newValues);
+        return result;
+    }
+    
+    @Kroll.method
+    @Kroll.setProperty
+    public void setStates(HashMap states) {
+        mStates = states;
+    }
+    @Kroll.method
+    @Kroll.getProperty
+    public HashMap getStates() {
+        return mStates;
+    }
+    
+    @Kroll.method
+    @Kroll.setProperty
+    public void setCustomState(String state) {
+        mCustomState = state;
+        setState(state);
+    }
+
+    protected void applyStateProperties(HashMap props)
+    {
+        applyPropertiesNoSave(props, true, false);
+    }
+
+    @Kroll.method
+    @Kroll.setProperty
+    public void setState(String state) {
+        if (mStates == null || (state != null && !mStates.containsKey(state))) {
+            return;
+        }
+        if ((state == null && mCurrentState == null) || (mCustomState != null && !mCustomState.equals(state))
+                || (state != null && state.equals(mCurrentState))
+                || (mCurrentState != null && mCurrentState.equals(state))) {
+            return;
+        }
+        mCurrentState = state;
+        if (mCurrentStateValues == null) {
+            mCurrentStateValues = new HashMap();
+        }
+        HashMap props = generateDiffDictionary(mCurrentStateValues, TiConvert.toHashMap(mStates.get(state)));
+        applyStateProperties(props);        
     }
 }
