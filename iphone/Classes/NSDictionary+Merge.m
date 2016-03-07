@@ -1,6 +1,27 @@
 
 #import "NSDictionary+Merge.h"
 
+@implementation NSMutableDictionary (Merge)
+
+
+- (void) mergeWithDictionary: (NSDictionary *) dict2 {
+    [dict2 enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop) {
+        NSMutableDictionary* current = [self objectForKey:key];
+        if ([current isKindOfClass:[NSDictionary class]]) {
+            [current mergeWithDictionary:obj];
+        } else {
+            if ([obj isKindOfClass:[NSDictionary class]]) {
+                [self setObject: [NSMutableDictionary dictionaryWithDictionary:obj] forKey: key];
+            } else if (obj == [NSNull null]) {
+                [self removeObjectForKey:key];
+            } else {
+                [self setObject: obj forKey: key];
+            }
+        }
+    }];
+}
+@end
+    
 @implementation NSDictionary (Merge)
 
 + (NSDictionary *) dictionaryByMerging: (NSDictionary *) dict1 with: (NSDictionary *) dict2 {

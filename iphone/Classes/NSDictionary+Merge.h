@@ -16,3 +16,7 @@
 - (NSDictionary *) dictionaryByMergingWith: (NSDictionary *) dict force:(BOOL)force;
 
 @end
+
+@interface NSMutableDictionary (Merge)
+- (void) mergeWithDictionary: (NSDictionary *) dict2;
+@end
