@@ -1801,9 +1801,9 @@ DEFINE_EXCEPTIONS
 
 -(void)applyStateProperties:(NSDictionary*)props
 {
-//    [self setFakeApplyProperties:YES];
+    [self setFakeApplyProperties:YES];
     [self applyProperties:props];
-//    [self setFakeApplyProperties:NO];
+    [self setFakeApplyProperties:NO];
 }
 
 -(void)setState:(NSString*)state {
