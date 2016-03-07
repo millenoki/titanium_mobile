@@ -301,7 +301,7 @@
 {
     if ([props objectForKey:@"duration"]) {
         TiAnimation * newAnimation = [TiAnimation animationFromArg:props context:[self executionContext] create:NO];
-        newAnimation.dontApplyOnFinish = YES;
+//        newAnimation.dontApplyOnFinish = YES;
         [self handlePendingAnimation:newAnimation];
         
     } else {

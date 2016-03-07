@@ -1781,7 +1781,11 @@ DEFINE_EXCEPTIONS
     [currentValues enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         if (IS_OF_CLASS(obj, NSDictionary) && [self bindingForKey:key]) {
             TiProxy* target = [self bindingForKey:key];
-            [result setObject:[target generateDiffDictionary:obj newValues:[newValues objectForKey:key]] forKey:key];
+            NSDictionary* dict = [target generateDiffDictionary:obj newValues:[newValues objectForKey:key]];
+            [result setObject:dict forKey:key];
+            if ([obj count] == 0) {
+                [currentValues removeObjectForKey:key];
+            }
         } else {
             [self handleStateDiffPropertyForKey:key value:obj currentValues:currentValues newValues:result];
         }
@@ -1797,9 +1801,9 @@ DEFINE_EXCEPTIONS
 
 -(void)applyStateProperties:(NSDictionary*)props
 {
-    [self setFakeApplyProperties:YES];
+//    [self setFakeApplyProperties:YES];
     [self applyProperties:props];
-    [self setFakeApplyProperties:NO];
+//    [self setFakeApplyProperties:NO];
 }
 
 -(void)setState:(NSString*)state {
