@@ -1310,6 +1310,16 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     else if(!usePathAsBorder)
     {
         CGFloat radius = radii[0];
+        if (runningAnimation) {
+            CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"cornerRadius"];
+            animation.duration = [runningAnimation duration];
+            animation.timingFunction = [runningAnimation curve];
+//            animation.fillMode = kCAFillModeBoth;
+            animation.fromValue = @(self.layer.cornerRadius);
+            animation.toValue = @(radius);
+            [self.layer addAnimation:animation forKey:@"cornerRadius"];
+            if (_bgLayer) [_bgLayer addAnimation:animation forKey:@"cornerRadius"];
+        }
         self.layer.cornerRadius = radius;
         if (_bgLayer) _bgLayer.cornerRadius = radius;
     }
