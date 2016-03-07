@@ -12,8 +12,8 @@ var TAG = "js_NavigationWindow";
 exports.bootstrap = function(Titanium) {
 	var NavigationWindow = Titanium.UI.NavigationWindow;
 
-	// Set constants for representing states for the tab group
-	NavigationWindow.prototype.state = {closed: 0, opening: 1, opened: 2};
+	// Set constants for representing navStates for the tab group
+	NavigationWindow.prototype.navState = {closed: 0, opening: 1, opened: 2};
 
 	function createNavigationWindow(scopeVars, options) {
 		var nav = new NavigationWindow(options);
@@ -23,8 +23,8 @@ exports.bootstrap = function(Titanium) {
 			nav._windows.push(window);
 		}
 
-		// Keeps track of the current navigationwindow state
-		nav.currentState = nav.state.closed;
+		// Keeps track of the current navigationwindow navState
+		nav.currentnavState = nav.navState.closed;
 
 		// Set the activity property here since we bind it to _internalActivity for window proxies by default
 		Object.defineProperty(NavigationWindow.prototype, "activity", { get: nav.getActivity});
@@ -36,13 +36,13 @@ exports.bootstrap = function(Titanium) {
 	var _open = NavigationWindow.prototype.open;
 	NavigationWindow.prototype.open = function(options) {
 
-		if (this.currentState == this.state.opened) {
+		if (this.currentnavState == this.navState.opened) {
 			return;
 		}
 
-		this.currentState = this.state.opening;
+		this.currentnavState = this.navState.opening;
 		_open.call(this, options);
-		this.currentState = this.state.opened;
+		this.currentnavState = this.navState.opened;
 	}
 
 	NavigationWindow.prototype.onWindowClosed  = function(e) {
@@ -96,7 +96,7 @@ exports.bootstrap = function(Titanium) {
 
 	var _setWindow = NavigationWindow.prototype.setWindow;
 	NavigationWindow.prototype.setWindow = function(window) {
-		if (this.currentState != this.state.opened) {
+		if (this.currentnavState != this.navState.opened) {
 			this._windows = [window];
 		} else {
 			kroll.log(TAG, "Cannot set window after navigationwindow opens");
