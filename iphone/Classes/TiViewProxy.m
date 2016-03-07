@@ -206,11 +206,11 @@
 {
     if (IS_OF_CLASS(proxy, TiViewProxy)) {
         [self performBlock:^{
-            [proxy applyProperties:args];
+            [super applyProperties:args onBindedProxy:proxy];
         } withinOurAnimationOnProxy:(TiViewProxy*)proxy];
 
     } else {
-        [proxy applyProperties:args];
+        [super applyProperties:args onBindedProxy:proxy];
     }
 }
 
