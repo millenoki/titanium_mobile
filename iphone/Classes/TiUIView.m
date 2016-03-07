@@ -1596,6 +1596,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if (!calledFromParent || _setEnabledFromParent) {
         if (newValue != _customUserInteractionEnabled) {
             [self setCustomUserInteractionEnabled:newValue];
+            [proxy setState:newValue?nil:@"disabled"];
             [self setBgState:UIControlStateNormal];
             changedInteraction = YES;
         }
@@ -2476,8 +2477,10 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)setHighlighted:(BOOL)isHiglighted animated:(BOOL)animated
 {
+    
     [self setAnimatedTransition:animated];
     [self setBgState:isHiglighted?UIControlStateHighlighted:UIControlStateNormal];
+    [proxy setState:isHiglighted?@"highlighted":nil];
     if (!_dispatchPressed) return;
 	for (TiUIView * thisView in [self childViews])
 	{
@@ -2510,6 +2513,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     
     //we dont really support Selected for background as it is not necessary
     [self setBgState:isSelected?UIControlStateHighlighted:UIControlStateNormal];
+    [proxy setState:isSelected?@"selected":nil];
     if (!_dispatchPressed) return;
 	for (TiUIView * thisView in [self childViews])
 	{

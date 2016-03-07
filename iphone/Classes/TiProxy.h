@@ -131,6 +131,10 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 //    BOOL initPropertiesOnCreation;
 @protected
     NSMutableDictionary *_proxyBindings;
+    NSString *_currentState;
+    NSString *_customState;
+    NSDictionary *_states;
+    NSMutableDictionary *_currentStateValues;
     BOOL _fakeApplyProperties;
     BOOL _shouldRetainModelDelegate;
 	NSMutableDictionary *dynprops;
@@ -386,6 +390,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 - (void)unarchiveFromTemplate:(id)viewTemplate_ withEvents:(BOOL)withEvents;
 
 -(void)applyProperties:(id)args;
+-(void)applyProperties:(id)args onBindedProxy:(TiProxy*)proxy;
 -(NSString*)apiName;
 -(id)objectOfClass:(Class)theClass fromArg:(id)arg;
 +(id)objectOfClass:(Class)theClass fromArg:(id)arg inContext:(id<TiEvaluator>)context_;
@@ -403,4 +408,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 -(TiProxy*)bindingForKey:(NSString*)key;
 
 -(void)invokeBlockOnJSThread:(void (^)())block;
+
+-(void)setState:(NSString*)state;
+-(void)handleStateDiffPropertyForKey:(NSString*)key value:(id)obj currentValues:(NSMutableDictionary*)currentValues newValues:(NSMutableDictionary*)newValues;
+-(void)applyStateProperties:(NSDictionary*)props;
 @end

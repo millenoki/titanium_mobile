@@ -17,6 +17,7 @@
 #import "TiComplexValue.h"
 #import "TiViewProxy.h"
 #import "TiBindingEvent.h"
+#import "NSDictionary+Merge.h"
 
 #include <libkern/OSAtomic.h>
 
@@ -468,6 +469,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         executionContext = nil;
     }
     RELEASE_TO_NIL(_proxyBindings);
+    
+    RELEASE_TO_NIL(_states);
+    RELEASE_TO_NIL(_currentState);
+    RELEASE_TO_NIL(_customState);
+    RELEASE_TO_NIL(_currentStateValues);
     
     // remove all listeners JS side proxy
     pthread_rwlock_wrlock(&listenerLock);
@@ -1446,7 +1452,14 @@ DEFINE_EXCEPTIONS
 
 -(void)applyProperties:(id)args onBindedProxy:(TiProxy*)proxy
 {
-    [proxy applyProperties:args];
+    if (_fakeApplyProperties) {
+        [proxy setFakeApplyProperties:_fakeApplyProperties];
+        [proxy applyProperties:args];
+        [proxy setFakeApplyProperties:NO];
+    } else {
+        [proxy applyProperties:args];
+
+    }
 }
 
 -(NSDictionary*)allProperties
@@ -1750,5 +1763,59 @@ DEFINE_EXCEPTIONS
 -(TiProxy*)bindingForKey:(NSString*)key
 {
     return [_proxyBindings objectForKey:key];
+}
+
+
+-(void)handleStateDiffPropertyForKey:(NSString*)key value:(id)obj currentValues:(NSMutableDictionary*)currentValues newValues:(NSMutableDictionary*)newValues
+{
+    [currentValues removeObjectForKey:key];
+    if ([self valueForKey:key]) {
+        [newValues setValue:[self valueForKey:key] forKey:key];
+    } else {
+        [newValues setValue:[NSNull null] forKey:key];
+    }
+}
+
+-(NSMutableDictionary*) generateDiffDictionary:(NSMutableDictionary*)currentValues newValues:(NSDictionary*)newValues {
+    NSMutableDictionary* result = [NSMutableDictionary dictionaryWithDictionary:newValues];
+    [currentValues enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if (IS_OF_CLASS(obj, NSDictionary) && [self bindingForKey:key]) {
+            TiProxy* target = [self bindingForKey:key];
+            [result setObject:[target generateDiffDictionary:obj newValues:[newValues objectForKey:key]] forKey:key];
+        } else {
+            [self handleStateDiffPropertyForKey:key value:obj currentValues:currentValues newValues:result];
+        }
+    }];
+    [currentValues mergeWithDictionary:newValues];
+    return result;
+}
+
+-(void)setCustomState:(NSString*)state {
+    _customState = [state retain];
+    [self setState:state];
+}
+
+-(void)applyStateProperties:(NSDictionary*)props
+{
+    [self setFakeApplyProperties:YES];
+    [self applyProperties:props];
+    [self setFakeApplyProperties:NO];
+}
+
+-(void)setState:(NSString*)state {
+    if (!_states || (state && ![_states objectForKey:state])) {
+        return;
+    }
+    if ((!state && !_currentState) || (_customState && ![_customState isEqualToString:state]) || [_currentState isEqualToString:state]) {
+        return;
+    }
+    _currentState = [state retain];
+    if (!_currentStateValues) {
+        _currentStateValues = [[NSMutableDictionary alloc] initWithCapacity:10];
+    }
+    NSDictionary* props = [self generateDiffDictionary:_currentStateValues newValues:[_states objectForKey:state]];
+    
+    [self applyStateProperties:props];
+    
 }
 @end

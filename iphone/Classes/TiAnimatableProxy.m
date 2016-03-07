@@ -286,4 +286,27 @@
     }
 }
 
+
+-(void)handleStateDiffPropertyForKey:(NSString*)key value:(id)obj currentValues:(NSMutableDictionary*)currentValues newValues:(NSMutableDictionary*)newValues
+{
+    if ([key isEqualToString:@"duration"]) {
+        [newValues setValue:obj forKey:key];
+        [currentValues removeObjectForKey:key];
+    } else {
+        [super handleStateDiffPropertyForKey:key value:obj currentValues:currentValues newValues:newValues];
+    }
+}
+
+-(void)applyStateProperties:(NSDictionary*)props
+{
+    if ([props objectForKey:@"duration"]) {
+        TiAnimation * newAnimation = [TiAnimation animationFromArg:props context:[self executionContext] create:NO];
+        newAnimation.dontApplyOnFinish = YES;
+        [self handlePendingAnimation:newAnimation];
+        
+    } else {
+        [super applyStateProperties:props];
+    }
+}
+
 @end
