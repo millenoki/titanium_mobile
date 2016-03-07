@@ -16,7 +16,11 @@
 
 @implementation TiUIHelper
 
-+(void)applyShadow:(NSDictionary*)args toLayer:(CALayer *)layer
++(void)applyShadow:(NSDictionary*)args toLayer:(CALayer *)layer {
+    [self applyShadow:args toLayer:layer runningAnimation:nil];
+}
+
++(void)applyShadow:(NSDictionary*)args toLayer:(CALayer *)layer runningAnimation:(TiViewAnimationStep*)runningAnimation
 {
     if (args == nil) {
         layer.masksToBounds = YES;
@@ -28,6 +32,22 @@
 //    layer.shouldRasterize = YES;
 //    layer.rasterizationScale = [[UIScreen mainScreen] scale];
     TiShadow* data = [TiUIHelper getShadow:args];
+    if (runningAnimation) {
+        CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"shadowRadius"];
+        anim.duration = [runningAnimation duration];
+        anim.timingFunction = [runningAnimation curve];
+        anim.fromValue = @(layer.shadowRadius);
+        anim.toValue = @(data.shadowBlurRadius);
+        [layer addAnimation:anim forKey:@"shadowRadius"];
+        
+        anim = [CABasicAnimation animationWithKeyPath:@"shadowColor"];
+        anim.duration = [runningAnimation duration];
+        anim.timingFunction = [runningAnimation curve];
+        anim.fromValue = (id)layer.shadowColor;
+        anim.toValue = (id)((UIColor*)data.shadowColor).CGColor;
+        [layer addAnimation:anim forKey:@"shadowColor"];
+    }
+    
     layer.shadowOffset = data.shadowOffset;
     layer.shadowOpacity = 1.0f;
     layer.shadowColor = ((UIColor*)data.shadowColor).CGColor;

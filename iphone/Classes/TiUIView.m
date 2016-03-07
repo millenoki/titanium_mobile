@@ -1700,7 +1700,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setViewShadow_:(id)arg
 {
     ENSURE_SINGLE_ARG(arg,NSDictionary);
-    [TiUIHelper applyShadow:arg toLayer:[self shadowLayer]];
+    [TiUIHelper applyShadow:arg toLayer:[self shadowLayer] runningAnimation:runningAnimation];
 }
 
 -(void)setGesturesCancelsTouches_:(id)arg
