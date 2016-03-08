@@ -1852,6 +1852,21 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         return 0;
     }
+    
+    public void setTranslationZ(float value) {
+        View view = getOuterView();
+        if (view != null) {
+            view.setTranslationZ(value);
+        }
+    }
+
+    public float getTranslationZ() {
+        View view = getOuterView();
+        if (view != null) {
+            return view.getTranslationZ();
+        }
+        return 0;
+    }
 
     private void setViewMask(Object mask) {
         boolean tileImage = proxy.getProperties()
@@ -2617,17 +2632,28 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             }
             break;
         }
-//        case TiC.PROPERTY_ELEVATION: {
-//            float elevation = TiConvert.toTiDimension(toValue, TiDimension.TYPE_WIDTH).getAsPixels();
-//            ObjectAnimator anim = ObjectAnimator.ofFloat(this,
-//                    key, elevation);
-//            list.add(anim);
-//            if (needsReverse) {
-//                listReverse.add(ObjectAnimator.ofFloat(this, key,
-//                        getElevation()));
-//            }
-//            break;
-//        }
+        case TiC.PROPERTY_ELEVATION: {
+            float elevation = TiConvert.toTiDimension(toValue, TiDimension.TYPE_WIDTH).getAsPixels();
+            ObjectAnimator anim = ObjectAnimator.ofFloat(this,
+                    key, elevation);
+            list.add(anim);
+            if (needsReverse) {
+                listReverse.add(ObjectAnimator.ofFloat(this, key,
+                        getElevation()));
+            }
+            break;
+        }
+        case TiC.PROPERTY_TRANSLATION_Z: {
+            float translationZ = TiConvert.toTiDimension(toValue, TiDimension.TYPE_WIDTH).getAsPixels();
+            ObjectAnimator anim = ObjectAnimator.ofFloat(this,
+                    key, translationZ);
+            list.add(anim);
+            if (needsReverse) {
+                listReverse.add(ObjectAnimator.ofFloat(this, key,
+                        getTranslationZ()));
+            }
+            break;
+        }
         case TiC.PROPERTY_BACKGROUND_COLOR: {
             ObjectAnimator anim = ObjectAnimator.ofInt(this, key,
                     TiConvert.toColor(toValue));
