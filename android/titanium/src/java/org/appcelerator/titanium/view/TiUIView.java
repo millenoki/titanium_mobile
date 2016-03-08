@@ -1254,6 +1254,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected void setEnabled(View view, boolean enabled, boolean focusable,
             boolean setChildren) {
         view.setEnabled(enabled);
+        setState(enabled?null:"disabled");
         setFocusable(view, focusable);
         if (setChildren && view instanceof ViewGroup) {
             ViewGroup group = (ViewGroup) view;
@@ -2963,5 +2964,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     public void didRealize() {
 
+    }
+    
+    public void setState(String state) {
+        proxy.setState(state);
     }
 }
