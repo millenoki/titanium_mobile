@@ -2480,7 +2480,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     
     [self setAnimatedTransition:animated];
     [self setBgState:isHiglighted?UIControlStateHighlighted:UIControlStateNormal];
-    [proxy setState:isHiglighted?@"highlighted":nil];
+    [proxy setState:isHiglighted?@"pressed":nil];
     if (!_dispatchPressed) return;
 	for (TiUIView * thisView in [self childViews])
 	{

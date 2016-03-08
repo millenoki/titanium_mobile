@@ -71,6 +71,7 @@ public class TiUINonViewGroupView extends TiUIView {
 	
 	@Override
 	public boolean propagateSetPressed(final View view, boolean pressed) {
+        setState(pressed?"pressed":null);
         if (dispatchPressed) {
             if (childrenHolder != null) {
                 childrenHolder.setPressed(pressed);

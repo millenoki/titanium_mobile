@@ -1592,10 +1592,13 @@ public class TiCompositeLayout extends FreeLayout implements
 	@Override
 	public void dispatchSetPressed(boolean pressed) {
 	    TiUIView view = getView();
-		View nativeView = view != null ? view.getNativeView() : null;
-		boolean dispatchPressed = view != null && (view.getDispatchPressed() == true);
-//		if (view != null && (view.getDispatchPressed() == true))
-//		{
+	    View nativeView = null;
+	    boolean dispatchPressed = false;
+	    if (view != null) {
+	        view.setState(pressed?"pressed":null);
+	        nativeView = view.getNativeView();
+	        dispatchPressed = (view.getDispatchPressed() == true);
+	    }
 		int count = getChildCount();
 		for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
