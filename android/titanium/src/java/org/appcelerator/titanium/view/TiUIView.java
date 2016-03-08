@@ -169,6 +169,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     // private boolean zIndexChanged = false;
     protected TiBorderWrapperView borderView;
     private TiDimension mElevation = null;
+    float mCurrentElevation = 0;
+    float mCurrentTranslationZ = 0;
     private TiDimension mTranslationZ = null;
     private ViewOutlineProvider mOutlineProvider = null;
 
@@ -1032,10 +1034,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (TiC.LOLLIPOP_OR_GREATER) {
                 mTranslationZ = TiConvert.toTiDimension(newValue,
                         TiDimension.TYPE_WIDTH);
-                View view = getOuterView();
-                if (view != null) {
-                    view.setTranslationZ(mTranslationZ.getAsPixels(view));
-                }
+                mCurrentTranslationZ = (mTranslationZ != null)?mTranslationZ.getAsPixels(getOuterView()):0;
+                setTranslationZ(mCurrentTranslationZ);
                 mProcessUpdateFlags |= TIFLAG_NEEDS_STATE_LIST_ANIMATOR;
             }
             break;
@@ -1045,13 +1045,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 mElevation = TiConvert.toTiDimension(newValue,
                         TiDimension.TYPE_WIDTH);
                 View view = getOuterView();
-                if (view != null) {
-                    if (mElevation != null) {
-                        view.setElevation(mElevation.getAsPixels(view));
-                    } else {
-                        view.setElevation(0);
-                    }
-                }
+                mCurrentElevation = (mElevation != null)?mElevation.getAsPixels(view):0;
+                setElevation(mCurrentElevation);
                 if (mOutlineProvider == null) {
                     mOutlineProvider = new ViewOutlineProvider() {
 
@@ -1164,9 +1159,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         if (view == null) {
             return;
         }
-        float elevation = ViewCompat.getElevation(view);
-        float translationZ = ViewCompat.getTranslationZ(view);
-        float translationSelectedZ = (translationZ > 0) ? (translationZ * 2.0f)
+        final float elevation = mCurrentElevation;
+        final float translationZ = mCurrentTranslationZ;
+        final float translationSelectedZ = (translationZ > 0) ? (translationZ * 2.0f)
                 : 2.0f;
         int animationDuration = 100;
         StateListAnimator listAnimator = new StateListAnimator();
@@ -1719,10 +1714,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         borderView.addView(rootView, params);
 
         if (mElevation != null || mTranslationZ != null) {
-            ViewCompat.setElevation(borderView,
-                    ViewCompat.getElevation(rootView));
-            ViewCompat.setTranslationZ(borderView,
-                    ViewCompat.getTranslationZ(rootView));
+            ViewCompat.setElevation(borderView, mCurrentElevation);
+            ViewCompat.setTranslationZ(borderView, mCurrentTranslationZ);
             ViewCompat.setElevation(rootView, 0);
             ViewCompat.setTranslationZ(rootView, 0);
         }
