@@ -287,6 +287,10 @@ public class KrollBindingGenerator
 
         JarFile moduleJar = new JarFile(new File(mobileAndroidDir,  "modules/titanium-" + module + ".jar"));
         ZipEntry jsonEntry = moduleJar.getEntry("org/appcelerator/titanium/bindings/"+ module + ".json");
+        if (jsonEntry == null) {
+            moduleJar.close();
+            return;
+        }
         InputStream jsonStream = moduleJar.getInputStream(jsonEntry);
 
         Map<String, Object> properties = (Map<String, Object>)

@@ -211,19 +211,24 @@ public class KrollAPIUpdater
 			modulesJSON.put(name, moduleNames);
 		}
 		//Hack in the appcompat module for now. revisit later.
-		ArrayList<String> appCompatHack = new ArrayList<String>();
-        appCompatHack.add("appcompat");
-        modulesJSON.put("titanium-appcompat.jar", appCompatHack);
+		ArrayList<String> hack = new ArrayList<String>();
+		hack.add("appcompat");
+        modulesJSON.put("titanium-appcompat.jar", hack);
 
         //Hack in the googlplayservices module for now. revisit later.
-        ArrayList<String> googleplayservicesHack = new ArrayList<String>();
-        googleplayservicesHack.add("googleplayservices");
-        modulesJSON.put("titanium-googleplayservices.jar", googleplayservicesHack);
+        hack = new ArrayList<String>();
+        hack.add("googleplayservices");
+        modulesJSON.put("titanium-googleplayservices.jar", hack);
 
 		//Hack in the cardview module for now. revisit later.
-		ArrayList<String> cardViewHack = new ArrayList<String>();
-		cardViewHack.add("cardview");
-		modulesJSON.put("titanium-cardview.jar", cardViewHack);
+		hack = new ArrayList<String>();
+		hack.add("cardview");
+		modulesJSON.put("titanium-cardview.jar", hack);
+		
+		//Hack in the design module for now. revisit later.
+        hack = new ArrayList<String>();
+        hack.add("design");
+        modulesJSON.put("titanium-design.jar", hack);
 		
 		File modules = new File(modulesDestDir, "modules.json");
 
