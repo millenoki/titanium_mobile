@@ -12,11 +12,13 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,7 +72,12 @@ public class TiUICardView extends TiUIView
                 TiUIHelper.firePostLayoutEvent(TiUICardView.this);
             }
         }
-
+        @Override
+        public void setBackground(Drawable background) {
+            if (!(background instanceof TiBackgroundDrawable)) {
+                super.setBackground(background);
+            }
+        }
 
     }
 
@@ -78,6 +85,10 @@ public class TiUICardView extends TiUIView
     {
         // we create the view after the properties are processed
         super(proxy);
+        View view = new TiCardView(getProxy().getActivity());
+        view.setPadding(0, 0, 0, 0);
+        view.setFocusable(false);
+        setNativeView(view);
     }
 
     public TiUICardViewLayout getLayout()
@@ -122,17 +133,6 @@ public class TiUICardView extends TiUIView
     protected void setBorderRadius(float[] radius) {
         super.setBorderRadius(radius);
         getCardView().setRadius(radius[0]);
-    }
-    @Override
-    public void processProperties(HashMap d)
-    {
-        super.processProperties(d);
-
-        // we create the view here
-        View view = new TiCardView(getProxy().getActivity());
-        view.setPadding(0, 0, 0, 0);
-        view.setFocusable(false);
-        setNativeView(view);
     }
     
     @Override
