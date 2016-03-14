@@ -1136,16 +1136,19 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         case "panDirection": {
             String directionString = TiConvert.toString(newValue);
             int direction = -1;
-            switch (directionString) {
-            case "horizontal":
-                direction = 1;
-                break;
-            case "vertical":
-                direction = 2;
-                break;
-            default:
-                break;
+            if (directionString != null) {
+                switch (directionString) {
+                case "horizontal":
+                    direction = 1;
+                    break;
+                case "vertical":
+                    direction = 2;
+                    break;
+                default:
+                    break;
+                }
             }
+            
             getOrCreateGestureHandler().setPanDirection(direction);
 
         }
