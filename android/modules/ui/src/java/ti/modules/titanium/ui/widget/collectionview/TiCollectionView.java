@@ -1279,6 +1279,18 @@ public class TiCollectionView extends TiUINonViewGroupView
     protected static String getCellProxyRootType() {
         return "Ti.UI.CollectionItem";
     }
+    
+    protected static final ArrayList<String> KEY_SEQUENCE;
+    static{
+      ArrayList<String> tmp = new ArrayList<String>();
+      tmp.add(TiC.PROPERTY_NUM_COLUMNS);
+      tmp.add(TiC.PROPERTY_COLUMN_WIDTH);
+      KEY_SEQUENCE = tmp;
+    }
+    @Override
+    protected ArrayList<String> keySequence() {
+        return KEY_SEQUENCE;
+    }
 
     // private DragScrollBar mFastScroller;
     private DividerItemDecoration mDividerDecoration;
