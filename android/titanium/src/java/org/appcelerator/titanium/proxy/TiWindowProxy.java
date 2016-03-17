@@ -705,7 +705,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 	
-	public HashMap getActivityProperties(HashMap properties, HashMap actionBarDictSuppl) {
+	public HashMap getActivityProperties(HashMap properties, HashMap actionBarDictSuppl, final boolean canOverWrite) {
 	    
 	    HashMap actionBarDict = actionBarDictSuppl;
         if (properties != null) {
@@ -723,7 +723,7 @@ public abstract class TiWindowProxy extends TiViewProxy
         for (String key : ActionBarProxy.windowProps()) {
             if (windowProperties.containsKey(key)) {
                 String realKey = TiUtils.mapGetOrDefault(ActionBarProxy.propsToReplace(), key, key);
-                if (actionBarDict == null || !actionBarDict.containsKey(realKey)) {
+                if (canOverWrite || actionBarDict == null || !actionBarDict.containsKey(realKey)) {
                     if (actionBarDict == null) {
                         actionBarDict = new HashMap(); 
                     }

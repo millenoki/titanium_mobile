@@ -555,11 +555,13 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	
 	public void updateActivityProxy(TiWindowProxy window, HashMap supplActionBar) {
         HashMap props = window.getProperties();
-	    HashMap activityDict = window.getActivityProperties(TiConvert.toHashMap(props.get(TiC.PROPERTY_ACTIVITY)), supplActionBar);
+	    HashMap activityDict = window.getActivityProperties(TiConvert.toHashMap(props.get(TiC.PROPERTY_ACTIVITY)), supplActionBar, true);
         if (window.getWindowManager() instanceof TiWindowProxy) {
-            activityDict = ((TiWindowProxy) window.getWindowManager()).getActivityProperties(activityDict, supplActionBar);
+            activityDict = ((TiWindowProxy) window.getWindowManager()).getActivityProperties(activityDict, supplActionBar, false);
         }
-        getActivityProxy().setProperties(activityDict);
+        if (activityDict != null) {
+            getActivityProxy().setProperties(activityDict);
+        }
 	}
 	
 	private void setSoftInputMode(int softInputMode) {
