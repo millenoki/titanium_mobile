@@ -96,10 +96,21 @@ public class TiUIActivityIndicator extends TiUIView
                 label.requestLayout();
             }
             break;
-        case TiC.PROPERTY_COLOR:
-            label.setTextColor(TiConvert.toColor(newValue));
+        case TiC.PROPERTY_COLOR: 
+        {
+            int color = TiConvert.toColor(newValue);
+            label.setTextColor(color);
             break;
+        }
 
+        case TiC.PROPERTY_TINT_COLOR:
+        {
+            int color = TiConvert.toColor(newValue);
+            if (progress.getIndeterminateDrawable() != null) {
+                progress.getIndeterminateDrawable().setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_IN);
+            }
+            break;
+        }
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
