@@ -30,7 +30,6 @@
     "ioslib": "0.10.3",
     "markdown": "0.5.0",
     "moment": "2.11.2",
-	   "node-appc": "git://github.com/Akylas/node-appc.git",
     "node-uuid": "1.4.7",
     "pngjs": "git+https://git@github.com/cb1kenobi/pngjs.git#flatten-bgcolor",
     "request": "2.69.0",
