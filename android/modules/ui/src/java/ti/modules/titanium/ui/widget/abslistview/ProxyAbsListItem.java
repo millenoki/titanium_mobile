@@ -82,6 +82,10 @@ public class ProxyAbsListItem {
 	public void setCurrentProperty(String key, Object value) {
 	    currentProperties.put(key, value);
     }
+	
+	public Object getCurrentProperty(String key) {
+        return currentProperties.get(key);
+    }
 
 	public boolean containsKey(String key) {
 		return initialProperties.containsKey(key);
