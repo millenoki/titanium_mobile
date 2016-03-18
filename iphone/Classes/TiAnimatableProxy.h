@@ -29,4 +29,8 @@
 -(void)removePendingAnimation:(TiAnimation *)animation;
 -(void)applyPendingFromProps;
 
+//used to know i a new animation should be created when we found a binded proxy
+//in animation properties. Important because it might not use the same animation system
+-(Class)animationClassType;
+
 @end

@@ -231,6 +231,12 @@
     pthread_rwlock_unlock(&pendingLock);
 }
 
+
+-(Class)animationClassType
+{
+    return nil;
+}
+
 -(void)handleAnimation:(TiAnimation*)animation witDelegate:(id)delegate
 {
     animation.animatedProxy = self;
@@ -244,8 +250,17 @@
     hlsAnimation.lockingUI = NO;
     animation.animation = hlsAnimation;
     
-    
     [animation applyFromOptions:self];
+    Class animationClassType = [self animationClassType];
+    if (animationClassType) {
+        NSDictionary* toProps = [animation propertiesForAnimation:self destination:YES reverse:NO];
+        [toProps enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            TiProxy* bindedProxy = [self bindingForKey:key];
+            if (IS_OF_CLASS(obj, NSDictionary) && IS_OF_CLASS(bindedProxy, TiAnimatableProxy) && ![[(TiAnimatableProxy*)bindedProxy animationClassType] isSubclassOfClass:animationClassType] ) {
+                [(TiAnimatableProxy*)bindedProxy handleAnimation:[TiAnimation animationFromArg:obj context:[bindedProxy executionContext] create:NO]];
+            }
+        }];
+    }
     
     [self playAnimation:hlsAnimation withRepeatCount:[animation repeatCount] afterDelay:[animation delay]];
 }

@@ -253,8 +253,14 @@ static NSArray *animProps;
         }
     }
     [realOptions enumerateKeysAndObjectsUsingBlock:^(NSString*  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if (IS_OF_CLASS(obj, NSDictionary) && [theProxy bindingForKey:key]) {
-            [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
+        Class animationClassType = [self.animatedProxy animationClassType];
+        
+        TiProxy* bindedProxy = [theProxy bindingForKey:key];
+        if (IS_OF_CLASS(obj, NSDictionary) && bindedProxy) {
+            if (IS_OF_CLASS(bindedProxy, TiAnimatableProxy) && ![[(TiAnimatableProxy*)bindedProxy animationClassType] isSubclassOfClass:animationClassType] ) {
+            } else {
+                [self internalApplyOptions:obj onProxy:[theProxy bindingForKey:key] fromProps:fromProps isFake:fake reverse:reverse];
+            }
             [realOptions removeObjectForKey:key];
         }
     }];

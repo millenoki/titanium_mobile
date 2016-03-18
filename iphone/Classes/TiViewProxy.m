@@ -324,6 +324,11 @@
     }
 }
 
+-(Class)animationClassType
+{
+    return [TiViewAnimation class];
+}
+
 -(HLSAnimation*)animationForAnimation:(TiAnimation*)animation
 {
     TiHLSAnimationStep* step;

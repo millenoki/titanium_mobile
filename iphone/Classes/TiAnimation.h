@@ -146,4 +146,5 @@ enum TiAnimCurve
 -(void)applyToOptions:(TiProxy*)theProxy;
 -(void)applyFromOptionsForAnimation:(TiHLSAnimation*)anim;
 -(void)applyToOptionsForAnimation:(TiHLSAnimation*)anim;
+-(NSDictionary*)propertiesForAnimation:(TiAnimatableProxy*)animProxy destination:(BOOL)destination reverse:(BOOL)reversed;
 @end

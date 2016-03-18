@@ -50,7 +50,6 @@
 {
     //that could be the future but for now it doesnt work because
     //applyProperties will set the actual object props which we dont want
-    
     [m_tiViewProxy setRunningAnimationRecursive:step];
     [m_animationProxy applyToOptionsForAnimation:self];
     [m_tiViewProxy setRunningAnimationRecursive:nil];
