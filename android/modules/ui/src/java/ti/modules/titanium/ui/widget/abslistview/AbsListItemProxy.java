@@ -186,6 +186,18 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
     }
     
     @Override
+    public Object onGetProperty(final KrollProxy proxy, final String name) {
+        for (Map.Entry<String, ProxyAbsListItem> entry : bindingsMap.entrySet()) {
+            ProxyAbsListItem item = entry.getValue();
+            if (item.getProxy() == proxy ) {
+                Object value = item.getCurrentProperty(name);
+                return value;
+            }
+        }
+        return null;
+    }
+    
+    @Override
     public void onApplyProperties(final KrollProxy proxy, final HashMap arg, boolean force, boolean wait) {
         for (Map.Entry<String, ProxyAbsListItem> entry : bindingsMap.entrySet()) {
             String key = entry.getKey();

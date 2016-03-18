@@ -69,6 +69,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
         public void onApplyProperties(KrollProxy krollProxy, HashMap arg,
                 boolean force, boolean wait);
+
+        public Object onGetProperty(KrollProxy krollProxy, String name);
     }
 
     private static final String TAG = "KrollProxy";
@@ -712,6 +714,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * @module.api
      */
     public Object getProperty(String name) {
+        if (setPropertyListener != null) {
+            Object value = setPropertyListener.onGetProperty(this, name);
+            if (value != null) {
+                return value;
+            }
+        }
         synchronized (properties) {
             return properties.get(name);
         }
