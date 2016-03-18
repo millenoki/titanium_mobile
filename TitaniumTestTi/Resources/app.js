@@ -1367,6 +1367,14 @@ function buttonAndLabelEx() {
 		bubbleParent: false,
 		borderRadius: 10,
 		borderColor: 'red',
+		states: {
+			highlighted: {
+				transform: 's1.2',
+				test: {
+					backgroundColor: 'blue'
+				}
+			}
+		},
 		// backgroundColor : 'gray',
 		// touchEnabled : false,
 		// backgroundSelectedGradient : {
@@ -1385,6 +1393,7 @@ function buttonAndLabelEx() {
 	});
 	button.add(Ti.UI.createView({
 		enabled: false,
+		bindId: 'test',
 		backgroundColor: 'purple',
 		backgroundSelectedColor: 'white',
 		left: 10,
@@ -1969,143 +1978,7 @@ function fadeInEx() {
 	win.add(button);
 	openWin(win);
 }
-// if (false) {
-// var set = Ti.UI.createAnimationSet({
-// playMode : 1
-// });
-// set.addEventListener('complete', function(e) {
-// gone = true;
-// });
-// set.add({
-// duration : 800,
-// transform : t1
-// }, view);
-// set.add({
-// duration : 800,
-// transform : t2
-// }, view);
-// set.add({
-// duration : 500,
-// transform : t3
-// }, view);
-// set.add({
-// duration : 500,
-// transform : t4
-// }, view);
-// view.addEventListener('click', function(e) {
-// if (gone === true) {
-// view.animate({
-// duration : 300,
-// transform : t0
-// }, function() {
-// gone = false
-// });
-// } else
-// set.start();
-// });
-// win.addEventListener('click', function(e) {
-// if (gone === true) {
-// view.animate({
-// duration : 300,
-// transform : t0
-// }, function() {
-// gone = false
-// });
-// }
-// });
-// } else {
-// function transform2Ex() {
-// var win = createWin();
-// var view = app.modules.shapes.createView({
-// top : 150,
-// borderRadius : 10,
-// borderColor : 'red',
-// borderWidth : 5,
-// bubbleParent : false,
-// width : 300,
-// height : 100,
-// backgroundColor : 'white',
-// transform : Ti.UI.create2DMatrix().scale(2.0, 2.0),
-// viewMask : '/images/body-mask.png'
-// });
-// var button = Ti.UI.createButton({
-// top : 10,
-// width : 100,
-// transform : Ti.UI.create2DMatrix().scale(2.0, 2.0).translate(0, 40),
-// bubbleParent : false,
-// title : 'test buutton'
-// });
-// button.addEventListener('click', function(e) {
-// view.top -=1;
-// });
-// button.add(Ti.UI.createView({
-// backgroundColor : 'red',
-// bottom : 10,
-// width : 5,
-// height : 5
-// }));
-// var shape = app.modules.shapes.createCircle({
-// fillColor : '#bbb',
-// lineColor : '#777',
-// lineWidth : 1,
-// lineShadow : {
-// radius : 2,
-// color : 'black'
-// },
-// radius : '45%'
-// });
-// view.add(shape);
-// view.add(Ti.UI.createView({
-// backgroundColor : 'red',
-// bottom : 10,
-// width : 30,
-// height : 30
-// }));
-// view.addEventListener('click', function(e) {
-// if (__ANDROID__)
-// set.cancel();
-// app.modules.shapes.animate({
-// duration : 400,
-// lineWidth : 20,
-// autoreverse : true,
-// lineColor : 'yellow',
-// fillColor : 'blue'
-// });
-// });
-// win.add(view);
-// win.add(button);
-// if (__ANDROID__) {
-// var set = Ti.UI.createAnimationSet({
-// playMode : 2
-// });
-// set.add({
-// duration : 300,
-// autoreverse : true,
-// height : 300
-// }, view);
-// set.add({
-// duration : 1000,
-// lineWidth : 20,
-// autoreverse : true,
-// lineColor : 'yellow',
-// fillColor : 'blue'
-// }, shape);
-// win.addEventListener('click', function(e) {
-// app.modules.shapes.cancelAllAnimations();
-// set.start();
-// });
-// }
-// else {
-// win.addEventListener('click', function(e) {
-// view.animate({
-// duration : 300,
-// autoreverse : true,
-// height : 300
-// });
-// });
-// }
-// openWin(win);
-// }
+
 
 function htmlLabelEx() {
 	var win = createWin({
@@ -4220,10 +4093,10 @@ var firstWindow = createWin({
 	top: 0,
 	// barColor:'rgba(255,255,255,0)',
 	title: 'main',
-	extendEdges: [Ti.UI.EXTEND_EDGE_ALL],
+	// extendEdges: [Ti.UI.EXTEND_EDGE_ALL],
 	// hideShadow:true,
 	autoAdjustScrollViewInsets: true,
-	translucent: true,
+	// translucent: true,
 	startBarDeltaY: 0,
 	barOpacity: 0,
 	startToolbarDeltaY: 0,
@@ -4301,6 +4174,11 @@ firstWindow
 					top: 0,
 				}
 			},
+			// refreshControl: Ti.UI.createRefreshControl({
+			// 	tintColor: 'red'
+			// }).on('refreshstart', function(e) {
+			// 		e.source.endRefreshing();
+			// }),
 			sections: [{
 					// footerTitle: 'This is a footer text',
 					// headerTitle: 'WIRELESSS & NETWORK',
@@ -7257,6 +7135,127 @@ function gradientAnimationTest(_args) {
 // blendModeTest();
 // 
 
+function stateTest() {
+	var win = Ti.UI.createWindow({
+		backgroundColor: "#fff"
+	});
+	var listView = createListView({
+		templates: {
+			'template': {
+				properties: {
+					layout: 'horizontal',
+				}
+
+			}
+		},
+		defaultItemTemplate: 'template'
+	});
+}
+
+function ioBlurTest() {
+	var win = Ti.UI.createWindow({
+		backgroundColor: "#fff"
+	});
+	var curX, curY;
+	// Blur view
+	var blur = Ti.UI.createView({
+		width: 'SIZE',
+		height: 'SIZE',
+		// vibrancyEnabled: true,
+		backgroundColor: 'yellow',
+		elevation: 3,
+		viewShadow: {
+			radius: 1.5,
+			offset: [0, 1],
+			color: '#88333333'
+		},
+		states: {
+			pressed: {
+				duration: 100,
+				borderRadius: 10,
+				elevation: 7,
+				viewShadow: {
+					radius: 3.5,
+					offset: [0, 3],
+					color: '#88aa3333'
+				},
+
+				backgroundColor: 'orange',
+				label: {
+					transform: 's1.1'
+				}
+			}
+		}
+	});
+	blur.add({
+		type: 'Ti.UI.Label',
+		bindId: 'label',
+		properties: {
+			width: 150,
+			height: 150,
+			color: 'black',
+			textAlign: 'center',
+			touchEnabled: false,
+			text: 'test'
+		}
+	})
+	blur.on('touchstart', function(e) {
+		blur.setCustomState('dragged');
+		var rect = blur.rect;
+		console.debug('rect', rect);
+		curX = e.globalPoint.x - (rect.x + rect.width / 2);
+		curY = e.globalPoint.y - (rect.y + rect.height / 2);
+	}).on('touchmove', function(e) {
+		var deltaX = e.globalPoint.x - curX,
+			deltaY = e.globalPoint.y - curY;
+		// olt = olt.translate(deltaX, deltaY, 0);
+		blur.applyProperties({
+			center: {
+				x: e.globalPoint.x - curX,
+				y: e.globalPoint.y - curY
+			}
+		});
+	}).on('touchend', function(e) {
+		blur.setCustomState(null);
+	});
+
+	win.add(Ti.UI.createView({
+		properties: {
+			width: 54,
+			height: 54,
+			borderRadius: 27,
+			backgroundColor: 'red',
+			elevation: 3,
+			bottom: 16,
+			right: 16,
+			states: {
+				pressed: {
+						duration:100,
+					label: {
+						transform: 'r45'
+					}
+				}
+			}
+		},
+		childTemplates: [{
+			type: 'Ti.UI.Label',
+			bindId: 'label',
+			properties: {
+				touchEnabled: false,
+				verticalAlign: 'middle',
+				font: {
+					size: 45
+				},
+				color: 'black',
+				text: '+'
+			}
+		}]
+	}));
+
+	win.add(blur);
+	win.open();
+}
+
 function windowLevelTest() {
 	var win = Ti.UI.createWindow({
 		lightweight: true,
@@ -7280,6 +7279,7 @@ function windowLevelTest() {
 	win.open();
 }
 Ti.App.on('significanttimechange', Ti.API.debug);
+
 // animationBugEx();
 // setTimeout(windowLevelTest, 1000);
 // scrollableViewTest();
