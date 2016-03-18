@@ -211,7 +211,7 @@ def install_mobilesdk(version_tag):
 		existing_installation = os.path.join(installation_directory, 'mobilesdk', os_name, version_tag)
 		if os.path.exists(existing_installation):
 			shutil.rmtree(existing_installation)
-		os.system('/usr/bin/unzip -q -o -d "%s" "%s"' % (installation_directory, mobilesdk_zipfile))
+		os.system('/usr/bin/unzip -q -o  -d "%s" "%s" -x "ZIP_META_MANIFEST"' % (installation_directory, mobilesdk_zipfile))
 
 def package_sdk(target, source, env):
 	android = build_type in ['full', 'android']
