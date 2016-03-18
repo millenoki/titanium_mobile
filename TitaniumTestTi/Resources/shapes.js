@@ -4,7 +4,9 @@ function create(_context) {
     var Shapes = require('akylas.shapes');
 
     module.exs = function(_args) {
-        var win = createWin(_.assign(_args, {barColor:'red'}));
+        var win = createWin(_.assign(_args, {
+            barColor: 'red'
+        }));
         var listview = createListView();
         listview.sections = [{
             items: [{
@@ -47,6 +49,11 @@ function create(_context) {
                     title: 'ListView'
                 },
                 callback: shape8Ex
+            }, {
+                properties: {
+                    title: 'deep Anim'
+                },
+                callback: shape9Ex
             }]
         }];
         win.add(listview);
@@ -499,6 +506,108 @@ function create(_context) {
             }]
         });
         win.add(listview);
+        openWin(win);
+    }
+
+    function shape9Ex() {
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        var win = createWin();
+        var view = Ti.UI.createView({
+            properties: {
+                layout: 'vertical',
+            },
+            childTemplates: [{
+                properties: {
+                    layout: 'horizontal',
+                    weight: 2,
+                    // height: 'SIZE'
+                },
+                childTemplates: [{
+                    type: 'AkylasShapes.View',
+                    properties: {
+                        disableHW: true,
+                        top: 30,
+                        left: 5,
+                        width: 220,
+                        height: 220,
+                    },
+                    childTemplates: [{
+                        type: 'AkylasShapes.Arc',
+                        bindId: 'arc1',
+                        properties: {
+                            lineColor: 'white',
+                            lineWidth: 22,
+                            lineShadow: {
+                                color: 'black',
+                                radius: 5
+                            },
+                            startAngle: -180,
+                            radius: 90,
+                            sweepAngle: 180
+                        }
+                    }, {
+                        type: 'AkylasShapes.Arc',
+                        bindId: 'arc2',
+                        properties: {
+                            lineColor: 'white',
+                            lineWidth: 22,
+                            lineShadow: {
+                                color: 'black',
+                                radius: 5
+                            },
+                            startAngle: -180,
+                            radius: 65,
+                            sweepAngle: 180
+                        }
+                    }, {
+                        type: 'AkylasShapes.Arc',
+                        bindId: 'arc3',
+                        properties: {
+                            lineColor: 'white',
+                            lineWidth: 22,
+                            lineShadow: {
+                                color: 'black',
+                                radius: 5
+                            },
+                            startAngle: -180,
+                            radius: 40,
+                            sweepAngle: 180
+                        }
+                    }]
+                }]
+            }, {
+                type: 'Ti.UI.View',
+                bindId: 'buttonHolder',
+                properties: {
+                    height: 60,
+                    bottom: 50
+                },
+                childTemplates: [{
+                    type: 'Ti.UI.Button',
+                    properties: {
+                        title: 'Animate'
+                    },
+                    events: {
+                        click: function() {
+                            view.animate({
+                                arc1: {
+                                    sweepAngle: getRandomInt(0, 360)
+                                },
+                                arc2: {
+                                    sweepAngle: getRandomInt(0, 360)
+                                },
+                                arc3: {
+                                    sweepAngle: getRandomInt(0, 360)
+                                }
+                            });
+                        }
+                    }
+                }]
+            }]
+        });
+        win.add(view);
         openWin(win);
     }
 
