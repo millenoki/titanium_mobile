@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.AnimatableProxy;
@@ -192,6 +193,8 @@ public class TiAnimator
 //		return kAnimationProperties;
 //	}
 	
+	
+	
 	public HashMap getToOptions() {
 	    if (this.options.containsKey("to")) {
 	        return (HashMap) this.options.get("to");
@@ -202,7 +205,16 @@ public class TiAnimator
 	        while (it.hasNext()) {
 	            Map.Entry pairs = (Map.Entry)it.next();
 	            String key = (String)pairs.getKey();
-	            toProps.put(key, properties.get(key));
+                Object bindedProxy = properties.get(key);
+	            if (pairs.getValue() instanceof HashMap && bindedProxy instanceof KrollProxy) {
+	                HashMap inner = new HashMap<>();
+	                for (String key2 : ((HashMap<String, Object>) pairs.getValue()).keySet()) {
+	                    inner.put(key2, ((KrollProxy) bindedProxy).getProperty(key2));
+	                }
+                    toProps.put(key, inner);
+	            } else {
+	                toProps.put(key, properties.get(key));
+	            }
 	        }
 	        return toProps;
 	    }
@@ -212,6 +224,25 @@ public class TiAnimator
 	public HashMap getFromOptions() {
         if (this.options.containsKey("from")) {
             return (HashMap) this.options.get("from");
+        } else if  (this.options.containsKey("to")) {
+            KrollDict toProps = new KrollDict();
+            KrollDict properties = proxy.getProperties();
+            Iterator it = ((HashMap) this.options.get("to")).entrySet().iterator();        
+            while (it.hasNext()) {
+                Map.Entry pairs = (Map.Entry)it.next();
+                String key = (String)pairs.getKey();
+                Object bindedProxy = properties.get(key);
+                if (pairs.getValue() instanceof HashMap && bindedProxy instanceof KrollProxy) {
+                    HashMap inner = new HashMap<>();
+                    for (String key2 : ((HashMap<String, Object>) pairs.getValue()).keySet()) {
+                        inner.put(key2, ((KrollProxy) bindedProxy).getProperty(key2));
+                    }
+                    toProps.put(key, inner);
+                } else {
+                    toProps.put(key, properties.get(key));
+                }
+            }
+            return toProps;
         }
         return proxy.getProperties();
     }
