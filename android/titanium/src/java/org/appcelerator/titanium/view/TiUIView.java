@@ -2786,6 +2786,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (proxyvalue instanceof AnimatableProxy
                     && value instanceof HashMap) {
                 TiAnimatorSet tiAnimator = proxy.createAnimator(value);
+                if (tiAnimator.getDuration() == null) {
+                    tiAnimator.setDuration(tiSet.getDuration());
+                }
                 tiAnimator.autoreverse = tiSet.autoreverse;
                 tiAnimator.dontApplyOnFinish = tiSet.dontApplyOnFinish;
                 tiAnimator.setProxy((AnimatableProxy) proxyvalue);

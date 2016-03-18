@@ -348,6 +348,9 @@ public class TiAnimator
         return null;
     }
 	
+	public void setDuration(Double duration) {
+        this.duration = duration;
+    }
 	public Double getDuration() {
         return duration;
     }

@@ -257,7 +257,13 @@
         [toProps enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
             TiProxy* bindedProxy = [self bindingForKey:key];
             if (IS_OF_CLASS(obj, NSDictionary) && IS_OF_CLASS(bindedProxy, TiAnimatableProxy) && ![[(TiAnimatableProxy*)bindedProxy animationClassType] isSubclassOfClass:animationClassType] ) {
-                [(TiAnimatableProxy*)bindedProxy handleAnimation:[TiAnimation animationFromArg:obj context:[bindedProxy executionContext] create:NO]];
+                TiAnimation* childAnim = [TiAnimation animationFromArg:obj context:[bindedProxy executionContext] create:NO];
+                if (childAnim.duration == 0) {
+                    childAnim.duration = animation.duration;
+                }
+                childAnim.autoreverse = animation.autoreverse;
+                childAnim.dontApplyOnFinish = animation.dontApplyOnFinish;
+                [(TiAnimatableProxy*)bindedProxy handleAnimation:childAnim];
             }
         }];
     }
