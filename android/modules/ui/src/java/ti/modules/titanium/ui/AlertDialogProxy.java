@@ -71,7 +71,9 @@ public class AlertDialogProxy extends ViewProxy
 			public void run()
 			{
 				TiUIDialog d = (TiUIDialog) getOrCreateView();
-				d.show(fOptions);
+				if (d != null) {
+	                d.show(fOptions);
+				}
 			}
 		});
 	}
