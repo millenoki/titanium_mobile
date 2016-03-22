@@ -168,7 +168,7 @@
     if ([kind isEqualToString:UICollectionElementKindSectionHeader]&&
         [self shouldStickHeaderToTopInSection:attributes.indexPath.section]) {
         UICollectionView * const cv = self.collectionView;
-        UIEdgeInsets const contentEdgeInsets = cv.contentInset;
+//        UIEdgeInsets const contentEdgeInsets = cv.contentInset;
 //        CGPoint const contentOffset = CGPointMake(cv.contentOffset.x, cv.contentOffset.y + contentEdgeInsets.top);
         CGPoint const contentOffset = cv.contentOffset;
         CGPoint nextHeaderOrigin = CGPointMake(INFINITY, INFINITY);

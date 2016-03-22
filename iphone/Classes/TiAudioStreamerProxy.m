@@ -107,36 +107,28 @@ typedef enum {
 
 -(void)handleRouteChange:(NSNotification*)notification{
     AVAudioSession *session = [ AVAudioSession sharedInstance];
-    NSString* seccReason = @"";
     NSInteger  reason = [[[notification userInfo] objectForKey:AVAudioSessionRouteChangeReasonKey] integerValue];
     
     switch (reason) {
-        case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
-            seccReason = @"The route changed because no suitable route is now available for the specified category.";
-            break;
-        case AVAudioSessionRouteChangeReasonWakeFromSleep:
-            seccReason = @"The route changed when the device woke up from sleep.";
-            break;
-        case AVAudioSessionRouteChangeReasonOverride:
-            seccReason = @"The output route was overridden by the app.";
-            break;
-        case AVAudioSessionRouteChangeReasonCategoryChange:
-            seccReason = @"The category of the session object changed.";
-            break;
+//        case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
+//            break;
+//        case AVAudioSessionRouteChangeReasonWakeFromSleep:
+//            break;
+//        case AVAudioSessionRouteChangeReasonOverride:
+//            break;
+//        case AVAudioSessionRouteChangeReasonCategoryChange:
+//            break;
         case AVAudioSessionRouteChangeReasonOldDeviceUnavailable:
-            seccReason = @"The previous audio output path is no longer available.";
             if ([self playing])
             {
                 // Janking out the headphone will stop the audio.
                 [self pause:nil];
             }
             break;
-        case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
-            seccReason = @"A preferred new audio output path is now available.";
-            break;
-        case AVAudioSessionRouteChangeReasonUnknown:
+//        case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
+//            break;
+//        case AVAudioSessionRouteChangeReasonUnknown:
         default:
-            seccReason = @"The reason for the change is unknown.";
             break;
     }
     AVAudioSessionPortDescription *input = [[session.currentRoute.inputs count]?session.currentRoute.inputs:nil objectAtIndex:0];
@@ -336,7 +328,7 @@ typedef enum {
         NSArray* old = _originalQueue ;
         _originalQueue = [[_originalQueue arrayByAddingObjectsFromArray:toAdd] retain];
         RELEASE_TO_NIL(old)
-        old = _queue ;
+//        old = _queue ;
         _queue = [[_queue arrayByAddingObjectsFromArray:toAdd] retain];
     }
 }
@@ -885,6 +877,7 @@ NSDictionary* metadataKeys;
     [mediaInfo setObject:albumArt forKey:MPMediaItemPropertyArtwork];
     [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:mediaInfo];
     [mediaInfo release];
+    [albumArt release];
 }
 
 -(id)sanitizeURL:(id)value
@@ -984,6 +977,7 @@ NSDictionary* metadataKeys;
     if (covertart) {
         MPMediaItemArtwork *albumArt = [[MPMediaItemArtwork alloc] initWithImage: covertart];
         [mediaInfo setObject:albumArt forKey:MPMediaItemPropertyArtwork];
+        [albumArt release];
     }
     [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:mediaInfo];
     [mediaInfo release];
@@ -1005,7 +999,7 @@ NSDictionary* metadataKeys;
 
 - (CMTime)itemDuration:(AVPlayerItem *)thePlayerItem
 {
-    AVPlayerItemStatus status = thePlayerItem.status;
+//    AVPlayerItemStatus status = thePlayerItem.status;
     CMTime duration = [thePlayerItem duration];
     if (CMTIME_IS_NUMERIC(duration)) {
         return(duration);
@@ -1258,17 +1252,17 @@ MAKE_SYSTEM_PROP(STATE_PAUSED,STATE_PAUSED);
 
 - (void)handleTimedMetadata:(AVMetadataItem*)timedMetadata
 {
-    NSLog(@"metadata: key = %@", [timedMetadata key]);
-    id value = [timedMetadata value];
-    NSLog(@"metadata: value = %@", value);
-    /* We expect the content to contain plists encoded as timed metadata. AVPlayer turns these into NSDictionaries. */
-    if ([(NSString *)[timedMetadata key] isEqualToString:AVMetadataID3MetadataKeyGeneralEncapsulatedObject])
-    {
-        if ([[timedMetadata value] isKindOfClass:[NSDictionary class]])
-        {
-            NSDictionary *propertyList = (NSDictionary *)[timedMetadata value];
-        }
-    }
+//    NSLog(@"metadata: key = %@", [timedMetadata key]);
+//    id value = [timedMetadata value];
+//    NSLog(@"metadata: value = %@", value);
+//    /* We expect the content to contain plists encoded as timed metadata. AVPlayer turns these into NSDictionaries. */
+//    if ([(NSString *)[timedMetadata key] isEqualToString:AVMetadataID3MetadataKeyGeneralEncapsulatedObject])
+//    {
+//        if ([[timedMetadata value] isKindOfClass:[NSDictionary class]])
+//        {
+//            NSDictionary *propertyList = (NSDictionary *)[timedMetadata value];
+//        }
+//    }
 }
 
 

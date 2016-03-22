@@ -24,10 +24,10 @@
 {
 //    if (position >1 || position < -1) return;
     
-    float multiplier = 1;
-    if (![self isTransitionPush]) {
-        multiplier = -1;
-    }
+//    float multiplier = 1;
+//    if (![self isTransitionPush]) {
+//        multiplier = -1;
+//    }
     
     int viewWidth = view.bounds.size.width;
     int viewHeight = view.bounds.size.height;

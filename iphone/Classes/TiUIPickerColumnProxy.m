@@ -79,7 +79,7 @@
     {
         if (IS_OF_CLASS(parent, TiUIPickerProxy)) {
             TiThreadPerformOnMainThread(^{[[(TiUIPickerProxy*)[self parent] picker] selectRow:
-                                           [NSArray arrayWithObjects:NUMINT(0),position,nil]];}, NO);
+                                           [NSArray arrayWithObjects:@(0),@(position),nil]];}, NO);
         }
     }
 }

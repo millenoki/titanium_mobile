@@ -52,6 +52,7 @@
         TiThreadPerformOnMainThread(^{
             UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
             _defaultUserAgent =  [[webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"] retain];
+            [webView release];
             
         }, YES);
     }

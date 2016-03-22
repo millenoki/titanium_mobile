@@ -34,7 +34,7 @@
 
 DEFINE_EXCEPTIONS
 
-- (id)initWithProxy:(TiUICollectionWrapperViewProxy *)proxy
+- (id)prepareWithProxy:(TiUICollectionWrapperViewProxy *)proxy
 {
     //we are retained by the collectionView
     _proxy = [proxy retain];

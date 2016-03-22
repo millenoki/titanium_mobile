@@ -185,6 +185,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
     TiThreadPerformOnMainThread(^{
         [req send];
         [req autorelease];
+        [job autorelease];
     }, NO);
 }
 

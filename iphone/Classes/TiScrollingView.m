@@ -246,10 +246,10 @@
     if ([keys count] > 0) {
         NSString* key = [keys objectAtIndex:0];
         if ([key isEqualToString:@"pullView"]) {
-            CGRect frame = [(TiViewProxy*)sender view].frame;
+//            CGRect frame = [(TiViewProxy*)sender view].frame;
             pullThreshhold = -[self scrollView].contentInset.top + ([(TiViewProxy*)sender view].frame.origin.y - _pullViewWrapper.bounds.size.height);
         } else if ([key isEqualToString:@"pullBottomView"]) {
-            CGRect frame = [(TiViewProxy*)sender view].frame;
+//            CGRect frame = [(TiViewProxy*)sender view].frame;
             UIScrollView* scrollView = [self scrollView];
             pullBottomThreshhold = scrollView.contentSize.height + scrollView.contentInset.bottom + ([(TiViewProxy*)sender view].frame.size.height);
         }
@@ -585,7 +585,7 @@
             }
             CGFloat delta = pullThreshhold - offsetY;
             if (delta >= pullThreshhold) {
-                CGFloat progress = fabs(1 - fabs( (delta / pullThreshhold)));
+//                CGFloat progress = fabs(1 - fabs( (delta / pullThreshhold)));
                 [self fireScrollEvent:@"pull" forScrollView:scrollView withAdditionalArgs:@{@"active": @(pullActive)}];
             }
         }
@@ -607,7 +607,7 @@
             }
             CGFloat delta = pullBottomThreshhold - offsetY;
             if (delta <= 0) {
-                CGFloat progress = fabs(1 - fabs( (delta / pullBottomThreshhold)));
+//                CGFloat progress = fabs(1 - fabs( (delta / pullBottomThreshhold)));
                 [self fireScrollEvent:@"pullbottom" forScrollView:scrollView withAdditionalArgs:@{@"active": @(pullBottomActive),
                                                                                                   @"bottom": @(YES)}];
             }

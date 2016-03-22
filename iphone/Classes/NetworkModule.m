@@ -398,7 +398,7 @@ static NetworkModule *_sharedInstance = nil;
     long WWANSent = 0;
     long WWANReceived = 0;
     
-    NSString *name=[[[NSString alloc]init]autorelease];
+    NSString *name = nil;
     
     success = getifaddrs(&addrs) == 0;
     if (success)
@@ -406,7 +406,7 @@ static NetworkModule *_sharedInstance = nil;
         cursor = addrs;
         while (cursor != NULL)
         {
-            name=[NSString stringWithFormat:@"%s",cursor->ifa_name];
+            name = [NSString stringWithFormat:@"%s",cursor->ifa_name];
             // names of interfaces: en0 is WiFi ,pdp_ip0 is WWAN
             if (cursor->ifa_addr->sa_family == AF_LINK)
             {

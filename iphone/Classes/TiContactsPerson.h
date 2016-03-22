@@ -35,10 +35,10 @@
 +(NSDictionary*)iOS9multiValueLabels;
 +(NSDictionary*)iOS9propertyKeys;
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactId:(CNMutableContact*)person_ module:(ContactsModule*)module_;
--(CNSaveRequest*)getSaveRequestForDeletion;
--(CNSaveRequest*)getSaveRequestForAddition:(NSString*)containerIdentifier;
--(CNSaveRequest*)getSaveRequestForAddToGroup: (CNMutableGroup*) group;
--(CNSaveRequest*)getSaveRequestForRemoveFromGroup: (CNMutableGroup*) group;
+-(CNSaveRequest*)newSaveRequestForDeletion;
+-(CNSaveRequest*)newSaveRequestForAddition:(NSString*)containerIdentifier;
+-(CNSaveRequest*)newSaveRequestForAddToGroup: (CNMutableGroup*) group;
+-(CNSaveRequest*)newSaveRequestForRemoveFromGroup: (CNMutableGroup*) group;
 -(void)updateiOS9ContactProperties;
 -(CNMutableContact*)nativePerson;
 -(id)valueForUndefinedKey:(NSString *)key;

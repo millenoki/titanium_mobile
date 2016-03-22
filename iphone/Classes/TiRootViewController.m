@@ -345,7 +345,7 @@
     
     UIImage * defaultImage = [TiRootViewController splashImageForOrientation:(UIDeviceOrientation)newOrientation];
     
-    CGFloat imageScale = [defaultImage scale];
+//    CGFloat imageScale = [defaultImage scale];
     CGRect newFrame = [[self view] bounds];
     CGSize imageSize = [defaultImage size];
     
@@ -1667,7 +1667,7 @@
     if (viewControllerControlsStatusBar) {
         [self performSelector:@selector(setNeedsStatusBarAppearanceUpdate) withObject:nil];
     } else {
-        BOOL oldValue = statusBarIsHidden;;
+//        BOOL oldValue = statusBarIsHidden;;
         BOOL newValue = [self prefersStatusBarHidden];
 //        if (oldValue != newValue) {
             if (animated) {

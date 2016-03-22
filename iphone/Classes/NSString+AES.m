@@ -25,6 +25,6 @@
     
     NSString *plainString = [[NSString alloc] initWithData:plainData encoding:NSUTF8StringEncoding];
     
-    return plainString;
+    return [plainString autorelease];
 }
 @end

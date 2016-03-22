@@ -1118,7 +1118,7 @@
     BOOL viaSearch = [searchController isActive];
     UITableView* theTableView = viaSearch ? [searchController searchResultsTableView] : [self tableView];
     CGPoint point = [recognizer locationInView:theTableView];
-    CGPoint pointInView = [recognizer locationInView:self];
+//    CGPoint pointInView = [recognizer locationInView:self];
     NSIndexPath* indexPath = nil;
     
     if (viaSearch) {

@@ -380,7 +380,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     
     if (startHeading || startLocation)
     {
-        CLLocationManager *lm = [self locationManager];
+        [self locationManager];
         if (!_locationManagerCreated) {
             _locationManagerCreated = YES;
             if ([CLLocationManager locationServicesEnabled]== NO)
@@ -529,7 +529,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 -(void)performGeo:(NSString*)direction address:(NSString*)address callback:(GeolocationCallback*)callback
 {
     id aguid = TI_APPLICATION_GUID;
-    id sid = [[TiApp app] sessionId];
+//    id sid = [[TiApp app] sessionId];
     
     //for now we trick it and don't send identifiers ;)
     NSDictionary *params = [NSDictionary dictionaryWithObjectsAndKeys:

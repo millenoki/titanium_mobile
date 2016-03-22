@@ -22,8 +22,8 @@
     if (self = [super init]) {
         custom = YES;
         id defaultDuration = [options objectForKey:@"duration"]?[options objectForKey:@"duration"]:@(0);
-        id defaultCurve = [options objectForKey:@"curve"]?[options objectForKey:@"curve"]:[NSNull null];
-        BOOL reversed =  [TiUtils boolValue:@"reverse" properties:options def:NO];
+//        id defaultCurve = [options objectForKey:@"curve"]?[options objectForKey:@"curve"]:[NSNull null];
+//        BOOL reversed =  [TiUtils boolValue:@"reverse" properties:options def:NO];
         NSDictionary* from = [options objectForKey:@"from"];
         NSDictionary* to = [options objectForKey:@"to"];
         _inAnimation = [[TiAnimation alloc] initWithDictionary:@{

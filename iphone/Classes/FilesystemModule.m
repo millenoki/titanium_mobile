@@ -197,7 +197,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
                 RELEASE_TO_NIL(sha)
             }
         }
-        return [[TiBlob alloc] _initWithPageContext:[self executionContext] andImage:image];
+        return [[[TiBlob alloc] _initWithPageContext:[self executionContext] andImage:image] autorelease];
     }
     return [NSNull null];
 }

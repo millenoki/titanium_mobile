@@ -51,7 +51,7 @@
 
 DEFINE_EXCEPTIONS
 
-- (id)initWithStyle:(TiUICollectionItemTemplateStyle)style proxy:(TiUICollectionItemProxy *)proxy
+- (id)prepareWithStyle:(TiUICollectionItemTemplateStyle)style proxy:(TiUICollectionItemProxy *)proxy
 {
 		_templateStyle = style;
 		_proxy = [proxy retain];

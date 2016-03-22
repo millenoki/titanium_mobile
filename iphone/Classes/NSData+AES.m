@@ -96,7 +96,7 @@ static char encodingTable[64] =
 
 + (NSData *)dataWithBase64EncodedString:(NSString *)string
 {
-    return [[NSData allocWithZone:nil] initWithBase64EncodedString:string];
+    return [[[NSData allocWithZone:nil] initWithBase64EncodedString:string] autorelease];
 }
 
 - (id)initWithBase64EncodedString:(NSString *)string

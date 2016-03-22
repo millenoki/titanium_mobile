@@ -24,8 +24,8 @@
 
 -(id)_initWithPageContext:(id<TiEvaluator>)context recordId:(ABRecordID)id_ module:(ContactsModule*)module_;
 -(id)_initWithPageContext:(id<TiEvaluator>)context contactGroup:(CNMutableGroup*)group_ module:(ContactsModule*)module_;
--(CNSaveRequest*)getSaveRequestForDeletion;
--(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier;
+-(CNSaveRequest*)newSaveRequestForDeletion;
+-(CNSaveRequest*)newSaveRequestForAddition: (NSString*)containerIdentifier;
 
 @end
 #endif

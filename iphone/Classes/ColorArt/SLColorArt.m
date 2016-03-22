@@ -253,7 +253,8 @@ typedef struct RGBAPixel
 			continue;
 		[sortedColors addObject:[[[PCCountedColor alloc] initWithColor:curColor count:colorCount] autorelease]];
 	}
-
+    [edgeColors release];
+    edgeColors = nil;
 	[sortedColors sortUsingSelector:@selector(compare:)];
 
 

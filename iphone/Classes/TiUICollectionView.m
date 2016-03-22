@@ -223,11 +223,11 @@ static TiProxyTemplate* sDefaultItemTemplate;
         _tableView.touchDelegate = self;
         _tableView.alwaysBounceVertical = YES;
         
-        id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
-        BOOL doSetBackground = YES;
-        if (doSetBackground) {
+//        id backgroundColor = [self.proxy valueForKey:@"backgroundColor"];
+//        BOOL doSetBackground = YES;
+//        if (doSetBackground) {
             [[self class] setBackgroundColor:[UIColor clearColor] onTable:_tableView];
-        }
+//        }
         
         if ([TiUtils isIOS8OrGreater]) {
             [_tableView setLayoutMargins:UIEdgeInsetsZero];
@@ -1358,7 +1358,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
                     context = self.listViewProxy.pageContext;
                 }
                 TiUICollectionItemProxy *cellProxy = [[TiUICollectionItemProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
-                [cell initWithStyle:TiUICollectionItemTemplateStyleCustom proxy:cellProxy];
+                [cell prepareWithStyle:TiUICollectionItemTemplateStyleCustom proxy:cellProxy];
                 [cell configurationStart];
                 [cellProxy add:[self holdedProxyForKey:@"headerWrapper"]];
                 [cellProxy windowWillOpen];
@@ -1397,7 +1397,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
             context = self.listViewProxy.pageContext;
         }
         TiUICollectionItemProxy *cellProxy = [[TiUICollectionItemProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
-        [cell initWithStyle:style proxy:cellProxy];
+        [cell prepareWithStyle:style proxy:cellProxy];
         [cell configurationStart];
         if (template != nil) {
             [cellProxy unarchiveFromTemplate:template withEvents:YES];
@@ -1453,7 +1453,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
                 context = self.listViewProxy.pageContext;
             }
             TiUICollectionWrapperViewProxy *viewProxy = [[TiUICollectionWrapperViewProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
-            [view initWithProxy:viewProxy];
+            [view prepareWithProxy:viewProxy];
             [view configurationStart];
             if (template != nil) {
                 [viewProxy unarchiveFromTemplate:template withEvents:YES];
@@ -1484,7 +1484,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
                 context = self.listViewProxy.pageContext;
             }
             TiUICollectionWrapperViewProxy *viewProxy = [[TiUICollectionWrapperViewProxy alloc] initWithCollectionViewProxy:self.listViewProxy inContext:context];
-            [view initWithProxy:viewProxy];
+            [view prepareWithProxy:viewProxy];
             [view configurationStart];
             [viewProxy windowWillOpen];
             [viewProxy windowDidOpen];
@@ -2153,7 +2153,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 
 -(void)recognizedSwipe:(UISwipeGestureRecognizer *)recognizer
 {
-    BOOL viaSearch = [self isSearchActive];
+//    BOOL viaSearch = [self isSearchActive];
     CGPoint point = [recognizer locationInView:_tableView];
     NSIndexPath* indexPath = [_tableView indexPathForItemAtPoint:point];
     [super recognizedSwipe:recognizer];
@@ -2168,7 +2168,7 @@ referenceSizeForFooterInSection:(NSInteger)section
 {
     NSMutableDictionary* event = [super dictionaryFromGesture:recognizer];
     
-    BOOL viaSearch = [self isSearchActive];
+//    BOOL viaSearch = [self isSearchActive];
     CGPoint point = [recognizer locationInView:_tableView];
     NSIndexPath* indexPath = [_tableView indexPathForItemAtPoint:point];
     indexPath = [self pathForSearchPath:indexPath];

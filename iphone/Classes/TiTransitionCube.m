@@ -30,10 +30,10 @@
     view.layer.hidden = NO;
     view.layer.doubleSided = NO;
     
-    float multiplier = 1;
-    if (![self isTransitionPush]) {
-        multiplier = -1;
-    }
+//    float multiplier = 1;
+//    if (![self isTransitionPush]) {
+//        multiplier = -1;
+//    }
     CATransform3D transform = CATransform3DIdentity;
 //    if (!adjust) {
 //        transform.m34 = 1.0 / kPerspective;

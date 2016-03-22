@@ -1000,7 +1000,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 - (void)transformItemView:(TiSCrollableWrapperView *)view withCurrentPage:(CGFloat)currentPageAsFloat
 {
     //calculate offset
-    CGRect bounds = view.bounds;
+//    CGRect bounds = view.bounds;
     view.layer.transform = CATransform3DIdentity;
     NSInteger index = view.index;
     CGFloat offset = index - currentPageAsFloat;

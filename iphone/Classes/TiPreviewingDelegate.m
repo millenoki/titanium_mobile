@@ -40,9 +40,10 @@
     NSMutableDictionary * propertiesDict = [[NSMutableDictionary alloc] initWithDictionary:[self listViewEvent]];
     [propertiesDict setObject:_previewContext.preview forKey:@"preview"];
     
-    NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+//    NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
     
     [[self previewContext] fireEvent:@"pop" withObject:propertiesDict];
+    [propertiesDict release];
 }
 
 - (UIViewController*)previewingContext:(id<UIViewControllerPreviewing>)previewingContext viewControllerForLocation:(CGPoint)location
@@ -97,7 +98,7 @@
     [[[self previewContext] preview] windowWillOpen];
     [previewingContext setSourceRect:[self createSourceRectWithLocation:location]];
     
-    return controller;
+    return [controller autorelease];
 }
 
 -(CGRect)createSourceRectWithLocation:(CGPoint)location
@@ -157,7 +158,7 @@
             [eventObject setObject:itemId forKey:@"itemId"];
         }
         
-        return eventObject;
+        return [eventObject autorelease];
     }
 #endif
 

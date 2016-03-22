@@ -35,7 +35,7 @@ typedef enum
 @property (nonatomic, readonly) TiUIView *viewHolder;
 @property (nonatomic, readwrite, retain) NSDictionary *dataItem;
 
-- (id)initWithStyle:(TiUICollectionItemTemplateStyle)style proxy:(TiUICollectionItemProxy *)proxy;
+- (id)prepareWithStyle:(TiUICollectionItemTemplateStyle)style proxy:(TiUICollectionItemProxy *)proxy;
 
 - (BOOL)canApplyDataItem:(NSDictionary *)otherItem;
 -(void)configurationStart;

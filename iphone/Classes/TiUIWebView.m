@@ -507,7 +507,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 			{
 				[self ensureLocalProtocolHandler];
 				// Empty NSURL since nil is not accepted here
-				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:[NSURL new]];
+				[[self webview] loadData:[blob data] MIMEType:[blob mimeType] textEncodingName:@"utf-8" baseURL:[[NSURL new] autorelease]];
 				if (scalingOverride==NO)
 				{
 					[[self webview] setScalesPageToFit:YES];
@@ -748,7 +748,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		return;
 	}
 	
-	NSString *toEncode = [NSString stringWithFormat:@"%@:%@",username,password];
+//	NSString *toEncode = [NSString stringWithFormat:@"%@:%@",username,password];
     NSString *authString = [TiUtils base64encode:[[NSString stringWithFormat:@"%@:%@",username, password] dataUsingEncoding:NSUTF8StringEncoding]];
     RELEASE_TO_NIL(basicCredentials);
     

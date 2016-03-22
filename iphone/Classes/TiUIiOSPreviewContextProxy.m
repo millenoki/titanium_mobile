@@ -11,6 +11,9 @@
 #import "TiUIScrollView.h"
 
 @implementation TiUIiOSPreviewContextProxy
+{
+    TiPreviewingDelegate* _previewDelegate;
+}
 
 -(void)_initWithProperties:(NSDictionary *)properties
 {
@@ -53,7 +56,7 @@
     RELEASE_TO_NIL(_preview);
     RELEASE_TO_NIL(_sourceView);
     RELEASE_TO_NIL(_actions);
-    
+    RELEASE_TO_NIL(_previewDelegate);
     [super dealloc];
 }
 
@@ -82,9 +85,11 @@
     if (nativeSourceView == nil) {
         nativeSourceView = [_sourceView view];
     }
-    
+    if (!_previewDelegate) {
+        _previewDelegate = [[TiPreviewingDelegate alloc] initWithPreviewContext:self];
+    }
     UIViewController *theController = [[[TiApp app] controller] topPresentedController];
-    [theController registerForPreviewingWithDelegate:[[TiPreviewingDelegate alloc] initWithPreviewContext:self]
+    [theController registerForPreviewingWithDelegate:_previewDelegate
                                        sourceView:nativeSourceView];
 }
 

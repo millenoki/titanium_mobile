@@ -81,6 +81,7 @@
                                                                                      userInfo:userInfo];
         
         [shortcutsToReturn addObject:[self shortcutItemToDictionary:shortcut]];
+        [shortcut release];
     }
     
     return shortcutsToReturn;

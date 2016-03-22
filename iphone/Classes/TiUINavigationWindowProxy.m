@@ -231,10 +231,10 @@ else{\
     }
     UIViewController* winController = [self controllerForWindow:window];
     if (winController != nil) {
-        TiWindowProxy *realWindow = rootWindow;
+//        TiWindowProxy *realWindow = rootWindow;
         NSUInteger index = [[navController viewControllers] indexOfObject:winController];
         if (index > 0) {
-            realWindow = (TiWindowProxy *)[[[navController viewControllers] objectAtIndex:(index-1)] proxy];
+            TiWindowProxy *realWindow = (TiWindowProxy *)[[[navController viewControllers] objectAtIndex:(index-1)] proxy];
             TiThreadPerformOnMainThread(^{
                 [self popOnUIThread:([args count] > 1) ? @[realWindow,[args objectAtIndex:1]] : @[realWindow]];
             }, YES);

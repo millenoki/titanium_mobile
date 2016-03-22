@@ -15,15 +15,15 @@
 @interface TiUIHorizontalTableViewCell: TiUITableViewCell
 {
 @private
-    TiUIHorizontalContentView* customContentview;
+//    TiUIHorizontalContentView* customContentview;
 }
 @end
 
 @interface TiUIHorizontalTableView: TiUITableView {
 @private
-    TiDimension rowWidth;
-	TiDimension minRowWidth;
-	TiDimension maxRowWidth;
+//    TiDimension rowWidth;
+//	TiDimension minRowWidth;
+//	TiDimension maxRowWidth;
 }
 
 @end

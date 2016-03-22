@@ -653,7 +653,7 @@ MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefaul
     
     TiBlob *image = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:badge];
     
-    return image;
+    return [image autorelease];
 }
 #endif
 

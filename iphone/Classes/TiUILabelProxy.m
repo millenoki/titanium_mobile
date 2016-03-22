@@ -193,7 +193,7 @@ static NSDictionary* htmlOptions;
                 {
                     numberOfLines = [TiUtils intValue:[self valueForKey:@"maxLines"]];
                 }
-                result = [TDTTTAttributedLabel sizeThatFitsAttributedString:_realLabelContent withConstraints:maxSize limitedToNumberOfLines:numberOfLines];
+                return [TDTTTAttributedLabel sizeThatFitsAttributedString:_realLabelContent withConstraints:maxSize limitedToNumberOfLines:numberOfLines];
             }
             else
             {

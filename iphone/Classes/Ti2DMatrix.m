@@ -293,6 +293,7 @@ typedef enum
         }
         case AffineOpMultiply: {
             result = [_multiplyValue toString:nil];
+            break;
         }
         case AffineOpInverse: {
             result = @"i";

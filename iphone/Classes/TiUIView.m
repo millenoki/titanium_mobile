@@ -1094,7 +1094,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     if (!_alwaysUseBackgroundLayer && !_bgLayer && (clipChildren || radii == nil))
     {
         if (backgroundOpacity < 1.0f) {
-            const CGFloat* components = CGColorGetComponents(uicolor.CGColor);
+//            const CGFloat* components = CGColorGetComponents(uicolor.CGColor);
             float alpha = CGColorGetAlpha(uicolor.CGColor) * backgroundOpacity;
             uicolor = [uicolor colorWithAlphaComponent:alpha];
         }
@@ -1625,7 +1625,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         {
             if ([thisView isKindOfClass:[TiUIView class]])
             {
-                BOOL originalValue = [[((TiUIView*)thisView).proxy valueForUndefinedKey:@"enabled"] boolValue];
+//                BOOL originalValue = [[((TiUIView*)thisView).proxy valueForUndefinedKey:@"enabled"] boolValue];
                 [thisView setEnabled:arg calledFromParent:YES];
             }
         }
@@ -2128,7 +2128,6 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
         }
 		return nil;
 	}
-    id value = [self.proxy valueForKey:@"hitRect"];
     
     if (_hasHitRect && !CGRectContainsPoint(_hitRect, point))
     {

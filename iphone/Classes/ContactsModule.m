@@ -308,7 +308,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 					   subreason:nil
 						location:CODELOCATION];
 		};
-		saveRequest = nil;
+		RELEASE_TO_NIL(saveRequest)
 		return;
 	}
 
@@ -720,7 +720,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		RELEASE_TO_NIL(newContact);
 		[newPerson setValuesForKeysWithDictionary:arg];
 		[newPerson updateiOS9ContactProperties];
-		saveRequest = [newPerson getSaveRequestForAddition:[ourContactStore defaultContainerIdentifier]];
+		saveRequest = [newPerson newSaveRequestForAddition:[ourContactStore defaultContainerIdentifier]];
 		[self save:nil];
 		return newPerson;
 	}
@@ -773,8 +773,8 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 	if([TiUtils isIOS9OrGreater]) {
 		TiContactsPerson *person = arg;
-		saveRequest = nil;
-		saveRequest = [person getSaveRequestForDeletion];
+		RELEASE_TO_NIL(saveRequest)
+		saveRequest = [person newSaveRequestForDeletion];
 		return;
 	}
 
@@ -810,7 +810,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 		TiContactsGroup* newGroup = [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] contactGroup:tempGroup module:self] autorelease];
 		RELEASE_TO_NIL(tempGroup);
 		[newGroup setValuesForKeysWithDictionary:arg];
-		saveRequest = [newGroup getSaveRequestForAddition:[ourContactStore defaultContainerIdentifier]];
+		saveRequest = [newGroup newSaveRequestForAddition:[ourContactStore defaultContainerIdentifier]];
 		return newGroup;
 	}
 
@@ -860,8 +860,8 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 
 	if([TiUtils isIOS9OrGreater]) {
 		TiContactsGroup *group = arg;
-		saveRequest = nil;
-		saveRequest = [group getSaveRequestForDeletion];
+        RELEASE_TO_NIL(saveRequest)
+		saveRequest = [group newSaveRequestForDeletion];
 		return;
 	}
 

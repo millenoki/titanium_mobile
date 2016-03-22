@@ -518,7 +518,7 @@
                         location:CODELOCATION];
             return;
         }
-        NSUInteger count = [items count];
+//        NSUInteger count = [items count];
         BOOL forceReload = (animation != UITableViewRowAnimationNone);
         [items enumerateObjectsUsingBlock:^(id item, NSUInteger itemIndex, BOOL *stop) {
             TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:itemIndex inSection:_sectionIndex]];

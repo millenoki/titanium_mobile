@@ -1203,9 +1203,9 @@ SEL GetterForKrollProperty(NSString * key)
     if (layoutProperties.fullscreen == YES) return size;
     
     CGFloat suggestedWidth = size.width;
-    BOOL followsFillHBehavior = TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]);
+//    BOOL followsFillHBehavior = TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]);
     CGFloat suggestedHeight = size.height;
-    BOOL followsFillWBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
+//    BOOL followsFillWBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
     
     CGFloat offsetx = TiDimensionCalculateValue(layoutProperties.left, size.width)
     + TiDimensionCalculateValue(layoutProperties.right, size.width);
@@ -2596,7 +2596,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 -(void)willChangeLayout
 {
     if (!viewInitialized)return;
-    BOOL alreadySet = OSAtomicTestAndSet(TiRefreshViewChildrenPosition, &dirtyflags);
+    OSAtomicTestAndSet(TiRefreshViewChildrenPosition, &dirtyflags);
 
 	[self willEnqueueIfVisible];
 
@@ -3233,7 +3233,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
         if (CGSizeEqualToSize(referenceSize, CGSizeZero)) {
             repositioning = NO;
             dirtyflags = 0;
-            return;
+            return NO;
         }
         BOOL needsAll = TiCGRectIsEmpty(sizeCache);
         BOOL needsSize = OSAtomicTestAndClear(TiRefreshViewSize, &dirtyflags) || (needsAll && _canRepositionItself);
@@ -3660,7 +3660,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
     __block BOOL fullscreen = childConstraint->fullscreen;
     __block BOOL autoSizeComputed = FALSE;
     __block BOOL recalculateWidth = NO;
-    UIView *parentView = [self parentViewForChild:child];
+//    UIView *parentView = [self parentViewForChild:child];
     __block CGFloat boundingWidth = bounds.size.width;
     __block CGFloat boundingHeight = bounds.size.height;
     if (boundingHeight < 0) {

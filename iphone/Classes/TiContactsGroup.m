@@ -267,7 +267,7 @@
 			return;
 		}
 		NSError *error;
-		CNSaveRequest *saveRequest = [person getSaveRequestForAddToGroup:group];
+		CNSaveRequest *saveRequest = [person newSaveRequestForAddToGroup:group];
 		if (saveRequest == nil) {
 			DebugLog(@"[ERROR] Unable to add");
 			return;
@@ -277,7 +277,7 @@
 					   subreason:nil
 						location:CODELOCATION];
 		};
-		RELEASE_TO_NIL(saveRequest)
+        [saveRequest release];
 		return;
 	}
 
@@ -305,7 +305,7 @@
 			return;
 		}
 		NSError *error;
-		CNSaveRequest *saveRequest = [person getSaveRequestForRemoveFromGroup:group];
+		CNSaveRequest *saveRequest = [person newSaveRequestForRemoveFromGroup:group];
 		if (saveRequest == nil) {
 			DebugLog(@"[ERROR] Unable to add");
 			return;
@@ -315,7 +315,7 @@
 					   subreason:nil
 						location:CODELOCATION];
 		};
-		RELEASE_TO_NIL(saveRequest)
+        [saveRequest release];
 		return;
 	}
 
@@ -332,14 +332,14 @@
 }
 
 //For iOS9 deleting contact
--(CNSaveRequest*)getSaveRequestForDeletion
+-(CNSaveRequest*)newSaveRequestForDeletion
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest deleteGroup: [[group mutableCopy] autorelease]];
 	return saveRequest;
 }
 
--(CNSaveRequest*)getSaveRequestForAddition: (NSString*)containerIdentifier
+-(CNSaveRequest*)newSaveRequestForAddition: (NSString*)containerIdentifier
 {
 	CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
 	[saveRequest addGroup:group toContainerWithIdentifier:containerIdentifier];

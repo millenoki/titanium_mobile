@@ -1314,7 +1314,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     if(jsonData) {
         return [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:error];
     } else {
-        *error = [NSError errorWithDomain:@"File not found" code:-1 userInfo:nil];
+        if (error != NULL) *error = [NSError errorWithDomain:@"File not found" code:-1 userInfo:nil];
     }
     return nil;
 }

@@ -350,7 +350,7 @@
 }
 
 -(TiBlob*)splashImageForCurrentOrientation {
-    UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
+//    UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
     UIUserInterfaceIdiom imageIdiom;
     UIDeviceOrientation imageOrientation;
     UIImage * defaultImage = [TiRootViewController splashImageForOrientation:

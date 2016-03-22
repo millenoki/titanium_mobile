@@ -162,9 +162,11 @@
     [[self watchSession] sendMessage:[value objectForKey:@"message"] replyHandler:^(NSDictionary<NSString *,id> * _Nonnull replyMessage) {
         WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
         [wmc replySuccess:replyMessage];
+        [wmc release];
     } errorHandler:^(NSError * _Nonnull error) {
         WatchMessageCallback *wmc = [[WatchMessageCallback alloc] initWithCallback:replyHandler context:[self executionContext]];
         [wmc replyError:error];
+        [wmc release];
     }];
 }
 //sent to watch so that it can update its state when it wakes

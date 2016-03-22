@@ -268,7 +268,7 @@
                 customActionSheet.tintColor = [ticolor _color];
             }
             else {
-                UIView* topView = [[[TiApp app] controller] topWindowProxyView];
+//                UIView* topView = [[[TiApp app] controller] topWindowProxyView];
                 customActionSheet.tintColor = [[UIApplication sharedApplication] keyWindow].tintColor;
             }
         }

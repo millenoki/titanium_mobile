@@ -663,7 +663,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted){
             NSString *errorMessage = granted ? nil : @"The user denied access to use the camera.";
             KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
-                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                    eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMessage]
                                                                      thisObject:self];
             [[callback context] enqueue:invocationEvent];
             RELEASE_TO_NIL(invocationEvent);
@@ -1008,7 +1008,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
     {
         [self commonPickerSetup:args];
         
-        NSNumber * imageEditingObject = [args objectForKey:@"allowEditing"];
         saveToRoll = [TiUtils boolValue:@"saveToPhotoGallery" properties:args def:NO];
         
         editable = [TiUtils boolValue:[args objectForKey:@"allowEditing"] def:editable];

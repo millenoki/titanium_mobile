@@ -1579,7 +1579,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
     } else if(IS_OF_CLASS(recognizer, UISwipeGestureRecognizer)) {
         [event setValue:[TiUtils swipeStringFromGesture:((UISwipeGestureRecognizer*)recognizer)] forKey:@"direction"];
     } else if(IS_OF_CLASS(recognizer, UIPanGestureRecognizer)) {
-        CGPoint translation = [((UIPanGestureRecognizer*)recognizer) translationInView:view];
+//        CGPoint translation = [((UIPanGestureRecognizer*)recognizer) translationInView:view];
         [event setValue:[TiUtils pointToDictionary:[((UIPanGestureRecognizer*)recognizer) translationInView:view]] forKey:@"translation"];
         [event setValue:[TiUtils pointToDictionary:[((UIPanGestureRecognizer*)recognizer) velocityInView:view]] forKey:@"velocity"];
     } else if(IS_OF_CLASS(recognizer, UIRotationGestureRecognizer)) {
@@ -2934,11 +2934,11 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     {
         font = [UIFont systemFontOfSize:17];
     }
-    NSInteger numberOfLines = 0;
-    if ([options valueForKey:@"maxLines"])
-    {
-        numberOfLines = [TiUtils intValue:[options valueForKey:@"maxLines"]];
-    }
+//    NSInteger numberOfLines = 0;
+//    if ([options valueForKey:@"maxLines"])
+//    {
+//        numberOfLines = [TiUtils intValue:[options valueForKey:@"maxLines"]];
+//    }
     
     //        resultSize = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:breakMode];
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];

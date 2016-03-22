@@ -178,7 +178,7 @@
             }
             
             // we're on the non-UI thread, we need to block to load
-            UIImage *imageToUse = [imageView prepareImage:[imageView convertToUIImage:theimage]];
+            imageToUse = [imageView prepareImage:[imageView convertToUIImage:theimage]];
         }
 		
 		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:imageToUse] autorelease];

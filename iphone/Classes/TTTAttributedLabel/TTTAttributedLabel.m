@@ -1397,7 +1397,7 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
 }
 
 - (void)setDisabledColor:(UIColor *)textColor {
-    UIColor *oldTextColor = self.disabledColor;
+//    UIColor *oldTextColor = self.disabledColor;
     _disabledColor = textColor;
     
     if (textColor && (self.text || self.attributedText)) {

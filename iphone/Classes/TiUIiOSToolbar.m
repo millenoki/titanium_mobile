@@ -99,7 +99,7 @@
 	if (value!=nil)
 	{
 		NSMutableArray * result = [NSMutableArray arrayWithCapacity:[value count]];
-		Class proxyClass = [TiViewProxy class];
+//		Class proxyClass = [TiViewProxy class];
 		for (id object in value) {
             TiViewProxy* vp = ( TiViewProxy*)[(TiViewProxy*)self.proxy createChildFromObject:object];
             if (!vp) continue;

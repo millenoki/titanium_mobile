@@ -12,12 +12,12 @@
 //        view.alpha = 0;
 //        return;
 //    }
-    BOOL before = (position < 0);
+//    BOOL before = (position < 0);
     float multiplier = 1;
 //    float dest = 0;
     if (![self isTransitionPush]) {
         multiplier = -1;
-        before = !before;
+//        before = !before;
     }
     
     int viewWidth = view.frame.size.width;

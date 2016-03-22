@@ -389,7 +389,7 @@
     NSInteger type = [TiUtils intValue:value];
     if (type == 1) {
         type = NSLineBreakByTruncatingTail;
-        return;
+//        return;
     }
 	[[self label] setLineBreakMode:type];
 }

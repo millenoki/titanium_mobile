@@ -1324,7 +1324,7 @@ else{\
 {
     id navController = [self navControllerForController:controller];
     if (navController) {
-        CGRect frame = [navController navigationBar].frame;
+//        CGRect frame = [navController navigationBar].frame;
         startingNavbarFrame.size = [navController navigationBar].frame.size;
         startingToolbarFrame.size = [navController toolbar].frame.size;
     }

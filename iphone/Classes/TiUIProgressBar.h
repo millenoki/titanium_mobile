@@ -16,7 +16,7 @@
 	CGFloat max;
 	CGFloat min;
 	
-	UILabel * messageLabel;
+//	UILabel * messageLabel;
     
 #ifdef TI_USE_AUTOLAYOUT
     UIView* backgroundView;

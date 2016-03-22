@@ -17,7 +17,7 @@ CGFloat* innerRadiusFromPadding(const CGFloat* radii, const CGRect  rect, float 
 {
     CGFloat maxPadding = MIN(rect.size.width / 4, rect.size.height / 4);
     CGFloat padding = MIN(_decale, maxPadding);
-    CGFloat* result = malloc(8 * sizeof(CGFloat *));
+    CGFloat* result = malloc(8 * sizeof(CGFloat));
     for (int i = 0; i < 8; i++) {
         result[i] = MAX(radii[i] - padding, 0);
     }
@@ -32,7 +32,7 @@ CGRect invertInsetRect(CGRect rect, UIEdgeInsets inset)
 
 CGFloat* decaleRadius(const CGFloat* radii, float _decale)
 {
-    CGFloat* result = malloc(8 * sizeof(CGFloat *));
+    CGFloat* result = malloc(8 * sizeof(CGFloat));
     for (int i = 0; i < 8; i++) {
         result[i] = radii[i] + _decale;
     }

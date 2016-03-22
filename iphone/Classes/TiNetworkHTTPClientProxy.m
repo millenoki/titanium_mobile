@@ -181,7 +181,7 @@ extern NSString * const TI_APPLICATION_GUID;
         NSInteger dataIndex = 0;
         
         form = [[[APSHTTPPostForm alloc] init] autorelease];
-        NSString* contentType = [[self responseHeaders] objectForKey:@"Content-Type"];
+//        NSString* contentType = [[self responseHeaders] objectForKey:@"Content-Type"];
         
         id arg = [args objectAtIndex:0];
         NSInteger timestamp = (NSInteger)[[NSDate date] timeIntervalSince1970];

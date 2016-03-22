@@ -48,7 +48,7 @@
 {
     if (filterType == TiImageHelperFilterIOSBlur) {
         float radius = [TiUtils floatValue:@"radius" properties:options def:12.0f];
-        float downsampling = [TiUtils floatValue:@"downsampling" properties:options def:4.0f];
+//        float downsampling = [TiUtils floatValue:@"downsampling" properties:options def:4.0f];
         float saturation = [TiUtils floatValue:@"saturation" properties:options def:0.8f];
         UIColor* tint = [[TiUtils colorValue:@"tint" properties:options] _color];
         return [inputImage applyBlurWithRadius:radius tintColor:tint saturationDeltaFactor:saturation maskImage:nil];

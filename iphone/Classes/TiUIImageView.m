@@ -465,12 +465,12 @@ DEFINE_EXCEPTIONS
         autoHeight = autoWidth = 0;
         return nil;
     }
-    float factor = 1.0f;
-    float screenScale = [UIScreen mainScreen].scale;
-    if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"] def:[TiUtils isRetinaDisplay]])
-    {
-        factor /= screenScale;
-    }
+//    float factor = 1.0f;
+//    float screenScale = [UIScreen mainScreen].scale;
+//    if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"] def:[TiUtils isRetinaDisplay]])
+//    {
+//        factor /= screenScale;
+//    }
     //    CGFloat realWidth = imageToUse.size.width * factor;
     //    CGFloat realHeight = imageToUse.size.height * factor;
     autoWidth = imageToUse.size.width;

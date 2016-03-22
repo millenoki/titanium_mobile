@@ -170,7 +170,7 @@
     CGRect keyboardRect = [[[TiApp app] controller] getKeyboardFrameInView:self];
     if (!CGRectIsEmpty(keyboardRect)) {
         CGFloat keyboardOriginY = keyboardRect.origin.y - self.bounds.origin.y;
-        CGPoint offset = self.contentOffset;
+//        CGPoint offset = self.contentOffset;
         
         CGRect rectEnd = [self caretRectForPosition:self.endOfDocument];
         rectEnd.origin.y -= self.contentOffset.y;
@@ -484,13 +484,13 @@
         _caretVisibilityTimer = nil;
     }
     TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
-    [(TiUITextViewImpl*)textWidgetView updateKeyboardInsetWithScroll:YES animated:NO];
+    [ourView updateKeyboardInsetWithScroll:YES animated:NO];
 }
 
 - (void)textViewDidBeginEditing:(UITextView *)tv
 {
 	[self textWidget:tv didFocusWithText:[tv text]];
-    TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
+//    TiUITextViewImpl* ourView = (TiUITextViewImpl*)[self textWidgetView];
     
     //it does not work to instantly scroll to the caret so let's delay it
     _caretVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:0.3 target:self selector:@selector(scrollCaretToVisible) userInfo:nil repeats:NO];

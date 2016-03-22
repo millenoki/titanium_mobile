@@ -164,7 +164,7 @@
     CGSize newContentSize = [self bounds].size;
     CGFloat scale = [scrollview zoomScale];
     
-    CGSize autoSize;
+    CGSize autoSize = CGSizeZero;
     
     if ([self flexibleContentWidth] || [self flexibleContentHeight])
     {

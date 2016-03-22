@@ -179,6 +179,7 @@
     }
     
     [self fireEvent:@"shortcutitemclick" withObject:event];
+    [event release];
 }
 
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
