@@ -3,23 +3,23 @@
 	url = ../../Akylas/APSHTTPClient.git
 [submodule "iphone/thirdparties/ColorArt"]
 	path = iphone/thirdparties/ColorArt
-	url = git@github.com:Akylas/ColorArt-iOS.git
+	url = ../../Akylas/ColorArt-iOS.git
 [submodule "iphone/thirdparties/TTTAttributedLabel"]
 	path = iphone/thirdparties/TTTAttributedLabel
-	url = git@github.com:Akylas/TTTAttributedLabel.git
+	url = ../../Akylas/TTTAttributedLabel.git
 [submodule "iphone/thirdparties/SevenSwitch"]
 	path = iphone/thirdparties/SevenSwitch
-	url = git@github.com:Akylas/SevenSwitch.git
+	url = ../../Akylas/SevenSwitch.git
 [submodule "iphone/thirdparties/ADTransitionController"]
 	path = iphone/thirdparties/ADTransitionController
-	url = git@github.com:Akylas/ADTransitionController.git
+	url = ../../Akylas/ADTransitionController.git
 [submodule "iphone/thirdparties/MGSwipeTableCell"]
 	path = iphone/thirdparties/MGSwipeTableCell
-	url = git@github.com:Akylas/MGSwipeTableCell.git
+	url = ../../Akylas/MGSwipeTableCell.git
 [submodule "iphone/thirdparties/NJKWebViewProgress"]
 	path = iphone/thirdparties/NJKWebViewProgress
-	url = git@github.com:ninjinkun/NJKWebViewProgress.git
+	url = ../../ninjinkun/NJKWebViewProgress.git
 [submodule "iphone/thirdparties/DDMathParser"]
 	path = iphone/thirdparties/DDMathParser
-	url = git@github.com:Akylas/DDMathParser.git
+	url = ../../Akylas/DDMathParser.git
 	branch = 1.1
