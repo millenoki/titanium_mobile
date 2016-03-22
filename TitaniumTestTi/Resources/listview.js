@@ -877,10 +877,9 @@ function listViewEx2() {
             var priority = priorities[Math.floor(Math.random() * priorities.length)];
             var name = names[Math.floor(Math.random() * names.length)];
             items.push({
-                // properties: {
-                    searchableText: name,
-                        //  // height: 60
-                // },
+                properties: {
+                },
+                searchableText: name,
                 button: {
                     callbackId: i,
                     visible: true,
@@ -1266,6 +1265,7 @@ function listViewEx4() {
     // then a title next to it with a subtitle below it.
     var myTemplate = {
         properties: {
+            backgroundColor:'white',
             leftSwipeButtons: {
                 type: 'Ti.UI.Button',
                 bindId: 'delete',
@@ -1330,7 +1330,7 @@ function listViewEx4() {
             'template': myTemplate
         },
         canEdit: true,
-        stickyHeaders:true,
+        stickyHeaders: true,
         // Use 'template', that is, the myTemplate dict created earlier
         // for all items as long as the template property is not defined for an item.
         defaultItemTemplate: 'template',
@@ -1877,9 +1877,9 @@ function longListTest() {
         allowsSelection: false,
         selectedBackgroundColor: 'red',
         canEdit: true,
-        stickyHeaders:true,
-        fastScroller:{
-            color:'blue'
+        stickyHeaders: true,
+        fastScroller: {
+            color: 'blue'
         },
         // updateInsetWithKeyboard:true,
         templates: {
@@ -1915,8 +1915,7 @@ function longListTest() {
         items.push({
             template: 'template',
             searchableText: movie.title,
-            properties: {
-            },
+            properties: {},
             image: {
                 backgroundColor: color,
                 image: movie.poster_path
@@ -1937,17 +1936,21 @@ function longListTest() {
     }
 
     listView.addEventListener('click', function(e) {
-        var callbackId =  e.bindId;
+        var callbackId = e.bindId;
         console.info('click', e.sectionIndex, e.itemIndex, callbackId, e.bindId, e.item);
         if (callbackId === 'done') {
             listView.blur();
         } else if (callbackId === 'mark') {
-            e.section.updateItemAt(e.itemIndex, {
-                mark: {
-                    text: 'mark as unwatched'
-                }
+
+            listView.closeSwipeMenu(true, function() {
+                e.section.updateItemAt(e.itemIndex, {
+                    mark: {
+                        text: 'mark as unwatched'
+                    }
+                }, {
+                    animated: false
+                });
             });
-            listView.closeSwipeMenu();
         } else if (callbackId === 'delete') {
             e.section.deleteItemsAt(e.itemIndex, 1);
         } else {
@@ -2159,7 +2162,7 @@ function deepLayoutTest() {
             }
         }]
     });
-    var section = Ti.UI.createListSection({
+    var section = {
         headerView: headerView,
         visible: false,
         items: [{
@@ -2167,16 +2170,16 @@ function deepLayoutTest() {
         }, {
             title: 'test2'
         }]
-    });
+    };
 
     function createSoonRow(_number) {
-        var template = redux.fn.style('ListItem', {
+        var template = {
             properties: {
                 layout: 'horizontal',
                 horizontalWrap: true,
                 height: 'SIZE'
             }
-        });
+        };
         var childTemplates = [];
         var defProps = {
             type: 'Ti.UI.Label',
@@ -2233,7 +2236,7 @@ function deepLayoutTest() {
             }]
         };
         for (var i = 0; i < _number; i++) {
-            var props = redux.fn.clone(defProps);
+            var props = JSON.parse(JSON.stringify(defProps));
             props.properties.imageId = i;
             props.bindId = 'soonBottomLabel' + i;
             props.childTemplates[0].bindId = 'soonImage' + i;
@@ -2714,10 +2717,10 @@ function deepLayoutTest() {
                 }, {
                     template: 'titlevalue',
                     title: {
-                        text: tr('category')
+                        text: 'category'
                     },
                     value: {
-                        text: tr('nzbget.catEmpty')
+                        text: 'nzbget.catEmpty'
                     }
                 }, {
                     template: 'titleTest',
@@ -3258,7 +3261,16 @@ function collectionViewEx(_args) {
                 //     type: 'Ti.UI.Label',
                 //     text: 'Section ' + i
                 // }]
-            } : undefined,
+
+            } : {
+                type: 'Ti.UI.Label',
+                properties: {
+                    backgroundColor: 'red',
+                    width: 'FILL',
+                    bottom: 20,
+                    text: 'Header from dict for Section ' + i
+                }
+            },
             items: items
         });
     };
@@ -3292,8 +3304,8 @@ function listViewExAnim(_args) {
         clipChildren: false,
         selectedBackgroundColor: 'transparent',
         useAppearAnimation: true,
-        fastScroller:{
-            color:'blue'
+        fastScroller: {
+            color: 'blue'
         },
         backgroundGradient: {
             type: 'linear',
