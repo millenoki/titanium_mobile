@@ -54,7 +54,8 @@ public class AnimatableProxy extends ParentingProxy {
 	}
 	
 	protected void handlePendingAnimation(TiAnimatorSet tiSet) {
-	    if (tiSet.getDuration() == 0) {
+	    if (tiSet.getDuration() == null || tiSet.getDuration() == 0) {
+           tiSet.setProxy(this);
 	       tiSet.handleFinish();
 	       return;
 	    }
