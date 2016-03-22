@@ -4489,7 +4489,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			path.join(module.modulePath, 'platform', 'ios')
 		);
 		resourcesPaths.push(
-			path.join(module.modulePath, 'Resources'),
+			path.join(module.modulePath, 'Resources')
 		);
 	}, this);
 
