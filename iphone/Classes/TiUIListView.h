@@ -27,6 +27,8 @@
 -(BOOL)shouldHighlightCurrentListItem;
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
 -(NSMutableArray*)visibleCellsProxies;
+- (void)selectItem:(NSIndexPath*)indexPath animated:(BOOL)animated;
+- (void)deselectItem:(NSIndexPath*)indexPath animated:(BOOL)animated;
 
 @end
 
