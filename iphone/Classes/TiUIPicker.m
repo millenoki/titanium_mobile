@@ -20,6 +20,15 @@
 
 #pragma mark Internal
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoSize];
+}
+#endif
+
 -(id)init
 {
     if (self = [super init]) {
@@ -58,27 +67,16 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
 	if (picker==nil)
 	{
-        float width = 320;
-        float height = 216;
-        
-        if ([TiUtils isIOS9OrGreater]) {
-            width = [TiUtils floatValue:[self.proxy valueForKey:@"width"] def:320];
-            height = [TiUtils floatValue:[self.proxy valueForKey:@"height"] def:216];
-        }
-    
-        [[self proxy ]setValue:NUMDOUBLE(width) forKey:@"width"];
-        [[self proxy ]setValue:NUMDOUBLE(height) forKey:@"height"];
-            
-        if (type == -1)
+		if (type == -1)
 		{
 			//TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
-			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+			picker = (UIControl*)[[UIPickerView alloc] initWithFrame:self.bounds];
 			((UIPickerView*)picker).delegate = self;
 			((UIPickerView*)picker).dataSource = self;
 		}
-		else 
+		else
 		{
-			picker = [[UIDatePicker alloc] initWithFrame:CGRectMake(0, 0, width, height)];
+			picker = [[UIDatePicker alloc] initWithFrame:self.bounds];
 			[(UIDatePicker*)picker setTimeZone:[NSTimeZone localTimeZone]];
 			[(UIDatePicker*)picker setDatePickerMode:type];
 			[picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
@@ -342,8 +340,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 // returns the # of rows in each component..
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
-	TiUIPickerColumnProxy *proxy = [self columnAt:component];
-	return [proxy childrenCount];
+	TiUIPickerColumnProxy *theProxy = [self columnAt:component];
+	return [theProxy childrenCount];
 }
 
 #pragma mark Delegates (only for UIPickerView) 
@@ -358,11 +356,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 //        return 0;
 //    }
 	// first check to determine if this column has a width
-	TiUIPickerColumnProxy *proxy = [self columnAt:component];
-    if (!proxy) {
+	TiUIPickerColumnProxy *theProxy = [self columnAt:component];
+    if (!theProxy) {
         return 0;
     }
-	id width = [proxy valueForKey:@"width"];
+	id width = [theProxy valueForKey:@"width"];
 	if (width != nil)
 	{
 		return [TiUtils floatValue:width];
@@ -373,11 +371,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component
 {
-    TiUIPickerColumnProxy *proxy = [self columnAt:component];
-    if (!proxy) {
+    TiUIPickerColumnProxy *theProxy = [self columnAt:component];
+    if (!theProxy) {
         return 0;
     }
-	id height = [proxy valueForKey:@"height"];
+	id height = [theProxy valueForKey:@"height"];
 	if (height != nil)
 	{
 		return [TiUtils floatValue:height];
@@ -391,19 +389,19 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 // If you return back a different object, the old one will be released. the view will be centered in the row rect  
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
-	TiUIPickerColumnProxy *proxy = [self columnAt:component];
-	TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+	TiUIPickerColumnProxy *theProxy = [self columnAt:component];
+	TiUIPickerRowProxy *rowproxy = [theProxy rowAt:row];
 	return [rowproxy valueForKey:@"title"];
 }
 
 - (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view
 {
-    TiUIPickerColumnProxy *proxy = [self columnAt:component];
-    TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+    TiUIPickerColumnProxy *theProxy = [self columnAt:component];
+    TiUIPickerRowProxy *rowproxy = [theProxy rowAt:row];
     WebFont* font = _font;
     if ([rowproxy valueForKey:@"font"]) {
         font = [TiUtils fontValue:[rowproxy valueForKey:@"font"] def:_font];
-    } else if ([proxy valueForKey:@"font"]) {
+    } else if ([theProxy valueForKey:@"font"]) {
         font = [TiUtils fontValue:[proxy valueForKey:@"font"] def:_font];
     }
     
@@ -423,8 +421,8 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
 	
-    TiUIPickerColumnProxy *proxy = [self columnAt:component];
-    TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
+    TiUIPickerColumnProxy *theProxy = [self columnAt:component];
+    TiUIPickerRowProxy *rowproxy = [theProxy rowAt:row];
     NSMutableArray *selected = [NSMutableArray array];
     NSMutableArray *selectedIndexes = [NSMutableArray array];
     NSInteger colIndex = 0;

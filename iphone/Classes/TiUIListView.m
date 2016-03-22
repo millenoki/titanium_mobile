@@ -70,6 +70,7 @@
     BOOL keepSectionsInSearch;
     NSMutableArray* _searchResults;
     UIEdgeInsets _defaultSeparatorInsets;
+    UIEdgeInsets _rowSeparatorInsets;
     
     BOOL _scrollSuspendImageLoading;
     BOOL hasOnDisplayCell;
@@ -105,6 +106,15 @@ static NSDictionary* replaceKeysForRow;
     [theProxy setParent:(TiParentingProxy*)self.proxy];
     return [theProxy autorelease];
 }
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
 
 - (id)init
 {
@@ -210,12 +220,9 @@ static NSDictionary* replaceKeysForRow;
             [_tableView setLayoutMargins:UIEdgeInsetsZero];
         }
         
-#if IS_XCODE_7
         if ([TiUtils isIOS9OrGreater]) {
             _tableView.cellLayoutMarginsFollowReadableWidth = NO;
-        }
-#endif
-        
+        }        
     }
     if ([_tableView superview] != self) {
         [self addSubview:_tableView];
@@ -726,6 +733,18 @@ static NSDictionary* replaceKeysForRow;
 
 -(void)setSeparatorInsets_:(id)arg
 {
+    DEPRECATED_REPLACED(@"UI.ListView.separatorInsets", @"5.2.0", @"UI.ListView.listSeparatorInsets");
+    [self setListSeparatorInsets_:arg];
+}
+
+-(void)setTableSeparatorInsets_:(id)arg
+{
+    DEPRECATED_REPLACED(@"UI.ListView.tableSeparatorInsets", @"5.4.0", @"UI.ListView.listSeparatorInsets");
+    [self setListSeparatorInsets_:arg];
+}
+
+-(void)setListSeparatorInsets_:(id)arg
+{
     [self tableView];
     if ([arg isKindOfClass:[NSDictionary class]]) {
         CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
@@ -736,6 +755,18 @@ static NSDictionary* replaceKeysForRow;
     }
     if (![self isSearchActive]) {
         [_tableView setNeedsDisplay];
+    }
+}
+
+-(void)setRowSeparatorInsets_:(id)arg
+{
+    if ([arg isKindOfClass:[NSDictionary class]]) {
+        CGFloat left = [TiUtils floatValue:@"left" properties:arg def:_defaultSeparatorInsets.left];
+        CGFloat right = [TiUtils floatValue:@"right" properties:arg def:_defaultSeparatorInsets.right];
+        _rowSeparatorInsets = UIEdgeInsetsMake(0, left, 0, right);
+    }
+    if (![searchController isActive]) {
+        [[self tableView] setNeedsDisplay];
     }
 }
 
@@ -1683,6 +1714,9 @@ static NSDictionary* replaceKeysForRow;
         [cell setPosition:position isGrouped:grouped];
     }
     
+    if (_rowSeparatorInsets.left != 0 || _rowSeparatorInsets.right != 0) {
+        [cell setSeparatorInset:_rowSeparatorInsets];
+    }
     cell.dataItem = item;
     cell.proxy.indexPath = realIndexPath;
 //    _canSwipeCells |= [cell canSwipeLeft] || [cell canSwipeRight]];
@@ -2517,9 +2551,18 @@ static NSDictionary* replaceKeysForRow;
 		[eventObject setObject:itemId forKey:@"itemId"];
 	}
 	TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:indexPath];
+
+	
+	
 	if (cell.templateStyle == TiUIListItemTemplateStyleCustom) {
 		UIView *contentView = cell.contentView;
-        TiViewProxy *tapViewProxy =[TiUIHelper findViewProxyWithBindIdUnder:contentView containingPoint:[tableView convertPoint:point toView:contentView]];
+        CGPoint convertedPoint = [tableView convertPoint:point toView:contentView];
+	    	// if searchController is active, tableView.contentOffset.y = -44
+			// else tableView.contentOffset.y = 0
+		if ([searchController isActive]) {
+			convertedPoint.y = convertedPoint.y + tableView.contentOffset.y;
+		}
+        TiViewProxy *tapViewProxy =[TiUIHelper findViewProxyWithBindIdUnder:contentView containingPoint: convertedPoint];
 		if (tapViewProxy != nil && tapViewProxy.bindId) {
 			[eventObject setObject:tapViewProxy.bindId forKey:@"bindId"];
 		}

@@ -72,6 +72,15 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 }
 @synthesize reloadData, reloadDataProperties;
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 - (id) init
 {
 	self = [super init];
@@ -362,7 +371,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 }
 
--(UIScrollView*)scrollView
+-(UIScrollView*)scrollview
 {
 	UIWebView* webView = [self webview];
 	if ([webView respondsToSelector:@selector(scrollView)]) {
@@ -394,13 +403,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 -(void)setAllowsLinkPreview_:(id)value
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater] == NO) {
         return;
     }
     ENSURE_TYPE(value, NSNumber);
     [webview setAllowsLinkPreview:[TiUtils boolValue:value]];
-#endif
 }
 
 - (void)reload

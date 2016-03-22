@@ -136,6 +136,7 @@
 	[super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message checkForListener:checkForListener];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -144,6 +145,7 @@
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 -(void)setPadding:(id)value
 {

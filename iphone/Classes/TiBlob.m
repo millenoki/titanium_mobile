@@ -128,6 +128,16 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	return self;
 }
 
+-(id)_initWithPageContext:(id<TiEvaluator>)context andImage:(UIImage*)image_
+{
+    if (self = [super _initWithPageContext:context]) {
+        image = [image_ retain];
+        type = TiBlobTypeImage;
+        mimetype = [([UIImageAlpha hasAlpha:image_] ? MIMETYPE_PNG : MIMETYPE_JPEG) copy];
+    }
+    return self;
+}
+
 -(id)initWithData:(NSData*)data_ mimetype:(NSString*)mimetype_
 {
 	if (self = [super init])
@@ -139,6 +149,16 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	return self;
 }
 
+-(id)_initWithPageContext:(id<TiEvaluator>)context andData:(NSData*)data_ mimetype:(NSString*)mimetype_
+{
+    if (self = [super _initWithPageContext:context]) {
+        data = [data_ retain];
+        type = TiBlobTypeData;
+        mimetype = [mimetype_ copy];
+    }
+    return self;
+}
+
 -(id)initWithFile:(NSString*)path_
 {
 	if (self = [super init])
@@ -148,6 +168,16 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		mimetype = [[Mimetypes mimeTypeForExtension:path] copy];
 	}
 	return self;
+}
+
+-(id)_initWithPageContext:(id<TiEvaluator>)context andFile:(NSString*)path_
+{
+    if (self = [super _initWithPageContext:context]) {
+        type = TiBlobTypeFile;
+        path = [path_ retain];
+        mimetype = [[Mimetypes mimeTypeForExtension:path] copy];
+    }
+    return self;
 }
 
 -(TiBlobType)type
@@ -396,7 +426,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	[self ensureImageLoaded];
 	if (image!=nil)
 	{
-		TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageAlpha imageWithAlpha:image]];
+		TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImageAlpha imageWithAlpha:image]];
 		return [blob autorelease];
 	}
 	return nil;
@@ -409,7 +439,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	{
 		ENSURE_SINGLE_ARG(args,NSObject);
 		NSUInteger size = [TiUtils intValue:args];
-		TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageAlpha transparentBorderImage:size image:image]];
+		TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImageAlpha transparentBorderImage:size image:image]];
 		return [blob autorelease];
 	}
 	return nil;
@@ -422,7 +452,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	{
 		NSUInteger cornerSize = [TiUtils intValue:[args objectAtIndex:0]];
 		NSUInteger borderSize = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
-		TiBlob *blob =  [[TiBlob alloc] initWithImage:[UIImageRoundedCorner roundedCornerImage:cornerSize borderSize:borderSize image:image]];
+		TiBlob *blob =  [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImageRoundedCorner roundedCornerImage:cornerSize borderSize:borderSize image:image]];
 		return [blob autorelease];
 	}
 	return nil;
@@ -436,7 +466,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 		NSUInteger size = [TiUtils intValue:[args objectAtIndex:0]];
 		NSUInteger borderSize = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
 		NSUInteger cornerRadius = [args count] > 2 ? [TiUtils intValue:[args objectAtIndex:2]] : 0;
-		TiBlob *blob = [[TiBlob alloc] initWithImage:[UIImageResize thumbnailImage:size
+		TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[UIImageResize thumbnailImage:size
 												  transparentBorder:borderSize
 													   cornerRadius:cornerRadius
 											   interpolationQuality:kCGInterpolationHigh
@@ -451,8 +481,8 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	[self ensureImageLoaded];
 	if (image!=nil)
 	{
-        ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary)
-		return [[[TiBlob alloc] initWithImage:[TiImageHelper imageFiltered:image withOptions:args]] autorelease];
+		TiBlob *blob =  [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[TiImageHelper imageFiltered:image withOptions:args]];
+		return [blob autorelease];
 	}
 	return nil;
 }
@@ -511,7 +541,7 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 	{
         ENSURE_SINGLE_ARG(args, NSNumber);
         NSUInteger maxSize = [args intValue];
-        TiBlob *blob = [[TiBlob alloc] initWithImage:[self shrinkImage:image withMaxByteSize:maxSize]];
+		TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[self shrinkImage:image withMaxByteSize:maxSize]];
 		return [blob autorelease];
 	}
 	return nil;

@@ -17,11 +17,10 @@
 #import "TiAppiOSUserDefaultsProxy.h"
 #import "TiAppiOSUserActivityProxy.h"
 #import <MobileCoreServices/MobileCoreServices.h>
-#if IS_XCODE_7
 #import "TiAppiOSSearchableItemAttributeSetProxy.h"
 #import "TiAppiOSSearchableItemProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
-#endif
+
 @implementation TiAppiOSProxy
 
 -(void)dealloc
@@ -163,7 +162,6 @@
 }
 
 #pragma mark Public
-#if IS_XCODE_7
 
 -(void)didReceiveApplicationShortcutNotification:(NSNotification*)info
 {
@@ -250,8 +248,6 @@
 //    return proxy;
     return [[[TiAppiOSSearchableItemAttributeSetProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
-#endif
-
 #endif
 
 #ifdef USE_TI_APPIOSUSERACTIVITY
@@ -353,12 +349,10 @@
 	BOOL authenticationRequired = [TiUtils boolValue:[args objectForKey:@"authenticationRequired"]];
 	notifAction.authenticationRequired = authenticationRequired;
     
-#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater] == YES) {
         NSInteger behavior = [TiUtils intValue:[args objectForKey:@"behavior"]];
         notifAction.behavior = behavior;
     }
-#endif
     
 	TiAppiOSNotificationActionProxy *ap = [[[TiAppiOSNotificationActionProxy alloc] _initWithPageContext:[self executionContext]] autorelease];
 	ap.notificationAction = notifAction;
@@ -936,21 +930,19 @@
 
 -(NSNumber*)USER_NOTIFICATION_BEHAVIOR_DEFAULT
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINT(UIUserNotificationActionBehaviorDefault);
     }
-#endif
+
     return NUMINT(0);
 }
 
 -(NSNumber*)USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
 {
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater]) {
         return NUMINT(UIUserNotificationActionBehaviorTextInput);
     }
-#endif
+
     return NUMINT(0);
 }
 

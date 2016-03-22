@@ -15,6 +15,16 @@
 
 @implementation TiUIiOSToolbar
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    toolBar = [self toolBar];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(void)dealloc
 {
 	[self performSelector:@selector(setItems_:) withObject:nil];
@@ -63,6 +73,7 @@
 	return [self toolBar];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(void)layoutSubviews
 {
 	CGRect ourBounds = [self bounds];
@@ -80,6 +91,7 @@
 	toolBounds.origin.y = hideTopBorder?-1.0:0.0;
 	[toolBar setFrame:toolBounds];
 }
+#endif
 
 -(void)setItems_:(id)value
 {
@@ -152,6 +164,8 @@
 	[[self toolBar] setBarStyle:[TiUtils intValue:value def:[self toolBar].barStyle]];
 }
 
+
+#ifndef TI_USE_AUTOLAYOUT
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     [[self toolBar] setFrame:bounds];
@@ -163,6 +177,7 @@
 {
     return [[self toolBar] sizeThatFits:size];
 }
+#endif
 
 -(CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {

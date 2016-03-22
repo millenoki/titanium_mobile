@@ -150,11 +150,13 @@
          *	the view will be unloaded (by, perhaps a Memory warning while a modal view
          *	controller and loaded at a later time.
          */
-		 if (![TiUtils isIOS8OrGreater] || useDefaultImageView) {
-			defaultImageView = [[UIImageView alloc] init];
-			[defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
-			[defaultImageView setContentMode:UIViewContentModeScaleToFill];
-		}
+#ifndef LAUNCHSCREEN_STORYBOARD
+        if (useDefaultImageView) {
+            defaultImageView = [[UIImageView alloc] init];
+            [defaultImageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
+            [defaultImageView setContentMode:UIViewContentModeScaleToFill];
+        }
+#endif
         
         //Notifications
         WARN_IF_BACKGROUND_THREAD;	//NSNotificationCenter is not threadsafe!

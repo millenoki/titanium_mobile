@@ -15,6 +15,14 @@
 	[super dealloc];
 }
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
 //-(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 //{
 //    [super frameSizeChanged:frame bounds:bounds];

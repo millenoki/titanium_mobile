@@ -37,7 +37,7 @@
     "temp": "0.8.3",
     "uglify-js": "2.6.1",
     "unorm": "^1.4.1",
-    "windowslib": "0.4.3",
+    "windowslib": "0.4.4",
     "wrench": "1.5.8",
     "node-appc": "git://github.com/Akylas/node-xcode.git",
     "xmldom": "0.1.22",

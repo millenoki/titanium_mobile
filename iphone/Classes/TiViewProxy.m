@@ -177,6 +177,28 @@
     }
 }
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)setOnLayout:(id)callback
+{
+    ENSURE_SINGLE_ARG(callback, KrollCallback);
+    TiLayoutView* thisView = [self view];
+    if ([thisView onLayout] == nil) {
+        KrollCallback* __block _callback = [callback retain];
+        [thisView setOnLayout:^(TiLayoutView *sender, CGRect rect) {
+            [sender setOnLayout:nil];
+            KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback: callback
+                                                                    eventObject: [TiUtils rectToDictionary:rect]
+                                                                     thisObject: self];
+            [[_callback context] enqueue:invocationEvent];
+            RELEASE_TO_NIL(invocationEvent);
+            RELEASE_TO_NIL(_callback);
+        }];
+    } else {
+        NSLog(@"[ERROR] onLayout can only be set once!");
+    }
+}
+#endif
+
 -(void)applyProperties:(id)args
 {
     id data = nil;
@@ -751,7 +773,7 @@ SEL GetterForKrollProperty(NSString * key)
     }
 	ENSURE_SINGLE_ARG_OR_NIL(obj,KrollCallback);
     callback = (KrollCallback*)obj;
-	TiBlob *blob = [[[TiBlob alloc] init] autorelease];
+	TiBlob *blob = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];
 	// we spin on the UI thread and have him convert and then add back to the blob
 	// if you pass a callback function, we'll run the render asynchronously, if you
 	// don't, we'll do it synchronously
@@ -1523,6 +1545,12 @@ SEL GetterForKrollProperty(NSString * key)
     }
 }
 
+#pragma mark Recognizers
+
+-(BOOL) implementsSelector:(SEL)inSelector {
+    return [self respondsToSelector:inSelector] && !( [super respondsToSelector:inSelector] && [self methodForSelector:inSelector] == [super methodForSelector:inSelector] );
+}
+
 -(TiUIView*)view
 {
 	if (view == nil && readyToCreateView)
@@ -1539,10 +1567,10 @@ SEL GetterForKrollProperty(NSString * key)
 		view = [self newView];
 
 #ifdef TI_USE_AUTOLAYOUT
-        if ([self respondsToSelector:@selector(defaultAutoWidthBehavior:)]) {
+        if ([self implementsSelector:@selector(defaultAutoWidthBehavior:)]) {
             [view setDefaultWidth:[self defaultAutoWidthBehavior:nil]];
         }
-        if ([self respondsToSelector:@selector(defaultAutoHeightBehavior:)]) {
+        if ([self implementsSelector:@selector(defaultAutoHeightBehavior:)]) {
             [view setDefaultHeight:[self defaultAutoHeightBehavior:nil]];
         }
 #endif
@@ -1919,9 +1947,7 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(void)setPreviewContext:(id)context
 {
-#if IS_XCODE_7
 #ifdef USE_TI_UIIOSPREVIEWCONTEXT
-    
     if ([TiUtils forceTouchSupported] == NO) {
         NSLog(@"[WARN] 3DTouch is not available on this device.");
         return;
@@ -1939,8 +1965,6 @@ SEL GetterForKrollProperty(NSString * key)
     [context connectToDelegate];
     
     [self replaceValue:context forKey:@"previewContext" notification:NO];
-
-#endif
 #endif
 }
 
@@ -3265,7 +3289,15 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
         }
         
         if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
-            [self fireEvent:@"postlayout" propagate:NO checkForListener:NO];
+            
+            dispatch_block_t block = ^{
+                [self fireEvent:@"postlayout" withObject:nil propagate:NO];
+            };
+#ifdef TI_USE_KROLL_THREAD
+            block();
+#else
+            TiThreadPerformOnMainThread(block, NO);
+#endif
         }
         repositioning = NO;
         return layoutChanged;

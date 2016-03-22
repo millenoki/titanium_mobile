@@ -26,6 +26,7 @@ USE_VIEW_FOR_CONTENT_SIZE
 	return [[TiUIProgressBar alloc] initWithStyle:style];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -34,7 +35,7 @@ USE_VIEW_FOR_CONTENT_SIZE
 {
     return TiDimensionAutoSize;
 }
-
+#endif
 
 @end
 

@@ -22,15 +22,13 @@
 #import "TouchCapturingWindow.h"
 #import "SBJSON.h"
 
+#import <CoreSpotlight/CoreSpotlight.h>
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
 #ifndef USE_JSCORE_FRAMEWORK
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
-#endif
-#if IS_XCODE_7
-#import <CoreSpotlight/CoreSpotlight.h>
 #endif
 
 TiApp* sharedApp;
@@ -283,13 +281,13 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		DebugLog(@"[DEBUG] Application booted in %f ms", ([NSDate timeIntervalSinceReferenceDate]-started) * 1000);
 		fflush(stderr);
-        appBooted = YES;
-#if IS_XCODE_7
-        if(launchedShortcutItem != nil) {
-            [self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
-            launchedShortcutItem = nil;
-        }
-#endif
+		appBooted = YES;
+
+		if(launchedShortcutItem != nil) {
+			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
+			launchedShortcutItem = nil;
+		}
+
 		if (localNotification != nil) {
 			[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 		}
@@ -407,7 +405,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 		[self generateNotification:notification];
 	}
     
-#if IS_XCODE_7
     if ([TiUtils isIOS9OrGreater] == YES) {
         UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
         
@@ -415,7 +412,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
             launchedShortcutItem = shortcut;
         }
     }
-#endif
     
     [self launchToUrl];
 	[self boot];
@@ -481,11 +477,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	RELEASE_TO_NIL(localNotification);
 	localNotification = [[TiApp  dictionaryWithLocalNotification:notification withIdentifier:identifier] retain];
     
-#if IS_XCODE_7
     if([TiUtils isIOS9OrGreater] == YES) {
         [localNotification setValue:responseInfo[UIUserNotificationActionResponseTypedTextKey] forKey:@"typedText"];
     }
-#endif
     
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotificationAction object:localNotification userInfo:nil];
 	completionHandler();
@@ -960,13 +954,12 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
                                  dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
                                  nil];
 
-#if IS_XCODE_7
     if( [userActivity.activityType isEqualToString:CSSearchableItemActionType]){
         if([userActivity userInfo] !=nil){
             [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"identifier"];
         }
     }
-#endif
+
     if([userActivity title] !=nil){
         [dict setObject:[userActivity title] forKey:@"title"];
     }
@@ -1185,7 +1178,6 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiLocalNotification object:localNotification userInfo:nil];
 }
 
-#if IS_XCODE_7
 -(BOOL)handleShortcutItem:(UIApplicationShortcutItem*) shortcutItem
  waitForBootIfNotLaunched:(BOOL) bootWait {
     
@@ -1235,7 +1227,6 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     completionHandler(handledShortCutItem);
     
 }
-#endif
 
 -(void)registerBackgroundService:(TiProxy*)proxy
 {

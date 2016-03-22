@@ -76,6 +76,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
     public void handleCreationDict(HashMap dict) {
         if (dict.containsKey("useSpinner")) {
             useSpinner = TiConvert.toBoolean(dict, "useSpinner");
+			Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
         }
         if (dict.containsKey("type")) {
             type = TiConvert.toInt(TiConvert.toInt(dict, "type", UIModule.PICKER_TYPE_PLAIN));
@@ -150,6 +151,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
     @Kroll.getProperty
     @Kroll.method
     public boolean getUseSpinner() {
+		Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
         return useSpinner;
     }
     
@@ -168,6 +170,7 @@ public class PickerProxy extends ViewProxy implements PickerColumnListener {
     @Kroll.setProperty
     @Kroll.method
     public void setUseSpinner(boolean value) {
+		Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
         if (peekView() != null) {
             Log.w(TAG,
                     "Attempt to change useSpinner property after view has already been created. Ignoring.");

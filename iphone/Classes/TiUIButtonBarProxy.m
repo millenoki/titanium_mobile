@@ -35,6 +35,7 @@
 USE_VIEW_FOR_CONTENT_SIZE
 
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -43,5 +44,6 @@ USE_VIEW_FOR_CONTENT_SIZE
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 @end

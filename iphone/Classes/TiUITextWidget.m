@@ -22,6 +22,15 @@
 
 @implementation TiUITextWidget
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 - (id) init
 {
 	self = [super init];

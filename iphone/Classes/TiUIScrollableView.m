@@ -39,6 +39,15 @@
 @synthesize switchPageAnimationDuration;
 #pragma mark Internal 
 
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoFill];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
+
 -(void)dealloc
 {
 	RELEASE_WITH_DELEGATE(scrollview);
@@ -152,11 +161,113 @@
     return [NSArray arrayWithArray:_wrappers];
 }
 
--(UIScrollView*)scrollView 
+#ifdef TI_USE_AUTOLAYOUT
+-(UIView*)contentView
 {
-	if (scrollview==nil)
-	{
-		scrollview = [[TDUIScrollView alloc] initWithFrame:[self bounds]];
+    if (_contentView == nil) {
+        _contentView = [[UIView alloc] init];
+        [_contentView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    }
+    return _contentView;
+}
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+    if (!_constraintAdded) {
+        _constraintAdded = YES;
+        _scrollView = [self scrollview];
+        _dotsView = [self pagecontrol];
+        _contentView = [self contentView];
+        NSDictionary* views =  NSDictionaryOfVariableBindings(_contentView, _scrollView, _dotsView);
+        [_scrollView addConstraints:TI_CONSTR(@"V:|[_contentView(_scrollView)]|", views)];
+        [_scrollView addConstraints:TI_CONSTR(@"H:|[_contentView(>=_scrollView)]|", views)];
+        [self addConstraints:TI_CONSTR(@"V:[_dotsView]-|", views)];
+        [self addConstraint: [NSLayoutConstraint constraintWithItem:self attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:_dotsView attribute:NSLayoutAttributeCenterX multiplier:1 constant:0]];
+    }
+    
+    NSArray* children = [_contentView subviews];
+    NSUInteger length = [children count];
+    if (length != _childrenCount) {
+        _childrenCount = length;
+        for (NSUInteger index = 0; index < length; index++)
+        {
+            TiLayoutView* child = [children objectAtIndex:index];
+            [TiLayoutView removeConstraints:_contentView fromChild:child];
+            
+            NSDictionary* views;
+            if (index == 0) {
+                views =  NSDictionaryOfVariableBindings(_contentView, child, _scrollView);
+                [_contentView addConstraints: TI_CONSTR(@"H:|[child]", views)];
+            } else {
+                UIView *prev = [children objectAtIndex:index-1];
+                views =  NSDictionaryOfVariableBindings(_contentView, child, prev, _scrollView);
+                [_contentView addConstraints: TI_CONSTR(@"H:[prev][child]", views)];
+                
+            }
+            
+            if (index == length-1) {
+                [_contentView addConstraints:TI_CONSTR(@"H:[child]|", views)];
+            }
+            [_contentView addConstraints:TI_CONSTR(@"V:|[child]|", views)];
+            [_scrollView addConstraints:TI_CONSTR(@"H:[child(_scrollView)]", views)];
+            
+        }
+    }
+    [_dotsView setNumberOfPages:length];
+    [_dotsView setCurrentPage: _currentPage];
+
+    [_scrollView setContentOffset:CGPointMake(_currentPage * self.frame.size.width, 0) animated:NO];
+}
+
+#define WRAP_TI_VIEW(view) \
+TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
+[wrapperView setViewName: TI_STRING(@"scrollable.wrapper.view%lu", (unsigned long)[[self subviews] count])]; \
+[wrapperView addSubview:view]; \
+
+-(void)addSubview:(nonnull UIView *)view
+{
+    WRAP_TI_VIEW(view)
+    [[self contentView] addSubview:wrapperView];
+}
+
+-(void)insertSubview:(UIView *)view aboveSubview:(UIView *)siblingSubview
+{
+    WRAP_TI_VIEW(view)
+    [[self contentView] insertSubview:wrapperView aboveSubview:siblingSubview];
+}
+
+-(void)insertSubview:(UIView *)view atIndex:(NSInteger)index
+{
+    WRAP_TI_VIEW(view)
+    [[self contentView] insertSubview:wrapperView atIndex:index];
+}
+-(void)insertSubview:(UIView *)view belowSubview:(UIView *)siblingSubview
+{
+    WRAP_TI_VIEW(view)
+    [[self contentView] insertSubview:wrapperView belowSubview:siblingSubview];
+}
+#endif
+
+
+-(UIScrollView*)scrollview 
+{
+#ifdef TI_USE_AUTOLAYOUT
+	if (_scrollView==nil)
+	{        
+        _scrollView = [[UIScrollView alloc] init];
+        [_scrollView setDelegate:self];
+        [_scrollView setPagingEnabled:YES];
+        [_scrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        [_scrollView setShowsHorizontalScrollIndicator:NO];
+        [_scrollView setShowsVerticalScrollIndicator:NO];
+        [_scrollView addSubview:[self contentView]];
+        [super addSubview:_scrollView];
+    }
+    return _scrollView;
+#else
+    if (scrollview==nil)
+    {
+		scrollview = [[UIScrollView alloc] initWithFrame:[self bounds]];
 		[scrollview setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		[scrollview setPagingEnabled:YES];
 		[scrollview setDelegate:self];
@@ -225,6 +336,7 @@
     [self setView:viewProxy inWrapper:wrapper];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(NSRange)cachedFrames:(NSInteger)page
 {
     NSInteger startPage;
@@ -292,7 +404,7 @@
 {
     [self manageCache:page withRefresh:NO];
 }
-
+#endif
 -(void)listenerAdded:(NSString*)event count:(NSInteger)count
 {
     [super listenerAdded:event count:count];
@@ -377,7 +489,7 @@
             viewBounds.size.height -= (showPageControl ? pageControlHeight : 0);
         }
     }
-	UIScrollView *sv = [self scrollView];
+	UIScrollView *sv = [self scrollview];
 	
     NSInteger page = [self currentPage];
     
@@ -534,6 +646,7 @@
 
 -(void)setCacheSize_:(id)args
 {
+#ifndef TI_USE_AUTOLAYOUT
     ENSURE_SINGLE_ARG(args, NSNumber);
     int newCacheSize = [args intValue];
     if (newCacheSize < 1) {
@@ -546,6 +659,7 @@
     }
     cacheSize = newCacheSize;
     [self manageCache:[self currentPage]];
+#endif
 }
 
 -(void)setPageWidth_:(id)args
@@ -574,11 +688,18 @@
 	{
 		if (showPageControl==NO)
 		{
+#ifndef TI_USE_AUTOLAYOUT
 			[pageControl removeFromSuperview];
 			RELEASE_TO_NIL(pageControl);
-		}
+        }
+#else
+            [_dotsView setHidden:YES];
+        } else {
+            [_dotsView setHidden:NO];
+        }
+#endif
 	}
-	
+
     if ((scrollview!=nil) && ([[scrollview subviews] count]>0)) {
         //No need to readd. Just set up the correct frame bounds
         [self refreshScrollView:NO];
@@ -853,7 +974,7 @@
     lastPage = pageNum;
     [self updateCurrentPage:pageNum];
 	[self manageCache:pageNum];
-    
+#endif    
     [self fireScrollEvent:@"click" forScrollView:scrollview withAdditionalArgs:nil];
 }
 
@@ -997,8 +1118,10 @@
     if (pageChanged) {
         [self manageCache:[self currentPage]];
         [scrollview setUserInteractionEnabled:!decelerate];
+#ifndef TI_USE_AUTOLAYOUT
     }
     [super scrollViewDidEndDragging:scrollView willDecelerate:decelerate];
+#endif
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView

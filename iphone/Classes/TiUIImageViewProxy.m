@@ -181,7 +181,7 @@
             UIImage *imageToUse = [imageView prepareImage:[imageView convertToUIImage:theimage]];
         }
 		
-		return [[[TiBlob alloc] initWithImage:imageToUse] autorelease];
+		return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:imageToUse] autorelease];
 	}
 	return nil;
 }
@@ -363,6 +363,7 @@
 {
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -371,6 +372,7 @@
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 - (void)prepareForReuse
 {

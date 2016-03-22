@@ -223,11 +223,24 @@
 
 #pragma mark Internal
 
+#ifndef TI_USE_AUTOLAYOUT
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
     [TiUtils setView:textWidgetView positionRect:bounds];
     [super frameSizeChanged:frame bounds:bounds];
 }
+
+#endif
+
+
+#ifdef TI_USE_AUTOLAYOUT
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    [self setDefaultHeight:TiDimensionAutoSize];
+    [self setDefaultWidth:TiDimensionAutoFill];
+}
+#endif
 
 - (void) dealloc
 {
@@ -236,13 +249,15 @@
     [super dealloc];
 }
 
-
 -(UIView<UITextInputTraits>*)textWidgetView
 {
     if (textWidgetView==nil)
     {
         TiTextField* textfield = [[TiTextField alloc] initWithFrame:CGRectZero];
         textWidgetView = textfield;
+#ifdef TI_USE_AUTOLAYOUT
+		[textWidgetView setTranslatesAutoresizingMaskIntoConstraints:NO];
+#endif
         //        textfield.backgroundColor = [UIColor clearColor];
         textfield.delegate = self;
         textfield.text = @"";
@@ -267,7 +282,7 @@
     if(![TiUtils isIOS9OrGreater]){
         return;
     }
-#if IS_XCODE_7
+
     TiTextField* tv = (TiTextField*)[self textWidgetView];
     
     [[self proxy] replaceValue:value forKey:@"showUndoRedoActions" notification:NO];
@@ -279,7 +294,6 @@
         tv.inputAssistantItem.leadingBarButtonGroups = @[];
         tv.inputAssistantItem.trailingBarButtonGroups = @[];
     }
-#endif
 }
 
 -(void)setExclusiveTouch:(BOOL)value

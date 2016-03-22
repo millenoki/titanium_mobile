@@ -337,7 +337,15 @@ DEFINE_EXCEPTIONS
 	}
 }
 
-- (void) initialize
+-(void)initializeTiLayoutView
+{
+    [super initializeTiLayoutView];
+    if ([self class] == [TiUIView class]) {
+        [self setDefaultHeight:TiDimensionAutoFill];
+        [self setDefaultWidth:TiDimensionAutoFill];
+    }
+}
+- (id) initialize
 {
     configurationSet = NO;
     _alwaysUseBackgroundLayer = NO;
@@ -476,7 +484,15 @@ DEFINE_EXCEPTIONS
 	[self updateTouchHandling];
 	 
 	super.backgroundColor = [UIColor clearColor]; //carefull it seems that nil is different from clear :s
+#ifndef TI_USE_AUTOLAYOUT
 	self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+#else
+    if (self.translatesAutoresizingMaskIntoConstraints == NO) {
+        self.autoresizingMask = UIViewAutoresizingNone;
+    } else {
+        self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    }
+#endif
 }
 
 -(void)configurationStart

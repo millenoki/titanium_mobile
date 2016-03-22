@@ -2172,8 +2172,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
 	// TIMOB-17892
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
-
-	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = this.tiapp.ios && (this.tiapp.ios['run-on-main-thread'] === true);
+	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp['run-on-main-thread'] === true);
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
@@ -2192,7 +2191,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 		'development' ? 'Debug' : 'Release');
 	this.xcodeTargetOS = this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos';
 
-	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + (this.target === 'simulator' ? 'iphonesimulator' : 'iphoneos'));
+	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
 	this.xcodeAppDir            = argv.xcode && process.env.TARGET_BUILD_DIR && process.env.CONTENTS_FOLDER_PATH ? path.join(process
 		.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
 	
@@ -2801,6 +2800,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	if (/simulator|device|dist\-adhoc/.test(this.target) && this.tiapp.ios.enablecoverage) {
 		gccDefs.push('KROLL_COVERAGE=1');
+	}
+
+	if (this.enableLaunchScreenStoryboard) {
+		gccDefs.push('LAUNCHSCREEN_STORYBOARD=1');
 	}
 
 	if (this.defaultBackgroundColor) {
@@ -4472,19 +4475,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		path.join(this.projectDir, 'Resources', 'iphone'),
 		path.join(this.projectDir, 'Resources', 'ios')
 	];
-	this.cli.createHook('build.ios.resourcesPaths', this, function(resourcesPaths) {
-		resourcesPaths.forEach(function(dir) {
-			walk(dir, this.xcodeAppDir, ignorePlatformDirs);
-		}, this);
-	})(resourcesPaths, function() {});
-
-	// don't process JS files referenced from HTML files
-	Object.keys(htmlJsFiles).forEach(function (file) {
-		if (jsFiles[file]) {
-			resourcesToCopy[file] = jsFiles[file];
-			delete jsFiles[file];
-		}
-	});
 
 	var platformPaths = [
 		path.join(this.projectDir, this.cli.argv['platform-dir'] || 'platform', 'iphone'),
@@ -4498,7 +4488,25 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			path.join(module.modulePath, 'platform', 'iphone'),
 			path.join(module.modulePath, 'platform', 'ios')
 		);
+		resourcesPaths.push(
+			path.join(module.modulePath, 'Resources'),
+		);
 	}, this);
+
+	this.logger.info(__('Analyzing resource files'));
+	this.cli.createHook('build.ios.resourcesPaths', this, function(resourcesPaths) {
+		resourcesPaths.forEach(function(dir) {
+			walk(dir, this.xcodeAppDir, ignorePlatformDirs);
+		}, this);
+	})(resourcesPaths, function() {});
+
+	// don't process JS files referenced from HTML files
+	Object.keys(htmlJsFiles).forEach(function (file) {
+		if (jsFiles[file]) {
+			resourcesToCopy[file] = jsFiles[file];
+			delete jsFiles[file];
+		}
+	});
 
 	this.logger.info(__('Analyzing platform files'));
 	this.cli.createHook('build.ios.platformsPaths', this, function(platformPaths) {

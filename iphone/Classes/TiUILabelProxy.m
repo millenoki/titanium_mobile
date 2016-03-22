@@ -285,6 +285,7 @@ static NSDictionary* htmlOptions;
     return [NSMutableDictionary dictionaryWithObject:@"text" forKey:@"textid"];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -293,6 +294,7 @@ static NSDictionary* htmlOptions;
 {
     return TiDimensionAutoSize;
 }
+#endif
 
 
 //we do it in the proxy for faster performances in tableviews

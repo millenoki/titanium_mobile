@@ -24,6 +24,7 @@
     // Have to correct for an apple goof; rotation stops scrolling, AND doesn't move to the next page.
     BOOL rotatedWhileScrolling;
 
+#ifndef TI_USE_AUTOLAYOUT
     BOOL needsToRefreshScrollView;
 
     // See the code for why we need this...
@@ -32,7 +33,7 @@
     BOOL verticalLayout;
     
     BOOL pageChanged;
-    
+#endif
     
 }
 @property(nonatomic,readwrite,assign)CGFloat switchPageAnimationDuration;

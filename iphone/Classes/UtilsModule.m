@@ -59,7 +59,7 @@
 	ENSURE_SINGLE_ARG(args,NSObject);
 	NSData *data = [self convertToData:args];
     NSString* result = [TiUtils base64encode:data];
-    return [[[TiBlob alloc] initWithData:[result dataUsingEncoding:NSUTF8StringEncoding] mimetype:@"application/octet-stream"] autorelease];
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:[result dataUsingEncoding:NSUTF8StringEncoding] mimetype:@"application/octet-stream"] autorelease];
 }
 
 -(TiBlob*)base64decode:(id)args
@@ -67,7 +67,7 @@
 	ENSURE_SINGLE_ARG(args,NSObject);
 	NSString* encoded = [self convertToString:args];
     NSData* result = [TiUtils base64decode:encoded];
-    return [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
+    return [[[TiBlob alloc] _initWithPageContext:[self pageContext] andData:result mimetype:@"application/octet-stream"] autorelease];
 }
 
 -(NSString*)md5HexDigest:(id)args

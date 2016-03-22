@@ -39,6 +39,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
@@ -386,7 +387,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			topActivity.startActivity(intent);
 			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
 		} else {
-			topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+	            topActivity.startActivity(intent, createActivityOptionsBundle(topActivity));
+	        } else {
+	            topActivity.startActivity(intent);
+	        }
 		}
 	}
 	

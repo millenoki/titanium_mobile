@@ -27,8 +27,10 @@ NSArray* pickerKeySequence;
 
 -(void)_configure
 {
-	[self replaceValue:NUMINT(-1) forKey:@"type" notification:NO];
-	[self replaceValue:nil forKey:@"value" notification:NO];
+	[self replaceValue:@(-1) forKey:@"type" notification:NO];
+    [self replaceValue:nil forKey:@"value" notification:NO];
+    [self replaceValue:@(320) forKey:@"width" notification:NO];
+    [self replaceValue:@(216) forKey:@"height" notification:NO];
 	[super _configure];
 }
 
@@ -363,6 +365,7 @@ USE_VIEW_FOR_VERIFY_WIDTH
 	[self makeViewPerformSelector:@selector(reloadColumn:) withObject:NUMUINTEGER(columnIndex) createIfNeeded:YES waitUntilDone:NO];
 }
 
+#ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused
 {
     return TiDimensionAutoSize;
@@ -371,7 +374,7 @@ USE_VIEW_FOR_VERIFY_WIDTH
 {
     return TiDimensionAutoSize;
 }
-
+#endif
 @end
 
 #endif

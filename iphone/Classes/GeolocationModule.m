@@ -197,6 +197,8 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     BOOL canReportSameLocation;
     BOOL _locationManagerCreated;
 	KrollCallback *authorizationCallback;
+    
+    BOOL allowsBackgroundLocationUpdates;
 }
 
 @synthesize lastLocation;
@@ -292,6 +294,10 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     // pauseLocationupdateAutomatically by default NO
     pauseLocationUpdateAutomatically  = NO;
     
+    //Set the default based on if the user has defined a background location mode
+    NSArray* backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    allowsBackgroundLocationUpdates = ([backgroundModes containsObject:@"location"]);
+    
     lock = [[NSRecursiveLock alloc] init];
     
     canReportSameLocation = NO;
@@ -336,7 +342,11 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
                 }
             }
         }
-        
+        //This is set to NO by default for > iOS9.
+        if ([TiUtils isIOS9OrGreater]) {
+            locationManager.allowsBackgroundLocationUpdates = allowsBackgroundLocationUpdates;
+        }
+
         locationManager.activityType = activityType;
         locationManager.pausesLocationUpdatesAutomatically = pauseLocationUpdateAutomatically;
         
@@ -661,6 +671,16 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
     {
         [locationManager setHeadingFilter:heading];
     }
+}
+
+-(NSNumber*)allowsBackgroundLocationUpdates
+{
+    return NUMBOOL(allowsBackgroundLocationUpdates);
+}
+
+-(void)setAllowsBackgroundLocationUpdates:(NSNumber *)value
+{
+    allowsBackgroundLocationUpdates = [TiUtils boolValue:value];
 }
 
 -(NSNumber*)showCalibration
