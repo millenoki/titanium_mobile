@@ -836,7 +836,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
     if ([TiUtils isIOS8OrGreater]) {
         id value = [args objectAtIndex:0];
         ENSURE_TYPE(value, NSNumber);
-        CLAuthorizationStatus requestedPermissionLevel = [TiUtils intValue: value];
+        CLAuthorizationStatus requestedPermissionLevel = (CLAuthorizationStatus)[TiUtils intValue: value];
         return NUMBOOL(locationServicesEnabled && currentPermissionLevel == requestedPermissionLevel);
     } else {
         return NUMBOOL(locationServicesEnabled && currentPermissionLevel == kCLAuthorizationStatusAuthorized);
@@ -892,7 +892,7 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
         authorizationCallback = [[args objectAtIndex:1] retain];
     }
     
-    CLAuthorizationStatus requested = [TiUtils intValue: value];
+    CLAuthorizationStatus requested = (CLAuthorizationStatus)[TiUtils intValue: value];
     CLAuthorizationStatus currentPermissionLevel = [CLLocationManager authorizationStatus];
     BOOL permissionsGranted = (currentPermissionLevel == kCLAuthorizationStatusAuthorizedAlways) || (currentPermissionLevel == kCLAuthorizationStatusAuthorizedWhenInUse);
     

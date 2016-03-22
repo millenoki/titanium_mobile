@@ -266,19 +266,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
  **/
 -(NSNumber*)cameraAuthorizationStatus
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return nil;
-    }
-    
     DEPRECATED_REPLACED(@"Media.cameraAuthorizationStatus", @"5.2.0", @"Media.cameraAuthorization");
     return [self cameraAuthorization];
 }
 
 -(NSNumber*)cameraAuthorization
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return nil;
-    }
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     return NUMUINT(authStatus);
 }
@@ -664,9 +657,6 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 //request camera access. for >= IOS7
 -(void)requestCameraPermissions:(id)arg
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        return;
-    }
     ENSURE_SINGLE_ARG(arg, KrollCallback);
     KrollCallback * callback = arg;
     TiThreadPerformOnMainThread(^(){

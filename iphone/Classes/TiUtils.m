@@ -181,51 +181,6 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
     return isRetinaDisplay;
 }
 
-
-//+(BOOL)isIOS4_2OrGreater
-//{
-//    static BOOL isIOS4_2OrGreater;
-//    static dispatch_once_t predicate;
-//    dispatch_once(&predicate, ^{
-//        isIOS4_2OrGreater = [UIView instancesRespondToSelector:@selector(drawRect:forViewPrintFormatter:)];
-//    });
-//    
-//    return isIOS4_2OrGreater;
-//}
-
-//+(BOOL)isIOS5OrGreater
-//{
-//    static BOOL isIOS5OrGreater;
-//    static dispatch_once_t predicate;
-//    dispatch_once(&predicate, ^{
-//        isIOS5OrGreater = [UIAlertView instancesRespondToSelector:@selector(alertViewStyle)];
-//    });
-//    
-//    return isIOS5OrGreater;
-//}
-//
-//+(BOOL)isIOS6OrGreater
-//{
-//    static BOOL isIOS6OrGreater;
-//    static dispatch_once_t predicate;
-//    dispatch_once(&predicate, ^{
-//        isIOS6OrGreater = [UIViewController instancesRespondToSelector:@selector(shouldAutomaticallyForwardRotationMethods)];
-//    });
-//    
-//    return isIOS6OrGreater;
-//}
-
-//+(BOOL)isIOS7OrGreater
-//{
-//    static BOOL isIOS7OrGreater;
-//    static dispatch_once_t predicate;
-//    dispatch_once(&predicate, ^{
-//        isIOS7OrGreater = [UIViewController instancesRespondToSelector:@selector(childViewControllerForStatusBarStyle)];
-//    });
-//
-//    return isIOS7OrGreater;
-//}
-
 +(BOOL)isIOS8OrGreater
 {
     static BOOL isIOS8OrGreater;

@@ -10,7 +10,9 @@
 #import "TiUIScrollViewProxy.h"
 #import "TiUtils.h"
 
-
+@interface TiUIView()
+-(void)setClipChildren_:(id)arg;
+@end
 
 @implementation TiUIScrollView
 {

@@ -261,7 +261,7 @@
         //        textfield.backgroundColor = [UIColor clearColor];
         textfield.delegate = self;
         textfield.text = @"";
-        textfield.textAlignment = UITextAlignmentLeft;
+        textfield.textAlignment = NSTextAlignmentLeft;
         textfield.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
         [textfield configure];
         [textfield setTouchHandler:self];

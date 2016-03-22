@@ -1170,9 +1170,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
         realSource = source;
         [eventObject setObject:realSource forKey:@"source"];
     }
-    id bindId = [realSource valueForKey:@"bindId"];
-    if (bindId != nil) {
-        [eventObject setObject:bindId forKey:@"bindId"];
+    id theBindId = [realSource valueForKey:@"bindId"];
+    if (theBindId != nil) {
+        [eventObject setObject:theBindId forKey:@"bindId"];
     }
     
     NSArray* theEvaluators = [evaluators valueForKey:type];

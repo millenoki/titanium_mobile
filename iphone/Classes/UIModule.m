@@ -33,7 +33,7 @@
 #import "TiUIiOSProxy.h"
 #endif
 #ifdef USE_TI_UICLIPBOARD
-#import "TiUIClipboardProxy.h"
+#import "TiUIClipboardModule.h"
 #endif
 #ifdef USE_TI_UICOVERFLOWVIEW
 	#import "TiUIiOSCoverFlowViewProxy.h"
@@ -461,7 +461,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
 	if (clipboard==nil)
 	{
-		clipboard = [[TiUIClipboardProxy alloc] _initWithPageContext:[self executionContext]];
+		clipboard = [[TiUIClipboardModule alloc] _initWithPageContext:[self executionContext]];
         [self rememberProxy:clipboard];
 	}
 	return clipboard;

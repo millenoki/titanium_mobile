@@ -324,15 +324,7 @@ DEFINE_EXCEPTIONS
 {
     if (_bgView == nil) {
         _bgView = [[TiCellBackgroundView alloc] initWithFrame:self.bounds];
-//        if (!_grouped || [TiUtils isIOS7OrGreater]) {
         self.backgroundView = _bgView;
-        
-//        }
-//        else if(self.backgroundView !=nil){
-//            [_bgView setFrame:self.backgroundView.bounds];
-//            [self.backgroundView addSubview:_bgView];
-//        }
-//        [self updateBackgroundLayerCorners:_bgView];
         _bgView.alpha = self.contentView.alpha;
     }
 

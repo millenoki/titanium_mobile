@@ -9,6 +9,7 @@
 #import "TiScrollingView.h"
 #import "TiUIListViewProxy.h"
 #import "MGSwipeTableCell.h"
+#import "TiTableView.h"
 
 @interface TiUIListView : TiScrollingView <MGSwipeTableCellDelegate, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView >
 

@@ -17,7 +17,6 @@
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
-#import "TiTableView.h"
 #import "TiUIHelper.h"
 #import "TiApp.h"
 

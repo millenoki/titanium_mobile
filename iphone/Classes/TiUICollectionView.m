@@ -228,9 +228,6 @@ static TiProxyTemplate* sDefaultItemTemplate;
         if (doSetBackground) {
             [[self class] setBackgroundColor:[UIColor clearColor] onTable:_tableView];
         }
-//        if ([TiUtils isIOS7OrGreater]) {
-//            _defaultSeparatorInsets = [_tableView separatorInset];
-//        }
         
         if ([TiUtils isIOS8OrGreater]) {
             [_tableView setLayoutMargins:UIEdgeInsetsZero];
@@ -1562,7 +1559,7 @@ static TiProxyTemplate* sDefaultItemTemplate;
 
 -(void) swipeTableCell:(MGSwipeTableCell*) cell didChangeSwipeState:(MGSwipeState) state gestureIsActive:(BOOL) gestureIsActive {
     if (state != MGSwipeStateNone) {
-        _currentSwipeCell = cell;
+        _currentSwipeCell = (MGSwipeCollectionViewCell*)cell;
     } else {
         _currentSwipeCell = nil;
     }

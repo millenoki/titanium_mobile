@@ -148,7 +148,7 @@ static NSArray *animProps;
                 result = [[[NSMutableDictionary alloc]initWithCapacity:[from count]] autorelease];
                 for (NSString* key in [from allKeys]) {
                     if (IS_OF_CLASS([animProxy bindingForKey:key], TiAnimatableProxy)) {
-                        [(NSMutableDictionary*)result setObject:[self propertiesForAnimation:[animProxy bindingForKey:key] props:@{@"from":[from objectForKey:key]} destination:destination reverse:reversed] forKey:key];
+                        [(NSMutableDictionary*)result setObject:[self propertiesForAnimation:(TiAnimatableProxy*)[animProxy bindingForKey:key] props:@{@"from":[from objectForKey:key]} destination:destination reverse:reversed] forKey:key];
                     } else {
                         id value = [animProxy valueForUndefinedKey:key];
                         if (value) {
@@ -172,7 +172,7 @@ static NSArray *animProps;
                 NSMutableDictionary* reverseProps = [[NSMutableDictionary alloc] initWithCapacity:[(NSArray*)keys count]];
                 for (NSString* key in keys) {
                     if (IS_OF_CLASS([animProxy bindingForKey:key], TiAnimatableProxy)) {
-                        [(NSMutableDictionary*)result setObject:[self propertiesForAnimation:[animProxy bindingForKey:key] props:@{@"to":[props objectForKey:key]} destination:destination reverse:reversed] forKey:key];
+                        [(NSMutableDictionary*)result setObject:[self propertiesForAnimation:(TiAnimatableProxy*)[animProxy bindingForKey:key] props:@{@"to":[props objectForKey:key]} destination:destination reverse:reversed] forKey:key];
                     } else {
                         id value = [animProxy valueForUndefinedKey:key];
                         if (value) {

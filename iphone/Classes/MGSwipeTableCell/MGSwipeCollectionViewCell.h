@@ -74,7 +74,7 @@
  * To implement swipe cells you have to override from this class
  * You can create the cells programmatically, using xibs or storyboards
  */
-@interface MGSwipeCollectionViewCell : UICollectionViewCell<MGSwipeCell>
+@interface MGSwipeCollectionViewCell : UICollectionViewCell<MGSwipeCell, UIGestureRecognizerDelegate>
 
 /** optional delegate (not retained) */
 @property (nonatomic, weak) id<MGSwipeCollectionViewCellDelegate> delegate;

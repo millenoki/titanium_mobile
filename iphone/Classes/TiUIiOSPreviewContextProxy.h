@@ -30,7 +30,7 @@
 /**
     The height of the preview.
  */
-@property(nonatomic, assign) int contentHeight;
+@property(nonatomic, assign) NSInteger contentHeight;
 
 /**
     Connectes the collected preview data to the iOS delegates.

@@ -56,14 +56,14 @@ DEFINE_EXCEPTIONS
 	return [self tabController].tabBar;
 }
 
--(int)findIndexForTab:(TiProxy*)proxy
+-(int)findIndexForTab:(TiProxy*)theProxy
 {
-	if (proxy!=nil)
+	if (theProxy!=nil)
 	{
 		int index = 0;
 		for (UINavigationController *tc in controller.viewControllers)
 		{
-			if (tc.delegate == (id)proxy)
+			if (tc.delegate == (id)theProxy)
 			{
 				return index;
 			}

@@ -295,6 +295,7 @@ typedef enum
 
 +(Ti2DMatrix*)matrixValue:(id)value;
 +(Ti2DMatrix*)matrixValue:(id)value def:(Ti2DMatrix*)def;
++(Ti2DMatrix*)matrixValue:(NSString*)name properties:(NSDictionary*)properties;
 
 /**
  Converts input value into a float.
@@ -622,30 +623,6 @@ typedef enum
 +(BOOL)isIPad;
 
 /**
- Whether or not the current OS version is equal to or greater than 4.2.
- @return _YES_ if the current OS version is equal to or greater than 4.2, _NO_ otherwise.
- */
-//+(BOOL)isIOS4_2OrGreater;
-
-/**
- Whether or not the current OS version is equal to or greater than 5.0.
- @return _YES_ if the current OS version is equal to or greater thann 5.0, _NO_ otherwise.
- */
-//+(BOOL)isIOS5OrGreater;
-
-/**
- Whether or not the current OS version is equal to or greater than 6.0.
- @return _YES_ if the current OS version is equal to or greater thann 6.0, _NO_ otherwise.
- */
-//+(BOOL)isIOS6OrGreater;
-
-/**
- Whether or not the current OS version is equal to or greater than 7.0.
- @return _YES_ if the current OS version is equal to or greater thann 7.0, _NO_ otherwise.
- */
-//+(BOOL)isIOS7OrGreater;
-
-/**
  Whether or not the current OS version is equal to or greater than 8.0.
  @return _YES_ if the current OS version is equal to or greater thann 8.0, _NO_ otherwise.
  */
@@ -716,12 +693,17 @@ typedef enum
 
 +(int)encodeNumber:(NSNumber*)data toBuffer:(TiBuffer*)dest offset:(int)position type:(NSString*)type endianness:(CFByteOrder)byteOrder;
 
++(BOOL)applyMathDict:(NSDictionary*)mathDict forEvent:(NSDictionary*)event fromProxy:(TiProxy*)proxy;
+
 /**
  Generates MD5 hash for the provided data.
  @param data The input data.
  @return MD5 hash string.
  */
 +(NSString*)md5:(NSData*)data;
+
++(NSString*)base64encode:(NSData*)toEncode;
++(NSData*)base64decode:(NSString*)encoded;
 
 /**
  Converts array of byte into a hex string.

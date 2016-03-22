@@ -912,7 +912,7 @@ static NSDictionary* iOS9propertyKeys;
         ENSURE_TYPE(value, NSDictionary);
         ABPropertyID propertyID = [property intValue];
 		int type = [[[TiContactsPerson multiValueTypes] objectForKey:property] intValue];
-        ABMultiValueRef multiVal = [self dictionaryToMultiValue:value type:type];
+        ABMultiValueRef multiVal = [self newDictionaryToMultiValue:value type:type];
         CFErrorRef error;
         if (!ABRecordSetValue([self record], propertyID, multiVal, &error)) {
             CFStringRef reason = CFErrorCopyDescription(error);
@@ -922,6 +922,7 @@ static NSDictionary* iOS9propertyKeys;
 					   subreason:nil
 						location:CODELOCATION];
         }
+        CFRelease(multiVal);
     }
 	// Something else
 	else {

@@ -731,7 +731,7 @@ else{\
                 RELEASE_TO_NIL_AUTORELEASE(win);
             }
             [[navController view] removeFromSuperview];
-            [navController setViewControllers:nil];
+            [navController setViewControllers:@[]];
             RELEASE_TO_NIL(navController);
             RELEASE_TO_NIL(currentControllers);
         }

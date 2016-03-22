@@ -112,17 +112,17 @@ UIViewController * ControllerForProxy(TiViewProxy * proxy)
 	if (items!=nil)
 	{
 		NSMutableArray *array = [NSMutableArray array];
-		for (TiViewProxy *proxy in items)
+		for (TiViewProxy *theProxy in items)
 		{
-			if ([proxy supportsNavBarPositioning])
+			if ([theProxy supportsNavBarPositioning])
 			{
 				// detach existing one
-				UIBarButtonItem *item = [proxy barButtonItem];
+				UIBarButtonItem *item = [theProxy barButtonItem];
 				[array addObject:item];
 			}
 			else
 			{
-				NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar",proxy];
+				NSString *msg = [NSString stringWithFormat:@"%@ doesn't support positioning on the nav bar",theProxy];
 				THROW_INVALID_ARG(msg);
 			}
 		}		

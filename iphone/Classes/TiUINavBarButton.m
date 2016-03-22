@@ -159,7 +159,7 @@ DEFINE_EXCEPTIONS
 	{
 		WebFont *f = [TiUtils fontValue:font def:nil];
         NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[self titleTextAttributesForState:UIControlStateNormal]];
-        [dict setObject:[f font] forKey:UITextAttributeFont];
+        [dict setObject:[f font] forKey:NSFontAttributeName];
         [super setTitleTextAttributes:dict forState:UIControlStateNormal];
 	}
 }
@@ -171,7 +171,7 @@ DEFINE_EXCEPTIONS
         newColor = [UIColor darkTextColor];
     }
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[self titleTextAttributesForState:UIControlStateNormal]];
-    [dict setObject:newColor forKey:UITextAttributeTextColor];
+    [dict setObject:newColor forKey:NSForegroundColorAttributeName];
     [super setTitleTextAttributes:dict forState:UIControlStateNormal];
 }
 

@@ -165,7 +165,7 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 
 -(id)getAsset:(id)args
 {
-    NSString* newpath = [self pathFromComponents:args];
+    NSString* newpath = [TiFileSystemHelper pathFromComponents:args];
     
     if ([newpath hasPrefix:[self resourcesDirectory]] &&
         ([newpath hasSuffix:@".jpg"]||

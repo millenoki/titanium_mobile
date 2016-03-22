@@ -173,7 +173,7 @@
     // animate the change -- this happens on the tableview
     // reproxy as we scroll
     BOOL reproxying = [self.proxy inReproxy];
-    BOOL animated = !reproxying && animated && [[self viewProxy] viewInitialized];
+    BOOL shouldAnimate = !reproxying && animated && [[self viewProxy] viewInitialized];
     
     
     BOOL newValue = [TiUtils boolValue:value];
@@ -181,10 +181,10 @@
     if ([ourSwitch isOn] == newValue) {
         return;
     }
-    [ourSwitch setOn:newValue animated:animated];
+    [ourSwitch setOn:newValue animated:shouldAnimate];
     // Don't rely on switchChanged: - isOn can report erroneous values immediately after the value is changed!
     // This only seems to happen in 4.2+ - could be an Apple bug.
-    if (animated && [(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
+    if (shouldAnimate && [(TiViewProxy*)self.proxy _hasListeners:@"change" checkParent:NO])
     {
         [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:value forKey:@"value"] propagate:NO checkForListener:NO];
     }

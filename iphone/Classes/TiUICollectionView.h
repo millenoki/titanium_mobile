@@ -14,7 +14,7 @@
 #import "TiUICollectionViewFlowLayout.h"
 #import "MGSwipeCollectionViewCell.h"
 @class TiCollectionView;
-@interface TiUICollectionView : TiScrollingView <MGSwipeTableCellDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUICollectionViewFlowLayoutDelegate>
+@interface TiUICollectionView : TiScrollingView <MGSwipeCollectionViewCellDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUICollectionViewFlowLayoutDelegate>
 {
     BOOL allowsSelection;
 }
@@ -31,6 +31,8 @@
 + (UITableViewRowAnimation)animationStyleForProperties:(NSDictionary*)properties;
 -(BOOL)shouldHighlightCurrentCollectionItem;
 - (NSIndexPath *) nextIndexPath:(NSIndexPath *) indexPath;
+- (void)selectItem:(NSIndexPath*)indexPath animated:(BOOL)animated;
+- (void)deselectItem:(NSIndexPath*)indexPath animated:(BOOL)animated;
 
 @end
 

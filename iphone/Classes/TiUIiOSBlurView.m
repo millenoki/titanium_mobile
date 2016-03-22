@@ -71,9 +71,10 @@
 {
     ENSURE_TYPE(value, NSNumber);
     NSInteger style = [TiUtils intValue:value def:UIBlurEffectStyleLight];
-    [[self blurView] setEffect:[UIBlurEffect effectWithStyle:style]];
+    UIBlurEffect* effect = [UIBlurEffect effectWithStyle:style];
+    [[self blurView] setEffect:effect];
     if (vibrancyView) {
-        [vibrancyView setEffect:[UIVibrancyEffect effectForBlurEffect:[[self blurView] effect]]];
+        [vibrancyView setEffect:[UIVibrancyEffect effectForBlurEffect:effect]];
     }
 }
 
@@ -82,7 +83,7 @@
     BOOL enabled = [TiUtils boolValue:value];
     if (enabled) {
         if (!vibrancyView) {
-            [[self vibrancyView] setEffect:[UIVibrancyEffect effectForBlurEffect:[[self blurView] effect]]];
+            [[self vibrancyView] setEffect:[UIVibrancyEffect effectForBlurEffect:(UIBlurEffect*)[[self blurView] effect]]];
         }
     } else {
         if (vibrancyView) {

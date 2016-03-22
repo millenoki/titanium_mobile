@@ -39,7 +39,7 @@
     _transition = [transition retain];
     if ((!AD_SYSTEM_VERSION_GREATER_THAN_7 || ![transition isKindOfClass:[ADModernPushTransition class]])) {
         _customTransitioningDelegate = [[ADTransitioningDelegate alloc] initWithTransition:transition];
-        [super setTransitioningDelegate:_customTransitioningDelegate]; // don't call the setter of the current class
+        [super setTransitioningDelegate:(id <UIViewControllerTransitioningDelegate>)_customTransitioningDelegate]; // don't call the setter of the current class
     }
     else {
         [super setTransitioningDelegate:nil];

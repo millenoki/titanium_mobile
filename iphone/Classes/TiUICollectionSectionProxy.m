@@ -485,6 +485,11 @@
     }
 }
 
+- (void)dispatchBlock:(void(^)(UICollectionView *tableView))block
+{
+    block(nil);
+}
+
 - (id)dispatchBlockWithResult:(id (^)(void))block
 {
 	return block();

@@ -337,6 +337,7 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+#ifdef TI_USE_AUTOLAYOUT
 -(void)initializeTiLayoutView
 {
     [super initializeTiLayoutView];
@@ -345,7 +346,9 @@ DEFINE_EXCEPTIONS
         [self setDefaultWidth:TiDimensionAutoFill];
     }
 }
-- (id) initialize
+#endif
+
+- (void) initialize
 {
     configurationSet = NO;
     _alwaysUseBackgroundLayer = NO;

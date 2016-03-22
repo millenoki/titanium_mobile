@@ -92,12 +92,12 @@
     [[UIMenuController sharedMenuController] setMenuVisible:NO animated:animated];
 }
 
--(void)fireEventWithIndex:(int)index
+-(void)fireEventWithIndex:(NSInteger)index
 {
     if ([self.menuPopupProxy _hasListeners:@"click"]) {
         
         [self.menuPopupProxy fireEvent:@"click" withObject:@{
-            @"index" : NUMINT(index),
+            @"index" : NUMINTEGER(index),
             @"title" : [[[self.menuPopupProxy menuItems] objectAtIndex:index] title]
         }];
     }

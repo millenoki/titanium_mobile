@@ -48,6 +48,10 @@
 }
 #endif
 
+-(TiUIScrollableViewProxy *)proxy {
+    return (TiUIScrollableViewProxy *)proxy;
+}
+
 -(void)dealloc
 {
 	RELEASE_WITH_DELEGATE(scrollview);
@@ -267,7 +271,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 #else
     if (scrollview==nil)
     {
-		scrollview = [[UIScrollView alloc] initWithFrame:[self bounds]];
+		scrollview = [[TDUIScrollView alloc] initWithFrame:[self bounds]];
 		[scrollview setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
 		[scrollview setPagingEnabled:YES];
 		[scrollview setDelegate:self];

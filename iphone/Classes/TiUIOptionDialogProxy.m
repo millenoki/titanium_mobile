@@ -606,7 +606,7 @@
         nextOrientation == UIDeviceOrientationUnknown) return;
     if (currentOrientation == nextOrientation) return;
     currentOrientation = nextOrientation;
-    if (UIInterfaceOrientationIsPortrait(currentOrientation) == UIInterfaceOrientationIsPortrait(nextOrientation)) {
+    if (UIInterfaceOrientationIsPortrait((UIInterfaceOrientation)currentOrientation) == UIInterfaceOrientationIsPortrait((UIInterfaceOrientation)nextOrientation)) {
         ++accumulatedOrientationChanges; // double for a 180 degree orientation change
     }
     if (++accumulatedOrientationChanges > 1) {

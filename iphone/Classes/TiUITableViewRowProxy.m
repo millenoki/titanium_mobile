@@ -165,12 +165,12 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 }
 
 
--(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)proxy
+-(void)propertyChanged:(NSString*)key oldValue:(id)oldValue newValue:(id)newValue proxy:(TiProxy*)theProxy
 {
-    [super propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
+    [super propertyChanged:key oldValue:oldValue newValue:newValue proxy:theProxy];
     if ([self proxy])
     {
-        [(TiUITableViewRowProxy*)[self proxy] propertyChanged:key oldValue:oldValue newValue:newValue proxy:proxy];
+        [(TiUITableViewRowProxy*)[self proxy] propertyChanged:key oldValue:oldValue newValue:newValue proxy:theProxy];
     }
 }
 

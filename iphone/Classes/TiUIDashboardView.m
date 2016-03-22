@@ -80,9 +80,9 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
         [launcher removeItem:item animated:NO];
     }
 	
-	for (TiUIDashboardItemProxy *proxy in args)
+	for (TiUIDashboardItemProxy *theProxy in args)
 	{
-		[launcher addItem:proxy.item animated:NO];
+		[launcher addItem:theProxy.item animated:NO];
 	}	
 }
 

@@ -10,6 +10,7 @@
 
 @class TiUIView;
 @interface UIGestureRecognizer (StartTouchedView)
++ (void) swizzle;
 - (void)setStartTouchedView:(TiUIView *)view;
 - (TiUIView*)startTouchedView;
 - (void)setTiGesture:(BOOL)value;

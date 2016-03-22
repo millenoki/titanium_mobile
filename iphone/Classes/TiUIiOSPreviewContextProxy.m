@@ -83,8 +83,8 @@
         nativeSourceView = [_sourceView view];
     }
     
-    UIViewController *controller = [[[TiApp app] controller] topPresentedController];
-    [controller registerForPreviewingWithDelegate:[[TiPreviewingDelegate alloc] initWithPreviewContext:self]
+    UIViewController *theController = [[[TiApp app] controller] topPresentedController];
+    [theController registerForPreviewingWithDelegate:[[TiPreviewingDelegate alloc] initWithPreviewContext:self]
                                        sourceView:nativeSourceView];
 }
 

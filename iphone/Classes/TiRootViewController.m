@@ -125,7 +125,7 @@
         _rotating = NO;
         forcingRotation = NO;
 //        forcedOrientation = NO;
-        deviceOrientation = [[UIDevice currentDevice] orientation];
+        deviceOrientation = (UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
         orientationHistory[0] = UIInterfaceOrientationPortrait;
         orientationHistory[1] = UIInterfaceOrientationLandscapeLeft;
         orientationHistory[2] = UIInterfaceOrientationLandscapeRight;
@@ -343,7 +343,7 @@
      *	inconsistencies between iPad and iPhone.
      */
     
-    UIImage * defaultImage = [TiRootViewController splashImageForOrientation:newOrientation];
+    UIImage * defaultImage = [TiRootViewController splashImageForOrientation:(UIDeviceOrientation)newOrientation];
     
     CGFloat imageScale = [defaultImage scale];
     CGRect newFrame = [[self view] bounds];

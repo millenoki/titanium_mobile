@@ -96,28 +96,52 @@ typedef enum {
 }
 #pragma mark Internal
 
-void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID inPropertyID, UInt32 inPropertyValueSize, const void *inPropertyValue) {
-    if (inPropertyID != kAudioSessionProperty_AudioRouteChange) return;
+//- (BOOL)isHeadsetPluggedIn:(AVAudioSessionRouteDescription*)route {
+//    for (AVAudioSessionPortDescription* desc in [route outputs]) {
+//        if ([[desc portType] isEqualToString:AVAudioSessionPortHeadphones] ||
+//            [[desc portType] isEqualToString:AVAudioSessionPortLineOut])
+//            return YES;
+//    }
+//    return NO;
+//}
+
+-(void)handleRouteChange:(NSNotification*)notification{
+    AVAudioSession *session = [ AVAudioSession sharedInstance];
+    NSString* seccReason = @"";
+    NSInteger  reason = [[[notification userInfo] objectForKey:AVAudioSessionRouteChangeReasonKey] integerValue];
     
-    TiAudioStreamerProxy* streamer = (__bridge TiAudioStreamerProxy *)inUserData;
-    
-    CFDictionaryRef routeChangeDictionary = inPropertyValue;
-    
-    CFNumberRef routeChangeReasonRef = CFDictionaryGetValue(routeChangeDictionary, CFSTR (kAudioSession_AudioRouteChangeKey_Reason));
-    SInt32 routeChangeReason;
-    CFNumberGetValue (routeChangeReasonRef, kCFNumberSInt32Type, &routeChangeReason);
-    
-    CFStringRef oldRouteRef = CFDictionaryGetValue(routeChangeDictionary, CFSTR (kAudioSession_AudioRouteChangeKey_OldRoute));
-    NSString *oldRouteString = (__bridge NSString *)oldRouteRef;
-    
-    if (routeChangeReason == kAudioSessionRouteChangeReason_OldDeviceUnavailable) {
-        if (([streamer playing]) &&
-            (([oldRouteString isEqualToString:@"Headphone"]) ||
-             ([oldRouteString isEqualToString:@"LineOut"])))
-        {
-            // Janking out the headphone will stop the audio.
-            [streamer pause:nil];
-        }
+    switch (reason) {
+        case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
+            seccReason = @"The route changed because no suitable route is now available for the specified category.";
+            break;
+        case AVAudioSessionRouteChangeReasonWakeFromSleep:
+            seccReason = @"The route changed when the device woke up from sleep.";
+            break;
+        case AVAudioSessionRouteChangeReasonOverride:
+            seccReason = @"The output route was overridden by the app.";
+            break;
+        case AVAudioSessionRouteChangeReasonCategoryChange:
+            seccReason = @"The category of the session object changed.";
+            break;
+        case AVAudioSessionRouteChangeReasonOldDeviceUnavailable:
+            seccReason = @"The previous audio output path is no longer available.";
+            if ([self playing])
+            {
+                // Janking out the headphone will stop the audio.
+                [self pause:nil];
+            }
+            break;
+        case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
+            seccReason = @"A preferred new audio output path is now available.";
+            break;
+        case AVAudioSessionRouteChangeReasonUnknown:
+        default:
+            seccReason = @"The reason for the change is unknown.";
+            break;
+    }
+    AVAudioSessionPortDescription *input = [[session.currentRoute.inputs count]?session.currentRoute.inputs:nil objectAtIndex:0];
+    if (input.portType == AVAudioSessionPortHeadsetMic) {
+        
     }
 }
 
@@ -132,7 +156,10 @@ void audioRouteChangeListenerCallback (void *inUserData, AudioSessionPropertyID 
     self.shouldReturnToBeginningWhenSkippingToPreviousItem = YES;
     _state = STATE_STOPPED;
     // Handle unplugging of headphones
-    AudioSessionAddPropertyListener (kAudioSessionProperty_AudioRouteChange, audioRouteChangeListenerCallback, (__bridge void*)self);
+    [[NSNotificationCenter defaultCenter] addObserver: self
+                                             selector: @selector(handleRouteChange:)
+                                                 name: AVAudioSessionRouteChangeNotification
+                                               object: nil];
     [self initializeProperty:@"volume" defaultValue:@(volume)];
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteControlEvent:) name:kTiRemoteControlNotification object:nil];

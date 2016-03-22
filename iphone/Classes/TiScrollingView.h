@@ -25,4 +25,5 @@
 -(void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds;
 -(void)setContentOffsetToTop:(NSInteger)top animated:(BOOL)animated;
 -(void)setContentOffsetToBottom:(NSInteger)bottom animated:(BOOL)animated;
+- (void)updateKeyboardInset;
 @end

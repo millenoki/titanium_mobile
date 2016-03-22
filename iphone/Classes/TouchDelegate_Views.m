@@ -1,5 +1,6 @@
 
 #import "TouchDelegate_Views.h"
+#import "TiUIView.h"
 
 @class TiUIView;
 @implementation TDUITableView
