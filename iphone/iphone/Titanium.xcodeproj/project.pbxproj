@@ -281,7 +281,6 @@
 		CA0D39EB1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA0D39EA1B7F74F8009D534C /* TiAppiOSSearchableIndexProxy.m */; };
 		CAC2255B1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CAC2255A1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m */; };
 		CEBC15711A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */; };
-		D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */; };
 		D5016D7C1B51980800C10890 /* CMDActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5016D791B51980800C10890 /* CMDActivityViewController.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5016D7F1B51980800C10890 /* CMDForwardingActivityItemSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D5016D7B1B51980800C10890 /* CMDForwardingActivityItemSource.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D50A303018B0F6C1004CBD52 /* TouchCapturingWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = D50A302F18B0F6C1004CBD52 /* TouchCapturingWindow.m */; };
@@ -353,6 +352,7 @@
 		D55B2DCD1ACC5EF5008C0279 /* libFMDB-IOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D55B2DCC1ACC5EF5008C0279 /* libFMDB-IOS.a */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D56915CF168F2E7400C3F89F /* TiUILabelProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D56915CB168F2E7300C3F89F /* TiUILabelProxy.m */; };
 		D56915D5168F538F00C3F89F /* TTTAttributedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = D56915D4168F538F00C3F89F /* TTTAttributedLabel.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D56C5AFC1CA15DC900460105 /* TiUIClipboardModule.m in Sources */ = {isa = PBXBuildFile; fileRef = D56C5AFB1CA15DC900460105 /* TiUIClipboardModule.m */; };
 		D56D75A11A20DE2E001DEB9D /* TiCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = D56D75A01A20DE2E001DEB9D /* TiCollectionView.m */; };
 		D56D75AC1A20E18B001DEB9D /* WrapperViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D56D75AB1A20E18B001DEB9D /* WrapperViewProxy.m */; };
 		D56E6694180BF0B900F1B737 /* TiTransitionSwipeFade.m in Sources */ = {isa = PBXBuildFile; fileRef = D56E6693180BF0B900F1B737 /* TiTransitionSwipeFade.m */; };
@@ -1200,8 +1200,6 @@
 		CAC2255A1BB796C1008A332B /* TiUIiOSApplicationShortcutsProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSApplicationShortcutsProxy.m; sourceTree = "<group>"; };
 		CEBC156F1A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserDefaultsProxy.h; sourceTree = "<group>"; };
 		CEBC15701A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserDefaultsProxy.m; sourceTree = "<group>"; };
-		D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardProxy.h; sourceTree = "<group>"; };
-		D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIClipboardProxy.m; sourceTree = "<group>"; };
 		D5016D781B51980800C10890 /* CMDActivityViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMDActivityViewController.h; sourceTree = "<group>"; };
 		D5016D791B51980800C10890 /* CMDActivityViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMDActivityViewController.m; sourceTree = "<group>"; };
 		D5016D7A1B51980800C10890 /* CMDForwardingActivityItemSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMDForwardingActivityItemSource.h; sourceTree = "<group>"; };
@@ -1501,6 +1499,8 @@
 		D56915CB168F2E7300C3F89F /* TiUILabelProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUILabelProxy.m; sourceTree = "<group>"; };
 		D56915D3168F538F00C3F89F /* TTTAttributedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TTTAttributedLabel.h; path = ../Classes/TTTAttributedLabel/TTTAttributedLabel.h; sourceTree = "<group>"; };
 		D56915D4168F538F00C3F89F /* TTTAttributedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TTTAttributedLabel.m; path = ../Classes/TTTAttributedLabel/TTTAttributedLabel.m; sourceTree = "<group>"; };
+		D56C5AFA1CA15DC900460105 /* TiUIClipboardModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIClipboardModule.h; sourceTree = "<group>"; };
+		D56C5AFB1CA15DC900460105 /* TiUIClipboardModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIClipboardModule.m; sourceTree = "<group>"; };
 		D56D759F1A20DE2E001DEB9D /* TiCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCollectionView.h; sourceTree = "<group>"; };
 		D56D75A01A20DE2E001DEB9D /* TiCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCollectionView.m; sourceTree = "<group>"; };
 		D56D75AA1A20E18B001DEB9D /* WrapperViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WrapperViewProxy.h; sourceTree = "<group>"; };
@@ -1845,8 +1845,8 @@
 		24ADC5081299F4730014DB75 /* Clipboard */ = {
 			isa = PBXGroup;
 			children = (
-				D4AB36F3123DE20200DED4A0 /* TiUIClipboardProxy.h */,
-				D4AB36F4123DE20200DED4A0 /* TiUIClipboardProxy.m */,
+				D56C5AFA1CA15DC900460105 /* TiUIClipboardModule.h */,
+				D56C5AFB1CA15DC900460105 /* TiUIClipboardModule.m */,
 			);
 			name = Clipboard;
 			sourceTree = "<group>";
@@ -4406,6 +4406,7 @@
 				84EB08061A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */,
 				24A1E875112DF80B003DA834 /* TiUIPickerProxy.m in Sources */,
 				24A1E87B112DF83E003DA834 /* TiUIPicker.m in Sources */,
+				D56C5AFC1CA15DC900460105 /* TiUIClipboardModule.m in Sources */,
 				D54F41DF1C495B6F0062D7EC /* NSData+AES.m in Sources */,
 				CEBC15711A95452000CB7B66 /* TiAppiOSUserDefaultsProxy.m in Sources */,
 				D5C8C99717EF45C900F54C19 /* ADTransformTransition.m in Sources */,
@@ -4491,7 +4492,6 @@
 				D58DCBD217FF193D0011FE0E /* TiTransitionHelper.m in Sources */,
 				24F29E711220CE0A0099351D /* TiLocale.m in Sources */,
 				24F29F83122105C70099351D /* LocaleModule.m in Sources */,
-				D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */,
 				B473FBA4126FB2DF00E29C73 /* TiPublicAPI.m in Sources */,
 				B480501F1278AB010030AA3F /* TiThreading.m in Sources */,
 				DA9BE36F127F8F6C000FE9E1 /* UIImageExtras.m in Sources */,

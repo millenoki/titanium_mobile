@@ -5,9 +5,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiProxy.h"
+#import "TiModule.h"
 
-@interface TiUIClipboardProxy : TiProxy {
+@interface TiUIClipboardModule : TiModule {
 @private
 }
 

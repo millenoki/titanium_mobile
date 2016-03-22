@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiUIClipboardProxy.h"
+#import "TiUIClipboardModule.h"
 #import "TiUtils.h"
 #import "TiApp.h"
 #import "TiBlob.h"
@@ -71,7 +71,7 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
 	return uti;
 }
 
-@implementation TiUIClipboardProxy {
+@implementation TiUIClipboardModule {
     NSUInteger pasteboardChangeCount_;
     BOOL _registeredForChange;
 }
