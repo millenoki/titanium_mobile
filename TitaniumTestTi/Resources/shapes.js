@@ -592,6 +592,7 @@ function create(_context) {
                     events: {
                         click: function() {
                             view.animate({
+                                duration:1000,
                                 arc1: {
                                     sweepAngle: getRandomInt(0, 360)
                                 },
@@ -599,6 +600,7 @@ function create(_context) {
                                     sweepAngle: getRandomInt(0, 360)
                                 },
                                 arc3: {
+                                    duration:200,
                                     sweepAngle: getRandomInt(0, 360)
                                 }
                             });
