@@ -121,12 +121,7 @@ static NSDictionary* htmlOptions;
         switch (_contentType) {
             case kContentTypeHTML:
             {
-                //            if ([TiUtils isIOS7OrGreater]) {
-                //                _realLabelContent = [[NSAttributedString alloc] initWithData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil error:nil];
-                //            }
-                //            else {
                 _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
-                //            }
                 break;
             }
             default:
@@ -202,43 +197,8 @@ static NSDictionary* htmlOptions;
             }
             else
             {
-                NSLineBreakMode breakMode = NSLineBreakByWordWrapping;
-                if ([self valueForKey:@"ellipsize"])
-                    breakMode = [TiUtils intValue:[self valueForKey:@"ellipsize"]];
-                id fontValue = [self valueForKey:@"font"];
-                UIFont * font;
-                if (fontValue!=nil)
-                {
-                    font = [[TiUtils fontValue:fontValue] font];
-                }
-                else
-                {
-                    font = [UIFont systemFontOfSize:17];
-                }
-                NSInteger numberOfLines = 0;
-                if ([self valueForKey:@"maxLines"])
-                {
-                    numberOfLines = [TiUtils intValue:[self valueForKey:@"maxLines"]];
-                }
-//                font.lineHeight;
-                result = [(NSString*)_realLabelContent sizeWithFont:font constrainedToSize:maxSize lineBreakMode:breakMode];
-                if (numberOfLines > 0)
-                {
-                    CGFloat fontHeight = font.lineHeight;
-                    int currentNbLines = result.height / fontHeight;
-                    if (currentNbLines > numberOfLines)
-                    {
-                        result.height = numberOfLines * fontHeight;
-                    }
-                }
-           }
-            result.width = ceilf(result.width); //use ceilf to get same result as sizeThatFits
-            result.height = ceilf(result.height); //use ceilf to get same result as sizeThatFits
-            result.width += _padding.left + _padding.right;
-            result.height += _padding.top + _padding.bottom;
-            if (size.width > 0) result.width = MIN(result.width,  size.width);
-            if (size.height > 0) result.height = MIN(result.height,  size.height);
-            return result;
+                return [TiUtils sizeForString:(NSString*)_realLabelContent forSize:size options:self padding:_padding];
+            }
         }
     }
     return CGSizeZero;

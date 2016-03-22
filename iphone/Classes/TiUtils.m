@@ -2961,4 +2961,48 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
 }
 
++(CGSize)sizeForString:(NSString*)text forSize:(CGSize)size options:(NSObject*)options padding:(UIEdgeInsets)padding
+{
+    CGSize maxSize = CGSizeMake(size.width<=0 ? [[UIScreen mainScreen] bounds].size.width : size.width, size.height<=0 ? FLT_MAX : size.height);
+    maxSize.width -= padding.left + padding.right;
+    
+    NSLineBreakMode breakMode = NSLineBreakByWordWrapping;
+    if ([options valueForKey:@"ellipsize"])
+        breakMode = [TiUtils intValue:[options valueForKey:@"ellipsize"]];
+    id fontValue = [options valueForKey:@"font"];
+    UIFont * font;
+    if (fontValue!=nil)
+    {
+        font = [[TiUtils fontValue:fontValue] font];
+    }
+    else
+    {
+        font = [UIFont systemFontOfSize:17];
+    }
+    NSInteger numberOfLines = 0;
+    if ([options valueForKey:@"maxLines"])
+    {
+        numberOfLines = [TiUtils intValue:[options valueForKey:@"maxLines"]];
+    }
+    
+    //        resultSize = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:breakMode];
+    NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+    paragraphStyle.lineBreakMode = breakMode;
+    CGRect textRect = [text boundingRectWithSize:maxSize
+                                         options:NSStringDrawingUsesLineFragmentOrigin
+                                      attributes:@{
+                                                   NSFontAttributeName:font,
+                                                   NSParagraphStyleAttributeName: paragraphStyle}
+                                         context:nil];
+    [paragraphStyle release];
+    CGSize result = textRect.size;
+    result.width = ceilf(result.width); //use ceilf to get same result as sizeThatFits
+    result.height = ceilf(result.height); //use ceilf to get same result as sizeThatFits
+    result.width += padding.left + padding.right;
+    result.height += padding.top + padding.bottom;
+    if (size.width > 0) result.width = MIN(result.width,  size.width);
+    if (size.height > 0) result.height = MIN(result.height,  size.height);
+    return result;
+}
+
 @end

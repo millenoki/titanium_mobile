@@ -84,29 +84,7 @@ DEFINE_DEF_INT_PROP(maxLength,-1);
         return [(TiUITextWidget*)view contentSizeForSize:size];
     else
     {
-        NSString* text = [TiUtils stringValue:[self valueForKey:@"value"]];
-        CGSize resultSize = CGSizeZero;
-        CGSize maxSize = CGSizeMake(size.width<=0 ? 480 : size.width, size.height<=0 ? 10000 : size.height);
-        maxSize.width -= _padding.left + _padding.right;
-        
-        NSLineBreakMode breakMode = NSLineBreakByWordWrapping;
-        id fontValue = [self valueForKey:@"font"];
-        UIFont * font;
-        if (fontValue!=nil)
-        {
-            font = [[TiUtils fontValue:fontValue] font];
-        }
-        else
-        {
-            font = [UIFont systemFontOfSize:17];
-        }
-        maxSize.height = font.lineHeight; //textfield has one line
-        resultSize = [text sizeWithFont:font constrainedToSize:maxSize lineBreakMode:breakMode];
-        resultSize.width = roundf(resultSize.width);
-        resultSize.height = roundf(resultSize.height);
-        resultSize.width += _padding.left + _padding.right;
-        resultSize.height += _padding.top + _padding.bottom;
-        return resultSize;
+        return [TiUtils sizeForString:[TiUtils stringValue:[self valueForKey:@"value"]] forSize:size options:self padding:_padding];
     }
     return CGSizeZero;
 }
