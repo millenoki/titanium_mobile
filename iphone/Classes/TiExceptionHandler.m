@@ -9,6 +9,7 @@
 #import "TiExceptionHandler.h"
 #import "TiBase.h"
 #import "TiApp.h"
+#import "TiFileSystemHelper.h"
 
 static void TiUncaughtExceptionHandler(NSException *exception);
 
@@ -161,8 +162,9 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (NSString *)stackDescription
 {
+    NSString* path = [[NSURL fileURLWithPath:[TiFileSystemHelper resourcesDirectory]] absoluteString];
     if (_backtrace) {
-        return [_backtrace stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+        return [[_backtrace stringByReplacingOccurrencesOfString:@"%20" withString:@" "]stringByReplacingOccurrencesOfString:path withString:@"Resources/"];
     }
     return @"";
 }
@@ -170,7 +172,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (NSString *)oneLineDescription
 {
     if (self.sourceURL != nil) {
-        return [NSString stringWithFormat:@"%@:%ld:\"%@\"", [self.sourceURL stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding], (long)self.lineNo, self.message];
+        return [NSString stringWithFormat:@"%@:\"%@\"", [self.scriptLocation stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding], self.message];
     } else {
         return [NSString stringWithFormat:@"%@", self.message];
     }
@@ -178,7 +180,11 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (NSString *)scriptLocation
 {
-        return [NSString stringWithFormat:@"%@:%ld:%@", [self.sourceURL lastPathComponent], (long)self.lineNo, [_dictionaryValue valueForKey:@"column"]];
+    NSString* path = [[NSURL fileURLWithPath:[TiFileSystemHelper resourcesDirectory]] absoluteString];
+//    if ([path hasSuffix:@"/"]) {
+//        path = [path substringToIndex:path.length - 1];
+//    }
+    return [NSString stringWithFormat:@"%@:%ld:%@", [self.sourceURL stringByReplacingOccurrencesOfString:path withString:@"Resources/"], (long)self.lineNo, [_dictionaryValue valueForKey:@"column"]];
 }
 
 @end
