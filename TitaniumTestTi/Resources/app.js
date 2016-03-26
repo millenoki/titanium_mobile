@@ -4044,7 +4044,7 @@ function antiAliasTest(_args) {
 var modules = __AKYLAS_DEV__ ? ['shapes', 'charts'] : [];
 var moduleItems = [];
 for (var i = 0; i < modules.length; i++) {
-	var module = require(modules[i]).load(this);
+	var module = require('modules/' + modules[i]).load(this);
 	moduleItems.push({
 		properties: {
 			title: _.capitalize(modules[i])
@@ -4080,7 +4080,7 @@ function modulesExs(_args) {
 	openWin(win);
 }
 
-Ti.include('listview.js');
+Ti.include('modules/listview.js');
 var color = cellColor(0);
 var headerView = Ti.UI.createImageView({
 	scaleType: Ti.UI.SCALE_TYPE_ASPECT_FILL,

@@ -32,7 +32,7 @@ var movies = JSON.parse(
 );
 
 function listViewExs(_args) {
-    var win = createWin(_.assign(_args, {
+    var win = creatWin(_.assign(_args, {
         title: 'listviews',
         // fullscreen: true,
         // barColor:'blue',
