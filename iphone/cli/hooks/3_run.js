@@ -38,7 +38,7 @@ exports.init = function (logger, config, cli) {
 				},
 				lastLogger = 'debug',
 				levels = logger.getLevels(),
-				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?.*(?:\\[[0-9]+:[0-9]+\\]\s)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
 			ioslib.simulator.launch(builder.simHandle, {
 				appPath: builder.xcodeAppDir,
