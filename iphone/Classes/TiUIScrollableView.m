@@ -253,7 +253,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 #endif
 
 
--(UIScrollView*)scrollview 
+-(UIScrollView*)scrollView
 {
 #ifdef TI_USE_AUTOLAYOUT
 	if (_scrollView==nil)
@@ -493,7 +493,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
             viewBounds.size.height -= (showPageControl ? pageControlHeight : 0);
         }
     }
-	UIScrollView *sv = [self scrollview];
+	UIScrollView *sv = [self scrollView];
 	
     NSInteger page = [self currentPage];
     
