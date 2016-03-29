@@ -38,7 +38,8 @@ exports.init = function (logger, config, cli) {
 				},
 				lastLogger = 'debug',
 				levels = logger.getLevels(),
-				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?.*(?:\\[[0-9]+:[0-9]+\\]\s)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?(?:[^\\[]*)\\s*(?:\\[[0-9]+:[0-9]+\\])?\\s*(?:\\[(' +
+						levels.join('|') + '|log|timestamp)\\])?\\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
 			ioslib.simulator.launch(builder.simHandle, {
 				appPath: builder.xcodeAppDir,
@@ -56,9 +57,12 @@ exports.init = function (logger, config, cli) {
 					simStarted = true;
 					logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 				}
+
 				var m = line.match(logLevelRE);
 				if (m) {
-					lastLogger = m[2].toLowerCase();
+					if (m[2]) {
+						lastLogger = m[2].toLowerCase();
+					}
 					line = m[4].trim();
 				}
 				if (levels.indexOf(lastLogger) == -1) {
@@ -83,7 +87,9 @@ exports.init = function (logger, config, cli) {
 						ex = new appc.exception(
 							__n('Detected crash:', 'Detected multiple crashes:', code.crashFiles.length),
 							code.crashFiles.map(function (f) { return '  ' + f; }).concat(
-								__n('Note: this crash may or may not be related to running your app.', 'Note: these crashes may or may not be related to running your app.', code.crashFiles.length)
+								__n('Note: this crash may or may not be related to running your app.',
+								'Note: these crashes may or may not be related to running your app.',
+								code.crashFiles.length)
 							)
 						);
 					} else {
