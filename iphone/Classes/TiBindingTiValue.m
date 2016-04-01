@@ -61,6 +61,13 @@ NSDictionary * TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef
 			[dict setObject:value forKey:@"message"];
 		}
 		TiStringRelease(prop);
+        prop = TiStringCreateWithUTF8CString("stack");
+        val = TiObjectGetProperty(jsContext, obj, prop, NULL);
+        value = TiBindingTiValueToNSObject(jsContext, val);
+        if (value && ![value isEqual:[NSNull null]]) {
+            [dict setObject:value forKey:@"stack"];
+        }
+        TiStringRelease(prop);
 	}
 	
 	TiPropertyNameArrayRelease(props);
