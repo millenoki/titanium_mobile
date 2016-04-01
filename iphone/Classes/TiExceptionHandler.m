@@ -164,7 +164,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 {
     NSString* path = [[NSURL fileURLWithPath:[TiFileSystemHelper resourcesDirectory]] absoluteString];
     if (_backtrace) {
-        return [[_backtrace stringByReplacingOccurrencesOfString:@"%20" withString:@" "]stringByReplacingOccurrencesOfString:path withString:@"Resources/"];
+        return [[_backtrace stringByReplacingOccurrencesOfString:path withString:@"Resources/"]stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
     }
     return @"";
 }
