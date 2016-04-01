@@ -74,6 +74,22 @@ def generate_jsca(windows):
 		 return None
 	 return os.path.join(top_dir, 'dist', 'api.jsca')
 
+def generate_typescript_doc():
+	 process_args = ['../node_modules/.bin/ts-node', 'Generator.ts', '../../dist/api.jsca']
+	 print "Generating typescript doc..."
+	 print " ".join(process_args)
+	 outputfile = os.path.join(top_dir, 'dist', 'titanium.d.ts')
+	 output = open(outputfile, "w")
+	 process = subprocess.Popen(process_args, cwd=os.path.join(doc_dir, 'typescript'), stdout=output)
+	 output.close()
+	 process_return_code = process.wait()
+	 if process_return_code != 0:
+		 err_output = process.stderr.read()
+		 print >> sys.stderr, "Failed to generate typescript doc.  Output:"
+		 print >> sys.stderr, err_output
+		 return None
+	 return outputfile
+
 def prepare_xcode():
 	iphoneSrc = os.path.join(top_dir,'iphone','iphone')
 	process_args = ["node", os.path.join(cur_dir, 'xcode.js'), os.path.join(iphoneSrc, 'Titanium.xcodeproj'), os.path.join(top_dir, 'dist', 'ios')]
@@ -533,6 +549,9 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 				remove_existing_zips(dist_dir, version_tag)
 			sys.exit(1)
 		zf.write(jsca, '%s/api.jsca' % basepath)
+		typescript = generate_typescript_doc()
+		if not jsca is None:
+			zf.write(typescript, '%s/titanium.d.ts' % basepath)		
 
 	# copy the templates folder into the archive
 	zip_dir(zf, os.path.join(top_dir, 'templates'), '%s/templates' % basepath, ignore_paths=ignore_paths)
