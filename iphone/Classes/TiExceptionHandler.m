@@ -47,7 +47,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 - (void)reportScriptError:(TiScriptError *)scriptError
 {
     DebugLog(@"[ERROR] Script Error at %@", [scriptError oneLineDescription]);
-    DebugLog(@"[ERROR] backtrace:\n%@", [scriptError stackDescription]);
+    DebugLog(@"[ERROR] callstack:\n%@", [scriptError stackDescription]);
     
     id <TiExceptionHandlerDelegate> currentDelegate = _delegate;
     if (currentDelegate == nil) {

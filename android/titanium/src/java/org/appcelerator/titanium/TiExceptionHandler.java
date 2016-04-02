@@ -57,11 +57,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	public void printError(String title, String message, String sourceName, int line, String lineSource,
 		int lineOffset, final String callstack)
 	{
-		Log.e(TAG, "----- Titanium Javascript " + title + " -----");
-		Log.e(TAG, "- In " + sourceName + ":" + line + "," + lineOffset);
-		Log.e(TAG, "- Message: " + message);
-		Log.e(TAG, "- Source: " + lineSource);
-		Log.e(TAG, "- Callstack: " + callstack);
+		Log.e(TAG, "[ERROR] Script Error at " + sourceName + ":" + line + ":" + lineOffset + ":\"" + message + "\"");
+		Log.e(TAG, "[ERROR] Callstack:\n" + callstack);
 	}
 
 	public TiExceptionHandler()
