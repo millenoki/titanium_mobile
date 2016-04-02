@@ -10,9 +10,42 @@
 
 @implementation TiConsole
 
--(void)log:(NSArray*)args
+-(void)log:(NSArray*)args withSeverity:(NSString*)severity
 {
-    [self logMessage:args severity:@"info"];
+//    __block NSMutableString* message = [NSMutableString string];
+//    [args enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+//        [message appendString:@" "];
+//        if (IS_OF_CLASS(obj, NSDictionary)) {
+//            [message appendString:[TiUtils jsonStringify:obj]];
+//        } else {
+//            [message appendString:[obj description]];
+//        }
+//    }];
+    [self logMessage:args severity:severity];
 }
 
+-(void)log:(NSArray*)args
+{
+    [self log:args withSeverity:@"info"];
+}
+
+-(void)error:(NSArray*)args
+{
+    [self log:args withSeverity:@"error"];
+}
+
+-(void)warn:(NSArray*)args
+{
+    [self log:args withSeverity:@"warn"];
+}
+
+-(void)info:(NSArray*)args
+{
+    [self log:args withSeverity:@"info"];
+}
+
+-(void)debug:(NSArray*)args
+{
+    [self log:args withSeverity:@"debug"];
+}
 @end
