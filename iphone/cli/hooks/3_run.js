@@ -62,11 +62,22 @@ exports.init = function (logger, config, cli) {
 				if (m) {
 					if (m[2]) {
 						lastLogger = m[2].toLowerCase();
+					} else {
+						lastLogger = null;
 					}
-					line = m[4].trim();
+					if (m[4]) {
+						line = m[4].trim();
+					}
+					
+				} else {
+					lastLogger = null;
 				}
 				if (levels.indexOf(lastLogger) == -1) {
+					if(lastLogger) {
 					logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
+					} else {
+					logger.log(line);
+					}
 				} else {
 					logger[lastLogger](line);
 				}
