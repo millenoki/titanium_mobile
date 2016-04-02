@@ -530,6 +530,15 @@ public abstract class KrollRuntime implements Handler.Callback
 		final String lineSource, final int lineOffset, final String callstack)
 	{
 		if (instance != null) {
+		    HashMap error = new HashMap();
+		    error.put("title", title);
+		    error.put("message", message);
+		    error.put("sourceName", sourceName);
+            error.put("line", line);
+            error.put("lineSource", lineSource);
+            error.put("lineOffset", lineOffset);
+            error.put("callstack", callstack);
+            
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
 			KrollExceptionHandler currentHandler;
 
@@ -537,15 +546,13 @@ public abstract class KrollRuntime implements Handler.Callback
 				for (String key : handlers.keySet()) {
 					currentHandler = handlers.get(key);
 					if (currentHandler != null) {
-						currentHandler.handleException(new ExceptionMessage(title, message, sourceName, line, lineSource,
-							lineOffset, callstack));
+						currentHandler.handleException(error);
 					}
 				}
 			}
 
 			// Handle exception with defaultExceptionHandler
-			instance.primaryExceptionHandler.handleException(new ExceptionMessage(title, message, sourceName, line, lineSource,
-				lineOffset, callstack));
+			instance.primaryExceptionHandler.handleException(error);
 		}
 	}
 

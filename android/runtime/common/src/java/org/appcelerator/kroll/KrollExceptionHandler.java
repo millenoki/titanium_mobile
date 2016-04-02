@@ -63,5 +63,6 @@ public interface KrollExceptionHandler
 	 * @param e An exception message containing line number, error title, message, etc
 	 * @module.api
 	 */
-	public void handleException(ExceptionMessage e);
+    public void handleException(ExceptionMessage e);
+    public void handleException(HashMap e);
 }

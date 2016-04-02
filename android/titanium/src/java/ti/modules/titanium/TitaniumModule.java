@@ -19,9 +19,12 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollExceptionHandler;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.KrollExceptionHandler.ExceptionMessage;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger.Command;
@@ -453,6 +456,42 @@ public class TitaniumModule extends KrollModule
 
 		return super.handleMessage(msg);
 	}
-
+	
+    KrollExceptionHandler _exceptionHandler;
+    KrollFunction _prepareErrorCallback;
+	@Kroll.setProperty @Kroll.method
+    public void setPrepareError(KrollFunction value)
+    {
+	    if (value != null) {
+	        _prepareErrorCallback = value;
+	        if (_exceptionHandler == null) {
+	            _exceptionHandler = new KrollExceptionHandler() {
+                    
+                    @Override
+                    public void handleException(HashMap e) {
+                        if (_prepareErrorCallback != null) {
+                            Object result = _prepareErrorCallback.call(TitaniumModule.this.getKrollObject(), e);
+                            if (result instanceof HashMap) {
+                                e.clear();
+                                e.putAll((Map) result);
+                            }
+                        }
+                    }
+                    
+                    @Override
+                    public void handleException(ExceptionMessage e) {
+                        
+                    }
+                };
+                KrollRuntime.addAdditionalExceptionHandler(_exceptionHandler, "prepareError");
+	        }
+	    } else {
+	        _prepareErrorCallback = null;
+	        if (_exceptionHandler != null) {
+	            KrollRuntime.removeExceptionHandler("prepareError");
+	            _exceptionHandler = null;
+	        }
+	    }
+    }
 }
 
