@@ -21,6 +21,7 @@
 #import "Mimetypes.h"
 #import "TouchCapturingWindow.h"
 #import "SBJSON.h"
+#import "TiFileSystemHelper.h"
 
 #import <CoreSpotlight/CoreSpotlight.h>
 #ifdef KROLL_COVERAGE
@@ -1433,6 +1434,13 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 
 -(NSDictionary*)prepareErrorArgs:(NSDictionary*)args
 {
+    NSString* path = [[NSURL fileURLWithPath:[TiFileSystemHelper resourcesDirectory]] absoluteString];
+    if ([args objectForKey:@"stack"]) {
+        [args setValue:[[[args objectForKey:@"stack"] stringByReplacingOccurrencesOfString:path withString:@""]stringByReplacingOccurrencesOfString:@"%20" withString:@" "] forKey:@"stack"];
+    }
+    if ([args objectForKey:@"filename"]) {
+        [args setValue:[[[args objectForKey:@"filename"] stringByReplacingOccurrencesOfString:path withString:@""]stringByReplacingOccurrencesOfString:@"%20" withString:@" "] forKey:@"filename"];
+    }
     TopTiModule* topModule = [kjsBridge topTiModule];
     return [topModule prepareErrorArgs:args];
 }
