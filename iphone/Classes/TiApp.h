@@ -211,5 +211,6 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 
 -(void)clearRemoteNotification;
 -(void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary*)userInfo;
+-(NSDictionary*)prepareErrorArgs:(NSDictionary*)args;
 @end
 

@@ -10,5 +10,6 @@
 @interface TopTiModule : TiModule {
 
 }
+-(NSDictionary*)prepareErrorArgs:(NSDictionary*)args;
 
 @end

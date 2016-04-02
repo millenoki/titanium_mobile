@@ -1431,4 +1431,10 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     _networkConnected = networkConnected;
 }
 
+-(NSDictionary*)prepareErrorArgs:(NSDictionary*)args
+{
+    TopTiModule* topModule = [kjsBridge topTiModule];
+    return [topModule prepareErrorArgs:args];
+}
+
 @end

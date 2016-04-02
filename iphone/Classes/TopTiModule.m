@@ -18,6 +18,13 @@
 @implementation TopTiModule
 {
     NSString* _defaultUserAgent;
+    KrollCallback* _prepareErrorHandler;
+}
+
+-(void)dealloc
+{
+    RELEASE_TO_NIL(_prepareErrorHandler)
+    [super dealloc];
 }
 
 -(id)version
@@ -218,6 +225,21 @@
 #else
     return [NSDictionary dictionary];
 #endif
+}
+
+-(void)setPrepareError:(KrollCallback*)callback
+{
+    RELEASE_TO_NIL(_prepareErrorHandler);
+    _prepareErrorHandler = [callback retain];
+}
+
+-(NSDictionary*)prepareErrorArgs:(NSDictionary*)args
+{
+    id test = [self valueForUndefinedKey:@"prepareError"];
+    if (_prepareErrorHandler) {
+        return [_prepareErrorHandler call:@[args] thisObject:self];
+    }
+    return args;
 }
 
 @end

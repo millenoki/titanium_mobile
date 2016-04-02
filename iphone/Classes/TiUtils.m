@@ -1756,7 +1756,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 		return value;
 	}
 	if ([value isKindOfClass:[NSDictionary class]]) {
-		return [[[TiScriptError alloc] initWithDictionary:value] autorelease];
+		return [[[TiScriptError alloc] initWithDictionary:[[TiApp app] prepareErrorArgs:value]] autorelease];
 	}
 	return [[[TiScriptError alloc] initWithMessage:[value description] sourceURL:nil lineNo:0] autorelease];
 }
