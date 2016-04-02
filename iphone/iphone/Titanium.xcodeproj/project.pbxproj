@@ -2019,6 +2019,7 @@
 		24CA8A09111161D60084E2DE /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				D5F459ED1CAFC3FF00A9ECDC /* console */,
 				D50FDC011A4469EE00D962C9 /* Audio */,
 				D5509FD5194B1C2100655C61 /* Analytics */,
 				D55795781837BF3C0057DD41 /* Animation */,
@@ -2092,8 +2093,6 @@
 				B4DE7E4D11823E990006DDE1 /* TiGradient.m */,
 				B468B4EF11B5816F007D1C1E /* TiLayoutQueue.h */,
 				B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */,
-				DAA72341156D642400757987 /* TiConsole.h */,
-				DAA72342156D642400757987 /* TiConsole.m */,
 				84C3870017417CB800970D26 /* TiSelectedCellbackgroundView.h */,
 				84C3870117417CB800970D26 /* TiSelectedCellbackgroundView.m */,
 				D526016A179DB3EA00FE5723 /* TiSelectableBackgroundLayer.h */,
@@ -3924,6 +3923,15 @@
 				D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */,
 			);
 			name = UIViewsTouchDelegate;
+			sourceTree = "<group>";
+		};
+		D5F459ED1CAFC3FF00A9ECDC /* console */ = {
+			isa = PBXGroup;
+			children = (
+				DAA72341156D642400757987 /* TiConsole.h */,
+				DAA72342156D642400757987 /* TiConsole.m */,
+			);
+			name = console;
 			sourceTree = "<group>";
 		};
 		D5F980EA19ECFC180071A3C6 /* MGSwipeTableCell */ = {
