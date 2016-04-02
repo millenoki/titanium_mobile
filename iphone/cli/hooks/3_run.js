@@ -68,19 +68,21 @@ exports.init = function (logger, config, cli) {
 					if (m[4]) {
 						line = m[4].trim();
 					}
-					
 				} else {
 					lastLogger = null;
 				}
-				if (levels.indexOf(lastLogger) == -1) {
-					if(lastLogger) {
-					logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
+				if (lastLogger) {
+					if (levels.indexOf(lastLogger) == -1) {
+						logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
 					} else {
-					logger.log(line);
+						logger[lastLogger](line);
 					}
 				} else {
-					logger[lastLogger](line);
+				// logger.log('test ' + line + '|' + JSON.stringify(m) + '|' + lastLogger);
+						// logger.log();
+						logger.log(line);
 				}
+				
 			}).on('log', function (msg, simHandle) {
 				// system log messages
 				logger.trace(('[' + simHandle.appName + '] ' + msg).grey);
