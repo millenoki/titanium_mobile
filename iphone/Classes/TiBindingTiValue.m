@@ -16,6 +16,21 @@
 # import "KrollCoverage.h"
 #endif
 
+@interface NSMutableDictionary (KAKeyRenaming)
+- (void)ka_replaceKey:(id)oldKey withKey:(id)newKey;
+@end
+
+@implementation NSMutableDictionary (KAKeyRenaming)
+- (void)ka_replaceKey:(id)oldKey withKey:(id)newKey
+{
+    id value = [self objectForKey:oldKey];
+    if (value) {
+        [self setObject:value forKey:newKey];
+        [self removeObjectForKey:oldKey];
+    }
+}
+@end
+
 /*
  *	Since TiStringRefs are not tied to any particular context, and are
  *	immutable, they are threadsafe and more importantly, ones that are in
@@ -54,6 +69,14 @@ NSDictionary * TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef
 
 	// if this looks like a JS Error object, get the message
 	if ([dict objectForKey:@"line"] != nil && [dict objectForKey:@"column"] != nil) {
+        TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, obj);
+        size_t count = TiPropertyNameArrayGetCount(properties);
+        for (size_t i=0; i < count; i++) {
+            // Mixin the property onto the module JS object if it's not already there
+            TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
+            NSString* name = (NSString*)TiStringCopyCFString(kCFAllocatorDefault, propertyName);
+            NSLog(@"%@", name);
+        }
 		TiStringRef prop = TiStringCreateWithUTF8CString("message");
 		TiValueRef val = TiObjectGetProperty(jsContext, obj, prop, NULL);
 		id value = TiBindingTiValueToNSObject(jsContext, val);
@@ -68,6 +91,18 @@ NSDictionary * TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef
             [dict setObject:value forKey:@"stack"];
         }
         TiStringRelease(prop);
+        
+        prop = TiStringCreateWithUTF8CString("name");
+        val = TiObjectGetProperty(jsContext, obj, prop, NULL);
+        value = TiBindingTiValueToNSObject(jsContext, val);
+        if (value && ![value isEqual:[NSNull null]]) {
+            [dict setObject:value forKey:@"name"];
+        }
+        TiStringRelease(prop);
+        
+        [dict ka_replaceKey:@"sourceURL" withKey:@"filename"];
+        [dict ka_replaceKey:@"line" withKey:@"lineNumber"];
+        [dict ka_replaceKey:@"column" withKey:@"columnNumber"];
 	}
 	
 	TiPropertyNameArrayRelease(props);

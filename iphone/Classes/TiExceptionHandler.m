@@ -112,7 +112,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
             message = [[dictionary objectForKey:@"nativeReason"] description];
         }
     }
-    NSString *sourceURL = [[dictionary objectForKey:@"sourceURL"] description];
+    NSString *sourceURL = [[dictionary objectForKey:@"filename"] description];
     NSInteger lineNo = [[dictionary objectForKey:@"line"] integerValue];
     
     self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
@@ -184,7 +184,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 //    if ([path hasSuffix:@"/"]) {
 //        path = [path substringToIndex:path.length - 1];
 //    }
-    return [NSString stringWithFormat:@"%@:%ld:%@", [self.sourceURL stringByReplacingOccurrencesOfString:path withString:@"Resources/"], (long)self.lineNo, [_dictionaryValue valueForKey:@"column"]];
+    return [NSString stringWithFormat:@"%@:%ld:%@", [self.sourceURL stringByReplacingOccurrencesOfString:path withString:@"Resources/"], (long)self.lineNo, [_dictionaryValue valueForKey:@"columnNumber"]];
 }
 
 @end

@@ -531,13 +531,13 @@ public abstract class KrollRuntime implements Handler.Callback
 	{
 		if (instance != null) {
 		    HashMap error = new HashMap();
-		    error.put("title", title);
+		    error.put("name", title);
 		    error.put("message", message);
-		    error.put("sourceName", sourceName);
-            error.put("line", line);
+		    error.put("filename", sourceName);
+            error.put("lineNumber", line);
             error.put("lineSource", lineSource);
-            error.put("lineOffset", lineOffset);
-            error.put("callstack", callstack);
+            error.put("columnNumber", lineOffset);
+            error.put("stack", callstack);
             
 			HashMap<String, KrollExceptionHandler> handlers = instance.exceptionHandlers;
 			KrollExceptionHandler currentHandler;

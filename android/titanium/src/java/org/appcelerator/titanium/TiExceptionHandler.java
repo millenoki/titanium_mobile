@@ -108,12 +108,13 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 		
 		KrollDict dict = new KrollDict();
-		dict.put("title", error.title);
+		dict.put("name", error.title);
 		dict.put("message", error.message);
-		dict.put("sourceName", error.sourceName);
-		dict.put("line", error.line);
+		dict.put("filename", error.sourceName);
+		dict.put("lineNumber", error.line);
 		dict.put("lineSource", error.lineSource);
-		dict.put("lineOffset", error.lineOffset);
+        dict.put("columnNumber", error.lineOffset);
+        dict.put("stack", error.callstack);
 		TiApplication.getInstance().fireAppEvent("uncaughtException", dict);
 		printError(error.title, error.message, error.sourceName, error.line, error.lineSource, error.lineOffset, error.callstack);
 
@@ -287,13 +288,13 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	public void handleException(HashMap map)
     {
 	    ExceptionMessage message = new ExceptionMessage(
-                TiConvert.toString(map, "title"),
+                TiConvert.toString(map, "name"),
                 TiConvert.toString(map, "message"),
-                TiConvert.toString(map, "sourceName"),
-                TiConvert.toInt(map, "line", -1),
+                TiConvert.toString(map, "filename"),
+                TiConvert.toInt(map, "lineNumber", -1),
                 TiConvert.toString(map, "lineSource"),
-                TiConvert.toInt(map, "lineOffset", -1),
-                TiConvert.toString(map, "callstack"));
+                TiConvert.toInt(map, "columnNumber", -1),
+                TiConvert.toString(map, "stack"));
 	    message.canContinue = TiConvert.toBoolean(map, "canContinue", true);
 	    handleException(message);
     }
