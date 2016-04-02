@@ -35,6 +35,7 @@
 
 extern NSString * TitaniumModuleRequireFormat;
 
+@class TopTiModule;
 @interface KrollBridge : Bridge<TiEvaluator,KrollDelegate> {
 @private
 	NSURL * currentURL;
@@ -68,6 +69,6 @@ extern NSString * TitaniumModuleRequireFormat;
 -(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj;
 -(void)registerProxy:(id)proxy krollObject:(KrollObject *)ourKrollObject;
 -(int)forceGarbageCollectNow;
-
+-(TopTiModule*)topTiModule;
 @end
 

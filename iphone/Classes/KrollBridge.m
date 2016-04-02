@@ -1231,4 +1231,7 @@ loadNativeJS:
     return [[self host] profileMode];
 }
 
+-(TopTiModule*)topTiModule {
+    return (TopTiModule*)titanium.target;
+}
 @end
