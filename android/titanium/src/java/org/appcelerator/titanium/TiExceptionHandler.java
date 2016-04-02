@@ -110,7 +110,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		KrollDict dict = new KrollDict();
 		dict.put("name", error.title);
 		dict.put("message", error.message);
-		dict.put("filename", error.sourceName);
+		dict.put("fileName", error.sourceName);
 		dict.put("lineNumber", error.line);
 		dict.put("lineSource", error.lineSource);
         dict.put("columnNumber", error.lineOffset);
@@ -290,7 +290,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	    ExceptionMessage message = new ExceptionMessage(
                 TiConvert.toString(map, "name"),
                 TiConvert.toString(map, "message"),
-                TiConvert.toString(map, "filename"),
+                TiConvert.toString(map, "fileName"),
                 TiConvert.toInt(map, "lineNumber", -1),
                 TiConvert.toString(map, "lineSource"),
                 TiConvert.toInt(map, "columnNumber", -1),

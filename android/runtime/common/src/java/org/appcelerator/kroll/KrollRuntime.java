@@ -533,7 +533,7 @@ public abstract class KrollRuntime implements Handler.Callback
 		    HashMap error = new HashMap();
 		    error.put("name", title);
 		    error.put("message", message);
-		    error.put("filename", sourceName);
+		    error.put("fileName", sourceName);
             error.put("lineNumber", line);
             error.put("lineSource", lineSource);
             error.put("columnNumber", lineOffset);
