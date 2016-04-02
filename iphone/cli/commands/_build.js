@@ -5479,9 +5479,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						if (useBabel) {
 							var _this = this;			
 							babel.transformFile(from, {
-									sourceMaps:"both",
+									sourceMaps:_this.cli.argv.target !== 'dist-appstore' ,
+									sourceMapTarget:file,
+									sourceFileName:file,
 									sourceMapTarget:to + '.map',
-									highlightCode:true
 								}, function(err, transformed) {
 								if (err) {
 									_this.logger.error('Babel error: ' + err  + '\n');
@@ -5502,11 +5503,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								// we want to sort by the "to" filename so that we correctly handle file overwriting
 								_this.tiSymbols[to] = r.symbols;
 
-								if (transformed.sourceMap) {
-									_this.logger.trace("sourceMap " + transformed.sourceMap);
-									process.exit(1);
-								}
-
 								var dir = path.dirname(to);
 								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
@@ -5517,6 +5513,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									exists && fs.unlinkSync(to);
 									fs.writeFileSync(to, r.contents);
 									_this.jsFilesChanged = true;
+									if (transformed.map) {
+										fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+									}
 								} else {
 									_this.logger.trace(__('No change, skipping %s', to.cyan));
 								}
