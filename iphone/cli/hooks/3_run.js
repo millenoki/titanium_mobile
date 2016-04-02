@@ -39,7 +39,7 @@ exports.init = function (logger, config, cli) {
 				lastLogger = 'debug',
 				levels = logger.getLevels(),
 				logLevelRE = new RegExp('^(\u001b\\[\\d+m)?(?:[^\\[]*)\\s*(?:\\[[0-9]+:[0-9]+\\])?\\s*(?:\\[(' +
-						levels.join('|') + '|log|timestamp)\\])?\\s*(\u001b\\[\\d+m)?(.*)', 'i');
+						levels.join('|') + '|log|timestamp)\\])\\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
 			ioslib.simulator.launch(builder.simHandle, {
 				appPath: builder.xcodeAppDir,
@@ -57,7 +57,6 @@ exports.init = function (logger, config, cli) {
 					simStarted = true;
 					logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 				}
-
 				var m = line.match(logLevelRE);
 				if (m) {
 					if (m[2]) {
