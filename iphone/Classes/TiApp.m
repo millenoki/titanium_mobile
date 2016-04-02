@@ -1438,8 +1438,8 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
     if ([args objectForKey:@"stack"]) {
         [args setValue:[[[args objectForKey:@"stack"] stringByReplacingOccurrencesOfString:path withString:@""]stringByReplacingOccurrencesOfString:@"%20" withString:@" "] forKey:@"stack"];
     }
-    if ([args objectForKey:@"filename"]) {
-        [args setValue:[[[args objectForKey:@"filename"] stringByReplacingOccurrencesOfString:path withString:@""]stringByReplacingOccurrencesOfString:@"%20" withString:@" "] forKey:@"filename"];
+    if ([args objectForKey:@"fileName"]) {
+        [args setValue:[[[args objectForKey:@"fileName"] stringByReplacingOccurrencesOfString:path withString:@""]stringByReplacingOccurrencesOfString:@"%20" withString:@" "] forKey:@"fileName"];
     }
     TopTiModule* topModule = [kjsBridge topTiModule];
     return [topModule prepareErrorArgs:args];

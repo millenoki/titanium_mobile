@@ -93,7 +93,7 @@ NSDictionary * TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef
         }
         TiStringRelease(prop);
         
-        [dict ka_replaceKey:@"sourceURL" withKey:@"filename"];
+        [dict ka_replaceKey:@"sourceURL" withKey:@"fileName"];
         [dict ka_replaceKey:@"line" withKey:@"lineNumber"];
         [dict ka_replaceKey:@"column" withKey:@"columnNumber"];
 	}

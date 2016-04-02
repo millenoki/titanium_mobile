@@ -112,7 +112,7 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
             message = [[dictionary objectForKey:@"nativeReason"] description];
         }
     }
-    NSString *sourceURL = [[dictionary objectForKey:@"filename"] description];
+    NSString *sourceURL = [[dictionary objectForKey:@"fileName"] description];
     NSInteger lineNo = [[dictionary objectForKey:@"lineNumber"] integerValue];
     
     self = [self initWithMessage:message sourceURL:sourceURL lineNo:lineNo];
