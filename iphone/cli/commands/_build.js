@@ -35,6 +35,7 @@ var appc = require('node-appc'),
 	wrench = require('wrench'),
 	xcode = require('xcode'),
 	xcodeParser = require('xcode/lib/parser/pbxproj'),
+	babel = require('babel-core')
 	xml = appc.xml,
 	i18n = appc.i18n(__dirname),
 	__ = i18n.__,
@@ -91,6 +92,8 @@ function iOSBuilder() {
 	this.useJSCore = false;
 	// when false, JavaScript will run on its own thread - the Kroll Thread
 	this.runOnMainThread = false;
+
+	this.useBabel = false;
 
 	this.useAutoLayout = false;
 	// populated the first time getDeviceInfo() is called
@@ -2173,6 +2176,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// TIMOB-17892
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
 	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp['run-on-main-thread'] === true);
+	this.currentBuildManifest.useBabel = this.useBabel = (this.tiapp['use-babel'] === true);
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
@@ -2300,6 +2304,14 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 		this.logger.info(__('App Thining is enabled'));
 	} else {
 		this.logger.info(__('App Thining is disabled'));
+	}
+
+	if (this.runOnMainThread) {
+		this.logger.info(__('App runs on main thread'));
+	}
+
+	if (this.useBabel) {
+		this.logger.info(__('JS files will be transformed with Babel'));
 	}
 };
 
@@ -2502,6 +2514,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: use RunOnMainThread flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.runOnMainThread));
 			this.logger.info('  ' + __('Now: %s', this.runOnMainThread));
+			return true;
+		}
+
+		// check if the use useBabel flag has changed
+		if (this.useBabel !== manifest.useBabel) {
+			this.logger.info(__('Forcing rebuild: use useBabel flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.useBabel));
+			this.logger.info('  ' + __('Now: %s', this.useBabel));
 			return true;
 		}
 
@@ -5443,6 +5463,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		function processJSFiles(next) {
 			this.logger.info(__('Processing JavaScript files'));
 
+			var useBabel = this.useBabel;
 			async.eachSeries(Object.keys(jsFiles), function (file, next) {
 				setImmediate(function () {
 					var info = jsFiles[file];
@@ -5454,46 +5475,98 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						info.dest = path.join(this.buildAssetsDir, file);
 						this.jsFilesToEncrypt.push(file);
 					}
+					this.cli.createHook(useBabel?'build.ios.compileJsFile':'build.ios.copyResource', this, function (from, to, cb) {
+						if (useBabel) {
+							var _this = this;			
+							babel.transformFile(from, {
+									sourceMaps:"both",
+									sourceMapTarget:to + '.map',
+									highlightCode:true
+								}, function(err, transformed) {
+								if (err) {
+									_this.logger.error('Babel error: ' + err  + '\n');
+									process.exit(1);
+								}
+								// we want to sort by the "to" filename so that we correctly handle file overwriting
+								_this.tiSymbols[to] = transformed.ast;
 
-					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
-						try {
-							// parse the AST
-							var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-						} catch (ex) {
-							ex.message.split('\n').forEach(this.logger.error);
-							this.logger.log();
-							process.exit(1);
-						}
+								try {
+								// parse the AST
+									var r = jsanalyze.analyzeJs(transformed.code, { minify: _this.minifyJS });
+								} catch (ex) {
+									ex.message.split('\n').forEach(_this.logger.error);
+									_this.logger.log();
+									process.exit(1);
+								}
 
-						// we want to sort by the "to" filename so that we correctly handle file overwriting
-						this.tiSymbols[to] = r.symbols;
+								// we want to sort by the "to" filename so that we correctly handle file overwriting
+								_this.tiSymbols[to] = r.symbols;
 
-						var dir = path.dirname(to);
-						fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+								if (transformed.sourceMap) {
+									_this.logger.trace("sourceMap " + transformed.sourceMap);
+									process.exit(1);
+								}
 
-						this.unmarkBuildDirFile(to);
+								var dir = path.dirname(to);
+								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-						if (this.minifyJS) {
-							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+								_this.unmarkBuildDirFile(to);
 								var exists = fs.existsSync(to);
 								if (!exists || r.contents !== fs.readFileSync(to).toString()) {
-									this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+									_this.logger.debug(__(this.minifyJS?'Copying and minifying %s => %s':'Copying %s => %s', from.cyan, to.cyan));
 									exists && fs.unlinkSync(to);
 									fs.writeFileSync(to, r.contents);
+									_this.jsFilesChanged = true;
+								} else {
+									_this.logger.trace(__('No change, skipping %s', to.cyan));
+								}
+								// filendir.writeFileSync(to, transformed.code);
+								// logger.trace('tran/sformedFile: ' +  transformed.sourcemap);
+								// cache[to] = stat.mtime.getTime();
+								// logger.debug('Transformed: ' + to);
+								cb();
+							});
+						} else {
+							try {
+								// parse the AST
+								var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+							} catch (ex) {
+								ex.message.split('\n').forEach(this.logger.error);
+								this.logger.log();
+								process.exit(1);
+							}
+
+							// we want to sort by the "to" filename so that we correctly handle file overwriting
+							this.tiSymbols[to] = r.symbols;
+
+							var dir = path.dirname(to);
+							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+							this.unmarkBuildDirFile(to);
+
+							if (this.minifyJS) {
+								this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+									var exists = fs.existsSync(to);
+									if (!exists || r.contents !== fs.readFileSync(to).toString()) {
+										this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+										exists && fs.unlinkSync(to);
+										fs.writeFileSync(to, r.contents);
+										this.jsFilesChanged = true;
+									} else {
+										this.logger.trace(__('No change, skipping %s', to.cyan));
+									}
+									cb2();
+								})(r, from, to, cb);
+							} else {
+								if (this.copyFileSync(from, to)) {
 									this.jsFilesChanged = true;
 								} else {
 									this.logger.trace(__('No change, skipping %s', to.cyan));
 								}
-								cb2();
-							})(r, from, to, cb);
-						} else {
-							if (this.copyFileSync(from, to)) {
-								this.jsFilesChanged = true;
-							} else {
-								this.logger.trace(__('No change, skipping %s', to.cyan));
+								cb();
 							}
-							cb();
 						}
+						
 					})(info.src, info.dest, next);
 				}.bind(this));
 			}.bind(this), next);
