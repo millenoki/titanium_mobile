@@ -25,7 +25,7 @@
 	NSMutableDictionary *modules;
 	TiHost *host;
 	id<TiEvaluator> pageContext;
-	NSMutableDictionary *dynprops;
+//	NSMutableDictionary *dynprops;
 }
 
 -(id)initWithContext:(KrollContext*)context_ host:(TiHost*)host_ context:(id<TiEvaluator>)context baseURL:(NSURL*)baseURL_;

@@ -100,7 +100,7 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 {
 	RELEASE_TO_NIL(host);
 	RELEASE_TO_NIL(modules);
-	RELEASE_TO_NIL(dynprops);
+//	RELEASE_TO_NIL(dynprops);
 	[super dealloc];
 }
 
@@ -112,18 +112,18 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 {
 	// allow dynprops to override built-in modules
 	// in case you want to re-define them
-	if (dynprops!=nil)
-	{
-		id result = [dynprops objectForKey:key];
-		if (result!=nil)
-		{
-			if (result == [NSNull null])
-			{
-				return nil;
-			}
-			return result;
-		}
-	}
+//	if (dynprops!=nil)
+//	{
+//		id result = [dynprops objectForKey:key];
+//		if (result!=nil)
+//		{
+//			if (result == [NSNull null])
+//			{
+//				return nil;
+//			}
+//			return result;
+//		}
+//	}
 	id module = [modules objectForKey:key];
 	if (module!=nil)
 	{
@@ -138,18 +138,18 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 	return [super valueForKey:key];
 }
 
--(void)setValue:(id)value forKey:(NSString *)key
-{
-	if (dynprops==nil)
-	{
-		dynprops = [[NSMutableDictionary dictionary] retain];
-	}
-	if (value == nil)
-	{
-		value = [NSNull null];
-	}
-	[dynprops setValue:value forKey:key];
-}
+//-(void)setValue:(id)value forKey:(NSString *)key
+//{
+//	if (dynprops==nil)
+//	{
+//		dynprops = [[NSMutableDictionary dictionary] retain];
+//	}
+//	if (value == nil)
+//	{
+//		value = [NSNull null];
+//	}
+//	[dynprops setValue:value forKey:key];
+//}
 
 - (id) valueForUndefinedKey: (NSString *) key
 {
@@ -157,13 +157,13 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 	{
 		return [self description];
 	}
-	if (dynprops != nil)
-	{
-		return [dynprops objectForKey:key];
-	}
+//	if (dynprops != nil)
+//	{
+//		return [dynprops objectForKey:key];
+//	}
 	//NOTE: we need to return nil here since in JS you can ask for properties
 	//that don't exist and it should return undefined, not an exception
-	return nil;
+	return [super valueForUndefinedKey:key];
 }
 
 -(id)addModule:(NSString*)name module:(TiModule*)module
