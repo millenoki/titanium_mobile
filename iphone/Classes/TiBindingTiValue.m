@@ -69,14 +69,7 @@ NSDictionary * TiBindingTiValueToNSDictionary(TiContextRef jsContext, TiValueRef
 
 	// if this looks like a JS Error object, get the message
 	if ([dict objectForKey:@"line"] != nil && [dict objectForKey:@"column"] != nil) {
-        TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, obj);
-        size_t count = TiPropertyNameArrayGetCount(properties);
-        for (size_t i=0; i < count; i++) {
-            // Mixin the property onto the module JS object if it's not already there
-            TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
-            NSString* name = (NSString*)TiStringCopyCFString(kCFAllocatorDefault, propertyName);
-            NSLog(@"%@", name);
-        }
+
 		TiStringRef prop = TiStringCreateWithUTF8CString("message");
 		TiValueRef val = TiObjectGetProperty(jsContext, obj, prop, NULL);
 		id value = TiBindingTiValueToNSObject(jsContext, val);
