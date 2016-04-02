@@ -289,7 +289,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	    ExceptionMessage message = new ExceptionMessage(
                 TiConvert.toString(map, "title"),
                 TiConvert.toString(map, "message"),
-                TiConvert.toString(map, "source"),
+                TiConvert.toString(map, "sourceName"),
                 TiConvert.toInt(map, "line", -1),
                 TiConvert.toString(map, "lineSource"),
                 TiConvert.toInt(map, "lineOffset", -1),
