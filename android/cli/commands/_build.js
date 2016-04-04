@@ -38,6 +38,7 @@ var ADB = require('titanium-sdk/lib/adb'),
 	tiappxml = require('titanium-sdk/lib/tiappxml'),
 	util = require('util'),
 	wrench = require('wrench'),
+    babel = require('babel-core'),
 
     afs = appc.fs,
     i18nLib = appc.i18n(__dirname),
@@ -78,6 +79,8 @@ function AndroidBuilder() {
     this.jsFilesChanged = false;
 
     this.dexAgent = false;
+
+    this.useBabel = false;
 
     this.minSupportedApiLevel = parseInt(this.packageJson.minSDKVersion);
     this.minTargetApiLevel = parseInt(version.parseMin(this.packageJson.vendorDependencies['android sdk']));
@@ -1818,6 +1821,10 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     this.currentBuildManifest.mergeCustomAndroidManifest = this.config.get('android.mergeCustomAndroidManifest', false),
     this.currentBuildManifest.minSDK                     = this.minSDK;
     this.currentBuildManifest.targetSDK                  = this.targetSDK;
+    this.currentBuildManifest.useBabel                   = this.useBabel = (this.tiapp['use-babel'] === true);
+
+    //we test the package.json hash in case babel settings changed
+    this.currentBuildManifest.packageJSONHash            = this.packageJSONHash = fs.exists('package.json') ? this.hash(fs.readFileSync('package.json')): '';
 
     this.appid = this.tiapp.id;
     this.appid.indexOf('.') == -1 && (this.appid = 'com.' + this.appid);
@@ -1869,6 +1876,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
             this.encryptJS = this.minifyJS = !!compileJSProp.value;
         }
     }
+
     var includeAllTiModulesProp = this.tiapp.properties['ti.android.include_all_modules'];
     if (includeAllTiModulesProp !== undefined) {
         this.includeAllTiModules = includeAllTiModulesProp.value;
@@ -1942,6 +1950,9 @@ AndroidBuilder.prototype.loginfo = function loginfo(next) {
         this.logger.info(__('Profiler disabled'));
     }
 
+    if (this.useBabel) {
+        this.logger.info(__('JS files will be transformed with Babel'));
+    }
 
     if (this.cli.argv.ide) {
         this.logger.info(__('building for IDE!'));
@@ -2230,6 +2241,23 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		this.logger.info('  ' + __('Now: %s', this.config.get('android.mergeCustomAndroidManifest', false)));
 		return true;
 	}
+
+
+    // check if the use useBabel flag has changed
+    if (this.useBabel !== manifest.useBabel) {
+        this.logger.info(__('Forcing rebuild: use useBabel flag changed since last build'));
+        this.logger.info('  ' + __('Was: %s', manifest.useBabel));
+        this.logger.info('  ' + __('Now: %s', this.useBabel));
+        return true;
+    }
+
+    // check if the use package.json has changed
+    if (this.packageJSONHash !== manifest.packageJSONHash) {
+        this.logger.info(__('Forcing rebuild: package.json changed since last build'));
+        this.logger.info('  ' + __('Was: %s', manifest.packageJSONHash));
+        this.logger.info('  ' + __('Now: %s', this.packageJSONHash));
+        return true;
+    }
 
     return false;
 };
@@ -2672,49 +2700,124 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
         // copy js files into assets directory and minify if needed
         this.logger.info(__('Processing JavaScript files'));
-        appc.async.series(this, Object.keys(jsFiles).map(function (id) {
+        var useBabel = this.useBabel;
+        appc.async.series(this, Object.keys(jsFiles).map(function (file) {
             return function (done) {
-                var from = jsFiles[id],
-                    to = path.join(this.buildBinAssetsResourcesDir, id);
+                var from = jsFiles[file],
+                    to = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildBinAssetsResourcesDir, file),
+                    fromStat = fs.statSync(from),
+                    fromMtime = JSON.parse(JSON.stringify(fromStat.mtime)),
+                    prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
+                    toExists = fs.existsSync(to),
+                    toStat = toExists && fs.statSync(to),
+                    contents = null,
+                    hash = null,
+                    fileChanged = !toExists || !prev || prev.size !== fromStat.size || prev.mtime !== fromMtime || prev.hash !== (hash = this.hash(contents = fs.readFileSync(from)));
 
-                if (htmlJsFiles[id]) {
+                this.currentBuildManifest.files[file] = {
+                    hash:  contents === null && prev ? prev.hash  : hash || this.hash(contents || ''),
+                    mtime: contents === null && prev ? prev.mtime : fromMtime,
+                    size:  contents === null && prev ? prev.size  : fromStat.size
+                };
+
+                if (htmlJsFiles[file]) {
                     // this js file is referenced from an html file, so don't minify or encrypt
                     delete this.lastBuildFiles[to];
+                    if (!fileChanged) {
+                        done();
+                        return;
+                    }
                     return copyFile.call(this, from, to, done);
                 }
 
                 // we have a js file that may be minified or encrypted
-
+ 
                 // if we're encrypting the JavaScript, copy the files to the assets dir
                 // for processing later
                 if (this.encryptJS) {
-                    to = path.join(this.buildAssetsEncryptDir, id);
-                    jsFilesToEncrypt.push(id);
+                    this.jsFilesToEncrypt.push(file);
                 }
                 delete this.lastBuildFiles[to];
 
+                if (!fileChanged) {
+                    this.logger.trace(__('No change, skipping %s', from.cyan));
+                    var r = jsanalyze.analyzeJsFile(to);
+                    // we want to sort by the "to" filename so that we correctly handle file overwriting
+                    this.tiSymbols[to] = r.symbols;
+                    done();
+                    return;
+                }
+
                 try {
-                    this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
-                        // parse the AST
-                        var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+                    this.cli.createHook(useBabel?'build.android.compileJsFile':'build.android.copyResource', this, function (from, to, cb) {
+                        if (useBabel && fileChanged) {
+                            var _this = this;           
+                            babel.transformFile(from, {
+                                    sourceMaps:_this.cli.argv.target !== 'dist-playstore' ,
+                                    sourceMapTarget:file,
+                                    sourceFileName:file,
+                                    sourceMapTarget:to + '.map',
+                                }, function(err, transformed) {
+                                if (err) {
+                                    _this.logger.error('Babel error: ' + err  + '\n');
+                                    process.exit(1);
+                                }
+                                // we want to sort by the "to" filename so that we correctly handle file overwriting
+                                _this.tiSymbols[to] = transformed.ast;
 
-                        // we want to sort by the "to" filename so that we correctly handle file overwriting
-                        this.tiSymbols[to] = r.symbols;
-                        var dir = path.dirname(to);
-                        fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+                                try {
+                                // parse the AST
+                                    var r = jsanalyze.analyzeJs(transformed.code, { minify: _this.minifyJS });
+                                } catch (ex) {
+                                    ex.message.split('\n').forEach(_this.logger.error);
+                                    _this.logger.log();
+                                    process.exit(1);
+                                }
 
-                        if (this.minifyJS) {
-                            this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+                                // we want to sort by the "to" filename so that we correctly handle file overwriting
+                                _this.tiSymbols[to] = r.symbols;
 
-                            this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
-                                fs.writeFile(to, r.contents, cb2);
-                            })(r, from, to, cb);
-                        } else if (symlinkFiles) {
-                            copyFile.call(this, from, to, cb);
+                                var dir = path.dirname(to);
+                                fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+                                _this.unmarkBuildDirFile(to);
+                                var exists = fs.existsSync(to);
+                                if (!exists || r.contents !== fs.readFileSync(to).toString()) {
+                                    _this.logger.debug(__(this.minifyJS?'Copying and minifying %s => %s':'Copying %s => %s', from.cyan, to.cyan));
+                                    exists && fs.unlinkSync(to);
+                                    fs.writeFileSync(to, r.contents);
+                                    _this.jsFilesChanged = true;
+                                    if (transformed.map) {
+                                        fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+                                    }
+                                } else {
+                                    _this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
+                                }
+                                cb();
+                            });
                         } else {
-                            // we've already read in the file, so just write the original contents
-                            this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
-                            fs.writeFile(to, r.contents, cb);
+                            // parse the AST
+                            var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
+
+                            // we want to sort by the "to" filename so that we correctly handle file overwriting
+                            this.tiSymbols[to] = r.symbols;
+                            var dir = path.dirname(to);
+                            fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+                            if (this.minifyJS) {
+                                this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+
+                                this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+                                    fs.writeFile(to, r.contents, cb2);
+                                })(r, from, to, cb);
+                            } else if (symlinkFiles) {
+                                copyFile.call(this, from, to, cb);
+                            } else {
+                                // we've already read in the file, so just write the original contents
+                                this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+                                fs.writeFile(to, r.contents, cb);
+                            }
+                            this.jsFilesChanged = true;
                         }
                     })(from, to, done);
                 } catch (ex) {
