@@ -1983,7 +1983,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						cli.scanHooks(path.join(module.modulePath, 'hooks'));
 					}, this);
 
-					this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+					this.currentBuildManifest.modulesManifestHash = this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
 
 					next();
 				}.bind(this));
@@ -2176,7 +2176,11 @@ iOSBuilder.prototype.initialize = function initialize() {
 	// TIMOB-17892
 	this.currentBuildManifest.useJSCore = this.useJSCore = !this.debugHost && !this.profilerHost && (this.tiapp.ios['use-jscore-framework'] || false);
 	this.currentBuildManifest.runOnMainThread = this.runOnMainThread = (this.tiapp['run-on-main-thread'] === true);
+
 	this.currentBuildManifest.useBabel = this.useBabel = (this.tiapp['use-babel'] === true);
+    //we test the package.json hash in case babel settings changed
+    this.currentBuildManifest.packageJSONHash            = this.packageJSONHash = fs.exists('package.json') ? this.hash(fs.readFileSync('package.json')): '';
+
 	this.currentBuildManifest.useAutoLayout = this.useAutoLayout = this.tiapp.ios && (this.tiapp.ios['use-autolayout'] === true);
 
 	this.moduleSearchPaths = [ this.projectDir, appc.fs.resolvePath(this.platformPath, '..', '..', '..', '..') ];
@@ -2524,6 +2528,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info('  ' + __('Now: %s', this.useBabel));
 			return true;
 		}
+
+		// check if the use package.json has changed
+	    if (this.packageJSONHash !== manifest.packageJSONHash) {
+	        this.logger.info(__('Forcing rebuild: package.json changed since last build'));
+	        this.logger.info('  ' + __('Was: %s', manifest.packageJSONHash));
+	        this.logger.info('  ' + __('Now: %s', this.packageJSONHash));
+	        return true;
+	    }
 
 		// check if the use UserAutoLayout flag has changed
 		if (this.useAutoLayout !== manifest.useAutoLayout) {
