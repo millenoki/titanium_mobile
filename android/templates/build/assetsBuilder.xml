@@ -1,7 +1,21 @@
 <?xml version="1.0"?>
-<project default="createAssetIndex">
-    <target name="createAssetIndex">
-        <fileset id="assets.fileset" dir="assets/Resources" includes="**"
+<project default="TiBuild">
+    <target name="TiBuild">
+          <exec executable="<%- node %>" dir="${basedir}">
+            <arg value="<%- titanium %>"/>
+            <arg value="build"/>
+            <arg value="-p"/>
+            <arg value="android"/>
+            <arg value="--sdk"/>
+            <arg value="<%- sdk %>"/>
+            <arg value="--no-prompt"/>
+            <arg value="--no-progress-bars"/>
+            <arg value="--no-banner"/>
+            <arg value="--no-colors"/>
+            <arg value="--build-only"/>
+            <arg value="--ide"/>
+          </exec>
+        <!-- <fileset id="assets.fileset" dir="assets/Resources" includes="**"
             excludes="assets/__assets_list__.index" />
         <pathconvert pathsep="${line.separator}" property="assets"
             refid="assets.fileset">
@@ -10,6 +24,6 @@
                     handledirsep="yes" />
             </mapper>
         </pathconvert>
-        <echo file="assets/__assets_list__.index">${assets}</echo>
+        <echo file="assets/__assets_list__.index">${assets}</echo> -->
     </target>
 </project>
