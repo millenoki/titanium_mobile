@@ -4397,7 +4397,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	var filenameRegExp = /^(.*)\.(\w+)$/,
 
 		useAppThinning = this.useAppThinning,
-
+		isProduction = this.target  === 'dist-appstore',
 		appIcon = this.tiapp.icon.match(filenameRegExp),
 
 		ignoreDirs = this.ignoreDirs,
@@ -4494,7 +4494,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						// fall through to default case
 
 					default:
-						resourcesToCopy[relPath] = info;
+						//ignore source map files in production
+						if (!isProduction || !(/\.js\.map/.test(info.name)) {
+							resourcesToCopy[relPath] = info;
+						}
 				}
 			}
 		});

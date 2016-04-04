@@ -2358,6 +2358,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         splashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
         relSplashScreenRegExp = /^default\.(9\.png|png|jpg)$/,
         drawableResources = {},
+        isProduction = this.target  === 'dist-playstore',
         jsFiles = {},
         moduleResPackages = this.moduleResPackages = [],
         htmlJsFiles = this.htmlJsFiles = {},
@@ -2557,10 +2558,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 						}
 
                     default:
-                        // normal file, just copy it into the build/android/bin/assets directory
-                        _t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
-                            copyFile.call(_t, from, to, cb);
-                        })(from, to, next);
+                        //ignore source map files in production
+                        if (!isProduction || !(/\.js\.map/.test(info.name)) {
+                            // normal file, just copy it into the build/android/bin/assets directory
+                            _t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
+                                copyFile.call(_t, from, to, cb);
+                            })(from, to, next);
+                        }
+                        
                 }
             },
 
