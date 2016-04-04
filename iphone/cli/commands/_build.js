@@ -5487,6 +5487,31 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						info.dest = path.join(this.buildAssetsDir, file);
 						this.jsFilesToEncrypt.push(file);
 					}
+					var from = info.src,
+	                    to = info.dest,
+	                    fromStat = fs.statSync(from),
+	                    fromMtime = JSON.parse(JSON.stringify(fromStat.mtime)),
+	                    prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
+	                    toExists = fs.existsSync(to),
+	                    toStat = toExists && fs.statSync(to),
+	                    contents = null,
+	                    hash = null,
+	                    fileChanged = !toExists || !prev || prev.size !== fromStat.size || prev.mtime !== fromMtime || prev.hash !== (hash = this.hash(contents = fs.readFileSync(from)));
+
+	                this.currentBuildManifest.files[file] = {
+	                    hash:  contents === null && prev ? prev.hash  : hash || this.hash(contents || ''),
+	                    mtime: contents === null && prev ? prev.mtime : fromMtime,
+	                    size:  contents === null && prev ? prev.size  : fromStat.size
+	                };
+	                if (!fileChanged) {
+	                    this.logger.trace(__('No change, skipping %s', from.cyan));
+	                    var r = jsanalyze.analyzeJsFile(to);
+	                    // we want to sort by the "to" filename so that we correctly handle file overwriting
+	                    this.tiSymbols[to] = r.symbols;
+	                    next();
+	                    return;
+	                }
+
 					this.cli.createHook(useBabel?'build.ios.compileJsFile':'build.ios.copyResource', this, function (from, to, cb) {
 						if (useBabel) {
 							var _this = this;			
@@ -5529,12 +5554,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 										fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
 									}
 								} else {
-									_this.logger.trace(__('No change, skipping %s', to.cyan));
+                                    _this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
 								}
-								// filendir.writeFileSync(to, transformed.code);
-								// logger.trace('tran/sformedFile: ' +  transformed.sourcemap);
-								// cache[to] = stat.mtime.getTime();
-								// logger.debug('Transformed: ' + to);
 								cb();
 							});
 						} else {
@@ -5578,7 +5599,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							}
 						}
 						
-					})(info.src, info.dest, next);
+					})(from, to, next);
 				}.bind(this));
 			}.bind(this), next);
 		},
