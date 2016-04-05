@@ -3426,15 +3426,16 @@ AndroidBuilder.prototype.handleGooglePlayServices = function handleGooglePlaySer
 
 AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next) {
     var _t = this;
+    var isProduction = this.deployType == 'production';
 
-    function copy(src, dest) {
+    function copy(src, dest, ignore) {
         fs.readdirSync(src).forEach(function (filename) {
             var from = path.join(src, filename),
                 to = path.join(dest, filename);
-            if (fs.existsSync(from)) {
+            if ((!ignore || !ignore.test(filename)) && fs.existsSync(from)) {
                 delete _t.lastBuildFiles[to];
                 if (fs.statSync(from).isDirectory()) {
-                    copy(from, to);
+                    copy(from, to, ignore);
                 } else if (_t.xmlMergeRegExp.test(filename)) {
                     _t.writeXmlFile(from, to);
                 } else {
@@ -3482,7 +3483,7 @@ AndroidBuilder.prototype.copyModuleResources = function copyModuleResources(next
         var src = path.join(m.modulePath, 'assets');
         if (fs.existsSync(src)) {
             tasks.push(function (done) {
-                copy(src, path.join(this.buildBinAssetsResourcesDir, m.id));
+                copy(src, path.join(this.buildBinAssetsResourcesDir, m.id), (isProduction && /\.js\.map$/));
                 done();
             }.bind(this));
         }
