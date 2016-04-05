@@ -4397,7 +4397,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	var filenameRegExp = /^(.*)\.(\w+)$/,
 
 		useAppThinning = this.useAppThinning,
-		isProduction = this.target  === 'dist-appstore',
+
 		appIcon = this.tiapp.icon.match(filenameRegExp),
 
 		ignoreDirs = this.ignoreDirs,
@@ -4409,6 +4409,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		launchImageRegExp = /^(Default(-(Landscape|Portrait))?(-[0-9]+h)?(@[2-9]x)?)\.png$/,
 		launchLogoRegExp = /^LaunchLogo(?:@([23])x)?(?:~(iphone|ipad))?\.(?:png|jpg)$/,
 
+        isProduction = this.deployType == 'production',
+        
 		resourcesToCopy = {},
 		jsFiles = {},
 		cssFiles = {},
