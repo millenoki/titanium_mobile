@@ -4453,7 +4453,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				var to = path.join(dest, name);
 
 				if (srcStat.isDirectory()) {
-					return walk(from, to, null, origSrc || src);
+					return walk(from, to, ignore, origSrc || src);
 				}
 
 				var parts = name.match(filenameRegExp),
@@ -4518,14 +4518,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						// fall through to default case
 
 					default:
-						//ignore source maps in production
-                        if (!isProduction || !(/\.js\.map$/.test(info.name))) {
-							resourcesToCopy[relPath] = info;
-						}
+						resourcesToCopy[relPath] = info;
 				}
 			}
 		});
-	}
+	};
 
 	this.logger.info(__('Analyzing Resources directory'));
 
