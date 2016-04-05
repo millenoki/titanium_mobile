@@ -251,9 +251,9 @@ def buildModule(modulepath, command, opts, config):
     if (command == 'compilejs'):
         compile_js(manifest,config)
     elif(command == 'build'):
-        # compile_js(manifest,config)
+        compile_js(manifest,config)
         build_module(manifest,config)
     else:
-        # compile_js(manifest,config)
+        compile_js(manifest,config)
         build_module(manifest,config)
         package_module(manifest,mf,config)
