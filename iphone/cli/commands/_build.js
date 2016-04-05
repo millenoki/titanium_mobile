@@ -4393,6 +4393,28 @@ iOSBuilder.prototype.writeDebugProfilePlists = function writeDebugProfilePlists(
 	processPlist.call(this, 'profiler.plist', this.profilerHost);
 };
 
+iOSBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
+    var ignoreDirs = this.ignoreDirs;
+    var ignoreFiles = this.ignoreFiles;
+    fs.readdirSync(currentPath).forEach(function(name, i, arr) {
+        var currentFile = path.join(currentPath, name);
+        var isDir = fs.statSync(currentFile).isDirectory();
+        if (isDir) {
+            if (!ignoreDirs || !ignoreDirs.test(name)) {
+                this.dirWalker(currentFile, callback);
+            } else {
+                this.logger.warn(__('ignoring dir %s', name.cyan));
+            }
+        } else {
+            if (!ignoreFiles || !ignoreFiles.test(name)) {
+            callback(currentFile, name, i, arr);
+            } else {
+                this.logger.warn(__('ignoring file %s', name.cyan));
+            }
+        }
+    }, this);
+};
+
 iOSBuilder.prototype.copyResources = function copyResources(next) {
 	var filenameRegExp = /^(.*)\.(\w+)$/,
 
@@ -4520,7 +4542,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 	this.logger.info(__('Analyzing module files'));
 	this.modules.forEach(function(module) {
-		walk(path.join(module.modulePath, 'assets'), path.join(this.xcodeAppDir, 'modules', module.id.toLowerCase()));
+		walk(path.join(module.modulePath, 'assets'), path.join(this.xcodeAppDir, module.id.toLowerCase()));
 		platformPaths.push(
 			path.join(module.modulePath, 'platform', 'iphone'),
 			path.join(module.modulePath, 'platform', 'ios')
@@ -6137,22 +6159,15 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 	}
 
 	// find all plist and png files
-	(function walk(dir, ignore) {
-		fs.readdirSync(dir).forEach(function (name) {
-			if (!ignore || !ignore.test(name)) {
-				var file = path.join(dir, name);
-				if (fs.existsSync(file)) {
-					if (fs.statSync(file).isDirectory()) {
-						walk(file);
-					} else if (name === 'InfoPlist.strings' || name === 'Localizable.strings' || plistRegExp.test(name)) {
-						add(plists, name, file);
-					} else if (pngRegExp.test(name)) {
-						add(pngs, name, file);
-					}
-				}
+	this.dirWalker(his.xcodeAppDir, function(file, name) {
+		if (!ignore || !ignore.test(name)) {
+	        if (name === 'InfoPlist.strings' || name === 'Localizable.strings' || plistRegExp.test(name)) {
+				add(plists, name, file);
+			} else if (pngRegExp.test(name)) {
+				add(pngs, name, file);
 			}
-		});
-	}(this.xcodeAppDir, /^(PlugIns|Watch)$/i));
+		}
+    }.bind(this));
 
 	parallel(this, [
 		function (next) {
