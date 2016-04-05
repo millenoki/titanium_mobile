@@ -3033,12 +3033,6 @@ AndroidBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
                         encryptedAssets: out
                     })
                 );
-                var stat = fs.statSync(dest);
-                this.currentBuildManifest.files[rel] = {
-                    hash: this.hash(contents),
-                    mtime: stat.mtime,
-                    size: stat.size
-                };
                 done();
             }.bind(this));
         }),
