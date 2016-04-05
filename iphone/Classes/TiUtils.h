@@ -560,6 +560,7 @@ typedef enum
 
 +(NSString*)jsonStringify:(id)value;
 +(id)jsonParse:(NSString*)value;
++(NSString*)stringifyObject:(id)value;
 
 +(NSString*)currentArchitecture;
 

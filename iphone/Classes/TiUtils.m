@@ -2688,6 +2688,20 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     }
     return r;
 }
+
++(NSString*)stringifyObject:(id)value
+{
+    @try {
+        NSError *error = nil;
+        NSString *r = [self jsonStringify:value error:&error];
+        if(error != nil) {
+            return [value description];
+        }
+        return r;
+    } @catch(NSException* e) {
+        return [value description];
+    }
+}
 +(id)jsonParse:(NSString*)value
 {
     NSError *error = nil;

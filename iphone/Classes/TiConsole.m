@@ -12,16 +12,12 @@
 
 -(void)log:(NSArray*)args withSeverity:(NSString*)severity
 {
-//    __block NSMutableString* message = [NSMutableString string];
-//    [args enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-//        [message appendString:@" "];
-//        if (IS_OF_CLASS(obj, NSDictionary)) {
-//            [message appendString:[TiUtils jsonStringify:obj]];
-//        } else {
-//            [message appendString:[obj description]];
-//        }
-//    }];
-    [self logMessage:args severity:severity];
+    __block NSMutableString* message = [NSMutableString string];
+    [args enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [message appendString:@" "];
+        [message appendString:[TiUtils stringifyObject:obj]];
+    }];
+    [self logMessage:@[message] severity:severity];
 }
 
 -(void)log:(NSArray*)args
