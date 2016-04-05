@@ -2019,9 +2019,9 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 
 		// initialization
 		'doAnalytics',
+		'readBuildManifest',
 		'initialize',
 		'loginfo',
-		'readBuildManifest',
 		'checkIfNeedToRecompile',
 		'initBuildDir',
 
@@ -2205,7 +2205,6 @@ iOSBuilder.prototype.initialize = function initialize() {
 	
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
-	this.buildManifestFile      = path.join(this.buildDir, 'build-manifest.json');
 
 	if ((this.tiapp.properties && this.tiapp.properties.hasOwnProperty('ios.whitelist.appcelerator.com') && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
 		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
@@ -2320,6 +2319,7 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 };
 
 iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
+	this.buildManifestFile      = path.join(this.buildDir, 'build-manifest.json');
 	// read the build manifest from the last build, if exists, so we
 	// can determine if we need to do a full rebuild
 	if (fs.existsSync(this.buildManifestFile)) {
@@ -2333,6 +2333,35 @@ iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
 	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
 
 	this.unmarkBuildDirFile(this.buildManifestFile);
+
+	if (this.cli.argv.xcode) {
+		if (!process.env.TITANIUM_CLI_XCODEBUILD) {
+			var manifest = this.previousBuildManifest;
+
+			this.platformPath = manifest.iosSdkPath;
+			this.target = manifest.target;
+			this.deployType = manifest.deployType;
+			this.sdkVersion = manifest.sdkVersion;
+			this.target = manifest.target;
+			this.target = manifest.target;
+			this.forceCopy = manifest.forceCopy;
+			this.skipJSMinification = manifest.skipJSMinification;
+			this.encryptJS = manifest.encryptJS;
+			this.forceCopyAll = manifest.forceCopyAll;
+			this.target = manifest.target;
+			this.iosSdkVersion = manifest.iosSdkVersion;
+			this.deviceFamily = manifest.deviceFamily;
+			this.developerName = manifest.developerName;
+			this.distributionName = manifest.distributionName;
+			this.provisioningProfileUUID = manifest.ppUuid;
+			this.useJSCore = manifest.useJSCore;
+			this.runOnMainThread = manifest.runOnMainThread;
+			this.cli.argv['output-dir'] = manifest.outputDir;
+			this.useBabel = manifest.useBabel;
+			this.useAutoLayout = manifest.useAutoLayout;
+			this.useAppThinning = manifest.useAppThinning;
+		}
+	}
 };
 
 iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() {
