@@ -4496,8 +4496,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						// fall through to default case
 
 					default:
-						//ignore source map files in production
-						if (!isProduction || !(/\.js\.map/.test(info.name)) {
+						//ignore source maps in production
+                        if (!isProduction || !(/\.js\.map$/.test(info.name))) {
 							resourcesToCopy[relPath] = info;
 						}
 				}
