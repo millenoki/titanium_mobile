@@ -4471,6 +4471,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		launchLogos = {},
 		imageAssets = {};
 
+	var that = this;
 	function walk(src, dest, ignore, origSrc) {
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
 			var from = path.join(src, name),
@@ -5566,52 +5567,56 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	                    return;
 	                }
 
-					this.cli.createHook(useBabel?'build.ios.compileJsFile':'build.ios.copyResource', this, function (from, to, cb) {
+					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
 						if (useBabel) {
-							var _this = this;			
-							babel.transformFile(from, {
+
+							var _this = this;
+							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+								babel.transformFile(from, {
 									sourceMaps:_this.cli.argv.target !== 'dist-appstore' ,
 									sourceMapTarget:file,
 									sourceFileName:file,
 									sourceMapTarget:to + '.map',
 								}, function(err, transformed) {
-								if (err) {
-									_this.logger.error('Babel error: ' + err  + '\n');
-									process.exit(1);
-								}
-								// we want to sort by the "to" filename so that we correctly handle file overwriting
-								_this.tiSymbols[to] = transformed.ast;
-
-								try {
-								// parse the AST
-									var r = jsanalyze.analyzeJs(transformed.code, { minify: _this.minifyJS });
-								} catch (ex) {
-									ex.message.split('\n').forEach(_this.logger.error);
-									_this.logger.log();
-									process.exit(1);
-								}
-
-								// we want to sort by the "to" filename so that we correctly handle file overwriting
-								_this.tiSymbols[to] = r.symbols;
-
-								var dir = path.dirname(to);
-								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-								_this.unmarkBuildDirFile(to);
-								var exists = fs.existsSync(to);
-								if (!exists || r.contents !== fs.readFileSync(to).toString()) {
-									_this.logger.debug(__(this.minifyJS?'Copying and minifying %s => %s':'Copying %s => %s', from.cyan, to.cyan));
-									exists && fs.unlinkSync(to);
-									fs.writeFileSync(to, r.contents);
-									_this.jsFilesChanged = true;
-									if (transformed.map) {
-										fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+									if (err) {
+										_this.logger.error('Babel error: ' + err  + '\n');
+										process.exit(1);
 									}
-								} else {
-                                    _this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
-								}
-								cb();
-							});
+									// we want to sort by the "to" filename so that we correctly handle file overwriting
+									_this.tiSymbols[to] = transformed.ast;
+
+									try {
+									// parse the AST
+										var r = jsanalyze.analyzeJs(transformed.code, { minify: _this.minifyJS });
+									} catch (ex) {
+										ex.message.split('\n').forEach(_this.logger.error);
+										_this.logger.log();
+										process.exit(1);
+									}
+
+									// we want to sort by the "to" filename so that we correctly handle file overwriting
+									_this.tiSymbols[to] = r.symbols;
+
+									var dir = path.dirname(to);
+									fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+									_this.unmarkBuildDirFile(to);
+									var exists = fs.existsSync(to);
+									if (!exists || r.contents !== fs.readFileSync(to).toString()) {
+										_this.logger.debug(__(this.minifyJS?'Copying and minifying %s => %s':'Copying %s => %s', from.cyan, to.cyan));
+										exists && fs.unlinkSync(to);
+										fs.writeFileSync(to, r.contents);
+										_this.jsFilesChanged = true;
+										if (transformed.map) {
+											fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+										}
+									} else {
+	                                    _this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
+									}
+									cb2();
+								});
+							})(r, from, to, cb);			
+							
 						} else {
 							try {
 								// parse the AST

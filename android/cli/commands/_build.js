@@ -2771,52 +2771,54 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                 }
 
                 try {
-                    this.cli.createHook(useBabel?'build.android.compileJsFile':'build.android.copyResource', this, function (from, to, cb) {
+                    this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
                         if (useBabel && fileChanged) {
                             var _this = this;           
-                            babel.transformFile(from, {
-                                    sourceMaps:_this.cli.argv.target !== 'dist-playstore' ,
-                                    sourceMapTarget:file,
-                                    sourceFileName:file,
-                                    sourceMapTarget:to + '.map',
-                                }, function(err, transformed) {
-                                if (err) {
-                                    _this.logger.error('Babel error: ' + err  + '\n');
-                                    process.exit(1);
-                                }
-                                // we want to sort by the "to" filename so that we correctly handle file overwriting
-                                _this.tiSymbols[to] = transformed.ast;
-
-                                try {
-                                // parse the AST
-                                    var r = jsanalyze.analyzeJs(transformed.code, { minify: _this.minifyJS });
-                                } catch (ex) {
-                                    ex.message.split('\n').forEach(_this.logger.error);
-                                    _this.logger.log();
-                                    process.exit(1);
-                                }
-
-                                // we want to sort by the "to" filename so that we correctly handle file overwriting
-                                _this.tiSymbols[to] = r.symbols;
-
-                                var dir = path.dirname(to);
-                                fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-                                _this.unmarkBuildDirFile(to);
-                                var exists = fs.existsSync(to);
-                                if (!exists || r.contents !== fs.readFileSync(to).toString()) {
-                                    _this.logger.debug(__(this.minifyJS?'Copying and minifying %s => %s':'Copying %s => %s', from.cyan, to.cyan));
-                                    exists && fs.unlinkSync(to);
-                                    fs.writeFileSync(to, r.contents);
-                                    _this.jsFilesChanged = true;
-                                    if (transformed.map) {
-                                        fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+                            this.cli.createHook('build.android.compileJsFile', this, function (r, from, to, cb2) {
+                                babel.transformFile(from, {
+                                        sourceMaps:_this.cli.argv.target !== 'dist-playstore' ,
+                                        sourceMapTarget:file,
+                                        sourceFileName:file,
+                                        sourceMapTarget:to + '.map',
+                                    }, function(err, transformed) {
+                                    if (err) {
+                                        _this.logger.error('Babel error: ' + err  + '\n');
+                                        process.exit(1);
                                     }
-                                } else {
-                                    _this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
-                                }
-                                cb();
-                            });
+                                    // we want to sort by the "to" filename so that we correctly handle file overwriting
+                                    _this.tiSymbols[to] = transformed.ast;
+
+                                    try {
+                                    // parse the AST
+                                        var r = jsanalyze.analyzeJs(transformed.code, { minify: _this.minifyJS });
+                                    } catch (ex) {
+                                        ex.message.split('\n').forEach(_this.logger.error);
+                                        _this.logger.log();
+                                        process.exit(1);
+                                    }
+
+                                    // we want to sort by the "to" filename so that we correctly handle file overwriting
+                                    _this.tiSymbols[to] = r.symbols;
+
+                                    var dir = path.dirname(to);
+                                    fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+                                    _this.unmarkBuildDirFile(to);
+                                    var exists = fs.existsSync(to);
+                                    if (!exists || r.contents !== fs.readFileSync(to).toString()) {
+                                        _this.logger.debug(__(this.minifyJS?'Copying and minifying %s => %s':'Copying %s => %s', from.cyan, to.cyan));
+                                        exists && fs.unlinkSync(to);
+                                        fs.writeFileSync(to, r.contents);
+                                        _this.jsFilesChanged = true;
+                                        if (transformed.map) {
+                                            fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+                                        }
+                                    } else {
+                                        _this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
+                                    }
+                                    cb2();
+                                });
+                            })(r, from, to, cb);            
                         } else {
                             // parse the AST
                             var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
