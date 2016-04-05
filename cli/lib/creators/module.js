@@ -104,6 +104,9 @@ ModuleCreator.prototype.run = function run(callback) {
 		}
 
 		var variables = {
+				node:process.execPath || 'node',
+				cli:this.cli.argv.$0.replace(/^(.+\/)*node /, ''),
+
 				author: this.config.get('user.name', 'Your Name'),
 				publisher: this.config.get('app.publisher', 'Your Company'),
 				guid: uuid.v4(),
