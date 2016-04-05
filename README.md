@@ -48,6 +48,7 @@ To build and work with that fork you need to know a few things
 	* [ListViewAnimations](https://github.com/Akylas/ListViewAnimations)
 	* [StickyListHeaders](https://github.com/Akylas/StickyListHeaders)
 	* [gpuimage](https://github.com/Akylas/android-gpuimage)
+* everything is made to be built using nodejs now. Which means that python build is deprecated, even for modules. Your modules structure might need to be updated. Especially the XCode projects and the eclipse projects. You should create a test module to see the difference.
 
 ## Sample App
 
