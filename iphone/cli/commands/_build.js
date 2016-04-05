@@ -4539,7 +4539,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 	this.logger.info(__('Analyzing module files'));
 	this.modules.forEach(function(module) {
-		walk(path.join(module.modulePath, 'assets'), path.join(this.xcodeAppDir, module.id.toLowerCase()));
+		//ignore source maps in production
+		walk(path.join(module.modulePath, 'assets'), path.join(this.xcodeAppDir, module.id.toLowerCase()), (isProduction && /\.js\.map$/));
 		platformPaths.push(
 			path.join(module.modulePath, 'platform', 'iphone'),
 			path.join(module.modulePath, 'platform', 'ios')
@@ -5704,6 +5705,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 };
 
 iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
+	this.logger.info(__('Encrypting js files, %s', this.jsFilesToEncrypt));
+
 	var rel = 'Classes/ApplicationRouting.m',
 		dest = path.join(this.buildDir, 'Classes', 'ApplicationRouting.m'),
 		destExists = fs.existsSync(dest),
@@ -5928,7 +5931,6 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			}
 		}
 	}
-
 	// add the symbols we found
 	Object.keys(this.tiSymbols).forEach(function (file) {
 		this.tiSymbols[file].forEach(addSymbol);
@@ -6156,8 +6158,8 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 	}
 
 	// find all plist and png files
-	this.dirWalker(his.xcodeAppDir, function(file, name) {
-		if (!ignore || !ignore.test(name)) {
+	this.dirWalker(this.xcodeAppDir, function(file, name) {
+		if (!/^(PlugIns|Watch)$/i.test(name)) {
 	        if (name === 'InfoPlist.strings' || name === 'Localizable.strings' || plistRegExp.test(name)) {
 				add(plists, name, file);
 			} else if (pngRegExp.test(name)) {
