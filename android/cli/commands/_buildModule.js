@@ -25,6 +25,7 @@ var AdmZip = require('adm-zip'),
 	path = require('path'),
 	temp = require('temp'),
 	util = require('util'),
+	babel = require('babel-core')
 	wrench = require('wrench'),
 	spawn = require('child_process').spawn,
 
@@ -44,6 +45,9 @@ util.inherits(AndroidModuleBuilder, Builder);
 AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 	Builder.prototype.config.apply(this, arguments);
 	Builder.prototype.validate.apply(this, arguments);
+
+	this.ignoreDirs = new RegExp(config.get('cli.ignoreDirs'));
+    this.ignoreFiles = new RegExp(config.get('cli.ignoreFiles'));
 
 	return function (finished) {
 		this.projectDir = cli.argv['project-dir'];
@@ -148,8 +152,8 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 
 			// get the javac params
 			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '256M');
-			this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.6');
-			this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.6');
+			this.javacSource = cli.timodule.properties['android.javac.source'] && cli.timodule.properties['android.javac.source'].value || config.get('android.javac.source', '1.7');
+			this.javacTarget = cli.timodule.properties['android.javac.target'] && cli.timodule.properties['android.javac.target'].value || config.get('android.javac.target', '1.7');
 			this.dxMaxMemory = cli.timodule.properties['android.dx.maxmemory'] && cli.timodule.properties['android.dx.maxmemory'].value || config.get('android.dx.maxMemory', '1024M');
 
 			// detect java development kit
@@ -175,6 +179,7 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 
 AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished) {
 	Builder.prototype.run.apply(this, arguments);
+	var compileOnly = !!cli.argv.compilejs;
 
 	appc.async.series(this, [
 		function (next) {
@@ -188,20 +193,47 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		function (next) {
 			cli.emit('build.module.pre.compile', this, next);
 		},
+		function(next) {
+			if (!compileOnly) {
+				series(this, [
+					'compileAidlFiles',
+					'compileModuleJavaSrc',
+					'generateRuntimeBindings',
+					'generateV8Bindings',
+				], next);
+			} else {
+				next();
+			}
+		},
 
-		'compileAidlFiles',
-		'compileModuleJavaSrc',
-		'generateRuntimeBindings',
-		'generateV8Bindings',
 		'compileJsClosure',
 		'compileJS',
 		'jsToC',
 		'ndkBuild',
 		'ndkLocalBuild',
 		'compileAllFinal',
-		'verifyBuildArch',
-		'packageZip',
-		'runModule',
+		'generateDistJar',
+
+		function(next) {
+			if (!compileOnly) {
+				series(this, [
+					'verifyBuildArch',
+					'packageZip',
+				], next);
+			} else {
+				next();
+			}
+		},
+
+		function(next) {
+			if (cli.argv.run) {
+				series(this, [
+					'runModule',
+				], next);
+			} else {
+				next();
+			}
+		},
 
 		function (next) {
 			cli.emit('build.module.post.compile', this, next);
@@ -215,12 +247,24 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 };
 
 AndroidModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
-	fs.readdirSync(currentPath).forEach(function (name, i, arr) {
+
+	var ignoreDirs = this.ignoreDirs;
+	var ignoreFiles = this.ignoreFiles;
+	fs.readdirSync(currentPath).forEach(function(name, i, arr) {
 		var currentFile = path.join(currentPath, name);
-		if (fs.statSync(currentFile).isDirectory()) {
-			this.dirWalker(currentFile, callback);
+		var isDir = fs.statSync(currentFile).isDirectory();
+		if (isDir) {
+			if (!ignoreDirs || !ignoreDirs.test(name)) {
+				this.dirWalker(currentFile, callback);
+			} else {
+				this.logger.warn(__('ignoring dir %s', name.cyan));
+			}
 		} else {
+			if (!ignoreFiles || !ignoreFiles.test(name)) {
 			callback(currentFile, name, i, arr);
+			} else {
+				this.logger.warn(__('ignoring file %s', name.cyan));
+			}
 		}
 	}, this);
 };
@@ -278,15 +322,16 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	}, this);
 
 	this.timoduleXmlFile = path.join(this.projectDir, 'timodule.xml');
-	this.licenseFile = path.join(this.projectDir, 'LICENSE');
+	this.licenseFile = path.join(this.projectDir, 'license.json');
 	if (!fs.existsSync(this.licenseFile)) {
-		this.licenseFile = path.join(this.projectDir, '..', 'LICENSE');
+		this.licenseFile = path.join(this.projectDir, '..', 'license.json');
 	}
 	this.localJinDir = path.join(this.projectDir, 'jni');
 	this.javaSrcDir = path.join(this.projectDir, 'src');
 	this.distDir = path.join(this.projectDir, 'dist');
 	this.buildDir = path.join(this.projectDir, 'build');
 	this.libsDir = path.join(this.projectDir, 'libs');
+	this.binDir = path.join(this.projectDir, 'bin');
 	this.projLibDir = path.join(this.projectDir, 'lib');
 
 	this.buildClassesDir = path.join(this.buildDir, 'classes');
@@ -318,7 +363,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.assetCryptImplTemplateFile = path.join(this.moduleGenTemplateDir,'AssetCryptImpl.java.ejs');
 
 	this.moduleJarName = this.manifest.name + '.jar';
-	this.moduleJarFile = path.join(this.distDir, this.moduleJarName);
+	this.moduleJarFile = path.join(this.binDir, this.moduleJarName);
 
 	// Add additional jar files in module lib folder to this.classPaths
 	fs.existsSync(this.projLibDir) && fs.readdirSync(this.projLibDir).forEach(function (name) {
@@ -343,6 +388,12 @@ AndroidModuleBuilder.prototype.loginfo = function loginfo() {
 	this.logger.info(__('Example Dir: %s', this.exampleDir.cyan));
 	this.logger.info(__('Platform Dir: %s', this.platformDir.cyan));
 	this.logger.info(__('Resources Dir: %s', this.resourcesDir.cyan));
+
+	this.logger.info(__('buildGenAssetJavaFile: %s', this.buildGenAssetJavaFile.cyan));
+	this.logger.info(__('buildJsonSubDir: %s', this.buildJsonSubDir.cyan));
+	this.logger.info(__('buildGenJsonDir: %s', this.buildGenJsonDir.cyan));
+	this.logger.info(__('buildGenJsonFile: %s', this.buildGenJsonFile.cyan));
+	this.logger.info(__('metaDataFile: %s', this.metaDataFile.cyan));
 };
 
 AndroidModuleBuilder.prototype.compileAidlFiles = function compileAidlFiles(next) {
@@ -468,7 +519,20 @@ AndroidModuleBuilder.prototype.generateRuntimeBindings = function (next) {
 	this.logger.log(__('Generating runtime bindings'));
 
 	var classpath = this.classPaths;
-
+	var tiDependencies;
+	if (fs.exists(this.dependencyJsonFile)) {
+		var deps = JSON.parse(fs.readFileSync(this.dependencyJsonFile));
+		if (deps.required) {
+			tiDependencies = (tiDependencies || []).concat(deps.required)
+		}
+	}
+	var tiJSONDeps = path.join(this.projectDir, 'dependency.json');
+	if (fs.exists(tiJSONDeps)) {
+		var deps = JSON.parse(fs.readFileSync(tiJSONDeps));
+		if (deps.required) {
+			tiDependencies = (tiDependencies || []).concat(deps.required)
+		}
+	}
 	var javaHook = this.cli.createHook('build.android.java', this, function (exe, args, opts, done) {
 		this.logger.info(__('Generate v8 bindings: %s', (exe + ' "' + args.join('" "') + '"').cyan));
 			appc.subprocess.run(exe, args, opts, function (code, out, err) {
@@ -497,6 +561,9 @@ AndroidModuleBuilder.prototype.generateRuntimeBindings = function (next) {
 
 			// module id
 			this.manifest.moduleid,
+
+			//dependencies
+			(tiDependencies && tiDependencies.join(',')) || 'none',
 
 			// binding json
 			this.buildGenJsonFile
@@ -827,12 +894,12 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 	Array.prototype.push.apply(this.metaData,dependsMap.required);
 
 	Object.keys(dependsMap.dependencies).forEach(function (key) {
-		dependsMap.dependencies[key].forEach(function (item) {
-			if (this.metaData.indexOf(item) == -1) {
-				this.metaData.push(item);
-			}
-		}, this);
+		Array.prototype.push.apply(this.metaData,dependsMap.dependencies[key]);
 	}, this);
+
+	var uniqueMetaData = this.metaData.filter(function(elem, pos) {
+		return this.metaData.indexOf(elem) == pos;
+	}.bind(this));
 
 	// Compiling JS
 	var closureCompileHook = this.cli.createHook('build.android.java', this, function (exe, args, opts, done) {
@@ -847,42 +914,96 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 				}
 
 				fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-				fs.writeFileSync(this.metaDataFile, JSON.stringify({ "exports": this.metaData }));
+				fs.writeFileSync(this.metaDataFile, JSON.stringify({ "exports": uniqueMetaData }));
 
 				done();
 			}.bind(this));
 		}),
 		closureJarFile = path.join(this.platformPath, 'lib', 'closure-compiler.jar');
 
-	jsFilesToEncrypt.forEach(function (file) {
+	fs.existsSync(this.buildGenJsDir) || wrench.mkdirSyncRecursive(this.buildGenJsDir);
+	async.eachSeries(jsFilesToEncrypt, function(file, next) {
+		setImmediate(function() {
+	// jsFilesToEncrypt.forEach(function (file) {
 
-		var outputDir = path.dirname(path.join(this.buildGenJsDir, file)),
-			filePath = path.join(this.assetsDir, file);
+		var dest = path.join(this.buildGenJsDir, file),
+			src = path.join(this.assetsDir, file);
 
-		fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
+		// fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
 
-		var r = jsanalyze.analyzeJsFile(filePath, { minify: true });
-		this.tiSymbols[file] = r.symbols;
+		// var r = jsanalyze.analyzeJsFile(filePath, { minify: true });
+		// this.tiSymbols[file] = r.symbols;
 
-		r.symbols.forEach(function (item) {
-			if (this.metaData.indexOf(item) == -1) {
-				this.metaData.push(item);
-			}
-		}, this);
+		// r.symbols.forEach(function (item) {
+		// 	if (this.metaData.indexOf(item) == -1) {
+		// 		this.metaData.push(item);
+		// 	}
+		// }, this);
 
-		closureCompileHook(
-			this.jdkInfo.executables.java,
-			[
-				'-jar', closureJarFile,
-				'--js', filePath,
-				'--js_output_file', path.join(this.buildGenJsDir, file),
-				'--jscomp_off=internetExplorerChecks'
-			],
-			{},
-			next
-		);
+		this.cli.createHook('build.ios.compileJsFile', this, function(from, to,
+				cb) {
+				babel.transformFile(from, {
+					sourceMaps: true,
+					sourceMapTarget:file,					
+					sourceFileName: file
+				}, function(err, transformed) {
+					if (err) {
+						this.logger.error('Babel error: ' + err + '\n');
+						process.exit(1);
+					}
 
-	}, this);
+					try {
+						// parse the AST
+						var r = jsanalyze.analyzeJs(transformed.code, {
+							// minify: true //for now this breaks the source map ...
+						});
+					} catch (ex) {
+						ex.message.split('\n').forEach(this.logger.error);
+						this.logger.log();
+						process.exit(1);
+					}
+
+					// we want to sort by the "to" filename so that we correctly handle file overwriting
+					// if (_this.jsFilesToEncrypt.indexOf(file) === -1) {
+						// _this.jsFilesToEncrypt.push(path.join(relPath, file));
+						this.metaData.push.apply(this.metaData, r.symbols);
+					// }
+
+					var dir = path.dirname(to);
+					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+					var exists = fs.existsSync(to);
+					if (!exists || r.contents !== fs.readFileSync(to).toString()) {
+						this.logger.debug(__(this.minifyJS ? 'Copying and minifying %s => %s' : 'Copying %s => %s', from.cyan,
+							to.cyan));
+						exists && fs.unlinkSync(to);
+						fs.writeFileSync(to, r.contents);
+						
+					} else {
+						this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
+					}
+					if (transformed.map) {
+                        fs.writeFileSync(path.join(to + '.map'), JSON.stringify(transformed.map));
+                    }
+					cb();
+				}.bind(this));
+
+			}.bind(this))(src, dest, next);
+		}.bind(this));
+
+		// closureCompileHook(
+		// 	this.jdkInfo.executables.java,
+		// 	[
+		// 		'-jar', closureJarFile,
+		// 		'--js', filePath,
+		// 		'--js_output_file', path.join(this.buildGenJsDir, file),
+		// 		'--jscomp_off=internetExplorerChecks'
+		// 	],
+		// 	{},
+		// 	next
+		// );
+
+	}.bind(this), next);
 
 };
 
@@ -914,7 +1035,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 
 	// Packing compiled JavaScript files
 	var titaniumPrepHook = this.cli.createHook('build.android.titaniumprep', this, function (exe, args, opts, done) {
-			this.logger.info(__('Encrypting JavaScript files: %s', (exe + ' "' + args.slice(1).join('" "') + '"').cyan));
+			this.logger.info(__('Encrypting JavaScript files: %s', ('"' + exe + '" ' + args.join(' ')).cyan));
 			appc.subprocess.run(exe, args, opts, function (code, out, err) {
 
 				if (code) {
@@ -943,7 +1064,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 				done();
 			}.bind(this));
 		}.bind(this)),
-		args = [ this.manifest.moduleid, this.buildGenJsDir, this.manifest.guid ].concat(this.jsFilesToEncrypt),
+		args = [ this.manifest.moduleid, this.manifest.guid, this.buildGenJsDir ].concat(this.jsFilesToEncrypt),
 		opts = {
 			env: appc.util.mix({}, process.env, {
 				// we force the JAVA_HOME so that titaniumprep doesn't complain
@@ -959,7 +1080,7 @@ AndroidModuleBuilder.prototype.compileJS = function (next) {
 
 	titaniumPrepHook(
 		path.join(this.platformPath, titaniumPrep),
-		args.slice(0),
+		args,
 		opts,
 		function (err) {
 			if (!err) {
@@ -1189,7 +1310,7 @@ AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
 	var javaSourcesFile = path.join(this.projectDir, 'java-sources.txt'),
 		javaFiles = [],
 		javacHook = this.cli.createHook('build.android.javac', this, function (exe, args, opts, done) {
-		this.logger.info(__('Building Java source files: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+		this.logger.info(__('Building Java source files: %s', ('"' + exe + '" ' + args.join(' ')).cyan));
 		appc.subprocess.run(exe, args, opts, function (code, out, err) {
 			if (code) {
 				this.logger.error(__('Failed to compile Java source files:'));
@@ -1236,10 +1357,10 @@ AndroidModuleBuilder.prototype.verifyBuildArch = function (next) {
 	this.logger.log(__('Verifying build architectures'));
 
 	var buildArchs = fs.readdirSync(this.libsDir),
-		manifestArchs = this.manifest['architectures'].split(' '),
-		buildDiff = manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
+		manifestArchs = this.manifest.architectures && this.manifest.architectures.split(' '),
+		buildDiff = manifestArchs && manifestArchs.filter(function (i) { return buildArchs.indexOf(i) < 0; });
 
-	if (buildArchs.length != manifestArchs.length || buildDiff.length > 0) {
+	if (manifestArchs && (buildArchs.length != manifestArchs.length || buildDiff.length > 0)) {
 		this.logger.error(__('There is discrepancy between the architectures specified in module manifest and compiled binary.'));
 		this.logger.error(__('Architectures in manifest: %s', manifestArchs));
 		this.logger.error(__('Compiled binary architectures: %s', buildArchs));
@@ -1252,12 +1373,60 @@ AndroidModuleBuilder.prototype.verifyBuildArch = function (next) {
 	next();
 };
 
+AndroidModuleBuilder.prototype.generateDistJar = function(next) {
+	var assetFiles = [],
+		assetsParentDir = path.join(this.assetsDir, '..'),
+		jarArgs = [
+			'cf',
+			this.moduleJarFile,
+			'-C', this.buildClassesDir, '.'
+		],
+		createJarHook = this.cli.createHook('build.android.java', this, function(exe, args, opts, done) {
+			this.logger.info(__('Generate module JAR: %s', ('"' + exe + '" ' + args.join(' ')).cyan));
+			appc.subprocess.run(exe, args, opts, function(code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to create JAR'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				done();
+			}.bind(this));
+		});
+
+	// this.dirWalker(this.assetsDir, function(file) {
+	// 	if (path.extname(file) != '.js' && path.extname(file) != '.ts') {
+	// 		this.logger.info(file);
+	// 		jarArgs.push('-C');
+	// 		jarArgs.push(assetsParentDir);
+	// 		jarArgs.push(path.relative(assetsParentDir, file));
+	// 	}
+
+	// }.bind(this));
+
+	// if (fs.existsSync(this.buildGenJsDir)) {
+	// 	assetsParentDir = path.join(this.buildGenJsDir, '..');
+	// 	this.dirWalker(this.buildGenJsDir, function(file) {
+	// 		if (/\.js\.map/.test(file)) {
+	// 			jarArgs.push('-C');
+	// 			jarArgs.push(assetsParentDir);
+	// 			jarArgs.push(path.relative(assetsParentDir, file));
+	// 		}
+	// 	}.bind(this));
+	// }
+
+	createJarHook(
+		'jar',
+		jarArgs, {},
+		next
+	);
+};
+
+
 AndroidModuleBuilder.prototype.packageZip = function (next) {
 	this.logger.log(__('Packaging the module'));
-
-	fs.existsSync(this.distDir) || wrench.rmdirSyncRecursive(this.distDir);
-	wrench.mkdirSyncRecursive(this.distDir);
-
+	process.chdir(this.projectDir);
 	var tasks = [
 
 		function (cb) {
@@ -1281,47 +1450,6 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 		},
 
 		function (cb) {
-			// Create jar
-			var assetFiles = [],
-				assetsParentDir = path.join(this.assetsDir, '..'),
-				jarArgs = [
-					'cf',
-					this.moduleJarFile,
-					'-C', this.buildClassesDir, '.',
-					'-C', path.join(this.assetsDir, '..'), 'assets'
-				],
-				createJarHook = this.cli.createHook('build.android.java', this, function (exe, args, opts, done) {
-					this.logger.info(__('Generate module JAR: %s', (exe + ' "' + args.join('" "') + '"').cyan));
-					appc.subprocess.run(exe, args, opts, function (code, out, err) {
-						if (code) {
-							this.logger.error(__('Failed to create JAR'));
-							this.logger.error();
-							err.trim().split('\n').forEach(this.logger.error);
-							this.logger.log();
-							process.exit(1);
-						}
-						done();
-					}.bind(this));
-				});
-
-			this.dirWalker(this.assetsDir, function (file) {
-				if (path.extname(file) != '.js' && path.basename(file) != 'README') {
-					jarArgs.push('-C');
-					jarArgs.push(assetsParentDir);
-					jarArgs.push(path.relative(assetsParentDir, file));
-				}
-
-			}.bind(this));
-
-			createJarHook(
-				'jar',
-				jarArgs,
-				{},
-				cb
-			);
-		},
-
-		function (cb) {
 			// Package zip
 			var dest = archiver('zip', {
 					forceUTC: true
@@ -1330,11 +1458,12 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				origConsoleError = console.error,
 				id = this.manifest.moduleid.toLowerCase(),
 				zipName = [this.manifest.moduleid, '-android-', this.manifest.version, '.zip'].join('');
-				moduleZipPath = path.join(this.distDir, zipName),
+				moduleZipPath = path.join(this.cli.argv['output-dir'] ? this.cli.argv['output-dir'] : this.distDir, zipName),
 				moduleFolder = path.join('modules', 'android', this.manifest.moduleid, this.manifest.version);
 
 			this.moduleZipPath = moduleZipPath;
 
+			fs.existsSync(this.moduleZipPath) || wrench.mkdirSyncRecursive(path.dirname(moduleZipPath));
 			// since the archiver library didn't set max listeners, we squelch all error output
 			console.error = function () {};
 
@@ -1397,10 +1526,19 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 
 				// 5. assets folder, not including js files
 				this.dirWalker(this.assetsDir, function (file) {
-					if (path.extname(file) !== '.js' && path.basename(file) !== 'README') {
+					if (path.extname(file) !== '.js' && path.extname(file) !== '.ts' && path.basename(file) !== 'README') {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)) });
 					}
 				}.bind(this));
+
+				// 6. js source maps
+				if (fs.existsSync(this.buildGenJsDir)) {
+					this.dirWalker(this.buildGenJsDir, function(file) {
+						if (/\.js\.map$/.test(file)) {
+							dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'assets', path.relative(this.buildGenJsDir, file)) });
+						}
+					}.bind(this));
+				}
 
 				this.dirWalker(this.libsDir, function (file) {
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
@@ -1412,7 +1550,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					}.bind(this));
 				}
 
-				dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolder,'LICENSE') });
+				dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolder,'license.json') });
 				dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolder,'manifest') });
 				dest.append(fs.createReadStream(this.moduleJarFile), { name: path.join(moduleFolder, this.moduleJarName) });
 				dest.append(fs.createReadStream(this.timoduleXmlFile), { name: path.join(moduleFolder,'timodule.xml') });

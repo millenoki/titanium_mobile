@@ -8,6 +8,8 @@
  */
 package <%- moduleId %>;
 
+import java.util.HashMap;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -49,7 +51,7 @@ public class ExampleProxy extends TiViewProxy
 		}
 
 		@Override
-		public void processProperties(KrollDict d)
+		public void processProperties(HashMap d)
 		{
 			super.processProperties(d);
 		}
@@ -73,7 +75,7 @@ public class ExampleProxy extends TiViewProxy
 
 	// Handle creation options
 	@Override
-	public void handleCreationDict(KrollDict options)
+	public void handleCreationDict(HashMap options)
 	{
 		super.handleCreationDict(options);
 
