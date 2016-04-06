@@ -26,6 +26,7 @@ var AdmZip = require('adm-zip'),
 	temp = require('temp'),
 	util = require('util'),
 	babel = require('babel-core')
+	ts = require('typescript')
 	wrench = require('wrench'),
 	spawn = require('child_process').spawn,
 
@@ -205,7 +206,8 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 				next();
 			}
 		},
-
+		'compileTsFiles',
+		'movesTsDefinitionFiles',
 		'compileJsClosure',
 		'compileJS',
 		'jsToC',
@@ -338,11 +340,13 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.buildGenDir = path.join(this.buildDir, 'generated');
 
 	this.buildGenJsDir = path.join(this.buildGenDir, 'js');
+	this.buildGenTsDir = path.join(this.buildGenDir, 'ts');
 	this.buildGenJniDir = path.join(this.buildGenDir, 'jni');
 	this.buildGenLibsDir = path.join(this.buildGenDir, 'libs');
 	this.buildGenJniLocalDir = path.join(this.buildGenDir, 'jni-local');
 	this.buildGenJavaDir = path.join(this.buildGenDir, 'java');
 	this.buildGenJsonDir = path.join(this.buildGenDir, 'json');
+	this.documentationBuildDir = path.join(this.buildGenDir, 'doc');
 
 	this.buildGenAssetJavaFile = path.join(this.buildGenJavaDir, this.moduleIdSubDir, 'AssetCryptImpl.java');
 
@@ -875,11 +879,23 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 };
 
 AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
-	var jsFilesToEncrypt = this.jsFilesToEncrypt = [];
+	var jsFilesToEncrypt = [];
+	this.jsFilesToEncrypt = [];
 
 	this.dirWalker(this.assetsDir, function (file) {
 		if (path.extname(file) === '.js') {
-			jsFilesToEncrypt.push(path.relative(this.assetsDir, file));
+			jsFilesToEncrypt.push({
+				file:path.relative(this.assetsDir, file),
+				src:file
+			});
+		}
+	}.bind(this));
+	this.dirWalker(this.buildGenTsDir, function (file) {
+		if (path.extname(file) === '.js') {
+			jsFilesToEncrypt.push({
+				file:path.relative(this.buildGenTsDir, file),
+				src:file
+			});
 		}
 	}.bind(this));
 
@@ -922,26 +938,17 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 		closureJarFile = path.join(this.platformPath, 'lib', 'closure-compiler.jar');
 
 	fs.existsSync(this.buildGenJsDir) || wrench.mkdirSyncRecursive(this.buildGenJsDir);
-	async.eachSeries(jsFilesToEncrypt, function(file, next) {
+	async.eachSeries(jsFilesToEncrypt, function(info, next) {
 		setImmediate(function() {
-	// jsFilesToEncrypt.forEach(function (file) {
 
-		var dest = path.join(this.buildGenJsDir, file),
-			src = path.join(this.assetsDir, file);
+			var file = info.file,
+				dest = path.join(this.buildGenJsDir, file),
+				src = info.src;
 
-		// fs.existsSync(outputDir) || wrench.mkdirSyncRecursive(outputDir);
+			this.jsFilesToEncrypt.push(file);
 
-		// var r = jsanalyze.analyzeJsFile(filePath, { minify: true });
-		// this.tiSymbols[file] = r.symbols;
-
-		// r.symbols.forEach(function (item) {
-		// 	if (this.metaData.indexOf(item) == -1) {
-		// 		this.metaData.push(item);
-		// 	}
-		// }, this);
-
-		this.cli.createHook('build.ios.compileJsFile', this, function(from, to,
-				cb) {
+			this.cli.createHook('build.ios.compileJsFile', this, function(from, to,
+					cb) {
 				babel.transformFile(from, {
 					sourceMaps: true,
 					sourceMapTarget:file,					
@@ -990,18 +997,6 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 			}.bind(this))(src, dest, next);
 		}.bind(this));
-
-		// closureCompileHook(
-		// 	this.jdkInfo.executables.java,
-		// 	[
-		// 		'-jar', closureJarFile,
-		// 		'--js', filePath,
-		// 		'--js_output_file', path.join(this.buildGenJsDir, file),
-		// 		'--jscomp_off=internetExplorerChecks'
-		// 	],
-		// 	{},
-		// 	next
-		// );
 
 	}.bind(this), next);
 
@@ -1141,6 +1136,57 @@ AndroidModuleBuilder.prototype.jsToC = function (next) {
 
 	next();
 };
+
+AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles() {
+	var tsFiles = [];
+	this.dirWalker(this.assetsDir, function (file) {
+		if (path.extname(file) === '.ts') {
+			tsFiles.push(file);
+		}
+	}.bind(this));
+	if (!tsFiles || tsFiles.length == 0) {
+		return;
+	}
+	fs.existsSync(this.buildGenTsDir) || wrench.mkdirSyncRecursive(this.buildGenTsDir);
+	this.logger.debug(__('Compyling TS files: %s', tsFiles));
+	var that = this;
+	
+	var options = {
+    	noEmitOnError: false, 
+        sourceMap:true,
+        inlineSourceMap:false,
+        allowJS:true,
+      	outDir:this.buildGenTsDir,
+        target: ts.ScriptTarget.ES2015, 
+        module: ts.ModuleKind.CommonJS,
+        preserveConstEnums: true,
+        declaration: true,
+        noImplicitAny: false,
+        experimentalDecorators: true,
+        noImplicitUseStrict:true
+    }
+	var host = ts.createCompilerHost(options);
+    var program = ts.createProgram(tsFiles,options, host);
+    var emitResult = program.emit();
+
+    var allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+
+    allDiagnostics.forEach(function (diagnostic) {
+        var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+        var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+        this.logger.debug(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
+    }.bind(this));
+    this.logger.debug(__('TsCompile done!'));
+}
+AndroidModuleBuilder.prototype.movesTsDefinitionFiles = function movesTsDefinitionFiles() {
+	fs.existsSync(this.documentationBuildDir) || wrench.mkdirSyncRecursive(this.documentationBuildDir);
+	this.dirWalker(this.buildGenTsDir, function(file) {
+		if (path.extname(file) === '.ts') {
+			var relPath = file.replace(this.buildGenTsDir, '').replace(/\\/g, '/').replace(/^\//, '');
+			fs.rename(file, path.join(this.documentationBuildDir, relPath)); 
+		}
+	}.bind(this));
+}
 
 /*
 	Runs the stock Android NDK ndk-build command after setting up the
@@ -1502,6 +1548,13 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 						dest.append(contents, { name: path.join(parent, name) });
 					});
 				}(this.documentationDir, path.join(moduleFolder, 'documentation')));
+
+				// built doc
+				this.dirWalker(this.documentationBuildDir, function(file) {
+					dest.append(fs.createReadStream(file), {
+						name: path.join(moduleFolder, 'documentation', path.relative(this.documentationBuildDir, file))
+					});
+				}.bind(this));
 
 				// 2. example folder
 				this.dirWalker(this.exampleDir, function (file) {

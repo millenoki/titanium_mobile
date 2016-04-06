@@ -29,6 +29,7 @@ var appc = require('node-appc'),
 	ti = require('titanium-sdk'),
 	util = require('util'),
 	babel = require('babel-core')
+	ts = require('typescript')
 	wrench = require('wrench'),
 	__ = appc.i18n(__dirname).__,
 	parallel = appc.async.parallel,
@@ -177,6 +178,7 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 		'{{ModuleIdAsIdentifier}}ModuleAssets.m.ejs');
 	this.universalBinaryDir = path.join(this.projectDir, 'build');
 	this.buildAssetsDir = path.join(this.universalBinaryDir, 'assets');
+	this.documentationBuildDir = path.join(this.universalBinaryDir, 'doc');
 
 	['assets', 'documentation', 'example', 'platform', 'Resources'].forEach(function(folder) {
 		var dirName = folder.toLowerCase() + 'Dir';
@@ -272,7 +274,6 @@ iOSModuleBuilder.prototype.processTiXcconfig = function processTiXcconfig(next) 
 };
 
 iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, next) {
-	fs.existsSync(this.buildAssetsDir) || wrench.mkdirSyncRecursive(this.buildAssetsDir);
 	async.eachSeries(jsFiles, function(file, next) {
 		setImmediate(function() {
 			var src = file;
@@ -340,10 +341,54 @@ iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, nex
 	}.bind(this), next);
 }
 
+iOSModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
+	if (!tsFiles || tsFiles.length == 0) {
+		return;
+	}
+	this.logger.debug(__('Compyling TS files: %s', tsFiles));
+	var that = this;
+	
+	var options = {
+    	noEmitOnError: false, 
+        sourceMap:true,
+        inlineSourceMap:false,
+        allowJS:true,
+      	outDir:this.buildAssetsDir,
+        target: ts.ScriptTarget.ES2015, 
+        module: ts.ModuleKind.CommonJS,
+        preserveConstEnums: true,
+        declaration: true,
+        noImplicitAny: false,
+        experimentalDecorators: true,
+        noImplicitUseStrict:true
+    }
+	var host = ts.createCompilerHost(options);
+    var program = ts.createProgram(tsFiles,options, host);
+    var emitResult = program.emit();
+
+    var allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+
+    allDiagnostics.forEach(function (diagnostic) {
+        var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+        var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+        this.logger.debug(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
+    }.bind(this));
+    this.logger.debug(__('TsCompile done!'));
+}
+iOSModuleBuilder.prototype.movesTsDefinitionFiles = function movesTsDefinitionFiles() {
+	fs.existsSync(this.documentationBuildDir) || wrench.mkdirSyncRecursive(this.documentationBuildDir);
+	this.dirWalker(this.buildAssetsDir, function(file) {
+		if (path.extname(file) === '.ts') {
+			var relPath = file.replace(this.buildAssetsDir, '').replace(/\\/g, '/').replace(/^\//, '');
+			fs.rename(file, path.join(this.documentationBuildDir, relPath)); 
+		}
+	}.bind(this));
+}
 iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 	this.jsFilesToEncrypt = [];
 
 	var moduleJS = this.moduleId + '.js',
+		moduleTS = this.moduleId + '.ts',
 		renderData = {
 			'moduleIdAsIdentifier': this.moduleIdAsIdentifier,
 			'mainEncryptedAssetReturn': 'return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[0]);',
@@ -409,6 +454,33 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 		});
 
 	var tasks = [
+		// 1. compile module ts
+		function(cb) {
+			if (fs.existsSync(this.buildAssetsDir)) {
+				wrench.rmdirSyncRecursive(this.buildAssetsDir)
+			}
+			wrench.mkdirSyncRecursive(this.buildAssetsDir);
+
+			if (!fs.existsSync(path.join(this.assetsDir, moduleTS))) {
+				renderData.mainEncryptedAsset = '';
+				renderData.mainEncryptedAssetReturn = 'return nil;';
+				return cb();
+			}
+
+			this.compileTsFiles([path.join(this.assetsDir, moduleTS)]);
+
+			this.compileJSFiles([path.join(this.buildAssetsDir, moduleTS)], function() {
+				titaniumPrepHook(
+					path.join(this.platformPath, 'titanium_prep'), [this.moduleId, this.buildAssetsDir, this.moduleGuid], {
+						cwd:this.universalBinaryDir,
+						'jsFiles': this.jsFilesToEncrypt,
+						'placeHolder': 'mainEncryptedAsset'
+					},
+					cb
+				);
+			}.bind(this))
+
+		},
 		// 1. compile module js
 		function(cb) {
 
@@ -433,16 +505,9 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 
 		// 2. compile all other js files in assets dir
 		function(cb) {
-			try {
 				if (!fs.existsSync(this.assetsDir)) {
 					throw new Error();
 				}
-				var files = [];
-				this.dirWalker(this.assetsDir, function(file) {
-					if (path.extname(file) === '.js') {
-						files.push(file);
-					}
-				}.bind(this));
 
 				var jsFilesCount = this.jsFilesToEncrypt.length;
 
@@ -450,7 +515,25 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 					throw new Error();
 				}
 
-				this.compileJSFiles(files, function() {
+				fs.existsSync(this.buildAssetsDir) || wrench.mkdirSyncRecursive(this.buildAssetsDir);
+
+				var jsFiles = [];
+				var tsFiles = [];
+				this.dirWalker(this.assetsDir, function(file) {
+					if (path.extname(file) === '.js') {
+						jsFiles.push(file);
+					} else if (path.extname(file) === '.ts') {
+						var relPath = file.replace(this.assetsDir, '').replace(/\\/g, '/').replace(/^\//, '');
+						tsFiles.push(file);
+						jsFiles.push(path.join(this.buildAssetsDir, relPath.replace(/\.ts$/, '.js')));
+					}
+				}.bind(this));
+
+
+				this.compileTsFiles(tsFiles);
+				this.movesTsDefinitionFiles();
+
+				this.compileJSFiles(jsFiles, function() {
 					titaniumPrepHook(
 						path.join(this.platformPath, 'titanium_prep'), [this.moduleId, this.buildAssetsDir, this.moduleGuid], {
 						cwd:this.universalBinaryDir,
@@ -470,11 +553,11 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				// 	},
 				// 	cb
 				// );
-			} catch (e) {
-				renderData.allEncryptedAssets = renderData.mainEncryptedAsset;
-				renderData.allEncryptedAssetsReturn = 'return nil;';
-				cb();
-			}
+			// } catch (e) {
+			// 	renderData.allEncryptedAssets = renderData.mainEncryptedAsset;
+			// 	renderData.allEncryptedAssetsReturn = 'return nil;';
+			// 	cb();
+			// }
 		},
 
 		// 3. write encrypted data to template
@@ -707,6 +790,13 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 				});
 			});
 		}(this.documentationDir, path.join(moduleFolders, 'documentation')));
+
+		// built doc
+		this.dirWalker(this.documentationBuildDir, function(file) {
+			dest.append(fs.createReadStream(file), {
+				name: path.join(moduleFolders, 'documentation', path.relative(this.documentationBuildDir, file))
+			});
+		}.bind(this));
 
 		// 2. example folder
 		this.dirWalker(this.exampleDir, function(file) {

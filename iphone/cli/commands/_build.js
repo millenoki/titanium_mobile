@@ -36,6 +36,7 @@ var appc = require('node-appc'),
 	xcode = require('xcode'),
 	xcodeParser = require('xcode/lib/parser/pbxproj'),
 	babel = require('babel-core')
+	ts = require('typescript')
 	xml = appc.xml,
 	i18n = appc.i18n(__dirname),
 	__ = i18n.__,
@@ -2205,6 +2206,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
+	this.buildTsDir         	= path.join(this.buildDir, 'ts');
 
 	if ((this.tiapp.properties && this.tiapp.properties.hasOwnProperty('ios.whitelist.appcelerator.com') && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
 		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
@@ -4444,6 +4446,22 @@ iOSBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
     }, this);
 };
 
+iOSBuilder.prototype.analyseJS = function analyseJS(to, data, next) {
+    var r;
+    this.cli.createHook('build.android.analyseJS', this, function (to, data, r, cb) {
+        try {
+            // parse the AST
+            r = jsanalyze.analyzeJs(data);
+        } catch (ex) {
+            ex.message.split('\n').forEach(this.logger.error);
+            this.logger.log();
+            process.exit(1);
+        }
+        this.tiSymbols[to] = r.symbols;
+        cb(r);
+    }.bind(this))(to, data, r, next);
+}
+
 iOSBuilder.prototype.copyResources = function copyResources(next) {
 	var filenameRegExp = /^(.*)\.(\w+)$/,
 
@@ -4464,6 +4482,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
         
 		resourcesToCopy = {},
 		jsFiles = {},
+		tsFiles = [],
 		cssFiles = {},
 		htmlJsFiles = {},
 		appIcons = {},
@@ -4516,7 +4535,16 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 					case 'js':
 						jsFiles[relPath] = info;
 						break;
-
+					case 'ts':
+						tsFiles.push(info.src);
+						jsFiles[relPath.replace(/\.ts$/, '.js')] = {
+							name:info.name,
+							ext: 'js',
+							src: path.join(that.buildTsDir, relPath.replace(/\.ts$/, '.js')),
+							dest: info.dest.replace(/\.ts$/, '.js'),
+							srcStat: srcStat
+						};
+						break;
 					case 'css':
 						cssFiles[relPath] = info;
 						break;
@@ -5526,6 +5554,43 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				this.unmarkBuildDirFile(info.dest);
 			}, this);
 		},
+		function  compileTsFiles() {
+			if (!tsFiles || tsFiles.length == 0) {
+				return;
+			}
+			this.logger.debug(__('Compyling TS files: %s', tsFiles));
+			var that = this;
+			
+			var options = {
+		    	noEmitOnError: false, 
+                sourceMap:true,
+                inlineSourceMap:false,
+                allowJS:true,
+              	outDir:this.buildTsDir,
+                target: ts.ScriptTarget.ES2015, 
+                module: ts.ModuleKind.CommonJS,
+                preserveConstEnums: true,
+                declaration: true,
+                noImplicitAny: false,
+                experimentalDecorators: true,
+                noImplicitUseStrict:true
+		    }
+			var host = ts.createCompilerHost(options);
+			// host.writeFile = function(fileName, content) {
+   //      		that.logger.debug(__('TsCompile:writeFile: %s', fileName));
+	  //       }
+		    var program = ts.createProgram(tsFiles,options, host);
+		    var emitResult = program.emit();
+
+		    var allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+
+		    allDiagnostics.forEach(function (diagnostic) {
+		        var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+		        var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+		        this.logger.debug(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
+		    }.bind(this));
+		    this.logger.debug(__('TsCompile done!'));
+		},
 
 		function processJSFiles(next) {
 			this.logger.info(__('Processing JavaScript files'));
@@ -5560,102 +5625,82 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	                };
 	                if (!fileChanged) {
 	                    this.logger.trace(__('No change, skipping %s', from.cyan));
-	                    var r = jsanalyze.analyzeJsFile(to);
-	                    // we want to sort by the "to" filename so that we correctly handle file overwriting
-	                    this.tiSymbols[to] = r.symbols;
-	                    next();
+						var data = fs.readFileSync(to).toString();
+                    	this.analyseJS(to, data, next);
 	                    return;
 	                }
 
 					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
 						if (useBabel) {
-
-							var _this = this;
-							this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
+							var minifyJS = this.minifyJS &&  (this.deployType !== 'production');
+							this.cli.createHook('build.ios.compileJsFile', this, function (from, to, cb2) {
+								var inSourceMap = null;
+                                if (fs.existsSync(from + '.map')) {
+                                    inSourceMap =  JSON.parse(fs.readFileSync(from + '.map'));
+                                }
 								babel.transformFile(from, {
-									sourceMaps:_this.cli.argv.target !== 'dist-appstore' ,
+									sourceMaps:this.cli.argv.target !== 'dist-appstore' ,
 									sourceMapTarget:file,
 									sourceFileName:file,
 									sourceMapTarget:to + '.map',
+									inputSourceMap:inSourceMap
 								}, function(err, transformed) {
 									if (err) {
-										_this.logger.error('Babel error: ' + err  + '\n');
+										this.logger.error('Babel error: ' + err  + '\n');
 										process.exit(1);
 									}
-									// we want to sort by the "to" filename so that we correctly handle file overwriting
-									_this.tiSymbols[to] = transformed.ast;
+									this.analyseJS(to, transformed.code, function(r) {
+										var dir = path.dirname(to);
+										fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-									try {
-									// parse the AST
-										var r = jsanalyze.analyzeJs(transformed.code, { minify: _this.minifyJS });
-									} catch (ex) {
-										ex.message.split('\n').forEach(_this.logger.error);
-										_this.logger.log();
-										process.exit(1);
-									}
-
-									// we want to sort by the "to" filename so that we correctly handle file overwriting
-									_this.tiSymbols[to] = r.symbols;
-
-									var dir = path.dirname(to);
-									fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-									_this.unmarkBuildDirFile(to);
-									var exists = fs.existsSync(to);
-									if (!exists || r.contents !== fs.readFileSync(to).toString()) {
-										_this.logger.debug(__(this.minifyJS?'Copying and minifying %s => %s':'Copying %s => %s', from.cyan, to.cyan));
-										exists && fs.unlinkSync(to);
-										fs.writeFileSync(to, r.contents);
-										_this.jsFilesChanged = true;
-										if (transformed.map) {
-											fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+										this.unmarkBuildDirFile(to);
+										var exists = fs.existsSync(to);
+										if (!exists || r.contents !== fs.readFileSync(to).toString()) {
+											this.logger.debug(__(minifyJS?'Copying and minifying %s => %s':'Copying %s => %s', from.cyan, to.cyan));
+											exists && fs.unlinkSync(to);
+											fs.writeFileSync(to, r.contents);
+											this.jsFilesChanged = true;
+											if (transformed.map) {
+												fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+											}
+										} else {
+		                                    this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
 										}
-									} else {
-	                                    _this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
-									}
-									cb2();
-								});
-							})(r, from, to, cb);			
+										cb2();
+                                    }.bind(this));  
+								}.bind(this));
+							}.bind(this))(from, to, cb);			
 							
 						} else {
-							try {
-								// parse the AST
-								var r = jsanalyze.analyzeJsFile(from, { minify: this.minifyJS });
-							} catch (ex) {
-								ex.message.split('\n').forEach(this.logger.error);
-								this.logger.log();
-								process.exit(1);
-							}
+							var data = fs.readFileSync(from).toString();
+                            this.analyseJS(to, data, function(r) {
+								var dir = path.dirname(to);
+								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
-							// we want to sort by the "to" filename so that we correctly handle file overwriting
-							this.tiSymbols[to] = r.symbols;
+								this.unmarkBuildDirFile(to);
 
-							var dir = path.dirname(to);
-							fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
-
-							this.unmarkBuildDirFile(to);
-
-							if (this.minifyJS) {
-								this.cli.createHook('build.ios.compileJsFile', this, function (r, from, to, cb2) {
-									var exists = fs.existsSync(to);
-									if (!exists || r.contents !== fs.readFileSync(to).toString()) {
-										this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-										exists && fs.unlinkSync(to);
-										fs.writeFileSync(to, r.contents);
+								if (this.minifyJS) {
+									this.cli.createHook('build.ios.compileJsFile', this, function (from, to, cb2) {
+										var exists = fs.existsSync(to);
+										if (!exists || r.contents !== fs.readFileSync(to).toString()) {
+											this.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
+											exists && fs.unlinkSync(to);
+											fs.writeFileSync(to, r.contents);
+											this.jsFilesChanged = true;
+										} else {
+											this.logger.trace(__('No change, skipping %s', to.cyan));
+										}
+										cb2();
+									})(from, to, cb);
+								} else {
+									if (this.copyFileSync(from, to)) {
 										this.jsFilesChanged = true;
 									} else {
 										this.logger.trace(__('No change, skipping %s', to.cyan));
 									}
-									cb2();
-								})(r, from, to, cb);
-							} else {
-								if (this.copyFileSync(from, to)) {
-									this.jsFilesChanged = true;
-								} else {
-									this.logger.trace(__('No change, skipping %s', to.cyan));
+									cb();
 								}
-								cb();
-							}
+                            }.bind(this));  
 						}
 						
 					})(from, to, next);
