@@ -447,7 +447,7 @@ function processAPIs (api) {
 					'parameters': [{
 						'name': 'parameters',
 						'summary': 'Properties to set on a new object, including any defined by <' + name + '> except those marked not-creation or read-only.\n',
-						'type': 'Dictionary<' + name + '>',
+						'type': 'Dictionary',
 						'optional': true,
 						'__subtype': 'parameter'
 					}],
