@@ -341,6 +341,28 @@ iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, nex
 	}.bind(this), next);
 }
 
+iOSModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
+    var ignoreDirs = this.ignoreDirs;
+    var ignoreFiles = this.ignoreFiles;
+    fs.readdirSync(currentPath).forEach(function(name, i, arr) {
+        var currentFile = path.join(currentPath, name);
+        var isDir = fs.statSync(currentFile).isDirectory();
+        if (isDir) {
+            if (!ignoreDirs || !ignoreDirs.test(name)) {
+                this.dirWalker(currentFile, callback);
+            } else {
+                this.logger.warn(__('ignoring dir %s', name.cyan));
+            }
+        } else {
+            if (!ignoreFiles || !ignoreFiles.test(name)) {
+            callback(currentFile, name, i, arr);
+            } else {
+                this.logger.warn(__('ignoring file %s', name.cyan));
+            }
+        }
+    }, this);
+};
+
 iOSModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
 	if (!tsFiles || tsFiles.length == 0) {
 		return;
@@ -348,20 +370,7 @@ iOSModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
 	this.logger.debug(__('Compyling TS files: %s', tsFiles));
 	var that = this;
 	
-	var options = {
-    	noEmitOnError: false, 
-        sourceMap:true,
-        inlineSourceMap:false,
-        allowJS:true,
-      	outDir:this.buildAssetsDir,
-        target: ts.ScriptTarget.ES2015, 
-        module: ts.ModuleKind.CommonJS,
-        preserveConstEnums: true,
-        declaration: true,
-        noImplicitAny: false,
-        experimentalDecorators: true,
-        noImplicitUseStrict:true
-    }
+	var options = this.getTsConfig();
 	var host = ts.createCompilerHost(options);
     var program = ts.createProgram(tsFiles,options, host);
     var emitResult = program.emit();
@@ -375,6 +384,7 @@ iOSModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
     }.bind(this));
     this.logger.debug(__('TsCompile done!'));
 }
+
 iOSModuleBuilder.prototype.movesTsDefinitionFiles = function movesTsDefinitionFiles() {
 	fs.existsSync(this.documentationBuildDir) || wrench.mkdirSyncRecursive(this.documentationBuildDir);
 	this.dirWalker(this.buildAssetsDir, function(file) {

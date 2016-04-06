@@ -1137,6 +1137,28 @@ AndroidModuleBuilder.prototype.jsToC = function (next) {
 	next();
 };
 
+AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
+	if (!tsFiles || tsFiles.length == 0) {
+		return;
+	}
+	this.logger.debug(__('Compyling TS files: %s', tsFiles));
+	var that = this;
+	
+	var options = getTsConfig();
+	var host = ts.createCompilerHost(options);
+    var program = ts.createProgram(tsFiles,options, host);
+    var emitResult = program.emit();
+
+    var allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
+
+    allDiagnostics.forEach(function (diagnostic) {
+        var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+        var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+        this.logger.debug(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
+    }.bind(this));
+    this.logger.debug(__('TsCompile done!'));
+}
+
 AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles() {
 	var tsFiles = [];
 	this.dirWalker(this.assetsDir, function (file) {
@@ -1151,20 +1173,7 @@ AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles() {
 	this.logger.debug(__('Compyling TS files: %s', tsFiles));
 	var that = this;
 	
-	var options = {
-    	noEmitOnError: false, 
-        sourceMap:true,
-        inlineSourceMap:false,
-        allowJS:true,
-      	outDir:this.buildGenTsDir,
-        target: ts.ScriptTarget.ES2015, 
-        module: ts.ModuleKind.CommonJS,
-        preserveConstEnums: true,
-        declaration: true,
-        noImplicitAny: false,
-        experimentalDecorators: true,
-        noImplicitUseStrict:true
-    }
+	var options = this.getTsConfig();
 	var host = ts.createCompilerHost(options);
     var program = ts.createProgram(tsFiles,options, host);
     var emitResult = program.emit();

@@ -2367,7 +2367,6 @@ AndroidBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
     }, this);
 };
 
-
 AndroidBuilder.prototype.analyseJS = function analyseJS(to, data, next) {
     var r;
     this.cli.createHook('build.android.analyseJS', this, function (to, data, r, cb) {
@@ -2382,6 +2381,47 @@ AndroidBuilder.prototype.analyseJS = function analyseJS(to, data, next) {
         this.tiSymbols[to] = r.symbols;
         cb(r);
     }.bind(this))(to, data, r, next);
+}
+
+AndroidBuilder.prototype.getTsConfig = function getTsConfig(next) {
+    var options = {
+        noEmitOnError: false,
+        sourceMap: true,
+        inlineSourceMap: false,
+        outDir: this.buildTsDir,
+        allowJS: true,
+        target: ts.ScriptTarget.ES2015,
+        module: ts.ModuleKind.CommonJS,
+        preserveConstEnums: true,
+        declaration: true,
+        noImplicitAny: false,
+        experimentalDecorators: true,
+        noImplicitUseStrict: true
+    }
+
+    var tsconfigPath = path.join(this.projectDir, 'tsconfig.json');
+    if (fs.existsSync(tsconfigPath)) {
+        var parsedConfig, errors;
+        var rawConfig = ts.parseConfigFileTextToJson(tsconfigPath, fs.readFileSync(tsconfigPath, 'utf8'));
+        var dirname = tsconfigPath && path.dirname(tsconfigPath);
+        var basename = tsconfigPath && path.basename(tsconfigPath);
+        var tsconfigJSON = rawConfig.config;
+        if (ts.convertCompilerOptionsFromJson.length === 5) {
+            // >= 1.9?
+            errors = [];
+            parsedConfig = ts.convertCompilerOptionsFromJson([], tsconfigJSON.compilerOptions, dirname, errors,
+                basename || 'tsconfig.json');
+        } else {
+            // 1.8
+            parsedConfig = ts.convertCompilerOptionsFromJson(tsconfigJSON.compilerOptions, dirname).options;
+            errors = parsedConfig.errors;
+        }
+        parsedConfig.noEmit = false;
+        Object.keys(parsedConfig).forEach(function(prop) {
+            options[prop] = parsedConfig[prop];
+        }, this);
+    }
+    return options;
 }
 
 AndroidBuilder.prototype.copyResources = function copyResources(next) {
@@ -2753,21 +2793,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     }
                     this.logger.debug(__('Compyling TS files: %s', tsFiles));
                     var that = this;
-                    
-                    var options = {
-                        noEmitOnError: false, 
-                        sourceMap:true,
-                        inlineSourceMap:false,
-                        outDir:this.buildTsDir,
-                        allowJS:true,
-                        target: ts.ScriptTarget.ES2015, 
-                        module: ts.ModuleKind.CommonJS,
-                        preserveConstEnums: true,
-                        declaration: true,
-                        noImplicitAny: false,
-                        experimentalDecorators: true,
-                        noImplicitUseStrict:true
-                    }
+
+                    var options = this.getTsConfig();
                     var host = ts.createCompilerHost(options);
                     var program = ts.createProgram(tsFiles,options, host);
                     var emitResult = program.emit();
@@ -2784,7 +2811,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         }                        
                     }.bind(this));
                     this.logger.debug(__('TsCompile done!'));
-                    fuck
                 },
                 function() {
                     this.logger.info(__('Processing JavaScript files'));
