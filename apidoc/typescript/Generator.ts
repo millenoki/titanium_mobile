@@ -28,7 +28,7 @@ module Generator {
 
 	interface TiMethod {
 		parameters : Array<TiParameter>;
-		returnTypes    : any;
+		returns    : any;
 		name       : string;
 	}
 
@@ -39,9 +39,9 @@ module Generator {
 
 	interface TiObject {
 		properties : Array<TiProperty>;
-		functions    : Array<TiMethod>;
+		methods    : Array<TiMethod>;
 		name       : string;
-		inherits    : string;
+		extends    : string;
 	}
 
 	interface TypeField {
@@ -84,6 +84,7 @@ module Generator {
 		private inheritsFrom : string;
 		private isGeneric    : boolean;
 		private extendsFrom  : Module;
+		private name  : string;
 
 		constructor (public Name: string, inheritsFrom : string = 'Object', isGeneric: boolean = false) {
 			this.modules = [];
@@ -101,18 +102,21 @@ module Generator {
 		get Modules      () : Array<Module>              { return this.modules;      }
 		get InheritsFrom () : string                     { return this.inheritsFrom; }
 		get IsGeneric    () : boolean                    { return this.isGeneric;    }
-		get ExtendsFrom  () : Module                     { return this.extendsFrom;  }
+		get ExtendsFrom(): Module { return this.extendsFrom; }
 
 		/// Setters
 		set InheritsFrom (extendsFromModuleName: string) { this.inheritsFrom = extendsFromModuleName; }
 		set IsGeneric    (generic: boolean)              { this.isGeneric = generic; }
 		set ExtendsFrom  (module: Module)                { this.extendsFrom = module; }
-		set Properties   (props: Array<string>)          { this.properties = props; }
-		set Methods      (methods: Array<string>)        { this.methods = methods; }
+		set Methods(methods: Array<string>) 			 { this.methods = methods; }
 
 		/// Tells whether the current representation is a Typescript Module or not.
 		public IsModule (): boolean {
-			return (!_.isEmpty(this.Modules));
+			const result = !_.isEmpty(this.Modules) || (this.ExtendsFrom && this.ExtendsFrom.Name === 'Module');
+			if (result) {
+				// console.log(this.Modules);
+			}
+			return result;
 		}
 
 		public IsEnum (): boolean {
@@ -315,12 +319,13 @@ module Generator {
 					_.templateSettings.interpolate = /\{\{(.+?)\}\}/g;
 					//try {
 						var json = JSON.parse(data.toString('utf-8'));
-						_.each (json.types, (tiObject : TiObject) => {
+						_.each (json, (tiObject : TiObject) => {
 							Mapper.ComputeTiObject (tiObject);
 						});
 						_.each (Mapper.RootModule.Modules, (m: Module) => {
 							console.log (m.Render ());
 						});
+						console.log('import Ti = Titanium;');
 					//} catch (invalidJson) {
 					//	console.error (invalidJson);
 					//}
@@ -333,11 +338,11 @@ module Generator {
 		/// @param[in] tiObject is the object to convert.
 		private static ComputeTiObject (tiObject : TiObject) {
 			var name : string = tiObject.name;
-			var atModule = Mapper.ComputeModule (name);
+			var atModule = Mapper.ComputeModule(name);
 			if (_.isNull(atModule)) {
 				throw 'Internal error. Could not find or allocate module.';
 			}
-			_.each (tiObject.functions, (tiMethod: TiMethod) => {
+			_.each (tiObject.methods, (tiMethod: TiMethod) => {
 				var methodOverloads: Array<string> = Mapper.ComputeTiMethod (atModule, tiMethod);
 				_.each (methodOverloads, (overload: string) => {
 					atModule.Methods.push (overload);
@@ -353,7 +358,7 @@ module Generator {
 					atModule.Properties.push (Mapper.ComputeTiProperty (tiProperty));
 				}
 			});
-			atModule.InheritsFrom = tiObject.inherits;
+			atModule.InheritsFrom = tiObject.extends;
 			if (atModule.InheritsFrom !== 'Object') {
 				atModule.ExtendsFrom = Mapper.ComputeModule (atModule.InheritsFrom);
 			}
@@ -365,14 +370,14 @@ module Generator {
 		/// @param[in] name is the module name
 		/// @return a Module object to represent that module.
 		private static ComputeModule (name: string) : Module {
-			var interfaceModules = name.split ('.');
+			var interfaceModules = name.split('.');
 			var rootModule = Mapper.RootModule;
 			for (var i = 0; i < interfaceModules.length; i++) {
 				var moduleName = Mapper.SanitizeName(interfaceModules[i]);
 				var moduleObj = Mapper.GetModuleByNameFromModule (moduleName, rootModule);
 				if (_.isNull(moduleObj)) {
-					moduleObj = new Module (moduleName);
-					moduleObj.Methods = _.uniq(moduleObj.Methods);
+					moduleObj = new Module(moduleName);
+						moduleObj.Methods = _.uniq(moduleObj.Methods);
 					rootModule.Modules.push (moduleObj);
 				}
 				rootModule = moduleObj;
@@ -393,7 +398,7 @@ module Generator {
 			var methodParametersTemplate = _.template (Mapper.METHOD_PARAMETERS_TEMPLATE);
 			var methodReturnTemplate = _.template (Mapper.METHOD_RETURN_TEMPLATE);
 			var signatures : Array<string> = Mapper.ComputeMethodSignature (tiMethod.parameters);
-			var returnType : Array<string> = Mapper.ComputeMethodReturnTypes (tiMethod.returnTypes);
+			var returnType : Array<string> = Mapper.ComputeMethodReturnTypes (tiMethod.returns);
 			var renderizedSignatures = Mapper.RenderMethodParameters (methodParametersTemplate, signatures);
 			var renderizedReturnTypes: Array<string>;
 			if (returnType.length === 1) {
@@ -671,7 +676,7 @@ module Generator {
 		/// @param[in] name the module name.
 		/// @param[in] rootModule the extendsFrom module where this module is located.
 		/// @return the module that contains the module with name <i>name</i>.
-        private static GetModuleByNameFromModule (name: string, rootModule: Module) : Module {
+		private static GetModuleByNameFromModule (name: string, rootModule: Module) : Module {
 			return _.first(_.where (rootModule.Modules, {Name: name})) || null;
 		}
 	}
@@ -679,7 +684,6 @@ module Generator {
 
 function main () {
 	if (process.argv.length !== 3) {
-		console.log (process.argv);
 		console.log ('   Usage:');
 		console.log ('      node ' + process.argv[1] + ' JSON_File');
 	} else {
