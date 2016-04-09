@@ -171,3 +171,9 @@ properties:
         sections of wikipedia for reference.
     type: String
     permission: read-only
+
+  - name: fullInfo
+    summary: |
+      full Locale info.
+    type: Dictionary
+    permission: read-only

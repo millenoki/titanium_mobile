@@ -540,6 +540,13 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
 
+
+  - name: fullInfo
+    summary: |
+      full App info.
+    type: Dictionary
+    permission: read-only
+
 ---
 name: launchOptions
 summary: |
@@ -564,3 +571,4 @@ properties:
         incoming location event.
     type: Boolean
     default: false
+

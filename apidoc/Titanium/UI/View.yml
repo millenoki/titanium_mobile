@@ -655,8 +655,13 @@ methods:
             View to add to this view's hierarchy.
 
             On the iOS and Windows platforms, you may pass an array of views.
-        type: [Titanium.UI.View, Array<Titanium.UI.View>]
-        
+        type: [Titanium.UI.View, Array<Titanium.UI.View>, Dictionary<Titanium.UI.View>, Array<Dictionary<Titanium.UI.View>>]
+      - name: index
+        summary: |
+            Position in the [children](Titanium.UI.View.children) array to
+               insert the view. If omitted, inserts the view to the end of the array.
+        type: Number
+        optional: true   
   - name: animate
     summary: Animates this view.
     description: |

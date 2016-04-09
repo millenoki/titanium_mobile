@@ -257,6 +257,12 @@ properties:
     type: String
     permission: read-only
 
+  - name: fullInfo
+    summary: |
+      full System info.
+    type: Dictionary
+    permission: read-only
+
 examples:
   - title: Battery Event Example
     example: |
