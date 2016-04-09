@@ -5652,7 +5652,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	                if (!fileChanged) {
 	                    this.logger.trace(__('No change, skipping %s', from.cyan));
 						var data = fs.readFileSync(to).toString();
-                    	this.analyseJS(to, data, next);
+                    	this.analyseJS(to, data, function() {
+                    		//make sure not to return the result of analyzeJS in next
+                    		//as the builder might see it as an error
+                    		next();
+                    	});
 	                    return;
 	                }
 
