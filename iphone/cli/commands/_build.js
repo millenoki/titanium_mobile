@@ -5601,6 +5601,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			if (!tsFiles || tsFiles.length == 0) {
 				return;
 			}
+			this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
+                if (/\.d\.ts$/.test(file)) {
+                    tsFiles.push(file);
+                }
+            }.bind(this));
 			this.logger.debug(__('Compyling TS files: %s', tsFiles));
 			var options = this.getTsConfig();
 			var host = ts.createCompilerHost(options);
