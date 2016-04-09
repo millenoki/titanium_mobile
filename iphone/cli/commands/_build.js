@@ -4577,13 +4577,16 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						break;
 					case 'ts':
 						tsFiles.push(info.src);
-						jsFiles[relPath.replace(/\.ts$/, '.js')] = {
-							name:info.name,
-							ext: 'js',
-							src: path.join(that.buildTsDir, relPath.replace(/\.ts$/, '.js')),
-							dest: info.dest.replace(/\.ts$/, '.js'),
-							srcStat: srcStat
-						};
+						if (!/\.d\.ts/.test(info.src)) {
+							jsFiles[relPath.replace(/\.ts$/, '.js')] = {
+								name:info.name,
+								ext: 'js',
+								src: path.join(that.buildTsDir, relPath.replace(/\.ts$/, '.js')),
+								dest: info.dest.replace(/\.ts$/, '.js'),
+								srcStat: srcStat
+							};
+						}
+						
 						break;
 					case 'css':
 						cssFiles[relPath] = info;
