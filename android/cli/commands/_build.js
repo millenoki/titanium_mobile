@@ -2390,7 +2390,7 @@ AndroidBuilder.prototype.getTsConfig = function getTsConfig(next) {
         inlineSourceMap: false,
         outDir: this.buildTsDir,
         allowJS: true,
-        target: ts.ScriptTarget.ES2015,
+        target: ts.ScriptTarget.ES2016,
         module: ts.ModuleKind.CommonJS,
         preserveConstEnums: true,
         declaration: true,
@@ -2791,6 +2791,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     if (!tsFiles || tsFiles.length == 0) {
                         return;
                     }
+                    this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
+                        if (/\.d\.ts$/.test(file)) {
+                            tsFiles.push(file);
+                        }
+                    }.bind(this));
                     this.logger.debug(__('Compyling TS files: %s', tsFiles));
                     var that = this;
 
@@ -2857,7 +2862,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                 if (!fileChanged) {
                     this.logger.trace(__('No change, skipping %s', from.cyan));
                     var data = fs.readFileSync(to).toString();
-                    this.analyseJS(to, data, done);
+                    this.analyseJS(to, data, function() {
+                        //make sure not to return the result of analyzeJS in next
+                        //as the builder might see it as an error
+                        next();
+                    });
                     return;
                 }
 
@@ -2878,7 +2887,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                         inputSourceMap:inSourceMap
                                     }, function(err, transformed) {
                                     if (err) {
-                                        this.logger.error('Babel error: ' + err  + '\n');
+                                        this.logger.error(__('Babel error: %s', (err.message || err.toString()) + '\n'));
                                         process.exit(1);
                                     }
                                     this.analyseJS(to, transformed.code, function(r) {
