@@ -2330,12 +2330,7 @@ iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
 		} catch (e) {}
 	}
 
-	// now that we've read the build manifest, delete it so if this build
-	// becomes incomplete, the next build will be a full rebuild
-	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
-
 	this.unmarkBuildDirFile(this.buildManifestFile);
-
 	if (this.cli.argv.xcode) {
 		if (!process.env.TITANIUM_CLI_XCODEBUILD) {
 			var manifest = this.previousBuildManifest;
@@ -2362,8 +2357,13 @@ iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
 			this.useBabel = manifest.useBabel;
 			this.useAutoLayout = manifest.useAutoLayout;
 			this.useAppThinning = manifest.useAppThinning;
+			return; // so that we don't remove the build manifest on error
 		}
 	}
+	// now that we've read the build manifest, delete it so if this build
+	// becomes incomplete, the next build will be a full rebuild
+	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
+
 };
 
 iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() {
