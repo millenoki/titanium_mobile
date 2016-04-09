@@ -338,6 +338,25 @@ iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, nex
 						_this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
 					}
 					if (transformed.map) {
+						//we remove sourcesContent as it is big and not really usefull
+						delete transformed.map.sourcesContent;
+
+						// fix file 
+						transformed.map.file = info.path
+						if (transformed.map.file[0] !== '/') {
+							transformed.map.file = '/' + transformed.map.file;
+						}
+						transformed.map.file = moduleId + transformed.map.file;
+						// handle wrong ts map sources path
+						if (transformed.map.sources) {
+							var relToBuild = path.relative(path.dirname(src), _this.assetsDir);
+							transformed.map.sources = transformed.map.sources.map(function(value) {
+								if (value.indexOf(relToBuild) != -1) {
+									return moduleId + value.replace(relToBuild, '');
+								}
+								return value;
+							});
+						}
                         fs.writeFileSync(path.join(destDir, srcFile + '.map'), JSON.stringify(transformed.map));
                     }
 					cb();
@@ -370,14 +389,60 @@ iOSModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callback)
     }, this);
 };
 
+iOSModuleBuilder.prototype.getTsConfig = function getTsConfig(next) {
+    var options = {
+        noEmitOnError: false,
+        sourceMap: true,
+        inlineSourceMap: false,
+        outDir: this.buildAssetsDir,
+        rootDir:this.assetsDir,
+        allowJS: true,
+        target: ts.ScriptTarget.ES3,
+        module: ts.ModuleKind.CommonJS,
+        preserveConstEnums: true,
+        declaration: true,
+        noImplicitAny: false,
+        experimentalDecorators: true,
+        noImplicitUseStrict: true
+    }
+
+    var tsconfigPath = path.join(this.projectDir, 'tsconfig.json');
+    if (fs.existsSync(tsconfigPath)) {
+        var parsedConfig, errors;
+        var rawConfig = ts.parseConfigFileTextToJson(tsconfigPath, fs.readFileSync(tsconfigPath, 'utf8'));
+        var dirname = tsconfigPath && path.dirname(tsconfigPath);
+        var basename = tsconfigPath && path.basename(tsconfigPath);
+        var tsconfigJSON = rawConfig.config;
+        if (ts.convertCompilerOptionsFromJson.length === 5) {
+            // >= 1.9?
+            errors = [];
+            parsedConfig = ts.convertCompilerOptionsFromJson([], tsconfigJSON.compilerOptions, dirname, errors,
+                basename || 'tsconfig.json');
+        } else {
+            // 1.8
+            parsedConfig = ts.convertCompilerOptionsFromJson(tsconfigJSON.compilerOptions, dirname).options;
+            errors = parsedConfig.errors;
+        }
+        delete parsedConfig.noEmit;
+        delete parsedConfig.outDir;
+        Object.keys(parsedConfig).forEach(function(prop) {
+            options[prop] = parsedConfig[prop];
+        }, this);
+    }
+    return options;
+}
+
 iOSModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
 	if (!tsFiles || tsFiles.length == 0) {
 		return;
 	}
-	this.logger.debug(__('Compyling TS files: %s', tsFiles));
-	var that = this;
-	
+	this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
+		if (/\.d\.ts$/.test(file)) {
+			tsFiles.push(file);
+		}
+	}.bind(this));
 	var options = this.getTsConfig();
+	this.logger.debug(__('Compyling TS files: %s, %s', tsFiles, JSON.stringify(options)));
 	var host = ts.createCompilerHost(options);
     var program = ts.createProgram(tsFiles,options, host);
     var emitResult = program.emit();
@@ -385,9 +450,13 @@ iOSModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
     var allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
 
     allDiagnostics.forEach(function (diagnostic) {
-        var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-        var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-        this.logger.debug(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
+        if (diagnostic.file) {
+            var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+            var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+            this.logger.debug(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
+        } else{
+            this.logger.debug(__('TsCompile:%s', diagnostic.messageText));
+        }
     }.bind(this));
     this.logger.debug(__('TsCompile done!'));
 }
@@ -395,12 +464,34 @@ iOSModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
 iOSModuleBuilder.prototype.movesTsDefinitionFiles = function movesTsDefinitionFiles() {
 	fs.existsSync(this.documentationBuildDir) || wrench.mkdirSyncRecursive(this.documentationBuildDir);
 	this.dirWalker(this.buildAssetsDir, function(file) {
-		if (path.extname(file) === '.ts') {
+		if (/\.d\.ts$/.test(file)) {
 			var relPath = file.replace(this.buildAssetsDir, '').replace(/\\/g, '/').replace(/^\//, '');
-			fs.rename(file, path.join(this.documentationBuildDir, relPath)); 
+			var dest = path.join(this.documentationBuildDir, relPath);
+			var dir = path.dirname(dest);
+			
+            this.logger.debug(__('moving doc %s => %s', file.cyan, dest.cyan));
+			fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+			//fix reference paths
+			var data = fs.readFileSync(file).toString();
+			data = data.replace(/\.\.\/\.\.\/assets\//, '')
+			fs.writeFileSync(dest, data);
+			fs.unlinkSync(file);
+		}
+	}.bind(this));
+	//also copy existing definition files
+	this.dirWalker(this.assetsDir, function(file) {
+		if (/\.d\.ts$/.test(file)) {
+			var relPath = file.replace(this.assetsDir, '').replace(/\\/g, '/').replace(/^\//, '');
+			var dest = path.join(this.documentationBuildDir, relPath);
+			var dir = path.dirname(dest);
+            this.logger.debug(__('copying doc %s => %s', file.cyan, dest.cyan));
+			fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+			fs.createReadStream(file).pipe(fs.createWriteStream(dest));
 		}
 	}.bind(this));
 }
+
 iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 	this.jsFilesToEncrypt = [];
 
@@ -478,15 +569,23 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			}
 			wrench.mkdirSyncRecursive(this.buildAssetsDir);
 
-			if (!fs.existsSync(path.join(this.assetsDir, moduleTS))) {
+			var tsFiles = [path.join(this.assetsDir, moduleTS)];
+			if (!fs.existsSync(tsFiles[0])) {
 				renderData.mainEncryptedAsset = '';
 				renderData.mainEncryptedAssetReturn = 'return nil;';
 				return cb();
 			}
+			var defFile = path.join(this.assetsDir, this.moduleId + '.d.ts');
+			if (fs.existsSync(defFile)) {
+				tsFiles.push(defFile);
+			}
 
-			this.compileTsFiles([path.join(this.assetsDir, moduleTS)]);
+			this.compileTsFiles(tsFiles);
 
-			this.compileJSFiles([path.join(this.buildAssetsDir, moduleTS)], function() {
+			this.compileJSFiles([{
+				path:moduleTS.replace(/\.ts$/, '.js'),
+				src:path.join(this.buildAssetsDir, moduleTS.replace(/\.ts$/, '.js'))
+			}], function() {
 				titaniumPrepHook(
 					path.join(this.platformPath, 'titanium_prep'), [this.moduleId, this.buildAssetsDir, this.moduleGuid], {
 						cwd:this.universalBinaryDir,
@@ -500,14 +599,20 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 		},
 		// 1. compile module js
 		function(cb) {
-
+			//if a jsFilesToEncrypt file exists then it means we already got the module mainEncryptedAsset
+			if (this.jsFilesToEncrypt.length !== 0) {
+				return cb();
+			}
 			if (!fs.existsSync(path.join(this.assetsDir, moduleJS))) {
 				renderData.mainEncryptedAsset = '';
 				renderData.mainEncryptedAssetReturn = 'return nil;';
 				return cb();
 			}
 
-			this.compileJSFiles([path.join(this.assetsDir, moduleJS)], function() {
+			this.compileJSFiles([{
+				path:moduleJS,
+				src:path.join(this.assetsDir, moduleJS)
+			}], function() {
 				titaniumPrepHook(
 					path.join(this.platformPath, 'titanium_prep'), [this.moduleId, this.buildAssetsDir, this.moduleGuid], {
 						cwd:this.universalBinaryDir,
@@ -538,11 +643,19 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 				var tsFiles = [];
 				this.dirWalker(this.assetsDir, function(file) {
 					if (path.extname(file) === '.js') {
-						jsFiles.push(file);
+						jsFiles.push({
+							src:file,
+							path:path.relative(this.assetsDir, file) 
+						});
+					} else if (/\.d\.ts$/.test(file)) {
+						tsFiles.push(file);
 					} else if (path.extname(file) === '.ts') {
 						var relPath = file.replace(this.assetsDir, '').replace(/\\/g, '/').replace(/^\//, '');
 						tsFiles.push(file);
-						jsFiles.push(path.join(this.buildAssetsDir, relPath.replace(/\.ts$/, '.js')));
+						jsFiles.push({
+							src:path.join(this.buildAssetsDir, relPath.replace(/\.ts$/, '.js')),
+							path:relPath.replace(/\.ts$/, '.js')
+						});
 					}
 				}.bind(this));
 

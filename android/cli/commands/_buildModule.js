@@ -996,6 +996,17 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 						this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
 					}
 					if (transformed.map) {
+
+						//we remove sourcesContent as it is big and not really usefull
+						delete transformed.map.sourcesContent;
+
+						// handle wrong ts map sources path
+						if (transformed.map.sources) {
+							transformed.map.sources.map(function(value) {
+								value.replace('../../../assets', '');
+								return moduleId + value;
+							});
+						}
                         fs.writeFileSync(path.join(to + '.map'), JSON.stringify(transformed.map));
                     }
 					cb();
@@ -1143,38 +1154,64 @@ AndroidModuleBuilder.prototype.jsToC = function (next) {
 	next();
 };
 
-AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
-	if (!tsFiles || tsFiles.length == 0) {
-		return;
-	}
-	this.logger.debug(__('Compyling TS files: %s', tsFiles));
-	var that = this;
-	
-	var options = getTsConfig();
-	var host = ts.createCompilerHost(options);
-    var program = ts.createProgram(tsFiles,options, host);
-    var emitResult = program.emit();
+AndroidModuleBuilder.prototype.getTsConfig = function getTsConfig(next) {
+    var options = {
+        noEmitOnError: false,
+        sourceMap: true,
+        inlineSourceMap: false,
+        outDir: this.buildGenTsDir,
+        allowJS: true,
+        target: ts.ScriptTarget.ES2016,
+        module: ts.ModuleKind.CommonJS,
+        preserveConstEnums: true,
+        declaration: true,
+        noImplicitAny: false,
+        experimentalDecorators: true,
+        noImplicitUseStrict: true
+    }
 
-    var allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
-
-    allDiagnostics.forEach(function (diagnostic) {
-        var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-        var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-        this.logger.debug(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
-    }.bind(this));
-    this.logger.debug(__('TsCompile done!'));
+    var tsconfigPath = path.join(this.projectDir, 'tsconfig.json');
+    if (fs.existsSync(tsconfigPath)) {
+        var parsedConfig, errors;
+        var rawConfig = ts.parseConfigFileTextToJson(tsconfigPath, fs.readFileSync(tsconfigPath, 'utf8'));
+        var dirname = tsconfigPath && path.dirname(tsconfigPath);
+        var basename = tsconfigPath && path.basename(tsconfigPath);
+        var tsconfigJSON = rawConfig.config;
+        if (ts.convertCompilerOptionsFromJson.length === 5) {
+            // >= 1.9?
+            errors = [];
+            parsedConfig = ts.convertCompilerOptionsFromJson([], tsconfigJSON.compilerOptions, dirname, errors,
+                basename || 'tsconfig.json');
+        } else {
+            // 1.8
+            parsedConfig = ts.convertCompilerOptionsFromJson(tsconfigJSON.compilerOptions, dirname).options;
+            errors = parsedConfig.errors;
+        }
+        parsedConfig.noEmit = false;
+        Object.keys(parsedConfig).forEach(function(prop) {
+            options[prop] = parsedConfig[prop];
+        }, this);
+    }
+    return options;
 }
 
 AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles() {
 	var tsFiles = [];
 	this.dirWalker(this.assetsDir, function (file) {
-		if (path.extname(file) === '.ts') {
+		if (/\.d\.ts$/.test(file)) {
+			tsFiles.push(file);
+		} else if (path.extname(file) === '.ts') {
 			tsFiles.push(file);
 		}
 	}.bind(this));
 	if (!tsFiles || tsFiles.length == 0) {
 		return;
 	}
+	this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
+        if (/\.d\.ts$/.test(file)) {
+            tsFiles.push(file);
+        }
+    }.bind(this));
 	fs.existsSync(this.buildGenTsDir) || wrench.mkdirSyncRecursive(this.buildGenTsDir);
 	this.logger.debug(__('Compyling TS files: %s', tsFiles));
 	var that = this;
@@ -1187,18 +1224,44 @@ AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles() {
     var allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
 
     allDiagnostics.forEach(function (diagnostic) {
-        var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-        var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-        this.logger.debug(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
+        if (diagnostic.file) {
+            var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+            var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+            this.logger.error(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
+        } else{
+            this.logger.error(__('TsCompile:%s', diagnostic.messageText));
+        } 
     }.bind(this));
     this.logger.debug(__('TsCompile done!'));
 }
+
 AndroidModuleBuilder.prototype.movesTsDefinitionFiles = function movesTsDefinitionFiles() {
 	fs.existsSync(this.documentationBuildDir) || wrench.mkdirSyncRecursive(this.documentationBuildDir);
 	this.dirWalker(this.buildGenTsDir, function(file) {
-		if (path.extname(file) === '.ts') {
+		if (/\.d\.ts$/.test(file)) {
 			var relPath = file.replace(this.buildGenTsDir, '').replace(/\\/g, '/').replace(/^\//, '');
-			fs.rename(file, path.join(this.documentationBuildDir, relPath)); 
+			var dest = path.join(this.documentationBuildDir, relPath);
+			var dir = path.dirname(dest);
+
+            this.logger.debug(__('moving doc %s => %s', file.cyan, dest.cyan));
+			fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+
+			//fix reference paths
+			var data = fs.readFileSync(file).toString();
+			data = data.replace(/\.\.\/\.\.\/assets\//, '')
+			fs.writeFileSync(dest, data);
+			fs.unlinkSync(file);
+		}
+	}.bind(this));
+	//also copy existing definition files
+	this.dirWalker(this.assetsDir, function(file) {
+		if (/\.d\.ts$/.test(file)) {
+			var relPath = file.replace(this.assetsDir, '').replace(/\\/g, '/').replace(/^\//, '');
+			var dest = path.join(this.documentationBuildDir, relPath);
+			var dir = path.dirname(dest);
+            this.logger.debug(__('copying doc %s => %s', file.cyan, dest.cyan));
+			fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+			fs.createReadStream(file).pipe(fs.createWriteStream(dest));
 		}
 	}.bind(this));
 }
