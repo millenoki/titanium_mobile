@@ -2614,6 +2614,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
                     case 'ts':
                         tsFiles.push(from);
+                        if (/\.d\.ts/.test(info.src)) {
+                            break;
+                        }
                         from = path.join(_t.buildTsDir, relPath.replace(/\.ts$/, '.js'));
                     case 'js':
                         // track each js file so we can copy/minify later
