@@ -5669,7 +5669,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 									inputSourceMap:inSourceMap
 								}, function(err, transformed) {
 									if (err) {
-										this.logger.error('Babel error: ' + err  + '\n');
+										this.logger.error(__('Babel error: %s', (err.message || err.toString()) + '\n'));
 										process.exit(1);
 									}
 									this.analyseJS(to, transformed.code, function(r) {
