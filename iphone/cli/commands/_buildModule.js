@@ -274,25 +274,32 @@ iOSModuleBuilder.prototype.processTiXcconfig = function processTiXcconfig(next) 
 };
 
 iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, next) {
-	async.eachSeries(jsFiles, function(file, next) {
+	async.eachSeries(jsFiles, function(info, next) {
 		setImmediate(function() {
+			var file = info.src;
 			var src = file;
 			if (file.indexOf('/') === 0) {
 				file = path.basename(file);
 			}
 			var srcFile = file;
 			file = file.replace(/\./g, '_');
-			var relPath = path.relative(this.assetsDir, path.dirname(src));
+			var relPath = path.dirname(info.path);
 			var destDir = path.join(this.buildAssetsDir, relPath)
 			var dest = path.join(destDir, file);
 			
 			this.cli.createHook('build.ios.compileJsFile', this, function(from, to,
 				cb) {
 				var _this = this;
+				var inSourceMap = null;
+                if (fs.existsSync(from + '.map')) {
+                    inSourceMap =  JSON.parse(fs.readFileSync(from + '.map'));
+                }
+                var moduleId = this.manifest.moduleid;
 				babel.transformFile(from, {
 					sourceMaps: true,
-					sourceMapTarget:path.join(relPath, srcFile),					
-					sourceFileName: path.join(relPath, srcFile)
+					sourceMapTarget: moduleId + info.path,					
+					sourceFileName: moduleId + info.path,
+                    inputSourceMap:inSourceMap
 				}, function(err, transformed) {
 					if (err) {
 						_this.logger.error('Babel error: ' + err + '\n');

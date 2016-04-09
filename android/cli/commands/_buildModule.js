@@ -949,10 +949,16 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 			this.cli.createHook('build.ios.compileJsFile', this, function(from, to,
 					cb) {
+				var inSourceMap = null;
+                if (fs.existsSync(from + '.map')) {
+                    inSourceMap =  JSON.parse(fs.readFileSync(from + '.map'));
+                }
+                var moduleId = this.manifest.moduleid;
 				babel.transformFile(from, {
 					sourceMaps: true,
-					sourceMapTarget:file,					
-					sourceFileName: file
+					sourceMapTarget: moduleId + file,					
+					sourceFileName: moduleId + file,
+                    inputSourceMap:inSourceMap
 				}, function(err, transformed) {
 					if (err) {
 						this.logger.error('Babel error: ' + err + '\n');
