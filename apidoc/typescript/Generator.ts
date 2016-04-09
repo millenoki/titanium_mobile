@@ -643,10 +643,12 @@ module Generator {
 					return 'any';
 				case 'Array':
 					return 'Array<any>';
+                case 'Array<String>':
+					return 'Array<string>';
 				case 'Number':
 				case 'Boolean':
 				case 'String':
-					return type.toLowerCase ();
+					return type.toLowerCase();
 				case 'Dictionary':
 					return 'Dictionary<Object>';
 				case 'Array<Dictionary>':
