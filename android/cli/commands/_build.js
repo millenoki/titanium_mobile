@@ -2416,7 +2416,9 @@ AndroidBuilder.prototype.getTsConfig = function getTsConfig(next) {
             parsedConfig = ts.convertCompilerOptionsFromJson(tsconfigJSON.compilerOptions, dirname).options;
             errors = parsedConfig.errors;
         }
-        parsedConfig.noEmit = false;
+        //we should always overwrite those keys
+        delete parsedConfig.noEmit;
+        delete parsedConfig.outDir;
         Object.keys(parsedConfig).forEach(function(prop) {
             options[prop] = parsedConfig[prop];
         }, this);
@@ -2614,10 +2616,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
                     case 'ts':
                         tsFiles.push(from);
-                        if (/\.d\.ts/.test(info.src)) {
+                        if (/\.d\.ts/.test(filename)) {
+                            next();
                             break;
                         }
                         from = path.join(_t.buildTsDir, relPath.replace(/\.ts$/, '.js'));
+                        to = to.replace(/\.ts$/, '.js');
                     case 'js':
                         // track each js file so we can copy/minify later
 
@@ -2794,11 +2798,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     if (!tsFiles || tsFiles.length == 0) {
                         return;
                     }
-                    this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
-                        if (/\.d\.ts$/.test(file)) {
-                            tsFiles.push(file);
-                        }
-                    }.bind(this));
+                    if (fs.existsSync(path.join(this.projectDir, 'typings'))) {
+                        this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
+                            if (/\.d\.ts$/.test(file)) {
+                                tsFiles.push(file);
+                            }
+                        }.bind(this));
+                    }
                     this.logger.debug(__('Compyling TS files: %s', tsFiles));
                     var that = this;
 

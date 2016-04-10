@@ -423,6 +423,7 @@ iOSModuleBuilder.prototype.getTsConfig = function getTsConfig(next) {
             parsedConfig = ts.convertCompilerOptionsFromJson(tsconfigJSON.compilerOptions, dirname).options;
             errors = parsedConfig.errors;
         }
+        //we should always overwrite those keys
         delete parsedConfig.noEmit;
         delete parsedConfig.outDir;
         Object.keys(parsedConfig).forEach(function(prop) {
@@ -436,11 +437,13 @@ iOSModuleBuilder.prototype.compileTsFiles = function compileTsFiles(tsFiles) {
 	if (!tsFiles || tsFiles.length == 0) {
 		return;
 	}
-	this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
-		if (/\.d\.ts$/.test(file)) {
-			tsFiles.push(file);
-		}
-	}.bind(this));
+	if (fs.existsSync(path.join(this.projectDir, 'typings'))) {
+        this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
+            if (/\.d\.ts$/.test(file)) {
+                tsFiles.push(file);
+            }
+        }.bind(this));
+    }
 	var options = this.getTsConfig();
 	this.logger.debug(__('Compyling TS files: %s, %s', tsFiles, JSON.stringify(options)));
 	var host = ts.createCompilerHost(options);

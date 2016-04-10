@@ -1000,11 +1000,20 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 						//we remove sourcesContent as it is big and not really usefull
 						delete transformed.map.sourcesContent;
 
+						// fix file 
+						transformed.map.file = file
+						if (transformed.map.file[0] !== '/') {
+							transformed.map.file = '/' + transformed.map.file;
+						}
+						transformed.map.file = moduleId + transformed.map.file;
 						// handle wrong ts map sources path
 						if (transformed.map.sources) {
-							transformed.map.sources.map(function(value) {
-								value.replace('../../../assets', '');
-								return moduleId + value;
+							var relToBuild = path.relative(path.dirname(src), this.assetsDir);
+							transformed.map.sources = transformed.map.sources.map(function(value) {
+								if (value.indexOf(relToBuild) != -1) {
+									return moduleId + value.replace(relToBuild, '');
+								}
+								return value;
 							});
 						}
                         fs.writeFileSync(path.join(to + '.map'), JSON.stringify(transformed.map));
@@ -1187,7 +1196,9 @@ AndroidModuleBuilder.prototype.getTsConfig = function getTsConfig(next) {
             parsedConfig = ts.convertCompilerOptionsFromJson(tsconfigJSON.compilerOptions, dirname).options;
             errors = parsedConfig.errors;
         }
-        parsedConfig.noEmit = false;
+        //we should always overwrite those keys
+        delete parsedConfig.noEmit;
+        delete parsedConfig.outDir;
         Object.keys(parsedConfig).forEach(function(prop) {
             options[prop] = parsedConfig[prop];
         }, this);
@@ -1207,11 +1218,14 @@ AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles() {
 	if (!tsFiles || tsFiles.length == 0) {
 		return;
 	}
-	this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
-        if (/\.d\.ts$/.test(file)) {
-            tsFiles.push(file);
-        }
-    }.bind(this));
+	if (fs.existsSync(path.join(this.projectDir, 'typings'))) {
+		this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
+	        if (/\.d\.ts$/.test(file)) {
+	            tsFiles.push(file);
+	        }
+	    }.bind(this));
+	}
+	
 	fs.existsSync(this.buildGenTsDir) || wrench.mkdirSyncRecursive(this.buildGenTsDir);
 	this.logger.debug(__('Compyling TS files: %s', tsFiles));
 	var that = this;

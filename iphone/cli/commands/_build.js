@@ -4495,7 +4495,9 @@ iOSBuilder.prototype.getTsConfig = function getTsConfig(next) {
 			parsedConfig = ts.convertCompilerOptionsFromJson(tsconfigJSON.compilerOptions, dirname).options;
 			errors = parsedConfig.errors;
 		}
-		parsedConfig.noEmit = false;
+		//we should always overwrite those keys
+        delete parsedConfig.noEmit;
+        delete parsedConfig.outDir;
 		Object.keys(parsedConfig).forEach(function(prop) {
 			options[prop] = parsedConfig[prop];
 		}, this);
