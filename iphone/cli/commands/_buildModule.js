@@ -799,7 +799,7 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 		'-configuration', 'Release',
 		'-sdk', 'iphoneos',
 		'clean', 'build',
-		'CONFIGURATION_BUILD_DIR=' + path.join(this.projectDir, 'build', 'iphoneos'),
+		'CONFIGURATION_BUILD_DIR=' + path.join(this.universalBinaryDir, 'TiRelease', 'iphoneos'),
 		'TITANIUM_CLI_XCODEBUILD=1'
 	], opts, 'xcode-dist', function() {
 		// Create a build for the simulator
@@ -807,7 +807,7 @@ iOSModuleBuilder.prototype.buildModule = function buildModule(next) {
 			'-configuration', 'Release',
 			'-sdk', 'iphonesimulator',
 			'clean', 'build',
-			'CONFIGURATION_BUILD_DIR=' + path.join(this.projectDir, 'build', 'iphoneos'),
+			'CONFIGURATION_BUILD_DIR=' + path.join(this.universalBinaryDir, 'TiRelease', 'iphonesimulator'),
 			'TITANIUM_CLI_XCODEBUILD=1'
 		], opts, 'xcode-sim', next);
 	}.bind(this));
@@ -824,13 +824,14 @@ iOSModuleBuilder.prototype.createUniBinary = function createUniBinary(next) {
 			outputFile
 		];
 
-	this.dirWalker(this.universalBinaryDir, function(file) {
-		if (path.extname(file) === '.a' && file.indexOf(this.moduleName + '.build') === -1 && file.indexOf('Release-') > -
+	this.dirWalker(path.join(this.universalBinaryDir, 'TiRelease'), function(file) {
+		if (path.extname(file) === '.a' && file.indexOf(this.moduleName + '.build') === -1 && file.indexOf(this.moduleName) > -
 			1
 		) {
 			binaryFiles.push(file);
 		}
 	}.bind(this));
+        this.logger.debug(this.xcodeEnv.executables.lipo + ' ' + binaryFiles.concat(lipoArgs).join(' '));
 
 	appc.subprocess.run(this.xcodeEnv.executables.lipo, binaryFiles.concat(lipoArgs), function(code, out, err) {
 		next();
