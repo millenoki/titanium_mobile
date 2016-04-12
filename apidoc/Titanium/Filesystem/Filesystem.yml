@@ -103,7 +103,7 @@ methods:
       - name: path
         summary: One or more path components. Path arguments are joined together using 
             the platform specific path separator to form the full path.
-        type: String
+        type: ...String
     platforms: [iphone, ipad]
     osver: {ios: {min: "9.0"}}
     since: "5.4.0"
