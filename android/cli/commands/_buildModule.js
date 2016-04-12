@@ -890,7 +890,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 			});
 		}
 	}.bind(this));
-	this.dirWalker(this.buildGenTsDir, function (file) {
+	fs.existsSync(this.buildGenTsDir) && this.dirWalker(this.buildGenTsDir, function (file) {
 		if (path.extname(file) === '.js') {
 			jsFilesToEncrypt.push({
 				file:path.relative(this.buildGenTsDir, file),
@@ -1251,7 +1251,7 @@ AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles() {
 
 AndroidModuleBuilder.prototype.movesTsDefinitionFiles = function movesTsDefinitionFiles() {
 	fs.existsSync(this.documentationBuildDir) || wrench.mkdirSyncRecursive(this.documentationBuildDir);
-	this.dirWalker(this.buildGenTsDir, function(file) {
+	fs.existsSync(this.buildGenTsDir) && this.dirWalker(this.buildGenTsDir, function(file) {
 		if (/\.d\.ts$/.test(file)) {
 			var relPath = file.replace(this.buildGenTsDir, '').replace(/\\/g, '/').replace(/^\//, '');
 			var dest = path.join(this.documentationBuildDir, relPath);
