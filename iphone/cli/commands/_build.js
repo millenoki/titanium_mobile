@@ -1970,6 +1970,14 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 							module.libName = 'lib' + module.id.toLowerCase() + '.a',
 							module.libFile = path.join(module.modulePath, module.libName);
+							if (fs.existsSync(path.join(module.modulePath, 'platform'))) {
+								module.frameworks = fs.readdirSync(path.join(module.modulePath, 'platform')).filter(function(file) {
+									return /\.framework$/.test(file);
+								});
+							} else {
+								module.frameworks = [];
+							}
+							
 
 							if (!fs.existsSync(module.libFile)) {
 								this.logger.error(__('Module %s version %s is missing library file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
@@ -2926,11 +2934,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		});
 	}
 
-	// set the min ios version for the whole project
-	xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-		var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-		buildSettings.IPHONEOS_DEPLOYMENT_TARGET = appc.version.format(this.minIosVer, 2);
-	}, this);
 
 	// set the target-specific build settings
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
@@ -2989,6 +2992,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		return true;
 	}, this);
 
+	var deploymentTarget = this.minIosVer;
 	// add the native libraries to the project
 	if (this.nativeLibModules.length) {
 		this.logger.trace(__n('Adding %%d native module library', 'Adding %%d native module libraries', this.nativeLibModules.length === 1 ? 1 : 2, this.nativeLibModules.length));
@@ -3032,10 +3036,109 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				buildSettings.LIBRARY_SEARCH_PATHS || (buildSettings.LIBRARY_SEARCH_PATHS = ["\"$(inherited)\""]);
 				buildSettings.LIBRARY_SEARCH_PATHS.push('"\\"' + path.dirname(lib.libFile) + '\\""');
 			});
+
+			var embedBuildPhase;
+			function getEmbedFrameworksBuildPhase() {
+				if (embedBuildPhase) {
+					return embedBuildPhase;
+				}
+				var name = 'Embed Frameworks';
+				var embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === name; }).shift();
+				var embedUuid = embedExtPhase && embedExtPhase.value;
+				this.logger.trace(__('getEmbedFrameworksBuildPhase %s', embedUuid));
+				if (!embedUuid) {
+					embedUuid = this.generateXcodeUuid(xcodeProject);
+					xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.push({
+						value: embedUuid,
+						comment: name
+					});
+					xobjs.PBXCopyFilesBuildPhase || (xobjs.PBXCopyFilesBuildPhase = {});
+					embedBuildPhase = xobjs.PBXCopyFilesBuildPhase[embedUuid] = {
+						isa: 'PBXCopyFilesBuildPhase',
+						buildActionMask: 2147483647,
+						dstPath: '""',
+						dstSubfolderSpec: 10,
+						files: [],
+						name: '"' + name + '"',
+						runOnlyForDeploymentPostprocessing: 0
+					};
+					xobjs.PBXCopyFilesBuildPhase[embedUuid + '_comment'] = name;
+				} else {
+					embedBuildPhase = xobjs.PBXCopyFilesBuildPhase[embedUuid];
+				}
+				return embedBuildPhase;
+			};
+			//looking for swift frameworks
+			var embeddedFrameworks = lib.manifest.embeddedFrameworks && lib.manifest.embeddedFrameworks.split(',');
+			lib.frameworks.filter(function(framework){
+				var frameworkName = framework.replace(/\.framework$/, '');
+				return embeddedFrameworks && embeddedFrameworks.indexOf(frameworkName) != -1;
+			}).forEach(function(framework) {
+				var frameworkName = framework.replace(/\.framework$/, '');
+				var fullPath = path.join(lib.modulePath, 'platform', framework);
+				this.logger.trace(__('handling framework %s, %s, %s', framework, frameworkName, fullPath));
+				if (appc.version.lt(deploymentTarget, '8.0')) {
+					deploymentTarget = '8.0';
+				}
+				var embedBuildPhase = getEmbedFrameworksBuildPhase.call(this);
+				if (!embedBuildPhase) {
+					return;
+				}
+				this.logger.trace(__('embedBuildPhase %s', JSON.stringify(embedBuildPhase)));
+				var fileRefUuid = this.generateXcodeUuid(xcodeProject),
+					buildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+				// add the file reference
+				xobjs.PBXFileReference[fileRefUuid] = {
+					isa: 'PBXFileReference',
+					lastKnownFileType: 'wrapper.framework',
+					name: framework,
+					path: '"' + fullPath + '"',
+					sourceTree: '"<absolute>"'
+				};
+				xobjs.PBXFileReference[fileRefUuid + '_comment'] = framework;
+
+				// add the library to the Frameworks group
+				frameworksGroup.children.push({
+					value: fileRefUuid,
+					comment: framework + ' in Embed Frameworks'
+				});
+
+				// add the build file
+				xobjs.PBXBuildFile[buildFileUuid] = {
+					isa: 'PBXBuildFile',
+					fileRef: fileRefUuid,
+					fileRef_comment: framework,
+					settings: { ATTRIBUTES: [ 'RemoveHeadersOnCopy', 'CodeSignOnCopy' ] }
+				};
+				xobjs.PBXBuildFile[buildFileUuid + '_comment'] = framework + ' in Frameworks';
+
+				// add the library to the frameworks build phase
+				frameworksBuildPhase.files.push({
+					value: buildFileUuid,
+					comment: framework + ' in Frameworks'
+				});
+				embedBuildPhase.files.push({
+					value: buildFileUuid,
+					comment: framework + ' in Frameworks'
+				});
+
+			}, this);
 		}, this);
 	} else {
 		this.logger.trace(__('No native module libraries to add'));
 	}
+
+	// set the min ios version for the whole project
+	buildSettings.IPHONEOS_DEPLOYMENT_TARGET = appc.version.format(deploymentTarget, 2);
+	xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+		var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+		buildSettings.IPHONEOS_DEPLOYMENT_TARGET = appc.version.format(deploymentTarget, 2);
+	}, this);
+	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+		var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+		buildSettings.IPHONEOS_DEPLOYMENT_TARGET = appc.version.format(deploymentTarget, 2);
+	});
 
 	// add extensions and their targets to the project
 	if (this.extensions.length) {
@@ -3298,8 +3401,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					});
 
 					function addEmbedBuildPhase(name, dstPath, dstSubfolderSpec) {
-						embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === name; }).shift();
-						embedUuid = embedExtPhase && embedExtPhase.value;
+						var embedExtPhase = xobjs.PBXNativeTarget[mainTargetUuid].buildPhases.filter(function (phase) { return phase.comment === name; }).shift();
+						var embedUuid = embedExtPhase && embedExtPhase.value;
 
 						if (!embedUuid) {
 							embedUuid = this.generateXcodeUuid(xcodeProject);
