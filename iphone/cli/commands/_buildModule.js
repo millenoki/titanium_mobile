@@ -631,13 +631,17 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 		// 2. compile all other js files in assets dir
 		function(cb) {
 				if (!fs.existsSync(this.assetsDir)) {
-					throw new Error();
+                    renderData.allEncryptedAssets = '';
+                    renderData.allEncryptedAssetsReturn = 'return nil;';
+                    return cb();
 				}
 
 				var jsFilesCount = this.jsFilesToEncrypt.length;
 
 				if (jsFilesCount === 0) {
-					throw new Error();
+                    renderData.allEncryptedAssets = '';
+                    renderData.allEncryptedAssetsReturn = 'return nil;';
+                    return cb();
 				}
 
 				fs.existsSync(this.buildAssetsDir) || wrench.mkdirSyncRecursive(this.buildAssetsDir);
@@ -925,7 +929,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		}(this.documentationDir, path.join(moduleFolders, 'documentation')));
 
 		// built doc
-		this.dirWalker(this.documentationBuildDir, function(file) {
+		fs.existsSync(this.documentationBuildDir) && this.dirWalker(this.documentationBuildDir, function(file) {
 			dest.append(fs.createReadStream(file), {
 				name: path.join(moduleFolders, 'documentation', path.relative(this.documentationBuildDir, file))
 			});

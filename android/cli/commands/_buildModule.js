@@ -452,7 +452,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 	this.logger.log(__('Compiling Module Java source files'));
 
 	var classpath = this.classPaths,
-		javaSourcesFile = path.join(this.projectDir, 'java-sources.txt'),
+		javaSourcesFile = path.join(this.buildDir, 'java-sources.txt'),
 		javaFiles = [];
 
 	this.dirWalker(this.javaSrcDir, function (file) {
@@ -1443,9 +1443,9 @@ AndroidModuleBuilder.prototype.ndkLocalBuild = function (next) {
 };
 
 AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
-	this.logger.log(__('Compiling all java source files genereated'));
+	this.logger.log(__('Compiling all java source files generated'));
 
-	var javaSourcesFile = path.join(this.projectDir, 'java-sources.txt'),
+	var javaSourcesFile = path.join(this.buildDir, 'java-sources.txt'),
 		javaFiles = [],
 		javacHook = this.cli.createHook('build.android.javac', this, function (exe, args, opts, done) {
 		this.logger.info(__('Building Java source files: %s', ('"' + exe + '" ' + args.join(' ')).cyan));
@@ -1457,7 +1457,6 @@ AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
 				this.logger.log();
 				process.exit(1);
 			}
-
 			done();
 		}.bind(this));
 	});
@@ -1472,7 +1471,7 @@ AndroidModuleBuilder.prototype.compileAllFinal = function (next) {
 	fs.writeFileSync(javaSourcesFile, '"' + javaFiles.join('"\n"').replace(/\\/g, '/') + '"');
 
 	wrench.copyDirSyncRecursive(this.buildGenJsonDir, this.buildClassesDir, { forceDelete: true });
-
+	
 	javacHook(
 		this.jdkInfo.executables.javac,
 		[
