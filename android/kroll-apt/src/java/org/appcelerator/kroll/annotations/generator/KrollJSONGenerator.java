@@ -143,10 +143,15 @@ public class KrollJSONGenerator extends AbstractProcessor {
 		debug("Running Kroll binding generator.");
 
 		String jsonPackage = processingEnv.getOptions().get(PROPERTY_JSON_PACKAGE);
-		this.jsonPackage = jsonPackage != null ? jsonPackage : DEFAULT_JSON_PACKAGE;
 
 		String jsonFile = processingEnv.getOptions().get(PROPERTY_JSON_FILE);
-		this.jsonFile = jsonFile != null ? jsonFile : DEFAULT_JSON_FILE;
+
+		if (jsonFile != null && jsonPackage != null) {
+		    this.jsonFile = jsonFile;
+	        this.jsonPackage = jsonPackage;
+		} else {
+		    return;
+		}
 
 		String checkTiContext = processingEnv.getOptions().get(PROPERTY_CHECK_TICONTEXT);
 		this.checkTiContext = checkTiContext != null ? Boolean.parseBoolean(checkTiContext) : DEFAULT_CHECK_TICONTEXT;
@@ -757,6 +762,9 @@ public class KrollJSONGenerator extends AbstractProcessor {
 	}
 
 	protected void generateJSON() {
+	    if (jsonFile == null || jsonPackage == null) {
+            return;
+        } 
 		try {
 			Map<String,Object> proxies = jsonUtils.getStringMap(properties, "proxies");
 			for (String proxyName : proxies.keySet()) {
