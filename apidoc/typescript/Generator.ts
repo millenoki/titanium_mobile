@@ -14,7 +14,8 @@ require('./Util');
 
 module Generator {
 	interface TiParameter {
-		name     : string;
+		multiple: boolean;
+		name: string;
 		type     : any;
 		optional : boolean;
 	}
@@ -555,7 +556,7 @@ module Generator {
 			var optionalStr: string;
 			_.each (type, (t : string) => {
 				optionalStr = (shouldBeOptional || optional) ? '?' : '';
-				parameters.push (name + optionalStr + ': ' + Mapper.SanitizeModuleRoute(t));
+				parameters.push((tiParameter.multiple ? '...' : '') + name + optionalStr + ': ' + Mapper.SanitizeModuleRoute(t) + (tiParameter.multiple ? '[]' : ''));
 			});
 			return parameters;
 		}
@@ -565,6 +566,7 @@ module Generator {
 		/// @param[in] tiProperty is the param in JSON format.
 		/// @return the tiProperty flattened.
 		private static ComputeTiProperty (tiProperty : TiProperty) : string {
+
 			var name : string = tiProperty.name;
 			var type : string = Mapper.ComputePropertyType (tiProperty.type);
 			return name + ' : ' + type + ';';
@@ -614,6 +616,29 @@ module Generator {
 			return paramName;
 		}
 
+		private static SanatizeParameter(type: string, isMain?: Boolean) {
+			switch (type) {
+				case 'Object':
+					return 'any';
+				case 'Number':
+				case 'Boolean':
+				case 'String':
+					return type.toLowerCase();
+				case 'Dictionary':
+					if (!isMain) {
+						return 'Dictionary<Object>';
+					}
+					return type;
+				case 'Array':
+					if (!isMain) {
+						return 'Array<any>';
+					}
+					return type;
+				default:
+					return Mapper.SanitizeModuleRoute(type);
+			}
+		}
+
 		/// <b>ComputeType</b>
 		/// @brief This method returns a valid Typescript type.
 		///        It will be a really interesting feature to add functionality
@@ -625,37 +650,43 @@ module Generator {
 			if (!_.isNull(type.match('Callback<.*>'))) {
 				return '(...args : any[]) => any';
 			}
-			var genericMatch = type.split('/^Dictionary(\\<.*)(\\>$)/');
-			if (genericMatch.length > 0) {
-			 	var moduleName = 'Dictionary';
-				var atModule = Mapper.ComputeModule (moduleName);
+			var mainType = type, secondType;
+			var match = type.match(/^(\.\.\.)?([^\<]*)(?:\<)?(\.\.\.)?([^\>]*)(?:\>)?$/);
+			if (match) {
+				mainType = match[2];
+				secondType = match[4];
+			}
+			mainType = Mapper.SanatizeParameter(mainType, !!secondType);
+
+			// var genericMatch = type.split('/^Dictionary(\\<.*)(\\>$)/');
+			if (secondType) {
+				var atModule = Mapper.ComputeModule(mainType);
 				if (!_.isNull(atModule)) {
 					atModule.IsGeneric = true;
 				}
 			 	// TODO Manage the type that is being using as instance of the generic type.
-			 }
-			switch (type) {
-				case 'Fuction':
-				case 'Callback':
-				case 'Callback<Object>':
-					return '(...args : any[]) => any';
-				case 'Object':
-					return 'any';
-				case 'Array':
-					return 'Array<any>';
-                case 'Array<String>':
-					return 'Array<string>';
-				case 'Number':
-				case 'Boolean':
-				case 'String':
-					return type.toLowerCase();
-				case 'Dictionary':
-					return 'Dictionary<Object>';
-				case 'Array<Dictionary>':
-					return 'Array<Dictionary<Object>>';
-				default:
-					return Mapper.SanitizeModuleRoute(type);
+				secondType = Mapper.SanatizeParameter(secondType);
 			}
+			var result;
+			switch (mainType) {
+				case 'Function':
+				case 'Callback':
+					if (match) {
+						result = '(' + (match[3] ? '...' : '') + ' arg: ' + (secondType || 'any') + (match[3] ? '[]' : '') + ') => any';
+					} else {
+						result = '(...args : any[]) => any';
+					}
+					break;
+				default:
+					if (match) {
+						result = mainType + (secondType ? ('<' + secondType + '>') : '');
+					}
+					else {
+						result = mainType;
+					}
+			}
+			// console.log('ComputeType: ' + type + ', ' + mainType + ', ' + secondType + ', ' + JSON.stringify(match) + ' => ' + result);
+			return result;
 		}
 
 		/// <b>SanitizeName</b>
