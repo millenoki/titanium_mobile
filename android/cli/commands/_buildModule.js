@@ -1171,12 +1171,16 @@ AndroidModuleBuilder.prototype.getTsConfig = function getTsConfig(next) {
         outDir: this.buildGenTsDir,
         allowJS: true,
         target: ts.ScriptTarget.ES2016,
-        module: ts.ModuleKind.CommonJS,
-        preserveConstEnums: true,
-        declaration: true,
-        noImplicitAny: false,
-        experimentalDecorators: true,
-        noImplicitUseStrict: true
+		module: ts.ModuleKind.CommonJS,
+		moduleResolution: ts.ModuleResolutionKind.Classic,
+		preserveConstEnums: true,
+		declaration: true,
+		noImplicitAny: false,
+		experimentalDecorators: true,
+		noImplicitUseStrict: true,
+        removeComments: true,
+        noLib: false,
+        emitDecoratorMetadata: true
     }
 
     var tsconfigPath = path.join(this.projectDir, 'tsconfig.json');
@@ -1216,8 +1220,14 @@ AndroidModuleBuilder.prototype.compileTsFiles = function compileTsFiles() {
 		}
 	}.bind(this));
 	if (!tsFiles || tsFiles.length == 0) {
-		return;
-	}
+        return;
+    }
+    var tiTsDef = path.join(this.platformPath, '..', 'titanium.d.ts');
+    tsFiles.unshift(tiTsDef);
+    this.logger.debug(__('Compiling TS files: %s', tsFiles));
+
+    //we need to make sure that babel is used in that case 
+    this.useBabel = true;
 	if (fs.existsSync(path.join(this.projectDir, 'typings'))) {
 		this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
 	        if (/\.d\.ts$/.test(file)) {

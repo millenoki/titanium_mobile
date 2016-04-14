@@ -4569,16 +4569,21 @@ iOSBuilder.prototype.getTsConfig = function getTsConfig(next) {
 	var options = {
 		noEmitOnError: false,
 		sourceMap: true,
+		mapRoot:'',
 		inlineSourceMap: false,
 		outDir: this.buildTsDir,
-		allowJS: true,
-		target: ts.ScriptTarget.ES2015,
+		rootDir:path.join(this.projectDir, 'Resources'),
+		target: ts.ScriptTarget.ES2016,
 		module: ts.ModuleKind.CommonJS,
+		moduleResolution: ts.ModuleResolutionKind.Classic,
 		preserveConstEnums: true,
 		declaration: true,
 		noImplicitAny: false,
 		experimentalDecorators: true,
-		noImplicitUseStrict: true
+		noImplicitUseStrict: true,
+        removeComments: true,
+        noLib: false,
+        emitDecoratorMetadata: true
 	}
 
 	var tsconfigPath = path.join(this.projectDir, 'tsconfig.json');
@@ -5706,12 +5711,19 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 			if (!tsFiles || tsFiles.length == 0) {
 				return;
 			}
-			this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
+			var tiTsDef = path.join(this.platformPath, '..', 'titanium.d.ts');
+			tsFiles.unshift(tiTsDef);
+			this.logger.debug(__('Compiling TS files: %s', tsFiles));
+
+			//we need to make sure that babel is used in that case 
+			this.useBabel = true;
+
+			fs.existsSync(path.join(this.projectDir, 'typings')) && this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
                 if (/\.d\.ts$/.test(file)) {
                     tsFiles.push(file);
                 }
             }.bind(this));
-			this.logger.debug(__('Compyling TS files: %s', tsFiles));
+
 			var options = this.getTsConfig();
 			var host = ts.createCompilerHost(options);
 
@@ -5721,15 +5733,19 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		    var allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
 
 		    allDiagnostics.forEach(function (diagnostic) {
-		        var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-		        var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-		        this.logger.debug(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
-		    }.bind(this));
+                if (diagnostic.file) {
+                    var data = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+                    var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+                    this.logger.error(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
+                } else{
+                    this.logger.error(__('TsCompile:%s', diagnostic.messageText));
+                }                        
+            }.bind(this));
 		    this.logger.debug(__('TsCompile done!'));
 		},
 
 		function processJSFiles(next) {
-			this.logger.info(__('Processing JavaScript files'));
+			this.logger.info(__('Processing JavaScript files with babel:%s', this.useBabel));
 
 			var useBabel = this.useBabel;
 			async.eachSeries(Object.keys(jsFiles), function (file, next) {
@@ -5787,6 +5803,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 								}, function(err, transformed) {
 									if (err) {
 										this.logger.error(__('Babel error: %s', (err.message || err.toString()) + '\n'));
+										this.logger.error(JSON.stringify(err));
 										process.exit(1);
 									}
 									this.analyseJS(to, transformed.code, function(r) {
@@ -5807,11 +5824,8 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 												// fix file 
 												transformed.map.file = file
-												if (transformed.map.file[0] !== '/') {
-													transformed.map.file = '/' + transformed.map.file;
-												}
 												if (transformed.map.sources) {
-													var relToBuild = path.relative(path.dirname(from), path.join(this.projectDir, 'Resources'));
+													var relToBuild = path.relative(path.dirname(from), path.join(this.projectDir, 'Resources')) + '/';
 													transformed.map.sources = transformed.map.sources.map(function(value) {
 														if (value.indexOf(relToBuild) != -1) {
 															return value.replace(relToBuild, '');
