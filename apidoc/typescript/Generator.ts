@@ -30,6 +30,7 @@ module Generator {
 	interface TiMethod {
 		parameters : Array<TiParameter>;
 		returns    : any;
+        aliases      : Array<String>
 		name       : string;
 	}
 
@@ -235,7 +236,7 @@ module Generator {
             if (name  === 'Array') {
                 return;
             }
-			var entityType: string = (level === 0) ? 'declare class' : 'export interface';
+			var entityType: string = (level === 0) ? 'declare class' : 'export class';
 			return template ({
 								entityType: entityType,
 								name: name + generic,
@@ -474,6 +475,10 @@ module Generator {
 			_.each (renderizedSignatures, (signature: string) => {
 				var renderized = methodGenericTemplate ({Name: name, MethodSignature: signature});
 				methodOverloads.push (renderized);
+                _.each(tiMethod.aliases, (theAlias: string) => {
+                    var renderized = methodGenericTemplate ({Name: theAlias, MethodSignature: signature});
+				    methodOverloads.push (renderized);
+                }); 
 			});
 			return methodOverloads;
 		}
@@ -675,8 +680,8 @@ module Generator {
 
 		private static SanatizeParameter(type: string, isMain?: Boolean) {
 			switch (type) {
-                case 'this':
-					return 'void';
+                // case 'this':
+					// return 'void';
 				case 'Object':
 					return 'any';
 				case 'Number':

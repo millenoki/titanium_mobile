@@ -200,6 +200,20 @@ function exportDescription (api) {
 }
 
 /**
+ * Export description field
+ */
+function exportAliases (api) {
+	var rv = null; 
+	if (api.aliases) {
+		rv = api.aliases;
+		if (!Array.isArray(api.aliases)) {
+			rv = [api.aliases];
+		}
+	}
+	return rv;
+}
+
+/**
  * Export returns field
  */
 function exportReturnTypes (api) {
@@ -272,6 +286,7 @@ function exportAPIs (api, type) {
 					}
 					break;
 				case 'methods':
+					annotatedMember.aliases = exportAliases(member);
 					annotatedMember.examples = exportExamples(member);
 					annotatedMember.parameters = exportParams(member.parameters, 'parameters', annotatedMember.filename);
 					annotatedMember.returns = exportReturnTypes(member);
