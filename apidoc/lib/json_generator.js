@@ -179,6 +179,7 @@ function exportParams (apis, type, filename) {
 			}
 			if (type === 'parameters') {
 				annotatedMember.optional = member.optional || false;
+				annotatedMember.multiple = member.multiple;
 				annotatedMember.filename = filename + '.' + member.name + '-param';
 			}
 			rv.push(annotatedMember);
