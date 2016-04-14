@@ -21,7 +21,7 @@ description: |
 since: "0.1"
 methods:
   - name: addEventListener
-    alias: on
+    aliases: on
     summary: Adds the specified callback as an event listener for the named event. Return the Object for chaining
     parameters:
       - name: name
@@ -33,7 +33,7 @@ methods:
     returns:
         type: this
   - name: removeEventListener
-    alias: off
+    aliases: off
     summary: Removes the specified callback as an event listener for the named event. Return the Object for chaining
     description: |
         Multiple listeners can be registered for the same event, so the 
@@ -58,7 +58,7 @@ methods:
     returns:
         type: this
   - name: fireEvent
-    alias: emit
+    aliases: emit
     summary: Fires a synthesized event to any registered listeners.
     parameters:
       - name: name
