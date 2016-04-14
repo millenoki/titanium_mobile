@@ -40,6 +40,7 @@ var common = require('./lib/common.js'),
 	modules = [],
 	exportStdout = false,
 	cssPath = '',
+	noinherited = false,
 	cssFile = '',
 	addOnDocs = [],
 	searchPlatform = null,
@@ -412,10 +413,13 @@ function processAPIs (api) {
 	api.platforms = Object.keys(api.since);
 
 	// Get inherited APIs
-	inheritedAPIs = getInheritedAPIs(api);
-	for (var key in inheritedAPIs) {
-		api[key] = inheritedAPIs[key];
+	if (!noinherited) {
+		inheritedAPIs = getInheritedAPIs(api);
+		for (var key in inheritedAPIs) {
+			api[key] = inheritedAPIs[key];
+		}
 	}
+	
 
 	api.__subtype = getSubtype(api);
 
@@ -506,6 +510,7 @@ function cliUsage () {
 	common.log('\t--format, -f    \tExport format: %s. Default is html.', validFormats);
 	common.log('\t--output, -o    \tDirectory to output the files.');
 	common.log('\t--platform, -p  \tPlatform to extract for addon format.');
+	common.log('\t--noinherited     \tRemove duplicate inherited methods.');
 	common.log('\t--stdout        \tOutput processed YAML to stdout.');
 	common.log('\t--start         \tStart version for changes format (will use the version in the package.json if not defined).');
 	common.log('\t--end           \tEnd version for changes format (optional).');
@@ -688,6 +693,9 @@ if ((argc = process.argv.length) > 2) {
 				}
 				cssFile = cssPath.substring(cssPath.lastIndexOf('/') + 1);
 				break;
+			case '--noinherited' :
+				noinherited = true;
+			break;
 			case '--format' :
 			case '-f' :
 				if (++x > argc) {

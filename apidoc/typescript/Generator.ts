@@ -68,8 +68,11 @@ module Generator {
 		static INTERFACE_PROPERTY_TEMPLATE   : string = '{{declaration}}';
 		/// <b>MODULE_TEMPLATE</b>
 		/// Module representation inside a Typescript module.
-		static MODULE_TEMPLATE               : string = '{{moduleType}} module {{name}} {' + Module.NEWLINE +
+		static MODULE_TEMPLATE               : string = '{{moduleType}} namespace {{name}} {' + Module.NEWLINE +
 		                                                '{{moduleContent}}' + Module.NEWLINE;
+        /// <b>MODULE_INTERFACE_TEMPLATE</b>
+		/// Module interface representation inside a Typescript module.
+		static MODULE_INTERFACE_TEMPLATE     : string = '{{moduleType}} interface {{name}} {{inheritsFrom}} {' + Module.NEWLINE;
 		/// <b>INTERFACE_TEMPLATE</b>
 		/// Interface representation inside a Typescript module.
 		static INTERFACE_TEMPLATE            : string = '{{entityType}} {{name}} {{inheritsFrom}} {' + Module.NEWLINE +
@@ -163,13 +166,25 @@ module Generator {
 			if (this.IsEnum()) {
 				definitions += this.RenderEnum(level) + '}'.Indent(level) + Module.NEWLINE;
 			} else if (!this.IsModule()) {
-				definitions += this.RenderInterface(level) + '}'.Indent(level) + Module.NEWLINE;
+                let result = this.RenderInterface(level);
+                if (result) {
+				definitions += result + '}'.Indent(level) + Module.NEWLINE;
+                }
 			} else {
 				var subModulesDefs: string = '';
 				_.each (this.Modules, (submodule: Module) => {
 					subModulesDefs += submodule.DoRender(level + 1, '');
 				});
-				definitions += this.RenderModule(level) + subModulesDefs + '}'.Indent(level) + Module.NEWLINE;
+                
+                let moduleRendered = this.RenderModule(level);
+                if (moduleRendered) {
+                    definitions += moduleRendered + subModulesDefs + '}'.Indent(level) + Module.NEWLINE;
+                    
+                    moduleRendered = this.RenderModuleAsInterface(level);
+                    if (moduleRendered) {
+                        definitions += moduleRendered + '}'.Indent(level) + Module.NEWLINE;
+                    }
+                }
 			}
 			return definitions;
 		}
@@ -190,6 +205,19 @@ module Generator {
 								moduleContent: content
 							}).Indent(level);
 		}
+        /// <b>RenderModuleAsInterface</b>
+		/// @brief Render the current module.
+		/// @param[in] level that will be used to indent the rendered output.
+		/// @return the current module renderized.
+		private RenderModuleAsInterface (level: number): string {
+			var template: Function = _.template(Module.MODULE_INTERFACE_TEMPLATE);
+			var moduleType: string = (level === 0) ? 'declare' : 'export';
+			return template ({
+								moduleType: moduleType,
+                                inheritsFrom: this.RenderInterfaceInheritsPart(),
+								name: _.last(this.Name.split('.')),
+							}).Indent(level);
+		}
 
 		/// <b>RenderInterface</b>
 		/// @brief Render the current interface.
@@ -203,6 +231,10 @@ module Generator {
 			var generic: string = this.IsGeneric ? '' : '';
 			var moduleRoute : Array<string> = this.Name.split('.');
 			var name: string = _.last (moduleRoute);
+            
+            if (name  === 'Array') {
+                return;
+            }
 			var entityType: string = (level === 0) ? 'declare class' : 'export interface';
 			return template ({
 								entityType: entityType,
@@ -220,7 +252,13 @@ module Generator {
 			if (parentIsEnum || this.InheritsFrom === 'Object') {
 				return '';
 			}
-			return 'extends ' + this.InheritsFrom;
+            if (this.InheritsFrom) {
+                var parentModule = Mapper.getModule(this.InheritsFrom);
+                if (!parentModule.IsModule()) {
+			        return 'extends ' + this.InheritsFrom;
+                }
+            }
+            return '';
 		}
 
 		private RenderEnum (level: number): string {
@@ -339,10 +377,18 @@ module Generator {
 		/// @param[in] tiObject is the object to convert.
 		private static ComputeTiObject (tiObject : TiObject) {
 			var name : string = tiObject.name;
+            if (/Modules/.test(name)) {
+                return;
+            }
 			var atModule = Mapper.ComputeModule(name);
 			if (_.isNull(atModule)) {
 				throw 'Internal error. Could not find or allocate module.';
 			}
+            atModule.InheritsFrom = tiObject.extends;
+			if (atModule.InheritsFrom !== 'Object') {
+				atModule.ExtendsFrom = Mapper.ComputeModule (atModule.InheritsFrom);
+			}
+            
 			_.each (tiObject.methods, (tiMethod: TiMethod) => {
 				var methodOverloads: Array<string> = Mapper.ComputeTiMethod (atModule, tiMethod);
 				_.each (methodOverloads, (overload: string) => {
@@ -359,10 +405,7 @@ module Generator {
 					atModule.Properties.push (Mapper.ComputeTiProperty (tiProperty));
 				}
 			});
-			atModule.InheritsFrom = tiObject.extends;
-			if (atModule.InheritsFrom !== 'Object') {
-				atModule.ExtendsFrom = Mapper.ComputeModule (atModule.InheritsFrom);
-			}
+			
 		}
 
 		/// <b>ComputeModule</b>
@@ -381,6 +424,20 @@ module Generator {
 						moduleObj.Methods = _.uniq(moduleObj.Methods);
 					rootModule.Modules.push (moduleObj);
 				}
+				rootModule = moduleObj;
+			}
+			return rootModule;
+		}
+        
+        static getModule (name: string) : Module {
+			var interfaceModules = name.split('.');
+			var rootModule = Mapper.RootModule;
+			for (var i = 0; i < interfaceModules.length; i++) {
+				var moduleName = Mapper.SanitizeName(interfaceModules[i]);
+				var moduleObj = Mapper.GetModuleByNameFromModule (moduleName, rootModule);
+                if (!moduleObj) {
+                    return;
+                }
 				rootModule = moduleObj;
 			}
 			return rootModule;
@@ -432,7 +489,7 @@ module Generator {
 				renderResult.push (template ({ReturnTypeSeparator: ':', ReturnType: 'void'}));
 			} else {
 				_.each (returnTypes, (retType: string) => {
-					var render = template ({ReturnTypeSeparator: ':', ReturnType: retType});
+					var render = template ({ReturnTypeSeparator: ':', ReturnType: retType || 'void'});
 					renderResult.push (render);
 				});
 			}
@@ -618,6 +675,8 @@ module Generator {
 
 		private static SanatizeParameter(type: string, isMain?: Boolean) {
 			switch (type) {
+                case 'this':
+					return 'void';
 				case 'Object':
 					return 'any';
 				case 'Number':

@@ -75,7 +75,7 @@ def generate_jsca(windows):
 	 return os.path.join(top_dir, 'dist', 'api.jsca')
 
 def generate_json(windows):
-	 process_args = ['node', os.path.join(doc_dir, 'docgen.js'), '-f', 'json', '-o', os.path.join(top_dir, 'dist', '')]
+	 process_args = ['node', os.path.join(doc_dir, 'docgen.js'), '-f', 'json', '--noinherited', '-o', os.path.join(top_dir, 'dist', '')]
 	 if windows:
 	 	process_args.extend(['-a', os.path.join(top_dir, 'windows', 'doc', 'Titanium')])
 	 print "Generating JSCA..."
