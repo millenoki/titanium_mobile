@@ -21,7 +21,8 @@ description: |
 since: "0.1"
 methods:
   - name: addEventListener
-    summary: Adds the specified callback as an event listener for the named event.
+    alias: on
+    summary: Adds the specified callback as an event listener for the named event. Return the Object for chaining
     parameters:
       - name: name
         summary: Name of the event.
@@ -29,8 +30,11 @@ methods:
       - name: callback
         summary: Callback function to invoke when the event is fired.
         type: Callback<Object>
+    returns:
+        type: this
   - name: removeEventListener
-    summary: Removes the specified callback as an event listener for the named event.
+    alias: off
+    summary: Removes the specified callback as an event listener for the named event. Return the Object for chaining
     description: |
         Multiple listeners can be registered for the same event, so the 
         `callback` parameter is used to determine which listener to remove. 
@@ -51,7 +55,10 @@ methods:
       - name: callback
         summary: Callback function to remove. Must be the same function passed to `addEventListener`.
         type: Callback<Object>
+    returns:
+        type: this
   - name: fireEvent
+    alias: emit
     summary: Fires a synthesized event to any registered listeners.
     parameters:
       - name: name
@@ -70,6 +77,9 @@ methods:
       - name: props
         summary: A dictionary of properties to apply.
         type: Dictionary
+    returns:
+        summary: returns wether or not the event was successfully emited
+        type: Boolean
     since: {android: "3.0.0",  iphone: "3.0.0", ipad: "3.0.0", mobileweb: "3.0.0"}
 
 properties:

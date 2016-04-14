@@ -362,6 +362,7 @@ properties:
     description: |
         To set the opacity of a row on iOS, specify an aRGB value with the
         <Titanium.UI.TableViewRow.backgroundColor> property.
+    type: Number
     platforms: [android, mobileweb]
 
   - name: rightImage

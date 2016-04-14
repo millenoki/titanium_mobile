@@ -193,7 +193,7 @@ methods:
         type: String
 
   - name: open
-    summary: Opens the request and prepares the connection.
+    summary: Opens the request and prepares the connection. Return the HTTPClient for chaining
     parameters:
       - name: method
         summary: HTTP method for this request, such as 'GET' or 'POST'. 'PATCH' is available on Android from SDK 4.1.0.
@@ -208,6 +208,8 @@ methods:
         type: Boolean
         optional: true
         default: true
+    returns:
+        type: Titanium.Network.HTTPClient
 
   - name: send
     summary: Sends the request.

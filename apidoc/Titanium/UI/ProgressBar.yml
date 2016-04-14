@@ -73,6 +73,7 @@ properties:
     type: String
   - name: tintColor
     summary: The color shown for the portion of the progress bar that is filled.
+    type: String
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
     type: String

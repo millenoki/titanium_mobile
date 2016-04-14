@@ -81,6 +81,7 @@ properties:
         It is recommended to set this property to colorize the whole popover instead of only 
         its content view.
     availability: creation
+    type: String
     since: 5.2.0
     default: undefined (behaves as transparent)
 

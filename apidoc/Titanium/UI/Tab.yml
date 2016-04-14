@@ -282,6 +282,7 @@ properties:
 
   - name: touchEnabled
     platforms: [mobileweb]
+    type: Boolean
 
   - name: window
     summary: Root-level tab window.  All tabs must have at least one root-level tab window.
