@@ -681,11 +681,12 @@ methods:
         summary: |
             Either a dictionary of animation properties or an 
             [Animation](Titanium.UI.Animation) object.
-        type: [Titanium.UI.Animation, Dictionary<Titanium.UI.Animation>]
+        type: [Titanium.UI.Animation, Dictionary]
         
       - name: callback
         summary: Function to be invoked upon completion of the animation.
         type: Callback<Object>
+        optional: true 
     
   - name: finishLayout
     since: "2.0.0"
