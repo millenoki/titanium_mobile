@@ -1436,10 +1436,17 @@ performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem
 {
     NSString* path = [[NSURL fileURLWithPath:[TiFileSystemHelper resourcesDirectory]] absoluteString];
     if ([args objectForKey:@"stack"]) {
-        [args setValue:[[[args objectForKey:@"stack"] stringByReplacingOccurrencesOfString:path withString:@""]stringByReplacingOccurrencesOfString:@"%20" withString:@" "] forKey:@"stack"];
+        
+        [args setValue:[[[[args objectForKey:@"stack"]
+                          stringByReplacingOccurrencesOfString:@"file:///private/var" withString:@"file:///var"]
+                         stringByReplacingOccurrencesOfString:path withString:@""]
+                        stringByReplacingOccurrencesOfString:@"%20" withString:@" "] forKey:@"stack"];
     }
     if ([args objectForKey:@"fileName"]) {
-        [args setValue:[[[args objectForKey:@"fileName"] stringByReplacingOccurrencesOfString:path withString:@""]stringByReplacingOccurrencesOfString:@"%20" withString:@" "] forKey:@"fileName"];
+        [args setValue:[[[[args objectForKey:@"fileName"]
+                          stringByReplacingOccurrencesOfString:@"file:///private/var" withString:@"file:///var"]
+                         stringByReplacingOccurrencesOfString:path withString:@""]
+                        stringByReplacingOccurrencesOfString:@"%20" withString:@" "] forKey:@"fileName"];
     }
     TopTiModule* topModule = [kjsBridge topTiModule];
     return [topModule prepareErrorArgs:args];
