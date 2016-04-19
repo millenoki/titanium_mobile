@@ -235,13 +235,17 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setTimeout(KrollFunction krollFunction, long timeout, final Object[] args)
+	public int setTimeout(KrollFunction krollFunction, @Kroll.argument(optional=true) Object timeoutObj, @Kroll.argument(optional=true) final Object[] args)
 	{
+		long timeout = 0;
+		if (timeoutObj != null) {
+		    timeout = TiConvert.toLong(timeoutObj);
+		}
 		return createTimer(krollFunction, timeout, args, false);
 	}
 
 	@Kroll.method @Kroll.topLevel
-	public int setInterval(KrollFunction krollFunction, long timeout, final Object[] args)
+	public int setInterval(KrollFunction krollFunction, long timeout, @Kroll.argument(optional=true) final Object[] args)
 	{
 		return createTimer(krollFunction, timeout, args, true);
 	}

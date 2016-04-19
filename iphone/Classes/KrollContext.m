@@ -211,7 +211,7 @@ static TiValueRef SetIntervalCallback (TiContextRef jsContext, TiObjectRef jsFun
 	//NOTE: function can be either Function or String object type
 	if (argCount!=2)
 	{
-		return ThrowException(jsContext, @"invalid number of arguments", exception);
+		return ThrowException(jsContext, @"setInterval (native): invalid number of arguments", exception);
 	}
 	
 	TiValueRef fnRef = args[0];
@@ -227,13 +227,13 @@ static TiValueRef SetTimeoutCallback (TiContextRef jsContext, TiObjectRef jsFunc
 	[KrollCoverageObject incrementTopLevelFunctionCall:TOP_LEVEL name:@"setTimeout"];
 #endif
 
-	if (argCount!=2)
+	if (argCount < 1)
 	{
-		return ThrowException(jsContext, @"invalid number of arguments", exception);
+		return ThrowException(jsContext, @"setTimeout (native): invalid number of arguments", exception);
 	}
 	
 	TiValueRef fnRef = args[0];
-	TiValueRef durationRef = args[1];
+    TiValueRef durationRef = (argCount >= 2) ? args[1] : 0;
 	
 	return MakeTimer(jsContext, jsFunction, fnRef, jsThis, durationRef, YES);
 }
@@ -248,7 +248,7 @@ static TiValueRef CommonJSRequireCallback (TiContextRef jsContext, TiObjectRef j
 
 	if (argCount!=1)
 	{
-		return ThrowException(jsContext, @"invalid number of arguments", exception);
+		return ThrowException(jsContext, @"require (native): invalid number of arguments", exception);
 	}
 	
 	KrollContext *ctx = GetKrollContext(jsContext);
