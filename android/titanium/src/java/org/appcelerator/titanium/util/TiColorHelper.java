@@ -23,7 +23,7 @@ import android.os.Build;
 public class TiColorHelper
 {
 	static Pattern shortHexPattern = Pattern.compile("#([0-9a-f])([0-9a-f])([0-9a-f])([0-9a-f]?)");
-	static Pattern rgbPattern = Pattern.compile("(rgb|rgba)\\((\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*(\\d+(?:\\.\\d+)?))?\\)");
+	static Pattern rgbPattern = Pattern.compile("(rgb|rgba|argb)\\((\\d+),\\s*(\\d+),\\s*(\\d+)(?:,\\s*(\\d+(?:\\.\\d+)?))?\\)");
 	
 	
 
@@ -57,16 +57,25 @@ public class TiColorHelper
                         color = Color.parseColor(lowval);
     			    }
     				
-    			} else if (lowval.startsWith("rgb") && (m = rgbPattern.matcher(lowval)).matches()) {
+    			} else if ((m = rgbPattern.matcher(lowval)).matches()) {
     			    String first = m.group(1);
-    			    if (first.equalsIgnoreCase("rgba")) {
-    			        color = Color.argb(
+                    boolean argb = first.equalsIgnoreCase("argb");
+                    boolean rgba = first.equalsIgnoreCase("rgba");
+    			    if (argb) {
+                        color = Color.argb(
+                                (int) (Float.valueOf(m.group(2))*255.0f),
+                                Integer.valueOf(m.group(3)),
+                                Integer.valueOf(m.group(4)),
+                                Integer.valueOf(m.group(5))
+                                );
+                    } else if (rgba) {
+                        color = Color.argb(
                                 (int) (Float.valueOf(m.group(5))*255.0f),
-    		                    Integer.valueOf(m.group(2)),
-    		                    Integer.valueOf(m.group(3)),
-    		                    Integer.valueOf(m.group(4))
-    		                    );
-    			    } else {
+                                Integer.valueOf(m.group(2)),
+                                Integer.valueOf(m.group(3)),
+                                Integer.valueOf(m.group(4))
+                                );
+                    } else {
                         color = Color.rgb(
                                 Integer.valueOf(m.group(2)),
                                 Integer.valueOf(m.group(3)),

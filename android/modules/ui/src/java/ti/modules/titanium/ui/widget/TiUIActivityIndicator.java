@@ -29,7 +29,6 @@ public class TiUIActivityIndicator extends TiUIView
 	protected int currentStyle;
 	private AppCompatTextView label;
 	private ProgressBar progress;
-	private LinearLayout view;
 
 	public static final int PLAIN = android.R.attr.progressBarStyleSmall;
 	public static final int BIG = android.R.attr.progressBarStyleLarge;
@@ -52,7 +51,7 @@ public class TiUIActivityIndicator extends TiUIView
 			return;
 		}
 
-		view = new LinearLayout(activity) {
+		LinearLayout view = new LinearLayout(activity) {
 			@Override
 			public boolean dispatchTouchEvent(MotionEvent event) {
 				if (touchPassThrough == true)
@@ -121,6 +120,7 @@ public class TiUIActivityIndicator extends TiUIView
 	public void processProperties(HashMap d)
 	{
 		super.processProperties(d);
+		LinearLayout view = (LinearLayout)getNativeView();
         if (view != null) {
             view.invalidate();
         }
@@ -141,6 +141,7 @@ public class TiUIActivityIndicator extends TiUIView
 
 	protected void setStyle(int style)
 	{
+        LinearLayout view = (LinearLayout)getNativeView();
 		if (style == currentStyle || view == null) {
 			return;
 		}

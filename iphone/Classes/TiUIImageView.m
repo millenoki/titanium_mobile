@@ -267,7 +267,11 @@ DEFINE_EXCEPTIONS
 
 -(void)queueImage:(id)img index:(NSUInteger)index_
 {
+#ifdef TI_USE_AUTOLAYOUT
+	UIView *view = [[TiLayoutView alloc] init];
+#else
     UIView *view = [[UIView alloc] initWithFrame:self.bounds];
+#endif
     UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
     
     spinner.center = view.center;
@@ -655,7 +659,11 @@ DEFINE_EXCEPTIONS
     {
         // we use a separate container view so we can both have an image
         // and a set of _images
+#ifdef TI_USE_AUTOLAYOUT
+        container = [[TiLayoutView alloc] initWithFrame:self.bounds];
+#else
         container = [[UIView alloc] initWithFrame:self.bounds];
+#endif
         container.userInteractionEnabled = NO;
         [self addSubview:container];
     }

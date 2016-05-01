@@ -483,6 +483,15 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_PROPERTY_Y = "y";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_FORCE = "force";
+	/**
+	 * @module.api
+	 */
+	public static final String EVENT_PROPERTY_SIZE = "size";
 
 	/**
 	 * @module.api
@@ -754,6 +763,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_ACTIVITY_EXIT_ANIMATION = "activityExitAnimation";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ADD = "add";
+    
 	/**
 	 * @module.api
 	 */
@@ -1095,6 +1109,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_BIRTHDAY = "birthday";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
 
 	/**
 	 * @module.api
@@ -2119,6 +2138,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
 
 	/**
@@ -2402,6 +2426,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_MULTILINE_ELLIPSIZE = "multiLineEllipsize";
 
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_MULTIPLY = "multiply";
+ 
 	/**
 	 * @module.api
 	 */
@@ -3455,6 +3484,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_USE_SPINNER = "useSpinner";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_USERNAME = "username";
 
 	/**
@@ -3481,6 +3515,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_VIBRATE_PATTERN = "vibratePattern";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VIDEO_MAX_DURATION = "videoMaximumDuration";
+	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_VIDEO_QUALITY = "videoQuality";
 
 	/**
 	 * @module.api
@@ -3531,6 +3575,11 @@ public class TiC
      * @module.api
      */
     public static final String PROPERTY_WHEN = "when";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_WHICH_CAMERA = "whichCamera";
 
 	/**
 	 * @module.api

@@ -343,7 +343,7 @@ public class TiUIScrollView extends TiUIView
             return (int) (getHeight() * getZoomScale());
         }
 	}
-
+	
 	// same code, different super-classes
 	public class TiScrollView extends DualScrollView
 	{

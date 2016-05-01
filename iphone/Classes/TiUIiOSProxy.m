@@ -99,6 +99,10 @@
 #import "TiUIiOSBlurViewProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSSTEPPER
+#import "TiUIiOSStepperProxy.h"
+#endif
+
 @implementation TiUIiOSProxy
 
 #define FORGET_AND_RELEASE(x) \
@@ -494,6 +498,11 @@ MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_RIGHT, UIMenuControllerArrowRight);
 MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefault);
 #endif
 
+#ifdef USE_TI_UISEARCHBAR
+MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_PROMINENT, UISearchBarStyleProminent);
+MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
+#endif
+
 #ifdef USE_TI_UIIOSADVIEW
 -(NSString*)AD_SIZE_PORTRAIT 
 {
@@ -606,6 +615,13 @@ MAKE_SYSTEM_PROP(MENU_POPUP_ARROW_DIRECTION_DEFAULT, UIMenuControllerArrowDefaul
 -(id)createBlurView:(id)args
 {
     return [[[TiUIiOSBlurViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+#ifdef USE_TI_UIIOSSTEPPER
+-(id)createStepper:(id)args
+{
+    return [[[TiUIiOSStepperProxy alloc] _initWithPageContext:[self pageContext] args:args] autorelease];
 }
 #endif
 

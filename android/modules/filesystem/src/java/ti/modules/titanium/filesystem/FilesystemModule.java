@@ -109,14 +109,6 @@ public class FilesystemModule extends KrollModule
 			return;
 		}
 
-//		if (TiBaseActivity.storageCallbackContext == null) {
-//			TiBaseActivity.storageCallbackContext = getKrollObject();
-//		}
-//		TiBaseActivity.storagePermissionCallback = permissionCallback;
-//		String[] permissions = new String[] {android.Manifest.permission.READ_EXTERNAL_STORAGE};
-//		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-//		currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
-//		
 		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_CALENDAR, getKrollObject(), permissionCallback);
         Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
         if (currentActivity != null) {

@@ -1088,6 +1088,9 @@ public class TiUIImageView extends TiUINonViewGroupView implements
         case TiC.PROPERTY_PROGRESS:
             setProgress(TiConvert.toFloat(newValue, 0));
             break;
+		case TiC.PROPERTY_TINT_COLOR:
+			view.setTintColor(TiConvert.toColor(newValue));
+			break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;

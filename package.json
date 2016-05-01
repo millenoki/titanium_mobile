@@ -30,6 +30,7 @@
     "glob": "7.0.0",
     "humanize": "0.0.9",
     "ioslib": "git://github.com/Akylas/ioslib.git",
+    "lodash.defaultsdeep": "4.3.5",
     "markdown": "0.5.0",
     "moment": "2.11.2",
     "node-appc": "git://github.com/Akylas/node-appc.git",
@@ -42,7 +43,7 @@
     "typescript": "^1.8.9",
     "uglify-js": "2.6.1",
     "unorm": "^1.4.1",
-    "windowslib": "0.4.4",
+    "windowslib": "0.4.13",
     "wrench": "1.5.8",
     "xcode": "git://github.com/Akylas/node-xcode.git",
     "xmldom": "0.1.22"

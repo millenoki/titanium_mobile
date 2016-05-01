@@ -598,8 +598,10 @@
 			return NO;
 		}
 	}
-	
-    if ( (maxLength > -1 && [curText length] > maxLength)) {
+    
+    [self processKeyPressed:text];
+        
+    if ( (maxLength > -1) && ([curText length] > maxLength) ) {
         [self setValue_:curText];
         return NO;
     }

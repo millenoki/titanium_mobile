@@ -24,14 +24,14 @@
 }
 #endif
 
--(id)initWithStyle:(UIProgressViewStyle)style_
+-(id)initWithStyle:(UIProgressViewStyle)_style andMinimumValue:(CGFloat)_min maximumValue:(CGFloat)_max;
 {
 	if (self = [super initWithFrame:CGRectZero])
 	{
         currentValue = 0;
-		style = style_;
-		min = 0;
-		max = 1;
+		style = _style;
+		min = _min;
+		max = _max;
 		[self setHidden:YES];
         
 #ifdef TI_USE_AUTOLAYOUT

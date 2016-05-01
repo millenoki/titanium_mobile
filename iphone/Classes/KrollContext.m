@@ -1100,7 +1100,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	
 	[condition unlock];
 #else
-    [self invoke:obj];
+    dispatch_block_t block = ^{
+        [self invoke:obj];
+    };
+    TiThreadPerformOnMainThread(block, [NSThread isMainThread]);
 #endif
 }
 

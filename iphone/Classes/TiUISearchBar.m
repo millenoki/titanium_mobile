@@ -299,6 +299,11 @@
     [[self searchBar] setSearchBarStyle:[TiUtils intValue:value def:[self searchBar].searchBarStyle]];
 }
 
+-(void)setStyle_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self searchBar] setSearchBarStyle:[TiUtils intValue:value def:UISearchBarStyleProminent]];
+}
 
 -(UIImage *)imageWithColor:(UIColor *)color andHeight:(int)height {
     CGRect rect = CGRectMake(0, 0, height, height);
@@ -475,7 +480,11 @@
 	}
 }
 
-
+- (BOOL)searchBar:(UISearchBar *)searchBar shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    [self processKeyPressed:text];
+    return YES;
+}
 @end
 
 #endif

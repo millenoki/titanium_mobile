@@ -19,6 +19,7 @@ import org.appcelerator.titanium.view.TiUINonViewGroupView;
 
 import android.graphics.Color;
 import android.graphics.RectF;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.AppCompatButton;
 import android.text.SpannableStringBuilder;
@@ -234,6 +235,13 @@ public class TiUIButton extends TiUINonViewGroupView
                 mProcessUpdateFlags |= TIFLAG_NEEDS_TEXT;
             }
             break;
+		case TiC.PROPERTY_TINT_COLOR:
+			if (newValue == null){
+				getButton().getBackground().clearColorFilter();
+			} else {
+				getButton().getBackground().setColorFilter( TiConvert.toColor(TiConvert.toString(newValue)), Mode.MULTIPLY);						
+			}
+			break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;

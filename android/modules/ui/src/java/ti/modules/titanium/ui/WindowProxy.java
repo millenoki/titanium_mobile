@@ -430,7 +430,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	                return;
 		        }
             }
-			activity.finish();
+			if (super.hasActivityTransitions()) {
+			    activity.finishAfterTransition();
+			} else {
+			    activity.finish();
+			}
 	        
 	        int enterAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION, -1);
 	        int exitAnimation = TiConvert.toInt(options, TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION, -1);

@@ -1765,6 +1765,8 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						minVer = '9.0';
 					} else if (this.hasWatchAppV1 && appc.version.lt(minVer, '8.4')) {
 						minVer = '8.4';
+					} else if (this.tiapp.ios['enable-launch-screen-storyboard'] && appc.version.lt(minVer, '8.0')) {
+						minVer = '8.0';
 					}
 
 					var xcodeInfo = this.iosInfo.xcode;
@@ -2078,9 +2080,6 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 			}
 		},
 
-		// finalize
-		'writeBuildManifest',
-
 		function (next) {
 			if (!cli.argv.xcode && this.forceRebuild) {
 				series(this, [
@@ -2091,11 +2090,17 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 
 					// build baby, build
 					'invokeXcodeBuild',
+					// provide a hook event after xcodebuild
+					function (next) {
+						cli.emit('build.post.build', this, next);
+					},
 				], next);
 			} else {
 				next();
 			}
 		},
+		// finalize
+		'writeBuildManifest',
 
 
 		function (next) {
@@ -3442,10 +3447,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						xobjs.PBXBuildFile[copyFilesUuid + '_comment'] = productName + ' in ' + name;
 					}
 
-					if (targetInfo.isWatchAppV1Extension) {
-						addEmbedBuildPhase.call(this, 'Embed App Extensions', null, 13 /* type "plugin" */);
-					} else if (targetInfo.isWatchAppV2orNewer) {
+					if (targetInfo.isWatchAppV2orNewer) {
 						addEmbedBuildPhase.call(this, 'Embed Watch Content', '$(CONTENTS_FOLDER_PATH)/Watch', 16 /* type "watch app" */);
+					} else {
+						addEmbedBuildPhase.call(this, 'Embed App Extensions', null, 13 /* type "plugin" */);
 					}
 				}
 			}, this);
@@ -6443,7 +6448,7 @@ iOSBuilder.prototype.optimizeFiles = function optimizeFiles(next) {
 						fs.existsSync(file) && fs.unlinkSync(file);
 						fs.renameSync(output, file);
 					} else {
-						this.logger.warn(__('Unable to optimize %s; invalid png?'));
+						this.logger.warn(__('Unable to optimize %s; invalid png?', file));
 					}
 					cb();
 				}.bind(this));

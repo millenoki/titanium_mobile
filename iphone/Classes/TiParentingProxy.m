@@ -271,6 +271,34 @@
 
 -(void)removeProxy:(id)child shouldDetach:(BOOL)shouldDetach
 {
+#ifdef HYPERLOOP
+    // ofbuscate this selector
+    static SEL nativeObjSel = nil;
+    if (nativeObjSel == nil) nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
+    // obfuscate this class name
+    static Class hlClassName = nil;
+    if (hlClassName == nil) hlClassName = NSClassFromString([NSString stringWithFormat:@"%@%@", @"Hyperloop",@"Class"]);
+    if ([child isKindOfClass:[UIView class]] || (hlClassName != nil && [child isKindOfClass:hlClassName])) {
+        
+        TiUIView *tmpView;
+        if ([child isKindOfClass: hlClassName]) {
+            UIView* v = [child performSelector: nativeObjSel];
+            if (![v isKindOfClass:[UIView class]]) {
+                NSLog(@"[WARN] Trying to remove an object that is not a view");
+                return;
+            }
+            tmpView = (TiUIView*)[v superview];
+        } else {
+            tmpView = (TiUIView*)[(UIView*)child superview];
+        }
+        if (tmpView != nil && [tmpView isKindOfClass:[TiUIView class]]) {
+            child = [tmpView proxy];
+        } else {
+            NSLog(@"[WARN] Trying to remove a view that was never added or has already been removed");
+            return;
+        }
+    }
+#endif
     ENSURE_SINGLE_ARG_OR_NIL(child, TiProxy)
     BOOL wasChild = false;
     pthread_rwlock_wrlock(&childrenLock);
@@ -370,6 +398,11 @@
 - (TiProxy *)createChildFromObject:(id)object rootProxy:(TiParentingProxy*)rootProxy
 {
     TiProxy *child = nil;
+#ifdef HYPERLOOP
+    // obfuscate this selector
+    static SEL nativeObjSel = nil;
+    if (nativeObjSel == nil) nativeObjSel = NSSelectorFromString([NSString stringWithFormat:@"%@%@", @"native", @"Object"]);
+#endif
     if ([object isKindOfClass:[NSDictionary class]]) {
         id<TiEvaluator> context = self.executionContext;
         if (context == nil) {
@@ -380,7 +413,7 @@
 //        [context.krollContext invokeBlockOnThread:^{
 //        }];
 #ifdef HYPERLOOP
-    } else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:@selector(nativeObject)]) {
+    } else if ([arg isKindOfClass:[UIView class]] || [arg respondsToSelector:nativeObjSel]) {
         Class hyperloopViewProxy = NSClassFromString(@"HyperloopViewProxy");
         if (hyperloopViewProxy != nil) {
             child = [(TiViewProxy*)[[hyperloopViewProxy alloc] _initWithPageContext:[self executionContext]] autorelease];

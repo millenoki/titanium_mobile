@@ -109,7 +109,7 @@ public class ImageViewProxy extends ViewProxy
 	public TiBlob toBlob() {
 		return ((TiUIImageView)getOrCreateView()).toBlob();
 	}
-
+	
 	@Override
 	public String getApiName()
 	{

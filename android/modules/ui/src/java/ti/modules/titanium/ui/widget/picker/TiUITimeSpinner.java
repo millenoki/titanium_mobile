@@ -112,7 +112,6 @@ public class TiUITimeSpinner extends TiUIView
 		if ( !is24HourFormat ) {
 			layout.addView(amPmWheel);
 		}
-		
 		setNativeView(layout);
 	}
 

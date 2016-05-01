@@ -35,6 +35,7 @@ import ti.modules.titanium.ui.widget.picker.TiUIPickerInterface;
 import ti.modules.titanium.ui.widget.picker.TiUISpinner;
 import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 import ti.modules.titanium.ui.widget.picker.TiUITimeSpinner;
+import ti.modules.titanium.ui.widget.picker.TiUITimeSpinnerNumberPicker;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;

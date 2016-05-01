@@ -41,6 +41,8 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ZoomControls;
+import android.graphics.PorterDuff.Mode;
+import org.appcelerator.titanium.util.TiColorHelper;
 
 public class TiImageView extends MaskableView implements Handler.Callback, OnClickListener
 {
@@ -82,7 +84,7 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 	private boolean viewHeightDefined;
 
 	private int orientation;
-	
+	private int tintColor;
 	private WeakReference<TiUIView> tiView;
 
 	private InternalImageView oldImageView = null;
@@ -781,4 +783,18 @@ public class TiImageView extends MaskableView implements Handler.Callback, OnCli
 			readyToLayout = true;
 		}
 	}
+	
+	public void setTintColor(int color){
+		this.tintColor = color;
+		if (this.tintColor == 0) {
+			imageView.clearColorFilter();
+		} else {
+			imageView.setColorFilter(this.tintColor, Mode.MULTIPLY);
+		}
+	}
+
+	public int getTintColor(){
+		return tintColor;
+	}
+	
 }

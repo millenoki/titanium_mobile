@@ -1353,6 +1353,12 @@ public class TiUILabel extends TiUINonViewGroupView
                 getTextView().setAllCaps(TiConvert.toBoolean(newValue));
             }
             break;
+		case TiC.PROPERTY_LINE_SPACING:
+			if (newValue instanceof HashMap) {
+				HashMap dict = (HashMap) newValue;
+				getTextView().setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0), TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+			}
+            break;
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;

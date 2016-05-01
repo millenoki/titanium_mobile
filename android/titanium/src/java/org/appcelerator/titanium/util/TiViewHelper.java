@@ -112,6 +112,8 @@ public class TiViewHelper {
             globalPoint.put(TiC.EVENT_PROPERTY_X, rawx);
             globalPoint.put(TiC.EVENT_PROPERTY_Y, rawy);
             data.put(TiC.EVENT_PROPERTY_GLOBALPOINT, globalPoint);
+            data.put(TiC.EVENT_PROPERTY_FORCE, (double)e.getPressure());
+            data.put(TiC.EVENT_PROPERTY_SIZE, (double)e.getSize());
         }
 //        data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
         return data;

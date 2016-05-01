@@ -27,6 +27,7 @@ import org.appcelerator.titanium.util.TiIntentHelper;
 
 import android.graphics.Bitmap;
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.LabeledIntent;
 import android.net.Uri;
@@ -64,6 +65,16 @@ public class IntentProxy extends KrollProxy
 	public IntentProxy(Intent intent)
 	{
 		this.intent = intent;
+		ComponentName componentName = intent.getComponent();
+		if (componentName != null) {
+		    String packageName = componentName.getPackageName();
+		    if (packageName != null)
+		        setProperty(TiC.PROPERTY_PACKAGE_NAME, packageName);
+		    String className = componentName.getClassName();
+		    if (className != null)
+		        setProperty(TiC.PROPERTY_CLASS_NAME, className);
+		}
+		// Other properties have dedicated getters.
 	}
     public IntentProxy(HashMap dict)
     {

@@ -208,6 +208,15 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
     return [UITouch instancesRespondToSelector:@selector(altitudeAngle)];
 }
 
++(BOOL)isIOS9_3OrGreater
+{
+#if IS_XCODE_7_3
+    return [[[UIDevice currentDevice] systemVersion] compare:@"9.3" options:NSNumericSearch] != NSOrderedAscending;
+#else
+    return NO;
+#endif
+}
+
 +(BOOL)isIPad
 {
     static BOOL isIPad;

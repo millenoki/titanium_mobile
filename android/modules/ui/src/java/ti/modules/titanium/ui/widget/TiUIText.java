@@ -862,6 +862,11 @@ public class TiUIText extends TiUINonViewGroupView
 			Log.w(TAG, "Invalid range for text selection. Ignoring.");
 			return;
 		}
+		// http://stackoverflow.com/a/35527348/1504248
+		Editable text = realtv.getText();
+		if (text.length() > 0) {
+			text.replace(0, 1, text.subSequence(0, 1), 0, 1);
+		}
 		realtv.setSelection(start, end);
 	}
 	

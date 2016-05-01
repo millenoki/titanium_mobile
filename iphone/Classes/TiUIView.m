@@ -2326,6 +2326,13 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 	[self handleTouchEvent:@"touchcancel" forTouch:[touches anyObject]];
 }
 
+- (void)processKeyPressed:(NSString*)key
+{
+    if ([self.proxy _hasListeners:@"keypressed"]) {
+        [self.proxy fireEvent:@"keypressed" withObject:@{@"keyCode": key}];
+    }
+}
+
 #pragma mark Listener management
 
 -(void)removeGestureRecognizerOfClass:(Class)c

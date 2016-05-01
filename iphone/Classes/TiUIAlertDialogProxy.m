@@ -228,7 +228,7 @@ static BOOL alertShowing = NO;
             if ( (style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput) ) {
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
                     textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
-                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"placeholder"]] ?: @"";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"hintText"]] ?: @"";
                     textField.keyboardType = [TiUtils intValue:[self valueForKey:@"keyboardType"] def:UIKeyboardTypeDefault];
                     textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"returnKeyType"] def:UIReturnKeyDefault];
                     textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
@@ -238,13 +238,13 @@ static BOOL alertShowing = NO;
                     textField.keyboardType = [TiUtils intValue:[self valueForKey:@"loginKeyboardType"] def:UIKeyboardTypeDefault];
                     textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"loginReturnKeyType"] def:UIReturnKeyNext];
                     textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginPlaceholder"]] ?: @"Login";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"loginHintText"]] ?: @"Login";
                 }];
                 [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
                     textField.keyboardType = [TiUtils intValue:[self valueForKey:@"passwordKeyboardType"] def:UIKeyboardTypeDefault];
                     textField.returnKeyType = [TiUtils intValue:[self valueForKey:@"passwordReturnKeyType"] def:UIReturnKeyDone];
                     textField.keyboardAppearance = [TiUtils intValue:[self valueForKey:@"keyboardAppearance"] def:UIKeyboardAppearanceDefault];
-                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordPlaceholder"]] ?: @"Password";
+                    textField.placeholder = [TiUtils stringValue:[self valueForKey:@"passwordHintText"]] ?: @"Password";
                     textField.secureTextEntry = YES;
                 }];
             }

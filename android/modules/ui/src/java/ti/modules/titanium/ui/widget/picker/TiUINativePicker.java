@@ -43,7 +43,7 @@ public class TiUINativePicker extends TiUIPicker
 	private static final String TAG = "TiUINativePicker";
 	private boolean firstSelectedFired = false;
 	
-	public static class TiSpinnerAdapter<T> extends ArrayAdapter<T>
+	public class TiSpinnerAdapter<T> extends ArrayAdapter<T>
 	{
 	    FontDesc fontDesc;
 
@@ -59,6 +59,10 @@ public class TiUINativePicker extends TiUIPicker
 			if (fontDesc != null) {
                 TiUIHelper.styleText(tv, fontDesc);
 			}
+			if (proxy.hasProperty(TiC.PROPERTY_COLOR)) {
+		        final int color = TiConvert.toColor(proxy.getProperties(), TiC.PROPERTY_COLOR);
+		        tv.setTextColor(color);
+		    }
 			return tv;
 		}
 
@@ -69,6 +73,10 @@ public class TiUINativePicker extends TiUIPicker
 			if (fontDesc != null) {
 				TiUIHelper.styleText(tv, fontDesc);
 			}
+			if (proxy.hasProperty(TiC.PROPERTY_COLOR)) {
+		        final int color = TiConvert.toColor(proxy.getProperties(), TiC.PROPERTY_COLOR);
+		        tv.setTextColor(color);
+		    }
 			return tv;
 		}
 		
@@ -302,7 +310,6 @@ public class TiUINativePicker extends TiUIPicker
                 adapter.notifyDataSetChanged();
             }
             break;
-
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;

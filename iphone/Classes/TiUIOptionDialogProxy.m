@@ -98,6 +98,7 @@
     BOOL hideOnClick;
     NSInteger cancelButtonIndex;
     NSInteger destructiveButtonIndex;
+    UIColor *tintColor;
 }
 
 @synthesize dialogView;
@@ -109,6 +110,7 @@
         RELEASE_WITH_DELEGATE(customActionSheet)
     }
     RELEASE_WITH_DELEGATE(actionSheet)
+    RELEASE_TO_NIL(tintColor);
 	RELEASE_TO_NIL(dialogView);
 	RELEASE_TO_NIL_AUTORELEASE(alertController);
 	[super dealloc];
@@ -201,6 +203,7 @@
     forceOpaqueBackground = [TiUtils boolValue:[self valueForKey:@"opaquebackground"] def:NO];
     persistentFlag = [TiUtils boolValue:[self valueForKey:@"persistent"] def:YES];
     animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+    tintColor = [[TiUtils colorValue:[self valueForKey:@"tintColor"]] _color];
     
     RELEASE_WITH_DELEGATE(actionSheet)
     if (customActionSheet) {
@@ -294,7 +297,9 @@
             alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
                                                                    message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                             preferredStyle:UIAlertControllerStyleActionSheet] retain];
-            
+            if (tintColor) {
+            	[[alertController view] setTintColor:tintColor];
+        	}
             int curIndex = 0;
             //Configure the Buttons
             for (id btn in buttons) {
@@ -351,6 +356,10 @@
             
             [actionSheet setCancelButtonIndex:cancelButtonIndex];
             [actionSheet setDestructiveButtonIndex:destructiveButtonIndex];
+			if (tintColor) {
+            	[actionSheet setTintColor:tintColor];
+        	}
+
         }
         
     }

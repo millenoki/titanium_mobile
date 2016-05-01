@@ -30,14 +30,14 @@
     //Downside -> No touch events from pickerrow or its children
     //Upside -> It works and is performant. Accessibility is configured on the delegate
     
-    NSString *title = [self valueForKey:@"title"];
+    NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
     if (title!=nil) {
         UILabel *pickerLabel = nil;
 		
         if ([theView isMemberOfClass:[UILabel class]]) {
             pickerLabel = (UILabel*)theView;
         }
-
+		
         if (pickerLabel == nil) {
             pickerLabel = [[[UILabel alloc] initWithFrame:theFrame] autorelease];
             [pickerLabel setTextAlignment:NSTextAlignmentLeft];
@@ -45,6 +45,11 @@
             [pickerLabel setFont:[pickerFont font]];
         }
         [pickerLabel setText:title];
+        id ourColor = [self valueForKey:@"color"];
+        if (ourColor) {
+            UIColor* color = [[TiUtils colorValue:ourColor] color];
+            pickerLabel.textColor = color;
+        }
         return pickerLabel;
     }
     else

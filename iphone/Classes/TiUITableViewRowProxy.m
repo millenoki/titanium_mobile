@@ -412,8 +412,8 @@ TiProxy * DeepScanForProxyOfViewContainingPoint(UIView * targetView, CGPoint poi
 {
 	UILabel * textLabel = [cell textLabel];
     [textLabel setBackgroundColor:[UIColor clearColor]];
+	NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
 
-	NSString *title = [self valueForKey:@"title"];
 	if (title!=nil)
 	{
 		[textLabel setText:title]; //UILabel already checks to see if it hasn't changed.

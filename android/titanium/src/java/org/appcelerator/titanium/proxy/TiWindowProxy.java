@@ -774,7 +774,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	@SuppressWarnings("unchecked")
 	@Nullable
 	protected Bundle createActivityOptionsBundle(Activity activity) {
-	    if (LOLLIPOP_OR_GREATER && !sharedElementPairs.isEmpty()) {
+	    if (hasActivityTransitions()) {
 	        Bundle b = ActivityOptions.makeSceneTransitionAnimation(activity, 
 	                sharedElementPairs.toArray(new Pair[sharedElementPairs.size()])).toBundle();
 	        return b;
@@ -782,5 +782,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 	        return null;
 	    }
 	}
-
+	
+	/** 
+	 * @return true if this window has activity transitions  
+	 */
+	protected boolean hasActivityTransitions() {
+	    final boolean animated = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_ANIMATED, true);
+	    return (LOLLIPOP_OR_GREATER && animated && sharedElementPairs != null && !sharedElementPairs.isEmpty());
+	}
 }

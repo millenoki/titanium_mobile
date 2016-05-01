@@ -278,6 +278,8 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 - (void)processTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
 - (void)processTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event;
 - (void)processTouchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void)processKeyPressed:(NSString*)key;
+
 
 -(void)recognizedLongPress:(UILongPressGestureRecognizer*)recognizer;
 -(void)recognizedPinch:(UIPinchGestureRecognizer*)recognizer;
