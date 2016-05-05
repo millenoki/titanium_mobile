@@ -1,14 +1,18 @@
-var Ti = {
-	_event_listeners: [],
-	
-	createEventListener: function(listener) {
-		var newListener = { listener: listener, systemId: -1, index: this._event_listeners.length };
+Ti = {
+	_event_listeners : [],
+
+	createEventListener : function(listener) {
+		var newListener = {
+			listener : listener,
+			systemId : -1,
+			index : this._event_listeners.length
+		};
 		this._event_listeners.push(newListener);
 		return newListener;
 	},
 
-	getEventListenerByKey: function(key, arg) {
-		for (var i = 0;i < this._event_listeners.length; i++) {
+	getEventListenerByKey : function(key, arg) {
+		for (var i = 0; i < this._event_listeners.length; i++) {
 			if (this._event_listeners[i][key] == arg) {
 				return this._event_listeners[i];
 			}
@@ -16,46 +20,41 @@ var Ti = {
 		return null;
 	},
 
-	API: TiAPI,
-	App: {
-		addEventListener: function(eventName, listener)
-		{
-			var newListener = Ti.createEventListener(listener);
-			newListener.systemId = TiApp.addEventListener(eventName, newListener.index);
-			return newListener.systemId;
-		},
-		
-		removeEventListener: function(eventName, listener)
-		{
-			if (typeof listener == 'number') {
-				TiApp.removeEventListener(eventName, listener);
-				
-				var l = Ti.getEventListenerByKey('systemId', listener);
-				if (l !== null) {
-					Ti._event_listeners.splice(l.index, 1);
-				}
-			} else {
-				l = Ti.getEventListenerByKey('listener', listener);
-				if (l !== null) {
-					TiApp.removeEventListener(eventName, l.systemId);
-					Ti._event_listeners.splice(l.index, 1);
-				}
-			}
-		},
-		
-		fireEvent: function(eventName, data)
-		{
-			TiApp.fireEvent(eventName, JSON.stringify(data));
-		}
-	},
-	
-	executeListener: function(id, data)
-	{
+	API : TiAPI,
+	App : {},
+
+	executeListener : function(id, data) {
 		var listener = this.getEventListenerByKey('index', id);
 		if (listener !== null) {
 			listener.listener.call(listener.listener, data);
 		}
 	}
 };
+Ti.App.addEventListener = Ti.App.on = function(eventName, listener) {
+	var newListener = Ti.createEventListener(listener);
+	newListener.systemId = TiApp.on(eventName, newListener.index);
+	return newListener.systemId;
+};
 
-var Titanium = Ti;
+Ti.App.removeEventListener = Ti.App.off = function(eventName, listener) {
+	if (typeof listener == 'number') {
+		TiApp.off(eventName, listener);
+
+		var l = Ti.getEventListenerByKey('systemId', listener);
+		if (l !== null) {
+			Ti._event_listeners.splice(l.index, 1);
+		}
+	} else {
+		l = Ti.getEventListenerByKey('listener', listener);
+		if (l !== null) {
+			TiApp.off(eventName, l.systemId);
+			Ti._event_listeners.splice(l.index, 1);
+		}
+	}
+};
+
+Ti.App.fireEvent = Ti.App.emit = function(eventName, data) {
+	TiApp.emit(eventName, JSON.stringify(data));
+};
+
+Titanium = Ti;

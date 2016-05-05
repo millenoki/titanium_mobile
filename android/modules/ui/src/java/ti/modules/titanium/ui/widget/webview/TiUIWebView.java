@@ -58,7 +58,8 @@ public class TiUIWebView extends TiUINonViewGroupView
 	private TiWebViewClient client;
 	private TiWebChromeClient chromeClient;
 	private boolean bindingCodeInjected = false;
-	private boolean isLocalHTML = false;
+    private boolean isLocalHTML = false;
+    private boolean alwaysInjectTi = false;
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -418,6 +419,8 @@ public class TiUIWebView extends TiUINonViewGroupView
                 client.getBinding().removeJavascriptInterfaces();
             }
             break;
+        case "alwaysInjectTi":
+            alwaysInjectTi = TiConvert.toBoolean(newValue, false);
         default:
             super.propertySet(key, newValue, oldValue, changedProperty);
             break;
@@ -677,7 +680,8 @@ public class TiUIWebView extends TiUINonViewGroupView
 	}
 	
 	public void evalJSAsync(final String code) {
-        getWebView().loadUrl("javascript:" + code);
+	    
+        getWebView().loadUrl("javascript:(function(){" + code.replace("\n", "").replace("\t", " ").replace("\r", "") + "})()");
 	}
 
 	public String getJSValue(final String expression)
@@ -849,6 +853,29 @@ public class TiUIWebView extends TiUINonViewGroupView
 	    if (currentProgress == -1 && newProgress != 0) {
 	        onProgressChanged(view, 0);
 	    }
+	    if (newProgress != 0) {
+	        boolean enableJavascriptInjection = true;
+	        if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
+	            enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
+	        }
+	        if (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection) {
+	            WebView nativeWebView = getWebView();
+
+	            if (nativeWebView != null) {
+	                if (shouldInjectBindingCode()) {
+	                    if (isLocalHTML) {
+	                        nativeWebView.loadUrl("javascript:" + TiWebViewBinding.INJECTION_CODE);
+
+	                    } else {
+	                        nativeWebView.loadUrl("javascript:" + TiWebViewBinding.REMOTE_INJECTION_CODE);
+
+	                    }
+	                }
+	                nativeWebView.loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
+	            }
+	            bindingCodeInjected = true;
+	        }
+	    }
 	    currentProgress = newProgress;
 	    
 	    if (proxy.hasListeners("loadprogress", false)) {
@@ -866,8 +893,13 @@ public class TiUIWebView extends TiUINonViewGroupView
 
 	public boolean shouldInjectBindingCode()
 	{
-		return isLocalHTML && !bindingCodeInjected;
+		return (isLocalHTML || alwaysInjectTi) && !bindingCodeInjected;
 	}
+	
+	public boolean isLocalHTML()
+    {
+        return isLocalHTML;
+    }
 
 	public void setBindingCodeInjected(boolean injected)
 	{

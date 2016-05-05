@@ -45,7 +45,7 @@ public class TiWebViewClient extends WebViewClient
 	public void onPageFinished(WebView view, String url)
 	{
 		super.onPageFinished(view, url);
-		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+//		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
 		webView.changeProxyUrl(url);
         webView.onProgressChanged(view, 1);
         if (webView.getProxy().hasListeners(TiC.EVENT_LOAD, false)) {
@@ -53,20 +53,6 @@ public class TiWebViewClient extends WebViewClient
             data.put(TiC.PROPERTY_URL, url);
             webView.getProxy().fireEvent(TiC.EVENT_LOAD, data, false, false);
         }
-		boolean enableJavascriptInjection = true;
-		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
-			enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
-		}
-		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection) {
-			WebView nativeWebView = webView.getWebView();
-
-			if (nativeWebView != null) {
-				if (webView.shouldInjectBindingCode()) {
-					nativeWebView.loadUrl("javascript:" + TiWebViewBinding.INJECTION_CODE);
-				}
-				nativeWebView.loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
-			}
-		}
 		webView.setBindingCodeInjected(false);
 	}
 

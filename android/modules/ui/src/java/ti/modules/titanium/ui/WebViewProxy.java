@@ -39,7 +39,8 @@ import android.webkit.WebView;
 	TiC.PROPERTY_OVER_SCROLL_MODE,
 	TiC.PROPERTY_CACHE_MODE,
 	TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
-	TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE
+	TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE,
+	"alwaysInjectTi"
 })
 public class WebViewProxy extends ViewProxy 
 	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
@@ -121,7 +122,7 @@ public class WebViewProxy extends ViewProxy
 	}
 	
 	private void handleEvalJSAsync(final String code) {
-        getWebView().evalJSAsync("javascript:" + code);
+        getWebView().evalJSAsync(code);
     }
 
 
@@ -129,7 +130,7 @@ public class WebViewProxy extends ViewProxy
     public Object evalJS(String code, @Kroll.argument(optional = true) Object asyncProp) 
 	{
 	    Boolean async = false;
-        if (asyncProp instanceof Number) {
+        if (asyncProp != null) {
             async = TiConvert.toBoolean(asyncProp);
         }
 		// If the view doesn't even exist yet,

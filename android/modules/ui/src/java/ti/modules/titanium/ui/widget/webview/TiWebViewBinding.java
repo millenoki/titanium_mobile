@@ -38,14 +38,15 @@ public class TiWebViewBinding
 	// - minify binding.js to create binding.min.js
 	protected final static String SCRIPT_INJECTION_ID = "__ti_injection";
 	protected final static String INJECTION_CODE;
-	protected final static String SCRIPT_TAG_INJECTION_CODE;
+    protected final static String REMOTE_INJECTION_CODE;
+    protected final static String SCRIPT_TAG_INJECTION_CODE;
 
 	// This is based on polling.min.js. If you have to change anything...
 	// - change polling.js
 	// - minify polling.js to create polling.min.js
 	protected static String POLLING_CODE = "";
 	static {
-		StringBuilder jsonCode = readResourceFile("json2.js");
+//		StringBuilder jsonCode = readResourceFile("json2.js");
 		StringBuilder tiCode = readResourceFile("binding.min.js");
 		StringBuilder pollingCode = readResourceFile("polling.min.js");
 		
@@ -57,13 +58,12 @@ public class TiWebViewBinding
 		
 		StringBuilder scriptCode = new StringBuilder();
 		StringBuilder injectionCode = new StringBuilder();
-		scriptCode.append("\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n");
-		if (jsonCode == null) {
-			Log.w(TAG, "Unable to read JSON code for injection");
-		} else {
-			scriptCode.append(jsonCode);
-			injectionCode.append(jsonCode);
-		}
+//		if (jsonCode == null) {
+//			Log.w(TAG, "Unable to read JSON code for injection");
+//		} else {
+//			scriptCode.append(jsonCode);
+//			injectionCode.append(jsonCode);
+//		}
 
 		if (tiCode == null) {
 			Log.w(TAG, "Unable to read Titanium binding code for injection");
@@ -72,11 +72,11 @@ public class TiWebViewBinding
 			scriptCode.append(tiCode.toString());
 			injectionCode.append(tiCode.toString());
 		}
-		scriptCode.append("\n</script>\n");
-		jsonCode = null;
+//		jsonCode = null;
 		tiCode = null;
-		SCRIPT_TAG_INJECTION_CODE = scriptCode.toString();
-		INJECTION_CODE = injectionCode.toString();
+		REMOTE_INJECTION_CODE = "(function() {" + injectionCode.toString() + "})()";
+		SCRIPT_TAG_INJECTION_CODE = "\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n" + scriptCode.toString() + "\n</script>\n";
+		INJECTION_CODE = "\n<script id=\"" + SCRIPT_INJECTION_ID + "\">\n" + injectionCode.toString() + "\n</script>\n";
 		scriptCode = null;
 		injectionCode = null;
 	}
@@ -128,7 +128,7 @@ public class TiWebViewBinding
 	{
 		// remove any event listener that have already been added to the Ti.APP through
 		// this web view instance
-		appBinding.clearEventListeners();
+		appBinding.removeAllEventListeners();
 		webView = null;
 		returnSemaphore.release();
 		codeSnippets.clear();
@@ -243,7 +243,7 @@ public class TiWebViewBinding
 		}
 		
 		@JavascriptInterface
-		public void fireEvent(String event, String json)
+		public void emit(String event, String json)
 		{
 			try {
 				KrollDict dict = new KrollDict();
@@ -257,7 +257,7 @@ public class TiWebViewBinding
 		}
 		
 		@JavascriptInterface
-		public int addEventListener(String event, int id)
+		public int on(String event, int id)
 		{
 			WebViewCallback callback = new WebViewCallback(id);
 
@@ -268,16 +268,16 @@ public class TiWebViewBinding
 		}
 		
 		@JavascriptInterface
-		public void removeEventListener(String event, int id)
+		public void off(String event, int id)
 		{
 			module.removeEventListener(event, id);
 		}
 		
 		@JavascriptInterface
-		public void clearEventListeners()
+		public void removeAllEventListeners()
 		{
 			for (String event : appListeners.keySet()) {
-				removeEventListener(event, appListeners.get(event));
+				off(event, appListeners.get(event));
 			}
 		}
 		
