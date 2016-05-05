@@ -1828,7 +1828,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     this.currentBuildManifest.guid                       = this.tiapp.guid,
     this.currentBuildManifest.icon                       = this.tiapp.icon,
     this.currentBuildManifest.fullscreen                 = this.tiapp.fullscreen,
-    this.currentBuildManifest.navbarHidden               = this.tiapp['navbar-hidden'],
+    this.currentBuildManifest.navbarHidden               = !!this.tiapp['navbar-hidden'],
     this.currentBuildManifest.skipJSMinification         = !!this.cli.argv['skip-js-minify'],
     this.currentBuildManifest.encryptJS                  = !!this.encryptJS,
     this.currentBuildManifest.mergeCustomAndroidManifest = this.config.get('android.mergeCustomAndroidManifest', false),
@@ -2207,10 +2207,10 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
         return true;
     }
 
-    if (this.tiapp.navbarHidden != manifest.navbarHidden) {
+    if (!!this.tiapp.navbarHidden != manifest.navbarHidden) {
         this.logger.info(__('Forcing rebuild: tiapp.xml navbar-hidden changed since last build'));
         this.logger.info('  ' + __('Was: %s', manifest.navbarHidden));
-        this.logger.info('  ' + __('Now: %s', this.tiapp.navbarHidden));
+        this.logger.info('  ' + __('Now: %s', !!this.tiapp.navbarHidden));
         return true;
     }
 
