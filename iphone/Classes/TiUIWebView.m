@@ -20,19 +20,6 @@
 #import "APSHTTPResponse.h"
 
 extern NSString * const TI_APPLICATION_ID;
-static NSString * const kTitaniumJavascript = @"Ti.App={};Ti.API={};Ti.App._listeners={};Ti.App._listener_id=1;Ti.App.id=Ti.appId;Ti.App._xhr=XMLHttpRequest;"
-		"Ti._broker=function(module,method,data){try{var url='app://'+Ti.appId+'/_TiA0_'+Ti.pageToken+'/'+module+'/'+method+'?'+Ti.App._JSON(data,1);"
-			"var xhr=new Ti.App._xhr();xhr.open('GET',url,false);xhr.send()}catch(X){}};"
-		"Ti._hexish=function(a){var r='';var e=a.length;var c=0;var h;while(c<e){h=a.charCodeAt(c++).toString(16);r+='\\\\u';var l=4-h.length;while(l-->0){r+='0'};r+=h}return r};"
-		"Ti._bridgeEnc=function(o){return'<'+Ti._hexish(o)+'>'};"
-		"Ti.App._JSON=function(object,bridge){var type=typeof object;switch(type){case'undefined':case'function':case'unknown':return undefined;case'number':case'boolean':return object;"
-			"case'string':if(bridge===1)return Ti._bridgeEnc(object);return'\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"'}"
-			"if((object===null)||(object.nodeType==1))return'null';if(object.constructor.toString().indexOf('Date')!=-1){return'new Date('+object.getTime()+')'}"
-			"if(object.constructor.toString().indexOf('Array')!=-1){var res='[';var pre='';var len=object.length;for(var i=0;i<len;i++){var value=object[i];"
-			"if(value!==undefined)value=Ti.App._JSON(value,bridge);if(value!==undefined){res+=pre+value;pre=', '}}return res+']'}var objects=[];"
-			"for(var prop in object){var value=object[prop];if(value!==undefined){value=Ti.App._JSON(value,bridge)}"
-			"if(value!==undefined){objects.push(Ti.App._JSON(prop,bridge)+': '+value)}}return'{'+objects.join(',')+'}'};"
-		"Ti.App._dispatchEvent=function(type,evtid,evt){var listeners=Ti.App._listeners[type];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.id==evtid){entry.callback.call(entry.callback,evt)}}}};Ti.App.fireEvent=function(name,evt){Ti._broker('App','fireEvent',{name:name,event:evt})};Ti.API.log=function(a,b){Ti._broker('API','log',{level:a,message:b})};Ti.API.debug=function(e){Ti._broker('API','log',{level:'debug',message:e})};Ti.API.error=function(e){Ti._broker('API','log',{level:'error',message:e})};Ti.API.info=function(e){Ti._broker('API','log',{level:'info',message:e})};Ti.API.fatal=function(e){Ti._broker('API','log',{level:'fatal',message:e})};Ti.API.warn=function(e){Ti._broker('API','log',{level:'warn',message:e})};Ti.App.addEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(typeof(listeners)=='undefined'){listeners=[];Ti.App._listeners[name]=listeners}var newid=Ti.pageToken+Ti.App._listener_id++;listeners.push({callback:fn,id:newid});Ti._broker('App','addEventListener',{name:name,id:newid})};Ti.App.removeEventListener=function(name,fn){var listeners=Ti.App._listeners[name];if(listeners){for(var c=0;c<listeners.length;c++){var entry=listeners[c];if(entry.callback==fn){listeners.splice(c,1);Ti._broker('App','removeEventListener',{name:name,id:entry.id});break}}}};";
 
 static NSString * const kMimeTextHTML = @"text/html";
 static NSString * const kContentData = @"kContentData";
@@ -69,6 +56,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     APSHTTPRequest* _currentRequest;
     BOOL _asyncLoad;
     NJKWebViewProgress* _progressProxy;
+    BOOL alwaysInjectTi;
 }
 @synthesize reloadData, reloadDataProperties;
 
@@ -88,6 +76,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	{
         _asyncLoad = NO;
         willHandleTouches = NO;
+        alwaysInjectTi = NO;
 	}
 	return self;
 }
@@ -178,6 +167,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 -(void)setWillHandleTouches_:(id)args
 {
     willHandleTouches = [TiUtils boolValue:args def:YES];
+}
+
+-(void)setAlwaysInjectTi_:(id)args
+{
+    alwaysInjectTi = [TiUtils boolValue:args def:YES];
 }
 
 -(UIWebView*)webview 
@@ -296,6 +290,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		pageToken = [[NSString stringWithFormat:@"%lu",(unsigned long)[self hash]] retain];
 		[(TiUIWebViewProxy*)self.proxy setPageToken:pageToken];
 	}
+
+    static NSString * const kTitaniumJavascript = @"Ti.App={},Ti.API={},Ti.App._listeners={},Ti.App._listener_id=1,Ti.App.id=Ti.appId,Ti.App._xhr=XMLHttpRequest,Ti._broker=function(e,i,n){try{var xhr=new Ti.App._xhr();xhr.open('GET','app://'+Ti.appId+'/_TiA0_'+Ti.pageToken+'/'+e+'/'+i+'?'+encodeURIComponent(JSON.stringify(n)),false);xhr.send()}catch(X){}},Ti.App._dispatchEvent=function(e,i,n){var p=Ti.App._listeners[e];if(p)for(var r=0;r<p.length;r++){var o=p[r];o.id==i&&o.callback.call(o.callback,n)}},Ti.App.emit=Ti.App.fireEvent=function(e,i){Ti._broker('App','emit',{name:e,event:i})},Ti.API.log=function(e,i){Ti._broker('API','log',{level:e,message:i})},Ti.API.debug=function(e){Ti._broker('API','log',{level:'debug',message:e})},Ti.API.error=function(e){Ti._broker('API','log',{level:'error',message:e})},Ti.API.info=function(e){Ti._broker('API','log',{level:'info',message:e})},Ti.API.fatal=function(e){Ti._broker('API','log',{level:'fatal',message:e})},Ti.API.warn=function(e){Ti._broker('API','log',{level:'warn',message:e})},Ti.App.on=Ti.App.addEventListener=function(e,i){var n=Ti.App._listeners[e];'undefined'==typeof n&&(n=[],Ti.App._listeners[e]=n);var p=Ti.pageToken+Ti.App._listener_id++;n.push({callback:i,id:p}),Ti._broker('App','on',{name:e,id:p})},Ti.App.off=Ti.App.removeEventListener=function(e,i){var n=Ti.App._listeners[e];if(n)for(var p=0;p<n.length;p++){var r=n[p];if(r.callback==i){n.splice(p,1),Ti._broker('App','off',{name:e,id:r.id});break}}};";
+    
 	NSMutableString *html = [[[NSMutableString alloc] init] autorelease];
 	[html appendString:@"<script id='__ti_injection'>"];
 	NSString *ti = [NSString stringWithFormat:@"%@%s",@"Ti","tanium"];
@@ -303,6 +300,20 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[html appendString:kTitaniumJavascript];
 	[html appendString:@"</script>"];
 	return html;
+}
+- (NSString *)__titaniumRemoteInjection
+{
+    if (pageToken==nil) {
+        pageToken = [[NSString stringWithFormat:@"%lu",(unsigned long)[self hash]] retain];
+        [(TiUIWebViewProxy*)self.proxy setPageToken:pageToken];
+    }
+    static NSString * const kTitaniumRemoteJavascript = @"Ti.App={},Ti.API={},Ti.App._listeners={},Ti.App._listener_id=1,Ti.App.id=Ti.appId,Ti._broker=function(e,i,n){window.location='app://'+Ti.appId+'/_TiA0_'+Ti.pageToken+'/'+e+'/'+i+'?'+encodeURIComponent(JSON.stringify(n))},Ti.App._dispatchEvent=function(e,i,n){var p=Ti.App._listeners[e];if(p)for(var r=0;r<p.length;r++){var o=p[r];o.id==i&&o.callback.call(o.callback,n)}},Ti.App.emit=Ti.App.fireEvent=function(e,i){Ti._broker('App','emit',{name:e,event:i})},Ti.API.log=function(e,i){Ti._broker('API','log',{level:e,message:i})},Ti.API.debug=function(e){Ti._broker('API','log',{level:'debug',message:e})},Ti.API.error=function(e){Ti._broker('API','log',{level:'error',message:e})},Ti.API.info=function(e){Ti._broker('API','log',{level:'info',message:e})},Ti.API.fatal=function(e){Ti._broker('API','log',{level:'fatal',message:e})},Ti.API.warn=function(e){Ti._broker('API','log',{level:'warn',message:e})},Ti.App.on=Ti.App.addEventListener=function(e,i){var n=Ti.App._listeners[e];'undefined'==typeof n&&(n=[],Ti.App._listeners[e]=n);var p=Ti.pageToken+Ti.App._listener_id++;n.push({callback:i,id:p}),Ti._broker('App','on',{name:e,id:p})},Ti.App.off=Ti.App.removeEventListener=function(e,i){var n=Ti.App._listeners[e];if(n)for(var p=0;p<n.length;p++){var r=n[p];if(r.callback==i){n.splice(p,1),Ti._broker('App','off',{name:e,id:r.id});break}}};";
+    
+    NSMutableString *html = [[[NSMutableString alloc] init] autorelease];
+    NSString *ti = [NSString stringWithFormat:@"%@%s",@"Ti","tanium"];
+    [html appendFormat:@"window.%@={};window.Ti=%@;Ti.pageToken=%@;Ti.appId='%@';",ti,ti,pageToken,TI_APPLICATION_ID];
+    [html appendString:kTitaniumRemoteJavascript];
+    return html;
 }
 
 + (NSString *)content:(NSString *)content withInjection:(NSString *)injection
@@ -798,6 +809,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
 	NSURL * newUrl = [request URL];
+    if ([[newUrl scheme] isEqualToString:[AppProtocolHandler specialProtocolScheme]] && [[newUrl path] hasPrefix:@"/_TiA0_"]) {
+        return ![AppProtocolHandler handleAppToTiRequest:newUrl];
+    }
 
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
@@ -857,6 +871,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
+    if (alwaysInjectTi) {
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC),
+//                       dispatch_get_main_queue(), ^
+//                       {
+                           [webView stringByEvaluatingJavaScriptFromString:[self __titaniumRemoteInjection]];
+//                       });
+    }
     if ([[self viewProxy] _hasListeners:@"startload" checkParent:NO])
     {
         [self.proxy fireEvent:@"startload" withObject:@{

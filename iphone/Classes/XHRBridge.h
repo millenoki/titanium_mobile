@@ -15,6 +15,8 @@
 {
 }
 + (void) registerSpecialProtocol;
++ (NSString*) specialProtocolScheme;
++ (BOOL)handleAppToTiRequest:(NSURL *)url;
 @end
 
 @interface XHRBridge : Bridge
