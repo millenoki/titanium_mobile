@@ -57,6 +57,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     APSHTTPRequest* _currentRequest;
     BOOL _asyncLoad;
     NJKWebViewProgress* _progressProxy;
+    NSURL* loadingurl;
     BOOL alwaysInjectTi;
 }
 @synthesize reloadData, reloadDataProperties;
@@ -100,7 +101,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 	RELEASE_TO_NIL(pageToken);
 	RELEASE_TO_NIL(webview);
-	RELEASE_TO_NIL(url);
+    RELEASE_TO_NIL(url);
+    RELEASE_TO_NIL(loadingurl);
 	RELEASE_TO_NIL(spinner);
 	RELEASE_TO_NIL(basicCredentials);
 	RELEASE_TO_NIL(reloadData);
@@ -860,6 +862,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
 			[NSURLProtocol setProperty:[self _titaniumInjection] forKey:kContentInjection inRequest:(NSMutableURLRequest *)request];
 		}
+        loadingurl = [newUrl retain];
         
        if ([self shoudTryToAuth:navigationType] && !_currentRequest) {
            _currentRequest = [[APSHTTPRequest alloc] init];
@@ -899,7 +902,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
     if ([[self viewProxy] _hasListeners:@"startload" checkParent:NO])
     {
-        [self.proxy fireEvent:@"startload" withObject:[self eventForUrl:webView.request.URL] propagate:NO checkForListener:NO];
+        [self.proxy fireEvent:@"startload" withObject:[self eventForUrl:loadingurl] propagate:NO checkForListener:NO];
     }
 }
 
@@ -908,7 +911,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     [self hideSpinner];
     [url release];
     url = [[[webview request] URL] retain];
-    
+    RELEASE_TO_NIL(loadingurl)
     NSMutableDictionary* event = [self eventForUrl:url];
     NSString* urlAbs = [event objectForKey:@"url"];
     
