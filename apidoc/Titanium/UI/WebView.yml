@@ -207,6 +207,11 @@ methods:
         summary: JavaScript code as a string. The code will be evaluated inside the web view context.
         type: String
 
+      - name: async
+        summary: true if the eval should be async (Android only).
+        optional: true
+        type: Number
+
   - name: goBack
     summary: Goes back one entry in the web view's history list, to the previous page.
     description: |

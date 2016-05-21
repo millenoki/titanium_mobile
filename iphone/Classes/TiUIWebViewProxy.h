@@ -12,8 +12,6 @@
 @interface TiUIWebViewProxy : TiScrollingViewProxy<TiEvaluator> {
 @private
 	NSString *pageToken;
-    NSString *evalResult;
-    BOOL inKJSThread;
 }
 -(void)setPageToken:(NSString*)pageToken;
 #pragma mark - Internal Use Only

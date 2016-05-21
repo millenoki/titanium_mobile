@@ -59,22 +59,26 @@
 }
 
 
-- (NSString*)evalJS:(id)code
+- (NSString*)evalJS:(id)args
 {
-	ENSURE_SINGLE_ARG(code,NSString);
     /*
      Using GCD either through dispatch_async/dispatch_sync or TiThreadPerformOnMainThread
      does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
      */
-    if (![NSThread isMainThread]) {
-        inKJSThread = YES;
-        [self performSelectorOnMainThread:@selector(evalJS:) withObject:code waitUntilDone:YES];
-        inKJSThread = NO;
+    NSString* code = nil;
+    NSNumber* option = nil;
+    BOOL async = NO;
+    ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
+    ENSURE_ARG_OR_NIL_AT_INDEX(option, args, 1, NSNumber);
+    if (option != nil) {
+        async = [option boolValue];
     }
-    else {
-        evalResult = [[(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code] retain];
+    if (async) {
+        [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:NO];
+        return nil;
+    } else {
+        return [self evalJSAndWait:code];
     }
-    return (inKJSThread ? evalResult : [evalResult autorelease]);
 }
 
 //USE_VIEW_FOR_CONTENT_HEIGHT
