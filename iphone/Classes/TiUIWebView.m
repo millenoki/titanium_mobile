@@ -18,6 +18,7 @@
 #import "TiFile.h"
 #import "Mimetypes.h"
 #import "APSHTTPResponse.h"
+#import "TiFileSystemHelper.h"
 
 extern NSString * const TI_APPLICATION_ID;
 
@@ -738,7 +739,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
     if ([self.proxy _hasListeners:@"authentication"])
 	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:[[request url] absoluteString], @"url", nil];
+        NSMutableDictionary* event = [self eventForUrl:[request url]];
 		[self.proxy fireEvent:@"authentication" withObject:event];
 	}
 }
@@ -804,6 +805,21 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
                                                                                     [self.proxy valueForKey:@"username"] || [self.proxy valueForKey:@"password"] || [self.proxy valueForKey:@"needsAuth"]);
 }
 
+-(NSMutableDictionary*)eventForUrl:(NSURL*)theUrl {
+    if (!theUrl) {
+        return nil;
+    }
+    NSMutableDictionary* event = [NSMutableDictionary dictionary];
+    NSString* urlPath = [theUrl absoluteString];
+    NSString* path = [[NSURL fileURLWithPath:[TiFileSystemHelper resourcesDirectory]] absoluteString];
+    urlPath = [[[urlPath stringByReplacingOccurrencesOfString:@"file:///private/var" withString:@"file:///var"]
+                stringByReplacingOccurrencesOfString:path withString:@""]
+               stringByReplacingOccurrencesOfString:@"%20" withString:@" "];
+    [event setObject:urlPath forKey:@"url"];
+    return event;
+}
+
+
 #pragma mark WebView Delegate
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
@@ -815,7 +831,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
-		NSDictionary *event = newUrl == nil ? nil : [NSDictionary dictionaryWithObjectsAndKeys:[newUrl absoluteString], @"url", NUMINT(navigationType), @"navigationType", nil];
+        NSMutableDictionary* event = [self eventForUrl:newUrl];
+        if (event) {
+            [event setObject:@(navigationType) forKey:@"navigationType"];
+        }
 		[self.proxy fireEvent:@"beforeload" withObject:event];
 	}
 
@@ -880,9 +899,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
     if ([[self viewProxy] _hasListeners:@"startload" checkParent:NO])
     {
-        [self.proxy fireEvent:@"startload" withObject:@{
-                                                        @"url":[[webview request] URL]
-                                                        } propagate:NO checkForListener:NO];
+        [self.proxy fireEvent:@"startload" withObject:[self eventForUrl:webView.request.URL] propagate:NO checkForListener:NO];
     }
 }
 
@@ -891,23 +908,22 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     [self hideSpinner];
     [url release];
     url = [[[webview request] URL] retain];
-    NSString* urlAbs = [url absoluteString];
-    NSString* appPath = [[[NSBundle mainBundle] resourceURL] absoluteString];
-    if (![urlAbs isEqualToString: appPath]) {
-        [[self proxy] replaceValue:urlAbs forKey:@"url" notification:NO];
-    }
     
-    if ([[self viewProxy] _hasListeners:@"load" checkParent:NO]) {
-        if (![urlAbs isEqualToString:lastValidLoad]) {
-            NSDictionary *event = url == nil ? nil : [NSDictionary dictionaryWithObject:[self url] forKey:@"url"];
+    NSMutableDictionary* event = [self eventForUrl:url];
+    NSString* urlAbs = [event objectForKey:@"url"];
+    
+    if (![urlAbs isEqualToString:lastValidLoad]) {
+        [[self proxy] replaceValue:urlAbs forKey:[event objectForKey:@"url"] notification:NO];
+        if ([[self viewProxy] _hasListeners:@"load" checkParent:NO]) {
             [self.proxy fireEvent:@"load" withObject:event propagate:NO checkForListener:NO];
             [lastValidLoad release];
             lastValidLoad = [urlAbs retain];
         }
     }
+    
     if ([[self viewProxy] _hasListeners:@"afterload" checkParent:NO])
     {
-        [self.proxy fireEvent:@"afterload" withObject:@{@"url":url} propagate:NO checkForListener:NO];
+        [self.proxy fireEvent:@"afterload" withObject:event propagate:NO checkForListener:NO];
     }
     [webView setNeedsDisplay];
     ignoreNextRequest = NO;
@@ -957,7 +973,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		}
 
 		[event setObject:[NSNumber numberWithInteger:returnErrorCode] forKey:@"errorCode"];
-		[event setObject:offendingUrl forKey:@"url"];
+        [event setValuesForKeysWithDictionary:[self eventForUrl:webView.request.URL]];
 		[self.proxy fireEvent:@"error" withObject:event propagate:NO reportSuccess:YES errorCode:returnErrorCode message:message checkForListener:NO];
 	}
 }
@@ -966,10 +982,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
     if ([[self viewProxy] _hasListeners:@"loadprogress" checkParent:NO])
     {
-        [self.proxy fireEvent:@"loadprogress" withObject:@{
-//                                                           @"url":[[webview request] URL],
-                                                           @"progress":@(progress)
-                                                        } propagate:NO checkForListener:NO];
+        NSMutableDictionary* event = [self eventForUrl:webview.request.URL];
+        [event setObject:@(progress) forKey:@"progress"];
+        [self.proxy fireEvent:@"loadprogress" withObject:event propagate:NO checkForListener:NO];
     }
 }
 #pragma mark TiEvaluator
