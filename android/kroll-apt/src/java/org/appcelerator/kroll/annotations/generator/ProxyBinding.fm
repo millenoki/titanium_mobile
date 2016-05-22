@@ -566,7 +566,7 @@ fails, a JS exception is returned.
 </#macro>
 
 <#macro convertToVarArgs args start>
-	uint32_t length = args.Length() - ${start};
+	int32_t length = args.Length() - ${start};
 	if (length < 0) {
 		length = 0;
 	}
