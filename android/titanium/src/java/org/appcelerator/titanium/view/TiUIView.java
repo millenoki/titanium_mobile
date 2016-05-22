@@ -96,6 +96,7 @@ import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 
 /**
  * This class is for Titanium View implementations, that correspond with
@@ -1728,9 +1729,12 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 borderView.setOutlineProvider(mOutlineProvider);
             }
             borderView.setClipToOutline(clipChildren);
-            borderView.setStateListAnimator(rootView.getStateListAnimator());
-            rootView.setOutlineProvider(null);
-            rootView.setStateListAnimator(null);
+            if (rootView instanceof Button) {
+              borderView.setStateListAnimator(rootView.getStateListAnimator());
+              rootView.setOutlineProvider(null);
+              rootView.setStateListAnimator(null);
+            }
+
         }
         borderView.setClipChildren(clipChildren);
 
