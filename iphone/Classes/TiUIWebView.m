@@ -830,7 +830,19 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     if ([[newUrl scheme] isEqualToString:[AppProtocolHandler specialProtocolScheme]] && [[newUrl path] hasPrefix:@"/_TiA0_"]) {
         return ![AppProtocolHandler handleAppToTiRequest:newUrl];
     }
-
+    
+    BOOL isFragmentJump = NO;
+    if (request.URL.fragment) {
+        NSString *nonFragmentURL = [request.URL.absoluteString stringByReplacingOccurrencesOfString:[@"#" stringByAppendingString:request.URL.fragment] withString:@""];
+        isFragmentJump = [nonFragmentURL isEqualToString:webView.request.URL.absoluteString];
+    }
+    
+    BOOL isTopLevelNavigation = [request.mainDocumentURL isEqual:request.URL];
+    
+    NSString * scheme = [[newUrl scheme] lowercaseString];
+    BOOL isHTTPOrLocalFile = [scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"]
+    || [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"];
+    
 	if ([self.proxy _hasListeners:@"beforeload"])
 	{
         NSMutableDictionary* event = [self eventForUrl:newUrl];
@@ -844,11 +856,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		RELEASE_TO_NIL(lastValidLoad);
 	}
 
-	NSString * scheme = [[newUrl scheme] lowercaseString];
-	if ([scheme hasPrefix:@"http"] || [scheme isEqualToString:@"ftp"]
-			|| [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
+	if (isHTTPOrLocalFile) {
 		DebugLog(@"[DEBUG] New scheme: %@",request);
         BOOL valid = !ignoreNextRequest;
+        
+        if (!isFragmentJump && isTopLevelNavigation) {
+            loadingurl = [newUrl retain];
+        }
         if ([scheme hasPrefix:@"http"]) {
             //UIWebViewNavigationTypeOther means we are either in a META redirect
             //or it is a js request from within the page 
@@ -862,7 +876,6 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 		if ([scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"]) {
 			[NSURLProtocol setProperty:[self _titaniumInjection] forKey:kContentInjection inRequest:(NSMutableURLRequest *)request];
 		}
-        loadingurl = [newUrl retain];
         
        if ([self shoudTryToAuth:navigationType] && !_currentRequest) {
            _currentRequest = [[APSHTTPRequest alloc] init];
@@ -893,6 +906,9 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)webViewDidStartLoad:(UIWebView *)webView
 {
+    if (!loadingurl) {
+        return;
+    }
     if (alwaysInjectTi) {
 //        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC),
 //                       dispatch_get_main_queue(), ^
@@ -900,6 +916,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
                            [webView stringByEvaluatingJavaScriptFromString:[self __titaniumRemoteInjection]];
 //                       });
     }
+    
     if ([[self viewProxy] _hasListeners:@"startload" checkParent:NO])
     {
         [self.proxy fireEvent:@"startload" withObject:[self eventForUrl:loadingurl] propagate:NO checkForListener:NO];
@@ -910,8 +927,8 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
     [self hideSpinner];
     [url release];
-    url = [[[webview request] URL] retain];
     RELEASE_TO_NIL(loadingurl)
+    url = [[[webview request] URL] retain];
     NSMutableDictionary* event = [self eventForUrl:url];
     NSString* urlAbs = [event objectForKey:@"url"];
     
