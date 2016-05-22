@@ -61,6 +61,9 @@ public class TiUINonViewGroupView extends TiUIView {
 		if (proxy.hasProperty(TiC.PROPERTY_CLIP_CHILDREN)) {
 			boolean value = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_CHILDREN));
 			childrenHolder.setClipChildren(value);	
+			if (TiC.LOLLIPOP_OR_GREATER) {
+			    childrenHolder.setClipToOutline(value);
+	        }
 		}
 		TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 		params.notTiLayout = true;
