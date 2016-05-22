@@ -905,6 +905,9 @@ methods:
             View that specifies the destination coordinate system to convert to. If this argument 
             is not a view, an exception will be raised.
         type: Titanium.UI.View
+  - name: hideKeyboard
+    summary: Hide the soft keyboard if visible
+    platforms: [android, iphone, ipad]
 
 properties:
   - name: accessibilityHidden

@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -47,6 +48,7 @@ import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ValueCallback;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -80,6 +82,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	private reloadTypes reloadMethod = reloadTypes.DEFAULT;
 	private Object reloadData = null;
     private float currentProgress = -1;
+    private String currentURL;
 	
 	private class TiWebView extends WebView
 	{
@@ -468,7 +471,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	    if (url == null) return;
 		reloadMethod = reloadTypes.URL;
 		reloadData = url;
-		String finalUrl = url;
+		String finalUrl = currentURL = url;
 		Uri uri = Uri.parse(finalUrl);
 		boolean originalUrlHasScheme = (uri.getScheme() != null);
 
@@ -680,23 +683,60 @@ public class TiUIWebView extends TiUINonViewGroupView
 	}
 	
 	public void evalJSAsync(final String code) {
-	    
-        getWebView().loadUrl("javascript:(function(){" + code.replace("\n", "").replace("\t", " ").replace("\r", "") + "})()");
+	    injectJS(code);
 	}
+
+	public void injectJS(final String code) {
+        final String actualCode  = code.replaceAll("//.*?(\n|$)","").replaceAll("\n", "").replaceAll("\r", "");
+        
+//        if (TiC.KIT_KAT_OR_GREATER) {
+//            getWebView().evaluateJavascript( "(function(){" + actualCode+ "})()", null);
+//        } else {
+            getWebView().loadUrl("javascript:(function(){" + actualCode+ "})()");
+//        }
+    }
 
 	public String getJSValue(final String expression)
 	{
-	    if (TiApplication.isUIThread()) {
-	        return (String) TiMessenger.sendBlockingMainCommand(new Command<String>() {
+	    final WebView webView = getWebView();
+	    if (webView == null) {
+	        return "";
+	    }
+//	    if (TiC.KIT_KAT_OR_GREATER) {
+//	        final CountDownLatch latch = new CountDownLatch(1);
+//	        final StringBuffer result = new StringBuffer(); 
+//	        proxy.getActivity().runOnUiThread(new Runnable() {
+//	            @Override
+//	            public void run() {
+//	                webView.evaluateJavascript(expression, new ValueCallback<String>() {
+//	                    @Override
+//	                    public void onReceiveValue(String value) {
+//	                        result.append(value);
+//	                        latch.countDown();
+//	                    }
+//	                });
+//	            }
+//	        });
+//	        try {
+//	            latch.await();
+//	        } catch (InterruptedException e) {
+//	            // TODO Auto-generated catch block
+//	            return "";
+//	        }
+//	        return result.toString();
+//	    } else {
+	        if (TiApplication.isUIThread()) {
+	            return (String) TiMessenger.sendBlockingMainCommand(new Command<String>() {
 
-	            @Override
-	            public String execute() {
-	                return client.getBinding().getJSValue(expression);
-	            }
-	        });
-        } else {
-            return client.getBinding().getJSValue(expression);
-        }
+	                @Override
+	                public String execute() {
+	                    return client.getBinding().getJSValue(expression);
+	                }
+	            });
+	        } else {
+	            return client.getBinding().getJSValue(expression);
+	        }
+//	    }
 	}
 
 	public void setBasicAuthentication(String username, String password)
@@ -853,12 +893,12 @@ public class TiUIWebView extends TiUINonViewGroupView
 	    if (currentProgress == -1 && newProgress != 0) {
 	        onProgressChanged(view, 0);
 	    }
-	    if (newProgress != 0) {
+	    if (progress == 100) {
 	        boolean enableJavascriptInjection = true;
 	        if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
 	            enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 	        }
-	        if (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection) {
+	        if (TiC.HONEYCOMB_OR_GREATER || enableJavascriptInjection) {
 	            WebView nativeWebView = getWebView();
 
 	            if (nativeWebView != null) {
@@ -867,11 +907,15 @@ public class TiUIWebView extends TiUINonViewGroupView
 	                        nativeWebView.loadUrl("javascript:" + TiWebViewBinding.INJECTION_CODE);
 
 	                    } else {
-	                        nativeWebView.loadUrl("javascript:" + TiWebViewBinding.REMOTE_INJECTION_CODE);
-
+//	                        if (TiC.KIT_KAT_OR_GREATER) {
+//	                            nativeWebView.evaluateJavascript( TiWebViewBinding.REMOTE_INJECTION_CODE, null);
+//	                        } else {
+	                            nativeWebView.loadUrl("javascript:" + TiWebViewBinding.REMOTE_INJECTION_CODE);
+//	                        }
 	                    }
 	                }
-	                nativeWebView.loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
+	                
+                    nativeWebView.loadUrl("javascript:" + TiWebViewBinding.POLLING_CODE);
 	            }
 	            bindingCodeInjected = true;
 	        }
@@ -879,7 +923,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	    currentProgress = newProgress;
 	    
 	    if (proxy.hasListeners("loadprogress", false)) {
-            KrollDict event = new KrollDict();
+            KrollDict event = eventForURL(currentURL);
             event.put("progress", (float)progress/100);
             proxy.fireEvent("loadprogress", event, false, false);
         }
@@ -910,4 +954,18 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		return chromeClient.interceptOnBackPressed();
 	}
+	
+	public KrollDict eventForURL(String url) {
+	    KrollDict data = new KrollDict();
+	    if (url != null) {
+	        data.put(TiC.PROPERTY_URL, url.replace(TiC.URL_ANDROID_ASSET_RESOURCES, ""));
+	    }
+        return data;
+	}
+
+
+    public void setIsLocalHTML(boolean b) {
+        isLocalHTML = b;
+        
+    }
 }

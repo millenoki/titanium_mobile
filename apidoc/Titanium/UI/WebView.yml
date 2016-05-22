@@ -208,9 +208,21 @@ methods:
         type: String
 
       - name: async
-        summary: true if the eval should be async (Android only).
+        summary: true if the eval should be async.
         optional: true
-        type: Number
+        type: Boolean
+  - name: injectJS
+    summary: |
+        Inject JS code in the WebView
+    parameters:
+      - name: code
+        summary: JavaScript code as a string. The code will be evaluated inside the web view context.
+        type: String
+
+      - name: async
+        summary: true if the eval should be async.
+        optional: true
+        type: Boolean
 
   - name: goBack
     summary: Goes back one entry in the web view's history list, to the previous page.

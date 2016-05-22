@@ -14,6 +14,7 @@ import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.common.TiMessenger.Command;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -156,6 +157,22 @@ public class WebViewProxy extends ViewProxy
 		
 		return view.getJSValue(code);
 	}
+	
+	@Kroll.method
+    public void injectJS(final String code, @Kroll.argument(optional = true) Object asyncProp) 
+    {
+        Boolean async = false;
+        if (asyncProp != null) {
+            async = TiConvert.toBoolean(asyncProp);
+        }
+        final TiUIWebView view = (TiUIWebView) peekView();
+        runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                view.injectJS(code);
+            }
+        }, async);
+    }
 
 	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public String getHtml()

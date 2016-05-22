@@ -46,11 +46,10 @@ public class TiWebViewClient extends WebViewClient
 	{
 		super.onPageFinished(view, url);
 //		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
-		webView.changeProxyUrl(url);
-        webView.onProgressChanged(view, 1);
+        KrollDict data = webView.eventForURL(url);
+		webView.changeProxyUrl(data.getString(TiC.PROPERTY_URL));
+        webView.onProgressChanged(view, 100);
         if (webView.getProxy().hasListeners(TiC.EVENT_LOAD, false)) {
-            KrollDict data = new KrollDict();
-            data.put(TiC.PROPERTY_URL, url);
             webView.getProxy().fireEvent(TiC.EVENT_LOAD, data, false, false);
         }
 		webView.setBindingCodeInjected(false);
@@ -68,9 +67,11 @@ public class TiWebViewClient extends WebViewClient
 		Log.d(TAG, "onPageStarted " + url);
 		webView.onProgressChanged(view, 0);
         if (webView.getProxy().hasListeners("beforeload", false)) {
-            KrollDict data = new KrollDict();
-            data.put(TiC.PROPERTY_URL, url);
-            webView.getProxy().fireEvent("beforeload", data, false, false);
+            webView.getProxy().fireEvent("beforeload", webView.eventForURL(url), false, false);
+        }
+        
+        if (webView.getProxy().hasListeners("startload", false)) {
+            webView.getProxy().fireEvent("startload", webView.eventForURL(url), false, false);
         }
 	}
 
@@ -79,8 +80,7 @@ public class TiWebViewClient extends WebViewClient
 	{
 		super.onReceivedError(view, errorCode, description, failingUrl);
 
-		KrollDict data = new KrollDict();
-		data.put("url", failingUrl);
+        KrollDict data = webView.eventForURL(failingUrl);
 		data.put("errorCode", errorCode);
 		data.putCodeAndMessage(errorCode, description);
 		data.put("message", description);
@@ -92,7 +92,7 @@ public class TiWebViewClient extends WebViewClient
 	public boolean shouldOverrideUrlLoading(final WebView view, String url)
 	{
 		Log.d(TAG, "url=" + url, Log.DEBUG_MODE);
-
+		webView.setIsLocalHTML(false);
 		if (webView.getProxy().hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
 		    String [] blacklistedSites = TiConvert.toStringArray((Object[])webView.getProxy().getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
 		    for(String site : blacklistedSites) {
@@ -179,7 +179,7 @@ public class TiWebViewClient extends WebViewClient
 		 */
 		KrollProxy webViewProxy = this.webView.getProxy();
 		
-		KrollDict data = new KrollDict();
+		KrollDict data = webView.eventForURL(view.getUrl());
 		data.put(TiC.ERROR_PROPERTY_CODE, error.getPrimaryError());
 		webView.getProxy().fireSyncEvent(TiC.EVENT_SSL_ERROR, data);
 
@@ -205,9 +205,7 @@ public class TiWebViewClient extends WebViewClient
 	{
 		super.onLoadResource(view, url);
 		if (webView.getProxy().hasListeners(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, false)) {
-		    KrollDict data = new KrollDict();
-	        data.put(TiC.PROPERTY_URL, url);
-	        webView.getProxy().fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, data, false, false);
+	        webView.getProxy().fireEvent(TiC.EVENT_WEBVIEW_ON_LOAD_RESOURCE, webView.eventForURL(url), false, false);
 		}
 		
 	}

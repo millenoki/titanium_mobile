@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollEventCallback;
@@ -47,7 +48,7 @@ public class TiWebViewBinding
 	protected static String POLLING_CODE = "";
 	static {
 //		StringBuilder jsonCode = readResourceFile("json2.js");
-		StringBuilder tiCode = readResourceFile("binding.min.js");
+	    StringBuilder tiCode = readResourceFile("binding.min.js");
 		StringBuilder pollingCode = readResourceFile("polling.min.js");
 		
 		if (pollingCode == null) {
@@ -162,15 +163,23 @@ public class TiWebViewBinding
 
 	private Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
+    private static final Pattern sJSValuePattern = Pattern.compile("(var|function|//|if|return|console)");
 
 //    @JavascriptInterface
 	synchronized public String getJSValue(String expression)
 	{
 		// Don't try to evaluate js code again if the binding has already been destroyed
 		if (!destroyed && interfacesAdded) {
-			String code = "_TiReturn.setValue((function(){try{return " + expression
-				+ "+\"\";}catch(ti_eval_err){return '';}})());";
-			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
+	        String code  = expression.replaceFirst("\\s+$", "").replaceAll("//.*?(\n|$)","").replaceAll("\n", "").replaceAll("\r", "");
+
+		    if (sJSValuePattern.matcher(code).find()) {
+		        code = "_TiReturn.setValue((function(){try{ " + code
+                        + "}catch(ti_eval_err){return ti_eval_err;}})());";
+		    } else {
+		        code = "_TiReturn.setValue((function(){try{return " + code
+                        + "+\"\";}catch(ti_eval_err){return ti_eval_err;}})());";
+		    }
+//			Log.d(TAG, "getJSValue:" + code, Log.DEBUG_MODE);
 			returnSemaphore.drainPermits();
 			synchronized (codeSnippets) {
 				codeSnippets.push(code);

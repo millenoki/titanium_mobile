@@ -81,6 +81,23 @@
     }
 }
 
+- (void)injectJS:(id)args
+{
+    /*
+     Using GCD either through dispatch_async/dispatch_sync or TiThreadPerformOnMainThread
+     does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
+     */
+    NSString* code = nil;
+    NSNumber* option = nil;
+    BOOL async = NO;
+    ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
+    ENSURE_ARG_OR_NIL_AT_INDEX(option, args, 1, NSNumber);
+    if (option != nil) {
+        async = [option boolValue];
+    }
+    [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:async];
+}
+
 //USE_VIEW_FOR_CONTENT_HEIGHT
 //USE_VIEW_FOR_CONTENT_WIDTH
 USE_VIEW_FOR_CONTENT_SIZE
