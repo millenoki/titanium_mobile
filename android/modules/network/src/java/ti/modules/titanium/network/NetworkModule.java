@@ -899,8 +899,19 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public void removeAllHTTPCookies()
 	{
-		java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
-		cookieStore.removeAll();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            CookieManager.getInstance().removeAllCookies(null);
+            CookieManager.getInstance().flush();
+        } else
+        {
+            CookieSyncManager cookieSyncMngr=CookieSyncManager.createInstance(TiApplication.getAppContext());
+            cookieSyncMngr.startSync();
+            CookieManager cookieManager=CookieManager.getInstance();
+            cookieManager.removeAllCookie();
+            cookieManager.removeSessionCookie();
+            cookieSyncMngr.stopSync();
+            cookieSyncMngr.sync();
+        }
 	}
 	
 	/**
