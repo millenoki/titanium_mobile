@@ -1024,9 +1024,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 borderView.setClipChildren(clipChildren);
             }
             if (!clipChildren) {
-                ViewGroup parent = (ViewGroup) getOuterView().getParent();
-                if (parent != null)
-                    parent.setClipChildren(clipChildren);
+                ViewGroup theParent = (ViewGroup) getOuterView().getParent();
+                if (theParent != null) {
+                    theParent.setClipChildren(clipChildren);
+                    if (TiC.LOLLIPOP_OR_GREATER) {
+                        theParent.setClipToOutline(clipChildren);
+                    }
+                }
             }
 
             break;
@@ -1729,7 +1733,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                 borderView.setOutlineProvider(mOutlineProvider);
             }
             borderView.setClipToOutline(clipChildren);
-            if (rootView instanceof Button) {
+            if (!(rootView instanceof Button)) {
               borderView.setStateListAnimator(rootView.getStateListAnimator());
               rootView.setOutlineProvider(null);
               rootView.setStateListAnimator(null);
