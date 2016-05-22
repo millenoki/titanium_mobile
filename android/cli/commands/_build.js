@@ -2817,7 +2817,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     this.logger.debug(__('Compiling TS files: %s', tsFiles));
 
                     //we need to make sure that babel is used in that case 
-                    this.useBabel = true;
+                    useBabel = this.useBabel = true;
                     
                     if (fs.existsSync(path.join(this.projectDir, 'typings'))) {
                         this.dirWalker(path.join(this.projectDir, 'typings'), function(file) {
@@ -2895,7 +2895,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     this.analyseJS(to, data, function() {
                         //make sure not to return the result of analyzeJS in next
                         //as the builder might see it as an error
-                        next();
+                        done();
                     });
                     return;
                 }
