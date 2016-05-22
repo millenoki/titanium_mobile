@@ -123,6 +123,7 @@ public class TiUIButton extends TiUINonViewGroupView
 	private void updateImage(){
 		Button btn = (Button) getNativeView();
 		if (btn != null) {
+		    imageDrawable.setBounds(0, 0, imageDrawable.getMinimumWidth(), imageDrawable.getMinimumHeight());
 			switch(imageGravity) {
 				case Gravity.LEFT:
 				default:
@@ -152,12 +153,12 @@ public class TiUIButton extends TiUINonViewGroupView
         case TiC.PROPERTY_IMAGE:
             TiDrawableReference drawableRef = TiDrawableReference.fromObject(proxy.getActivity(), newValue);
             if (drawableRef != null) {
-                imageDrawable = drawableRef.getDrawable();
+                imageDrawable = drawableRef.getDensityScaledDrawable();
             }
             else {
                 imageDrawable = null;
             }
-            mProcessUpdateFlags |= TIFLAG_NEEDS_COLORS;
+            mProcessUpdateFlags |= TIFLAG_NEEDS_IMAGE;
             break;
         case TiC.PROPERTY_COLOR:
             color = selectedColor = disabledColor = color = TiConvert.toColor(newValue, this.color);
