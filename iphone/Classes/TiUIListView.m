@@ -774,12 +774,6 @@ static NSDictionary* replaceKeysForRow;
     pruneSections = [TiUtils boolValue:args def:NO];
 }
 
-
--(void)setAllowsSelectionDuringEditing_:(id)arg
-{
-    [[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:arg def:NO]];
-}
-
 -(void)setSeparatorStyle_:(id)arg
 {
     [[self tableView] setSeparatorStyle:[TiUtils intValue:arg]];

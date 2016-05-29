@@ -578,7 +578,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 
 		if (changed) {
-			TiUIHelper.firePostLayoutEvent(getRowProxy());
+			TiUIHelper.firePostLayoutEvent(getRowData().proxy.peekView());
 		}
 	}
 
