@@ -2340,39 +2340,40 @@ iOSBuilder.prototype.readBuildManifest = function readBuildManifest() {
 	if (fs.existsSync(this.buildManifestFile)) {
 		try {
 			this.previousBuildManifest = JSON.parse(fs.readFileSync(this.buildManifestFile)) || {};
+			if (this.cli.argv.xcode) {
+				if (!process.env.TITANIUM_CLI_XCODEBUILD ) {
+					var manifest = this.previousBuildManifest;
+
+					this.platformPath = manifest.iosSdkPath;
+					this.target = manifest.target;
+					this.deployType = manifest.deployType;
+					this.sdkVersion = manifest.sdkVersion;
+					this.target = manifest.target;
+					this.target = manifest.target;
+					this.forceCopy = manifest.forceCopy;
+					this.skipJSMinification = manifest.skipJSMinification;
+					this.encryptJS = manifest.encryptJS;
+					this.forceCopyAll = manifest.forceCopyAll;
+					this.target = manifest.target;
+					this.iosSdkVersion = manifest.iosSdkVersion;
+					this.deviceFamily = manifest.deviceFamily;
+					this.developerName = manifest.developerName;
+					this.distributionName = manifest.distributionName;
+					this.provisioningProfileUUID = manifest.ppUuid;
+					this.useJSCore = manifest.useJSCore;
+					this.runOnMainThread = manifest.runOnMainThread;
+					this.cli.argv['output-dir'] = manifest.outputDir;
+					this.useBabel = manifest.useBabel;
+					this.useAutoLayout = manifest.useAutoLayout;
+					this.useAppThinning = manifest.useAppThinning;
+					return; // so that we don't remove the build manifest on error
+				}
+			}
 		} catch (e) {}
 	}
 
 	this.unmarkBuildDirFile(this.buildManifestFile);
-	if (this.cli.argv.xcode) {
-		if (!process.env.TITANIUM_CLI_XCODEBUILD) {
-			var manifest = this.previousBuildManifest;
-
-			this.platformPath = manifest.iosSdkPath;
-			this.target = manifest.target;
-			this.deployType = manifest.deployType;
-			this.sdkVersion = manifest.sdkVersion;
-			this.target = manifest.target;
-			this.target = manifest.target;
-			this.forceCopy = manifest.forceCopy;
-			this.skipJSMinification = manifest.skipJSMinification;
-			this.encryptJS = manifest.encryptJS;
-			this.forceCopyAll = manifest.forceCopyAll;
-			this.target = manifest.target;
-			this.iosSdkVersion = manifest.iosSdkVersion;
-			this.deviceFamily = manifest.deviceFamily;
-			this.developerName = manifest.developerName;
-			this.distributionName = manifest.distributionName;
-			this.provisioningProfileUUID = manifest.ppUuid;
-			this.useJSCore = manifest.useJSCore;
-			this.runOnMainThread = manifest.runOnMainThread;
-			this.cli.argv['output-dir'] = manifest.outputDir;
-			this.useBabel = manifest.useBabel;
-			this.useAutoLayout = manifest.useAutoLayout;
-			this.useAppThinning = manifest.useAppThinning;
-			return; // so that we don't remove the build manifest on error
-		}
-	}
+	
 	// now that we've read the build manifest, delete it so if this build
 	// becomes incomplete, the next build will be a full rebuild
 	fs.existsSync(this.buildManifestFile) && fs.unlinkSync(this.buildManifestFile);
