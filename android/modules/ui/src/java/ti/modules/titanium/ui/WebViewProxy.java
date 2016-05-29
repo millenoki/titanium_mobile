@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
@@ -61,7 +62,6 @@ public class WebViewProxy extends ViewProxy
 	private static final int MSG_RELEASE = MSG_FIRST_ID + 110;
 	private static final int MSG_PAUSE = MSG_FIRST_ID + 111;
     private static final int MSG_RESUME = MSG_FIRST_ID + 112;
-    private static final int MSG_EVA_JS_ASYNC = MSG_FIRST_ID + 113;
 	
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static String fusername;
@@ -123,19 +123,11 @@ public class WebViewProxy extends ViewProxy
 	{
 		return (TiUIWebView) getOrCreateView();
 	}
-	
-	private void handleEvalJSAsync(final String code) {
-        getWebView().evalJSAsync(code);
-    }
-
 
 	@Kroll.method
-    public Object evalJS(String code, @Kroll.argument(optional = true) Object asyncProp) 
+    public Object evalJS(final String code, @Kroll.argument(optional = true) final KrollFunction callback) 
 	{
-	    Boolean async = false;
-        if (asyncProp != null) {
-            async = TiConvert.toBoolean(asyncProp);
-        }
+
 		// If the view doesn't even exist yet,
 		// or if it once did exist but doesn't anymore
 		// (like if the proxy was removed from a parent),
@@ -146,34 +138,29 @@ public class WebViewProxy extends ViewProxy
 			Log.w(TAG, "WebView not available, returning null for evalJS result.");
 			return null;
 		}
-		if (async) {
-		    if (TiApplication.isUIThread()) {
-	            handleEvalJSAsync(code);
-	        } else {
-	            Message message = getMainHandler().obtainMessage(MSG_EVA_JS_ASYNC);
-                message.obj = code;
-                message.sendToTarget();
-	        }
+		
+		if (callback != null) {
+		    runInUiThread(new CommandNoReturn() {
+	            @Override
+	            public void execute() {
+	                getWebView().evalJSAsync(code, callback);
+	            }
+	        }, false);
 		    return null;
 		}
-		
 		return view.getJSValue(code);
 	}
 	
 	@Kroll.method
-    public void injectJS(final String code, @Kroll.argument(optional = true) Object asyncProp) 
+    public void injectJS(final String code, @Kroll.argument(optional = true) final KrollFunction callback) 
     {
-        Boolean async = false;
-        if (asyncProp != null) {
-            async = TiConvert.toBoolean(asyncProp);
-        }
         final TiUIWebView view = (TiUIWebView) peekView();
         runInUiThread(new CommandNoReturn() {
             @Override
             public void execute() {
-                view.injectJS(code);
+                view.injectJS(code, callback);
             }
-        }, async);
+        }, false);
     }
 
 	@Kroll.method @Kroll.getProperty(enumerable=false)
@@ -256,9 +243,7 @@ public class WebViewProxy extends ViewProxy
 					HashMap<String, Object> d = (HashMap<String, Object>) getProperty(OPTIONS_IN_SETHTML);
 					getWebView().setHtml(html, d);
 					return true;
-				case MSG_EVA_JS_ASYNC:
-                    handleEvalJSAsync((String)msg.obj);
-                    return true;
+
 			}
 		}
 		return super.handleMessage(msg);

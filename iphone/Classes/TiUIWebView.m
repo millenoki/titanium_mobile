@@ -909,13 +909,13 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     if (!loadingurl) {
         return;
     }
-    if (alwaysInjectTi) {
+//    if (alwaysInjectTi) {
 //        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC),
 //                       dispatch_get_main_queue(), ^
 //                       {
-                           [webView stringByEvaluatingJavaScriptFromString:[self __titaniumRemoteInjection]];
+//                           [webView stringByEvaluatingJavaScriptFromString:[self __titaniumRemoteInjection]];
 //                       });
-    }
+//    }
     
     if ([[self viewProxy] _hasListeners:@"startload" checkParent:NO])
     {
@@ -927,7 +927,16 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 {
     [self hideSpinner];
     [url release];
-    RELEASE_TO_NIL(loadingurl)
+    if (loadingurl) {
+        if (alwaysInjectTi) {
+//            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.01 * NSEC_PER_SEC),
+//                           dispatch_get_main_queue(), ^
+//                           {
+            [webView stringByEvaluatingJavaScriptFromString:[self __titaniumRemoteInjection]];
+//                           });
+        }
+        RELEASE_TO_NIL(loadingurl)
+    }
     url = [[[webview request] URL] retain];
     NSMutableDictionary* event = [self eventForUrl:url];
     NSString* urlAbs = [event objectForKey:@"url"];

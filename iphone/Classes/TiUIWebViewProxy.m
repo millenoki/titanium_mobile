@@ -59,6 +59,18 @@
 }
 
 
+- (NSString*) prepareEvalString:(NSString*) expression {
+    NSError *error = nil;
+   NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(\\s+$|\n|\r)" options:NSRegularExpressionCaseInsensitive error:&error];
+    NSString *result = [regex stringByReplacingMatchesInString:expression options:0 range:NSMakeRange(0, [expression length]) withTemplate:@""];
+    regex = [NSRegularExpression regularExpressionWithPattern:@"(var|function|//|if|return|console)" options:NSRegularExpressionCaseInsensitive error:&error];
+    if ([[regex matchesInString:expression options:0 range:NSMakeRange(0, [expression length])] count] > 0) {
+        return result;
+    } else {
+        return [@"return " stringByAppendingString:result];
+    }
+}
+
 - (NSString*)evalJS:(id)args
 {
     /*
@@ -66,15 +78,17 @@
      does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
      */
     NSString* code = nil;
-    NSNumber* option = nil;
-    BOOL async = NO;
+    KrollCallback *cb = nil;
     ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
-    ENSURE_ARG_OR_NIL_AT_INDEX(option, args, 1, NSNumber);
-    if (option != nil) {
-        async = [option boolValue];
-    }
-    if (async) {
-        [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:NO];
+    ENSURE_ARG_OR_NIL_AT_INDEX(cb, args, 1, KrollCallback);
+    if (cb) {
+        TiThreadPerformOnMainThread(^{
+            NSString* actualCode = [NSString stringWithFormat:@"(function(){%@})()", [self prepareEvalString:code]];
+            NSString* result = [(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:actualCode];
+            [self _fireEventToListener:@"evaluated" withObject:result listener:cb thisObject:nil];
+        }, NO);
+
+//        [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:NO];
         return nil;
     } else {
         return [self evalJSAndWait:code];
@@ -88,14 +102,14 @@
      does not work reliably for evalJS on 5.0 and above. See sample in TIMOB-7616 for fail case.
      */
     NSString* code = nil;
-    NSNumber* option = nil;
-    BOOL async = NO;
+    KrollCallback *cb = nil;
     ENSURE_ARG_AT_INDEX(code, args, 0, NSString);
-    ENSURE_ARG_OR_NIL_AT_INDEX(option, args, 1, NSNumber);
-    if (option != nil) {
-        async = [option boolValue];
-    }
-    [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:async];
+    ENSURE_ARG_OR_NIL_AT_INDEX(cb, args, 1, KrollCallback);
+    TiThreadPerformOnMainThread(^{
+        [(TiUIWebView*)[self view] stringByEvaluatingJavaScriptFromString:code];
+        [self _fireEventToListener:@"evaluated" withObject:nil listener:cb thisObject:nil];
+    }, NO);
+//    [[self view] performSelectorOnMainThread:@selector(stringByEvaluatingJavaScriptFromString:) withObject:code waitUntilDone:NO];
 }
 
 //USE_VIEW_FOR_CONTENT_HEIGHT

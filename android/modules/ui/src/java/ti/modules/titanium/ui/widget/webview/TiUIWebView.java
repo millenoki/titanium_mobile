@@ -16,8 +16,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.common.TiMessenger.Command;
@@ -671,19 +673,63 @@ public class TiUIWebView extends TiUINonViewGroupView
 		}
 	}
 	
-	public void evalJSAsync(final String code) {
-	    injectJS(code);
+	public void evalJSAsync(final String expression, final KrollFunction callback) {
+	    if (TiC.KIT_KAT_OR_GREATER) {
+	        final String code  = prepareEvalString(expression);
+            proxy.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getWebView().evaluateJavascript("(function(){" + code+ "})()", new ValueCallback<String>() {
+                        @Override
+                        public void onReceiveValue(String result) {
+                            if (result != null) {
+                                result = result.replaceAll("(^\")|(\"$)","");
+                            }
+                            callback.callAsync(getProxy().getKrollObject(), new Object[] {result});
+                        }
+                    });
+                }
+            });
+        } else {
+            String result = getJSValue(expression);
+            callback.callAsync(getProxy().getKrollObject(), new Object[] {result});
+       }
 	}
+	
 
-	public void injectJS(final String code) {
+	public void injectJS(final String code, final KrollFunction callback) {
         final String actualCode  = code.replaceAll("//.*?(\n|$)","").replaceAll("\n", "").replaceAll("\r", "");
         
-//        if (TiC.KIT_KAT_OR_GREATER) {
-//            getWebView().evaluateJavascript( "(function(){" + actualCode+ "})()", null);
-//        } else {
-            getWebView().loadUrl("javascript:(function(){" + actualCode+ "})()");
-//        }
+        if (TiC.KIT_KAT_OR_GREATER) {
+            if (callback != null) {
+                getWebView().evaluateJavascript( "(function(){" + actualCode+ "})()", new ValueCallback<String>() {
+                    @Override
+                    public void onReceiveValue(String result) {
+                        callback.callAsync(getProxy().getKrollObject(), new Object[] {});
+                    }
+                });
+            } else {
+                getWebView().evaluateJavascript( "(function(){" + actualCode+ "})()", null);
+            }
+        } else {
+            if (callback != null) {
+                getJSValue("javascript:(function(){" + actualCode+ "})()");
+                callback.callAsync(getProxy().getKrollObject(), new Object[] {});
+            } else {
+                getWebView().loadUrl("javascript:(function(){" + actualCode+ "})()");
+            }
+        }
     }
+	
+    private static final Pattern sJSValuePattern = Pattern.compile("(var|function|//|if|return|console)");
+	private static String prepareEvalString(final String expression) {
+	    String code  = expression.replaceFirst("\\s+$", "").replaceAll("//.*?(\n|$)","").replaceAll("\n", "").replaceAll("\r", "");
+        if (sJSValuePattern.matcher(code).find()) {
+            return code;
+        } else {
+            return "return " + code;
+        }
+	}
 
 	public String getJSValue(final String expression)
 	{
@@ -691,6 +737,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	    if (webView == null) {
 	        return "";
 	    }
+	    final String code  = prepareEvalString(expression);
 //	    if (TiC.KIT_KAT_OR_GREATER) {
 //	        final CountDownLatch latch = new CountDownLatch(1);
 //	        final StringBuffer result = new StringBuffer(); 
@@ -719,11 +766,11 @@ public class TiUIWebView extends TiUINonViewGroupView
 
 	                @Override
 	                public String execute() {
-	                    return client.getBinding().getJSValue(expression);
+	                    return client.getBinding().getJSValue(code);
 	                }
 	            });
 	        } else {
-	            return client.getBinding().getJSValue(expression);
+	            return client.getBinding().getJSValue(code);
 	        }
 //	    }
 	}
