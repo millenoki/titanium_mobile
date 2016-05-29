@@ -23,6 +23,7 @@ import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -538,6 +539,8 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
 	{
+		// Make these associations here to avoid doing them on measurement passes
+		getRowProxy().setTableViewItem(this);
 		int contentLeft = left;
 		int contentRight = right;
 		bottom = bottom - top;
@@ -572,6 +575,10 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 
 		if (content != null) {
 			content.layout(contentLeft, top, contentRight, bottom);
+		}
+
+		if (changed) {
+			TiUIHelper.firePostLayoutEvent(getRowProxy());
 		}
 	}
 

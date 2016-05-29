@@ -418,7 +418,7 @@ public class TiTableView extends FrameLayout
 		}
 
 		if (proxy.hasProperty(TiC.PROPERTY_SEPARATOR_STYLE)) {
-		    setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE)));
+		    setSeparatorStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_SEPARATOR_STYLE), UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE));
 		}
 		adapter = new TTVListAdapter(viewModel, proxy);
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {

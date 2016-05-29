@@ -1126,44 +1126,44 @@ public class TiHTTPClient
 
                 String result = null;
 
-                try {
-                    mURL = new URL(url);
-                    client = (HttpURLConnection) mURL.openConnection();
-                    setUpClient(client);
-                    
-                    if (client instanceof HttpsURLConnection) {
-                        HttpsURLConnection securedConnection = (HttpsURLConnection) client;
-                        setUpSSL(validatesSecureCertificate(), securedConnection);
-                    }                   
-                                
-                    if (timeout != -1) {
-                        client.setReadTimeout(timeout);
-                        client.setConnectTimeout(timeout);
-                    }
-                    
-                    if (aborted) {
+				try {
+					mURL = new URL(url);
+					client = (HttpURLConnection) mURL.openConnection();
+					setUpClient(client);
+					
+					if (client instanceof HttpsURLConnection) {
+					    HttpsURLConnection securedConnection = (HttpsURLConnection) client;
+					    setUpSSL(validatesSecureCertificate(), securedConnection);
+					}					
+								
+					if (timeout != -1) {
+						client.setReadTimeout(timeout);
+						client.setConnectTimeout(timeout);
+					}
+					
+					if (aborted) {
                         throw new IOException("Cancelled");
-                    }       
-                    
-                    boolean isPostOrPutOrPatch = method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
-                    
-                    client.setUseCaches(true);
-                    client.setRequestMethod(method);
-                    client.setDoInput(true);
-                    if (isPostOrPutOrPatch) {
-                        client.setDoOutput(true);
-                    }
-                    client.setUseCaches(false);
-                    // This is to set gzip default to disable
-                    // https://code.google.com/p/android/issues/detail?id=174949
-                    client.setRequestProperty("Accept-Encoding", "identity");
-                    client.setRequestProperty(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
-                    if (parts.size() > 0 && needMultipart) {
-                        boundary = HttpUrlConnectionUtils.generateBoundary();
-                        client.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-                    } else {
-                        client.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-                    }
+					}		
+					
+					boolean isPostOrPutOrPatch = method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
+					
+					client.setUseCaches(true);
+					client.setRequestMethod(method);
+					client.setDoInput(true);
+					if (isPostOrPutOrPatch) {
+						client.setDoOutput(true);
+					}
+					client.setUseCaches(false);
+					// This is to set gzip default to disable
+					// https://code.google.com/p/android/issues/detail?id=174949
+					client.setRequestProperty("Accept-Encoding", "identity");
+					client.setRequestProperty(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
+					if (parts.size() > 0 && needMultipart) {
+						boundary = HttpUrlConnectionUtils.generateBoundary();
+						client.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+					} else if (isPostOrPutOrPatch) {
+						client.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+					}
 
                     for (String header : requestHeaders.keySet()) {
                         client.setRequestProperty(header, requestHeaders.get(header));

@@ -775,6 +775,11 @@ static NSDictionary* replaceKeysForRow;
 }
 
 
+-(void)setAllowsSelectionDuringEditing_:(id)arg
+{
+    [[self tableView] setAllowsSelectionDuringEditing:[TiUtils boolValue:arg def:NO]];
+}
+
 -(void)setSeparatorStyle_:(id)arg
 {
     [[self tableView] setSeparatorStyle:[TiUtils intValue:arg]];
@@ -990,6 +995,11 @@ static NSDictionary* replaceKeysForRow;
 -(void)setUseAppearAnimation_:(id)value
 {
     _useAppearAnimation = [TiUtils boolValue:value def:NO];
+}
+
+-(void)setDisableBounce_:(id)value
+{
+    [[self tableView] setBounces:![TiUtils boolValue:value def:NO]];
 }
 
 #pragma mark - Search Support
@@ -2248,6 +2258,32 @@ static NSDictionary* replaceKeysForRow;
         [[ImageLoader sharedLoader] suspend];
     }
     [super scrollViewWillBeginDragging:scrollView];
+}
+
+-(void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+    if ([[self proxy] _hasListeners:@"scrolling"]) {
+        NSString* direction = nil;
+        
+        if (velocity.y > 0) {
+            direction = @"up";
+        }
+        
+        if (velocity.y < 0) {
+            direction = @"down";
+        }
+        
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"targetContentOffset": NUMFLOAT(targetContentOffset->y),
+            @"velocity": NUMFLOAT(velocity.y)
+        }];
+        if (direction != nil) {
+            [event setValue:direction forKey:@"direction"];
+        }
+        
+        [[self proxy] fireEvent:@"scrolling" withObject:event];
+        RELEASE_TO_NIL(direction);
+    }
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate

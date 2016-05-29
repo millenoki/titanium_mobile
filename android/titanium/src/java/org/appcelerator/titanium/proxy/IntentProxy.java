@@ -38,8 +38,6 @@ import android.text.TextUtils;
 
 @SuppressLint("NewApi")
 @Kroll.proxy(propertyAccessors = {
-	TiC.PROPERTY_CLASS_NAME,
-	TiC.PROPERTY_PACKAGE_NAME,
 	TiC.PROPERTY_URL
 })
 /**
@@ -65,16 +63,33 @@ public class IntentProxy extends KrollProxy
 	public IntentProxy(Intent intent)
 	{
 		this.intent = intent;
+
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getPackageName()
+	{
+		if (intent == null) {
+			return null;
+		}
 		ComponentName componentName = intent.getComponent();
 		if (componentName != null) {
-		    String packageName = componentName.getPackageName();
-		    if (packageName != null)
-		        setProperty(TiC.PROPERTY_PACKAGE_NAME, packageName);
-		    String className = componentName.getClassName();
-		    if (className != null)
-		        setProperty(TiC.PROPERTY_CLASS_NAME, className);
+			return componentName.getPackageName();
 		}
-		// Other properties have dedicated getters.
+		return null;
+	}
+
+	@Kroll.getProperty @Kroll.method
+	public String getClassName()
+	{
+		if (intent == null) {
+			return null;
+		}
+		ComponentName componentName = intent.getComponent();
+		if (componentName != null) {
+			return componentName.getClassName();
+		}
+		return null;
 	}
     public IntentProxy(HashMap dict)
     {

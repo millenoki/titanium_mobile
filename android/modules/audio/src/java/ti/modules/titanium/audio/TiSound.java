@@ -280,7 +280,12 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
         setUpRemoteControlClient();
     }
 
-    
+    public int  getAudioSessionId() {
+      if (mp != null) {
+        return mp.getAudioSessionId();
+      }
+      return 0;
+    }
 
     
     public void setEnableLockscreenControls(final boolean enableLockscreenControls) {
