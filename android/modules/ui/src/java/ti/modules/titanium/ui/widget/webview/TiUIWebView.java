@@ -67,8 +67,8 @@ public class TiUIWebView extends TiUINonViewGroupView
 	private static Enum<?> enumPluginStateOn;
 	private static Enum<?> enumPluginStateOnDemand;
 	private static Method internalSetPluginState;
-	private static Method internalWebViewPause;
-	private static Method internalWebViewResume;
+//	private static Method internalWebViewPause;
+//	private static Method internalWebViewResume;
 
 	public static final int PLUGIN_STATE_OFF = 0;
 	public static final int PLUGIN_STATE_ON = 1;
@@ -86,20 +86,10 @@ public class TiUIWebView extends TiUINonViewGroupView
 	
 	private class TiWebView extends WebView
 	{
-		public TiWebViewClient client;
 
 		public TiWebView(Context context)
 		{
 			super(context);
-		}
-
-		@Override
-		public void destroy()
-		{
-			if (client != null) {
-				client.getBinding().destroy();
-			}
-			super.destroy();
 		}
 		
 		@Override
@@ -289,7 +279,6 @@ public class TiUIWebView extends TiUINonViewGroupView
 		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
             client.getBinding().addJavascriptInterfaces();
         }
-		webView.client = client;
 
 		if (proxy instanceof WebViewProxy) {
 			WebViewProxy webProxy = (WebViewProxy) proxy;
@@ -327,8 +316,8 @@ public class TiUIWebView extends TiUINonViewGroupView
 					internalSetPluginState = webSettings.getMethod("setPluginState", pluginState);
 					// Hidden APIs
 					// http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/java/android/webkit/WebView.java;h=bbd8b95c7bea66b7060b5782fae4b3b2c4f04966;hb=4db1f432b853152075923499768639e14403b73a#l2558
-					internalWebViewPause = webView.getClass().getMethod("onPause");
-					internalWebViewResume = webView.getClass().getMethod("onResume");
+//					internalWebViewPause = webView.getClass().getMethod("onPause");
+//					internalWebViewResume = webView.getClass().getMethod("onResume");
 				}
 			}
 		} catch (ClassNotFoundException e) {
@@ -743,71 +732,67 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		client.setBasicAuthentication(username, password);
 	}
-
-	public void destroyWebViewBinding()
-	{
-		client.getBinding().destroy();
-	}
-
+	
+	public void destroyWebView()
+    {
+        TiWebView webView = (TiWebView) getNativeView();
+        if (webView != null) {
+            webView.stopLoading();
+            webView.setWebChromeClient(null);
+            webView.setWebViewClient(null);
+            chromeClient.destroy();
+            chromeClient = null;
+            client.destroy();
+            client = null;
+            TiUIHelper.removeViewFromSuperView(webView);
+            webView.destroy();
+            
+            
+        }
+    }
 	public void setPluginState(int pluginState)
 	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			TiWebView webView = (TiWebView) getNativeView();
-			WebSettings webSettings = webView.getSettings();
-			if (webView != null) {
-				try {
-					switch (pluginState) {
-						case PLUGIN_STATE_OFF:
-							internalSetPluginState.invoke(webSettings, enumPluginStateOff);
-							break;
-						case PLUGIN_STATE_ON:
-							internalSetPluginState.invoke(webSettings, enumPluginStateOn);
-							break;
-						case PLUGIN_STATE_ON_DEMAND:
-							internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
-							break;
-						default:
-							Log.w(TAG, "Not a valid plugin state. Ignoring setPluginState request");
-					}
-				} catch (InvocationTargetException e) {
-					Log.e(TAG, "Method not supported", e);
-				} catch (IllegalAccessException e) {
-					Log.e(TAG, "Illegal Access", e);
+		TiWebView webView = (TiWebView) getNativeView();
+		WebSettings webSettings = webView.getSettings();
+		if (webView != null) {
+			try {
+				switch (pluginState) {
+					case PLUGIN_STATE_OFF:
+						internalSetPluginState.invoke(webSettings, enumPluginStateOff);
+						break;
+					case PLUGIN_STATE_ON:
+						internalSetPluginState.invoke(webSettings, enumPluginStateOn);
+						break;
+					case PLUGIN_STATE_ON_DEMAND:
+						internalSetPluginState.invoke(webSettings, enumPluginStateOnDemand);
+						break;
+					default:
+						Log.w(TAG, "Not a valid plugin state. Ignoring setPluginState request");
 				}
+			} catch (InvocationTargetException e) {
+				Log.e(TAG, "Method not supported", e);
+			} catch (IllegalAccessException e) {
+				Log.e(TAG, "Illegal Access", e);
 			}
 		}
 	}
 
 	public void pauseWebView()
 	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			View v = getNativeView();
-			if (v != null) {
-				try {
-					internalWebViewPause.invoke(v);
-				} catch (InvocationTargetException e) {
-					Log.e(TAG, "Method not supported", e);
-				} catch (IllegalAccessException e) {
-					Log.e(TAG, "Illegal Access", e);
-				}
-			}
-		}
+       WebView currWebView = getWebView();
+       if (currWebView == null) {
+           return;
+       }
+       currWebView.onPause();
 	}
 
 	public void resumeWebView()
 	{
-		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1) {
-			View v = getNativeView();
-			if (v != null) {
-				try {
-					internalWebViewResume.invoke(v);
-				} catch (InvocationTargetException e) {
-					Log.e(TAG, "Method not supported", e);
-				} catch (IllegalAccessException e) {
-					Log.e(TAG, "Illegal Access", e);
-				}
-			}
-		}
+	    WebView currWebView = getWebView();
+	       if (currWebView == null) {
+	           return;
+	       }
+	       currWebView.onResume();
 	}
 
 	public void setUserAgentString(String userAgentString)
@@ -892,6 +877,10 @@ public class TiUIWebView extends TiUINonViewGroupView
 	    }
 	    if (currentProgress == -1 && newProgress != 0) {
 	        onProgressChanged(view, 0);
+	    }
+	    if (progress == 0) {
+	        //make sure all previous event are removed
+	        client.getBinding().removeAllEventListeners();
 	    }
 	    if (progress == 100) {
 	        boolean enableJavascriptInjection = true;

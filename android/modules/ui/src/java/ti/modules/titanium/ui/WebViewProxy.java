@@ -87,12 +87,14 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public void setActivity(Activity activity)
 	{
-		if (this.activity != null) {
-			TiBaseActivity tiActivity = (TiBaseActivity) this.activity.get();
-			if (tiActivity != null) {
-				tiActivity.removeOnLifecycleEventListener(this);
-				tiActivity.removeInterceptOnBackPressedEventListener(this);
-			}
+	    TiBaseActivity currentActivity = (TiBaseActivity)getActivity();
+	    
+	    if (currentActivity == activity) {
+	        return;
+	    }
+		if (currentActivity != null) {
+		    currentActivity.removeOnLifecycleEventListener(this);
+		    currentActivity.removeInterceptOnBackPressedEventListener(this);
 		}
 		super.setActivity(activity);
 		if (this.activity != null) {
@@ -239,7 +241,7 @@ public class WebViewProxy extends ViewProxy
 				case MSG_RELEASE:
 					TiUIWebView webView = (TiUIWebView) peekView();
 					if (webView != null) {
-						webView.destroyWebViewBinding();
+						webView.destroyWebView();
 					}
 					super.releaseViews(true);
 					return true;
@@ -496,13 +498,7 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public void releaseViews(boolean activityFinishing)
 	{
-	    if (this.activity != null) {
-            TiBaseActivity tiActivity = (TiBaseActivity) this.activity.get();
-            if (tiActivity != null) {
-                tiActivity.removeOnLifecycleEventListener(this);
-                tiActivity.removeInterceptOnBackPressedEventListener(this);
-            }
-        }
+	    
 		if (activityFinishing) {
 			TiUIWebView webView = (TiUIWebView) peekView();
 			if (webView != null) {
@@ -511,7 +507,7 @@ public class WebViewProxy extends ViewProxy
 				// We allow JS polling to continue until we exit the app. If we want to stop the polling when the app is
 				// backgrounded, we would need to move this to onStop(), and add the appropriate logic in onResume() to restart
 				// the polling.
-				webView.destroyWebViewBinding();
+                webView.destroyWebView();
 			}
 		}
 		else {
@@ -559,11 +555,21 @@ public class WebViewProxy extends ViewProxy
 
 	@Override
 	public void onStop(Activity activity) {
+        TiBaseActivity tiActivity = (TiBaseActivity) getActivity();
+	    if (tiActivity == activity) {
+            tiActivity.removeOnLifecycleEventListener(this);
+            tiActivity.removeInterceptOnBackPressedEventListener(this);
+        }
 	}
 
 	@Override
 	public void onDestroy(Activity activity) {
 		releaseViews(true);
+		TiBaseActivity tiActivity = (TiBaseActivity) getActivity();
+        if (tiActivity == activity) {
+            tiActivity.removeOnLifecycleEventListener(this);
+            tiActivity.removeInterceptOnBackPressedEventListener(this);
+        }
 	}
 
 	@Override

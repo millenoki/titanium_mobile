@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollFunction;
@@ -35,7 +36,7 @@ public class TiWebChromeClient extends WebChromeClient
 	private static final String TAG = "TiWebChromeClient";
 	private static final String CONSOLE_TAG = TAG + ".console";
 
-	private TiUIWebView tiWebView;
+	private WeakReference<TiUIWebView> tiWebView;
 	private FrameLayout mCustomViewContainer;
 	private CustomViewCallback mCustomViewCallback;
 	private View mCustomView;
@@ -43,7 +44,7 @@ public class TiWebChromeClient extends WebChromeClient
 	public TiWebChromeClient(TiUIWebView webView)
 	{
 		super();
-		this.tiWebView = webView;
+		this.tiWebView = new WeakReference<TiUIWebView>(webView);
 	}
 	
 	@Override
@@ -86,7 +87,10 @@ public class TiWebChromeClient extends WebChromeClient
 	@Override
 	public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg)
 	{
-		TiViewProxy proxy = tiWebView.getProxy();
+	    if (this.tiWebView == null) {
+	        return false;
+	    }
+		TiViewProxy proxy = tiWebView.get().getProxy();
 		if (proxy == null) {
 			return false;
 		}
@@ -120,7 +124,10 @@ public class TiWebChromeClient extends WebChromeClient
 	@Override
 	public void onShowCustomView(View view, CustomViewCallback callback)
 	{
-		tiWebView.getWebView().setVisibility(View.GONE);
+	    if (this.tiWebView == null) {
+            return;
+        }
+		tiWebView.get().getWebView().setVisibility(View.GONE);
 
 		// If a view already existed then immediately terminate the new one.
 		if (mCustomView != null) {
@@ -128,7 +135,7 @@ public class TiWebChromeClient extends WebChromeClient
 			return;
 		}
 
-		Activity activity = tiWebView.getProxy().getActivity();
+		Activity activity = tiWebView.get().getProxy().getActivity();
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 		if (activity instanceof TiBaseActivity) {
 			if (mCustomViewContainer == null) {
@@ -147,7 +154,7 @@ public class TiWebChromeClient extends WebChromeClient
 	@Override
 	public void onHideCustomView()
 	{
-		if (mCustomView == null) {
+		if (mCustomView == null || tiWebView == null) {
 			return;
 		}
 
@@ -158,7 +165,7 @@ public class TiWebChromeClient extends WebChromeClient
 		mCustomViewContainer.setVisibility(View.GONE);
 		mCustomViewCallback.onCustomViewHidden();
 
-		tiWebView.getWebView().setVisibility(View.VISIBLE);
+		tiWebView.get().getWebView().setVisibility(View.VISIBLE);
 	}
 
 	public boolean interceptOnBackPressed()
@@ -175,7 +182,15 @@ public class TiWebChromeClient extends WebChromeClient
 	
 	public void onProgressChanged(WebView view, int progress)   
     {
-        tiWebView.onProgressChanged(view, progress);
+	    if (this.tiWebView == null) {
+            return;
+        }
+        tiWebView.get().onProgressChanged(view, progress);
+    }
+
+    public void destroy() {
+        tiWebView = null;
+        
     }
 }
 

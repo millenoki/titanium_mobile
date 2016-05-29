@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.concurrent.Semaphore;
@@ -88,13 +89,13 @@ public class TiWebViewBinding
 	private ApiBinding apiBinding;
 	private AppBinding appBinding;
 	private TiReturn tiReturn;
-	private WebView webView;
+	private WeakReference<WebView> webView;
 	private boolean interfacesAdded = false;
 
 	public TiWebViewBinding(WebView webView)
 	{
 		codeSnippets = new Stack<String>();
-		this.webView = webView;
+		this.webView = new WeakReference<WebView>(webView);
 		apiBinding = new ApiBinding();
 		appBinding = new AppBinding();
 		tiReturn = new TiReturn();
@@ -108,9 +109,9 @@ public class TiWebViewBinding
 	public void addJavascriptInterfaces() 
 	{
 		if (webView != null && !interfacesAdded) {
-			webView.addJavascriptInterface(appBinding, "TiApp");
-			webView.addJavascriptInterface(apiBinding, "TiAPI");
-			webView.addJavascriptInterface(tiReturn, "_TiReturn");
+			webView.get().addJavascriptInterface(appBinding, "TiApp");
+			webView.get().addJavascriptInterface(apiBinding, "TiAPI");
+			webView.get().addJavascriptInterface(tiReturn, "_TiReturn");
 			interfacesAdded = true;
 		}
 	}
@@ -118,21 +119,29 @@ public class TiWebViewBinding
 	public void removeJavascriptInterfaces() 
     {
         if (webView != null && interfacesAdded) {
-            webView.removeJavascriptInterface("TiApp");
-            webView.removeJavascriptInterface("TiAPI");
-            webView.removeJavascriptInterface("_TiReturn");
+            webView.get().removeJavascriptInterface("TiApp");
+            webView.get().removeJavascriptInterface("TiAPI");
+            webView.get().removeJavascriptInterface("_TiReturn");
             interfacesAdded = false;
         }
     }
+	
+	public void removeAllEventListeners() {
+        appBinding.removeAllEventListeners();
+	}
 
 	public void destroy()
 	{
 		// remove any event listener that have already been added to the Ti.APP through
 		// this web view instance
-		appBinding.removeAllEventListeners();
+		removeAllEventListeners();
+		removeJavascriptInterfaces();
 		webView = null;
 		returnSemaphore.release();
 		codeSnippets.clear();
+        apiBinding = null;
+        appBinding = null;
+        tiReturn = null;
 		destroyed = true;
 	}
 
@@ -242,13 +251,13 @@ public class TiWebViewBinding
 	@SuppressWarnings("unused")
 	private class AppBinding
 	{
-		private KrollModule module;
+		private WeakReference<KrollModule> module;
 		private HashMap<String, Integer> appListeners = new HashMap<String, Integer>();
 		private int counter = 0;
 		private String code = null;
 		public AppBinding()
 		{
-			module = TiApplication.getInstance().getModuleByName("App");
+			module =  new WeakReference<KrollModule>(TiApplication.getInstance().getModuleByName("App"));
 		}
 		
 		@JavascriptInterface
@@ -259,7 +268,7 @@ public class TiWebViewBinding
 				if (json != null && !json.equals("undefined")) {
 					dict = new KrollDict(new JSONObject(json));
 				}
-				module.fireEvent(event, dict);
+				module.get().fireEvent(event, dict);
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing event JSON", e);
 			}
@@ -270,7 +279,7 @@ public class TiWebViewBinding
 		{
 			WebViewCallback callback = new WebViewCallback(id);
 
-			int result = module.addEventListener(event, callback);
+			int result = module.get().addEventListener(event, callback);
 			appListeners.put(event, result);
 
 			return result;
@@ -279,7 +288,7 @@ public class TiWebViewBinding
 		@JavascriptInterface
 		public void off(String event, int id)
 		{
-			module.removeEventListener(event, id);
+		    module.get().removeEventListener(event, id);
 		}
 		
 		@JavascriptInterface
