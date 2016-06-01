@@ -26,7 +26,6 @@ import org.appcelerator.titanium.util.TiOrientationHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
-import ti.modules.titanium.ui.widget.TiUINotification;
 import ti.modules.titanium.ui.widget.TiUITableView;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
