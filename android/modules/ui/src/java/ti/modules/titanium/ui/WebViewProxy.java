@@ -84,33 +84,34 @@ public class WebViewProxy extends ViewProxy
 		this();
 	}
 	
-	@Override
-	public void setActivity(Activity activity)
-	{
-	    TiBaseActivity currentActivity = (TiBaseActivity)getActivity();
-	    
-	    if (currentActivity == activity) {
-	        return;
-	    }
-		if (currentActivity != null) {
-		    currentActivity.removeOnLifecycleEventListener(this);
-		    currentActivity.removeInterceptOnBackPressedEventListener(this);
-		}
-		super.setActivity(activity);
-		if (this.activity != null) {
-			TiBaseActivity tiActivity = (TiBaseActivity) this.activity.get();
-			if (tiActivity != null) {
-				tiActivity.addOnLifecycleEventListener(this);
-				tiActivity.addInterceptOnBackPressedEventListener(this);
-			}
-		}
-	}
+//	@Override
+//	public void setActivity(Activity activity)
+//	{
+//	    TiBaseActivity currentActivity = (TiBaseActivity)getActivity();
+//	    
+//	    if (currentActivity == activity) {
+//	        return;
+//	    }
+//		if (currentActivity != null) {
+//		    currentActivity.removeOnLifecycleEventListener(this);
+//		    currentActivity.removeInterceptOnBackPressedEventListener(this);
+//		}
+//		super.setActivity(activity);
+//		if (this.activity != null) {
+//			TiBaseActivity tiActivity = (TiBaseActivity) this.activity.get();
+//			if (tiActivity != null) {
+//				tiActivity.addOnLifecycleEventListener(this);
+//				tiActivity.addInterceptOnBackPressedEventListener(this);
+//			}
+//		}
+//	}
 
 	@Override
 	public TiUIView createView(Activity activity)
 	{
 		TiUIWebView webView = new TiUIWebView(this);
-
+		((TiBaseActivity)activity).addOnLifecycleEventListener(this);
+		((TiBaseActivity)activity).addInterceptOnBackPressedEventListener(this);
 		if (postCreateMessage != null) {
 			sendPostCreateMessage(webView.getWebView(), postCreateMessage);
 			postCreateMessage = null;
@@ -483,7 +484,8 @@ public class WebViewProxy extends ViewProxy
 	@Override
 	public void releaseViews(boolean activityFinishing)
 	{
-	    
+	    ((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
+        ((TiBaseActivity)getActivity()).addInterceptOnBackPressedEventListener(this);
 		if (activityFinishing) {
 			TiUIWebView webView = (TiUIWebView) peekView();
 			if (webView != null) {
@@ -502,6 +504,7 @@ public class WebViewProxy extends ViewProxy
 			}
 		}
         super.releaseViews(activityFinishing);
+        
 	}
 
 	@Kroll.method
@@ -540,21 +543,27 @@ public class WebViewProxy extends ViewProxy
 
 	@Override
 	public void onStop(Activity activity) {
-        TiBaseActivity tiActivity = (TiBaseActivity) getActivity();
-	    if (tiActivity == activity) {
-            tiActivity.removeOnLifecycleEventListener(this);
-            tiActivity.removeInterceptOnBackPressedEventListener(this);
-        }
 	}
 
 	@Override
 	public void onDestroy(Activity activity) {
-		releaseViews(true);
-		TiBaseActivity tiActivity = (TiBaseActivity) getActivity();
-        if (tiActivity == activity) {
-            tiActivity.removeOnLifecycleEventListener(this);
-            tiActivity.removeInterceptOnBackPressedEventListener(this);
+	    TiUIWebView webView = (TiUIWebView) peekView();
+        if (webView == null) {
+            return;
         }
+
+        // We allow JS polling to continue until we exit the app. If we want to stop the polling when the app is
+        // backgrounded, we would need to move this to onStop(), and add the appropriate logic in onResume() to restart
+        // the polling.
+        webView.destroyWebView();
+
+        WebView nativeWebView = webView.getWebView();
+        if (nativeWebView == null) {
+            return;
+        }
+
+        nativeWebView.stopLoading();
+        super.releaseViews(true);
 	}
 
 	@Override
