@@ -772,6 +772,13 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
     }
     return _operationQueue;
 }
+
+
+-(void)clearWebCache:(id)args
+{
+    // Flush all cached data
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+}
 @end
 
 

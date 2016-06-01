@@ -25,6 +25,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.ITiAppInfo;
 import org.appcelerator.titanium.TiApplication;
@@ -59,6 +60,7 @@ import android.os.Message;
 import android.telephony.TelephonyManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.WebView;
 
 @SuppressWarnings("deprecation")
 @Kroll.module
@@ -899,19 +901,23 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public void removeAllHTTPCookies()
 	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            CookieManager.getInstance().removeAllCookies(null);
-            CookieManager.getInstance().flush();
-        } else
-        {
-            CookieSyncManager cookieSyncMngr=CookieSyncManager.createInstance(TiApplication.getAppContext());
-            cookieSyncMngr.startSync();
-            CookieManager cookieManager=CookieManager.getInstance();
-            cookieManager.removeAllCookie();
-            cookieManager.removeSessionCookie();
-            cookieSyncMngr.stopSync();
-            cookieSyncMngr.sync();
-        }
+	    java.net.CookieStore cookieStore = getCookieManagerInstance().getCookieStore();
+        cookieStore.removeAll();
+	    
+	}
+	
+	/**
+	 * Removes all the cookies in the HTTPClient cookie store.
+	 */
+	@Kroll.method
+	public void clearWebCache()
+	{
+	      runInUiThread(new CommandNoReturn() {
+              @Override
+              public void execute() {
+                  new WebView(TiApplication.getAppContext()).clearCache(true);
+              }
+          }, true);
 	}
 	
 	/**
@@ -1029,10 +1035,23 @@ public class NetworkModule extends KrollModule {
 	@Kroll.method
 	public void removeAllSystemCookies()
 	{
-		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
-		CookieManager cookieManager = CookieManager.getInstance();
-		cookieManager.removeAllCookie();
-		CookieSyncManager.getInstance().sync();
+//		CookieSyncManager.createInstance(TiApplication.getInstance().getRootOrCurrentActivity());
+//		CookieManager cookieManager = CookieManager.getInstance();
+//		cookieManager.removeAllCookie();
+//		CookieSyncManager.getInstance().sync();
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            CookieManager.getInstance().removeAllCookies(null);
+            CookieManager.getInstance().flush();
+        } else
+        {
+            CookieSyncManager cookieSyncMngr=CookieSyncManager.createInstance(TiApplication.getAppContext());
+            cookieSyncMngr.startSync();
+            CookieManager cookieManager=CookieManager.getInstance();
+            cookieManager.removeAllCookie();
+            cookieManager.removeSessionCookie();
+            cookieSyncMngr.stopSync();
+            cookieSyncMngr.sync();
+        }
 	}
 
 	/**

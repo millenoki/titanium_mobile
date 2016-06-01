@@ -321,6 +321,12 @@ methods:
     platforms: [android]
     since: "3.2.0"
 
+  - name: removeWebCache
+    summary: |
+        clear the web cacghe
+    platforms: [android, iphone, ipad]
+    since: {android: "6.2.0", iphone: "6.2.0", ipad: "6.2.0"}
+
   - name: removeAllHTTPCookies
     summary: |
         Removes all the cookies from the HTTP client cookie store.
