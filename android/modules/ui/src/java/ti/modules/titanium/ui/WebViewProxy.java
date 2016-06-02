@@ -517,6 +517,34 @@ public class WebViewProxy extends ViewProxy
 		}
 	}
 
+    @Kroll.method
+    public void clearHistory()
+    {
+        runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                TiUIWebView view = (TiUIWebView) peekView();
+                if (view != null) {
+                    view.clearHistory();
+                }
+            }
+        }, true);
+    }
+    
+    @Kroll.method
+    public void clearCache()
+    {
+        runInUiThread(new CommandNoReturn() {
+            @Override
+            public void execute() {
+                TiUIWebView view = (TiUIWebView) peekView();
+                if (view != null) {
+                    view.clearCache();
+                }
+            }
+        }, true);
+    }
+
 	@Override
 	public boolean interceptOnBackPressed()
 	{

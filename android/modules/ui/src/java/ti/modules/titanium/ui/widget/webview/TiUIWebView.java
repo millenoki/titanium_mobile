@@ -1004,4 +1004,12 @@ public class TiUIWebView extends TiUINonViewGroupView
         isLocalHTML = b;
         
     }
+
+
+    public void clearHistory() {
+        getWebView().clearHistory();    
+    }
+    public void clearCache() {
+        getWebView().clearCache(true);    
+    }
 }
