@@ -186,6 +186,16 @@ USE_VIEW_FOR_CONTENT_SIZE
 	return NUMBOOL(NO);
 }
 
+-(void)clearCache:(id)args
+{
+    [self makeViewPerformSelector:@selector(clearCache) withObject:nil createIfNeeded:YES waitUntilDone:YES];
+}
+
+-(void)clearHistory:(id)args
+{
+    [self makeViewPerformSelector:@selector(clearHistory) withObject:nil createIfNeeded:NO waitUntilDone:YES];
+}
+
 -(void)setBasicAuthentication:(NSArray*)args
 {
 	[self makeViewPerformSelector:@selector(setBasicAuthentication:) withObject:args createIfNeeded:YES waitUntilDone:NO];

@@ -469,6 +469,16 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	return [webview canGoForward];
 }
 
+-(void)clearCache
+{
+    [[NSURLCache sharedURLCache] removeAllCachedResponses];
+}
+
+-(void)clearHistory
+{
+    //not working for now
+}
+
 -(void)setBackgroundColor_:(id)color
 {
 	UIColor *c = [Webcolor webColorNamed:color];
