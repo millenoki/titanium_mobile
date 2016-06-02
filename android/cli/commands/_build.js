@@ -523,7 +523,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                             });
                         },
                         verifyIfRequired: function (callback) {
-                            if (cli.argv['build-only']) {
+                            if (cli.argv['build-only'] || /dist/.test(cli.argv.target)) {
                                 // not required if we're build only
                                 return callback();
                             }
@@ -598,7 +598,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                                         }
                                     }
 
-                                } else if (cli.argv['device-id'] === undefined && results.length && config.get('android.autoSelectDevice', true)) {
+                                } else if (cli.argv['device-id'] === undefined && results && results.length && config.get('android.autoSelectDevice', true)) {
                                     // we set the device-id to an array of devices so that later in validate()
                                     // after the tiapp.xml has been parsed, we can auto select the best device
                                     _t.devicesToAutoSelectFrom = results.sort(function (a, b) {
@@ -1751,17 +1751,17 @@ AndroidBuilder.prototype.run = function run(logger, config, cli, finished) {
                     'packageApp',
 
                     // provide a hook event before javac
-					function (next) {
-						cli.emit('build.pre.build', this, next);
-					},
+                    function (next) {
+                        cli.emit('build.pre.build', this, next);
+                    },
 
-					// we only need to compile java classes if any files in src or gen changed
-					'compileJavaClasses',
+                    // we only need to compile java classes if any files in src or gen changed
+                    'compileJavaClasses',
 
-					// provide a hook event after javac
-					function (next) {
-						cli.emit('build.post.build', this, next);
-					},
+                    // provide a hook event after javac
+                    function (next) {
+                        cli.emit('build.post.build', this, next);
+                    },
 
                     // we only need to run proguard if any java classes have changed
                     'runProguard',
