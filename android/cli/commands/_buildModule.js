@@ -913,10 +913,6 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 		Array.prototype.push.apply(this.metaData,dependsMap.dependencies[key]);
 	}, this);
 
-	var uniqueMetaData = this.metaData.filter(function(elem, pos) {
-		return this.metaData.indexOf(elem) == pos;
-	}.bind(this));
-
 	// Compiling JS
 	var closureCompileHook = this.cli.createHook('build.android.java', this, function (exe, args, opts, done) {
 			this.logger.info(__('Generate v8 bindings: %s', (exe + ' "' + args.join('" "') + '"').cyan));
@@ -928,9 +924,6 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 					this.logger.log();
 					process.exit(1);
 				}
-
-				fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-				fs.writeFileSync(this.metaDataFile, JSON.stringify({ "exports": uniqueMetaData }));
 
 				done();
 			}.bind(this));
@@ -1024,7 +1017,14 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 			}.bind(this))(src, dest, next);
 		}.bind(this));
 
-	}.bind(this), next);
+	}.bind(this), function() {
+		var uniqueMetaData = this.metaData.filter(function(elem, pos) {
+			return this.metaData.indexOf(elem) == pos;
+		}.bind(this));
+		fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
+		fs.writeFileSync(this.metaDataFile, JSON.stringify({ "exports": uniqueMetaData }));
+		next();
+	}.bind(this));
 
 };
 
