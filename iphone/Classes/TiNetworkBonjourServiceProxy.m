@@ -152,9 +152,21 @@ const NSString* socketKey = @"socket";
     return [service domain];
 }
 
+
+-(NSString*)host
+{
+    return [service hostName];
+}
+
 -(NSNumber*)isLocal
 {
     return [NSNumber numberWithBool:local];
+}
+
+
+-(NSNumber*)port
+{
+    return [NSNumber numberWithBool:service.port];
 }
 
 -(NSNetService*)service
