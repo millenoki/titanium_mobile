@@ -140,29 +140,70 @@
 {
 	NSDictionary * eventObject = [NSDictionary dictionaryWithObject:[[services copy] autorelease] 
 															 forKey:@"services"];
-	[self fireEvent:@"updatedServices" withObject:eventObject];	//TODO: Deprecate old event.
-	[self fireEvent:@"updatedservices" withObject:eventObject];
+	[self fireEvent:@"updatedservices" withObject:eventObject propagate:NO checkForListener:NO];
 }
 
 -(void)netServiceBrowser:(NSNetServiceBrowser*)browser_ didFindService:(NSNetService*)service moreComing:(BOOL)more
 {
-    [services addObject:[[[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext]
-                                                                service:service
-                                                                  local:NO] autorelease]];
-    if (!more) {
-		[self fireServiceUpdateEvent];
+    if ([self _hasListeners:@"updatedservices"]) {
+        [services addObject:[[[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext]
+                                                                           service:service
+                                                                             local:NO] autorelease]];
+        if (!more) {
+            [self fireServiceUpdateEvent];
+        }
     }
+    if ([self _hasListeners:@"discover"]) {
+        NSMutableDictionary* data = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                   @"port'": @(service.port)
+                                                                                   }];
+        if (service.name) {
+            [data setValue:service.name forKey:@"name"];
+        }
+        if (service.type) {
+            [data setValue:service.type forKey:@"type"];
+        }
+        if (service.domain) {
+            [data setValue:service.domain forKey:@"domain"];
+        }
+        if (service.hostName) {
+            [data setValue:service.hostName forKey:@"host"];
+        }
+        NSLog( @"%@", data );
+        [self fireEvent:@"discover" withObject:data propagate:NO checkForListener:NO];
+    }
+    
 }
 
 -(void)netServiceBrowser:(NSNetServiceBrowser*)browser_ didRemoveService:(NSNetService*)service moreComing:(BOOL)more
 {
-    // Create a temp object to release; this is what -[TiBonjourServiceProxy isEqual:] is for
-    [services removeObject:[[[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext]
-                                                                   service:service
-                                                                     local:NO] autorelease]];
-    
-    if (!more) {
-		[self fireServiceUpdateEvent];
+    if ([self _hasListeners:@"updatedservices"]) {
+        // Create a temp object to release; this is what -[TiBonjourServiceProxy isEqual:] is for
+        [services removeObject:[[[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext]
+                                                                       service:service
+                                                                         local:NO] autorelease]];
+        
+        if (!more) {
+            [self fireServiceUpdateEvent];
+        }
+    }
+    if ([self _hasListeners:@"lost"]) {
+        NSMutableDictionary* data = [NSMutableDictionary dictionaryWithDictionary:@{
+                                                                                    @"port'": @(service.port)
+                                                                                    }];
+        if (service.name) {
+            [data setValue:service.name forKey:@"name"];
+        }
+        if (service.type) {
+            [data setValue:service.type forKey:@"type"];
+        }
+        if (service.domain) {
+            [data setValue:service.domain forKey:@"domain"];
+        }
+        if (service.hostName) {
+            [data setValue:service.hostName forKey:@"host"];
+        }
+        [self fireEvent:@"lost" withObject:data propagate:NO checkForListener:NO];
     }
 }
 

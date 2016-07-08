@@ -43,7 +43,9 @@
 @property(readonly, nonatomic) NSString* name;
 @property(readonly, nonatomic) NSString* type;
 @property(readonly, nonatomic) NSString* domain;
+@property(readonly, nonatomic) NSString* host;
 @property(readonly, nonatomic, getter=isLocal) NSNumber* local;
+@property(readonly, nonatomic) NSNumber* port;
 
 #pragma mark internal
 
