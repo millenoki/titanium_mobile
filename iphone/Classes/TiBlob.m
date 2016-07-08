@@ -553,6 +553,11 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
 
 -(id)toString:(id)args
 {
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSString)
+    
+    if ([args isEqualToString:@"hex"]) {
+        return [self hexString];
+    }
 	id represented = [self representedObject];
     if ([represented isKindOfClass:[UIImage class]]) {
         return [TiUtils jsonStringify:@{@"type": @"image",
@@ -560,9 +565,22 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
                                         @"height":@(((UIImage*)represented).size.height)
                                         }];
     } else if ([represented isKindOfClass:[NSString class]]) {
+        if ([args isEqualToString:@"ascii"]) {
+            return [represented dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+        }
         return represented;
     }
 	return [super toString:args];
+}
+
+-(id)toJSON:(id)args
+{
+    id represented = [self representedObject];
+    if ([represented isKindOfClass:[NSString class]]) {
+        NSError* error = nil;
+        return [TiUtils jsonParse:represented error:&error];
+    }
+    return nil;
 }
 
 -(void)setInfo:(NSDictionary*)info {
