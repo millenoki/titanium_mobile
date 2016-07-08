@@ -268,7 +268,7 @@ static NSArray *animProps;
         }
     }
     [realOptions enumerateKeysAndObjectsUsingBlock:^(NSString*  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        Class animationClassType = [self.animatedProxy animationClassType];
+        Class animationClassType = IS_OF_CLASS(theProxy, TiAnimatableProxy)? [(TiAnimatableProxy*)theProxy animationClassType] : nil;
         
         TiProxy* bindedProxy = [theProxy bindingForKey:key];
         if (IS_OF_CLASS(obj, NSDictionary) && bindedProxy) {
