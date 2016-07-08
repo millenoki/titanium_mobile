@@ -705,7 +705,7 @@ public class TiUIWebView extends TiUINonViewGroupView
                 getWebView().evaluateJavascript( "(function(){" + actualCode+ "})()", new ValueCallback<String>() {
                     @Override
                     public void onReceiveValue(String result) {
-                        callback.callAsync(getProxy().getKrollObject(), new Object[] {});
+                        callback.callAsync(getProxy().getKrollObject(), new Object[] {result});
                     }
                 });
             } else {
@@ -713,8 +713,8 @@ public class TiUIWebView extends TiUINonViewGroupView
             }
         } else {
             if (callback != null) {
-                getJSValue("javascript:(function(){" + actualCode+ "})()");
-                callback.callAsync(getProxy().getKrollObject(), new Object[] {});
+                final String result = getJSValue("javascript:(function(){" + actualCode+ "})()");
+                callback.callAsync(getProxy().getKrollObject(), new Object[] {result});
             } else {
                 getWebView().loadUrl("javascript:(function(){" + actualCode+ "})()");
             }
