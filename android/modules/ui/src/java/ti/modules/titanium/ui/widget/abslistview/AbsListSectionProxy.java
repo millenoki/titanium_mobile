@@ -471,6 +471,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
         final TiCollectionViewInterface listView = getListView();
         final int sectionIndex = this.sectionIndex;
+        final boolean wasVisible = isItemVisible((HashMap) itemProperties[index]);
         final HashMap currentItem = KrollDict.merge((HashMap) itemProperties[index],
                 (HashMap) (data));
         if (currentItem == null)
@@ -478,6 +479,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         itemProperties[index] = currentItem;
         
         final boolean visible = updateVisibleState(currentItem, index);
+        
+        if (!wasVisible && visible) {
+            runInUiThread(new CommandNoReturn() {
+                @Override
+                public void execute() {
+                    notifyItemRangeInserted(index, 1);
+                }
+            }, false);
+            return;
+        }
         
         // only process items when listview's properties is processed.
         if (listView == null) {
