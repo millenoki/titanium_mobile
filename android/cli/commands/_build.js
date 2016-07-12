@@ -3535,32 +3535,53 @@ AndroidBuilder.prototype.handleGooglePlayServices = function handleGooglePlaySer
         
         var tmpServiceRulesFile = temp.path();
         fs.existsSync(tmpServiceRulesFile) && fs.unlinkSync(tmpServiceRulesFile);
+
+        var tempJarDir = temp.mkdirSync('googleplayservices_merge_jar');
+
         for (var i = 0; i < googlePlayServicesKeep.length; i++) {
             googlePlayServicesKeep[i] = "keep " + googlePlayServicesKeep[i];
         }
-        this.currentBuildManifest.googlePlayServicesKeep = googlePlayServicesKeep;
-        if (this.previousBuildManifest.googlePlayServicesKeep && googlePlayServicesKeep.join('') === this.previousBuildManifest.googlePlayServicesKeep.join('')
-             && fs.existsSync(outputPath)) {
-            next();
-            return;
-        } else if (!this.forceRebuild) {
-            this.logger.info(__('Forcing rebuild: custom GooglePlayServices changed'.cyan));
-            this.forceRebuild = true;
-        }
 
-        fs.writeFileSync(tmpServiceRulesFile, googlePlayServicesKeep.join("\n"));
-
-        this.runJarJar(tmpServiceRulesFile, 
-            path.join(this.platformPath, 'google-play-services.jar'),
-            outputPath,
-            function() {
-                if (!fs.existsSync(outputPath)) {
-                    _t.logger.error(__('Unable to find generated %s', outputPath.cyan) + '\n');
-                    process.exit(1);
-                }
-                
+        // appc.async.series(this, googlePlayServicesKeep.map(function (keep) {
+            // return function (callback) {
+                // this.logger.info(__('handling google play service lib %s', keep));
+                // this.logger.info(__('test0 %s', /com.google.android.gms\.(.*)\.\*/.exec(keep)[1]));
+                // this.logger.info(__('test1 %s', path.join(_t.platformPath, 'play-services-' + /com.google.android.gms\.(.*)\.\*/.exec(keep)[1] + '.jar')));
+                // this.logger.info(__('test2 %s', this.jdkInfo.executables.jar));
+                // googlePlayServicesKeep.push("keep " + keep);
+                // callback();
+                // this.logger.info(__('handling google play service lib %s', keep));
+                // appc.subprocess.run(this.jdkInfo.executables.jar, ['-xf', path.join(_t.platformPath, 'play-services-' + /com.google.android.gms\.(.*)\.\*/.exec(keep)[1] + '.jar')], {
+                //     cwd:tempJarDir
+                // }, callback);
+            // };
+        // }), function() {
+             this.currentBuildManifest.googlePlayServicesKeep = googlePlayServicesKeep;
+            if (this.previousBuildManifest.googlePlayServicesKeep && googlePlayServicesKeep.join('') === this.previousBuildManifest.googlePlayServicesKeep.join('')
+                 && fs.existsSync(outputPath)) {
                 next();
-            });
+                return;
+            } else if (!this.forceRebuild) {
+                this.logger.info(__('Forcing rebuild: custom GooglePlayServices changed'.cyan));
+                this.forceRebuild = true;
+            }
+            fs.writeFileSync(tmpServiceRulesFile, googlePlayServicesKeep.join("\n"));
+            // appc.subprocess.run(this.jdkInfo.executables.jar, ['-cvf', outputPath], {
+            //     cwd:tempJarDir
+            // }, next);
+            this.runJarJar(tmpServiceRulesFile, 
+                path.join(this.platformPath, 'google-play-services.jar'),
+                outputPath,
+                function() {
+                    if (!fs.existsSync(outputPath)) {
+                        _t.logger.error(__('Unable to find generated %s', outputPath.cyan) + '\n');
+                        process.exit(1);
+                    }
+                
+                    next();
+                });
+       // });
+
     } else {
         next();
     }
