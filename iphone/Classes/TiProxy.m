@@ -1052,6 +1052,18 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     return [self removeEventListener:args];
 }
 
+-(void) removeAllListeners:(id)args
+{
+    RELEASE_TO_NIL(evaluators)
+    [[self getContext].krollContext invokeBlockOnThread:^{
+        [[self krollObjectForContext: [self getContext].krollContext] removeAllListeners];
+    }];
+    pthread_rwlock_wrlock(&listenerLock);
+    RELEASE_TO_NIL(listenersOnce);
+    RELEASE_TO_NIL(listeners);
+    pthread_rwlock_unlock(&listenerLock);
+}
+
 -(void)fireEvent:(id)args
 {
     NSString *type = nil;
@@ -1270,7 +1282,7 @@ DEFINE_EXCEPTIONS
 
 - (id) valueForUndefinedKey: (NSString *) key
 {
-    if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"])
+    if ([key isEqualToString:@"valueOf"])
     {
         return [self description];
     }
