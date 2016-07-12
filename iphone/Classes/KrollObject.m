@@ -697,7 +697,7 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 		objc_property_t p = class_getProperty([target class], [key UTF8String]);
 		if (p==NULL)
 		{
-			if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"])
+			if ([key isEqualToString:@"valueOf"])
 			{
 				return [[[KrollMethod alloc] initWithTarget:target selector:@selector(toString:) argcount:0 type:KrollMethodInvoke name:nil context:[self context]] autorelease];
 			}
@@ -1418,6 +1418,23 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 			TiObjectSetPropertyAtIndex(jsContext, jsCallbackArray, currentCallbackIndex, undefined, NULL);
 		}
 	}
+}
+
+-(void)removeAllListeners
+{
+    if ((propsObject == NULL) || finalized)
+    {
+        return;
+    }
+    
+    TiValueRef exception=NULL;
+    
+    TiObjectRef jsEventHash = (TiObjectRef)TiObjectGetProperty(jsContext, propsObject, kTiStringEventKey, &exception);
+    
+    if ((jsEventHash != NULL))
+    {
+        TiObjectDeleteProperty(jsContext, propsObject, kTiStringEventKey, &exception);
+    }
 }
 
 -(void)triggerEvent:(NSString *)eventName withObject:(NSDictionary *)eventData thisObject:(KrollObject *)thisObject

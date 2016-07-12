@@ -153,7 +153,7 @@ void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 
 - (id) valueForUndefinedKey: (NSString *) key
 {
-	if ([key isEqualToString:@"toString"] || [key isEqualToString:@"valueOf"])
+	if ([key isEqualToString:@"valueOf"])
 	{
 		return [self description];
 	}
