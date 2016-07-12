@@ -49,7 +49,7 @@ exports.detect = function detect(config, opts, finished) {
 	var exe = process.platform === 'win32' ? '.exe' : '',
 		javaHome = (config.get ? config.get('java.home', process.env.JAVA_HOME) : (config.java && config.java.home || process.env.JAVA_HOME)) || null,
 		jdkPaths = [],
-		requiredTools = ['java', 'javac', 'keytool', 'jarsigner'],
+		requiredTools = ['java', 'javac', 'keytool', 'jarsigner', 'jar'],
 		executables = {},
 		results = {
 			jdks: {},
