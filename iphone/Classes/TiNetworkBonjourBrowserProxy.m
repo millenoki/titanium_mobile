@@ -11,7 +11,14 @@
 #import "TiNetworkBonjourBrowserProxy.h"
 #import "TiNetworkBonjourServiceProxy.h"
 
+#import <arpa/inet.h>
+
 @implementation TiNetworkBonjourBrowserProxy
+{
+    bool _resolveOnDiscover;
+    NSRegularExpression* _nameRegex;
+    NSMutableArray* _resolvingServices;
+}
 
 @synthesize serviceType, domain;
 
@@ -20,6 +27,8 @@
 -(id)init
 {
     if (self = [super init]) {
+        _resolveOnDiscover = NO;
+        _nameRegex = nil;
         browser = [[NSNetServiceBrowser alloc] init];
         services = [[NSMutableArray alloc] init];
         
@@ -45,7 +54,8 @@
     [serviceType release];
     [domain release];
     [services release];
-    
+    RELEASE_TO_NIL(_resolvingServices)
+    [_nameRegex release];
     [super dealloc];
 }
 
@@ -77,6 +87,21 @@
     
     [domain release];
     domain = [domain_ retain];
+}
+
+
+-(void)setResolveOnDiscover:(BOOL)value
+{
+    _resolveOnDiscover = value;
+}
+
+-(void)setNameRegex:(NSString*)reg_
+{
+    [_nameRegex release];
+    NSError *err = NULL;
+    _nameRegex = [[NSRegularExpression regularExpressionWithPattern:reg_
+                                                                           options:NSRegularExpressionCaseInsensitive
+                                                                             error:&err] retain];
 }
 
 -(void)search:(id)unused
@@ -138,73 +163,114 @@
 
 -(void)fireServiceUpdateEvent
 {
-	NSDictionary * eventObject = [NSDictionary dictionaryWithObject:[[services copy] autorelease] 
-															 forKey:@"services"];
-	[self fireEvent:@"updatedservices" withObject:eventObject propagate:NO checkForListener:NO];
+    NSMutableArray* array = [NSMutableArray array];
+    [services enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [array addObject:[[[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext] service:obj local:NO] autorelease]];
+    }];
+    [self fireEvent:@"updatedservices" withObject:@{
+                                                    @"services":array} propagate:NO checkForListener:NO];
+}
+
+
+-(void)fireEvent:(NSString*)type forService:(NSNetService*)service {
+    if ([self _hasListeners:type]) {
+        TiNetworkBonjourServiceProxy* proxy = [[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext] service:service local:NO];
+
+        NSMutableDictionary* dict = [NSMutableDictionary dictionary];
+        if (service.port > 0) {
+            [dict setValue:@(service.port) forKey:@"name"];
+        }
+        if (service.name) {
+            [dict setValue:service.name forKey:@"name"];
+        }
+        if (service.type) {
+            [dict setValue:service.type forKey:@"type"];
+        }
+        if (service.domain) {
+            [dict setValue:service.domain forKey:@"domain"];
+        }
+        if (service.hostName) {
+            [dict setValue:service.hostName forKey:@"host"];
+        }
+        if (service.addresses) {
+            NSMutableArray* addresses = [NSMutableArray array];
+            char addressBuffer[INET6_ADDRSTRLEN];
+            
+            for (NSData *data in service.addresses)
+            {
+                memset(addressBuffer, 0, INET6_ADDRSTRLEN);
+                
+                typedef union {
+                    struct sockaddr sa;
+                    struct sockaddr_in ipv4;
+                    struct sockaddr_in6 ipv6;
+                } ip_socket_address;
+                
+                ip_socket_address *socketAddress = (ip_socket_address *)[data bytes];
+                
+                if (socketAddress && (socketAddress->sa.sa_family == AF_INET || socketAddress->sa.sa_family == AF_INET6))
+                {
+                    const char *addressStr = inet_ntop(
+                                                       socketAddress->sa.sa_family,
+                                                       (socketAddress->sa.sa_family == AF_INET ? (void *)&(socketAddress->ipv4.sin_addr) : (void *)&(socketAddress->ipv6.sin6_addr)),
+                                                       addressBuffer,
+                                                       sizeof(addressBuffer));
+                    
+                    int port = ntohs(socketAddress->sa.sa_family == AF_INET ? socketAddress->ipv4.sin_port : socketAddress->ipv6.sin6_port);
+                    
+                    if (addressStr && port)
+                    {
+                        //                        NSLog(@"Found service at %s:%d", addressStr, port);
+                        [addresses addObject:[NSString stringWithFormat:@"%s:%d", addressStr, port]];
+                    }
+                }
+                [dict setValue:addresses forKey:@"addresses"];
+            }
+        }
+        [dict setValue:proxy forKey:@"service"];
+        [self fireEvent:type withObject:dict propagate:NO checkForListener:NO];
+    }
 }
 
 -(void)netServiceBrowser:(NSNetServiceBrowser*)browser_ didFindService:(NSNetService*)service moreComing:(BOOL)more
 {
-    if ([self _hasListeners:@"updatedservices"]) {
-        [services addObject:[[[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext]
-                                                                           service:service
-                                                                             local:NO] autorelease]];
-        if (!more) {
+    if ([service.type containsString:serviceType] &&
+        (!_nameRegex || [_nameRegex numberOfMatchesInString:service.name options:0 range:NSMakeRange(0, [service.name length])])) {
+        if (_resolveOnDiscover) {
+            if (!_resolvingServices) {
+                _resolvingServices = [[NSMutableArray alloc] init];
+            }
+            [_resolvingServices addObject:service];
+            service.delegate = self;
+            [service resolveWithTimeout:120.0];
+            
+        } else {
+            [self fireEvent:@"discover" forService:service];
+        }
+    }
+    
+    if (!more) {
+        if ([self _hasListeners:@"updatedservices"]) {
+            [services addObject:service];
             [self fireServiceUpdateEvent];
         }
+        [self stopSearch:nil];
     }
-    if ([self _hasListeners:@"discover"]) {
-        NSMutableDictionary* data = [NSMutableDictionary dictionaryWithDictionary:@{
-                                                                                   @"port'": @(service.port)
-                                                                                   }];
-        if (service.name) {
-            [data setValue:service.name forKey:@"name"];
-        }
-        if (service.type) {
-            [data setValue:service.type forKey:@"type"];
-        }
-        if (service.domain) {
-            [data setValue:service.domain forKey:@"domain"];
-        }
-        if (service.hostName) {
-            [data setValue:service.hostName forKey:@"host"];
-        }
-        NSLog( @"%@", data );
-        [self fireEvent:@"discover" withObject:data propagate:NO checkForListener:NO];
-    }
+    
     
 }
 
 -(void)netServiceBrowser:(NSNetServiceBrowser*)browser_ didRemoveService:(NSNetService*)service moreComing:(BOOL)more
 {
+    // Create a temp object to release; this is what -[TiBonjourServiceProxy isEqual:] is for
+    [services removeObject:service];
     if ([self _hasListeners:@"updatedservices"]) {
-        // Create a temp object to release; this is what -[TiBonjourServiceProxy isEqual:] is for
-        [services removeObject:[[[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext]
-                                                                       service:service
-                                                                         local:NO] autorelease]];
-        
         if (!more) {
             [self fireServiceUpdateEvent];
         }
     }
-    if ([self _hasListeners:@"lost"]) {
-        NSMutableDictionary* data = [NSMutableDictionary dictionaryWithDictionary:@{
-                                                                                    @"port'": @(service.port)
-                                                                                    }];
-        if (service.name) {
-            [data setValue:service.name forKey:@"name"];
-        }
-        if (service.type) {
-            [data setValue:service.type forKey:@"type"];
-        }
-        if (service.domain) {
-            [data setValue:service.domain forKey:@"domain"];
-        }
-        if (service.hostName) {
-            [data setValue:service.hostName forKey:@"host"];
-        }
-        [self fireEvent:@"lost" withObject:data propagate:NO checkForListener:NO];
-    }
+    [self fireEvent:@"lost" forService:service];
+
 }
 
 #pragma mark Search management
@@ -233,6 +299,29 @@
     [searchCondition lock];
     [searchCondition signal];
     [searchCondition unlock];
+}
+
+- (void)netServiceDidResolveAddress:(NSNetService *)service {
+    [self fireEvent:@"resolve" forService:service];
+    [_resolvingServices removeObject:service];
+    if (_resolvingServices == 0) {
+        RELEASE_TO_NIL(_resolvingServices)
+    }
+}
+
+- (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary<NSString *, NSNumber *> *)errorDict
+{
+    [_resolvingServices removeObject:sender];
+    if (_resolvingServices == 0) {
+        RELEASE_TO_NIL(_resolvingServices)
+    }
+}
+
+- (void)netServiceDidStop:(NSNetService *)sender {
+    [_resolvingServices removeObject:sender];
+    if (_resolvingServices == 0) {
+        RELEASE_TO_NIL(_resolvingServices)
+    }
 }
 
 @end

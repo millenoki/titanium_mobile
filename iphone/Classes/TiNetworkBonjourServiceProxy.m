@@ -176,6 +176,9 @@ const NSString* socketKey = @"socket";
 
 -(void)publish:(id)arg
 {
+    if (service) {
+        return;
+    }
     RELEASE_TO_NIL(error);
 	RELEASE_TO_NIL(service);
 	RELEASE_TO_NIL(socket);
@@ -472,6 +475,11 @@ const NSString* socketKey = @"socket";
     [searchCondition lock];
     [searchCondition signal];
     [searchCondition unlock];
+}
+
+- (void)netService:(NSNetService *)sender didUpdateTXTRecordData:(NSData *)data {
+    NSDictionary* dict = [NSNetService dictionaryFromTXTRecordData:data];
+    [self fireEvent:@"txtRecord" withObject:dict propagate:YES checkForListener:YES];
 }
 
 @end

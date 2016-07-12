@@ -14,7 +14,7 @@
 #import <Foundation/NSNetServices.h>
 
 // NSNetServiceBrowser delegate
-@interface TiNetworkBonjourBrowserProxy : TiProxy<NSNetServiceBrowserDelegate> {
+@interface TiNetworkBonjourBrowserProxy : TiProxy<NSNetServiceBrowserDelegate, NSNetServiceDelegate> {
     NSNetServiceBrowser* browser;
     NSString* serviceType;
     NSString* domain;
