@@ -7280,6 +7280,21 @@ function windowLevelTest() {
 }
 Ti.App.on('significanttimechange', Ti.API.debug);
 
+function bonjourTest() {
+	// Searcher for finding other services
+	var serviceBrowser = Titanium.Network.createBonjourBrowser({
+		serviceType:'_http._tcp',
+		domain:'local.'
+	});
+		console.log('test1');
+	serviceBrowser.on('discover', function(e) {
+		console.log('test2');
+		Ti.API.info(e);
+	});
+	serviceBrowser.search();
+}
+bonjourTest();
+
 // animationBugEx();
 // setTimeout(windowLevelTest, 1000);
 // scrollableViewTest();
