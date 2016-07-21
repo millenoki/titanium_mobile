@@ -117,6 +117,25 @@
 }
 #endif
 
+-(NSData*)dataFromArgs:(id)args
+{
+    //    ENSURE_SINGLE_ARG(args, NSObject)
+    if (IS_OF_CLASS(args, NSString)) {
+        // called within this class
+        return [args dataUsingEncoding:NSUTF8StringEncoding];
+    }else if (IS_OF_CLASS(args, NSArray) || IS_OF_CLASS(args, NSMutableArray)) {
+        NSMutableData *data = [[NSMutableData alloc] initWithCapacity: [args count]];
+        for( NSString *string in args) {
+            char byte = (char)[string intValue];
+            [data appendBytes: &byte length: 1];
+        }
+        return [data autorelease];
+        //        return [NSKeyedArchiver archivedDataWithRootObject:args];
+    } else if ([args respondsToSelector:@selector(data)]) {
+        return [args data];
+    }
+}
+
 -(TiBuffer*)createBuffer:(id)arg
 {
     ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary);
@@ -207,12 +226,21 @@
                 break;
             }
         }
+    }else if (IS_OF_CLASS(data, NSArray) || IS_OF_CLASS(data, NSMutableArray)) {
+        NSMutableData *theBufferData = [[NSMutableData alloc] initWithCapacity: [data count]];
+        for( NSString *string in data) {
+            char byte = (char)[string intValue];
+            [theBufferData appendBytes: &byte length: 1];
+        }
+        [buffer setData:theBufferData];
+    } else if ([data respondsToSelector:@selector(data)]) {
+        [buffer setData:[NSMutableData dataWithData:[data data]]];
     }
     else if (data != nil) {
         [self throwException:[NSString stringWithFormat:@"Invalid data type '%@'",data]
                    subreason:nil
                     location:CODELOCATION];
-    }
+    }   
     
     return buffer;
 }
