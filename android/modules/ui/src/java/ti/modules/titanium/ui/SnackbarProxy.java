@@ -2,7 +2,6 @@ package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
@@ -14,11 +13,6 @@ public class SnackbarProxy extends ViewProxy
     public SnackbarProxy()
     {
         super();
-    }
-
-    public SnackbarProxy(TiContext tiContext)
-    {
-        this();
     }
 
     @Override

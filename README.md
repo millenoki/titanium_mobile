@@ -66,6 +66,3 @@ You can get a prebuild version of [6.0.0.AKYLAS] (https://drive.google.com/open?
 Appcelerator is a registered trademark of Appcelerator, Inc. Titanium is 
 a registered trademark of Appcelerator, Inc.  Please see the LEGAL information about using our trademarks,
 privacy policy, terms of usage and other legal information at [http://www.appcelerator.com/legal](http://www.appcelerator.com/legal).
-
-
-

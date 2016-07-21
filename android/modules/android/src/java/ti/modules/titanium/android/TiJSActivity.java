@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,7 @@ package ti.modules.titanium.android;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
-//import org.appcelerator.titanium.util.TiBindingHelper;
+import org.appcelerator.titanium.proxy.TiActivityWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.content.Intent;

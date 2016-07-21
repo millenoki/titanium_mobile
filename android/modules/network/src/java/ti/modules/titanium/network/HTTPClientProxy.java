@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.xml.DocumentProxy;
@@ -49,11 +48,6 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		super();
 		this.client = new TiHTTPClient(this);
-	}
-
-	public HTTPClientProxy(TiContext tiContext)
-	{
-		this();
 	}
 	
 	@Override
@@ -93,8 +87,9 @@ public class HTTPClientProxy extends KrollProxy
 		client.setTlsVersion(TiConvert.toInt(dict, TiC.PROPERTY_TLS_VERSION, NetworkModule.TLS_DEFAULT));
 		
 
+
 	}
-	
+
 	@Kroll.method
 	public void abort()
 	{
@@ -148,7 +143,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		return client.getStatusText();
 	}
-	
+
 	@Kroll.method
 	public HTTPClientProxy open(String method, String url)
 	{
@@ -157,7 +152,7 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public void send(@Kroll.argument(optional=true) Object data) 
+	public void send(@Kroll.argument(optional=true) Object data)
 		throws UnsupportedEncodingException
 	{
 		client.send(data);
@@ -174,7 +169,7 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		client.setRequestHeader(header, value);
 	}
-	
+
 	@Kroll.setProperty @Kroll.method
     public void setHeaders(HashMap<String, Object> headers)
     {
@@ -297,7 +292,7 @@ public class HTTPClientProxy extends KrollProxy
 		}
 		return null;
 	}
-	
+
 	// This uses Apache
 	/*
 	@Kroll.method
@@ -307,11 +302,11 @@ public class HTTPClientProxy extends KrollProxy
 		if ( (scheme == null) || (scheme.length() == 0) || (! (factory instanceof AuthSchemeFactory) )) {
 			return;
 		}
-		
+
 		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
 	}
 	*/
-	
+
 	@Kroll.method
 	public void addTrustManager(Object manager)
 	{
@@ -319,7 +314,7 @@ public class HTTPClientProxy extends KrollProxy
 			client.addTrustManager((X509TrustManager)manager);
 		}
 	}
-	
+
 	@Kroll.method
 	public void addKeyManager(Object manager)
 	{
@@ -327,30 +322,30 @@ public class HTTPClientProxy extends KrollProxy
 			client.addKeyManager((X509KeyManager)manager);
 		}
 	}
-	
+
 	@Kroll.setProperty @Kroll.method
 	public void setTlsVersion(int tlsVersion)
 	{
 		client.setTlsVersion(tlsVersion);
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public int getTlsVersion()
 	{
 		int tlsVersion;
-		
+
 		if (this.hasProperty(TiC.PROPERTY_TLS_VERSION)) {
 			tlsVersion = TiConvert.toInt(this.getProperty(TiC.PROPERTY_TLS_VERSION));
-			
+
 			if(tlsVersion == NetworkModule.TLS_DEFAULT){
 				if (JELLYBEAN_OR_GREATER) {
 					return NetworkModule.TLS_VERSION_1_2;
-				}				
+				}
 				return NetworkModule.TLS_VERSION_1_0;
-			}			
+			}
 			return tlsVersion;
 		}
-		
+
 		return NetworkModule.TLS_DEFAULT;
 	}
 

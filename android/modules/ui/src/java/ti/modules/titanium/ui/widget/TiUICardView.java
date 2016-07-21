@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2015-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.content.Context;
@@ -26,44 +27,44 @@ import android.widget.FrameLayout;
 
 public class TiUICardView extends TiUIView
 {
-    public int paddingLeft, paddingTop, paddingRight, paddingBottom;
+	public int paddingLeft, paddingTop, paddingRight, paddingBottom;
 
-    private static final String TAG = "TiUICardView";
+	private static final String TAG = "TiUICardView";
 
-    public class TiUICardViewLayout extends TiCompositeLayout {
+	public class TiUICardViewLayout extends TiCompositeLayout {
 
-        public TiUICardViewLayout(Context context)
-        {
-            super(context, TiUICardView.this);
-        } 
+		public TiUICardViewLayout(Context context)
+		{
+			super(context, TiUICardView.this);
+		}
 
-    }
+	}
 
-    public class TiCardView extends CardView {
+	public class TiCardView extends CardView {
 
-        private TiUICardViewLayout layout;
+		private TiUICardViewLayout layout;
 
-        public TiCardView(Context context)
-        {
-            super(context);
+		public TiCardView(Context context)
+		{
+			super(context);
 
-            layout = new TiUICardViewLayout(context);
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 
-                    ViewGroup.LayoutParams.MATCH_PARENT);
-            layout.setLayoutParams(params); 
-            super.addView(layout, params);
-        }
+			layout = new TiUICardViewLayout(context);
+			FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.MATCH_PARENT);
+			layout.setLayoutParams(params);
+			super.addView(layout, params);
+		}
 
-        public TiUICardViewLayout getLayout()
-        {
-            return layout;
-        }
+		public TiUICardViewLayout getLayout()
+		{
+			return layout;
+		}
 
-        @Override
-        public void addView(View child, android.view.ViewGroup.LayoutParams params)
-        {
-            layout.addView(child, params);
-        }
+		@Override
+		public void addView(View child, android.view.ViewGroup.LayoutParams params)
+		{
+			layout.addView(child, params);
+		}
 
         @Override
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
@@ -91,10 +92,10 @@ public class TiUICardView extends TiUIView
         setNativeView(view);
     }
 
-    public TiUICardViewLayout getLayout()
-    {
-        View nativeView = getNativeView();
-        return ((TiCardView) nativeView).layout;
+	public TiUICardViewLayout getLayout()
+	{
+		View nativeView = getNativeView();
+		return ((TiCardView) nativeView).layout;
 
     }
     
@@ -112,13 +113,13 @@ public class TiUICardView extends TiUIView
     protected void add(TiUIView child, int childIndex) {
         super.add(child, childIndex);
 
-        if (getNativeView() != null) {
-            getLayout().requestLayout();
-            if (child.getNativeView() != null) {
-                child.getNativeView().requestLayout();
-            }
-        }
-    }
+		if (getNativeView() != null) {
+			getLayout().requestLayout();
+			if (child.getNativeView() != null) {
+				child.getNativeView().requestLayout();
+			}
+		}
+	}
 
 
     @Override

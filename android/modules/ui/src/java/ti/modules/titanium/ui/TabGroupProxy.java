@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,7 +21,6 @@ import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityHelper;
 import org.appcelerator.titanium.util.TiConvert;
@@ -61,19 +60,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private WeakReference<TiBaseActivity> tabGroupActivity;
 	private TabProxy selectedTab;
 	private boolean isFocused;
-//	private boolean swipeTabs = true;
-	
+
 	public TabGroupProxy()
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_SWIPEABLE, true);
 		defaultValues.put(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK, true);
 		customHandleOpenEvent(true);
-	}
-
-	public TabGroupProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -213,7 +206,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public void setActiveTab(Object tabOrIndex)
 	{
 		TabProxy tab = parseTab(tabOrIndex);
-		
+
 		if(tab == null) {
 			return;
 		}
@@ -252,7 +245,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_SET_TABS), obj);
 	}
 
-	
+
 	private TabProxy parseTab(Object tabOrIndex) {
 		TabProxy tab = null;
 		if (tabOrIndex instanceof Number) {
@@ -274,7 +267,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		return tab;
 	}
-	
+
 	private void handleSetTabs(Object obj)
 	{
 		tabs.clear();
@@ -401,7 +394,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		for (TabProxy tab : tabs) {
 			tg.addTab(tab);
 		}
-		
+
 		TabProxy activeTab = handleGetActiveTab();
 		if (activeTab != null) {
 			selectedTab = null;
@@ -424,7 +417,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	protected void handleClose(HashMap options)
 	{
 		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
-		
+
 		modelListener = null;
 		releaseViews(true);
 		view = null;
@@ -510,7 +503,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
 			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
 		}
-		
+
 		//Set the fullscreen flag
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
 			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
@@ -518,7 +511,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
 			}
 		}
-		
+
 		//Set the secure flag
 		if (hasProperty(TiC.PROPERTY_FLAG_SECURE)) {
 			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FLAG_SECURE), false);
@@ -526,7 +519,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_SECURE;
 			}
 		}
-		
+
 		//Stuff flags in intent
 		intent.putExtra(TiC.PROPERTY_WINDOW_FLAGS, windowFlags);
 

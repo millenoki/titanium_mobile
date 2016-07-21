@@ -68,11 +68,12 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.multidex.MultiDex;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
-import com.appcelerator.analytics.APSAnalytics;
-import com.appcelerator.analytics.APSAnalytics.DeployType;
+import com.appcelerator.aps.APSAnalytics;
+import com.appcelerator.aps.APSAnalytics.DeployType;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.MarkableInputStream;
@@ -405,6 +406,12 @@ public abstract class TiApplication extends Application implements
         }
         return null;
     }
+
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
+		MultiDex.install(this);
+	}
 
     /**
      * @return root activity if exists. If root activity doesn't exist, returns
@@ -1135,7 +1142,7 @@ public abstract class TiApplication extends Application implements
 	{
 		return getAppInfo().isAnalyticsEnabled();
 	}
-	
+
 	public boolean runOnMainThread()
 	{
 		return runOnMainThread;
@@ -1150,7 +1157,7 @@ public abstract class TiApplication extends Application implements
 	{
 		filteredAnalyticsEvents = events;
 	}
-	
+
 	public boolean isAnalyticsFiltered(String eventName)
 	{
 		if (filteredAnalyticsEvents == null) {
@@ -1162,7 +1169,7 @@ public abstract class TiApplication extends Application implements
 			if (eventName.equals(currentName)) {
 				return true;
 			}
-					
+
 		}
 		return false;
 	}

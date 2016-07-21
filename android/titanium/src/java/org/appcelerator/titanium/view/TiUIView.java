@@ -99,9 +99,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 
 /**
- * This class is for Titanium View implementations, that correspond with
- * TiViewProxy. A TiUIView is responsible for creating and maintaining a native
- * Android View instance.
+ * This class is for Titanium View implementations, that correspond with TiViewProxy.
+ * A TiUIView is responsible for creating and maintaining a native Android View instance.
  */
 public abstract class TiUIView implements KrollProxyReusableListener,
         OnFocusChangeListener, Handler.Callback, OnTouchListener,

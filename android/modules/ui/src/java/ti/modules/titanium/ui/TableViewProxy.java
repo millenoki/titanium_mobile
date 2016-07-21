@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -28,7 +27,7 @@ import ti.modules.titanium.ui.widget.tableview.TableViewModel.Item;
 import android.app.Activity;
 import android.os.Message;
 
-@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = { 
+@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_FILTER_ATTRIBUTE,
 	TiC.PROPERTY_FILTER_ANCHORED,
 	TiC.PROPERTY_FILTER_CASE_INSENSITIVE,
@@ -91,11 +90,6 @@ public class TableViewProxy extends ViewProxy
         defaultValues.put(TiC.PROPERTY_FILTER_CASE_INSENSITIVE, true);
 	}
 
-	public TableViewProxy(TiContext tiContext)
-	{
-		this();
-	}
-
 	@Override
 	public void handleCreationDict(HashMap dict)
 	{
@@ -107,8 +101,8 @@ public class TableViewProxy extends ViewProxy
 				dict.remove(TiC.PROPERTY_DATA); // don't override our data accessor
 			}
 		}
-		// Treat sections in the creation dict just like data. Unlike the setter, we don't 
-		// check whether the items are sections first. This is consistent with the handling 
+		// Treat sections in the creation dict just like data. Unlike the setter, we don't
+		// check whether the items are sections first. This is consistent with the handling
 		// of the data property--a bad object is dropped silently.
 		if (dict.containsKey(TiC.PROPERTY_SECTIONS)) {
 			Object o = dict.get(TiC.PROPERTY_SECTIONS);
@@ -262,7 +256,7 @@ public class TableViewProxy extends ViewProxy
 
 		TiMessenger.sendBlockingMainMessage(getMainHandler().obtainMessage(MSG_APPEND_ROW), rows);
 	}
-	
+
 	private void handleAppendRow(Object rows)
 	{
 		Object[] rowList = null;
@@ -693,7 +687,7 @@ public class TableViewProxy extends ViewProxy
 			}
 		}
 	}
-	
+
 	private void cleanupSections()
 	{
 		ArrayList<TableViewSectionProxy> sections = getSectionsArray();
@@ -765,7 +759,7 @@ public class TableViewProxy extends ViewProxy
 		if (row instanceof TableViewRowProxy) {
 			rowProxy = (TableViewRowProxy) row;
 			rowProxy.setProperty(TiC.PROPERTY_ROW_DATA, new KrollDict(rowProxy.getProperties()));
-			
+
 		} else {
 			KrollDict rowDict = null;
 			if (row instanceof KrollDict) {
@@ -893,7 +887,7 @@ public class TableViewProxy extends ViewProxy
 		message.arg1 = index;
 		message.sendToTarget();
 	}
-	
+
 	@Kroll.method
 	public void selectRow(int row_id)
 	{

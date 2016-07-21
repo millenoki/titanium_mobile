@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.AnimatableReusableProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiHtml;
@@ -84,10 +83,6 @@ public class RemoteViewsProxy extends AnimatableReusableProxy implements TiDrawa
             idGenerator = new AtomicInteger(0);
         }
         remoteViewId = idGenerator.incrementAndGet();
-    }
-
-    public RemoteViewsProxy(TiContext context) {
-        this();
     }
     
     public void willShow() {

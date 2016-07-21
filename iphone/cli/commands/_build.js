@@ -378,6 +378,9 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 						'developer-name':             this.configOptionDeveloperName(170),
 						'distribution-name':          this.configOptionDistributionName(180),
 						'device-family':              this.configOptionDeviceFamily(120),
+						'hide-error-controller': {
+							hidden: true
+						},
 						'ios-version':                this.configOptioniOSVersion(130),
 						'keychain':                   this.configOptionKeychain(),
 						'launch-bundle-id':           this.configOptionLaunchBundleId(),
@@ -1252,6 +1255,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		// manually inject the build profile settings into the tiapp.xml
 		switch (this.deployType) {
 			case 'production':
+				this.showErrorController = false;
 				this.minifyJS = true;
 				this.encryptJS = true;
 				this.minifyCSS = true;
@@ -1261,6 +1265,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				break;
 
 			case 'test':
+				this.showErrorController = true;
 				this.minifyJS = true;
 				this.encryptJS = true;
 				this.minifyCSS = true;
@@ -1271,6 +1276,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 			case 'development':
 			default:
+				this.showErrorController = true;
 				this.minifyJS = false;
 				this.encryptJS = false;
 				this.minifyCSS = false;
@@ -1281,6 +1287,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 		if (cli.argv['skip-js-minify']) {
 			this.minifyJS = false;
+		}
+		if (cli.argv.hasOwnProperty('hide-error-controller')) {
+			this.showErrorController = false;
 		}
 
 		var appId = this.tiapp.id;
@@ -1563,17 +1572,20 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 								infoPlist:             null
 							};
 
+						if (targetInfo.isWatchAppV1Extension || targetInfo.isWatchAppV1) {
+							logger.error(__('WatchOS1 app detected.'));
+							logger.error(__('Titanium %s does not support WatchOS1 apps.', this.titaniumSdkVersion) + '\n');
+							process.exit(1);
+						}
+
 						// we need to get a min watch os version so that we can intelligently pick an appropriate watch simulator
-						if ((targetInfo.isWatchAppV1 || targetInfo.isWatchAppV2orNewer)
+						if (targetInfo.isWatchAppV2orNewer
 								&& (!cli.argv['watch-app-name'] || targetName === cli.argv['watch-app-name'])
 								&& (!this.watchMinOSVersion || appc.version.lt(targetInfo.watchOS, this.watchMinOSVersion))) {
 							this.watchMinOSVersion = targetInfo.watchOS;
 						}
 
-						if (targetInfo.isWatchAppV1) {
-							this.hasWatchAppV1 = true;
-							logger.warn(__('Support for WatchOS1 is deprecated and will be removed in the next release') + '\n');
-						} else if (targetInfo.isWatchAppV2orNewer) {
+						if (targetInfo.isWatchAppV2orNewer) {
 							this.hasWatchAppV2orNewer = true;
 						}
 
@@ -1960,12 +1972,24 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 						if (module.platform.indexOf('commonjs') !== -1) {
 							module.native = false;
 
+							// Look for legacy module.id.js first
 							module.libFile = path.join(module.modulePath, module.id + '.js');
 							if (!fs.existsSync(module.libFile)) {
-								this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-								process.exit(1);
+								// then package.json TODO Verify the main property points at reale file under the module!
+								module.libFile = path.join(module.modulePath, 'package.json');
+								if (!fs.existsSync(module.libFile)) {
+									// then index.js
+									module.libFile = path.join(module.modulePath, 'index.js');
+									if (!fs.existsSync(module.libFile)) {
+										// then index.json
+										module.libFile = path.join(module.modulePath, 'index.json');
+										if (!fs.existsSync(module.libFile)) {
+											this.logger.error(__('Module %s version %s is missing module files: %s, package.json, index.js, or index.json', module.id.cyan, (module.manifest.version || 'latest').cyan, path.join(module.modulePath, module.id + '.js').cyan) + '\n');
+											process.exit(1);
+										}
+									}
+								}
 							}
-
 							this.commonJsModules.push(module);
 						} else {
 							module.native = true;
@@ -2184,6 +2208,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.currentBuildManifest.useAppThinning     = this.useAppThinning = this.tiapp.ios['use-app-thinning'] === true;
 	this.currentBuildManifest.skipJSMinification = !!this.cli.argv['skip-js-minify'],
 	this.currentBuildManifest.encryptJS          = !!this.encryptJS,
+	this.currentBuildManifest.showErrorController          = this.showErrorController
 
 	// This is default behavior for now. Move this to true in phase 2.
 	// Remove the debugHost/profilerHost check when we have debugging/profiling support with JSCore framework
@@ -2595,6 +2620,14 @@ iOSBuilder.prototype.checkIfNeedToRecompile = function checkIfNeedToRecompile() 
 			this.logger.info(__('Forcing rebuild: use use-app-thinning flag changed since last build'));
 			this.logger.info('  ' + __('Was: %s', manifest.useAppThinning));
 			this.logger.info('  ' + __('Now: %s', this.useAppThinning));
+			return true;
+		}
+
+		// check if the showErrorController flag has changed
+		if (this.showErrorController !== manifest.showErrorController) {
+			this.logger.info(__('Forcing rebuild: showErrorController flag changed since last build'));
+			this.logger.info('  ' + __('Was: %s', manifest.showErrorController));
+			this.logger.info('  ' + __('Now: %s', this.showErrorController));
 			return true;
 		}
 
@@ -3241,7 +3274,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								xobjs.PBXFileReference[extFrameworkReference] = extObjs.PBXFileReference[extFrameworkReference];
 								xobjs.PBXFileReference[extFrameworkReference + '_comment'] = child.comment;
 							}
-						});					
+						});
 					});
 				}
 
@@ -3257,7 +3290,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 								xobjs.PBXFileReference[extResourceReference] = extObjs.PBXFileReference[extResourceReference];
 								xobjs.PBXFileReference[extResourceReference + '_comment'] = child.comment;
 							}
-						});					
+						});
 					});
 				}
 
@@ -4030,6 +4063,7 @@ iOSBuilder.prototype.writeMain = function writeMain() {
 			'__PROJECT_NAME__':     this.tiapp.name,
 			'__PROJECT_ID__':       this.tiapp.id,
 			'__DEPLOYTYPE__':       this.deployType,
+			'__SHOW_ERROR_CONTROLLER__':       this.showErrorController,
 			'__APP_ID__':           this.tiapp.id,
 			'__APP_ANALYTICS__':    String(this.tiapp.hasOwnProperty('analytics') ? !!this.tiapp.analytics : true),
 			'__APP_PUBLISHER__':    this.tiapp.publisher,
@@ -4693,10 +4727,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		imageAssets = {};
 
 	var that = this;
-	function walk(src, dest, ignore, origSrc) {
+	function walk(src, dest, ignore, origSrc, prefix) {
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
 			var from = path.join(src, name),
-				relPath = from.replace((origSrc || src) + '/', ''),
+				relPath = from.replace((origSrc || src) + '/', prefix ? prefix + '/' : ''),
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
@@ -4704,7 +4738,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				var to = path.join(dest, name);
 
 				if (srcStat.isDirectory()) {
-					return walk(from, to, ignore, origSrc || src);
+					return walk(from, to, ignore, origSrc || src, prefix);
 				}
 
 				var parts = name.match(filenameRegExp),
@@ -4864,17 +4898,11 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 	this.logger.info(__('Analyzing CommonJS modules'));
 	this.commonJsModules.forEach(function (module) {
-		var filename = path.basename(module.libFile);
-		if (jsFiles[filename]) {
-			this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', filename));
-			this.logger.error(__('Please rename the file, then rebuild') + '\n');
-			process.exit(1);
-		}
-		jsFiles[filename] = {
-			src: module.libFile,
-			dest: path.join(this.xcodeAppDir, path.basename(module.libFile)),
-			srcStat: fs.statSync(module.libFile)
-		};
+		this.logger.info(__('Analyzing CommonJS module: %s', module.id));
+		var dest = path.join(this.xcodeAppDir, path.basename(module.id));
+		// Pass in the relative path prefix we should give because we aren't copying direct to the root here.
+		// Otherwise index.js in one module "overwrites" index.js in another (because they're at same relative path inside module)
+		walk(module.modulePath, dest, /^(apidoc|docs|documentation|example)$/, null, module.id); // TODO Consult some .moduleignore file in the module or something? .npmignore?
 	}, this);
 
 	function writeAssetContentsFile(dest, json) {
@@ -6395,7 +6423,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 };
 
 iOSBuilder.prototype.removeFiles = function removeFiles(next) {
-	this.unmarkBuildDirFiles(path.join(this.buildDir, 'ModuleCache'));
+	this.unmarkBuildDirFiles(path.join(this.buildDir, 'DerivedData'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', 'Intermediates'));
 	this.unmarkBuildDirFiles(path.join(this.buildDir, 'build', this.tiapp.name + '.build'));
 	this.products.forEach(function (product) {
@@ -6649,7 +6677,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
-		'-derivedDataPath', this.buildDir,
+		'-derivedDataPath', path.join(this.buildDir, 'DerivedData'),
 		'OBJROOT=' + path.join(this.buildDir, 'build', 'Intermediates'),
 		'GCC_PREPROCESSOR_DEFINITIONS=$GCC_PREPROCESSOR_DEFINITIONS TITANIUM_CLI_XCODEBUILD=1',
 		'SHARED_PRECOMPS_DIR=' + path.join(this.buildDir, 'build', 'Intermediates', 'PrecompiledHeaders'),

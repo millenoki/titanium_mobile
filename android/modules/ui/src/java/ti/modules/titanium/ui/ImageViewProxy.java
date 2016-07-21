@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package ti.modules.titanium.ui;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -45,11 +44,6 @@ public class ImageViewProxy extends ViewProxy
 		defaultValues.put(TiC.PROPERTY_SCALE_TYPE, UIModule.SCALE_TYPE_ASPECT_FIT);
 	}
 
-	public ImageViewProxy(TiContext tiContext)
-	{
-		this();
-	}
-
 	@Override
 	public TiUIView createView(Activity activity) {
 		return new TiUIImageView(this);
@@ -58,7 +52,7 @@ public class ImageViewProxy extends ViewProxy
 	private TiUIImageView getImageView() {
 		return (TiUIImageView)view;
 	}
-	
+
 	@Kroll.method
 	public void start() {
 		setProperty("animating", true);
@@ -67,7 +61,7 @@ public class ImageViewProxy extends ViewProxy
 		    getImageView().start();
 		}
 	}
-	
+
 	@Kroll.method
 	public void stop() {
 		setProperty("animating", false);
@@ -76,7 +70,7 @@ public class ImageViewProxy extends ViewProxy
 		    getImageView().stop();
 		}
 	}
-	
+
 	@Kroll.method
 	public void pause() {
 		setProperty("paused", true);
@@ -84,7 +78,7 @@ public class ImageViewProxy extends ViewProxy
 		    getImageView().pause();
 		}
 	}
-	
+
 	@Kroll.method
 	public void resume() {
         boolean animating = TiConvert.toBoolean(getProperty("animating"), false);

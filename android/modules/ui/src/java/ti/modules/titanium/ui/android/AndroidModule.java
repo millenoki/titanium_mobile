@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -37,7 +36,7 @@ import android.content.Context;
 public class AndroidModule extends KrollModule
 {
 	private static final String TAG = "UIAndroidModule";
-	
+
 	@Kroll.constant public static final int PIXEL_FORMAT_A_8 = PixelFormat.A_8;
 	@Kroll.constant public static final int PIXEL_FORMAT_LA_88 = PixelFormat.LA_88;
 	@Kroll.constant public static final int PIXEL_FORMAT_L_8 = PixelFormat.L_8;
@@ -57,31 +56,31 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int SOFT_INPUT_ADJUST_PAN = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
 	@Kroll.constant public static final int SOFT_INPUT_ADJUST_RESIZE = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 	@Kroll.constant public static final int SOFT_INPUT_ADJUST_UNSPECIFIED = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED;
-	
+
 	@Kroll.constant public static final int SOFT_INPUT_STATE_ALWAYS_HIDDEN = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
 	@Kroll.constant public static final int SOFT_INPUT_STATE_ALWAYS_VISIBLE = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
 	@Kroll.constant public static final int SOFT_INPUT_STATE_HIDDEN = WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
 	@Kroll.constant public static final int SOFT_INPUT_STATE_UNSPECIFIED = WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED;
 	@Kroll.constant public static final int SOFT_INPUT_STATE_VISIBLE = WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE;
-	
+
 	@Kroll.constant public static final int SOFT_KEYBOARD_DEFAULT_ON_FOCUS = TiUIView.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
 	@Kroll.constant public static final int SOFT_KEYBOARD_HIDE_ON_FOCUS = TiUIView.SOFT_KEYBOARD_HIDE_ON_FOCUS;
 	@Kroll.constant public static final int SOFT_KEYBOARD_SHOW_ON_FOCUS = TiUIView.SOFT_KEYBOARD_SHOW_ON_FOCUS;
-	
+
 	@Kroll.constant public static final int LINKIFY_ALL = Linkify.ALL;
 	@Kroll.constant public static final int LINKIFY_EMAIL_ADDRESSES = Linkify.EMAIL_ADDRESSES;
 	@Kroll.constant public static final int LINKIFY_MAP_ADDRESSES = Linkify.MAP_ADDRESSES;
 	@Kroll.constant public static final int LINKIFY_PHONE_NUMBERS = Linkify.PHONE_NUMBERS;
 	@Kroll.constant public static final int LINKIFY_WEB_URLS = Linkify.WEB_URLS;
-	
+
 	@Kroll.constant public static final int SWITCH_STYLE_CHECKBOX     = 0;
 	@Kroll.constant public static final int SWITCH_STYLE_TOGGLEBUTTON = 1;
 	@Kroll.constant public static final int SWITCH_STYLE_SWITCH = 2;
-	
+
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_OFF = TiUIWebView.PLUGIN_STATE_OFF;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON = TiUIWebView.PLUGIN_STATE_ON;
 	@Kroll.constant public static final int WEBVIEW_PLUGINS_ON_DEMAND = TiUIWebView.PLUGIN_STATE_ON_DEMAND;
-	
+
 	@Kroll.constant public static final int WEBVIEW_LOAD_DEFAULT = WebSettings.LOAD_DEFAULT;
 	@Kroll.constant public static final int WEBVIEW_LOAD_NO_CACHE = WebSettings.LOAD_NO_CACHE;
 	@Kroll.constant public static final int WEBVIEW_LOAD_CACHE_ONLY = WebSettings.LOAD_CACHE_ONLY;
@@ -127,12 +126,12 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant public static final int TRANSITION_CHANGE_CLIP_BOUNDS = TiUIView.TRANSITION_CHANGE_CLIP_BOUNDS;
 	@Kroll.constant public static final int TRANSITION_CHANGE_TRANSFORM = TiUIView.TRANSITION_CHANGE_TRANSFORM;
 	@Kroll.constant public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM = TiUIView.TRANSITION_CHANGE_IMAGE_TRANSFORM;
-	
+
 	@Kroll.constant public static final int PROGRESS_INDICATOR_STATUS_BAR = TiUIProgressIndicator.STATUS_BAR;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_DIALOG = TiUIProgressIndicator.DIALOG;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_INDETERMINANT = TiUIProgressIndicator.INDETERMINANT;
 	@Kroll.constant public static final int PROGRESS_INDICATOR_DETERMINANT = TiUIProgressIndicator.DETERMINANT;
-	
+
 	@Kroll.constant public static final int OVER_SCROLL_ALWAYS = 0 ;               //android.view.View.OVER_SCROLL_ALWAYS;
 	@Kroll.constant public static final int OVER_SCROLL_IF_CONTENT_SCROLLS = 1;    //android.view.View.OVER_SCROLL_IF_CONTENT_SCROLLS;
 	@Kroll.constant public static final int OVER_SCROLL_NEVER = 2;                 //android.view.View.OVER_SCROLL_NEVER;
@@ -140,11 +139,6 @@ public class AndroidModule extends KrollModule
 	public AndroidModule()
 	{
 		super();
-	}
-
-	public AndroidModule(TiContext tiContext) 
-	{
-		this();
 	}
 	
 	@Override
@@ -187,7 +181,7 @@ public class AndroidModule extends KrollModule
 	{
 		Activity activity = TiApplication.getAppRootOrCurrentActivity();
 		if (activity != null) {
-			
+
 			Intent i = new Intent(activity, TiPreferencesActivity.class);
 			if (prefsName != null) {
 				i.putExtra("prefsName", prefsName);
@@ -214,9 +208,9 @@ public class AndroidModule extends KrollModule
 				} else {
 					Log.w(TAG, "Unable to hide soft keyboard. Activity is null", Log.DEBUG_MODE);
 				}
-				
+
 			}
-			
+
 		});
 	}
 

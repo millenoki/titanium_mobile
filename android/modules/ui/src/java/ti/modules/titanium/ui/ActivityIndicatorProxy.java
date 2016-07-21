@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
@@ -37,11 +37,6 @@ public class ActivityIndicatorProxy extends ViewProxy
 		super();
 	}
 
-	public ActivityIndicatorProxy(TiContext tiContext)
-	{
-		this();
-	}
-
 	@Override
 	public TiUIView createView(Activity activity)
 	{
@@ -62,7 +57,7 @@ public class ActivityIndicatorProxy extends ViewProxy
 		}
 		return super.handleMessage(msg);
 	}
-	
+
 	@Override
 	protected KrollDict getLangConversionTable() {
 		KrollDict table = new KrollDict();

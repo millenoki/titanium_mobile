@@ -158,12 +158,6 @@ MAKE_SYSTEM_PROP(VIDEO_CONTROL_NONE,MPMovieControlStyleNone);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_EMBEDDED,MPMovieControlStyleEmbedded);
 MAKE_SYSTEM_PROP(VIDEO_CONTROL_FULLSCREEN,MPMovieControlStyleFullscreen);
 
-// Deprecated old-school video control modes, mapped to the new values
--(NSNumber*)VIDEO_CONTROL_VOLUME_ONLY
-{
-    DEPRECATED_REPLACED_REMOVED(@"Media.VIDEO_CONTROL_VOLUME_ONLY", @"1.8.0", @"6.0.0", @"Media.VIDEO_CONTROL_EMBEDDED");
-    return [self VIDEO_CONTROL_EMBEDDED];
-}
 -(NSNumber*)VIDEO_CONTROL_HIDDEN
 {
     return [self VIDEO_CONTROL_NONE];

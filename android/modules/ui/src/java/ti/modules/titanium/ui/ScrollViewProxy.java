@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,9 +16,9 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIScrollView;
@@ -55,11 +55,6 @@ public class ScrollViewProxy extends ViewProxy
 		offset.put(TiC.EVENT_PROPERTY_X, 0);
 		offset.put(TiC.EVENT_PROPERTY_Y, 0);
 		defaultValues.put(TiC.PROPERTY_CONTENT_OFFSET, offset);
-	}
-
-	public ScrollViewProxy(TiContext context)
-	{
-		this();
 	}
 
 	@Override

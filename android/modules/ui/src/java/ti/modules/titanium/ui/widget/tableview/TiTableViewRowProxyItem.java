@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -77,11 +76,6 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		addView(rightImage, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 	}
 
-	public TiTableViewRowProxyItem(TiContext tiContext)
-	{
-		this(tiContext.getActivity());
-	}
-	
 	protected TableViewRowProxy getRowProxy() {
 		if (item == null) return null;
 		return (TableViewRowProxy)item.proxy;
@@ -588,7 +582,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 	};
 	private KrollDict filterProperties(KrollDict d) {
 		if (d == null) return new KrollDict();
-		
+
 		KrollDict filtered = new KrollDict(d);
 		for (int i = 0;i < filteredProperties.length; i++) {
 			if (filtered.containsKey(filteredProperties[i])) {
@@ -604,7 +598,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		return rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)
 			|| rowProxy.hasProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR);
 	}
-	
+
 	@Override
 	public Drawable getSelectorDrawable() {
 		TableViewRowProxy rowProxy = getRowProxy();
@@ -621,7 +615,7 @@ public class TiTableViewRowProxyItem extends TiBaseTableViewItem
 		}
 		return selectorDrawable;
 	}
-	
+
 	@Override
 	public void release() {
 		super.release();

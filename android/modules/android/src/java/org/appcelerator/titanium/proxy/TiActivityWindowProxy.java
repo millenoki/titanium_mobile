@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIActivityWindow;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -31,11 +30,6 @@ public class TiActivityWindowProxy extends TiWindowProxy
 		// force to true since the window is actually opened from TiUIActivityWindow
 		// TODO make this lifecycle less weird
 //		opened = true;
-	}
-
-	public TiActivityWindowProxy(TiContext tiContext) 
-	{
-		this();
 	}
 
 	public void setView(TiUIView view)

@@ -51,7 +51,7 @@ static NSDictionary* activityIndicatorStyle = nil;
 #ifdef USE_TI_UITABLEVIEWSEPARATORSTYLE
 static NSDictionary* tableViewSeparatorStyle = nil;
 #endif
-#if defined (USE_TI_UIATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 
@@ -146,6 +146,9 @@ MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_TOP,UIControlContentVerticalAlignmentTo
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_CENTER,UIControlContentVerticalAlignmentCenter);
 MAKE_SYSTEM_PROP(TEXT_VERTICAL_ALIGNMENT_BOTTOM,UIControlContentVerticalAlignmentBottom);
 
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP, NSLineBreakByWordWrapping);
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP, NSLineBreakByCharWrapping);
+MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_CLIP, NSLineBreakByClipping);
 MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_START, NSLineBreakByTruncatingHead);
 MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_MIDDLE, NSLineBreakByTruncatingMiddle);
 MAKE_SYSTEM_PROP(TEXT_ELLIPSIZE_TRUNCATE_END, NSLineBreakByTruncatingTail);
@@ -213,7 +216,7 @@ MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_WEBSEARCH,UIKeyboardTypeWebSearch,
 MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(KEYBOARD_TWITTER,UIKeyboardTypeTwitter, @"UI.KEYBOARD_TWITTER", @"5.2.0", @"UI.KEYBOARD_TYPE_TWITTER");
 
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DEFAULT,UIKeyboardAppearanceDefault);
-MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(KEYBOARD_APPEARANCE_ALERT,UIKeyboardAppearanceAlert,@"UI.KEYBOARD_APPEARANCE_ALERT",@"5.4.0",@"6.0.0");
+MAKE_SYSTEM_PROP_DEPRECATED_REMOVED(KEYBOARD_APPEARANCE_ALERT,UIKeyboardAppearanceAlert,@"UI.KEYBOARD_APPEARANCE_ALERT",@"5.4.0",@"7.0.0");
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_DARK,UIKeyboardAppearanceDark);
 MAKE_SYSTEM_PROP(KEYBOARD_APPEARANCE_LIGHT,UIKeyboardAppearanceLight);
 
@@ -276,24 +279,16 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE,UITableViewCellAccessoryDisclosu
     return [NSNumber numberWithDouble:HUGE_VALF];
 }
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_NONE,UIDataDetectorTypeNone, @"UI.AUTODETECT_NONE", @"1.8.0", @"6.0.0", @"UI.AUTOLINK_NONE");
--(NSNumber*)AUTODETECT_ALL
-{
-    DEPRECATED_REPLACED_REMOVED(@"UI.AUTODETECT_ALL", @"1.8.0", @"6.0.0", @"UI.AUTOLINK_ALL")
-    return NUMUINTEGER(UIDataDetectorTypeAll);
-}
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber, @"UI.AUTODETECT_PHONE", @"1.8.0", @"6.0.0", @"UI.AUTOLINK_PHONE_NUMBERS");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_LINK,UIDataDetectorTypeLink, @"UI.AUTODETECT_LINK", @"1.8.0", @"6.0.0", @"UI.AUTOLINK_URLS");
-
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress, @"UI.AUTODETECT_ADDRESS", @"1.8.0", @"6.0.0", @"UI.AUTOLINK_MAP_ADDRESSES");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent, @"6.0.0", @"UI.AUTODETECT_CALENDAR", @"1.8.0", @"UI.AUTOLINK_CALENDAR");
-
-
-
 -(void)setBackgroundColor:(id)color
 {
 	TiRootViewController *controller = [[TiApp app] controller];
 	[controller setBackgroundColor:[Webcolor webColorNamed:color]];
+}
+
+-(void)setTintColor:(id)color
+{
+	UIWindow *controller = [[[[TiApp app] controller] topWindowProxyView] window];
+	[controller setTintColor:[Webcolor webColorNamed:color]];
 }
 
 -(void)setBackgroundImage:(id)image
@@ -386,7 +381,38 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
 {
     return UIFontTextStyleCaption2;
 }
-
+-(NSString*)TEXT_STYLE_TITLE1
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleTitle1;
+  } else {
+    return UIFontTextStyleBody;
+  }
+}
+-(NSString*)TEXT_STYLE_TITLE2
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleTitle2;
+  } else {
+    return UIFontTextStyleBody;
+  }
+}
+-(NSString*)TEXT_STYLE_TITLE3
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleTitle3;
+  } else {
+    return UIFontTextStyleBody;
+  }
+}
+-(NSString*)TEXT_STYLE_CALLOUT
+{
+  if ([TiUtils isIOS9OrGreater]) {
+    return UIFontTextStyleCallout;
+  } else {
+    return UIFontTextStyleBody;
+  }  
+}
 -(NSNumber*)isLandscape:(id)args
 {
 	return NUMBOOL([UIApplication sharedApplication].statusBarOrientation!=UIInterfaceOrientationPortrait);
@@ -465,30 +491,6 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
         [self rememberProxy:clipboard];
 	}
 	return clipboard;
-}
-#endif
-
-#ifdef USE_TI_UICOVERFLOWVIEW
--(id)createCoverFlowView:(id)args
-{
-	DEPRECATED_REPLACED_REMOVED(@"UI.createCoverFlowView()",@"1.8.0",@"6.0.0", @"UI.iOS.createCoverFlowView()");
-	return [[[TiUIiOSCoverFlowViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UITOOLBAR
--(id)createToolbar:(id)args
-{
-	DEPRECATED_REPLACED_REMOVED(@"UI.createToolBar()",@"1.8.0",@"6.0.0", @"UI.iOS.createToolbar()");
-	return [[[TiUIiOSToolbarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
-#ifdef USE_TI_UITABBEDBAR
--(id)createTabbedBar:(id)args
-{
-    DEPRECATED_REPLACED_REMOVED(@"UI.createTabbedBar()", @"1.8.0",@"6.0.0", @"UI.iOS.createTabbedBar()");
-    return [[[TiUIiOSTabbedBarProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -705,7 +707,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL,15);   //UIEdgeRectAll
     
     return [NSNumber numberWithFloat:result];
 }
-#if defined(USE_TI_UIATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 MAKE_SYSTEM_PROP(ATTRIBUTE_FONT, AttributeNameFont);
 MAKE_SYSTEM_PROP(ATTRIBUTE_PARAGRAPH_STYLE, AttributeNameParagraphStyle);
 MAKE_SYSTEM_PROP(ATTRIBUTE_FOREGROUND_COLOR, AttributeNameForegroundColor);

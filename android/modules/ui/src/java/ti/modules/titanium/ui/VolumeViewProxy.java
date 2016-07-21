@@ -7,7 +7,6 @@
 package ti.modules.titanium.ui;
 
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIVolumeView;
@@ -24,11 +23,6 @@ public class VolumeViewProxy extends ViewProxy
     {
         super();
         defaultValues.put("stream", AudioManager.STREAM_MUSIC);
-    }
-
-    public VolumeViewProxy(TiContext tiContext)
-    {
-        this();
     }
 
     @Override
