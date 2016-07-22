@@ -274,6 +274,7 @@ iOSModuleBuilder.prototype.processTiXcconfig = function processTiXcconfig(next) 
 };
 
 iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, next) {
+    var minifyJS = false; //for now this breaks the source map ...
 	async.eachSeries(jsFiles, function(info, next) {
 		setImmediate(function() {
 			var file = info.src;
@@ -309,7 +310,7 @@ iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, nex
 					try {
 						// parse the AST
 						var r = jsanalyze.analyzeJs(transformed.code, {
-							// minify: true //for now this breaks the source map ...
+							minify: minifyJS
 						});
 					} catch (ex) {
 						ex.message.split('\n').forEach(_this.logger.error);
@@ -329,7 +330,7 @@ iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, nex
 					_this.unmarkBuildDirFile(to);
 					var exists = fs.existsSync(to);
 					if (!exists || r.contents !== fs.readFileSync(to).toString()) {
-						_this.logger.debug(__(this.minifyJS ? 'Copying and minifying %s => %s' : 'Copying %s => %s', from.cyan,
+						_this.logger.debug(__(minifyJS?'Copying and minifying %s => %s' : 'Copying %s => %s', from.cyan,
 							to.cyan));
 						exists && fs.unlinkSync(to);
 						fs.writeFileSync(to, r.contents);
@@ -835,13 +836,14 @@ iOSModuleBuilder.prototype.createUniBinary = function createUniBinary(next) {
 		];
 
 	this.dirWalker(path.join(this.universalBinaryDir, 'TiRelease'), function(file) {
-		if (path.extname(file) === '.a' && file.indexOf(this.moduleName + '.build') === -1 && file.indexOf(this.moduleName) > -
+		if (path.extname(file) === '.a' && file.indexOf(this.moduleId + '.build') === -1 && file.indexOf(this.moduleId) > -
 			1
 		) {
 			binaryFiles.push(file);
 		}
 	}.bind(this));
-        this.logger.debug(this.xcodeEnv.executables.lipo + ' ' + binaryFiles.concat(lipoArgs).join(' '));
+    
+    this.logger.debug(this.xcodeEnv.executables.lipo + ' ' + binaryFiles.concat(lipoArgs).join(' '));
 
 	appc.subprocess.run(this.xcodeEnv.executables.lipo, binaryFiles.concat(lipoArgs), function(code, out, err) {
 		next();
