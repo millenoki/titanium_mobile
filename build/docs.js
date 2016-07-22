@@ -99,7 +99,7 @@ Documentation.prototype.generateTypescript = function (next) {
 		prc;
 	console.log('Generating typescript doc...');
 	console.log(args.join(' '));
-	var logStream = fs.createWriteStream(path.join(this.outputDir, 'titanium.d.ts'), {flags: 'a'});
+	var logStream = fs.createWriteStream(path.join(this.outputDir, 'titanium.d.ts'), {flags: 'w'});
 
 	prc = spawn(path.join(ROOT_DIR, 'node_modules/.bin/ts-node'), args, {cwd: path.join(DOC_DIR, 'typescript')});
 	prc.stdout.pipe(logStream);

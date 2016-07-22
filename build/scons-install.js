@@ -37,13 +37,11 @@ function install(versionTag, next) {
 	zipfile = path.join(__dirname, '..', 'dist', 'mobilesdk-' + versionTag + '-' + osName + '.zip');
 	console.log('Installing %s...', zipfile);
 
-	existingInstallation = path.join(dest, 'mobilesdk', osName, versionTag)
-	if (fs.ensureFileSync(existingInstallation)) {
-		fs.removeSync(existingInstallation);
-	}
+	fs.removeSync(path.join(dest, 'mobilesdk', osName, versionTag));
+	
 	// TODO Combine with unzip method in packager.js?
 	// TODO Support unzipping on windows
-	exec('/usr/bin/unzip -q -o -d "' + dest + '" "' + zipfile + '" -x "ZIP_META_MANIFEST"', function(err, stdout, stderr) {
+	exec('/usr/bin/unzip -q -o -d "' + dest + '" "' + zipfile + '"', function (err, stdout, stderr) {
 		if (err) {
 			return next(err);
 		}

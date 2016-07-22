@@ -21,8 +21,8 @@ var path = require('path'),
  */
 function zip(folder, filename, next) {
 	var prc,
-		args = ['-c', '/usr/bin/zip -9 -q -y -r "../' + path.basename(filename) + '" *'];
-	console.log(args);
+		args = ['-c', '/usr/bin/zip -9 -q -y -x *.git* *.DS_Store -r "../' + path.basename(filename) + '" *'];
+	// console.log(args);
 	prc = spawn('bash', args, {cwd: folder});
 	prc.stdout.on('data', function (data) {
 		console.log(data.toString());
@@ -240,9 +240,9 @@ Packager.prototype.package = function (next) {
 		function (cb) {
 			copyFiles(this.srcDir, this.zipSDKDir, ['node_modules'], {
 				filter:function(name) {
-					if (/\.bin/.test(name) || name.split('node_modules').length > 2) {
-						return false;
-					}
+					// if (/\.bin/.test(name) || name.split('node_modules').length > 2) {
+					// 	return false;
+					// }
 					return true;
 				}
 			}, cb);
