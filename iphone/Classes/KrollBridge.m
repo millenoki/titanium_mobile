@@ -881,23 +881,57 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return modulename;
 }
 
+-(NSArray*) fullPathAndModuleID:(NSString*)path
+{
+    NSString* fullPath = nil;
+    NSURL* oldURL = [self currentURL];
+    
+    // Check the position of the first '/', which will give some information
+    // about resource resolution and if the path is absolute.
+    //
+    // TODO: This violates commonjs 1.1 and there is some ongoing discussion about whether or not
+    // it should make a path absolute.
+    NSString* workingPath = [oldURL relativePath];
+    fullPath = [path hasPrefix:@"/"]?[path substringFromIndex:1]:path;
+    
+    
+    NSString* moduleID = nil;
+    NSString* leadingComponent = [[fullPath pathComponents] objectAtIndex:0];
+    BOOL isAbsolute = !([leadingComponent isEqualToString:@"."] || [leadingComponent isEqualToString:@".."]);
+    
+    
+    if (isAbsolute) {
+        moduleID = [[fullPath pathComponents] objectAtIndex:0];
+    }
+    else {
+        fullPath = (workingPath != nil) ?
+        [[workingPath stringByAppendingPathComponent:[fullPath stringByStandardizingPath]] stringByStandardizingPath] :
+        [fullPath stringByStandardizingPath];
+        moduleID = [[fullPath pathComponents] objectAtIndex:0];
+    }
+    return [NSArray arrayWithObjects:fullPath, moduleID, nil];
+}
+
 - (TiModule *)loadCoreModule:(NSString *)path withContext:(KrollContext *)kroll
 {
+    //path can have  ., .., or / when sub module asset
+    
 	// make sure path doesn't begin with ., .., or /
 	// Can't be a "core" module then
-	if ([path hasPrefix:@"/"] || [path hasPrefix:@"."]) {
-		return nil;
-	}
+//	if ([path hasPrefix:@"/"] || [path hasPrefix:@"."]) {
+//		return nil;
+//	}
 
 	// moduleId then is the first path component
-	NSString *moduleID = [[path pathComponents] objectAtIndex:0];
+    NSArray* components = [self fullPathAndModuleID:path];
+    NSString* moduleID = [components objectAtIndex:1];
 	NSString *moduleClassName = [self pathToModuleClassName:moduleID];
 	Class moduleClass = NSClassFromString(moduleClassName);
-
+   
 	if (moduleClass == nil) {
 		return nil;
 	}
-
+  
 	// We have a module to load resources from! Now we need to determine if
 	// it's a base module (which should be cached) or a pure JS resource
 	// stored on the module.
@@ -911,14 +945,20 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 
 	// TODO Handle the oddball case of mixing in JS to the native module...
-	/*
+	NSData *data = nil;
+    NSString* fullPath = [components objectAtIndex:0];
+    NSString* leadingComponent = [[fullPath pathComponents] objectAtIndex:0];
+    BOOL isAbsolute = !([leadingComponent isEqualToString:@"."] || [leadingComponent isEqualToString:@".."]);
+    
 	// TODO: Support package.json 'main' file identifier which will load instead
 	// of module JS. Currently neither iOS nor Android support package information.
 	NSRange separatorLocation = [fullPath rangeOfString:@"/"];
+    BOOL topLevel = false;
 	if (separatorLocation.location == NSNotFound) { // Indicates toplevel module
 	loadNativeJS:
 		if ([module isJSModule]) {
 			data = [module moduleJS];
+            topLevel = data != nil;
 		}
 		[self setCurrentURL:[NSURL URLWithString:fullPath relativeToURL:[[self host] baseURL]]];
 	}
@@ -952,25 +992,27 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
 	// are accessible. We store the exports object and then put references to its properties on the toplevel
 	// object.
+    if (data) {
+        return [self loadJavascriptText:[NSString stringWithUTF8String:[data bytes]] fromFile:topLevel?[fullPath stringByAppendingFormat:@"/%@", moduleID]:fullPath withContext:context];
+    }
+//	TiContextRef jsContext = [[self krollContext] context];
+//	TiObjectRef jsObject = [wrapper jsobject];
+//	KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
+//	[moduleObject noteObject:jsObject forTiString:kTiStringExportsKey context:jsContext];
+//
+//	TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, jsObject);
+//	size_t count = TiPropertyNameArrayGetCount(properties);
+//	for (size_t i=0; i < count; i++) {
+//	// Mixin the property onto the module JS object if it's not already there
+//	TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
+//	if (!TiObjectHasProperty(jsContext, [moduleObject jsobject], propertyName)) {
+//	TiValueRef property = TiObjectGetProperty(jsContext, jsObject, propertyName, NULL);
+//	TiObjectSetProperty([[self krollContext] context], [moduleObject jsobject], propertyName, property, kTiPropertyAttributeReadOnly, NULL);
+//	}
+//	}
+//	TiPropertyNameArrayRelease(properties);
 
-	TiContextRef jsContext = [[self krollContext] context];
-	TiObjectRef jsObject = [wrapper jsobject];
-	KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
-	[moduleObject noteObject:jsObject forTiString:kTiStringExportsKey context:jsContext];
-
-	TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, jsObject);
-	size_t count = TiPropertyNameArrayGetCount(properties);
-	for (size_t i=0; i < count; i++) {
-	// Mixin the property onto the module JS object if it's not already there
-	TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
-	if (!TiObjectHasProperty(jsContext, [moduleObject jsobject], propertyName)) {
-	TiValueRef property = TiObjectGetProperty(jsContext, jsObject, propertyName, NULL);
-	TiObjectSetProperty([[self krollContext] context], [moduleObject jsobject], propertyName, property, kTiPropertyAttributeReadOnly, NULL);
-	}
-	}
-	TiPropertyNameArrayRelease(properties);
-
-	*/
+	
 
 	return module;
 }
@@ -1026,11 +1068,16 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (TiModule *)loadJavascriptText:(NSString *)data fromFile:(NSString *)filename withContext:(KrollContext *)kroll
 {
+    return [self loadJavascriptText:data fromFile:filename withContext:kroll checkModule:YES];
+}
+
+- (TiModule *)loadJavascriptText:(NSString *)data fromFile:(NSString *)filename withContext:(KrollContext *)kroll checkModule:(BOOL)checkModule
+{
 	// FIXME Move this up the stack to where we check for file existence?
 
 	// Now that we have the full path, we can check and see if the module was loaded,
 	// and return it if available.
-	if (modules != nil) {
+	if (checkModule && modules != nil) {
 		TiModule *module = [modules objectForKey:filename];
 		if (module != nil) {
 			return module;
