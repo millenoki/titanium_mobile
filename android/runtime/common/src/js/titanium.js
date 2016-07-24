@@ -339,7 +339,6 @@ Object.defineProperty(Proxy.prototype, "setProperty", {
 Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 	value: function(properties) {
 		var ownNames = Object.getOwnPropertyNames(properties);
-//		kroll.log(TAG, "setPropertiesAndFire: "+ ownNames);
 		var len = ownNames.length;
 		var changes = [];
 

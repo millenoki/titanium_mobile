@@ -277,8 +277,15 @@ void ${className}::getter_${name}(Local<Name> property, const PropertyCallbackIn
 
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
+    
+    
+	Local<Object> holder = args.Holder();
+    // If holder isn't the JavaObject wrapper we expect, look up the prototype chain
+    if (!JavaObject::isJavaObject(holder)) {
+        holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
+    }
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+    titanium::Proxy* proxy = titanium::Proxy::unwrap(holder);
 
 	if (!proxy) {
 		args.GetReturnValue().Set(Undefined(isolate));
@@ -311,7 +318,13 @@ void ${className}::setter_${name}(Local<Name> property, Local<Value> value, cons
 
 	<@Proxy.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+	Local<Object> holder = args.Holder();
+    // If holder isn't the JavaObject wrapper we expect, look up the prototype chain
+    if (!JavaObject::isJavaObject(holder)) {
+        holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
+    }
+
+    titanium::Proxy* proxy = titanium::Proxy::unwrap(holder);
 	if (!proxy) {
 		return;
 	}
@@ -347,7 +360,13 @@ void ${className}::interceptor(Local<String> property, const v8::PropertyCallbac
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
 
-	titanium::Proxy* proxy = titanium::Proxy::unwrap(args.Holder());
+	Local<Object> holder = args.Holder();
+    // If holder isn't the JavaObject wrapper we expect, look up the prototype chain
+    if (!JavaObject::isJavaObject(holder)) {
+        holder = holder->FindInstanceInPrototypeChain(getProxyTemplate(isolate));
+    }
+
+    titanium::Proxy* proxy = titanium::Proxy::unwrap(holder);
 
 	if (!proxy) {
 		args.GetReturnValue().Set(Undefined(isolate));

@@ -159,17 +159,17 @@
 
 <#macro superNamespace>
 <#compress>
-	<#local superFullClassName = superPackageName + "." + superProxyClassName>
+    <#local superFullClassName = superPackageName + "." + superProxyClassName>
 
-	<#if moduleId != "titanium">
-		<#if tiProxies?keys?seq_contains(superFullClassName)>
-			titanium::<@Proxy.namespace tiProxies[superFullClassName].proxyAttrs.fullAPIName/>
+    <#if moduleId != "titanium">
+        <#if tiProxies?keys?seq_contains(superFullClassName)>
+            titanium::<@Proxy.namespace tiProxies[superFullClassName].proxyAttrs.fullAPIName/>
 
-		<#elseif allProxies?keys?seq_contains(superFullClassName)>
-			<@Proxy.namespace allProxies[superFullClassName].proxyAttrs.fullAPIName/>
+        <#elseif allProxies?keys?seq_contains(superFullClassName)>
+            <@Proxy.namespace allProxies[superFullClassName].proxyAttrs.fullAPIName/>
 
-		</#if>
-	</#if>
+        </#if>
+    </#if>
 </#compress>
 </#macro>
 

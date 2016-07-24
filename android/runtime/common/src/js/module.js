@@ -248,6 +248,13 @@ Module.prototype.require = function (request, context) {
 	var start, // hack up the start of the string to check relative/absolute/"naked" module id
 		loaded; // variable to hold the possibly loaded module...
 
+	start = request.substring(0, 2);
+	var isrelative = false;
+	if (start === './' || start === '..') {
+		request = path.normalize(this.path + '/' + request);
+		isrelative = true;
+	}
+	
 	// 1. If X is a core module,
 	loaded = this.loadCoreModule(request, context);
 	if (loaded) {
@@ -256,15 +263,7 @@ Module.prototype.require = function (request, context) {
 		return loaded;
 	}
 
-	// 2. If X begins with './' or '/' or '../'
-	start = request.substring(0, 2);
-	if (start === './' || start === '..') {
-		loaded = this.loadAsFileOrDirectory(path.normalize(this.path + '/' + request), context);
-		if (loaded) {
-			return loaded;
-		}
-	// Root/absolute path (internally when reading the file, we prepend "Resources/" as root dir)
-	} else if (request.substring(0, 1) === '/') {
+	if (isrelative || request.substring(0, 1) === '/') {
 		loaded = this.loadAsFileOrDirectory(request, context);
 		if (loaded) {
 			return loaded;
@@ -578,7 +577,7 @@ Module.prototype._runScript = function (source, filename) {
 
 	var ti = new Titanium.Wrapper(context);
 	var dirname = path.dirname(filename);
-	if (dirname === '.' && !stringEndsWith(filename, '.js')) //root we need to set dirname to module name
+	if (dirname === '.' && !filename.endsWith('.js')) //root we need to set dirname to module name
 	{
 		dirname = filename;
 	}

@@ -12,6 +12,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/picasso.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/okhttp-2.7.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/okio-1.6.0.jar"/>
-	<classpathentry kind="lib" path="lib/android-support-multidex.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/android-support-multidex.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

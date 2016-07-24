@@ -188,6 +188,7 @@ template<WrappedScript::EvalInputFlags input_flag, WrappedScript::EvalContextFla
 	WrappedScript::EvalOutputFlags output_flag>
 void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 {
+	LOGD(TAG, "EvalMachine");
 	Isolate* isolate = args.GetIsolate();
 	HandleScope scope(isolate);
 
@@ -229,6 +230,7 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 	}
 
 	Persistent<Context> context;
+	LOGD(TAG, "EvalMachine1");
 
 	Local<Array> keys;
 	unsigned int i;
@@ -277,6 +279,7 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 		script = n_script->script_.Get(isolate);
 	}
 
+	LOGD(TAG, "EvalMachine2");
 	if (output_flag == returnResult) {
 		result = script->Run();
 		if (result.IsEmpty()) {
@@ -312,7 +315,9 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 		Local<Context> creation = result.As<Object>()->CreationContext();
 	}
 
+	LOGD(TAG, "EvalMachine3");
 	args.GetReturnValue().Set(result);
+	LOGD(TAG, "EvalMachine4");
 }
 
 void ScriptsModule::Initialize(Local<Object> target, Local<Context> context)
