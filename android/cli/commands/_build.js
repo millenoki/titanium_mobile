@@ -2413,6 +2413,7 @@ AndroidBuilder.prototype.getTsConfig = function getTsConfig(next) {
         sourceMap: true,
         inlineSourceMap: false,
         outDir: this.buildTsDir,
+        rootDir:path.join(this.projectDir, 'Resources'),
         allowJS: true,
         target: ts.ScriptTarget.ES2016,
         module: ts.ModuleKind.CommonJS,
