@@ -272,22 +272,22 @@ AndroidModuleBuilder.prototype.dirWalker = function dirWalker(currentPath, callb
 };
 
 AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
-	var cli = this.cli,
-		manifest = this.manifest,
-		eventName = 'android.' + cli.argv.type;
+	// var cli = this.cli,
+	// 	manifest = this.manifest,
+	// 	eventName = 'android.' + cli.argv.type;
 
-	cli.addAnalyticsEvent(eventName, {
-		dir: cli.argv['project-dir'],
-		name: manifest.name,
-		publisher: manifest.author,
-		appid: manifest.moduleid,
-		description: manifest.description,
-		type: cli.argv.type,
-		guid: manifest.guid,
-		version: manifest.version,
-		copyright: manifest.copyright,
-		date: (new Date()).toDateString()
-	});
+	// cli.addAnalyticsEvent(eventName, {
+	// 	dir: cli.argv['project-dir'],
+	// 	name: manifest.name,
+	// 	publisher: manifest.author,
+	// 	appid: manifest.moduleid,
+	// 	description: manifest.description,
+	// 	type: cli.argv.type,
+	// 	guid: manifest.guid,
+	// 	version: manifest.version,
+	// 	copyright: manifest.copyright,
+	// 	date: (new Date()).toDateString()
+	// });
 
 	next();
 };
@@ -467,7 +467,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 	// 	build/class
 	// 	build/generated/json
 	// 	dist/
-	[this.buildClassesDir, this.buildGenJsonDir, this.distDir].forEach(function (dir) {
+	[this.buildClassesDir, this.buildGenJsonDir, this.distDir, this.binDir].forEach(function (dir) {
 		if (fs.existsSync(dir)) {
 			wrench.rmdirSyncRecursive(dir);
 		}
@@ -524,7 +524,7 @@ AndroidModuleBuilder.prototype.generateRuntimeBindings = function (next) {
 
 	var classpath = this.classPaths;
 	var tiDependencies;
-	if (fs.exists(this.dependencyJsonFile)) {
+	if (fs.existsSync(this.dependencyJsonFile)) {
 		var deps = JSON.parse(fs.readFileSync(this.dependencyJsonFile));
 		if (deps.required) {
 			tiDependencies = (tiDependencies || []).concat(deps.required)
@@ -589,10 +589,19 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 	this.logger.log(__('Producing [ModuleName]Bootstrap files using %s', this.buildGenJsonFile));
 
 	var bindingJson = JSON.parse(fs.readFileSync(this.buildGenJsonFile)),
-		moduleClassName = Object.keys(bindingJson.modules)[0];
-		moduleName = bindingJson.modules[moduleClassName]['apiName'],
 		moduleNamespace = this.manifest.moduleid.toLowerCase(),
-		modulesWithCreate = [],
+		moduleClassName, moduleName;
+
+
+	for (key in bindingJson.modules) {
+		var module = bindingJson.modules[key];
+		if (!module.hasOwnProperty('childModules')) {
+ 			moduleClassName = key;
+ 			moduleName = module['apiName'];
+ 			break;
+ 		}
+	}
+	var modulesWithCreate = [],
 		apiTree = {},
 		initTable = [],
 		headers = '',
@@ -611,16 +620,12 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 		JS_INVOCATION_API = 'addInvocationAPI(module, \"<%- moduleNamespace %>\", \"<%- namespace %>\", \"<%- api %>\");';
 
 	function getParentModuleClass(proxyMap) {
-		var name,
-			proxyAttrs = proxyMap['proxyAttrs'];
-
-		if (proxyAttrs['creatableInModule'] && (proxyAttrs['creatableInModule'] != Kroll_DEFAULT)) {
-			name = proxyAttrs['creatableInModule'];
-		} else if (proxyAttrs['parentModule'] && (proxyAttrs['parentModule'] != Kroll_DEFAULT)) {
-			name = proxyAttrs['parentModule'];
-		}
-
-		return name;
+		creatableInModule = proxyMap["proxyAttrs"]["creatableInModule"];
+		parentModule = proxyMap["proxyAttrs"]["parentModule"];
+		if (creatableInModule && creatableInModule != Kroll_DEFAULT)
+			return creatableInModule;
+		if (parentModule && parentModule != Kroll_DEFAULT)
+			return parentModule;
 	}
 
 	function getFullApiName(proxyMap) {
@@ -628,10 +633,13 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 			parentModuleClass = getParentModuleClass(proxyMap);
 
 		while (parentModuleClass) {
-			var parent = bindingJson.proxies[parentModuleClass],
-				parentName = parent['proxyAttrs']['name'];
+			var parent = bindingJson.proxies[parentModuleClass];
+			var proxyAttrs = parent["proxyAttrs"];
 
-			fullApiName = parentName + "." + fullApiName;
+			if (!proxyAttrs.hasOwnProperty("creatable") || proxyAttrs["creatable"]) {
+				parentName = proxyAttrs["name"];
+				fullApiName = parentName + "." + fullApiName;
+			}
 			parentModuleClass = getParentModuleClass(parent);
 		}
 
@@ -786,7 +794,6 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 
 				// apiTree
 				apiNames.forEach(function (api) {
-
 					if (api != moduleName && !(api in tree)) {
 						tree[api] = {
 							'_dependencies': []
@@ -814,7 +821,6 @@ AndroidModuleBuilder.prototype.generateV8Bindings = function (next) {
 				initTable.unshift([proxy, initFunction, disposeFunction].join(',').toString());
 
 			}, this);
-
 			cb();
 		},
 
@@ -1321,48 +1327,59 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 		},
 
 		function (cb) {
+			wrench.copyDirRecursive(path.join(this.platformPath, 'native'), path.join(this.buildGenDir, 'v8'), { forceDelete: true }, cb);
+		},
+
+		function (cb) {
 			this.logger.info('Starting directory: ' + process.cwd());
 			try {
 				process.chdir(this.buildGenDir);
 				this.logger.info('New directory: ' + process.cwd());
 
-				appc.subprocess.run(
-					this.androidInfo.ndk.executables.ndkbuild,
+				var child = spawn(this.androidInfo.ndk.executables.ndkbuild,
 					[
 						'TI_MOBILE_SDK='+this.titaniumSdkPath,
 						'NDK_PROJECT_PATH='+this.buildGenDir,
 						'NDK_APPLICATION_MK='+path.join(this.buildGenDir, 'Application.mk'),
 						'PYTHON=python',
-						'V=0'
-					],
-					function (code, out, err) {
-						if (code) {
-							this.logger.error(__('Failed to run ndk-build'));
-							this.logger.error();
-							err.trim().split('\n').forEach(this.logger.error);
-							this.logger.log();
-							process.exit(1);
+						'V=1'
+					]);
+
+				child.stdout.on('data', function (data) {
+					this.logger.debug(data);
+				}.bind(this));
+
+				child.stderr.on('data', function (data) {
+					this.logger.error(data);
+				}.bind(this));
+
+				child.on('close', function (code) {
+					if (code) {
+						this.logger.error(__('Failed to run ndk-build: %s', code));
+						this.logger.log();
+						process.exit(1);
+					}
+
+					this.dirWalker(this.buildGenLibsDir, function (file) {
+						if (path.extname(file) == '.so' && file.indexOf('libstlport_shared.so') == -1 
+							&& file.indexOf('libc++_shared.so') == -1
+							&& file.indexOf('libkroll-v8.so') == -1) {
+
+							var relativeName = path.relative(this.buildGenLibsDir, file),
+								targetDir = path.join(this.libsDir, path.dirname(relativeName));
+
+							fs.existsSync(targetDir) || wrench.mkdirSyncRecursive(targetDir);
+
+							fs.writeFileSync(
+								path.join(targetDir, path.basename(file)),
+								fs.readFileSync(file)
+							);
 						}
 
-						this.dirWalker(this.buildGenLibsDir, function (file) {
-							if (path.extname(file) == '.so' && file.indexOf('libstlport_shared.so') == -1) {
+					}.bind(this));
 
-								var relativeName = path.relative(this.buildGenLibsDir, file),
-									targetDir = path.join(this.libsDir, path.dirname(relativeName));
-
-								fs.existsSync(targetDir) || wrench.mkdirSyncRecursive(targetDir);
-
-								fs.writeFileSync(
-									path.join(targetDir, path.basename(file)),
-									fs.readFileSync(file)
-								);
-							}
-
-						}.bind(this));
-
-						cb();
-					}.bind(this)
-				);
+					cb();
+				}.bind(this));
 			}
 			catch (err) {
   				this.logger.info('chdir: ' + err);
@@ -1692,6 +1709,8 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					}.bind(this));
 				}
 
+
+				// 7. so libs
 				this.dirWalker(this.libsDir, function (file) {
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'libs', path.relative(this.libsDir, file)) });
 				}.bind(this));
@@ -1702,7 +1721,9 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					}.bind(this));
 				}
 
-				dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolder,'license.json') });
+				if (fs.existsSync(this.licenseFile)) {
+					dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolder,'license.json') });
+				}
 				dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolder,'manifest') });
 				dest.append(fs.createReadStream(this.moduleJarFile), { name: path.join(moduleFolder, this.moduleJarName) });
 				dest.append(fs.createReadStream(this.timoduleXmlFile), { name: path.join(moduleFolder,'timodule.xml') });
