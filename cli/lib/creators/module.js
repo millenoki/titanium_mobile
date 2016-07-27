@@ -132,6 +132,9 @@ ModuleCreator.prototype.run = function run(callback) {
 				// com/appcelerator/mymodule
 				moduleIdAsFolder: id.replace(/\./g, path.sep),
 
+				// com-appcelerator-mymodule
+				moduleProjectId: id.toLowerCase().replace(/\./g, '-'),
+
 				mainEncryptedAsset: '',
 				allEncryptedAssets: '',
 				mainEncryptedAssetReturn: 'return nil;',

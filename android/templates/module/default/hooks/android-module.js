@@ -80,9 +80,11 @@ exports.init = function (logger, config, cli, appc) {
 				libs.push(
 					path.join(this.sdk.path, 'android', 'titanium.jar'),
 					path.join(this.sdk.path, 'android', 'kroll-common.jar'),
-					path.join(this.sdk.path, 'android', 'kroll-apt.jar')
+					path.join(this.sdk.path, 'android', 'kroll-apt.jar'),
+					path.join(this.sdk.path, 'android', 'android-support-v4.jar'),
+					path.join(this.sdk.path, 'android', 'android-support-v7-appcompat.jar'),
+					path.join(this.sdk.path, 'android', 'modules/titanium-ui.jar')
 				);
-
 				// update the variables
 				var variables = data.args[0];
 
