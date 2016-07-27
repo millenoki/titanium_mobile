@@ -45,6 +45,7 @@ githash = p.communicate()[0][7:].split('\n')[0].strip()
 
 ignoreExtensions = ['.pbxuser','.perspectivev3','.pyc']
 ignoreDirs = ['.DS_Store','.git','.gitignore','libTitanium.a','titanium.jar','bridge.txt', 'packaged']
+ignoreFiles = []
 
 def remove_existing_zips(dist_dir, version_tag):
 	for os_name in os_names.values():
@@ -120,7 +121,7 @@ def prepare_xcode():
 def zip_dir(zf,dir,basepath,subs=None,cb=None, ignore_paths=None, ignore_files=None, followlinks=False):
 	for root, dirs, files in os.walk(dir, topdown=True, followlinks=followlinks):
 		dirs[:] = [d for d in dirs if d not in ignoreDirs]
-		files[:] = [f for f in files if not f.startswith('.')]
+		files[:] = [f for f in files if f not in ignoreDirs]
 		
 		skip = False
 		if ignore_paths != None:
