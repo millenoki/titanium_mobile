@@ -224,7 +224,8 @@
                         [addresses addObject:[NSString stringWithFormat:@"%s:%d", addressStr, port]];
                     }
                 }
-                [dict setValue:addresses forKey:@"addresses"];
+                NSOrderedSet *orderedSet = [NSOrderedSet orderedSetWithArray:addresses];
+                [dict setValue:[orderedSet array] forKey:@"addresses"];
             }
         }
         [dict setValue:proxy forKey:@"service"];
