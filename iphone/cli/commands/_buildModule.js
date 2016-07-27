@@ -893,7 +893,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		moduleId = this.moduleId,
 		version = this.moduleVersion,
 		moduleZipName = [moduleId, '-iphone-', version, '.zip'].join(''),
-		moduleZipFullPath = path.join(this.cli.argv['output-dir'] ? this.cli.argv['output-dir'] : this.projectDir,
+		moduleZipFullPath = path.join(this.cli.argv['output-dir'] ? this.cli.argv['output-dir'] : path.join(this.projectDir, 'dist'),
 			moduleZipName),
 		moduleFolders = path.join('modules', 'iphone', moduleId, version),
 		binarylibName = 'lib' + moduleId + '.a',
@@ -906,6 +906,10 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 
 	try {
 		// if the zip file is there, remove it
+        var distDir = path.dirname(moduleZipFullPath);
+        if (!fs.existsSync(distDir)) {
+            fs.mkdirSync(distDir);
+        }
 		fs.existsSync(moduleZipFullPath) && fs.unlinkSync(moduleZipFullPath);
 		zipStream = fs.createWriteStream(moduleZipFullPath);
 		zipStream.on('close', function() {
