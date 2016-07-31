@@ -1972,13 +1972,33 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 							module.libName = 'lib' + module.id.toLowerCase() + '.a',
 							module.libFile = path.join(module.modulePath, module.libName);
-							if (fs.existsSync(path.join(module.modulePath, 'platform'))) {
-								module.frameworks = fs.readdirSync(path.join(module.modulePath, 'platform')).filter(function(file) {
-									return /\.framework$/.test(file);
-								});
+							var platformPath = path.join(module.modulePath, 'platform');
+
+							if (fs.existsSync(path.join(platformPath))) {
+								var thePath = path.join(platformPath, 'frameworks');
+								if (fs.existsSync(thePath)) {
+									module.frameworks = fs.readdirSync(thePath).filter(function(file) {
+										return /\.framework$/.test(file);
+									}).map(function(file){return path.join(thePath, file)});
+								} else {
+									thePath = path.join(module.modulePath, 'platform');
+									module.frameworks = fs.readdirSync(thePath).filter(function(file) {
+										return /\.framework$/.test(file);
+									}).map(function(file){return path.join(thePath, file)});
+								}
+								thePath = path.join(platformPath, 'embeddedFrameworks');
+								if (fs.existsSync(thePath)) {
+									module.embeddedFrameworks = fs.readdirSync(thePath).filter(function(file) {
+										return /\.framework$/.test(file);
+									}).map(function(file){return path.join(thePath, file)});
+								} else {
+									module.embeddedFrameworks = [];
+								}
 							} else {
-								module.frameworks = [];
+									module.frameworks = [];
+									module.embeddedFrameworks = [];
 							}
+							
 							
 
 							if (!fs.existsSync(module.libFile)) {
@@ -3075,14 +3095,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				return embedBuildPhase;
 			};
 			//looking for swift frameworks
-			var embeddedFrameworks = lib.manifest.embeddedFrameworks && lib.manifest.embeddedFrameworks.split(',');
-			lib.frameworks.filter(function(framework){
+			var frameworksToCheck = lib.embeddedFrameworks;
+			frameworksToCheck.forEach(function(fullPath) {
+				var framework = path.basename(fullPath);
 				var frameworkName = framework.replace(/\.framework$/, '');
-				return embeddedFrameworks && embeddedFrameworks.indexOf(frameworkName) != -1;
-			}).forEach(function(framework) {
-				var frameworkName = framework.replace(/\.framework$/, '');
-				var fullPath = path.join(lib.modulePath, 'platform', framework);
-				this.logger.trace(__('handling framework %s, %s, %s', framework, frameworkName, fullPath));
+				// var fullPath = path.join(lib.modulePath, 'platform', framework);
+				this.logger.trace(__('handling embedded framework %s, %s, %s', framework, frameworkName, fullPath));
 				if (appc.version.lt(deploymentTarget, '8.0')) {
 					deploymentTarget = '8.0';
 				}
@@ -3090,7 +3108,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				if (!embedBuildPhase) {
 					return;
 				}
-				this.logger.trace(__('embedBuildPhase %s', JSON.stringify(embedBuildPhase)));
 				var fileRefUuid = this.generateXcodeUuid(xcodeProject),
 					buildFileUuid = this.generateXcodeUuid(xcodeProject);
 
@@ -3104,18 +3121,17 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				};
 				xobjs.PBXFileReference[fileRefUuid + '_comment'] = framework;
 
-				// add the library to the Frameworks group
+				//add the library to the Frameworks group
 				frameworksGroup.children.push({
 					value: fileRefUuid,
-					comment: framework + ' in Embed Frameworks'
+					comment: framework + ' in Frameworks'
 				});
 
-				// add the build file
+				// add the framework build file
 				xobjs.PBXBuildFile[buildFileUuid] = {
 					isa: 'PBXBuildFile',
 					fileRef: fileRefUuid,
 					fileRef_comment: framework,
-					settings: { ATTRIBUTES: [ 'RemoveHeadersOnCopy', 'CodeSignOnCopy' ] }
 				};
 				xobjs.PBXBuildFile[buildFileUuid + '_comment'] = framework + ' in Frameworks';
 
@@ -3124,9 +3140,21 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 					value: buildFileUuid,
 					comment: framework + ' in Frameworks'
 				});
+
+
+				buildFileUuid = this.generateXcodeUuid(xcodeProject);
+				// add the embed framework build file
+				xobjs.PBXBuildFile[buildFileUuid] = {
+					isa: 'PBXBuildFile',
+					fileRef: fileRefUuid,
+					fileRef_comment: framework,
+					settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
+				};
+				xobjs.PBXBuildFile[buildFileUuid + '_comment'] = framework + ' in Embed Frameworks';
+				
 				embedBuildPhase.files.push({
 					value: buildFileUuid,
-					comment: framework + ' in Frameworks'
+					comment: framework + ' in Embed Frameworks'
 				});
 
 			}, this);
