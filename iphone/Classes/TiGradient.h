@@ -46,6 +46,9 @@ typedef enum {
 -(void)paintContext:(CGContextRef)context bounds:(CGRect)bounds;
 
 +(TiGradient *)gradientFromObject:(id)value proxy:(TiProxy *)proxy;
+-(CGGradientRef) cachedGradient;
+-(TiGradientType)typeValue;
+-(CGFloat)angle;
 
 @end
 

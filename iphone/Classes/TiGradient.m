@@ -175,6 +175,32 @@
     [self throwException:TiExceptionInvalidType subreason:@"Must be either 'linear' or 'radial' or 'sweep'" location:CODELOCATION];
 }
 
+-(TiGradientType)typeValue {
+    return type;
+}
+
+- (float) getAngle:(CGPoint)a b:(CGPoint)b
+{
+    int x = a.x;
+    int y = a.y;
+    float dx = b.x - x;
+    float dy = b.y - y;
+    CGFloat radians = atan2(-dx,dy);        // in radians
+    CGFloat degrees = radians * 180 / 3.14; // in degrees
+    return 90 + degrees;
+}
+
+-(CGFloat)angle {
+    if (endPoint && startPoint) {
+        CGSize test = CGSizeMake(100, 100);
+        CGPoint start  = [startPoint pointWithinSize:test];
+        CGPoint end  = [endPoint pointWithinSize:test];
+        CGFloat angle = [self getAngle:start b:end];
+        return angle;
+    }
+    return 0;
+}
+
 -(void)setStartPoint:(id)newStart
 {
     if (startPoint == nil)
