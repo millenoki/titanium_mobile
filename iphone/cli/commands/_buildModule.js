@@ -946,35 +946,25 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		}(this.documentationDir, path.join(moduleFolders, 'documentation')));
 
 		// built doc
-		fs.existsSync(this.documentationBuildDir) && this.dirWalker(this.documentationBuildDir, function(file) {
-			dest.append(fs.createReadStream(file), {
-				name: path.join(moduleFolders, 'documentation', path.relative(this.documentationBuildDir, file))
-			});
-		}.bind(this));
+        if (fs.existsSync(this.documentationBuildDir)) {
+            dest.directory(this.documentationBuildDir, path.join(moduleFolders, 'documentation'));
+        }
 
 		// 2. example folder
-		this.dirWalker(this.exampleDir, function(file) {
-			dest.append(fs.createReadStream(file), {
-				name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file))
-			});
-		}.bind(this));
+        if (fs.existsSync(this.exampleDir)) {
+            dest.directory(this.exampleDir, path.join(moduleFolders, 'example'));
+        }
 
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
-			this.dirWalker(this.platformDir, function(file) {
-				dest.append(fs.createReadStream(file), {
-					name: path.join(moduleFolders, 'platform', path.relative(this.platformDir, file))
-				});
-			}.bind(this));
+            dest.directory(this.platformDir, path.join(moduleFolders, 'platform'));
 		}
 
 		// 4. Resources folder
 		if (fs.existsSync(this.resourcesDir)) {
 			this.dirWalker(this.resourcesDir, function(file, name) {
 				if (name !== 'README.md') {
-					dest.append(fs.createReadStream(file), {
-						name: path.join(moduleFolders, 'Resources', path.relative(this.resourcesDir, file))
-					});
+                    dest.file(file,  path.join(moduleFolders, 'Resources', path.relative(this.resourcesDir, file)));
 				}
 			}.bind(this));
 		}
@@ -983,9 +973,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		if (fs.existsSync(this.assetsDir)) {
 			this.dirWalker(this.assetsDir, function(file) {
 				if (path.extname(file) != '.js' && path.extname(file) != '.ts') {
-					dest.append(fs.createReadStream(file), {
-						name: path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file))
-					});
+                    dest.file(file,  path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)));
 				}
 			}.bind(this));
 		}
@@ -993,9 +981,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		if (fs.existsSync(this.buildAssetsDir)) {
 			this.dirWalker(this.buildAssetsDir, function(file) {
 				if (/\.js\.map$/.test(file)) {
-					dest.append(fs.createReadStream(file), {
-						name: path.join(moduleFolders, 'assets', path.relative(this.buildAssetsDir, file))
-					});
+                    dest.file(file,  path.join(moduleFolders, 'assets', path.relative(this.buildAssetsDir, file)));
 				}
 			}.bind(this));
 		}
@@ -1005,21 +991,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		// 8. manifest
 		// 9. module.xcconfig
 		// 10. metadata.json
-		dest.append(fs.createReadStream(binarylibFile), {
-			name: path.join(moduleFolders, binarylibName)
-		});
-		dest.append(fs.createReadStream(this.licenseFile), {
-			name: path.join(moduleFolders, 'license.json')
-		});
-		dest.append(fs.createReadStream(this.manifestFile), {
-			name: path.join(moduleFolders, 'manifest')
-		});
-		dest.append(fs.createReadStream(this.moduleXcconfigFile), {
-			name: path.join(moduleFolders, 'module.xcconfig')
-		});
-		dest.append(fs.createReadStream(this.metaDataFile), {
-			name: path.join(moduleFolders, 'metadata.json')
-		});
+        dest.file(binarylibFile, path.join(moduleFolders, binarylibName));
+        dest.file(this.licenseFile, path.join(moduleFolders, 'license.json'));
+        dest.file(this.manifestFile, path.join(moduleFolders, 'manifest'));
+        dest.file(this.moduleXcconfigFile, path.join(moduleFolders, 'module.xcconfig'));
+        dest.file(this.metaDataFile, path.join(moduleFolders, 'metadata.json'));
 
 		this.logger.info(__('Writing module zip: %s', moduleZipFullPath));
 		dest.finalize();
