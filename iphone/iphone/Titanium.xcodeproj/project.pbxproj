@@ -587,6 +587,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		D59619701D4B839100C0CFFB /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		0BF933881CA0948D0091C7EC /* TiUIiOSStepper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStepper.h; sourceTree = "<group>"; };
 		0BF933891CA0948D0091C7EC /* TiUIiOSStepper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSStepper.m; sourceTree = "<group>"; };
@@ -4020,10 +4033,12 @@
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
 				838159D01B7A9632002EE811 /* Resources */,
+				D59619701D4B839100C0CFFB /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D59619651D4B834700C0CFFB /* PBXTargetDependency */,
 				D518BD111B80D1B10075199D /* PBXTargetDependency */,
 				D518BD0F1B80D1AE0075199D /* PBXTargetDependency */,
 				D518BD0D1B80D1AA0075199D /* PBXTargetDependency */,
