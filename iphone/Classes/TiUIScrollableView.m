@@ -186,7 +186,7 @@
     [super layoutSubviews];
     if (!_constraintAdded) {
         _constraintAdded = YES;
-        _scrollView = [self scrollview];
+        _scrollView = [self scrollView];
         _dotsView = [self pagecontrol];
         _contentView = [self contentView];
         NSDictionary* views =  NSDictionaryOfVariableBindings(_contentView, _scrollView, _dotsView);

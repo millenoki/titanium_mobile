@@ -27,7 +27,7 @@
 	
 }
 
-@property(nonatomic,retain,readonly) TDUIScrollView * scrollview;
+@property(nonatomic,retain,readonly) TDUIScrollView * scrollView;
 
 //@property(nonatomic,readonly) TiDimension contentWidth;
 

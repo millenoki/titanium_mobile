@@ -385,7 +385,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 }
 
--(UIScrollView*)scrollview
+-(UIScrollView*)scrollView
 {
 	UIWebView* webView = [self webview];
 	if ([webView respondsToSelector:@selector(scrollView)]) {

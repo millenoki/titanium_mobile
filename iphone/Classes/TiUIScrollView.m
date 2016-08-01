@@ -49,7 +49,7 @@
 	if (wrapperView == nil)
 	{
 		CGRect wrapperFrame;
-		wrapperFrame.size = [[self scrollview] contentSize];
+		wrapperFrame.size = [[self scrollView] contentSize];
 		wrapperFrame.origin = CGPointZero;
 		wrapperView = [[UIView alloc] initWithFrame:wrapperFrame];
 		[wrapperView setUserInteractionEnabled:YES];
@@ -59,7 +59,7 @@
 }
 #endif
 
--(TDUIScrollView *)scrollview
+-(TDUIScrollView *)scrollView
 {
 	if(scrollview == nil)
 	{
@@ -101,12 +101,12 @@
 -(void)setClipChildren_:(id)arg
 {
     [super setClipChildren_:arg];
-    [self scrollview].clipsToBounds = self.clipsToBounds;
+    [self scrollView].clipsToBounds = self.clipsToBounds;
 }
 
 - (id)accessibilityElement
 {
-	return [self scrollview];
+	return [self scrollView];
 }
 
 -(BOOL)flexibleContentWidth
