@@ -27,6 +27,8 @@
 #import "TiFile.h"
 #import "TiBuffer.h"
 
+#define HTML_REGEX @"<\\/?[A-Za-z][^>]*>|&[a-z]+;"
+
 typedef enum {
     BAD_DEST_OFFSET = -1,
     BAD_SRC_OFFSET = -2,

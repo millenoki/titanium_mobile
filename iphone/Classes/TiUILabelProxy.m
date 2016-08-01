@@ -12,7 +12,6 @@
 #import "DTCoreText/DTCoreText.h"
 
 #define kDefaultFontSize 12.0
-#define HTML_REGEX @"<\\/?[A-Za-z][^>]*>|&[a-z]+;"
 
 //static inline CTTextAlignment UITextAlignmentToCTTextAlignment(UITextAlignment alignment)
 //{
