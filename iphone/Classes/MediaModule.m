@@ -667,6 +667,12 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
 
 -(NSNumber*)hasCameraPermissions:(id)unused
 {
+    NSString *cameraPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSCameraUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !cameraPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSCameraUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera. Please add the key and re-run the application.");
+    }
+    
     return NUMBOOL([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusAuthorized);
 }
 
@@ -1064,6 +1070,22 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             return ;
         }
         
+        // iOS 10 requires a certain number of additional permissions declared in the Info.plist (<ios><plist/></ios>)
+        if ([TiUtils isIOS10OrGreater]) {
+            NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
+            NSString *galleryPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"];
+            
+            // Microphone permissions are required when using the video-camera
+            if (movieRequired == YES && !microphonePermission) {
+                NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native camera to take videos. Please add the key and re-run the application.");
+            }
+            
+            // Gallery permissions are required when saving or selecting media from the gallery
+            if ((saveToRoll || !customPicker) && !galleryPermission) {
+                NSLog(@"[ERROR] iOS 10 and later requires the key \"NSPhotoLibraryUsageDescription\" inside the plist in your tiapp.xml when accessing the photo library to store media. Please add the key and re-run the application.");
+            }
+        }
+        
         double videoMaximumDuration = [TiUtils doubleValue:[args objectForKey:@"videoMaximumDuration"] def:0.0];
         double videoQuality = [TiUtils doubleValue:[args objectForKey:@"videoQuality"] def:0.0];
         
@@ -1328,11 +1350,10 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
                 int startMilliseconds = ([startTime doubleValue] * 1000);
                 int endMilliseconds = ([endTime doubleValue] * 1000);
                 
-                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-                NSString *documentsDirectory = [paths objectAtIndex:0];
+                NSString *tmpDirectory = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES] path];
                 
                 NSFileManager *manager = [NSFileManager defaultManager];
-                NSString *outputURL = [documentsDirectory stringByAppendingPathComponent:@"editedVideo"];
+                NSString *outputURL = [tmpDirectory stringByAppendingPathComponent:@"editedVideo"];
                 [manager createDirectoryAtPath:outputURL withIntermediateDirectories:YES attributes:nil error:nil];
                 NSString* fileName = [[[NSString stringWithFormat:@"%f",CFAbsoluteTimeGetCurrent()] stringByReplacingOccurrencesOfString:@"." withString:@"-"] stringByAppendingString:@".MOV"];
                 outputURL = [outputURL stringByAppendingPathComponent:fileName];
@@ -1424,7 +1445,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
             }
             
             if (resultImage == nil) {
-                resultImage = (editedImage != nil) ? editedImage : originalImage;
+                resultImage = (editedImage != nil) ? [TiUtils adjustRotation:editedImage] : [TiUtils adjustRotation:originalImage];
             }
             
             media = [[[TiBlob alloc] _initWithPageContext:[self pageContext]] autorelease];

@@ -16,7 +16,10 @@ USE_VIEW_FOR_CONTENT_SIZE
     return @"Ti.UI.iOS.Stepper";
 }
 
-
+-(NSNumber*)value
+{
+    return NUMDOUBLE([[(TiUIiOSStepper*)[self view] stepper] value]);
+}
 
 #ifndef TI_USE_AUTOLAYOUT
 -(TiDimension)defaultAutoWidthBehavior:(id)unused

@@ -95,6 +95,12 @@ public class PropertiesModule extends KrollModule {
 			appProperties.removeProperty(key);
 		}
 	}
+	
+	@Kroll.method
+	public void removeAllProperties()
+	{
+		appProperties.removeAllProperties();
+	}
 
 	@Kroll.method
 	public void setBool(String key, boolean value)

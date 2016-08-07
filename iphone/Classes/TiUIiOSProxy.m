@@ -118,6 +118,17 @@ RELEASE_TO_NIL(x); \
     return NUMBOOL([TiUtils forceTouchSupported]);
 }
 
+-(void)setStatusBarBackgroundColor:(id)value
+{
+    ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
+    ENSURE_SINGLE_ARG(value, NSString);
+    
+    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
+    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
+        statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
+    }
+}
+
 -(NSNumber*)SCROLL_DECELERATION_RATE_NORMAL
 {
     return NUMFLOAT(UIScrollViewDecelerationRateNormal);
@@ -192,7 +203,7 @@ RELEASE_TO_NIL(x); \
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIOSANIMATIONSTYLEt
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
     RELEASE_TO_NIL(_animationStyleProxy);
 #endif
 #ifdef USE_TI_UIIOSROWANIMATIONSTYLE
@@ -222,7 +233,7 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSSTATUSBAR
     RELEASE_TO_NIL(_StatusBar);
 #endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
     RELEASE_TO_NIL(_SystemButton);
 #endif
 #ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE

@@ -241,6 +241,7 @@ public class TiWebViewClient extends WebViewClient
 
 		} else {
 			Log.e(TAG, "SSL error occurred: " + error.toString());
+			handler.cancel();
 		}
 	}
 

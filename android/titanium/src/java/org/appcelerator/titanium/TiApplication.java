@@ -1195,9 +1195,15 @@ public abstract class TiApplication extends Application implements
         return buildVersion;
     }
 
-    public String getTiBuildTimestamp() {
-        return buildTimestamp;
-    }
+	public String getSDKVersion()
+	{
+		return getTiBuildVersion();
+	}
+
+	public String getTiBuildTimestamp()
+	{
+		return buildTimestamp;
+	}
 
     public String getTiBuildHash() {
         return buildHash;

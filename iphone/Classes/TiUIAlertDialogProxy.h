@@ -16,6 +16,7 @@
     BOOL hideOnClick;
     NSInteger cancelIndex;
     NSInteger destructiveIndex;
+    int preferredIndex;
     NSInteger style;
 }
 

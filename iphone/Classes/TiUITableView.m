@@ -160,7 +160,7 @@
     if ([proxy _hasListeners:@"touchcancel"]) {
         
         UITouch *touch = [touches anyObject];
-        NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andPoint:[touch locationInView:self]]];
+        NSDictionary *evt = [NSMutableDictionary dictionaryWithDictionary:[TiUtils touchPropertiesToDictionary:touch andView:self]];
         [proxy fireEvent:@"touchcancel" withObject:evt propagate:YES];
     }
     [super touchesCancelled:touches withEvent:event];
