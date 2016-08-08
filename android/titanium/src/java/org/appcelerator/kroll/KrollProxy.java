@@ -300,7 +300,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
         this.createdInModule = createdInModule;
 
-        if (args.length == 0 || !(args[0] instanceof HashMap)) {
+        if (args == null || args.length == 0 || !(args[0] instanceof HashMap)) {
             handleDefaultValues();
             return;
         }
@@ -1061,11 +1061,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     protected void doSetProperty(String name, Object value) {
-        getKrollObject().setProperty(name, value);
+        KrollObject obj =  getKrollObject();
+        if (obj != null) {
+            obj.setProperty(name, value);
+        }
     }
 
     protected void doUpdateKrollObjectProperties() {
-        krollObject.updateNativeProperties(properties);
+        if (krollObject != null) {
+            krollObject.updateNativeProperties(properties);
+        }
     }
 
     protected void doUpdateKrollObjectProperties(HashMap<String, Object> props) {
@@ -1075,7 +1080,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 ((KrollProxy) value).updateNativePropsIfNecessary();
             }
         }
-        krollObject.updateNativeProperties(props);
+        if (krollObject != null) {
+            krollObject.updateNativeProperties(props);
+        }
     }
 
 //    @Kroll.getProperty
