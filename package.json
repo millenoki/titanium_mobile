@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "adm-zip": "0.4.7",
-    "archiver": "0.21.0",
+    "archiver": "1.0.1",
     "async": "1.5.2",
     "babel-core": "^6.7.4",
     "buffer-equal": "1.0.0",
