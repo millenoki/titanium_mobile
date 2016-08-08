@@ -1684,7 +1684,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				if (fs.existsSync(this.resourcesDir)) {
 					this.dirWalker(this.resourcesDir, function (file, name) {
 						if (name !== 'README.md') {
-							dest.file(file, path.join(moduleFolder, 'Resources', path.relative(this.resourcesDir, file)));
+							dest.file(file, {name:path.join(moduleFolder, 'Resources', path.relative(this.resourcesDir, file))});
 						}
 					}.bind(this));
 				}
@@ -1692,7 +1692,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				// 5. assets folder, not including js files
 				this.dirWalker(this.assetsDir, function (file) {
 					if (path.extname(file) !== '.js' && path.extname(file) !== '.ts' && path.basename(file) !== 'README') {
-						dest.file(file, path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file)));
+						dest.file(file, {name:path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file))});
 					}
 				}.bind(this));
 
@@ -1700,7 +1700,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				if (fs.existsSync(this.buildGenJsDir)) {
 					this.dirWalker(this.buildGenJsDir, function(file) {
 						if (/\.js\.map$/.test(file)) {
-							dest.file(file, path.join(moduleFolder, 'assets', path.relative(this.buildGenJsDir, file)));
+							dest.file(file, {name:path.join(moduleFolder, 'assets', path.relative(this.buildGenJsDir, file))});
 						}
 					}.bind(this));
 				}
@@ -1716,14 +1716,14 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 				}
 
 				if (fs.existsSync(this.licenseFile)) {
-					dest.file(this.licenseFile, path.join(moduleFolder,'license.json'));
+					dest.file(this.licenseFile, {name:path.join(moduleFolder,'license.json')});
 				}
-				dest.file(this.manifestFile, path.join(moduleFolder,'manifest'));
-				dest.file(this.moduleJarFile, path.join(moduleFolder,this.moduleJarName));
-				dest.file(this.timoduleXmlFile, path.join(moduleFolder,'timodule.xml'));
+				dest.file(this.manifestFile, {name:path.join(moduleFolder,'manifest')});
+				dest.file(this.moduleJarFile, {name:path.join(moduleFolder,this.moduleJarName)});
+				dest.file(this.timoduleXmlFile, {name:path.join(moduleFolder,'timodule.xml')});
 
 				if (fs.existsSync(this.metaDataFile)) {
-					dest.file(this.metaDataFile, path.join(moduleFolder,'metadata.json'));
+					dest.file(this.metaDataFile, {name:path.join(moduleFolder,'metadata.json')});
 				}
 
 				this.logger.info(__('Writing module zip: %s', moduleZipPath));
