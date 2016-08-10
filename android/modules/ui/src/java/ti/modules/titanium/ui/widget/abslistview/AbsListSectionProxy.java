@@ -878,10 +878,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		for (KrollProxy theProxy : itemProxy.getNonBindedProxies()) {
 		    KrollProxyListener modelListener = (KrollProxyListener) theProxy.getModelListener();
 		    if (modelListener instanceof KrollProxyReusableListener) {
+		        if (reusing) {
+	                ((KrollProxyReusableListener) modelListener).setReusing(true);
+	            }
 		        if (modelListener instanceof TiUIView) {
 	                ((TiUIView)modelListener).setTouchDelegate((TiTouchDelegate) listItem);
 	            }
 		        theProxy.setEventOverrideDelegate(itemProxy);
+		        if (reusing) {
+	                ((KrollProxyReusableListener) modelListener).setReusing(false);
+	            }
             }
 		}
 
