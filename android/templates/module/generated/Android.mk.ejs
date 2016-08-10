@@ -1,5 +1,6 @@
 # Android.mk for <%- MODULE_ID %>
 LOCAL_PATH := $(call my-dir)
+THIS_DIR = $(LOCAL_PATH)
 
 include $(CLEAR_VARS)
 
@@ -10,8 +11,6 @@ include $(PREBUILT_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 
-LOCAL_PATH := $(call my-dir)
-THIS_DIR = $(LOCAL_PATH)
 LOCAL_MODULE := <%- MODULE_ID %>
 
 # https://jira.appcelerator.org/browse/TIMOB-15263
@@ -34,6 +33,8 @@ BOOTSTRAP_CPP := $(wildcard $(LOCAL_PATH)/../*Bootstrap.cpp)
 
 LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(ABS_SRC_FILES)) \
 	$(patsubst $(LOCAL_PATH)/%,%,$(BOOTSTRAP_CPP))
+
+LOCAL_SHARED_LIBRARIES := krollv8
 
 $(BOOTSTRAP_CPP): $(GEN_DIR)/KrollGeneratedBindings.cpp $(GEN_DIR)/BootstrapJS.cpp
 

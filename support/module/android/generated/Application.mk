@@ -9,8 +9,8 @@ ifneq ("$(CUSTOM_APP_ABI)", "")
 endif
 
 APP_STL := c++_shared
-APP_CPPFLAGS += -frtti 
+APP_CPPFLAGS += -fno-rtti
 APP_CPPFLAGS += -fexceptions
 
-NDK_TOOLCHAIN_VERSION=4.8
+NDK_TOOLCHAIN_VERSION=4.9
 APP_PLATFORM := android-21
