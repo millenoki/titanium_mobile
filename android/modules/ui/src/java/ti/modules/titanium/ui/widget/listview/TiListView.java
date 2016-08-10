@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget.listview;
 
 import java.util.HashMap;
 
-import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.animation.TiAnimation;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -19,7 +18,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import com.nhaarman.listviewanimations.appearance.SingleAnimationAdapter;
 import com.nhaarman.listviewanimations.appearance.StickyListHeadersAdapterDecorator;
 import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuAdapter;
-import com.nhaarman.listviewanimations.itemmanipulation.swipemenu.SwipeMenuCallback;
 import com.nhaarman.listviewanimations.util.StickyListHeadersListViewWrapper;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
