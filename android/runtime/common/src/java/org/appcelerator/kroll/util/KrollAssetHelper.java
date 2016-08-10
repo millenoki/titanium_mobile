@@ -72,20 +72,23 @@ public class KrollAssetHelper
 			}
 
 			InputStream in = assetManager.open(path);
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte buffer[] = new byte[1024];
-			int count = 0;
-
-			while ((count = in.read(buffer)) != -1) {
-				if (out != null) {
-					out.write(buffer, 0, count);
-				}
-			}
+			int size = in.available();
+			byte buffer[] = new byte[size];
+			in.read(buffer);
+//			ByteArrayOutputStream out = new ByteArrayOutputStream();
+//			byte buffer[] = new byte[size];
+//			int count = 0;
+//
+//			while ((count = in.read(buffer)) != -1) {
+//				if (out != null) {
+//					out.write(buffer, 0, count);
+//				}
+//			}
 
             if (Log.isDebugModeEnabled()) {
                 Log.d(TAG, "Fetching \"" + resourcePath + "\" with assetManager...");
             }
-			return out.toString();
+			return new String(buffer);
 
 		} catch (IOException e) {
 			Log.e(TAG, "Error while reading asset \"" + path + "\":", e);
