@@ -143,9 +143,10 @@
         //we need to remove the child from his current parent children's list
         // or it might get detached when the old parent gets released
         [parent _removeChild:self];
-        RELEASE_TO_NIL(parent)
+//        RELEASE_TO_NIL(parent)
     }
-    parent = [newParent retain];
+    parent = newParent;
+//    parent = [newParent retain];
 }
 
 -(BOOL)containsChild:(TiProxy*)child
