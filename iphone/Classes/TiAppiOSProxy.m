@@ -669,6 +669,7 @@
         
 		if (!CLLocationCoordinate2DIsValid(center)) {
 			NSLog(@"[WARN] The provided region is invalid, please check your `latitude` and `longitude`!");
+            [localNotif release];
 			return;
 		}
         

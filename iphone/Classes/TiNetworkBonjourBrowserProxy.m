@@ -174,7 +174,7 @@
 
 -(void)fireEvent:(NSString*)type forService:(NSNetService*)service {
     if ([self _hasListeners:type]) {
-        TiNetworkBonjourServiceProxy* proxy = [[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext] service:service local:NO];
+        TiNetworkBonjourServiceProxy* proxy = [[[TiNetworkBonjourServiceProxy alloc] initWithContext:[self pageContext] service:service local:NO] autorelease];
 
         NSMutableDictionary* dict = [NSMutableDictionary dictionary];
         if (service.port > 0) {

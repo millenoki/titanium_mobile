@@ -227,7 +227,7 @@
             }
         }
     }else if (IS_OF_CLASS(data, NSArray) || IS_OF_CLASS(data, NSMutableArray)) {
-        NSMutableData *theBufferData = [[NSMutableData alloc] initWithCapacity: [data count]];
+        NSMutableData *theBufferData = [[[NSMutableData alloc] initWithCapacity: [data count]] autorelease];
         for( NSString *string in data) {
             char byte = (char)[string intValue];
             [theBufferData appendBytes: &byte length: 1];
