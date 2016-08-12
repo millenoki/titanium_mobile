@@ -565,9 +565,9 @@ def zip_mobilesdk(dist_dir, osname, version, module_apiversion, android, iphone,
 				remove_existing_zips(dist_dir, version_tag)
 			sys.exit(1)
 		zf.write(jsca, '%s/api.jsca' % basepath)
-		typescript = generate_typescript_doc(windows)
-		if not jsca is None:
-			zf.write(typescript, '%s/titanium.d.ts' % basepath)		
+	typescript = generate_typescript_doc(windows)
+	if not typescript is None:
+		zf.write(typescript, '%s/titanium.d.ts' % basepath)		
 
 	# copy the templates folder into the archive
 	zip_dir(zf, os.path.join(top_dir, 'templates'), '%s/templates' % basepath, ignore_paths=ignore_paths)
