@@ -460,11 +460,11 @@ module Generator {
 			var returnType : Array<string> = Mapper.ComputeMethodReturnTypes (tiMethod.returns);
 			var renderizedSignatures = Mapper.RenderMethodParameters (methodParametersTemplate, signatures);
 			var renderizedReturnTypes: Array<string>;
-			if (returnType.length === 1) {
+			// if (returnType.length === 1) {
 				renderizedReturnTypes = Mapper.RenderMethodReturnTypes (methodReturnTemplate, returnType);
-			} else if (returnType.length > 1) {
-				renderizedReturnTypes = Mapper.RenderMethodReturnTypes (methodReturnTemplate, ['any']);
-			}
+			// } else if (returnType.length > 1) {
+				// renderizedReturnTypes = Mapper.RenderMethodReturnTypes (methodReturnTemplate, ['any']);
+			// }
 			if (signatures.length !== renderizedSignatures.length) {
 				throw 'Internal error. Method overload replication failed.';
 			}
@@ -491,12 +491,16 @@ module Generator {
 		private static RenderMethodReturnTypes (template: Function, returnTypes: Array<string>): Array<string> {
 			var renderResult: Array<string> = [];
 			if (returnTypes.length === 0) {
-				renderResult.push (template ({ReturnTypeSeparator: ':', ReturnType: 'void'}));
+				renderResult.push ('');
 			} else {
-				_.each (returnTypes, (retType: string) => {
-					var render = template ({ReturnTypeSeparator: ':', ReturnType: retType || 'void'});
-					renderResult.push (render);
-				});
+						renderResult.push (template ({ReturnTypeSeparator: ':', ReturnType: returnTypes.join(' | ')}));
+				// _.each (returnTypes, (retType: string) => {
+				// 	if (retType) {
+				// 		renderResult.push (template ({ReturnTypeSeparator: ':', ReturnType: retType}));
+				// 	} else {
+				// 		renderResult.push ('');
+				// 	}
+				// });
 			}
 			return renderResult;
 		}

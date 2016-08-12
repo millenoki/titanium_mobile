@@ -232,7 +232,7 @@ function exportReturnTypes (api) {
 			rv.push(x);
 		});
 	} else {
-		rv.push({'type': 'void'});
+		// rv.push({'type': 'void'});
 	}
 	if (rv.length === 1) {
 		return rv[0];
