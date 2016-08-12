@@ -20,6 +20,12 @@ description: |
     generally OK.)
 since: "0.1"
 methods:
+  - name: constructor
+    summary: proxy constructor method
+    parameters:
+      - name: properties
+        summary: initial properties for the proxy.
+        type: Dictionary
   - name: addEventListener
     aliases: on
     summary: Adds the specified callback as an event listener for the named event. Return the Object for chaining
