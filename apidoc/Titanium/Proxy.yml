@@ -26,6 +26,7 @@ methods:
       - name: properties
         summary: initial properties for the proxy.
         type: Dictionary
+        optional: true   
   - name: addEventListener
     aliases: on
     summary: Adds the specified callback as an event listener for the named event. Return the Object for chaining
