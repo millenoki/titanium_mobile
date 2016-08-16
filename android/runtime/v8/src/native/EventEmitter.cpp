@@ -44,7 +44,7 @@ void EventEmitter::initTemplate(Local<Context> context)
 	constructorTemplate.Reset(isolate, constructor);
 
 	eventsSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_events"));
-	emitSymbol.Reset(isolate, NEW_SYMBOL(isolate, "emit"));
+	emitSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_emit"));
 }
 
 void EventEmitter::dispose()
