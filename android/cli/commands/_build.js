@@ -3033,6 +3033,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
             Object.keys(this.tiapp.properties).forEach(function (prop) {
                 props[prop] = this.tiapp.properties[prop].value;
             }, this);
+            if (this.tiapp['run-on-main-thread'] !== undefined) {
+                props['run-on-main-thread'] = this.tiapp['run-on-main-thread'];
+            }
             fs.writeFileSync(
                 appPropsFile,
                 JSON.stringify(props)
