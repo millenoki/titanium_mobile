@@ -17,6 +17,7 @@
 #import "TiAudioItem.h"
 
 #import <AudioToolbox/AudioToolbox.h>
+#import <AVFoundation/AVCaptureDevice.h>
 #import <AVFoundation/AVAudioPlayer.h>
 #import <AVFoundation/AVAudioSession.h>
 

@@ -1292,14 +1292,8 @@ else{\
         startingToolbarFrame.size = [navController toolbar].frame.size;
     }
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-}
 
-    [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
-
-    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
-        [[controller navigationController] setHidesBarsOnSwipe:[TiUtils boolValue:value def:NO]];
     }
-}
 
 -(void)setHidesBarsOnTap:(id)value
 {
@@ -1325,10 +1319,22 @@ else{\
     }
 }
 
--(void)setHidesBarsWhenKeyboardAppears:(id)value
+-(void)setHidesBarsOnSwipe:(id)value
 {
     ENSURE_TYPE(value, NSNumber);
     ENSURE_UI_THREAD(setHidesBarsOnSwipe, value);
+    
+    [self replaceValue:value forKey:@"hidesBarsOnSwipe" notification:NO];
+    
+    if ([TiUtils isIOS8OrGreater] && (controller != nil) && ([controller navigationController] != nil)) {
+        [[controller navigationController] setHidesBarsOnSwipe:[TiUtils boolValue:value def:NO]];
+    }
+}
+
+-(void)setHidesBarsWhenKeyboardAppears:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    ENSURE_UI_THREAD(setHidesBarsWhenKeyboardAppears, value);
 
     [self replaceValue:value forKey:@"hidesBarsWhenKeyboardAppears" notification:NO];
     
