@@ -76,7 +76,7 @@
         switchPageAnimationDuration = 250;
         cacheSize = 3;
         currentPage = -1; //so that the first change event is sent
-        pageControlHeight=20;
+        pagingControlHeight=20;
         pageControlBackgroundColor = nil;
         pageIndicatorColor = nil;
         currentPageIndicatorColor = nil;
@@ -103,29 +103,29 @@
     if (!pagingControlOnTop) {
         CGRect boundsRect = [self bounds];
         if (verticalLayout) {
-            return CGRectMake(boundsRect.origin.x + boundsRect.size.width - pageControlHeight,
+            return CGRectMake(boundsRect.origin.x + boundsRect.size.width - pagingControlHeight,
                               boundsRect.origin.y,
-                              pageControlHeight,
+                              pagingControlHeight,
                               boundsRect.size.height);
         }
         else {
             return CGRectMake(boundsRect.origin.x,
-                          boundsRect.origin.y + boundsRect.size.height - pageControlHeight,
+                          boundsRect.origin.y + boundsRect.size.height - pagingControlHeight,
                           boundsRect.size.width, 
-                          pageControlHeight);
+                          pagingControlHeight);
         }
     }
     else {
         CGRect boundsRect = [self bounds];
         if (verticalLayout) {
             return CGRectMake(0,0,
-                              pageControlHeight,
+                              pagingControlHeight,
                               boundsRect.size.height);
         }
         else {
             return CGRectMake(0,0,
                               boundsRect.size.width,
-                              pageControlHeight);
+                              pagingControlHeight);
         }
     }
     
@@ -192,7 +192,7 @@
         NSDictionary* views =  NSDictionaryOfVariableBindings(_contentView, _scrollView, _dotsView);
         [_scrollView addConstraints:TI_CONSTR(@"V:|[_contentView(_scrollView)]|", views)];
         [_scrollView addConstraints:TI_CONSTR(@"H:|[_contentView(>=_scrollView)]|", views)];
-        NSString *dotsViewHeightConstraints = [NSString stringWithFormat:@"V:[_dotsView(%f)]",pageControlHeight];
+        NSString *dotsViewHeightConstraints = [NSString stringWithFormat:@"V:[_dotsView(%f)]",pagingControlHeight];
         [self addConstraints:TI_CONSTR(dotsViewHeightConstraints, views)];
         [NSLayoutConstraint deactivateConstraints:[_dotsView constraints]];
         [self addConstraint: [NSLayoutConstraint constraintWithItem:_dotsView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1 constant:0]];
@@ -457,7 +457,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 
 -(NSInteger)currentPage
 {
-	UIScrollView* scrollview = [self scrollView];
+	UIScrollView* scrollview = [self scrollview];
 	NSInteger result = currentPage;
     if (scrollview != nil) {
         CGSize scrollFrame = [self bounds].size;
@@ -508,15 +508,15 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
     
     if(!overlayEnabled || !showPageControl ) {
         if (verticalLayout) {
-            if(pagingControlOnTop) viewBounds.origin = CGPointMake(pageControlHeight, 0);
-            viewBounds.size.width -= (showPageControl ? pageControlHeight : 0);
+            if(pagingControlOnTop) viewBounds.origin = CGPointMake(pagingControlHeight, 0);
+            viewBounds.size.width -= (showPageControl ? pagingControlHeight : 0);
         }
         else {
-            if(pagingControlOnTop) viewBounds.origin = CGPointMake(0, pageControlHeight);
-            viewBounds.size.height -= (showPageControl ? pageControlHeight : 0);
+            if(pagingControlOnTop) viewBounds.origin = CGPointMake(0, pagingControlHeight);
+            viewBounds.size.height -= (showPageControl ? pagingControlHeight : 0);
         }
     }
-	UIScrollView *sv = [self scrollView];
+	UIScrollView *sv = [self scrollview];
 	
     NSInteger page = [self currentPage];
     
@@ -730,23 +730,16 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 
 -(void)setPagingControlHeight_:(id)args
 {
-	pageControlHeight = [TiUtils floatValue:args def:20.0];
-	if (pageControlHeight < 5.0)
+	pagingControlHeight = [TiUtils floatValue:args def:20.0];
+	if (pagingControlHeight < 5.0)
 	{
-		pageControlHeight = 20.0;
+		pagingControlHeight = 20.0;
 	}
     
     if (showPageControl && (_scrollView!=nil) && ([[_scrollView subviews] count]>0)) {
         //No need to readd. Just set up the correct frame bounds
         [self refreshScrollView:NO];
     }
-}
-
--(void)setPageControlHeight_:(id)arg
-{
-	// for 0.8 backwards compat, renamed all for consistency
-    DEPRECATED_REPLACED_REMOVED(@"UI.ScrollableView.pageControlHeight", @"2.1.0", @"6.0.0", @"UI.ScrollableView.pagingControlHeight");
-	[self setPagingControlHeight_:arg];
 }
 
 -(void)setPagingControlColor_:(id)args

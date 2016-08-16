@@ -15,7 +15,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.filesystem.FileProxy;
@@ -54,12 +53,7 @@ public class SoundProxy extends KrollProxy
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_TIME, 0d);
 	}
-
-	public SoundProxy(TiContext tiContext)
-	{
-		this();
-	}
-
+	
 	@Override
 	protected void initActivity(Activity activity) {
 		super.initActivity(activity);

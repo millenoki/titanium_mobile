@@ -123,6 +123,7 @@ import android.widget.ViewSwitcher;
 	TiC.PROPERTY_TRANSLATION_Z,
 	TiC.PROPERTY_KEEP_SCREEN_ON,
 	"touchTestId",	
+	"translationX", "translationY", "translationZ", "rotation", "rotationX", "rotationY", "scaleX", "scaleY",
 	TiC.PROPERTY_TRANSITION_NAME,
 	TiC.PROPERTY_HIT_RECT
 })
@@ -637,7 +638,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 		setModelListener(transferview, false);
 		view.setProxy(this);
 	}
-	
+
 	/**
 	 * Creates or retrieves the view associated with this proxy.
 	 * @return a TiUIView instance.
@@ -1523,7 +1524,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 			getMainHandler().sendEmptyMessage(MSG_HIDE_KEYBOARD);
 		}
 	}
-	
+
 	protected void handleHideKeyboard()
 	{
 		View nv = getOuterView();

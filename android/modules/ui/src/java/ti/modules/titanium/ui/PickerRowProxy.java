@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -28,11 +28,6 @@ public class PickerRowProxy extends ViewProxy
 	public PickerRowProxy()
 	{
 		super();
-	}
-
-	public PickerRowProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.getProperty @Kroll.method
@@ -55,12 +50,12 @@ public class PickerRowProxy extends ViewProxy
 	{
 		return title;
 	}
-	
+
 	public void setRowListener(PickerRowListener listener)
 	{
 		rowListener = listener;
 	}
-	
+
 	@Override
 	public void add(Object child, @Kroll.argument(optional = true) Object index)
 	{
@@ -87,7 +82,7 @@ public class PickerRowProxy extends ViewProxy
 			title = TiConvert.toString(options, "title");
 		}
 	}
-	
+
 	public interface PickerRowListener
 	{
 		void rowChanged(PickerRowProxy row);

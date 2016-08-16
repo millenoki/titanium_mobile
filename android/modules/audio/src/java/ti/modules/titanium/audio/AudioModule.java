@@ -10,7 +10,6 @@ package ti.modules.titanium.audio;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.ContextSpecific;
-import org.appcelerator.titanium.TiContext;
 
 import ti.modules.titanium.audio.streamer.AudioStreamerExoService;
 import android.os.Handler;
@@ -35,11 +34,6 @@ public class AudioModule extends KrollModule
 	public AudioModule()
 	{
 		super();
-	}
-
-	public AudioModule(TiContext tiContext)
-	{
-		this();
 	}
 	
     public static FocusableAudioWidget sFocusedAudioWidget = null;

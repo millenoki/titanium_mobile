@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollProxyListener;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiPlatformHelper;
@@ -39,10 +38,10 @@ import android.view.ViewGroup;
 public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.Callback, KrollProxyListener
 {
 	private static final String TAG = "TiBaseTableViewItem";
-	
+
 	private static Bitmap childIndicatorBitmap = null;
 	private static Bitmap checkIndicatorBitmap = null;
-	
+
 	protected Handler handler;
 	protected TiFileHelper tfh;
 	protected String className;
@@ -51,23 +50,23 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	{
 		super(activity);
 		this.handler = new Handler(this);
-		
+
 		if (TiBaseTableViewItem.childIndicatorBitmap == null || TiBaseTableViewItem.checkIndicatorBitmap == null) {
 			synchronized(TiBaseTableViewItem.class) {
 				// recheck to so we don't leak a bitmap.
 				int density = TiPlatformHelper.applicationLogicalDensity;
 				if (childIndicatorBitmap == null) {
 					String path = "/org/appcelerator/titanium/res/drawable/btn_more.png"; // default medium
-					
+
 					switch (density) {
 						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_more_48.png"; break;
 						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_more_18.png"; break;
 					}
-					
+
 					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
 						path = "/org/appcelerator/titanium/res/drawable/btn_more_64.png";
 					}
-					
+
 					if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXHIGH) {
 						path = "/org/appcelerator/titanium/res/drawable/btn_more_100.png";
 					}
@@ -80,11 +79,11 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 						case DisplayMetrics.DENSITY_HIGH : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_48.png"; break;
 						case DisplayMetrics.DENSITY_LOW : path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_18.png"; break;
 					}
-					
+
 					if (Build.VERSION.SDK_INT >= 9 && density == DisplayMetrics.DENSITY_XHIGH) {
 						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_64.png";
-					} 
-					
+					}
+
 					if (Build.VERSION.SDK_INT >= 16 && density >= DisplayMetrics.DENSITY_XXHIGH) {
 						path = "/org/appcelerator/titanium/res/drawable/btn_check_buttonless_on_100.png";
 					}
@@ -94,11 +93,6 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 				}
 			}
 		}
-	}
-
-	public TiBaseTableViewItem(TiContext tiContext, Activity activity)
-	{
-		this(activity);
 	}
 	
 	public View getView() {
@@ -122,7 +116,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	public Drawable getSelectorDrawable() {
 		return null;
 	}
-	
+
 	public String getLastClickedViewName() {
 		return null;
 	}
@@ -138,13 +132,13 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 				// ignore - logging failed
 				return null;
 			}
-		} 
+		}
 	}
-	
+
 	public BitmapDrawable createHasChildDrawable() {
 		return createDrawable(childIndicatorBitmap);
 	}
-	
+
 	public BitmapDrawable createHasCheckDrawable() {
 		return createDrawable(checkIndicatorBitmap);
 	}
@@ -156,7 +150,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 	public void setClassName(String className) {
 		this.className = className;
 	}
-	
+
 	public Drawable getBackgroundImageDrawable(KrollProxy proxy, String path) {
 		String url = proxy.resolveUrl(null, path);
 		return TiFileHelper.loadDrawable(url);
@@ -195,7 +189,7 @@ public abstract class TiBaseTableViewItem extends ViewGroup implements Handler.C
 
 		setBackgroundDrawable(proxy.getProperties(), background);
 	}
-	
+
 	public void release() {
 		handler = null;
 	}

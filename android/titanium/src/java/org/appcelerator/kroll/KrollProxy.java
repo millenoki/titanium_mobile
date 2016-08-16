@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -31,7 +31,6 @@ import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiViewEventOverrideDelegate;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -52,11 +51,10 @@ import android.util.Pair;
 import org.json.JSONObject;
 
 /**
- * This is the parent class of all proxies. A proxy is a dynamic object that can
- * be created or queried by the user through a module or another proxy's API.
- * When you create a native view with <a href=
- * "http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html"
- * >Titanium.UI.createView </a>, the view object is a proxy itself.
+ * This is the parent class of all proxies. A proxy is a dynamic object that can be created or
+ * queried by the user through a module or another proxy's API. When you create a native view with
+ * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>,
+ * the view object is a proxy itself.
  */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = {
         TiC.PROPERTY_BUBBLE_PARENT,
@@ -138,10 +136,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     private String mCurrentState;
     private HashMap mStates;
     private HashMap mCurrentStateValues;
-
-    public KrollProxy(TiContext tiContext) {
-        this();
-    }
 
     /**
      * The default KrollProxy constructor. Equivalent to
@@ -225,34 +219,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             return proxyInstance;
 
         } catch (Exception e) {
-            Log.e(TAG, ERROR_CREATING_PROXY, e);
-        }
-
-        return null;
-    }
-
-    /*
-     * This method exists so that it can be used in the situations (mainly
-     * custom modules) where a proxy is being created with the old TiContext
-     * argument.
-     */
-    public static KrollProxy createDeprecatedProxy(
-            Class<? extends KrollProxy> proxyClass, KrollObject object,
-            Object[] creationArguments, String creationUrl) {
-        try {
-            Constructor<? extends KrollProxy> oldConstructor = proxyClass
-                    .getConstructor(TiContext.class);
-
-            TiUrl url = TiUrl.createProxyUrl(creationUrl);
-            TiContext tiContext = new TiContext(TiApplication.getInstance()
-                    .getCurrentActivity(), url.baseUrl);
-            KrollProxy proxyInstance = oldConstructor.newInstance(tiContext);
-
-            proxyInstance.setupProxy(object, creationArguments, url);
-            return proxyInstance;
-
-        } catch (Exception e) {
-            // Reflection, you my only friend
             Log.e(TAG, ERROR_CREATING_PROXY, e);
         }
 
@@ -1431,17 +1397,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             }
             return true;
         }
-//        final boolean isRuntimeThread = KrollRuntime.getInstance().isRuntimeThread();
+        final boolean isRuntimeThread = KrollRuntime.getInstance().isRuntimeThread();
 //        
-//        if (isRuntimeThread) {
-//            doFireEvent(event, data, bubbles);
-//        } else {
+        if (isRuntimeThread) {
+            doFireEvent(event, data, bubbles);
+        } else {
             Message message = getRuntimeHandler().obtainMessage(MSG_FIRE_EVENT,
                     data);
             message.getData().putString(PROPERTY_NAME, event);
             message.getData().putBoolean(PROPERTY_BUBBLES, bubbles);
             message.sendToTarget();
-//        }
+        }
         
         return true;
     }
@@ -2200,12 +2166,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         defaultValues.clear();
         createdInModule = null;
     }
-
-//    // TODO RM_TICONTEXT
-//    @Deprecated
-//    public TiContext getTiContext() {
-//        return new TiContext(getActivity(), proxyId);
-//    }
 
     // For subclasses to override
     @Kroll.method

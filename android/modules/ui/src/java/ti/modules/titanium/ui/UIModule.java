@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.TiWindowManager;
@@ -72,7 +71,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int KEYBOARD_NAMEPHONE_PAD = 6;
 	@Kroll.constant public static final int KEYBOARD_DEFAULT = 7;
 	@Kroll.constant public static final int KEYBOARD_DECIMAL_PAD = 8;
-    
+
 	@Kroll.constant public static final int KEYBOARD_TYPE_ASCII = 0;
 	@Kroll.constant public static final int KEYBOARD_TYPE_NUMBERS_PUNCTUATION = 1;
 	@Kroll.constant public static final int KEYBOARD_TYPE_URL = 2;
@@ -82,7 +81,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int KEYBOARD_TYPE_NAMEPHONE_PAD = 6;
 	@Kroll.constant public static final int KEYBOARD_TYPE_DEFAULT = 7;
 	@Kroll.constant public static final int KEYBOARD_TYPE_DECIMAL_PAD = 8;
-	
+
 	@Kroll.constant public static final int AUTOLINK_ALL = Linkify.ALL;
 	@Kroll.constant public static final int AUTOLINK_EMAIL_ADDRESSES = Linkify.EMAIL_ADDRESSES;
 	@Kroll.constant public static final int AUTOLINK_MAP_ADDRESSES = Linkify.MAP_ADDRESSES;
@@ -97,7 +96,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int INPUT_BUTTONMODE_ONFOCUS = 0;
 	@Kroll.constant public static final int INPUT_BUTTONMODE_ALWAYS = 1;
 	@Kroll.constant public static final int INPUT_BUTTONMODE_NEVER = 2;
-	
+
 	@Kroll.constant public static final String LIST_ITEM_TEMPLATE_DEFAULT = "listDefaultTemplate";
 	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_NONE = 0;
 	@Kroll.constant public static final int LIST_ACCESSORY_TYPE_CHECKMARK = 1;
@@ -120,7 +119,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int TABLEVIEW_POSITION_TOP = 1;
 	@Kroll.constant public static final int TABLEVIEW_POSITION_MIDDLE = 2;
 	@Kroll.constant public static final int TABLEVIEW_POSITION_BOTTOM = 3;
-	
+
 	@Kroll.constant public static final String TEXT_ALIGNMENT_LEFT = "left";
 	@Kroll.constant public static final String TEXT_ALIGNMENT_CENTER = "center";
 	@Kroll.constant public static final String TEXT_ALIGNMENT_RIGHT = "right";
@@ -139,19 +138,19 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int FACE_UP = TiUIHelper.FACE_UP;
 	@Kroll.constant public static final int FACE_DOWN = TiUIHelper.FACE_DOWN;
 	@Kroll.constant public static final int UNKNOWN = TiOrientationHelper.ORIENTATION_UNKNOWN;
-	
+
 	@Kroll.constant public static final int PICKER_TYPE_PLAIN = -1;
 	@Kroll.constant public static final int PICKER_TYPE_TIME = 0;
 	@Kroll.constant public static final int PICKER_TYPE_DATE = 1;
 	@Kroll.constant public static final int PICKER_TYPE_DATE_AND_TIME = 2;
 	@Kroll.constant public static final int PICKER_TYPE_COUNT_DOWN_TIMER = 3;
-	
+
 	@Kroll.constant public static final int NOTIFICATION_DURATION_LONG = Toast.LENGTH_LONG;
 	@Kroll.constant public static final int NOTIFICATION_DURATION_SHORT = Toast.LENGTH_SHORT;
-	
+
 	@Kroll.constant public static final int TABLE_VIEW_SEPARATOR_STYLE_NONE = 0;
 	@Kroll.constant public static final int TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE = 1;
-	
+
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_NONE = 0;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_SENTENCES = 1;
 	@Kroll.constant public static final int TEXT_AUTOCAPITALIZATION_WORDS = 2;
@@ -183,7 +182,7 @@ public class UIModule extends KrollModule implements Handler.Callback
 	@Kroll.constant public static final int URL_ERROR_TIMEOUT = WebViewClient.ERROR_TIMEOUT;
 	@Kroll.constant public static final int URL_ERROR_UNKNOWN = WebViewClient.ERROR_UNKNOWN;
 	@Kroll.constant public static final int URL_ERROR_UNSUPPORTED_SCHEME = WebViewClient.ERROR_UNSUPPORTED_SCHEME;
-	
+
 	@Kroll.constant public static final int ATTRIBUTE_FONT = 0;
 	@Kroll.constant public static final int ATTRIBUTE_FOREGROUND_COLOR = 1;
 	@Kroll.constant public static final int ATTRIBUTE_BACKGROUND_COLOR = 2;
@@ -300,11 +299,6 @@ public class UIModule extends KrollModule implements Handler.Callback
 	public UIModule()
 	{
 		super();
-	}
-
-	public UIModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.setProperty(runOnUiThread=true) @Kroll.method(runOnUiThread=true)

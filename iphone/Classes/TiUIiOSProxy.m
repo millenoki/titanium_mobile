@@ -33,10 +33,6 @@
 #import <iAd/iAd.h>
 #endif
 
-#ifdef USE_TI_UIIOS3DMATRIX
-#import "Ti3DMatrix.h"
-#endif
-
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 #import "TiUIiOSCoverFlowViewProxy.h"
 #endif
@@ -49,7 +45,7 @@
 #import "TiUIiOSTabbedBarProxy.h"
 #endif
 
-#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
+#ifdef USE_TI_UIIOSDOCUMENTVIEWER
 #import "TiUIiOSDocumentViewerProxy.h"
 #endif
 #ifdef USE_TI_UIIOSACTIVITYVIEW
@@ -120,6 +116,17 @@ RELEASE_TO_NIL(x); \
 -(NSNumber*)forceTouchSupported
 {
     return NUMBOOL([TiUtils forceTouchSupported]);
+}
+
+-(void)setStatusBarBackgroundColor:(id)value
+{
+    ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
+    ENSURE_SINGLE_ARG(value, NSString);
+    
+    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
+    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
+        statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
+    }
 }
 
 -(NSNumber*)SCROLL_DECELERATION_RATE_NORMAL
@@ -196,7 +203,7 @@ RELEASE_TO_NIL(x); \
 
 - (void)dealloc
 {
-#ifdef USE_TI_UIIOSANIMATIONSTYLEt
+#ifdef USE_TI_UIIOSANIMATIONSTYLE
     RELEASE_TO_NIL(_animationStyleProxy);
 #endif
 #ifdef USE_TI_UIIOSROWANIMATIONSTYLE
@@ -226,7 +233,7 @@ RELEASE_TO_NIL(x); \
 #ifdef USE_TI_UIIOSSTATUSBAR
     RELEASE_TO_NIL(_StatusBar);
 #endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+#ifdef USE_TI_UIIOSSYSTEMBUTTON
     RELEASE_TO_NIL(_SystemButton);
 #endif
 #ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
@@ -488,6 +495,24 @@ END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
     }
     return nil;
 }
+
+#if IS_XCODE_8
+- (NSNumber*) BLUR_EFFECT_STYLE_REGULAR
+{
+    if ([TiUtils isIOS10OrGreater]) {
+        return NUMINTEGER(UIBlurEffectStyleRegular);
+    }
+    return nil;
+}
+
+- (NSNumber*) BLUR_EFFECT_STYLE_PROMINENT
+{
+    if ([TiUtils isIOS10OrGreater]) {
+        return NUMINTEGER(UIBlurEffectStyleProminent);
+    }
+    return nil;
+}
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
@@ -503,6 +528,12 @@ MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_PROMINENT, UISearchBarStyleProminent);
 MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
 #endif
 
+#ifdef USE_TI_UISCROLLVIEW
+MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_NONE, UIScrollViewKeyboardDismissModeNone);
+MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_ON_DRAG, UIScrollViewKeyboardDismissModeOnDrag);
+MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissModeInteractive);
+#endif
+
 #ifdef USE_TI_UIIOSADVIEW
 -(NSString*)AD_SIZE_PORTRAIT 
 {
@@ -516,21 +547,11 @@ MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
 
 -(id)createAdView:(id)args
 {
-	return [[[TiUIiOSAdViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
+#if IS_XCODE_8
+	DebugLog(@"[WARN] iAd is deprecated in iOS 10 and will be removed in future versions of iOS. Please consider to replace it with a different service.");
 #endif
-
-#ifdef USE_TI_UIIOS3DMATRIX
--(id)create3DMatrix:(id)args
-{
-	DEPRECATED_REPLACED_REMOVED(@"UI.iOS.create3DMatrix()", @"2.1.0", @"6.0.0", @"UI.create3DMatrix()");
-    if (args==nil || [args count] == 0)
-	{
-		return [[[Ti3DMatrix alloc] init] autorelease];
-	}
-	ENSURE_SINGLE_ARG(args,NSDictionary);
-	Ti3DMatrix *matrix = [[Ti3DMatrix alloc] initWithProperties:args];
-	return [matrix autorelease];
+    
+	return [[[TiUIiOSAdViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
@@ -555,7 +576,7 @@ MAKE_SYSTEM_PROP(SEARCH_BAR_STYLE_MINIMAL, UISearchBarStyleMinimal);
 }
 #endif
 
-#if defined(USE_TI_UIIPADDOCUMENTVIEWER) || defined(USE_TI_UIIOSDOCUMENTVIEWER)
+#ifdef USE_TI_UIIOSDOCUMENTVIEWER
 -(id)createDocumentViewer:(id)args
 {
 	return [[[TiUIiOSDocumentViewerProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
@@ -752,22 +773,6 @@ MAKE_SYSTEM_PROP(COLLISION_MODE_ALL, 2);
     return [[[TiDynamicItemBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
-
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_EASE_IN_OUT, UIViewAnimationOptionCurveEaseInOut, @"UI.iOS.ANIMATION_CURVE_EASE_IN_OUT", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_EASE_IN_OUT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_EASE_IN, UIViewAnimationOptionCurveEaseIn, @"UI.iOS.ANIMATION_CURVE_EASE_IN", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_EASE_IN");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_EASE_OUT,UIViewAnimationOptionCurveEaseOut,  @"UI.iOS.ANIMATION_CURVE_EASE_OUT", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_EASE_OUT");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(ANIMATION_CURVE_LINEAR,UIViewAnimationOptionCurveLinear, @"UI.iOS.ANIMATION_CURVE_LINEAR", @"2.1.0", @"6.0.0", @"UI.ANIMATION_CURVE_LINEAR");
-
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_NONE,UIDataDetectorTypeNone, @"UI.iOS.AUTODETECT_NONE", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_NONE");
--(NSNumber*)AUTODETECT_ALL
-{
-    DEPRECATED_REPLACED_REMOVED(@"UI.iOS.AUTODETECT_ALL", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_ALL")
-    return NUMUINTEGER(UIDataDetectorTypeAll);
-}
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_PHONE,UIDataDetectorTypePhoneNumber, @"UI.iOS.AUTODETECT_PHONE", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_PHONE_NUMBERS");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_LINK,UIDataDetectorTypeLink, @"UI.iOS.AUTODETECT_LINK", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_URLS");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_ADDRESS,UIDataDetectorTypeAddress, @"UI.iOS.AUTODETECT_ADDRESS", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_MAP_ADDRESSES");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED_REMOVED(AUTODETECT_CALENDAR,UIDataDetectorTypeCalendarEvent, @"UI.iOS.AUTODETECT_CALENDAR", @"3.0.0", @"6.0.0", @"UI.AUTOLINK_CALENDAR");
 
 
 MAKE_SYSTEM_STR(COLOR_GROUP_TABLEVIEW_BACKGROUND, IOS_COLOR_GROUP_TABLEVIEW_BACKGROUND);

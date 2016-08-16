@@ -1,7 +1,9 @@
 
 Akylas Fork Titanium Mobile
 ============================
-Travis CI Build [![Build Status](https://travis-ci.org/appcelerator/titanium_mobile.svg?branch=master)](https://travis-ci.org/appcelerator/titanium_mobile)
+| Travis CI  | Jenkins CI |
+|------------|------------|
+| [![Build Status](https://travis-ci.org/appcelerator/titanium_mobile.svg?branch=master)](https://travis-ci.org/appcelerator/titanium_mobile) | [![Build Status](https://jenkins.appcelerator.org/buildStatus/icon?job=titanium_mobile_prs)](https://jenkins.appcelerator.org/job/titanium_mobile_prs/) |
 
 Welcome to the Akylas for of the Titanium open source project.  Titanium provides
 a platform for web developers to build cross-platform, native mobile applications
@@ -66,6 +68,3 @@ You can get a prebuild version of [6.0.0.AKYLAS] (https://drive.google.com/open?
 Appcelerator is a registered trademark of Appcelerator, Inc. Titanium is 
 a registered trademark of Appcelerator, Inc.  Please see the LEGAL information about using our trademarks,
 privacy policy, terms of usage and other legal information at [http://www.appcelerator.com/legal](http://www.appcelerator.com/legal).
-
-
-

@@ -75,6 +75,7 @@ function AndroidBuilder() {
     // a list of relative paths to js files that need to be encrypted
     // note: the filename will have all periods replaced with underscores
     this.jsFilesToEncrypt = [];
+	this.validABIs = ['armeabi-v7a', 'x86'];
 
     // set to true if any js files changed so that we can trigger encryption to run
     this.jsFilesChanged = false;
@@ -1551,12 +1552,25 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
                 if (module.platform.indexOf('commonjs') != -1) {
                     module.native = false;
-
-                    module.libFile = path.join(module.modulePath, module.id + '.js');
-                    if (!fs.existsSync(module.libFile)) {
-                        this.logger.error(__('Module %s version %s is missing module file: %s', module.id.cyan, (module.manifest.version || 'latest').cyan, module.libFile.cyan) + '\n');
-                        process.exit(1);
-                    }
+					
+					// Look for legacy module.id.js first
+					module.libFile = path.join(module.modulePath, module.id + '.js');
+					if (!fs.existsSync(module.libFile)) {
+						// then package.json TODO Verify the main property points at reale file under the module!
+						module.libFile = path.join(module.modulePath, 'package.json');
+						if (!fs.existsSync(module.libFile)) {
+							// then index.js
+							module.libFile = path.join(module.modulePath, 'index.js');
+							if (!fs.existsSync(module.libFile)) {
+								// then index.json
+								module.libFile = path.join(module.modulePath, 'index.json');
+								if (!fs.existsSync(module.libFile)) {
+									this.logger.error(__('Module %s version %s is missing module files: %s, package.json, index.js, or index.json', module.id.cyan, (module.manifest.version || 'latest').cyan, path.join(module.modulePath, module.id + '.js').cyan) + '\n');
+									process.exit(1);
+								}
+							}
+						}
+					}
 
                     this.commonJsModules.push(module);
                 } else {
@@ -1907,7 +1921,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     this.buildBinAssetsDir          = path.join(this.buildDir, 'assets');
     this.buildBinAssetsResourcesDir = path.join(this.buildBinAssetsDir, 'Resources');
     this.buildBinClassesDir         = path.join(this.buildBinDir, 'classes');
-    this.buildBinClassesDex         = path.join(this.buildBinDir, 'classes.dex');
+	this.buildBinClassesDex         = path.join(this.buildBinDir, 'dexfiles');
     this.buildGenDir                = path.join(this.buildDir, 'gen');
     this.buildGenAppIdDir           = path.join(this.buildGenDir, this.appid.split('.').join(path.sep));
     this.buildResDir                = path.join(this.buildDir, 'res');
@@ -2640,9 +2654,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     case 'js':
                         // track each js file so we can copy/minify later
 
-                        // we use the destination file name minus the path to the assets dir as the id
-                        // which will eliminate dupes
-                        var id = to.replace(opts.origDest, '').replace(/\\/g, '/').replace(/^\//, '');
+						// we use the destination file name minus the path to the assets dir as the id
+						// which will eliminate dupes
+						var id = to.replace(opts.origDest, opts.prefix ? opts.prefix + '/' : '').replace(/\\/g, '/').replace(/^\//, '');
 
                         if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
                             jsFiles[id] = from;
@@ -2707,21 +2721,27 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         }, this);
     })(resourcesPaths, function () {});
 
-    // copy all commonjs modules
-    this.commonJsModules.forEach(function (module) {
-        // copy the main module
-        tasks.push(function (cb) {
-            _t.logger.debug(__('Copying %s', module.libFile.cyan));
-            copyDir.call(this, {
-                src: module.libFile,
-                dest: this.buildBinAssetsResourcesDir,
-                onJsConflict: function (src, dest, id) {
-                    this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', id));
-                    this.logger.error(__('Please rename the file, then rebuild') + '\n');
-                    process.exit(1);
-                }.bind(this)
-            }, cb);
-        });
+	// copy all commonjs modules
+	this.commonJsModules.forEach(function (module) {
+		// copy the main module
+		tasks.push(function (cb) {
+			_t.logger.debug(__('Copying %s', module.modulePath.cyan));
+			copyDir.call(this, {
+				src: module.modulePath,
+				// Copy under subfolder named after module.id
+				dest: path.join(this.buildBinAssetsResourcesDir, path.basename(module.id)),
+				// Don't copy files under apidoc, docs, documentation, example or assets (assets is handled below)
+				ignoreRootDirs: ['apidoc', 'documentation', 'docs', 'example', 'assets'],
+				// Make note that files are copied relative to the module.id folder at dest
+				// so that we don't see clashes between module1/index.js and module2/index.js
+				prefix: module.id,
+				onJsConflict: function (src, dest, id) {
+					this.logger.error(__('There is a project resource "%s" that conflicts with a CommonJS module', id));
+					this.logger.error(__('Please rename the file, then rebuild') + '\n');
+					process.exit(1);
+				}.bind(this)
+			}, cb);
+		});
 
         // copy the assets
         tasks.push(function (cb) {
@@ -3013,6 +3033,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
             Object.keys(this.tiapp.properties).forEach(function (prop) {
                 props[prop] = this.tiapp.properties[prop].value;
             }, this);
+            if (this.tiapp['run-on-main-thread'] !== undefined) {
+                props['run-on-main-thread'] = this.tiapp['run-on-main-thread'];
+            }
             fs.writeFileSync(
                 appPropsFile,
                 JSON.stringify(props)
@@ -3061,7 +3084,7 @@ AndroidBuilder.prototype.generateRequireIndex = function generateRequireIndex(ca
         destFile = path.join(this.encryptJS ? this.buildAssetsEncryptDir : binAssetsDir, 'index.json');
     
     this.dirWalker(this.buildBinAssetsResourcesDir, function(file) {
-        if (path.extname(file) === '.js') {
+        if (/\.js(on)?$/.test(path.extname(file))) {
             index[file.replace(/\\/g, '/').replace(binAssetsDir + '/', '')] = 1;
         }
     }.bind(this));
@@ -4308,7 +4331,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
     }
     // add the analytics service
     if (this.tiapp.analytics) {
-        var tiAnalyticsService = 'com.appcelerator.analytics.APSAnalyticsService';
+		var tiAnalyticsService = 'com.appcelerator.aps.APSAnalyticsService';
         finalAndroidManifest.application.service || (finalAndroidManifest.application.service = {});
         finalAndroidManifest.application.service[tiAnalyticsService] = {
             name: tiAnalyticsService,
@@ -4648,29 +4671,34 @@ AndroidBuilder.prototype.runProguard = function runProguard(next) {
 AndroidBuilder.prototype.runDexer = function runDexer(next) {
     if (!this.forceRebuild && fs.existsSync(this.buildBinClassesDex)) return next();
 
-    var dexerHook = this.cli.createHook('build.android.dexer', this, function (exe, args, opts, done) {
-            this.logger.info(__('Running dexer: %s', (exe + ' "' + args.join('" "') + '"').cyan));
-            appc.subprocess.run(exe, args, opts, function (code, out, err) {
-                if (code) {
-                    this.logger.error(__('Failed to run dexer:'));
-                    this.logger.error();
-                    err.trim().split('\n').forEach(this.logger.error);
-                    this.logger.log();
-                    process.exit(1);
-                }
-                done();
-            }.bind(this));
-        }),
-        dexArgs = [
-            '-Xmx' + this.dxMaxMemory,
-            '-XX:-UseGCOverheadLimit',
-            '-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
-            '-jar', this.androidInfo.sdk.dx,
-            '--dex',
-            '--output=' + this.buildBinClassesDex,
-            this.buildBinClassesDir,
-            path.join(this.platformPath, 'lib', 'titanium-verify.jar')
-        ].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries));
+	var dexerHook = this.cli.createHook('build.android.dexer', this, function (exe, args, opts, done) {
+			this.logger.info(__('Running dexer: %s', (exe + ' "' + args.join('" "') + '"').cyan));
+			appc.subprocess.run(exe, args, opts, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				done();
+			}.bind(this));
+		}),
+		injars = [
+			this.buildBinClassesDir,
+			path.join(this.platformPath, 'lib', 'titanium-verify.jar')
+		].concat(Object.keys(this.moduleJars)).concat(Object.keys(this.jarLibraries)),
+		dexArgs = [
+			'-Xmx' + this.dxMaxMemory,
+			'-XX:-UseGCOverheadLimit',
+			'-Djava.ext.dirs=' + this.androidInfo.sdk.platformTools.path,
+			'-jar', this.androidInfo.sdk.dx,
+			'--dex', '--multi-dex',
+			'--output=' + this.buildBinClassesDex,
+		],
+		shrinkedAndroid = path.join(path.dirname(this.androidInfo.sdk.dx), 'shrinkedAndroid.jar'),
+		baserules = path.join(path.dirname(this.androidInfo.sdk.dx), '..', 'mainDexClasses.rules'),
+		outjar = path.join(this.buildDir, 'mainDexClasses.jar');
 
     // inserts the -javaagent arg earlier on in the dexArgs to allow for proper dexing if
     // dexAgent is set in the module's timodule.xml
@@ -4678,29 +4706,98 @@ AndroidBuilder.prototype.runDexer = function runDexer(next) {
         dexArgs.unshift('-javaagent:' + this.dexAgent);
     }
 
-    if (this.allowDebugging && this.debugPort) {
-        dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
-    }
+	if (this.allowDebugging && this.debugPort) {
+		injars.push(path.join(this.platformPath, 'lib', 'titanium-debug.jar'));
+	}
 
-    if (this.allowProfiling && this.profilerPort) {
-        dexArgs.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
-    }
+	if (this.allowProfiling && this.profilerPort) {
+		injars.push(path.join(this.platformPath, 'lib', 'titanium-profiler.jar'));
+	}
 
-    dexerHook(this.jdkInfo.executables.java, dexArgs, {}, next);
+	// nuke and create the folder holding all the classes*.dex files
+	if (fs.existsSync(this.buildBinClassesDex)) {
+		wrench.rmdirSyncRecursive(this.buildBinClassesDex);
+	}
+	wrench.mkdirSyncRecursive(this.buildBinClassesDex);
+
+	// Wipe existing outjar
+	fs.existsSync(outjar) && fs.unlinkSync(outjar);
+
+	// We need to hack multidex for APi level < 21 to generate the list of classes that *need* to go into the first dex file
+	// We skip these intermediate steps if 21+ and eventually just run dexer
+	async.series([
+		// Run: java -jar $this.androidInfo.sdk.proguard -injars "${@}" -dontwarn -forceprocessing -outjars ${tmpOut} -libraryjars "${shrinkedAndroidJar}" -dontoptimize -dontobfuscate -dontpreverify -include "${baserules}"
+		function (done) {
+			// 'api-level' and 'sdk' properties both seem to hold apiLevel
+			if (this.androidTargetSDK.sdk >= 21) {
+				return done();
+			}
+
+			appc.subprocess.run(this.jdkInfo.executables.java, [
+				'-jar',
+				this.androidInfo.sdk.proguard,
+				'-injars', injars.join(':'),
+				'-dontwarn', '-forceprocessing',
+				'-outjars', outjar,
+				'-libraryjars', shrinkedAndroid,
+				'-dontoptimize', '-dontobfuscate', '-dontpreverify', '-include',
+				baserules
+			], {}, function (code, out, err) {
+				if (code) {
+					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				done();
+			}.bind(this));
+		}.bind(this),
+		// Run: java -cp $this.androidInfo.sdk.dx com.android.multidex.MainDexListBuilder "$outjar" "$injars"
+		function (done) {
+			// 'api-level' and 'sdk' properties both seem to hold apiLevel
+			if (this.androidTargetSDK.sdk >= 21) {
+				return done();
+			}
+
+			appc.subprocess.run(this.jdkInfo.executables.java, ['-cp', this.androidInfo.sdk.dx, 'com.android.multidex.MainDexListBuilder', outjar, injars.join(':')], {}, function (code, out, err) {
+				var mainDexClassesList = path.join(this.buildDir, 'main-dex-classes.txt');
+				if (code) {
+					this.logger.error(__('Failed to run dexer:'));
+					this.logger.error();
+					err.trim().split('\n').forEach(this.logger.error);
+					this.logger.log();
+					process.exit(1);
+				}
+				// Record output to a file like main-dex-classes.txt
+				fs.writeFileSync(mainDexClassesList, out);
+				// Pass that file into dex, like so:
+				dexArgs.push('--main-dex-list');
+				dexArgs.push(mainDexClassesList);
+
+				done();
+			}.bind(this));
+		}.bind(this),
+		function (done) {
+			dexArgs = dexArgs.concat(injars);
+			dexerHook(this.jdkInfo.executables.java, dexArgs, {}, done);
+		}.bind(this)
+	], next);
 };
 
 AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
-    var dest = archiver('zip', {
-            forceUTC: true
-        }),
-        apkStream,
-        jsonRegExp = /\.json$/,
-        javaRegExp = /\.java$/,
-        classRegExp = /\.class$/,
-        soRegExp = /\.so$/,
-        trailingSlashRegExp = /\/$/,
-        nativeLibs = {},
-        origConsoleError = console.error;
+	var dest = archiver('zip', {
+			forceUTC: true
+		}),
+		apkStream,
+		jsonRegExp = /\.json$/,
+		javaRegExp = /\.java$/,
+		classRegExp = /\.class$/,
+		dexRegExp = /^classes(\d+)?\.dex$/,
+		soRegExp = /\.so$/,
+		trailingSlashRegExp = /\/$/,
+		nativeLibs = {},
+		origConsoleError = console.error;
 
     // since the archiver library didn't set max listeners, we squelch all error output
     console.error = function () {};
@@ -4747,8 +4844,15 @@ AndroidBuilder.prototype.createUnsignedApk = function createUnsignedApk(next) {
             }, this);
         }, this);
 
-        this.logger.debug(__('Adding %s', 'classes.dex'.cyan));
-        dest.append(fs.createReadStream(this.buildBinClassesDex), { name: 'classes.dex' });
+		// Add dex files
+		this.logger.info(__('Processing %s', this.buildBinClassesDex.cyan));
+		fs.readdirSync(this.buildBinClassesDex).forEach(function (name) {
+			var file = path.join(this.buildBinClassesDex, name);
+			if (dexRegExp.test(name)) {
+				this.logger.debug(__('Adding %s', name.cyan));
+				dest.append(fs.createReadStream(file), { name: name });
+			}
+		}, this);
 
         this.logger.info(__('Processing %s', this.buildSrcDir.cyan));
         (function copyDir(dir, base) {

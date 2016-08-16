@@ -13,7 +13,7 @@
 #import "TiViewProxy.h"
 #import "TiApp.h"
 #import "TiUITextWidget.h"
-#if defined (USE_TI_UIATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 
@@ -332,13 +332,13 @@
     [[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
 }
 
-#if defined (USE_TI_UIATTRIBUTEDSTRING)
 -(void)setAttributedHintText_:(id)value
 {
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 	ENSURE_SINGLE_ARG(value,TiUIAttributedStringProxy);
 	[[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
-}
 #endif
+}
 
 -(void)setMinimumFontSize_:(id)value
 {

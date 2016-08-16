@@ -209,7 +209,6 @@ timodule.xml.
 				<compilerarg value="${genjson}"/>
 				<compilerarg line="-Akroll.jsonFile=${manifest.name}.json"/>
 				<compilerarg line="-Akroll.jsonPackage=org.appcelerator.titanium.bindings"/>
-				<compilerarg line="-Akroll.checkTiContext=true"/>
 				<classpath refid="project.classpath"/>
 		</javac>
 	</target>
@@ -440,6 +439,7 @@ timodule.xml.
 				<include name="**/*"/>
 				<exclude name="**/libstlport_shared.so"/>
 				<exclude name="**/libkroll-v8.so"/>
+				<exclude name="**/libc++_shared.so"/>
 			</fileset>
 		</copy>
 	</target>

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@ package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.HashMap;
 
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBorderWrapperView;
 import org.appcelerator.titanium.view.TiUIView;
@@ -100,16 +99,11 @@ public class TiTableViewHeaderItem extends TiBaseTableViewItem
 		this.isHeaderView = true;
 	}
 
-	public TiTableViewHeaderItem(TiContext tiContext, Activity activity)
-	{
-		this(activity);
-	}
-
 	public void setRowData(Item item)
 	{
 		if (!isHeaderView) {
 			rowView.setRowData(item);
-		} 
+		}
 	}
 
 	public Item getRowData()

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -76,18 +75,13 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	// Used only if TiVideoActivity is used (fullscreen == true)
 	private Handler videoActivityHandler;
 	private WeakReference<Activity> activityListeningTo = null;
-	
+
 	private TiThumbnailRetriever mTiThumbnailRetriever;
-	
+
 	public VideoPlayerProxy()
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
-	}
-
-	public VideoPlayerProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -119,7 +113,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	 * extra code beyond this here.
 	 * @param layout The content view of the TiVideoActivity. It already contains a VideoView.
 	 */
-	// 
+	//
 	// a TiUIVideoView so we have one common channel to the VideoView
 	private void setVideoViewFromActivity(TiCompositeLayout layout)
 	{
@@ -157,7 +151,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		if (fullscreen) {
 			launchVideoActivity(options);
 		}
-		
+
 	}
 
 	private void launchVideoActivity(HashMap options)
@@ -267,7 +261,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		play();
 	}
 
-	
+
 	@Kroll.method
 	public void pause()
 	{
@@ -548,7 +542,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		}
 		fireEvent(TiC.EVENT_COMPLETE, args);
 	}
-	
+
 	public void firePlaying()
 	{
 		KrollDict args = new KrollDict();
@@ -583,7 +577,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	{
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_PLAYING);
 	}
-	
+
 	public void onPlaying()
 	{
 		firePlaying();
@@ -625,7 +619,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 		fireComplete(MediaModule.VIDEO_FINISH_REASON_PLAYBACK_ERROR);
 	}
-	
+
 	public void onSeekingForward()
 	{
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_SEEKING_FORWARD);
@@ -706,23 +700,23 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		if (wasPlaying) {
 			fireComplete(MediaModule.VIDEO_FINISH_REASON_USER_EXITED);
 		}
-		
+
 		// Cancel any Thumbnail requests and releasing TiMediaMetadataRetriver resource
 		cancelAllThumbnailImageRequests();
-		
+
 	}
 
 	@Kroll.method
 	public void requestThumbnailImagesAtTimes(Object[] times, Object option, KrollFunction callback)
 	{
 		if (this.hasProperty(TiC.PROPERTY_URL)) {
-			cancelAllThumbnailImageRequests();		
+			cancelAllThumbnailImageRequests();
 			mTiThumbnailRetriever = new TiThumbnailRetriever();
 			mTiThumbnailRetriever.setUri(Uri.parse(this.resolveUrl(null, TiConvert.toString(this.getProperty(TiC.PROPERTY_URL)))));
 			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option), createThumbnailResponseHandler(callback));
-		}			
+		}
 	}
-	
+
 	@Kroll.method
 	public void cancelAllThumbnailImageRequests()
 	{
@@ -731,12 +725,12 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 			mTiThumbnailRetriever = null;
 		}
 	}
-	
+
 	/**
-	 * Convenience method for creating a response handler that is used when getting a 
+	 * Convenience method for creating a response handler that is used when getting a
 	 * bitmmap.
-	 * 
-	 * @param callback          Javascript function that the response handler will invoke 
+	 *
+	 * @param callback          Javascript function that the response handler will invoke
 	 *                          once the bitmap response is ready
 	 * @return                  the bitmap response handler
 	 */

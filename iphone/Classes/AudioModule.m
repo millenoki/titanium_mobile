@@ -358,8 +358,19 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
  **/
 -(void)requestAuthorization:(id)args
 {
-    DEPRECATED_REPLACED(@"Audio.requestAuthorization", @"5.1.0", @"Audio.requestAudioPermissions");
+    DEPRECATED_REPLACED(@"Media.requestAuthorization", @"5.1.0", @"Media.requestAudioPermissions");
     [self requestAudioPermissions:args];
+}
+
+-(NSNumber*)hasAudioPermissions
+{
+    NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !microphonePermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSMicrophoneUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
+    }
+    
+    [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized;
 }
 
 -(void)requestAudioPermissions:(id)args
@@ -373,7 +384,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
                                                                         eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
                                                                          thisObject:self];
                 [[callback context] enqueue:invocationEvent];
-				RELEASE_TO_NIL(invocationEvent);
+                RELEASE_TO_NIL(invocationEvent);
             }];
         }, NO);
     } else {
@@ -384,6 +395,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
         return;
     }
 }
+
 
 -(void)startMicrophoneMonitor:(id)args
 {

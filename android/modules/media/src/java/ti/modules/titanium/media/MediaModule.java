@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,7 +27,6 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
@@ -35,6 +34,7 @@ import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
@@ -44,6 +44,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -51,7 +52,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
-import android.media.CamcorderProfile; 
+import android.media.CamcorderProfile;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
@@ -112,11 +113,11 @@ public class MediaModule extends KrollModule
 
 	@Kroll.constant public static final int VIDEO_QUALITY_LOW = CamcorderProfile.QUALITY_LOW;
 	@Kroll.constant public static final int VIDEO_QUALITY_HIGH = CamcorderProfile.QUALITY_HIGH;
-	
+
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_PLAYBACK_ERROR = 1;
 	@Kroll.constant public static final int VIDEO_FINISH_REASON_USER_EXITED = 2;
-	
+
 	@Kroll.constant public static final int VIDEO_TIME_OPTION_NEAREST_KEYFRAME = MediaMetadataRetriever.OPTION_CLOSEST;
 	@Kroll.constant public static final int VIDEO_TIME_OPTION_CLOSEST_SYNC = MediaMetadataRetriever.OPTION_CLOSEST_SYNC;
 	@Kroll.constant public static final int VIDEO_TIME_OPTION_NEXT_SYNC = MediaMetadataRetriever.OPTION_NEXT_SYNC;
@@ -130,7 +131,7 @@ public class MediaModule extends KrollModule
 	@Kroll.constant public static final int CAMERA_FLASH_OFF = 0;
 	@Kroll.constant public static final int CAMERA_FLASH_ON = 1;
 	@Kroll.constant public static final int CAMERA_FLASH_AUTO = 2;
-	
+
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static String extension = ".jpg";
 
@@ -148,12 +149,6 @@ public class MediaModule extends KrollModule
 	public MediaModule()
 	{
 		super();
-
-	}
-
-	public MediaModule(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Kroll.method
@@ -167,7 +162,7 @@ public class MediaModule extends KrollModule
 			vibrator.vibrate(pattern, -1);
 		}
 	}
-	
+
 	private int getLastImageId(Activity activity){
 	    final String[] imageColumns = { MediaStore.Images.Media._ID };
 	    final String imageOrderBy = MediaStore.Images.Media._ID+" DESC";
@@ -185,7 +180,7 @@ public class MediaModule extends KrollModule
 	        return 0;
 	    }
 	}
-	
+
 	private void launchNativeCamera(KrollDict cameraOptions)
 	{
 		KrollFunction successCallback = null;
@@ -197,7 +192,7 @@ public class MediaModule extends KrollModule
 		int videoMaximumDuration = 0;
 		int videoQuality = VIDEO_QUALITY_HIGH;
 		int cameraType = 0;
-		
+
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
 			successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
 		}
@@ -220,7 +215,7 @@ public class MediaModule extends KrollModule
 			videoQuality = cameraOptions.getInt(TiC.PROPERTY_VIDEO_QUALITY);
 		}
 		if (cameraOptions.containsKeyAndNotNull("mediaTypes")) {
-			mediaTypes = cameraOptions.getStringArray("mediaTypes");			
+			mediaTypes = cameraOptions.getStringArray("mediaTypes");
 			if (Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)){
 				mediaType = MEDIA_TYPE_VIDEO;
 				intentType = MediaStore.ACTION_VIDEO_CAPTURE;
@@ -231,17 +226,17 @@ public class MediaModule extends KrollModule
 				extension = ".jpg";
 			}
 		}
-		
-		//Create an output file irrespective of whether saveToGallery 
+
+		//Create an output file irrespective of whether saveToGallery
 		//is true or false. If false, we'll delete it later
 		File imageFile = null;
-		
+
 		if (saveToPhotoGallery) {
 			imageFile = TiFileHelper.createGalleryImageFile(extension);
 		} else {
 			imageFile = TiFileHelper.createExternalStorageFile(extension);
 		}
-		
+
 		//Sanity Checks
 		if (imageFile == null) {
 			if (errorCallback != null) {
@@ -251,7 +246,7 @@ public class MediaModule extends KrollModule
 			}
 			return;
 		}
-		
+
 		if (getIsCameraSupported() == false) {
 			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
@@ -262,18 +257,18 @@ public class MediaModule extends KrollModule
 			imageFile.delete();
 			return;
 		}
-		
+
 		//Create Intent
 		Uri fileUri = Uri.fromFile(imageFile); // create a file to save the image
 		Intent intent = new Intent(intentType);
 		intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
 		intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, videoQuality);
 		intent.putExtra("android.intent.extras.CAMERA_FACING", cameraType);
-		
+
 		if (videoMaximumDuration>0){
 			intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, videoMaximumDuration);
 		}
-		
+
 		//Setup CameraResultHandler
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
@@ -289,11 +284,11 @@ public class MediaModule extends KrollModule
 		resultHandler.lastImageId = getLastImageId(activity);
 		resultHandler.intentType = intentType;
 		activity.runOnUiThread(resultHandler);
-		
-		
+
+
 	}
-	
-	
+
+
 	private void launchCameraActivity(KrollDict cameraOptions, TiViewProxy overLayProxy) {
 		KrollFunction successCallback = null;
 		KrollFunction cancelCallback = null;
@@ -306,7 +301,7 @@ public class MediaModule extends KrollModule
 		String[] mediaTypes = null;
 		int flashMode = CAMERA_FLASH_OFF;
 		int whichCamera = CAMERA_REAR;
-		
+
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
 			successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
 		}
@@ -328,7 +323,7 @@ public class MediaModule extends KrollModule
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_WHICH_CAMERA)) {
 			whichCamera = cameraOptions.getInt(TiC.PROPERTY_WHICH_CAMERA);
 		}
-		
+
 		// VIDEO
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_DURATION)) {
 			videoMaximumDuration = cameraOptions.getInt(TiC.PROPERTY_VIDEO_MAX_DURATION);
@@ -340,7 +335,7 @@ public class MediaModule extends KrollModule
 			videoQuality = cameraOptions.getInt(TiC.PROPERTY_VIDEO_QUALITY);
 		}
 		if (cameraOptions.containsKeyAndNotNull("mediaTypes")) {
-			mediaTypes = cameraOptions.getStringArray("mediaTypes");			
+			mediaTypes = cameraOptions.getStringArray("mediaTypes");
 			if (Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)){
 				mediaType = MEDIA_TYPE_VIDEO;
 				extension = ".mp4";
@@ -349,8 +344,9 @@ public class MediaModule extends KrollModule
 				extension = ".jpg";
 			}
 		}
-		
+
 		TiCameraActivity.callbackContext = getKrollObject();
+		TiCameraActivity.mediaContext = this;
 		TiCameraActivity.successCallback = successCallback;
 		TiCameraActivity.cancelCallback = cancelCallback;
 		TiCameraActivity.errorCallback = errorCallback;
@@ -362,7 +358,7 @@ public class MediaModule extends KrollModule
 		TiCameraActivity.videoMaximumDuration = videoMaximumDuration;
 		TiCameraActivity.mediaType = mediaType;
 		TiCameraActivity.setFlashMode(flashMode);
-		
+
 		//Create Intent and Launch
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		Intent intent = new Intent(activity, TiCameraActivity.class);
@@ -378,10 +374,10 @@ public class MediaModule extends KrollModule
 		if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
 				currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 			return true;
-		} 
-		return false;		
+		}
+		return false;
 	}
-	
+
 	private boolean hasCameraPermission() {
 	    if (Build.VERSION.SDK_INT < 23) {
 	        return true;
@@ -389,7 +385,7 @@ public class MediaModule extends KrollModule
 	    Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
 	    if (currentActivity.checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
 	        return true;
-	    } 
+	    }
 	    return false;
 	}
 
@@ -400,7 +396,7 @@ public class MediaModule extends KrollModule
 	    Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 	    if (currentActivity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 	        return true;
-	    } 
+	    }
 	    return false;
 	}
 
@@ -431,14 +427,14 @@ public class MediaModule extends KrollModule
 		
 		
 		Object overlay = cameraOptions.get(PROP_OVERLAY);
-		
+
 		if ( (overlay != null) && (overlay instanceof TiViewProxy) ) {
 			launchCameraActivity(cameraOptions, (TiViewProxy)overlay);
 		} else {
 			launchNativeCamera(cameraOptions);
 		}
 	}
-	
+
 	@Kroll.method
 	public void requestCameraPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
 	{
@@ -477,7 +473,7 @@ public class MediaModule extends KrollModule
 		KrollFunction errorCallback = null;
 
 		KrollDict callbackDict = null;
-		
+
 		//Check for callbacks
 		if (callbackargs != null) {
 			callbackDict = new KrollDict(callbackargs);
@@ -488,7 +484,7 @@ public class MediaModule extends KrollModule
 				errorCallback = (KrollFunction) callbackDict.get(TiC.EVENT_ERROR);
 			}
 		}
-		
+
 		//Validate arguments
 		boolean validType = ( (arg instanceof TiBlob) || (arg instanceof TiFileProxy) );
 		if (!validType) {
@@ -499,7 +495,7 @@ public class MediaModule extends KrollModule
 			}
 			return;
 		}
-		
+
 		TiBlob theBlob = null;
 		try {
 			//Make sure our processing argument is a Blob
@@ -508,7 +504,7 @@ public class MediaModule extends KrollModule
 			} else {
 				theBlob = (TiBlob) arg;
 			}
-			
+
 			if ((theBlob.getWidth() == 0) || (theBlob.getHeight() == 0)) {
 				if (errorCallback != null) {
 					KrollDict response = new KrollDict();
@@ -517,7 +513,7 @@ public class MediaModule extends KrollModule
 				}
 				return;
 			}
-			
+
 			BufferedInputStream bis = null;
 			BufferedOutputStream bos = null;
 
@@ -536,8 +532,8 @@ public class MediaModule extends KrollModule
 					extension = null;
 				}
 			}
-			
-			
+
+
 			bis = new BufferedInputStream(theBlob.getInputStream());
 			
 			File imageFile = TiFileHelper.createGalleryImageFile(extension);
@@ -556,20 +552,20 @@ public class MediaModule extends KrollModule
 				bos.close();
 				bos = null;
 			}
-			
+
 			Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
 			Uri contentUri = Uri.fromFile(imageFile);
 			mediaScanIntent.setData(contentUri);
 			Activity activity = TiApplication.getInstance().getCurrentActivity();
 			activity.sendBroadcast(mediaScanIntent);
-			
+
 			//All good. Dispatch success callback
 			if (successCallback != null) {
 				KrollDict response = new KrollDict();
 				response.putCodeAndMessage(NO_ERROR,null);
 				successCallback.callAsync(getKrollObject(), response);
 			}
-			
+
 		} catch(Throwable t) {
 			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
@@ -578,7 +574,7 @@ public class MediaModule extends KrollModule
 			}
 		}
 	}
-	
+
 	@Kroll.method
 	public void hideCamera()
 	{
@@ -591,7 +587,7 @@ public class MediaModule extends KrollModule
 
 	}
 
-	
+
 
 	/**
 	 * @see org.appcelerator.kroll.KrollProxy#handleMessage(android.os.Message)
@@ -624,7 +620,7 @@ public class MediaModule extends KrollModule
 					// bitmap
 					BitmapFactory.Options opts = new BitmapFactory.Options();
 					opts.inJustDecodeBounds = true;
-					
+
 					BitmapFactory.decodeStream(new FileInputStream(imageFile), null, opts);
 					if (opts.outWidth == -1 || opts.outHeight == -1) {
 						throw new Exception("Could not decode the bitmap from imageFile");
@@ -635,7 +631,7 @@ public class MediaModule extends KrollModule
 				throw t;
 			}
 		}
-		
+
 		//Cleanup duplicates if possible.
 		private void checkAndDeleteDuplicate(Activity activity)
 		{
@@ -651,7 +647,7 @@ public class MediaModule extends KrollModule
 					return;
 				}
 				if (imageCursor.getCount()>0){
-					
+
 					if (!validFileCreated) {
 						try {
 							imageFile.delete();
@@ -661,11 +657,11 @@ public class MediaModule extends KrollModule
 						imageFile = saveToPhotoGallery? TiFileHelper.createGalleryImageFile(extension) : TiFileHelper.createExternalStorageFile(extension);
 					}
 					long compareLength = (validFileCreated) ? imageFile.length() : 0;
-					
+
 					while(imageCursor.moveToNext()){
 						int id = imageCursor.getInt(imageCursor.getColumnIndex(MediaStore.Images.Media._ID));
 						String path = imageCursor.getString(imageCursor.getColumnIndex(MediaStore.Images.Media.DATA));
-				        
+
 						if (!validFileCreated) {
 							//If file is invalid we will copy over the last image in the gallery
 							if (imageFile != null) {
@@ -678,7 +674,7 @@ public class MediaModule extends KrollModule
 								} catch(Throwable t) {
 									//Ignore this error. It will be caught on the next pass to validateFile.
 								}
-							} 
+							}
 						}
 
 						if (!path.equalsIgnoreCase(refPath)) {
@@ -708,7 +704,7 @@ public class MediaModule extends KrollModule
 				imageCursor.close();
 			}
 		}
-		
+
 		//Copies files over using Buffered Streams.
 		private void copyFile(File source, File destination) throws Throwable {
 			BufferedInputStream bis = new BufferedInputStream(new FileInputStream(source));
@@ -719,7 +715,7 @@ public class MediaModule extends KrollModule
 			while ((len = bis.read(buf)) != -1) {
 				bos.write(buf, 0, len);
 			}
-			
+
 			if (bis != null) {
 				bis.close();
 				bis = null;
@@ -736,21 +732,21 @@ public class MediaModule extends KrollModule
 			code = activitySupport.getUniqueResultCode();
 			activitySupport.launchActivityForResult(cameraIntent, code, this);
 		}
-		
+
 		@Override
 		public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 		{
 			if (requestCode == code) {
 				if (resultCode == Activity.RESULT_OK) {
-					
+
 					validFileCreated = true;
 					try {
 						validateFile();
 					} catch(Throwable t) {
 						validFileCreated = false;
 					}
-					
-					
+
+
 					checkAndDeleteDuplicate(activity);
 
 					try {
@@ -763,8 +759,8 @@ public class MediaModule extends KrollModule
 						}
 						return;
 					}
-					
-					
+
+
 					if (!saveToPhotoGallery) {
 						//Create a file in the internal data directory and delete the original file
 						try {
@@ -788,7 +784,7 @@ public class MediaModule extends KrollModule
 						mediaScanIntent.setData(contentUri);
 						activity.sendBroadcast(mediaScanIntent);
 					}
-					
+
 					//Create a blob for response
 					try {
 						TiFile theFile = new TiFile(imageFile, imageFile.toURI().toURL().toExternalForm(), false);
@@ -805,7 +801,7 @@ public class MediaModule extends KrollModule
 						}
 						return;
 					}
-					
+
 				} else {
 					//Delete the file
 					if (imageFile != null) {
@@ -827,7 +823,7 @@ public class MediaModule extends KrollModule
 					}
 				}
 			}
-			
+
 		}
 
 		@Override
@@ -859,7 +855,7 @@ public class MediaModule extends KrollModule
 	{
 		return TiCameraActivity.cameraFlashMode;
 	}
-	
+
 	@Kroll.method
 	public void openPhotoGallery(KrollDict options)
 	{
@@ -887,12 +883,22 @@ public class MediaModule extends KrollModule
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
-		galleryIntent.getIntent().setAction(Intent.ACTION_PICK);
+		galleryIntent.getIntent().setAction(Intent.ACTION_GET_CONTENT);
 		galleryIntent.getIntent().setType("image/*");
 		galleryIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
 		galleryIntent.setWindowId(TiIntentWrapper.createActivityName("GALLERY"));
 
-		final int code = activitySupport.getUniqueResultCode();
+		final int PICK_IMAGE_SINGLE   = activitySupport.getUniqueResultCode();
+		final int PICK_IMAGE_MULTIPLE = activitySupport.getUniqueResultCode();
+		boolean allowMultiple = false;
+
+		if (options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE) && Build.VERSION.SDK_INT >= 18) {
+			allowMultiple = TiConvert.toBoolean(options.get(TiC.PROPERTY_ALLOW_MULTIPLE));
+			galleryIntent.getIntent().putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple);
+		}
+
+		final int code = allowMultiple ? PICK_IMAGE_MULTIPLE : PICK_IMAGE_SINGLE;
+
 		 activitySupport.launchActivityForResult(galleryIntent.getIntent(), code,
 			new TiActivityResultHandler() {
 
@@ -902,14 +908,13 @@ public class MediaModule extends KrollModule
 						return;
 					}
 					Log.d(TAG, "OnResult called: " + resultCode, Log.DEBUG_MODE);
-					
 					String path = null;
 					if (data != null) {
 						path = data.getDataString();
 					}
 					//Starting with Android-L, backing out of the gallery no longer returns cancel code, but with
-					//an ok code and a null path.
-					if (resultCode == Activity.RESULT_CANCELED || (Build.VERSION.SDK_INT >= 20 && path == null)) {
+					//an ok code and a null data.
+					if (resultCode == Activity.RESULT_CANCELED || (Build.VERSION.SDK_INT >= 20 && data == null)) {
 						if (fCancelCallback != null) {
 							KrollDict response = new KrollDict();
 							response.putCodeAndMessage(NO_ERROR, null);
@@ -917,6 +922,40 @@ public class MediaModule extends KrollModule
 						}
 
 					} else {
+
+						if (requestCode == PICK_IMAGE_MULTIPLE && Build.VERSION.SDK_INT >= 18) {
+							ClipData clipdata = data.getClipData();
+							if (clipdata != null) {
+
+								int count = clipdata.getItemCount();
+								KrollDict[] selectedPhotos = new KrollDict[count];
+								for (int i=0; i<count; i++) {
+									ClipData.Item item = clipdata.getItemAt(i);
+									selectedPhotos[i] = createDictForImage(item.getUri().toString(), "image/jpeg");
+								}
+
+								if (fSuccessCallback != null) {
+									KrollDict d = new KrollDict();
+									d.putCodeAndMessage(NO_ERROR, null);
+									d.put("images", selectedPhotos);
+									fSuccessCallback.callAsync(getKrollObject(), d);
+								}
+
+							} else if (path != null) {
+
+							    KrollDict[] selectedPhotos = new KrollDict[1];
+							    selectedPhotos[0] = createDictForImage(path, "image/jpeg");
+							    if (fSuccessCallback != null) {
+							        KrollDict d = new KrollDict();
+							        d.putCodeAndMessage(NO_ERROR, null);
+							        d.put("images", selectedPhotos);
+							        fSuccessCallback.callAsync(getKrollObject(), d);
+							    }
+
+							}
+							return;
+						}
+
 						try {
 							//Check for invalid path
 							if (path == null) {
@@ -1160,6 +1199,7 @@ public class MediaModule extends KrollModule
 		});
 	}
 
+
 	@Kroll.method
 	public void takePicture()
 	{
@@ -1170,7 +1210,7 @@ public class MediaModule extends KrollModule
 			Log.e(TAG, "Camera preview is not open, unable to take photo");
 		}
 	}
-	
+
 	@Kroll.method
 	public void startVideoCapture()
 	{
@@ -1181,7 +1221,7 @@ public class MediaModule extends KrollModule
 			Log.e(TAG, "Camera preview is not open, unable to take photo");
 		}
 	}
-	
+
 	@Kroll.method
 	public void stopVideoCapture()
 	{

@@ -140,7 +140,7 @@ id value = [args count] > 1 ? [args objectAtIndex:1] : nil;\
 	[TiProperties removeProperty:args];
 }
 
--(void)removeAllProperties {
+-(void)removeAllProperties:(id)unused {
 	[TiProperties removeAllProperties];
 }
 
@@ -150,7 +150,7 @@ id value = [args count] > 1 ? [args objectAtIndex:1] : nil;\
 	return NUMBOOL([TiProperties hasProperty:args]);
 }
 
--(id)listProperties:(id)args
+-(id)listProperties:(id)unused
 {
     return [TiProperties listProperties];
 }

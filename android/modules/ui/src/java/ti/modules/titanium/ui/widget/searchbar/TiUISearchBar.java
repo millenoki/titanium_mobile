@@ -30,13 +30,13 @@ public class TiUISearchBar extends TiUIText
 	private TiEditText tv;
 	private FocusFixedEditText fullTv;
 	private TextView promptText;
-	
+
 	public interface OnSearchChangeListener {
 		public void filterBy(String text);
 	}
-	
+
 	protected OnSearchChangeListener searchChangeListener;
-	
+
 	public TiUISearchBar(final TiViewProxy proxy)
 	{
 		super(proxy, true);
@@ -61,12 +61,6 @@ public class TiUISearchBar extends TiUIText
 		{
 			public void onClick(View view)
 			{
-				/* TODO try {
-					proxy.set(getProxy().getTiContext().getScope(), "value", "");
-				} catch (NoSuchFieldException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}*/
 				tv.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
 				fireEvent(TiC.EVENT_CANCEL, null, false, false);
 			}
@@ -86,7 +80,7 @@ public class TiUISearchBar extends TiUIText
 
 		layout.setGravity(Gravity.NO_GRAVITY);
 		layout.setPadding(0,0,0,0);
-		
+
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT,
 			LayoutParams.WRAP_CONTENT);
 		params.addRule(RelativeLayout.CENTER_IN_PARENT);
@@ -100,7 +94,7 @@ public class TiUISearchBar extends TiUIText
 
 		setNativeView(layout);
 	}
-	
+
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
 		if (this.searchChangeListener != null) {

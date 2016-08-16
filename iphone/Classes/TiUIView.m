@@ -11,7 +11,7 @@
 #import "TiUtils.h"
 #import "ImageLoader.h"
 #import "Ti2DMatrix.h"
-#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+#ifdef USE_TI_UI3DMATRIX
 	#import "Ti3DMatrix.h"
 #endif
 #import "TiViewProxy.h"
@@ -887,7 +887,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 		self.transform = [(Ti2DMatrix*)transformMatrix matrixInViewSize:size andParentSize:parentSize];
 		return;
 	}
-#if defined(USE_TI_UIIOS3DMATRIX) || defined(USE_TI_UI3DMATRIX)
+#ifdef USE_TI_UI3DMATRIX
 	if ([transformMatrix isKindOfClass:[Ti3DMatrix class]])
 	{
 		self.layer.transform = [(Ti3DMatrix*)transformMatrix matrix];

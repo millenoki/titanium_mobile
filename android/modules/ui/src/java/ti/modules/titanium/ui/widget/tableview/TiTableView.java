@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -183,12 +182,12 @@ public class TiTableView extends FrameLayout
 		/*
 		 * IMPORTANT NOTE:
 		 * getView() is called by the Android framework whenever it needs a view.
-		 * The call to getView() could come on a measurement pass or on a layout 
+		 * The call to getView() could come on a measurement pass or on a layout
 		 * pass.  It's not possible to tell from the arguments whether the framework
 		 * is calling getView() for a measurement pass or for a layout pass.  Therefore,
 		 * it is important that getView() and all methods call by getView() only create
 		 * the views and fill them in with the appropriate data.  What getView() and the
-		 * methods call by getView MUST NOT do is to make any associations between 
+		 * methods call by getView MUST NOT do is to make any associations between
 		 * proxies and views.   Those associations must be made only for the views
 		 *  that are used for layout, and should be driven from the onLayout() callback.
 		 */
@@ -365,7 +364,7 @@ public class TiTableView extends FrameLayout
 		{
 			private boolean scrollValid = false;
 			private int lastValidfirstItem = 0;
-			
+
 			@Override
 			public void onScrollStateChanged(AbsListView view, int scrollState)
 			{
@@ -460,7 +459,7 @@ public class TiTableView extends FrameLayout
 		});
 		addView(listView);
 	}
-	
+
 	public void removeHeaderView(TiViewProxy viewProxy)
 	{
 		TiUIView peekView = viewProxy.peekView();
@@ -498,11 +497,6 @@ public class TiTableView extends FrameLayout
 			listView.setAdapter(adapter);
 		}
 	}
-	
-	public TiTableView(TiContext tiContext, TableViewProxy proxy)
-	{
-		this(proxy);
-	}
 
 	private TiBaseTableViewItem getParentTableViewItem(View view)
 	{
@@ -529,7 +523,7 @@ public class TiTableView extends FrameLayout
 			listView.setSelector(selector);
 		}
 	}
-	
+
 	public Item getItemAtPosition(int position)
 	{
 		if (proxy.hasProperty(TiC.PROPERTY_HEADER_VIEW)) {
@@ -561,7 +555,7 @@ public class TiTableView extends FrameLayout
 		}
 		return -1;
 	}
-	
+
 	protected boolean rowClicked(TiBaseTableViewItem rowView, int position, boolean longClick) {
 		String viewClicked = rowView.getLastClickedViewName();
 		Item item = getItemAtPosition(position);
@@ -617,7 +611,7 @@ public class TiTableView extends FrameLayout
 		} else if (params.optionHeight != null) {
 			height = params.optionHeight.getAsPixels(listView);
 		}
-		
+
 		AbsListView.LayoutParams p = new AbsListView.LayoutParams(width, height);
 		nativeView.setLayoutParams(p);
 		return tiView;
@@ -649,7 +643,7 @@ public class TiTableView extends FrameLayout
 		listView.setDivider(new ColorDrawable(sepColor));
 		listView.setDividerHeight(dividerHeight);
 	}
-	
+
 	public void setSeparatorStyle(int style) {
 	    if (style == UIModule.TABLE_VIEW_SEPARATOR_STYLE_NONE) {
 	        listView.setDividerHeight(0);

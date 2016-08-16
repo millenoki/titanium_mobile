@@ -24,7 +24,6 @@ import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.os.Handler;

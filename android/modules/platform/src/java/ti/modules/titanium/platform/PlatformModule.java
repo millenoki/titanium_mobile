@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
@@ -56,11 +55,6 @@ public class PlatformModule extends KrollModule
 		batteryLevel = -1;
 	}
 
-	public PlatformModule(TiContext tiContext)
-	{
-		this();
-	}
-
 	@Kroll.getProperty @Kroll.method
 	public String getName() {
 		return TiPlatformHelper.getInstance().getName();
@@ -99,7 +93,7 @@ public class PlatformModule extends KrollModule
 	public String getVersion() {
 		return TiPlatformHelper.getInstance().getVersion();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
     public int getSDKVersion() {
         return Build.VERSION.SDK_INT;
@@ -170,7 +164,7 @@ public class PlatformModule extends KrollModule
 	public String getMacaddress() {
 		return TiPlatformHelper.getInstance().getMacaddress();
 	}
-	
+
 	@Kroll.getProperty @Kroll.method
 	public String getId() {
 		return TiPlatformHelper.getInstance().getMobileId();
@@ -209,7 +203,7 @@ public class PlatformModule extends KrollModule
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
-	
+
 	protected void registerBatteryStateReceiver()
 	{
 		batteryStateReceiver = new BroadcastReceiver() {

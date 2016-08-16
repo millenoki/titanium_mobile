@@ -12,7 +12,7 @@
 #import "UIImage+Resize.h"
 #import <CoreText/CoreText.h>
 
-#if defined (USE_TI_UIATTRIBUTEDSTRING)
+#ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
 #import "DTCoreText/DTCoreText.h"
@@ -441,14 +441,14 @@
     [self updateNumberLines];   
 }
 
-#if defined (USE_TI_UIIOSATTRIBUTEDSTRING)
 -(void)setAttributedString_:(id)arg
 {
+#ifdef USE_TI_UIATTRIBUTEDSTRING
     ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
     [[self label] setAttributedText:[arg attributedString]];
     [[self viewProxy] contentsWillChange];
-}
 #endif
+}
 
 
 

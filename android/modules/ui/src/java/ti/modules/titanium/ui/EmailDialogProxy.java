@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiApplication.ActivityTransitionListener;
 import org.appcelerator.titanium.TiBlob;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -63,11 +62,6 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 		privateDataDirectoryPath = privateDataDirectory.getNativeFile().getAbsolutePath();
 	}
 
-	public EmailDialogProxy(TiContext tiContext)
-	{
-		this();
-	}
-
 	@Kroll.method
 	public boolean isSupported() {
 		boolean supported = false;
@@ -92,7 +86,7 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 		if (attachment instanceof FileProxy || attachment instanceof TiBlob) {
 			if (attachments == null) {
 				attachments = new ArrayList<Object>();
-			}			
+			}
 			attachments.add(attachment);
 		} else {
 			// silently ignore?
@@ -135,19 +129,19 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 
 		return sendIntent;
 	}
-	
+
 	@Kroll.method
-	public void open() 
+	public void open()
 	{
 		if (TiApplication.isActivityTransition.get()) {
 			TiApplication.addActivityTransitionListener(this);
-			
+
 		} else {
 			doOpen();
 		}
 	}
 
-	public void doOpen() 
+	public void doOpen()
 	{
 		Intent sendIntent = buildIntent();
 		Intent choosingIntent = Intent.createChooser(sendIntent, "Send");
@@ -157,7 +151,7 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 			TiActivitySupport activitySupport = (TiActivitySupport) activity;
 			final int code = activitySupport.getUniqueResultCode();
 
-			activitySupport.launchActivityForResult(choosingIntent, code, 
+			activitySupport.launchActivityForResult(choosingIntent, code,
 					new TiActivityResultHandler() {
 
 				@Override
@@ -180,11 +174,11 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 					fireEvent("complete", result, false);
 				}
 			});
-			
+
 		} else {
 			Log.e(TAG, "Could not open email dialog, current activity is null.");
 		}
-			
+
 	}
 
 	private File blobToTemp(TiBlob blob, String fileName)
@@ -212,7 +206,7 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 	{
 		File tempfile = null;
 		try {
-			tempfile = blobToTemp(file.read(), file.getName()); 
+			tempfile = blobToTemp(file.read(), file.getName());
 		} catch(IOException e) {
 			Log.e(TAG, "Unable to attach file " + file.getName() + ": " + e.getMessage(), e);
 		}
@@ -341,7 +335,7 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 		return false;
 	}
 
-	public void onActivityTransition(boolean state) 
+	public void onActivityTransition(boolean state)
 	{
 		if (!state) {
 			doOpen();

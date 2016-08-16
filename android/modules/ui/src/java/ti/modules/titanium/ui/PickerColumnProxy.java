@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiContext;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
@@ -38,11 +38,6 @@ public class PickerColumnProxy extends ViewProxy implements PickerRowListener
 	public PickerColumnProxy()
 	{
 		super();
-	}
-
-	public PickerColumnProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	public void setColumnListener(PickerColumnListener listener)
@@ -128,7 +123,7 @@ public class PickerColumnProxy extends ViewProxy implements PickerRowListener
 		}
 		return children.toArray(new PickerRowProxy[children.size()]);
 	}
-	
+
 	@Kroll.setProperty @Kroll.method
 	public void setRows(Object[] rows)
 	{
@@ -180,7 +175,7 @@ public class PickerColumnProxy extends ViewProxy implements PickerRowListener
         params.autoFillsWidth = true;
         return view;
 	}
-	
+
 	public interface PickerColumnListener
 	{
 		void rowAdded(PickerColumnProxy column, int rowIndex);
@@ -197,9 +192,9 @@ public class PickerColumnProxy extends ViewProxy implements PickerRowListener
 			int index = children.indexOf(row);
 			columnListener.rowChanged(this, index);
 		}
-		
+
 	}
-	
+
 	public void onItemSelected(int rowIndex)
 	{
 		if (columnListener != null && !suppressListenerEvents) {
@@ -219,7 +214,7 @@ public class PickerColumnProxy extends ViewProxy implements PickerRowListener
 			return (PickerRowProxy)children.get(rowIndex);
 		}
 	}
-	
+
 	public int getThisColumnIndex()
 	{
 		return ((PickerProxy)getParent()).getColumnIndex(this);

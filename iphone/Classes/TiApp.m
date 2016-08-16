@@ -39,6 +39,7 @@ int TiDebugPort = 2525;
 extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 extern NSString * const TI_APPLICATION_NAME;
 extern NSString * const TI_APPLICATION_VERSION;
+extern BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER;
 
 NSString * TITANIUM_VERSION;
 
@@ -76,6 +77,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 @synthesize localNotification;
 @synthesize appBooted;
 @synthesize userDefaults;
+@synthesize userAgent;
 
 #ifdef TI_USE_KROLL_THREAD
 +(void)initialize
@@ -286,7 +288,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 		if(launchedShortcutItem != nil) {
 			[self handleShortcutItem:launchedShortcutItem waitForBootIfNotLaunched:YES];
-			launchedShortcutItem = nil;
+			RELEASE_TO_NIL(launchedShortcutItem);
 		}
 
 		if (localNotification != nil) {
@@ -410,7 +412,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
         UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
         
         if (shortcut != nil) {
-            launchedShortcutItem = shortcut;
+            launchedShortcutItem = [shortcut retain];
         }
     }
     
@@ -993,25 +995,23 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
  restorationHandler:(void (^)(NSArray *restorableObjects))restorationHandler
 {
     
-    NSMutableDictionary *dict = [NSMutableDictionary
-                                 dictionaryWithObjectsAndKeys:[userActivity activityType],@"activityType",
-                                 nil];
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{@"activityType": [userActivity activityType]}];
 
-    if( [userActivity.activityType isEqualToString:CSSearchableItemActionType]){
-        if([userActivity userInfo] !=nil){
-            [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"identifier"];
+    if ([TiUtils isIOS9OrGreater] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+        if ([userActivity userInfo] != nil) {
+            [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
         }
     }
 
-    if([userActivity title] !=nil){
+    if ([userActivity title] != nil) {
         [dict setObject:[userActivity title] forKey:@"title"];
     }
     
-    if([userActivity webpageURL] !=nil){
+    if ([userActivity webpageURL] != nil) {
         [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
     }
     
-    if([userActivity userInfo] !=nil){
+    if ([userActivity userInfo] != nil) {
         [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
     }
 	
@@ -1020,10 +1020,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
 	[launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
 	
-    if (appBooted){
+    if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
-    }
-    else{
+    } else {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
         });
@@ -1091,6 +1090,11 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 #ifndef TI_DEPLOY_TYPE_PRODUCTION
 -(void)showModalError:(TiScriptError*)error
 {
+	if (TI_APPLICATION_SHOW_ERROR_CONTROLLER == NO)
+	{
+		NSLog(@"[ERROR] Application received error: %@",[error localizedDescription]);
+		return;
+	}
     static NSDictionary* dict = nil;
     if (dict == nil) {
         NSError *error = nil;
@@ -1158,17 +1162,19 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 	[super dealloc];
 }
 
+- (NSString*)systemUserAgent
+{
+    UIDevice *currentDevice = [UIDevice currentDevice];
+    NSString *currentLocaleIdentifier = [[NSLocale currentLocale] localeIdentifier];
+    NSString *currentDeviceInfo = [NSString stringWithFormat:@"%@/%@; %@; %@;",[currentDevice model],[currentDevice systemVersion],[currentDevice systemName],currentLocaleIdentifier];
+    NSString *kTitaniumUserAgentPrefix = [NSString stringWithFormat:@"%s%s%s %s%s","Appc","eler","ator","Tita","nium"];
+    
+    return [[NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo] retain];
+}
+
 - (NSString*)userAgent
 {
-	if (userAgent==nil)
-	{
-		UIDevice *currentDevice = [UIDevice currentDevice];
-		NSString *currentLocaleIdentifier = [[NSLocale currentLocale] localeIdentifier];
-		NSString *currentDeviceInfo = [NSString stringWithFormat:@"%@/%@; %@; %@;",[currentDevice model],[currentDevice systemVersion],[currentDevice systemName],currentLocaleIdentifier];
-		NSString *kTitaniumUserAgentPrefix = [NSString stringWithFormat:@"%s%s%s %s%s","Appc","eler","ator","Tita","nium"];
-		userAgent = [[NSString stringWithFormat:@"%@/%s (%@)",kTitaniumUserAgentPrefix,TI_VERSION_STR,currentDeviceInfo] retain];
-	}
-	return userAgent;
+    return !userAgent ? [self systemUserAgent] : userAgent;
 }
 
 -(NSString*)remoteDeviceUUID
@@ -1245,6 +1251,9 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
     if(shortcutItem.userInfo !=nil) {
         [dict setObject:shortcutItem.userInfo forKey:@"userInfo"];
     }
+    
+    // Update launchOptions to include the mapped dictionary-shortcut instead of the UIShortcutItem
+    [launchOptions setObject:dict forKey:UIApplicationLaunchOptionsShortcutItemKey];
     
     if (appBooted) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationShortcut

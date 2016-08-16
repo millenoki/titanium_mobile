@@ -17,7 +17,10 @@
     BOOL forceLayout;
     UIImageView* defaultImageView;
 
-    
+#ifdef LAUNCHSCREEN_STORYBOARD
+    UIView *storyboardView;
+#endif
+
     //Orientation Stuff
     UIInterfaceOrientation orientationHistory[4];
     BOOL forcingStatusBarOrientation;

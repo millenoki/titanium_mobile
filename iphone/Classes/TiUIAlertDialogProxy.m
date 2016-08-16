@@ -176,6 +176,7 @@ static BOOL alertShowing = NO;
         
         cancelIndex = [TiUtils intValue:[self valueForKey:@"cancel"] def:-1];
         destructiveIndex = [TiUtils intValue:[self valueForKey:@"destructive"] def:-1];
+        preferredIndex = [TiUtils intValue:[self valueForKey:@"preferred"] def:-1];
         
         if (cancelIndex >= [buttonNames count]) {
             cancelIndex = -1;
@@ -184,7 +185,11 @@ static BOOL alertShowing = NO;
         if (destructiveIndex >= [buttonNames count]) {
             destructiveIndex = -1;
         }
-        
+
+        if (preferredIndex >= [buttonNames count]) {
+            preferredIndex = -1;
+        }
+
         style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
         
         [[[TiApp app] controller] incrementActiveAlertControllerCount];
@@ -222,6 +227,10 @@ static BOOL alertShowing = NO;
                     [alertController addAction:theAction];
                 }
                 curIndex++;
+            }
+            
+            if ([TiUtils isIOS9OrGreater] && preferredIndex >= 0) {
+                [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
             }
             
             //Configure the TextFields
@@ -289,18 +298,17 @@ static BOOL alertShowing = NO;
     if ([self _hasListeners:@"click"]) {
         NSUInteger indexOfAction = [(TiAlertAction*)theAction index];
         
-        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                      NUMINTEGER(indexOfAction),@"index",
-                                      [NSNumber numberWithBool:(indexOfAction == cancelIndex)],@"cancel",
-                                      [NSNumber numberWithBool:(indexOfAction == destructiveIndex)],@"destructive",
-                                      nil];
-        
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:@{
+            @"index": @(indexOfAction),
+            @"cancel": @(indexOfAction == cancelIndex),
+            @"destructive": @(indexOfAction == destructiveIndex),
+            @"preferred": @(preferredIndex),
+        }];
         
         if (style == UIAlertViewStylePlainTextInput || style == UIAlertViewStyleSecureTextInput) {
             NSString* theText = [[[alertController textFields] objectAtIndex:0] text];
             [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"text"];
-        }
-        else if (style == UIAlertViewStyleLoginAndPasswordInput) {
+        } else if (style == UIAlertViewStyleLoginAndPasswordInput) {
             NSArray* textFields = [alertController textFields];
             for (UITextField* theField in textFields) {
                 NSString* theText = [theField text];
@@ -333,8 +341,8 @@ static BOOL alertShowing = NO;
         else if ([alertView alertViewStyle] == UIAlertViewStyleLoginAndPasswordInput) {
             NSString* theText = [[alertView textFieldAtIndex:0] text];
             [event setObject:(IS_NULL_OR_NIL(theText) ? @"" : theText) forKey:@"login"];
-            
-            // If password field never gets focus, `text` property becomes `nil`.
+
+            // If the field never gains focus, `text` property becomes `nil`.
             NSString *password = [[alertView textFieldAtIndex:1] text];
             [event setObject:(IS_NULL_OR_NIL(password) ? @"" : password) forKey:@"password"];
         }

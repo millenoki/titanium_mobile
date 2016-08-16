@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -68,16 +67,9 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		// TODO ?
 		// eventManager.addOnEventChangeListener(this);
 
-		// tiContext.addOnLifecycleEventListener(this);
-
 		annotations = new ArrayList<AnnotationProxy>();
 		routes = new ArrayList<MapRoute>();
 		selectedAnnotations = new ArrayList<TiMapView.SelectedAnnotation>();
-	}
-
-	public ViewProxy(TiContext tiContext)
-	{
-		this();
 	}
 
 	@Override
@@ -93,25 +85,13 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 
 		destroyed = false;
 		if (lam == null) {
-			/*
-			 * TiContext tiContext = getTiContext();
-			 * if (tiContext == null) {
-			 * Log.w(LCAT, "MapView proxy context is no longer valid.  Unable to create MapView.");
-			 * return null;
-			 * }
-			 */
+
 			final TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
 			if (rootActivity == null) {
 				Log.w(TAG, "Application's root activity has been destroyed.  Unable to create MapView.");
 				return null;
 			}
-			/*
-			 * TiContext rootContext = rootActivity.getTiContext();
-			 * if (rootContext == null) {
-			 * Log.w(LCAT, "Application's root context is no longer valid.  Unable to create MapView.");
-			 * return null;
-			 * }
-			 */
+
 			// We need to know when root activity destroys, since this lam is
 			// based on its context;
 			rootLifecycleListener = new OnLifecycleEvent()
@@ -254,8 +234,8 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 			handleAddRoute(routeMap);
 			return;
 		}
-		
-		getMainHandler().obtainMessage(MSG_ADD_ROUTE, routeMap).sendToTarget();		
+
+		getMainHandler().obtainMessage(MSG_ADD_ROUTE, routeMap).sendToTarget();
 	}
 
 	public TiMapView getMapView()
@@ -328,7 +308,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		int existsIndex = -1;
 		// Check for existence
 		int len = annotations.size();
-		
+
 		if (annotation != null) {
 			for (int i = 0; i < len && existsIndex == -1; i++) {
 				if (annotation == annotations.get(i)) {
@@ -337,7 +317,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 				}
 			}
 		}
-		
+
 		for (int i = 0; i < len && existsIndex == -1; i++) {
 			AnnotationProxy a = annotations.get(i);
 			String t = (String) a.getProperty(TiC.PROPERTY_TITLE);
@@ -540,7 +520,7 @@ public class ViewProxy extends TiViewProxy implements OnLifecycleEvent
 		}
 		mapWindow = null;
 	}
-	
+
 	@Override
 	public boolean handleMessage(Message msg)
 	{

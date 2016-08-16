@@ -14,7 +14,6 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiContext;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.OnWindowFocusChangedEvent;
 import org.appcelerator.titanium.util.TiConvert;
@@ -66,10 +65,6 @@ public class PlayerProxy extends KrollProxy implements OnLifecycleEvent,
 
         defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
         defaultValues.put(TiC.PROPERTY_TIME, 0);
-    }
-
-    public PlayerProxy(TiContext tiContext) {
-        this();
     }
 
     @Override

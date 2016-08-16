@@ -8,6 +8,8 @@ package org.appcelerator.titanium.util;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.kroll.common.Log;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -18,6 +20,7 @@ import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Build;
 
 /**
  * An implementation of {@link TiActivitySupport} interface.
@@ -96,7 +99,11 @@ public class TiActivitySupportHelper
 
 		registerResultHandler(code, wrapper);
 		try {
-			activity.startIntentSenderForResult(intent, code, fillInIntent, flagsMask, flagsValues, extraFlags, options);
+			if (TiC.JELLY_BEAN_OR_GREATER) {
+				activity.startIntentSenderForResult(intent, code, fillInIntent, flagsMask, flagsValues, extraFlags);
+			} else {
+				activity.startIntentSenderForResult(intent, code, fillInIntent, flagsMask, flagsValues, extraFlags, options);
+			}
 	 	} catch (SendIntentException e) {
 			wrapper.onError(activity,code,e);
 		}
