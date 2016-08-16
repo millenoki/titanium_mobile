@@ -150,7 +150,7 @@ IOS.prototype.cleanupXCodeProject = function (next) {
 	});
 	prc.on('close', function (code) {
 		if (code != 0) {
-			return next('Failed to generate JSCA JSON.');
+			return next('Failed to Clean up XCode project.');
 		}
 		next(null);
 	}.bind(this));
@@ -198,7 +198,7 @@ IOS.prototype.package = function (packager, next) {
 				}.bind(this),
 				this.cleanupXCodeProject,
 				function (cb) {
-					copyFiles(path.join(ROOT_DIR, 'dist', 'ios'), DEST_IOS, ['Titanium.xcodeproj'], cb);
+					copyFiles(path.join(ROOT_DIR, 'dist', 'ios'), path.join(DEST_IOS, 'iphone'), ['Titanium.xcodeproj'], cb);
 				}.bind(this),
 				// Copy and inject values for special source files
 				function (cb) {
