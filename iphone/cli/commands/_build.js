@@ -5902,7 +5902,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
                                 if (fs.existsSync(from + '.map')) {
                                     inSourceMap =  JSON.parse(fs.readFileSync(from + '.map'));
                                 }
-								this.logger.debug(__('Babel: %s, %s, %s', from, file, to));
 								babel.transformFile(from, {
 									sourceMaps:this.cli.argv.target !== 'dist-appstore' ,
 									sourceMapTarget:file,
