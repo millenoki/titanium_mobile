@@ -32,7 +32,7 @@ var movies = JSON.parse(
 );
 
 function listViewExs(_args) {
-    var win = creatWin(_.assign(_args, {
+    var win = createWin(_.assign(_args, {
         title: 'listviews',
         // fullscreen: true,
         // barColor:'blue',
@@ -3036,28 +3036,33 @@ function collectionViewEx(_args) {
     var win = createWin(_.assign({
         backgroundColor: 'white',
         rightNavButtons: [{
-            title: 'search',
-            callbackId: 'search',
-            icon: 'images/icons/ic_action_search.png',
-            showAsAction: 2 // always
+        //     type:'Ti.UI.Button',
+        //     title: 'search',
+        //     callbackId: 'search',
+        //     icon: 'images/icons/ic_action_search.png',
+        //     showAsAction: 2 // always
 
-        }, {
-            title: 'list layout',
-            callbackId: 'layout',
-            icon: 'images/icons/ic_view_grid_white_24dp.png',
-            showAsAction: 2 // always
+        // }, {
+        //     type:'Ti.UI.Button',
+        //     title: 'list layout',
+        //     callbackId: 'layout',
+        //     icon: 'images/icons/ic_view_grid_white_24dp.png',
+        //     showAsAction: 2 // always
 
-        }, {
+        // }, {
+            type:'Ti.UI.Button',
             title: 'horizontal',
             callbackId: 'orientation',
             showAsAction: 0 // never
 
         }, {
-            title: 'show hide headers',
-            callbackId: 'header_view',
-            showAsAction: 0 // never
+        //     type:'Ti.UI.Button',
+        //     title: 'show hide headers',
+        //     callbackId: 'header_view',
+        //     showAsAction: 0 // never
 
-        }, {
+        // }, {
+            type:'Ti.UI.Button',
             title: 'sticky headers',
             callbackId: 'stickyheaders',
             showAsAction: 0 // never
