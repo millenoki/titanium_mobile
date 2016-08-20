@@ -895,7 +895,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		moduleZipName = [moduleId, '-iphone-', version, '.zip'].join(''),
 		moduleZipFullPath = path.join(this.cli.argv['output-dir'] ? this.cli.argv['output-dir'] : path.join(this.projectDir, 'dist'),
 			moduleZipName),
-		moduleFolders = path.join('modules', 'iphone', moduleId, version),
+		moduleFolder = path.join('modules', 'iphone', moduleId, version),
 		binarylibName = 'lib' + moduleId + '.a',
 		binarylibFile = path.join(this.projectDir, 'build', binarylibName);
 
@@ -915,7 +915,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		zipStream.on('close', function() {
 			console.error = origConsoleError;
 		});
-		dest.catchEarlyExitAttached = false; // silence exceptions
+		dest.catchEarlyExitAttached = true; // silence exceptions
 		dest.pipe(zipStream);
 
 		this.logger.info(__('Creating module zip'));
@@ -943,28 +943,28 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 					name: path.join(parent, name)
 				});
 			});
-		}(this.documentationDir, path.join(moduleFolders, 'documentation')));
+		}(this.documentationDir, path.join(moduleFolder, 'documentation')));
 
 		// built doc
         if (fs.existsSync(this.documentationBuildDir)) {
-            dest.directory(this.documentationBuildDir, path.join(moduleFolders, 'documentation'));
+            dest.directory(this.documentationBuildDir, path.join(moduleFolder, 'documentation'));
         }
 
 		// 2. example folder
         if (fs.existsSync(this.exampleDir)) {
-            dest.directory(this.exampleDir, path.join(moduleFolders, 'example'));
+            dest.directory(this.exampleDir, path.join(moduleFolder, 'example'));
         }
 
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
-            dest.directory(this.platformDir, path.join(moduleFolders, 'platform'));
+            dest.directory(this.platformDir, path.join(moduleFolder, 'platform'));
 		}
 
 		// 4. Resources folder
 		if (fs.existsSync(this.resourcesDir)) {
 			this.dirWalker(this.resourcesDir, function(file, name) {
 				if (name !== 'README.md') {
-                    dest.file(file,  path.join(moduleFolders, 'Resources', path.relative(this.resourcesDir, file)));
+                    dest.file(file,  {name:path.join(moduleFolder, 'Resources', path.relative(this.resourcesDir, file))});
 				}
 			}.bind(this));
 		}
@@ -973,7 +973,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		if (fs.existsSync(this.assetsDir)) {
 			this.dirWalker(this.assetsDir, function(file) {
 				if (path.extname(file) != '.js' && path.extname(file) != '.ts') {
-                    dest.file(file,  path.join(moduleFolders, 'assets', path.relative(this.assetsDir, file)));
+                    dest.file(file,  {name:path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file))});
 				}
 			}.bind(this));
 		}
@@ -981,7 +981,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		if (fs.existsSync(this.buildAssetsDir)) {
 			this.dirWalker(this.buildAssetsDir, function(file) {
 				if (/\.js\.map$/.test(file)) {
-                    dest.file(file,  path.join(moduleFolders, 'assets', path.relative(this.buildAssetsDir, file)));
+                    dest.file(file,  {name:path.join(moduleFolder, 'assets', path.relative(this.buildAssetsDir, file))});
 				}
 			}.bind(this));
 		}
@@ -991,11 +991,17 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		// 8. manifest
 		// 9. module.xcconfig
 		// 10. metadata.json
-        dest.file(binarylibFile, path.join(moduleFolders, binarylibName));
-        dest.file(this.licenseFile, path.join(moduleFolders, 'license.json'));
-        dest.file(this.manifestFile, path.join(moduleFolders, 'manifest'));
-        dest.file(this.moduleXcconfigFile, path.join(moduleFolders, 'module.xcconfig'));
-        dest.file(this.metaDataFile, path.join(moduleFolders, 'metadata.json'));
+        dest.file(binarylibFile, {name:path.join(moduleFolder, binarylibName)});
+        if (fs.existsSync(this.licenseFile)) {
+            dest.file(this.licenseFile, {name:path.join(moduleFolder,'license.json')});
+        }
+        dest.file(this.manifestFile, {name:path.join(moduleFolder, 'manifest')});
+        if (fs.existsSync(this.moduleXcconfigFile)) {
+            dest.file(this.moduleXcconfigFile, {name:path.join(moduleFolder, 'module.xcconfig')});
+        }
+        if (fs.existsSync(this.metaDataFile)) {
+            dest.file(this.metaDataFile, {name:path.join(moduleFolder,'metadata.json')});
+        }
 
 		this.logger.info(__('Writing module zip: %s', moduleZipFullPath));
 		dest.finalize();
