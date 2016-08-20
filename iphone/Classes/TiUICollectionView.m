@@ -236,7 +236,9 @@ static TiProxyTemplate* sDefaultItemTemplate;
         
         //prevents crash if no template defined for headers/footers
         [_tableView registerClass:[TiUICollectionItem class] forCellWithReuseIdentifier:DEFAULT_TEMPLATE_STYLE];
+        [_tableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"headerView"];
         [_tableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"header"];
+        [_tableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"footerView"];
         [_tableView registerClass:[TiUICollectionWrapperView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"footer"];
     }
     if ([_tableView superview] != self) {
@@ -1435,17 +1437,18 @@ static TiProxyTemplate* sDefaultItemTemplate;
     realIndexPath = [self pathForSearchPath:realIndexPath];
     TiUICollectionSectionProxy* theSection = [self.listViewProxy sectionForIndex:realIndexPath.section];
     
-    id item = [theSection valueForKey:(kind == UICollectionElementKindSectionHeader)?@"headerView":@"footerView"];
+    NSString* sectionKey = (kind == UICollectionElementKindSectionHeader)?@"headerView":@"footerView";
+    id item = [theSection valueForKey:sectionKey];
     id templateId = [item valueForKey:@"template"];
     if (templateId == nil) {
         templateId = (kind == UICollectionElementKindSectionHeader)?@"header":@"footer";
     }
    
     
-    TiViewProxy* child = [theSection sectionViewForLocation:@"headerView" inCollectionView:self];
+    TiViewProxy* child = [theSection sectionViewForLocation:sectionKey inCollectionView:self];
     id template = [self getTemplateForKey:templateId];
     
-    TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:templateId forIndexPath:indexPath];
+    TiUICollectionWrapperView *view = [collectionView dequeueReusableSupplementaryViewOfKind:kind withReuseIdentifier:child?sectionKey:templateId forIndexPath:indexPath];
     if (child == nil && template != nil) {
         if (view.proxy == nil) {
             id<TiEvaluator> context = self.listViewProxy.executionContext;
@@ -1476,8 +1479,9 @@ static TiProxyTemplate* sDefaultItemTemplate;
         }
         view.proxy.indexPath = realIndexPath;
         return view;
-    } else {
-        if (child && !child.parent) {
+    } else if (child) {
+        view.hidden = false;
+        if (view.proxy == nil || child.parent == nil) {
             //view is retained by the collectionView
             id<TiEvaluator> context = self.listViewProxy.executionContext;
             if (context == nil) {
@@ -1494,9 +1498,8 @@ static TiProxyTemplate* sDefaultItemTemplate;
                 [view setLayoutMargins:UIEdgeInsetsZero];
             }
             [viewProxy release];
-            view.hidden = false;
             view.proxy.indexPath = realIndexPath;
-        } else if (child) {
+        } else {
             //view is retained by the collectionView
             [view updateProxy:(TiUICollectionWrapperViewProxy*)child.parent forIndexPath:realIndexPath];
         }
