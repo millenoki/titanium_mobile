@@ -48,6 +48,7 @@
     "stream-splitter": "~0.3.2",
     "temp": "0.8.3",
     "ts-node": "^1.2.2",
+    "typescript": "^1.8.10",
     "uglify-js": "2.7.0",
     "unorm": "^1.4.1",
     "windowslib": "0.4.18",
