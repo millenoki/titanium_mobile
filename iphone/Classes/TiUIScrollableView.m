@@ -457,7 +457,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 
 -(NSInteger)currentPage
 {
-	UIScrollView* scrollview = [self scrollview];
+	UIScrollView* scrollview = [self scrollView];
 	NSInteger result = currentPage;
     if (scrollview != nil) {
         CGSize scrollFrame = [self bounds].size;
@@ -516,7 +516,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
             viewBounds.size.height -= (showPageControl ? pagingControlHeight : 0);
         }
     }
-	UIScrollView *sv = [self scrollview];
+	UIScrollView *sv = [self scrollView];
 	
     NSInteger page = [self currentPage];
     

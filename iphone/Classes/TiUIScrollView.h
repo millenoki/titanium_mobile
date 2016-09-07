@@ -19,7 +19,7 @@
 @interface TiUIScrollView : TiScrollingView<TiScrolling> {
 
 @private
-	TDUIScrollView * scrollview;
+	TDUIScrollView * scrollView;
 #ifdef TI_USE_AUTOLAYOUT
     TiLayoutView* contentView;
 #else
