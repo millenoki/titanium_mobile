@@ -1136,7 +1136,7 @@ TiLayoutView* wrapperView = [[[TiLayoutView alloc] init] autorelease]; \
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    if (animating) return;
+//    if (animating) return;
 
     //switch page control at 50% across the center - this visually looks better
     NSInteger page = currentPage;
