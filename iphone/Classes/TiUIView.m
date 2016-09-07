@@ -1743,8 +1743,8 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)setHitRect_:(id)args
 {
-    _hasHitRect = args != nil;
     _hitRect = [TiUtils rectValue:args];
+    _hasHitRect = !CGRectIsEmpty(_hitRect);
 }
 
 -(NSArray*) childViews
