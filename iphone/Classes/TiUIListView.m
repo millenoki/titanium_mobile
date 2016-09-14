@@ -141,6 +141,11 @@ static NSDictionary* replaceKeysForRow;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     _tableView.delegate = nil;
     _tableView.dataSource = nil;
+#if IS_XCODE_8
+    if ([TiUtils isIOS10OrGreater]) {
+        _tableView.prefetchDataSource = nil;
+    }
+#endif
     RELEASE_TO_NIL(_tableView)
     RELEASE_TO_NIL(_defaultItemTemplate)
     RELEASE_TO_NIL(_searchString)
@@ -198,6 +203,13 @@ static NSDictionary* replaceKeysForRow;
         _tableView.dataSource = self;
         _tableView.touchDelegate = self;
         
+        
+#if IS_XCODE_8
+        if ([TiUtils isIOS10OrGreater]) {
+            _tableView.prefetchDataSource = self;
+        }
+#endif
+
         if (TiDimensionIsDip(_rowHeight)) {
             [_tableView setRowHeight:_rowHeight.value];
         }
@@ -1849,6 +1861,65 @@ static NSDictionary* replaceKeysForRow;
             }
         }];
     }
+}
+
+#pragma mark - UITableViewDataSourcePrefetching
+
+#if IS_XCODE_8
+- (void)tableView:(UITableView *)tableView prefetchRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
+{
+    NSString *eventName = @"prefetch";
+    if (![self.proxy _hasListeners:eventName]) {
+        return;
+    }
+    
+    NSMutableArray *cells = [[NSMutableArray arrayWithCapacity:[indexPaths count]] retain];
+    
+    for (NSIndexPath *indexPath in indexPaths) {
+        [cells addObject:[self listItemFromIndexPath:indexPath]];
+    }
+
+    [self.proxy fireEvent:eventName withObject:@{@"prefetchedItems": cells}];
+    RELEASE_TO_NIL(cells);
+}
+
+- (void)tableView:(UITableView *)tableView cancelPrefetchingForRowsAtIndexPaths:(NSArray<NSIndexPath *> *)indexPaths
+{
+    NSString *eventName = @"cancelprefetch";
+    if (![self.proxy _hasListeners:eventName]) {
+        return;
+    }
+    
+    NSMutableArray *cells = [[NSMutableArray arrayWithCapacity:[indexPaths count]] retain];
+    
+    for (NSIndexPath *indexPath in indexPaths) {
+        [cells addObject:[self listItemFromIndexPath:indexPath]];
+    }
+    
+    [self.proxy fireEvent:eventName withObject:@{@"prefetchedItems": cells}];
+    RELEASE_TO_NIL(cells);
+}
+#endif
+
+- (NSDictionary*)listItemFromIndexPath:(NSIndexPath*)indexPath
+{
+    NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+    
+    TiUIListSectionProxy *section = [self.listViewProxy sectionForIndex:realIndexPath.section];
+    NSDictionary *item = [section itemAtIndex:realIndexPath.row];
+    NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                        section, @"section",
+                                        NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                        NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                        nil];
+    id propertiesValue = [item objectForKey:@"properties"];
+    NSDictionary *properties = ([propertiesValue isKindOfClass:[NSDictionary class]]) ? propertiesValue : nil;
+    id itemId = [properties objectForKey:@"itemId"];
+    if (itemId != nil) {
+        [eventObject setObject:itemId forKey:@"itemId"];
+    }
+    
+    return [eventObject autorelease];
 }
 
 #pragma mark - UITableViewDelegate

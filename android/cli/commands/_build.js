@@ -1845,7 +1845,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     this.currentBuildManifest.navbarHidden               = !!this.tiapp['navbar-hidden'],
     this.currentBuildManifest.skipJSMinification         = !!this.cli.argv['skip-js-minify'],
     this.currentBuildManifest.encryptJS                  = !!this.encryptJS,
-    this.currentBuildManifest.mergeCustomAndroidManifest = this.config.get('android.mergeCustomAndroidManifest', false),
+    this.currentBuildManifest.mergeCustomAndroidManifest = this.config.get('android.mergeCustomAndroidManifest', true),
     this.currentBuildManifest.minSDK                     = this.minSDK;
     this.currentBuildManifest.targetSDK                  = this.targetSDK;
     this.currentBuildManifest.useBabel                   = this.useBabel = (this.tiapp['use-babel'] === true);
@@ -2263,12 +2263,12 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
         return true;
     }
 
-    if (this.config.get('android.mergeCustomAndroidManifest', false) != manifest.mergeCustomAndroidManifest) {
-        this.logger.info(__('Forcing rebuild: mergeCustomAndroidManifest config has changed since last build'));
-        this.logger.info('  ' + __('Was: %s', manifest.mergeCustomAndroidManifest));
-        this.logger.info('  ' + __('Now: %s', this.config.get('android.mergeCustomAndroidManifest', false)));
-        return true;
-    }
+	if (this.config.get('android.mergeCustomAndroidManifest', true) != manifest.mergeCustomAndroidManifest) {
+		this.logger.info(__('Forcing rebuild: mergeCustomAndroidManifest config has changed since last build'));
+		this.logger.info('  ' + __('Was: %s', manifest.mergeCustomAndroidManifest));
+		this.logger.info('  ' + __('Now: %s', this.config.get('android.mergeCustomAndroidManifest', true)));
+		return true;
+	}
 
 
     // check if the use useBabel flag has changed
@@ -2656,7 +2656,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
 						// we use the destination file name minus the path to the assets dir as the id
 						// which will eliminate dupes
-						var id = to.replace(opts.origDest, opts.prefix ? opts.prefix + '/' : '').replace(/\\/g, '/').replace(/^\//, '');
+						var id = to.replace(opts.origDest, opts.prefix ? opts.prefix : '').replace(/\\/g, '/').replace(/^\//, '');
 
                         if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
                             jsFiles[id] = from;
@@ -4200,7 +4200,7 @@ AndroidBuilder.prototype.generateAndroidManifest = function generateAndroidManif
         tiappAndroidManifest = this.tiappAndroidManifest;
 
     // if they are using a custom AndroidManifest and merging is disabled, then write the custom one as is
-    if (!this.config.get('android.mergeCustomAndroidManifest', false) && this.customAndroidManifest) {
+    if (!this.config.get('android.mergeCustomAndroidManifest', true) && this.customAndroidManifest) {
         (this.cli.createHook('build.android.writeAndroidManifest', this, function (file, xml, done) {
             this.logger.info(__('Writing unmerged custom AndroidManifest.xml'));
             fs.writeFileSync(file, xml.toString('xml'));

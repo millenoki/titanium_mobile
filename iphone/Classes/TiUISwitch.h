@@ -9,6 +9,8 @@
 
 @interface TiUISwitch : TiUIView<LayoutAutosizing> 
 
+- (NSNumber*)value;
+
 - (IBAction)switchChanged:(id)sender;
 
 @end

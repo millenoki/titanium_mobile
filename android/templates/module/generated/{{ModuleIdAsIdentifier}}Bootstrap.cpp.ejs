@@ -10,6 +10,8 @@
 #include <v8.h>
 
 #include <AndroidUtil.h>
+#include <JNIUtil.h>
+#include <JSException.h>
 #include <KrollBindings.h>
 #include <V8Util.h>
 
@@ -28,7 +30,8 @@ static void <%- className %>_getBinding(const FunctionCallbackInfo<Value>& args)
 	EscapableHandleScope scope(isolate);
 
 	if (args.Length() == 0) {
-		args.GetReturnValue().Set(isolate->ThrowException(Exception::Error(String::NewFromUtf8(isolate, "<%- className %>.getBinding requires 1 argument: binding"))));
+		titanium::JSException::Error(isolate, "<%- className %>.getBinding requires 1 argument: binding");
+		args.GetReturnValue().Set(scope.Escape(Undefined(isolate)));
 		return;
 	}
 
@@ -64,6 +67,7 @@ static void <%- className %>_getBinding(const FunctionCallbackInfo<Value>& args)
 	cache->Set(binding, exports);
 
 	args.GetReturnValue().Set(scope.Escape(exports));
+	return;
 }
 
 static void <%- className %>_init(Local<Object> exports, Local<Context> context)
@@ -79,7 +83,8 @@ static void <%- className %>_init(Local<Object> exports, Local<Context> context)
 		exports->Set(name, source);
 	}
 
-	exports->Set(String::NewFromUtf8(isolate, "getBinding"), FunctionTemplate::New(isolate, <%- className %>_getBinding)->GetFunction());
+	Local<FunctionTemplate> constructor = FunctionTemplate::New(isolate, <%- className %>_getBinding);
+	exports->Set(String::NewFromUtf8(isolate, "getBinding"), constructor->GetFunction(context).ToLocalChecked());
 }
 
 static void <%- className %>_dispose(Isolate* isolate)

@@ -15,11 +15,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.concurrent.CountDownLatch;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.common.TiMessenger.Command;
@@ -64,6 +65,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	private boolean bindingCodeInjected = false;
     private boolean isLocalHTML = false;
     private boolean alwaysInjectTi = false;
+	private HashMap<String, String> extraHeaders = new HashMap<String, String>();
 
 	private static Enum<?> enumPluginStateOff;
 	private static Enum<?> enumPluginStateOn;
@@ -358,6 +360,11 @@ public class TiUIWebView extends TiUINonViewGroupView
         case TiC.PROPERTY_CACHE_MODE:
             getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue, AndroidModule.WEBVIEW_LOAD_DEFAULT));
             break;
+		case TiC.PROPERTY_REQUEST_HEADERS:
+			if (newValue instanceof HashMap) {
+				setRequestHeaders((HashMap) newValue);
+			}
+		break;
         case TiC.PROPERTY_URL:
             if (!TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(newValue))) {
                 setUrl(TiConvert.toString(newValue));
@@ -435,6 +442,40 @@ public class TiUIWebView extends TiUINonViewGroupView
 	public void processProperties(HashMap d)
 	{
 		super.processProperties(d);
+
+		if (d.containsKey(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLoadWithOverviewMode(TiConvert.toBoolean(d, TiC.PROPERTY_SCALES_PAGE_TO_FIT));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_CACHE_MODE)) {
+			int mode = TiConvert.toInt(d.get(TiC.PROPERTY_CACHE_MODE), AndroidModule.WEBVIEW_LOAD_DEFAULT);
+			getWebView().getSettings().setCacheMode(mode);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_REQUEST_HEADERS)) {
+			Object value = d.get(TiC.PROPERTY_REQUEST_HEADERS);
+			if (value instanceof HashMap) {
+				setRequestHeaders((HashMap) value);
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_URL) && !TiC.URL_ANDROID_ASSET_RESOURCES.equals(TiConvert.toString(d, TiC.PROPERTY_URL))) {
+			setUrl(TiConvert.toString(d, TiC.PROPERTY_URL));
+		} else if (d.containsKey(TiC.PROPERTY_HTML)) {
+			setHtml(TiConvert.toString(d, TiC.PROPERTY_HTML), (HashMap<String, Object>) (d.get(WebViewProxy.OPTIONS_IN_SETHTML)));
+		} else if (d.containsKey(TiC.PROPERTY_DATA)) {
+			Object value = d.get(TiC.PROPERTY_DATA);
+			if (value instanceof TiBlob) {
+				setData((TiBlob) value);
+			}
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_LIGHT_TOUCH_ENABLED)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLightTouchEnabled(TiConvert.toBoolean(d,TiC.PROPERTY_LIGHT_TOUCH_ENABLED));
+		}
+
 		// If TiUIView's processProperties ended up making a TiBackgroundDrawable
 		// for the background, we must set the WebView background color to transparent
 		// in order to see any of it.
@@ -444,6 +485,37 @@ public class TiUIWebView extends TiUINonViewGroupView
 
 	}
 
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		if (TiC.PROPERTY_URL.equals(key)) {
+			setUrl(TiConvert.toString(newValue));
+		} else if (TiC.PROPERTY_HTML.equals(key)) {
+			setHtml(TiConvert.toString(newValue));
+		} else if (TiC.PROPERTY_DATA.equals(key)) {
+			if (newValue instanceof TiBlob) {
+				setData((TiBlob) newValue);
+			}
+		} else if (TiC.PROPERTY_SCALES_PAGE_TO_FIT.equals(key)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLoadWithOverviewMode(TiConvert.toBoolean(newValue));
+		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				nativeView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
+		} else if (TiC.PROPERTY_CACHE_MODE.equals(key)) { 
+			getWebView().getSettings().setCacheMode(TiConvert.toInt(newValue));
+		} else if (TiC.PROPERTY_LIGHT_TOUCH_ENABLED.equals(key)) {
+			WebSettings settings = getWebView().getSettings();
+			settings.setLightTouchEnabled(TiConvert.toBoolean(newValue));
+		} else if(TiC.PROPERTY_REQUEST_HEADERS.equals(key)) {
+			if (newValue instanceof HashMap) {
+				setRequestHeaders((HashMap) newValue);
+			}
+		} else {
+			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
 
 	private boolean mightBeHtml(String url)
 	{
@@ -530,7 +602,11 @@ public class TiUIWebView extends TiUINonViewGroupView
 		}
 		isLocalHTML = false;
 		currentProgress = -1;
-		getWebView().loadUrl(finalUrl);
+		if (extraHeaders.size()>0){
+			getWebView().loadUrl(finalUrl, extraHeaders);
+		} else {
+			getWebView().loadUrl(finalUrl);
+		}
 	}
 
 	public void changeProxyUrl(String url)
@@ -854,6 +930,19 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		WebView currWebView = getWebView();
 		return (currWebView != null) ? currWebView.getSettings().getUserAgentString() : "";
+	}
+
+	public void setRequestHeaders(HashMap items)
+	{
+		Map<String, String> map = items;
+		for (Map.Entry<String, String> item : map.entrySet()) {
+			extraHeaders.put(item.getKey().toString(), item.getValue().toString());
+		}
+	}
+
+	public HashMap getRequestHeaders()
+	{
+		return extraHeaders;
 	}
 
 	public boolean canGoBack()

@@ -372,7 +372,7 @@ static NSDictionary* htmlOptions;
 }
 
 
--(NSNumber*)ellipsize:(id)unused
+-(NSNumber*)ellipsize
 {
     return NUMINTEGER([[(TiUILabel*)[self view] label] lineBreakMode]);
 }

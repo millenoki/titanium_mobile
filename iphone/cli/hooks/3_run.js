@@ -42,13 +42,14 @@ exports.init = function (logger, config, cli) {
 						levels.join('|') + '|log|timestamp)\\])\\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
 			ioslib.simulator.launch(builder.simHandle, {
-				appPath: builder.xcodeAppDir,
-				focus: config.get('ios.focusSimOnRun', cli.argv['sim-focus']),
-				logFilename: builder.tiapp.guid + '.log',
-				watchHandleOrUDID: builder.watchSimHandle,
-				killIfRunning: restartSimulator,
-				uninstallApp:config.get('ios.simUninstallApp', cli.argv['uninstall-app'] || false),
-				watchAppName: cli.argv['watch-app-name']
+				appPath           : builder.xcodeAppDir,
+				focus             : config.get('ios.focusSimOnRun', cli.argv['sim-focus']),
+				iosVersion        : builder.iosSdkVersion,
+				logFilename       : builder.tiapp.guid + '.log',
+				watchHandleOrUDID : builder.watchSimHandle,
+				killIfRunning     : restartSimulator,
+				uninstallApp      : config.get('ios.simUninstallApp', cli.argv['uninstall-app'] || false),
+				watchAppName      : cli.argv['watch-app-name']
 			}).on('log-file', function (line) {
 				// Titanium app log messages
 				if (!simStarted) {

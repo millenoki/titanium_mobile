@@ -82,6 +82,11 @@
 //    return [self item].domainIdentifier;
 //}
 
+-(TiAppiOSSearchableItemAttributeSetProxy*)attributeSet
+{
+    return [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemAttributeSet:_item.attributeSet] autorelease];
+}
+
 // Searchable items have an expiration date or time to live.  By default it's set to 1 month.
 //-(NSString*) expirationDate
 //{

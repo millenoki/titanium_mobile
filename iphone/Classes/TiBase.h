@@ -663,6 +663,7 @@ extern NSString * const kTiNetworkChangedNotification;
 extern NSString * const kTiWatchKitExtensionRequest;
 extern NSString * const kTiContinueActivity;
 extern NSString * const kTiApplicationShortcut;
+extern NSString * const kTiApplicationLaunchedFromURL;
     
 #ifndef TI_USE_AUTOLAYOUT
 extern NSString* const kTiBehaviorSize;

@@ -11,7 +11,12 @@
 #import "MGSwipeTableCell.h"
 #import "TiTableView.h"
 
+#if IS_XCODE_8
+// Add support for iOS 10 table-view prefetching
+@interface TiUIListView : TiScrollingView <MGSwipeTableCellDelegate, UITableViewDelegate, UITableViewDataSource, UITableViewDataSourcePrefetching , UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView >
+#else
 @interface TiUIListView : TiScrollingView <MGSwipeTableCellDelegate, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, UISearchBarDelegate, UISearchDisplayDelegate, TiScrolling, TiProxyObserver, TiUIListViewDelegateView >
+#endif
 
 #pragma mark - Private APIs
 

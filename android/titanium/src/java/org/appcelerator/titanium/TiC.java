@@ -552,6 +552,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String EVENT_SCROLLING = "scrolling";
+
+	/**
+	 * @module.api
+	 */
 	public static final String EVENT_SCROLLSTART = "scrollstart";
 
     /**
@@ -2809,6 +2814,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_RESTART_FROM_BEGINNING = "restartFromBeginning";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_REQUEST_HEADERS = "requestHeaders";
+
 	/**
 	 * @module.api
 	 */
