@@ -739,9 +739,9 @@ SEL GetterForKrollProperty(NSString * key)
     scale *= [TiUtils screenScale];
     UIGraphicsBeginImageContextWithOptions(size, [myview.layer isOpaque], scale);
     float oldOpacity = myview.alpha;
-    myview.alpha = 1;
+//    myview.alpha = 1;
     [myview.layer renderInContext:UIGraphicsGetCurrentContext()];
-    myview.alpha = oldOpacity;
+//    myview.alpha = oldOpacity;
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return image;
