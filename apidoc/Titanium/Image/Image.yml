@@ -1,0 +1,28 @@
+---
+name: Titanium.Image
+summary: |
+    The Image module is used to apply different operations on images.
+extends: Titanium.Module
+since: "5.0.0"
+
+methods:
+  - name: getFilteredImage
+    summary: Filters an image
+    returns:
+        type: Ti.Blob
+    platforms: [ipad, iphone, android]
+    parameters:
+      - name: image
+        summary: Image to filter.
+        type: Ti.Blob | String
+
+      - name: parameters
+        type: Dictionary
+
+
+properties:
+  - name: FILTER_IOS_BLUR
+    type: Number
+    accessors: false
+    permission: read-only
+    platforms: [ipad, iphone, android]

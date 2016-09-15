@@ -486,7 +486,7 @@ properties:
     description: |
         If there are properties set in the <ListDataItem>, the properties set in the template are
         overridden by the ones set in the list data item.
-    type: Dictionary<Titanium.UI.ListItem>
+    type: Dictionary
 
   - name: events
     summary: Contains key-value pairs of view events and their listeners that are applied to the ListItem.
@@ -575,7 +575,8 @@ properties:
         then <Titanium.UI.LIST_ITEM_TEMPLATE_DEFAULT> is used.
 
   - name: properties
-    type: Dictionary<Titanium.UI.ListItem>
+    type: Dictionary
+    optional: true
     summary: |
         Contains key-value pairs of view properties and their values that are applied to the
         `ListItem`.
