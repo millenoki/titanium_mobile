@@ -1193,30 +1193,34 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (NSArray *)nodeModulesPaths:(NSString *)path
 {
-	// What if we're at root? path may be nil here. So let's hack that case
-	if (path == nil) {
-		path = @"/";
-	}
-	// 1. let PARTS = path split(START)
-	NSArray* parts = [path componentsSeparatedByString:@"/"];
-	// 2. let I = count of PARTS - 1
-	NSInteger i = [parts count] - 1;
-	// 3. let DIRS = []
-	NSMutableArray* dirs = [[NSMutableArray alloc] initWithCapacity:0];
-	// 4. while I >= 0,
-	while (i >= 0) {
-		// a. if PARTS[I] = "node_modules" CONTINUE
-		if ([[parts objectAtIndex:i] isEqual: @"node_modules"]) {
-			continue;
-		}
-		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
-		NSString* dir = [[[parts componentsJoinedByString:@"/"] substringFromIndex:1] stringByAppendingPathComponent:@"node_modules"];
-		// c. DIRS = DIRS + DIR
-		[dirs addObject:dir];
-		// d. let I = I - 1
-		i = i - 1;
-	}
-	return dirs;
+    // What if we're at root? path may be nil here. So let's hack that case
+    if (path == nil) {
+        path = @"/";
+    }
+    if ([path isEqualToString: @"/"]) {
+        return @[@"node_modules"];
+    }
+    // 1. let PARTS = path split(START)
+    NSArray* parts = [path componentsSeparatedByString:@"/"];
+    // 2. let I = count of PARTS - 1
+    NSInteger i = [parts count] - 1;
+    // 3. let DIRS = []
+    NSMutableArray* dirs = [[NSMutableArray alloc] initWithCapacity:0];
+    // 4. while I >= 0,
+    while (i >= 0) {
+        // a. if PARTS[I] = "node_modules" CONTINUE
+        if ([[parts objectAtIndex:i] isEqual: @"node_modules"]) {
+            continue;
+        }
+        // b. DIR = path join(PARTS[0 .. I] + "node_modules")
+        NSString* dir = [[[parts subarrayWithRange:NSMakeRange(0, i+1)] componentsJoinedByString:@"/"] stringByAppendingPathComponent:@"node_modules"];
+        // c. DIRS = DIRS + DIR
+        [dirs addObject:dir];
+        // d. let I = I - 1
+        i = i - 1;
+    }
+    [dirs addObject:@"node_modules"];
+    return dirs;
 }
 
 - (TiModule *)loadNodeModules:(NSString *)path withDir:(NSString *)start withContext:(KrollContext *)kroll
@@ -1287,13 +1291,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 				}
 			}
 
-			// Need base path to work from for determining the node_modules search paths.
-			NSString *workingPath = [oldURL relativePath];
-			module = [self loadNodeModules:path withDir:workingPath withContext:context];
-			if (module) {
-				return module;
-			}
-
 			// TODO Find a way to determine if the first path segment refers to a CommonJS module, and if so don't log
 			// TODO How can we make this spit this out to Ti.API.log?
 			NSLog(@"require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
@@ -1301,6 +1298,13 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 			if (module) {
 				return module;
 			}
+            
+            // Need base path to work from for determining the node_modules search paths.
+            NSString *workingPath = [oldURL relativePath];
+            module = [self loadNodeModules:path withDir:workingPath withContext:context];
+            if (module) {
+                return module;
+            }
 		}
 	}
 	@finally {

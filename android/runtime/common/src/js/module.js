@@ -284,18 +284,18 @@ Module.prototype.require = function (request, context) {
 			}
 		}
 
-		// Allow looking through node_modules
-		// 3. LOAD_NODE_MODULES(X, dirname(Y))
-		loaded = this.loadNodeModules(request, this.path, context);
-		if (loaded) {
-			return loaded;
-		}
-
 		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
 		// Fallback to old Titanium behavior of assuming it's actually an absolute path
 		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
 
 		loaded = this.loadAsFileOrDirectory('/' + request, context);
+		if (loaded) {
+			return loaded;
+		}
+		
+		// Allow looking through node_modules
+		// 3. LOAD_NODE_MODULES(X, dirname(Y))
+		loaded = this.loadNodeModules(request, this.path, context);
 		if (loaded) {
 			return loaded;
 		}
@@ -404,6 +404,7 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 		// d. let I = I - 1
 		i = i - 1;
 	}
+	dirs.push('node_modules');
 	return dirs;
 }
 
