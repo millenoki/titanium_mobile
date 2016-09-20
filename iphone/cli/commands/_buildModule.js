@@ -834,7 +834,11 @@ iOSModuleBuilder.prototype.createUniversalBinary = function createUniversalBinar
 			// used the camel-cased module id
 			lib = path.join(this.projectDir, 'build', 'Release-' + dest, 'lib' + this.moduleIdAsIdentifier + '.a');
 			if (!fs.existsSync(lib)) {
-				return new Error(__('Unable to find the built %s library', 'Release-' + dest));
+                // try old path
+                lib = path.join(this.projectDir, 'build', 'TIRelease', dest, 'lib' + this.moduleId + '.a');
+                if (!fs.existsSync(lib)) {
+                    return new Error(__('Unable to find the built %s library', 'Release-' + dest));
+                }
 			}
 		}
 		return lib;

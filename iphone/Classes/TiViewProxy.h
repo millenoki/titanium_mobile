@@ -420,6 +420,10 @@ enum
  */
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 
+-(void)makeViewChildrenPerformSelector:(SEL)selector withObject:(id)object;
+
+-(void)performBlockOnViewChildren:(void (^)(TiViewProxy* object))block;
+
 #pragma mark Layout events, internal and external
 
 /**

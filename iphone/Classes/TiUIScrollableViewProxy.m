@@ -38,6 +38,18 @@
     [super _initWithProperties:properties];
 }
 
+-(void)performBlockOnViewChildren:(void (^)(TiViewProxy* object))block
+{
+    [super performBlockOnViewChildren:block];
+    pthread_rwlock_rdlock(&viewsLock);
+    [viewProxies enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (IS_OF_CLASS(obj, TiViewProxy)) {
+            block(obj);
+        }
+    }];
+    pthread_rwlock_unlock(&viewsLock);
+}
+
 // Special handling to try and avoid Apple's detection of private API 'layout'
 //-(void)setValue:(id)value forUndefinedKey:(NSString *)key
 //{
