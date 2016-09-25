@@ -81,6 +81,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
 import com.appcelerator.aps.APSAnalytics;
 
@@ -1759,6 +1760,18 @@ public abstract class TiBaseActivity extends AppCompatActivity
 		if (activityProxy != null) {
 			dispatchCallback(TiC.PROPERTY_ON_RESUME, null);
 		}
+		
+		if (!windowStack.empty()) {
+		    layout.getViewTreeObserver().addOnGlobalLayoutListener(
+	            new OnGlobalLayoutListener() {
+	                @Override
+	                public void onGlobalLayout() {
+	                   layout.getViewTreeObserver()
+	                                .removeOnGlobalLayoutListener(this);
+	                   windowStack.peek().onWindowFocusChange(true);
+	                }
+	            });
+        }
 		super.onResume();
 		if (isFinishing()) {
 			return;
@@ -1772,11 +1785,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				finish();
 			}
 			return;
-		}
-
-		if (!windowStack.empty()) {
-			windowStack.peek().onWindowFocusChange(true);
-		}
+		}		
 
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
