@@ -23,7 +23,7 @@ exports.init = function (logger, config, cli) {
 				outputDir = builder.outputDir;
 
 			if (!dest || !fs.existsSync(dest)) {
-				logger.error(__('No APK file to deploy, skipping'));
+				// logger.error(__('No APK file to deploy, skipping'));
 				return finished();
 			}
 
