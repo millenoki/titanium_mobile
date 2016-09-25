@@ -6,16 +6,20 @@
  */
 package ti.modules.titanium.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.ParentingProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
@@ -63,6 +67,22 @@ public class ScrollableViewProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_SHOW_PAGING_CONTROL, false);
         defaultValues.put(TiC.PROPERTY_OVER_SCROLL_MODE, 0);
         defaultValues.put(TiC.PROPERTY_CURRENT_PAGE, 0);
+	}
+	
+	
+    private WeakReference<KrollProxy> rootProxyForTemplates = null;
+    
+    public KrollProxy getRootProxyForTemplates() {
+        if (rootProxyForTemplates != null) {
+            return rootProxyForTemplates.get();
+        }
+        return this;
+    }
+	@Override
+	protected void initFromTemplate(HashMap template_, KrollProxy rootProxy,
+            boolean updateKrollProperties, boolean recursive) {
+	    this.rootProxyForTemplates = new WeakReference<KrollProxy>(rootProxy);
+	    super.initFromTemplate(template_, rootProxy, updateKrollProperties, recursive);
 	}
 
 	@Override

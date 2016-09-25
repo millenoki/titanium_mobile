@@ -10,6 +10,9 @@
 #import "TiUIScrollableView.h"
 
 @implementation TiUIScrollableViewProxy
+{
+    TiParentingProxy* handlingRootProxy;
+}
 @synthesize viewProxies, verticalLayout;
 
 -(NSArray *)keySequence
@@ -36,6 +39,13 @@
     [self initializeProperty:@"overlayEnabled" defaultValue:NUMBOOL(NO)];
     [self initializeProperty:@"pagingControlOnTop" defaultValue:NUMBOOL(NO)];
     [super _initWithProperties:properties];
+}
+
+- (void)unarchiveFromDictionary:(NSDictionary*)dictionary rootProxy:(TiParentingProxy*)rootProxy
+{
+    handlingRootProxy = rootProxy;
+    [super unarchiveFromDictionary:dictionary rootProxy:rootProxy];
+    handlingRootProxy = nil;
 }
 
 -(void)performBlockOnViewChildren:(void (^)(TiViewProxy* object))block
@@ -116,7 +126,7 @@
     for (id arg in args)
     {
         //dont set rootproxy that the view itself becomes the rootproxy
-        TiProxy *child = [self createChildFromObject:arg rootProxy:nil];
+        TiProxy *child = [self createChildFromObject:arg rootProxy:handlingRootProxy];
         if (child) {
             [self rememberProxy:child];
             [self childAdded:child atIndex:-1 shouldRelayout:NO];
