@@ -29,6 +29,7 @@ import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.animation.Animator;
@@ -289,6 +290,16 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 		return false;
 	}
 	
+	TiCompositeLayout windowsLayout;
+	private View getParentViewForWindows() {
+        if (windowsLayout == null) {
+            ViewGroup parent = (ViewGroup) getParentViewForChild();
+            windowsLayout = new TiCompositeLayout(parent.getContext());
+            parent.addView(windowsLayout, 0);
+        }
+        return windowsLayout;
+	}
+	
 	public boolean transitionFromWindowToWindow(final TiWindowProxy toRemove, final TiWindowProxy winToFocus, Object arg)
 	{
 		Transition transition = null;
@@ -319,7 +330,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 			return true;
 		}
 					
-		final ViewGroup viewToRemoveFrom = (ViewGroup) getParentViewForChild();
+		final ViewGroup viewToRemoveFrom = (ViewGroup) getParentViewForWindows();
 		
         toRemove.onWindowFocusChange(false);
 		final boolean viewWasOpened = winToFocus.isOpenedOrOpening();
@@ -497,7 +508,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 		if (arg != null && arg instanceof HashMap<?, ?>) {
 			animated = TiConvert.toBoolean((HashMap) arg, TiC.PROPERTY_ANIMATED, animated);
 		}
-		final ViewGroup viewToAddTo = (ViewGroup) getParentViewForChild();
+		final ViewGroup viewToAddTo = (ViewGroup) getParentViewForWindows();
 		
 		if (!isFirst && animated) {
 			transition = TransitionHelper.transitionFromObject((HashMap) ((arg != null)?((HashMap)arg).get(TiC.PROPERTY_TRANSITION):null), defaultTransition, null);
@@ -757,7 +768,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
     
     public void clearWindowsStack(final boolean activityFinishing){
 		if (windows.size() == 0) return;
-		ViewGroup viewToRemoveFrom = (ViewGroup) getParentViewForChild();
+		ViewGroup viewToRemoveFrom = (ViewGroup) getParentViewForWindows();
         if (viewToRemoveFrom != null) {
             for (int i = 0; i < windows.size(); i++) {
                 TiWindowProxy proxy = windows.get(i);
