@@ -157,6 +157,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	            TiViewHelper.resetValues(child);
 	        }
 		}
+		
         @Override
 		protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
 	        if (v instanceof ViewGroup) {
@@ -168,13 +169,13 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	            // Count backwards - let topmost views consume scroll distance first.
 	            for (int i = count - 1; i >= 0; i--) {
 	                final View child = group.getChildAt(i);
-	                if (child instanceof TiCompositeLayout && !((TiCompositeLayout) child).canScroll()) {
-	                    continue;
-	                }
-                    if (child instanceof TiScrollView) {
+	                if (child instanceof TiScrollView) {
                         return ((TiScrollView) child).canScroll(-dx, 0);
                     }
-	                int left = child.getLeft();
+//	                if (child instanceof TiCompositeLayout && !((TiCompositeLayout) child).canScroll(x + scrollX, y + scrollY)) {
+//	                    continue;
+//	                }
+//	                int left = child.getLeft();
 	                if (x + scrollX >= child.getLeft() && x + scrollX < child.getRight() &&
 	                        y + scrollY >= child.getTop() && y + scrollY < child.getBottom() &&
 	                        canScroll(child, true, dx, x + scrollX - child.getLeft(),
@@ -847,7 +848,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
     			    Object arg = views[i];
     			    KrollProxy child = null;
                     if (arg instanceof HashMap) {
-                        child = proxy.createProxyFromTemplate((HashMap) arg, null, true);
+                        child = proxy.createProxyFromTemplate((HashMap) arg, ((ScrollableViewProxy) proxy).getRootProxyForTemplates(), true);
                         if (child != null) {
                             child.updateKrollObjectProperties();
                         }
