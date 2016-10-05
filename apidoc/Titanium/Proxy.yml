@@ -64,6 +64,11 @@ methods:
         type: Callback<Object>
     returns:
         type: this
+  - name: removeAllListeners
+    aliases: off
+    summary: Removes all the event listeners. Return the Object for chaining
+    returns:
+        type: this
   - name: fireEvent
     aliases: emit
     summary: Fires a synthesized event to any registered listeners.
@@ -75,6 +80,7 @@ methods:
         summary: A dictionary of keys and values to add to the <Titanium.Event> object
             sent to the listeners.
         type: Dictionary
+        optional: true   
   - name: applyProperties
     summary: Applies the properties to the proxy.
     description: |
