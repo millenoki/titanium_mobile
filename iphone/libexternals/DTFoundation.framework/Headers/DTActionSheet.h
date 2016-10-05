@@ -6,7 +6,8 @@
 //  Copyright (c) 2012 Cocoanetics. All rights reserved.
 //
 
-#import "DTWeakSupport.h"
+#import <DTFoundation/DTWeakSupport.h>
+#import <Availability.h>
 
 // the block to execute when an option button is tapped
 typedef void (^DTActionSheetBlock)(void);
@@ -14,6 +15,8 @@ typedef void (^DTActionSheetBlock)(void);
 /**
  Extends UIActionSheet with support for blocks.
  */
+
+#if !TARGET_OS_TV && __IPHONE_OS_VERSION_MIN_REQUIRED < 80000
 
 @interface DTActionSheet : UIActionSheet
 
@@ -66,3 +69,4 @@ typedef void (^DTActionSheetBlock)(void);
 @property (nonatomic, DT_WEAK_PROPERTY) id<UIActionSheetDelegate> actionSheetDelegate;
 
 @end
+#endif
