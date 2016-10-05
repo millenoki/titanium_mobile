@@ -120,7 +120,15 @@ static NSDictionary* htmlOptions;
         switch (_contentType) {
             case kContentTypeHTML:
             {
-                _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
+                
+                if ([contentString characterAtIndex:0] != '<') {
+                    //if not starting with a <, ios html parser with surround it with a <p> and thus create
+                    //paragraph spacing
+                    _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[[NSString stringWithFormat:@"<span>%@</span>", contentString] dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
+                } else {
+                    _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
+                }
+                
                 break;
             }
             default:
@@ -265,6 +273,16 @@ static NSDictionary* htmlOptions;
 //    }
 	[self replaceValue:value forKey:@"text" notification:NO];
 }
+
+//we do it in the proxy for faster performances in tableviews
+//-(void)setAttributedString:(id)value
+//{
+//    //the test is for listview measurement when a same template is used for text and html
+//    //    if (value || _contentType == kContentTypeText) {
+//    [self setAttributedTextViewContent:[TiUtils stringValue:value] ofType:kContentTypeText];
+//    //    }
+//    [self replaceValue:value forKey:@"attributedString" notification:NO];
+//}
 
 -(void)setHtml:(id)value
 {
