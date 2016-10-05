@@ -293,23 +293,7 @@ function find(modulesOrParams, platforms, deployType, tiManifest, searchPaths, c
 							if (!info) return;
 
 							tmp = util.mix({}, module, info);
-							if (params.sdkVersion && info.manifest && info.manifest.minsdk && version.gt(info.manifest.minsdk, params.sdkVersion)) {
-								if (params.logger) {
-									params.logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
-									params.logger.debug(__('Module %s requires Titanium SDK %s or newer, but the selected SDK is %s', tmp.id.cyan, info.manifest.minsdk, params.sdkVersion));
-								}
-								result.incompatible.push(tmp);
-								return;
-							}
-
-							if (moduleAPIVersion && moduleAPIVersion[platform] && info.manifest && info.manifest.apiversion && info.manifest.apiversion !== moduleAPIVersion[platform]) {
-								if (params.logger) {
-									params.logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
-									params.logger.debug(__('Module %s has apiversion=%s, but the selected SDK supports module apiversion=%s on platform=%s', tmp.id.cyan, info.manifest.apiversion.cyan, moduleAPIVersion[platform].cyan, platform.cyan));
-								}
-								result.incompatible.push(tmp);
-								return;
-							}
+							
 
 							// make sure we haven't already added this module
 							var alreadyAdded = false,
@@ -343,6 +327,23 @@ function find(modulesOrParams, platforms, deployType, tiManifest, searchPaths, c
 							}
 
 							if (!alreadyAdded) {
+								if (params.sdkVersion && info.manifest && info.manifest.minsdk && version.gt(info.manifest.minsdk, params.sdkVersion)) {
+									if (params.logger) {
+										params.logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
+										params.logger.debug(__('Module %s requires Titanium SDK %s or newer, but the selected SDK is %s', tmp.id.cyan, info.manifest.minsdk, params.sdkVersion));
+									}
+									result.incompatible.push(tmp);
+									return;
+								}
+
+								if (moduleAPIVersion && moduleAPIVersion[platform] && info.manifest && info.manifest.apiversion && info.manifest.apiversion !== moduleAPIVersion[platform]) {
+									if (params.logger) {
+										params.logger.debug(__('Found incompatible Titanium module id=%s version=%s platform=%s deploy-type=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan));
+										params.logger.debug(__('Module %s has apiversion=%s, but the selected SDK supports module apiversion=%s on platform=%s', tmp.id.cyan, info.manifest.apiversion.cyan, moduleAPIVersion[platform].cyan, platform.cyan));
+									}
+									result.incompatible.push(tmp);
+									return;
+								}
 								tmp.platform = [ platform ];
 								!foundBetter && params.logger && params.logger.info(__('Found Titanium module id=%s version=%s platform=%s deploy-type=%s path=%s', tmp.id.cyan, tmp.version.cyan, tmp.platform.join(',').cyan, tmp.deployType.join(',').cyan, tmp.modulePath.cyan));
 								result.found.push(tmp);
