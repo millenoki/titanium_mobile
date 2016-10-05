@@ -3,7 +3,7 @@
   "description": "Appcelerator Titanium Mobile",
   "version": "6.1.0",
   "moduleApiVersion": {
-    "iphone": "2",
+    "iphone": "3",
     "android": "3",
     "mobileweb": "2",
     "windows": "2"
