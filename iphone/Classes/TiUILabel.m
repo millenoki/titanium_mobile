@@ -445,7 +445,8 @@
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
     ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
-    [[self label] setAttributedText:[arg attributedString]];
+    [[self label] setText:[arg attributedString] afterInheritingLabelAttributesAndConfiguringWithBlock:nil];
+//    [[self label] setAttributedText:[arg attributedString]];
     [[self viewProxy] contentsWillChange];
 #endif
 }
