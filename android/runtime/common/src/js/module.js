@@ -143,7 +143,6 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 //	ModuleWrapper.prototype = externalModule;
 
 	var wrapper = fromPrototype(externalModule, ModuleWrapper);
-//	var wrapper = fromPrototype(externalModule);
 	var invocationAPIs = externalModule.invocationAPIs;
 	var invocationsLen = invocationAPIs.length;
 
