@@ -2786,7 +2786,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		contents = fs.readFileSync(srcFile).toString(),
 		xcodeProject = xcode.project(path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.pbxproj')),
 		xobjs,
-		relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
+		relPathRegExp = /\.\.\/(Classes|Resources|headers|lib|external)/;
 
 	xcodeProject.hash = xcodeParser.parse(fs.readFileSync(srcFile).toString());
 	xobjs = xcodeProject.hash.project.objects;
@@ -4295,9 +4295,14 @@ iOSBuilder.prototype.copyTitaniumLibraries = function copyTitaniumLibraries() {
 
 		this.unmarkBuildDirFile(dest);
 	}, this);
-	libDir = path.join(this.buildDir, 'libexternals');
-	this.copyDirSync(path.join(this.platformPath, 'libexternals'), libDir, {
+	libDir = path.join(this.buildDir, 'externalLibs');
+	this.copyDirSync(path.join(this.platformPath, 'externalLibs'), libDir, {
 		forceSymlink:this.symlinkLibrariesOnCopy
+	});
+	this.unmarkBuildDirFiles(libDir);
+	libDir = path.join(this.buildDir, 'externalEmbeddedFrameworks');
+	this.copyDirSync(path.join(this.platformPath, 'externalEmbeddedFrameworks'), libDir, {
+		forceCopy:true
 	});
 	this.unmarkBuildDirFiles(libDir);
 };

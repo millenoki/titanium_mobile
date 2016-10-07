@@ -177,7 +177,12 @@ IOS.prototype.package = function (packager, next) {
 					copyFiles(IOS_ROOT, DEST_IOS, ['AppledocSettings.plist', 'cli', 'headers', 'templates'], cb);
 				}.bind(this),
 				function (cb) {
-					copyFiles(IOS_ROOT, DEST_IOS, ['libexternals'], {
+					copyFiles(IOS_ROOT, DEST_IOS, ['externalLibs'], {
+						dereference:false
+					}, cb);
+				}.bind(this),
+				function (cb) {
+					copyFiles(IOS_ROOT, DEST_IOS, ['externalEmbeddedFrameworks'], {
 						dereference:false
 					}, cb);
 				}.bind(this),
