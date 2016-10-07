@@ -268,7 +268,7 @@ public class ActionBarProxy extends AnimatableReusableProxy {
             View viewToAdd = ((TiViewProxy) viewProxy).getOrCreateView()
                     .getOuterView();
             if (actionBar.getCustomView() != viewToAdd) {
-                TiUIHelper.removeViewFromSuperView((TiViewProxy) viewProxy);
+                TiUIHelper.removeViewFromSuperView(viewToAdd);
                 actionBar.setCustomView(viewToAdd);
                 showTitleEnabled = false;
                 actionBar.setDisplayShowCustomEnabled(true);
