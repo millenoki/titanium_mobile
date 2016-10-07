@@ -1550,6 +1550,9 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 	}
 	
 	public View getCellAt(int sectionIndex, int itemIndex) {
+	    if (listView == null) {
+	        return null;
+	    }
         int position = findItemPosition(sectionIndex, itemIndex);
         int childCount = listView.getListChildCount();
         for (int i = 0; i < childCount; i++) {
