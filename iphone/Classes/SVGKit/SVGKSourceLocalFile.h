@@ -5,8 +5,12 @@
 
 @interface SVGKSourceLocalFile : SVGKSource
 
-@property (nonatomic, retain) NSString* filePath;
+@property (nonatomic, strong) NSString* filePath;
+@property (nonatomic, readonly) BOOL wasRelative;
 
-+ (SVGKSource*)sourceFromFilename:(NSString*)p;
++ (SVGKSourceLocalFile*)sourceFromFilename:(NSString*)p;
+
++ (SVGKSourceLocalFile *)internalSourceAnywhereInBundleUsingName:(NSString *)name;
++ (SVGKSourceLocalFile *)internalSourceAnywhereInBundle:(NSBundle *)bundle usingName:(NSString *)name;
 
 @end

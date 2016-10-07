@@ -101,20 +101,20 @@ typedef enum DOMNodeType
 
 @interface Node : NSObject
 
-@property(nonatomic,retain,readonly) NSString* nodeName;
-@property(nonatomic,retain,readonly) NSString* nodeValue;
+@property(nonatomic,strong,readonly) NSString* nodeName;
+@property(nonatomic,strong,readonly) NSString* nodeValue;
 	
 @property(nonatomic,readonly) DOMNodeType nodeType;
-@property(nonatomic,assign,readonly) Node* parentNode;
-@property(nonatomic,retain,readonly) NodeList* childNodes;
-@property(nonatomic,assign,readonly) Node* firstChild;
-@property(nonatomic,assign,readonly) Node* lastChild;
-@property(nonatomic,assign,readonly) Node* previousSibling;
-@property(nonatomic,assign,readonly) Node* nextSibling;
-@property(nonatomic,retain,readonly) NamedNodeMap* attributes; /*< NB: according to DOM Spec, this is null if the Node is NOT subclassed as an Element */
+@property(nonatomic,weak,readonly) Node* parentNode;
+@property(nonatomic,strong,readonly) NodeList* childNodes;
+@property(nonatomic,weak,readonly) Node* firstChild;
+@property(nonatomic,weak,readonly) Node* lastChild;
+@property(nonatomic,weak,readonly) Node* previousSibling;
+@property(nonatomic,weak,readonly) Node* nextSibling;
+@property(nonatomic,strong,readonly) NamedNodeMap* attributes; /*< NB: according to DOM Spec, this is null if the Node is NOT subclassed as an Element */
 
 // Modified in DOM Level 2:
-@property(nonatomic,assign,readonly) Document* ownerDocument;
+@property(nonatomic,weak,readonly) Document* ownerDocument;
 
 -(Node*) insertBefore:(Node*) newChild refChild:(Node*) refChild;
 
@@ -133,13 +133,13 @@ typedef enum DOMNodeType
 -(BOOL) isSupportedFeature:(NSString*) feature version:(NSString*) version;
 
 // Introduced in DOM Level 2:
-@property(nonatomic,retain,readonly) NSString* namespaceURI;
+@property(nonatomic,strong,readonly) NSString* namespaceURI;
 
 // Introduced in DOM Level 2:
-@property(nonatomic,retain,readonly) NSString* prefix;
+@property(nonatomic,strong,readonly) NSString* prefix;
 
 // Introduced in DOM Level 2:
-@property(nonatomic,retain,readonly) NSString* localName;
+@property(nonatomic,strong,readonly) NSString* localName;
 
 // Introduced in DOM Level 2:
 @property(nonatomic) BOOL hasAttributes;
@@ -147,7 +147,7 @@ typedef enum DOMNodeType
 // DOM Level 3 that we *need*, partly because SVG Spec makes one brief reference to it: http://www.w3.org/TR/SVG/text.html#InterfaceSVGTextContentElement
 
 // Introduced in DOM Level 3: http://www.w3.org/TR/2004/REC-DOM-Level-3-Core-20040407/core.html#Node3-textContent
-@property(nonatomic,readonly) NSString* textContent;
+@property(weak, nonatomic,readonly) NSString* textContent;
 
 #pragma mark - Objective-C init methods (not in SVG Spec - you're supposed to use SVGDocument's createXXX methods instead)
 /** Designated initializers - 2 pairs (one for DOM 1, no namespace, the other for DOM 2, with namespace) of 2 methods (one for nodes that REQUIRE a value, the other for nodes that MUST NOT have a value) */
@@ -155,5 +155,20 @@ typedef enum DOMNodeType
 - (id)initType:(DOMNodeType) nt name:(NSString*) n value:(NSString*) v;
 - (id)initType:(DOMNodeType) nt name:(NSString*) n inNamespace:(NSString*) nsURI;
 - (id)initType:(DOMNodeType) nt name:(NSString*) n value:(NSString*) v inNamespace:(NSString*) nsURI;
+
+#pragma mark - Objective-C serialization method to serialize a DOM tree back to XML (used heavily in SVGKit's output/conversion features)
+
+/** EXPERIMENTAL: not fully implemented or tested - this correctly outputs most SVG files, but is missing esoteric
+ features such as EntityReferences, currently they are simply ignored
+ 
+ This method should be used hand-in-hand with the proprietary SVGDocument method "allNamespaces" and the SVGSVGElement method "
+ 
+ @param outputString an empty MUTABLE string we can accumulate with output (NB: this method uses a lot of memory, needs to accumulate data)
+ 
+ @param prefixesByKNOWNNamespace (required): a dictionary mapping "XML namespace URI" to "prefix to use inside the xml-tags", e.g. "http://w3.org/2000/svg" usually is mapped to "svg" (or to "", signifying it's the default namespace). This MUST include ALL NAMESPACES FOUND IN THE DOCUMENT (it's recommended you use SVGDocument's "allPrefixesByNamespace" method, and some post-processing, to get an accurate input here)
+ 
+ @param prefixesByACTIVENamespace (required): a mutable dictionary listing which elements of the other dictionary are active in-scope - i.e. which namespaces have been output by this node or a higher node in the tree. You pass-in an empty dictionary to the root SVG node and it fills it in as required.
+ */
+-(void) appendXMLToString:(NSMutableString*) outputString availableNamespaces:(NSDictionary*) prefixesByKNOWNNamespace activeNamespaces:(NSMutableDictionary*) prefixesByACTIVENamespace;
 
 @end
