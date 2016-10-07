@@ -111,6 +111,23 @@ Module.prototype.load = function (filename, source) {
 }
 
 
+var ModuleWrapper = {  
+  toString: function() {
+    return  '[module ModuleWrapper]';
+  }
+};
+var fromPrototype = function(prototype, object) {  
+  var newObject = Object.create(prototype);
+
+  for (var prop in object) {
+    if (object.hasOwnProperty(prop)) {
+      newObject[prop] = object[prop];      
+    }
+  }
+
+  return newObject; 
+};
+
 /**
  * Generates a context-specific module wrapper, and wraps
  * each invocation API in an external (3rd party) module
@@ -122,10 +139,11 @@ Module.prototype.load = function (filename, source) {
 Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 
 	// The module wrapper forwards on using the original as a prototype
-	function ModuleWrapper() {}
-	ModuleWrapper.prototype = externalModule;
+//	function ModuleWrapper() {}
+//	ModuleWrapper.prototype = externalModule;
 
-	var wrapper = new ModuleWrapper();
+	var wrapper = fromPrototype(externalModule, ModuleWrapper);
+//	var wrapper = fromPrototype(externalModule);
 	var invocationAPIs = externalModule.invocationAPIs;
 	var invocationsLen = invocationAPIs.length;
 
@@ -142,19 +160,21 @@ Module.prototype.createModuleWrapper = function(externalModule, sourceUrl) {
 		}));
 	}
 
-	wrapper.addEventListener = function() {
+	wrapper.on = wrapper.addEventListener = function() {
 		externalModule.addEventListener.apply(externalModule, arguments);
 		return wrapper;
 	}
-	wrapper.on = wrapper.addEventListener;
-
-	wrapper.removeEventListener = function() {
+	wrapper.once = function() {
+		externalModule.once.apply(externalModule, arguments);
+		return wrapper;
+	}
+	
+	wrapper.off = wrapper.removeEventListener = function() {
 		externalModule.removeEventListener.apply(externalModule, arguments);
 		return wrapper;
 	}
-	wrapper.off = wrapper.removeEventListener;
 
-	wrapper.fireEvent = function() {
+	wrapper.emit = wrapper.fireEvent = function() {
 		externalModule.fireEvent.apply(externalModule, arguments);
 	}
 
@@ -612,4 +632,8 @@ Module.prototype.filenameExists = function (filename) {
 	}
 
 	return filename in fileIndex;
+}
+
+Module.prototype.toString = function () {
+	return '[module ' + this.id + ']';
 }

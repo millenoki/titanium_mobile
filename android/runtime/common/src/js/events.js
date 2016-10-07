@@ -133,7 +133,8 @@ Object.defineProperty(EventEmitter.prototype, "emit", {
 
 Object.defineProperty(EventEmitter.prototype, "fireSyncEvent", {
 	value: EventEmitter.prototype._emit,
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 //EventEmitter is defined in src/node_events.cc
@@ -152,26 +153,20 @@ Object.defineProperty(EventEmitter.prototype, "addListener", {
 
 		var id;
 
-		// Setup ID first so we can pass count in to "listenerAdded"
-		if (!this._events[type]) {
-			id = 0;
-		} else if (isArray(this._events[type])) {
-			id = this._events[type].length;
-		} else {
-			id = 1;
-		}
-
 		var listenerWrapper = {};
 		listenerWrapper.listener = listener;
 		listenerWrapper.self = view;
 
 		if (!this._events[type]) {
+			id = 0;
 			// Optimize the case of one listener. Don't need the extra array object.
 			this._events[type] = listenerWrapper;
 		} else if (isArray(this._events[type])) {
+			id = this._events[type].length;
 			// If we've already got an array, just append.
 			this._events[type].push(listenerWrapper);
 		} else {
+			id = 1;
 			// Adding the second element, need to change to array.
 			this._events[type] = [this._events[type], listenerWrapper];
 		}
@@ -197,7 +192,8 @@ Object.defineProperty(EventEmitter.prototype, "_listenerForEvent", {
 
 Object.defineProperty(EventEmitter.prototype, "on", {
 	value: EventEmitter.prototype.addListener,
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 // Titanium compatibility
@@ -220,7 +216,8 @@ Object.defineProperty(EventEmitter.prototype, "once", {
 
 		return this;
 	},
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 Object.defineProperty(EventEmitter.prototype, "removeListener", {
@@ -291,7 +288,8 @@ Object.defineProperty(EventEmitter.prototype, "removeEventListener", {
 
 Object.defineProperty(EventEmitter.prototype, "off", {
 	value: EventEmitter.prototype.removeListener,
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 
@@ -304,7 +302,8 @@ Object.defineProperty(EventEmitter.prototype, "removeAllListeners", {
 		}
 		return this;
 	},
-	enumerable: false
+	enumerable: false,
+	writable: true
 });
 
 Object.defineProperty(EventEmitter.prototype, "listeners", {
