@@ -1614,7 +1614,7 @@ properties:
   - name: transform
     summary: Transformation matrix to apply to the view.
     description: Android and Mobile Web only support 2DMatrix transforms.
-    type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix ]
+    type: [ Titanium.UI.2DMatrix, Titanium.UI.3DMatrix, String ]
     default: Identity matrix
 
   - name: translationX

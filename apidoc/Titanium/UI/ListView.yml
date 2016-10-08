@@ -738,7 +738,7 @@ properties:
 
   - name: sections
     summary: Sections of this list.
-    type: Array<Titanium.UI.ListSection>
+    type: Array<Titanium.UI.ListSection | Dictionary<Object>>
 
   - name: defaultItemTemplate
     summary: Sets the default template for list data items that do not specify the `template` property.
