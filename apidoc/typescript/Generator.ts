@@ -236,6 +236,9 @@ module Generator {
             if (name  === 'Array') {
                 return;
             }
+			if (/Dictionary/.test(name)) {
+                content = '\t[k:string]:any'
+            }
 			var entityType: string = (level === 0) ? 'declare class' : 'export class';
 			return template ({
 								entityType: entityType,
@@ -249,6 +252,9 @@ module Generator {
 			var parentIsEnum: boolean = false;
 			if (!_.isNull(this.ExtendsFrom)) {
 				parentIsEnum = this.ExtendsFrom.IsEnum();
+			}
+			if (/Dictionary/.test(this.Name)) {
+				return 'extends ' + this.InheritsFrom;
 			}
 			if (parentIsEnum || this.InheritsFrom === 'Object') {
 				return '';
@@ -661,7 +667,7 @@ module Generator {
 		/// @return the property type sanitized.
 		private static ComputePropertyType (type : any) : string {
 			if (_.isArray(type)) {
-				return 'any';
+				return type.map(Mapper.SanitizeModuleRoute).join(' | ');
 			}
 			return Mapper.ComputeType (<string>(type));
 		}
@@ -715,6 +721,7 @@ module Generator {
 		/// @param[in] type is the type to be converted.
 		/// @return a valid type name.
 		private static ComputeType (type: string) : string {
+			// console.log('ComputeType', type);
 			if (!_.isNull(type.match('Callback<.*>'))) {
 				return '(...args : any[]) => any';
 			}
