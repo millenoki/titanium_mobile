@@ -464,9 +464,10 @@
 		D5C8C9A317EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C8C96617EF45C900F54C19 /* UIViewController+ADTransitionController.m */; };
 		D5C92DA7182AA88F0072D117 /* TouchDelegate_Views.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */; };
 		D5D46C2D1BAAD08100C968F1 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
+		D5DAE6331DA94DAF00568FB6 /* DTFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5DAE6321DA94DAF00568FB6 /* DTFoundation.framework */; };
+		D5DAE6341DA94DB700568FB6 /* DTFoundation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D5DAE6321DA94DAF00568FB6 /* DTFoundation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D5DC32F8180EED41006CCEBD /* TiTransitionCube.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */; };
 		D5E671351DA7F98A00253B8F /* DTCoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E6712F1DA7F98A00253B8F /* DTCoreText.framework */; };
-		D5E671361DA7F98A00253B8F /* DTFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671301DA7F98A00253B8F /* DTFoundation.framework */; };
 		D5E671371DA7F98A00253B8F /* GPUImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671311DA7F98A00253B8F /* GPUImage.framework */; };
 		D5E671381DA7F98A00253B8F /* libCoconutKitAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671321DA7F98A00253B8F /* libCoconutKitAnimation.a */; };
 		D5E671391DA7F98A00253B8F /* libFMDB-IOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671331DA7F98A00253B8F /* libFMDB-IOS.a */; };
@@ -574,6 +575,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				D5E671431DA7F9A700253B8F /* CocoaLumberjack.framework in Embed Frameworks */,
+				D5DAE6341DA94DB700568FB6 /* DTFoundation.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1556,6 +1558,7 @@
 		D5C8C96617EF45C900F54C19 /* UIViewController+ADTransitionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIViewController+ADTransitionController.m"; path = "../Classes/ADTransitionController/UIViewController+ADTransitionController.m"; sourceTree = "<group>"; };
 		D5C92DA5182AA88F0072D117 /* TouchDelegate_Views.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TouchDelegate_Views.h; sourceTree = "<group>"; };
 		D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TouchDelegate_Views.m; sourceTree = "<group>"; };
+		D5DAE6321DA94DAF00568FB6 /* DTFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DTFoundation.framework; path = ../externalEmbeddedFrameworks/DTFoundation.framework; sourceTree = "<group>"; };
 		D5DC32F6180EED41006CCEBD /* TiTransitionCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionCube.h; sourceTree = "<group>"; };
 		D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionCube.m; sourceTree = "<group>"; };
 		D5E602B11DA778EC00BC0ECA /* AppleSucksDOMImplementation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppleSucksDOMImplementation.h; path = ../Classes/SVGKit/AppleSucksDOMImplementation.h; sourceTree = "<group>"; };
@@ -1687,7 +1690,6 @@
 		D5E6032F1DA778EC00BC0ECA /* Text.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Text.h; path = ../Classes/SVGKit/Text.h; sourceTree = "<group>"; };
 		D5E603301DA778EC00BC0ECA /* TinySVGTextAreaElement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TinySVGTextAreaElement.h; path = ../Classes/SVGKit/TinySVGTextAreaElement.h; sourceTree = "<group>"; };
 		D5E6712F1DA7F98A00253B8F /* DTCoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DTCoreText.framework; path = ../externalLibs/DTCoreText.framework; sourceTree = "<group>"; };
-		D5E671301DA7F98A00253B8F /* DTFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DTFoundation.framework; path = ../externalLibs/DTFoundation.framework; sourceTree = "<group>"; };
 		D5E671311DA7F98A00253B8F /* GPUImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GPUImage.framework; path = ../externalLibs/GPUImage.framework; sourceTree = "<group>"; };
 		D5E671321DA7F98A00253B8F /* libCoconutKitAnimation.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCoconutKitAnimation.a; path = ../externalLibs/libCoconutKitAnimation.a; sourceTree = "<group>"; };
 		D5E671331DA7F98A00253B8F /* libFMDB-IOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libFMDB-IOS.a"; path = "../externalLibs/libFMDB-IOS.a"; sourceTree = "<group>"; };
@@ -1776,6 +1778,7 @@
 				D5E671351DA7F98A00253B8F /* DTCoreText.framework in Frameworks */,
 				D5937DC21A24DD800098DA47 /* libAPSAnalytics.a in Frameworks */,
 				D5937DC01A24DD710098DA47 /* libtiverify.a in Frameworks */,
+				D5DAE6331DA94DAF00568FB6 /* DTFoundation.framework in Frameworks */,
 				D5937DB11A24DCEB0098DA47 /* OpenGLES.framework in Frameworks */,
 				D5A016CA1926109E0005158A /* Accelerate.framework in Frameworks */,
 				D5937D9C1A24DCAD0098DA47 /* AdSupport.framework in Frameworks */,
@@ -1786,7 +1789,6 @@
 				8465E6BC19F8644D008479E6 /* CoreMedia.framework in Frameworks */,
 				D5937DA31A24DCC40098DA47 /* CoreData.framework in Frameworks */,
 				D5937DAE1A24DCE80098DA47 /* CoreLocation.framework in Frameworks */,
-				D5E671361DA7F98A00253B8F /* DTFoundation.framework in Frameworks */,
 				D5937DAD1A24DCE70098DA47 /* CFNetwork.framework in Frameworks */,
 				D5E671381DA7F98A00253B8F /* libCoconutKitAnimation.a in Frameworks */,
 				D5937DA21A24DCC40098DA47 /* CoreTelephony.framework in Frameworks */,
@@ -2957,9 +2959,9 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D5DAE6321DA94DAF00568FB6 /* DTFoundation.framework */,
 				D5E671411DA7F99E00253B8F /* CocoaLumberjack.framework */,
 				D5E6712F1DA7F98A00253B8F /* DTCoreText.framework */,
-				D5E671301DA7F98A00253B8F /* DTFoundation.framework */,
 				D5E671311DA7F98A00253B8F /* GPUImage.framework */,
 				D5E671321DA7F98A00253B8F /* libCoconutKitAnimation.a */,
 				D5E671331DA7F98A00253B8F /* libFMDB-IOS.a */,
