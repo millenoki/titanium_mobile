@@ -54,9 +54,9 @@ public class TiProperties
 		
 		Object value = getPreference(key);
 		
-		if (Log.isDebugModeEnabled()) {
-            Log.d(TAG, "getString called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
-        }
+//		if (Log.isDebugModeEnabled()) {
+//            Log.d(TAG, "getString called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
+//        }
 
 		if (value != null) {
 			return value.toString();
@@ -95,9 +95,9 @@ public class TiProperties
 	 */
 	public void setString(String key, String value)
 	{
-        if (Log.isDebugModeEnabled()) {
-            Log.d(TAG,"setString called with key:"+key+", value:"+value);
-        }
+//        if (Log.isDebugModeEnabled()) {
+//            Log.d(TAG,"setString called with key:"+key+", value:"+value);
+//        }
 
 		if (systemProperties != null && systemProperties.has(key)) {
 			if (Log.isDebugModeEnabled()) {
@@ -126,9 +126,9 @@ public class TiProperties
 	{
 		Object value = getPreference(key);
         
-        if (Log.isDebugModeEnabled()) {
-            Log.d(TAG, "getInt called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
-        }
+//        if (Log.isDebugModeEnabled()) {
+//            Log.d(TAG, "getInt called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
+//        }
         return TiConvert.toInt(value, def);
 	}
 
@@ -140,9 +140,9 @@ public class TiProperties
 	 */
 	public void setInt(String key, int value)
 	{
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "setInt called with key:" + key + ", value:" + value);
-		}
+//		if (Log.isDebugModeEnabled()) {
+//			Log.d(TAG, "setInt called with key:" + key + ", value:" + value);
+//		}
 
 		if (systemProperties != null && systemProperties.has(key)) {
 			if (Log.isDebugModeEnabled()) {
@@ -167,9 +167,9 @@ public class TiProperties
 	{
 		Object value = getPreference(key);
         
-        if (Log.isDebugModeEnabled()) {
-            Log.d(TAG, "getDouble called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
-        }
+//        if (Log.isDebugModeEnabled()) {
+//            Log.d(TAG, "getDouble called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
+//        }
         return TiConvert.toDouble(value, def);
 	}
 
@@ -182,9 +182,9 @@ public class TiProperties
 	 */
 	public void setDouble(String key, double value)
 	{
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "setDouble called with key:" + key + ", value:" + value);
-		}
+//		if (Log.isDebugModeEnabled()) {
+//			Log.d(TAG, "setDouble called with key:" + key + ", value:" + value);
+//		}
 
 		if (systemProperties != null && systemProperties.has(key)) {
 			if (Log.isDebugModeEnabled()) {
@@ -208,9 +208,9 @@ public class TiProperties
 	public boolean getBool(String key, boolean def)
 	{
 		Object value = getPreference(key);
-        if (Log.isDebugModeEnabled()) {
-            Log.d(TAG, "getBool called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
-        }
+//        if (Log.isDebugModeEnabled()) {
+//            Log.d(TAG, "getBool called with key:" + key + ", def:" + def + ", value:" + value, Log.DEBUG_MODE);
+//        }
         return TiConvert.toBoolean(value, def);
 	}
 
@@ -248,9 +248,9 @@ public class TiProperties
 	 */
 	public String[] getList(String key, String def[])
 	{
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "getList called with key:" + key + ", def:" + def);
-		}
+//		if (Log.isDebugModeEnabled()) {
+//			Log.d(TAG, "getList called with key:" + key + ", def:" + def);
+//		}
 
 		int length = preferences.getInt(key+".length", -1);
 		if (length == -1) {
@@ -273,9 +273,9 @@ public class TiProperties
 	 */
 	public void setList(String key, String[] value)
 	{
-		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "setList called with key:" + key + ", value:" + value);
-		}
+//		if (Log.isDebugModeEnabled()) {
+//			Log.d(TAG, "setList called with key:" + key + ", value:" + value);
+//		}
 
 		SharedPreferences.Editor editor = preferences.edit();
 		for (int i = 0; i < value.length; i++) {
