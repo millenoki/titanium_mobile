@@ -77,11 +77,11 @@ public class UtilsModule extends KrollModule
 	{
 		String data = convertToString(obj);
 		if (data != null) {
-			try {
-				return TiBlob.blobFromObject(Base64.encodeToString(data.getBytes("UTF-8"), Base64.NO_WRAP));
-			} catch (UnsupportedEncodingException e) {
-				Log.e(TAG, "UTF-8 is not a supported encoding type");
-			}
+//			try {
+				return TiBlob.blobFromObject(Base64.decode(data, Base64.NO_WRAP));
+//			} catch (UnsupportedEncodingException e) {
+//				Log.e(TAG, "UTF-8 is not a supported encoding type");
+//			}
 		}
 		return null;
 	}
