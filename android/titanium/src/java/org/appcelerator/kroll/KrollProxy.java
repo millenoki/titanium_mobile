@@ -163,7 +163,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         this.langConversionTable = getLangConversionTable();
     }
 
-    private void setupProxy(KrollObject object, Object[] creationArguments,
+    protected void setupProxy(KrollObject object, Object[] creationArguments,
             TiUrl creationUrl) {
         if (object != null) {
             // Store reference to the native object that represents this proxy
