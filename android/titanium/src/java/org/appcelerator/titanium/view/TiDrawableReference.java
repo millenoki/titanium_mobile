@@ -378,7 +378,7 @@ public class TiDrawableReference
 	    Bitmap b = TiApplication.getImageMemoryCache().get(cacheKey);
 	    if (b == null) {
 	        b = getBitmap(needRetry, false);
-	        if (b != null) {
+	        if (b != null && cacheKey != null) {
 	            TiApplication.getImageMemoryCache().set(cacheKey, b);
 	        }
 	    }
