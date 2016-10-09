@@ -97,9 +97,11 @@ public class TiBlob extends KrollProxy {
     private int width, height;
     private KrollDict extraInfo;
     private String cacheKey = null;
+    
 
     private TiBlob(int type, Object data, String mimetype) {
         super();
+        this.cacheKey = System.currentTimeMillis() + "";
         this.type = type;
         this.data = data;
         this.mimetype = mimetype;
