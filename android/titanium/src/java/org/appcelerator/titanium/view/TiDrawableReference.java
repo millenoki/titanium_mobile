@@ -1106,7 +1106,7 @@ public class TiDrawableReference
             return file.nativePath();
         }
 	    if (blob != null) {
-            return blob.getNativePath();
+            return blob.getCacheKey();
         }
         return null;
     }
