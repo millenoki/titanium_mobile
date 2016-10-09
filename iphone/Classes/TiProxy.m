@@ -433,6 +433,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void * payload)
     return self;
 }
 
+-(id)_initFromCreateFunction:(id<TiEvaluator>)context_ args:(NSArray*)args
+{
+    return [self _initWithPageContext:context_ args:args withPropertiesInit:YES];
+}
+
+
 -(id)_initWithPageContext:(id<TiEvaluator>)context_ args:(NSArray*)args
 {
     return [self _initWithPageContext:context_ args:args withPropertiesInit:YES];
@@ -1688,7 +1694,7 @@ DEFINE_EXCEPTIONS
     
     if (defaultType == nil) defaultType = @"Ti.UI.View";
     if (type == nil) type = defaultType;
-    TiProxy *proxy = proxy = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
+    TiProxy *proxy = [[self class] createProxy:[[self class] proxyClassFromString:type] withProperties:nil inContext:context];
     [context.krollContext invokeBlockOnThread:^{
         [context registerProxy:proxy];
         [proxy rememberSelf];

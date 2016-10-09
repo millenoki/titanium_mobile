@@ -168,7 +168,7 @@
 		CFDictionarySetValue(classNameLookup, name, resultClass);		
 	}
 
-	return [[[resultClass alloc] _initWithPageContext:context args:args] autorelease];
+	return [[[resultClass alloc] _initFromCreateFunction:context args:args] autorelease];
 }
 
 

@@ -182,6 +182,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(id<TiProxyDelegate> target, id<N
 -(id)_initWithPageContext:(id<TiEvaluator>)context args:(NSArray*)args;
 -(id)_initWithPageContext:(id<TiEvaluator>)context_ args:(NSArray*)args withPropertiesInit:(BOOL)init;
 -(void)_initWithProperties:(NSDictionary*)properties;
+-(id)_initFromCreateFunction:(id<TiEvaluator>)context_ args:(NSArray*)args;
 
 /**
  Whether or not the proxy has listeners for the specified event type.
