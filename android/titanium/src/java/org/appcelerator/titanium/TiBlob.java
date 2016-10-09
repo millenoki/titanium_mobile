@@ -752,7 +752,41 @@ public class TiBlob extends KrollProxy {
     @Kroll.method
     public TiBlob imageAsCropped(Object params,
             @Kroll.argument(optional = true) HashMap options) {
-        Bitmap img = getImage();
+//        System.gc();
+        float scale = 1.0f;
+        if (options != null) {
+            if (options.containsKey("scale")) {
+                scale = TiConvert.toFloat(options, "scale", 1.0f);
+            }
+        }
+        Bitmap img;
+        int sampleSize = 1;
+        if (scale != 1) {
+            float targetScale = 1 / scale;
+            while (targetScale >= 2) {
+                sampleSize *= 2;
+                targetScale /= 2;
+            }
+
+            BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inSampleSize = sampleSize;
+            opts.inPreferredConfig = Bitmap.Config.RGB_565;
+            img  = getImage(opts);
+            if (img != null && scale != 1/sampleSize) {
+                float newScale = scale * sampleSize;
+                int newWidth = img.getWidth();
+                int newHeight = img.getHeight();
+                newWidth = (int) (newScale*newWidth);
+                newHeight = (int) (newScale*newHeight);
+                Bitmap imageResized = Bitmap.createScaledBitmap(img, newWidth, newHeight, true);
+                if (img != imageResized) {
+                    img.recycle();
+                    img = imageResized;
+                }
+            }
+        } else {
+            img  = getImage();
+        }
         if (img == null) {
             return null;
         }
@@ -760,25 +794,18 @@ public class TiBlob extends KrollProxy {
             Log.e(TAG, "Argument for imageAsCropped must be a dictionary");
             return null;
         }
-        float scale = 1.0f;
-        if (options != null) {
-            if (options.containsKey("scale")) {
-                scale = TiConvert.toFloat(options, "scale", 1.0f);
-            }
-        }
+        
         Context context = TiApplication.getInstance().getApplicationContext();
 
         KrollDict rect = new KrollDict((HashMap) params);
-        int widthCropped = (int) (TiUIHelper.getRawDIPSize(
-                rect.optInt(TiC.PROPERTY_WIDTH, width), context) * scale);
-        int heightCropped = (int) (TiUIHelper.getRawDIPSize(
-                rect.optInt(TiC.PROPERTY_HEIGHT, height), context) * scale);
-        int x = (int) (TiUIHelper.getRawDIPSize(
-                rect.optInt(TiC.PROPERTY_X, (width - widthCropped) / 2),
-                context) * scale);
-        int y = (int) (TiUIHelper.getRawDIPSize(
-                rect.optInt(TiC.PROPERTY_Y, (height - heightCropped) / 2),
-                context) * scale);
+        int widthCropped = (int) (
+                rect.optFloat(TiC.PROPERTY_WIDTH, width) * scale);
+        int heightCropped = (int) (
+                rect.optFloat(TiC.PROPERTY_HEIGHT, height) * scale);
+        int x = (int) (
+                rect.optFloat(TiC.PROPERTY_X, (width - widthCropped) / 2) * scale);
+        int y = (int) (
+                rect.optFloat(TiC.PROPERTY_Y, (height - heightCropped) / 2) * scale);
         try {
             Bitmap imageCropped = Bitmap.createBitmap(img, x, y, widthCropped,
                     heightCropped);
