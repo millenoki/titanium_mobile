@@ -28,6 +28,7 @@
 {
     BOOL becameResponder;
     BOOL _nonSystemContentOffset;
+    BOOL _insideScrollView;
 }
 
 -(id)initWithFrame:(CGRect)frame
@@ -166,7 +167,25 @@
     self.ignoreSystemContentOffset = YES;
 }
 
+- (void)didMoveToSuperview
+{
+    [super didMoveToSuperview];
+    [self checkIfInsideScrollView];
+}
+
+-(void)checkIfInsideScrollView {
+    
+    UIView* theView = self;
+    while (theView && !IS_OF_CLASS(theView, UIScrollView)) {
+        theView = [theView superview];
+    }
+    _insideScrollView = IS_OF_CLASS(theView, UIScrollView) && ((UIScrollView*)theView).scrollEnabled;
+}
+
 - (void)updateKeyboardInsetWithScroll:(BOOL)shouldScroll animated:(BOOL)animated  {
+    if (_insideScrollView) {
+        return;
+    }
     CGRect keyboardRect = [[[TiApp app] controller] getKeyboardFrameInView:self];
     if (!CGRectIsEmpty(keyboardRect)) {
         CGFloat keyboardOriginY = keyboardRect.origin.y - self.bounds.origin.y;
