@@ -495,6 +495,25 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
         NSUInteger height = [TiUtils intValue:[args objectAtIndex:1]];
         TiBlob *blob =  [[TiBlob alloc] initWithImage:[UIImageResize resizedImage:CGSizeMake(width, height) interpolationQuality:kCGInterpolationHigh image:image hires:NO]];
         return [blob autorelease];
+        
+    }
+    return nil;
+}
+
+- (id)imageAsCropped:(id)args
+{
+    NSDictionary* dict = nil;
+    NSDictionary* options = nil;
+    ENSURE_ARG_AT_INDEX(dict, args, 0, NSDictionary);
+    if ([args count] > 1) {
+        ENSURE_ARG_AT_INDEX(options, args, 1, NSDictionary);
+    }
+    [self ensureImageLoaded];
+    if (image!=nil)
+    {
+        NSDictionary* realOptions = [NSDictionary dictionaryByMerging:@{@"crop":dict} with:options];
+        TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:result];
+        return [blob autorelease];
     }
     return nil;
 }
