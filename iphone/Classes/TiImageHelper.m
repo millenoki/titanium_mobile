@@ -91,22 +91,24 @@
     if (!image) {
         return nil;
     }
-    int width = image.size.width;
-    int height = image.size.height;
     NSDictionary* info = nil;
     NSDictionary* rectObj = [options objectForKey:@"crop"];
     if (rectObj && [rectObj count] > 0) {
+        int width = image.size.width;
+        int height = image.size.height;
         CGRect bounds = CGRectMake(TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"x"], width)
                                  , TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"y"], height), TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"width"], width), TiDimensionCalculateValueFromStringInBouding([rectObj objectForKey:@"height"], height));
+        bounds = CGRectIntegral(bounds);
         image = [UIImageResize croppedImage:bounds image:image];
     }
 
     
 
     if ([options objectForKey:@"scale"]) {
+        
         CGFloat scale = [TiUtils floatValue:@"scale" properties:options def:1.0f];
         if (scale != 1.0f) {
-            CGSize size = CGSizeMake(scale * width, scale * height);
+            CGSize size = CGSizeMake(scale * image.size.width, scale * image.size.height);
             image = [UIImageResize resizedImage:size interpolationQuality:kCGInterpolationMedium image:image hires:NO ];
         }
     }
