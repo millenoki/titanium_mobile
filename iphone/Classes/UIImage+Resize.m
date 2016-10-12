@@ -127,18 +127,27 @@
 {
     if(image != nil)
     {
-        bounds = CGRectMake(bounds.origin.x * image.scale,
-                            bounds.origin.y * image.scale,
-                            bounds.size.width * image.scale,
-                            bounds.size.height * image.scale);
+        CGAffineTransform rectTransform;
+        switch (image.imageOrientation)
+        {
+            case UIImageOrientationLeft:
+                rectTransform = CGAffineTransformTranslate(CGAffineTransformMakeRotation(M_PI_2), 0, -image.size.height);
+                break;
+            case UIImageOrientationRight:
+                rectTransform = CGAffineTransformTranslate(CGAffineTransformMakeRotation(-M_PI_2), -image.size.width, 0);
+                break;
+            case UIImageOrientationDown:
+                rectTransform = CGAffineTransformTranslate(CGAffineTransformMakeRotation(-M_PI), -image.size.width, -image.size.height);
+                break;
+            default:
+                rectTransform = CGAffineTransformIdentity;
+        };
+        rectTransform = CGAffineTransformScale(rectTransform, image.scale, image.scale);
         
-        CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], bounds);
-        
-        UIImage *croppedImage = [UIImage imageWithCGImage:imageRef scale:image.scale orientation:image.imageOrientation];
-        
+        CGImageRef imageRef = CGImageCreateWithImageInRect([image CGImage], CGRectApplyAffineTransform(bounds, rectTransform));
+        UIImage *result = [UIImage imageWithCGImage:imageRef scale:image.scale orientation:image.imageOrientation];
         CGImageRelease(imageRef);
-        
-        return croppedImage;
+        return result;
     }
     
     return image;
