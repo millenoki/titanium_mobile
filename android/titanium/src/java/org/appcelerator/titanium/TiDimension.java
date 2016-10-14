@@ -276,7 +276,7 @@ public class TiDimension
 	 */
 	public int getAsPixels(int width, int height)
 	{
-		return (int) Math.round(getPixels(width, height));
+		return (int) Math.floor(getPixels(width, height));
 	}
 	
 	public int getAsPixels()
