@@ -120,6 +120,13 @@ properties:
     platforms: [android,  iphone, ipad, mobileweb]
     since: "3.2.0"
 
+  - name: bindId
+    summary: The bindId of the object if set
+    permission: read-only
+    type: String
+    platforms: [android,  iphone, ipad]
+    since: "3.2.0"
+
   - name: lifecycleContainer
     summary: The Window or TabGroup whose Activity lifecycle should be triggered on the proxy.
     description: |
