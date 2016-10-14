@@ -195,7 +195,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
             case TiC.PROPERTY_WIDTH:
             case TiC.PROPERTY_HEIGHT:
             default:
-                if (ActionBarProxy.windowProps().contains(key)) {
+                if (changedProperty && ActionBarProxy.windowProps().contains(key)) {
                     String realKey = TiUtils.mapGetOrDefault(ActionBarProxy.propsToReplace(), key, key);
                     if (activity != null && activity.isCurrentWindow(WindowProxy.this)) {
                         ActivityProxy activityProxy = activity.getActivityProxy();
