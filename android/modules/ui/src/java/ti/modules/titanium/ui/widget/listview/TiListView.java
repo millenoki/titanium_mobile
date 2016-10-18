@@ -208,18 +208,26 @@ public class TiListView extends TiAbsListView<CustomListView> {
     }
     
     public void insert(final int position, final Object item) {
-        listView.insert(position, item);
+        if (listView != null) {
+            listView.insert(position, item);
+        }
     }
 
     public void insert(final int position, final Object... items) {
-        listView.insert(position, items);
+        if (listView != null) {
+            listView.insert(position, items);
+        }
     }
 
     public void remove( final int position) {
-        listView.remove(position - listView.getHeaderViewsCount());
+        if (listView != null) {
+            listView.remove(position - listView.getHeaderViewsCount());
+        }
     }
 
     public void remove( final int position, final int count) {
-        listView.remove(position - listView.getHeaderViewsCount(), count);
+        if (listView != null) {
+            listView.remove(position - listView.getHeaderViewsCount(), count);
+        }
     }
 }
