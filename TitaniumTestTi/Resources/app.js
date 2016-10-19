@@ -2262,7 +2262,7 @@ function svg4Ex() {
 		defaultItemTemplate: 'template'
 	});
 	var sections = [{
-		headerTitle: 'Fruits / Frutas',
+		// headerTitle: 'Fruits / Frutas',
 		items: [{
 			info: {
 				text: 'Apple'
@@ -2279,7 +2279,7 @@ function svg4Ex() {
 			}
 		}]
 	}, {
-		headerTitle: 'Vegetables / Verduras',
+		// headerTitle: 'Vegetables / Verduras',
 		items: [{
 			info: {
 				text: 'Carrot'
@@ -2379,7 +2379,7 @@ function svg4Ex() {
 			}
 		}]
 	}, {
-		headerTitle: 'Grains / Granos',
+		// headerTitle: 'Grains / Granos',
 		items: [{
 			info: {
 				text: 'Corn'
@@ -4041,7 +4041,7 @@ function antiAliasTest(_args) {
 	win.add(view);
 	openWin(win);
 }
-var modules = __AKYLAS_DEV__ ? ['shapes', 'charts'] : [];
+var modules = __AKYLAS_DEV__ ? ['shapes'] : [];
 var moduleItems = [];
 for (var i = 0; i < modules.length; i++) {
 	var module = require('modules/' + modules[i]).load(this);
