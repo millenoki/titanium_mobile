@@ -425,7 +425,7 @@
 		D5937DB71A24DCF70098DA47 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CF3111168AE0084E2DE /* MediaPlayer.framework */; };
 		D5937DB81A24DCF80098DA47 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
 		D5937DB91A24DCFA0098DA47 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
-		D5937DBA1A24DCFB0098DA47 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24597034118FF66300519F79 /* StoreKit.framework */; };
+		D5937DBA1A24DCFB0098DA47 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		D5937DBC1A24DCFD0098DA47 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
 		D5937DBD1A24DCFE0098DA47 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; };
 		D5937DC01A24DD710098DA47 /* libtiverify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D544CEA01949AA8900419D57 /* libtiverify.a */; };
@@ -481,6 +481,8 @@
 		D5F1CE5C1B1F514300077B43 /* TiLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = D55EB01F18630B08004DCAF7 /* TiLabel.m */; };
 		D5F3F9B019C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		D5F3F9B919C6D2F80090B547 /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
+		D5F558E31DB7CCF4000A4353 /* TiLogServer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F558E21DB7CCF4000A4353 /* TiLogServer.m */; };
+		D5F558EC1DB7CD31000A4353 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F558EB1DB7CD31000A4353 /* TiUIiOSFeedbackGeneratorProxy.m */; };
 		D5F9620319A638CC000E464F /* TiScrollingViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */; };
 		D5F9620E19A63941000E464F /* TiScrollingView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F9620D19A63941000E464F /* TiScrollingView.m */; };
 		D5F980F819ECFC240071A3C6 /* MGSwipeTableCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F980F419ECFC240071A3C6 /* MGSwipeTableCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
@@ -646,7 +648,6 @@
 		243ED8EC11288B4300639DF4 /* TiUIiPhoneTableViewScrollPositionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiPhoneTableViewScrollPositionProxy.m; sourceTree = "<group>"; };
 		24596691118E70D300519F79 /* ApplicationRouting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ApplicationRouting.h; path = ../Classes/ApplicationRouting.h; sourceTree = SOURCE_ROOT; };
 		24596692118E70D300519F79 /* ApplicationRouting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ApplicationRouting.m; path = ../Classes/ApplicationRouting.m; sourceTree = SOURCE_ROOT; };
-		24597034118FF66300519F79 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		245B3C3811375A6600CE7530 /* UtilsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilsModule.h; sourceTree = "<group>"; };
 		245B3C3911375A6600CE7530 /* UtilsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UtilsModule.m; sourceTree = "<group>"; };
 		245B455F1139B41800CE7530 /* TiUIiPhoneTableViewCellSelectionStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiPhoneTableViewCellSelectionStyleProxy.h; sourceTree = "<group>"; };
@@ -1709,6 +1710,10 @@
 		D5EA4AD218EF05EB001F67E8 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
 		D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.shapes.xcodeproj; path = ../../../modules/akylas_modules/shapes/ios/akylas.shapes.xcodeproj; sourceTree = "<group>"; };
 		D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.slidemenu.xcodeproj; path = ../../../modules/akylas_modules/slidemenu/ios/akylas.slidemenu.xcodeproj; sourceTree = "<group>"; };
+		D5F558E11DB7CCF4000A4353 /* TiLogServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLogServer.h; sourceTree = "<group>"; };
+		D5F558E21DB7CCF4000A4353 /* TiLogServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLogServer.m; sourceTree = "<group>"; };
+		D5F558EA1DB7CD31000A4353 /* TiUIiOSFeedbackGeneratorProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSFeedbackGeneratorProxy.h; sourceTree = "<group>"; };
+		D5F558EB1DB7CD31000A4353 /* TiUIiOSFeedbackGeneratorProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSFeedbackGeneratorProxy.m; sourceTree = "<group>"; };
 		D5F9620119A638CC000E464F /* TiScrollingViewProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiScrollingViewProxy.h; sourceTree = "<group>"; };
 		D5F9620219A638CC000E464F /* TiScrollingViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiScrollingViewProxy.m; sourceTree = "<group>"; };
 		D5F9620C19A63941000E464F /* TiScrollingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiScrollingView.h; sourceTree = "<group>"; };
@@ -1800,7 +1805,7 @@
 				D5937DBD1A24DCFE0098DA47 /* Security.framework in Frameworks */,
 				D5E6713A1DA7F98A00253B8F /* libSVGKit-iOS.a in Frameworks */,
 				D5937DAC1A24DCE60098DA47 /* AddressBookUI.framework in Frameworks */,
-				D5937DBA1A24DCFB0098DA47 /* StoreKit.framework in Frameworks */,
+				D5937DBA1A24DCFB0098DA47 /* (null) in Frameworks */,
 				D5937DB21A24DCF10098DA47 /* QuartzCore.framework in Frameworks */,
 				D5937DB81A24DCF80098DA47 /* AVFoundation.framework in Frameworks */,
 				D5937DB71A24DCF70098DA47 /* MediaPlayer.framework in Frameworks */,
@@ -2157,6 +2162,8 @@
 			children = (
 				D54324061B64DA47009C24EC /* Gestures */,
 				B473FB65126F8E8900E29C73 /* Utility Macros */,
+				D5F558E11DB7CCF4000A4353 /* TiLogServer.h */,
+				D5F558E21DB7CCF4000A4353 /* TiLogServer.m */,
 				3AB9137A1BB60F070063A4AD /* TiPreviewingDelegate.h */,
 				3AB9137B1BB60F070063A4AD /* TiPreviewingDelegate.m */,
 				24F620601199F28600EEAD3C /* TiErrorController.h */,
@@ -2794,6 +2801,8 @@
 				15CB44161C4ED55B00D81480 /* TiUIiOSSystemButtonProxy.h */,
 				15CB44171C4EEFDD00D81480 /* TiUIiOSSystemIconProxy.h */,
 				15CB44181C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m */,
+				D5F558EA1DB7CD31000A4353 /* TiUIiOSFeedbackGeneratorProxy.h */,
+				D5F558EB1DB7CD31000A4353 /* TiUIiOSFeedbackGeneratorProxy.m */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
@@ -3001,7 +3010,6 @@
 				24CA8CEC1111689B0084E2DE /* AudioToolbox.framework */,
 				24CA8CF3111168AE0084E2DE /* MediaPlayer.framework */,
 				24CA8CFA111168C30084E2DE /* AVFoundation.framework */,
-				24597034118FF66300519F79 /* StoreKit.framework */,
 				84BBA58716570F90006B8C22 /* Security.framework */,
 			);
 			name = Frameworks;
@@ -4048,13 +4056,16 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 0430;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
-						DevelopmentTeam = 3UUB5NM43K;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
-								enabled = 1;
+								enabled = 0;
+							};
+							com.apple.InAppPurchase = {
+								enabled = 0;
 							};
 							com.apple.WAC = {
 								enabled = 0;
@@ -4304,6 +4315,7 @@
 				D5C06C1F17C7D8F700FA0E98 /* TiUIHelper.m in Sources */,
 				24CA8B9B111161FE0084E2DE /* TiUIiPhoneProxy.m in Sources */,
 				24CA8B9C111161FE0084E2DE /* TiUIImageViewProxy.m in Sources */,
+				D5F558E31DB7CCF4000A4353 /* TiLogServer.m in Sources */,
 				D5809D5C19129CEB005A1F02 /* APSHTTPResponse.m in Sources */,
 				15CB44191C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m in Sources */,
 				3A0B56791C0CD81C00709DA4 /* TiUIiOSLivePhoto.m in Sources */,
@@ -4361,6 +4373,7 @@
 				B606EF35190B109D00663EFC /* TiNetworkHTTPClientProxy.m in Sources */,
 				8484E3A117A8279500C24B02 /* TiRootViewController.m in Sources */,
 				D5E9511C195DC34800DB8B37 /* TiProperties.m in Sources */,
+				D5F558EC1DB7CD31000A4353 /* TiUIiOSFeedbackGeneratorProxy.m in Sources */,
 				24CA8BCD111161FE0084E2DE /* TiButtonUtil.m in Sources */,
 				3A0B567B1C0CD81C00709DA4 /* TiUIiOSLivePhotoViewProxy.m in Sources */,
 				24CA8BCE111161FE0084E2DE /* TiBlob.m in Sources */,
@@ -4687,7 +4700,9 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = "";
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -4695,6 +4710,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -4713,11 +4729,14 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				DEVELOPMENT_TEAM = "";
 				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

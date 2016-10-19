@@ -36,7 +36,7 @@
     "fs-extra": "^0.30.0",
     "glob": "7.0.5",
     "humanize": "0.0.9",
-    "ioslib": "0.15.3",
+    "ioslib": "1.0.3",
     "lodash.defaultsdeep": "4.5.1",
     "markdown": "0.5.0",
     "moment": "2.14.1",
@@ -51,7 +51,7 @@
     "typescript": "^1.8.10",
     "uglify-js": "2.7.0",
     "unorm": "^1.4.1",
-    "windowslib": "0.4.21",
+    "windowslib": "0.4.23",
     "wrench": "1.5.9",
     "xcode": "0.8.9",
     "xmldom": "0.1.22"

@@ -556,6 +556,30 @@ public abstract class TiApplication extends Application implements
         deployData = new TiDeployData(this);
 
         TiPlatformHelper.getInstance().initialize();
+        TiPlatformHelper.getInstance().initAnalytics();
+        TiPlatformHelper.getInstance().setSdkVersion(
+                "ti." + getTiBuildVersion());
+        TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());
+        TiPlatformHelper.getInstance().setAppId(getAppInfo().getId());
+        TiPlatformHelper.getInstance().setAppVersion(getAppInfo().getVersion());
+
+        String deployType = appProperties.getString("ti.deploytype", "unknown");
+        String buildType = appInfo.getBuildType();
+        if ("unknown".equals(deployType)) {
+            deployType = getDeployType();
+        }
+        if (buildType != null && !buildType.equals("")) {
+            TiPlatformHelper.getInstance().setBuildType(buildType);
+        }
+        // Just use type 'other' enum since it's open ended.
+        DeployType.OTHER.setName(deployType);
+        TiPlatformHelper.getInstance().setDeployType(DeployType.OTHER);
+        Log.d(TAG, "TiPlatformHelper.deployType: " + TiPlatformHelper.getInstance().getDeployType(), Log.DEBUG_MODE);
+        if (isAnalyticsEnabled()) {
+            APSAnalytics.getInstance().sendAppEnrollEvent();
+        } else {
+            Log.d(TAG, "Analytics have been disabled", Log.DEBUG_MODE);
+        }
     }
     
     private static TiBitmapMemoryCache _picassoMermoryCache;
@@ -930,30 +954,7 @@ public abstract class TiApplication extends Application implements
         this.rootActivity = new WeakReference<TiRootActivity>(rootActivity);
         rootActivityLatch.countDown();
         
-        TiPlatformHelper.getInstance().initAnalytics();
-        TiPlatformHelper.getInstance().setSdkVersion(
-                "ti." + getTiBuildVersion());
-        TiPlatformHelper.getInstance().setAppName(getAppInfo().getName());
-        TiPlatformHelper.getInstance().setAppId(getAppInfo().getId());
-        TiPlatformHelper.getInstance().setAppVersion(getAppInfo().getVersion());
-
-        String deployType = appProperties.getString("ti.deploytype", "unknown");
-        String buildType = appInfo.getBuildType();
-        if ("unknown".equals(deployType)) {
-            deployType = getDeployType();
-        }
-        if (buildType != null && !buildType.equals("")) {
-            TiPlatformHelper.getInstance().setBuildType(buildType);
-        }
-		// Just use type 'other' enum since it's open ended.
-		DeployType.OTHER.setName(deployType);
-		TiPlatformHelper.getInstance().setDeployType(DeployType.OTHER);
-        Log.d(TAG, "TiPlatformHelper.deployType: " + TiPlatformHelper.getInstance().getDeployType(), Log.DEBUG_MODE);
-        if (isAnalyticsEnabled()) {
-            APSAnalytics.getInstance().sendAppEnrollEvent();
-        } else {
-            Log.d(TAG, "Analytics have been disabled", Log.DEBUG_MODE);
-        }
+       
         tempFileHelper.scheduleCleanTempDir();
     }
 

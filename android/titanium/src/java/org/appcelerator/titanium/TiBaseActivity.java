@@ -1231,10 +1231,11 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	
 	public boolean handleAndroidBackEvent() {
 		KrollProxy proxy = null;
+		TiWindowProxy topWindow = null;
 		if (activityProxy.hasListeners(TiC.EVENT_ANDROID_BACK)) {
 			proxy = activityProxy;
 		} else{
-			TiWindowProxy topWindow = topWindowOnStack();
+			topWindow = topWindowOnStack();
 			if (topWindow != null) {
 			    if (topWindow instanceof TiWindowManager) {
 			        TiWindowProxy newWindow = ((TiWindowManager) topWindow).getTopWindow();
@@ -1255,6 +1256,12 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			proxy.fireEvent(TiC.EVENT_ANDROID_BACK, null, false, false);
 			return true;
 		}
+		if (TiApplication.activityStack.size() <= 2) {
+            if (topWindow != null && !TiConvert.toBoolean(topWindow.getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), false)) {
+                this.moveTaskToBack(true);
+                return true;
+            }
+        }
 		return false;
 	}
 	
@@ -1275,6 +1282,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 				}
 			}
 		}
+		// there are no parent activities to return to
+		// override back press to background the activity
+		// note: 2 since there should always be TiLaunchActivity and TiActivity
+		
 //		if (hasLightWeightWindow) {
 	        return false;
 //		} else {

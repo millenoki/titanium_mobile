@@ -1,28 +1,44 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_MEDIA
 
 #import "TiModule.h"
+#import "KrollCallback.h"
+#import "MediaPlayer/MediaPlayer.h"
+#import "TiViewProxy.h"
 
-@class TiViewProxy;
-@class KrollCallback;
 @interface MediaModule : TiModule
 <
 	UINavigationControllerDelegate,
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 	UIImagePickerControllerDelegate,
+#endif
+#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
+	MPMediaPickerControllerDelegate,
+#endif
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
+	UIVideoEditorControllerDelegate,
+#endif
 	UIPopoverControllerDelegate,
-	UIPopoverPresentationControllerDelegate,
-	UIVideoEditorControllerDelegate
+	UIPopoverPresentationControllerDelegate
 > {
 @private
 	// Camera picker
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 	UIImagePickerController *picker;
+#endif
 	BOOL autoHidePicker;
 	BOOL saveToRoll;
+
+	// Music picker
+#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
+	MPMediaPickerController* musicPicker;
+#endif
+
 	
 	// Shared picker bits; OK, since they're modal (and we can perform sanity checks for the necessary bits)
 	BOOL animatedPicker;
@@ -32,8 +48,10 @@
 	
 	id popover;
     TiViewProxy* cameraView;
-	
+
+#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
 	UIVideoEditorController *editor;
+#endif
 	KrollCallback *editorSuccessCallback;
 	KrollCallback *editorErrorCallback;
 	KrollCallback *editorCancelCallback;
@@ -41,13 +59,21 @@
 }
 
 @property(nonatomic,readwrite,retain) id popoverView;
+@property(nonatomic,readonly) NSNumber* volume;
+@property(nonatomic,readonly) NSNumber* peakMicrophonePower;
+@property(nonatomic,readonly) NSNumber* averageMicrophonePower;
+@property(nonatomic,readonly) NSDictionary* currentRoute;
+@property(nonatomic,readonly) NSNumber* audioPlaying;
 @property(nonatomic,readonly) NSNumber* isCameraSupported;
 @property(nonatomic,readonly) NSNumber* cameraAuthorizationStatus;
+@property(nonatomic, assign) NSNumber* audioSessionMode;
+@property(nonatomic, assign) NSString* audioSessionCategory;
 
 @property(nonatomic,readonly) NSNumber* UNKNOWN_ERROR;
 @property(nonatomic,readonly) NSNumber* DEVICE_BUSY;
 @property(nonatomic,readonly) NSNumber* NO_CAMERA;
 @property(nonatomic,readonly) NSNumber* NO_VIDEO;
+@property(nonatomic,readonly) NSNumber* NO_MUSIC_PLAYER;
 
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_DEFAULT;
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_HIDDEN;
@@ -85,6 +111,7 @@
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_PHOTO;
 @property(nonatomic,readonly) NSString* MEDIA_TYPE_LIVEPHOTO;
 
+
 // NOTE: these are introduced in 3.2
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_NONE;			// No controls
 @property(nonatomic,readonly) NSNumber* VIDEO_CONTROL_EMBEDDED;		// Controls for an embedded view
@@ -119,9 +146,6 @@
 @property(nonatomic,readonly) NSNumber* VIDEO_FINISH_REASON_PLAYBACK_ENDED;
 @property(nonatomic,readonly) NSNumber* VIDEO_FINISH_REASON_PLAYBACK_ERROR;
 @property(nonatomic,readonly) NSNumber* VIDEO_FINISH_REASON_USER_EXITED;
-
-
-+(UIImage*) takeScreenshotWithScale:(CGFloat)scale;
 
 @end
 

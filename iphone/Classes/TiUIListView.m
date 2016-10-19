@@ -2504,6 +2504,9 @@ static NSDictionary* replaceKeysForRow;
 
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
 {
+    if ([searchBar.text isEqualToString:self.searchString] && [searchController isActive]) {
+        return;
+    }
     self.searchString = (searchBar.text == nil) ? @"" : searchBar.text;
 }
 
@@ -2560,6 +2563,37 @@ static NSDictionary* replaceKeysForRow;
     // as soon as we remove iOS < 9 support
     id searchButton = searchButton = [UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil];
     [searchButton setTitle:[TiUtils stringValue:searchButtonTitle]];
+}
+
+-(BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(NSString *)searchString
+{
+    TiColor *resultsBackgroundColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsBackgroundColor"]];
+    TiColor * resultsSeparatorColor = [TiUtils colorValue:[[self proxy] valueForKey:@"resultsSeparatorColor"]];
+    id resultsSeparatorInsets = [[self proxy] valueForKey:@"resultsSeparatorInsets"];
+    id resultsSeparatorStyle = [[self proxy] valueForKey:@"resultsSeparatorStyle"];
+    
+    ENSURE_TYPE_OR_NIL(resultsSeparatorInsets, NSDictionary);
+    ENSURE_TYPE_OR_NIL(resultsSeparatorStyle, NSNumber);
+    
+    if (resultsBackgroundColor) {
+        // TIMOB-23281: Hack to support transparent backgrounds (not officially supported)
+        UIColor *color = [resultsBackgroundColor _color] == [UIColor clearColor] ? [UIColor colorWithWhite:1.0 alpha:0.0001] : [resultsBackgroundColor _color];
+        [controller.searchResultsTableView setBackgroundColor:color];
+    }
+    
+    if (resultsSeparatorColor) {
+        [controller.searchResultsTableView setSeparatorColor:[resultsSeparatorColor _color]];
+    }
+    
+    if (resultsSeparatorInsets) {
+        [controller.searchResultsTableView setSeparatorInset:[TiUtils contentInsets:resultsSeparatorInsets]];
+    }
+    
+    if (resultsSeparatorStyle) {
+        [controller.searchResultsTableView setSeparatorStyle:[TiUtils intValue:resultsSeparatorStyle def:UITableViewCellSeparatorStyleSingleLine]];
+    }
+    
+    return YES;
 }
 
 - (void) searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller {

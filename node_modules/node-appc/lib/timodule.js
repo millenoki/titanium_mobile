@@ -244,7 +244,7 @@ function find(modulesOrParams, platforms, deployType, tiManifest, searchPaths, c
 			params.modules && params.modules.forEach(function (module) {
 				var originalVersion = module.version || 'latest',
 					scopes = ['project', 'global'],
-					i, j, scope, info, platform, found, ver, tmp;
+					i, j, scope, info, platform, found, foundIncompatible, ver, tmp;
 
 				// make sure the module has a valid array of platforms
 				module.platform || (module.platform = params.platforms);
@@ -355,13 +355,6 @@ function find(modulesOrParams, platforms, deployType, tiManifest, searchPaths, c
 								modulesById[module.id].push(tmp);
 							}
 
-							// since we found a valid version, remove this module if was previously detected as incompatible
-							for (var x = 0; x < result.incompatible.length; x++) {
-								if (result.incompatible[x].id === tmp.id) {
-									result.incompatible.splice(x--, 1);
-								}
-							}
-
 							found = true;
 						});
 					}
@@ -369,7 +362,17 @@ function find(modulesOrParams, platforms, deployType, tiManifest, searchPaths, c
 
 				if (!found) {
 					params.logger && params.logger.warn(__('Could not find a valid Titanium module id=%s version=%s platform=%s deploy-type=%s', module.id.cyan, originalVersion.cyan, module.platform.join(',').cyan, module.deployType.join(',').cyan));
-					result.missing.push(module);
+					// don't add to missing when the module is already in the incompatible list
+					!foundIncompatible && result.missing.push(module);
+				} else {
+					// since we found a valid version, remove this module if was previously detected as incompatible
+					// this happens when module version is 'latest', we iterated through the list of versions and found a compatible one
+					// but subsequent versions are added to the incompatible list
+					for (var x = 0; x < result.incompatible.length; x++) {
+						if (result.incompatible[x].id === module.id) {
+							result.incompatible.splice(x--, 1);
+						}
+					}
 				}
 			});
 

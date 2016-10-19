@@ -281,8 +281,10 @@ public class TiUIWebView extends TiUINonViewGroupView
 		client = new TiWebViewClient(this, webView);
 		webView.setWebViewClient(client);
 		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInterface) {
-            client.getBinding().addJavascriptInterfaces();
-        }
+			client.getBinding().addJavascriptInterfaces();
+		}
+
+		webView.setWebViewClient(client);
 
 		if (proxy instanceof WebViewProxy) {
 			WebViewProxy webProxy = (WebViewProxy) proxy;

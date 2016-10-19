@@ -1803,6 +1803,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_FREQUENCY = "frequency";
 
 	/**
@@ -2463,6 +2468,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ON_INTENT = "onIntent";
 
 	/**
 	 * @module.api

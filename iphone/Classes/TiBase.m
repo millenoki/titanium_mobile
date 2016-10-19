@@ -4,65 +4,28 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+
 #import "TiBase.h"
 #import "TiApp.h"
+#ifndef DISABLE_TI_LOG_SERVER
+# import "TiLogServer.h"
+#endif
 
 #include <stdarg.h>
 #include <pthread.h>
 #include <sys/time.h>
 
 #if DEBUG
-
-#include <assert.h>
-#include <stdbool.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/sysctl.h>
-
+# include <assert.h>
+# include <stdbool.h>
+# include <sys/types.h>
+# include <unistd.h>
+# include <sys/sysctl.h>
 #endif
 
 #ifndef USE_JSCORE_FRAMEWORK
-#import "TiDebugger.h"
+# import "TiDebugger.h"
 #endif
-
-static bool ApplicationBeingDebugged(void)
-// Returns true if the current process is being debugged (either
-// running under the debugger or has a debugger attached post facto).
-{
-#if TARGET_IPHONE_SIMULATOR
-    return 1;
-#elif DEBUG
-    int                 junk;
-    int                 mib[4];
-    struct kinfo_proc   info;
-    size_t              size;
-    
-    // Initialize the flags so that, if sysctl fails for some bizarre
-    // reason, we get a predictable result.
-    
-    info.kp_proc.p_flag = 0;
-    
-    // Initialize mib, which tells sysctl the info we want, in this case
-    // we're looking for information about a specific process ID.
-    
-    mib[0] = CTL_KERN;
-    mib[1] = KERN_PROC;
-    mib[2] = KERN_PROC_PID;
-    mib[3] = getpid();
-    
-    // Call sysctl.
-    
-    size = sizeof(info);
-    junk = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
-    if(junk != 0){
-        return 0;
-    }
-    // We're being debugged if the P_TRACED flag is set.
-    return ( (info.kp_proc.p_flag & P_TRACED) != 0 );
-#else
-    return 0;
-#endif
-}
 
 NSMutableArray* TiCreateNonRetainingArray() 
 {
@@ -88,85 +51,34 @@ CGPoint midpointBetweenPoints(CGPoint a, CGPoint b)
     return CGPointMake(x, y);
 }
 
+/**
+ * Logs a message from the app's console.log(), Ti.API.info(), and native
+ * NSLog() calls to the log server.
+ */
 void TiLogMessage(NSString* str, ...) {
-    va_list args;
-    va_start(args, str);
-    
-    NSString* message = [[NSString alloc] initWithFormat:str arguments:args];
-#if defined(DEBUG) || defined(DEVELOPER)
-    if ([[TiApp app] debugMode]) {
-#ifdef TI_DEBUGGER_PROFILER
-        TiDebuggerLogMessage(OUT, message);
-#endif
-    }
-    else {
-#ifdef TITANIUM_CLI_XCODEBUILD
-        [TiApp TiNSLog:message];
-#else
-        const char* s = [message UTF8String];
-        if (s[0]=='[')
-        {
-            fprintf(stdout,"%s\n", s);
-            fflush(stdout);
-        }
-        else
-        {
-            fprintf(stdout,"[DEBUG] %s\n", s);
-            fflush(stdout);
-        }
-#endif
-#else
-        [TiApp TiNSLog:message];
-#endif
-#if defined(DEBUG) || defined(DEVELOPER)
-    }
-#endif
-    [message release];
-}
+	va_list args;
+	va_start(args, str);
 
+	NSString* message = [[[NSString alloc] initWithFormat:str arguments:args] autorelease];
 
-void TiLogMoreMessage(const char *file, int lineNumber, const char *functionName, NSString *format, ...) {
-    va_list ap;
-    // Initialize a variable argument list.
-    va_start (ap, format);
-    
-    // End using variable argument list.
-    va_end (ap);
-    NSString *fileName = [[NSString stringWithUTF8String:file] lastPathComponent];
-    NSString *message = nil;
-#if DEBUG
-    message = [[NSString alloc] initWithFormat:@"%@ [%@:%d:%s]", message, fileName, lineNumber, functionName];
-#else
-    message = [[NSString alloc] initWithFormat:format arguments:ap];
-#endif
-    if ([[TiApp app] debugMode]) {
-#ifndef USE_JSCORE_FRAMEWORK
-        TiDebuggerLogMessage(OUT, message);
-#endif
-    }
-    else {
-        
-        if (ApplicationBeingDebugged()) {
-            const char* s = [message UTF8String];
-            if (s[0]=='[')
-            {
-                fprintf(stderr,"%s\n", s);
-                fflush(stderr);
-            }
-            else
-            {
-                fprintf(stderr,"[DEBUG] %s\n", s);
-                fflush(stderr);
-            }
-        }
-        else{
 #pragma push
 #undef NSLog
-            [TiApp TiNSLog:message];
+	// first output the message to the system log
+	// we want to see the message regardless of which target we're running on
+	[TiApp TiNSLog:message];
 #pragma pop
-        }
-    }
-    [message release];
+
+#ifndef DISABLE_TI_LOG_SERVER
+	// next we send the message to the log server to be sent or queued up
+	[TiLogServer log:message];
+#endif
+
+#ifndef USE_JSCORE_FRAMEWORK
+	// lastly, if we're debugging the app, write the message to the debugger
+	if ([[TiApp app] debugMode]) {
+		TiDebuggerLogMessage(OUT, message);
+	}
+#endif
 }
 
 

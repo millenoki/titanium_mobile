@@ -827,7 +827,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #ifdef TI_USE_KROLL_THREAD
 -(NSString*)threadName
 {
-	return [NSString stringWithFormat:@"KrollContext<%@>",contextId];
+	return [NSString stringWithFormat:@"KrollContext<%@>",krollContextId];
 }
 #endif
 -(id)init
@@ -838,7 +838,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		NSLog(@"[DEBUG] INIT: %@",self);
 #endif
 #ifdef TI_USE_KROLL_THREAD
-		contextId = [[NSString stringWithFormat:@"kroll$%d",++KrollContextIdCounter] copy];
+		krollContextId = [[NSString stringWithFormat:@"kroll$%d",++KrollContextIdCounter] copy];
 		condition = [[NSCondition alloc] init];
 		queue = [[NSMutableArray alloc] init];
 		lock = [[NSRecursiveLock alloc] init];
@@ -873,7 +873,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[queue removeAllObjects];
 	}		
 	RELEASE_TO_NIL(queue);
-	RELEASE_TO_NIL(contextId);
+	RELEASE_TO_NIL(krollContextId);
 	RELEASE_TO_NIL(lock);
 	if (timerLock!=nil)
 	{
@@ -926,9 +926,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 }
 
 #ifdef TI_USE_KROLL_THREAD
--(NSString*)contextId
+-(NSString*)krollContextId
 {
-	return [[contextId retain] autorelease];
+	return [[krollContextId retain] autorelease];
 }
 #endif
 -(void)registerTimer:(id)timer timerId:(double)timerId

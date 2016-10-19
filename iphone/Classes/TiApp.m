@@ -31,6 +31,9 @@
 #import "TiDebugger.h"
 #import "TiProfiler/TiProfiler.h"
 #endif
+#ifndef DISABLE_TI_LOG_SERVER
+# import "TiLogServer.h"
+#endif
 
 TiApp* sharedApp;
 
@@ -301,8 +304,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 - (void)applicationDidFinishLaunching:(UIApplication *)application 
 {
 	[TiExceptionHandler defaultExceptionHandler];
+#ifndef DISABLE_TI_LOG_SERVER
+	[TiLogServer startServer];
+#endif
 	[self initController];
-    [self launchToUrl];
+	[self launchToUrl];
 	[self boot];
 }
 
@@ -367,6 +373,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	// preload font matching table
 	[DTCoreTextFontDescriptor asyncPreloadFontLookupTable];
     
+#ifndef DISABLE_TI_LOG_SERVER
+	[TiLogServer startServer];
+#endif
+
 	// nibless window
 	window = [[TouchCapturingWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 
@@ -650,7 +660,9 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
     //FunctionName();
     //Forward the callback
-    [self application:application didReceiveRemoteNotification:userInfo];
+    if ([self respondsToSelector:@selector(application:didReceiveRemoteNotification:)]) {
+        [self application:application didReceiveRemoteNotification:userInfo];
+    }
     
     //This only here for Simulator builds.
     
@@ -858,6 +870,10 @@ expectedTotalBytes:(int64_t)expectedTotalBytes {
 #endif
 	//These shutdowns return immediately, yes, but the main will still run the close that's in their queue.	
 	[kjsBridge shutdown:condition];
+
+#ifndef DISABLE_TI_LOG_SERVER
+	[TiLogServer stopServer];
+#endif
 
 	// THE CODE BELOW IS WRONG.
 	// It only waits until ONE context has signialed that it has shut down; then we proceed along our merry way.

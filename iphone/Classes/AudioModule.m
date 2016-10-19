@@ -13,7 +13,9 @@
 #import "Ti2DMatrix.h"
 #import "SCListener.h"
 #import "TiAudioSession.h"
+#ifdef USE_TI_AUDIOMUSICPLAYER
 #import "TiAudioMusicPlayer.h"
+#endif
 #import "TiAudioItem.h"
 
 #import <AudioToolbox/AudioToolbox.h>
@@ -55,8 +57,10 @@ typedef void (^PermissionBlock)(BOOL granted)
 -(void)dealloc
 {
     [self destroyPicker];
+#ifdef USE_TI_AUDIOMUSICPLAYER
     RELEASE_TO_NIL(systemMusicPlayer);
     RELEASE_TO_NIL(appMusicPlayer);
+#endif
     RELEASE_TO_NIL(popoverView);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [super dealloc];
@@ -147,34 +151,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
     return AVAudioSessionPortCarAudio;
 }
 
-
-//Constants for AudioSessions
--(NSNumber*)AUDIO_SESSION_MODE_AMBIENT
-{
-    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_AMBIENT", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_AmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_SOLO_AMBIENT
-{
-    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_SOLO_AMBIENT", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_SoloAmbientSound];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAYBACK
-{
-    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_PLAYBACK", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_PLAYBACK");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_MediaPlayback];
-}
--(NSNumber*)AUDIO_SESSION_MODE_RECORD
-{
-    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_RECORD", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_RecordAudio];
-}
--(NSNumber*)AUDIO_SESSION_MODE_PLAY_AND_RECORD
-{
-    DEPRECATED_REPLACED(@"Audio.AUDIO_SESSION_MODE_PLAY_AND_RECORD", @"3.4.2", @"Audio.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD");
-    return [NSNumber numberWithUnsignedInt:kAudioSessionCategory_PlayAndRecord];
-}
-
 //Constants for AudioSessions
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_AMBIENT,AVAudioSessionCategoryAmbient);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_SOLO_AMBIENT, AVAudioSessionCategorySoloAmbient);
@@ -230,6 +206,7 @@ MAKE_SYSTEM_PROP(UNKNOWN_ERROR,AudioModuleErrorUnknown);
 MAKE_SYSTEM_PROP(DEVICE_BUSY,AudioModuleErrorBusy);
 MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 
+#ifdef USE_TI_AUDIOMUSICPLAYER
 -(TiAudioMusicPlayer*)systemMusicPlayer
 {
     if (systemMusicPlayer == nil) {
@@ -259,64 +236,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
     }
     return appMusicPlayer;
 }
-
--(void)setDefaultAudioSessionMode:(NSNumber*)mode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
-    [self setAudioSessionMode:mode];
-}
-
--(NSNumber*)defaultAudioSessionMode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionMode'");
-    return [self audioSessionMode];
-}
-
--(void)setAudioSessionMode:(NSNumber*)mode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
-    switch ([mode unsignedIntegerValue]) {
-        case kAudioSessionCategory_AmbientSound:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_AMBIENT]];
-            break;
-        case kAudioSessionCategory_SoloAmbientSound:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]];
-            break;
-        case kAudioSessionCategory_PlayAndRecord:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]];
-            break;
-        case kAudioSessionCategory_RecordAudio:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_RECORD]];
-            break;
-        case kAudioSessionCategory_MediaPlayback:
-            [self setAudioSessionCategory:[self AUDIO_SESSION_CATEGORY_PLAYBACK]];
-            break;
-        default:
-            DebugLog(@"Unsupported audioSessionMode specified");
-            break;
-    }
-    
-}
-
--(NSNumber*)audioSessionMode
-{
-    DebugLog(@"[WARN] Deprecated; use 'audioSessionCategory'");
-    NSString* category = [self audioSessionCategory];
-    if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_SOLO_AMBIENT]]) {
-        return [self AUDIO_SESSION_MODE_SOLO_AMBIENT];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAYBACK]]) {
-        return [self AUDIO_SESSION_MODE_PLAYBACK];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_RECORD];
-    } else if ([category isEqualToString:[self AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD]]) {
-        return [self AUDIO_SESSION_MODE_PLAY_AND_RECORD];
-    } else {
-        return NUMINT(-1);
-    }
-}
-
+#endif
 -(void)setAudioSessionCategory:(NSString*)mode
 {
     [[TiAudioSession sharedSession] setSessionMode:mode];
@@ -357,12 +277,8 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
--(void)requestAuthorization:(id)args
-{
-    DEPRECATED_REPLACED(@"Media.requestAuthorization", @"5.1.0", @"Media.requestAudioPermissions");
-    [self requestAudioPermissions:args];
-}
 
+#ifdef USE_TI_AUDIOREQUESTAUDIOPERMISSIONS
 -(NSNumber*)hasAudioPermissions
 {
     NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
@@ -396,7 +312,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
         return;
     }
 }
-
+#endif
 
 -(void)startMicrophoneMonitor:(id)args
 {
@@ -433,6 +349,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 /**
  Music Library Support
  **/
+#ifdef USE_TI_AUDIOOPENMUSICLIBRARY
 -(void)openMusicLibrary:(id)args
 {
     ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
@@ -511,6 +428,50 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
         [self destroyPicker];
     }
 }
+#endif
+
+#ifdef USE_TI_AUDIOHASMUSICLIBRARYPERMISSIONS
+-(NSNumber*)hasMusicLibraryPermissions:(id)unused
+{
+    // Will return true for iOS < 9.3, since authorization was introduced in iOS 9.3
+    return NUMBOOL([TiUtils isIOS9_3OrGreater] == NO || [MPMediaLibrary authorizationStatus] == MPMediaLibraryAuthorizationStatusAuthorized);
+}
+#endif
+
+#ifdef USE_TI_AUDIOREQUESTMUSICLIBRARYPERMISSIONS
+-(void)requestMusicLibraryPermissions:(id)args
+{
+    NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
+    
+    if ([TiUtils isIOS10OrGreater] && !musicPermission) {
+        NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when accessing the native microphone. Please add the key and re-run the application.");
+    }
+    
+    ENSURE_SINGLE_ARG(args, KrollCallback);
+    KrollCallback * callback = args;
+    
+    if ([TiUtils isIOS9_3OrGreater]) {
+        TiThreadPerformOnMainThread(^(){
+            [MPMediaLibrary requestAuthorization:^(MPMediaLibraryAuthorizationStatus status) {
+                BOOL granted = status == MPMediaLibraryAuthorizationStatusAuthorized;
+                KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback
+                                                                        eventObject:[TiUtils dictionaryWithCode:(granted ? 0 : 1) message:nil]
+                                                                         thisObject:self];
+                [[callback context] enqueue:invocationEvent];
+                RELEASE_TO_NIL(invocationEvent);
+            }];
+        }, NO);
+    } else {
+        NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:0 message:nil];
+        NSArray * invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
+        [callback call:invocationArray thisObject:self];
+        [invocationArray release];
+        return;
+    }
+}
+#endif
+
+#ifdef USE_TI_AUDIOUERYMUSICLIBRARY
 
 -(NSArray*)queryMusicLibrary:(id)arg
 {
@@ -543,7 +504,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
     }
     return result;
 }
-
+#endif
 /**
  End Music Library Support
  **/
@@ -561,7 +522,9 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 -(void)destroyPicker
 {
 	RELEASE_TO_NIL(popover);
+#ifdef USE_TI_AUDIOOPENMUSICLIBRARY
 	RELEASE_TO_NIL(musicPicker);
+#endif
 	RELEASE_TO_NIL(pickerSuccessCallback);
 	RELEASE_TO_NIL(pickerErrorCallback);
 	RELEASE_TO_NIL(pickerCancelCallback);
@@ -810,6 +773,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 }
 
 #pragma mark MPMediaPickerControllerDelegate
+#if defined (USE_TI_AUDIOOPENMUSICLIBRARY) || defined(USE_TI_AUDIOQUERYMUSICLIBRARY)
 - (void)mediaPicker:(MPMediaPickerController*)mediaPicker_ didPickMediaItems:(MPMediaItemCollection*)collection
 {
 	if (autoHidePicker) {
@@ -838,6 +802,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 	[self closeModalPicker:musicPicker];
 	[self sendPickerCancel];
 }
+#endif
 
 #pragma mark Event Listener Management
 

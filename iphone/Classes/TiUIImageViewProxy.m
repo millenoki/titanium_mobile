@@ -19,12 +19,12 @@
 #define DEBUG_IMAGEVIEW
 #define DEFAULT_IMAGEVIEW_INTERVAL 200
 
-@interface TiUIImageViewProxy ()
-@property (nonatomic, copy) NSString* loadEventState;
-@end
-
 @implementation TiUIImageViewProxy
-@synthesize imageURL, loadEventState;
+@synthesize imageURL;
+
+#ifdef TI_USE_KROLL_THREAD
+@synthesize loadEventState;
+#endif
 
 
 #pragma mark Internal
@@ -169,7 +169,9 @@
 //    [self replaceValue:nil forKey:@"image" notification:NO];
     
     RELEASE_TO_NIL(imageURL);
+#ifdef TI_USE_KROLL_THREAD
     RELEASE_TO_NIL(loadEventState);
+#endif
     [super dealloc];
 }
 

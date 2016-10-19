@@ -449,15 +449,16 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	if (exception == NULL) {
 #ifndef USE_JSCORE_FRAMEWORK
 		if ([[self host] debugMode]) {
-			TiDebuggerBeginScript(context_,urlCString);
+			TiDebuggerBeginScript(context_, urlCString);
 		}
+#endif
 
 		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
+
+#ifndef USE_JSCORE_FRAMEWORK
 		if ([[self host] debugMode]) {
 			TiDebuggerEndScript(context_);
 		}
-#else
-		TiEvalScript(jsContext, jsCode, NULL, jsURL, 1, &exception);
 #endif
 		if (exception == NULL) {
 			evaluationError = NO;
@@ -912,6 +913,45 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     return [NSArray arrayWithObjects:fullPath, moduleID, nil];
 }
 
+- (TiModule *)loadTopLevelNativeModule:(TiModule *)module withPath:(NSString *)path withContext:(KrollContext *)kroll
+{
+	// does it have JS? No, then nothing else to do...
+	if (![module isJSModule]) {
+		return module;
+	}
+	NSData* data = [module moduleJS];
+	if (data == nil) {
+		// Uh oh, no actual data. Let's just punt and return the native module as-is
+		return module;
+	}
+
+    NSString* contents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+	KrollWrapper* wrapper = (id) [self loadJavascriptText:contents fromFile:path withContext:kroll];
+
+	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
+	// are accessible. We store the exports object and then put references to its properties on the toplevel
+	// object.
+
+	TiContextRef jsContext = [[self krollContext] context];
+	TiObjectRef jsObject = [wrapper jsobject];
+	KrollObject* moduleObject = [module krollObjectForContext:[self krollContext]];
+	[moduleObject noteObject:jsObject forTiString:kTiStringExportsKey context:jsContext];
+
+	TiPropertyNameArrayRef properties = TiObjectCopyPropertyNames(jsContext, jsObject);
+	size_t count = TiPropertyNameArrayGetCount(properties);
+	for (size_t i=0; i < count; i++) {
+		// Mixin the property onto the module JS object if it's not already there
+		TiStringRef propertyName = TiPropertyNameArrayGetNameAtIndex(properties, i);
+		if (!TiObjectHasProperty(jsContext, [moduleObject jsobject], propertyName)) {
+			TiValueRef property = TiObjectGetProperty(jsContext, jsObject, propertyName, NULL);
+			TiObjectSetProperty([[self krollContext] context], [moduleObject jsobject], propertyName, property, kTiPropertyAttributeReadOnly, NULL);
+		}
+	}
+	TiPropertyNameArrayRelease(properties);
+
+	return module;
+}
+
 - (TiModule *)loadCoreModule:(NSString *)path withContext:(KrollContext *)kroll
 {
     //path can have  ., .., or / when sub module asset
@@ -955,28 +995,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	NSRange separatorLocation = [fullPath rangeOfString:@"/"];
     BOOL topLevel = false;
 	if (separatorLocation.location == NSNotFound) { // Indicates toplevel module
-	loadNativeJS:
-		if ([module isJSModule]) {
-			data = [module moduleJS];
-            topLevel = data != nil;
-		}
-		[self setCurrentURL:[NSURL URLWithString:fullPath relativeToURL:[[self host] baseURL]]];
+		return [self loadTopLevelNativeModule:module withPath:path withContext:kroll];
 	}
-	else {
-		NSString* assetPath = [fullPath substringFromIndex:separatorLocation.location+1];
-		// Handle the degenerate case (supported by MW) where we're loading
-		// module.id/module.id, which should resolve to module.id and mixin.
-		// Rather than create a utility method for this (or C&P if native loading changes)
-		// we use a goto to jump into the if block above.
 
-		if ([assetPath isEqualToString:moduleID]) {
-			goto loadNativeJS;
-		}
-
-		NSString* filepath = [assetPath stringByAppendingString:@".js"];
-		data = [module loadModuleAsset:filepath];
-		// Have to reset module so that this code doesn't get mixed in and is loaded as pure JS
-		module = nil;
+	// check rest of path
+	NSString* assetPath = [path substringFromIndex: separatorLocation.location + 1];
+	// Treat require('module.id/module.id') == require('module.id')
+	if ([assetPath isEqualToString:moduleID]) {
+		return [self loadTopLevelNativeModule:module withPath:path withContext:kroll];
 	}
 
 	if (data == nil && isAbsolute) {
@@ -1085,7 +1111,21 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 
 	NSURL *url_ = [TiHost resourceBasedURL:filename baseURL:NULL];
+#ifndef USE_JSCORE_FRAMEWORK
+	const char *urlCString = [[url_ absoluteString] UTF8String];
+	if ([[self host] debugMode]) {
+		TiDebuggerBeginScript([self krollContext], urlCString);
+	}
+#endif
+
 	KrollWrapper *wrapper = [self loadCommonJSModule:data withSourceURL:url_];
+
+#ifndef USE_JSCORE_FRAMEWORK
+	if ([[self host] debugMode]) {
+		TiDebuggerEndScript([self krollContext]);
+	}
+#endif
+
 
 	if (![wrapper respondsToSelector:@selector(replaceValue:forKey:notification:)]) {
 		@throw [NSException exceptionWithName:@"org.appcelerator.kroll"
@@ -1293,7 +1333,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 			// TODO Find a way to determine if the first path segment refers to a CommonJS module, and if so don't log
 			// TODO How can we make this spit this out to Ti.API.log?
-			NSLog(@"require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
+			NSLog(@"require called with un-prefixed module id: %@, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /%@", path, path);
 			module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
 			if (module) {
 				return module;

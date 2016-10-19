@@ -26,6 +26,7 @@ var appc = require('node-appc'),
 	ioslib = require('ioslib'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
 	moment = require('moment'),
+	net = require('net'),
 	path = require('path'),
 	PNG = require('pngjs').PNG,
 	spawn = require('child_process').spawn,
@@ -965,7 +966,7 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 
 			function prep(a) {
 				return a.filter(function (p) {
-					if (!p.expired) {
+					if (!p.expired && !p.managed) {
 						var re = new RegExp(p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*'));
 						if (re.test(appId)) {
 							var label = p.name;
@@ -1058,11 +1059,17 @@ iOSBuilder.prototype.configOptionPPuuid = function configOptionPPuuid(order) {
 				return callback(null, value);
 			}
 			if (value) {
-				var v = _t.provisioningProfileLookup[value.toLowerCase()];
-				if (v) {
-					return callback(null, v);
+				var p = _t.provisioningProfileLookup[value.toLowerCase()];
+				if (!p) {
+					return callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
 				}
-				return callback(new Error(__('Invalid provisioning profile UUID "%s"', value)));
+				if (p.managed) {
+					return callback(new Error(__('Specified provisioning profile UUID "%s" is managed and not supported', value)));
+				}
+				if (p.expired) {
+					return callback(new Error(__('Specified provisioning profile UUID "%s" is expired', value)));
+				}
+				return callback(null, p.uuid);
 			}
 			callback(true);
 		}
@@ -1102,8 +1109,8 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 				case 'device':
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEV_CERTS_FOUND');
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES');
-					iosInfo.provisioning.development.forEach(function (d) {
-						_t.provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+					iosInfo.provisioning.development.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 					_t.conf.options['developer-name'].required = true;
 					_t.conf.options['pp-uuid'].required = !cli.argv.xcode;
@@ -1128,11 +1135,11 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					_t.conf.options['pp-uuid'].required = true;
 
 					// build lookup maps
-					iosInfo.provisioning.distribution.forEach(function (d) {
-						_t.provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+					iosInfo.provisioning.distribution.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
-					iosInfo.provisioning.adhoc.forEach(function (d) {
-						_t.provisioningProfileLookup[d.uuid.toLowerCase()] = d.uuid;
+					iosInfo.provisioning.adhoc.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
 					});
 			}
 		},
@@ -1525,6 +1532,14 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		this.tiapp.ios.capabilities || (this.tiapp.ios.capabilities = {});
 		this.tiapp.ios.extensions || (this.tiapp.ios.extensions = []);
 
+		// validate the log server port
+		var logServerPort = this.tiapp.ios['log-server-port'];
+		if (!/^dist-(appstore|adhoc)$/.test(this.target) && logServerPort && (typeof logServerPort !== 'number' || logServerPort < 1024 || logServerPort > 65535)) {
+			logger.error(__('Invalid <log-server-port> found in the tiapp.xml'));
+			logger.error(__('Port must be a positive integer between 1024 and 65535') + '\n');
+			process.exit(1);
+		}
+
 		series(this, [
 			function validateExtensions(next) {
 				// if there's no extensions, then skip this step
@@ -1687,7 +1702,9 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 											process.exit(1);
 										}
 
-										ext.targetInfo.id = plist.CFBundleIdentifier;
+										ext.targetInfo.id = plist.CFBundleIdentifier.replace(/^\$\((.*)\)$/, function (s, m) {
+											return buildSettings[m] || s;
+										});
 
 										return true;
 									}
@@ -1736,7 +1753,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 							function getPPbyUUID() {
 								return pps
 									.filter(function (p) {
-										if (!p.expired && p.uuid === ppuuid) {
+										if (!p.expired && !p.managed && p.uuid === ppuuid) {
 											return true;
 										}
 									})
@@ -1762,7 +1779,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 								logger.error(__('The provisioning profile "%s" is tied to the application identifier "%s", however the extension\'s identifier is "%s".', ppuuid, pp.appId, ext.targetInfo.id));
 								logger.log();
 
-								var matches = pps.filter(function (p) { return !p.expired && (new RegExp('^' + p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id); });
+								var matches = pps.filter(function (p) { return !p.expired && !p.managed && (new RegExp('^' + p.appId.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$')).test(ext.targetInfo.id); });
 								if (matches.length) {
 									logger.log(__('Did you mean?'));
 									var max = 0;
@@ -1813,7 +1830,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 				var xcodeInfo = this.iosInfo.xcode;
 
 				function sortXcodeIds(a, b) {
-					return xcodeInfo[a].selected || appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
+					return xcodeInfo[a].selected || appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
 				}
 
 				if (this.iosSdkVersion) {
@@ -2132,6 +2149,7 @@ iOSBuilder.prototype.run = function (logger, config, cli, finished) {
 		'doAnalytics',
 		'readBuildManifest',
 		'initialize',
+		'determineLogServerPort',
 		'loginfo',
 		'checkIfNeedToRecompile',
 		'initBuildDir',
@@ -2359,6 +2377,91 @@ iOSBuilder.prototype.initialize = function initialize() {
 	}
 };
 
+iOSBuilder.prototype.determineLogServerPort = function determineLogServerPort(next) {
+	this.tiLogServerPort = 0;
+
+	if (/^dist-(appstore|adhoc)$/.test(this.target)) {
+		// we don't allow the log server in production
+		return next();
+	}
+
+	// if there's not an explicit <log-server-port> in the <ios> section of
+	// the tiapp.xml, then we pick a port between 10000 and 60000 based on
+	// the app's id. this is VERY prone to collisions, but we will show an
+	// error if two different apps have been assigned the same port.
+	this.tiLogServerPort = this.tiapp.ios['log-server-port'] || (parseInt(sha1(this.tiapp.id), 16) % 50000 + 10000);
+
+	if (this.target === 'device') {
+		return next();
+	}
+
+	var _t = this;
+
+	this.logger.debug(__('Checking if log server port %d is available', this.tiLogServerPort));
+
+	// for simulator builds, the port is shared with the local machine, so we
+	// just need to detect if the port is available with the help of Node
+	var server = net.createServer();
+
+	server.on('error', function () {
+		// we weren't able to bidn to the port :(
+		server.close(function () {
+			_t.logger.debug(__('Log server port %s is in use, testing if it\'s the app we\'re building', _t.tiLogServerPort));
+
+			var client = null;
+
+			function die() {
+				client && client.destroy();
+				_t.logger.error(__('Another process is currently bound to port %d', _t.tiLogServerPort));
+				_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+				process.exit(1);
+			}
+
+			// connect to the port and see if it's a Titanium app...
+			//  - if the port is bound by a Titanium app with the same appid, then assume
+			//    that when we install new build, the old process will be terminated
+			//  - if the port is bound by another process, such as MySQL on port 3306,
+			//    then we will fail out
+			//  - if the port is bound by another process that expects data before the
+			//    response is returned, then we will just timeout and fail out
+			client = net.connect({
+					host: 'localhost',
+					port: _t.tiLogServerPort,
+					timeout: parseInt(_t.config.get('ios.logServerTestTimeout', 1000)) || null
+				})
+				.on('data', function (data) {
+					client.destroy();
+					try {
+						var headers = JSON.parse(data.toString().split('\n').shift());
+						if (headers.appId !== _t.tiapp.id) {
+							_t.logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, _t.tiLogServerPort));
+							_t.logger.error(__('Stop the running Titanium app, then rebuild this app'));
+							_t.logger.error(__('-or-'));
+							_t.logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml') + '\n');
+							process.exit(1);
+						}
+					} catch (e) {
+						die();
+					}
+					_t.logger.debug(__('The log server port is being used by the app being built, continuing'));
+					next();
+				})
+				.on('error', die)
+				.on('timeout', die);
+		});
+	});
+
+	server.listen({
+		host: 'localhost',
+		port: _t.tiLogServerPort
+	}, function () {
+		server.close(function () {
+			_t.logger.debug(__('Log server port %s is available', _t.tiLogServerPort));
+			next();
+		});
+	});
+};
+
 iOSBuilder.prototype.loginfo = function loginfo() {
 	this.logger.debug(__('Titanium SDK iOS directory: %s', cyan(this.platformPath)));
 	this.logger.info(__('Deploy type: %s', cyan(this.deployType)));
@@ -2399,6 +2502,12 @@ iOSBuilder.prototype.loginfo = function loginfo() {
 		} else {
 			this.logger.info(__('Using default keychain'));
 		}
+	}
+
+	if (this.tiLogServerPort) {
+		this.logger.info(__('Logging enabled on port %s', cyan(String(this.tiLogServerPort))));
+	} else {
+		this.logger.info(__('Logging disabled'));
 	}
 
 	if (this.debugHost) {
@@ -2795,6 +2904,22 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.logger.info(__('LaunchScreen.storyboard is not supported with Xcode %s, removing from Xcode project', this.xcodeEnv.version));
 	}
 
+	function removeFromBuildPhase(phase, id) {
+		if (phase) {
+			Object.keys(phase).some(function (phaseId) {
+				var files = phase[phaseId].files;
+				if (Array.isArray(files)) {
+					for (var i = 0; i < files.length; i++) {
+						if (files[i].value === id) {
+							files.splice(i, 1);
+							return true;
+						}
+					}
+				}
+			});
+		}
+	}
+
 	// we need to replace all instances of "Titanium" with the app name
 	Object.keys(xobjs.PBXFileReference).forEach(function (id) {
 		var obj = xobjs.PBXFileReference[id];
@@ -2818,19 +2943,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						delete xobjs.PBXBuildFile[bfid];
 						delete xobjs.PBXBuildFile[bfid + '_comment'];
 
-						if (xobjs.PBXResourcesBuildPhase) {
-							Object.keys(xobjs.PBXResourcesBuildPhase).some(function (bpid) {
-								var files = xobjs.PBXResourcesBuildPhase[bpid].files;
-								if (Array.isArray(files)) {
-									for (var i = 0; i < files.length; i++) {
-										if (files[i].value === bfid) {
-											files.splice(i, 1);
-											return true;
-										}
-									}
-								}
-							});
-						}
+						removeFromBuildPhase(xobjs.PBXResourcesBuildPhase, bfid);
+						removeFromBuildPhase(xobjs.PBXFrameworksBuildPhase, bfid);
+
 						return true;
 					}
 				});
@@ -2975,7 +3090,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// set additional build settings
 	if (this.target === 'simulator') {
-		gccDefs.push('__LOG__ID__=' + this.tiapp.guid);
 		gccDefs.push('DEBUG=1');
 		gccDefs.push('TI_VERSION=' + this.titaniumSdkVersion);
 	} else if (this.deployType == 'development') {
@@ -3000,6 +3114,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		);
 	}
 
+	if (this.tiLogServerPort === 0) {
+		gccDefs.push('DISABLE_TI_LOG_SERVER=1');
+	} else {
+		gccDefs.push('TI_LOG_SERVER_PORT=' + this.tiLogServerPort);
+	}
+
 	buildSettings.GCC_PREPROCESSOR_DEFINITIONS = '"' + gccDefs.join(' ') + '"';
 
 	if (/device|dist\-appstore|dist\-adhoc/.test(this.target)) {
@@ -3019,9 +3139,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				}
 			}, this);
 		}, this);
-	}
-
-	if (/dist-appstore|dist\-adhoc/.test(this.target)) {
+	} else if (/dist-appstore|dist\-adhoc/.test(this.target)) {
 		Object.keys(keychains).some(function (keychain) {
 			return (keychains[keychain].distribution || []).some(function (d) {
 				if (!d.invalid && d.name === this.certDistributionName) {
@@ -3034,25 +3152,40 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 
 	// inject the team id
 	if (teamId) {
-		pbxProject.attributes || (pbxProject.attributes = {});
-		var ta = pbxProject.attributes.TargetAttributes || (pbxProject.attributes.TargetAttributes = {});
-		ta[mainTargetUuid] || (ta[mainTargetUuid] = {});
-		ta[mainTargetUuid].DevelopmentTeam = teamId;
+		var attr = pbxProject.attributes || (pbxProject.attributes = {});
+		var targetAttr = attr.TargetAttributes || (attr.TargetAttributes = {});
+		var mainTargetAttr = targetAttr[mainTargetUuid] || (targetAttr[mainTargetUuid] = {});
+
+		mainTargetAttr.DevelopmentTeam = teamId;
 
 		// turn on any capabilities
 		Object.keys(caps).forEach(function (cap) {
-			ta[mainTargetUuid].SystemCapabilities || (ta[mainTargetUuid].SystemCapabilities = {});
 			if (cap === 'app-groups') {
-				ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'] || (ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'] = {});
-				ta[mainTargetUuid].SystemCapabilities['com.apple.ApplicationGroups.iOS'].enabled = true;
+				var syscaps = mainTargetAttr.SystemCapabilities || (mainTargetAttr.SystemCapabilities = {});
+				syscaps['com.apple.ApplicationGroups.iOS'] || (syscaps['com.apple.ApplicationGroups.iOS'] = {});
+				syscaps['com.apple.ApplicationGroups.iOS'].enabled = 1;
 			}
 		});
 	}
 
+<<<<<<< HEAD
 
 	// set the target-specific build settings
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
+=======
+	// set the min ios version for the whole project
+	xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+		var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+		buildSettings.IPHONEOS_DEPLOYMENT_TARGET = appc.version.format(this.minIosVer, 2);
+		delete buildSettings['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
+	}, this);
+
+	// set the target-specific build settings
+	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+		var bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
+		delete bs['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
+>>>>>>> 811c3673da53e80616a546dd6f637e92242a7586
 	});
 
 	// if the storyboard launch screen is disabled, remove it from the resources build phase
@@ -3500,6 +3633,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 						}
 					}
 
+					if (extBuildSettings['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"']) {
+						extBuildSettings.CODE_SIGN_IDENTITY = extBuildSettings['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
+						delete extBuildSettings['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
+					}
+
 					if (buildSettings.CODE_SIGN_IDENTITY) {
 						extBuildSettings.CODE_SIGN_IDENTITY = buildSettings.CODE_SIGN_IDENTITY;
 					}
@@ -3641,6 +3779,20 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		this.hasWatchApp = true;
 	}
 
+	var legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
+	Object.keys(xobjs.XCBuildConfiguration).forEach(function (key) {
+		var conf = xobjs.XCBuildConfiguration[key]
+		if (!conf || typeof conf !== 'object' || !conf.buildSettings) {
+			return;
+		}
+
+		if (legacySwift) {
+			delete conf.buildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES;
+		} else {
+			delete conf.buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT;
+		}
+	});
+
 	// get the product names
 	this.products = productsGroup.children.map(function (product) {
 		return product.comment;
@@ -3740,17 +3892,21 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 	// if we have a provisioning profile, make sure some entitlement settings are correct set
 	if (pp) {
 		// attempt to customize it by reading provisioning profile
+<<<<<<< HEAD
 		if (/dist/.test(this.target)  && !plist.hasOwnProperty('beta-reports-active')) {
+=======
+		if (!plist.hasOwnProperty('application-identifier')) {
+			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
+		}
+		if (pp.apsEnvironment) {
+			plist['aps-environment'] = this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'production' : 'development';
+		}
+		if (this.target === 'dist-appstore' && !plist.hasOwnProperty('beta-reports-active')) {
+>>>>>>> 811c3673da53e80616a546dd6f637e92242a7586
 			plist['beta-reports-active'] = true;
 		}
 		if (!plist.hasOwnProperty('get-task-allow')) {
 			plist['get-task-allow'] = pp.getTaskAllow;
-		}
-		if (pp.apsEnvironment && !plist.hasOwnProperty('aps-environment')) {
-			plist['aps-environment'] = pp.apsEnvironment;
-		}
-		if (!plist.hasOwnProperty('application-identifier')) {
-			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
 		}
 		Array.isArray(plist['keychain-access-groups']) || (plist['keychain-access-groups'] = []);
 		if (!plist['keychain-access-groups'].some(function (id) { return id === plist['application-identifier']; })) {
@@ -5806,12 +5962,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				imageSets = {},
 				imageNameRegExp = /^(.*?)(@[2-9]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
-			function sha1(value) {
-				var sha = crypto.createHash('sha1');
-				sha.update(value);
-				return sha.digest('hex');
-			};
-
 			Object.keys(imageAssets).forEach(function (file) {
 				var imageName = imageAssets[file].name,
 					imageExt = imageAssets[file].ext,
@@ -6521,6 +6671,7 @@ iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
 			'#define USE_TI_UITEXTAREA',
 			'#define USE_TI_UISCROLLABLEVIEW',
 			'#define USE_TI_UIIOSSTEPPER',
+			'#define USE_TI_UIPICKER',
 			'#endif'
 		);
 
@@ -6822,6 +6973,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		// when building for the simulator, we need to specify a destination and a scheme (above)
 		// so that it can compile all targets (phone and watch targets) for the simulator
 		args.push('-destination', "platform=iOS Simulator,id=" + this.simHandle.udid + ",OS=" + appc.version.format(this.simHandle.version, 2, 2));
+		args.push('ONLY_ACTIVE_ARCH=1');
 	}
 
 	xcodebuildHook(
@@ -6848,6 +7000,10 @@ iOSBuilder.prototype.writeBuildManifest = function writeBuildManifest(next) {
 		fs.writeFile(this.buildManifestFile, JSON.stringify(this.buildManifest = manifest, null, '\t'), cb);
 	})(this.currentBuildManifest, next);
 };
+
+function sha1(value) {
+	return crypto.createHash('sha1').update(value).digest('hex');
+}
 
 // create the builder instance and expose the public api
 (function (iosBuilder) {

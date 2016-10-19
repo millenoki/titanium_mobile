@@ -2652,7 +2652,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
         }
         if((resultImage != nil) && ([resultImage isKindOfClass:[UIImage class]]) && ([resultImage imageOrientation] != UIImageOrientationUp))
         {
-            return [UIImageResize resizedImage:[(UIImage*)resultImage size]
+            resultImage = [UIImageResize resizedImage:[(UIImage*)resultImage size]
                                  interpolationQuality:kCGInterpolationNone 
                                                 image:resultImage 
                                                 hires:NO];

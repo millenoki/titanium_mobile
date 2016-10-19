@@ -385,7 +385,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	}
 }
 
--(UIScrollView*)scrollView
+-(UIScrollView*)scrollview
 {
 	UIWebView* webView = [self webview];
 	if ([webView respondsToSelector:@selector(scrollView)]) {
@@ -988,6 +988,14 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     {
         [self.proxy fireEvent:@"afterload" withObject:event propagate:NO checkForListener:NO];
     }
+    
+    // Disable user selection and the attached callout
+    BOOL disableSelection = [TiUtils boolValue:[[self proxy] valueForKey:@"disableSelection"] def:NO];
+    if (disableSelection) {
+        [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitUserSelect='none';"];
+        [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitTouchCallout='none';"];
+    }
+    
     [webView setNeedsDisplay];
     ignoreNextRequest = NO;
     TiUIWebViewProxy * ourProxy = (TiUIWebViewProxy *)[self proxy];
@@ -996,6 +1004,10 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
+	// Ignore "Frame Load Interrupted" errors. Seen after opening url-schemes that
+	// are already handled by the `Ti.App.iOS.handleurl` event
+	if (error.code == 102 && [error.domain isEqual:@"WebKitErrorDomain"]) return;
+    
 	NSString *offendingUrl = [self url];
 
 	if ([[error domain] isEqual:NSURLErrorDomain])

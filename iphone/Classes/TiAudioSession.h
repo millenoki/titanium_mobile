@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#if defined(USE_TI_AUDIO)
+#if defined(USE_TI_AUDIOAUDIOPLAYER) || defined(USE_TI_AUDIOMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_AUDIORECORDER) || defined(USE_TI_AUDIOSTREAMER)
 
 extern NSString * const kTiAudioSessionInterruptionBegin;
 extern NSString * const kTiAudioSessionInterruptionEnd;
