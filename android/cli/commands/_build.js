@@ -509,7 +509,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
                         validate: function (device, callback) {
                             var dev = device.toLowerCase();
                             findTargetDevices(cli.argv.target, function (err, devices) {
-                                if (cli.argv.target == 'device' && dev == 'all') {
+                                if (dev == 'all') {
                                     // we let 'all' slide by
                                     return callback(null, dev);
                                 }
