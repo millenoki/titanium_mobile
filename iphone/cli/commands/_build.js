@@ -3168,12 +3168,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		});
 	}
 
-<<<<<<< HEAD
-
-	// set the target-specific build settings
-	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-		appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
-=======
 	// set the min ios version for the whole project
 	xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		var buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
@@ -3185,7 +3179,6 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	xobjs.XCConfigurationList[xobjs.PBXNativeTarget[mainTargetUuid].buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 		var bs = appc.util.mix(xobjs.XCBuildConfiguration[buildConf.value].buildSettings, buildSettings);
 		delete bs['"CODE_SIGN_IDENTITY[sdk=iphoneos*]"'];
->>>>>>> 811c3673da53e80616a546dd6f637e92242a7586
 	});
 
 	// if the storyboard launch screen is disabled, remove it from the resources build phase
@@ -3892,17 +3885,13 @@ iOSBuilder.prototype.writeEntitlementsPlist = function writeEntitlementsPlist() 
 	// if we have a provisioning profile, make sure some entitlement settings are correct set
 	if (pp) {
 		// attempt to customize it by reading provisioning profile
-<<<<<<< HEAD
-		if (/dist/.test(this.target)  && !plist.hasOwnProperty('beta-reports-active')) {
-=======
 		if (!plist.hasOwnProperty('application-identifier')) {
 			plist['application-identifier'] = pp.appPrefix + '.' + this.tiapp.id;
 		}
 		if (pp.apsEnvironment) {
 			plist['aps-environment'] = this.target === 'dist-appstore' || this.target === 'dist-adhoc' ? 'production' : 'development';
 		}
-		if (this.target === 'dist-appstore' && !plist.hasOwnProperty('beta-reports-active')) {
->>>>>>> 811c3673da53e80616a546dd6f637e92242a7586
+		if (/dist/.test(this.target)  && !plist.hasOwnProperty('beta-reports-active')) {
 			plist['beta-reports-active'] = true;
 		}
 		if (!plist.hasOwnProperty('get-task-allow')) {
