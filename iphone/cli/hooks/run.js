@@ -37,7 +37,8 @@ exports.init = function (logger, config, cli) {
                 },
                 lastLogger = 'debug',
                 levels = logger.getLevels(),
-                logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\s*(\u001b\\[\\d+m)?(.*)', 'i');
+                logLevelRE = new RegExp('^(\u001b\\[\\d+m)?(?:[^\\[]*)\\s*(?:\\[[0-9]+:[0-9]+\\])?\\s*(?:\\[(' +
+                        levels.join('|') + '|log|timestamp)\\])\\s*(\u001b\\[\\d+m)?(.*)', 'i');
 
             ioslib.simulator
                 .launch(builder.simHandle, {
@@ -81,15 +82,28 @@ exports.init = function (logger, config, cli) {
                         return;
                     }
 
-                    var m = line.match(logLevelRE);
+                   var m = line.match(logLevelRE);
                     if (m) {
-                        lastLogger = m[2].toLowerCase();
-                        line = m[4].trim();
-                    }
-                    if (levels.indexOf(lastLogger) == -1) {
-                        logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
+                        if (m[2]) {
+                            lastLogger = m[2].toLowerCase();
+                        } else {
+                            lastLogger = null;
+                        }
+                        if (m[4]) {
+                            line = m[4].trim();
+                        }
                     } else {
-                        logger[lastLogger](line);
+                        lastLogger = null;
+                    }
+                    if (lastLogger) {
+                        if (levels.indexOf(lastLogger) == -1) {
+                            logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
+                        } else {
+                            logger[lastLogger](line);
+                        }
+                    } else {
+                            // logger.log('test ' + line + '|' + JSON.stringify(m) + '|' + lastLogger);
+                            logger.log(line);
                     }
                 })
                 .on('log', function (msg, simHandle) {
