@@ -6,6 +6,8 @@
  */
 package org.appcelerator.kroll;
 
+import java.util.HashMap;
+
 /**
  * This interface represents the various APIs needed by KrollRuntime
  * on a specific Proxy instance (and hides KrollProxy)
@@ -19,7 +21,7 @@ public interface KrollProxySupport
 	 */
 	public void onPropertyChanged(String name, Object value);
 
-	public void onPropertiesChanged(Object[][] changes);
+	public void onPropertiesChanged(HashMap changes);
 
 	/**
 	 * Implementing classes should return the corresponding KrollObject associated with this proxy.

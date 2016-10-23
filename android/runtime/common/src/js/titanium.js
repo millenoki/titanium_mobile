@@ -336,11 +336,12 @@ Object.defineProperty(Proxy.prototype, "setProperty", {
 	enumerable: false
 });
 
-Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
+Object.defineProperty(Proxy.prototype, "applyProperties", {
 	value: function(properties) {
 		var ownNames = Object.getOwnPropertyNames(properties);
 		var len = ownNames.length;
-		var changes = [];
+		var changes = {};
+		var needsChanged = false;
 
 		for (var i = 0; i < len; ++i) {
 			var property = ownNames[i];
@@ -349,14 +350,46 @@ Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
 			if (!property) continue;
 
 			var oldValue = this._properties[property];
-			this._properties[property] = value;
 
 			if (value != oldValue) {
-				changes.push([property, oldValue, value]);
+				this._properties[property] = value;
+				changes[property] = value;
+				needsChanged = true;
+//				changes.push([property, oldValue, value]);
 			}
 		}
 
-		if (changes.length > 0) {
+		if (needsChanged) {
+			this._applyProperties(changes);
+		}
+	},
+	enumerable: false
+});
+
+Object.defineProperty(Proxy.prototype, "setPropertiesAndFire", {
+	value: function(properties) {
+		var ownNames = Object.getOwnPropertyNames(properties);
+		var len = ownNames.length;
+		var changes = {};
+		var needsChanged = false;
+
+		for (var i = 0; i < len; ++i) {
+			var property = ownNames[i];
+			var value = properties[property];
+
+			if (!property) continue;
+
+			var oldValue = this._properties[property];
+
+			if (value != oldValue) {
+				this._properties[property] = value;
+				changes[property] = value;
+				needsChanged = true;
+//				changes.push([property, oldValue, value]);
+			}
+		}
+
+		if (needsChanged) {
 			this.onPropertiesChanged(changes);
 		}
 	},

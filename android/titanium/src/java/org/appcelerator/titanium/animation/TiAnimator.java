@@ -316,7 +316,7 @@ public class TiAnimator
 			return;
 		}
         HashMap toProps = getToOptions();
-        proxy.applyPropertiesInternal(toProps, true);
+        proxy.applyPropertiesInternal(toProps, true, false, true);
 	}
 	
 	protected void applyResetProperties()
@@ -334,7 +334,7 @@ public class TiAnimator
             String key = (String)pairs.getKey();
             resetProps.put(key, fromProps.get(key));
         }
-        proxy.applyPropertiesInternal(resetProps, true, false);
+        proxy.applyPropertiesInternal(resetProps, true, false, false);
 	}
 
 	public void setCallback(KrollFunction callback)

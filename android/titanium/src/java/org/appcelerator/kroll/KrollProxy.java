@@ -7,7 +7,6 @@
 package org.appcelerator.kroll;
 
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -720,18 +719,18 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         return defaultValue;
     }
 
-    /**
-     * @deprecated use setPropertyAndFire instead
-     */
-    @Deprecated
-    public void setProperty(String name, Object value, boolean fireChange) {
-        if (!fireChange) {
-            setProperty(name, value);
-
-        } else {
-            setPropertyAndFire(name, value);
-        }
-    }
+//    /**
+//     * @deprecated use setPropertyAndFire instead
+//     */
+//    @Deprecated
+//    public void setProperty(String name, Object value, boolean fireChange) {
+//        if (!fireChange) {
+//            setProperty(name, value);
+//
+//        } else {
+//            setPropertyAndFire(name, value);
+//        }
+//    }
 
     public void propagateSetProperty(String name, Object value) {
         if (setPropertyListener != null) {
@@ -748,6 +747,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         synchronized (properties) {
             properties.put(name, value);
         }
+
+        // That line is for listitemproxy to update its data
+        propagateSetProperty(name, value);
     }
 
     /**
@@ -755,25 +757,28 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * 
      * @module.api
      */
-    public void setProperty(String name, Object value) {
-        synchronized (properties) {
-            properties.put(name, value);
-        }
+    public void setProperty(String name, Object value, boolean wait) {
+        setPropertyJava(name, value);
 
-        // That line is for listitemproxy to update its data
-        propagateSetProperty(name, value);
-
-        if (KrollRuntime.getInstance().isRuntimeThread()) {
+        if (wait && KrollRuntime.getInstance().isRuntimeThread()) {
             doSetProperty(name, value);
-
         } else {
-            Message message = getRuntimeHandler().obtainMessage(
-                    MSG_SET_PROPERTY, value);
-            message.getData().putString(PROPERTY_NAME, name);
-            message.sendToTarget();
+            if (wait && !TiApplication.appRunOnMainThread()) {
+                Message message = getRuntimeHandler().obtainMessage(
+                        MSG_SET_PROPERTY, value);
+                message.getData().putString(PROPERTY_NAME, name);
+                TiMessenger.sendBlockingRuntimeMessage(message);
+            } else {
+                Message message = getRuntimeHandler().obtainMessage(
+                        MSG_SET_PROPERTY, value);
+                message.getData().putString(PROPERTY_NAME, name);
+                message.sendToTarget();
+            }
         }
     }
-    
+    public void setProperty(String name, Object value) {
+        setProperty(name, value, false);
+    }
     public void updateKrollObjectProperties() {
         
         //use a shallow copy because properties is synchronized
@@ -796,7 +801,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         }
     }   
     public void internalUpdateKrollObjectProperties(HashMap<String, Object> props, final boolean wait) {
-        if (KrollRuntime.getInstance().isRuntimeThread()) {
+        if (wait && KrollRuntime.getInstance().isRuntimeThread()) {
             doUpdateKrollObjectProperties(props);
 
         } else {
@@ -920,7 +925,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         internalApplyModelProperties(changedProps);
     }
 
-    public void applyPropertiesInternal(Object arg, boolean force, boolean wait) {
+    public void applyPropertiesInternal(Object arg, boolean force, boolean wait, boolean needsToUpdateNativeSide) {
         
         if (!(arg instanceof HashMap)) {
             Log.w(TAG, "Cannot apply properties: invalid type for properties",
@@ -940,7 +945,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             if (current instanceof KrollProxy && value instanceof HashMap) {
                 // we handle binded objects (same as done with listitems)
                 ((KrollProxy) current).applyPropertiesInternal(value, force,
-                        wait);
+                        wait, false);
             } else {
                 if (name.equals(TiC.PROPERTY_BUBBLE_PARENT)) {
                     bubbleParent = TiConvert.toBoolean(value, true);
@@ -950,27 +955,33 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                 } else if (name.equals(TiC.PROPERTY_SYNCEVENTS)) {
                     setSyncEvents(TiConvert.toStringArray(value));
                 } else if (force || shouldFireChange(current, value)) {
-                    setProperty(name, value);
+                    setPropertyJava(name, value);
                     changedProps.put(name, value);
                     onPropertyChanged(name, value, current);
                 }
             }
         }
         internalApplyModelProperties(changedProps);
-        updateKrollObjectProperties(props, wait);
+        if (needsToUpdateNativeSide) {
+            updateKrollObjectProperties(props, wait);
+            
+        }
+    }
+    public void applyPropertiesInternal(Object arg, boolean force, boolean wait) {
+        applyPropertiesInternal(arg, force, wait, true);
     }
 
     public void applyPropertiesInternal(Object arg, boolean force) {
         applyPropertiesInternal(arg, force, false);
     }
 
-    @Kroll.method
+    @Kroll.method(name="_applyProperties")
     public void applyProperties(Object arg, @Kroll.argument(optional = true) Object options) {
         boolean wait = false;
         if (options instanceof HashMap) {
             wait = TiConvert.toBoolean((HashMap) options, "wait", wait);
         }
-        applyPropertiesInternal(arg, false, wait);
+        applyPropertiesInternal(arg, false, wait, false);
     }
     
     public void applyProperties(Object arg) {
@@ -1047,7 +1058,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             }
         }
         if (krollObject != null) {
+            long startTime = System.currentTimeMillis();
             krollObject.updateNativeProperties(props);
+            long endTime = System.currentTimeMillis();
+            long diff = endTime - startTime;
+            if (diff > 20) {
+                Log.w(TAG, "doUpdateKrollObjectProperties " + diff + "ms, "
+                        + this.getClass().toString());
+            }
         }
     }
 
@@ -1730,40 +1748,41 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         firePropertyChanged(propertyName, oldValue, newValue);
     }
 
-    public void onPropertiesChanged(Object[][] changes) {
-        int changesLength = changes.length;
-        boolean isUiThread = !mProcessInUIThread || TiApplication.isUIThread();
-
-        for (int i = 0; i < changesLength; ++i) {
-            Object[] change = changes[i];
-            if (change.length != 3) {
-                continue;
-            }
-
-            Object name = change[INDEX_NAME];
-            if (name == null || !(name instanceof String)) {
-                continue;
-            }
-
-            String nameString = (String) name;
-            Object value = change[INDEX_VALUE];
-
-            synchronized (properties) {
-                properties.put(nameString, change[INDEX_VALUE]);
-            }
-            if (isUiThread && modelListener != null) {
-                modelListener.get().propertyChanged(nameString,
-                        change[INDEX_OLD_VALUE], value, this);
-            }
-        }
-
-        if (isUiThread || modelListener == null) {
-            return;
-        }
-
-        Message message = getMainHandler().obtainMessage(
-                MSG_MODEL_PROPERTIES_CHANGED, changes);
-        message.sendToTarget();
+    public void onPropertiesChanged(HashMap changes) {
+//        int changesLength = changes.length;
+//        boolean isUiThread = !mProcessInUIThread || TiApplication.isUIThread();
+//
+//        for (int i = 0; i < changesLength; ++i) {
+//            Object[] change = changes[i];
+//            if (change.length != 3) {
+//                continue;
+//            }
+//
+//            Object name = change[INDEX_NAME];
+//            if (name == null || !(name instanceof String)) {
+//                continue;
+//            }
+//
+//            String nameString = (String) name;
+//            Object value = change[INDEX_VALUE];
+//
+//            synchronized (properties) {
+//                properties.put(nameString, change[INDEX_VALUE]);
+//            }
+//            if (isUiThread && modelListener != null) {
+//                modelListener.get().propertyChanged(nameString,
+//                        change[INDEX_OLD_VALUE], value, this);
+//            }
+//        }
+//
+//        if (isUiThread || modelListener == null) {
+//            return;
+//        }
+//
+//        Message message = getMainHandler().obtainMessage(
+//                MSG_MODEL_PROPERTIES_CHANGED, changes);
+//        message.sendToTarget();
+        applyPropertiesInternal(changes, true, false, false);
     }
 
     public ActivityProxy getActivityProxy() {
