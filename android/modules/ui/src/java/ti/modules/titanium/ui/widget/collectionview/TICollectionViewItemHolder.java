@@ -32,7 +32,7 @@ public class TICollectionViewItemHolder extends TiBaseAbsListViewItemHolder {
     }
 
     @Override
-    public void setItem(TiBaseAbsListViewItem item, HashMap itemData,
+    public void setItem(TiBaseAbsListViewItem item, Object itemData,
             View parentView) {
         super.setItem(item, itemData, parentView);
         hasWidthRelyingOnPercent = false;

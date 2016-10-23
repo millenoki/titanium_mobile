@@ -132,8 +132,11 @@ public class TiListView extends TiAbsListView<CustomListView> {
                         anim.setTarget(view);
                         return anim;
                     } else if (view instanceof TiBaseAbsListViewItemHolder) {
-                        HashMap data  = ((TiBaseAbsListViewItemHolder) view).getItemData();
-                        Object anim = data.get("appearAnimation");
+                        Object data  = ((TiBaseAbsListViewItemHolder) view).getItemData();
+                        Object anim = null;
+                        if (data instanceof HashMap) {
+                            anim = ((HashMap) data).get("appearAnimation");
+                        }
                         if (anim == null) {
                             anim = mAppearAnimation;
                         }

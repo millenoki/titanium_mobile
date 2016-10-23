@@ -199,9 +199,19 @@ public class TiAbsListViewTemplate {
 		}
 	}
 	
-	public HashMap prepareDataDict(HashMap dict)
+	public HashMap prepareDataDict(Object dict)
 	{
+	    if (dict instanceof HashMap) {
+	        return (HashMap) dict;
+	    } else if (dict instanceof String) {
+            HashMap result = new HashMap();
+            HashMap labelDict = new HashMap();
+            result.put(TiC.PROPERTY_TITLE_VIEW, labelDict);
+            labelDict.put(TiC.PROPERTY_TEXT, dict);
+            return result;
+	    }
+	    return null;
+	            
 //		KrollDict result = (KrollDict)dict.clone();
-		return dict;
 	}
 }

@@ -552,7 +552,7 @@ public class TiCollectionView extends TiUINonViewGroupView
             }
             
             // Handling templates
-            HashMap item = section.getListItem(sectionItemIndex);
+            Object item = section.getListItem(sectionItemIndex);
             TiBaseAbsListViewItem itemContent = ((CollectionViewHolder) holder).itemContent;
             if (itemContent == null) {
                 return;
@@ -623,7 +623,10 @@ public class TiCollectionView extends TiUINonViewGroupView
                         animator = mAppearAnimators.clone();
                         animator.setTarget(holder.itemView);
                     } else {
-                        Object anim = item.get("appearAnimation");
+                        Object anim = null;
+                        if (item instanceof HashMap) {
+                            anim = ((HashMap) item).get("appearAnimation");
+                        }
                         if (anim == null) {
                             anim = mAppearAnimation;
                         }
@@ -1249,7 +1252,7 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
     }
 
-    public KrollDict getItem(int sectionIndex, int itemIndex) {
+    public Object getItem(int sectionIndex, int itemIndex) {
         if (sectionIndex < 0 || sectionIndex >= sections.size()) {
             Log.e(TAG, "getItem Invalid section index");
             return null;
@@ -1280,15 +1283,14 @@ public class TiCollectionView extends TiUINonViewGroupView
         return "Ti.UI.CollectionItem";
     }
     
-    protected static final ArrayList<String> KEY_SEQUENCE;
-    static{
-      ArrayList<String> tmp = new ArrayList<String>();
-      tmp.add(TiC.PROPERTY_NUM_COLUMNS);
-      tmp.add(TiC.PROPERTY_COLUMN_WIDTH);
-      KEY_SEQUENCE = tmp;
-    }
+    protected static ArrayList<String> KEY_SEQUENCE;
     @Override
     protected ArrayList<String> keySequence() {
+        if (KEY_SEQUENCE == null) {
+            KEY_SEQUENCE = super.keySequence();
+            KEY_SEQUENCE.add(TiC.PROPERTY_NUM_COLUMNS);
+            KEY_SEQUENCE.add(TiC.PROPERTY_COLUMN_WIDTH);
+        }
         return KEY_SEQUENCE;
     }
 

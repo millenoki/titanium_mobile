@@ -287,11 +287,15 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             }
 			
 			//Handling templates
-			HashMap item = section.getListItem(sectionItemIndex);
+			Object item = section.getListItem(sectionItemIndex);
 			if (item == null) {
 			    return null;
 			}
-			TiAbsListViewTemplate template = getTemplate(TiConvert.toString(item, TiC.PROPERTY_TEMPLATE), true);
+			String templateId = null;
+			if (item instanceof HashMap) {
+			    templateId = TiConvert.toString(item, TiC.PROPERTY_TEMPLATE);
+	        }
+			TiAbsListViewTemplate template = getTemplate(templateId, true);
 			int itemViewType = template.getType();
 			
 			TiBaseAbsListViewItem itemContent = null;
@@ -857,6 +861,17 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	    }
 	}
 	
+	protected static final ArrayList<String> KEY_SEQUENCE;
+    static{
+      ArrayList<String> tmp = new ArrayList<String>();
+      tmp.add(TiC.PROPERTY_SEARCH_TEXT); //make sure searchText is set before sections
+      KEY_SEQUENCE = tmp;
+    }
+    @Override
+    protected ArrayList<String> keySequence() {
+        return KEY_SEQUENCE;
+    }
+	
 	@Override
     public void propertySet(String key, Object newValue, Object oldValue,
             boolean changedProperty) {
@@ -1275,7 +1290,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
 		}
 	}
 	
-	public KrollDict getItem(int sectionIndex, int itemIndex) {
+	public Object getItem(int sectionIndex, int itemIndex) {
 		if (sectionIndex < 0 || sectionIndex >= sections.size()) {
 			Log.e(TAG, "getItem Invalid section index");
 			return null;

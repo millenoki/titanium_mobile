@@ -22,7 +22,7 @@ public interface TiCollectionViewInterface {
     public void processSectionsAndNotify(Object[] sections);
     public AbsListSectionProxy getSectionAt(int sectionIndex);
     public void scrollToItem(int sectionIndex, int itemIndex, boolean animated);
-    public KrollDict getItem(int sectionIndex, int itemIndex);
+    public Object getItem(int sectionIndex, int itemIndex);
     public void setMarker(HashMap<String, Integer> m);
     public void scrollToBottom(int y, boolean animated);
     public void scrollToTop(int y, boolean animated);

@@ -27,64 +27,79 @@ public class TiDefaultAbsListViewTemplate extends TiAbsListViewTemplate {
 	}
 	
 	@Override
-    public HashMap prepareDataDict(HashMap dict)
+    public HashMap prepareDataDict(Object dict)
 	{
 	    HashMap result = super.prepareDataDict(dict);
-	    if (dict == result) {
-	        dict = (HashMap) result.clone(); //we need to copy it as we modify it
-	    }
-	    HashMap properties = (HashMap) (result.containsKey(TiC.PROPERTY_PROPERTIES)?result.get(TiC.PROPERTY_PROPERTIES):dict);
-		
-		boolean hasSubtitle = properties.containsKey(TiC.PROPERTY_SUBTITLE);
-		
-		if (properties.containsKey(TiC.PROPERTY_TITLE) || properties.containsKey(TiC.PROPERTY_FONT) || properties.containsKey(TiC.PROPERTY_COLOR))
-		{
-		    HashMap labelDict = (HashMap) result.get("titleView");
-			if (labelDict == null)
-			{
-				labelDict = new HashMap();
-				result.put("titleView", labelDict);
-			}
-			labelDict.put(TiC.PROPERTY_VERTICAL_ALIGN, hasSubtitle?"bottom":"center");
-			if (properties.containsKey(TiC.PROPERTY_TITLE)) {
-				labelDict.put(TiC.PROPERTY_TEXT, properties.get(TiC.PROPERTY_TITLE));
-			}
-			if (properties.containsKey(TiC.PROPERTY_FONT)) {
-				labelDict.put(TiC.PROPERTY_FONT, properties.get(TiC.PROPERTY_FONT));
-			}
-			if (properties.containsKey(TiC.PROPERTY_COLOR)) {
-				labelDict.put(TiC.PROPERTY_COLOR, properties.get(TiC.PROPERTY_COLOR));
-			}
-		}
-		HashMap subDict = (HashMap) result.get("subtitleView");
-        if (subDict == null)
-        {
-            subDict = new HashMap();
-            result.put("subtitleView", subDict);
-        }
-		if (hasSubtitle)
-        {
-		    subDict.put(TiC.PROPERTY_TEXT, properties.get(TiC.PROPERTY_SUBTITLE));
-            subDict.put(TiC.PROPERTY_VISIBLE, true);
+	    
+        if (dict instanceof HashMap) {
+            if (null == result) {
+                result = new HashMap<>();
+            }if (dict == result) {
+                result = (HashMap) result.clone(); //we need to copy it as we modify it
+            }
             
-        } else {
-            subDict.put(TiC.PROPERTY_VISIBLE, false);
-        }
-		
-		subDict = (HashMap) result.get("imageView");
-        if (subDict == null)
-        {
-            subDict = new HashMap();
-            result.put("imageView", subDict);
-        }
-        if (properties.containsKey(TiC.PROPERTY_IMAGE))
-        {
-            subDict.put(TiC.PROPERTY_IMAGE, properties.get(TiC.PROPERTY_IMAGE));
-            subDict.put(TiC.PROPERTY_VISIBLE, true);
+            HashMap properties = (HashMap) (result.containsKey(TiC.PROPERTY_PROPERTIES)?result.get(TiC.PROPERTY_PROPERTIES):dict);
             
-        } else {
-            subDict.put(TiC.PROPERTY_VISIBLE, false);
+            boolean hasSubtitle = properties.containsKey(TiC.PROPERTY_SUBTITLE);
+            
+            if (properties.containsKey(TiC.PROPERTY_TITLE) || properties.containsKey(TiC.PROPERTY_FONT) || properties.containsKey(TiC.PROPERTY_COLOR))
+            {
+                HashMap labelDict = (HashMap) result.get(TiC.PROPERTY_TITLE_VIEW);
+                if (labelDict == null)
+                {
+                    labelDict = new HashMap();
+                    result.put(TiC.PROPERTY_TITLE_VIEW, labelDict);
+                }
+                labelDict.put(TiC.PROPERTY_VERTICAL_ALIGN, hasSubtitle?"bottom":"center");
+                if (properties.containsKey(TiC.PROPERTY_TITLE)) {
+                    labelDict.put(TiC.PROPERTY_TEXT, properties.get(TiC.PROPERTY_TITLE));
+                }
+                if (properties.containsKey(TiC.PROPERTY_FONT)) {
+                    labelDict.put(TiC.PROPERTY_FONT, properties.get(TiC.PROPERTY_FONT));
+                }
+                if (properties.containsKey(TiC.PROPERTY_COLOR)) {
+                    labelDict.put(TiC.PROPERTY_COLOR, properties.get(TiC.PROPERTY_COLOR));
+                }
+            }
+            HashMap subDict = (HashMap) result.get("subtitleView");
+            if (subDict == null)
+            {
+                subDict = new HashMap();
+                result.put("subtitleView", subDict);
+            }
+            if (hasSubtitle)
+            {
+                subDict.put(TiC.PROPERTY_TEXT, properties.get(TiC.PROPERTY_SUBTITLE));
+                subDict.put(TiC.PROPERTY_VISIBLE, true);
+                
+            } else {
+                subDict.put(TiC.PROPERTY_VISIBLE, false);
+            }
+            
+            subDict = (HashMap) result.get("imageView");
+            if (subDict == null)
+            {
+                subDict = new HashMap();
+                result.put("imageView", subDict);
+            }
+            if (properties.containsKey(TiC.PROPERTY_IMAGE))
+            {
+                subDict.put(TiC.PROPERTY_IMAGE, properties.get(TiC.PROPERTY_IMAGE));
+                subDict.put(TiC.PROPERTY_VISIBLE, true);
+                
+            } else {
+                subDict.put(TiC.PROPERTY_VISIBLE, false);
+            }
+        } else if (dict instanceof String) {
+//            HashMap labelDict = (HashMap) result.get(TiC.PROPERTY_TITLE_VIEW);
+//            if (labelDict == null)
+//            {
+//                labelDict = new HashMap();
+//                result.put("titleView", labelDict);
+//                labelDict.put(TiC.PROPERTY_TEXT, dict);
+//           }
         }
+	    
 		
 		return result;
 	}

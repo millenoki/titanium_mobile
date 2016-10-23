@@ -166,7 +166,7 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
     // }
 
     @Override
-    public HashMap getListItem(int itemPosition) {
+    public Object getListItem(int itemPosition) {
         boolean hasHeader = hasHeader();
         if (hasHeader && itemPosition == RecyclerView.NO_POSITION) {
             Object item = getProperty(TiC.PROPERTY_HEADER_VIEW);
@@ -221,7 +221,7 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
                     getItemDataAt(filterIndices.get(itemPosition)),
                     TiC.PROPERTY_TEMPLATE);
         } else {
-            HashMap data = getItemDataAt(itemPosition);
+            Object data = getItemDataAt(itemPosition);
             if (data == null) {
                 return null;
             }

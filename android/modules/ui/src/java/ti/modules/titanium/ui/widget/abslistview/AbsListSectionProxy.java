@@ -214,7 +214,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
     }
 
 	@Kroll.method
-	public KrollDict getItemAt(final int index) {
+	public Object getItemAt(final int index) {
 //		return getInUiThread(new Command<KrollDict>() {
 //		    @Override
 //            public KrollDict execute() {
@@ -223,10 +223,10 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //        });
 	}
 
-	private KrollDict handleGetItemAt(int index) {
+	private Object handleGetItemAt(int index) {
 		if (itemProperties != null && index >= 0
 				&& index < itemProperties.length) {
-			return new KrollDict((HashMap) itemProperties[index]);
+			return itemProperties[index];
 		}
 		return null;
 	}
@@ -410,14 +410,19 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         }
         TiCollectionViewInterface listView = getListView();
         int i;
-        HashMap item;
-        HashMap update;
+        Object item;
+        Object update;
         View content;
         boolean visible;
         for (i = 0; i < itemProperties.length; i++) {
-            item = (HashMap) itemProperties[i];
-            update = (HashMap) updates[i];
-            KrollDict.merge(item, update, false);
+            item = itemProperties[i];
+            update = updates[i];
+            if (item instanceof HashMap && update instanceof HashMap) {
+                KrollDict.merge((HashMap) item, (HashMap) update, false);
+            } else  {
+                itemProperties[i] = updates[i];
+            }
+            
             content = listView.getCellAt(this.sectionIndex, i);
             visible = updateVisibleState(item, i);
 
@@ -439,7 +444,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //        notifyItemRangeChanged(0, updates.length);
     }
 	
-	private boolean updateVisibleState(final HashMap item, final int index) {
+	private boolean updateVisibleState(final Object item, final int index) {
 	    final boolean visible = isItemVisible(item);
         if (visible) {
             mHiddenItems.remove(index);
@@ -471,14 +476,20 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 
         final TiCollectionViewInterface listView = getListView();
         final int sectionIndex = this.sectionIndex;
-        final boolean wasVisible = isItemVisible((HashMap) itemProperties[index]);
-        final HashMap currentItem = KrollDict.merge((HashMap) itemProperties[index],
-                (HashMap) (data));
+        Object currentItem = itemProperties[index];
+        final boolean wasVisible = isItemVisible(currentItem);
+        if (data instanceof HashMap && currentItem instanceof HashMap) {
+            currentItem = KrollDict.merge((HashMap) currentItem,
+                    (HashMap) (data));
+        } else {
+            currentItem = data;
+        }
         if (currentItem == null)
             return;
         itemProperties[index] = currentItem;
+        final Object newItem = currentItem;
         
-        final boolean visible = updateVisibleState(currentItem, index);
+        final boolean visible = updateVisibleState(newItem, index);
         
         if (!wasVisible && visible) {
             runInUiThread(new CommandNoReturn() {
@@ -505,9 +516,9 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
                     if (listItem != null) {
                         if (listItem.getItemIndex() == index) {
                             TiAbsListViewTemplate template = getListView()
-                                    .getTemplate(TiConvert.toString(currentItem,
+                                    .getTemplate(TiConvert.toString(newItem,
                                             TiC.PROPERTY_TEMPLATE), true);
-                            populateViews(currentItem, listItem, template,
+                            populateViews(newItem, listItem, template,
                                     getUserItemInversedIndexFromSectionPosition(index),
                                     sectionIndex, content, false);
                         } else {
@@ -528,11 +539,14 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	        return;
 	    }
 	    if (itemProperties != null) {
-	        HashMap itemProp = (HashMap) itemProperties[index];
-	        if (!itemProp.containsKey(binding)) {
-	            itemProp.put(binding, new HashMap<String, Object>());
+	        Object itemProp = itemProperties[index];
+	        if (itemProp instanceof HashMap) {
+	            if (!((HashMap) itemProp).containsKey(binding)) {
+	                ((HashMap) itemProp).put(binding, new HashMap());
+	            }
+	            ((HashMap)((HashMap) itemProp).get(binding)).put(key, value);
 	        }
-	        ((HashMap)itemProp.get(binding)).put(key, value);
+	        
         }
 //	    AbsListItemData itemD = listItemData.get(index);
 //	    itemD.setProperty(binding, key, value);
@@ -543,11 +557,13 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             return;
         }
         if (itemProperties != null) {
-            HashMap itemProp = (HashMap) itemProperties[index];
-            if (!itemProp.containsKey(binding)) {
-                itemProp.put(binding, new HashMap<String, Object>());
+            Object itemProp = itemProperties[index];
+            if (itemProp instanceof HashMap) {
+                if (!((HashMap) itemProp).containsKey(binding)) {
+                    ((HashMap) itemProp).put(binding, new HashMap<String, Object>());
+                }
+                ((HashMap)((HashMap) itemProp).get(binding)).putAll(props);
             }
-            ((HashMap)itemProp.get(binding)).putAll(props);
         }
 //      AbsListItemData itemD = listItemData.get(index);
 //      itemD.setProperty(binding, key, value);
@@ -592,15 +608,17 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		}
 	}
 	
-	private boolean isItemVisible(final HashMap item) {
+	private boolean isItemVisible(final Object item) {
         boolean visible = false;
         if (item != null) {
             visible = true;
-            Object props = item.get(TiC.PROPERTY_PROPERTIES);
-            if (props instanceof HashMap) {
-                HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
-                visible = TiConvert.toBoolean(propsHash,
-                            TiC.PROPERTY_VISIBLE, visible);
+            if (item instanceof HashMap) {
+            Object props = ((HashMap) item).get(TiC.PROPERTY_PROPERTIES);
+                if (props instanceof HashMap) {
+                    HashMap<String, Object> propsHash = (HashMap<String, Object>) props;
+                    visible = TiConvert.toBoolean(propsHash,
+                                TiC.PROPERTY_VISIBLE, visible);
+                }
             }
         }
         return visible;
@@ -615,13 +633,13 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		if (items instanceof Object[]) {
 		    Object[] array = (Object[])items;
 	        for (i = 0; i < array.length; i++) {
-	            updateVisibleState((HashMap) array[i], i + offset);          
+	            updateVisibleState(array[i], i + offset);          
 //	            hiddenItems.add(i + offset, !isItemVisible((HashMap) array[i]));
 	        }
 		} else if (items instanceof ArrayList) {
 		    ArrayList<Object> array = (ArrayList<Object>)items;
 		    for (i = 0; i < array.size(); i++) {
-                updateVisibleState((HashMap) array.get(i), i + offset);          
+                updateVisibleState(array.get(i), i + offset);          
 //		        hiddenItems.add(i + offset, !isItemVisible((HashMap) array.get(i)));
 	        }
 		}
@@ -752,7 +770,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	 *            Entry's index relative to its section
 	 * @return
 	 */
-	public void generateCellContent(int sectionIndex, final HashMap item, 
+	public void generateCellContent(int sectionIndex, final Object item, 
 			AbsListItemProxy itemProxy, TiBaseAbsListViewItem itemContent, TiAbsListViewTemplate template,
 			int itemPosition, View item_layout) {
 		// Create corresponding TiUIView for item proxy
@@ -789,7 +807,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
         return getListViewRealPosition(result);
     }
 
-	public void populateViews(final HashMap item, TiBaseAbsListViewItem cellContent, TiAbsListViewTemplate template, int itemIndex, int sectionIndex,
+	public void populateViews(final Object item, TiBaseAbsListViewItem cellContent, TiAbsListViewTemplate template, int itemIndex, int sectionIndex,
 			View item_layout, boolean reusing) {
 		TiAbsListItem listItem = (TiAbsListItem)cellContent.getView();
 		// Handling root item, since that is not in the views map.
@@ -808,7 +826,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		HashMap listItemProperties;
 //		String itemId = null;
 
-		if (data.containsKey(TiC.PROPERTY_PROPERTIES)) {
+		if (data != null && data.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			listItemProperties = (HashMap) data.get(TiC.PROPERTY_PROPERTIES);
 		} else {
 			listItemProperties = new HashMap();
@@ -859,17 +877,19 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 			if (reusing) {
 			    ((KrollProxyReusableListener) modelListener).setReusing(true);
 			}
-			HashMap diffProperties = viewItem
-                    .generateDiffProperties((HashMap) data.get(binding));
+			if (data instanceof HashMap) {
+			    HashMap diffProperties = viewItem
+	                    .generateDiffProperties((HashMap) data.get(binding));
+	            
+	            if (diffProperties != null && !diffProperties.isEmpty()) {
+	                if (reusing) {
+	                    modelListener.processApplyProperties(diffProperties);
+	                } else {
+	                    modelListener.processProperties(diffProperties);
+	                }
+	            }
+			}
 			
-			if (diffProperties != null && !diffProperties.isEmpty()) {
-			    if (reusing) {
-	                modelListener.processApplyProperties(diffProperties);
-			    } else {
-	                modelListener.processProperties(diffProperties);
-			    }
-            }
-            
 			if (reusing) {
 			    ((KrollProxyReusableListener) modelListener).setReusing(false);
 			}
@@ -908,12 +928,16 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //        if (hasHeader()) {
 //			index -= 1;
 //		}
-
+	    Object item = null;
 		if (isFilterOn()) {
-			return TiConvert.toString(getItemDataAt(filterIndices.get(index)),TiC.PROPERTY_TEMPLATE);
+		    item = getItemDataAt(filterIndices.get(index));
 		} else {
-			return TiConvert.toString(getItemDataAt(index),TiC.PROPERTY_TEMPLATE);
+		    item = getItemDataAt(index);
 		}
+		if (item instanceof HashMap) {
+            return TiConvert.toString(item, TiC.PROPERTY_TEMPLATE);
+        }
+        return null;
 	}
 
 	public int getContentCount() {
@@ -996,12 +1020,12 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		return null;
 	}
 
-	public HashMap getItemDataAt(int position)
+	public Object getItemDataAt(int position)
 	{
 	    if (itemProperties != null && itemProperties.length > 0) {
 	        final int index = getItemIndexFromPosition(position);
 	        if (index < itemProperties.length) {
-	            return (HashMap) itemProperties[index];
+	            return itemProperties[index];
 	        }
 	    }
 	    return null;
@@ -1021,7 +1045,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 //		return null;
 //	}
 
-	public HashMap getListItem(int position) {
+	public Object getListItem(int position) {
 //        if (hasHeader()) {
 //			position -= 1;
 //		}
@@ -1055,15 +1079,21 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             }
 	        // Add new results
 	        for (int i = 0; i < itemProperties.length; ++i) {
-	            HashMap data = (HashMap) itemProperties[i];
+	            Object data = itemProperties[i];
 	            boolean visible = isItemVisible(data);
 	            if (!visible) {
 	                continue;
 	            }
-	            String searchableText = TiConvert.toString(data, TiC.PROPERTY_SEARCHABLE_TEXT);
-	            if (searchableText == null && data.containsKey(TiC.PROPERTY_PROPERTIES)) {
-	                searchableText = TiConvert.toString(data.get(TiC.PROPERTY_PROPERTIES), TiC.PROPERTY_TITLE);
-                }
+	            String searchableText = null;
+	            if (data instanceof HashMap) {
+	                searchableText = TiConvert.toString(data, TiC.PROPERTY_SEARCHABLE_TEXT);
+	                if (searchableText == null && ((HashMap) data).containsKey(TiC.PROPERTY_PROPERTIES)) {
+	                    searchableText = TiConvert.toString(((HashMap) data).get(TiC.PROPERTY_PROPERTIES), TiC.PROPERTY_TITLE);
+	                }
+	            } else {
+	                searchableText = TiConvert.toString(data);
+	            }
+	             
 	            if (searchableText == null) {
 	                continue;
 	            }

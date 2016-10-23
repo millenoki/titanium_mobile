@@ -33,13 +33,13 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
 	private HashMap<String, ProxyAbsListItem> bindingsMap;
 	private Set<KrollProxy> nonBindingProxies;
     private ProxyAbsListItem listItem;
-    private HashMap itemData;
+    private Object itemData;
 	
 	public int sectionIndex = -1;
     public int itemIndex = -1;
     protected WeakReference<AbsListSectionProxy> sectionProxy;
 	
-	public void setCurrentItem(final int sectionIndex, final int itemIndex, final AbsListSectionProxy sectionProxy, final HashMap itemData)
+	public void setCurrentItem(final int sectionIndex, final int itemIndex, final AbsListSectionProxy sectionProxy, final Object itemData)
     {
         this.sectionIndex = sectionIndex;
         this.itemIndex = itemIndex;
@@ -52,10 +52,13 @@ public class AbsListItemProxy extends TiViewProxy implements KrollProxy.SetPrope
 	}
 	
 	public HashMap getItemDataForBindId(final String bindId) {
-	    Object data = this.itemData != null ? this.itemData.get(bindId) : null;
-	    if (data instanceof HashMap) {
-	        return (HashMap) data;
+	    if (this.itemData instanceof HashMap) {
+	        Object data = ((HashMap) this.itemData).get(bindId);
+	        if (data instanceof HashMap) {
+	            return (HashMap) data;
+	        }
 	    }
+	    
 	    return null;
 	}
 	

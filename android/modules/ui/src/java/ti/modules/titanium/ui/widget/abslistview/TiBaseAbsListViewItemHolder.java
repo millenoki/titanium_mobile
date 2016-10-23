@@ -16,7 +16,7 @@ import android.widget.ImageView.ScaleType;
 
 public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
     protected WeakReference<View> parentView = null;
-    private WeakReference<HashMap> itemData = null;
+    private WeakReference<Object> itemData = null;
 	private boolean hasHeightRelyingOnPercent = false;
 
 	public TiBaseAbsListViewItemHolder(Context context) {
@@ -59,7 +59,7 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 	}
 	
-	public HashMap getItemData() {
+	public Object getItemData() {
 	    if (itemData != null) {
 	        return itemData.get();
 	    }
@@ -67,11 +67,11 @@ public class TiBaseAbsListViewItemHolder extends TiCompositeLayout {
 	}
 
     public void setItem(TiBaseAbsListViewItem item, 
-            HashMap itemData,
+            Object itemData,
             View parentView) {
         hasHeightRelyingOnPercent = false;
         if (itemData != null) {
-            this.itemData = new WeakReference<HashMap>(itemData);
+            this.itemData = new WeakReference<Object>(itemData);
         } else {
             this.itemData = null;
         }

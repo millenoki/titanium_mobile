@@ -265,7 +265,7 @@ public abstract class AbsListViewProxy extends TiViewProxy {
 	}
 	
 	@Kroll.method
-	public KrollDict getItemAt(int sectionIndex, int itemIndex) {
+	public Object getItemAt(int sectionIndex, int itemIndex) {
 	    TiUIView listView = peekView();
         if (listView instanceof TiCollectionViewInterface) {
             return ((TiCollectionViewInterface) listView).getItem(sectionIndex, itemIndex);
