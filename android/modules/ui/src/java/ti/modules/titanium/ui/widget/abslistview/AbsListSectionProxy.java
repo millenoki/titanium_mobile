@@ -935,7 +935,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		    item = getItemDataAt(index);
 		}
 		if (item instanceof HashMap) {
-            return TiConvert.toString(item, TiC.PROPERTY_TEMPLATE);
+            return TiConvert.toString((HashMap) item, TiC.PROPERTY_TEMPLATE);
         }
         return null;
 	}
@@ -1086,7 +1086,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	            }
 	            String searchableText = null;
 	            if (data instanceof HashMap) {
-	                searchableText = TiConvert.toString(data, TiC.PROPERTY_SEARCHABLE_TEXT);
+	                searchableText = TiConvert.toString((HashMap) data, TiC.PROPERTY_SEARCHABLE_TEXT);
 	                if (searchableText == null && ((HashMap) data).containsKey(TiC.PROPERTY_PROPERTIES)) {
 	                    searchableText = TiConvert.toString(((HashMap) data).get(TiC.PROPERTY_PROPERTIES), TiC.PROPERTY_TITLE);
 	                }

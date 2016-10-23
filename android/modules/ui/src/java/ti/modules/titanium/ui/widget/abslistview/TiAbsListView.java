@@ -293,7 +293,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			}
 			String templateId = null;
 			if (item instanceof HashMap) {
-			    templateId = TiConvert.toString(item, TiC.PROPERTY_TEMPLATE);
+			    templateId = TiConvert.toString((HashMap) item, TiC.PROPERTY_TEMPLATE);
 	        }
 			TiAbsListViewTemplate template = getTemplate(templateId, true);
 			int itemViewType = template.getType();
