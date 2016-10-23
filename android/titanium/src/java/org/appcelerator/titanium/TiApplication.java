@@ -274,6 +274,7 @@ public abstract class TiApplication extends Application implements
         if (activityStack == null || activityStack.size() == 0) {
             return;
         }
+        getInstance().fireAppEvent(TiC.EVENT_CLOSE, null);
 
         WeakReference<Activity> activityRef;
         Activity currentActivity;
