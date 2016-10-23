@@ -1136,7 +1136,8 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
         case TiC.PROPERTY_HIT_RECT: {
             mHitRect = TiConvert.toRect(newValue);
-        }
+            break;
+       }
         case "panDirection": {
             String directionString = TiConvert.toString(newValue);
             int direction = -1;
@@ -1154,6 +1155,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             }
             
             getOrCreateGestureHandler().setPanDirection(direction);
+            break;
 
         }
         default:
