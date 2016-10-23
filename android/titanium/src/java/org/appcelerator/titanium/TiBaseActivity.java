@@ -1236,15 +1236,16 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			proxy = activityProxy;
 		} else{
 			topWindow = topWindowOnStack();
-			if (topWindow != null) {
-			    if (topWindow instanceof TiWindowManager) {
-			        TiWindowProxy newWindow = ((TiWindowManager) topWindow).getTopWindow();
-	                while(newWindow != topWindow && newWindow instanceof TiWindowManager) {
+			TiWindowProxy realTopWindow = topWindow;
+			if (realTopWindow != null) {
+			    if (realTopWindow instanceof TiWindowManager) {
+			        TiWindowProxy newWindow = ((TiWindowManager) realTopWindow).getTopWindow();
+	                while(newWindow != realTopWindow && newWindow instanceof TiWindowManager) {
 	                    newWindow = ((TiWindowManager) newWindow).getTopWindow();
 	                }
-	                topWindow = newWindow;
+	                realTopWindow = newWindow;
 			    }
-			    proxy = topWindow.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
+			    proxy = realTopWindow.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
 			} else if(window != null) {
 				proxy = window.firstHierarchyListener(TiC.EVENT_ANDROID_BACK);
 			}
