@@ -728,7 +728,7 @@ public class TiUIText extends TiUINonViewGroupView
 		Log.d(TAG, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null),
 			Log.DEBUG_MODE);
 		
-        boolean result = false;
+        boolean result = suppressReturn;
         boolean shouldBlur = (actionId != EditorInfo.IME_ACTION_NEXT);
         if (keyEvent == null) {
         } else if (actionId == EditorInfo.IME_NULL) {
