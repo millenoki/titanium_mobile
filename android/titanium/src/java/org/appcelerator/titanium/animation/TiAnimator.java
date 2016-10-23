@@ -334,7 +334,7 @@ public class TiAnimator
             String key = (String)pairs.getKey();
             resetProps.put(key, fromProps.get(key));
         }
-        proxy.applyPropertiesInternal(resetProps, true, true);
+        proxy.applyPropertiesInternal(resetProps, true, false);
 	}
 
 	public void setCallback(KrollFunction callback)
