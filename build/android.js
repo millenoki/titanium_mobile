@@ -1,6 +1,9 @@
 var path = require('path'),
 	async = require('async'),
 	fs = require('fs-extra'),
+	AdmZip = require('adm-zip'),
+    archiver = require('archiver'),
+    rimraf = require('rimraf')
 	ant = require('./ant'),
 	utils = require('./utils'),
 	copyFile = utils.copyFile,
@@ -28,11 +31,14 @@ function readProperties(filepath) {
  * @param {String} options.gitHash SHA of Titanium SDK HEAD
  */
 function Android(options) {
+	var AndroidSDK = require('./androidsdk');
 	this.androidSDK = options.androidSdk;
 	this.androidNDK = options.androidNdk;
 	this.apiLevel = options.apiLevel;
 	this.sdkVersion = options.sdkVersion;
+	this.gmsVersion = options.gmsVersion;
 	this.gitHash = options.gitHash;
+	this.sdk = new AndroidSDK(this.androidSDK, this.apiLevel, this.gmsVersion);
 }
 
 Android.prototype.clean = function (next) {
@@ -40,14 +46,14 @@ Android.prototype.clean = function (next) {
 };
 
 Android.prototype.build = function (next) {
-	var AndroidSDK = require('./androidsdk'),
-		sdk = new AndroidSDK(this.androidSDK, this.apiLevel),
-		properties = {
+	var properties = {
 			'build.version': this.sdkVersion,
 			'build.githash': this.gitHash,
-			'android.sdk': sdk.getAndroidSDK(),
-			'android.platform': sdk.getPlatformDir(),
-			'google.apis': sdk.getGoogleApisDir(),
+			'android.sdk': this.sdk.getAndroidSDK(),
+			'android.platform': this.sdk.getPlatformDir(),
+			'google.apis': this.sdk.getGoogleApisDir(),
+			'google.play.services': this.sdk.getGooglePlayServicesDir(),
+			'gms.version': this.gmsVersion,
 			'kroll.v8.build.x86': 1,
 			'android.ndk': this.androidNDK
 		};
@@ -65,6 +71,55 @@ Android.prototype.package = function (packager, next) {
 
 	// TODO parallelize some
 	async.series([
+		// package google play services
+		 (cb) => {
+			var basePath = this.sdk.getGooglePlayServicesDir();
+			var moduleDirs = fs.readdirSync(basePath);
+			var dest = path.join(ANDROID_DEST, 'modules', 'gms');
+            // console.log('dest', dest);
+            // console.log('basePath', basePath);
+			async.each(moduleDirs,  (dir, callback) => {
+                    // console.log('dir', dir);
+                    // console.log('this.gmsVersion', this.sdk.gmsVersion);
+				var aarFile = path.join(basePath, dir, this.sdk.gmsVersion, dir + '-' + this.sdk.gmsVersion + '.aar');
+                    // console.log('aarFile', aarFile);
+				if (fs.existsSync(aarFile)) {
+					// console.log('handling', aarFile);
+					var zip = new AdmZip(aarFile);
+                    async.each(zip.getEntries(),  (zipEntry, callback2) => {
+                        // console.log(zipEntry.toString()); // outputs zip entries information
+                        if (zipEntry.entryName == "classes.jar") {
+                             zip.extractEntryTo(zipEntry, dest,false,true);
+                             fs.renameSync(path.join(dest,'classes.jar'), path.join(dest, dir + '.jar'));
+                             callback2();
+                        } else if (zipEntry.entryName == "res/") {
+                            var resPath = path.join(dest, dir + '.res');
+                            zip.extractEntryTo(zipEntry, resPath,false,true);
+                            if (fs.existsSync(resPath)) {
+                                fs.writeFileSync(path.join(dest, dir + '.respackage'), "com.google.android.gms." + dir.replace('play-services-', '')); 
+                                var output = fs.createWriteStream(path.join(dest, dir + '.res.zip'));
+                                var archive = archiver('zip', {
+                                    forceUTC: true
+                                });
+                                archive.pipe(output);
+                                archive.directory(resPath, 'res');
+                                archive.on('finish', function() {
+                                    rimraf.sync(resPath);
+                                    callback2();
+                                });
+                                archive.finalize();
+                            } else {
+                                callback2();
+                            }
+                        } else {
+                            callback2();
+                        }
+                    }, callback);
+				} else {
+					callback();
+				}
+			}, cb);
+		},
 		// Copy dist/android/*.jar, dist/android/modules.json
 		function (cb) {
 			copyFiles(DIST_ANDROID, ANDROID_DEST, ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'modules.json'], cb);

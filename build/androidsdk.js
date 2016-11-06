@@ -12,7 +12,8 @@ var os = require('os'),
 		9: 'android-2.3',
 		10: 'android-2.3.3',
 		11: 'android-3.0'
-	};
+	},
+	DEFAULT_GMS_VERSION = '9.8.0';
 
 /**
  * Given a hinted at location of Android SDK, find one.
@@ -54,9 +55,10 @@ function resolve(supplied) {
 	return null;
 }
 
-function AndroidSDK(dir, apiLevel) {
+function AndroidSDK(dir, apiLevel, gmsVersion) {
 	this.dir = resolve(dir);
 	this.apiLevel = apiLevel || DEFAULT_API_LEVEL;
+	this.gmsVersion = gmsVersion || DEFAULT_GMS_VERSION;
 }
 
 AndroidSDK.prototype.getAndroidSDK = function() {
@@ -71,6 +73,13 @@ AndroidSDK.prototype.getPlatformDir = function() {
 };
 AndroidSDK.prototype.getGoogleApisDir = function() {
 	var possible = path.join(this.dir, 'add-ons', 'addon-google_apis-google-' + this.apiLevel);
+	if (fs.existsSync(possible)) {
+		return possible;
+	}
+};
+
+AndroidSDK.prototype.getGooglePlayServicesDir = function() {
+	var possible = path.join(this.dir, 'extras', 'google', 'm2repository', 'com', 'google', 'android', 'gms');
 	if (fs.existsSync(possible)) {
 		return possible;
 	}
