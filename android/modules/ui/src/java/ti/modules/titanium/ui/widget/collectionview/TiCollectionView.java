@@ -81,19 +81,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnScrollListener;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.DisplayMetrics;
-import android.util.Pair;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import eu.davidea.flexibleadapter.FlexibleAdapter;
 import eu.davidea.flexibleadapter.common.DividerItemDecoration;
 import eu.davidea.flexibleadapter.common.PendingItemAnimator;
@@ -1287,7 +1283,8 @@ public class TiCollectionView extends TiUINonViewGroupView
     @Override
     protected ArrayList<String> keySequence() {
         if (KEY_SEQUENCE == null) {
-            KEY_SEQUENCE = super.keySequence();
+            KEY_SEQUENCE = new ArrayList<String>();
+            KEY_SEQUENCE.add(TiC.PROPERTY_SEARCH_TEXT); //make sure searchText is set before sections
             KEY_SEQUENCE.add(TiC.PROPERTY_NUM_COLUMNS);
             KEY_SEQUENCE.add(TiC.PROPERTY_COLUMN_WIDTH);
         }

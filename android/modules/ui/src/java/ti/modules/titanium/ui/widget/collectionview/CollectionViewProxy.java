@@ -17,7 +17,6 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.widget.abslistview.AbsListViewProxy;
-import ti.modules.titanium.ui.widget.listview.TiListView;
 import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,propertyAccessors = {
