@@ -1352,7 +1352,10 @@ AndroidModuleBuilder.prototype.ndkBuild = function (next) {
 					}
 
 					this.dirWalker(this.buildGenLibsDir, function (file) {
-						if (path.extname(file) == '.so' && file.indexOf('libstlport_shared.so') == -1 && file.indexOf('libc++_shared.so' && file.indexOf('libkroll-v8.so') == -1) == -1) {
+						if (path.extname(file) == '.so' && 
+							file.indexOf('stlport_shared') == -1 && 
+							file.indexOf('c++_shared') == -1 && 
+								file.indexOf('libkroll-v8') == -1) {
 
 							var relativeName = path.relative(this.buildGenLibsDir, file),
 								targetDir = path.join(this.libsDir, path.dirname(relativeName));
