@@ -574,6 +574,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		//initializing listView
 		listView = createListView(activity);
 		listView.setSelector(android.R.color.transparent);
+		listView.setAreHeadersSticky(false);
 		
 //		listView.setDuplicateParentStateEnabled(true);
 		AbsListView internalListView = getInternalListView();
@@ -898,7 +899,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             this.hideKeyboardOnScroll = TiConvert.toBoolean(newValue, true);
             break;
         case TiC.PROPERTY_STICKY_HEADERS:
-            listView.setAreHeadersSticky(TiConvert.toBoolean(newValue, true));
+            listView.setAreHeadersSticky(TiConvert.toBoolean(newValue, false));
             break;
         case TiC.PROPERTY_CASE_INSENSITIVE_SEARCH:
             this.caseInsensitive = TiConvert.toBoolean(newValue, true);
