@@ -13,6 +13,7 @@
 	<classpathentry kind="lib" path="/titanium-dist/lib/titanium-filesystem.jar" sourcepath="/titanium-filesystem"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/titanium-media.jar"/>
 	<classpathentry kind="lib" path="/titanium-dist/lib/titanium-app.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/googleplayservices.jar"/>
+<% externalLibDependencies.forEach(function (lib) { %>	<classpathentry kind="lib" path="<%- lib %>"/>
+<% }); %>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
