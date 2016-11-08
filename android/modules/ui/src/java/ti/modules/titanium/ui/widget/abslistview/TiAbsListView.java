@@ -1089,9 +1089,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 
 	public TiAbsListViewTemplate getTemplate(String template, final boolean canReturnDefault)
 	{
-		if (template == null) template = defaultTemplateBinding;
-		if (templatesByBinding.containsKey(template))
-		{
+		if (template == null) {
+		    template = defaultTemplateBinding;
+		}
+		if (templatesByBinding.containsKey(template)) {
 			return templatesByBinding.get(template);
 		}
 		if (canReturnDefault) {

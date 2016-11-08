@@ -556,10 +556,13 @@ public class TiCollectionView extends TiUINonViewGroupView
             if (holder.itemView.getParent() != null) {
                 ((ViewGroup) holder.itemView.getParent()).setClipChildren(false);
             }
-            TiAbsListViewTemplate template = null;
-            if (item != null) {
-                template = getTemplate(TiConvert.toString(item, TiC.PROPERTY_TEMPLATE), true);
+            
+            String templateId = null;
+            if (item instanceof HashMap) {
+                templateId = TiConvert.toString((HashMap) item, TiC.PROPERTY_TEMPLATE);
             }
+            TiAbsListViewTemplate template = getTemplate(templateId, true);
+            
             final int sectionCount = section.getItemCount();
             boolean reusing = sectionIndex != itemContent.sectionIndex
                     || itemContent.itemIndex >= sectionCount
@@ -1284,6 +1287,7 @@ public class TiCollectionView extends TiUINonViewGroupView
     protected ArrayList<String> keySequence() {
         if (KEY_SEQUENCE == null) {
             KEY_SEQUENCE = new ArrayList<String>();
+            KEY_SEQUENCE.add(TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE);
             KEY_SEQUENCE.add(TiC.PROPERTY_SEARCH_TEXT); //make sure searchText is set before sections
             KEY_SEQUENCE.add(TiC.PROPERTY_NUM_COLUMNS);
             KEY_SEQUENCE.add(TiC.PROPERTY_COLUMN_WIDTH);
@@ -1721,11 +1725,11 @@ public class TiCollectionView extends TiUINonViewGroupView
         }
     }
 
-    public TiAbsListViewTemplate getTemplate(String template,
-            final boolean canReturnDefault) {
-
-        if (template == null)
+    public TiAbsListViewTemplate getTemplate(String template, final boolean canReturnDefault) 
+    {
+        if (template == null) {
             template = defaultTemplateBinding;
+        }
         if (templatesByBinding.containsKey(template)) {
             return templatesByBinding.get(template);
         }

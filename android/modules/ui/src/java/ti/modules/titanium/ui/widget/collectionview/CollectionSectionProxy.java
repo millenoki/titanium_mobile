@@ -225,6 +225,9 @@ public class CollectionSectionProxy extends AbsListSectionProxy {
             if (data == null) {
                 return null;
             }
+            if (data instanceof HashMap) {
+                return TiConvert.toString((HashMap) data, TiC.PROPERTY_TEMPLATE);
+            }
             return TiConvert.toString(data, TiC.PROPERTY_TEMPLATE);
         }
     }
