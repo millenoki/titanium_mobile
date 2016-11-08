@@ -46,18 +46,90 @@ Android.prototype.clean = function (next) {
 };
 
 Android.prototype.build = function (next) {
+    var ROOT_DIR = path.join(__dirname, '..'),
+    DIST_DIR = path.join(ROOT_DIR, 'dist'),
+    DIST_ANDROID = path.join(DIST_DIR, 'android');
 	var properties = {
-			'build.version': this.sdkVersion,
-			'build.githash': this.gitHash,
-			'android.sdk': this.sdk.getAndroidSDK(),
-			'android.platform': this.sdk.getPlatformDir(),
-			'google.apis': this.sdk.getGoogleApisDir(),
-			'google.play.services': this.sdk.getGooglePlayServicesDir(),
-			'gms.version': this.gmsVersion,
-			'kroll.v8.build.x86': 1,
-			'android.ndk': this.androidNDK
-		};
-	ant.build(path.join(__dirname, '..', 'android', 'build.xml'), ['full.build'], properties, next);
+		'build.version': this.sdkVersion,
+		'build.githash': this.gitHash,
+		'android.sdk': this.sdk.getAndroidSDK(),
+		'android.platform': this.sdk.getPlatformDir(),
+		'google.apis': this.sdk.getGoogleApisDir(),
+		'google.play.services': this.sdk.getGooglePlayServicesDir(),
+		'gms.version': this.gmsVersion,
+		'kroll.v8.build.x86': 1,
+		'android.ndk': this.androidNDK
+	};
+    async.series([
+    // package google play services
+     (cb) => {
+        ant.build(path.join(__dirname, '..', 'android', 'build.xml'), ['clean'], properties, cb);
+    },
+    (cb) => {
+        var basePath = this.sdk.getGooglePlayServicesDir();
+        var moduleDirs = fs.readdirSync(basePath);
+        var dest = path.join(DIST_ANDROID, 'gms');
+        fs.mkdirsSync(dest);
+        async.each(moduleDirs,  (dir, callback) => {
+            if (dir == 'play-services') {
+                callback();
+                return;
+            }
+            var gmsModuleName = dir.replace('play-services-', '').replace('-', '_');
+            var aarFile = path.join(basePath, dir, this.sdk.gmsVersion, dir + '-' + this.sdk.gmsVersion + '.aar');
+            if (fs.existsSync(aarFile)) {
+                //first get the dependencies
+                var dependencies = fs.readFileSync(aarFile.replace('.aar', '.pom'), 'utf8').toString()
+                                    .match(/<dependency>([\s\S]*?)<\/dependency>/g);
+                if (dependencies) {
+                    dependencies = dependencies.slice(1).map(function(dep) {
+                        dep = dep.match(/<artifactId>(.*)<\/artifactId>/)[1];
+                        if (dep) {
+                            return dep.replace('play-services-', 'com.google.android.gms.');
+                        }
+                    }).filter(function(n){ return n != undefined });
+                    if (dependencies && dependencies.length > 0) {
+                        fs.writeFileSync(path.join(dest, gmsModuleName + '.dependencies'), dependencies.join(','));
+                    }        
+                }
+                            
+                var zip = new AdmZip(aarFile);
+                async.each(zip.getEntries(),  (zipEntry, callback2) => {
+                    if (zipEntry.entryName == "classes.jar") {
+                         zip.extractEntryTo(zipEntry, dest,false,true);
+                         fs.renameSync(path.join(dest,'classes.jar'), path.join(dest, gmsModuleName + '.jar'));
+                         callback2();
+                    } else if (zipEntry.entryName == "res/") {
+                        var resPath = path.join(dest, gmsModuleName + '.res');
+                        zip.extractEntryTo(zipEntry, resPath,false,true);
+                        if (fs.existsSync(resPath)) {
+                            fs.writeFileSync(path.join(dest, gmsModuleName + '.respackage'), "com.google.android.gms." + gmsModuleName); 
+                            var output = fs.createWriteStream(path.join(dest, gmsModuleName + '.res.zip'));
+                            var archive = archiver('zip', {
+                                forceUTC: true
+                            });
+                            archive.pipe(output);
+                            archive.directory(resPath, 'res');
+                            archive.on('finish', function() {
+                                rimraf.sync(resPath);
+                                callback2();
+                            });
+                            archive.finalize();
+                        } else {
+                            callback2();
+                        }
+                    } else {
+                        callback2();
+                    }
+                }, callback);
+            } else {
+                callback();
+            }
+        }, cb);
+    }, 
+    (cb) => {
+        ant.build(path.join(__dirname, '..', 'android', 'build.xml'), ['build'], properties, cb);
+    }], next);
 }
 
 Android.prototype.package = function (packager, next) {
@@ -70,56 +142,7 @@ Android.prototype.package = function (packager, next) {
 		ANDROID_MODULES = path.join(ANDROID_DEST, 'modules');
 
 	// TODO parallelize some
-	async.series([
-		// package google play services
-		 (cb) => {
-			var basePath = this.sdk.getGooglePlayServicesDir();
-			var moduleDirs = fs.readdirSync(basePath);
-			var dest = path.join(ANDROID_DEST, 'modules', 'gms');
-            // console.log('dest', dest);
-            // console.log('basePath', basePath);
-			async.each(moduleDirs,  (dir, callback) => {
-                    // console.log('dir', dir);
-                    // console.log('this.gmsVersion', this.sdk.gmsVersion);
-				var aarFile = path.join(basePath, dir, this.sdk.gmsVersion, dir + '-' + this.sdk.gmsVersion + '.aar');
-                    // console.log('aarFile', aarFile);
-				if (fs.existsSync(aarFile)) {
-					// console.log('handling', aarFile);
-					var zip = new AdmZip(aarFile);
-                    async.each(zip.getEntries(),  (zipEntry, callback2) => {
-                        // console.log(zipEntry.toString()); // outputs zip entries information
-                        if (zipEntry.entryName == "classes.jar") {
-                             zip.extractEntryTo(zipEntry, dest,false,true);
-                             fs.renameSync(path.join(dest,'classes.jar'), path.join(dest, dir + '.jar'));
-                             callback2();
-                        } else if (zipEntry.entryName == "res/") {
-                            var resPath = path.join(dest, dir + '.res');
-                            zip.extractEntryTo(zipEntry, resPath,false,true);
-                            if (fs.existsSync(resPath)) {
-                                fs.writeFileSync(path.join(dest, dir + '.respackage'), "com.google.android.gms." + dir.replace('play-services-', '')); 
-                                var output = fs.createWriteStream(path.join(dest, dir + '.res.zip'));
-                                var archive = archiver('zip', {
-                                    forceUTC: true
-                                });
-                                archive.pipe(output);
-                                archive.directory(resPath, 'res');
-                                archive.on('finish', function() {
-                                    rimraf.sync(resPath);
-                                    callback2();
-                                });
-                                archive.finalize();
-                            } else {
-                                callback2();
-                            }
-                        } else {
-                            callback2();
-                        }
-                    }, callback);
-				} else {
-					callback();
-				}
-			}, cb);
-		},
+        async.series([	
 		// Copy dist/android/*.jar, dist/android/modules.json
 		function (cb) {
 			copyFiles(DIST_ANDROID, ANDROID_DEST, ['titanium.jar', 'kroll-apt.jar', 'kroll-common.jar', 'kroll-v8.jar', 'modules.json'], cb);
@@ -182,10 +205,14 @@ Android.prototype.package = function (packager, next) {
 				}
 			}, cb);
 		},
-		// Copy over module resources
-		function (cb) {
-			fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: /\/android(\/titanium\-(.+)?\.(jar|res\.zip|respackage))?$/ }, cb);
-		}
+        // Copy over module resources
+        function (cb) {
+            fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: /\/android(\/titanium\-(.+)?\.(jar|res\.zip|respackage|dependencies))?$/ }, cb);
+        },
+        // Copy over module resources
+        function (cb) {
+            copyFiles(DIST_ANDROID, ANDROID_MODULES, ['gms'], cb);
+        }
 	], next);
 };
 

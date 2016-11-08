@@ -53,6 +53,21 @@ public class ModulePathTask extends Task {
 			}
 		}
 
+		moduleDeps = deps.getModuleGMSDependencies(module);
+		if (moduleDeps != null) {
+			for (String dep : moduleDeps) {
+				System.out.println("GMS dep "+ dep);
+				moduleDepsPath.add(new Path(getProject(), String.format("%s/../gms/%s.jar", classesDir, dep)));
+				// File libDir = new File(String.format("%s/%s/lib", modulesDir, dep));
+				// if (libDir.exists()) {
+				// 	FileSet libFileset = new FileSet();
+				// 	libFileset.setDir(libDir);
+				// 	libFileset.setIncludes("**/*.jar");
+				// 	moduleDepsPath.addFileset(libFileset);
+				// }
+			}
+		}
+
 		getProject().addReference(pathid, moduleDepsPath);
 	}
 

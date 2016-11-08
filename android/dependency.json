@@ -16,15 +16,18 @@
 		"filesystem": [],
 		"gesture": ["ui"],
         "geolocation": [],
-        "googleplayservices": [],
 		"image": [],
 		"locale": [],
 		"media": ["filesystem"],
-		"network": ["xml", "googleplayservices"],
+		"network": ["xml"],
 		"platform": [],
 		"ui": ["filesystem", "media", "appcompat","cardview"],
 		"utils": [],
 		"xml": []
+	},
+	"gmsDependencies":
+	{
+		"network": ["gcm"]
 	},
 	"required": ["ui", "design", "android", "app", "locale", "analytics"],
 	"libraries": {
@@ -45,7 +48,6 @@
 			"okio-1.6.0.jar",
 			"picasso.jar"
 		],
-		"googleplayservices": ["google-play-services.jar"],
 		"network": ["thirdparty.jar"],
         "appcompat":["android-support-v4.jar", "android-support-v7-appcompat.jar"],
 		"cardview":["cardview-v7-23.0.1.jar"],
@@ -57,7 +59,6 @@
 		"defaultRuntime": "v8"
 	},
 	"modulepackage": {
-        "googleplayservices":"com.google.android.gms",
         "appcompat":"android.support.v7.appcompat",
 		"cardview":"android.support.v7.cardview",
 		"design":"android.support.design",

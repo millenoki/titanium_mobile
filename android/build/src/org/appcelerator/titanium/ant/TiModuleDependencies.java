@@ -31,6 +31,10 @@ public class TiModuleDependencies {
 	public Map<String, List<String>> getDependencies() {
 		return (Map<String, List<String>>)map.get("dependencies");
 	}
+
+	public Map<String, List<String>> getGMSDependencies() {
+		return (Map<String, List<String>>)map.get("gmsDependencies");
+	}
 	
 	public Map<String, String> getModulePackages() {
 		return (Map<String, String>)map.get("modulepackage");
@@ -42,6 +46,10 @@ public class TiModuleDependencies {
 	
 	public List<String> getModuleDependencies(String module) {
 		return getDependencies().get(module);
+	}
+
+	public List<String> getModuleGMSDependencies(String module) {
+		return getGMSDependencies().get(module);
 	}
 	
 	public List<String> getRequiredModules() {

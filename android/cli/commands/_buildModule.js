@@ -190,6 +190,7 @@ AndroidModuleBuilder.prototype.run = function run(logger, config, cli, finished)
 		'doAnalytics',
 		'initialize',
 		'loginfo',
+		'addGMSDeps',
 
 		function (next) {
 			cli.emit('build.module.pre.compile', this, next);
@@ -291,6 +292,41 @@ AndroidModuleBuilder.prototype.doAnalytics = function doAnalytics(next) {
 
 	next();
 };
+
+AndroidModuleBuilder.prototype.addGMSDeps = function addGMSDeps(next) {
+	var _t = this, classpath = this.classPaths,
+		googlePlayServicesFeaturesKey = "googleplayservices_features";
+	var tiJSONDeps = path.join(this.projectDir, 'dependency.json');
+	if (fs.existsSync(tiJSONDeps)) {
+		var deps = JSON.parse(fs.readFileSync(tiJSONDeps));
+		if (deps[googlePlayServicesFeaturesKey]) {
+			var googlePlayServicesKeep = deps[googlePlayServicesFeaturesKey];
+			for (var i = 0; i < googlePlayServicesKeep.length; i++) {
+            	var gmsModuleName = googlePlayServicesKeep[i].replace('com.google.android.gms.', '').replace('.*', '');
+            	console.log('gmsModuleName', gmsModuleName);
+	            if (/common\./.test(gmsModuleName)) {
+	                googlePlayServicesKeep.push('com.google.android.gms.base');
+	                continue;
+	            }
+	            var deps = path.join(_t.platformPath, 'modules', 'gms', gmsModuleName + '.dependencies');
+	            if (fs.existsSync(deps)) {
+	                deps = fs.readFileSync(deps, 'utf8').toString().split(',');
+	                googlePlayServicesKeep = googlePlayServicesKeep.concat(deps);
+	            }
+        	}
+            	console.log('googlePlayServicesKeep', googlePlayServicesKeep);
+        	googlePlayServicesKeep = googlePlayServicesKeep.filter(function(item, pos) {
+	            return !/common\./.test(item) && googlePlayServicesKeep.indexOf(item) == pos;
+	        });
+        	// classpath[path.join(_t.platformPath, 'modules', 'gms', 'base.jar')] = 1;
+	        for (var i = googlePlayServicesKeep.length -1; i >= 0; i--) {
+	            var gmsModuleName = googlePlayServicesKeep[i].replace('com.google.android.gms.', '').replace('.*', '');
+	            classpath[path.join(_t.platformPath, 'modules', 'gms', gmsModuleName + '.jar')] = 1;
+	        }
+		}
+	}
+	next();
+}
 
 AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	this.tiSymbols = {};

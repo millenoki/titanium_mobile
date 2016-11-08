@@ -9,6 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/kroll-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/titanium"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
-	<classpathentry kind="lib" path="/titanium-googleplayservices/lib/google-play-services.jar"/>
+	<classpathentry kind="var" path="AKYLAS_SDK_PATH/android/modules/gms/gcm.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
