@@ -295,7 +295,12 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
         if (windowsLayout == null) {
             ViewGroup parent = (ViewGroup) getParentViewForChild();
             windowsLayout = new TiCompositeLayout(parent.getContext());
-            parent.addView(windowsLayout, 0);
+            TiCompositeLayout.LayoutParams p = new TiCompositeLayout.LayoutParams();
+            p.autoFillsHeight = true;
+            p.sizeOrFillHeightEnabled = true;
+            p.sizeOrFillWidthEnabled = true;
+            p.autoFillsWidth = true;
+            parent.addView(windowsLayout, 0, p);
         }
         return windowsLayout;
 	}
