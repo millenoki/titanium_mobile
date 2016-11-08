@@ -279,9 +279,9 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 			View content = convertView;
 			
 			if (section.isFooterView(sectionItemIndex)) {
-			    KrollProxy vp = section.getHoldedProxy("footerView");
+			    KrollProxy vp = section.getHoldedProxy(TiC.PROPERTY_FOOTER_VIEW);
 	            if (vp instanceof TiViewProxy) {
-	                return layoutHeaderOrFooterView((TiViewProxy) vp);
+	                return layoutHeaderOrFooterView((TiViewProxy) vp, convertView);
 	            }
 	            return null;
             }
@@ -400,9 +400,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
             if (info != null) {
                 AbsListSectionProxy section = info.first;
                 
-                KrollProxy vp = section.getHoldedProxy("headerView");
+                KrollProxy vp = section.getHoldedProxy(TiC.PROPERTY_HEADER_VIEW);
+                
                 if (vp instanceof TiViewProxy) {
-                    return layoutHeaderOrFooterView((TiViewProxy) vp);
+                    return layoutHeaderOrFooterView((TiViewProxy) vp, convertView);
                 }
             }
             
@@ -1186,7 +1187,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         return result;
     }
 	
-	public static View layoutHeaderOrFooterView (TiViewProxy viewProxy) {
+	public static View layoutHeaderOrFooterView (TiViewProxy viewProxy, View convertView) {
 		TiUIView tiView = viewProxy.getOrCreateView();
 		View outerView = null;
 		ViewGroup parentView = null;
@@ -1194,15 +1195,26 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 		    outerView = tiView.getOuterView();
 	        parentView = (ViewGroup) outerView.getParent();
 		}
-		if (parentView != null && parentView.getId() == HEADER_FOOTER_WRAP_ID) {
+		if ((parentView != null && parentView.getId() == HEADER_FOOTER_WRAP_ID) && (convertView == null || convertView == parentView)) {
 			return parentView;
 		} else {
-	        TiUIHelper.removeViewFromSuperView(viewProxy);
-			//add a wrapper so layout params such as height, width takes in effect.
-			TiCompositeLayout wrapper = new TiCompositeLayout(viewProxy.getActivity(), LayoutArrangement.DEFAULT, null);
-			AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT);
-			wrapper.setLayoutParams(params);
-			wrapper.setInternalTouchPassThrough(true);
+		    
+		    TiCompositeLayout wrapper = null;
+		    if (convertView instanceof TiCompositeLayout && convertView.getId() == HEADER_FOOTER_WRAP_ID) {
+		        wrapper = (TiCompositeLayout) convertView;
+		        wrapper.removeAllViews();
+	        } else {
+	            wrapper = new TiCompositeLayout(viewProxy.getActivity(), LayoutArrangement.DEFAULT, null);
+	          //add a wrapper so layout params such as height, width takes in effect.
+	            AbsListView.LayoutParams params = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,  AbsListView.LayoutParams.WRAP_CONTENT);
+	            wrapper.setLayoutParams(params);
+	            wrapper.setInternalTouchPassThrough(true);
+	        }
+		    if (parentView != null) {
+		        parentView.removeView(outerView);
+		    }
+//	        TiUIHelper.removeViewFromSuperView(viewProxy);
+			
 			if (outerView != null && tiView != null) {
 			    TiCompositeLayout.LayoutParams headerParams = tiView.getLayoutParams();
 			      //If height is not dip, explicitly set it to SIZE
@@ -1598,7 +1610,7 @@ private class ProcessSectionsTask extends AsyncTask<Object[], Void, Void> {
     private View setPullView (Object viewObj) {
         KrollProxy viewProxy = proxy.addProxyToHold(viewObj, "pull");
         if (viewProxy instanceof ViewProxy) {
-            return layoutHeaderOrFooterView((TiViewProxy) viewProxy);
+            return layoutHeaderOrFooterView((TiViewProxy) viewProxy, null);
         }
         return null;
     }
