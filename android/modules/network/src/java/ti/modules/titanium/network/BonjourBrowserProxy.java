@@ -62,14 +62,17 @@ public class BonjourBrowserProxy extends KrollProxy {
         data.put("type", serviceInfo.getServiceType());
         data.put("host", serviceInfo.getHost());
         data.put("port", serviceInfo.getPort());
-        if (serviceInfo.getPort() != -1) {
-            data.put("addresses",
-                    new String[] { serviceInfo.getHost().toString() + ":"
-                            + serviceInfo.getPort() });
-        } else {
-            data.put("addresses",
-                    new String[] { serviceInfo.getHost().toString() });
+        if (serviceInfo.getHost() != null) {
+            if (serviceInfo.getPort() != -1) {
+                data.put("addresses",
+                        new String[] { serviceInfo.getHost().toString() + ":"
+                                + serviceInfo.getPort() });
+            } else {
+                data.put("addresses",
+                        new String[] { serviceInfo.getHost().toString() });
+            }
         }
+        
         fireEvent(type, data, false, false);
     }
 
