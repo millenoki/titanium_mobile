@@ -148,7 +148,7 @@ function createListView(_args, _addEvents) {
 			}
 		}
 	}, _args);
-	var listview = Ti.UI.createCollectionView(realArgs);
+	var listview = Ti.UI.createListView(realArgs);
 	if (_addEvents !== false) {
 		listview.addEventListener('itemclick', listViewClickHandle);
 	}

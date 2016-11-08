@@ -1265,7 +1265,7 @@ function listViewEx4() {
     // then a title next to it with a subtitle below it.
     var myTemplate = {
         properties: {
-            backgroundColor:'white',
+            // backgroundColor:'white',
             leftSwipeButtons: {
                 type: 'Ti.UI.Button',
                 bindId: 'delete',
@@ -1323,7 +1323,7 @@ function listViewEx4() {
             }
         }]
     };
-    var listView = Ti.UI.createCollectionView({
+    var listView = Ti.UI.createListView({
         delaysContentTouches: false,
         // Maps myTemplate dictionary to 'template' string
         templates: {
@@ -1352,14 +1352,15 @@ function listViewEx4() {
 
     for (var i = 0; i < 26; i++) {
         sections.push({
-            headerView: {
-                type: 'Ti.UI.Label',
-                properties: {
-                    backgroundColor: 'red',
-                    left: 0,
-                    text: 'HeaderView ' + String.fromCharCode(65 + i)
-                }
-            },
+            headerTitle:'HeaderView ' + String.fromCharCode(65 + i),
+            // headerView: {
+            //     type: 'Ti.UI.Label',
+            //     properties: {
+            //         backgroundColor: 'red',
+            //         left: 0,
+            //         text: 'HeaderView ' + String.fromCharCode(65 + i)
+            //     }
+            // },
             items: [{
                 info: {
                     text: 'Apple'
@@ -1397,14 +1398,14 @@ function listViewEx4() {
         });
     };
     listView.setSections(sections);
-    var currentHeader;
-    listView.addEventListener('headerchange', function(e) {
-        if (currentHeader) {
-            currentHeader.backgroundColor = 'red';
-        }
-        currentHeader = e.headerView;
-        currentHeader.backgroundColor = 'blue';
-    });
+    // var currentHeader;
+    // listView.addEventListener('headerchange', function(e) {
+    //     if (currentHeader) {
+    //         currentHeader.backgroundColor = 'red';
+    //     }
+    //     currentHeader = e.headerView;
+    //     currentHeader.backgroundColor = 'blue';
+    // });
 
     listView.addEventListener('click', function(_event) {
         if (_event.bindId === 'delete') {
@@ -2821,7 +2822,8 @@ function pullToRefresh(_args) {
     var sections = [];
 
     var fruitSection = Ti.UI.createListSection({
-        headerTitle: 'Fruits'
+        headerTitle: 'Fruits',
+        footerTitle:'This is a long footer example text'
     });
     var fruitDataSet = [{
         properties: {
@@ -2854,8 +2856,11 @@ function pullToRefresh(_args) {
     var header = Ti.UI.createLabel({
         properties: {
             width: 'FILL',
+            backgroundColor:'red',
             textAlign: 'left',
-            text: 'Vegetables'
+            text: 'Vegetables',
+            color:'white',
+            height:40
         },
         childTemplates: [{
             type: 'Ti.UI.Switch',
@@ -2933,12 +2938,16 @@ function pullToRefresh(_args) {
     // var pullToRefresh = ak.ti.createFromConstructor('PullToRefresh', {
     //     rclass: 'NZBPTR'
     // });
-    var listView = Ti.UI.createCollectionView({
+    var listView = Ti.UI.createListView({
         height: '90%',
         top: 0,
         rowHeight: 50,
+        stickyHeaders:true,
         sections: sections,
-        // pullBottomView: pullToRefresh
+        pullView: {
+            type:'Ti.UI.Label',
+            text:'Pull me'
+        }
     });
     // listView.add({
     //     type: 'Ti.UI.ActivityIndicator',
@@ -3007,8 +3016,8 @@ function pullToRefresh(_args) {
     // listView.arrow.hide();
     // listView.label.text = 'Loading ...';
     // });
-    pullToRefresh.setListView(listView);
-    pullToRefresh.addEventListener('pulled', function() {
+    // pullToRefresh.setListView(listView);
+    listView.addEventListener('pullchanged', function() {
         listView.showPullView();
         setTimeout(loadTableData, 4000);
     });
