@@ -942,7 +942,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
     NSString* contents = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 	KrollWrapper* wrapper = (id) [self loadJavascriptText:contents fromFile:path withContext:kroll];
-
+    [contents release];
 	// For right now, we need to mix any compiled JS on top of a compiled module, so that both components
 	// are accessible. We store the exports object and then put references to its properties on the toplevel
 	// object.
