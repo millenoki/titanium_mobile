@@ -1018,6 +1018,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	if ([assetPath isEqualToString:moduleID]) {
 		return [self loadTopLevelNativeModule:module withPath:path withContext:kroll];
 	}
+    
+    if ([modules objectForKey:fullPath]) {
+        return [modules objectForKey:fullPath];
+    }
 
     // not top-level module!
     // Try to load the file as module asset!
