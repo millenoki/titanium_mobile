@@ -832,12 +832,27 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 -(id)loadCommonJSModule:(NSString*)code withSourceURL:(NSURL *)sourceURL
 {
 	// This takes care of resolving paths like `../../foo.js`
-	sourceURL = [NSURL fileURLWithPath:[[sourceURL path] stringByStandardizingPath]];
+    sourceURL = [NSURL fileURLWithPath:[[sourceURL path] stringByStandardizingPath]];
+    
+    // Get the relative path to the Resources directory
+    NSString *relativePath = [sourceURL path];
+    NSString *basePath = [[TiFileSystemHelper resourcesDirectory] stringByStandardizingPath];
+    
+    
+    NSRange range = [relativePath rangeOfString:basePath];
+    if (range.location!=NSNotFound)
+    {
+        relativePath = [relativePath substringFromIndex:range.location + range.length];
+    }
+    if ([relativePath hasPrefix:@"/"])
+    {
+        relativePath = [relativePath substringFromIndex:1];
+    }
+    
+    relativePath = [relativePath stringByDeletingLastPathComponent];
 
-	// Get the relative path to the Resources directory
-	NSString *filename = [[sourceURL path] stringByReplacingOccurrencesOfString:[[[NSBundle mainBundle] resourceURL] path] withString:@""];
-	NSString *dirname = [filename stringByDeletingLastPathComponent];
-
+    NSString *filename = [sourceURL lastPathComponent];
+    NSString *dirname = [relativePath length] == 0 ? filename : relativePath;
 	NSString *js = [[NSString alloc] initWithFormat:TitaniumModuleRequireFormat, dirname, filename, code];
 
 	/* This most likely should be integrated with normal code flow, but to
@@ -985,7 +1000,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 
 	// TODO Handle the oddball case of mixing in JS to the native module...
-	NSData *data = nil;
     NSString* fullPath = [components objectAtIndex:0];
     NSString* leadingComponent = [[fullPath pathComponents] objectAtIndex:0];
     BOOL isAbsolute = !([leadingComponent isEqualToString:@"."] || [leadingComponent isEqualToString:@".."]);
@@ -999,12 +1013,17 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 
 	// check rest of path
-	NSString* assetPath = [path substringFromIndex: separatorLocation.location + 1];
+	NSString* assetPath = [fullPath substringFromIndex: separatorLocation.location + 1];
 	// Treat require('module.id/module.id') == require('module.id')
 	if ([assetPath isEqualToString:moduleID]) {
 		return [self loadTopLevelNativeModule:module withPath:path withContext:kroll];
 	}
 
+    // not top-level module!
+    // Try to load the file as module asset!
+    NSString* filepath = [assetPath stringByAppendingString:@".js"];
+    NSData* data = [module loadModuleAsset:filepath];
+    
 	if (data == nil && isAbsolute) {
 		// We may have an absolute URL which tried to load from a module instead of a directory. Fix
 		// the fullpath back to the right value, so we can try again.
@@ -1103,7 +1122,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 	// Now that we have the full path, we can check and see if the module was loaded,
 	// and return it if available.
-	if (checkModule && modules != nil) {
+	if (checkModule && !data && modules != nil) {
 		TiModule *module = [modules objectForKey:filename];
 		if (module != nil) {
 			return module;
@@ -1137,12 +1156,14 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	TiModule *module = (id)wrapper;
 
 	// cache the module by filename
-	[modules setObject:module forKey:filename];
-	if (filename != nil && module != nil) {
-		// uri is optional but we point it to where we loaded it
-		[module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
-		[module replaceValue:filename forKey:@"id" notification:NO];  // set id to full path, originally this was the path from require call
-	}
+    if (![modules objectForKey:filename]) {
+        [modules setObject:module forKey:filename];
+        if (filename != nil && module != nil) {
+            // uri is optional but we point it to where we loaded it
+            [module replaceValue:[NSString stringWithFormat:@"app://%@", filename] forKey:@"uri" notification:NO];
+            [module replaceValue:filename forKey:@"id" notification:NO];  // set id to full path, originally this was the path from require call
+        }
+    }
 
 	return module;
 }
