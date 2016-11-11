@@ -734,6 +734,7 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			// 	this.metaData.push.apply(this.metaData, symbols);
 			// }.bind(this));
 
+            this.logger.debug(__('Writing metadata file: %s', this.metaDataFile.cyan));
 			fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
 			fs.writeFileSync(this.metaDataFile, JSON.stringify({
 				"exports": this.metaData
@@ -1063,36 +1064,12 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 		});
 	}
 
-<<<<<<< HEAD
-	function runTiCommand(cmd, args, logger, callback) {
-		// when calling a Windows batch file, we need to escape ampersands in the command
-		if (process.platform == 'win32' && /\.bat$/.test(cmd)) {
-			args.unshift('/S', '/C', cmd.replace(/\&/g, '^&'));
-			cmd = 'cmd.exe';
-		}
-
-		var child = spawn(cmd, args);
-
-		child.stdout.on('data', function(data) {
-			data.toString().split('\n').forEach(function(line) {
-				checkLine(line, logger);
-			});
-
-		});
-
-		child.stderr.on('data', function(data) {
-			data.toString().split('\n').forEach(function(line) {
-				checkLine(line, logger);
-			});
-		});
-=======
 	function runTiCommand(args, callback) {
 		logger.debug(__('Running: %s', ('titanium ' + args.join(' ')).cyan));
 		var child = spawn('titanium', args);
 
 		child.stdout.on('data', log);
 		child.stderr.on('data', log);
->>>>>>> 811c3673da53e80616a546dd6f637e92242a7586
 
 		child.on('close', function(code) {
 			if (code) {
@@ -1103,7 +1080,6 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			callback();
 		});
 	}
-
 	series(this, [
 		function(cb) {
 			// 1. create temp dir
@@ -1112,11 +1088,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			// 2. create temp proj
 			this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
 			runTiCommand(
-<<<<<<< HEAD
-				'ti', [
-=======
 				[
->>>>>>> 811c3673da53e80616a546dd6f637e92242a7586
 					'create',
 					'--id', this.moduleId,
 					'-n', this.moduleName,
@@ -1132,13 +1104,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 				cb
 			);
 		},
-
-<<<<<<< HEAD
-		function(cb) {
-			tmpProjectDir = path.join(tmpDir, this.moduleName);
-=======
 		function (cb) {
->>>>>>> 811c3673da53e80616a546dd6f637e92242a7586
 			this.logger.debug(__('Created temp project %s', tmpProjectDir.cyan));
 
 			// 3. patch tiapp.xml with module id
@@ -1166,11 +1132,7 @@ iOSModuleBuilder.prototype.runModule = function runModule(next) {
 			// 6. run the app
 			this.logger.debug(__('Running example project...', tmpDir.cyan));
 			runTiCommand(
-<<<<<<< HEAD
-				'ti', [
-=======
 				[
->>>>>>> 811c3673da53e80616a546dd6f637e92242a7586
 					'build',
 					'-p', 'ios',
 					'-d', tmpProjectDir,
