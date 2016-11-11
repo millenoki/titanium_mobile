@@ -6002,7 +6002,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		},
 
 		function copyResources(next) {
-			this.logger.debug(__('Copying resources') + JSON.stringify(resourcesToCopy));
+			// this.logger.debug(__('Copying resources') + JSON.stringify(resourcesToCopy));
 			async.eachSeries(Object.keys(resourcesToCopy), function(file, next) {
 				var info = resourcesToCopy[file],
 					srcStat = fs.statSync(info.src),
