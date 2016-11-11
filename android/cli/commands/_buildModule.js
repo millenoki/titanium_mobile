@@ -366,7 +366,7 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 	}
 	this.localJinDir = path.join(this.projectDir, 'jni');
 	this.javaSrcDir = path.join(this.projectDir, 'src');
-	this.distDir = path.join(this.projectDir, 'dist');
+	this.distDir = this.cli.argv['output-dir'] ? this.cli.argv['output-dir'] : path.join(this.projectDir, 'dist');
 	this.buildDir = path.join(this.projectDir, 'build');
 	this.libsDir = path.join(this.projectDir, 'libs');
 	this.binDir = path.join(this.projectDir, 'bin');
