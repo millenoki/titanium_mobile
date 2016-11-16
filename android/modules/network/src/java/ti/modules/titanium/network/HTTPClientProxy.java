@@ -187,6 +187,12 @@ public class HTTPClientProxy extends KrollProxy
 		client.setTimeout(millis);
 	}
 	
+	@Kroll.setProperty @Kroll.method
+    public void setJson(boolean value)
+    {
+        client.setJSON(value);
+    }
+	
 	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public String getLocation()
 	{
@@ -210,6 +216,12 @@ public class HTTPClientProxy extends KrollProxy
 	{
 		return client.getAutoEncodeUrl();
 	}
+	
+	@Kroll.getProperty(enumerable=false) @Kroll.method
+    public boolean getJson()
+    {
+        return client.getJSON();
+    }
 
 	@Kroll.setProperty @Kroll.method
 	public void setAutoEncodeUrl(boolean value)

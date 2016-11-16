@@ -41,6 +41,7 @@
 @property(nonatomic, readonly) NSString* statusText;
 @property(nonatomic, readonly) NSNumber* readyState;
 @property(nonatomic, readonly) NSString* responseText;
+@property(nonatomic, readonly) NSDictionary* responseJSON;
 @property(nonatomic, readonly) TiBlob* responseData;
 @property(nonatomic, readonly) NSArray* responseArray;
 @property(nonatomic, readonly) NSDictionary* responseHeaders;

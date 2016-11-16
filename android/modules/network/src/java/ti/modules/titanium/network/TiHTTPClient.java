@@ -117,10 +117,12 @@ public class TiHTTPClient
     private String contentEncoding;
     private long maxBufferSize;
     private Object data;
+    private Object jsonData;
     private boolean needMultipart;
     private Thread clientThread;
     private boolean aborted;
     private int timeout = -1;
+    private boolean json = false;
     private boolean autoEncodeUrl = true;
     private boolean autoRedirect = true;
     private Uri uri;
@@ -822,7 +824,11 @@ public class TiHTTPClient
     {
         this.data = data;
     }
-
+    
+    public void setJSONData(Object data)
+    {
+        this.jsonData = data;
+    }
 
     public void addPostData(String name, String value) throws UnsupportedEncodingException
     {
@@ -1017,6 +1023,13 @@ public class TiHTTPClient
         {
             if (userData instanceof HashMap) {
                 HashMap<String, Object> data = (HashMap) userData;
+                if (json) {
+                    JSONObject jsonObject = TiConvert.toJSON(data);
+                    JsonBody jsonBody = new JsonBody(jsonObject, null);
+                    setJSONData(jsonBody);
+                } else {
+                    
+                }
                 boolean isPostOrPutOrPatch = method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
                 boolean isGet = !isPostOrPutOrPatch && method.equals("GET");
 
@@ -1301,7 +1314,11 @@ public class TiHTTPClient
 		        boundary = HttpUrlConnectionUtils.generateBoundary();
 		        client.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 		    } else if (isPostOrPutOrPatch) {
-		        client.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+		        if (jsonData != null) {
+		            client.setRequestProperty("Content-Type","application/json");
+		        } else {
+                    client.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+		        }
 		    }
 
 		    for (String header : requestHeaders.keySet()) {
@@ -1347,7 +1364,22 @@ public class TiHTTPClient
         {
             //If set rawDate is set with a String, need to do this
             Entity entity = null;
-            if (data instanceof String) {
+            
+            
+            
+            if (jsonData != null) {
+                try {
+                    if (jsonData instanceof String) {
+                        entity = new StringEntity((String) data, "UTF-8");
+                    } else if (jsonData instanceof HashMap) {
+                        entity = new StringEntity(TiConvert.toJSON((HashMap) data).toString(), "UTF-8");
+                    }
+
+                } catch(Exception ex) {
+                    //FIXME
+                    Log.e(TAG, "Exception, implement recovery: ", ex);
+                }
+            } else if (data instanceof String) {
                 try {
                     entity = new StringEntity((String) data, "UTF-8");
 
@@ -1405,6 +1437,16 @@ public class TiHTTPClient
     public void setTimeout(int millis)
     {
         timeout = millis;
+    }
+    
+    protected void setJSON(boolean value)
+    {
+        json = value;
+    }
+    
+    protected boolean getJSON()
+    {
+        return json;
     }
 
     protected void setAutoEncodeUrl(boolean value)
