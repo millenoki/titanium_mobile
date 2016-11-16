@@ -1395,7 +1395,9 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 				Animator additionalAnimator = view.createAnimationLayoutUpdater(viewToAddTo, viewToHide, true);
 				if (additionalAnimator != null) {
 				    AnimatorSet realSet = new AnimatorSet();
-	                additionalAnimator.setDuration(set.getDuration());
+				    if (set.getDuration() >= 0) {
+	                    additionalAnimator.setDuration(set.getDuration());
+				    }
 	                realSet.playTogether(additionalAnimator, set);
 	                realSet.start();
 				} else {
