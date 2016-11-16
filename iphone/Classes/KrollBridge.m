@@ -1187,6 +1187,10 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = [path stringByAppendingString:@".js"];
+    TiModule* module = [modules objectForKey:filename];
+    if (module) {
+        return module;
+    }
 	data = [self loadFile:filename];
 	if (data != nil) {
 		return [self loadJavascriptText:data fromFile:filename withContext:context];
