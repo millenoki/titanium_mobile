@@ -360,7 +360,7 @@ void JNIUtil::initCache()
 	krollProxyOnPropertyChangedMethod = getMethodID(krollProxyClass, "onPropertyChanged",
 		"(Ljava/lang/String;Ljava/lang/Object;)V");
 	krollProxyOnPropertiesChangedMethod = getMethodID(krollProxyClass, "onPropertiesChanged",
-		"([[Ljava/lang/Object;)V", false);
+		"(Ljava/util/HashMap;)V", false);
 
 	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;)V",true);
 	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAsset", "(Ljava/lang/String;)Ljava/lang/String;", true);
