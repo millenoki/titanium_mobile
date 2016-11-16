@@ -92,19 +92,21 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 		colorName = [colorName substringFromIndex:1];
 	}
 	colorName = [colorName lowercaseString];
-	UIColor * result = [colorLookup objectForKey:colorName];
-	
-	if (result != nil)
-	{
-		return result;
-	}
-	
-	result = [Webcolor colorForHex:colorName];
-	
-	if (result == nil)
-	{
-		result = [Webcolor colorForRGBFunction:colorName];
-	}
+    
+    UIColor * result = nil;
+    if ([colorName hasPrefix:@"rgb"])
+    {
+        result = [Webcolor colorForRGBFunction:colorName];
+    } else {
+        result = [colorLookup objectForKey:colorName];
+        
+        if (result != nil)
+        {
+            return result;
+        }
+        
+        result = [Webcolor colorForHex:colorName];
+    }
 	
 	if (result != nil) 
 	{
