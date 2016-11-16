@@ -1037,6 +1037,14 @@ public class TiConvert
 	{
 		return toBlob(object.get(property));
 	}
+	
+	public static HashMap parseJSON(String str) {
+	   try {
+        return new KrollDict(str);
+        } catch (JSONException e) {
+            return null;
+        }
+	}
 
 	/**
 	 * Converts a HashMap into a JSONObject and returns it. If data is null, null is returned.
