@@ -1362,7 +1362,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 			// TODO Find a way to determine if the first path segment refers to a CommonJS module, and if so don't log
 			// TODO How can we make this spit this out to Ti.API.log?
-			NSLog(@"require called with un-prefixed module id: %@, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /%@", path, path);
+//			NSLog(@"require called with un-prefixed module id: %@, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute path: /%@", path, path);
 			module = [self loadAsFileOrDirectory:[path stringByStandardizingPath] withContext:context];
 			if (module) {
 				return module;
