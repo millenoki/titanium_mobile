@@ -546,6 +546,11 @@ public class TiHTTPClient
         return responseText;
     }
     
+    public HashMap getResponseJSON()
+    {
+        return TiConvert.parseJSON(getResponseText());
+    }
+    
     public TiBlob getResponseData()
     {
         return responseData;
@@ -1263,7 +1268,7 @@ public class TiHTTPClient
 				if (msg == null) {
 					msg = t.getClass().getName();
 				}
-				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
+//				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
 				KrollDict data = new KrollDict();
 				data.putCodeAndMessage(aborted?TiC.ERROR_CODE_NO_ERROR:getStatus(), msg);
 				dispatchCallback(TiC.PROPERTY_ONERROR, data);

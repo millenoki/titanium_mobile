@@ -127,6 +127,13 @@ public class HTTPClientProxy extends KrollProxy
 	}
 	
 	@Kroll.getProperty(enumerable=false) @Kroll.method
+    public HashMap getResponseJSON()
+    {
+        return client.getResponseJSON();
+    }
+	    
+	
+	@Kroll.getProperty(enumerable=false) @Kroll.method
 	public DocumentProxy getResponseXML()
 	{
 		return client.getResponseXML();
