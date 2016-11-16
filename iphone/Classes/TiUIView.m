@@ -2234,7 +2234,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 - (void)processTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     
-    if (_shouldHandleSelection) {
+    if (_shouldHandleSelection && _customUserInteractionEnabled) {
         [self touchSetHighlighted:YES];
     }
 	[self handleTouchEvent:@"touchstart" forTouch:[touches anyObject]];
@@ -2256,7 +2256,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
     CGPoint localPoint = [touch locationInView:self];
     BOOL outside = (localPoint.x < -kTOUCH_MAX_DIST || (localPoint.x - self.frame.size.width)  > kTOUCH_MAX_DIST ||
                     localPoint.y < -kTOUCH_MAX_DIST || (localPoint.y - self.frame.size.height)  > kTOUCH_MAX_DIST);
-    if (_shouldHandleSelection) {
+    if (_shouldHandleSelection && _customUserInteractionEnabled) {
         [self touchSetHighlighted:!outside];
     }
 	[self handleTouchEvent:@"touchmove" forTouch:touch];
@@ -2272,7 +2272,7 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 - (void)processTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (_shouldHandleSelection) {
+    if (_shouldHandleSelection && _customUserInteractionEnabled) {
         [self touchSetHighlighted:NO];
     }
 	if ([self interactionEnabled])
