@@ -425,7 +425,6 @@
 		D5937DB71A24DCF70098DA47 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CF3111168AE0084E2DE /* MediaPlayer.framework */; };
 		D5937DB81A24DCF80098DA47 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8CFA111168C30084E2DE /* AVFoundation.framework */; };
 		D5937DB91A24DCFA0098DA47 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 24EB0A57111E1BAE001DC2D1 /* libxml2.dylib */; };
-		D5937DBA1A24DCFB0098DA47 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		D5937DBC1A24DCFD0098DA47 /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DADE76D313D65C590079FC75 /* libicucore.dylib */; };
 		D5937DBD1A24DCFE0098DA47 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84BBA58716570F90006B8C22 /* Security.framework */; };
 		D5937DC01A24DD710098DA47 /* libtiverify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D544CEA01949AA8900419D57 /* libtiverify.a */; };
@@ -464,20 +463,17 @@
 		D5C8C9A317EF45C900F54C19 /* UIViewController+ADTransitionController.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C8C96617EF45C900F54C19 /* UIViewController+ADTransitionController.m */; };
 		D5C92DA7182AA88F0072D117 /* TouchDelegate_Views.m in Sources */ = {isa = PBXBuildFile; fileRef = D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */; };
 		D5D46C2D1BAAD08100C968F1 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
-		D5DAE6331DA94DAF00568FB6 /* DTFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5DAE6321DA94DAF00568FB6 /* DTFoundation.framework */; };
-		D5DAE6341DA94DB700568FB6 /* DTFoundation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D5DAE6321DA94DAF00568FB6 /* DTFoundation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D5DC32F8180EED41006CCEBD /* TiTransitionCube.m in Sources */ = {isa = PBXBuildFile; fileRef = D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */; };
 		D5E671351DA7F98A00253B8F /* DTCoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E6712F1DA7F98A00253B8F /* DTCoreText.framework */; };
 		D5E671371DA7F98A00253B8F /* GPUImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671311DA7F98A00253B8F /* GPUImage.framework */; };
 		D5E671381DA7F98A00253B8F /* libCoconutKitAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671321DA7F98A00253B8F /* libCoconutKitAnimation.a */; };
 		D5E671391DA7F98A00253B8F /* libFMDB-IOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671331DA7F98A00253B8F /* libFMDB-IOS.a */; };
 		D5E6713A1DA7F98A00253B8F /* libSVGKit-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671341DA7F98A00253B8F /* libSVGKit-iOS.a */; };
-		D5E671421DA7F99E00253B8F /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671411DA7F99E00253B8F /* CocoaLumberjack.framework */; };
-		D5E671431DA7F9A700253B8F /* CocoaLumberjack.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D5E671411DA7F99E00253B8F /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D5E708DB1C84409300994079 /* MGSwipeCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E708DA1C84409300994079 /* MGSwipeCollectionViewCell.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5E897B118A3FA0B00E565E1 /* NSDictionary+Merge.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E897B018A3FA0B00E565E1 /* NSDictionary+Merge.m */; };
 		D5E9511C195DC34800DB8B37 /* TiProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E9511B195DC34800DB8B37 /* TiProperties.m */; };
 		D5E999121869C8A2005B3664 /* TiBorderLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5E999111869C8A2005B3664 /* TiBorderLayer.m */; };
+		D5ED1BD41DD78A100078652A /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5ED1BD31DD78A100078652A /* CocoaLumberjack.framework */; };
 		D5F1CE5C1B1F514300077B43 /* TiLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = D55EB01F18630B08004DCAF7 /* TiLabel.m */; };
 		D5F3F9B019C6D2F60090B547 /* TiAppiOSNotificationCategoryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7F19AB13B9007A35AF /* TiAppiOSNotificationCategoryProxy.m */; };
 		D5F3F9B919C6D2F80090B547 /* TiAppiOSNotificationActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = BB26FC7D19AB13B9007A35AF /* TiAppiOSNotificationActionProxy.m */; };
@@ -576,8 +572,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				D5E671431DA7F9A700253B8F /* CocoaLumberjack.framework in Embed Frameworks */,
-				D5DAE6341DA94DB700568FB6 /* DTFoundation.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1326,6 +1320,7 @@
 		D543240C1B64DA5E009C24EC /* DirectionPanGestureRecognizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DirectionPanGestureRecognizer.h; sourceTree = "<group>"; };
 		D543240D1B64DA5E009C24EC /* DirectionPanGestureRecognizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DirectionPanGestureRecognizer.m; sourceTree = "<group>"; };
 		D544CEA01949AA8900419D57 /* libtiverify.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtiverify.a; path = ../lib/libtiverify.a; sourceTree = "<group>"; };
+		D54984131DDB05E30025E048 /* DTFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DTFoundation.framework; path = ../externalLibs/DTFoundation.framework; sourceTree = "<group>"; };
 		D54C7CED1811565A00F592A9 /* TiTransitionSlide.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionSlide.h; sourceTree = "<group>"; };
 		D54C7CEE1811565A00F592A9 /* TiTransitionSlide.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionSlide.m; sourceTree = "<group>"; };
 		D54C7CF21811570B00F592A9 /* TiTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransition.m; sourceTree = "<group>"; };
@@ -1559,7 +1554,6 @@
 		D5C8C96617EF45C900F54C19 /* UIViewController+ADTransitionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIViewController+ADTransitionController.m"; path = "../Classes/ADTransitionController/UIViewController+ADTransitionController.m"; sourceTree = "<group>"; };
 		D5C92DA5182AA88F0072D117 /* TouchDelegate_Views.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TouchDelegate_Views.h; sourceTree = "<group>"; };
 		D5C92DA6182AA88F0072D117 /* TouchDelegate_Views.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TouchDelegate_Views.m; sourceTree = "<group>"; };
-		D5DAE6321DA94DAF00568FB6 /* DTFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DTFoundation.framework; path = ../externalEmbeddedFrameworks/DTFoundation.framework; sourceTree = "<group>"; };
 		D5DC32F6180EED41006CCEBD /* TiTransitionCube.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiTransitionCube.h; sourceTree = "<group>"; };
 		D5DC32F7180EED41006CCEBD /* TiTransitionCube.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiTransitionCube.m; sourceTree = "<group>"; };
 		D5E602B11DA778EC00BC0ECA /* AppleSucksDOMImplementation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppleSucksDOMImplementation.h; path = ../Classes/SVGKit/AppleSucksDOMImplementation.h; sourceTree = "<group>"; };
@@ -1695,7 +1689,6 @@
 		D5E671321DA7F98A00253B8F /* libCoconutKitAnimation.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libCoconutKitAnimation.a; path = ../externalLibs/libCoconutKitAnimation.a; sourceTree = "<group>"; };
 		D5E671331DA7F98A00253B8F /* libFMDB-IOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libFMDB-IOS.a"; path = "../externalLibs/libFMDB-IOS.a"; sourceTree = "<group>"; };
 		D5E671341DA7F98A00253B8F /* libSVGKit-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libSVGKit-iOS.a"; path = "../externalLibs/libSVGKit-iOS.a"; sourceTree = "<group>"; };
-		D5E671411DA7F99E00253B8F /* CocoaLumberjack.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CocoaLumberjack.framework; path = ../externalEmbeddedFrameworks/CocoaLumberjack.framework; sourceTree = "<group>"; };
 		D5E708D91C84409300994079 /* MGSwipeCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MGSwipeCollectionViewCell.h; path = ../Classes/MGSwipeTableCell/MGSwipeCollectionViewCell.h; sourceTree = "<group>"; };
 		D5E708DA1C84409300994079 /* MGSwipeCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MGSwipeCollectionViewCell.m; path = ../Classes/MGSwipeTableCell/MGSwipeCollectionViewCell.m; sourceTree = "<group>"; };
 		D5E75A6E187C58F00016542B /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon.png; path = ../../demos/KitchenSink/icons/icon.png; sourceTree = "<group>"; };
@@ -1708,6 +1701,7 @@
 		D5E999101869C8A2005B3664 /* TiBorderLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBorderLayer.h; sourceTree = "<group>"; };
 		D5E999111869C8A2005B3664 /* TiBorderLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBorderLayer.m; sourceTree = "<group>"; };
 		D5EA4AD218EF05EB001F67E8 /* libresolv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libresolv.dylib; path = usr/lib/libresolv.dylib; sourceTree = SDKROOT; };
+		D5ED1BD31DD78A100078652A /* CocoaLumberjack.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CocoaLumberjack.framework; path = ../externalLibs/CocoaLumberjack.framework; sourceTree = "<group>"; };
 		D5EE1B9F1860A11400579573 /* akylas.shapes.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.shapes.xcodeproj; path = ../../../modules/akylas_modules/shapes/ios/akylas.shapes.xcodeproj; sourceTree = "<group>"; };
 		D5EE1BD91860ABD100579573 /* akylas.slidemenu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = akylas.slidemenu.xcodeproj; path = ../../../modules/akylas_modules/slidemenu/ios/akylas.slidemenu.xcodeproj; sourceTree = "<group>"; };
 		D5F558E11DB7CCF4000A4353 /* TiLogServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLogServer.h; sourceTree = "<group>"; };
@@ -1783,7 +1777,6 @@
 				D5E671351DA7F98A00253B8F /* DTCoreText.framework in Frameworks */,
 				D5937DC21A24DD800098DA47 /* libAPSAnalytics.a in Frameworks */,
 				D5937DC01A24DD710098DA47 /* libtiverify.a in Frameworks */,
-				D5DAE6331DA94DAF00568FB6 /* DTFoundation.framework in Frameworks */,
 				D5937DB11A24DCEB0098DA47 /* OpenGLES.framework in Frameworks */,
 				D5A016CA1926109E0005158A /* Accelerate.framework in Frameworks */,
 				D5937D9C1A24DCAD0098DA47 /* AdSupport.framework in Frameworks */,
@@ -1805,15 +1798,14 @@
 				D5937DBD1A24DCFE0098DA47 /* Security.framework in Frameworks */,
 				D5E6713A1DA7F98A00253B8F /* libSVGKit-iOS.a in Frameworks */,
 				D5937DAC1A24DCE60098DA47 /* AddressBookUI.framework in Frameworks */,
-				D5937DBA1A24DCFB0098DA47 /* (null) in Frameworks */,
 				D5937DB21A24DCF10098DA47 /* QuartzCore.framework in Frameworks */,
 				D5937DB81A24DCF80098DA47 /* AVFoundation.framework in Frameworks */,
 				D5937DB71A24DCF70098DA47 /* MediaPlayer.framework in Frameworks */,
 				D5937DAA1A24DCE30098DA47 /* CoreGraphics.framework in Frameworks */,
 				D5E671371DA7F98A00253B8F /* GPUImage.framework in Frameworks */,
 				D5937DB61A24DCF70098DA47 /* AudioToolbox.framework in Frameworks */,
-				D5E671421DA7F99E00253B8F /* CocoaLumberjack.framework in Frameworks */,
 				D5937DA91A24DCE20098DA47 /* Foundation.framework in Frameworks */,
+				D5ED1BD41DD78A100078652A /* CocoaLumberjack.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2968,8 +2960,8 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D5DAE6321DA94DAF00568FB6 /* DTFoundation.framework */,
-				D5E671411DA7F99E00253B8F /* CocoaLumberjack.framework */,
+				D54984131DDB05E30025E048 /* DTFoundation.framework */,
+				D5ED1BD31DD78A100078652A /* CocoaLumberjack.framework */,
 				D5E6712F1DA7F98A00253B8F /* DTCoreText.framework */,
 				D5E671311DA7F98A00253B8F /* GPUImage.framework */,
 				D5E671321DA7F98A00253B8F /* libCoconutKitAnimation.a */,
@@ -4031,6 +4023,7 @@
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
 				838159D01B7A9632002EE811 /* Resources */,
 				D59619701D4B839100C0CFFB /* Embed Frameworks */,
+				D598E92D1DD62A180022EE54 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -4181,6 +4174,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "cp -Rf \"$PROJECT_DIR/../../demos/KitchenSink/Resources/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\nmkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/ui/images\"\ncp -Rf \"$PROJECT_DIR/../Resources/modules/facebook/.\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/modules/facebook/images\"\n\"$PROJECT_DIR/../../support/common/localecompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios simulator \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app\"\n\"$PROJECT_DIR/../../support/common/css/csscompiler.py\" \"$PROJECT_DIR/../../demos/KitchenSink\" ios \"$PROJECT_DIR/../Resources\"";
+		};
+		D598E92D1DD62A180022EE54 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "APP_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n\n# This script loops through the frameworks embedded in the application and\n# removes unused architectures.\nfind \"$APP_PATH\" -name '*.framework' -type d | while read -r FRAMEWORK\ndo\nFRAMEWORK_EXECUTABLE_NAME=$(defaults read \"$FRAMEWORK/Info.plist\" CFBundleExecutable)\nFRAMEWORK_EXECUTABLE_PATH=\"$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME\"\necho \"Executable is $FRAMEWORK_EXECUTABLE_PATH\"\n\nEXTRACTED_ARCHS=()\n\nfor ARCH in $ARCHS\ndo\necho \"Extracting $ARCH from $FRAMEWORK_EXECUTABLE_NAME\"\nlipo -extract \"$ARCH\" \"$FRAMEWORK_EXECUTABLE_PATH\" -o \"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\"\nEXTRACTED_ARCHS+=(\"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\")\ndone\n\necho \"Merging extracted architectures: ${ARCHS}\"\nlipo -o \"$FRAMEWORK_EXECUTABLE_PATH-merged\" -create \"${EXTRACTED_ARCHS[@]}\"\nrm \"${EXTRACTED_ARCHS[@]}\"\n\necho \"Replacing original executable with thinned version\"\nrm \"$FRAMEWORK_EXECUTABLE_PATH\"\nmv \"$FRAMEWORK_EXECUTABLE_PATH-merged\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n\ndone";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -4713,7 +4719,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				OTHER_CFLAGS = "-DDEBUG";
 				PRODUCT_NAME = Titanium;
@@ -4739,7 +4745,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				PRODUCT_NAME = Titanium;
 				TARGETED_DEVICE_FAMILY = "1,2";
