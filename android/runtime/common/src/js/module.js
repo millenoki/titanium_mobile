@@ -302,10 +302,12 @@ Module.prototype.require = function (request, context) {
 				return loaded;
 			}
 		}
+		
+		
 
 		// TODO Can we determine if the first path segment is a commonjs module id? If so, don't spit out this log!
 		// Fallback to old Titanium behavior of assuming it's actually an absolute path
-		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
+//		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
 
 		loaded = this.loadAsFileOrDirectory('/' + request, context);
 		if (loaded) {
@@ -383,6 +385,9 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
 		i,
 		dir;
 
+	if (kroll.DBG) {
+		kroll.log(TAG, "loadNodeModules '" + moduleId + "' at "  + startDir);
+	}
 	// 1. let DIRS=NODE_MODULES_PATHS(START)
 	dirs = this.nodeModulesPaths(startDir);
 	// 2. for each DIR in DIRS:
@@ -391,6 +396,9 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
 		dir = dirs[i];
 		// a. LOAD_AS_FILE(DIR/X)
 		// b. LOAD_AS_DIRECTORY(DIR/X)
+		if (kroll.DBG) {
+			kroll.log(TAG, "loadNodeModules test '" + moduleId + "' at "  + dir);
+		}
 		mod = this.loadAsFileOrDirectory(path.join(dir, moduleId), context);
 		if (mod) {
 			return mod;
@@ -490,7 +498,13 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 	module = new Module(filename, this, context);
 	module.filename = filename;
 	module.path = path.dirname(filename);
-	source = assets.readAsset('Resources' + filename); // Assumes Resources/!
+	if (filename[0] == '/') {
+		source = assets.readAsset('Resources' + filename); // Assumes Resources/!
+	} else {
+		source = assets.readAsset('Resources/' + filename); // Assumes Resources/!
+	}
+	
+		
 
 	// Stick it in the cache
 	Module.cache[filename] = module;
@@ -520,7 +534,13 @@ Module.prototype.loadAsFile = function (id, context) {
 	}
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = id + '.js';
+	if (kroll.DBG) {
+		kroll.log(TAG, "loadAsFile " + filename);
+	}
 	if (this.filenameExists(filename)) {
+		if (kroll.DBG) {
+			kroll.log(TAG, "loadAsFile " + filename +  " exists!");
+		}
 		return this.loadJavascriptText(filename, context);
 	}
 	// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
@@ -627,13 +647,18 @@ var fileIndex;
  * @return {Boolean}         true if the filename exists in the index.json
  */
 Module.prototype.filenameExists = function (filename) {
-	filename = 'Resources' + filename; // When we actually look for files, assume "Resources/" is the root
+	var name = filename;
+	if (filename[0] == '/') {
+		name = 'Resources' + filename;
+	} else {
+		name = 'Resources/' + filename;
+	}
 	if (!fileIndex) {
 		var json = assets.readAsset('index.json');
 		fileIndex = JSON.parse(json);
 	}
 
-	return filename in fileIndex;
+	return name in fileIndex;
 }
 
 Module.prototype.toString = function () {
