@@ -4919,6 +4919,7 @@ iOSBuilder.prototype.analyseJS = function analyseJS(to, data, next) {
             // parse the AST
             r = jsanalyze.analyzeJs(data);
         } catch (ex) {
+            this.logger.error(__('analyseJS error at %s', to.cyan));
             ex.message.split('\n').forEach(this.logger.error);
             this.logger.log();
             process.exit(1);
