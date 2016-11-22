@@ -525,12 +525,20 @@ Module.prototype.loadJavascriptObject = function (filename, context) {
 Module.prototype.loadAsFile = function (id, context) {
 	// 1. If X is a file, load X as JavaScript text.  STOP
 	var filename = id;
+	var ext = path.extname(filename);
+
+
 	if (this.filenameExists(filename)) {
 		// If the file has a .json extension, load as JavascriptObject
-		if (filename.length > 5 && filename.slice(-4) === 'json') {
+		if (ext === '.json') {
 			return this.loadJavascriptObject(filename, context);
 		}
 		return this.loadJavascriptText(filename, context);
+	}
+
+	if (ext) {
+		//already an ext, no need to keep on
+		return;
 	}
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = id + '.js';

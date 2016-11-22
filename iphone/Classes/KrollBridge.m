@@ -1183,20 +1183,34 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (TiModule *)loadAsFile:(NSString *)path withContext:(KrollContext *)kroll
 {
-	// 1. If X is a file, load X as JavaScript text.  STOP
 	NSString *filename = [self normalizePath:path];
+    TiModule* module = [modules objectForKey:filename];
+    NSString *ext = [filename pathExtension];
+    
+    if (![ext isEqualToString:@"json"] && module) {
+        return module;
+    }
+   
+    // 1. If X is a file, load X as JavaScript text.  STOP
+    //faster to load directly than to ask if exists first
 	NSString *data = [self loadFile:filename];
+    
 	if (data != nil) {
 		// If the file extension is .json, load as JavascriptObject!
-		NSString *ext = [filename pathExtension];
-		if (ext != nil && [ext isEqual:@"json"]) {
+		if ([ext isEqual:@"json"]) {
 			return [self loadJavascriptObject:data fromFile:filename withContext:context];
 		}
 		return [self loadJavascriptText:data fromFile:filename withContext:context];
 	}
+    
+    if (ext) {
+        //if already an ext return
+        return;
+    }
+    
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = [path stringByAppendingString:@".js"];
-    TiModule* module = [modules objectForKey:filename];
+    module = [modules objectForKey:filename];
     if (module) {
         return module;
     }
