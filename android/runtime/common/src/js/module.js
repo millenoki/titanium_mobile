@@ -536,10 +536,6 @@ Module.prototype.loadAsFile = function (id, context) {
 		return this.loadJavascriptText(filename, context);
 	}
 
-	if (ext) {
-		//already an ext, no need to keep on
-		return;
-	}
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = id + '.js';
 	if (kroll.DBG) {

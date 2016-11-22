@@ -1203,11 +1203,6 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return [self loadJavascriptText:data fromFile:filename withContext:context];
 	}
     
-    if (ext) {
-        //if already an ext return
-        return;
-    }
-    
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = [path stringByAppendingString:@".js"];
     module = [modules objectForKey:filename];
