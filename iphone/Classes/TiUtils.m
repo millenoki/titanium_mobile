@@ -2179,8 +2179,11 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 			{
 				appurlstr = [appurlstr substringFromIndex:1];
 			}
-			DebugLog(@"[DEBUG] Loading: %@, Resource: %@",urlstring,appurlstr);
-			return [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
+            id result = [AppRouter performSelector:@selector(resolveAppAsset:) withObject:appurlstr];
+            if (result) {
+                DebugLog(@"[DEBUG] Loaded: %@, Resource: %@",urlstring,appurlstr);
+            }
+            return result;
 		}
 	}
 	return nil;
