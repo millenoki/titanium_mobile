@@ -245,9 +245,9 @@ extern NSString * const TI_APPLICATION_GUID;
                 mime = @"application/octet-stream";
             }
             [form appendData:[blob data] withContentType:mime];
-        } else {
+        } else if (arg  && !IS_OF_CLASS(arg, NSNull)) {
             if (json) {
-                [form setJSONData:[TiUtils jsonParse:[TiUtils stringValue:arg]]];
+                [form setJSONData:arg];
             } else {
                 [form setStringData:[TiUtils stringValue:arg]];
             }
