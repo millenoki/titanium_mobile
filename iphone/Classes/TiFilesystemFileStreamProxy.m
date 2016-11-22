@@ -40,7 +40,7 @@
 				
 				NSFileManager *fm = [NSFileManager defaultManager];
 				if([fm fileExistsAtPath:filePath] == NO) {
-					if(mode != TI_WRITE) {
+					if(mode != TI_WRITE && mode != TI_APPEND) {
 						[NSException raise:NSInternalInconsistencyException format:@"File does not exist at path %@", filePath, nil];
 					}
 					BOOL created = [fm createFileAtPath:filePath contents:[NSData data] attributes:nil];
