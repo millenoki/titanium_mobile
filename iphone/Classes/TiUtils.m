@@ -2794,7 +2794,7 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 +(id)jsonParse:(NSString*)value error:(NSError**)error;
 {
     return [NSJSONSerialization JSONObjectWithData: [value dataUsingEncoding: NSUTF8StringEncoding]
-                                            options: NSJSONReadingMutableContainers
+                                            options: NSJSONReadingMutableContainers | NSJSONReadingAllowFragments
                                               error: error];
 }
 +(NSString*)jsonStringify:(id)value
@@ -2809,14 +2809,18 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
 
 +(NSString*)stringifyObject:(id)value
 {
-    @try {
-        NSError *error = nil;
-        NSString *r = [self jsonStringify:value error:&error];
-        if(error != nil) {
+    if (IS_OF_CLASS(value, NSDictionary) || IS_OF_CLASS(value, NSArray)) {
+        @try {
+            NSError *error = nil;
+            NSString *r = [self jsonStringify:value error:&error];
+            if(error != nil) {
+                return [value description];
+            }
+            return r;
+        } @catch(NSException* e) {
             return [value description];
         }
-        return r;
-    } @catch(NSException* e) {
+    } else  {
         return [value description];
     }
 }
