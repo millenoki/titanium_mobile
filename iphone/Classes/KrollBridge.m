@@ -553,7 +553,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 		NSURL *fileurl = [TiUtils toURL:file relativeToURL:rootURL];
 		DebugLog(@"[DEBUG] Include url: %@",[fileurl absoluteString]);
-		[self setCurrentURL:fileurl];
+        [self setCurrentURL:[NSURL URLWithString:[fullPath stringByDeletingLastPathComponent] relativeToURL:baseUrl]];
 		[self evalFile:[fileurl absoluteString]];
 	}
 	
