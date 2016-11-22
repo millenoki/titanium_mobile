@@ -380,13 +380,13 @@ NSCondition* temp = [condition retain]; \
 -(void)close:(id)_void
 {
     // Don't switch threads until after the state check; this allows us to throw the exception on the right thread
-    if (!(internalState & (SOCKET_CONNECTED | SOCKET_LISTENING | SOCKET_INITIALIZED))) {
-        [self throwException:[NSString stringWithFormat:@"Attempt to close in invalid state: %d",internalState]
-                   subreason:nil
-                    location:CODELOCATION];
-        return;
-    }
-    
+//    if (!(internalState & (SOCKET_CONNECTED | SOCKET_LISTENING | SOCKET_INITIALIZED))) {
+//        [self throwException:[NSString stringWithFormat:@"Attempt to close in invalid state: %d",internalState]
+//                   subreason:nil
+//                    location:CODELOCATION];
+//        return;
+//    }
+//    
     ENSURE_SOCKET_THREAD(close,_void,NO);
     
     [self cleanupSocket];

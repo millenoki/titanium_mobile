@@ -488,9 +488,9 @@ public class TCPProxy extends KrollProxy implements TiStream
 			return;
 		}
 
-		if((state != SocketModule.CONNECTED) && (state != SocketModule.LISTENING)) {
-			throw new IOException("Socket is not connected or listening, unable to call close on socket in <" + state + "> state");
-		}
+		// if((state != SocketModule.CONNECTED) && (state != SocketModule.LISTENING)) {
+		// 	throw new IOException("Socket is not connected or listening, unable to call close on socket in <" + state + "> state");
+		// }
 
 		try {
 			state = 0; // set socket state to uninitialized to prevent use while closing
