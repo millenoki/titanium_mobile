@@ -1172,10 +1172,19 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	return module;
 }
 
+-(NSString*)normalizePath:(NSString*)string {
+    NSError *error = nil;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[^\\/]*\\/\\.\\.\\/" options:NSRegularExpressionCaseInsensitive error:&error];
+    NSString *modifiedString = [regex stringByReplacingMatchesInString:string options:0 range:NSMakeRange(0, [string length]) withTemplate:@""];
+    regex = [NSRegularExpression regularExpressionWithPattern:@"\\/\\.\\/" options:NSRegularExpressionCaseInsensitive error:&error];
+    modifiedString = [regex stringByReplacingMatchesInString:modifiedString options:0 range:NSMakeRange(0, [modifiedString length]) withTemplate:@"/"];
+    return modifiedString;
+}
+
 - (TiModule *)loadAsFile:(NSString *)path withContext:(KrollContext *)kroll
 {
 	// 1. If X is a file, load X as JavaScript text.  STOP
-	NSString *filename = path;
+	NSString *filename = [self normalizePath:path];
 	NSString *data = [self loadFile:filename];
 	if (data != nil) {
 		// If the file extension is .json, load as JavascriptObject!
