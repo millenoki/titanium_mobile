@@ -344,6 +344,11 @@ NSArray* bufferKeySequence = nil;
 }
 
 
+-(NSString*)text
+{
+    return [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+}
+
 - (NSString *)hexString
 {
     /* Returns hexadecimal string of NSData. Empty string if data is empty.   */
@@ -388,7 +393,7 @@ NSArray* bufferKeySequence = nil;
 
 -(NSString*)toString:(id)_void 
 {
-    return [data description];
+    return [self text];
 }
 
 #pragma mark Public API : Properties
