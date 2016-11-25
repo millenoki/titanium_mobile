@@ -1643,7 +1643,10 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 
 			this.moduleZipPath = moduleZipPath;
 
-			fs.existsSync(this.moduleZipPath) || wrench.mkdirSyncRecursive(path.dirname(moduleZipPath));
+			var distDir = path.dirname(moduleZipPath);
+	        if (!fs.existsSync(distDir)) {
+	            fs.mkdirSync(distDir);
+	        }
 			// since the archiver library didn't set max listeners, we squelch all error output
 			console.error = function () {};
 

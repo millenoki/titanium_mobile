@@ -12,6 +12,7 @@
 #import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "TiSVGImage.h"
+#import "UIImage+animatedGIF.h"
 
 //#define DEBUG_IMAGE_CACHE
 
@@ -854,6 +855,10 @@ DEFINE_EXCEPTIONS
         if ([url isFileURL]) // Load up straight from disk
         {
 			NSString * path = [url path];
+            NSString* ext = [TiUtils fileExtension:path];
+            if ([TiUtils isGIF:ext]) {
+                return [self setImage:[UIImage animatedImageWithAnimatedGIFURL:url] forKey:url hires:(screenScale > 1.0f)];
+            }
 #ifdef DEBUG_IMAGE_CACHE
             NSLog(@"[CACHE DEBUG] Loading locally from path %@", path);
 #endif
@@ -972,7 +977,8 @@ DEFINE_EXCEPTIONS
 	if (req!=nil && [[req response] error]==nil)
 	{
         NSData *data = [[req response] responseData];
-        if ([TiUtils isSVG:[req url]]) {
+        NSString* ext =[TiUtils fileExtension:[req url]];
+        if ([TiUtils isSVG:ext]) {
             SVGKImage *resultImage = [SVGKImage imageWithData:data];
             SVGImageCacheEntry *result = [self setSVGImage:resultImage forKey:url];
             [result setData:data];
@@ -1007,7 +1013,8 @@ DEFINE_EXCEPTIONS
 
 -(id)loadImmediateImage:(NSURL *)url
 {
-    if ([TiUtils isSVG:url])
+    NSString* ext =[TiUtils fileExtension:url];
+    if ([TiUtils isSVG:ext])
         return [self loadImmediateSVGImage:url withSize:CGSizeZero];
     else
         return [self loadImmediateImage:url withSize:CGSizeZero];
@@ -1033,7 +1040,10 @@ DEFINE_EXCEPTIONS
 
 -(id)loadImmediateStretchableImage:(NSURL *)url withCap:(TiCap)cap
 {
-    if ([TiUtils isSVG:url]) return [self loadImmediateSVGImage:url withSize:CGSizeZero];
+    NSString* ext =[TiUtils fileExtension:url];
+    if ([TiUtils isSVG:ext]) {
+        return [self loadImmediateSVGImage:url withSize:CGSizeZero];
+    }
     ImageCacheEntry* image = [self entryForKey:url];
     image.leftCap = cap.leftCap;
     image.topCap = cap.topCap;
@@ -1074,7 +1084,8 @@ DEFINE_EXCEPTIONS
         // Background work
         NSURL *url = [request url];
         id image = nil;
-        if ([TiUtils isSVG:url]) {
+        NSString* ext =[TiUtils fileExtension:url];
+        if ([TiUtils isSVG:ext]) {
             image = [[self svgEntryForKey:url] svgImage];
         }
         else {
@@ -1208,7 +1219,8 @@ DEFINE_EXCEPTIONS
     if (cacheable)
     {
         NSURL* url = [req url];
-        if ([TiUtils isSVG:url]) {
+        NSString* ext =[TiUtils fileExtension:url];
+        if ([TiUtils isSVG:ext]) {
            image = [self cacheSVG:data forURL:[req url]];
         }
         else {

@@ -736,6 +736,8 @@ DEFINE_EXCEPTIONS
     iterations = -1;
     if (_animatedImage) {
         [_animatedImage stop];
+    } else if (imageView.animationImages) {
+        [imageView stopAnimating];
     }
     [self.proxy replaceValue:NUMBOOL(NO) forKey:@"animating" notification:NO];
     [self.proxy replaceValue:NUMBOOL(YES) forKey:@"stopped" notification:NO];
@@ -752,6 +754,8 @@ DEFINE_EXCEPTIONS
         [self.proxy replaceValue:NUMBOOL(YES) forKey:@"animating" notification:NO];
         [_animatedImage start];
         return;
+    } else if (imageView.animationImages) {
+        [imageView startAnimating];
     }
     if (iterations<0 || !paused)
     {
