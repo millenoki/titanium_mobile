@@ -23,3 +23,6 @@
 	path = iphone/thirdparties/DDMathParser
 	url = ../../Akylas/DDMathParser.git
 	branch = 1.1
+[submodule "android/thirdparties/android-gif-drawable"]
+	path = android/thirdparties/android-gif-drawable
+	url = git@github.com:Akylas/android-gif-drawable.git
