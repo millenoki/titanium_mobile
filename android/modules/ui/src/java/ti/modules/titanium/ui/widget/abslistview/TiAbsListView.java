@@ -56,6 +56,7 @@ import ti.modules.titanium.ui.ViewProxy;
 import android.annotation.SuppressLint;
 import ti.modules.titanium.ui.android.SearchViewProxy;
 import ti.modules.titanium.ui.widget.CustomListView;
+import ti.modules.titanium.ui.widget.TiUITableView;
 //import ti.modules.titanium.ui.widget.abslistview.AbsListSectionProxy.AbsListItemData;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
@@ -959,7 +960,7 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
         case TiC.PROPERTY_SEPARATOR_STYLE:
             Drawable drawable = listView.getDivider();
             listView.setDivider(drawable);
-            listView.setDividerHeight(TiConvert.toInt(newValue));
+            listView.setDividerHeight(TiConvert.toInt(newValue, TiUITableView.SEPARATOR_SINGLE_LINE));
             mProcessUpdateFlags |= TIFLAG_NEEDS_DATASET;
            break;
         case TiC.PROPERTY_OVER_SCROLL_MODE:
