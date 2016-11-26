@@ -94,12 +94,18 @@ Module.prototype.load = function (filename, source) {
 	if (this.loaded) {
 		throw new Error("Module already loaded.");
 	}
-
+	
 	this.filename = filename;
 	this.path = path.dirname(filename);
 
 	if (!source) {
-		source = assets.readAsset('Resources' + filename);
+		var name = filename;
+		if (name[0] == '/') {
+			name = 'Resources' + name;
+		} else {
+			name = 'Resources/' + name;
+		}
+		source = assets.readAsset(name);
 	}
 
 	// Stick it in the cache
@@ -266,14 +272,16 @@ Module.prototype.loadExternalModule = function(id, externalBinding, context) {
 Module.prototype.require = function (request, context) {
 	var start, // hack up the start of the string to check relative/absolute/"naked" module id
 		loaded; // variable to hold the possibly loaded module...
-
+	
 	start = request.substring(0, 2);
 	var isrelative = false;
 	if (start === './' || start === '..') {
 		request = path.normalize(this.path + '/' + request);
 		isrelative = true;
+	} else {
+		request = path.normalize(request);
 	}
-	
+	 
 	// 1. If X is a core module,
 	loaded = this.loadCoreModule(request, context);
 	if (loaded) {
@@ -309,7 +317,7 @@ Module.prototype.require = function (request, context) {
 		// Fallback to old Titanium behavior of assuming it's actually an absolute path
 //		kroll.log(TAG, "require called with un-prefixed module id, should be a core or CommonJS module. Falling back to old Ti behavior and assuming it's an absolute file");
 
-		loaded = this.loadAsFileOrDirectory('/' + request, context);
+		loaded = this.loadAsFileOrDirectory(request, context);
 		if (loaded) {
 			return loaded;
 		}
@@ -321,7 +329,6 @@ Module.prototype.require = function (request, context) {
 			return loaded;
 		}
 	}
-
 	// 4. THROW "not found"
 	throw new Error("Requested module not found: " + request); // TODO Set 'code' property to 'MODULE_NOT_FOUND' to match Node?
 }
@@ -385,9 +392,6 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
 		i,
 		dir;
 
-	if (kroll.DBG) {
-		kroll.log(TAG, "loadNodeModules '" + moduleId + "' at "  + startDir);
-	}
 	// 1. let DIRS=NODE_MODULES_PATHS(START)
 	dirs = this.nodeModulesPaths(startDir);
 	// 2. for each DIR in DIRS:
@@ -396,9 +400,6 @@ Module.prototype.loadNodeModules = function (moduleId, startDir, context) {
 		dir = dirs[i];
 		// a. LOAD_AS_FILE(DIR/X)
 		// b. LOAD_AS_DIRECTORY(DIR/X)
-		if (kroll.DBG) {
-			kroll.log(TAG, "loadNodeModules test '" + moduleId + "' at "  + dir);
-		}
 		mod = this.loadAsFileOrDirectory(path.join(dir, moduleId), context);
 		if (mod) {
 			return mod;
@@ -425,6 +426,7 @@ Module.prototype.nodeModulesPaths = function (startDir) {
 	while (i >= 0) {
 		// a. if PARTS[I] = "node_modules" CONTINUE
 		if (parts[i] === 'node_modules') {
+			i = i - 1;
 			continue;
 		}
 		// b. DIR = path join(PARTS[0 .. I] + "node_modules")
@@ -467,15 +469,13 @@ Module.prototype.loadAsFileOrDirectory = function (normalizedPath, context) {
  */
 Module.prototype.loadJavascriptText = function (filename, context) {
 	var module;
-
 	// Look in the cache!
 	if (Module.cache[filename]) {
 		return Module.cache[filename].exports;
 	}
-
+	
 	module = new Module(filename, this, context);
 	module.load(filename);
-
 	return module.exports;
 }
 
@@ -538,13 +538,8 @@ Module.prototype.loadAsFile = function (id, context) {
 
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
 	filename = id + '.js';
-	if (kroll.DBG) {
-		kroll.log(TAG, "loadAsFile " + filename);
-	}
+
 	if (this.filenameExists(filename)) {
-		if (kroll.DBG) {
-			kroll.log(TAG, "loadAsFile " + filename +  " exists!");
-		}
 		return this.loadJavascriptText(filename, context);
 	}
 	// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
