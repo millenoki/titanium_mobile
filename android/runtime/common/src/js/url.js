@@ -187,9 +187,11 @@ function resolve(baseUrl, pathOrUrl) {
 		var callerData = urlParse(baseUrl);
 		var parentDir = path.dirname(callerData.pathname);
 		var newPath = path.join(parentDir, pathOrUrl);
-		if (pathOrUrl.length > 0 && pathOrUrl.charAt(0) === "/") {
+		if (pathOrUrl.length > 0 && pathOrUrl.charAt(0) !== ".") {
 			// absolute path
-			newPath = pathOrUrl.substring(1);
+			if (pathOrUrl.charAt(0) === "/")
+				newPath = pathOrUrl.substring(1);
+			else newPath = pathOrUrl;
 		}
 
 		return urlParse(callerData.protocol + "//" + newPath);
