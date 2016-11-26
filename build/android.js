@@ -205,6 +205,10 @@ Android.prototype.package = function (packager, next) {
 				}
 			}, cb);
 		},
+        // Copy native libs from android/titanium/libs
+        function (cb) {
+            fs.copy(path.join(ANDROID_ROOT, 'titanium', 'libs'), path.join(ANDROID_DEST, 'native', 'libs'), cb);
+        },
         // Copy over module resources
         function (cb) {
             fs.copy(DIST_ANDROID, ANDROID_MODULES, { filter: /\/android(\/titanium\-(.+)?\.(jar|res\.zip|respackage|dependencies))?$/ }, cb);
