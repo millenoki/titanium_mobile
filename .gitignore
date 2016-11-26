@@ -64,3 +64,4 @@ android/.idea/vcs.xml
 *.iml
 
 node_modules/*
+/android/thirdparties/local.properties
