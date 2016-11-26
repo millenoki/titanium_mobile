@@ -47,6 +47,7 @@ import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.webkit.URLUtil;
+import pl.droidsonroids.gif.GifDrawable;
 
 /**
  * Helper class for loading, scaling, and caching images if necessary.
@@ -339,6 +340,11 @@ public class TiDrawableReference
 	{
 		return (url != null && url.endsWith(".svg"));
 	}
+	
+	public boolean isGIF()
+    {
+        return (url != null && url.endsWith(".gif"));
+    }
 
 	public boolean isTypeResourceId()
 	{
@@ -516,6 +522,18 @@ public class TiDrawableReference
 			return null;
 		}
 	}
+	
+	private Drawable getGIF() {
+        try {
+            GifDrawable result = new GifDrawable(getInputStream());
+            if (result != null) {
+                result.setLoopCount(0);
+            }
+            return result;
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
 	private Drawable getResourceDrawable()
 	{
@@ -583,6 +601,11 @@ public class TiDrawableReference
 		if (isSVG()) {
 			return getSVG();
 		}
+		
+		if (isGIF()) {
+            return getGIF();
+        }
+		
 		if (isTypeBlob() && blob.getType() == TiBlob.TYPE_DRAWABLE) {
             return blob.getDrawable();
         }

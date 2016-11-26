@@ -41,6 +41,7 @@ import android.graphics.BitmapFactory;
 import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.util.Pair;
+import pl.droidsonroids.gif.GifDrawable;
 import android.util.Base64;
 
 /**
@@ -120,6 +121,9 @@ public class TiBlob extends KrollProxy {
     }
 
     public static String getMimeTypeOfFile(Object object) {
+        if (object instanceof GifDrawable) {
+            return "image/gif";
+        }
         Bitmap bitmap = null;
         if (object instanceof Bitmap) {
             bitmap = (Bitmap) object;
