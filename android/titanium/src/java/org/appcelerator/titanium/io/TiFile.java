@@ -105,11 +105,11 @@ public class TiFile extends TiBaseFile
 	{
 		if (recursive)
 		{
-			return file.mkdirs();
+			return file.mkdirs() || file.isDirectory();
 		}
 		else
 		{
-			return file.mkdir();
+			return file.mkdir() || file.isDirectory();
 		}
 	}
 
