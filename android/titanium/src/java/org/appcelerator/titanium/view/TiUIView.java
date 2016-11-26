@@ -73,6 +73,8 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -147,6 +149,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected LayoutParams layoutParams;
     protected TiBackgroundDrawable background;
+    protected ShapeDrawable rippleMaskDrawable;
 
     protected boolean preventListViewSelection = false;
     protected boolean touchPassThrough = false;
@@ -1677,13 +1680,23 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             if (view != null) {
                 TiBackgroundDrawable background = getOrCreateBackground();
                 if (enabled) {
+                    if (rippleMaskDrawable == null) {
+                        rippleMaskDrawable = new ShapeDrawable();
+                    }
+                    rippleMaskDrawable.getPaint().setColor(pressedColor);
+                    float[] radius = background.getRadius();
+                    if (radius != null) {
+                        rippleMaskDrawable.setShape(new RoundRectShape(radius, null, null));
+                    } else {
+                        rippleMaskDrawable.setShape(null);
+                    }
                     RippleDrawable drawable = new RippleDrawable(
                             new ColorStateList(
                                     new int[][] {
                                             TiUIHelper.BACKGROUND_SELECTED_STATE,
                                             new int[] {} },
                                     new int[] { pressedColor, pressedColor }),
-                            background, null);
+                            background, rippleMaskDrawable);
                     setBackgroundDrawable(view, drawable);
                     // we need to reset the callback as setBackgroundDrawable
                     // will clear it
@@ -1813,6 +1826,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
     protected void setBorderRadius(float[] radius) {
         if (background != null) {
             background.setRadius(radius);
+        }
+        if (rippleMaskDrawable != null) {
+            if (radius != null) {
+                rippleMaskDrawable.setShape(new RoundRectShape(radius, null, null));                
+            } else {
+                rippleMaskDrawable.setShape(null);                
+            }
         }
         getOrCreateBorderView().setRadius(radius);
     }
