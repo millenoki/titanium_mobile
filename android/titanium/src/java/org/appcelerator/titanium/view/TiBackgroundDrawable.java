@@ -57,6 +57,7 @@ public class TiBackgroundDrawable extends Drawable {
 	
 	public TiBackgroundDrawable(final boolean isBorder)
     {
+        super();
         this.isBorder = isBorder;
         currentDrawable = null;
         mPadding = null;
