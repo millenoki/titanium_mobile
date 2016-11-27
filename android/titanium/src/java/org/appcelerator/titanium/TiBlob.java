@@ -605,10 +605,14 @@ public class TiBlob extends KrollProxy {
     }
 
     @Kroll.method
-    public String toString() {
+    public String toString(@Kroll.argument(optional = true) String encoding) {
         // blob should return the text value on toString
         // if it's not null
         String result = null;
+        
+        if (encoding != null && encoding.equalsIgnoreCase("hex")) {
+            return this.getHexString();
+        }
   
         switch (type) {
         case TYPE_STRING:
