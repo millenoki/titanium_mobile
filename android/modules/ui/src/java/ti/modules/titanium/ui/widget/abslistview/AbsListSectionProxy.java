@@ -823,13 +823,14 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 		AbsListItemProxy itemProxy = (AbsListItemProxy) cellContent.getView().getProxy();
 		itemProxy.setCurrentItem(sectionIndex, realItemIndex, this, item);
 
-		HashMap listItemProperties;
+		HashMap listItemProperties = null;
 //		String itemId = null;
 
 		if (data != null && data.containsKey(TiC.PROPERTY_PROPERTIES)) {
 			listItemProperties = (HashMap) data.get(TiC.PROPERTY_PROPERTIES);
-		} else {
-			listItemProperties = new HashMap();
+		}
+		if (listItemProperties == null) { 
+		    listItemProperties = new HashMap(); 
 		}
 		ProxyAbsListItem rootItem = itemProxy.getListItem();
 		
@@ -837,7 +838,7 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
 	        HashMap<String, Object> listViewProperties = getListView().getToPassProps();
 		    for (Map.Entry<String, Object> entry : listViewProperties.entrySet()) {
 	            String inProp = entry.getKey();
-	            if (!listItemProperties.containsKey(inProp) && !rootItem.containsKey(inProp)) {
+	            if (!(listItemProperties.containsKey(inProp)) && !rootItem.containsKey(inProp)) {
 	                listItemProperties.put(inProp, entry.getValue());
 	            }
 	        }
