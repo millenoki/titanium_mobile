@@ -1297,6 +1297,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
     while (i >= 0) {
         // a. if PARTS[I] = "node_modules" CONTINUE
         if ([[parts objectAtIndex:i] isEqual: @"node_modules"]) {
+            i = i - 1;
             continue;
         }
         // b. DIR = path join(PARTS[0 .. I] + "node_modules")
