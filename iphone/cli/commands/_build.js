@@ -3779,11 +3779,11 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			return;
 		}
 
-		if (legacySwift) {
-			delete conf.buildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES;
-		} else {
-			delete conf.buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT;
-		}
+		// if (legacySwift) {
+		// 	delete conf.buildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES;
+		// } else {
+		// 	delete conf.buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT;
+		// }
 	});
 
 	// get the product names
