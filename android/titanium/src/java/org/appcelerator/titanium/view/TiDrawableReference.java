@@ -525,12 +525,16 @@ public class TiDrawableReference
 	
 	private Drawable getGIF() {
         try {
-            GifDrawable result = new GifDrawable(getInputStream());
-            if (result != null) {
-                result.setLoopCount(0);
+            InputStream stream = getInputStream();
+            if (stream != null) {
+                GifDrawable result = new GifDrawable(stream);
+                if (result != null) {
+                    result.setLoopCount(0);
+                }
+                return result;
             }
-            return result;
-        } catch (IOException e) {
+            return null;
+        } catch (Exception e) {
             return null;
         }
     }
