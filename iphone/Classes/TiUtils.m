@@ -2741,10 +2741,25 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return resultImage;
 }
 
-+ (BOOL) isSVG:(id)arg
++ (NSString*)fileExtension:(id)arg
 {
-    return ([arg isKindOfClass:[NSString class]] && [((NSString*)arg) hasSuffix:@".svg"]) ||
-        ([arg isKindOfClass:[NSURL class]] && [[((NSURL*)arg) absoluteString] hasSuffix:@".svg"]);
+    if  (IS_OF_CLASS(arg, NSString)) {
+        return [((NSString*)arg) pathExtension];
+    }
+    if  (IS_OF_CLASS(arg, NSURL)) {
+        return [((NSURL*)arg) pathExtension];
+    }
+    return nil;
+}
+
++ (BOOL) isGIF:(NSString*)ext
+{
+    return [ext isEqualToString:@"gif"];
+}
++ (BOOL) isSVG:(NSString*)ext
+{
+    return [ext isEqualToString:@"svg"];
+
 }
 
 + (NSString*)messageFromError:(NSError *)error

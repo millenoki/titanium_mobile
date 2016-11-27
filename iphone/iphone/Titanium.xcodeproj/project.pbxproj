@@ -389,6 +389,7 @@
 		D5809D5619129CEB005A1F02 /* APSHTTPPostForm.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4B19129CEB005A1F02 /* APSHTTPPostForm.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5809D5919129CEB005A1F02 /* APSHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4D19129CEB005A1F02 /* APSHTTPRequest.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D5809D5C19129CEB005A1F02 /* APSHTTPResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = D5809D4F19129CEB005A1F02 /* APSHTTPResponse.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		D584FF991DE830CC00B92F96 /* UIImage+animatedGIF.m in Sources */ = {isa = PBXBuildFile; fileRef = D584FF981DE830CC00B92F96 /* UIImage+animatedGIF.m */; };
 		D586DCC219716E28002FBBBB /* CustomActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = D586DCC119716E28002FBBBB /* CustomActionSheet.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		D58709BB19796508002E8817 /* TiUIiOSActivityViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D58709B619796508002E8817 /* TiUIiOSActivityViewProxy.m */; };
 		D58709BE19796508002E8817 /* TiUIiOSActivityProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = D58709B819796508002E8817 /* TiUIiOSActivityProxy.m */; };
@@ -1466,6 +1467,8 @@
 		D5809D4E19129CEB005A1F02 /* APSHTTPResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPResponse.h; sourceTree = "<group>"; };
 		D5809D4F19129CEB005A1F02 /* APSHTTPResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APSHTTPResponse.m; sourceTree = "<group>"; };
 		D5818EAE18AA8872007EF771 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
+		D584FF971DE830CC00B92F96 /* UIImage+animatedGIF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+animatedGIF.h"; sourceTree = "<group>"; };
+		D584FF981DE830CC00B92F96 /* UIImage+animatedGIF.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+animatedGIF.m"; sourceTree = "<group>"; };
 		D585BC8417E630AB0062275E /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		D585BC8817E630CD0062275E /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		D586DCC019716E28002FBBBB /* CustomActionSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomActionSheet.h; sourceTree = "<group>"; };
@@ -2145,6 +2148,8 @@
 				D54F41DC1C495B6F0062D7EC /* NSData+AES.m */,
 				D54F41DD1C495B6F0062D7EC /* NSString+AES.h */,
 				D54F41DE1C495B6F0062D7EC /* NSString+AES.m */,
+				D584FF971DE830CC00B92F96 /* UIImage+animatedGIF.h */,
+				D584FF981DE830CC00B92F96 /* UIImage+animatedGIF.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -4400,6 +4405,7 @@
 				D56C5BD21CA19A8500460105 /* _DDNumberExpression.m in Sources */,
 				24CA8BE1111161FE0084E2DE /* LayoutConstraint.m in Sources */,
 				D55B29A61ACC2730008C0279 /* TiCache.m in Sources */,
+				D584FF991DE830CC00B92F96 /* UIImage+animatedGIF.m in Sources */,
 				D54F41D41C495B150062D7EC /* TiProtectedModule.m in Sources */,
 				D5162EA81A20D1F7008A4048 /* TiUICollectionView.m in Sources */,
 				24CA8BE2111161FE0084E2DE /* ImageLoader.m in Sources */,

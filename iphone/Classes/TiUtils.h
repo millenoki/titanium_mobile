@@ -748,7 +748,9 @@ typedef enum
 
 +(id)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy;
 +(id)loadBackgroundImage:(id)image forProxy:(TiProxy*)proxy withCap:(TiCap)cap;
-+ (BOOL) isSVG:(id)arg;
++ (BOOL) isGIF:(NSString*)ext;
++ (BOOL) isSVG:(NSString*)ext;
++ (NSString*)fileExtension:(id)arg;
 
 /**
  Convenience method to extract a useful error message from NSError, or nil if none exist.
