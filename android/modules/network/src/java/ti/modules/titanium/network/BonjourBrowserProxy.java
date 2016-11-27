@@ -1,6 +1,8 @@
 package ti.modules.titanium.network;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.appcelerator.kroll.KrollDict;
@@ -58,18 +60,23 @@ public class BonjourBrowserProxy extends KrollProxy {
             return;
         }
         KrollDict data = new KrollDict();
+        String host = serviceInfo.getHost().toString();
+        if (host.charAt(0) == '/') {
+            host = host.substring(1);
+        }
+        
         data.put("name", serviceInfo.getServiceName());
         data.put("type", serviceInfo.getServiceType());
-        data.put("host", serviceInfo.getHost());
+        data.put("host", host);
         data.put("port", serviceInfo.getPort());
         if (serviceInfo.getHost() != null) {
             if (serviceInfo.getPort() != -1) {
                 data.put("addresses",
-                        new String[] { serviceInfo.getHost().toString() + ":"
+                        new String[] { host + ":"
                                 + serviceInfo.getPort() });
             } else {
                 data.put("addresses",
-                        new String[] { serviceInfo.getHost().toString() });
+                        new String[] { host });
             }
         }
         
@@ -82,13 +89,42 @@ public class BonjourBrowserProxy extends KrollProxy {
         public void onResolveFailed(NsdServiceInfo serviceInfo, int errorCode) {
             // Called when the resolve fails. Use the error code to debug.
             Log.e(TAG, "Resolve failed" + errorCode);
+            handlerRemainingResolve();
         }
 
         @Override
         public void onServiceResolved(NsdServiceInfo serviceInfo) {
+            handlerRemainingResolve();
             fireEventForService("resolve", serviceInfo);
         }
     };
+    
+    List<NsdServiceInfo> mToResolve = null;
+    boolean resolving = false;
+    
+    void handlerRemainingResolve() {
+        if (mToResolve != null) {
+            resolving = true;
+            mNsdManager.resolveService(mToResolve.remove(0), mResolveListener);
+            if (mToResolve.size() == 0) { 
+                mToResolve = null;
+            }
+        } else {
+            resolving = false;
+        }
+    }
+    void resolve(NsdServiceInfo serviceInfo) {
+        if (resolving) {
+            if (mToResolve == null) {
+                mToResolve = new ArrayList<>();
+            }
+            mToResolve.add(serviceInfo);
+        } else {
+            resolving = true;
+            mNsdManager.resolveService(serviceInfo, mResolveListener);
+        }
+
+    }
 
     // Instantiate a new DiscoveryListener
     final NsdManager.DiscoveryListener mDiscoveryListener = new NsdManager.DiscoveryListener() {
@@ -106,9 +142,9 @@ public class BonjourBrowserProxy extends KrollProxy {
             Log.d(TAG, "Service discovery success" + serviceInfo);
             if (serviceInfo.getServiceType().indexOf(mServiceType) == 0
                     && (mNamePattern == null || mNamePattern
-                            .matcher(serviceInfo.getServiceName()).matches())) {
+                            .matcher(serviceInfo.getServiceName()).find())) {
                 if (mResolveOnDiscover) {
-                    mNsdManager.resolveService(serviceInfo, mResolveListener);
+                    resolve(serviceInfo);
                 } else {
                     fireEventForService("discover", serviceInfo);
                 }
