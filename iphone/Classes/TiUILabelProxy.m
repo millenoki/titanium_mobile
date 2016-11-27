@@ -121,13 +121,13 @@ static NSDictionary* htmlOptions;
             case kContentTypeHTML:
             {
                 
-                if ([contentString characterAtIndex:0] != '<') {
+//                if ([contentString characterAtIndex:0] != '<') {
                     //if not starting with a <, ios html parser with surround it with a <p> and thus create
                     //paragraph spacing
                     _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[[NSString stringWithFormat:@"<span>%@</span>", contentString] dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
-                } else {
-                    _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
-                }
+//                } else {
+//                    _realLabelContent = [[NSAttributedString alloc] initWithHTMLData:[contentString dataUsingEncoding:NSUTF8StringEncoding] options:options documentAttributes:nil];
+//                }
                 
                 break;
             }
