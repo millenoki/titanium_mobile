@@ -1270,7 +1270,14 @@ public class TiHTTPClient
 				}
 //				Log.e(TAG, "HTTP Error (" + t.getClass().getName() + "): " + msg, t);
 				KrollDict data = new KrollDict();
-				data.putCodeAndMessage(aborted?TiC.ERROR_CODE_NO_ERROR:getStatus(), msg);
+				
+				int code  = getStatus();
+				if (aborted) {
+				    code = TiC.ERROR_CODE_NO_ERROR;
+				} else if (code == 0){
+				    code = TiC.ERROR_CODE_UNKNOWN;
+				}
+				data.putCodeAndMessage(code, msg);
 				dispatchCallback(TiC.PROPERTY_ONERROR, data);
 			} finally {
 				deleteTmpFiles();
