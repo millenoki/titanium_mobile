@@ -217,7 +217,7 @@
 			[messageLabel setTextColor:textColor];
 		}
 	}
-    [self indicatorView].color = textColor;e
+    [self indicatorView].color = textColor;
 }
 
 -(void)setMessage_:(id)value
