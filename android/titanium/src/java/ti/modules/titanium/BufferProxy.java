@@ -83,9 +83,11 @@ public class BufferProxy extends KrollProxy
 			encodeNumber((Number) value, dict);
 		} else if (value instanceof String) {
 			encodeString((String) value, dict);
-		} else if (value instanceof TiBlob) {
-	        byte[] bytes = ((TiBlob) value).getBytes();
-            System.arraycopy(bytes, 0, buffer, 0, bytes.length);
+		} else {
+            byte[] bytes = TiConvert.toBytes(value);
+            if (bytes != null) {
+                System.arraycopy(bytes, 0, buffer, 0, bytes.length);
+            }
         }
 	}
 

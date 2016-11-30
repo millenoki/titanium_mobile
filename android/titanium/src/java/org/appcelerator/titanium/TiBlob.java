@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.net.URLConnection;
 import java.util.HashMap;
 
@@ -531,20 +532,11 @@ public class TiBlob extends KrollProxy {
     
     @Kroll.getProperty(enumerable=false)
     @Kroll.method
-    public Number[] getByteArray() {
-        byte[] bytes = getBytes();
-        
-        if (bytes != null) {
-            Number[] outArray = new Number[bytes.length];
-            for (int i = 0; i < bytes.length; i++) {
-                outArray[i] = bytes[i];
-            }
-            return outArray;
-        }
-        return null;
+    public int[] getByteArray() {
+        return TiConvert.bytesToIntArray(getBytes());
     }
 
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public String getMimeType() {
         return mimetype;
@@ -581,7 +573,7 @@ public class TiBlob extends KrollProxy {
      * @see TiBlob#TYPE_STREAM
      * @module.api
      */
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public int getType() {
         return type;
@@ -592,13 +584,13 @@ public class TiBlob extends KrollProxy {
 		return Base64.encodeToString(getBytes(), Base64.NO_WRAP);
 	}
 
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public int getWidth() {
         return width;
     }
 
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public int getHeight() {
         return height;
@@ -628,7 +620,7 @@ public class TiBlob extends KrollProxy {
         return "[object TiBlob]";
     }
 
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public String getNativePath() {
         if (data == null) {
@@ -657,7 +649,7 @@ public class TiBlob extends KrollProxy {
         }
     }
 
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public TiFileProxy getFile() {
         if (data == null) {
@@ -1094,7 +1086,7 @@ public class TiBlob extends KrollProxy {
         }
     }
 
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     @Kroll.method
     public KrollDict getInfo() {
         return extraInfo;
