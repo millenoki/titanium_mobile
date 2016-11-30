@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -1499,6 +1500,39 @@ public class TiConvert
             return (HashMap)value;
         }
 
+        return null;
+    }
+    
+    public static byte[] toBytes(Object value) {
+        byte[] bytes = null;
+        if (value instanceof String) {
+            try {
+                bytes = TiConvert.toString(value).getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        } else if (value instanceof Object[]) {
+            final Object[] array =  ((Object[])value);
+            final int length = array.length;
+            bytes = new byte[length];
+            for (int i = 0; i < length; i++) {
+                bytes[i] = (byte) TiConvert.toInt(array[i]);
+            }
+        } else if (value instanceof TiBlob) {
+            bytes = ((TiBlob) value).getBytes();
+        }
+        return bytes;
+    }
+    
+    
+    public static int[] bytesToIntArray(byte[] bytes) {
+        if (bytes != null) {
+            int[] outArray = new int[bytes.length];
+            for (int i = 0; i < bytes.length; i++) {
+                outArray[i] = bytes[i] & 0xFF;
+            }
+            return outArray;
+        }
         return null;
     }
 }
