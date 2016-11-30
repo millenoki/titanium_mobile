@@ -175,7 +175,11 @@ public class BonjourBrowserProxy extends KrollProxy {
         @Override
         public void onStopDiscoveryFailed(String serviceType, int errorCode) {
             Log.e(TAG, "Discovery failed: Error code:" + errorCode);
-            mNsdManager.stopServiceDiscovery(this);
+            try {
+                mNsdManager.stopServiceDiscovery(this);
+            } catch(Exception e) {
+                
+            }
         }
     };
 
