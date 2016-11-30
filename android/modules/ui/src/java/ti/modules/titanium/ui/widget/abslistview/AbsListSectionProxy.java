@@ -379,11 +379,14 @@ public class AbsListSectionProxy extends AnimatableReusableProxy {
             
             @Override
             public void execute() {
-                int deletedCount = deleteItemsData(index, count);
+                int deletedCount = 0;
+                if (count > 0) {
+                    deletedCount = deleteItemsData(index, count);
+                }
                 if (deletedCount > 0) {
                     notifyItemRangeRemoved(index, deletedCount);
-                    notifyItemRangeInserted(index, insertItemsData(index, data));
                 }
+                notifyItemRangeInserted(index, insertItemsData(index, data));
             }
         }, true);
 	}
