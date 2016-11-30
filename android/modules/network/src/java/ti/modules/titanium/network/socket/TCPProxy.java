@@ -403,7 +403,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 			e.printStackTrace();
 			if (state != SocketModule.CLOSED) {
 				closeSocket();
-				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to read from socket, IO error", 0));
+				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to read from socket, IO error: "  + e.toString(), 0));
 			}
 			throw new IOException("Unable to read from socket, IO error");
 		}
