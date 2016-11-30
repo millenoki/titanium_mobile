@@ -1605,9 +1605,6 @@ AndroidModuleBuilder.prototype.generateDistJar = function(next) {
 AndroidModuleBuilder.prototype.packageZip = function (next) {
 	this.logger.info(__('Packaging the module'));
 
-	fs.existsSync(this.distDir) || wrench.rmdirSyncRecursive(this.distDir);
-	wrench.mkdirSyncRecursive(this.distDir);
-
 	var tasks = [
 		function (cb) {
 			// Generate documentation
