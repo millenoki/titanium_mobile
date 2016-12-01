@@ -1129,7 +1129,7 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 				case 'dist-appstore':
 					_t.assertIssue(iosInfo.issues, 'IOS_NO_VALID_DIST_CERTS_FOUND');
 
-					if (value === 'dist-appstore') _t.conf.options['deploy-type'].values = ['production'];
+                    if (value === 'dist-appstore') _t.conf.options['deploy-type'].values = ['production', 'test'];
 					_t.conf.options['device-id'].required = false;
 					_t.conf.options['distribution-name'].required = true;
 					_t.conf.options['pp-uuid'].required = true;
