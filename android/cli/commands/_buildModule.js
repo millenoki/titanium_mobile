@@ -503,7 +503,7 @@ AndroidModuleBuilder.prototype.compileModuleJavaSrc = function (next) {
 	// 	build/class
 	// 	build/generated/json
 	// 	dist/
-	[this.buildClassesDir, this.buildGenJsonDir, this.distDir, this.binDir].forEach(function (dir) {
+	[this.buildClassesDir, this.buildGenJsonDir, this.binDir].forEach(function (dir) {
 		if (fs.existsSync(dir)) {
 			wrench.rmdirSyncRecursive(dir);
 		}
