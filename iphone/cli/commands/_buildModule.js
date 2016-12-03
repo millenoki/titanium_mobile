@@ -325,7 +325,7 @@ iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, nex
 					}
 
 					var dir = path.dirname(to);
-					fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
+                    fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
 					_this.unmarkBuildDirFile(to);
 					var exists = fs.existsSync(to);
@@ -358,7 +358,9 @@ iOSModuleBuilder.prototype.compileJSFiles = function compileJSFiles(jsFiles, nex
 								return value;
 							});
 						}
-                        fs.writeFileSync(path.join(destDir, srcFile + '.map'), JSON.stringify(transformed.map));
+                        var mapPath = path.join(_this.buildAssetsDir, moduleId, path.relative(_this.buildAssetsDir, destDir));
+                        fs.existsSync(mapPath) || wrench.mkdirSyncRecursive(mapPath);
+                        fs.writeFileSync(path.join(mapPath, path.basename(src) + '.map'), JSON.stringify(transformed.map));
                     }
 					cb();
 				});
@@ -1007,14 +1009,16 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 		// 5. assets folder, not including js files
 		if (fs.existsSync(this.assetsDir)) {
 			this.dirWalker(this.assetsDir, function(file) {
-				if (path.extname(file) != '.js' && path.extname(file) != '.ts') {
+                if (/\.js\.map$/.test(file)) {
+                    dest.file(file,  {name:path.join(moduleFolder, 'assets', moduleId, path.relative(this.assetsDir, file))});
+                } else if (path.extname(file) != '.js' && path.extname(file) != '.ts') {
                     dest.file(file,  {name:path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file))});
 				}
 			}.bind(this));
 		}
 
-		if (fs.existsSync(this.buildAssetsDir)) {
-			this.dirWalker(this.buildAssetsDir, function(file) {
+		if (fs.existsSync(path.join(this.buildAssetsDir, moduleId))) {
+			this.dirWalker(path.join(this.buildAssetsDir, moduleId), function(file) {
 				if (/\.js\.map$/.test(file)) {
                     dest.file(file,  {name:path.join(moduleFolder, 'assets', path.relative(this.buildAssetsDir, file))});
 				}

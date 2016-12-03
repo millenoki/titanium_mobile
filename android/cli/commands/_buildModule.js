@@ -1050,6 +1050,9 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 								return value;
 							});
 						}
+						var mapPath = path.join(this.buildGenJsDir, moduleId, path.relative(this.buildGenJsDir, path.dirname(dest)));
+                        fs.existsSync(mapPath) || wrench.mkdirSyncRecursive(mapPath);
+                        fs.writeFileSync(path.join(mapPath, path.basename(src) + '.map'), JSON.stringify(transformed.map));
                         fs.writeFileSync(path.join(to + '.map'), JSON.stringify(transformed.map));
                     }
 					cb();
@@ -1632,6 +1635,7 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 					forceUTC: true
 				}),
 				zipStream,
+				moduleId = this.manifest.moduleid,
 				origConsoleError = console.error,
 				id = this.manifest.moduleid.toLowerCase(),
 				zipName = [this.manifest.moduleid, '-android-', this.manifest.version, '.zip'].join(''),
@@ -1709,14 +1713,16 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 
 				// 5. assets folder, not including js files
 				this.dirWalker(this.assetsDir, function (file) {
-					if (path.extname(file) !== '.js' && path.extname(file) !== '.ts' && path.basename(file) !== 'README') {
+					if (/\.js\.map$/.test(file)) {
+                    	dest.file(file,  {name:path.join(moduleFolder, 'assets', moduleId, path.relative(this.assetsDir, file))});
+                	} else if (path.extname(file) !== '.js' && path.extname(file) !== '.ts' && path.basename(file) !== 'README') {
 						dest.file(file, {name:path.join(moduleFolder, 'assets', path.relative(this.assetsDir, file))});
 					}
 				}.bind(this));
 
 				// 6. js source maps
-				if (fs.existsSync(this.buildGenJsDir)) {
-					this.dirWalker(this.buildGenJsDir, function(file) {
+				if (fs.existsSync(path.join(this.buildGenJsDir, moduleId))) {
+					this.dirWalker(path.join(this.buildGenJsDir, moduleId), function(file) {
 						if (/\.js\.map$/.test(file)) {
 							dest.file(file, {name:path.join(moduleFolder, 'assets', path.relative(this.buildGenJsDir, file))});
 						}
