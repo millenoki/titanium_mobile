@@ -56,13 +56,6 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
     else
 #endif
     {
-#ifndef USE_JSCORE_FRAMEWORK
-        if ([TI_APPLICATION_DEPLOYTYPE isEqualToString:@"production"]) {
-            if (level != ERR) {
-                return;
-            }
-        }
-#endif
         NSLog(@"[%@] %@", [severity uppercaseString], [args componentsJoinedByString:@" "]);
     }
 }
