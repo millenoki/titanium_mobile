@@ -4938,7 +4938,7 @@ iOSBuilder.prototype.analyseJS = function analyseJS(to, data, next) {
 iOSBuilder.prototype.getTsConfig = function getTsConfig(next) {
 	var options = {
 		noEmitOnError: false,
-		sourceMap: true,
+		sourceMap: this.deployType !== 'production',
 		mapRoot:'',
 		inlineSourceMap: false,
 		outDir: this.buildTsDir,
@@ -6480,7 +6480,6 @@ iOSBuilder.prototype.encryptJSFiles = function encryptJSFiles(next) {
 						this.logger.warn(__('titanium_prep failed to complete successfully, trying again'));
 						tries++;
 					}
-
 					cb();
 				}.bind(this));
 			}.bind(this),
@@ -6994,6 +6993,8 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 					process.exit(1);
 				}
 
+
+				
 				// end of the line
 				done(code);
 			}.bind(this));
