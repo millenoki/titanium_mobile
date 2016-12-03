@@ -2668,12 +2668,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
                     case 'ts':
                         tsFiles.push(from);
-                        if (/\.d\.ts/.test(filename)) {
-                            next();
-                            break;
-                        }
-                        from = path.join(_t.buildTsDir, relPath.replace(/\.ts$/, '.js'));
-                        to = to.replace(/\.ts$/, '.js');
+                        // if (/\.d\.ts/.test(filename)) {
+                        //     next();
+                        //     break;
+                        // }
+                        // from = path.join(_t.buildTsDir, relPath.replace(/\.ts$/, '.js'));
+                        // to = to.replace(/\.ts$/, '.js');
                     case 'js':
                         // track each js file so we can copy/minify later
 
@@ -2696,7 +2696,17 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             })(from, to, next);
                             break;
                         }
-
+                    case 'json': 
+                    case 'map': 
+                    {
+                        if (_t.encryptJS) {
+                            relPath = relPath.replace(/\./g, '_');
+                            to = path.join(_t.buildAssetsEncryptDir, relPath);
+                            _t.jsFilesToEncrypt.push(relPath);
+                            // break;
+                        }
+                        // fall through to default case
+                    }
                     default:
                         //ignore source maps in production
                         if (!isProduction || !(/\.js\.map$/.test(filename))) {
@@ -2892,7 +2902,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     this.logger.debug(__('TsCompile done!'));
                 },
                 function() {
-                    this.logger.info(__('Processing JavaScript files'));
+                    copyDir.call(this, {
+                        src: this.buildTsDir,
+                        dest: this.buildBinAssetsResourcesDir,
+                        ignoreRootDirs: ti.availablePlatformsNames
+                    }, cb);
+                    this.logger.info(__('Compile Typescript files'));
                 },
             ].concat(
             Object.keys(jsFiles).map(function (file) {

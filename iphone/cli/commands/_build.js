@@ -5070,22 +5070,21 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						return;
 					}
 				}
-
 				switch (parts && parts[2]) {
 					case 'js':
 						jsFiles[relPath] = info;
 						break;
 					case 'ts':
 						tsFiles.push(info.src);
-						if (!/\.d\.ts/.test(info.src)) {
-							jsFiles[relPath.replace(/\.ts$/, '.js')] = {
-								name:info.name,
-								ext: 'js',
-								src: path.join(that.buildTsDir, relPath.replace(/\.ts$/, '.js')),
-								dest: info.dest.replace(/\.ts$/, '.js'),
-								srcStat: srcStat
-							};
-						}
+						// if (!/\.d\.ts/.test(info.src)) {
+						// 	jsFiles[relPath.replace(/\.ts$/, '.js')] = {
+						// 		name:info.name,
+						// 		ext: 'js',
+						// 		src: path.join(that.buildTsDir, relPath.replace(/\.ts$/, '.js')),
+						// 		dest: info.dest.replace(/\.ts$/, '.js'),
+						// 		srcStat: srcStat
+						// 	};
+						// }
 						
 						break;
 					case 'css':
@@ -5116,8 +5115,17 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 						jsanalyze.analyzeHtmlFile(from, relPath.split('/').slice(0, -1).join('/')).forEach(function (file) {
 							htmlJsFiles[file] = 1;
 						});
+					case 'json': 
+					case 'map': 
+					{
+						if (that.encryptJS) {
+							relPath = relPath.replace(/\./g, '_');
+							info.dest = path.join(that.buildAssetsDir, relPath);
+							that.jsFilesToEncrypt.push(relPath);
+							// break;
+						}
 						// fall through to default case
-
+					}
 					default:
 						resourcesToCopy[relPath] = info;
 				}
@@ -5170,7 +5178,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	this.cli.createHook('build.ios.platformsPaths', this, function(platformPaths) {
 		platformPaths.forEach(function(dir) {
 			if (fs.existsSync(dir)) {
-				walk(dir, this. this.buildDir);
+				walk(dir, this.xcodeAppDir);
 			}
 		}, this);
 	})(platformPaths, function() {});
@@ -6121,20 +6129,25 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
             }.bind(this));
 		    this.logger.debug(__('TsCompile done!'));
 		},
-
+		function onTsDone(next) {
+			walk(this.buildTsDir, this.xcodeAppDir);
+			next();
+		},
 		function processJSFiles(next) {
-			this.logger.info(__('Processing JavaScript files with babel:%s', this.useBabel));
+			this.logger.info(__('Processing JavaScript files with babel:%s ', this.useBabel) );
 
 			var useBabel = this.useBabel;
 			async.eachSeries(Object.keys(jsFiles), function (file, next) {
 				setImmediate(function () {
 					var info = jsFiles[file];
+					info.destSourceMap = info.dest + '.map';
 					if (this.encryptJS) {
 						if (file.indexOf('/') === 0) {
 							file = path.basename(file);
 						}
 						file = file.replace(/\./g, '_');
 						info.dest = path.join(this.buildAssetsDir, file);
+						info.destSourceMap = info.dest + '_map';
 						this.jsFilesToEncrypt.push(file);
 					}
 					var from = info.src,
@@ -6211,7 +6224,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 														return value;
 													});
 												}
-												fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+												fs.writeFileSync(info.destSourceMap, JSON.stringify(transformed.map));
+												if (this.encryptJS) {
+													this.jsFilesToEncrypt.push(info.destSourceMap);
+												}
 											}
 										} else {
 		                                    this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
