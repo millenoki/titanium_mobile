@@ -25,6 +25,7 @@ var appc = require('node-appc'),
 	humanize = require('humanize'),
 	ioslib = require('ioslib'),
 	jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+	minimatch = require("minimatch"),
 	moment = require('moment'),
 	net = require('net'),
 	path = require('path'),
@@ -4981,7 +4982,7 @@ iOSBuilder.prototype.getTsConfig = function getTsConfig(next) {
 }
 iOSBuilder.prototype.copyResources = function copyResources(next) {
 	var filenameRegExp = /^(.*)\.(\w+)$/,
-
+		jsonPackageTitanium = fs.existsSync('package.json') &&  JSON.parse(fs.readFileSync('package.json')).titanium
 		useAppThinning = this.useAppThinning,
 
 		appIcon = this.tiapp.icon.match(filenameRegExp),
@@ -5007,7 +5008,18 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		launchLogos = {},
 		imageAssets = {};
 
+
+
+
 	var that = this;
+	var toIgnore;
+	if (jsonPackageTitanium && jsonPackageTitanium.ignores) {
+		toIgnore = [];
+		jsonPackageTitanium.ignores.forEach(function(r) {
+			toIgnore.push(r);
+		})
+	}
+
 	function walk(src, dest, ignore, origSrc, prefix) {
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
 			var from = path.join(src, name),
@@ -5015,7 +5027,18 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
-			if ((!ignore || !ignore.test(name)) && (!ignoreDirs || !isDir || !ignoreDirs.test(name)) && (!ignoreFiles || isDir || !ignoreFiles.test(name)) && fs.existsSync(from)) {
+			let ignored = false;
+			if (toIgnore) {
+				for(var i = 0; i< toIgnore.length; i++) {
+					if (minimatch(relPath, toIgnore[i], {dot:true})) {
+						ignored = true;
+                        that.logger.debug(__('Ignoring %s', from.cyan));
+						break;
+					}
+				}
+			}
+
+			if (!ignored && (!ignore || !ignore.test(name)) && (!ignoreDirs || !isDir || !ignoreDirs.test(name)) && (!ignoreFiles || isDir || !ignoreFiles.test(name)) && fs.existsSync(from)) {
 				var to = path.join(dest, name);
 
 				if (srcStat.isDirectory()) {

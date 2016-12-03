@@ -32,6 +32,7 @@ var ADB = require('titanium-sdk/lib/adb'),
     fs = require('fs'),
     i18n = require('titanium-sdk/lib/i18n'),
     jsanalyze = require('titanium-sdk/lib/jsanalyze'),
+    minimatch = require("minimatch"),
     path = require('path'),
     temp = require('temp').track(),
     ti = require('titanium-sdk'),
@@ -2474,7 +2475,16 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         moduleResPackages = this.moduleResPackages = [],
         htmlJsFiles = this.htmlJsFiles = {},
         symlinkFiles = process.platform != 'win32' && this.config.get('android.symlinkResources', true),
+        jsonPackageTitanium = fs.existsSync('package.json') &&  JSON.parse(fs.readFileSync('package.json')).titanium
         _t = this;
+
+        var toIgnore;
+        if (jsonPackageTitanium && jsonPackageTitanium.ignores) {
+            toIgnore = [];
+            jsonPackageTitanium.ignores.forEach(function(r) {
+                toIgnore.push(r);
+            })
+        }
 
     function copyDir(opts, callback) {
         if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
@@ -2535,6 +2545,17 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     destDir = dest,
                     from = path.join(src, filename),
                     to = path.join(destDir, replaceat2x?filename.replace('@2x', ''):filename);
+
+                let ignored = false;
+                if (toIgnore) {
+                    for(var i = 0; i< toIgnore.length; i++) {
+                        if (minimatch(relPath, toIgnore[i], {dot:true})) {
+                            ignored = true;
+                            _t.logger.debug(__('Ignoring %s', from.cyan));
+                            return next();
+                        }
+                    }
+                }
 
                 // check that the file actually exists and isn't a broken symlink
                 if (!fs.existsSync(from)) return next();

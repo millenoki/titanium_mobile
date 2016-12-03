@@ -39,6 +39,7 @@
     "ioslib": "1.0.3",
     "lodash.defaultsdeep": "4.5.1",
     "markdown": "0.5.0",
+    "minimatch": "^3.0.3",
     "moment": "2.14.1",
     "node-appc": "git://github.com/Akylas/node-appc.git",
     "node-uuid": "1.4.7",
