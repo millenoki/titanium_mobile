@@ -1183,7 +1183,8 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 
 - (TiModule *)loadAsFile:(NSString *)path withContext:(KrollContext *)kroll
 {
-	NSString *filename = [self normalizePath:path];
+    NSString *normedPath = [self normalizePath:path];
+	NSString *filename = normedPath;
     TiModule* module = [modules objectForKey:filename];
     NSString *ext = [filename pathExtension];
     
@@ -1204,7 +1205,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
     
 	// 2. If X.js is a file, load X.js as JavaScript text.  STOP
-	filename = [path stringByAppendingString:@".js"];
+	filename = [normedPath stringByAppendingString:@".js"];
     module = [modules objectForKey:filename];
     if (module) {
         return module;
@@ -1214,7 +1215,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 		return [self loadJavascriptText:data fromFile:filename withContext:context];
 	}
 	// 3. If X.json is a file, parse X.json to a JavaScript Object.  STOP
-	filename = [path stringByAppendingString:@".json"];
+	filename = [normedPath stringByAppendingString:@".json"];
 	data = [self loadFile:filename];
 	if (data != nil) {
 		return [self loadJavascriptObject:data fromFile:filename withContext:context];
