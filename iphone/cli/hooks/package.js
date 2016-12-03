@@ -39,145 +39,93 @@ exports.init = function (logger, config, cli) {
 
             switch (cli.argv.target) {
                 case 'dist-appstore':
-                    logger.info('Packaging for App Store distribution');
+                    // logger.info('Packaging for App Store distribution');
 
-                    var name = build.tiapp.name,
-                        now = new Date(),
-                        month = now.getMonth() + 1,
-                        day = now.getDate(),
-                        hours = now.getHours(),
-                        minutes = now.getMinutes(),
-                        seconds = now.getSeconds(),
+                    // var name = build.tiapp.name,
+                    //     now = new Date(),
+                    //     month = now.getMonth() + 1,
+                    //     day = now.getDate(),
+                    //     hours = now.getHours(),
+                    //     minutes = now.getMinutes(),
+                    //     seconds = now.getSeconds(), 
+                    //     // productsDir = path.join(build.buildDir, 'build', 'Products'),
+                    //     dateStr = now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day),
+                    //     archiveBundlePath = path.join(afs.resolvePath('~/Library/Developer/Xcode/Archives'),
+                    //     now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day)); 
+                    //     archiveBundle = path.join(archiveBundlePath, name + ' ' + (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' +
+                    //         (seconds >= 10 ? seconds : '0' + seconds) + '.xcarchive');
 
-                        productsDir = path.join(build.buildDir, 'build', 'Products'),
+                    // var xcodebuildHook = cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
+                    //         logger.debug(__('Invoking: %s', (exe + ' ' + args.map(function (a) { return a.indexOf(' ') !== -1 ? '"' + a + '"' : a; }).join(' ')).cyan));
+                    //         exec(exe, args, opts, function (err, stdout, stderr) {
+                    //             if (err) {
+                    //                 logger.error(__('xcodebuild failed to run'));
+                    //                 logger.error(__(err)  + '\n');
+                    //                 process.exit(1);
+                    //             }
+                    //             done(code);
+                    //         }.bind(this));
+                    //     });
+                    // var args = [
+                    //     '-exportArchive',
+                    //     '-archivePath', archiveBundle,
+                    //     '-exportPath', archiveBundlePath
+                    // ];
 
-                        archiveBundle = afs.resolvePath('~/Library/Developer/Xcode/Archives',
-                            now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day) + path.sep +
-                            name + '_' + (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' +
-                            (seconds >= 10 ? seconds : '0' + seconds) + '.xcarchive'),
-                        archiveApp = path.join(archiveBundle, 'Products', 'Applications', name + '.app'),
-                        archiveDsymDir = path.join(archiveBundle, 'dSYMs'),
-                        dsymRegExp = /\.dSYM$/,
-
-                        bcSymbolMapsDir = path.join(archiveBundle, 'BCSymbolMaps'),
-                        bcSymbolMapsRegExp = /\.bcsymbolmap$/,
-
-                        // no clue what this is for
-                        scmBlueprintDir = path.join(archiveBundle, 'SCMBlueprint'),
-
-                        watchKitSupport2Dir = path.join(archiveBundle, 'WatchKitSupport2');
-
-                    if (!fs.existsSync(productsDir) || !fs.statSync(productsDir).isDirectory()) {
-                        // this should never happen!
-                        logger.error(__('Products dir "%s" does not exist!', productsDir) + '\n');
-                        process.exit(1);
-                    }
-
-                    wrench.mkdirSyncRecursive(archiveApp);
-                    wrench.mkdirSyncRecursive(archiveDsymDir);
-                    wrench.mkdirSyncRecursive(bcSymbolMapsDir);
-                    wrench.mkdirSyncRecursive(scmBlueprintDir);
-
-                    async.parallel([
-                        function archiveApplication(next) {
-                            logger.info(__('Archiving app bundle: %s', archiveApp.cyan));
-                            appc.subprocess.run('ditto', [ build.xcodeAppDir, archiveApp ], next);
-                        },
-
-                        function archiveDebugAndBitCodeSymbols(next) {
-                            var dsyms = [],
-                                bcSymbolMaps = [];
-
-                            fs.readdirSync(productsDir).forEach(function (name) {
-                                var subdir = path.join(productsDir, name);
-                                if (fs.existsSync(subdir) && fs.statSync(subdir).isDirectory()) {
-                                    fs.readdirSync(subdir).forEach(function (name) {
-                                        var file = path.join(subdir, name);
-                                        if (fs.existsSync(file)) {
-                                            if (dsymRegExp.test(name) && fs.statSync(file).isDirectory()) {
-                                                dsyms.push(file);
-                                            } else if (bcSymbolMapsRegExp.test(name) && !fs.statSync(file).isDirectory()) {
-                                                bcSymbolMaps.push(file);
-                                            }
-                                        }
-                                    });
-                                }
-                            });
-
-                            async.each(dsyms, function (dsym, cb) {
-                                var dest = path.join(archiveDsymDir, path.basename(dsym));
-                                logger.info(__('Archiving debug symbols: %s', dest.cyan));
-                                appc.subprocess.run('ditto', [ dsym, dest ], cb);
-                            }, function (err) {
-                                if (err) {
-                                    return next(err);
-                                }
-
-                                bcSymbolMaps.forEach(function (bcSymbolMap) {
-                                    var dest = path.join(bcSymbolMapsDir, path.basename(bcSymbolMap));
-                                    logger.info(__('Archiving Bitcode Symbol Map: %s', dest.cyan));
-                                    fs.writeFileSync(dest, fs.readFileSync(bcSymbolMap));
-                                });
-
-                                next();
-                            });
-                        },
-                        function archiveWatchKitSupportFiles(next) {
-                            // NOTE: this will probably break when WatchKit 3 hits the scene
-                            if (build.hasWatchAppV2orNewer) {
-                                wrench.mkdirSyncRecursive(watchKitSupport2Dir);
-
-                                // find the _WatchKitStub dir
-                                var watchDir = path.join(build.xcodeAppDir, 'Watch');
-                                if (fs.existsSync(watchDir) && fs.statSync(watchDir).isDirectory()) {
-                                    fs.readdirSync(watchDir).forEach(function (name) {
-                                        var watchAppDir = path.join(watchDir, name);
-                                        if (fs.existsSync(watchAppDir) && fs.statSync(watchAppDir).isDirectory()) {
-                                            var wkStubDir = path.join(watchAppDir, '_WatchKitStub');
-                                            if (fs.existsSync(wkStubDir) && fs.statSync(wkStubDir).isDirectory()) {
-                                                logger.info(__('Archiving %s support files: %s', name.cyan, wkStubDir.cyan));
-                                                build.copyDirSync(wkStubDir, watchKitSupport2Dir, { forceCopy: true });
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                            next();
-                        },
-                        function archiveInfoPlist(next) {
-                            var tempPlist = path.join(archiveBundle, 'Info.xml.plist');
-
-                            exec('/usr/bin/plutil -convert xml1 -o "' + tempPlist + '" "' + path.join(build.xcodeAppDir, 'Info.plist') + '"', function (err, stdout, strderr) {
-                                var origPlist = new appc.plist(tempPlist),
-                                    newPlist = new appc.plist(),
-                                    appBundle = 'Applications/' + name + '.app';
-
-                                fs.unlinkSync(tempPlist);
-
-                                appc.util.mix(newPlist, {
-                                    ApplicationProperties: {
-                                        ApplicationPath: appBundle,
-                                        CFBundleIdentifier: origPlist.CFBundleIdentifier,
-                                        CFBundleShortVersionString: origPlist.CFBundleShortVersionString,
-                                        CFBundleVersion: origPlist.CFBundleVersion,
-                                        IconPaths: [
-                                            appBundle + '/' + build.tiapp.icon
-                                        ]
-                                    },
-                                    ArchiveVersion: newPlist.type('real', 1),
-                                    CreationDate: now,
-                                    Name: name,
-                                    SchemeName: name
-                                }).save(path.join(archiveBundle, 'Info.plist'));
-
-                                next();
-                            });
-                        }
-                    ], function () {
+                    // if (fs.existsSync(path.join(build.projectDir, 'exportOptions.plist'))) {
+                    //     args.push('-exportOptionsPlist', path.join(build.projectDir, 'exportOptions.plist'));
+                    // }
+                    // async.series([
+                    //     function (next) {
+                    //     xcodebuildHook(
+                    //         build.xcodeEnv.executables.xcodebuild,
+                    //         [
+                    //             'archive',
+                    //             '-scheme', build.tiapp.name.replace(/[-\W]/g, '_'),
+                    //             '-archivePath', archiveBundle
+                    //         ],
+                    //         {
+                    //             cwd: build.buildDir,
+                    //             // env: {
+                    //             //     DEVELOPER_DIR: build.xcodeEnv.path,
+                    //             //     TMPDIR: process.env.TMPDIR,
+                    //             //     HOME: process.env.HOME,
+                    //             //     PATH: process.env.PATH,
+                    //                 // TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
+                    //             // }
+                    //         },
+                    //         next
+                    //     );
+                    //     }, 
+                    //     function (next) {
+                    //         xcodebuildHook(
+                    //             build.xcodeEnv.executables.xcrun,
+                    //             [
+                    //                 'xcodebuild',
+                    //                 '-exportArchive',
+                    //                 '-archivePath', archiveBundle,
+                    //                 '-exportPath', archiveBundlePath
+                    //             ].concat(fs.existsSync(path.join(build.projectDir, 'exportOptions.plist'))?[
+                    //                 '-exportOptionsPlist', path.join(build.projectDir, 'exportOptions.plist')
+                    //                 ]:[]),
+                    //             {
+                    //                 cwd: build.buildDir,
+                    //                 // env: {
+                    //                     // DEVELOPER_DIR: build.xcodeEnv.path,
+                    //                     // TMPDIR: process.env.TMPDIR,
+                    //                     // HOME: process.env.HOME,
+                    //                     // PATH: process.env.PATH,
+                    //                     // TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
+                    //                 // }
+                    //             },
+                    //             next
+                    //         );
+                    //     }
+                    // ], function () {
                         // workaround for dumb Xcode4 bug that doesn't update the organizer unless files are touched in a very specific manner
-                        var temp = afs.resolvePath('~/Library/Developer/Xcode/Archives/temp');
-                        fs.renameSync(archiveBundle, temp);
-                        fs.renameSync(temp, archiveBundle);
+                        // var temp = afs.resolvePath('~/Library/Developer/Xcode/Archives/temp');
+                        // fs.renameSync(archiveBundle, temp);
+                        // fs.renameSync(temp, archiveBundle);
 
                         // open xcode + organizer after packaging
                         logger.info(__('Launching Xcode: %s', build.xcodeEnv.xcodeapp.cyan));
@@ -188,7 +136,7 @@ exports.init = function (logger, config, cli) {
                                 finished();
                             });
                         });
-                    });
+                    // });
                     break;
                     
                 //  if (!cli.argv['build-only']) {

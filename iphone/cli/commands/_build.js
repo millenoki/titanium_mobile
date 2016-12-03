@@ -6948,7 +6948,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 		});
 
 	var args = [
-		'build',
+		(this.target === 'dist-appstore'? 'archive' : 'build'),
 		'-target', this.tiapp.name,
 		'-configuration', this.xcodeTarget,
 		'-scheme', this.tiapp.name.replace(/[-\W]/g, '_'),
