@@ -1310,7 +1310,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 		if (cli.argv.xcode) {
 			this.deployType = cli.argv['deploy-type'] || this.deployTypes[this.target];
 		} else {
-			this.deployType = !/^dist-appstore/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[
+			this.deployType = cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[
 				this.target];
 		}
 
