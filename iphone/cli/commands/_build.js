@@ -6150,7 +6150,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
                                     inSourceMap =  JSON.parse(fs.readFileSync(from + '.map'));
                                 }
 								babel.transformFile(from, {
-									sourceMaps:this.cli.argv.target !== 'dist-appstore' ,
+									sourceMaps:this.deployType !== 'production' ,
 									sourceMapTarget:file,
 									sourceFileName:file,
 									sourceMapTarget:to + '.map',
@@ -6293,7 +6293,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 			this.unmarkBuildDirFile(licenseFile);
 
-			if (!/dist\-appstore/.test(this.target)) {
+			if (this.deployType !== 'production') {
 				this.logger.info(__('Copying Error Template'));
 				var dirBase = this.encryptJS ? path.join(this.buildAssetsDir, '_error_template_json') : path.join(this.xcodeAppDir, '_error_template.json');
 				var src;
