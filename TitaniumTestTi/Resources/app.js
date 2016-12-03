@@ -11,9 +11,11 @@ var backColor = 'white';
 var textColor = 'black';
 var navGroup;
 var openWinArgs;
-var html =
-	'  SUCCESS  <big><font face="mapme">' + String.fromCharCode(0xe6b0) +
-	'</font></big>  <font color="red">musique</font> électronique <b><span style="background-color:green;border-color:black;border-radius:20px;border-width:1px">est un type de </span><big><big>musique</big></big> qui a <font color="green">été <a href="test">conçu</a> à</font></b> partir des années<br> 1950 avec des générateurs de signaux<br> et de sons synthétiques. Avant de pouvoir être utilisée en temps réel, elle a été primitivement enregistrée sur bande magnétique, ce qui permettait aux compositeurs de manier aisément les sons, par exemple dans l\'utilisation de boucles répétitives superposées. Ses précurseurs ont pu bénéficier de studios spécialement équipés ou faisaient partie d\'institutions musicales pré-existantes. La musique pour bande de Pierre Schaeffer, également appelée musique concrète, se distingue de ce type de musique dans la mesure où son matériau primitif était constitué des sons de la vie courante. La particularité de la musique électronique de l\'époque est de n\'utiliser que des sons générés par des appareils électroniques.';
+
+var html = '<b>' + 'title' + '</b><br/><small><small>' + 'subtitle' + '</small></small>';
+// var html =
+// '  SUCCESS  <big><font face="mapme">' + String.fromCharCode(0xe6b0) +
+// '</font></big>  <font color="red">musique</font> électronique <b><span style="background-color:green;border-color:black;border-radius:20px;border-width:1px">est un type de </span><big><big>musique</big></big> qui a <font color="green">été <a href="test">conçu</a> à</font></b> partir des années<br> 1950 avec des générateurs de signaux<br> et de sons synthétiques. Avant de pouvoir être utilisée en temps réel, elle a été primitivement enregistrée sur bande magnétique, ce qui permettait aux compositeurs de manier aisément les sons, par exemple dans l\'utilisation de boucles répétitives superposées. Ses précurseurs ont pu bénéficier de studios spécialement équipés ou faisaient partie d\'institutions musicales pré-existantes. La musique pour bande de Pierre Schaeffer, également appelée musique concrète, se distingue de ce type de musique dans la mesure où son matériau primitif était constitué des sons de la vie courante. La particularité de la musique électronique de l\'époque est de n\'utiliser que des sons générés par des appareils électroniques.';
 // html = '<span
 // style="border-style:solid;background-color:green;border-color:red;border-radius:20px;border-width:3px;padding-top:3px;padding-bottom:3px;line-height:2em;">
 // SUCCESS </span><br><span
@@ -1978,7 +1980,6 @@ function fadeInEx() {
 	win.add(button);
 	openWin(win);
 }
-
 
 function htmlLabelEx() {
 	var win = createWin({
@@ -7230,7 +7231,7 @@ function ioBlurTest() {
 			right: 16,
 			states: {
 				pressed: {
-						duration:100,
+					duration: 100,
 					label: {
 						transform: 'r45'
 					}
@@ -7283,17 +7284,56 @@ Ti.App.on('significanttimechange', Ti.API.debug);
 function bonjourTest() {
 	// Searcher for finding other services
 	var serviceBrowser = Titanium.Network.createBonjourBrowser({
-		serviceType:'_http._tcp',
-		domain:'local.'
+		serviceType: '_http._tcp',
+		domain: 'local.'
 	});
-		console.log('test1');
+	console.log('test1');
 	serviceBrowser.on('discover', function(e) {
 		console.log('test2');
 		Ti.API.info(e);
 	});
 	serviceBrowser.search();
 }
-bonjourTest();
+
+function GIFTest() {
+	var animating = true;
+	var win = Ti.UI.createWindow({
+		backgroundColor: 'transparent',
+		childTemplates: [{
+			type: 'Ti.UI.ScrollView',
+			properties: {
+				layout: 'vertical',
+				backgroundColor: 'green',
+				width: 'FILL',
+				height: 'FILL',
+			},
+			childTemplates: [{
+				type: 'Ti.UI.ImageView',
+				properties: {
+					width: 'FILL',
+					backgroundColor: 'red',
+					scaleType: Ti.UI.SCALE_TYPE_ASPECT_FIT,
+					height: 'SIZE',
+					image: '/images/GIF-anim-search.gif'
+				},
+				events:{
+					click:function(e) {
+						animating = !animating;
+						if (animating) {
+							e.source.start();
+						} else {
+							e.source.stop();
+						}
+					}
+				}
+			}]
+		}]
+	});
+
+	win.open();
+}
+
+GIFTest();
 
 // animationBugEx();
 // setTimeout(windowLevelTest, 1000);
