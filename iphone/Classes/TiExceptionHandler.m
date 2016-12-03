@@ -178,6 +178,11 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
     }
 }
 
+- (NSString *)localizedDescription
+{
+    return [self oneLineDescription];
+}
+
 - (NSString *)scriptLocation
 {
     NSString* path = [[NSURL fileURLWithPath:[TiFileSystemHelper resourcesDirectory]] absoluteString];

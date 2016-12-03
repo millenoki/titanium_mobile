@@ -52,6 +52,7 @@
 - (NSString *)detailedDescription;
 - (NSString *)stackDescription;
 - (NSString *)oneLineDescription;
+- (NSString *)localizedDescription;
 
 @end
 
