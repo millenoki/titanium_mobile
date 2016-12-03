@@ -1420,7 +1420,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 			}, this);
 		}, this);
 
-		if (cli.argv.target != 'dist-appstore' && cli.argv.target !== 'simulator') {
+		if (this.deployType !== 'production' && cli.argv.target !== 'simulator') {
 			// determine if we're going to be minifying javascript
 			var compileJSProp = cli.tiapp.properties['ti.compilejs'];
 			if (cli.argv['skip-js-minify']) {
@@ -2335,7 +2335,9 @@ iOSBuilder.prototype.initialize = function initialize() {
 
 	this.iosBuildDir            = path.join(this.buildDir, 'build', 'Products', this.xcodeTarget + '-' + this.xcodeTargetOS);
 	this.xcodeAppDir            = argv.xcode && process.env.TARGET_BUILD_DIR && process.env.CONTENTS_FOLDER_PATH ? path.join(process
-		.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : path.join(this.iosBuildDir, this.tiapp.name + '.app');
+		.env.TARGET_BUILD_DIR, process.env.CONTENTS_FOLDER_PATH) : ((this.target === 'dist-appstore')?
+		path.join(this.iosBuildDir, this.tiapp.name + '.temp.app')
+		:path.join(this.iosBuildDir, this.tiapp.name + '.app'));
 	
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
@@ -6859,7 +6861,7 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 
 	var xcodebuildHook = this.cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
 			this.logger.debug(__('Invoking: %s', ('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.map(function (a) { return a.indexOf(' ') !== -1 ? '"' + a + '"' : a; }).join(' ')).cyan));
-
+			var isTempXcodeAppDirHandled = (this.target !== 'dist-appstore');
 			var p = spawn(exe, args, opts),
 				out = [],
 				err = [],
@@ -6924,6 +6926,14 @@ iOSBuilder.prototype.invokeXcodeBuild = function invokeXcodeBuild(next) {
 			}
 
 			p.stdout.on('data', function (data) {
+				if (!isTempXcodeAppDirHandled && fs.existsSync(path.join(this.iosBuildDir, this.tiapp.name + '.app'))) {
+					isTempXcodeAppDirHandled = true;
+					//trick for xcodearchive
+					//we copy all files from the xcodeAppDir to the real xcodeAppDir
+					//let's hope it is not longer than the xcodebuild, or it will fail!
+                    afs.copyDirSyncRecursive(this.xcodeAppDir, fs.realpathSync(path.join(this.iosBuildDir, this.tiapp.name + '.app')), { logger: this.logger.debug });
+				
+				}
 				buffer += data.toString();
 				var lines = buffer.split('\n');
 				buffer = lines.pop();
