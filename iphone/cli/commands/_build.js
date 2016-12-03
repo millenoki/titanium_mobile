@@ -6186,10 +6186,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
                                     inSourceMap =  JSON.parse(fs.readFileSync(from + '.map'));
                                 }
 								babel.transformFile(from, {
-									sourceMaps:this.deployType !== 'production' ,
+									sourceMaps:this.deployType !== 'production',
 									sourceMapTarget:file,
 									sourceFileName:file,
-									sourceMapTarget:to + '.map',
+									sourceMapTarget:info.destSourceMap,
 									inputSourceMap:inSourceMap
 								}, function(err, transformed) {
 									if (err) {
