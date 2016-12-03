@@ -3234,6 +3234,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}, this);
 
 	var deploymentTarget = this.minIosVer;
+	var hasSwift = false;
 	// add the native libraries to the project
 	if (this.nativeLibModules.length) {
 		this.logger.trace(__n('Adding %%d native module library', 'Adding %%d native module libraries', this.nativeLibModules.length === 1 ? 1 : 2, this.nativeLibModules.length));
@@ -3315,6 +3316,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 				var framework = path.basename(fullPath);
 				var frameworkName = framework.replace(/\.framework$/, '');
 				// var fullPath = path.join(lib.modulePath, 'platform', framework);
+				hasSwift  =true;
 				this.logger.trace(__('handling embedded framework %s, %s, %s', framework, frameworkName, fullPath));
 				if (appc.version.lt(deploymentTarget, '8.0')) {
 					deploymentTarget = '8.0';
@@ -3779,11 +3781,12 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			return;
 		}
 
-		// if (legacySwift) {
-		// 	delete conf.buildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES;
-		// } else {
-		// 	delete conf.buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT;
-		// }
+		if (hasSwift) {
+			// conf.buildSettings.ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = 'YES';
+			conf.buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT = 'YES';
+		} else {
+			delete conf.buildSettings.EMBEDDED_CONTENT_CONTAINS_SWIFT;
+		}
 	});
 
 	// get the product names
