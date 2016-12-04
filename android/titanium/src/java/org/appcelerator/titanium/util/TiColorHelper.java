@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,11 +37,11 @@ public class TiColorHelper
 
     public static int parseHexColor(String lowval) {
         final int length = lowval.length();
-        int alpha = 255;
-        int value = Integer.parseInt(lowval, 16);
-        int red = 0;
-        int green = 0;
-        int blue = 0;
+        long alpha = 255;
+        long value = new BigInteger(lowval, 16).longValue();
+        long red = 0;
+        long green = 0;
+        long blue = 0;
         
         if (length < 6)
         {
@@ -73,7 +74,7 @@ public class TiColorHelper
             green = (value >> 8) & 0xFF;
             blue = value & 0xFF;
         }
-        return Color.argb(alpha, red, green, blue);
+        return Color.argb((int) alpha, (int) red, (int) green, (int) blue);
     }
 	/**
 	 * Convert string representations of colors, like "red" into the corresponding RGB/RGBA representation.
