@@ -105,10 +105,11 @@
                 if (self.weight) {
                     fontName = [NSString stringWithFormat:@"%@-%@", fontName, self.weight];
                 }
-                NSArray* fontNames = [[UIFont fontNamesForFamilyName:fontName] sortedArrayUsingSelector:@selector(compare:)];
+                NSSortDescriptor* sortOrder = [NSSortDescriptor sortDescriptorWithKey: @"self" ascending: NO];
+                NSArray* fontNames = [[UIFont fontNamesForFamilyName:fontName] sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]];
                 if ([fontNames count] == 0 && ![fontName isEqualToString:family]) {
                     //try ignoring the weight
-                    fontNames = [[UIFont fontNamesForFamilyName:family] sortedArrayUsingSelector:@selector(compare:)];
+                    fontNames = [[UIFont fontNamesForFamilyName:family] sortedArrayUsingDescriptors: [NSArray arrayWithObject: sortOrder]];
                 }
                 if ([fontNames count] == 1) {
                     font = [[UIFont fontWithName:[fontNames objectAtIndex:0] size:self.size] retain];
