@@ -121,7 +121,7 @@ TiDimension TiDimensionFromObject(id object)
 	}
 	if ([object respondsToSelector:@selector(floatValue)])
 	{
-        id val = [[TiApp tiAppProperties] objectForKey:@"ti.ui.defaultunit"];
+        id val = [TiApp defaultUnit];
         if (val == nil) {
             return TiDimensionMake(TiDimensionTypeDip, [object floatValue]);
         }
