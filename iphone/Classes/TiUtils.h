@@ -402,6 +402,9 @@ typedef enum
  */
 +(NSString*)hexColorValue:(UIColor *)color;
 
++(id) hexColorFormat;
++(BOOL) hexColorUsesRGBA;
+
 /**
  Converts input value into the dimention type.
  @param value The input value that could be converted to a color.

@@ -714,14 +714,40 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 	return nil;
 }
 
++(id) hexColorFormat {
+    static id hexColorFormat;
+    
+    if(hexColorFormat == nil) {
+        hexColorFormat = [TiUtils  stringValue:@"ti.hexColorFormat" properties:[TiApp tiAppProperties] def:@"argb"];
+    }
+    return hexColorFormat;
+}
++(BOOL) hexColorUsesRGBA {
+    static BOOL hexColorUsesRGBA;
+    static dispatch_once_t predicate;
+    dispatch_once(&predicate, ^{
+        hexColorUsesRGBA = [[TiUtils hexColorFormat] isEqualToString:@"rgba"];
+    });
+    return hexColorUsesRGBA;
+}
+
 + (NSString *)hexColorValue:(UIColor *)color
 {
     const CGFloat *components = CGColorGetComponents(color.CGColor);
-    
-    return [NSString stringWithFormat:@"#%02lX%02lX%02lX",
-            lroundf(components[0] * 255),
-            lroundf(components[1] * 255),
-            lroundf(components[2] * 255)];
+    CGFloat alpha = CGColorGetAlpha(color.CGColor);
+    if ([TiUtils hexColorUsesRGBA]) {
+        return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX",
+                lroundf(alpha * 255),
+                lroundf(components[0] * 255),
+                lroundf(components[1] * 255),
+                lroundf(components[2] * 255)];
+    } else {
+        return [NSString stringWithFormat:@"#%02lX%02lX%02lX%02lX",
+                lroundf(components[0] * 255),
+                lroundf(components[1] * 255),
+                lroundf(components[2] * 255),
+                lroundf(alpha * 255)];
+    }
 }
 
 +(TiDimension)dimensionValue:(id)value

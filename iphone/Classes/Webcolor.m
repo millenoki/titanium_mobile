@@ -87,14 +87,14 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 					   black,@"ff000000",
 					   nil];
 	}
-	if ([colorName hasPrefix:@"#"])
-	{
-		colorName = [colorName substringFromIndex:1];
-	}
+	
 	colorName = [colorName lowercaseString];
     
     UIColor * result = nil;
-    if ([colorName hasPrefix:@"rgb"])
+    if ([colorName hasPrefix:@"#"])
+    {
+        result = [Webcolor colorForHex:[colorName substringFromIndex:1]];
+    } else if ([colorName hasPrefix:@"rgb"])
     {
         result = [Webcolor colorForRGBFunction:colorName];
     } else {
@@ -180,7 +180,6 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
 +(UIColor*)colorForHex:(NSString*)hexCode
 {
     NSUInteger length = [hexCode length];
-    float alpha = 1.0;
     if ((length != 3) && (length != 4) && (length != 6) && (length!=7) && (length != 8))
     {
         if ([hexCode rangeOfString:@"rgba"].location == NSNotFound)
@@ -189,7 +188,11 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
         }
         return nil;
     }
+    float alpha = 1.0;
     unsigned value = 0;
+    int red = 0;
+    int green = 0;
+    int blue = 0;
 	
     for (size_t i = 0; i < length; ++i)
     {
@@ -212,16 +215,30 @@ int toASCIIHexValue(unichar c) {return (c & 0xF) + (c < 'A' ? 0 : 9); }
         (value & 0xF);
     }
 	
-    if((length % 4)==0)
-    {
-        alpha = ((value >> 24) & 0xFF) / 255.0;
+    if ([TiUtils hexColorUsesRGBA]) {
+        if((length % 4)==0)
+        {
+            red = (value >> 24) & 0xFF;
+            green = (value >> 16) & 0xFF;
+            blue = (value >> 8) & 0xFF;
+            alpha = (value & 0xFF) / 255.0;
+        } else {
+            red = (value >> 16) & 0xFF;
+            green = (value >> 8) & 0xFF;
+            blue = value & 0xFF;
+        }
+    } else {
+        if((length % 4)==0)
+        {
+            alpha = ((value >> 24) & 0xFF) / 255.0;
+        }
+        
+        red = (value >> 16) & 0xFF;
+        green = (value >> 8) & 0xFF;
+        blue = value & 0xFF;
     }
-	
-    int red = (value >> 16) & 0xFF;
-    int green = (value >> 8) & 0xFF;
-    int blue = value & 0xFF;
-	
     return RGBACOLOR(red,green,blue,alpha);
+    
 }
 
 +(void)flushCache
