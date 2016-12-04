@@ -141,7 +141,7 @@ public class TiFileProxy extends KrollProxy
 	@Kroll.method
 	public boolean append(Object data)
 	{
-		return write(new Object[]{data, true});
+		return write(data, true);
 	}
 
 	@Kroll.method

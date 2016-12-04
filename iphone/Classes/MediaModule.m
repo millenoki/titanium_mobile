@@ -592,6 +592,7 @@ MAKE_SYSTEM_PROP(VIDEO_TIME_OPTION_EXACT,MPMovieTimeOptionExact);
         }
     }
 }
+#endif
 
 /**
  Camera & Video Capture methods

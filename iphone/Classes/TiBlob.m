@@ -563,18 +563,6 @@ static NSString *const MIMETYPE_JPEG = @"image/jpeg";
     return result;
 }
 
-- (id)imageAsCompressed:(id)args
-{
-	[self ensureImageLoaded];
-	if (image!=nil)
-	{
-        ENSURE_SINGLE_ARG(args, NSNumber);
-        NSUInteger maxSize = [args intValue];
-		TiBlob *blob = [[TiBlob alloc] _initWithPageContext:[self pageContext] andImage:[self shrinkImage:image withMaxByteSize:maxSize]];
-		return [blob autorelease];
-	}
-	return nil;
-}
 
 -(id)toImage:(id)args
 {
