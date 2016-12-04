@@ -42,7 +42,7 @@ import android.webkit.WebView;
 	TiC.PROPERTY_CACHE_MODE,
 	TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
 	TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE,
-	"alwaysInjectTi"
+	"alwaysInjectTi",
 	TiC.PROPERTY_HTML
 })
 public class WebViewProxy extends ViewProxy

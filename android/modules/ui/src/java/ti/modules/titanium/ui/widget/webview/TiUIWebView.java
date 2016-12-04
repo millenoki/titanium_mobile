@@ -1237,10 +1237,31 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		return chromeClient.interceptOnBackPressed();
 	}
+	
+	public KrollDict eventForURL(String url) {
+        KrollDict data = new KrollDict();
+        if (url != null) {
+            data.put(TiC.PROPERTY_URL, url.replace(TiC.URL_ANDROID_ASSET_RESOURCES, ""));
+        }
+        return data;
+    }
+
+
+    public void setIsLocalHTML(boolean b) {
+        isLocalHTML = b;
+        
+    }
+
+
+    public void clearHistory() {
+        getWebView().clearHistory();    
+    }
+    public void clearCache() {
+        getWebView().clearCache(true);    
+    }
 
 	@Override
-	protected void disableHWAcceleration()
-	{
-		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
-	}
+	protected void disableHWAcceleration(View view) {
+        Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
+    }
 }
