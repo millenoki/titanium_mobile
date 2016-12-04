@@ -102,6 +102,7 @@ public class TiUIActivityIndicator extends TiUIView
             break;
         }
 
+        case TiC.PROPERTY_INDICATOR_COLOR:
         case TiC.PROPERTY_TINT_COLOR:
         {
             int color = TiConvert.toColor(newValue);

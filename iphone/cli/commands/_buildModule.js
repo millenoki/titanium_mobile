@@ -188,6 +188,9 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 		}
 	}, this);
 
+	this.hooksDir = path.join(this.projectDir, 'hooks');
+	this.sharedHooksDir = path.resolve(this.projectDir, '..', 'hooks');
+
 	this.licenseDefault = "TODO: place your license here and we'll include it in the module distribution";
 	this.licenseFile = path.join(this.projectDir, 'license.json');
 	if (!fs.existsSync(this.licenseFile)) {
@@ -997,7 +1000,25 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
             dest.directory(this.platformDir, path.join(moduleFolder, 'platform'));
 		}
 
-		// 4. Resources folder
+		// 4. hooks folder
+		var hookFiles = {};
+		if (fs.existsSync(this.hooksDir)) {
+			this.dirWalker(this.hooksDir, function (file) {
+				var relFile = path.relative(this.hooksDir, file);
+				hookFiles[relFile] = 1;
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'hooks', relFile) });
+			}.bind(this));
+		}
+		if (fs.existsSync(this.sharedHooksDir)) {
+			this.dirWalker(this.sharedHooksDir, function (file) {
+				var relFile = path.relative(this.sharedHooksDir, file);
+				if (!hookFiles[relFile]) {
+					dest.append(fs.createReadStream(file), { name: path.join(moduleFolder, 'hooks', relFile) });
+				}
+			}.bind(this));
+		}
+
+		// 5. Resources folder
 		if (fs.existsSync(this.resourcesDir)) {
 			this.dirWalker(this.resourcesDir, function(file, name) {
 				if (name !== 'README.md') {
@@ -1006,7 +1027,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule() {
 			}.bind(this));
 		}
 
-		// 5. assets folder, not including js files
+		// 6. assets folder, not including js files
 		if (fs.existsSync(this.assetsDir)) {
 			this.dirWalker(this.assetsDir, function(file) {
                 if (/\.js\.map$/.test(file)) {

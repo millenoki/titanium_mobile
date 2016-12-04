@@ -419,7 +419,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	protected void handleClose(HashMap options)
 	{
         TiBaseActivity activity = getWindowActivity();
-		if (activity == null) {
+		if (activity == null && !activity.isFinishing()) {
 			//we must have been opened without creating the activity.
 			closeFromActivity(true);
 			return;

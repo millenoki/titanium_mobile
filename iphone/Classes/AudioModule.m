@@ -140,18 +140,11 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_HDMI,AVAudioSessionPortHDMI)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_AIRPLAY,AVAudioSessionPortAirPlay)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BLUETOOTHHFP,AVAudioSessionPortBluetoothHFP)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO,AVAudioSessionPortUSBAudio)
-
--(NSString*)AUDIO_SESSION_PORT_BLUETOOTHLE
-{
-    return AVAudioSessionPortBluetoothLE;
-}
-
--(NSString*)AUDIO_SESSION_PORT_CARAUDIO
-{
-    return AVAudioSessionPortCarAudio;
-}
+MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BLUETOOTHLE,AVAudioSessionPortBluetoothLE)
+MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_CARAUDIO,AVAudioSessionPortCarAudio)
 
 //Constants for AudioSessions
+#if defined(USE_TI_AUDIOAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_AUDIORECORDER)
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_AMBIENT,AVAudioSessionCategoryAmbient);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_SOLO_AMBIENT, AVAudioSessionCategorySoloAmbient);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAYBACK, AVAudioSessionCategoryPlayback);
@@ -161,6 +154,7 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD, AVAudioSessionCategoryPl
 
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_NONE, AVAudioSessionPortOverrideNone);
 MAKE_SYSTEM_UINT(AUDIO_SESSION_OVERRIDE_ROUTE_SPEAKER, AVAudioSessionPortOverrideSpeaker);
+#endif
 
 //Constants for mediaTypes in openMusicLibrary
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_MUSIC, MPMediaTypeMusic);
@@ -237,6 +231,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
     return appMusicPlayer;
 }
 #endif
+#if defined(USE_TI_AUDIOAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_AUDIORECORDER)
 -(void)setAudioSessionCategory:(NSString*)mode
 {
     [[TiAudioSession sharedSession] setSessionMode:mode];
@@ -246,6 +241,7 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 {
     return [[TiAudioSession sharedSession] sessionMode];
 }
+#endif
 
 -(NSNumber*)canRecord
 {

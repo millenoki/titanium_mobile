@@ -1109,19 +1109,21 @@ public class TiHTTPClient
     }
     
 
-    
-    private class ClientRunnable implements Runnable
-    {
-        private final int totalLength;
-        private PrintWriter printWriter;
-        private OutputStream outputStream;
-        private String boundary;
-        private static final String LINE_FEED = "\r\n";
+	
+	private class ClientRunnable implements Runnable
+	{
+		private final int totalLength;
+		private int contentLength;
+		private PrintWriter printWriter;
+		private OutputStream outputStream;
+		private String boundary;
+		private static final String LINE_FEED = "\r\n";
 
-        public ClientRunnable(int totalLength)
-        {
-            this.totalLength = totalLength;
-        }
+		public ClientRunnable(int totalLength)
+		{
+			this.totalLength = totalLength;
+			this.contentLength = 0;
+		}
 
 		public void run()
 		{
@@ -1148,17 +1150,6 @@ public class TiHTTPClient
 					setUpClient(client, isPostOrPutOrPatch);
 
 					if (isPostOrPutOrPatch) {			
-						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
-							public void progress(int progress) {
-								KrollDict data = new KrollDict();
-								double currentProgress = ((double) progress/totalLength);
-								if (currentProgress > 1) currentProgress = 1;
-								data.put("progress", currentProgress);
-								dispatchCallback(TiC.PROPERTY_ONSENDSTREAM, data);
-							}
-						});
-						printWriter = new PrintWriter(outputStream, true);
-						
 						UrlEncodedFormEntity form = null;
 						
 						if (nvPairs.size() > 0) {
@@ -1169,7 +1160,51 @@ public class TiHTTPClient
 								Log.e(TAG, "Unsupported encoding: ", e);
 							}
 						}
+
+						// calculate content length
+						if (parts.size() > 0 && needMultipart) {
+							for(String name : parts.keySet()) {
+								contentLength += constructFilePart(name, parts.get(name)).length();
+								contentLength += parts.get(name).getContentLength() + 2;
+							}
+							if (form != null) {
+								contentLength += (int) form.getContentLength();
+								try {
+									ByteArrayOutputStream bos = new ByteArrayOutputStream((int) form.getContentLength());
+									form.writeTo(bos);
+									contentLength += constructFilePart("form", new StringBody(bos.toString(), "application/x-www-form-urlencoded", Charset.forName("UTF-8"))).length();
+									contentLength += form.getContentLength() + 2;
+								} catch (UnsupportedEncodingException e) {
+									Log.e(TAG, "Unsupported encoding: ", e);
+								} catch (IOException e) {
+									Log.e(TAG, "Error converting form to string: ", e);
+								}
+							}
+							contentLength += 6 + boundary.length();
+						} else {
+							if (data instanceof String) {
+								contentLength += ((String) data).getBytes().length;
+							} else if (data instanceof FileEntity) {
+								contentLength += ((FileEntity) data).getContentLength();
+							} else if (form != null) {
+								contentLength += (int) form.getContentLength();
+							}
+						}
+
+						// disable internal buffer
+						client.setFixedLengthStreamingMode(contentLength);
 						
+						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
+							public void progress(int progress) {
+								KrollDict data = new KrollDict();
+								double currentProgress = ((double) progress/totalLength);
+								if (currentProgress > 1) currentProgress = 1;
+								data.put("progress", currentProgress);
+								dispatchCallback(TiC.PROPERTY_ONSENDSTREAM, data);
+							}
+						});
+						printWriter = new PrintWriter(outputStream, true);
+
 						if (parts.size() > 0 && needMultipart) {
 							
 							for(String name : parts.keySet()) {
@@ -1310,7 +1345,6 @@ public class TiHTTPClient
 		        return;
 		    }
 
-		    client.setUseCaches(true);
 		    client.setRequestMethod(method);
 		    client.setDoInput(true);
 
@@ -1338,28 +1372,34 @@ public class TiHTTPClient
 		    }
 		}
 
+		private String constructFilePart(String name, ContentBody contentBody) {
+			String part = "";
+			String fileName = contentBody.getFilename();
+
+			part += "--" + boundary + LINE_FEED;
+			part += "Content-Disposition: form-data; name=\"" + name + "\"";
+			if (fileName != null) {
+				part += "; filename=\"" + fileName + "\"";
+			}
+			part += LINE_FEED;
+			String mimeType = contentBody.getMimeType();
+			if (mimeType != null && !mimeType.isEmpty()) {
+				part += "Content-Type: " + contentBody.getMimeType();
+				if (contentBody.getCharset() != null) {
+					part += "; charset=" + contentBody.getCharset();
+				}
+				part += LINE_FEED;
+			}
+			part += "Content-Transfer-Encoding: "+ contentBody.getTransferEncoding() + LINE_FEED + LINE_FEED;
+
+			return part;
+		}
+
 	    private void addFilePart(String name, ContentBody contentBody) throws IOException{
-	    	String fileName = contentBody.getFilename();
+	    	printWriter.append(constructFilePart(name, contentBody));
+			printWriter.flush();
 
-	    	printWriter.append("--" + boundary).append(LINE_FEED);
-	    	printWriter.append("Content-Disposition: form-data; name=\"" + name + "\"");
-	    	if (fileName != null) {
-	    		printWriter.append("; filename=\"" + fileName + "\"");
-	    	}
-	    	printWriter.append(LINE_FEED);
-	    	String mimeType = contentBody.getMimeType();
-	    	if (mimeType != null && !mimeType.isEmpty()) {
-	    	    printWriter.append("Content-Type: " + contentBody.getMimeType());
-	    	    if (contentBody.getCharset() != null) {
-	    	        printWriter.append("; charset=" + contentBody.getCharset());
-	    	    }
-	    	    printWriter.append(LINE_FEED);
-	    	}
-	    	printWriter.append("Content-Transfer-Encoding: "+ contentBody.getTransferEncoding()).append(LINE_FEED);
-	    	printWriter.append(LINE_FEED);
-	    	printWriter.flush();
-
-            contentBody.writeTo(outputStream);
+	    	contentBody.writeTo(outputStream);
 
             printWriter.append(LINE_FEED);
             printWriter.flush();    

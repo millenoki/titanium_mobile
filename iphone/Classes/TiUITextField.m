@@ -271,6 +271,15 @@
         NSNotificationCenter * theNC = [NSNotificationCenter defaultCenter];
         [theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
     }
+	// TIMOB-16100: Native issue that prevents the textfield to mutate the font-config
+	BOOL needsAdjustment = (![TiUtils isIOS10OrGreater] && (textfield.secureTextEntry);
+
+	if (needsAdjustment)
+	{
+		NSString *str = textfield.text;
+		textfield.text = @"";
+		textfield.text = str;
+	}
     return textWidgetView;
 }
 

@@ -18,6 +18,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import android.support.annotation.StringRes;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.ViewParent;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
@@ -79,7 +85,10 @@ public class TiUIWebView extends TiUINonViewGroupView
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
 	private boolean mScrollingEnabled = true;
 
-	private static enum reloadTypes {
+	private boolean disableContextMenu = false;
+
+	private static enum reloadTypes
+	{
 		DEFAULT, DATA, HTML, URL
 	}
 	
@@ -90,6 +99,9 @@ public class TiUIWebView extends TiUINonViewGroupView
 	
 	private class TiWebView extends WebView
 	{
+		public TiWebViewClient client;
+		protected ActionMode actionMode = null;
+		protected ActionMode.Callback actionModeCallback = null;
 
 		public TiWebView(Context context)
 		{
@@ -122,6 +134,138 @@ public class TiUIWebView extends TiUINonViewGroupView
             if (!mScrollingEnabled || !isTouchEnabled) return false;
             return super.canScrollHorizontally(direction);
 	    }
+		public ActionMode startActionMode(ActionMode.Callback callback)
+		{
+			if (disableContextMenu) {
+				return nullifiedActionMode();
+			}
+			if (actionModeCallback == null) {
+				actionModeCallback = new CustomActionModeCallback();
+			}
+			return super.startActionMode(actionModeCallback);
+		}
+
+		@Override
+		public ActionMode startActionMode(ActionMode.Callback callback, int type)
+		{
+			if (disableContextMenu) {
+				return nullifiedActionMode();
+			}
+			// this startActionMode is fired and not the other one
+			// it depends on Android version you use, I used Android 6 (API 23)
+			ViewParent parent = getParent();
+			if (parent == null) {
+				return null;
+			}
+			if (actionModeCallback == null) {
+				actionModeCallback = new CustomActionModeCallback();
+			}
+			return parent.startActionModeForChild(this, actionModeCallback);
+		}
+		
+		public ActionMode nullifiedActionMode()
+		{
+			return new ActionMode()
+			{
+				@Override public void setTitle(CharSequence title)
+				{
+					
+				}
+				
+				@Override public void setTitle(@StringRes int resId)
+				{
+					
+				}
+				
+				@Override public void setSubtitle(CharSequence subtitle)
+				{
+					
+				}
+				
+				@Override public void setSubtitle(@StringRes int resId)
+				{
+					
+				}
+				
+				@Override public void setCustomView(View view)
+				{
+					
+				}
+				
+				@Override public void invalidate()
+				{
+					
+				}
+				
+				@Override public void finish()
+				{
+					
+				}
+				
+				@Override public Menu getMenu()
+				{
+					return null;
+				}
+				
+				@Override public CharSequence getTitle()
+				{
+					return null;
+				}
+				
+				@Override public CharSequence getSubtitle()
+				{
+					return null;
+				}
+				
+				@Override public View getCustomView()
+				{
+					return null;
+				}
+				
+				@Override public MenuInflater getMenuInflater()
+				{
+					return null;
+				}
+			};
+		}
+
+		private class CustomActionModeCallback implements ActionMode.Callback
+		{
+
+			@Override
+			public boolean onCreateActionMode(ActionMode mode, Menu menu)
+			{
+				return true;
+			}
+
+			@Override
+			public boolean onPrepareActionMode(ActionMode mode, Menu menu)
+			{
+				return false;
+			}
+
+			@Override
+			public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+			{
+				return true;
+			}
+
+			@Override
+			public void onDestroyActionMode(ActionMode mode)
+			{
+				clearFocus();
+				actionMode = null;
+			}
+		}
+
+		@Override
+		public void destroy()
+		{
+			if (client != null) {
+				client.getBinding().destroy();
+			}
+			super.destroy();
+		}
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event)
@@ -220,7 +364,6 @@ public class TiUIWebView extends TiUINonViewGroupView
 		return isHTC;
 	}
 	
-
 	public TiUIWebView(TiViewProxy proxy)
 	{
 		super(proxy, new TiCompositeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -485,6 +628,19 @@ public class TiUIWebView extends TiUINonViewGroupView
 			nativeView.setBackgroundColor(Color.TRANSPARENT);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_PLUGIN_STATE)) {
+			setPluginState(TiConvert.toInt(d, TiC.PROPERTY_PLUGIN_STATE));
+		}
+		
+		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
+			if (Build.VERSION.SDK_INT >= 9) {
+				nativeView.setOverScrollMode(TiConvert.toInt(d.get(TiC.PROPERTY_OVER_SCROLL_MODE), View.OVER_SCROLL_ALWAYS));
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_DISABLE_CONTEXT_MENU)) {
+			disableContextMenu = TiConvert.toBoolean(d, TiC.PROPERTY_DISABLE_CONTEXT_MENU);
+		}
 	}
 
 	@Override
@@ -581,8 +737,8 @@ public class TiUIWebView extends TiUINonViewGroupView
 																						 				   // to JS that use app:// etc.
 					return;
 				} catch (IOException ioe) {
-					Log.e(TAG, "Problem reading from " + url + ": " + ioe.getMessage()
-						+ ". Will let WebView try loading it directly.", ioe);
+								Log.e(TAG, "Problem reading from " + url + ": " + ioe.getMessage()
+												+ ". Will let WebView try loading it directly.", ioe);
 				} finally {
 					if (fis != null) {
 						try {
@@ -676,7 +832,7 @@ public class TiUIWebView extends TiUINonViewGroupView
 	 * 
 	 * @param html					HTML data to load into the web view
 	 * @param baseUrl				url to associate with the data being loaded
-	 * @param mimeType				mime type of the data being loaded
+	 * @param mimeType			mime type of the data being loaded
 	 */
 	private void setHtmlInternal(String html, String baseUrl, String mimeType)
 	{
@@ -980,8 +1136,8 @@ public class TiUIWebView extends TiUINonViewGroupView
 			break;
 			
 		case HTML:
-			if (reloadData == null || (reloadData instanceof HashMap<?,?>) ) {
-				setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)), (HashMap<String,Object>)reloadData);
+						if (reloadData == null || (reloadData instanceof HashMap<?,?>) ) {
+										setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)), (HashMap<String,Object>)reloadData);
 			} else {
 				Log.d(TAG, "reloadMethod points to html but reloadData is of wrong type. Calling default", Log.DEBUG_MODE);
 				getWebView().reload();
@@ -1081,26 +1237,10 @@ public class TiUIWebView extends TiUINonViewGroupView
 	{
 		return chromeClient.interceptOnBackPressed();
 	}
-	
-	public KrollDict eventForURL(String url) {
-	    KrollDict data = new KrollDict();
-	    if (url != null) {
-	        data.put(TiC.PROPERTY_URL, url.replace(TiC.URL_ANDROID_ASSET_RESOURCES, ""));
-	    }
-        return data;
+
+	@Override
+	protected void disableHWAcceleration()
+	{
+		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
 	}
-
-
-    public void setIsLocalHTML(boolean b) {
-        isLocalHTML = b;
-        
-    }
-
-
-    public void clearHistory() {
-        getWebView().clearHistory();    
-    }
-    public void clearCache() {
-        getWebView().clearCache(true);    
-    }
 }

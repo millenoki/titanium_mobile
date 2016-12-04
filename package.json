@@ -52,7 +52,7 @@
     "typescript": "^1.8.10",
     "uglify-js": "2.7.0",
     "unorm": "^1.4.1",
-    "windowslib": "0.4.23",
+    "windowslib": "0.4.25",
     "wrench": "1.5.9",
     "xcode": "0.8.9",
     "xmldom": "0.1.22"

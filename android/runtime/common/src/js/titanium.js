@@ -69,7 +69,6 @@ function TitaniumWrapper(context) {
 
 	// The "context" specific global object
 	this.global = context.global;
-	var self = this;
 
 	{
 		var value = sourceUrl.replace("app://", "");

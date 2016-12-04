@@ -152,24 +152,24 @@
     NSString* type;
     CFByteOrder byteOrder;
     BOOL hasByteOrder;
-    
+
     ENSURE_INT_OR_NIL_FOR_KEY(length, arg, @"length", hasLength);
     ENSURE_ARG_OR_NIL_FOR_KEY(data, arg, @"value", NSObject);
     ENSURE_ARG_OR_NIL_FOR_KEY(type, arg, @"type", NSString);
     ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, arg, @"byteOrder", hasByteOrder);
-    
+
     TiBuffer* buffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
     if (hasLength) {
         [buffer setLength:[NSNumber numberWithInt:length]];
     }
-    
+
     // NOTE: We use the length of the buffer as a hint when encoding strings.  In this case, if [string length] > length,
     // we only encode up to 'length' of the string.
     if ([data isKindOfClass:[NSString class]]) {
         NSUInteger encodeLength = (hasLength) ? length : [data length];
 
         NSString* charset = (type != nil) ? type : kTiUTF8Encoding;
-        
+
         // Just put the string data directly into the buffer, if we can.
         if (!hasLength){
             NSStringEncoding encoding = [TiUtils charsetToEncoding:charset];
@@ -184,8 +184,8 @@
                 }
                 case BAD_ENCODING: {
                     [self throwException:[NSString stringWithFormat:@"Invalid string encoding type '%@'",charset]
-                               subreason:nil 
-                                location:CODELOCATION];   
+                               subreason:nil
+                                location:CODELOCATION];
                     break;
                 }
             }
@@ -197,12 +197,12 @@
                        subreason:nil
                         location:CODELOCATION];
         }
-        
+
         if (!hasLength) {
             length = [TiUtils dataSize:[TiUtils constantToType:type]];
             [buffer setLength:NUMINT(length)];
         }
-        
+
         byteOrder = (hasByteOrder) ? byteOrder : CFByteOrderGetCurrent();
         [buffer setByteOrder:NUMLONG(byteOrder)];
         switch ([TiUtils encodeNumber:data toBuffer:buffer offset:0 type:type endianness:byteOrder]) {
@@ -246,8 +246,8 @@
         [self throwException:[NSString stringWithFormat:@"Invalid data type '%@'",data]
                    subreason:nil
                     location:CODELOCATION];
-    }   
-    
+    }
+
     return buffer;
 }
 

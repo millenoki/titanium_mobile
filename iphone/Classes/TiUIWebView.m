@@ -454,7 +454,7 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
 	[webview goForward];
 }
 
--(BOOL)isLoading
+-(BOOL)loading
 {
 	return [webview isLoading];
 }
@@ -817,6 +817,14 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
                                                                                     [self.proxy valueForKey:@"username"] || [self.proxy valueForKey:@"password"] || [self.proxy valueForKey:@"needsAuth"]);
 }
 
+- (void)setKeyboardDisplayRequiresUserAction_:(id)value
+{
+    ENSURE_TYPE(value, NSNumber);
+    [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
+    
+    [[self webview] setKeyboardDisplayRequiresUserAction:[TiUtils boolValue:value def:YES]];
+}
+
 -(NSMutableDictionary*)eventForUrl:(NSURL*)theUrl {
     if (!theUrl) {
         return nil;
@@ -990,10 +998,11 @@ NSString *HTMLTextEncodingNameForStringEncoding(NSStringEncoding encoding)
     }
     
     // Disable user selection and the attached callout
-    BOOL disableSelection = [TiUtils boolValue:[[self proxy] valueForKey:@"disableSelection"] def:NO];
+    BOOL disableSelection = [TiUtils boolValue:[[self proxy] valueForKey:@"disableContextMenu"] def:NO];
     if (disableSelection) {
         [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitUserSelect='none';"];
         [webView stringByEvaluatingJavaScriptFromString:@"document.documentElement.style.webkitTouchCallout='none';"];
+        [webView stringByEvaluatingJavaScriptFromString:@"window.getSelection().removeAllRanges();"];
     }
     
     [webView setNeedsDisplay];

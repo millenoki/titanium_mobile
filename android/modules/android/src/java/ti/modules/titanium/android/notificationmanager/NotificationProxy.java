@@ -325,6 +325,12 @@ public class NotificationProxy extends ReusableProxy implements TiDrawableTarget
 		.setContentText(contentText)
 		.setContentTitle(contentTitle);
 	}
+	
+	@Kroll.method
+	public void setProgress(int max, int progress, boolean indeterminate)
+	{
+		notificationBuilder.setProgress(max, progress, indeterminate);
+	}
 
 	@Kroll.method @Kroll.setProperty
 	public void setStyle(StyleProxy style) {

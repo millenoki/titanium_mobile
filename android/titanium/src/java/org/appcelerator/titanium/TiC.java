@@ -1304,6 +1304,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_CAN_SCROLL = "canScroll";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_CASE_INSENSITIVE_SEARCH = "caseInsensitiveSearch";
 
 	/**
@@ -1527,6 +1532,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_DISABLED_COLOR = "disabledColor";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DISABLE_CONTEXT_MENU = "disableContextMenu";
 
 	/**
 	 * @module.api
@@ -2005,6 +2015,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_IMAGES = "images";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_INDICATOR_COLOR = "indicatorColor";
 
 	/**
 	 * @module.api

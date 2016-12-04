@@ -772,7 +772,7 @@ public class TiUIText extends TiUINonViewGroupView
 			textTypeAndClass = textTypeAndClass | InputType.TYPE_CLASS_TEXT;
 		}
 
-		realtv.setCursorVisible(true);
+		realtv.setCursorVisible(editable);
 		switch(type) {
 			case UIModule.KEYBOARD_DEFAULT:
 			case UIModule.KEYBOARD_ASCII:

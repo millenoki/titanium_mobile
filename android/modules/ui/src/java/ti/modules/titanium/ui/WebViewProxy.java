@@ -43,6 +43,7 @@ import android.webkit.WebView;
 	TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
 	TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE,
 	"alwaysInjectTi"
+	TiC.PROPERTY_HTML
 })
 public class WebViewProxy extends ViewProxy
 	implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
