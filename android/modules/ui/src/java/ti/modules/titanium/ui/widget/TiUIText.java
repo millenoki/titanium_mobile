@@ -82,7 +82,7 @@ public class TiUIText extends TiUINonViewGroupView
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
     protected boolean isEditable = true;
-    private boolean suppressReturn = true;
+    private boolean suppressReturn = false;
     protected RectF padding = null;
 
 	protected FocusFixedEditText tv;
@@ -448,7 +448,7 @@ public class TiUIText extends TiUINonViewGroupView
             }
             break;
         case TiC.PROPERTY_SUPPRESS_RETURN:
-            suppressReturn = TiConvert.toBoolean(newValue, true);
+            suppressReturn = TiConvert.toBoolean(newValue, false);
             break;
         case TiC.PROPERTY_HINT_TEXT:
             getEditText().setHint(TiConvert.toString(newValue));

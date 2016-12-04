@@ -36,7 +36,7 @@
 	self = [super init];
 	if (self != nil)
 	{
-		suppressReturn = YES;
+		suppressReturn = NO;
 		maxLength = -1;
         [self textWidgetView];
 	}
@@ -78,7 +78,7 @@
 
 -(void)setSuppressReturn_:(id)value
 {
-	suppressReturn = [TiUtils boolValue:value def:YES];
+	suppressReturn = [TiUtils boolValue:value def:NO];
 }
 
 - (void) dealloc
