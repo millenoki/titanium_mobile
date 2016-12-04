@@ -27,6 +27,7 @@ var ADB = require('titanium-sdk/lib/adb'),
     cyan = require('colors').cyan,
     DOMParser = require('xmldom').DOMParser,
     ejs = require('ejs'),
+    latenize = require('latenize'),
     EmulatorManager = require('titanium-sdk/lib/emulator'),
     fields = require('fields'),
     fs = require('fs'),
@@ -1846,10 +1847,11 @@ AndroidBuilder.prototype.doAnalytics = function doAnalytics(next) {
 AndroidBuilder.prototype.initialize = function initialize(next) {
     var argv = this.cli.argv;
 
+    this.projectName                                     = latenize(this.tiapp.name);
         // populate the build manifest object
     this.currentBuildManifest.target                     = this.target;
     this.currentBuildManifest.deployType                 = this.deployType;
-    this.currentBuildManifest.classname                  = this.classname = this.tiapp.name.split(/[^A-Za-z0-9_]/).map(function (word) {
+    this.currentBuildManifest.classname                  = this.classname = this.projectName.split(/[^A-Za-z0-9_]/).map(function (word) {
             return appc.string.capitalize(word.toLowerCase());
         }).join('');
         /^[0-9]/.test(this.classname) && (this.classname = '_' + this.classname);

@@ -20,6 +20,7 @@ var appc = require('node-appc'),
 	cyan = require('colors').cyan,
 	DOMParser = require('xmldom').DOMParser,
 	ejs = require('ejs'),
+	latenize = require('latenize'),
 	fields = require('fields'),
 	fs = require('fs'),
 	humanize = require('humanize'),
@@ -1279,6 +1280,7 @@ iOSBuilder.prototype.validate = function (logger, config, cli) {
 
 	return function (callback) {
 		this.target = cli.argv.target;
+		this.projectName = latenize(this.tiapp.name);
 
 		// check if this is the Xcode pre-compile phase
 		if (cli.argv.xcode) {
@@ -5073,7 +5075,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
-			let ignored = false;
+			var ignored = false;
 			if (toIgnore) {
 				for(var i = 0; i< toIgnore.length; i++) {
 					if (minimatch(relPath, toIgnore[i], {dot:true})) {
