@@ -40,5 +40,17 @@ public class TiStreamHelper
 
 		return length;
 	}
+	
+	public static int write(OutputStream outputStream, byte[] buffer, int offset, int length) throws IOException
+    {
+        if ((offset + length) > buffer.length) {
+            length = buffer.length - offset;
+        }
+
+        outputStream.write(buffer, offset, length);
+        outputStream.flush();
+
+        return length;
+    }
 
 }

@@ -37,6 +37,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import ti.modules.titanium.BufferProxy;
 
 /**
  * Utility class for type conversions.
@@ -1520,6 +1521,8 @@ public class TiConvert
             }
         } else if (value instanceof TiBlob) {
             bytes = ((TiBlob) value).getBytes();
+        } else if (value instanceof BufferProxy) {
+            bytes = ((BufferProxy) value).getBuffer();
         }
         return bytes;
     }

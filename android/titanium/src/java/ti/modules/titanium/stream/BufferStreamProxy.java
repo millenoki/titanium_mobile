@@ -13,6 +13,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiStream;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
@@ -131,18 +132,17 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 			throw new IOException("Unable to write on stream, not opened in read or append mode");
 		}
 
-		BufferProxy bufferProxy = null;
+		byte[] bytes = null;
 		int offset = 0;
 		int length = 0;
 
 		if(args.length == 1 || args.length == 3) {
 			if(args.length > 0) {
-				if(args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
+			    bytes = TiConvert.toBytes(args[0]);
+				if(bytes != null) {
+					length = bytes.length;
 				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
+					throw new IllegalArgumentException("Invalid data argument");
 				}
 			}
 
@@ -171,10 +171,9 @@ public class BufferStreamProxy extends KrollProxy implements TiStream
 		} else {
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
-		if (bufferProxy != null ) {
-		    int bytesWritten = buffer.write(position, bufferProxy.getBuffer(), offset, length);
+		if (bytes != null ) {
+		    int bytesWritten = buffer.write(position, bytes, offset, length);
 	        position += bytesWritten;
-
 	        return bytesWritten;
 		}
 		return 0;

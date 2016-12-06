@@ -786,4 +786,6 @@ typedef enum
 + (BOOL)livePhotoSupported;
 
 +(CGSize)sizeForString:(NSString*)text forSize:(CGSize)size options:(NSObject*)options padding:(UIEdgeInsets)padding;
+
++(NSData*)dataValue:(id)arg;
 @end

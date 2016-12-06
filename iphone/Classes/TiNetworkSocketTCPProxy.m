@@ -481,10 +481,10 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     return 0; // Bogus return value; the real value is returned when we finish the read
 }
 
--(NSInteger)writeFromBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
+-(NSInteger)writeData:(NSData*)data offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
 {
     // TODO: Put this in the write()/read() wrappers when they're being called consistently, blah blah blah
-    if ([[buffer data] length] == 0) {
+    if ([data length] == 0) {
         if (callback != nil) {
             NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
 			[event setObject:self forKey:@"source"];
@@ -498,10 +498,10 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
     
     // As always, ensure that operations take place on the socket thread...
     if ([NSThread currentThread] != socketThread) {
-        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(writeFromBuffer:offset:length:callback:)]];
+        NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:@selector(writeData:offset:length:callback:)]];
         [invocation setTarget:self];
-        [invocation setSelector:@selector(writeFromBuffer:offset:length:callback:)];
-        [invocation setArgument:&buffer atIndex:2];
+        [invocation setSelector:@selector(writeData:offset:length:callback:)];
+        [invocation setArgument:&data atIndex:2];
         [invocation setArgument:&offset atIndex:3];
         [invocation setArgument:&length atIndex:4];
         [invocation setArgument:&callback atIndex:5];
@@ -527,7 +527,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
         return result;
     }
     else {
-        NSData* subdata = [[buffer data] subdataWithRange:NSMakeRange(offset, length)];
+        NSData* subdata = [data subdataWithRange:NSMakeRange(offset, length)];
         int tag = -1;
         if (callback != nil) {
             tag = asynchTagCount;
@@ -832,12 +832,12 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
                 NSInteger size = [TiUtils intValue:[info valueForKey:@"chunkSize"]];
                 KrollCallback* callback = [info valueForKey:@"callback"];
                 
-                TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
-                [tempBuffer setData:[NSMutableData dataWithData:data]];
+//                TiBuffer* tempBuffer = [[[TiBuffer alloc] _initWithPageContext:[self executionContext]] autorelease];
+//                [tempBuffer setData:[NSMutableData dataWithData:data]];
                 readDataLength += [data length];
                 
                 // TODO: We need to be able to monitor this stream for write errors, and then report back via an exception or the callback or whatever
-                [stream writeFromBuffer:tempBuffer offset:0 length:[data length] callback:nil];
+                [stream writeData:data offset:0 length:[data length] callback:nil];
                 
                 // ... And then set up the next read to it.
                 [self writeToStream:stream chunkSize:size callback:callback];

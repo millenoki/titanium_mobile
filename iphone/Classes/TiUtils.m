@@ -3144,4 +3144,17 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
     return result;
 }
 
++(NSData*)dataValue:(id)arg {
+    if (([arg respondsToSelector:@selector(data)])) {
+        return [arg data];
+    } else if (IS_OF_CLASS(arg, NSArray) || IS_OF_CLASS(arg, NSMutableArray)) {
+        NSMutableData *theBufferData = [[[NSMutableData alloc] initWithCapacity: [arg count]] autorelease];
+        for( NSString *string in arg) {
+            char byte = (char)[string intValue];
+            [theBufferData appendBytes: &byte length: 1];
+        }
+        return theBufferData;
+    }
+}
+
 @end

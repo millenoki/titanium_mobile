@@ -20,6 +20,7 @@
 // the buffer (and grow it if necessary).  These methods MAY be called by classes other than the TiStreamProxy ducktype (i.e. Ti.Stream module methods)
 -(NSInteger)readToBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback;
 -(NSInteger)writeFromBuffer:(TiBuffer*)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback;
+-(NSInteger)writeData:(NSData*)data offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback*)callback;
 
 // Used for writeStream/pumping
 -(NSInteger)writeToStream:(id<TiStreamInternal>)output chunkSize:(NSInteger)size callback:(KrollCallback*)callback;

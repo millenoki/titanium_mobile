@@ -189,14 +189,14 @@ if(fileHandle == nil) {\
 	return [fileData length];
 }
 
--(NSInteger) writeFromBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
+-(NSInteger) writeData:(NSData *)data offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback {
 	THROW_IF_HANDLE_NIL(CODELOCATION);
 	
 	if (length == 0) {
 		return 0; // NO-OP
 	}
 	
-	NSData *slicedData = [[buffer data] subdataWithRange:NSMakeRange(offset, MIN([[buffer data] length] - offset, length))];	
+	NSData *slicedData = [data subdataWithRange:NSMakeRange(offset, MIN([data length] - offset, length))];
 	
 	if (mode == TI_APPEND) {
 		[fileHandle seekToEndOfFile];
@@ -254,14 +254,14 @@ if(fileHandle == nil) {\
         @try {
             NSData *data = [fileHandle readDataOfLength:readLength];
             if([data length] > 0) {
-                void* bytes = malloc(readLength);
-                if (bytes == NULL) {
-                    [self throwException:TiExceptionMemoryFailure subreason:@"Failed to allocate for stream" location:CODELOCATION];
-                }
+//                void* bytes = malloc(readLength);
+//                if (bytes == NULL) {
+//                    [self throwException:TiExceptionMemoryFailure subreason:@"Failed to allocate for stream" location:CODELOCATION];
+//                }
 
-                [data getBytes:bytes length:readLength];
-                [tempBuffer setData:[NSMutableData dataWithBytesNoCopy:bytes length:readLength freeWhenDone:YES]];
-                bytesWritten = [output writeFromBuffer:tempBuffer offset:0 length:readLength callback:nil];
+//                [data getBytes:bytes length:readLength];
+//                [tempBuffer setData:[NSMutableData dataWithBytesNoCopy:bytes length:readLength freeWhenDone:YES]];
+                bytesWritten = [output writeData:data offset:0 length:readLength callback:nil];
                 
                 //call callback
                 if(callback != nil) {

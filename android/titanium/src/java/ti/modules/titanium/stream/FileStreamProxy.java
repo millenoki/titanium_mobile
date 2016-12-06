@@ -13,6 +13,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiStream;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
 import ti.modules.titanium.BufferProxy;
@@ -98,19 +99,18 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 			throw new IOException("Unable to write to file, not open");
 		}
 
-		BufferProxy bufferProxy = null;
+        byte[] bytes = null;
 		int offset = 0;
 		int length = 0;
 
 		if(args.length == 1 || args.length == 3) {
 			if(args.length > 0) {
-				if(args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
-				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
-				}
+			    bytes = TiConvert.toBytes(args[0]);
+                if(bytes != null) {
+                    length = bytes.length;
+                } else {
+                    throw new IllegalArgumentException("Invalid data argument");
+                }
 			}
 
 			if(args.length == 3) {
@@ -140,7 +140,7 @@ public class FileStreamProxy extends KrollProxy implements TiStream
 		}
 
 		try {
-			return TiStreamHelper.write(fileProxy.getBaseFile().getExistingOutputStream(), bufferProxy, offset, length);
+			return TiStreamHelper.write(fileProxy.getBaseFile().getExistingOutputStream(), bytes, offset, length);
 
 		} catch (IOException e) {
 			Log.e(TAG, "Unable to write to file, IO error", e);

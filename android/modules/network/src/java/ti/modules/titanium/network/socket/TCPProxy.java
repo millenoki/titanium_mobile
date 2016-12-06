@@ -416,20 +416,13 @@ public class TCPProxy extends KrollProxy implements TiStream
 		{
 			throw new IOException("Unable to write to socket, not connected");
 		}
-
-		BufferProxy bufferProxy = null;
+		byte[] bytes = null;
 		int offset = 0;
 		int length = 0;
 
 		if(args.length == 1 || args.length == 3) {
 			if(args.length > 0) {
-				if(args[0] instanceof BufferProxy) {
-					bufferProxy = (BufferProxy) args[0];
-					length = bufferProxy.getLength();
-
-				} else {
-					throw new IllegalArgumentException("Invalid buffer argument");
-				}
+			    bytes = TiConvert.toBytes(args[0]);
 			}
 
 			if(args.length == 3) {
@@ -457,9 +450,14 @@ public class TCPProxy extends KrollProxy implements TiStream
 		} else {
 			throw new IllegalArgumentException("Invalid number of arguments");
 		}
+		
+		if(bytes == null) {
+            throw new IllegalArgumentException("Invalid buffer argument");
+        }
+		length = bytes.length;
 
 		try {
-			return TiStreamHelper.write(clientSocket.getOutputStream(), bufferProxy, offset, length);
+			return TiStreamHelper.write(clientSocket.getOutputStream(), bytes, offset, length);
 
 		} catch (IOException e) {
 			e.printStackTrace();

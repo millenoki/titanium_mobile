@@ -90,7 +90,7 @@
 }
 
 // TODO: Need to extend the data if we're writing past its current bounds
--(NSInteger)writeFromBuffer:(TiBuffer *)fromBuffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
+-(NSInteger)writeData:(NSData *)fromData offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback
 {
     if (data == nil) {
         [self throwException:@"TiStreamException"
@@ -114,7 +114,7 @@
     }
     
     // TODO: Codify in read() and write() when we have every method calling the wrappers... like it should.
-    if ([[fromBuffer data] length] == 0) {
+    if ([fromData length] == 0) {
         if (callback != nil) {
 			NSMutableDictionary* event = [TiUtils dictionaryWithCode:0 message:nil];
 			[event setObject:self forKey:@"source"];
@@ -136,13 +136,13 @@
         }
         
         void* bytes = [mutableData mutableBytes];
-        const void* fromBytes = [[fromBuffer data] bytes];
+        const void* fromBytes = [fromData bytes];
         
         memcpy(bytes+position, fromBytes+offset, length);
         position += length;        
     }
     else if (mode & TI_APPEND) {
-        [mutableData appendData:[[fromBuffer data] subdataWithRange:NSMakeRange(offset,length)]];
+        [mutableData appendData:[fromData subdataWithRange:NSMakeRange(offset,length)]];
         position = [data length];
     }
 

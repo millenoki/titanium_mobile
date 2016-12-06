@@ -610,18 +610,10 @@ const CFOptionFlags writeStreamEventFlags =
                     location:CODELOCATION];
     }
     
-    NSData* data = nil;
-    
-    id arg = [args objectAtIndex:0];
-    if ([arg isKindOfClass:[TiBlob class]]) {
-        data = [arg data];
-    }
-    else if ([arg isKindOfClass:[NSString class]]) {
-        NSUInteger length = (stripTerminator) ? [arg length] : [arg length] + 1;
-        data = [NSData dataWithBytes:[arg UTF8String] length:length];
-    }
-    else {
-        NSString* errorStr = [NSString stringWithFormat:@"expected: %@ or %@, was: %@", [TiBlob class], [NSString class], [arg class]];
+    NSData* data = [TiUtils dataValue:[args objectAtIndex:0]];
+
+    if (!data) {
+        NSString* errorStr = [NSString stringWithFormat:@"expected: %@ or %@, was: %@", [TiBlob class], [NSString class], [[args objectAtIndex:0] class]];
         THROW_INVALID_ARG(errorStr)
     }
     
