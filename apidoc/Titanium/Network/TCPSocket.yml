@@ -23,7 +23,7 @@ methods:
     parameters:
       - name: data
         summary: either a string or blob object representing the data to be transferred
-        type: [Object,String]
+        type: [Object,String,Titanium.Blob, Titanium.Buffer, Array<Number>]
       - name: sendTo
         summary: the socket reference to send the data to.  Default is to send to all connected sockets
         type: Number
