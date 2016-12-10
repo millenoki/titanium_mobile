@@ -934,7 +934,9 @@ SEL GetterForKrollProperty(NSString * key)
 
 -(TiViewProxy*)viewParent
 {
-    if (IS_OF_CLASS(parent, TiViewProxy) && !isUsingBarButtonItem) {
+    //if the parent is also the observer it meaans that we are not really a child of the parent. At least not for layout
+    //so not returning will prevent unecessary refresh and make sure proxyDidRelayout is called
+    if (IS_OF_CLASS(parent, TiViewProxy) && parent != [observer proxy] && !isUsingBarButtonItem) {
         return (TiViewProxy*)parent;
     }
     return nil;
