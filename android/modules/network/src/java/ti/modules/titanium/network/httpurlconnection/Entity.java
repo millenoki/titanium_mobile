@@ -28,6 +28,10 @@ public abstract class Entity {
         return this.contentEncoding;
     }
     
+    public long getContentLength() {
+        return 0;
+    }
+    
     public void setContentType(final String contentType) {
         this.contentType = contentType;
     }

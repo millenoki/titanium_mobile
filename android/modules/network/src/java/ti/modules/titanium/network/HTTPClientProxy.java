@@ -67,6 +67,10 @@ public class HTTPClientProxy extends KrollProxy
 			client.setAutoEncodeUrl(TiConvert.toBoolean(dict, TiC.PROPERTY_AUTO_ENCODE_URL, true));
 		}
 		
+		if (dict.containsKey("json")) {
+            client.setJSON(TiConvert.toBoolean(dict, "json", false));
+        }
+		
 		
 		if (dict.containsKey("headers")) {
             setHeaders((HashMap<String, Object>) dict.get("headers"));
@@ -127,7 +131,7 @@ public class HTTPClientProxy extends KrollProxy
 	}
 	
 	@Kroll.getProperty(enumerable=false) @Kroll.method
-    public HashMap getResponseJSON()
+    public Object getResponseJSON()
     {
         return client.getResponseJSON();
     }

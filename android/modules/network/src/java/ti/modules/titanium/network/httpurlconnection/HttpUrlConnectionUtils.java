@@ -30,6 +30,7 @@ public class HttpUrlConnectionUtils {
 
     /** Content type definitions */
     public final static String PLAIN_TEXT_TYPE = "text/plain";
+    public final static String JSON_TYPE = "application/json";
     public final static String CHARSET_PARAM = "; charset=";
 
     /**

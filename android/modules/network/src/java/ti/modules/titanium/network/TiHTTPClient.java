@@ -71,6 +71,7 @@ import ti.modules.titanium.network.httpurlconnection.Entity;
 import ti.modules.titanium.network.httpurlconnection.FileEntity;
 import ti.modules.titanium.network.httpurlconnection.HttpUrlConnectionUtils;
 import ti.modules.titanium.network.httpurlconnection.JsonBody;
+import ti.modules.titanium.network.httpurlconnection.JsonEntity;
 import ti.modules.titanium.network.httpurlconnection.NameValuePair;
 import ti.modules.titanium.network.httpurlconnection.NullHostNameVerifier;
 import ti.modules.titanium.network.httpurlconnection.StringBody;
@@ -117,7 +118,7 @@ public class TiHTTPClient
     private String contentEncoding;
     private long maxBufferSize;
     private Object data;
-    private Object jsonData;
+    private JsonEntity jsonData;
     private boolean needMultipart;
     private Thread clientThread;
     private boolean aborted;
@@ -546,7 +547,7 @@ public class TiHTTPClient
         return responseText;
     }
     
-    public HashMap getResponseJSON()
+    public Object getResponseJSON()
     {
         return TiConvert.parseJSON(getResponseText());
     }
@@ -832,7 +833,11 @@ public class TiHTTPClient
     
     public void setJSONData(Object data)
     {
-        this.jsonData = data;
+        try {
+            this.jsonData = new JsonEntity(data);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addPostData(String name, String value) throws UnsupportedEncodingException
@@ -1026,15 +1031,12 @@ public class TiHTTPClient
 
         if (userData != null)
         {
-            if (userData instanceof HashMap) {
+            if (json) {
+                setJSONData(userData);
+                
+            }
+            else if (userData instanceof HashMap) {
                 HashMap<String, Object> data = (HashMap) userData;
-                if (json) {
-                    JSONObject jsonObject = TiConvert.toJSON(data);
-                    JsonBody jsonBody = new JsonBody(jsonObject, null);
-                    setJSONData(jsonBody);
-                } else {
-                    
-                }
                 boolean isPostOrPutOrPatch = method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
                 boolean isGet = !isPostOrPutOrPatch && method.equals("GET");
 
@@ -1113,7 +1115,7 @@ public class TiHTTPClient
 	private class ClientRunnable implements Runnable
 	{
 		private final int totalLength;
-		private int contentLength;
+		private long contentLength;
 		private PrintWriter printWriter;
 		private OutputStream outputStream;
 		private String boundary;
@@ -1182,7 +1184,9 @@ public class TiHTTPClient
 							}
 							contentLength += 6 + boundary.length();
 						} else {
-							if (data instanceof String) {
+						    if (jsonData != null) {
+	                            contentLength += jsonData.getContentLength();
+						    } else if (data instanceof String) {
 								contentLength += ((String) data).getBytes().length;
 							} else if (data instanceof FileEntity) {
 								contentLength += ((FileEntity) data).getContentLength();
@@ -1420,17 +1424,7 @@ public class TiHTTPClient
             
             
             if (jsonData != null) {
-                try {
-                    if (jsonData instanceof String) {
-                        entity = new StringEntity((String) data, "UTF-8");
-                    } else if (jsonData instanceof HashMap) {
-                        entity = new StringEntity(TiConvert.toJSON((HashMap) data).toString(), "UTF-8");
-                    }
-
-                } catch(Exception ex) {
-                    //FIXME
-                    Log.e(TAG, "Exception, implement recovery: ", ex);
-                }
+                entity = jsonData;
             } else if (data instanceof String) {
                 try {
                     entity = new StringEntity((String) data, "UTF-8");
@@ -1444,7 +1438,6 @@ public class TiHTTPClient
             } else {
                 entity = form;
             }
-            
             //This code sets the content type from the headers
             //Then casts the request so that it can put in the form which is the entity.
             
