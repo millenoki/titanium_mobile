@@ -15,7 +15,7 @@
 {
     TiViewProxy* keyboardAccessoryProxy;
 }
-DEFINE_DEF_BOOL_PROP(suppressReturn,NO);
+DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 @synthesize suppressFocusEvents = _suppressFocusEvents;
 
 

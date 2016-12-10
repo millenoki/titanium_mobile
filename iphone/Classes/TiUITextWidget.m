@@ -36,7 +36,7 @@
 	self = [super init];
 	if (self != nil)
 	{
-		suppressReturn = NO;
+		suppressReturn = YES;
 		maxLength = -1;
         [self textWidgetView];
 	}

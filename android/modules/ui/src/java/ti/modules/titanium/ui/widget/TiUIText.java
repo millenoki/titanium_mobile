@@ -82,7 +82,7 @@ public class TiUIText extends TiUINonViewGroupView
 	private boolean isTruncatingText = false;
 	private boolean disableChangeEvent = false;
     protected boolean isEditable = true;
-    private boolean suppressReturn = false;
+    private boolean suppressReturn = true;
     protected RectF padding = null;
 
 	protected FocusFixedEditText tv;
@@ -729,13 +729,7 @@ public class TiUIText extends TiUINonViewGroupView
 			Log.DEBUG_MODE);
 		
         boolean result = suppressReturn;
-        boolean shouldBlur = (actionId != EditorInfo.IME_ACTION_NEXT);
-        if (keyEvent == null) {
-        } else if (actionId == EditorInfo.IME_NULL) {
-            if (!suppressReturn) {
-                shouldBlur = false;
-            }
-        }
+        boolean shouldBlur = (actionId != EditorInfo.IME_ACTION_NEXT) && suppressReturn;
 		
 		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked,
 		//this callback is triggered twice (except for keys that are mapped to EditorInfo.IME_ACTION_NEXT or EditorInfo.IME_ACTION_DONE). The first check is to deal with those keys - filter out
