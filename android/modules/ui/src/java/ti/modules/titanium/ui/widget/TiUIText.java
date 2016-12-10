@@ -728,7 +728,7 @@ public class TiUIText extends TiUINonViewGroupView
 		Log.d(TAG, "ActionID: " + actionId + " KeyEvent: " + (keyEvent != null ? keyEvent.getKeyCode() : null),
 			Log.DEBUG_MODE);
 		
-        boolean result = suppressReturn;
+        boolean result = !suppressReturn;
         boolean shouldBlur = (actionId != EditorInfo.IME_ACTION_NEXT) && suppressReturn;
 		
 		//This is to prevent 'return' event from being fired twice when return key is hit. In other words, when return key is clicked,
