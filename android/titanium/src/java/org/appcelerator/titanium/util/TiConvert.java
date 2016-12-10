@@ -32,6 +32,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -1040,9 +1041,34 @@ public class TiConvert
 		return toBlob(object.get(property));
 	}
 	
-	public static HashMap parseJSON(String str) {
+	public static Object fromJSON(Object value) {
+        try {
+            if (value instanceof JSONObject) {
+                return new KrollDict((JSONObject)value);
+
+            } else if (value instanceof JSONArray) {
+                JSONArray array = (JSONArray)value;
+                Object[] values = new Object[array.length()];
+                for (int i = 0; i < array.length(); i++) {
+                    values[i] = fromJSON(array.get(i));
+                }
+                return values;
+
+            } else if (value == JSONObject.NULL) {
+                return null;
+
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "Error parsing JSON", e);
+        }
+
+        return value;
+    }
+	
+	public static Object parseJSON(String str) {
 	   try {
-        return new KrollDict(str);
+           JSONTokener tokener = new JSONTokener(str);
+           return fromJSON(tokener.nextValue());
         } catch (JSONException e) {
             return null;
         }
@@ -1155,9 +1181,25 @@ public class TiConvert
 
 			return df.format((Date)value);
 
-		} else {
-			return toString(value);
-		}
+		} else if (value instanceof JSONObject) {
+		    return value.toString();
+		} else if (value instanceof HashMap){
+            JSONObject  object = toJSON((HashMap<String, Object>) value);
+            if (object != null) {
+                return object.toString();
+            } else {
+                return null;
+            }
+        } else if (value instanceof Object[]){
+            JSONArray  object = toJSONArray((Object[]) value);
+            if (object != null) {
+                return object.toString();
+            } else {
+                return null;
+            }
+        } else {
+            return toString(value);
+        }
 	}
 
 	/**

@@ -42,7 +42,7 @@ public class KrollDict
 		for (Iterator<String> iter = object.keys(); iter.hasNext();) {
 			String key = iter.next();
 			Object value = object.get(key);			
-			Object json = fromJSON(value);
+			Object json = TiConvert.fromJSON(value);
 			put(key, json);
 		}
 	}
@@ -51,29 +51,7 @@ public class KrollDict
 	    this(new JSONObject(jsonString));
 	}
 		
-	public static Object fromJSON(Object value) {
-		try {
-			if (value instanceof JSONObject) {
-				return new KrollDict((JSONObject)value);
-
-			} else if (value instanceof JSONArray) {
-				JSONArray array = (JSONArray)value;
-				Object[] values = new Object[array.length()];
-				for (int i = 0; i < array.length(); i++) {
-					values[i] = fromJSON(array.get(i));
-				}
-				return values;
-
-			} else if (value == JSONObject.NULL) {
-				return null;
-
-			}
-		} catch (JSONException e) {
-			Log.e(TAG, "Error parsing JSON", e);
-		}
-
-		return value;
-	}
+	
 
 	/**
 	 * Constructs a KrollDict by copying an existing Map
