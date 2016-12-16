@@ -38,7 +38,7 @@ public class TiDefaultAbsListViewTemplate extends TiAbsListViewTemplate {
                 result = (HashMap) result.clone(); //we need to copy it as we modify it
             }
             
-            HashMap properties = (HashMap) (result.containsKey(TiC.PROPERTY_PROPERTIES)?result.get(TiC.PROPERTY_PROPERTIES):dict);
+            HashMap properties = (HashMap) ((result.get(TiC.PROPERTY_PROPERTIES) != null)?result.get(TiC.PROPERTY_PROPERTIES):dict);
             
             boolean hasSubtitle = properties.containsKey(TiC.PROPERTY_SUBTITLE);
             

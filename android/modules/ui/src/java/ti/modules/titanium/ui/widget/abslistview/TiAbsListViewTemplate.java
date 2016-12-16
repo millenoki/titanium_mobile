@@ -102,7 +102,7 @@ public class TiAbsListViewTemplate {
 		}
 		dataItems.put(id, item);
 
-		if (properties.containsKey(TiC.PROPERTY_PROPERTIES)) {
+		if (properties.get(TiC.PROPERTY_PROPERTIES) != null) {
 			props = properties.get(TiC.PROPERTY_PROPERTIES);
 		}
 		
