@@ -9,6 +9,7 @@ package ti.modules.titanium.filesystem;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 
 import android.Manifest;
 import android.app.Activity;
@@ -43,10 +44,16 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.method
-	public FileProxy createTempFile(KrollInvocation invocation)
+	public FileProxy createTempFile(KrollInvocation invocation, @Kroll.argument(optional = true) HashMap options)
 	{
 		try {
-			File f = File.createTempFile("tifile", "tmp");
+            String suffix = "tmp";
+            String prefix = "";
+		    if (options != null) {
+		        suffix = TiConvert.toString(options, "suffix", suffix);
+		        prefix = TiConvert.toString(options, "prefix", prefix);
+		    }
+			File f = File.createTempFile(prefix  + "tifile", suffix);
 			String[] parts = { f.getAbsolutePath() };
 			return new FileProxy(invocation.getSourceUrl(), parts, false);
 		} catch (IOException e) {
