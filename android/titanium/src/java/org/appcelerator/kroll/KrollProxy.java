@@ -2563,7 +2563,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         mStates = states;
     }
     @Kroll.method
-    @Kroll.getProperty
+    @Kroll.getProperty(enumerable=false)
     public HashMap getStates() {
         return mStates;
     }
