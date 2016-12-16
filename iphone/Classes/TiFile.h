@@ -60,4 +60,9 @@
 
 -(id)toBlob:(id)args;
 
+/**
+ Returns the blob raw data.
+ @return The raw data.
+ */
+-(NSData*)data;
 @end

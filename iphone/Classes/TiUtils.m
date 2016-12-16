@@ -3154,6 +3154,8 @@ if ([str isEqualToString:@#orientation]) return (UIDeviceOrientation)orientation
             [theBufferData appendBytes: &byte length: 1];
         }
         return theBufferData;
+    } else if (IS_OF_CLASS(arg, NSString)) {
+        return [arg dataUsingEncoding:NSUTF8StringEncoding];
     }
 }
 

@@ -76,6 +76,10 @@
 	return [self blob];
 }
 
+-(NSData*)data {
+    return [[self blob] data];
+}
+
 +(TiFile*)createTempFile:(NSString*)extension
 {
 	NSString * tempDir = NSTemporaryDirectory();

@@ -372,10 +372,10 @@ FILENOOP(setHidden:(id)x);
 	id arg = [args objectAtIndex:0];
 
 	//Short-circuit against non-supported types
-	if(!([arg isKindOfClass:[TiFile class]] || [arg isKindOfClass:[TiBlob class]] 
-		 || [arg isKindOfClass:[NSString class]])) {
-		return NUMBOOL(NO);
-	}
+//	if(!([arg isKindOfClass:[TiFile class]] || [arg isKindOfClass:[TiBlob class]] 
+//		 || [arg isKindOfClass:[NSString class]])) {
+//		return NUMBOOL(NO);
+//	}
 	
 	if([args count] > 1) {
 		ENSURE_TYPE([args objectAtIndex:1], NSNumber);
@@ -404,8 +404,7 @@ FILENOOP(setHidden:(id)x);
 		}
 		return NUMBOOL(error==nil);
 	}
-    NSString* dataString = [TiUtils stringValue:arg];
-    NSData* data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+    NSData* data = [TiUtils dataValue:arg];
 	NSError *err = nil;
     [data writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&err];
 	if(err != nil) {
