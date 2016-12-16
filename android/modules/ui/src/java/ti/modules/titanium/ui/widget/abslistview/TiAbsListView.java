@@ -1016,7 +1016,10 @@ public abstract class TiAbsListView<C extends StickyListHeadersListViewAbstract 
 	    AbsListViewProxy listProxy = (AbsListViewProxy) proxy;
         
         if (listProxy.getPreload()) {
-            processSections(listProxy.getPreloadSections().toArray());
+            ArrayList preload = listProxy.getPreloadSections();
+            if (preload != null) {
+                processSections(preload.toArray());
+            }
             listProxy.setPreload(false);
             listProxy.clearPreloadSections();
         }
