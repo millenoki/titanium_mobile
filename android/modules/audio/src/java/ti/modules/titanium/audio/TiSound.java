@@ -434,7 +434,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
                             afd.getStartOffset(), afd.getLength());
                 } catch (IOException e) {
                   // timob-24082: setDataSource throws exception on a few but not all 4.4 devices
-                  if (Build.VERSION.SDK_INT == 19) {
+                  if (TiC.KIT_KAT_OR_GREATER) {
                     try {
                       mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset()+1, afd.getLength());
                     } catch (IOException e2) {

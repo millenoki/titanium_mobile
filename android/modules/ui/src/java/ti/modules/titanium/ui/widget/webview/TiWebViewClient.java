@@ -15,6 +15,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
 import ti.modules.titanium.media.TiVideoActivity;
+import ti.modules.titanium.ui.WebViewProxy;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -63,7 +64,7 @@ public class TiWebViewClient extends WebViewClient
         if (webView == null) {
             return;
         }
-//		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		WebViewProxy proxy = (WebViewProxy) webView.getProxy();
         KrollDict data = webView.eventForURL(url);
 		webView.changeProxyUrl(data.getString(TiC.PROPERTY_URL));
         webView.onProgressChanged(view, 100);
@@ -74,7 +75,7 @@ public class TiWebViewClient extends WebViewClient
 		if (proxy.hasProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE)) {
 			enableJavascriptInjection = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE), true);
 		}
-		if (Build.VERSION.SDK_INT > 16 || enableJavascriptInjection) {
+		if (TiC.JELLY_BEAN_OR_GREATER || enableJavascriptInjection) {
 			WebView nativeWebView = webView.getWebView();
 
 			if (nativeWebView != null) {
@@ -136,7 +137,8 @@ public class TiWebViewClient extends WebViewClient
             return super.shouldOverrideUrlLoading(view, url);
         }
 		webView.setIsLocalHTML(false);
-		if (webView.getProxy().hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
+        WebViewProxy proxy = (WebViewProxy) webView.getProxy();
+		if (proxy.hasProperty(TiC.PROPERTY_BLACKLISTED_URLS)) {
 		    String [] blacklistedSites = TiConvert.toStringArray((Object[])webView.getProxy().getProperty(TiC.PROPERTY_BLACKLISTED_URLS));
 		    for(String site : blacklistedSites) {
 		        if (url.equalsIgnoreCase(site) || (url.indexOf(site) > -1)) {

@@ -2027,12 +2027,10 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			activityProxy = null;
 		}
 		if (view != null) {
-			view.releaseViews();
 			view.release();
 			view = null;
 		}
 		if (window != null) {
-			window.releaseViews();
 			window.removeAllChildren();
 			window.release();
 			window = null;
