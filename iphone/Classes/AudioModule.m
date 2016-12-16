@@ -128,6 +128,7 @@ MAKE_SYSTEM_UINT(AUDIO_FILEFORMAT_AMR,kAudioFileAMRType);
 
 
 //Constants for currentRoute
+#if defined(USE_TI_AUDIOAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_AUDIORECORDER)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_LINEIN,AVAudioSessionPortLineIn)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BUILTINMIC,AVAudioSessionPortBuiltInMic)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_HEADSETMIC,AVAudioSessionPortHeadsetMic)
@@ -144,7 +145,6 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BLUETOOTHLE,AVAudioSessionPortBluetoothLE)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_CARAUDIO,AVAudioSessionPortCarAudio)
 
 //Constants for AudioSessions
-#if defined(USE_TI_AUDIOAUDIOPLAYER) || defined(USE_TI_MEDIAMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_AUDIORECORDER)
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_AMBIENT,AVAudioSessionCategoryAmbient);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_SOLO_AMBIENT, AVAudioSessionCategorySoloAmbient);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAYBACK, AVAudioSessionCategoryPlayback);
@@ -265,16 +265,17 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
 
 #pragma mark Public Methods
 
+#if defined(USE_TI_AUDIOPLAYER) || defined(USE_TI_AUDIOMUSICPLAYER) || defined(USE_TI_AUDIOSOUND) || defined (USE_TI_MEDIAVIDEOPLAYER) || defined(USE_TI_MEDIAAUDIORECORDER)
 -(void)setOverrideAudioRoute:(NSNumber*)mode
 {
     [[TiAudioSession sharedSession] setRouteOverride:[mode unsignedIntValue]];
 }
-
+#endif
 /**
  Microphone And Recording Support. These make no sense here and should be moved to Audiorecorder
  **/
 
-#ifdef USE_TI_AUDIOREQUESTAUDIOPERMISSIONS
+#ifdef USE_TI_AUDIOHASAUDIOPERMISSIONS
 -(NSNumber*)hasAudioPermissions
 {
     NSString *microphonePermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSMicrophoneUsageDescription"];
@@ -285,7 +286,9 @@ MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER,AudioModuleErrorNoMusicPlayer);
     
     [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio] == AVAuthorizationStatusAuthorized;
 }
+#endif
 
+#ifdef USE_TI_AUDIOREQUESTAUDIOPERMISSIONS
 -(void)requestAudioPermissions:(id)args
 {
     ENSURE_SINGLE_ARG(args, KrollCallback);

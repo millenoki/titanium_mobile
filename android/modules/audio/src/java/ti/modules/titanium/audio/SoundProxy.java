@@ -95,13 +95,13 @@ public class SoundProxy extends KrollProxy
 		}
 		Log.i(TAG, "Creating sound proxy for url: " + TiConvert.toString(getProperty(TiC.PROPERTY_URL)), Log.DEBUG_MODE);
 	}
-	
-	@Kroll.getProperty
+
+	@Kroll.method @Kroll.getProperty(enumerable=false)
 	public String getUrl() {
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
 
-	@Kroll.setProperty
+	@Kroll.method @Kroll.setProperty
 	public void setUrl(Object url) {
 		String path = parseURL(url);
 		if (path != null) {

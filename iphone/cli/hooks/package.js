@@ -1,7 +1,7 @@
 /*
  * package.js: Titanium iOS CLI package hook
  *
- * Copyright (c) 2012-2013, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright (c) 2012-2016, Appcelerator, Inc.  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -31,117 +31,98 @@ var deleteFolderRecursive = function(path) {
 exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
+	cli.on('build.ios.xcodebuild', {
+		pre: function (data, finished) {
+			if (this.target !== 'dist-appstore') {
+				return finished();
+			}
 
-    cli.addHook('build.post.compile', {
+			var stagingArchiveDir = path.join(this.buildDir, 'staging.xcarchive');
+			fs.existsSync(stagingArchiveDir) && wrench.rmdirSyncRecursive(stagingArchiveDir);
+
+			// inject the temporary archive path into the xcodebuild args
+			var args = data.args[1];
+			var p = args.indexOf('-archivePath');
+			if (p === -1) {
+				args.push('-archivePath', stagingArchiveDir);
+			} else {
+				args[p + 1] = stagingArchiveDir;
+			}
+
+			finished();
+		}
+	});
+
+	cli.on('build.post.compile', {
         priority: 8000,
         post: function (build, finished) {
             if (!/dist-(appstore|adhoc)|device/.test(cli.argv.target)) return finished();
 
             switch (cli.argv.target) {
                 case 'dist-appstore':
-                    // logger.info('Packaging for App Store distribution');
+					logger.info(__('Preparing xcarchive'));
 
-                    // var name = build.tiapp.name,
-                    //     now = new Date(),
-                    //     month = now.getMonth() + 1,
-                    //     day = now.getDate(),
-                    //     hours = now.getHours(),
-                    //     minutes = now.getMinutes(),
-                    //     seconds = now.getSeconds(), 
-                    //     // productsDir = path.join(build.buildDir, 'build', 'Products'),
-                    //     dateStr = now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day),
-                    //     archiveBundlePath = path.join(afs.resolvePath('~/Library/Developer/Xcode/Archives'),
-                    //     now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day)); 
-                    //     archiveBundle = path.join(archiveBundlePath, name + ' ' + (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' +
-                    //         (seconds >= 10 ? seconds : '0' + seconds) + '.xcarchive');
+					var stagingArchiveDir = path.join(builder.buildDir, 'staging.xcarchive');
+					if (!fs.existsSync(stagingArchiveDir)) {
+						return finished(new Error(__('Staging archive directory does not exist')));
+					}
 
-                    // var xcodebuildHook = cli.createHook('build.ios.xcodebuild', this, function (exe, args, opts, done) {
-                    //         logger.debug(__('Invoking: %s', (exe + ' ' + args.map(function (a) { return a.indexOf(' ') !== -1 ? '"' + a + '"' : a; }).join(' ')).cyan));
-                    //         exec(exe, args, opts, function (err, stdout, stderr) {
-                    //             if (err) {
-                    //                 logger.error(__('xcodebuild failed to run'));
-                    //                 logger.error(__(err)  + '\n');
-                    //                 process.exit(1);
-                    //             }
-                    //             done(code);
-                    //         }.bind(this));
-                    //     });
-                    // var args = [
-                    //     '-exportArchive',
-                    //     '-archivePath', archiveBundle,
-                    //     '-exportPath', archiveBundlePath
-                    // ];
+					var productsDir = path.join(builder.buildDir, 'build', 'Products');
+					if (!fs.existsSync(productsDir)) {
+						return finished(new Error(__('Products directory does not exist')));
+					}
 
-                    // if (fs.existsSync(path.join(build.projectDir, 'exportOptions.plist'))) {
-                    //     args.push('-exportOptionsPlist', path.join(build.projectDir, 'exportOptions.plist'));
-                    // }
-                    // async.series([
-                    //     function (next) {
-                    //     xcodebuildHook(
-                    //         build.xcodeEnv.executables.xcodebuild,
-                    //         [
-                    //             'archive',
-                    //             '-scheme', build.tiapp.name.replace(/[-\W]/g, '_'),
-                    //             '-archivePath', archiveBundle
-                    //         ],
-                    //         {
-                    //             cwd: build.buildDir,
-                    //             // env: {
-                    //             //     DEVELOPER_DIR: build.xcodeEnv.path,
-                    //             //     TMPDIR: process.env.TMPDIR,
-                    //             //     HOME: process.env.HOME,
-                    //             //     PATH: process.env.PATH,
-                    //                 // TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
-                    //             // }
-                    //         },
-                    //         next
-                    //     );
-                    //     }, 
-                    //     function (next) {
-                    //         xcodebuildHook(
-                    //             build.xcodeEnv.executables.xcrun,
-                    //             [
-                    //                 'xcodebuild',
-                    //                 '-exportArchive',
-                    //                 '-archivePath', archiveBundle,
-                    //                 '-exportPath', archiveBundlePath
-                    //             ].concat(fs.existsSync(path.join(build.projectDir, 'exportOptions.plist'))?[
-                    //                 '-exportOptionsPlist', path.join(build.projectDir, 'exportOptions.plist')
-                    //                 ]:[]),
-                    //             {
-                    //                 cwd: build.buildDir,
-                    //                 // env: {
-                    //                     // DEVELOPER_DIR: build.xcodeEnv.path,
-                    //                     // TMPDIR: process.env.TMPDIR,
-                    //                     // HOME: process.env.HOME,
-                    //                     // PATH: process.env.PATH,
-                    //                     // TITANIUM_CLI_XCODEBUILD: 'Enjoy hacking? http://jobs.appcelerator.com/'
-                    //                 // }
-                    //             },
-                    //             next
-                    //         );
-                    //     }
-                    // ], function () {
-                        // workaround for dumb Xcode4 bug that doesn't update the organizer unless files are touched in a very specific manner
-                        // var temp = afs.resolvePath('~/Library/Developer/Xcode/Archives/temp');
-                        // fs.renameSync(archiveBundle, temp);
-                        // fs.renameSync(temp, archiveBundle);
+					// copy symbols
+					var archiveDsymDir = path.join(stagingArchiveDir, 'dSYMs');
+					fs.existsSync(archiveDsymDir) || wrench.mkdirSyncRecursive(archiveDsymDir);
+					var bcSymbolMapsDir = path.join(stagingArchiveDir, 'BCSymbolMaps');
+					fs.existsSync(bcSymbolMapsDir) || wrench.mkdirSyncRecursive(bcSymbolMapsDir);
+					var dsymRegExp = /\.dSYM$/;
+					var bcSymbolMapsRegExp = /\.bcsymbolmap$/;
+					fs.readdirSync(productsDir).forEach(function (name) {
+						var subdir = path.join(productsDir, name);
+						if (fs.existsSync(subdir) && fs.statSync(subdir).isDirectory()) {
+							fs.readdirSync(subdir).forEach(function (name) {
+								var file = path.join(subdir, name);
+								if (dsymRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isDirectory()) {
+									logger.info(__('Archiving debug symbols: %s', file.cyan));
+									wrench.copyDirSyncRecursive(file, path.join(archiveDsymDir, name), { forceDelete: false });
+								} else if (bcSymbolMapsRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isFile()) {
+									var dest = path.join(bcSymbolMapsDir, name);
+									logger.info(__('Archiving Bitcode Symbol Map: %s', file.cyan));
+									fs.writeFileSync(dest, fs.readFileSync(file));
+								}
+							});
+						}
+					});
 
-                        // open xcode + organizer after packaging
-                        logger.info(__('Launching Xcode: %s', build.xcodeEnv.xcodeapp.cyan));
-                        exec('open -a "' + build.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
-                            process.env.TI_ENV_NAME = process.env.STUDIO_NAME || 'Terminal.app';
-                            exec('osascript "' + path.join(build.platformPath, 'xcode_organizer.scpt') + '"', { env: process.env }, function (err, stdout, stderr) {
-                                logger.info(__('Packaging complete'));
-                                finished();
-                            });
-                        });
-                    // });
-                    break;
-                    
-                //  if (!cli.argv['build-only']) {
-                //      return finished();
-                //  }
+					var name = builder.tiapp.name;
+					var now = new Date;
+					var month = now.getMonth() + 1;
+					var day = now.getDate();
+					var hours = now.getHours();
+					var minutes = now.getMinutes();
+					var seconds = now.getSeconds();
+					var date = now.getFullYear() + '-' + (month >= 10 ? month : '0' + month) + '-' + (day >= 10 ? day : '0' + day);
+					var time = (hours >= 10 ? hours : '0' + hours) + '-' + (minutes >= 10 ? minutes : '0' + minutes) + '-' + (seconds >= 10 ? seconds : '0' + seconds);
+
+					var archivesDir = afs.resolvePath('~/Library/Developer/Xcode/Archives', date);
+					var dest = path.join(archivesDir, name + ' ' + date + ' ' + time + '.xcarchive');
+
+					// move the finished archive directory into the correct location
+					fs.existsSync(archivesDir) || wrench.mkdirSyncRecursive(archivesDir);
+					fs.renameSync(stagingArchiveDir, dest);
+
+					// open xcode + organizer after packaging
+					logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
+					exec('open -a "' + builder.xcodeEnv.xcodeapp + '"', function (err, stdout, stderr) {
+						process.env.TI_ENV_NAME = process.env.STUDIO_NAME || 'Terminal.app';
+						exec('osascript "' + path.join(builder.platformPath, 'xcode_organizer.scpt') + '"', { env: process.env }, function (err, stdout, stderr) {
+							logger.info(__('Packaging complete'));
+							finished();
+						});
+					});
+					return;
 
                 case 'device':
                 case 'dist-adhoc':

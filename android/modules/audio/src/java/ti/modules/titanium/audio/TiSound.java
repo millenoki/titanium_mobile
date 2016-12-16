@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.media.AudioManager;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPropertyChange;
 import org.appcelerator.kroll.KrollProxy;
@@ -353,6 +354,7 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
      */
     void createMediaPlayerIfNeeded() {
         if (mp == null) {
+            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mp = new MediaPlayer();
 
             // Make sure the media player will acquire a wake-lock while
@@ -431,7 +433,16 @@ public class TiSound implements MediaPlayer.OnCompletionListener,
                     mp.setDataSource(afd.getFileDescriptor(),
                             afd.getStartOffset(), afd.getLength());
                 } catch (IOException e) {
+                  // timob-24082: setDataSource throws exception on a few but not all 4.4 devices
+                  if (Build.VERSION.SDK_INT == 19) {
+                    try {
+                      mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset()+1, afd.getLength());
+                    } catch (IOException e2) {
+                      Log.e(TAG, "Error setting file descriptor: ", e2);
+                    }
+                  } else {
                     Log.e(TAG, "Error setting file descriptor: ", e);
+                  }
                 } finally {
                     if (afd != null) {
                         afd.close();

@@ -338,6 +338,12 @@
     [[self textWidgetView] setEnabled:_trulyEnabled];
 }
 
+- (void)setBackgroundColor_:(id)value
+{
+	[[self proxy] replaceValue:value forKey:@"backgroundColor" notification:NO];
+	[(TiTextField*)[self textWidgetView] setBackgroundColor:[[TiUtils colorValue:value] _color]];
+}
+
 -(void)setHintText_:(id)value
 {
     [[self textWidgetView] setPlaceholder:[TiUtils stringValue:value]];
