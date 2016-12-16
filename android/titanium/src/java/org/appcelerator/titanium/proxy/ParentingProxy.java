@@ -31,7 +31,7 @@ public class ParentingProxy extends KrollProxy {
         if (options == null) {
             return;
         }
-        if (options.containsKey(TiC.PROPERTY_PROPERTIES)) {
+        if (options.get(TiC.PROPERTY_PROPERTIES) != null) {
             
             super.handleCreationDict((HashMap) options.get(TiC.PROPERTY_PROPERTIES));
             needsToUpdateProps = true;

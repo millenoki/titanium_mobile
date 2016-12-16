@@ -2305,7 +2305,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         String type = TiConvert.toString(template_, TiC.PROPERTY_TYPE, defaultProxyTypeFromTemplate());
 //        String bindId = TiConvert.toString(template_, TiC.PROPERTY_BIND_ID);
         Object props = template_;
-        if (template_.containsKey(TiC.PROPERTY_PROPERTIES)) {
+        if (template_.get(TiC.PROPERTY_PROPERTIES) != null) {
             props =  template_.get(TiC.PROPERTY_PROPERTIES);
 //            creationArgsHandlesTemplate = false;
         } else if (template_.containsKey(TiC.PROPERTY_CHILD_TEMPLATES) || 
