@@ -584,7 +584,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
         if (activity != null) {
             activity.setWindowProxy(proxy);
         }
-        proxy.focus();
+        // proxy.focus();
 	}
 	
 	@Kroll.method
