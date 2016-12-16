@@ -611,8 +611,10 @@ public class TiBlob extends KrollProxy {
         case TYPE_STREAM_BASE64:
         case TYPE_DATA:
             result = getText();
+            break;
         case TYPE_FILE:
             result = getNativePath();
+            break;
         }
         if (result != null) {
             return result;

@@ -358,6 +358,9 @@ public abstract class TiBaseFile
 	public void unzip(String destination) {
 		logNotSupported("unzip");
 	}
+    public void write(byte[] data, boolean append) throws IOException {
+        
+    }
 
 	public void write(TiBlob blob, boolean append) throws IOException {
 

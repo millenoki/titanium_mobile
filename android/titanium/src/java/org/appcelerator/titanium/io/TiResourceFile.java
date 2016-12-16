@@ -97,7 +97,13 @@ public class TiResourceFile extends TiBaseFile
 	{
 		throw new IOException("read only");
 	}
-
+	
+	@Override
+    public void write(byte[] data, boolean append) throws IOException
+    {
+        throw new IOException("read only");
+    }
+	
 	@Override
 	public void open(int mode, boolean binary) throws IOException {
 		if (mode == MODE_READ) {

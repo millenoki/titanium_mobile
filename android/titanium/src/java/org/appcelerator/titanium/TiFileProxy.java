@@ -300,25 +300,15 @@ public class TiFileProxy extends KrollProxy
 	        append = false;
         }
 		try {
-//				if (!TiFileHelper2.hasStoragePermission()) {
-//					Log.e(TAG, "External storage permissions missing");
-//					return false;
-//				}
-				if (arg instanceof TiBlob) {
-					tbf.write((TiBlob)arg, append);
-				} else if (arg instanceof String) {
-					tbf.write((String)arg, append);
-				} else if (arg instanceof TiFileProxy) {
-					tbf.write(((TiFileProxy)arg).read(), append);
-				} else {
-					Log.i(TAG, "Unable to write to an unrecognized file type");
-					return false;
-				}
+		    byte[] data = TiConvert.toBytes(arg);
+		    if (arg != null) {
+                tbf.write(data, append);
+		    } else {
+				Log.i(TAG, "Unable to write to an unrecognized file type");
+				return false;
+			}
 
-				return true;
-//			}
-
-//			return false;
+			return true;
 		} catch(IOException e) {
 			Log.e(TAG, "IOException encountered", e);
 			return false;

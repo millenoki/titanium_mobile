@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -24,6 +25,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.util.TiUIHelper.Shadow;
 import org.appcelerator.titanium.view.Ti2DMatrix;
@@ -1565,6 +1567,12 @@ public class TiConvert
             bytes = ((TiBlob) value).getBytes();
         } else if (value instanceof BufferProxy) {
             bytes = ((BufferProxy) value).getBuffer();
+        } else if (value instanceof TiFileProxy) {
+            try {
+                bytes = ((TiFileProxy) value).read().getBytes();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return bytes;
     }

@@ -467,6 +467,17 @@ public class TiFile extends TiBaseFile
 	}
 
 	@Override
+    public void write(byte[] data, boolean append) throws IOException
+    {
+	    if (!opened) {
+	        open(append ? MODE_APPEND : MODE_WRITE, true);
+	    }
+        if (binary) {
+            outstream.write(data);
+        }
+    }
+	
+	@Override
 	public void write(String data, boolean append) throws IOException
 	{
 		Log.d(TAG, "write called for file = " + file, Log.DEBUG_MODE);
