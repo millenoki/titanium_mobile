@@ -42,7 +42,8 @@ extern NSString * TI_APPLICATION_RESOURCE_DIR;
 
 -(id)createTempFile:(id)args
 {
-	return [TiFilesystemFileProxy makeTemp:NO];
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary)
+	return [TiFilesystemFileProxy makeTemp:NO suffix:[args objectForKey:@"suffix"] prefix:[args objectForKey:@"prefix"]];
 }
 
 -(id)createTempDirectory:(id)args

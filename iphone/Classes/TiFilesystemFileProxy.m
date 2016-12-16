@@ -441,6 +441,11 @@ FILENOOP(setHidden:(id)x);
 
 +(id)makeTemp:(BOOL)isDirectory
 {
+    return [self makeTemp:isDirectory suffix:nil prefix:nil];
+}
+
++(id)makeTemp:(BOOL)isDirectory suffix:(NSString*)suffix prefix:(NSString*)prefix
+{
 	NSString * tempDir = NSTemporaryDirectory();
 	NSError * error=nil;
 	
@@ -459,7 +464,14 @@ FILENOOP(setHidden:(id)x);
 	NSString * resultPath;
 	do 
 	{
-		resultPath = [tempDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%X",timestamp]];
+        NSString* fileName = [NSString stringWithFormat:@"%X",timestamp];
+        if (prefix) {
+            fileName = [NSString stringWithFormat:@"%@%@",prefix, fileName];
+        }
+        if (suffix) {
+            fileName = [fileName stringByAppendingString:suffix];
+        }
+		resultPath = [tempDir stringByAppendingPathComponent:fileName];
 		timestamp ++;
 	} while ([fm fileExistsAtPath:resultPath]);
 	

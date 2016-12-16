@@ -21,6 +21,7 @@
 -(TiFilesystemFileStreamProxy *) open:(id) args;
 
 +(id)makeTemp:(BOOL)isDirectory;
++(id)makeTemp:(BOOL)isDirectory suffix:(NSString*)suffix prefix:(NSString*)prefix;
 
 @property(nonatomic,readonly) id name;
 @property(nonatomic,readonly) id nativePath;
