@@ -969,7 +969,7 @@ properties:
     since: "3.0.0"
     platforms: [android, iphone, ipad]
   
-  - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
+  - name: TEXT_ELLIPSIZE_WORD
     summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
     description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
@@ -978,7 +978,7 @@ properties:
     platforms: [iphone, ipad]
     since: "6.0.0"
 
-  - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
+  - name: TEXT_ELLIPSIZE_CHAR
     summary: Add ellipses before the first character that doesnt fit.
     description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
@@ -996,7 +996,7 @@ properties:
     platforms: [iphone, ipad]
     since: "6.0.0"
 
-  - name: TEXT_ELLIPSIZE_TRUNCATE_START
+  - name: TEXT_ELLIPSIZE_HEAD
     summary: Add ellipses at the beginning of the label if the text is too large to fit.
     description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
@@ -1005,7 +1005,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "4.1.0"
   
-  - name: TEXT_ELLIPSIZE_TRUNCATE_MIDDLE
+  - name: TEXT_ELLIPSIZE_MIDDLE
     summary: Add ellipses in the middle of the label if the text is too large to fit.
     description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
@@ -1014,7 +1014,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: "4.1.0"
   
-  - name: TEXT_ELLIPSIZE_TRUNCATE_END
+  - name: TEXT_ELLIPSIZE_TAIL
     summary: Add ellipses at the end of the label if the text is too large to fit.
     description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
@@ -1032,7 +1032,7 @@ properties:
     platforms: [android]
     since: "4.1.0"
     
-  - name: TEXT_ELLIPSIZE_TRUNCATE_NONE
+  - name: TEXT_ELLIPSIZE_NONE
     summary: Disables ellipsizing of the label. The text will be cut off if it is too long.
     description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
