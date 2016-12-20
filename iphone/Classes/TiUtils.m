@@ -902,8 +902,9 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
 	return image;
 	//Note: If url is a nonimmediate image, this returns nil.
 }
-+(UIImage *)adjustRotation:(UIImage *) image {
-    
+
++(UIImage *)adjustRotation:(UIImage *) image
+{
     CGImageRef imgRef = image.CGImage;
     CGFloat width = CGImageGetWidth(imgRef);
     CGFloat height = CGImageGetHeight(imgRef);
@@ -989,7 +990,7 @@ const TiCap TiCapUndefined = {{TiDimensionTypeUndefined, 0}, {TiDimensionTypeUnd
     UIImage *imageCopy = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
-    return imageCopy;
+    return [imageCopy autorelease];
 }
 
 +(NSURL*)checkFor2XImage:(NSURL*)url
