@@ -2941,7 +2941,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     }, cb);
                 },
                 function(cb) {
-                    console.log('test ', jsFiles);
                     appc.async.series(this, Object.keys(jsFiles).map(function (file) {
                         return function (done) {
                             var from = jsFiles[file],
