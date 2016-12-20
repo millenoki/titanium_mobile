@@ -55,7 +55,7 @@
     "unorm": "^1.4.1",
     "windowslib": "0.4.25",
     "wrench": "1.5.9",
-    "xcode": "0.8.9",
+    "xcode": "git://github.com/Akylas/node-xcode.git",
     "xmldom": "0.1.22"
   },
   "devDependencies": {
