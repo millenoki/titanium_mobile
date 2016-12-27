@@ -2620,7 +2620,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         dest: to,
                         srcStat: srcStat
                     };
-                _t.cli.createHook('build.android.walkResource', this, function(info, next) {
+                _t.cli.createHook('build.android.walkResource', _t, function(info, next) {
                     if (!!info.ignored) {
                         return;
                     }
@@ -2636,7 +2636,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             extMatch = destFilename.match(drawableExtRegExp),
                             origExt = extMatch && extMatch[1] || '',
                             hashExt = extMatch && extMatch.length > 2 ? '.' + extMatch[3] : '';
-                        console.log(m, destFilename, filename,origExt, hashExt);
                         destDir = path.join(
                             _t.buildResDir,
                             drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] + 'dpi' : 'drawable-' + m[1].substring(4)
@@ -2644,9 +2643,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
                         if (splashScreenRegExp.test(info.relPath)) {
                             // we have a splash screen image
-                            to = path.join(destDir, 'background' + origExt);
+                            info.dest = path.join(destDir, 'background' + origExt);
                         } else {
-                            to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + _t.hash(name + hashExt).substring(0, 10) + origExt);
+                            info.dest = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + _t.hash(name + hashExt).substring(0, 10) + origExt);
                         }
                         isDrawable = true;
                     } else if (m = info.relPath.match(relSplashScreenRegExp)) {
@@ -2654,17 +2653,17 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         // if it's a 9 patch, then the image goes in drawable-nodpi, not drawable
                         if (m[1] == '9.png') {
                             destDir = path.join(_t.buildResDir, 'drawable-nodpi');
-                            to = path.join(destDir, info.relPath.replace('default.', 'background.'));
+                            info.dest = path.join(destDir, info.relPath.replace('default.', 'background.'));
                         } else {
                             destDir = _t.buildResDrawableDir;
-                            to = path.join(_t.buildResDrawableDir, info.relPath.replace('default.', 'background.'));
+                            info.dest = path.join(_t.buildResDrawableDir, info.relPath.replace('default.', 'background.'));
                         }
                         isDrawable = true;
                     }
 
                     if (isDrawable) {
                         var _from = info.src.replace(_t.projectDir, '').substring(1),
-                            _to = to.replace(_t.buildResDir, '').replace(drawableExtRegExp, '').substring(1);
+                            _to = info.dest.replace(_t.buildResDir, '').replace(drawableExtRegExp, '').substring(1);
                         if (drawableResources[_to]) {
                             _t.logger.error(__('Found conflicting resources:'));
                             _t.logger.error('   ' + drawableResources[_to]);
