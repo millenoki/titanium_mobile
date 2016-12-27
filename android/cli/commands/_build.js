@@ -1962,6 +1962,7 @@ AndroidBuilder.prototype.initialize = function initialize(next) {
     this.buildSrcPackageDir         = path.join(this.buildSrcDir, this.appid.split('.').join(path.sep));
     this.templatesDir               = path.join(this.platformPath, 'templates', 'build');
     this.buildTsDir                 = path.join(this.buildDir, 'ts');
+    this.buildTsOutputDir           = path.join(this.buildDir, 'tsoutput');
 
     // files
     this.buildManifestFile          = path.join(this.buildDir, 'build-manifest.json');
@@ -2438,13 +2439,13 @@ AndroidBuilder.prototype.analyzeJs = function analyzeJs(to, data, next) {
     }.bind(this))(to, data, r, next);
 }
 
-AndroidBuilder.prototype.getTsConfig = function getTsConfig(next) {
+AndroidBuilder.prototype.getTsConfig = function getTsConfig(rootDirs) {
     var options = {
         noEmitOnError: false,
         sourceMap: true,
         inlineSourceMap: false,
-        outDir: this.buildTsDir,
-        rootDir:path.join(this.projectDir, 'Resources'),
+        outDir: this.buildTsOutputDir,
+        rootDir:this.buildTsDir,
         allowJS: true,
         target: ts.ScriptTarget.ES2016,
         module: ts.ModuleKind.CommonJS,
@@ -2458,6 +2459,8 @@ AndroidBuilder.prototype.getTsConfig = function getTsConfig(next) {
         noLib: false,
         emitDecoratorMetadata: true
     }
+
+    console.log('getTsConfig', options);
 
     var tsconfigPath = path.join(this.projectDir, 'tsconfig.json');
     if (fs.existsSync(tsconfigPath)) {
@@ -2519,7 +2522,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
     function copyDir(opts, callback) {
         if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
             opts.origSrc = opts.origSrc || opts.src;
-            opts.origDest = opts.origDest || opts.dest;
+            opts.origDest = opts.dest;
             recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
         } else {
             callback();
@@ -2706,16 +2709,11 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             });
 
                             resourcesToCopy[info.relPath] = info;
-
+                            break;
                         case 'ts':
-                            tsFiles.push(info.src);
-                            // break;
-                            // if (/\.d\.ts/.test(filename)) {
-                            //     next();
-                            //     break;
-                            // }
-                            // from = path.join(_t.buildTsDir, relPath.replace(/\.ts$/, '.js'));
-                            // to = to.replace(/\.ts$/, '.js');
+                            var tsRealPath = path.join(_t.buildTsDir, path.relative(info.origSrc, info.src));
+                            copyFile.call(_t, info.src, tsRealPath);
+                            tsFiles.push(tsRealPath);
                             break;
                         case 'js':
                             // track each js file so we can copy/minify later
@@ -2747,7 +2745,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                 return;
                             }
                             if (_t.encryptJS) {
-                                info.relPath = info.relPath.replace(/\./g, '_');
+                                // info.relPath = info.relPath.replace(/\./g, '_');
                                 info.dest = path.join(_t.buildAssetsEncryptDir, info.relPath);
                                 _t.jsFilesToEncrypt.push(info.relPath);
                                 // break;
@@ -2796,10 +2794,13 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 		);
 	}, this);
 
+    var tsRootDirs = [];
+
     this.cli.createHook('build.android.resourcesPaths', this, function (resourcesPaths) {
         resourcesPaths.forEach(function (dir) {
             tasks.push(function (cb) {
                 warnDupeDrawableFolders.call(this, dir);
+                tsRootDirs.push(dir);
                 copyDir.call(this, {
                     src: dir,
                     dest: this.buildBinAssetsResourcesDir,
@@ -2918,7 +2919,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
             [           
                 
                 function compileTsFiles() {
-                    this.logger.debug(__('Compiling TS files: %s', tsFiles));
                     if (!tsFiles || tsFiles.length == 0) {
                         return;
                     }
@@ -2935,12 +2935,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             }
                         }.bind(this));
                     }
-                    this.logger.debug(__('Compyling TS files: %s', tsFiles));
+                    this.logger.debug(__('Compiling TS files: %s', tsFiles));
                     var that = this;
 
-                    var options = this.getTsConfig();
+                    var options = this.getTsConfig(tsRootDirs);
                     var host = ts.createCompilerHost(options);
-                    var program = ts.createProgram(tsFiles,options, host);
+                    var program = ts.createProgram(tsFiles,options,host);
                     var emitResult = program.emit();
 
                     var allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
@@ -2951,15 +2951,15 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             var message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
                             this.logger.error(__('TsCompile:%s (%s, %s): %s', diagnostic.file.fileName,data.line +1,data.character +1, message ));
                         } else{
-                            this.logger.error(__('TsCompile:%s', diagnostic.messageText));
+                            this.logger.error(__('[TSC]:%s', diagnostic.messageText));
                         }                        
                     }.bind(this));
-                    this.logger.debug(__('TsCompile done!'));
+                    this.logger.debug(__('TSC done!'));
                 },
                 function(cb) {
                     this.logger.debug(__('Processing compiled Ts Files'));
                     copyDir.call(this, {
-                        src: this.buildTsDir,
+                        src: this.buildTsOutputDir,
                         dest: this.buildBinAssetsResourcesDir,
                         ignoreRootDirs: ti.availablePlatformsNames
                     }, cb);
@@ -2983,9 +2983,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                 if (file.indexOf('/') === 0) {
                                     file = path.basename(file);
                                 }
-                                file = file.replace(/\./g, '_');
+                                // file = file.replace(/\./g, '_');
                                 info.dest = path.join(this.buildAssetsEncryptDir, file);
-                                info.destSourceMap = info.dest + '_map';
+                                info.destSourceMap = info.dest + '.map';
                                 this.jsFilesToEncrypt.push(file);
                             }
                             var from = info.src,

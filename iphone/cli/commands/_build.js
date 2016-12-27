@@ -2374,6 +2374,7 @@ iOSBuilder.prototype.initialize = function initialize() {
 	this.xcodeProjectConfigFile = path.join(this.buildDir, 'project.xcconfig');
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
 	this.buildTsDir         	= path.join(this.buildDir, 'ts');
+	this.buildTsOutputDir       = path.join(this.buildDir, 'tsoutput');
 
 	if ((this.tiapp.properties && this.tiapp.properties.hasOwnProperty('ios.whitelist.appcelerator.com') && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
 		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
@@ -4984,14 +4985,14 @@ iOSBuilder.prototype.analyseJS = function analyseJS(to, data, next) {
     }.bind(this))(to, data, r, next);
 }
 
-iOSBuilder.prototype.getTsConfig = function getTsConfig(next) {
+iOSBuilder.prototype.getTsConfig = function getTsConfig(rootDirs) {
 	var options = {
 		noEmitOnError: false,
 		sourceMap: this.deployType !== 'production',
 		mapRoot:'',
 		inlineSourceMap: false,
-		outDir: this.buildTsDir,
-		rootDir:path.join(this.projectDir, 'Resources'),
+		outDir: this.buildTsOutputDir,
+		rootDir:this.buildTsDir,
 		target: ts.ScriptTarget.ES2016,
 		module: ts.ModuleKind.CommonJS,
 		moduleResolution: ts.ModuleResolutionKind.Classic,
@@ -5133,7 +5134,9 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							jsFiles[info.relPath] = info;
 							break;
 						case 'ts':
-							tsFiles.push(info.src);
+						var tsRealPath = path.join(that.buildTsDir, path.relative(info.origSrc, info.src));
+                            copyFileSync.call(that, info.src, tsRealPath);
+                            tsFiles.push(tsRealPath);
 							break;
 						case 'css':
 							cssFiles[info.relPath] = info;
@@ -6181,7 +6184,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		    this.logger.debug(__('TsCompile done!'));
 		},
 		function onTsDone(next) {
-			walk(this.buildTsDir, this.xcodeAppDir);
+			walk(this.buildTsOutputDir, this.xcodeAppDir);
 			next();
 		},
 		function processJSFiles(next) {
