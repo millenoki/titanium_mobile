@@ -2119,7 +2119,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
 
     public boolean hasNonJSEventListener(String event) {
-        return eventListeners.containsKey(event)
+        return eventListeners != null && eventListeners.containsKey(event)
                 && eventListeners.get(event) != null;
     }
     
