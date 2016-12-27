@@ -2422,9 +2422,9 @@ AndroidBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
     }, this);
 };
 
-AndroidBuilder.prototype.analyseJS = function analyseJS(to, data, next) {
+AndroidBuilder.prototype.analyzeJs = function analyzeJs(to, data, next) {
     var r;
-    this.cli.createHook('build.android.analyseJS', this, function (to, data, r, cb) {
+    this.cli.createHook('build.android.analyzeJs', this, function (to, data, r, cb) {
         try {
             // parse the AST
             r = jsanalyze.analyzeJs(data);
@@ -2490,6 +2490,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
     var ignoreDirs = this.ignoreDirs,
         replaceat2x = this.tiapp.properties['ti.android.replaceat2x'] && this.tiapp.properties['ti.android.replaceat2x'].value === true,
         ignoreFiles = this.ignoreFiles,
+        filenameRegExp = /^(.*)\.(\w+)$/,
         extRegExp = /\.(\w+)$/,
         drawableRegExp = /^images\/(high|medium|low|res\-[^\/]+)(\/(.*))/,
         drawableDpiRegExp = /^(high|medium|low)$/,
@@ -2504,6 +2505,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         htmlJsFiles = this.htmlJsFiles = {},
         symlinkFiles = process.platform != 'win32' && this.config.get('android.symlinkResources', true),
         jsonPackageTitanium = fs.existsSync('package.json') &&  JSON.parse(fs.readFileSync('package.json')).titanium
+        resourcesToCopy = {},
         _t = this;
 
         var toIgnore;
@@ -2516,8 +2518,8 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
     function copyDir(opts, callback) {
         if (opts && opts.src && fs.existsSync(opts.src) && opts.dest) {
-            opts.origSrc = opts.src;
-            opts.origDest = opts.dest;
+            opts.origSrc = opts.origSrc || opts.src;
+            opts.origDest = opts.origDest || opts.dest;
             recursivelyCopy.call(this, opts.src, opts.dest, opts.ignoreRootDirs, opts, callback);
         } else {
             callback();
@@ -2573,7 +2575,9 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     destDir = dest,
                     from = path.join(src, filename),
                     relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, ''),
-                    to = path.join(destDir, replaceat2x?filename.replace('@2x', ''):filename);
+                    to = path.join(destDir, replaceat2x?filename.replace('@2x', ''):filename),
+                    srcStat = fs.statSync(from),
+                    isDir = srcStat.isDirectory();
 
                 var ignored = false;
                 if (toIgnore) {
@@ -2589,8 +2593,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                 // check that the file actually exists and isn't a broken symlink
                 if (!fs.existsSync(from)) return next();
 
-                var isDir = fs.statSync(from).isDirectory();
-
                 // check if we are ignoring this file
                 if ((isDir && ignoreRootDirs && ignoreRootDirs.indexOf(filename) != -1) || (isDir ? ignoreDirs : ignoreFiles).test(filename)) {
                     _t.logger.debug(__('Ignoring %s', from.cyan));
@@ -2604,149 +2606,159 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     });
                     return;
                 }
-
-                // we have a file, now we need to see what sort of file
-
-                // check if it's a drawable resource
-                var m = relPath.match(drawableRegExp),
-                    isDrawable = false;
-
-                if (m && m.length >= 4 && m[3]) {
-                    var destFilename = replaceat2x?m[3].toLowerCase().replace('@2x', ''):m[3].toLowerCase(),
-                        name = destFilename.replace(drawableExtRegExp, ''),
-                        extMatch = destFilename.match(drawableExtRegExp),
-                        origExt = extMatch && extMatch[1] || '',
-                        hashExt = extMatch && extMatch.length > 2 ? '.' + extMatch[3] : '';
-
-                    destDir = path.join(
-                        _t.buildResDir,
-                        drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] + 'dpi' : 'drawable-' + m[1].substring(4)
-                    );
-
-                    if (splashScreenRegExp.test(filename)) {
-                        // we have a splash screen image
-                        to = path.join(destDir, 'background' + origExt);
-                    } else {
-                        to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + _t.hash(name + hashExt).substring(0, 10) + origExt);
+                var parts = filename.match(filenameRegExp),
+                    info = {
+                        ignored:false,
+                        name: parts ? parts[1] : filename,
+                        ext: parts ? parts[2] : null,
+                        src: from,
+                        origSrc: opts.origSrc,
+                        relPath: relPath,
+                        dest: to,
+                        srcStat: srcStat
+                    };
+                _t.cli.createHook('build.android.walkResource', this, function(info, next) {
+                    if (!!info.ignored) {
+                        return;
                     }
-                    isDrawable = true;
-                } else if (m = relPath.match(relSplashScreenRegExp)) {
-                    // we have a splash screen
-                    // if it's a 9 patch, then the image goes in drawable-nodpi, not drawable
-                    if (m[1] == '9.png') {
-                        destDir = path.join(_t.buildResDir, 'drawable-nodpi');
-                        to = path.join(destDir, filename.replace('default.', 'background.'));
-                    } else {
-                        destDir = _t.buildResDrawableDir;
-                        to = path.join(_t.buildResDrawableDir, filename.replace('default.', 'background.'));
-                    }
-                    isDrawable = true;
-                }
+                    // we have a file, now we need to see what sort of file
 
-                if (isDrawable) {
-                    var _from = from.replace(_t.projectDir, '').substring(1),
-                        _to = to.replace(_t.buildResDir, '').replace(drawableExtRegExp, '').substring(1);
-                    if (drawableResources[_to]) {
-                        _t.logger.error(__('Found conflicting resources:'));
-                        _t.logger.error('   ' + drawableResources[_to]);
-                        _t.logger.error('   ' + from.replace(_t.projectDir, '').substring(1));
-                        _t.logger.error(__('You cannot have resources that resolve to the same resource entry name') + '\n');
-                        process.exit(1);
-                    }
-                    drawableResources[_to] = _from;
-                }
+                    // check if it's a drawable resource
+                    var m = info.relPath.match(drawableRegExp),
+                        isDrawable = false;
 
-                // if the destination directory does not exists, create it
-                fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+                    if (m && m.length >= 4 && m[3]) {
+                        var destFilename = replaceat2x?m[3].toLowerCase().replace('@2x', ''):m[3].toLowerCase(),
+                            name = destFilename.replace(drawableExtRegExp, ''),
+                            extMatch = destFilename.match(drawableExtRegExp),
+                            origExt = extMatch && extMatch[1] || '',
+                            hashExt = extMatch && extMatch.length > 2 ? '.' + extMatch[3] : '';
+                        console.log(m, destFilename, filename,origExt, hashExt);
+                        destDir = path.join(
+                            _t.buildResDir,
+                            drawableDpiRegExp.test(m[1]) ? 'drawable-' + m[1][0] + 'dpi' : 'drawable-' + m[1].substring(4)
+                        );
 
-                var ext = filename.match(extRegExp);
-
-                if (ext && ext[1] != 'js') {
-                    // we exclude js files because we'll check if they need to be removed after all files have been copied
-                    delete _t.lastBuildFiles[to];
-                }
-
-                switch (ext && ext[1]) {
-                    case 'css':
-                        // if we encounter a css file, check if we should minify it
-                        if (_t.minifyCSS) {
-                            _t.logger.debug(__('Copying and minifying %s => %s', from.cyan, to.cyan));
-                            fs.readFile(from, function (err, data) {
-                                if (err) throw err;
-                                fs.writeFile(to, new CleanCSS({ processImport: false }).minify(data.toString()).styles, next);
-                            });
+                        if (splashScreenRegExp.test(info.relPath)) {
+                            // we have a splash screen image
+                            to = path.join(destDir, 'background' + origExt);
                         } else {
-                            copyFile.call(_t, from, to, next);
+                            to = path.join(destDir, name.replace(/[^a-z0-9_]/g, '_').substring(0, 80) + '_' + _t.hash(name + hashExt).substring(0, 10) + origExt);
                         }
-                        break;
-
-                    case 'html':
-                        // find all js files referenced in this html file
-                        var relPath = from.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
-                        relPath.pop(); // remove the filename
-                        relPath = relPath.join('/');
-                        jsanalyze.analyzeHtmlFile(from, relPath).forEach(function (file) {
-                            htmlJsFiles[file] = 1;
-                        });
-
-                        _t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
-                            copyFile.call(_t, from, to, cb);
-                        })(from, to, next);
-                        break;
-
-                    case 'ts':
-                        tsFiles.push(from);
-                        // break;
-                        // if (/\.d\.ts/.test(filename)) {
-                        //     next();
-                        //     break;
-                        // }
-                        // from = path.join(_t.buildTsDir, relPath.replace(/\.ts$/, '.js'));
-                        // to = to.replace(/\.ts$/, '.js');
-                        next();
-                        break;
-                    case 'js':
-                        // track each js file so we can copy/minify later
-
-                        // we use the destination file name minus the path to the assets dir as the id
-                        // which will eliminate dupes
-                        var id = to.replace(opts.origDest, opts.prefix ? opts.prefix : '').replace(/\\/g, '/').replace(/^\//, '');
-
-                        if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(from, to, id)) {
-                            jsFiles[id] = from;
+                        isDrawable = true;
+                    } else if (m = info.relPath.match(relSplashScreenRegExp)) {
+                        // we have a splash screen
+                        // if it's a 9 patch, then the image goes in drawable-nodpi, not drawable
+                        if (m[1] == '9.png') {
+                            destDir = path.join(_t.buildResDir, 'drawable-nodpi');
+                            to = path.join(destDir, info.relPath.replace('default.', 'background.'));
+                        } else {
+                            destDir = _t.buildResDrawableDir;
+                            to = path.join(_t.buildResDrawableDir, info.relPath.replace('default.', 'background.'));
                         }
-
-                        next();
-                        break;
-
-                    case 'xml':
-                        if (_t.xmlMergeRegExp.test(filename)) {
-                            _t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
-                                _t.writeXmlFile(from, to);
-                                cb();
-                            })(from, to, next);
-                            break;
-                        }
-                    case 'json': 
-                    case 'map': 
-                    {
-                        if (_t.encryptJS) {
-                            relPath = relPath.replace(/\./g, '_');
-                            to = path.join(_t.buildAssetsEncryptDir, relPath);
-                            _t.jsFilesToEncrypt.push(relPath);
-                            // break;
-                        }
-                        // fall through to default case
+                        isDrawable = true;
                     }
-                    default:
-                        //ignore source maps in production
-                        if (!isProduction || !(/\.js\.map$/.test(filename))) {
-                            // normal file, just copy it into the build/android/bin/assets directory
-                            _t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
-                                copyFile.call(_t, from, to, cb);
-                            })(from, to, next);
+
+                    if (isDrawable) {
+                        var _from = info.src.replace(_t.projectDir, '').substring(1),
+                            _to = to.replace(_t.buildResDir, '').replace(drawableExtRegExp, '').substring(1);
+                        if (drawableResources[_to]) {
+                            _t.logger.error(__('Found conflicting resources:'));
+                            _t.logger.error('   ' + drawableResources[_to]);
+                            _t.logger.error('   ' + info.src.replace(_t.projectDir, '').substring(1));
+                            _t.logger.error(__('You cannot have resources that resolve to the same resource entry name') + '\n');
+                            process.exit(1);
                         }
-                }
+                        drawableResources[_to] = _from;
+                    }
+
+                    // if the destination directory does not exists, create it
+                    fs.existsSync(destDir) || wrench.mkdirSyncRecursive(destDir);
+
+
+                    if (info.ext != 'js') {
+                        // we exclude js files because we'll check if they need to be removed after all files have been copied
+                        delete _t.lastBuildFiles[to];
+                    }
+
+                    switch (info.ext) {
+                        case 'css':
+                            // if we encounter a css file, check if we should minify it
+                            if (_t.minifyCSS) {
+                                _t.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, to.cyan));
+                                fs.readFile(info.src, function (err, data) {
+                                    if (err) throw err;
+                                    fs.writeFile(to, new CleanCSS({ processImport: false }).minify(data.toString()).styles, next);
+                                });
+                                return;
+                            } else {
+                                resourcesToCopy[info.relPath] = info;
+                            }
+                            break;
+
+                        case 'html':
+                            // find all js files referenced in this html file
+                            var relPath = info.src.replace(opts.origSrc, '').replace(/\\/g, '/').replace(/^\//, '').split('/');
+                            relPath.pop(); // remove the filename
+                            relPath = relPath.join('/');
+                            jsanalyze.analyzeHtmlFile(info.src, info.relPath).forEach(function (file) {
+                                htmlJsFiles[file] = 1;
+                            });
+
+                            resourcesToCopy[info.relPath] = info;
+
+                        case 'ts':
+                            tsFiles.push(info.src);
+                            // break;
+                            // if (/\.d\.ts/.test(filename)) {
+                            //     next();
+                            //     break;
+                            // }
+                            // from = path.join(_t.buildTsDir, relPath.replace(/\.ts$/, '.js'));
+                            // to = to.replace(/\.ts$/, '.js');
+                            break;
+                        case 'js':
+                            // track each js file so we can copy/minify later
+
+                            // we use the destination file name minus the path to the assets dir as the id
+                            // which will eliminate dupes
+                            var id = info.dest.replace(opts.origDest, opts.prefix ? opts.prefix : '').replace(/\\/g, '/').replace(/^\//, '');
+
+                            if (!jsFiles[id] || !opts || !opts.onJsConflict || opts.onJsConflict(info.src, info.dest, id)) {
+                                jsFiles[id] = info;
+                            }
+
+                            break;
+
+                        case 'xml':
+                            if (_t.xmlMergeRegExp.test(filename)) {
+                                _t.cli.createHook('build.android.copyResource', _t, function (from, to, cb) {
+                                    _t.writeXmlFile(from, to);
+                                    cb();
+                                })(info.src, info.dest, next);
+                            } else {
+                                resourcesToCopy[info.relPath] = info;
+                            }
+                            break;
+                        case 'json': 
+                        case 'map': 
+                        {
+                            if (isProduction && info.ext != 'map') {
+                                return;
+                            }
+                            if (_t.encryptJS) {
+                                info.relPath = info.relPath.replace(/\./g, '_');
+                                info.dest = path.join(_t.buildAssetsEncryptDir, info.relPath);
+                                _t.jsFilesToEncrypt.push(info.relPath);
+                                // break;
+                            }
+                            // fall through to default case
+                        }
+                        default:
+                            resourcesToCopy[info.relPath] = info;
+                    }
+                    next();
+                })(info, next);
             },
 
             done
@@ -2771,6 +2783,18 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
 
     var tasks = [];
     var resourcesPaths = [path.join(this.projectDir, 'Resources'), path.join(this.projectDir, 'Resources', 'android')];
+
+    var platformPaths = [path.join(this.projectDir, 'platform', 'android')];
+
+    this.modules.forEach(function(module) {
+		//ignore source maps in production
+		platformPaths.push(
+			path.join(module.modulePath, 'platform', 'android')
+		);
+		resourcesPaths.push(
+			path.join(module.modulePath, 'Resources')
+		);
+	}, this);
 
     this.cli.createHook('build.android.resourcesPaths', this, function (resourcesPaths) {
         resourcesPaths.forEach(function (dir) {
@@ -2829,14 +2853,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         }
     }, this);
 
-    var platformPaths = [];
-    // WARNING! This is pretty dangerous, but yes, we're intentionally copying
-    // every file from platform/android and all modules into the build dir
-    this.modules.forEach(function (module) {
-        platformPaths.push(path.join(module.modulePath, 'platform', 'android'));
-    });
-
-    platformPaths.push(path.join(this.projectDir, 'platform', 'android'));
     this.cli.createHook('build.android.platformsPaths', this, function (platformPaths) {
         platformPaths.forEach(function (dir) {
             if (fs.existsSync(dir)) {
@@ -2848,8 +2864,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                 });
             }
         }, this);
-    })(platformPaths, function () {});
-    
+    })(platformPaths, function () {});    
 
     appc.async.series(this, tasks, function (err, results) {
         var templateDir = path.join(this.platformPath, 'templates', 'app', 'default', 'template', 'Resources', 'android');
@@ -2857,13 +2872,21 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         // if an app icon hasn't been copied, copy the default one
         var destIcon = path.join(this.buildBinAssetsResourcesDir, this.tiapp.icon);
         if (!fs.existsSync(destIcon)) {
-            copyFile.call(this, path.join(templateDir, 'appicon.png'), destIcon);
+            // copyFile.call(this, path.join(templateDir, 'appicon.png'), destIcon);
+            resourcesToCopy[this.tiapp.icon] = {
+                src:path.join(templateDir, 'appicon.png'),
+                dest:destIcon
+            };
         }
         delete this.lastBuildFiles[destIcon];
 
         var destIcon2 = path.join(this.buildResDrawableDir, this.tiapp.icon);
         if (!fs.existsSync(destIcon2)) {
-            copyFile.call(this, destIcon, destIcon2);
+            resourcesToCopy[this.tiapp.icon] = {
+                src:resourcesToCopy[this.tiapp.icon].src || destIcon,
+                dest:destIcon2
+            };
+            // copyFile.call(this, destIcon, destIcon2);
         }
         delete this.lastBuildFiles[destIcon2];
 
@@ -2893,6 +2916,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         var useBabel = this.useBabel;
         appc.async.series(this, 
             [           
+                
                 function compileTsFiles() {
                     this.logger.debug(__('Compiling TS files: %s', tsFiles));
                     if (!tsFiles || tsFiles.length == 0) {
@@ -2940,11 +2964,32 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                         ignoreRootDirs: ti.availablePlatformsNames
                     }, cb);
                 },
+                function copyRessources(next) {
+                    async.eachSeries(Object.keys(resourcesToCopy), function(file, next) {
+                        var info = resourcesToCopy[file];
+
+                        this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
+                            copyFile.call(this, from, to, cb);
+                        })(info.src, info.dest, next);
+                    }.bind(this), next);
+
+                },
                 function(cb) {
                     appc.async.series(this, Object.keys(jsFiles).map(function (file) {
                         return function (done) {
-                            var from = jsFiles[file],
-                                to = path.join(this.encryptJS ? this.buildAssetsEncryptDir : this.buildBinAssetsResourcesDir, file),
+                            var info = jsFiles[file];
+					        info.destSourceMap = info.dest + '.map';
+                            if (this.encryptJS) {
+                                if (file.indexOf('/') === 0) {
+                                    file = path.basename(file);
+                                }
+                                file = file.replace(/\./g, '_');
+                                info.dest = path.join(this.buildAssetsEncryptDir, file);
+                                info.destSourceMap = info.dest + '_map';
+                                this.jsFilesToEncrypt.push(file);
+                            }
+                            var from = info.src,
+                                to = info.dest,
                                 fromStat = fs.statSync(from),
                                 fromMtime = JSON.parse(JSON.stringify(fromStat.mtime)),
                                 prev = this.previousBuildManifest.files && this.previousBuildManifest.files[file],
@@ -2971,18 +3016,12 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             }
 
                             // we have a js file that may be minified or encrypted
-            
-                            // if we're encrypting the JavaScript, copy the files to the assets dir
-                            // for processing later
-                            if (this.encryptJS) {
-                                this.jsFilesToEncrypt.push(file);
-                            }
                             delete this.lastBuildFiles[to];
 
                             if (!fileChanged) {
                                 this.logger.trace(__('No change, skipping %s', from.cyan));
                                 var data = fs.readFileSync(to).toString();
-                                this.analyseJS(to, data, function() {
+                                this.analyzeJs(to, data, function() {
                                     //make sure not to return the result of analyzeJS in next
                                     //as the builder might see it as an error
                                     done();
@@ -3003,14 +3042,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                                     sourceMaps:this.cli.argv.target !== 'dist-playstore' ,
                                                     sourceMapTarget:file,
                                                     sourceFileName:file,
-                                                    sourceMapTarget:to + '.map',
+                                                    sourceMapTarget:info.destSourceMap,
                                                     inputSourceMap:inSourceMap
                                                 }, function(err, transformed) {
                                                 if (err) {
                                                     this.logger.error(__('Babel error: %s', (err.message || err.toString()) + '\n'));
                                                     process.exit(1);
                                                 }
-                                                this.analyseJS(to, transformed.code, function(r) {
+                                                this.analyzeJs(to, transformed.code, function(r) {
                                                     var dir = path.dirname(to);
                                                     fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
@@ -3040,7 +3079,10 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                                                     return value;
                                                                 });
                                                             }
-                                                            fs.writeFileSync(to + '.map', JSON.stringify(transformed.map));
+                                                           fs.writeFileSync(info.destSourceMap, JSON.stringify(transformed.map));
+                                                            if (this.encryptJS) {
+                                                                this.jsFilesToEncrypt.push(path.relative(this.buildAssetsEncryptDir, info.destSourceMap));
+                                                            }
                                                         }
                                                     } else {
                                                         this.logger.trace(__('No change, skipping transformed file %s', to.cyan));
@@ -3053,7 +3095,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                         }.bind(this))(from, to, cb);            
                                     } else {
                                         var data = fs.readFileSync(from).toString();
-                                        this.analyseJS(to, data, function(r) {
+                                        this.analyzeJs(to, data, function(r) {
                                             var dir = path.dirname(to);
                                             fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 

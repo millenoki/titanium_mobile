@@ -5076,6 +5076,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
+
 			var ignored = false;
 			if (toIgnore) {
 				for(var i = 0; i< toIgnore.length; i++) {
@@ -5096,88 +5097,88 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 				var parts = name.match(filenameRegExp),
 					info = {
+						ignored:false,
 						name: parts ? parts[1] : name,
 						ext: parts ? parts[2] : null,
 						src: from,
+						origSrc: origSrc,
+						relPath: relPath,
 						dest: to,
 						srcStat: srcStat
 					};
 
-				// check if we have an app icon
-				if (!origSrc) {
-					if (appIconRegExp) {
-						var m = name.match(appIconRegExp);
-						if (m) {
-							info.tag = m[1];
-							appIcons[relPath] = info;
+				that.cli.createHook('build.ios.walkResource', this, function(info) {
+					if (!!info.ignored) {
+                        return;
+                    }
+					// check if we have an app icon
+
+					if (!info.origSrc) {
+						if (appIconRegExp) {
+							var m = name.match(appIconRegExp);
+							if (m) {
+								info.tag = m[1];
+								appIcons[info.relPath] = info;
+								return;
+							}
+						}
+
+						if (launchImageRegExp.test(name)) {
+							launchImages[info.relPath] = info;
 							return;
 						}
 					}
+					switch (parts && parts[2]) {
+						case 'js':
+							jsFiles[info.relPath] = info;
+							break;
+						case 'ts':
+							tsFiles.push(info.src);
+							break;
+						case 'css':
+							cssFiles[info.relPath] = info;
+							break;
 
-					if (launchImageRegExp.test(name)) {
-						launchImages[relPath] = info;
-						return;
-					}
-				}
-				switch (parts && parts[2]) {
-					case 'js':
-						jsFiles[relPath] = info;
-						break;
-					case 'ts':
-						tsFiles.push(info.src);
-						// if (!/\.d\.ts/.test(info.src)) {
-						// 	jsFiles[relPath.replace(/\.ts$/, '.js')] = {
-						// 		name:info.name,
-						// 		ext: 'js',
-						// 		src: path.join(that.buildTsDir, relPath.replace(/\.ts$/, '.js')),
-						// 		dest: info.dest.replace(/\.ts$/, '.js'),
-						// 		srcStat: srcStat
-						// 	};
-						// }
-						
-						break;
-					case 'css':
-						cssFiles[relPath] = info;
-						break;
+						case 'png':
+						case 'jpg':
+							// if the image is the LaunchLogo.png, then let that pass so we can use it
+							// in the LaunchScreen.storyboard
+							var m = info.name.match(launchLogoRegExp);
+							if (m) {
+								info.scale = m[1];
+								info.device = m[2];
+								launchLogos[info.relPath] = info;
 
-					case 'png':
-					case 'jpg':
-						// if the image is the LaunchLogo.png, then let that pass so we can use it
-						// in the LaunchScreen.storyboard
-						var m = name.match(launchLogoRegExp);
-						if (m) {
-							info.scale = m[1];
-							info.device = m[2];
-							launchLogos[relPath] = info;
+							// if we are using app thinning, then don't copy the image, instead mark the
+							// image to be injected into the asset catalog
+							} else if (useAppThinning) {
+								imageAssets[info.relPath] = info;
 
-						// if we are using app thinning, then don't copy the image, instead mark the
-						// image to be injected into the asset catalog
-						} else if (useAppThinning) {
-							imageAssets[relPath] = info;
+							} else {
+								resourcesToCopy[info.relPath] = info;
+							}
+							break;
 
-						} else {
-							resourcesToCopy[relPath] = info;
+						case 'html':
+							jsanalyze.analyzeHtmlFile(from, info.relPath.split('/').slice(0, -1).join('/')).forEach(function (file) {
+								htmlJsFiles[file] = 1;
+							});
+						case 'json': 
+						case 'map': 
+						{
+							if (that.encryptJS) {
+								info.relPath = info.relPath.replace(/\./g, '_');
+								info.dest = path.join(that.buildAssetsDir, info.relPath);
+								that.jsFilesToEncrypt.push(info.relPath);
+								// break;
+							}
+							// fall through to default case
 						}
-						break;
-
-					case 'html':
-						jsanalyze.analyzeHtmlFile(from, relPath.split('/').slice(0, -1).join('/')).forEach(function (file) {
-							htmlJsFiles[file] = 1;
-						});
-					case 'json': 
-					case 'map': 
-					{
-						if (that.encryptJS) {
-							relPath = relPath.replace(/\./g, '_');
-							info.dest = path.join(that.buildAssetsDir, relPath);
-							that.jsFilesToEncrypt.push(relPath);
-							// break;
-						}
-						// fall through to default case
+						default:
+							resourcesToCopy[info.relPath] = info;
+							break;
 					}
-					default:
-						resourcesToCopy[relPath] = info;
-				}
+				})(info, function() {});
 			}
 		});
 	};
@@ -6086,7 +6087,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		},
 
 		function copyResources(next) {
-			// this.logger.debug(__('Copying resources') + JSON.stringify(resourcesToCopy));
 			async.eachSeries(Object.keys(resourcesToCopy), function(file, next) {
 				var info = resourcesToCopy[file],
 					srcStat = fs.statSync(info.src),
@@ -6277,7 +6277,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 												}
 												fs.writeFileSync(info.destSourceMap, JSON.stringify(transformed.map));
 												if (this.encryptJS) {
-													this.jsFilesToEncrypt.push(info.destSourceMap);
+                                                  	this.jsFilesToEncrypt.push(path.relative(info.destSourceMap, this.buildAssetsDir));
 												}
 											}
 										} else {
