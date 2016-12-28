@@ -49,5 +49,6 @@ public interface KrollProxySupport
 	
 	public void onEventFired(String event, Object data);
 
-    public void release();
+	public void release();
+    public void GCFinalize();
 }

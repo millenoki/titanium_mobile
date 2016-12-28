@@ -102,6 +102,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     protected Map<String, List<KrollDict>> evaluators;
     protected Map<String, HashMap<Integer, Object>> eventListeners;
     protected KrollObject krollObject;
+//    protected boolean krollObjectSupported = false;
     protected WeakReference<Activity> activity;
     protected String proxyId;
     protected TiUrl creationUrl;
@@ -169,6 +170,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
             // so we can drive changes to the JS
             // object
             krollObject = object;
+            krollObjectSupported = true;
             object.setProxySupport(this);
         }
         this.creationUrl = creationUrl;
@@ -2152,31 +2154,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         error.put(TiC.ERROR_PROPERTY_MESSAGE, message);
         return error;
     }
+    
+    
 
-    /**
-     * Releases the KrollObject, freeing memory.
-     * 
-     * @module.api
-     */
-    public void release() {
-        if (krollObject != null) {
-            krollObject.release();
-            krollObject = null;
-        }
-        if (properties != null) {
-            synchronized (properties) {
-//                Iterator it = properties.entrySet().iterator();
-//                while (it.hasNext()) {
-//                    Map.Entry pairs = (Map.Entry)it.next();
-//                    Object value = pairs.getValue();
-//                    if (value instanceof KrollProxy) {
-//                        ((KrollProxy) value).release();
-//                    }
-//                }
-                properties.clear();
-            }
-        }
-        
+    public void GCFinalize() {
+        krollObjectSupported = false;
+        release();
         modelListener = null;
         evaluators = null;
         eventListeners = null;
@@ -2184,6 +2167,42 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         mSyncEvents = null;
         defaultValues.clear();
         createdInModule = null;
+    }
+
+    /**
+     * Releases the KrollObject, freeing memory.
+     * 
+     * @module.api
+     */
+    public void release() {
+        if (krollObjectSupported) {
+            return;
+        }
+         if (krollObject != null) {
+            krollObject.release();
+            krollObject = null;
+        }
+//        if (properties != null) {
+//            synchronized (properties) {
+////                Iterator it = properties.entrySet().iterator();
+////                while (it.hasNext()) {
+////                    Map.Entry pairs = (Map.Entry)it.next();
+////                    Object value = pairs.getValue();
+////                    if (value instanceof KrollProxy) {
+////                        ((KrollProxy) value).release();
+////                    }
+////                }
+//                properties.clear();
+//            }
+//        }
+        
+//        modelListener = null;
+//        evaluators = null;
+//        eventListeners = null;
+//        eventOverrideDelegate = null;
+//        mSyncEvents = null;
+//        defaultValues.clear();
+//        createdInModule = null;
     }
 
     // For subclasses to override
