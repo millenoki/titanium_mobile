@@ -8,8 +8,6 @@ package org.appcelerator.kroll;
 
 import java.util.HashMap;
 
-import org.appcelerator.kroll.common.TiConfig;
-
 /**
  * <p> An interface for handling exceptions from the runtime. </p>
  * 
