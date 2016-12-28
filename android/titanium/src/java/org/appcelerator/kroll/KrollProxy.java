@@ -43,7 +43,6 @@ import org.appcelerator.titanium.util.TiUrl;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.CalendarContract.Instances;
 import android.os.Bundle;
 import android.util.Pair;
 

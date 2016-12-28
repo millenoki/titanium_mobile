@@ -10,7 +10,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
-import org.appcelerator.kroll.KrollExceptionHandler.ExceptionMessage;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
@@ -18,7 +17,7 @@ import org.appcelerator.kroll.util.KrollAssetHelper;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
+import android.os.Message; 
 
 /**
  * The common Javascript runtime instance that Titanium interacts with.
