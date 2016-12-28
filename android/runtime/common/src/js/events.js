@@ -211,7 +211,7 @@ Object.defineProperty(EventEmitter.prototype, "once", {
 			listener.apply(this, arguments);
 		};
 
-		g.listener = listener;
+//		g.listener = listener;
 		self.addListener(type, g);
 
 		return this;
