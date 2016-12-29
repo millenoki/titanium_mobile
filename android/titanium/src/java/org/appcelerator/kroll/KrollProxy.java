@@ -101,7 +101,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     protected Map<String, List<KrollDict>> evaluators;
     protected Map<String, HashMap<Integer, Object>> eventListeners;
     protected KrollObject krollObject;
-//    protected boolean krollObjectSupported = false;
+    protected boolean krollObjectSupported = false;
     protected WeakReference<Activity> activity;
     protected String proxyId;
     protected TiUrl creationUrl;
