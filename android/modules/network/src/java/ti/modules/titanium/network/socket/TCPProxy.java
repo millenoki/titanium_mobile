@@ -8,6 +8,7 @@ package ti.modules.titanium.network.socket;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -106,6 +107,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	}
 
 	private void closeSocket() throws IOException {
+        state = SocketModule.CLOSING; // set socket state to uninitialized to prevent use while closing
 		if (clientSocket != null) {
 			clientSocket.close();
 			clientSocket = null;
@@ -115,6 +117,8 @@ public class TCPProxy extends KrollProxy implements TiStream
 			serverSocket.close();
 			serverSocket = null;
 		}
+		updateState(SocketModule.CLOSED, "closed", null);
+        fireEvent("close");
 	}
 
 	@Kroll.setProperty @Kroll.method
@@ -205,14 +209,9 @@ public class TCPProxy extends KrollProxy implements TiStream
 					clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
 				}
 				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
-
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
-				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, unknown host <" + host + ">", 0));
-
 			} catch (IOException e) {
 				e.printStackTrace();
-				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to connect, IO error", 0));
+				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs(e.getLocalizedMessage(), -1));
 			}
 		}
 	}
@@ -262,7 +261,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 					} catch (IOException e) {
 						if (state == SocketModule.LISTENING) {
 							e.printStackTrace();
-							updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to accept new connection, IO error", 0));
+							updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs(e.getLocalizedMessage(), 0));
 						}
 
 						break;
@@ -403,10 +402,10 @@ public class TCPProxy extends KrollProxy implements TiStream
 			e.printStackTrace();
 			if (state != SocketModule.CLOSED) {
 				closeSocket();
-				updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to read from socket, IO error: "  + e.toString(), 0));
 			}
-			throw new IOException("Unable to read from socket, IO error");
+//			throw new IOException("Unable to read from socket, IO error");
 		}
+		return -1;
 	}
 
 	@Kroll.method
@@ -462,7 +461,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 		} catch (IOException e) {
 			e.printStackTrace();
 			closeSocket();
-			updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs("Unable to write to socket, IO error", 0));
+			updateState(SocketModule.ERROR, "error", buildErrorCallbackArgs(e.getLocalizedMessage(), 0));
 			throw new IOException("Unable to write to socket, IO error");
 		}
 	}
@@ -491,10 +490,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 		// }
 
 		try {
-			state = 0; // set socket state to uninitialized to prevent use while closing
 			closeSocket();
-			state = SocketModule.CLOSED;
-
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException("Error occured when closing socket");
