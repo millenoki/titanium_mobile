@@ -136,7 +136,7 @@ methods:
         type: Number
 
       - name: animation
-        summary: Animation properties. (iOS only.)
+        summary: Animation properties.
         type: ListViewAnimationProperties
         optional: true
 

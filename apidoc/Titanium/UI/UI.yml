@@ -968,6 +968,9 @@ properties:
     permission: read-only
     since: "3.0.0"
     platforms: [android, iphone, ipad]
+
+  - name: BlendMode
+    type: BlendMode
   
   - name: TEXT_ELLIPSIZE_WORD
     summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
@@ -1142,6 +1145,11 @@ properties:
     type: Number
     platforms: [android]
     since: "6.1.0"
+    permission: read-only
+
+  - name: INFINITE
+    summary: Use with the <Titanium.UI.View.animate> method.
+    type: Number
     permission: read-only
 
   - name: INHERIT
@@ -1816,6 +1824,44 @@ properties:
     description: |
         Use with the <Titanium.UI.TextField.returnKeyType> and 
         <Titanium.UI.TextArea.returnKeyType> properties.
+    type: Number
+    permission: read-only
+
+
+  - name: SCALE_TYPE_SCALE_TO_FILL
+    summary: Scale image to fill
+    description: |
+        Use with the <Titanium.UI.ImageView.scaleType>.
+    type: Number
+    permission: read-only
+  - name: SCALE_TYPE_ASPECT_FIT
+    summary: Scale image to fit and keep aspect
+    description: |
+        Use with the <Titanium.UI.ImageView.scaleType>.
+    type: Number
+    permission: read-only
+  - name: SCALE_TYPE_ASPECT_FILL
+    summary: Scale image to fill and keep aspect
+    description: |
+        Use with the <Titanium.UI.ImageView.scaleType>.
+    type: Number
+    permission: read-only
+  - name: SCALE_TYPE_CENTER
+    summary: Scale image to fill
+    description: |
+        Use with the <Titanium.UI.ImageView.scaleType>.
+    type: Number
+    permission: read-only
+  - name: SCALE_TYPE_LEFT
+    summary: Align image left
+    description: |
+        Use with the <Titanium.UI.ImageView.scaleType>.
+    type: Number
+    permission: read-only
+  - name: SCALE_TYPE_RIGHT
+    summary: Align image right
+    description: |
+        Use with the <Titanium.UI.ImageView.scaleType>.
     type: Number
     permission: read-only
 

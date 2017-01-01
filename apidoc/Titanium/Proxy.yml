@@ -65,7 +65,6 @@ methods:
     returns:
         type: this
   - name: removeAllListeners
-    aliases: off
     summary: Removes all the event listeners. Return the Object for chaining
     returns:
         type: this

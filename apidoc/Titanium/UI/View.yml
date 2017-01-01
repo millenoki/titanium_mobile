@@ -746,6 +746,8 @@ methods:
         The [rect](Titanium.UI.View.rect) property can be used to determine the actual size and 
         position of the view. Note that on Mobile Web, the `rect` property is not updated after
         animation. This is a known issue [TIMOB-8930](https://jira.appcelerator.org/browse/TIMOB-8930).
+  - name: cancelAllAnimations
+    summary: Cancel all animations on this view.
 
     parameters:
       - name: animation
@@ -956,6 +958,17 @@ methods:
         type: Titanium.UI.View
   - name: hideKeyboard
     summary: Hide the soft keyboard if visible
+    platforms: [android, iphone, ipad]
+  - name: focus
+    summary: Focus the view (or the first child focusable)
+    platforms: [android, iphone, ipad]
+  - name: blur
+    summary: Blur the view (or the first child focusable)
+    platforms: [android, iphone, ipad]
+  - name: focused
+    summary: return true if the view or any child is the one currently in focus
+    returns:
+        type: Boolean
     platforms: [android, iphone, ipad]
 
 properties:
