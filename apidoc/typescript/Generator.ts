@@ -37,6 +37,7 @@ module Generator {
 	interface TiProperty {
 		name : string;
 		type : any;
+		optional : boolean;
 	}
 
 	interface TiObject {
@@ -641,7 +642,7 @@ module Generator {
 
 			var name : string = tiProperty.name;
 			var type : string = Mapper.ComputePropertyType (tiProperty.type);
-			return name + ' : ' + type + ';';
+			return name + (tiProperty.optional?'?':'') +' : ' + type + ';';
 		}
 
 		/// <b>ComputeListOfTypes</b>
