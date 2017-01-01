@@ -2423,20 +2423,23 @@ AndroidBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
     }, this);
 };
 
-AndroidBuilder.prototype.analyzeJs = function analyzeJs(to, data, next) {
+AndroidBuilder.prototype.analyseJS = function analyseJS(to, data, opts, next) {
     var r;
-    this.cli.createHook('build.android.analyzeJs', this, function (to, data, r, cb) {
+    opts = opts || {};
+    opts.filename = to;
+    this.cli.createHook('build.android.analyseJS', this, function (to, data, opts, r, cb) {
         try {
             // parse the AST
-            r = jsanalyze.analyzeJs(data);
+            r = jsanalyze.analyzeJs(data, opts);
         } catch (ex) {
+            this.logger.error(__('analyseJS error at %s', to.cyan));
             ex.message.split('\n').forEach(this.logger.error);
             this.logger.log();
             process.exit(1);
         }
         this.tiSymbols[to] = r.symbols;
         cb(r);
-    }.bind(this))(to, data, r, next);
+    }.bind(this))(to, data, opts, r, next);
 }
 
 AndroidBuilder.prototype.getTsConfig = function getTsConfig(rootDirs) {
@@ -2913,6 +2916,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
         }
 
         // copy js files into assets directory and minify if needed
+        var minifyJS = this.minifyJS;
         var useBabel = this.useBabel;
         appc.async.series(this, 
             [           
@@ -3031,7 +3035,6 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                             try {
                                 this.cli.createHook('build.android.copyResource', this, function (from, to, cb) {
                                     if (useBabel && fileChanged) {
-                                        var minifyJS = this.minifyJS &&  (this.deployType !== 'production');
                                         this.cli.createHook('build.android.compileJsFile', this, function (from, to, cb2) {
                                             var inSourceMap = null;
                                             if (fs.existsSync(from + '.map')) {
@@ -3048,7 +3051,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                                     this.logger.error(__('Babel error: %s', (err.message || err.toString()) + '\n'));
                                                     process.exit(1);
                                                 }
-                                                this.analyzeJs(to, transformed.code, function(r) {
+                                                this.analyzeJs(to, transformed.code, {minify:minifyJS, sourcemap:{file:to, orig:transformed.map}}, function(r) {
                                                     var dir = path.dirname(to);
                                                     fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
@@ -3094,7 +3097,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                                         }.bind(this))(from, to, cb);            
                                     } else {
                                         var data = fs.readFileSync(from).toString();
-                                        this.analyzeJs(to, data, function(r) {
+                                        this.analyzeJs(to, data, {minify:minifyJS, sourcemap:{file:to}}, function(r) {
                                             var dir = path.dirname(to);
                                             fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 

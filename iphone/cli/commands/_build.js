@@ -4968,12 +4968,14 @@ iOSBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
     }, this);
 };
 
-iOSBuilder.prototype.analyseJS = function analyseJS(to, data, next) {
+iOSBuilder.prototype.analyseJS = function analyseJS(to, data, opts, next) {
     var r;
-    this.cli.createHook('build.android.analyseJS', this, function (to, data, r, cb) {
+    opts = opts || {};
+    opts.filename = to;
+    this.cli.createHook('build.android.analyseJS', this, function (to, data, opts, r, cb) {
         try {
             // parse the AST
-            r = jsanalyze.analyzeJs(data);
+            r = jsanalyze.analyzeJs(data, opts);
         } catch (ex) {
             this.logger.error(__('analyseJS error at %s', to.cyan));
             ex.message.split('\n').forEach(this.logger.error);
@@ -4982,7 +4984,7 @@ iOSBuilder.prototype.analyseJS = function analyseJS(to, data, next) {
         }
         this.tiSymbols[to] = r.symbols;
         cb(r);
-    }.bind(this))(to, data, r, next);
+    }.bind(this))(to, data, opts, r, next);
 }
 
 iOSBuilder.prototype.getTsConfig = function getTsConfig(rootDirs) {
@@ -6191,6 +6193,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 		function processJSFiles(next) {
 			this.logger.info(__('Processing JavaScript files with babel:%s ', this.useBabel) );
 
+			var minifyJS = this.minifyJS;
 			var useBabel = this.useBabel;
 			async.eachSeries(Object.keys(jsFiles), function (file, next) {
 				setImmediate(function () {
@@ -6224,7 +6227,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	                if (!fileChanged) {
 	                    this.logger.trace(__('No change, skipping %s', from.cyan));
 						var data = fs.readFileSync(to).toString();
-                    	this.analyseJS(to, data, function() {
+                    	this.analyseJS(to, data, {minify:minifyJS}, function() {
                     		//make sure not to return the result of analyzeJS in next
                     		//as the builder might see it as an error
                     		next();
@@ -6234,7 +6237,6 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 
 					this.cli.createHook('build.ios.copyResource', this, function (from, to, cb) {
 						if (useBabel) {
-							var minifyJS = this.minifyJS &&  (this.deployType !== 'production');
 							this.cli.createHook('build.ios.compileJsFile', this, function (from, to, cb2) {
 								var inSourceMap = null;
                                 if (fs.existsSync(from + '.map')) {
@@ -6252,7 +6254,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 										this.logger.error(err);
 										process.exit(1);
 									}
-									this.analyseJS(to, transformed.code, function(r) {
+									this.analyseJS(to, transformed.code, {minify:minifyJS, sourcemap:{file:to, orig:transformed.map}}, function(r) {
 										var dir = path.dirname(to);
 										fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
@@ -6263,23 +6265,23 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 											exists && fs.unlinkSync(to);
 											fs.writeFileSync(to, r.contents);
 											this.jsFilesChanged = true;
-											if (transformed.map) {
+											if (r.map) {
 
 												//we remove sourcesContent as it is big and not really usefull
-												delete transformed.map.sourcesContent;
+												delete r.map.sourcesContent;
 
 												// fix file 
-												transformed.map.file = file
-												if (transformed.map.sources) {
+												r.map.file = file
+												if (r.map.sources) {
 													var relToBuild = path.relative(path.dirname(from), path.join(this.projectDir, 'Resources')) + '/';
-													transformed.map.sources = transformed.map.sources.map(function(value) {
+													r.map.sources = r.map.sources.map(function(value) {
 														if (value.indexOf(relToBuild) != -1) {
 															return value.replace(relToBuild, '');
 														}
 														return value;
 													});
 												}
-												fs.writeFileSync(info.destSourceMap, JSON.stringify(transformed.map));
+												fs.writeFileSync(info.destSourceMap, JSON.stringify(r.map));
 												if (this.encryptJS) {
                                                   	this.jsFilesToEncrypt.push(path.relative(info.destSourceMap, this.buildAssetsDir));
 												}
@@ -6294,7 +6296,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							
 						} else {
 							var data = fs.readFileSync(from).toString();
-                            this.analyseJS(to, data, function(r) {
+                            this.analyseJS(to, data, {sourcemap:{file:to}}, function(r) {
 								var dir = path.dirname(to);
 								fs.existsSync(dir) || wrench.mkdirSyncRecursive(dir);
 
