@@ -5071,9 +5071,10 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 	}
 
 	function walk(src, dest, ignore, origSrc, prefix) {
+		origSrc = origSrc || src;
 		fs.existsSync(src) && fs.readdirSync(src).forEach(function (name) {
 			var from = path.join(src, name),
-				relPath = from.replace((origSrc || src) + '/', prefix ? prefix + '/' : ''),
+				relPath = from.replace(origSrc + '/', prefix ? prefix + '/' : ''),
 				srcStat = fs.statSync(from),
 				isDir = srcStat.isDirectory();
 
@@ -5093,7 +5094,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 				var to = path.join(dest, name);
 
 				if (srcStat.isDirectory()) {
-					return walk(from, to, ignore, origSrc || src, prefix);
+					return walk(from, to, ignore, origSrc, prefix);
 				}
 
 				var parts = name.match(filenameRegExp),
@@ -5135,7 +5136,7 @@ iOSBuilder.prototype.copyResources = function copyResources(next) {
 							break;
 						case 'ts':
 						var tsRealPath = path.join(that.buildTsDir, path.relative(info.origSrc, info.src));
-                            copyFileSync.call(that, info.src, tsRealPath);
+                            that.copyFileSync.call(that, info.src, tsRealPath);
                             tsFiles.push(tsRealPath);
 							break;
 						case 'css':
