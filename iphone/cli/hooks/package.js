@@ -55,7 +55,7 @@ exports.init = function (logger, config, cli) {
 
 	cli.on('build.post.compile', {
         priority: 8000,
-        post: function (build, finished) {
+        post: function (builder, finished) {
             if (!/dist-(appstore|adhoc)|device/.test(cli.argv.target)) return finished();
 
             switch (cli.argv.target) {
@@ -152,22 +152,22 @@ exports.init = function (logger, config, cli) {
                 case 'device':
                 case 'dist-adhoc':
                     logger.info('Packaging for Ad Hoc distribution');
-                    var pkgapp = path.join(build.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
-                    exec('"' + pkgapp + '" "' + build.xcodeAppDir + '"', function (err, stdout, stderr) {
+                    var pkgapp = path.join(builder.xcodeEnv.path, 'Platforms', 'iPhoneOS.platform', 'Developer', 'usr', 'bin', 'PackageApplication');
+                    exec('"' + pkgapp + '" "' + builder.xcodeAppDir + '"', function (err, stdout, stderr) {
                         if (err) {
                             logger.error(__('Failed to package application'));
                             stderr.split('\n').forEach(logger.error);
                             return finished();
                         }
 
-                        var appName = build.tiapp.name;
+                        var appName = builder.tiapp.name;
                         if (cli.argv.target == 'device')
                             appName += '_dev';
                         
-                        var ipa = path.join(path.dirname(build.xcodeAppDir), build.tiapp.name + '.ipa'),
+                        var ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa'),
                             dest = ipa,
-                            dsymfilename=build.tiapp.name + '.app.dSYM'
-                            dsym = path.join(path.dirname(build.xcodeAppDir), dsymfilename);
+                            dsymfilename = appName + '.app.dSYM'
+                            dsym = path.join(path.dirname(builder.xcodeAppDir), dsymfilename);
                         
                         if (cli.argv['output-dir']) {
                             dest = path.join(cli.argv['output-dir'], appName + '.ipa');
