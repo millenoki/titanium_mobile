@@ -1549,6 +1549,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         forceLayoutNativeView(true);
         this.visibility = visibility;
         proxy.setProperty(TiC.PROPERTY_VISIBLE, (visibility == View.VISIBLE));
+        if (visibility != View.VISIBLE) {
+            blur();
+        }
 
         View view = getRootView();
         if (view != null) {
