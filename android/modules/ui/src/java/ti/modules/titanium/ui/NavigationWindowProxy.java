@@ -403,6 +403,25 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
         }
     }
 	
+	
+	public static void removeView(ViewGroup viewToRemoveFrom, View view, View viewNotToFocus)
+    {
+        boolean oldValue = true;
+        int oldDesc = ViewGroup.FOCUS_BEFORE_DESCENDANTS;
+        
+        if (viewNotToFocus instanceof ViewGroup){
+            oldDesc = ((ViewGroup) viewNotToFocus).getDescendantFocusability();
+            ((ViewGroup) viewNotToFocus).setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+        }
+        oldValue = view.isFocusable();
+        TiUIView.setFocusable(viewNotToFocus, false);
+        viewToRemoveFrom.removeView(view);
+        TiUIView.setFocusable(viewNotToFocus, oldValue);
+        if (viewNotToFocus instanceof ViewGroup){
+            ((ViewGroup) viewNotToFocus).setDescendantFocusability(oldDesc);
+        }
+    }
+	
 	@Override
 	public void setActivity(Activity activity)
 	{
@@ -548,15 +567,16 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 					public void onAnimationRepeat(Animator arg0) {
 					}
 					
-					public void onAnimationEnd(Animator arg0) {	
-						viewToAddTo.removeView(viewToHide);
+					public void onAnimationEnd(Animator arg0) {
+                        removeView(viewToAddTo, viewToHide, viewToAdd);
 						proxy.sendOpenEvent();
 						proxy.customHandleOpenEvent(false);
 						pushing = false;
 					}
 
 					public void onAnimationCancel(Animator arg0) {
-						viewToAddTo.removeView(viewToHide);
+                        removeView(viewToAddTo, viewToHide, viewToAdd);
+
 						proxy.sendOpenEvent();
 						proxy.customHandleOpenEvent(false);
 						pushing = false; 
@@ -565,7 +585,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 				set.start();
 			}
 			else {
-				viewToAddTo.removeView(viewToHide);
+                removeView(viewToAddTo, viewToHide, viewToAdd);
 				pushing = false; 
 			}
    			handleSetViewVisible(viewToAdd, View.VISIBLE);
