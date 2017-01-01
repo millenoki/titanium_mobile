@@ -255,8 +255,10 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 	{
 		if (state != State.OPENED) {
 			int index = preAddedWindows.indexOf(proxy);
-			preAddedWindows.remove(index);
-			preAddedArgs.remove(index);
+			if (index >= 0) {
+			    preAddedWindows.remove(index);
+	            preAddedArgs.remove(index);
+			}
 			return true;
 		}
 		int index = windows.indexOf(proxy);
