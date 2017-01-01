@@ -2810,7 +2810,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
         }
 
-        show();
+//        show();
         for (Map.Entry<String, Object> entry : toProps.entrySet()) {
             final String key = entry.getKey();
             Object value = entry.getValue();
