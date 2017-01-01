@@ -19,6 +19,7 @@ public class SocketModule extends KrollModule
 	@Kroll.constant public static final int LISTENING = 3;
 	@Kroll.constant public static final int CLOSED = 4;
 	@Kroll.constant public static final int ERROR = 5;
+	@Kroll.constant public static final int CLOSING = 6;
 
 	public SocketModule()
 	{
