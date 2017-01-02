@@ -1558,49 +1558,49 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
                     module.native = false;
                     
                     // look for legacy module.id.js first
-					var libFile = path.join(module.modulePath, module.id + '.js');
-					module.libFile = fs.existsSync(libFile) ? libFile : null;
-					// If no legacy file, look for package.json...
-					if (!module.libFile) {
-						var pkgJsonFile = path.join(module.modulePath, 'package.json');
-						if (fs.existsSync(pkgJsonFile)) {
-							try {
-								var pkgJson = require(pkgJsonFile);
-								// look for 'main' property
-								if (pkgJson && pkgJson.main) {
-									// look for main file as-is
-									if (fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main))) {
-										module.libFile = libFile;
-									}
-									// look with .js extension
-									if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.js'))) {
-										module.libFile = libFile;
-									}
-									// look with .json extension
-									if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.json'))) {
-										module.libFile = libFile;
-									}
-								}
-							} catch (e) {
-								// squeltch
-							}
-						}
+                    var libFile = path.join(module.modulePath, module.id + '.js');
+                    module.libFile = fs.existsSync(libFile) ? libFile : null;
+                    // If no legacy file, look for package.json...
+                    if (!module.libFile) {
+                        var pkgJsonFile = path.join(module.modulePath, 'package.json');
+                        if (fs.existsSync(pkgJsonFile)) {
+                            try {
+                                var pkgJson = require(pkgJsonFile);
+                                // look for 'main' property
+                                if (pkgJson && pkgJson.main) {
+                                    // look for main file as-is
+                                    if (fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main))) {
+                                        module.libFile = libFile;
+                                    }
+                                    // look with .js extension
+                                    if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.js'))) {
+                                        module.libFile = libFile;
+                                    }
+                                    // look with .json extension
+                                    if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, pkgJson.main + '.json'))) {
+                                        module.libFile = libFile;
+                                    }
+                                }
+                            } catch (e) {
+                                // squeltch
+                            }
+                        }
 
-						// look for index.js in root directory of module
-						if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.js'))) {
-							module.libFile = libFile;
-						}
+                        // look for index.js in root directory of module
+                        if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.js'))) {
+                            module.libFile = libFile;
+                        }
 
-						// look for index.json in root directory of module
-						if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.json'))) {
-							module.libFile = libFile;
-						}
+                        // look for index.json in root directory of module
+                        if (!module.libFile && fs.existsSync(libFile = path.join(module.modulePath, 'index.json'))) {
+                            module.libFile = libFile;
+                        }
 
-						if (!module.libFile) {
-							this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
-							process.exit(1);
-						}
-					}
+                        if (!module.libFile) {
+                            this.logger.error(__('Module "%s" v%s is missing main file: %s, package.json with "main" entry, index.js, or index.json', module.id, module.manifest.version || 'latest', module.id + '.js') + '\n');
+                            process.exit(1);
+                        }
+                    }
 
                     this.commonJsModules.push(module);
                 } else {
@@ -2423,7 +2423,7 @@ AndroidBuilder.prototype.dirWalker = function dirWalker(currentPath, callback) {
     }, this);
 };
 
-AndroidBuilder.prototype.analyseJS = function analyseJS(to, data, opts, next) {
+AndroidBuilder.prototype.analyzeJs = function analyzeJs(to, data, opts, next) {
     var r;
     opts = opts || {};
     opts.filename = to;
@@ -2787,14 +2787,14 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
     var platformPaths = [path.join(this.projectDir, 'platform', 'android')];
 
     this.modules.forEach(function(module) {
-		//ignore source maps in production
-		platformPaths.push(
-			path.join(module.modulePath, 'platform', 'android')
-		);
-		resourcesPaths.push(
-			path.join(module.modulePath, 'Resources')
-		);
-	}, this);
+        //ignore source maps in production
+        platformPaths.push(
+            path.join(module.modulePath, 'platform', 'android')
+        );
+        resourcesPaths.push(
+            path.join(module.modulePath, 'Resources')
+        );
+    }, this);
 
     var tsRootDirs = [];
 
@@ -2981,7 +2981,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     appc.async.series(this, Object.keys(jsFiles).map(function (file) {
                         return function (done) {
                             var info = jsFiles[file];
-					        info.destSourceMap = info.dest + '.map';
+                            info.destSourceMap = info.dest + '.map';
                             if (this.encryptJS) {
                                 if (file.indexOf('/') === 0) {
                                     file = path.basename(file);
@@ -4161,12 +4161,12 @@ AndroidBuilder.prototype.generateTheme = function generateTheme(next) {
     } else if (this.tiapp['navbar-hidden']) {
         flags += '.NoActionBar';
     }
-	if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
-		var theme = this.tiappAndroidManifest.application.theme;
-		if (theme.startsWith('@style/')) {
-			flags = theme.replace('@style/', '');
-		}
-	}
+    if (this.tiappAndroidManifest && this.tiappAndroidManifest.application && this.tiappAndroidManifest.application.theme) {
+        var theme = this.tiappAndroidManifest.application.theme;
+        if (theme.startsWith('@style/')) {
+            flags = theme.replace('@style/', '');
+        }
+    }
 
     var _t = this;
     function recursivelyGenerate(src, dest, opts, done) {
