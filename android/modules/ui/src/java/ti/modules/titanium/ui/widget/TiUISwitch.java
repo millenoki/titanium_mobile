@@ -107,6 +107,8 @@ public class TiUISwitch extends TiUIView
             setStyle(TiConvert.toInt(newValue, style));
             break;
         case TiC.PROPERTY_VALUE:
+        case TiC.PROPERTY_SELECTED:
+        case TiC.PROPERTY_CHECKED:
             ignoreChangeEvent = true;
             getButton().setChecked(TiConvert.toBoolean(newValue, false));
             break;
