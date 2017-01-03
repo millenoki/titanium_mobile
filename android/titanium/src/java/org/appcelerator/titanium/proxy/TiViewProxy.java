@@ -802,7 +802,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	    super.handleChildAdded(child, index);
 	    if (view != null) {
 	        Activity activity = getActivity();
-	        if (activity != null) {
+	        if (activity == null) {
 	            return;
 	        }
 	        if (!TiApplication.isUIThread()) {
@@ -841,7 +841,7 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	        return;
 	    }
 	    Activity activity = getActivity();
-	    if (activity != null) {
+	    if (activity == null) {
             return;
         }
         if (!TiApplication.isUIThread()) {
