@@ -2071,26 +2071,28 @@ public abstract class TiUIView implements KrollProxyReusableListener,
 
     protected void registerTouchEvents(final View touchable) {
         touchView = new WeakReference<View>(touchable);
-        boolean gestureEnabled = hasListeners(TiC.EVENT_SWIPE, false)
-                || hasListeners(TiC.EVENT_LONGPRESS, false)
-                || hasListeners(TiC.EVENT_SINGLE_TAP, false)
-                || hasListeners(TiC.EVENT_DOUBLE_TAP, false);
+        
+        //don't check parent to prevent multiple gesture listeners and thus, duplicate events
+        boolean gestureEnabled = proxy._hasListeners(TiC.EVENT_SWIPE)
+                || proxy._hasListeners(TiC.EVENT_LONGPRESS)
+                || proxy._hasListeners(TiC.EVENT_SINGLE_TAP)
+                || proxy._hasListeners(TiC.EVENT_DOUBLE_TAP);
         if (gestureEnabled) {
             getOrCreateGestureHandler().setGlobalEnabled(gestureEnabled);
         }
-        if (hasListeners(TiC.EVENT_PAN, false)) {
+        if (proxy._hasListeners(TiC.EVENT_PAN)) {
             getOrCreateGestureHandler().setPanEnabled(true);
         }
-        if (hasListeners(TiC.EVENT_ROTATE, false)) {
+        if (proxy._hasListeners(TiC.EVENT_ROTATE)) {
             getOrCreateGestureHandler().setRotationEnabled(true);
         }
-        if (hasListeners(TiC.EVENT_PINCH, false)) {
+        if (proxy._hasListeners(TiC.EVENT_PINCH)) {
             getOrCreateGestureHandler().setScaleEnabled(true);
         }
-        if (hasListeners(TiC.EVENT_SHOVE, false)) {
+        if (proxy._hasListeners(TiC.EVENT_SHOVE)) {
             getOrCreateGestureHandler().setShoveEnabled(true);
         }
-        if (hasListeners(TiC.EVENT_TWOFINGERTAP, false)) {
+        if (proxy._hasListeners(TiC.EVENT_TWOFINGERTAP)) {
             getOrCreateGestureHandler().setTwoFingersTapEnabled(true);
         }
         touchable.setOnTouchListener(this);
