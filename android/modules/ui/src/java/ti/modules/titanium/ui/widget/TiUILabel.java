@@ -1281,7 +1281,7 @@ public class TiUILabel extends TiUINonViewGroupView
             }
             break;
         case TiC.PROPERTY_WORD_WRAP:
-            getTextView().setSingleLine(!TiConvert.toBoolean(newValue));
+            getTextView().setSingleLine(!TiConvert.toBoolean(newValue, false));
             setNeedsLayout();
             break;
         case TiC.PROPERTY_MAX_LINES:
@@ -1289,9 +1289,6 @@ public class TiUILabel extends TiUINonViewGroupView
             break;
         case TiC.PROPERTY_LINES:
             getTextView().setLines(TiConvert.toInt(newValue, 0));
-            break;
-        case TiC.PROPERTY_SELECTED:
-            getTextView().setPressed(TiConvert.toBoolean(newValue));
             break;
         case TiC.PROPERTY_SHADOW_OFFSET:
             shadowOffset = TiConvert.toPointF(newValue);

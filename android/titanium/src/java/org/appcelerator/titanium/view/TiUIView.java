@@ -963,6 +963,9 @@ public abstract class TiUIView implements KrollProxyReusableListener,
             // nativeView.setEnabled(value);
             doSetClickable(isTouchEnabled);
             break;
+        case TiC.PROPERTY_SELECTED:
+            getRootView().setPressed(TiConvert.toBoolean(newValue, false));
+            break;
         case TiC.PROPERTY_VISIBLE:
             this.setVisibility(TiConvert.toBoolean(newValue, true)
                     ? View.VISIBLE : View.GONE);
