@@ -20,6 +20,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.common.TiMessenger.Command;
 import org.appcelerator.kroll.common.TiMessenger.CommandNoReturn;
+import org.appcelerator.titanium.TiActivity;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
@@ -800,8 +801,12 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	protected void handleChildAdded(final KrollProxy child, final int index) {
 	    super.handleChildAdded(child, index);
 	    if (view != null) {
+	        Activity activity = getActivity();
+	        if (activity != null) {
+	            return;
+	        }
 	        if (!TiApplication.isUIThread()) {
-	            getActivity().runOnUiThread(new Runnable() {
+	            activity.runOnUiThread(new Runnable() {
 	                @Override
 	                public void run() {
 	                    handleAdd((TiViewProxy) child, index);
@@ -835,8 +840,12 @@ public abstract class TiViewProxy extends AnimatableProxy implements Handler.Cal
 	    if (!(child instanceof TiViewProxy)) {
 	        return;
 	    }
-	    if (!TiApplication.isUIThread()) {
-            getActivity().runOnUiThread(new Runnable() {
+	    Activity activity = getActivity();
+	    if (activity != null) {
+            return;
+        }
+        if (!TiApplication.isUIThread()) {
+	        activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     handleChildRemoved(child, index, shouldDetach);
