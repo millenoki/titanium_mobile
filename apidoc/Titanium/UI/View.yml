@@ -746,9 +746,6 @@ methods:
         The [rect](Titanium.UI.View.rect) property can be used to determine the actual size and 
         position of the view. Note that on Mobile Web, the `rect` property is not updated after
         animation. This is a known issue [TIMOB-8930](https://jira.appcelerator.org/browse/TIMOB-8930).
-  - name: cancelAllAnimations
-    summary: Cancel all animations on this view.
-
     parameters:
       - name: animation
         summary: |
@@ -760,6 +757,8 @@ methods:
         summary: Function to be invoked upon completion of the animation.
         type: Callback<Object>
         optional: true 
+  - name: cancelAllAnimations
+    summary: Cancel all animations on this view.
     
   - name: finishLayout
     since: "2.0.0"
