@@ -1196,7 +1196,9 @@ public class TiHTTPClient
 						}
 
 						// disable internal buffer
-						client.setFixedLengthStreamingMode(contentLength);
+						if (TiC.KIT_KAT_OR_GREATER) {
+		                      client.setFixedLengthStreamingMode(contentLength);
+						}
 						
 						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
 							public void progress(int progress) {
@@ -1267,7 +1269,7 @@ public class TiHTTPClient
 					}
 					handleResponse(client);
 
-				}catch (IOException e) {
+				}catch (Exception e) {
 					if (!aborted) {
 						throw e;
 					}
