@@ -2761,6 +2761,14 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
 
     }
+    
+    public void setFakeAnimParam(float value) {
+    }
+
+    public float getFakeAnimParam() {
+        return 0.0f;
+    }
+    
 
     @SuppressWarnings("null")
     public void prepareAnimatorSet(TiAnimatorSet tiSet, List<Animator> list,
@@ -2811,6 +2819,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         }
 
 //        show();
+        boolean needsFakeAnim = list.size() == 0;
         for (Map.Entry<String, Object> entry : toProps.entrySet()) {
             final String key = entry.getKey();
             Object value = entry.getValue();
@@ -2830,9 +2839,13 @@ public abstract class TiUIView implements KrollProxyReusableListener,
                     listReverse.add(tiAnimator.getOrCreateReverseSet());
                 }
             } else {
+                needsFakeAnim = false;
                 prepareAnimateProperty(key, entry.getValue(), fromProps, view,
                         parentView, list, needsReverse, listReverse);
             }
+        }
+        if (needsFakeAnim) {
+            list.add(ObjectAnimator.ofFloat(this, "fakeAnimParam", 0, 1));
         }
         didProcessProperties(); // needed for non animated properties
 
