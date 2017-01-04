@@ -285,6 +285,8 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 			}
 			return;
 		}
+		sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		sendIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 		// Multiple attachments.
 		sendIntent.putExtra(Intent.EXTRA_STREAM, uris);
 	}
