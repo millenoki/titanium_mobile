@@ -13,6 +13,8 @@ import java.util.HashMap;
 
 import android.Manifest;
 import android.app.Activity;
+
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
 import org.appcelerator.kroll.KrollModule;
@@ -48,12 +50,14 @@ public class FilesystemModule extends KrollModule
 	{
 		try {
             String suffix = "tmp";
+            String name = "tifile";
             String prefix = "";
 		    if (options != null) {
 		        suffix = TiConvert.toString(options, "suffix", suffix);
 		        prefix = TiConvert.toString(options, "prefix", prefix);
+		        name = TiConvert.toString(options, "name", name);
 		    }
-			File f = File.createTempFile(prefix  + "tifile", suffix);
+			File f = File.createTempFile(prefix  + name, suffix);
 			String[] parts = { f.getAbsolutePath() };
 			return new FileProxy(invocation.getSourceUrl(), parts, false);
 		} catch (IOException e) {
@@ -110,10 +114,15 @@ public class FilesystemModule extends KrollModule
 	public void requestStoragePermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
 	{
 		if (hasStoragePermissions()) {
+		    if (permissionCallback != null) {
+		        KrollDict response = new KrollDict();
+	            response.putCodeAndMessage(0, null);
+	            permissionCallback.callAsync(getKrollObject(), response);
+		    }
 			return;
 		}
 
-		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_CALENDAR, getKrollObject(), permissionCallback);
+		TiBaseActivity.addPermissionListener(TiC.PERMISSION_CODE_EXTERNAL_STORAGE, getKrollObject(), permissionCallback);
         Activity currentActivity  = TiApplication.getInstance().getCurrentActivity();
         if (currentActivity != null) {
             currentActivity.requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_CALENDAR}, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);

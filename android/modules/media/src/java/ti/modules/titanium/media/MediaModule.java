@@ -439,6 +439,11 @@ public class MediaModule extends KrollModule
 	public void requestCameraPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
 	{
 		if (hasCameraPermissions()) {
+		    if (permissionCallback != null) {
+                KrollDict response = new KrollDict();
+                response.putCodeAndMessage(0, null);
+                permissionCallback.callAsync(getKrollObject(), response);
+            }
 			return;
 		}
 

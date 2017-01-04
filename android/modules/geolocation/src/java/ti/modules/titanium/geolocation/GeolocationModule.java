@@ -710,6 +710,11 @@ public class GeolocationModule extends KrollModule
 	public void requestLocationPermissions(@Kroll.argument(optional=true) Object type, @Kroll.argument(optional=true) KrollFunction permissionCallback)
 	{
 		if (hasLocationPermissions()) {
+		    if (permissionCallback != null) {
+                KrollDict response = new KrollDict();
+                response.putCodeAndMessage(0, null);
+                permissionCallback.callAsync(getKrollObject(), response);
+            }
 			return;
 		}
 

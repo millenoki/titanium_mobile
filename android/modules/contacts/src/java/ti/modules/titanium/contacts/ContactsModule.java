@@ -71,6 +71,11 @@ public class ContactsModule extends KrollModule
 	public void requestContactsPermissions(@Kroll.argument(optional=true)KrollFunction permissionCallback)
 	{
 		if (hasContactsPermissions()) {
+		    if (permissionCallback != null) {
+                KrollDict response = new KrollDict();
+                response.putCodeAndMessage(0, null);
+                permissionCallback.callAsync(getKrollObject(), response);
+            }
 			return;
 		}
 		// Requesting for READ_CONTACTS will also enable WRITE_CONTACTS if the permission is set in the manifest.
