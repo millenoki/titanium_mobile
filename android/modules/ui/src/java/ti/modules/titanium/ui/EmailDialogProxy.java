@@ -192,6 +192,7 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 		if (tempfile.exists()) {
 			tempfile.deleteFile();
 		}
+		tempfile.createFile();
 		try {
 			tempfile.write(blob, false);
 			return tempfile.getNativeFile();
