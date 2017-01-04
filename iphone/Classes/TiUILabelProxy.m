@@ -269,7 +269,9 @@ static NSDictionary* htmlOptions;
 {
     //the test is for listview measurement when a same template is used for text and html
 //    if (value || _contentType == kContentTypeText) {
+    if (value || ![self valueForKey:@"html"]) {
         [self setAttributedTextViewContent:[TiUtils stringValue:value] ofType:kContentTypeText];
+    }
 //    }
 	[self replaceValue:value forKey:@"text" notification:NO];
 }
@@ -288,7 +290,9 @@ static NSDictionary* htmlOptions;
 {
     //the test is for listview measurement when a same template is used for text and html
 //    if (value || _contentType == kContentTypeHTML) {
+    if (value || ![self valueForKey:@"text"]) {
         [self setAttributedTextViewContent:[TiUtils stringValue:value] ofType:kContentTypeHTML];
+    }
 //    }
 	[self replaceValue:value forKey:@"html" notification:NO];
 }
