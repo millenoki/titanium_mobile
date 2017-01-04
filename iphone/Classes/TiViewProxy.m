@@ -3093,7 +3093,7 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
 		[transferView setBounds:sizeCache];
 	}
     
-	if(OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags))
+	if(OSAtomicTestAndClearBarrier(TiRefreshViewPosition, &dirtyflags) && _canRepositionItself)
 	{
 		[self refreshPosition];
 		changedFrame = YES;
@@ -3238,8 +3238,8 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
             return NO;
         }
         BOOL needsAll = TiCGRectIsEmpty(sizeCache);
-        BOOL needsSize = OSAtomicTestAndClear(TiRefreshViewSize, &dirtyflags) || (needsAll && _canRepositionItself);
-        BOOL needsPosition = OSAtomicTestAndClear(TiRefreshViewPosition, &dirtyflags) || (needsAll && _canResizeItself);
+        BOOL needsSize = (OSAtomicTestAndClear(TiRefreshViewSize, &dirtyflags) || needsAll) && _canResizeItself;
+        BOOL needsPosition = (OSAtomicTestAndClear(TiRefreshViewPosition, &dirtyflags) || needsAll ) && _canRepositionItself;
         BOOL layoutChanged = NO;
         if (needsSize) {
             CGSize size;
