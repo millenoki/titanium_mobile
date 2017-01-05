@@ -282,7 +282,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (activityIsFinishing) {
 			releaseViews(true);
 	        setParent(null);
-	        release();
+	        KrollProxy.releaseProxyFromJava(this);
 		} else {
 			// If the activity is forced to destroy by Android OS due to lack of memory or 
 			// enabling "Don't keep activities" (TIMOB-12939), we will not release the

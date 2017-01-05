@@ -478,7 +478,7 @@ public class ParentingProxy extends KrollProxy {
         if (children != null) {
             synchronized (children) {
                 for (KrollProxy child : children) {
-                    child.release();
+                    KrollProxy.releaseProxyFromJava(child);
                 }
             }
         }

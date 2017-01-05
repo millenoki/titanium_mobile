@@ -2095,10 +2095,7 @@ public abstract class TiBaseActivity extends AppCompatActivity
 			menuHelper = null;
 		}
 
-		if (activityProxy != null) {
-			activityProxy.release();
-			activityProxy = null;
-		}
+        KrollProxy.releaseProxyFromJava(activityProxy);
 
 		// Don't dispose the runtime if the activity is forced to destroy by Android,
 		// so we can recover the activity later.

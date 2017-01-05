@@ -1566,7 +1566,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
                     if (callback instanceof KrollEventCallback) {
                         ((KrollEventCallback) callback).call(data);
                     } else if (callback instanceof KrollFunction) {
-                        ((KrollFunction) callback).call(krollObject, (HashMap) data);
+                        ((KrollFunction) callback).call(getKrollObject(), (HashMap) data);
 //                        ((KrollEventCallback) callback).call(data);
                     }
                 }
@@ -2166,6 +2166,16 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         mSyncEvents = null;
         defaultValues.clear();
         createdInModule = null;
+    }
+    
+    public boolean canBeReleasedFromJava() {
+        return !krollObjectSupported;
+    }
+    
+    static public void releaseProxyFromJava(KrollProxy proxy) {
+        if (proxy != null && proxy.canBeReleasedFromJava()) {
+            proxy.release();
+        }
     }
 
     /**
