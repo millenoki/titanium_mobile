@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
@@ -82,7 +83,7 @@ public class EmailDialogProxy extends ViewProxy implements ActivityTransitionLis
 	}
 
 	@Kroll.method
-	public void addAttachment(Object attachment) {
+	public void addAttachment(Object attachment, @Kroll.argument(optional = true) HashMap options) {
 		if (attachment instanceof FileProxy || attachment instanceof TiBlob) {
 			if (attachments == null) {
 				attachments = new ArrayList<Object>();
