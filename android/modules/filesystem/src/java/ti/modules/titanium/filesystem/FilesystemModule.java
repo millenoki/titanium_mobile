@@ -48,7 +48,7 @@ public class FilesystemModule extends KrollModule
 	@Kroll.method
 	public FileProxy createTempFile(KrollInvocation invocation, @Kroll.argument(optional = true) HashMap options)
 	{
-		try {
+//		try {
             String suffix = "tmp";
             String name = "tifile";
             String prefix = "";
@@ -57,20 +57,22 @@ public class FilesystemModule extends KrollModule
 		        prefix = TiConvert.toString(options, "prefix", prefix);
 		        name = TiConvert.toString(options, "name", name);
 		    }
-			File f = File.createTempFile(prefix  + name, suffix);
+	        File tmpdir = getActivity().getExternalCacheDir();
+	        File f = new File(tmpdir,prefix  + name + suffix);
+//			File f = File.createTempFile(prefix  + name, suffix);
 			String[] parts = { f.getAbsolutePath() };
 			return new FileProxy(invocation.getSourceUrl(), parts, false);
-		} catch (IOException e) {
-			Log.e(TAG, "Unable to create tmp file: " + e.getMessage(), e);
-			return null;
-		}
+//		} catch (IOException e) {
+//			Log.e(TAG, "Unable to create tmp file: " + e.getMessage(), e);
+//			return null;
+//		}
 	}
 
 	@Kroll.method
 	public FileProxy createTempDirectory(KrollInvocation invocation)
 	{
 		String dir = String.valueOf(System.currentTimeMillis());
-		File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+		File tmpdir = getActivity().getExternalCacheDir();
 		File f = new File(tmpdir,dir);
 		f.mkdirs();
 		String[] parts = { f.getAbsolutePath() };
