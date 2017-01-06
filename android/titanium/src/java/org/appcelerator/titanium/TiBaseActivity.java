@@ -555,9 +555,9 @@ public abstract class TiBaseActivity extends AppCompatActivity
 	
 	public void updateActivityProxy(TiWindowProxy window, HashMap supplActionBar) {
         HashMap props = window.getProperties();
-	    HashMap activityDict = window.getActivityProperties(TiConvert.toHashMap(props.get(TiC.PROPERTY_ACTIVITY)), supplActionBar, true);
+	    HashMap activityDict = window.getActivityProperties(TiConvert.toHashMap(props.get(TiC.PROPERTY_ACTIVITY)), supplActionBar, true, navBarHidden);
         if (window.getWindowManager() instanceof TiWindowProxy) {
-            activityDict = ((TiWindowProxy) window.getWindowManager()).getActivityProperties(activityDict, supplActionBar, false);
+            activityDict = ((TiWindowProxy) window.getWindowManager()).getActivityProperties(activityDict, supplActionBar, false, navBarHidden);
         }
         if (activityDict != null) {
             getActivityProxy().setProperties(activityDict);

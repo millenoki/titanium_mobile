@@ -706,9 +706,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 		}
 	}
 	
-	public HashMap getActivityProperties(HashMap properties, HashMap actionBarDictSuppl, final boolean canOverWrite) {
+	public HashMap getActivityProperties(HashMap properties, HashMap actionBarDictSuppl, final boolean canOverWrite, final boolean navBarHidden) {
 	    
-	    HashMap actionBarDict = actionBarDictSuppl;
+	    if (navBarHidden) {
+	        return properties;
+	    }
+        HashMap actionBarDict = actionBarDictSuppl;
         if (properties != null) {
             HashMap propsActionBarDict = TiConvert.toHashMap(properties.get(TiC.PROPERTY_ACTION_BAR));
             if (propsActionBarDict != null) {
