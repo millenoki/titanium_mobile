@@ -1724,6 +1724,7 @@ public abstract class TiUIView implements KrollProxyReusableListener,
         LayoutParams params = new LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
+        params.ignoreInFill = true;
         // If the view already has a parent, we need to detach it from the
         // parent
         // and add the borderView to the parent as the child

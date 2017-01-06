@@ -247,6 +247,7 @@ public class TiCompositeLayout extends FreeLayout implements
 	private boolean viewShouldFillHorizontalLayout(View view, LayoutParams params)
 	{
         if (view.getVisibility() == View.GONE) return false;
+        if ( params.ignoreInFill) return false;
         if (params.fullscreen == true) return true;
 		if (params.sizeOrFillWidthEnabled == false) return false;
 		if (params.autoFillsWidth) return true;
@@ -1338,7 +1339,8 @@ public class TiCompositeLayout extends FreeLayout implements
 	 * {@link android.view.ViewGroup.LayoutParams}
 	 */
 	public static class LayoutParams extends FreeLayout.LayoutParams {
-		public boolean notTiLayout = false;
+	    public boolean notTiLayout = false;
+		public boolean ignoreInFill = false;
 
         protected int index;
 
