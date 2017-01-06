@@ -306,8 +306,8 @@ static NSDictionary* htmlOptions;
     if (webFont.isBoldWeight)
         traitsDefault |= kCTFontBoldTrait;
     [options setValue:[NSNumber numberWithInt:traitsDefault] forKey:DTDefaultFontStyle];
-    if (webFont.family)
-        [options setValue:webFont.family forKey:DTDefaultFontFamily];
+    if (webFont && webFont.font)
+        [options setValue:webFont.font.fontName forKey:DTDefaultFontName];
     else {
         [options setObject:[self defaultSystemFontFamily] forKey:NSFontAttributeName];
         [options setValue:[self defaultSystemFontFamily] forKey:DTDefaultFontFamily];
