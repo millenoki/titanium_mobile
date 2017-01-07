@@ -393,9 +393,12 @@ public class ScrollableViewProxy extends TiViewProxy
 	    super.setActivity(activity);
 	    if (view != null) {
 	        ArrayList<TiViewProxy> views = getView().getViews();
-	        for (TiViewProxy viewProxy : views) {
-	            viewProxy.setActivity(activity);
+	        if (views != null) {
+	            for (TiViewProxy viewProxy : views) {
+	                viewProxy.setActivity(activity);
+	            }
 	        }
+	        
 	    }
         
 	}

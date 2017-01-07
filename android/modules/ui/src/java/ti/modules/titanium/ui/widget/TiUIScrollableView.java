@@ -61,7 +61,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	int cacheSize = 3;
 	private Transition transition;
 	private boolean updateCurrentPageDuringScroll = true;
-	
+
 	protected static final int TIFLAG_NEEDS_DATASET               = 0x00000001;
 	protected static final int TIFLAG_NEEDS_ADAPTER_CHANGE        = 0x00000002;
     protected static final int TIFLAG_NEEDS_CURRENT_PAGE          = 0x00000004;
@@ -253,6 +253,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	private final TiCompositeLayout mContainer;
 	private final RelativeLayout mPagingControl;
 	private final Object viewsLock;
+	private boolean creatingViews = false;
 
 	private int mCurIndex = -1;
 	private int mCurrentPage = 0;
@@ -839,7 +840,8 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	public void setViews(Object viewsObject)
 	{
 		boolean changed = false;
-        synchronized (mViews) {
+		creatingViews = true;
+        synchronized (viewsLock) {
     		clearViewsList();
     
     		if (viewsObject instanceof Object[]) {
@@ -865,6 +867,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
     			}
     		}
         }
+        creatingViews = false;
         if (changed) {
             mProcessUpdateFlags |= TIFLAG_NEEDS_ADAPTER_CHANGE;
             mProcessUpdateFlags |= TIFLAG_NEEDS_CURRENT_PAGE;
@@ -894,7 +897,10 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 
 	public ArrayList<TiViewProxy> getViews()
 	{
-	    synchronized (mViews) {
+	    if (creatingViews) {
+	        return null;
+	    }
+	    synchronized (viewsLock) {
 	        return mViews;
 	    }
 	}
@@ -908,7 +914,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 //				mPager.removeViewAt(i);
 //			}
 		}
-		synchronized  (mViews) {
+		synchronized  (viewsLock) {
 		    if (mViews != null) {
 	            for (TiViewProxy viewProxy : mViews) {
 	                viewProxy.releaseViews(true);
