@@ -1191,7 +1191,7 @@ function layout2Ex(_args) {
 			win.showHideSearchField();
 		}
 	};
-	win.addEventListener('click', app.debounce(onButtonClick));
+	win.addEventListener('click', onButtonClick);
 	openWin(win);
 }
 
@@ -2778,9 +2778,9 @@ function navWindowEx() {
 		}]
 	});
 	// slidingMenu
-	var slidingMenu = new SlideMenu({
+	var slidingMenu = slidemenu.createSlideMenu({
 		fading: 0.5,
-		panningMode: app.modules.slidemenu.MENU_PANNING_BORDERS,
+		panningMode: slidemenu.MENU_PANNING_BORDERS,
 		orientationModes: [
 			// Ti.UI.UPSIDE_PORTRAIT,
 			Ti.UI.PORTRAIT,
@@ -3207,19 +3207,19 @@ function slideMenuEx() {
 			cacheSize: 5,
 			views: [
 				getScrollViewPage(
-					'http://zapp.trakt.us/images/posters_movies/192263-138.jpg',
+					'https://walter.trakt.tv/images/shows/000/080/792/posters/thumb/0d547feb74.jpg',
 					'The Croods'),
 				getScrollViewPage(
-					'http://zapp.trakt.us/images/posters_movies/208623-138.jpg',
+					'https://walter.trakt.tv/images/shows/000/060/272/posters/thumb/1fb439e7a3.jpg',
 					'This Is The End'),
 				getScrollViewPage(
-					'http://zapp.trakt.us/images/posters_movies/210231-138.jpg',
+					'https://walter.trakt.tv/images/shows/000/099/086/posters/thumb/5078f03a63.jpg',
 					'Now You See Me'),
 				getScrollViewPage(
-					'http://zapp.trakt.us/images/posters_movies/176347-138.jpg',
+					'https://walter.trakt.tv/images/shows/000/060/458/posters/thumb/3b8e546163.jpg',
 					'Into Darkness'),
 				getScrollViewPage(
-					'http://zapp.trakt.us/images/posters_movies/210596-138.jpg',
+					'https://walter.trakt.tv/images/shows/000/094/961/posters/thumb/378f268623.jpg',
 					'Pain And Gain')
 			]
 		});
@@ -3318,7 +3318,7 @@ function slideMenuEx() {
 		};
 		otherWindows = [slidingMenu];
 	}
-	var slidingMenu = new SlideMenu({
+	var slidingMenu = slidemenu.createSlideMenu({
 		backgroundColor: backColor,
 		navBarHidden: true,
 		leftViewWidth: '40%',
@@ -4042,6 +4042,8 @@ function antiAliasTest(_args) {
 	win.add(view);
 	openWin(win);
 }
+
+var slidemenu = require('akylas.slidemenu');
 var modules = __AKYLAS_DEV__ ? ['shapes'] : [];
 var moduleItems = [];
 for (var i = 0; i < modules.length; i++) {
@@ -4398,6 +4400,10 @@ mainWin.addEventListener('closeWindow', function(e) {
 // }
 // });
 // 
+Ti.App.on('close', function(){
+	firstWindow = null;
+	mainWin = null;
+});
 mainWin.open();
 
 // var notificationView = new NotificationWindow();
@@ -5256,7 +5262,7 @@ function testLabel(_args) {
 		}]
 	});
 	// slidingMenu
-	var slidingMenu = Ti.UI.createSlideMenu({
+	var slidingMenu = slidemenu.createSlideMenu({
 		orientationModes: [Ti.UI.UPSIDE_PORTRAIT, Ti.UI.PORTRAIT,
 			Ti.UI.LANDSCAPE_RIGHT, Ti.UI.LANDSCAPE_LEFT
 		],
@@ -6453,57 +6459,6 @@ function scrollBlurTest(_args) {
 	openWin(win);
 }
 
-function testPlayer() {
-	Ti.Audio.audioSessionCategory = Ti.Audio.AUDIO_SESSION_CATEGORY_PLAYBACK;
-	app.player = Ti.Audio.createStreamer({
-		notifIcon: "status_icon",
-		notifViewId: "notification_template_base",
-		notifExpandedViewId: "notification_template_expanded_base"
-	});
-	app.player.shuffleMode = Ti.Audio.SHUFFLE_SONGS;
-	app.player.playlist = [{
-		title: 'test title 0',
-		artist: 'test artist 0',
-		album: 'test album 1',
-		artwork: 'http://cdn.stereogum.com/files/2011/03/The-Strokes-Angles.jpg',
-		url: 'http://b8980de12a95e395acc3-c337dc44e0f2cf90ee6784a19861e2cb.iosr.cf1.rackcdn.com'
-	}, {
-		url: 'http://104.130.240.176:1935/vod/mp4:ag-100.mp4/playlist.m3u8'
-	}, {
-		url: 'https://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8'
-	}, {
-		url: 'http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8'
-	}, {
-		url: 'http://downloads.bbc.co.uk/podcasts/radio4/shortcuts/shortcuts_20141104-1530a.mp3'
-	}, {
-		title: 'test title 1',
-		artist: 'test artist 1',
-		album: 'test album 1',
-		artwork: 'http://cdn.ghostly.com/images/artists/34/albums/490/GI-227_1500x300_540_540.jpg',
-		url: 'http://104.130.240.176:1935/vod/mp4:sample.mp4/playlist.m3u8'
-	}];
-	app.player.start();
-	app.ui.createAndOpenWindow('PlayerWindow');
-}
-
-function testTritonPlayer() {
-	var Triton = app.modules.triton = require('akylas.triton');
-	Ti.Audio.audioSessionCategory = Ti.Audio.AUDIO_SESSION_CATEGORY_PLAYBACK;
-	app.player = Triton.createPlayer({
-		notifIcon: "status_icon",
-		notifViewId: "notification_template_base",
-		notifExpandedViewId: "notification_template_expanded_base"
-	});
-	app.player.shuffleMode = Ti.Audio.SHUFFLE_SONGS;
-	app.player.playlist = [{
-		broadcaster: 'Triton Digital',
-		mount: 'BASIC_CONFIGAAC',
-		station_name: 'BASIC_CONFIG'
-	}];
-	app.player.play();
-	app.ui.createAndOpenWindow('PlayerWindow');
-}
-
 function switchTest() {
 	var win = Ti.UI.createWindow({
 		layout: 'vertical'
@@ -7333,7 +7288,7 @@ function GIFTest() {
 	win.open();
 }
 
-GIFTest();
+// GIFTest();
 
 // animationBugEx();
 // setTimeout(windowLevelTest, 1000);
