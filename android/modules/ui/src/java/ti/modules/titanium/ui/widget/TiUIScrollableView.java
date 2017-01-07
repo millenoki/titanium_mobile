@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.transition.Transition;
 import org.appcelerator.titanium.transition.TransitionHelper;
 import org.appcelerator.titanium.util.TiConvert;
@@ -969,6 +970,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
                     tiProxy.setParent(TiUIScrollableView.this.proxy);
                 }
                 tiProxy.setActivity(activity);
+                
                 TiCompositeLayout layout = new TiCompositeLayout(activity);
                 layout.setInternalTouchPassThrough(true);
                 TiUIHelper.addView(layout, tiProxy);
@@ -979,6 +981,11 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
                 } else {
                     pager.addView(layout, params);
                 }                
+                if (tiProxy instanceof TiWindowProxy && !((TiWindowProxy)tiProxy).isOpenedOrOpening()) {
+                    TiWindowProxy childWin = (TiWindowProxy)tiProxy;
+                    childWin.onWindowActivityCreated();
+//                    childWin.focus();
+                }
 				return tiProxy;
 			}
 		}
