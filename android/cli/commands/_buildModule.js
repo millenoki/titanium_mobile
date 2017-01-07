@@ -347,7 +347,8 @@ AndroidModuleBuilder.prototype.initialize = function initialize(next) {
 		}, this);
 	}, this);
 
-	this.dependencyJsonFile = path.join(this.platformPath, 'dependency.json');
+	this.platformDependencyJsonFile = path.join(this.platformPath, 'dependency.json');
+	this.dependencyJsonFile = path.join(this.projectDir, 'dependency.json');
 	this.templatesDir = path.join(this.platformPath, 'templates', 'build');
 	this.moduleIdSubDir = this.manifest.moduleid.split('.').join(path.sep);
 
@@ -563,15 +564,15 @@ AndroidModuleBuilder.prototype.generateRuntimeBindings = function (next) {
 
 	var classpath = this.classPaths;
 	var tiDependencies;
-	if (fs.existsSync(this.dependencyJsonFile)) {
-		var deps = JSON.parse(fs.readFileSync(this.dependencyJsonFile));
+	if (fs.existsSync(this.platformDependencyJsonFile)) {
+		var deps = JSON.parse(fs.readFileSync(this.platformDependencyJsonFile));
 		if (deps.required) {
 			tiDependencies = (tiDependencies || []).concat(deps.required)
 		}
 	}
 	var tiJSONDeps = path.join(this.projectDir, 'dependency.json');
-	if (fs.exists(tiJSONDeps)) {
-		var deps = JSON.parse(fs.readFileSync(tiJSONDeps));
+	if (fs.exists(this.dependencyJsonFile)) {
+		var deps = JSON.parse(fs.readFileSync(this.dependencyJsonFile));
 		if (deps.required) {
 			tiDependencies = (tiDependencies || []).concat(deps.required)
 		}
@@ -951,7 +952,7 @@ AndroidModuleBuilder.prototype.compileJsClosure = function (next) {
 
 	this.logger.info(__('Generating v8 bindings'));
 
-	var dependsMap =  JSON.parse(fs.readFileSync(this.dependencyJsonFile));
+	var dependsMap =  JSON.parse(fs.readFileSync(this.platformDependencyJsonFile));
 	Array.prototype.push.apply(this.metaData,dependsMap.required);
 
 	Object.keys(dependsMap.dependencies).forEach(function (key) {
@@ -1776,6 +1777,9 @@ AndroidModuleBuilder.prototype.packageZip = function (next) {
 
 				if (fs.existsSync(this.metaDataFile)) {
 					dest.file(this.metaDataFile, {name:path.join(moduleFolder,'metadata.json')});
+				}	
+				if (fs.existsSync(this.dependencyJsonFile)) {
+					dest.file(this.dependencyJsonFile, {name:path.join(moduleFolder,'dependency.json')});
 				}
 
 				this.logger.info(__('Writing module zip: %s', moduleZipPath));
