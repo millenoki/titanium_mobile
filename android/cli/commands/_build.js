@@ -2625,7 +2625,7 @@ AndroidBuilder.prototype.copyResources = function copyResources(next) {
                     };
                 _t.cli.createHook('build.android.walkResource', _t, function(info, next) {
                     if (!!info.ignored) {
-                        return;
+                        return next();
                     }
                     // we have a file, now we need to see what sort of file
 
