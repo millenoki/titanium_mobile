@@ -138,6 +138,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 					
 					@Override
 					public void transformPage(View page, float position) {
+					    
 	                    transformView(page, transition, position);
 					}
 				});
@@ -255,6 +256,7 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	private final Object viewsLock;
 	private boolean creatingViews = false;
 
+	private int mMovingFromIndex = -1;
 	private int mCurIndex = -1;
 	private int mCurrentPage = 0;
 	private boolean mScrollingEnabled = true;
@@ -755,6 +757,8 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 			return;
 		}
 		//we dont to update page during scroll but immediately. Otherwise if we jump multiple page, we will have multiple events!
+		
+		mMovingFromIndex = mCurIndex;
 		setCurrentPageIndex(index, animated);
 		mPager.setCurrentItem(mCurIndex, animated);
 	}
@@ -827,13 +831,21 @@ public class TiUIScrollableView extends TiUIView implements  ViewPager.OnPageCha
 	    if (transition != null) {
             TiViewHelper.setTranslationRelativeX(view, 0);
             TiViewHelper.setTranslationRelativeY(view, 0);
-            transition.transformView(view, position);
 //          float dest = multiplier * position * (adjustScroll ? 1 : 0);
             if (verticalLayout) {
                 TiViewHelper.setTranslationRelativeY(view, TiViewHelper.getTranslationRelativeY(view) - position);
             } else {
                 TiViewHelper.setTranslationRelativeX(view, TiViewHelper.getTranslationRelativeX(view) - position);
             }
+            
+            int childIndex = (int) view.getTag();
+            float realPosition = position;
+            if (childIndex != mMovingFromIndex && childIndex != mCurIndex) {
+                realPosition = -2;
+            } else {
+                realPosition /= Math.abs(mCurIndex - mMovingFromIndex);
+            }
+            transition.transformView(view, realPosition);
         }
 	}
 
