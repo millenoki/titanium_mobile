@@ -461,7 +461,6 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 				preAddedArgs.clear();
 			}			
 			handlePush(firstWindow, true, null);
-
 		}
 	}
 
@@ -483,7 +482,7 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
 			handlePushFirst();
 		}
 	}
-	
+
 	protected int getContainerId(){
 		return getParentViewForChild().getId();
 	}
@@ -730,10 +729,30 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
     @Override
 	public void releaseViews(boolean activityFinishing)
     {
-        super.releaseViews(activityFinishing);
-        clearWindowsStack(activityFinishing);
+        //for now we can't release the views as we can't correctly recreate it :s
+        //TODO: fix this!
+        
+//        super.releaseViews(activityFinishing);
+//        if (windows.size() == 0) return;
+//        ViewGroup viewToRemoveFrom = (ViewGroup) getParentViewForWindows();
+//        if (viewToRemoveFrom != null) {
+//            for (int i = 0; i < windows.size(); i++) {
+//                TiWindowProxy proxy = windows.get(i);
+//                View viewToRemove = proxy.getOuterView();
+//                if (viewToRemove != null ) {
+//                    viewToRemoveFrom.removeView(viewToRemove);
+//                }
+//                proxy.releaseViews(activityFinishing);
+//            }
+//        }
     }
-    
+    @Override
+   public void closeFromActivity(boolean activityIsFinishing) {
+        super.releaseViews(true);
+        super.closeFromActivity(activityIsFinishing);
+        clearWindowsStack(activityIsFinishing);
+    }
+
 	
 	@Override
 	public boolean shouldExitOnClose() {
@@ -794,6 +813,9 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
     }
     
     public void clearWindowsStack(final boolean activityFinishing){
+        if (!activityFinishing) {
+            return;
+        }
 		if (windows.size() == 0) return;
 		ViewGroup viewToRemoveFrom = (ViewGroup) getParentViewForWindows();
         if (viewToRemoveFrom != null) {
@@ -806,8 +828,8 @@ public class NavigationWindowProxy extends WindowProxy implements interceptOnBac
                 proxy.closeFromActivity(activityFinishing);
             }
         }
-		
-		windows.clear();
+	      windows.clear();
+	      animations.clear();
 	}
 
 	public void onDestroy(Activity activity) {
