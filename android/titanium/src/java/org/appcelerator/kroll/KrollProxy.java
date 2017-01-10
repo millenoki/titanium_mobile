@@ -204,6 +204,9 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
     }
     
     public static KrollProxy createProxy(Class<? extends KrollProxy> proxyClass, Object props) {
+           return createProxy(proxyClass, props, null);
+    }
+    public static KrollProxy createProxy(Class<? extends KrollProxy> proxyClass, Object props, KrollProxy rootProxy) {
         try {
             KrollProxy proxyInstance = proxyClass.newInstance();
             // Associate the activity with the proxy. if the proxy needs activity
@@ -214,7 +217,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 //            proxyInstance.initActivity(TiApplication.getInstance().getCurrentActivity());
             
             if (props instanceof HashMap) {
-                proxyInstance.handleCreationDict((HashMap) props);
+                proxyInstance.handleCreationDict((HashMap) props, rootProxy);
             }
             return proxyInstance;
 
@@ -468,6 +471,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
      * @module.api
      */
     public void handleCreationDict(HashMap dict) {
+        handleCreationDict(dict, null);
+    }
+    
+    public void handleCreationDict(HashMap dict, KrollProxy rootProxy) {
         synchronized (properties) {
             properties.clear();
         }
@@ -2345,7 +2352,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
         try {
             Class<? extends KrollProxy> cls = (Class<? extends KrollProxy>) Class
                     .forName(APIMap.getProxyClass(type));
-            KrollProxy proxy = KrollProxy.createProxy(cls, props);
+            KrollProxy proxy = KrollProxy.createProxy(cls, props, rootProxy);
             if (proxy == null)
                 return null;
             if  (rootProxy == null) {
