@@ -337,6 +337,16 @@ DEFINE_EXCEPTIONS
 	}
 }
 
+-(void)onChildAdded:(TiViewProxy*)viewProxy
+{
+    if (changedInteraction && _propagateParentEnabled) {
+        if ([[viewProxy view] isKindOfClass:[TiUIView class]])
+        {
+            [[viewProxy view] setEnabled:@(self.customUserInteractionEnabled) calledFromParent:YES];
+        }
+    }
+}
+
 #ifdef TI_USE_AUTOLAYOUT
 -(void)initializeTiLayoutView
 {

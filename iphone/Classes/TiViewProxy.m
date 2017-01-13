@@ -3184,7 +3184,9 @@ if (!viewInitialized || !parentVisible || OSAtomicTestAndSetBarrier(flagBit, &di
     if (ourView==nil || childView == nil) {
         return;
     }
+    
     [ourView addSubview:[childProxy view]];
+    [[self view] onChildAdded:childProxy];
 }
 
 -(BOOL)absoluteLayout
