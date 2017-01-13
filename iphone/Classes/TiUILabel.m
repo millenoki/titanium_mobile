@@ -305,7 +305,7 @@
 -(void)setCustomUserInteractionEnabled:(BOOL)value
 {
     [super setCustomUserInteractionEnabled:value];
-	[[self label] setEnabled:[self interactionEnabled]];
+	[[self label] setEnabled:value];
 }
 
 -(void)setVerticalAlign_:(id)value
