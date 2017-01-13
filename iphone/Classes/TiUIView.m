@@ -1586,8 +1586,12 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 
 -(void)setTouchEnabled_:(id)arg
 {
-	self.userInteractionEnabled  = [TiUtils boolValue:arg def:self.userInteractionEnabled];
-    changedInteraction = YES;
+    BOOL newValue = [TiUtils boolValue:arg def:self.userInteractionEnabled];
+    if (newValue != self.userInteractionEnabled) {
+        self.userInteractionEnabled  = newValue;
+        changedInteraction = YES;
+    }
+	
 }
 
 -(BOOL)customUserInteractionEnabled {
@@ -1612,15 +1616,17 @@ CGPathRef CGPathCreateRoundiiRect( const CGRect rect, const CGFloat* radii)
 -(void)setEnabled:(id)arg calledFromParent:(BOOL)calledFromParent
 {
     BOOL newValue = [TiUtils boolValue:arg def:[self interactionDefault]];
+    BOOL hasChanged = false;
     if (!calledFromParent || _setEnabledFromParent) {
         if (newValue != _customUserInteractionEnabled) {
             [self setCustomUserInteractionEnabled:newValue];
             [proxy setState:newValue?nil:@"disabled"];
             [self setBgState:UIControlStateNormal];
             changedInteraction = YES;
+            hasChanged = YES;
         }
     }
-    if (changedInteraction || (calledFromParent && _propagateParentEnabled)) {
+    if (hasChanged || (calledFromParent && _propagateParentEnabled)) {
         for (TiUIView * thisView in [self childViews])
         {
             if ([thisView isKindOfClass:[TiUIView class]])
