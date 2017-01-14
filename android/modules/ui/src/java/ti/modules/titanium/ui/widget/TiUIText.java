@@ -293,7 +293,7 @@ public class TiUIText extends TiUINonViewGroupView
 		
 		@Override
 		public boolean dispatchTouchEvent(MotionEvent event) {
-			if (touchPassThrough == true)
+			if (touchPassThrough == true || !isTouchEnabled)
 				return false;
 			return super.dispatchTouchEvent(event);
 		}
