@@ -543,12 +543,17 @@
 {
     id result = nil;
     NSArray* subproxies = [self children];
-    NSInteger index=[subproxies indexOfObject:child];
+    NSInteger index=child?[subproxies indexOfObject:child]:0;
     if(NSNotFound != index) {
         for (NSInteger i = index + 1; i < [subproxies count] ; i++) {
             TiProxy* obj = [subproxies objectAtIndex:i];
             if ([obj isKindOfClass:theClass] && [obj canBeNextResponder]) {
                     return obj;
+            } else if (IS_OF_CLASS(obj, TiParentingProxy)) {
+                result = [(TiParentingProxy*)obj getNextChildrenOfClass:theClass afterChild:nil];
+                if (result) {
+                    return result;
+                }
             }
         }
     }

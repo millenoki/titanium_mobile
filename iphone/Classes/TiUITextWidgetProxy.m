@@ -175,9 +175,18 @@ DEFINE_DEF_BOOL_PROP(suppressReturn,YES);
 
 -(BOOL)selectNextTextWidget
 {
-    TiUITextWidgetProxy* nextOne = (TiUITextWidgetProxy*)[[self parentForNextWidget] getNextChildrenOfClass:[TiUITextWidgetProxy class] afterChild:self];
-    
-    return(nextOne != nil && [[nextOne view] becomeFirstResponder]);
+    TiParentingProxy* theParent = [self parentForNextWidget];
+    TiProxy* firstChild = self;
+    TiUITextWidgetProxy* nextTF = [theParent getNextChildrenOfClass:[TiUITextWidgetProxy class] afterChild:firstChild];
+    while(theParent && !nextTF) {
+        firstChild = theParent;
+        theParent = [theParent parent];
+        nextTF = [theParent getNextChildrenOfClass:[TiUITextWidgetProxy class] afterChild:firstChild];
+    }
+    if (nextTF) {
+        return [[nextTF view] becomeFirstResponder];
+    }
+    return false;
 }
 
 -(NSDictionary*)selection
