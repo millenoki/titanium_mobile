@@ -122,7 +122,6 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		}
 
 		if (!dialogShowing) {
-			dialogShowing = true;
 			final ExceptionMessage fError = error;
 			application.waitForCurrentActivity(new CurrentActivityListener()
 			{
@@ -242,6 +241,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		AlertDialog dialog = builder.create();
 		dialog.setCanceledOnTouchOutside(false);
 		dialog.show();
+        dialogShowing = true;
 	}
 
 	protected static void reload(String sourceName)
